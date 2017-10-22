@@ -1,0 +1,39 @@
+{
+  "manifest_version": 2,
+  "name": "Scrum Helper Extension",
+  "version": "1.0",
+  "description": "This extension helps in writing Srums in google groups, particularly related to FOSSASIA. It converts a link to a github PR or an Issue to display the PR or the Issue's name along with the link to it.",
+  "browser_action": {
+    "default_popup": "popup.html",
+    "default_title" : "SCRUM Helper"
+  },
+  "applications": {
+      "gecko": {
+          "id": "tstream.h@outlook.com"
+      }
+  },
+  "icons": {
+   "96": "icons/icon.png",
+   "48": "icons/icon.png",
+
+ },
+  "background": {
+  "scripts": ["scripts/background.js"]
+  },
+  "content_scripts": [
+  {
+    "matches": ["*://groups.google.com/forum/*"],
+    "js": ["scripts/scrumHelper.js"]
+  }
+],
+  "content_security_policy": "script-src 'self' https://cdn.jsdelivr.net/; object-src 'self'",
+
+  "permissions":[
+    "http://*/*",
+    "tabs",
+    "https://*/*",
+    "storage",
+    "<all_urls>"
+  ]
+
+}
