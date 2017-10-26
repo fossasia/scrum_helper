@@ -1,13 +1,17 @@
 body{
   margin: 0;
   padding: 0;
+  background-color: rgba(251, 251, 251, 0.6);
+}
+html{
+  width: 340px;
+  height: 400px;
 }
 *{
   box-sizing: border-box;
 }
-
+.datepicker{
+  margin-bottom: 5px !important;
+}
 .container{
-  width: 360px;
-  height: 470px;
-  padding: 20px;
 }

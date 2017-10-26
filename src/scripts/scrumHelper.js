@@ -9,6 +9,10 @@ var nextWeekArray=[];
 var reviewedPrsArray=[];
 var githubIssuesData=null;
 var githubPrsReviewData=null;
+var githubPrsReviewDataRendered = {};
+var showOpenLabel=true;
+var enableToggle=true;
+var showClosedLabel=true;
 var pr_merged_button='<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #6f42c1;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--purple">closed</div>';
 var pr_unmerged_button='<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
 
@@ -16,9 +20,12 @@ var issue_closed_button='<div style="vertical-align:middle;display: inline-block
 var issue_opened_button='<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
 
 var linkStyle="";
-chrome.storage.local.get(["name","githubUsername","enableToggle","startingDate","endingDate"],function(items){
+chrome.storage.local.get(["name","githubUsername","enableToggle","startingDate","endingDate","showOpenLabel","showClosedLabel"],function(items){
     if(items.name){
         name= items.name;
+    }
+    if(!items.enableToggle){
+        enableToggle=items.enableToggle;
     }
     if(items.endingDate){
         endingDate= items.endingDate;
@@ -29,6 +36,16 @@ chrome.storage.local.get(["name","githubUsername","enableToggle","startingDate",
     if(items.githubUsername){
         githubUsername=items.githubUsername;
         fetchGithubIssuesData();
+    }
+    if(!items.showOpenLabel){
+        showOpenLabel=false;
+        pr_unmerged_button="";
+        issue_opened_button="";
+    }
+    if(!items.showClosedLabel){
+        showClosedLabel=false;
+        pr_merged_button="";
+        issue_closed_button="";
     }
 });
 
@@ -63,6 +80,8 @@ function fetchGithubIssuesData(){
 }
 //load initial text in scrum body
 function writeScrumBody(){
+    if(!enableToggle)
+    return;
     var lastWeekUl="<ul>";
     for(var i of lastWeekArray)
         lastWeekUl+=i;
@@ -85,6 +104,8 @@ function writeScrumBody(){
 
 //load initial scrum subject
 function scrumSubjectLoaded(){
+    if(!enableToggle)
+    return;
     var project = "SUSI.AI";
     var curDate = new Date();
     var year=curDate.getFullYear().toString();
@@ -102,10 +123,52 @@ function scrumSubjectLoaded(){
 
 // write PRs Reviewed
 function writeGithubPrsReviews(){
+    var githubPrsReviewDataProccessed={};
     var items=githubPrsReviewData.items;
     for(var item of items){
-        console.log(item);
+        console.log(item)
+        if(item.user.login == githubUsername || !item.pull_request) continue;
+        var repository_url=item.repository_url;
+        var project=repository_url.substr(repository_url.lastIndexOf("/")+1);
+        var title=item.title;
+        var number= item.number;
+        var html_url=item.html_url;
+        if(!githubPrsReviewDataProccessed[project]){// first pr in this repo
+            githubPrsReviewDataProccessed[project]=[];
+        }
+        var obj={
+            number:number,
+            html_url:html_url,
+            title:title
+        };
+        githubPrsReviewDataProccessed[project].push(obj);
     }
+    for(var repo in githubPrsReviewDataProccessed){
+        var repoLi="<li> \
+        <i>("+repo+")</i> - Reviewed ";
+        if(githubPrsReviewDataProccessed[repo].length>1)
+        repoLi+="PRs - ";
+        else {
+            repoLi+="PR - ";
+        }
+        var i=0;
+        for(var pr in githubPrsReviewDataProccessed[repo]){
+            console.log("PR:");
+            var pr_arr=githubPrsReviewDataProccessed[repo][pr];
+            console.log(pr_arr);
+            var prText="";
+            if(i!==0){
+                prText+=", ";
+            }
+            prText+="<a href='"+pr_arr.html_url+"' target='_blank'>#"+pr_arr.number+"</a>("+pr_arr.title+")";
+            repoLi+=prText;
+            i++;
+        }
+        repoLi+="</li>";
+        reviewedPrsArray.push(repoLi);
+    }
+    writeScrumBody();
+    console.log(githubPrsReviewDataProccessed)
 }
 //write issues and Prs from github
 function writeGithubIssuesPrs(){

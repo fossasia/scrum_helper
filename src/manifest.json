@@ -27,6 +27,7 @@
     "tabs",
     "https://*/*",
     "storage",
+    "activeTab",
     "<all_urls>"
   ]
 

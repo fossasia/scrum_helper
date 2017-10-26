@@ -10,6 +10,11 @@
 </head>
 <body>
 	<div class="container">
+		<h4 class="center">SCRUM Helper</h4>
+		<h6 class="center">
+			SCRUM helper prefills the Scrums in google groups, with your FOSSASIA's contributions.
+		</h6>
+		<br />
 		<div class="row center">
 			<div class="switch">
 				<label>
@@ -23,13 +28,14 @@
 		<br />
 		<div class="row">
 			<div class="input-field col s12">
-				<input placeholder="Enter your name to appear on scrum" id="name" type="text">
+				<input placeholder="Enter your name to appear on scrum subject" id="name" type="text">
 				<label for="first_name">Your Name</label>
 			</div>
 			<div class="input-field col s12">
-				<input placeholder="Enter your github username for better filtering of PR" id="githubUsername" type="text">
+				<input placeholder="Required for getting data from github" id="githubUsername" type="text">
 				<label for="githubUsername">Your Github Username</label>
 			</div>
+			<div class="col s12"><span>Fetch your contributions between:</span></div>
 			<div class="input-field col s6">
 				<input placeholder="2017-10-30" id="startingDate" type="text" class="datepicker">
 				<label for="startingDate">Starting Date</label>
@@ -38,13 +44,20 @@
 				<input placeholder="2017-11-06" id="endingDate" type="text" class="datepicker">
 				<label for="endingDate">Ending Date</label>
 			</div>
+			<div class="col s12"><span>Date should be in YYYY-MM-DD format</span></div>
 			<div class="col s12">
+				<br />
 				<input type="checkbox" class="filled-in" id="showOpenLabel" />
-				<label for="showClosedLabel">Show Open Label</label>
+				<label for="showOpenLabel">Show Open Label</label>
 			</div>
 			<div class="col s12">
 				<input type="checkbox" class="filled-in" id="showClosedLabel" />
-				<label for="showOpenLabel">Show Closed Label</label>
+				<label for="showClosedLabel">Show Closed Label</label>
+			</div>
+			<div class="col center s12">
+				<br /><br />
+				<button id="refresh" class="waves-effect waves-light btn refresh"><i class="fa fa-refresh" aria-hidden="true"></i> Refresh this page to apply changes</button>
+				<br />
 			</div>
 		</div>
 
