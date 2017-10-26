@@ -7,15 +7,9 @@
     "default_popup": "popup.html",
     "default_title" : "SCRUM Helper"
   },
-  "applications": {
-      "gecko": {
-          "id": "tstream.h@outlook.com"
-      }
-  },
   "icons": {
    "96": "icons/icon.png",
-   "48": "icons/icon.png",
-
+   "48": "icons/icon.png"
  },
   "background": {
   "scripts": ["scripts/background.js"]
@@ -23,10 +17,10 @@
   "content_scripts": [
   {
     "matches": ["*://groups.google.com/forum/*"],
-    "js": ["scripts/scrumHelper.js"]
+    "js": ["scripts/jquery-3.2.1.min.js","scripts/scrumHelper.js"]
   }
 ],
-  "content_security_policy": "script-src 'self' https://cdn.jsdelivr.net/; object-src 'self'",
+  "content_security_policy": "script-src 'self' https://cdn.jsdelivr.net/ https://api.github.com/; object-src 'self'",
 
   "permissions":[
     "http://*/*",

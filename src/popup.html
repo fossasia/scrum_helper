@@ -4,16 +4,60 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta http-equiv="X-UA-Compatible" content="ie=edge">
-	<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-	<link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet">
+	<link href="materialize/css/materialize.min.css" type="text/css" rel="stylesheet">
+	<link href="materialize/css/font-awesome.min.css" type="text/css" rel="stylesheet">
 	<link rel="stylesheet" type="text/css" href="index.css">
 </head>
 <body>
-	<div class="container" >
+	<div class="container">
+		<div class="row center">
+			<div class="switch">
+				<label>
+					Disable
+					<input type="checkbox" id="enable">
+					<span class="lever"></span>
+					Enable
+				</label>
+			</div>
+		</div>
+		<br />
+		<div class="row">
+			<div class="input-field col s12">
+				<input placeholder="Enter your name to appear on scrum" id="name" type="text">
+				<label for="first_name">Your Name</label>
+			</div>
+			<div class="input-field col s12">
+				<input placeholder="Enter your github username for better filtering of PR" id="githubUsername" type="text">
+				<label for="githubUsername">Your Github Username</label>
+			</div>
+			<div class="input-field col s6">
+				<input placeholder="2017-10-30" id="startingDate" type="text" class="datepicker">
+				<label for="startingDate">Starting Date</label>
+			</div>
+			<div class="input-field col s6">
+				<input placeholder="2017-11-06" id="endingDate" type="text" class="datepicker">
+				<label for="endingDate">Ending Date</label>
+			</div>
+			<div class="col s12">
+				<input type="checkbox" class="filled-in" id="showOpenLabel" />
+				<label for="showClosedLabel">Show Open Label</label>
+			</div>
+			<div class="col s12">
+				<input type="checkbox" class="filled-in" id="showClosedLabel" />
+				<label for="showOpenLabel">Show Closed Label</label>
+			</div>
+		</div>
 
+		<hr />
+		<footer>
+			<div class="center">
+				<a target="_blank" href="https://github.com/hkedia321/scrum_helper_extension"><h6><i class="fa fa-github" aria-hidden="true"></i> view code</h6></a>
+			</div>
+		</footer>
 	</div>
 	<script src="scripts/jquery-3.2.1.min.js"></script>
-	<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/kenwheeler/slick@1.8.0/slick/slick.min.js"></script>
+	<script type="text/javascript" type="text/javascript" src="materialize/js/materialize.min.js"></script>
+	<script src="scripts/initialize.js"></script>
 	<script src="scripts/main.js"></script>
 </body>
 </html>

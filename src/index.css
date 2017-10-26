@@ -1,13 +1,13 @@
 body{
   margin: 0;
   padding: 0;
-  font-family: 'Lato', sans-serif;
 }
 *{
   box-sizing: border-box;
 }
 
 .container{
-  width: 320px;
-  height: 450px;
+  width: 360px;
+  height: 470px;
+  padding: 20px;
 }
