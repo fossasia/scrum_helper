@@ -15,10 +15,12 @@ This chrome extension helps you to write scrums in google groups for FOSSASIA re
 ## Setting up the code locally
 
 ```
-$ git clone https://github.com/hkedia321/scrum_helper_extension
+$ git clone https://github.com/hkedia321/scrum_helper_extension/
 $ cd scrum_helper_extension
 $ npm install
-$ cd src
 ```
+## Screenshots
+![SCRUM](https://github.com/hkedia321/scrum_helper_extension/blob/master/src/docs/screenshots/scrum.png)
 
+![POPUP](https://github.com/hkedia321/scrum_helper_extension/blob/master/src/docs/screenshots/popup.png)
 
