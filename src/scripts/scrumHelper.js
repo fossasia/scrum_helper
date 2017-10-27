@@ -9,7 +9,7 @@ var nextWeekArray=[];
 var reviewedPrsArray=[];
 var githubIssuesData=null;
 var githubPrsReviewData=null;
-var githubPrsReviewDataRendered = {};
+var githubPrsReviewDataProccessed = {};
 var showOpenLabel=true;
 var enableToggle=true;
 var showClosedLabel=true;
@@ -92,6 +92,10 @@ function writeScrumBody(){
     var nextWeekUl="<ul>";
     for(var i of nextWeekArray)
         nextWeekUl+=i;
+    for(var i in githubPrsReviewDataProccessed){
+        console.log(i);
+        nextWeekUl+="<li><i>("+i+")</i> - Review more PRs </li>";
+    }
     nextWeekUl+="</ul>";
 
     scrumBody.innerHTML="<b>1. What did I do last week?</b>\
@@ -123,7 +127,6 @@ function scrumSubjectLoaded(){
 
 // write PRs Reviewed
 function writeGithubPrsReviews(){
-    var githubPrsReviewDataProccessed={};
     var items=githubPrsReviewData.items;
     for(var item of items){
         console.log(item)
