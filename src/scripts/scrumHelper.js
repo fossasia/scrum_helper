@@ -107,11 +107,19 @@ function writeScrumBody(){
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;No blocker at the moment</p>";
 }
 
+function getProject(){
+	var project="<project name>";
+	var url=window.location.href;
+	var projectUrl=url.substr(url.lastIndexOf("/")+1);
+	if(projectUrl==="susiai")
+		project="SUSI.AI";
+	return project;
+}
 //load initial scrum subject
 function scrumSubjectLoaded(){
 	if(!enableToggle)
 		return;
-	var project = "SUSI.AI";
+	var project = getProject();
 	var curDate = new Date();
 	var year=curDate.getFullYear().toString();
 	var date=curDate.getUTCDate();
@@ -229,20 +237,44 @@ function writeGithubIssuesPrs(){
 }
 //check for scrum body loaded
 var intervalBody = setInterval(function(){
-	var scrumBody1=document.getElementById("p-b-0");
-	if(scrumBody1){
+	var scrumBody0=document.getElementById("p-b-0");
+	var scrumBody1=document.getElementById("p-b-1");
+	var scrumBody2=document.getElementById("p-b-2");
+	if(scrumBody0){
 		clearInterval(intervalBody);
 		scrumBody=document.getElementById("p-b-0");
+		writeScrumBody();
+	}
+	if(scrumBody1){
+		clearInterval(intervalBody);
+		scrumBody=document.getElementById("p-b-1");
+		writeScrumBody();
+	}
+	if(scrumBody2){
+		clearInterval(intervalBody);
+		scrumBody=document.getElementById("p-b-2");
 		writeScrumBody();
 	}
 },1000);
 
 //check for subject loaded
 var intervalSubject = setInterval(function(){
-	var scrumSubject1=document.getElementById("p-s-0");
-	if(scrumSubject1){
+	var scrumSubject0=document.getElementById("p-s-0");
+	var scrumSubject1=document.getElementById("p-s-1");
+	var scrumSubject2=document.getElementById("p-s-2");
+	if(scrumSubject0){
 		clearInterval(intervalSubject);
 		scrumSubject=document.getElementById("p-s-0");
+		scrumSubjectLoaded();
+	}
+	else if(scrumSubject1){
+		clearInterval(intervalSubject);
+		scrumSubject=document.getElementById("p-s-1");
+		scrumSubjectLoaded();
+	}
+	else if(scrumSubject2){
+		clearInterval(intervalSubject);
+		scrumSubject=document.getElementById("p-s-2");
 		scrumSubjectLoaded();
 	}
 },1000);
