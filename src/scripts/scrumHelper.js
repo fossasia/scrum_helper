@@ -127,10 +127,8 @@ function getProject(){
 }
 //load initial scrum subject
 function scrumSubjectLoaded(){
-	if(!enableToggle)
-	  return;
-
-        var name = githubUserData.name || githubUsername;
+	if(!enableToggle) return;
+	var name = githubUserData.name || githubUsername;
 	var project = getProject();
 	var curDate = new Date();
 	var year=curDate.getFullYear().toString();
@@ -274,17 +272,17 @@ var intervalSubject = setInterval(function(){
 	var scrumSubject0=document.getElementById("p-s-0");
 	var scrumSubject1=document.getElementById("p-s-1");
 	var scrumSubject2=document.getElementById("p-s-2");
-	if(scrumSubject0){
+	if(scrumSubject0 && githubUserData){
 		clearInterval(intervalSubject);
 		scrumSubject=document.getElementById("p-s-0");
 		scrumSubjectLoaded();
 	}
-	else if(scrumSubject1){
+	else if(scrumSubject1 && githubUserData){
 		clearInterval(intervalSubject);
 		scrumSubject=document.getElementById("p-s-1");
 		scrumSubjectLoaded();
 	}
-	else if(scrumSubject2){
+	else if(scrumSubject2 && githubUserData){
 		clearInterval(intervalSubject);
 		scrumSubject=document.getElementById("p-s-2");
 		scrumSubjectLoaded();
