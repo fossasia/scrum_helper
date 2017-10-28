@@ -24,3 +24,7 @@ $ npm install
 
 ![POPUP](https://github.com/hkedia321/scrum_helper_extension/blob/master/src/docs/screenshots/popup.png)
 
+## About contributing
+- Follow the Issues and PRs templates as far as possible.
+- If you want to make a PR, please mention in the corresponding issue that you are working on it.
+- Please run `npm run test` locally to check for syntax errors before making a PR.

@@ -2,6 +2,7 @@
 var scrumBody = null;
 var scrumSubject = null;
 var userName;
+userName = "<your name>";
 var startingDate="";
 var endingDate="";
 var githubUsername="";
