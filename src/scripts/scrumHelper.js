@@ -122,7 +122,7 @@ function scrumSubjectLoaded(){
 	if(date<10)
 		date="0"+date;
 	var dateCode=year.toString()+month.toString()+date.toString();
-	scrumSubject.value = "[SCRUM] "+userName+" - "+project+" - "+dateCode+" - FALSE";
+	scrumSubject.value = "[Scrum] "+userName+" - "+project+" - "+dateCode+" - FALSE";
 }
 
 // write PRs Reviewed
@@ -155,16 +155,23 @@ function writeGithubPrsReviews(){
 		else {
 			repoLi+="PR - ";
 		}
-		i=0;
-		for(var pr in githubPrsReviewDataProccessed[repo]){
-			var pr_arr=githubPrsReviewDataProccessed[repo][pr];
-			var prText="";
-			if(i!==0){
-				prText+=", ";
+		if(githubPrsReviewDataProccessed[repo].length<=1){
+			for(var pr in githubPrsReviewDataProccessed[repo]){
+				var pr_arr=githubPrsReviewDataProccessed[repo][pr];
+				var prText="";
+				prText+="<a href='"+pr_arr.html_url+"' target='_blank'>#"+pr_arr.number+"</a> ("+pr_arr.title+")";
+				repoLi+=prText;
 			}
-			prText+="<a href='"+pr_arr.html_url+"' target='_blank'>#"+pr_arr.number+"</a>("+pr_arr.title+")";
-			repoLi+=prText;
-			i++;
+		}
+		else{
+			repoLi+="<ul>";
+			for(var pr1 in githubPrsReviewDataProccessed[repo]){
+				var pr_arr1=githubPrsReviewDataProccessed[repo][pr1];
+				var prText1="";
+				prText1+="<li><a href='"+pr_arr1.html_url+"' target='_blank'>#"+pr_arr1.number+"</a> ("+pr_arr1.title+")</li>";
+				repoLi+=prText1;
+			}
+			repoLi+="</ul>";
 		}
 		repoLi+="</li>";
 		reviewedPrsArray.push(repoLi);
@@ -187,15 +194,15 @@ function writeGithubIssuesPrs(){
 			// is a pull request
 			if(item.state==="closed"){
 				// is closed PR
-				li="<li><i>("+project+")</i> - Made PR(#"+number+") - <a href='"+html_url+"' style='"+linkStyle+"' target='_blank'>"+title+"</a> "+pr_merged_button+"&nbsp;&nbsp;</li>";
+				li="<li><i>("+project+")</i> - Made PR (#"+number+") - <a href='"+html_url+"' style='"+linkStyle+"' target='_blank'>"+title+"</a> "+pr_merged_button+"&nbsp;&nbsp;</li>";
 			}
 			else if(item.state==="open"){
 				// is open PR
-				li="<li><i>("+project+")</i> - Made PR(#"+number+") - <a href='"+html_url+"' target='_blank'>"+title+"</a> "+pr_unmerged_button+"&nbsp;&nbsp;</li>";
+				li="<li><i>("+project+")</i> - Made PR (#"+number+") - <a href='"+html_url+"' target='_blank'>"+title+"</a> "+pr_unmerged_button+"&nbsp;&nbsp;</li>";
 			}
 			else{
 				// else
-				li="<li><i>("+project+")</i> - Made PR(#"+number+") - <a href='"+html_url+"' target='_blank'>"+title+"</a> &nbsp;&nbsp;</li>";
+				li="<li><i>("+project+")</i> - Made PR (#"+number+") - <a href='"+html_url+"' target='_blank'>"+title+"</a> &nbsp;&nbsp;</li>";
 			}
 
 		}
