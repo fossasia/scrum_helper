@@ -1,8 +1,6 @@
 /* global $*/
 var scrumBody = null;
 var scrumSubject = null;
-var userName;
-userName = "<your name>";
 var startingDate="";
 var endingDate="";
 var githubUsername="";
@@ -11,6 +9,7 @@ var nextWeekArray=[];
 var reviewedPrsArray=[];
 var githubIssuesData=null;
 var githubPrsReviewData=null;
+var githubUserData=null;
 var githubPrsReviewDataProccessed = {};
 var showOpenLabel=true;
 var enableToggle=true;
@@ -22,10 +21,7 @@ var issue_closed_button="<div style=\"vertical-align:middle;display: inline-bloc
 var issue_opened_button="<div style=\"vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;\"  class=\"State State--green\">open</div>";
 
 var linkStyle="";
-chrome.storage.local.get(["name","githubUsername","enableToggle","startingDate","endingDate","showOpenLabel","showClosedLabel"],function(items){
-	if(items.name){
-		userName= items.name;
-	}
+chrome.storage.local.get(["githubUsername","enableToggle","startingDate","endingDate","showOpenLabel","showClosedLabel"],function(items){
 	if(!items.enableToggle){
 		enableToggle=items.enableToggle;
 	}
@@ -37,7 +33,7 @@ chrome.storage.local.get(["name","githubUsername","enableToggle","startingDate",
 	}
 	if(items.githubUsername){
 		githubUsername=items.githubUsername;
-		fetchGithubIssuesData();
+		fetchGithubData();
 	}
 	if(!items.showOpenLabel){
 		showOpenLabel=false;
@@ -52,12 +48,12 @@ chrome.storage.local.get(["name","githubUsername","enableToggle","startingDate",
 });
 
 // fetch github data
-function fetchGithubIssuesData(){
-	var url="https://api.github.com/search/issues?q=author%3A"+githubUsername+"+org%3Afossasia+created%3A"+startingDate+".."+endingDate;
+function fetchGithubData(){
+	var issueUrl="https://api.github.com/search/issues?q=author%3A"+githubUsername+"+org%3Afossasia+created%3A"+startingDate+".."+endingDate;
 	$.ajax({
 		dataType: "json",
 		type: "GET",
-		url: url,
+		url: issueUrl,
 		error: function(xhr,textStatus,errorThrown) {
 			// error
 		},
@@ -66,11 +62,11 @@ function fetchGithubIssuesData(){
 		}
 	});
 	// fetch github prs review data
-	url="https://api.github.com/search/issues?q=commenter%3A"+githubUsername+"+org%3Afossasia+updated%3A"+startingDate+".."+endingDate;
+	var prUrl="https://api.github.com/search/issues?q=commenter%3A"+githubUsername+"+org%3Afossasia+updated%3A"+startingDate+".."+endingDate;
 	$.ajax({
 		dataType: "json",
 		type: "GET",
-		url: url,
+		url: prUrl,
 		error: function(xhr,textStatus,errorThrown) {
 			// error
 		},
@@ -78,7 +74,21 @@ function fetchGithubIssuesData(){
 			githubPrsReviewData=data;
 		}
 	});
+	// fetch github user data
+	var userUrl="https://api.github.com/users/"+githubUsername;
+	$.ajax({
+		dataType: "json",
+		type: "GET",
+		url: userUrl,
+		error: function(xhr,textStatus,errorThrown) {
+			// error
+		},
+		success: function (data) {
+			githubUserData=data;
+		}
+	});
 }
+
 //load initial text in scrum body
 function writeScrumBody(){
 	if(!enableToggle)
@@ -118,7 +128,9 @@ function getProject(){
 //load initial scrum subject
 function scrumSubjectLoaded(){
 	if(!enableToggle)
-		return;
+	  return;
+
+        var name = githubUserData.name || githubUsername;
 	var project = getProject();
 	var curDate = new Date();
 	var year=curDate.getFullYear().toString();
@@ -130,7 +142,7 @@ function scrumSubjectLoaded(){
 	if(date<10)
 		date="0"+date;
 	var dateCode=year.toString()+month.toString()+date.toString();
-	scrumSubject.value = "[Scrum] "+userName+" - "+project+" - "+dateCode+" - FALSE";
+	scrumSubject.value = "[Scrum] "+name+" - "+project+" - "+dateCode+" - FALSE";
 }
 
 // write PRs Reviewed
