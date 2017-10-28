@@ -1,4 +1,3 @@
-var nameElement = document.getElementById("name");
 var enableToggleElement = document.getElementById("enable");
 var githubUsernameElement = document.getElementById("githubUsername");
 var startingDateElement = document.getElementById("startingDate");
@@ -7,36 +6,31 @@ var showOpenLabelElement = document.getElementById("showOpenLabel");
 var showClosedLabelElement = document.getElementById("showClosedLabel");
 
 function handleBodyOnLoad(){
-	// prefill name
-	chrome.storage.local.get(["name","githubUsername","enableToggle","startingDate","endingDate","showOpenLabel","showClosedLabel"],function(items){
-		if(items.name){
-			var value = items.name;
-			nameElement.value=value;
-		}
-		if(items.githubUsername){
-			githubUsernameElement.value=items.githubUsername;
-		}
-		if(items.enableToggle){
-			enableToggleElement.checked=items.enableToggle;
-		}
-		if(items.endingDate){
-			endingDateElement.value = items.endingDate;
-		}
-		if(items.startingDate){
-			startingDateElement.value = items.startingDate;
-		}
-		if(items.showOpenLabel){
-			showOpenLabelElement.checked= items.showOpenLabel;
-		}
-		if(items.showClosedLabel){
-			showClosedLabelElement.checked= items.showClosedLabel;
-		}
-	});
+    // prefill name
+    chrome.storage.local.get(["githubUsername","enableToggle","startingDate","endingDate","showOpenLabel","showClosedLabel"],function(items){
+        if(items.githubUsername){
+            var value = items.githubUsername;
+            githubUsernameElement.value=value;
+        }
+        if(items.enableToggle){
+            var value = items.enableToggle;
+            enableToggleElement.checked=value;
+        }
+        if(items.endingDate){
+            endingDateElement.value = items.endingDate;
+        }
+        if(items.startingDate){
+            startingDateElement.value = items.startingDate;
+        }
+        if(items.showOpenLabel){
+            showOpenLabelElement.checked= items.showOpenLabel;
+        }
+        if(items.showClosedLabel){
+            showClosedLabelElement.checked= items.showClosedLabel;
+        }
+    });
 }
-function handleNameChange(){
-	var value = nameElement.value;
-	chrome.storage.local.set({"name": value});
-}
+
 function handleEnableChange(){
 	var value = enableToggleElement.checked;
 	chrome.storage.local.set({"enableToggle": value});
@@ -67,7 +61,6 @@ function handleRefresh(){
 		code: "document.location.reload()"
 	});
 }
-nameElement.addEventListener("keyup", handleNameChange);
 enableToggleElement.addEventListener("change", handleEnableChange);
 githubUsernameElement.addEventListener("keyup", handleGithubUsernameChange);
 startingDateElement.addEventListener("keyup", handleStartingDateChange);
