@@ -8,9 +8,9 @@ This chrome extension helps you to write scrums in google groups for FOSSASIA re
 3. Turn on developer mode if not already on.
 4. Load unpacked extension from `src` folder.
 5. Click on the Scrum Helper icon you see on your browser toolbar.
-6. Fill in the settings in the popup
-7. Open https://groups.google.com/forum/#!newtopic/<groupname>
-8. Refresh the page for new settings to reflect
+6. Fill in the settings in the popup.
+7. Open https://groups.google.com/forum/#!newtopic/<groupname>.
+8. Refresh the page for new settings to reflect.
 ```
 ## Setting up the code locally
 
