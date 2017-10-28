@@ -20,7 +20,7 @@
     "js": ["scripts/jquery-3.2.1.min.js","scripts/scrumHelper.js"]
   }
 ],
-  "content_security_policy": "script-src 'self' https://cdn.jsdelivr.net/ https://api.github.com/; object-src 'self'",
+  "content_security_policy": "script-src 'self' https://cdn.jsdelivr.net/ https://api.github.com/ https://use.fontawesome.com/; object-src 'self'",
 
   "permissions":[
     "http://*/*",
