@@ -36,7 +36,8 @@ function handleBodyOnLoad(){
     });
 }
 function handleNameChange(){
-    var value = nameElement.value;
+    var username = githubUsernameElement.value;
+    var value = fetchGithubUserData(username);
     chrome.storage.local.set({'name': value});
 }
 function handleEnableChange(){
@@ -69,6 +70,22 @@ function handleRefresh(){
     code: 'document.location.reload()'
   });
 }
+
+function fetchGithubUserData(username) {
+  var url="https://api.github.com/users/"+username;
+  $.ajax({
+    dataType: "json",
+    type: "GET",
+    url: url,
+    error: function(xhr,textStatus,errorThrown) {
+      console.log(textStatus);
+    },
+    success: function (data) {
+      return data.username;
+    }
+  });
+}
+
 nameElement.addEventListener("keyup", handleNameChange);
 enableToggleElement.addEventListener("change", handleEnableChange);
 githubUsernameElement.addEventListener("keyup", handleGithubUsernameChange);
