@@ -13,6 +13,7 @@ var githubPrsReviewDataProccessed = {};
 var showOpenLabel=true;
 var enableToggle=true;
 var showClosedLabel=true;
+var userReason="";
 var pr_merged_button='<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #6f42c1;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--purple">closed</div>';
 var pr_unmerged_button='<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
 
@@ -20,7 +21,7 @@ var issue_closed_button='<div style="vertical-align:middle;display: inline-block
 var issue_opened_button='<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
 
 var linkStyle="";
-chrome.storage.local.get(["name","githubUsername","enableToggle","startingDate","endingDate","showOpenLabel","showClosedLabel"],function(items){
+chrome.storage.local.get(["name","githubUsername","enableToggle","startingDate","endingDate","showOpenLabel","showClosedLabel","UserReason"],function(items){
     if(items.name){
         name= items.name;
     }
@@ -46,6 +47,12 @@ chrome.storage.local.get(["name","githubUsername","enableToggle","startingDate",
         showClosedLabel=false;
         pr_merged_button="";
         issue_closed_button="";
+    }
+    if(items.UserReason){
+      userReason=items.UserReason;
+    }
+    if(!items.UserReason){
+      userReason="No Blocker at the moment";
     }
 });
 
@@ -103,7 +110,7 @@ function writeScrumBody(){
     <b>2. What I plan to do this week?</b>\
     <br>"+nextWeekUl+"<br><br>\
     <b>3. What is stopping me from doing my work?</b>\
-    <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;No blocker at the moment</p>";
+    <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+userReason+"</p>";
 }
 
 //load initial scrum subject
