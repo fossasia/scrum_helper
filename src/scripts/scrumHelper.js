@@ -58,7 +58,7 @@ chrome.storage.local.get(["githubUsername","enableToggle","startingDate","ending
 
 // fetch github data
 function fetchGithubData(){
-	var issueUrl="https://api.github.com/search/issues?q=author%3A"+githubUsername+"+org%3Afossasia+created%3A"+startingDate+".."+endingDate;
+	var issueUrl="https://api.github.com/search/issues?q=author%3A"+githubUsername+"+org%3Afossasia+created%3A"+startingDate+".."+endingDate+"&per_page=100";
 	$.ajax({
 		dataType: "json",
 		type: "GET",
@@ -71,7 +71,7 @@ function fetchGithubData(){
 		}
 	});
 	// fetch github prs review data
-	var prUrl="https://api.github.com/search/issues?q=commenter%3A"+githubUsername+"+org%3Afossasia+updated%3A"+startingDate+".."+endingDate;
+	var prUrl="https://api.github.com/search/issues?q=commenter%3A"+githubUsername+"+org%3Afossasia+updated%3A"+startingDate+".."+endingDate+"&per_page=100";
 	$.ajax({
 		dataType: "json",
 		type: "GET",
@@ -170,7 +170,8 @@ function writeGithubPrsReviews(){
 		var obj={
 			number:number,
 			html_url:html_url,
-			title:title
+			title:title,
+			state:item.state
 		};
 		githubPrsReviewDataProccessed[project].push(obj);
 	}
@@ -186,7 +187,12 @@ function writeGithubPrsReviews(){
 			for(var pr in githubPrsReviewDataProccessed[repo]){
 				var pr_arr=githubPrsReviewDataProccessed[repo][pr];
 				var prText="";
-				prText+="<a href='"+pr_arr.html_url+"' target='_blank'>#"+pr_arr.number+"</a> ("+pr_arr.title+")";
+				prText+="<a href='"+pr_arr.html_url+"' target='_blank'>#"+pr_arr.number+"</a> ("+pr_arr.title+") ";
+				if(pr_arr.state==="open")
+					prText+=issue_opened_button;
+				else
+					prText+=issue_closed_button;
+				prText+="&nbsp;&nbsp;";
 				repoLi+=prText;
 			}
 		}
@@ -195,7 +201,12 @@ function writeGithubPrsReviews(){
 			for(var pr1 in githubPrsReviewDataProccessed[repo]){
 				var pr_arr1=githubPrsReviewDataProccessed[repo][pr1];
 				var prText1="";
-				prText1+="<li><a href='"+pr_arr1.html_url+"' target='_blank'>#"+pr_arr1.number+"</a> ("+pr_arr1.title+")</li>";
+				prText1+="<li><a href='"+pr_arr1.html_url+"' target='_blank'>#"+pr_arr1.number+"</a> ("+pr_arr1.title+") ";
+				if(pr_arr1.state==="open")
+					prText1+=issue_opened_button;
+				else
+					prText1+=issue_closed_button;
+				prText1+="&nbsp;&nbsp;</li>";
 				repoLi+=prText1;
 			}
 			repoLi+="</ul>";

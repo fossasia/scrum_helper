@@ -1,5 +1,7 @@
+/* global $,Materialize*/
 var enableToggleElement = document.getElementById("enable");
 var githubUsernameElement = document.getElementById("githubUsername");
+var lastWeekContributionElement=document.getElementById("lastWeekContribution");
 var startingDateElement = document.getElementById("startingDate");
 var endingDateElement = document.getElementById("endingDate");
 var showOpenLabelElement = document.getElementById("showOpenLabel");
@@ -8,7 +10,7 @@ var userReasonElement = document.getElementById("userReason");
 
 function handleBodyOnLoad(){
 	// prefill name
-	chrome.storage.local.get(["githubUsername","enableToggle","startingDate","endingDate","showOpenLabel","showClosedLabel","userReason"],function(items){
+	chrome.storage.local.get(["githubUsername","enableToggle","startingDate","endingDate","showOpenLabel","showClosedLabel","userReason","lastWeekContribution"],function(items){
 		if(items.githubUsername){
 			githubUsernameElement.value=items.githubUsername;
 		}
@@ -42,6 +44,14 @@ function handleBodyOnLoad(){
 		if(items.userReason){
 			userReasonElement.value = items.userReason;
 		}
+		if(items.lastWeekContribution){
+			lastWeekContributionElement.checked=items.lastWeekContribution;
+			handleLastWeekContributionChange();
+		}
+		else if(items.lastWeekContribution!==false){
+			lastWeekContributionElement.checked=true;
+			handleLastWeekContributionChange();
+		}
 	});
 }
 function handleEnableChange(){
@@ -56,6 +66,42 @@ function handleEndingDateChange(){
 	var value = endingDateElement.value;
 	chrome.storage.local.set({"endingDate": value});
 }
+function handleLastWeekContributionChange(){
+	var value = lastWeekContributionElement.checked;
+	if(value){
+		startingDateElement.disabled=true;
+		endingDateElement.disabled=true;
+		endingDateElement.value=getToday();
+		startingDateElement.value=getLastWeek();
+		handleEndingDateChange();
+		handleStartingDateChange();
+	}
+	else{
+		startingDateElement.disabled=false;
+		endingDateElement.disabled=false;
+	}
+	chrome.storage.local.set({"lastWeekContribution": value});
+}
+function getLastWeek(){
+	var today = new Date();
+	var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
+	var lastWeekMonth = lastWeek.getMonth() + 1;
+	var lastWeekDay = lastWeek.getDate();
+	var lastWeekYear = lastWeek.getFullYear();
+	var lastWeekDisplayPadded =("0000" + lastWeekYear .toString()).slice(-4) +"-" + ("00" + lastWeekMonth.toString()).slice(-2)+ "-" + ("00" + lastWeekDay .toString()).slice(-2);
+	return lastWeekDisplayPadded;
+}
+function getToday(){
+	var today = new Date();
+	var Week = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+	var WeekMonth = Week.getMonth() + 1;
+	var WeekDay = Week.getDate();
+	var WeekYear = Week.getFullYear();
+	var WeekDisplayPadded =("0000" + WeekYear .toString()).slice(-4) +"-" + ("00" + WeekMonth.toString()).slice(-2)+ "-" + ("00" + WeekDay .toString()).slice(-2);
+	return WeekDisplayPadded;
+}
+
+
 function handleGithubUsernameChange(){
 	var value = githubUsernameElement.value;
 	chrome.storage.local.set({"githubUsername": value});
@@ -82,6 +128,7 @@ enableToggleElement.addEventListener("change", handleEnableChange);
 githubUsernameElement.addEventListener("keyup", handleGithubUsernameChange);
 startingDateElement.addEventListener("keyup", handleStartingDateChange);
 endingDateElement.addEventListener("keyup", handleEndingDateChange);
+lastWeekContributionElement.addEventListener("change", handleLastWeekContributionChange);
 showOpenLabelElement.addEventListener("change", handleOpenLabelChange);
 showClosedLabelElement.addEventListener("change", handleClosedLabelChange);
 userReasonElement.addEventListener("keyup", handleUserReasonChange);

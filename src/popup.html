@@ -31,13 +31,17 @@
 				<input placeholder="Required for getting data from github" id="githubUsername" type="text">
 				<label for="githubUsername">Your Github Username</label>
 			</div>
-			<div class="col s12"><span>Fetch your contributions between:</span></div>
+			<div class="col s12"><span>Fetch your contributions between:</span>
+				<input type="checkbox" class="filled-in" id="lastWeekContribution"/>
+				<label for="lastWeekContribution">Show past 7 days from today</label>
+			</div>
+
 			<div class="input-field col s6">
-				<input placeholder="2017-10-30" id="startingDate" type="text" class="datepicker">
+				<input id="startingDate" type="text" class="datepicker" placeholder=" ">
 				<label for="startingDate">Starting Date</label>
 			</div>
 			<div class="input-field col s6">
-				<input placeholder="2017-11-06" id="endingDate" type="text" class="datepicker">
+				<input id="endingDate" type="text" class="datepicker" placeholder=" ">
 				<label for="endingDate">Ending Date</label>
 			</div>
 			<div class="col s12"><span>Date should be in YYYY-MM-DD format</span></div>
