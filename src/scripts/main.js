@@ -4,10 +4,11 @@ var startingDateElement = document.getElementById("startingDate");
 var endingDateElement = document.getElementById("endingDate");
 var showOpenLabelElement = document.getElementById("showOpenLabel");
 var showClosedLabelElement = document.getElementById("showClosedLabel");
+var userReasonElement = document.getElementById("userReason");
 
 function handleBodyOnLoad(){
 	// prefill name
-	chrome.storage.local.get(["githubUsername","enableToggle","startingDate","endingDate","showOpenLabel","showClosedLabel"],function(items){
+	chrome.storage.local.get(["githubUsername","enableToggle","startingDate","endingDate","showOpenLabel","showClosedLabel","userReason"],function(items){
 		if(items.githubUsername){
 			githubUsernameElement.value=items.githubUsername;
 		}
@@ -25,6 +26,9 @@ function handleBodyOnLoad(){
 		}
 		if(items.showClosedLabel){
 			showClosedLabelElement.checked= items.showClosedLabel;
+		}
+		if(items.userReason){
+			userReasonElement.value = items.userReason;
 		}
 	});
 }
@@ -52,6 +56,10 @@ function handleClosedLabelChange(){
 	var value = showClosedLabelElement.checked;
 	chrome.storage.local.set({"showClosedLabel": value});
 }
+function handleUserReasonChange(){
+	var value = userReasonElement.value;
+	chrome.storage.local.set({"userReason": value});
+}
 function handleRefresh(){
 	window.close();
 	chrome.tabs.executeScript({
@@ -64,5 +72,6 @@ startingDateElement.addEventListener("keyup", handleStartingDateChange);
 endingDateElement.addEventListener("keyup", handleEndingDateChange);
 showOpenLabelElement.addEventListener("change", handleOpenLabelChange);
 showClosedLabelElement.addEventListener("change", handleClosedLabelChange);
+userReasonElement.addEventListener("keyup", handleUserReasonChange);
 document.getElementById("refresh").addEventListener("click",handleRefresh);
 document.addEventListener("DOMContentLoaded", handleBodyOnLoad);

@@ -24,7 +24,7 @@ var issue_opened_button="<div style=\"vertical-align:middle;display: inline-bloc
 
 var linkStyle="";
 
-chrome.storage.local.get(["githubUsername","enableToggle","startingDate","endingDate","showOpenLabel","showClosedLabel","UserReason"],function(items){
+chrome.storage.local.get(["githubUsername","enableToggle","startingDate","endingDate","showOpenLabel","showClosedLabel","userReason"],function(items){
 	if(!items.enableToggle){
 		enableToggle=items.enableToggle;
 	}
@@ -48,10 +48,10 @@ chrome.storage.local.get(["githubUsername","enableToggle","startingDate","ending
 		pr_merged_button="";
 		issue_closed_button="";
 	}
-	if(items.UserReason){
-		userReason=items.UserReason;
+	if(items.userReason){
+		userReason=items.userReason;
 	}
-	if(!items.UserReason){
+	if(!items.userReason){
 		userReason="No Blocker at the moment";
 	}
 });
