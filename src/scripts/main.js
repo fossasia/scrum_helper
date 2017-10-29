@@ -15,6 +15,10 @@ function handleBodyOnLoad(){
 		if(items.enableToggle){
 			enableToggleElement.checked=items.enableToggle;
 		}
+		else if(items.enableToggle!==false){// undefined
+			enableToggleElement.checked=true;
+			handleEnableChange();
+		}
 		if(items.endingDate){
 			endingDateElement.value = items.endingDate;
 		}
@@ -24,8 +28,16 @@ function handleBodyOnLoad(){
 		if(items.showOpenLabel){
 			showOpenLabelElement.checked= items.showOpenLabel;
 		}
+		else if(items.showOpenLabel!==false){// undefined
+			showOpenLabelElement.checked=true;
+			handleOpenLabelChange();
+		}
 		if(items.showClosedLabel){
 			showClosedLabelElement.checked= items.showClosedLabel;
+		}
+		else if(items.showClosedLabel!==false){
+			showClosedLabelElement.checked=true;
+			handleClosedLabelChange();
 		}
 		if(items.userReason){
 			userReasonElement.value = items.userReason;
