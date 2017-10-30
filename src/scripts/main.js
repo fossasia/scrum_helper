@@ -119,10 +119,9 @@ function handleUserReasonChange(){
 	chrome.storage.local.set({"userReason": value});
 }
 function handleRefresh(){
-	window.onbeforeunload = null;
 	window.close();
 	chrome.tabs.executeScript({
-		code: "document.location.reload()"
+		code: "console.log('herrree');window.onbeforeunload = null;document.location.reload()"
 	});
 }
 enableToggleElement.addEventListener("change", handleEnableChange);

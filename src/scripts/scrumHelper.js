@@ -102,28 +102,30 @@ function fetchGithubData(){
 function writeScrumBody(){
 	if(!enableToggle)
 		return;
-	var lastWeekUl="<ul>";
-	var i;
-	for(i =0;i<lastWeekArray.length;i++)
-		lastWeekUl+=lastWeekArray[i];
-	for(i =0;i<reviewedPrsArray.length;i++)
-		lastWeekUl+=reviewedPrsArray[i];
-	lastWeekUl+="</ul>";
+	setTimeout(function(){ //to apply this after google has autofilled
+		var lastWeekUl="<ul>";
+		var i;
+		for(i =0;i<lastWeekArray.length;i++)
+			lastWeekUl+=lastWeekArray[i];
+		for(i =0;i<reviewedPrsArray.length;i++)
+			lastWeekUl+=reviewedPrsArray[i];
+		lastWeekUl+="</ul>";
 
-	var nextWeekUl="<ul>";
-	for(i =0;i<nextWeekArray.length;i++)
-		nextWeekUl+=nextWeekArray[i];
-	for(i in githubPrsReviewDataProccessed){
-		nextWeekUl+="<li><i>("+i+")</i> - Review more PRs </li>";
-	}
-	nextWeekUl+="</ul>";
+		var nextWeekUl="<ul>";
+		for(i =0;i<nextWeekArray.length;i++)
+			nextWeekUl+=nextWeekArray[i];
+		for(i in githubPrsReviewDataProccessed){
+			nextWeekUl+="<li><i>("+i+")</i> - Review more PRs </li>";
+		}
+		nextWeekUl+="</ul>";
 
-	scrumBody.innerHTML="<b>1. What did I do last week?</b>\
-    <br>"+lastWeekUl+"<br><br>\
+		scrumBody.innerHTML="<b>1. What did I do last week?</b>\
+	<br>"+lastWeekUl+"<br><br>\
     <b>2. What I plan to do this week?</b>\
     <br>"+nextWeekUl+"<br><br>\
     <b>3. What is stopping me from doing my work?</b>\
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+userReason+"</p>";
+	},2000);
 }
 
 function getProject(){
@@ -137,19 +139,21 @@ function getProject(){
 //load initial scrum subject
 function scrumSubjectLoaded(){
 	if(!enableToggle) return;
-	var name = githubUserData.name || githubUsername;
-	var project = getProject();
-	var curDate = new Date();
-	var year=curDate.getFullYear().toString();
-	var date=curDate.getUTCDate();
-	var month=curDate.getMonth();
-	month++;
-	if(month<10)
-		month="0"+month;
-	if(date<10)
-		date="0"+date;
-	var dateCode=year.toString()+month.toString()+date.toString();
-	scrumSubject.value = "[Scrum] "+name+" - "+project+" - "+dateCode+" - False";
+	setTimeout(function(){ //to apply this after google has autofilled
+		var name = githubUserData.name || githubUsername;
+		var project = getProject();
+		var curDate = new Date();
+		var year=curDate.getFullYear().toString();
+		var date=curDate.getUTCDate();
+		var month=curDate.getMonth();
+		month++;
+		if(month<10)
+			month="0"+month;
+		if(date<10)
+			date="0"+date;
+		var dateCode=year.toString()+month.toString()+date.toString();
+		scrumSubject.value = "[Scrum] "+name+" - "+project+" - "+dateCode+" - False";
+	},2000);
 }
 
 // write PRs Reviewed
