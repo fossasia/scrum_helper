@@ -119,7 +119,7 @@ function handleUserReasonChange(){
 	chrome.storage.local.set({"userReason": value});
 }
 function handleRefresh(){
-    window.onbeforeunload = null;
+	window.onbeforeunload = null;
 	window.close();
 	chrome.tabs.executeScript({
 		code: "document.location.reload()"
