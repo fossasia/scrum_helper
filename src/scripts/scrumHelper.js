@@ -119,9 +119,9 @@ function writeScrumBody(){
 		}
 		nextWeekUl+="</ul>";
 
-		scrumBody.innerHTML="<b>1. What did I do last week?</b>\
+		scrumBody.innerHTML="<b>1. What did I do yesterday?</b>\
 	<br>"+lastWeekUl+"<br><br>\
-    <b>2. What I plan to do this week?</b>\
+    <b>2. What I plan to do today?</b>\
     <br>"+nextWeekUl+"<br><br>\
     <b>3. What is stopping me from doing my work?</b>\
     <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+userReason+"</p>";
