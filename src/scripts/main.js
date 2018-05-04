@@ -7,10 +7,10 @@ var endingDateElement = document.getElementById("endingDate");
 var showOpenLabelElement = document.getElementById("showOpenLabel");
 var showClosedLabelElement = document.getElementById("showClosedLabel");
 var userReasonElement = document.getElementById("userReason");
-
+var gsoc = 0;//0 means gsoc. 1 means gsoc
 function handleBodyOnLoad(){
 	// prefill name
-	chrome.storage.local.get(["githubUsername","enableToggle","startingDate","endingDate","showOpenLabel","showClosedLabel","userReason","lastWeekContribution"],function(items){
+	chrome.storage.local.get(["githubUsername","enableToggle","startingDate","endingDate","showOpenLabel","showClosedLabel","userReason","lastWeekContribution","gsoc"],function(items){
 		if(items.githubUsername){
 			githubUsernameElement.value=items.githubUsername;
 		}
@@ -52,6 +52,12 @@ function handleBodyOnLoad(){
 			lastWeekContributionElement.checked=true;
 			handleLastWeekContributionChange();
 		}
+		if(items.gsoc==1){
+			handleGsocClick();
+		}
+		else{
+			handleCodeheatClick();
+		}
 	});
 }
 function handleEnableChange(){
@@ -66,7 +72,7 @@ function handleEndingDateChange(){
 	var value = endingDateElement.value;
 	chrome.storage.local.set({"endingDate": value});
 }
-function handleLastWeekContributionChange(){
+function handleLastWeekContributionChange(keepPreviousValue=false){
 	var value = lastWeekContributionElement.checked;
 	if(value){
 		startingDateElement.disabled=true;
@@ -84,7 +90,8 @@ function handleLastWeekContributionChange(){
 }
 function getLastWeek(){
 	var today = new Date();
-	var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
+	var noDays_to_goback=gsoc==0?7:1;
+	var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - noDays_to_goback);
 	var lastWeekMonth = lastWeek.getMonth() + 1;
 	var lastWeekDay = lastWeek.getDate();
 	var lastWeekYear = lastWeek.getFullYear();
@@ -118,11 +125,21 @@ function handleUserReasonChange(){
 	var value = userReasonElement.value;
 	chrome.storage.local.set({"userReason": value});
 }
-function handleRefresh(){
-	window.close();
-	chrome.tabs.executeScript({
-		code: "console.log('herrree');window.onbeforeunload = null;document.location.reload()"
-	});
+function handleCodeheatClick(){
+	gsoc=0;
+	$("#codeheatTab").addClass("active");
+	$('.tabs').tabs();
+	$("#noDays").text("7 days");
+	chrome.storage.local.set({"gsoc": 0});
+	handleLastWeekContributionChange();
+}
+function handleGsocClick(){
+	gsoc=1;
+	$("#gsocTab").addClass("active");
+	$('.tabs').tabs();
+	$("#noDays").text("1 day");
+	chrome.storage.local.set({"gsoc": 1});
+	handleLastWeekContributionChange();
 }
 enableToggleElement.addEventListener("change", handleEnableChange);
 githubUsernameElement.addEventListener("keyup", handleGithubUsernameChange);
@@ -132,5 +149,10 @@ lastWeekContributionElement.addEventListener("change", handleLastWeekContributio
 showOpenLabelElement.addEventListener("change", handleOpenLabelChange);
 showClosedLabelElement.addEventListener("change", handleClosedLabelChange);
 userReasonElement.addEventListener("keyup", handleUserReasonChange);
-document.getElementById("refresh").addEventListener("click",handleRefresh);
 document.addEventListener("DOMContentLoaded", handleBodyOnLoad);
+document.getElementById("codeheatTab").addEventListener("click",handleCodeheatClick);
+document.getElementById("gsocTab").addEventListener("click",handleGsocClick);
+chrome.runtime.onMessage.addListener(
+  function(request, sender, sendResponse) {
+    chrome.notifications.create("Updated SCRUM!");
+  });

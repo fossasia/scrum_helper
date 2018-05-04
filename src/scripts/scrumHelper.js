@@ -1,20 +1,23 @@
-/* global $*/
-var scrumBody = null;
-var scrumSubject = null;
-var startingDate="";
-var endingDate="";
-var githubUsername="";
-var lastWeekArray=[];
-var nextWeekArray=[];
-var reviewedPrsArray=[];
-var githubIssuesData=null;
-var githubPrsReviewData=null;
-var githubUserData=null;
-var githubPrsReviewDataProccessed = {};
-var showOpenLabel=true;
-var enableToggle=true;
-var showClosedLabel=true;
-var userReason="";
+var refreshButton_Placed=false;
+function allIncluded(){
+	/* global $*/
+	var scrumBody = null;
+	var scrumSubject = null;
+	var startingDate="";
+	var endingDate="";
+	var githubUsername="";
+	var lastWeekArray=[];
+	var nextWeekArray=[];
+	var reviewedPrsArray=[];
+	var githubIssuesData=null;
+	var githubPrsReviewData=null;
+	var githubUserData=null;
+	var githubPrsReviewDataProccessed = {};
+	var showOpenLabel=true;
+	var enableToggle=true;
+	var showClosedLabel=true;
+	var userReason="";
+var gsoc = 0;//0 means codeheat. 1 means gsoc
 
 var pr_merged_button="<div style=\"vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #6f42c1;border-radius: 3px;line-height: 12px;margin-bottom: 2px;\" class=\"State State--purple\">closed</div>";
 var pr_unmerged_button="<div style=\"vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;\"  class=\"State State--green\">open</div>";
@@ -23,41 +26,51 @@ var issue_closed_button="<div style=\"vertical-align:middle;display: inline-bloc
 var issue_opened_button="<div style=\"vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;\"  class=\"State State--green\">open</div>";
 
 var linkStyle="";
+function getChromeData(){
+	chrome.storage.local.get(["githubUsername","enableToggle","startingDate","endingDate","showOpenLabel","showClosedLabel","userReason","gsoc"],function(items){
+		if(!items.enableToggle){
+			enableToggle=items.enableToggle;
 
-chrome.storage.local.get(["githubUsername","enableToggle","startingDate","endingDate","showOpenLabel","showClosedLabel","userReason"],function(items){
-	if(!items.enableToggle){
-		enableToggle=items.enableToggle;
+		}
+		if(items.endingDate){
+			endingDate= items.endingDate;
+		}
+		if(items.startingDate){
+			startingDate= items.startingDate;
+		}
+		if(items.githubUsername){
+			githubUsername=items.githubUsername;
+			fetchGithubData();
+		}
+		if(!items.showOpenLabel){
+			showOpenLabel=false;
+			pr_unmerged_button="";
+			issue_opened_button="";
+		}
+		if(!items.showClosedLabel){
+			showClosedLabel=false;
+			pr_merged_button="";
+			issue_closed_button="";
+		}
+		if(items.userReason){
+			userReason=items.userReason;
+		}
+		if(!items.userReason){
+			userReason="No Blocker at the moment";
+		}
+	if(items.gsoc){//gsoc
+		gsoc=1;
 	}
-	if(items.endingDate){
-		endingDate= items.endingDate;
-	}
-	if(items.startingDate){
-		startingDate= items.startingDate;
-	}
-	if(items.githubUsername){
-		githubUsername=items.githubUsername;
-		fetchGithubData();
-	}
-	if(!items.showOpenLabel){
-		showOpenLabel=false;
-		pr_unmerged_button="";
-		issue_opened_button="";
-	}
-	if(!items.showClosedLabel){
-		showClosedLabel=false;
-		pr_merged_button="";
-		issue_closed_button="";
-	}
-	if(items.userReason){
-		userReason=items.userReason;
-	}
-	if(!items.userReason){
-		userReason="No Blocker at the moment";
+	else{
+		gsoc=0;//codeheat
 	}
 });
-
+}
+getChromeData();
 // fetch github data
 function fetchGithubData(){
+	console.log(startingDate);
+	console.log(endingDate);
 	var issueUrl="https://api.github.com/search/issues?q=author%3A"+githubUsername+"+org%3Afossasia+created%3A"+startingDate+".."+endingDate+"&per_page=100";
 	$.ajax({
 		dataType: "json",
@@ -118,14 +131,15 @@ function writeScrumBody(){
 			nextWeekUl+="<li><i>("+i+")</i> - Review more PRs </li>";
 		}
 		nextWeekUl+="</ul>";
-
-		scrumBody.innerHTML="<b>1. What did I do last week?</b>\
-	<br>"+lastWeekUl+"<br><br>\
-    <b>2. What I plan to do this week?</b>\
-    <br>"+nextWeekUl+"<br><br>\
-    <b>3. What is stopping me from doing my work?</b>\
-    <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+userReason+"</p>";
-	},2000);
+		var weekOrDay = gsoc==1?"yesterday":"last week";
+		var weekOrDay2= gsoc==1?"today":"this week";
+		scrumBody.innerHTML="<b>1. What did I do "+weekOrDay+"?</b>\
+		<br>"+lastWeekUl+"<br><br>\
+		<b>2. What I plan to do "+weekOrDay2+"?</b>\
+		<br>"+nextWeekUl+"<br><br>\
+		<b>3. What is stopping me from doing my work?</b>\
+		<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+userReason+"</p>";
+	});
 }
 
 function getProject(){
@@ -134,6 +148,8 @@ function getProject(){
 	var projectUrl=url.substr(url.lastIndexOf("/")+1);
 	if(projectUrl==="susiai")
 		project="SUSI.AI";
+	else if(projectUrl==="open-event")
+		project="Badgeyay";
 	return project;
 }
 //load initial scrum subject
@@ -144,7 +160,7 @@ function scrumSubjectLoaded(){
 		var project = getProject();
 		var curDate = new Date();
 		var year=curDate.getFullYear().toString();
-		var date=curDate.getUTCDate();
+		var date=curDate.getDate();
 		var month=curDate.getMonth();
 		month++;
 		if(month<10)
@@ -181,7 +197,7 @@ function writeGithubPrsReviews(){
 	}
 	for(var repo in githubPrsReviewDataProccessed){
 		var repoLi="<li> \
-        <i>("+repo+")</i> - Reviewed ";
+		<i>("+repo+")</i> - Reviewed ";
 		if(githubPrsReviewDataProccessed[repo].length>1)
 			repoLi+="PRs - ";
 		else {
@@ -289,7 +305,7 @@ var intervalBody = setInterval(function(){
 		scrumBody=document.getElementById("p-b-2");
 		writeScrumBody();
 	}
-},1000);
+},500);
 
 //check for subject loaded
 var intervalSubject = setInterval(function(){
@@ -311,7 +327,7 @@ var intervalSubject = setInterval(function(){
 		scrumSubject=document.getElementById("p-s-2");
 		scrumSubjectLoaded();
 	}
-},1000);
+},500);
 
 //check for github safe writing
 var intervalWriteGithub = setInterval(function(){
@@ -319,11 +335,37 @@ var intervalWriteGithub = setInterval(function(){
 		clearInterval(intervalWriteGithub);
 		writeGithubIssuesPrs();
 	}
-},1000);
+},500);
 //check for github prs reviews safe writing
 var intervalWriteGithubReviews = setInterval(function(){
 	if(scrumBody && githubUsername && githubPrsReviewData){
 		clearInterval(intervalWriteGithubReviews);
 		writeGithubPrsReviews();
 	}
-},1000);
+},500);
+if(!refreshButton_Placed){
+	var intervalWriteButton = setInterval(function(){
+		if(document.getElementsByClassName("F0XO1GC-x-b").length==3 && scrumBody){
+			refreshButton_Placed=true;
+			clearInterval(intervalWriteButton);
+			var td=document.createElement("td");
+			var button=document.createElement("button");
+			button.style="background-image:none;background-color:#3F51B5;";
+			button.setAttribute('class', 'F0XO1GC-n-a F0XO1GC-G-a');
+			button.id="refreshButton";
+			var elemText = document.createTextNode("↻ Rewrite SCRUM!");
+			button.appendChild(elemText);
+			td.appendChild(button);
+			document.getElementsByClassName("F0XO1GC-x-b")[0].children[0].children[0].appendChild(td);
+			document.getElementById("refreshButton").addEventListener("click",handleRefresh);
+		}
+	},1000);
+}
+function handleRefresh(){
+	allIncluded();
+}
+}
+allIncluded();
+
+
+console.log("ACTIVATED!");

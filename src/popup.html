@@ -7,6 +7,14 @@
 	<link href="materialize/css/materialize.min.css" type="text/css" rel="stylesheet">
 	<link rel="stylesheet" type="text/css" href="index.css">
 	<script src="https://use.fontawesome.com/73d6eff847.js"></script>
+	<style type="text/css">
+	html,body{
+		width: 350px !important;
+		height: 600px !important;
+		max-height: 600px !important;
+		overflow-y: scroll;
+	}
+</style>
 </head>
 <body>
 	<div class="container">
@@ -25,26 +33,33 @@
 				</label>
 			</div>
 		</div>
-		<br />
 		<div class="row">
-		  <div class="input-field col s12">
+			<div class="col s12">
+				<ul class="tabs">
+					<li class="tab col s6" title="I am doing CodeHeat!"><a id="codeheatTab" href="#codeheatBox">CodeHeat</a></li>
+					<li class="tab col s6" title="I am doing GSoC!"><a id="gsocTab" href="#gsocBox">GSoC</a></li>
+				</ul>
+			</div>
+		</div>
+		<div class="row">
+			<div class="input-field col s12">
 				<input placeholder="Required for getting data from github" id="githubUsername" type="text">
 				<label for="githubUsername">Your Github Username</label>
 			</div>
 			<div class="col s12"><span>Fetch your contributions between:</span>
 				<input type="checkbox" class="filled-in" id="lastWeekContribution"/>
-				<label for="lastWeekContribution">Show past 7 days from today</label>
+				<label for="lastWeekContribution">Show past <span id="noDays"></span> from today</label>
 			</div>
 
 			<div class="input-field col s6">
-				<input id="startingDate" type="text" class="datepicker" placeholder=" ">
-				<label for="startingDate">Starting Date</label>
+				<div>Starting Date:</div>
+				<input id="startingDate" type="date" class="datepicker" placeholder=" ">
+				
 			</div>
 			<div class="input-field col s6">
-				<input id="endingDate" type="text" class="datepicker" placeholder=" ">
-				<label for="endingDate">Ending Date</label>
+				<div>Ending Date</div>
+				<input id="endingDate" type="date" class="datepicker" placeholder=" ">
 			</div>
-			<div class="col s12"><span>Date should be in YYYY-MM-DD format</span></div>
 			<div class="col s12">
 				<br />
 				<input type="checkbox" class="filled-in" id="showOpenLabel"/>
@@ -58,10 +73,17 @@
 				<input placeholder="Reason" id="userReason" type="text">
 				<label for="userReason">What is stopping you from doing your work?</label>
 			</div>
-			<div class="col center s12">
-				<br /><br />
-				<button id="refresh" class="waves-effect waves-light btn refresh"><i class="fa fa-refresh" aria-hidden="true"></i> Refresh this page to apply changes</button>
-				<br />
+			<div class="col s12">
+				
+				<h5>Note:</h5>
+				<h6>
+					<ul>
+						<li>The PRs fetched are according to the date last reviewed by anyone. So if you reviewed a PR 10 days back, and someone reviewed it 2 days back, it will appear in your last week's activity. See <a href="https://github.com/hkedia321/scrum_helper_extension/issues/20">this issue</a>.
+						</li>
+						<li>By using the extension you understand that there might be discrepancies in the SCRUM generated. You are advised to edit the SCRUM afterwards to remove any discrepancies.
+						</li>
+					</ul>
+				</h6>
 			</div>
 		</div>
 
@@ -74,7 +96,6 @@
 	</div>
 	<script src="scripts/jquery-3.2.1.min.js"></script>
 	<script type="text/javascript" type="text/javascript" src="materialize/js/materialize.min.js"></script>
-	<script src="scripts/initialize.js"></script>
 	<script src="scripts/main.js"></script>
 </body>
 </html>

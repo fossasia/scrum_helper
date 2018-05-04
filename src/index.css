@@ -1,17 +1,51 @@
 body{
-  margin: 0;
-  padding: 0;
-  background-color: rgba(251, 251, 251, 0.6);
+	margin: 0;
+	padding: 0;
+	background-color: rgba(251, 251, 251, 0.6);
 }
-html{
-  width: 340px;
-  height: 400px;
-}
+
 *{
-  box-sizing: border-box;
+	box-sizing: border-box;
 }
 .datepicker{
-  margin-bottom: 5px !important;
+	margin-bottom: 5px !important;
 }
 .container{
+}
+.tabs .tab a:hover, .tabs .tab a.active {
+	background-color: transparent;
+	color: #3f51b5;
+}
+.tabs {
+	background-color: transparent;
+}
+.tabs .tab a {
+	color: #3F51B5;
+}
+.tabs .indicator {
+	background-color: #3F51B5;
+}
+.switch label input[type=checkbox]:checked+.lever {
+	background-color: #3F51B5;
+}
+.switch label input[type=checkbox]:checked+.lever:after {
+	background-color: #fcfcfc;
+	left: 24px;
+}
+[type="checkbox"].filled-in:checked+label:after {
+	border: 2px solid #3f51b5;
+	background-color: #3f51b5;
+}
+.btn:hover, .btn-large:hover {
+	background-color: #3f51b5;
+}
+a {
+	color: #3F51B5;
+}
+.btn, .btn-large {
+	background-color: #3f51b5;
+}
+li{
+	list-style-type: disc !important;
+	margin-left: 1rem;
 }

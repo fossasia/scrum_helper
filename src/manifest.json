@@ -28,7 +28,8 @@
     "https://*/*",
     "storage",
     "activeTab",
-    "<all_urls>"
+    "<all_urls>",
+    "notifications"
   ]
 
 }
