@@ -352,6 +352,7 @@ if(!refreshButton_Placed){
 			var button=document.createElement("button");
 			button.style="background-image:none;background-color:#3F51B5;";
 			button.setAttribute('class', 'F0XO1GC-n-a F0XO1GC-G-a');
+			button.title='Rewrite your SCRUM using updated settings!';
 			button.id="refreshButton";
 			var elemText = document.createTextNode("↻ Rewrite SCRUM!");
 			button.appendChild(elemText);
