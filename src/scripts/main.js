@@ -5,7 +5,6 @@ var lastWeekContributionElement=document.getElementById("lastWeekContribution");
 var startingDateElement = document.getElementById("startingDate");
 var endingDateElement = document.getElementById("endingDate");
 var showOpenLabelElement = document.getElementById("showOpenLabel");
-var showClosedLabelElement = document.getElementById("showClosedLabel");
 var userReasonElement = document.getElementById("userReason");
 var gsoc = 0;//0 means gsoc. 1 means gsoc
 function handleBodyOnLoad(){
@@ -33,13 +32,6 @@ function handleBodyOnLoad(){
 		else if(items.showOpenLabel!==false){// undefined
 			showOpenLabelElement.checked=true;
 			handleOpenLabelChange();
-		}
-		if(items.showClosedLabel){
-			showClosedLabelElement.checked= items.showClosedLabel;
-		}
-		else if(items.showClosedLabel!==false){
-			showClosedLabelElement.checked=true;
-			handleClosedLabelChange();
 		}
 		if(items.userReason){
 			userReasonElement.value = items.userReason;
@@ -116,6 +108,7 @@ function handleGithubUsernameChange(){
 function handleOpenLabelChange(){
 	var value = showOpenLabelElement.checked;
 	chrome.storage.local.set({"showOpenLabel": value});
+	chrome.storage.local.set({"showClosedLabel": value});
 }
 function handleClosedLabelChange(){
 	var value = showClosedLabelElement.checked;
@@ -147,12 +140,7 @@ startingDateElement.addEventListener("keyup", handleStartingDateChange);
 endingDateElement.addEventListener("keyup", handleEndingDateChange);
 lastWeekContributionElement.addEventListener("change", handleLastWeekContributionChange);
 showOpenLabelElement.addEventListener("change", handleOpenLabelChange);
-showClosedLabelElement.addEventListener("change", handleClosedLabelChange);
 userReasonElement.addEventListener("keyup", handleUserReasonChange);
 document.addEventListener("DOMContentLoaded", handleBodyOnLoad);
 document.getElementById("codeheatTab").addEventListener("click",handleCodeheatClick);
 document.getElementById("gsocTab").addEventListener("click",handleGsocClick);
-chrome.runtime.onMessage.addListener(
-  function(request, sender, sendResponse) {
-    chrome.notifications.create("Updated SCRUM!");
-  });

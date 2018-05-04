@@ -1,4 +1,5 @@
 var refreshButton_Placed=false;
+var enableToggle=true;
 function allIncluded(){
 	/* global $*/
 	var scrumBody = null;
@@ -14,7 +15,6 @@ function allIncluded(){
 	var githubUserData=null;
 	var githubPrsReviewDataProccessed = {};
 	var showOpenLabel=true;
-	var enableToggle=true;
 	var showClosedLabel=true;
 	var userReason="";
 var gsoc = 0;//0 means codeheat. 1 means gsoc
@@ -345,7 +345,7 @@ var intervalWriteGithubReviews = setInterval(function(){
 },500);
 if(!refreshButton_Placed){
 	var intervalWriteButton = setInterval(function(){
-		if(document.getElementsByClassName("F0XO1GC-x-b").length==3 && scrumBody){
+		if(document.getElementsByClassName("F0XO1GC-x-b").length==3 && scrumBody && enableToggle){
 			refreshButton_Placed=true;
 			clearInterval(intervalWriteButton);
 			var td=document.createElement("td");
