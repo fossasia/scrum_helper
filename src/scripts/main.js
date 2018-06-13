@@ -136,8 +136,8 @@ function handleGsocClick(){
 }
 enableToggleElement.addEventListener("change", handleEnableChange);
 githubUsernameElement.addEventListener("keyup", handleGithubUsernameChange);
-startingDateElement.addEventListener("keyup", handleStartingDateChange);
-endingDateElement.addEventListener("keyup", handleEndingDateChange);
+startingDateElement.addEventListener("change", handleStartingDateChange);
+endingDateElement.addEventListener("change", handleEndingDateChange);
 lastWeekContributionElement.addEventListener("change", handleLastWeekContributionChange);
 showOpenLabelElement.addEventListener("change", handleOpenLabelChange);
 userReasonElement.addEventListener("keyup", handleUserReasonChange);

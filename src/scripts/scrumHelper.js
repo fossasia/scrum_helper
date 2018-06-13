@@ -11,6 +11,7 @@ function allIncluded(){
 	var nextWeekArray=[];
 	var reviewedPrsArray=[];
 	var githubIssuesData=null;
+	var lastWeekContribution = false;
 	var githubPrsReviewData=null;
 	var githubUserData=null;
 	var githubPrsReviewDataProccessed = {};
@@ -27,21 +28,26 @@ var issue_opened_button="<div style=\"vertical-align:middle;display: inline-bloc
 
 var linkStyle="";
 function getChromeData(){
-	chrome.storage.local.get(["githubUsername","enableToggle","startingDate","endingDate","showOpenLabel","showClosedLabel","userReason","gsoc"],function(items){
+	chrome.storage.local.get(["githubUsername","enableToggle","startingDate","endingDate","showOpenLabel","showClosedLabel","lastWeekContribution","userReason","gsoc"],function(items){
+		if(items.lastWeekContribution){
+			lastWeekContribution = true;
+			handleLastWeekContributionChange();
+		}
 		if(!items.enableToggle){
 			enableToggle=items.enableToggle;
 
 		}
-		if(items.endingDate){
+		if(items.endingDate && !lastWeekContribution){
 			endingDate= items.endingDate;
 		}
-		if(items.startingDate){
+		if(items.startingDate && !lastWeekContribution){
 			startingDate= items.startingDate;
 		}
 		if(items.githubUsername){
 			githubUsername=items.githubUsername;
 			fetchGithubData();
 		}
+		
 		if(!items.showOpenLabel){
 			showOpenLabel=false;
 			pr_unmerged_button="";
@@ -67,6 +73,30 @@ function getChromeData(){
 });
 }
 getChromeData();
+
+function handleLastWeekContributionChange(){
+		endingDate=getToday();
+		startingDate=getLastWeek();
+}
+function getLastWeek(){
+	var today = new Date();
+	var noDays_to_goback=gsoc==0?7:1;
+	var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - noDays_to_goback);
+	var lastWeekMonth = lastWeek.getMonth() + 1;
+	var lastWeekDay = lastWeek.getDate();
+	var lastWeekYear = lastWeek.getFullYear();
+	var lastWeekDisplayPadded =("0000" + lastWeekYear .toString()).slice(-4) +"-" + ("00" + lastWeekMonth.toString()).slice(-2)+ "-" + ("00" + lastWeekDay .toString()).slice(-2);
+	return lastWeekDisplayPadded;
+}
+function getToday(){
+	var today = new Date();
+	var Week = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+	var WeekMonth = Week.getMonth() + 1;
+	var WeekDay = Week.getDate();
+	var WeekYear = Week.getFullYear();
+	var WeekDisplayPadded =("0000" + WeekYear .toString()).slice(-4) +"-" + ("00" + WeekMonth.toString()).slice(-2)+ "-" + ("00" + WeekDay .toString()).slice(-2);
+	return WeekDisplayPadded;
+}
 // fetch github data
 function fetchGithubData(){
 	console.log(startingDate);
@@ -127,9 +157,6 @@ function writeScrumBody(){
 		var nextWeekUl="<ul>";
 		for(i =0;i<nextWeekArray.length;i++)
 			nextWeekUl+=nextWeekArray[i];
-		for(i in githubPrsReviewDataProccessed){
-			nextWeekUl+="<li><i>("+i+")</i> - Review more PRs </li>";
-		}
 		nextWeekUl+="</ul>";
 		var weekOrDay = gsoc==1?"yesterday":"last week";
 		var weekOrDay2= gsoc==1?"today":"this week";
