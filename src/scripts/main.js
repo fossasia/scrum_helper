@@ -58,6 +58,8 @@ function handleEnableChange(){
 }
 function handleStartingDateChange(){
 	var value = startingDateElement.value;
+	console.log("starting date:");
+	console.log(value);
 	chrome.storage.local.set({"startingDate": value});
 }
 function handleEndingDateChange(){

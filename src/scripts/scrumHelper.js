@@ -29,6 +29,12 @@ var issue_opened_button="<div style=\"vertical-align:middle;display: inline-bloc
 var linkStyle="";
 function getChromeData(){
 	chrome.storage.local.get(["githubUsername","enableToggle","startingDate","endingDate","showOpenLabel","showClosedLabel","lastWeekContribution","userReason","gsoc"],function(items){
+		if(items.gsoc){//gsoc
+			gsoc=1;
+		}
+		else{
+			gsoc=0;//codeheat
+		}
 		if(items.lastWeekContribution){
 			lastWeekContribution = true;
 			handleLastWeekContributionChange();
@@ -64,12 +70,7 @@ function getChromeData(){
 		if(!items.userReason){
 			userReason="No Blocker at the moment";
 		}
-	if(items.gsoc){//gsoc
-		gsoc=1;
-	}
-	else{
-		gsoc=0;//codeheat
-	}
+	
 });
 }
 getChromeData();
