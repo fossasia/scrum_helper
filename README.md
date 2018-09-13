@@ -20,9 +20,9 @@ $ cd scrum_helper_extension
 $ npm install
 ```
 ## Screenshots
-![SCRUM](https://github.com/hkedia321/scrum_helper_extension/blob/master/src/docs/screenshots/scrum.png)
+![SCRUM](/docs/images/scrum.png)
 
-![POPUP](https://github.com/hkedia321/scrum_helper_extension/blob/master/src/docs/screenshots/popup.png)
+![POPUP](/docs/images/popup.png)
 
 ## About contributing
 - Follow the Issues and PRs templates as far as possible.
