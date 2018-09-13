@@ -7,7 +7,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/hkedia321/scrum_helper_extension.git"
+    "url": "git+https://github.com/fossasia/scrum_helper_extension.git"
   },
   "scripts": {
     "test": "eslint .",
@@ -21,9 +21,9 @@
   "author": "hkedia321",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/hkedia321/scrum_helper_extension/issues"
+    "url": "https://github.com/fossasia/scrum_helper_extension/issues"
   },
-  "homepage": "https://github.com/hkedia321/scrum_helper_extension",
+  "homepage": "https://github.com/fossasia/scrum_helper_extension",
   "dependencies": {
     "babel-eslint": "^7.2.3"
   }
