@@ -1,3 +1,4 @@
+![alt text](https://raw.githubusercontent.com/vivekptnk/scrum_helper/master/docs/images/to/scrumhelper-png.png)
 # SCRUM Helper
 This chrome extension helps you to write scrums in google groups for FOSSASIA related projects. You need to add your github username, dates, and other options. It fetches your PRs, Issues, and the PRs you reviewed from Github API, and prefills the SCRUM. You can edit the scrum further to meet your needs.
 
