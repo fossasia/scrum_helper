@@ -1,6 +1,9 @@
-![SCRUMLOGO](docs/images/scrumhelper-png.png)
+# SCRUM Helper
+[![Build Status](https://travis-ci.org/fossasia/scrum_helper.svg?branch=master)](https://travis-ci.org/fossasia/scrum_helper)
 
 This chrome extension helps you to write scrums in google groups for FOSSASIA related projects. You need to add your github username, dates, and other options. It fetches your PRs, Issues, and the PRs you reviewed from Github API, and prefills the SCRUM. You can edit the scrum further to meet your needs.
+
+![SCRUMLOGO](docs/images/scrumhelper-png.png)
 
 ## How to install
 ```
