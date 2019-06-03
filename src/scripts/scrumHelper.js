@@ -177,7 +177,7 @@ function getProject(){
 	if(projectUrl==="susiai")
 		project="SUSI.AI";
 	else if(projectUrl==="open-event")
-		project="Badgeyay";
+		project="Open Event";
 	return project;
 }
 //load initial scrum subject
