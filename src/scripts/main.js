@@ -1,6 +1,7 @@
 /* global $,Materialize*/
 var enableToggleElement = document.getElementById("enable");
 var githubUsernameElement = document.getElementById("githubUsername");
+var projectNameElement = document.getElementById("projectName");
 var lastWeekContributionElement=document.getElementById("lastWeekContribution");
 var startingDateElement = document.getElementById("startingDate");
 var endingDateElement = document.getElementById("endingDate");
@@ -9,9 +10,12 @@ var userReasonElement = document.getElementById("userReason");
 var gsoc = 0;//0 means gsoc. 1 means gsoc
 function handleBodyOnLoad(){
 	// prefill name
-	chrome.storage.local.get(["githubUsername","enableToggle","startingDate","endingDate","showOpenLabel","showClosedLabel","userReason","lastWeekContribution","gsoc"],function(items){
+	chrome.storage.local.get(["githubUsername","projectName","enableToggle","startingDate","endingDate","showOpenLabel","userReason","lastWeekContribution","gsoc"],function(items){
 		if(items.githubUsername){
 			githubUsernameElement.value=items.githubUsername;
+		}
+		if(items.projectName){
+			projectNameElement.value = items.projectName;
 		}
 		if(items.enableToggle){
 			enableToggleElement.checked=items.enableToggle;
@@ -58,15 +62,13 @@ function handleEnableChange(){
 }
 function handleStartingDateChange(){
 	var value = startingDateElement.value;
-	console.log("starting date:");
-	console.log(value);
 	chrome.storage.local.set({"startingDate": value});
 }
 function handleEndingDateChange(){
 	var value = endingDateElement.value;
 	chrome.storage.local.set({"endingDate": value});
 }
-function handleLastWeekContributionChange(keepPreviousValue=false){
+function handleLastWeekContributionChange(){
 	var value = lastWeekContributionElement.checked;
 	if(value){
 		startingDateElement.disabled=true;
@@ -107,14 +109,13 @@ function handleGithubUsernameChange(){
 	var value = githubUsernameElement.value;
 	chrome.storage.local.set({"githubUsername": value});
 }
+function handleProjectNameChange(){
+	var value = projectNameElement.value;
+	chrome.storage.local.set({"projectName": value});
+}
 function handleOpenLabelChange(){
 	var value = showOpenLabelElement.checked;
 	chrome.storage.local.set({"showOpenLabel": value});
-	chrome.storage.local.set({"showClosedLabel": value});
-}
-function handleClosedLabelChange(){
-	var value = showClosedLabelElement.checked;
-	chrome.storage.local.set({"showClosedLabel": value});
 }
 function handleUserReasonChange(){
 	var value = userReasonElement.value;
@@ -123,7 +124,7 @@ function handleUserReasonChange(){
 function handleCodeheatClick(){
 	gsoc=0;
 	$("#codeheatTab").addClass("active");
-	$('.tabs').tabs();
+	$(".tabs").tabs();
 	$("#noDays").text("7 days");
 	chrome.storage.local.set({"gsoc": 0});
 	handleLastWeekContributionChange();
@@ -131,13 +132,14 @@ function handleCodeheatClick(){
 function handleGsocClick(){
 	gsoc=1;
 	$("#gsocTab").addClass("active");
-	$('.tabs').tabs();
+	$(".tabs").tabs();
 	$("#noDays").text("1 day");
 	chrome.storage.local.set({"gsoc": 1});
 	handleLastWeekContributionChange();
 }
 enableToggleElement.addEventListener("change", handleEnableChange);
 githubUsernameElement.addEventListener("keyup", handleGithubUsernameChange);
+projectNameElement.addEventListener("keyup", handleProjectNameChange);
 startingDateElement.addEventListener("change", handleStartingDateChange);
 endingDateElement.addEventListener("change", handleEndingDateChange);
 lastWeekContributionElement.addEventListener("change", handleLastWeekContributionChange);
