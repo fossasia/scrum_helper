@@ -10,7 +10,7 @@ var userReasonElement = document.getElementById("userReason");
 var gsoc = 0;//0 means gsoc. 1 means gsoc
 function handleBodyOnLoad(){
 	// prefill name
-	chrome.storage.local.get(["githubUsername","projectName","enableToggle","startingDate","endingDate","showOpenLabel","userReason","lastWeekContribution","gsoc"],function(items){
+	chrome.storage.local.get(["githubUsername","projectName","enableToggle","startingDate","endingDate","showOpenLabel","showClosedLabel","userReason","lastWeekContribution","gsoc"],function(items){
 		if(items.githubUsername){
 			githubUsernameElement.value=items.githubUsername;
 		}
