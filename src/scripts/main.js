@@ -116,6 +116,7 @@ function handleProjectNameChange(){
 function handleOpenLabelChange(){
 	var value = showOpenLabelElement.checked;
 	chrome.storage.local.set({"showOpenLabel": value});
+	chrome.storage.local.set({"showClosedLabel": value});
 }
 function handleUserReasonChange(){
 	var value = userReasonElement.value;
