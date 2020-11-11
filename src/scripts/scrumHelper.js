@@ -169,7 +169,7 @@ function allIncluded(){
 		<br>"+nextWeekUl+"<br><br>\
 		<b>3. What is stopping me from doing my work?</b>\
 		<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+userReason+"</p>";
-			scrumBody.dispatchEvent(new Event('paste', { bubbles: true }));
+			scrumBody.dispatchEvent(new Event("paste", { bubbles: true }));
 		});
 	}
 
@@ -203,7 +203,7 @@ function allIncluded(){
 				date="0"+date;
 			var dateCode=year.toString()+month.toString()+date.toString();
 			scrumSubject.value = "[Scrum] "+name+" - "+project+" - "+dateCode+" - False";
-			scrumSubject.dispatchEvent(new Event('input', { bubbles: true }));
+			scrumSubject.dispatchEvent(new Event("input", { bubbles: true }));
 		});
 	}
 
@@ -344,7 +344,7 @@ function allIncluded(){
 			document.getElementById("p-s-0"),
 			document.getElementById("p-s-1"),
 			document.getElementById("p-s-2"),
-			document.querySelector('c-wiz input[aria-label=Subject]')];
+			document.querySelector("c-wiz input[aria-label=Subject]")];
 		for (var subject of subjects) {
 			if (!subject)
 				continue;
@@ -393,6 +393,6 @@ function allIncluded(){
 }
 allIncluded();
 
-$('button>span:contains(New conversation)').parent('button').click(function() {
+$("button>span:contains(New conversation)").parent("button").click(function() {
 	allIncluded();
 });
