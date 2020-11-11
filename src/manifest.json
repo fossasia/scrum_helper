@@ -16,7 +16,7 @@
   },
   "content_scripts": [
   {
-    "matches": ["*://groups.google.com/forum/*"],
+    "matches": ["*://groups.google.com/forum/*", "*://groups.google.com/g/*"],
     "js": ["scripts/jquery-3.2.1.min.js","scripts/scrumHelper.js"]
   }
 ],
