@@ -4,6 +4,10 @@ module.exports = {
         "webextensions": true
     },
     "extends": "eslint:recommended",
+    'parserOptions': {
+        'parser': 'babel-eslint',
+        'ecmaVersion': 2018
+    },
     "rules": {
         "indent": [
             "error",

@@ -169,6 +169,7 @@ function allIncluded(){
 		<br>"+nextWeekUl+"<br><br>\
 		<b>3. What is stopping me from doing my work?</b>\
 		<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+userReason+"</p>";
+			scrumBody.dispatchEvent(new Event("paste", { bubbles: true }));
 		});
 	}
 
@@ -202,7 +203,8 @@ function allIncluded(){
 				date="0"+date;
 			var dateCode=year.toString()+month.toString()+date.toString();
 			scrumSubject.value = "[Scrum] "+name+" - "+project+" - "+dateCode+" - False";
-		},2000);
+			scrumSubject.dispatchEvent(new Event("input", { bubbles: true }));
+		});
 	}
 
 	// write PRs Reviewed
@@ -320,44 +322,34 @@ function allIncluded(){
 	}
 	//check for scrum body loaded
 	var intervalBody = setInterval(function(){
-		var scrumBody0=document.getElementById("p-b-0");
-		var scrumBody1=document.getElementById("p-b-1");
-		var scrumBody2=document.getElementById("p-b-2");
-		if(scrumBody0){
+		var bodies = [
+			document.getElementById("p-b-0"),
+			document.getElementById("p-b-1"),
+			document.getElementById("p-b-2"),
+			document.querySelector("c-wiz [aria-label='Compose a message'][role=textbox]")];
+		for (var body of bodies) {
+			if (!body)
+				continue;
 			clearInterval(intervalBody);
-			scrumBody=document.getElementById("p-b-0");
-			writeScrumBody();
-		}
-		if(scrumBody1){
-			clearInterval(intervalBody);
-			scrumBody=document.getElementById("p-b-1");
-			writeScrumBody();
-		}
-		if(scrumBody2){
-			clearInterval(intervalBody);
-			scrumBody=document.getElementById("p-b-2");
+			scrumBody=body;
 			writeScrumBody();
 		}
 	},500);
 
 	//check for subject loaded
 	var intervalSubject = setInterval(function(){
-		var scrumSubject0=document.getElementById("p-s-0");
-		var scrumSubject1=document.getElementById("p-s-1");
-		var scrumSubject2=document.getElementById("p-s-2");
-		if(scrumSubject0 && githubUserData){
+		if (!githubUserData)
+			return;
+		var subjects = [
+			document.getElementById("p-s-0"),
+			document.getElementById("p-s-1"),
+			document.getElementById("p-s-2"),
+			document.querySelector("c-wiz input[aria-label=Subject]")];
+		for (var subject of subjects) {
+			if (!subject)
+				continue;
 			clearInterval(intervalSubject);
-			scrumSubject=document.getElementById("p-s-0");
-			scrumSubjectLoaded();
-		}
-		else if(scrumSubject1 && githubUserData){
-			clearInterval(intervalSubject);
-			scrumSubject=document.getElementById("p-s-1");
-			scrumSubjectLoaded();
-		}
-		else if(scrumSubject2 && githubUserData){
-			clearInterval(intervalSubject);
-			scrumSubject=document.getElementById("p-s-2");
+			scrumSubject=subject;
 			scrumSubjectLoaded();
 		}
 	},500);
@@ -400,3 +392,7 @@ function allIncluded(){
 	}
 }
 allIncluded();
+
+$("button>span:contains(New conversation)").parent("button").click(function() {
+	allIncluded();
+});
