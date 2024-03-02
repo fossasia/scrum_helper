@@ -144,6 +144,12 @@ function allIncluded(){
 		});
 	}
 
+	function formatDate(dateString) {
+		const date = new Date(dateString);
+		const options = { day: '2-digit', month: 'short', year: 'numeric' };
+		return date.toLocaleDateString('en-US', options);
+	}
+
 	//load initial text in scrum body
 	function writeScrumBody(){
 		if(!enableToggle)
@@ -172,7 +178,7 @@ function allIncluded(){
 		<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+userReason+"</p>";
 			}
 			else{
-				scrumBody.innerHTML="<b>1. What did I do from "+startingDate+" to "+endingDate+"?</b>\
+				scrumBody.innerHTML="<b>1. What did I do from "+formatDate(startingDate)+" to "+formatDate(endingDate)+"?</b>\
 		<br>"+lastWeekUl+"<br><br>\
 		<b>2. What I plan to do "+weekOrDay2+"?</b>\
 		<br>"+nextWeekUl+"<br><br>\
