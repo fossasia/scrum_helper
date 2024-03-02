@@ -163,12 +163,22 @@ function allIncluded(){
 			nextWeekUl+="</ul>";
 			var weekOrDay = gsoc==1?"yesterday":"last week";
 			var weekOrDay2= gsoc==1?"today":"this week";
-			scrumBody.innerHTML="<b>1. What did I do "+weekOrDay+"?</b>\
+			if(lastWeekContribution==true){
+				scrumBody.innerHTML="<b>1. What did I do "+weekOrDay+"?</b>\
 		<br>"+lastWeekUl+"<br><br>\
 		<b>2. What I plan to do "+weekOrDay2+"?</b>\
 		<br>"+nextWeekUl+"<br><br>\
 		<b>3. What is stopping me from doing my work?</b>\
 		<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+userReason+"</p>";
+			}
+			else{
+				scrumBody.innerHTML="<b>1. What did I do from "+startingDate+" to "+endingDate+"?</b>\
+		<br>"+lastWeekUl+"<br><br>\
+		<b>2. What I plan to do "+weekOrDay2+"?</b>\
+		<br>"+nextWeekUl+"<br><br>\
+		<b>3. What is stopping me from doing my work?</b>\
+		<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+userReason+"</p>";
+			}
 			scrumBody.dispatchEvent(new Event("paste", { bubbles: true }));
 		});
 	}
