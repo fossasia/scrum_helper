@@ -6,4 +6,4 @@ updates:
       interval: "daily"
     commit-message:
       prefix: "chore(deps)"
-      include: true
+      include: "scope"
