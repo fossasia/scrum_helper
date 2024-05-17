@@ -25,6 +25,6 @@
   },
   "homepage": "https://github.com/fossasia/scrum_helper_extension",
   "dependencies": {
-    "babel-eslint": "^7.2.3"
+    "babel-eslint": "^10.1.0"
   }
 }
