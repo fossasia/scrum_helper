@@ -19,7 +19,7 @@ This chrome extension helps you to write scrums in google groups for FOSSASIA re
 
 ```
 $ git clone https://github.com/fossasia/scrum_helper_extension/
-$ cd scrum_helper_extension
+$ cd scrum_helper
 $ npm install
 ```
 ## Screenshots
