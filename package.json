@@ -1,30 +1,23 @@
 {
-  "name": "scrum_helper_extension",
-  "version": "1.0.0",
-  "description": "This extension helps in writing Scrums in google groups, particularly related to FOSSASIA. It converts a link to a github PR or an Issue to display the PR or the Issue's name along with the link to it.",
-  "devDependencies": {
-    "eslint": "^4.7.2"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/fossasia/scrum_helper_extension.git"
-  },
-  "scripts": {
-    "test": "eslint .",
-    "lint": "eslint ."
-  },
-  "keywords": [
-    "scrum",
-    "google groups",
-    "fossasia"
-  ],
-  "author": "hkedia321",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/fossasia/scrum_helper_extension/issues"
-  },
-  "homepage": "https://github.com/fossasia/scrum_helper_extension",
-  "dependencies": {
-    "babel-eslint": "^7.2.3"
-  }
+	"name": "scrum_helper_extension",
+	"version": "1.0.0",
+	"description": "This extension helps in writing Scrums in google groups, particularly related to FOSSASIA. It converts a link to a github PR or an Issue to display the PR or the Issue's name along with the link to it.",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/fossasia/scrum_helper_extension.git"
+	},
+	"scripts": {
+		"format": "biome format . --write",
+		"lint": "biome check ."
+	},
+	"keywords": ["scrum", "google groups", "fossasia"],
+	"author": "hkedia321",
+	"license": "ISC",
+	"bugs": {
+		"url": "https://github.com/fossasia/scrum_helper_extension/issues"
+	},
+	"homepage": "https://github.com/fossasia/scrum_helper_extension",
+	"devDependencies": {
+		"@biomejs/biome": "1.9.4"
+	}
 }
