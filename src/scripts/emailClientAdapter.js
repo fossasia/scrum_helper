@@ -122,7 +122,6 @@ class EmailClientAdapter {
             }
             
             attempts++;
-            console.log(`Injection attempt ${attempts}`);
             
             if (this.injectContent(element, content, eventType)) {
                 return true;
