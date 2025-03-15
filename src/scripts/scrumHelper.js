@@ -14,6 +14,7 @@ function allIncluded(){
 	var githubIssuesData=null;
 	var lastWeekContribution = false;
 	var githubPrsReviewData=null;
+	var githubPrCommitsData=null;
 	var githubUserData=null;
 	var githubPrsReviewDataProccessed = {};
 	var showOpenLabel=true;
@@ -50,14 +51,13 @@ function allIncluded(){
 			if(items.startingDate && !lastWeekContribution){
 				startingDate= items.startingDate;
 			}
+			if(items.projectName){
+				projectName=items.projectName;
+			}
 			if(items.githubUsername){
 				githubUsername=items.githubUsername;
 				fetchGithubData();
 			}
-			if(items.projectName){
-				projectName=items.projectName;
-			}
-		
 			if(!items.showOpenLabel){
 				showOpenLabel=false;
 				pr_unmerged_button="";
@@ -142,6 +142,19 @@ function allIncluded(){
 				githubUserData=data;
 			}
 		});
+		// function to fetch commits in fossasia repos
+		let commitsUrl= `https://api.github.com/repos/fossasia/${projectName}/commits?author=${githubUsername}&since=${startingDate}T00:00:00Z&until=${endingDate}T23:59:59Z&per_page=100`;
+		$.ajax({
+			dataType: "json",
+			type: "GET",
+			url:commitsUrl,
+			error:(xhr,textStatus,errorThrown)=>{
+				//error
+			},
+			success:(data)=>{
+				githubPrCommitsData=data;
+			}
+		})
 	}
 
 	function formatDate(dateString) {
@@ -287,6 +300,28 @@ function allIncluded(){
 		}
 		writeScrumBody();
 	}
+	// write github commits 
+	function writeGithubCommits(){
+		let item=githubPrCommitsData;
+		for(let i=0;i<item.length;i++){
+			const html_url=item[i].html_url
+			const urlParts = html_url.split('/'); 
+        	const project = urlParts[4];
+			const commit=item[i].commit
+			let commitMessage=commit.message;
+			const commitHash=item[i].sha;
+			const prMatch = commitMessage.match(/\(#(\d+)\)/); 
+			let PRNumber;
+			if (prMatch) {
+				let prNumber = prMatch[1];
+				PRNumber= ` under PR (<a href='https://github.com/fossasia/${project}/pulls/${prNumber}'>#${prNumber}</a>)`; // Append PR reference
+			}
+			let li=`<li><i>(${project})</i> - Made commit (<a href='${html_url}' target='_blank'>${commitHash}</a>) - ${commitMessage} &nbsp<u>${PRNumber}</u></li>`
+			lastWeekArray.push(li);
+		}
+		writeScrumBody()
+	}
+
 	//write issues and Prs from github
 	function writeGithubIssuesPrs(){
 		var data=githubIssuesData;
@@ -375,6 +410,12 @@ function allIncluded(){
 		if(scrumBody && githubUsername && githubIssuesData){
 			clearInterval(intervalWriteGithub);
 			writeGithubIssuesPrs();
+		}
+	},500);
+	var intervalWriteGithubCommits = setInterval(function(){
+		if(scrumBody && githubUsername && githubPrCommitsData){
+			clearInterval(intervalWriteGithubCommits);
+			writeGithubCommits()
 		}
 	},500);
 	//check for github prs reviews safe writing
