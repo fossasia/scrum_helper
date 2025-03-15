@@ -1,35 +1,30 @@
 {
-  "manifest_version": 3,
-  "name": "Scrum Helper Extension",
-  "version": "1.0",
-  "description": "This extension helps in writing Scrums in Google groups, particularly related to FOSSASIA. ",
-  "browser_action": {
-    "default_popup": "popup.html",
-    "default_title" : "SCRUM Helper"
-  },
-  "icons": {
-   "96": "icons/icon.png",
-   "48": "icons/icon.png"
- },
-  "background": {
-  "scripts": ["scripts/background.js"]
-  },
-  "content_scripts": [
-  {
-    "matches": ["*://groups.google.com/forum/*", "*://groups.google.com/g/*"],
-    "js": ["scripts/jquery-3.2.1.min.js","scripts/scrumHelper.js"]
-  }
-],
-  "content_security_policy": "script-src 'self' https://cdn.jsdelivr.net/ https://api.github.com/ https://use.fontawesome.com/; object-src 'self'",
+	"manifest_version": 3,
+	"name": "Scrum Helper Extension",
+	"version": "1.0",
+	"description": "This extension helps in writing Scrums in Google groups, particularly related to FOSSASIA. ",
+	"action": {
+		"default_popup": "popup.html",
+		"default_title": "SCRUM Helper",
+		"default_icon": {
+			"96": "icons/icon.png",
+			"48": "icons/icon.png"
+		}
+	},
+	"background": {
+		"service_worker": "scripts/background.js"
+	},
+	"content_scripts": [
+		{
+			"matches": ["*://groups.google.com/forum/*", "*://groups.google.com/g/*"],
+			"js": ["scripts/jquery-3.2.1.min.js", "scripts/scrumHelper.js"]
+		}
+	],
 
-  "permissions":[
-    "http://*/*",
-    "tabs",
-    "https://*/*",
-    "storage",
-    "activeTab",
-    "<all_urls>",
-    "notifications"
-  ]
+	"content_security_policy": {
+		"extension_pages": "script-src 'self'; object-src 'self';"
+	},
+	"optional_host_permissions": ["https://*/*", "http://*/*", "<all_urls>"],
 
+	"permissions": ["tabs", "storage", "activeTab", "notifications"]
 }

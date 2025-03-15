@@ -10,7 +10,8 @@
 		"ignore": [
 			"**/node_modules/**",
 			"src/scripts/jquery-3.2.1.min.js",
-			"src/materialize"
+			"src/materialize",
+			"src/scripts/fontawesome.js"
 		]
 	},
 	"formatter": { "enabled": true, "indentStyle": "tab" },
