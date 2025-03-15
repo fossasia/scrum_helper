@@ -107,9 +107,7 @@ function allIncluded() {
 	}
 	// fetch github data
 	function fetchGithubData() {
-		var issueUrl = "https://api.github.com/search/issues?q=author%3A" +
-			githubUsername + "+created%3A" + startingDate +
-			".." + endingDate + "&per_page=100";
+		var issueUrl="https://api.github.com/search/issues?q=author%3A"+githubUsername+"+org%3Afossasia+created%3A"+startingDate+".."+endingDate+"&per_page=100";
 		$.ajax({
 			dataType: "json",
 			type: "GET",
@@ -122,9 +120,7 @@ function allIncluded() {
 			}
 		});
 		// fetch github prs review data
-		var prUrl = "https://api.github.com/search/issues?q=commenter%3A" +
-			githubUsername + "+updated%3A" + startingDate +
-			".." + endingDate + "&per_page=100";
+		var prUrl="https://api.github.com/search/issues?q=commenter%3A"+githubUsername+"+org%3Afossasia+updated%3A"+startingDate+".."+endingDate+"&per_page=100";
 
 		$.ajax({
 			dataType: "json",
