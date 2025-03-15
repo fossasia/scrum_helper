@@ -29,7 +29,11 @@ function allIncluded(){
 
 	var linkStyle="";
 	function getChromeData(){
+
+		console.log('Getting Chrome data...');
+
 		chrome.storage.local.get(["githubUsername","projectName","enableToggle","startingDate","endingDate","showOpenLabel","showClosedLabel","lastWeekContribution","userReason","gsoc"],function(items){
+			console.log('Chrome storage data:', items);
 			if(items.gsoc){//gsoc
 				gsoc=1;
 			}
@@ -51,8 +55,11 @@ function allIncluded(){
 				startingDate= items.startingDate;
 			}
 			if(items.githubUsername){
-				githubUsername=items.githubUsername;
+				console.log('Found GitHub username:', items.githubUsername);
+				githubUsername = items.githubUsername;
 				fetchGithubData();
+			} else {
+				console.warn('No GitHub username found in storage');
 			}
 			if(items.projectName){
 				projectName=items.projectName;
@@ -104,20 +111,36 @@ function allIncluded(){
 	}
 	// fetch github data
 	function fetchGithubData(){
-		var issueUrl="https://api.github.com/search/issues?q=author%3A"+githubUsername+"+org%3Afossasia+created%3A"+startingDate+".."+endingDate+"&per_page=100";
+		console.log('Attempting to fetch data from GitHub');
+		console.log('GitHub Username: ' + githubUsername);
+		console.log('Date Range: ' ,startingDate, endingDate);
+		var issueUrl = "https://api.github.com/search/issues?q=author%3A" + 
+                   githubUsername + "+created%3A" + startingDate + 
+                   ".." + endingDate + "&per_page=100";
+	// Add error handling and logging
 		$.ajax({
 			dataType: "json",
 			type: "GET",
 			url: issueUrl,
 			error: function(xhr,textStatus,errorThrown) {
 			// error
+			console.error('GitHub API Error:', {
+                status: xhr.status,
+                statusText: xhr.statusText,
+                response: xhr.responseText,
+                error: errorThrown
+            });
 			},
 			success: function (data) {
-				githubIssuesData=data;
+				console.log('GitHub Issues Data Received:', data);
+				githubIssuesData = data;
 			}
 		});
 		// fetch github prs review data
-		var prUrl="https://api.github.com/search/issues?q=commenter%3A"+githubUsername+"+org%3Afossasia+updated%3A"+startingDate+".."+endingDate+"&per_page=100";
+		var prUrl = "https://api.github.com/search/issues?q=commenter%3A" + 
+                githubUsername + "+updated%3A" + startingDate + 
+                ".." + endingDate + "&per_page=100";
+
 		$.ajax({
 			dataType: "json",
 			type: "GET",
