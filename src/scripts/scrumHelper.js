@@ -30,10 +30,7 @@ function allIncluded() {
 	var linkStyle = "";
 	function getChromeData() {
 
-		console.log('Getting Chrome data...');
-
 		chrome.storage.local.get(["githubUsername", "projectName", "enableToggle", "startingDate", "endingDate", "showOpenLabel", "showClosedLabel", "lastWeekContribution", "userReason", "gsoc"], function (items) {
-			console.log('Chrome storage data:', items);
 			if (items.gsoc) {//gsoc
 				gsoc = 1;
 			}
@@ -55,7 +52,6 @@ function allIncluded() {
 				startingDate = items.startingDate;
 			}
 			if (items.githubUsername) {
-				console.log('Found GitHub username:', items.githubUsername);
 				githubUsername = items.githubUsername;
 				fetchGithubData();
 			} else {
@@ -111,28 +107,17 @@ function allIncluded() {
 	}
 	// fetch github data
 	function fetchGithubData() {
-		console.log('Attempting to fetch data from GitHub');
-		console.log('GitHub Username: ' + githubUsername);
-		console.log('Date Range: ', startingDate, endingDate);
 		var issueUrl = "https://api.github.com/search/issues?q=author%3A" +
 			githubUsername + "+created%3A" + startingDate +
 			".." + endingDate + "&per_page=100";
-		// Add error handling and logging
 		$.ajax({
 			dataType: "json",
 			type: "GET",
 			url: issueUrl,
 			error: function (xhr, textStatus, errorThrown) {
 				// error
-				console.error('GitHub API Error:', {
-					status: xhr.status,
-					statusText: xhr.statusText,
-					response: xhr.responseText,
-					error: errorThrown
-				});
 			},
 			success: function (data) {
-				console.log('GitHub Issues Data Received:', data);
 				githubIssuesData = data;
 			}
 		});
