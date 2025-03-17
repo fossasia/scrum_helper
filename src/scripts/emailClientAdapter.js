@@ -3,8 +3,8 @@ class EmailClientAdapter {
         this.clientConfigs = {
             'google-groups': {
                 selectors: {
-                    body: 'c-wiz [aria-label="Compose a message"][role=textbox]',
-                    subject: 'c-wiz input[aria-label=Subject]'
+                    body: 'c-wiz [aria-label="Compose a message"][role=textbox][contenteditable="true"]',
+                    subject: 'c-wiz input[aria-label=Subject][type="text"]'
                 },
                 eventTypes: {
                     contentChange: 'paste',
@@ -13,8 +13,8 @@ class EmailClientAdapter {
             },
             'gmail': {
                 selectors: {
-                    body: '.Am.Al.editable',
-                    subject: 'input[name="subjectbox"]'
+                    body: 'div.editable.LW-avf[contenteditable="true"][role="textbox"]',
+                    subject: 'input[name="subjectbox"][tabindex="1"]'
                 },
                 eventTypes: {
                     contentChange: 'input',
@@ -23,8 +23,8 @@ class EmailClientAdapter {
             },
             'outlook': {
                 selectors: {
-                    body: 'div[role="textbox"][contenteditable="true"]',
-                    subject: 'input[aria-label="Add a subject"]'
+                    body: 'div[role="textbox"][contenteditable="true"][aria-multiline="true"]',
+                    subject: 'input[aria-label="Add a subject"][type="text"]'
                 },
                 eventTypes: {
                     contentChange: 'input',
@@ -34,8 +34,8 @@ class EmailClientAdapter {
             },
             'yahoo': {
                 selectors: {
-                    body: '#editor-container [contenteditable="true"]',
-                    subject: 'input[placeholder="Subject"]'
+                    body: '#editor-container [contenteditable="true"][role="textbox"]',
+                    subject: 'input[placeholder="Subject"][type="text"]'
                 },
                 eventTypes: {
                     contentChange: 'input',
