@@ -47,11 +47,11 @@ class EmailClientAdapter {
     }
 
     detectClient() {
-        const url = window.location.href;
-        if (url.includes('groups.google.com')) return 'google-groups';
-        if (url.includes('mail.google.com')) return 'gmail';
-        if (url.includes('outlook')) return 'outlook';
-        if (url.includes('mail.yahoo.com')) return 'yahoo';
+        const hostname = window.location.hostname;
+        if (hostname === 'groups.google.com') return 'google-groups';
+        if (hostname === 'mail.google.com') return 'gmail';
+        if (hostname.endsWith('outlook.com')) return 'outlook';
+        if (hostname === 'mail.yahoo.com') return 'yahoo';
         return null;
     }
 
@@ -67,23 +67,39 @@ class EmailClientAdapter {
         };
     }
 
+    // Helper method to injectContent
+    dispatchElementEvents(element, events, includeKeyboard = false) {
+        if (!element || !events) return;
+        
+        const eventsToDispatch = Array.isArray(events) ? events : [events];
+        
+        eventsToDispatch.forEach(eventType => {
+            // Dispatch standard events
+            element.dispatchEvent(new Event(eventType, { bubbles: true }));
+            
+            // Dispatch keyboard events if needed
+            if (includeKeyboard) {
+                element.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true }));
+                element.dispatchEvent(new KeyboardEvent('keyup', { bubbles: true }));
+            }
+        });
+    }
+
     injectContent(element, content, eventType) {
         if (!element) {
             console.log('No element found for injection');
             return false;
         }
         const clientType = this.detectClient();
+        const config = this.clientConfigs[clientType];
+
         try {
-            switch(this.clientConfigs[clientType]?.injectMethod) {
+            switch(config?.injectMethod) {
                 case 'focusAndPaste':
                     // Special handling for Outlook
                     element.focus();
                     element.innerHTML = content;
-                    element.dispatchEvent(new Event('input', { bubbles: true }));
-                    element.dispatchEvent(new Event('change', { bubbles: true }));
-                    // Simulate keyboard input
-                    element.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true }));
-                    element.dispatchEvent(new KeyboardEvent('keyup', { bubbles: true }));
+                   this.dispatchElementEvents(element, ['input', 'change'], true);
                     break;
 
                 case 'setContent':
@@ -96,8 +112,7 @@ class EmailClientAdapter {
                     range.selectNodeContents(element);
                     selection.removeAllRanges();
                     selection.addRange(range);
-                    element.dispatchEvent(new Event('input', { bubbles: true }));
-                    element.dispatchEvent(new Event('change', { bubbles: true }));
+                    this.dispatchElementEvents(element, ['input', 'change']);
                     break;
 
                 default:
@@ -114,23 +129,22 @@ class EmailClientAdapter {
 
     retryInjection(element, content, eventType, maxRetries = 3) {
         let attempts = 0;
-        
-        const tryInject = () => {
-            if (attempts >= maxRetries) {
-                console.error('Max retry attempts reached');
-                return false;
-            }
-            
-            attempts++;
-            
-            if (this.injectContent(element, content, eventType)) {
-                return true;
-            }
-            
-            setTimeout(tryInject, 1000);
-        };
-        
-        return tryInject();
+        return new Promise((resolve, reject) => {
+            const tryInject = () => {
+                if (attempts >= maxRetries) {
+                    console.error('Max retry attempts reached');
+                    reject(new Error('Max retry attempts reached'));
+                    return;
+                }
+                attempts++;
+                if (this.injectContent(element, content, eventType)) {
+                    resolve(true);
+                } else {
+                    setTimeout(tryInject, 1000);
+                }
+            };
+            tryInject();
+        });
     }
 }
 
