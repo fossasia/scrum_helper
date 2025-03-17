@@ -10,8 +10,6 @@ body {
 .datepicker {
 	margin-bottom: 5px !important;
 }
-.container {
-}
 .tabs .tab a:hover,
 .tabs .tab a.active {
 	background-color: transparent;

@@ -7,7 +7,7 @@
 		"url": "git+https://github.com/fossasia/scrum_helper_extension.git"
 	},
 	"scripts": {
-		"format": "biome format . --write",
+		"format": "biome format --write",
 		"check": "biome check .",
 		"fix": "biome lint --write"
 	},
