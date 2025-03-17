@@ -50,7 +50,7 @@ class EmailClientAdapter {
         const hostname = window.location.hostname;
         if (hostname === 'groups.google.com') return 'google-groups';
         if (hostname === 'mail.google.com') return 'gmail';
-        if (hostname.endsWith('outlook.com')) return 'outlook';
+        if (hostname.endsWith('.outlook.com') || hostname.endsWith('.office.com') || hostname.endsWith('.office365.com') || hostname.endsWith('outlook.live.com') || hostname.includes('.outlook.')) return 'outlook';
         if (hostname === 'mail.yahoo.com') return 'yahoo';
         return null;
     }
