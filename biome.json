@@ -2,13 +2,7 @@
 	"$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
 	"files": {
 		"include": ["src/**/*.js", "docs/**"],
-		"ignore": [
-			"docs/images",
-			"**/*.min.js",
-			"src/icons",
-			"src/materialize",
-			"src/scripts/fontawesome.js"
-		]
+		"ignore": ["docs/images", "**/*.min.js", "src/icons", "src/materialize", "src/scripts/fontawesome.js"]
 	},
 	"formatter": {
 		"enabled": true,
@@ -20,7 +14,7 @@
 	},
 	"organizeImports": {
 		"enabled": true
-	},	
+	},
 	"javascript": {
 		"formatter": {
 			"quoteStyle": "single"

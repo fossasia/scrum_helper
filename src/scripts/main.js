@@ -2,9 +2,7 @@
 var enableToggleElement = document.getElementById('enable');
 var githubUsernameElement = document.getElementById('githubUsername');
 var projectNameElement = document.getElementById('projectName');
-var lastWeekContributionElement = document.getElementById(
-	'lastWeekContribution',
-);
+var lastWeekContributionElement = document.getElementById('lastWeekContribution');
 var startingDateElement = document.getElementById('startingDate');
 var endingDateElement = document.getElementById('endingDate');
 var showOpenLabelElement = document.getElementById('showOpenLabel');
@@ -100,11 +98,7 @@ function handleLastWeekContributionChange() {
 function getLastWeek() {
 	var today = new Date();
 	var noDays_to_goback = gsoc == 0 ? 7 : 1;
-	var lastWeek = new Date(
-		today.getFullYear(),
-		today.getMonth(),
-		today.getDate() - noDays_to_goback,
-	);
+	var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - noDays_to_goback);
 	var lastWeekMonth = lastWeek.getMonth() + 1;
 	var lastWeekDay = lastWeek.getDate();
 	var lastWeekYear = lastWeek.getFullYear();
@@ -169,14 +163,9 @@ githubUsernameElement.addEventListener('keyup', handleGithubUsernameChange);
 projectNameElement.addEventListener('keyup', handleProjectNameChange);
 startingDateElement.addEventListener('change', handleStartingDateChange);
 endingDateElement.addEventListener('change', handleEndingDateChange);
-lastWeekContributionElement.addEventListener(
-	'change',
-	handleLastWeekContributionChange,
-);
+lastWeekContributionElement.addEventListener('change', handleLastWeekContributionChange);
 showOpenLabelElement.addEventListener('change', handleOpenLabelChange);
 userReasonElement.addEventListener('keyup', handleUserReasonChange);
 document.addEventListener('DOMContentLoaded', handleBodyOnLoad);
-document
-	.getElementById('codeheatTab')
-	.addEventListener('click', handleCodeheatClick);
+document.getElementById('codeheatTab').addEventListener('click', handleCodeheatClick);
 document.getElementById('gsocTab').addEventListener('click', handleGsocClick);
