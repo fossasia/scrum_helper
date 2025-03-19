@@ -46,7 +46,7 @@ function allIncluded() {
 				'userReason',
 				'gsoc',
 			],
-			function (items) {
+			(items) => {
 				if (items.gsoc) {
 					//gsoc
 					gsoc = 1;
@@ -144,10 +144,10 @@ function allIncluded() {
 			dataType: 'json',
 			type: 'GET',
 			url: issueUrl,
-			error: function (xhr, textStatus, errorThrown) {
+			error: (xhr, textStatus, errorThrown) => {
 				// error
 			},
-			success: function (data) {
+			success: (data) => {
 				githubIssuesData = data;
 			},
 		});
@@ -165,10 +165,10 @@ function allIncluded() {
 			dataType: 'json',
 			type: 'GET',
 			url: prUrl,
-			error: function (xhr, textStatus, errorThrown) {
+			error: (xhr, textStatus, errorThrown) => {
 				// error
 			},
-			success: function (data) {
+			success: (data) => {
 				githubPrsReviewData = data;
 			},
 		});
@@ -178,10 +178,10 @@ function allIncluded() {
 			dataType: 'json',
 			type: 'GET',
 			url: userUrl,
-			error: function (xhr, textStatus, errorThrown) {
+			error: (xhr, textStatus, errorThrown) => {
 				// error
 			},
-			success: function (data) {
+			success: (data) => {
 				githubUserData = data;
 			},
 		});
@@ -197,7 +197,7 @@ function allIncluded() {
 	function writeScrumBody() {
 		if (!enableToggle) return;
 
-		setTimeout(function () {
+		setTimeout(() => {
 			// Generate content first
 			var lastWeekUl = '<ul>';
 			var i;
@@ -254,7 +254,7 @@ function allIncluded() {
 	//load initial scrum subject
 	function scrumSubjectLoaded() {
 		if (!enableToggle) return;
-		setTimeout(function () {
+		setTimeout(() => {
 			//to apply this after google has autofilled
 			var name = githubUserData.name || githubUsername;
 			var project = getProject();
@@ -474,7 +474,7 @@ function allIncluded() {
 	// 		writeScrumBody();
 	// 	}
 	// },500);
-	var intervalBody = setInterval(function () {
+	var intervalBody = setInterval(() => {
 		if (!window.emailClientAdapter) return;
 
 		const elements = window.emailClientAdapter.getEditorElements();
@@ -502,7 +502,7 @@ function allIncluded() {
 	// 		scrumSubjectLoaded();
 	// 	}
 	// },500);
-	var intervalSubject = setInterval(function () {
+	var intervalSubject = setInterval(() => {
 		if (!githubUserData || !window.emailClientAdapter) return;
 
 		const elements = window.emailClientAdapter.getEditorElements();
@@ -514,21 +514,21 @@ function allIncluded() {
 	}, 500);
 
 	//check for github safe writing
-	var intervalWriteGithub = setInterval(function () {
+	var intervalWriteGithub = setInterval(() => {
 		if (scrumBody && githubUsername && githubIssuesData) {
 			clearInterval(intervalWriteGithub);
 			writeGithubIssuesPrs();
 		}
 	}, 500);
 	//check for github prs reviews safe writing
-	var intervalWriteGithubReviews = setInterval(function () {
+	var intervalWriteGithubReviews = setInterval(() => {
 		if (scrumBody && githubUsername && githubPrsReviewData) {
 			clearInterval(intervalWriteGithubReviews);
 			writeGithubPrsReviews();
 		}
 	}, 500);
 	if (!refreshButton_Placed) {
-		var intervalWriteButton = setInterval(function () {
+		var intervalWriteButton = setInterval(() => {
 			if (document.getElementsByClassName('F0XO1GC-x-b').length == 3 && scrumBody && enableToggle) {
 				refreshButton_Placed = true;
 				clearInterval(intervalWriteButton);
@@ -554,6 +554,6 @@ allIncluded();
 
 $('button>span:contains(New conversation)')
 	.parent('button')
-	.click(function () {
+	.click(() => {
 		allIncluded();
 	});
