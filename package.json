@@ -4,7 +4,7 @@
 	"description": "This extension helps in writing Scrums in google groups, particularly related to FOSSASIA. It converts a link to a github PR or an Issue to display the PR or the Issue's name along with the link to it.",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/fossasia/scrum_helper_extension.git"
+		"url": "git+https://github.com/fossasia/scrum_helper.git"
 	},
 	"scripts": {
 		"format": "biome format --write",
@@ -15,9 +15,9 @@
 	"author": "hkedia321",
 	"license": "ISC",
 	"bugs": {
-		"url": "https://github.com/fossasia/scrum_helper_extension/issues"
+		"url": "https://github.com/fossasia/scrum_helper/issues"
 	},
-	"homepage": "https://github.com/fossasia/scrum_helper_extension",
+	"homepage": "https://github.com/fossasia/scrum_helper",
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4"
 	}
