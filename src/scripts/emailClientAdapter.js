@@ -77,19 +77,16 @@ class EmailClientAdapter {
 	// Helper method to injectContent
 	dispatchElementEvents(element, events, includeKeyboard = false) {
 		if (!element || !events) return;
-
 		const eventsToDispatch = Array.isArray(events) ? events : [events];
-
-		eventsToDispatch.forEach((eventType) => {
+		for (const eventType of eventsToDispatch) {
 			// Dispatch standard events
 			element.dispatchEvent(new Event(eventType, { bubbles: true }));
-
 			// Dispatch keyboard events if needed
 			if (includeKeyboard) {
 				element.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true }));
 				element.dispatchEvent(new KeyboardEvent('keyup', { bubbles: true }));
 			}
-		});
+		}
 	}
 
 	injectContent(element, content, eventType) {
@@ -99,17 +96,16 @@ class EmailClientAdapter {
 		}
 		const clientType = this.detectClient();
 		const config = this.clientConfigs[clientType];
-
 		try {
 			switch (config?.injectMethod) {
-				case 'focusAndPaste':
+				case 'focusAndPaste': {
 					// Special handling for Outlook
 					element.focus();
 					element.innerHTML = content;
 					this.dispatchElementEvents(element, ['input', 'change'], true);
 					break;
-
-				case 'setContent':
+				}
+				case 'setContent': {
 					// Special handling for Yahoo
 					element.innerHTML = content;
 					element.focus();
@@ -121,11 +117,12 @@ class EmailClientAdapter {
 					selection.addRange(range);
 					this.dispatchElementEvents(element, ['input', 'change']);
 					break;
-
-				default:
+				}
+				default: {
 					// Default handling for Google clients
 					element.innerHTML = content;
 					element.dispatchEvent(new Event(eventType, { bubbles: true }));
+				}
 			}
 			return true;
 		} catch (error) {

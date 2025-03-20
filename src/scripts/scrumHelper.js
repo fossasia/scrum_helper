@@ -1,38 +1,38 @@
-var refreshButton_Placed = false;
-var enableToggle = true;
+let refreshButton_Placed = false;
+let enableToggle = true;
 function allIncluded() {
 	/* global $*/
-	var scrumBody = null;
-	var scrumSubject = null;
-	var startingDate = '';
-	var endingDate = '';
-	var githubUsername = '';
-	var projectName = '';
-	var lastWeekArray = [];
-	var nextWeekArray = [];
-	var reviewedPrsArray = [];
-	var githubIssuesData = null;
-	var lastWeekContribution = false
-	var githubPrsReviewData=null;
-	var githubPrCommitsData=null;
-	var githubUserData=null;
-	var githubPrsReviewDataProccessed = {};
-	var showOpenLabel = true;
-	var showClosedLabel = true;
-	var userReason = '';
-	var gsoc = 0; //0 means codeheat. 1 means gsoc
+	let scrumBody = null;
+	let scrumSubject = null;
+	let startingDate = '';
+	let endingDate = '';
+	let githubUsername = '';
+	let projectName = '';
+	const lastWeekArray = [];
+	const nextWeekArray = [];
+	const reviewedPrsArray = [];
+	let githubIssuesData = null;
+	let lastWeekContribution = false;
+	let githubPrsReviewData = null;
+	let githubPrCommitsData = null;
+	let githubUserData = null;
+	const githubPrsReviewDataProccessed = {};
+	let showOpenLabel = true;
+	let showClosedLabel = true;
+	let userReason = '';
+	let gsoc = 0; //0 means codeheat. 1 means gsoc
 
-	var pr_merged_button =
+	let pr_merged_button =
 		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #6f42c1;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--purple">closed</div>';
-	var pr_unmerged_button =
+	let pr_unmerged_button =
 		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
 
-	var issue_closed_button =
+	let issue_closed_button =
 		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #6f42c1;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--purple">closed</div>';
-	var issue_opened_button =
+	let issue_opened_button =
 		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
 
-	var linkStyle = '';
+	const linkStyle = '';
 	function getChromeData() {
 		chrome.storage.local.get(
 			[
@@ -64,37 +64,37 @@ function allIncluded() {
 				if (items.projectName) {
 					projectName = items.projectName;
 				}
-			if(items.endingDate && !lastWeekContribution){
-				endingDate= items.endingDate;
-			}
-			if(items.startingDate && !lastWeekContribution){
-				startingDate= items.startingDate;
-			}
-			if(items.projectName){
-				projectName=items.projectName;
-			}
-			if(items.githubUsername){
-				githubUsername=items.githubUsername;
-				fetchGithubData();
-			}
-			if(!items.showOpenLabel){
-				showOpenLabel=false;
-				pr_unmerged_button="";
-				issue_opened_button="";
-			}
-			if(!items.showClosedLabel){
-				showClosedLabel=false;
-				pr_merged_button="";
-				issue_closed_button="";
-			}
-			if(items.userReason){
-				userReason=items.userReason;
-			}
-			if(!items.userReason){
-				userReason="No Blocker at the moment";
-			}
-	
-		});
+				if (items.endingDate && !lastWeekContribution) {
+					endingDate = items.endingDate;
+				}
+				if (items.startingDate && !lastWeekContribution) {
+					startingDate = items.startingDate;
+				}
+				if (items.projectName) {
+					projectName = items.projectName;
+				}
+				if (items.githubUsername) {
+					githubUsername = items.githubUsername;
+					fetchGithubData();
+				}
+				if (!items.showOpenLabel) {
+					showOpenLabel = false;
+					pr_unmerged_button = '';
+					issue_opened_button = '';
+				}
+				if (!items.showClosedLabel) {
+					showClosedLabel = false;
+					pr_merged_button = '';
+					issue_closed_button = '';
+				}
+				if (items.userReason) {
+					userReason = items.userReason;
+				}
+				if (!items.userReason) {
+					userReason = 'No Blocker at the moment';
+				}
+			},
+		);
 	}
 	getChromeData();
 
@@ -103,102 +103,87 @@ function allIncluded() {
 		startingDate = getLastWeek();
 	}
 	function getLastWeek() {
-		var today = new Date();
-		var noDays_to_goback = gsoc == 0 ? 7 : 1;
-		var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - noDays_to_goback);
-		var lastWeekMonth = lastWeek.getMonth() + 1;
-		var lastWeekDay = lastWeek.getDate();
-		var lastWeekYear = lastWeek.getFullYear();
-		var lastWeekDisplayPadded =
-			('0000' + lastWeekYear.toString()).slice(-4) +
-			'-' +
-			('00' + lastWeekMonth.toString()).slice(-2) +
-			'-' +
-			('00' + lastWeekDay.toString()).slice(-2);
-		return lastWeekDisplayPadded;
+		const today = new Date();
+		const noDays_to_goback = gsoc === 0 ? 7 : 1;
+		const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - noDays_to_goback);
+
+		const lastWeekYear = lastWeek.getFullYear().toString().padStart(4, '0');
+		const lastWeekMonth = (lastWeek.getMonth() + 1).toString().padStart(2, '0');
+		const lastWeekDay = lastWeek.getDate().toString().padStart(2, '0');
+
+		return `${lastWeekYear}-${lastWeekMonth}-${lastWeekDay}`;
 	}
+
 	function getToday() {
-		var today = new Date();
-		var Week = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-		var WeekMonth = Week.getMonth() + 1;
-		var WeekDay = Week.getDate();
-		var WeekYear = Week.getFullYear();
-		var WeekDisplayPadded =
-			('0000' + WeekYear.toString()).slice(-4) +
-			'-' +
-			('00' + WeekMonth.toString()).slice(-2) +
-			'-' +
-			('00' + WeekDay.toString()).slice(-2);
-		return WeekDisplayPadded;
+		const today = new Date();
+
+		const WeekYear = today.getFullYear().toString().padStart(4, '0');
+		const WeekMonth = (today.getMonth() + 1).toString().padStart(2, '0');
+		const WeekDay = today.getDate().toString().padStart(2, '0');
+
+		return `${WeekYear}-${WeekMonth}-${WeekDay}`;
 	}
+
 	// fetch github data
 	function fetchGithubData() {
-		var issueUrl =
-			'https://api.github.com/search/issues?q=author%3A' +
-			githubUsername +
-			'+org%3Afossasia+created%3A' +
-			startingDate +
-			'..' +
-			endingDate +
-			'&per_page=100';
+		const issueUrl = `https://api.github.com/search/issues?q=author%3A${githubUsername}+org%3Afossasia+created%3A${startingDate}..${endingDate}&per_page=100`;
+
 		$.ajax({
 			dataType: 'json',
 			type: 'GET',
 			url: issueUrl,
 			error: (xhr, textStatus, errorThrown) => {
-				// error
+				console.error('Error fetching GitHub issues:', textStatus, errorThrown);
 			},
 			success: (data) => {
 				githubIssuesData = data;
 			},
 		});
-		// fetch github prs review data
-		var prUrl =
-			'https://api.github.com/search/issues?q=commenter%3A' +
-			githubUsername +
-			'+org%3Afossasia+updated%3A' +
-			startingDate +
-			'..' +
-			endingDate +
-			'&per_page=100';
+
+		// fetch GitHub PRs review data
+		const prUrl = `https://api.github.com/search/issues?q=commenter%3A${githubUsername}+org%3Afossasia+updated%3A${startingDate}..${endingDate}&per_page=100`;
 
 		$.ajax({
 			dataType: 'json',
 			type: 'GET',
 			url: prUrl,
 			error: (xhr, textStatus, errorThrown) => {
-				// error
+				console.error('Error fetching GitHub PR reviews:', textStatus, errorThrown);
 			},
 			success: (data) => {
 				githubPrsReviewData = data;
 			},
 		});
-		// fetch github user data
-		var userUrl = 'https://api.github.com/users/' + githubUsername;
+
+		// fetch GitHub user data
+		const userUrl = `https://api.github.com/users/${githubUsername}`;
+
 		$.ajax({
 			dataType: 'json',
 			type: 'GET',
 			url: userUrl,
 			error: (xhr, textStatus, errorThrown) => {
-				// error
+				console.error('Error fetching GitHub user data:', textStatus, errorThrown);
 			},
 			success: (data) => {
 				githubUserData = data;
 			},
 		});
+
 		// function to fetch commits in fossasia repos
-		let commitsUrl= `https://api.github.com/repos/fossasia/${projectName}/commits?author=${githubUsername}&since=${startingDate}T00:00:00Z&until=${endingDate}T23:59:59Z&per_page=100`;
+		const commitsUrl = `https://api.github.com/repos/fossasia/${projectName}/commits?author=${githubUsername}&since=${startingDate}T00:00:00Z&until=${endingDate}T23:59:59Z&per_page=100`;
+
 		$.ajax({
-			dataType: "json",
-			type: "GET",
-			url:commitsUrl,
-			error:(xhr, textStatus, errorThrown)=>{
-				console.error("Error fetching commits from fossasia repos:", textStatus, errorThrown);
+			dataType: 'json',
+			type: 'GET',
+			url: commitsUrl,
+			error: (xhr, textStatus, errorThrown) => {
+				console.error('Error fetching commits from fossasia repos:', textStatus, errorThrown);
 			},
-			success:(data)=>{
-				githubPrCommitsData=data;
-			}
-		})
+			success: (data) => {
+				githubPrCommitsData = data;
+			},
+		});
 	}
 
 	function formatDate(dateString) {
@@ -213,22 +198,22 @@ function allIncluded() {
 
 		setTimeout(() => {
 			// Generate content first
-			var lastWeekUl = '<ul>';
-			var i;
+			let lastWeekUl = '<ul>';
+			let i;
 			for (i = 0; i < lastWeekArray.length; i++) lastWeekUl += lastWeekArray[i];
 			for (i = 0; i < reviewedPrsArray.length; i++) lastWeekUl += reviewedPrsArray[i];
 			lastWeekUl += '</ul>';
 
-			var nextWeekUl = '<ul>';
+			let nextWeekUl = '<ul>';
 			for (i = 0; i < nextWeekArray.length; i++) nextWeekUl += nextWeekArray[i];
 			nextWeekUl += '</ul>';
 
-			var weekOrDay = gsoc == 1 ? 'yesterday' : 'last week';
-			var weekOrDay2 = gsoc == 1 ? 'today' : 'this week';
+			const weekOrDay = gsoc === 1 ? 'yesterday' : 'last week';
+			const weekOrDay2 = gsoc === 1 ? 'today' : 'this week';
 
 			// Create the complete content
 			let content;
-			if (lastWeekContribution == true) {
+			if (lastWeekContribution === true) {
 				content = `<b>1. What did I do ${weekOrDay}?</b>
 						  <br>${lastWeekUl}<br><br>
 						  <b>2. What I plan to do ${weekOrDay2}?</b>
@@ -256,11 +241,11 @@ function allIncluded() {
 	}
 
 	function getProject() {
-		if (projectName != '') return projectName;
+		if (projectName !== '') return projectName;
 
-		var project = '<project name>';
-		var url = window.location.href;
-		var projectUrl = url.substr(url.lastIndexOf('/') + 1);
+		let project = '<project name>';
+		const url = window.location.href;
+		const projectUrl = url.substr(url.lastIndexOf('/') + 1);
 		if (projectUrl === 'susiai') project = 'SUSI.AI';
 		else if (projectUrl === 'open-event') project = 'Open Event';
 		return project;
@@ -270,83 +255,59 @@ function allIncluded() {
 		if (!enableToggle) return;
 		setTimeout(() => {
 			//to apply this after google has autofilled
-			var name = githubUserData.name || githubUsername;
-			var project = getProject();
-			var curDate = new Date();
-			var year = curDate.getFullYear().toString();
-			var date = curDate.getDate();
-			var month = curDate.getMonth();
+			const name = githubUserData.name || githubUsername;
+			const project = getProject();
+			const curDate = new Date();
+			const year = curDate.getFullYear().toString();
+			let date = curDate.getDate();
+			let month = curDate.getMonth();
 			month++;
-			if (month < 10) month = '0' + month;
-			if (date < 10) date = '0' + date;
-			var dateCode = year.toString() + month.toString() + date.toString();
-			scrumSubject.value = '[Scrum] ' + name + ' - ' + project + ' - ' + dateCode + ' - False';
+			if (month < 10) month = `0${month}`;
+			if (date < 10) date = `0${date}`;
+			const dateCode = year.toString() + month.toString() + date.toString();
+			scrumSubject.value = `[Scrum] ${name} - ${project} - ${dateCode} - False`;
 			scrumSubject.dispatchEvent(new Event('input', { bubbles: true }));
 		});
 	}
 
 	// write PRs Reviewed
 	function writeGithubPrsReviews() {
-		var items = githubPrsReviewData.items;
-		var i;
-		for (i = 0; i < items.length; i++) {
-			var item = items[i];
-			if (item.user.login == githubUsername || !item.pull_request) continue;
-			var repository_url = item.repository_url;
-			var project = repository_url.substr(repository_url.lastIndexOf('/') + 1);
-			var title = item.title;
-			var number = item.number;
-			var html_url = item.html_url;
+		const items = githubPrsReviewData.items;
+		const githubPrsReviewDataProccessed = {};
+		const reviewedPrsArray = [];
+
+		for (let i = 0; i < items.length; i++) {
+			const item = items[i];
+			if (item.user.login === githubUsername || !item.pull_request) continue;
+
+			const repository_url = item.repository_url;
+			const project = repository_url.substring(repository_url.lastIndexOf('/') + 1);
+			const title = item.title;
+			const number = item.number;
+			const html_url = item.html_url;
+
 			if (!githubPrsReviewDataProccessed[project]) {
-				// first pr in this repo
 				githubPrsReviewDataProccessed[project] = [];
 			}
-			var obj = {
-				number: number,
-				html_url: html_url,
-				title: title,
-				state: item.state,
-			};
-			githubPrsReviewDataProccessed[project].push(obj);
+
+			githubPrsReviewDataProccessed[project].push({ number, html_url, title, state: item.state });
 		}
-		for (var repo in githubPrsReviewDataProccessed) {
-			var repoLi =
-				'<li> \
-		<i>(' +
-				repo +
-				')</i> - Reviewed ';
-			if (githubPrsReviewDataProccessed[repo].length > 1) repoLi += 'PRs - ';
-			else {
-				repoLi += 'PR - ';
-			}
-			if (githubPrsReviewDataProccessed[repo].length <= 1) {
-				for (var pr in githubPrsReviewDataProccessed[repo]) {
-					var pr_arr = githubPrsReviewDataProccessed[repo][pr];
-					var prText = '';
-					prText +=
-						"<a href='" + pr_arr.html_url + "' target='_blank'>#" + pr_arr.number + '</a> (' + pr_arr.title + ') ';
-					if (pr_arr.state === 'open') prText += issue_opened_button;
-					else prText += issue_closed_button;
-					prText += '&nbsp;&nbsp;';
-					repoLi += prText;
-				}
+
+		for (const repo in githubPrsReviewDataProccessed) {
+			let repoLi = `<li><i>(${repo})</i> - Reviewed `;
+			const prs = githubPrsReviewDataProccessed[repo];
+
+			repoLi += prs.length > 1 ? 'PRs - ' : 'PR - ';
+
+			if (prs.length === 1) {
+				const pr = prs[0];
+				const prText = `<a href='${pr.html_url}' target='_blank'>#${pr.number}</a> (${pr.title}) ${pr.state === 'open' ? issue_opened_button : issue_closed_button}`;
+				repoLi += `${prText}&nbsp;&nbsp;`;
 			} else {
 				repoLi += '<ul>';
-				for (var pr1 in githubPrsReviewDataProccessed[repo]) {
-					var pr_arr1 = githubPrsReviewDataProccessed[repo][pr1];
-					var prText1 = '';
-					prText1 +=
-						"<li><a href='" +
-						pr_arr1.html_url +
-						"' target='_blank'>#" +
-						pr_arr1.number +
-						'</a> (' +
-						pr_arr1.title +
-						') ';
-					if (pr_arr1.state === 'open') prText1 += issue_opened_button;
-					else prText1 += issue_closed_button;
-					prText1 += '&nbsp;&nbsp;</li>';
-					repoLi += prText1;
+				for (const pr of prs) {
+					const prText = `<li><a href='${pr.html_url}' target='_blank'>#${pr.number}</a> (${pr.title}) ${pr.state === 'open' ? issue_opened_button : issue_closed_button}&nbsp;&nbsp;</li>`;
+					repoLi += prText;
 				}
 				repoLi += '</ul>';
 			}
@@ -355,144 +316,70 @@ function allIncluded() {
 		}
 		writeScrumBody();
 	}
-	// write github commits 
-	function writeGithubCommits(){
+
+	// write github commits
+	function writeGithubCommits() {
 		if (!Array.isArray(githubPrCommitsData)) {
-			console.error("Invalid githubPrCommitsData: expected an array", githubPrCommitsData);
+			console.error('Invalid githubPrCommitsData: expected an array', githubPrCommitsData);
 			return;
 		}
-		let item = githubPrCommitsData;
-		for(let i = 0; i < item.length; i++){
-			const html_url=item[i].html_url
-			const urlParts = html_url.split('/'); 
-        	const project = urlParts[4];
-			const commit=item[i].commit
-			let commitMessage=commit.message;
-			const commitHash=item[i].sha;
-			const prMatch = commitMessage.match(/\(#(\d+)\)/); 
+		const item = githubPrCommitsData;
+		for (let i = 0; i < item.length; i++) {
+			const html_url = item[i].html_url;
+			const urlParts = html_url.split('/');
+			const project = urlParts[4];
+			const commit = item[i].commit;
+			const commitMessage = commit.message;
+			const commitHash = item[i].sha;
+			const prMatch = commitMessage.match(/\(#(\d+)\)/);
 			let PRNumber;
 			if (prMatch) {
-				let prNumber = prMatch[1];
-				PRNumber= ` under PR (<a href='https://github.com/fossasia/${project}/pulls/${prNumber}'>#${prNumber}</a>)`; // Append PR reference
+				const prNumber = prMatch[1];
+				PRNumber = ` under PR (<a href='https://github.com/fossasia/${project}/pulls/${prNumber}'>#${prNumber}</a>)`; // Append PR reference
 			}
-			let li=`<li><i>(${project})</i> - Made commit (<a href='${html_url}' target='_blank'>${commitHash}</a>) - ${commitMessage} &nbsp<u>${PRNumber}</u></li>`
+			const li = `<li><i>(${project})</i> - Made commit (<a href='${html_url}' target='_blank'>${commitHash}</a>) - ${commitMessage} &nbsp<u>${PRNumber}</u></li>`;
 			lastWeekArray.push(li);
 		}
-		writeScrumBody()
+		writeScrumBody();
 	}
 
 	//write issues and Prs from github
 	function writeGithubIssuesPrs() {
-		var data = githubIssuesData;
-		var items = data.items;
-		for (var i = 0; i < items.length; i++) {
-			var item = items[i];
-			var html_url = item.html_url;
-			var repository_url = item.repository_url;
-			var project = repository_url.substr(repository_url.lastIndexOf('/') + 1);
-			var title = item.title;
-			var number = item.number;
-			var li = '';
+		const data = githubIssuesData;
+		const items = data.items;
+		for (let i = 0; i < items.length; i++) {
+			const item = items[i];
+			const html_url = item.html_url;
+			const repository_url = item.repository_url;
+			const project = repository_url.substr(repository_url.lastIndexOf('/') + 1);
+			const title = item.title;
+			const number = item.number;
+			let li = '';
 			if (item.pull_request) {
 				// is a pull request
 				if (item.state === 'closed') {
 					// is closed PR
-					li =
-						'<li><i>(' +
-						project +
-						')</i> - Made PR (#' +
-						number +
-						") - <a href='" +
-						html_url +
-						"' style='" +
-						linkStyle +
-						"' target='_blank'>" +
-						title +
-						'</a> ' +
-						pr_merged_button +
-						'&nbsp;&nbsp;</li>';
+					li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}' style='${linkStyle}' target='_blank'>${title}</a> ${pr_merged_button}&nbsp;&nbsp;</li>`;
 				} else if (item.state === 'open') {
 					// is open PR
-					li =
-						'<li><i>(' +
-						project +
-						')</i> - Made PR (#' +
-						number +
-						") - <a href='" +
-						html_url +
-						"' target='_blank'>" +
-						title +
-						'</a> ' +
-						pr_unmerged_button +
-						'&nbsp;&nbsp;</li>';
+					li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}' target='_blank'>${title}</a> ${pr_unmerged_button}&nbsp;&nbsp;</li>`;
 				} else {
 					// else
-					li =
-						'<li><i>(' +
-						project +
-						')</i> - Made PR (#' +
-						number +
-						") - <a href='" +
-						html_url +
-						"' target='_blank'>" +
-						title +
-						'</a> &nbsp;&nbsp;</li>';
+					li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}' target='_blank'>${title}</a> &nbsp;&nbsp;</li>`;
 				}
 			} else {
 				// is a issue
 				if (item.state === 'open' && item.body.toUpperCase().indexOf('YES') > 0) {
 					//probably the author wants to work on this issue!
-					var li2 =
-						'<li><i>(' +
-						project +
-						')</i> - Work on Issue(#' +
-						number +
-						") - <a href='" +
-						html_url +
-						"' target='_blank'>" +
-						title +
-						'</a> ' +
-						issue_opened_button +
-						'&nbsp;&nbsp;</li>';
+					const li2 = `<li><i>(${project})</i> - Work on Issue(#${number}) - <a href='${html_url}' target='_blank'>${title}</a> ${issue_opened_button}&nbsp;&nbsp;</li>`;
 					nextWeekArray.push(li2);
 				}
 				if (item.state === 'open') {
-					li =
-						'<li><i>(' +
-						project +
-						')</i> - Opened Issue(#' +
-						number +
-						") - <a href='" +
-						html_url +
-						"' target='_blank'>" +
-						title +
-						'</a> ' +
-						issue_opened_button +
-						'&nbsp;&nbsp;</li>';
+					li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}' target='_blank'>${title}</a> ${issue_opened_button}&nbsp;&nbsp;</li>`;
 				} else if (item.state === 'closed') {
-					li =
-						'<li><i>(' +
-						project +
-						')</i> - Opened Issue(#' +
-						number +
-						") - <a href='" +
-						html_url +
-						"' target='_blank'>" +
-						title +
-						'</a> ' +
-						issue_closed_button +
-						'&nbsp;&nbsp;</li>';
+					li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}' target='_blank'>${title}</a> ${issue_closed_button}&nbsp;&nbsp;</li>`;
 				} else {
-					li =
-						'<li><i>(' +
-						project +
-						')</i> - Opened Issue(#' +
-						number +
-						") - <a href='" +
-						html_url +
-						"' target='_blank'>" +
-						title +
-						'</a> </li>';
+					li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}' target='_blank'>${title}</a> </li>`;
 				}
 			}
 			lastWeekArray.push(li);
@@ -514,7 +401,7 @@ function allIncluded() {
 	// 		writeScrumBody();
 	// 	}
 	// },500);
-	var intervalBody = setInterval(() => {
+	const intervalBody = setInterval(() => {
 		if (!window.emailClientAdapter) return;
 
 		const elements = window.emailClientAdapter.getEditorElements();
@@ -542,7 +429,7 @@ function allIncluded() {
 	// 		scrumSubjectLoaded();
 	// 	}
 	// },500);
-	var intervalSubject = setInterval(() => {
+	const intervalSubject = setInterval(() => {
 		if (!githubUserData || !window.emailClientAdapter) return;
 
 		const elements = window.emailClientAdapter.getEditorElements();
@@ -554,37 +441,37 @@ function allIncluded() {
 	}, 500);
 
 	//check for github safe writing
-	var intervalWriteGithub = setInterval(() => {
+	const intervalWriteGithub = setInterval(() => {
 		if (scrumBody && githubUsername && githubIssuesData) {
 			clearInterval(intervalWriteGithub);
 			writeGithubIssuesPrs();
 		}
-	},500);
-	var intervalWriteGithubCommits = setInterval(function(){
-		if(scrumBody && githubUsername && githubPrCommitsData){
+	}, 500);
+	const intervalWriteGithubCommits = setInterval(() => {
+		if (scrumBody && githubUsername && githubPrCommitsData) {
 			clearInterval(intervalWriteGithubCommits);
-			writeGithubCommits()
+			writeGithubCommits();
 		}
-	},500);
+	}, 500);
 	//check for github prs reviews safe writing
-	var intervalWriteGithubReviews = setInterval(() => {
+	const intervalWriteGithubReviews = setInterval(() => {
 		if (scrumBody && githubUsername && githubPrsReviewData) {
 			clearInterval(intervalWriteGithubReviews);
 			writeGithubPrsReviews();
 		}
 	}, 500);
 	if (!refreshButton_Placed) {
-		var intervalWriteButton = setInterval(() => {
-			if (document.getElementsByClassName('F0XO1GC-x-b').length == 3 && scrumBody && enableToggle) {
+		const intervalWriteButton = setInterval(() => {
+			if (document.getElementsByClassName('F0XO1GC-x-b').length === 3 && scrumBody && enableToggle) {
 				refreshButton_Placed = true;
 				clearInterval(intervalWriteButton);
-				var td = document.createElement('td');
-				var button = document.createElement('button');
+				const td = document.createElement('td');
+				const button = document.createElement('button');
 				button.style = 'background-image:none;background-color:#3F51B5;';
 				button.setAttribute('class', 'F0XO1GC-n-a F0XO1GC-G-a');
 				button.title = 'Rewrite your SCRUM using updated settings!';
 				button.id = 'refreshButton';
-				var elemText = document.createTextNode('↻ Rewrite SCRUM!');
+				const elemText = document.createTextNode('↻ Rewrite SCRUM!');
 				button.appendChild(elemText);
 				td.appendChild(button);
 				document.getElementsByClassName('F0XO1GC-x-b')[0].children[0].children[0].appendChild(td);
