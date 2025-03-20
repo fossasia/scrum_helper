@@ -148,8 +148,8 @@ function allIncluded(){
 			dataType: "json",
 			type: "GET",
 			url:commitsUrl,
-			error:(xhr,textStatus,errorThrown)=>{
-				//error
+			error:(xhr, textStatus, errorThrown)=>{
+				console.error("Error fetching commits from fossasia repos:", textStatus, errorThrown);
 			},
 			success:(data)=>{
 				githubPrCommitsData=data;
