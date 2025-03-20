@@ -302,8 +302,12 @@ function allIncluded(){
 	}
 	// write github commits 
 	function writeGithubCommits(){
-		let item=githubPrCommitsData;
-		for(let i=0;i<item.length;i++){
+		if (!Array.isArray(githubPrCommitsData)) {
+			console.error("Invalid githubPrCommitsData: expected an array", githubPrCommitsData);
+			return;
+		}
+		let item = githubPrCommitsData;
+		for(let i = 0; i < item.length; i++){
 			const html_url=item[i].html_url
 			const urlParts = html_url.split('/'); 
         	const project = urlParts[4];
