@@ -3,6 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
     <script src="./scripts/fontawesome.js"></script>
 	<title>Scrum Helper</title>
@@ -134,7 +135,24 @@
 					}
 				</script>
 			</div>
+
 		</div>
+		<div class="border-gray-100 border-2 bg-white rounded-3xl px-4 py-2 mx-2 my-2">
+			<div>
+				<h4 class="font-semibold text-xl">Note:</h4>
+				<ul class="text-xs list-disc list-inside">
+					<li>The PRs fetched are according to the date last reviewed by anyone. So if you reviewed a PR 10 days back, and someone reviewed it 2 days back, it will appear in your last week's activity. See <a target="_blank" href="https://github.com/fossasia/scrum_helper/issues/20">this issue</a>.
+					</li>
+					<li>By using the extension you understand that there might be discrepancies in the SCRUM generated. You are advised to edit the SCRUM afterwards to remove any discrepancies.
+					</li>
+				</ul>
+			</div>
+		</div>
+		<hr class="border-t-2 border-black">
+		<div class="flex items-center justify-center text-xl">
+			<a target="_blank" href="https://github.com/fossasia/scrum_helper" class="flex items-center"><h6><i class="fa fa-github" aria-hidden="true"></i> view code</h6></a>
+		</div>
+
 	</div>
 </body>
 </html>
