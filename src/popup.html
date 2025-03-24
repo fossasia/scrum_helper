@@ -4,8 +4,10 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta http-equiv="X-UA-Compatible" content="ie=edge">
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
-    <script src="./scripts/fontawesome.js"></script>
+	<link rel="stylesheet" href="libs/tailwind.min.css">
+    <script src="scripts/fontawesome.js"></script>
+	<script src="scripts/jquery-3.2.1.min.js"></script>
+	<script src="scripts/popup.js"></script>
 	<title>Scrum Helper</title>
 	<style>
 		html, .body{
@@ -18,25 +20,41 @@
 </head>
 <body>
 	<div class="h-screen pl-2">
-		<div class="flex justify-between">
+		<div class="flex justify-between py-2">
 			<h3  class="text-3xl font-semibold ">Scrum Helper</h3>
-			<img src="/src/icons/night-mode.png" alt="Night Mode" class="w-7 h-7 mx-3">
+			<img src="../icons/night-mode.png" alt="Night Mode" class="w-7 h-7 mx-3">
 		</div>
 		<div>
 			<p class="font-semibold">Prefills the scrum with your fossasia's contributions</p>
 		</div>
-		<div class="flex justify-between mt-5">
-			<div class="flex gap-2 px-5 w-1/2">
-				<p class="font-medium text-gray-600">Codeheat</p>
-				<div class="flex gap-2 items-center justify-center">
-					<img src="/src/icons/codeheat.png" alt="Logo" class="w-7 h-7">
-					<img src="/src/icons/down-arrow.png" alt="" class="w-3 h-3 cursor-pointer">
+		<div class="flex justify-between mt-2">
+			<div class="relative w-1/2">
+				<div id="customSelect" class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2 cursor-pointer flex items-center justify-between">
+					<div class="flex items-center gap-2">
+						<img src="../icons/codeheat.png" alt="Logo" class="w-7 h-7" id="selectedImage">
+						<span id="selectedText">Codeheat</span>
+					</div>
+					<i class="fas fa-chevron-down"></i>
+				</div>
+				<div id="dropdown" class="hidden absolute w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-10">
+					<div class="option p-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2" data-value="codeheat">
+						<img src="../icons/codeheat.png" alt="Logo" class="w-7 h-7">
+						<span>Codeheat</span>
+					</div>
+					<div class="option p-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2" data-value="codeheat">
+						<img src="../icons/gsoc.png" alt="Logo" class="w-7 h-7">
+						<span>GSoC</span>
+					</div>
 				</div>
 			</div>
-			<div class="flex gap-2 px-5 w-1/2 ">
+			
+			<div>
+			</div>
+			<div class="flex gap-2 px-5 w-1/2">
 				<p class="font-medium text-gray-500">Disable</p>
-				<div class="relative inline-block w-12 h-6 rounded-full bg-gray-300 cursor-pointer transition-colors duration-200 ease-in-out">
-					<div class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform duration-200 ease-in-out"></div>
+				<div id="toggleContainer" class="relative inline-block w-12 h-6 rounded-full bg-gray-300 cursor-pointer transition-all duration-200 ease-in-out">
+					<input type="checkbox" id="toggleInput" class="sr-only">
+					<div id="toggleDot" class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transform transition-transform duration-200 ease-in-out"></div>
 				</div>
 				<p class="font-medium text-gray-500">Enable</p>
 			</div>
@@ -45,11 +63,11 @@
 		<div class=" border-gray-100 border-2 bg-white rounded-3xl px-4 py-2 mx-2 my-2">
 			<div>
 				<h4>Your Project Name</h4>
-				<input type="text" class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800  p-2 my-2" placeholder="Enter your project name">
+				<input id="projectNameInput" type="text" class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800  p-2 my-2" placeholder="Enter your project name">
 			</div>
 			<div>
 				<h4>Your Github Username</h4>
-				<input type="text" class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800  p-2 my-2" placeholder="Required for fetching your contributions">
+				<input id="githubUsernameInput" type="text" class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800  p-2 my-2" placeholder="Required for fetching your contributions">
 			</div>
 			<div>
 				<h4>Email Client</h4>
@@ -75,11 +93,11 @@
 					<div class="flex justify-between items-center mt-2">
 						<div>
 							<label for="start-date">Start Date:</label>
-							<input type="date" id="start-date" class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1">
+							<input type="date" id="startDate" class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1">
 						</div>
 						<div>
 							<label for="end-date">End Date:</label>
-							<input type="date" id="end-date" class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1">
+							<input type="date" id="endDate" class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1">
 						</div>
 					</div>
 			</div>
@@ -87,55 +105,26 @@
 		<div class="border-gray-100 border-2 bg-white rounded-3xl px-4 py-2 mx-2 my-2">
 			<div class="flex items-center gap-2 mt-2">
 				<input type="checkbox" id="checkbox" class="form-checkbox h-4 w-4 text-blue-600">
-				<label for="checkbox" class="text-gray-700 font-medium text-sm">Show Open/Closed Label</label>
+				<label id="checkbox" for="checkbox" class="text-gray-700 font-medium text-sm">Show Open/Closed Label</label>
 			</div>
 			<div class="mt-4">
 				<p class="text-sm font-medium">What is stopping you from doing your work?</p>
-				<input type="text" class="w-full text-gray-800 mt-3" placeholder="Enter your reason">
+				<input id="userReason" type="text" class="w-full text-gray-800 mt-3" placeholder="Enter your reason">
 				<hr class="border-t-2 border-gray-700 mt-1 ">
 			</div>
 			<div class="mt-5">
 				<h4 class="text-2xl font-medium">Scrum Report:</h4>
-				<textarea class="w-full h-40 border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2" placeholder="Your scrum report will appear here"></textarea>
+				<textarea id="scrumOutput" class="w-full h-40 border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2" placeholder="Your scrum report will appear here"></textarea>
 			</div>
 				<div class="flex justify-between">
-				<button onclick="copyToClipboard()" class="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
-					<span>Copy to Clipboard</span>
-				</button>
-				<script>
-					function copyToClipboard() {
-						const textarea = document.querySelector('textarea');
-						textarea.select();
-						document.execCommand('copy');
-						// Optional: Visual feedback
-						const button = document.querySelector('button');
-						button.innerHTML = '<i class="fas fa-check"></i><span>Copied!</span>';
-						setTimeout(() => {
-							button.innerHTML = '<i class="fas fa-copy"></i><span>Copy to Clipboard</span>';
-						}, 2000);
-					}
-				</script>
-				<button onclick="fetchScrumReport()" class="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 ml-2 mt-2">
-					<i class="fas fa-sync"></i>
-					<span>Fetch Report</span>
-				</button>
-				<script>
-					async function fetchScrumReport() {
-						// Add your fetch logic here
-						const button = document.querySelector('button:last-of-type');
-						button.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Fetching...</span>';
-						try {
-							// Your API call or data fetching logic
-							setTimeout(() => {
-								button.innerHTML = '<i class="fas fa-sync"></i><span>Fetch Report</span>';
-							}, 2000);
-						} catch (error) {
-							button.innerHTML = '<i class="fas fa-exclamation-circle"></i><span>Error</span>';
-						}
-					}
-				</script>
-			</div>
-
+					<button id="copyButton" class="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+						<span>Copy to Clipboard</span>
+					</button>
+					<button id="fetchButton" class="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 ml-2 mt-2">
+						<i class="fas fa-sync"></i>
+						<span>Fetch Report</span>
+					</button>
+				</div>
 		</div>
 		<div class="border-gray-100 border-2 bg-white rounded-3xl px-4 py-2 mx-2 my-2">
 			<div>

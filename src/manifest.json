@@ -29,8 +29,16 @@
   ],
 
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self';"
+    "extension_pages": "script-src 'self'; object-src 'self'"
   },
+  "web_accessible_resources": [{
+    "resources": [
+      "scripts/*",
+      "icons/*",
+      "libs/*"
+    ],
+    "matches": ["<all_urls>"]
+  }],
   "permissions": [
     "tabs",
     "storage",
