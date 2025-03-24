@@ -325,19 +325,19 @@ function allIncluded() {
 		}
 		const item = githubPrCommitsData;
 		for (let i = 0; i < item.length; i++) {
-			const html_url = item[i].html_url;
-			const urlParts = html_url.split('/');
+			const htmlUrl = item[i].html_url;
+			const urlParts = htmlUrl.split('/');
 			const project = urlParts[4];
 			const commit = item[i].commit;
 			const commitMessage = commit.message;
 			const commitHash = item[i].sha;
 			const prMatch = commitMessage.match(/\(#(\d+)\)/);
-			let PRNumber;
+			let prMessage;
 			if (prMatch) {
 				const prNumber = prMatch[1];
-				PRNumber = ` under PR (<a href='https://github.com/fossasia/${project}/pulls/${prNumber}'>#${prNumber}</a>)`; // Append PR reference
+				prMessage = ` under PR (<a href='https://github.com/fossasia/${project}/pulls/${prNumber}'>#${prNumber}</a>)`; // Append PR reference
 			}
-			const li = `<li><i>(${project})</i> - Made commit (<a href='${html_url}' target='_blank'>${commitHash}</a>) - ${commitMessage} &nbsp<u>${PRNumber}</u></li>`;
+			const li = `<li><i>(${project})</i> - Made commit (<a href='${htmlUrl}' target='_blank'>${commitHash}</a>) - ${commitMessage} &nbsp<u>${prMessage}</u></li>`;
 			lastWeekArray.push(li);
 		}
 		writeScrumBody();
