@@ -1,4 +1,4 @@
-let refreshButton_Placed = false;
+let refreshButtonPlaced = false;
 let enableToggle = true;
 function allIncluded() {
 	/* global $*/
@@ -22,14 +22,14 @@ function allIncluded() {
 	let userReason = '';
 	let gsoc = 0; //0 means codeheat. 1 means gsoc
 
-	let pr_merged_button =
+	let prMergedButton =
 		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #6f42c1;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--purple">closed</div>';
-	let pr_unmerged_button =
+	let prUnmergedButton =
 		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
 
-	let issue_closed_button =
+	let issueClosedButton =
 		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #6f42c1;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--purple">closed</div>';
-	let issue_opened_button =
+	let issueOpenedButton =
 		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
 
 	const linkStyle = '';
@@ -79,13 +79,13 @@ function allIncluded() {
 				}
 				if (!items.showOpenLabel) {
 					showOpenLabel = false;
-					pr_unmerged_button = '';
-					issue_opened_button = '';
+					prUnmergedButton = '';
+					issueOpenedButton = '';
 				}
 				if (!items.showClosedLabel) {
 					showClosedLabel = false;
-					pr_merged_button = '';
-					issue_closed_button = '';
+					prMergedButton = '';
+					issueClosedButton = '';
 				}
 				if (items.userReason) {
 					userReason = items.userReason;
@@ -104,8 +104,8 @@ function allIncluded() {
 	}
 	function getLastWeek() {
 		const today = new Date();
-		const noDays_to_goback = gsoc === 0 ? 7 : 1;
-		const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - noDays_to_goback);
+		const noDaysToGoBack = gsoc === 0 ? 7 : 1;
+		const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - noDaysToGoBack);
 
 		const lastWeekYear = lastWeek.getFullYear().toString().padStart(4, '0');
 		const lastWeekMonth = (lastWeek.getMonth() + 1).toString().padStart(2, '0');
@@ -280,17 +280,17 @@ function allIncluded() {
 			const item = items[i];
 			if (item.user.login === githubUsername || !item.pull_request) continue;
 
-			const repository_url = item.repository_url;
-			const project = repository_url.substring(repository_url.lastIndexOf('/') + 1);
+			const repoUrl = item.repoUrl;
+			const project = repoUrl.substring(repoUrl.lastIndexOf('/') + 1);
 			const title = item.title;
 			const number = item.number;
-			const html_url = item.html_url;
+			const htmlUrl = item.htmlUrl;
 
 			if (!githubPrsReviewDataProccessed[project]) {
 				githubPrsReviewDataProccessed[project] = [];
 			}
 
-			githubPrsReviewDataProccessed[project].push({ number, html_url, title, state: item.state });
+			githubPrsReviewDataProccessed[project].push({ number, htmlUrl, title, state: item.state });
 		}
 
 		for (const repo in githubPrsReviewDataProccessed) {
@@ -301,12 +301,12 @@ function allIncluded() {
 
 			if (prs.length === 1) {
 				const pr = prs[0];
-				const prText = `<a href='${pr.html_url}' target='_blank'>#${pr.number}</a> (${pr.title}) ${pr.state === 'open' ? issue_opened_button : issue_closed_button}`;
+				const prText = `<a href='${pr.htmlUrl}' target='_blank'>#${pr.number}</a> (${pr.title}) ${pr.state === 'open' ? issueOpenedButton : issueClosedButton}`;
 				repoLi += `${prText}&nbsp;&nbsp;`;
 			} else {
 				repoLi += '<ul>';
 				for (const pr of prs) {
-					const prText = `<li><a href='${pr.html_url}' target='_blank'>#${pr.number}</a> (${pr.title}) ${pr.state === 'open' ? issue_opened_button : issue_closed_button}&nbsp;&nbsp;</li>`;
+					const prText = `<li><a href='${pr.htmlUrl}' target='_blank'>#${pr.number}</a> (${pr.title}) ${pr.state === 'open' ? issueOpenedButton : issueClosedButton}&nbsp;&nbsp;</li>`;
 					repoLi += prText;
 				}
 				repoLi += '</ul>';
@@ -325,7 +325,7 @@ function allIncluded() {
 		}
 		const item = githubPrCommitsData;
 		for (let i = 0; i < item.length; i++) {
-			const htmlUrl = item[i].html_url;
+			const htmlUrl = item[i].htmlUrl;
 			const urlParts = htmlUrl.split('/');
 			const project = urlParts[4];
 			const commit = item[i].commit;
@@ -349,9 +349,9 @@ function allIncluded() {
 		const items = data.items;
 		for (let i = 0; i < items.length; i++) {
 			const item = items[i];
-			const html_url = item.html_url;
-			const repository_url = item.repository_url;
-			const project = repository_url.substr(repository_url.lastIndexOf('/') + 1);
+			const htmlUrl = item.htmlUrl;
+			const repoUrl = item.repoUrl;
+			const project = repoUrl.substr(repoUrl.lastIndexOf('/') + 1);
 			const title = item.title;
 			const number = item.number;
 			let li = '';
@@ -359,27 +359,27 @@ function allIncluded() {
 				// is a pull request
 				if (item.state === 'closed') {
 					// is closed PR
-					li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}' style='${linkStyle}' target='_blank'>${title}</a> ${pr_merged_button}&nbsp;&nbsp;</li>`;
+					li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${htmlUrl}' style='${linkStyle}' target='_blank'>${title}</a> ${prMergedButton}&nbsp;&nbsp;</li>`;
 				} else if (item.state === 'open') {
 					// is open PR
-					li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}' target='_blank'>${title}</a> ${pr_unmerged_button}&nbsp;&nbsp;</li>`;
+					li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${htmlUrl}' target='_blank'>${title}</a> ${prUnmergedButton}&nbsp;&nbsp;</li>`;
 				} else {
 					// else
-					li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}' target='_blank'>${title}</a> &nbsp;&nbsp;</li>`;
+					li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${htmlUrl}' target='_blank'>${title}</a> &nbsp;&nbsp;</li>`;
 				}
 			} else {
 				// is a issue
 				if (item.state === 'open' && item.body.toUpperCase().indexOf('YES') > 0) {
 					//probably the author wants to work on this issue!
-					const li2 = `<li><i>(${project})</i> - Work on Issue(#${number}) - <a href='${html_url}' target='_blank'>${title}</a> ${issue_opened_button}&nbsp;&nbsp;</li>`;
+					const li2 = `<li><i>(${project})</i> - Work on Issue(#${number}) - <a href='${htmlUrl}' target='_blank'>${title}</a> ${issueOpenedButton}&nbsp;&nbsp;</li>`;
 					nextWeekArray.push(li2);
 				}
 				if (item.state === 'open') {
-					li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}' target='_blank'>${title}</a> ${issue_opened_button}&nbsp;&nbsp;</li>`;
+					li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${htmlUrl}' target='_blank'>${title}</a> ${issueOpenedButton}&nbsp;&nbsp;</li>`;
 				} else if (item.state === 'closed') {
-					li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}' target='_blank'>${title}</a> ${issue_closed_button}&nbsp;&nbsp;</li>`;
+					li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${htmlUrl}' target='_blank'>${title}</a> ${issueClosedButton}&nbsp;&nbsp;</li>`;
 				} else {
-					li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}' target='_blank'>${title}</a> </li>`;
+					li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${htmlUrl}' target='_blank'>${title}</a> </li>`;
 				}
 			}
 			lastWeekArray.push(li);
@@ -460,10 +460,10 @@ function allIncluded() {
 			writeGithubPrsReviews();
 		}
 	}, 500);
-	if (!refreshButton_Placed) {
+	if (!refreshButtonPlaced) {
 		const intervalWriteButton = setInterval(() => {
 			if (document.getElementsByClassName('F0XO1GC-x-b').length === 3 && scrumBody && enableToggle) {
-				refreshButton_Placed = true;
+				refreshButtonPlaced = true;
 				clearInterval(intervalWriteButton);
 				const td = document.createElement('td');
 				const button = document.createElement('button');
