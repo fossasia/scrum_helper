@@ -22,7 +22,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // State Management
     let state = {
-        gsoc: false,
         enabled: true,
         projectName: '',
         githubUsername: '',
@@ -35,7 +34,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Initialize state from storage and ScrumState
     chrome.storage.local.get([
-        'gsoc',
         'scrumHelperEnabled',
         'projectName',
         'githubUsername',

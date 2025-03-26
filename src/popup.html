@@ -5,9 +5,12 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta http-equiv="X-UA-Compatible" content="ie=edge">
 	<link rel="stylesheet" href="libs/tailwind.min.css">
-    <script src="scripts/fontawesome.js"></script>
+	<link rel="stylesheet" href="index.css">
+    <script src="./scripts/fontawesome.js"></script>
 	<script src="scripts/jquery-3.2.1.min.js"></script>
-	<script src="scripts/popup.js"></script>
+	<script src="scripts/main.js"></script>
+	<script src="scripts/emailClientAdapter.js"></script>
+	<script src="scripts/scrumHelper.js"></script>
 	<title>Scrum Helper</title>
 	<style>
 		html, .body{
@@ -16,6 +19,47 @@
 			overflow: auto; /* Ensures content does not overflow */
 			background: #efeeee;
 		}
+		
+        /* Add these toggle styles */
+        #toggleContainer {
+            position: relative;
+            width: 48px;
+            height: 24px;
+            background-color: #d1d5db;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #toggleContainer.active {
+            background-color: #22c55e;
+        }
+
+        #toggleDot {
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background-color: white;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+        }
+
+        #toggleContainer.active #toggleDot {
+            transform: translateX(24px);
+        }
+
+        #toggleInput:checked ~ #toggleDot {
+            transform: translateX(24px);
+        }
+		.issueLink{
+			font-family: -apple-system,system-ui,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+			color: rgb(0, 65, 175)!important;
+			/* font-size: 14px!important; */
+			font-weight: 600!important;
+		}
+
 	</style>
 </head>
 <body>
@@ -29,6 +73,7 @@
 		</div>
 		<div class="flex justify-between mt-2">
 			<div class="relative w-1/2">
+                <!-- GSOC AND CODEHEAT ID -->
 				<div id="customSelect" class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2 cursor-pointer flex items-center justify-between">
 					<div class="flex items-center gap-2">
 						<img src="../icons/codeheat.png" alt="Logo" class="w-7 h-7" id="selectedImage">
@@ -37,41 +82,41 @@
 					<i class="fas fa-chevron-down"></i>
 				</div>
 				<div id="dropdown" class="hidden absolute w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-10">
-					<div class="option p-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2" data-value="codeheat">
-						<img src="../icons/codeheat.png" alt="Logo" class="w-7 h-7">
-						<span>Codeheat</span>
-					</div>
-					<div class="option p-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2" data-value="codeheat">
-						<img src="../icons/gsoc.png" alt="Logo" class="w-7 h-7">
-						<span>GSoC</span>
-					</div>
-				</div>
+                    <div id="codeheatOption" class="option p-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2" data-value="codeheat">
+                        <img src="../icons/codeheat.png" alt="Logo" class="w-7 h-7">
+                        <span>Codeheat</span>
+                    </div>
+                    <div id="gsocOption" class="option p-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2" data-value="gsoc">
+                        <img src="../icons/gsoc.png" alt="Logo" class="w-7 h-7">
+                        <span>GSoC</span>
+                    </div>
+                </div>
 			</div>
 			
 			<div>
 			</div>
 			<div class="flex gap-2 px-5 w-1/2">
 				<p class="font-medium text-gray-500">Disable</p>
-				<div id="toggleContainer" class="relative inline-block w-12 h-6 rounded-full bg-gray-300 cursor-pointer transition-all duration-200 ease-in-out">
+				<div id="toggleContainer" class="relative inline-block w-12 h-6 rounded-full bg-gray-300 cursor-pointer">
 					<input type="checkbox" id="toggleInput" class="sr-only">
-					<div id="toggleDot" class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transform transition-transform duration-200 ease-in-out"></div>
+					<div id="toggleDot" class="absolute w-5 h-5 bg-white rounded-full shadow-md"></div>
 				</div>
 				<p class="font-medium text-gray-500">Enable</p>
 			</div>
-		</div>
+			</div>
 		 First box 
 		<div class=" border-gray-100 border-2 bg-white rounded-3xl px-4 py-2 mx-2 my-2">
 			<div>
 				<h4>Your Project Name</h4>
-				<input id="projectNameInput" type="text" class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800  p-2 my-2" placeholder="Enter your project name">
+				<input id="projectName" type="text" class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800  p-2 my-2" placeholder="Enter your project name">
 			</div>
 			<div>
 				<h4>Your Github Username</h4>
-				<input id="githubUsernameInput" type="text" class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800  p-2 my-2" placeholder="Required for fetching your contributions">
+				<input id="githubUsername" type="text" class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800  p-2 my-2" placeholder="Required for fetching your contributions">
 			</div>
 			<div>
 				<h4>Email Client</h4>
-				<select class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2">
+				<select id="emailClientSelect" class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2">
 					<option value="gmail">Gmail</option>
 					<option value="outlook">Outlook</option>
 					<option value="yahoo">Yahoo Mail</option>
@@ -82,7 +127,7 @@
 				<p class="text-sm">Fetch your contributions between:</p>
 					<div class="flex justify-between items-center my-2 mx-4">
 						<div class="flex items-center gap-2">
-							<input type="radio" id="today" name="timeframe" class="form-radio">
+							<input type="radio" id="lastWeekContribution" name="timeframe" class="form-radio">
 							<label for="today">Last 7 days</label>
 						</div>
 						<div class="flex items-center gap-2">
@@ -93,11 +138,11 @@
 					<div class="flex justify-between items-center mt-2">
 						<div>
 							<label for="start-date">Start Date:</label>
-							<input type="date" id="startDate" class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1">
+							<input type="date" id="startingDate" class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1">
 						</div>
 						<div>
 							<label for="end-date">End Date:</label>
-							<input type="date" id="endDate" class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1">
+							<input type="date" id="endingDate" class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1">
 						</div>
 					</div>
 			</div>
@@ -114,10 +159,10 @@
 			</div>
 			<div class="mt-5">
 				<h4 class="text-2xl font-medium">Scrum Report:</h4>
-				<textarea id="scrumOutput" class="w-full h-40 border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2" placeholder="Your scrum report will appear here"></textarea>
+				<textarea id="scrumReport" class="w-full h-40 border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2" placeholder="Your scrum report will appear here..."></textarea>
 			</div>
 				<div class="flex justify-between">
-					<button id="copyButton" class="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
+					<button id="copyButton" class="flex items-center gap-2 bg-blue-500 text-white pxf-4 py-2 rounded-lg hover:bg-blue-600">
 						<span>Copy to Clipboard</span>
 					</button>
 					<button id="fetchButton" class="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 ml-2 mt-2">
@@ -141,7 +186,6 @@
 		<div class="flex items-center justify-center text-xl">
 			<a target="_blank" href="https://github.com/fossasia/scrum_helper" class="flex items-center"><h6><i class="fa fa-github" aria-hidden="true"></i> view code</h6></a>
 		</div>
-
 	</div>
 </body>
 </html>

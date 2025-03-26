@@ -1,151 +1,349 @@
-/* global $,Materialize*/
-var enableToggleElement = document.getElementById("enable");
-var githubUsernameElement = document.getElementById("githubUsername");
-var projectNameElement = document.getElementById("projectName");
-var lastWeekContributionElement=document.getElementById("lastWeekContribution");
-var startingDateElement = document.getElementById("startingDate");
-var endingDateElement = document.getElementById("endingDate");
-var showOpenLabelElement = document.getElementById("showOpenLabel");
-var userReasonElement = document.getElementById("userReason");
-var gsoc = 0;//0 means gsoc. 1 means gsoc
-function handleBodyOnLoad(){
-	// prefill name
-	chrome.storage.local.get(["githubUsername","projectName","enableToggle","startingDate","endingDate","showOpenLabel","showClosedLabel","userReason","lastWeekContribution","gsoc"],function(items){
-		if(items.githubUsername){
-			githubUsernameElement.value=items.githubUsername;
-		}
-		if(items.projectName){
-			projectNameElement.value = items.projectName;
-		}
-		if(items.enableToggle){
-			enableToggleElement.checked=items.enableToggle;
-		}
-		else if(items.enableToggle!==false){// undefined
-			enableToggleElement.checked=true;
-			handleEnableChange();
-		}
-		if(items.endingDate){
-			endingDateElement.value = items.endingDate;
-		}
-		if(items.startingDate){
-			startingDateElement.value = items.startingDate;
-		}
-		if(items.showOpenLabel){
-			showOpenLabelElement.checked= items.showOpenLabel;
-		}
-		else if(items.showOpenLabel!==false){// undefined
-			showOpenLabelElement.checked=true;
-			handleOpenLabelChange();
-		}
-		if(items.userReason){
-			userReasonElement.value = items.userReason;
-		}
-		if(items.lastWeekContribution){
-			lastWeekContributionElement.checked=items.lastWeekContribution;
-			handleLastWeekContributionChange();
-		}
-		else if(items.lastWeekContribution!==false){
-			lastWeekContributionElement.checked=true;
-			handleLastWeekContributionChange();
-		}
-		if(items.gsoc==1){
-			handleGsocClick();
-		}
-		else{
-			handleCodeheatClick();
-		}
-	});
+var toggleContainerElement = document.getElementById('toggleContainer');  // Toggle behaiviour
+var toggleInputElement = document.getElementById('toggleInput');  // Toggle behaiviour
+var toggleDotElement = document.getElementById('toggleDot');  // Toggle behaiviour
+var githubUsernameElement = document.getElementById('githubUsername');
+var projectNameElement = document.getElementById('projectName');
+var lastWeekContributionElement = document.getElementById('lastWeekContribution');
+var yesterdayElement = document.getElementById('yesterday');
+var startingDateElement = document.getElementById('startingDate');
+var endingDateElement = document.getElementById('endingDate');
+var checkboxElement = document.getElementById('checkbox');
+var userReasonElement = document.getElementById('userReason');
+var scrumReportElement = document.getElementById('scrumReport');
+var copyButtonElement = document.getElementById('copyButton');
+var fetchButtonElement = document.getElementById('fetchButton');
+var customSelectElement = document.getElementById('customSelect');
+var emailClientSelectElement = document.getElementById('emailClientSelect');
+var selectedEmailClient = 'googlegroups';
+var dropdownElement = document.getElementById('dropdown');
+var selectedTextElement = document.getElementById('selectedText');
+var selectedImageElement = document.getElementById('selectedImage');
+var optionsElement = document.querySelectorAll('.option');
+
+
+// add open closed labels
+
+
+function handleBodyOnLoad() {
+    // prefill name
+    chrome.storage.local.get(
+        [
+            'scrumHelperEnabled',
+            'githubUsername',
+            'projectName',
+            // 'toggleDot',
+            // 'toggleInput',
+            // 'toggleContainer',
+            'lastWeekContribution',
+            'yesterday',
+            'startingDate',
+            'endingDate',
+            'checkbox',
+            'userReason',
+            'scrumReport',
+            // 'copyButton',
+            // 'fetchButton',
+            'customSelect',
+        ],
+        (items) => {
+            if(items.githubUsername) {
+                githubUsernameElement.value = items.githubUsername;
+            }
+            if(items.projectName){
+                projectNameElement.value = items.projectName;
+            }
+            if(items.toggleInput){
+                toggleInputElement.checked = items.toggleInput;
+            }else if(items.toggleInput !== false){
+                toggleInputElement.checked = true;
+                handleToggleInputChange();
+            }
+            if(items.lastWeekContribution){
+                lastWeekContributionElement.checked = items.lastWeekContribution;
+                handleLastWeekContributionChange();
+            } else if(items.lastWeekContribution !== false){
+                lastWeekContributionElement.checked = true;
+                handleLastWeekContributionChange();
+            }
+            if(items.yesterday){
+                yesterdayElement.checked = items.yesterday;
+                handleYesterdayChange();
+            }
+            if(items.startingDate){
+                startingDateElement.value = items.startingDate;
+            }
+            if(items.endingDate){
+                endingDateElement.value = items.endingDate;
+            }
+            if(items.checkbox){
+                checkboxElement.checked = items.checkbox;
+                handleCheckboxChange();
+            }
+            if(items.userReason){
+                userReasonElement = items.userReason;
+            }
+            if(items.scrumReport){
+                scrumReportElement = items.scrumReport;
+            }
+            if(scrumHelperEnabled === false){
+                toggleInputElement.checked = false;
+                handleToggleInputChange();
+            } else {
+                toggleInputElement.checked = true;
+                handleToggleInputChange();
+            }
+            if(items.customSelectElement){
+                // Write code for custom select
+            }
+            // if(write code for email clients)
+
+        },
+    );
 }
-function handleEnableChange(){
-	var value = enableToggleElement.checked;
-	chrome.storage.local.set({"enableToggle": value});
+// chrome.storage.local.set({toggleInput: value});
+
+
+
+// Add custom select functionality
+customSelectElement?.addEventListener('click', () => {
+    dropdownElement.classList.toggle('active');
+});
+
+// Close dropdown when clicking outside
+document.addEventListener('click', (e) => {
+    if ( !customSelectElement?.contains(e.target)) {
+        dropdownElement?.classList.add('hidden');
+    }
+});
+
+// handle option selection
+optionsElement.forEach(option => {
+    option.addEventListener('click', () => {
+        const value = option.dataset.value;
+        const text = option.querySelector('span').textContent;
+        const img = option.querySelector('img');
+
+        // update display
+        selectedTextElement.textContent = text;
+        if(img){
+            selectedImageElement.src = img.src;
+        }
+
+        // hide dropdown
+        dropdownElement.classList.add('hidden');
+
+        // save selected value
+        chrome.storage.local.set({
+            
+        })
+    })
+
+
+})
+
+// Update UI from state
+function updateUIFromSate(){
+    var value = items.scrumHelperEnabled;
+    if (value) {
+        toggleContainerElement.classList.add('active');
+    }
+
+    projectNameElement.value = items.projectName || '';
+    githubUsernameElement.value = items.githubUsername || '';
+    startingDateElement.value = items.startingDate || '';
+    endingDateElement.value = items.endingDate || '';
+    lastWeekContributionElement.checked = items.lastWeekContribution;
+    yesterdayElement.checked = items.yesterday;
+    userReasonElement.value = items.userReason;
+    scrumReportElement.value = items.scrumReport;
+    emailClientSelectElement.value = items.selectedEmailClient;
+    selectedEmailClient = items.selectedEmailClient;
+    checkboxElement.checked = items.checkbox;
+    // Update program selection
+    const option = document.querySelector(`[data-value="${items.gsoc ? 'gsoc' : 'codeheat'}"]`);
+    if (option) {
+        const text = option.querySelector('span').textContent;
+        const img = option.querySelector('img');
+        selectedTextElement.textContent = text;
+        if (img) selectedImageElement.src = img.src;
+    }
 }
+
+
+
+function handleToggleInputChange() {
+    var value = toggleInputElement.checked;
+    
+    // Toggle classes instead of inline styles
+    if (value) {
+        toggleContainerElement.classList.add('active');
+    } else {
+        toggleContainerElement.classList.remove('active');
+    }
+    
+    // Update form elements enabled state
+    [
+        githubUsernameElement,
+        projectNameElement,
+        startingDateElement,
+        endingDateElement,
+        lastWeekContributionElement,
+        yesterdayElement,
+        checkboxElement,
+        userReasonElement,
+        emailClientSelectElement,
+        fetchButtonElement,
+        scrumReportElement
+    ].forEach(element => {
+        if (element) element.disabled = !value;
+    });
+
+    // Update custom select state
+    if (customSelectElement) {
+        customSelectElement.style.pointerEvents = value ? 'auto' : 'none';
+        customSelectElement.style.opacity = value ? '1' : '0.5';
+    }
+
+    // Save state
+    chrome.storage.local.set({ 
+        toggleInput: value,
+        scrumHelperEnabled: value 
+    });
+}
+
+
+
 function handleStartingDateChange(){
-	var value = startingDateElement.value;
-	chrome.storage.local.set({"startingDate": value});
+    var value = startingDateElement.value;
+    chrome.storage.local.set({ startingDate: value });
 }
 function handleEndingDateChange(){
-	var value = endingDateElement.value;
-	chrome.storage.local.set({"endingDate": value});
+    var value = endingDateElement.value;
+    chrome.storage.local.set({ endingDate: value });
 }
 function handleLastWeekContributionChange(){
-	var value = lastWeekContributionElement.checked;
-	if(value){
-		startingDateElement.disabled=true;
-		endingDateElement.disabled=true;
-		endingDateElement.value=getToday();
-		startingDateElement.value=getLastWeek();
-		handleEndingDateChange();
-		handleStartingDateChange();
-	}
-	else{
-		startingDateElement.disabled=false;
-		endingDateElement.disabled=false;
-	}
-	chrome.storage.local.set({"lastWeekContribution": value});
+    var value = lastWeekContributionElement.checked;
+    if(value){
+        startingDateElement.disable = true;
+        endingDateElement.disable = true;
+        endingDateElement.value = getToday();
+        startingDateElement.value = getLastWeek();
+        handleEndingDateChange();
+        handleStartingDateChange();
+    } else{
+        startingDateElement.disable = false;
+        endingDateElement.disable = false;
+    }
+    chrome.storage.local.set({ lastWeekContribution: value });
 }
-function getLastWeek(){
-	var today = new Date();
-	var noDays_to_goback=gsoc==0?7:1;
-	var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - noDays_to_goback);
-	var lastWeekMonth = lastWeek.getMonth() + 1;
-	var lastWeekDay = lastWeek.getDate();
-	var lastWeekYear = lastWeek.getFullYear();
-	var lastWeekDisplayPadded =("0000" + lastWeekYear .toString()).slice(-4) +"-" + ("00" + lastWeekMonth.toString()).slice(-2)+ "-" + ("00" + lastWeekDay .toString()).slice(-2);
-	return lastWeekDisplayPadded;
+function handleYesterdayChange(){
+    var value = yesterdayElement.checked;
+    if(value){
+        startingDateElement.disable = true;
+        endingDateElement.disable = true;
+        endingDateElement.value = getToday();
+        startingDateElement.value = getYesterday();
+        handleEndingDateChange();
+        handleStartingDateChange();
+    } else{
+        startingDateElement.disable = false;
+        endingDateElement.disable = false;
+    }
+    chrome.storage.local.set({ yesterday: value });
 }
-function getToday(){
-	var today = new Date();
-	var Week = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-	var WeekMonth = Week.getMonth() + 1;
-	var WeekDay = Week.getDate();
-	var WeekYear = Week.getFullYear();
-	var WeekDisplayPadded =("0000" + WeekYear .toString()).slice(-4) +"-" + ("00" + WeekMonth.toString()).slice(-2)+ "-" + ("00" + WeekDay .toString()).slice(-2);
-	return WeekDisplayPadded;
+// Write a fetch function
+function prefillScrumReport(){
+    fetchButtonElement.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Fetching...</span>';
+
+    chrome.tabs.query({active: true, currentWindow: true}, function(tabs){
+        chrome.tabs.sendMessage(tabs[0].id, {
+            action: 'generateScrumReport',
+            data: {
+                githubUsername: githubUsernameElement.value,
+                projectName: projectNameElement.value,
+                startingDate: startingDateElement.value,
+                endingDate: endingDateElement.value,
+                emailClient: selectedEmailClient,
+                userReason: userReasonElement.value,
+            }
+        }, function(response) {
+            if(response && response.scrumReport){
+                scrumReportElement.value = response.scrumReport;
+                enableScrumReportEditing();
+                chrome.storage.local.set({
+                    scrumReport: response.scrumReport,
+                    lastUpdated: new Date().toISOString()
+                });
+
+                fetchButtonElement.innerHTML = '<i class="fas fa-check"></i><span>Done</span>';
+                setTimeout(() => {
+                    fetchButtonElement.innerHTML = '<i class="fas fa-sync"></i><span>Fetch Report</span>';
+                }, 2000);
+            }
+        });
+    });
 }
 
+function getLastWeek() {
+    var today = new Date();
+    var noDays_to_goback = 7;
+    var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - noDays_to_goback);
+    var lastWeekMonth = lastWeek.getMonth() + 1;
+    var lastWeekDay = lastWeek.getDate();
+    var lastWeekYear = lastWeek.getFullYear();
+    var lastWekDisplayPadded = ('0000' + lastWeekYear.toString()).slice(-4)+ '-' + ('00' + lastWeekMonth.toString()).slice(-2) + '-' + ('00' + lastWeekDay.toString()).slice(-2);
+    return lastWekDisplayPadded;
+}
 
+function getYesterday() {
+    var today = new Date();
+    var noDays_to_goback = 1;
+    var yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - noDays_to_goback);
+    var yesterdayMonth = yesterday.getMonth() + 1;
+    var yesterdayDay = yesterday.getDate();
+    var yesterdayYear = yesterday.getFullYear();
+    var yesterdayDisplayPadded = ('0000' + yesterdayYear.toString()).slice(-4)+ '-' + ('00' + yesterdayMonth.toString()).slice(-2) + '-' + ('00' + yesterdayDay.toString()).slice(-2);
+    return yesterdayDisplayPadded;
+}
 function handleGithubUsernameChange(){
-	var value = githubUsernameElement.value;
-	chrome.storage.local.set({"githubUsername": value});
+    var value = githubUsernameElement.value;
+    chrome.storage.local.set({githubUsername: value});
 }
 function handleProjectNameChange(){
-	var value = projectNameElement.value;
-	chrome.storage.local.set({"projectName": value});
-}
-function handleOpenLabelChange(){
-	var value = showOpenLabelElement.checked;
-	chrome.storage.local.set({"showOpenLabel": value});
-	chrome.storage.local.set({"showClosedLabel": value});
+    var value = projectNameElement.value;
+    chrome.storage.local.set({projectName: value});
 }
 function handleUserReasonChange(){
-	var value = userReasonElement.value;
-	chrome.storage.local.set({"userReason": value});
+    var value = userReasonElement.value;
+    chrome.storage.local.set({ userReason: value});
 }
-function handleCodeheatClick(){
-	gsoc=0;
-	$("#codeheatTab").addClass("active");
-	$(".tabs").tabs();
-	$("#noDays").text("7 days");
-	chrome.storage.local.set({"gsoc": 0});
-	handleLastWeekContributionChange();
+function handleEmailClientChange(){
+    var value = emailClientSelectElement.value;
+    selectedEmailClient = value;
+    chrome.storage.local.set({ selectedEmailClient: value });
 }
-function handleGsocClick(){
-	gsoc=1;
-	$("#gsocTab").addClass("active");
-	$(".tabs").tabs();
-	$("#noDays").text("1 day");
-	chrome.storage.local.set({"gsoc": 1});
-	handleLastWeekContributionChange();
+function handleScrumReportChange() {
+    var value = scrumReportElement.value;
+    chrome.storage.local.set({ scrumReport: value });
 }
-enableToggleElement.addEventListener("change", handleEnableChange);
-githubUsernameElement.addEventListener("keyup", handleGithubUsernameChange);
-projectNameElement.addEventListener("keyup", handleProjectNameChange);
-startingDateElement.addEventListener("change", handleStartingDateChange);
-endingDateElement.addEventListener("change", handleEndingDateChange);
-lastWeekContributionElement.addEventListener("change", handleLastWeekContributionChange);
-showOpenLabelElement.addEventListener("change", handleOpenLabelChange);
-userReasonElement.addEventListener("keyup", handleUserReasonChange);
-document.addEventListener("DOMContentLoaded", handleBodyOnLoad);
-document.getElementById("codeheatTab").addEventListener("click",handleCodeheatClick);
-document.getElementById("gsocTab").addEventListener("click",handleGsocClick);
+function enableScrumReportEditing(){
+    scrumReportElement.removeEventListener('input', handleScrumReportChange);
+    scrumReportElement.readOnly = false;
+    scrumReportElement.addEventListener('input', handleScrumReportChange);
+    scrumReportElement.classList.add('editable');
+}
+
+// Event handlers
+
+toggleInputElement.addEventListener('change', handleToggleInputChange);
+githubUsernameElement.addEventListener('keyup', handleGithubUsernameChange);
+projectNameElement.addEventListener('keyup', handleProjectNameChange);
+startingDateElement.addEventListener('change', handleStartingDateChange);
+endingDateElement.addEventListener('change', handleEndingDateChange);
+lastWeekContributionElement.addEventListener('change', handleLastWeekContributionChange);
+yesterdayElement.addEventListener('change', handleYesterdayChange);
+userReasonElement.addEventListener('keyup', handleUserReasonChange);
+document.addEventListener('DOMContentLoaded', handleBodyOnLoad);
+emailClientSelectElement.addEventListener('change', handleEmailClientChange);
+fetchButtonElement.addEventListener('click', prefillScrumReport);
+toggleInputElement?.addEventListener('click', handleToggleInputChange);
