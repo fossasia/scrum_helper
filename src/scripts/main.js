@@ -88,6 +88,15 @@ function handleBodyOnLoad() {
 }
 // chrome.storage.local.set({toggleInput: value});
 
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.action === 'toggleStateChanged') {
+        handleToggleState(request.value);
+    }
+    else if (request.action === 'programSelected') {
+        handleProgramSelection(request.value);
+    }
+});
+
 function handleToggleInputChange() {
     var value = toggleInputElement.checked;
 
