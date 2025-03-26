@@ -15,12 +15,6 @@ var fetchButtonElement = document.getElementById('fetchButton');
 var customSelectElement = document.getElementById('customSelect');
 var emailClientSelectElement = document.getElementById('emailClientSelect');
 var selectedEmailClient = 'googlegroups';
-var dropdownElement = document.getElementById('dropdown');
-var selectedTextElement = document.getElementById('selectedText');
-var selectedImageElement = document.getElementById('selectedImage');
-var optionsElement = document.querySelectorAll('.option');
-
-
 // add open closed labels
 
 
@@ -28,12 +22,11 @@ function handleBodyOnLoad() {
     // prefill name
     chrome.storage.local.get(
         [
-            'scrumHelperEnabled',
             'githubUsername',
             'projectName',
-            // 'toggleDot',
-            // 'toggleInput',
-            // 'toggleContainer',
+            'toggleDot',
+            'toggleInput',
+            'toggleContainer',
             'lastWeekContribution',
             'yesterday',
             'startingDate',
@@ -41,8 +34,8 @@ function handleBodyOnLoad() {
             'checkbox',
             'userReason',
             'scrumReport',
-            // 'copyButton',
-            // 'fetchButton',
+            'copyButton',
+            'fetchButton',
             'customSelect',
         ],
         (items) => {
@@ -85,13 +78,6 @@ function handleBodyOnLoad() {
             if(items.scrumReport){
                 scrumReportElement = items.scrumReport;
             }
-            if(scrumHelperEnabled === false){
-                toggleInputElement.checked = false;
-                handleToggleInputChange();
-            } else {
-                toggleInputElement.checked = true;
-                handleToggleInputChange();
-            }
             if(items.customSelectElement){
                 // Write code for custom select
             }
@@ -102,117 +88,19 @@ function handleBodyOnLoad() {
 }
 // chrome.storage.local.set({toggleInput: value});
 
-
-
-// Add custom select functionality
-customSelectElement?.addEventListener('click', () => {
-    dropdownElement.classList.toggle('active');
-});
-
-// Close dropdown when clicking outside
-document.addEventListener('click', (e) => {
-    if ( !customSelectElement?.contains(e.target)) {
-        dropdownElement?.classList.add('hidden');
-    }
-});
-
-// handle option selection
-optionsElement.forEach(option => {
-    option.addEventListener('click', () => {
-        const value = option.dataset.value;
-        const text = option.querySelector('span').textContent;
-        const img = option.querySelector('img');
-
-        // update display
-        selectedTextElement.textContent = text;
-        if(img){
-            selectedImageElement.src = img.src;
-        }
-
-        // hide dropdown
-        dropdownElement.classList.add('hidden');
-
-        // save selected value
-        chrome.storage.local.set({
-            
-        })
-    })
-
-
-})
-
-// Update UI from state
-function updateUIFromSate(){
-    var value = items.scrumHelperEnabled;
-    if (value) {
-        toggleContainerElement.classList.add('active');
-    }
-
-    projectNameElement.value = items.projectName || '';
-    githubUsernameElement.value = items.githubUsername || '';
-    startingDateElement.value = items.startingDate || '';
-    endingDateElement.value = items.endingDate || '';
-    lastWeekContributionElement.checked = items.lastWeekContribution;
-    yesterdayElement.checked = items.yesterday;
-    userReasonElement.value = items.userReason;
-    scrumReportElement.value = items.scrumReport;
-    emailClientSelectElement.value = items.selectedEmailClient;
-    selectedEmailClient = items.selectedEmailClient;
-    checkboxElement.checked = items.checkbox;
-    // Update program selection
-    const option = document.querySelector(`[data-value="${items.gsoc ? 'gsoc' : 'codeheat'}"]`);
-    if (option) {
-        const text = option.querySelector('span').textContent;
-        const img = option.querySelector('img');
-        selectedTextElement.textContent = text;
-        if (img) selectedImageElement.src = img.src;
-    }
-}
-
-
-
 function handleToggleInputChange() {
     var value = toggleInputElement.checked;
-    
-    // Toggle classes instead of inline styles
+
     if (value) {
         toggleContainerElement.classList.add('active');
+        toggleDotElement.classList.add('active');
     } else {
         toggleContainerElement.classList.remove('active');
+        toggleDotElement.classList.remove('active');
     }
     
-    // Update form elements enabled state
-    [
-        githubUsernameElement,
-        projectNameElement,
-        startingDateElement,
-        endingDateElement,
-        lastWeekContributionElement,
-        yesterdayElement,
-        checkboxElement,
-        userReasonElement,
-        emailClientSelectElement,
-        fetchButtonElement,
-        scrumReportElement
-    ].forEach(element => {
-        if (element) element.disabled = !value;
-    });
-
-    // Update custom select state
-    if (customSelectElement) {
-        customSelectElement.style.pointerEvents = value ? 'auto' : 'none';
-        customSelectElement.style.opacity = value ? '1' : '0.5';
-    }
-
-    // Save state
-    chrome.storage.local.set({ 
-        toggleInput: value,
-        scrumHelperEnabled: value 
-    });
+    chrome.storage.local.set({ toggleInput: value });
 }
-
-
-
 function handleStartingDateChange(){
     var value = startingDateElement.value;
     chrome.storage.local.set({ startingDate: value });
@@ -333,7 +221,6 @@ function enableScrumReportEditing(){
     scrumReportElement.classList.add('editable');
 }
 
-// Event handlers
 
 toggleInputElement.addEventListener('change', handleToggleInputChange);
 githubUsernameElement.addEventListener('keyup', handleGithubUsernameChange);
@@ -346,4 +233,3 @@ userReasonElement.addEventListener('keyup', handleUserReasonChange);
 document.addEventListener('DOMContentLoaded', handleBodyOnLoad);
 emailClientSelectElement.addEventListener('change', handleEmailClientChange);
 fetchButtonElement.addEventListener('click', prefillScrumReport);
-toggleInputElement?.addEventListener('click', handleToggleInputChange);

@@ -10,14 +10,14 @@ document.addEventListener('DOMContentLoaded', function() {
         userReason: document.getElementById('userReason'),
         fetchButton: document.getElementById('fetchButton'),
         copyButton: document.getElementById('copyButton'),
-        toggleContainer: document.getElementById('toggleContainer'),
-        toggleDot: document.getElementById('toggleDot'),
-        toggleInput: document.getElementById('toggleInput'),
         customSelect: document.getElementById('customSelect'),
         dropdown: document.getElementById('dropdown'),
         selectedText: document.getElementById('selectedText'),
         selectedImage: document.getElementById('selectedImage'),
-        options: document.querySelectorAll('.option')
+        options: document.querySelectorAll('.option'),
+        toggleContainer: document.getElementById('toggleContainer'),
+        toggleDot: document.getElementById('toggleDot'),
+        toggleInput: document.getElementById('toggleInput'),
     };
 
     // State Management

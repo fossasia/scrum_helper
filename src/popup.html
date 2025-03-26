@@ -11,6 +11,7 @@
 	<script src="scripts/main.js"></script>
 	<script src="scripts/emailClientAdapter.js"></script>
 	<script src="scripts/scrumHelper.js"></script>
+	<script src="scripts/popup.js"></script>
 	<title>Scrum Helper</title>
 	<style>
 		html, .body{
@@ -19,47 +20,6 @@
 			overflow: auto; /* Ensures content does not overflow */
 			background: #efeeee;
 		}
-		
-        /* Add these toggle styles */
-        #toggleContainer {
-            position: relative;
-            width: 48px;
-            height: 24px;
-            background-color: #d1d5db;
-            border-radius: 999px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        #toggleContainer.active {
-            background-color: #22c55e;
-        }
-
-        #toggleDot {
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            width: 20px;
-            height: 20px;
-            background-color: white;
-            border-radius: 50%;
-            transition: transform 0.3s ease;
-        }
-
-        #toggleContainer.active #toggleDot {
-            transform: translateX(24px);
-        }
-
-        #toggleInput:checked ~ #toggleDot {
-            transform: translateX(24px);
-        }
-		.issueLink{
-			font-family: -apple-system,system-ui,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
-			color: rgb(0, 65, 175)!important;
-			/* font-size: 14px!important; */
-			font-weight: 600!important;
-		}
-
 	</style>
 </head>
 <body>
@@ -79,7 +39,7 @@
 						<img src="../icons/codeheat.png" alt="Logo" class="w-7 h-7" id="selectedImage">
 						<span id="selectedText">Codeheat</span>
 					</div>
-					<i class="fas fa-chevron-down"></i>
+					<img class="w-5 h-5" src="../icons/down-arrow.png" alt="">
 				</div>
 				<div id="dropdown" class="hidden absolute w-full mt-1 bg-white border border-gray-200 rounded-xl shadow-lg z-10">
                     <div id="codeheatOption" class="option p-2 hover:bg-gray-100 cursor-pointer flex items-center gap-2" data-value="codeheat">
@@ -97,13 +57,14 @@
 			</div>
 			<div class="flex gap-2 px-5 w-1/2">
 				<p class="font-medium text-gray-500">Disable</p>
-				<div id="toggleContainer" class="relative inline-block w-12 h-6 rounded-full bg-gray-300 cursor-pointer">
+				<div id="toggleContainer" class="relative inline-block w-12 h-6 rounded-full bg-gray-300 cursor-pointer transition-all duration-200 ease-in-out">
+                    <!-- Enable id -->
 					<input type="checkbox" id="toggleInput" class="sr-only">
-					<div id="toggleDot" class="absolute w-5 h-5 bg-white rounded-full shadow-md"></div>
+					<div id="toggleDot" class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transform transition-transform duration-200 ease-in-out"></div>
 				</div>
 				<p class="font-medium text-gray-500">Enable</p>
 			</div>
-			</div>
+		</div>
 		 First box 
 		<div class=" border-gray-100 border-2 bg-white rounded-3xl px-4 py-2 mx-2 my-2">
 			<div>
