@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         controlElements.forEach(element => {
             if (element) {
-                element.disable = !enabled;
+                element.disabled = !enabled;
                 element.style.opacity = enabled ? '1' : '0.5';
                 if(element.classList.contains('cursor-pointer')) {
                     element.style.cursor = enabled ? 'pointer' : 'not-allowed';
@@ -59,14 +59,27 @@ document.addEventListener('DOMContentLoaded', function() {
             elements.customSelect.style.cursor = enabled ? 'pointer' : 'not-allowed';
         }
 
+        if (elements.dropdown) {
+            elements.dropdown.classList.add('hidden');
+        }
+
         if(elements.fetchButton){
             elements.fetchButton.disabled = !enabled;
             elements.fetchButton.style.opacity = enabled ? '1' : '0.5';
             elements.fetchButton.style.cursor = enabled ? 'pointer' : 'not-allowed';
         }
 
-        if(!enabled && elements.scrumReport){
-            elements.scrumReport.innerHTML = 'Extension is disabled. Enable it to generate scrum report.';
+        if(elements.copyButton){
+            elements.copyButton.disabled = !enabled;
+            elements.copyButton.style.opacity = enabled ? '1' : '0.5';
+            elements.copyButton.style.cursor = enabled ? 'pointer' : 'not-allowed';
+
+        }
+
+        if(!enabled){
+            elements.scrumReport.value = 'Extension is disabled. Enable it to generate scrum report.';
+        } else {
+            elements.scrumReport.value = '';
         }
     }
 
@@ -122,6 +135,58 @@ document.addEventListener('DOMContentLoaded', function() {
             chrome.storage.local.set({ gsoc: state.gsoc });
         });
     });
+
+// Update the lastWeekContribution event listener
+elements.lastWeekContribution?.addEventListener('change', function() {
+    if(this.checked) {
+        // Uncheck yesterday option
+        elements.yesterday.checked = false;
+        // Disable and update dates
+        elements.startingDate.disabled = true;
+        elements.endingDate.disabled = true;
+        elements.startingDate.value = getLastWeek();
+        elements.endingDate.value = getToday();
+    } else {
+        // Enable date inputs
+        elements.startingDate.disabled = false;
+        elements.endingDate.disabled = false;   
+    }
+    
+    chrome.storage.local.set({
+        lastWeekContribution: this.checked,
+        yesterday: false
+    });
+});
+
+// Update the yesterday event listener
+elements.yesterday?.addEventListener('change', function() {
+    if (this.checked) {
+        // Uncheck last week option
+        elements.lastWeekContribution.checked = false;
+        // Disable and update dates
+        elements.startingDate.disabled = true;
+        elements.endingDate.disabled = true;
+        elements.startingDate.value = getYesterday();
+        elements.endingDate.value = getToday();
+    } else {
+        // Enable date inputs
+        elements.startingDate.disabled = false;
+        elements.endingDate.disabled = false;
+    }
+    
+    chrome.storage.local.set({ 
+        lastWeekContribution: false,
+        yesterday: this.checked 
+    });
+});
+
+function getToday() {
+    const today = new Date();
+    const month = (today.getMonth() + 1).toString().padStart(2, '0');
+    const day = today.getDate().toString().padStart(2, '0');
+    const year = today.getFullYear();
+    return `${year}-${month}-${day}`;
+}
 
     // // Fetch Button Handler
     // elements.fetchButton?.addEventListener('click', async function() {
