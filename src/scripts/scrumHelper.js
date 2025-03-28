@@ -104,8 +104,7 @@ function allIncluded() {
 	function getLastWeek() {
 		var today = new Date();
 		var noDays_to_goback = gsoc == 0 ? 7 : 1;
-		var lastWeek = new Date(today);
-		lastWeek.setDate(today.getDate() - noDays_to_goback);
+		var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - noDays_to_goback);
 		lastWeek.setHours(0, 0, 0, 0);
 
 		var lastWeekMonth = lastWeek.getMonth() + 1;
@@ -123,18 +122,19 @@ function allIncluded() {
 	function getToday() {
 		var today = new Date();
 		today.setHours(23, 59, 59, 999);
-		// var Week = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-		var WeekMonth = today.getMonth() + 1;
-		var WeekDay = today.getDate();
-		var WeekYear = today.getFullYear();
-		var WeekDisplayPadded =
-			('0000' + WeekYear.toString()).slice(-4) +
+		var week = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+		week.setHours(23, 59, 59, 999);
+		var weekMonth = week.getMonth() + 1;
+		var weekDay = week.getDate();
+		var weekYear = week.getFullYear();
+		var weekDisplayPadded =
+			('0000' + weekYear.toString()).slice(-4) +
 			'-' +
-			('00' + WeekMonth.toString()).slice(-2) +
+			('00' + weekMonth.toString()).slice(-2) +
 			'-' +
-			('00' + WeekDay.toString()).slice(-2) +
+			('00' + weekDay.toString()).slice(-2) +
 			'T23:59:59Z';
-		return WeekDisplayPadded;
+		return weekDisplayPadded;
 	}
 	// fetch github data
 	function fetchGithubData() {
