@@ -13,8 +13,8 @@ var scrumReportElement = document.getElementById('scrumReport');
 var copyButtonElement = document.getElementById('copyButton');
 var fetchButtonElement = document.getElementById('fetchButton');
 var customSelectElement = document.getElementById('customSelect');
-var emailClientSelectElement = document.getElementById('emailClientSelect');
-var selectedEmailClient = 'googlegroups';
+var selectedTextElement = document.getElementById('selectedText');
+var selectedImageElement = document.getElementById('selectedImage');
 // add open closed labels
 
 
@@ -80,9 +80,12 @@ function handleBodyOnLoad() {
             }
             if(items.customSelectElement){
                 // Write code for custom select
-            }
-            // if(write code for email clients)
+                selectedTextElement.textContent = items.customSelect === 'gsoc' ? 'GSoC' : 'Codeheat';
+                selectedImageElement.src = `../icons/${items.customSelect}.png`;
 
+                gsoc = items.customSelect === 'gsoc';
+            }
+            
         },
     );
 }
@@ -160,7 +163,6 @@ function prefillScrumReport(){
                 projectName: projectNameElement.value,
                 startingDate: startingDateElement.value,
                 endingDate: endingDateElement.value,
-                emailClient: selectedEmailClient,
                 userReason: userReasonElement.value,
             }
         }, function(response) {
@@ -214,11 +216,7 @@ function handleUserReasonChange(){
     var value = userReasonElement.value;
     chrome.storage.local.set({ userReason: value});
 }
-function handleEmailClientChange(){
-    var value = emailClientSelectElement.value;
-    selectedEmailClient = value;
-    chrome.storage.local.set({ selectedEmailClient: value });
-}
+
 function handleScrumReportChange() {
     var value = scrumReportElement.value;
     chrome.storage.local.set({ scrumReport: value });
@@ -240,5 +238,4 @@ lastWeekContributionElement.addEventListener('change', handleLastWeekContributio
 yesterdayElement.addEventListener('change', handleYesterdayChange);
 userReasonElement.addEventListener('keyup', handleUserReasonChange);
 document.addEventListener('DOMContentLoaded', handleBodyOnLoad);
-emailClientSelectElement.addEventListener('change', handleEmailClientChange);
 fetchButtonElement.addEventListener('click', prefillScrumReport);

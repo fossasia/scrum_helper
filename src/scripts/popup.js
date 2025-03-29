@@ -19,7 +19,6 @@ document.addEventListener('DOMContentLoaded', function() {
         lastWeekContribution: document.getElementById('lastWeekContribution'),
         yesterday: document.getElementById('yesterday'),
         userReason: document.getElementById('userReason'),
-        emailClientSelect: document.getElementById('emailClientSelect'),
         scrumReport: document.getElementById('scrumReport'),
         checkboxLabel: document.getElementById('checkboxLabel'),
     };
@@ -38,7 +37,6 @@ document.addEventListener('DOMContentLoaded', function() {
             elements.lastWeekContribution,
             elements.yesterday,
             elements.userReason,
-            elements.emailClientSelect,
             elements.scrumReport,
             elements.fetchButton,
             elements.copyButton,
@@ -98,12 +96,19 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Initialize state from storage and ScrumState
-    chrome.storage.local.get(['scrumHelperEnabled'], function(data) {
+    chrome.storage.local.get(['scrumHelperEnabled', 'customSelect'], function(data) {
         const enabled = data.scrumHelperEnabled !== false;
         elements.toggleInput.checked = enabled;
         updateInputStates(enabled);
         if(!enabled){
             elements.toggleContainer.click();
+        }
+
+        if(data.customSelect) {
+            const value = data.customSelect;
+            elements.selectedImage.src = `../icons/${value}.png`;
+            elements.selectedText.textContent = value === 'gsoc' ? 'GSoC' : 'Codeheat';
+            state.gsoc = value === 'gsoc';
         }
     });
 
@@ -146,7 +151,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             elements.dropdown.classList.add('hidden');
             state.gsoc = value === 'gsoc';
-            chrome.storage.local.set({ gsoc: state.gsoc });
+            chrome.storage.local.set({ customSelect: value, gsoc: state.gsoc });
         });
     });
 
