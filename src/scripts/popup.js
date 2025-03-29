@@ -20,7 +20,8 @@ document.addEventListener('DOMContentLoaded', function() {
         yesterday: document.getElementById('yesterday'),
         userReason: document.getElementById('userReason'),
         emailClientSelect: document.getElementById('emailClientSelect'),
-        scrumReport: document.getElementById('scrumReport')
+        scrumReport: document.getElementById('scrumReport'),
+        checkboxLabel: document.getElementById('checkboxLabel'),
     };
 
     // State Management
@@ -40,13 +41,20 @@ document.addEventListener('DOMContentLoaded', function() {
             elements.emailClientSelect,
             elements.scrumReport,
             elements.fetchButton,
-            elements.copyButton
+            elements.copyButton,
+            elements.checkbox,
         ];
 
         controlElements.forEach(element => {
             if (element) {
                 element.disabled = !enabled;
                 element.style.opacity = enabled ? '1' : '0.5';
+                if (element === elements.checkbox) {
+                    element.style.pointerEvents = enabled ? 'auto' : 'none';
+                    if (!enabled) {
+                        element.checked = false; // Uncheck when disabled
+                    }
+                }
                 if(element.classList.contains('cursor-pointer')) {
                     element.style.cursor = enabled ? 'pointer' : 'not-allowed';
                 }
@@ -76,6 +84,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
         }
 
+        if(elements.checkboxLabel){
+            elements.checkboxLabel.style.pointerEvents = enabled ? 'auto' : 'none';
+            checkboxLabel.style.opacity = enabled ? '1' : '0.5';
+            checkboxLabel.style.cursor = enabled ? 'pointer' : 'not-allowed';
+        }
+
         if(!enabled){
             elements.scrumReport.value = 'Extension is disabled. Enable it to generate scrum report.';
         } else {
@@ -88,9 +102,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const enabled = data.scrumHelperEnabled !== false;
         elements.toggleInput.checked = enabled;
         updateInputStates(enabled);
-       if(!enabled){
-        elements.toggleContainer.click();
-       }
+        if(!enabled){
+            elements.toggleContainer.click();
+        }
     });
 
     // Toggle Handler

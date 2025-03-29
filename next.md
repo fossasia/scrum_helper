@@ -4,3 +4,7 @@ Have to ask whether email client selection option is even neede or not, that opt
 emailClientAdapter.js ke andar hai injectors ka code, vo vahi se use kar lunga in main.js and scrumHelper.js
 add active class in css
 add hidden class in css
+
+
+
+If I click on the date after selecting the radio, then the radio should disable but the date should stay and I should be able to set another date if I want to.

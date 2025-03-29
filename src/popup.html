@@ -55,17 +55,16 @@
 			
 			<div>
 			</div>
-			<div class="flex gap-2 px-5 w-1/2">
+			<div class="flex gap-2 mt-5 px-5 w-1/2">
 				<p class="font-medium text-gray-500">Disable</p>
-				<div id="toggleContainer" class="relative inline-block w-12 h-6 rounded-full bg-gray-300 cursor-pointer transition-all duration-200 ease-in-out">
+				<div id="toggleContainer" class="relative inline-block w-12 h-6 rounded-full bg-green-500 cursor-pointer transition-all duration-200 ease-in-out">
                     <!-- Enable id -->
-					<input type="checkbox" id="toggleInput" class="sr-only">
-					<div id="toggleDot" class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transform transition-transform duration-200 ease-in-out"></div>
+					<input type="checkbox" id="toggleInput" class="sr-only" checked>
+					<div id="toggleDot" class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transform transition-transform duration-200 ease-in-out translate-x-4"></div>
 				</div>
 				<p class="font-medium text-gray-500">Enable</p>
 			</div>
 		</div>
-		 First box 
 		<div class=" border-gray-100 border-2 bg-white rounded-3xl px-4 py-2 mx-2 my-2">
 			<div>
 				<h4>Your Project Name</h4>
@@ -111,7 +110,7 @@
 		<div class="border-gray-100 border-2 bg-white rounded-3xl px-4 py-2 mx-2 my-2">
 			<div class="flex items-center gap-2 mt-2">
 				<input type="checkbox" id="checkbox" class="form-checkbox h-4 w-4 text-blue-600">
-				<label id="checkbox" for="checkbox" class="text-gray-700 font-medium text-sm">Show Open/Closed Label</label>
+				<label id="checkboxLabel" for="checkbox" class="text-gray-700 font-medium text-sm">Show Open/Closed Label</label>
 			</div>
 			<div class="mt-4">
 				<p class="text-sm font-medium">What is stopping you from doing your work?</p>
@@ -123,7 +122,7 @@
 				<textarea id="scrumReport" class="w-full h-40 border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2" placeholder="Your scrum report will appear here..."></textarea>
 			</div>
 				<div class="flex justify-between">
-					<button id="copyButton" class="flex items-center gap-2 bg-blue-500 text-white pxf-4 py-2 rounded-lg hover:bg-blue-600">
+					<button id="copyButton" class="flex items-center gap-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600">
 						<span>Copy to Clipboard</span>
 					</button>
 					<button id="fetchButton" class="flex items-center gap-2 bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 ml-2 mt-2">
