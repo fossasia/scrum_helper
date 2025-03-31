@@ -120,6 +120,7 @@ function allIncluded() {
 		
 		return utc.toISOString().slice(0, 19) + "Z";
 	}	
+
 	// fetch github data
 	function fetchGithubData() {
 		var issueUrl =
@@ -178,15 +179,10 @@ function allIncluded() {
 		filterAndStoreData();
 	}
 
-	function filterDataByDate(data){
-		var today = new Date();
-		var noDays_to_goback = gsoc == 0 ? 7 : 1;
+	function filterDataByDate(data, startingDate, endingDate){
 
-		const localStart = new Date(today.getFullYear(), today.getMonth(), today.getDate() - noDays_to_goback);
-		localStart.setHours(0, 0, 0, 0);
-
-		const localEnd = new Date();
-		localEnd.setHours(23, 59, 59 ,999);
+		const localStart = new Date(startingDate + 'T00:00:00Z');
+		const localEnd = new Date(endingDate + 'T23:59:59Z');
 
 		return data.items.filter(item => {
 			const updatedAt = new Date(item.updated_at);
@@ -196,13 +192,13 @@ function allIncluded() {
 
 	function filterAndStoreData() {
 		if(githubIssuesData) {
-			githubIssuesData.items = filterDataByDate(githubIssuesData);
+			githubIssuesData.items = filterDataByDate(githubIssuesData, startingDate, endingDate);
 		}
 		if(githubPrsReviewData) {
-			githubPrsReviewData.items = filterDataByDate(githubPrsReviewData);
+			githubPrsReviewData.items = filterDataByDate(githubPrsReviewData, startingDate, endingDate);
 		}		
 		if(githubUserData) {
-			githubUserData.items = filterDataByDate(githubUserData);
+			githubUserData.items = filterDataByDate(githubUserData, startingDate, endingDate);
 		}
 	}
 
