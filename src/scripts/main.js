@@ -99,9 +99,11 @@ function getLastWeek() {
 	var today = new Date();
 	var noDays_to_goback = gsoc == 0 ? 7 : 1;
 	var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - noDays_to_goback);
-	var lastWeekMonth = lastWeek.getMonth() + 1;
-	var lastWeekDay = lastWeek.getDate();
-	var lastWeekYear = lastWeek.getFullYear();
+	lastWeek.setHours(0, 0, 0 , 0);
+	var extendedLastWeek = new Date(lastWeek.getTime() + (14 *60 *60 * 1000));
+	var lastWeekMonth = extendedLastWeek.getMonth() + 1;
+	var lastWeekDay = extendedLastWeek.getDate();
+	var lastWeekYear = extendedLastWeek.getFullYear();
 	var lastWeekDisplayPadded =
 		('0000' + lastWeekYear.toString()).slice(-4) +
 		'-' +
@@ -112,17 +114,19 @@ function getLastWeek() {
 }
 function getToday() {
 	var today = new Date();
-	var Week = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-	var WeekMonth = Week.getMonth() + 1;
-	var WeekDay = Week.getDate();
-	var WeekYear = Week.getFullYear();
-	var WeekDisplayPadded =
-		('0000' + WeekYear.toString()).slice(-4) +
-		'-' +
-		('00' + WeekMonth.toString()).slice(-2) +
-		'-' +
-		('00' + WeekDay.toString()).slice(-2);
-	return WeekDisplayPadded;
+	var today = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+	today.setHours(23, 59, 59, 999);
+	var extendedToday = new Date(today.getTime() + (14 * 60 * 60 * 1000));
+	var todayMonth = extendedToday.getMonth() + 1;
+    var todayDay = extendedToday.getDate();
+    var todayYear = extendedToday.getFullYear();
+    var todayDisplayPadded =
+        ('0000' + todayYear.toString()).slice(-4) +
+        '-' +
+        ('00' + todayMonth.toString()).slice(-2) +
+        '-' +
+        ('00' + todayDay.toString()).slice(-2);
+    return todayDisplayPadded;
 }
 
 function handleGithubUsernameChange() {

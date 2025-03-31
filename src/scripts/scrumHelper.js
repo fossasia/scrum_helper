@@ -102,31 +102,23 @@ function allIncluded() {
 		startingDate = getLastWeek();
 	}
 
-	function getUTCDate(date) {
-		return new Date(Date.UTC(
-			date.getFullYear(),
-			date.getMonth(),
-			date.getDate(),
-			date.getHours(),
-			date.getMinutes(),
-			date.getSeconds(),
-			date.getMilliseconds(),
-		)).toISOString().slice(0,19) + "Z";
-	}
-
 	function getLastWeek() {
 		var today = new Date();
 		var noDays_to_goback = gsoc == 0 ? 7 : 1;
 		var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - noDays_to_goback);
 		lastWeek.setHours(0, 0, 0, 0);
 
-		return getUTCDate(lastWeek);
+		const utc = new Date(lastWeek.getTime() + (14 * 60* 60* 1000));
+
+		return utc.toISOString().slice(0,19) + "Z";
 	}
 	function getToday() {
 		var today = new Date();
 		today.setHours(23, 59, 59, 999);
+
+		const utc = new Date(today.getTime() + (14 * 60 * 60 * 1000));
 		
-		return getUTCDate(today);
+		return utc.toISOString().slice(0, 19) + "Z";
 	}	
 	// fetch github data
 	function fetchGithubData() {
@@ -183,6 +175,35 @@ function allIncluded() {
 				githubUserData = data;
 			},
 		});
+		filterAndStoreData();
+	}
+
+	function filterDataByDate(data){
+		var today = new Date();
+		var noDays_to_goback = gsoc == 0 ? 7 : 1;
+
+		const localStart = new Date(today.getFullYear(), today.getMonth(), today.getDate() - noDays_to_goback);
+		localStart.setHours(0, 0, 0, 0);
+
+		const localEnd = new Date();
+		localEnd.setHours(23, 59, 59 ,999);
+
+		return data.items.filter(item => {
+			const updatedAt = new Date(item.updated_at);
+			return updatedAt >= localStart && updatedAt <= localEnd;
+		})
+	}
+
+	function filterAndStoreData() {
+		if(githubIssuesData) {
+			githubIssuesData.items = filterDataByDate(githubIssuesData);
+		}
+		if(githubPrsReviewData) {
+			githubPrsReviewData.items = filterDataByDate(githubPrsReviewData);
+		}		
+		if(githubUserData) {
+			githubUserData.items = filterDataByDate(githubUserData);
+		}
 	}
 
 	function formatDate(dateString) {
