@@ -101,41 +101,33 @@ function allIncluded() {
 		endingDate = getToday();
 		startingDate = getLastWeek();
 	}
+
+	function getUTCDate(date) {
+		return new Date(Date.UTC(
+			date.getFullYear(),
+			date.getMonth(),
+			date.getDate(),
+			date.getHours(),
+			date.getMinutes(),
+			date.getSeconds(),
+			date.getMilliseconds(),
+		)).toISOString().slice(0,19) + "Z";
+	}
+
 	function getLastWeek() {
 		var today = new Date();
 		var noDays_to_goback = gsoc == 0 ? 7 : 1;
 		var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - noDays_to_goback);
 		lastWeek.setHours(0, 0, 0, 0);
 
-		var lastWeekMonth = lastWeek.getMonth() + 1;
-		var lastWeekDay = lastWeek.getDate();
-		var lastWeekYear = lastWeek.getFullYear();
-		var lastWeekDisplayPadded =
-			('0000' + lastWeekYear.toString()).slice(-4) +
-			'-' +
-			('00' + lastWeekMonth.toString()).slice(-2) +
-			'-' +
-			('00' + lastWeekDay.toString()).slice(-2) +
-			'T00:00:00Z';
-		return lastWeekDisplayPadded;
+		return getUTCDate(lastWeek);
 	}
 	function getToday() {
 		var today = new Date();
 		today.setHours(23, 59, 59, 999);
-		var week = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-		week.setHours(23, 59, 59, 999);
-		var weekMonth = week.getMonth() + 1;
-		var weekDay = week.getDate();
-		var weekYear = week.getFullYear();
-		var weekDisplayPadded =
-			('0000' + weekYear.toString()).slice(-4) +
-			'-' +
-			('00' + weekMonth.toString()).slice(-2) +
-			'-' +
-			('00' + weekDay.toString()).slice(-2) +
-			'T23:59:59Z';
-		return weekDisplayPadded;
-	}
+		
+		return getUTCDate(today);
+	}	
 	// fetch github data
 	function fetchGithubData() {
 		var issueUrl =
