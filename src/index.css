@@ -50,3 +50,44 @@ li {
 	list-style-type: disc !important;
 	margin-left: 1rem;
 }
+
+/* Checkbox and switch visual feedback styles */
+[type="checkbox"].filled-in + label {
+	color: #757575;
+	transition: color 0.3s ease, font-weight 0.3s ease, background-color 0.3s ease;
+	padding-left: 35px !important; /* Ensure text doesn't overlap with checkbox */
+	border-radius: 2px;
+}
+
+[type="checkbox"].filled-in:checked + label {
+	color: #3f51b5;
+	font-weight: 500;
+	background-color: rgba(63, 81, 181, 0.03); /* Very subtle highlight */
+}
+
+/* Improve spacing for checkbox containers */
+.col.s12 input[type="checkbox"] + label {
+	display: inline-block;
+	line-height: 21px;
+}
+
+/* Special styling for the checkbox that contains a span */
+label[for="lastWeekContribution"] {
+	margin-top: 3px;
+	padding-right: 5px !important;
+}
+
+#noDays {
+	margin: 0 3px;
+}
+
+/* Switch label styling */
+.switch label {
+	color: #757575;
+	transition: color 0.3s ease, font-weight 0.3s ease;
+}
+
+.switch label input[type="checkbox"]:checked ~ span:not(.lever) {
+	color: #3f51b5;
+	font-weight: 500;
+}
