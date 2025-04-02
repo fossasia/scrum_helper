@@ -1,8 +1,6 @@
 var refreshButton_Placed = false;
 var enableToggle = true;
 function allIncluded(outputTarget = 'email') {
-	console.log('allIncluded called with outputTarget:', outputTarget);
-	console.log('Current window context:', window.location.href);  // Add this to see where we are
 
 	/* global $*/
 	var scrumBody = null;
@@ -36,7 +34,6 @@ function allIncluded(outputTarget = 'email') {
 
 	var linkStyle = '';
 	function getChromeData() {
-		console.log("Getting Chrome data for context:", outputTarget);  // Add this
 		chrome.storage.local.get(
 			[
 				'githubUsername',
@@ -51,7 +48,6 @@ function allIncluded(outputTarget = 'email') {
 				'gsoc',
 			],
 			(items) => {
-				console.log("Storage items received:", items);  // Add this
 				if (items.gsoc) {
 					//gsoc
 					gsoc = 1;
@@ -73,12 +69,9 @@ function allIncluded(outputTarget = 'email') {
 				}
 				if (items.githubUsername) {
 					githubUsername = items.githubUsername;
-					console.log("About to fetch GitHub data for:", githubUsername);  // Add this
 					fetchGithubData();
 				}  else {
                     if (outputTarget === 'popup') {
-						console.log("No username found - popup context");  // Add this
-                        // Show error in popup
                         const generateBtn = document.getElementById('generateReport');
                         if (generateBtn) {
                             generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
@@ -86,7 +79,6 @@ function allIncluded(outputTarget = 'email') {
                         }
                         Materialize.toast('Please enter your GitHub username', 3000);
                     } else {
-						console.log("No username found - email context");  // Add this
                         console.warn('No GitHub username found in storage');
                     }
                 }
@@ -150,7 +142,6 @@ function allIncluded(outputTarget = 'email') {
 	}
 	// fetch github data
 	function fetchGithubData() {
-		console.log("Starting GitHub data fetch...");
 		var issueUrl = 'https://api.github.com/search/issues?q=author%3A' +
 			githubUsername +
 			'+org%3Afossasia+created%3A' +
@@ -158,7 +149,6 @@ function allIncluded(outputTarget = 'email') {
 			'..' +
 			endingDate +
 			'&per_page=100';
-		console.log("Fetching issues from:", issueUrl);
 
 		$.ajax({
 			dataType: 'json',
@@ -172,7 +162,6 @@ function allIncluded(outputTarget = 'email') {
 				});
 			},
 			success: (data) => {
-				console.log("Received GitHub issues data:", data);
 				githubIssuesData = data;
 				writeGithubIssuesPrs();
 			},
@@ -186,7 +175,6 @@ function allIncluded(outputTarget = 'email') {
 			'..' +
 			endingDate +
 			'&per_page=100';
-		console.log("Fetching PR reviews from:", prUrl);
 
 		$.ajax({
 			dataType: 'json',
@@ -200,7 +188,6 @@ function allIncluded(outputTarget = 'email') {
 				});
 			},
 			success: (data) => {
-				console.log("Received PR reviews data:", data);
 				githubPrsReviewData = data;
 				writeGithubPrsReviews();
 			},
@@ -228,11 +215,9 @@ function allIncluded(outputTarget = 'email') {
 
 	//load initial text in scrum body
 	function writeScrumBody() {
-		console.log("writeScrumBody called");
 		if (!enableToggle) return;
 
 		setTimeout(() => {
-			console.log("generating content");
 			// Generate content first
 			var lastWeekUl = '<ul>';
 			var i;
@@ -266,11 +251,9 @@ ${userReason}`;
         }
 
 			if (outputTarget === 'popup') {
-				console.log("trying to update popup textarea");
 				const scrumReport = document.getElementById('scrumReport');
 				if (scrumReport) {
-					console.log("found div, updating content");
-					scrumReport.innerHTML = content;  // Use innerHTML instead of value
+					scrumReport.innerHTML = content;
 					
 					// Reset generate button
 					const generateBtn = document.getElementById('generateReport');
@@ -281,7 +264,6 @@ ${userReason}`;
 				}
 			} else {
 
-				// Use the adapter to inject content
 				const elements = window.emailClientAdapter.getEditorElements();
 				if (!elements || !elements.body) {
 					console.error('Email client editor not found');
@@ -302,11 +284,9 @@ ${userReason}`;
 		else if (projectUrl === 'open-event') project = 'Open Event';
 		return project;
 	}
-	//load initial scrum subject
 	function scrumSubjectLoaded() {
 		if (!enableToggle) return;
 		setTimeout(() => {
-			//to apply this after google has autofilled
 			var name = githubUserData.name || githubUsername;
 			var project = getProject();
 			var curDate = new Date();
@@ -322,28 +302,17 @@ ${userReason}`;
 		});
 	}
 
-	// write PRs Reviewed
 	function writeGithubPrsReviews() {
-		console.log("Starting to process PR reviews");
 		var items = githubPrsReviewData.items;
-		console.log("Total review items:", items.length);
 		
 		reviewedPrsArray = [];
 		githubPrsReviewDataProccessed = {};
 		
 		for (var i = 0; i < items.length; i++) {
 			var item = items[i];
-			console.log(`Review item ${i + 1}/${items.length}:`, {
-				number: item.number,
-				author: item.user.login,
-				type: item.pull_request ? "PR" : "Issue",
-				state: item.state,
-				title: item.title
-			});
 			
-			// Only skip if it's your own PR, but keep all PRs you've reviewed
 			if (item.user.login === githubUsername) {
-				console.log(`Skipping #${item.number} - Own PR`);
+				// skips own pr from review
 				continue;
 			}
 			
@@ -364,7 +333,6 @@ ${userReason}`;
 				state: item.state,
 			};
 			githubPrsReviewDataProccessed[project].push(obj);
-			console.log(`Added PR #${number} to project ${project}`);
 		}
 		
 		for (var repo in githubPrsReviewDataProccessed) {
@@ -406,33 +374,19 @@ ${userReason}`;
 			}
 			repoLi += '</li>';
 			reviewedPrsArray.push(repoLi);
-			console.log(`Added repo ${repo} to reviewedPrsArray`);
 		}
 		
-		console.log("Final reviewedPrsArray:", reviewedPrsArray);
-		writeScrumBody(); // Call writeScrumBody to update the content
+		writeScrumBody(); 
 	}
-	//write issues and Prs from github
 	function writeGithubIssuesPrs() {
-		console.log("Starting to process issues/PRs");
 		var data = githubIssuesData;
-		console.log("Total items to process:", data.items.length);
 		var items = data.items;
 		
-		// Reset arrays at the start
 		lastWeekArray = [];
 		nextWeekArray = [];
 		
 		for (var i = 0; i < items.length; i++) {
 			var item = items[i];
-			console.log(`Processing item ${i + 1}/${items.length}:`, {
-				number: item.number,
-				title: item.title,
-				state: item.state,
-				isPR: !!item.pull_request,
-				body: item.body ? item.body.substring(0, 100) + "..." : "no body"
-			});
-			
 			var html_url = item.html_url;
 			var repository_url = item.repository_url;
 			var project = repository_url.substr(repository_url.lastIndexOf('/') + 1);
@@ -441,59 +395,29 @@ ${userReason}`;
 			var li = '';
 			
 			if (item.pull_request) {
-				console.log(`Item #${number} is a PR with state ${item.state}`);
 				if (item.state === 'closed') {
 					li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_merged_button}</li>`;
-					console.log("Added closed PR to lastWeekArray");
 				} else if (item.state === 'open') {
 					li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_unmerged_button}</li>`;
-					console.log("Added open PR to lastWeekArray");
 				}
 			} else {
-				console.log(`Item #${number} is an Issue with state ${item.state}`);
 				if (item.state === 'open' && item.body && item.body.toUpperCase().indexOf('YES') > 0) {
 					var li2 = `<li><i>(${project})</i> - Work on Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_opened_button}</li>`;
 					nextWeekArray.push(li2);
-					console.log("Added to nextWeekArray (contains YES)");
 				}
 				if (item.state === 'open') {
 					li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_opened_button}</li>`;
-					console.log("Added open issue to lastWeekArray");
 				} else if (item.state === 'closed') {
 					li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_button}</li>`;
-					console.log("Added closed issue to lastWeekArray");
 				}
 			}
 			if (li) {
 				lastWeekArray.push(li);
-				console.log("Added to lastWeekArray:", li);
 			} else {
-				console.log(`No li generated for item #${number}`);
 			}
 		}
-		console.log("Final arrays:", {
-			lastWeekItems: lastWeekArray.length,
-			nextWeekItems: nextWeekArray.length,
-			lastWeekContents: lastWeekArray,
-			nextWeekContents: nextWeekArray
-		});
 		writeScrumBody();
 	}
-	//check for scrum body loaded
-	// var intervalBody = setInterval(function(){
-	// 	var bodies = [
-	// 		document.getElementById("p-b-0"),
-	// 		document.getElementById("p-b-1"),
-	// 		document.getElementById("p-b-2"),
-	// 		document.querySelector("c-wiz [aria-label='Compose a message'][role=textbox]")];
-	// 	for (var body of bodies) {
-	// 		if (!body)
-	// 			continue;
-	// 		clearInterval(intervalBody);
-	// 		scrumBody=body;
-	// 		writeScrumBody();
-	// 	}
-	// },500);
 	var intervalBody = setInterval(() => {
 		if (!window.emailClientAdapter) return;
 
@@ -505,23 +429,6 @@ ${userReason}`;
 		writeScrumBody();
 	}, 500);
 
-	//check for subject loaded
-	// var intervalSubject = setInterval(function(){
-	// 	if (!githubUserData)
-	// 		return;
-	// 	var subjects = [
-	// 		document.getElementById("p-s-0"),
-	// 		document.getElementById("p-s-1"),
-	// 		document.getElementById("p-s-2"),
-	// 		document.querySelector("c-wiz input[aria-label=Subject]")];
-	// 	for (var subject of subjects) {
-	// 		if (!subject)
-	// 			continue;
-	// 		clearInterval(intervalSubject);
-	// 		scrumSubject=subject;
-	// 		scrumSubjectLoaded();
-	// 	}
-	// },500);
 	var intervalSubject = setInterval(() => {
 		if (!githubUserData || !window.emailClientAdapter) return;
 
@@ -570,13 +477,12 @@ ${userReason}`;
 		allIncluded('email');
 	}
 }
-allIncluded('email');  // Auto-trigger on page load
+allIncluded('email'); 
 $('button>span:contains(New conversation)').parent('button').click(() => {
-    allIncluded();  // Auto-trigger on new conversation
+    allIncluded(); 
 });
 
 window.generateScrumReport = function() {
-	console.log('generateScrumReport called');
     allIncluded('popup');
 };
 
