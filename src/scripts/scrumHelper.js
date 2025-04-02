@@ -1,6 +1,9 @@
 var refreshButton_Placed = false;
 var enableToggle = true;
 function allIncluded(outputTarget = 'email') {
+	console.log('allIncluded called with outputTarget:', outputTarget);
+	console.log('Current window context:', window.location.href);  // Add this to see where we are
+
 	/* global $*/
 	var scrumBody = null;
 	var scrumSubject = null;
@@ -33,6 +36,7 @@ function allIncluded(outputTarget = 'email') {
 
 	var linkStyle = '';
 	function getChromeData() {
+		console.log("Getting Chrome data for context:", outputTarget);  // Add this
 		chrome.storage.local.get(
 			[
 				'githubUsername',
@@ -47,6 +51,7 @@ function allIncluded(outputTarget = 'email') {
 				'gsoc',
 			],
 			(items) => {
+				console.log("Storage items received:", items);  // Add this
 				if (items.gsoc) {
 					//gsoc
 					gsoc = 1;
@@ -68,9 +73,11 @@ function allIncluded(outputTarget = 'email') {
 				}
 				if (items.githubUsername) {
 					githubUsername = items.githubUsername;
+					console.log("About to fetch GitHub data for:", githubUsername);  // Add this
 					fetchGithubData();
 				}  else {
                     if (outputTarget === 'popup') {
+						console.log("No username found - popup context");  // Add this
                         // Show error in popup
                         const generateBtn = document.getElementById('generateReport');
                         if (generateBtn) {
@@ -79,6 +86,7 @@ function allIncluded(outputTarget = 'email') {
                         }
                         Materialize.toast('Please enter your GitHub username', 3000);
                     } else {
+						console.log("No username found - email context");  // Add this
                         console.warn('No GitHub username found in storage');
                     }
                 }
@@ -142,44 +150,59 @@ function allIncluded(outputTarget = 'email') {
 	}
 	// fetch github data
 	function fetchGithubData() {
-		var issueUrl =
-			'https://api.github.com/search/issues?q=author%3A' +
+		console.log("Starting GitHub data fetch...");
+		var issueUrl = 'https://api.github.com/search/issues?q=author%3A' +
 			githubUsername +
 			'+org%3Afossasia+created%3A' +
 			startingDate +
 			'..' +
 			endingDate +
 			'&per_page=100';
+		console.log("Fetching issues from:", issueUrl);
+
 		$.ajax({
 			dataType: 'json',
 			type: 'GET',
 			url: issueUrl,
 			error: (xhr, textStatus, errorThrown) => {
-				// error
+				console.error('Error fetching GitHub data:', {
+					status: xhr.status,
+					textStatus: textStatus,
+					error: errorThrown
+				});
 			},
 			success: (data) => {
+				console.log("Received GitHub issues data:", data);
 				githubIssuesData = data;
+				writeGithubIssuesPrs();
 			},
 		});
-		// fetch github prs review data
-		var prUrl =
-			'https://api.github.com/search/issues?q=commenter%3A' +
+
+		// PR reviews fetch
+		var prUrl = 'https://api.github.com/search/issues?q=commenter%3A' +
 			githubUsername +
 			'+org%3Afossasia+updated%3A' +
 			startingDate +
 			'..' +
 			endingDate +
 			'&per_page=100';
+		console.log("Fetching PR reviews from:", prUrl);
 
 		$.ajax({
 			dataType: 'json',
 			type: 'GET',
 			url: prUrl,
 			error: (xhr, textStatus, errorThrown) => {
-				// error
+				console.error('Error fetching PR reviews:', {
+					status: xhr.status,
+					textStatus: textStatus,
+					error: errorThrown
+				});
 			},
 			success: (data) => {
+				console.log("Received PR reviews data:", data);
 				githubPrsReviewData = data;
+				writeGithubPrsReviews();
 			},
 		});
 		// fetch github user data
@@ -205,9 +228,11 @@ function allIncluded(outputTarget = 'email') {
 
 	//load initial text in scrum body
 	function writeScrumBody() {
+		console.log("writeScrumBody called");
 		if (!enableToggle) return;
 
 		setTimeout(() => {
+			console.log("generating content");
 			// Generate content first
 			var lastWeekUl = '<ul>';
 			var i;
@@ -224,45 +249,38 @@ function allIncluded(outputTarget = 'email') {
 
 			// Create the complete content
 			let content;
-			if (lastWeekContribution == true) {
-				content = `<b>1. What did I do ${weekOrDay}?</b>
-						  <br>${lastWeekUl}<br><br>
-						  <b>2. What I plan to do ${weekOrDay2}?</b>
-						  <br>${nextWeekUl}<br><br>
-						  <b>3. What is stopping me from doing my work?</b>
-						  <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${userReason}</p>`;
-			} else {
-				content = `<b>1. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?</b>
-						  <br>${lastWeekUl}<br><br>
-						  <b>2. What I plan to do ${weekOrDay2}?</b>
-						  <br>${nextWeekUl}<br><br>
-						  <b>3. What is stopping me from doing my work?</b>
-						  <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${userReason}</p>`;
-			}
+        if (lastWeekContribution == true) {
+            content = `<b>1. What did I do ${weekOrDay}?</b><br>
+${lastWeekUl}<br>
+<b>2. What I plan to do ${weekOrDay2}?</b><br>
+${nextWeekUl}<br>
+<b>3. What is stopping me from doing my work?</b><br>
+${userReason}`;
+        } else {
+            content = `<b>1. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?</b><br>
+${lastWeekUl}<br>
+<b>2. What I plan to do ${weekOrDay2}?</b><br>
+${nextWeekUl}<br>
+<b>3. What is stopping me from doing my work?</b><br>
+${userReason}`;
+        }
 
 			if (outputTarget === 'popup') {
-                // Update popup textarea
-                const scrumReport = document.getElementById('scrumReport');
-                if (scrumReport) {
-                    // Convert HTML to plain text for textarea
-                    const plainContent = content
-                        .replace(/<br>/g, '\n')
-                        .replace(/<\/?[^>]+(>|$)/g, '')
-                        .replace(/&nbsp;/g, ' ');
-                    
-                    scrumReport.value = plainContent;
-                    Materialize.textareaAutoResize(scrumReport);
+				console.log("trying to update popup textarea");
+				const scrumReport = document.getElementById('scrumReport');
+				if (scrumReport) {
+					console.log("found div, updating content");
+					scrumReport.innerHTML = content;  // Use innerHTML instead of value
+					
+					// Reset generate button
+					const generateBtn = document.getElementById('generateReport');
+					if (generateBtn) {
+						generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+						generateBtn.disabled = false;
+					}
+				}
+			} else {
 
-                    // Reset generate button
-                    const generateBtn = document.getElementById('generateReport');
-                    if (generateBtn) {
-                        generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
-                        generateBtn.disabled = false;
-                    }
-                    
-                    Materialize.toast('Report generated successfully!', 3000);
-                }
-            } else {
 				// Use the adapter to inject content
 				const elements = window.emailClientAdapter.getEditorElements();
 				if (!elements || !elements.body) {
@@ -585,16 +603,16 @@ function allIncluded(outputTarget = 'email') {
 }
 allIncluded('email');  // Auto-trigger on page load
 $('button>span:contains(New conversation)').parent('button').click(() => {
-    allIncluded('email');  // Auto-trigger on new conversation
+    allIncluded();  // Auto-trigger on new conversation
 });
+
+window.generateScrumReport = function() {
+	console.log('generateScrumReport called');
+    allIncluded('popup');
+};
 
 $('button>span:contains(New conversation)')
 	.parent('button')
 	.click(() => {
-		allIncluded('email');
+		allIncluded();
 	});
-
-// Export for use in popup
-window.generateScrumReport = function() {
-    allIncluded('popup');
-};
