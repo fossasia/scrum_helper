@@ -1,6 +1,6 @@
 var refreshButton_Placed = false;
 var enableToggle = true;
-function allIncluded() {
+function allIncluded(outputTarget = 'email') {
 	/* global $*/
 	var scrumBody = null;
 	var scrumSubject = null;
@@ -69,9 +69,19 @@ function allIncluded() {
 				if (items.githubUsername) {
 					githubUsername = items.githubUsername;
 					fetchGithubData();
-				} else {
-					console.warn('No GitHub username found in storage');
-				}
+				}  else {
+                    if (outputTarget === 'popup') {
+                        // Show error in popup
+                        const generateBtn = document.getElementById('generateReport');
+                        if (generateBtn) {
+                            generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+                            generateBtn.disabled = false;
+                        }
+                        Materialize.toast('Please enter your GitHub username', 3000);
+                    } else {
+                        console.warn('No GitHub username found in storage');
+                    }
+                }
 				if (items.projectName) {
 					projectName = items.projectName;
 				}
@@ -230,14 +240,37 @@ function allIncluded() {
 						  <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${userReason}</p>`;
 			}
 
-			// Use the adapter to inject content
-			const elements = window.emailClientAdapter.getEditorElements();
-			if (!elements || !elements.body) {
-				console.error('Email client editor not found');
-				return;
-			}
+			if (outputTarget === 'popup') {
+                // Update popup textarea
+                const scrumReport = document.getElementById('scrumReport');
+                if (scrumReport) {
+                    // Convert HTML to plain text for textarea
+                    const plainContent = content
+                        .replace(/<br>/g, '\n')
+                        .replace(/<\/?[^>]+(>|$)/g, '')
+                        .replace(/&nbsp;/g, ' ');
+                    
+                    scrumReport.value = plainContent;
+                    Materialize.textareaAutoResize(scrumReport);
 
-			window.emailClientAdapter.injectContent(elements.body, content, elements.eventTypes.contentChange);
+                    // Reset generate button
+                    const generateBtn = document.getElementById('generateReport');
+                    if (generateBtn) {
+                        generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+                        generateBtn.disabled = false;
+                    }
+                    
+                    Materialize.toast('Report generated successfully!', 3000);
+                }
+            } else {
+				// Use the adapter to inject content
+				const elements = window.emailClientAdapter.getEditorElements();
+				if (!elements || !elements.body) {
+					console.error('Email client editor not found');
+					return;
+				}
+				window.emailClientAdapter.injectContent(elements.body, content, elements.eventTypes.contentChange);
+			}
 		});
 	}
 
@@ -547,13 +580,21 @@ function allIncluded() {
 		}, 1000);
 	}
 	function handleRefresh() {
-		allIncluded();
+		allIncluded('email');
 	}
 }
-allIncluded();
+allIncluded('email');  // Auto-trigger on page load
+$('button>span:contains(New conversation)').parent('button').click(() => {
+    allIncluded('email');  // Auto-trigger on new conversation
+});
 
 $('button>span:contains(New conversation)')
 	.parent('button')
 	.click(() => {
-		allIncluded();
+		allIncluded('email');
 	});
+
+// Export for use in popup
+window.generateScrumReport = function() {
+    allIncluded('popup');
+};
