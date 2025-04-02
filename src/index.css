@@ -91,3 +91,37 @@ label[for="lastWeekContribution"] {
 	color: #3f51b5;
 	font-weight: 500;
 }
+
+/* Standalone report styles */
+#standalone-report {
+	resize: none;
+	font-family: 'Roboto', sans-serif;
+	min-height: 200px;
+	padding: 10px;
+	margin-bottom: 10px;
+}
+
+#standalone-report:focus {
+	border-bottom: 1px solid #3f51b5;
+	box-shadow: 0 1px 0 0 #3f51b5;
+}
+
+#generate-report, #copy-report {
+	width: 100%;
+	margin-bottom: 10px;
+}
+
+/* Tab styling */
+.tabs .tab a.active {
+	color: #3f51b5 !important;
+	font-weight: 500;
+}
+
+/* Ensure labels in the standalone tab behave consistently */
+#standalone .input-field > label {
+	color: #9e9e9e;
+}
+
+#standalone .input-field > label.active {
+	color: #3f51b5;
+}

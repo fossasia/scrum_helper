@@ -169,3 +169,128 @@ userReasonElement.addEventListener('keyup', handleUserReasonChange);
 document.addEventListener('DOMContentLoaded', handleBodyOnLoad);
 document.getElementById('codeheatTab').addEventListener('click', handleCodeheatClick);
 document.getElementById('gsocTab').addEventListener('click', handleGsocClick);
+
+// Add tab switching functionality
+document.addEventListener('DOMContentLoaded', function() {
+	// Initialize tabs
+	if (typeof M !== 'undefined' && M.Tabs) {
+		var tabs = document.querySelectorAll('.tabs');
+		M.Tabs.init(tabs);
+	}
+	
+	// Handle tab clicks manually since we're using display:none
+	document.getElementById('codeheatTab').addEventListener('click', function() {
+		document.getElementById('main-settings').style.display = 'block';
+		document.getElementById('standalone').style.display = 'none';
+	});
+	
+	document.getElementById('gsocTab').addEventListener('click', function() {
+		document.getElementById('main-settings').style.display = 'block';
+		document.getElementById('standalone').style.display = 'none';
+	});
+	
+	document.getElementById('standaloneTab').addEventListener('click', function() {
+		document.getElementById('main-settings').style.display = 'none';
+		document.getElementById('standalone').style.display = 'block';
+	});
+	
+	// Standalone report functionality
+	const generateReportBtn = document.getElementById('generate-report');
+	const copyReportBtn = document.getElementById('copy-report');
+	
+	if (generateReportBtn) {
+		generateReportBtn.addEventListener('click', generateStandaloneReport);
+	}
+	
+	if (copyReportBtn) {
+		copyReportBtn.addEventListener('click', copyToClipboard);
+	}
+});
+
+// Standalone report functionality
+function generateStandaloneReport() {
+	chrome.storage.local.get(
+		[
+			'githubUsername',
+			'projectName',
+			'enableToggle',
+			'startingDate',
+			'endingDate',
+			'showOpenLabel',
+			'showClosedLabel',
+			'lastWeekContribution',
+			'userReason',
+			'gsoc',
+		],
+		(items) => {
+			// Simple validation
+			if (!items.githubUsername) {
+				document.getElementById('standalone-report').value = 
+					"Please enter your GitHub username in the settings tab first.";
+				return;
+			}
+			
+			// Prepare dates if needed
+			if (items.lastWeekContribution) {
+				items.endingDate = getToday();
+				items.startingDate = getLastWeek();
+			}
+			
+			// Generate a simple report directly in the popup
+			// This doesn't require communicating with a content script
+			let weekOrDay = items.gsoc == 1 ? 'yesterday' : 'last week';
+			let weekOrDay2 = items.gsoc == 1 ? 'today' : 'this week';
+			
+			// Format for display
+			const formatDate = (dateString) => {
+				const date = new Date(dateString);
+				const options = { day: '2-digit', month: 'short', year: 'numeric' };
+				return date.toLocaleDateString('en-US', options);
+			};
+			
+			let reportHtml = "";
+			
+			if (items.lastWeekContribution) {
+				reportHtml = `1. What did I do ${weekOrDay}?\n\n• ← GitHub contributions will appear here\n\n` +
+							 `2. What I plan to do ${weekOrDay2}?\n\n• ← Your plans for ${weekOrDay2}\n\n` +
+							 `3. What is stopping me from doing my work?\n\n${items.userReason || "No blockers at the moment"}`;
+			} else {
+				reportHtml = `1. What did I do from ${formatDate(items.startingDate)} to ${formatDate(items.endingDate)}?\n\n• ← GitHub contributions will appear here\n\n` +
+							 `2. What I plan to do ${weekOrDay2}?\n\n• ← Your plans for ${weekOrDay2}\n\n` +
+							 `3. What is stopping me from doing my work?\n\n${items.userReason || "No blockers at the moment"}`;
+			}
+			
+			// Display the report 
+			document.getElementById('standalone-report').value = reportHtml;
+			document.querySelector('label[for="standalone-report"]').classList.add('active');
+			
+			// Add a note about navigating to GitHub
+			document.getElementById('standalone-report').value += "\n\n---\nNote: For a complete report with GitHub contributions, please open a supported page (Google Groups, Gmail, etc.) and click 'Generate Report' again.";
+		}
+	);
+}
+
+function copyToClipboard() {
+	const reportContent = document.getElementById('standalone-report').value;
+	if (reportContent) {
+		navigator.clipboard.writeText(reportContent)
+			.then(() => {
+				// Show a toast notification (using a simple alert if Materialize is not available)
+				if (typeof M !== 'undefined' && M.toast) {
+					M.toast({html: 'Report copied to clipboard!', classes: 'rounded'});
+				} else {
+					alert('Report copied to clipboard!');
+				}
+			})
+			.catch(err => {
+				console.error('Could not copy text: ', err);
+				alert('Failed to copy. Please try again.');
+			});
+	} else {
+		if (typeof M !== 'undefined' && M.toast) {
+			M.toast({html: 'Generate a report first!', classes: 'rounded'});
+		} else {
+			alert('Generate a report first!');
+		}
+	}
+}
