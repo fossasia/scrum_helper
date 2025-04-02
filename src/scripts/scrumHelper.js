@@ -324,20 +324,39 @@ ${userReason}`;
 
 	// write PRs Reviewed
 	function writeGithubPrsReviews() {
+		console.log("Starting to process PR reviews");
 		var items = githubPrsReviewData.items;
-		var i;
-		for (i = 0; i < items.length; i++) {
+		console.log("Total review items:", items.length);
+		
+		reviewedPrsArray = [];
+		githubPrsReviewDataProccessed = {};
+		
+		for (var i = 0; i < items.length; i++) {
 			var item = items[i];
-			if (item.user.login == githubUsername || !item.pull_request) continue;
+			console.log(`Review item ${i + 1}/${items.length}:`, {
+				number: item.number,
+				author: item.user.login,
+				type: item.pull_request ? "PR" : "Issue",
+				state: item.state,
+				title: item.title
+			});
+			
+			// Only skip if it's your own PR, but keep all PRs you've reviewed
+			if (item.user.login === githubUsername) {
+				console.log(`Skipping #${item.number} - Own PR`);
+				continue;
+			}
+			
 			var repository_url = item.repository_url;
 			var project = repository_url.substr(repository_url.lastIndexOf('/') + 1);
 			var title = item.title;
 			var number = item.number;
 			var html_url = item.html_url;
+			
 			if (!githubPrsReviewDataProccessed[project]) {
-				// first pr in this repo
 				githubPrsReviewDataProccessed[project] = [];
 			}
+			
 			var obj = {
 				number: number,
 				html_url: html_url,
@@ -345,25 +364,27 @@ ${userReason}`;
 				state: item.state,
 			};
 			githubPrsReviewDataProccessed[project].push(obj);
+			console.log(`Added PR #${number} to project ${project}`);
 		}
+		
 		for (var repo in githubPrsReviewDataProccessed) {
-			var repoLi =
-				'<li> \
-		<i>(' +
-				repo +
-				')</i> - Reviewed ';
-			if (githubPrsReviewDataProccessed[repo].length > 1) repoLi += 'PRs - ';
-			else {
+			var repoLi = '<li><i>(' + repo + ')</i> - Reviewed ';
+			if (githubPrsReviewDataProccessed[repo].length > 1) {
+				repoLi += 'PRs - ';
+			} else {
 				repoLi += 'PR - ';
 			}
+			
 			if (githubPrsReviewDataProccessed[repo].length <= 1) {
 				for (var pr in githubPrsReviewDataProccessed[repo]) {
 					var pr_arr = githubPrsReviewDataProccessed[repo][pr];
 					var prText = '';
-					prText +=
-						"<a href='" + pr_arr.html_url + "' target='_blank'>#" + pr_arr.number + '</a> (' + pr_arr.title + ') ';
-					if (pr_arr.state === 'open') prText += issue_opened_button;
-					else prText += issue_closed_button;
+					prText += `<a href='${pr_arr.html_url}' target='_blank'>#${pr_arr.number}</a> (${pr_arr.title}) `;
+					if (pr_arr.state === 'open') {
+						prText += issue_opened_button;
+					} else {
+						prText += issue_closed_button;
+					}
 					prText += '&nbsp;&nbsp;';
 					repoLi += prText;
 				}
@@ -372,16 +393,12 @@ ${userReason}`;
 				for (var pr1 in githubPrsReviewDataProccessed[repo]) {
 					var pr_arr1 = githubPrsReviewDataProccessed[repo][pr1];
 					var prText1 = '';
-					prText1 +=
-						"<li><a href='" +
-						pr_arr1.html_url +
-						"' target='_blank'>#" +
-						pr_arr1.number +
-						'</a> (' +
-						pr_arr1.title +
-						') ';
-					if (pr_arr1.state === 'open') prText1 += issue_opened_button;
-					else prText1 += issue_closed_button;
+					prText1 += `<li><a href='${pr_arr1.html_url}' target='_blank'>#${pr_arr1.number}</a> (${pr_arr1.title}) `;
+					if (pr_arr1.state === 'open') {
+						prText1 += issue_opened_button;
+					} else {
+						prText1 += issue_closed_button;
+					}
 					prText1 += '&nbsp;&nbsp;</li>';
 					repoLi += prText1;
 				}
@@ -389,125 +406,77 @@ ${userReason}`;
 			}
 			repoLi += '</li>';
 			reviewedPrsArray.push(repoLi);
+			console.log(`Added repo ${repo} to reviewedPrsArray`);
 		}
-		writeScrumBody();
+		
+		console.log("Final reviewedPrsArray:", reviewedPrsArray);
+		writeScrumBody(); // Call writeScrumBody to update the content
 	}
 	//write issues and Prs from github
 	function writeGithubIssuesPrs() {
+		console.log("Starting to process issues/PRs");
 		var data = githubIssuesData;
+		console.log("Total items to process:", data.items.length);
 		var items = data.items;
+		
+		// Reset arrays at the start
+		lastWeekArray = [];
+		nextWeekArray = [];
+		
 		for (var i = 0; i < items.length; i++) {
 			var item = items[i];
+			console.log(`Processing item ${i + 1}/${items.length}:`, {
+				number: item.number,
+				title: item.title,
+				state: item.state,
+				isPR: !!item.pull_request,
+				body: item.body ? item.body.substring(0, 100) + "..." : "no body"
+			});
+			
 			var html_url = item.html_url;
 			var repository_url = item.repository_url;
 			var project = repository_url.substr(repository_url.lastIndexOf('/') + 1);
 			var title = item.title;
 			var number = item.number;
 			var li = '';
+			
 			if (item.pull_request) {
-				// is a pull request
+				console.log(`Item #${number} is a PR with state ${item.state}`);
 				if (item.state === 'closed') {
-					// is closed PR
-					li =
-						'<li><i>(' +
-						project +
-						')</i> - Made PR (#' +
-						number +
-						") - <a href='" +
-						html_url +
-						"' style='" +
-						linkStyle +
-						"' target='_blank'>" +
-						title +
-						'</a> ' +
-						pr_merged_button +
-						'&nbsp;&nbsp;</li>';
+					li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_merged_button}</li>`;
+					console.log("Added closed PR to lastWeekArray");
 				} else if (item.state === 'open') {
-					// is open PR
-					li =
-						'<li><i>(' +
-						project +
-						')</i> - Made PR (#' +
-						number +
-						") - <a href='" +
-						html_url +
-						"' target='_blank'>" +
-						title +
-						'</a> ' +
-						pr_unmerged_button +
-						'&nbsp;&nbsp;</li>';
-				} else {
-					// else
-					li =
-						'<li><i>(' +
-						project +
-						')</i> - Made PR (#' +
-						number +
-						") - <a href='" +
-						html_url +
-						"' target='_blank'>" +
-						title +
-						'</a> &nbsp;&nbsp;</li>';
+					li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_unmerged_button}</li>`;
+					console.log("Added open PR to lastWeekArray");
 				}
 			} else {
-				// is a issue
-				if (item.state === 'open' && item.body.toUpperCase().indexOf('YES') > 0) {
-					//probably the author wants to work on this issue!
-					var li2 =
-						'<li><i>(' +
-						project +
-						')</i> - Work on Issue(#' +
-						number +
-						") - <a href='" +
-						html_url +
-						"' target='_blank'>" +
-						title +
-						'</a> ' +
-						issue_opened_button +
-						'&nbsp;&nbsp;</li>';
+				console.log(`Item #${number} is an Issue with state ${item.state}`);
+				if (item.state === 'open' && item.body && item.body.toUpperCase().indexOf('YES') > 0) {
+					var li2 = `<li><i>(${project})</i> - Work on Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_opened_button}</li>`;
 					nextWeekArray.push(li2);
+					console.log("Added to nextWeekArray (contains YES)");
 				}
 				if (item.state === 'open') {
-					li =
-						'<li><i>(' +
-						project +
-						')</i> - Opened Issue(#' +
-						number +
-						") - <a href='" +
-						html_url +
-						"' target='_blank'>" +
-						title +
-						'</a> ' +
-						issue_opened_button +
-						'&nbsp;&nbsp;</li>';
+					li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_opened_button}</li>`;
+					console.log("Added open issue to lastWeekArray");
 				} else if (item.state === 'closed') {
-					li =
-						'<li><i>(' +
-						project +
-						')</i> - Opened Issue(#' +
-						number +
-						") - <a href='" +
-						html_url +
-						"' target='_blank'>" +
-						title +
-						'</a> ' +
-						issue_closed_button +
-						'&nbsp;&nbsp;</li>';
-				} else {
-					li =
-						'<li><i>(' +
-						project +
-						')</i> - Opened Issue(#' +
-						number +
-						") - <a href='" +
-						html_url +
-						"' target='_blank'>" +
-						title +
-						'</a> </li>';
+					li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_button}</li>`;
+					console.log("Added closed issue to lastWeekArray");
 				}
 			}
-			lastWeekArray.push(li);
+			if (li) {
+				lastWeekArray.push(li);
+				console.log("Added to lastWeekArray:", li);
+			} else {
+				console.log(`No li generated for item #${number}`);
+			}
 		}
+		console.log("Final arrays:", {
+			lastWeekItems: lastWeekArray.length,
+			nextWeekItems: nextWeekArray.length,
+			lastWeekContents: lastWeekArray,
+			nextWeekContents: nextWeekArray
+		});
 		writeScrumBody();
 	}
 	//check for scrum body loaded
