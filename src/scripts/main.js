@@ -82,19 +82,25 @@ function handleEndingDateChange() {
 }
 function handleLastWeekContributionChange() {
 	var value = lastWeekContributionElement.checked;
+	var labelElement = document.querySelector("label[for='lastWeekContribution']");
+
 	if (value) {
-		startingDateElement.disabled = true;
-		endingDateElement.disabled = true;
-		endingDateElement.value = getToday();
-		startingDateElement.value = getLastWeek();
-		handleEndingDateChange();
-		handleStartingDateChange();
+			startingDateElement.disabled = true;
+			endingDateElement.disabled = true;
+			endingDateElement.value = getToday();
+			startingDateElement.value = getLastWeek();
+			labelElement.classList.add("selectedLabel");
+			labelElement.classList.remove("unselectedLabel");
 	} else {
-		startingDateElement.disabled = false;
-		endingDateElement.disabled = false;
+			startingDateElement.disabled = false;
+			endingDateElement.disabled = false;
+			labelElement.classList.add("unselectedLabel");
+			labelElement.classList.remove("selectedLabel");
 	}
+	
 	chrome.storage.local.set({ lastWeekContribution: value });
 }
+
 function getLastWeek() {
 	var today = new Date();
 	var noDays_to_goback = gsoc == 0 ? 7 : 1;
@@ -135,9 +141,19 @@ function handleProjectNameChange() {
 }
 function handleOpenLabelChange() {
 	var value = showOpenLabelElement.checked;
+	var labelElement = document.querySelector("label[for='showOpenLabel']");
+
+	if (value) {
+			labelElement.classList.add("selectedLabel");
+			labelElement.classList.remove("unselectedLabel");
+	} else {
+			labelElement.classList.add("unselectedLabel");
+			labelElement.classList.remove("selectedLabel");
+	}
+
 	chrome.storage.local.set({ showOpenLabel: value });
-	chrome.storage.local.set({ showClosedLabel: value });
 }
+
 function handleUserReasonChange() {
 	var value = userReasonElement.value;
 	chrome.storage.local.set({ userReason: value });
