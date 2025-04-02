@@ -16,7 +16,7 @@ function allIncluded(outputTarget = 'email') {
 	var lastWeekContribution = false;
 	var githubPrsReviewData = null;
 	var githubUserData = null;
-	var githubPrsReviewDataProccessed = {};
+	var githubPrsReviewDataProcessed = {};
 	var showOpenLabel = true;
 	var showClosedLabel = true;
 	var userReason = '';
@@ -317,9 +317,15 @@ ${userReason}`;
 		
 		for (var i = 0; i < items.length; i++) {
 			var item = items[i];
+			console.log(`Review item ${i + 1}/${items.length}:`, {
+				number: item.number,
+				author: item.user.login,
+				type: item.pull_request ? "PR" : "Issue",
+				state: item.state,
+				title: item.title
+			});
 			
 			if (item.user.login === githubUsername) {
-				// skips own pr from review
 				continue;
 			}
 			
