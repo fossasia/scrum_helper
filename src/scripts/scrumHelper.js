@@ -16,7 +16,7 @@ function allIncluded(outputTarget = 'email') {
 	var lastWeekContribution = false;
 	var githubPrsReviewData = null;
 	var githubUserData = null;
-	var githubPrsReviewDataProccessed = {};
+	var githubPrsReviewDataProcessed = {};
 	var showOpenLabel = true;
 	var showClosedLabel = true;
 	var userReason = '';
@@ -306,13 +306,19 @@ ${userReason}`;
 		var items = githubPrsReviewData.items;
 		
 		reviewedPrsArray = [];
-		githubPrsReviewDataProccessed = {};
+		githubPrsReviewDataProcessed = {};
 		
 		for (var i = 0; i < items.length; i++) {
 			var item = items[i];
+			console.log(`Review item ${i + 1}/${items.length}:`, {
+				number: item.number,
+				author: item.user.login,
+				type: item.pull_request ? "PR" : "Issue",
+				state: item.state,
+				title: item.title
+			});
 			
 			if (item.user.login === githubUsername) {
-				// skips own pr from review
 				continue;
 			}
 			
@@ -322,8 +328,8 @@ ${userReason}`;
 			var number = item.number;
 			var html_url = item.html_url;
 			
-			if (!githubPrsReviewDataProccessed[project]) {
-				githubPrsReviewDataProccessed[project] = [];
+			if (!githubPrsReviewDataProcessed[project]) {
+				githubPrsReviewDataProcessed[project] = [];
 			}
 			
 			var obj = {
@@ -332,20 +338,20 @@ ${userReason}`;
 				title: title,
 				state: item.state,
 			};
-			githubPrsReviewDataProccessed[project].push(obj);
+			githubPrsReviewDataProcessed[project].push(obj);
 		}
 		
-		for (var repo in githubPrsReviewDataProccessed) {
+		for (var repo in githubPrsReviewDataProcessed) {
 			var repoLi = '<li><i>(' + repo + ')</i> - Reviewed ';
-			if (githubPrsReviewDataProccessed[repo].length > 1) {
+			if (githubPrsReviewDataProcessed[repo].length > 1) {
 				repoLi += 'PRs - ';
 			} else {
 				repoLi += 'PR - ';
 			}
 			
-			if (githubPrsReviewDataProccessed[repo].length <= 1) {
-				for (var pr in githubPrsReviewDataProccessed[repo]) {
-					var pr_arr = githubPrsReviewDataProccessed[repo][pr];
+			if (githubPrsReviewDataProcessed[repo].length <= 1) {
+				for (var pr in githubPrsReviewDataProcessed[repo]) {
+					var pr_arr = githubPrsReviewDataProcessed[repo][pr];
 					var prText = '';
 					prText += `<a href='${pr_arr.html_url}' target='_blank'>#${pr_arr.number}</a> (${pr_arr.title}) `;
 					if (pr_arr.state === 'open') {
@@ -358,8 +364,8 @@ ${userReason}`;
 				}
 			} else {
 				repoLi += '<ul>';
-				for (var pr1 in githubPrsReviewDataProccessed[repo]) {
-					var pr_arr1 = githubPrsReviewDataProccessed[repo][pr1];
+				for (var pr1 in githubPrsReviewDataProcessed[repo]) {
+					var pr_arr1 = githubPrsReviewDataProcessed[repo][pr1];
 					var prText1 = '';
 					prText1 += `<li><a href='${pr_arr1.html_url}' target='_blank'>#${pr_arr1.number}</a> (${pr_arr1.title}) `;
 					if (pr_arr1.state === 'open') {
@@ -387,6 +393,14 @@ ${userReason}`;
 		
 		for (var i = 0; i < items.length; i++) {
 			var item = items[i];
+			console.log(`Processing item ${i + 1}/${items.length}:`, {
+				number: item.number,
+				title: item.title,
+				state: item.state,
+				isPR: !!item.pull_request,
+				body: item.body ? item.body.substring(0, 100) + "..." : "no body"
+			});
+			
 			var html_url = item.html_url;
 			var repository_url = item.repository_url;
 			var project = repository_url.substr(repository_url.lastIndexOf('/') + 1);
