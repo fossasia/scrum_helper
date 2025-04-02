@@ -1,6 +1,6 @@
 # SCRUM Helper
 
-This chrome extension helps you to write scrums in google groups for FOSSASIA related projects. You need to add your github username, dates, and other options. It fetches your PRs, Issues, and the PRs you reviewed from Github API, and prefills the SCRUM. You can edit the scrum further to meet your needs.
+This chrome extension helps you to write scrum reports in Google Groups and other email clients for FOSSASIA related projects. You need to add your github username, dates, and other options. It fetches your PRs, Issues, and the PRs you reviewed from Github API, and prefills the SCRUM. You can edit the scrum further to meet your needs.
 
 ![SCRUMLOGO](docs/images/scrumhelper-png.png)
 
@@ -15,6 +15,25 @@ This chrome extension helps you to write scrums in google groups for FOSSASIA re
 7. Open https://groups.google.com/forum/#!newtopic/<groupname>.
 8. Refresh the page for new settings to reflect.
 ```
+### New Features
+1. **Standalone Popup Interface**
+   - Generate reports directly from the extension popup
+   - Live preview of the report before sending
+   - Rich text formatting with clickable links
+   - Copy report to clipboard with proper formatting
+
+2. **Enhanced Formatting**
+   - HTML support in the preview window
+   - Markdown formatting when copying to clipboard
+   - Links are preserved in format: `[title](url)`
+   - Proper line breaks and list formatting
+
+3. **Email Client Integration**
+   - Seamless integration with various email clients
+   - Ensures consistent formatting across email clients, previews, and copied content.
+   - Automatic subject line generation
+   - Support for HTML content in compatible clients
+
 ## Setting up the code locally
 
 ```
