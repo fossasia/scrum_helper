@@ -82,25 +82,19 @@ function handleEndingDateChange() {
 }
 function handleLastWeekContributionChange() {
 	var value = lastWeekContributionElement.checked;
-	var labelElement = document.querySelector("label[for='lastWeekContribution']");
-
 	if (value) {
-			startingDateElement.disabled = true;
-			endingDateElement.disabled = true;
-			endingDateElement.value = getToday();
-			startingDateElement.value = getLastWeek();
-			labelElement.classList.add("selectedLabel");
-			labelElement.classList.remove("unselectedLabel");
+		startingDateElement.disabled = true;
+		endingDateElement.disabled = true;
+		endingDateElement.value = getToday();
+		startingDateElement.value = getLastWeek();
+		handleEndingDateChange();
+		handleStartingDateChange();
 	} else {
-			startingDateElement.disabled = false;
-			endingDateElement.disabled = false;
-			labelElement.classList.add("unselectedLabel");
-			labelElement.classList.remove("selectedLabel");
+		startingDateElement.disabled = false;
+		endingDateElement.disabled = false;
 	}
-	
 	chrome.storage.local.set({ lastWeekContribution: value });
 }
-
 function getLastWeek() {
 	var today = new Date();
 	var noDays_to_goback = gsoc == 0 ? 7 : 1;
@@ -141,19 +135,9 @@ function handleProjectNameChange() {
 }
 function handleOpenLabelChange() {
 	var value = showOpenLabelElement.checked;
-	var labelElement = document.querySelector("label[for='showOpenLabel']");
-
-	if (value) {
-			labelElement.classList.add("selectedLabel");
-			labelElement.classList.remove("unselectedLabel");
-	} else {
-			labelElement.classList.add("unselectedLabel");
-			labelElement.classList.remove("selectedLabel");
-	}
-
 	chrome.storage.local.set({ showOpenLabel: value });
+	chrome.storage.local.set({ showClosedLabel: value });
 }
-
 function handleUserReasonChange() {
 	var value = userReasonElement.value;
 	chrome.storage.local.set({ userReason: value });
@@ -174,6 +158,64 @@ function handleGsocClick() {
 	chrome.storage.local.set({ gsoc: 1 });
 	handleLastWeekContributionChange();
 }
+document.getElementById("openModal").addEventListener("click", () => {
+	chrome.storage.local.get(
+		['projectName', 'githubUsername', 'userReason'],
+		(items) => {
+			const projectName = items.projectName || "[Project]";
+			const githubUsername = items.githubUsername || "[Username]";
+			const userReason = items.userReason || "None";
+
+			// TEMP: Hardcoded sample data (replace later with GitHub API logic)
+			const pastWork = [
+				`(${projectName}) - Made PR (#71) - Fixes issue #69 : Enhanced feedback to Selection/Deselection of CheckBox open`,
+				`(${projectName}) - Opened Issue(#69) - UI Issue with Checkbox Selection/Deselection Feedback open`,
+				`(${projectName}) - Reviewed PR - #70 (Fixed UI Issue with Checkbox Selection/Deselection Feedback) open`
+			].join('\n');
+
+			const scrum = 
+`1. What did I do last week?
+${pastWork}
+
+2. What I plan to do this week?
+
+
+3. What is stopping me from doing my work?
+      ${userReason}`;
+
+			document.getElementById("scrumContent").textContent = scrum;
+			
+			// Show modal & disable body scroll
+			const modal = document.getElementById("scrumModal");
+			modal.style.display = "flex"; // changed from block to flex for proper centering
+			document.body.style.overflow = "hidden";
+		}
+	);
+});
+
+document.getElementById("closeModal").addEventListener("click", () => {
+	// Hide modal & re-enable scroll
+	document.getElementById("scrumModal").style.display = "none";
+	document.body.style.overflow = "";
+});
+
+document.getElementById("copyScrum").addEventListener("click", () => {
+	const content = document.getElementById("scrumContent").textContent;
+	const toast = document.getElementById("toast");
+
+	navigator.clipboard.writeText(content).then(() => {
+		toast.classList.add("show");
+		toast.style.display = "block";
+
+		setTimeout(() => {
+			toast.classList.remove("show");
+			toast.style.display = "none";
+		}, 3000);
+	});
+});
+
+
+
 enableToggleElement.addEventListener('change', handleEnableChange);
 githubUsernameElement.addEventListener('keyup', handleGithubUsernameChange);
 projectNameElement.addEventListener('keyup', handleProjectNameChange);

@@ -8,13 +8,74 @@
 	<link rel="stylesheet" type="text/css" href="index.css">
 	<script src="./scripts/fontawesome.js"></script>
 	<style type="text/css">
-	html,body{
+	html, body {
 		width: 350px !important;
 		height: 600px !important;
 		max-height: 600px !important;
 		overflow-y: scroll;
 	}
-</style>
+	.modal {
+		display: none;
+		position: fixed;
+		z-index: 1000;
+		top: 0;
+		left: 0;
+		width: 100vw;
+		height: 100vh;
+		background-color: rgba(0, 0, 0, 0.4);
+		display: none; /* Ensure hidden */
+		align-items: center;
+		justify-content: center;
+	}
+	
+	.modal-content {
+		background: white;
+		border-radius: 12px;
+		padding: 20px;
+		max-width: 450px;
+		width: 90%;
+		max-height: 80vh;
+		overflow-y: auto;
+	}
+	
+	
+	
+	
+	.close {
+		float: right;
+		font-size: 28px;
+		cursor: pointer;
+	}
+	.toast {
+		position: absolute;
+		top: 10px;
+		right: 10px;
+		background: #4CAF50;
+		color: white;
+		padding: 10px 15px;
+		border-radius: 5px;
+		display: none;
+		z-index: 2000;
+		box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2);
+		opacity: 0;
+		transition: opacity 0.3s ease;
+	}
+	
+	.toast.show {
+		display: block;
+		opacity: 1;
+	}
+	
+	.button-container {
+		text-align: center;
+		margin-top: 20px;
+		margin-bottom: 20px;
+	}
+	pre {
+		white-space: pre-wrap;
+		word-wrap: break-word;
+	}
+	</style>
 </head>
 <body>
 	<div class="container">
@@ -42,10 +103,10 @@
 			</div>
 		</div>
 		<div class="row">
-            <div class="input-field col s12">
-                <input placeholder="Your Project Name" id="projectName" type="text">
-                <label for="projectName">Your Project Name</label>
-            </div>
+			<div class="input-field col s12">
+				<input placeholder="Your Project Name" id="projectName" type="text">
+				<label for="projectName">Your Project Name</label>
+			</div>
 			<div class="input-field col s12">
 				<input placeholder="Required for getting data from github" id="githubUsername" type="text">
 				<label for="githubUsername">Your Github Username</label>
@@ -54,11 +115,9 @@
 				<input type="checkbox" class="filled-in" id="lastWeekContribution"/>
 				<label for="lastWeekContribution">Show past <span id="noDays"></span> from today</label>
 			</div>
-
 			<div class="input-field col s6">
 				<div>Starting Date:</div>
 				<input id="startingDate" type="date" class="datepicker" placeholder=" ">
-				
 			</div>
 			<div class="input-field col s6">
 				<div>Ending Date</div>
@@ -73,29 +132,43 @@
 				<input placeholder="Reason" id="userReason" type="text">
 				<label for="userReason">What is stopping you from doing your work?</label>
 			</div>
+			<div class="button-container">
+				<button id="openModal" class="btn">Generate Scrum</button>
+			</div>
 			<div class="col s12">
-				
 				<h5>Note:</h5>
 				<h6>
 					<ul>
-						<li>The PRs fetched are according to the date last reviewed by anyone. So if you reviewed a PR 10 days back, and someone reviewed it 2 days back, it will appear in your last week's activity. See <a target="_blank" href="https://github.com/fossasia/scrum_helper/issues/20">this issue</a>.
-						</li>
-						<li>By using the extension you understand that there might be discrepancies in the SCRUM generated. You are advised to edit the SCRUM afterwards to remove any discrepancies.
-						</li>
+						<li>The PRs fetched are according to the date last reviewed by anyone. So if you reviewed a PR 10 days back, and someone reviewed it 2 days back, it will appear in your last week's activity. See <a target="_blank" href="https://github.com/fossasia/scrum_helper/issues/20">this issue</a>.</li>
+						<li>By using the extension you understand that there might be discrepancies in the SCRUM generated. You are advised to edit the SCRUM afterwards to remove any discrepancies.</li>
 					</ul>
 				</h6>
 			</div>
 		</div>
-
-		<hr />
-		<footer>
-			<div class="center">
-				<a target="_blank" href="https://github.com/fossasia/scrum_helper"><h6><i class="fa fa-github" aria-hidden="true"></i> view code</h6></a>
-			</div>
-		</footer>
 	</div>
+
+	<!-- Scrum Modal -->
+	<div id="scrumModal" class="modal">
+		<div class="modal-content">
+			<span class="close" id="closeModal">&times;</span>
+			<h5>Scrum Preview</h5>
+			<pre id="scrumContent">[Scrum content preview here]</pre>
+			<button id="copyScrum" class="btn">Copy</button>
+	
+			<!-- Toast INSIDE modal -->
+			<div id="toast" class="toast">Copied successfully!</div>
+		</div>
+	</div>
+	
+
+	<footer>
+		<div class="center">
+			<a target="_blank" href="https://github.com/fossasia/scrum_helper"><h6><i class="fa fa-github" aria-hidden="true"></i> view code</h6></a>
+		</div>
+	</footer>
+
 	<script src="scripts/jquery-3.2.1.min.js"></script>
-	<script type="text/javascript" type="text/javascript" src="materialize/js/materialize.min.js"></script>
+	<script type="text/javascript" src="materialize/js/materialize.min.js"></script>
 	<script src="scripts/main.js"></script>
 </body>
 </html>
