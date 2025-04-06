@@ -4,6 +4,7 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<link rel="stylesheet" href="./tailwindcss.css">
 	<link href="materialize/css/materialize.min.css" type="text/css" rel="stylesheet">
 	<link rel="stylesheet" type="text/css" href="index.css">
 	<script src="./scripts/fontawesome.js"></script>
@@ -17,8 +18,11 @@
 </style>
 </head>
 <body>
-	<div class="container">
-		<h4 class="center">SCRUM Helper</h4>
+	<div class="px-4 py-4 rounded-2xl bg-cyan-400">
+		<div class="flex justify-between items-center">
+			<h6 class="center bg-red-500">SCRUM Helper</h4>
+			<h6>DAY/Night logo</h4>
+		</div>
 		<h6 class="center">
 			SCRUM helper prefills the Scrums in google groups, with your FOSSASIA's contributions.
 		</h6>
@@ -41,49 +45,51 @@
 				</ul>
 			</div>
 		</div>
-		<div class="row">
-            <div class="input-field col s12">
-                <input placeholder="Your Project Name" id="projectName" type="text">
-                <label for="projectName">Your Project Name</label>
-            </div>
-			<div class="input-field col s12">
-				<input placeholder="Required for getting data from github" id="githubUsername" type="text">
-				<label for="githubUsername">Your Github Username</label>
-			</div>
-			<div class="col s12"><span>Fetch your contributions between:</span>
-				<input type="checkbox" class="filled-in" id="lastWeekContribution"/>
-				<label for="lastWeekContribution">Show past <span id="noDays"></span> from today</label>
-			</div>
+		<div class="bg-yellow-100 rounded-2xl">
+			<div class="row">
+				<div class="input-field col s12">
+					<input placeholder="Your Project Name" id="projectName" type="text">
+					<label for="projectName">Your Project Name</label>
+				</div>
+				<div class="input-field col s12">
+					<input placeholder="Required for getting data from github" id="githubUsername" type="text">
+					<label for="githubUsername">Your Github Username</label>
+				</div>
+				<div class="col s12"><span>Fetch your contributions between:</span>
+					<input type="checkbox" class="filled-in" id="lastWeekContribution"/>
+					<label for="lastWeekContribution">Show past <span id="noDays"></span> from today</label>
+				</div>
 
-			<div class="input-field col s6">
-				<div>Starting Date:</div>
-				<input id="startingDate" type="date" class="datepicker" placeholder=" ">
-				
-			</div>
-			<div class="input-field col s6">
-				<div>Ending Date</div>
-				<input id="endingDate" type="date" class="datepicker" placeholder=" ">
-			</div>
-			<div class="col s12">
-				<br />
-				<input type="checkbox" class="filled-in" id="showOpenLabel"/>
-				<label for="showOpenLabel">Show Open/Closed Label</label>
-			</div>
-			<div class="input-field col s12">
-				<input placeholder="Reason" id="userReason" type="text">
-				<label for="userReason">What is stopping you from doing your work?</label>
-			</div>
-			<div class="col s12">
-				
-				<h5>Note:</h5>
-				<h6>
-					<ul>
-						<li>The PRs fetched are according to the date last reviewed by anyone. So if you reviewed a PR 10 days back, and someone reviewed it 2 days back, it will appear in your last week's activity. See <a target="_blank" href="https://github.com/fossasia/scrum_helper/issues/20">this issue</a>.
-						</li>
-						<li>By using the extension you understand that there might be discrepancies in the SCRUM generated. You are advised to edit the SCRUM afterwards to remove any discrepancies.
-						</li>
-					</ul>
-				</h6>
+				<div class="input-field col s6">
+					<div>Starting Date:</div>
+					<input id="startingDate" type="date" class="datepicker" placeholder=" ">
+					
+				</div>
+				<div class="input-field col s6">
+					<div>Ending Date</div>
+					<input id="endingDate" type="date" class="datepicker" placeholder=" ">
+				</div>
+				<div class="col s12">
+					<br />
+					<input type="checkbox" class="filled-in" id="showOpenLabel"/>
+					<label for="showOpenLabel">Show Open/Closed Label</label>
+				</div>
+				<div class="input-field col s12">
+					<input placeholder="Reason" id="userReason" type="text">
+					<label for="userReason">What is stopping you from doing your work?</label>
+				</div>
+				<div class="col s12">
+					
+					<h5>Note:</h5>
+					<h6>
+						<ul>
+							<li>The PRs fetched are according to the date last reviewed by anyone. So if you reviewed a PR 10 days back, and someone reviewed it 2 days back, it will appear in your last week's activity. See <a target="_blank" href="https://github.com/fossasia/scrum_helper/issues/20">this issue</a>.
+							</li>
+							<li>By using the extension you understand that there might be discrepancies in the SCRUM generated. You are advised to edit the SCRUM afterwards to remove any discrepancies.
+							</li>
+						</ul>
+					</h6>
+				</div>
 			</div>
 		</div>
 
