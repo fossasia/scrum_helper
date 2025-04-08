@@ -7,46 +7,90 @@ body {
 * {
 	box-sizing: border-box;
 }
+
 .datepicker {
 	margin-bottom: 5px !important;
 }
+
 .tabs .tab a:hover,
 .tabs .tab a.active {
 	background-color: transparent;
 	color: #3f51b5;
 }
+
 .tabs {
 	background-color: transparent;
 }
+
 .tabs .tab a {
 	color: #3f51b5;
 }
+
 .tabs .indicator {
 	background-color: #3f51b5;
 }
+
 .switch label input[type="checkbox"]:checked + .lever {
 	background-color: #3f51b5;
 }
+
 .switch label input[type="checkbox"]:checked + .lever:after {
 	background-color: #fcfcfc;
 	left: 24px;
 }
+
 [type="checkbox"].filled-in:checked + label:after {
 	border: 2px solid #3f51b5;
 	background-color: #3f51b5;
 }
+
 .btn:hover,
 .btn-large:hover {
 	background-color: #3f51b5;
 }
+
 a {
 	color: #3f51b5;
 }
+
 .btn,
 .btn-large {
 	background-color: #3f51b5;
 }
+
 li {
 	list-style-type: disc !important;
 	margin-left: 1rem;
+}
+
+/* Add these styles for the preview functionality */
+.scrum-preview {
+	max-height: 400px;
+	overflow-y: auto;
+	padding: 10px;
+	border: 1px solid #e0e0e0;
+	border-radius: 4px;
+	background-color: #f9f9f9;
+	margin-bottom: 10px;
+	font-family: monospace;
+	white-space: pre-wrap;
+}
+
+.modal {
+	max-height: 80% !important;
+	width: 90% !important;
+}
+
+#copyPreview {
+	margin-right: 10px;
+}
+
+.label-open {
+	color: #2e7d32;
+	font-weight: bold;
+}
+
+.label-closed {
+	color: #c62828;
+	font-weight: bold;
 }
