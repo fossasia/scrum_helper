@@ -5,7 +5,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta http-equiv="X-UA-Compatible" content="ie=edge">
 	<link rel="stylesheet" href="./tailwindcss.css">
-	<link href="materialize/css/materialize.min.css" type="text/css" rel="stylesheet">
+	<!-- <link href="materialize/css/materialize.min.css" type="text/css" rel="stylesheet"> -->
 	<link rel="stylesheet" type="text/css" href="index.css">
 	<script src="./scripts/fontawesome.js"></script>
 	<style type="text/css">
@@ -18,15 +18,16 @@
 </style>
 </head>
 <body>
-	<div class="px-4 py-4 rounded-2xl bg-cyan-400">
-		<div class="flex justify-between items-center">
-			<h6 class="center bg-red-500">SCRUM Helper</h4>
-			<h6>DAY/Night logo</h4>
+	<div class="pl-4 py-4 rounded-2xl bg-cyan-400">
+		<div class="flex justify-between py-2">
+			<h3  class="text-3xl font-semibold ">Scrum Helper</h3>
+			<img src="../icons/night-mode.png" alt="Night Mode" class="w-7 h-7 mx-3">
 		</div>
-		<h6 class="center">
-			SCRUM helper prefills the Scrums in google groups, with your FOSSASIA's contributions.
-		</h6>
-		<br />
+		<div>
+			<p class="font-semibold">SCRUM helper prefills the Scrums in google groups, with your FOSSASIA's contributions.</p>
+		</div>
+
+		<!-- Change from here -->
 		<div class="row center">
 			<div class="switch">
 				<label>
@@ -45,63 +46,95 @@
 				</ul>
 			</div>
 		</div>
-		<div class="bg-yellow-100 rounded-2xl">
-			<div class="row">
-				<div class="input-field col s12">
-					<input placeholder="Your Project Name" id="projectName" type="text">
-					<label for="projectName">Your Project Name</label>
-				</div>
-				<div class="input-field col s12">
-					<input placeholder="Required for getting data from github" id="githubUsername" type="text">
-					<label for="githubUsername">Your Github Username</label>
-				</div>
-				<div class="col s12"><span>Fetch your contributions between:</span>
-					<input type="checkbox" class="filled-in" id="lastWeekContribution"/>
-					<label for="lastWeekContribution">Show past <span id="noDays"></span> from today</label>
-				</div>
 
-				<div class="input-field col s6">
-					<div>Starting Date:</div>
-					<input id="startingDate" type="date" class="datepicker" placeholder=" ">
+		<!-- Till here -->
+		<div class="bg-yellow-100 rounded-2xl">
+			<div class=" border-gray-100 border-2 bg-white rounded-3xl px-4 py-2 mx-2 my-2">
+				<div>
+					<h4>Your Project Name</h4>
+					<input id="projectName" type="text" class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800  p-2 my-2" placeholder="Enter your project name">
+				</div>
+				<div>
+					<h4>Your Github Username</h4>
+					<input id="githubUsername" type="text" class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800  p-2 my-2" placeholder="Required for fetching your contributions">
+				</div>
+				
+				<div>
+					<p class="text-sm">Fetch your contributions between:</p>
+					<div class="flex justify-between items-center my-2 mx-4">
+						<div class="flex items-center gap-2">
+							<input type="radio" id="lastWeekContribution" name="timeframe" class="form-radio">
+							<label for="lastWeekContribution">Last 7 days</label>
+						</div>
+						<div class="flex items-center gap-2">
+							<input type="radio" id="yesterday" name="timeframe" class="form-radio">
+							<label for="yesterday">Last 1 day</label>
+						</div>
+					</div>
 					
+					<div class="flex justify-between items-center mt-2">
+						<div>
+							<label for="start-date">Start Date:</label>
+							<input type="date" id="startingDate" class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1">
+						</div>
+						<div>
+							<label for="end-date">End Date:</label>
+							<input type="date" id="endingDate" class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1">
+						</div>
+					</div>
 				</div>
-				<div class="input-field col s6">
-					<div>Ending Date</div>
-					<input id="endingDate" type="date" class="datepicker" placeholder=" ">
-				</div>
+					
 				<div class="col s12">
 					<br />
-					<input type="checkbox" class="filled-in" id="showOpenLabel"/>
-					<label for="showOpenLabel">Show Open/Closed Label</label>
+					<input type="checkbox" id="showOpenLabel" class="form-checkbox h-4 w-4 text-blue-600">
+					<label id="checkboxLabel" for="showOpenLabel" class="text-gray-700 font-medium text-sm">Show Open/Closed Label</label>
 				</div>
-				<div class="input-field col s12">
-					<input placeholder="Reason" id="userReason" type="text">
-					<label for="userReason">What is stopping you from doing your work?</label>
+				<div class="my-4">
+					<p class="text-sm font-medium">What is stopping you from doing your work?</p>
+					<input id="userReason" type="text" class="w-full text-gray-800 mt-3" placeholder="Enter your reason">
+					<hr class="border-t-2 border-gray-700 mt-1 ">
 				</div>
-				<div class="col s12">
+				<div>
+					<div>
+						<h6 class="text-base font-semibold">Scrum Report</h6>
+						<div id="scrumReport"
+							 contenteditable="true"
+							 class="min-h-[200px] overflow-y-auto whitespace-pre-wrap border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2">
+						</div>
+					</div>
+					<div class="flex justify-between gap-2">
+						<button id="generateReport" class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
+						  <i class="fa fa-refresh"></i> Generate Report
+						</button>
+						<button id="copyReport" class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
+						  <i class="fa fa-copy"></i> Copy Report
+						</button>
+					  </div>
+
 					
-					<h5>Note:</h5>
-					<h6>
-						<ul>
-							<li>The PRs fetched are according to the date last reviewed by anyone. So if you reviewed a PR 10 days back, and someone reviewed it 2 days back, it will appear in your last week's activity. See <a target="_blank" href="https://github.com/fossasia/scrum_helper/issues/20">this issue</a>.
-							</li>
-							<li>By using the extension you understand that there might be discrepancies in the SCRUM generated. You are advised to edit the SCRUM afterwards to remove any discrepancies.
-							</li>
-						</ul>
-					</h6>
-				</div>
+					<div class="border-gray-100 border-2 bg-white rounded-3xl px-4 py-2 mx-2 my-2">
+						<div>
+							<h4 class="font-semibold text-xl">Note:</h4>
+							<ul class="text-xs list-disc list-inside">
+								<li>The PRs fetched are according to the date last reviewed by anyone. So if you reviewed a PR 10 days back, and someone reviewed it 2 days back, it will appear in your last week's activity. See <a target="_blank" href="https://github.com/fossasia/scrum_helper/issues/20">this issue</a>.
+								</li>
+								<li>By using the extension you understand that there might be discrepancies in the SCRUM generated. You are advised to edit the SCRUM afterwards to remove any discrepancies.
+								</li>
+							</ul>
+						</div>
+					</div>
 			</div>
 		</div>
 
-		<hr />
-		<footer>
-			<div class="center">
-				<a target="_blank" href="https://github.com/fossasia/scrum_helper"><h6><i class="fa fa-github" aria-hidden="true"></i> view code</h6></a>
-			</div>
-		</footer>
+		<hr class="border-t-2 border-black">
+		<div class="flex items-center justify-center text-xl">
+			<a target="_blank" href="https://github.com/fossasia/scrum_helper" class="flex items-center"><h6><i class="fa fa-github" aria-hidden="true"></i> view code</h6></a>
+		</div>
 	</div>
 	<script src="scripts/jquery-3.2.1.min.js"></script>
 	<script type="text/javascript" type="text/javascript" src="materialize/js/materialize.min.js"></script>
 	<script src="scripts/main.js"></script>
+	<script src="scripts/scrumHelper.js"></script>
+	<script src="scripts/popup.js"></script>
 </body>
 </html>
