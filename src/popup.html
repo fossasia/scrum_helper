@@ -14,42 +14,45 @@
 		height: 600px !important;
 		max-height: 600px !important;
 		overflow-y: scroll;
+		background: #eae4e4;
 	}
 </style>
 </head>
 <body>
-	<div class="pl-4 py-4 rounded-2xl bg-cyan-400">
-		<div class="flex justify-between py-2">
-			<h3  class="text-3xl font-semibold ">Scrum Helper</h3>
-			<img src="../icons/night-mode.png" alt="Night Mode" class="w-7 h-7 mx-3">
-		</div>
-		<div>
-			<p class="font-semibold">SCRUM helper prefills the Scrums in google groups, with your FOSSASIA's contributions.</p>
-		</div>
-
-		<!-- Change from here -->
-		<div class="row center">
-			<div class="switch">
-				<label>
-					Disable
-					<input type="checkbox" id="enable">
-					<span class="lever"></span>
-					Enable
-				</label>
+	<div class="pl-2 py-4 rounded-2xl">
+		<div class="bg-yellow-100 pl-4 rounded-3xl">
+				<div class="flex justify-between py-2">
+					<h3  class="text-3xl font-semibold ">Scrum Helper</h3>
+					<img src="../icons/night-mode.png" alt="Night Mode" class="w-7 h-7 mx-3">
+				</div>
+				<div>
+					<p class="font-semibold">SCRUM helper prefills the Scrums in google groups, with your FOSSASIA's contributions.</p>
+				</div>
+				
+				<!-- Change from here -->
+			<div class="row center">
+				<div class="switch">
+					<label>
+						Disable
+						<input type="checkbox" id="enable">
+						<span class="lever"></span>
+						Enable
+					</label>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col s12">
+					<ul class="tabs">
+						<li class="tab col s6" title="I am doing CodeHeat!"><a id="codeheatTab" href="#codeheatBox">CodeHeat</a></li>
+						<li class="tab col s6" title="I am doing GSoC!"><a id="gsocTab" href="#gsocBox">GSoC</a></li>
+					</ul>
+				</div>
 			</div>
 		</div>
-		<div class="row">
-			<div class="col s12">
-				<ul class="tabs">
-					<li class="tab col s6" title="I am doing CodeHeat!"><a id="codeheatTab" href="#codeheatBox">CodeHeat</a></li>
-					<li class="tab col s6" title="I am doing GSoC!"><a id="gsocTab" href="#gsocBox">GSoC</a></li>
-				</ul>
-			</div>
-		</div>
-
+		
 		<!-- Till here -->
-		<div class="bg-yellow-100 rounded-2xl">
-			<div class=" border-gray-100 border-2 bg-white rounded-3xl px-4 py-2 mx-2 my-2">
+		<div class="rounded-2xl">
+			<div class=" border-gray-100 border-2 bg-white rounded-3xl pl-4 py-2 mx-2 my-2">
 				<div>
 					<h4>Your Project Name</h4>
 					<input id="projectName" type="text" class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800  p-2 my-2" placeholder="Enter your project name">
@@ -127,7 +130,7 @@
 		</div>
 
 		<hr class="border-t-2 border-black">
-		<div class="flex items-center justify-center text-xl">
+		<div class="flex items-center mb-0 justify-center text-xl">
 			<a target="_blank" href="https://github.com/fossasia/scrum_helper" class="flex items-center"><h6><i class="fa fa-github" aria-hidden="true"></i> view code</h6></a>
 		</div>
 	</div>

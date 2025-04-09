@@ -14,6 +14,7 @@ function allIncluded(outputTarget = 'email') {
 	var reviewedPrsArray = [];
 	var githubIssuesData = null;
 	var lastWeekContribution = false;
+	var yesterday = false;
 	var githubPrsReviewData = null;
 	var githubUserData = null;
 	var githubPrsReviewDataProcessed = {};
@@ -44,6 +45,7 @@ function allIncluded(outputTarget = 'email') {
 				'showOpenLabel',
 				'showClosedLabel',
 				'lastWeekContribution',
+				'yesterday',
 				'userReason',
 				'gsoc',
 			],
@@ -58,13 +60,17 @@ function allIncluded(outputTarget = 'email') {
 					lastWeekContribution = true;
 					handleLastWeekContributionChange();
 				}
+				if (items.yesterday){
+                    yesterday = true;
+                    handleYesterdayChange();
+                }
 				if (!items.enableToggle) {
 					enableToggle = items.enableToggle;
 				}
-				if (items.endingDate && !lastWeekContribution) {
+				if (items.endingDate && !lastWeekContribution && !yesterday) {
 					endingDate = items.endingDate;
 				}
-				if (items.startingDate && !lastWeekContribution) {
+				if (items.startingDate && !lastWeekContribution && !yesterday) {
 					startingDate = items.startingDate;
 				}
 				if (items.githubUsername) {
@@ -111,6 +117,10 @@ function allIncluded(outputTarget = 'email') {
 		endingDate = getToday();
 		startingDate = getLastWeek();
 	}
+	function handleYesterdayChange() {
+		endingDate = getToday();
+		startingDate = getYesterday();
+	}
 	function getLastWeek() {
 		var today = new Date();
 		var noDays_to_goback = gsoc == 0 ? 7 : 1;
@@ -139,6 +149,16 @@ function allIncluded(outputTarget = 'email') {
 			'-' +
 			('00' + WeekDay.toString()).slice(-2);
 		return WeekDisplayPadded;
+	}
+	function getYesterday() {
+		var today = new Date();
+        var noDays_to_goback = 1;
+        var yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - noDays_to_goback);
+        var yesterdayMonth = yesterday.getMonth() + 1;
+        var yesterdayDay = yesterday.getDate();
+        var yesterdayYear = yesterday.getFullYear();
+        var yesterdayDisplayPadded = ('0000' + yesterdayYear.toString()).slice(-4)+ '-' + ('00' + yesterdayMonth.toString()).slice(-2) + '-' + ('00' + yesterdayDay.toString()).slice(-2);
+        return yesterdayDisplayPadded;
 	}
 	// fetch github data
 	function fetchGithubData() {
