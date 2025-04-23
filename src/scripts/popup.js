@@ -49,9 +49,22 @@ document.addEventListener('DOMContentLoaded', function() {
 
         
     })
-
-
-
-
-
 })
+
+let selectedRadio = null; 
+function toggleRadio(radio){
+    const startDateInput = document.getElementById('startingDate');
+    const endDateInput = document.getElementById('endingDate');
+
+
+    if(selectedRadio === radio) {
+        radio.checked = false;
+        selectedRadio = null;
+        startDateInput.disabled = false;
+        endDateInput.disabled = false;
+    } else {
+        selectedRadio = radio;
+        startDateInput.disabled = true;
+        endDateInput.disabled = true;
+    }
+}
