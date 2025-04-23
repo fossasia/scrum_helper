@@ -60,10 +60,10 @@ function allIncluded(outputTarget = 'email') {
 					lastWeekContribution = true;
 					handleLastWeekContributionChange();
 				}
-				if (items.yesterday){
-                    yesterday = true;
-                    handleYesterdayChange();
-                }
+				if (items.yesterday) {
+					yesterday = true;
+					handleYesterdayChange();
+				}
 				if (!items.enableToggle) {
 					enableToggle = items.enableToggle;
 				}
@@ -76,18 +76,18 @@ function allIncluded(outputTarget = 'email') {
 				if (items.githubUsername) {
 					githubUsername = items.githubUsername;
 					fetchGithubData();
-				}  else {
-                    if (outputTarget === 'popup') {
-                        const generateBtn = document.getElementById('generateReport');
-                        if (generateBtn) {
-                            generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
-                            generateBtn.disabled = false;
-                        }
-                        Materialize.toast('Please enter your GitHub username', 3000);
-                    } else {
-                        console.warn('No GitHub username found in storage');
-                    }
-                }
+				} else {
+					if (outputTarget === 'popup') {
+						const generateBtn = document.getElementById('generateReport');
+						if (generateBtn) {
+							generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+							generateBtn.disabled = false;
+						}
+						Materialize.toast('Please enter your GitHub username', 3000);
+					} else {
+						console.warn('No GitHub username found in storage');
+					}
+				}
 				if (items.projectName) {
 					projectName = items.projectName;
 				}
@@ -152,13 +152,13 @@ function allIncluded(outputTarget = 'email') {
 	}
 	function getYesterday() {
 		var today = new Date();
-        var noDays_to_goback = 1;
-        var yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - noDays_to_goback);
-        var yesterdayMonth = yesterday.getMonth() + 1;
-        var yesterdayDay = yesterday.getDate();
-        var yesterdayYear = yesterday.getFullYear();
-        var yesterdayDisplayPadded = ('0000' + yesterdayYear.toString()).slice(-4)+ '-' + ('00' + yesterdayMonth.toString()).slice(-2) + '-' + ('00' + yesterdayDay.toString()).slice(-2);
-        return yesterdayDisplayPadded;
+		var noDays_to_goback = 1;
+		var yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - noDays_to_goback);
+		var yesterdayMonth = yesterday.getMonth() + 1;
+		var yesterdayDay = yesterday.getDate();
+		var yesterdayYear = yesterday.getFullYear();
+		var yesterdayDisplayPadded = ('0000' + yesterdayYear.toString()).slice(-4) + '-' + ('00' + yesterdayMonth.toString()).slice(-2) + '-' + ('00' + yesterdayDay.toString()).slice(-2);
+		return yesterdayDisplayPadded;
 	}
 	// fetch github data
 	function fetchGithubData() {
@@ -254,27 +254,27 @@ function allIncluded(outputTarget = 'email') {
 
 			// Create the complete content
 			let content;
-        if (lastWeekContribution == true) {
-            content = `<b>1. What did I do ${weekOrDay}?</b><br>
+			if (lastWeekContribution == true) {
+				content = `<b>1. What did I do ${weekOrDay}?</b><br>
 ${lastWeekUl}<br>
 <b>2. What I plan to do ${weekOrDay2}?</b><br>
 ${nextWeekUl}<br>
 <b>3. What is stopping me from doing my work?</b><br>
 ${userReason}`;
-        } else {
-            content = `<b>1. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?</b><br>
+			} else {
+				content = `<b>1. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?</b><br>
 ${lastWeekUl}<br>
 <b>2. What I plan to do ${weekOrDay2}?</b><br>
 ${nextWeekUl}<br>
 <b>3. What is stopping me from doing my work?</b><br>
 ${userReason}`;
-        }
+			}
 
 			if (outputTarget === 'popup') {
 				const scrumReport = document.getElementById('scrumReport');
 				if (scrumReport) {
 					scrumReport.innerHTML = content;
-					
+
 					// Reset generate button
 					const generateBtn = document.getElementById('generateReport');
 					if (generateBtn) {
@@ -324,10 +324,10 @@ ${userReason}`;
 
 	function writeGithubPrsReviews() {
 		var items = githubPrsReviewData.items;
-		
+
 		reviewedPrsArray = [];
 		githubPrsReviewDataProcessed = {};
-		
+
 		for (var i = 0; i < items.length; i++) {
 			var item = items[i];
 			console.log(`Review item ${i + 1}/${items.length}:`, {
@@ -337,21 +337,21 @@ ${userReason}`;
 				state: item.state,
 				title: item.title
 			});
-			
+
 			if (item.user.login === githubUsername) {
 				continue;
 			}
-			
+
 			var repository_url = item.repository_url;
 			var project = repository_url.substr(repository_url.lastIndexOf('/') + 1);
 			var title = item.title;
 			var number = item.number;
 			var html_url = item.html_url;
-			
+
 			if (!githubPrsReviewDataProcessed[project]) {
 				githubPrsReviewDataProcessed[project] = [];
 			}
-			
+
 			var obj = {
 				number: number,
 				html_url: html_url,
@@ -360,7 +360,7 @@ ${userReason}`;
 			};
 			githubPrsReviewDataProcessed[project].push(obj);
 		}
-		
+
 		for (var repo in githubPrsReviewDataProcessed) {
 			var repoLi = '<li><i>(' + repo + ')</i> - Reviewed ';
 			if (githubPrsReviewDataProcessed[repo].length > 1) {
@@ -368,7 +368,7 @@ ${userReason}`;
 			} else {
 				repoLi += 'PR - ';
 			}
-			
+
 			if (githubPrsReviewDataProcessed[repo].length <= 1) {
 				for (var pr in githubPrsReviewDataProcessed[repo]) {
 					var pr_arr = githubPrsReviewDataProcessed[repo][pr];
@@ -401,16 +401,16 @@ ${userReason}`;
 			repoLi += '</li>';
 			reviewedPrsArray.push(repoLi);
 		}
-		
-		writeScrumBody(); 
+
+		writeScrumBody();
 	}
 	function writeGithubIssuesPrs() {
 		var data = githubIssuesData;
 		var items = data.items;
-		
+
 		lastWeekArray = [];
 		nextWeekArray = [];
-		
+
 		for (var i = 0; i < items.length; i++) {
 			var item = items[i];
 			console.log(`Processing item ${i + 1}/${items.length}:`, {
@@ -420,14 +420,14 @@ ${userReason}`;
 				isPR: !!item.pull_request,
 				body: item.body ? item.body.substring(0, 100) + "..." : "no body"
 			});
-			
+
 			var html_url = item.html_url;
 			var repository_url = item.repository_url;
 			var project = repository_url.substr(repository_url.lastIndexOf('/') + 1);
 			var title = item.title;
 			var number = item.number;
 			var li = '';
-			
+
 			if (item.pull_request) {
 				if (item.state === 'closed') {
 					li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_merged_button}</li>`;
@@ -511,13 +511,13 @@ ${userReason}`;
 		allIncluded('email');
 	}
 }
-allIncluded('email'); 
+allIncluded('email');
 $('button>span:contains(New conversation)').parent('button').click(() => {
-    allIncluded(); 
+	allIncluded();
 });
 
-window.generateScrumReport = function() {
-    allIncluded('popup');
+window.generateScrumReport = function () {
+	allIncluded('popup');
 };
 
 $('button>span:contains(New conversation)')

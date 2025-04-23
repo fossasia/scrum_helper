@@ -31,7 +31,7 @@
 				
 				<!-- Change from here -->
 			<div class="row center mt-2 flex justify-center items-center">
-				<div class="switch">
+				<div class="flex items-center gap-3 cursor-pointer">
 					<label class="flex items-center align-center">
 						Disable
 						<input type="checkbox" id="enable">
@@ -66,22 +66,22 @@
 					<p class="text-sm">Fetch your contributions between:</p>
 					<div class="flex justify-between items-center my-2 mx-4">
 						<div class="flex items-center gap-2">
-							<input type="radio" id="lastWeekContribution" name="timeframe" class="form-radio">
+							<input type="radio" id="lastWeekContribution" name="timeframe" class="form-radio" onclick="toggleRadio(this)">
 							<label for="lastWeekContribution">Last 7 days</label>
 						</div>
 						<div class="flex items-center gap-2">
-							<input type="radio" id="yesterday" name="timeframe" class="form-radio">
+							<input type="radio" id="yesterday" name="timeframe" class="form-radio" onclick="toggleRadio(this)">
 							<label for="yesterday">Last 1 day</label>
 						</div>
 					</div>
 					
 					<div class="flex justify-between items-center mt-2">
 						<div>
-							<label for="start-date">Start Date:</label>
+							<label for="startingDate">Start Date:</label>
 							<input type="date" id="startingDate" class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1">
 						</div>
 						<div>
-							<label for="end-date">End Date:</label>
+							<label for="endingDate">End Date:</label>
 							<input type="date" id="endingDate" class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1">
 						</div>
 					</div>
@@ -102,7 +102,7 @@
 						<h6 class="text-base font-semibold">Scrum Report</h6>
 						<div id="scrumReport"
 							 contenteditable="true"
-							 class="min-h-[200px] overflow-y-auto whitespace-pre-wrap border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2">
+							 class="min-h-[200px] overflow-y-auto whitespace-pre-wrap border-2 border-gray-200 bg-gray-100 rounded-xl text-gray-800 p-2 my-2">
 						</div>
 					</div>
 					<div class="flex justify-between gap-2">
