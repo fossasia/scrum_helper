@@ -65,3 +65,19 @@ function toggleRadio(radio){
     }
    startDateInput.disabled = endDateInput.disabled = true;
 }
+document.getElementById('customDateContainer').addEventListener('click', () => {
+    document.querySelectorAll('input[name="timeframe"]').forEach(radio => radio.checked = false);
+    document.getElementById('startingDate').disabled = false;
+    document.getElementById('endingDate').disabled = false;
+});
+// Not working properly
+// document.getElementById('startingDate').addEventListener('focus', () => {
+//     document.querySelectorAll('input[name="timeframe"]').forEach(radio => radio.checked = false);
+//     document.getElementById('startingDate').disabled = false;
+//     document.getElementById('endingDate').disabled = false;
+// });
+// document.getElementById('endingDate').addEventListener('focus', () => {
+//     document.querySelectorAll('input[name="timeframe"]').forEach(radio => radio.checked = false);
+//     document.getElementById('startingDate').disabled = false;
+//     document.getElementById('endingDate').disabled = false;
+// });
