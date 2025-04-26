@@ -21,7 +21,6 @@ function allIncluded(outputTarget = 'email') {
 	var showOpenLabel = true;
 	var showClosedLabel = true;
 	var userReason = '';
-	var gsoc = 0; //0 means codeheat. 1 means gsoc
 
 	var pr_merged_button =
 		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #6f42c1;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--purple">closed</div>';
@@ -47,15 +46,8 @@ function allIncluded(outputTarget = 'email') {
 				'lastWeekContribution',
 				'yesterday',
 				'userReason',
-				'gsoc',
 			],
 			(items) => {
-				if (items.gsoc) {
-					//gsoc
-					gsoc = 1;
-				} else {
-					gsoc = 0; //codeheat
-				}
 				if (items.lastWeekContribution) {
 					lastWeekContribution = true;
 					handleLastWeekContributionChange();
@@ -123,8 +115,7 @@ function allIncluded(outputTarget = 'email') {
 	}
 	function getLastWeek() {
 		var today = new Date();
-		var noDays_to_goback = gsoc == 0 ? 7 : 1;
-		var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - noDays_to_goback);
+		var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
 		var lastWeekMonth = lastWeek.getMonth() + 1;
 		var lastWeekDay = lastWeek.getDate();
 		var lastWeekYear = lastWeek.getFullYear();
@@ -152,8 +143,7 @@ function allIncluded(outputTarget = 'email') {
 	}
 	function getYesterday() {
 		var today = new Date();
-		var noDays_to_goback = 1;
-		var yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - noDays_to_goback);
+		var yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
 		var yesterdayMonth = yesterday.getMonth() + 1;
 		var yesterdayDay = yesterday.getDate();
 		var yesterdayYear = yesterday.getFullYear();
@@ -249,8 +239,15 @@ function allIncluded(outputTarget = 'email') {
 			for (i = 0; i < nextWeekArray.length; i++) nextWeekUl += nextWeekArray[i];
 			nextWeekUl += '</ul>';
 
-			var weekOrDay = gsoc == 1 ? 'yesterday' : 'last week';
-			var weekOrDay2 = gsoc == 1 ? 'today' : 'this week';
+			var weekOrDay;
+			var weekOrDay2;
+			if(document.getElementById('lastWeekContribution').checked){
+				weekOrDay = 'last week';
+				weekOrDay2 = 'this week'
+			} else if(document.getElementById('yesterday').checked) {
+				weekOrDay = 'yesterday'
+				weekOrDay2 = 'today'
+			}
 
 			// Create the complete content
 			let content;

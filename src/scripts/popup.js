@@ -51,20 +51,17 @@ document.addEventListener('DOMContentLoaded', function() {
     })
 })
 
-let selectedRadio = null; 
 function toggleRadio(radio){
     const startDateInput = document.getElementById('startingDate');
     const endDateInput = document.getElementById('endingDate');
 
 
-    if(selectedRadio === radio) {
-        radio.checked = false;
-        selectedRadio = null;
-        startDateInput.disabled = false;
-        endDateInput.disabled = false;
+    if(radio.id === 'lastWeekContribution'){
+        startDateInput.value = getLastWeek();
+        endDateInput.value = getToday();
     } else {
-        selectedRadio = radio;
-        startDateInput.disabled = true;
-        endDateInput.disabled = true;
+        startDateInput.value = getYesterday();
+        endDateInput.value = getToday();
     }
+   startDateInput.disabled = endDateInput.disabled = true;
 }
