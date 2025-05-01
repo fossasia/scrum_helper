@@ -239,19 +239,38 @@ function allIncluded(outputTarget = 'email') {
 			for (i = 0; i < nextWeekArray.length; i++) nextWeekUl += nextWeekArray[i];
 			nextWeekUl += '</ul>';
 
+
 			var weekOrDay;
 			var weekOrDay2;
-			if(document.getElementById('lastWeekContribution').checked){
-				weekOrDay = 'last week';
+			const lastWeekRadio = document.getElementById('lastWeekContribution');
+			const yesterdayRadio = document.getElementById('yesterday');
+
+			if(lastWeekRadio && lastWeekRadio.checked) {
+				weekOrDay = 'last week'
 				weekOrDay2 = 'this week'
-			} else if(document.getElementById('yesterday').checked) {
-				weekOrDay = 'yesterday'
-				weekOrDay2 = 'today'
+			} else if (yesterdayRadio && yesterdayRadio.checked) {
+				weekOrDay = 'yesterday';
+				weekOrDay2 = 'today';
+			} else {
+				weekOrDay2 = 'this week';
+				lastWeekContribution = false;
 			}
+
+
+
+// 			var weekOrDay;
+// 			var weekOrDay2;
+// 			if(document.getElementById('lastWeekContribution').checked){
+// 				weekOrDay = 'last week';
+// 				weekOrDay2 = 'this week'
+// 			} else if(document.getElementById('yesterday').checked) {
+// 				weekOrDay = 'yesterday'
+// 				weekOrDay2 = 'today'
+// 			}
 
 			// Create the complete content
 			let content;
-			if (lastWeekContribution == true) {
+			if (lastWeekContribution) {
 				content = `<b>1. What did I do ${weekOrDay}?</b><br>
 ${lastWeekUl}<br>
 <b>2. What I plan to do ${weekOrDay2}?</b><br>
