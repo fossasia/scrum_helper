@@ -142,22 +142,7 @@ function handleUserReasonChange() {
 	var value = userReasonElement.value;
 	chrome.storage.local.set({ userReason: value });
 }
-function handleCodeheatClick() {
-	gsoc = 0;
-	$('#codeheatTab').addClass('active');
-	$('.tabs').tabs();
-	$('#noDays').text('7 days');
-	chrome.storage.local.set({ gsoc: 0 });
-	handleLastWeekContributionChange();
-}
-function handleGsocClick() {
-	gsoc = 1;
-	$('#gsocTab').addClass('active');
-	$('.tabs').tabs();
-	$('#noDays').text('1 day');
-	chrome.storage.local.set({ gsoc: 1 });
-	handleLastWeekContributionChange();
-}
+
 enableToggleElement.addEventListener('change', handleEnableChange);
 githubUsernameElement.addEventListener('keyup', handleGithubUsernameChange);
 projectNameElement.addEventListener('keyup', handleProjectNameChange);
@@ -167,5 +152,3 @@ lastWeekContributionElement.addEventListener('change', handleLastWeekContributio
 showOpenLabelElement.addEventListener('change', handleOpenLabelChange);
 userReasonElement.addEventListener('keyup', handleUserReasonChange);
 document.addEventListener('DOMContentLoaded', handleBodyOnLoad);
-document.getElementById('codeheatTab').addEventListener('click', handleCodeheatClick);
-document.getElementById('gsocTab').addEventListener('click', handleGsocClick);

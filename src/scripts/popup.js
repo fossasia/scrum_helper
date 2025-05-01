@@ -11,10 +11,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
     copyBtn.addEventListener('click', function() {
         const scrumReport = document.getElementById('scrumReport');
-
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = scrumReport.innerHTML;
-
         const links = tempDiv.getElementsByTagName('a');
         Array.from(links).forEach(link => {
             const title = link.textContent;
@@ -22,33 +20,36 @@ document.addEventListener('DOMContentLoaded', function() {
             const markdownLink = `[${title}](${url})`;
             link.outerHTML = markdownLink;
         });
-
         const stateButtons = tempDiv.getElementsByClassName('State');
         Array.from(stateButtons).forEach(button => {
             button.remove();
         });
-
         tempDiv.innerHTML = tempDiv.innerHTML.replace(/<br\s*\/?>/gi, '\n');
-
         const listItems = tempDiv.getElementsByTagName('li');
         Array.from(listItems).forEach(item => {
             item.innerHTML = '\n- '+ item.innerHTML;
         });
-
         tempDiv.innerHTML = tempDiv.innerHTML.replace(/<\/?ul>/gi, '\n');
         let textContent = tempDiv.textContent;
         textContent = textContent.replace(/\n\s*\n/g, '\n\n');
         textContent = textContent.trim();
-
         const textArea = document.createElement('textarea');
         textArea.value = textContent;
         document.body.appendChild(textArea);
         textArea.select();
         document.execCommand('copy');
         document.body.removeChild(textArea);
-
         
-    })
+        const originalText = this.innerHTML;
+        this.innerHTML = '<i class="fa fa-check"></i> Copied!';
+        this.classList.add('bg-green-600');
+
+        setTimeout(() => {
+            this.innerHTML = originalText;
+            this.classList.remove('bg-green-600');
+        }, 2000);
+    });
+
 })
 
 function toggleRadio(radio){
