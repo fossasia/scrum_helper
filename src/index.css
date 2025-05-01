@@ -54,3 +54,30 @@ li {
 	list-style-type: disc !important;
 	margin-left: 1rem;
 }
+
+.dark-mode { 
+	background: #1a1a1a !important;
+	color: #ffffff !important;
+}
+.dark-mode .bg-white{
+	background-color: #2d2d2d !important;
+	border-color: #404040 !important;
+}
+
+.dark-mode input[type="text"],
+.dark-mode input[type="date"],
+.dark-mode #scrumReport {
+	background-color: #404040 !important;
+	border-color: #505050 !important;
+	color: #ffffff !important;
+}
+.dark-mode h3,
+.dark-mode h4,
+.dark-mode p,
+.dark-mode label {
+	color: #ffffff !important;
+}
+
+.dark-mode hr {
+	border-color: #505050 !important;
+}

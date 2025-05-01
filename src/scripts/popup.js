@@ -81,3 +81,26 @@ document.getElementById('customDateContainer').addEventListener('click', () => {
 //     document.getElementById('startingDate').disabled = false;
 //     document.getElementById('endingDate').disabled = false;
 // });
+
+document.addEventListener('DOMContentLoaded', function() {
+    const darkModeToggle = document.querySelector('img[alt="Night Mode"]');
+    const body = document.body;
+
+    chrome.storage.local.get(['darkMode'], function(result) {
+        if(result.darkMode) {
+            body.classList.add('dark-mode');
+            darkModeToggle.src = 'icons/light-mode.png';
+        }
+    });
+
+    darkModeToggle.addEventListener('click', function() {
+        body.classList.toggle('dark-mode');
+        const isDarkMode = body.classList.contains('dark-mode');
+        
+        // Save preference
+        chrome.storage.local.set({ darkMode: isDarkMode });
+        
+        // Toggle icon
+        this.src = isDarkMode ? 'icons/light-mode.png' : 'icons/night-mode.png';
+    });
+})
