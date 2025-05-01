@@ -56,13 +56,28 @@ function toggleRadio(radio){
     const startDateInput = document.getElementById('startingDate');
     const endDateInput = document.getElementById('endingDate');
 
-
     if(radio.id === 'lastWeekContribution'){
         startDateInput.value = getLastWeek();
         endDateInput.value = getToday();
+        chrome.storage.local.set({
+            startingDate: startDateInput.value,
+            endingDate: endDateInput.value,
+            lastWeekContribution: true,
+            yesterday: false
+        }, () => {
+            window.generateScrumReport();
+        });
     } else {
         startDateInput.value = getYesterday();
         endDateInput.value = getToday();
+        chrome.storage.local.set({
+            startingDate: startDateInput.value,
+            endingDate: endDateInput.value,
+            lastWeekContribution: false,
+            yesterday: true
+        }, () => {
+            window.generateScrumReport();
+        });
     }
    startDateInput.disabled = endDateInput.disabled = true;
 }
@@ -70,18 +85,35 @@ document.getElementById('customDateContainer').addEventListener('click', () => {
     document.querySelectorAll('input[name="timeframe"]').forEach(radio => radio.checked = false);
     document.getElementById('startingDate').disabled = false;
     document.getElementById('endingDate').disabled = false;
+    chrome.storage.local.set({
+        lastWeekContribution: false,
+        yesterday: false
+    });
 });
-// Not working properly
-// document.getElementById('startingDate').addEventListener('focus', () => {
-//     document.querySelectorAll('input[name="timeframe"]').forEach(radio => radio.checked = false);
-//     document.getElementById('startingDate').disabled = false;
-//     document.getElementById('endingDate').disabled = false;
-// });
-// document.getElementById('endingDate').addEventListener('focus', () => {
-//     document.querySelectorAll('input[name="timeframe"]').forEach(radio => radio.checked = false);
-//     document.getElementById('startingDate').disabled = false;
-//     document.getElementById('endingDate').disabled = false;
-// });
+
+document.getElementById('startingDate').addEventListener('change', function() {
+    chrome.storage.local.set({
+        startingDate: this.value,
+        lastWeekContribution: false,
+        yesterday: false
+    }, () => {
+        if (document.getElementById('endingDate').value) {
+            window.generateScrumReport();
+        }
+    });
+});
+
+document.getElementById('endingDate').addEventListener('change', function() {
+    chrome.storage.local.set({
+        endingDate: this.value,
+        lastWeekContribution: false,
+        yesterday: false
+    }, () => {
+        if (document.getElementById('startingDate').value) {
+            window.generateScrumReport();
+        }
+    });
+});
 
 document.addEventListener('DOMContentLoaded', function() {
     const darkModeToggle = document.querySelector('img[alt="Night Mode"]');
