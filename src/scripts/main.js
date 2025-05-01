@@ -60,11 +60,6 @@ function handleBodyOnLoad() {
 				lastWeekContributionElement.checked = true;
 				handleLastWeekContributionChange();
 			}
-			if (items.gsoc == 1) {
-				handleGsocClick();
-			} else {
-				handleCodeheatClick();
-			}
 		},
 	);
 }
