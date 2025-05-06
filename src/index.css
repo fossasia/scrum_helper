@@ -55,13 +55,19 @@ li {
 	margin-left: 1rem;
 }
 
+body,input,div,h3,h4,p,label,hr, #scrumReport{
+	transition: all 0.3s ease-in-out;
+}
+
 .dark-mode { 
 	background: #1a1a1a !important;
 	color: #ffffff !important;
+	transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
 }
 .dark-mode .bg-white{
 	background-color: #2d2d2d !important;
 	border-color: #404040 !important;
+	transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
 }
 
 .dark-mode input[type="text"],
@@ -70,14 +76,17 @@ li {
 	background-color: #404040 !important;
 	border-color: #505050 !important;
 	color: #ffffff !important;
+	transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
 }
 .dark-mode h3,
 .dark-mode h4,
 .dark-mode p,
 .dark-mode label {
 	color: #ffffff !important;
+	transition: color 0.3s ease-in-out;
 }
 
 .dark-mode hr {
 	border-color: #505050 !important;
+	transition: border-color 0.3s ease-in-out;
 }
