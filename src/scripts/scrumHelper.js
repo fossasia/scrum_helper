@@ -105,10 +105,16 @@ function allIncluded() {
 	function getLastWeek() {
 		var today = new Date();
 		var noDays_to_goback = gsoc == 0 ? 7 : 1;
+
+		// Get user's timezone offset in mins
+		const tzOffset = today.getTimezoneOffset();
+
+		// date for start of day in user's timezone
 		var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - noDays_to_goback);
 		lastWeek.setHours(0, 0, 0, 0);
 
-		const utc = new Date(lastWeek.getTime() + (14 * 60* 60* 1000));
+		// Adjust timezone to make sure no activity is missed
+		const utc = new Date(lastWeek.getTime() + (tzOffset * 60 * 1000));
 
 		return utc.toISOString().slice(0,19) + "Z";
 	}
@@ -116,7 +122,9 @@ function allIncluded() {
 		var today = new Date();
 		today.setHours(23, 59, 59, 999);
 
-		const utc = new Date(today.getTime() + (14 * 60 * 60 * 1000));
+		// get timezone offset
+		const tzOffset = today.getTimezoneOffset();
+		const utc = new Date(today.getTime() + (tzOffset * 60 * 1000));
 		
 		return utc.toISOString().slice(0, 19) + "Z";
 	}	
