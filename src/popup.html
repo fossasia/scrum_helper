@@ -8,13 +8,13 @@
 	<link rel="stylesheet" type="text/css" href="index.css">
 	<script src="./scripts/fontawesome.js"></script>
 	<style type="text/css">
-	html,body{
-		width: 350px !important;
-		height: 600px !important;
-		max-height: 600px !important;
-		overflow-y: scroll;
-	}
-</style>
+		html,body {
+			width: 350px !important;
+			height: 600px !important;
+			max-height: 600px !important;
+			overflow-y: scroll;
+		}
+	</style>
 </head>
 <body>
 	<div class="container">
@@ -33,6 +33,7 @@
 				</label>
 			</div>
 		</div>
+
 		<div class="row">
 			<div class="col s12">
 				<ul class="tabs">
@@ -41,6 +42,7 @@
 				</ul>
 			</div>
 		</div>
+
 		<div class="row">
             <div class="input-field col s12">
                 <input placeholder="Your Project Name" id="projectName" type="text">
@@ -58,7 +60,6 @@
 			<div class="input-field col s6">
 				<div>Starting Date:</div>
 				<input id="startingDate" type="date" class="datepicker" placeholder=" ">
-				
 			</div>
 			<div class="input-field col s6">
 				<div>Ending Date</div>
@@ -74,28 +75,62 @@
 				<label for="userReason">What is stopping you from doing your work?</label>
 			</div>
 			<div class="col s12">
-				
 				<h5>Note:</h5>
 				<h6>
 					<ul>
-						<li>The PRs fetched are according to the date last reviewed by anyone. So if you reviewed a PR 10 days back, and someone reviewed it 2 days back, it will appear in your last week's activity. See <a target="_blank" href="https://github.com/fossasia/scrum_helper/issues/20">this issue</a>.
-						</li>
-						<li>By using the extension you understand that there might be discrepancies in the SCRUM generated. You are advised to edit the SCRUM afterwards to remove any discrepancies.
-						</li>
+						<li>The PRs fetched are according to the date last reviewed by anyone. So if you reviewed a PR 10 days back, and someone reviewed it 2 days back, it will appear in your last week's activity. See <a target="_blank" href="https://github.com/fossasia/scrum_helper/issues/20">this issue</a>.</li>
+						<li>By using the extension you understand that there might be discrepancies in the SCRUM generated. You are advised to edit the SCRUM afterwards to remove any discrepancies.</li>
 					</ul>
 				</h6>
+			</div>
+		</div>
+
+		<!-- Preview Button -->
+		<div class="row center">
+			<button id="previewScrum" class="btn waves-effect waves-light">
+				<i class="fa fa-eye left"></i>Preview Scrum Report
+			</button>
+		</div>
+
+		<!-- Modal -->
+		<div id="previewModal" class="modal">
+			<div class="modal-content">
+				<h4>Scrum Report Preview</h4>
+				<div id="previewContent" class="scrum-preview"></div>
+			</div>
+			<div class="modal-footer">
+				<button class="modal-close waves-effect waves-light btn">Close</button>
+				<button id="copyPreview" class="waves-effect waves-light btn">
+					<i class="fa fa-clipboard left"></i>Copy to Clipboard
+				</button>
 			</div>
 		</div>
 
 		<hr />
 		<footer>
 			<div class="center">
-				<a target="_blank" href="https://github.com/fossasia/scrum_helper"><h6><i class="fa fa-github" aria-hidden="true"></i> view code</h6></a>
+				<a target="_blank" href="https://github.com/fossasia/scrum_helper">
+					<h6><i class="fa fa-github" aria-hidden="true"></i> view code</h6>
+				</a>
 			</div>
 		</footer>
 	</div>
+
 	<script src="scripts/jquery-3.2.1.min.js"></script>
-	<script type="text/javascript" type="text/javascript" src="materialize/js/materialize.min.js"></script>
+	<script src="materialize/js/materialize.min.js"></script>
 	<script src="scripts/main.js"></script>
+	<script>
+		document.addEventListener('DOMContentLoaded', function () {
+			var elems = document.querySelectorAll('.modal');
+			M.Modal.init(elems);
+		});
+
+		document.getElementById("copyPreview").addEventListener("click", function () {
+			const content = document.getElementById("previewContent").innerText;
+			navigator.clipboard.writeText(content).then(() => {
+				M.toast({ html: 'Copied to clipboard!' });
+			});
+		});
+	</script>
 </body>
 </html>
