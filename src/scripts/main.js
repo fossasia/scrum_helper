@@ -1,13 +1,13 @@
 /* global $,Materialize*/
-var enableToggleElement = document.getElementById('enable');
-var githubUsernameElement = document.getElementById('githubUsername');
-var projectNameElement = document.getElementById('projectName');
-var lastWeekContributionElement = document.getElementById('lastWeekContribution');
-var startingDateElement = document.getElementById('startingDate');
-var endingDateElement = document.getElementById('endingDate');
-var showOpenLabelElement = document.getElementById('showOpenLabel');
-var userReasonElement = document.getElementById('userReason');
-var gsoc = 0; //0 means gsoc. 1 means gsoc
+const enableToggleElement = document.getElementById('enable');
+const githubUsernameElement = document.getElementById('githubUsername');
+const projectNameElement = document.getElementById('projectName');
+const lastWeekContributionElement = document.getElementById('lastWeekContribution');
+const startingDateElement = document.getElementById('startingDate');
+const endingDateElement = document.getElementById('endingDate');
+const showOpenLabelElement = document.getElementById('showOpenLabel');
+const userReasonElement = document.getElementById('userReason');
+let gsoc = 0; //0 means gsoc. 1 means gsoc
 function handleBodyOnLoad() {
 	// prefill name
 	chrome.storage.local.get(
@@ -60,7 +60,7 @@ function handleBodyOnLoad() {
 				lastWeekContributionElement.checked = true;
 				handleLastWeekContributionChange();
 			}
-			if (items.gsoc == 1) {
+			if (items.gsoc === 1) {
 				handleGsocClick();
 			} else {
 				handleCodeheatClick();
@@ -69,19 +69,19 @@ function handleBodyOnLoad() {
 	);
 }
 function handleEnableChange() {
-	var value = enableToggleElement.checked;
+	const value = enableToggleElement.checked;
 	chrome.storage.local.set({ enableToggle: value });
 }
 function handleStartingDateChange() {
-	var value = startingDateElement.value;
+	const value = startingDateElement.value;
 	chrome.storage.local.set({ startingDate: value });
 }
 function handleEndingDateChange() {
-	var value = endingDateElement.value;
+	const value = endingDateElement.value;
 	chrome.storage.local.set({ endingDate: value });
 }
 function handleLastWeekContributionChange() {
-	var value = lastWeekContributionElement.checked;
+	const value = lastWeekContributionElement.checked;
 	if (value) {
 		startingDateElement.disabled = true;
 		endingDateElement.disabled = true;
@@ -95,51 +95,43 @@ function handleLastWeekContributionChange() {
 	}
 	chrome.storage.local.set({ lastWeekContribution: value });
 }
-function getLastWeek() {
-	var today = new Date();
-	var noDays_to_goback = gsoc == 0 ? 7 : 1;
-	var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - noDays_to_goback);
-	var lastWeekMonth = lastWeek.getMonth() + 1;
-	var lastWeekDay = lastWeek.getDate();
-	var lastWeekYear = lastWeek.getFullYear();
-	var lastWeekDisplayPadded =
-		('0000' + lastWeekYear.toString()).slice(-4) +
-		'-' +
-		('00' + lastWeekMonth.toString()).slice(-2) +
-		'-' +
-		('00' + lastWeekDay.toString()).slice(-2);
-	return lastWeekDisplayPadded;
+function getLastWeek(gsoc) {
+	const today = new Date();
+	const noDays_to_goback = gsoc === 0 ? 7 : 1;
+	const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - noDays_to_goback);
+
+	const lastWeekYear = lastWeek.getFullYear();
+	const lastWeekMonth = String(lastWeek.getMonth() + 1).padStart(2, '0');
+	const lastWeekDay = String(lastWeek.getDate()).padStart(2, '0');
+
+	return `${lastWeekYear}-${lastWeekMonth}-${lastWeekDay}`;
 }
+
 function getToday() {
-	var today = new Date();
-	var Week = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-	var WeekMonth = Week.getMonth() + 1;
-	var WeekDay = Week.getDate();
-	var WeekYear = Week.getFullYear();
-	var WeekDisplayPadded =
-		('0000' + WeekYear.toString()).slice(-4) +
-		'-' +
-		('00' + WeekMonth.toString()).slice(-2) +
-		'-' +
-		('00' + WeekDay.toString()).slice(-2);
+	const today = new Date();
+	const Week = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+	const WeekMonth = Week.getMonth() + 1;
+	const WeekDay = Week.getDate();
+	const WeekYear = Week.getFullYear();
+	const WeekDisplayPadded = `${(`0000${WeekYear.toString()}`).slice(-4)}-${(`00${WeekMonth.toString()}`).slice(-2)}-${(`00${WeekDay.toString()}`).slice(-2)}`;
 	return WeekDisplayPadded;
 }
 
 function handleGithubUsernameChange() {
-	var value = githubUsernameElement.value;
+	const value = githubUsernameElement.value;
 	chrome.storage.local.set({ githubUsername: value });
 }
 function handleProjectNameChange() {
-	var value = projectNameElement.value;
+	const value = projectNameElement.value;
 	chrome.storage.local.set({ projectName: value });
 }
 function handleOpenLabelChange() {
-	var value = showOpenLabelElement.checked;
+	const value = showOpenLabelElement.checked;
 	chrome.storage.local.set({ showOpenLabel: value });
 	chrome.storage.local.set({ showClosedLabel: value });
 }
 function handleUserReasonChange() {
-	var value = userReasonElement.value;
+	const value = userReasonElement.value;
 	chrome.storage.local.set({ userReason: value });
 }
 function handleCodeheatClick() {
