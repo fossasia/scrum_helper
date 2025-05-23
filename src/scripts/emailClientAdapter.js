@@ -35,7 +35,7 @@ class EmailClientAdapter {
 			yahoo: {
 				selectors: {
 					body: '#editor-container [contenteditable="true"][role="textbox"]',
-					subject: '#compose-subject-input, input[placeholder="Subject"]',
+					subject: '#compose-subject-input, input[placeholder="Subject"][id="compose-subject-input"]',
 				},
 				eventTypes: {
 					contentChange: 'input',
