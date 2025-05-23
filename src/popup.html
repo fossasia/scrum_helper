@@ -36,54 +36,81 @@
 		<div class="row">
 			<div class="col s12">
 				<ul class="tabs">
-					<li class="tab col s6" title="I am doing CodeHeat!"><a id="codeheatTab" href="#codeheatBox">CodeHeat</a></li>
-					<li class="tab col s6" title="I am doing GSoC!"><a id="gsocTab" href="#gsocBox">GSoC</a></li>
+					<li class="tab col s4" title="I am doing CodeHeat!"><a id="codeheatTab" href="#codeheatBox">CodeHeat</a></li>
+					<li class="tab col s4" title="I am doing GSoC!"><a id="gsocTab" href="#gsocBox">GSoC</a></li>
+					<li class="tab col s4" title="Generate standalone report"><a id="standaloneTab" href="#standalone">Standalone</a></li>
 				</ul>
 			</div>
 		</div>
-		<div class="row">
-            <div class="input-field col s12">
-                <input placeholder="Your Project Name" id="projectName" type="text">
-                <label for="projectName">Your Project Name</label>
-            </div>
-			<div class="input-field col s12">
-				<input placeholder="Required for getting data from github" id="githubUsername" type="text">
-				<label for="githubUsername">Your Github Username</label>
-			</div>
-			<div class="col s12"><span>Fetch your contributions between:</span>
-				<input type="checkbox" class="filled-in" id="lastWeekContribution"/>
-				<label for="lastWeekContribution">Show past <span id="noDays"></span> from today</label>
-			</div>
+		
+		<!-- Main settings section -->
+		<div id="main-settings">
+			<div class="row">
+				<div class="input-field col s12">
+					<input placeholder="Your Project Name" id="projectName" type="text">
+					<label for="projectName">Your Project Name</label>
+				</div>
+				<div class="input-field col s12">
+					<input placeholder="Required for getting data from github" id="githubUsername" type="text">
+					<label for="githubUsername">Your Github Username</label>
+				</div>
+				<div class="col s12"><span>Fetch your contributions between:</span>
+					<input type="checkbox" class="filled-in" id="lastWeekContribution"/>
+					<label for="lastWeekContribution">Show past <span id="noDays"></span> from today</label>
+				</div>
 
-			<div class="input-field col s6">
-				<div>Starting Date:</div>
-				<input id="startingDate" type="date" class="datepicker" placeholder=" ">
-				
+				<div class="input-field col s6">
+					<div>Starting Date:</div>
+					<input id="startingDate" type="date" class="datepicker" placeholder=" ">
+					
+				</div>
+				<div class="input-field col s6">
+					<div>Ending Date</div>
+					<input id="endingDate" type="date" class="datepicker" placeholder=" ">
+				</div>
+				<div class="col s12">
+					<br />
+					<input type="checkbox" class="filled-in" id="showOpenLabel"/>
+					<label for="showOpenLabel">Show Open/Closed Label</label>
+				</div>
+				<div class="input-field col s12">
+					<input placeholder="Reason" id="userReason" type="text">
+					<label for="userReason">What is stopping you from doing your work?</label>
+				</div>
+				<div class="col s12">
+					
+					<h5>Note:</h5>
+					<h6>
+						<ul>
+							<li>The PRs fetched are according to the date last reviewed by anyone. So if you reviewed a PR 10 days back, and someone reviewed it 2 days back, it will appear in your last week's activity. See <a target="_blank" href="https://github.com/fossasia/scrum_helper/issues/20">this issue</a>.
+							</li>
+							<li>By using the extension you understand that there might be discrepancies in the SCRUM generated. You are advised to edit the SCRUM afterwards to remove any discrepancies.
+							</li>
+						</ul>
+					</h6>
+				</div>
 			</div>
-			<div class="input-field col s6">
-				<div>Ending Date</div>
-				<input id="endingDate" type="date" class="datepicker" placeholder=" ">
+		</div>
+		
+		<!-- Standalone tab content -->
+		<div id="standalone" style="display:none;">
+			<div class="row">
+				<div class="input-field col s12">
+					<textarea id="standalone-report" class="materialize-textarea" style="height: 250px; overflow-y: auto;"></textarea>
+					<label for="standalone-report">Generated Report</label>
+				</div>
 			</div>
-			<div class="col s12">
-				<br />
-				<input type="checkbox" class="filled-in" id="showOpenLabel"/>
-				<label for="showOpenLabel">Show Open/Closed Label</label>
-			</div>
-			<div class="input-field col s12">
-				<input placeholder="Reason" id="userReason" type="text">
-				<label for="userReason">What is stopping you from doing your work?</label>
-			</div>
-			<div class="col s12">
-				
-				<h5>Note:</h5>
-				<h6>
-					<ul>
-						<li>The PRs fetched are according to the date last reviewed by anyone. So if you reviewed a PR 10 days back, and someone reviewed it 2 days back, it will appear in your last week's activity. See <a target="_blank" href="https://github.com/fossasia/scrum_helper/issues/20">this issue</a>.
-						</li>
-						<li>By using the extension you understand that there might be discrepancies in the SCRUM generated. You are advised to edit the SCRUM afterwards to remove any discrepancies.
-						</li>
-					</ul>
-				</h6>
+			<div class="row">
+				<div class="col s6">
+					<button id="generate-report" class="btn waves-effect waves-light blue">
+						Generate Report
+					</button>
+				</div>
+				<div class="col s6">
+					<button id="copy-report" class="btn waves-effect waves-light teal">
+						Copy to Clipboard
+					</button>
+				</div>
 			</div>
 		</div>
 
