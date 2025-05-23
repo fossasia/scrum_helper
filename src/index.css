@@ -50,3 +50,17 @@ li {
 	list-style-type: disc !important;
 	margin-left: 1rem;
 }
+.selectedLabel {
+	font-weight: 400;
+	color: #333333;
+}
+
+.unselectedLabel {
+	font-weight: 300; 
+	color: #666666; 
+}
+
+.selectedLabel, .unselectedLabel {
+	transition: color 0.3s ease-in-out, font-weight 0.3s ease-in-out;
+}
+
