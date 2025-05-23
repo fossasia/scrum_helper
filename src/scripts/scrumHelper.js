@@ -1,6 +1,7 @@
 var refreshButton_Placed = false;
 var enableToggle = true;
-function allIncluded() {
+function allIncluded(outputTarget = 'email') {
+
 	/* global $*/
 	var scrumBody = null;
 	var scrumSubject = null;
@@ -13,13 +14,13 @@ function allIncluded() {
 	var reviewedPrsArray = [];
 	var githubIssuesData = null;
 	var lastWeekContribution = false;
+	var yesterday = false;
 	var githubPrsReviewData = null;
 	var githubUserData = null;
-	var githubPrsReviewDataProccessed = {};
+	var githubPrsReviewDataProcessed = {};
 	var showOpenLabel = true;
 	var showClosedLabel = true;
 	var userReason = '';
-	var gsoc = 0; //0 means codeheat. 1 means gsoc
 
 	var pr_merged_button =
 		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #6f42c1;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--purple">closed</div>';
@@ -43,34 +44,41 @@ function allIncluded() {
 				'showOpenLabel',
 				'showClosedLabel',
 				'lastWeekContribution',
+				'yesterday',
 				'userReason',
-				'gsoc',
 			],
 			(items) => {
-				if (items.gsoc) {
-					//gsoc
-					gsoc = 1;
-				} else {
-					gsoc = 0; //codeheat
-				}
 				if (items.lastWeekContribution) {
 					lastWeekContribution = true;
 					handleLastWeekContributionChange();
 				}
+				if (items.yesterday) {
+					yesterday = true;
+					handleYesterdayChange();
+				}
 				if (!items.enableToggle) {
 					enableToggle = items.enableToggle;
 				}
-				if (items.endingDate && !lastWeekContribution) {
+				if (items.endingDate && !lastWeekContribution && !yesterday) {
 					endingDate = items.endingDate;
 				}
-				if (items.startingDate && !lastWeekContribution) {
+				if (items.startingDate && !lastWeekContribution && !yesterday) {
 					startingDate = items.startingDate;
 				}
 				if (items.githubUsername) {
 					githubUsername = items.githubUsername;
 					fetchGithubData();
 				} else {
-					console.warn('No GitHub username found in storage');
+					if (outputTarget === 'popup') {
+						const generateBtn = document.getElementById('generateReport');
+						if (generateBtn) {
+							generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+							generateBtn.disabled = false;
+						}
+						Materialize.toast('Please enter your GitHub username', 3000);
+					} else {
+						console.warn('No GitHub username found in storage');
+					}
 				}
 				if (items.projectName) {
 					projectName = items.projectName;
@@ -101,10 +109,13 @@ function allIncluded() {
 		endingDate = getToday();
 		startingDate = getLastWeek();
 	}
+	function handleYesterdayChange() {
+		endingDate = getToday();
+		startingDate = getYesterday();
+	}
 	function getLastWeek() {
 		var today = new Date();
-		var noDays_to_goback = gsoc == 0 ? 7 : 1;
-		var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - noDays_to_goback);
+		var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
 		var lastWeekMonth = lastWeek.getMonth() + 1;
 		var lastWeekDay = lastWeek.getDate();
 		var lastWeekYear = lastWeek.getFullYear();
@@ -130,30 +141,44 @@ function allIncluded() {
 			('00' + WeekDay.toString()).slice(-2);
 		return WeekDisplayPadded;
 	}
+	function getYesterday() {
+		var today = new Date();
+		var yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+		var yesterdayMonth = yesterday.getMonth() + 1;
+		var yesterdayDay = yesterday.getDate();
+		var yesterdayYear = yesterday.getFullYear();
+		var yesterdayDisplayPadded = ('0000' + yesterdayYear.toString()).slice(-4) + '-' + ('00' + yesterdayMonth.toString()).slice(-2) + '-' + ('00' + yesterdayDay.toString()).slice(-2);
+		return yesterdayDisplayPadded;
+	}
 	// fetch github data
 	function fetchGithubData() {
-		var issueUrl =
-			'https://api.github.com/search/issues?q=author%3A' +
+		var issueUrl = 'https://api.github.com/search/issues?q=author%3A' +
 			githubUsername +
 			'+org%3Afossasia+created%3A' +
 			startingDate +
 			'..' +
 			endingDate +
 			'&per_page=100';
+
 		$.ajax({
 			dataType: 'json',
 			type: 'GET',
 			url: issueUrl,
 			error: (xhr, textStatus, errorThrown) => {
-				// error
+				console.error('Error fetching GitHub data:', {
+					status: xhr.status,
+					textStatus: textStatus,
+					error: errorThrown
+				});
 			},
 			success: (data) => {
 				githubIssuesData = data;
+				writeGithubIssuesPrs();
 			},
 		});
-		// fetch github prs review data
-		var prUrl =
-			'https://api.github.com/search/issues?q=commenter%3A' +
+
+		// PR reviews fetch
+		var prUrl = 'https://api.github.com/search/issues?q=commenter%3A' +
 			githubUsername +
 			'+org%3Afossasia+updated%3A' +
 			startingDate +
@@ -166,10 +191,15 @@ function allIncluded() {
 			type: 'GET',
 			url: prUrl,
 			error: (xhr, textStatus, errorThrown) => {
-				// error
+				console.error('Error fetching PR reviews:', {
+					status: xhr.status,
+					textStatus: textStatus,
+					error: errorThrown
+				});
 			},
 			success: (data) => {
 				githubPrsReviewData = data;
+				writeGithubPrsReviews();
 			},
 		});
 		// fetch github user data
@@ -209,35 +239,62 @@ function allIncluded() {
 			for (i = 0; i < nextWeekArray.length; i++) nextWeekUl += nextWeekArray[i];
 			nextWeekUl += '</ul>';
 
-			var weekOrDay = gsoc == 1 ? 'yesterday' : 'last week';
-			var weekOrDay2 = gsoc == 1 ? 'today' : 'this week';
+
+			var weekOrDay;
+			var weekOrDay2;
+			const lastWeekRadio = document.getElementById('lastWeekContribution');
+			const yesterdayRadio = document.getElementById('yesterday');
+
+			if(lastWeekRadio && lastWeekRadio.checked) {
+				weekOrDay = 'last week'
+				weekOrDay2 = 'this week'
+			} else if (yesterdayRadio && yesterdayRadio.checked) {
+				weekOrDay = 'yesterday';
+				weekOrDay2 = 'today';
+			} else {
+				weekOrDay2 = 'this week';
+				lastWeekContribution = false;
+			}
 
 			// Create the complete content
 			let content;
-			if (lastWeekContribution == true) {
-				content = `<b>1. What did I do ${weekOrDay}?</b>
-						  <br>${lastWeekUl}<br><br>
-						  <b>2. What I plan to do ${weekOrDay2}?</b>
-						  <br>${nextWeekUl}<br><br>
-						  <b>3. What is stopping me from doing my work?</b>
-						  <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${userReason}</p>`;
+			if (lastWeekContribution) {
+				content = `<b>1. What did I do ${weekOrDay}?</b><br>
+${lastWeekUl}<br>
+<b>2. What I plan to do ${weekOrDay2}?</b><br>
+${nextWeekUl}<br>
+<b>3. What is stopping me from doing my work?</b><br>
+${userReason}`;
 			} else {
-				content = `<b>1. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?</b>
-						  <br>${lastWeekUl}<br><br>
-						  <b>2. What I plan to do ${weekOrDay2}?</b>
-						  <br>${nextWeekUl}<br><br>
-						  <b>3. What is stopping me from doing my work?</b>
-						  <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${userReason}</p>`;
+				content = `<b>1. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?</b><br>
+${lastWeekUl}<br>
+<b>2. What I plan to do ${weekOrDay2}?</b><br>
+${nextWeekUl}<br>
+<b>3. What is stopping me from doing my work?</b><br>
+${userReason}`;
 			}
 
-			// Use the adapter to inject content
-			const elements = window.emailClientAdapter.getEditorElements();
-			if (!elements || !elements.body) {
-				console.error('Email client editor not found');
-				return;
-			}
+			if (outputTarget === 'popup') {
+				const scrumReport = document.getElementById('scrumReport');
+				if (scrumReport) {
+					scrumReport.innerHTML = content;
 
-			window.emailClientAdapter.injectContent(elements.body, content, elements.eventTypes.contentChange);
+					// Reset generate button
+					const generateBtn = document.getElementById('generateReport');
+					if (generateBtn) {
+						generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+						generateBtn.disabled = false;
+					}
+				}
+			} else {
+
+				const elements = window.emailClientAdapter.getEditorElements();
+				if (!elements || !elements.body) {
+					console.error('Email client editor not found');
+					return;
+				}
+				window.emailClientAdapter.injectContent(elements.body, content, elements.eventTypes.contentChange);
+			}
 		});
 	}
 
@@ -251,11 +308,9 @@ function allIncluded() {
 		else if (projectUrl === 'open-event') project = 'Open Event';
 		return project;
 	}
-	//load initial scrum subject
 	function scrumSubjectLoaded() {
 		if (!enableToggle) return;
 		setTimeout(() => {
-			//to apply this after google has autofilled
 			var name = githubUserData.name || githubUsername;
 			var project = getProject();
 			var curDate = new Date();
@@ -271,66 +326,77 @@ function allIncluded() {
 		});
 	}
 
-	// write PRs Reviewed
 	function writeGithubPrsReviews() {
 		var items = githubPrsReviewData.items;
-		var i;
-		for (i = 0; i < items.length; i++) {
+
+		reviewedPrsArray = [];
+		githubPrsReviewDataProcessed = {};
+
+		for (var i = 0; i < items.length; i++) {
 			var item = items[i];
-			if (item.user.login == githubUsername || !item.pull_request) continue;
+			console.log(`Review item ${i + 1}/${items.length}:`, {
+				number: item.number,
+				author: item.user.login,
+				type: item.pull_request ? "PR" : "Issue",
+				state: item.state,
+				title: item.title
+			});
+
+			if (item.user.login === githubUsername) {
+				continue;
+			}
+
 			var repository_url = item.repository_url;
 			var project = repository_url.substr(repository_url.lastIndexOf('/') + 1);
 			var title = item.title;
 			var number = item.number;
 			var html_url = item.html_url;
-			if (!githubPrsReviewDataProccessed[project]) {
-				// first pr in this repo
-				githubPrsReviewDataProccessed[project] = [];
+
+			if (!githubPrsReviewDataProcessed[project]) {
+				githubPrsReviewDataProcessed[project] = [];
 			}
+
 			var obj = {
 				number: number,
 				html_url: html_url,
 				title: title,
 				state: item.state,
 			};
-			githubPrsReviewDataProccessed[project].push(obj);
+			githubPrsReviewDataProcessed[project].push(obj);
 		}
-		for (var repo in githubPrsReviewDataProccessed) {
-			var repoLi =
-				'<li> \
-		<i>(' +
-				repo +
-				')</i> - Reviewed ';
-			if (githubPrsReviewDataProccessed[repo].length > 1) repoLi += 'PRs - ';
-			else {
+
+		for (var repo in githubPrsReviewDataProcessed) {
+			var repoLi = '<li><i>(' + repo + ')</i> - Reviewed ';
+			if (githubPrsReviewDataProcessed[repo].length > 1) {
+				repoLi += 'PRs - ';
+			} else {
 				repoLi += 'PR - ';
 			}
-			if (githubPrsReviewDataProccessed[repo].length <= 1) {
-				for (var pr in githubPrsReviewDataProccessed[repo]) {
-					var pr_arr = githubPrsReviewDataProccessed[repo][pr];
+
+			if (githubPrsReviewDataProcessed[repo].length <= 1) {
+				for (var pr in githubPrsReviewDataProcessed[repo]) {
+					var pr_arr = githubPrsReviewDataProcessed[repo][pr];
 					var prText = '';
-					prText +=
-						"<a href='" + pr_arr.html_url + "' target='_blank'>#" + pr_arr.number + '</a> (' + pr_arr.title + ') ';
-					if (pr_arr.state === 'open') prText += issue_opened_button;
-					else prText += issue_closed_button;
+					prText += `<a href='${pr_arr.html_url}' target='_blank'>#${pr_arr.number}</a> (${pr_arr.title}) `;
+					if (pr_arr.state === 'open') {
+						prText += issue_opened_button;
+					} else {
+						prText += issue_closed_button;
+					}
 					prText += '&nbsp;&nbsp;';
 					repoLi += prText;
 				}
 			} else {
 				repoLi += '<ul>';
-				for (var pr1 in githubPrsReviewDataProccessed[repo]) {
-					var pr_arr1 = githubPrsReviewDataProccessed[repo][pr1];
+				for (var pr1 in githubPrsReviewDataProcessed[repo]) {
+					var pr_arr1 = githubPrsReviewDataProcessed[repo][pr1];
 					var prText1 = '';
-					prText1 +=
-						"<li><a href='" +
-						pr_arr1.html_url +
-						"' target='_blank'>#" +
-						pr_arr1.number +
-						'</a> (' +
-						pr_arr1.title +
-						') ';
-					if (pr_arr1.state === 'open') prText1 += issue_opened_button;
-					else prText1 += issue_closed_button;
+					prText1 += `<li><a href='${pr_arr1.html_url}' target='_blank'>#${pr_arr1.number}</a> (${pr_arr1.title}) `;
+					if (pr_arr1.state === 'open') {
+						prText1 += issue_opened_button;
+					} else {
+						prText1 += issue_closed_button;
+					}
 					prText1 += '&nbsp;&nbsp;</li>';
 					repoLi += prText1;
 				}
@@ -339,141 +405,57 @@ function allIncluded() {
 			repoLi += '</li>';
 			reviewedPrsArray.push(repoLi);
 		}
+
 		writeScrumBody();
 	}
-	//write issues and Prs from github
 	function writeGithubIssuesPrs() {
 		var data = githubIssuesData;
 		var items = data.items;
+
+		lastWeekArray = [];
+		nextWeekArray = [];
+
 		for (var i = 0; i < items.length; i++) {
 			var item = items[i];
+			console.log(`Processing item ${i + 1}/${items.length}:`, {
+				number: item.number,
+				title: item.title,
+				state: item.state,
+				isPR: !!item.pull_request,
+				body: item.body ? item.body.substring(0, 100) + "..." : "no body"
+			});
+
 			var html_url = item.html_url;
 			var repository_url = item.repository_url;
 			var project = repository_url.substr(repository_url.lastIndexOf('/') + 1);
 			var title = item.title;
 			var number = item.number;
 			var li = '';
+
 			if (item.pull_request) {
-				// is a pull request
 				if (item.state === 'closed') {
-					// is closed PR
-					li =
-						'<li><i>(' +
-						project +
-						')</i> - Made PR (#' +
-						number +
-						") - <a href='" +
-						html_url +
-						"' style='" +
-						linkStyle +
-						"' target='_blank'>" +
-						title +
-						'</a> ' +
-						pr_merged_button +
-						'&nbsp;&nbsp;</li>';
+					li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_merged_button}</li>`;
 				} else if (item.state === 'open') {
-					// is open PR
-					li =
-						'<li><i>(' +
-						project +
-						')</i> - Made PR (#' +
-						number +
-						") - <a href='" +
-						html_url +
-						"' target='_blank'>" +
-						title +
-						'</a> ' +
-						pr_unmerged_button +
-						'&nbsp;&nbsp;</li>';
-				} else {
-					// else
-					li =
-						'<li><i>(' +
-						project +
-						')</i> - Made PR (#' +
-						number +
-						") - <a href='" +
-						html_url +
-						"' target='_blank'>" +
-						title +
-						'</a> &nbsp;&nbsp;</li>';
+					li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_unmerged_button}</li>`;
 				}
 			} else {
-				// is a issue
-				if (item.state === 'open' && item.body.toUpperCase().indexOf('YES') > 0) {
-					//probably the author wants to work on this issue!
-					var li2 =
-						'<li><i>(' +
-						project +
-						')</i> - Work on Issue(#' +
-						number +
-						") - <a href='" +
-						html_url +
-						"' target='_blank'>" +
-						title +
-						'</a> ' +
-						issue_opened_button +
-						'&nbsp;&nbsp;</li>';
+				if (item.state === 'open' && item.body && item.body.toUpperCase().indexOf('YES') > 0) {
+					var li2 = `<li><i>(${project})</i> - Work on Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_opened_button}</li>`;
 					nextWeekArray.push(li2);
 				}
 				if (item.state === 'open') {
-					li =
-						'<li><i>(' +
-						project +
-						')</i> - Opened Issue(#' +
-						number +
-						") - <a href='" +
-						html_url +
-						"' target='_blank'>" +
-						title +
-						'</a> ' +
-						issue_opened_button +
-						'&nbsp;&nbsp;</li>';
+					li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_opened_button}</li>`;
 				} else if (item.state === 'closed') {
-					li =
-						'<li><i>(' +
-						project +
-						')</i> - Opened Issue(#' +
-						number +
-						") - <a href='" +
-						html_url +
-						"' target='_blank'>" +
-						title +
-						'</a> ' +
-						issue_closed_button +
-						'&nbsp;&nbsp;</li>';
-				} else {
-					li =
-						'<li><i>(' +
-						project +
-						')</i> - Opened Issue(#' +
-						number +
-						") - <a href='" +
-						html_url +
-						"' target='_blank'>" +
-						title +
-						'</a> </li>';
+					li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_button}</li>`;
 				}
 			}
-			lastWeekArray.push(li);
+			if (li) {
+				lastWeekArray.push(li);
+			} else {
+			}
 		}
 		writeScrumBody();
 	}
-	//check for scrum body loaded
-	// var intervalBody = setInterval(function(){
-	// 	var bodies = [
-	// 		document.getElementById("p-b-0"),
-	// 		document.getElementById("p-b-1"),
-	// 		document.getElementById("p-b-2"),
-	// 		document.querySelector("c-wiz [aria-label='Compose a message'][role=textbox]")];
-	// 	for (var body of bodies) {
-	// 		if (!body)
-	// 			continue;
-	// 		clearInterval(intervalBody);
-	// 		scrumBody=body;
-	// 		writeScrumBody();
-	// 	}
-	// },500);
 	var intervalBody = setInterval(() => {
 		if (!window.emailClientAdapter) return;
 
@@ -485,23 +467,6 @@ function allIncluded() {
 		writeScrumBody();
 	}, 500);
 
-	//check for subject loaded
-	// var intervalSubject = setInterval(function(){
-	// 	if (!githubUserData)
-	// 		return;
-	// 	var subjects = [
-	// 		document.getElementById("p-s-0"),
-	// 		document.getElementById("p-s-1"),
-	// 		document.getElementById("p-s-2"),
-	// 		document.querySelector("c-wiz input[aria-label=Subject]")];
-	// 	for (var subject of subjects) {
-	// 		if (!subject)
-	// 			continue;
-	// 		clearInterval(intervalSubject);
-	// 		scrumSubject=subject;
-	// 		scrumSubjectLoaded();
-	// 	}
-	// },500);
 	var intervalSubject = setInterval(() => {
 		if (!githubUserData || !window.emailClientAdapter) return;
 
@@ -547,10 +512,17 @@ function allIncluded() {
 		}, 1000);
 	}
 	function handleRefresh() {
-		allIncluded();
+		allIncluded('email');
 	}
 }
-allIncluded();
+allIncluded('email');
+$('button>span:contains(New conversation)').parent('button').click(() => {
+	allIncluded();
+});
+
+window.generateScrumReport = function () {
+	allIncluded('popup');
+};
 
 $('button>span:contains(New conversation)')
 	.parent('button')
