@@ -22,6 +22,7 @@ function handleBodyOnLoad() {
 			'userReason',
 			'lastWeekContribution',
 			'gsoc',
+			'selectedTab',
 		],
 		(items) => {
 			if (items.githubUsername) {
@@ -65,6 +66,15 @@ function handleBodyOnLoad() {
 			} else {
 				handleCodeheatClick();
 			}
+			if (items.selectedTab === 'gsoc') {
+				handleGsocClick();
+			} 
+			else {
+				handleCodeheatClick();
+			}
+			
+			// initialize materialize tabs
+			$('.tabs').tabs('select_tab', items.selectedTab === 'gsoc' ? 'gsocBox' : 'codeheatBox' );
 		},
 	);
 }
@@ -147,7 +157,7 @@ function handleCodeheatClick() {
 	$('#codeheatTab').addClass('active');
 	$('.tabs').tabs();
 	$('#noDays').text('7 days');
-	chrome.storage.local.set({ gsoc: 0 });
+	chrome.storage.local.set({ gsoc: 0, selectedTab: 'codeheat' });
 	handleLastWeekContributionChange();
 }
 function handleGsocClick() {
@@ -155,7 +165,7 @@ function handleGsocClick() {
 	$('#gsocTab').addClass('active');
 	$('.tabs').tabs();
 	$('#noDays').text('1 day');
-	chrome.storage.local.set({ gsoc: 1 });
+	chrome.storage.local.set({ gsoc: 1, selectedTab: 'gsoc' });
 	handleLastWeekContributionChange();
 }
 enableToggleElement.addEventListener('change', handleEnableChange);
