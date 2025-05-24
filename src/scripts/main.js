@@ -89,6 +89,8 @@ function handleLastWeekContributionChange() {
 			endingDateElement.disabled = true;
 			endingDateElement.value = getToday();
 			startingDateElement.value = getLastWeek();
+		        handleEndingDateChange();
+		        handleStartingDateChange();
 			labelElement.classList.add("selectedLabel");
 			labelElement.classList.remove("unselectedLabel");
 	} else {
