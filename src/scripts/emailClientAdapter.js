@@ -26,7 +26,7 @@ class EmailClientAdapter {
 					body: 'div[role="textbox"][contenteditable="true"][aria-multiline="true"]',
 					subject: [
 						'input[aria-label="Subject"][type="text"]',
-						'input[aria-label="Add a subject"][type="text"]',
+						'input[aria-label="Add a subject"][type="text"][role="textbox"][aria-multiline="false"]',
 					],
 				},
 				eventTypes: {
