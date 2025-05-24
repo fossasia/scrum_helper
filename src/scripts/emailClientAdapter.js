@@ -41,7 +41,7 @@ class EmailClientAdapter {
 						// Desktop selectors
 						'#editor-container [contenteditable="true"][role="textbox"]',
 						// Mobile selectors
-						'#editor-container-mobile [contentditable="true"][role="textbox"]',
+						'#editor-container-mobile [contenteditable="true"][role="textbox"]',
 					],
 					subject: [
 						// Desktop selectors
