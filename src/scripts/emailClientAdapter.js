@@ -34,8 +34,19 @@ class EmailClientAdapter {
 			},
 			yahoo: {
 				selectors: {
-					body: '#editor-container [contenteditable="true"][role="textbox"]',
-					subject: '#compose-subject-input, input[placeholder="Subject"][id="compose-subject-input"]',
+					body: [
+						'[aria-multiline="true"][aria-label="Message body"][contenteditable="true"][role="textbox"]',
+						'[aria-label="Message body"][contenteditable="true"]',
+						'[role="textbox"][contenteditable="true"]',
+						'[data-test-id*="compose"][contenteditable="true"]',
+						'.compose-editor [contenteditable="true"]'
+					].join(', '),
+					subject:  [
+							'#compose-subject-input',
+							'input[placeholder="Subject"]',
+							'input[aria-label*="subject" i]',
+							'input[data-test-id*="subject" i]'
+						].join(', ')
 				},
 				eventTypes: {
 					contentChange: 'input',
