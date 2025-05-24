@@ -23,8 +23,11 @@ class EmailClientAdapter {
 			},
 			outlook: {
 				selectors: {
-					body: 'div[role="textbox"][contenteditable="true"][aria-multiline="true"][aria-label="Message body, press Alt+F10 to exit"]',
-					subject: 'input[aria-label="Subject"][type="text"][maxlength="255"][placeholder="Add a subject"]',
+					body: 'div[role="textbox"][contenteditable="true"][aria-multiline="true"]',
+					subject: [
+						'input[aria-label="Subject"][type="text"]',
+						'input[aria-label="Add a subject"][type="text"][role="textbox"][aria-multiline="false"]',
+					],
 				},
 				eventTypes: {
 					contentChange: 'input',
@@ -34,8 +37,18 @@ class EmailClientAdapter {
 			},
 			yahoo: {
 				selectors: {
-					body: '#editor-container [contenteditable="true"][role="textbox"]',
-					subject: 'input[placeholder="Subject"][type="text"]',
+					body: [
+						// Desktop selectors
+						'#editor-container [contenteditable="true"][role="textbox"]',
+						// Mobile selectors
+						'#editor-container-mobile [contenteditable="true"][role="textbox"]',
+					],
+					subject: [
+						// Desktop selectors
+						'#compose-subject-input, input[placeholder="Subject"][id="compose-subject-input"]',
+						// Mobile selectors
+						'#compose-subject-input-mobile, input[placeholder="Subject"][id="compose-subject-input-mobile"]'
+					],
 				},
 				eventTypes: {
 					contentChange: 'input',
