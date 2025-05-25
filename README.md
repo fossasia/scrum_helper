@@ -5,16 +5,20 @@ This chrome extension helps you to write scrums in google groups for FOSSASIA re
 ![SCRUMLOGO](docs/images/scrumhelper-png.png)
 
 ## How to install
-```
-1. Clone this repository.
-2. Goto `chrome://extensions` on your chrome browser.
+
+1. Clone this repository to your local machine.
+2. Go to `chrome://extensions` on your chrome browser.
 3. Turn on developer mode if not already on.
 4. Load unpacked extension from `src` folder.
 5. Click on the Scrum Helper icon you see on your browser toolbar.
 6. Fill in the settings in the popup.
-7. Open https://groups.google.com/forum/#!newtopic/<groupname>.
-8. Refresh the page for new settings to reflect.
-```
+7. **For Google Groups:**  
+   - Open https://groups.google.com/forum/#!newtopic/<groupname> and start a New Conversation.  
+8. Refresh the page to apply the new settings.  
+9. **For Gmail, Yahoo, and Outlook:**  
+   - Open the Compose window.  
+   - Follow Step 8 to ensure the settings take effect.  
+
 ## Setting up the code locally
 
 ```
@@ -30,4 +34,17 @@ $ npm install
 ## About contributing
 - Follow the Issues and PRs templates as far as possible.
 - If you want to make a PR, please mention in the corresponding issue that you are working on it.
-- Please run `npm run test` locally to check for syntax errors before making a PR.
+- Before making a PR, ensure your code is properly formatted and linted:
+  - Format your code: This command automatically formats your code based on the project's style guidelines.
+    ```sh
+    npm run format
+    ```
+  - Check for issues: This command runs the formatter, linter, and import sorting on the requested files to enforce coding standards.
+    ```sh
+    npm run check
+    ```
+  - Fix linting errors: If the linter detects fixable issues, this command will automatically apply the necessary corrections.
+    ```sh
+    npm run fix
+    ```
+- If you encounter any bugs, please report them at the [Issues page](https://github.com/fossasia/scrum_helper/issues).
