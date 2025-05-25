@@ -23,8 +23,8 @@ class EmailClientAdapter {
 			},
 			outlook: {
 				selectors: {
-					body: 'div[role="textbox"][contenteditable="true"][aria-multiline="true"]',
-					subject: 'input[aria-label="Add a subject"][type="text"]',
+					body: 'div[role="textbox"][contenteditable="true"][aria-multiline="true"][aria-label="Message body, press Alt+F10 to exit"]',
+					subject: 'input[aria-label="Subject"][type="text"][maxlength="255"][placeholder="Add a subject"]',
 				},
 				eventTypes: {
 					contentChange: 'input',
