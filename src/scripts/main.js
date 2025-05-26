@@ -3,13 +3,13 @@ let enableToggleElement = document.getElementById('enable');
 let githubUsernameElement = document.getElementById('githubUsername');
 let projectNameElement = document.getElementById('projectName');
 let lastWeekContributionElement = document.getElementById('lastWeekContribution');
+let yesterdayContributionElement = document.getElementById('yesterdayContribution');
 let startingDateElement = document.getElementById('startingDate');
 let endingDateElement = document.getElementById('endingDate');
 let showOpenLabelElement = document.getElementById('showOpenLabel');
 let userReasonElement = document.getElementById('userReason');
-let gsoc = 0; //0 means gsoc. 1 means gsoc
 function handleBodyOnLoad() {
-	// prefill name
+	// prefill content
 	chrome.storage.local.get(
 		[
 			'githubUsername',
@@ -21,7 +21,7 @@ function handleBodyOnLoad() {
 			'showClosedLabel',
 			'userReason',
 			'lastWeekContribution',
-			'gsoc',
+			'yesterdayContribution',
 		],
 		(items) => {
 			if (items.githubUsername) {
@@ -60,6 +60,13 @@ function handleBodyOnLoad() {
 				lastWeekContributionElement.checked = true;
 				handleLastWeekContributionChange();
 			}
+			if ( items.yesterdayContribution ){
+				yesterdayContributionElement.checked = items.yesterdayContribution;
+				handleYesterdayContributionChange();
+			} else if (items.yesterdayContribution !== false ) {
+				yesterdayContributionElement.checked = true;
+				handleYesterdayContributionChange();
+			}
 		},
 	);
 }
@@ -74,6 +81,21 @@ function handleStartingDateChange() {
 function handleEndingDateChange() {
 	let value = endingDateElement.value;
 	chrome.storage.local.set({ endingDate: value });
+}
+function handleYesterdayContributionChange() {
+	let value = yesterdayContributionElement.checked;
+	if (value) {
+		startingDateElement.disabled = true;
+		endingDateElement.disabled = true;
+		startingDateElement.value = getYesterday();
+		endingDateElement.value = getToday();
+		handleEndingDateChange();
+		handleStartingDateChange();
+	} else {
+		startingDateElement.disabled = false;
+		endingDateElement.disabled = false;
+	}
+	chrome.storage.local.set({ yesterdayContribution: value });
 }
 function handleLastWeekContributionChange() {
 	let value = lastWeekContributionElement.checked;
@@ -90,10 +112,23 @@ function handleLastWeekContributionChange() {
 	}
 	chrome.storage.local.set({ lastWeekContribution: value });
 }
+function getYesterday() {
+	let today = new Date();
+	let yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+	let yesterdayMonth = yesterday.getMonth() + 1;
+	let yesterdayDay = yesterday.getDate();
+	let yesterdayYear = yesterday.getFullYear();
+	let yesterdayDisplayPadded =
+		('0000' + yesterdayYear.toString()).slice(-4) +
+		'-' +
+		('00' + yesterdayMonth.toString()).slice(-2) +
+		'-' +
+		('00' + yesterdayDay.toString()).slice(-2);
+	return yesterdayDisplayPadded;
+}
 function getLastWeek() {
 	let today = new Date();
-	let noDays_to_goback = gsoc == 0 ? 7 : 1;
-	let lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - noDays_to_goback);
+	let lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
 	let lastWeekMonth = lastWeek.getMonth() + 1;
 	let lastWeekDay = lastWeek.getDate();
 	let lastWeekYear = lastWeek.getFullYear();

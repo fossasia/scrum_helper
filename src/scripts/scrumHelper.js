@@ -14,7 +14,7 @@ function allIncluded(outputTarget = 'email') {
 	let reviewedPrsArray = [];
 	let githubIssuesData = null;
 	let lastWeekContribution = false;
-	let yesterday = false;
+	let yesterdayContribution = false;
 	let githubPrsReviewData = null;
 	let githubUserData = null;
 	let githubPrsReviewDataProcessed = {};
@@ -44,7 +44,7 @@ function allIncluded(outputTarget = 'email') {
 				'showOpenLabel',
 				'showClosedLabel',
 				'lastWeekContribution',
-				'yesterday',
+				'yesterdayContribution',
 				'userReason',
 			],
 			(items) => {
@@ -52,17 +52,17 @@ function allIncluded(outputTarget = 'email') {
 					lastWeekContribution = true;
 					handleLastWeekContributionChange();
 				}
-				if (items.yesterday) {
-					yesterday = true;
-					handleYesterdayChange();
+				if (items.yesterdayContribution) {
+					yesterdayContribution = true;
+					handleYesterdayContributionChange();
 				}
 				if (!items.enableToggle) {
 					enableToggle = items.enableToggle;
 				}
-				if (items.endingDate && !lastWeekContribution && !yesterday) {
+				if (items.endingDate && !lastWeekContribution && !yesterdayContribution) {
 					endingDate = items.endingDate;
 				}
-				if (items.startingDate && !lastWeekContribution && !yesterday) {
+				if (items.startingDate && !lastWeekContribution && !yesterdayContribution) {
 					startingDate = items.startingDate;
 				}
 				if (items.githubUsername) {
@@ -109,7 +109,7 @@ function allIncluded(outputTarget = 'email') {
 		endingDate = getToday();
 		startingDate = getLastWeek();
 	}
-	function handleYesterdayChange() {
+	function handleYesterdayContributionChange() {
 		endingDate = getToday();
 		startingDate = getYesterday();
 	}
@@ -243,7 +243,7 @@ function allIncluded(outputTarget = 'email') {
 			let weekOrDay;
 			let weekOrDay2;
 			const lastWeekRadio = document.getElementById('lastWeekContribution');
-			const yesterdayRadio = document.getElementById('yesterday');
+			const yesterdayRadio = document.getElementById('yesterdayContribution');
 
 			if(lastWeekRadio && lastWeekRadio.checked) {
 				weekOrDay = 'last week'

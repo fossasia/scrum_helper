@@ -9,37 +9,103 @@ document.addEventListener('DOMContentLoaded', function() {
         window.generateScrumReport();
     });
 
-    copyBtn.addEventListener('click', function() {
+    // copyBtn.addEventListener('click', function() {
+    //     const scrumReport = document.getElementById('scrumReport');
+    //     const tempDiv = document.createElement('div');
+    //     tempDiv.innerHTML = scrumReport.innerHTML;
+    //     const links = tempDiv.getElementsByTagName('a');
+    //     Array.from(links).forEach(link => {
+    //         const title = link.textContent;
+    //         const url = link.href;
+    //         const markdownLink = `[${title}](${url})`;
+    //         link.outerHTML = markdownLink;
+    //     });
+    //     const stateButtons = tempDiv.getElementsByClassName('State');
+    //     Array.from(stateButtons).forEach(button => {
+    //         button.remove();
+    //     });
+    //     tempDiv.innerHTML = tempDiv.innerHTML.replace(/<br\s*\/?>/gi, '\n');
+    //     const listItems = tempDiv.getElementsByTagName('li');
+    //     Array.from(listItems).forEach(item => {
+    //         item.innerHTML = '\n- '+ item.innerHTML;
+    //     });
+    //     tempDiv.innerHTML = tempDiv.innerHTML.replace(/<\/?ul>/gi, '\n');
+    //     let textContent = tempDiv.textContent;
+    //     textContent = textContent.replace(/\n\s*\n/g, '\n\n');
+    //     textContent = textContent.trim();
+    //     const textArea = document.createElement('textarea');
+    //     textArea.value = textContent;
+    //     document.body.appendChild(textArea);
+    //     textArea.select();
+    //     document.execCommand('copy');
+    //     document.body.removeChild(textArea);
+        
+    //     const originalText = this.innerHTML;
+    //     this.innerHTML = '<i class="fa fa-check"></i> Copied!';
+    //     this.classList.add('bg-green-600');
+
+    //     setTimeout(() => {
+    //         this.innerHTML = originalText;
+    //         this.classList.remove('bg-green-600');
+    //     }, 2000);
+    // });
+
+    copyBtn.addEventListener('click', function () {
         const scrumReport = document.getElementById('scrumReport');
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = scrumReport.innerHTML;
-        const links = tempDiv.getElementsByTagName('a');
-        Array.from(links).forEach(link => {
-            const title = link.textContent;
-            const url = link.href;
-            const markdownLink = `[${title}](${url})`;
-            link.outerHTML = markdownLink;
-        });
+
+        // Remove all .State buttons
         const stateButtons = tempDiv.getElementsByClassName('State');
-        Array.from(stateButtons).forEach(button => {
-            button.remove();
-        });
-        tempDiv.innerHTML = tempDiv.innerHTML.replace(/<br\s*\/?>/gi, '\n');
+        Array.from(stateButtons).forEach(button => button.remove());
+
+        // Format list items while preserving links and formatting
         const listItems = tempDiv.getElementsByTagName('li');
         Array.from(listItems).forEach(item => {
-            item.innerHTML = '\n- '+ item.innerHTML;
+            item.style.backgroundColor = 'transparent';
+            item.style.listStyleType = 'disc';
+            el.style.fontSize='14px';
+            
         });
-        tempDiv.innerHTML = tempDiv.innerHTML.replace(/<\/?ul>/gi, '\n');
-        let textContent = tempDiv.textContent;
-        textContent = textContent.replace(/\n\s*\n/g, '\n\n');
-        textContent = textContent.trim();
-        const textArea = document.createElement('textarea');
-        textArea.value = textContent;
-        document.body.appendChild(textArea);
-        textArea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textArea);
-        
+
+        // Remove background from any elements that might have it
+        const allElements = tempDiv.getElementsByTagName('*');
+        Array.from(allElements).forEach(el => {
+            el.style.backgroundColor = 'transparent';
+            // Preserve other styling like colors and fonts
+            if (el.classList.contains('bg-green-600') || el.classList.contains('bg-purple-600')) {
+                el.style.color = el.classList.contains('bg-green-600') ? '#2cbe4e' : '#6f42c1';
+            }
+        });
+
+        // Append tempDiv to DOM for copying
+        tempDiv.style.position = 'fixed';
+        tempDiv.style.left = '-9999px';
+        tempDiv.style.color = 'inherit';
+        tempDiv.style.font = 'inherit';
+        tempDiv.style.fontSize = '14px'; 
+        tempDiv.style.lineHeight = '1.5';
+        document.body.appendChild(tempDiv);
+
+        // Create a selection and copy with rich text
+        const range = document.createRange();
+        range.selectNodeContents(tempDiv);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+
+        try {
+            const success = document.execCommand('copy');
+            if (!success) throw new Error('Copy failed');
+        } catch (err) {
+            console.error('Copy failed:', err);
+        }
+
+        // Cleanup
+        selection.removeAllRanges();
+        document.body.removeChild(tempDiv);
+
+        // Feedback UI
         const originalText = this.innerHTML;
         this.innerHTML = '<i class="fa fa-check"></i> Copied!';
         this.classList.add('bg-green-600');
@@ -63,7 +129,7 @@ function toggleRadio(radio){
             startingDate: startDateInput.value,
             endingDate: endDateInput.value,
             lastWeekContribution: true,
-            yesterday: false
+            yesterdayContribution: false
         }, () => {
             window.generateScrumReport();
         });
@@ -74,7 +140,7 @@ function toggleRadio(radio){
             startingDate: startDateInput.value,
             endingDate: endDateInput.value,
             lastWeekContribution: false,
-            yesterday: true
+            yesterdayContribution: true
         }, () => {
             window.generateScrumReport();
         });
@@ -88,15 +154,17 @@ document.getElementById('customDateContainer').addEventListener('click', () => {
     document.getElementById('endingDate').disabled = false;
     chrome.storage.local.set({
         lastWeekContribution: false,
-        yesterday: false
+        yesterdayContribution: false
     });
 });
 
+
+// Date change
 document.getElementById('startingDate').addEventListener('change', function() {
     chrome.storage.local.set({
         startingDate: this.value,
         lastWeekContribution: false,
-        yesterday: false
+        yesterdayContribution: false
     }, () => {
         if (document.getElementById('endingDate').value) {
             window.generateScrumReport();
@@ -108,7 +176,7 @@ document.getElementById('endingDate').addEventListener('change', function() {
     chrome.storage.local.set({
         endingDate: this.value,
         lastWeekContribution: false,
-        yesterday: false
+        yesterdayContribution: false
     }, () => {
         if (document.getElementById('startingDate').value) {
             window.generateScrumReport();
@@ -116,6 +184,8 @@ document.getElementById('endingDate').addEventListener('change', function() {
     });
 });
 
+
+// Dark mode
 document.addEventListener('DOMContentLoaded', function() {
     const darkModeToggle = document.querySelector('img[alt="Night Mode"]');
     const body = document.body;
