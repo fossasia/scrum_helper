@@ -81,6 +81,7 @@ function toggleRadio(radio){
     }
    startDateInput.disabled = endDateInput.disabled = true;
 }
+// Function to activate the date containers after toggling radios of last week and day
 document.getElementById('customDateContainer').addEventListener('click', () => {
     document.querySelectorAll('input[name="timeframe"]').forEach(radio => radio.checked = false);
     document.getElementById('startingDate').disabled = false;

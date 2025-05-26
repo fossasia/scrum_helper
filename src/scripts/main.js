@@ -107,17 +107,17 @@ function getLastWeek() {
 }
 function getToday() {
 	var today = new Date();
-	var Week = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-	var WeekMonth = Week.getMonth() + 1;
-	var WeekDay = Week.getDate();
-	var WeekYear = Week.getFullYear();
-	var WeekDisplayPadded =
-		('0000' + WeekYear.toString()).slice(-4) +
+	var week = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+	var weekMonth = week.getMonth() + 1;
+	var weekDay = week.getDate();
+	var weekYear = week.getFullYear();
+	var weekDisplayPadded =
+		('0000' + weekYear.toString()).slice(-4) +
 		'-' +
-		('00' + WeekMonth.toString()).slice(-2) +
+		('00' + weekMonth.toString()).slice(-2) +
 		'-' +
-		('00' + WeekDay.toString()).slice(-2);
-	return WeekDisplayPadded;
+		('00' + weekDay.toString()).slice(-2);
+	return weekDisplayPadded;
 }
 
 function handleGithubUsernameChange() {
