@@ -1,23 +1,36 @@
 # SCRUM Helper
 
-This chrome extension helps you to write scrums in google groups for FOSSASIA related projects. You need to add your github username, dates, and other options. It fetches your PRs, Issues, and the PRs you reviewed from Github API, and prefills the SCRUM. You can edit the scrum further to meet your needs.
+**SCRUM Helper** is a Chrome extension designed to simplify writing scrums in Google Groups for FOSSASIA projects. By adding your GitHub username, date range, and other options, it automatically fetches your PRs, Issues, and reviewed PRs via the GitHub API and pre-fills the scrum. You can then edit the scrum to fit your needs.
+
 
 ![SCRUMLOGO](docs/images/scrumhelper-png.png)
+
+## Features
+
+- Fetches your GitHub PRs, Issues, and reviewed PRs  
+- Auto-generates scrum updates  
+- Supports Google Groups, Gmail, Yahoo, and Outlook compose windows  
 
 ## How to install
 
 1. Clone this repository to your local machine.
 2. Go to `chrome://extensions` on your chrome browser.
-3. Turn on developer mode if not already on.
-4. Load unpacked extension from `src` folder.
-5. Click on the Scrum Helper icon you see on your browser toolbar.
-6. Fill in the settings in the popup.
-7. **For Google Groups:**  
-   - Open https://groups.google.com/forum/#!newtopic/<groupname> and start a New Conversation.  
-8. Refresh the page to apply the new settings.  
-9. **For Gmail, Yahoo, and Outlook:**  
-   - Open the Compose window.  
-   - Follow Step 8 to ensure the settings take effect.  
+3. Enable Developer Mode (toggle in the top-right) if not already.
+4. Click Load unpacked and select the `src` folder inside the cloned repo
+5. Click the Scrum Helper icon on your browser toolbar
+6. Fill in your settings in the popup (GitHub username, date range, etc.)
+
+## Usage
+### For Google Groups:  
+- Open Google Groups New Topic
+- Start a New Conversation
+- Refresh the page to apply the Scrum Helper settings
+- Use the pre-filled scrum and edit as needed
+
+### For Gmail, Yahoo, and Outlook:
+- Open the Compose window.  
+- Ensure the Scrum Helper settings are applied (follow step 6 above)
+-  The extension will prefill scrum content for you to edit
 
 ## Setting up the code locally
 
