@@ -153,26 +153,28 @@ function allIncluded(outputTarget = 'email') {
 	
 	// fetch github data
 	async function fetchGithubData() {
+		const issueUrl = `https://api.github.com/search/issues?q=author%3A${githubUsername}+org%3Afossasia+created%3A${startingDate}..${endingDate}&per_page=100`;
+		const prUrl = `https://api.github.com/search/issues?q=author%3A${githubUsername}+org%3Afossasia+updated%3A${startingDate}..${endingDate}&per_page=100`;
+		const userUrl = `https://api.github.com/users/${githubUsername}`;
+		
 		try {
-			const issueUrl = `https://api.github.com/search/issues?q=author%3A${githubUsername}+org%3Afossasia+created%3A${startingDate}..${endingDate}&per_page=100`;
-			const prUrl = `https://api.github.com/search/issues?q=author%3A${githubUsername}+org%3Afossasia+updated%3A${startingDate}..${endingDate}&per_page=100`;
-			const userUrl = `https://api.github.com/users/${githubUsername}`;
+			const [issuesRes, prRes, userRes ] = await Promise.all([
+				fetch(issueUrl),
+				fetch(prUrl),
+				fetch(userUrl),
+			]);
 
-			// Fetch issues
-			const issuesRes = await fetch(issueUrl);
-			if (!issuesRes.ok) throw new Error(`Error fetching Github issues: ${issuesRes.status} ${issuesRes.statusText}`);
+			if(!issuesRes.ok) throw new Error(`Error fetching Github issues: ${issuesRes.status} ${issuesRes.statusText}`);
+			if(!prRes.ok) throw new Error(`Error fetching Github PR review data: ${prRes.status} ${prRes.statusText}`);
+			if(!userRes.ok) throw new Error(`Error fetching Github userdata: ${userRes.status} ${userRes.statusText}`);
+
 			githubIssuesData = await issuesRes.json();
-			writeGithubIssuesPrs();
-
-			// Fetch PR reviews
-			const prRes = await fetch(prUrl);
-			if(!prRes.ok) throw new Error(`Error fetching Github PR reviews: ${prRes.status} ${prRes.statusText}`);
 			githubPrsReviewData = await prRes.json();
+			githubUserData = await userRes.json();
+
+			writeGithubIssuesPrs();
 			writeGithubPrsReviews();
 
-			// Fetch github user data
-			const userRes = await fetch(userUrl);
-			if(!userRes.ok) throw new Error(`Error fetching Github user data: ${userRes.status} ${userRes.statusText}`);
 		} catch(err) {
 			console.error(err);
 		}
