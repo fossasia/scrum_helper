@@ -150,71 +150,32 @@ function allIncluded(outputTarget = 'email') {
 		let yesterdayDisplayPadded = ('0000' + yesterdayYear.toString()).slice(-4) + '-' + ('00' + yesterdayMonth.toString()).slice(-2) + '-' + ('00' + yesterdayDay.toString()).slice(-2);
 		return yesterdayDisplayPadded;
 	}
+	
 	// fetch github data
-	function fetchGithubData() {
-		let issueUrl = 'https://api.github.com/search/issues?q=author%3A' +
-			githubUsername +
-			'+org%3Afossasia+created%3A' +
-			startingDate +
-			'..' +
-			endingDate +
-			'&per_page=100';
+	async function fetchGithubData() {
+		try {
+			const issueUrl = `https://api.github.com/search/issues?q=author%3A${githubUsername}+org%3Afossasia+created%3A${startingDate}..${endingDate}&per_page=100`;
+			const prUrl = `https://api.github.com/search/issues?q=author%3A${githubUsername}+org%3Afossasia+updated%3A${startingDate}..${endingDate}&per_page=100`;
+			const userUrl = `https://api.github.com/users/${githubUsername}`;
 
-		$.ajax({
-			dataType: 'json',
-			type: 'GET',
-			url: issueUrl,
-			error: (xhr, textStatus, errorThrown) => {
-				console.error('Error fetching GitHub data:', {
-					status: xhr.status,
-					textStatus: textStatus,
-					error: errorThrown
-				});
-			},
-			success: (data) => {
-				githubIssuesData = data;
-				writeGithubIssuesPrs();
-			},
-		});
+			// Fetch issues
+			const issuesRes = await fetch(issueUrl);
+			if (!issuesRes.ok) throw new Error(`Error fetching Github issues: ${issuesRes.status} ${issuesRes.statusText}`);
+			githubIssuesData = await issuesRes.json();
+			writeGithubIssuesPrs();
 
-		// PR reviews fetch
-		let prUrl = 'https://api.github.com/search/issues?q=commenter%3A' +
-			githubUsername +
-			'+org%3Afossasia+updated%3A' +
-			startingDate +
-			'..' +
-			endingDate +
-			'&per_page=100';
+			// Fetch PR reviews
+			const prRes = await fetch(prUrl);
+			if(!prRes.ok) throw new Error(`Error fetching Github PR reviews: ${prRes.status} ${prRes.statusText}`);
+			githubPrsReviewData = await prRes.json();
+			writeGithubPrsReviews();
 
-		$.ajax({
-			dataType: 'json',
-			type: 'GET',
-			url: prUrl,
-			error: (xhr, textStatus, errorThrown) => {
-				console.error('Error fetching PR reviews:', {
-					status: xhr.status,
-					textStatus: textStatus,
-					error: errorThrown
-				});
-			},
-			success: (data) => {
-				githubPrsReviewData = data;
-				writeGithubPrsReviews();
-			},
-		});
-		// fetch github user data
-		let userUrl = 'https://api.github.com/users/' + githubUsername;
-		$.ajax({
-			dataType: 'json',
-			type: 'GET',
-			url: userUrl,
-			error: (xhr, textStatus, errorThrown) => {
-				// error
-			},
-			success: (data) => {
-				githubUserData = data;
-			},
-		});
+			// Fetch github user data
+			const userRes = await fetch(userUrl);
+			if(!userRes.ok) throw new Error(`Error fetching Github user data: ${userRes.status} ${userRes.statusText}`);
+		} catch(err) {
+			console.error(err);
+		}
 	}
 
 	function formatDate(dateString) {
