@@ -150,21 +150,6 @@ function allIncluded(outputTarget = 'email') {
 		let yesterdayDisplayPadded = ('0000' + yesterdayYear.toString()).slice(-4) + '-' + ('00' + yesterdayMonth.toString()).slice(-2) + '-' + ('00' + yesterdayDay.toString()).slice(-2);
 		return yesterdayDisplayPadded;
 	}
-	
-	async function fetchAllPages(url) {
-		let results = [];
-		let page = 1;
-		while(true) {
-			const pagedUrl = `${url}&page=$page`;
-			const res = await fetch(pagedUrl);
-			if(!res.ok) throw new Error(`Error fetching data: ${res.status} ${res.statusText}`);
-			const data = await res.json();
-			if(!data.items || data.items.length === 0) break;
-			results = results.concat(data.items);
-			page++;
-		}
-		return results;
-	}
 
 	// fetch github data
 	async function fetchGithubData() {
@@ -174,8 +159,8 @@ function allIncluded(outputTarget = 'email') {
 		
 		try {
 			const [issuesRes, prRes, userRes ] = await Promise.all([
-				fetchAllPages(issueUrl),
-				fetchAllPages(prUrl),
+				fetch(issueUrl),
+				fetch(prUrl),
 				fetch(userUrl),
 			]);
 
