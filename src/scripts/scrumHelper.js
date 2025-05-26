@@ -151,6 +151,21 @@ function allIncluded(outputTarget = 'email') {
 		return yesterdayDisplayPadded;
 	}
 	
+	async function fetchAllPages(url) {
+		let results = [];
+		let page = 1;
+		while(true) {
+			const pagedUrl = `${url}&page=$page`;
+			const res = await fetch(pagedUrl);
+			if(!res.ok) throw new Error(`Error fetching data: ${res.status} ${res.statusText}`);
+			const data = await res.json();
+			if(!data.items || data.items.length === 0) break;
+			results = results.concat(data.items);
+			page++;
+		}
+		return results;
+	}
+
 	// fetch github data
 	async function fetchGithubData() {
 		const issueUrl = `https://api.github.com/search/issues?q=author%3A${githubUsername}+org%3Afossasia+created%3A${startingDate}..${endingDate}&per_page=100`;
@@ -159,8 +174,8 @@ function allIncluded(outputTarget = 'email') {
 		
 		try {
 			const [issuesRes, prRes, userRes ] = await Promise.all([
-				fetch(issueUrl),
-				fetch(prUrl),
+				fetchAllPages(issueUrl),
+				fetchAllPages(prUrl),
 				fetch(userUrl),
 			]);
 
