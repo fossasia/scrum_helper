@@ -119,7 +119,6 @@ function getToday() {
 		('00' + weekDay.toString()).slice(-2);
 	return weekDisplayPadded;
 }
-
 function handleGithubUsernameChange() {
 	var value = githubUsernameElement.value;
 	chrome.storage.local.set({ githubUsername: value });
