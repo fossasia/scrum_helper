@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const copyBtn = document.getElementById('copyReport');
 
     generateBtn.addEventListener('click', function() {
-        this.innerHTML = '<i class"fa fa-spinner fa-spi"></i> Generating...';
+        this.innerHTML = '<i class"fa fa-spinner fa-spin"></i> Generating...';
         this.disabled = true;
 
         window.generateScrumReport();
