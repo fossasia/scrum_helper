@@ -707,3 +707,7 @@ $('button>span:contains(New conversation)')
 		allIncluded();
 	});
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 884784e (added caching, unable to see logs in console)
