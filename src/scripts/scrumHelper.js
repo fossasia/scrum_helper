@@ -1,4 +1,4 @@
-var refreshButton_Placed = false;
+//# sourceURL=scrumHelper.jsvar refreshButton_Placed = false;
 var enableToggle = true;
 function allIncluded() {
 	/* global $*/
@@ -130,61 +130,198 @@ function allIncluded() {
 			('00' + WeekDay.toString()).slice(-2);
 		return WeekDisplayPadded;
 	}
-	// fetch github data
-	function fetchGithubData() {
-		var issueUrl =
-			'https://api.github.com/search/issues?q=author%3A' +
-			githubUsername +
-			'+org%3Afossasia+created%3A' +
-			startingDate +
-			'..' +
-			endingDate +
-			'&per_page=100';
-		$.ajax({
-			dataType: 'json',
-			type: 'GET',
-			url: issueUrl,
-			error: (xhr, textStatus, errorThrown) => {
-				// error
-			},
-			success: (data) => {
-				githubIssuesData = data;
-			},
-		});
-		// fetch github prs review data
-		var prUrl =
-			'https://api.github.com/search/issues?q=commenter%3A' +
-			githubUsername +
-			'+org%3Afossasia+updated%3A' +
-			startingDate +
-			'..' +
-			endingDate +
-			'&per_page=100';
 
-		$.ajax({
-			dataType: 'json',
-			type: 'GET',
-			url: prUrl,
-			error: (xhr, textStatus, errorThrown) => {
-				// error
-			},
-			success: (data) => {
-				githubPrsReviewData = data;
-			},
+	const DEBUG = true; 
+	function log( ...args) {
+		if(DEBUG) {
+			console.log(`[SCRUM-HELPER]:`, ...args);
+		}
+	}
+	function logError(...args) {
+		if(DEBUG){
+			console.error('[SCRUM-HELPER]:', ...args);
+		}
+	}
+	// Global cache object
+	let githubCache = {
+		data: null,
+		cacheKey: null,
+		timestamp: 0,
+		ttl: 10*60*1000, // cache valid for 10 mins
+		fetching: false,
+		queue: [],
+		errors: {}, 
+		errorTTL: 60*1000, // 1 min error cache 
+	};
+	const MAX_CACHE_SIZE = 50 * 1024 * 1024; //50mb max cache
+
+	function saveToStorage(data) {
+		log(`Saving data to storage:`, {
+			cacheKey: githubCache.cacheKey,
+			timestamp:githubCache.timestamp,
+			dataSize: new Blob([JSON.stringify(data)]).size,
 		});
-		// fetch github user data
-		var userUrl = 'https://api.github.com/users/' + githubUsername;
-		$.ajax({
-			dataType: 'json',
-			type: 'GET',
-			url: userUrl,
-			error: (xhr, textStatus, errorThrown) => {
-				// error
-			},
-			success: (data) => {
-				githubUserData = data;
-			},
+	}
+
+	chrome.storage.local.set({
+		'github_cache': {
+			data: githubCache.data,
+			cacheKey: githubCache.cacheKey,
+			timestamp: githubCache.timestamp,
+		}
+	}, () => {
+		if(chrome.runtime.lastError) {
+			logError('Storage save failed:', chrome.runtime.lastError);
+		} else {
+			log('Cache saved to storage');
+		}
+	});
+	
+	function loadFromStorage() {
+		log('Loading cache from storage');
+		return new Promise((resolve) => {
+			chrome.storage.local.get('github_cache', (result) => {
+				if(chrome.runtime.lastError) {
+					logError('Storage load failed:', chrome.runtime.lastError); 
+					resolve(false);
+					return;
+				}
+
+				const cache = result.github_cache;
+				if (!cache) {
+					log('No cache found in storage');
+					resolve(false);
+					return;
+				}
+				log('Found cache:', {
+					cacheKey: cache.cacheKey,
+					age: Date.now() - cache.timestamp,
+				});
+
+				githubCache.data = cache.data;
+				githubCache.cacheKey = cache.cacheKey;
+				githubCache.timestamp = cache.timestamp;
+				resolve(true);
+			})
+		})
+	}
+	
+	function updateCache(data) {
+		const cacheSize = new Blob([JSON.stringify(data)]).size;
+		if(cacheSize > MAX_CACHE_SIZE) {
+			console.wanr(`Cache data too large, not caching`);
+			return;
+		}
+		githubCache.data = data;
+		githubCache.timestamp = Date.now();
+	}
+	
+	// fetch github data
+	async function fetchGithubData() {
+		log('Fetching Github data:', {
+			username: githubUsername,
+			startDate: startingDate,
+			endDate: endingDate,
 		});
+
+		const cacheKey = `${githubUsername}-${startingDate}-${endingDate}`
+		// Check if we need to load from storage
+		if (!githubCache.data && !githubCache.fetching) {
+			await loadFromStorage();
+		};
+
+		if(githubCache.cacheKey !== cacheKey){
+			log('Cache key mismatch, invalidating cache');
+			githubCache.data = null;
+			githubCache.cacheKey = cacheKey;
+		}
+	
+		const now = Date.now();
+		// if fetching is in progress, queue the calls and return a promise reolved when done
+		if (githubCache.fetching) {
+			return new Promise((resolve, reject) => {
+				githubCache.queue.push({ resolve, reject });
+			});
+		}
+
+		// use cached data if still fresh
+		if(githubCache.data && (now - githubCache.timestamp < githubCache.ttl)) {
+			log(`Using cached data`);
+			processGithubData(githubCache.data);
+			return Promise.resolve();
+		}
+
+		githubCache.fetching = true;
+
+		const issueUrl = `https://api.github.com/search/issues?q=author%3A${githubUsername}+org%3Afossasia+created%3A${startingDate}..${endingDate}&per_page=100`;
+		const prUrl = `https://api.github.com/search/issues?q=author%3A${githubUsername}+org%3Afossasia+updated%3A${startingDate}..${endingDate}&per_page=100`;
+		const userUrl = `https://api.github.com/users/${githubUsername}`;
+		
+		try {
+			// throttling 500ms to avoid burst
+			await new Promise(res => setTimeout(res, 500));
+
+			const [issuesRes, prRes, userRes ] = await Promise.all([
+				fetch(issueUrl),
+				fetch(prUrl),
+				fetch(userUrl),
+			]);
+
+			if(!issuesRes.ok) throw new Error(`Error fetching Github issues: ${issuesRes.status} ${issuesRes.statusText}`);
+			if(!prRes.ok) throw new Error(`Error fetching Github PR review data: ${prRes.status} ${prRes.statusText}`);
+			if(!userRes.ok) throw new Error(`Error fetching Github userdata: ${userRes.status} ${userRes.statusText}`);
+
+			githubIssuesData = await issuesRes.json();
+			githubPrsReviewData = await prRes.json();
+			githubUserData = await userRes.json();
+
+			// Cache the data
+			githubCache.data = { githubIssuesData, githubPrsReviewData, githubUserData };
+			githubCache.timestamp = Date.now();
+			
+			updateCache({ githubIssuesData, githubPrsReviewData, githubUserData });
+			await saveToStorage(githubCache.data); // Save to storage
+			processGithubData(githubCache.data);
+
+			// Resolve queued calls
+			githubCache.queue.forEach(({ resolve }) => resolve());
+			githubCache.queue = [];
+			githubCache.fetching = false;
+		} catch(err) {
+			logError('Fetch Failed:', err);
+			// Reject queued calls on error
+			githubCache.queue.forEach(({ reject }) => reject(err));
+			githubCache.queue = [];
+			githubCache.fetching = false;
+			throw err;
+		}
+	}
+
+	async function verifyCacheStatus() {
+		log('Cache Status: ', {
+			hasCachedData: !!githubCache.data,
+			cacheAge: githubCache.timestamp ? `${((Date.now() - githubCache.timestamp) / 1000 / 60).toFixed(1)} minutes` : `no cahce`,
+			cacheKey: githubCache.cacheKey,
+			isFetching: githubCache.fetching,
+			queueLength: githubCache.queue.length
+		});
+		const storageData = await new Promise(resolve => {
+			chrome.locall.storage.get('github_cache', resolve);
+		});
+		log('Storage Status:', {
+			hasStoredData: !!storageData.github_cache,
+			storedCacheKey: storageData.github_cache?.cacheKey,
+			storageAge: storageData.github_cache?.timestamp ? 
+				`${((Date.now() - storageData.github_cache.timestamp) / 1000 / 60).toFixed(1)} minutes` : 
+				'no data'
+		});
+	}
+	verifyCacheStatus();
+	function processGithubData({ githubIssuesData, githubPrsReviewData, githubUserData }) {
+		log('Processing Github data');
+		writeGithubIssuesPrs();
+		writeGithubPrsReviews();
+		githubUserData = githubUserData;
 	}
 
 	function formatDate(dateString) {
@@ -557,3 +694,5 @@ $('button>span:contains(New conversation)')
 	.click(() => {
 		allIncluded();
 	});
+
+
