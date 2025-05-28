@@ -2,6 +2,7 @@
 var enableToggle = true;
 function allIncluded() {
 	/* global $*/
+	let refreshButton_Placed = false;
 	var scrumBody = null;
 	var scrumSubject = null;
 	var startingDate = '';
@@ -155,27 +156,38 @@ function allIncluded() {
 	};
 	const MAX_CACHE_SIZE = 50 * 1024 * 1024; //50mb max cache
 
+	async function initializeCache() {
+		log('Initializing cache');
+		const loaded = await loadFromStorage();
+		if(!loaded) {
+			githubCache.data = null;
+			githubCache.cacheKey = null;
+			githubCache.timestamp = 0;
+			log('Cache initialized with empty state');
+		}
+		await verifyCacheStatus();
+	}
+	initializeCache();
+
 	function saveToStorage(data) {
 		log(`Saving data to storage:`, {
 			cacheKey: githubCache.cacheKey,
 			timestamp:githubCache.timestamp,
 			dataSize: new Blob([JSON.stringify(data)]).size,
 		});
-	}
-
-	chrome.storage.local.set({
-		'github_cache': {
-			data: githubCache.data,
-			cacheKey: githubCache.cacheKey,
-			timestamp: githubCache.timestamp,
-		}
-	}, () => {
-		if(chrome.runtime.lastError) {
-			logError('Storage save failed:', chrome.runtime.lastError);
-		} else {
-			log('Cache saved to storage');
-		}
-	});
+		
+		return new Promise((resolve) => {
+			chrome.storage.local.setAttribute({ 'github_cache': cacheData }, () => {
+				if(chrome.runtime.lastError) {
+					logError('Storage save failed: ', chrome.runtime.lastError);
+					resolve(false);
+				} else {
+					log('Cache saved successfuly');
+					resolve(true);
+				}
+			});
+		});
+	}	
 	
 	function loadFromStorage() {
 		log('Loading cache from storage');
@@ -218,13 +230,15 @@ function allIncluded() {
 	
 	// fetch github data
 	async function fetchGithubData() {
+		const cacheKey = `${githubUsername}-${startingDate}-${endingDate}`;
+    	githubCache.cacheKey = cacheKey; 
+		
 		log('Fetching Github data:', {
 			username: githubUsername,
 			startDate: startingDate,
 			endDate: endingDate,
 		});
 
-		const cacheKey = `${githubUsername}-${startingDate}-${endingDate}`
 		// Check if we need to load from storage
 		if (!githubCache.data && !githubCache.fetching) {
 			await loadFromStorage();
@@ -300,13 +314,13 @@ function allIncluded() {
 	async function verifyCacheStatus() {
 		log('Cache Status: ', {
 			hasCachedData: !!githubCache.data,
-			cacheAge: githubCache.timestamp ? `${((Date.now() - githubCache.timestamp) / 1000 / 60).toFixed(1)} minutes` : `no cahce`,
+			cacheAge: githubCache.timestamp ? `${((Date.now() - githubCache.timestamp) / 1000 / 60).toFixed(1)} minutes` : `no cache`,
 			cacheKey: githubCache.cacheKey,
 			isFetching: githubCache.fetching,
 			queueLength: githubCache.queue.length
 		});
 		const storageData = await new Promise(resolve => {
-			chrome.locall.storage.get('github_cache', resolve);
+			chrome.storage.local.get('github_cache', resolve);
 		});
 		log('Storage Status:', {
 			hasStoredData: !!storageData.github_cache,
@@ -317,6 +331,7 @@ function allIncluded() {
 		});
 	}
 	verifyCacheStatus();
+
 	function processGithubData({ githubIssuesData, githubPrsReviewData, githubUserData }) {
 		log('Processing Github data');
 		writeGithubIssuesPrs();
@@ -596,21 +611,7 @@ function allIncluded() {
 		}
 		writeScrumBody();
 	}
-	//check for scrum body loaded
-	// var intervalBody = setInterval(function(){
-	// 	var bodies = [
-	// 		document.getElementById("p-b-0"),
-	// 		document.getElementById("p-b-1"),
-	// 		document.getElementById("p-b-2"),
-	// 		document.querySelector("c-wiz [aria-label='Compose a message'][role=textbox]")];
-	// 	for (var body of bodies) {
-	// 		if (!body)
-	// 			continue;
-	// 		clearInterval(intervalBody);
-	// 		scrumBody=body;
-	// 		writeScrumBody();
-	// 	}
-	// },500);
+
 	var intervalBody = setInterval(() => {
 		if (!window.emailClientAdapter) return;
 
@@ -622,23 +623,6 @@ function allIncluded() {
 		writeScrumBody();
 	}, 500);
 
-	//check for subject loaded
-	// var intervalSubject = setInterval(function(){
-	// 	if (!githubUserData)
-	// 		return;
-	// 	var subjects = [
-	// 		document.getElementById("p-s-0"),
-	// 		document.getElementById("p-s-1"),
-	// 		document.getElementById("p-s-2"),
-	// 		document.querySelector("c-wiz input[aria-label=Subject]")];
-	// 	for (var subject of subjects) {
-	// 		if (!subject)
-	// 			continue;
-	// 		clearInterval(intervalSubject);
-	// 		scrumSubject=subject;
-	// 		scrumSubjectLoaded();
-	// 	}
-	// },500);
 	var intervalSubject = setInterval(() => {
 		if (!githubUserData || !window.emailClientAdapter) return;
 
@@ -694,5 +678,4 @@ $('button>span:contains(New conversation)')
 	.click(() => {
 		allIncluded();
 	});
-
 
