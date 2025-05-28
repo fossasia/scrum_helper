@@ -1,3 +1,5 @@
+const { cache } = require("react");
+
 //# sourceURL=scrumHelper.jsvar refreshButton_Placed = false;
 var enableToggle = true;
 function allIncluded() {
@@ -46,6 +48,7 @@ function allIncluded() {
 				'lastWeekContribution',
 				'userReason',
 				'gsoc',
+				'github_cache',
 			],
 			(items) => {
 				if (items.gsoc) {
@@ -92,6 +95,12 @@ function allIncluded() {
 				}
 				if (!items.userReason) {
 					userReason = 'No Blocker at the moment';
+				}
+				if (items.github_cache) {
+					githubCache.data = items.github_cache.data;
+					githubCache.cacheKey = items.github_cache.cacheKey;
+					githubCache.timestamp = items.github_cache.timestamp;
+					log('Restored cache from storage');
 				}
 			},
 		);
@@ -170,6 +179,11 @@ function allIncluded() {
 	initializeCache();
 
 	function saveToStorage(data) {
+		const cacheData = {
+			data: data,
+			cacheKey: githubCache.cacheKey,
+			timestamp: githubCache.timestamp,
+		}
 		log(`Saving data to storage:`, {
 			cacheKey: githubCache.cacheKey,
 			timestamp:githubCache.timestamp,
@@ -239,16 +253,23 @@ function allIncluded() {
 			endDate: endingDate,
 		});
 
-		// Check if we need to load from storage
-		if (!githubCache.data && !githubCache.fetching) {
-			await loadFromStorage();
-		};
+		log('Fetch request:', {
+			cacheKey,
+			existingKey: githubCache.cacheKey,
+			hasCachedData: !!githubCache.data
+    	});
 
+		// If cache exists but key differs, invalidate
 		if(githubCache.cacheKey !== cacheKey){
 			log('Cache key mismatch, invalidating cache');
 			githubCache.data = null;
 			githubCache.cacheKey = cacheKey;
 		}
+
+		// Check if we need to load from storage
+		if (!githubCache.data && !githubCache.fetching) {
+			await loadFromStorage();
+		};	
 	
 		const now = Date.now();
 		// if fetching is in progress, queue the calls and return a promise reolved when done
