@@ -1,10 +1,11 @@
 // const { cache } = require("react");
+console.log("Script loaded", new Date().toISOString());
 
-//# sourceURL=scrumHelper.jslet refreshButton_Placed = false;
+let refreshButton_Placed = false;
+//# sourceURL=scrumHelper.js
 let enableToggle = true;
 function allIncluded() {
 	/* global $*/
-	let refreshButton_Placed = false;
 	let scrumBody = null;
 	let scrumSubject = null;
 	let startingDate = '';
@@ -165,19 +166,6 @@ function allIncluded() {
 	};
 	const MAX_CACHE_SIZE = 50 * 1024 * 1024; //50mb max cache
 
-	async function initializeCache() {
-		log('Initializing cache');
-		const loaded = await loadFromStorage();
-		if(!loaded) {
-			githubCache.data = null;
-			githubCache.cacheKey = null;
-			githubCache.timestamp = 0;
-			log('Cache initialized with empty state');
-		}
-		await verifyCacheStatus();
-	}
-	initializeCache();
-
 	function saveToStorage(data) {
 		const cacheData = {
 			data: data,
@@ -191,7 +179,8 @@ function allIncluded() {
 		});
 		
 		return new Promise((resolve) => {
-			chrome.storage.local.setAttribute({ 'github_cache': cacheData }, () => {
+			debugger;
+			chrome.storage.local.set({ githubCache: cacheData }, () => {
 				if(chrome.runtime.lastError) {
 					logError('Storage save failed: ', chrome.runtime.lastError);
 					resolve(false);
@@ -206,7 +195,7 @@ function allIncluded() {
 	function loadFromStorage() {
 		log('Loading cache from storage');
 		return new Promise((resolve) => {
-			chrome.storage.local.get('github_cache', (result) => {
+			chrome.storage.local.get('githubCache', (result) => {
 				if(chrome.runtime.lastError) {
 					logError('Storage load failed:', chrome.runtime.lastError); 
 					resolve(false);
@@ -245,27 +234,36 @@ function allIncluded() {
 	// fetch github data
 	async function fetchGithubData() {
 		const cacheKey = `${githubUsername}-${startingDate}-${endingDate}`;
-    	githubCache.cacheKey = cacheKey; 
+		
+		if (githubCache.fetching || (githubCache.cacheKey === cacheKey && githubCache.data)) {
+			log('Fetch already in progress or data already fetched. Skipping fetch.');
+			return;
+    	}
 		
 		log('Fetching Github data:', {
 			username: githubUsername,
 			startDate: startingDate,
 			endDate: endingDate,
 		});
-
+		
 		log('Fetch request:', {
 			cacheKey,
 			existingKey: githubCache.cacheKey,
 			hasCachedData: !!githubCache.data
     	});
 
+		log('CacheKey in cache:', githubCache.cacheKey);
+		log('Incoming cacheKey:', cacheKey);
+		log('Has data:', !!githubCache.data);
+		
 		// If cache exists but key differs, invalidate
 		if(githubCache.cacheKey !== cacheKey){
 			log('Cache key mismatch, invalidating cache');
 			githubCache.data = null;
 			githubCache.cacheKey = cacheKey;
 		}
-
+		githubCache.cacheKey = cacheKey; 
+		
 		// Check if we need to load from storage
 		if (!githubCache.data && !githubCache.fetching) {
 			await loadFromStorage();
@@ -357,7 +355,7 @@ function allIncluded() {
 		log('Processing Github data');
 		writeGithubIssuesPrs();
 		writeGithubPrsReviews();
-		githubUserData = githubUserData;
+		// githubUserData = githubUserData;
 	}
 
 	function formatDate(dateString) {
