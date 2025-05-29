@@ -49,7 +49,7 @@ function allIncluded() {
 				'lastWeekContribution',
 				'userReason',
 				'gsoc',
-				'github_cache',
+				'githubCache',
 			],
 			(items) => {
 				if (items.gsoc) {
@@ -97,10 +97,10 @@ function allIncluded() {
 				if (!items.userReason) {
 					userReason = 'No Blocker at the moment';
 				}
-				if (items.github_cache) {
-					githubCache.data = items.github_cache.data;
-					githubCache.cacheKey = items.github_cache.cacheKey;
-					githubCache.timestamp = items.github_cache.timestamp;
+				if (items.githubCache) {
+					githubCache.data = items.githubCache.data;
+					githubCache.cacheKey = items.githubCache.cacheKey;
+					githubCache.timestamp = items.githubCache.timestamp;
 					log('Restored cache from storage');
 				}
 			},
@@ -172,14 +172,13 @@ function allIncluded() {
 			cacheKey: githubCache.cacheKey,
 			timestamp: githubCache.timestamp,
 		}
-		log(`Saving data to storage:`, {
-			cacheKey: githubCache.cacheKey,
-			timestamp:githubCache.timestamp,
-			dataSize: new Blob([JSON.stringify(data)]).size,
-		});
+		// log(`Saving data to storage:`, {
+		// 	cacheKey: githubCache.cacheKey,
+		// 	timestamp:githubCache.timestamp,
+		// 	dataSize: new Blob([JSON.stringify(data)]).size,
+		// });
 		
 		return new Promise((resolve) => {
-			debugger;
 			chrome.storage.local.set({ githubCache: cacheData }, () => {
 				if(chrome.runtime.lastError) {
 					logError('Storage save failed: ', chrome.runtime.lastError);
@@ -202,7 +201,7 @@ function allIncluded() {
 					return;
 				}
 
-				const cache = result.github_cache;
+				const cache = result.githubCache;
 				if (!cache) {
 					log('No cache found in storage');
 					resolve(false);
@@ -210,7 +209,7 @@ function allIncluded() {
 				}
 				log('Found cache:', {
 					cacheKey: cache.cacheKey,
-					age: Date.now() - cache.timestamp,
+					age: `${((Date.now() - cache.timestamp) / 1000 / 60).toFixed(1)} minutes` ,
 				});
 
 				githubCache.data = cache.data;
@@ -251,7 +250,7 @@ function allIncluded() {
 		log('Has data:', !!githubCache.data);
 		
 		// If cache exists but key differs, invalidate
-		if(githubCache.cacheKey !== cacheKey){
+		if(githubCache.cacheKey !== cacheKey && cacheKey !== null){ // add the condition of cacheKey not being null here
 			log('Cache key mismatch, invalidating cache');
 			githubCache.data = null;
 			githubCache.cacheKey = cacheKey;
@@ -334,20 +333,29 @@ function allIncluded() {
 			queueLength: githubCache.queue.length
 		});
 		const storageData = await new Promise(resolve => {
-			chrome.storage.local.get('github_cache', resolve);
+			chrome.storage.local.get('githubCache', resolve);
 		});
 		log('Storage Status:', {
-			hasStoredData: !!storageData.github_cache,
-			storedCacheKey: storageData.github_cache?.cacheKey,
-			storageAge: storageData.github_cache?.timestamp ? 
-				`${((Date.now() - storageData.github_cache.timestamp) / 1000 / 60).toFixed(1)} minutes` : 
+			hasStoredData: !!storageData.githubCache,
+			storedCacheKey: storageData.githubCache?.cacheKey,
+			storageAge: storageData.githubCache?.timestamp ? 
+				`${((Date.now() - storageData.githubCache.timestamp) / 1000 / 60).toFixed(1)} minutes` : 
 				'no data'
 		});
 	}
 	verifyCacheStatus();
 
-	function processGithubData({ githubIssuesData, githubPrsReviewData, githubUserData }) {
+	function processGithubData(data) {
 		log('Processing Github data');
+		githubIssuesData = data.githubIssuesData;
+		githubPrsReviewData = data.githubPrsReviewData;
+		githubUserData = data.githubUserData;
+
+		lastWeekArray = [];
+		nextWeekArray = [];
+		reviewedPrsArray = [];
+		githubPrsReviewDataProccessed = [];
+
 		// writeGithubIssuesPrs();  //These functions are making duplicate calls, lets rewrite these source functions to fetch the data from cache instead of Review and PR data as cache stores these data. 
 		// writeGithubPrsReviews();
 		// githubUserData = githubUserData;
@@ -439,7 +447,11 @@ function allIncluded() {
 
 	// write PRs Reviewed
 	function writeGithubPrsReviews() {
-		let items = githubPrsReviewData.items;
+		items = githubPrsReviewData.items;
+		if (!items) {
+			logError('No Github PR review data available');
+			return;
+		}
 		let i;
 		for (i = 0; i < items.length; i++) {
 			let item = items[i];
@@ -509,8 +521,10 @@ function allIncluded() {
 	}
 	//write issues and Prs from github
 	function writeGithubIssuesPrs() {
-		let data = githubIssuesData;
-		let items = data.items;
+		let items = githubIssuesData.items;
+		if(!items){
+			logError('No Github issues data available');
+		}
 		for (let i = 0; i < items.length; i++) {
 			let item = items[i];
 			let html_url = item.html_url;
