@@ -91,13 +91,7 @@ function handleEndingDateChange() {
 	chrome.storage.local.set({ endingDate: value });
 }
 function handleLastWeekContributionChange() {
-<<<<<<< HEAD
-	var value = lastWeekContributionElement.checked;
-	var labelElement = document.querySelector("label[for='lastWeekContribution']");
-
-=======
 	let value = lastWeekContributionElement.checked;
->>>>>>> 6957a33 (replaced var with let for better scope indexing)
 	if (value) {
 			startingDateElement.disabled = true;
 			endingDateElement.disabled = true;
@@ -156,9 +150,8 @@ function handleProjectNameChange() {
 	chrome.storage.local.set({ projectName: value });
 }
 function handleOpenLabelChange() {
-<<<<<<< HEAD
-	var value = showOpenLabelElement.checked;
-	var labelElement = document.querySelector("label[for='showOpenLabel']");
+	let value = showOpenLabelElement.checked;
+	let labelElement = document.querySelector("label[for='showOpenLabel']");
 
 	if (value) {
 			labelElement.classList.add("selectedLabel");
@@ -168,9 +161,6 @@ function handleOpenLabelChange() {
 			labelElement.classList.remove("selectedLabel");
 	}
 
-=======
-	let value = showOpenLabelElement.checked;
->>>>>>> 6957a33 (replaced var with let for better scope indexing)
 	chrome.storage.local.set({ showOpenLabel: value });
 }
 
