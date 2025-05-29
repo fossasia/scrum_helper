@@ -249,35 +249,38 @@ function allIncluded() {
 		log('Incoming cacheKey:', cacheKey);
 		log('Has data:', !!githubCache.data);
 		
-		// If cache exists but key differs, invalidate
-		if(githubCache.cacheKey !== cacheKey && cacheKey !== null){ // add the condition of cacheKey not being null here
-			log('Cache key mismatch, invalidating cache');
-			githubCache.data = null;
-			githubCache.cacheKey = cacheKey;
-		}
-		githubCache.cacheKey = cacheKey; 
-		
 		// Check if we need to load from storage
 		if (!githubCache.data && !githubCache.fetching) {
 			await loadFromStorage();
 		};	
 	
 		const now = Date.now();
+		const isCacheFresh = (now - githubCache.timestamp) < githubCache.ttl;
+		const isCacheKeyMatch = githubCache.cacheKey === cacheKey;
+
+		if(githubCache.data && isCacheFresh & isCacheKeyMatch) {
+			log('Using cached data - cache is fresh and key matches');
+			processGithubData(githubCache.data);
+			return Promise.resolve();
+		}
+		// if cache key does not match our cache is stale, fetch new data
+		if(!isCacheKeyMatch) {
+			log('Cache key mismatch - fetching new Data');
+			githubCache.data = null;
+		} else if(!isCacheFresh) {
+			log('Cache is stale - fetching new data');
+		}
+
 		// if fetching is in progress, queue the calls and return a promise resolved when done
 		if (githubCache.fetching) {
+			log('Fetch in progress, queuing requests');
 			return new Promise((resolve, reject) => {
 				githubCache.queue.push({ resolve, reject });
 			});
 		}
 
-		// use cached data if still fresh
-		if(githubCache.data && (now - githubCache.timestamp < githubCache.ttl)) {
-			log(`Using cached data`);
-			processGithubData(githubCache.data);
-			return Promise.resolve();
-		}
-
 		githubCache.fetching = true;
+		githubCache.cacheKey = cacheKey;
 
 		const issueUrl = `https://api.github.com/search/issues?q=author%3A${githubUsername}+org%3Afossasia+created%3A${startingDate}..${endingDate}&per_page=100`;
 		const prUrl = `https://api.github.com/search/issues?q=author%3A${githubUsername}+org%3Afossasia+updated%3A${startingDate}..${endingDate}&per_page=100`;
@@ -304,7 +307,6 @@ function allIncluded() {
 			// Cache the data
 			githubCache.data = { githubIssuesData, githubPrsReviewData, githubUserData };
 			githubCache.timestamp = Date.now();
-			githubCache.cacheKey = cacheKey;
 			
 			// updateCache({ githubIssuesData, githubPrsReviewData, githubUserData });
 			await saveToStorage(githubCache.data); // Save to storage
@@ -313,7 +315,6 @@ function allIncluded() {
 			// Resolve queued calls
 			githubCache.queue.forEach(({ resolve }) => resolve());
 			githubCache.queue = [];
-			githubCache.fetching = false;
 		} catch(err) {
 			logError('Fetch Failed:', err);
 			// Reject queued calls on error
@@ -321,6 +322,8 @@ function allIncluded() {
 			githubCache.queue = [];
 			githubCache.fetching = false;
 			throw err;
+		} finally {
+			githubCache.fetching = false;
 		}
 	}
 
@@ -415,16 +418,18 @@ function allIncluded() {
 		});
 	}
 
-	function getProject() {
-		if (projectName != '') return projectName;
+	// depriciate this
+	// function getProject() {
+	// 	if (projectName != '') return projectName;
 
-		let project = '<project name>';
-		let url = window.location.href;
-		let projectUrl = url.substr(url.lastIndexOf('/') + 1);
-		if (projectUrl === 'susiai') project = 'SUSI.AI';
-		else if (projectUrl === 'open-event') project = 'Open Event';
-		return project;
-	}
+	// 	let project = '<project name>';
+	// 	let url = window.location.href;
+	// 	let projectUrl = url.substr(url.lastIndexOf('/') + 1);
+	// 	if (projectUrl === 'susiai') project = 'SUSI.AI';
+	// 	else if (projectUrl === 'open-event') project = 'Open Event';
+	// 	return project;
+	// }
+
 	//load initial scrum subject
 	function scrumSubjectLoaded() {
 		if (!enableToggle) return;
