@@ -246,12 +246,6 @@ function allIncluded() {
 			endDate: endingDate,
 		});
 		
-		log('Fetch request:', {
-			cacheKey,
-			existingKey: githubCache.cacheKey,
-			hasCachedData: !!githubCache.data
-    	});
-
 		log('CacheKey in cache:', githubCache.cacheKey);
 		log('Incoming cacheKey:', cacheKey);
 		log('Has data:', !!githubCache.data);
@@ -270,7 +264,7 @@ function allIncluded() {
 		};	
 	
 		const now = Date.now();
-		// if fetching is in progress, queue the calls and return a promise reolved when done
+		// if fetching is in progress, queue the calls and return a promise resolved when done
 		if (githubCache.fetching) {
 			return new Promise((resolve, reject) => {
 				githubCache.queue.push({ resolve, reject });
@@ -311,8 +305,9 @@ function allIncluded() {
 			// Cache the data
 			githubCache.data = { githubIssuesData, githubPrsReviewData, githubUserData };
 			githubCache.timestamp = Date.now();
+			githubCache.cacheKey = cacheKey;
 			
-			updateCache({ githubIssuesData, githubPrsReviewData, githubUserData });
+			// updateCache({ githubIssuesData, githubPrsReviewData, githubUserData });
 			await saveToStorage(githubCache.data); // Save to storage
 			processGithubData(githubCache.data);
 
@@ -353,8 +348,8 @@ function allIncluded() {
 
 	function processGithubData({ githubIssuesData, githubPrsReviewData, githubUserData }) {
 		log('Processing Github data');
-		writeGithubIssuesPrs();
-		writeGithubPrsReviews();
+		// writeGithubIssuesPrs();  //These functions are making duplicate calls, lets rewrite these source functions to fetch the data from cache instead of Review and PR data as cache stores these data. 
+		// writeGithubPrsReviews();
 		// githubUserData = githubUserData;
 	}
 
