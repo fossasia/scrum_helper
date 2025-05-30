@@ -163,20 +163,22 @@ function allIncluded() {
 		queue: [],
 		errors: {}, 
 		errorTTL: 60*1000, // 1 min error cache 
+		subject: null,
 	};
 	const MAX_CACHE_SIZE = 50 * 1024 * 1024; //50mb max cache
 
-	function saveToStorage(data) {
+	function saveToStorage(data, subject = null) {
 		const cacheData = {
 			data: data,
 			cacheKey: githubCache.cacheKey,
 			timestamp: githubCache.timestamp,
+			subject: subject,
 		}
-		// log(`Saving data to storage:`, {
-		// 	cacheKey: githubCache.cacheKey,
-		// 	timestamp:githubCache.timestamp,
-		// 	dataSize: new Blob([JSON.stringify(data)]).size,
-		// });
+		log(`Saving data to storage:`, {
+			cacheKey: githubCache.cacheKey,
+			timestamp:githubCache.timestamp,
+			hasSubject: !!subject,
+		});
 		
 		return new Promise((resolve) => {
 			chrome.storage.local.set({ githubCache: cacheData }, () => {
@@ -215,6 +217,14 @@ function allIncluded() {
 				githubCache.data = cache.data;
 				githubCache.cacheKey = cache.cacheKey;
 				githubCache.timestamp = cache.timestamp;
+				githubCache.subject = cache.subject;
+
+				// use cached subject element
+				if(cache.subject && scrumSubject) {
+					scrumSubject.value = cache.subject;
+					scrumSubject.dispatchEvent(new Event('input', { bubbles: true }));
+				}
+
 				resolve(true);
 			})
 		})
@@ -357,11 +367,12 @@ function allIncluded() {
 		lastWeekArray = [];
 		nextWeekArray = [];
 		reviewedPrsArray = [];
-		githubPrsReviewDataProccessed = [];
+		githubPrsReviewDataProccessed = {};
 
-		// writeGithubIssuesPrs();  //These functions are making duplicate calls, lets rewrite these source functions to fetch the data from cache instead of Review and PR data as cache stores these data. 
-		// writeGithubPrsReviews();
-		// githubUserData = githubUserData;
+		// Update subject
+		if(!scrumSubject?.value) {
+			scrumSubjectLoaded();
+		}
 	}
 
 	function formatDate(dateString) {
@@ -434,9 +445,9 @@ function allIncluded() {
 	function scrumSubjectLoaded() {
 		if (!enableToggle) return;
 		setTimeout(() => {
-			//to apply this after google has autofilled
 			let name = githubUserData.name || githubUsername;
-			let project = getProject();
+			// let project = getProject();
+			let project = projectName || '<project name>';
 			let curDate = new Date();
 			let year = curDate.getFullYear().toString();
 			let date = curDate.getDate();
@@ -445,8 +456,17 @@ function allIncluded() {
 			if (month < 10) month = '0' + month;
 			if (date < 10) date = '0' + date;
 			let dateCode = year.toString() + month.toString() + date.toString();
-			scrumSubject.value = '[Scrum] ' + name + ' - ' + project + ' - ' + dateCode + ' - False';
-			scrumSubject.dispatchEvent(new Event('input', { bubbles: true }));
+
+			const subject = `[Scrum] ${name} - ${project} - ${dateCode} - False`;
+        	log('Generated subject:', subject);
+			// Save subject to cache
+			githubCache.subject = subject;
+			saveToStorage(githubCache.data, subject);
+
+			if(scrumSubject) {
+				scrumSubject.value = subject;
+				scrumSubject.dispatchEvent(new Event('input', { bubbles: true }));
+			}
 		});
 	}
 
