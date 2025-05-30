@@ -4,6 +4,7 @@ console.log("Script loaded", new Date().toISOString());
 let refreshButton_Placed = false;
 //# sourceURL=scrumHelper.js
 let enableToggle = true;
+let hasInjectedContent = false;
 function allIncluded() {
 	/* global $*/
 	let scrumBody = null;
@@ -142,7 +143,7 @@ function allIncluded() {
 		return WeekDisplayPadded;
 	}
 
-	const DEBUG = false; 
+	const DEBUG = true; 
 	function log( ...args) {
 		if(DEBUG) {
 			console.log(`[SCRUM-HELPER]:`, ...args);
@@ -347,6 +348,7 @@ function allIncluded() {
 
 	async function forceGithubDataRefresh() {
 		log('Force refreshing GitHub data');
+		hasInjectedContent = false; // Reset injection flag
 		// clear cache
 		githubCache = {
 			data: null,
@@ -402,7 +404,7 @@ function allIncluded() {
 
 	//load initial text in scrum body
 	function writeScrumBody() {
-		if (!enableToggle) return;
+		if (!enableToggle || hasInjectedContent) return;
 
 		setTimeout(() => {
 			// Generate content first
@@ -445,12 +447,13 @@ function allIncluded() {
 			}
 
 			window.emailClientAdapter.injectContent(elements.body, content, elements.eventTypes.contentChange);
+			hasInjectedContent = true; // Mark as injected
 		});
 	}
 
 	//load initial scrum subject
 	function scrumSubjectLoaded() {
-		if (!enableToggle) return;
+		if (!enableToggle || hasInjectedContent) return;
 		setTimeout(() => {
 			let name = githubUserData.name || githubUsername;
 			let project = projectName || '<project name>';
@@ -696,15 +699,9 @@ function allIncluded() {
 
 	//check for github safe writing
 	let intervalWriteGithub = setInterval(() => {
-		if (scrumBody && githubUsername && githubIssuesData) {
+		if (scrumBody && githubUsername && githubIssuesData && githubPrsReviewData ) {
 			clearInterval(intervalWriteGithub);
 			writeGithubIssuesPrs();
-		}
-	}, 500);
-	//check for github prs reviews safe writing
-	let intervalWriteGithubReviews = setInterval(() => {
-		if (scrumBody && githubUsername && githubPrsReviewData) {
-			clearInterval(intervalWriteGithubReviews);
 			writeGithubPrsReviews();
 		}
 	}, 500);
@@ -728,6 +725,7 @@ function allIncluded() {
 		}, 1000);
 	}
 	function handleRefresh() {
+		hasInjectedContent = false; // Reset the flag before refresh
 		allIncluded();
 	}
 }
