@@ -101,35 +101,34 @@ function allIncluded() {
 		endingDate = getToday();
 		startingDate = getLastWeek();
 	}
+
 	function getLastWeek() {
 		var today = new Date();
 		var noDays_to_goback = gsoc == 0 ? 7 : 1;
+
+		// Get user's timezone offset in mins
+		const tzOffset = today.getTimezoneOffset();
+
+		// date for start of day in user's timezone
 		var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - noDays_to_goback);
-		var lastWeekMonth = lastWeek.getMonth() + 1;
-		var lastWeekDay = lastWeek.getDate();
-		var lastWeekYear = lastWeek.getFullYear();
-		var lastWeekDisplayPadded =
-			('0000' + lastWeekYear.toString()).slice(-4) +
-			'-' +
-			('00' + lastWeekMonth.toString()).slice(-2) +
-			'-' +
-			('00' + lastWeekDay.toString()).slice(-2);
-		return lastWeekDisplayPadded;
+		lastWeek.setHours(0, 0, 0, 0);
+
+		// Adjust timezone to make sure no activity is missed
+		const utc = new Date(lastWeek.getTime() + (tzOffset * 60 * 1000));
+
+		return utc.toISOString().slice(0,19) + "Z";
 	}
 	function getToday() {
 		var today = new Date();
-		var Week = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-		var WeekMonth = Week.getMonth() + 1;
-		var WeekDay = Week.getDate();
-		var WeekYear = Week.getFullYear();
-		var WeekDisplayPadded =
-			('0000' + WeekYear.toString()).slice(-4) +
-			'-' +
-			('00' + WeekMonth.toString()).slice(-2) +
-			'-' +
-			('00' + WeekDay.toString()).slice(-2);
-		return WeekDisplayPadded;
-	}
+		today.setHours(23, 59, 59, 999);
+
+		// get timezone offset
+		const tzOffset = today.getTimezoneOffset();
+		const utc = new Date(today.getTime() + (tzOffset * 60 * 1000));
+		
+		return utc.toISOString().slice(0, 19) + "Z";
+	}	
+
 	// fetch github data
 	function fetchGithubData() {
 		var issueUrl =
@@ -185,6 +184,30 @@ function allIncluded() {
 				githubUserData = data;
 			},
 		});
+		filterAndStoreData();
+	}
+
+	function filterDataByDate(data, startingDate, endingDate){
+
+		const localStart = new Date(startingDate + 'T00:00:00Z');
+		const localEnd = new Date(endingDate + 'T23:59:59Z');
+
+		return data.items.filter(item => {
+			const updatedAt = new Date(item.updated_at);
+			return updatedAt >= localStart && updatedAt <= localEnd;
+		})
+	}
+
+	function filterAndStoreData() {
+		if(githubIssuesData) {
+			githubIssuesData.items = filterDataByDate(githubIssuesData, startingDate, endingDate);
+		}
+		if(githubPrsReviewData) {
+			githubPrsReviewData.items = filterDataByDate(githubPrsReviewData, startingDate, endingDate);
+		}		
+		if(githubUserData) {
+			githubUserData.items = filterDataByDate(githubUserData, startingDate, endingDate);
+		}
 	}
 
 	function formatDate(dateString) {
