@@ -23,8 +23,11 @@ class EmailClientAdapter {
 			},
 			outlook: {
 				selectors: {
-					body: 'div[role="textbox"][contenteditable="true"][aria-multiline="true"][aria-label="Message body, press Alt+F10 to exit"]',
-					subject: 'input[aria-label="Subject"][type="text"][maxlength="255"][placeholder="Add a subject"]',
+					body: 'div[role="textbox"][contenteditable="true"][aria-multiline="true"]',
+					subject: [
+						'input[aria-label="Subject"][type="text"]',
+						'input[aria-label="Add a subject"][type="text"][role="textbox"][aria-multiline="false"]',
+					],
 				},
 				eventTypes: {
 					contentChange: 'input',
@@ -35,18 +38,26 @@ class EmailClientAdapter {
 			yahoo: {
 				selectors: {
 					body: [
-						'[aria-multiline="true"][aria-label="Message body"][contenteditable="true"][role="textbox"]',
+						// Desktop selectors
+						'#editor-container [contenteditable="true"][role="textbox"]',
+            '[aria-multiline="true"][aria-label="Message body"][contenteditable="true"][role="textbox"]',
 						'[aria-label="Message body"][contenteditable="true"]',
 						'[role="textbox"][contenteditable="true"]',
 						'[data-test-id*="compose"][contenteditable="true"]',
-						'.compose-editor [contenteditable="true"]'
+						'.compose-editor [contenteditable="true"]',
+						// Mobile selectors
+						'#editor-container-mobile [contenteditable="true"][role="textbox"]',
 					].join(', '),
-					subject:  [
-							'#compose-subject-input',
+					subject: [
+						// Desktop selectors
+						'#compose-subject-input, input[placeholder="Subject"][id="compose-subject-input"]',
+            '#compose-subject-input',
 							'input[placeholder="Subject"]',
 							'input[aria-label*="subject" i]',
-							'input[data-test-id*="subject" i]'
-						].join(', ')
+							'input[data-test-id*="subject" i]',
+						// Mobile selectors
+						'#compose-subject-input-mobile, input[placeholder="Subject"][id="compose-subject-input-mobile"]'
+					].join(', '),
 				},
 				eventTypes: {
 					contentChange: 'input',
