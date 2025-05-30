@@ -92,8 +92,6 @@ function handleEndingDateChange() {
 }
 function handleLastWeekContributionChange() {
 	var value = lastWeekContributionElement.checked;
-	var labelElement = document.querySelector("label[for='lastWeekContribution']");
-
 	if (value) {
 			startingDateElement.disabled = true;
 			endingDateElement.disabled = true;
@@ -104,15 +102,11 @@ function handleLastWeekContributionChange() {
 			labelElement.classList.add("selectedLabel");
 			labelElement.classList.remove("unselectedLabel");
 	} else {
-			startingDateElement.disabled = false;
-			endingDateElement.disabled = false;
-			labelElement.classList.add("unselectedLabel");
-			labelElement.classList.remove("selectedLabel");
+		startingDateElement.disabled = false;
+		endingDateElement.disabled = false;
 	}
-	
 	chrome.storage.local.set({ lastWeekContribution: value });
 }
-
 function getLastWeek() {
 	var today = new Date();
 	var noDays_to_goback = gsoc == 0 ? 7 : 1;
@@ -153,19 +147,9 @@ function handleProjectNameChange() {
 }
 function handleOpenLabelChange() {
 	var value = showOpenLabelElement.checked;
-	var labelElement = document.querySelector("label[for='showOpenLabel']");
-
-	if (value) {
-			labelElement.classList.add("selectedLabel");
-			labelElement.classList.remove("unselectedLabel");
-	} else {
-			labelElement.classList.add("unselectedLabel");
-			labelElement.classList.remove("selectedLabel");
-	}
-
 	chrome.storage.local.set({ showOpenLabel: value });
+	chrome.storage.local.set({ showClosedLabel: value });
 }
-
 function handleUserReasonChange() {
 	var value = userReasonElement.value;
 	chrome.storage.local.set({ userReason: value });
@@ -186,6 +170,144 @@ function handleGsocClick() {
 	chrome.storage.local.set({ gsoc: 1, selectedTab: 'gsoc' });
 	handleLastWeekContributionChange();
 }
+
+
+
+document.getElementById("openModal").addEventListener("click", () => {
+	fetchGitHubDataAndRender();
+});
+
+
+
+document.getElementById("closeModal").addEventListener("click", () => {
+
+	document.getElementById("scrumModal").style.display = "none";
+	document.body.style.overflow = "";
+});
+
+document.getElementById("copyScrum").addEventListener("click", () => {
+	const contentEl = document.getElementById("scrumContent");
+	const html = contentEl.innerHTML;
+	const text = contentEl.innerText;
+
+	
+	const blobHTML = new Blob([html], { type: "text/html" });
+	const blobText = new Blob([text], { type: "text/plain" });
+
+	const clipboardItem = new ClipboardItem({
+		"text/html": blobHTML,
+		"text/plain": blobText
+	});
+
+	navigator.clipboard.write([clipboardItem]).then(() => {
+		const toast = document.getElementById("toast");
+		toast.textContent = " Scrum copied in rich format!";
+		toast.classList.add("show");
+		toast.style.display = "block";
+
+		setTimeout(() => {
+			toast.classList.remove("show");
+			toast.style.display = "none";
+		}, 3000);
+	}).catch((err) => {
+		alert(" Copy failed. Please allow clipboard permissions.");
+		console.error(err);
+	});
+});
+
+
+function fetchGitHubDataAndRender() {
+	document.getElementById("scrumContent").innerHTML = "Generating your scrum preview...";
+
+	chrome.storage.local.get(
+		['githubUsername', 'startingDate', 'endingDate', 'userReason', 'gsoc'],
+		(items) => {
+			const githubUsername = items.githubUsername || '[GitHubUsername]';
+			const startingDate = items.startingDate;
+			const endingDate = items.endingDate;
+			const userReason = items.userReason || 'No blockers';
+			const gsoc = items.gsoc || 0;
+
+			const weekOrDay = gsoc == 1 ? 'yesterday' : 'last week';
+			const weekOrDay2 = gsoc == 1 ? 'today' : 'this week';
+
+			const issueUrl = `https://api.github.com/search/issues?q=author:${githubUsername}+org:fossasia+created:${startingDate}..${endingDate}&per_page=100`;
+			const reviewUrl = `https://api.github.com/search/issues?q=commenter:${githubUsername}+org:fossasia+updated:${startingDate}..${endingDate}&per_page=100`;
+
+			Promise.all([
+				fetch(issueUrl).then(res => res.json()),
+				fetch(reviewUrl).then(res => res.json())
+			])
+				.then(([issuesData, reviewData]) => {
+					const pastWork = [];
+					const plannedWork = [];
+
+					
+					issuesData.items.forEach((item) => {
+						const repo = item.repository_url.split('/').pop();
+						const title = item.title;
+						const url = item.html_url;
+						const number = item.number;
+
+						if (item.pull_request) {
+							pastWork.push(
+  `<span class="label">Made PR</span> <a href="${url}" target="_blank">#${number}</a> in ${repo}: ${title}`
+);
+
+						} else {
+							pastWork.push(
+  `<span class="label">Opened Issue</span> <a href="${url}" target="_blank">#${number}</a> in <b>${repo}</b>: ${title}`
+);
+
+							
+							if (item.state === "open" && item.body?.toUpperCase().includes("YES")) {
+							plannedWork.push(
+  `<span class="label">Plan to work on Issue</span> <a href="${url}" target="_blank">#${number}</a> in <b>${repo}</b>: ${title}`
+);
+
+							}
+						}
+					});
+
+					
+					reviewData.items.forEach((item) => {
+						if (item.user.login !== githubUsername && item.pull_request) {
+							const repo = item.repository_url.split('/').pop();
+							pastWork.push(
+  `<span class="label">Reviewed PR</span> <a href="${item.html_url}" target="_blank">#${item.number}</a> in <b>${repo}</b>: ${item.title}`
+);
+
+						}
+					});
+
+				
+					const scrum = `
+<b>1. What did I do ${weekOrDay}?</b><br>
+<ul><li>${pastWork.join('</li><li>')}</li></ul>
+
+<b>2. What I plan to do ${weekOrDay2}?</b><br>
+<ul><li>${plannedWork.length ? plannedWork.join('</li><li>') : '[Add your plans here]'}</li></ul>
+
+<b>3. What is stopping me from doing my work?</b><br>
+<p>${userReason}</p>
+`;
+
+					document.getElementById("scrumContent").innerHTML = scrum;
+					document.getElementById("scrumModal").style.display = "flex";
+					document.body.style.overflow = "hidden";
+				})
+				.catch((error) => {
+					console.error(" GitHub fetch failed:", error);
+					alert("Error fetching GitHub data. Please check your GitHub username or try again.");
+				});
+		}
+	);
+}
+
+
+
+
+
 enableToggleElement.addEventListener('change', handleEnableChange);
 githubUsernameElement.addEventListener('keyup', handleGithubUsernameChange);
 projectNameElement.addEventListener('keyup', handleProjectNameChange);
