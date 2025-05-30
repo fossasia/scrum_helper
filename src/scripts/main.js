@@ -78,6 +78,36 @@ function handleBodyOnLoad() {
 		},
 	);
 }
+
+document.getElementById('refreshCache').addEventListener('click', async (e) => {
+    const button = e.currentTarget;
+    button.classList.add('loading');
+    button.disabled = true;
+    
+    try {
+        const tabs = await chrome.tabs.query({active: true, currentWindow: true});
+        const response = await chrome.tabs.sendMessage(tabs[0].id, {
+            action: 'forceRefresh',
+            timestamp: Date.now() // Pass timestamp to ensure cache invalidation
+        });
+        
+        if (response.success) {
+            M.toast({html: 'Data refreshed successfully!', classes: 'green'});
+        } else {
+            throw new Error(response.error || 'Refresh failed');
+        }
+    } catch (err) {
+        console.error('Refresh failed:', err);
+        M.toast({html: 'Failed to refresh data', classes: 'red'});
+    } finally {
+        // Reset button state after a slight delay
+        setTimeout(() => {
+            button.classList.remove('loading');
+            button.disabled = false;
+        }, 500);
+    }
+});
+
 function handleEnableChange() {
 	let value = enableToggleElement.checked;
 	chrome.storage.local.set({ enableToggle: value });

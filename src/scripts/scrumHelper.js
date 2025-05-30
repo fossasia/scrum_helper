@@ -142,7 +142,7 @@ function allIncluded() {
 		return WeekDisplayPadded;
 	}
 
-	const DEBUG = true; 
+	const DEBUG = false; 
 	function log( ...args) {
 		if(DEBUG) {
 			console.log(`[SCRUM-HELPER]:`, ...args);
@@ -165,13 +165,8 @@ function allIncluded() {
 		errorTTL: 60*1000, // 1 min error cache 
 		subject: null,
 	};
-	const MAX_CACHE_SIZE = 50 * 1024 * 1024; //50mb max cache
-
+	
 	function saveToStorage(data, subject = null) {
-		if(data === githubCache.data && subject === githubCache.subject) {
-			log('Skipping cache save - no changes');
-			return Promise.resolve(true);
-		}
 		const cacheData = {
 			data: data,
 			cacheKey: githubCache.cacheKey,
@@ -191,6 +186,8 @@ function allIncluded() {
 					resolve(false);
 				} else {
 					log('Cache saved successfuly');
+					githubCache.data = data;
+                	githubCache.subject = subject;
 					resolve(true);
 				}
 			});
@@ -201,19 +198,19 @@ function allIncluded() {
 		log('Loading cache from storage');
 		return new Promise((resolve) => {
 			chrome.storage.local.get('githubCache', (result) => {
-				if(chrome.runtime.lastError) {
-					logError('Storage load failed:', chrome.runtime.lastError); 
-					resolve(false);
-					return;
-				}
-
 				const cache = result.githubCache;
 				if (!cache) {
 					log('No cache found in storage');
 					resolve(false);
 					return;
 				}
-				log('Found cache:', {
+				const isCacheExpired = (Date.now() - cache.timestamp) > githubCache.ttl;
+				if(isCacheExpired){
+					log('Cached data is expired');
+					resolve(false);
+					return;
+				}
+				log('Found valid cache:', {
 					cacheKey: cache.cacheKey,
 					age: `${((Date.now() - cache.timestamp) / 1000 / 60).toFixed(1)} minutes` ,
 				});
@@ -223,28 +220,15 @@ function allIncluded() {
 				githubCache.timestamp = cache.timestamp;
 				githubCache.subject = cache.subject;
 
-				// use cached subject element
 				if(cache.subject && scrumSubject) {
 					scrumSubject.value = cache.subject;
 					scrumSubject.dispatchEvent(new Event('input', { bubbles: true }));
 				}
-
 				resolve(true);
 			})
 		})
 	}
-	
-	function updateCache(data) {
-		const cacheSize = new Blob([JSON.stringify(data)]).size;
-		if(cacheSize > MAX_CACHE_SIZE) {
-			console.wanr(`Cache data too large, not caching`);
-			return;
-		}
-		githubCache.data = data;
-		githubCache.timestamp = Date.now();
-	}
-	
-	// fetch github data
+
 	async function fetchGithubData() {
 		const cacheKey = `${githubUsername}-${startingDate}-${endingDate}`;
 		
@@ -322,8 +306,7 @@ function allIncluded() {
 			githubCache.data = { githubIssuesData, githubPrsReviewData, githubUserData };
 			githubCache.timestamp = Date.now();
 			
-			// updateCache({ githubIssuesData, githubPrsReviewData, githubUserData });
-			await saveToStorage(githubCache.data); // Save to storage
+			await saveToStorage(githubCache.data);
 			processGithubData(githubCache.data);
 
 			// Resolve queued calls
@@ -361,6 +344,38 @@ function allIncluded() {
 		});
 	}
 	verifyCacheStatus();
+
+	async function forceGithubDataRefresh() {
+		log('Force refreshing GitHub data');
+		// clear cache
+		githubCache = {
+			data: null,
+			cacheKey: null,
+			timestamp: 0,
+			ttl: 10*60*1000,
+			fetching: false,
+			queue: [],
+			errors: {},
+			errorTTL: 60*1000,
+			subject: null
+    	};
+		await new Promise(resolve => {
+        	chrome.storage.local.remove('githubCache', resolve);
+		});
+
+		log('Cache cleared, fetching fresh data');
+		try {
+			await fetchGithubData();
+			await saveToStorage();
+			return { success: true, timestamp: Date.now() };
+		} catch (err) {
+			logError('Force refresh failed:', err);
+			throw err;
+		}
+	}
+	if(typeof window !== 'undefined') {
+		window.forceGithubDataRefresh = forceGithubDataRefresh;
+	}
 
 	function processGithubData(data) {
 		log('Processing Github data');
@@ -433,24 +448,11 @@ function allIncluded() {
 		});
 	}
 
-	// depriciate this
-	// function getProject() {
-	// 	if (projectName != '') return projectName;
-
-	// 	let project = '<project name>';
-	// 	let url = window.location.href;
-	// 	let projectUrl = url.substr(url.lastIndexOf('/') + 1);
-	// 	if (projectUrl === 'susiai') project = 'SUSI.AI';
-	// 	else if (projectUrl === 'open-event') project = 'Open Event';
-	// 	return project;
-	// }
-
 	//load initial scrum subject
 	function scrumSubjectLoaded() {
 		if (!enableToggle) return;
 		setTimeout(() => {
 			let name = githubUserData.name || githubUsername;
-			// let project = getProject();
 			let project = projectName || '<project name>';
 			let curDate = new Date();
 			let year = curDate.getFullYear().toString();
@@ -463,7 +465,6 @@ function allIncluded() {
 
 			const subject = `[Scrum] ${name} - ${project} - ${dateCode} - False`;
         	log('Generated subject:', subject);
-			// Save subject to cache
 			githubCache.subject = subject;
 			saveToStorage(githubCache.data, subject);
 
@@ -737,3 +738,13 @@ $('button>span:contains(New conversation)')
 	.click(() => {
 		allIncluded();
 	});
+
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+	if(request.action === 'forceRefresh') {
+		forceGithubDataRefresh().then(result => sendResponse(result)).catch(err => {
+			console.error('Force refresh failed:', err);
+			sendResponse({ success: false, error: err.message });
+		});
+		return true;
+	}
+})

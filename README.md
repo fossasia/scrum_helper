@@ -32,6 +32,11 @@
 - Ensure the Scrum Helper settings are applied (follow step 6 above)
 -  The extension will prefill scrum content for you to edit
 
+## New Features
+- The extension now uses parallel modern API requests along with data caching with a TTL(Time to Live) of 10 minutes.
+- New fetch requests will be made if input data by user is changed.
+- The cache data can be manually refreshed using the `Refresh Data` button.
+
 ## Setting up the code locally
 
 ```
@@ -42,7 +47,7 @@ $ npm install
 ## Screenshots
 ![SCRUM](/docs/images/scrum.png)
 
-![POPUP](/docs/images/popup.png)
+![POPUP](docs/images/popup.png)
 
 ## About contributing
 - Follow the Issues and PRs templates as far as possible.
