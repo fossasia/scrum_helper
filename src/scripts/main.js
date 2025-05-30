@@ -83,12 +83,14 @@ function handleEndingDateChange() {
 function handleLastWeekContributionChange() {
 	var value = lastWeekContributionElement.checked;
 	if (value) {
-		startingDateElement.disabled = true;
-		endingDateElement.disabled = true;
-		endingDateElement.value = getToday();
-		startingDateElement.value = getLastWeek();
-		handleEndingDateChange();
-		handleStartingDateChange();
+			startingDateElement.disabled = true;
+			endingDateElement.disabled = true;
+			endingDateElement.value = getToday();
+			startingDateElement.value = getLastWeek();
+		        handleEndingDateChange();
+		        handleStartingDateChange();
+			labelElement.classList.add("selectedLabel");
+			labelElement.classList.remove("unselectedLabel");
 	} else {
 		startingDateElement.disabled = false;
 		endingDateElement.disabled = false;
