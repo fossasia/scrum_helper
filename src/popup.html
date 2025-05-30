@@ -75,7 +75,10 @@
 			</div>
 			<div>
 				<h6>Scrum Report</h3>
-				<textarea name="" id="scrumReport" class="materialize-textarea" style="min-height: 200px;" placeholder="Your scrum report will appear here..."></textarea>
+					<div id="scrumReport" contenteditable="true" 
+					class="materialize-textarea border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2" 
+					style="min-height: 200px; overflow-y: auto; white-space: pre-wrap;">
+			   </div>
 			</div>
 			<div style="display: flex; justify-content: space-between; gap: 10px;">
 				<button id="generateReport" class="btn waves-effect waves-light">
@@ -109,27 +112,8 @@
 	</div>
 	<script src="scripts/jquery-3.2.1.min.js"></script>
 	<script type="text/javascript" type="text/javascript" src="materialize/js/materialize.min.js"></script>
+	<script src="scripts/scrumHelper.js"></script>
 	<script src="scripts/main.js"></script>
-	<script>
-		document.addEventListener('DOMContentLoaded', function() {
-			const generateBtn = document.getElementById('generateReport');
-			const copyBtn = document.getElementById('copyReport');
-			
-			generateBtn.addEventListener('click', function() {
-				this.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
-				this.disabled = true;
-				
-				// Call the scrum generation function
-				window.generateScrumReport();
-			});
-			
-			copyBtn.addEventListener('click', function() {
-				const scrumReport = document.getElementById('scrumReport');
-				scrumReport.select();
-				document.execCommand('copy');
-				Materialize.toast('Report copied to clipboard!', 3000);
-			});
-		});
-		</script>
+	<script src="scripts/popup.js"></script>
 </body>
 </html>

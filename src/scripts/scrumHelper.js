@@ -1,6 +1,7 @@
-var refreshButton_Placed = false;
 var enableToggle = true;
 function allIncluded(outputTarget = 'email') {
+	console.log('allIncluded called with outputTarget:', outputTarget);
+	console.log('Current window context:', window.location.href); 
 	/* global $*/
 	var scrumBody = null;
 	var scrumSubject = null;
@@ -33,6 +34,7 @@ function allIncluded(outputTarget = 'email') {
 
 	var linkStyle = '';
 	function getChromeData() {
+		console.log("Getting Chrome data for context:", outputTarget);
 		chrome.storage.local.get(
 			[
 				'githubUsername',
@@ -47,6 +49,7 @@ function allIncluded(outputTarget = 'email') {
 				'gsoc',
 			],
 			(items) => {
+				console.log("Storage items received:", items);
 				if (items.gsoc) {
 					//gsoc
 					gsoc = 1;
@@ -68,9 +71,11 @@ function allIncluded(outputTarget = 'email') {
 				}
 				if (items.githubUsername) {
 					githubUsername = items.githubUsername;
+					console.log("About to fetch GitHub data for:", githubUsername);  
 					fetchGithubData();
 				}  else {
                     if (outputTarget === 'popup') {
+						console.log("No username found - popup context");  
                         // Show error in popup
                         const generateBtn = document.getElementById('generateReport');
                         if (generateBtn) {
@@ -79,6 +84,7 @@ function allIncluded(outputTarget = 'email') {
                         }
                         Materialize.toast('Please enter your GitHub username', 3000);
                     } else {
+						console.log("No username found - email context");  
                         console.warn('No GitHub username found in storage');
                     }
                 }
@@ -142,44 +148,59 @@ function allIncluded(outputTarget = 'email') {
 	}
 	// fetch github data
 	function fetchGithubData() {
-		var issueUrl =
-			'https://api.github.com/search/issues?q=author%3A' +
+		console.log("Starting GitHub data fetch...");
+		var issueUrl = 'https://api.github.com/search/issues?q=author%3A' +
 			githubUsername +
 			'+org%3Afossasia+created%3A' +
 			startingDate +
 			'..' +
 			endingDate +
 			'&per_page=100';
+		console.log("Fetching issues from:", issueUrl);
+
 		$.ajax({
 			dataType: 'json',
 			type: 'GET',
 			url: issueUrl,
 			error: (xhr, textStatus, errorThrown) => {
-				// error
+				console.error('Error fetching GitHub data:', {
+					status: xhr.status,
+					textStatus: textStatus,
+					error: errorThrown
+				});
 			},
 			success: (data) => {
+				console.log("Received GitHub issues data:", data);
 				githubIssuesData = data;
+				writeGithubIssuesPrs();
 			},
 		});
-		// fetch github prs review data
-		var prUrl =
-			'https://api.github.com/search/issues?q=commenter%3A' +
+
+		// PR reviews fetch
+		var prUrl = 'https://api.github.com/search/issues?q=commenter%3A' +
 			githubUsername +
 			'+org%3Afossasia+updated%3A' +
 			startingDate +
 			'..' +
 			endingDate +
 			'&per_page=100';
+		console.log("Fetching PR reviews from:", prUrl);
 
 		$.ajax({
 			dataType: 'json',
 			type: 'GET',
 			url: prUrl,
 			error: (xhr, textStatus, errorThrown) => {
-				// error
+				console.error('Error fetching PR reviews:', {
+					status: xhr.status,
+					textStatus: textStatus,
+					error: errorThrown
+				});
 			},
 			success: (data) => {
+				console.log("Received PR reviews data:", data);
 				githubPrsReviewData = data;
+				writeGithubPrsReviews();
 			},
 		});
 		// fetch github user data
@@ -205,9 +226,11 @@ function allIncluded(outputTarget = 'email') {
 
 	//load initial text in scrum body
 	function writeScrumBody() {
+		console.log("writeScrumBody called");
 		if (!enableToggle) return;
 
 		setTimeout(() => {
+			console.log("generating content");
 			// Generate content first
 			var lastWeekUl = '<ul>';
 			var i;
@@ -224,45 +247,38 @@ function allIncluded(outputTarget = 'email') {
 
 			// Create the complete content
 			let content;
-			if (lastWeekContribution == true) {
-				content = `<b>1. What did I do ${weekOrDay}?</b>
-						  <br>${lastWeekUl}<br><br>
-						  <b>2. What I plan to do ${weekOrDay2}?</b>
-						  <br>${nextWeekUl}<br><br>
-						  <b>3. What is stopping me from doing my work?</b>
-						  <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${userReason}</p>`;
-			} else {
-				content = `<b>1. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?</b>
-						  <br>${lastWeekUl}<br><br>
-						  <b>2. What I plan to do ${weekOrDay2}?</b>
-						  <br>${nextWeekUl}<br><br>
-						  <b>3. What is stopping me from doing my work?</b>
-						  <p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${userReason}</p>`;
-			}
+        if (lastWeekContribution == true) {
+            content = `<b>1. What did I do ${weekOrDay}?</b><br>
+${lastWeekUl}<br>
+<b>2. What I plan to do ${weekOrDay2}?</b><br>
+${nextWeekUl}<br>
+<b>3. What is stopping me from doing my work?</b><br>
+${userReason}`;
+        } else {
+            content = `<b>1. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?</b><br>
+${lastWeekUl}<br>
+<b>2. What I plan to do ${weekOrDay2}?</b><br>
+${nextWeekUl}<br>
+<b>3. What is stopping me from doing my work?</b><br>
+${userReason}`;
+        }
 
 			if (outputTarget === 'popup') {
-                // Update popup textarea
-                const scrumReport = document.getElementById('scrumReport');
-                if (scrumReport) {
-                    // Convert HTML to plain text for textarea
-                    const plainContent = content
-                        .replace(/<br>/g, '\n')
-                        .replace(/<\/?[^>]+(>|$)/g, '')
-                        .replace(/&nbsp;/g, ' ');
-                    
-                    scrumReport.value = plainContent;
-                    Materialize.textareaAutoResize(scrumReport);
+				console.log("trying to update popup textarea");
+				const scrumReport = document.getElementById('scrumReport');
+				if (scrumReport) {
+					console.log("found div, updating content");
+					scrumReport.innerHTML = content;
+					
+					// Reset generate button
+					const generateBtn = document.getElementById('generateReport');
+					if (generateBtn) {
+						generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+						generateBtn.disabled = false;
+					}
+				}
+			} else {
 
-                    // Reset generate button
-                    const generateBtn = document.getElementById('generateReport');
-                    if (generateBtn) {
-                        generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
-                        generateBtn.disabled = false;
-                    }
-                    
-                    Materialize.toast('Report generated successfully!', 3000);
-                }
-            } else {
 				// Use the adapter to inject content
 				const elements = window.emailClientAdapter.getEditorElements();
 				if (!elements || !elements.body) {
@@ -307,63 +323,67 @@ function allIncluded(outputTarget = 'email') {
 	// write PRs Reviewed
 	function writeGithubPrsReviews() {
 		var items = githubPrsReviewData.items;
-		var i;
-		for (i = 0; i < items.length; i++) {
+		
+		reviewedPrsArray = [];
+		githubPrsReviewDataProcessed = {};
+		
+		for (var i = 0; i < items.length; i++) {
 			var item = items[i];
-			if (item.user.login == githubUsername || !item.pull_request) continue;
+			if (item.user.login === githubUsername) {
+				continue;
+			}
+			
 			var repository_url = item.repository_url;
 			var project = repository_url.substr(repository_url.lastIndexOf('/') + 1);
 			var title = item.title;
 			var number = item.number;
 			var html_url = item.html_url;
-			if (!githubPrsReviewDataProccessed[project]) {
-				// first pr in this repo
-				githubPrsReviewDataProccessed[project] = [];
+			
+			if (!githubPrsReviewDataProcessed[project]) {
+				githubPrsReviewDataProcessed[project] = [];
 			}
+			
 			var obj = {
 				number: number,
 				html_url: html_url,
 				title: title,
 				state: item.state,
 			};
-			githubPrsReviewDataProccessed[project].push(obj);
+			githubPrsReviewDataProcessed[project].push(obj);
 		}
-		for (var repo in githubPrsReviewDataProccessed) {
-			var repoLi =
-				'<li> \
-		<i>(' +
-				repo +
-				')</i> - Reviewed ';
-			if (githubPrsReviewDataProccessed[repo].length > 1) repoLi += 'PRs - ';
-			else {
+		
+		for (var repo in githubPrsReviewDataProcessed) {
+			var repoLi = '<li><i>(' + repo + ')</i> - Reviewed ';
+			if (githubPrsReviewDataProcessed[repo].length > 1) {
+				repoLi += 'PRs - ';
+			} else {
 				repoLi += 'PR - ';
 			}
-			if (githubPrsReviewDataProccessed[repo].length <= 1) {
-				for (var pr in githubPrsReviewDataProccessed[repo]) {
-					var pr_arr = githubPrsReviewDataProccessed[repo][pr];
+			
+			if (githubPrsReviewDataProcessed[repo].length <= 1) {
+				for (var pr in githubPrsReviewDataProcessed[repo]) {
+					var pr_arr = githubPrsReviewDataProcessed[repo][pr];
 					var prText = '';
-					prText +=
-						"<a href='" + pr_arr.html_url + "' target='_blank'>#" + pr_arr.number + '</a> (' + pr_arr.title + ') ';
-					if (pr_arr.state === 'open') prText += issue_opened_button;
-					else prText += issue_closed_button;
+					prText += `<a href='${pr_arr.html_url}' target='_blank'>#${pr_arr.number}</a> (${pr_arr.title}) `;
+					if (pr_arr.state === 'open') {
+						prText += issue_opened_button;
+					} else {
+						prText += issue_closed_button;
+					}
 					prText += '&nbsp;&nbsp;';
 					repoLi += prText;
 				}
 			} else {
 				repoLi += '<ul>';
-				for (var pr1 in githubPrsReviewDataProccessed[repo]) {
-					var pr_arr1 = githubPrsReviewDataProccessed[repo][pr1];
+				for (var pr1 in githubPrsReviewDataProcessed[repo]) {
+					var pr_arr1 = githubPrsReviewDataProcessed[repo][pr1];
 					var prText1 = '';
-					prText1 +=
-						"<li><a href='" +
-						pr_arr1.html_url +
-						"' target='_blank'>#" +
-						pr_arr1.number +
-						'</a> (' +
-						pr_arr1.title +
-						') ';
-					if (pr_arr1.state === 'open') prText1 += issue_opened_button;
-					else prText1 += issue_closed_button;
+					prText1 += `<li><a href='${pr_arr1.html_url}' target='_blank'>#${pr_arr1.number}</a> (${pr_arr1.title}) `;
+					if (pr_arr1.state === 'open') {
+						prText1 += issue_opened_button;
+					} else {
+						prText1 += issue_closed_button;
+					}
 					prText1 += '&nbsp;&nbsp;</li>';
 					repoLi += prText1;
 				}
@@ -372,141 +392,50 @@ function allIncluded(outputTarget = 'email') {
 			repoLi += '</li>';
 			reviewedPrsArray.push(repoLi);
 		}
-		writeScrumBody();
+		
+		writeScrumBody(); 
 	}
-	//write issues and Prs from github
 	function writeGithubIssuesPrs() {
 		var data = githubIssuesData;
 		var items = data.items;
+		
+		lastWeekArray = [];
+		nextWeekArray = [];
+		
 		for (var i = 0; i < items.length; i++) {
-			var item = items[i];
+			var item = items[i];	
 			var html_url = item.html_url;
 			var repository_url = item.repository_url;
 			var project = repository_url.substr(repository_url.lastIndexOf('/') + 1);
 			var title = item.title;
 			var number = item.number;
 			var li = '';
+			
 			if (item.pull_request) {
-				// is a pull request
 				if (item.state === 'closed') {
-					// is closed PR
-					li =
-						'<li><i>(' +
-						project +
-						')</i> - Made PR (#' +
-						number +
-						") - <a href='" +
-						html_url +
-						"' style='" +
-						linkStyle +
-						"' target='_blank'>" +
-						title +
-						'</a> ' +
-						pr_merged_button +
-						'&nbsp;&nbsp;</li>';
+					li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_merged_button}</li>`;
 				} else if (item.state === 'open') {
-					// is open PR
-					li =
-						'<li><i>(' +
-						project +
-						')</i> - Made PR (#' +
-						number +
-						") - <a href='" +
-						html_url +
-						"' target='_blank'>" +
-						title +
-						'</a> ' +
-						pr_unmerged_button +
-						'&nbsp;&nbsp;</li>';
-				} else {
-					// else
-					li =
-						'<li><i>(' +
-						project +
-						')</i> - Made PR (#' +
-						number +
-						") - <a href='" +
-						html_url +
-						"' target='_blank'>" +
-						title +
-						'</a> &nbsp;&nbsp;</li>';
+					li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_unmerged_button}</li>`;
 				}
 			} else {
-				// is a issue
-				if (item.state === 'open' && item.body.toUpperCase().indexOf('YES') > 0) {
-					//probably the author wants to work on this issue!
-					var li2 =
-						'<li><i>(' +
-						project +
-						')</i> - Work on Issue(#' +
-						number +
-						") - <a href='" +
-						html_url +
-						"' target='_blank'>" +
-						title +
-						'</a> ' +
-						issue_opened_button +
-						'&nbsp;&nbsp;</li>';
+				if (item.state === 'open' && item.body && item.body.toUpperCase().indexOf('YES') > 0) {
+					var li2 = `<li><i>(${project})</i> - Work on Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_opened_button}</li>`;
 					nextWeekArray.push(li2);
 				}
 				if (item.state === 'open') {
-					li =
-						'<li><i>(' +
-						project +
-						')</i> - Opened Issue(#' +
-						number +
-						") - <a href='" +
-						html_url +
-						"' target='_blank'>" +
-						title +
-						'</a> ' +
-						issue_opened_button +
-						'&nbsp;&nbsp;</li>';
+					li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_opened_button}</li>`;
 				} else if (item.state === 'closed') {
-					li =
-						'<li><i>(' +
-						project +
-						')</i> - Opened Issue(#' +
-						number +
-						") - <a href='" +
-						html_url +
-						"' target='_blank'>" +
-						title +
-						'</a> ' +
-						issue_closed_button +
-						'&nbsp;&nbsp;</li>';
-				} else {
-					li =
-						'<li><i>(' +
-						project +
-						')</i> - Opened Issue(#' +
-						number +
-						") - <a href='" +
-						html_url +
-						"' target='_blank'>" +
-						title +
-						'</a> </li>';
+					li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_button}</li>`;
 				}
 			}
-			lastWeekArray.push(li);
+			if (li) {
+				lastWeekArray.push(li);
+			} else {
+			}
 		}
 		writeScrumBody();
 	}
-	//check for scrum body loaded
-	// var intervalBody = setInterval(function(){
-	// 	var bodies = [
-	// 		document.getElementById("p-b-0"),
-	// 		document.getElementById("p-b-1"),
-	// 		document.getElementById("p-b-2"),
-	// 		document.querySelector("c-wiz [aria-label='Compose a message'][role=textbox]")];
-	// 	for (var body of bodies) {
-	// 		if (!body)
-	// 			continue;
-	// 		clearInterval(intervalBody);
-	// 		scrumBody=body;
-	// 		writeScrumBody();
-	// 	}
-	// },500);
+
 	var intervalBody = setInterval(() => {
 		if (!window.emailClientAdapter) return;
 
@@ -518,23 +447,6 @@ function allIncluded(outputTarget = 'email') {
 		writeScrumBody();
 	}, 500);
 
-	//check for subject loaded
-	// var intervalSubject = setInterval(function(){
-	// 	if (!githubUserData)
-	// 		return;
-	// 	var subjects = [
-	// 		document.getElementById("p-s-0"),
-	// 		document.getElementById("p-s-1"),
-	// 		document.getElementById("p-s-2"),
-	// 		document.querySelector("c-wiz input[aria-label=Subject]")];
-	// 	for (var subject of subjects) {
-	// 		if (!subject)
-	// 			continue;
-	// 		clearInterval(intervalSubject);
-	// 		scrumSubject=subject;
-	// 		scrumSubjectLoaded();
-	// 	}
-	// },500);
 	var intervalSubject = setInterval(() => {
 		if (!githubUserData || !window.emailClientAdapter) return;
 
@@ -546,55 +458,27 @@ function allIncluded(outputTarget = 'email') {
 		scrumSubjectLoaded();
 	}, 500);
 
-	//check for github safe writing
+	//check for github safe writing for both issues/prs and pr reviews
 	var intervalWriteGithub = setInterval(() => {
-		if (scrumBody && githubUsername && githubIssuesData) {
+		if (scrumBody && githubUsername && githubIssuesData && githubPrsReviewData) {
 			clearInterval(intervalWriteGithub);
 			writeGithubIssuesPrs();
-		}
-	}, 500);
-	//check for github prs reviews safe writing
-	var intervalWriteGithubReviews = setInterval(() => {
-		if (scrumBody && githubUsername && githubPrsReviewData) {
-			clearInterval(intervalWriteGithubReviews);
 			writeGithubPrsReviews();
 		}
 	}, 500);
-	if (!refreshButton_Placed) {
-		var intervalWriteButton = setInterval(() => {
-			if (document.getElementsByClassName('F0XO1GC-x-b').length == 3 && scrumBody && enableToggle) {
-				refreshButton_Placed = true;
-				clearInterval(intervalWriteButton);
-				var td = document.createElement('td');
-				var button = document.createElement('button');
-				button.style = 'background-image:none;background-color:#3F51B5;';
-				button.setAttribute('class', 'F0XO1GC-n-a F0XO1GC-G-a');
-				button.title = 'Rewrite your SCRUM using updated settings!';
-				button.id = 'refreshButton';
-				var elemText = document.createTextNode('↻ Rewrite SCRUM!');
-				button.appendChild(elemText);
-				td.appendChild(button);
-				document.getElementsByClassName('F0XO1GC-x-b')[0].children[0].children[0].appendChild(td);
-				document.getElementById('refreshButton').addEventListener('click', handleRefresh);
-			}
-		}, 1000);
-	}
-	function handleRefresh() {
-		allIncluded('email');
-	}
 }
 allIncluded('email');  // Auto-trigger on page load
 $('button>span:contains(New conversation)').parent('button').click(() => {
-    allIncluded('email');  // Auto-trigger on new conversation
+    allIncluded();  // Auto-trigger on new conversation
 });
+
+window.generateScrumReport = function() {
+	console.log('generateScrumReport called');
+    allIncluded('popup');
+};
 
 $('button>span:contains(New conversation)')
 	.parent('button')
 	.click(() => {
-		allIncluded('email');
+		allIncluded();
 	});
-
-// Export for use in popup
-window.generateScrumReport = function() {
-    allIncluded('popup');
-};
