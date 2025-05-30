@@ -63,4 +63,9 @@ li {
 .selectedLabel, .unselectedLabel {
 	transition: color 0.3s ease-in-out, font-weight 0.3s ease-in-out;
 }
+.label {
+	font-weight: bold;
+	color: #333;
+	margin-right: 4px;
+}
 

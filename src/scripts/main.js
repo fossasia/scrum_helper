@@ -158,40 +158,14 @@ function handleGsocClick() {
 	chrome.storage.local.set({ gsoc: 1 });
 	handleLastWeekContributionChange();
 }
+
+
+
 document.getElementById("openModal").addEventListener("click", () => {
-	chrome.storage.local.get(
-		['projectName', 'githubUsername', 'userReason'],
-		(items) => {
-			const projectName = items.projectName || "[Project]";
-			const githubUsername = items.githubUsername || "[Username]";
-			const userReason = items.userReason || "None";
-
-			// TEMP: Hardcoded sample data (replace later with GitHub API logic)
-			const pastWork = [
-				`(${projectName}) - Made PR (#71) - Fixes issue #69 : Enhanced feedback to Selection/Deselection of CheckBox open`,
-				`(${projectName}) - Opened Issue(#69) - UI Issue with Checkbox Selection/Deselection Feedback open`,
-				`(${projectName}) - Reviewed PR - #70 (Fixed UI Issue with Checkbox Selection/Deselection Feedback) open`
-			].join('\n');
-
-			const scrum = 
-`1. What did I do last week?
-${pastWork}
-
-2. What I plan to do this week?
-
-
-3. What is stopping me from doing my work?
-      ${userReason}`;
-
-			document.getElementById("scrumContent").textContent = scrum;
-			
-			// Show modal & disable body scroll
-			const modal = document.getElementById("scrumModal");
-			modal.style.display = "flex"; // changed from block to flex for proper centering
-			document.body.style.overflow = "hidden";
-		}
-	);
+	fetchGitHubDataAndRender();
 });
+
+
 
 document.getElementById("closeModal").addEventListener("click", () => {
 	// Hide modal & re-enable scroll
@@ -200,10 +174,22 @@ document.getElementById("closeModal").addEventListener("click", () => {
 });
 
 document.getElementById("copyScrum").addEventListener("click", () => {
-	const content = document.getElementById("scrumContent").textContent;
-	const toast = document.getElementById("toast");
+	const contentEl = document.getElementById("scrumContent");
+	const html = contentEl.innerHTML;
+	const text = contentEl.innerText;
 
-	navigator.clipboard.writeText(content).then(() => {
+	// Create ClipboardItem with both text and HTML formats
+	const blobHTML = new Blob([html], { type: "text/html" });
+	const blobText = new Blob([text], { type: "text/plain" });
+
+	const clipboardItem = new ClipboardItem({
+		"text/html": blobHTML,
+		"text/plain": blobText
+	});
+
+	navigator.clipboard.write([clipboardItem]).then(() => {
+		const toast = document.getElementById("toast");
+		toast.textContent = " Scrum copied in rich format!";
 		toast.classList.add("show");
 		toast.style.display = "block";
 
@@ -211,8 +197,102 @@ document.getElementById("copyScrum").addEventListener("click", () => {
 			toast.classList.remove("show");
 			toast.style.display = "none";
 		}, 3000);
+	}).catch((err) => {
+		alert(" Copy failed. Please allow clipboard permissions.");
+		console.error(err);
 	});
 });
+
+
+function fetchGitHubDataAndRender() {
+	document.getElementById("scrumContent").innerHTML = "Generating your scrum preview...";
+
+	chrome.storage.local.get(
+		['githubUsername', 'startingDate', 'endingDate', 'userReason', 'gsoc'],
+		(items) => {
+			const githubUsername = items.githubUsername || '[GitHubUsername]';
+			const startingDate = items.startingDate;
+			const endingDate = items.endingDate;
+			const userReason = items.userReason || 'No blockers';
+			const gsoc = items.gsoc || 0;
+
+			const weekOrDay = gsoc == 1 ? 'yesterday' : 'last week';
+			const weekOrDay2 = gsoc == 1 ? 'today' : 'this week';
+
+			const issueUrl = `https://api.github.com/search/issues?q=author:${githubUsername}+org:fossasia+created:${startingDate}..${endingDate}&per_page=100`;
+			const reviewUrl = `https://api.github.com/search/issues?q=commenter:${githubUsername}+org:fossasia+updated:${startingDate}..${endingDate}&per_page=100`;
+
+			Promise.all([
+				fetch(issueUrl).then(res => res.json()),
+				fetch(reviewUrl).then(res => res.json())
+			])
+				.then(([issuesData, reviewData]) => {
+					const pastWork = [];
+					const plannedWork = [];
+
+					// Process Issues and PRs
+					issuesData.items.forEach((item) => {
+						const repo = item.repository_url.split('/').pop();
+						const title = item.title;
+						const url = item.html_url;
+						const number = item.number;
+
+						if (item.pull_request) {
+							pastWork.push(
+  `<span class="label">Made PR</span> <a href="${url}" target="_blank">#${number}</a> in ${repo}: ${title}`
+);
+
+						} else {
+							pastWork.push(
+  `<span class="label">Opened Issue</span> <a href="${url}" target="_blank">#${number}</a> in <b>${repo}</b>: ${title}`
+);
+
+							//  Add to next week plan if body includes "YES"
+							if (item.state === "open" && item.body?.toUpperCase().includes("YES")) {
+							plannedWork.push(
+  `<span class="label">Plan to work on Issue</span> <a href="${url}" target="_blank">#${number}</a> in <b>${repo}</b>: ${title}`
+);
+
+							}
+						}
+					});
+
+					// Process PR Reviews
+					reviewData.items.forEach((item) => {
+						if (item.user.login !== githubUsername && item.pull_request) {
+							const repo = item.repository_url.split('/').pop();
+							pastWork.push(
+  `<span class="label">Reviewed PR</span> <a href="${item.html_url}" target="_blank">#${item.number}</a> in <b>${repo}</b>: ${item.title}`
+);
+
+						}
+					});
+
+					// Format final scrum
+					const scrum = `
+<b>1. What did I do ${weekOrDay}?</b><br>
+<ul><li>${pastWork.join('</li><li>')}</li></ul>
+
+<b>2. What I plan to do ${weekOrDay2}?</b><br>
+<ul><li>${plannedWork.length ? plannedWork.join('</li><li>') : '[Add your plans here]'}</li></ul>
+
+<b>3. What is stopping me from doing my work?</b><br>
+<p>${userReason}</p>
+`;
+
+					document.getElementById("scrumContent").innerHTML = scrum;
+					document.getElementById("scrumModal").style.display = "flex";
+					document.body.style.overflow = "hidden";
+				})
+				.catch((error) => {
+					console.error(" GitHub fetch failed:", error);
+					alert("Error fetching GitHub data. Please check your GitHub username or try again.");
+				});
+		}
+	);
+}
+
+
 
 
 
