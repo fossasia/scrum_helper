@@ -143,7 +143,7 @@ function allIncluded() {
 		return WeekDisplayPadded;
 	}
 
-	const DEBUG = true; 
+	const DEBUG = false; 
 	function log( ...args) {
 		if(DEBUG) {
 			console.log(`[SCRUM-HELPER]:`, ...args);
@@ -348,7 +348,7 @@ function allIncluded() {
 
 	async function forceGithubDataRefresh() {
 		log('Force refreshing GitHub data');
-		hasInjectedContent = false; // Reset injection flag
+		hasInjectedContent = false; 
 		// clear cache
 		githubCache = {
 			data: null,
@@ -447,7 +447,7 @@ function allIncluded() {
 			}
 
 			window.emailClientAdapter.injectContent(elements.body, content, elements.eventTypes.contentChange);
-			hasInjectedContent = true; // Mark as injected
+			hasInjectedContent = true;
 		});
 	}
 
