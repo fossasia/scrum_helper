@@ -12,41 +12,34 @@ document.addEventListener('DOMContentLoaded', function() {
     copyBtn.addEventListener('click', function() {
         const scrumReport = document.getElementById('scrumReport');
         
+        // Create container for HTML content
         const tempDiv = document.createElement('div');
         tempDiv.innerHTML = scrumReport.innerHTML;
+        document.body.appendChild(tempDiv);
+        tempDiv.style.position = 'absolute';
+        tempDiv.style.left = '-9999px';
         
-        const links = tempDiv.getElementsByTagName('a');
-        Array.from(links).forEach(link => {
-            const title = link.textContent;
-            const url = link.href;
-            const markdownLink = `[${title}](${url})`;
-            link.outerHTML = markdownLink;
-        });
+        // Select the content
+        const range = document.createRange();
+        range.selectNode(tempDiv);
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
         
-        const stateButtons = tempDiv.getElementsByClassName('State');
-        Array.from(stateButtons).forEach(button => {
-            button.remove();
-        });
-        
-        tempDiv.innerHTML = tempDiv.innerHTML.replace(/<br\s*\/?>/gi, '\n');
-        
-        const listItems = tempDiv.getElementsByTagName('li');
-        Array.from(listItems).forEach(item => {
-            item.innerHTML = '\n- ' + item.innerHTML;
-        });
-        
-        tempDiv.innerHTML = tempDiv.innerHTML.replace(/<\/?ul>/gi, '\n');
-        let textContent = tempDiv.textContent;
-        textContent = textContent.replace(/\n\s*\n/g, '\n\n');
-        textContent = textContent.trim();
-        
-        const textarea = document.createElement('textarea');
-        textarea.value = textContent;
-        document.body.appendChild(textarea);
-        textarea.select();
-        document.execCommand('copy');
-        document.body.removeChild(textarea);
-        
-        Materialize.toast('Report copied to clipboard!', 3000);
+        try {
+            // Copy HTML content
+            const success = document.execCommand('copy');
+            if (!success) {
+                throw new Error('Copy command failed');
+            }
+            Materialize.toast('Report copied with formatting!', 3000, 'green');
+        } catch (err) {
+            console.error('Failed to copy:', err);
+            Materialize.toast('Failed to copy report', 3000, 'red');
+        } finally {
+            // Cleanup
+            selection.removeAllRanges();
+            document.body.removeChild(tempDiv);
+        }
     });
 });
