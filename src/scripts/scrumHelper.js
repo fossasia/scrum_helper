@@ -32,7 +32,7 @@ function allIncluded(outputTarget = 'email') {
 	var issue_opened_button =
 		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
 
-	var linkStyle = '';
+	// var linkStyle = '';
 	function getChromeData() {
 		console.log("Getting Chrome data for context:", outputTarget);
 		chrome.storage.local.get(
