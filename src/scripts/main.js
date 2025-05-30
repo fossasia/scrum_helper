@@ -92,6 +92,7 @@ function handleEndingDateChange() {
 }
 function handleLastWeekContributionChange() {
 	let value = lastWeekContributionElement.checked;
+	let labelElement = document.querySelector("label[for='lastWeekContribution']");
 	if (value) {
 			startingDateElement.disabled = true;
 			endingDateElement.disabled = true;
