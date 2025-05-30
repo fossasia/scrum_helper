@@ -322,6 +322,7 @@ ${userReason}`;
 
 	// write PRs Reviewed
 	function writeGithubPrsReviews() {
+		console.log("Starting to process PR reviews");
 		var items = githubPrsReviewData.items;
 		
 		reviewedPrsArray = [];
@@ -329,6 +330,7 @@ ${userReason}`;
 		
 		for (var i = 0; i < items.length; i++) {
 			var item = items[i];
+			//skip if its your own pr
 			if (item.user.login === githubUsername) {
 				continue;
 			}
@@ -391,14 +393,18 @@ ${userReason}`;
 			}
 			repoLi += '</li>';
 			reviewedPrsArray.push(repoLi);
+			console.log(`Added repo ${repo} to reviewedPrsArray`);
 		}
 		
 		writeScrumBody(); 
 	}
 	function writeGithubIssuesPrs() {
+		console.log("Starting to process issues/PRs");
 		var data = githubIssuesData;
+		console.log("Total items to process:", data.items.length);
 		var items = data.items;
 		
+		// Reset arrays at the start
 		lastWeekArray = [];
 		nextWeekArray = [];
 		
@@ -421,6 +427,7 @@ ${userReason}`;
 				if (item.state === 'open' && item.body && item.body.toUpperCase().indexOf('YES') > 0) {
 					var li2 = `<li><i>(${project})</i> - Work on Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_opened_button}</li>`;
 					nextWeekArray.push(li2);
+					console.log("Added to nextWeekArray (contains YES)");
 				}
 				if (item.state === 'open') {
 					li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_opened_button}</li>`;
@@ -433,6 +440,12 @@ ${userReason}`;
 			} else {
 			}
 		}
+		console.log("Final arrays:", {
+			lastWeekItems: lastWeekArray.length,
+			nextWeekItems: nextWeekArray.length,
+			lastWeekContents: lastWeekArray,
+			nextWeekContents: nextWeekArray
+		});
 		writeScrumBody();
 	}
 
