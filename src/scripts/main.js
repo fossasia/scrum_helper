@@ -170,7 +170,7 @@ document.getElementById("openModal").addEventListener("click", () => {
 
 
 document.getElementById("closeModal").addEventListener("click", () => {
-	// Hide modal & re-enable scroll
+
 	document.getElementById("scrumModal").style.display = "none";
 	document.body.style.overflow = "";
 });
@@ -180,7 +180,7 @@ document.getElementById("copyScrum").addEventListener("click", () => {
 	const html = contentEl.innerHTML;
 	const text = contentEl.innerText;
 
-	// Create ClipboardItem with both text and HTML formats
+	
 	const blobHTML = new Blob([html], { type: "text/html" });
 	const blobText = new Blob([text], { type: "text/plain" });
 
@@ -232,7 +232,7 @@ function fetchGitHubDataAndRender() {
 					const pastWork = [];
 					const plannedWork = [];
 
-					// Process Issues and PRs
+					
 					issuesData.items.forEach((item) => {
 						const repo = item.repository_url.split('/').pop();
 						const title = item.title;
@@ -249,7 +249,7 @@ function fetchGitHubDataAndRender() {
   `<span class="label">Opened Issue</span> <a href="${url}" target="_blank">#${number}</a> in <b>${repo}</b>: ${title}`
 );
 
-							//  Add to next week plan if body includes "YES"
+							
 							if (item.state === "open" && item.body?.toUpperCase().includes("YES")) {
 							plannedWork.push(
   `<span class="label">Plan to work on Issue</span> <a href="${url}" target="_blank">#${number}</a> in <b>${repo}</b>: ${title}`
@@ -259,7 +259,7 @@ function fetchGitHubDataAndRender() {
 						}
 					});
 
-					// Process PR Reviews
+					
 					reviewData.items.forEach((item) => {
 						if (item.user.login !== githubUsername && item.pull_request) {
 							const repo = item.repository_url.split('/').pop();
@@ -270,7 +270,7 @@ function fetchGitHubDataAndRender() {
 						}
 					});
 
-					// Format final scrum
+				
 					const scrum = `
 <b>1. What did I do ${weekOrDay}?</b><br>
 <ul><li>${pastWork.join('</li><li>')}</li></ul>
