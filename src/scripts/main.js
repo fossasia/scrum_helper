@@ -86,21 +86,19 @@ document.getElementById('refreshCache').addEventListener('click', async (e) => {
     
     try {
         const tabs = await chrome.tabs.query({active: true, currentWindow: true});
-        const response = await chrome.tabs.sendMessage(tabs[0].id, {
+        await chrome.tabs.sendMessage(tabs[0].id, {
             action: 'forceRefresh',
-            timestamp: Date.now() // Pass timestamp to ensure cache invalidation
+            timestamp: Date.now()
         });
         
-        if (response.success) {
-            M.toast({html: 'Data refreshed successfully!', classes: 'green'});
-        } else {
-            throw new Error(response.error || 'Refresh failed');
-        }
+        // Reload the active tab to re-inject content
+        chrome.tabs.reload(tabs[0].id);
+        
+        M.toast({html: 'Data refreshed successfully!', classes: 'green'});
     } catch (err) {
         console.error('Refresh failed:', err);
         M.toast({html: 'Failed to refresh data', classes: 'red'});
     } finally {
-        // Reset button state after a slight delay
         setTimeout(() => {
             button.classList.remove('loading');
             button.disabled = false;
