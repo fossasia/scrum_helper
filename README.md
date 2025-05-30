@@ -32,6 +32,18 @@
 - Ensure the Scrum Helper settings are applied (follow step 6 above)
 -  The extension will prefill scrum content for you to edit
 
+### New Features
+1. **Standalone Popup Interface**
+   - Generate reports directly from the extension popup
+   - Live preview of the report before sending
+   - Rich text formatting with clickable links
+   - Copy report to clipboard with proper formatting
+
+### Usage Standalone
+- Click on `GENERATE` button to generate the scrum preview.
+- Edit it in the window.
+- Copy the rich HTML using the `COPY` button.
+
 ## Setting up the code locally
 
 ```
@@ -43,6 +55,8 @@ $ npm install
 ![SCRUM](/docs/images/scrum.png)
 
 ![POPUP](/docs/images/popup.png)
+
+![STANDALONE](docs/images/standalone.png)
 
 ## About contributing
 - Follow the Issues and PRs templates as far as possible.
