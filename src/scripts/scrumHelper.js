@@ -168,6 +168,10 @@ function allIncluded() {
 	const MAX_CACHE_SIZE = 50 * 1024 * 1024; //50mb max cache
 
 	function saveToStorage(data, subject = null) {
+		if(data === githubCache.data && subject === githubCache.subject) {
+			log('Skipping cache save - no changes');
+			return Promise.resolve(true);
+		}
 		const cacheData = {
 			data: data,
 			cacheKey: githubCache.cacheKey,
@@ -370,7 +374,7 @@ function allIncluded() {
 		githubPrsReviewDataProccessed = {};
 
 		// Update subject
-		if(!scrumSubject?.value) {
+		if(!githubCache.subject) {
 			scrumSubjectLoaded();
 		}
 	}
@@ -463,7 +467,7 @@ function allIncluded() {
 			githubCache.subject = subject;
 			saveToStorage(githubCache.data, subject);
 
-			if(scrumSubject) {
+			if(scrumSubject && scrumSubject.value !== subject) {
 				scrumSubject.value = subject;
 				scrumSubject.dispatchEvent(new Event('input', { bubbles: true }));
 			}
@@ -684,7 +688,9 @@ function allIncluded() {
 
 		clearInterval(intervalSubject);
 		scrumSubject = elements.subject;
-		scrumSubjectLoaded();
+		if(!scrumSubject.value) {
+			scrumSubjectLoaded();
+		}
 	}, 500);
 
 	//check for github safe writing
