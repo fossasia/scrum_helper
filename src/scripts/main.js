@@ -22,6 +22,7 @@ function handleBodyOnLoad() {
 			'userReason',
 			'lastWeekContribution',
 			'gsoc',
+			'selectedTab',
 		],
 		(items) => {
 			if (items.githubUsername) {
@@ -65,6 +66,15 @@ function handleBodyOnLoad() {
 			} else {
 				handleCodeheatClick();
 			}
+			if (items.selectedTab === 'gsoc') {
+				handleGsocClick();
+			} 
+			else {
+				handleCodeheatClick();
+			}
+			
+			// initialize materialize tabs
+			$('.tabs').tabs('select_tab', items.selectedTab === 'gsoc' ? 'gsocBox' : 'codeheatBox' );
 		},
 	);
 }
@@ -82,19 +92,27 @@ function handleEndingDateChange() {
 }
 function handleLastWeekContributionChange() {
 	var value = lastWeekContributionElement.checked;
+	var labelElement = document.querySelector("label[for='lastWeekContribution']");
+
 	if (value) {
-		startingDateElement.disabled = true;
-		endingDateElement.disabled = true;
-		endingDateElement.value = getToday();
-		startingDateElement.value = getLastWeek();
-		handleEndingDateChange();
-		handleStartingDateChange();
+			startingDateElement.disabled = true;
+			endingDateElement.disabled = true;
+			endingDateElement.value = getToday();
+			startingDateElement.value = getLastWeek();
+		        handleEndingDateChange();
+		        handleStartingDateChange();
+			labelElement.classList.add("selectedLabel");
+			labelElement.classList.remove("unselectedLabel");
 	} else {
-		startingDateElement.disabled = false;
-		endingDateElement.disabled = false;
+			startingDateElement.disabled = false;
+			endingDateElement.disabled = false;
+			labelElement.classList.add("unselectedLabel");
+			labelElement.classList.remove("selectedLabel");
 	}
+	
 	chrome.storage.local.set({ lastWeekContribution: value });
 }
+
 function getLastWeek() {
 	var today = new Date();
 	var noDays_to_goback = gsoc == 0 ? 7 : 1;
@@ -135,9 +153,19 @@ function handleProjectNameChange() {
 }
 function handleOpenLabelChange() {
 	var value = showOpenLabelElement.checked;
+	var labelElement = document.querySelector("label[for='showOpenLabel']");
+
+	if (value) {
+			labelElement.classList.add("selectedLabel");
+			labelElement.classList.remove("unselectedLabel");
+	} else {
+			labelElement.classList.add("unselectedLabel");
+			labelElement.classList.remove("selectedLabel");
+	}
+
 	chrome.storage.local.set({ showOpenLabel: value });
-	chrome.storage.local.set({ showClosedLabel: value });
 }
+
 function handleUserReasonChange() {
 	var value = userReasonElement.value;
 	chrome.storage.local.set({ userReason: value });
@@ -147,7 +175,7 @@ function handleCodeheatClick() {
 	$('#codeheatTab').addClass('active');
 	$('.tabs').tabs();
 	$('#noDays').text('7 days');
-	chrome.storage.local.set({ gsoc: 0 });
+	chrome.storage.local.set({ gsoc: 0, selectedTab: 'codeheat' });
 	handleLastWeekContributionChange();
 }
 function handleGsocClick() {
@@ -155,7 +183,7 @@ function handleGsocClick() {
 	$('#gsocTab').addClass('active');
 	$('.tabs').tabs();
 	$('#noDays').text('1 day');
-	chrome.storage.local.set({ gsoc: 1 });
+	chrome.storage.local.set({ gsoc: 1, selectedTab: 'gsoc' });
 	handleLastWeekContributionChange();
 }
 enableToggleElement.addEventListener('change', handleEnableChange);
