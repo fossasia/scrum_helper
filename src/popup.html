@@ -73,6 +73,22 @@
 				<input placeholder="Reason" id="userReason" type="text">
 				<label for="userReason">What is stopping you from doing your work?</label>
 			</div>
+			<div>
+				<h6>Scrum Report</h3>
+					<div id="scrumReport" contenteditable="true" 
+					class="materialize-textarea border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2" 
+					style="min-height: 200px; overflow-y: auto; white-space: pre-wrap;">
+			   </div>
+			</div>
+			<div style="display: flex; justify-content: space-between; gap: 10px;">
+				<button id="generateReport" class="btn waves-effect waves-light">
+					<i class="fa fa-refresh"></i> Generate Report
+				</button>
+				<button id="copyReport" class="btn waves-effect waves-light">
+					<i class="fa fa-copy"></i> Copy Report
+				</button>
+				
+			</div>
 			<div class="col s12">
 				
 				<h5>Note:</h5>
@@ -96,6 +112,8 @@
 	</div>
 	<script src="scripts/jquery-3.2.1.min.js"></script>
 	<script type="text/javascript" type="text/javascript" src="materialize/js/materialize.min.js"></script>
+	<script src="scripts/scrumHelper.js"></script>
 	<script src="scripts/main.js"></script>
+	<script src="scripts/popup.js"></script>
 </body>
 </html>
