@@ -1,5 +1,31 @@
-Fixes issue #[Add issue number here. If you do not solve the issue entirely, please change the message e.g. "First steps for issues #IssueNumber]
+### 📌 Fixes
 
-Changes: [Add here what changes were made in this issue and if possible provide links.]
+Fixes #<issue-number> (Use "Fixes", "Closes", or "Resolves" for automatic closing)
 
-Screenshots for the change:
+---
+
+### 📝 Summary of Changes
+
+- Short description of what was changed
+- Include links to related issues/discussions if any
+
+---
+
+### 📸 Screenshots / Demo (if UI-related)
+
+_Add screenshots, video, or link to deployed preview if applicable_
+
+---
+
+### ✅ Checklist
+
+- [ ] I’ve tested my changes locally
+- [ ] I’ve added tests (if applicable)
+- [ ] I’ve updated documentation (if applicable)
+- [ ] My code follows the project’s code style guidelines
+
+---
+
+### 👀 Reviewer Notes
+
+_Add any special notes for the reviewer here_
