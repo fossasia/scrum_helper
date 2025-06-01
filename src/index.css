@@ -64,3 +64,34 @@ li {
 	transition: color 0.3s ease-in-out, font-weight 0.3s ease-in-out;
 }
 
+.refresh-btn {
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    background-color: #d2d2d2;
+}
+
+.refresh-btn:hover {
+    background-color: #999bac;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+.refresh-btn:active {
+    transform: translateY(1px);
+    box-shadow: none;
+}
+
+.refresh-btn.loading {
+    pointer-events: none;
+    opacity: 0.8;
+}
+
+.refresh-btn.loading .fa-refresh {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    100% { transform: rotate(360deg); }
+}
+
