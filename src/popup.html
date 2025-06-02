@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,21 +9,22 @@
 	<link rel="stylesheet" type="text/css" href="index.css">
 	<script src="./scripts/fontawesome.js"></script>
 	<style type="text/css">
-	html,body{
-		width: 350px !important;
-		height: 600px !important;
-		max-height: 600px !important;
-		overflow-y: scroll;
-	}
-</style>
+		html,
+		body {
+			width: 350px !important;
+			height: 600px !important;
+			max-height: 600px !important;
+			overflow-y: scroll;
+		}
+	</style>
 </head>
+
 <body>
 	<div class="container">
 		<h4 class="center">SCRUM Helper</h4>
 		<h6 class="center">
 			SCRUM helper prefills the Scrums in google groups, with your FOSSASIA's contributions.
 		</h6>
-		<br />
 		<div class="row center">
 			<div class="switch">
 				<label>
@@ -33,87 +35,136 @@
 				</label>
 			</div>
 		</div>
-		<div class="row">
+
+		<!-- Tabs -->
+		<div class="row" style="margin-bottom: 0;">
 			<div class="col s12">
 				<ul class="tabs">
-					<li class="tab col s6" title="I am doing CodeHeat!"><a id="codeheatTab" href="#codeheatBox">CodeHeat</a></li>
-					<li class="tab col s6" title="I am doing GSoC!"><a id="gsocTab" href="#gsocBox">GSoC</a></li>
+					<li class="tab col s6" title="I am doing CodeHeat!"><a id="codeheatTab" href="#codeheatBox"
+							class="active">CodeHeat</a></li>
+					<li class="tab col s6"><a id="settingsTab" href="#settingsBox">Settings</a></li>
 				</ul>
 			</div>
 		</div>
-		<div class="row">
-            <div class="input-field col s12">
-                <input placeholder="Your Project Name" id="projectName" type="text">
-                <label for="projectName">Your Project Name</label>
-            </div>
-			<div class="input-field col s12">
-				<input placeholder="Required for getting data from github" id="githubUsername" type="text">
-				<label for="githubUsername">Your Github Username</label>
-			</div>
-			<div class="col s12"><span>Fetch your contributions between:</span>
-				<input type="checkbox" class="filled-in" id="lastWeekContribution"/>
-				<label for="lastWeekContribution">Show past <span id="noDays"></span> from today</label>
-			</div>
 
-			<div class="input-field col s6">
-				<div>Starting Date:</div>
-				<input id="startingDate" type="date" class="datepicker" placeholder=" ">
-				
+		<!-- Main Content Box (CodeHeat) -->
+		<div id="codeheatBox" class="tab-content">
+			<div class="row" style="margin-top: 10px;">
+				<div class="input-field col s12">
+					<input placeholder="Your Project Name" id="projectName" type="text">
+					<label for="projectName">Your Project Name</label>
+				</div>
+				<div class="input-field col s12">
+					<input placeholder="Required for getting data from github" id="githubUsername" type="text">
+					<label for="githubUsername">Your Github Username</label>
+				</div>
+				<div class="col s12">
+					<span>Fetch your contributions between:</span>
+					<input type="checkbox" class="filled-in" id="lastWeekContribution" />
+					<label for="lastWeekContribution">Show past <span id="noDays">7 days</span> from today</label>
+				</div>
+
+				<div class="input-field col s6">
+					<div>Starting Date:</div>
+					<input id="startingDate" type="date" class="datepicker" placeholder=" ">
+				</div>
+				<div class="input-field col s6">
+					<div>Ending Date</div>
+					<input id="endingDate" type="date" class="datepicker" placeholder=" ">
+				</div>
+				<div class="input-field col s12">
+					<input placeholder="Reason" id="userReason" type="text">
+					<label for="userReason">What is stopping you from doing your work?</label>
+				</div>
+				<div>
+					<h6>Scrum Report</h6>
+					<div id="scrumReport" contenteditable="true"
+						class="materialize-textarea border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
+						style="min-height: 200px; overflow-y: auto; white-space: pre-wrap;">
+					</div>
+				</div>
+				<div style="display: flex; justify-content: space-between; gap: 10px;">
+					<button id="generateReport" class="btn waves-effect waves-light">
+						<i class="fa fa-refresh"></i> Generate Report
+					</button>
+					<button id="copyReport" class="btn waves-effect waves-light">
+						<i class="fa fa-copy"></i> Copy Report
+					</button>
+				</div>
 			</div>
-			<div class="input-field col s6">
-				<div>Ending Date</div>
-				<input id="endingDate" type="date" class="datepicker" placeholder=" ">
-			</div>
-			<div class="col s12">
-				<br />
-				<input type="checkbox" class="filled-in" id="showOpenLabel"/>
-				<label for="showOpenLabel">Show Open/Closed Label</label>
-			</div>
-			<div class="input-field col s12">
-				<input placeholder="Reason" id="userReason" type="text">
-				<label for="userReason">What is stopping you from doing your work?</label>
-			</div>
-			<div>
-				<h6>Scrum Report</h3>
-					<div id="scrumReport" contenteditable="true" 
-					class="materialize-textarea border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2" 
-					style="min-height: 200px; overflow-y: auto; white-space: pre-wrap;">
-			   </div>
-			</div>
-			<div style="display: flex; justify-content: space-between; gap: 10px;">
-				<button id="generateReport" class="btn waves-effect waves-light">
-					<i class="fa fa-refresh"></i> Generate Report
-				</button>
-				<button id="copyReport" class="btn waves-effect waves-light">
-					<i class="fa fa-copy"></i> Copy Report
-				</button>
-				
-			</div>
-			<div class="col s12">
-				
-				<h5>Note:</h5>
-				<h6>
-					<ul>
-						<li>The PRs fetched are according to the date last reviewed by anyone. So if you reviewed a PR 10 days back, and someone reviewed it 2 days back, it will appear in your last week's activity. See <a target="_blank" href="https://github.com/fossasia/scrum_helper/issues/20">this issue</a>.
-						</li>
-						<li>By using the extension you understand that there might be discrepancies in the SCRUM generated. You are advised to edit the SCRUM afterwards to remove any discrepancies.
-						</li>
-					</ul>
-				</h6>
+		</div>
+
+		<!-- Settings Box -->
+		<div id="settingsBox" class="tab-content" style="display: none;">
+			<div class="row">
+				<h5>Report Sections</h5>
+				<div class="col s12">
+					<p>
+						<input type="checkbox" id="toggle-tasks" class="filled-in section-toggle" checked />
+						<label for="toggle-tasks">Tasks/Issues</label>
+					</p>
+					<p>
+						<input type="checkbox" id="toggle-prs" class="filled-in section-toggle" checked />
+						<label for="toggle-prs">Pull Requests</label>
+					</p>
+					<p>
+						<input type="checkbox" id="toggle-reviewed" class="filled-in section-toggle" checked />
+						<label for="toggle-reviewed">Reviewed PRs</label>
+					</p>
+					<p>
+						<input type="checkbox" id="toggle-blockers" class="filled-in section-toggle" checked />
+						<label for="toggle-blockers">Blockers</label>
+					</p>
+				</div>
+
+				<h5>GitHub Filters</h5>
+				<div class="col s12">
+					<p>
+						<input type="checkbox" id="filter-open-only" class="filled-in" />
+						<label for="filter-open-only">Show only open items</label>
+					</p>
+					<p>
+						<input type="checkbox" id="filter-exclude-drafts" class="filled-in" />
+						<label for="filter-exclude-drafts">Exclude draft PRs</label>
+					</p>
+					<p>
+						<input type="checkbox" id="showOpenLabel" class="filled-in" checked />
+						<label for="showOpenLabel">Show Open/Closed Labels</label>
+					</p>
+				</div>
+
+				<h5>Templates</h5>
+				<div class="col s12">
+					<div class="input-field">
+						<input id="template-name" type="text" class="validate">
+						<label for="template-name">Template Name</label>
+					</div>
+					<button id="save-template" class="btn waves-effect waves-light">
+						<i class="fa fa-save"></i> Save Current Layout
+					</button>
+					<div class="template-list">
+						<!-- Templates will be loaded here dynamically -->
+					</div>
+				</div>
 			</div>
 		</div>
 
 		<hr />
 		<footer>
 			<div class="center">
-				<a target="_blank" href="https://github.com/fossasia/scrum_helper"><h6><i class="fa fa-github" aria-hidden="true"></i> view code</h6></a>
+				<a target="_blank" href="https://github.com/fossasia/scrum_helper">
+					<h6><i class="fa fa-github" aria-hidden="true"></i> view code</h6>
+				</a>
 			</div>
 		</footer>
 	</div>
+
 	<script src="scripts/jquery-3.2.1.min.js"></script>
 	<script type="text/javascript" type="text/javascript" src="materialize/js/materialize.min.js"></script>
 	<script src="scripts/scrumHelper.js"></script>
 	<script src="scripts/main.js"></script>
 	<script src="scripts/popup.js"></script>
+	<script src="scripts/settings.js"></script>
 </body>
+
 </html>

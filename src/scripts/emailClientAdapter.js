@@ -41,12 +41,12 @@ class EmailClientAdapter {
 						'[data-test-id*="compose"][contenteditable="true"]',
 						'.compose-editor [contenteditable="true"]'
 					].join(', '),
-					subject:  [
-							'#compose-subject-input',
-							'input[placeholder="Subject"]',
-							'input[aria-label*="subject" i]',
-							'input[data-test-id*="subject" i]'
-						].join(', ')
+					subject: [
+						'#compose-subject-input',
+						'input[placeholder="Subject"]',
+						'input[aria-label*="subject" i]',
+						'input[data-test-id*="subject" i]'
+					].join(', ')
 				},
 				eventTypes: {
 					contentChange: 'input',
