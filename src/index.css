@@ -64,3 +64,25 @@ li {
 	transition: color 0.3s ease-in-out, font-weight 0.3s ease-in-out;
 }
 
+#scrumReport {
+    border: 1px solid #ccc;
+    padding: 10px;
+    min-height: 200px;
+    max-height: 400px;
+    overflow-y: auto;
+    background-color: white;
+}
+
+#scrumReport:focus {
+    outline: none;
+    border-color: #26a69a;
+}
+
+#scrumReport a {
+    color: #26a69a;
+    text-decoration: none;
+}
+
+#scrumReport a:hover {
+    text-decoration: underline;
+}

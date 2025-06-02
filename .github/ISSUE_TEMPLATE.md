@@ -1,15 +1,34 @@
-**Actual Behaviour**
+---
+name: Bug Report / Feature Request
+about: Report a bug or request a new feature
+title: '[Bug/Feature]: <short description>'
+labels: ['needs triage']
+assignees: ''
+---
 
-Please state here what is currently happening.
+### 🔍 Actual Behaviour
 
-**Expected Behaviour**
+What is currently happening?
 
-State here what the feature should enable the user to do.
+### ✅ Expected Behaviour
 
-**Screenshots of the issue**
+What should ideally happen?
 
-Where-ever possible attach a screenshot of the issue.
+### 📸 Screenshots
 
-**Would you like to work on the issue?**
+If applicable, add screenshots to help explain the issue.
 
-Please let us know if you can work on it or the issue should be assigned to someone else.
+### 🧪 Steps to Reproduce (for bugs)
+
+1. Go to '...'
+2. Click on '...'
+3. Scroll down to '...'
+4. See the error
+
+### 💡 Possible Solution
+
+(Optional) Suggest a fix or reason for the bug.
+
+### 🙋‍♂️ Would You Like to Work on It?
+
+Yes / No
