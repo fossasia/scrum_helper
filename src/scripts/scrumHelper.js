@@ -1,8 +1,5 @@
-// const { cache } = require("react");
 console.log("Script loaded", new Date().toISOString());
-
 let refreshButton_Placed = false;
-//# sourceURL=scrumHelper.js
 let enableToggle = true;
 let hasInjectedContent = false;
 function allIncluded() {
@@ -281,9 +278,9 @@ function allIncluded() {
 		githubCache.fetching = true;
 		githubCache.cacheKey = cacheKey;
 
-		const issueUrl = `https://api.github.com/search/issues?q=author%3A${githubUsername}+org%3Afossasia+created%3A${startingDate}..${endingDate}&per_page=100`;
-		const prUrl = `https://api.github.com/search/issues?q=author%3A${githubUsername}+org%3Afossasia+updated%3A${startingDate}..${endingDate}&per_page=100`;
-		const userUrl = `https://api.github.com/users/${githubUsername}`;
+		let issueUrl = `https://api.github.com/search/issues?q=author%3A${githubUsername}+org%3Afossasia+created%3A${startingDate}..${endingDate}&per_page=100`;
+		let prUrl = `https://api.github.com/search/issues?q=commenter%3A${githubUsername}+org%3Afossasia+updated%3A${startingDate}..${endingDate}&per_page=100`;
+		let userUrl = `https://api.github.com/users/${githubUsername}`;
 		
 		try {
 			// throttling 500ms to avoid burst
@@ -389,7 +386,7 @@ function allIncluded() {
 		nextWeekArray = [];
 		reviewedPrsArray = [];
 		githubPrsReviewDataProccessed = {};
-
+		
 		// Update subject
 		if(!githubCache.subject) {
 			scrumSubjectLoaded();
