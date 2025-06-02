@@ -68,13 +68,13 @@ function handleBodyOnLoad() {
 			}
 			if (items.selectedTab === 'gsoc') {
 				handleGsocClick();
-			} 
+			}
 			else {
 				handleCodeheatClick();
 			}
-			
+
 			// initialize materialize tabs
-			$('.tabs').tabs('select_tab', items.selectedTab === 'gsoc' ? 'gsocBox' : 'codeheatBox' );
+			$('.tabs').tabs('select_tab', items.selectedTab === 'gsoc' ? 'gsocBox' : 'codeheatBox');
 		},
 	);
 }
@@ -95,21 +95,21 @@ function handleLastWeekContributionChange() {
 	var labelElement = document.querySelector("label[for='lastWeekContribution']");
 
 	if (value) {
-			startingDateElement.disabled = true;
-			endingDateElement.disabled = true;
-			endingDateElement.value = getToday();
-			startingDateElement.value = getLastWeek();
-		        handleEndingDateChange();
-		        handleStartingDateChange();
-			labelElement.classList.add("selectedLabel");
-			labelElement.classList.remove("unselectedLabel");
+		startingDateElement.disabled = true;
+		endingDateElement.disabled = true;
+		endingDateElement.value = getToday();
+		startingDateElement.value = getLastWeek();
+		handleEndingDateChange();
+		handleStartingDateChange();
+		labelElement.classList.add("selectedLabel");
+		labelElement.classList.remove("unselectedLabel");
 	} else {
-			startingDateElement.disabled = false;
-			endingDateElement.disabled = false;
-			labelElement.classList.add("unselectedLabel");
-			labelElement.classList.remove("selectedLabel");
+		startingDateElement.disabled = false;
+		endingDateElement.disabled = false;
+		labelElement.classList.add("unselectedLabel");
+		labelElement.classList.remove("selectedLabel");
 	}
-	
+
 	chrome.storage.local.set({ lastWeekContribution: value });
 }
 
@@ -156,11 +156,11 @@ function handleOpenLabelChange() {
 	var labelElement = document.querySelector("label[for='showOpenLabel']");
 
 	if (value) {
-			labelElement.classList.add("selectedLabel");
-			labelElement.classList.remove("unselectedLabel");
+		labelElement.classList.add("selectedLabel");
+		labelElement.classList.remove("unselectedLabel");
 	} else {
-			labelElement.classList.add("unselectedLabel");
-			labelElement.classList.remove("selectedLabel");
+		labelElement.classList.add("unselectedLabel");
+		labelElement.classList.remove("selectedLabel");
 	}
 
 	chrome.storage.local.set({ showOpenLabel: value });
