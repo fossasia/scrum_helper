@@ -12,11 +12,14 @@ function allIncluded(outputTarget = 'email') {
 	var lastWeekArray = [];
 	var nextWeekArray = [];
 	var reviewedPrsArray = [];
+	let todayReviewedPrsArray = [];
 	var githubIssuesData = null;
 	var lastWeekContribution = false;
 	var githubPrsReviewData = null;
 	var githubUserData = null;
 	var githubPrsReviewDataProcessed = {};
+	let todayReviewsProcessed = {};
+	let previousReviewsProcessed = {};
 	var showOpenLabel = true;
 	var showClosedLabel = true;
 	var userReason = '';
@@ -233,6 +236,7 @@ function allIncluded(outputTarget = 'email') {
 
 			var nextWeekUl = '<ul>';
 			for (i = 0; i < nextWeekArray.length; i++) nextWeekUl += nextWeekArray[i];
+			for (i = 0; i < todayReviewedPrsArray.length; i++) nextWeekUl += todayReviewedPrsArray[i];
 			nextWeekUl += '</ul>';
 
 			var weekOrDay = gsoc == 1 ? 'yesterday' : 'last week';
@@ -311,9 +315,14 @@ ${userReason}`;
 
 	function writeGithubPrsReviews() {
 		var items = githubPrsReviewData.items;
-		
-		reviewedPrsArray = [];
+		let today = new Date().toISOString().split('T')[0];
 		githubPrsReviewDataProcessed = {};
+		
+		let todayReviewsProcessed = {};
+		let previousReviewsProcessed = {};
+		reviewedPrsArray = [];
+		todayReviewedPrsArray = [];
+
 		
 		for (var i = 0; i < items.length; i++) {
 			var item = items[i];
@@ -334,66 +343,73 @@ ${userReason}`;
 			var title = item.title;
 			var number = item.number;
 			var html_url = item.html_url;
-			
-			if (!githubPrsReviewDataProcessed[project]) {
-				githubPrsReviewDataProcessed[project] = [];
-			}
-			
+			let itemDate = new Date(item.updated_at).toISOString().split('T')[0];
+
 			var obj = {
 				number: number,
 				html_url: html_url,
 				title: title,
 				state: item.state,
 			};
-			githubPrsReviewDataProcessed[project].push(obj);
+
+			if(itemDate === today) {
+				if(!todayReviewsProcessed[project]) {
+					todayReviewsProcessed[project] = [];
+				}
+				todayReviewsProcessed[project].push(obj);
+			} else {
+				if(!previousReviewsProcessed[project]) {
+					previousReviewsProcessed[project] = [];
+				}
+				previousReviewsProcessed[project].push(obj);
+			}
 		}
-		
-		for (var repo in githubPrsReviewDataProcessed) {
-			var repoLi = '<li><i>(' + repo + ')</i> - Reviewed ';
-			if (githubPrsReviewDataProcessed[repo].length > 1) {
-				repoLi += 'PRs - ';
-			} else {
-				repoLi += 'PR - ';
-			}
-			
-			if (githubPrsReviewDataProcessed[repo].length <= 1) {
-				for (var pr in githubPrsReviewDataProcessed[repo]) {
-					var pr_arr = githubPrsReviewDataProcessed[repo][pr];
-					var prText = '';
-					prText += `<a href='${pr_arr.html_url}' target='_blank'>#${pr_arr.number}</a> (${pr_arr.title}) `;
-					if (pr_arr.state === 'open') {
-						prText += issue_opened_button;
-					} else {
-						prText += issue_closed_button;
-					}
-					prText += '&nbsp;&nbsp;';
-					repoLi += prText;
-				}
-			} else {
-				repoLi += '<ul>';
-				for (var pr1 in githubPrsReviewDataProcessed[repo]) {
-					var pr_arr1 = githubPrsReviewDataProcessed[repo][pr1];
-					var prText1 = '';
-					prText1 += `<li><a href='${pr_arr1.html_url}' target='_blank'>#${pr_arr1.number}</a> (${pr_arr1.title}) `;
-					if (pr_arr1.state === 'open') {
-						prText1 += issue_opened_button;
-					} else {
-						prText1 += issue_closed_button;
-					}
-					prText1 += '&nbsp;&nbsp;</li>';
-					repoLi += prText1;
-				}
-				repoLi += '</ul>';
-			}
-			repoLi += '</li>';
+		for (let repo in previousReviewsProcessed) {
+			let repoLi = formatReviewsList(repo, previousReviewsProcessed[repo]);
 			reviewedPrsArray.push(repoLi);
 		}
-		
+		for( let repo in todayReviewsProcessed) {
+			let repoLi = formatReviewsList(repo, todayReviewsProcessed[repo]);
+			todayReviewedPrsArray.push(repoLi);
+		} 
 		writeScrumBody(); 
+	}
+	function formatReviewsList(repo, reviews) {
+		let repoLi = `<li><i> ${repo} </i> - Reviewed`;
+		if(reviews.length > 1) {
+			repoLi += `PRs - `;
+		} else {
+			repoLi += `PR - `;
+		}
+
+		if(reviews.length <= 1) {
+			for(let pr in reviews) {
+				let pr_arr = reviews[pr];
+				let prText = ``;
+				prText += `<a href='${pr_arr.html_url}' target='_blank'>#${pr_arr.number}</a> (${pr_arr.title}) `;
+				prText += pr_arr.state === 'open' ? issue_opened_button : issue_closed_button;
+				prText += '&nbsp;&nbsp;';
+				repoLi += prText;
+			}
+		} else {
+			repoLi += `<ul>`;
+			for(let pr in reviews) {
+				let pr_arr = reviews[pr];
+				let prText = ``;
+				prText += `<li><a href='${pr_arr.html_url}' target='_blank'>#${pr_arr.number}</a> (${pr_arr.title}) `;
+				prText += pr_arr.state === 'open' ? issue_opened_button : issue_closed_button;
+				prText += '&nbsp;&nbsp;</li>';
+				repoLi += prText;
+			}
+			repoLi += `</ul>`;
+		}
+		repoLi += `</li>`;
+		return repoLi;
 	}
 	function writeGithubIssuesPrs() {
 		var data = githubIssuesData;
 		var items = data.items;
+		let today = new Date().toISOString().split('T');
 		
 		lastWeekArray = [];
 		nextWeekArray = [];
@@ -406,6 +422,7 @@ ${userReason}`;
 			var title = item.title;
 			var number = item.number;
 			var li = '';
+			let itemDate = new Date(item.created_at).toISOString().split('T')[0];
 			
 			if (item.pull_request) {
 				if (item.state === 'closed') {
@@ -425,7 +442,12 @@ ${userReason}`;
 				}
 			}
 			if (li) {
-				lastWeekArray.push(li);
+				// 
+				if(itemDate === today ){
+					nextWeekArray.push(li);
+				} else {
+					lastWeekArray.push(li);
+				}
 			} else {
 			}
 		}
