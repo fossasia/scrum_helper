@@ -304,6 +304,16 @@ ${userReason}`;
 	}
 	function scrumSubjectLoaded() {
 		if (!enableToggle) return;
+		if(outputTarget === 'email') {
+			if(!window.emailClientAdapter) {
+				console.error('Email client adapter not found');
+				return;
+			}
+			if(!window.emailClientAdapter.isNewConversation()) {
+				console.log('Not a new conversation, skipping subject modification');
+				return;
+			}
+		}
 		setTimeout(() => {
 			var name = githubUserData.name || githubUsername;
 			var project = getProject();
@@ -458,6 +468,13 @@ ${userReason}`;
 
 		const elements = window.emailClientAdapter.getEditorElements();
 		if (!elements || !elements.subject) return;
+
+		if (outputTarget === 'email' && !window.emailClientAdapter.isNewConversation()) {
+			console.log('Not a new conversation, skipping subject interval');
+			clearInterval(intervalSubject);
+			return;
+		}
+
 
 		clearInterval(intervalSubject);
 		scrumSubject = elements.subject;
