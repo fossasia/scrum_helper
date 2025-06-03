@@ -293,23 +293,20 @@ ${userReason}`;
 	}
 	var intervalSubject = setInterval(() => {
 		if (!window.emailClientAdapter) {
-			console.log('Waiting for email client adapter to initialize...');
 			return;
 		}
 
 		const elements = window.emailClientAdapter.getEditorElements();
 		if (!elements || !elements.subject) {
-			console.log('Waiting for email elements to be ready...');
 			return;
 		}
 
-		// Only proceed if we have all required data
+	
 		if (!githubUserData) {
-			console.log('Waiting for GitHub user data...');
 			return;
 		}
 
-		console.log('All requirements met, initializing subject handling');
+		
 		clearInterval(intervalSubject);
 		scrumSubject = elements.subject;
 
@@ -321,30 +318,30 @@ ${userReason}`;
 
 	function scrumSubjectLoaded() {
 		try {
-			console.log('Starting subject processing...');
+			
 
 			if (!enableToggle) {
-				console.log('Subject modification skipped: extension is disabled');
+				
 				return;
 			}
 
 			if (!scrumSubject) {
-				console.log('Subject element not found, skipping modification');
+				
 				return;
 			}
 
 			// Get the current subject value
 			const currentSubject = scrumSubject.value || '';
-			console.log('Current subject:', currentSubject);
+			
 
 			// Don't modify the subject if it's a reply or already has [Scrum]
 			if (currentSubject.startsWith('Re:')) {
-				console.log('Subject modification skipped: this is a reply email');
+				
 				return;
 			}
 
 			if (currentSubject.includes('[Scrum]')) {
-				console.log('Subject modification skipped: already contains [Scrum]');
+				
 				return;
 			}
 
