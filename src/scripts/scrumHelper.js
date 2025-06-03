@@ -223,6 +223,17 @@ function allIncluded(outputTarget = 'email') {
 	function writeScrumBody() {
 		if (!enableToggle) return;
 
+		if(outputTarget ==='email') {
+			if(!window.emailClientAdapter) {
+				console.error('Email client adapter not found');
+				return;
+			}
+			if(!window.emailClientAdapter.isNewConversation()) {
+				console.log('Not a new conversation, skipping scrum helper');
+				return;
+			}
+		}
+
 		setTimeout(() => {
 			// Generate content first
 			var lastWeekUl = '<ul>';
@@ -470,9 +481,3 @@ $('button>span:contains(New conversation)').parent('button').click(() => {
 window.generateScrumReport = function() {
     allIncluded('popup');
 };
-
-$('button>span:contains(New conversation)')
-	.parent('button')
-	.click(() => {
-		allIncluded();
-	});

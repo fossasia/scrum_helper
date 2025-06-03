@@ -1,4 +1,57 @@
 class EmailClientAdapter {
+	isNewConversation() {
+	const clientType = this.detectClient();
+	if (!clientType) return false;
+
+	switch (clientType) {
+    case 'gmail': {
+      const editor = document.querySelector('.Am.Al.editable.LW-avf');
+      if (!editor) return false;
+      const isNew = !!editor.closest('div[role="dialog"]');
+      console.log('Gmail compose check:', {
+        editorFound:       !!editor,
+        insideDialog:      isNew,
+        isNewConversation: isNew
+      });
+      return isNew;
+    }
+
+    case 'outlook':
+      return !document.querySelector('[aria-label="Reply"]');
+
+    case 'yahoo': {
+      // check if the compose header title is present
+      const header = document.querySelector('[data-test-id="compose-header-title"]');
+      if (header) {
+        const title = header.innerText.trim().toLowerCase();
+        if (title.includes('new message')) {
+          console.log('Yahoo compose check:', { headerText: title, isNewConversation: true });
+          return true;
+        }
+        if (title.includes('reply') || title.includes('forward')) {
+          console.log('Yahoo compose check:', { headerText: title, isNewConversation: false });
+          return false;
+        }
+      }
+      // check if the subject field starts with Re: or Fwd:
+      const subjectInput = document.querySelector('input[data-test-id="compose-subject"]');
+      if (subjectInput) {
+        const value = subjectInput.value.trim().toLowerCase();
+        const isReplyBySubject = value.startsWith('re:') || value.startsWith('fwd:');
+        console.log('Yahoo compose check (subject):', {
+          subjectValue:     subjectInput.value,
+          isReplyBySubject,
+          isNewConversation: !isReplyBySubject
+        });
+        return !isReplyBySubject;
+      }
+      return false;
+    }
+
+    default:
+      return false;
+  }
+}
 	constructor() {
 		this.clientConfigs = {
 			'google-groups': {
@@ -11,7 +64,7 @@ class EmailClientAdapter {
 					subjectChange: 'input',
 				},
 			},
-			gmail: {
+			'gmail': {
 				selectors: {
 					body: 'div.editable.LW-avf[contenteditable="true"][role="textbox"]',
 					subject: 'input[name="subjectbox"][tabindex="1"]',
@@ -21,7 +74,7 @@ class EmailClientAdapter {
 					subjectChange: 'input',
 				},
 			},
-			outlook: {
+			'outlook': {
 				selectors: {
 					body: 'div[role="textbox"][contenteditable="true"][aria-multiline="true"]',
 					subject: [
@@ -35,7 +88,7 @@ class EmailClientAdapter {
 				},
 				injectMethod: 'focusAndPaste', // Custom injection method
 			},
-			yahoo: {
+			'yahoo': {
 				selectors: {
 					body: [
 						// Desktop selectors
