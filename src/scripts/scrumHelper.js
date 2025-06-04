@@ -291,7 +291,7 @@ ${userReason}`;
 		else if (projectUrl === 'open-event') project = 'Open Event';
 		return project;
 	}
-	var intervalSubject = setInterval(() => {
+	const intervalSubject = setInterval(() => {
 		if (!window.emailClientAdapter) {
 			return;
 		}
@@ -358,7 +358,9 @@ ${userReason}`;
 
 			// Create and set new subject
 			const newSubject = `[Scrum] ${name} - ${project} - ${dateCode} - False`;
-			console.log('Setting new subject:', newSubject);
+			if (window.DEBUG) {
+				console.log('Setting new subject:', newSubject);
+			}
 
 			scrumSubject.value = newSubject;
 			scrumSubject.dispatchEvent(new Event('input', { bubbles: true }));
