@@ -2,55 +2,35 @@ class EmailClientAdapter {
 	isNewConversation() {
 	const clientType = this.detectClient();
 	if (!clientType) return false;
+	const elements = this.getEditorElements();
+	if (!elements || !elements.subject) return false;
+	const currentSubject = elements.subject.value || '';
+	const isReplySubject = currentSubject.startsWith('Re:') || currentSubject.startsWith('Fwd:');	
+	let isReplyContext = false;
 
 	switch (clientType) {
-    case 'gmail': {
-      const editor = document.querySelector('.Am.Al.editable.LW-avf');
-      if (!editor) return false;
-      const isNew = !!editor.closest('div[role="dialog"]');
-      console.log('Gmail compose check:', {
-        editorFound:       !!editor,
-        insideDialog:      isNew,
-        isNewConversation: isNew
-      });
-      return isNew;
-    }
-
-    case 'outlook':
-      return !document.querySelector('[aria-label="Reply"]');
-
-    case 'yahoo': {
-      // check if the compose header title is present
-      const header = document.querySelector('[data-test-id="compose-header-title"]');
-      if (header) {
-        const title = header.innerText.trim().toLowerCase();
-        if (title.includes('new message')) {
-          console.log('Yahoo compose check:', { headerText: title, isNewConversation: true });
-          return true;
+		case 'gmail': {
+            const editor = document.querySelector('.Am.Al.editable.LW-avf');
+            const isNewWindow = editor ? !!editor.closest('div[role="dialog"]') : false;
+            isReplyContext = !isNewWindow;
+            break;
         }
-        if (title.includes('reply') || title.includes('forward')) {
-          console.log('Yahoo compose check:', { headerText: title, isNewConversation: false });
-          return false;
-        }
-      }
-      // check if the subject field starts with Re: or Fwd:
-      const subjectInput = document.querySelector('input[data-test-id="compose-subject"]');
-      if (subjectInput) {
-        const value = subjectInput.value.trim().toLowerCase();
-        const isReplyBySubject = value.startsWith('re:') || value.startsWith('fwd:');
-        console.log('Yahoo compose check (subject):', {
-          subjectValue:     subjectInput.value,
-          isReplyBySubject,
-          isNewConversation: !isReplyBySubject
-        });
-        return !isReplyBySubject;
-      }
-      return false;
-    }
 
-    default:
-      return false;
-  }
+		case 'outlook': {
+            isReplyContext = !!document.querySelector('[aria-label="Reply"]');
+            break;
+        }
+
+		case 'yahoo': {
+            const header = document.querySelector('[data-test-id="compose-header-title"]');
+            if (header) {
+                const title = header.innerText.trim().toLowerCase();
+                isReplyContext = title.includes('reply') || title.includes('forward');
+            }
+            break;
+        }
+    }
+	return !(isReplySubject || isReplyContext);
 }
 	constructor() {
 		this.clientConfigs = {
