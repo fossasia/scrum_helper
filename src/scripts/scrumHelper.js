@@ -1,3 +1,4 @@
+console.log('Script loaded, adapter exists:', !!window.emailClientAdapter);
 var enableToggle = true;
 function allIncluded(outputTarget = 'email') {
 	console.log('allIncluded called with outputTarget:', outputTarget);
@@ -303,16 +304,13 @@ ${userReason}`;
 		return project;
 	}
 	function scrumSubjectLoaded() {
+		try{
+
+		
 		if (!enableToggle) return;
-		if(outputTarget === 'email') {
-			if(!window.emailClientAdapter) {
-				console.error('Email client adapter not found');
-				return;
-			}
-			if(!window.emailClientAdapter.isNewConversation()) {
-				console.log('Not a new conversation, skipping subject modification');
-				return;
-			}
+		if (!scrumSubject){
+			console.error('Subject element not found');
+			return;
 		}
 		setTimeout(() => {
 			var name = githubUserData.name || githubUsername;
@@ -328,6 +326,9 @@ ${userReason}`;
 			scrumSubject.value = '[Scrum] ' + name + ' - ' + project + ' - ' + dateCode + ' - False';
 			scrumSubject.dispatchEvent(new Event('input', { bubbles: true }));
 		});
+		} catch (err) {
+			console.err('Error while setting subject: ', err);
+		}
 	}
 
 	function writeGithubPrsReviews() {
@@ -478,7 +479,10 @@ ${userReason}`;
 
 		clearInterval(intervalSubject);
 		scrumSubject = elements.subject;
-		scrumSubjectLoaded();
+		
+		setTimeout(() => {
+			scrumSubjectLoaded();
+		}, 500);
 	}, 500);
 
 	//check for github safe writing for both issues/prs and pr reviews

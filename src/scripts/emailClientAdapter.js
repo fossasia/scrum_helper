@@ -1,3 +1,4 @@
+
 class EmailClientAdapter {
 	isNewConversation() {
 	const clientType = this.detectClient();
@@ -212,3 +213,4 @@ class EmailClientAdapter {
 
 // Create global instance
 window.emailClientAdapter = new EmailClientAdapter();
+console.log('Email client adapter initialized');
