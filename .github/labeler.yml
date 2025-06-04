@@ -2,8 +2,6 @@
 frontend:
   - 'src/**/*.html'
   - 'src/**/*.css'
-  - 'src/index.css'
-  - 'src/scrumStyle.css'
 
 # JavaScript changes  
 javascript:
