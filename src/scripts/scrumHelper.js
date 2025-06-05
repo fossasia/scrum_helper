@@ -140,7 +140,7 @@ function allIncluded() {
 		return WeekDisplayPadded;
 	}
 
-	const DEBUG = false; 
+	const DEBUG = true; 
 	function log( ...args) {
 		if(DEBUG) {
 			console.log(`[SCRUM-HELPER]:`, ...args);
@@ -476,7 +476,12 @@ function allIncluded() {
 
 	// write PRs Reviewed
 	function writeGithubPrsReviews() {
-		items = githubPrsReviewData.items;
+		let items = githubPrsReviewData.items;
+			log('Processing PR reviews:', {
+			hasItems: !!items,
+			itemCount: items?.length,
+			firstItem: items?.[0]
+		});
 		if (!items) {
 			logError('No Github PR review data available');
 			return;
@@ -694,10 +699,15 @@ function allIncluded() {
 	}, 500);
 
 	//check for github safe writing
-	let intervalWriteGithub = setInterval(() => {
-		if (scrumBody && githubUsername && githubIssuesData && githubPrsReviewData ) {
-			clearInterval(intervalWriteGithub);
+	let intervalWriteGithubIssues = setInterval(() => {
+		if (scrumBody && githubUsername && githubIssuesData ) {
+			clearInterval(intervalWriteGithubIssues);
 			writeGithubIssuesPrs();
+		}
+	}, 500);
+	let intervalWriteGithubPrs = setInterval(() => {
+		if (scrumBody && githubUsername &&  githubPrsReviewData ) {
+			clearInterval(intervalWriteGithubPrs);
 			writeGithubPrsReviews();
 		}
 	}, 500);
