@@ -291,22 +291,82 @@ ${userReason}`;
 		else if (projectUrl === 'open-event') project = 'Open Event';
 		return project;
 	}
-	function scrumSubjectLoaded() {
-		if (!enableToggle) return;
+	const intervalSubject = setInterval(() => {
+		if (!window.emailClientAdapter) {
+			return;
+		}
+
+		const elements = window.emailClientAdapter.getEditorElements();
+		if (!elements || !elements.subject) {
+			return;
+		}
+
+	
+		if (!githubUserData) {
+			return;
+		}
+
+		
+		clearInterval(intervalSubject);
+		scrumSubject = elements.subject;
+
+		// Add a small delay to ensure the subject field is fully initialized
 		setTimeout(() => {
-			var name = githubUserData.name || githubUsername;
-			var project = getProject();
-			var curDate = new Date();
-			var year = curDate.getFullYear().toString();
-			var date = curDate.getDate();
-			var month = curDate.getMonth();
-			month++;
-			if (month < 10) month = '0' + month;
-			if (date < 10) date = '0' + date;
-			var dateCode = year.toString() + month.toString() + date.toString();
-			scrumSubject.value = '[Scrum] ' + name + ' - ' + project + ' - ' + dateCode + ' - False';
+			scrumSubjectLoaded();
+		}, 100);
+	}, 500);
+
+	function scrumSubjectLoaded() {
+		try {
+			
+
+			if (!enableToggle) {
+				
+				return;
+			}
+
+			if (!scrumSubject) {
+				
+				return;
+			}
+
+			// Get the current subject value
+			const currentSubject = scrumSubject.value || '';
+			
+
+			// Don't modify the subject if it's a reply or already has [Scrum]
+			if (currentSubject.startsWith('Re:')) {
+				
+				return;
+			}
+
+			if (currentSubject.includes('[Scrum]')) {
+				
+				return;
+			}
+
+			// Get user name and project
+			const name = githubUserData.name || githubUsername;
+			const project = getProject();
+
+			// Format date
+			const curDate = new Date();
+			const year = curDate.getFullYear().toString();
+			const month = (curDate.getMonth() + 1).toString().padStart(2, '0');
+			const date = curDate.getDate().toString().padStart(2, '0');
+			const dateCode = year + month + date;
+
+			// Create and set new subject
+			const newSubject = `[Scrum] ${name} - ${project} - ${dateCode} - False`;
+			if (window.DEBUG) {
+				console.log('Setting new subject:', newSubject);
+			}
+
+			scrumSubject.value = newSubject;
 			scrumSubject.dispatchEvent(new Event('input', { bubbles: true }));
-		});
+			} catch (error) {
+			console.error('Error during subject modification:', error);
+		}
 	}
 
 	function writeGithubPrsReviews() {
@@ -442,16 +502,6 @@ ${userReason}`;
 		writeScrumBody();
 	}, 500);
 
-	var intervalSubject = setInterval(() => {
-		if (!githubUserData || !window.emailClientAdapter) return;
-
-		const elements = window.emailClientAdapter.getEditorElements();
-		if (!elements || !elements.subject) return;
-
-		clearInterval(intervalSubject);
-		scrumSubject = elements.subject;
-		scrumSubjectLoaded();
-	}, 500);
 
 	//check for github safe writing for both issues/prs and pr reviews
 	var intervalWriteGithub = setInterval(() => {
