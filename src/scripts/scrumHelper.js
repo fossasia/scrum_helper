@@ -166,6 +166,19 @@ function allIncluded() {
 	};
 	const MAX_CACHE_SIZE = 50 * 1024 * 1024; //50mb max cache
 
+	async function initializeCache() {
+		log('Initializing cache');
+		const loaded = await loadFromStorage();
+		if(!loaded) {
+			githubCache.data = null;
+			githubCache.cacheKey = null;
+			githubCache.timestamp = 0;
+			log('Cache initialized with empty state');
+		}
+		await verifyCacheStatus();
+	}
+	initializeCache();
+
 	function saveToStorage(data) {
 		const cacheData = {
 			data: data,
@@ -706,8 +719,3 @@ $('button>span:contains(New conversation)')
 	.click(() => {
 		allIncluded();
 	});
-
-<<<<<<< HEAD
-=======
-
->>>>>>> 884784e (added caching, unable to see logs in console)
