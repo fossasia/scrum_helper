@@ -386,7 +386,6 @@ function allIncluded() {
 		nextWeekArray = [];
 		reviewedPrsArray = [];
 		githubPrsReviewDataProccessed = {};
-		
 		// Update subject
 		if(!githubCache.subject) {
 			scrumSubjectLoaded();
