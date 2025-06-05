@@ -1,0 +1,61 @@
+# Frontend changes
+frontend:
+  - 'src/**/*.html'
+  - 'src/**/*.css'
+
+# JavaScript changes  
+javascript:
+  - 'src/scripts/**/*.js'
+  - 'src/**/*.js'
+
+# Core functionality
+core:
+  - 'src/scripts/scrumHelper.js'
+  - 'src/scripts/emailClientAdapter.js'
+
+# Documentation
+documentation:
+  - '**/*.md'
+  - 'docs/**'
+  - 'LICENSE'
+  - 'README.md'
+
+# Configuration files
+config:
+  - '.github/**/*'
+  - '*.json'
+  - '*.yml'
+  - '*.yaml'
+  - 'package.json'
+  - 'package-lock.json'
+
+# Browser extension specific
+extension:
+  - 'manifest.json'
+  - 'src/popup.html'
+  - 'src/scripts/main.js'
+
+# Testing
+testing:
+  - 'tests/**'
+  - '**/*.test.js'
+  - '**/*.spec.js'
+
+# Dependencies
+dependencies:
+  - 'package.json'
+  - 'package-lock.json'
+  - 'yarn.lock'
+
+# Additional labels (manually applied, no patterns)
+bug: []
+codeheat: []
+duplicate: []
+enhancement: []
+good first issue: []
+hacktoberfest: []
+help wanted: []
+invalid: []
+question: []
+wontfix: []
+"Pull requests that update a dependency file": []
