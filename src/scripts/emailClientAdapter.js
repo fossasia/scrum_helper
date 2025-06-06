@@ -1,4 +1,38 @@
+
 class EmailClientAdapter {
+	isNewConversation() {
+	const clientType = this.detectClient();
+	if (!clientType) return false;
+	const elements = this.getEditorElements();
+	if (!elements || !elements.subject) return false;
+	const currentSubject = elements.subject.value || '';
+	const isReplySubject = currentSubject.startsWith('Re:') || currentSubject.startsWith('Fwd:');	
+	let isReplyContext = false;
+
+	switch (clientType) {
+		case 'gmail': {
+            const editor = document.querySelector('.Am.Al.editable.LW-avf');
+            const isNewWindow = editor ? !!editor.closest('div[role="dialog"]') : false;
+            isReplyContext = !isNewWindow;
+            break;
+        }
+
+		case 'outlook': {
+            isReplyContext = !!document.querySelector('[aria-label="Reply"]');
+            break;
+        }
+
+		case 'yahoo': {
+            const header = document.querySelector('[data-test-id="compose-header-title"]');
+            if (header) {
+                const title = header.innerText.trim().toLowerCase();
+                isReplyContext = title.includes('reply') || title.includes('forward');
+            }
+            break;
+        }
+    }
+	return !(isReplySubject || isReplyContext);
+}
 	constructor() {
 		this.clientConfigs = {
 			'google-groups': {
@@ -11,7 +45,7 @@ class EmailClientAdapter {
 					subjectChange: 'input',
 				},
 			},
-			gmail: {
+			'gmail': {
 				selectors: {
 					body: 'div.editable.LW-avf[contenteditable="true"][role="textbox"]',
 					subject: 'input[name="subjectbox"][tabindex="1"]',
@@ -21,7 +55,7 @@ class EmailClientAdapter {
 					subjectChange: 'input',
 				},
 			},
-			outlook: {
+			'outlook': {
 				selectors: {
 					body: 'div[role="textbox"][contenteditable="true"][aria-multiline="true"]',
 					subject: [
@@ -35,7 +69,7 @@ class EmailClientAdapter {
 				},
 				injectMethod: 'focusAndPaste', // Custom injection method
 			},
-			yahoo: {
+			'yahoo': {
 				selectors: {
 					body: [
 						// Desktop selectors
@@ -179,3 +213,4 @@ class EmailClientAdapter {
 
 // Create global instance
 window.emailClientAdapter = new EmailClientAdapter();
+console.log('Email client adapter initialized');

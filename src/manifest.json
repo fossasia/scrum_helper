@@ -24,7 +24,7 @@
         "*://outlook.office.com/*",      
         "*://mail.yahoo.com/*"          
       ],
-      "js": ["scripts/jquery-3.2.1.min.js", "scripts/scrumHelper.js",  "scripts/emailClientAdapter.js"] 
+      "js": ["scripts/jquery-3.2.1.min.js", "scripts/emailClientAdapter.js", "scripts/scrumHelper.js"] 
     }
   ],
 
