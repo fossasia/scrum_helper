@@ -10,8 +10,11 @@ document.addEventListener('DOMContentLoaded', () => {
         toggle.addEventListener('change', () => {
           settings.sections[section] = toggle.checked;
           saveSettings(settings).then(() => {
-            // Refresh report
-            document.getElementById('generateReport').click();
+            // Keep original behavior - regenerate report
+            const generateBtn = document.getElementById('generateReport');
+            if (generateBtn) {
+              generateBtn.click();
+            }
           });
         });
       }
@@ -28,8 +31,11 @@ document.addEventListener('DOMContentLoaded', () => {
         settings.filters.openOnly = document.getElementById('filter-open-only').checked;
         settings.filters.excludeDrafts = document.getElementById('filter-exclude-drafts').checked;
         saveSettings(settings).then(() => {
-          // Refresh report
-          document.getElementById('generateReport').click();
+          // Keep original behavior - regenerate report
+          const generateBtn = document.getElementById('generateReport');
+          if (generateBtn) {
+            generateBtn.click();
+          }
         });
       });
     });
