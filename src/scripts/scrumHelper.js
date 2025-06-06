@@ -303,7 +303,8 @@ ${userReason}`;
 		else if (projectUrl === 'open-event') project = 'Open Event';
 		return project;
 	}
-	function scrumSubjectLoaded() {
+
+  function scrumSubjectLoaded() {
 		try{
 
 		
@@ -475,7 +476,6 @@ ${userReason}`;
 			clearInterval(intervalSubject);
 			return;
 		}
-
 
 		clearInterval(intervalSubject);
 		scrumSubject = elements.subject;
