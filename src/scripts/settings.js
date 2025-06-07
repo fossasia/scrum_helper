@@ -52,7 +52,22 @@ document.addEventListener('DOMContentLoaded', () => {
       return;
     }
 
-    loadSettings().then(({ settings }) => {
+    // Check for invalid characters in template name
+    const invalidChars = /[<>:"/\\|?*\x00-\x1F]/;
+    if (invalidChars.test(name)) {
+      Materialize.toast('Template name contains invalid characters', 3000);
+      return;
+    }
+
+    loadSettings().then(({ settings, templates }) => {
+      // Check if template with this name already exists
+      if (templates && templates[name]) {
+        // Show confirmation dialog
+        if (!confirm(`A template named "${name}" already exists. Do you want to replace it?`)) {
+          return; // User clicked Cancel
+        }
+      }
+
       saveTemplate(name, settings).then(() => {
         document.getElementById('template-name').value = '';
         Materialize.toast('Template saved successfully', 3000);
@@ -69,12 +84,22 @@ function refreshTemplateList() {
   loadSettings().then(({ templates }) => {
     templateList.innerHTML = '';
 
-    Object.keys(templates).forEach(name => {
+    if (!templates || Object.keys(templates).length === 0) {
+      const emptyMessage = document.createElement('div');
+      emptyMessage.className = 'center-align grey-text';
+      emptyMessage.style.padding = '20px';
+      emptyMessage.textContent = 'No saved templates';
+      templateList.appendChild(emptyMessage);
+      return;
+    }
+
+    Object.keys(templates).sort().forEach(name => {
       const templateItem = document.createElement('div');
       templateItem.className = 'template-item';
 
       const templateName = document.createElement('span');
       templateName.textContent = name;
+      templateName.title = 'Created: ' + new Date(templates[name].timestamp || Date.now()).toLocaleString();
       templateItem.appendChild(templateName);
 
       const actionDiv = document.createElement('div');
@@ -118,4 +143,4 @@ function refreshTemplateList() {
       templateList.appendChild(templateItem);
     });
   });
-} 
+}
