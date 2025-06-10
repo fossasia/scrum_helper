@@ -545,7 +545,7 @@ function allIncluded(outputTarget = 'email') {
 				return;
 			}
 			// reviewedPrsArray = [];
-			// githubPrsReviewDataProcessed = {};
+			// githubPrsReviewDataProccessed = {};
 			let i;
 			for (i = 0; i < items.length; i++) {
 				let item = items[i];
@@ -565,7 +565,7 @@ function allIncluded(outputTarget = 'email') {
 					title: title,
 					state: item.state,
 				};
-				githubPrsReviewDataProcessed[project].push(obj);
+				githubPrsReviewDataProccessed[project].push(obj);
 			}
 			for (let repo in githubPrsReviewDataProccessed) {
 				let repoLi =
