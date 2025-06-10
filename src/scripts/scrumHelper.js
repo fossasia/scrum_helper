@@ -400,7 +400,6 @@ ${userReason}`;
 			} else {
 				repoLi += 'PR - ';
 			}
-			
 			if (githubPrsReviewDataProcessed[repo].length <= 1) {
 				for (var pr in githubPrsReviewDataProcessed[repo]) {
 					var pr_arr = githubPrsReviewDataProcessed[repo][pr];
