@@ -453,22 +453,21 @@ function allIncluded(outputTarget = 'email') {
 
 				// Create the complete content
 				let content;
-				if (lastWeekContribution == true) {
-				content = `<b>1. What did I do ${weekOrDay}?</b>
-							<br>${lastWeekUl}<br><br>
-							<b>2. What I plan to do ${weekOrDay2}?</b>
-							<br>${nextWeekUl}<br><br>
-							<b>3. What is stopping me from doing my work?</b>
-							<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${userReason}</p>`;
-				} else {
-					content = `<b>1. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?</b>
-							<br>${lastWeekUl}<br><br>
-							<b>2. What I plan to do ${weekOrDay2}?</b>
-							<br>${nextWeekUl}<br><br>
-							<b>3. What is stopping me from doing my work?</b>
-							<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${userReason}</p>`;
-				}
-				
+if (lastWeekContribution == true) {
+    content = `<b>1. What did I do ${weekOrDay}?</b><br>
+${lastWeekUl}<br>
+<b>2. What do I plan to do ${weekOrDay2}?</b><br>
+${nextWeekUl}<br>
+<b>3. What is stopping me from doing my work?</b><br>
+<p style="margin-left: 20px;">${userReason}</p>`;
+} else {
+    content = `<b>1. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?</b><br>
+${lastWeekUl}<br>
+<b>2. What do I plan to do ${weekOrDay2}?</b><br>
+${nextWeekUl}<br>
+<b>3. What is stopping me from doing my work?</b><br>
+<p style="margin-left: 20px;">${userReason}</p>`;
+}
 
 				if (outputTarget === 'popup') {
 					const scrumReport = document.getElementById('scrumReport');
