@@ -95,3 +95,25 @@ li {
     100% { transform: rotate(360deg); }
 }
 
+#scrumReport {
+    border: 1px solid #ccc;
+    padding: 10px;
+    min-height: 200px;
+    max-height: 400px;
+    overflow-y: auto;
+    background-color: white;
+}
+
+#scrumReport:focus {
+    outline: none;
+    border-color: #26a69a;
+}
+
+#scrumReport a {
+    color: #26a69a;
+    text-decoration: none;
+}
+
+#scrumReport a:hover {
+    text-decoration: underline;
+}
