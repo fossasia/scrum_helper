@@ -409,6 +409,8 @@ function allIncluded(outputTarget = 'email') {
 			reviewedPrsArray = [];
 			githubPrsReviewDataProccessed = {};
 
+			writeGithubIssuesPrs();
+			writeGithubPrsReviews();
 			// Update subject
 			if(!githubCache.subject && scrumSubject) {
 				scrumSubjectLoaded();
@@ -423,7 +425,7 @@ function allIncluded(outputTarget = 'email') {
 
 		//load initial text in scrum body
 		function writeScrumBody() {
-			if (!enableToggle || hasInjectedContent) return;
+			if (!enableToggle || (outputTarget === 'email' && hasInjectedContent)) return;
 
 			if(outputTarget ==='email') {
 				if(!window.emailClientAdapter) {
@@ -486,7 +488,6 @@ function allIncluded(outputTarget = 'email') {
 						logError('Scrum report div not found');
 					}
 				} else {
-
 					const elements = window.emailClientAdapter.getEditorElements();
 					if (!elements || !elements.body) {
 						console.error('Email client editor not found');
@@ -711,15 +712,29 @@ function allIncluded(outputTarget = 'email') {
 
 		//check for github safe writing
 		let intervalWriteGithubIssues = setInterval(() => {
-			if (scrumBody && githubUsername && githubIssuesData ) {
-				clearInterval(intervalWriteGithubIssues);
-				writeGithubIssuesPrs();
+			if(outputTarget === 'popup') {
+				if (githubUsername && githubIssuesData) {
+					clearInterval(intervalWriteGithubIssues);
+					writeGithubIssuesPrs();
+				}
+			} else {
+					if (scrumBody && githubUsername && githubIssuesData ) {
+					clearInterval(intervalWriteGithubIssues);
+					writeGithubIssuesPrs();
+				}
 			}
 		}, 500);
 		let intervalWriteGithubPrs = setInterval(() => {
-			if (scrumBody && githubUsername &&  githubPrsReviewData ) {
-				clearInterval(intervalWriteGithubPrs);
-				writeGithubPrsReviews();
+			if (outputTarget === 'popup') {
+				if (githubUsername && githubPrsReviewData) {
+					clearInterval(intervalWriteGithubPrs);
+					writeGithubPrsReviews();
+				}
+			} else {
+				if (scrumBody && githubUsername && githubPrsReviewData) {
+					clearInterval(intervalWriteGithubPrs);
+					writeGithubPrsReviews();
+				}
 			}
 		}, 500);
 		if (!refreshButton_Placed) {
