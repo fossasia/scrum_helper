@@ -1,4 +1,3 @@
-console.log("Script loaded", new Date().toISOString());
 console.log('Script loaded, adapter exists:', !!window.emailClientAdapter);
 let refreshButton_Placed = false;
 let enableToggle = true;
@@ -410,13 +409,6 @@ function allIncluded(outputTarget = 'email') {
 			reviewedPrsArray = [];
 			githubPrsReviewDataProccessed = {};
 
-			log('Writing issues from process')
-			writeGithubIssuesPrs();
-			log('Writing prs from process')
-			writeGithubPrsReviews();
-			log('Writing body from process')
-			writeScrumBody();
-
 			// Update subject
 			if(!githubCache.subject && scrumSubject) {
 				scrumSubjectLoaded();
@@ -431,7 +423,7 @@ function allIncluded(outputTarget = 'email') {
 
 		//load initial text in scrum body
 		function writeScrumBody() {
-			if (!enableToggle || (outputTarget === 'email' && hasInjectedContent)) return;
+			if (!enableToggle || hasInjectedContent) return;
 
 			if(outputTarget ==='email') {
 				if(!window.emailClientAdapter) {
@@ -461,22 +453,22 @@ function allIncluded(outputTarget = 'email') {
 
 				// Create the complete content
 				let content;
-			if (lastWeekContribution == true) {
-				content = `<b>1. What did I do ${weekOrDay}?</b><br>
-	${lastWeekUl}<br>
-	<b>2. What do I plan to do ${weekOrDay2}?</b><br>
-	${nextWeekUl}<br>
-	<b>3. What is stopping me from doing my work?</b><br>
-	${userReason}`;
-			} else {
-				content = `<b>1. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?</b><br>
-	${lastWeekUl}<br>
-	<b>2. What do I plan to do ${weekOrDay2}?</b><br>
-	${nextWeekUl}<br>
-	<b>3. What is stopping me from doing my work?</b><br>
-	${userReason}`;
-			}
-			
+				if (lastWeekContribution == true) {
+				content = `<b>1. What did I do ${weekOrDay}?</b>
+							<br>${lastWeekUl}<br><br>
+							<b>2. What I plan to do ${weekOrDay2}?</b>
+							<br>${nextWeekUl}<br><br>
+							<b>3. What is stopping me from doing my work?</b>
+							<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${userReason}</p>`;
+				} else {
+					content = `<b>1. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?</b>
+							<br>${lastWeekUl}<br><br>
+							<b>2. What I plan to do ${weekOrDay2}?</b>
+							<br>${nextWeekUl}<br><br>
+							<b>3. What is stopping me from doing my work?</b>
+							<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${userReason}</p>`;
+				}
+				
 
 				if (outputTarget === 'popup') {
 					const scrumReport = document.getElementById('scrumReport');
@@ -501,43 +493,43 @@ function allIncluded(outputTarget = 'email') {
 						return;
 					}
 					window.emailClientAdapter.injectContent(elements.body, content, elements.eventTypes.contentChange);
+					hasInjectedContent = true;
 				}
-				hasInjectedContent = true;
 			}, 500);
 		}
 
 		//load initial scrum subject
 		function scrumSubjectLoaded() {
 		try{
-		if (!enableToggle || hasInjectedContent) return;
-		if (!scrumSubject){
-			console.error('Subject element not found');
-			return;
-		}
-		setTimeout(() => {
-			let name = githubUserData.name || githubUsername;
-			let project = projectName || '<project name>';
-			let curDate = new Date();
-			let year = curDate.getFullYear().toString();
-			let date = curDate.getDate();
-			let month = curDate.getMonth();
-			month++;
-			if (month < 10) month = '0' + month;
-			if (date < 10) date = '0' + date;
-			let dateCode = year.toString() + month.toString() + date.toString();
-
-			const subject = `[Scrum] ${name} - ${project} - ${dateCode} - False`;
-				log('Generated subject:', subject);
-			githubCache.subject = subject;
-			saveToStorage(githubCache.data, subject);
-
-			if(scrumSubject && scrumSubject.value !== subject) {
-			scrumSubject.value = subject;
-			scrumSubject.dispatchEvent(new Event('input', { bubbles: true }));
+			if (!enableToggle || hasInjectedContent) return;
+			if (!scrumSubject){
+				console.error('Subject element not found');
+				return;
 			}
-		});
+			setTimeout(() => {
+				let name = githubUserData.name || githubUsername;
+				let project = projectName || '<project name>';
+				let curDate = new Date();
+				let year = curDate.getFullYear().toString();
+				let date = curDate.getDate();
+				let month = curDate.getMonth();
+				month++;
+				if (month < 10) month = '0' + month;
+				if (date < 10) date = '0' + date;
+				let dateCode = year.toString() + month.toString() + date.toString();
+
+				const subject = `[Scrum] ${name} - ${project} - ${dateCode} - False`;
+				log('Generated subject:', subject);
+				githubCache.subject = subject;
+				saveToStorage(githubCache.data, subject);
+
+				if(scrumSubject && scrumSubject.value !== subject) {
+					scrumSubject.value = subject;
+					scrumSubject.dispatchEvent(new Event('input', { bubbles: true }));
+				}
+			});
 		} catch(err){
-		console.err('Error while setting subject: ', err);
+			console.err('Error while setting subject: ', err);
 		}
 		}
 
@@ -552,8 +544,8 @@ function allIncluded(outputTarget = 'email') {
 				logError('No Github PR review data available');
 				return;
 			}
-			reviewedPrsArray = [];
-			githubPrsReviewDataProcessed = {};
+			// reviewedPrsArray = [];
+			// githubPrsReviewDataProcessed = {};
 			let i;
 			for (i = 0; i < items.length; i++) {
 				let item = items[i];
@@ -626,8 +618,8 @@ function allIncluded(outputTarget = 'email') {
 		}
 		function writeGithubIssuesPrs() {
 		let items = githubIssuesData.items;
-		lastWeekArray = [];
-			nextWeekArray = [];
+		// lastWeekArray = [];
+		// 	nextWeekArray = [];
 			if(!items){
 				logError('No Github issues data available');
 			}
@@ -668,12 +660,20 @@ function allIncluded(outputTarget = 'email') {
 						li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_opened_button}</li>`;
 					} else if (item.state === 'closed') {
 						li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_button}</li>`;
+					} else {
+						li =
+							'<li><i>(' +
+							project +
+							')</i> - Opened Issue(#' +
+							number +
+							") - <a href='" +
+							html_url +
+							"' target='_blank'>" +
+							title +
+							'</a> </li>';
 					}
 				}
-				if (li) {
 					lastWeekArray.push(li);
-				} else {
-				}
 			}
 			writeScrumBody();
 		}
@@ -703,9 +703,10 @@ function allIncluded(outputTarget = 'email') {
 
 			clearInterval(intervalSubject);
 			scrumSubject = elements.subject;
-			if(!scrumSubject.value) {
+
+			setTimeout(() => {
 				scrumSubjectLoaded();
-			}
+			}, 500);
 		}, 500);
 
 		//check for github safe writing
@@ -752,6 +753,10 @@ $('button>span:contains(New conversation)').parent('button').click(() => {
     allIncluded(); 
 });
 
+window.generateScrumReport = function() {
+    allIncluded('popup');
+}
+
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if(request.action === 'forceRefresh') {
         forceGithubDataRefresh()
@@ -762,7 +767,3 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         return true;
     }
 });
-
-window.generateScrumReport = function() {
-    allIncluded('popup');
-}
