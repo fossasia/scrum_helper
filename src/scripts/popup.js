@@ -216,6 +216,6 @@ function toggleRadio(radio) {
             end: endDateInput.value,
             isLastWeek: radio.id === 'lastWeekContribution'
         });
-        window.generateScrumReport();
+        // window.generateScrumReport();
     });
 }

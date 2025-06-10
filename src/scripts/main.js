@@ -1,4 +1,3 @@
-/* global $,Materialize*/
 var enableToggleElement = document.getElementById('enable');
 var githubUsernameElement = document.getElementById('githubUsername');
 var projectNameElement = document.getElementById('projectName');
@@ -8,9 +7,7 @@ var startingDateElement = document.getElementById('startingDate');
 var endingDateElement = document.getElementById('endingDate');
 var showOpenLabelElement = document.getElementById('showOpenLabel');
 var userReasonElement = document.getElementById('userReason');
-// var gsoc = 0; //0 means gsoc. 1 means gsoc
 function handleBodyOnLoad() {
-	// prefill name
 	chrome.storage.local.get(
 		[
 			'githubUsername',
@@ -23,8 +20,6 @@ function handleBodyOnLoad() {
 			'userReason',
 			'lastWeekContribution',
 			'yesterdayContribution',
-			// 'gsoc',
-			// 'selectedTab',
 		],
 		(items) => {
 			if (items.githubUsername) {
@@ -72,21 +67,6 @@ function handleBodyOnLoad() {
 				yesterdayContributionElement.checked = true;
 				handleYesterdayContributionChange();
 			}
-
-			// if (items.gsoc == 1) {
-			// 	handleGsocClick();
-			// } else {
-			// 	handleCodeheatClick();
-			// }
-			// if (items.selectedTab === 'gsoc') {
-			// 	handleGsocClick();
-			// } 
-			// else {
-			// 	handleCodeheatClick();
-			// }
-			
-			// initialize materialize tabs
-			// $('.tabs').tabs('select_tab', items.selectedTab === 'gsoc' ? 'gsocBox' : 'codeheatBox' );
 		},
 	);
 }
@@ -217,22 +197,6 @@ function handleUserReasonChange() {
 	var value = userReasonElement.value;
 	chrome.storage.local.set({ userReason: value });
 }
-// function handleCodeheatClick() {
-// 	gsoc = 0;
-// 	$('#codeheatTab').addClass('active');
-// 	$('.tabs').tabs();
-// 	$('#noDays').text('7 days');
-// 	chrome.storage.local.set({ gsoc: 0, selectedTab: 'codeheat' });
-// 	handleLastWeekContributionChange();
-// }
-// function handleGsocClick() {
-// 	gsoc = 1;
-// 	$('#gsocTab').addClass('active');
-// 	$('.tabs').tabs();
-// 	$('#noDays').text('1 day');
-// 	chrome.storage.local.set({ gsoc: 1, selectedTab: 'gsoc' });
-// 	handleLastWeekContributionChange();
-// }
 enableToggleElement.addEventListener('change', handleEnableChange);
 githubUsernameElement.addEventListener('keyup', handleGithubUsernameChange);
 projectNameElement.addEventListener('keyup', handleProjectNameChange);
@@ -243,5 +207,3 @@ yesterdayContributionElement.addEventListener('change', handleYesterdayContribut
 showOpenLabelElement.addEventListener('change', handleOpenLabelChange);
 userReasonElement.addEventListener('keyup', handleUserReasonChange);
 document.addEventListener('DOMContentLoaded', handleBodyOnLoad);
-// document.getElementById('codeheatTab').addEventListener('click', handleCodeheatClick);
-// document.getElementById('gsocTab').addEventListener('click', handleGsocClick);

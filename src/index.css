@@ -7,7 +7,6 @@ body {
 	padding: 0;
 	background-color: rgba(251, 251, 251, 0.6);
 }
-
 * {
 	box-sizing: border-box;
 }
@@ -89,4 +88,33 @@ body,input,div,h3,h4,p,label,hr, #scrumReport{
 .dark-mode hr {
 	border-color: #505050 !important;
 	transition: border-color 0.3s ease-in-out;
+}
+#scrumReport {
+	font-size: 13px !important; 
+	line-height: 1.5 !important; 
+}
+
+#scrumReport b {
+	font-size: 13px !important; 
+}
+
+#scrumReport li {
+	font-size: 13px !important; 
+	margin-bottom: 4px !important; 
+}
+
+.dark-mode #scrumReport {
+	font-size: 13px !important;
+}
+
+.dark-mode #scrumReport b {
+	font-size: 13px !important;
+}
+
+.dark-mode #scrumReport li {
+	font-size: 13px !important;
+}
+
+.dark-mode a {
+	color: #00b7ff !important;
 }

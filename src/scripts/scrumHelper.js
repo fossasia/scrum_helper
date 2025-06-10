@@ -22,7 +22,6 @@ function allIncluded(outputTarget = 'email') {
 	var showOpenLabel = true;
 	var showClosedLabel = true;
 	var userReason = '';
-	var gsoc = 0; //0 means codeheat. 1 means gsoc
 
 	var pr_merged_button =
 		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #6f42c1;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--purple">closed</div>';
@@ -49,16 +48,10 @@ function allIncluded(outputTarget = 'email') {
 				'lastWeekContribution',
 				'yesterdayContribution',
 				'userReason',
-				'gsoc',
 			],
 			(items) => {
 				console.log("Storage items received:", items);
-				if (items.gsoc) {
-					//gsoc
-					gsoc = 1;
-				} else {
-					gsoc = 0; //codeheat
-				}
+				
 				if (items.lastWeekContribution) {
 					lastWeekContribution = true;
 					handleLastWeekContributionChange();
@@ -136,8 +129,7 @@ function allIncluded(outputTarget = 'email') {
 	}
 	function getLastWeek() {
 		var today = new Date();
-		var noDays_to_goback = gsoc == 0 ? 7 : 1;
-		var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - noDays_to_goback);
+		var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
 		var lastWeekMonth = lastWeek.getMonth() + 1;
 		var lastWeekDay = lastWeek.getDate();
 		var lastWeekYear = lastWeek.getFullYear();
