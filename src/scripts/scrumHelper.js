@@ -15,13 +15,13 @@ function allIncluded(outputTarget = 'email') {
 	var reviewedPrsArray = [];
 	var githubIssuesData = null;
 	var lastWeekContribution = false;
+	let yesterdayContribution = false;
 	var githubPrsReviewData = null;
 	var githubUserData = null;
 	var githubPrsReviewDataProcessed = {};
 	var showOpenLabel = true;
 	var showClosedLabel = true;
 	var userReason = '';
-	var gsoc = 0; //0 means codeheat. 1 means gsoc
 
 	var pr_merged_button =
 		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #6f42c1;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--purple">closed</div>';
@@ -46,20 +46,19 @@ function allIncluded(outputTarget = 'email') {
 				'showOpenLabel',
 				'showClosedLabel',
 				'lastWeekContribution',
+				'yesterdayContribution',
 				'userReason',
-				'gsoc',
 			],
 			(items) => {
 				console.log("Storage items received:", items);
-				if (items.gsoc) {
-					//gsoc
-					gsoc = 1;
-				} else {
-					gsoc = 0; //codeheat
-				}
+				
 				if (items.lastWeekContribution) {
 					lastWeekContribution = true;
 					handleLastWeekContributionChange();
+				}
+				if (items.yesterdayContribution) {
+					yesterdayContribution = true;
+					handleYesterdayContributionChange();
 				}
 				if (!items.enableToggle) {
 					enableToggle = items.enableToggle;
@@ -68,6 +67,12 @@ function allIncluded(outputTarget = 'email') {
 					endingDate = items.endingDate;
 				}
 				if (items.startingDate && !lastWeekContribution) {
+					startingDate = items.startingDate;
+				}
+				if (items.endingDate && !yesterdayContribution){
+					endingDate = items.endingDate;
+				}
+				if (items.startingDate && !yesterdayContribution){
 					startingDate = items.startingDate;
 				}
 				if (items.githubUsername) {
@@ -118,10 +123,13 @@ function allIncluded(outputTarget = 'email') {
 		endingDate = getToday();
 		startingDate = getLastWeek();
 	}
+	function handleYesterdayContributionChange() {
+		endingDate = getToday();
+		startingDate = getYesterday();
+	}
 	function getLastWeek() {
 		var today = new Date();
-		var noDays_to_goback = gsoc == 0 ? 7 : 1;
-		var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - noDays_to_goback);
+		var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
 		var lastWeekMonth = lastWeek.getMonth() + 1;
 		var lastWeekDay = lastWeek.getDate();
 		var lastWeekYear = lastWeek.getFullYear();
@@ -132,6 +140,20 @@ function allIncluded(outputTarget = 'email') {
 			'-' +
 			('00' + lastWeekDay.toString()).slice(-2);
 		return lastWeekDisplayPadded;
+	}
+	function getYesterday() {
+		let today = new Date();
+		let yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+		let yesterdayMonth = yesterday.getMonth() + 1;
+		let yesterdayWeekDay = yesterday.getDate();
+		let yesterdayYear = yesterday.getFullYear();
+		let yesterdayPadded = 
+			('0000' + yesterdayYear.toString()).slice(-4) +
+			'-' +
+			('00' + yesterdayMonth.toString()).slice(-2) +
+			'-' +
+			('00' + yesterdayWeekDay.toString()).slice(-2);
+		return yesterdayPadded;
 	}
 	function getToday() {
 		var today = new Date();
@@ -247,24 +269,24 @@ function allIncluded(outputTarget = 'email') {
 			for (i = 0; i < nextWeekArray.length; i++) nextWeekUl += nextWeekArray[i];
 			nextWeekUl += '</ul>';
 
-			var weekOrDay = gsoc == 1 ? 'yesterday' : 'last week';
-			var weekOrDay2 = gsoc == 1 ? 'today' : 'this week';
+			var weekOrDay = lastWeekContribution ? 'last week' : (yesterdayContribution ? 'yesterday' : 'the period');
+        	var weekOrDay2 = lastWeekContribution ? 'this week' : 'today';
 
 			// Create the complete content
 			let content;
-        if (lastWeekContribution == true) {
+        if (lastWeekContribution == true || yesterdayContribution == true ) {
             content = `<b>1. What did I do ${weekOrDay}?</b><br>
 ${lastWeekUl}<br>
-<b>2. What I plan to do ${weekOrDay2}?</b><br>
+<b>2. What do I plan to do ${weekOrDay2}?</b><br>
 ${nextWeekUl}<br>
-<b>3. What is stopping me from doing my work?</b><br>
+<b>3. What is blocking me from making progress?</b><br>
 ${userReason}`;
         } else {
             content = `<b>1. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?</b><br>
 ${lastWeekUl}<br>
-<b>2. What I plan to do ${weekOrDay2}?</b><br>
+<b>2. What do I plan to do ${weekOrDay2}?</b><br>
 ${nextWeekUl}<br>
-<b>3. What is stopping me from doing my work?</b><br>
+<b>3. What is blocking me from making progress?</b><br>
 ${userReason}`;
         }
 
@@ -378,7 +400,6 @@ ${userReason}`;
 			} else {
 				repoLi += 'PR - ';
 			}
-			
 			if (githubPrsReviewDataProcessed[repo].length <= 1) {
 				for (var pr in githubPrsReviewDataProcessed[repo]) {
 					var pr_arr = githubPrsReviewDataProcessed[repo][pr];

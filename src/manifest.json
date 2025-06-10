@@ -31,6 +31,13 @@
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self';"
   },
+  "web_accessible_resources": [{
+    "resources": [
+      "/icons/night-mode.png",
+      "icons/night-mode.png"
+    ],
+    "matches": ["<all_urls>"]
+  }],
   "permissions": [
     "tabs",
     "storage",
