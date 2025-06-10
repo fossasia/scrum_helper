@@ -277,8 +277,8 @@ function allIncluded(outputTarget = 'email') {
 			for (i = 0; i < nextWeekArray.length; i++) nextWeekUl += nextWeekArray[i];
 			nextWeekUl += '</ul>';
 
-			var weekOrDay = lastWeekContribution ?  'last week' : 'yesterday';
-			var weekOrDay2 = lastWeekContribution ?  'this week' : 'today';
+			var weekOrDay = lastWeekContribution ? 'last week' : (yesterdayContribution ? 'yesterday' : 'the period');
+        	var weekOrDay2 = lastWeekContribution ? 'this week' : 'today';
 
 			// Create the complete content
 			let content;

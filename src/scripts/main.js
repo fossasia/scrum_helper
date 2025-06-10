@@ -149,8 +149,7 @@ function handleYesterdayContributionChange() {
 
 function getLastWeek() {
 	var today = new Date();
-	var noDays_to_goback = gsoc == 0 ? 7 : 1;
-	var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - noDays_to_goback);
+	var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
 	var lastWeekMonth = lastWeek.getMonth() + 1;
 	var lastWeekDay = lastWeek.getDate();
 	var lastWeekYear = lastWeek.getFullYear();
