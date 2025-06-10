@@ -409,8 +409,6 @@ function allIncluded(outputTarget = 'email') {
 			reviewedPrsArray = [];
 			githubPrsReviewDataProccessed = {};
 
-			writeGithubIssuesPrs();
-			writeGithubPrsReviews();
 			// Update subject
 			if(!githubCache.subject && scrumSubject) {
 				scrumSubjectLoaded();
