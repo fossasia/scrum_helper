@@ -148,3 +148,20 @@ body,input,div,h3,h4,p,label,hr, #scrumReport{
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
 }
+/* Disabled state styling */
+.disabled-content {
+    opacity: 0.5 !important;
+    pointer-events: none !important;
+    user-select: none !important;
+}
+
+.disabled-content input,
+.disabled-content button,
+.disabled-content [contenteditable] {
+    cursor: not-allowed !important;
+}
+
+/* Dark mode disabled state */
+.dark-mode .disabled-content {
+    opacity: 0.4 !important;
+}
