@@ -5,96 +5,100 @@ let hasInjectedContent = false;
 function allIncluded(outputTarget = 'email') {
 	console.log('allIncluded called with outputTarget:', outputTarget);
 	console.log('Current window context:', window.location.href); 
-		/* global $*/
-		let scrumBody = null;
-		let scrumSubject = null;
-		let startingDate = '';
-		let endingDate = '';
-		let githubUsername = '';
-		let projectName = '';
-		let lastWeekArray = [];
-		let nextWeekArray = [];
-		let reviewedPrsArray = [];
-		let githubIssuesData = null;
-		let lastWeekContribution = false;
-		let githubPrsReviewData = null;
-		let githubUserData = null;
-		let githubPrsReviewDataProccessed = {};
-		let showOpenLabel = true;
-		let showClosedLabel = true;
-		let userReason = '';
-		let gsoc = 0; //0 means codeheat. 1 means gsoc
+	var scrumBody = null;
+	var scrumSubject = null;
+	var startingDate = '';
+	var endingDate = '';
+	var githubUsername = '';
+	var projectName = '';
+	var lastWeekArray = [];
+	var nextWeekArray = [];
+	var reviewedPrsArray = [];
+	var githubIssuesData = null;
+	var lastWeekContribution = false;
+	let yesterdayContribution = false;
+	var githubPrsReviewData = null;
+	var githubUserData = null;
+	var githubPrsReviewDataProcessed = {};
+	var showOpenLabel = true;
+	var showClosedLabel = true;
+	var userReason = '';
 
-		let pr_merged_button =
-			'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #6f42c1;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--purple">closed</div>';
-		let pr_unmerged_button =
-			'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
+	var pr_merged_button =
+		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #6f42c1;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--purple">closed</div>';
+	var pr_unmerged_button =
+		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
 
-		let issue_closed_button =
-			'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #6f42c1;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--purple">closed</div>';
-		let issue_opened_button =
-			'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
+	var issue_closed_button =
+		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #6f42c1;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--purple">closed</div>';
+	var issue_opened_button =
+		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
 
-		function getChromeData() {
-			console.log("Getting Chrome data for context:", outputTarget);
-			chrome.storage.local.get(
-				[
-					'githubUsername',
-					'projectName',
-					'enableToggle',
-					'startingDate',
-					'endingDate',
-					'showOpenLabel',
-					'showClosedLabel',
-					'lastWeekContribution',
-					'userReason',
-					'gsoc',
-					'githubCache',
-				],
-				(items) => {
-					console.log("Storage items received:", items);
-					if (items.gsoc) {
-						//gsoc
-						gsoc = 1;
-					} else {
-						gsoc = 0; //codeheat
-					}
-					if (items.lastWeekContribution) {
-						lastWeekContribution = true;
-						handleLastWeekContributionChange();
-					}
-					if (!items.enableToggle) {
-						enableToggle = items.enableToggle;
-					}
-					if (items.endingDate && !lastWeekContribution) {
-						endingDate = items.endingDate;
-					}
-					if (items.startingDate && !lastWeekContribution) {
-						startingDate = items.startingDate;
-					}
-					if (items.githubUsername) {
-						githubUsername = items.githubUsername;
-						console.log("About to fetch GitHub data for:", githubUsername);  
-						fetchGithubData();
-					}  else {
-						if (outputTarget === 'popup') {
-							console.log("No username found - popup context");  
-							// Show error in popup
-							const generateBtn = document.getElementById('generateReport');
-							if (generateBtn) {
-								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
-								generateBtn.disabled = false;
-							}
-							Materialize.toast('Please enter your GitHub username', 3000);
-						} else {
-							console.log("No username found - email context");  
-							console.warn('No GitHub username found in storage');
-						}
-					}
-					if (items.projectName) {
-						projectName = items.projectName;
-					}
-
+	// var linkStyle = '';
+	function getChromeData() {
+		console.log("Getting Chrome data for context:", outputTarget);
+		chrome.storage.local.get(
+			[
+				'githubUsername',
+				'projectName',
+				'enableToggle',
+				'startingDate',
+				'endingDate',
+				'showOpenLabel',
+				'showClosedLabel',
+				'lastWeekContribution',
+				'yesterdayContribution',
+				'userReason',
+        'githubCache',
+			],
+			(items) => {
+				console.log("Storage items received:", items);
+				
+				if (items.lastWeekContribution) {
+					lastWeekContribution = true;
+					handleLastWeekContributionChange();
+				}
+				if (items.yesterdayContribution) {
+					yesterdayContribution = true;
+					handleYesterdayContributionChange();
+				}
+				if (!items.enableToggle) {
+					enableToggle = items.enableToggle;
+				}
+				if (items.endingDate && !lastWeekContribution) {
+					endingDate = items.endingDate;
+				}
+				if (items.startingDate && !lastWeekContribution) {
+					startingDate = items.startingDate;
+				}
+				if (items.endingDate && !yesterdayContribution){
+					endingDate = items.endingDate;
+				}
+				if (items.startingDate && !yesterdayContribution){
+					startingDate = items.startingDate;
+				}
+				if (items.githubUsername) {
+					githubUsername = items.githubUsername;
+					console.log("About to fetch GitHub data for:", githubUsername);  
+					fetchGithubData();
+				}  else {
+                    if (outputTarget === 'popup') {
+						console.log("No username found - popup context");  
+                        // Show error in popup
+                        const generateBtn = document.getElementById('generateReport');
+                        if (generateBtn) {
+                            generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+                            generateBtn.disabled = false;
+                        }
+                        Materialize.toast('Please enter your GitHub username', 3000);
+                    } else {
+						console.log("No username found - email context");  
+                        console.warn('No GitHub username found in storage');
+                    }
+                }
+				if (items.projectName) {
+					projectName = items.projectName;
+				}
 					if (!items.showOpenLabel) {
 						showOpenLabel = false;
 						pr_unmerged_button = '';
@@ -126,6 +130,10 @@ function allIncluded(outputTarget = 'email') {
 			endingDate = getToday();
 			startingDate = getLastWeek();
 		}
+    function handleYesterdayContributionChange() {
+      endingDate = getToday();
+      startingDate = getYesterday();
+    }
 		function getLastWeek() {
 			let today = new Date();
 			let noDays_to_goback = gsoc == 0 ? 7 : 1;
@@ -141,6 +149,20 @@ function allIncluded(outputTarget = 'email') {
 				('00' + lastWeekDay.toString()).slice(-2);
 			return lastWeekDisplayPadded;
 		}
+    function getYesterday() {
+      let today = new Date();
+      let yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+      let yesterdayMonth = yesterday.getMonth() + 1;
+      let yesterdayWeekDay = yesterday.getDate();
+      let yesterdayYear = yesterday.getFullYear();
+      let yesterdayPadded = 
+        ('0000' + yesterdayYear.toString()).slice(-4) +
+        '-' +
+        ('00' + yesterdayMonth.toString()).slice(-2) +
+        '-' +
+        ('00' + yesterdayWeekDay.toString()).slice(-2);
+      return yesterdayPadded;
+    }
 		function getToday() {
 			let today = new Date();
 			let Week = new Date(today.getFullYear(), today.getMonth(), today.getDate());
@@ -228,7 +250,7 @@ function allIncluded(outputTarget = 'email') {
 						cacheKey: cache.cacheKey,
 						age: `${((Date.now() - cache.timestamp) / 1000 / 60).toFixed(1)} minutes` ,
 					});
-
+          
 					githubCache.data = cache.data;
 					githubCache.cacheKey = cache.cacheKey;
 					githubCache.timestamp = cache.timestamp;
@@ -435,8 +457,7 @@ function allIncluded(outputTarget = 'email') {
 					return;
 				}
 			}
-
-			setTimeout(() => {
+      setTimeout(() => {
 				// Generate content first
 				let lastWeekUl = '<ul>';
 				let i;
@@ -453,21 +474,21 @@ function allIncluded(outputTarget = 'email') {
 
 				// Create the complete content
 				let content;
-if (lastWeekContribution == true) {
-    content = `<b>1. What did I do ${weekOrDay}?</b><br>
+				if (lastWeekContribution == true || yesterdayContribution == true ) {
+            content = `<b>1. What did I do ${weekOrDay}?</b><br>
 ${lastWeekUl}<br>
 <b>2. What do I plan to do ${weekOrDay2}?</b><br>
 ${nextWeekUl}<br>
-<b>3. What is stopping me from doing my work?</b><br>
-<p style="margin-left: 20px;">${userReason}</p>`;
-} else {
-    content = `<b>1. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?</b><br>
+<b>3. What is blocking me from making progress?</b><br>
+${userReason}`;
+        } else {
+            content = `<b>1. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?</b><br>
 ${lastWeekUl}<br>
 <b>2. What do I plan to do ${weekOrDay2}?</b><br>
 ${nextWeekUl}<br>
-<b>3. What is stopping me from doing my work?</b><br>
-<p style="margin-left: 20px;">${userReason}</p>`;
-}
+<b>3. What is blocking me from making progress?</b><br>
+${userReason}`;
+        }				
 
 				if (outputTarget === 'popup') {
 					const scrumReport = document.getElementById('scrumReport');
@@ -542,8 +563,8 @@ ${nextWeekUl}<br>
 				logError('No Github PR review data available');
 				return;
 			}
-			// reviewedPrsArray = [];
-			// githubPrsReviewDataProccessed = {};
+			reviewedPrsArray = [];
+			githubPrsReviewDataProccessed = {};
 			let i;
 			for (i = 0; i < items.length; i++) {
 				let item = items[i];
@@ -615,9 +636,9 @@ ${nextWeekUl}<br>
 			writeScrumBody(); 
 		}
 		function writeGithubIssuesPrs() {
-		let items = githubIssuesData.items;
-		// lastWeekArray = [];
-		// 	nextWeekArray = [];
+      let items = githubIssuesData.items;
+      lastWeekArray = [];
+      nextWeekArray = [];
 			if(!items){
 				logError('No Github issues data available');
 			}

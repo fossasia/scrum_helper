@@ -1,9 +1,12 @@
+@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 body {
 	margin: 0;
 	padding: 0;
 	background-color: rgba(251, 251, 251, 0.6);
 }
-
 * {
 	box-sizing: border-box;
 }
@@ -50,20 +53,71 @@ li {
 	list-style-type: disc !important;
 	margin-left: 1rem;
 }
-.selectedLabel {
-	font-weight: 400;
-	color: #333333;
+
+body,input,div,h3,h4,p,label,hr, #scrumReport{
+	transition: all 0.3s ease-in-out;
 }
 
-.unselectedLabel {
-	font-weight: 300; 
-	color: #666666; 
+.dark-mode { 
+	background: #1a1a1a !important;
+	color: #ffffff !important;
+	transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+}
+.dark-mode .bg-white{
+	background-color: #2d2d2d !important;
+	border-color: #404040 !important;
+	transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
 }
 
-.selectedLabel, .unselectedLabel {
-	transition: color 0.3s ease-in-out, font-weight 0.3s ease-in-out;
+.dark-mode input[type="text"],
+.dark-mode input[type="date"],
+.dark-mode #scrumReport {
+	background-color: #404040 !important;
+	border-color: #505050 !important;
+	color: #ffffff !important;
+	transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+}
+.dark-mode h3,
+.dark-mode h4,
+.dark-mode p,
+.dark-mode label {
+	color: #ffffff !important;
+	transition: color 0.3s ease-in-out;
 }
 
+.dark-mode hr {
+	border-color: #505050 !important;
+	transition: border-color 0.3s ease-in-out;
+}
+#scrumReport {
+	font-size: 13px !important; 
+	line-height: 1.5 !important; 
+}
+
+#scrumReport b {
+	font-size: 13px !important; 
+}
+
+#scrumReport li {
+	font-size: 13px !important; 
+	margin-bottom: 4px !important; 
+}
+
+.dark-mode #scrumReport {
+	font-size: 13px !important;
+}
+
+.dark-mode #scrumReport b {
+	font-size: 13px !important;
+}
+
+.dark-mode #scrumReport li {
+	font-size: 13px !important;
+}
+
+.dark-mode a {
+	color: #00b7ff !important;
+}
 .refresh-btn {
     transition: all 0.3s ease;
     position: relative;
@@ -93,27 +147,4 @@ li {
 
 @keyframes spin {
     100% { transform: rotate(360deg); }
-}
-
-#scrumReport {
-    border: 1px solid #ccc;
-    padding: 10px;
-    min-height: 200px;
-    max-height: 400px;
-    overflow-y: auto;
-    background-color: white;
-}
-
-#scrumReport:focus {
-    outline: none;
-    border-color: #26a69a;
-}
-
-#scrumReport a {
-    color: #26a69a;
-    text-decoration: none;
-}
-
-#scrumReport a:hover {
-    text-decoration: underline;
 }
