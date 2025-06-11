@@ -118,33 +118,33 @@ body,input,div,h3,h4,p,label,hr, #scrumReport{
 .dark-mode a {
 	color: #00b7ff !important;
 }
-.refresh-btn {
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-    background-color: #d2d2d2;
+#refreshCache {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    border: none;
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+    transition: all 0.2s ease;
 }
 
-.refresh-btn:hover {
-    background-color: #999bac;
+#refreshCache:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
     transform: translateY(-1px);
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
-.refresh-btn:active {
-    transform: translateY(1px);
-    box-shadow: none;
+#refreshCache:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
 }
 
-.refresh-btn.loading {
-    pointer-events: none;
-    opacity: 0.8;
+#refreshCache i {
+    animation: spin 0s linear infinite;
 }
 
-.refresh-btn.loading .fa-refresh {
+#refreshCache.loading i {
     animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-    100% { transform: rotate(360deg); }
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
