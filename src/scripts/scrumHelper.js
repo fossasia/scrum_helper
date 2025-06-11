@@ -517,9 +517,9 @@ ${userReason}`;
 					scrumSubject.dispatchEvent(new Event('input', { bubbles: true }));
 				}
 			});
-		} catch(err){
-			console.err('Error while setting subject: ', err);
-		}
+      } catch(err){
+        console.err('Error while setting subject: ', err);
+      }
 		}
 
 		function writeGithubPrsReviews() {
@@ -533,8 +533,8 @@ ${userReason}`;
 				logError('No Github PR review data available');
 				return;
 			}
-			// reviewedPrsArray = [];
-			// githubPrsReviewDataProcessed = {};
+			reviewedPrsArray = [];
+			githubPrsReviewDataProcessed = {};
 			let i;
 			for (i = 0; i < items.length; i++) {
 				let item = items[i];
