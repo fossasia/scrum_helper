@@ -1,12 +1,12 @@
-var enableToggleElement = document.getElementById('enable');
-var githubUsernameElement = document.getElementById('githubUsername');
-var projectNameElement = document.getElementById('projectName');
-var lastWeekContributionElement = document.getElementById('lastWeekContribution');
+let enableToggleElement = document.getElementById('enable');
+let githubUsernameElement = document.getElementById('githubUsername');
+let projectNameElement = document.getElementById('projectName');
+let lastWeekContributionElement = document.getElementById('lastWeekContribution');
 let yesterdayContributionElement = document.getElementById('yesterdayContribution');
-var startingDateElement = document.getElementById('startingDate');
-var endingDateElement = document.getElementById('endingDate');
-var showOpenLabelElement = document.getElementById('showOpenLabel');
-var userReasonElement = document.getElementById('userReason');
+let startingDateElement = document.getElementById('startingDate');
+let endingDateElement = document.getElementById('endingDate');
+let showOpenLabelElement = document.getElementById('showOpenLabel');
+let userReasonElement = document.getElementById('userReason');
 
 function handleBodyOnLoad() {
 	chrome.storage.local.get(
@@ -156,12 +156,12 @@ function handleYesterdayContributionChange() {
 }
 
 function getLastWeek() {
-	var today = new Date();
-	var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
-	var lastWeekMonth = lastWeek.getMonth() + 1;
-	var lastWeekDay = lastWeek.getDate();
-	var lastWeekYear = lastWeek.getFullYear();
-	var lastWeekDisplayPadded =
+	let today = new Date();
+	let lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+	let lastWeekMonth = lastWeek.getMonth() + 1;
+	let lastWeekDay = lastWeek.getDate();
+	let lastWeekYear = lastWeek.getFullYear();
+	let lastWeekDisplayPadded =
 		('0000' + lastWeekYear.toString()).slice(-4) +
 		'-' +
 		('00' + lastWeekMonth.toString()).slice(-2) +

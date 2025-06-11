@@ -1,10 +1,10 @@
 function getLastWeek() {
-    var today = new Date();
-    var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
-    var lastWeekMonth = lastWeek.getMonth() + 1;
-    var lastWeekDay = lastWeek.getDate();
-    var lastWeekYear = lastWeek.getFullYear();
-    var lastWeekDisplayPadded =
+    let today = new Date();
+    let lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
+    let lastWeekMonth = lastWeek.getMonth() + 1;
+    let lastWeekDay = lastWeek.getDate();
+    let lastWeekYear = lastWeek.getFullYear();
+    let lastWeekDisplayPadded =
         ('0000' + lastWeekYear.toString()).slice(-4) +
         '-' +
         ('00' + lastWeekMonth.toString()).slice(-2) +
@@ -14,11 +14,11 @@ function getLastWeek() {
 }
 
 function getToday() {
-    var today = new Date();
-    var WeekMonth = today.getMonth() + 1;
-    var WeekDay = today.getDate();
-    var WeekYear = today.getFullYear();
-    var WeekDisplayPadded =
+    let today = new Date();
+    let WeekMonth = today.getMonth() + 1;
+    let WeekDay = today.getDate();
+    let WeekYear = today.getFullYear();
+    let WeekDisplayPadded =
         ('0000' + WeekYear.toString()).slice(-4) +
         '-' +
         ('00' + WeekMonth.toString()).slice(-2) +

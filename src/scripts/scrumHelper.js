@@ -5,36 +5,36 @@ let hasInjectedContent = false;
 function allIncluded(outputTarget = 'email') {
 	console.log('allIncluded called with outputTarget:', outputTarget);
 	console.log('Current window context:', window.location.href); 
-	var scrumBody = null;
-	var scrumSubject = null;
-	var startingDate = '';
-	var endingDate = '';
-	var githubUsername = '';
-	var projectName = '';
-	var lastWeekArray = [];
-	var nextWeekArray = [];
-	var reviewedPrsArray = [];
-	var githubIssuesData = null;
-	var lastWeekContribution = false;
+	let scrumBody = null;
+	let scrumSubject = null;
+	let startingDate = '';
+	let endingDate = '';
+	let githubUsername = '';
+	let projectName = '';
+	let lastWeekArray = [];
+	let nextWeekArray = [];
+	let reviewedPrsArray = [];
+	let githubIssuesData = null;
+	let lastWeekContribution = false;
 	let yesterdayContribution = false;
-	var githubPrsReviewData = null;
-	var githubUserData = null;
-	var githubPrsReviewDataProcessed = {};
-	var showOpenLabel = true;
-	var showClosedLabel = true;
-	var userReason = '';
+	let githubPrsReviewData = null;
+	let githubUserData = null;
+	let githubPrsReviewDataProcessed = {};
+	let showOpenLabel = true;
+	let showClosedLabel = true;
+	let userReason = '';
 
-	var pr_merged_button =
+	let pr_merged_button =
 		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #6f42c1;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--purple">closed</div>';
-	var pr_unmerged_button =
+	let pr_unmerged_button =
 		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
 
-	var issue_closed_button =
+	let issue_closed_button =
 		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #6f42c1;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--purple">closed</div>';
-	var issue_opened_button =
+	let issue_opened_button =
 		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
 
-	// var linkStyle = '';
+	// let linkStyle = '';
 	function getChromeData() {
 		console.log("Getting Chrome data for context:", outputTarget);
 		chrome.storage.local.get(
@@ -459,18 +459,18 @@ function allIncluded(outputTarget = 'email') {
 
 			setTimeout(() => {
 				// Generate content first
-				var lastWeekUl = '<ul>';
-				var i;
+				let lastWeekUl = '<ul>';
+				let i;
 				for (i = 0; i < lastWeekArray.length; i++) lastWeekUl += lastWeekArray[i];
 				for (i = 0; i < reviewedPrsArray.length; i++) lastWeekUl += reviewedPrsArray[i];
 				lastWeekUl += '</ul>';
 
-				var nextWeekUl = '<ul>';
+				let nextWeekUl = '<ul>';
 				for (i = 0; i < nextWeekArray.length; i++) nextWeekUl += nextWeekArray[i];
 				nextWeekUl += '</ul>';
 
-				var weekOrDay = lastWeekContribution ? 'last week' : (yesterdayContribution ? 'yesterday' : 'the period');
-				var weekOrDay2 = lastWeekContribution ? 'this week' : 'today';
+				let weekOrDay = lastWeekContribution ? 'last week' : (yesterdayContribution ? 'yesterday' : 'the period');
+				let weekOrDay2 = lastWeekContribution ? 'this week' : 'today';
 
 				// Create the complete content
 				let content;
