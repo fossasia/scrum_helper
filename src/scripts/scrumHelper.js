@@ -49,56 +49,56 @@ function allIncluded(outputTarget = 'email') {
 				'lastWeekContribution',
 				'yesterdayContribution',
 				'userReason',
-        'githubCache',
+        		'githubCache',
 			],
 			(items) => {
-				console.log("Storage items received:", items);
-				
-				if (items.lastWeekContribution) {
-					lastWeekContribution = true;
-					handleLastWeekContributionChange();
-				}
-				if (items.yesterdayContribution) {
-					yesterdayContribution = true;
-					handleYesterdayContributionChange();
-				}
-				if (!items.enableToggle) {
-					enableToggle = items.enableToggle;
-				}
-				if (items.endingDate && !lastWeekContribution) {
-					endingDate = items.endingDate;
-				}
-				if (items.startingDate && !lastWeekContribution) {
-					startingDate = items.startingDate;
-				}
-				if (items.endingDate && !yesterdayContribution){
-					endingDate = items.endingDate;
-				}
-				if (items.startingDate && !yesterdayContribution){
-					startingDate = items.startingDate;
-				}
-				if (items.githubUsername) {
-					githubUsername = items.githubUsername;
-					console.log("About to fetch GitHub data for:", githubUsername);  
-					fetchGithubData();
-				}  else {
-                    if (outputTarget === 'popup') {
-						console.log("No username found - popup context");  
-                        // Show error in popup
-                        const generateBtn = document.getElementById('generateReport');
-                        if (generateBtn) {
-                            generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
-                            generateBtn.disabled = false;
-                        }
-                        Materialize.toast('Please enter your GitHub username', 3000);
-                    } else {
-						console.log("No username found - email context");  
-                        console.warn('No GitHub username found in storage');
-                    }
-                }
-				if (items.projectName) {
-					projectName = items.projectName;
-				}
+					console.log("Storage items received:", items);
+					
+					if (items.lastWeekContribution) {
+						lastWeekContribution = true;
+						handleLastWeekContributionChange();
+					}
+					if (items.yesterdayContribution) {
+						yesterdayContribution = true;
+						handleYesterdayContributionChange();
+					}
+					if (!items.enableToggle) {
+						enableToggle = items.enableToggle;
+					}
+					if (items.endingDate && !lastWeekContribution) {
+						endingDate = items.endingDate;
+					}
+					if (items.startingDate && !lastWeekContribution) {
+						startingDate = items.startingDate;
+					}
+					if (items.endingDate && !yesterdayContribution){
+						endingDate = items.endingDate;
+					}
+					if (items.startingDate && !yesterdayContribution){
+						startingDate = items.startingDate;
+					}
+					if (items.githubUsername) {
+						githubUsername = items.githubUsername;
+						console.log("About to fetch GitHub data for:", githubUsername);  
+						fetchGithubData();
+					}  else {
+						if (outputTarget === 'popup') {
+							console.log("No username found - popup context");  
+							// Show error in popup
+							const generateBtn = document.getElementById('generateReport');
+							if (generateBtn) {
+								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+								generateBtn.disabled = false;
+							}
+							Materialize.toast('Please enter your GitHub username', 3000);
+						} else {
+							console.log("No username found - email context");  
+							console.warn('No GitHub username found in storage');
+						}
+					}
+					if (items.projectName) {
+						projectName = items.projectName;
+					}
 					if (!items.showOpenLabel) {
 						showOpenLabel = false;
 						pr_unmerged_button = '';
@@ -130,14 +130,13 @@ function allIncluded(outputTarget = 'email') {
 			endingDate = getToday();
 			startingDate = getLastWeek();
 		}
-    function handleYesterdayContributionChange() {
-      endingDate = getToday();
-      startingDate = getYesterday();
-    }
+		function handleYesterdayContributionChange() {
+		endingDate = getToday();
+		startingDate = getYesterday();
+		}
 		function getLastWeek() {
 			let today = new Date();
-			let noDays_to_goback = gsoc == 0 ? 7 : 1;
-			let lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - noDays_to_goback);
+			let lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
 			let lastWeekMonth = lastWeek.getMonth() + 1;
 			let lastWeekDay = lastWeek.getDate();
 			let lastWeekYear = lastWeek.getFullYear();
@@ -149,20 +148,20 @@ function allIncluded(outputTarget = 'email') {
 				('00' + lastWeekDay.toString()).slice(-2);
 			return lastWeekDisplayPadded;
 		}
-    function getYesterday() {
-      let today = new Date();
-      let yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
-      let yesterdayMonth = yesterday.getMonth() + 1;
-      let yesterdayWeekDay = yesterday.getDate();
-      let yesterdayYear = yesterday.getFullYear();
-      let yesterdayPadded = 
-        ('0000' + yesterdayYear.toString()).slice(-4) +
-        '-' +
-        ('00' + yesterdayMonth.toString()).slice(-2) +
-        '-' +
-        ('00' + yesterdayWeekDay.toString()).slice(-2);
-      return yesterdayPadded;
-    }
+		function getYesterday() {
+		let today = new Date();
+		let yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+		let yesterdayMonth = yesterday.getMonth() + 1;
+		let yesterdayDay = yesterday.getDate();
+		let yesterdayYear = yesterday.getFullYear();
+		let yesterdayPadded = 
+			('0000' + yesterdayYear.toString()).slice(-4) +
+			'-' +
+			('00' + yesterdayMonth.toString()).slice(-2) +
+			'-' +
+			('00' + yesterdayDay.toString()).slice(-2);
+		return yesterdayPadded;
+		}
 		function getToday() {
 			let today = new Date();
 			let Week = new Date(today.getFullYear(), today.getMonth(), today.getDate());
@@ -261,8 +260,8 @@ function allIncluded(outputTarget = 'email') {
 						scrumSubject.dispatchEvent(new Event('input', { bubbles: true }));
 					}
 					resolve(true);
-				})
-			})
+				});
+			});
 		}
 
 		async function fetchGithubData() {
@@ -429,7 +428,7 @@ function allIncluded(outputTarget = 'email') {
 			lastWeekArray = [];
 			nextWeekArray = [];
 			reviewedPrsArray = [];
-			githubPrsReviewDataProccessed = {};
+			githubPrsReviewDataProcessed = {};
 
 			// Update subject
 			if(!githubCache.subject && scrumSubject) {
@@ -457,24 +456,25 @@ function allIncluded(outputTarget = 'email') {
 					return;
 				}
 			}
-      setTimeout(() => {
+
+			setTimeout(() => {
 				// Generate content first
-				let lastWeekUl = '<ul>';
-				let i;
+				var lastWeekUl = '<ul>';
+				var i;
 				for (i = 0; i < lastWeekArray.length; i++) lastWeekUl += lastWeekArray[i];
 				for (i = 0; i < reviewedPrsArray.length; i++) lastWeekUl += reviewedPrsArray[i];
 				lastWeekUl += '</ul>';
 
-				let nextWeekUl = '<ul>';
+				var nextWeekUl = '<ul>';
 				for (i = 0; i < nextWeekArray.length; i++) nextWeekUl += nextWeekArray[i];
 				nextWeekUl += '</ul>';
 
-				let weekOrDay = gsoc == 1 ? 'yesterday' : 'last week';
-				let weekOrDay2 = gsoc == 1 ? 'today' : 'this week';
+				var weekOrDay = lastWeekContribution ? 'last week' : (yesterdayContribution ? 'yesterday' : 'the period');
+				var weekOrDay2 = lastWeekContribution ? 'this week' : 'today';
 
 				// Create the complete content
 				let content;
-				if (lastWeekContribution == true || yesterdayContribution == true ) {
+        		if (lastWeekContribution == true || yesterdayContribution == true ) {
             content = `<b>1. What did I do ${weekOrDay}?</b><br>
 ${lastWeekUl}<br>
 <b>2. What do I plan to do ${weekOrDay2}?</b><br>
@@ -488,7 +488,8 @@ ${lastWeekUl}<br>
 ${nextWeekUl}<br>
 <b>3. What is blocking me from making progress?</b><br>
 ${userReason}`;
-        }				
+        }
+				
 
 				if (outputTarget === 'popup') {
 					const scrumReport = document.getElementById('scrumReport');
@@ -563,8 +564,8 @@ ${userReason}`;
 				logError('No Github PR review data available');
 				return;
 			}
-			reviewedPrsArray = [];
-			githubPrsReviewDataProccessed = {};
+			// reviewedPrsArray = [];
+			// githubPrsReviewDataProcessed = {};
 			let i;
 			for (i = 0; i < items.length; i++) {
 				let item = items[i];
@@ -574,9 +575,9 @@ ${userReason}`;
 				let title = item.title;
 				let number = item.number;
 				let html_url = item.html_url;
-				if (!githubPrsReviewDataProccessed[project]) {
+				if (!githubPrsReviewDataProcessed[project]) {
 					// first pr in this repo
-					githubPrsReviewDataProccessed[project] = [];
+					githubPrsReviewDataProcessed[project] = [];
 				}
 				let obj = {
 					number: number,
@@ -584,21 +585,21 @@ ${userReason}`;
 					title: title,
 					state: item.state,
 				};
-				githubPrsReviewDataProccessed[project].push(obj);
+				githubPrsReviewDataProcessed[project].push(obj);
 			}
-			for (let repo in githubPrsReviewDataProccessed) {
+			for (let repo in githubPrsReviewDataProcessed) {
 				let repoLi =
 					'<li> \
 			<i>(' +
 					repo +
 					')</i> - Reviewed ';
-				if (githubPrsReviewDataProccessed[repo].length > 1) repoLi += 'PRs - ';
+				if (githubPrsReviewDataProcessed[repo].length > 1) repoLi += 'PRs - ';
 				else {
 					repoLi += 'PR - ';
 				}
-				if (githubPrsReviewDataProccessed[repo].length <= 1) {
-					for (let pr in githubPrsReviewDataProccessed[repo]) {
-						let pr_arr = githubPrsReviewDataProccessed[repo][pr];
+				if (githubPrsReviewDataProcessed[repo].length <= 1) {
+					for (let pr in githubPrsReviewDataProcessed[repo]) {
+						let pr_arr = githubPrsReviewDataProcessed[repo][pr];
 						let prText = '';
 						prText +=
 							"<a href='" + pr_arr.html_url + "' target='_blank'>#" + pr_arr.number + '</a> (' + pr_arr.title + ') ';
@@ -610,8 +611,8 @@ ${userReason}`;
 					}
 				} else {
 					repoLi += '<ul>';
-					for (let pr1 in githubPrsReviewDataProccessed[repo]) {
-						let pr_arr1 = githubPrsReviewDataProccessed[repo][pr1];
+					for (let pr1 in githubPrsReviewDataProcessed[repo]) {
+						let pr_arr1 = githubPrsReviewDataProcessed[repo][pr1];
 						let prText1 = '';
 						prText1 +=
 							"<li><a href='" +
@@ -636,11 +637,12 @@ ${userReason}`;
 			writeScrumBody(); 
 		}
 		function writeGithubIssuesPrs() {
-      let items = githubIssuesData.items;
-      lastWeekArray = [];
-      nextWeekArray = [];
+			let items = githubIssuesData.items;
+			lastWeekArray = [];
+			nextWeekArray = [];
 			if(!items){
 				logError('No Github issues data available');
+				return;
 			}
 			for (let i = 0; i < items.length; i++) {
 				let item = items[i];
@@ -659,7 +661,7 @@ ${userReason}`;
 					}
 				} else {
 					// is a issue
-					if (item.state === 'open' && item.body.toUpperCase().indexOf('YES') > 0) {
+					if (item.state === 'open' && item.body?.toUpperCase().indexOf('YES') > 0) {
 						//probably the author wants to work on this issue!
 						let li2 =
 							'<li><i>(' +

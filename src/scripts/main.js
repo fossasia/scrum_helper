@@ -87,7 +87,7 @@ document.getElementById('refreshCache').addEventListener('click', async (e) => {
         // Reload the active tab to re-inject content
         chrome.tabs.reload(tabs[0].id);
         
-        M.toast({html: 'Data refreshed successfully!', classes: 'green'});
+        Materialize.toast({html: 'Data refreshed successfully!', classes: 'green'});
     } catch (err) {
         console.error('Refresh failed:', err);
         M.toast({html: 'Failed to refresh data', classes: 'red'});
