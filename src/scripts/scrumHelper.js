@@ -346,7 +346,7 @@ ${userReason}`;
 			if (month < 10) month = '0' + month;
 			if (date < 10) date = '0' + date;
 			var dateCode = year.toString() + month.toString() + date.toString();
-			scrumSubject.value = '[Scrum] ' + name + ' - ' + project + ' - ' + dateCode + ' - False';
+			scrumSubject.value = '[Scrum] ' + name + ' - ' + project + ' - ' + dateCode ;
 			scrumSubject.dispatchEvent(new Event('input', { bubbles: true }));
 		});
 		} catch (err) {
