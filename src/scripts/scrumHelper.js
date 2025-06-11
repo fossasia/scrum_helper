@@ -380,38 +380,7 @@ function allIncluded(outputTarget = 'email') {
 		}
 		verifyCacheStatus();
 
-		async function forceGithubDataRefresh() {
-			log('Force refreshing GitHub data');
-			hasInjectedContent = false; 
-			// clear cache
-			githubCache = {
-				data: null,
-				cacheKey: null,
-				timestamp: 0,
-				ttl: 10*60*1000,
-				fetching: false,
-				queue: [],
-				errors: {},
-				errorTTL: 60*1000,
-				subject: null
-			};
-			await new Promise(resolve => {
-				chrome.storage.local.remove('githubCache', resolve);
-			});
-
-			log('Cache cleared, fetching fresh data');
-			try {
-				await fetchGithubData();
-				await saveToStorage();
-				return { success: true, timestamp: Date.now() };
-			} catch (err) {
-				logError('Force refresh failed:', err);
-				throw err;
-			}
-		}
-		if(typeof window !== 'undefined') {
-			window.forceGithubDataRefresh = forceGithubDataRefresh;
-		}
+		
 
 		function processGithubData(data) {
 			log('Processing Github data');

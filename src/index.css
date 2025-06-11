@@ -165,3 +165,20 @@ body,input,div,h3,h4,p,label,hr, #scrumReport{
 .dark-mode .disabled-content {
     opacity: 0.4 !important;
 }
+.cache-info {
+    font-size: 11px;
+    color: #6b7280;
+    text-align: center;
+    margin-top: 8px;
+    line-height: 1.3;
+}
+
+.cache-info i {
+    margin-right: 4px;
+    font-size: 10px;
+}
+
+/* Dark mode for cache info */
+.dark-mode .cache-info {
+    color: #9ca3af;
+}

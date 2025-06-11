@@ -191,36 +191,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
-        // refresh cache button
-        document.getElementById('refreshCache').addEventListener('click', async function () {
-            const button = this;
-            const originalText = button.innerHTML;
-
-            button.classList.add('loading');
-            button.innerHTML = '<i class="fa fa-refresh fa-spin"></i><span>Refreshing...</span>';
-            button.disabled = true;
-
-            try{
-                await chrome.runtime.sendMessage({action: 'forceRefresh'});
-                button.innerHTML = '<i class="fa fa-check"></i><span>Refreshed!</span>';
-                button.classList.remove('loading');
-
-                setTimeout(() => {
-                    button.innerHTML = originalText;
-                    button.disabled = false;
-                }, 2000);
-            } catch (error) {
-                console.error('Refresh failed', error);
-                button.innerHTML = '<i class="fa fa-exclamation-triangle"></i><span>Failed to refresh</span>';
-                button.classList.remove('loading');
-
-                setTimeout(() =>{
-                    button.innerHTML = originalText;
-                    button.disabled = false;
-                }, 2000);
-            }
-        })
-
         // Custom date container click handler
         document.getElementById('customDateContainer').addEventListener('click', () => {
             document.querySelectorAll('input[name="timeframe"]').forEach(radio => {
@@ -308,6 +278,47 @@ document.querySelectorAll('input[name="timeframe"]').forEach(radio => {
             toggleRadio(this);
         }
     });
+});
+
+// refresh cache button
+document.getElementById('refreshCache').addEventListener('click', async function () {
+    const button = this;
+    const originalText = button.innerHTML;
+
+    button.classList.add('loading');
+    button.innerHTML = '<i class="fa fa-refresh fa-spin"></i><span>Refreshing...</span>';
+    button.disabled = true;
+
+    try {
+        // Clear local cache
+        await new Promise(resolve => {
+            chrome.storage.local.remove('githubCache', resolve);
+        });
+        
+        // Clear the scrum report
+        const scrumReport = document.getElementById('scrumReport');
+        if (scrumReport) {
+            scrumReport.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Cache cleared successfully. Click "Generate Report" to fetch fresh data.</p>';
+        }
+        
+        button.innerHTML = '<i class="fa fa-check"></i><span>Cache Cleared!</span>';
+        button.classList.remove('loading');
+        
+        setTimeout(() => {
+            button.innerHTML = originalText;
+            button.disabled = false;
+        }, 2000);
+        
+    } catch (error) {
+        console.error('Cache clear failed:', error);
+        button.innerHTML = '<i class="fa fa-exclamation-triangle"></i><span>Failed to clear cache</span>';
+        button.classList.remove('loading');
+
+        setTimeout(() => {
+            button.innerHTML = originalText;
+            button.disabled = false;
+        }, 3000);
+    }
 });
 
 function toggleRadio(radio) {

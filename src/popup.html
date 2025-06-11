@@ -73,10 +73,6 @@
 							<input type="date" id="endingDate" class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1">
 						</div>
 					</div>
-					<button id="refreshCache" class="w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded flex items-center justify-center gap-2 transition-colors duration-200">
-						<i class="fa fa-refresh"></i>
-						<span>Refresh Data (bypass cache)</span>
-					</button>
 				</div>
 					
 				<div class="col s12">
@@ -104,9 +100,17 @@
 						<button id="copyReport" class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
 						  <i class="fa fa-copy"></i> Copy Report
 						</button>
-					  </div>
-
-					
+					</div>
+					<div class="">
+						<button id="refreshCache" class="w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded flex items-center justify-center gap-2 transition-colors duration-200">
+							<i class="fa fa-refresh"></i>
+							<span>Refresh Data (bypass cache)</span>
+						</button>
+						<p class="cache-info">
+							<i class="fa fa-info-circle"></i>
+							Data is cached for 10 minutes. Use this button to fetch fresh data immediately.
+						</p>
+					</div>
 					<div class="border-gray-100 border-2 bg-white rounded-3xl px-4 py-2 mx-2 my-2">
 						<div>
 							<h4 class="font-semibold text-xl">Note:</h4>
