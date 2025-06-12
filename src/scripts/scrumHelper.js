@@ -37,7 +37,7 @@ function allIncluded(outputTarget = 'email') {
 	let issue_opened_button =
 		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
 
-	const DEBUG = true; // Set to false to disable debug logs
+	const DEBUG = false; // Set to false to disable debug logs
 
 	function log(...args) {
 		if (DEBUG) {
@@ -224,20 +224,17 @@ function allIncluded(outputTarget = 'email') {
 			chrome.storage.local.get('githubCache', (result) => {
 				const cache = result.githubCache;
 				if (!cache) {
-					log('No cache found in storage');
+
 					resolve(false);
 					return;
 				}
 				const isCacheExpired = (Date.now() - cache.timestamp) > githubCache.ttl;
 				if (isCacheExpired) {
-					log('Cached data is expired');
+
 					resolve(false);
 					return;
 				}
-				log('Found valid cache:', {
-					cacheKey: cache.cacheKey,
-					age: `${((Date.now() - cache.timestamp) / 1000 / 60).toFixed(1)} minutes`,
-				});
+
 
 				githubCache.data = cache.data;
 				githubCache.cacheKey = cache.cacheKey;
@@ -256,38 +253,53 @@ function allIncluded(outputTarget = 'email') {
 	async function fetchGithubData() {
 		const cacheKey = `${githubUsername}-${startingDate}-${endingDate}`;
 
-		if (githubCache.fetching || (githubCache.cacheKey === cacheKey && githubCache.data)) {
+		log('Fetch request:', {
+			username: githubUsername,
+			startDate: startingDate,
+			endDate: endingDate,
+			cacheKey: cacheKey
+		});
+
+		if (githubCache.fetching) {
+			log('Fetch already in progress, queuing request');
+			return new Promise((resolve, reject) => {
+				githubCache.queue.push({ resolve, reject });
+			});
+		}
+
+		if (githubCache.cacheKey === cacheKey && githubCache.data) {
+			log('Using cached data:', {
+				age: `${((Date.now() - githubCache.timestamp) / 1000 / 60).toFixed(1)} minutes`,
+				dataTypes: Object.keys(githubCache.data)
+			});
 			return;
 		}
 
-		log('Fetching Github data:', {
-			username: githubUsername,
-			dateRange: `${startingDate} to ${endingDate}`
-		});
-
 		// Check if we need to load from storage
 		if (!githubCache.data && !githubCache.fetching) {
-			await loadFromStorage();
+			const loaded = await loadFromStorage();
+			log('Storage load result:', { loaded, hasCachedData: !!githubCache.data });
 		}
 
 		const now = Date.now();
 		const isCacheFresh = (now - githubCache.timestamp) < githubCache.ttl;
 		const isCacheKeyMatch = githubCache.cacheKey === cacheKey;
 
+		log('Cache status:', {
+			isFresh: isCacheFresh,
+			keyMatch: isCacheKeyMatch,
+			age: githubCache.timestamp ? `${((now - githubCache.timestamp) / 1000 / 60).toFixed(1)} minutes` : 'no cache'
+		});
+
 		if (githubCache.data && isCacheFresh && isCacheKeyMatch) {
+			log('Using existing cache');
 			processGithubData(githubCache.data);
 			return Promise.resolve();
 		}
 
 		if (!isCacheKeyMatch) {
+			log('Cache key mismatch, clearing data');
 			githubCache.data = null;
-		}
-
-		// if fetching is in progress, queue the calls and return a promise resolved when done
-		if (githubCache.fetching) {
-			return new Promise((resolve, reject) => {
-				githubCache.queue.push({ resolve, reject });
-			});
 		}
 
 		githubCache.fetching = true;
@@ -296,7 +308,14 @@ function allIncluded(outputTarget = 'email') {
 		let issueUrl = `https://api.github.com/search/issues?q=author%3A${githubUsername}+org%3Afossasia+created%3A${startingDate}..${endingDate}&per_page=100`;
 		let prUrl = `https://api.github.com/search/issues?q=commenter%3A${githubUsername}+org%3Afossasia+updated%3A${startingDate}..${endingDate}&per_page=100`;
 		let userUrl = `https://api.github.com/users/${githubUsername}`;
-		let allPrsUrl = `https://api.github.com/search/issues?q=type:pr+author:${githubUsername}+org:fossasia&per_page=100`;
+		let allPrsUrl = `https://api.github.com/search/issues?q=type:pr+author:${githubUsername}+org:fossasia+state:open&per_page=100`;
+
+		log('Fetching data from URLs:', {
+			issues: issueUrl,
+			prs: prUrl,
+			user: userUrl,
+			allPrs: allPrsUrl
+		});
 
 		try {
 			// throttling 500ms to avoid burst
@@ -325,13 +344,55 @@ function allIncluded(outputTarget = 'email') {
 
 			// Fetch commits for each open PR with better rate limiting and caching
 			const fetchCommitsWithRetry = async (owner, project, pr_number, retryCount = 3) => {
-				const commitsUrl = `https://api.github.com/repos/${owner}/${project}/pulls/${pr_number}/commits`;
+				const fetchCommitsPage = async (pageUrl) => {
+					const response = await fetch(pageUrl);
+					if (!response.ok) {
+						throw new Error(`HTTP ${response.status}`);
+					}
+
+					// Get pagination links from header
+					const linkHeader = response.headers.get('Link');
+					let nextPage = null;
+					if (linkHeader) {
+						const links = linkHeader.split(',');
+						const nextLink = links.find(link => link.includes('rel="next"'));
+						if (nextLink) {
+							const match = nextLink.match(/<([^>]+)>/);
+							if (match) nextPage = match[1];
+						}
+					}
+
+					const commits = await response.json();
+					return { commits, nextPage };
+				};
+
+				const getAllCommits = async (initialUrl) => {
+					let url = initialUrl;
+					let allCommits = [];
+
+					while (url) {
+						log(`Fetching commits page from ${url}`);
+						const { commits, nextPage } = await fetchCommitsPage(url);
+						allCommits = allCommits.concat(commits);
+						url = nextPage;
+
+						if (nextPage) {
+							// Add delay before fetching next page
+							await new Promise(res => setTimeout(res, 1000));
+						}
+					}
+
+					return allCommits;
+				};
+
+				const commitsUrl = `https://api.github.com/repos/${owner}/${project}/pulls/${pr_number}/commits?per_page=100`;
+				log(`Fetching all commits for PR #${pr_number} from ${commitsUrl}`);
 
 				// Check if we have an error cached for this URL
 				const errorKey = `${owner}/${project}/${pr_number}`;
 				const cachedError = githubCache.errors[errorKey];
 				if (cachedError && (Date.now() - cachedError.timestamp) < githubCache.errorTTL) {
-					log(`Skipping ${errorKey} due to recent error`);
+					log(`Skipping ${errorKey} due to recent error:`, cachedError);
 					return null;
 				}
 
@@ -339,41 +400,30 @@ function allIncluded(outputTarget = 'email') {
 					try {
 						// Add exponential backoff between retries
 						if (i > 0) {
-							await new Promise(res => setTimeout(res, Math.pow(2, i) * 1000));
+							const delay = Math.pow(2, i) * 1000;
+							log(`Retry ${i + 1}/${retryCount} for PR #${pr_number}, waiting ${delay}ms`);
+							await new Promise(res => setTimeout(res, delay));
 						}
 
-						const commitsRes = await fetch(commitsUrl);
-						if (commitsRes.status === 404) {
-							// Cache 404 errors to avoid retrying
-							githubCache.errors[errorKey] = { timestamp: Date.now(), status: 404 };
-							return null;
-						}
+						const commits = await getAllCommits(commitsUrl);
+						log(`Fetched total ${commits.length} commits for PR #${pr_number} in ${owner}/${project}`);
 
-						if (commitsRes.status === 403) {
-							// Rate limit hit - wait longer
-							const resetTime = commitsRes.headers.get('X-RateLimit-Reset');
-							if (resetTime) {
-								const waitTime = (parseInt(resetTime) * 1000) - Date.now();
-								if (waitTime > 0) {
-									await new Promise(res => setTimeout(res, waitTime));
-								}
-							}
-							continue;
-						}
+						// Log commit details for debugging
+						commits.forEach(commit => {
+							log(`Commit in PR #${pr_number}:`, {
+								sha: commit.sha.substring(0, 7),
+								author: commit.author?.login,
+								date: commit.commit.author.date,
+								message: commit.commit.message.split('\n')[0]
+							});
+						});
 
-						if (!commitsRes.ok) {
-							throw new Error(`HTTP ${commitsRes.status}`);
-						}
-
-						const commits = await commitsRes.json();
-						log(`Fetched ${commits.length} commits for PR #${pr_number} in ${owner}/${project}`);
 						return commits;
 
 					} catch (err) {
+						logError(`Error fetching commits for PR #${pr_number} (attempt ${i + 1}/${retryCount}):`, err);
 						if (i === retryCount - 1) {
-							// Cache error on final retry
 							githubCache.errors[errorKey] = { timestamp: Date.now(), error: err.message };
-							logError(`Failed to fetch commits for PR #${pr_number} after ${retryCount} retries:`, err);
 							return null;
 						}
 					}
@@ -381,30 +431,55 @@ function allIncluded(outputTarget = 'email') {
 				return null;
 			};
 
-			// Process PRs in batches to avoid rate limiting
-			const batchSize = 3;
+			// Process PRs in smaller batches with longer delays
+			const batchSize = 2;
 			const prCommits = [];
 
 			for (let i = 0; i < openPrs.length; i += batchSize) {
 				const batch = openPrs.slice(i, i + batchSize);
+				log(`Processing batch ${Math.floor(i / batchSize) + 1}/${Math.ceil(openPrs.length / batchSize)}`);
+
 				const batchResults = await Promise.all(batch.map(async pr => {
 					const repository_url = pr.repository_url;
 					const [owner, project] = repository_url.split('/').slice(-2);
 
-					// Add delay between PR commit fetches
-					await new Promise(res => setTimeout(res, 1000));
+					// Increased delay between PR commit fetches
+					await new Promise(res => setTimeout(res, 2000));
 
 					const commits = await fetchCommitsWithRetry(owner, project, pr.number);
 					if (!commits) return null;
 
-					const filteredCommits = commits.filter(commit =>
-						commit.author?.login === githubUsername &&
-						new Date(commit.commit.author.date) >= new Date(startingDate) &&
-						new Date(commit.commit.author.date) <= new Date(endingDate)
-					);
+					const filteredCommits = commits.filter(commit => {
+						const isAuthor = commit.author?.login === githubUsername;
+						const commitDate = new Date(commit.commit.author.date);
 
-					if (filteredCommits.length === 0) return null;
+						// Create start and end date objects
+						const startDateObj = new Date(startingDate);
+						const endDateObj = new Date(endingDate);
+						// Set end date to end of day (23:59:59.999)
+						endDateObj.setHours(23, 59, 59, 999);
 
+						const isInDateRange = commitDate >= startDateObj &&
+							commitDate <= endDateObj;
+
+						log(`Filtering commit ${commit.sha.substring(0, 7)}:`, {
+							isAuthor,
+							author: commit.author?.login,
+							commitDate: commit.commit.author.date,
+							inRange: isInDateRange,
+							startDate: startDateObj.toISOString(),
+							endDate: endDateObj.toISOString()
+						});
+
+						return isAuthor && isInDateRange;
+					});
+
+					if (filteredCommits.length === 0) {
+						log(`No matching commits found for PR #${pr.number}`);
+						return null;
+					}
+
+					log(`Found ${filteredCommits.length} matching commits in PR #${pr.number}`);
 					return {
 						pr,
 						commits: filteredCommits
@@ -412,6 +487,11 @@ function allIncluded(outputTarget = 'email') {
 				}));
 
 				prCommits.push(...batchResults.filter(Boolean));
+
+				// Add delay between batches
+				if (i + batchSize < openPrs.length) {
+					await new Promise(res => setTimeout(res, 3000));
+				}
 			}
 
 			// Filter out null results and empty commits
@@ -481,7 +561,14 @@ function allIncluded(outputTarget = 'email') {
 	verifyCacheStatus();
 
 	async function forceGithubDataRefresh() {
+		log('Starting force refresh...');
 		const oldCacheKey = githubCache.cacheKey;
+		log('Old cache state:', {
+			key: oldCacheKey,
+			hasData: !!githubCache.data,
+			timestamp: githubCache.timestamp
+		});
+
 		githubCache = {
 			data: null,
 			cacheKey: oldCacheKey,
@@ -494,20 +581,24 @@ function allIncluded(outputTarget = 'email') {
 			subject: null
 		};
 
+		log('Cache reset complete');
+
 		await new Promise(resolve => {
-			chrome.storage.local.remove('githubCache', resolve);
+			chrome.storage.local.remove('githubCache', () => {
+				log('Storage cache cleared');
+				resolve();
+			});
 		});
 
 		try {
+			log('Starting fresh data fetch...');
 			await fetchGithubData();
+			log('Force refresh completed successfully');
 			return { success: true, timestamp: Date.now() };
 		} catch (err) {
 			logError('Force refresh failed:', err);
 			throw err;
 		}
-	}
-	if (typeof window !== 'undefined') {
-		window.forceGithubDataRefresh = forceGithubDataRefresh;
 	}
 
 	function processGithubData(data) {
