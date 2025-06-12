@@ -37,7 +37,7 @@ function allIncluded(outputTarget = 'email') {
 	let issue_opened_button =
 		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
 
-	const DEBUG = false; // Set to false to disable debug logs
+	const DEBUG = true; // Set to false to disable debug logs
 
 	function log(...args) {
 		if (DEBUG) {
@@ -319,34 +319,103 @@ function allIncluded(outputTarget = 'email') {
 			const githubUserData = await userRes.json();
 			const allPrsData = await allPrsRes.json();
 
-			// Fetch commits for each PR
-			const prCommits = await Promise.all(allPrsData.items.map(async pr => {
-				const repository_url = pr.repository_url;
-				const [owner, project] = repository_url.split('/').slice(-2);
-				const commitsUrl = `https://api.github.com/repos/${owner}/${project}/pulls/${pr.number}/commits`;
+			// Filter to only get open PRs
+			const openPrs = allPrsData.items.filter(pr => pr.state === 'open');
+			log(`Found ${openPrs.length} open PRs out of ${allPrsData.items.length} total PRs`);
 
-				try {
-					await new Promise(res => setTimeout(res, 100)); // Small delay to avoid rate limits
-					const commitsRes = await fetch(commitsUrl);
-					if (!commitsRes.ok) return null;
-					const commits = await commitsRes.json();
-					return {
-						pr,
-						commits: commits.filter(commit =>
-							commit.author?.login === githubUsername &&
-							new Date(commit.commit.author.date) >= new Date(startingDate) &&
-							new Date(commit.commit.author.date) <= new Date(endingDate)
-						)
-					};
-				} catch (err) {
-					console.error(`Error fetching commits for PR #${pr.number}:`, err);
+			// Fetch commits for each open PR with better rate limiting and caching
+			const fetchCommitsWithRetry = async (owner, project, pr_number, retryCount = 3) => {
+				const commitsUrl = `https://api.github.com/repos/${owner}/${project}/pulls/${pr_number}/commits`;
+
+				// Check if we have an error cached for this URL
+				const errorKey = `${owner}/${project}/${pr_number}`;
+				const cachedError = githubCache.errors[errorKey];
+				if (cachedError && (Date.now() - cachedError.timestamp) < githubCache.errorTTL) {
+					log(`Skipping ${errorKey} due to recent error`);
 					return null;
 				}
-			}));
+
+				for (let i = 0; i < retryCount; i++) {
+					try {
+						// Add exponential backoff between retries
+						if (i > 0) {
+							await new Promise(res => setTimeout(res, Math.pow(2, i) * 1000));
+						}
+
+						const commitsRes = await fetch(commitsUrl);
+						if (commitsRes.status === 404) {
+							// Cache 404 errors to avoid retrying
+							githubCache.errors[errorKey] = { timestamp: Date.now(), status: 404 };
+							return null;
+						}
+
+						if (commitsRes.status === 403) {
+							// Rate limit hit - wait longer
+							const resetTime = commitsRes.headers.get('X-RateLimit-Reset');
+							if (resetTime) {
+								const waitTime = (parseInt(resetTime) * 1000) - Date.now();
+								if (waitTime > 0) {
+									await new Promise(res => setTimeout(res, waitTime));
+								}
+							}
+							continue;
+						}
+
+						if (!commitsRes.ok) {
+							throw new Error(`HTTP ${commitsRes.status}`);
+						}
+
+						const commits = await commitsRes.json();
+						log(`Fetched ${commits.length} commits for PR #${pr_number} in ${owner}/${project}`);
+						return commits;
+
+					} catch (err) {
+						if (i === retryCount - 1) {
+							// Cache error on final retry
+							githubCache.errors[errorKey] = { timestamp: Date.now(), error: err.message };
+							logError(`Failed to fetch commits for PR #${pr_number} after ${retryCount} retries:`, err);
+							return null;
+						}
+					}
+				}
+				return null;
+			};
+
+			// Process PRs in batches to avoid rate limiting
+			const batchSize = 3;
+			const prCommits = [];
+
+			for (let i = 0; i < openPrs.length; i += batchSize) {
+				const batch = openPrs.slice(i, i + batchSize);
+				const batchResults = await Promise.all(batch.map(async pr => {
+					const repository_url = pr.repository_url;
+					const [owner, project] = repository_url.split('/').slice(-2);
+
+					// Add delay between PR commit fetches
+					await new Promise(res => setTimeout(res, 1000));
+
+					const commits = await fetchCommitsWithRetry(owner, project, pr.number);
+					if (!commits) return null;
+
+					const filteredCommits = commits.filter(commit =>
+						commit.author?.login === githubUsername &&
+						new Date(commit.commit.author.date) >= new Date(startingDate) &&
+						new Date(commit.commit.author.date) <= new Date(endingDate)
+					);
+
+					if (filteredCommits.length === 0) return null;
+
+					return {
+						pr,
+						commits: filteredCommits
+					};
+				}));
+
+				prCommits.push(...batchResults.filter(Boolean));
+			}
 
 			// Filter out null results and empty commits
 			const prCommitsData = prCommits
-				.filter(data => data && data.commits.length > 0)
 				.reduce((acc, { pr, commits }) => {
 					const project = pr.repository_url.split('/').pop();
 					if (!acc[project]) acc[project] = [];
