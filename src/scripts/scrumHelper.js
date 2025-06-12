@@ -247,14 +247,14 @@ function allIncluded(outputTarget = 'email') {
         if (lastWeekContribution == true) {
             content = `<b>1. What did I do ${weekOrDay}?</b><br>
 ${lastWeekUl}<br>
-<b>2. What I did/plan to do ${weekOrDay2}?</b><br>
+<b>2. What do I plan to do ${weekOrDay2}?</b><br>
 ${nextWeekUl}<br>
 <b>3. What is stopping me from doing my work?</b><br>
 ${userReason}`;
         } else {
             content = `<b>1. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?</b><br>
 ${lastWeekUl}<br>
-<b>2. What I did/plan to do ${weekOrDay2}?</b><br>
+<b>2. What do I plan to do ${weekOrDay2}?</b><br>
 ${nextWeekUl}<br>
 <b>3. What is stopping me from doing my work?</b><br>
 ${userReason}`;
