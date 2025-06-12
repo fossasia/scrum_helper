@@ -118,3 +118,78 @@ body,input,div,h3,h4,p,label,hr, #scrumReport{
 .dark-mode a {
 	color: #00b7ff !important;
 }
+/* Update GitHub Token styling */
+#githubToken {
+    font-family: 'Courier New', monospace;
+    transition: all 0.2s ease;
+    padding-right: 12px !important; /* Remove extra padding since button is no longer inside */
+}
+
+#githubToken[type="password"] {
+    letter-spacing: 3px !important;
+    font-size: 18px !important;
+}
+
+#githubToken[type="text"] {
+    letter-spacing: 1px !important;
+    font-size: 14px !important;
+}
+
+#githubToken.scrambling {
+    animation: scrambleText 0.3s ease-in-out;
+}
+
+#githubToken::placeholder {
+    letter-spacing: normal !important;
+    font-family: inherit;
+    font-size: 14px !important;
+}
+
+/* Update toggle button positioning */
+#toggleToken {
+    background: none !important;
+    border: none !important;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: auto;
+    height: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+}
+
+#toggleToken:hover {
+    background-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+#toggleToken i {
+    font-size: 16px;
+}
+
+/* Dark mode adjustments */
+.dark-mode #toggleToken {
+    color: #9ca3af !important;
+}
+
+.dark-mode #toggleToken:hover {
+    color: #ffffff !important;
+    background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Scrambling animation */
+@keyframes scrambleText {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-1px); }
+    75% { transform: translateX(1px); }
+}
+
+/* Remove browser default password reveal */
+#githubToken::-ms-reveal,
+#githubToken::-ms-clear {
+    display: none;
+}
+
+#githubToken::-webkit-textfield-decoration-container {
+    display: none;
+}

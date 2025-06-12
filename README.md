@@ -17,7 +17,12 @@
 3. Enable Developer Mode (toggle in the top-right) if not already.
 4. Click Load unpacked and select the `src` folder inside the cloned repo
 5. Click the Scrum Helper icon on your browser toolbar
-6. Fill in your settings in the popup (GitHub username, date range, etc.)
+6. To get the GitHub Token go to https://github.com/settings/tokens 
+    - Click on generate new token.
+    - Select classic token.
+    - Set the expiration to never.
+    - Copy the token and paste it somewhere safe you won't see it again.
+7. Fill in your settings in the popup (GitHub username, date range, etc.)
 
 ## Usage
 
