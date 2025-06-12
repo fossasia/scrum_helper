@@ -9,6 +9,7 @@ function allIncluded(outputTarget = 'email') {
 	var startingDate = '';
 	var endingDate = '';
 	var githubUsername = '';
+	let githubToken = '';
 	var projectName = '';
 	var lastWeekArray = [];
 	var nextWeekArray = [];
@@ -39,6 +40,7 @@ function allIncluded(outputTarget = 'email') {
 		chrome.storage.local.get(
 			[
 				'githubUsername',
+				'githubToken',
 				'projectName',
 				'enableToggle',
 				'startingDate',
@@ -74,6 +76,9 @@ function allIncluded(outputTarget = 'email') {
 				}
 				if (items.startingDate && !yesterdayContribution){
 					startingDate = items.startingDate;
+				}
+				if (items.githubToken) {
+					githubToken = items.githubToken;
 				}
 				if (items.githubUsername) {
 					githubUsername = items.githubUsername;
@@ -171,6 +176,11 @@ function allIncluded(outputTarget = 'email') {
 	}
 	// fetch github data
 	function fetchGithubData() {
+		chrome.storage.local.get("githubToken", ({ githubToken }) =>{
+			if(!githubToken) {
+				console.error("Github Tokenn not found in storage.");
+			}
+		})
 		var issueUrl = 'https://api.github.com/search/issues?q=author%3A' +
 			githubUsername +
 			'+org%3Afossasia+created%3A' +
@@ -179,22 +189,47 @@ function allIncluded(outputTarget = 'email') {
 			endingDate +
 			'&per_page=100';
 
-		$.ajax({
-			dataType: 'json',
-			type: 'GET',
-			url: issueUrl,
-			error: (xhr, textStatus, errorThrown) => {
-				console.error('Error fetching GitHub data:', {
-					status: xhr.status,
-					textStatus: textStatus,
-					error: errorThrown
-				});
-			},
-			success: (data) => {
-				githubIssuesData = data;
-				writeGithubIssuesPrs();
-			},
-		});
+		if(githubToken){
+			console.log("Making authenticated API calls-fetch github Data");
+			$.ajax({
+				dataType: 'json',
+				type: 'GET',
+				url: issueUrl,
+				headers: {
+					Authorization: `Bearer ${githubToken}`,
+					Accept: 'application/vnd.github+json'
+				},
+				error: (xhr, textStatus, errorThrown) => {
+					console.error('Error fetching GitHub data:', {
+						status: xhr.status,
+						textStatus: textStatus,
+						error: errorThrown
+					});
+				},
+				success: (data) => {
+					githubIssuesData = data;
+					writeGithubIssuesPrs();
+				},
+			});
+		} else {
+			console.log("Making public api requests-fetch github Data");
+			$.ajax({
+				dataType: 'json',
+				type: 'GET',
+				url: issueUrl,
+				error: (xhr, textStatus, errorThrown) => {
+					console.error('Error fetching GitHub data:', {
+						status: xhr.status,
+						textStatus: textStatus,
+						error: errorThrown
+					});
+				},
+				success: (data) => {
+					githubIssuesData = data;
+					writeGithubIssuesPrs();
+				},
+			});
+		}	
 
 		// PR reviews fetch
 		var prUrl = 'https://api.github.com/search/issues?q=commenter%3A' +
@@ -205,35 +240,80 @@ function allIncluded(outputTarget = 'email') {
 			endingDate +
 			'&per_page=100';
 
-		$.ajax({
-			dataType: 'json',
-			type: 'GET',
-			url: prUrl,
-			error: (xhr, textStatus, errorThrown) => {
-				console.error('Error fetching PR reviews:', {
-					status: xhr.status,
-					textStatus: textStatus,
-					error: errorThrown
-				});
-			},
-			success: (data) => {
-				githubPrsReviewData = data;
-				writeGithubPrsReviews();
-			},
-		});
+		if(githubToken) {
+			console.log("Making authenticated API calls-pr reviews");
+			$.ajax({
+				dataType: 'json',
+				type: 'GET',
+				url: prUrl,
+				headers: {
+					Authorization: `Bearer ${githubToken}`,
+					Accept: 'application/vnd.github+json'
+				},
+				error: (xhr, textStatus, errorThrown) => {
+					console.error('Error fetching PR reviews:', {
+						status: xhr.status,
+						textStatus: textStatus,
+						error: errorThrown
+					});
+				},
+				success: (data) => {
+					githubPrsReviewData = data;
+					writeGithubPrsReviews();
+				},
+			});
+		} else {
+			console.log("Making public api requests-pr reviews");
+			$.ajax({
+				dataType: 'json',
+				type: 'GET',
+				url: prUrl,
+				error: (xhr, textStatus, errorThrown) => {
+					console.error('Error fetching PR reviews:', {
+						status: xhr.status,
+						textStatus: textStatus,
+						error: errorThrown
+					});
+				},
+				success: (data) => {
+					githubPrsReviewData = data;
+					writeGithubPrsReviews();
+				},
+			});
+		}
 		// fetch github user data
 		var userUrl = 'https://api.github.com/users/' + githubUsername;
-		$.ajax({
-			dataType: 'json',
-			type: 'GET',
-			url: userUrl,
-			error: (xhr, textStatus, errorThrown) => {
-				// error
-			},
-			success: (data) => {
-				githubUserData = data;
-			},
-		});
+		if(githubToken) {
+			console.log("Making authenticated API calls-user Data");
+			$.ajax({
+				dataType: 'json',
+				type: 'GET',
+				url: userUrl,
+				headers: {
+					Authorization: `Bearer ${githubToken}`,
+					Accept: 'application/vnd.github+json'
+				},
+				error: (xhr, textStatus, errorThrown) => {
+					// error
+				},
+				success: (data) => {
+					githubUserData = data;
+				},
+			});
+		} else {
+			console.log("Making public api requests-user Data");
+			$.ajax({
+				dataType: 'json',
+				type: 'GET',
+				url: userUrl,
+				error: (xhr, textStatus, errorThrown) => {
+					// error
+				},
+				success: (data) => {
+					githubUserData = data;
+				},
+			});
+		}
 	}
 
 	function formatDate(dateString) {
