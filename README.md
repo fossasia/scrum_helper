@@ -35,7 +35,7 @@
 
 **Note for Firefox users:** The extension will be automatically removed when you close Firefox. You'll need to reload it each time you start a new browser session by repeating steps 2-5.
 
- If you need to use persistence choose Firefox developer edition it allows persistance on changing xpinstall.signatures.required to false
+**Persistence Note:** If you need the extension to persist between sessions, use Firefox Developer Edition. You can enable persistence by setting `xpinstall.signatures.required` to `false` in the browser's configuration.
 
 ## Usage
 
