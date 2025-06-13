@@ -19,6 +19,7 @@
       "matches": [
         "*://groups.google.com/forum/*", 
         "*://groups.google.com/g/*",
+        "*://groups.google.com/u/*/g/*",
         "*://mail.google.com/*",         
         "*://outlook.live.com/*",        
         "*://outlook.office.com/*",      
