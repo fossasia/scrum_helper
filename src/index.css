@@ -85,10 +85,14 @@ body,input,div,h3,h4,p,label,hr, #scrumReport{
 	transition: color 0.3s ease-in-out;
 }
 
+
+
+
 .dark-mode hr {
 	border-color: #505050 !important;
 	transition: border-color 0.3s ease-in-out;
 }
+
 #scrumReport {
 	font-size: 13px !important; 
 	line-height: 1.5 !important; 
