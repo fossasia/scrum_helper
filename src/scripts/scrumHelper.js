@@ -573,7 +573,7 @@ function allIncluded(outputTarget = 'email') {
 			data: null,
 			cacheKey: oldCacheKey,
 			timestamp: 0,
-			ttl: 10 * 60 * 1000,
+			ttl: 5 * 60 * 1000,
 			fetching: false,
 			queue: [],
 			errors: {},
