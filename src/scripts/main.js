@@ -1,15 +1,15 @@
-/* global $,Materialize*/
-let enableToggleElement = document.getElementById('enable');
-let githubUsernameElement = document.getElementById('githubUsername');
-let projectNameElement = document.getElementById('projectName');
-let lastWeekContributionElement = document.getElementById('lastWeekContribution');
-let startingDateElement = document.getElementById('startingDate');
-let endingDateElement = document.getElementById('endingDate');
-let showOpenLabelElement = document.getElementById('showOpenLabel');
-let userReasonElement = document.getElementById('userReason');
-let gsoc = 0; //0 means gsoc. 1 means gsoc
+
+var enableToggleElement = document.getElementById('enable');
+var githubUsernameElement = document.getElementById('githubUsername');
+var projectNameElement = document.getElementById('projectName');
+var lastWeekContributionElement = document.getElementById('lastWeekContribution');
+let yesterdayContributionElement = document.getElementById('yesterdayContribution');
+var startingDateElement = document.getElementById('startingDate');
+var endingDateElement = document.getElementById('endingDate');
+var showOpenLabelElement = document.getElementById('showOpenLabel');
+var userReasonElement = document.getElementById('userReason');
+
 function handleBodyOnLoad() {
-	// prefill name
 	chrome.storage.local.get(
 		[
 			'githubUsername',
@@ -21,8 +21,7 @@ function handleBodyOnLoad() {
 			'showClosedLabel',
 			'userReason',
 			'lastWeekContribution',
-			'gsoc',
-			'selectedTab',
+			'yesterdayContribution',
 		],
 		(items) => {
 			if (items.githubUsername) {
@@ -57,24 +56,19 @@ function handleBodyOnLoad() {
 			if (items.lastWeekContribution) {
 				lastWeekContributionElement.checked = items.lastWeekContribution;
 				handleLastWeekContributionChange();
-			} else if (items.lastWeekContribution !== false) {
+			}
+			 else if (items.lastWeekContribution !== false) {
 				lastWeekContributionElement.checked = true;
 				handleLastWeekContributionChange();
 			}
-			if (items.gsoc == 1) {
-				handleGsocClick();
-			} else {
-				handleCodeheatClick();
+			if (items.yesterdayContribution) {
+				yesterdayContributionElement.checked = items.yesterdayContribution;
+				handleYesterdayContributionChange();
 			}
-			if (items.selectedTab === 'gsoc') {
-				handleGsocClick();
-			} 
-			else {
-				handleCodeheatClick();
+			 else if (items.yesterdayContribution !== false) {
+				yesterdayContributionElement.checked = true;
+				handleYesterdayContributionChange();
 			}
-			
-			// initialize materialize tabs
-			$('.tabs').tabs('select_tab', items.selectedTab === 'gsoc' ? 'gsocBox' : 'codeheatBox' );
 		},
 	);
 }
@@ -140,20 +134,57 @@ function handleLastWeekContributionChange() {
 	chrome.storage.local.set({ lastWeekContribution: value });
 }
 
+function handleYesterdayContributionChange() {
+	let value = yesterdayContributionElement.checked;
+	let labelElement = document.querySelector("label[for='yesterdayContribution']");
+
+	if (value) {
+		startingDateElement.disabled = true;
+		endingDateElement.disabled = true;
+		endingDateElement.value = getToday();
+		startingDateElement.value = getYesterday();
+			handleEndingDateChange();
+			handleStartingDateChange();
+		labelElement.classList.add("selectedLabel");
+		labelElement.classList.remove("unselectedLabel");
+	} else {
+		startingDateElement.disabled = false;
+		endingDateElement.disabled = false;
+		labelElement.classList.add("unselectedLabel");
+		labelElement.classList.remove("selectedLabel");
+	}
+	chrome.storage.local.set({ yesterdayContribution: value });
+}
+
 function getLastWeek() {
-	let today = new Date();
-	let noDays_to_goback = gsoc == 0 ? 7 : 1;
-	let lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - noDays_to_goback);
-	let lastWeekMonth = lastWeek.getMonth() + 1;
-	let lastWeekDay = lastWeek.getDate();
-	let lastWeekYear = lastWeek.getFullYear();
-	let lastWeekDisplayPadded =
+
+	var today = new Date();
+	var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+	var lastWeekMonth = lastWeek.getMonth() + 1;
+	var lastWeekDay = lastWeek.getDate();
+	var lastWeekYear = lastWeek.getFullYear();
+	var lastWeekDisplayPadded =
+
 		('0000' + lastWeekYear.toString()).slice(-4) +
 		'-' +
 		('00' + lastWeekMonth.toString()).slice(-2) +
 		'-' +
 		('00' + lastWeekDay.toString()).slice(-2);
 	return lastWeekDisplayPadded;
+}
+function getYesterday() {
+	let today = new Date();
+	let yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+	let yesterdayMonth = yesterday.getMonth() + 1;
+	let yesterdayWeekDay = yesterday.getDate();
+	let yesterdayYear = yesterday.getFullYear();
+	let yesterdayPadded = 
+		('0000' + yesterdayYear.toString()).slice(-4) +
+		'-' +
+		('00' + yesterdayMonth.toString()).slice(-2) +
+		'-' +
+		('00' + yesterdayWeekDay.toString()).slice(-2);
+	return yesterdayPadded;
 }
 function getToday() {
 	let today = new Date();
@@ -197,30 +228,13 @@ function handleUserReasonChange() {
 	let value = userReasonElement.value;
 	chrome.storage.local.set({ userReason: value });
 }
-function handleCodeheatClick() {
-	gsoc = 0;
-	$('#codeheatTab').addClass('active');
-	$('.tabs').tabs();
-	$('#noDays').text('7 days');
-	chrome.storage.local.set({ gsoc: 0, selectedTab: 'codeheat' });
-	handleLastWeekContributionChange();
-}
-function handleGsocClick() {
-	gsoc = 1;
-	$('#gsocTab').addClass('active');
-	$('.tabs').tabs();
-	$('#noDays').text('1 day');
-	chrome.storage.local.set({ gsoc: 1, selectedTab: 'gsoc' });
-	handleLastWeekContributionChange();
-}
 enableToggleElement.addEventListener('change', handleEnableChange);
 githubUsernameElement.addEventListener('keyup', handleGithubUsernameChange);
 projectNameElement.addEventListener('keyup', handleProjectNameChange);
 startingDateElement.addEventListener('change', handleStartingDateChange);
 endingDateElement.addEventListener('change', handleEndingDateChange);
 lastWeekContributionElement.addEventListener('change', handleLastWeekContributionChange);
+yesterdayContributionElement.addEventListener('change', handleYesterdayContributionChange);
 showOpenLabelElement.addEventListener('change', handleOpenLabelChange);
 userReasonElement.addEventListener('keyup', handleUserReasonChange);
 document.addEventListener('DOMContentLoaded', handleBodyOnLoad);
-document.getElementById('codeheatTab').addEventListener('click', handleCodeheatClick);
-document.getElementById('gsocTab').addEventListener('click', handleGsocClick);

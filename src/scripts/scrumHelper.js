@@ -6,28 +6,28 @@ function allIncluded(outputTarget = 'email') {
 	console.log('allIncluded called with outputTarget:', outputTarget);
 	console.log('Current window context:', window.location.href);
 	/* global $*/
-	let scrumBody = null;
-	let scrumSubject = null;
-	let startingDate = '';
-	let endingDate = '';
-	let githubUsername = '';
-	let projectName = '';
-	let lastWeekArray = [];
-	let nextWeekArray = [];
-	let reviewedPrsArray = [];
-	let commitsArray = []; // Array to store all commits
-	let githubIssuesData = null;
-	let lastWeekContribution = false;
-	let githubPrsReviewData = null;
-	let githubUserData = null;
-	let githubPrsReviewDataProccessed = {};
-	let prCommitsData = {}; // Store commits for each PR
-	let showOpenLabel = true;
-	let showClosedLabel = true;
-	let userReason = '';
-	let gsoc = 0; //0 means codeheat. 1 means gsoc
 
-	let pr_merged_button =
+	var scrumBody = null;
+	var scrumSubject = null;
+	var startingDate = '';
+	var endingDate = '';
+	var githubUsername = '';
+	var projectName = '';
+	var lastWeekArray = [];
+	var nextWeekArray = [];
+	var reviewedPrsArray = [];
+	var githubIssuesData = null;
+	var lastWeekContribution = false;
+	let yesterdayContribution = false;
+	var githubPrsReviewData = null;
+	var githubUserData = null;
+	var githubPrsReviewDataProcessed = {};
+	var showOpenLabel = true;
+	var showClosedLabel = true;
+	var userReason = '';
+
+	var pr_merged_button =
+
 		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #6f42c1;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--purple">closed</div>';
 	let pr_unmerged_button =
 		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
@@ -64,23 +64,21 @@ function allIncluded(outputTarget = 'email') {
 				'showOpenLabel',
 				'showClosedLabel',
 				'lastWeekContribution',
+				'yesterdayContribution',
 				'userReason',
-				'gsoc',
-				'githubCache',
+
 			],
 			(items) => {
-				if (DEBUG) {
-					console.log("Storage items received");
-				}
-				if (items.gsoc) {
-					//gsoc
-					gsoc = 1;
-				} else {
-					gsoc = 0; //codeheat
-				}
+				console.log("Storage items received:", items);
+				
+
 				if (items.lastWeekContribution) {
 					lastWeekContribution = true;
 					handleLastWeekContributionChange();
+				}
+				if (items.yesterdayContribution) {
+					yesterdayContribution = true;
+					handleYesterdayContributionChange();
 				}
 				if (!items.enableToggle) {
 					enableToggle = items.enableToggle;
@@ -89,6 +87,12 @@ function allIncluded(outputTarget = 'email') {
 					endingDate = items.endingDate;
 				}
 				if (items.startingDate && !lastWeekContribution) {
+					startingDate = items.startingDate;
+				}
+				if (items.endingDate && !yesterdayContribution){
+					endingDate = items.endingDate;
+				}
+				if (items.startingDate && !yesterdayContribution){
 					startingDate = items.startingDate;
 				}
 				if (items.githubUsername) {
@@ -145,20 +149,39 @@ function allIncluded(outputTarget = 'email') {
 		endingDate = getToday();
 		startingDate = getLastWeek();
 	}
+	function handleYesterdayContributionChange() {
+		endingDate = getToday();
+		startingDate = getYesterday();
+	}
 	function getLastWeek() {
-		let today = new Date();
-		let noDays_to_goback = gsoc == 0 ? 7 : 1;
-		let lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - noDays_to_goback);
-		let lastWeekMonth = lastWeek.getMonth() + 1;
-		let lastWeekDay = lastWeek.getDate();
-		let lastWeekYear = lastWeek.getFullYear();
-		let lastWeekDisplayPadded =
+
+		var today = new Date();
+		var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
+		var lastWeekMonth = lastWeek.getMonth() + 1;
+		var lastWeekDay = lastWeek.getDate();
+		var lastWeekYear = lastWeek.getFullYear();
+		var lastWeekDisplayPadded =
+
 			('0000' + lastWeekYear.toString()).slice(-4) +
 			'-' +
 			('00' + lastWeekMonth.toString()).slice(-2) +
 			'-' +
 			('00' + lastWeekDay.toString()).slice(-2);
 		return lastWeekDisplayPadded;
+	}
+	function getYesterday() {
+		let today = new Date();
+		let yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+		let yesterdayMonth = yesterday.getMonth() + 1;
+		let yesterdayWeekDay = yesterday.getDate();
+		let yesterdayYear = yesterday.getFullYear();
+		let yesterdayPadded = 
+			('0000' + yesterdayYear.toString()).slice(-4) +
+			'-' +
+			('00' + yesterdayMonth.toString()).slice(-2) +
+			'-' +
+			('00' + yesterdayWeekDay.toString()).slice(-2);
+		return yesterdayPadded;
 	}
 	function getToday() {
 		let today = new Date();
@@ -694,26 +717,28 @@ function allIncluded(outputTarget = 'email') {
 			for (i = 0; i < nextWeekArray.length; i++) nextWeekUl += nextWeekArray[i];
 			nextWeekUl += '</ul>';
 
-			let weekOrDay = gsoc == 1 ? 'yesterday' : 'last week';
-			let weekOrDay2 = gsoc == 1 ? 'today' : 'this week';
+
+			var weekOrDay = lastWeekContribution ? 'last week' : (yesterdayContribution ? 'yesterday' : 'the period');
+        	var weekOrDay2 = lastWeekContribution ? 'this week' : 'today';
 
 			// Create the complete content
 			let content;
-			if (lastWeekContribution == true) {
-				content = `<b>1. What did I do ${weekOrDay}?</b>
-							<br>${lastWeekUl}<br><br>
-							<b>2. What I plan to do ${weekOrDay2}?</b>
-							<br>${nextWeekUl}<br><br>
-							<b>3. What is stopping me from doing my work?</b>
-							<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${userReason}</p>`;
-			} else {
-				content = `<b>1. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?</b>
-							<br>${lastWeekUl}<br><br>
-							<b>2. What I plan to do ${weekOrDay2}?</b>
-							<br>${nextWeekUl}<br><br>
-							<b>3. What is stopping me from doing my work?</b>
-							<p>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${userReason}</p>`;
-			}
+        if (lastWeekContribution == true || yesterdayContribution == true ) {
+            content = `<b>1. What did I do ${weekOrDay}?</b><br>
+${lastWeekUl}<br>
+<b>2. What do I plan to do ${weekOrDay2}?</b><br>
+${nextWeekUl}<br>
+<b>3. What is blocking me from making progress?</b><br>
+${userReason}`;
+        } else {
+            content = `<b>1. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?</b><br>
+${lastWeekUl}<br>
+<b>2. What do I plan to do ${weekOrDay2}?</b><br>
+${nextWeekUl}<br>
+<b>3. What is blocking me from making progress?</b><br>
+${userReason}`;
+        }
+
 
 			if (outputTarget === 'popup') {
 				const scrumReport = document.getElementById('scrumReport');
@@ -767,11 +792,28 @@ function allIncluded(outputTarget = 'email') {
 				githubCache.subject = subject;
 				saveToStorage(githubCache.data, subject);
 
-				if (scrumSubject && scrumSubject.value !== subject) {
-					scrumSubject.value = subject;
-					scrumSubject.dispatchEvent(new Event('input', { bubbles: true }));
-				}
-			});
+
+		
+		if (!enableToggle) return;
+		if (!scrumSubject){
+			console.error('Subject element not found');
+			return;
+		}
+		setTimeout(() => {
+			var name = githubUserData.name || githubUsername;
+			var project = getProject();
+			var curDate = new Date();
+			var year = curDate.getFullYear().toString();
+			var date = curDate.getDate();
+			var month = curDate.getMonth();
+			month++;
+			if (month < 10) month = '0' + month;
+			if (date < 10) date = '0' + date;
+			var dateCode = year.toString() + month.toString() + date.toString();
+			scrumSubject.value = '[Scrum] ' + name + ' - ' + project + ' - ' + dateCode ;
+			scrumSubject.dispatchEvent(new Event('input', { bubbles: true }));
+		});
+
 		} catch (err) {
 			console.err('Error while setting subject: ', err);
 		}
@@ -821,14 +863,17 @@ function allIncluded(outputTarget = 'email') {
 			else {
 				repoLi += 'PR - ';
 			}
-			if (githubPrsReviewDataProccessed[repo].length <= 1) {
-				for (let pr in githubPrsReviewDataProccessed[repo]) {
-					let pr_arr = githubPrsReviewDataProccessed[repo][pr];
-					let prText = '';
-					prText +=
-						"<a href='" + pr_arr.html_url + "' target='_blank'>#" + pr_arr.number + '</a> (' + pr_arr.title + ') ';
-					if (pr_arr.state === 'open') prText += issue_opened_button;
-					else prText += issue_closed_button;
+
+			if (githubPrsReviewDataProcessed[repo].length <= 1) {
+				for (var pr in githubPrsReviewDataProcessed[repo]) {
+					var pr_arr = githubPrsReviewDataProcessed[repo][pr];
+					var prText = '';
+					prText += `<a href='${pr_arr.html_url}' target='_blank'>#${pr_arr.number}</a> (${pr_arr.title}) `;
+					if (pr_arr.state === 'open') {
+						prText += issue_opened_button;
+					} else {
+						prText += issue_closed_button;
+					}
 
 					prText += '&nbsp;&nbsp;';
 					repoLi += prText;
