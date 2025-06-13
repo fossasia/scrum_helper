@@ -43,18 +43,6 @@ function getYesterday() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Firefox date input fix
-    if (isFirefox) {
-        document.querySelectorAll('input[type="date"]').forEach(input => {
-            if (!input.value) {
-                input.type = 'text';
-                input.placeholder = 'YYYY-MM-DD';
-            }
-            input.addEventListener('blur', () => {
-                if (input.value) input.type = 'date';
-            });
-        });
-    }
 
     // Dark mode setup
     const darkModeToggle = document.querySelector('img[alt="Night Mode"]');
