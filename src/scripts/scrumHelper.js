@@ -180,7 +180,7 @@ function allIncluded(outputTarget = 'email') {
 		data: null,
 		cacheKey: null,
 		timestamp: 0,
-		ttl: 10 * 60 * 1000, // cache valid for 10 mins
+		ttl: 5 * 60 * 1000, // cache valid for 10 mins
 		fetching: false,
 		queue: [],
 		errors: {},
