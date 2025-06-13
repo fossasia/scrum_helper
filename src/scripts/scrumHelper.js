@@ -1,4 +1,5 @@
 console.log('Script loaded, adapter exists:', !!window.emailClientAdapter);
+const isFirefox = navigator.userAgent.includes("Firefox");
 var enableToggle = true;
 function allIncluded(outputTarget = 'email') {
 	console.log('allIncluded called with outputTarget:', outputTarget);
@@ -34,9 +35,9 @@ function allIncluded(outputTarget = 'email') {
 		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
 
 	// var linkStyle = '';
-	function getChromeData() {
-		console.log("Getting Chrome data for context:", outputTarget);
-		chrome.storage.local.get(
+	function getbrowserData() {
+		console.log("Getting browser data for context:", outputTarget);
+		browser.storage.local.get(
 			[
 				'githubUsername',
 				'projectName',
@@ -117,7 +118,7 @@ function allIncluded(outputTarget = 'email') {
 			},
 		);
 	}
-	getChromeData();
+	getbrowserData();
 
 	function handleLastWeekContributionChange() {
 		endingDate = getToday();

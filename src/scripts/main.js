@@ -8,7 +8,7 @@ var endingDateElement = document.getElementById('endingDate');
 var showOpenLabelElement = document.getElementById('showOpenLabel');
 var userReasonElement = document.getElementById('userReason');
 function handleBodyOnLoad() {
-	chrome.storage.local.get(
+	browser.storage.local.get(
 		[
 			'githubUsername',
 			'projectName',
@@ -72,15 +72,15 @@ function handleBodyOnLoad() {
 }
 function handleEnableChange() {
 	var value = enableToggleElement.checked;
-	chrome.storage.local.set({ enableToggle: value });
+	browser.storage.local.set({ enableToggle: value });
 }
 function handleStartingDateChange() {
 	var value = startingDateElement.value;
-	chrome.storage.local.set({ startingDate: value });
+	browser.storage.local.set({ startingDate: value });
 }
 function handleEndingDateChange() {
 	var value = endingDateElement.value;
-	chrome.storage.local.set({ endingDate: value });
+	browser.storage.local.set({ endingDate: value });
 }
 function handleLastWeekContributionChange() {
 	var value = lastWeekContributionElement.checked;
@@ -102,7 +102,7 @@ function handleLastWeekContributionChange() {
 			labelElement.classList.remove("selectedLabel");
 	}
 	
-	chrome.storage.local.set({ lastWeekContribution: value });
+	browser.storage.local.set({ lastWeekContribution: value });
 }
 
 function handleYesterdayContributionChange() {
@@ -124,7 +124,7 @@ function handleYesterdayContributionChange() {
 		labelElement.classList.add("unselectedLabel");
 		labelElement.classList.remove("selectedLabel");
 	}
-	chrome.storage.local.set({ yesterdayContribution: value });
+	browser.storage.local.set({ yesterdayContribution: value });
 }
 
 function getLastWeek() {
@@ -172,11 +172,11 @@ function getToday() {
 
 function handleGithubUsernameChange() {
 	var value = githubUsernameElement.value;
-	chrome.storage.local.set({ githubUsername: value });
+	browser.storage.local.set({ githubUsername: value });
 }
 function handleProjectNameChange() {
 	var value = projectNameElement.value;
-	chrome.storage.local.set({ projectName: value });
+	browser.storage.local.set({ projectName: value });
 }
 function handleOpenLabelChange() {
 	var value = showOpenLabelElement.checked;
@@ -190,12 +190,12 @@ function handleOpenLabelChange() {
 			labelElement.classList.remove("selectedLabel");
 	}
 
-	chrome.storage.local.set({ showOpenLabel: value });
+	browser.storage.local.set({ showOpenLabel: value });
 }
 
 function handleUserReasonChange() {
 	var value = userReasonElement.value;
-	chrome.storage.local.set({ userReason: value });
+	browser.storage.local.set({ userReason: value });
 }
 enableToggleElement.addEventListener('change', handleEnableChange);
 githubUsernameElement.addEventListener('keyup', handleGithubUsernameChange);
