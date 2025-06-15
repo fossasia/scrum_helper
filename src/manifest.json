@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Scrum Helper Extension",
-  "version": "1.0",
+  "version": "2.0",
   "description": "This extension helps in writing Scrums in Google Groups, particularly related to FOSSASIA.",
   "action": {
     "default_popup": "popup.html",
