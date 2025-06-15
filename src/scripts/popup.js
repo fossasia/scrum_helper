@@ -185,6 +185,70 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+
+    // GitHub Token visibility toggle
+    const githubTokenInput = document.getElementById('githubToken');
+    const toggleTokenBtn = document.getElementById('toggleToken');
+    const eyeIcon = document.getElementById('eyeIcon');
+
+    if (githubTokenInput && toggleTokenBtn && eyeIcon) {
+        toggleTokenBtn.addEventListener('click', function() {
+            const isPassword = githubTokenInput.type === 'password';
+            
+            if (isPassword) {
+                // Show token
+                githubTokenInput.type = 'text';
+                eyeIcon.className = 'fa fa-eye-slash';
+                githubTokenInput.style.letterSpacing = '1px';
+            } else {
+                // Hide token
+                githubTokenInput.type = 'password';
+                eyeIcon.className = 'fa fa-eye';
+                githubTokenInput.style.letterSpacing = '2px';
+            }
+        });
+
+        // Auto-hide token after a few seconds when visible
+        let hideTimeout;
+        githubTokenInput.addEventListener('input', function() {
+            if (this.type === 'text') {
+                clearTimeout(hideTimeout);
+                hideTimeout = setTimeout(() => {
+                    this.type = 'password';
+                    eyeIcon.className = 'fa fa-eye';
+                    this.style.letterSpacing = '2px';
+                }, 10000); // Auto-hide after 10 seconds
+            }
+        });
+
+        // Hide token when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!githubTokenInput.contains(event.target) && 
+                !toggleTokenBtn.contains(event.target) && 
+                githubTokenInput.type === 'text') {
+                
+                setTimeout(() => {
+                    githubTokenInput.type = 'password';
+                    eyeIcon.className = 'fa fa-eye';
+                    githubTokenInput.style.letterSpacing = '2px';
+                }, 2000); // Hide after 2 seconds when clicking outside
+            }
+        });
+    }
+
+    // Load existing token value (masked)
+    chrome.storage.local.get(['githubToken'], function(result) {
+        if (result.githubToken && githubTokenInput) {
+            githubTokenInput.value = result.githubToken;
+        }
+    });
+
+    // Save token on input
+    if (githubTokenInput) {
+        githubTokenInput.addEventListener('input', function() {
+            chrome.storage.local.set({ githubToken: this.value });
+        });
+    }
 });
 
 function toggleRadio(radio) {
