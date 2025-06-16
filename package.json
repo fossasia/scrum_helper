@@ -1,7 +1,7 @@
 {
-	"name": "scrum_helper_extension",
+	"name": "scrum-helper",
 	"version": "1.0.0",
-	"description": "This extension helps in writing Scrums in google groups, particularly related to FOSSASIA. It converts a link to a github PR or an Issue to display the PR or the Issue's name along with the link to it.",
+	"description": "This extension simplifies writing development reports by auto-filling content based on your Git activity.",
 	"repository": {
 		"type": "git",
 		"url": "git+https://github.com/fossasia/scrum_helper.git"
@@ -17,7 +17,7 @@
 		"fossasia"
 	],
 	"author": "FOSSASIA",
-	"license": "ISC",
+	"license": "LGPL-2.1",
 	"bugs": {
 		"url": "https://github.com/fossasia/scrum_helper/issues"
 	},
