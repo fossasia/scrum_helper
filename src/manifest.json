@@ -5,7 +5,7 @@
   "description": "This extension simplifies writing development reports by auto-filling content based on your Git activity",
   "action": {
     "default_popup": "popup.html",
-    "default_title": "SCRUM Helper"
+    "default_title": "Scrum Helper"
   },
   "icons": {
     "96": "icons/icon.png",
@@ -45,7 +45,6 @@
     "notifications"
   ],
   "host_permissions": [
-    "<all_urls>",
     "*://*.google.com/*",
     "*://*.outlook.live.com/*",
     "*://*.office.com/*",
