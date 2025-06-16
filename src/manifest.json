@@ -1,11 +1,11 @@
 {
   "manifest_version": 3,
-  "name": "Scrum Helper Extension",
-  "version": "2.0",
-  "description": "This extension helps in writing Scrums in Google Groups, particularly related to FOSSASIA.",
+  "name": "Scrum Helper",
+  "version": "1.0",
+  "description": "This extension simplifies writing development reports by auto-filling content based on your Git activity.",
   "action": {
     "default_popup": "popup.html",
-    "default_title": "SCRUM Helper"
+    "default_title": "Scrum Helper"
   },
   "icons": {
     "96": "icons/icon.png",
@@ -17,14 +17,14 @@
   "content_scripts": [
     {
       "matches": [
-        "*://groups.google.com/forum/*", 
+        "*://groups.google.com/forum/*",
         "*://groups.google.com/g/*",
-        "*://mail.google.com/*",         
-        "*://outlook.live.com/*",        
-        "*://outlook.office.com/*",      
-        "*://mail.yahoo.com/*"          
+        "*://mail.google.com/*",
+        "*://outlook.live.com/*",
+        "*://outlook.office.com/*",
+        "*://mail.yahoo.com/*"
       ],
-      "js": ["scripts/jquery-3.2.1.min.js", "scripts/emailClientAdapter.js", "scripts/scrumHelper.js"] 
+      "js": ["scripts/jquery-3.2.1.min.js", "scripts/emailClientAdapter.js", "scripts/scrumHelper.js"]
     }
   ],
 
@@ -45,7 +45,6 @@
     "notifications"
   ],
   "host_permissions": [
-    "<all_urls>",
     "*://*.google.com/*",
     "*://*.outlook.live.com/*",
     "*://*.office.com/*",
