@@ -1,15 +1,16 @@
 
 # SCRUM Helper
 
-**SCRUM Helper** is a Chrome extension designed to simplify writing scrums in Google Groups for FOSSASIA projects. By adding your GitHub username, date range, and other options, it automatically fetches your PRs, Issues, and reviewed PRs via the GitHub API and pre-fills the scrum. You can then edit the scrum to fit your needs.
+**SCRUM Helper** Scrum Helper is a Chrome extension that simplifies writing development reports by auto-filling content based on your Git activity. Just enter your GitHub username, select a date range, and choose your preferences, the extension automatically fetches your commits, pull requests, issues, and code reviews via the GitHub API and generates a pre-filled report that you can edit as needed. While currently focused on Git-based workflows, Scrum Helper is designed to expand to other platforms in the future.
 
 ![SCRUMLOGO](docs/images/scrumhelper-png.png)
 
 ## Features
 
-- Fetches your GitHub PRs, Issues, and reviewed PRs
-- Auto-generates scrum updates
-- Supports Google Groups, Gmail, Yahoo, and Outlook compose windows
+- Automatically fetches your Git activity, including commits, pull requests, issues, and code reviews.
+- Currently supports GitHub, with plans to expand to other platforms
+- Generates editable scrum updates based on your selected date range
+- Integrates directly with compose windows in Google Groups, Gmail, Yahoo Mail, and Outlook
 
 ## How to install
 
