@@ -118,3 +118,67 @@ body,input,div,h3,h4,p,label,hr, #scrumReport{
 .dark-mode a {
 	color: #00b7ff !important;
 }
+#refreshCache {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    border: none;
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+    transition: all 0.2s ease;
+}
+
+#refreshCache:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+    transform: translateY(-1px);
+}
+
+#refreshCache:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+}
+
+#refreshCache i {
+    animation: spin 0s linear infinite;
+}
+
+#refreshCache.loading i {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+/* Disabled state styling */
+.disabled-content {
+    opacity: 0.5 !important;
+    pointer-events: none !important;
+    user-select: none !important;
+}
+
+.disabled-content input,
+.disabled-content button,
+.disabled-content [contenteditable] {
+    cursor: not-allowed !important;
+}
+
+/* Dark mode disabled state */
+.dark-mode .disabled-content {
+    opacity: 0.4 !important;
+}
+.cache-info {
+    font-size: 11px;
+    color: #6b7280;
+    text-align: center;
+    margin-top: 8px;
+    line-height: 1.3;
+}
+
+.cache-info i {
+    margin-right: 4px;
+    font-size: 10px;
+}
+
+/* Dark mode for cache info */
+.dark-mode .cache-info {
+    color: #9ca3af;
+}
