@@ -66,11 +66,6 @@
 - Edit it in the window.
 - Copy the rich HTML using the `COPY` button.
 
-## New Features
-- The extension now uses parallel modern API requests along with data caching with a TTL(Time to Live) of 10 minutes.
-- New fetch requests will be made if input data by user is changed.
-- The cache data can be manually refreshed using the `Refresh Data` button.
-
 ## Setting up the code locally
 
 ```
