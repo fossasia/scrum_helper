@@ -19,9 +19,10 @@
       "matches": [
         "*://groups.google.com/forum/*",
         "*://groups.google.com/g/*",
-        "*://mail.google.com/*",
-        "*://outlook.live.com/*",
-        "*://outlook.office.com/*",
+        "*://groups.google.com/u/*/g/*",
+        "*://mail.google.com/*",         
+        "*://outlook.live.com/*",        
+        "*://outlook.office.com/*",      
         "*://mail.yahoo.com/*"
       ],
       "js": ["scripts/jquery-3.2.1.min.js", "scripts/emailClientAdapter.js", "scripts/scrumHelper.js"]
