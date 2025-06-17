@@ -43,11 +43,12 @@ function getYesterday() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+
     // Dark mode setup
     const darkModeToggle = document.querySelector('img[alt="Night Mode"]');
     const body = document.body;
 
-    chrome.storage.local.get(['darkMode'], function(result) {
+    browser.storage.local.get(['darkMode'], function(result) {
         if(result.darkMode) {
             body.classList.add('dark-mode');
             darkModeToggle.src = 'icons/light-mode.png';
@@ -57,7 +58,7 @@ document.addEventListener('DOMContentLoaded', function() {
     darkModeToggle.addEventListener('click', function() {
         body.classList.toggle('dark-mode');
         const isDarkMode = body.classList.contains('dark-mode');
-        chrome.storage.local.set({ darkMode: isDarkMode });
+        browser.storage.local.set({ darkMode: isDarkMode });
         this.src = isDarkMode ? 'icons/light-mode.png' : 'icons/night-mode.png';
     });
 
@@ -111,14 +112,14 @@ document.addEventListener('DOMContentLoaded', function() {
         startDateInput.disabled = false;
         endDateInput.disabled = false;
         
-        chrome.storage.local.set({
+        browser.storage.local.set({
             lastWeekContribution: false,
             yesterdayContribution: false,
             selectedTimeframe: null
         });
     });
 
-    chrome.storage.local.get([
+    browser.storage.local.get([
         'selectedTimeframe', 
         'lastWeekContribution', 
         'yesterdayContribution'
@@ -149,7 +150,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             startDateInput.disabled = endDateInput.disabled = true;
 
-            chrome.storage.local.set({
+            browser.storage.local.set({
                 startingDate: startDateInput.value,
                 endingDate: endDateInput.value,
                 lastWeekContribution: items.selectedTimeframe === 'lastWeekContribution',
@@ -171,7 +172,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 startDateInput.disabled = false;
                 endDateInput.disabled = false;
                 
-                chrome.storage.local.set({
+                browser.storage.local.set({
                     lastWeekContribution: false,
                     yesterdayContribution: false,
                     selectedTimeframe: null
@@ -203,7 +204,7 @@ function toggleRadio(radio) {
 
     startDateInput.disabled = endDateInput.disabled = true;
 
-    chrome.storage.local.set({
+    browser.storage.local.set({
         startingDate: startDateInput.value,
         endingDate: endDateInput.value,
         lastWeekContribution: radio.id === 'lastWeekContribution',
