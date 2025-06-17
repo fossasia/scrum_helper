@@ -45,12 +45,16 @@ function getYesterday() {
 document.addEventListener('DOMContentLoaded', function() {
     // Dark mode setup
     const darkModeToggle = document.querySelector('img[alt="Night Mode"]');
+    const settingsIcon = document.getElementById('settingsIcon');
     const body = document.body;
 
     chrome.storage.local.get(['darkMode'], function(result) {
         if(result.darkMode) {
             body.classList.add('dark-mode');
             darkModeToggle.src = 'icons/light-mode.png';
+            if(settingsIcon) {
+                settingsIcon.src = 'icons/settings-night.png'; // Changed from settings-night.png
+            }
         }
     });
 
@@ -59,6 +63,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const isDarkMode = body.classList.contains('dark-mode');
         chrome.storage.local.set({ darkMode: isDarkMode });
         this.src = isDarkMode ? 'icons/light-mode.png' : 'icons/night-mode.png';
+        const settingsIcon = document.getElementById('settingsIcon');
+        if(settingsIcon){
+            settingsIcon.src = isDarkMode ? 'icons/settings-night.png' : 'icons/settings-light.png';
+        }
     });
 
     function updateContentState(enableToggle) {
@@ -73,6 +81,7 @@ document.addEventListener('DOMContentLoaded', function() {
             'scrumReport',
             'githubUsername',
             'projectName',
+            'settingsToggle',
         ];
 
         const radios = document.querySelectorAll('input[name="timeframe"]');
@@ -251,6 +260,41 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
+
+    const settingsToggle = document.getElementById('settingsToggle');
+    const reportSection = document.getElementById('reportSection');
+    const settingsSection = document.getElementById('settingsSection');
+
+    let isSettingsVisible = false;
+
+    function showReportView() {
+        isSettingsVisible = false;
+        reportSection.classList.remove('hidden');
+        settingsSection.classList.add('hidden');
+        settingsToggle.classList.remove('active');
+        console.log('Switched to report view');
+    }
+
+    function showSettingsView() {
+        isSettingsVisible = true;
+        reportSection.classList.add('hidden');
+        settingsSection.classList.remove('hidden');
+        settingsToggle.classList.add('active');
+        console.log('Switched to settings view');
+    }
+
+    if(settingsToggle) {
+        settingsToggle.addEventListener('click', function(){
+            if(isSettingsVisible){
+                showReportView();
+            } else {
+                showSettingsView();
+            }
+        });
+    }
+
+    showReportView();
+
 });
 
 // Radio button click handlers with toggle functionality
@@ -350,6 +394,36 @@ function toggleRadio(radio) {
             end: endDateInput.value,
             isLastWeek: radio.id === 'lastWeekContribution'
         });
-        // window.generateScrumReport();
     });
+}
+
+const cacheInput = document.getElementById('cacheInput');
+if (cacheInput) {
+    chrome.storage.local.get(['cacheInput'], function(result) {
+        if (result.cacheInput) {
+            cacheInput.value = result.cacheInput;
+        } else {
+            cacheInput.value = 10;
+        }
+    });
+    
+    cacheInput.addEventListener('blur', function() {
+        let ttlValue = parseInt(this.value);
+        if (isNaN(ttlValue) || ttlValue <= 0 || this.value.trim() === '') {
+            ttlValue = 10;
+            this.value = ttlValue;
+            this.style.borderColor = '#ef4444';
+        } else if (ttlValue > 1440) { 
+            ttlValue = 1440;
+            this.value = ttlValue;
+            this.style.borderColor = '#f59e0b'; 
+        } else {
+            this.style.borderColor = '#10b981'; 
+        }
+        
+        chrome.storage.local.set({ cacheInput: ttlValue }, function() {
+            console.log('Cache TTL saved:', ttlValue, 'minutes');
+        });
+    });
+
 }

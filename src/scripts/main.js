@@ -1,5 +1,6 @@
 let enableToggleElement = document.getElementById('enable');
 let githubUsernameElement = document.getElementById('githubUsername');
+let cacheInputElement = document.getElementById('cacheInput');
 let projectNameElement = document.getElementById('projectName');
 let lastWeekContributionElement = document.getElementById('lastWeekContribution');
 let yesterdayContributionElement = document.getElementById('yesterdayContribution');
@@ -21,6 +22,7 @@ function handleBodyOnLoad() {
 			'userReason',
 			'lastWeekContribution',
 			'yesterdayContribution',
+			'cacheInput',
 		],
 		(items) => {
 			if (items.githubUsername) {
@@ -28,6 +30,9 @@ function handleBodyOnLoad() {
 			}
 			if (items.projectName) {
 				projectNameElement.value = items.projectName;
+			}
+			if (items.cacheInput) {
+				cacheInputElement.value = items.cacheInput;
 			}
 			if (items.enableToggle) {
 				enableToggleElement.checked = items.enableToggle;
@@ -90,7 +95,6 @@ document.getElementById('refreshCache').addEventListener('click', async (e) => {
         Materialize.toast({html: 'Data refreshed successfully!', classes: 'green'});
     } catch (err) {
         console.error('Refresh failed:', err);
-        M.toast({html: 'Failed to refresh data', classes: 'red'});
     } finally {
         setTimeout(() => {
             button.classList.remove('loading');
@@ -206,6 +210,10 @@ function handleProjectNameChange() {
 	let value = projectNameElement.value;
 	chrome.storage.local.set({ projectName: value });
 }
+function handleCacheInputChange() {
+	let value = cacheInputElement.value;
+	chrome.storage.local.set({ cacheInput: value });
+}
 function handleOpenLabelChange() {
 	let value = showOpenLabelElement.checked;
 	let labelElement = document.querySelector("label[for='showOpenLabel']");
@@ -227,6 +235,7 @@ function handleUserReasonChange() {
 }
 enableToggleElement.addEventListener('change', handleEnableChange);
 githubUsernameElement.addEventListener('keyup', handleGithubUsernameChange);
+cacheInputElement.addEventListener('keyup', handleCacheInputChange);
 projectNameElement.addEventListener('keyup', handleProjectNameChange);
 startingDateElement.addEventListener('change', handleStartingDateChange);
 endingDateElement.addEventListener('change', handleEndingDateChange);

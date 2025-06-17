@@ -50,6 +50,7 @@ function allIncluded(outputTarget = 'email') {
 				'yesterdayContribution',
 				'userReason',
         		'githubCache',
+				'cacheInput'
 			],
 			(items) => {
 					console.log("Storage items received:", items);
@@ -98,6 +99,9 @@ function allIncluded(outputTarget = 'email') {
 					}
 					if (items.projectName) {
 						projectName = items.projectName;
+					}
+					if (items.cacheInput) {
+						cacheInput = items.cacheInput;
 					}
 					if (!items.showOpenLabel) {
 						showOpenLabel = false;
@@ -200,6 +204,16 @@ function allIncluded(outputTarget = 'email') {
 			errorTTL: 60*1000, // 1 min error cache 
 			subject: null,
 		};
+
+		async function getCacheTTL() {
+			return new Promise((resolve) =>{
+				chrome.storage.local.get(['cacheInput'], function(result) {
+					const ttlMinutes = result.cacheInput || 10;
+					resolve(ttlMinutes * 60 * 1000);
+				});
+			});
+		}
+		
 		
 		function saveToStorage(data, subject = null) {
 			const cacheData = {
@@ -231,7 +245,8 @@ function allIncluded(outputTarget = 'email') {
 
 		function loadFromStorage() {
 			log('Loading cache from storage');
-			return new Promise((resolve) => {
+			return new Promise(async (resolve) => {
+				const currentTTL = await getCacheTTL();
 				chrome.storage.local.get('githubCache', (result) => {
 					const cache = result.githubCache;
 					if (!cache) {
@@ -239,7 +254,7 @@ function allIncluded(outputTarget = 'email') {
 						resolve(false);
 						return;
 					}
-					const isCacheExpired = (Date.now() - cache.timestamp) > githubCache.ttl;
+					const isCacheExpired = (Date.now() - cache.timestamp) > currentTTL;
 					if(isCacheExpired){
 						log('Cached data is expired');
 						resolve(false);
@@ -286,6 +301,10 @@ function allIncluded(outputTarget = 'email') {
 			if (!githubCache.data && !githubCache.fetching) {
 				await loadFromStorage();
 			};	
+			
+			const currentTTL = await getCacheTTL();
+			githubCache.ttl = currentTTL;
+			log(`Caching for ${currentTTL / (60*1000)} minutes`);
 		
 			const now = Date.now();
 			const isCacheFresh = (now - githubCache.timestamp) < githubCache.ttl;

@@ -28,78 +28,99 @@
 					<p class="">Report your development progress by auto-fetching your Git activity for a selected period</p>
 				</div>
 				
-			<div class="center mt-2 ">
-					<label class="flex items-center justify-center gap-2">
+			<div class="center mt-2 flex justify-between">
+					<label class="flex items-center justify-center gap-2 ">
 						Disable
-						<input type="checkbox" value="" id="enable" class="sr-only peer" checked>
+						<input type="checkbox" value="" id="enable" class="sr-only peer" >
 						<div class="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"></div>
 						<span class=""></span>
 						Enable
 					</label>
+					<button id="settingsToggle">
+						<img id="settingsIcon" src="icons/settings-light.png" alt="Settings" class="w-7 h-7 mx-3 cursor-pointer">
+					</button>
 			</div>
 		</div>
 		
 		<div class="rounded-2xl">
 			<div class=" border-gray-100 border-2 bg-white rounded-3xl px-4 py-4 mx-2 my-2">
-				<div>
-					<h4>Your Project Name</h4>
-					<input id="projectName" type="text" class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800  p-2 my-2" placeholder="Enter your project name">
-				</div>
-				<div>
-					<h4>Your Github Username</h4>
-					<input id="githubUsername" type="text" class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800  p-2 my-2" placeholder="Required for fetching your contributions">
-				</div>
-				
-				<div>
-					<p class="text-sm">Fetch your contributions between:</p>
-					<div class="flex justify-between items-center my-2 mx-4">
-						<div class="flex items-center gap-2">
-							<input type="radio" id="lastWeekContribution" name="timeframe" class="form-radio" onclick="toggleRadio(this)">
-							<label for="lastWeekContribution">Last 7 days</label>
-						</div>
-						<div class="flex items-center gap-2">
-							<input type="radio" id="yesterdayContribution" name="timeframe" class="form-radio" onclick="toggleRadio(this)">
-							<label for="yesterdayContribution">Last 1 day</label>
-						</div>
-					</div>
-					
-					<div id="customDateContainer" class="flex justify-between items-center mt-2">
-						<div>
-							<label for="startingDate">Start Date:</label>
-							<input type="date" id="startingDate" class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1">
-						</div>
-						<div>
-							<label for="endingDate">End Date:</label>
-							<input type="date" id="endingDate" class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1">
-						</div>
-					</div>
-				</div>
-					
-				<div class="col s12">
-					<br />
-					<input type="checkbox" id="showOpenLabel" class="form-checkbox h-4 w-4 text-blue-600">
-					<label id="checkboxLabel" for="showOpenLabel" class="text-gray-700 font-medium text-sm">Show Open/Closed Label</label>
-				</div>
-				<div class="my-4">
-					<p class="text-sm font-medium">What is blocking you from making progress?</p>
-					<input id="userReason" type="text" class="w-full text-gray-800 mt-3 rounded-xl px-4 py-1" placeholder="Enter your reason">
-					<hr class="border-t-2 border-gray-700 mt-1 ">
-				</div>
-				<div>
+
+				<div id="reportSection" class="tab-content">
 					<div>
-						<h6 class="text-base font-semibold">Scrum Report</h6>
-						<div id="scrumReport"
-							 contenteditable="true"
-							 class="min-h-[200px] overflow-y-auto whitespace-pre-wrap border-2 border-gray-200 bg-gray-100 rounded-xl text-gray-800 p-2 my-2">
+						<h4>Your Project Name</h4>
+						<input id="projectName" type="text" class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800  p-2 my-2" placeholder="Enter your project name">
+					</div>
+					<div>
+						<h4>Your Github Username</h4>
+						<input id="githubUsername" type="text" class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800  p-2 my-2" placeholder="Required for fetching your contributions">
+					</div>
+					
+					<div>
+						<p class="text-sm">Fetch your contributions between:</p>
+						<div class="flex justify-between items-center my-2 mx-4">
+							<div class="flex items-center gap-2">
+								<input type="radio" id="lastWeekContribution" name="timeframe" class="form-radio" onclick="toggleRadio(this)">
+								<label for="lastWeekContribution">Last 7 days</label>
+							</div>
+							<div class="flex items-center gap-2">
+								<input type="radio" id="yesterdayContribution" name="timeframe" class="form-radio" onclick="toggleRadio(this)">
+								<label for="yesterdayContribution">Last 1 day</label>
+							</div>
+						</div>
+						
+						<div id="customDateContainer" class="flex justify-between items-center mt-2">
+							<div>
+								<label for="startingDate">Start Date:</label>
+								<input type="date" id="startingDate" class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1">
+							</div>
+							<div>
+								<label for="endingDate">End Date:</label>
+								<input type="date" id="endingDate" class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1">
+							</div>
 						</div>
 					</div>
-					<div class="flex justify-between gap-2">
-						<button id="generateReport" class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
-						  <i class="fa fa-refresh"></i> Generate Report
-						</button>
-						<button id="copyReport" class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
-						  <i class="fa fa-copy"></i> Copy Report
-						</button>
+						
+					<div class="col s12">
+						<br />
+						<input type="checkbox" id="showOpenLabel" class="form-checkbox h-4 w-4 text-blue-600">
+						<label id="checkboxLabel" for="showOpenLabel" class="text-gray-700 font-medium text-sm">Show Open/Closed Label</label>
+					</div>
+					<div class="my-4">
+						<p class="text-sm font-medium">What is blocking you from making progress?</p>
+						<input id="userReason" type="text" class="w-full text-gray-800 mt-3 rounded-xl px-4 py-1" placeholder="Enter your reason">
+						<hr class="border-t-2 border-gray-700 mt-1 ">
+					</div>
+					<div>
+						<div>
+							<h6 class="text-base font-semibold">Scrum Report</h6>
+							<div id="scrumReport"
+								 contenteditable="true"
+								 class="min-h-[200px] overflow-y-auto whitespace-pre-wrap border-2 border-gray-200 bg-gray-100 rounded-xl text-gray-800 p-2 my-2">
+							</div>
+						</div>
+						<div class="flex justify-between gap-2">
+							<button id="generateReport" class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
+							  <i class="fa fa-refresh"></i> Generate Report
+							</button>
+							<button id="copyReport" class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
+							  <i class="fa fa-copy"></i> Copy Report
+							</button>
+						</div>
+					</div>
+				</div>
+
+				<div id="settingsSection" class="tab-content hidden">
+
+					<div class="">
+						<p class="text-sm font-medium">Enter cache TTL 
+							<span class="tooltip-container">
+								<i class="fa fa-question-circle question-icon"></i>
+								<span class="tooltip-bubble">
+									We are caching the data to avoid redundant calls. By default the cache expires after 10 minutes, you can change it here to your desired time. We have given a refresh cache button in case you want to fetch fresh data right now.
+								</span>
+							</span>
+						</p> 
+						<input type="text" id="cacheInput" class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800  p-2 my-2" placeholder="Write Cache TTL in minutes (Default 10 minutes)">
 					</div>
 					<div class="">
 						<button id="refreshCache" class="w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded flex items-center justify-center gap-2 transition-colors duration-200">
@@ -108,21 +129,24 @@
 						</button>
 						<p class="cache-info">
 							<i class="fa fa-info-circle"></i>
-							Data is cached for 10 minutes. Use this button to fetch fresh data immediately.
+							Use this button to fetch fresh data immediately.
 						</p>
 					</div>
-					<div class="border-gray-100 border-2 bg-white rounded-3xl px-4 py-2 mx-2 my-2">
-						<div>
-							<h4 class="font-semibold text-xl">Note:</h4>
-							<ul class="text-xs list-disc list-inside">
-								<li>The PRs fetched are based on the most recent review by any contributor. If you reviewed a PR 10 days ago and someone else reviewed it 2 days ago, it will still appear in your activity for the past week. (<a target="_blank" href="https://github.com/fossasia/scrum_helper/issues/20">See this issue</a>.)
-								</li>
-								<li>Please note that some discrepancies may occur in the generated SCRUM. We recommend manually reviewing and editing the report to ensure accuracy before sharing
-								</li>
-							</ul>
-						</div>
+					
+				</div>
+
+				<!-- asdfghjklkjhgfdsasdfghjkjhgfdsasdfghjk -->
+				<div class="border-gray-100 border-2 bg-white rounded-3xl px-4 py-2 mx-2 my-2">
+					<div>
+						<h4 class="font-semibold text-xl">Note:</h4>
+						<ul class="text-xs list-disc list-inside">
+							<li>The PRs fetched are based on the most recent review by any contributor. If you reviewed a PR 10 days ago and someone else reviewed it 2 days ago, it will still appear in your activity for the past week. (<a target="_blank" href="https://github.com/fossasia/scrum_helper/issues/20">See this issue</a>.)
+							</li>
+							<li>Please note that some discrepancies may occur in the generated SCRUM. We recommend manually reviewing and editing the report to ensure accuracy before sharing
+							</li>
+						</ul>
 					</div>
-			</div>
+				</div>
 		</div>
 
 		<div class="mt-6 border-t border-gray-300">
