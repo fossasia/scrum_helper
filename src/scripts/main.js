@@ -1,12 +1,14 @@
-var enableToggleElement = document.getElementById('enable');
-var githubUsernameElement = document.getElementById('githubUsername');
-var projectNameElement = document.getElementById('projectName');
-var lastWeekContributionElement = document.getElementById('lastWeekContribution');
+let enableToggleElement = document.getElementById('enable');
+let githubUsernameElement = document.getElementById('githubUsername');
+let cacheInputElement = document.getElementById('cacheInput');
+let projectNameElement = document.getElementById('projectName');
+let lastWeekContributionElement = document.getElementById('lastWeekContribution');
 let yesterdayContributionElement = document.getElementById('yesterdayContribution');
-var startingDateElement = document.getElementById('startingDate');
-var endingDateElement = document.getElementById('endingDate');
-var showOpenLabelElement = document.getElementById('showOpenLabel');
-var userReasonElement = document.getElementById('userReason');
+let startingDateElement = document.getElementById('startingDate');
+let endingDateElement = document.getElementById('endingDate');
+let showOpenLabelElement = document.getElementById('showOpenLabel');
+let userReasonElement = document.getElementById('userReason');
+
 function handleBodyOnLoad() {
 	chrome.storage.local.get(
 		[
@@ -20,6 +22,7 @@ function handleBodyOnLoad() {
 			'userReason',
 			'lastWeekContribution',
 			'yesterdayContribution',
+			'cacheInput',
 		],
 		(items) => {
 			if (items.githubUsername) {
@@ -27,6 +30,9 @@ function handleBodyOnLoad() {
 			}
 			if (items.projectName) {
 				projectNameElement.value = items.projectName;
+			}
+			if (items.cacheInput) {
+				cacheInputElement.value = items.cacheInput;
 			}
 			if (items.enableToggle) {
 				enableToggleElement.checked = items.enableToggle;
@@ -70,22 +76,48 @@ function handleBodyOnLoad() {
 		},
 	);
 }
+
+document.getElementById('refreshCache').addEventListener('click', async (e) => {
+    const button = e.currentTarget;
+    button.classList.add('loading');
+    button.disabled = true;
+    
+    try {
+        const tabs = await chrome.tabs.query({active: true, currentWindow: true});
+        await chrome.tabs.sendMessage(tabs[0].id, {
+            action: 'forceRefresh',
+            timestamp: Date.now()
+        });
+        
+        // Reload the active tab to re-inject content
+        chrome.tabs.reload(tabs[0].id);
+        
+        Materialize.toast({html: 'Data refreshed successfully!', classes: 'green'});
+    } catch (err) {
+        console.error('Refresh failed:', err);
+    } finally {
+        setTimeout(() => {
+            button.classList.remove('loading');
+            button.disabled = false;
+        }, 500);
+    }
+});
+
 function handleEnableChange() {
-	var value = enableToggleElement.checked;
+	let value = enableToggleElement.checked;
 	chrome.storage.local.set({ enableToggle: value });
 }
 function handleStartingDateChange() {
-	var value = startingDateElement.value;
+	let value = startingDateElement.value;
 	chrome.storage.local.set({ startingDate: value });
 }
 function handleEndingDateChange() {
-	var value = endingDateElement.value;
+	let value = endingDateElement.value;
 	chrome.storage.local.set({ endingDate: value });
 }
 function handleLastWeekContributionChange() {
-	var value = lastWeekContributionElement.checked;
-	var labelElement = document.querySelector("label[for='lastWeekContribution']");
-
+	let value = lastWeekContributionElement.checked;
+	let labelElement = document.querySelector("label[for='lastWeekContribution']");
 	if (value) {
 			startingDateElement.disabled = true;
 			endingDateElement.disabled = true;
@@ -128,12 +160,12 @@ function handleYesterdayContributionChange() {
 }
 
 function getLastWeek() {
-	var today = new Date();
-	var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
-	var lastWeekMonth = lastWeek.getMonth() + 1;
-	var lastWeekDay = lastWeek.getDate();
-	var lastWeekYear = lastWeek.getFullYear();
-	var lastWeekDisplayPadded =
+	let today = new Date();
+	let lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+	let lastWeekMonth = lastWeek.getMonth() + 1;
+	let lastWeekDay = lastWeek.getDate();
+	let lastWeekYear = lastWeek.getFullYear();
+	let lastWeekDisplayPadded =
 		('0000' + lastWeekYear.toString()).slice(-4) +
 		'-' +
 		('00' + lastWeekMonth.toString()).slice(-2) +
@@ -156,12 +188,12 @@ function getYesterday() {
 	return yesterdayPadded;
 }
 function getToday() {
-	var today = new Date();
-	var Week = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-	var WeekMonth = Week.getMonth() + 1;
-	var WeekDay = Week.getDate();
-	var WeekYear = Week.getFullYear();
-	var WeekDisplayPadded =
+	let today = new Date();
+	let Week = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+	let WeekMonth = Week.getMonth() + 1;
+	let WeekDay = Week.getDate();
+	let WeekYear = Week.getFullYear();
+	let WeekDisplayPadded =
 		('0000' + WeekYear.toString()).slice(-4) +
 		'-' +
 		('00' + WeekMonth.toString()).slice(-2) +
@@ -171,16 +203,20 @@ function getToday() {
 }
 
 function handleGithubUsernameChange() {
-	var value = githubUsernameElement.value;
+	let value = githubUsernameElement.value;
 	chrome.storage.local.set({ githubUsername: value });
 }
 function handleProjectNameChange() {
-	var value = projectNameElement.value;
+	let value = projectNameElement.value;
 	chrome.storage.local.set({ projectName: value });
 }
+function handleCacheInputChange() {
+	let value = cacheInputElement.value;
+	chrome.storage.local.set({ cacheInput: value });
+}
 function handleOpenLabelChange() {
-	var value = showOpenLabelElement.checked;
-	var labelElement = document.querySelector("label[for='showOpenLabel']");
+	let value = showOpenLabelElement.checked;
+	let labelElement = document.querySelector("label[for='showOpenLabel']");
 
 	if (value) {
 			labelElement.classList.add("selectedLabel");
@@ -194,11 +230,12 @@ function handleOpenLabelChange() {
 }
 
 function handleUserReasonChange() {
-	var value = userReasonElement.value;
+	let value = userReasonElement.value;
 	chrome.storage.local.set({ userReason: value });
 }
 enableToggleElement.addEventListener('change', handleEnableChange);
 githubUsernameElement.addEventListener('keyup', handleGithubUsernameChange);
+cacheInputElement.addEventListener('keyup', handleCacheInputChange);
 projectNameElement.addEventListener('keyup', handleProjectNameChange);
 startingDateElement.addEventListener('change', handleStartingDateChange);
 endingDateElement.addEventListener('change', handleEndingDateChange);
