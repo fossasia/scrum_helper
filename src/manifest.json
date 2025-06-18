@@ -17,27 +17,34 @@
   "content_scripts": [
     {
       "matches": [
-        "*://groups.google.com/forum/*", 
+        "*://groups.google.com/forum/*",
         "*://groups.google.com/g/*",
-        "*://mail.google.com/*",         
-        "*://outlook.live.com/*",        
-        "*://outlook.office.com/*",      
-        "*://mail.yahoo.com/*"          
+        "*://mail.google.com/*",
+        "*://outlook.live.com/*",
+        "*://outlook.office.com/*",
+        "*://mail.yahoo.com/*"
       ],
-      "js": ["scripts/jquery-3.2.1.min.js", "scripts/emailClientAdapter.js", "scripts/scrumHelper.js"] 
+      "js": [
+        "scripts/jquery-3.2.1.min.js",
+        "scripts/emailClientAdapter.js",
+        "scripts/scrumHelper.js"
+      ]
     }
   ],
-
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self';"
   },
-  "web_accessible_resources": [{
-    "resources": [
-      "/icons/night-mode.png",
-      "icons/night-mode.png"
-    ],
-    "matches": ["<all_urls>"]
-  }],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "/icons/night-mode.png",
+        "icons/night-mode.png"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ],
   "permissions": [
     "tabs",
     "storage",
