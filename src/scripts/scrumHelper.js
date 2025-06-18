@@ -1,7 +1,6 @@
 console.log('Script loaded, adapter exists:', !!window.emailClientAdapter);
 var enableToggle = true;
 var gitlabProjectIdToName = {};
-var gitlabOrgFilter = '';
 function allIncluded(outputTarget = 'email') {
 	console.log('allIncluded called with outputTarget:', outputTarget);
 	console.log('Current window context:', window.location.href);
@@ -58,7 +57,6 @@ function allIncluded(outputTarget = 'email') {
 				'yesterdayContribution',
 				'userReason',
 				'platform',
-				'gitlabOrgFilter',
 			],
 			(items) => {
 				console.log("Storage items received:", items);
@@ -150,10 +148,6 @@ function allIncluded(outputTarget = 'email') {
 				}
 				if (!items.userReason) {
 					userReason = 'No Blocker at the moment';
-				}
-
-				if (items.gitlabOrgFilter) {
-					gitlabOrgFilter = items.gitlabOrgFilter;
 				}
 			},
 		);
@@ -565,128 +559,117 @@ ${userReason}`;
 	}
 
 	function fetchGitlabData() {
-		// Get the organization/group filter from storage (if any)
-		chrome.storage.local.get(['gitlabOrgFilter'], function (orgItems) {
-			gitlabOrgFilter = orgItems.gitlabOrgFilter || '';
+		// First get user's projects
+		var projectsUrl = `https://gitlab.com/api/v4/users/${gitlabUsername}/projects?per_page=100`;
+		console.log('[GitLab] Fetching projects for user:', gitlabUsername, 'URL:', projectsUrl);
 
-			var projectsUrl = `https://gitlab.com/api/v4/users/${gitlabUsername}/projects?per_page=100`;
-			console.log('[GitLab] Fetching projects for user:', gitlabUsername, 'URL:', projectsUrl);
-
-			$.ajax({
-				dataType: 'json',
-				type: 'GET',
-				url: projectsUrl,
-				error: (xhr, textStatus, errorThrown) => {
-					console.error('Error fetching GitLab projects:', {
-						status: xhr.status,
-						textStatus: textStatus,
-						error: errorThrown
-					});
-					Materialize.toast('Error fetching GitLab projects. Please check your username.', 3000);
-				},
-				success: (projects) => {
-					// Build projectId-to-name map
-					gitlabProjectIdToName = {};
-					projects.forEach(p => {
-						gitlabProjectIdToName[p.id] = p.name;
-					});
-
-					// Filter projects by organization/group if filter is set
-					let filteredProjects = projects;
-					if (gitlabOrgFilter && gitlabOrgFilter.trim() !== '') {
-						filteredProjects = projects.filter(p => p.path_with_namespace.toLowerCase().startsWith(gitlabOrgFilter.toLowerCase() + '/'));
-						console.log('[GitLab] Filtering projects by org/group:', gitlabOrgFilter, 'Filtered:', filteredProjects.map(p => p.path_with_namespace));
-					}
-					console.log('[GitLab] Projects fetched:', filteredProjects.map(p => ({ id: p.id, name: p.name, path_with_namespace: p.path_with_namespace })));
-					if (!filteredProjects || filteredProjects.length === 0) {
-						Materialize.toast('No GitLab projects found for this user and organization/group', 3000);
-						return;
-					}
-
-					// Fetch issues and MRs for each filtered project
-					var projectIds = filteredProjects.map(p => p.id);
-					var issuesPromises = [];
-					var mrsPromises = [];
-
-					projectIds.forEach(projectId => {
-						// Fetch issues
-						var issuesUrl = `https://gitlab.com/api/v4/projects/${projectId}/issues?author_username=${gitlabUsername}&created_after=${getStartOfDayISO(startingDate)}&created_before=${getEndOfDayISO(endingDate)}&per_page=100`;
-						console.log(`[GitLab] Fetching issues for project ${projectId}:`, issuesUrl);
-						issuesPromises.push(
-							$.ajax({
-								dataType: 'json',
-								type: 'GET',
-								url: issuesUrl,
-								success: function (data) {
-									console.log(`[GitLab][DEBUG] Raw issues response for project ${projectId}:`, data);
-									return data;
-								},
-								error: function (xhr, textStatus, errorThrown) {
-									console.error(`[GitLab][ERROR] Issues API error for project ${projectId}:`, xhr.status, textStatus, errorThrown, xhr.responseText);
-									return [];
-								}
-							})
-						);
-
-						// Fetch merge requests
-						var mrsUrl = `https://gitlab.com/api/v4/projects/${projectId}/merge_requests?author_username=${gitlabUsername}&created_after=${getStartOfDayISO(startingDate)}&created_before=${getEndOfDayISO(endingDate)}&per_page=100`;
-						console.log(`[GitLab] Fetching MRs for project ${projectId}:`, mrsUrl);
-						mrsPromises.push(
-							$.ajax({
-								dataType: 'json',
-								type: 'GET',
-								url: mrsUrl
-							})
-						);
-					});
-
-					// Process all issues
-					Promise.all(issuesPromises)
-						.then(results => {
-							gitlabIssuesData = results.flat();
-							console.log('[GitLab] Issues fetched (after flatten):', gitlabIssuesData);
-							writeGitlabIssuesPrs();
-						})
-						.catch(error => {
-							console.error('Error fetching GitLab issues:', error);
-							Materialize.toast('Error fetching GitLab issues', 3000);
-						});
-
-					// Process all merge requests
-					Promise.all(mrsPromises)
-						.then(results => {
-							gitlabPrsReviewData = results.flat();
-							console.log('[GitLab] Merge Requests fetched:', gitlabPrsReviewData.map(mr => ({ id: mr.id, title: mr.title, author: mr.author ? mr.author.username : undefined, project: mr.project_id ? gitlabProjectIdToName[mr.project_id] : undefined })));
-							writeGitlabPrsReviews();
-						})
-						.catch(error => {
-							console.error('Error fetching GitLab merge requests:', error);
-							Materialize.toast('Error fetching GitLab merge requests', 3000);
-						});
+		$.ajax({
+			dataType: 'json',
+			type: 'GET',
+			url: projectsUrl,
+			error: (xhr, textStatus, errorThrown) => {
+				console.error('Error fetching GitLab projects:', {
+					status: xhr.status,
+					textStatus: textStatus,
+					error: errorThrown
+				});
+				Materialize.toast('Error fetching GitLab projects. Please check your username.', 3000);
+			},
+			success: (projects) => {
+				console.log('[GitLab] Projects fetched:', projects.map(p => ({ id: p.id, name: p.name, path_with_namespace: p.path_with_namespace })));
+				if (!projects || projects.length === 0) {
+					Materialize.toast('No GitLab projects found for this user', 3000);
+					return;
 				}
-			});
 
-			// Fetch GitLab user data
-			var userUrl = `https://gitlab.com/api/v4/users?username=${gitlabUsername}`;
-			console.log('[GitLab] Fetching user data:', userUrl);
-			$.ajax({
-				dataType: 'json',
-				type: 'GET',
-				url: userUrl,
-				error: (xhr, textStatus, errorThrown) => {
-					console.error('Error fetching GitLab user data:', {
-						status: xhr.status,
-						textStatus: textStatus,
-						error: errorThrown
+				// After fetching projects:
+				projects.forEach(p => {
+					gitlabProjectIdToName[p.id] = p.name;
+				});
+
+				// Fetch issues and MRs for each project
+				var projectIds = projects.map(p => p.id);
+				var issuesPromises = [];
+				var mrsPromises = [];
+
+				projectIds.forEach(projectId => {
+					// Fetch issues
+					var issuesUrl = `https://gitlab.com/api/v4/projects/${projectId}/issues?author_username=${gitlabUsername}&created_after=${getStartOfDayISO(startingDate)}&created_before=${getEndOfDayISO(endingDate)}&per_page=100`;
+					console.log(`[GitLab] Fetching issues for project ${projectId}:`, issuesUrl);
+					issuesPromises.push(
+						$.ajax({
+							dataType: 'json',
+							type: 'GET',
+							url: issuesUrl,
+							success: function (data) {
+								console.log(`[GitLab][DEBUG] Raw issues response for project ${projectId}:`, data);
+								return data;
+							},
+							error: function (xhr, textStatus, errorThrown) {
+								console.error(`[GitLab][ERROR] Issues API error for project ${projectId}:`, xhr.status, textStatus, errorThrown, xhr.responseText);
+								return [];
+							}
+						})
+					);
+
+					// Fetch merge requests
+					var mrsUrl = `https://gitlab.com/api/v4/projects/${projectId}/merge_requests?author_username=${gitlabUsername}&created_after=${getStartOfDayISO(startingDate)}&created_before=${getEndOfDayISO(endingDate)}&per_page=100`;
+					console.log(`[GitLab] Fetching MRs for project ${projectId}:`, mrsUrl);
+					mrsPromises.push(
+						$.ajax({
+							dataType: 'json',
+							type: 'GET',
+							url: mrsUrl
+						})
+					);
+				});
+
+				// Process all issues
+				Promise.all(issuesPromises)
+					.then(results => {
+						gitlabIssuesData = results.flat();
+						console.log('[GitLab] Issues fetched (after flatten):', gitlabIssuesData);
+						writeGitlabIssuesPrs();
+					})
+					.catch(error => {
+						console.error('Error fetching GitLab issues:', error);
+						Materialize.toast('Error fetching GitLab issues', 3000);
 					});
-				},
-				success: (data) => {
-					if (data && data.length > 0) {
-						gitlabUserData = data[0];
-						console.log('[GitLab] User data:', gitlabUserData);
-					}
-				},
-			});
+
+				// Process all merge requests
+				Promise.all(mrsPromises)
+					.then(results => {
+						gitlabPrsReviewData = results.flat();
+						console.log('[GitLab] Merge Requests fetched:', gitlabPrsReviewData.map(mr => ({ id: mr.id, title: mr.title, author: mr.author ? mr.author.username : undefined, project: mr.project ? mr.project.name : undefined })));
+						writeGitlabPrsReviews();
+					})
+					.catch(error => {
+						console.error('Error fetching GitLab merge requests:', error);
+						Materialize.toast('Error fetching GitLab merge requests', 3000);
+					});
+			}
+		});
+
+		// Fetch GitLab user data
+		var userUrl = `https://gitlab.com/api/v4/users?username=${gitlabUsername}`;
+		console.log('[GitLab] Fetching user data:', userUrl);
+		$.ajax({
+			dataType: 'json',
+			type: 'GET',
+			url: userUrl,
+			error: (xhr, textStatus, errorThrown) => {
+				console.error('Error fetching GitLab user data:', {
+					status: xhr.status,
+					textStatus: textStatus,
+					error: errorThrown
+				});
+			},
+			success: (data) => {
+				if (data && data.length > 0) {
+					gitlabUserData = data[0];
+					console.log('[GitLab] User data:', gitlabUserData);
+				}
+			},
 		});
 	}
 
