@@ -559,94 +559,50 @@ ${userReason}`;
 	}
 
 	function fetchGitlabData() {
-		// First get user's projects
-		var projectsUrl = `https://gitlab.com/api/v4/users/${gitlabUsername}/projects?per_page=100`;
-		console.log('[GitLab] Fetching projects for user:', gitlabUsername, 'URL:', projectsUrl);
+		// First get user's activities directly
+		var issuesUrl = `https://gitlab.com/api/v4/issues?author_username=${gitlabUsername}&created_after=${getStartOfDayISO(startingDate)}&created_before=${getEndOfDayISO(endingDate)}&per_page=100&scope=all`;
+		console.log('[GitLab] Fetching all issues:', issuesUrl);
 
+		// Fetch all issues created by the user
 		$.ajax({
 			dataType: 'json',
 			type: 'GET',
-			url: projectsUrl,
+			url: issuesUrl,
 			error: (xhr, textStatus, errorThrown) => {
-				console.error('Error fetching GitLab projects:', {
+				console.error('Error fetching GitLab issues:', {
 					status: xhr.status,
 					textStatus: textStatus,
 					error: errorThrown
 				});
-				Materialize.toast('Error fetching GitLab projects. Please check your username.', 3000);
+				Materialize.toast('Error fetching GitLab issues. Please check your username.', 3000);
 			},
-			success: (projects) => {
-				console.log('[GitLab] Projects fetched:', projects.map(p => ({ id: p.id, name: p.name, path_with_namespace: p.path_with_namespace })));
-				if (!projects || projects.length === 0) {
-					Materialize.toast('No GitLab projects found for this user', 3000);
-					return;
-				}
+			success: (issues) => {
+				console.log('[GitLab] Issues fetched:', issues);
+				gitlabIssuesData = issues;
+				writeGitlabIssuesPrs();
+			}
+		});
 
-				// After fetching projects:
-				projects.forEach(p => {
-					gitlabProjectIdToName[p.id] = p.name;
+		// Fetch all merge requests created by the user
+		var mrsUrl = `https://gitlab.com/api/v4/merge_requests?author_username=${gitlabUsername}&created_after=${getStartOfDayISO(startingDate)}&created_before=${getEndOfDayISO(endingDate)}&per_page=100&scope=all`;
+		console.log('[GitLab] Fetching all MRs:', mrsUrl);
+
+		$.ajax({
+			dataType: 'json',
+			type: 'GET',
+			url: mrsUrl,
+			error: (xhr, textStatus, errorThrown) => {
+				console.error('Error fetching GitLab MRs:', {
+					status: xhr.status,
+					textStatus: textStatus,
+					error: errorThrown
 				});
-
-				// Fetch issues and MRs for each project
-				var projectIds = projects.map(p => p.id);
-				var issuesPromises = [];
-				var mrsPromises = [];
-
-				projectIds.forEach(projectId => {
-					// Fetch issues
-					var issuesUrl = `https://gitlab.com/api/v4/projects/${projectId}/issues?author_username=${gitlabUsername}&created_after=${getStartOfDayISO(startingDate)}&created_before=${getEndOfDayISO(endingDate)}&per_page=100`;
-					console.log(`[GitLab] Fetching issues for project ${projectId}:`, issuesUrl);
-					issuesPromises.push(
-						$.ajax({
-							dataType: 'json',
-							type: 'GET',
-							url: issuesUrl,
-							success: function (data) {
-								console.log(`[GitLab][DEBUG] Raw issues response for project ${projectId}:`, data);
-								return data;
-							},
-							error: function (xhr, textStatus, errorThrown) {
-								console.error(`[GitLab][ERROR] Issues API error for project ${projectId}:`, xhr.status, textStatus, errorThrown, xhr.responseText);
-								return [];
-							}
-						})
-					);
-
-					// Fetch merge requests
-					var mrsUrl = `https://gitlab.com/api/v4/projects/${projectId}/merge_requests?author_username=${gitlabUsername}&created_after=${getStartOfDayISO(startingDate)}&created_before=${getEndOfDayISO(endingDate)}&per_page=100`;
-					console.log(`[GitLab] Fetching MRs for project ${projectId}:`, mrsUrl);
-					mrsPromises.push(
-						$.ajax({
-							dataType: 'json',
-							type: 'GET',
-							url: mrsUrl
-						})
-					);
-				});
-
-				// Process all issues
-				Promise.all(issuesPromises)
-					.then(results => {
-						gitlabIssuesData = results.flat();
-						console.log('[GitLab] Issues fetched (after flatten):', gitlabIssuesData);
-						writeGitlabIssuesPrs();
-					})
-					.catch(error => {
-						console.error('Error fetching GitLab issues:', error);
-						Materialize.toast('Error fetching GitLab issues', 3000);
-					});
-
-				// Process all merge requests
-				Promise.all(mrsPromises)
-					.then(results => {
-						gitlabPrsReviewData = results.flat();
-						console.log('[GitLab] Merge Requests fetched:', gitlabPrsReviewData.map(mr => ({ id: mr.id, title: mr.title, author: mr.author ? mr.author.username : undefined, project: mr.project ? mr.project.name : undefined })));
-						writeGitlabPrsReviews();
-					})
-					.catch(error => {
-						console.error('Error fetching GitLab merge requests:', error);
-						Materialize.toast('Error fetching GitLab merge requests', 3000);
-					});
+				Materialize.toast('Error fetching GitLab merge requests.', 3000);
+			},
+			success: (mrs) => {
+				console.log('[GitLab] MRs fetched:', mrs);
+				gitlabPrsReviewData = mrs;
+				writeGitlabPrsReviews();
 			}
 		});
 
@@ -673,6 +629,20 @@ ${userReason}`;
 		});
 	}
 
+	function getProjectName(item) {
+		// Get the project name from the full path
+		if (item.references?.full) {
+			return item.references.full.split('/').pop();
+		}
+		if (item.project?.path_with_namespace) {
+			return item.project.path_with_namespace.split('/').pop();
+		}
+		if (item.project?.name) {
+			return item.project.name;
+		}
+		return 'Unknown Project';
+	}
+
 	function writeGitlabIssuesPrs() {
 		if (!gitlabIssuesData) return;
 
@@ -682,7 +652,7 @@ ${userReason}`;
 		for (var i = 0; i < gitlabIssuesData.length; i++) {
 			var item = gitlabIssuesData[i];
 			var web_url = item.web_url;
-			var project = gitlabProjectIdToName[item.project_id] || 'Unknown Project';
+			var project = getProjectName(item);
 			var title = item.title;
 			var iid = item.iid;
 			var li = '';
@@ -710,7 +680,7 @@ ${userReason}`;
 		for (var i = 0; i < gitlabPrsReviewData.length; i++) {
 			var item = gitlabPrsReviewData[i];
 			var web_url = item.web_url;
-			var project = gitlabProjectIdToName[item.project_id] || 'Unknown Project';
+			var project = getProjectName(item);
 			var title = item.title;
 			var iid = item.iid;
 
@@ -722,7 +692,7 @@ ${userReason}`;
 				number: iid,
 				html_url: web_url,
 				title: title,
-				state: item.state,
+				state: item.state
 			};
 			gitlabPrsReviewDataProcessed[project].push(obj);
 		}
