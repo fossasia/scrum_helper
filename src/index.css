@@ -339,3 +339,19 @@ body,input,div,h3,h4,p,label,hr, #scrumReport{
 .dark-mode .tooltip-container.tooltip-right .tooltip-bubble::after {
     border-color: transparent #374151 transparent transparent;
 }
+#scrumReport b {
+  display: block;
+  margin-bottom: 4px;
+  margin-top: 16px;
+}
+#scrumReport b:first-child {
+  margin-top: 0;
+}
+#scrumReport ul {
+  margin-top: 0;
+  margin-bottom: 12px;
+  padding-left: 20px;
+}
+#scrumReport li {
+  margin-bottom: 2px;
+}
