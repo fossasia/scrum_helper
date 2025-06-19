@@ -619,16 +619,16 @@ function allIncluded(outputTarget = 'email') {
       // Create the complete content
       let content;
       if (lastWeekContribution == true || yesterdayContribution == true) {
-        content = `<b>1. What did I do ${weekOrDay}?</b><br>
+        content = `<b>1. What did I do ${weekOrDay}?</b>
 ${lastWeekUl}<br>
-<b>2. What do I plan to do ${weekOrDay2}?</b><br>
+<b>2. What do I plan to do ${weekOrDay2}?</b>
 ${nextWeekUl}<br>
 <b>3. What is blocking me from making progress?</b><br>
 ${userReason}`;
       } else {
-        content = `<b>1. What did I do during the period?</b><br>
+        content = `<b>1. What did I do during the period?</b>
 ${lastWeekUl}<br>
-<b>2. What do I plan to do next?</b><br>
+<b>2. What do I plan to do next?</b>
 ${nextWeekUl}<br>
 <b>3. What is blocking me from making progress?</b><br>
 ${userReason}`;
