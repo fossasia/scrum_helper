@@ -621,13 +621,11 @@ function allIncluded(outputTarget = 'email') {
       let content;
       if (lastWeekContribution == true || yesterdayContribution == true) {
         content = `<b>1. What did I do ${weekOrDay}?</b><br>
-
-	
-${lastWeekUl}<br>
-<b>2. What do I plan to do ${weekOrDay2}?</b><br>
-${nextWeekUl}<br>
-<b>3. What is blocking me from making progress?</b><br>
-${userReason}`;
+               ${lastWeekUl}<br>
+          <b>2. What do I plan to do ${weekOrDay2}?</b><br>
+             ${nextWeekUl}<br>
+         <b>3. What is blocking me from making progress?</b><br>
+             ${userReason}`;
       } else {
         content = `<b>1. What did I do during the period?</b><br>
 ${lastWeekUl}<br>
