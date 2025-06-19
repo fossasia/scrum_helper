@@ -2,122 +2,148 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
 body {
-	margin: 0;
-	padding: 0;
-	background-color: rgba(251, 251, 251, 0.6);
+    margin: 0;
+    padding: 0;
+    background-color: rgba(251, 251, 251, 0.6);
 }
+
 * {
-	box-sizing: border-box;
+    box-sizing: border-box;
 }
+
 .datepicker {
-	margin-bottom: 5px !important;
+    margin-bottom: 5px !important;
 }
+
 .tabs .tab a:hover,
 .tabs .tab a.active {
-	background-color: transparent;
-	color: #3f51b5;
+    background-color: transparent;
+    color: #3f51b5;
 }
+
 .tabs {
-	background-color: transparent;
+    background-color: transparent;
 }
+
 .tabs .tab a {
-	color: #3f51b5;
+    color: #3f51b5;
 }
+
 .tabs .indicator {
-	background-color: #3f51b5;
+    background-color: #3f51b5;
 }
-.switch label input[type="checkbox"]:checked + .lever {
-	background-color: #3f51b5;
+
+.switch label input[type="checkbox"]:checked+.lever {
+    background-color: #3f51b5;
 }
-.switch label input[type="checkbox"]:checked + .lever:after {
-	background-color: #fcfcfc;
-	left: 24px;
+
+.switch label input[type="checkbox"]:checked+.lever:after {
+    background-color: #fcfcfc;
+    left: 24px;
 }
-[type="checkbox"].filled-in:checked + label:after {
-	border: 2px solid #3f51b5;
-	background-color: #3f51b5;
+
+[type="checkbox"].filled-in:checked+label:after {
+    border: 2px solid #3f51b5;
+    background-color: #3f51b5;
 }
+
 .btn:hover,
 .btn-large:hover {
-	background-color: #3f51b5;
+    background-color: #3f51b5;
 }
+
 a {
-	color: #3f51b5;
+    color: #3f51b5;
 }
+
 .btn,
 .btn-large {
-	background-color: #3f51b5;
+    background-color: #3f51b5;
 }
+
 li {
-	list-style-type: disc !important;
-	margin-left: 1rem;
+    list-style-type: disc !important;
+    margin-left: 1rem;
 }
 
-body,input,div,h3,h4,p,label,hr, #scrumReport{
-	transition: all 0.3s ease-in-out;
+body,
+input,
+div,
+h3,
+h4,
+p,
+label,
+hr,
+#scrumReport {
+    transition: all 0.3s ease-in-out;
 }
 
-.dark-mode { 
-	background: #1a1a1a !important;
-	color: #ffffff !important;
-	transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+.dark-mode {
+    background: #1a1a1a !important;
+    color: #ffffff !important;
+    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
 }
-.dark-mode .bg-white{
-	background-color: #2d2d2d !important;
-	border-color: #404040 !important;
-	transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+
+.dark-mode .bg-white {
+    background-color: #2d2d2d !important;
+    border-color: #404040 !important;
+    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
 }
 
 .dark-mode input[type="text"],
 .dark-mode input[type="date"],
 .dark-mode #scrumReport {
-	background-color: #404040 !important;
-	border-color: #505050 !important;
-	color: #ffffff !important;
-	transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+    background-color: #404040 !important;
+    border-color: #505050 !important;
+    color: #ffffff !important;
+    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
 }
+
 .dark-mode h3,
 .dark-mode h4,
 .dark-mode p,
 .dark-mode label {
-	color: #ffffff !important;
-	transition: color 0.3s ease-in-out;
+    color: #ffffff !important;
+    transition: color 0.3s ease-in-out;
 }
 
 .dark-mode hr {
-	border-color: #505050 !important;
-	transition: border-color 0.3s ease-in-out;
+    border-color: #505050 !important;
+    transition: border-color 0.3s ease-in-out;
 }
+
 #scrumReport {
-	font-size: 13px !important; 
-	line-height: 1.5 !important; 
+    font-size: 13px !important;
+    line-height: 1.5 !important;
 }
 
 #scrumReport b {
-	font-size: 13px !important; 
+    font-size: 13px !important;
 }
 
 #scrumReport li {
-	font-size: 13px !important; 
-	margin-bottom: 4px !important; 
+    font-size: 13px !important;
+    margin-bottom: 4px !important;
 }
 
 .dark-mode #scrumReport {
-	font-size: 13px !important;
+    font-size: 13px !important;
 }
 
 .dark-mode #scrumReport b {
-	font-size: 13px !important;
+    font-size: 13px !important;
 }
 
 .dark-mode #scrumReport li {
-	font-size: 13px !important;
+    font-size: 13px !important;
 }
 
 .dark-mode a {
-	color: #00b7ff !important;
+    color: #00b7ff !important;
 }
+
 #refreshCache {
     background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
     border: none;
@@ -145,9 +171,15 @@ body,input,div,h3,h4,p,label,hr, #scrumReport{
 }
 
 @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
 }
+
 /* Disabled state styling */
 .disabled-content {
     opacity: 0.5 !important;
@@ -165,6 +197,7 @@ body,input,div,h3,h4,p,label,hr, #scrumReport{
 .dark-mode .disabled-content {
     opacity: 0.4 !important;
 }
+
 .cache-info {
     font-size: 11px;
     color: #6b7280;
@@ -182,6 +215,7 @@ body,input,div,h3,h4,p,label,hr, #scrumReport{
 .dark-mode .cache-info {
     color: #9ca3af;
 }
+
 #cacheInput {
     transition: border-color 0.2s ease;
 }
@@ -197,7 +231,7 @@ body,input,div,h3,h4,p,label,hr, #scrumReport{
     transition: all 0.2s ease;
     border: none;
     cursor: pointer;
-    background: none !important; 
+    background: none !important;
 }
 
 #settingsToggle:hover {
@@ -211,7 +245,7 @@ body,input,div,h3,h4,p,label,hr, #scrumReport{
 
 #settingsToggle img {
     transition: transform 0.2s ease;
-    filter: brightness(0.9); 
+    filter: brightness(0.9);
 }
 
 #settingsToggle.active img {
@@ -228,7 +262,7 @@ body,input,div,h3,h4,p,label,hr, #scrumReport{
 }
 
 .dark-mode #settingsToggle img {
-    filter: brightness(0.9); 
+    filter: brightness(0.9);
 }
 
 .dark-mode #settingsToggle.active img {
@@ -338,4 +372,59 @@ body,input,div,h3,h4,p,label,hr, #scrumReport{
 
 .dark-mode .tooltip-container.tooltip-right .tooltip-bubble::after {
     border-color: transparent #374151 transparent transparent;
+}
+
+/* Custom Toast Styles for Materialize */
+.toast {
+    color: #fff !important;
+    font-weight: 300;
+    font-size: 1rem;
+    border-radius: 0.75rem !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+    padding: 1rem 2rem !important;
+    opacity: 0.98 !important;
+    letter-spacing: 0.01em;
+    text-align: center;
+}
+
+.toast.red,
+.toast.error,
+.toast.toast-error {
+    background: #e53935 !important;
+    color: #fff !important;
+}
+
+.toast.green,
+.toast.success,
+.toast.toast-success {
+    background: #43a047 !important;
+    color: #fff !important;
+}
+
+.toast.yellow,
+.toast.warning,
+.toast.toast-warning {
+    background: #fbc02d !important;
+    color: #222 !important;
+}
+
+.toast.blue,
+.toast.info,
+.toast.toast-info {
+    background: #1e88e5 !important;
+    color: #fff !important;
+}
+
+/* Toast in dark mode */
+.dark-mode .toast {
+    background: #222 !important;
+    color: #fff !important;
+    border: 1px solid #444;
+}
+
+.dark-mode .toast.red,
+.dark-mode .toast.error,
+.dark-mode .toast.toast-error {
+    background: #b71c1c !important;
+    color: #fff !important;
 }
