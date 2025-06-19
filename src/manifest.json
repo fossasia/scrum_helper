@@ -57,6 +57,7 @@
     "*://*.outlook.live.com/*",
     "*://*.office.com/*",
     "*://*.yahoo.com/*",
-    "https://api.github.com/*"
+    "https://api.github.com/*",
+    "https://gitlab.com/api/*"
   ]
 }

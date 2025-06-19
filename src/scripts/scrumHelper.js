@@ -1,750 +1,1062 @@
+﻿// GitLab support added
+
 console.log('Script loaded, adapter exists:', !!window.emailClientAdapter);
-var enableToggle = true;
-var gitlabProjectIdToName = {};
+let refreshButton_Placed = false;
+let enableToggle = true;
+let hasInjectedContent = false;
 function allIncluded(outputTarget = 'email') {
-	console.log('allIncluded called with outputTarget:', outputTarget);
-	console.log('Current window context:', window.location.href);
-	/* global $*/
-	var scrumBody = null;
-	var scrumSubject = null;
-	var startingDate = '';
-	var endingDate = '';
-	var githubUsername = '';
-	var gitlabUsername = '';
-	var projectName = '';
-	var platform = 'github';
-	var lastWeekArray = [];
-	var nextWeekArray = [];
-	var reviewedPrsArray = [];
-	var githubIssuesData = null;
-	var gitlabIssuesData = null;
-	var lastWeekContribution = false;
-	let yesterdayContribution = false;
-	var githubPrsReviewData = null;
-	var gitlabPrsReviewData = null;
-	var githubUserData = null;
-	var gitlabUserData = null;
-	var githubPrsReviewDataProcessed = {};
-	var gitlabPrsReviewDataProcessed = {};
-	var showOpenLabel = true;
-	var showClosedLabel = true;
-	var userReason = '';
+  console.log('allIncluded called with outputTarget:', outputTarget);
+  console.log('Current window context:', window.location.href);
+  let scrumBody = null;
+  let scrumSubject = null;
+  let startingDate = '';
+  let endingDate = '';
+  let githubUsername = '';
+  let gitlabUsername = '';
+  let projectName = '';
+  let lastWeekArray = [];
+  let nextWeekArray = [];
+  let reviewedPrsArray = [];
+  let githubIssuesData = null;
+  let lastWeekContribution = false;
+  let yesterdayContribution = false;
+  let githubPrsReviewData = null;
+  let githubUserData = null;
+  let githubPrsReviewDataProcessed = {};
+  let showOpenLabel = true;
+  let showClosedLabel = true;
+  let userReason = '';
+  let cacheInputValue = 10; // Default cache TTL value
 
-	var pr_merged_button =
-		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #6f42c1;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--purple">closed</div>';
-	var pr_unmerged_button =
-		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
+  // GitLab data variables
+  let gitlabIssuesData = null;
+  let gitlabMergeRequestsData = null;
+  let gitlabCommentsData = null;
+  let gitlabUserData = null;
+  let gitlabPrsReviewDataProcessed = {};
+  let gitlabProjects = [];
+  let gitlabProjectNameCache = {};
 
-	var issue_closed_button =
-		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #6f42c1;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--purple">closed</div>';
-	var issue_opened_button =
-		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
+  let pr_merged_button =
+    '<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #6f42c1;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--purple">closed</div>';
+  let pr_unmerged_button =
+    '<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
 
-	// var linkStyle = '';
-	function getChromeData() {
-		console.log("Getting Chrome data for context:", outputTarget);
-		chrome.storage.local.get(
-			[
-				'githubUsername',
-				'gitlabUsername',
-				'projectName',
-				'enableToggle',
-				'startingDate',
-				'endingDate',
-				'showOpenLabel',
-				'showClosedLabel',
-				'lastWeekContribution',
-				'yesterdayContribution',
-				'userReason',
-				'platform',
-			],
-			(items) => {
-				console.log("Storage items received:", items);
+  let issue_closed_button =
+    '<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #6f42c1;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--purple">closed</div>';
+  let issue_opened_button =
+    '<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
 
-				if (items.platform) {
-					platform = items.platform;
-				}
+  // GitHub cache object
+  let githubCache = {
+    data: null,
+    cacheKey: null,
+    timestamp: 0,
+    ttl: 10 * 60 * 1000, // cache valid for 10 mins
+    fetching: false,
+    queue: [],
+    errors: {},
+    errorTTL: 60 * 1000, // 1 min error cache 
+    subject: null,
+  };
 
-				if (items.lastWeekContribution) {
-					lastWeekContribution = true;
-					handleLastWeekContributionChange();
-				}
-				if (items.yesterdayContribution) {
-					yesterdayContribution = true;
-					handleYesterdayContributionChange();
-				}
-				if (!items.enableToggle) {
-					enableToggle = items.enableToggle;
-				}
-				if (items.endingDate && !lastWeekContribution) {
-					endingDate = items.endingDate;
-				}
-				if (items.startingDate && !lastWeekContribution) {
-					startingDate = items.startingDate;
-				}
-				if (items.endingDate && !yesterdayContribution) {
-					endingDate = items.endingDate;
-				}
-				if (items.startingDate && !yesterdayContribution) {
-					startingDate = items.startingDate;
-				}
+  // GitLab cache object
+  let gitlabCache = {
+    data: null,
+    cacheKey: null,
+    timestamp: 0,
+    ttl: 10 * 60 * 1000, // cache valid for 10 mins
+    fetching: false,
+    queue: [],
+    errors: {},
+    errorTTL: 60 * 1000, // 1 min error cache 
+    subject: null,
+  };
 
-				if (platform === 'github') {
-					if (items.githubUsername) {
-						githubUsername = items.githubUsername;
-						console.log("About to fetch GitHub data for:", githubUsername);
-						fetchGithubData();
-					} else {
-						if (outputTarget === 'popup') {
-							console.log("No GitHub username found - popup context");
-							const generateBtn = document.getElementById('generateReport');
-							if (generateBtn) {
-								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
-								generateBtn.disabled = false;
-							}
-							Materialize.toast('Please enter your GitHub username', 3000);
-						} else {
-							console.log("No GitHub username found - email context");
-							console.warn('No GitHub username found in storage');
-						}
-					}
-				} else {
-					if (items.gitlabUsername) {
-						gitlabUsername = items.gitlabUsername;
-						console.log("About to fetch GitLab data for:", gitlabUsername);
-						fetchGitlabData();
-					} else {
-						if (outputTarget === 'popup') {
-							console.log("No GitLab username found - popup context");
-							const generateBtn = document.getElementById('generateReport');
-							if (generateBtn) {
-								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
-								generateBtn.disabled = false;
-							}
-							Materialize.toast('Please enter your GitLab username', 3000);
-						} else {
-							console.log("No GitLab username found - email context");
-							console.warn('No GitLab username found in storage');
-						}
-					}
-				}
+  function getChromeData() {
+    console.log("Getting Chrome data for context:", outputTarget);
+    chrome.storage.local.get(
+      [
+        'githubUsername',
+        'gitlabUsername',
+        'selectedPlatform',
+        'projectName',
+        'enableToggle',
+        'startingDate',
+        'endingDate',
+        'showOpenLabel',
+        'showClosedLabel',
+        'lastWeekContribution',
+        'yesterdayContribution',
+        'userReason',
+        'githubCache',
+        'gitlabCache',
+        'cacheInputValue'
+      ],
+      (items) => {
+        console.log("Storage items received:", items);
 
-				if (items.projectName) {
-					projectName = items.projectName;
-				}
+        if (items.lastWeekContribution) {
+          lastWeekContribution = true;
+          handleLastWeekContributionChange();
+        }
+        if (items.yesterdayContribution) {
+          yesterdayContribution = true;
+          handleYesterdayContributionChange();
+        }
+        if (!items.enableToggle) {
+          enableToggle = items.enableToggle;
+        }
+        if (items.endingDate && !lastWeekContribution) {
+          endingDate = items.endingDate;
+        }
+        if (items.startingDate && !lastWeekContribution) {
+          startingDate = items.startingDate;
+        }
+        if (items.endingDate && !yesterdayContribution) {
+          endingDate = items.endingDate;
+        }
+        if (items.startingDate && !yesterdayContribution) {
+          startingDate = items.startingDate;
+        }
 
-				if (!items.showOpenLabel) {
-					showOpenLabel = false;
-					pr_unmerged_button = '';
-					issue_opened_button = '';
-				}
-				if (!items.showClosedLabel) {
-					showClosedLabel = false;
-					pr_merged_button = '';
-					issue_closed_button = '';
-				}
-				if (items.userReason) {
-					userReason = items.userReason;
-				}
-				if (!items.userReason) {
-					userReason = 'No Blocker at the moment';
-				}
-			},
-		);
-	}
-	getChromeData();
+        // Handle platform-specific data fetching
+        const selectedPlatform = items.selectedPlatform || 'github';
 
-	function handleLastWeekContributionChange() {
-		endingDate = getToday();
-		startingDate = getLastWeek();
-	}
-	function handleYesterdayContributionChange() {
-		endingDate = getToday();
-		startingDate = getYesterday();
-	}
-	function getLastWeek() {
-		var today = new Date();
-		var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
-		var lastWeekMonth = lastWeek.getMonth() + 1;
-		var lastWeekDay = lastWeek.getDate();
-		var lastWeekYear = lastWeek.getFullYear();
-		var lastWeekDisplayPadded =
-			('0000' + lastWeekYear.toString()).slice(-4) +
-			'-' +
-			('00' + lastWeekMonth.toString()).slice(-2) +
-			'-' +
-			('00' + lastWeekDay.toString()).slice(-2);
-		return lastWeekDisplayPadded;
-	}
-	function getYesterday() {
-		let today = new Date();
-		let yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
-		let yesterdayMonth = yesterday.getMonth() + 1;
-		let yesterdayWeekDay = yesterday.getDate();
-		let yesterdayYear = yesterday.getFullYear();
-		let yesterdayPadded =
-			('0000' + yesterdayYear.toString()).slice(-4) +
-			'-' +
-			('00' + yesterdayMonth.toString()).slice(-2) +
-			'-' +
-			('00' + yesterdayWeekDay.toString()).slice(-2);
-		return yesterdayPadded;
-	}
-	function getToday() {
-		var today = new Date();
-		var Week = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-		var WeekMonth = Week.getMonth() + 1;
-		var WeekDay = Week.getDate();
-		var WeekYear = Week.getFullYear();
-		var WeekDisplayPadded =
-			('0000' + WeekYear.toString()).slice(-4) +
-			'-' +
-			('00' + WeekMonth.toString()).slice(-2) +
-			'-' +
-			('00' + WeekDay.toString()).slice(-2);
-		return WeekDisplayPadded;
-	}
-	// fetch github data
-	function fetchGithubData() {
-		var issueUrl = 'https://api.github.com/search/issues?q=author%3A' +
-			githubUsername +
-			'+org%3Afossasia+created%3A' +
-			startingDate +
-			'..' +
-			endingDate +
-			'&per_page=100';
+        if (selectedPlatform === 'github' && items.githubUsername) {
+          githubUsername = items.githubUsername;
+          console.log("About to fetch GitHub data for:", githubUsername);
+          fetchGithubData();
+        } else if (selectedPlatform === 'gitlab' && items.gitlabUsername) {
+          gitlabUsername = items.gitlabUsername;
+          console.log("About to fetch GitLab data for:", gitlabUsername);
+          fetchGitLabData();
+        } else {
+          if (outputTarget === 'popup') {
+            console.log("No username found - popup context");
+            // Show error in popup
+            const generateBtn = document.getElementById('generateReport');
+            if (generateBtn) {
+              generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+              generateBtn.disabled = false;
+            }
+            const platformName = selectedPlatform === 'github' ? 'GitHub' : 'GitLab';
+            if (typeof Materialize !== 'undefined') {
+              Materialize.toast(`Please enter your ${platformName} username`, 3000);
+            } else {
+              console.warn(`Please enter your ${platformName} username`);
+            }
+          } else {
+            console.log("No username found - email context");
+            console.warn(`No ${selectedPlatform} username found in storage`);
+          }
+        }
+        if (items.projectName) {
+          projectName = items.projectName;
+        }
+        if (items.cacheInputValue) {
+          cacheInputValue = items.cacheInputValue;
+        }
+        if (!items.showOpenLabel) {
+          showOpenLabel = false;
+          pr_unmerged_button = '';
+          issue_opened_button = '';
+        }
+        if (!items.showClosedLabel) {
+          showClosedLabel = false;
+          pr_merged_button = '';
+          issue_closed_button = '';
+        }
+        if (items.userReason) {
+          userReason = items.userReason;
+        }
+        if (!items.userReason) {
+          userReason = 'No Blocker at the moment';
+        }
+        if (items.githubCache) {
+          githubCache.data = items.githubCache.data;
+          githubCache.cacheKey = items.githubCache.cacheKey;
+          githubCache.timestamp = items.githubCache.timestamp;
+          log('Restored GitHub cache from storage');
+        }
+        if (items.gitlabCache) {
+          gitlabCache.data = items.gitlabCache.data;
+          gitlabCache.cacheKey = items.gitlabCache.cacheKey;
+          gitlabCache.timestamp = items.gitlabCache.timestamp;
+          log('Restored GitLab cache from storage');
+        }
+      },
+    );
+  }
 
-		$.ajax({
-			dataType: 'json',
-			type: 'GET',
-			url: issueUrl,
-			error: (xhr, textStatus, errorThrown) => {
-				console.error('Error fetching GitHub data:', {
-					status: xhr.status,
-					textStatus: textStatus,
-					error: errorThrown
-				});
-			},
-			success: (data) => {
-				githubIssuesData = data;
-				writeGithubIssuesPrs();
-			},
-		});
+  function handleLastWeekContributionChange() {
+    endingDate = getToday();
+    startingDate = getLastWeek();
+  }
+  function handleYesterdayContributionChange() {
+    endingDate = getToday();
+    startingDate = getYesterday();
+  }
+  function getLastWeek() {
+    let today = new Date();
+    let lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
+    let lastWeekMonth = lastWeek.getMonth() + 1;
+    let lastWeekDay = lastWeek.getDate();
+    let lastWeekYear = lastWeek.getFullYear();
+    let lastWeekDisplayPadded =
+      ('0000' + lastWeekYear.toString()).slice(-4) +
+      '-' +
+      ('00' + lastWeekMonth.toString()).slice(-2) +
+      '-' +
+      ('00' + lastWeekDay.toString()).slice(-2);
+    return lastWeekDisplayPadded;
+  }
+  function getYesterday() {
+    let today = new Date();
+    let yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+    let yesterdayMonth = yesterday.getMonth() + 1;
+    let yesterdayDay = yesterday.getDate();
+    let yesterdayYear = yesterday.getFullYear();
+    let yesterdayPadded =
+      ('0000' + yesterdayYear.toString()).slice(-4) +
+      '-' +
+      ('00' + yesterdayMonth.toString()).slice(-2) +
+      '-' +
+      ('00' + yesterdayDay.toString()).slice(-2);
+    return yesterdayPadded;
+  }
+  function getToday() {
+    let today = new Date();
+    let Week = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    let WeekMonth = Week.getMonth() + 1;
+    let WeekDay = Week.getDate();
+    let WeekYear = Week.getFullYear();
+    let WeekDisplayPadded =
+      ('0000' + WeekYear.toString()).slice(-4) +
+      '-' +
+      ('00' + WeekMonth.toString()).slice(-2) +
+      '-' +
+      ('00' + WeekDay.toString()).slice(-2);
+    return WeekDisplayPadded;
+  }
 
-		// PR reviews fetch
-		var prUrl = 'https://api.github.com/search/issues?q=commenter%3A' +
-			githubUsername +
-			'+org%3Afossasia+updated%3A' +
-			startingDate +
-			'..' +
-			endingDate +
-			'&per_page=100';
+  getChromeData();
 
-		$.ajax({
-			dataType: 'json',
-			type: 'GET',
-			url: prUrl,
-			error: (xhr, textStatus, errorThrown) => {
-				console.error('Error fetching PR reviews:', {
-					status: xhr.status,
-					textStatus: textStatus,
-					error: errorThrown
-				});
-			},
-			success: (data) => {
-				githubPrsReviewData = data;
-				writeGithubPrsReviews();
-			},
-		});
-		// fetch github user data
-		var userUrl = 'https://api.github.com/users/' + githubUsername;
-		$.ajax({
-			dataType: 'json',
-			type: 'GET',
-			url: userUrl,
-			error: (xhr, textStatus, errorThrown) => {
-				// error
-			},
-			success: (data) => {
-				githubUserData = data;
-			},
-		});
-	}
+  async function getCacheTTL() {
+    return new Promise((resolve) => {
+      chrome.storage.local.get(['cacheInputValue'], function (result) {
+        const ttlMinutes = result.cacheInputValue || 10;
+        resolve(ttlMinutes * 60 * 1000);
+      });
+    });
+  }
 
-	function formatDate(dateString) {
-		const date = new Date(dateString);
-		const options = { day: '2-digit', month: 'short', year: 'numeric' };
-		return date.toLocaleDateString('en-US', options);
-	}
+  function saveToStorage(data, subject = null) {
+    const cacheData = {
+      data: data,
+      cacheKey: githubCache.cacheKey,
+      timestamp: githubCache.timestamp,
+      subject: subject,
+    }
+    log(`Saving data to storage:`, {
+      cacheKey: githubCache.cacheKey,
+      timestamp: githubCache.timestamp,
+      hasSubject: !!subject,
+    });
 
-	//load initial text in scrum body
-	function writeScrumBody() {
-		if (!enableToggle) return;
+    return new Promise((resolve) => {
+      chrome.storage.local.set({ githubCache: cacheData }, () => {
+        if (chrome.runtime.lastError) {
+          logError('Storage save failed: ', chrome.runtime.lastError);
+          resolve(false);
+        } else {
+          log('Cache saved successfully');
+          githubCache.data = data;
+          githubCache.subject = subject;
+          resolve(true);
+        }
+      });
+    });
+  }
 
-		if (outputTarget === 'email') {
-			if (!window.emailClientAdapter) {
-				console.error('Email client adapter not found');
-				return;
-			}
-			if (!window.emailClientAdapter.isNewConversation()) {
-				console.log('Not a new conversation, skipping scrum helper');
-				return;
-			}
-		}
+  function saveGitLabToStorage(data, subject = null) {
+    const cacheData = {
+      data: data,
+      cacheKey: gitlabCache.cacheKey,
+      timestamp: gitlabCache.timestamp,
+      subject: subject,
+    }
+    log(`Saving GitLab data to storage:`, {
+      cacheKey: gitlabCache.cacheKey,
+      timestamp: gitlabCache.timestamp,
+      hasSubject: !!subject,
+    });
 
-		setTimeout(() => {
-			// Generate content first
-			var lastWeekUl = '<ul>';
-			var i;
-			for (i = 0; i < lastWeekArray.length; i++) lastWeekUl += lastWeekArray[i];
-			for (i = 0; i < reviewedPrsArray.length; i++) lastWeekUl += reviewedPrsArray[i];
-			lastWeekUl += '</ul>';
+    return new Promise((resolve) => {
+      chrome.storage.local.set({ gitlabCache: cacheData }, () => {
+        if (chrome.runtime.lastError) {
+          logError('GitLab storage save failed: ', chrome.runtime.lastError);
+          resolve(false);
+        } else {
+          log('GitLab cache saved successfully');
+          gitlabCache.data = data;
+          gitlabCache.subject = subject;
+          resolve(true);
+        }
+      });
+    });
+  }
 
-			var nextWeekUl = '<ul>';
-			for (i = 0; i < nextWeekArray.length; i++) nextWeekUl += nextWeekArray[i];
-			nextWeekUl += '</ul>';
+  function loadFromStorage() {
+    return new Promise((resolve) => {
+      chrome.storage.local.get(['githubCache', 'gitlabCache'], (items) => {
+        if (items.githubCache) {
+          githubCache.data = items.githubCache.data;
+          githubCache.cacheKey = items.githubCache.cacheKey;
+          githubCache.timestamp = items.githubCache.timestamp;
+          githubCache.subject = items.githubCache.subject;
+          log('Restored GitHub cache from storage');
+        }
+        if (items.gitlabCache) {
+          gitlabCache.data = items.gitlabCache.data;
+          gitlabCache.cacheKey = items.gitlabCache.cacheKey;
+          gitlabCache.timestamp = items.gitlabCache.timestamp;
+          gitlabCache.subject = items.gitlabCache.subject;
+          log('Restored GitLab cache from storage');
+        }
+        resolve();
+      });
+    });
+  }
 
-			var weekOrDay = lastWeekContribution ? 'last week' : (yesterdayContribution ? 'yesterday' : 'the period');
-			var weekOrDay2 = lastWeekContribution ? 'this week' : 'today';
+  async function fetchGithubData() {
+    const cacheKey = `${githubUsername}-${startingDate}-${endingDate}`;
 
-			// Create the complete content
-			let content;
-			if (lastWeekContribution == true || yesterdayContribution == true) {
-				content = `<b>1. What did I do ${weekOrDay}?</b><br>
+    if (githubCache.fetching || (githubCache.cacheKey === cacheKey && githubCache.data)) {
+      log('Fetch already in progress or data already fetched. Skipping fetch.');
+      return;
+    }
+
+    log('Fetching Github data:', {
+      username: githubUsername,
+      startDate: startingDate,
+      endDate: endingDate,
+    });
+
+    log('CacheKey in cache:', githubCache.cacheKey);
+    log('Incoming cacheKey:', cacheKey);
+    log('Has data:', !!githubCache.data);
+
+    // Check if we need to load from storage
+    if (!githubCache.data && !githubCache.fetching) {
+      await loadFromStorage();
+    };
+
+    const currentTTL = await getCacheTTL();
+    githubCache.ttl = currentTTL;
+    log(`Caching for ${currentTTL / (60 * 1000)} minutes`);
+
+    const now = Date.now();
+    const isCacheFresh = (now - githubCache.timestamp) < githubCache.ttl;
+    const isCacheKeyMatch = githubCache.cacheKey === cacheKey;
+
+    if (githubCache.data && isCacheFresh && isCacheKeyMatch) {
+      log('Using cached data - cache is fresh and key matches');
+      processGithubData(githubCache.data);
+      return Promise.resolve();
+    }
+    // if cache key does not match our cache is stale, fetch new data
+    if (!isCacheKeyMatch) {
+      log('Cache key mismatch - fetching new Data');
+      githubCache.data = null;
+    } else if (!isCacheFresh) {
+      log('Cache is stale - fetching new data');
+    }
+
+    // if fetching is in progress, queue the calls and return a promise resolved when done
+    if (githubCache.fetching) {
+      log('Fetch in progress, queuing requests');
+      return new Promise((resolve, reject) => {
+        githubCache.queue.push({ resolve, reject });
+      });
+    }
+
+    githubCache.fetching = true;
+    githubCache.cacheKey = cacheKey;
+
+    let issueUrl = `https://api.github.com/search/issues?q=author%3A${githubUsername}+org%3Afossasia+created%3A${startingDate}..${endingDate}&per_page=100`;
+    let prUrl = `https://api.github.com/search/issues?q=commenter%3A${githubUsername}+org%3Afossasia+updated%3A${startingDate}..${endingDate}&per_page=100`;
+    let userUrl = `https://api.github.com/users/${githubUsername}`;
+
+    try {
+      // throttling 500ms to avoid burst
+      await new Promise(res => setTimeout(res, 500));
+
+      const [issuesRes, prRes, userRes] = await Promise.all([
+        fetch(issueUrl),
+        fetch(prUrl),
+        fetch(userUrl),
+      ]);
+
+      if (!issuesRes.ok) throw new Error(`Error fetching Github issues: ${issuesRes.status} ${issuesRes.statusText}`);
+      if (!prRes.ok) throw new Error(`Error fetching Github PR review data: ${prRes.status} ${prRes.statusText}`);
+      if (!userRes.ok) throw new Error(`Error fetching Github userdata: ${userRes.status} ${userRes.statusText}`);
+
+      githubIssuesData = await issuesRes.json();
+      githubPrsReviewData = await prRes.json();
+      githubUserData = await userRes.json();
+
+      // Cache the data
+      githubCache.data = { githubIssuesData, githubPrsReviewData, githubUserData };
+      githubCache.timestamp = Date.now();
+
+      await saveToStorage(githubCache.data);
+      processGithubData(githubCache.data);
+
+      // Resolve queued calls
+      githubCache.queue.forEach(({ resolve }) => resolve());
+      githubCache.queue = [];
+    } catch (err) {
+      logError('Fetch Failed:', err);
+      // Reject queued calls on error
+      githubCache.queue.forEach(({ reject }) => reject(err));
+      githubCache.queue = [];
+      githubCache.fetching = false;
+      throw err;
+    } finally {
+      githubCache.fetching = false;
+    }
+  }
+
+  async function fetchGitLabData() {
+    const cacheKey = `${gitlabUsername}-${startingDate}-${endingDate}`;
+
+    if (gitlabCache.fetching || (gitlabCache.cacheKey === cacheKey && gitlabCache.data)) {
+      log('GitLab fetch already in progress or data already fetched. Skipping fetch.');
+      return;
+    }
+
+    log('Fetching GitLab data:', {
+      username: gitlabUsername,
+      startDate: startingDate,
+      endDate: endingDate,
+    });
+
+    log('GitLab CacheKey in cache:', gitlabCache.cacheKey);
+    log('Incoming GitLab cacheKey:', cacheKey);
+    log('Has GitLab data:', !!gitlabCache.data);
+
+    // Check if we need to load from storage
+    if (!gitlabCache.data && !gitlabCache.fetching) {
+      await loadFromStorage();
+    };
+
+    const currentTTL = await getCacheTTL();
+    gitlabCache.ttl = currentTTL;
+    log(`GitLab caching for ${currentTTL / (60 * 1000)} minutes`);
+
+    const now = Date.now();
+    const isCacheFresh = (now - gitlabCache.timestamp) < gitlabCache.ttl;
+    const isCacheKeyMatch = gitlabCache.cacheKey === cacheKey;
+
+    if (gitlabCache.data && isCacheFresh && isCacheKeyMatch) {
+      log('Using cached GitLab data - cache is fresh and key matches');
+      processGitLabData(gitlabCache.data);
+      return Promise.resolve();
+    }
+    // if cache key does not match our cache is stale, fetch new data
+    if (!isCacheKeyMatch) {
+      log('GitLab cache key mismatch - fetching new Data');
+      gitlabCache.data = null;
+    } else if (!isCacheFresh) {
+      log('GitLab cache is stale - fetching new data');
+    }
+
+    // if fetching is in progress, queue the calls and return a promise resolved when done
+    if (gitlabCache.fetching) {
+      log('GitLab fetch in progress, queuing requests');
+      return new Promise((resolve, reject) => {
+        gitlabCache.queue.push({ resolve, reject });
+      });
+    }
+
+    gitlabCache.fetching = true;
+    gitlabCache.cacheKey = cacheKey;
+
+    try {
+      // Use the GitLabHelper class to fetch data
+      const gitlabHelper = new GitLabHelper();
+      const gitlabData = await gitlabHelper.fetchGitLabData(gitlabUsername, startingDate, endingDate);
+
+      // Cache the data
+      gitlabCache.data = gitlabData;
+      gitlabCache.timestamp = Date.now();
+
+      await saveGitLabToStorage(gitlabCache.data);
+      processGitLabData(gitlabCache.data);
+
+      // Resolve queued calls
+      gitlabCache.queue.forEach(({ resolve }) => resolve());
+      gitlabCache.queue = [];
+    } catch (err) {
+      logError('GitLab Fetch Failed:', err);
+      // Reject queued calls on error
+      gitlabCache.queue.forEach(({ reject }) => reject(err));
+      gitlabCache.queue = [];
+      gitlabCache.fetching = false;
+      throw err;
+    } finally {
+      gitlabCache.fetching = false;
+    }
+  }
+
+  async function verifyCacheStatus() {
+    log('Cache Status: ', {
+      hasCachedData: !!githubCache.data,
+      cacheAge: githubCache.timestamp ? `${((Date.now() - githubCache.timestamp) / 1000 / 60).toFixed(1)} minutes` : `no cache`,
+      cacheKey: githubCache.cacheKey,
+      isFetching: githubCache.fetching,
+      queueLength: githubCache.queue.length
+    });
+    const storageData = await new Promise(resolve => {
+      chrome.storage.local.get('githubCache', resolve);
+    });
+    log('Storage Status:', {
+      hasStoredData: !!storageData.githubCache,
+      storedCacheKey: storageData.githubCache?.cacheKey,
+      storageAge: storageData.githubCache?.timestamp ?
+        `${((Date.now() - storageData.githubCache.timestamp) / 1000 / 60).toFixed(1)} minutes` :
+        'no data'
+    });
+  }
+  verifyCacheStatus();
+
+  function processGithubData(data) {
+    log('Processing Github data');
+    githubIssuesData = data.githubIssuesData;
+    githubPrsReviewData = data.githubPrsReviewData;
+    githubUserData = data.githubUserData;
+
+    log('GitHub data set:', {
+      issues: githubIssuesData?.items?.length || 0,
+      prs: githubPrsReviewData?.items?.length || 0,
+      user: githubUserData?.login
+    });
+
+    lastWeekArray = [];
+    nextWeekArray = [];
+    reviewedPrsArray = [];
+    githubPrsReviewDataProcessed = {};
+
+    // Update subject
+    if (!githubCache.subject && scrumSubject) {
+      scrumSubjectLoaded();
+    }
+  }
+
+  function processGitLabData(data) {
+    log('Processing GitLab data');
+    gitlabIssuesData = data.issues;
+    gitlabMergeRequestsData = data.mergeRequests;
+    gitlabCommentsData = data.comments;
+    gitlabUserData = data.user;
+    gitlabProjects = data.projects || [];
+
+    log('GitLab data set:', {
+      issues: gitlabIssuesData?.length || 0,
+      mergeRequests: gitlabMergeRequestsData?.length || 0,
+      comments: gitlabCommentsData?.length || 0,
+      user: gitlabUserData?.username
+    });
+
+    lastWeekArray = [];
+    nextWeekArray = [];
+    reviewedPrsArray = [];
+    gitlabPrsReviewDataProcessed = {};
+
+    // Update subject
+    if (!gitlabCache.subject && scrumSubject) {
+      scrumSubjectLoaded();
+    }
+  }
+
+  function formatDate(dateString) {
+    const date = new Date(dateString);
+    const options = { day: '2-digit', month: 'short', year: 'numeric' };
+    return date.toLocaleDateString('en-US', options);
+  }
+
+  //load initial text in scrum body
+  function writeScrumBody() {
+    if (!enableToggle || (outputTarget === 'email' && hasInjectedContent)) return;
+
+    if (outputTarget === 'email') {
+      if (!window.emailClientAdapter) {
+        console.error('Email client adapter not found');
+        return;
+      }
+      if (!window.emailClientAdapter.isNewConversation()) {
+        console.log('Not a new conversation, skipping scrum helper');
+        return;
+      }
+    }
+
+    setTimeout(() => {
+      // Generate content first
+      let lastWeekUl = '<ul>';
+      let i;
+      for (i = 0; i < lastWeekArray.length; i++) lastWeekUl += lastWeekArray[i];
+      for (i = 0; i < reviewedPrsArray.length; i++) lastWeekUl += reviewedPrsArray[i];
+      lastWeekUl += '</ul>';
+
+      let nextWeekUl = '<ul>';
+      for (i = 0; i < nextWeekArray.length; i++) nextWeekUl += nextWeekArray[i];
+      nextWeekUl += '</ul>';
+
+      let weekOrDay = lastWeekContribution ? 'last week' : (yesterdayContribution ? 'yesterday' : 'the period');
+      let weekOrDay2 = lastWeekContribution ? 'this week' : 'today';
+
+      // Create the complete content
+      let content;
+      if (lastWeekContribution == true || yesterdayContribution == true) {
+        content = `<b>1. What did I do ${weekOrDay}?</b><br>
 ${lastWeekUl}<br>
 <b>2. What do I plan to do ${weekOrDay2}?</b><br>
 ${nextWeekUl}<br>
 <b>3. What is blocking me from making progress?</b><br>
 ${userReason}`;
-			} else {
-				content = `<b>1. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?</b><br>
+      } else {
+        content = `<b>1. What did I do during the period?</b><br>
 ${lastWeekUl}<br>
-<b>2. What do I plan to do ${weekOrDay2}?</b><br>
+<b>2. What do I plan to do next?</b><br>
 ${nextWeekUl}<br>
 <b>3. What is blocking me from making progress?</b><br>
 ${userReason}`;
-			}
+      }
 
-			if (outputTarget === 'popup') {
-				const scrumReport = document.getElementById('scrumReport');
-				if (scrumReport) {
-					console.log("found div, updating content");
-					scrumReport.innerHTML = content;
+      if (outputTarget === 'popup') {
+        const scrumReport = document.getElementById('scrumReport');
+        if (scrumReport) {
+          scrumReport.innerHTML = content;
+        }
+        const generateBtn = document.getElementById('generateReport');
+        if (generateBtn) {
+          generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+          generateBtn.disabled = false;
+        }
+      } else if (outputTarget === 'email' && scrumBody) {
+        scrumBody.innerHTML = content;
+        hasInjectedContent = true;
+      }
+    }, 100);
+  }
 
-					// Reset generate button
-					const generateBtn = document.getElementById('generateReport');
-					if (generateBtn) {
-						generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
-						generateBtn.disabled = false;
-					}
-				}
-			} else {
+  function scrumSubjectLoaded() {
+    try {
+      if (!enableToggle || hasInjectedContent) return;
+      if (!scrumSubject) {
+        console.error('Subject element not found');
+        return;
+      }
+      setTimeout(() => {
+        const selectedPlatform = chrome.storage.local.get(['selectedPlatform'], (result) => {
+          const platform = result.selectedPlatform || 'github';
+          let name, userData;
 
-				const elements = window.emailClientAdapter.getEditorElements();
-				if (!elements || !elements.body) {
-					console.error('Email client editor not found');
-					return;
-				}
-				window.emailClientAdapter.injectContent(elements.body, content, elements.eventTypes.contentChange);
-			}
-		});
-	}
+          if (platform === 'github') {
+            name = githubUserData?.name || githubUsername;
+            userData = githubUserData;
+          } else {
+            name = gitlabUserData?.name || gitlabUsername;
+            userData = gitlabUserData;
+          }
 
-	function getProject() {
-		if (projectName != '') return projectName;
+          let project = projectName || '<project name>';
+          let curDate = new Date();
+          let year = curDate.getFullYear().toString();
+          let date = curDate.getDate();
+          let month = curDate.getMonth();
+          month++;
+          if (month < 10) month = '0' + month;
+          if (date < 10) date = '0' + date;
+          let dateCode = year.toString() + month.toString() + date.toString();
 
-		var project = '<project name>';
-		var url = window.location.href;
-		var projectUrl = url.substr(url.lastIndexOf('/') + 1);
-		if (projectUrl === 'susiai') project = 'SUSI.AI';
-		else if (projectUrl === 'open-event') project = 'Open Event';
-		return project;
-	}
+          const subject = `[Scrum] ${name} - ${project} - ${dateCode} - False`;
+          log('Generated subject:', subject);
 
-	function scrumSubjectLoaded() {
-		try {
+          if (platform === 'github') {
+            githubCache.subject = subject;
+            saveToStorage(githubCache.data, subject);
+          } else {
+            gitlabCache.subject = subject;
+            saveGitLabToStorage(gitlabCache.data, subject);
+          }
 
+          if (scrumSubject && scrumSubject.value !== subject) {
+            scrumSubject.value = subject;
+            scrumSubject.dispatchEvent(new Event('input', { bubbles: true }));
+          }
+        });
+      });
+    } catch (err) {
+      console.err('Error while setting subject: ', err);
+    }
+  }
 
-			if (!enableToggle) return;
-			if (!scrumSubject) {
-				console.error('Subject element not found');
-				return;
-			}
-			setTimeout(() => {
-				var name = githubUserData.name || githubUsername;
-				var project = getProject();
-				var curDate = new Date();
-				var year = curDate.getFullYear().toString();
-				var date = curDate.getDate();
-				var month = curDate.getMonth();
-				month++;
-				if (month < 10) month = '0' + month;
-				if (date < 10) date = '0' + date;
-				var dateCode = year.toString() + month.toString() + date.toString();
-				scrumSubject.value = '[Scrum] ' + name + ' - ' + project + ' - ' + dateCode + ' - False';
-				scrumSubject.dispatchEvent(new Event('input', { bubbles: true }));
-			});
-		} catch (err) {
-			console.err('Error while setting subject: ', err);
-		}
-	}
+  function writeGithubPrsReviews() {
+    let items = githubPrsReviewData.items;
+    log('Processing PR reviews:', {
+      hasItems: !!items,
+      count: items?.length || 0
+    });
 
-	function writeGithubPrsReviews() {
-		var items = githubPrsReviewData.items;
+    if (!items || items.length === 0) {
+      log('No PR reviews found');
+      return;
+    }
 
-		reviewedPrsArray = [];
-		githubPrsReviewDataProcessed = {};
+    for (let i = 0; i < items.length; i++) {
+      let item = items[i];
+      let html_url = item.html_url;
+      let repository_url = item.repository_url;
+      let project = repository_url.substr(repository_url.lastIndexOf('/') + 1);
+      let title = item.title;
+      let number = item.number;
+      let li = '';
 
-		for (var i = 0; i < items.length; i++) {
-			var item = items[i];
-			console.log(`Review item ${i + 1}/${items.length}:`, {
-				number: item.number,
-				author: item.user.login,
-				type: item.pull_request ? "PR" : "Issue",
-				state: item.state,
-				title: item.title
-			});
+      if (item.pull_request) {
+        if (item.state === 'closed') {
+          li = `<li><i>(${project})</i> - Reviewed PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_merged_button}</li>`;
+        } else if (item.state === 'open') {
+          li = `<li><i>(${project})</i> - Reviewed PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_unmerged_button}</li>`;
+        }
+      }
+      reviewedPrsArray.push(li);
+    }
+    writeScrumBody();
+  }
 
-			if (item.user.login === githubUsername) {
-				continue;
-			}
+  function writeGithubIssuesPrs() {
+    let items = githubIssuesData.items;
+    lastWeekArray = [];
+    nextWeekArray = [];
+    if (!items) {
+      logError('No Github issues data available');
+      return;
+    }
+    for (let i = 0; i < items.length; i++) {
+      let item = items[i];
+      let html_url = item.html_url;
+      let repository_url = item.repository_url;
+      let project = repository_url.substr(repository_url.lastIndexOf('/') + 1);
+      let title = item.title;
+      let number = item.number;
+      let li = '';
 
-			var repository_url = item.repository_url;
-			var project = repository_url.substr(repository_url.lastIndexOf('/') + 1);
-			var title = item.title;
-			var number = item.number;
-			var html_url = item.html_url;
+      if (item.pull_request) {
+        if (item.state === 'closed') {
+          li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_merged_button}</li>`;
+        } else if (item.state === 'open') {
+          li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_unmerged_button}</li>`;
+        }
+      } else {
+        // is a issue
+        if (item.state === 'open' && item.body?.toUpperCase().indexOf('YES') > 0) {
+          //probably the author wants to work on this issue!
+          let li2 =
+            '<li><i>(' +
+            project +
+            ')</i> - Work on Issue(#' +
+            number +
+            ") - <a href='" +
+            html_url +
+            "' target='_blank'>" +
+            title +
+            '</a> ' +
+            issue_opened_button +
+            '&nbsp;&nbsp;</li>';
+          nextWeekArray.push(li2);
+        }
+        if (item.state === 'open') {
+          li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_opened_button}</li>`;
+        } else if (item.state === 'closed') {
+          li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_button}</li>`;
+        } else {
+          li =
+            '<li><i>(' +
+            project +
+            ')</i> - Opened Issue(#' +
+            number +
+            ") - <a href='" +
+            html_url +
+            "' target='_blank'>" +
+            title +
+            '</a> </li>';
+        }
+      }
+      lastWeekArray.push(li);
+    }
+    writeScrumBody();
+  }
 
-			if (!githubPrsReviewDataProcessed[project]) {
-				githubPrsReviewDataProcessed[project] = [];
-			}
+  function writeGitLabMergeRequests() {
+    let mergeRequests = gitlabMergeRequestsData;
+    log('Processing GitLab merge requests:', {
+      hasItems: !!mergeRequests,
+      count: mergeRequests?.length || 0
+    });
 
-			var obj = {
-				number: number,
-				html_url: html_url,
-				title: title,
-				state: item.state,
-			};
-			githubPrsReviewDataProcessed[project].push(obj);
-		}
+    if (!mergeRequests || mergeRequests.length === 0) {
+      log('No GitLab merge requests found');
+      return;
+    }
 
-		for (var repo in githubPrsReviewDataProcessed) {
-			var repoLi = '<li><i>(' + repo + ')</i> - Reviewed ';
-			if (githubPrsReviewDataProcessed[repo].length > 1) {
-				repoLi += 'PRs - ';
-			} else {
-				repoLi += 'PR - ';
-			}
-			if (githubPrsReviewDataProcessed[repo].length <= 1) {
-				for (var pr in githubPrsReviewDataProcessed[repo]) {
-					var pr_arr = githubPrsReviewDataProcessed[repo][pr];
-					var prText = '';
-					prText += `<a href='${pr_arr.html_url}' target='_blank'>#${pr_arr.number}</a> (${pr_arr.title}) `;
-					if (pr_arr.state === 'open') {
-						prText += issue_opened_button;
-					} else {
-						prText += issue_closed_button;
-					}
-					prText += '&nbsp;&nbsp;';
-					repoLi += prText;
-				}
-			} else {
-				repoLi += '<ul>';
-				for (var pr1 in githubPrsReviewDataProcessed[repo]) {
-					var pr_arr1 = githubPrsReviewDataProcessed[repo][pr1];
-					var prText1 = '';
-					prText1 += `<li><a href='${pr_arr1.html_url}' target='_blank'>#${pr_arr1.number}</a> (${pr_arr1.title}) `;
-					if (pr_arr1.state === 'open') {
-						prText1 += issue_opened_button;
-					} else {
-						prText1 += issue_closed_button;
-					}
-					prText1 += '&nbsp;&nbsp;</li>';
-					repoLi += prText1;
-				}
-				repoLi += '</ul>';
-			}
-			repoLi += '</li>';
-			reviewedPrsArray.push(repoLi);
-		}
+    for (let i = 0; i < mergeRequests.length; i++) {
+      let mr = mergeRequests[i];
+      let project = getGitLabProjectName(mr.project_id);
+      let title = mr.title || 'Untitled MR';
+      let number = mr.iid || mr.id || '';
+      let mrUrl = mr.web_url || '#';
+      let mrState = mr.state || 'unknown';
+      let li = '';
+      if (mr.author && gitlabUsername && mr.author.username === gitlabUsername) {
+        // User created this MR
+        if (mrState === 'merged') {
+          li = `<li data-gitlab-project-id='${mr.project_id}'><i>(${project})</i> - Made MR (#${number}) - <a href='${mrUrl}' target='_blank'>${title}</a> ${pr_merged_button}</li>`;
+        } else if (mrState === 'opened') {
+          li = `<li data-gitlab-project-id='${mr.project_id}'><i>(${project})</i> - Made MR (#${number}) - <a href='${mrUrl}' target='_blank'>${title}</a> ${pr_unmerged_button}</li>`;
+        }
+        lastWeekArray.push(li);
+      } else {
+        // User reviewed this MR
+        if (mrState === 'merged') {
+          li = `<li data-gitlab-project-id='${mr.project_id}'><i>(${project})</i> - Reviewed MR (#${number}) - <a href='${mrUrl}' target='_blank'>${title}</a> ${pr_merged_button}</li>`;
+        } else if (mrState === 'opened') {
+          li = `<li data-gitlab-project-id='${mr.project_id}'><i>(${project})</i> - Reviewed MR (#${number}) - <a href='${mrUrl}' target='_blank'>${title}</a> ${pr_unmerged_button}</li>`;
+        }
+        reviewedPrsArray.push(li);
+      }
+    }
+    writeScrumBody();
+  }
 
-		writeScrumBody();
-	}
-	function writeGithubIssuesPrs() {
-		var data = githubIssuesData;
-		var items = data.items;
+  function writeGitLabIssues() {
+    let issues = gitlabIssuesData;
+    log('Processing GitLab issues:', {
+      hasItems: !!issues,
+      count: issues?.length || 0
+    });
 
-		lastWeekArray = [];
-		nextWeekArray = [];
+    if (!issues || issues.length === 0) {
+      log('No GitLab issues found');
+      return;
+    }
 
-		for (var i = 0; i < items.length; i++) {
-			var item = items[i];
-			var html_url = item.html_url;
-			var repository_url = item.repository_url;
-			var project = repository_url.substr(repository_url.lastIndexOf('/') + 1);
-			var title = item.title;
-			var number = item.number;
-			var li = '';
+    for (let i = 0; i < issues.length; i++) {
+      let issue = issues[i];
+      let project = getGitLabProjectName(issue.project_id);
+      let title = issue.title || 'Untitled Issue';
+      let number = issue.iid || issue.id || '';
+      let issueUrl = issue.web_url || '#';
+      let issueState = issue.state || 'unknown';
+      let li = '';
+      if (issueState === 'opened') {
+        li = `<li data-gitlab-project-id='${issue.project_id}'><i>(${project})</i> - Opened Issue(#${number}) - <a href='${issueUrl}' target='_blank'>${title}</a> ${issue_opened_button}</li>`;
+      } else if (issueState === 'closed') {
+        li = `<li data-gitlab-project-id='${issue.project_id}'><i>(${project})</i> - Opened Issue(#${number}) - <a href='${issueUrl}' target='_blank'>${title}</a> ${issue_closed_button}</li>`;
+      } else {
+        li = `<li data-gitlab-project-id='${issue.project_id}'><i>(${project})</i> - Opened Issue(#${number}) - <a href='${issueUrl}' target='_blank'>${title}</a></li>`;
+      }
+      lastWeekArray.push(li);
+    }
+    writeScrumBody();
+  }
 
-			if (item.pull_request) {
-				if (item.state === 'closed') {
-					li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_merged_button}</li>`;
-				} else if (item.state === 'open') {
-					li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_unmerged_button}</li>`;
-				}
-			} else {
-				if (item.state === 'open' && item.body && item.body.toUpperCase().indexOf('YES') > 0) {
-					var li2 = `<li><i>(${project})</i> - Work on Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_opened_button}</li>`;
-					nextWeekArray.push(li2);
-				}
-				if (item.state === 'open') {
-					li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_opened_button}</li>`;
-				} else if (item.state === 'closed') {
-					li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_button}</li>`;
-				}
-			}
-			if (li) {
-				lastWeekArray.push(li);
-			} else {
-			}
-		}
-		writeScrumBody();
-	}
-	var intervalBody = setInterval(() => {
-		if (!window.emailClientAdapter) return;
+  function writeGitLabComments() {
+    // Comments are not being fetched for GitLab, so this function is empty
+    // This prevents errors when the interval tries to call this function
+    return;
+  }
 
-		const elements = window.emailClientAdapter.getEditorElements();
-		if (!elements || !elements.body) return;
+  let intervalBody = setInterval(() => {
+    if (!window.emailClientAdapter) return;
 
-		clearInterval(intervalBody);
-		scrumBody = elements.body;
-		writeScrumBody();
-	}, 500);
+    const elements = window.emailClientAdapter.getEditorElements();
+    if (!elements || !elements.body) return;
 
-	var intervalSubject = setInterval(() => {
-		if (!githubUserData || !window.emailClientAdapter) return;
+    clearInterval(intervalBody);
+    scrumBody = elements.body;
+    writeScrumBody();
+  }, 500);
 
-		const elements = window.emailClientAdapter.getEditorElements();
-		if (!elements || !elements.subject) return;
+  let intervalSubject = setInterval(() => {
+    const selectedPlatform = chrome.storage.local.get(['selectedPlatform'], (result) => {
+      const platform = result.selectedPlatform || 'github';
+      let userData;
 
-		if (outputTarget === 'email' && !window.emailClientAdapter.isNewConversation()) {
-			console.log('Not a new conversation, skipping subject interval');
-			clearInterval(intervalSubject);
-			return;
-		}
+      if (platform === 'github') {
+        userData = githubUserData;
+      } else {
+        userData = gitlabUserData;
+      }
 
-		clearInterval(intervalSubject);
-		scrumSubject = elements.subject;
+      if (!userData || !window.emailClientAdapter) return;
 
-		setTimeout(() => {
-			scrumSubjectLoaded();
-		}, 500);
-	}, 500);
+      const elements = window.emailClientAdapter.getEditorElements();
+      if (!elements || !elements.subject) return;
 
-	//check for github safe writing for both issues/prs and pr reviews
-	var intervalWriteGithub = setInterval(() => {
-		if (scrumBody && githubUsername && githubIssuesData && githubPrsReviewData) {
-			clearInterval(intervalWriteGithub);
-			writeGithubIssuesPrs();
-			writeGithubPrsReviews();
-		}
-	}, 500);
+      if (outputTarget === 'email' && !window.emailClientAdapter.isNewConversation()) {
+        console.log('Not a new conversation, skipping subject interval');
+        clearInterval(intervalSubject);
+        return;
+      }
 
-	// Helper functions for ISO date range
-	function getStartOfDayISO(dateString) {
-		return dateString + 'T00:00:00Z';
-	}
-	function getEndOfDayISO(dateString) {
-		return dateString + 'T23:59:59Z';
-	}
+      clearInterval(intervalSubject);
+      scrumSubject = elements.subject;
 
-	function fetchGitlabData() {
-		// First get user's activities directly
-		var issuesUrl = `https://gitlab.com/api/v4/issues?author_username=${gitlabUsername}&created_after=${getStartOfDayISO(startingDate)}&created_before=${getEndOfDayISO(endingDate)}&per_page=100&scope=all`;
-		console.log('[GitLab] Fetching all issues:', issuesUrl);
+      setTimeout(() => {
+        scrumSubjectLoaded();
+      }, 500);
+    });
+  }, 500);
 
-		// Fetch all issues created by the user
-		$.ajax({
-			dataType: 'json',
-			type: 'GET',
-			url: issuesUrl,
-			error: (xhr, textStatus, errorThrown) => {
-				console.error('Error fetching GitLab issues:', {
-					status: xhr.status,
-					textStatus: textStatus,
-					error: errorThrown
-				});
-				Materialize.toast('Error fetching GitLab issues. Please check your username.', 3000);
-			},
-			success: (issues) => {
-				console.log('[GitLab] Issues fetched:', issues);
-				gitlabIssuesData = issues;
-				writeGitlabIssuesPrs();
-			}
-		});
+  //check for github safe writing
+  let intervalWriteGithubIssues = setInterval(() => {
+    if (outputTarget === 'popup') {
+      if (githubUsername && githubIssuesData) {
+        clearInterval(intervalWriteGithubIssues);
+        writeGithubIssuesPrs();
+      }
+    } else {
+      if (scrumBody && githubUsername && githubIssuesData) {
+        clearInterval(intervalWriteGithubIssues);
+        writeGithubIssuesPrs();
+      }
+    }
+  }, 500);
+  let intervalWriteGithubPrs = setInterval(() => {
+    if (outputTarget === 'popup') {
+      if (githubUsername && githubPrsReviewData) {
+        clearInterval(intervalWriteGithubPrs);
+        writeGithubPrsReviews();
+      }
+    } else {
+      if (scrumBody && githubUsername && githubPrsReviewData) {
+        clearInterval(intervalWriteGithubPrs);
+        writeGithubPrsReviews();
+      }
+    }
+  }, 500);
 
-		// Fetch all merge requests created by the user
-		var mrsUrl = `https://gitlab.com/api/v4/merge_requests?author_username=${gitlabUsername}&created_after=${getStartOfDayISO(startingDate)}&created_before=${getEndOfDayISO(endingDate)}&per_page=100&scope=all`;
-		console.log('[GitLab] Fetching all MRs:', mrsUrl);
+  //check for gitlab safe writing
+  let intervalWriteGitLabIssues = setInterval(() => {
+    if (outputTarget === 'popup') {
+      if (gitlabUsername && gitlabIssuesData) {
+        clearInterval(intervalWriteGitLabIssues);
+        writeGitLabIssues();
+      }
+    } else {
+      if (scrumBody && gitlabUsername && gitlabIssuesData) {
+        clearInterval(intervalWriteGitLabIssues);
+        writeGitLabIssues();
+      }
+    }
+  }, 500);
 
-		$.ajax({
-			dataType: 'json',
-			type: 'GET',
-			url: mrsUrl,
-			error: (xhr, textStatus, errorThrown) => {
-				console.error('Error fetching GitLab MRs:', {
-					status: xhr.status,
-					textStatus: textStatus,
-					error: errorThrown
-				});
-				Materialize.toast('Error fetching GitLab merge requests.', 3000);
-			},
-			success: (mrs) => {
-				console.log('[GitLab] MRs fetched:', mrs);
-				gitlabPrsReviewData = mrs;
-				writeGitlabPrsReviews();
-			}
-		});
+  let intervalWriteGitLabMergeRequests = setInterval(() => {
+    if (outputTarget === 'popup') {
+      if (gitlabUsername && gitlabMergeRequestsData) {
+        clearInterval(intervalWriteGitLabMergeRequests);
+        writeGitLabMergeRequests();
+      }
+    } else {
+      if (scrumBody && gitlabUsername && gitlabMergeRequestsData) {
+        clearInterval(intervalWriteGitLabMergeRequests);
+        writeGitLabMergeRequests();
+      }
+    }
+  }, 500);
 
-		// Fetch GitLab user data
-		var userUrl = `https://gitlab.com/api/v4/users?username=${gitlabUsername}`;
-		console.log('[GitLab] Fetching user data:', userUrl);
-		$.ajax({
-			dataType: 'json',
-			type: 'GET',
-			url: userUrl,
-			error: (xhr, textStatus, errorThrown) => {
-				console.error('Error fetching GitLab user data:', {
-					status: xhr.status,
-					textStatus: textStatus,
-					error: errorThrown
-				});
-			},
-			success: (data) => {
-				if (data && data.length > 0) {
-					gitlabUserData = data[0];
-					console.log('[GitLab] User data:', gitlabUserData);
-				}
-			},
-		});
-	}
+  let intervalWriteGitLabComments = setInterval(() => {
+    // Comments are not being fetched for GitLab, so this interval is disabled
+    clearInterval(intervalWriteGitLabComments);
+  }, 500);
 
-	function getProjectName(item) {
-		// Get the project name from the full path
-		if (item.references?.full) {
-			return item.references.full.split('/').pop();
-		}
-		if (item.project?.path_with_namespace) {
-			return item.project.path_with_namespace.split('/').pop();
-		}
-		if (item.project?.name) {
-			return item.project.name;
-		}
-		return 'Unknown Project';
-	}
+  if (!refreshButton_Placed) {
+    let intervalWriteButton = setInterval(() => {
+      if (document.getElementsByClassName('F0XO1GC-x-b').length == 3 && scrumBody && enableToggle) {
+        refreshButton_Placed = true;
+        clearInterval(intervalWriteButton);
+        let td = document.createElement('td');
+        let button = document.createElement('button');
+        button.style = 'background-image:none;background-color:#3F51B5;';
+        button.setAttribute('class', 'F0XO1GC-n-a F0XO1GC-G-a');
+        button.title = 'Rewrite your SCRUM using updated settings!';
+        button.id = 'refreshButton';
+        let elemText = document.createTextNode('↻ Rewrite SCRUM!');
+        button.appendChild(elemText);
+        td.appendChild(button);
+        document.getElementsByClassName('F0XO1GC-x-b')[0].children[0].children[0].appendChild(td);
+        document.getElementById('refreshButton').addEventListener('click', handleRefresh);
+      }
+    }, 1000);
+  }
+  function handleRefresh() {
+    hasInjectedContent = false; // Reset the flag before refresh
+    allIncluded();
+  }
 
-	function writeGitlabIssuesPrs() {
-		if (!gitlabIssuesData) return;
-
-		lastWeekArray = [];
-		nextWeekArray = [];
-
-		for (var i = 0; i < gitlabIssuesData.length; i++) {
-			var item = gitlabIssuesData[i];
-			var web_url = item.web_url;
-			var project = getProjectName(item);
-			var title = item.title;
-			var iid = item.iid;
-			var li = '';
-
-			if (item.state === 'closed') {
-				li = `<li><i>(${project})</i> - Opened Issue(#${iid}) - <a href='${web_url}'>${title}</a> ${issue_closed_button}</li>`;
-			} else if (item.state === 'opened') {
-				li = `<li><i>(${project})</i> - Opened Issue(#${iid}) - <a href='${web_url}'>${title}</a> ${issue_opened_button}</li>`;
-			}
-
-			if (li) {
-				lastWeekArray.push(li);
-			}
-		}
-		console.log('[GitLab] Scrum lastWeekArray (issues):', lastWeekArray);
-		writeScrumBody();
-	}
-
-	function writeGitlabPrsReviews() {
-		if (!gitlabPrsReviewData) return;
-
-		reviewedPrsArray = [];
-		gitlabPrsReviewDataProcessed = {};
-
-		for (var i = 0; i < gitlabPrsReviewData.length; i++) {
-			var item = gitlabPrsReviewData[i];
-			var web_url = item.web_url;
-			var project = getProjectName(item);
-			var title = item.title;
-			var iid = item.iid;
-
-			if (!gitlabPrsReviewDataProcessed[project]) {
-				gitlabPrsReviewDataProcessed[project] = [];
-			}
-
-			var obj = {
-				number: iid,
-				html_url: web_url,
-				title: title,
-				state: item.state
-			};
-			gitlabPrsReviewDataProcessed[project].push(obj);
-		}
-
-		for (var repo in gitlabPrsReviewDataProcessed) {
-			var repoLi = '<li><i>(' + repo + ')</i> - Created ';
-			if (gitlabPrsReviewDataProcessed[repo].length > 1) {
-				repoLi += 'MRs - ';
-			} else {
-				repoLi += 'MR - ';
-			}
-			if (gitlabPrsReviewDataProcessed[repo].length <= 1) {
-				for (var pr in gitlabPrsReviewDataProcessed[repo]) {
-					var pr_arr = gitlabPrsReviewDataProcessed[repo][pr];
-					var prText = '';
-					prText += `<a href='${pr_arr.html_url}' target='_blank'>#${pr_arr.number}</a> (${pr_arr.title}) `;
-					if (pr_arr.state === 'opened') {
-						prText += issue_opened_button;
-					} else {
-						prText += issue_closed_button;
-					}
-					prText += '&nbsp;&nbsp;';
-					repoLi += prText;
-				}
-			} else {
-				repoLi += '<ul>';
-				for (var pr1 in gitlabPrsReviewDataProcessed[repo]) {
-					var pr_arr1 = gitlabPrsReviewDataProcessed[repo][pr1];
-					var prText1 = '';
-					prText1 += `<li><a href='${pr_arr1.html_url}' target='_blank'>#${pr_arr1.number}</a> (${pr_arr1.title}) `;
-					if (pr_arr1.state === 'opened') {
-						prText1 += issue_opened_button;
-					} else {
-						prText1 += issue_closed_button;
-					}
-					prText1 += '&nbsp;&nbsp;</li>';
-					repoLi += prText1;
-				}
-				repoLi += '</ul>';
-			}
-			repoLi += '</li>';
-			reviewedPrsArray.push(repoLi);
-		}
-		console.log('[GitLab] Scrum reviewedPrsArray (MRs):', reviewedPrsArray);
-		writeScrumBody();
-	}
+  function getGitLabProjectName(projectId) {
+    if (!projectId) return 'Unknown Project';
+    if (!gitlabProjects || !Array.isArray(gitlabProjects)) gitlabProjects = [];
+    // 1. Try local projects array
+    const project = gitlabProjects.find(p => p.id === projectId);
+    if (project) return project.name;
+    // 2. Try cache
+    if (gitlabProjectNameCache[projectId]) return gitlabProjectNameCache[projectId];
+    // 3. Fetch from GitLab API and cache
+    const apiUrl = `https://gitlab.com/api/v4/projects/${projectId}`;
+    fetch(apiUrl)
+      .then(res => res.ok ? res.json() : null)
+      .then(data => {
+        if (data && data.name) {
+          gitlabProjectNameCache[projectId] = data.name;
+          // Update all displayed project names in the DOM if needed
+          document.querySelectorAll(`li[data-gitlab-project-id='${projectId}'] i`).forEach(el => {
+            el.textContent = `(${data.name})`;
+          });
+        }
+      });
+    return 'Loading...';
+  }
 }
+
+// Only call allIncluded for email contexts, not popup contexts
 allIncluded('email');
+
 $('button>span:contains(New conversation)').parent('button').click(() => {
-	allIncluded();
+  allIncluded();
 });
 
 window.generateScrumReport = function () {
-	allIncluded('popup');
-};
+  allIncluded('popup');
+}
+
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === 'forceRefresh') {
+    forceGithubDataRefresh()
+      .then(result => sendResponse(result)).catch(err => {
+        console.error('Force refresh failed:', err);
+        sendResponse({ success: false, error: err.message });
+      });
+    return true;
+  }
+});
+
+function log(...args) {
+  console.log('[ScrumHelper]', ...args);
+}
+
+function logError(...args) {
+  console.error('[ScrumHelper]', ...args);
+} 

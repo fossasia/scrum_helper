@@ -118,3 +118,224 @@ body,input,div,h3,h4,p,label,hr, #scrumReport{
 .dark-mode a {
 	color: #00b7ff !important;
 }
+#refreshCache {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    border: none;
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+    transition: all 0.2s ease;
+}
+
+#refreshCache:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+    transform: translateY(-1px);
+}
+
+#refreshCache:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+}
+
+#refreshCache i {
+    animation: spin 0s linear infinite;
+}
+
+#refreshCache.loading i {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+/* Disabled state styling */
+.disabled-content {
+    opacity: 0.5 !important;
+    pointer-events: none !important;
+    user-select: none !important;
+}
+
+.disabled-content input,
+.disabled-content button,
+.disabled-content [contenteditable] {
+    cursor: not-allowed !important;
+}
+
+/* Dark mode disabled state */
+.dark-mode .disabled-content {
+    opacity: 0.4 !important;
+}
+.cache-info {
+    font-size: 11px;
+    color: #6b7280;
+    text-align: center;
+    margin-top: 8px;
+    line-height: 1.3;
+}
+
+.cache-info i {
+    margin-right: 4px;
+    font-size: 10px;
+}
+
+/* Dark mode for cache info */
+.dark-mode .cache-info {
+    color: #9ca3af;
+}
+#cacheInput {
+    transition: border-color 0.2s ease;
+}
+
+#cacheInput:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Update the settings button styles: */
+#settingsToggle {
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+    background: none !important; 
+}
+
+#settingsToggle:hover {
+    transform: scale(1.05);
+    background: none !important;
+}
+
+#settingsToggle:active {
+    transform: scale(0.95);
+}
+
+#settingsToggle img {
+    transition: transform 0.2s ease;
+    filter: brightness(0.9); 
+}
+
+#settingsToggle.active img {
+    transform: rotate(45deg);
+    filter: brightness(1);
+}
+
+.dark-mode #settingsToggle {
+    background: none !important;
+}
+
+.dark-mode #settingsToggle:hover {
+    background: none !important;
+}
+
+.dark-mode #settingsToggle img {
+    filter: brightness(0.9); 
+}
+
+.dark-mode #settingsToggle.active img {
+    filter: brightness(1);
+}
+
+.tooltip-container {
+    position: relative;
+    display: inline-block;
+    margin-left: 4px;
+}
+
+.question-icon {
+    color: #6b7280;
+    font-size: 14px;
+    cursor: help;
+    transition: color 0.2s ease;
+}
+
+.question-icon:hover {
+    color: #3b82f6;
+}
+
+.tooltip-bubble {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    background-color: #1f2937;
+    color: white;
+    text-align: left;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    line-height: 1.4;
+    white-space: normal;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    z-index: 1000;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    width: 280px;
+}
+
+.tooltip-bubble {
+    bottom: 125%;
+    left: 150%;
+    transform: translateX(-50%);
+}
+
+.tooltip-bubble::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #1f2937 transparent transparent transparent;
+}
+
+.tooltip-container.tooltip-bottom .tooltip-bubble {
+    top: 125%;
+    bottom: auto;
+}
+
+.tooltip-container.tooltip-bottom .tooltip-bubble::after {
+    top: -10px;
+    border-color: transparent transparent #1f2937 transparent;
+}
+
+.tooltip-container.tooltip-right .tooltip-bubble {
+    top: -5px;
+    left: 125%;
+    bottom: auto;
+    transform: none;
+}
+
+.tooltip-container.tooltip-right .tooltip-bubble::after {
+    top: 15px;
+    left: -10px;
+    border-color: transparent #1f2937 transparent transparent;
+}
+
+.tooltip-container:hover .tooltip-bubble {
+    visibility: visible;
+    opacity: 1;
+}
+
+.dark-mode .question-icon {
+    color: #9ca3af;
+}
+
+.dark-mode .question-icon:hover {
+    color: #60a5fa;
+}
+
+.dark-mode .tooltip-bubble {
+    background-color: #374151;
+    border: 1px solid #4b5563;
+}
+
+.dark-mode .tooltip-bubble::after {
+    border-color: #374151 transparent transparent transparent;
+}
+
+.dark-mode .tooltip-container.tooltip-bottom .tooltip-bubble::after {
+    border-color: transparent transparent #374151 transparent;
+}
+
+.dark-mode .tooltip-container.tooltip-right .tooltip-bubble::after {
+    border-color: transparent #374151 transparent transparent;
+}

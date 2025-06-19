@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scrum Helper GitLab Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .test-section {
+      margin: 20px 0;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+    }
+
+    .success {
+      background-color: #d4edda;
+      border-color: #c3e6cb;
+    }
+
+    .error {
+      background-color: #f8d7da;
+      border-color: #f5c6cb;
+    }
+
+    .info {
+      background-color: #d1ecf1;
+      border-color: #bee5eb;
+    }
+
+    button {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 5px;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+
+    pre {
+      background-color: #f8f9fa;
+      padding: 10px;
+      border-radius: 5px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Scrum Helper GitLab Integration Test</h1>
+
+  <div class="test-section info">
+    <h3>Test Instructions</h3>
+    <p>This page tests the GitLab integration for the Scrum Helper extension.</p>
+    <ol>
+      <li>Load the extension in your browser</li>
+      <li>Open the extension popup</li>
+      <li>Select GitLab platform</li>
+      <li>Enter a GitLab username</li>
+      <li>Click "Generate Report"</li>
+    </ol>
+  </div>
+
+  <div class="test-section">
+    <h3>Manual Test</h3>
+    <p>Test the GitLab integration manually:</p>
+    <button onclick="testGitLabAPI()">Test GitLab API Directly</button>
+    <button onclick="testGitLabHelper()">Test GitLab Helper Class</button>
+    <div id="testResults"></div>
+  </div>
+
+  <div class="test-section">
+    <h3>Extension Status</h3>
+    <p>Extension loaded: <span id="extensionStatus">Checking...</span></p>
+    <p>GitLab Helper available: <span id="gitlabHelperStatus">Checking...</span></p>
+  </div>
+
+  <script>
+    // Check if extension is loaded
+    function checkExtension() {
+      const statusElement = document.getElementById('extensionStatus');
+      const gitlabHelperElement = document.getElementById('gitlabHelperStatus');
+
+      if (typeof chrome !== 'undefined' && chrome.runtime) {
+        statusElement.textContent = '✅ Extension API available';
+        statusElement.style.color = 'green';
+      } else {
+        statusElement.textContent = '❌ Extension API not available';
+        statusElement.style.color = 'red';
+      }
+
+      if (typeof GitLabHelper !== 'undefined') {
+        gitlabHelperElement.textContent = '✅ GitLab Helper available';
+        gitlabHelperElement.style.color = 'green';
+      } else {
+        gitlabHelperElement.textContent = '❌ GitLab Helper not available';
+        gitlabHelperElement.style.color = 'red';
+      }
+    }
+
+    // Test GitLab API directly
+    async function testGitLabAPI() {
+      const resultsDiv = document.getElementById('testResults');
+      resultsDiv.innerHTML = '<p>Testing GitLab API...</p>';
+
+      try {
+        // Test with a known GitLab user
+        const response = await fetch('https://gitlab.com/api/v4/users?username=gitlab');
+        const data = await response.json();
+
+        if (response.ok && data.length > 0) {
+          resultsDiv.innerHTML = `
+                        <div class="success">
+                            <h4>✅ GitLab API Test Successful</h4>
+                            <p>Found user: ${data[0].name} (${data[0].username})</p>
+                            <pre>${JSON.stringify(data[0], null, 2)}</pre>
+                        </div>
+                    `;
+        } else {
+          resultsDiv.innerHTML = `
+                        <div class="error">
+                            <h4>❌ GitLab API Test Failed</h4>
+                            <p>Status: ${response.status}</p>
+                            <pre>${JSON.stringify(data, null, 2)}</pre>
+                        </div>
+                    `;
+        }
+      } catch (error) {
+        resultsDiv.innerHTML = `
+                    <div class="error">
+                        <h4>❌ GitLab API Test Error</h4>
+                        <p>Error: ${error.message}</p>
+                    </div>
+                `;
+      }
+    }
+
+    // Test GitLab Helper class
+    async function testGitLabHelper() {
+      const resultsDiv = document.getElementById('testResults');
+      resultsDiv.innerHTML = '<p>Testing GitLab Helper...</p>';
+
+      if (typeof GitLabHelper === 'undefined') {
+        resultsDiv.innerHTML = `
+                    <div class="error">
+                        <h4>❌ GitLab Helper Not Available</h4>
+                        <p>The GitLabHelper class is not loaded. Make sure the extension is properly loaded.</p>
+                    </div>
+                `;
+        return;
+      }
+
+      try {
+        const helper = new GitLabHelper();
+        const startDate = new Date();
+        startDate.setDate(startDate.getDate() - 7);
+        const endDate = new Date();
+
+        const startDateStr = startDate.toISOString().split('T')[0];
+        const endDateStr = endDate.toISOString().split('T')[0];
+
+        resultsDiv.innerHTML = '<p>Fetching GitLab data for user "gitlab"...</p>';
+
+        const data = await helper.fetchGitLabData('gitlab', startDateStr, endDateStr);
+
+        resultsDiv.innerHTML = `
+                    <div class="success">
+                        <h4>✅ GitLab Helper Test Successful</h4>
+                        <p>User: ${data.user?.name || 'Unknown'}</p>
+                        <p>Projects: ${data.projects?.length || 0}</p>
+                        <p>Merge Requests: ${data.mergeRequests?.length || 0}</p>
+                        <p>Issues: ${data.issues?.length || 0}</p>
+                        <p>Comments: ${data.comments?.length || 0}</p>
+                    </div>
+                `;
+      } catch (error) {
+        resultsDiv.innerHTML = `
+                    <div class="error">
+                        <h4>❌ GitLab Helper Test Error</h4>
+                        <p>Error: ${error.message}</p>
+                    </div>
+                `;
+      }
+    }
+
+    // Check extension status on page load
+    window.addEventListener('load', checkExtension);
+  </script>
+</body>
+
+</html>
