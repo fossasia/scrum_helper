@@ -47,6 +47,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const darkModeToggle = document.querySelector('img[alt="Night Mode"]');
     const settingsIcon = document.getElementById('settingsIcon');
     const body = document.body;
+    const githubTokenInput = document.getElementById('githubToken');
+    const toggleTokenBtn = document.getElementById('toggleTokenVisibility');
+    const tokenEyeIcon = document.getElementById('tokenEyeIcon');
+    let tokenVisible = false;
 
     chrome.storage.local.get(['darkMode'], function(result) {
         if(result.darkMode) {
@@ -56,6 +60,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 settingsIcon.src = 'icons/settings-night.png'; // Changed from settings-night.png
             }
         }
+    });
+
+    toggleTokenBtn.addEventListener('click', function() {
+        tokenVisible = !tokenVisible;
+        githubTokenInput.type = tokenVisible ? 'text' : 'password';
+        
+        tokenEyeIcon.classList.add('eye-animating');
+        setTimeout(() => tokenEyeIcon.classList.remove('eye-animating'), 400);
+        tokenEyeIcon.className = tokenVisible ? 'fa fa-eye-slash text-gray-600' : 'fa fa-eye text-gray-600';
+
+        githubTokenInput.classList.add('token-animating');
+        setTimeout(() => githubTokenInput.classList.remove('token-animating'), 300);
     });
 
     darkModeToggle.addEventListener('click', function() {
