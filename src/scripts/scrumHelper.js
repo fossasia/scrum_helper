@@ -20,6 +20,8 @@ function allIncluded(outputTarget = 'email') {
 	let githubPrsReviewData = null;
 	let githubUserData = null;
 	let githubPrsReviewDataProcessed = {};
+	let issuesDataProcessed = false; 
+    let prsReviewDataProcessed = false; 
 	let showOpenLabel = true;
 	let showClosedLabel = true;
 	let userReason = '';
@@ -526,7 +528,7 @@ ${userReason}`;
 				if (date < 10) date = '0' + date;
 				let dateCode = year.toString() + month.toString() + date.toString();
 
-				const subject = `[Scrum] ${name} - ${project} - ${dateCode} - False`;
+				const subject = `[Scrum] ${name} - ${project} - ${dateCode}`;
 				log('Generated subject:', subject);
 				githubCache.subject = subject;
 				saveToStorage(githubCache.data, subject);
@@ -622,9 +624,23 @@ ${userReason}`;
 				reviewedPrsArray.push(repoLi);
 			}
 			
-			writeScrumBody(); 
-		}
-		function writeGithubIssuesPrs() {
+			prsReviewDataProcessed = true;
+            triggerScrumGeneration();
+        }
+
+        function triggerScrumGeneration() {
+            if (issuesDataProcessed && prsReviewDataProcessed) {
+                log('Both data sets processed, generating scrum body.');
+                writeScrumBody();
+            } else {
+                log('Waiting for all data to be processed before generating scrum.', {
+                    issues: issuesDataProcessed,
+                    reviews: prsReviewDataProcessed,
+                });
+            }
+        }
+
+        function writeGithubIssuesPrs() {
 			let items = githubIssuesData.items;
 			lastWeekArray = [];
 			nextWeekArray = [];
@@ -650,7 +666,6 @@ ${userReason}`;
 				} else {
 					// is a issue
 					if (item.state === 'open' && item.body?.toUpperCase().indexOf('YES') > 0) {
-						//probably the author wants to work on this issue!
 						let li2 =
 							'<li><i>(' +
 							project +
@@ -684,10 +699,11 @@ ${userReason}`;
 				}
 					lastWeekArray.push(li);
 			}
-			writeScrumBody();
-		}
+			issuesDataProcessed = true;
+            triggerScrumGeneration();
+        }
 
-		let intervalBody = setInterval(() => {
+        let intervalBody = setInterval(() => {
 			if (!window.emailClientAdapter) return;
 
 			const elements = window.emailClientAdapter.getEditorElements();
@@ -695,7 +711,7 @@ ${userReason}`;
 
 			clearInterval(intervalBody);
 			scrumBody = elements.body;
-			writeScrumBody();
+			// writeScrumBody(); // This call is premature and causes the issue.
 		}, 500);
 
 		let intervalSubject = setInterval(() => {
@@ -732,20 +748,20 @@ ${userReason}`;
 				}
 			}
 		}, 500);
-		let intervalWriteGithubPrs = setInterval(() => {
-			if (outputTarget === 'popup') {
-				if (githubUsername && githubPrsReviewData) {
-					clearInterval(intervalWriteGithubPrs);
-					writeGithubPrsReviews();
-				}
-			} else {
-				if (scrumBody && githubUsername && githubPrsReviewData) {
-					clearInterval(intervalWriteGithubPrs);
-					writeGithubPrsReviews();
-				}
-			}
-		}, 500);
-		if (!refreshButton_Placed) {
+        let intervalWriteGithubPrs = setInterval(() => {
+            if (outputTarget === 'popup') {
+                if (githubUsername && githubPrsReviewData) {
+                    clearInterval(intervalWriteGithubPrs);
+                    writeGithubPrsReviews();
+                }
+            } else {
+                if (scrumBody && githubUsername && githubPrsReviewData) {
+                    clearInterval(intervalWriteGithubPrs);
+                    writeGithubPrsReviews();
+                }
+            }
+        }, 500);
+        if (!refreshButton_Placed) {
 			let intervalWriteButton = setInterval(() => {
 				if (document.getElementsByClassName('F0XO1GC-x-b').length == 3 && scrumBody && enableToggle) {
 					refreshButton_Placed = true;
