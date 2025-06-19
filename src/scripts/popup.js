@@ -80,6 +80,7 @@ document.addEventListener('DOMContentLoaded', function() {
             'showOpenLabel',
             'scrumReport',
             'githubUsername',
+            'githubToken',
             'projectName',
             'settingsToggle',
         ];
