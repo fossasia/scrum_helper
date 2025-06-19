@@ -52,12 +52,14 @@ document.addEventListener('DOMContentLoaded', function () {
         if (result.darkMode) {
             body.classList.add('dark-mode');
             darkModeToggle.src = 'icons/light-mode.png';
+
             if (settingsIcon) {
                 settingsIcon.src = 'icons/settings-night.png';
             }
         } else {
             if (settingsIcon) {
                 settingsIcon.src = 'icons/settings-light.png';
+
             }
         }
     });
@@ -68,10 +70,13 @@ document.addEventListener('DOMContentLoaded', function () {
         chrome.storage.local.set({ darkMode: isDarkMode });
         this.src = isDarkMode ? 'icons/light-mode.png' : 'icons/night-mode.png';
         const settingsIcon = document.getElementById('settingsIcon');
+
         if (settingsIcon) {
+
             settingsIcon.src = isDarkMode ? 'icons/settings-night.png' : 'icons/settings-light.png';
         }
     });
+
 
     // Platform selection setup for checkboxes
     const githubCheckbox = document.getElementById('platformGithub');
@@ -108,6 +113,7 @@ document.addEventListener('DOMContentLoaded', function () {
         } else if (!gitlabCheckbox.checked) {
             // Prevent both from being unchecked
             githubCheckbox.checked = true;
+
         }
     });
     gitlabCheckbox.addEventListener('change', function () {
@@ -139,6 +145,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const radios = document.querySelectorAll('input[name="timeframe"]');
         const customDateContainer = document.getElementById('customDateContainer');
+
 
         elementsToToggle.forEach(id => {
             const element = document.getElementById(id);
@@ -315,19 +322,23 @@ document.addEventListener('DOMContentLoaded', function () {
         ], (items) => {
             console.log('Restoring state:', items);
 
+
             if (!items.selectedTimeframe) {
                 items.selectedTimeframe = 'yesterdayContribution';
                 items.lastWeekContribution = false;
                 items.yesterdayContribution = true;
             }
 
+
             const radio = document.getElementById(items.selectedTimeframe);
             if (radio) {
                 radio.checked = true;
                 radio.dataset.wasChecked = 'true';
 
+
                 const startDateInput = document.getElementById('startingDate');
                 const endDateInput = document.getElementById('endingDate');
+
 
                 if (items.selectedTimeframe === 'lastWeekContribution') {
                     startDateInput.value = getLastWeek();
@@ -337,7 +348,9 @@ document.addEventListener('DOMContentLoaded', function () {
                     endDateInput.value = getToday();
                 }
 
+
                 startDateInput.disabled = endDateInput.disabled = true;
+
 
                 chrome.storage.local.set({
                     startingDate: startDateInput.value,
@@ -372,9 +385,11 @@ document.addEventListener('DOMContentLoaded', function () {
         console.log('Switched to settings view');
     }
 
+
     if (settingsToggle) {
         settingsToggle.addEventListener('click', function () {
             if (isSettingsVisible) {
+
                 showReportView();
             } else {
                 showSettingsView();
@@ -388,10 +403,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // Radio button click handlers with toggle functionality
 document.querySelectorAll('input[name="timeframe"]').forEach(radio => {
+
     radio.addEventListener('click', function () {
         if (this.dataset.wasChecked === 'true') {
             this.checked = false;
             this.dataset.wasChecked = 'false';
+
 
             const startDateInput = document.getElementById('startingDate');
             const endDateInput = document.getElementById('endingDate');
@@ -423,10 +440,12 @@ document.getElementById('refreshCache').addEventListener('click', async function
     button.disabled = true;
 
     try {
+
         // Clear local cache for both platforms
         await new Promise(resolve => {
             chrome.storage.local.remove(['githubCache', 'gitlabCache'], resolve);
         });
+
 
         // Clear the scrum report
         const scrumReport = document.getElementById('scrumReport');
@@ -434,8 +453,10 @@ document.getElementById('refreshCache').addEventListener('click', async function
             scrumReport.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Cache cleared successfully. Click "Generate Report" to fetch fresh data.</p>';
         }
 
+
         button.innerHTML = '<i class="fa fa-check"></i><span>Cache Cleared!</span>';
         button.classList.remove('loading');
+
 
         setTimeout(() => {
             button.innerHTML = originalText;
@@ -489,20 +510,25 @@ function toggleRadio(radio) {
 
 const cacheInput = document.getElementById('cacheInput');
 if (cacheInput) {
+
     chrome.storage.local.get(['cacheInputValue'], function (result) {
         if (result.cacheInputValue) {
             cacheInput.value = result.cacheInputValue;
+
         } else {
             cacheInput.value = 10;
         }
     });
 
+
     cacheInput.addEventListener('blur', function () {
+
         let ttlValue = parseInt(this.value);
         if (isNaN(ttlValue) || ttlValue <= 0 || this.value.trim() === '') {
             ttlValue = 10;
             this.value = ttlValue;
             this.style.borderColor = '#ef4444';
+
         } else if (ttlValue > 1440) {
             ttlValue = 1440;
             this.value = ttlValue;
@@ -512,6 +538,7 @@ if (cacheInput) {
         }
 
         chrome.storage.local.set({ cacheInputValue: ttlValue }, function () {
+
             console.log('Cache TTL saved:', ttlValue, 'minutes');
         });
     });

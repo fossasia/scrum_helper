@@ -1,10 +1,11 @@
-﻿// GitLab support added
+
 
 console.log('Script loaded, adapter exists:', !!window.emailClientAdapter);
 let refreshButton_Placed = false;
 let enableToggle = true;
 let hasInjectedContent = false;
 function allIncluded(outputTarget = 'email') {
+
   console.log('allIncluded called with outputTarget:', outputTarget);
   console.log('Current window context:', window.location.href);
   let scrumBody = null;
@@ -620,6 +621,8 @@ function allIncluded(outputTarget = 'email') {
       let content;
       if (lastWeekContribution == true || yesterdayContribution == true) {
         content = `<b>1. What did I do ${weekOrDay}?</b><br>
+
+	
 ${lastWeekUl}<br>
 <b>2. What do I plan to do ${weekOrDay2}?</b><br>
 ${nextWeekUl}<br>
@@ -632,6 +635,7 @@ ${lastWeekUl}<br>
 ${nextWeekUl}<br>
 <b>3. What is blocking me from making progress?</b><br>
 ${userReason}`;
+
       }
 
       if (outputTarget === 'popup') {
@@ -1032,11 +1036,14 @@ ${userReason}`;
 }
 
 // Only call allIncluded for email contexts, not popup contexts
+
+       
 allIncluded('email');
 
 $('button>span:contains(New conversation)').parent('button').click(() => {
   allIncluded();
 });
+
 
 window.generateScrumReport = function () {
   allIncluded('popup');
@@ -1060,3 +1067,5 @@ function log(...args) {
 function logError(...args) {
   console.error('[ScrumHelper]', ...args);
 } 
+
+

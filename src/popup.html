@@ -23,6 +23,7 @@
 <body>
 	<div class="pl-1 py-4 rounded-2xl">
 		<div class="bg-white px-4 py-4 mx-2 mb-2 rounded-3xl">
+
 			<div class="flex justify-between py-2">
 				<h3 class="text-3xl font-semibold ">Scrum Helper</h3>
 				<img src="icons/night-mode.png" alt="Night Mode" class="w-7 h-7 mx-3 cursor-pointer">
@@ -44,6 +45,7 @@
 				<button id="settingsToggle">
 					<img id="settingsIcon" src="icons/settings-light.png" alt="Settings" class="w-7 h-7 mx-3 cursor-pointer">
 				</button>
+
 			</div>
 		</div>
 
@@ -53,6 +55,7 @@
 				<div id="reportSection" class="tab-content">
 					<div>
 						<h4>Your Project Name</h4>
+
 						<input id="projectName" type="text"
 							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800  p-2 my-2"
 							placeholder="Enter your project name">
@@ -99,6 +102,7 @@
 							</div>
 						</div>
 
+
 						<div id="customDateContainer" class="flex justify-between items-center mt-2">
 							<div>
 								<label for="startingDate">Start Date:</label>
@@ -111,6 +115,7 @@
 						</div>
 					</div>
 
+
 					<div class="col s12">
 						<br />
 						<input type="checkbox" id="showOpenLabel" class="form-checkbox h-4 w-4 text-blue-600">
@@ -121,11 +126,13 @@
 						<p class="text-sm font-medium">What is blocking you from making progress?</p>
 						<input id="userReason" type="text" class="w-full text-gray-800 mt-3 rounded-xl px-4 py-1"
 							placeholder="Enter your reason">
+
 						<hr class="border-t-2 border-gray-700 mt-1 ">
 					</div>
 					<div>
 						<div>
 							<h6 class="text-base font-semibold">Scrum Report</h6>
+
 							<div id="scrumReport" contenteditable="true"
 								class="min-h-[200px] overflow-y-auto whitespace-pre-wrap border-2 border-gray-200 bg-gray-100 rounded-xl text-gray-800 p-2 my-2">
 							</div>
@@ -138,6 +145,7 @@
 							<button id="copyReport"
 								class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
 								<i class="fa fa-copy"></i> Copy Report
+
 							</button>
 						</div>
 					</div>
@@ -146,6 +154,7 @@
 				<div id="settingsSection" class="tab-content hidden">
 
 					<div class="">
+
 						<p class="text-sm font-medium">Enter cache TTL <span class="text-sm text-gray-800 font-normal">(in
 								minutes)</span>
 							<span class="tooltip-container">
@@ -164,6 +173,7 @@
 					<div class="">
 						<button id="refreshCache"
 							class="w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded flex items-center justify-center gap-2 transition-colors duration-200">
+
 							<i class="fa fa-refresh"></i>
 							<span>Refresh Data (bypass cache)</span>
 						</button>
@@ -173,6 +183,7 @@
 						</p>
 					</div>
 
+
 				</div>
 
 				<!-- asdfghjklkjhgfdsasdfghjkjhgfdsasdfghjk -->
@@ -180,17 +191,21 @@
 					<div>
 						<h4 class="font-semibold text-xl">Note:</h4>
 						<ul class="text-xs list-disc list-inside">
+
 							<li>The PRs fetched are based on the most recent review by any contributor. If you reviewed a PR 10 days
 								ago and someone else reviewed it 2 days ago, it will still appear in your activity for the past week.
 								(<a target="_blank" href="https://github.com/fossasia/scrum_helper/issues/20">See this issue</a>.)
 							</li>
 							<li>Please note that some discrepancies may occur in the generated SCRUM. We recommend manually reviewing
 								and editing the report to ensure accuracy before sharing
+
 							</li>
 						</ul>
 					</div>
 				</div>
+
 			</div>
+
 
 			<div class="mt-6 border-t border-gray-300">
 				<div class="bg-white rounded-3xl mx-2 mt-4 mb-2 p-4 border border-gray-100 shadow-sm">
@@ -223,5 +238,7 @@
 	<script src="scripts/scrumHelper.js"></script>
 	<script src="scripts/popup.js"></script>
 </body>
+
+
 
 </html>
