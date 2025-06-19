@@ -253,79 +253,47 @@ body,input,div,h3,h4,p,label,hr, #scrumReport{
 }
 
 .tooltip-bubble {
-    visibility: hidden;
-    opacity: 0;
-    position: absolute;
-    background-color: #1f2937;
-    color: white;
-    text-align: left;
-    padding: 12px;
-    border-radius: 8px;
-    font-size: 12px;
-    line-height: 1.4;
+    position: fixed !important;
+    z-index: 9999;
+    background: #f9fafb;
+    color: #222;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 4px 24px 0 rgba(0,0,0,0.12), 0 1.5px 4px 0 rgba(0,0,0,0.08);
+    padding: 14px 18px;
+    font-size: 13px;
+    line-height: 1.5;
+    min-width: 220px;
+    max-width: 320px;
     white-space: normal;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    z-index: 1000;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-    width: 280px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.18s;
 }
 
-.tooltip-bubble {
-    bottom: 125%;
-    left: 150%;
-    transform: translateX(-50%);
+.tooltip-container:hover .tooltip-bubble,
+.tooltip-container:focus-within .tooltip-bubble {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.tooltip-bubble a {
+    color: #2563eb;
+    text-decoration: underline;
 }
 
 .tooltip-bubble::after {
     content: "";
     position: absolute;
-    top: 100%;
-    left: 50%;
-    margin-left: -5px;
-    border-width: 5px;
+    width: 0; height: 0;
     border-style: solid;
-    border-color: #1f2937 transparent transparent transparent;
 }
 
-.tooltip-container.tooltip-bottom .tooltip-bubble {
-    top: 125%;
-    bottom: auto;
-}
-
-.tooltip-container.tooltip-bottom .tooltip-bubble::after {
-    top: -10px;
-    border-color: transparent transparent #1f2937 transparent;
-}
-
-.tooltip-container.tooltip-right .tooltip-bubble {
-    top: -5px;
-    left: 125%;
-    bottom: auto;
-    transform: none;
-}
-
-.tooltip-container.tooltip-right .tooltip-bubble::after {
-    top: 15px;
-    left: -10px;
-    border-color: transparent #1f2937 transparent transparent;
-}
-
-.tooltip-container:hover .tooltip-bubble {
-    visibility: visible;
-    opacity: 1;
-}
-
-.dark-mode .question-icon {
-    color: #9ca3af;
-}
-
-.dark-mode .question-icon:hover {
-    color: #60a5fa;
-}
 
 .dark-mode .tooltip-bubble {
-    background-color: #374151;
-    border: 1px solid #4b5563;
+    background: #f3f4f6;
+    color: #222;
+    border: 1px solid #374151;
 }
 
 .dark-mode .tooltip-bubble::after {
@@ -364,4 +332,19 @@ body,input,div,h3,h4,p,label,hr, #scrumReport{
   box-shadow: 0 0 0 2px #3b82f6;
   opacity: 0.7;
   transform: translateX(8px) scale(1.03);
+}
+
+.dark-mode #githubToken,
+.dark-mode .token-preview-char {
+    background: #404040 !important;
+    border-color: #505050 !important;
+    color: #fff !important;
+}
+
+.dark-mode .token-preview-dot {
+    background: #9ca3af !important;
+}
+
+.dark-mode .token-preview-char {
+    box-shadow: 0 1px 4px rgba(0,0,0,0.18);
 }
