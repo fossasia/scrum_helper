@@ -1,3 +1,8 @@
+// REMINDER: To avoid GitHub API 403 errors, use a personal access token (PAT) for authenticated requests.
+// Example usage in fetch:
+// const headers = { 'Authorization': 'token YOUR_PERSONAL_ACCESS_TOKEN' };
+// fetch(url, { headers });
+// DO NOT hardcode your token in code you commit or share.
 console.log('Script loaded, adapter exists:', !!window.emailClientAdapter);
 let refreshButton_Placed = false;
 let enableToggle = true;
@@ -285,6 +290,33 @@ function allIncluded(outputTarget = 'email') {
 		});
 	}
 
+	// Toast utility for API limit
+	function showApiLimitToast() {
+		// Remove any existing toast
+		const oldToast = document.getElementById('api-limit-toast');
+		if (oldToast) oldToast.remove();
+		// Create toast
+		const toast = document.createElement('div');
+		toast.id = 'api-limit-toast';
+		toast.style.position = 'fixed';
+		toast.style.top = '0';
+		toast.style.left = '0';
+		toast.style.width = '100%';
+		toast.style.background = '#f87171';
+		toast.style.color = '#fff';
+		toast.style.padding = '6px 0';
+		toast.style.borderRadius = '0 0 8px 8px';
+		toast.style.fontSize = '1em';
+		toast.style.zIndex = '9999';
+		toast.style.boxShadow = '0 2px 8px rgba(0,0,0,0.10)';
+		toast.style.display = 'flex';
+		toast.style.alignItems = 'center';
+		toast.style.justifyContent = 'center';
+		toast.innerHTML = `<span><b>GitHub API limit exceeded.</b></span><button style='margin-left:12px;background:none;border:none;color:#fff;font-size:1.2em;cursor:pointer;' onclick='this.parentNode.remove()'>&times;</button>`;
+		document.body.appendChild(toast);
+		setTimeout(() => { if (toast.parentNode) toast.remove(); }, 8000);
+	}
+
 	async function fetchGithubData() {
 		const cacheKey = `${githubUsername}-${startingDate}-${endingDate}`;
 
@@ -354,9 +386,10 @@ function allIncluded(outputTarget = 'email') {
 				fetch(userUrl),
 			]);
 
-			if (!issuesRes.ok) throw new Error(`Error fetching Github issues: ${issuesRes.status} ${issuesRes.statusText}`);
-			if (!prRes.ok) throw new Error(`Error fetching Github PR review data: ${prRes.status} ${prRes.statusText}`);
-			if (!userRes.ok) throw new Error(`Error fetching Github userdata: ${userRes.status} ${userRes.statusText}`);
+			if (issuesRes.status === 403 || prRes.status === 403 || userRes.status === 403) {
+				showApiLimitToast();
+				throw new Error('GitHub API rate limit exceeded (403)');
+			}
 
 			githubIssuesData = await issuesRes.json();
 			githubPrsReviewData = await prRes.json();
@@ -746,6 +779,10 @@ ${userReason}`;
 				await Promise.all(batch.map(async ({ pr, commitsUrl }) => {
 					try {
 						const res = await fetch(commitsUrl);
+						if (res.status === 403) {
+							showApiLimitToast();
+							throw new Error('GitHub API rate limit exceeded (403)');
+						}
 						if (!res.ok) throw new Error(`Error fetching commits for PR #${pr.number}: ${res.status}`);
 						const commits = await res.json();
 						// Filter commits by user and by date range
