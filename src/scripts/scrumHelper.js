@@ -21,7 +21,12 @@ function allIncluded(outputTarget = 'email') {
 	let githubPrsReviewData = null;
 	let githubUserData = null;
 	let githubPrsReviewDataProcessed = {};
+
 	let githubCommitsData = {};
+
+	let issuesDataProcessed = false; 
+    let prsReviewDataProcessed = false; 
+
 	let showOpenLabel = true;
 	let showClosedLabel = true;
 	let userReason = '';
@@ -670,7 +675,7 @@ ${userReason}`;
 				if (date < 10) date = '0' + date;
 				let dateCode = year.toString() + month.toString() + date.toString();
 
-				const subject = `[Scrum] ${name} - ${project} - ${dateCode} - False`;
+				const subject = `[Scrum] ${name} - ${project} - ${dateCode}`;
 				log('Generated subject:', subject);
 				githubCache.subject = subject;
 				saveToStorage(githubCache.data, subject);
@@ -685,25 +690,113 @@ ${userReason}`;
 		}
 	}
 
-	function writeGithubIssuesPrs() {
-		let items = githubIssuesData.items;
-		if (!items) {
-			logError('No Github issues data available');
-			return;
-		}
 
-		log('Starting to process GitHub data for scrum report');
-		log('Commits data available:', githubCommitsData);
+		function writeGithubPrsReviews() {
+			let items = githubPrsReviewData.items;
+				log('Processing PR reviews:', {
+				hasItems: !!items,
+				itemCount: items?.length,
+				firstItem: items?.[0]
+			});
+			if (!items) {
+				logError('No Github PR review data available');
+				return;
+			}
+			reviewedPrsArray = [];
+			githubPrsReviewDataProcessed = {};
+			let i;
+			for (i = 0; i < items.length; i++) {
+				let item = items[i];
+				if (item.user.login == githubUsername || !item.pull_request) continue;
+				let repository_url = item.repository_url;
+				let project = repository_url.substr(repository_url.lastIndexOf('/') + 1);
+				let title = item.title;
+				let number = item.number;
+				let html_url = item.html_url;
+				if (!githubPrsReviewDataProcessed[project]) {
+					// first pr in this repo
+					githubPrsReviewDataProcessed[project] = [];
+				}
+				let obj = {
+					number: number,
+					html_url: html_url,
+					title: title,
+					state: item.state,
+				};
+				githubPrsReviewDataProcessed[project].push(obj);
+			}
+			for (let repo in githubPrsReviewDataProcessed) {
+				let repoLi =
+					'<li> \
+			<i>(' +
+					repo +
+					')</i> - Reviewed ';
+				if (githubPrsReviewDataProcessed[repo].length > 1) repoLi += 'PRs - ';
+				else {
+					repoLi += 'PR - ';
+				}
+				if (githubPrsReviewDataProcessed[repo].length <= 1) {
+					for (let pr in githubPrsReviewDataProcessed[repo]) {
+						let pr_arr = githubPrsReviewDataProcessed[repo][pr];
+						let prText = '';
+						prText +=
+							"<a href='" + pr_arr.html_url + "' target='_blank'>#" + pr_arr.number + '</a> (' + pr_arr.title + ') ';
+						if (pr_arr.state === 'open') prText += issue_opened_button;
+						else prText += issue_closed_button;
 
-		// Reset arrays
-		lastWeekArray = [];
-		nextWeekArray = [];
-		commitsArray = [];
-		reviewedPrsArray = [];
+						prText += '&nbsp;&nbsp;';
+						repoLi += prText;
+					}
+				} else {
+					repoLi += '<ul>';
+					for (let pr1 in githubPrsReviewDataProcessed[repo]) {
+						let pr_arr1 = githubPrsReviewDataProcessed[repo][pr1];
+						let prText1 = '';
+						prText1 +=
+							"<li><a href='" +
+							pr_arr1.html_url +
+							"' target='_blank'>#" +
+							pr_arr1.number +
+							'</a> (' +
+							pr_arr1.title +
+							') ';
+						if (pr_arr1.state === 'open') prText1 += issue_opened_button;
+						else prText1 += issue_closed_button;
 
-		// Process all sections in a single pass
-		const processAllSections = () => {
-			// Process issues and PRs
+						prText1 += '&nbsp;&nbsp;</li>';
+						repoLi += prText1;
+					}
+					repoLi += '</ul>';
+				}
+				repoLi += '</li>';
+				reviewedPrsArray.push(repoLi);
+			}
+			
+			prsReviewDataProcessed = true;
+            triggerScrumGeneration();
+        }
+
+        function triggerScrumGeneration() {
+            if (issuesDataProcessed && prsReviewDataProcessed) {
+                log('Both data sets processed, generating scrum body.');
+                writeScrumBody();
+            } else {
+                log('Waiting for all data to be processed before generating scrum.', {
+                    issues: issuesDataProcessed,
+                    reviews: prsReviewDataProcessed,
+                });
+            }
+        }
+
+        function writeGithubIssuesPrs() {
+			let items = githubIssuesData.items;
+			lastWeekArray = [];
+			nextWeekArray = [];
+			if(!items){
+				logError('No Github issues data available');
+				return;
+			}
+
 			for (let i = 0; i < items.length; i++) {
 				let item = items[i];
 				let html_url = item.html_url;
@@ -720,10 +813,22 @@ ${userReason}`;
 						li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_unmerged_button}</li>`;
 					}
 				} else {
-					if (item.state === 'closed') {
-						li = `<li><i>(${project})</i> - Made Issue (#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_button}</li>`;
-					} else if (item.state === 'open') {
-						li = `<li><i>(${project})</i> - Made Issue (#${number}) - <a href='${html_url}'>${title}</a> ${issue_opened_button}</li>`;
+          // is a issue
+					if (item.state === 'open' && item.body?.toUpperCase().indexOf('YES') > 0) {
+						let li2 =
+							'<li><i>(' +
+							project +
+							')</i> - Work on Issue(#' +
+							number +
+							") - <a href='" +
+							html_url +
+							"' target='_blank'>" +
+							title +
+							'</a> ' +
+							issue_opened_button +
+							'&nbsp;&nbsp;</li>';
+						nextWeekArray.push(li2);
+
 					}
 				}
 				lastWeekArray.push(li);
@@ -743,23 +848,33 @@ ${userReason}`;
 					});
 				}
 			}
-
-			// Add commits section
+      // Add commits section
 			for (const repoName in commitsByRepo) {
 				let repoLi = `<li><i>(${repoName})</i> - Made Commits in PRs:`;
 				repoLi += '<ul style="margin-left: 20px;">';
-
-				commitsByRepo[repoName].forEach(({ prNumber, commits }) => {
+        commitsByRepo[repoName].forEach(({ prNumber, commits }) => {
 					commits.forEach(commit => {
 						const prUrl = `https://github.com/fossasia/${repoName}/pull/${prNumber}`;
 						const commitMessage = commit.commit.message.split('\n')[0];
 						repoLi += `<li style="margin: 5px 0;">Commit: ${commitMessage} - <a href='${prUrl}' target='_blank'>PR #${prNumber}</a></li>`;
 					});
 				});
-
 				repoLi += '</ul></li>';
 				commitsArray.push(repoLi);
 			}
+
+			issuesDataProcessed = true;
+            triggerScrumGeneration();
+        }
+
+        let intervalBody = setInterval(() => {
+			if (!window.emailClientAdapter) return;
+
+			clearInterval(intervalBody);
+			scrumBody = elements.body;
+			// writeScrumBody(); // This call is premature and causes the issue.
+		}, 500);
+
 
 			// Process PR reviews
 			if (githubPrsReviewData?.items) {
@@ -819,7 +934,8 @@ ${userReason}`;
 		setTimeout(() => {
 			scrumSubjectLoaded();
 		}, 500);
-	}, 500);
+
+
 
 	//check for github safe writing
 	let intervalWriteGithubIssues = setInterval(() => {
@@ -864,6 +980,7 @@ ${userReason}`;
 				td.appendChild(button);
 				document.getElementsByClassName('F0XO1GC-x-b')[0].children[0].children[0].appendChild(td);
 				document.getElementById('refreshButton').addEventListener('click', handleRefresh);
+
 			}
 		}, 1000);
 	}
