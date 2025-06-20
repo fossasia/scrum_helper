@@ -2,6 +2,10 @@ console.log('Script loaded, adapter exists:', !!window.emailClientAdapter);
 let refreshButton_Placed = false;
 let enableToggle = true;
 let hasInjectedContent = false;
+let userPrCommitsData = null; // Will hold { [pr_number]: [commit objects] }
+let userPrCommitsArray = [];
+let userPrCommitsProcessed = false;
+let allOpenUserPrs = [];
 function allIncluded(outputTarget = 'email') {
 	console.log('allIncluded called with outputTarget:', outputTarget);
 	console.log('Current window context:', window.location.href);
@@ -14,19 +18,14 @@ function allIncluded(outputTarget = 'email') {
 	let lastWeekArray = [];
 	let nextWeekArray = [];
 	let reviewedPrsArray = [];
-	let commitsArray = [];
 	let githubIssuesData = null;
 	let lastWeekContribution = false;
 	let yesterdayContribution = false;
 	let githubPrsReviewData = null;
 	let githubUserData = null;
 	let githubPrsReviewDataProcessed = {};
-
-	let githubCommitsData = {};
-
-	let issuesDataProcessed = false; 
-    let prsReviewDataProcessed = false; 
-
+	let issuesDataProcessed = false;
+	let prsReviewDataProcessed = false;
 	let showOpenLabel = true;
 	let showClosedLabel = true;
 	let userReason = '';
@@ -286,12 +285,12 @@ function allIncluded(outputTarget = 'email') {
 		});
 	}
 
-	async function fetchGithubIssues() {
+	async function fetchGithubData() {
 		const cacheKey = `${githubUsername}-${startingDate}-${endingDate}`;
 
 		if (githubCache.fetching || (githubCache.cacheKey === cacheKey && githubCache.data)) {
 			log('Fetch already in progress or data already fetched. Skipping fetch.');
-			return githubCache.data;
+			return;
 		}
 
 		log('Fetching Github data:', {
@@ -307,7 +306,7 @@ function allIncluded(outputTarget = 'email') {
 		// Check if we need to load from storage
 		if (!githubCache.data && !githubCache.fetching) {
 			await loadFromStorage();
-		}
+		};
 
 		const currentTTL = await getCacheTTL();
 		githubCache.ttl = currentTTL;
@@ -317,11 +316,11 @@ function allIncluded(outputTarget = 'email') {
 		const isCacheFresh = (now - githubCache.timestamp) < githubCache.ttl;
 		const isCacheKeyMatch = githubCache.cacheKey === cacheKey;
 
-		if (githubCache.data && isCacheFresh && isCacheKeyMatch) {
+		if (githubCache.data && isCacheFresh & isCacheKeyMatch) {
 			log('Using cached data - cache is fresh and key matches');
-			return githubCache.data;
+			processGithubData(githubCache.data);
+			return Promise.resolve();
 		}
-
 		// if cache key does not match our cache is stale, fetch new data
 		if (!isCacheKeyMatch) {
 			log('Cache key mismatch - fetching new Data');
@@ -346,231 +345,104 @@ function allIncluded(outputTarget = 'email') {
 		let userUrl = `https://api.github.com/users/${githubUsername}`;
 
 		try {
-			// Add longer delay between requests to avoid rate limiting
-			await new Promise(res => setTimeout(res, 1000));
+			// throttling 500ms to avoid burst
+			await new Promise(res => setTimeout(res, 500));
 
-			// Fetch issues first
-			const issuesRes = await fetch(issueUrl);
-			if (!issuesRes.ok) {
-				if (issuesRes.status === 403) {
-					throw new Error('GitHub API rate limit exceeded. Please wait a few minutes before trying again.');
-				}
-				throw new Error(`Error fetching Github issues: ${issuesRes.status} ${issuesRes.statusText}`);
-			}
+			const [issuesRes, prRes, userRes] = await Promise.all([
+				fetch(issueUrl),
+				fetch(prUrl),
+				fetch(userUrl),
+			]);
+
+			if (!issuesRes.ok) throw new Error(`Error fetching Github issues: ${issuesRes.status} ${issuesRes.statusText}`);
+			if (!prRes.ok) throw new Error(`Error fetching Github PR review data: ${prRes.status} ${prRes.statusText}`);
+			if (!userRes.ok) throw new Error(`Error fetching Github userdata: ${userRes.status} ${userRes.statusText}`);
+
 			githubIssuesData = await issuesRes.json();
-
-			// Add delay between requests
-			await new Promise(res => setTimeout(res, 1000));
-
-			// Fetch PR reviews
-			const prRes = await fetch(prUrl);
-			if (!prRes.ok) {
-				if (prRes.status === 403) {
-					throw new Error('GitHub API rate limit exceeded. Please wait a few minutes before trying again.');
-				}
-				throw new Error(`Error fetching Github PR review data: ${prRes.status} ${prRes.statusText}`);
-			}
 			githubPrsReviewData = await prRes.json();
-
-			// Add delay between requests
-			await new Promise(res => setTimeout(res, 1000));
-
-			// Fetch user data
-			const userRes = await fetch(userUrl);
-			if (!userRes.ok) {
-				if (userRes.status === 403) {
-					throw new Error('GitHub API rate limit exceeded. Please wait a few minutes before trying again.');
-				}
-				throw new Error(`Error fetching Github userdata: ${userRes.status} ${userRes.statusText}`);
-			}
 			githubUserData = await userRes.json();
 
 			// Cache the data
-			const data = { githubIssuesData, githubPrsReviewData, githubUserData, githubCommitsData };
-			githubCache.data = data;
+			githubCache.data = { githubIssuesData, githubPrsReviewData, githubUserData };
 			githubCache.timestamp = Date.now();
 
 			await saveToStorage(githubCache.data);
+			processGithubData(githubCache.data);
 
 			// Resolve queued calls
-			githubCache.queue.forEach(({ resolve }) => resolve(data));
+			githubCache.queue.forEach(({ resolve }) => resolve());
 			githubCache.queue = [];
-
-			return data;
 		} catch (err) {
 			logError('Fetch Failed:', err);
 			// Reject queued calls on error
 			githubCache.queue.forEach(({ reject }) => reject(err));
 			githubCache.queue = [];
+			githubCache.fetching = false;
 			throw err;
 		} finally {
 			githubCache.fetching = false;
 		}
 	}
 
-	async function fetchCommitsForOpenPRs() {
-		if (!githubIssuesData?.items) {
-			logError('No GitHub issues data available for fetching commits');
-			return;
-		}
-
-		log('Starting to fetch commits for open PRs');
-		githubCommitsData = {};
-		const openPRs = githubIssuesData.items.filter(item =>
-			item.pull_request && item.state === 'open'
-		);
-
-		log(`Found ${openPRs.length} open PRs to fetch commits for`);
-
-		for (const pr of openPRs) {
-			const repoUrl = pr.repository_url;
-			const repoName = repoUrl.substr(repoUrl.lastIndexOf('/') + 1);
-			const commitsUrl = `https://api.github.com/repos/fossasia/${repoName}/pulls/${pr.number}/commits`;
-
-			log(`Fetching commits for PR #${pr.number} in ${repoName}`);
-
-			try {
-				// Add delay to avoid rate limiting
-				await new Promise(res => setTimeout(res, 1000));
-
-				const commitsRes = await fetch(commitsUrl);
-				if (!commitsRes.ok) {
-					if (commitsRes.status === 403) {
-						logError(`Rate limit exceeded while fetching commits for PR #${pr.number} in ${repoName}`);
-						continue;
-					}
-					logError(`Failed to fetch commits for PR #${pr.number} in ${repoName}: ${commitsRes.status} ${commitsRes.statusText}`);
-					continue;
-				}
-
-				const commits = await commitsRes.json();
-				if (!Array.isArray(commits)) {
-					logError(`Invalid commits data for PR #${pr.number} in ${repoName}`);
-					continue;
-				}
-
-				log(`Found ${commits.length} commits for PR #${pr.number} in ${repoName}`);
-
-				// Filter commits by author and date range
-				const filteredCommits = commits.filter(commit => {
-					const commitDate = new Date(commit.commit.author.date);
-					const startDate = new Date(startingDate);
-					const endDate = new Date(endingDate);
-					const isAuthorMatch = commit.author?.login === githubUsername;
-					const isDateInRange = commitDate >= startDate && commitDate <= endDate;
-
-					if (isAuthorMatch && isDateInRange) {
-						log(`Found matching commit: ${commit.commit.message.split('\n')[0]} (${commitDate.toLocaleDateString()})`);
-					}
-
-					return isAuthorMatch && isDateInRange;
-				});
-
-				log(`Filtered to ${filteredCommits.length} commits within date range for PR #${pr.number}`);
-
-				if (filteredCommits.length > 0) {
-					if (!githubCommitsData[repoName]) {
-						githubCommitsData[repoName] = {};
-					}
-					githubCommitsData[repoName][pr.number] = filteredCommits;
-					log(`Stored ${filteredCommits.length} commits for PR #${pr.number} in ${repoName}`);
-				}
-			} catch (err) {
-				logError(`Error fetching commits for PR #${pr.number} in ${repoName}:`, err);
-			}
-		}
-
-		log('Finished fetching commits for open PRs');
-		log('Commits data structure:', githubCommitsData);
+	async function verifyCacheStatus() {
+		log('Cache Status: ', {
+			hasCachedData: !!githubCache.data,
+			cacheAge: githubCache.timestamp ? `${((Date.now() - githubCache.timestamp) / 1000 / 60).toFixed(1)} minutes` : `no cache`,
+			cacheKey: githubCache.cacheKey,
+			isFetching: githubCache.fetching,
+			queueLength: githubCache.queue.length
+		});
+		const storageData = await new Promise(resolve => {
+			chrome.storage.local.get('githubCache', resolve);
+		});
+		log('Storage Status:', {
+			hasStoredData: !!storageData.githubCache,
+			storedCacheKey: storageData.githubCache?.cacheKey,
+			storageAge: storageData.githubCache?.timestamp ?
+				`${((Date.now() - storageData.githubCache.timestamp) / 1000 / 60).toFixed(1)} minutes` :
+				'no data'
+		});
 	}
+	verifyCacheStatus();
 
-	async function fetchGithubData() {
-		log('Fetching Github data');
-		try {
-			const data = await fetchGithubIssues();
-			if (data) {
-				// Process all data together
-				await processAllData(data);
-			}
-		} catch (err) {
-			logError('Error fetching GitHub data:', err);
-		}
-	}
 
-	async function processAllData(data) {
-		log('Processing all GitHub data');
-		try {
-			// Process initial data
-			processGithubData(data);
-
-			// Fetch commits
-			await fetchCommitsForOpenPRs();
-
-			// Process PR reviews
-			await processPrReviews();
-
-			// Write the complete report
-			writeGithubIssuesPrs();
-		} catch (err) {
-			logError('Error processing GitHub data:', err);
-		}
-	}
-
-	async function processPrReviews() {
-		log('Processing PR reviews');
-		if (!githubPrsReviewData?.items) {
-			logError('No PR review data available');
-			return;
-		}
-
-		reviewedPrsArray = [];
-		githubPrsReviewDataProcessed = {};
-
-		for (let i = 0; i < githubPrsReviewData.items.length; i++) {
-			let item = githubPrsReviewData.items[i];
-			let html_url = item.html_url;
-			let repository_url = item.repository_url;
-			let project = repository_url.substr(repository_url.lastIndexOf('/') + 1);
-			let title = item.title;
-			let number = item.number;
-			let li = '';
-
-			if (item.pull_request) {
-				if (item.state === 'closed') {
-					li = `<li><i>(${project})</i> - Reviewed PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_merged_button}</li>`;
-				} else if (item.state === 'open') {
-					li = `<li><i>(${project})</i> - Reviewed PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_unmerged_button}</li>`;
-				}
-			}
-			reviewedPrsArray.push(li);
-		}
-		log('Finished processing PR reviews');
-	}
 
 	function processGithubData(data) {
 		log('Processing Github data');
 		githubIssuesData = data.githubIssuesData;
 		githubPrsReviewData = data.githubPrsReviewData;
 		githubUserData = data.githubUserData;
-		githubCommitsData = data.githubCommitsData || {}; // Ensure commits data is restored
 
 		log('GitHub data set:', {
 			issues: githubIssuesData?.items?.length || 0,
 			prs: githubPrsReviewData?.items?.length || 0,
-			user: githubUserData?.login,
-			commits: Object.keys(githubCommitsData).length // Add commits count to logging
+			user: githubUserData?.login
 		});
 
 		lastWeekArray = [];
 		nextWeekArray = [];
 		reviewedPrsArray = [];
-		commitsArray = []; // Reset commits array
 		githubPrsReviewDataProcessed = {};
 
 		// Update subject
 		if (!githubCache.subject && scrumSubject) {
 			scrumSubjectLoaded();
 		}
+
+		// Find all open PRs authored by the user (regardless of creation date)
+		const openUserPrs = (data.githubIssuesData.items || []).filter(item => item.pull_request && item.state === 'open' && item.user.login === githubUsername);
+		// Try to load from cache first
+		if (data.userPrCommitsData) {
+			processUserPrCommits(data.userPrCommitsData);
+		} else if (openUserPrs.length > 0) {
+			fetchUserPrCommits(openUserPrs);
+		} else {
+			userPrCommitsProcessed = true;
+			triggerScrumGeneration();
+		}
+
+		// For the commit section, fetch all open PRs authored by the user (not time-limited)
+		fetchAllOpenUserPrs();
 	}
 
 	function formatDate(dateString) {
@@ -595,21 +467,27 @@ function allIncluded(outputTarget = 'email') {
 		}
 
 		setTimeout(() => {
-			// Generate content with consistent formatting
-			let lastWeekUl = '<ul style="margin: 10px 0;">';
-			for (let i = 0; i < lastWeekArray.length; i++) lastWeekUl += lastWeekArray[i];
-			for (let i = 0; i < reviewedPrsArray.length; i++) lastWeekUl += reviewedPrsArray[i];
-			for (let i = 0; i < commitsArray.length; i++) lastWeekUl += commitsArray[i];
+			// Generate content first
+			let lastWeekUl = '<ul>';
+			let i;
+			for (i = 0; i < lastWeekArray.length; i++) lastWeekUl += lastWeekArray[i];
+			for (i = 0; i < reviewedPrsArray.length; i++) lastWeekUl += reviewedPrsArray[i];
+			// Insert user PR commits section here
+			if (userPrCommitsArray.length > 0) {
+				lastWeekUl += '<li>Commits made:<ul>';
+				for (let j = 0; j < userPrCommitsArray.length; j++) lastWeekUl += userPrCommitsArray[j];
+				lastWeekUl += '</ul></li>';
+			}
 			lastWeekUl += '</ul>';
 
-			let nextWeekUl = '<ul style="margin: 10px 0;">';
-			for (let i = 0; i < nextWeekArray.length; i++) nextWeekUl += nextWeekArray[i];
+			let nextWeekUl = '<ul>';
+			for (i = 0; i < nextWeekArray.length; i++) nextWeekUl += nextWeekArray[i];
 			nextWeekUl += '</ul>';
 
 			let weekOrDay = lastWeekContribution ? 'last week' : (yesterdayContribution ? 'yesterday' : 'the period');
 			let weekOrDay2 = lastWeekContribution ? 'this week' : 'today';
 
-			// Create the complete content with consistent spacing
+			// Create the complete content
 			let content;
 			if (lastWeekContribution == true || yesterdayContribution == true) {
 				content = `<b>1. What did I do ${weekOrDay}?</b><br>
@@ -627,11 +505,11 @@ ${nextWeekUl}<br>
 ${userReason}`;
 			}
 
-			// Update the UI
+
 			if (outputTarget === 'popup') {
 				const scrumReport = document.getElementById('scrumReport');
 				if (scrumReport) {
-					log("Updating scrum report content");
+					log("found div, updating content");
 					scrumReport.innerHTML = content;
 
 					// Reset generate button
@@ -690,219 +568,229 @@ ${userReason}`;
 		}
 	}
 
-
-		function writeGithubPrsReviews() {
-			let items = githubPrsReviewData.items;
-				log('Processing PR reviews:', {
-				hasItems: !!items,
-				itemCount: items?.length,
-				firstItem: items?.[0]
-			});
-			if (!items) {
-				logError('No Github PR review data available');
-				return;
+	function writeGithubPrsReviews() {
+		let items = githubPrsReviewData.items;
+		log('Processing PR reviews:', {
+			hasItems: !!items,
+			itemCount: items?.length,
+			firstItem: items?.[0]
+		});
+		if (!items) {
+			logError('No Github PR review data available');
+			return;
+		}
+		reviewedPrsArray = [];
+		githubPrsReviewDataProcessed = {};
+		let i;
+		for (i = 0; i < items.length; i++) {
+			let item = items[i];
+			if (item.user.login == githubUsername || !item.pull_request) continue;
+			let repository_url = item.repository_url;
+			let project = repository_url.substr(repository_url.lastIndexOf('/') + 1);
+			let title = item.title;
+			let number = item.number;
+			let html_url = item.html_url;
+			if (!githubPrsReviewDataProcessed[project]) {
+				// first pr in this repo
+				githubPrsReviewDataProcessed[project] = [];
 			}
-			reviewedPrsArray = [];
-			githubPrsReviewDataProcessed = {};
-			let i;
-			for (i = 0; i < items.length; i++) {
-				let item = items[i];
-				if (item.user.login == githubUsername || !item.pull_request) continue;
-				let repository_url = item.repository_url;
-				let project = repository_url.substr(repository_url.lastIndexOf('/') + 1);
-				let title = item.title;
-				let number = item.number;
-				let html_url = item.html_url;
-				if (!githubPrsReviewDataProcessed[project]) {
-					// first pr in this repo
-					githubPrsReviewDataProcessed[project] = [];
-				}
-				let obj = {
-					number: number,
-					html_url: html_url,
-					title: title,
-					state: item.state,
-				};
-				githubPrsReviewDataProcessed[project].push(obj);
-			}
-			for (let repo in githubPrsReviewDataProcessed) {
-				let repoLi =
-					'<li> \
+			let obj = {
+				number: number,
+				html_url: html_url,
+				title: title,
+				state: item.state,
+			};
+			githubPrsReviewDataProcessed[project].push(obj);
+		}
+		for (let repo in githubPrsReviewDataProcessed) {
+			let repoLi =
+				'<li> \
 			<i>(' +
-					repo +
-					')</i> - Reviewed ';
-				if (githubPrsReviewDataProcessed[repo].length > 1) repoLi += 'PRs - ';
-				else {
-					repoLi += 'PR - ';
-				}
-				if (githubPrsReviewDataProcessed[repo].length <= 1) {
-					for (let pr in githubPrsReviewDataProcessed[repo]) {
-						let pr_arr = githubPrsReviewDataProcessed[repo][pr];
-						let prText = '';
-						prText +=
-							"<a href='" + pr_arr.html_url + "' target='_blank'>#" + pr_arr.number + '</a> (' + pr_arr.title + ') ';
-						if (pr_arr.state === 'open') prText += issue_opened_button;
-						else prText += issue_closed_button;
+				repo +
+				')</i> - Reviewed ';
+			if (githubPrsReviewDataProcessed[repo].length > 1) repoLi += 'PRs - ';
+			else {
+				repoLi += 'PR - ';
+			}
+			if (githubPrsReviewDataProcessed[repo].length <= 1) {
+				for (let pr in githubPrsReviewDataProcessed[repo]) {
+					let pr_arr = githubPrsReviewDataProcessed[repo][pr];
+					let prText = '';
+					prText +=
+						"<a href='" + pr_arr.html_url + "' target='_blank'>#" + pr_arr.number + '</a> (' + pr_arr.title + ') ';
+					if (pr_arr.state === 'open') prText += issue_opened_button;
+					else prText += issue_closed_button;
 
-						prText += '&nbsp;&nbsp;';
-						repoLi += prText;
-					}
+					prText += '&nbsp;&nbsp;';
+					repoLi += prText;
+				}
+			} else {
+				repoLi += '<ul>';
+				for (let pr1 in githubPrsReviewDataProcessed[repo]) {
+					let pr_arr1 = githubPrsReviewDataProcessed[repo][pr1];
+					let prText1 = '';
+					prText1 +=
+						"<li><a href='" +
+						pr_arr1.html_url +
+						"' target='_blank'>#" +
+						pr_arr1.number +
+						'</a> (' +
+						pr_arr1.title +
+						') ';
+					if (pr_arr1.state === 'open') prText1 += issue_opened_button;
+					else prText1 += issue_closed_button;
+
+					prText1 += '&nbsp;&nbsp;</li>';
+					repoLi += prText1;
+				}
+				repoLi += '</ul>';
+			}
+			repoLi += '</li>';
+			reviewedPrsArray.push(repoLi);
+		}
+
+		prsReviewDataProcessed = true;
+		triggerScrumGeneration();
+	}
+
+	function triggerScrumGeneration() {
+		if (issuesDataProcessed && prsReviewDataProcessed && userPrCommitsProcessed) {
+			log('All data sets processed, generating scrum body.');
+			writeScrumBody();
+		} else {
+			log('Waiting for all data to be processed before generating scrum.', {
+				issues: issuesDataProcessed,
+				reviews: prsReviewDataProcessed,
+				commits: userPrCommitsProcessed
+			});
+		}
+	}
+
+	function writeGithubIssuesPrs() {
+		let items = githubIssuesData.items;
+		lastWeekArray = [];
+		nextWeekArray = [];
+		if (!items) {
+			logError('No Github issues data available');
+			return;
+		}
+		for (let i = 0; i < items.length; i++) {
+			let item = items[i];
+			let html_url = item.html_url;
+			let repository_url = item.repository_url;
+			let project = repository_url.substr(repository_url.lastIndexOf('/') + 1);
+			let title = item.title;
+			let number = item.number;
+			let li = '';
+
+			if (item.pull_request) {
+				if (item.state === 'closed') {
+					li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_merged_button}</li>`;
+				} else if (item.state === 'open') {
+					li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_unmerged_button}</li>`;
+				}
+			} else {
+				// is a issue
+				if (item.state === 'open' && item.body?.toUpperCase().indexOf('YES') > 0) {
+					let li2 =
+						'<li><i>(' +
+						project +
+						')</i> - Work on Issue(#' +
+						number +
+						") - <a href='" +
+						html_url +
+						"' target='_blank'>" +
+						title +
+						'</a> ' +
+						issue_opened_button +
+						'&nbsp;&nbsp;</li>';
+					nextWeekArray.push(li2);
+				}
+				if (item.state === 'open') {
+					li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_opened_button}</li>`;
+				} else if (item.state === 'closed') {
+					li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_button}</li>`;
 				} else {
-					repoLi += '<ul>';
-					for (let pr1 in githubPrsReviewDataProcessed[repo]) {
-						let pr_arr1 = githubPrsReviewDataProcessed[repo][pr1];
-						let prText1 = '';
-						prText1 +=
-							"<li><a href='" +
-							pr_arr1.html_url +
-							"' target='_blank'>#" +
-							pr_arr1.number +
-							'</a> (' +
-							pr_arr1.title +
-							') ';
-						if (pr_arr1.state === 'open') prText1 += issue_opened_button;
-						else prText1 += issue_closed_button;
-
-						prText1 += '&nbsp;&nbsp;</li>';
-						repoLi += prText1;
-					}
-					repoLi += '</ul>';
-				}
-				repoLi += '</li>';
-				reviewedPrsArray.push(repoLi);
-			}
-			
-			prsReviewDataProcessed = true;
-            triggerScrumGeneration();
-        }
-
-        function triggerScrumGeneration() {
-            if (issuesDataProcessed && prsReviewDataProcessed) {
-                log('Both data sets processed, generating scrum body.');
-                writeScrumBody();
-            } else {
-                log('Waiting for all data to be processed before generating scrum.', {
-                    issues: issuesDataProcessed,
-                    reviews: prsReviewDataProcessed,
-                });
-            }
-        }
-
-        function writeGithubIssuesPrs() {
-			let items = githubIssuesData.items;
-			lastWeekArray = [];
-			nextWeekArray = [];
-			if(!items){
-				logError('No Github issues data available');
-				return;
-			}
-
-			for (let i = 0; i < items.length; i++) {
-				let item = items[i];
-				let html_url = item.html_url;
-				let repository_url = item.repository_url;
-				let project = repository_url.substr(repository_url.lastIndexOf('/') + 1);
-				let title = item.title;
-				let number = item.number;
-				let li = '';
-
-				if (item.pull_request) {
-					if (item.state === 'closed') {
-						li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_merged_button}</li>`;
-					} else if (item.state === 'open') {
-						li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_unmerged_button}</li>`;
-					}
-				} else {
-          // is a issue
-					if (item.state === 'open' && item.body?.toUpperCase().indexOf('YES') > 0) {
-						let li2 =
-							'<li><i>(' +
-							project +
-							')</i> - Work on Issue(#' +
-							number +
-							") - <a href='" +
-							html_url +
-							"' target='_blank'>" +
-							title +
-							'</a> ' +
-							issue_opened_button +
-							'&nbsp;&nbsp;</li>';
-						nextWeekArray.push(li2);
-
-					}
-				}
-				lastWeekArray.push(li);
-			}
-
-			// Process commits
-			const commitsByRepo = {};
-			for (const repoName in githubCommitsData) {
-				for (const prNumber in githubCommitsData[repoName]) {
-					const commits = githubCommitsData[repoName][prNumber];
-					if (!commitsByRepo[repoName]) {
-						commitsByRepo[repoName] = [];
-					}
-					commitsByRepo[repoName].push({
-						prNumber,
-						commits
-					});
+					li =
+						'<li><i>(' +
+						project +
+						')</i> - Opened Issue(#' +
+						number +
+						") - <a href='" +
+						html_url +
+						"' target='_blank'>" +
+						title +
+						'</a> </li>';
 				}
 			}
-      // Add commits section
-			for (const repoName in commitsByRepo) {
-				let repoLi = `<li><i>(${repoName})</i> - Made Commits in PRs:`;
-				repoLi += '<ul style="margin-left: 20px;">';
-        commitsByRepo[repoName].forEach(({ prNumber, commits }) => {
-					commits.forEach(commit => {
-						const prUrl = `https://github.com/fossasia/${repoName}/pull/${prNumber}`;
-						const commitMessage = commit.commit.message.split('\n')[0];
-						repoLi += `<li style="margin: 5px 0;">Commit: ${commitMessage} - <a href='${prUrl}' target='_blank'>PR #${prNumber}</a></li>`;
-					});
-				});
-				repoLi += '</ul></li>';
-				commitsArray.push(repoLi);
-			}
+			lastWeekArray.push(li);
+		}
+		issuesDataProcessed = true;
+		triggerScrumGeneration();
+	}
 
-			issuesDataProcessed = true;
-            triggerScrumGeneration();
-        }
-
-        let intervalBody = setInterval(() => {
-			if (!window.emailClientAdapter) return;
-
-			clearInterval(intervalBody);
-			scrumBody = elements.body;
-			// writeScrumBody(); // This call is premature and causes the issue.
-		}, 500);
-
-
-			// Process PR reviews
-			if (githubPrsReviewData?.items) {
-				for (let i = 0; i < githubPrsReviewData.items.length; i++) {
-					let item = githubPrsReviewData.items[i];
-					if (item.user.login == githubUsername || !item.pull_request) continue;
-
-					let html_url = item.html_url;
-					let repository_url = item.repository_url;
-					let project = repository_url.substr(repository_url.lastIndexOf('/') + 1);
-					let title = item.title;
-					let number = item.number;
-
-					let li = '';
-					if (item.state === 'closed') {
-						li = `<li><i>(${project})</i> - Reviewed PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_merged_button}</li>`;
-					} else if (item.state === 'open') {
-						li = `<li><i>(${project})</i> - Reviewed PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_unmerged_button}</li>`;
+	async function fetchUserPrCommits(openPrs) {
+		userPrCommitsData = {};
+		const batchSize = 5; // GitHub rate limit safety
+		const delay = 1000; // 1s between batches
+		let batch = [];
+		for (let i = 0; i < openPrs.length; i++) {
+			const pr = openPrs[i];
+			const repoUrlParts = pr.repository_url.split('/');
+			const owner = repoUrlParts[repoUrlParts.length - 2];
+			const repo = repoUrlParts[repoUrlParts.length - 1];
+			const prNumber = pr.number;
+			const commitsUrl = `https://api.github.com/repos/${owner}/${repo}/pulls/${prNumber}/commits`;
+			batch.push({ pr, commitsUrl });
+			if (batch.length === batchSize || i === openPrs.length - 1) {
+				await Promise.all(batch.map(async ({ pr, commitsUrl }) => {
+					try {
+						const res = await fetch(commitsUrl);
+						if (!res.ok) throw new Error(`Error fetching commits for PR #${pr.number}: ${res.status}`);
+						const commits = await res.json();
+						// Filter commits by user and by date range
+						const userCommits = commits.filter(c => {
+							if (!c.author || c.author.login !== githubUsername) return false;
+							const commitDate = new Date(c.commit.author.date);
+							const start = new Date(startingDate);
+							const end = new Date(endingDate);
+							// Inclusive range
+							return commitDate >= start && commitDate <= end;
+						});
+						if (userCommits.length > 0) {
+							userPrCommitsData[pr.number] = { pr, commits: userCommits };
+						}
+					} catch (err) {
+						logError('Failed to fetch commits for PR', pr.number, err);
 					}
-					reviewedPrsArray.push(li);
-				}
+				}));
+				batch = [];
+				if (i !== openPrs.length - 1) await new Promise(res => setTimeout(res, delay));
 			}
-		};
+		}
+		githubCache.data.userPrCommitsData = userPrCommitsData;
+		await saveToStorage(githubCache.data);
+		processUserPrCommits(userPrCommitsData);
+	}
 
-		// Process all sections at once
-		processAllSections();
-		log('Finished processing all sections');
-		writeScrumBody();
+	function processUserPrCommits(data) {
+		userPrCommitsArray = [];
+		if (!data || Object.keys(data).length === 0) {
+			userPrCommitsProcessed = true;
+			triggerScrumGeneration();
+			return;
+		}
+		for (const prNum in data) {
+			const { pr, commits } = data[prNum];
+			let prSection = `<li><i>(${pr.repository_url.substr(pr.repository_url.lastIndexOf('/') + 1)})</i> - Commits on PR <a href='${pr.html_url}' target='_blank'>#${pr.number}</a> (${pr.title})<ul>`;
+			for (const commit of commits) {
+				prSection += `<li><a href='${commit.html_url}' target='_blank'>${commit.commit.message.split('\n')[0]}</a></li>`;
+			}
+			prSection += '</ul></li>';
+			userPrCommitsArray.push(prSection);
+		}
+		userPrCommitsProcessed = true;
+		triggerScrumGeneration();
 	}
 
 	let intervalBody = setInterval(() => {
@@ -913,7 +801,7 @@ ${userReason}`;
 
 		clearInterval(intervalBody);
 		scrumBody = elements.body;
-		writeScrumBody();
+		// writeScrumBody(); // This call is premature and causes the issue.
 	}, 500);
 
 	let intervalSubject = setInterval(() => {
@@ -934,8 +822,7 @@ ${userReason}`;
 		setTimeout(() => {
 			scrumSubjectLoaded();
 		}, 500);
-
-
+	}, 500);
 
 	//check for github safe writing
 	let intervalWriteGithubIssues = setInterval(() => {
@@ -980,13 +867,30 @@ ${userReason}`;
 				td.appendChild(button);
 				document.getElementsByClassName('F0XO1GC-x-b')[0].children[0].children[0].appendChild(td);
 				document.getElementById('refreshButton').addEventListener('click', handleRefresh);
-
 			}
 		}, 1000);
 	}
 	function handleRefresh() {
 		hasInjectedContent = false; // Reset the flag before refresh
 		allIncluded();
+	}
+
+	// Add a function to fetch all open PRs authored by the user (not time-limited)
+	async function fetchAllOpenUserPrs() {
+		const openPrsUrl = `https://api.github.com/search/issues?q=author%3A${githubUsername}+is%3Apr+is%3Aopen+org%3Afossasia&per_page=100`;
+		try {
+			const res = await fetch(openPrsUrl);
+			if (!res.ok) throw new Error(`Error fetching all open PRs: ${res.status}`);
+			const data = await res.json();
+			allOpenUserPrs = data.items || [];
+			// After fetching, proceed to fetch commits for these PRs
+			fetchUserPrCommits(allOpenUserPrs);
+		} catch (err) {
+			logError('Failed to fetch all open PRs', err);
+			allOpenUserPrs = [];
+			userPrCommitsProcessed = true;
+			triggerScrumGeneration();
+		}
 	}
 }
 
@@ -1008,22 +912,5 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 				sendResponse({ success: false, error: err.message });
 			});
 		return true;
-	}
-});
-
-// Modify the generate report button click handler
-document.getElementById('generateReport')?.addEventListener('click', async function () {
-	const button = this;
-	button.disabled = true;
-	button.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
-
-	try {
-		await fetchGithubData();
-	} catch (error) {
-		console.error('Error generating report:', error);
-		Materialize.toast(error.message || 'Error generating report. Please try again.', 3000);
-	} finally {
-		button.disabled = false;
-		button.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
 	}
 });

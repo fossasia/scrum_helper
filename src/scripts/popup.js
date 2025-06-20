@@ -33,7 +33,7 @@ function getYesterday() {
     let yesterdayMonth = yesterday.getMonth() + 1;
     let yesterdayDay = yesterday.getDate();
     let yesterdayYear = yesterday.getFullYear();
-    let yesterdayPadded = 
+    let yesterdayPadded =
         ('0000' + yesterdayYear.toString()).slice(-4) +
         '-' +
         ('00' + yesterdayMonth.toString()).slice(-2) +
@@ -42,29 +42,29 @@ function getYesterday() {
     return yesterdayPadded;
 }
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     // Dark mode setup
     const darkModeToggle = document.querySelector('img[alt="Night Mode"]');
     const settingsIcon = document.getElementById('settingsIcon');
     const body = document.body;
 
-    chrome.storage.local.get(['darkMode'], function(result) {
-        if(result.darkMode) {
+    chrome.storage.local.get(['darkMode'], function (result) {
+        if (result.darkMode) {
             body.classList.add('dark-mode');
             darkModeToggle.src = 'icons/light-mode.png';
-            if(settingsIcon) {
+            if (settingsIcon) {
                 settingsIcon.src = 'icons/settings-night.png'; // Changed from settings-night.png
             }
         }
     });
 
-    darkModeToggle.addEventListener('click', function() {
+    darkModeToggle.addEventListener('click', function () {
         body.classList.toggle('dark-mode');
         const isDarkMode = body.classList.contains('dark-mode');
         chrome.storage.local.set({ darkMode: isDarkMode });
         this.src = isDarkMode ? 'icons/light-mode.png' : 'icons/night-mode.png';
         const settingsIcon = document.getElementById('settingsIcon');
-        if(settingsIcon){
+        if (settingsIcon) {
             settingsIcon.src = isDarkMode ? 'icons/settings-night.png' : 'icons/settings-light.png';
         }
     });
@@ -89,9 +89,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
         elementsToToggle.forEach(id => {
             const element = document.getElementById(id);
-            if(element) {
+            if (element) {
                 element.disabled = !enableToggle;
-                if(!enableToggle) {
+                if (!enableToggle) {
                     element.style.opacity = '0.5';
                     element.style.pointerEvents = 'none';
                 } else {
@@ -104,8 +104,8 @@ document.addEventListener('DOMContentLoaded', function() {
         radios.forEach(radio => {
             radio.disabled = !enableToggle;
             const label = document.querySelector(`label[for="${radio.id}"]`);
-            if(label){
-                if(!enableToggle) {
+            if (label) {
+                if (!enableToggle) {
                     label.style.opacity = '0.5';
                     label.style.pointerEvents = 'none';
                 } else {
@@ -116,7 +116,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
 
 
-        if(customDateContainer){
+        if (customDateContainer) {
             if (!enableToggle) {
                 customDateContainer.style.opacity = '0.5';
                 customDateContainer.style.pointerEvents = 'none';
@@ -127,13 +127,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         const scrumReport = document.getElementById('scrumReport');
-        if(scrumReport){
+        if (scrumReport) {
             scrumReport.contentEditable = enableToggle;
-            if(!enableToggle){
+            if (!enableToggle) {
                 scrumReport.innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">Extension is disabled. Enable it from the options to generate scrum reports.</p>';
-            } else{
+            } else {
                 const disabledMessage = '<p style="text-align: center; color: #999; padding: 20px;">Extension is disabled. Enable it from the options to generate scrum reports.</p>';
-                if(scrumReport.innerHTML === disabledMessage) {
+                if (scrumReport.innerHTML === disabledMessage) {
                     scrumReport.innerHTML = '';
                 }
             }
@@ -143,10 +143,10 @@ document.addEventListener('DOMContentLoaded', function() {
     chrome.storage.local.get(['enableToggle'], (items) => {
         const enableToggle = items.enableToggle !== false;
         updateContentState(enableToggle);
-        if(!enableToggle){
+        if (!enableToggle) {
             return;
         }
-        
+
         initializePopup();
     })
 
@@ -165,27 +165,27 @@ document.addEventListener('DOMContentLoaded', function() {
         // Button setup
         const generateBtn = document.getElementById('generateReport');
         const copyBtn = document.getElementById('copyReport');
-        
-        generateBtn.addEventListener('click', function() {
+
+        generateBtn.addEventListener('click', function () {
             this.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
             this.disabled = true;
             window.generateScrumReport();
         });
 
-        copyBtn.addEventListener('click', function() {
+        copyBtn.addEventListener('click', function () {
             const scrumReport = document.getElementById('scrumReport');
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = scrumReport.innerHTML;
             document.body.appendChild(tempDiv);
             tempDiv.style.position = 'absolute';
             tempDiv.style.left = '-9999px';
-            
+
             const range = document.createRange();
             range.selectNode(tempDiv);
             const selection = window.getSelection();
             selection.removeAllRanges();
             selection.addRange(range);
-            
+
             try {
                 document.execCommand('copy');
                 this.innerHTML = '<i class="fa fa-check"></i> Copied!';
@@ -199,47 +199,58 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.body.removeChild(tempDiv);
             }
         });
-        
+
         // Custom date container click handler
         document.getElementById('customDateContainer').addEventListener('click', () => {
             document.querySelectorAll('input[name="timeframe"]').forEach(radio => {
                 radio.checked = false
                 radio.dataset.wasChecked = 'false'
             });
-            
+
             const startDateInput = document.getElementById('startingDate');
             const endDateInput = document.getElementById('endingDate');
             startDateInput.disabled = false;
             endDateInput.disabled = false;
-            
+
             chrome.storage.local.set({
                 lastWeekContribution: false,
                 yesterdayContribution: false,
-                selectedTimeframe: null
+                selectedTimeframe: 'custom'
             });
         });
 
         chrome.storage.local.get([
-            'selectedTimeframe', 
-            'lastWeekContribution', 
-            'yesterdayContribution'
+            'selectedTimeframe',
+            'lastWeekContribution',
+            'yesterdayContribution',
+            'startingDate',
+            'endingDate'
         ], (items) => {
             console.log('Restoring state:', items);
-            
+
             if (!items.selectedTimeframe) {
                 items.selectedTimeframe = 'yesterdayContribution';
                 items.lastWeekContribution = false;
                 items.yesterdayContribution = true;
             }
-    
+
             const radio = document.getElementById(items.selectedTimeframe);
-            if (radio) {
+            const startDateInput = document.getElementById('startingDate');
+            const endDateInput = document.getElementById('endingDate');
+
+            if (items.selectedTimeframe === 'custom') {
+                // Restore custom date range
+                document.querySelectorAll('input[name="timeframe"]').forEach(radio => {
+                    radio.checked = false;
+                    radio.dataset.wasChecked = 'false';
+                });
+                startDateInput.disabled = false;
+                endDateInput.disabled = false;
+                if (items.startingDate) startDateInput.value = items.startingDate;
+                if (items.endingDate) endDateInput.value = items.endingDate;
+            } else if (radio) {
                 radio.checked = true;
                 radio.dataset.wasChecked = 'true';
-                
-                const startDateInput = document.getElementById('startingDate');
-                const endDateInput = document.getElementById('endingDate');
-    
                 if (items.selectedTimeframe === 'lastWeekContribution') {
                     startDateInput.value = getLastWeek();
                     endDateInput.value = getToday();
@@ -247,9 +258,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     startDateInput.value = getYesterday();
                     endDateInput.value = getToday();
                 }
-    
                 startDateInput.disabled = endDateInput.disabled = true;
-    
                 chrome.storage.local.set({
                     startingDate: startDateInput.value,
                     endingDate: endDateInput.value,
@@ -283,9 +292,9 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('Switched to settings view');
     }
 
-    if(settingsToggle) {
-        settingsToggle.addEventListener('click', function(){
-            if(isSettingsVisible){
+    if (settingsToggle) {
+        settingsToggle.addEventListener('click', function () {
+            if (isSettingsVisible) {
                 showReportView();
             } else {
                 showSettingsView();
@@ -299,16 +308,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Radio button click handlers with toggle functionality
 document.querySelectorAll('input[name="timeframe"]').forEach(radio => {
-    radio.addEventListener('click', function() {
+    radio.addEventListener('click', function () {
         if (this.dataset.wasChecked === 'true') {
             this.checked = false;
             this.dataset.wasChecked = 'false';
-            
+
             const startDateInput = document.getElementById('startingDate');
             const endDateInput = document.getElementById('endingDate');
             startDateInput.disabled = false;
             endDateInput.disabled = false;
-            
+
             chrome.storage.local.set({
                 lastWeekContribution: false,
                 yesterdayContribution: false,
@@ -338,21 +347,21 @@ document.getElementById('refreshCache').addEventListener('click', async function
         await new Promise(resolve => {
             chrome.storage.local.remove('githubCache', resolve);
         });
-        
+
         // Clear the scrum report
         const scrumReport = document.getElementById('scrumReport');
         if (scrumReport) {
             scrumReport.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Cache cleared successfully. Click "Generate Report" to fetch fresh data.</p>';
         }
-        
+
         button.innerHTML = '<i class="fa fa-check"></i><span>Cache Cleared!</span>';
         button.classList.remove('loading');
-        
+
         setTimeout(() => {
             button.innerHTML = originalText;
             button.disabled = false;
         }, 2000);
-        
+
     } catch (error) {
         console.error('Cache clear failed:', error);
         button.innerHTML = '<i class="fa fa-exclamation-triangle"></i><span>Failed to clear cache</span>';
@@ -399,29 +408,29 @@ function toggleRadio(radio) {
 
 const cacheInput = document.getElementById('cacheInput');
 if (cacheInput) {
-    chrome.storage.local.get(['cacheInput'], function(result) {
+    chrome.storage.local.get(['cacheInput'], function (result) {
         if (result.cacheInput) {
             cacheInput.value = result.cacheInput;
         } else {
             cacheInput.value = 10;
         }
     });
-    
-    cacheInput.addEventListener('blur', function() {
+
+    cacheInput.addEventListener('blur', function () {
         let ttlValue = parseInt(this.value);
         if (isNaN(ttlValue) || ttlValue <= 0 || this.value.trim() === '') {
             ttlValue = 10;
             this.value = ttlValue;
             this.style.borderColor = '#ef4444';
-        } else if (ttlValue > 1440) { 
+        } else if (ttlValue > 1440) {
             ttlValue = 1440;
             this.value = ttlValue;
-            this.style.borderColor = '#f59e0b'; 
+            this.style.borderColor = '#f59e0b';
         } else {
-            this.style.borderColor = '#10b981'; 
+            this.style.borderColor = '#10b981';
         }
-        
-        chrome.storage.local.set({ cacheInput: ttlValue }, function() {
+
+        chrome.storage.local.set({ cacheInput: ttlValue }, function () {
             console.log('Cache TTL saved:', ttlValue, 'minutes');
         });
     });
