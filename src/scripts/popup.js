@@ -47,6 +47,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const darkModeToggle = document.querySelector('img[alt="Night Mode"]');
     const settingsIcon = document.getElementById('settingsIcon');
     const body = document.body;
+    const homeButton = document.getElementById('homeButton');
+    const scrumHelperHeading = document.getElementById('scrumHelperHeading');
+    const settingsToggle = document.getElementById('settingsToggle');
+    const reportSection = document.getElementById('reportSection');
+    const settingsSection = document.getElementById('settingsSection');
+
+    let isSettingsVisible = false;
 
     chrome.storage.local.get(['darkMode'], function(result) {
         if(result.darkMode) {
@@ -261,12 +268,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    const settingsToggle = document.getElementById('settingsToggle');
-    const reportSection = document.getElementById('reportSection');
-    const settingsSection = document.getElementById('settingsSection');
-
-    let isSettingsVisible = false;
-
     function showReportView() {
         isSettingsVisible = false;
         reportSection.classList.remove('hidden');
@@ -291,6 +292,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 showSettingsView();
             }
         });
+    }
+
+    if (homeButton) {
+        homeButton.addEventListener('click', showReportView);
+    }
+    if (scrumHelperHeading) {
+        scrumHelperHeading.addEventListener('click', showReportView);
     }
 
     showReportView();
