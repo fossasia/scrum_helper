@@ -1,49 +1,64 @@
-
 class EmailClientAdapter {
 	isNewConversation() {
-	const clientType = this.detectClient();
-	if (!clientType) return false;
-	const elements = this.getEditorElements();
-	if (!elements || !elements.subject) return false;
-	const currentSubject = elements.subject.value || '';
-	const isReplySubject = currentSubject.startsWith('Re:') || currentSubject.startsWith('Fwd:');	
-	let isReplyContext = false;
+		const clientType = this.detectClient();
+		if (!clientType) return false;
+		const elements = this.getEditorElements();
+		if (!elements || !elements.subject) return false;
+		const currentSubject = elements.subject.value || '';
+		const isReplySubject = currentSubject.startsWith('Re:') || currentSubject.startsWith('Fwd:');
+		let isReplyContext = false;
 
-	switch (clientType) {
-		case 'gmail': {
-            const editor = document.querySelector('.Am.Al.editable.LW-avf');
-            const isNewWindow = editor ? !!editor.closest('div[role="dialog"]') : false;
-            isReplyContext = !isNewWindow;
-            break;
-        }
+		switch (clientType) {
+			case 'gmail': {
+				const editor = document.querySelector('.Am.Al.editable.LW-avf');
+				const isNewWindow = editor ? !!editor.closest('div[role="dialog"]') : false;
+				isReplyContext = !isNewWindow;
+				break;
+			}
 
-		case 'outlook': {
-            isReplyContext = !!document.querySelector('[aria-label="Reply"]');
-            break;
-        }
+			case 'outlook': {
+				isReplyContext = !!document.querySelector('[aria-label="Reply"]');
+				break;
+			}
 
-		case 'yahoo': {
-            const header = document.querySelector('[data-test-id="compose-header-title"]');
-            if (header) {
-                const title = header.innerText.trim().toLowerCase();
-                isReplyContext = title.includes('reply') || title.includes('forward');
-            }
-            break;
-        }
-    }
-	return !(isReplySubject || isReplyContext);
-}
+			case 'yahoo': {
+				const header = document.querySelector('[data-test-id="compose-header-title"]');
+				if (header) {
+					const title = header.innerText.trim().toLowerCase();
+					isReplyContext = title.includes('reply') || title.includes('forward');
+				}
+				break;
+			}
+		}
+		return !(isReplySubject || isReplyContext);
+	}
 	constructor() {
 		this.clientConfigs = {
 			'google-groups': {
 				selectors: {
-					body: 'c-wiz [aria-label="Compose a message"][role=textbox][contenteditable="true"]',
-					subject: 'c-wiz input[aria-label=Subject][type="text"]',
+					body: [
+						// Primary selector for Google Groups
+						'[role="textbox"][aria-label*="Message body"i]',
+						// Alternative selectors for different Google Groups interfaces
+						'[contenteditable="true"][role="textbox"]',
+						'[contenteditable="true"][aria-label*="Message"i]',
+						'[contenteditable="true"][aria-label*="body"i]',
+						// Fallback selectors
+						'[contenteditable="true"]',
+						'[role="textbox"]'
+					].join(', '),
+					subject: [
+						'input[placeholder="Subject"]',
+						'input[aria-label*="Subject"i]',
+						'input[name*="subject"i]',
+						'input[type="text"][placeholder*="Subject"i]'
+					].join(', '),
 				},
 				eventTypes: {
-					contentChange: 'paste',
+					contentChange: 'input',
 					subjectChange: 'input',
 				},
+				injectMethod: 'googleGroups', // Use googleGroups method for Google Groups
 			},
 			'gmail': {
 				selectors: {
@@ -57,15 +72,29 @@ class EmailClientAdapter {
 			},
 			'outlook': {
 				selectors: {
-					body: 'div[role="textbox"][contenteditable="true"][aria-multiline="true"]',
+					body: [
+						// Primary selectors for Outlook
+						'div[aria-label="Message body"]',
+						'[contenteditable="true"][aria-label*="Message body"i]',
+						'[contenteditable="true"][role="textbox"]',
+						// Alternative selectors for different Outlook versions
+						'[contenteditable="true"][aria-label*="body"i]',
+						'[contenteditable="true"][data-testid*="body"i]',
+						// Fallback selectors
+						'[contenteditable="true"]',
+						'[role="textbox"]'
+					].join(', '),
 					subject: [
-						'input[aria-label="Subject"][type="text"]',
-						'input[aria-label="Add a subject"][type="text"][role="textbox"][aria-multiline="false"]',
-					],
+						'input[aria-label="Add a subject"]',
+						'input[aria-label*="Subject"i]',
+						'input[placeholder*="Subject"i]',
+						'input[name*="subject"i]',
+						'input[type="text"][aria-label*="subject"i]'
+					].join(', '),
 				},
 				eventTypes: {
 					contentChange: 'input',
-					subjectChange: 'change',
+					subjectChange: 'input',
 				},
 				injectMethod: 'focusAndPaste', // Custom injection method
 			},
@@ -74,7 +103,7 @@ class EmailClientAdapter {
 					body: [
 						// Desktop selectors
 						'#editor-container [contenteditable="true"][role="textbox"]',
-            '[aria-multiline="true"][aria-label="Message body"][contenteditable="true"][role="textbox"]',
+						'[aria-multiline="true"][aria-label="Message body"][contenteditable="true"][role="textbox"]',
 						'[aria-label="Message body"][contenteditable="true"]',
 						'[role="textbox"][contenteditable="true"]',
 						'[data-test-id*="compose"][contenteditable="true"]',
@@ -85,10 +114,10 @@ class EmailClientAdapter {
 					subject: [
 						// Desktop selectors
 						'#compose-subject-input, input[placeholder="Subject"][id="compose-subject-input"]',
-            '#compose-subject-input',
-							'input[placeholder="Subject"]',
-							'input[aria-label*="subject" i]',
-							'input[data-test-id*="subject" i]',
+						'#compose-subject-input',
+						'input[placeholder="Subject"]',
+						'input[aria-label*="subject" i]',
+						'input[data-test-id*="subject" i]',
 						// Mobile selectors
 						'#compose-subject-input-mobile, input[placeholder="Subject"][id="compose-subject-input-mobile"]'
 					].join(', '),
@@ -111,7 +140,10 @@ class EmailClientAdapter {
 			hostname.endsWith('.office.com') ||
 			hostname.endsWith('.office365.com') ||
 			hostname.endsWith('outlook.live.com') ||
-			hostname.includes('.outlook.')
+			hostname.includes('.outlook.') ||
+			hostname.includes('outlook.office365.com') ||
+			hostname.includes('outlook.office.com') ||
+			hostname.includes('outlook.live.com')
 		)
 			return 'outlook';
 		if (hostname === 'mail.yahoo.com') return 'yahoo';
@@ -120,14 +152,41 @@ class EmailClientAdapter {
 
 	getEditorElements() {
 		const clientType = this.detectClient();
-		if (!clientType) return null;
+		if (!clientType) {
+			console.log('[EMAIL-ADAPTER] No client type detected for hostname:', window.location.hostname);
+			return null;
+		}
 
 		const config = this.clientConfigs[clientType];
-		return {
-			body: document.querySelector(config.selectors.body),
-			subject: document.querySelector(config.selectors.subject),
+		console.log('[EMAIL-ADAPTER] Detected client:', clientType);
+		console.log('[EMAIL-ADAPTER] Using config:', config);
+
+		// Helper function to find element using multiple selectors
+		const findElement = (selectorString, elementType) => {
+			const selectors = selectorString.split(',').map(s => s.trim());
+			console.log(`[EMAIL-ADAPTER] Trying ${elementType} selectors:`, selectors);
+			for (const selector of selectors) {
+				const element = document.querySelector(selector);
+				if (element) {
+					console.log(`[EMAIL-ADAPTER] Found ${elementType} with selector:`, selector);
+					return element;
+				}
+			}
+			console.log(`[EMAIL-ADAPTER] No ${elementType} element found with any selector`);
+			return null;
+		};
+
+		const body = findElement(config.selectors.body, 'body');
+		const subject = findElement(config.selectors.subject, 'subject');
+
+		const result = {
+			body: body,
+			subject: subject,
 			eventTypes: config.eventTypes,
 		};
+
+		console.log('[EMAIL-ADAPTER] Editor elements result:', result);
+		return result;
 	}
 
 	// Helper method to injectContent
@@ -176,6 +235,18 @@ class EmailClientAdapter {
 					selection.removeAllRanges();
 					selection.addRange(range);
 					this.dispatchElementEvents(element, ['input', 'change']);
+					break;
+
+				case 'googleGroups':
+					// Special handling for Google Groups
+					element.focus();
+					element.innerHTML = content;
+					// Force Google Groups editor to recognize the change
+					element.dispatchEvent(new Event('input', { bubbles: true }));
+					element.dispatchEvent(new Event('change', { bubbles: true }));
+					// Additional events that Google Groups might need
+					element.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+					element.dispatchEvent(new KeyboardEvent('keyup', { key: 'Enter', bubbles: true }));
 					break;
 
 				default:
