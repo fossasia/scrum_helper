@@ -112,7 +112,28 @@
 				<div id="settingsSection" class="tab-content hidden">
 
 					<div class="">
-						<p class="text-sm font-medium">Enter cache TTL <span class="text-sm text-gray-800 font-normal">(in minutes)</span>
+						<div class="flex items-center justify-between">
+							<div class="flex">
+								<h4>Your Github Token</h4>
+								<span class="tooltip-container">
+									<i class="fa fa-question-circle question-icon"></i>
+									<span class="tooltip-bubble">
+										<b>Why is it recommended to add a GitHub token?</b><br>
+										Scrum Helper works without a GitHub token, but adding a personal access token is recommended for a better experience. It raises your API limits, allows access to private repos (if permitted), and improves accuracy and speed. Tokens are stored locally and never sent to us and used only to fetch your git data. You can add one anytime in the extension settings.<br><br>
+										<b>How to obtain:</b><br>
+										1. Go to <a href="https://github.com/settings/tokens" target="_blank" style="color:#2563eb;text-decoration:underline;">GitHub Developer Settings</a>.<br>
+										3. Click "Generate new token", select classic token<br>
+										4. Paste it here.<br>
+										<i>Keep your token secret!</i>
+									</span>
+								</span>
+							</div>
+							<button id="toggleTokenVisibility" type="button" class="focus:outline-none">
+								<i id="tokenEyeIcon" class="fa fa-eye text-gray-600"></i>
+							</button>
+						</div>
+						<input id="githubToken" type="password" class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2 pr-10" placeholder="Required for making authenticated requests">
+						<p class="text-sm font-medium">Enter cache TTL <span class="text-sm font-normal">(in minutes)</span>
 							<span class="tooltip-container">
 								<i class="fa fa-question-circle question-icon"></i>
 								<span class="tooltip-bubble">

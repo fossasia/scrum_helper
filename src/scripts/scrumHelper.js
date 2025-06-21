@@ -10,6 +10,7 @@ function allIncluded(outputTarget = 'email') {
 	let startingDate = '';
 	let endingDate = '';
 	let githubUsername = '';
+	let githubToken = '';
 	let projectName = '';
 	let lastWeekArray = [];
 	let nextWeekArray = [];
@@ -42,6 +43,7 @@ function allIncluded(outputTarget = 'email') {
 		chrome.storage.local.get(
 			[
 				'githubUsername',
+				'githubToken',
 				'projectName',
 				'enableToggle',
 				'startingDate',
@@ -101,6 +103,9 @@ function allIncluded(outputTarget = 'email') {
 					}
 					if (items.projectName) {
 						projectName = items.projectName;
+					}
+					if(items.githubToken){
+						githubToken = items.githubToken;
 					}
 					if (items.cacheInput) {
 						cacheInput = items.cacheInput;
@@ -336,6 +341,18 @@ function allIncluded(outputTarget = 'email') {
 			githubCache.fetching = true;
 			githubCache.cacheKey = cacheKey;
 
+			const headers = {
+				'Accept' : 'application/vnd.github.v3+json',
+			};
+
+			if(githubToken) {
+				log('Making authenticated requests.');
+				headers['Authorization'] = `token ${githubToken}`;
+
+			} else {
+				log('Making public requests');
+			}
+			
 			let issueUrl = `https://api.github.com/search/issues?q=author%3A${githubUsername}+org%3Afossasia+created%3A${startingDate}..${endingDate}&per_page=100`;
 			let prUrl = `https://api.github.com/search/issues?q=commenter%3A${githubUsername}+org%3Afossasia+updated%3A${startingDate}..${endingDate}&per_page=100`;
 			let userUrl = `https://api.github.com/users/${githubUsername}`;
@@ -345,10 +362,16 @@ function allIncluded(outputTarget = 'email') {
 				await new Promise(res => setTimeout(res, 500));
 
 				const [issuesRes, prRes, userRes ] = await Promise.all([
-					fetch(issueUrl),
-					fetch(prUrl),
-					fetch(userUrl),
+					fetch(issueUrl, { headers }),
+					fetch(prUrl, { headers }),
+					fetch(userUrl, { headers }),
 				]);
+
+				if (issuesRes.status === 401 || prRes.status === 401 || userRes.status === 401 ||
+					issuesRes.status === 403 || prRes.status === 403 || userRes.status === 403) {
+					showInvalidTokenMessage();
+					return;
+				}
 
 				if(!issuesRes.ok) throw new Error(`Error fetching Github issues: ${issuesRes.status} ${issuesRes.statusText}`);
 				if(!prRes.ok) throw new Error(`Error fetching Github PR review data: ${prRes.status} ${prRes.statusText}`);
@@ -374,6 +397,14 @@ function allIncluded(outputTarget = 'email') {
 				githubCache.queue.forEach(({ reject }) => reject(err));
 				githubCache.queue = [];
 				githubCache.fetching = false;
+
+				if(outputTarget === 'popup') {
+					const generateBtn = document.getElementById('generateReport');
+					if(generateBtn) {
+						generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+                        generateBtn.disabled = false;
+					}
+				}
 				throw err;
 			} finally {
 				githubCache.fetching = false;
@@ -401,7 +432,21 @@ function allIncluded(outputTarget = 'email') {
 		}
 		verifyCacheStatus();
 
-		
+		function showInvalidTokenMessage() {
+            if(outputTarget === 'popup') {
+                const reportDiv = document.getElementById('scrumReport');
+                if(reportDiv){
+                    reportDiv.innerHTML = '<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">Invalid or expired GitHub token. Please check your token in the settings and try again.</div>';
+                    const generateBtn = document.getElementById('generateReport');
+                    if (generateBtn) {
+                        generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+                        generateBtn.disabled = false;
+                    }
+                } else {
+                    alert('Invalid or expired GitHub token. Please check your token in the extension popup and try again.');
+                }
+            }
+        }
 
 		function processGithubData(data) {
 			log('Processing Github data');
