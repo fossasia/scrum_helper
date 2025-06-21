@@ -343,25 +343,26 @@ document.getElementById('refreshCache').addEventListener('click', async function
     button.disabled = true;
 
     try {
-        // Clear local cache
-        await new Promise(resolve => {
-            chrome.storage.local.remove('githubCache', resolve);
+        chrome.runtime.sendMessage({ action: 'clearCache' }, (response) => {
+            if (chrome.runtime.lastError) {
+                console.error('Cache clear failed:', chrome.runtime.lastError.message);
+                button.innerHTML = '<i class="fa fa-exclamation-triangle"></i><span>Failed to clear cache</span>';
+            } else {
+                // Clear the scrum report
+                const scrumReport = document.getElementById('scrumReport');
+                if (scrumReport) {
+                    scrumReport.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Cache cleared successfully. Click "Generate Report" to fetch fresh data.</p>';
+                }
+
+                button.innerHTML = '<i class="fa fa-check"></i><span>Cache Cleared!</span>';
+                button.classList.remove('loading');
+            }
+
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }, 2000);
         });
-
-        // Clear the scrum report
-        const scrumReport = document.getElementById('scrumReport');
-        if (scrumReport) {
-            scrumReport.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Cache cleared successfully. Click "Generate Report" to fetch fresh data.</p>';
-        }
-
-        button.innerHTML = '<i class="fa fa-check"></i><span>Cache Cleared!</span>';
-        button.classList.remove('loading');
-
-        setTimeout(() => {
-            button.innerHTML = originalText;
-            button.disabled = false;
-        }, 2000);
-
     } catch (error) {
         console.error('Cache clear failed:', error);
         button.innerHTML = '<i class="fa fa-exclamation-triangle"></i><span>Failed to clear cache</span>';
@@ -395,8 +396,9 @@ function toggleRadio(radio) {
         endingDate: endDateInput.value,
         lastWeekContribution: radio.id === 'lastWeekContribution',
         yesterdayContribution: radio.id === 'yesterdayContribution',
-        selectedTimeframe: radio.id,
-        githubCache: null // Clear cache to force new fetch
+        selectedTimeframe: radio.id
+        // Note: Cache is now handled automatically by the multi-key system
+        // Different date ranges will have different cache keys
     }, () => {
         console.log('State saved, dates:', {
             start: startDateInput.value,

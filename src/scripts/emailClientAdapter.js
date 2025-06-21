@@ -1,44 +1,43 @@
-
 class EmailClientAdapter {
 	isNewConversation() {
-	const clientType = this.detectClient();
-	if (!clientType) return false;
-	const elements = this.getEditorElements();
-	if (!elements || !elements.subject) return false;
-	const currentSubject = elements.subject.value || '';
-	const isReplySubject = currentSubject.startsWith('Re:') || currentSubject.startsWith('Fwd:');	
-	let isReplyContext = false;
+		const clientType = this.detectClient();
+		if (!clientType) return false;
+		const elements = this.getEditorElements();
+		if (!elements || !elements.subject) return false;
+		const currentSubject = elements.subject.value || '';
+		const isReplySubject = currentSubject.startsWith('Re:') || currentSubject.startsWith('Fwd:');
+		let isReplyContext = false;
 
-	switch (clientType) {
-		case 'gmail': {
-            const editor = document.querySelector('.Am.Al.editable.LW-avf');
-            const isNewWindow = editor ? !!editor.closest('div[role="dialog"]') : false;
-            isReplyContext = !isNewWindow;
-            break;
-        }
+		switch (clientType) {
+			case 'gmail': {
+				const editor = document.querySelector('.Am.Al.editable.LW-avf');
+				const isNewWindow = editor ? !!editor.closest('div[role="dialog"]') : false;
+				isReplyContext = !isNewWindow;
+				break;
+			}
 
-		case 'outlook': {
-            isReplyContext = !!document.querySelector('[aria-label="Reply"]');
-            break;
-        }
+			case 'outlook': {
+				isReplyContext = !!document.querySelector('[aria-label="Reply"]');
+				break;
+			}
 
-		case 'yahoo': {
-            const header = document.querySelector('[data-test-id="compose-header-title"]');
-            if (header) {
-                const title = header.innerText.trim().toLowerCase();
-                isReplyContext = title.includes('reply') || title.includes('forward');
-            }
-            break;
-        }
-    }
-	return !(isReplySubject || isReplyContext);
-}
+			case 'yahoo': {
+				const header = document.querySelector('[data-test-id="compose-header-title"]');
+				if (header) {
+					const title = header.innerText.trim().toLowerCase();
+					isReplyContext = title.includes('reply') || title.includes('forward');
+				}
+				break;
+			}
+		}
+		return !(isReplySubject || isReplyContext);
+	}
 	constructor() {
 		this.clientConfigs = {
 			'google-groups': {
 				selectors: {
-					body: 'c-wiz [aria-label="Compose a message"][role=textbox][contenteditable="true"]',
-					subject: 'c-wiz input[aria-label=Subject][type="text"]',
+					body: '[role="textbox"][aria-label*="Message body"i]',
+					subject: 'input[placeholder="Subject"]',
 				},
 				eventTypes: {
 					contentChange: 'paste',
@@ -57,11 +56,8 @@ class EmailClientAdapter {
 			},
 			'outlook': {
 				selectors: {
-					body: 'div[role="textbox"][contenteditable="true"][aria-multiline="true"]',
-					subject: [
-						'input[aria-label="Subject"][type="text"]',
-						'input[aria-label="Add a subject"][type="text"][role="textbox"][aria-multiline="false"]',
-					],
+					body: 'div[aria-label="Message body"]',
+					subject: 'input[aria-label="Add a subject"]',
 				},
 				eventTypes: {
 					contentChange: 'input',
@@ -74,7 +70,7 @@ class EmailClientAdapter {
 					body: [
 						// Desktop selectors
 						'#editor-container [contenteditable="true"][role="textbox"]',
-            '[aria-multiline="true"][aria-label="Message body"][contenteditable="true"][role="textbox"]',
+						'[aria-multiline="true"][aria-label="Message body"][contenteditable="true"][role="textbox"]',
 						'[aria-label="Message body"][contenteditable="true"]',
 						'[role="textbox"][contenteditable="true"]',
 						'[data-test-id*="compose"][contenteditable="true"]',
@@ -85,10 +81,10 @@ class EmailClientAdapter {
 					subject: [
 						// Desktop selectors
 						'#compose-subject-input, input[placeholder="Subject"][id="compose-subject-input"]',
-            '#compose-subject-input',
-							'input[placeholder="Subject"]',
-							'input[aria-label*="subject" i]',
-							'input[data-test-id*="subject" i]',
+						'#compose-subject-input',
+						'input[placeholder="Subject"]',
+						'input[aria-label*="subject" i]',
+						'input[data-test-id*="subject" i]',
 						// Mobile selectors
 						'#compose-subject-input-mobile, input[placeholder="Subject"][id="compose-subject-input-mobile"]'
 					].join(', '),
