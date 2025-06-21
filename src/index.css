@@ -346,6 +346,7 @@ body,input,div,h3,h4,p,label,hr, #scrumReport{
     cursor: pointer;
     display: flex;
     align-items: center;
+    font-size: 1.5rem;
 }
 #homeButton:active {
     background: #e5e7eb;
