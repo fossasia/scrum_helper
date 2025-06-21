@@ -345,6 +345,24 @@ body,input,div,h3,h4,p,label,hr, #scrumReport{
     background: #9ca3af !important;
 }
 
+.dark-mode .tooltip-container.tooltip-right .tooltip-bubble::after {
+    border-color: transparent #374151 transparent transparent;
+}
+#homeButton {
+    background: none;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    font-size: 1.5rem;
+}
+#homeButton:active {
+    background: #e5e7eb;
+}
+.dark-mode #homeButton:active {
+    background: #374151;
+=======
 .dark-mode .token-preview-char {
     box-shadow: 0 1px 4px rgba(0,0,0,0.18);
 }
