@@ -36,13 +36,29 @@ class EmailClientAdapter {
 		this.clientConfigs = {
 			'google-groups': {
 				selectors: {
-					body: '[role="textbox"][aria-label*="Message body"i]',
-					subject: 'input[placeholder="Subject"]',
+					body: [
+						// Primary selector for Google Groups
+						'[role="textbox"][aria-label*="Message body"i]',
+						// Alternative selectors for different Google Groups interfaces
+						'[contenteditable="true"][role="textbox"]',
+						'[contenteditable="true"][aria-label*="Message"i]',
+						'[contenteditable="true"][aria-label*="body"i]',
+						// Fallback selectors
+						'[contenteditable="true"]',
+						'[role="textbox"]'
+					].join(', '),
+					subject: [
+						'input[placeholder="Subject"]',
+						'input[aria-label*="Subject"i]',
+						'input[name*="subject"i]',
+						'input[type="text"][placeholder*="Subject"i]'
+					].join(', '),
 				},
 				eventTypes: {
-					contentChange: 'paste',
+					contentChange: 'input',
 					subjectChange: 'input',
 				},
+				injectMethod: 'googleGroups', // Use googleGroups method for Google Groups
 			},
 			'gmail': {
 				selectors: {
@@ -56,12 +72,29 @@ class EmailClientAdapter {
 			},
 			'outlook': {
 				selectors: {
-					body: 'div[aria-label="Message body"]',
-					subject: 'input[aria-label="Add a subject"]',
+					body: [
+						// Primary selectors for Outlook
+						'div[aria-label="Message body"]',
+						'[contenteditable="true"][aria-label*="Message body"i]',
+						'[contenteditable="true"][role="textbox"]',
+						// Alternative selectors for different Outlook versions
+						'[contenteditable="true"][aria-label*="body"i]',
+						'[contenteditable="true"][data-testid*="body"i]',
+						// Fallback selectors
+						'[contenteditable="true"]',
+						'[role="textbox"]'
+					].join(', '),
+					subject: [
+						'input[aria-label="Add a subject"]',
+						'input[aria-label*="Subject"i]',
+						'input[placeholder*="Subject"i]',
+						'input[name*="subject"i]',
+						'input[type="text"][aria-label*="subject"i]'
+					].join(', '),
 				},
 				eventTypes: {
 					contentChange: 'input',
-					subjectChange: 'change',
+					subjectChange: 'input',
 				},
 				injectMethod: 'focusAndPaste', // Custom injection method
 			},
@@ -107,7 +140,10 @@ class EmailClientAdapter {
 			hostname.endsWith('.office.com') ||
 			hostname.endsWith('.office365.com') ||
 			hostname.endsWith('outlook.live.com') ||
-			hostname.includes('.outlook.')
+			hostname.includes('.outlook.') ||
+			hostname.includes('outlook.office365.com') ||
+			hostname.includes('outlook.office.com') ||
+			hostname.includes('outlook.live.com')
 		)
 			return 'outlook';
 		if (hostname === 'mail.yahoo.com') return 'yahoo';
@@ -116,14 +152,41 @@ class EmailClientAdapter {
 
 	getEditorElements() {
 		const clientType = this.detectClient();
-		if (!clientType) return null;
+		if (!clientType) {
+			console.log('[EMAIL-ADAPTER] No client type detected for hostname:', window.location.hostname);
+			return null;
+		}
 
 		const config = this.clientConfigs[clientType];
-		return {
-			body: document.querySelector(config.selectors.body),
-			subject: document.querySelector(config.selectors.subject),
+		console.log('[EMAIL-ADAPTER] Detected client:', clientType);
+		console.log('[EMAIL-ADAPTER] Using config:', config);
+
+		// Helper function to find element using multiple selectors
+		const findElement = (selectorString, elementType) => {
+			const selectors = selectorString.split(',').map(s => s.trim());
+			console.log(`[EMAIL-ADAPTER] Trying ${elementType} selectors:`, selectors);
+			for (const selector of selectors) {
+				const element = document.querySelector(selector);
+				if (element) {
+					console.log(`[EMAIL-ADAPTER] Found ${elementType} with selector:`, selector);
+					return element;
+				}
+			}
+			console.log(`[EMAIL-ADAPTER] No ${elementType} element found with any selector`);
+			return null;
+		};
+
+		const body = findElement(config.selectors.body, 'body');
+		const subject = findElement(config.selectors.subject, 'subject');
+
+		const result = {
+			body: body,
+			subject: subject,
 			eventTypes: config.eventTypes,
 		};
+
+		console.log('[EMAIL-ADAPTER] Editor elements result:', result);
+		return result;
 	}
 
 	// Helper method to injectContent
@@ -172,6 +235,18 @@ class EmailClientAdapter {
 					selection.removeAllRanges();
 					selection.addRange(range);
 					this.dispatchElementEvents(element, ['input', 'change']);
+					break;
+
+				case 'googleGroups':
+					// Special handling for Google Groups
+					element.focus();
+					element.innerHTML = content;
+					// Force Google Groups editor to recognize the change
+					element.dispatchEvent(new Event('input', { bubbles: true }));
+					element.dispatchEvent(new Event('change', { bubbles: true }));
+					// Additional events that Google Groups might need
+					element.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+					element.dispatchEvent(new KeyboardEvent('keyup', { key: 'Enter', bubbles: true }));
 					break;
 
 				default:

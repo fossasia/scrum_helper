@@ -187,7 +187,18 @@ function allIncluded(outputTarget = 'email') {
         const editor = window.emailClientAdapter.getEditorElements();
         if (editor && editor.body) {
           log('Injecting scrum into email body.');
-          editor.body.innerHTML = finalReport.replace(/\n/g, '<br>');
+          // Use the proper injection method instead of directly setting innerHTML
+          const success = window.emailClientAdapter.injectContent(
+            editor.body,
+            finalReport.replace(/\n/g, '<br>'),
+            editor.eventTypes.contentChange
+          );
+          if (!success) {
+            logError('Failed to inject content using adapter method, falling back to direct injection.');
+            editor.body.innerHTML = finalReport.replace(/\n/g, '<br>');
+            // Dispatch events to ensure the editor recognizes the change
+            editor.body.dispatchEvent(new Event(editor.eventTypes.contentChange, { bubbles: true }));
+          }
         } else {
           logError('Could not find email editor body to inject report.');
         }
@@ -309,16 +320,26 @@ if (typeof window.scrumHelperLoaded === 'undefined') {
 
     const attemptInjection = () => {
       // Check if the editor is available and we haven't injected yet
-      if (!hasInjected && window.emailClientAdapter && window.emailClientAdapter.getEditorElements()) {
-        console.log("[SCRUM-HELPER] Compose window detected. Running scrum helper.");
-        hasInjected = true; // Set flag to prevent re-injection
-        allIncluded('email');
+      if (!hasInjected && window.emailClientAdapter) {
+        const editor = window.emailClientAdapter.getEditorElements();
+        if (editor && editor.body) {
+          console.log("[SCRUM-HELPER] Compose window detected. Running scrum helper.");
+          console.log("[SCRUM-HELPER] Client type:", window.emailClientAdapter.detectClient());
+          console.log("[SCRUM-HELPER] Editor elements found:", editor);
+          hasInjected = true; // Set flag to prevent re-injection
+          allIncluded('email');
 
-        // Stop the interval check once we've successfully injected
-        if (injectionInterval) {
-          clearInterval(injectionInterval);
+          // Stop the interval check once we've successfully injected
+          if (injectionInterval) {
+            clearInterval(injectionInterval);
+          }
+          return true;
+        } else {
+          // Log when elements are not found for debugging
+          if (window.emailClientAdapter.detectClient()) {
+            console.log("[SCRUM-HELPER] Editor elements not found yet for:", window.emailClientAdapter.detectClient());
+          }
         }
-        return true;
       }
       return false;
     };
@@ -326,6 +347,14 @@ if (typeof window.scrumHelperLoaded === 'undefined') {
     // Start an interval to check for the compose window periodically.
     // This is more robust for email clients that load the editor dynamically.
     injectionInterval = setInterval(attemptInjection, 1000); // Check every second
+
+    // Add a timeout to stop checking after 30 seconds
+    setTimeout(() => {
+      if (injectionInterval) {
+        clearInterval(injectionInterval);
+        console.log("[SCRUM-HELPER] Injection timeout reached. Editor not found within 30 seconds.");
+      }
+    }, 30000);
   }
 }
 
@@ -336,3 +365,29 @@ $(document).on('click', ':contains("New conversation")', function () {
   // The allIncluded function handles the rest of the logic
   allIncluded('email');
 });
+
+// Additional listeners for Google Groups specific elements
+$(document).on('click', '[role="button"]:contains("New topic")', function () {
+  console.log('[SCRUM-HELPER] "New topic" clicked in Google Groups, re-initializing injection.');
+  setTimeout(() => allIncluded('email'), 1000); // Delay to allow editor to load
+});
+
+$(document).on('click', '[role="button"]:contains("Post")', function () {
+  console.log('[SCRUM-HELPER] "Post" button clicked in Google Groups, re-initializing injection.');
+  setTimeout(() => allIncluded('email'), 1000); // Delay to allow editor to load
+});
+
+// Listen for URL changes in single-page apps
+let lastUrl = location.href;
+new MutationObserver(() => {
+  const url = location.href;
+  if (url !== lastUrl) {
+    lastUrl = url;
+    console.log('[SCRUM-HELPER] URL changed, checking for editor elements.');
+    setTimeout(() => {
+      if (window.emailClientAdapter && window.emailClientAdapter.getEditorElements()) {
+        allIncluded('email');
+      }
+    }, 2000);
+  }
+}).observe(document, { subtree: true, childList: true });
