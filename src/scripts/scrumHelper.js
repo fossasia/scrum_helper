@@ -188,7 +188,7 @@ function allIncluded(outputTarget = 'email') {
 			return WeekDisplayPadded;
 		}
 
-		const DEBUG = true; 
+		const DEBUG = false; 
 		function log( ...args) {
 			if(DEBUG) {
 				console.log(`[SCRUM-HELPER]:`, ...args);
