@@ -381,6 +381,21 @@ function allIncluded(outputTarget = 'email') {
 				githubPrsReviewData = await prRes.json();
 				githubUserData = await userRes.json();
 
+				if (githubIssuesData && githubIssuesData.items) {
+					// Collect open PRs
+					const openPRs = githubIssuesData.items.filter(
+						item => item.pull_request && item.state === 'open'
+					);
+					// Fetch commits for open PRs (batch)
+					if (openPRs.length && githubToken) {
+						const commitMap = await fetchCommitsForOpenPRs(openPRs, githubToken);
+						// Attach commits to PR objects
+						openPRs.forEach(pr => {
+							pr._lastCommits = commitMap[pr.number] || [];
+						});
+					}
+				}
+
 				// Cache the data
 				githubCache.data = { githubIssuesData, githubPrsReviewData, githubUserData };
 				githubCache.timestamp = Date.now();
@@ -409,6 +424,53 @@ function allIncluded(outputTarget = 'email') {
 			} finally {
 				githubCache.fetching = false;
 			}
+		}
+
+		async function fetchCommitsForOpenPRs(prs, githubToken) {
+			if (!prs.length) return {};
+			let queries = prs.map((pr,idx) => {
+				const repoParts = pr.repository_url.split('/');
+				const owner = repoParts[repoParts.length - 2];
+				const repo = repoParts[repoParts.length - 1];
+				return `
+					pr${idx}: repository(owner: "${owner}", name: "${repo}") {
+						pullRequest(number: ${pr.number}) {
+							commits(last: 5) {
+								nodes {
+									commit {
+										messageHeadline
+										committedDate
+										url
+										author {
+											name
+											user { login }
+										}
+									}
+								}
+							}
+						}
+					}
+				`;
+			}).join('\n');
+			const query = `query { ${queries} }`;
+
+			const res = await fetch('https://api.github.com/graphql', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					...(githubToken ? {Authorization: `bearer ${githubToken}`} : {})
+				},
+				body: JSON.stringify({ query })
+			});
+			const data = await res.json();
+			let commitMap = {};
+			prs.forEach((pr, idx) => {
+				const prData =  data.data && data.data[`pr${idx}`] && data.data[`pr${idx}`].pullRequest;
+				if (prData && prData.commits && prData.commits.nodes) {
+					commitMap[pr.number] = prData.commits.nodes.map(n => n.commit);
+				}
+			});
+			return commitMap;
 		}
 
 		async function verifyCacheStatus() {
@@ -469,6 +531,8 @@ function allIncluded(outputTarget = 'email') {
 			if(!githubCache.subject && scrumSubject) {
 				scrumSubjectLoaded();
 			}
+			writeGithubIssuesPrs();
+    		writeGithubPrsReviews();
 		}
 
 		function formatDate(dateString) {
@@ -706,7 +770,19 @@ ${userReason}`;
 					if (item.state === 'closed') {
 						li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_merged_button}</li>`;
 					} else if (item.state === 'open') {
-						li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_unmerged_button}</li>`;
+						li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_unmerged_button}`;
+						// ADD THIS BLOCK:
+						if (item._lastCommits && item._lastCommits.length) {
+							li += `<ul>`;
+							item._lastCommits.forEach(commit => {
+								li += `<li>
+									<a href="${commit.url}" target="_blank">${commit.messageHeadline}</a>
+									<span style="color:#888;font-size:11px;"> (${commit.author?.user?.login || commit.author?.name || 'unknown'}, ${new Date(commit.committedDate).toLocaleString()})</span>
+								</li>`;
+							});
+							li += `</ul>`;
+						}
+						li += `</li>`;
 					}
 				} else {
 					// is a issue
