@@ -907,6 +907,25 @@ ${userReason}`;
 	}
 }
 
+async function forceGithubDataRefresh() {
+	if(typeof githubCache !== 'undefined') {
+		githubCache.data = null;
+		githubCache.cacheKey = null;
+		githubCache.timestamp = 0;
+		githubCache.subject = null;
+		githubCache.fetching = false;
+		githubCache.queue = [];
+	}
+
+	await new Promise (resolve => {
+		chrome.storage.local.remove('githubCache', resolve);
+	});
+
+	hasInjectedContent = false;
+
+	return {success: true};
+}
+
 allIncluded('email');
 
 $('button>span:contains(New conversation)').parent('button').click(() => {
@@ -927,6 +946,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         return true;
     }
 });
+
+
 
 
 // ADding dummy commits, 
