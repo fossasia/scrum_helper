@@ -25,6 +25,7 @@ function allIncluded(outputTarget = 'email') {
     let prsReviewDataProcessed = false; 
 	let showOpenLabel = true;
 	let showClosedLabel = true;
+	let showCommits = false;
 	let userReason = '';
 
 	let pr_merged_button =
@@ -54,7 +55,8 @@ function allIncluded(outputTarget = 'email') {
 				'yesterdayContribution',
 				'userReason',
         		'githubCache',
-				'cacheInput'
+				'cacheInput',
+				'showCommits',
 			],
 			(items) => {
 					console.log("Storage items received:", items);
@@ -119,6 +121,11 @@ function allIncluded(outputTarget = 'email') {
 						showClosedLabel = false;
 						pr_merged_button = '';
 						issue_closed_button = '';
+					}
+					if(items.showCommits !== undefined) {
+						showCommits = items.showCommits;
+					} else {
+						showCommits = false; // Default value
 					}
 					if (items.userReason) {
 						userReason = items.userReason;
@@ -771,7 +778,7 @@ ${userReason}`;
 						li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_merged_button}</li>`;
 					} else if (item.state === 'open') {
 						li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_unmerged_button}`;
-						if (item._lastCommits && item._lastCommits.length) {
+						if (showCommits && item._lastCommits && item._lastCommits.length) {
 							item._lastCommits.forEach(commit => {
 								li += `<li style="list-style: disc; margin: 0 0 0 20px; padding: 0; color: #666;"><span style="color:#2563eb;">${commit.messageHeadline}</span><span style="color:#666; font-size: 11px;"> (${commit.author?.user?.login || commit.author?.name || 'unknown'}, ${new Date(commit.committedDate).toLocaleString()})</span></li>`;
 							});
@@ -902,6 +909,17 @@ ${userReason}`;
 }
 
 async function forceGithubDataRefresh() {
+	let showCommits = false;
+
+	await new Promise(resolve => {
+        chrome.storage.local.get('showCommits', (result) => {
+            if (result.showCommits !== undefined) {
+                showCommits = result.showCommits;
+            }
+            resolve();
+        });
+    });
+
 	if(typeof githubCache !== 'undefined') {
 		githubCache.data = null;
 		githubCache.cacheKey = null;
@@ -914,6 +932,8 @@ async function forceGithubDataRefresh() {
 	await new Promise (resolve => {
 		chrome.storage.local.remove('githubCache', resolve);
 	});
+
+	chrome.storage.local.set({ showCommits: showCommits });
 
 	hasInjectedContent = false;
 
