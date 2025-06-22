@@ -362,7 +362,31 @@ body,input,div,h3,h4,p,label,hr, #scrumReport{
 }
 .dark-mode #homeButton:active {
     background: #374151;
-=======
+}
 .dark-mode .token-preview-char {
     box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+}
+
+/* Only affects popup, not email */
+.popup-commit-list {
+    margin: 8px 0 8px 18px;
+    padding-left: 0;
+    border-left: 2px solid #e0e7ff;
+    background: #f8fafc;
+    border-radius: 6px;
+}
+.popup-commit-list li {
+    list-style: none;
+    margin: 8px 0 8px 0;
+    padding-left: 0;
+}
+.popup-commit-list .commit-meta {
+    color: #64748b;
+    font-size: 11px;
+    margin-left: 8px;
+}
+.popup-commit-list a {
+    color: #2563eb;
+    font-weight: 500;
+    text-decoration: underline;
 }

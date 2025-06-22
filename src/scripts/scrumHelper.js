@@ -771,16 +771,10 @@ ${userReason}`;
 						li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_merged_button}</li>`;
 					} else if (item.state === 'open') {
 						li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_unmerged_button}`;
-						// ADD THIS BLOCK:
 						if (item._lastCommits && item._lastCommits.length) {
-							li += `<ul>`;
 							item._lastCommits.forEach(commit => {
-								li += `<li>
-									<a href="${commit.url}" target="_blank">${commit.messageHeadline}</a>
-									<span style="color:#888;font-size:11px;"> (${commit.author?.user?.login || commit.author?.name || 'unknown'}, ${new Date(commit.committedDate).toLocaleString()})</span>
-								</li>`;
+								li += `<li style="list-style: disc; margin: 0 0 0 20px; padding: 0; color: #666;"><span style="color:#2563eb;">${commit.messageHeadline}</span><span style="color:#666; font-size: 11px;"> (${commit.author?.user?.login || commit.author?.name || 'unknown'}, ${new Date(commit.committedDate).toLocaleString()})</span></li>`;
 							});
-							li += `</ul>`;
 						}
 						li += `</li>`;
 					}
