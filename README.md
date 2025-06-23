@@ -116,41 +116,8 @@ Scrum Helper is not limited to the [FOSSASIA](https://github.com/fossasia) organ
    * Save your changes.
    * For Chrome: Rebuild or reload the extension in your browser (`chrome://extensions` → Refresh your extension).
    * For Firefox: Reload the temporary add-on by going to `about:debugging` → "This Firefox" → Click "Reload" next to your extension.
-
-4. **How to Obtain a GitHub Personal Access Token**
-
-- To use Scrum Helper with authenticated requests (for higher rate limits and private repositories), you need a GitHub personal access token.
-
-  #### Steps to Generate a Token
-
-  1. **Go to GitHub Developer Settings:**  
-    Visit [https://github.com/settings/tokens](https://github.com/settings/tokens) while logged in to your GitHub account.
-
-  2. **Choose Token Type:**  
-    - Select **"Personal access tokens (classic)"**.
-
-  3. **Generate a New Token:**  
-    - Click **"Generate new token"**.
-    - Give your token a descriptive name (e.g., "Scrum Helper Extension").
-    - Set an expiration date if desired.
-
-  4. **Create and Copy the Token:**  
-    - Click **"Generate token"** at the bottom.
-    - **Copy the token** and save it securely. You will not be able to see it again!
-
-  5. **Paste the Token in Scrum Helper:**  
-    - Open the Scrum Helper extension popup.
-    - Paste your token into the "GitHub Token" field.
-
-  > **Keep your token secret!** Never share it or commit it to public repositories.
-
-  **Why use a token?**  
-  GitHub tokens allow the extension to make authenticated requests, increasing your API rate limit and enabling access to private repositories if you grant those permissions.
-
-  ---
-5. **Get Customized SCRUM Reports**
-    - The reports will now be generated using contributions from your organization.
-
+4. **Get Customized SCRUM Reports**
+   - The reports will now be generated using contributions from your organization.
 
 
 ## About contributing
