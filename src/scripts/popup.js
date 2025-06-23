@@ -253,8 +253,8 @@ document.addEventListener('DOMContentLoaded', function() {
             
             const startDateInput = document.getElementById('startingDate');
             const endDateInput = document.getElementById('endingDate');
-            startDateInput.disabled = false;
-            endDateInput.disabled = false;
+            startDateInput.readOnly = false;
+            endDateInput.readOnly = false;
             
             chrome.storage.local.set({
                 lastWeekContribution: false,
@@ -292,7 +292,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     endDateInput.value = getToday();
                 }
     
-                startDateInput.disabled = endDateInput.disabled = true;
+                startDateInput.readOnly = endDateInput.readOnly = true;
     
                 chrome.storage.local.set({
                     startingDate: startDateInput.value,
@@ -391,8 +391,8 @@ document.querySelectorAll('input[name="timeframe"]').forEach(radio => {
             
             const startDateInput = document.getElementById('startingDate');
             const endDateInput = document.getElementById('endingDate');
-            startDateInput.disabled = false;
-            endDateInput.disabled = false;
+            startDateInput.readOnly = false;
+            endDateInput.readOnly = false;
             
             chrome.storage.local.set({
                 lastWeekContribution: false,
@@ -464,7 +464,7 @@ function toggleRadio(radio) {
         endDateInput.value = getToday();
     }
 
-    startDateInput.disabled = endDateInput.disabled = true;
+    startDateInput.readOnly = endDateInput.readOnly = true;
 
     chrome.storage.local.set({
         startingDate: startDateInput.value,
