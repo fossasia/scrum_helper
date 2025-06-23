@@ -23,27 +23,32 @@
 <body>
 	<div class="pl-1 py-4 rounded-2xl">
 		<div class="bg-white px-4 py-4 mx-2 mb-2 rounded-3xl">
-			<div class="flex justify-between py-2">
-				<h3 class="text-3xl font-semibold ">Scrum Helper</h3>
-				<img src="icons/night-mode.png" alt="Night Mode" class="w-7 h-7 mx-3 cursor-pointer">
-			</div>
-			<div>
-				<p class="">Report your development progress by auto-fetching your Git activity for a selected period</p>
-			</div>
 
+				<div class="flex justify-between py-2">
+					<h3 id="scrumHelperHeading" class="text-3xl font-semibold cursor-pointer">Scrum Helper</h3>
+					<img src="icons/night-mode.png" alt="Night Mode" class="w-7 h-7 mx-3 cursor-pointer">
+				</div>
+				<div>
+					<p class="">Report your development progress by auto-fetching your Git activity for a selected period</p>
+				</div>
+				
 			<div class="center mt-2 flex justify-between">
-				<label class="flex items-center justify-center gap-2 ">
-					Disable
-					<input type="checkbox" value="" id="enable" class="sr-only peer">
-					<div
-						class="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600">
+					<label class="flex items-center justify-center gap-2 ">
+						Disable
+						<input type="checkbox" value="" id="enable" class="sr-only peer" >
+						<div class="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"></div>
+						<span class=""></span>
+						Enable
+					</label>
+					<div class="flex">
+						<button id="homeButton" title="Go to Report" class="ml-1 p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition">
+							<i class="fa fa-home text-2xl text-gray-600 dark:text-gray-300"></i>
+						</button>
+						<button id="settingsToggle">
+							<img id="settingsIcon" src="icons/settings-light.png" alt="Settings" class="w-6 h-6 mx-3 cursor-pointer">
+						</button>
 					</div>
-					<span class=""></span>
-					Enable
-				</label>
-				<button id="settingsToggle">
-					<img id="settingsIcon" src="icons/settings-light.png" alt="Settings" class="w-7 h-7 mx-3 cursor-pointer">
-				</button>
+
 			</div>
 		</div>
 
@@ -134,8 +139,31 @@
 					</div>
 
 					<div class="">
-						<p class="text-sm font-medium">Enter cache TTL <span class="text-sm text-gray-800 font-normal">(in
-								minutes)</span>
+
+
+						<div class="flex items-center justify-between">
+							<div class="flex">
+								<h4>Your Github Token</h4>
+								<span class="tooltip-container">
+									<i class="fa fa-question-circle question-icon"></i>
+									<span class="tooltip-bubble">
+										<b>Why is it recommended to add a GitHub token?</b><br>
+										Scrum Helper works without a GitHub token, but adding a personal access token is recommended for a better experience. It raises your API limits, allows access to private repos (if permitted), and improves accuracy and speed. Tokens are stored locally and never sent to us and used only to fetch your git data. You can add one anytime in the extension settings.<br><br>
+										<b>How to obtain:</b><br>
+										1. Go to <a href="https://github.com/settings/tokens" target="_blank" style="color:#2563eb;text-decoration:underline;">GitHub Developer Settings</a>.<br>
+										3. Click "Generate new token", select classic token<br>
+										4. Paste it here.<br>
+										<i>Keep your token secret!</i>
+									</span>
+								</span>
+							</div>
+							<button id="toggleTokenVisibility" type="button" class="focus:outline-none">
+								<i id="tokenEyeIcon" class="fa fa-eye text-gray-600"></i>
+							</button>
+						</div>
+						<input id="githubToken" type="password" class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2 pr-10" placeholder="Required for making authenticated requests">
+						<p class="text-sm font-medium">Enter cache TTL <span class="text-sm font-normal">(in minutes)</span>
+
 							<span class="tooltip-container">
 								<i class="fa fa-question-circle question-icon"></i>
 								<span class="tooltip-bubble">
