@@ -362,7 +362,8 @@ body,input,div,h3,h4,p,label,hr, #scrumReport{
 }
 .dark-mode #homeButton:active {
     background: #374151;
-=======
+
+}
 .dark-mode .token-preview-char {
     box-shadow: 0 1px 4px rgba(0,0,0,0.18);
 }
