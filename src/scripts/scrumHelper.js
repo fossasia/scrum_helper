@@ -381,9 +381,9 @@ function allIncluded(outputTarget = 'email') {
 
 			if (issuesRes.status === 404 || prRes.status === 404) {
 				if (outputTarget === 'popup') {
-					Materialize.toast && Materialize.toast('Organisation not found on GitHub', 3000);
+					Materialize.toast && Materialize.toast('Organization not found on GitHub', 3000);
 				}
-				throw new Error('Organisation not found');
+				throw new Error('Organization not found');
 			}
 
 			if (!issuesRes.ok) throw new Error(`Error fetching Github issues: ${issuesRes.status} ${issuesRes.statusText}`);

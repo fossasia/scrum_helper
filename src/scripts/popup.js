@@ -369,7 +369,7 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(res => {
                 console.log('[Org Check] Response status for', org, ':', res.status);
                 if (res.status === 404) {
-                    console.log('[Org Check] Organisation not found on GitHub:', org);
+                    console.log('[Org Check] Organization not found on GitHub:', org);
                     // Remove any existing toast with the same id
                     const oldToast = document.getElementById('invalid-org-toast');
                     if (oldToast) oldToast.parentNode.removeChild(oldToast);
@@ -387,7 +387,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     toastDiv.style.left = '50%';
                     toastDiv.style.transform = 'translateX(-50%)';
                     toastDiv.style.zIndex = '9999';
-                    toastDiv.innerText = 'Organisation not found on GitHub.';
+                    toastDiv.innerText = 'Organization not found on GitHub.';
                     document.body.appendChild(toastDiv);
                     setTimeout(() => {
                         if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
@@ -398,14 +398,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Remove any existing toast with the same id (for valid orgs)
                 const oldToast = document.getElementById('invalid-org-toast');
                 if (oldToast) oldToast.parentNode.removeChild(oldToast);
-                console.log('[Org Check] Organisation exists on GitHub:', org);
+                console.log('[Org Check] Organization exists on GitHub:', org);
                 // Valid org: update storage and fetch data
                 chrome.storage.local.set({ orgName: org }, function () {
                     if (window.generateScrumReport) window.generateScrumReport();
                 });
             })
             .catch((err) => {
-                console.log('[Org Check] Error validating organisation:', org, err);
+                console.log('[Org Check] Error validating organization:', org, err);
                 // Remove any existing toast with the same id
                 const oldToast = document.getElementById('invalid-org-toast');
                 if (oldToast) oldToast.parentNode.removeChild(oldToast);
@@ -423,7 +423,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 toastDiv.style.left = '50%';
                 toastDiv.style.transform = 'translateX(-50%)';
                 toastDiv.style.zIndex = '9999';
-                toastDiv.innerText = 'Error validating organisation.';
+                toastDiv.innerText = 'Error validating organization.';
                 document.body.appendChild(toastDiv);
                 setTimeout(() => {
                     if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
