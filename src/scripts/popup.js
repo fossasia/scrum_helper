@@ -430,7 +430,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 }, 3000);
                 // Do NOT update storage or fetch data for invalid org
             });
-    }, 600);
+    }, 3000);
 
     orgInput.addEventListener('input', handleOrgInput);
 
