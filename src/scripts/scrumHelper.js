@@ -24,7 +24,6 @@ function allIncluded(outputTarget = 'email') {
 	let issuesDataProcessed = false;
 	let prsReviewDataProcessed = false;
 	let showOpenLabel = true;
-	let showClosedLabel = true;
 	let userReason = '';
 
 	let pr_merged_button =
@@ -49,7 +48,6 @@ function allIncluded(outputTarget = 'email') {
 				'startingDate',
 				'endingDate',
 				'showOpenLabel',
-				'showClosedLabel',
 				'lastWeekContribution',
 				'yesterdayContribution',
 				'userReason',
@@ -92,9 +90,6 @@ function allIncluded(outputTarget = 'email') {
 					showOpenLabel = false;
 					pr_unmerged_button = '';
 					issue_opened_button = '';
-				}
-				if (!items.showClosedLabel) {
-					showClosedLabel = false;
 					pr_merged_button = '';
 					issue_closed_button = '';
 				}

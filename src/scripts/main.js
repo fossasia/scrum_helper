@@ -19,7 +19,6 @@ function handleBodyOnLoad() {
 			'startingDate',
 			'endingDate',
 			'showOpenLabel',
-			'showClosedLabel',
 			'userReason',
 			'lastWeekContribution',
 			'yesterdayContribution',
