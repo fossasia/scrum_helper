@@ -23,7 +23,7 @@
 5. Click the Scrum Helper icon on your browser toolbar
 6. Fill in your settings in the popup (GitHub username, date range, etc.)
 
-### For Firefox:
+<!-- ### For Firefox:
 
 1. Clone this repository to your local machine.
 2. Open Firefox and navigate to `about:debugging`
@@ -36,7 +36,7 @@
 
 **Note for Firefox users:** The extension will be automatically removed when you close Firefox. You'll need to reload it each time you start a new browser session by repeating steps 2-5.
 
-**Persistence Note:** If you need the extension to persist between sessions, use Firefox Developer Edition. You can enable persistence by setting `xpinstall.signatures.required` to `false` in the browser's configuration.
+**Persistence Note:** If you need the extension to persist between sessions, use Firefox Developer Edition. You can enable persistence by setting `xpinstall.signatures.required` to `false` in the browser's configuration. -->
 
 ## Usage
 
@@ -80,7 +80,11 @@ $ npm install
 
 ![POPUP](docs/images/popup.png)
 
+![POPUP2](docs/images/popup2.png)
+
 ![STANDALONE](docs/images/standalone.png)
+
+![SETTINGSMENU](docs/images/settings.png)
 
 ## Using Scrum Helper with Your Own GitHub Organization
 

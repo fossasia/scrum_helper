@@ -193,6 +193,7 @@ function allIncluded(outputTarget = 'email') {
 		return WeekDisplayPadded;
 	}
 
+
 	const DEBUG = true;
 	function log(...args) {
 		if (DEBUG) {
