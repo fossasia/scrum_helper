@@ -364,9 +364,12 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!org) {
             org = 'fossasia';
         }
+        console.log('[Org Check] Checking organization:', org);
         fetch(`https://api.github.com/orgs/${org}`)
             .then(res => {
+                console.log('[Org Check] Response status for', org, ':', res.status);
                 if (res.status === 404) {
+                    console.log('[Org Check] Organisation not found on GitHub:', org);
                     // Remove any existing toast with the same id
                     const oldToast = document.getElementById('invalid-org-toast');
                     if (oldToast) oldToast.parentNode.removeChild(oldToast);
@@ -392,12 +395,17 @@ document.addEventListener('DOMContentLoaded', function () {
                     // Do NOT update storage or fetch data for invalid org
                     return;
                 }
+                // Remove any existing toast with the same id (for valid orgs)
+                const oldToast = document.getElementById('invalid-org-toast');
+                if (oldToast) oldToast.parentNode.removeChild(oldToast);
+                console.log('[Org Check] Organisation exists on GitHub:', org);
                 // Valid org: update storage and fetch data
                 chrome.storage.local.set({ orgName: org }, function () {
                     if (window.generateScrumReport) window.generateScrumReport();
                 });
             })
-            .catch(() => {
+            .catch((err) => {
+                console.log('[Org Check] Error validating organisation:', org, err);
                 // Remove any existing toast with the same id
                 const oldToast = document.getElementById('invalid-org-toast');
                 if (oldToast) oldToast.parentNode.removeChild(oldToast);
