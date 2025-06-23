@@ -576,7 +576,7 @@ function toggleRadio(radio) {
     });
 }
 
-const cacheInput = document.getElementById('cacheInput');
+let cacheInput = document.getElementById('cacheInput');
 if (cacheInput) {
     chrome.storage.local.get(['cacheInput'], function (result) {
         if (result.cacheInput) {
