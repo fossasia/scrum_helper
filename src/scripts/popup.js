@@ -47,6 +47,20 @@ document.addEventListener('DOMContentLoaded', function () {
     const darkModeToggle = document.querySelector('img[alt="Night Mode"]');
     const settingsIcon = document.getElementById('settingsIcon');
     const body = document.body;
+    const homeButton = document.getElementById('homeButton');
+    const scrumHelperHeading = document.getElementById('scrumHelperHeading');
+    const settingsToggle = document.getElementById('settingsToggle');
+    const reportSection = document.getElementById('reportSection');
+    const settingsSection = document.getElementById('settingsSection');
+
+    let isSettingsVisible = false;
+    const githubTokenInput = document.getElementById('githubToken');
+    const toggleTokenBtn = document.getElementById('toggleTokenVisibility');
+    const tokenEyeIcon = document.getElementById('tokenEyeIcon');
+    let tokenVisible = false;
+
+    const orgInput = document.getElementById('orgInput');
+    const setOrgBtn = document.getElementById('setOrgBtn');
 
     chrome.storage.local.get(['darkMode'], function (result) {
         if (result.darkMode) {
@@ -58,6 +72,18 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    toggleTokenBtn.addEventListener('click', function () {
+        tokenVisible = !tokenVisible;
+        githubTokenInput.type = tokenVisible ? 'text' : 'password';
+
+        tokenEyeIcon.classList.add('eye-animating');
+        setTimeout(() => tokenEyeIcon.classList.remove('eye-animating'), 400);
+        tokenEyeIcon.className = tokenVisible ? 'fa fa-eye-slash text-gray-600' : 'fa fa-eye text-gray-600';
+
+        githubTokenInput.classList.add('token-animating');
+        setTimeout(() => githubTokenInput.classList.remove('token-animating'), 300);
+    });
+
     darkModeToggle.addEventListener('click', function () {
         body.classList.toggle('dark-mode');
         const isDarkMode = body.classList.contains('dark-mode');
@@ -67,7 +93,27 @@ document.addEventListener('DOMContentLoaded', function () {
         if (settingsIcon) {
             settingsIcon.src = isDarkMode ? 'icons/settings-night.png' : 'icons/settings-light.png';
         }
+        renderTokenPreview();
     });
+
+    function renderTokenPreview() {
+        tokenPreview.innerHTML = '';
+        const value = githubTokenInput.value;
+        const isDark = document.body.classList.contains('dark-mode');
+        for (let i = 0; i < value.length; i++) {
+            const charBox = document.createElement('span');
+            charBox.className = 'token-preview-char' + (isDark ? ' dark-mode' : '');
+            if (tokenVisible) {
+                charBox.textContent = value[i];
+            } else {
+                const dot = document.createElement('span');
+                dot.className = 'token-preview-dot' + (isDark ? ' dark-mode' : '');
+                charBox.appendChild(dot);
+            }
+            tokenPreview.appendChild(charBox);
+            setTimeout(() => charBox.classList.add('flip'), 10 + i * 30);
+        }
+    }
 
     function updateContentState(enableToggle) {
         const elementsToToggle = [
@@ -80,6 +126,7 @@ document.addEventListener('DOMContentLoaded', function () {
             'showOpenLabel',
             'scrumReport',
             'githubUsername',
+            'githubToken',
             'projectName',
             'settingsToggle',
         ];
@@ -261,12 +308,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    const settingsToggle = document.getElementById('settingsToggle');
-    const reportSection = document.getElementById('reportSection');
-    const settingsSection = document.getElementById('settingsSection');
-
-    let isSettingsVisible = false;
-
     function showReportView() {
         isSettingsVisible = false;
         reportSection.classList.remove('hidden');
@@ -293,8 +334,138 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    if (homeButton) {
+        homeButton.addEventListener('click', showReportView);
+    }
+    if (scrumHelperHeading) {
+        scrumHelperHeading.addEventListener('click', showReportView);
+    }
+
     showReportView();
 
+    // Load org from storage or default
+    chrome.storage.local.get(['orgName'], function (result) {
+        orgInput.value = result.orgName || '';
+    });
+
+    // Debounce function
+    function debounce(func, wait) {
+        let timeout;
+        return function (...args) {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, args), wait);
+        };
+    }
+
+    let lastInvalidOrg = '';
+    // Validate and set org as user types
+    const handleOrgInput = debounce(function () {
+        let org = orgInput.value.trim().toLowerCase();
+        if (!org) {
+            org = 'fossasia';
+        }
+        fetch(`https://api.github.com/orgs/${org}`)
+            .then(res => {
+                if (res.status === 404) {
+                    // Remove any existing toast with the same id
+                    const oldToast = document.getElementById('invalid-org-toast');
+                    if (oldToast) oldToast.parentNode.removeChild(oldToast);
+                    // Create a new toast div
+                    const toastDiv = document.createElement('div');
+                    toastDiv.id = 'invalid-org-toast';
+                    toastDiv.className = 'toast';
+                    toastDiv.style.background = '#dc2626';
+                    toastDiv.style.color = '#fff';
+                    toastDiv.style.fontWeight = 'bold';
+                    toastDiv.style.padding = '12px 24px';
+                    toastDiv.style.borderRadius = '8px';
+                    toastDiv.style.position = 'fixed';
+                    toastDiv.style.top = '24px';
+                    toastDiv.style.left = '50%';
+                    toastDiv.style.transform = 'translateX(-50%)';
+                    toastDiv.style.zIndex = '9999';
+                    toastDiv.innerText = 'Organisation not found on GitHub.';
+                    document.body.appendChild(toastDiv);
+                    setTimeout(() => {
+                        if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
+                    }, 3000);
+                    // Do NOT update storage or fetch data for invalid org
+                    return;
+                }
+                // Valid org: update storage and fetch data
+                chrome.storage.local.set({ orgName: org }, function () {
+                    if (window.generateScrumReport) window.generateScrumReport();
+                });
+            })
+            .catch(() => {
+                // Remove any existing toast with the same id
+                const oldToast = document.getElementById('invalid-org-toast');
+                if (oldToast) oldToast.parentNode.removeChild(oldToast);
+                // Create a new toast div
+                const toastDiv = document.createElement('div');
+                toastDiv.id = 'invalid-org-toast';
+                toastDiv.className = 'toast';
+                toastDiv.style.background = '#dc2626';
+                toastDiv.style.color = '#fff';
+                toastDiv.style.fontWeight = 'bold';
+                toastDiv.style.padding = '12px 24px';
+                toastDiv.style.borderRadius = '8px';
+                toastDiv.style.position = 'fixed';
+                toastDiv.style.top = '24px';
+                toastDiv.style.left = '50%';
+                toastDiv.style.transform = 'translateX(-50%)';
+                toastDiv.style.zIndex = '9999';
+                toastDiv.innerText = 'Error validating organisation.';
+                document.body.appendChild(toastDiv);
+                setTimeout(() => {
+                    if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
+                }, 3000);
+                // Do NOT update storage or fetch data for invalid org
+            });
+    }, 600);
+
+    orgInput.addEventListener('input', handleOrgInput);
+
+});
+
+// Tooltip bubble 
+document.querySelectorAll('.tooltip-container').forEach(container => {
+    const bubble = container.querySelector('.tooltip-bubble');
+    if (!bubble) return;
+
+    function positionTooltip() {
+        const icon = container.querySelector('.question-icon') || container;
+        const rect = icon.getBoundingClientRect();
+        const bubbleRect = bubble.getBoundingClientRect();
+        const padding = 8;
+
+        let top = rect.top + window.scrollY;
+        let left = rect.right + padding + window.scrollX;
+
+        if (left + bubbleRect.width > window.innerWidth - 10) {
+            left = rect.left - bubbleRect.width - padding + window.scrollX;
+        }
+        if (left < 8) left = 8;
+        if (top + bubbleRect.height > window.innerHeight - 10) {
+            top = rect.top - bubbleRect.height - padding + window.scrollY;
+        }
+        if (top < 8) top = 8;
+
+        bubble.style.left = left + 'px';
+        bubble.style.top = top + 'px';
+    }
+
+    container.addEventListener('mouseenter', positionTooltip);
+    container.addEventListener('focusin', positionTooltip);
+    container.addEventListener('mousemove', positionTooltip);
+    container.addEventListener('mouseleave', () => {
+        bubble.style.left = '';
+        bubble.style.top = '';
+    });
+    container.addEventListener('focusout', () => {
+        bubble.style.left = '';
+        bubble.style.top = '';
+    });
 });
 
 // Radio button click handlers with toggle functionality
@@ -398,7 +569,6 @@ function toggleRadio(radio) {
 }
 
 const cacheInput = document.getElementById('cacheInput');
-const organisationNameInput = document.getElementById('organisationName');
 if (cacheInput) {
     chrome.storage.local.get(['cacheInput'], function (result) {
         if (result.cacheInput) {
@@ -426,24 +596,5 @@ if (cacheInput) {
             console.log('Cache TTL saved:', ttlValue, 'minutes');
         });
     });
-}
-if (organisationNameInput) {
-    chrome.storage.local.get(['organisationName'], function (result) {
-        if (result.organisationName) {
-            organisationNameInput.value = result.organisationName;
-        } else {
-            organisationNameInput.value = 'fossasia';
-        }
-    });
-    organisationNameInput.addEventListener('blur', function () {
-        let orgValue = this.value.trim() || 'fossasia';
-        this.value = orgValue;
-        chrome.storage.local.set({ organisationName: orgValue }, function () {
-            console.log('Organisation name saved:', orgValue);
-            // Clear the cache when org name changes
-            chrome.storage.local.remove('githubCache', function () {
-                console.log('Cache cleared due to organisation name change');
-            });
-        });
-    });
+
 }
