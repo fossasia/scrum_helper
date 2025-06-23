@@ -2,6 +2,7 @@ console.log('Script loaded, adapter exists:', !!window.emailClientAdapter);
 let refreshButton_Placed = false;
 let enableToggle = true;
 let hasInjectedContent = false;
+let orgName = 'fossasia'; // default
 function allIncluded(outputTarget = 'email') {
 	console.log('allIncluded called with outputTarget:', outputTarget);
 	console.log('Current window context:', window.location.href);
@@ -52,7 +53,8 @@ function allIncluded(outputTarget = 'email') {
 				'yesterdayContribution',
 				'userReason',
 				'githubCache',
-				'cacheInput'
+				'cacheInput',
+				'orgName'
 			],
 			(items) => {
 				console.log("Storage items received:", items);
@@ -108,6 +110,7 @@ function allIncluded(outputTarget = 'email') {
 				} else {
 					if (outputTarget === 'popup') {
 						console.log("No username found - popup context");
+						// Show error in popup
 						const generateBtn = document.getElementById('generateReport');
 						if (generateBtn) {
 							generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
@@ -125,12 +128,14 @@ function allIncluded(outputTarget = 'email') {
 				if (items.cacheInput) {
 					cacheInput = items.cacheInput;
 				}
-				
 				if (items.githubCache) {
 					githubCache.data = items.githubCache.data;
 					githubCache.cacheKey = items.githubCache.cacheKey;
 					githubCache.timestamp = items.githubCache.timestamp;
 					log('Restored cache from storage');
+				}
+				if (items.orgName) {
+					orgName = items.orgName;
 				}
 			},
 		);
@@ -353,8 +358,8 @@ function allIncluded(outputTarget = 'email') {
 			log('Making public requests');
 		}
 
-		let issueUrl = `https://api.github.com/search/issues?q=author%3A${githubUsername}+org%3Afossasia+created%3A${startingDate}..${endingDate}&per_page=100`;
-		let prUrl = `https://api.github.com/search/issues?q=commenter%3A${githubUsername}+org%3Afossasia+updated%3A${startingDate}..${endingDate}&per_page=100`;
+		let issueUrl = `https://api.github.com/search/issues?q=author%3A${githubUsername}+org%3A${orgName}+created%3A${startingDate}..${endingDate}&per_page=100`;
+		let prUrl = `https://api.github.com/search/issues?q=commenter%3A${githubUsername}+org%3A${orgName}+updated%3A${startingDate}..${endingDate}&per_page=100`;
 		let userUrl = `https://api.github.com/users/${githubUsername}`;
 
 		try {
@@ -371,6 +376,13 @@ function allIncluded(outputTarget = 'email') {
 				issuesRes.status === 403 || prRes.status === 403 || userRes.status === 403) {
 				showInvalidTokenMessage();
 				return;
+			}
+
+			if (issuesRes.status === 404 || prRes.status === 404) {
+				if (outputTarget === 'popup') {
+					Materialize.toast && Materialize.toast('Organisation not found on GitHub', 3000);
+				}
+				throw new Error('Organisation not found');
 			}
 
 			if (!issuesRes.ok) throw new Error(`Error fetching Github issues: ${issuesRes.status} ${issuesRes.statusText}`);
