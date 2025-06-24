@@ -3,6 +3,18 @@ let refreshButton_Placed = false;
 let enableToggle = true;
 let hasInjectedContent = false;
 let orgName = 'fossasia'; // default
+
+// Global cache object
+let githubCache = {
+	data: null,
+	cacheKey: null,
+	timestamp: null,
+	ttl: null,
+	fetching: false,
+	queue: [],
+	subject: null
+};
+
 function allIncluded(outputTarget = 'email') {
 	console.log('allIncluded called with outputTarget:', outputTarget);
 	console.log('Current window context:', window.location.href);
@@ -38,7 +50,71 @@ function allIncluded(outputTarget = 'email') {
 	let issue_opened_button =
 		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
 
-	// let linkStyle = '';
+	/**
+	 * Resets all report processing flags and state, then optionally regenerates the report
+	 * @param {boolean} regenerateReport - Whether to regenerate the report after reset
+	 * @param {string} outputTarget - The output target ('popup' or 'email')
+	 */
+	function resetReportState(regenerateReport = false, outputTarget = 'popup') {
+		log('Resetting report state');
+
+		// Reset all processing flags
+		issuesDataProcessed = false;
+		prsReviewDataProcessed = false;
+		hasInjectedContent = false;
+
+		// Reset data arrays
+		lastWeekArray = [];
+		nextWeekArray = [];
+		reviewedPrsArray = [];
+		githubPrsReviewDataProcessed = {};
+
+		// Clear cached data
+		githubCache.data = null;
+		githubCache.cacheKey = null;
+		githubCache.timestamp = null;
+		githubCache.subject = null;
+
+		log('Report state reset complete');
+
+		// Regenerate report if requested
+		if (regenerateReport) {
+			log('Regenerating report after reset');
+			if (outputTarget === 'popup') {
+				writeGithubIssuesPrs();
+				writeGithubPrsReviews();
+			} else {
+				// For email context, trigger a fresh data fetch
+				fetchGithubData();
+			}
+		}
+	}
+
+	/**
+	 * Forces a refresh of GitHub data by clearing cache and fetching new data
+	 * @returns {Promise} Promise that resolves when refresh is complete
+	 */
+	async function forceGithubDataRefresh() {
+		log('Force refreshing GitHub data');
+
+		// Clear cache from storage
+		await new Promise(resolve => {
+			chrome.storage.local.remove('githubCache', resolve);
+		});
+
+		// Reset report state
+		resetReportState(false);
+
+		// Fetch fresh data
+		try {
+			await fetchGithubData();
+			return { success: true, message: 'Data refreshed successfully' };
+		} catch (error) {
+			logError('Force refresh failed:', error);
+			return { success: false, error: error.message };
+		}
+	}
+
 	function getChromeData() {
 		console.log("Getting Chrome data for context:", outputTarget);
 		chrome.storage.local.get(
@@ -205,18 +281,6 @@ function allIncluded(outputTarget = 'email') {
 			console.error('[SCRUM-HELPER]:', ...args);
 		}
 	}
-	// Global cache object
-	let githubCache = {
-		data: null,
-		cacheKey: null,
-		timestamp: 0,
-		ttl: 10 * 60 * 1000, // cache valid for 10 mins
-		fetching: false,
-		queue: [],
-		errors: {},
-		errorTTL: 60 * 1000, // 1 min error cache 
-		subject: null,
-	};
 
 	async function getCacheTTL() {
 		return new Promise((resolve) => {
@@ -400,12 +464,9 @@ function allIncluded(outputTarget = 'email') {
 
 			await saveToStorage(githubCache.data);
 			processGithubData(githubCache.data);
-			
+
 			if (outputTarget === 'popup') {
-				issuesDataProcessed = false;
-				prsReviewDataProcessed = false;
-				writeGithubIssuesPrs();
-				writeGithubPrsReviews();
+				resetReportState(true, 'popup');
 			}
 
 			// Resolve queued calls
@@ -480,10 +541,8 @@ function allIncluded(outputTarget = 'email') {
 			user: githubUserData?.login
 		});
 
-		lastWeekArray = [];
-		nextWeekArray = [];
-		reviewedPrsArray = [];
-		githubPrsReviewDataProcessed = {};
+		// Reset data arrays and processing state
+		resetReportState(false);
 
 		// Update subject
 		if (!githubCache.subject && scrumSubject) {
@@ -619,8 +678,11 @@ ${userReason}`;
 			logError('No Github PR review data available');
 			return;
 		}
+
+		// Reset arrays for fresh processing
 		reviewedPrsArray = [];
 		githubPrsReviewDataProcessed = {};
+
 		let i;
 		for (i = 0; i < items.length; i++) {
 			let item = items[i];
@@ -707,8 +769,11 @@ ${userReason}`;
 
 	function writeGithubIssuesPrs() {
 		let items = githubIssuesData.items;
+
+		// Reset arrays for fresh processing
 		lastWeekArray = [];
 		nextWeekArray = [];
+
 		if (!items) {
 			logError('No Github issues data available');
 			return;
@@ -846,7 +911,7 @@ ${userReason}`;
 		}, 1000);
 	}
 	function handleRefresh() {
-		hasInjectedContent = false; // Reset the flag before refresh
+		resetReportState(false, 'email');
 		allIncluded();
 	}
 }
