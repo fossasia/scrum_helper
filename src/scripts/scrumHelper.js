@@ -400,6 +400,13 @@ function allIncluded(outputTarget = 'email') {
 
 			await saveToStorage(githubCache.data);
 			processGithubData(githubCache.data);
+			
+			if (outputTarget === 'popup') {
+				issuesDataProcessed = false;
+				prsReviewDataProcessed = false;
+				writeGithubIssuesPrs();
+				writeGithubPrsReviews();
+			}
 
 			// Resolve queued calls
 			githubCache.queue.forEach(({ resolve }) => resolve());

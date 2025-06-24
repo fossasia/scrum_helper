@@ -400,8 +400,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (oldToast) oldToast.parentNode.removeChild(oldToast);
                 console.log('[Org Check] Organisation exists on GitHub:', org);
                 // Valid org: update storage and fetch data
-                chrome.storage.local.set({ orgName: org }, function () {
-                    if (window.generateScrumReport) window.generateScrumReport();
+                       chrome.storage.local.set({ orgName: org, githubCache: null }, function () {
+                    const scrumReport = document.getElementById('scrumReport');
+                    if (scrumReport) {
+                        scrumReport.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Organisation changed. Click "Generate Report" to fetch new data.</p>';
+                    }
                 });
             })
             .catch((err) => {
@@ -430,7 +433,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 }, 3000);
                 // Do NOT update storage or fetch data for invalid org
             });
-    }, 3000);
+    }, 2500);
 
     orgInput.addEventListener('input', handleOrgInput);
 
