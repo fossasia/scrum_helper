@@ -370,10 +370,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 console.log('[Org Check] Response status for', org, ':', res.status);
                 if (res.status === 404) {
                     console.log('[Org Check] Organisation not found on GitHub:', org);
-                    // Remove any existing toast with the same id
                     const oldToast = document.getElementById('invalid-org-toast');
                     if (oldToast) oldToast.parentNode.removeChild(oldToast);
-                    // Create a new toast div
                     const toastDiv = document.createElement('div');
                     toastDiv.id = 'invalid-org-toast';
                     toastDiv.className = 'toast';
@@ -392,24 +390,19 @@ document.addEventListener('DOMContentLoaded', function () {
                     setTimeout(() => {
                         if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
                     }, 3000);
-                    // Do NOT update storage or fetch data for invalid org
                     return;
                 }
-                // Remove any existing toast with the same id (for valid orgs)
                 const oldToast = document.getElementById('invalid-org-toast');
                 if (oldToast) oldToast.parentNode.removeChild(oldToast);
                 console.log('[Org Check] Organisation exists on GitHub:', org);
-                // Valid org: update storage and fetch data
                 chrome.storage.local.set({ orgName: org }, function () {
                     if (window.generateScrumReport) window.generateScrumReport();
                 });
             })
             .catch((err) => {
                 console.log('[Org Check] Error validating organisation:', org, err);
-                // Remove any existing toast with the same id
                 const oldToast = document.getElementById('invalid-org-toast');
                 if (oldToast) oldToast.parentNode.removeChild(oldToast);
-                // Create a new toast div
                 const toastDiv = document.createElement('div');
                 toastDiv.id = 'invalid-org-toast';
                 toastDiv.className = 'toast';
@@ -428,7 +421,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 setTimeout(() => {
                     if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
                 }, 3000);
-                // Do NOT update storage or fetch data for invalid org
             });
     }, 3000);
 

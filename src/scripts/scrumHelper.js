@@ -2,8 +2,14 @@ console.log('Script loaded, adapter exists:', !!window.emailClientAdapter);
 let refreshButton_Placed = false;
 let enableToggle = true;
 let hasInjectedContent = false;
+let scrumGenerationInProgress = false;
 let orgName = 'fossasia'; // default
 function allIncluded(outputTarget = 'email') {
+	if(scrumGenerationInProgress) {
+		console.warn('[SCRUM-HELPER]: Scrum generation already in progress, aborting new call.');
+		return;
+	}
+	scrumGenerationInProgress = true;
 	console.log('allIncluded called with outputTarget:', outputTarget);
 	console.log('Current window context:', window.location.href);
 	let scrumBody = null;
@@ -99,9 +105,14 @@ function allIncluded(outputTarget = 'email') {
 					handleLastWeekContributionChange();
 				} else if (items.yesterdayContribution) {
 					handleYesterdayContributionChange();
-				} else {
+				} else if(items.startDate && items.endingDate) {
 					startingDate = items.startingDate;
 					endingDate = items.endingDate;
+				} else {
+					handleLastWeekContributionChange(); //when no date is stored, i.e on fresh unpack - default to last week.
+					if(outputTarget === 'popup') {
+						chrome.storage.local.set({ lastWeekContribution: true, yesterdayContribution: false});
+					}
 				}
 
 				if (githubUsername) {
@@ -417,6 +428,7 @@ function allIncluded(outputTarget = 'email') {
 					generateBtn.disabled = false;
 				}
 			}
+			scrumGenerationInProgress = false;
 			throw err;
 		} finally {
 			githubCache.fetching = false;
@@ -550,8 +562,10 @@ ${userReason}`;
 						generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
 						generateBtn.disabled = false;
 					}
+					scrumGenerationInProgress = false;
 				} else {
 					logError('Scrum report div not found');
+					scrumGenerationInProgress = false;
 				}
 			} else {
 				const elements = window.emailClientAdapter.getEditorElements();
@@ -561,6 +575,7 @@ ${userReason}`;
 				}
 				window.emailClientAdapter.injectContent(elements.body, content, elements.eventTypes.contentChange);
 				hasInjectedContent = true;
+				scrumGenerationInProgress = false;
 			}
 		}, 500);
 	}
@@ -843,11 +858,14 @@ ${userReason}`;
 	}
 }
 
-allIncluded('email');
+// allIncluded('email');
 
-$('button>span:contains(New conversation)').parent('button').click(() => {
-	allIncluded();
-});
+if(window.location.protocol.startsWith('http')) {
+	allIncluded('email');
+	$('button>span:contains(New conversation)').parent('button').click(() => {
+		allIncluded();
+	});
+}
 
 window.generateScrumReport = function () {
 	allIncluded('popup');
