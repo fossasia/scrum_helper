@@ -31,9 +31,9 @@ function allIncluded(outputTarget = 'email') {
 	let pr_open_button =
 		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
 	let pr_closed_button =
-		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #d73a49;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--red">closed</div>';
+		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color:  #6f42c1;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--purple">closed</div>';
 	let pr_merged_button =
-		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #6f42c1;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--purple">merged</div>';
+		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #ff6b6b;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--red">merged</div>';
 
 	let issue_closed_button =
 		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #6f42c1;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--purple">closed</div>';
@@ -123,11 +123,6 @@ function allIncluded(outputTarget = 'email') {
 					showOpenLabel = false;
 					pr_open_button = '';
 					issue_opened_button = '';
-				}
-				if (!items.showClosedLabel) {
-					showClosedLabel = false;
-					pr_closed_button = '';
-
 				}
 				if (items.userReason) {
 					userReason = items.userReason;
@@ -710,7 +705,7 @@ ${userReason}`;
 		return Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24));
 	}
 
-	// Session cache for merged status
+	// Session cache object
 	let sessionMergedStatusCache = {};
 
 	// Helper to fetch PR details for merged status (REST, single PR)
@@ -794,57 +789,55 @@ ${userReason}`;
 				if (item.state === 'open') {
 					li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_open_button}</li>`;
 				} else if (item.state === 'closed') {
+					let merged = null;
 					if ((githubToken || (useMergedStatus && !fallbackToSimple)) && mergedStatusResults) {
-						let repository_url = item.repository_url;
 						let repoParts = repository_url.split('/');
 						let owner = repoParts[repoParts.length - 2];
 						let repo = repoParts[repoParts.length - 1];
-						let merged = mergedStatusResults[`${owner}/${repo}#${number}`];
-						if (merged === true) {
-							li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_merged_button}</li>`;
-						} else if (merged === false) {
-							li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_closed_button}</li>`;
-						} else {
-							li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_closed_button}</li>`;
-						}
+						merged = mergedStatusResults[`${owner}/${repo}#${number}`];
+					}
+					if (merged === true) {
+						li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_merged_button}</li>`;
 					} else {
+						// Always show closed label for merged === false or merged === null/undefined
 						li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_closed_button}</li>`;
 					}
 				}
+				lastWeekArray.push(li);
+				continue; // Prevent issue logic from overwriting PR li
+			}
+			// Only process as issue if not a PR
+			if (item.state === 'open' && item.body?.toUpperCase().indexOf('YES') > 0) {
+				let li2 =
+					'<li><i>(' +
+					project +
+					')</i> - Work on Issue(#' +
+					number +
+					") - <a href='" +
+					html_url +
+					"' target='_blank'>" +
+					title +
+					'</a> ' +
+					issue_opened_button +
+					'&nbsp;&nbsp;</li>';
+				nextWeekArray.push(li2);
+			}
+			if (item.state === 'open') {
+				li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_opened_button}</li>`;
+			} else if (item.state === 'closed') {
+				// Always show closed label for closed issues
+				li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_button}</li>`;
 			} else {
-				// is a issue
-				if (item.state === 'open' && item.body?.toUpperCase().indexOf('YES') > 0) {
-					let li2 =
-						'<li><i>(' +
-						project +
-						')</i> - Work on Issue(#' +
-						number +
-						") - <a href='" +
-						html_url +
-						"' target='_blank'>" +
-						title +
-						'</a> ' +
-						issue_opened_button +
-						'&nbsp;&nbsp;</li>';
-					nextWeekArray.push(li2);
-				}
-				if (item.state === 'open') {
-					li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_opened_button}</li>`;
-				} else if (item.state === 'closed') {
-					// Always show closed label for closed issues
-					li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_button}</li>`;
-				} else {
-					li =
-						'<li><i>(' +
-						project +
-						')</i> - Opened Issue(#' +
-						number +
-						") - <a href='" +
-						html_url +
-						"' target='_blank'>" +
-						title +
-						'</a> </li>';
-				}
+				li =
+					'<li><i>(' +
+					project +
+					')</i> - Opened Issue(#' +
+					number +
+					") - <a href='" +
+					html_url +
+					"' target='_blank'>" +
+					title +
+					'</a> </li>';
 			}
 			lastWeekArray.push(li);
 		}
@@ -1039,57 +1032,55 @@ async function writeGithubIssuesPrs() {
 			if (item.state === 'open') {
 				li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_open_button}</li>`;
 			} else if (item.state === 'closed') {
-				if (useMergedStatus && !fallbackToSimple && githubToken) {
-					let repository_url = item.repository_url;
+				let merged = null;
+				if ((githubToken || (useMergedStatus && !fallbackToSimple)) && mergedStatusResults) {
 					let repoParts = repository_url.split('/');
 					let owner = repoParts[repoParts.length - 2];
 					let repo = repoParts[repoParts.length - 1];
-					let merged = mergedStatusResults[`${owner}/${repo}#${number}`];
-					if (merged === true) {
-						li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_merged_button}</li>`;
-					} else if (merged === false) {
-						li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_closed_button}</li>`;
-					} else {
-						li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_closed_button}</li>`;
-					}
+					merged = mergedStatusResults[`${owner}/${repo}#${number}`];
+				}
+				if (merged === true) {
+					li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_merged_button}</li>`;
 				} else {
+					// Always show closed label for merged === false or merged === null/undefined
 					li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_closed_button}</li>`;
 				}
 			}
+			lastWeekArray.push(li);
+			continue; // Prevent issue logic from overwriting PR li
+		}
+		// Only process as issue if not a PR
+		if (item.state === 'open' && item.body?.toUpperCase().indexOf('YES') > 0) {
+			let li2 =
+				'<li><i>(' +
+				project +
+				')</i> - Work on Issue(#' +
+				number +
+				") - <a href='" +
+				html_url +
+				"' target='_blank'>" +
+				title +
+				'</a> ' +
+				issue_opened_button +
+				'&nbsp;&nbsp;</li>';
+			nextWeekArray.push(li2);
+		}
+		if (item.state === 'open') {
+			li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_opened_button}</li>`;
+		} else if (item.state === 'closed') {
+			// Always show closed label for closed issues
+			li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_button}</li>`;
 		} else {
-			// is a issue
-			if (item.state === 'open' && item.body?.toUpperCase().indexOf('YES') > 0) {
-				let li2 =
-					'<li><i>(' +
-					project +
-					')</i> - Work on Issue(#' +
-					number +
-					") - <a href='" +
-					html_url +
-					"' target='_blank'>" +
-					title +
-					'</a> ' +
-					issue_opened_button +
-					'&nbsp;&nbsp;</li>';
-				nextWeekArray.push(li2);
-			}
-			if (item.state === 'open') {
-				li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_opened_button}</li>`;
-			} else if (item.state === 'closed') {
-				// Always show closed label for closed issues
-				li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_button}</li>`;
-			} else {
-				li =
-					'<li><i>(' +
-					project +
-					')</i> - Opened Issue(#' +
-					number +
-					") - <a href='" +
-					html_url +
-					"' target='_blank'>" +
-					title +
-					'</a> </li>';
-			}
+			li =
+				'<li><i>(' +
+				project +
+				')</i> - Opened Issue(#' +
+				number +
+				") - <a href='" +
+				html_url +
+				"' target='_blank'>" +
+				title +
+				'</a> </li>';
 		}
 		lastWeekArray.push(li);
 	}
