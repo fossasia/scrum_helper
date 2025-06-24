@@ -38,6 +38,11 @@ function allIncluded(outputTarget = 'email') {
 	let issue_opened_button =
 		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
 
+	let pr_merged_true_button =
+		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #6f42c1;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--purple">merged</div>';
+	let pr_merged_false_button =
+		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #d73a49;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--red">closed</div>';
+
 	// let linkStyle = '';
 	function getChromeData() {
 		console.log("Getting Chrome data for context:", outputTarget);
@@ -120,7 +125,7 @@ function allIncluded(outputTarget = 'email') {
 				if (!items.showClosedLabel) {
 					showClosedLabel = false;
 					pr_merged_button = '';
-					issue_closed_button = '';
+				
 				}
 				if (items.userReason) {
 					userReason = items.userReason;
@@ -652,8 +657,7 @@ ${userReason}`;
 					prText +=
 						"<a href='" + pr_arr.html_url + "' target='_blank'>#" + pr_arr.number + '</a> (' + pr_arr.title + ') ';
 					if (pr_arr.state === 'open') prText += issue_opened_button;
-					else prText += issue_closed_button;
-
+					// Do not show closed label for reviewed PRs
 					prText += '&nbsp;&nbsp;';
 					repoLi += prText;
 				}
@@ -671,8 +675,7 @@ ${userReason}`;
 						pr_arr1.title +
 						') ';
 					if (pr_arr1.state === 'open') prText1 += issue_opened_button;
-					else prText1 += issue_closed_button;
-
+					// Do not show closed label for reviewed PRs
 					prText1 += '&nbsp;&nbsp;</li>';
 					repoLi += prText1;
 				}
@@ -698,7 +701,28 @@ ${userReason}`;
 		}
 	}
 
-	function writeGithubIssuesPrs() {
+	// Helper: calculate days between two yyyy-mm-dd strings
+	function getDaysBetween(start, end) {
+		const d1 = new Date(start);
+		const d2 = new Date(end);
+		return Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24));
+	}
+
+	// Helper to fetch PR details for merged status
+	async function fetchPrMergedStatus(owner, repo, number, headers) {
+		const url = `https://api.github.com/repos/${owner}/${repo}/pulls/${number}`;
+		try {
+			const res = await fetch(url, { headers });
+			if (!res.ok) return null;
+			const data = await res.json();
+			return data.merged_at ? true : false;
+		} catch (e) {
+			return null;
+		}
+	}
+
+	// Update: make this async to allow merged status fetch and fallback
+	async function writeGithubIssuesPrs() {
 		let items = githubIssuesData.items;
 		lastWeekArray = [];
 		nextWeekArray = [];
@@ -706,6 +730,12 @@ ${userReason}`;
 			logError('No Github issues data available');
 			return;
 		}
+		const headers = { 'Accept': 'application/vnd.github.v3+json' };
+		if (githubToken) headers['Authorization'] = `token ${githubToken}`;
+		let useMergedStatus = false;
+		let fallbackToSimple = false;
+		let daysRange = getDaysBetween(startingDate, endingDate);
+		if (daysRange <= 14) useMergedStatus = true;
 		for (let i = 0; i < items.length; i++) {
 			let item = items[i];
 			let html_url = item.html_url;
@@ -714,12 +744,32 @@ ${userReason}`;
 			let title = item.title;
 			let number = item.number;
 			let li = '';
-
 			if (item.pull_request) {
-				if (item.state === 'closed') {
-					li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_merged_button}</li>`;
-				} else if (item.state === 'open') {
+				if (item.state === 'open') {
 					li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_unmerged_button}</li>`;
+				} else if (item.state === 'closed') {
+					if (useMergedStatus && !fallbackToSimple) {
+						let owner = repository_url.split('/')[repository_url.split('/').length - 2];
+						let merged = null;
+						try {
+							merged = await fetchPrMergedStatus(owner, project, number, headers);
+							if (merged === true) {
+								li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_merged_true_button}</li>`;
+							} else if (merged === false) {
+								li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_merged_false_button}</li>`;
+							} else {
+								li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_merged_false_button}</li>`;
+							}
+						} catch (e) {
+							fallbackToSimple = true;
+							li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_merged_button}</li>`;
+							if (typeof Materialize !== 'undefined' && Materialize.toast) {
+								Materialize.toast('API limit exceeded or error occurred. Please use a GitHub token for higher limits.', 5000);
+							}
+						}
+					} else {
+						li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_merged_button}</li>`;
+					}
 				}
 			} else {
 				// is a issue
@@ -741,6 +791,7 @@ ${userReason}`;
 				if (item.state === 'open') {
 					li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_opened_button}</li>`;
 				} else if (item.state === 'closed') {
+					// Always show closed label for closed issues
 					li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_button}</li>`;
 				} else {
 					li =
@@ -793,16 +844,16 @@ ${userReason}`;
 	}, 500);
 
 	//check for github safe writing
-	let intervalWriteGithubIssues = setInterval(() => {
+	let intervalWriteGithubIssues = setInterval(async () => {
 		if (outputTarget === 'popup') {
 			if (githubUsername && githubIssuesData) {
 				clearInterval(intervalWriteGithubIssues);
-				writeGithubIssuesPrs();
+				await writeGithubIssuesPrs();
 			}
 		} else {
 			if (scrumBody && githubUsername && githubIssuesData) {
 				clearInterval(intervalWriteGithubIssues);
-				writeGithubIssuesPrs();
+				await writeGithubIssuesPrs();
 			}
 		}
 	}, 500);
