@@ -120,7 +120,6 @@ Scrum Helper is not limited to the [FOSSASIA](https://github.com/fossasia) organ
    * Save your changes.
    * For Chrome: Rebuild or reload the extension in your browser (`chrome://extensions` → Refresh your extension).
    * For Firefox: Reload the temporary add-on by going to `about:debugging` → "This Firefox" → Click "Reload" next to your extension.
-
 4. **How to Obtain a GitHub Personal Access Token**
 
 - To use Scrum Helper with authenticated requests (for higher rate limits and private repositories), you need a GitHub personal access token.
@@ -154,8 +153,6 @@ Scrum Helper is not limited to the [FOSSASIA](https://github.com/fossasia) organ
   ---
 5. **Get Customized SCRUM Reports**
     - The reports will now be generated using contributions from your organization.
-
-
 
 ## About contributing
 

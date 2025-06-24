@@ -66,7 +66,7 @@ function handleBodyOnLoad() {
 				lastWeekContributionElement.checked = items.lastWeekContribution;
 				handleLastWeekContributionChange();
 			}
-			 else if (items.lastWeekContribution !== false) {
+			else if (items.lastWeekContribution !== false) {
 				lastWeekContributionElement.checked = true;
 				handleLastWeekContributionChange();
 			}
@@ -74,7 +74,7 @@ function handleBodyOnLoad() {
 				yesterdayContributionElement.checked = items.yesterdayContribution;
 				handleYesterdayContributionChange();
 			}
-			 else if (items.yesterdayContribution !== false) {
+			else if (items.yesterdayContribution !== false) {
 				yesterdayContributionElement.checked = true;
 				handleYesterdayContributionChange();
 			}
@@ -83,29 +83,29 @@ function handleBodyOnLoad() {
 }
 
 document.getElementById('refreshCache').addEventListener('click', async (e) => {
-    const button = e.currentTarget;
-    button.classList.add('loading');
-    button.disabled = true;
-    
-    try {
-        const tabs = await chrome.tabs.query({active: true, currentWindow: true});
-        await chrome.tabs.sendMessage(tabs[0].id, {
-            action: 'forceRefresh',
-            timestamp: Date.now()
-        });
-        
-        // Reload the active tab to re-inject content
-        chrome.tabs.reload(tabs[0].id);
-        
-        Materialize.toast({html: 'Data refreshed successfully!', classes: 'green'});
-    } catch (err) {
-        console.error('Refresh failed:', err);
-    } finally {
-        setTimeout(() => {
-            button.classList.remove('loading');
-            button.disabled = false;
-        }, 500);
-    }
+	const button = e.currentTarget;
+	button.classList.add('loading');
+	button.disabled = true;
+
+	try {
+		const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+		await chrome.tabs.sendMessage(tabs[0].id, {
+			action: 'forceRefresh',
+			timestamp: Date.now()
+		});
+
+		// Reload the active tab to re-inject content
+		chrome.tabs.reload(tabs[0].id);
+
+		Materialize.toast({ html: 'Data refreshed successfully!', classes: 'green' });
+	} catch (err) {
+		console.error('Refresh failed:', err);
+	} finally {
+		setTimeout(() => {
+			button.classList.remove('loading');
+			button.disabled = false;
+		}, 500);
+	}
 });
 
 function handleEnableChange() {
@@ -138,7 +138,7 @@ function handleLastWeekContributionChange() {
 			labelElement.classList.add("unselectedLabel");
 			labelElement.classList.remove("selectedLabel");
 	}
-	
+
 	chrome.storage.local.set({ lastWeekContribution: value });
 }
 
@@ -151,8 +151,8 @@ function handleYesterdayContributionChange() {
 		endingDateElement.readOnly = true;
 		endingDateElement.value = getToday();
 		startingDateElement.value = getYesterday();
-			handleEndingDateChange();
-			handleStartingDateChange();
+		handleEndingDateChange();
+		handleStartingDateChange();
 		labelElement.classList.add("selectedLabel");
 		labelElement.classList.remove("unselectedLabel");
 	} else {
@@ -184,7 +184,7 @@ function getYesterday() {
 	let yesterdayMonth = yesterday.getMonth() + 1;
 	let yesterdayWeekDay = yesterday.getDate();
 	let yesterdayYear = yesterday.getFullYear();
-	let yesterdayPadded = 
+	let yesterdayPadded =
 		('0000' + yesterdayYear.toString()).slice(-4) +
 		'-' +
 		('00' + yesterdayMonth.toString()).slice(-2) +
@@ -228,11 +228,11 @@ function handleOpenLabelChange() {
 	let labelElement = document.querySelector("label[for='showOpenLabel']");
 
 	if (value) {
-			labelElement.classList.add("selectedLabel");
-			labelElement.classList.remove("unselectedLabel");
+		labelElement.classList.add("selectedLabel");
+		labelElement.classList.remove("unselectedLabel");
 	} else {
-			labelElement.classList.add("unselectedLabel");
-			labelElement.classList.remove("selectedLabel");
+		labelElement.classList.add("unselectedLabel");
+		labelElement.classList.remove("selectedLabel");
 	}
 
 	chrome.storage.local.set({ showOpenLabel: value });
