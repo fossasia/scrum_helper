@@ -28,10 +28,12 @@ function allIncluded(outputTarget = 'email') {
 	let showClosedLabel = true;
 	let userReason = '';
 
-	let pr_merged_button =
-		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #6f42c1;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--purple">closed</div>';
-	let pr_unmerged_button =
+	let pr_open_button =
 		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
+	let pr_closed_button =
+		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #d73a49;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--red">closed</div>';
+	let pr_merged_button =
+		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #6f42c1;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--purple">merged</div>';
 
 	let issue_closed_button =
 		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #6f42c1;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--purple">closed</div>';
@@ -119,13 +121,13 @@ function allIncluded(outputTarget = 'email') {
 				}
 				if (!items.showOpenLabel) {
 					showOpenLabel = false;
-					pr_unmerged_button = '';
+					pr_open_button = '';
 					issue_opened_button = '';
 				}
 				if (!items.showClosedLabel) {
 					showClosedLabel = false;
-					pr_merged_button = '';
-				
+					pr_closed_button = '';
+
 				}
 				if (items.userReason) {
 					userReason = items.userReason;
@@ -708,20 +710,29 @@ ${userReason}`;
 		return Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24));
 	}
 
-	// Helper to fetch PR details for merged status
-	async function fetchPrMergedStatus(owner, repo, number, headers) {
+	// Session cache for merged status
+	let sessionMergedStatusCache = {};
+
+	// Helper to fetch PR details for merged status (REST, single PR)
+	async function fetchPrMergedStatusREST(owner, repo, number, headers) {
+		const cacheKey = `${owner}/${repo}#${number}`;
+		if (sessionMergedStatusCache[cacheKey] !== undefined) {
+			return sessionMergedStatusCache[cacheKey];
+		}
 		const url = `https://api.github.com/repos/${owner}/${repo}/pulls/${number}`;
 		try {
 			const res = await fetch(url, { headers });
 			if (!res.ok) return null;
 			const data = await res.json();
-			return data.merged_at ? true : false;
+			const merged = !!data.merged_at;
+			sessionMergedStatusCache[cacheKey] = merged;
+			return merged;
 		} catch (e) {
 			return null;
 		}
 	}
 
-	// Update: make this async to allow merged status fetch and fallback
+	// Refactor writeGithubIssuesPrs to implement the new logic
 	async function writeGithubIssuesPrs() {
 		let items = githubIssuesData.items;
 		lastWeekArray = [];
@@ -735,7 +746,42 @@ ${userReason}`;
 		let useMergedStatus = false;
 		let fallbackToSimple = false;
 		let daysRange = getDaysBetween(startingDate, endingDate);
-		if (daysRange <= 14) useMergedStatus = true;
+		if (daysRange <= 7) useMergedStatus = true;
+
+		// Collect PRs to batch fetch merged status
+		let prsToCheck = [];
+		for (let i = 0; i < items.length; i++) {
+			let item = items[i];
+			if (item.pull_request && item.state === 'closed' && useMergedStatus && !fallbackToSimple) {
+				let repository_url = item.repository_url;
+				let repoParts = repository_url.split('/');
+				let owner = repoParts[repoParts.length - 2];
+				let repo = repoParts[repoParts.length - 1];
+				prsToCheck.push({ owner, repo, number: item.number, idx: i });
+			}
+		}
+
+		let mergedStatusResults = {};
+		if (githubToken) {
+			// Use GraphQL batching for all cases
+			if (prsToCheck.length > 0) {
+				mergedStatusResults = await fetchPrsMergedStatusBatch(prsToCheck, headers);
+			}
+		} else if (useMergedStatus) {
+			if (prsToCheck.length > 30) {
+				fallbackToSimple = true;
+				if (typeof Materialize !== 'undefined' && Materialize.toast) {
+					Materialize.toast('API limit exceeded. Please use a GitHub token for full status. Showing only open/closed PRs.', 5000);
+				}
+			} else {
+				// Use REST API for each PR, cache results
+				for (let pr of prsToCheck) {
+					let merged = await fetchPrMergedStatusREST(pr.owner, pr.repo, pr.number, headers);
+					mergedStatusResults[`${pr.owner}/${pr.repo}#${pr.number}`] = merged;
+				}
+			}
+		}
+
 		for (let i = 0; i < items.length; i++) {
 			let item = items[i];
 			let html_url = item.html_url;
@@ -746,29 +792,23 @@ ${userReason}`;
 			let li = '';
 			if (item.pull_request) {
 				if (item.state === 'open') {
-					li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_unmerged_button}</li>`;
+					li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_open_button}</li>`;
 				} else if (item.state === 'closed') {
-					if (useMergedStatus && !fallbackToSimple) {
-						let owner = repository_url.split('/')[repository_url.split('/').length - 2];
-						let merged = null;
-						try {
-							merged = await fetchPrMergedStatus(owner, project, number, headers);
-							if (merged === true) {
-								li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_merged_true_button}</li>`;
-							} else if (merged === false) {
-								li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_merged_false_button}</li>`;
-							} else {
-								li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_merged_false_button}</li>`;
-							}
-						} catch (e) {
-							fallbackToSimple = true;
+					if ((githubToken || (useMergedStatus && !fallbackToSimple)) && mergedStatusResults) {
+						let repository_url = item.repository_url;
+						let repoParts = repository_url.split('/');
+						let owner = repoParts[repoParts.length - 2];
+						let repo = repoParts[repoParts.length - 1];
+						let merged = mergedStatusResults[`${owner}/${repo}#${number}`];
+						if (merged === true) {
 							li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_merged_button}</li>`;
-							if (typeof Materialize !== 'undefined' && Materialize.toast) {
-								Materialize.toast('API limit exceeded or error occurred. Please use a GitHub token for higher limits.', 5000);
-							}
+						} else if (merged === false) {
+							li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_closed_button}</li>`;
+						} else {
+							li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_closed_button}</li>`;
 						}
 					} else {
-						li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_merged_button}</li>`;
+						li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_closed_button}</li>`;
 					}
 				}
 			} else {
@@ -845,16 +885,20 @@ ${userReason}`;
 
 	//check for github safe writing
 	let intervalWriteGithubIssues = setInterval(async () => {
-		if (outputTarget === 'popup') {
-			if (githubUsername && githubIssuesData) {
-				clearInterval(intervalWriteGithubIssues);
-				await writeGithubIssuesPrs();
+		try {
+			if (outputTarget === 'popup') {
+				if (githubUsername && githubIssuesData) {
+					clearInterval(intervalWriteGithubIssues);
+					await writeGithubIssuesPrs();
+				}
+			} else {
+				if (scrumBody && githubUsername && githubIssuesData) {
+					clearInterval(intervalWriteGithubIssues);
+					await writeGithubIssuesPrs();
+				}
 			}
-		} else {
-			if (scrumBody && githubUsername && githubIssuesData) {
-				clearInterval(intervalWriteGithubIssues);
-				await writeGithubIssuesPrs();
-			}
+		} catch (err) {
+			logError('Interval writeGithubIssuesPrs error:', err);
 		}
 	}, 500);
 	let intervalWriteGithubPrs = setInterval(() => {
@@ -915,3 +959,160 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 		return true;
 	}
 });
+
+// Replace all references to pr_unmerged_button, pr_merged_true_button, pr_merged_false_button with unified names
+// ... existing code ...
+// Refactor fetchPrMergedStatus to batch requests
+async function fetchPrsMergedStatusBatch(prs, headers) {
+	// prs: Array of {owner, repo, number}
+	const results = {};
+	if (prs.length === 0) return results;
+	// Use GitHub GraphQL API for batching
+	const query = `query {
+${prs.map((pr, i) => `	repo${i}: repository(owner: \"${pr.owner}\", name: \"${pr.repo}\") {
+		pr${i}: pullRequest(number: ${pr.number}) { merged }
+	}`).join('\n')}
+}`;
+	try {
+		const res = await fetch('https://api.github.com/graphql', {
+			method: 'POST',
+			headers: {
+				...headers,
+				'Content-Type': 'application/json',
+			},
+			body: JSON.stringify({ query }),
+		});
+		if (!res.ok) return results;
+		const data = await res.json();
+		prs.forEach((pr, i) => {
+			const merged = data.data[`repo${i}`]?.[`pr${i}`]?.merged;
+			results[`${pr.owner}/${pr.repo}#${pr.number}`] = merged;
+		});
+		return results;
+	} catch (e) {
+		return results;
+	}
+}
+// ... existing code ...
+// Refactor writeGithubIssuesPrs to batch merged status requests
+async function writeGithubIssuesPrs() {
+	let items = githubIssuesData.items;
+	lastWeekArray = [];
+	nextWeekArray = [];
+	if (!items) {
+		logError('No Github issues data available');
+		return;
+	}
+	const headers = { 'Accept': 'application/vnd.github.v3+json' };
+	if (githubToken) headers['Authorization'] = `token ${githubToken}`;
+	let useMergedStatus = false;
+	let fallbackToSimple = false;
+	let daysRange = getDaysBetween(startingDate, endingDate);
+	if (daysRange <= 14) useMergedStatus = true;
+
+	// Collect PRs to batch fetch merged status
+	let prsToCheck = [];
+	for (let i = 0; i < items.length; i++) {
+		let item = items[i];
+		if (item.pull_request && item.state === 'closed' && useMergedStatus && !fallbackToSimple) {
+			let repository_url = item.repository_url;
+			let repoParts = repository_url.split('/');
+			let owner = repoParts[repoParts.length - 2];
+			let repo = repoParts[repoParts.length - 1];
+			prsToCheck.push({ owner, repo, number: item.number, idx: i });
+		}
+	}
+	let mergedStatusResults = {};
+	if (prsToCheck.length > 0 && githubToken) {
+		mergedStatusResults = await fetchPrsMergedStatusBatch(prsToCheck, headers);
+	}
+
+	for (let i = 0; i < items.length; i++) {
+		let item = items[i];
+		let html_url = item.html_url;
+		let repository_url = item.repository_url;
+		let project = repository_url.substr(repository_url.lastIndexOf('/') + 1);
+		let title = item.title;
+		let number = item.number;
+		let li = '';
+		if (item.pull_request) {
+			if (item.state === 'open') {
+				li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_open_button}</li>`;
+			} else if (item.state === 'closed') {
+				if (useMergedStatus && !fallbackToSimple && githubToken) {
+					let repository_url = item.repository_url;
+					let repoParts = repository_url.split('/');
+					let owner = repoParts[repoParts.length - 2];
+					let repo = repoParts[repoParts.length - 1];
+					let merged = mergedStatusResults[`${owner}/${repo}#${number}`];
+					if (merged === true) {
+						li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_merged_button}</li>`;
+					} else if (merged === false) {
+						li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_closed_button}</li>`;
+					} else {
+						li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_closed_button}</li>`;
+					}
+				} else {
+					li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_closed_button}</li>`;
+				}
+			}
+		} else {
+			// is a issue
+			if (item.state === 'open' && item.body?.toUpperCase().indexOf('YES') > 0) {
+				let li2 =
+					'<li><i>(' +
+					project +
+					')</i> - Work on Issue(#' +
+					number +
+					") - <a href='" +
+					html_url +
+					"' target='_blank'>" +
+					title +
+					'</a> ' +
+					issue_opened_button +
+					'&nbsp;&nbsp;</li>';
+				nextWeekArray.push(li2);
+			}
+			if (item.state === 'open') {
+				li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_opened_button}</li>`;
+			} else if (item.state === 'closed') {
+				// Always show closed label for closed issues
+				li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_button}</li>`;
+			} else {
+				li =
+					'<li><i>(' +
+					project +
+					')</i> - Opened Issue(#' +
+					number +
+					") - <a href='" +
+					html_url +
+					"' target='_blank'>" +
+					title +
+					'</a> </li>';
+			}
+		}
+		lastWeekArray.push(li);
+	}
+	issuesDataProcessed = true;
+	triggerScrumGeneration();
+}
+// ... existing code ...
+// Wrap setInterval async handlers in try/catch
+let intervalWriteGithubIssues = setInterval(async () => {
+	try {
+		if (outputTarget === 'popup') {
+			if (githubUsername && githubIssuesData) {
+				clearInterval(intervalWriteGithubIssues);
+				await writeGithubIssuesPrs();
+			}
+		} else {
+			if (scrumBody && githubUsername && githubIssuesData) {
+				clearInterval(intervalWriteGithubIssues);
+				await writeGithubIssuesPrs();
+			}
+		}
+	} catch (err) {
+		logError('Interval writeGithubIssuesPrs error:', err);
+	}
+}, 500);
+// ... existing code ...
