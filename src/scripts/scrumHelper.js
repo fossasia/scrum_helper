@@ -122,19 +122,21 @@ function allIncluded(outputTarget = 'email') {
 					if (outputTarget === 'popup') {
 						console.log("No username found - popup context");
 						// Show error in popup
+						const scrumReport = document.getElementById('scrumReport');
 						const generateBtn = document.getElementById('generateReport');
+						if (scrumReport) {
+							scrumReport.innerHTML = '<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">Please enter your GitHub username to generate a report.</div>';
+						}
 						if (generateBtn) {
 							generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
 							generateBtn.disabled = false;
 						}
-						if (window.Materialize && window.Materialize.toast) {
-							Materialize.toast({ html: 'Please enter your GitHub username', classes: 'red' });
-						} else {
-							alert('Please enter your GitHub username');
-						}
+						scrumGenerationInProgress = false;
 					} else {
 						console.warn('No GitHub username found in storage');
+						scrumGenerationInProgress = false;
 					}
+					return;
 				}
 				if (items.cacheInput) {
 					cacheInput = items.cacheInput;
@@ -423,6 +425,17 @@ function allIncluded(outputTarget = 'email') {
 
 			if (outputTarget === 'popup') {
 				const generateBtn = document.getElementById('generateReport');
+				if (scrumReport) {
+					let errorMsg = 'An error occurred while generating the report.';
+					if (err) {
+						if (typeof err === 'string') errorMsg = err;
+						else if (err.message) errorMsg = err.message;
+						else errorMsg = JSON.stringify(err)
+					}
+					scrumReport.innerHTML = `<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">${err.message || 'An error occurred while generating the report.'}</div>`;
+					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+					generateBtn.disabled = false;
+				}
 				if (generateBtn) {
 					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
 					generateBtn.disabled = false;
