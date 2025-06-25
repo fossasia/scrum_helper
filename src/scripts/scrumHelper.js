@@ -357,7 +357,7 @@ function allIncluded(outputTarget = 'email') {
 	}
 
 	async function fetchGithubData() {
-		const cacheKey = `${githubUsername}-${startingDate}-${endingDate}`;
+		const cacheKey = `${githubUsername}-${orgName}-${startingDate}-${endingDate}`;
 
 		if (githubCache.fetching || (githubCache.cacheKey === cacheKey && githubCache.data)) {
 			log('Fetch already in progress or data already fetched. Skipping fetch.');
