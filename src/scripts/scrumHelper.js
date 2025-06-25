@@ -31,9 +31,11 @@ function allIncluded(outputTarget = 'email') {
 	let pr_open_button =
 		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
 	let pr_closed_button =
-		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color:  #6f42c1;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--purple">closed</div>';
+		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color:rgb(210, 20, 39);border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--red">closed</div>';
 	let pr_merged_button =
-		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #ff6b6b;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--red">merged</div>';
+		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #6f42c1;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--purple">merged</div>';
+	let pr_draft_button =
+		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #808080;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--gray">draft</div>';
 
 	let issue_closed_button =
 		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #6f42c1;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--purple">closed</div>';
@@ -785,8 +787,15 @@ ${userReason}`;
 			let title = item.title;
 			let number = item.number;
 			let li = '';
+			// --- DRAFT PR LOGIC ---
+			let isDraft = false;
+			if (item.pull_request && typeof item.draft !== 'undefined') {
+				isDraft = item.draft;
+			}
 			if (item.pull_request) {
-				if (item.state === 'open') {
+				if (isDraft) {
+					li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_draft_button}</li>`;
+				} else if (item.state === 'open') {
 					li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_open_button}</li>`;
 				} else if (item.state === 'closed') {
 					let merged = null;
@@ -1028,8 +1037,15 @@ async function writeGithubIssuesPrs() {
 		let title = item.title;
 		let number = item.number;
 		let li = '';
+		// --- DRAFT PR LOGIC ---
+		let isDraft = false;
+		if (item.pull_request && typeof item.draft !== 'undefined') {
+			isDraft = item.draft;
+		}
 		if (item.pull_request) {
-			if (item.state === 'open') {
+			if (isDraft) {
+				li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_draft_button}</li>`;
+			} else if (item.state === 'open') {
 				li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_open_button}</li>`;
 			} else if (item.state === 'closed') {
 				let merged = null;
