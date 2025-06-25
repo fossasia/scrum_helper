@@ -235,6 +235,7 @@ function allIncluded(outputTarget = 'email') {
 				cacheKey: githubCache.cacheKey,
 				timestamp: githubCache.timestamp,
 				subject: subject,
+				usedToken: !!githubToken,
 			}
 			log(`Saving data to storage:`, {
 				cacheKey: githubCache.cacheKey,
@@ -283,6 +284,7 @@ function allIncluded(outputTarget = 'email') {
 					githubCache.cacheKey = cache.cacheKey;
 					githubCache.timestamp = cache.timestamp;
 					githubCache.subject = cache.subject;
+					githubCache.usedToken = cache.usedToken || false;
 
 					if(cache.subject && scrumSubject) {
 						scrumSubject.value = cache.subject;
@@ -323,11 +325,18 @@ function allIncluded(outputTarget = 'email') {
 			const now = Date.now();
 			const isCacheFresh = (now - githubCache.timestamp) < githubCache.ttl;
 			const isCacheKeyMatch = githubCache.cacheKey === cacheKey;
+			const needsToken = !!githubToken;
+			const cacheUsedToken = !!githubCache.usedToken;
 
 			if(githubCache.data && isCacheFresh & isCacheKeyMatch) {
-				log('Using cached data - cache is fresh and key matches');
-				processGithubData(githubCache.data);
-				return Promise.resolve();
+				if(needsToken & !cacheUsedToken) {
+					log('Cache was fetched without token, but user now has a token. Invalidating cache.');
+        			githubCache.data = null;
+				} else {
+					log('Using cached data - cache is fresh and key matches');
+					processGithubData(githubCache.data);
+					return Promise.resolve();
+				}
 			}
 			// if cache key does not match our cache is stale, fetch new data
 			if(!isCacheKeyMatch) {
