@@ -743,7 +743,12 @@ ${userReason}`;
 		let useMergedStatus = false;
 		let fallbackToSimple = false;
 		let daysRange = getDaysBetween(startingDate, endingDate);
-		if (daysRange <= 7) useMergedStatus = true;
+		// For token users, always enable useMergedStatus (no 7-day limit)
+		if (githubToken) {
+			useMergedStatus = true;
+		} else if (daysRange <= 7) {
+			useMergedStatus = true;
+		}
 
 		// Collect PRs to batch fetch merged status
 		let prsToCheck = [];
@@ -1010,7 +1015,12 @@ async function writeGithubIssuesPrs() {
 	let useMergedStatus = false;
 	let fallbackToSimple = false;
 	let daysRange = getDaysBetween(startingDate, endingDate);
-	if (daysRange <= 14) useMergedStatus = true;
+	// For token users, always enable useMergedStatus (no 7-day limit)
+	if (githubToken) {
+		useMergedStatus = true;
+	} else if (daysRange <= 7) {
+		useMergedStatus = true;
+	}
 
 	// Collect PRs to batch fetch merged status
 	let prsToCheck = [];
