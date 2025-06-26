@@ -123,19 +123,19 @@ function handleLastWeekContributionChange() {
 	let value = lastWeekContributionElement.checked;
 	let labelElement = document.querySelector("label[for='lastWeekContribution']");
 	if (value) {
-		startingDateElement.disabled = true;
-		endingDateElement.disabled = true;
-		endingDateElement.value = getToday();
-		startingDateElement.value = getLastWeek();
-		handleEndingDateChange();
-		handleStartingDateChange();
-		labelElement.classList.add("selectedLabel");
-		labelElement.classList.remove("unselectedLabel");
+			startingDateElement.readOnly = true;
+			endingDateElement.readOnly = true;
+			endingDateElement.value = getToday();
+			startingDateElement.value = getLastWeek();
+		        handleEndingDateChange();
+		        handleStartingDateChange();
+			labelElement.classList.add("selectedLabel");
+			labelElement.classList.remove("unselectedLabel");
 	} else {
-		startingDateElement.disabled = false;
-		endingDateElement.disabled = false;
-		labelElement.classList.add("unselectedLabel");
-		labelElement.classList.remove("selectedLabel");
+			startingDateElement.readOnly = false;
+			endingDateElement.readOnly = false;
+			labelElement.classList.add("unselectedLabel");
+			labelElement.classList.remove("selectedLabel");
 	}
 
 	chrome.storage.local.set({ lastWeekContribution: value });
@@ -146,8 +146,8 @@ function handleYesterdayContributionChange() {
 	let labelElement = document.querySelector("label[for='yesterdayContribution']");
 
 	if (value) {
-		startingDateElement.disabled = true;
-		endingDateElement.disabled = true;
+		startingDateElement.readOnly = true;
+		endingDateElement.readOnly = true;
 		endingDateElement.value = getToday();
 		startingDateElement.value = getYesterday();
 		handleEndingDateChange();
@@ -155,8 +155,8 @@ function handleYesterdayContributionChange() {
 		labelElement.classList.add("selectedLabel");
 		labelElement.classList.remove("unselectedLabel");
 	} else {
-		startingDateElement.disabled = false;
-		endingDateElement.disabled = false;
+		startingDateElement.readOnly = false;
+		endingDateElement.readOnly = false;
 		labelElement.classList.add("unselectedLabel");
 		labelElement.classList.remove("selectedLabel");
 	}
