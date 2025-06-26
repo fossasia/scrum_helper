@@ -560,8 +560,6 @@ function allIncluded(outputTarget = 'email') {
         if (!githubCache.subject && scrumSubject) {
             scrumSubjectLoaded();
         }
-		writeGithubIssuesPrs();
-		writeGithubPrsReviews();
     }
 
     function formatDate(dateString) {
