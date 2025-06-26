@@ -426,7 +426,8 @@ function allIncluded(outputTarget = 'email') {
                     const commitMap = await fetchCommitsForOpenPRs(openPRs, githubToken, numCommits);
                     // Attach commits to PR objects
                     openPRs.forEach(pr => {
-                        pr._lastCommits = commitMap[pr.number] || [];
+                        pr._allCommits = commitMap[pr.number] || [];
+						pr._lastCommits = pr._allCommits.slice(0, numCommits);
                     });
                 }
             }
@@ -808,6 +809,7 @@ ${userReason}`;
                 } else if (item.state === 'open') {
                     li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_unmerged_button}`;
                     if (showCommits && item._lastCommits && item._lastCommits.length) {
+						item._lastCommits = item._allCommits.slice(0, numCommits);
                         item._lastCommits.forEach(commit => {
                             li += `<li style="list-style: disc; margin: 0 0 0 20px; padding: 0; color: #666;"><span style="color:#2563eb;">${commit.messageHeadline}</span><span style="color:#666; font-size: 11px;"> (${commit.author?.user?.login || commit.author?.name || 'unknown'}, ${new Date(commit.committedDate).toLocaleString()})</span></li>`;
                         });

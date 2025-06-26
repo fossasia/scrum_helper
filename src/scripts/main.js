@@ -263,6 +263,11 @@ function handleShowCommitsChange() {
 function handleNumCommitsChange() {
 	let value = numCommitsElement.value;
 	chrome.storage.local.set({ numCommits: value });
+	if(window.generateScrumReport) {
+		window.generateScrumReport();
+	} else if(typeof allIncluded === 'function') {
+		allIncluded('popup');
+	}
 }
 enableToggleElement.addEventListener('change', handleEnableChange);
 githubUsernameElement.addEventListener('keyup', handleGithubUsernameChange);
