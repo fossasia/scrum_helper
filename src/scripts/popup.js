@@ -256,8 +256,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const startDateInput = document.getElementById('startingDate');
             const endDateInput = document.getElementById('endingDate');
-            startDateInput.disabled = false;
-            endDateInput.disabled = false;
+            startDateInput.readOnly = false;
+            endDateInput.readOnly = false;
 
             chrome.storage.local.set({
                 lastWeekContribution: false,
@@ -294,9 +294,8 @@ document.addEventListener('DOMContentLoaded', function () {
                     startDateInput.value = getYesterday();
                     endDateInput.value = getToday();
                 }
-
-                startDateInput.disabled = endDateInput.disabled = true;
-
+                startDateInput.readOnly = endDateInput.readOnly = true;
+    
                 chrome.storage.local.set({
                     startingDate: startDateInput.value,
                     endingDate: endDateInput.value,
@@ -369,11 +368,9 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(res => {
                 console.log('[Org Check] Response status for', org, ':', res.status);
                 if (res.status === 404) {
-                    console.log('[Org Check] Organisation not found on GitHub:', org);
-                    // Remove any existing toast with the same id
+                    console.log('[Org Check] Organization not found on GitHub:', org);
                     const oldToast = document.getElementById('invalid-org-toast');
                     if (oldToast) oldToast.parentNode.removeChild(oldToast);
-                    // Create a new toast div
                     const toastDiv = document.createElement('div');
                     toastDiv.id = 'invalid-org-toast';
                     toastDiv.className = 'toast';
@@ -387,32 +384,30 @@ document.addEventListener('DOMContentLoaded', function () {
                     toastDiv.style.left = '50%';
                     toastDiv.style.transform = 'translateX(-50%)';
                     toastDiv.style.zIndex = '9999';
-                    toastDiv.innerText = 'Organisation not found on GitHub.';
+                    toastDiv.innerText = 'Organization not found on GitHub.';
                     document.body.appendChild(toastDiv);
                     setTimeout(() => {
                         if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
                     }, 3000);
-                    // Do NOT update storage or fetch data for invalid org
                     return;
                 }
-                // Remove any existing toast with the same id (for valid orgs)
                 const oldToast = document.getElementById('invalid-org-toast');
                 if (oldToast) oldToast.parentNode.removeChild(oldToast);
                 console.log('[Org Check] Organisation exists on GitHub:', org);
+
                 // Valid org: update storage and fetch data
                 chrome.storage.local.set({ orgName: org, githubCache: null }, function () {
                     const scrumReport = document.getElementById('scrumReport');
                     if (scrumReport) {
                         scrumReport.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Organisation changed. Click "Generate Report" to fetch new data.</p>';
                     }
+
                 });
             })
             .catch((err) => {
                 console.log('[Org Check] Error validating organisation:', org, err);
-                // Remove any existing toast with the same id
                 const oldToast = document.getElementById('invalid-org-toast');
                 if (oldToast) oldToast.parentNode.removeChild(oldToast);
-                // Create a new toast div
                 const toastDiv = document.createElement('div');
                 toastDiv.id = 'invalid-org-toast';
                 toastDiv.className = 'toast';
@@ -426,12 +421,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 toastDiv.style.left = '50%';
                 toastDiv.style.transform = 'translateX(-50%)';
                 toastDiv.style.zIndex = '9999';
-                toastDiv.innerText = 'Error validating organisation.';
+                toastDiv.innerText = 'Error validating organization.';
                 document.body.appendChild(toastDiv);
                 setTimeout(() => {
                     if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
                 }, 3000);
-                // Do NOT update storage or fetch data for invalid org
             });
     }, 2500);
 
@@ -488,8 +482,8 @@ document.querySelectorAll('input[name="timeframe"]').forEach(radio => {
 
             const startDateInput = document.getElementById('startingDate');
             const endDateInput = document.getElementById('endingDate');
-            startDateInput.disabled = false;
-            endDateInput.disabled = false;
+            startDateInput.readOnly = false;
+            endDateInput.readOnly = false;
 
             chrome.storage.local.set({
                 lastWeekContribution: false,
@@ -561,7 +555,7 @@ function toggleRadio(radio) {
         endDateInput.value = getToday();
     }
 
-    startDateInput.disabled = endDateInput.disabled = true;
+    startDateInput.readOnly = endDateInput.readOnly = true;
 
     chrome.storage.local.set({
         startingDate: startDateInput.value,
@@ -579,7 +573,7 @@ function toggleRadio(radio) {
     });
 }
 
-const cacheInput = document.getElementById('cacheInput');
+let cacheInput = document.getElementById('cacheInput');
 if (cacheInput) {
     chrome.storage.local.get(['cacheInput'], function (result) {
         if (result.cacheInput) {
