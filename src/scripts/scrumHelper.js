@@ -9,6 +9,7 @@ function allIncluded(outputTarget = 'email') {
       console.warn('[SCRUM-HELPER]: Scrum generation already in progress, aborting new call.');
       return;
     }
+	scrumGenerationInProgress = true;
     console.log('allIncluded called with outputTarget:', outputTarget);
     console.log('Current window context:', window.location.href);
     let scrumBody = null;
@@ -615,8 +616,6 @@ function allIncluded(outputTarget = 'email') {
                 console.log('Not a new conversation, skipping scrum helper');
                 return;
             }
-            writeGithubIssuesPrs();
-            writeGithubPrsReviews();
         }
 
         setTimeout(() => {
