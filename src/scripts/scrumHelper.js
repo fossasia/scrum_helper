@@ -50,11 +50,7 @@ function allIncluded(outputTarget = 'email') {
 	let issue_opened_button =
 		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
 
-	/**
-	 * Resets all report processing flags and state, then optionally regenerates the report
-	 * @param {boolean} regenerateReport - Whether to regenerate the report after reset
-	 * @param {string} outputTarget - The output target ('popup' or 'email')
-	 */
+	// Reset all report state and optionally regenerate the report for popup or email context
 	function resetReportState(regenerateReport = false, outputTarget = 'popup') {
 		log('Resetting report state');
 
@@ -90,10 +86,7 @@ function allIncluded(outputTarget = 'email') {
 		}
 	}
 
-	/**
-	 * Forces a refresh of GitHub data by clearing cache and fetching new data
-	 * @returns {Promise} Promise that resolves when refresh is complete
-	 */
+	// Clear cache, fetch fresh GitHub data, and reset report state
 	async function forceGithubDataRefresh() {
 		log('Force refreshing GitHub data');
 
