@@ -1,3 +1,14 @@
+const DEBUG = false;
+function log(...args) {
+	if (DEBUG) {
+		console.log(`[SCRUM-HELPER]:`, ...args);
+	}
+}
+function logError(...args) {
+	if (DEBUG) {
+		console.error('[SCRUM-HELPER]:', ...args);
+	}
+}
 console.log('Script loaded, adapter exists:', !!window.emailClientAdapter);
 let refreshButton_Placed = false;
 let enableToggle = true;
@@ -5,7 +16,7 @@ let hasInjectedContent = false;
 let scrumGenerationInProgress = false;
 let orgName = 'fossasia'; // default
 function allIncluded(outputTarget = 'email') {
-	if(scrumGenerationInProgress) {
+	if (scrumGenerationInProgress) {
 		console.warn('[SCRUM-HELPER]: Scrum generation already in progress, aborting new call.');
 		return;
 	}
@@ -114,13 +125,13 @@ function allIncluded(outputTarget = 'email') {
 					handleLastWeekContributionChange();
 				} else if (items.yesterdayContribution) {
 					handleYesterdayContributionChange();
-				} else if(items.startDate && items.endingDate) {
+				} else if (items.startDate && items.endingDate) {
 					startingDate = items.startingDate;
 					endingDate = items.endingDate;
 				} else {
 					handleLastWeekContributionChange(); //when no date is stored, i.e on fresh unpack - default to last week.
-					if(outputTarget === 'popup') {
-						chrome.storage.local.set({ lastWeekContribution: true, yesterdayContribution: false});
+					if (outputTarget === 'popup') {
+						chrome.storage.local.set({ lastWeekContribution: true, yesterdayContribution: false });
 					}
 				}
 
@@ -228,17 +239,6 @@ function allIncluded(outputTarget = 'email') {
 		return WeekDisplayPadded;
 	}
 
-	const DEBUG = false;
-	function log(...args) {
-		if (DEBUG) {
-			console.log(`[SCRUM-HELPER]:`, ...args);
-		}
-	}
-	function logError(...args) {
-		if (DEBUG) {
-			console.error('[SCRUM-HELPER]:', ...args);
-		}
-	}
 	// Global cache object
 	let githubCache = {
 		data: null,
@@ -837,7 +837,7 @@ ${userReason}`;
 			let title = item.title;
 			let number = item.number;
 			let li = '';
-			// --- DRAFT PR LOGIC ---
+
 			let isDraft = false;
 			if (item.pull_request && typeof item.draft !== 'undefined') {
 				isDraft = item.draft;
@@ -993,7 +993,7 @@ ${userReason}`;
 
 // allIncluded('email');
 
-if(window.location.protocol.startsWith('http')) {
+if (window.location.protocol.startsWith('http')) {
 	allIncluded('email');
 	$('button>span:contains(New conversation)').parent('button').click(() => {
 		allIncluded();
@@ -1015,9 +1015,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 	}
 });
 
-// Replace all references to pr_unmerged_button, pr_merged_true_button, pr_merged_false_button with unified names
-// ... existing code ...
-// Refactor fetchPrMergedStatus to batch requests
+
 async function fetchPrsMergedStatusBatch(prs, headers) {
 	// prs: Array of {owner, repo, number}
 	const results = {};
@@ -1095,7 +1093,7 @@ async function writeGithubIssuesPrs() {
 		let title = item.title;
 		let number = item.number;
 		let li = '';
-		// --- DRAFT PR LOGIC ---
+
 		let isDraft = false;
 		if (item.pull_request && typeof item.draft !== 'undefined') {
 			isDraft = item.draft;
@@ -1180,4 +1178,4 @@ let intervalWriteGithubIssues = setInterval(async () => {
 		logError('Interval writeGithubIssuesPrs error:', err);
 	}
 }, 500);
-// ... existing code ...
+
