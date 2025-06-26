@@ -2,8 +2,13 @@ console.log('Script loaded, adapter exists:', !!window.emailClientAdapter);
 let refreshButton_Placed = false;
 let enableToggle = true;
 let hasInjectedContent = false;
+let scrumGenerationInProgress = false;
 let orgName = 'fossasia'; // default
 function allIncluded(outputTarget = 'email') {
+    if(scrumGenerationInProgress) {
+      console.warn('[SCRUM-HELPER]: Scrum generation already in progress, aborting new call.');
+      return;
+    }
     console.log('allIncluded called with outputTarget:', outputTarget);
     console.log('Current window context:', window.location.href);
     let scrumBody = null;
@@ -25,9 +30,8 @@ function allIncluded(outputTarget = 'email') {
     let issuesDataProcessed = false;
     let prsReviewDataProcessed = false;
     let showOpenLabel = true;
-    let showClosedLabel = true;
     let showCommits = false;
-	let numCommits = 5; //default
+	  let numCommits = 5; //default
     let userReason = '';
 
     let pr_merged_button =
@@ -57,98 +61,108 @@ function allIncluded(outputTarget = 'email') {
                 'yesterdayContribution',
                 'userReason',
                 'showCommits',
-				'numCommits',
+                'numCommits',
                 'githubCache',
                 'cacheInput',
                 'orgName'
             ],
             (items) => {
                 console.log("Storage items received:", items);
+              
+              
+                if (outputTarget === 'popup') {
+                  const usernameFromDOM = document.getElementById('githubUsername')?.value;
+                  const projectFromDOM = document.getElementById('projectName')?.value;
+                  const reasonFromDOM = document.getElementById('userReason')?.value;
+                  const tokenFromDOM = document.getElementById('githubToken')?.value;
 
-                if (items.lastWeekContribution) {
-                    lastWeekContribution = true;
-                    handleLastWeekContributionChange();
+                  items.githubUsername = usernameFromDOM || items.githubUsername;
+                  items.projectName = projectFromDOM || items.projectName;
+                  items.userReason = reasonFromDOM || items.userReason;
+                  items.githubToken = tokenFromDOM || items.githubToken;
+
+                  chrome.storage.local.set({
+                    githubUsername: items.githubUsername,
+                    projectName: items.projectName,
+                    userReason: items.userReason,
+                    githubToken: items.githubToken
+                  });
                 }
-                if (items.yesterdayContribution) {
-                    yesterdayContribution = true;
-                    handleYesterdayContributionChange();
-                }
+              
+                githubUsername = items.githubUsername;
+                projectName = items.projectName;
+                userReason = items.userReason || 'No Blocker at the moment';
+                githubToken = items.githubToken;
+                lastWeekContribution = items.lastWeekContribution;
+                yesterdayContribution = items.yesterdayContribution;
+
                 if (!items.enableToggle) {
-                    enableToggle = items.enableToggle;
-                }
-                if (items.endingDate && !lastWeekContribution) {
-                    endingDate = items.endingDate;
-                }
-                if (items.startingDate && !lastWeekContribution) {
-                    startingDate = items.startingDate;
-                }
-                if (items.endingDate && !yesterdayContribution) {
-                    endingDate = items.endingDate;
-                }
-                if (items.startingDate && !yesterdayContribution) {
-                    startingDate = items.startingDate;
-                }
-                if (items.githubUsername) {
-                    githubUsername = items.githubUsername;
-                    console.log("About to fetch GitHub data for:", githubUsername);
-                    fetchGithubData();
-                } else {
-                    if (outputTarget === 'popup') {
-                        console.log("No username found - popup context");
-                        // Show error in popup
-                        const generateBtn = document.getElementById('generateReport');
-                        if (generateBtn) {
-                            generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
-                            generateBtn.disabled = false;
-                        }
-                        Materialize.toast('Please enter your GitHub username', 3000);
-                    } else {
-                        console.log("No username found - email context");
-                        console.warn('No GitHub username found in storage');
-                    }
-                }
-                if (items.projectName) {
-                    projectName = items.projectName;
-                }
-                if (items.githubToken) {
-                    githubToken = items.githubToken;
-                }
+					enableToggle = items.enableToggle;
+				}
+				if (!items.showOpenLabel) {
+					showOpenLabel = false;
+					pr_unmerged_button = '';
+					issue_opened_button = '';
+					pr_merged_button = '';
+					issue_closed_button = '';
+				}
+				if (items.lastWeekContribution) {
+					handleLastWeekContributionChange();
+				} else if (items.yesterdayContribution) {
+					handleYesterdayContributionChange();
+				} else if(items.startDate && items.endingDate) {
+					startingDate = items.startingDate;
+					endingDate = items.endingDate;
+				} else {
+					handleLastWeekContributionChange(); //when no date is stored, i.e on fresh unpack - default to last week.
+					if(outputTarget === 'popup') {
+						chrome.storage.local.set({ lastWeekContribution: true, yesterdayContribution: false});
+					}
+				}
+                if (githubUsername) {
+					console.log("About to fetch GitHub data for:", githubUsername);
+					fetchGithubData();
+				} else {
+					if (outputTarget === 'popup') {
+						console.log("No username found - popup context");
+						// Show error in popup
+						const scrumReport = document.getElementById('scrumReport');
+						const generateBtn = document.getElementById('generateReport');
+						if (scrumReport) {
+							scrumReport.innerHTML = '<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">Please enter your GitHub username to generate a report.</div>';
+						}
+						if (generateBtn) {
+							generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+							generateBtn.disabled = false;
+						}
+						scrumGenerationInProgress = false;
+					} else {
+						console.warn('No GitHub username found in storage');
+						scrumGenerationInProgress = false;
+					}
+					return;
+				}
                 if (items.cacheInput) {
                     cacheInput = items.cacheInput;
                 }
-                if (!items.showOpenLabel) {
-                    showOpenLabel = false;
-                    pr_unmerged_button = '';
-                    issue_opened_button = '';
-                }
-                if (!items.showClosedLabel) {
-                    showClosedLabel = false;
-                    pr_merged_button = '';
-                    issue_closed_button = '';
-                }
+                
                 if (items.showCommits !== undefined) {
                     showCommits = items.showCommits;
                 } else {
                     showCommits = false; // Default value
                 }
-                if (items.userReason) {
-                    userReason = items.userReason;
-                }
-                if (!items.userReason) {
-                    userReason = 'No Blocker at the moment';
-                }
-                if (items.githubCache) {
-                    githubCache.data = items.githubCache.data;
-                    githubCache.cacheKey = items.githubCache.cacheKey;
-                    githubCache.timestamp = items.githubCache.timestamp;
-                    log('Restored cache from storage');
-                }
+              if (items.githubCache) {
+					githubCache.data = items.githubCache.data;
+					githubCache.cacheKey = items.githubCache.cacheKey;
+					githubCache.timestamp = items.githubCache.timestamp;
+					log('Restored cache from storage');
+				}
                 if (items.orgName) {
                     orgName = items.orgName;
                 }
-				if(items.numCommits) {
-					numCommits = items.numCommits;
-				}
+                if(items.numCommits) {
+                  numCommits = items.numCommits;
+                }
             },
         );
     }
@@ -442,22 +456,34 @@ function allIncluded(outputTarget = 'email') {
             // Resolve queued calls
             githubCache.queue.forEach(({ resolve }) => resolve());
             githubCache.queue = [];
-        } catch (err) {
-            logError('Fetch Failed:', err);
-            // Reject queued calls on error
-            githubCache.queue.forEach(({ reject }) => reject(err));
-            githubCache.queue = [];
-            githubCache.fetching = false;
+              } catch (err) {
+                    logError('Fetch Failed:', err);
+                    // Reject queued calls on error
+                    githubCache.queue.forEach(({ reject }) => reject(err));
+                    githubCache.queue = [];
+                    githubCache.fetching = false;
 
-            if (outputTarget === 'popup') {
-                const generateBtn = document.getElementById('generateReport');
-                if (generateBtn) {
-                    generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
-                    generateBtn.disabled = false;
-                }
-            }
-            throw err;
-        } finally {
+                    if (outputTarget === 'popup') {
+                      const generateBtn = document.getElementById('generateReport');
+                      if (scrumReport) {
+                        let errorMsg = 'An error occurred while generating the report.';
+                        if (err) {
+                          if (typeof err === 'string') errorMsg = err;
+                          else if (err.message) errorMsg = err.message;
+                          else errorMsg = JSON.stringify(err)
+                        }
+                        scrumReport.innerHTML = `<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">${err.message || 'An error occurred while generating the report.'}</div>`;
+                        generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+                        generateBtn.disabled = false;
+                      }
+                      if (generateBtn) {
+                        generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+                        generateBtn.disabled = false;
+                      }
+                    }
+                    scrumGenerationInProgress = false;
+                    throw err;
+                  } finally {
             githubCache.fetching = false;
         }
     }
@@ -971,11 +997,15 @@ async function forceGithubDataRefresh() {
     return { success: true };
 }
 
-allIncluded('email');
 
-$('button>span:contains(New conversation)').parent('button').click(() => {
-    allIncluded();
-});
+// allIncluded('email');
+
+if(window.location.protocol.startsWith('http')) {
+	allIncluded('email');
+	$('button>span:contains(New conversation)').parent('button').click(() => {
+		allIncluded();
+	});
+}
 
 window.generateScrumReport = function () {
     allIncluded('popup');
