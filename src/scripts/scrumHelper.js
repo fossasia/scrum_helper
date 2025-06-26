@@ -2,6 +2,7 @@ console.log('Script loaded, adapter exists:', !!window.emailClientAdapter);
 let refreshButton_Placed = false;
 let enableToggle = true;
 let hasInjectedContent = false;
+let scrumGenerationInProgress = false;
 let orgName = 'fossasia'; // default
 
 // Global cache object
@@ -16,6 +17,11 @@ let githubCache = {
 };
 
 function allIncluded(outputTarget = 'email') {
+	if(scrumGenerationInProgress) {
+		console.warn('[SCRUM-HELPER]: Scrum generation already in progress, aborting new call.');
+		return;
+	}
+	scrumGenerationInProgress = true;
 	console.log('allIncluded called with outputTarget:', outputTarget);
 	console.log('Current window context:', window.location.href);
 	let scrumBody = null;
@@ -37,7 +43,6 @@ function allIncluded(outputTarget = 'email') {
 	let issuesDataProcessed = false;
 	let prsReviewDataProcessed = false;
 	let showOpenLabel = true;
-	let showClosedLabel = true;
 	let userReason = '';
 
 	let pr_merged_button =
@@ -126,7 +131,6 @@ function allIncluded(outputTarget = 'email') {
 				'startingDate',
 				'endingDate',
 				'showOpenLabel',
-				'showClosedLabel',
 				'lastWeekContribution',
 				'yesterdayContribution',
 				'userReason',
@@ -137,72 +141,81 @@ function allIncluded(outputTarget = 'email') {
 			(items) => {
 				console.log("Storage items received:", items);
 
-				if (items.lastWeekContribution) {
-					lastWeekContribution = true;
-					handleLastWeekContributionChange();
+				if (outputTarget === 'popup') {
+					const usernameFromDOM = document.getElementById('githubUsername')?.value;
+					const projectFromDOM = document.getElementById('projectName')?.value;
+					const reasonFromDOM = document.getElementById('userReason')?.value;
+					const tokenFromDOM = document.getElementById('githubToken')?.value;
+
+					items.githubUsername = usernameFromDOM || items.githubUsername;
+					items.projectName = projectFromDOM || items.projectName;
+					items.userReason = reasonFromDOM || items.userReason;
+					items.githubToken = tokenFromDOM || items.githubToken;
+
+					chrome.storage.local.set({
+						githubUsername: items.githubUsername,
+						projectName: items.projectName,
+						userReason: items.userReason,
+						githubToken: items.githubToken
+					});
 				}
-				if (items.yesterdayContribution) {
-					yesterdayContribution = true;
-					handleYesterdayContributionChange();
-				}
+
+				githubUsername = items.githubUsername;
+				projectName = items.projectName;
+				userReason = items.userReason || 'No Blocker at the moment';
+				githubToken = items.githubToken;
+				lastWeekContribution = items.lastWeekContribution;
+				yesterdayContribution = items.yesterdayContribution;
+
 				if (!items.enableToggle) {
 					enableToggle = items.enableToggle;
 				}
-				if (items.endingDate && !lastWeekContribution) {
-					endingDate = items.endingDate;
+				if (!items.showOpenLabel) {
+					showOpenLabel = false;
+					pr_unmerged_button = '';
+					issue_opened_button = '';
+					pr_merged_button = '';
+					issue_closed_button = '';
 				}
-				if (items.startingDate && !lastWeekContribution) {
+				if (items.lastWeekContribution) {
+					handleLastWeekContributionChange();
+				} else if (items.yesterdayContribution) {
+					handleYesterdayContributionChange();
+				} else if(items.startDate && items.endingDate) {
 					startingDate = items.startingDate;
-				}
-				if (items.endingDate && !yesterdayContribution) {
 					endingDate = items.endingDate;
+				} else {
+					handleLastWeekContributionChange(); //when no date is stored, i.e on fresh unpack - default to last week.
+					if(outputTarget === 'popup') {
+						chrome.storage.local.set({ lastWeekContribution: true, yesterdayContribution: false});
+					}
 				}
-				if (items.startingDate && !yesterdayContribution) {
-					startingDate = items.startingDate;
-				}
-				if (items.githubUsername) {
-					githubUsername = items.githubUsername;
+
+				if (githubUsername) {
 					console.log("About to fetch GitHub data for:", githubUsername);
 					fetchGithubData();
 				} else {
 					if (outputTarget === 'popup') {
 						console.log("No username found - popup context");
 						// Show error in popup
+						const scrumReport = document.getElementById('scrumReport');
 						const generateBtn = document.getElementById('generateReport');
+						if (scrumReport) {
+							scrumReport.innerHTML = '<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">Please enter your GitHub username to generate a report.</div>';
+						}
 						if (generateBtn) {
 							generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
 							generateBtn.disabled = false;
 						}
-						Materialize.toast('Please enter your GitHub username', 3000);
+						scrumGenerationInProgress = false;
 					} else {
-						console.log("No username found - email context");
 						console.warn('No GitHub username found in storage');
+						scrumGenerationInProgress = false;
 					}
-				}
-				if (items.projectName) {
-					projectName = items.projectName;
-				}
-				if (items.githubToken) {
-					githubToken = items.githubToken;
+					return;
 				}
 				if (items.cacheInput) {
 					cacheInput = items.cacheInput;
-				}
-				if (!items.showOpenLabel) {
-					showOpenLabel = false;
-					pr_unmerged_button = '';
-					issue_opened_button = '';
-				}
-				if (!items.showClosedLabel) {
-					showClosedLabel = false;
-					pr_merged_button = '';
-					issue_closed_button = '';
-				}
-				if (items.userReason) {
-					userReason = items.userReason;
-				}
-				if (!items.userReason) {
-					userReason = 'No Blocker at the moment';
 				}
 				if (items.githubCache) {
 					githubCache.data = items.githubCache.data;
@@ -269,8 +282,7 @@ function allIncluded(outputTarget = 'email') {
 		return WeekDisplayPadded;
 	}
 
-
-	const DEBUG = true;
+	const DEBUG = false;
 	function log(...args) {
 		if (DEBUG) {
 			console.log(`[SCRUM-HELPER]:`, ...args);
@@ -445,9 +457,9 @@ function allIncluded(outputTarget = 'email') {
 
 			if (issuesRes.status === 404 || prRes.status === 404) {
 				if (outputTarget === 'popup') {
-					Materialize.toast && Materialize.toast('Organisation not found on GitHub', 3000);
+					Materialize.toast && Materialize.toast('Organization not found on GitHub', 3000);
 				}
-				throw new Error('Organisation not found');
+				throw new Error('Organization not found');
 			}
 
 			if (!issuesRes.ok) throw new Error(`Error fetching Github issues: ${issuesRes.status} ${issuesRes.statusText}`);
@@ -481,11 +493,23 @@ function allIncluded(outputTarget = 'email') {
 
 			if (outputTarget === 'popup') {
 				const generateBtn = document.getElementById('generateReport');
+				if (scrumReport) {
+					let errorMsg = 'An error occurred while generating the report.';
+					if (err) {
+						if (typeof err === 'string') errorMsg = err;
+						else if (err.message) errorMsg = err.message;
+						else errorMsg = JSON.stringify(err)
+					}
+					scrumReport.innerHTML = `<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">${err.message || 'An error occurred while generating the report.'}</div>`;
+					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+					generateBtn.disabled = false;
+				}
 				if (generateBtn) {
 					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
 					generateBtn.disabled = false;
 				}
 			}
+			scrumGenerationInProgress = false;
 			throw err;
 		} finally {
 			githubCache.fetching = false;
@@ -617,8 +641,10 @@ ${userReason}`;
 						generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
 						generateBtn.disabled = false;
 					}
+					scrumGenerationInProgress = false;
 				} else {
 					logError('Scrum report div not found');
+					scrumGenerationInProgress = false;
 				}
 			} else {
 				const elements = window.emailClientAdapter.getEditorElements();
@@ -628,6 +654,7 @@ ${userReason}`;
 				}
 				window.emailClientAdapter.injectContent(elements.body, content, elements.eventTypes.contentChange);
 				hasInjectedContent = true;
+				scrumGenerationInProgress = false;
 			}
 		}, 500);
 	}
@@ -916,11 +943,14 @@ ${userReason}`;
 	}
 }
 
-allIncluded('email');
+// allIncluded('email');
 
-$('button>span:contains(New conversation)').parent('button').click(() => {
-	allIncluded();
-});
+if(window.location.protocol.startsWith('http')) {
+	allIncluded('email');
+	$('button>span:contains(New conversation)').parent('button').click(() => {
+		allIncluded();
+	});
+}
 
 window.generateScrumReport = function () {
 	allIncluded('popup');
