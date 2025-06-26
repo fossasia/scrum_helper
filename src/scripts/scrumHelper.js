@@ -27,6 +27,7 @@ function allIncluded(outputTarget = 'email') {
     let showOpenLabel = true;
     let showClosedLabel = true;
     let showCommits = false;
+	let numCommits = 5; //default
     let userReason = '';
 
     let pr_merged_button =
@@ -56,6 +57,7 @@ function allIncluded(outputTarget = 'email') {
                 'yesterdayContribution',
                 'userReason',
                 'showCommits',
+				'numCommits',
                 'githubCache',
                 'cacheInput',
                 'orgName'
@@ -144,6 +146,9 @@ function allIncluded(outputTarget = 'email') {
                 if (items.orgName) {
                     orgName = items.orgName;
                 }
+				if(items.numCommits) {
+					numCommits = items.numCommits;
+				}
             },
         );
     }
@@ -418,7 +423,7 @@ function allIncluded(outputTarget = 'email') {
                 );
                 // Fetch commits for open PRs (batch)
                 if (openPRs.length && githubToken) {
-                    const commitMap = await fetchCommitsForOpenPRs(openPRs, githubToken);
+                    const commitMap = await fetchCommitsForOpenPRs(openPRs, githubToken, numCommits);
                     // Attach commits to PR objects
                     openPRs.forEach(pr => {
                         pr._lastCommits = commitMap[pr.number] || [];
@@ -456,7 +461,7 @@ function allIncluded(outputTarget = 'email') {
         }
     }
 
-    async function fetchCommitsForOpenPRs(prs, githubToken) {
+    async function fetchCommitsForOpenPRs(prs, githubToken, numCommits = 5) {
         if (!prs.length) return {};
         let queries = prs.map((pr, idx) => {
             const repoParts = pr.repository_url.split('/');
@@ -465,7 +470,7 @@ function allIncluded(outputTarget = 'email') {
             return `
 					pr${idx}: repository(owner: "${owner}", name: "${repo}") {
 						pullRequest(number: ${pr.number}) {
-							commits(last: 5) {
+							commits(last: ${numCommits}) {
 								nodes {
 									commit {
 										messageHeadline

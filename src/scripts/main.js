@@ -10,6 +10,7 @@ let endingDateElement = document.getElementById('endingDate');
 let showOpenLabelElement = document.getElementById('showOpenLabel');
 let userReasonElement = document.getElementById('userReason');
 let showCommitsElement = document.getElementById('showCommits');
+let numCommitsElement = document.getElementById('numCommits');
 
 function handleBodyOnLoad() {
 	chrome.storage.local.get(
@@ -27,6 +28,7 @@ function handleBodyOnLoad() {
 			'cacheInput',
 			'githubToken',
 			'showCommits',
+			'numCommits',
 		],
 		(items) => {
 			if (items.githubUsername) {
@@ -85,6 +87,9 @@ function handleBodyOnLoad() {
 			} else {
 				showCommitsElement.checked = false;
 				handleShowCommitsChange();
+			}
+			if (items.numCommits) {
+				numCommitsElement.value = items.numCommits;
 			}
 		},
 	);
@@ -255,11 +260,16 @@ function handleShowCommitsChange() {
     let value = showCommitsElement.checked;
     chrome.storage.local.set({ showCommits: value });
 }
+function handleNumCommitsChange() {
+	let value = numCommitsElement.value;
+	chrome.storage.local.set({ numCommits: value });
+}
 enableToggleElement.addEventListener('change', handleEnableChange);
 githubUsernameElement.addEventListener('keyup', handleGithubUsernameChange);
 githubTokenElement.addEventListener('keyup', handleGithubTokenChange);
 cacheInputElement.addEventListener('keyup', handleCacheInputChange);
 projectNameElement.addEventListener('keyup', handleProjectNameChange);
+numCommitsElement.addEventListener('change', handleNumCommitsChange);
 startingDateElement.addEventListener('change', handleStartingDateChange);
 showCommitsElement.addEventListener('change', handleShowCommitsChange);
 endingDateElement.addEventListener('change', handleEndingDateChange);
