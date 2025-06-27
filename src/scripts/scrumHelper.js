@@ -836,7 +836,7 @@ ${userReason}`;
                     if (showCommits && item._lastCommits && item._lastCommits.length) {
 						item._lastCommits = item._allCommits.slice(0, numCommits);
                         item._lastCommits.forEach(commit => {
-                            li += `<li style="list-style: disc; margin: 0 0 0 20px; padding: 0; color: #666;"><span style="color:#2563eb;">${commit.messageHeadline}</span><span style="color:#666; font-size: 11px;"> (${commit.author?.user?.login || commit.author?.name || 'unknown'}, ${new Date(commit.committedDate).toLocaleString()})</span></li>`;
+                            li += `<li style="list-style: disc; margin: 0 0 0 20px; padding: 0; color: #666;"><span style="color:#2563eb;">${commit.messageHeadline}</span><span style="color:#666; font-size: 11px;"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
                         });
                     }
                     li += `</li>`;
