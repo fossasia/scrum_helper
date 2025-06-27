@@ -579,7 +579,7 @@ function allIncluded(outputTarget = 'email') {
         }
     }
 
-    function processGithubData(data) {
+    async function processGithubData(data) {
         log('Processing Github data');
         githubIssuesData = data.githubIssuesData;
         githubPrsReviewData = data.githubPrsReviewData;
@@ -600,8 +600,10 @@ function allIncluded(outputTarget = 'email') {
         if (!githubCache.subject && scrumSubject) {
             scrumSubjectLoaded();
         }
-        writeGithubIssuesPrs();
-        writeGithubPrsReviews();
+		await Promise.all([
+			writeGithubIssuesPrs(),
+			writeGithubPrsReviews(),
+		])
     }
 
     function formatDate(dateString) {
