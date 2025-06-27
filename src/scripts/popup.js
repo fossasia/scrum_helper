@@ -295,7 +295,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     endDateInput.value = getToday();
                 }
                 startDateInput.readOnly = endDateInput.readOnly = true;
-    
+
                 chrome.storage.local.set({
                     startingDate: startDateInput.value,
                     endingDate: endDateInput.value,
