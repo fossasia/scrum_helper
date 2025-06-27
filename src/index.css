@@ -1,124 +1,149 @@
-
 @import "tailwindcss";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
 body {
-	margin: 0;
-	padding: 0;
-	background-color: rgba(251, 251, 251, 0.6);
+    margin: 0;
+    padding: 0;
+    background-color: rgba(251, 251, 251, 0.6);
 }
+
 * {
-	box-sizing: border-box;
+    box-sizing: border-box;
 }
+
 .datepicker {
-	margin-bottom: 5px !important;
+    margin-bottom: 5px !important;
 }
+
 .tabs .tab a:hover,
 .tabs .tab a.active {
-	background-color: transparent;
-	color: #3f51b5;
+    background-color: transparent;
+    color: #3f51b5;
 }
+
 .tabs {
-	background-color: transparent;
+    background-color: transparent;
 }
+
 .tabs .tab a {
-	color: #3f51b5;
+    color: #3f51b5;
 }
+
 .tabs .indicator {
-	background-color: #3f51b5;
+    background-color: #3f51b5;
 }
-.switch label input[type="checkbox"]:checked + .lever {
-	background-color: #3f51b5;
+
+.switch label input[type="checkbox"]:checked+.lever {
+    background-color: #3f51b5;
 }
-.switch label input[type="checkbox"]:checked + .lever:after {
-	background-color: #fcfcfc;
-	left: 24px;
+
+.switch label input[type="checkbox"]:checked+.lever:after {
+    background-color: #fcfcfc;
+    left: 24px;
 }
-[type="checkbox"].filled-in:checked + label:after {
-	border: 2px solid #3f51b5;
-	background-color: #3f51b5;
+
+[type="checkbox"].filled-in:checked+label:after {
+    border: 2px solid #3f51b5;
+    background-color: #3f51b5;
 }
+
 .btn:hover,
 .btn-large:hover {
-	background-color: #3f51b5;
+    background-color: #3f51b5;
 }
+
 a {
-	color: #3f51b5;
+    color: #3f51b5;
 }
+
 .btn,
 .btn-large {
-	background-color: #3f51b5;
+    background-color: #3f51b5;
 }
+
 li {
-	list-style-type: disc !important;
-	margin-left: 1rem;
+    list-style-type: disc !important;
+    margin-left: 1rem;
 }
 
-body,input,div,h3,h4,p,label,hr, #scrumReport{
-	transition: all 0.3s ease-in-out;
+body,
+input,
+div,
+h3,
+h4,
+p,
+label,
+hr,
+#scrumReport {
+    transition: all 0.3s ease-in-out;
 }
 
-.dark-mode { 
-	background: #1a1a1a !important;
-	color: #ffffff !important;
-	transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+.dark-mode {
+    background: #1a1a1a !important;
+    color: #ffffff !important;
+    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
 }
-.dark-mode .bg-white{
-	background-color: #2d2d2d !important;
-	border-color: #404040 !important;
-	transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+
+.dark-mode .bg-white {
+    background-color: #2d2d2d !important;
+    border-color: #404040 !important;
+    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
 }
 
 .dark-mode input[type="text"],
 .dark-mode input[type="date"],
 .dark-mode #scrumReport {
-	background-color: #404040 !important;
-	border-color: #505050 !important;
-	color: #ffffff !important;
-	transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+    background-color: #404040 !important;
+    border-color: #505050 !important;
+    color: #ffffff !important;
+    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
 }
+
 .dark-mode h3,
 .dark-mode h4,
 .dark-mode p,
 .dark-mode label {
-	color: #ffffff !important;
-	transition: color 0.3s ease-in-out;
+    color: #ffffff !important;
+    transition: color 0.3s ease-in-out;
 }
 
 .dark-mode hr {
-	border-color: #505050 !important;
-	transition: border-color 0.3s ease-in-out;
+    border-color: #505050 !important;
+    transition: border-color 0.3s ease-in-out;
 }
+
 #scrumReport {
-	font-size: 13px !important; 
-	line-height: 1.5 !important; 
+    font-size: 13px !important;
+    line-height: 1.5 !important;
 }
 
 #scrumReport b {
-	font-size: 13px !important; 
+    font-size: 13px !important;
 }
 
 #scrumReport li {
-	font-size: 13px !important; 
-	margin-bottom: 4px !important; 
+    font-size: 13px !important;
+    margin-bottom: 4px !important;
 }
 
 .dark-mode #scrumReport {
-	font-size: 13px !important;
+    font-size: 13px !important;
 }
 
 .dark-mode #scrumReport b {
-	font-size: 13px !important;
+    font-size: 13px !important;
 }
 
 .dark-mode #scrumReport li {
-	font-size: 13px !important;
+    font-size: 13px !important;
 }
 
 .dark-mode a {
-	color: #00b7ff !important;
+    color: #00b7ff !important;
 }
+
 #refreshCache {
     background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
     border: none;
@@ -146,9 +171,15 @@ body,input,div,h3,h4,p,label,hr, #scrumReport{
 }
 
 @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
 }
+
 /* Disabled state styling */
 .disabled-content {
     opacity: 0.5 !important;
@@ -166,6 +197,7 @@ body,input,div,h3,h4,p,label,hr, #scrumReport{
 .dark-mode .disabled-content {
     opacity: 0.4 !important;
 }
+
 .cache-info {
     font-size: 11px;
     color: #6b7280;
@@ -183,6 +215,7 @@ body,input,div,h3,h4,p,label,hr, #scrumReport{
 .dark-mode .cache-info {
     color: #9ca3af;
 }
+
 #cacheInput {
     transition: border-color 0.2s ease;
 }
@@ -198,7 +231,7 @@ body,input,div,h3,h4,p,label,hr, #scrumReport{
     transition: all 0.2s ease;
     border: none;
     cursor: pointer;
-    background: none !important; 
+    background: none !important;
 }
 
 #settingsToggle:hover {
@@ -212,7 +245,7 @@ body,input,div,h3,h4,p,label,hr, #scrumReport{
 
 #settingsToggle img {
     transition: transform 0.2s ease;
-    filter: brightness(0.9); 
+    filter: brightness(0.9);
 }
 
 #settingsToggle.active img {
@@ -229,7 +262,7 @@ body,input,div,h3,h4,p,label,hr, #scrumReport{
 }
 
 .dark-mode #settingsToggle img {
-    filter: brightness(0.9); 
+    filter: brightness(0.9);
 }
 
 .dark-mode #settingsToggle.active img {
@@ -260,7 +293,7 @@ body,input,div,h3,h4,p,label,hr, #scrumReport{
     color: #222;
     border-radius: 10px;
     border: 1px solid #e5e7eb;
-    box-shadow: 0 4px 24px 0 rgba(0,0,0,0.12), 0 1.5px 4px 0 rgba(0,0,0,0.08);
+    box-shadow: 0 4px 24px 0 rgba(0, 0, 0, 0.12), 0 1.5px 4px 0 rgba(0, 0, 0, 0.08);
     padding: 14px 18px;
     font-size: 13px;
     line-height: 1.5;
@@ -286,7 +319,8 @@ body,input,div,h3,h4,p,label,hr, #scrumReport{
 .tooltip-bubble::after {
     content: "";
     position: absolute;
-    width: 0; height: 0;
+    width: 0;
+    height: 0;
     border-style: solid;
 }
 
@@ -308,6 +342,7 @@ body,input,div,h3,h4,p,label,hr, #scrumReport{
 .dark-mode .tooltip-container.tooltip-right .tooltip-bubble::after {
     border-color: transparent #374151 transparent transparent;
 }
+
 #toggleTokenVisibility {
     background: none;
     border: none;
@@ -316,23 +351,35 @@ body,input,div,h3,h4,p,label,hr, #scrumReport{
     padding: 0;
     line-height: 1;
 }
+
 #tokenEyeIcon {
     font-size: 18px;
     vertical-align: middle;
 }
+
 @keyframes eye-rotate {
-  0% { transform: rotate(0deg);}
-  60% { transform: rotate(180deg);}
-  100% { transform: rotate(180deg);}
+    0% {
+        transform: rotate(0deg);
+    }
+
+    60% {
+        transform: rotate(180deg);
+    }
+
+    100% {
+        transform: rotate(180deg);
+    }
 }
+
 .eye-animating {
-  animation: eye-rotate 0.4s cubic-bezier(0.4,0,0.2,1);
+    animation: eye-rotate 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
 .token-animating {
-  transition: box-shadow 0.3s, background 0.3s, color 0.3s, opacity 0.3s, transform 0.3s;
-  box-shadow: 0 0 0 2px #3b82f6;
-  opacity: 0.7;
-  transform: translateX(8px) scale(1.03);
+    transition: box-shadow 0.3s, background-color 0.3s, color 0.3s, opacity 0.3s, transform 0.3s;
+    box-shadow: 0 0 0 2px #3b82f6;
+    opacity: 0.7;
+    transform: translateX(8px) scale(1.03);
 }
 
 .dark-mode #githubToken,
@@ -349,6 +396,7 @@ body,input,div,h3,h4,p,label,hr, #scrumReport{
 .dark-mode .tooltip-container.tooltip-right .tooltip-bubble::after {
     border-color: transparent #374151 transparent transparent;
 }
+
 #homeButton {
     background: none;
     border: none;
@@ -358,12 +406,15 @@ body,input,div,h3,h4,p,label,hr, #scrumReport{
     align-items: center;
     font-size: 1.5rem;
 }
+
 #homeButton:active {
     background: #e5e7eb;
 }
+
 .dark-mode #homeButton:active {
     background: #374151;
 }
+
 .dark-mode .token-preview-char {
-    box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
 }
