@@ -360,10 +360,18 @@ document.addEventListener('DOMContentLoaded', function () {
     // Validate and set org as user types
     const handleOrgInput = debounce(function () {
         let org = orgInput.value.trim().toLowerCase();
-        if (!org) {
-            org = 'fossasia';
-        }
+        // Do not default to any org, allow empty string
+        // if (!org) {
+        //     org = 'fossasia';
+        // }
         console.log('[Org Check] Checking organization:', org);
+        if (!org) {
+            // If org is empty, clear orgName in storage and fetch all user activity
+            chrome.storage.local.set({ orgName: '' }, function () {
+                if (window.generateScrumReport) window.generateScrumReport();
+            });
+            return;
+        }
         fetch(`https://api.github.com/orgs/${org}`)
             .then(res => {
                 console.log('[Org Check] Response status for', org, ':', res.status);

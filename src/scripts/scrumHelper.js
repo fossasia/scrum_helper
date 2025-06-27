@@ -2,7 +2,7 @@ console.log('Script loaded, adapter exists:', !!window.emailClientAdapter);
 let refreshButton_Placed = false;
 let enableToggle = true;
 let hasInjectedContent = false;
-let orgName = 'fossasia'; // default
+let orgName = '';
 function allIncluded(outputTarget = 'email') {
 	console.log('allIncluded called with outputTarget:', outputTarget);
 	console.log('Current window context:', window.location.href);
@@ -86,7 +86,7 @@ function allIncluded(outputTarget = 'email') {
 				}
 				if (items.githubUsername) {
 					githubUsername = items.githubUsername;
-					console.log("About to fetch GitHub data for:", githubUsername);
+					console.log('[SCRUM-HELPER] About to fetch GitHub data for:', githubUsername, 'with orgName:', orgName);
 					fetchGithubData();
 				} else {
 					if (outputTarget === 'popup') {
@@ -134,8 +134,11 @@ function allIncluded(outputTarget = 'email') {
 					githubCache.timestamp = items.githubCache.timestamp;
 					log('Restored cache from storage');
 				}
-				if (items.orgName) {
-					orgName = items.orgName;
+				// LOG: orgName from storage
+				console.log('[SCRUM-HELPER] orgName from storage:', items.orgName);
+				if (typeof items.orgName !== 'undefined') {
+					orgName = items.orgName || '';
+					console.log('[SCRUM-HELPER] orgName set to:', orgName);
 				}
 			},
 		);
@@ -360,9 +363,13 @@ function allIncluded(outputTarget = 'email') {
 		}
 
 		// Build org part for query only if orgName is set and not empty
+		console.log('[SCRUM-HELPER] orgName before API query:', orgName);
 		let orgPart = orgName && orgName.trim() ? `+org%3A${orgName}` : '';
+		console.log('[SCRUM-HELPER] orgPart for API:', orgPart);
 		let issueUrl = `https://api.github.com/search/issues?q=author%3A${githubUsername}${orgPart}+created%3A${startingDate}..${endingDate}&per_page=100`;
 		let prUrl = `https://api.github.com/search/issues?q=commenter%3A${githubUsername}${orgPart}+updated%3A${startingDate}..${endingDate}&per_page=100`;
+		console.log('[SCRUM-HELPER] issueUrl:', issueUrl);
+		console.log('[SCRUM-HELPER] prUrl:', prUrl);
 		let userUrl = `https://api.github.com/users/${githubUsername}`;
 
 		try {
