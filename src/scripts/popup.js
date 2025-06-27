@@ -426,6 +426,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
     orgInput.addEventListener('input', handleOrgInput);
 
+    //report filter
+    const repoSearch = this.document.getElementById('repoSearch');
+    const repoDropdown = document.getElementById('repoDropdown');
+    const selectedReposDiv = document.getElementById('selectedRepos');
+    const repoTags = document.getElementById('repoTags');
+    const repoPlaceholder = document.getElementById('repoPlaceholder');
+    const repoCount = document.getElementById('repoCount');
+    const repoStatus = document.getElementById('repoStatus');
+    const loadReposBtn = document.getElementById('loadReposBtn');
+    const useRepoFilter = document.getElementById('useRepoFilter');
+    const repoFilterContainer = document.getId('repoFilterContainer');
 });
 
 // Tooltip bubble 

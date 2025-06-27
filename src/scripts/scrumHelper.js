@@ -77,7 +77,9 @@ function allIncluded(outputTarget = 'email') {
 				'userReason',
 				'githubCache',
 				'cacheInput',
-				'orgName'
+				'orgName',
+				'selectedRepos',
+				'useRepoFilter'
 			],
 			(items) => {
 				console.log("Storage items received:", items);
@@ -179,6 +181,12 @@ function allIncluded(outputTarget = 'email') {
 				}
 				if (items.orgName) {
 					orgName = items.orgName;
+				}
+				if(items.selectedRepos) {
+					selectedRepos = items.selectedRepos;
+				}
+				if(items.useRepoFilter){
+					useRepoFilter = items.useRepoFilter;
 				}
 			},
 		);
@@ -506,14 +514,22 @@ function allIncluded(outputTarget = 'email') {
 
 	function processGithubData(data) {
 		log('Processing Github data');
-		githubIssuesData = data.githubIssuesData;
-		githubPrsReviewData = data.githubPrsReviewData;
-		githubUserData = data.githubUserData;
+		
+		let processedData = data;
+		if(useRepoFilter && selectedRepos?.length > 0) {
+			processedData = filterDataByRepos(data, selectedRepos);
+			log('Applied repo filter:', selectedRepos);
+		}
+
+		githubIssuesData = processedData.githubIssuesData;
+		githubPrsReviewData = processedData.githubPrsReviewData;
+		githubUserData = processedData.githubUserData;
 
 		log('GitHub data set:', {
 			issues: githubIssuesData?.items?.length || 0,
 			prs: githubPrsReviewData?.items?.length || 0,
-			user: githubUserData?.login
+			user: githubUserData?.login,
+			filtered: useRepoFilter
 		});
 
 		lastWeekArray = [];
@@ -1044,3 +1060,82 @@ ${prs.map((pr, i) => `	repo${i}: repository(owner: \"${pr.owner}\", name: \"${pr
 	}
 }
 
+// Repo fetching logic
+let seelctedRepos = [];
+let useRepoFilter = false;
+
+async function fetchUserRepo() {
+	const headers = {
+		'Accept': 'application/vnd.github.v3+json',
+	};
+
+	if(githubToken) {
+		headers['Autorization'] = `token ${githubToken}`;
+	}
+
+	// fetching both user and org repos
+	const userRepoUrl = `https://api.github.com/users/${githubUsername}/repos?per_page=100&sort=updated`;
+	const orgRepoUrl = `https://api.github.com/orgs/${orgName}/repos?per_page=100&sort=updated`;
+
+	try{
+		const [userRepoRes, orgRepoRes] = await Promise.all([
+			fetch(userRepoUrl, { headers }),
+			fetch(orgRepoUrl, { headers }).catch(() => ({ ok:false })) //org can be private
+		]);
+
+		let repos = [];
+		if(userRepoRes.ok) {
+			const userRepos = await userRepoRes.json();
+			repos = repos.concat(userRepos.filter(repo => repo.oqner.login === orgName || repo.organization?.login === orgName ));
+		}
+		if(orgRepoRes.ok) {
+			const orgRepos = await orgRepoRes.json();
+			repos = repos.concat(orgRepos);
+		}
+
+		const uniqueRepos = repos.reduce((acc, repo) => {
+			if(!acc.find(r => r.name === repo.name)) {
+				acc.push({
+					name: repo.name,
+					fullname: repo.full_name,
+					description: repo.description,
+					language: repo.language,
+					updatedAt: repo.updated_at,
+					stars: repo.stargazers_count
+				});
+			}
+			return acc;
+		}, []);
+
+		return uniqueRepos.sort((a,b,) => new Data(b.updatedAt) - new Data(a.updatedAt));
+	} catch (err) {
+		logError('Failed to fetch repositories:', err);
+		return [];
+	}
+}
+
+function filterDataByRepos(data, selectedRepos) {
+	if(!selectedRepos || selectedRepos.length === 0) {
+		return data;
+	}
+
+	const filteredData = {
+        ...data,
+        githubIssuesData: {
+            ...data.githubIssuesData,
+            items: data.githubIssuesData?.items?.filter(item => {
+                const repoName = item.repository_url?.substr(item.repository_url.lastIndexOf('/') + 1);
+                return selectedRepos.includes(repoName);
+            }) || []
+        },
+        githubPrsReviewData: {
+            ...data.githubPrsReviewData,
+            items: data.githubPrsReviewData?.items?.filter(item => {
+                const repoName = item.repository_url?.substr(item.repository_url.lastIndexOf('/') + 1);
+                return selectedRepos.includes(repoName);
+            }) || []
+        }
+    };
+	return filteredData;
+}
+window.fetchUserRepositories = fetchUserRepositories;

@@ -143,6 +143,43 @@
 						<input id="orgInput" type="text"
 							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
 							placeholder="Enter organization name (default: fossasia)">
+
+
+						<div class="mb-4">
+							<div class="flex items-center justify-between mb-2">
+								<h4 class="text-sm font-medium text-gray-700">Repository Filter</h4>
+								<div class="flex items-center">
+									<input type="checkbox" id="useRepoFilter" class="mr-2">
+									<label for="useRepoFilter" class="text-xs text-gray-600">Enable filtering</label>
+								</div>
+							</div>
+
+							<div id="repoFilterContainer" class="hidden">
+								<!-- Typeahead input -->
+								 <div class="relative">
+									<input type="text" id="repoSearch" placeholder="Type to search repositories..." class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 pr-10" autocomplete="off">
+
+									<button id="loadReposBtn" class="absolute right-2 top-2 text-blue-600 hover:text-blue-800 transition-colors" title="Load repositories">
+										<i class="fa fa-download"></i>
+									</button>
+
+									<div id="repoDropdown" class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg hidden max-h-48 overflow-y-auto">
+
+									</div>
+								 </div>
+
+								 <div id="selectedRepos" class="mt-3 min-h-[32px] p-2 border-2 border-gray-200 bg-gray50 rounded-xl" >
+									<div class="flex flex-wrap gap-1" id="repoTags">
+										<span class="text-xs-text-gray-500 select-none" id="repoPlaceholder">No repositories selected(all wil be included)</span>
+									</div>
+								 </div>
+
+								 <div class="mt-2 text-xs text-gray-600 flex justify-between">
+									<span id="repoCount">0 repositories selected</span>
+									<span id="repoStatus" class="text-blue-600"></span>
+								 </div>
+							</div>
+						</div>
 					</div>
 					<div class="">
 						<div class="flex items-center justify-between">
