@@ -165,8 +165,10 @@ function allIncluded(outputTarget = 'email') {
 
 				if (!items.showOpenLabel) {
 					showOpenLabel = false;
-					pr_open_button = '';
+					pr_unmerged_button = '';
 					issue_opened_button = '';
+					pr_merged_button = '';
+					issue_closed_button = '';
 				}
 				if (items.githubCache) {
 					githubCache.data = items.githubCache.data;
@@ -848,7 +850,7 @@ ${userReason}`;
         }
       }
 
-    function writeGithubIssuesPrs() {
+    async function writeGithubIssuesPrs() {
         let items = githubIssuesData.items;
         lastWeekArray = [];
         nextWeekArray = [];
@@ -921,7 +923,7 @@ ${userReason}`;
                 if (isDraft) {
                   li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_draft_button}</li>`;
                 } else if (item.state === 'open') {
-                    li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_unmerged_button}`;
+                    li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_open_button}`;
                     if (showCommits && item._lastCommits && item._lastCommits.length) {
 						item._lastCommits = item._allCommits.slice(0, numCommits);
                         item._lastCommits.forEach(commit => {
