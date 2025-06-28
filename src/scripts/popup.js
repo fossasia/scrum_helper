@@ -522,26 +522,72 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
+        function debugRepoFetch() {
+            chrome.storage.local.get(['githubUsername', 'githubToken', 'orgName'], (items) => {
+                console.log('Current settings:', {
+                    username: items.githubUsername,
+                    hasToken: !!items.githubToken,
+                    org: items.orgName || 'fossasia'
+                });
+            });
+        }
+        debugRepoFetch();
         async function loadRepos() {
+            console.log('window.fetchUserRepositories exists:', !!window.fetchUserRepositories);
+            console.log('Available functions:', Object.keys(window).filter(key => key.includes('fetch')));
+    
             if(!window.fetchUserRepositories) {
                 repoStatus.textContent = 'Repository fetching not available';
                 return;
             }
 
+            // Check if we have the required data
+            chrome.storage.local.get(['githubUsername', 'githubToken'], (items) => {
+                console.log('Storage data for repo fetch:', {
+                    hasUsername: !!items.githubUsername,
+                    hasToken: !!items.githubToken,
+                    username: items.githubUsername
+                });
+                
+                if (!items.githubUsername) {
+                    repoStatus.textContent = 'GitHub username required';
+                    return;
+                }
+
+                performRepoFetch();
+            });
+        }
+
+        async function performRepoFetch() {
             repoStatus.textContent = 'Loading repositories...';
             repoSearch.classList.add('repository-search-loading');
-            loadReposBtn.disbaled = true;
+            loadReposBtn.disabled = true;
 
             try {
-                availableRepos = await window.fetchUserRepositories();
+                const storageItems = await new Promise( resolve => {
+                    chrome.storage.local.get(['githubUsername', 'githubToken', 'orgName'], resolve);
+                })
+                // Pass the parameters explicitly
+                availableRepos = await window.fetchUserRepositories(
+                    storageItems.githubUsername, 
+                    storageItems.githubToken, 
+                    storageItems.orgName || 'fossasia'
+                );
                 repoStatus.textContent = `${availableRepos.length} repositories loaded`;
 
                 if(document.activeElement === repoSearch){
                     filterAndDisplayRepos(repoSearch.value.toLowerCase());
                 }
             } catch (err) {
-                console.error(`Failed to load repos: ${err}`);
-                repoStatus.textContent = 'Failed to load repositories';
+                console.error(`Failed to load repos:`, err);
+                
+                if (err.message && err.message.includes('401')) {
+                    repoStatus.textContent = 'GitHub token required for private repos';
+                } else if (err.message && err.message.includes('username')) {
+                    repoStatus.textContent = 'Please enter your GitHub username first';
+                } else {
+                    repoStatus.textContent = `Error: ${err.message || 'Failed to load repositories'}`;
+                }
             } finally{
                 repoSearch.classList.remove('repository-search-loading');
                 loadReposBtn.disabled = false;

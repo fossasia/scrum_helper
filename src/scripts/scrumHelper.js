@@ -1061,21 +1061,30 @@ ${prs.map((pr, i) => `	repo${i}: repository(owner: \"${pr.owner}\", name: \"${pr
 }
 
 // Repo fetching logic
-let seelctedRepos = [];
+let selectedRepos = [];
 let useRepoFilter = false;
 
-async function fetchUserRepo() {
+async function fetchUserRepositories(username, token, org = 'fossasia') {
 	const headers = {
 		'Accept': 'application/vnd.github.v3+json',
 	};
 
-	if(githubToken) {
-		headers['Autorization'] = `token ${githubToken}`;
-	}
+	
+    // Use the token parameter, not the global githubToken
+    if(token) {
+        headers['Authorization'] = `token ${token}`;
+    }
+
+    // Use the parameters directly, don't redeclare them
+    if (!username) {
+        throw new Error('GitHub username is required');
+    }
+
+    console.log('Fetching repos for username:', username, 'org:', org);
 
 	// fetching both user and org repos
-	const userRepoUrl = `https://api.github.com/users/${githubUsername}/repos?per_page=100&sort=updated`;
-	const orgRepoUrl = `https://api.github.com/orgs/${orgName}/repos?per_page=100&sort=updated`;
+	const userRepoUrl = `https://api.github.com/users/${username}/repos?per_page=100&sort=updated`;
+	const orgRepoUrl = `https://api.github.com/orgs/${org}/repos?per_page=100&sort=updated`;
 
 	try{
 		const [userRepoRes, orgRepoRes] = await Promise.all([
@@ -1086,7 +1095,7 @@ async function fetchUserRepo() {
 		let repos = [];
 		if(userRepoRes.ok) {
 			const userRepos = await userRepoRes.json();
-			repos = repos.concat(userRepos.filter(repo => repo.oqner.login === orgName || repo.organization?.login === orgName ));
+			repos = repos.concat(userRepos.filter(repo => repo.owner.login === org || repo.organization?.login === org ));
 		}
 		if(orgRepoRes.ok) {
 			const orgRepos = await orgRepoRes.json();
@@ -1097,7 +1106,7 @@ async function fetchUserRepo() {
 			if(!acc.find(r => r.name === repo.name)) {
 				acc.push({
 					name: repo.name,
-					fullname: repo.full_name,
+					fullName: repo.full_name,
 					description: repo.description,
 					language: repo.language,
 					updatedAt: repo.updated_at,
@@ -1107,10 +1116,10 @@ async function fetchUserRepo() {
 			return acc;
 		}, []);
 
-		return uniqueRepos.sort((a,b,) => new Data(b.updatedAt) - new Data(a.updatedAt));
+		return uniqueRepos.sort((a,b,) => new Date(b.updatedAt) - new Date(a.updatedAt));
 	} catch (err) {
 		logError('Failed to fetch repositories:', err);
-		return [];
+		throw err;
 	}
 }
 
