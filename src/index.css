@@ -573,3 +573,43 @@ hr,
 .dark-mode #repositoryPlaceholder {
     color: #9ca3af !important;
 }
+
+/* Make repository download button bigger */
+#loadReposBtn {
+    width: 32px !important;
+    height: 32px !important;
+    right: 4px !important;
+    top: 4px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: 6px !important;
+    background-color: #f3f4f6 !important;
+    border: 1px solid #d1d5db !important;
+    font-size: 14px !important;
+}
+
+#loadReposBtn:hover {
+    background-color: #e5e7eb !important;
+    transform: scale(1.05) !important;
+}
+
+#loadReposBtn:active {
+    transform: scale(0.95) !important;
+}
+
+/* Adjust input padding to accommodate larger button */
+#repoSearch {
+    padding-right: 40px !important;
+}
+
+/* Dark mode styles for the button */
+.dark-mode #loadReposBtn {
+    background-color: #374151 !important;
+    border-color: #4b5563 !important;
+    color: #d1d5db !important;
+}
+
+.dark-mode #loadReposBtn:hover {
+    background-color: #4b5563 !important;
+}

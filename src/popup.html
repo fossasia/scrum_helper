@@ -155,29 +155,41 @@
 							</div>
 
 							<div id="repoFilterContainer" class="hidden">
-								<!-- Typeahead input -->
-								 <div class="relative">
-									<input type="text" id="repoSearch" placeholder="Type to search repositories..." class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 pr-10" autocomplete="off">
-
-									<button id="loadReposBtn" class="absolute right-2 top-2 text-blue-600 hover:text-blue-800 transition-colors" title="Load repositories">
+								<!-- Typeahead Input -->
+								<div class="relative">
+									<input 
+										id="repoSearch" 
+										type="text" 
+										placeholder="Type to search repositories..."
+										class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 pr-10"
+										autocomplete="off"
+									>
+									<button 
+										id="loadReposBtn" 
+										class="absolute right-2 top-2 text-blue-600 hover:text-blue-800 transition-colors"
+										title="Load repositories"
+									>
 										<i class="fa fa-download"></i>
 									</button>
-
-									<div id="repoDropdown" class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg hidden max-h-48 overflow-y-auto">
-
+									
+									<!-- Dropdown -->
+									<div id="repoDropdown" class="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg hidden max-h-48 overflow-y-auto">
+										<!-- Populated dynamically -->
 									</div>
-								 </div>
-
-								 <div id="selectedRepos" class="mt-3 min-h-[32px] p-2 border-2 border-gray-200 bg-gray50 rounded-xl" >
+								</div>
+								
+								<!-- Selected Tags Container -->
+								<div id="selectedRepos" class="mt-3 min-h-[32px] p-2 border-2 border-gray-200 bg-gray-50 rounded-xl">
 									<div class="flex flex-wrap gap-1" id="repoTags">
-										<span class="text-xs-text-gray-500 select-none" id="repoPlaceholder">No repositories selected(all wil be included)</span>
+										<span class="text-xs text-gray-500 select-none" id="repoPlaceholder">No repositories selected (all will be included)</span>
 									</div>
-								 </div>
-
-								 <div class="mt-2 text-xs text-gray-600 flex justify-between">
+								</div>
+								
+								<!-- Status/Info -->
+								<div class="mt-2 text-xs text-gray-600 flex justify-between">
 									<span id="repoCount">0 repositories selected</span>
 									<span id="repoStatus" class="text-blue-600"></span>
-								 </div>
+								</div>
 							</div>
 						</div>
 					</div>
