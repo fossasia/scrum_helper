@@ -140,9 +140,20 @@
 								</span>
 							</span>
 						</div>
-						<input id="orgInput" type="text"
-							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
-							placeholder="Enter organization name (default: fossasia)">
+						<div class="flex gap-2 items-center">
+							<input id="orgInput" type="text"
+								class="flex-1 border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
+								placeholder="Enter organization name (default: fossasia)">
+							<button id="validateOrgBtn"
+								class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded flex items-center gap-2 transition-colors duration-200"
+								title="Validate organization name">
+								<i class="fa fa-check"></i>
+								<span>Set</span>
+							</button>
+						</div>
+						<div id="orgValidationStatus" class="text-sm mt-1 hidden">
+							<!-- Status messages will be shown here -->
+						</div>
 					</div>
 					<div class="">
 						<div class="flex items-center justify-between">

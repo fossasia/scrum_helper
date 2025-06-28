@@ -418,3 +418,50 @@ hr,
 .dark-mode .token-preview-char {
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18);
 }
+
+/* Organization validation styles */
+#validateOrgBtn {
+    transition: all 0.2s ease;
+    min-width: 80px;
+}
+
+#validateOrgBtn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+#validateOrgBtn i {
+    transition: all 0.2s ease;
+}
+
+#orgValidationStatus {
+    transition: all 0.3s ease;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+#orgValidationStatus i {
+    margin-right: 4px;
+}
+
+/* Dark mode organization validation */
+.dark-mode #validateOrgBtn {
+    border-color: #404040;
+}
+
+.dark-mode #orgValidationStatus {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Organization input focus styles */
+#orgInput:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.dark-mode #orgInput:focus {
+    border-color: #60a5fa;
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+}
