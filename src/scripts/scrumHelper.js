@@ -1082,41 +1082,119 @@ async function fetchUserRepositories(username, token, org = 'fossasia') {
 
     console.log('Fetching repos for username:', username, 'org:', org);
 
-	// fetching both user and org repos
-	const userRepoUrl = `https://api.github.com/users/${username}/repos?per_page=100&sort=updated&type=all`;
-	const orgRepoUrl = `https://api.github.com/orgs/${org}/repos?per_page=100&sort=updated&type=all`;
-
 	try{
-		const [userRepoRes, orgRepoRes] = await Promise.all([
-			fetch(userRepoUrl, { headers }),
-			fetch(orgRepoUrl, { headers }).catch(() => ({ ok:false })) //org can be private
-		]);
+		// fetching both user and org repos
+		let dateRange = '';
+		try {
+			const storageData = await new Promise(resolve => {
+				chrome.storage.local.get(['startingDate', 'endingDate', 'lastWeekContribution', 'yesterdayContribution'], resolve);
+			});
 
-		let repos = [];
-		if(userRepoRes.ok) {
-			const userRepos = await userRepoRes.json();
-			repos = repos.concat(userRepos.filter(repo => repo.owner.login === org || repo.organization?.login === org ));
-		}
-		if(orgRepoRes.ok) {
-			const orgRepos = await orgRepoRes.json();
-			repos = repos.concat(orgRepos);
-		}
-
-		const uniqueRepos = repos.reduce((acc, repo) => {
-			if(!acc.find(r => r.name === repo.name)) {
-				acc.push({
-					name: repo.name,
-					fullName: repo.full_name,
-					description: repo.description,
-					language: repo.language,
-					updatedAt: repo.updated_at,
-					stars: repo.stargazers_count
-				});
+			let startDate, endDate;
+			if(storageData.lastWeekContribution) {
+				const today = new Date();
+				const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
+				startDate = lastWeek.toString().split('T')[0];
+				endDate = today.toISOString().split('T')[0];
+			} else if(storageData.yesterdayContribution) {
+				const today = new Date();
+				const yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+				startDate = yesterday.toISOString().split('T')[0];
+				endDate = today.toISOString().split('T')[0];
+			} else if(storageData.startingDate && storageData.endingDate) {
+				startDate = storageData.startingDate;
+				endDate = storageData.endingDate;
+			} else {
+				const today = new Date();
+				const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
+				startDate = lastWeek.toString().split('T')[0];
+				endDate = today.toISOString().split('T')[0];
 			}
-			return acc;
-		}, []);
 
-		return uniqueRepos.sort((a,b,) => new Date(b.updatedAt) - new Date(a.updatedAt));
+			dateRange = `+created:${startDate}..${endDate}`;
+			console.log(`Usinf date range for repo search: ${startDate} to ${endDate}`);
+		} catch(err) {
+			console.warn('Could not determine date range, using last 30 days:', err);
+			const today = new Date();
+			const thirtyDaysAgo = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 30);
+			const startDate = thirtyDaysAgo.toISOString().split('T')[0];
+			const endDate =  today.toISOString().split('T')[0];
+		}
+		// Use the same search queries as the main scrum generation, but extract repo names
+        const issuesUrl = `https://api.github.com/search/issues?q=author:${username}+org:${org}${dateRange}&per_page=100`;
+        const commentsUrl = `https://api.github.com/search/issues?q=commenter:${username}+org:${org}+updated:${dateRange.replace('created:', 'updated:')}&per_page=100`;
+
+        console.log('Search URLs:', { issuesUrl, commentsUrl });
+	
+		const [issuesRes, commentsRes] = await Promise.all([
+            fetch(issuesUrl, { headers }).catch(() => ({ ok: false, json: () => ({ items: [] }) })),
+            fetch(commentsUrl, { headers }).catch(() => ({ ok: false, json: () => ({ items: [] }) }))
+        ]);
+
+		let repoSet = new Set();
+
+		if(issuesRes.ok) {
+			const issuesData = await issuesRes.json();
+			issuesData.items?.forEach(item => {
+				if (item.repository_url) {
+					const repoName = item.repository_url.split('/').pop();
+					repoSet.add(repoName);
+				}
+			});
+			console.log(`Found ${issuesData.items?.length || 0} issues/PRs authored by user in date range`);
+		}
+
+		if(commentsRes.ok) {
+			const commentsData = await commentsRes.json();
+			commentsData.items?.forEach(item => {
+				if(item.repository_url) {
+					const repoName = item.repository_url.split('/').pop();
+					repoSet.add(repoName);
+				}
+			})
+			console.log(`Found ${commentsData.items?.length || 0} issues/PRs with user comments in date range`);
+		}
+		
+		const repoNames = Array.from(repoSet);
+		console.log(`Found ${repoNames.length} unique repositories with contributions in the selected date range`);
+
+		if(repoNames.length === 0) {
+			console.log(`No repositories with contrbutions found in the selected date range`);
+			return[];
+		}
+
+		const repoPromises = repoNames.slice(0, 50).map(async (repoName) => {
+			try {
+				const repoUrl = `https://api.github.com/repos/${org}/${repoName}`;
+				const repoRes = await fetch(repoUrl, {headers});
+				if (repoRes.ok) {
+					const repo = await repoRes.json();
+					return {
+						name: repo.name,
+						fullName: repo.full_name,
+						description: repo.description,
+						language: repo.language,
+						updatedAt: repo.updated_at,
+						stars: repo.stargazers_count
+					};
+				}
+				return null;
+			} catch (err) {
+				console.warn(`Dailed to fetch details for repo ${repoName}: ` ,err);
+				return {
+					name: repoName,
+					fullName: `${org}/${repoName}`,
+					description: 'Repostory details unavailable',
+					language: null,
+					updatedAt: new Date().toISOString(),
+					stars: 0
+				};
+			}
+		});
+
+		const repos = (await Promise.all(repoPromises)).filter(repo => repo !== null);
+		console.log(`Successfully fetched details for ${repos.length} repositories with contributions in the selected date range`);
+		return repos.sort((a,b) => new Date(b.updatedAt) - new Date(a.updatedAt));
 	} catch (err) {
 		logError('Failed to fetch repositories:', err);
 		throw err;
