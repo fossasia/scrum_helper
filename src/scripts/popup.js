@@ -426,7 +426,279 @@ document.addEventListener('DOMContentLoaded', function () {
 
     orgInput.addEventListener('input', handleOrgInput);
 
+    //report filter
+    const repoSearch = document.getElementById('repoSearch');
+    const repoDropdown = document.getElementById('repoDropdown');
+    const selectedReposDiv = document.getElementById('selectedRepos');
+    const repoTags = document.getElementById('repoTags');
+    const repoPlaceholder = document.getElementById('repoPlaceholder');
+    const repoCount = document.getElementById('repoCount');
+    const repoStatus = document.getElementById('repoStatus');
+    const loadReposBtn = document.getElementById('loadReposBtn');
+    const useRepoFilter = document.getElementById('useRepoFilter');
+    const repoFilterContainer = document.getElementById('repoFilterContainer');
+
+    if(!repoSearch || !useRepoFilter) {
+        console.log('Repository, filter elements not found in DOM');
+    }
+    else {
+
+        
+        let availableRepos = [];
+        let selectedRepos = [];
+        let highlightedIndex = -1;
+
+        chrome.storage.local.get(['selectedRepos', 'useRepoFilter'], (items) => {
+            if(items.selectedRepos) {
+                selectedRepos = items.selectedRepos;
+                updateRepoDisplay();
+            }
+            if(items.useRepoFilter){
+                useRepoFilter.checked = items.useRepoFilter;
+                repoFilterContainer.classList.toggle('hidden', !items.useRepoFilter);
+            }
+        });
+
+        useRepoFilter.addEventListener('change', () => {
+            const enabled = useRepoFilter.checked;
+            repoFilterContainer.classList.toggle('hidden', !enabled);
+
+            chrome.storage.local.set({
+                useRepoFilter: enabled,
+                githubCache: null, //forces refresh
+            });
+
+            if(!enabled) {
+                selectedRepos = [];
+                updateRepoDisplay();
+                chrome.storage.local.set({ selectedRepos: [] });
+            }
+        });
+
+        loadReposBtn.addEventListener('click', async () => {
+            await loadRepos();
+        })
+        repoSearch.addEventListener('keydown', (e) => {
+            const items = repoDropdown.querySelectorAll('.repository-dropdown-item');
+
+            switch(e.key) {
+                case 'ArrowDown':
+                    e.preventDefault();
+                    highlightedIndex = Math.min(highlightedIndex+ 1, items.length - 1);
+                    updateHighlight(items);
+                    break;
+                case 'ArrowUp':
+                    e.preventDefault();
+                    highlightedIndex = Math.max(highlightedIndex-1, 0);
+                    updateHighlight(items);
+                    break;
+                case 'Enter':
+                    e.preventDefault();
+                    if(highlightedIndex >= 0 && items[highlightedIndex]) {
+                        fnSelectedRepos(items[highlightedIndex].dataset.repoName);
+                    }
+                    break;
+                case 'Escape':
+                    hideDropdown();
+                    break;
+            }
+        });
+
+        repoSearch.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            filterAndDisplayRepos(query);
+        })
+        repoSearch.addEventListener('focus', function () {
+                if (repoSearch.value) {
+                    filterAndDisplayRepos(repoSearch.value.toLowerCase());
+                } else if (availableRepos.length > 0) {
+                    filterAndDisplayRepos('');
+                }
+            });
+
+        document.addEventListener('click', (e) => {
+            if(!e.target.closest('#repoSearch') && !e.target.closest('#repoDropdown')) {
+                hideDropdown();
+            }
+        });
+
+        function debugRepoFetch() {
+            chrome.storage.local.get(['githubUsername', 'githubToken', 'orgName'], (items) => {
+                console.log('Current settings:', {
+                    username: items.githubUsername,
+                    hasToken: !!items.githubToken,
+                    org: items.orgName || 'fossasia'
+                });
+            });
+        }
+        debugRepoFetch();
+        async function loadRepos() {
+            console.log('window.fetchUserRepositories exists:', !!window.fetchUserRepositories);
+            console.log('Available functions:', Object.keys(window).filter(key => key.includes('fetch')));
+    
+            if(!window.fetchUserRepositories) {
+                repoStatus.textContent = 'Repository fetching not available';
+                return;
+            }
+
+            // Check if we have the required data
+            chrome.storage.local.get(['githubUsername', 'githubToken'], (items) => {
+                console.log('Storage data for repo fetch:', {
+                    hasUsername: !!items.githubUsername,
+                    hasToken: !!items.githubToken,
+                    username: items.githubUsername
+                });
+                
+                if (!items.githubUsername) {
+                    repoStatus.textContent = 'GitHub username required';
+                    return;
+                }
+
+                performRepoFetch();
+            });
+        }
+
+        async function performRepoFetch() {
+            repoStatus.textContent = 'Loading repositories...';
+            repoSearch.classList.add('repository-search-loading');
+            loadReposBtn.disabled = true;
+
+            try {
+                const storageItems = await new Promise( resolve => {
+                    chrome.storage.local.get(['githubUsername', 'githubToken', 'orgName'], resolve);
+                })
+                // Pass the parameters explicitly
+                availableRepos = await window.fetchUserRepositories(
+                    storageItems.githubUsername, 
+                    storageItems.githubToken, 
+                    storageItems.orgName || 'fossasia'
+                );
+                repoStatus.textContent = `${availableRepos.length} repositories loaded`;
+
+                if(document.activeElement === repoSearch){
+                    filterAndDisplayRepos(repoSearch.value.toLowerCase());
+                }
+            } catch (err) {
+                console.error(`Failed to load repos:`, err);
+                
+                if (err.message && err.message.includes('401')) {
+                    repoStatus.textContent = 'GitHub token required for private repos';
+                } else if (err.message && err.message.includes('username')) {
+                    repoStatus.textContent = 'Please enter your GitHub username first';
+                } else {
+                    repoStatus.textContent = `Error: ${err.message || 'Failed to load repositories'}`;
+                }
+            } finally{
+                repoSearch.classList.remove('repository-search-loading');
+                loadReposBtn.disabled = false;
+            }
+        }
+
+        function filterAndDisplayRepos(query) {
+            if(availableRepos.length === 0) {
+                repoDropdown.innerHTML = '<div class="p-3 text-center text-gray-500 text-sm">Click the download icon to load repositories</div>';
+                showDropdown();
+                return;
+            }
+
+            const filtered = availableRepos.filter(repo => 
+                !selectedRepos.includes(repo.name) && (repo.name.toLowerCase().includes(query) || repo.description?.toLowerCase().includes(query))
+            );
+
+            if(filtered.length === 0) {
+                repoDropdown.innerHTML = '<div class="p-3 text-center text-gray-500 text-sm">No repositories found</div>';
+            } else {
+                repoDropdown.innerHTML = filtered.slice(0, 10).map(repo => `
+                    <div class="repository-dropdown-item" data-repo-name="${repo.name}">
+                        <div class="repo-name">${repo.name}</div>
+                        <div class="repo-info">
+                            ${repo.language ? `<span class="repo-language">${repo.language}</span>` : ''}
+                            ${repo.stars ? `<span class="repo-stars"><i class="fa fa-star"></i> ${repo.stars}</span>` : ''}
+                            <span class="repo-desc">${repo.description ? repo.description.substring(0, 50) + (repo.description.length > 50 ? '...' : '') : 'No description'}</span>
+                        </div>
+                    </div>
+                `).join('');
+
+                repoDropdown.querySelectorAll('.repository-dropdown-item').forEach(item => {
+                    item.addEventListener('click', () => {
+                        fnSelectedRepos(item.dataset.repoName);
+                    });
+                });
+            }
+            highlightedIndex = -1;
+            showDropdown();
+        }
+
+        function fnSelectedRepos(repoName) {
+            if(!selectedRepos.includes(repoName)){
+                selectedRepos.push(repoName);
+                updateRepoDisplay();
+                saveRepoSelection();
+            }
+
+            repoSearch.value = '';
+            hideDropdown();
+            repoSearch.focus();
+        }
+
+        function removeRepo(repoName) {
+            selectedRepos = selectedRepos.filter(name => name !== repoName) ;
+            updateRepoDisplay();
+            saveRepoSelection();
+        }
+
+        function updateRepoDisplay(){
+            if(selectedRepos.length === 0) {
+                repoTags.innerHTML = '<span class="text-xs text-gray-500 select-none" id="repoPlaceholder">No repositories selected (all will be included)</span>';
+                repoCount.textContent = ' 0 repositories selected';
+            } else {
+                repoTags.innerHTML = selectedRepos.map( repo => `
+                    <span class="repository-tag">
+                        <span class="repo-name">${repo}</span>
+                        <span class="remove-tag" onclick="removeRepo('${repo}')">&times;</span>
+                    </span>
+                `).join('');
+                repoCount.textContent = `${selectedRepos.length} repository${selectedRepos.length === 1 ? '' : 's'} selected`;
+            }
+        }
+
+        function saveRepoSelection() {
+            chrome.storage.local.set({
+                selectedRepos: selectedRepos,
+                githubCache: null
+            });
+        }
+
+        function showDropdown() {
+            repoDropdown.classList.remove('hidden');
+        }
+
+        function hideDropdown() {
+            repoDropdown.classList.add('hidden');
+            highlightedIndex = -1;
+        }
+
+        function updateHighlight(items) {
+            items.forEach((item, index) => {
+                item.classList.toggle('highlighted', index === highlightedIndex);
+            });
+
+            if(highlightedIndex >= 0 && items[highlightedIndex]) {
+                items[highlightedIndex].scrollIntoView({ block: 'nearest' });
+            }
+        }
+
+        window.removeRepo = removeRepo;
+
+        chrome.storage.local.get(['githubUsername'], (items) => {
+            if(items.githubUsername && useRepoFilter.checked && availableRepos.length === 0) {
+                setTimeout(() => loadRepos(), 1000);
+            }
+        })
+    }
 });
+
+
 
 // Tooltip bubble 
 document.querySelectorAll('.tooltip-container').forEach(container => {

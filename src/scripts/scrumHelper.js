@@ -77,7 +77,9 @@ function allIncluded(outputTarget = 'email') {
 				'userReason',
 				'githubCache',
 				'cacheInput',
-				'orgName'
+				'orgName',
+				'selectedRepos',
+				'useRepoFilter'
 			],
 			(items) => {
 				console.log("Storage items received:", items);
@@ -179,6 +181,12 @@ function allIncluded(outputTarget = 'email') {
 				}
 				if (items.orgName) {
 					orgName = items.orgName;
+				}
+				if(items.selectedRepos) {
+					selectedRepos = items.selectedRepos;
+				}
+				if(items.useRepoFilter){
+					useRepoFilter = items.useRepoFilter;
 				}
 			},
 		);
@@ -506,14 +514,22 @@ function allIncluded(outputTarget = 'email') {
 
 	function processGithubData(data) {
 		log('Processing Github data');
-		githubIssuesData = data.githubIssuesData;
-		githubPrsReviewData = data.githubPrsReviewData;
-		githubUserData = data.githubUserData;
+		
+		let processedData = data;
+		if(useRepoFilter && selectedRepos?.length > 0) {
+			processedData = filterDataByRepos(data, selectedRepos);
+			log('Applied repo filter:', selectedRepos);
+		}
+
+		githubIssuesData = processedData.githubIssuesData;
+		githubPrsReviewData = processedData.githubPrsReviewData;
+		githubUserData = processedData.githubUserData;
 
 		log('GitHub data set:', {
 			issues: githubIssuesData?.items?.length || 0,
 			prs: githubPrsReviewData?.items?.length || 0,
-			user: githubUserData?.login
+			user: githubUserData?.login,
+			filtered: useRepoFilter
 		});
 
 		lastWeekArray = [];
@@ -1044,3 +1060,171 @@ ${prs.map((pr, i) => `	repo${i}: repository(owner: \"${pr.owner}\", name: \"${pr
 	}
 }
 
+// Repo fetching logic
+let selectedRepos = [];
+let useRepoFilter = false;
+
+async function fetchUserRepositories(username, token, org = 'fossasia') {
+	const headers = {
+		'Accept': 'application/vnd.github.v3+json',
+	};
+
+	
+    // Use the token parameter, not the global githubToken
+    if(token) {
+        headers['Authorization'] = `token ${token}`;
+    }
+
+    // Use the parameters directly, don't redeclare them
+    if (!username) {
+        throw new Error('GitHub username is required');
+    }
+
+    console.log('Fetching repos for username:', username, 'org:', org);
+
+	try{
+		// fetching both user and org repos
+		let dateRange = '';
+		try {
+			const storageData = await new Promise(resolve => {
+				chrome.storage.local.get(['startingDate', 'endingDate', 'lastWeekContribution', 'yesterdayContribution'], resolve);
+			});
+
+			let startDate, endDate;
+			if(storageData.lastWeekContribution) {
+				const today = new Date();
+				const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
+				startDate = lastWeek.toString().split('T')[0];
+				endDate = today.toISOString().split('T')[0];
+			} else if(storageData.yesterdayContribution) {
+				const today = new Date();
+				const yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+				startDate = yesterday.toISOString().split('T')[0];
+				endDate = today.toISOString().split('T')[0];
+			} else if(storageData.startingDate && storageData.endingDate) {
+				startDate = storageData.startingDate;
+				endDate = storageData.endingDate;
+			} else {
+				const today = new Date();
+				const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
+				startDate = lastWeek.toString().split('T')[0];
+				endDate = today.toISOString().split('T')[0];
+			}
+
+			dateRange = `+created:${startDate}..${endDate}`;
+			console.log(`Usinf date range for repo search: ${startDate} to ${endDate}`);
+		} catch(err) {
+			console.warn('Could not determine date range, using last 30 days:', err);
+			const today = new Date();
+			const thirtyDaysAgo = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 30);
+			const startDate = thirtyDaysAgo.toISOString().split('T')[0];
+			const endDate =  today.toISOString().split('T')[0];
+		}
+		// Use the same search queries as the main scrum generation, but extract repo names
+        const issuesUrl = `https://api.github.com/search/issues?q=author:${username}+org:${org}${dateRange}&per_page=100`;
+        const commentsUrl = `https://api.github.com/search/issues?q=commenter:${username}+org:${org}+updated:${dateRange.replace('created:', 'updated:')}&per_page=100`;
+
+        console.log('Search URLs:', { issuesUrl, commentsUrl });
+	
+		const [issuesRes, commentsRes] = await Promise.all([
+            fetch(issuesUrl, { headers }).catch(() => ({ ok: false, json: () => ({ items: [] }) })),
+            fetch(commentsUrl, { headers }).catch(() => ({ ok: false, json: () => ({ items: [] }) }))
+        ]);
+
+		let repoSet = new Set();
+
+		if(issuesRes.ok) {
+			const issuesData = await issuesRes.json();
+			issuesData.items?.forEach(item => {
+				if (item.repository_url) {
+					const repoName = item.repository_url.split('/').pop();
+					repoSet.add(repoName);
+				}
+			});
+			console.log(`Found ${issuesData.items?.length || 0} issues/PRs authored by user in date range`);
+		}
+
+		if(commentsRes.ok) {
+			const commentsData = await commentsRes.json();
+			commentsData.items?.forEach(item => {
+				if(item.repository_url) {
+					const repoName = item.repository_url.split('/').pop();
+					repoSet.add(repoName);
+				}
+			})
+			console.log(`Found ${commentsData.items?.length || 0} issues/PRs with user comments in date range`);
+		}
+		
+		const repoNames = Array.from(repoSet);
+		console.log(`Found ${repoNames.length} unique repositories with contributions in the selected date range`);
+
+		if(repoNames.length === 0) {
+			console.log(`No repositories with contrbutions found in the selected date range`);
+			return[];
+		}
+
+		const repoPromises = repoNames.slice(0, 50).map(async (repoName) => {
+			try {
+				const repoUrl = `https://api.github.com/repos/${org}/${repoName}`;
+				const repoRes = await fetch(repoUrl, {headers});
+				if (repoRes.ok) {
+					const repo = await repoRes.json();
+					return {
+						name: repo.name,
+						fullName: repo.full_name,
+						description: repo.description,
+						language: repo.language,
+						updatedAt: repo.updated_at,
+						stars: repo.stargazers_count
+					};
+				}
+				return null;
+			} catch (err) {
+				console.warn(`Dailed to fetch details for repo ${repoName}: ` ,err);
+				return {
+					name: repoName,
+					fullName: `${org}/${repoName}`,
+					description: 'Repostory details unavailable',
+					language: null,
+					updatedAt: new Date().toISOString(),
+					stars: 0
+				};
+			}
+		});
+
+		const repos = (await Promise.all(repoPromises)).filter(repo => repo !== null);
+		console.log(`Successfully fetched details for ${repos.length} repositories with contributions in the selected date range`);
+		return repos.sort((a,b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+	} catch (err) {
+		logError('Failed to fetch repositories:', err);
+		throw err;
+	}
+}
+
+function filterDataByRepos(data, selectedRepos) {
+	if(!selectedRepos || selectedRepos.length === 0) {
+		return data;
+	}
+
+	const filteredData = {
+        ...data,
+        githubIssuesData: {
+            ...data.githubIssuesData,
+            items: data.githubIssuesData?.items?.filter(item => {
+                const repoName = item.repository_url?.substr(item.repository_url.lastIndexOf('/') + 1);
+                return selectedRepos.includes(repoName);
+            }) || []
+        },
+        githubPrsReviewData: {
+            ...data.githubPrsReviewData,
+            items: data.githubPrsReviewData?.items?.filter(item => {
+                const repoName = item.repository_url?.substr(item.repository_url.lastIndexOf('/') + 1);
+                return selectedRepos.includes(repoName);
+            }) || []
+        }
+    };
+	return filteredData;
+}
+window.fetchUserRepositories = fetchUserRepositories;
+
+// commit for all repo fetch
