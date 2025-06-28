@@ -1083,8 +1083,8 @@ async function fetchUserRepositories(username, token, org = 'fossasia') {
     console.log('Fetching repos for username:', username, 'org:', org);
 
 	// fetching both user and org repos
-	const userRepoUrl = `https://api.github.com/users/${username}/repos?per_page=100&sort=updated`;
-	const orgRepoUrl = `https://api.github.com/orgs/${org}/repos?per_page=100&sort=updated`;
+	const userRepoUrl = `https://api.github.com/users/${username}/repos?per_page=100&sort=updated&type=all`;
+	const orgRepoUrl = `https://api.github.com/orgs/${org}/repos?per_page=100&sort=updated&type=all`;
 
 	try{
 		const [userRepoRes, orgRepoRes] = await Promise.all([
@@ -1148,3 +1148,5 @@ function filterDataByRepos(data, selectedRepos) {
 	return filteredData;
 }
 window.fetchUserRepositories = fetchUserRepositories;
+
+// commit for all repo fetch
