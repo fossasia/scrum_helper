@@ -295,7 +295,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     endDateInput.value = getToday();
                 }
                 startDateInput.readOnly = endDateInput.readOnly = true;
-    
+
                 chrome.storage.local.set({
                     startingDate: startDateInput.value,
                     endingDate: endDateInput.value,
@@ -360,10 +360,18 @@ document.addEventListener('DOMContentLoaded', function () {
     // Validate and set org as user types
     const handleOrgInput = debounce(function () {
         let org = orgInput.value.trim().toLowerCase();
-        if (!org) {
-            org = 'fossasia';
-        }
+        // Do not default to any org, allow empty string
+        // if (!org) {
+        //     org = 'fossasia';
+        // }
         console.log('[Org Check] Checking organization:', org);
+        if (!org) {
+            // If org is empty, clear orgName in storage but don't auto-generate report
+            chrome.storage.local.set({ orgName: '' }, function () {
+                console.log('[Org Check] Organization cleared from storage');
+            });
+            return;
+        }
         fetch(`https://api.github.com/orgs/${org}`)
             .then(res => {
                 console.log('[Org Check] Response status for', org, ':', res.status);
@@ -394,9 +402,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 const oldToast = document.getElementById('invalid-org-toast');
                 if (oldToast) oldToast.parentNode.removeChild(oldToast);
                 console.log('[Org Check] Organisation exists on GitHub:', org);
-                console.log('[Org Check] Organization exists on GitHub:', org);
+              
+
                 chrome.storage.local.set({ orgName: org }, function () {
-                    if (window.generateScrumReport) window.generateScrumReport();
+                    console.log('[Org Check] Organization saved to storage:', org);
                 });
             })
             .catch((err) => {
