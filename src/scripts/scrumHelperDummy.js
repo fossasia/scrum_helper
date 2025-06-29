@@ -1,26 +1,9 @@
-const DEBUG = true;
-function log(...args) {
-	if (DEBUG) {
-		console.log(`[SCRUM-HELPER]:`, ...args);
-	}
-}
-function logError(...args) {
-	if (DEBUG) {
-		console.error('[SCRUM-HELPER]:', ...args);
-	}
-}
 console.log('Script loaded, adapter exists:', !!window.emailClientAdapter);
 let refreshButton_Placed = false;
 let enableToggle = true;
 let hasInjectedContent = false;
-let scrumGenerationInProgress = false;
 let orgName = 'fossasia'; // default
 function allIncluded(outputTarget = 'email') {
-    if(scrumGenerationInProgress) {
-      console.warn('[SCRUM-HELPER]: Scrum generation already in progress, aborting new call.');
-      return;
-    }
-	scrumGenerationInProgress = true;
     console.log('allIncluded called with outputTarget:', outputTarget);
     console.log('Current window context:', window.location.href);
     let scrumBody = null;
@@ -42,24 +25,19 @@ function allIncluded(outputTarget = 'email') {
     let issuesDataProcessed = false;
     let prsReviewDataProcessed = false;
     let showOpenLabel = true;
+    let showClosedLabel = true;
     let showCommits = false;
-	  let numCommits = 5; //default
     let userReason = '';
 
-    let pr_open_button =
-		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
-	let pr_closed_button =
-		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color:rgb(210, 20, 39);border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--red">closed</div>';
-	let pr_merged_button =
-		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #6f42c1;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--purple">merged</div>';
-	let pr_draft_button =
-		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #808080;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--gray">draft</div>';
+    let pr_merged_button =
+        '<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #6f42c1;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--purple">closed</div>';
+    let pr_unmerged_button =
+        '<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
 
-	let issue_closed_button =
-		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #d73a49;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--red">closed</div>';
-	let issue_opened_button =
-		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
-
+    let issue_closed_button =
+        '<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #6f42c1;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--purple">closed</div>';
+    let issue_opened_button =
+        '<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
 
     // let linkStyle = '';
     function getChromeData() {
@@ -78,109 +56,93 @@ function allIncluded(outputTarget = 'email') {
                 'yesterdayContribution',
                 'userReason',
                 'showCommits',
-                'numCommits',
                 'githubCache',
                 'cacheInput',
                 'orgName'
             ],
             (items) => {
                 console.log("Storage items received:", items);
-              
-              
-                if (outputTarget === 'popup') {
-                  const usernameFromDOM = document.getElementById('githubUsername')?.value;
-                  const projectFromDOM = document.getElementById('projectName')?.value;
-                  const reasonFromDOM = document.getElementById('userReason')?.value;
-                  const tokenFromDOM = document.getElementById('githubToken')?.value;
 
-                  items.githubUsername = usernameFromDOM || items.githubUsername;
-                  items.projectName = projectFromDOM || items.projectName;
-                  items.userReason = reasonFromDOM || items.userReason;
-                  items.githubToken = tokenFromDOM || items.githubToken;
-
-                  chrome.storage.local.set({
-                    githubUsername: items.githubUsername,
-                    projectName: items.projectName,
-                    userReason: items.userReason,
-                    githubToken: items.githubToken
-                  });
+                if (items.lastWeekContribution) {
+                    lastWeekContribution = true;
+                    handleLastWeekContributionChange();
                 }
-              
-                githubUsername = items.githubUsername;
-                projectName = items.projectName;
-                userReason = items.userReason || 'No Blocker at the moment';
-                githubToken = items.githubToken;
-                lastWeekContribution = items.lastWeekContribution;
-                yesterdayContribution = items.yesterdayContribution;
-
+                if (items.yesterdayContribution) {
+                    yesterdayContribution = true;
+                    handleYesterdayContributionChange();
+                }
                 if (!items.enableToggle) {
-            enableToggle = items.enableToggle;
-          }
-				
-				if (items.lastWeekContribution) {
-					handleLastWeekContributionChange();
-				} else if (items.yesterdayContribution) {
-					handleYesterdayContributionChange();
-				} else if (items.startDate && items.endingDate) {
-					startingDate = items.startingDate;
-					endingDate = items.endingDate;
-				} else {
-					handleLastWeekContributionChange(); //when no date is stored, i.e on fresh unpack - default to last week.
-					if (outputTarget === 'popup') {
-						chrome.storage.local.set({ lastWeekContribution: true, yesterdayContribution: false });
-					}
-				}
-                if (githubUsername) {
-					console.log("About to fetch GitHub data for:", githubUsername);
-					fetchGithubData();
-				} else {
-					if (outputTarget === 'popup') {
-						console.log("No username found - popup context");
-						// Show error in popup
-						const scrumReport = document.getElementById('scrumReport');
-						const generateBtn = document.getElementById('generateReport');
-						if (scrumReport) {
-							scrumReport.innerHTML = '<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">Please enter your GitHub username to generate a report.</div>';
-						}
-						if (generateBtn) {
-							generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
-							generateBtn.disabled = false;
-						}
-						scrumGenerationInProgress = false;
-					} else {
-						console.warn('No GitHub username found in storage');
-						scrumGenerationInProgress = false;
-					}
-					return;
-				}
+                    enableToggle = items.enableToggle;
+                }
+                if (items.endingDate && !lastWeekContribution) {
+                    endingDate = items.endingDate;
+                }
+                if (items.startingDate && !lastWeekContribution) {
+                    startingDate = items.startingDate;
+                }
+                if (items.endingDate && !yesterdayContribution) {
+                    endingDate = items.endingDate;
+                }
+                if (items.startingDate && !yesterdayContribution) {
+                    startingDate = items.startingDate;
+                }
+                if (items.githubUsername) {
+                    githubUsername = items.githubUsername;
+                    console.log("About to fetch GitHub data for:", githubUsername);
+                    fetchGithubData();
+                } else {
+                    if (outputTarget === 'popup') {
+                        console.log("No username found - popup context");
+                        // Show error in popup
+                        const generateBtn = document.getElementById('generateReport');
+                        if (generateBtn) {
+                            generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+                            generateBtn.disabled = false;
+                        }
+                        Materialize.toast('Please enter your GitHub username', 3000);
+                    } else {
+                        console.log("No username found - email context");
+                        console.warn('No GitHub username found in storage');
+                    }
+                }
+                if (items.projectName) {
+                    projectName = items.projectName;
+                }
+                if (items.githubToken) {
+                    githubToken = items.githubToken;
+                }
                 if (items.cacheInput) {
                     cacheInput = items.cacheInput;
+                }
+                if (!items.showOpenLabel) {
+                    showOpenLabel = false;
+                    pr_unmerged_button = '';
+                    issue_opened_button = '';
+                }
+                if (!items.showClosedLabel) {
+                    showClosedLabel = false;
+                    pr_merged_button = '';
+                    issue_closed_button = '';
                 }
                 if (items.showCommits !== undefined) {
                     showCommits = items.showCommits;
                 } else {
                     showCommits = false; // Default value
                 }
-				
-
-				if (!items.showOpenLabel) {
-					showOpenLabel = false;
-					pr_unmerged_button = '';
-					issue_opened_button = '';
-					pr_merged_button = '';
-					issue_closed_button = '';
-				}
-				if (items.githubCache) {
-					githubCache.data = items.githubCache.data;
-					githubCache.cacheKey = items.githubCache.cacheKey;
-					githubCache.timestamp = items.githubCache.timestamp;
-					log('Restored cache from storage');
-				}
+                if (items.userReason) {
+                    userReason = items.userReason;
+                }
+                if (!items.userReason) {
+                    userReason = 'No Blocker at the moment';
+                }
+                if (items.githubCache) {
+                    githubCache.data = items.githubCache.data;
+                    githubCache.cacheKey = items.githubCache.cacheKey;
+                    githubCache.timestamp = items.githubCache.timestamp;
+                    log('Restored cache from storage');
+                }
                 if (items.orgName) {
                     orgName = items.orgName;
-                }
-                if(items.numCommits) {
-                  numCommits = items.numCommits;
                 }
             },
         );
@@ -240,6 +202,17 @@ function allIncluded(outputTarget = 'email') {
     }
 
 
+    const DEBUG = true;
+    function log(...args) {
+        if (DEBUG) {
+            console.log(`[SCRUM-HELPER]:`, ...args);
+        }
+    }
+    function logError(...args) {
+        if (DEBUG) {
+            console.error('[SCRUM-HELPER]:', ...args);
+        }
+    }
     // Global cache object
     let githubCache = {
         data: null,
@@ -362,7 +335,7 @@ function allIncluded(outputTarget = 'email') {
         const needsToken = !!githubToken;
         const cacheUsedToken = !!githubCache.usedToken;
 
-        if (githubCache.data && isCacheFresh & isCacheKeyMatch) { //should be && check after rebase
+        if (githubCache.data && isCacheFresh & isCacheKeyMatch) {
             if (needsToken & !cacheUsedToken) {
                 log('Cache was fetched without token, but user now has a token. Invalidating cache.');
                 githubCache.data = null;
@@ -403,7 +376,7 @@ function allIncluded(outputTarget = 'email') {
             log('Making public requests');
         }
 
-        let issueUrl = `https://api.github.com/search/issues?q=author%3A${githubUsername}+org%3A${orgName}+updated%3A${startingDate}..${endingDate}&per_page=100`;
+        let issueUrl = `https://api.github.com/search/issues?q=author%3A${githubUsername}+org%3A${orgName}+created%3A${startingDate}..${endingDate}&per_page=100`;
         let prUrl = `https://api.github.com/search/issues?q=commenter%3A${githubUsername}+org%3A${orgName}+updated%3A${startingDate}..${endingDate}&per_page=100`;
         let userUrl = `https://api.github.com/users/${githubUsername}`;
 
@@ -445,11 +418,10 @@ function allIncluded(outputTarget = 'email') {
                 );
                 // Fetch commits for open PRs (batch)
                 if (openPRs.length && githubToken) {
-                    const commitMap = await fetchCommitsForOpenPRs(openPRs, githubToken, numCommits);
+                    const commitMap = await fetchCommitsForOpenPRs(openPRs, githubToken);
                     // Attach commits to PR objects
                     openPRs.forEach(pr => {
-                        pr._allCommits = commitMap[pr.number] || [];
-						pr._lastCommits = pr._allCommits.slice(0, numCommits);
+                        pr._lastCommits = commitMap[pr.number] || [];
                     });
                 }
             }
@@ -464,39 +436,27 @@ function allIncluded(outputTarget = 'email') {
             // Resolve queued calls
             githubCache.queue.forEach(({ resolve }) => resolve());
             githubCache.queue = [];
-              } catch (err) {
-                    logError('Fetch Failed:', err);
-                    // Reject queued calls on error
-                    githubCache.queue.forEach(({ reject }) => reject(err));
-                    githubCache.queue = [];
-                    githubCache.fetching = false;
+        } catch (err) {
+            logError('Fetch Failed:', err);
+            // Reject queued calls on error
+            githubCache.queue.forEach(({ reject }) => reject(err));
+            githubCache.queue = [];
+            githubCache.fetching = false;
 
-                    if (outputTarget === 'popup') {
-                      const generateBtn = document.getElementById('generateReport');
-                      if (scrumReport) {
-                        let errorMsg = 'An error occurred while generating the report.';
-                        if (err) {
-                          if (typeof err === 'string') errorMsg = err;
-                          else if (err.message) errorMsg = err.message;
-                          else errorMsg = JSON.stringify(err)
-                        }
-                        scrumReport.innerHTML = `<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">${err.message || 'An error occurred while generating the report.'}</div>`;
-                        generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
-                        generateBtn.disabled = false;
-                      }
-                      if (generateBtn) {
-                        generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
-                        generateBtn.disabled = false;
-                      }
-                    }
-                    scrumGenerationInProgress = false;
-                    throw err;
-                  } finally {
+            if (outputTarget === 'popup') {
+                const generateBtn = document.getElementById('generateReport');
+                if (generateBtn) {
+                    generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+                    generateBtn.disabled = false;
+                }
+            }
+            throw err;
+        } finally {
             githubCache.fetching = false;
         }
     }
 
-    async function fetchCommitsForOpenPRs(prs, githubToken, numCommits = 5) {
+    async function fetchCommitsForOpenPRs(prs, githubToken) {
         if (!prs.length) return {};
         let queries = prs.map((pr, idx) => {
             const repoParts = pr.repository_url.split('/');
@@ -505,7 +465,7 @@ function allIncluded(outputTarget = 'email') {
             return `
 					pr${idx}: repository(owner: "${owner}", name: "${repo}") {
 						pullRequest(number: ${pr.number}) {
-							commits(last: ${numCommits}) {
+							commits(last: 5) {
 								nodes {
 									commit {
 										messageHeadline
@@ -579,7 +539,7 @@ function allIncluded(outputTarget = 'email') {
         }
     }
 
-    async function processGithubData(data) {
+    function processGithubData(data) {
         log('Processing Github data');
         githubIssuesData = data.githubIssuesData;
         githubPrsReviewData = data.githubPrsReviewData;
@@ -596,19 +556,10 @@ function allIncluded(outputTarget = 'email') {
         reviewedPrsArray = [];
         githubPrsReviewDataProcessed = {};
 
-		issuesDataProcessed=false;
-		prsReviewDataProcessed = false;
-
         // Update subject
         if (!githubCache.subject && scrumSubject) {
             scrumSubjectLoaded();
         }
-		await Promise.all([
-			writeGithubIssuesPrs(),
-			writeGithubPrsReviews(),
-		])
-		log('Both data processing functions completed, generating scrum body');
-		writeScrumBody();
     }
 
     function formatDate(dateString) {
@@ -618,7 +569,7 @@ function allIncluded(outputTarget = 'email') {
     }
 
     //load initial text in scrum body
-       function writeScrumBody() {
+    function writeScrumBody() {
         if (!enableToggle || (outputTarget === 'email' && hasInjectedContent)) return;
 
         if (outputTarget === 'email') {
@@ -630,6 +581,8 @@ function allIncluded(outputTarget = 'email') {
                 console.log('Not a new conversation, skipping scrum helper');
                 return;
             }
+            writeGithubIssuesPrs();
+            writeGithubPrsReviews();
         }
 
         setTimeout(() => {
@@ -678,10 +631,8 @@ ${userReason}`;
                         generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
                         generateBtn.disabled = false;
                     }
-					scrumGenerationInProgress = false;
                 } else {
                     logError('Scrum report div not found');
-					scrumGenerationInProgress = false;
                 }
             } else {
                 const elements = window.emailClientAdapter.getEditorElements();
@@ -691,7 +642,6 @@ ${userReason}`;
                 }
                 window.emailClientAdapter.injectContent(elements.body, content, elements.eventTypes.contentChange);
                 hasInjectedContent = true;
-				scrumGenerationInProgress = false;
             }
         }, 500);
     }
@@ -813,10 +763,7 @@ ${userReason}`;
         }
 
         prsReviewDataProcessed = true;
-		if(outputTarget === 'email'){
-			triggerScrumGeneration();
-		}
-
+        triggerScrumGeneration();
     }
 
     function triggerScrumGeneration() {
@@ -830,37 +777,8 @@ ${userReason}`;
             });
         }
     }
-  
-    // Helper: calculate days between two yyyy-mm-dd strings
-      function getDaysBetween(start, end) {
-        const d1 = new Date(start);
-        const d2 = new Date(end);
-        return Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24));
-      }
 
-      // Session cache object
-      let sessionMergedStatusCache = {};
-
-      // Helper to fetch PR details for merged status (REST, single PR)
-      async function fetchPrMergedStatusREST(owner, repo, number, headers) {
-        const cacheKey = `${owner}/${repo}#${number}`;
-        if (sessionMergedStatusCache[cacheKey] !== undefined) {
-          return sessionMergedStatusCache[cacheKey];
-        }
-        const url = `https://api.github.com/repos/${owner}/${repo}/pulls/${number}`;
-        try {
-          const res = await fetch(url, { headers });
-          if (!res.ok) return null;
-          const data = await res.json();
-          const merged = !!data.merged_at;
-          sessionMergedStatusCache[cacheKey] = merged;
-          return merged;
-        } catch (e) {
-          return null;
-        }
-      }
-
-    async function writeGithubIssuesPrs() {
+    function writeGithubIssuesPrs() {
         let items = githubIssuesData.items;
         lastWeekArray = [];
         nextWeekArray = [];
@@ -868,53 +786,6 @@ ${userReason}`;
             logError('No Github issues data available');
             return;
         }
-        
-        const headers = { 'Accept': 'application/vnd.github.v3+json' };
-        if (githubToken) headers['Authorization'] = `token ${githubToken}`;
-        let useMergedStatus = false;
-        let fallbackToSimple = false;
-        let daysRange = getDaysBetween(startingDate, endingDate);
-        // For token users, always enable useMergedStatus (no 7-day limit)
-        if (githubToken) {
-          useMergedStatus = true;
-        } else if (daysRange <= 7) {
-          useMergedStatus = true;
-        }
-
-        // Collect PRs to batch fetch merged status
-        let prsToCheck = [];
-        for (let i = 0; i < items.length; i++) {
-          let item = items[i];
-          if (item.pull_request && item.state === 'closed' && useMergedStatus && !fallbackToSimple) {
-            let repository_url = item.repository_url;
-            let repoParts = repository_url.split('/');
-            let owner = repoParts[repoParts.length - 2];
-            let repo = repoParts[repoParts.length - 1];
-            prsToCheck.push({ owner, repo, number: item.number, idx: i });
-          }
-        }
-
-        let mergedStatusResults = {};
-        if (githubToken) {
-          // Use GraphQL batching for all cases
-          if (prsToCheck.length > 0) {
-            mergedStatusResults = await fetchPrsMergedStatusBatch(prsToCheck, headers);
-          }
-        } else if (useMergedStatus) {
-          if (prsToCheck.length > 30) {
-            fallbackToSimple = true;
-            if (typeof Materialize !== 'undefined' && Materialize.toast) {
-              Materialize.toast('API limit exceeded. Please use a GitHub token for full status. Showing only open/closed PRs.', 5000);
-            }
-          } else {
-            // Use REST API for each PR, cache results
-            for (let pr of prsToCheck) {
-              let merged = await fetchPrMergedStatusREST(pr.owner, pr.repo, pr.number, headers);
-              mergedStatusResults[`${pr.owner}/${pr.repo}#${pr.number}`] = merged;
-            }
-          }
-        }
-      
         for (let i = 0; i < items.length; i++) {
             let item = items[i];
             let html_url = item.html_url;
@@ -923,41 +794,19 @@ ${userReason}`;
             let title = item.title;
             let number = item.number;
             let li = '';
-          
-            let isDraft = false;
-            if (item.pull_request && typeof item.draft !== 'undefined') {
-              isDraft = item.draft;
-            }
 
             if (item.pull_request) {
-                if (isDraft) {
-                  li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_draft_button}</li>`;
+                if (item.state === 'closed') {
+                    li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_merged_button}</li>`;
                 } else if (item.state === 'open') {
-                    li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_open_button}`;
+                    li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_unmerged_button}`;
                     if (showCommits && item._lastCommits && item._lastCommits.length) {
-						item._lastCommits = item._allCommits.slice(0, numCommits);
                         item._lastCommits.forEach(commit => {
-                            li += `<li style="list-style: disc; margin: 0 0 0 20px; padding: 0; color: #666;"><span style="color:#2563eb;">${commit.messageHeadline}</span><span style="color:#666; font-size: 11px;"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
+                            li += `<li style="list-style: disc; margin: 0 0 0 20px; padding: 0; color: #666;"><span style="color:#2563eb;">${commit.messageHeadline}</span><span style="color:#666; font-size: 11px;"> (${commit.author?.user?.login || commit.author?.name || 'unknown'}, ${new Date(commit.committedDate).toLocaleString()})</span></li>`;
                         });
                     }
                     li += `</li>`;
-                } else if (item.state === 'closed') {
-                    let merged = null;
-                    if ((githubToken || (useMergedStatus && !fallbackToSimple)) && mergedStatusResults) {
-                      let repoParts = repository_url.split('/');
-                      let owner = repoParts[repoParts.length - 2];
-                      let repo = repoParts[repoParts.length - 1];
-                      merged = mergedStatusResults[`${owner}/${repo}#${number}`];
-                    }
-                    if (merged === true) {
-                      li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_merged_button}</li>`;
-                    } else {
-                      // Always show closed label for merged === false or merged === null/undefined
-                      li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_closed_button}</li>`;
-                    }
-                } 
-              lastWeekArray.push(li);
-				continue; // Prevent issue logic from overwriting PR li
+                }
             } else {
                 // is a issue
                 if (item.state === 'open' && item.body?.toUpperCase().indexOf('YES') > 0) {
@@ -995,9 +844,7 @@ ${userReason}`;
             lastWeekArray.push(li);
         }
         issuesDataProcessed = true;
-		if(outputTarget === 'email'){
-			triggerScrumGeneration();
-		}
+        triggerScrumGeneration();
     }
 
     let intervalBody = setInterval(() => {
@@ -1031,10 +878,13 @@ ${userReason}`;
         }, 500);
     }, 500);
 
-    // check for github safe writing
+    //check for github safe writing
     let intervalWriteGithubIssues = setInterval(() => {
         if (outputTarget === 'popup') {
-            return;
+            if (githubUsername && githubIssuesData) {
+                clearInterval(intervalWriteGithubIssues);
+                writeGithubIssuesPrs();
+            }
         } else {
             if (scrumBody && githubUsername && githubIssuesData) {
                 clearInterval(intervalWriteGithubIssues);
@@ -1044,7 +894,10 @@ ${userReason}`;
     }, 500);
     let intervalWriteGithubPrs = setInterval(() => {
         if (outputTarget === 'popup') {
-            return;
+            if (githubUsername && githubPrsReviewData) {
+                clearInterval(intervalWriteGithubPrs);
+                writeGithubPrsReviews();
+            }
         } else {
             if (scrumBody && githubUsername && githubPrsReviewData) {
                 clearInterval(intervalWriteGithubPrs);
@@ -1109,15 +962,11 @@ async function forceGithubDataRefresh() {
     return { success: true };
 }
 
+allIncluded('email');
 
-// allIncluded('email');
-
-if (window.location.protocol.startsWith('http')) {
-	allIncluded('email');
-	$('button>span:contains(New conversation)').parent('button').click(() => {
-		allIncluded();
-	});
-}
+$('button>span:contains(New conversation)').parent('button').click(() => {
+    allIncluded();
+});
 
 window.generateScrumReport = function () {
     allIncluded('popup');
@@ -1133,35 +982,4 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         return true;
     }
 });
-
-async function fetchPrsMergedStatusBatch(prs, headers) {
-	// prs: Array of {owner, repo, number}
-	const results = {};
-	if (prs.length === 0) return results;
-	// Use GitHub GraphQL API for batching
-	const query = `query {
-${prs.map((pr, i) => `	repo${i}: repository(owner: \"${pr.owner}\", name: \"${pr.repo}\") {
-		pr${i}: pullRequest(number: ${pr.number}) { merged }
-	}`).join('\n')}
-}`;
-	try {
-		const res = await fetch('https://api.github.com/graphql', {
-			method: 'POST',
-			headers: {
-				...headers,
-				'Content-Type': 'application/json',
-			},
-			body: JSON.stringify({ query }),
-		});
-		if (!res.ok) return results;
-		const data = await res.json();
-		prs.forEach((pr, i) => {
-			const merged = data.data[`repo${i}`]?.[`pr${i}`]?.merged;
-			results[`${pr.owner}/${pr.repo}#${pr.number}`] = merged;
-		});
-		return results;
-	} catch (e) {
-		return results;
-	}
-}
 
