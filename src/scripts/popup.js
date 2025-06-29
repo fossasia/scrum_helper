@@ -366,9 +366,9 @@ document.addEventListener('DOMContentLoaded', function () {
         // }
         console.log('[Org Check] Checking organization:', org);
         if (!org) {
-            // If org is empty, clear orgName in storage and fetch all user activity
+            // If org is empty, clear orgName in storage but don't auto-generate report
             chrome.storage.local.set({ orgName: '' }, function () {
-                if (window.generateScrumReport) window.generateScrumReport();
+                console.log('[Org Check] Organization cleared from storage');
             });
             return;
         }
@@ -406,9 +406,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 const oldToast = document.getElementById('invalid-org-toast');
                 if (oldToast) oldToast.parentNode.removeChild(oldToast);
                 console.log('[Org Check] Organization exists on GitHub:', org);
-                // Valid org: update storage and fetch data
+                // Valid org: update storage but don't auto-generate report
                 chrome.storage.local.set({ orgName: org }, function () {
-                    if (window.generateScrumReport) window.generateScrumReport();
+                    console.log('[Org Check] Organization saved to storage:', org);
                 });
             })
             .catch((err) => {
