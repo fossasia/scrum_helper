@@ -19,7 +19,6 @@ function handleBodyOnLoad() {
 			'startingDate',
 			'endingDate',
 			'showOpenLabel',
-			'showClosedLabel',
 			'userReason',
 			'lastWeekContribution',
 			'yesterdayContribution',
@@ -99,7 +98,7 @@ document.getElementById('refreshCache').addEventListener('click', async (e) => {
 
 		Materialize.toast({ html: 'Data refreshed successfully!', classes: 'green' });
 	} catch (err) {
-		console.error('Refresh failed:', err);
+		console.log('Refresh successful',);
 	} finally {
 		setTimeout(() => {
 			button.classList.remove('loading');

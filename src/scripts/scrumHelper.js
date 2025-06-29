@@ -1,9 +1,22 @@
+const DEBUG = false;
+function log(...args) {
+	if (DEBUG) {
+		console.log(`[SCRUM-HELPER]:`, ...args);
+	}
+}
+function logError(...args) {
+	if (DEBUG) {
+		console.error('[SCRUM-HELPER]:', ...args);
+	}
+}
 console.log('Script loaded, adapter exists:', !!window.emailClientAdapter);
 let refreshButton_Placed = false;
 let enableToggle = true;
 let hasInjectedContent = false;
 let scrumGenerationInProgress = false;
+
 let orgName = '';
+
 function allIncluded(outputTarget = 'email') {
 	if (scrumGenerationInProgress) {
 		console.warn('[SCRUM-HELPER]: Scrum generation already in progress, aborting new call.');
@@ -32,24 +45,26 @@ function allIncluded(outputTarget = 'email') {
 	let issuesDataProcessed = false;
 	let prsReviewDataProcessed = false;
 	let showOpenLabel = true;
-	let showClosedLabel = true;
 	let userReason = '';
 
-	// PR Labels - 4 types
+
+	let pr_open_button =
+		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
+	let pr_closed_button =
+		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color:rgb(210, 20, 39);border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--red">closed</div>';
 	let pr_merged_button =
 		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #6f42c1;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--purple">merged</div>';
-	let pr_unmerged_button =
-		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
 	let pr_draft_button =
-		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #6a737d;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--gray">draft</div>';
-	let pr_closed_button =
-		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #d73a49;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--red">closed</div>';
+		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #808080;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--gray">draft</div>';
+
 
 	// Issue Labels
 	let issue_closed_button =
 		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #d73a49;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--red">closed</div>';
 	let issue_opened_button =
 		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
+
+
 
 	// let linkStyle = '';
 	function getChromeData() {
@@ -63,7 +78,6 @@ function allIncluded(outputTarget = 'email') {
 				'startingDate',
 				'endingDate',
 				'showOpenLabel',
-				'showClosedLabel',
 				'lastWeekContribution',
 				'yesterdayContribution',
 				'userReason',
@@ -106,20 +120,16 @@ function allIncluded(outputTarget = 'email') {
 				if (!items.showOpenLabel) {
 					showOpenLabel = false;
 					pr_unmerged_button = '';
-					pr_draft_button = '';
+
 					issue_opened_button = '';
-				}
-				if (!items.showClosedLabel) {
-					showClosedLabel = false;
 					pr_merged_button = '';
-					pr_closed_button = '';
 					issue_closed_button = '';
 				}
 				if (items.lastWeekContribution) {
 					handleLastWeekContributionChange();
 				} else if (items.yesterdayContribution) {
 					handleYesterdayContributionChange();
-				} else if (items.startingDate && items.endingDate) {
+				} else if (items.startDate && items.endingDate) {
 					startingDate = items.startingDate;
 					endingDate = items.endingDate;
 				} else {
@@ -128,6 +138,7 @@ function allIncluded(outputTarget = 'email') {
 						chrome.storage.local.set({ lastWeekContribution: true, yesterdayContribution: false });
 					}
 				}
+
 
 				if (githubUsername) {
 					console.log("About to fetch GitHub data for:", githubUsername);
@@ -153,7 +164,14 @@ function allIncluded(outputTarget = 'email') {
 					return;
 				}
 				if (items.cacheInput) {
+
 					cacheInputValue = items.cacheInput;
+				}
+
+				if (!items.showOpenLabel) {
+					showOpenLabel = false;
+					pr_open_button = '';
+					issue_opened_button = '';
 				}
 
 				if (items.userReason) {
@@ -231,18 +249,6 @@ function allIncluded(outputTarget = 'email') {
 		return WeekDisplayPadded;
 	}
 
-
-	const DEBUG = true;
-	function log(...args) {
-		if (DEBUG) {
-			console.log(`[SCRUM-HELPER]:`, ...args);
-		}
-	}
-	function logError(...args) {
-		if (DEBUG) {
-			console.error('[SCRUM-HELPER]:', ...args);
-		}
-	}
 	// Global cache object
 	let githubCache = {
 		data: null,
@@ -476,7 +482,9 @@ function allIncluded(outputTarget = 'email') {
 
 			if (outputTarget === 'popup') {
 				const generateBtn = document.getElementById('generateReport');
+
 				const scrumReport = document.getElementById('scrumReport');
+
 				if (scrumReport) {
 					let errorMsg = 'An error occurred while generating the report.';
 					if (err) {
@@ -484,7 +492,11 @@ function allIncluded(outputTarget = 'email') {
 						else if (err.message) errorMsg = err.message;
 						else errorMsg = JSON.stringify(err)
 					}
-					scrumReport.innerHTML = `<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">${errorMsg}</div>`;
+
+					scrumReport.innerHTML = `<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">${err.message || 'An error occurred while generating the report.'}</div>`;
+					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+					generateBtn.disabled = false;
+
 				}
 				if (generateBtn) {
 					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
@@ -953,7 +965,9 @@ ${userReason}`;
 				if (isDraft) {
 					li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_draft_button}</li>`;
 				} else if (item.state === 'open') {
-					li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_unmerged_button}</li>`;
+
+					li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_open_button}</li>`;
+
 				} else if (item.state === 'closed') {
 					let merged = null;
 					if ((githubToken || (useMergedStatus && !fallbackToSimple)) && mergedStatusResults) {
@@ -1098,6 +1112,7 @@ ${userReason}`;
 	}
 }
 
+
 if (window.location.protocol.startsWith('http')) {
 	allIncluded('email');
 	$('button>span:contains(New conversation)').parent('button').click(() => {
@@ -1119,6 +1134,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 		return true;
 	}
 });
+
 
 async function fetchPrsMergedStatusBatch(prs, headers) {
 	// prs: Array of {owner, repo, number}
@@ -1149,4 +1165,7 @@ ${prs.map((pr, i) => `	repo${i}: repository(owner: \"${pr.owner}\", name: \"${pr
 	} catch (e) {
 		return results;
 	}
+
 }
+
+
