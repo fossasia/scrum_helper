@@ -566,16 +566,10 @@ function allIncluded(outputTarget = 'email') {
 		// For popup context, immediately process the data
 		if (outputTarget === 'popup') {
 			log('Processing data for popup context');
-			if (githubIssuesData) {
-				log('Calling writeGithubIssuesPrs');
-				writeGithubIssuesPrs();
-			} else {
+			if (!githubIssuesData) {
 				logError('No githubIssuesData available for popup processing');
 			}
-			if (githubPrsReviewData) {
-				log('Calling writeGithubPrsReviews');
-				writeGithubPrsReviews();
-			} else {
+			if (!githubPrsReviewData) {
 				logError('No githubPrsReviewData available for popup processing');
 			}
 		} else {
