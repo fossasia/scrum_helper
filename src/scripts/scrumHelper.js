@@ -813,7 +813,10 @@ ${userReason}`;
         }
 
         prsReviewDataProcessed = true;
-        // triggerScrumGeneration();
+		if(outputTarget === 'email'){
+			triggerScrumGeneration();
+		}
+
     }
 
     function triggerScrumGeneration() {
@@ -992,7 +995,9 @@ ${userReason}`;
             lastWeekArray.push(li);
         }
         issuesDataProcessed = true;
-        // triggerScrumGeneration();
+		if(outputTarget === 'email'){
+			triggerScrumGeneration();
+		}
     }
 
     let intervalBody = setInterval(() => {
@@ -1026,33 +1031,27 @@ ${userReason}`;
         }, 500);
     }, 500);
 
-    //check for github safe writing
-    // let intervalWriteGithubIssues = setInterval(() => {
-    //     if (outputTarget === 'popup') {
-    //         if (githubUsername && githubIssuesData) {
-    //             clearInterval(intervalWriteGithubIssues);
-    //             writeGithubIssuesPrs();
-    //         }
-    //     } else {
-    //         if (scrumBody && githubUsername && githubIssuesData) {
-    //             clearInterval(intervalWriteGithubIssues);
-    //             writeGithubIssuesPrs();
-    //         }
-    //     }
-    // }, 500);
-    // let intervalWriteGithubPrs = setInterval(() => {
-    //     if (outputTarget === 'popup') {
-    //         if (githubUsername && githubPrsReviewData) {
-    //             clearInterval(intervalWriteGithubPrs);
-    //             writeGithubPrsReviews();
-    //         }
-    //     } else {
-    //         if (scrumBody && githubUsername && githubPrsReviewData) {
-    //             clearInterval(intervalWriteGithubPrs);
-    //             writeGithubPrsReviews();
-    //         }
-    //     }
-    // }, 500);
+    // check for github safe writing
+    let intervalWriteGithubIssues = setInterval(() => {
+        if (outputTarget === 'popup') {
+            return;
+        } else {
+            if (scrumBody && githubUsername && githubIssuesData) {
+                clearInterval(intervalWriteGithubIssues);
+                writeGithubIssuesPrs();
+            }
+        }
+    }, 500);
+    let intervalWriteGithubPrs = setInterval(() => {
+        if (outputTarget === 'popup') {
+            return;
+        } else {
+            if (scrumBody && githubUsername && githubPrsReviewData) {
+                clearInterval(intervalWriteGithubPrs);
+                writeGithubPrsReviews();
+            }
+        }
+    }, 500);
     if (!refreshButton_Placed) {
         let intervalWriteButton = setInterval(() => {
             if (document.getElementsByClassName('F0XO1GC-x-b').length == 3 && scrumBody && enableToggle) {
