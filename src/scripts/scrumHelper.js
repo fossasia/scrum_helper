@@ -904,6 +904,7 @@ ${userReason}`;
 				isDraft = item.draft;
 			}
 			if (item.pull_request) {
+				// Only add PRs, skip issue logic
 				if (isDraft) {
 					li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_draft_button}</li>`;
 				} else if (item.state === 'open') {
@@ -924,42 +925,44 @@ ${userReason}`;
 					}
 				}
 				lastWeekArray.push(li);
-				continue; // Prevent issue logic from overwriting PR li
+				continue; // Prevent issue logic from running for PRs
 			}
 			// Only process as issue if not a PR
-			if (item.state === 'open' && item.body?.toUpperCase().indexOf('YES') > 0) {
-				let li2 =
-					'<li><i>(' +
-					project +
-					')</i> - Work on Issue(#' +
-					number +
-					") - <a href='" +
-					html_url +
-					"' target='_blank'>" +
-					title +
-					'</a> ' +
-					issue_opened_button +
-					'&nbsp;&nbsp;</li>';
-				nextWeekArray.push(li2);
+			if (!item.pull_request) {
+				if (item.state === 'open' && item.body?.toUpperCase().indexOf('YES') > 0) {
+					let li2 =
+						'<li><i>(' +
+						project +
+						')</i> - Work on Issue(#' +
+						number +
+						") - <a href='" +
+						html_url +
+						"' target='_blank'>" +
+						title +
+						'</a> ' +
+						issue_opened_button +
+						'&nbsp;&nbsp;</li>';
+					nextWeekArray.push(li2);
+				}
+				if (item.state === 'open') {
+					li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_opened_button}</li>`;
+				} else if (item.state === 'closed') {
+					// Always show closed label for closed issues
+					li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_button}</li>`;
+				} else {
+					li =
+						'<li><i>(' +
+						project +
+						')</i> - Opened Issue(#' +
+						number +
+						") - <a href='" +
+						html_url +
+						"' target='_blank'>" +
+						title +
+						'</a> </li>';
+				}
+				lastWeekArray.push(li);
 			}
-			if (item.state === 'open') {
-				li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_opened_button}</li>`;
-			} else if (item.state === 'closed') {
-				// Always show closed label for closed issues
-				li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_button}</li>`;
-			} else {
-				li =
-					'<li><i>(' +
-					project +
-					')</i> - Opened Issue(#' +
-					number +
-					") - <a href='" +
-					html_url +
-					"' target='_blank'>" +
-					title +
-					'</a> </li>';
-			}
-			lastWeekArray.push(li);
 		}
 		issuesDataProcessed = true;
 		triggerScrumGeneration();
