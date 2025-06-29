@@ -1,4 +1,4 @@
-const DEBUG = false;
+const DEBUG = true;
 function log(...args) {
 	if (DEBUG) {
 		console.log(`[SCRUM-HELPER]:`, ...args);
@@ -596,6 +596,9 @@ function allIncluded(outputTarget = 'email') {
         reviewedPrsArray = [];
         githubPrsReviewDataProcessed = {};
 
+		issuesDataProcessed=false;
+		prsReviewDataProcessed = false;
+
         // Update subject
         if (!githubCache.subject && scrumSubject) {
             scrumSubjectLoaded();
@@ -604,6 +607,8 @@ function allIncluded(outputTarget = 'email') {
 			writeGithubIssuesPrs(),
 			writeGithubPrsReviews(),
 		])
+		log('Both data processing functions completed, generating scrum body');
+		writeScrumBody();
     }
 
     function formatDate(dateString) {
@@ -808,7 +813,7 @@ ${userReason}`;
         }
 
         prsReviewDataProcessed = true;
-        triggerScrumGeneration();
+        // triggerScrumGeneration();
     }
 
     function triggerScrumGeneration() {
@@ -987,7 +992,7 @@ ${userReason}`;
             lastWeekArray.push(li);
         }
         issuesDataProcessed = true;
-        triggerScrumGeneration();
+        // triggerScrumGeneration();
     }
 
     let intervalBody = setInterval(() => {
@@ -1022,32 +1027,32 @@ ${userReason}`;
     }, 500);
 
     //check for github safe writing
-    let intervalWriteGithubIssues = setInterval(() => {
-        if (outputTarget === 'popup') {
-            if (githubUsername && githubIssuesData) {
-                clearInterval(intervalWriteGithubIssues);
-                writeGithubIssuesPrs();
-            }
-        } else {
-            if (scrumBody && githubUsername && githubIssuesData) {
-                clearInterval(intervalWriteGithubIssues);
-                writeGithubIssuesPrs();
-            }
-        }
-    }, 500);
-    let intervalWriteGithubPrs = setInterval(() => {
-        if (outputTarget === 'popup') {
-            if (githubUsername && githubPrsReviewData) {
-                clearInterval(intervalWriteGithubPrs);
-                writeGithubPrsReviews();
-            }
-        } else {
-            if (scrumBody && githubUsername && githubPrsReviewData) {
-                clearInterval(intervalWriteGithubPrs);
-                writeGithubPrsReviews();
-            }
-        }
-    }, 500);
+    // let intervalWriteGithubIssues = setInterval(() => {
+    //     if (outputTarget === 'popup') {
+    //         if (githubUsername && githubIssuesData) {
+    //             clearInterval(intervalWriteGithubIssues);
+    //             writeGithubIssuesPrs();
+    //         }
+    //     } else {
+    //         if (scrumBody && githubUsername && githubIssuesData) {
+    //             clearInterval(intervalWriteGithubIssues);
+    //             writeGithubIssuesPrs();
+    //         }
+    //     }
+    // }, 500);
+    // let intervalWriteGithubPrs = setInterval(() => {
+    //     if (outputTarget === 'popup') {
+    //         if (githubUsername && githubPrsReviewData) {
+    //             clearInterval(intervalWriteGithubPrs);
+    //             writeGithubPrsReviews();
+    //         }
+    //     } else {
+    //         if (scrumBody && githubUsername && githubPrsReviewData) {
+    //             clearInterval(intervalWriteGithubPrs);
+    //             writeGithubPrsReviews();
+    //         }
+    //     }
+    // }, 500);
     if (!refreshButton_Placed) {
         let intervalWriteButton = setInterval(() => {
             if (document.getElementsByClassName('F0XO1GC-x-b').length == 3 && scrumBody && enableToggle) {
