@@ -43,7 +43,6 @@ function allIncluded(outputTarget = 'email') {
     let prsReviewDataProcessed = false;
     let showOpenLabel = true;
     let showCommits = false;
-	  let numCommits = 5; //default
     let userReason = '';
 
     let pr_open_button =
@@ -78,7 +77,6 @@ function allIncluded(outputTarget = 'email') {
                 'yesterdayContribution',
                 'userReason',
                 'showCommits',
-                'numCommits',
                 'githubCache',
                 'cacheInput',
                 'orgName'
@@ -178,9 +176,6 @@ function allIncluded(outputTarget = 'email') {
 				}
                 if (items.orgName) {
                     orgName = items.orgName;
-                }
-                if(items.numCommits) {
-                  numCommits = items.numCommits;
                 }
             },
         );
@@ -445,11 +440,11 @@ function allIncluded(outputTarget = 'email') {
                 );
                 // Fetch commits for open PRs (batch)
                 if (openPRs.length && githubToken) {
-                    const commitMap = await fetchCommitsForOpenPRs(openPRs, githubToken, numCommits);
+                    const commitMap = await fetchCommitsForOpenPRs(openPRs, githubToken, startingDate, endingDate);
                     // Attach commits to PR objects
                     openPRs.forEach(pr => {
                         pr._allCommits = commitMap[pr.number] || [];
-						pr._lastCommits = pr._allCommits.slice(0, numCommits);
+						pr._lastCommits = pr._allCommits;
                     });
                 }
             }
@@ -496,8 +491,10 @@ function allIncluded(outputTarget = 'email') {
         }
     }
 
-    async function fetchCommitsForOpenPRs(prs, githubToken, numCommits = 5) {
+    async function fetchCommitsForOpenPRs(prs, githubToken, startDate, endDate) {
         if (!prs.length) return {};
+        const since = new Date(startDate).toISOString();
+        const until = new Date(endDate + 'T23:59:59').toISOString();
         let queries = prs.map((pr, idx) => {
             const repoParts = pr.repository_url.split('/');
             const owner = repoParts[repoParts.length - 2];
@@ -505,7 +502,7 @@ function allIncluded(outputTarget = 'email') {
             return `
 					pr${idx}: repository(owner: "${owner}", name: "${repo}") {
 						pullRequest(number: ${pr.number}) {
-							commits(last: ${numCommits}) {
+							commits(first: 100) {
 								nodes {
 									commit {
 										messageHeadline
@@ -537,7 +534,14 @@ function allIncluded(outputTarget = 'email') {
         prs.forEach((pr, idx) => {
             const prData = data.data && data.data[`pr${idx}`] && data.data[`pr${idx}`].pullRequest;
             if (prData && prData.commits && prData.commits.nodes) {
-                commitMap[pr.number] = prData.commits.nodes.map(n => n.commit);
+                const allCommits = prData.commits.nodes.map(n => n.commit);
+                const filteredCommits = allCommits.filter(commit => {
+                    const commitDate = new Date(commit.committedDate);
+                    const sinceDate = new Date(since);
+                    const untilDate = new Date(until);
+                    return commitDate >= sinceDate && commitDate <= untilDate;
+                });
+                commitMap[pr.number] = filteredCommits;
             }
         });
         return commitMap;
@@ -935,7 +939,6 @@ ${userReason}`;
                 } else if (item.state === 'open') {
                     li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_open_button}`;
                     if (showCommits && item._lastCommits && item._lastCommits.length) {
-						item._lastCommits = item._allCommits.slice(0, numCommits);
                         item._lastCommits.forEach(commit => {
                             li += `<li style="list-style: disc; margin: 0 0 0 20px; padding: 0; color: #666;"><span style="color:#2563eb;">${commit.messageHeadline}</span><span style="color:#666; font-size: 11px;"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
                         });
