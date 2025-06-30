@@ -122,7 +122,7 @@ function allIncluded(outputTarget = 'email') {
 					handleLastWeekContributionChange();
 				} else if (items.yesterdayContribution) {
 					handleYesterdayContributionChange();
-				} else if (items.startDate && items.endingDate) {
+				} else if (items.startingDate && items.endingDate) {
 					startingDate = items.startingDate;
 					endingDate = items.endingDate;
 				} else {
