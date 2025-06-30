@@ -200,8 +200,32 @@ function allIncluded(outputTarget = 'email') {
 					}
 				}
 
+				// Always read orgName fresh from storage
+				if (items.orgName) {
+					orgName = items.orgName;
+				} else {
+					orgName = 'fossasia'; // fallback default
+				}
+
+				// Defensive check for orgName
+				if (!orgName || typeof orgName !== 'string' || orgName.trim() === '') {
+					if (outputTarget === 'popup') {
+						const scrumReport = document.getElementById('scrumReport');
+						const generateBtn = document.getElementById('generateReport');
+						if (scrumReport) {
+							scrumReport.innerHTML = '<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">Please set a valid organization before generating a report.</div>';
+						}
+						if (generateBtn) {
+							generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+							generateBtn.disabled = false;
+						}
+						scrumGenerationInProgress = false;
+					}
+					return;
+				}
+
 				if (githubUsername) {
-					console.log("About to fetch GitHub data for:", githubUsername);
+					console.log("About to fetch GitHub data for:", githubUsername, "in org:", orgName);
 					fetchGithubData();
 				} else {
 					if (outputTarget === 'popup') {
@@ -244,9 +268,6 @@ function allIncluded(outputTarget = 'email') {
 					githubCache.cacheKey = items.githubCache.cacheKey;
 					githubCache.timestamp = items.githubCache.timestamp;
 					log('Restored cache from storage');
-				}
-				if (items.orgName) {
-					orgName = items.orgName;
 				}
 			},
 		);
@@ -488,10 +509,6 @@ function allIncluded(outputTarget = 'email') {
 			await saveToStorage(githubCache.data);
 			processGithubData(githubCache.data);
 
-			if (outputTarget === 'popup') {
-				resetReportState(true, 'popup');
-			}
-
 			// Resolve queued calls
 			githubCache.queue.forEach(({ resolve }) => resolve());
 			githubCache.queue = [];
@@ -575,9 +592,6 @@ function allIncluded(outputTarget = 'email') {
 			prs: githubPrsReviewData?.items?.length || 0,
 			user: githubUserData?.login
 		});
-
-		// Reset data arrays and processing state
-		resetReportState(false);
 
 		// Update subject
 		if (!githubCache.subject && scrumSubject) {
@@ -1050,6 +1064,7 @@ ${userReason}`;
 		}, 1000);
 	}
 	function handleRefresh() {
+		hasInjectedContent = false;
 		resetReportState(false, 'email');
 		allIncluded();
 	}

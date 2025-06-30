@@ -399,7 +399,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
             // Valid org: update storage and fetch data
             await new Promise((resolve) => {
-                chrome.storage.local.set({ orgName: org, githubCache: null }, resolve);
+                chrome.storage.local.set({ orgName: org || 'fossasia', githubCache: null }, resolve);
             });
 
             // Show success state
