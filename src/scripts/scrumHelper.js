@@ -444,7 +444,6 @@ function allIncluded(outputTarget = 'email') {
                     // Attach commits to PR objects
                     openPRs.forEach(pr => {
                         pr._allCommits = commitMap[pr.number] || [];
-						pr._lastCommits = pr._allCommits;
                     });
                 }
             }
@@ -934,12 +933,27 @@ ${userReason}`;
             }
 
             if (item.pull_request) {
+
+                const prCreatedDate = new Date(item.created_at);
+                const startDate = new Date(startingDate);
+                const endDate = new Date(endingDate + 'T23:59:59');
+                const isNewPR = prCreatedDate >= startDate && prCreatedDate <= endDate;
+
+                if(!isNewPR) {
+                    const hasCommitsInRange = showCommits && item._allCommits && item._allCommits.length > 0;
+                    if(!hasCommitsInRange) {
+                        continue; //skip these prs - created outside daterange with no commits
+                    }
+                }
+
+                const prAction = isNewPR ? 'Made PR' : 'Existing PR';
+
                 if (isDraft) {
-                  li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_draft_button}</li>`;
+                  li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a> ${pr_draft_button}</li>`;
                 } else if (item.state === 'open') {
-                    li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_open_button}`;
-                    if (showCommits && item._lastCommits && item._lastCommits.length) {
-                        item._lastCommits.forEach(commit => {
+                    li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a> ${pr_open_button}`;
+                    if (showCommits && item._allCommits && item._allCommits.length) {
+                        item._allCommits.forEach(commit => {
                             li += `<li style="list-style: disc; margin: 0 0 0 20px; padding: 0; color: #666;"><span style="color:#2563eb;">${commit.messageHeadline}</span><span style="color:#666; font-size: 11px;"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
                         });
                     }
@@ -960,7 +974,7 @@ ${userReason}`;
                     }
                 } 
               lastWeekArray.push(li);
-				continue; // Prevent issue logic from overwriting PR li
+				continue;
             } else {
                 // is a issue
                 if (item.state === 'open' && item.body?.toUpperCase().indexOf('YES') > 0) {
