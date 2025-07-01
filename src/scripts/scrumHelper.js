@@ -1166,7 +1166,7 @@ async function fetchUserRepositories(username, token, org = 'fossasia') {
 			if(storageData.lastWeekContribution) {
 				const today = new Date();
 				const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
-				startDate = lastWeek.toString().split('T')[0];
+				startDate = lastWeek.toISOString().split('T')[0];
 				endDate = today.toISOString().split('T')[0];
 			} else if(storageData.yesterdayContribution) {
 				const today = new Date();
@@ -1179,12 +1179,12 @@ async function fetchUserRepositories(username, token, org = 'fossasia') {
 			} else {
 				const today = new Date();
 				const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
-				startDate = lastWeek.toString().split('T')[0];
+				startDate = lastWeek.toISOString().split('T')[0];
 				endDate = today.toISOString().split('T')[0];
 			}
 
 			dateRange = `+created:${startDate}..${endDate}`;
-			console.log(`Usinf date range for repo search: ${startDate} to ${endDate}`);
+			console.log(`Using date range for repo search: ${startDate} to ${endDate}`);
 		} catch(err) {
 			console.warn('Could not determine date range, using last 30 days:', err);
 			const today = new Date();
