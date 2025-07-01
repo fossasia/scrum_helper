@@ -404,6 +404,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 console.log('[Org Check] Organization exists on GitHub:', org);
                 chrome.storage.local.set({ orgName: org }, function () {
                     if (window.generateScrumReport) window.generateScrumReport();
+                        // Trigger repo fetch if filter is enabled
+                    triggerRepoFetchIfEnabled();
                 });
             })
             .catch((err) => {
@@ -870,9 +872,9 @@ document.getElementById('refreshCache').addEventListener('click', async function
     button.disabled = true;
 
     try {
-        // Clear local cache
+        // Clear both caches
         await new Promise(resolve => {
-            chrome.storage.local.remove('githubCache', resolve);
+            chrome.storage.local.remove(['githubCache', 'repoCache'], resolve);
         });
 
         // Clear the scrum report
@@ -893,6 +895,9 @@ document.getElementById('refreshCache').addEventListener('click', async function
         button.innerHTML = '<i class="fa fa-check"></i><span>Cache Cleared!</span>';
         button.classList.remove('loading');
 
+        // Trigger repo fetch if filter is enabled
+        setTimeout(() => triggerRepoFetchIfEnabled(), 500);
+
         setTimeout(() => {
             button.innerHTML = originalText;
             button.disabled = false;
@@ -910,6 +915,186 @@ document.getElementById('refreshCache').addEventListener('click', async function
     }
 });
 
+// Helper function to trigger repo fetch if filter is enabled
+async function triggerRepoFetchIfEnabled() {
+    const useRepoFilter = document.getElementById('useRepoFilter');
+    if (!useRepoFilter || !useRepoFilter.checked) {
+        return;
+    }
+
+    const repoStatus = document.getElementById('repoStatus');
+    if (repoStatus) {
+        repoStatus.textContent = 'Refetching repositories...';
+    }
+
+    try {
+        const items = await new Promise(resolve => {
+            chrome.storage.local.get(['githubUsername', 'githubToken', 'orgName'], resolve);
+        });
+
+        if (!items.githubUsername) {
+            if (repoStatus) {
+                repoStatus.textContent = 'GitHub username required';
+            }
+            return;
+        }
+
+        if (window.fetchUserRepositories) {
+            const repos = await window.fetchUserRepositories(
+                items.githubUsername,
+                items.githubToken,
+                items.orgName || 'fossasia'
+            );
+            
+            if (typeof availableRepos !== 'undefined') {
+                availableRepos = repos;
+            }
+            
+            if (repoStatus) {
+                repoStatus.textContent = `${repos.length} repositories loaded`;
+            }
+
+            // Cache the results
+            const repoCacheKey = `repos-${items.githubUsername}-${items.orgName || 'fossasia'}`;
+            chrome.storage.local.set({
+                repoCache: {
+                    data: repos,
+                    cacheKey: repoCacheKey,
+                    timestamp: Date.now()
+                }
+            });
+        }
+    } catch (err) {
+        console.error('Auto refetch failed:', err);
+        if (repoStatus) {
+            repoStatus.textContent = `Error: ${err.message || 'Failed to refetch repos'}`;
+        }
+    }
+}
+
+// Update the org input handler to trigger repo fetch
+const handleOrgInput = debounce(function () {
+    let org = orgInput.value.trim().toLowerCase();
+    if (!org) {
+        org = 'fossasia';
+    }
+    console.log('[Org Check] Checking organization:', org);
+    fetch(`https://api.github.com/orgs/${org}`)
+        .then(res => {
+            console.log('[Org Check] Response status for', org, ':', res.status);
+            if (res.status === 404) {
+                console.log('[Org Check] Organization not found on GitHub:', org);
+                const oldToast = document.getElementById('invalid-org-toast');
+                if (oldToast) oldToast.parentNode.removeChild(oldToast);
+                const toastDiv = document.createElement('div');
+                toastDiv.id = 'invalid-org-toast';
+                toastDiv.className = 'toast';
+                toastDiv.style.background = '#dc2626';
+                toastDiv.style.color = '#fff';
+                toastDiv.style.fontWeight = 'bold';
+                toastDiv.style.padding = '12px 24px';
+                toastDiv.style.borderRadius = '8px';
+                toastDiv.style.position = 'fixed';
+                toastDiv.style.top = '24px';
+                toastDiv.style.left = '50%';
+                toastDiv.style.transform = 'translateX(-50%)';
+                toastDiv.style.zIndex = '9999';
+                toastDiv.innerText = 'Organization not found on GitHub.';
+                document.body.appendChild(toastDiv);
+                setTimeout(() => {
+                    if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
+                }, 3000);
+                return;
+            }
+            const oldToast = document.getElementById('invalid-org-toast');
+            if (oldToast) oldToast.parentNode.removeChild(oldToast);
+            console.log('[Org Check] Organisation exists on GitHub:', org);
+            console.log('[Org Check] Organization exists on GitHub:', org);
+            chrome.storage.local.set({ orgName: org }, function () {
+                if (window.generateScrumReport) window.generateScrumReport();
+                // Trigger repo fetch if filter is enabled
+                triggerRepoFetchIfEnabled();
+            });
+        })
+        .catch((err) => {
+            console.log('[Org Check] Error validating organisation:', org, err);
+            const oldToast = document.getElementById('invalid-org-toast');
+            if (oldToast) oldToast.parentNode.removeChild(oldToast);
+            const toastDiv = document.createElement('div');
+            toastDiv.id = 'invalid-org-toast';
+            toastDiv.className = 'toast';
+            toastDiv.style.background = '#dc2626';
+            toastDiv.style.color = '#fff';
+            toastDiv.style.fontWeight = 'bold';
+            toastDiv.style.padding = '12px 24px';
+            toastDiv.style.borderRadius = '8px';
+            toastDiv.style.position = 'fixed';
+            toastDiv.style.top = '24px';
+            toastDiv.style.left = '50%';
+            toastDiv.style.transform = 'translateX(-50%)';
+            toastDiv.style.zIndex = '9999';
+            toastDiv.innerText = 'Error validating organization.';
+            document.body.appendChild(toastDiv);
+            setTimeout(() => {
+                if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
+            }, 3000);
+        });
+}, 3000);
+
+// Update the refresh cache button to trigger repo fetch
+document.getElementById('refreshCache').addEventListener('click', async function () {
+    const button = this;
+    const originalText = button.innerHTML;
+
+    button.classList.add('loading');
+    button.innerHTML = '<i class="fa fa-refresh fa-spin"></i><span>Refreshing...</span>';
+    button.disabled = true;
+
+    try {
+        // Clear both caches
+        await new Promise(resolve => {
+            chrome.storage.local.remove(['githubCache', 'repoCache'], resolve);
+        });
+
+        // Clear the scrum report
+        const scrumReport = document.getElementById('scrumReport');
+        if (scrumReport) {
+            scrumReport.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Cache cleared successfully. Click "Generate Report" to fetch fresh data.</p>';
+        }
+
+        if(typeof availableRepos !== 'undefined'){
+            availableRepos = [];
+        }
+
+        const repoStatus = document.getElementById('repoStatus');
+        if(repoStatus){
+            repoStatus.textContent = '';
+        }
+
+        button.innerHTML = '<i class="fa fa-check"></i><span>Cache Cleared!</span>';
+        button.classList.remove('loading');
+
+        // Trigger repo fetch if filter is enabled
+        setTimeout(() => triggerRepoFetchIfEnabled(), 500);
+
+        setTimeout(() => {
+            button.innerHTML = originalText;
+            button.disabled = false;
+        }, 2000);
+
+    } catch (error) {
+        console.error('Cache clear failed:', error);
+        button.innerHTML = '<i class="fa fa-exclamation-triangle"></i><span>Failed to clear cache</span>';
+        button.classList.remove('loading');
+
+        setTimeout(() => {
+            button.innerHTML = originalText;
+            button.disabled = false;
+        }, 3000);
+    }
+});
+
+// Update the toggleRadio function to trigger repo fetch
 function toggleRadio(radio) {
     const startDateInput = document.getElementById('startingDate');
     const endDateInput = document.getElementById('endingDate');
@@ -939,36 +1124,8 @@ function toggleRadio(radio) {
             end: endDateInput.value,
             isLastWeek: radio.id === 'lastWeekContribution'
         });
+        
+        // Trigger repo fetch if filter is enabled
+        triggerRepoFetchIfEnabled();
     });
-}
-
-let cacheInput = document.getElementById('cacheInput');
-if (cacheInput) {
-    chrome.storage.local.get(['cacheInput'], function (result) {
-        if (result.cacheInput) {
-            cacheInput.value = result.cacheInput;
-        } else {
-            cacheInput.value = 10;
-        }
-    });
-
-    cacheInput.addEventListener('blur', function () {
-        let ttlValue = parseInt(this.value);
-        if (isNaN(ttlValue) || ttlValue <= 0 || this.value.trim() === '') {
-            ttlValue = 10;
-            this.value = ttlValue;
-            this.style.borderColor = '#ef4444';
-        } else if (ttlValue > 1440) {
-            ttlValue = 1440;
-            this.value = ttlValue;
-            this.style.borderColor = '#f59e0b';
-        } else {
-            this.style.borderColor = '#10b981';
-        }
-
-        chrome.storage.local.set({ cacheInput: ttlValue }, function () {
-            console.log('Cache TTL saved:', ttlValue, 'minutes');
-        });
-    });
-
 }
