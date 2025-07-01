@@ -881,6 +881,15 @@ document.getElementById('refreshCache').addEventListener('click', async function
             scrumReport.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Cache cleared successfully. Click "Generate Report" to fetch fresh data.</p>';
         }
 
+        if(typeof availableRepos !== 'undefined'){
+            availableRepos = [];
+        }
+
+        const repoStatus = document.getElementById('repoStatus');
+        if(repoStatus){
+            repoStatus.textContent = '';
+        }
+
         button.innerHTML = '<i class="fa fa-check"></i><span>Cache Cleared!</span>';
         button.classList.remove('loading');
 
