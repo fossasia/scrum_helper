@@ -478,6 +478,9 @@ document.addEventListener('DOMContentLoaded', function () {
                repoStatus.textContent = 'Loading repos automatically..';
 
                try{
+                const cacheData = await new Promise(resolve => {
+                    chrome.storage.local.get(['repoCache'], resolve);
+                });
                 const items = await new Promise(resolve => {
                     chrome.storage.local.get(['githubUsername', 'githubToken', 'orgName'], resolve);
                 });
@@ -486,6 +489,28 @@ document.addEventListener('DOMContentLoaded', function () {
                     repoStatus.textContent = 'Github Username required';
                     return;
                 }
+
+                // Create cache key for repos
+                const repoCacheKey = `repos-${items.githubUsername}-${items.orgName || 'fossasia'}`;
+                const now = Date.now();
+                const cacheAge = cacheData.repoCache?.timestamp ? now - cacheData.repoCache.timestamp : Infinity;
+                const cacheTTL = 10 * 60 * 1000; // 10 minutes in milliseconds
+                
+                // Check if cache is valid
+                if (cacheData.repoCache && 
+                    cacheData.repoCache.cacheKey === repoCacheKey && 
+                    cacheAge < cacheTTL) {
+                    
+                    console.log('Using cached repositories');
+                    availableRepos = cacheData.repoCache.data;
+                    repoStatus.textContent = `${availableRepos.length} repositories loaded (cached)`;
+                    
+                    if(document.activeElement === repoSearch){
+                        filterAndDisplayRepos(repoSearch.value.toLowerCase());
+                    }
+                    return;
+                }
+
                 if(window.fetchUserRepositories){
                     const repos = await window.fetchUserRepositories(
                         items.githubUsername,
@@ -602,9 +627,31 @@ document.addEventListener('DOMContentLoaded', function () {
             repoSearch.classList.add('repository-search-loading');
 
             try {
+                const cacheData = await new Promise(resolve => {
+                    chrome.storage.local.get(['repoCache'], resolve);
+                });
                 const storageItems = await new Promise( resolve => {
                     chrome.storage.local.get(['githubUsername', 'githubToken', 'orgName'], resolve);
                 })
+                const repoCacheKey = `repos-${storageItems.githubUsername}-${storageItems.orgName || 'fossasia'}`;
+                const now = Date.now();
+                const cacheAge = cacheData.repoCache?.timestamp ? now - cacheData.repoCache.timestamp : Infinity;
+                const cacheTTL = 10 * 60 * 1000; // 10 minutes
+
+                 // Use cache if valid
+                if (cacheData.repoCache && 
+                    cacheData.repoCache.cacheKey === repoCacheKey && 
+                    cacheAge < cacheTTL) {
+                    
+                    console.log('Using cached repositories in manual fetch');
+                    availableRepos = cacheData.repoCache.data;
+                    repoStatus.textContent = `${availableRepos.length} repositories loaded (cached)`;
+                    
+                    if(document.activeElement === repoSearch){
+                        filterAndDisplayRepos(repoSearch.value.toLowerCase());
+                    }
+                    return;
+                }
                 // Pass the parameters explicitly
                 availableRepos = await window.fetchUserRepositories(
                     storageItems.githubUsername, 
@@ -612,6 +659,15 @@ document.addEventListener('DOMContentLoaded', function () {
                     storageItems.orgName || 'fossasia'
                 );
                 repoStatus.textContent = `${availableRepos.length} repositories loaded`;
+
+                 // Cache the results
+                chrome.storage.local.set({
+                    repoCache: {
+                        data: availableRepos,
+                        cacheKey: repoCacheKey,
+                        timestamp: now
+                    }
+                });
 
                 if(document.activeElement === repoSearch){
                     filterAndDisplayRepos(repoSearch.value.toLowerCase());
