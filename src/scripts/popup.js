@@ -349,12 +349,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
     showReportView();
 
-    // Load org from storage or default
     chrome.storage.local.get(['orgName'], function (result) {
         orgInput.value = result.orgName || '';
     });
 
-    // Debounce function
     function debounce(func, wait) {
         let timeout;
         return function (...args) {
@@ -364,7 +362,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     let lastInvalidOrg = '';
-    // Validate and set org as user types
     const handleOrgInput = debounce(function () {
         let org = orgInput.value.trim().toLowerCase();
         if (!org) {
@@ -404,7 +401,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 console.log('[Org Check] Organization exists on GitHub:', org);
                 chrome.storage.local.set({ orgName: org }, function () {
                     if (window.generateScrumReport) window.generateScrumReport();
-                        // Trigger repo fetch if filter is enabled
                     triggerRepoFetchIfEnabled();
                 });
             })
@@ -450,11 +446,70 @@ document.addEventListener('DOMContentLoaded', function () {
         console.log('Repository, filter elements not found in DOM');
     }
     else {
-
-        
         let availableRepos = [];
         let selectedRepos = [];
         let highlightedIndex = -1;
+
+        async function triggerRepoFetchIfEnabled() {
+            if (!useRepoFilter.checked) {
+                return;
+            }
+
+            if (repoStatus) {
+                repoStatus.textContent = 'Refetching repositories...';
+            }
+
+            try {
+                const items = await new Promise(resolve => {
+                    chrome.storage.local.get(['githubUsername', 'githubToken', 'orgName'], resolve);
+                });
+
+                if (!items.githubUsername) {
+                    if (repoStatus) {
+                        repoStatus.textContent = 'GitHub username required';
+                    }
+                    return;
+                }
+
+                if (window.fetchUserRepositories) {
+                    const repos = await window.fetchUserRepositories(
+                        items.githubUsername,
+                        items.githubToken,
+                        items.orgName || 'fossasia'
+                    );
+                    
+                    availableRepos = repos;
+                    
+                    if (repoStatus) {
+                        repoStatus.textContent = `${repos.length} repositories loaded`;
+                    }
+
+                    const repoCacheKey = `repos-${items.githubUsername}-${items.orgName || 'fossasia'}`;
+                    chrome.storage.local.set({
+                        repoCache: {
+                            data: repos,
+                            cacheKey: repoCacheKey,
+                            timestamp: Date.now()
+                        }
+                    });
+
+                    if (document.activeElement === repoSearch) {
+                        filterAndDisplayRepos(repoSearch.value.toLowerCase());
+                    } else if (repoSearch.value) {
+                        filterAndDisplayRepos(repoSearch.value.toLowerCase());
+                    } else {
+                        filterAndDisplayRepos('');
+                    }
+                }
+            } catch (err) {
+                console.error('Auto refetch failed:', err);
+                if (repoStatus) {
+                    repoStatus.textContent = `Error: ${err.message || 'Failed to refetch repos'}`;
+                }
+            }
+        }
+
+        window.triggerRepoFetchIfEnabled = triggerRepoFetchIfEnabled;
 
         chrome.storage.local.get(['selectedRepos', 'useRepoFilter'], (items) => {
             if(items.selectedRepos) {
@@ -492,13 +547,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     return;
                 }
 
-                // Create cache key for repos
                 const repoCacheKey = `repos-${items.githubUsername}-${items.orgName || 'fossasia'}`;
                 const now = Date.now();
                 const cacheAge = cacheData.repoCache?.timestamp ? now - cacheData.repoCache.timestamp : Infinity;
-                const cacheTTL = 10 * 60 * 1000; // 10 minutes in milliseconds
+                const cacheTTL = 10 * 60 * 1000; // 10 minutes 
                 
-                // Check if cache is valid
                 if (cacheData.repoCache && 
                     cacheData.repoCache.cacheKey === repoCacheKey && 
                     cacheAge < cacheTTL) {
@@ -607,7 +660,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            // Check if we have the required data
             chrome.storage.local.get(['githubUsername', 'githubToken'], (items) => {
                 console.log('Storage data for repo fetch:', {
                     hasUsername: !!items.githubUsername,
@@ -640,7 +692,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 const cacheAge = cacheData.repoCache?.timestamp ? now - cacheData.repoCache.timestamp : Infinity;
                 const cacheTTL = 10 * 60 * 1000; // 10 minutes
 
-                 // Use cache if valid
                 if (cacheData.repoCache && 
                     cacheData.repoCache.cacheKey === repoCacheKey && 
                     cacheAge < cacheTTL) {
@@ -654,7 +705,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                     return;
                 }
-                // Pass the parameters explicitly
                 availableRepos = await window.fetchUserRepositories(
                     storageItems.githubUsername, 
                     storageItems.githubToken, 
@@ -662,7 +712,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 );
                 repoStatus.textContent = `${availableRepos.length} repositories loaded`;
 
-                 // Cache the results
                 chrome.storage.local.set({
                     repoCache: {
                         data: availableRepos,
@@ -895,7 +944,6 @@ document.getElementById('refreshCache').addEventListener('click', async function
         button.innerHTML = '<i class="fa fa-check"></i><span>Cache Cleared!</span>';
         button.classList.remove('loading');
 
-        // Trigger repo fetch if filter is enabled
         setTimeout(() => triggerRepoFetchIfEnabled(), 500);
 
         setTimeout(() => {
@@ -915,64 +963,6 @@ document.getElementById('refreshCache').addEventListener('click', async function
     }
 });
 
-// Helper function to trigger repo fetch if filter is enabled
-async function triggerRepoFetchIfEnabled() {
-    const useRepoFilter = document.getElementById('useRepoFilter');
-    if (!useRepoFilter || !useRepoFilter.checked) {
-        return;
-    }
-
-    const repoStatus = document.getElementById('repoStatus');
-    if (repoStatus) {
-        repoStatus.textContent = 'Refetching repositories...';
-    }
-
-    try {
-        const items = await new Promise(resolve => {
-            chrome.storage.local.get(['githubUsername', 'githubToken', 'orgName'], resolve);
-        });
-
-        if (!items.githubUsername) {
-            if (repoStatus) {
-                repoStatus.textContent = 'GitHub username required';
-            }
-            return;
-        }
-
-        if (window.fetchUserRepositories) {
-            const repos = await window.fetchUserRepositories(
-                items.githubUsername,
-                items.githubToken,
-                items.orgName || 'fossasia'
-            );
-            
-            if (typeof availableRepos !== 'undefined') {
-                availableRepos = repos;
-            }
-            
-            if (repoStatus) {
-                repoStatus.textContent = `${repos.length} repositories loaded`;
-            }
-
-            // Cache the results
-            const repoCacheKey = `repos-${items.githubUsername}-${items.orgName || 'fossasia'}`;
-            chrome.storage.local.set({
-                repoCache: {
-                    data: repos,
-                    cacheKey: repoCacheKey,
-                    timestamp: Date.now()
-                }
-            });
-        }
-    } catch (err) {
-        console.error('Auto refetch failed:', err);
-        if (repoStatus) {
-            repoStatus.textContent = `Error: ${err.message || 'Failed to refetch repos'}`;
-        }
-    }
-}
-
-// Update the org input handler to trigger repo fetch
 const handleOrgInput = debounce(function () {
     let org = orgInput.value.trim().toLowerCase();
     if (!org) {
@@ -1012,7 +1002,6 @@ const handleOrgInput = debounce(function () {
             console.log('[Org Check] Organization exists on GitHub:', org);
             chrome.storage.local.set({ orgName: org }, function () {
                 if (window.generateScrumReport) window.generateScrumReport();
-                // Trigger repo fetch if filter is enabled
                 triggerRepoFetchIfEnabled();
             });
         })
@@ -1041,7 +1030,6 @@ const handleOrgInput = debounce(function () {
         });
 }, 3000);
 
-// Update the refresh cache button to trigger repo fetch
 document.getElementById('refreshCache').addEventListener('click', async function () {
     const button = this;
     const originalText = button.innerHTML;
@@ -1051,12 +1039,10 @@ document.getElementById('refreshCache').addEventListener('click', async function
     button.disabled = true;
 
     try {
-        // Clear both caches
         await new Promise(resolve => {
             chrome.storage.local.remove(['githubCache', 'repoCache'], resolve);
         });
 
-        // Clear the scrum report
         const scrumReport = document.getElementById('scrumReport');
         if (scrumReport) {
             scrumReport.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Cache cleared successfully. Click "Generate Report" to fetch fresh data.</p>';
@@ -1074,7 +1060,6 @@ document.getElementById('refreshCache').addEventListener('click', async function
         button.innerHTML = '<i class="fa fa-check"></i><span>Cache Cleared!</span>';
         button.classList.remove('loading');
 
-        // Trigger repo fetch if filter is enabled
         setTimeout(() => triggerRepoFetchIfEnabled(), 500);
 
         setTimeout(() => {
@@ -1094,7 +1079,6 @@ document.getElementById('refreshCache').addEventListener('click', async function
     }
 });
 
-// Update the toggleRadio function to trigger repo fetch
 function toggleRadio(radio) {
     const startDateInput = document.getElementById('startingDate');
     const endDateInput = document.getElementById('endingDate');
@@ -1125,7 +1109,12 @@ function toggleRadio(radio) {
             isLastWeek: radio.id === 'lastWeekContribution'
         });
         
-        // Trigger repo fetch if filter is enabled
         triggerRepoFetchIfEnabled();
     });
+}
+
+async function triggerRepoFetchIfEnabled() {
+    if (window.triggerRepoFetchIfEnabled) {
+        await window.triggerRepoFetchIfEnabled();
+    }
 }

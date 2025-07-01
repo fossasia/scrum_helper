@@ -58,9 +58,6 @@ function allIncluded(outputTarget = 'email') {
 	let issue_opened_button =
 		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
 
-
-
-	// let linkStyle = '';
 	function getChromeData() {
 		console.log("Getting Chrome data for context:", outputTarget);
 		chrome.storage.local.get(
@@ -831,17 +828,14 @@ ${userReason}`;
 		}
 	}
 
-	// Helper: calculate days between two yyyy-mm-dd strings
 	function getDaysBetween(start, end) {
 		const d1 = new Date(start);
 		const d2 = new Date(end);
 		return Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24));
 	}
 
-	// Session cache object
 	let sessionMergedStatusCache = {};
 
-	// Helper to fetch PR details for merged status (REST, single PR)
 	async function fetchPrMergedStatusREST(owner, repo, number, headers) {
 		const cacheKey = `${owner}/${repo}#${number}`;
 		if (sessionMergedStatusCache[cacheKey] !== undefined) {
@@ -860,7 +854,6 @@ ${userReason}`;
 		}
 	}
 
-	// Refactor writeGithubIssuesPrs to implement the new logic
 	async function writeGithubIssuesPrs() {
 		let items = githubIssuesData.items;
 		lastWeekArray = [];
@@ -874,14 +867,12 @@ ${userReason}`;
 		let useMergedStatus = false;
 		let fallbackToSimple = false;
 		let daysRange = getDaysBetween(startingDate, endingDate);
-		// For token users, always enable useMergedStatus (no 7-day limit)
 		if (githubToken) {
 			useMergedStatus = true;
 		} else if (daysRange <= 7) {
 			useMergedStatus = true;
 		}
 
-		// Collect PRs to batch fetch merged status
 		let prsToCheck = [];
 		for (let i = 0; i < items.length; i++) {
 			let item = items[i];
@@ -944,7 +935,6 @@ ${userReason}`;
 					if (merged === true) {
 						li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_merged_button}</li>`;
 					} else {
-						// Always show closed label for merged === false or merged === null/undefined
 						li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_closed_button}</li>`;
 					}
 				}
@@ -998,7 +988,6 @@ ${userReason}`;
 
 		clearInterval(intervalBody);
 		scrumBody = elements.body;
-		// writeScrumBody(); // This call is premature and causes the issue.
 	}, 500);
 
 	let intervalSubject = setInterval(() => {
@@ -1077,8 +1066,6 @@ ${userReason}`;
 	}
 }
 
-// allIncluded('email');
-
 if (window.location.protocol.startsWith('http')) {
 	allIncluded('email');
 	$('button>span:contains(New conversation)').parent('button').click(() => {
@@ -1103,10 +1090,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 
 async function fetchPrsMergedStatusBatch(prs, headers) {
-	// prs: Array of {owner, repo, number}
 	const results = {};
 	if (prs.length === 0) return results;
-	// Use GitHub GraphQL API for batching
 	const query = `query {
 ${prs.map((pr, i) => `	repo${i}: repository(owner: \"${pr.owner}\", name: \"${pr.repo}\") {
 		pr${i}: pullRequest(number: ${pr.number}) { merged }
@@ -1133,7 +1118,6 @@ ${prs.map((pr, i) => `	repo${i}: repository(owner: \"${pr.owner}\", name: \"${pr
 	}
 }
 
-// Repo fetching logic
 let selectedRepos = [];
 let useRepoFilter = false;
 
@@ -1142,12 +1126,10 @@ async function fetchUserRepositories(username, token, org = 'fossasia') {
 		'Accept': 'application/vnd.github.v3+json',
 	};
 
-    // Use the token parameter, not the global githubToken
     if(token) {
         headers['Authorization'] = `token ${token}`;
     }
 
-    // Use the parameters directly, don't redeclare them
     if (!username) {
         throw new Error('GitHub username is required');
     }
@@ -1155,7 +1137,6 @@ async function fetchUserRepositories(username, token, org = 'fossasia') {
     console.log('Fetching repos for username:', username, 'org:', org);
 
 	try{
-		// fetching both user and org repos
 		let dateRange = '';
 		try {
 			const storageData = await new Promise(resolve => {
@@ -1192,7 +1173,6 @@ async function fetchUserRepositories(username, token, org = 'fossasia') {
 			const startDate = thirtyDaysAgo.toISOString().split('T')[0];
 			const endDate =  today.toISOString().split('T')[0];
 		}
-		// Use the same search queries as the main scrum generation, but extract repo names
         const issuesUrl = `https://api.github.com/search/issues?q=author:${username}+org:${org}${dateRange}&per_page=100`;
         const commentsUrl = `https://api.github.com/search/issues?q=commenter:${username}+org:${org}${dateRange.replace('created:', 'updated:')}&per_page=100`;
 
@@ -1298,5 +1278,3 @@ function filterDataByRepos(data, selectedRepos) {
 	return filteredData;
 }
 window.fetchUserRepositories = fetchUserRepositories;
-
-// commit for all repo fetch
