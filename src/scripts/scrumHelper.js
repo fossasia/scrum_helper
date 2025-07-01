@@ -119,11 +119,11 @@ function allIncluded(outputTarget = 'email') {
 					handleLastWeekContributionChange();
 				} else if (items.yesterdayContribution) {
 					handleYesterdayContributionChange();
-				} else if (items.startDate && items.endingDate) {
+				} else if (items.startingDate && items.endingDate) {
 					startingDate = items.startingDate;
 					endingDate = items.endingDate;
 				} else {
-					handleLastWeekContributionChange(); //when no date is stored, i.e on fresh unpack - default to last week.
+					handleLastWeekContributionChange(); //on fresh unpack - default to last week.
 					if (outputTarget === 'popup') {
 						chrome.storage.local.set({ lastWeekContribution: true, yesterdayContribution: false });
 					}
