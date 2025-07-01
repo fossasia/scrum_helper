@@ -269,9 +269,28 @@ document.addEventListener('DOMContentLoaded', function () {
         chrome.storage.local.get([
             'selectedTimeframe',
             'lastWeekContribution',
-            'yesterdayContribution'
+            'yesterdayContribution',
+            'startingDate',
+            'endingDate',
         ], (items) => {
             console.log('Restoring state:', items);
+
+            if(items.startingDate && items.endingDate && !items.lastWeekContribution && !items.yesterdayContribution) {
+                const startDateInput = document.getElementById('startingDate');
+                const endDateInput = document.getElementById('endingDate');
+
+                if(startDateInput && endDateInput) {
+                    startDateInput.value = items.startingDate;
+                    endDateInput.value = items.endingDate;
+                    startDateInput.readOnly = false;
+                    endDateInput.readOnly = false;
+                }
+                document.querySelectorAll('input[name="timeframe"]').forEach(radio => {
+                    radio.checked = false;
+                    radio.dataset.wasChecked = 'false';
+                })
+                return;
+            }
 
             if (!items.selectedTimeframe) {
                 items.selectedTimeframe = 'yesterdayContribution';
