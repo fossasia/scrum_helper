@@ -15,18 +15,6 @@ let enableToggle = true;
 let hasInjectedContent = false;
 let scrumGenerationInProgress = false;
 let orgName = 'fossasia'; // default
-
-// Global cache object
-let githubCache = {
-	data: null,
-	cacheKey: null,
-	timestamp: null,
-	ttl: null,
-	fetching: false,
-	queue: [],
-	subject: null
-};
-
 function allIncluded(outputTarget = 'email') {
 	if (scrumGenerationInProgress) {
 		console.warn('[SCRUM-HELPER]: Scrum generation already in progress, aborting new call.');
@@ -70,65 +58,9 @@ function allIncluded(outputTarget = 'email') {
 	let issue_opened_button =
 		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
 
-	// Reset all report state and optionally regenerate the report for popup or email context
-	function resetReportState(regenerateReport = false, outputTarget = 'popup') {
-		log('Resetting report state');
-
-		// Reset all processing flags
-		issuesDataProcessed = false;
-		prsReviewDataProcessed = false;
-		hasInjectedContent = false;
-
-		// Reset data arrays
-		lastWeekArray = [];
-		nextWeekArray = [];
-		reviewedPrsArray = [];
-		githubPrsReviewDataProcessed = {};
-
-		// Clear cached data
-		githubCache.data = null;
-		githubCache.cacheKey = null;
-		githubCache.timestamp = null;
-		githubCache.subject = null;
-
-		log('Report state reset complete');
-
-		// Regenerate report if requested
-		if (regenerateReport) {
-			log('Regenerating report after reset');
-			if (outputTarget === 'popup') {
-				writeGithubIssuesPrs();
-				writeGithubPrsReviews();
-			} else {
-				// For email context, trigger a fresh data fetch
-				fetchGithubData();
-			}
-		}
-	}
-
-	// Clear cache, fetch fresh GitHub data, and reset report state
-	async function forceGithubDataRefresh() {
-		log('Force refreshing GitHub data');
-
-		// Clear cache from storage
-		await new Promise(resolve => {
-			chrome.storage.local.remove('githubCache', resolve);
-		});
-
-		// Reset report state
-		resetReportState(false);
-
-		// Fetch fresh data
-		try {
-			await fetchGithubData();
-			return { success: true, message: 'Data refreshed successfully' };
-		} catch (error) {
-			logError('Force refresh failed:', error);
-			return { success: false, error: error.message };
-		}
-	}
 
 
+	// let linkStyle = '';
 	function getChromeData() {
 		console.log("Getting Chrome data for context:", outputTarget);
 		chrome.storage.local.get(
@@ -194,38 +126,14 @@ function allIncluded(outputTarget = 'email') {
 					startingDate = items.startingDate;
 					endingDate = items.endingDate;
 				} else {
-					handleLastWeekContributionChange(); //when no date is stored, i.e on fresh unpack - default to last week.
+					handleLastWeekContributionChange(); //when no date is stored i.e on fresh unpack - default to last week.
 					if (outputTarget === 'popup') {
 						chrome.storage.local.set({ lastWeekContribution: true, yesterdayContribution: false });
 					}
 				}
 
-				// Always read orgName fresh from storage
-				if (items.orgName) {
-					orgName = items.orgName;
-				} else {
-					orgName = 'fossasia'; // fallback default
-				}
-
-				// Defensive check for orgName
-				if (!orgName || typeof orgName !== 'string' || orgName.trim() === '') {
-					if (outputTarget === 'popup') {
-						const scrumReport = document.getElementById('scrumReport');
-						const generateBtn = document.getElementById('generateReport');
-						if (scrumReport) {
-							scrumReport.innerHTML = '<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">Please set a valid organization before generating a report.</div>';
-						}
-						if (generateBtn) {
-							generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
-							generateBtn.disabled = false;
-						}
-						scrumGenerationInProgress = false;
-					}
-					return;
-				}
-
 				if (githubUsername) {
-					console.log("About to fetch GitHub data for:", githubUsername, "in org:", orgName);
+					console.log("About to fetch GitHub data for:", githubUsername);
 					fetchGithubData();
 				} else {
 					if (outputTarget === 'popup') {
@@ -268,6 +176,9 @@ function allIncluded(outputTarget = 'email') {
 					githubCache.cacheKey = items.githubCache.cacheKey;
 					githubCache.timestamp = items.githubCache.timestamp;
 					log('Restored cache from storage');
+				}
+				if (items.orgName) {
+					orgName = items.orgName;
 				}
 			},
 		);
@@ -325,6 +236,18 @@ function allIncluded(outputTarget = 'email') {
 		return WeekDisplayPadded;
 	}
 
+	// Global cache object
+	let githubCache = {
+		data: null,
+		cacheKey: null,
+		timestamp: 0,
+		ttl: 10 * 60 * 1000, // cache valid for 10 mins
+		fetching: false,
+		queue: [],
+		errors: {},
+		errorTTL: 60 * 1000, // 1 min error cache 
+		subject: null,
+	};
 
 	async function getCacheTTL() {
 		return new Promise((resolve) => {
@@ -593,6 +516,11 @@ function allIncluded(outputTarget = 'email') {
 			user: githubUserData?.login
 		});
 
+		lastWeekArray = [];
+		nextWeekArray = [];
+		reviewedPrsArray = [];
+		githubPrsReviewDataProcessed = {};
+
 		// Update subject
 		if (!githubCache.subject && scrumSubject) {
 			scrumSubjectLoaded();
@@ -730,11 +658,8 @@ ${userReason}`;
 			logError('No Github PR review data available');
 			return;
 		}
-
-		// Reset arrays for fresh processing
 		reviewedPrsArray = [];
 		githubPrsReviewDataProcessed = {};
-
 		let i;
 		for (i = 0; i < items.length; i++) {
 			let item = items[i];
@@ -849,11 +774,8 @@ ${userReason}`;
 	// Refactor writeGithubIssuesPrs to implement the new logic
 	async function writeGithubIssuesPrs() {
 		let items = githubIssuesData.items;
-
-		// Reset arrays for fresh processing
 		lastWeekArray = [];
 		nextWeekArray = [];
-
 		if (!items) {
 			logError('No Github issues data available');
 			return;
@@ -918,7 +840,6 @@ ${userReason}`;
 				isDraft = item.draft;
 			}
 			if (item.pull_request) {
-				// Only add PRs, skip issue logic
 				if (isDraft) {
 					li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_draft_button}</li>`;
 				} else if (item.state === 'open') {
@@ -939,44 +860,42 @@ ${userReason}`;
 					}
 				}
 				lastWeekArray.push(li);
-				continue; // Prevent issue logic from running for PRs
+				continue; // Prevent issue logic from overwriting PR li
 			}
 			// Only process as issue if not a PR
-			if (!item.pull_request) {
-				if (item.state === 'open' && item.body?.toUpperCase().indexOf('YES') > 0) {
-					let li2 =
-						'<li><i>(' +
-						project +
-						')</i> - Work on Issue(#' +
-						number +
-						") - <a href='" +
-						html_url +
-						"' target='_blank'>" +
-						title +
-						'</a> ' +
-						issue_opened_button +
-						'&nbsp;&nbsp;</li>';
-					nextWeekArray.push(li2);
-				}
-				if (item.state === 'open') {
-					li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_opened_button}</li>`;
-				} else if (item.state === 'closed') {
-					// Always show closed label for closed issues
-					li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_button}</li>`;
-				} else {
-					li =
-						'<li><i>(' +
-						project +
-						')</i> - Opened Issue(#' +
-						number +
-						") - <a href='" +
-						html_url +
-						"' target='_blank'>" +
-						title +
-						'</a> </li>';
-				}
-				lastWeekArray.push(li);
+			if (item.state === 'open' && item.body?.toUpperCase().indexOf('YES') > 0) {
+				let li2 =
+					'<li><i>(' +
+					project +
+					')</i> - Work on Issue(#' +
+					number +
+					") - <a href='" +
+					html_url +
+					"' target='_blank'>" +
+					title +
+					'</a> ' +
+					issue_opened_button +
+					'&nbsp;&nbsp;</li>';
+				nextWeekArray.push(li2);
 			}
+			if (item.state === 'open') {
+				li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_opened_button}</li>`;
+			} else if (item.state === 'closed') {
+				// Always show closed label for closed issues
+				li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_button}</li>`;
+			} else {
+				li =
+					'<li><i>(' +
+					project +
+					')</i> - Opened Issue(#' +
+					number +
+					") - <a href='" +
+					html_url +
+					"' target='_blank'>" +
+					title +
+					'</a> </li>';
+			}
+			lastWeekArray.push(li);
 		}
 		issuesDataProcessed = true;
 		triggerScrumGeneration();
@@ -1064,8 +983,7 @@ ${userReason}`;
 		}, 1000);
 	}
 	function handleRefresh() {
-		hasInjectedContent = false;
-		resetReportState(false, 'email');
+		hasInjectedContent = false; // Reset the flag before refresh
 		allIncluded();
 	}
 }
@@ -1125,4 +1043,3 @@ ${prs.map((pr, i) => `	repo${i}: repository(owner: \"${pr.owner}\", name: \"${pr
 		return results;
 	}
 }
-

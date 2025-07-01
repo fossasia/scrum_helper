@@ -60,8 +60,7 @@ document.addEventListener('DOMContentLoaded', function () {
     let tokenVisible = false;
 
     const orgInput = document.getElementById('orgInput');
-    const validateOrgBtn = document.getElementById('validateOrgBtn');
-    const orgValidationStatus = document.getElementById('orgValidationStatus');
+    const setOrgBtn = document.getElementById('setOrgBtn');
 
     chrome.storage.local.get(['darkMode'], function (result) {
         if (result.darkMode) {
@@ -270,9 +269,28 @@ document.addEventListener('DOMContentLoaded', function () {
         chrome.storage.local.get([
             'selectedTimeframe',
             'lastWeekContribution',
-            'yesterdayContribution'
+            'yesterdayContribution',
+            'startingDate',
+            'endingDate',
         ], (items) => {
             console.log('Restoring state:', items);
+
+            if (items.startingDate && items.endingDate && !items.lastWeekContribution && !items.yesterdayContribution) {
+                const startDateInput = document.getElementById('startingDate');
+                const endDateInput = document.getElementById('endingDate');
+
+                if (startDateInput && endDateInput) {
+                    startDateInput.value = items.startingDate;
+                    endDateInput.value = items.endingDate;
+                    startDateInput.readOnly = false;
+                    endDateInput.readOnly = false;
+                }
+                document.querySelectorAll('input[name="timeframe"]').forEach(radio => {
+                    radio.checked = false;
+                    radio.dataset.wasChecked = 'false';
+                })
+                return;
+            }
 
             if (!items.selectedTimeframe) {
                 items.selectedTimeframe = 'yesterdayContribution';
@@ -348,111 +366,159 @@ document.addEventListener('DOMContentLoaded', function () {
         orgInput.value = result.orgName || '';
     });
 
-    // Organization validation function
-    async function validateOrganization() {
+    // Add click event for setOrgBtn to set org
+    setOrgBtn.addEventListener('click', function () {
         let org = orgInput.value.trim().toLowerCase();
         if (!org) {
             org = 'fossasia';
         }
-
-        // Show loading state
-        validateOrgBtn.disabled = true;
-        validateOrgBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i><span>Checking...</span>';
-
-        // Show status message
-        orgValidationStatus.className = 'text-sm mt-1 text-blue-600';
-        orgValidationStatus.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Validating organization...';
-        orgValidationStatus.classList.remove('hidden');
-
-        try {
-            console.log('[Org Check] Checking organization:', org);
-            const response = await fetch(`https://api.github.com/orgs/${org}`);
-
-            console.log('[Org Check] Response status for', org, ':', response.status);
-
-            if (response.status === 404) {
-                console.log('[Org Check] Organization not found on GitHub:', org);
-
-                // Show error state
-                validateOrgBtn.innerHTML = '<i class="fa fa-times"></i><span>Invalid</span>';
-                validateOrgBtn.className = 'bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded flex items-center gap-2 transition-colors duration-200';
-
-                orgValidationStatus.className = 'text-sm mt-1 text-red-600';
-                orgValidationStatus.innerHTML = '<i class="fa fa-times"></i> Organization not found on GitHub';
-
-                // Reset button after 3 seconds
+        // Check if org is already set
+        chrome.storage.local.get(['orgName'], function (result) {
+            if (result.orgName && result.orgName.toLowerCase() === org) {
+                // Show toast: org already set
+                const oldToast = document.getElementById('invalid-org-toast');
+                if (oldToast) oldToast.parentNode.removeChild(oldToast);
+                const toastDiv = document.createElement('div');
+                toastDiv.id = 'invalid-org-toast';
+                toastDiv.className = 'toast';
+                toastDiv.style.background = '#2563eb';
+                toastDiv.style.color = '#fff';
+                toastDiv.style.fontWeight = 'bold';
+                toastDiv.style.padding = '12px 24px';
+                toastDiv.style.borderRadius = '8px';
+                toastDiv.style.position = 'fixed';
+                toastDiv.style.top = '24px';
+                toastDiv.style.left = '50%';
+                toastDiv.style.transform = 'translateX(-50%)';
+                toastDiv.style.zIndex = '9999';
+                toastDiv.innerText = 'Organization is already set to this value.';
+                document.body.appendChild(toastDiv);
                 setTimeout(() => {
-                    validateOrgBtn.disabled = false;
-                    validateOrgBtn.innerHTML = '<i class="fa fa-check"></i><span>Set</span>';
-                    validateOrgBtn.className = 'bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded flex items-center gap-2 transition-colors duration-200';
-                    orgValidationStatus.classList.add('hidden');
-                }, 3000);
-
+                    if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
+                }, 2500);
                 return;
             }
-
-            if (!response.ok) {
-                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-            }
-
-            console.log('[Org Check] Organisation exists on GitHub:', org);
-
-            // Valid org: update storage and fetch data
-            await new Promise((resolve) => {
-                chrome.storage.local.set({ orgName: org || 'fossasia', githubCache: null }, resolve);
-            });
-
-            // Show success state
-            validateOrgBtn.innerHTML = '<i class="fa fa-check"></i><span>Set</span>';
-            validateOrgBtn.className = 'bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded flex items-center gap-2 transition-colors duration-200';
-
-            orgValidationStatus.className = 'text-sm mt-1 text-green-600';
-            orgValidationStatus.innerHTML = '<i class="fa fa-check"></i> Organization validated successfully!';
-
-            // Update scrum report
-            const scrumReport = document.getElementById('scrumReport');
-            if (scrumReport) {
-                scrumReport.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Organisation changed. Click "Generate Report" to fetch new data.</p>';
-            }
-
-            // Reset button after 3 seconds
-            setTimeout(() => {
-                validateOrgBtn.disabled = false;
-                validateOrgBtn.innerHTML = '<i class="fa fa-check"></i><span>Set</span>';
-                validateOrgBtn.className = 'bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded flex items-center gap-2 transition-colors duration-200';
-                orgValidationStatus.classList.add('hidden');
-            }, 3000);
-
-        } catch (error) {
-            console.log('[Org Check] Error validating organisation:', org, error);
-
-            // Show error state
-            validateOrgBtn.innerHTML = '<i class="fa fa-exclamation-triangle"></i><span>Error</span>';
-            validateOrgBtn.className = 'bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded flex items-center gap-2 transition-colors duration-200';
-
-            orgValidationStatus.className = 'text-sm mt-1 text-red-600';
-            orgValidationStatus.innerHTML = '<i class="fa fa-exclamation-triangle"></i> Error validating organization. Please try again.';
-
-            // Reset button after 3 seconds
-            setTimeout(() => {
-                validateOrgBtn.disabled = false;
-                validateOrgBtn.innerHTML = '<i class="fa fa-check"></i><span>Set</span>';
-                validateOrgBtn.className = 'bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded flex items-center gap-2 transition-colors duration-200';
-                orgValidationStatus.classList.add('hidden');
-            }, 3000);
-        }
-    }
-
-    // Add click event listener to validation button
-    validateOrgBtn.addEventListener('click', validateOrganization);
-
-    // Add Enter key support for the input field
-    orgInput.addEventListener('keypress', function (event) {
-        if (event.key === 'Enter') {
-            event.preventDefault();
-            validateOrganization();
-        }
+            // Show loading spinner only
+            setOrgBtn.disabled = true;
+            const originalText = setOrgBtn.innerHTML;
+            setOrgBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
+            fetch(`https://api.github.com/orgs/${org}`)
+                .then(res => {
+                    if (res.status === 404) {
+                        setOrgBtn.disabled = false;
+                        setOrgBtn.innerHTML = originalText;
+                        const oldToast = document.getElementById('invalid-org-toast');
+                        if (oldToast) oldToast.parentNode.removeChild(oldToast);
+                        const toastDiv = document.createElement('div');
+                        toastDiv.id = 'invalid-org-toast';
+                        toastDiv.className = 'toast';
+                        toastDiv.style.background = '#dc2626';
+                        toastDiv.style.color = '#fff';
+                        toastDiv.style.fontWeight = 'bold';
+                        toastDiv.style.padding = '12px 24px';
+                        toastDiv.style.borderRadius = '8px';
+                        toastDiv.style.position = 'fixed';
+                        toastDiv.style.top = '24px';
+                        toastDiv.style.left = '50%';
+                        toastDiv.style.transform = 'translateX(-50%)';
+                        toastDiv.style.zIndex = '9999';
+                        toastDiv.innerText = 'Organization not found on GitHub.';
+                        document.body.appendChild(toastDiv);
+                        setTimeout(() => {
+                            if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
+                        }, 3000);
+                        return;
+                    }
+                    const oldToast = document.getElementById('invalid-org-toast');
+                    if (oldToast) oldToast.parentNode.removeChild(oldToast);
+                    chrome.storage.local.set({ orgName: org }, function () {
+                        // Clear the scrum report and show org changed message
+                        const scrumReport = document.getElementById('scrumReport');
+                        if (scrumReport) {
+                            scrumReport.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Organization changed. Click Generate button to fetch the GitHub activities.</p>';
+                        }
+                        // Clear the githubCache for previous org
+                        chrome.storage.local.remove('githubCache');
+                        setOrgBtn.disabled = false;
+                        setOrgBtn.innerHTML = originalText;
+                        // Show toast: org is set
+                        const toastDiv = document.createElement('div');
+                        toastDiv.id = 'invalid-org-toast';
+                        toastDiv.className = 'toast';
+                        toastDiv.style.background = '#10b981';
+                        toastDiv.style.color = '#fff';
+                        toastDiv.style.fontWeight = 'bold';
+                        toastDiv.style.padding = '12px 24px';
+                        toastDiv.style.borderRadius = '8px';
+                        toastDiv.style.position = 'fixed';
+                        toastDiv.style.top = '24px';
+                        toastDiv.style.left = '50%';
+                        toastDiv.style.transform = 'translateX(-50%)';
+                        toastDiv.style.zIndex = '9999';
+                        toastDiv.innerText = 'Organization is set.';
+                        document.body.appendChild(toastDiv);
+                        setTimeout(() => {
+                            if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
+                        }, 2500);
+                    });
+                })
+                .catch((err) => {
+                    setOrgBtn.disabled = false;
+                    setOrgBtn.innerHTML = originalText;
+                    const oldToast = document.getElementById('invalid-org-toast');
+                    if (oldToast) oldToast.parentNode.removeChild(oldToast);
+                    const toastDiv = document.createElement('div');
+                    toastDiv.id = 'invalid-org-toast';
+                    toastDiv.className = 'toast';
+                    toastDiv.style.background = '#dc2626';
+                    toastDiv.style.color = '#fff';
+                    toastDiv.style.fontWeight = 'bold';
+                    toastDiv.style.padding = '12px 24px';
+                    toastDiv.style.borderRadius = '8px';
+                    toastDiv.style.position = 'fixed';
+                    toastDiv.style.top = '24px';
+                    toastDiv.style.left = '50%';
+                    toastDiv.style.transform = 'translateX(-50%)';
+                    toastDiv.style.zIndex = '9999';
+                    toastDiv.innerText = 'Error validating organization.';
+                    document.body.appendChild(toastDiv);
+                    setTimeout(() => {
+                        if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
+                    }, 3000);
+                });
+        });
     });
+
+    let cacheInput = document.getElementById('cacheInput');
+    if (cacheInput) {
+        chrome.storage.local.get(['cacheInput'], function (result) {
+            if (result.cacheInput) {
+                cacheInput.value = result.cacheInput;
+            } else {
+                cacheInput.value = 10;
+            }
+        });
+
+        cacheInput.addEventListener('blur', function () {
+            let ttlValue = parseInt(this.value);
+            if (isNaN(ttlValue) || ttlValue <= 0 || this.value.trim() === '') {
+                ttlValue = 10;
+                this.value = ttlValue;
+                this.style.borderColor = '#ef4444';
+            } else if (ttlValue > 1440) {
+                ttlValue = 1440;
+                this.value = ttlValue;
+                this.style.borderColor = '#f59e0b';
+            } else {
+                this.style.borderColor = '#10b981';
+            }
+
+            chrome.storage.local.set({ cacheInput: ttlValue }, function () {
+                console.log('Cache TTL saved:', ttlValue, 'minutes');
+            });
+        });
+
+    }
 
 });
 
@@ -594,35 +660,4 @@ function toggleRadio(radio) {
             isLastWeek: radio.id === 'lastWeekContribution'
         });
     });
-}
-
-let cacheInput = document.getElementById('cacheInput');
-if (cacheInput) {
-    chrome.storage.local.get(['cacheInput'], function (result) {
-        if (result.cacheInput) {
-            cacheInput.value = result.cacheInput;
-        } else {
-            cacheInput.value = 10;
-        }
-    });
-
-    cacheInput.addEventListener('blur', function () {
-        let ttlValue = parseInt(this.value);
-        if (isNaN(ttlValue) || ttlValue <= 0 || this.value.trim() === '') {
-            ttlValue = 10;
-            this.value = ttlValue;
-            this.style.borderColor = '#ef4444';
-        } else if (ttlValue > 1440) {
-            ttlValue = 1440;
-            this.value = ttlValue;
-            this.style.borderColor = '#f59e0b';
-        } else {
-            this.style.borderColor = '#10b981';
-        }
-
-        chrome.storage.local.set({ cacheInput: ttlValue }, function () {
-            console.log('Cache TTL saved:', ttlValue, 'minutes');
-        });
-    });
-
 }
