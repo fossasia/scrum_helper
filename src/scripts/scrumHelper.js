@@ -1,4 +1,4 @@
-const DEBUG = false;
+const DEBUG = true;
 function log(...args) {
 	if (DEBUG) {
 		console.log(`[SCRUM-HELPER]:`, ...args);
@@ -255,6 +255,11 @@ function allIncluded(outputTarget = 'email') {
 		errors: {},
 		errorTTL: 60 * 1000, // 1 min error cache 
 		subject: null,
+        repoData: null,
+        repoCacheKey: null,
+        repoTimeStamp: 0,
+        repoFetching: false,
+        repoQueue: [],
 	};
 
 	async function getCacheTTL() {
@@ -475,6 +480,63 @@ function allIncluded(outputTarget = 'email') {
 		}
 	}
 
+    async function fetchReposIfNeeded() {
+        if(!useRepoFilter){
+            log('Repo fiter disabled, skipping fetch');
+            return[];
+        }
+        const repoCacheKey = `repos-${githubUsername}-${orgName}-${startingDate}-${endingDate}`;
+
+        const now = Date.now();
+        const isRepoCacheFresh = (now - githubCache.repoTimeStamp) < githubCache.ttl;
+        const isRepoCacheKeyMatch = githubCache.repoCacheKey === repoCacheKey;
+
+        if(githubCache.repoData && isRepoCacheFresh && isRepoCacheKeyMatch) {
+            log('Using cached repo data');
+            return githubCache.repoData;
+        }
+
+        if(githubCache.repoFetching){
+            log('Repo fetch is in progress, queuing request');
+            return new Promise((resolve, reject) => {
+                githubCache.repoQueue.push({ resolve, reject });
+            });
+        }
+
+        githubCache.repoFetching = true;
+        githubCache.repoCacheKey = repoCacheKey;
+
+        try{
+            log('Fetching repos automatically');
+            const repos = await fetchUserRepositories(githubUsername, githubToken, orgName);
+
+            githubCache.repoData = repos;
+            githubCache.repoTimeStamp = now;
+
+            chrome.storage.local.set({
+                repoCache: {
+                    data: repos, 
+                    cacheKey: repoCacheKey,
+                    timestamp: now
+                }
+            });
+
+            githubCache.repoQueue.forEach(({ resolve }) => resolve(repos));
+            githubCache.repoQueue = [];
+
+            log(`Successfuly cached ${repos.length} repositories`);
+            return repos;
+        } catch(err) {
+            logError('Failed to fetch reppos:', err);
+            githubCache.repoQueue.forEach(({ reject }) => reject(err));
+            githubCache.repoQueue = [];
+
+            throw err;
+        } finally{
+            githubCache.repoFetching = false;
+        }
+    }
+
 	async function verifyCacheStatus() {
 		log('Cache Status: ', {
 			hasCachedData: !!githubCache.data,
@@ -512,10 +574,21 @@ function allIncluded(outputTarget = 'email') {
 		}
 	}
 
-	function processGithubData(data) {
+	async function processGithubData(data) {
 		log('Processing Github data');
 		
 		let processedData = data;
+
+        if(useRepoFilter && selectedRepos?.length > 0) {
+            try {
+                await fetchReposIfNeeded();
+                processedData = filterDataByRepos(data, selectedRepos);
+                log('Applied repo filter:', selectedRepos);
+            } catch(err) {
+                logError('failed to fetch repos for filtering:', err);
+            }
+        }
+
 		if(useRepoFilter && selectedRepos?.length > 0) {
 			processedData = filterDataByRepos(data, selectedRepos);
 			log('Applied repo filter:', selectedRepos);
@@ -1069,7 +1142,6 @@ async function fetchUserRepositories(username, token, org = 'fossasia') {
 		'Accept': 'application/vnd.github.v3+json',
 	};
 
-	
     // Use the token parameter, not the global githubToken
     if(token) {
         headers['Authorization'] = `token ${token}`;
@@ -1122,7 +1194,7 @@ async function fetchUserRepositories(username, token, org = 'fossasia') {
 		}
 		// Use the same search queries as the main scrum generation, but extract repo names
         const issuesUrl = `https://api.github.com/search/issues?q=author:${username}+org:${org}${dateRange}&per_page=100`;
-        const commentsUrl = `https://api.github.com/search/issues?q=commenter:${username}+org:${org}+updated:${dateRange.replace('created:', 'updated:')}&per_page=100`;
+        const commentsUrl = `https://api.github.com/search/issues?q=commenter:${username}+org:${org}${dateRange.replace('created:', 'updated:')}&per_page=100`;
 
         console.log('Search URLs:', { issuesUrl, commentsUrl });
 	

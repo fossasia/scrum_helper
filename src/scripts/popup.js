@@ -1,3 +1,10 @@
+function debounce(func, wait) {
+    let timeout;
+    return function(...args){
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+    }
+}
 function getLastWeek() {
     let today = new Date();
     let lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
@@ -434,7 +441,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const repoPlaceholder = document.getElementById('repoPlaceholder');
     const repoCount = document.getElementById('repoCount');
     const repoStatus = document.getElementById('repoStatus');
-    const loadReposBtn = document.getElementById('loadReposBtn');
     const useRepoFilter = document.getElementById('useRepoFilter');
     const repoFilterContainer = document.getElementById('repoFilterContainer');
 
@@ -459,7 +465,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
-        useRepoFilter.addEventListener('change', () => {
+        useRepoFilter.addEventListener('change', debounce(async () => {
             const enabled = useRepoFilter.checked;
             repoFilterContainer.classList.toggle('hidden', !enabled);
 
@@ -468,16 +474,49 @@ document.addEventListener('DOMContentLoaded', function () {
                 githubCache: null, //forces refresh
             });
 
-            if(!enabled) {
+            if(enabled) {
+               repoStatus.textContent = 'Loading repos automatically..';
+
+               try{
+                const items = await new Promise(resolve => {
+                    chrome.storage.local.get(['githubUsername', 'githubToken', 'orgName'], resolve);
+                });
+
+                if(!items.githubUsername){
+                    repoStatus.textContent = 'Github Username required';
+                    return;
+                }
+                if(window.fetchUserRepositories){
+                    const repos = await window.fetchUserRepositories(
+                        items.githubUsername,
+                        items.githubToken,
+                        items.orgName || 'fossasia',
+                    );
+                    availableRepos = repos;
+                    repoStatus.textContent = `${repos.length} repositories loaded`;
+
+                    if(document.activeElement === repoSearch){
+                        filterAndDisplayRepos(repoSearch.value.toLowerCase());
+                    }
+                }
+               } catch(err) {
+                console.error('Auto load repos failed', err);
+                if(err.message?.includes('401')) {
+                    repoStatus.textContent = 'Github token required for private repos';
+                } else if( err.message?.includes('username')){
+                    repoStatus.textContent = 'Please enter your Github username first';
+                } else {
+                    repoStatus.textContent = `Error: ${err.message || 'Failed to load repos'}`;
+                }
+               }
+            } else {
                 selectedRepos = [];
                 updateRepoDisplay();
                 chrome.storage.local.set({ selectedRepos: [] });
+                repoStatus.textContent = '';
             }
-        });
+        }, 300));
 
-        loadReposBtn.addEventListener('click', async () => {
-            await loadRepos();
-        })
         repoSearch.addEventListener('keydown', (e) => {
             const items = repoDropdown.querySelectorAll('.repository-dropdown-item');
 
@@ -561,7 +600,6 @@ document.addEventListener('DOMContentLoaded', function () {
         async function performRepoFetch() {
             repoStatus.textContent = 'Loading repositories...';
             repoSearch.classList.add('repository-search-loading');
-            loadReposBtn.disabled = true;
 
             try {
                 const storageItems = await new Promise( resolve => {
@@ -590,7 +628,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             } finally{
                 repoSearch.classList.remove('repository-search-loading');
-                loadReposBtn.disabled = false;
             }
         }
 
