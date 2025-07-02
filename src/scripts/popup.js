@@ -479,6 +479,9 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             try {
+                const cacheData = await new Promise(resolve => {
+                    chrome.storage.local.get(['repoCache'], resolve);
+                });
                 const items = await new Promise(resolve => {
                     chrome.storage.local.get(['githubUsername', 'githubToken', 'orgName'], resolve);
                 });
@@ -593,6 +596,14 @@ document.addEventListener('DOMContentLoaded', function () {
                     );
                     availableRepos = repos;
                     repoStatus.textContent = `${repos.length} repositories loaded`;
+
+                    chrome.storage.local.set({
+                        repoCache: {
+                            data: repos,
+                            cacheKey: repoCacheKey,
+                            timestamp: now
+                        }
+                    });
 
                     if(document.activeElement === repoSearch){
                         filterAndDisplayRepos(repoSearch.value.toLowerCase());
