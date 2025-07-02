@@ -276,7 +276,7 @@ document.addEventListener('DOMContentLoaded', function () {
         ], (items) => {
             console.log('Restoring state:', items);
 
-                if(items.startingDate && items.endingDate && !items.lastWeekContribution && !items.yesterdayContribution) { //Add commentMore actions
+            if(items.startingDate && items.endingDate && !items.lastWeekContribution && !items.yesterdayContribution) {
                 const startDateInput = document.getElementById('startingDate');
                 const endDateInput = document.getElementById('endingDate');
 
