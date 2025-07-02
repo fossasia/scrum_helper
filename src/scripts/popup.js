@@ -657,13 +657,18 @@ document.addEventListener('DOMContentLoaded', function () {
             const query = e.target.value.toLowerCase();
             filterAndDisplayRepos(query);
         })
+        let programmaticFocus = false;
         repoSearch.addEventListener('focus', function () {
-                if (repoSearch.value) {
-                    filterAndDisplayRepos(repoSearch.value.toLowerCase());
-                } else if (availableRepos.length > 0) {
-                    filterAndDisplayRepos('');
-                }
-            });
+            if(programmaticFocus){
+                programmaticFocus = false;
+                return;
+            }
+            if (repoSearch.value) {
+                filterAndDisplayRepos(repoSearch.value.toLowerCase());
+            } else if (availableRepos.length > 0) {
+                filterAndDisplayRepos('');
+            }
+        });
 
         document.addEventListener('click', (e) => {
             if(!e.target.closest('#repoSearch') && !e.target.closest('#repoDropdown')) {
@@ -770,7 +775,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         function filterAndDisplayRepos(query) {
             if(availableRepos.length === 0) {
-                repoDropdown.innerHTML = '<div class="p-3 text-center text-gray-500 text-sm">Click the download icon to load repositories</div>';
+                repoDropdown.innerHTML = '<div class="p-3 text-center text-gray-500 text-sm">Loading repositories automatically...</div>';
                 showDropdown();
                 return;
             }
@@ -794,7 +799,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 `).join('');
 
                 repoDropdown.querySelectorAll('.repository-dropdown-item').forEach(item => {
-                    item.addEventListener('click', () => {
+                    item.addEventListener('click', (e) => {
+                        e.stopPropagation();
                         fnSelectedRepos(item.dataset.repoName);
                     });
                 });
@@ -811,7 +817,8 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             repoSearch.value = '';
-            hideDropdown();
+            filterAndDisplayRepos('');
+            programmaticFocus = true;
             repoSearch.focus();
         }
 
@@ -819,6 +826,12 @@ document.addEventListener('DOMContentLoaded', function () {
             selectedRepos = selectedRepos.filter(name => name !== repoName) ;
             updateRepoDisplay();
             saveRepoSelection();
+
+            if(repoSearch.value) {
+                filterAndDisplayRepos(repoSearch.value.toLowerCase());
+            } else {
+                filterAndDisplayRepos('');
+            }
         }
 
         function updateRepoDisplay(){
