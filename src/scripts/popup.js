@@ -829,8 +829,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if(repoSearch.value) {
                 filterAndDisplayRepos(repoSearch.value.toLowerCase());
-            } else {
-                filterAndDisplayRepos('');
             }
         }
 
@@ -839,12 +837,21 @@ document.addEventListener('DOMContentLoaded', function () {
                 repoTags.innerHTML = '<span class="text-xs text-gray-500 select-none" id="repoPlaceholder">No repositories selected (all will be included)</span>';
                 repoCount.textContent = ' 0 repositories selected';
             } else {
-                repoTags.innerHTML = selectedRepos.map( repo => `
-                    <span class="repository-tag">
-                        <span class="repo-name">${repo}</span>
-                        <span class="remove-tag" onclick="removeRepo('${repo}')">&times;</span>
+                repoTags.innerHTML = selectedRepos.map(repo => `
+                    <span class="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full" style="margin:5px;">
+                        ${repo}
+                        <button type="button" class="ml-1 text-blue-600 hover:text-blue-800 remove-repo-btn" data-repo-name="${repo}">
+                            <i class="fa fa-times"></i>
+                        </button>
                     </span>
-                `).join('');
+                `).join(' ');
+                repoTags.querySelectorAll('.remove-repo-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const repoName = btn.dataset.repoName;
+                        removeRepo(repoName);
+                    });
+                });
                 repoCount.textContent = `${selectedRepos.length} repository${selectedRepos.length === 1 ? '' : 's'} selected`;
             }
         }
