@@ -276,9 +276,28 @@ document.addEventListener('DOMContentLoaded', function () {
         chrome.storage.local.get([
             'selectedTimeframe',
             'lastWeekContribution',
-            'yesterdayContribution'
+            'yesterdayContribution',
+            'startingDate',
+            'endingDate',
         ], (items) => {
             console.log('Restoring state:', items);
+
+            if(items.startingDate && items.endingDate && !items.lastWeekContribution && !items.yesterdayContribution) {
+                const startDateInput = document.getElementById('startingDate');
+                const endDateInput = document.getElementById('endingDate');
+
+                if(startDateInput && endDateInput) {
+                    startDateInput.value = items.startingDate;
+                    endDateInput.value = items.endingDate;
+                    startDateInput.readOnly = false;
+                    endDateInput.readOnly = false;
+                }
+                document.querySelectorAll('input[name="timeframe"]').forEach(radio => {
+                    radio.checked = false;
+                    radio.dataset.wasChecked = 'false';
+                })
+                return;
+            }
 
             if (!items.selectedTimeframe) {
                 items.selectedTimeframe = 'yesterdayContribution';
@@ -1112,7 +1131,36 @@ function toggleRadio(radio) {
         triggerRepoFetchIfEnabled();
     });
 }
+let cacheInput = document.getElementById('cacheInput');
+if (cacheInput) {
+    chrome.storage.local.get(['cacheInput'], function (result) {
+        if (result.cacheInput) {
+            cacheInput.value = result.cacheInput;
+        } else {
+            cacheInput.value = 10;
+        }
+    });
 
+    cacheInput.addEventListener('blur', function () {
+        let ttlValue = parseInt(this.value);
+        if (isNaN(ttlValue) || ttlValue <= 0 || this.value.trim() === '') {
+            ttlValue = 10;
+            this.value = ttlValue;
+            this.style.borderColor = '#ef4444';
+        } else if (ttlValue > 1440) {
+            ttlValue = 1440;
+            this.value = ttlValue;
+            this.style.borderColor = '#f59e0b';
+        } else {
+            this.style.borderColor = '#10b981';
+        }
+
+        chrome.storage.local.set({ cacheInput: ttlValue }, function () {
+            console.log('Cache TTL saved:', ttlValue, 'minutes');
+        });
+    });
+
+}
 async function triggerRepoFetchIfEnabled() {
     if (window.triggerRepoFetchIfEnabled) {
         await window.triggerRepoFetchIfEnabled();
