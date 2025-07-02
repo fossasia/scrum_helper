@@ -288,7 +288,7 @@ hr,
 
 .tooltip-bubble {
     position: fixed !important;
-    z-index: 9999;
+    z-index: 999;
     background: #f9fafb;
     color: #222;
     border-radius: 10px;
@@ -500,6 +500,10 @@ hr,
     align-items: center;
     gap: 2px;
     font-size: 10px;
+}
+
+#repoDropdown {
+    z-index: 1000 !important;
 }
 
 @keyframes tagSlideIn {
