@@ -1,3 +1,10 @@
+function debounce(func, wait) {
+    let timeout;
+    return function(...args){
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+    }
+}
 function getLastWeek() {
     let today = new Date();
     let lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
@@ -361,91 +368,454 @@ document.addEventListener('DOMContentLoaded', function () {
 
     showReportView();
 
-    // Load org from storage or default
     chrome.storage.local.get(['orgName'], function (result) {
         orgInput.value = result.orgName || '';
     });
 
-    // Debounce function
-    function debounce(func, wait) {
-        let timeout;
-        return function (...args) {
-            clearTimeout(timeout);
-            timeout = setTimeout(() => func.apply(this, args), wait);
-        };
-    }
 
-    let lastInvalidOrg = '';
-    // Validate and set org as user types
-    const handleOrgInput = debounce(function () {
-        let org = orgInput.value.trim().toLowerCase();
-        if (!org) {
-            org = 'fossasia';
-        }
-        console.log('[Org Check] Checking organization:', org);
-        fetch(`https://api.github.com/orgs/${org}`)
-            .then(res => {
-                console.log('[Org Check] Response status for', org, ':', res.status);
-                if (res.status === 404) {
-                    console.log('[Org Check] Organization not found on GitHub:', org);
-                    const oldToast = document.getElementById('invalid-org-toast');
-                    if (oldToast) oldToast.parentNode.removeChild(oldToast);
-                    const toastDiv = document.createElement('div');
-                    toastDiv.id = 'invalid-org-toast';
-                    toastDiv.className = 'toast';
-                    toastDiv.style.background = '#dc2626';
-                    toastDiv.style.color = '#fff';
-                    toastDiv.style.fontWeight = 'bold';
-                    toastDiv.style.padding = '12px 24px';
-                    toastDiv.style.borderRadius = '8px';
-                    toastDiv.style.position = 'fixed';
-                    toastDiv.style.top = '24px';
-                    toastDiv.style.left = '50%';
-                    toastDiv.style.transform = 'translateX(-50%)';
-                    toastDiv.style.zIndex = '9999';
-                    toastDiv.innerText = 'Organization not found on GitHub.';
-                    document.body.appendChild(toastDiv);
-                    setTimeout(() => {
-                        if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
-                    }, 3000);
+    //report filter
+    const repoSearch = document.getElementById('repoSearch');
+    const repoDropdown = document.getElementById('repoDropdown');
+    const selectedReposDiv = document.getElementById('selectedRepos');
+    const repoTags = document.getElementById('repoTags');
+    const repoPlaceholder = document.getElementById('repoPlaceholder');
+    const repoCount = document.getElementById('repoCount');
+    const repoStatus = document.getElementById('repoStatus');
+    const useRepoFilter = document.getElementById('useRepoFilter');
+    const repoFilterContainer = document.getElementById('repoFilterContainer');
+
+    if(!repoSearch || !useRepoFilter) {
+        console.log('Repository, filter elements not found in DOM');
+    }
+    else {
+        let availableRepos = [];
+        let selectedRepos = [];
+        let highlightedIndex = -1;
+
+        async function triggerRepoFetchIfEnabled() {
+            if (!useRepoFilter.checked) {
+                return;
+            }
+
+            if (repoStatus) {
+                repoStatus.textContent = 'Refetching repositories...';
+            }
+
+            try {
+                const cacheData = await new Promise(resolve => {
+                    chrome.storage.local.get(['repoCache'], resolve);
+                });
+                const items = await new Promise(resolve => {
+                    chrome.storage.local.get(['githubUsername', 'githubToken', 'orgName'], resolve);
+                });
+
+                if (!items.githubUsername) {
+                    if (repoStatus) {
+                        repoStatus.textContent = 'GitHub username required';
+                    }
                     return;
                 }
-                const oldToast = document.getElementById('invalid-org-toast');
-                if (oldToast) oldToast.parentNode.removeChild(oldToast);
-                console.log('[Org Check] Organisation exists on GitHub:', org);
-                console.log('[Org Check] Organization exists on GitHub:', org);
-                chrome.storage.local.set({ orgName: org }, function () {
-                    if (window.generateScrumReport) window.generateScrumReport();
-                });
-            })
-            .catch((err) => {
-                console.log('[Org Check] Error validating organisation:', org, err);
-                const oldToast = document.getElementById('invalid-org-toast');
-                if (oldToast) oldToast.parentNode.removeChild(oldToast);
-                const toastDiv = document.createElement('div');
-                toastDiv.id = 'invalid-org-toast';
-                toastDiv.className = 'toast';
-                toastDiv.style.background = '#dc2626';
-                toastDiv.style.color = '#fff';
-                toastDiv.style.fontWeight = 'bold';
-                toastDiv.style.padding = '12px 24px';
-                toastDiv.style.borderRadius = '8px';
-                toastDiv.style.position = 'fixed';
-                toastDiv.style.top = '24px';
-                toastDiv.style.left = '50%';
-                toastDiv.style.transform = 'translateX(-50%)';
-                toastDiv.style.zIndex = '9999';
-                toastDiv.innerText = 'Error validating organization.';
-                document.body.appendChild(toastDiv);
-                setTimeout(() => {
-                    if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
-                }, 3000);
+
+                if (window.fetchUserRepositories) {
+                    const repos = await window.fetchUserRepositories(
+                        items.githubUsername,
+                        items.githubToken,
+                        items.orgName || 'fossasia'
+                    );
+                    
+                    availableRepos = repos;
+                    
+                    if (repoStatus) {
+                        repoStatus.textContent = `${repos.length} repositories loaded`;
+                    }
+
+                    const repoCacheKey = `repos-${items.githubUsername}-${items.orgName || 'fossasia'}`;
+                    chrome.storage.local.set({
+                        repoCache: {
+                            data: repos,
+                            cacheKey: repoCacheKey,
+                            timestamp: Date.now()
+                        }
+                    });
+
+                    if (document.activeElement === repoSearch) {
+                        filterAndDisplayRepos(repoSearch.value.toLowerCase());
+                    } else if (repoSearch.value) {
+                        filterAndDisplayRepos(repoSearch.value.toLowerCase());
+                    } else {
+                        filterAndDisplayRepos('');
+                    }
+                }
+            } catch (err) {
+                console.error('Auto refetch failed:', err);
+                if (repoStatus) {
+                    repoStatus.textContent = `Error: ${err.message || 'Failed to refetch repos'}`;
+                }
+            }
+        }
+
+        window.triggerRepoFetchIfEnabled = triggerRepoFetchIfEnabled;
+
+        chrome.storage.local.get(['selectedRepos', 'useRepoFilter'], (items) => {
+            if(items.selectedRepos) {
+                selectedRepos = items.selectedRepos;
+                updateRepoDisplay();
+            }
+            if(items.useRepoFilter){
+                useRepoFilter.checked = items.useRepoFilter;
+                repoFilterContainer.classList.toggle('hidden', !items.useRepoFilter);
+            }
+        });
+
+        useRepoFilter.addEventListener('change', debounce(async () => {
+            const enabled = useRepoFilter.checked;
+            repoFilterContainer.classList.toggle('hidden', !enabled);
+
+            chrome.storage.local.set({
+                useRepoFilter: enabled,
+                githubCache: null, //forces refresh
             });
-    }, 3000);
 
-    orgInput.addEventListener('input', handleOrgInput);
+            if(enabled) {
+               repoStatus.textContent = 'Loading repos automatically..';
 
+               try{
+                const cacheData = await new Promise(resolve => {
+                    chrome.storage.local.get(['repoCache'], resolve);
+                });
+                const items = await new Promise(resolve => {
+                    chrome.storage.local.get(['githubUsername', 'githubToken', 'orgName'], resolve);
+                });
+
+                if(!items.githubUsername){
+                    repoStatus.textContent = 'Github Username required';
+                    return;
+                }
+
+                const repoCacheKey = `repos-${items.githubUsername}-${items.orgName || 'fossasia'}`;
+                const now = Date.now();
+                const cacheAge = cacheData.repoCache?.timestamp ? now - cacheData.repoCache.timestamp : Infinity;
+                const cacheTTL = 10 * 60 * 1000; // 10 minutes 
+                
+                if (cacheData.repoCache && 
+                    cacheData.repoCache.cacheKey === repoCacheKey && 
+                    cacheAge < cacheTTL) {
+                    
+                    console.log('Using cached repositories');
+                    availableRepos = cacheData.repoCache.data;
+                    repoStatus.textContent = `${availableRepos.length} repositories loaded (cached)`;
+                    
+                    if(document.activeElement === repoSearch){
+                        filterAndDisplayRepos(repoSearch.value.toLowerCase());
+                    }
+                    return;
+                }
+
+                if(window.fetchUserRepositories){
+                    const repos = await window.fetchUserRepositories(
+                        items.githubUsername,
+                        items.githubToken,
+                        items.orgName || 'fossasia',
+                    );
+                    availableRepos = repos;
+                    repoStatus.textContent = `${repos.length} repositories loaded`;
+
+                    chrome.storage.local.set({
+                        repoCache: {
+                            data: repos,
+                            cacheKey: repoCacheKey,
+                            timestamp: now
+                        }
+                    });
+
+                    if(document.activeElement === repoSearch){
+                        filterAndDisplayRepos(repoSearch.value.toLowerCase());
+                    }
+                }
+               } catch(err) {
+                console.error('Auto load repos failed', err);
+                if(err.message?.includes('401')) {
+                    repoStatus.textContent = 'Github token required for private repos';
+                } else if( err.message?.includes('username')){
+                    repoStatus.textContent = 'Please enter your Github username first';
+                } else {
+                    repoStatus.textContent = `Error: ${err.message || 'Failed to load repos'}`;
+                }
+               }
+            } else {
+                selectedRepos = [];
+                updateRepoDisplay();
+                chrome.storage.local.set({ selectedRepos: [] });
+                repoStatus.textContent = '';
+            }
+        }, 300));
+
+        repoSearch.addEventListener('keydown', (e) => {
+            const items = repoDropdown.querySelectorAll('.repository-dropdown-item');
+
+            switch(e.key) {
+                case 'ArrowDown':
+                    e.preventDefault();
+                    highlightedIndex = Math.min(highlightedIndex+ 1, items.length - 1);
+                    updateHighlight(items);
+                    break;
+                case 'ArrowUp':
+                    e.preventDefault();
+                    highlightedIndex = Math.max(highlightedIndex-1, 0);
+                    updateHighlight(items);
+                    break;
+                case 'Enter':
+                    e.preventDefault();
+                    if(highlightedIndex >= 0 && items[highlightedIndex]) {
+                        fnSelectedRepos(items[highlightedIndex].dataset.repoName);
+                    }
+                    break;
+                case 'Escape':
+                    hideDropdown();
+                    break;
+            }
+        });
+
+        repoSearch.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase();
+            filterAndDisplayRepos(query);
+        })
+        let programmaticFocus = false;
+        repoSearch.addEventListener('focus', function () {
+            if(programmaticFocus){
+                programmaticFocus = false;
+                return;
+            }
+            if (repoSearch.value) {
+                filterAndDisplayRepos(repoSearch.value.toLowerCase());
+            } else if (availableRepos.length > 0) {
+                filterAndDisplayRepos('');
+            }
+        });
+
+        document.addEventListener('click', (e) => {
+            if(!e.target.closest('#repoSearch') && !e.target.closest('#repoDropdown')) {
+                hideDropdown();
+            }
+        });
+
+        function debugRepoFetch() {
+            chrome.storage.local.get(['githubUsername', 'githubToken', 'orgName'], (items) => {
+                console.log('Current settings:', {
+                    username: items.githubUsername,
+                    hasToken: !!items.githubToken,
+                    org: items.orgName || 'fossasia'
+                });
+            });
+        }
+        debugRepoFetch();
+        async function loadRepos() {
+            console.log('window.fetchUserRepositories exists:', !!window.fetchUserRepositories);
+            console.log('Available functions:', Object.keys(window).filter(key => key.includes('fetch')));
+    
+            if(!window.fetchUserRepositories) {
+                repoStatus.textContent = 'Repository fetching not available';
+                return;
+            }
+
+            chrome.storage.local.get(['githubUsername', 'githubToken'], (items) => {
+                console.log('Storage data for repo fetch:', {
+                    hasUsername: !!items.githubUsername,
+                    hasToken: !!items.githubToken,
+                    username: items.githubUsername
+                });
+                
+                if (!items.githubUsername) {
+                    repoStatus.textContent = 'GitHub username required';
+                    return;
+                }
+
+                performRepoFetch();
+            });
+        }
+
+        async function performRepoFetch() {
+            repoStatus.textContent = 'Loading repositories...';
+            repoSearch.classList.add('repository-search-loading');
+
+            try {
+                const cacheData = await new Promise(resolve => {
+                    chrome.storage.local.get(['repoCache'], resolve);
+                });
+                const storageItems = await new Promise( resolve => {
+                    chrome.storage.local.get(['githubUsername', 'githubToken', 'orgName'], resolve);
+                })
+                const repoCacheKey = `repos-${storageItems.githubUsername}-${storageItems.orgName || 'fossasia'}`;
+                const now = Date.now();
+                const cacheAge = cacheData.repoCache?.timestamp ? now - cacheData.repoCache.timestamp : Infinity;
+                const cacheTTL = 10 * 60 * 1000; // 10 minutes
+
+                if (cacheData.repoCache && 
+                    cacheData.repoCache.cacheKey === repoCacheKey && 
+                    cacheAge < cacheTTL) {
+                    
+                    console.log('Using cached repositories in manual fetch');
+                    availableRepos = cacheData.repoCache.data;
+                    repoStatus.textContent = `${availableRepos.length} repositories loaded (cached)`;
+                    
+                    if(document.activeElement === repoSearch){
+                        filterAndDisplayRepos(repoSearch.value.toLowerCase());
+                    }
+                    return;
+                }
+                availableRepos = await window.fetchUserRepositories(
+                    storageItems.githubUsername, 
+                    storageItems.githubToken, 
+                    storageItems.orgName || 'fossasia'
+                );
+                repoStatus.textContent = `${availableRepos.length} repositories loaded`;
+
+                chrome.storage.local.set({
+                    repoCache: {
+                        data: availableRepos,
+                        cacheKey: repoCacheKey,
+                        timestamp: now
+                    }
+                });
+
+                if(document.activeElement === repoSearch){
+                    filterAndDisplayRepos(repoSearch.value.toLowerCase());
+                }
+            } catch (err) {
+                console.error(`Failed to load repos:`, err);
+                
+                if (err.message && err.message.includes('401')) {
+                    repoStatus.textContent = 'GitHub token required for private repos';
+                } else if (err.message && err.message.includes('username')) {
+                    repoStatus.textContent = 'Please enter your GitHub username first';
+                } else {
+                    repoStatus.textContent = `Error: ${err.message || 'Failed to load repositories'}`;
+                }
+            } finally{
+                repoSearch.classList.remove('repository-search-loading');
+            }
+        }
+
+        function filterAndDisplayRepos(query) {
+            if(availableRepos.length === 0) {
+                repoDropdown.innerHTML = '<div class="p-3 text-center text-gray-500 text-sm">Loading repositories automatically...</div>';
+                showDropdown();
+                return;
+            }
+
+            const filtered = availableRepos.filter(repo => 
+                !selectedRepos.includes(repo.name) && (repo.name.toLowerCase().includes(query) || repo.description?.toLowerCase().includes(query))
+            );
+
+            if(filtered.length === 0) {
+                repoDropdown.innerHTML = '<div class="p-3 text-center text-gray-500 text-sm">No repositories found</div>';
+            } else {
+                repoDropdown.innerHTML = filtered.slice(0, 10).map(repo => `
+                    <div class="repository-dropdown-item" data-repo-name="${repo.name}">
+                        <div class="repo-name">${repo.name}</div>
+                        <div class="repo-info">
+                            ${repo.language ? `<span class="repo-language">${repo.language}</span>` : ''}
+                            ${repo.stars ? `<span class="repo-stars"><i class="fa fa-star"></i> ${repo.stars}</span>` : ''}
+                            <span class="repo-desc">${repo.description ? repo.description.substring(0, 50) + (repo.description.length > 50 ? '...' : '') : 'No description'}</span>
+                        </div>
+                    </div>
+                `).join('');
+
+                repoDropdown.querySelectorAll('.repository-dropdown-item').forEach(item => {
+                    item.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        fnSelectedRepos(item.dataset.repoName);
+                    });
+                });
+            }
+            highlightedIndex = -1;
+            showDropdown();
+        }
+
+        function fnSelectedRepos(repoName) {
+            if(!selectedRepos.includes(repoName)){
+                selectedRepos.push(repoName);
+                updateRepoDisplay();
+                saveRepoSelection();
+            }
+
+            repoSearch.value = '';
+            filterAndDisplayRepos('');
+            programmaticFocus = true;
+            repoSearch.focus();
+        }
+
+        function removeRepo(repoName) {
+            selectedRepos = selectedRepos.filter(name => name !== repoName) ;
+            updateRepoDisplay();
+            saveRepoSelection();
+
+            if(repoSearch.value) {
+                filterAndDisplayRepos(repoSearch.value.toLowerCase());
+            }
+        }
+
+        function updateRepoDisplay(){
+            if(selectedRepos.length === 0) {
+                repoTags.innerHTML = '<span class="text-xs text-gray-500 select-none" id="repoPlaceholder">No repositories selected (all will be included)</span>';
+                repoCount.textContent = ' 0 repositories selected';
+            } else {
+                repoTags.innerHTML = selectedRepos.map(repo => `
+                    <span class="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full" style="margin:5px;">
+                        ${repo}
+                        <button type="button" class="ml-1 text-blue-600 hover:text-blue-800 remove-repo-btn cursor-pointer" data-repo-name="${repo}">
+                            <i class="fa fa-times"></i>
+                        </button>
+                    </span>
+                `).join(' ');
+                repoTags.querySelectorAll('.remove-repo-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const repoName = btn.dataset.repoName;
+                        removeRepo(repoName);
+                    });
+                });
+                repoCount.textContent = `${selectedRepos.length} repository${selectedRepos.length === 1 ? '' : 's'} selected`;
+            }
+        }
+
+        function saveRepoSelection() {
+            chrome.storage.local.set({
+                selectedRepos: selectedRepos,
+                githubCache: null
+            });
+        }
+
+        function showDropdown() {
+            repoDropdown.classList.remove('hidden');
+        }
+
+        function hideDropdown() {
+            repoDropdown.classList.add('hidden');
+            highlightedIndex = -1;
+        }
+
+        function updateHighlight(items) {
+            items.forEach((item, index) => {
+                item.classList.toggle('highlighted', index === highlightedIndex);
+            });
+
+            if(highlightedIndex >= 0 && items[highlightedIndex]) {
+                items[highlightedIndex].scrollIntoView({ block: 'nearest' });
+            }
+        }
+
+        window.removeRepo = removeRepo;
+
+        chrome.storage.local.get(['githubUsername'], (items) => {
+            if(items.githubUsername && useRepoFilter.checked && availableRepos.length === 0) {
+                setTimeout(() => loadRepos(), 1000);
+            }
+        })
+    }
 });
+
+
 
 // Tooltip bubble 
 document.querySelectorAll('.tooltip-container').forEach(container => {
@@ -524,9 +894,9 @@ document.getElementById('refreshCache').addEventListener('click', async function
     button.disabled = true;
 
     try {
-        // Clear local cache
+        // Clear both caches
         await new Promise(resolve => {
-            chrome.storage.local.remove('githubCache', resolve);
+            chrome.storage.local.remove(['githubCache', 'repoCache'], resolve);
         });
 
         // Clear the scrum report
@@ -535,8 +905,138 @@ document.getElementById('refreshCache').addEventListener('click', async function
             scrumReport.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Cache cleared successfully. Click "Generate Report" to fetch fresh data.</p>';
         }
 
+        if(typeof availableRepos !== 'undefined'){
+            availableRepos = [];
+        }
+
+        const repoStatus = document.getElementById('repoStatus');
+        if(repoStatus){
+            repoStatus.textContent = '';
+        }
+
         button.innerHTML = '<i class="fa fa-check"></i><span>Cache Cleared!</span>';
         button.classList.remove('loading');
+
+        setTimeout(() => triggerRepoFetchIfEnabled(), 500);
+
+        setTimeout(() => {
+            button.innerHTML = originalText;
+            button.disabled = false;
+        }, 2000);
+
+    } catch (error) {
+        console.error('Cache clear failed:', error);
+        button.innerHTML = '<i class="fa fa-exclamation-triangle"></i><span>Failed to clear cache</span>';
+        button.classList.remove('loading');
+
+        setTimeout(() => {
+            button.innerHTML = originalText;
+            button.disabled = false;
+        }, 3000);
+    }
+});
+
+const handleOrgInput = debounce(function () {
+    let org = orgInput.value.trim().toLowerCase();
+    if (!org) {
+        org = 'fossasia';
+    }
+    console.log('[Org Check] Checking organization:', org);
+    fetch(`https://api.github.com/orgs/${org}`)
+        .then(res => {
+            console.log('[Org Check] Response status for', org, ':', res.status);
+            if (res.status === 404) {
+                console.log('[Org Check] Organization not found on GitHub:', org);
+                const oldToast = document.getElementById('invalid-org-toast');
+                if (oldToast) oldToast.parentNode.removeChild(oldToast);
+                const toastDiv = document.createElement('div');
+                toastDiv.id = 'invalid-org-toast';
+                toastDiv.className = 'toast';
+                toastDiv.style.background = '#dc2626';
+                toastDiv.style.color = '#fff';
+                toastDiv.style.fontWeight = 'bold';
+                toastDiv.style.padding = '12px 24px';
+                toastDiv.style.borderRadius = '8px';
+                toastDiv.style.position = 'fixed';
+                toastDiv.style.top = '24px';
+                toastDiv.style.left = '50%';
+                toastDiv.style.transform = 'translateX(-50%)';
+                toastDiv.style.zIndex = '9999';
+                toastDiv.innerText = 'Organization not found on GitHub.';
+                document.body.appendChild(toastDiv);
+                setTimeout(() => {
+                    if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
+                }, 3000);
+                return;
+            }
+            const oldToast = document.getElementById('invalid-org-toast');
+            if (oldToast) oldToast.parentNode.removeChild(oldToast);
+            console.log('[Org Check] Organisation exists on GitHub:', org);
+            console.log('[Org Check] Organization exists on GitHub:', org);
+            chrome.storage.local.set({ orgName: org }, function () {
+                if (window.generateScrumReport) window.generateScrumReport();
+                triggerRepoFetchIfEnabled();
+            });
+        })
+        .catch((err) => {
+            console.log('[Org Check] Error validating organisation:', org, err);
+            const oldToast = document.getElementById('invalid-org-toast');
+            if (oldToast) oldToast.parentNode.removeChild(oldToast);
+            const toastDiv = document.createElement('div');
+            toastDiv.id = 'invalid-org-toast';
+            toastDiv.className = 'toast';
+            toastDiv.style.background = '#dc2626';
+            toastDiv.style.color = '#fff';
+            toastDiv.style.fontWeight = 'bold';
+            toastDiv.style.padding = '12px 24px';
+            toastDiv.style.borderRadius = '8px';
+            toastDiv.style.position = 'fixed';
+            toastDiv.style.top = '24px';
+            toastDiv.style.left = '50%';
+            toastDiv.style.transform = 'translateX(-50%)';
+            toastDiv.style.zIndex = '9999';
+            toastDiv.innerText = 'Error validating organization.';
+            document.body.appendChild(toastDiv);
+            setTimeout(() => {
+                if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
+            }, 3000);
+        });
+}, 3000);
+
+let lastInvalidOrg = '';
+orgInput.addEventListener('input', handleOrgInput);
+
+document.getElementById('refreshCache').addEventListener('click', async function () {
+    const button = this;
+    const originalText = button.innerHTML;
+
+    button.classList.add('loading');
+    button.innerHTML = '<i class="fa fa-refresh fa-spin"></i><span>Refreshing...</span>';
+    button.disabled = true;
+
+    try {
+        await new Promise(resolve => {
+            chrome.storage.local.remove(['githubCache', 'repoCache'], resolve);
+        });
+
+        const scrumReport = document.getElementById('scrumReport');
+        if (scrumReport) {
+            scrumReport.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Cache cleared successfully. Click "Generate Report" to fetch fresh data.</p>';
+        }
+
+        if(typeof availableRepos !== 'undefined'){
+            availableRepos = [];
+        }
+
+        const repoStatus = document.getElementById('repoStatus');
+        if(repoStatus){
+            repoStatus.textContent = '';
+        }
+
+        button.innerHTML = '<i class="fa fa-check"></i><span>Cache Cleared!</span>';
+        button.classList.remove('loading');
+
+        setTimeout(() => triggerRepoFetchIfEnabled(), 500);
 
         setTimeout(() => {
             button.innerHTML = originalText;
@@ -584,9 +1084,10 @@ function toggleRadio(radio) {
             end: endDateInput.value,
             isLastWeek: radio.id === 'lastWeekContribution'
         });
+        
+        triggerRepoFetchIfEnabled();
     });
 }
-
 let cacheInput = document.getElementById('cacheInput');
 if (cacheInput) {
     chrome.storage.local.get(['cacheInput'], function (result) {
@@ -616,4 +1117,9 @@ if (cacheInput) {
         });
     });
 
+}
+async function triggerRepoFetchIfEnabled() {
+    if (window.triggerRepoFetchIfEnabled) {
+        await window.triggerRepoFetchIfEnabled();
+    }
 }

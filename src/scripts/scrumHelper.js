@@ -1,4 +1,4 @@
-const DEBUG = false;
+const DEBUG = true;
 function log(...args) {
 	if (DEBUG) {
 		console.log(`[SCRUM-HELPER]:`, ...args);
@@ -58,9 +58,6 @@ function allIncluded(outputTarget = 'email') {
 	let issue_opened_button =
 		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
 
-
-
-	// let linkStyle = '';
 	function getChromeData() {
 		console.log("Getting Chrome data for context:", outputTarget);
 		chrome.storage.local.get(
@@ -77,7 +74,9 @@ function allIncluded(outputTarget = 'email') {
 				'userReason',
 				'githubCache',
 				'cacheInput',
-				'orgName'
+				'orgName',
+				'selectedRepos',
+				'useRepoFilter'
 			],
 			(items) => {
 				console.log("Storage items received:", items);
@@ -180,6 +179,12 @@ function allIncluded(outputTarget = 'email') {
 				if (items.orgName) {
 					orgName = items.orgName;
 				}
+				if(items.selectedRepos) {
+					selectedRepos = items.selectedRepos;
+				}
+				if(items.useRepoFilter){
+					useRepoFilter = items.useRepoFilter;
+				}
 			},
 		);
 	}
@@ -247,6 +252,11 @@ function allIncluded(outputTarget = 'email') {
 		errors: {},
 		errorTTL: 60 * 1000, // 1 min error cache 
 		subject: null,
+        repoData: null,
+        repoCacheKey: null,
+        repoTimeStamp: 0,
+        repoFetching: false,
+        repoQueue: [],
 	};
 
 	async function getCacheTTL() {
@@ -432,7 +442,6 @@ function allIncluded(outputTarget = 'email') {
 			await saveToStorage(githubCache.data);
 			processGithubData(githubCache.data);
 
-			// Resolve queued calls
 			githubCache.queue.forEach(({ resolve }) => resolve());
 			githubCache.queue = [];
 		} catch (err) {
@@ -466,6 +475,63 @@ function allIncluded(outputTarget = 'email') {
 			githubCache.fetching = false;
 		}
 	}
+
+    async function fetchReposIfNeeded() {
+        if(!useRepoFilter){
+            log('Repo fiter disabled, skipping fetch');
+            return[];
+        }
+        const repoCacheKey = `repos-${githubUsername}-${orgName}-${startingDate}-${endingDate}`;
+
+        const now = Date.now();
+        const isRepoCacheFresh = (now - githubCache.repoTimeStamp) < githubCache.ttl;
+        const isRepoCacheKeyMatch = githubCache.repoCacheKey === repoCacheKey;
+
+        if(githubCache.repoData && isRepoCacheFresh && isRepoCacheKeyMatch) {
+            log('Using cached repo data');
+            return githubCache.repoData;
+        }
+
+        if(githubCache.repoFetching){
+            log('Repo fetch is in progress, queuing request');
+            return new Promise((resolve, reject) => {
+                githubCache.repoQueue.push({ resolve, reject });
+            });
+        }
+
+        githubCache.repoFetching = true;
+        githubCache.repoCacheKey = repoCacheKey;
+
+        try{
+            log('Fetching repos automatically');
+            const repos = await fetchUserRepositories(githubUsername, githubToken, orgName);
+
+            githubCache.repoData = repos;
+            githubCache.repoTimeStamp = now;
+
+            chrome.storage.local.set({
+                repoCache: {
+                    data: repos, 
+                    cacheKey: repoCacheKey,
+                    timestamp: now
+                }
+            });
+
+            githubCache.repoQueue.forEach(({ resolve }) => resolve(repos));
+            githubCache.repoQueue = [];
+
+            log(`Successfuly cached ${repos.length} repositories`);
+            return repos;
+        } catch(err) {
+            logError('Failed to fetch reppos:', err);
+            githubCache.repoQueue.forEach(({ reject }) => reject(err));
+            githubCache.repoQueue = [];
+
+            throw err;
+        } finally{
+            githubCache.repoFetching = false;
+        }
+    }
 
 	async function verifyCacheStatus() {
 		log('Cache Status: ', {
@@ -504,16 +570,35 @@ function allIncluded(outputTarget = 'email') {
 		}
 	}
 
-	function processGithubData(data) {
+	async function processGithubData(data) {
 		log('Processing Github data');
-		githubIssuesData = data.githubIssuesData;
-		githubPrsReviewData = data.githubPrsReviewData;
-		githubUserData = data.githubUserData;
+		
+		let processedData = data;
+
+        if(useRepoFilter && selectedRepos?.length > 0) {
+            try {
+                await fetchReposIfNeeded();
+                processedData = filterDataByRepos(data, selectedRepos);
+                log('Applied repo filter:', selectedRepos);
+            } catch(err) {
+                logError('failed to fetch repos for filtering:', err);
+            }
+        }
+
+		if(useRepoFilter && selectedRepos?.length > 0) {
+			processedData = filterDataByRepos(data, selectedRepos);
+			log('Applied repo filter:', selectedRepos);
+		}
+
+		githubIssuesData = processedData.githubIssuesData;
+		githubPrsReviewData = processedData.githubPrsReviewData;
+		githubUserData = processedData.githubUserData;
 
 		log('GitHub data set:', {
 			issues: githubIssuesData?.items?.length || 0,
 			prs: githubPrsReviewData?.items?.length || 0,
-			user: githubUserData?.login
+			user: githubUserData?.login,
+			filtered: useRepoFilter
 		});
 
 		lastWeekArray = [];
@@ -742,17 +827,14 @@ ${userReason}`;
 		}
 	}
 
-	// Helper: calculate days between two yyyy-mm-dd strings
 	function getDaysBetween(start, end) {
 		const d1 = new Date(start);
 		const d2 = new Date(end);
 		return Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24));
 	}
 
-	// Session cache object
 	let sessionMergedStatusCache = {};
 
-	// Helper to fetch PR details for merged status (REST, single PR)
 	async function fetchPrMergedStatusREST(owner, repo, number, headers) {
 		const cacheKey = `${owner}/${repo}#${number}`;
 		if (sessionMergedStatusCache[cacheKey] !== undefined) {
@@ -771,7 +853,6 @@ ${userReason}`;
 		}
 	}
 
-	// Refactor writeGithubIssuesPrs to implement the new logic
 	async function writeGithubIssuesPrs() {
 		let items = githubIssuesData.items;
 		lastWeekArray = [];
@@ -785,14 +866,12 @@ ${userReason}`;
 		let useMergedStatus = false;
 		let fallbackToSimple = false;
 		let daysRange = getDaysBetween(startingDate, endingDate);
-		// For token users, always enable useMergedStatus (no 7-day limit)
 		if (githubToken) {
 			useMergedStatus = true;
 		} else if (daysRange <= 7) {
 			useMergedStatus = true;
 		}
 
-		// Collect PRs to batch fetch merged status
 		let prsToCheck = [];
 		for (let i = 0; i < items.length; i++) {
 			let item = items[i];
@@ -855,7 +934,6 @@ ${userReason}`;
 					if (merged === true) {
 						li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_merged_button}</li>`;
 					} else {
-						// Always show closed label for merged === false or merged === null/undefined
 						li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_closed_button}</li>`;
 					}
 				}
@@ -909,7 +987,6 @@ ${userReason}`;
 
 		clearInterval(intervalBody);
 		scrumBody = elements.body;
-		// writeScrumBody(); // This call is premature and causes the issue.
 	}, 500);
 
 	let intervalSubject = setInterval(() => {
@@ -988,8 +1065,6 @@ ${userReason}`;
 	}
 }
 
-// allIncluded('email');
-
 if (window.location.protocol.startsWith('http')) {
 	allIncluded('email');
 	$('button>span:contains(New conversation)').parent('button').click(() => {
@@ -1014,10 +1089,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 
 async function fetchPrsMergedStatusBatch(prs, headers) {
-	// prs: Array of {owner, repo, number}
 	const results = {};
 	if (prs.length === 0) return results;
-	// Use GitHub GraphQL API for batching
 	const query = `query {
 ${prs.map((pr, i) => `	repo${i}: repository(owner: \"${pr.owner}\", name: \"${pr.repo}\") {
 		pr${i}: pullRequest(number: ${pr.number}) { merged }
@@ -1044,3 +1117,163 @@ ${prs.map((pr, i) => `	repo${i}: repository(owner: \"${pr.owner}\", name: \"${pr
 	}
 }
 
+let selectedRepos = [];
+let useRepoFilter = false;
+
+async function fetchUserRepositories(username, token, org = 'fossasia') {
+	const headers = {
+		'Accept': 'application/vnd.github.v3+json',
+	};
+
+    if(token) {
+        headers['Authorization'] = `token ${token}`;
+    }
+
+    if (!username) {
+        throw new Error('GitHub username is required');
+    }
+
+    console.log('Fetching repos for username:', username, 'org:', org);
+
+	try{
+		let dateRange = '';
+		try {
+			const storageData = await new Promise(resolve => {
+				chrome.storage.local.get(['startingDate', 'endingDate', 'lastWeekContribution', 'yesterdayContribution'], resolve);
+			});
+
+			let startDate, endDate;
+			if(storageData.lastWeekContribution) {
+				const today = new Date();
+				const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
+				startDate = lastWeek.toISOString().split('T')[0];
+				endDate = today.toISOString().split('T')[0];
+			} else if(storageData.yesterdayContribution) {
+				const today = new Date();
+				const yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+				startDate = yesterday.toISOString().split('T')[0];
+				endDate = today.toISOString().split('T')[0];
+			} else if(storageData.startingDate && storageData.endingDate) {
+				startDate = storageData.startingDate;
+				endDate = storageData.endingDate;
+			} else {
+				const today = new Date();
+				const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
+				startDate = lastWeek.toISOString().split('T')[0];
+				endDate = today.toISOString().split('T')[0];
+			}
+
+			dateRange = `+created:${startDate}..${endDate}`;
+			console.log(`Using date range for repo search: ${startDate} to ${endDate}`);
+		} catch(err) {
+			console.warn('Could not determine date range, using last 30 days:', err);
+			const today = new Date();
+			const thirtyDaysAgo = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 30);
+			const startDate = thirtyDaysAgo.toISOString().split('T')[0];
+			const endDate =  today.toISOString().split('T')[0];
+		}
+        const issuesUrl = `https://api.github.com/search/issues?q=author:${username}+org:${org}${dateRange}&per_page=100`;
+        const commentsUrl = `https://api.github.com/search/issues?q=commenter:${username}+org:${org}${dateRange.replace('created:', 'updated:')}&per_page=100`;
+
+        console.log('Search URLs:', { issuesUrl, commentsUrl });
+	
+		const [issuesRes, commentsRes] = await Promise.all([
+            fetch(issuesUrl, { headers }).catch(() => ({ ok: false, json: () => ({ items: [] }) })),
+            fetch(commentsUrl, { headers }).catch(() => ({ ok: false, json: () => ({ items: [] }) }))
+        ]);
+
+		let repoSet = new Set();
+
+		if(issuesRes.ok) {
+			const issuesData = await issuesRes.json();
+			issuesData.items?.forEach(item => {
+				if (item.repository_url) {
+					const repoName = item.repository_url.split('/').pop();
+					repoSet.add(repoName);
+				}
+			});
+			console.log(`Found ${issuesData.items?.length || 0} issues/PRs authored by user in date range`);
+		}
+
+		if(commentsRes.ok) {
+			const commentsData = await commentsRes.json();
+			commentsData.items?.forEach(item => {
+				if(item.repository_url) {
+					const repoName = item.repository_url.split('/').pop();
+					repoSet.add(repoName);
+				}
+			})
+			console.log(`Found ${commentsData.items?.length || 0} issues/PRs with user comments in date range`);
+		}
+		
+		const repoNames = Array.from(repoSet);
+		console.log(`Found ${repoNames.length} unique repositories with contributions in the selected date range`);
+
+		if(repoNames.length === 0) {
+			console.log(`No repositories with contrbutions found in the selected date range`);
+			return[];
+		}
+
+		const repoPromises = repoNames.slice(0, 50).map(async (repoName) => {
+			try {
+				const repoUrl = `https://api.github.com/repos/${org}/${repoName}`;
+				const repoRes = await fetch(repoUrl, {headers});
+				if (repoRes.ok) {
+					const repo = await repoRes.json();
+					return {
+						name: repo.name,
+						fullName: repo.full_name,
+						description: repo.description,
+						language: repo.language,
+						updatedAt: repo.updated_at,
+						stars: repo.stargazers_count
+					};
+				}
+				return null;
+			} catch (err) {
+				console.warn(`Dailed to fetch details for repo ${repoName}: ` ,err);
+				return {
+					name: repoName,
+					fullName: `${org}/${repoName}`,
+					description: 'Repostory details unavailable',
+					language: null,
+					updatedAt: new Date().toISOString(),
+					stars: 0
+				};
+			}
+		});
+
+		const repos = (await Promise.all(repoPromises)).filter(repo => repo !== null);
+		console.log(`Successfully fetched details for ${repos.length} repositories with contributions in the selected date range`);
+		return repos.sort((a,b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+	} catch (err) {
+		logError('Failed to fetch repositories:', err);
+		throw err;
+	}
+}
+
+function filterDataByRepos(data, selectedRepos) {
+	if(!selectedRepos || selectedRepos.length === 0) {
+		return data;
+	}
+
+	const filteredData = {
+        ...data,
+        githubIssuesData: {
+            ...data.githubIssuesData,
+            items: data.githubIssuesData?.items?.filter(item => {
+                const repoName = item.repository_url?.substr(item.repository_url.lastIndexOf('/') + 1);
+                return selectedRepos.includes(repoName);
+            }) || []
+        },
+        githubPrsReviewData: {
+            ...data.githubPrsReviewData,
+            items: data.githubPrsReviewData?.items?.filter(item => {
+                const repoName = item.repository_url?.substr(item.repository_url.lastIndexOf('/') + 1);
+                return selectedRepos.includes(repoName);
+            }) || []
+        }
+    };
+	return filteredData;
+}
+window.fetchUserRepositories = fetchUserRepositories;
