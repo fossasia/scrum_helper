@@ -952,7 +952,7 @@ ${userReason}`;
                   li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a> ${pr_draft_button}</li>`;
                 } else if (item.state === 'open') {
                     li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a> ${pr_open_button}`;
-                    if (showCommits && item._allCommits && item._allCommits.length) {
+                    if (showCommits && item._allCommits && item._allCommits.length && !isNewPR) {
                         item._allCommits.forEach(commit => {
                             li += `<li style="list-style: disc; margin: 0 0 0 20px; padding: 0; color: #666;"><span style="color:#2563eb;">${commit.messageHeadline}</span><span style="color:#666; font-size: 11px;"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
                         });
