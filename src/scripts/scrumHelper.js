@@ -442,7 +442,6 @@ function allIncluded(outputTarget = 'email') {
 			await saveToStorage(githubCache.data);
 			processGithubData(githubCache.data);
 
-			// Resolve queued calls
 			githubCache.queue.forEach(({ resolve }) => resolve());
 			githubCache.queue = [];
 		} catch (err) {
