@@ -1053,8 +1053,9 @@ ${userReason}`;
         if (outputTarget === 'popup') {
             return;
         } else {
-            if (scrumBody && githubUsername && githubIssuesData) {
+            if (scrumBody && githubUsername && githubIssuesData && githubPrsReviewData) {
                 clearInterval(intervalWriteGithubIssues);
+                clearInterval(intervalWriteGithubPrs);
                 writeGithubIssuesPrs();
             }
         }
@@ -1063,8 +1064,9 @@ ${userReason}`;
         if (outputTarget === 'popup') {
             return;
         } else {
-            if (scrumBody && githubUsername && githubPrsReviewData) {
+            if (scrumBody && githubUsername && githubPrsReviewData && githubIssuesData) {
                 clearInterval(intervalWriteGithubPrs);
+                clearInterval(intervalWriteGithubIssues);
                 writeGithubPrsReviews();
             }
         }
