@@ -214,9 +214,16 @@ document.addEventListener('DOMContentLoaded', function () {
         const copyBtn = document.getElementById('copyReport');
 
         generateBtn.addEventListener('click', function () {
-            this.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
-            this.disabled = true;
-            window.generateScrumReport();
+            // Check org input value before generating report
+            let org = orgInput.value.trim().toLowerCase();
+            if (!org) {
+                org = 'fossasia';
+            }
+            chrome.storage.local.set({ orgName: org }, () => {
+                generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
+                generateBtn.disabled = true;
+                window.generateScrumReport();
+            });
         });
 
         copyBtn.addEventListener('click', function () {
@@ -276,11 +283,11 @@ document.addEventListener('DOMContentLoaded', function () {
             console.log('Restoring state:', items);
 
 
-            if(items.startingDate && items.endingDate && !items.lastWeekContribution && !items.yesterdayContribution) {
+            if (items.startingDate && items.endingDate && !items.lastWeekContribution && !items.yesterdayContribution) {
                 const startDateInput = document.getElementById('startingDate');
                 const endDateInput = document.getElementById('endingDate');
 
-                if(startDateInput && endDateInput) {
+                if (startDateInput && endDateInput) {
 
                     startDateInput.value = items.startingDate;
                     endDateInput.value = items.endingDate;
@@ -368,103 +375,29 @@ document.addEventListener('DOMContentLoaded', function () {
         orgInput.value = result.orgName || '';
     });
 
+    // Auto-update orgName in storage on input change
+    orgInput.addEventListener('input', function () {
+        let org = orgInput.value.trim().toLowerCase();
+        if (!org) {
+            org = 'fossasia';
+        }
+        chrome.storage.local.set({ orgName: org }, function () {
+            chrome.storage.local.remove('githubCache'); // Clear cache on org change
+        });
+    });
+
     // Add click event for setOrgBtn to set org
     setOrgBtn.addEventListener('click', function () {
         let org = orgInput.value.trim().toLowerCase();
         if (!org) {
             org = 'fossasia';
         }
-        // Check if org is already set
-        chrome.storage.local.get(['orgName'], function (result) {
-            if (result.orgName && result.orgName.toLowerCase() === org) {
-                // Show toast: org already set
-                const oldToast = document.getElementById('invalid-org-toast');
-                if (oldToast) oldToast.parentNode.removeChild(oldToast);
-                const toastDiv = document.createElement('div');
-                toastDiv.id = 'invalid-org-toast';
-                toastDiv.className = 'toast';
-                toastDiv.style.background = '#2563eb';
-                toastDiv.style.color = '#fff';
-                toastDiv.style.fontWeight = 'bold';
-                toastDiv.style.padding = '12px 24px';
-                toastDiv.style.borderRadius = '8px';
-                toastDiv.style.position = 'fixed';
-                toastDiv.style.top = '24px';
-                toastDiv.style.left = '50%';
-                toastDiv.style.transform = 'translateX(-50%)';
-                toastDiv.style.zIndex = '9999';
-                toastDiv.innerText = 'Organization is already set to this value.';
-                document.body.appendChild(toastDiv);
-                setTimeout(() => {
-                    if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
-                }, 2500);
-                return;
-            }
-            // Show loading spinner only
-            setOrgBtn.disabled = true;
-            const originalText = setOrgBtn.innerHTML;
-            setOrgBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
-            fetch(`https://api.github.com/orgs/${org}`)
-                .then(res => {
-                    if (res.status === 404) {
-                        setOrgBtn.disabled = false;
-                        setOrgBtn.innerHTML = originalText;
-                        const oldToast = document.getElementById('invalid-org-toast');
-                        if (oldToast) oldToast.parentNode.removeChild(oldToast);
-                        const toastDiv = document.createElement('div');
-                        toastDiv.id = 'invalid-org-toast';
-                        toastDiv.className = 'toast';
-                        toastDiv.style.background = '#dc2626';
-                        toastDiv.style.color = '#fff';
-                        toastDiv.style.fontWeight = 'bold';
-                        toastDiv.style.padding = '12px 24px';
-                        toastDiv.style.borderRadius = '8px';
-                        toastDiv.style.position = 'fixed';
-                        toastDiv.style.top = '24px';
-                        toastDiv.style.left = '50%';
-                        toastDiv.style.transform = 'translateX(-50%)';
-                        toastDiv.style.zIndex = '9999';
-                        toastDiv.innerText = 'Organization not found on GitHub.';
-                        document.body.appendChild(toastDiv);
-                        setTimeout(() => {
-                            if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
-                        }, 3000);
-                        return;
-                    }
-                    const oldToast = document.getElementById('invalid-org-toast');
-                    if (oldToast) oldToast.parentNode.removeChild(oldToast);
-                    chrome.storage.local.set({ orgName: org }, function () {
-                        // Clear the scrum report and show org changed message
-                        const scrumReport = document.getElementById('scrumReport');
-                        if (scrumReport) {
-                            scrumReport.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Organization changed. Click Generate button to fetch the GitHub activities.</p>';
-                        }
-                        // Clear the githubCache for previous org
-                        chrome.storage.local.remove('githubCache');
-                        setOrgBtn.disabled = false;
-                        setOrgBtn.innerHTML = originalText;
-                        // Show toast: org is set
-                        const toastDiv = document.createElement('div');
-                        toastDiv.id = 'invalid-org-toast';
-                        toastDiv.className = 'toast';
-                        toastDiv.style.background = '#10b981';
-                        toastDiv.style.color = '#fff';
-                        toastDiv.style.fontWeight = 'bold';
-                        toastDiv.style.padding = '12px 24px';
-                        toastDiv.style.borderRadius = '8px';
-                        toastDiv.style.position = 'fixed';
-                        toastDiv.style.top = '24px';
-                        toastDiv.style.left = '50%';
-                        toastDiv.style.transform = 'translateX(-50%)';
-                        toastDiv.style.zIndex = '9999';
-                        toastDiv.innerText = 'Organization is set.';
-                        document.body.appendChild(toastDiv);
-                        setTimeout(() => {
-                            if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
-                        }, 2500);
-                    });
-                })
-                .catch((err) => {
+        setOrgBtn.disabled = true;
+        const originalText = setOrgBtn.innerHTML;
+        setOrgBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
+        fetch(`https://api.github.com/orgs/${org}`)
+            .then(res => {
+                if (res.status === 404) {
                     setOrgBtn.disabled = false;
                     setOrgBtn.innerHTML = originalText;
                     const oldToast = document.getElementById('invalid-org-toast');
@@ -482,13 +415,70 @@ document.addEventListener('DOMContentLoaded', function () {
                     toastDiv.style.left = '50%';
                     toastDiv.style.transform = 'translateX(-50%)';
                     toastDiv.style.zIndex = '9999';
-                    toastDiv.innerText = 'Error validating organization.';
+                    toastDiv.innerText = 'Organization not found on GitHub.';
                     document.body.appendChild(toastDiv);
                     setTimeout(() => {
                         if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
                     }, 3000);
+                    return;
+                }
+                const oldToast = document.getElementById('invalid-org-toast');
+                if (oldToast) oldToast.parentNode.removeChild(oldToast);
+                chrome.storage.local.set({ orgName: org }, function () {
+                    // Always clear the scrum report and show org changed message
+                    const scrumReport = document.getElementById('scrumReport');
+                    if (scrumReport) {
+                        scrumReport.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Organization changed. Click Generate button to fetch the GitHub activities.</p>';
+                    }
+                    // Clear the githubCache for previous org
+                    chrome.storage.local.remove('githubCache');
+                    setOrgBtn.disabled = false;
+                    setOrgBtn.innerHTML = originalText;
+                    // Always show green toast: org is set
+                    const toastDiv = document.createElement('div');
+                    toastDiv.id = 'invalid-org-toast';
+                    toastDiv.className = 'toast';
+                    toastDiv.style.background = '#10b981';
+                    toastDiv.style.color = '#fff';
+                    toastDiv.style.fontWeight = 'bold';
+                    toastDiv.style.padding = '12px 24px';
+                    toastDiv.style.borderRadius = '8px';
+                    toastDiv.style.position = 'fixed';
+                    toastDiv.style.top = '24px';
+                    toastDiv.style.left = '50%';
+                    toastDiv.style.transform = 'translateX(-50%)';
+                    toastDiv.style.zIndex = '9999';
+                    toastDiv.innerText = 'Organization is set.';
+                    document.body.appendChild(toastDiv);
+                    setTimeout(() => {
+                        if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
+                    }, 2500);
                 });
-        });
+            })
+            .catch((err) => {
+                setOrgBtn.disabled = false;
+                setOrgBtn.innerHTML = originalText;
+                const oldToast = document.getElementById('invalid-org-toast');
+                if (oldToast) oldToast.parentNode.removeChild(oldToast);
+                const toastDiv = document.createElement('div');
+                toastDiv.id = 'invalid-org-toast';
+                toastDiv.className = 'toast';
+                toastDiv.style.background = '#dc2626';
+                toastDiv.style.color = '#fff';
+                toastDiv.style.fontWeight = 'bold';
+                toastDiv.style.padding = '12px 24px';
+                toastDiv.style.borderRadius = '8px';
+                toastDiv.style.position = 'fixed';
+                toastDiv.style.top = '24px';
+                toastDiv.style.left = '50%';
+                toastDiv.style.transform = 'translateX(-50%)';
+                toastDiv.style.zIndex = '9999';
+                toastDiv.innerText = 'Error validating organization.';
+                document.body.appendChild(toastDiv);
+                setTimeout(() => {
+                    if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
+                }, 3000);
+            });
     });
 
     let cacheInput = document.getElementById('cacheInput');
