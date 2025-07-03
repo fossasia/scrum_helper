@@ -372,16 +372,6 @@ document.addEventListener('DOMContentLoaded', function () {
         orgInput.value = result.orgName || '';
     });
 
-    function debounce(func, wait) {
-        let timeout;
-        return function (...args) {
-            clearTimeout(timeout);
-            timeout = setTimeout(() => func.apply(this, args), wait);
-        };
-    }
-
-    let lastInvalidOrg = '';
-    orgInput.addEventListener('input', handleOrgInput);
 
     //report filter
     const repoSearch = document.getElementById('repoSearch');
@@ -1012,6 +1002,9 @@ const handleOrgInput = debounce(function () {
             }, 3000);
         });
 }, 3000);
+
+let lastInvalidOrg = '';
+orgInput.addEventListener('input', handleOrgInput);
 
 document.getElementById('refreshCache').addEventListener('click', async function () {
     const button = this;
