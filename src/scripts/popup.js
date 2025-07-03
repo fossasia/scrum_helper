@@ -763,7 +763,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 repoTags.innerHTML = selectedRepos.map(repo => `
                     <span class="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full" style="margin:5px;">
                         ${repo}
-                        <button type="button" class="ml-1 text-blue-600 hover:text-blue-800 remove-repo-btn" data-repo-name="${repo}">
+                        <button type="button" class="ml-1 text-blue-600 hover:text-blue-800 remove-repo-btn cursor-pointer" data-repo-name="${repo}">
                             <i class="fa fa-times"></i>
                         </button>
                     </span>
