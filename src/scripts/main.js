@@ -1,12 +1,16 @@
-var enableToggleElement = document.getElementById('enable');
-var githubUsernameElement = document.getElementById('githubUsername');
-var projectNameElement = document.getElementById('projectName');
-var lastWeekContributionElement = document.getElementById('lastWeekContribution');
+let enableToggleElement = document.getElementById('enable');
+let githubUsernameElement = document.getElementById('githubUsername');
+let githubTokenElement = document.getElementById('githubToken');
+let cacheInputElement = document.getElementById('cacheInput');
+let projectNameElement = document.getElementById('projectName');
+let lastWeekContributionElement = document.getElementById('lastWeekContribution');
 let yesterdayContributionElement = document.getElementById('yesterdayContribution');
-var startingDateElement = document.getElementById('startingDate');
-var endingDateElement = document.getElementById('endingDate');
-var showOpenLabelElement = document.getElementById('showOpenLabel');
-var userReasonElement = document.getElementById('userReason');
+let startingDateElement = document.getElementById('startingDate');
+let endingDateElement = document.getElementById('endingDate');
+let showOpenLabelElement = document.getElementById('showOpenLabel');
+let userReasonElement = document.getElementById('userReason');
+let showCommitsElement = document.getElementById('showCommits');
+
 function handleBodyOnLoad() {
 	browser.storage.local.get(
 		[
@@ -16,17 +20,25 @@ function handleBodyOnLoad() {
 			'startingDate',
 			'endingDate',
 			'showOpenLabel',
-			'showClosedLabel',
 			'userReason',
 			'lastWeekContribution',
 			'yesterdayContribution',
+			'cacheInput',
+			'githubToken',
+			'showCommits',
 		],
 		(items) => {
 			if (items.githubUsername) {
 				githubUsernameElement.value = items.githubUsername;
 			}
+			if (items.githubToken) {
+				githubTokenElement.value = items.githubToken;
+			}
 			if (items.projectName) {
 				projectNameElement.value = items.projectName;
+			}
+			if (items.cacheInput) {
+				cacheInputElement.value = items.cacheInput;
 			}
 			if (items.enableToggle) {
 				enableToggleElement.checked = items.enableToggle;
@@ -55,7 +67,7 @@ function handleBodyOnLoad() {
 				lastWeekContributionElement.checked = items.lastWeekContribution;
 				handleLastWeekContributionChange();
 			}
-			 else if (items.lastWeekContribution !== false) {
+			else if (items.lastWeekContribution !== false) {
 				lastWeekContributionElement.checked = true;
 				handleLastWeekContributionChange();
 			}
@@ -63,13 +75,46 @@ function handleBodyOnLoad() {
 				yesterdayContributionElement.checked = items.yesterdayContribution;
 				handleYesterdayContributionChange();
 			}
-			 else if (items.yesterdayContribution !== false) {
+			else if (items.yesterdayContribution !== false) {
 				yesterdayContributionElement.checked = true;
 				handleYesterdayContributionChange();
+			}
+			if (items.showCommits){
+				showCommitsElement.checked = items.showCommits;
+			} else {
+				showCommitsElement.checked = false;
+				handleShowCommitsChange();
 			}
 		},
 	);
 }
+
+document.getElementById('refreshCache').addEventListener('click', async (e) => {
+	const button = e.currentTarget;
+	button.classList.add('loading');
+	button.disabled = true;
+
+	try {
+		const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
+		await chrome.tabs.sendMessage(tabs[0].id, {
+			action: 'forceRefresh',
+			timestamp: Date.now()
+		});
+
+		// Reload the active tab to re-inject content
+		chrome.tabs.reload(tabs[0].id);
+
+		Materialize.toast({ html: 'Data refreshed successfully!', classes: 'green' });
+	} catch (err) {
+		console.log('Refresh successful',);
+	} finally {
+		setTimeout(() => {
+			button.classList.remove('loading');
+			button.disabled = false;
+		}, 500);
+	}
+});
+
 function handleEnableChange() {
 	var value = enableToggleElement.checked;
 	browser.storage.local.set({ enableToggle: value });
@@ -83,25 +128,23 @@ function handleEndingDateChange() {
 	browser.storage.local.set({ endingDate: value });
 }
 function handleLastWeekContributionChange() {
-	var value = lastWeekContributionElement.checked;
-	var labelElement = document.querySelector("label[for='lastWeekContribution']");
-
+	let value = lastWeekContributionElement.checked;
+	let labelElement = document.querySelector("label[for='lastWeekContribution']");
 	if (value) {
-			startingDateElement.disabled = true;
-			endingDateElement.disabled = true;
-			endingDateElement.value = getToday();
-			startingDateElement.value = getLastWeek();
-		        handleEndingDateChange();
-		        handleStartingDateChange();
-			labelElement.classList.add("selectedLabel");
-			labelElement.classList.remove("unselectedLabel");
+		startingDateElement.readOnly = true;
+		endingDateElement.readOnly = true;
+		endingDateElement.value = getToday();
+		startingDateElement.value = getLastWeek();
+		handleEndingDateChange();
+		handleStartingDateChange();
+		labelElement.classList.add("selectedLabel");
+		labelElement.classList.remove("unselectedLabel");
 	} else {
-			startingDateElement.disabled = false;
-			endingDateElement.disabled = false;
-			labelElement.classList.add("unselectedLabel");
-			labelElement.classList.remove("selectedLabel");
+		startingDateElement.readOnly = false;
+		endingDateElement.readOnly = false;
+		labelElement.classList.add("unselectedLabel");
+		labelElement.classList.remove("selectedLabel");
 	}
-	
 	browser.storage.local.set({ lastWeekContribution: value });
 }
 
@@ -110,17 +153,17 @@ function handleYesterdayContributionChange() {
 	let labelElement = document.querySelector("label[for='yesterdayContribution']");
 
 	if (value) {
-		startingDateElement.disabled = true;
-		endingDateElement.disabled = true;
+		startingDateElement.readOnly = true;
+		endingDateElement.readOnly = true;
 		endingDateElement.value = getToday();
 		startingDateElement.value = getYesterday();
-			handleEndingDateChange();
-			handleStartingDateChange();
+		handleEndingDateChange();
+		handleStartingDateChange();
 		labelElement.classList.add("selectedLabel");
 		labelElement.classList.remove("unselectedLabel");
 	} else {
-		startingDateElement.disabled = false;
-		endingDateElement.disabled = false;
+		startingDateElement.readOnly = false;
+		endingDateElement.readOnly = false;
 		labelElement.classList.add("unselectedLabel");
 		labelElement.classList.remove("selectedLabel");
 	}
@@ -128,12 +171,12 @@ function handleYesterdayContributionChange() {
 }
 
 function getLastWeek() {
-	var today = new Date();
-	var lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
-	var lastWeekMonth = lastWeek.getMonth() + 1;
-	var lastWeekDay = lastWeek.getDate();
-	var lastWeekYear = lastWeek.getFullYear();
-	var lastWeekDisplayPadded =
+	let today = new Date();
+	let lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+	let lastWeekMonth = lastWeek.getMonth() + 1;
+	let lastWeekDay = lastWeek.getDate();
+	let lastWeekYear = lastWeek.getFullYear();
+	let lastWeekDisplayPadded =
 		('0000' + lastWeekYear.toString()).slice(-4) +
 		'-' +
 		('00' + lastWeekMonth.toString()).slice(-2) +
@@ -147,7 +190,7 @@ function getYesterday() {
 	let yesterdayMonth = yesterday.getMonth() + 1;
 	let yesterdayWeekDay = yesterday.getDate();
 	let yesterdayYear = yesterday.getFullYear();
-	let yesterdayPadded = 
+	let yesterdayPadded =
 		('0000' + yesterdayYear.toString()).slice(-4) +
 		'-' +
 		('00' + yesterdayMonth.toString()).slice(-2) +
@@ -156,12 +199,12 @@ function getYesterday() {
 	return yesterdayPadded;
 }
 function getToday() {
-	var today = new Date();
-	var Week = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-	var WeekMonth = Week.getMonth() + 1;
-	var WeekDay = Week.getDate();
-	var WeekYear = Week.getFullYear();
-	var WeekDisplayPadded =
+	let today = new Date();
+	let Week = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+	let WeekMonth = Week.getMonth() + 1;
+	let WeekDay = Week.getDate();
+	let WeekYear = Week.getFullYear();
+	let WeekDisplayPadded =
 		('0000' + WeekYear.toString()).slice(-4) +
 		'-' +
 		('00' + WeekMonth.toString()).slice(-2) +
@@ -174,20 +217,28 @@ function handleGithubUsernameChange() {
 	var value = githubUsernameElement.value;
 	browser.storage.local.set({ githubUsername: value });
 }
+function handleGithubTokenChange() {
+	let value = githubTokenElement.value;
+	chrome.storage.local.set({ githubToken: value });
+}
 function handleProjectNameChange() {
 	var value = projectNameElement.value;
 	browser.storage.local.set({ projectName: value });
 }
+function handleCacheInputChange() {
+	let value = cacheInputElement.value;
+	chrome.storage.local.set({ cacheInput: value });
+}
 function handleOpenLabelChange() {
-	var value = showOpenLabelElement.checked;
-	var labelElement = document.querySelector("label[for='showOpenLabel']");
+	let value = showOpenLabelElement.checked;
+	let labelElement = document.querySelector("label[for='showOpenLabel']");
 
 	if (value) {
-			labelElement.classList.add("selectedLabel");
-			labelElement.classList.remove("unselectedLabel");
+		labelElement.classList.add("selectedLabel");
+		labelElement.classList.remove("unselectedLabel");
 	} else {
-			labelElement.classList.add("unselectedLabel");
-			labelElement.classList.remove("selectedLabel");
+		labelElement.classList.add("unselectedLabel");
+		labelElement.classList.remove("selectedLabel");
 	}
 
 	browser.storage.local.set({ showOpenLabel: value });
@@ -197,10 +248,19 @@ function handleUserReasonChange() {
 	var value = userReasonElement.value;
 	browser.storage.local.set({ userReason: value });
 }
+
+function handleShowCommitsChange() {
+    let value = showCommitsElement.checked;
+    chrome.storage.local.set({ showCommits: value });
+}
+
 enableToggleElement.addEventListener('change', handleEnableChange);
 githubUsernameElement.addEventListener('keyup', handleGithubUsernameChange);
+githubTokenElement.addEventListener('keyup', handleGithubTokenChange);
+cacheInputElement.addEventListener('keyup', handleCacheInputChange);
 projectNameElement.addEventListener('keyup', handleProjectNameChange);
 startingDateElement.addEventListener('change', handleStartingDateChange);
+showCommitsElement.addEventListener('change', handleShowCommitsChange);
 endingDateElement.addEventListener('change', handleEndingDateChange);
 lastWeekContributionElement.addEventListener('change', handleLastWeekContributionChange);
 yesterdayContributionElement.addEventListener('change', handleYesterdayContributionChange);
