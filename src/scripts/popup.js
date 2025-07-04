@@ -129,6 +129,7 @@ document.addEventListener('DOMContentLoaded', function () {
             'githubToken',
             'projectName',
             'settingsToggle',
+            
         ];
 
         const radios = document.querySelectorAll('input[name="timeframe"]');
@@ -214,9 +215,16 @@ document.addEventListener('DOMContentLoaded', function () {
         const copyBtn = document.getElementById('copyReport');
 
         generateBtn.addEventListener('click', function () {
-            this.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
-            this.disabled = true;
-            window.generateScrumReport();
+            // Check org input value before generating report
+            let org = orgInput.value.trim().toLowerCase();
+            if (!org) {
+                org = 'fossasia';
+            }
+            chrome.storage.local.set({ orgName: org }, () => {
+                generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
+                generateBtn.disabled = true;
+                window.generateScrumReport();
+            });
         });
 
         copyBtn.addEventListener('click', function () {
@@ -269,9 +277,30 @@ document.addEventListener('DOMContentLoaded', function () {
         chrome.storage.local.get([
             'selectedTimeframe',
             'lastWeekContribution',
-            'yesterdayContribution'
+            'yesterdayContribution',
+            'startingDate',
+            'endingDate',
         ], (items) => {
             console.log('Restoring state:', items);
+
+
+            if (items.startingDate && items.endingDate && !items.lastWeekContribution && !items.yesterdayContribution) {
+                const startDateInput = document.getElementById('startingDate');
+                const endDateInput = document.getElementById('endingDate');
+
+                if (startDateInput && endDateInput) {
+
+                    startDateInput.value = items.startingDate;
+                    endDateInput.value = items.endingDate;
+                    startDateInput.readOnly = false;
+                    endDateInput.readOnly = false;
+                }
+                document.querySelectorAll('input[name="timeframe"]').forEach(radio => {
+                    radio.checked = false;
+                    radio.dataset.wasChecked = 'false';
+                })
+                return;
+            }
 
             if (!items.selectedTimeframe) {
                 items.selectedTimeframe = 'yesterdayContribution';
@@ -347,18 +376,19 @@ document.addEventListener('DOMContentLoaded', function () {
         orgInput.value = result.orgName || '';
     });
 
-    // Debounce function
-    function debounce(func, wait) {
-        let timeout;
-        return function (...args) {
-            clearTimeout(timeout);
-            timeout = setTimeout(() => func.apply(this, args), wait);
-        };
-    }
+    // Auto-update orgName in storage on input change
+    orgInput.addEventListener('input', function () {
+        let org = orgInput.value.trim().toLowerCase();
+        if (!org) {
+            org = 'fossasia';
+        }
+        chrome.storage.local.set({ orgName: org }, function () {
+            chrome.storage.local.remove('githubCache'); // Clear cache on org change
+        });
+    });
 
-    let lastInvalidOrg = '';
-    // Validate and set org as user types
-    const handleOrgInput = debounce(function () {
+    // Add click event for setOrgBtn to set org
+    setOrgBtn.addEventListener('click', function () {
         let org = orgInput.value.trim().toLowerCase();
         // Do not default to any org, allow empty string
         // if (!org) {
@@ -372,11 +402,16 @@ document.addEventListener('DOMContentLoaded', function () {
             });
             return;
         }
+
+        setOrgBtn.disabled = true;
+        const originalText = setOrgBtn.innerHTML;
+        setOrgBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
+
         fetch(`https://api.github.com/orgs/${org}`)
             .then(res => {
-                console.log('[Org Check] Response status for', org, ':', res.status);
                 if (res.status === 404) {
-                    console.log('[Org Check] Organization not found on GitHub:', org);
+                    setOrgBtn.disabled = false;
+                    setOrgBtn.innerHTML = originalText;
                     const oldToast = document.getElementById('invalid-org-toast');
                     if (oldToast) oldToast.parentNode.removeChild(oldToast);
                     const toastDiv = document.createElement('div');
@@ -401,15 +436,42 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
                 const oldToast = document.getElementById('invalid-org-toast');
                 if (oldToast) oldToast.parentNode.removeChild(oldToast);
-                console.log('[Org Check] Organisation exists on GitHub:', org);
-              
 
                 chrome.storage.local.set({ orgName: org }, function () {
-                    console.log('[Org Check] Organization saved to storage:', org);
+                    // Always clear the scrum report and show org changed message
+                    const scrumReport = document.getElementById('scrumReport');
+                    if (scrumReport) {
+                        scrumReport.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Organization changed. Click Generate button to fetch the GitHub activities.</p>';
+                    }
+                    // Clear the githubCache for previous org
+                    chrome.storage.local.remove('githubCache');
+                    setOrgBtn.disabled = false;
+                    setOrgBtn.innerHTML = originalText;
+                    // Always show green toast: org is set
+                    const toastDiv = document.createElement('div');
+                    toastDiv.id = 'invalid-org-toast';
+                    toastDiv.className = 'toast';
+                    toastDiv.style.background = '#10b981';
+                    toastDiv.style.color = '#fff';
+                    toastDiv.style.fontWeight = 'bold';
+                    toastDiv.style.padding = '12px 24px';
+                    toastDiv.style.borderRadius = '8px';
+                    toastDiv.style.position = 'fixed';
+                    toastDiv.style.top = '24px';
+                    toastDiv.style.left = '50%';
+                    toastDiv.style.transform = 'translateX(-50%)';
+                    toastDiv.style.zIndex = '9999';
+                    toastDiv.innerText = 'Organization is set.';
+                    document.body.appendChild(toastDiv);
+                    setTimeout(() => {
+                        if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
+                    }, 2500);
+
                 });
             })
             .catch((err) => {
-                console.log('[Org Check] Error validating organisation:', org, err);
+                setOrgBtn.disabled = false;
+                setOrgBtn.innerHTML = originalText;
                 const oldToast = document.getElementById('invalid-org-toast');
                 if (oldToast) oldToast.parentNode.removeChild(oldToast);
                 const toastDiv = document.createElement('div');
@@ -431,9 +493,38 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
                 }, 3000);
             });
-    }, 3000);
+    });
 
-    orgInput.addEventListener('input', handleOrgInput);
+    let cacheInput = document.getElementById('cacheInput');
+    if (cacheInput) {
+        chrome.storage.local.get(['cacheInput'], function (result) {
+            if (result.cacheInput) {
+                cacheInput.value = result.cacheInput;
+            } else {
+                cacheInput.value = 10;
+            }
+        });
+
+        cacheInput.addEventListener('blur', function () {
+            let ttlValue = parseInt(this.value);
+            if (isNaN(ttlValue) || ttlValue <= 0 || this.value.trim() === '') {
+                ttlValue = 10;
+                this.value = ttlValue;
+                this.style.borderColor = '#ef4444';
+            } else if (ttlValue > 1440) {
+                ttlValue = 1440;
+                this.value = ttlValue;
+                this.style.borderColor = '#f59e0b';
+            } else {
+                this.style.borderColor = '#10b981';
+            }
+
+            chrome.storage.local.set({ cacheInput: ttlValue }, function () {
+                console.log('Cache TTL saved:', ttlValue, 'minutes');
+            });
+        });
+
+    }
 
 });
 
@@ -515,9 +606,7 @@ document.getElementById('refreshCache').addEventListener('click', async function
 
     try {
         // Clear local cache
-        await new Promise(resolve => {
-            chrome.storage.local.remove('githubCache', resolve);
-        });
+        await forceGithubDataRefresh();
 
         // Clear the scrum report
         const scrumReport = document.getElementById('scrumReport');
@@ -577,33 +666,3 @@ function toggleRadio(radio) {
     });
 }
 
-let cacheInput = document.getElementById('cacheInput');
-if (cacheInput) {
-    chrome.storage.local.get(['cacheInput'], function (result) {
-        if (result.cacheInput) {
-            cacheInput.value = result.cacheInput;
-        } else {
-            cacheInput.value = 10;
-        }
-    });
-
-    cacheInput.addEventListener('blur', function () {
-        let ttlValue = parseInt(this.value);
-        if (isNaN(ttlValue) || ttlValue <= 0 || this.value.trim() === '') {
-            ttlValue = 10;
-            this.value = ttlValue;
-            this.style.borderColor = '#ef4444';
-        } else if (ttlValue > 1440) {
-            ttlValue = 1440;
-            this.value = ttlValue;
-            this.style.borderColor = '#f59e0b';
-        } else {
-            this.style.borderColor = '#10b981';
-        }
-
-        chrome.storage.local.set({ cacheInput: ttlValue }, function () {
-            console.log('Cache TTL saved:', ttlValue, 'minutes');
-        });
-    });
-
-}
