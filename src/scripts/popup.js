@@ -129,6 +129,7 @@ document.addEventListener('DOMContentLoaded', function () {
             'githubToken',
             'projectName',
             'settingsToggle',
+            
         ];
 
         const radios = document.querySelectorAll('input[name="timeframe"]');
@@ -592,9 +593,7 @@ document.getElementById('refreshCache').addEventListener('click', async function
 
     try {
         // Clear local cache
-        await new Promise(resolve => {
-            chrome.storage.local.remove('githubCache', resolve);
-        });
+        await forceGithubDataRefresh();
 
         // Clear the scrum report
         const scrumReport = document.getElementById('scrumReport');
