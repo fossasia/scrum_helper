@@ -102,7 +102,7 @@ document.getElementById('refreshCache').addEventListener('click', async (e) => {
 		});
 
 		// Reload the active tab to re-inject content
-		chrome.tabs.reload(tabs[0].id);
+		browser.tabs.reload(tabs[0].id);
 
 		Materialize.toast({ html: 'Data refreshed successfully!', classes: 'green' });
 	} catch (err) {
@@ -219,7 +219,7 @@ function handleGithubUsernameChange() {
 }
 function handleGithubTokenChange() {
 	let value = githubTokenElement.value;
-	chrome.storage.local.set({ githubToken: value });
+	browser.storage.local.set({ githubToken: value });
 }
 function handleProjectNameChange() {
 	var value = projectNameElement.value;
@@ -227,7 +227,7 @@ function handleProjectNameChange() {
 }
 function handleCacheInputChange() {
 	let value = cacheInputElement.value;
-	chrome.storage.local.set({ cacheInput: value });
+	browser.storage.local.set({ cacheInput: value });
 }
 function handleOpenLabelChange() {
 	let value = showOpenLabelElement.checked;
@@ -251,7 +251,7 @@ function handleUserReasonChange() {
 
 function handleShowCommitsChange() {
     let value = showCommitsElement.checked;
-    chrome.storage.local.set({ showCommits: value });
+    browser.storage.local.set({ showCommits: value });
 }
 
 enableToggleElement.addEventListener('change', handleEnableChange);
