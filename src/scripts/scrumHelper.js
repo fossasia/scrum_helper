@@ -396,7 +396,7 @@ function allIncluded(outputTarget = 'email') {
             log('Making public requests');
         }
 
-        let issueUrl = `https://api.github.com/search/issues?q=author%3A${githubUsername}+org%3A${orgName}+created%3A${startingDate}..${endingDate}&per_page=100`;
+        let issueUrl = `https://api.github.com/search/issues?q=author%3A${githubUsername}+org%3A${orgName}+updated%3A${startingDate}..${endingDate}&per_page=100`;
         let prUrl = `https://api.github.com/search/issues?q=commenter%3A${githubUsername}+org%3A${orgName}+updated%3A${startingDate}..${endingDate}&per_page=100`;
         let userUrl = `https://api.github.com/users/${githubUsername}`;
 
@@ -432,16 +432,20 @@ function allIncluded(outputTarget = 'email') {
             githubUserData = await userRes.json();
 
             if (githubIssuesData && githubIssuesData.items) {
+                log('Fetched githubIssuesData:', githubIssuesData.items.length, 'items');
                 // Collect open PRs
                 const openPRs = githubIssuesData.items.filter(
                     item => item.pull_request && item.state === 'open'
                 );
+                log('Open PRs for commit fetching:', openPRs.map(pr => pr.number));
                 // Fetch commits for open PRs (batch)
                 if (openPRs.length && githubToken) {
                     const commitMap = await fetchCommitsForOpenPRs(openPRs, githubToken, startingDate, endingDate);
+                    log('Commit map returned from fetchCommitsForOpenPRs:', commitMap);
                     // Attach commits to PR objects
                     openPRs.forEach(pr => {
                         pr._allCommits = commitMap[pr.number] || [];
+                        log(`Attached ${pr._allCommits.length} commits to PR #${pr.number}`);
                     });
                 }
             }
@@ -489,6 +493,7 @@ function allIncluded(outputTarget = 'email') {
     }
 
     async function fetchCommitsForOpenPRs(prs, githubToken, startDate, endDate) {
+        log('fetchCommitsForOpenPRs called with PRs:', prs.map(pr => pr.number), 'startDate:', startDate, 'endDate:', endDate);
         if (!prs.length) return {};
         const since = new Date(startDate).toISOString();
         const until = new Date(endDate + 'T23:59:59').toISOString();
@@ -514,11 +519,10 @@ function allIncluded(outputTarget = 'email') {
 							}
 						}
 
-					}
-				`;
+					}`;
         }).join('\n');
         const query = `query { ${queries} }`;
-
+        log('GraphQL query for commits:', query);
         const res = await fetch('https://api.github.com/graphql', {
             method: 'POST',
             headers: {
@@ -527,19 +531,25 @@ function allIncluded(outputTarget = 'email') {
             },
             body: JSON.stringify({ query })
         });
+        log('fetchCommitsForOpenPRs response status:', res.status);
         const data = await res.json();
+        log('fetchCommitsForOpenPRs response data:', data);
         let commitMap = {};
         prs.forEach((pr, idx) => {
             const prData = data.data && data.data[`pr${idx}`] && data.data[`pr${idx}`].pullRequest;
             if (prData && prData.commits && prData.commits.nodes) {
                 const allCommits = prData.commits.nodes.map(n => n.commit);
+                log(`PR #${pr.number} allCommits:`, allCommits);
                 const filteredCommits = allCommits.filter(commit => {
                     const commitDate = new Date(commit.committedDate);
                     const sinceDate = new Date(since);
                     const untilDate = new Date(until);
                     return commitDate >= sinceDate && commitDate <= untilDate;
                 });
+                log(`PR #${pr.number} filteredCommits:`, filteredCommits);
                 commitMap[pr.number] = filteredCommits;
+            } else {
+                log(`No commits found for PR #${pr.number}`);
             }
         });
         return commitMap;
@@ -592,6 +602,7 @@ function allIncluded(outputTarget = 'email') {
             prs: githubPrsReviewData?.items?.length || 0,
             user: githubUserData?.login
         });
+
 
         lastWeekArray = [];
         nextWeekArray = [];
@@ -863,6 +874,7 @@ ${userReason}`;
     }
 
     async function writeGithubIssuesPrs() {
+        log('writeGithubIssuesPrs called');
         let items = githubIssuesData.items;
         lastWeekArray = [];
         nextWeekArray = [];
@@ -882,7 +894,6 @@ ${userReason}`;
         } else if (daysRange <= 7) {
             useMergedStatus = true;
         }
-
         // Collect PRs to batch fetch merged status
         let prsToCheck = [];
         for (let i = 0; i < items.length; i++) {
@@ -901,6 +912,7 @@ ${userReason}`;
             // Use GraphQL batching for all cases
             if (prsToCheck.length > 0) {
                 mergedStatusResults = await fetchPrsMergedStatusBatch(prsToCheck, headers);
+                log('Merged status results (GraphQL):', mergedStatusResults);
             }
         } else if (useMergedStatus) {
             if (prsToCheck.length > 30) {
@@ -914,9 +926,9 @@ ${userReason}`;
                     let merged = await fetchPrMergedStatusREST(pr.owner, pr.repo, pr.number, headers);
                     mergedStatusResults[`${pr.owner}/${pr.repo}#${pr.number}`] = merged;
                 }
+                log('Merged status results (REST):', mergedStatusResults);
             }
         }
-
         for (let i = 0; i < items.length; i++) {
             let item = items[i];
             let html_url = item.html_url;
@@ -925,12 +937,10 @@ ${userReason}`;
             let title = item.title;
             let number = item.number;
             let li = '';
-
             let isDraft = false;
             if (item.pull_request && typeof item.draft !== 'undefined') {
                 isDraft = item.draft;
             }
-
             if (item.pull_request) {
 
                 const prCreatedDate = new Date(item.created_at);
@@ -940,20 +950,25 @@ ${userReason}`;
 
                 if (!isNewPR) {
                     const hasCommitsInRange = showCommits && item._allCommits && item._allCommits.length > 0;
+
                     if (!hasCommitsInRange) {
+
                         continue; //skip these prs - created outside daterange with no commits
+                    } else {
+
                     }
+                } else {
+
                 }
-
                 const prAction = isNewPR ? 'Made PR' : 'Existing PR';
-
                 if (isDraft) {
                     li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a> ${pr_draft_button}</li>`;
                 } else if (item.state === 'open') {
                     li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a> ${pr_open_button}`;
                     if (showCommits && item._allCommits && item._allCommits.length && !isNewPR) {
+                        log(`[PR DEBUG] Rendering commits for existing PR #${number}:`, item._allCommits);
                         item._allCommits.forEach(commit => {
-                            li += `<li style="list-style: disc; margin: 0 0 0 20px; padding: 0; color: #666;"><span style="color:#2563eb;">${commit.messageHeadline}</span><span style="color:#666; font-size: 11px;"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
+                            li += `<li style=\"list-style: disc; margin: 0 0 0 20px; padding: 0; color: #666;\"><span style=\"color:#2563eb;\">${commit.messageHeadline}</span><span style=\"color:#666; font-size: 11px;\"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
                         });
                     }
                     li += `</li>`;
