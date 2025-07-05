@@ -12,7 +12,7 @@ let userReasonElement = document.getElementById('userReason');
 let showCommitsElement = document.getElementById('showCommits');
 
 function handleBodyOnLoad() {
-	chrome.storage.local.get(
+	browser.storage.local.get(
 		[
 			'githubUsername',
 			'projectName',
@@ -43,7 +43,6 @@ function handleBodyOnLoad() {
 			if (items.enableToggle) {
 				enableToggleElement.checked = items.enableToggle;
 			} else if (items.enableToggle !== false) {
-				// undefined
 				enableToggleElement.checked = true;
 				handleEnableChange();
 			}
@@ -56,7 +55,6 @@ function handleBodyOnLoad() {
 			if (items.showOpenLabel) {
 				showOpenLabelElement.checked = items.showOpenLabel;
 			} else if (items.showOpenLabel !== false) {
-				// undefined
 				showOpenLabelElement.checked = true;
 				handleOpenLabelChange();
 			}
@@ -79,7 +77,7 @@ function handleBodyOnLoad() {
 				yesterdayContributionElement.checked = true;
 				handleYesterdayContributionChange();
 			}
-			if (items.showCommits){
+			if (items.showCommits) {
 				showCommitsElement.checked = items.showCommits;
 			} else {
 				showCommitsElement.checked = false;
@@ -95,14 +93,13 @@ document.getElementById('refreshCache').addEventListener('click', async (e) => {
 	button.disabled = true;
 
 	try {
-		const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
-		await chrome.tabs.sendMessage(tabs[0].id, {
+		const tabs = await browser.tabs.query({ active: true, currentWindow: true });
+		await browser.tabs.sendMessage(tabs[0].id, {
 			action: 'forceRefresh',
 			timestamp: Date.now()
 		});
 
-		// Reload the active tab to re-inject content
-		chrome.tabs.reload(tabs[0].id);
+		browser.tabs.reload(tabs[0].id);
 
 		Materialize.toast({ html: 'Data refreshed successfully!', classes: 'green' });
 	} catch (err) {
@@ -117,15 +114,15 @@ document.getElementById('refreshCache').addEventListener('click', async (e) => {
 
 function handleEnableChange() {
 	let value = enableToggleElement.checked;
-	chrome.storage.local.set({ enableToggle: value });
+	browser.storage.local.set({ enableToggle: value });
 }
 function handleStartingDateChange() {
 	let value = startingDateElement.value;
-	chrome.storage.local.set({ startingDate: value });
+	browser.storage.local.set({ startingDate: value });
 }
 function handleEndingDateChange() {
 	let value = endingDateElement.value;
-	chrome.storage.local.set({ endingDate: value });
+	browser.storage.local.set({ endingDate: value });
 }
 function handleLastWeekContributionChange() {
 	let value = lastWeekContributionElement.checked;
@@ -146,7 +143,7 @@ function handleLastWeekContributionChange() {
 		labelElement.classList.remove("selectedLabel");
 	}
 
-	chrome.storage.local.set({ lastWeekContribution: value });
+	browser.storage.local.set({ lastWeekContribution: value });
 }
 
 function handleYesterdayContributionChange() {
@@ -168,7 +165,7 @@ function handleYesterdayContributionChange() {
 		labelElement.classList.add("unselectedLabel");
 		labelElement.classList.remove("selectedLabel");
 	}
-	chrome.storage.local.set({ yesterdayContribution: value });
+	browser.storage.local.set({ yesterdayContribution: value });
 }
 
 function getLastWeek() {
@@ -216,19 +213,19 @@ function getToday() {
 
 function handleGithubUsernameChange() {
 	let value = githubUsernameElement.value;
-	chrome.storage.local.set({ githubUsername: value });
+	browser.storage.local.set({ githubUsername: value });
 }
 function handleGithubTokenChange() {
 	let value = githubTokenElement.value;
-	chrome.storage.local.set({ githubToken: value });
+	browser.storage.local.set({ githubToken: value });
 }
 function handleProjectNameChange() {
 	let value = projectNameElement.value;
-	chrome.storage.local.set({ projectName: value });
+	browser.storage.local.set({ projectName: value });
 }
 function handleCacheInputChange() {
 	let value = cacheInputElement.value;
-	chrome.storage.local.set({ cacheInput: value });
+	browser.storage.local.set({ cacheInput: value });
 }
 function handleOpenLabelChange() {
 	let value = showOpenLabelElement.checked;
@@ -242,17 +239,17 @@ function handleOpenLabelChange() {
 		labelElement.classList.remove("selectedLabel");
 	}
 
-	chrome.storage.local.set({ showOpenLabel: value });
+	browser.storage.local.set({ showOpenLabel: value });
 }
 
 function handleUserReasonChange() {
 	let value = userReasonElement.value;
-	chrome.storage.local.set({ userReason: value });
+	browser.storage.local.set({ userReason: value });
 }
 
 function handleShowCommitsChange() {
     let value = showCommitsElement.checked;
-    chrome.storage.local.set({ showCommits: value });
+    browser.storage.local.set({ showCommits: value });
 }
 
 enableToggleElement.addEventListener('change', handleEnableChange);
