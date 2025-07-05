@@ -18,11 +18,6 @@ let scrumGenerationInProgress = false;
 let orgName = '';
 
 function allIncluded(outputTarget = 'email') {
-
-		
-
-	
-
     if (scrumGenerationInProgress) {
         console.warn('[SCRUM-HELPER]: Scrum generation already in progress, aborting new call.');
         return;
@@ -182,10 +177,10 @@ function allIncluded(outputTarget = 'email') {
                     log('Restored cache from storage');
                 }
 
-               if (typeof items.orgName !== 'undefined') {
-					orgName = items.orgName || '';
-					console.log('[SCRUM-HELPER] orgName set to:', orgName);
-				}
+                if (typeof items.orgName !== 'undefined') {
+                    orgName = items.orgName || '';
+                    console.log('[SCRUM-HELPER] orgName set to:', orgName);
+                }
             },
         );
     }
@@ -332,7 +327,7 @@ function allIncluded(outputTarget = 'email') {
     }
 
     async function fetchGithubData() {
-       	const cacheKey = `${githubUsername}-${startingDate}-${endingDate}-${orgName || 'all'}`;
+        const cacheKey = `${githubUsername}-${startingDate}-${endingDate}-${orgName || 'all'}`;
 
         if (githubCache.fetching || (githubCache.cacheKey === cacheKey && githubCache.data)) {
             log('Fetch already in progress or data already fetched. Skipping fetch.');
@@ -404,19 +399,19 @@ function allIncluded(outputTarget = 'email') {
             log('Making public requests');
         }
 
-       	// Build org part for query only if orgName is set and not empty
-		console.log('[SCRUM-HELPER] orgName before API query:', orgName);
-		console.log('[SCRUM-HELPER] orgName type:', typeof orgName);
-		console.log('[SCRUM-HELPER] orgName length:', orgName ? orgName.length : 0);
-		let orgPart = orgName && orgName.trim() ? `+org%3A${orgName}` : '';
-		console.log('[SCRUM-HELPER] orgPart for API:', orgPart);
-		console.log('[SCRUM-HELPER] orgPart length:', orgPart.length);
-		let issueUrl = `https://api.github.com/search/issues?q=author%3A${githubUsername}${orgPart}+created%3A${startingDate}..${endingDate}&per_page=100`;
-		let prUrl = `https://api.github.com/search/issues?q=commenter%3A${githubUsername}${orgPart}+updated%3A${startingDate}..${endingDate}&per_page=100`;
-		console.log('[SCRUM-HELPER] issueUrl:', issueUrl);
-		console.log('[SCRUM-HELPER] prUrl:', prUrl);
-		let userUrl = `https://api.github.com/users/${githubUsername}`;
-        
+        // Build org part for query only if orgName is set and not empty
+        console.log('[SCRUM-HELPER] orgName before API query:', orgName);
+        console.log('[SCRUM-HELPER] orgName type:', typeof orgName);
+        console.log('[SCRUM-HELPER] orgName length:', orgName ? orgName.length : 0);
+        let orgPart = orgName && orgName.trim() ? `+org%3A${orgName}` : '';
+        console.log('[SCRUM-HELPER] orgPart for API:', orgPart);
+        console.log('[SCRUM-HELPER] orgPart length:', orgPart.length);
+        let issueUrl = `https://api.github.com/search/issues?q=author%3A${githubUsername}${orgPart}+updated%3A${startingDate}..${endingDate}&per_page=100`;
+        let prUrl = `https://api.github.com/search/issues?q=commenter%3A${githubUsername}${orgPart}+updated%3A${startingDate}..${endingDate}&per_page=100`;
+        console.log('[SCRUM-HELPER] issueUrl:', issueUrl);
+        console.log('[SCRUM-HELPER] prUrl:', prUrl);
+        let userUrl = `https://api.github.com/users/${githubUsername}`;
+
         try {
             // throttling 500ms to avoid burst
             await new Promise(res => setTimeout(res, 500));
@@ -681,7 +676,6 @@ function allIncluded(outputTarget = 'email') {
             let content;
             if (lastWeekContribution == true || yesterdayContribution == true) {
                 content = `<b>1. What did I do ${weekOrDay}?</b><br>
-
 ${lastWeekUl}<br>
 <b>2. What do I plan to do ${weekOrDay2}?</b><br>
 ${nextWeekUl}<br>

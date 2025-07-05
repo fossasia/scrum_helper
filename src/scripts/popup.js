@@ -129,7 +129,7 @@ document.addEventListener('DOMContentLoaded', function () {
             'githubToken',
             'projectName',
             'settingsToggle',
-            
+
         ];
 
         const radios = document.querySelectorAll('input[name="timeframe"]');
@@ -217,9 +217,7 @@ document.addEventListener('DOMContentLoaded', function () {
         generateBtn.addEventListener('click', function () {
             // Check org input value before generating report
             let org = orgInput.value.trim().toLowerCase();
-            if (!org) {
-                org = 'fossasia';
-            }
+            // Allow empty org to fetch all GitHub activities
             chrome.storage.local.set({ orgName: org }, () => {
                 generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
                 generateBtn.disabled = true;
@@ -379,9 +377,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Auto-update orgName in storage on input change
     orgInput.addEventListener('input', function () {
         let org = orgInput.value.trim().toLowerCase();
-        if (!org) {
-            org = 'fossasia';
-        }
+        // Allow empty org to fetch all GitHub activities
         chrome.storage.local.set({ orgName: org }, function () {
             chrome.storage.local.remove('githubCache'); // Clear cache on org change
         });
