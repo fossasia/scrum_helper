@@ -972,21 +972,34 @@ ${userReason}`;
                         });
                     }
                     li += `</li>`;
-                } else if (item.state === 'closed') {
-                    let merged = null;
-                    if ((githubToken || (useMergedStatus && !fallbackToSimple)) && mergedStatusResults) {
-                        let repoParts = repository_url.split('/');
-                        let owner = repoParts[repoParts.length - 2];
-                        let repo = repoParts[repoParts.length - 1];
-                        merged = mergedStatusResults[`${owner}/${repo}#${number}`];
-                    }
-                    if (merged === true) {
-                        li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_merged_button}</li>`;
-                    } else {
-                        // Always show closed label for merged === false or merged === null/undefined
-                        li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_closed_button}</li>`;
-                    }
-                }
+                }//// Replace the existing logic around line where item.state === 'closed' is handled
+
+} else if (item.state === 'closed') {
+    let merged = null;
+    if ((githubToken || (useMergedStatus && !fallbackToSimple)) && mergedStatusResults) {
+        let repoParts = repository_url.split('/');
+        let owner = repoParts[repoParts.length - 2];
+        let repo = repoParts[repoParts.length - 1];
+        merged = mergedStatusResults[`${owner}/${repo}#${number}`];
+    }
+    
+    if (merged === true) {
+        // PR is confirmed merged
+        li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_merged_button}</li>`;
+    } else if (merged === false) {
+        // PR is confirmed closed but not merged
+        li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_closed_button}</li>`;
+    } else {
+        // merged === null/undefined - status unknown
+        // For reviewed PRs section, we should be more conservative about showing "closed"
+        // since these aren't the user's PRs. Default to showing no specific state label
+        // or a neutral label instead of assuming "closed"
+        li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_open_button}</li>`;
+        
+        // Alternative approach: Don't show any state label for unknown status
+        // li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a></li>`;
+    }
+
                 lastWeekArray.push(li);
                 continue;
             } else {
