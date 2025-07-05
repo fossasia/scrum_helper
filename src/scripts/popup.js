@@ -503,7 +503,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     
                     console.log('Using cached repositories');
                     availableRepos = cacheData.repoCache.data;
-                    repoStatus.textContent = `${availableRepos.length} repositories loaded (cached)`;
+                    repoStatus.textContent = `${availableRepos.length} repositories loaded`;
                     
                     if(document.activeElement === repoSearch){
                         filterAndDisplayRepos(repoSearch.value.toLowerCase());
@@ -656,7 +656,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     
                     console.log('Using cached repositories in manual fetch');
                     availableRepos = cacheData.repoCache.data;
-                    repoStatus.textContent = `${availableRepos.length} repositories loaded (cached)`;
+                    repoStatus.textContent = `${availableRepos.length} repositories loaded`;
                     
                     if(document.activeElement === repoSearch){
                         filterAndDisplayRepos(repoSearch.value.toLowerCase());

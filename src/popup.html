@@ -21,7 +21,7 @@
 </head>
 
 <body>
-	<div class="pl-1 py-4 rounded-2xl">
+	<div class="pl-1 py-2 rounded-2xl">
 		<div class="bg-white px-4 py-4 mx-2 mb-2 rounded-3xl">
 			<div class="flex justify-between py-2">
 				<h3 id="scrumHelperHeading" class="text-3xl font-semibold cursor-pointer">Scrum Helper</h3>
@@ -32,7 +32,7 @@
 			</div>
 
 			<div class="center mt-2 flex justify-between">
-				<label class="flex items-center justify-center gap-2 ">
+				<label class="flex items-center justify-center gap-2 font-semibold">
 					Disable
 					<input type="checkbox" value="" id="enable" class="sr-only peer">
 					<div
@@ -58,28 +58,28 @@
 
 				<div id="reportSection" class="tab-content">
 					<div>
-						<h4>Your Project Name</h4>
+						<p class="text-sm font-medium">Your Project Name</p>
 						<input id="projectName" type="text"
 							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800  p-2 my-2"
 							placeholder="Enter your project name">
 					</div>
 					<div>
-						<h4>Your Github Username</h4>
+						<p class="text-sm font-medium">Your GitHub Username</p>
 						<input id="githubUsername" type="text"
 							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800  p-2 my-2"
 							placeholder="Required for fetching your contributions">
 					</div>
 
 					<div>
-						<p class="text-sm">Fetch your contributions between:</p>
+						<p class="text-sm font-medium">Fetch your contributions between:</p>
 						<div class="flex justify-between items-center my-2 mx-4">
 							<div class="flex items-center gap-2">
 								<input type="radio" id="lastWeekContribution" name="timeframe" class="form-radio">
-								<label for="lastWeekContribution">Last 7 days</label>
+								<label for="lastWeekContribution" class="font-normal">Last 7 days</label>
 							</div>
 							<div class="flex items-center gap-2">
 								<input type="radio" id="yesterdayContribution" name="timeframe" class="form-radio">
-								<label for="yesterdayContribution">Last 1 day</label>
+								<label for="yesterdayContribution" class="font-normal">Last 1 day</label>
 							</div>
 						</div>
 
@@ -98,7 +98,8 @@
 					<div class="col s12">
 						<br />
 						<input type="checkbox" id="showOpenLabel" class="form-checkbox h-4 w-4 text-blue-600">
-						<label id="checkboxLabel" for="showOpenLabel" class="text-gray-700 font-medium text-sm">Show Open/Closed
+
+						<label id="checkboxLabel" for="showOpenLabel" class="text-sm font-medium">Show Open/Closed
 							Label</label>
 					</div>
 					<div class="my-4">
@@ -132,7 +133,7 @@
 						<div>
 							<div class="flex items-center justify-between">
 								<div class="flex">
-									<h4>Your Github Token</h4>
+									<p class="text-sm font-medium">Your GitHub Token</p>
 									<span class="tooltip-container">
 										<i class="fa fa-question-circle question-icon"></i>
 										<span class="tooltip-bubble">
@@ -160,7 +161,7 @@
 						</div>
 						<div>
 							<div class="flex items-center mt-4">
-								<h4>Organization Name</h4>
+								<p class="text-sm font-medium">Organization name</p>
 								<span class="tooltip-container ml-2">
 									<i class="fa fa-question-circle question-icon"></i>
 									<span class="tooltip-bubble">
@@ -176,7 +177,7 @@
 						</div>
 						<div class="mb-4">
 							<div class="flex items-center justify-between mb-2">
-								<h4 class="text-sm font-medium text-gray-700">Repository Filter</h4>
+								<p class="text-sm font-medium">Repository Filter</p>
 								<div class="flex items-center">
 									<input type="checkbox" id="useRepoFilter" class="mr-2">
 									<label for="useRepoFilter" class="text-xs text-gray-600">Enable filtering</label>
@@ -213,7 +214,7 @@
 							</div>
 						</div>
 					</div>
-					<div class="cacheSection">
+					<div class="cacheSection mt-3">
 						<p class="text-sm font-medium">Enter cache TTL <span class="text-sm font-normal">(in minutes)</span>
 							<span class="tooltip-container">
 								<i class="fa fa-question-circle question-icon"></i>
@@ -242,7 +243,6 @@
 
 				</div>
 
-				<!-- asdfghjklkjhgfdsasdfghjkjhgfdsasdfghjk -->
 				<div class="border-gray-100 border-2 bg-white rounded-3xl px-4 py-2 mx-2 my-2">
 					<div>
 						<h4 class="font-semibold text-xl">Note:</h4>
@@ -274,7 +274,7 @@
 						</a>
 					</div>
 				</div>
-				<div class="mt-3 pt-3 border-t border-gray-200 flex justify-center items-center py-5">
+				<div class="mt-3 pt-3 border-t border-gray-200 flex justify-center items-center py-">
 					<p class="text-xs text-gray-600 text-center">
 						Made with ❤️ by <strong>FOSSASIA</strong> •
 						<span class="text-gray-500 dark:text-gray-300">v2.0</span>
