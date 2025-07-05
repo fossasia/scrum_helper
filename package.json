@@ -29,6 +29,7 @@
 		"tailwindcss": "^4.1.4"
 	},
 	"dependencies": {
-		"@tailwindcss/cli": "^4.1.3"
+		"@tailwindcss/cli": "^4.1.3",
+		"browser-polyfill": "^3.20.2"
 	}
 }

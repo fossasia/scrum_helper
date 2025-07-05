@@ -43,6 +43,23 @@ function getYesterday() {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
+    // Cross-browser storage detection
+    const storage = typeof browser !== 'undefined' ? browser.storage : chrome.storage;
+
+    // Firefox date input fix
+    const isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
+    if (isFirefox) {
+        document.querySelectorAll('input[type="date"]').forEach(input => {
+            if (!input.value) {
+                input.type = 'text';
+                input.placeholder = 'YYYY-MM-DD';
+            }
+            input.addEventListener('blur', () => {
+                if (input.value) input.type = 'date';
+            });
+        });
+    }
+
     // Dark mode setup
     const darkModeToggle = document.querySelector('img[alt="Night Mode"]');
     const settingsIcon = document.getElementById('settingsIcon');
@@ -62,12 +79,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const orgInput = document.getElementById('orgInput');
     const setOrgBtn = document.getElementById('setOrgBtn');
 
-    chrome.storage.local.get(['darkMode'], function (result) {
+    storage.local.get(['darkMode'], function (result) {
         if (result.darkMode) {
             body.classList.add('dark-mode');
             darkModeToggle.src = 'icons/light-mode.png';
             if (settingsIcon) {
-                settingsIcon.src = 'icons/settings-night.png'; // Changed from settings-night.png
+                settingsIcon.src = 'icons/settings-night.png';
             }
         }
     });
@@ -87,7 +104,7 @@ document.addEventListener('DOMContentLoaded', function () {
     darkModeToggle.addEventListener('click', function () {
         body.classList.toggle('dark-mode');
         const isDarkMode = body.classList.contains('dark-mode');
-        chrome.storage.local.set({ darkMode: isDarkMode });
+        storage.local.set({ darkMode: isDarkMode });
         this.src = isDarkMode ? 'icons/light-mode.png' : 'icons/night-mode.png';
         const settingsIcon = document.getElementById('settingsIcon');
         if (settingsIcon) {
@@ -129,7 +146,6 @@ document.addEventListener('DOMContentLoaded', function () {
             'githubToken',
             'projectName',
             'settingsToggle',
-            
         ];
 
         const radios = document.querySelectorAll('input[name="timeframe"]');
@@ -163,7 +179,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
-
         if (customDateContainer) {
             if (!enableToggle) {
                 customDateContainer.style.opacity = '0.5';
@@ -188,7 +203,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    chrome.storage.local.get(['enableToggle'], (items) => {
+    storage.local.get(['enableToggle'], (items) => {
         const enableToggle = items.enableToggle !== false;
         updateContentState(enableToggle);
         if (!enableToggle) {
@@ -198,18 +213,16 @@ document.addEventListener('DOMContentLoaded', function () {
         initializePopup();
     })
 
-    chrome.storage.onChanged.addListener((changes, namespace) => {
+    storage.onChanged.addListener((changes, namespace) => {
         if (namespace === 'local' && changes.enableToggle) {
             updateContentState(changes.enableToggle.newValue);
             if (changes.enableToggle.newValue) {
-                // re-initialize if enabled
                 initializePopup();
             }
         }
     });
 
     function initializePopup() {
-
         // Button setup
         const generateBtn = document.getElementById('generateReport');
         const copyBtn = document.getElementById('copyReport');
@@ -220,7 +233,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!org) {
                 org = 'fossasia';
             }
-            chrome.storage.local.set({ orgName: org }, () => {
+            storage.local.set({ orgName: org }, () => {
                 generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
                 generateBtn.disabled = true;
                 window.generateScrumReport();
@@ -267,14 +280,14 @@ document.addEventListener('DOMContentLoaded', function () {
             startDateInput.readOnly = false;
             endDateInput.readOnly = false;
 
-            chrome.storage.local.set({
+            storage.local.set({
                 lastWeekContribution: false,
                 yesterdayContribution: false,
                 selectedTimeframe: null
             });
         });
 
-        chrome.storage.local.get([
+        storage.local.get([
             'selectedTimeframe',
             'lastWeekContribution',
             'yesterdayContribution',
@@ -283,13 +296,11 @@ document.addEventListener('DOMContentLoaded', function () {
         ], (items) => {
             console.log('Restoring state:', items);
 
-
             if (items.startingDate && items.endingDate && !items.lastWeekContribution && !items.yesterdayContribution) {
                 const startDateInput = document.getElementById('startingDate');
                 const endDateInput = document.getElementById('endingDate');
 
                 if (startDateInput && endDateInput) {
-
                     startDateInput.value = items.startingDate;
                     endDateInput.value = items.endingDate;
                     startDateInput.readOnly = false;
@@ -325,7 +336,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
                 startDateInput.readOnly = endDateInput.readOnly = true;
 
-                chrome.storage.local.set({
+                storage.local.set({
                     startingDate: startDateInput.value,
                     endingDate: endDateInput.value,
                     lastWeekContribution: items.selectedTimeframe === 'lastWeekContribution',
@@ -372,7 +383,7 @@ document.addEventListener('DOMContentLoaded', function () {
     showReportView();
 
     // Load org from storage or default
-    chrome.storage.local.get(['orgName'], function (result) {
+    storage.local.get(['orgName'], function (result) {
         orgInput.value = result.orgName || '';
     });
 
@@ -382,8 +393,8 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!org) {
             org = 'fossasia';
         }
-        chrome.storage.local.set({ orgName: org }, function () {
-            chrome.storage.local.remove('githubCache'); // Clear cache on org change
+        storage.local.set({ orgName: org }, function () {
+            storage.local.remove('githubCache');
         });
     });
 
@@ -425,14 +436,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
                 const oldToast = document.getElementById('invalid-org-toast');
                 if (oldToast) oldToast.parentNode.removeChild(oldToast);
-                chrome.storage.local.set({ orgName: org }, function () {
+                storage.local.set({ orgName: org }, function () {
                     // Always clear the scrum report and show org changed message
                     const scrumReport = document.getElementById('scrumReport');
                     if (scrumReport) {
                         scrumReport.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Organization changed. Click Generate button to fetch the GitHub activities.</p>';
                     }
                     // Clear the githubCache for previous org
-                    chrome.storage.local.remove('githubCache');
+                    storage.local.remove('githubCache');
                     setOrgBtn.disabled = false;
                     setOrgBtn.innerHTML = originalText;
                     // Always show green toast: org is set
@@ -484,7 +495,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let cacheInput = document.getElementById('cacheInput');
     if (cacheInput) {
-        chrome.storage.local.get(['cacheInput'], function (result) {
+        storage.local.get(['cacheInput'], function (result) {
             if (result.cacheInput) {
                 cacheInput.value = result.cacheInput;
             } else {
@@ -506,150 +517,147 @@ document.addEventListener('DOMContentLoaded', function () {
                 this.style.borderColor = '#10b981';
             }
 
-            chrome.storage.local.set({ cacheInput: ttlValue }, function () {
+            storage.local.set({ cacheInput: ttlValue }, function () {
                 console.log('Cache TTL saved:', ttlValue, 'minutes');
             });
         });
-
     }
 
-});
+    // Tooltip bubble 
+    document.querySelectorAll('.tooltip-container').forEach(container => {
+        const bubble = container.querySelector('.tooltip-bubble');
+        if (!bubble) return;
 
-// Tooltip bubble 
-document.querySelectorAll('.tooltip-container').forEach(container => {
-    const bubble = container.querySelector('.tooltip-bubble');
-    if (!bubble) return;
+        function positionTooltip() {
+            const icon = container.querySelector('.question-icon') || container;
+            const rect = icon.getBoundingClientRect();
+            const bubbleRect = bubble.getBoundingClientRect();
+            const padding = 8;
 
-    function positionTooltip() {
-        const icon = container.querySelector('.question-icon') || container;
-        const rect = icon.getBoundingClientRect();
-        const bubbleRect = bubble.getBoundingClientRect();
-        const padding = 8;
+            let top = rect.top + window.scrollY;
+            let left = rect.right + padding + window.scrollX;
 
-        let top = rect.top + window.scrollY;
-        let left = rect.right + padding + window.scrollX;
+            if (left + bubbleRect.width > window.innerWidth - 10) {
+                left = rect.left - bubbleRect.width - padding + window.scrollX;
+            }
+            if (left < 8) left = 8;
+            if (top + bubbleRect.height > window.innerHeight - 10) {
+                top = rect.top - bubbleRect.height - padding + window.scrollY;
+            }
+            if (top < 8) top = 8;
 
-        if (left + bubbleRect.width > window.innerWidth - 10) {
-            left = rect.left - bubbleRect.width - padding + window.scrollX;
-        }
-        if (left < 8) left = 8;
-        if (top + bubbleRect.height > window.innerHeight - 10) {
-            top = rect.top - bubbleRect.height - padding + window.scrollY;
-        }
-        if (top < 8) top = 8;
-
-        bubble.style.left = left + 'px';
-        bubble.style.top = top + 'px';
-    }
-
-    container.addEventListener('mouseenter', positionTooltip);
-    container.addEventListener('focusin', positionTooltip);
-    container.addEventListener('mousemove', positionTooltip);
-    container.addEventListener('mouseleave', () => {
-        bubble.style.left = '';
-        bubble.style.top = '';
-    });
-    container.addEventListener('focusout', () => {
-        bubble.style.left = '';
-        bubble.style.top = '';
-    });
-});
-
-// Radio button click handlers with toggle functionality
-document.querySelectorAll('input[name="timeframe"]').forEach(radio => {
-    radio.addEventListener('click', function () {
-        if (this.dataset.wasChecked === 'true') {
-            this.checked = false;
-            this.dataset.wasChecked = 'false';
-
-            const startDateInput = document.getElementById('startingDate');
-            const endDateInput = document.getElementById('endingDate');
-            startDateInput.readOnly = false;
-            endDateInput.readOnly = false;
-
-            chrome.storage.local.set({
-                lastWeekContribution: false,
-                yesterdayContribution: false,
-                selectedTimeframe: null
-            });
-        } else {
-            document.querySelectorAll('input[name="timeframe"]').forEach(r => {
-                r.dataset.wasChecked = 'false';
-            });
-            this.dataset.wasChecked = 'true';
-            toggleRadio(this);
-        }
-    });
-});
-
-// refresh cache button
-document.getElementById('refreshCache').addEventListener('click', async function () {
-    const button = this;
-    const originalText = button.innerHTML;
-
-    button.classList.add('loading');
-    button.innerHTML = '<i class="fa fa-refresh fa-spin"></i><span>Refreshing...</span>';
-    button.disabled = true;
-
-    try {
-        // Clear local cache
-        await forceGithubDataRefresh();
-
-        // Clear the scrum report
-        const scrumReport = document.getElementById('scrumReport');
-        if (scrumReport) {
-            scrumReport.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Cache cleared successfully. Click "Generate Report" to fetch fresh data.</p>';
+            bubble.style.left = left + 'px';
+            bubble.style.top = top + 'px';
         }
 
-        button.innerHTML = '<i class="fa fa-check"></i><span>Cache Cleared!</span>';
-        button.classList.remove('loading');
-
-        setTimeout(() => {
-            button.innerHTML = originalText;
-            button.disabled = false;
-        }, 2000);
-
-    } catch (error) {
-        console.error('Cache clear failed:', error);
-        button.innerHTML = '<i class="fa fa-exclamation-triangle"></i><span>Failed to clear cache</span>';
-        button.classList.remove('loading');
-
-        setTimeout(() => {
-            button.innerHTML = originalText;
-            button.disabled = false;
-        }, 3000);
-    }
-});
-
-function toggleRadio(radio) {
-    const startDateInput = document.getElementById('startingDate');
-    const endDateInput = document.getElementById('endingDate');
-
-    console.log('Toggling radio:', radio.id);
-
-    if (radio.id === 'lastWeekContribution') {
-        startDateInput.value = getLastWeek();
-        endDateInput.value = getToday();
-    } else if (radio.id === 'yesterdayContribution') {
-        startDateInput.value = getYesterday();
-        endDateInput.value = getToday();
-    }
-
-    startDateInput.readOnly = endDateInput.readOnly = true;
-
-    chrome.storage.local.set({
-        startingDate: startDateInput.value,
-        endingDate: endDateInput.value,
-        lastWeekContribution: radio.id === 'lastWeekContribution',
-        yesterdayContribution: radio.id === 'yesterdayContribution',
-        selectedTimeframe: radio.id,
-        githubCache: null // Clear cache to force new fetch
-    }, () => {
-        console.log('State saved, dates:', {
-            start: startDateInput.value,
-            end: endDateInput.value,
-            isLastWeek: radio.id === 'lastWeekContribution'
+        container.addEventListener('mouseenter', positionTooltip);
+        container.addEventListener('focusin', positionTooltip);
+        container.addEventListener('mousemove', positionTooltip);
+        container.addEventListener('mouseleave', () => {
+            bubble.style.left = '';
+            bubble.style.top = '';
+        });
+        container.addEventListener('focusout', () => {
+            bubble.style.left = '';
+            bubble.style.top = '';
         });
     });
-}
 
+    // Radio button click handlers with toggle functionality
+    document.querySelectorAll('input[name="timeframe"]').forEach(radio => {
+        radio.addEventListener('click', function () {
+            if (this.dataset.wasChecked === 'true') {
+                this.checked = false;
+                this.dataset.wasChecked = 'false';
+
+                const startDateInput = document.getElementById('startingDate');
+                const endDateInput = document.getElementById('endingDate');
+                startDateInput.readOnly = false;
+                endDateInput.readOnly = false;
+
+                storage.local.set({
+                    lastWeekContribution: false,
+                    yesterdayContribution: false,
+                    selectedTimeframe: null
+                });
+            } else {
+                document.querySelectorAll('input[name="timeframe"]').forEach(r => {
+                    r.dataset.wasChecked = 'false';
+                });
+                this.dataset.wasChecked = 'true';
+                toggleRadio(this);
+            }
+        });
+    });
+
+    // refresh cache button
+    document.getElementById('refreshCache').addEventListener('click', async function () {
+        const button = this;
+        const originalText = button.innerHTML;
+
+        button.classList.add('loading');
+        button.innerHTML = '<i class="fa fa-refresh fa-spin"></i><span>Refreshing...</span>';
+        button.disabled = true;
+
+        try {
+            // Clear local cache
+            await forceGithubDataRefresh();
+
+            // Clear the scrum report
+            const scrumReport = document.getElementById('scrumReport');
+            if (scrumReport) {
+                scrumReport.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Cache cleared successfully. Click "Generate Report" to fetch fresh data.</p>';
+            }
+
+            button.innerHTML = '<i class="fa fa-check"></i><span>Cache Cleared!</span>';
+            button.classList.remove('loading');
+
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }, 2000);
+
+        } catch (error) {
+            console.error('Cache clear failed:', error);
+            button.innerHTML = '<i class="fa fa-exclamation-triangle"></i><span>Failed to clear cache</span>';
+            button.classList.remove('loading');
+
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }, 3000);
+        }
+    });
+
+    function toggleRadio(radio) {
+        const startDateInput = document.getElementById('startingDate');
+        const endDateInput = document.getElementById('endingDate');
+
+        console.log('Toggling radio:', radio.id);
+
+        if (radio.id === 'lastWeekContribution') {
+            startDateInput.value = getLastWeek();
+            endDateInput.value = getToday();
+        } else if (radio.id === 'yesterdayContribution') {
+            startDateInput.value = getYesterday();
+            endDateInput.value = getToday();
+        }
+
+        startDateInput.readOnly = endDateInput.readOnly = true;
+
+        storage.local.set({
+            startingDate: startDateInput.value,
+            endingDate: endDateInput.value,
+            lastWeekContribution: radio.id === 'lastWeekContribution',
+            yesterdayContribution: radio.id === 'yesterdayContribution',
+            selectedTimeframe: radio.id,
+            githubCache: null // Clear cache to force new fetch
+        }, () => {
+            console.log('State saved, dates:', {
+                start: startDateInput.value,
+                end: endDateInput.value,
+                isLastWeek: radio.id === 'lastWeekContribution'
+            });
+        });
+    }
+});

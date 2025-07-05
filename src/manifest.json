@@ -11,21 +11,29 @@
     "96": "icons/icon.png",
     "48": "icons/icon.png"
   },
-  "background": {
-    "service_worker": "scripts/background.js"
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "scrum-helper@fossasia.org",
+      "strict_min_version": "109.0"
+    }
   },
   "content_scripts": [
     {
       "matches": [
-        "*://groups.google.com/forum/*",
+        "*://groups.google.com/forum/*", 
         "*://groups.google.com/g/*",
         "*://groups.google.com/u/*/g/*",
         "*://mail.google.com/*",         
         "*://outlook.live.com/*",        
         "*://outlook.office.com/*",      
-        "*://mail.yahoo.com/*"
+        "*://mail.yahoo.com/*"          
       ],
-      "js": ["scripts/jquery-3.2.1.min.js", "scripts/emailClientAdapter.js", "scripts/scrumHelper.js"]
+      "js": [
+        "scripts/browser-polyfill.js",
+        "scripts/jquery-3.2.1.min.js",
+        "scripts/emailClientAdapter.js",
+        "scripts/scrumHelper.js"
+      ]
     }
   ],
 
