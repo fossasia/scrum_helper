@@ -129,7 +129,7 @@ document.addEventListener('DOMContentLoaded', function () {
             'githubToken',
             'projectName',
             'settingsToggle',
-            
+
         ];
 
         const radios = document.querySelectorAll('input[name="timeframe"]');
@@ -217,9 +217,7 @@ document.addEventListener('DOMContentLoaded', function () {
         generateBtn.addEventListener('click', function () {
             // Check org input value before generating report
             let org = orgInput.value.trim().toLowerCase();
-            if (!org) {
-                org = 'fossasia';
-            }
+            // Allow empty org to fetch all GitHub activities
             chrome.storage.local.set({ orgName: org }, () => {
                 generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
                 generateBtn.disabled = true;
@@ -379,9 +377,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Auto-update orgName in storage on input change
     orgInput.addEventListener('input', function () {
         let org = orgInput.value.trim().toLowerCase();
-        if (!org) {
-            org = 'fossasia';
-        }
+        // Allow empty org to fetch all GitHub activities
         chrome.storage.local.set({ orgName: org }, function () {
             chrome.storage.local.remove('githubCache'); // Clear cache on org change
         });
@@ -390,12 +386,23 @@ document.addEventListener('DOMContentLoaded', function () {
     // Add click event for setOrgBtn to set org
     setOrgBtn.addEventListener('click', function () {
         let org = orgInput.value.trim().toLowerCase();
+        // Do not default to any org, allow empty string
+        // if (!org) {
+        //     org = 'fossasia';
+        // }
+        console.log('[Org Check] Checking organization:', org);
         if (!org) {
-            org = 'fossasia';
+            // If org is empty, clear orgName in storage but don't auto-generate report
+            chrome.storage.local.set({ orgName: '' }, function () {
+                console.log('[Org Check] Organization cleared from storage');
+            });
+            return;
         }
+
         setOrgBtn.disabled = true;
         const originalText = setOrgBtn.innerHTML;
         setOrgBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
+
         fetch(`https://api.github.com/orgs/${org}`)
             .then(res => {
                 if (res.status === 404) {
@@ -425,6 +432,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
                 const oldToast = document.getElementById('invalid-org-toast');
                 if (oldToast) oldToast.parentNode.removeChild(oldToast);
+
                 chrome.storage.local.set({ orgName: org }, function () {
                     // Always clear the scrum report and show org changed message
                     const scrumReport = document.getElementById('scrumReport');
@@ -454,6 +462,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     setTimeout(() => {
                         if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
                     }, 2500);
+
                 });
             })
             .catch((err) => {
