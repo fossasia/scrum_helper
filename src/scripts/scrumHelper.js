@@ -400,9 +400,29 @@ function allIncluded(outputTarget = 'email') {
 			log('Making public requests');
 		}
 
-		let issueUrl = `https://api.github.com/search/issues?q=author%3A${githubUsername}+org%3A${orgName}+created%3A${startingDate}..${endingDate}&per_page=100`;
-		let prUrl = `https://api.github.com/search/issues?q=commenter%3A${githubUsername}+org%3A${orgName}+updated%3A${startingDate}..${endingDate}&per_page=100`;
-		let userUrl = `https://api.github.com/users/${githubUsername}`;
+        let issueUrl, prUrl, userUrl;
+
+        if(useRepoFilter && selectedRepos && selectedRepos.length > 0){
+            log('Using repo filter for api calls:', selectedRepos);
+
+            try{
+                await fetchReposIfNeeded();
+            } catch(err){
+                logError('Failed to fetch repo data for filtering:', err);
+            }
+
+            const repoQueries = selectedRepos.map(repo => `repo:${orgName}/${repo}`).join('+');
+
+            issueUrl = `https://api.github.com/search/issues?q=author%3A${githubUsername}+${repoQueries}+created%3A${startingDate}..${endingDate}&per_page=100`;
+            prUrl = `https://api.github.com/search/issues?q=commenter%3A${githubUsername}+${repoQueries}+updated%3A${startingDate}..${endingDate}&per_page=100`;
+            userUrl = `https://api.github.com/users/${githubUsername}`;
+            log('Repository-filtered URLs:', { issueUrl, prUrl });
+        } else{
+            loadFromStorage('Using org wide search');
+            issueUrl = `https://api.github.com/search/issues?q=author%3A${githubUsername}+org%3A${orgName}+created%3A${startingDate}..${endingDate}&per_page=100`;
+            prUrl = `https://api.github.com/search/issues?q=commenter%3A${githubUsername}+org%3A${orgName}+updated%3A${startingDate}..${endingDate}&per_page=100`;
+            userUrl = `https://api.github.com/users/${githubUsername}`;
+        }
 
 		try {
 			// throttling 500ms to avoid burst
@@ -573,26 +593,9 @@ function allIncluded(outputTarget = 'email') {
 	async function processGithubData(data) {
 		log('Processing Github data');
 		
-		let processedData = data;
-
-        if(useRepoFilter && selectedRepos?.length > 0) {
-            try {
-                await fetchReposIfNeeded();
-                processedData = filterDataByRepos(data, selectedRepos);
-                log('Applied repo filter:', selectedRepos);
-            } catch(err) {
-                logError('failed to fetch repos for filtering:', err);
-            }
-        }
-
-		if(useRepoFilter && selectedRepos?.length > 0) {
-			processedData = filterDataByRepos(data, selectedRepos);
-			log('Applied repo filter:', selectedRepos);
-		}
-
-		githubIssuesData = processedData.githubIssuesData;
-		githubPrsReviewData = processedData.githubPrsReviewData;
-		githubUserData = processedData.githubUserData;
+		githubIssuesData = data.githubIssuesData;
+		githubPrsReviewData = data.githubPrsReviewData;
+		githubUserData = data.githubUserData;
 
 		log('GitHub data set:', {
 			issues: githubIssuesData?.items?.length || 0,
