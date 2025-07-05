@@ -128,23 +128,52 @@
 				</div>
 
 				<div id="settingsSection" class="tab-content hidden">
-					<div class="">
-						<div class="flex items-center mt-4">
-							<h4>Organization Name</h4>
-							<span class="tooltip-container ml-2">
-								<i class="fa fa-question-circle question-icon"></i>
-								<span class="tooltip-bubble">
-									<b>Which organization's GitHub activity?</b><br>
-									Enter the GitHub organization name to fetch activites for. Default is <b>fossasia</b>.
-									Organization name is not case-sensitive.
-								</span>
-							</span>
+					<div class="orgSection">
+						<div>
+							<div class="flex items-center justify-between">
+								<div class="flex">
+									<h4>Your Github Token</h4>
+									<span class="tooltip-container">
+										<i class="fa fa-question-circle question-icon"></i>
+										<span class="tooltip-bubble">
+											<b>Why is it recommended to add a GitHub token?</b><br>
+											Scrum Helper works without a GitHub token, but adding a personal access token is recommended for a
+											better experience. It raises your API limits, allows access to private repos (if permitted), and
+											improves accuracy and speed. Tokens are stored locally and never sent to us and used only to fetch
+											your git data. You can add one anytime in the extension settings.<br><br>
+											<b>How to obtain:</b><br>
+											1. Go to <a href="https://github.com/settings/tokens" target="_blank"
+												style="color:#2563eb;text-decoration:underline;">GitHub Developer Settings</a>.<br>
+											3. Click "Generate new token", select classic token<br>
+											4. Paste it here.<br>
+											<i>Keep your token secret!</i>
+										</span>
+									</span>
+								</div>
+								<button id="toggleTokenVisibility" type="button" class="focus:outline-none">
+									<i id="tokenEyeIcon" class="fa fa-eye text-gray-600"></i>
+								</button>
+							</div>
+							<input id="githubToken" type="password"
+								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2 pr-10"
+								placeholder="Required for making authenticated requests">
 						</div>
-						<input id="orgInput" type="text"
-							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
-							placeholder="Enter organization name (default: fossasia)">
-
-
+						<div>
+							<div class="flex items-center mt-4">
+								<h4>Organization Name</h4>
+								<span class="tooltip-container ml-2">
+									<i class="fa fa-question-circle question-icon"></i>
+									<span class="tooltip-bubble">
+										<b>Which organization's GitHub activity?</b><br>
+										Enter the GitHub organization name to fetch activites for. Default is <b>fossasia</b>.
+										Organization name is not case-sensitive.
+									</span>
+								</span>
+							</div>
+							<input id="orgInput" type="text"
+								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
+								placeholder="Enter organization name (default: fossasia)">
+						</div>
 						<div class="mb-4">
 							<div class="flex items-center justify-between mb-2">
 								<h4 class="text-sm font-medium text-gray-700">Repository Filter</h4>
@@ -184,34 +213,7 @@
 							</div>
 						</div>
 					</div>
-					<div class="">
-						<div class="flex items-center justify-between">
-							<div class="flex">
-								<h4>Your Github Token</h4>
-								<span class="tooltip-container">
-									<i class="fa fa-question-circle question-icon"></i>
-									<span class="tooltip-bubble">
-										<b>Why is it recommended to add a GitHub token?</b><br>
-										Scrum Helper works without a GitHub token, but adding a personal access token is recommended for a
-										better experience. It raises your API limits, allows access to private repos (if permitted), and
-										improves accuracy and speed. Tokens are stored locally and never sent to us and used only to fetch
-										your git data. You can add one anytime in the extension settings.<br><br>
-										<b>How to obtain:</b><br>
-										1. Go to <a href="https://github.com/settings/tokens" target="_blank"
-											style="color:#2563eb;text-decoration:underline;">GitHub Developer Settings</a>.<br>
-										3. Click "Generate new token", select classic token<br>
-										4. Paste it here.<br>
-										<i>Keep your token secret!</i>
-									</span>
-								</span>
-							</div>
-							<button id="toggleTokenVisibility" type="button" class="focus:outline-none">
-								<i id="tokenEyeIcon" class="fa fa-eye text-gray-600"></i>
-							</button>
-						</div>
-						<input id="githubToken" type="password"
-							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2 pr-10"
-							placeholder="Required for making authenticated requests">
+					<div class="cacheSection">
 						<p class="text-sm font-medium">Enter cache TTL <span class="text-sm font-normal">(in minutes)</span>
 							<span class="tooltip-container">
 								<i class="fa fa-question-circle question-icon"></i>
