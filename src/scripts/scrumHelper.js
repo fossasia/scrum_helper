@@ -1,7 +1,7 @@
 const DEBUG = true;
 // Unified browser storage API using polyfilled browser object
-const storage = browser.storage;
-const runtime = browser.runtime;
+const {storage} = browser;
+const runtime = {browser};
 
 // Unified storage functions
 function storageGet(keys) {
@@ -98,99 +98,99 @@ function allIncluded(outputTarget = 'email') {
         ]);
         log("Storage items received:", items);
 
-        if (outputTarget === 'popup') {
-            const usernameFromDOM = document.getElementById('githubUsername')?.value;
-            const projectFromDOM = document.getElementById('projectName')?.value;
-            const reasonFromDOM = document.getElementById('userReason')?.value;
-            const tokenFromDOM = document.getElementById('githubToken')?.value;
+                if (outputTarget === 'popup') {
+                    const usernameFromDOM = document.getElementById('githubUsername')?.value;
+                    const projectFromDOM = document.getElementById('projectName')?.value;
+                    const reasonFromDOM = document.getElementById('userReason')?.value;
+                    const tokenFromDOM = document.getElementById('githubToken')?.value;
 
-            items.githubUsername = usernameFromDOM || items.githubUsername;
-            items.projectName = projectFromDOM || items.projectName;
-            items.userReason = reasonFromDOM || items.userReason;
-            items.githubToken = tokenFromDOM || items.githubToken;
+                    items.githubUsername = usernameFromDOM || items.githubUsername;
+                    items.projectName = projectFromDOM || items.projectName;
+                    items.userReason = reasonFromDOM || items.userReason;
+                    items.githubToken = tokenFromDOM || items.githubToken;
 
-            await storageSet({
-                githubUsername: items.githubUsername,
-                projectName: items.projectName,
-                userReason: items.userReason,
-                githubToken: items.githubToken
-            });
-        }
-
-        githubUsername = items.githubUsername;
-        projectName = items.projectName;
-        userReason = items.userReason || 'No Blocker at the moment';
-        githubToken = items.githubToken;
-        lastWeekContribution = items.lastWeekContribution;
-        yesterdayContribution = items.yesterdayContribution;
-
-        if (!items.enableToggle) {
-            enableToggle = items.enableToggle;
-        }
-
-        if (items.lastWeekContribution) {
-            handleLastWeekContributionChange();
-        } else if (items.yesterdayContribution) {
-            handleYesterdayContributionChange();
-        } else if (items.startingDate && items.endingDate) {
-            startingDate = items.startingDate;
-            endingDate = items.endingDate;
-        } else {
-            handleLastWeekContributionChange();
-            if (outputTarget === 'popup') {
-                await storageSet({ lastWeekContribution: true, yesterdayContribution: false });
-            }
-        }
-        if (githubUsername) {
-            log("About to fetch GitHub data for:", githubUsername);
-            fetchGithubData();
-        } else {
-            if (outputTarget === 'popup') {
-                log("No username found - popup context");
-                const scrumReport = document.getElementById('scrumReport');
-                const generateBtn = document.getElementById('generateReport');
-                if (scrumReport) {
-                    scrumReport.innerHTML = '<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">Please enter your GitHub username to generate a report.</div>';
+                    await storageSet({
+                        githubUsername: items.githubUsername,
+                        projectName: items.projectName,
+                        userReason: items.userReason,
+                        githubToken: items.githubToken
+                    });
                 }
-                if (generateBtn) {
-                    generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
-                    generateBtn.disabled = false;
+
+                githubUsername = items.githubUsername;
+                projectName = items.projectName;
+                userReason = items.userReason || 'No Blocker at the moment';
+                githubToken = items.githubToken;
+                lastWeekContribution = items.lastWeekContribution;
+                yesterdayContribution = items.yesterdayContribution;
+
+                if (!items.enableToggle) {
+                    enableToggle = items.enableToggle;
                 }
-                scrumGenerationInProgress = false;
-            } else {
-                logError('No GitHub username found in storage');
-                scrumGenerationInProgress = false;
+
+                if (items.lastWeekContribution) {
+                    handleLastWeekContributionChange();
+                } else if (items.yesterdayContribution) {
+                    handleYesterdayContributionChange();
+                } else if (items.startingDate && items.endingDate) {
+                    startingDate = items.startingDate;
+                    endingDate = items.endingDate;
+                } else {
+                    handleLastWeekContributionChange();
+                    if (outputTarget === 'popup') {
+                        await storageSet({ lastWeekContribution: true, yesterdayContribution: false });
+                    }
+                }
+                if (githubUsername) {
+                    log("About to fetch GitHub data for:", githubUsername);
+                    fetchGithubData();
+                } else {
+                    if (outputTarget === 'popup') {
+                        log("No username found - popup context");
+                        const scrumReport = document.getElementById('scrumReport');
+                        const generateBtn = document.getElementById('generateReport');
+                        if (scrumReport) {
+                            scrumReport.innerHTML = '<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">Please enter your GitHub username to generate a report.</div>';
+                        }
+                        if (generateBtn) {
+                            generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+                            generateBtn.disabled = false;
+                        }
+                        scrumGenerationInProgress = false;
+                    } else {
+                        logError('No GitHub username found in storage');
+                        scrumGenerationInProgress = false;
+                    }
+                    return;
+                }
+                if (items.cacheInput) {
+                    cacheInput = items.cacheInput;
+                }
+                if (items.showCommits !== undefined) {
+                    showCommits = items.showCommits;
+                } else {
+                    showCommits = false;
+                }
+
+                if (!items.showOpenLabel) {
+                    showOpenLabel = false;
+                    pr_open_button = '';
+                    issue_opened_button = '';
+                    pr_merged_button = '';
+                    issue_closed_button = '';
+                }
+                if (items.githubCache) {
+                    githubCache.data = items.githubCache.data;
+                    githubCache.cacheKey = items.githubCache.cacheKey;
+                    githubCache.timestamp = items.githubCache.timestamp;
+                    log('Restored cache from storage');
+                }
+
+                if (items.orgName) {
+                    orgName = items.orgName;
+                }
             }
-            return;
-        }
-        if (items.cacheInput) {
-            cacheInput = items.cacheInput;
-        }
-        if (items.showCommits !== undefined) {
-            showCommits = items.showCommits;
-        } else {
-            showCommits = false;
-        }
-
-        if (!items.showOpenLabel) {
-            showOpenLabel = false;
-            pr_open_button = '';
-            issue_opened_button = '';
-            pr_merged_button = '';
-            issue_closed_button = '';
-        }
-        if (items.githubCache) {
-            githubCache.data = items.githubCache.data;
-            githubCache.cacheKey = items.githubCache.cacheKey;
-            githubCache.timestamp = items.githubCache.timestamp;
-            log('Restored cache from storage');
-        }
-
-        if (items.orgName) {
-            orgName = items.orgName;
-        }
-    }
-    getStorageData();
+        getStorageData();
 
     function handleLastWeekContributionChange() {
         endingDate = getToday();
@@ -504,23 +504,23 @@ function allIncluded(outputTarget = 'email') {
             const owner = repoParts[repoParts.length - 2];
             const repo = repoParts[repoParts.length - 1];
             return `
-                    pr${idx}: repository(owner: "${owner}", name: "${repo}") {
-                        pullRequest(number: ${pr.number}) {
-                            commits(first: 100) {
-                                nodes {
-                                    commit {
-                                        messageHeadline
-                                        committedDate
-                                        url
-                                        author {
-                                            name
-                                            user { login }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }`;
+					pr${idx}: repository(owner: "${owner}", name: "${repo}") {
+						pullRequest(number: ${pr.number}) {
+							commits(first: 100) {
+								nodes {
+									commit {
+										messageHeadline
+										committedDate
+										url
+										author {
+											name
+											user { login }
+										}
+									}
+								}
+							}
+						}
+					}`;
         }).join('\n');
         const query = `query { ${queries} }`;
         log('GraphQL query for commits:', query);
@@ -1100,7 +1100,7 @@ ${userReason}`;
         }, 1000);
     }
     function handleRefresh() {
-        hasInjectedContent = false;
+        hasInjectedContent = false; // Reset the flag before refresh
         allIncluded();
     }
 }
@@ -1136,7 +1136,7 @@ async function forceGithubDataRefresh() {
 if (window.location.protocol.startsWith('http')) {
     allIncluded('email');
     document.querySelectorAll('button').forEach(button => {
-        if (button.textContent.includes('New conversation')) {
+        if (button.textContent.includes() === 'New conversation' && button.closest('.conversation-toolbar')) {
             button.addEventListener('click', () => allIncluded());
         }
     });
