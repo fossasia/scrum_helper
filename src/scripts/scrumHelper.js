@@ -355,8 +355,8 @@ function allIncluded(outputTarget = 'email') {
         const isCacheKeyMatch = githubCache.cacheKey === cacheKey;
         const needsToken = !!githubToken;
         const cacheUsedToken = !!githubCache.usedToken;
-        if (githubCache.data && isCacheFresh & isCacheKeyMatch) { //should be && check after rebase
-            if (needsToken & !cacheUsedToken) {
+        if (githubCache.data && isCacheFresh && isCacheKeyMatch) { 
+            if (needsToken && !cacheUsedToken) {
                 log('Cache was fetched without token, but user now has a token. Invalidating cache.');
                 githubCache.data = null;
             } else {
