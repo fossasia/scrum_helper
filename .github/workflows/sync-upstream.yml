@@ -26,7 +26,7 @@ jobs:
             });
             
             const UPSTREAM_OWNER = 'fossasia';
-            const UPSTREAM_REPO = 'scrum-helper';
+            const UPSTREAM_REPO = 'scrum_helper';
             
             let syncedCount = 0;
             let skippedCount = 0;
