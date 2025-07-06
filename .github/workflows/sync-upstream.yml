@@ -1,0 +1,96 @@
+name: Sync Forks with Upstream
+
+on:
+  schedule:
+    # Run daily at 2:00 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    # Allow manual triggering
+
+jobs:
+  sync-forks:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Sync forks with upstream
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { Octokit } = require('@octokit/rest');
+            
+            const octokit = new Octokit({
+              auth: process.env.GITHUB_TOKEN
+            });
+            
+            const UPSTREAM_OWNER = 'fossasia';
+            const UPSTREAM_REPO = 'scrum-helper';
+            
+            let syncedCount = 0;
+            let skippedCount = 0;
+            let errorCount = 0;
+            
+            try {
+              // Get all forks
+              console.log(`Getting forks of ${UPSTREAM_OWNER}/${UPSTREAM_REPO}...`);
+              const { data: forks } = await octokit.rest.repos.listForks({
+                owner: UPSTREAM_OWNER,
+                repo: UPSTREAM_REPO,
+                per_page: 100
+              });
+              
+              console.log(`Found ${forks.length} forks`);
+              
+              for (const fork of forks) {
+                try {
+                  console.log(`\Processing: ${fork.full_name}`);
+                  
+                  // Check if fork is behind upstream
+                  const { data: comparison } = await octokit.rest.repos.compareCommits({
+                    owner: fork.owner.login,
+                    repo: fork.name,
+                    base: fork.default_branch,
+                    head: `${UPSTREAM_OWNER}:master`
+                  });
+                  
+                  if (comparison.behind_by === 0) {
+                    console.log(`${fork.full_name} is up to date`);
+                    continue;
+                  }
+                  
+                  if (comparison.ahead_by > 0) {
+                    console.log(`${fork.full_name} is ahead by ${comparison.ahead_by} commits - skipping`);
+                    skippedCount++;
+                    continue;
+                  }
+                  
+                  // Fork is only behind - safe to sync
+                  await octokit.rest.repos.mergeUpstream({
+                    owner: fork.owner.login,
+                    repo: fork.name,
+                    branch: fork.default_branch
+                  });
+                  
+                  console.log(`Successfully synced ${fork.full_name}`);
+                  syncedCount++;
+                  
+                  // Small delay to avoid rate limits
+                  await new Promise(resolve => setTimeout(resolve, 1000));
+                  
+                } catch (error) {
+                  errorCount++;
+                }
+              }
+              
+              // Summary
+              console.log(`\n Summary:`);
+              console.log(`Synced: ${syncedCount}`);
+              console.log(`Skipped: ${skippedCount}`);
+              console.log(`Errors: ${errorCount}`);
+              
+            } catch (error) {
+              console.error('Workflow failed:', error.message);
+              throw error;
+            }
