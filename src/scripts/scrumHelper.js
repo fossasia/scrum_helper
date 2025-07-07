@@ -14,7 +14,9 @@ let refreshButton_Placed = false;
 let enableToggle = true;
 let hasInjectedContent = false;
 let scrumGenerationInProgress = false;
-let orgName = 'fossasia'; // default
+
+let orgName = '';
+
 function allIncluded(outputTarget = 'email') {
     if (scrumGenerationInProgress) {
         console.warn('[SCRUM-HELPER]: Scrum generation already in progress, aborting new call.');
@@ -175,8 +177,9 @@ function allIncluded(outputTarget = 'email') {
                     log('Restored cache from storage');
                 }
 
-                if (items.orgName) {
-                    orgName = items.orgName;
+                if (typeof items.orgName !== 'undefined') {
+                    orgName = items.orgName || '';
+                    console.log('[SCRUM-HELPER] orgName set to:', orgName);
                 }
             },
         );
@@ -324,7 +327,7 @@ function allIncluded(outputTarget = 'email') {
     }
 
     async function fetchGithubData() {
-        const cacheKey = `${githubUsername}-${orgName}-${startingDate}-${endingDate}`;
+        const cacheKey = `${githubUsername}-${startingDate}-${endingDate}-${orgName || 'all'}`;
 
         if (githubCache.fetching || (githubCache.cacheKey === cacheKey && githubCache.data)) {
             log('Fetch already in progress or data already fetched. Skipping fetch.');
@@ -396,8 +399,17 @@ function allIncluded(outputTarget = 'email') {
             log('Making public requests');
         }
 
-        let issueUrl = `https://api.github.com/search/issues?q=author%3A${githubUsername}+org%3A${orgName}+updated%3A${startingDate}..${endingDate}&per_page=100`;
-        let prUrl = `https://api.github.com/search/issues?q=commenter%3A${githubUsername}+org%3A${orgName}+updated%3A${startingDate}..${endingDate}&per_page=100`;
+        // Build org part for query only if orgName is set and not empty
+        console.log('[SCRUM-HELPER] orgName before API query:', orgName);
+        console.log('[SCRUM-HELPER] orgName type:', typeof orgName);
+        console.log('[SCRUM-HELPER] orgName length:', orgName ? orgName.length : 0);
+        let orgPart = orgName && orgName.trim() ? `+org%3A${orgName}` : '';
+        console.log('[SCRUM-HELPER] orgPart for API:', orgPart);
+        console.log('[SCRUM-HELPER] orgPart length:', orgPart.length);
+        let issueUrl = `https://api.github.com/search/issues?q=author%3A${githubUsername}${orgPart}+updated%3A${startingDate}..${endingDate}&per_page=100`;
+        let prUrl = `https://api.github.com/search/issues?q=commenter%3A${githubUsername}${orgPart}+updated%3A${startingDate}..${endingDate}&per_page=100`;
+        console.log('[SCRUM-HELPER] issueUrl:', issueUrl);
+        console.log('[SCRUM-HELPER] prUrl:', prUrl);
         let userUrl = `https://api.github.com/users/${githubUsername}`;
 
         try {
@@ -676,6 +688,7 @@ ${lastWeekUl}<br>
 ${nextWeekUl}<br>
 <b>3. What is blocking me from making progress?</b><br>
 ${userReason}`;
+
             }
 
 
@@ -1145,6 +1158,7 @@ async function forceGithubDataRefresh() {
 
 // allIncluded('email');
 
+
 if (window.location.protocol.startsWith('http')) {
     allIncluded('email');
     $('button>span:contains(New conversation)').parent('button').click(() => {
@@ -1177,6 +1191,7 @@ ${prs.map((pr, i) => `	repo${i}: repository(owner: \"${pr.owner}\", name: \"${pr
 		pr${i}: pullRequest(number: ${pr.number}) { merged }
 	}`).join('\n')}
 }`;
+
     try {
         const res = await fetch('https://api.github.com/graphql', {
             method: 'POST',
@@ -1197,3 +1212,4 @@ ${prs.map((pr, i) => `	repo${i}: repository(owner: \"${pr.owner}\", name: \"${pr
         return results;
     }
 }
+
