@@ -266,11 +266,13 @@ function allIncluded(outputTarget = 'email') {
             cacheKey: githubCache.cacheKey,
             timestamp: githubCache.timestamp,
             subject: subject,
+            usedToken: !!githubToken
         }
         log(`Saving data to storage:`, {
             cacheKey: githubCache.cacheKey,
             timestamp: githubCache.timestamp,
             hasSubject: !!subject,
+            org: orgName,
         });
 
         return new Promise((resolve) => {
@@ -338,6 +340,7 @@ function allIncluded(outputTarget = 'email') {
             username: githubUsername,
             startDate: startingDate,
             endDate: endingDate,
+            org: orgName,
         });
 
         log('CacheKey in cache:', githubCache.cacheKey);
@@ -358,8 +361,8 @@ function allIncluded(outputTarget = 'email') {
         const isCacheKeyMatch = githubCache.cacheKey === cacheKey;
         const needsToken = !!githubToken;
         const cacheUsedToken = !!githubCache.usedToken;
-        if (githubCache.data && isCacheFresh & isCacheKeyMatch) { //should be && check after rebase
-            if (needsToken & !cacheUsedToken) {
+        if (githubCache.data && isCacheFresh && isCacheKeyMatch) { 
+            if (needsToken && !cacheUsedToken) {
                 log('Cache was fetched without token, but user now has a token. Invalidating cache.');
                 githubCache.data = null;
             } else {
@@ -386,6 +389,7 @@ function allIncluded(outputTarget = 'email') {
 
         githubCache.fetching = true;
         githubCache.cacheKey = cacheKey;
+        githubCache.usedToken = !!githubToken;
 
         const headers = {
             'Accept': 'application/vnd.github.v3+json',
