@@ -140,9 +140,14 @@
 								</span>
 							</span>
 						</div>
-						<input id="orgInput" type="text"
-							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
-							placeholder="Enter organization name (default: fossasia)">
+						<div class="flex items-center mt-4 gap-2">
+							<input id="orgInput" type="text"
+								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
+								placeholder="Enter organization name(Default: fossasia)">
+							<button id="setOrgBtn" type="button"
+								class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl text-base my-2 h-[44px] flex-shrink-0"
+								style="min-width:60px;">Set</button>
+						</div>
 					</div>
 					<div class="">
 						<div class="flex items-center justify-between">
@@ -169,9 +174,22 @@
 								<i id="tokenEyeIcon" class="fa fa-eye text-gray-600"></i>
 							</button>
 						</div>
-						<input id="githubToken" type="password"
-							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2 pr-10"
-							placeholder="Required for making authenticated requests">
+						<input id="githubToken" type="password" class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2 pr-10" placeholder="Required for making authenticated requests">
+
+						
+
+						<div class="col s12 my-4 ">
+							<div class="flex items-center gap-2">
+								<input type="checkbox" id="showCommits" checked class="form-checkbox h-4 w-4 text-blue-600 ">
+								<label id="showCommitsLabel" for="showCommits" class="text-gray-700 font-medium text-sm flex items-center gap-1 ">Show commits made within date range in Open PRs</label> <span class="tooltip-container">
+								<i class="fa fa-question-circle question-icon"></i>
+								<span class="tooltip-bubble">
+									Github Token required.
+								</span>
+							</span>
+							</div>
+						</div>
+
 						<p class="text-sm font-medium">Enter cache TTL <span class="text-sm font-normal">(in minutes)</span>
 							<span class="tooltip-container">
 								<i class="fa fa-question-circle question-icon"></i>
@@ -186,6 +204,7 @@
 							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800  p-2 my-2"
 							placeholder="Write Cache TTL in minutes (Default 10 minutes)">
 					</div>
+
 					<div class="">
 						<button id="refreshCache"
 							class="w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded flex items-center justify-center gap-2 transition-colors duration-200">
@@ -197,23 +216,22 @@
 							Use this button to fetch fresh data immediately.
 						</p>
 					</div>
-					<div class="my-4">
-						<h4 class="font-semibold text-lg mb-2">Customize Scrum Report</h4>
-						<div style="display: block;">
-							<label style="display: block; margin-bottom: 8px;"><input type="checkbox" id="toggleBlockers"
-									class="form-checkbox mr-2"> Show Blockers</label>
-							<label style="display: block; margin-bottom: 8px;"><input type="checkbox" id="toggleTasks"
-									class="form-checkbox mr-2"> Show Tasks</label>
-							<label style="display: block; margin-bottom: 8px;"><input type="checkbox" id="togglePRs"
-									class="form-checkbox mr-2"> Show PRs</label>
-							<label style="display: block; margin-bottom: 8px;"><input type="checkbox" id="toggleIssues"
-									class="form-checkbox mr-2"> Show Issues</label>
-							<label style="display: block; margin-bottom: 8px;"><input type="checkbox" id="toggleReviewedPRs"
-									class="form-checkbox mr-2"> Show Reviewed PRs</label>
-						</div>
-						<button id="saveTemplateBtn"
-							class="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">Save Template</button>
-						<p id="templateSavedMsg" class="text-green-600 text-sm mt-2 hidden">Template saved!</p>
+
+				</div>
+
+				<!-- asdfghjklkjhgfdsasdfghjkjhgfdsasdfghjk -->
+				<div class="border-gray-100 border-2 bg-white rounded-3xl px-4 py-2 mx-2 my-2">
+					<div>
+						<h4 class="font-semibold text-xl">Note:</h4>
+						<ul class="text-xs list-disc list-inside">
+							<li>The PRs fetched are based on the most recent review by any contributor. If you reviewed a PR 10 days
+								ago and someone else reviewed it 2 days ago, it will still appear in your activity for the past week.
+								(<a target="_blank" href="https://github.com/fossasia/scrum_helper/issues/20">See this issue</a>.)
+							</li>
+							<li>Please note that some discrepancies may occur in the generated SCRUM. We recommend manually reviewing
+								and editing the report to ensure accuracy before sharing
+							</li>
+						</ul>
 					</div>
 				</div>
 			</div>
