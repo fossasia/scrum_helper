@@ -95,12 +95,7 @@
 						</div>
 					</div>
 
-					<div class="col s12">
-						<br />
-						<input type="checkbox" id="showOpenLabel" class="form-checkbox h-4 w-4 text-blue-600">
-						<label id="checkboxLabel" for="showOpenLabel" class="text-gray-700 font-medium text-sm">Show Open/Closed
-							Label</label>
-					</div>
+
 					<div class="my-4">
 						<p class="text-sm font-medium">What is blocking you from making progress?</p>
 						<input id="userReason" type="text" class="w-full text-gray-800 mt-3 rounded-xl px-4 py-1"
@@ -135,7 +130,8 @@
 								<i class="fa fa-question-circle question-icon"></i>
 								<span class="tooltip-bubble">
 									<b>Which organization's GitHub activity?</b><br>
-									Enter the GitHub organization name to fetch activites for. Default is <b>fossasia</b>.
+									Enter the GitHub organization name to fetch activities for. Leave empty to fetch all your GitHub
+									activities across all organizations.
 									Organization name is not case-sensitive.
 								</span>
 							</span>
@@ -143,7 +139,7 @@
 						<div class="flex items-center mt-4 gap-2">
 							<input id="orgInput" type="text"
 								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
-								placeholder="Enter organization name(Default: fossasia)">
+								placeholder="Enter organization name">
 							<button id="setOrgBtn" type="button"
 								class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl text-base my-2 h-[44px] flex-shrink-0"
 								style="min-width:60px;">Set</button>
@@ -174,21 +170,11 @@
 								<i id="tokenEyeIcon" class="fa fa-eye text-gray-600"></i>
 							</button>
 						</div>
-						<input id="githubToken" type="password" class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2 pr-10" placeholder="Required for making authenticated requests">
+						<input id="githubToken" type="password"
+							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2 pr-10"
+							placeholder="Required for making authenticated requests">
 
-						
 
-						<div class="col s12 my-4 ">
-							<div class="flex items-center gap-2">
-								<input type="checkbox" id="showCommits" checked class="form-checkbox h-4 w-4 text-blue-600 ">
-								<label id="showCommitsLabel" for="showCommits" class="text-gray-700 font-medium text-sm flex items-center gap-1 ">Show commits made within date range in Open PRs</label> <span class="tooltip-container">
-								<i class="fa fa-question-circle question-icon"></i>
-								<span class="tooltip-bubble">
-									Github Token required.
-								</span>
-							</span>
-							</div>
-						</div>
 
 						<p class="text-sm font-medium">Enter cache TTL <span class="text-sm font-normal">(in minutes)</span>
 							<span class="tooltip-container">
@@ -203,6 +189,49 @@
 						<input type="text" id="cacheInput"
 							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800  p-2 my-2"
 							placeholder="Write Cache TTL in minutes (Default 10 minutes)">
+					</div>
+
+					<!-- Customization & Template Section -->
+					<div id="customizationSettings" class="my-6 p-4 border border-gray-200 rounded-xl bg-gray-50">
+						<h4 class="font-semibold text-lg mb-2">Customize Report Sections</h4>
+						<div class="mb-2" style="display: block;">
+							<label style="display:block; margin-bottom: 6px;"><input type="checkbox" id="showBlockers"> Show
+								Blockers</label>
+							<label style="display:block; margin-bottom: 6px;"><input type="checkbox" id="showTasks"> Show
+								Tasks</label>
+							<label style="display:block; margin-bottom: 6px;"><input type="checkbox" id="showPRs"> Show PRs</label>
+							<label style="display:block; margin-bottom: 6px;"><input type="checkbox" id="showIssues"> Show
+								Issues</label>
+							<label style="display:block; margin-bottom: 6px;"><input type="checkbox" id="showReviewedPRs"> Show
+								Reviewed PRs</label>
+							<label style="display:block; margin-bottom: 6px;"><input type="checkbox" id="showOpenLabel"> Show
+								Open/Closed Label</label>
+							<label id="showCommitsLabel" for="showCommits" style="display:block; margin-bottom: 6px;"><input
+									type="checkbox" id="showCommits"> Show commits</label>
+						</div>
+						<div class="flex flex-col gap-2 mt-4">
+							<div class="flex gap-2 items-center">
+								<input id="templateNameInput" type="text" class="border rounded p-1 flex-1" placeholder="Template name">
+								<button id="saveNamedTemplateBtn" type="button"
+									class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-1 px-3 rounded">Save</button>
+							</div>
+							<div id="templatesListContainer" class="mt-2">
+								<label class="block font-medium mb-1">Saved Templates:</label>
+								<ul id="templatesList" class="flex flex-col gap-1"></ul>
+							</div>
+							<div class="flex gap-2 mt-1">
+								<button id="loadTemplateBtn" type="button"
+									class="bg-green-600 hover:bg-green-700 text-white font-medium py-1 px-3 rounded"
+									disabled>Load</button>
+								<button id="deleteTemplateBtn" type="button"
+									class="bg-red-600 hover:bg-red-700 text-white font-medium py-1 px-3 rounded" disabled>Delete</button>
+							</div>
+							<span id="namedTemplateMsg" class="text-green-600 text-sm ml-2" style="display:none;">Action
+								successful!</span>
+						</div>
+						<button id="saveTemplateBtn" type="button"
+							class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded mt-2">Save Template</button>
+						<span id="templateSavedMsg" class="text-green-600 text-sm ml-2" style="display:none;">Template saved!</span>
 					</div>
 
 					<div class="">
@@ -231,6 +260,7 @@
 							<li>Please note that some discrepancies may occur in the generated SCRUM. We recommend manually reviewing
 								and editing the report to ensure accuracy before sharing
 							</li>
+
 						</ul>
 					</div>
 				</div>

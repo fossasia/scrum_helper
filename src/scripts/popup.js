@@ -129,7 +129,7 @@ document.addEventListener('DOMContentLoaded', function () {
             'githubToken',
             'projectName',
             'settingsToggle',
-            
+
         ];
 
         const radios = document.querySelectorAll('input[name="timeframe"]');
@@ -217,9 +217,7 @@ document.addEventListener('DOMContentLoaded', function () {
         generateBtn.addEventListener('click', function () {
             // Check org input value before generating report
             let org = orgInput.value.trim().toLowerCase();
-            if (!org) {
-                org = 'fossasia';
-            }
+            // Allow empty org to fetch all GitHub activities
             chrome.storage.local.set({ orgName: org }, () => {
                 generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
                 generateBtn.disabled = true;
@@ -379,9 +377,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // Auto-update orgName in storage on input change
     orgInput.addEventListener('input', function () {
         let org = orgInput.value.trim().toLowerCase();
-        if (!org) {
-            org = 'fossasia';
-        }
+        // Allow empty org to fetch all GitHub activities
         chrome.storage.local.set({ orgName: org }, function () {
             chrome.storage.local.remove('githubCache'); // Clear cache on org change
         });
@@ -390,12 +386,23 @@ document.addEventListener('DOMContentLoaded', function () {
     // Add click event for setOrgBtn to set org
     setOrgBtn.addEventListener('click', function () {
         let org = orgInput.value.trim().toLowerCase();
+        // Do not default to any org, allow empty string
+        // if (!org) {
+        //     org = 'fossasia';
+        // }
+        console.log('[Org Check] Checking organization:', org);
         if (!org) {
-            org = 'fossasia';
+            // If org is empty, clear orgName in storage but don't auto-generate report
+            chrome.storage.local.set({ orgName: '' }, function () {
+                console.log('[Org Check] Organization cleared from storage');
+            });
+            return;
         }
+
         setOrgBtn.disabled = true;
         const originalText = setOrgBtn.innerHTML;
         setOrgBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
+
         fetch(`https://api.github.com/orgs/${org}`)
             .then(res => {
                 if (res.status === 404) {
@@ -425,6 +432,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
                 const oldToast = document.getElementById('invalid-org-toast');
                 if (oldToast) oldToast.parentNode.removeChild(oldToast);
+
                 chrome.storage.local.set({ orgName: org }, function () {
                     // Always clear the scrum report and show org changed message
                     const scrumReport = document.getElementById('scrumReport');
@@ -454,6 +462,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     setTimeout(() => {
                         if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
                     }, 2500);
+
                 });
             })
             .catch((err) => {
@@ -511,6 +520,178 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
 
+    }
+
+    // --- Customization Template Logic ---
+    const customizationDefaults = {
+        showBlockers: true,
+        showTasks: true,
+        showPRs: true,
+        showIssues: true,
+        showReviewedPRs: true,
+    };
+    const customizationKeys = Object.keys(customizationDefaults);
+    const customizationCheckboxes = {
+        showBlockers: document.getElementById('showBlockers'),
+        showTasks: document.getElementById('showTasks'),
+        showPRs: document.getElementById('showPRs'),
+        showIssues: document.getElementById('showIssues'),
+        showReviewedPRs: document.getElementById('showReviewedPRs'),
+    };
+
+    function loadCustomizationTemplate() {
+        chrome.storage.local.get(['customizationTemplate'], function (result) {
+            const prefs = result.customizationTemplate || customizationDefaults;
+            for (const key of customizationKeys) {
+                if (key.startsWith('show')) {
+                    if (customizationCheckboxes[key]) {
+                        customizationCheckboxes[key].checked = prefs[key] !== false;
+                    }
+                }
+            }
+        });
+    }
+
+    function saveCustomizationTemplate() {
+        const prefs = {};
+        for (const key of customizationKeys) {
+            if (key.startsWith('show')) {
+                prefs[key] = customizationCheckboxes[key] ? customizationCheckboxes[key].checked : true;
+            }
+        }
+        chrome.storage.local.set({ customizationTemplate: prefs }, function () {
+            if (templateSavedMsg) {
+                templateSavedMsg.style.display = 'inline';
+                setTimeout(() => { templateSavedMsg.style.display = 'none'; }, 1500);
+            }
+        });
+    }
+
+    if (saveTemplateBtn) {
+        saveTemplateBtn.addEventListener('click', saveCustomizationTemplate);
+    }
+    loadCustomizationTemplate();
+
+    // --- Named Template Management ---
+    const templateNameInput = document.getElementById('templateNameInput');
+    const saveNamedTemplateBtn = document.getElementById('saveNamedTemplateBtn');
+    const templatesList = document.getElementById('templatesList');
+    const namedTemplateMsg = document.getElementById('namedTemplateMsg');
+    const loadTemplateBtn = document.getElementById('loadTemplateBtn');
+    const deleteTemplateBtn = document.getElementById('deleteTemplateBtn');
+    let selectedTemplateName = null;
+
+    function getCurrentCustomizationConfig() {
+        const prefs = {};
+        for (const key of customizationKeys) {
+            if (key.startsWith('show')) {
+                prefs[key] = customizationCheckboxes[key] ? customizationCheckboxes[key].checked : true;
+            }
+        }
+        return prefs;
+    }
+
+    function updateTemplatesListUI(selectedName = null) {
+        chrome.storage.local.get(['templates'], function (result) {
+            const templates = result.templates || {};
+            templatesList.innerHTML = '';
+            Object.keys(templates).forEach(name => {
+                const li = document.createElement('li');
+                li.textContent = name;
+                li.className = 'cursor-pointer px-2 py-1 rounded hover:bg-blue-100';
+                if (name === selectedName) {
+                    li.classList.add('bg-blue-200');
+                }
+                li.addEventListener('click', function () {
+                    selectedTemplateName = name;
+                    updateTemplatesListUI(name);
+                    loadTemplateBtn.disabled = false;
+                    deleteTemplateBtn.disabled = false;
+                });
+                templatesList.appendChild(li);
+            });
+            // If no template is selected, disable buttons
+            if (!selectedName) {
+                loadTemplateBtn.disabled = true;
+                deleteTemplateBtn.disabled = true;
+            }
+        });
+    }
+
+    function showNamedTemplateMsg(msg) {
+        if (namedTemplateMsg) {
+            namedTemplateMsg.textContent = msg;
+            namedTemplateMsg.style.display = 'inline';
+            setTimeout(() => { namedTemplateMsg.style.display = 'none'; }, 1500);
+        }
+    }
+
+    if (saveNamedTemplateBtn) {
+        saveNamedTemplateBtn.addEventListener('click', function () {
+            const name = templateNameInput.value.trim();
+            if (!name) {
+                showNamedTemplateMsg('Enter a template name!');
+                return;
+            }
+            const config = getCurrentCustomizationConfig();
+            chrome.storage.local.get(['templates'], function (result) {
+                const templates = result.templates || {};
+                templates[name] = config;
+                chrome.storage.local.set({ templates }, function () {
+                    showNamedTemplateMsg('Template saved!');
+                    updateTemplatesListUI(name);
+                });
+            });
+        });
+    }
+
+    if (loadTemplateBtn) {
+        loadTemplateBtn.addEventListener('click', function () {
+            if (!selectedTemplateName) return;
+            chrome.storage.local.get(['templates'], function (result) {
+                const templates = result.templates || {};
+                const config = templates[selectedTemplateName];
+                if (!config) return;
+                // Apply config to UI
+                for (const key of customizationKeys) {
+                    if (key.startsWith('show')) {
+                        if (customizationCheckboxes[key]) {
+                            customizationCheckboxes[key].checked = config[key] !== false;
+                        }
+                    }
+                }
+                // Save as current customizationTemplate
+                chrome.storage.local.set({ customizationTemplate: config }, function () {
+                    showNamedTemplateMsg('Template loaded!');
+                });
+            });
+        });
+    }
+
+    if (deleteTemplateBtn) {
+        deleteTemplateBtn.addEventListener('click', function () {
+            if (!selectedTemplateName) return;
+            chrome.storage.local.get(['templates'], function (result) {
+                const templates = result.templates || {};
+                if (!templates[selectedTemplateName]) return;
+                delete templates[selectedTemplateName];
+                chrome.storage.local.set({ templates }, function () {
+                    selectedTemplateName = null;
+                    updateTemplatesListUI();
+                    showNamedTemplateMsg('Template deleted!');
+                });
+            });
+        });
+    }
+
+    updateTemplatesListUI();
+
+    // Add event listener for showOpenLabel checkbox to save its value
+    const showOpenLabelCheckbox = document.getElementById('showOpenLabel');
+    if (showOpenLabelCheckbox) {
+        showOpenLabelCheckbox.addEventListener('change', function () {
+            chrome.storage.local.set({ showOpenLabel: showOpenLabelCheckbox.checked });
+        });
     }
 
 });
