@@ -384,6 +384,16 @@ document.addEventListener('DOMContentLoaded', function () {
     const useRepoFilter = document.getElementById('useRepoFilter');
     const repoFilterContainer = document.getElementById('repoFilterContainer');
 
+    if(repoSearch && useRepoFilter && repoFilterContainer) {
+        repoSearch.addEventListener('click', function () {
+            if(!useRepoFilter.checked){
+                useRepoFilter.checked = true;
+               repoFilterContainer.classList.remove('hidden');
+                chrome.storage.local.set({ useRepoFilter: true });
+            }
+        })
+    }
+
     if(!repoSearch || !useRepoFilter) {
         console.log('Repository, filter elements not found in DOM');
     }
