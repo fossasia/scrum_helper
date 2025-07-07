@@ -70,8 +70,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const toggleReviewedPRs = document.getElementById('toggleReviewedPRs');
     const saveTemplateBtn = document.getElementById('saveTemplateBtn');
     const templateSavedMsg = document.getElementById('templateSavedMsg');
-    const templateNameInput = document.getElementById('templateNameInput');
-    const savedTemplatesList = document.getElementById('savedTemplatesList');
 
     chrome.storage.local.get(['darkMode'], function (result) {
         if (result.darkMode) {
@@ -466,48 +464,9 @@ document.addEventListener('DOMContentLoaded', function () {
         if (toggleReviewedPRs) toggleReviewedPRs.checked = prefs.showReviewedPRs !== false;
     });
 
-    // Load all templates and populate list
-    function loadTemplatesList() {
-        chrome.storage.local.get(['scrumTemplates'], function (result) {
-            const templates = result.scrumTemplates || {};
-            savedTemplatesList.innerHTML = '';
-            Object.keys(templates).forEach(name => {
-                const li = document.createElement('li');
-                li.textContent = name;
-                li.style.cursor = 'pointer';
-                li.addEventListener('click', function () {
-                    // Load template settings into checkboxes
-                    const prefs = templates[name];
-                    if (toggleBlockers) toggleBlockers.checked = prefs.showBlockers !== false;
-                    if (toggleTasks) toggleTasks.checked = prefs.showTasks !== false;
-                    if (togglePRs) togglePRs.checked = prefs.showPRs !== false;
-                    if (toggleIssues) toggleIssues.checked = prefs.showIssues !== false;
-                    if (toggleReviewedPRs) toggleReviewedPRs.checked = prefs.showReviewedPRs !== false;
-                    if (templateNameInput) templateNameInput.value = name;
-                });
-                // Add delete button
-                const delBtn = document.createElement('button');
-                delBtn.textContent = 'Delete';
-                delBtn.className = 'ml-2 text-xs text-red-600';
-                delBtn.addEventListener('click', function (e) {
-                    e.stopPropagation();
-                    delete templates[name];
-                    chrome.storage.local.set({ scrumTemplates: templates }, loadTemplatesList);
-                });
-                li.appendChild(delBtn);
-                savedTemplatesList.appendChild(li);
-            });
-        });
-    }
-
-    // Save template under given name
+    // Save preferences
     if (saveTemplateBtn) {
         saveTemplateBtn.addEventListener('click', function () {
-            const name = templateNameInput.value.trim();
-            if (!name) {
-                alert('Please enter a template name.');
-                return;
-            }
             const prefs = {
                 showBlockers: toggleBlockers ? toggleBlockers.checked : true,
                 showTasks: toggleTasks ? toggleTasks.checked : true,
@@ -515,42 +474,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 showIssues: toggleIssues ? toggleIssues.checked : true,
                 showReviewedPRs: toggleReviewedPRs ? toggleReviewedPRs.checked : true
             };
-            chrome.storage.local.get(['scrumTemplates'], function (result) {
-                const templates = result.scrumTemplates || {};
-                templates[name] = prefs;
-                chrome.storage.local.set({ scrumTemplates: templates }, function () {
-                    if (templateSavedMsg) {
-                        templateSavedMsg.classList.remove('hidden');
-                        setTimeout(() => templateSavedMsg.classList.add('hidden'), 2000);
-                    }
-                    loadTemplatesList();
-                });
+            chrome.storage.local.set({ scrumTemplatePrefs: prefs }, function () {
+                if (templateSavedMsg) {
+                    templateSavedMsg.classList.remove('hidden');
+                    setTimeout(() => templateSavedMsg.classList.add('hidden'), 2000);
+                }
             });
         });
     }
-
-    // On load, show templates and load last used (if any)
-    loadTemplatesList();
-    chrome.storage.local.get(['scrumTemplates', 'lastScrumTemplate'], function (result) {
-        const templates = result.scrumTemplates || {};
-        const last = result.lastScrumTemplate;
-        if (last && templates[last]) {
-            const prefs = templates[last];
-            if (toggleBlockers) toggleBlockers.checked = prefs.showBlockers !== false;
-            if (toggleTasks) toggleTasks.checked = prefs.showTasks !== false;
-            if (togglePRs) togglePRs.checked = prefs.showPRs !== false;
-            if (toggleIssues) toggleIssues.checked = prefs.showIssues !== false;
-            if (toggleReviewedPRs) toggleReviewedPRs.checked = prefs.showReviewedPRs !== false;
-            if (templateNameInput) templateNameInput.value = last;
-        }
-    });
-
-    // When a template is loaded, save as last used
-    savedTemplatesList && savedTemplatesList.addEventListener('click', function (e) {
-        if (e.target.tagName === 'LI') {
-            chrome.storage.local.set({ lastScrumTemplate: e.target.textContent });
-        }
-    });
 
 });
 

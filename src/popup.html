@@ -107,19 +107,6 @@
 							placeholder="Enter your reason">
 						<hr class="border-t-2 border-gray-700 mt-1 ">
 					</div>
-					<div class="border-gray-100 border-2 bg-white rounded-3xl px-4 py-2 mx-2 my-2">
-						<div>
-							<h4 class="font-semibold text-xl">Note:</h4>
-							<ul class="text-xs list-disc list-inside">
-								<li>The PRs fetched are based on the most recent review by any contributor. If you reviewed a PR 10 days
-									ago and someone else reviewed it 2 days ago, it will still appear in your activity for the past week.
-									(<a target="_blank" href="https://github.com/fossasia/scrum_helper/issues/20">See this issue</a>.)
-								</li>
-								<li>Please note that some discrepancies may occur in the generated SCRUM. We recommend manually
-									reviewing and editing the report to ensure accuracy before sharing</li>
-							</ul>
-						</div>
-					</div>
 					<div>
 						<div>
 							<h6 class="text-base font-semibold">Scrum Report</h6>
@@ -224,17 +211,9 @@
 							<label style="display: block; margin-bottom: 8px;"><input type="checkbox" id="toggleReviewedPRs"
 									class="form-checkbox mr-2"> Show Reviewed PRs</label>
 						</div>
-						<div class="mt-4">
-							<input id="templateNameInput" type="text" placeholder="Template name"
-								class="border rounded px-2 py-1 mr-2" />
-							<button id="saveTemplateBtn"
-								class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">Save Template</button>
-							<p id="templateSavedMsg" class="text-green-600 text-sm mt-2 hidden">Template saved!</p>
-						</div>
-						<div class="mt-4">
-							<h5 class="font-semibold text-base mb-2">Saved Templates</h5>
-							<ul id="savedTemplatesList" class="list-disc pl-5"></ul>
-						</div>
+						<button id="saveTemplateBtn"
+							class="mt-4 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">Save Template</button>
+						<p id="templateSavedMsg" class="text-green-600 text-sm mt-2 hidden">Template saved!</p>
 					</div>
 				</div>
 			</div>
