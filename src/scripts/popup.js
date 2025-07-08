@@ -597,24 +597,50 @@ document.addEventListener('DOMContentLoaded', function () {
             templatesList.innerHTML = '';
             Object.keys(templates).forEach(name => {
                 const li = document.createElement('li');
-                li.textContent = name;
-                li.className = 'cursor-pointer px-2 py-1 rounded hover:bg-blue-100';
+                li.className = 'flex flex-row items-center gap-2 px-2 py-1 rounded hover:bg-blue-100';
+                const nameSpan = document.createElement('span');
+                nameSpan.textContent = name;
                 if (name === selectedName) {
                     li.classList.add('bg-blue-200');
                 }
-                li.addEventListener('click', function () {
-                    selectedTemplateName = name;
-                    updateTemplatesListUI(name);
-                    loadTemplateBtn.disabled = false;
-                    deleteTemplateBtn.disabled = false;
+                // Load button
+                const loadBtn = document.createElement('button');
+                loadBtn.title = 'Load Template';
+                loadBtn.className = 'text-green-600 hover:text-green-800 px-2 py-1 rounded';
+                loadBtn.innerHTML = '<i class="fa fa-play"></i>';
+                loadBtn.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    const config = templates[name];
+                    if (!config) return;
+                    for (const key of customizationKeys) {
+                        if (key.startsWith('show')) {
+                            if (customizationCheckboxes[key]) {
+                                customizationCheckboxes[key].checked = config[key] !== false;
+                            }
+                        }
+                    }
+                    chrome.storage.local.set({ customizationTemplate: config }, function () {
+                        showNamedTemplateMsg('Template loaded!');
+                    });
                 });
+                // Delete button
+                const deleteBtn = document.createElement('button');
+                deleteBtn.title = 'Delete Template';
+                deleteBtn.className = 'text-red-600 hover:text-red-800 px-2 py-1 rounded';
+                deleteBtn.innerHTML = '<i class="fa fa-trash"></i>';
+                deleteBtn.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    delete templates[name];
+                    chrome.storage.local.set({ templates }, function () {
+                        updateTemplatesListUI();
+                        showNamedTemplateMsg('Template deleted!');
+                    });
+                });
+                li.appendChild(nameSpan);
+                li.appendChild(loadBtn);
+                li.appendChild(deleteBtn);
                 templatesList.appendChild(li);
             });
-            // If no template is selected, disable buttons
-            if (!selectedName) {
-                loadTemplateBtn.disabled = true;
-                deleteTemplateBtn.disabled = true;
-            }
         });
     }
 

@@ -173,23 +173,11 @@
 						<input id="githubToken" type="password"
 							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2 pr-10"
 							placeholder="Required for making authenticated requests">
-
-
-
-						<p class="text-sm font-medium">Enter cache TTL <span class="text-sm font-normal">(in minutes)</span>
-							<span class="tooltip-container">
-								<i class="fa fa-question-circle question-icon"></i>
-								<span class="tooltip-bubble">
-									We are caching the data to avoid redundant calls. By default the cache expires after 10 minutes, you
-									can change it here to your desired time. We have given a refresh cache button in case you want to
-									fetch fresh data right now.
-								</span>
-							</span>
-						</p>
-						<input type="text" id="cacheInput"
-							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800  p-2 my-2"
-							placeholder="Write Cache TTL in minutes (Default 10 minutes)">
 					</div>
+
+
+
+
 
 					<!-- Customization & Template Section -->
 					<div id="customizationSettings" class="my-6 p-4 border border-gray-200 rounded-xl bg-gray-50">
@@ -206,25 +194,25 @@
 								Reviewed PRs</label>
 							<label style="display:block; margin-bottom: 6px;"><input type="checkbox" id="showOpenLabel"> Show
 								Open/Closed Label</label>
-							<label id="showCommitsLabel" for="showCommits" style="display:block; margin-bottom: 6px;"><input
-									type="checkbox" id="showCommits"> Show commits</label>
+							<label style="display:block; margin-bottom: 6px;"><input type="checkbox" id="showCommits"
+									class="form-checkbox h-4 w-4 text-blue-600"> Show commits</label>
 						</div>
-						<div class="flex flex-col gap-2 mt-4">
-							<div class="flex gap-2 items-center">
-								<input id="templateNameInput" type="text" class="border rounded p-1 flex-1" placeholder="Template name">
-								<button id="saveNamedTemplateBtn" type="button"
-									class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-1 px-3 rounded">Save</button>
-							</div>
-							<div id="templatesListContainer" class="mt-2">
-								<label class="block font-medium mb-1">Saved Templates:</label>
-								<ul id="templatesList" class="flex flex-col gap-1"></ul>
-							</div>
-							<div class="flex gap-2 mt-1">
-								<button id="loadTemplateBtn" type="button"
-									class="bg-green-600 hover:bg-green-700 text-white font-medium py-1 px-3 rounded"
-									disabled>Load</button>
-								<button id="deleteTemplateBtn" type="button"
-									class="bg-red-600 hover:bg-red-700 text-white font-medium py-1 px-3 rounded" disabled>Delete</button>
+						<hr style="margin: 18px 0; border: none; border-top: 1.5px dashed #e5e7eb;">
+						<div id="templateSection"
+							class="p-3 rounded-xl bg-gray-50 border border-gray-200 mb-2 flex flex-col w-full">
+							<h5 class="font-semibold text-base mb-2">Template</h5>
+							<div class="flex flex-col gap-2 w-full">
+								<div class="flex gap-2 items-center mb-1 w-full">
+									<input id="templateNameInput" type="text" class="border rounded p-1 flex-1"
+										placeholder="Template name">
+									<button id="saveNamedTemplateBtn" type="button"
+										class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-1 px-3 rounded">Save</button>
+								</div>
+								<div class="flex flex-col w-full mt-1">
+									<label class="block font-medium mb-1">Saved Templates:</label>
+									<ul id="templatesList" style="display:flex; flex-direction:row; flex-wrap:wrap; gap:8px; width:100%;">
+									</ul>
+								</div>
 							</div>
 							<span id="namedTemplateMsg" class="text-green-600 text-sm ml-2" style="display:none;">Action
 								successful!</span>
@@ -232,6 +220,21 @@
 						<button id="saveTemplateBtn" type="button"
 							class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded mt-2">Save Template</button>
 						<span id="templateSavedMsg" class="text-green-600 text-sm ml-2" style="display:none;">Template saved!</span>
+					</div>
+					<div>
+						<p class="text-sm font-medium">Enter cache TTL <span class="text-sm font-normal">(in minutes)</span>
+							<span class="tooltip-container">
+								<i class="fa fa-question-circle question-icon"></i>
+								<span class="tooltip-bubble">
+									We are caching the data to avoid redundant calls. By default the cache expires after 10 minutes, you
+									can change it here to your desired time. We have given a refresh cache button in case you want to
+									fetch fresh data right now.
+								</span>
+							</span>
+						</p>
+						<input type="text" id="cacheInput"
+							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800  p-2 my-2"
+							placeholder="Write Cache TTL in minutes (Default 10 minutes)">
 					</div>
 
 					<div class="">
