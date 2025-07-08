@@ -1252,36 +1252,6 @@ function toggleRadio(radio) {
     });
 }
 
-let cacheInput = document.getElementById('cacheInput');
-if (cacheInput) {
-    chrome.storage.local.get(['cacheInput'], function (result) {
-        if (result.cacheInput) {
-            cacheInput.value = result.cacheInput;
-        } else {
-            cacheInput.value = 10;
-        }
-    });
-
-    cacheInput.addEventListener('blur', function () {
-        let ttlValue = parseInt(this.value);
-        if (isNaN(ttlValue) || ttlValue <= 0 || this.value.trim() === '') {
-            ttlValue = 10;
-            this.value = ttlValue;
-            this.style.borderColor = '#ef4444';
-        } else if (ttlValue > 1440) {
-            ttlValue = 1440;
-            this.value = ttlValue;
-            this.style.borderColor = '#f59e0b';
-        } else {
-            this.style.borderColor = '#10b981';
-        }
-
-        chrome.storage.local.set({ cacheInput: ttlValue }, function () {
-            console.log('Cache TTL saved:', ttlValue, 'minutes');
-        });
-    });
-
-}
 async function triggerRepoFetchIfEnabled() {
     if (window.triggerRepoFetchIfEnabled) {
         await window.triggerRepoFetchIfEnabled();
