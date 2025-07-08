@@ -660,4 +660,6 @@ function toggleRadio(radio) {
             isLastWeek: radio.id === 'lastWeekContribution'
         });
     });
+
 }
+

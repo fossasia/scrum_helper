@@ -1,4 +1,6 @@
-﻿const DEBUG = true;
+
+const DEBUG = true;
+
 function log(...args) {
     if (DEBUG) {
         console.log(`[SCRUM-HELPER]:`, ...args);
@@ -1215,4 +1217,7 @@ ${prs.map((pr, i) => `	repo${i}: repository(owner: \"${pr.owner}\", name: \"${pr
     } catch (e) {
         return results;
     }
+
 }
+
+
