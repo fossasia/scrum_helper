@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 
@@ -17,6 +16,26 @@
 			max-height: 600px !important;
 			overflow-y: scroll;
 			background: #eae4e4;
+		}
+
+		#platformSelect option {
+			font-family: 'FontAwesome', 'Arial', sans-serif;
+		}
+
+		#customPlatformDropdown {
+			position: relative;
+		}
+
+		#platformDropdownList {
+			display: none;
+		}
+
+		#customPlatformDropdown.open #platformDropdownList {
+			display: block;
+		}
+
+		#platformDropdownBtn:focus {
+			outline: 2px solid #2563eb;
 		}
 	</style>
 </head>
@@ -59,19 +78,43 @@
 
 				<div id="reportSection" class="tab-content">
 					<div>
+						<label for="platformSelect" class="block text-lg font-semibold mb-1">Client</label>
+						<div class="relative mb-4" id="customPlatformDropdown">
+							<input type="hidden" id="platformSelect" value="github">
+							<button type="button" id="platformDropdownBtn"
+								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 pr-8 flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-blue-500">
+								<span id="platformDropdownSelected" class="flex items-center gap-2">
+									<i class="fa fa-github" style="margin-right:8px;"></i> GitHub
+								</span>
+								<i class="fa fa-chevron-down text-gray-500"></i>
+							</button>
+							<ul id="platformDropdownList"
+								class="absolute left-0 right-0 bg-white border-2 border-gray-200 rounded-xl mt-1 shadow-lg z-10 hidden">
+								<li class="px-4 py-2 cursor-pointer flex items-center hover:bg-gray-100" data-value="github">
+									<i class="fa fa-github" style="margin-right:8px;"></i> GitHub
+								</li>
+								<li class="px-4 py-2 cursor-pointer flex items-center hover:bg-gray-100" data-value="gitlab">
+									<i class="fa fa-gitlab" style="margin-right:8px;"></i> GitLab
+								</li>
+							</ul>
+						</div>
+					</div>
+					<div>
 						<h4>Your Project Name<span class="tooltip-container ml-2">
 								<i class="fa fa-question-circle question-icon"></i>
 								<span class="tooltip-bubble">
 									This is the name that appears in the subject line of your email, followed by timestamp.
 								</span>
 							</span> </h4>
+
+
 						<input id="projectName" type="text"
 							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800  p-2 my-2"
 							placeholder="Enter your project name">
 					</div>
 					<div>
-						<h4>Your Github Username</h4>
-						<input id="githubUsername" type="text"
+						<h4 id="usernameLabel">Your GitHub Username</h4>
+						<input id="platformUsername" type="text"
 							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800  p-2 my-2"
 							placeholder="Required for fetching your contributions">
 					</div>
@@ -275,9 +318,9 @@
 	<script src="scripts/jquery-3.2.1.min.js"></script>
 	<script type="text/javascript" type="text/javascript" src="materialize/js/materialize.min.js"></script>
 	<script src="scripts/main.js"></script>
+	<script src="scripts/gitlabHelper.js"></script>
 	<script src="scripts/scrumHelper.js"></script>
 	<script src="scripts/popup.js"></script>
 </body>
 
 </html>
-

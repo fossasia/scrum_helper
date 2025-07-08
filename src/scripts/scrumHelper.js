@@ -1,4 +1,3 @@
-
 const DEBUG = true;
 
 function log(...args) {
@@ -18,6 +17,9 @@ let hasInjectedContent = false;
 let scrumGenerationInProgress = false;
 
 let orgName = '';
+let platform = 'github';
+let platformUsername = '';
+let gitlabHelper = null;
 
 function allIncluded(outputTarget = 'email') {
     if (scrumGenerationInProgress) {
@@ -66,9 +68,11 @@ function allIncluded(outputTarget = 'email') {
 
     // let linkStyle = '';
     function getChromeData() {
-        console.log("Getting Chrome data for context:", outputTarget);
+        console.log("[DEBUG] getChromeData called for outputTarget:", outputTarget);
         chrome.storage.local.get(
             [
+                'platform',
+                'platformUsername',
                 'githubUsername',
                 'githubToken',
                 'projectName',
@@ -86,20 +90,19 @@ function allIncluded(outputTarget = 'email') {
                 'orgName'
             ],
             (items) => {
-                console.log("Storage items received:", items);
-
-
+                console.log("[DEBUG] Storage items received:", items);
+                platform = items.platform || 'github';
+                platformUsername = items.platformUsername || '';
+                console.log(`[DEBUG] platform: ${platform}, platformUsername: ${platformUsername}`);
                 if (outputTarget === 'popup') {
                     const usernameFromDOM = document.getElementById('githubUsername')?.value;
                     const projectFromDOM = document.getElementById('projectName')?.value;
                     const reasonFromDOM = document.getElementById('userReason')?.value;
                     const tokenFromDOM = document.getElementById('githubToken')?.value;
-
                     items.githubUsername = usernameFromDOM || items.githubUsername;
                     items.projectName = projectFromDOM || items.projectName;
                     items.userReason = reasonFromDOM || items.userReason;
                     items.githubToken = tokenFromDOM || items.githubToken;
-
                     chrome.storage.local.set({
                         githubUsername: items.githubUsername,
                         projectName: items.projectName,
@@ -107,18 +110,15 @@ function allIncluded(outputTarget = 'email') {
                         githubToken: items.githubToken
                     });
                 }
-
                 githubUsername = items.githubUsername;
                 projectName = items.projectName;
                 userReason = items.userReason || 'No Blocker at the moment';
                 githubToken = items.githubToken;
                 lastWeekContribution = items.lastWeekContribution;
                 yesterdayContribution = items.yesterdayContribution;
-
                 if (!items.enableToggle) {
                     enableToggle = items.enableToggle;
                 }
-
                 if (items.lastWeekContribution) {
                     handleLastWeekContributionChange();
                 } else if (items.yesterdayContribution) {
@@ -127,33 +127,66 @@ function allIncluded(outputTarget = 'email') {
                     startingDate = items.startingDate;
                     endingDate = items.endingDate;
                 } else {
-                    handleLastWeekContributionChange(); //on fresh unpack - default to last week.
+                    handleLastWeekContributionChange();
                     if (outputTarget === 'popup') {
                         chrome.storage.local.set({ lastWeekContribution: true, yesterdayContribution: false });
                     }
                 }
-                if (githubUsername) {
-                    console.log("About to fetch GitHub data for:", githubUsername);
-                    fetchGithubData();
-                } else {
-                    if (outputTarget === 'popup') {
-                        console.log("No username found - popup context");
-                        // Show error in popup
-                        const scrumReport = document.getElementById('scrumReport');
-                        const generateBtn = document.getElementById('generateReport');
-                        if (scrumReport) {
-                            scrumReport.innerHTML = '<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">Please enter your GitHub username to generate a report.</div>';
-                        }
-                        if (generateBtn) {
-                            generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
-                            generateBtn.disabled = false;
-                        }
-                        scrumGenerationInProgress = false;
+                console.log(`[DEBUG] githubUsername: ${githubUsername}, platformUsername: ${platformUsername}`);
+                if (platform === 'github') {
+                    if (githubUsername) {
+                        console.log("[DEBUG] About to fetch GitHub data for:", githubUsername);
+                        fetchGithubData();
                     } else {
-                        console.warn('No GitHub username found in storage');
-                        scrumGenerationInProgress = false;
+                        if (outputTarget === 'popup') {
+                            console.log("[DEBUG] No username found - popup context");
+                            const scrumReport = document.getElementById('scrumReport');
+                            const generateBtn = document.getElementById('generateReport');
+                            if (scrumReport) {
+                                scrumReport.innerHTML = '<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">Please enter your GitHub username to generate a report.</div>';
+                            }
+                            if (generateBtn) {
+                                generateBtn.innerHTML = '<i class=\"fa fa-refresh\"></i> Generate Report';
+                                generateBtn.disabled = false;
+                            }
+                            scrumGenerationInProgress = false;
+                        } else {
+                            console.warn('[DEBUG] No GitHub username found in storage');
+                            scrumGenerationInProgress = false;
+                        }
+                        return;
                     }
-                    return;
+                } else if (platform === 'gitlab') {
+                    if (!gitlabHelper) gitlabHelper = new window.GitLabHelper();
+                    if (platformUsername) {
+                        const generateBtn = document.getElementById('generateReport');
+                        gitlabHelper.fetchGitLabData(platformUsername, startingDate, endingDate)
+                            .then(data => {
+                                const processed = gitlabHelper.processGitLabData(data);
+                                githubIssuesData = { items: processed.issues };
+                                githubPrsReviewData = { items: processed.mergeRequests };
+                                githubUserData = processed.user;
+                                processGithubData({
+                                    githubIssuesData,
+                                    githubPrsReviewData,
+                                    githubUserData
+                                });
+                            })
+                            .catch(err => {
+                                if (generateBtn) {
+                                    generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+                                    generateBtn.disabled = false;
+                                }
+                                const scrumReport = document.getElementById('scrumReport');
+                                if (scrumReport) {
+                                    scrumReport.innerHTML = `<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">${err.message || 'An error occurred while fetching GitLab data.'}</div>`;
+                                }
+                            });
+                    } else {
+                        // Show error for missing GitLab username
+                    }
+                } else {
+                    console.log(`[DEBUG] Unknown platform: ${platform}`);
                 }
                 if (items.cacheInput) {
                     cacheInput = items.cacheInput;
@@ -363,7 +396,7 @@ function allIncluded(outputTarget = 'email') {
         const isCacheKeyMatch = githubCache.cacheKey === cacheKey;
         const needsToken = !!githubToken;
         const cacheUsedToken = !!githubCache.usedToken;
-        if (githubCache.data && isCacheFresh && isCacheKeyMatch) { 
+        if (githubCache.data && isCacheFresh && isCacheKeyMatch) {
             if (needsToken && !cacheUsedToken) {
                 log('Cache was fetched without token, but user now has a token. Invalidating cache.');
                 githubCache.data = null;
@@ -610,26 +643,21 @@ function allIncluded(outputTarget = 'email') {
     }
 
     async function processGithubData(data) {
-        log('Processing Github data');
+        log('[DEBUG] processGithubData called', data);
         githubIssuesData = data.githubIssuesData;
         githubPrsReviewData = data.githubPrsReviewData;
         githubUserData = data.githubUserData;
-
-        log('GitHub data set:', {
+        log('[DEBUG] GitHub data set:', {
             issues: githubIssuesData?.items?.length || 0,
             prs: githubPrsReviewData?.items?.length || 0,
             user: githubUserData?.login
         });
-
-
         lastWeekArray = [];
         nextWeekArray = [];
         reviewedPrsArray = [];
         githubPrsReviewDataProcessed = {};
-
         issuesDataProcessed = false;
         prsReviewDataProcessed = false;
-
         // Update subject
         if (!githubCache.subject && scrumSubject) {
             scrumSubjectLoaded();
@@ -638,7 +666,7 @@ function allIncluded(outputTarget = 'email') {
             writeGithubIssuesPrs(),
             writeGithubPrsReviews(),
         ])
-        log('Both data processing functions completed, generating scrum body');
+        log('[DEBUG] Both data processing functions completed, generating scrum body');
         writeScrumBody();
     }
 
@@ -1174,7 +1202,7 @@ if (window.location.protocol.startsWith('http')) {
 
 window.generateScrumReport = function () {
     allIncluded('popup');
-}
+};
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === 'forceRefresh') {
@@ -1219,5 +1247,6 @@ ${prs.map((pr, i) => `	repo${i}: repository(owner: \"${pr.owner}\", name: \"${pr
     }
 
 }
+
 
 
