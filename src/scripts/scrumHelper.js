@@ -162,10 +162,43 @@ function allIncluded(outputTarget = 'email') {
                         const generateBtn = document.getElementById('generateReport');
                         gitlabHelper.fetchGitLabData(platformUsername, startingDate, endingDate)
                             .then(data => {
+                                console.log('[SCRUM-DEBUG] Raw GitLab data returned from fetchGitLabData:', data);
                                 const processed = gitlabHelper.processGitLabData(data);
-                                githubIssuesData = { items: processed.issues };
-                                githubPrsReviewData = { items: processed.mergeRequests };
+                                console.log('[SCRUM-DEBUG] Processed GitLab data:', processed);
+                                // Map GitLab issues and MRs to GitHub-like fields for compatibility
+                                function mapGitLabIssue(issue) {
+                                    return {
+                                        ...issue,
+                                        repository_url: issue.web_url ? issue.web_url.split('/-/')[0].replace('https://gitlab.com/', 'https://api.gitlab.com/repos/') : undefined,
+                                        html_url: issue.web_url,
+                                        number: issue.iid,
+                                        state: issue.state,
+                                        title: issue.title,
+                                        body: issue.description,
+                                        pull_request: undefined // not a PR
+                                    };
+                                }
+                                function mapGitLabMR(mr) {
+                                    return {
+                                        ...mr,
+                                        repository_url: mr.web_url ? mr.web_url.split('/-/')[0].replace('https://gitlab.com/', 'https://api.gitlab.com/repos/') : undefined,
+                                        html_url: mr.web_url,
+                                        number: mr.iid,
+                                        state: mr.state,
+                                        title: mr.title,
+                                        body: mr.description,
+                                        pull_request: {}, // mark as PR
+                                        author: mr.author // ensure author is present for authored-by check
+                                    };
+                                }
+                                githubIssuesData = { items: processed.issues.map(mapGitLabIssue) };
+                                githubPrsReviewData = { items: processed.mergeRequests.map(mapGitLabMR) };
                                 githubUserData = processed.user;
+                                console.log('[SCRUM-DEBUG] Passing to processGithubData:', {
+                                    githubIssuesData,
+                                    githubPrsReviewData,
+                                    githubUserData
+                                });
                                 processGithubData({
                                     githubIssuesData,
                                     githubPrsReviewData,
@@ -662,10 +695,11 @@ function allIncluded(outputTarget = 'email') {
         if (!githubCache.subject && scrumSubject) {
             scrumSubjectLoaded();
         }
-        await Promise.all([
-            writeGithubIssuesPrs(),
-            writeGithubPrsReviews(),
-        ])
+        log('[SCRUM-DEBUG] Processing issues for main activity:', githubIssuesData?.items);
+        await writeGithubIssuesPrs(githubIssuesData?.items || []);
+        log('[SCRUM-DEBUG] Processing merge requests for main activity:', githubPrsReviewData?.items);
+        await writeGithubIssuesPrs(githubPrsReviewData?.items || []);
+        await writeGithubPrsReviews();
         log('[DEBUG] Both data processing functions completed, generating scrum body');
         writeScrumBody();
     }
@@ -807,8 +841,19 @@ ${userReason}`;
         let i;
         for (i = 0; i < items.length; i++) {
             let item = items[i];
-            if (item.user.login == githubUsername || !item.pull_request) continue;
+            // For GitHub: item.user.login, for GitLab: item.author?.username
+            let isAuthoredByUser = false;
+            if (platform === 'github') {
+                isAuthoredByUser = item.user && item.user.login === githubUsername;
+            } else if (platform === 'gitlab') {
+                isAuthoredByUser = item.author && (item.author.username === platformUsername);
+            }
+            if (isAuthoredByUser || !item.pull_request) continue;
             let repository_url = item.repository_url;
+            if (!repository_url) {
+                logError('repository_url is undefined for item:', item);
+                continue;
+            }
             let project = repository_url.substr(repository_url.lastIndexOf('/') + 1);
             let title = item.title;
             let number = item.number;
@@ -920,13 +965,14 @@ ${userReason}`;
         }
     }
 
-    async function writeGithubIssuesPrs() {
+    async function writeGithubIssuesPrs(items) {
         log('writeGithubIssuesPrs called');
-        let items = githubIssuesData.items;
-        lastWeekArray = [];
-        nextWeekArray = [];
         if (!items) {
-            logError('No Github issues data available');
+            logError('No items to process for writeGithubIssuesPrs');
+            return;
+        }
+        if (!items.length) {
+            logError('No items to process for writeGithubIssuesPrs');
             return;
         }
 
@@ -947,6 +993,10 @@ ${userReason}`;
             let item = items[i];
             if (item.pull_request && item.state === 'closed' && useMergedStatus && !fallbackToSimple) {
                 let repository_url = item.repository_url;
+                if (!repository_url) {
+                    logError('repository_url is undefined for item:', item);
+                    continue;
+                }
                 let repoParts = repository_url.split('/');
                 let owner = repoParts[repoParts.length - 2];
                 let repo = repoParts[repoParts.length - 1];
@@ -978,24 +1028,33 @@ ${userReason}`;
         }
         for (let i = 0; i < items.length; i++) {
             let item = items[i];
+            log('[SCRUM-DEBUG] Processing item:', item);
+            // For GitLab, treat all items in the MRs array as MRs
+            let isMR = !!item.pull_request; // works for both GitHub and mapped GitLab data
+            log('[SCRUM-DEBUG] isMR:', isMR, 'platform:', platform, 'item:', item);
             let html_url = item.html_url;
             let repository_url = item.repository_url;
+            if (!repository_url) {
+                logError('repository_url is undefined for item:', item);
+                continue;
+            }
             let project = repository_url.substr(repository_url.lastIndexOf('/') + 1);
             let title = item.title;
             let number = item.number;
             let li = '';
             let isDraft = false;
-            if (item.pull_request && typeof item.draft !== 'undefined') {
+            if (isMR && typeof item.draft !== 'undefined') {
                 isDraft = item.draft;
             }
-            if (item.pull_request) {
-
+            if (isMR) {
+                // Platform-specific label
+                let prAction = '';
                 const prCreatedDate = new Date(item.created_at);
                 const startDate = new Date(startingDate);
                 const endDate = new Date(endingDate + 'T23:59:59');
                 const isNewPR = prCreatedDate >= startDate && prCreatedDate <= endDate;
-
-                if (!isNewPR) {
+                if (platform === 'github') {
+                    if (!isNewPR) {
                     const hasCommitsInRange = showCommits && item._allCommits && item._allCommits.length > 0;
 
                     if (!hasCommitsInRange) {
@@ -1007,7 +1066,11 @@ ${userReason}`;
                 } else {
 
                 }
-                const prAction = isNewPR ? 'Made PR' : 'Existing PR';
+                    prAction = isNewPR ? 'Made PR' : 'Existing PR';
+
+                } else if (platform === 'gitlab') {
+                      prAction = isNewPR ? 'Made Merge Request' : 'Existing Merge Request';
+                }
                 if (isDraft) {
                     li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a> ${pr_draft_button}</li>`;
                 } else if (item.state === 'open') {
@@ -1028,12 +1091,16 @@ ${userReason}`;
                         merged = mergedStatusResults[`${owner}/${repo}#${number}`];
                     }
                     if (merged === true) {
-                        li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_merged_button}</li>`;
+                        li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a> ${pr_merged_button}</li>`;
                     } else {
                         // Always show closed label for merged === false or merged === null/undefined
-                        li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_closed_button}</li>`;
+                        li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a> ${pr_closed_button}</li>`;
                     }
+                } else {
+                    // Fallback for unexpected state
+                    li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a></li>`;
                 }
+                log('[SCRUM-DEBUG] Added PR/MR to lastWeekArray:', li, item);
                 lastWeekArray.push(li);
                 continue;
             } else {
@@ -1058,20 +1125,14 @@ ${userReason}`;
                 } else if (item.state === 'closed') {
                     li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_button}</li>`;
                 } else {
-                    li =
-                        '<li><i>(' +
-                        project +
-                        ')</i> - Opened Issue(#' +
-                        number +
-                        ") - <a href='" +
-                        html_url +
-                        "' target='_blank'>" +
-                        title +
-                        '</a> </li>';
+                    // Fallback for unexpected state
+                    li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a></li>`;
                 }
+                log('[SCRUM-DEBUG] Added issue to lastWeekArray:', li, item);
+                lastWeekArray.push(li);
             }
-            lastWeekArray.push(li);
         }
+        log('[SCRUM-DEBUG] Final lastWeekArray:', lastWeekArray);
         issuesDataProcessed = true;
         if (outputTarget === 'email') {
             triggerScrumGeneration();
@@ -1247,6 +1308,8 @@ ${prs.map((pr, i) => `	repo${i}: repository(owner: \"${pr.owner}\", name: \"${pr
     }
 
 }
+
+
 
 
 

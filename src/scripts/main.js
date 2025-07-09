@@ -79,7 +79,7 @@ function handleBodyOnLoad() {
 				yesterdayContributionElement.checked = true;
 				handleYesterdayContributionChange();
 			}
-			if (items.showCommits){
+			if (items.showCommits) {
 				showCommitsElement.checked = items.showCommits;
 			} else {
 				showCommitsElement.checked = false;
@@ -251,13 +251,15 @@ function handleUserReasonChange() {
 }
 
 function handleShowCommitsChange() {
-    let value = showCommitsElement.checked;
-    chrome.storage.local.set({ showCommits: value });
+	let value = showCommitsElement.checked;
+	chrome.storage.local.set({ showCommits: value });
 }
 
 enableToggleElement.addEventListener('change', handleEnableChange);
 githubUsernameElement.addEventListener('keyup', handleGithubUsernameChange);
-githubTokenElement.addEventListener('keyup', handleGithubTokenChange);
+if (githubTokenElement) {
+	githubTokenElement.addEventListener('keyup', handleGithubTokenChange);
+}
 cacheInputElement.addEventListener('keyup', handleCacheInputChange);
 projectNameElement.addEventListener('keyup', handleProjectNameChange);
 startingDateElement.addEventListener('change', handleStartingDateChange);
