@@ -1172,55 +1172,6 @@ const handleOrgInput = debounce(function () {
 let lastInvalidOrg = '';
 orgInput.addEventListener('input', handleOrgInput);
 
-document.getElementById('refreshCache').addEventListener('click', async function () {
-    const button = this;
-    const originalText = button.innerHTML;
-
-    button.classList.add('loading');
-    button.innerHTML = '<i class="fa fa-refresh fa-spin"></i><span>Refreshing...</span>';
-    button.disabled = true;
-
-    try {
-        await new Promise(resolve => {
-            chrome.storage.local.remove(['githubCache', 'repoCache'], resolve);
-        });
-
-        const scrumReport = document.getElementById('scrumReport');
-        if (scrumReport) {
-            scrumReport.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Cache cleared successfully. Click "Generate Report" to fetch fresh data.</p>';
-        }
-
-        if(typeof availableRepos !== 'undefined'){
-            availableRepos = [];
-        }
-
-        const repoStatus = document.getElementById('repoStatus');
-        if(repoStatus){
-            repoStatus.textContent = '';
-        }
-
-        button.innerHTML = '<i class="fa fa-check"></i><span>Cache Cleared!</span>';
-        button.classList.remove('loading');
-
-        setTimeout(() => triggerRepoFetchIfEnabled(), 500);
-
-        setTimeout(() => {
-            button.innerHTML = originalText;
-            button.disabled = false;
-        }, 2000);
-
-    } catch (error) {
-        console.error('Cache clear failed:', error);
-        button.innerHTML = '<i class="fa fa-exclamation-triangle"></i><span>Failed to clear cache</span>';
-        button.classList.remove('loading');
-
-        setTimeout(() => {
-            button.innerHTML = originalText;
-            button.disabled = false;
-        }, 3000);
-    }
-});
-
 function toggleRadio(radio) {
     const startDateInput = document.getElementById('startingDate');
     const endDateInput = document.getElementById('endingDate');
