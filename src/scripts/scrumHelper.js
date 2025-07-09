@@ -1404,43 +1404,72 @@ async function fetchUserRepositories(username, token, org = '') {
             return [];
         }
 
-        const repoPromises = repoNames.slice(0, 50).map(async (repoFullName) => {
-            try {
-                const repoUrl = `https://api.github.com/repos/${repoFullName}`;
-                const repoRes = await fetch(repoUrl, { headers });
-
-                if (repoRes.ok) {
-                    const repo = await repoRes.json();
-                    return {
-                        name: repo.name,
-                        fullName: repo.full_name,
-                        description: repo.description,
-                        language: repo.language,
-                        updatedAt: repo.updated_at,
-                        stars: repo.stargazers_count
-                    };
-                }
-                // If fetch fails for a specific repo, return a basic object
-                console.warn(`Failed to fetch details for repo ${repoFullName}, status: ${repoRes.status}`);
-                const [owner, repoName] = repoFullName.split('/');
-                return {
-                    name: repoName,
-                    fullName: repoFullName,
-                };
-
-            } catch (err) {
-                console.warn(`Failed to fetch details for repo ${repoFullName}: `, err);
-                const [owner, repoName] = repoFullName.split('/');
-                return {
-                    name: repoName,
-                    fullName: repoFullName,
-                };
+        const repoFields = `
+            name
+            nameWithOwner
+            description
+            pushedAt
+            stargazerCount
+            primaryLanguage {
+                name
             }
-        });
+        `;
 
-        const repos = (await Promise.all(repoPromises)).filter(repo => repo !== null);
-        console.log(`Successfully fetched details for ${repos.length} repositories with contributions in the selected date range`);
-        return repos.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+        const repoQueries = repoNames.slice(0, 50).map((repoFullName, i) => {
+            const parts = repoFullName.split('/');
+            if (parts.length !== 2) return ''; // Skip invalid names
+            const owner = parts[0];
+            const repo = parts[1];
+            return `
+                repo${i}: repository(owner: "${owner}", name: "${repo}") {
+                    ... on Repository {
+                        ${repoFields}
+                    }
+                }
+            `;
+        }).join('\n');
+
+        const query = `query { ${repoQueries} }`;
+
+        try {
+            const res = await fetch('https://api.github.com/graphql', {
+                method: 'POST',
+                headers: {
+                    ...headers,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ query }),
+            });
+
+            if (!res.ok) {
+                throw new Error(`GraphQL request for repos failed: ${res.status}`);
+            }
+
+            const graphQLData = await res.json();
+
+            if (graphQLData.errors) {
+                logError("GraphQL errors fetching repos:", graphQLData.errors);
+                return []; // Return empty on partial errors
+            }
+
+            const repos = Object.values(graphQLData.data)
+                .filter(repo => repo !== null)
+                .map(repo => ({
+                    name: repo.name,
+                    fullName: repo.nameWithOwner,
+                    description: repo.description,
+                    language: repo.primaryLanguage ? repo.primaryLanguage.name : null,
+                    updatedAt: repo.pushedAt,
+                    stars: repo.stargazerCount
+                }));
+
+            console.log(`Successfully fetched details for ${repos.length} repositories via GraphQL`);
+            return repos.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+
+        } catch (err) {
+            logError('Failed to fetch repository details via GraphQL:', err);
+            throw err;
+        }
     } catch (err) {
         logError('Failed to fetch repositories:', err);
         throw err;
