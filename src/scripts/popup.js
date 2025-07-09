@@ -387,12 +387,23 @@ document.addEventListener('DOMContentLoaded', function () {
     // Add click event for setOrgBtn to set org
     setOrgBtn.addEventListener('click', function () {
         let org = orgInput.value.trim().toLowerCase();
+        // Do not default to any org, allow empty string
+        // if (!org) {
+        //     org = 'fossasia';
+        // }
+        console.log('[Org Check] Checking organization:', org);
         if (!org) {
-            org = 'fossasia';
+            // If org is empty, clear orgName in storage but don't auto-generate report
+            chrome.storage.local.set({ orgName: '' }, function () {
+                console.log('[Org Check] Organization cleared from storage');
+            });
+            return;
         }
+
         setOrgBtn.disabled = true;
         const originalText = setOrgBtn.innerHTML;
         setOrgBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
+
         fetch(`https://api.github.com/orgs/${org}`)
             .then(res => {
                 if (res.status === 404) {
@@ -451,6 +462,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     setTimeout(() => {
                         if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
                     }, 2500);
+
                 });
             })
             .catch((err) => {
