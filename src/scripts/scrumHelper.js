@@ -1374,11 +1374,11 @@ async function fetchUserRepositories(username, token, org = '') {
         let repoSet = new Set();
 
         const processRepoItems = (items) => {
-            items?.forEach(item=> {
-                if(item.repository_url) {
+            items?.forEach(item => {
+                if (item.repository_url) {
                     const urlParts = item.repository_url.split('/');
-                    const repoFullName = `${urlParts[urlParts.length - 2]}/${urlParts[urlParts.length-1]}`;
-                    const repoName = `${urlParts[urlParts.length-1]}`
+                    const repoFullName = `${urlParts[urlParts.length - 2]}/${urlParts[urlParts.length - 1]}`;
+                    const repoName = `${urlParts[urlParts.length - 1]}`
                     repoSet.add(repoFullName);
                 }
             })
@@ -1386,17 +1386,13 @@ async function fetchUserRepositories(username, token, org = '') {
 
         if (issuesRes.ok) {
             const issuesData = await issuesRes.json();
-            issuesData.items?.forEach(item => {
-                processRepoItems(issuesData.items);
-            });
+            processRepoItems(issuesData.items);
             console.log(`Found ${issuesData.items?.length || 0} issues/PRs authored by user in date range`);
         }
 
         if (commentsRes.ok) {
             const commentsData = await commentsRes.json();
-            commentsData.items?.forEach(item => {
-                processRepoItems(commentsData.items);
-            })
+            processRepoItems(commentsData.items);
             console.log(`Found ${commentsData.items?.length || 0} issues/PRs with user comments in date range`);
         }
 
