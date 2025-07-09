@@ -1287,7 +1287,7 @@ ${prs.map((pr, i) => `	repo${i}: repository(owner: \"${pr.owner}\", name: \"${pr
 let selectedRepos = [];
 let useRepoFilter = false;
 
-async function fetchUserRepositories(username, token, org = 'fossasia') {
+async function fetchUserRepositories(username, token, org = '') {
     const headers = {
         'Accept': 'application/vnd.github.v3+json',
     };
@@ -1339,8 +1339,9 @@ async function fetchUserRepositories(username, token, org = 'fossasia') {
             const startDate = thirtyDaysAgo.toISOString().split('T')[0];
             const endDate = today.toISOString().split('T')[0];
         }
-        const issuesUrl = `https://api.github.com/search/issues?q=author:${username}+org:${org}${dateRange}&per_page=100`;
-        const commentsUrl = `https://api.github.com/search/issues?q=commenter:${username}+org:${org}${dateRange.replace('created:', 'updated:')}&per_page=100`;
+        let orgPart = org && org !== 'all' ? `+org:${org}` : '';
+        const issuesUrl = `https://api.github.com/search/issues?q=author:${username}${orgPart}${dateRange}&per_page=100`;
+        const commentsUrl = `https://api.github.com/search/issues?q=commenter:${username}${orgPart}${dateRange.replace('created:', 'updated:')}&per_page=100`;
 
         console.log('Search URLs:', { issuesUrl, commentsUrl });
 
@@ -1383,7 +1384,20 @@ async function fetchUserRepositories(username, token, org = 'fossasia') {
 
         const repoPromises = repoNames.slice(0, 50).map(async (repoName) => {
             try {
-                const repoUrl = `https://api.github.com/repos/${org}/${repoName}`;
+                let repoUrl;
+                if (org && org !== 'all' ) {
+                    repoUrl = `https://api.github.com/repos/${org}/${repoName}`;
+                } else {
+                    let repoApiUrl = null;
+                    for(const itemArr of [issuesRes.ok ? (await issuesRes.json()).items : [], commentsRes.ok ? (await commentsRes.json()).items : []]) {
+                        const found = itemArr.find(item => items.repository_url && items.repository_url.endswith('/' + repoName));
+                        if(found){
+                            repoApirUrl = found.repository_urll
+                            break;
+                        }
+                    }
+                    repoUrl = repoApiUrl || `https://api.github.com/repos/${repoName}`;
+                }
                 const repoRes = await fetch(repoUrl, { headers });
                 if (repoRes.ok) {
                     const repo = await repoRes.json();

@@ -438,7 +438,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     const repos = await window.fetchUserRepositories(
                         items.githubUsername,
                         items.githubToken,
-                        items.orgName || 'fossasia'
+                        items.orgName || 'all'
                     );
                     
                     availableRepos = repos;
@@ -533,7 +533,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     const repos = await window.fetchUserRepositories(
                         items.githubUsername,
                         items.githubToken,
-                        items.orgName || 'fossasia',
+                        items.orgName || 'all',
                     );
                     availableRepos = repos;
                     repoStatus.textContent = `${repos.length} repositories loaded`;
@@ -684,7 +684,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 availableRepos = await window.fetchUserRepositories(
                     storageItems.githubUsername, 
                     storageItems.githubToken, 
-                    storageItems.orgName || 'fossasia'
+                    storageItems.orgName || 'all'
                 );
                 repoStatus.textContent = `${availableRepos.length} repositories loaded`;
 
