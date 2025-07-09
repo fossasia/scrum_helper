@@ -166,10 +166,11 @@ function allIncluded(outputTarget = 'email') {
                 if (items.userReason) {
                     userReason = items.userReason;
                 }
-                if (!items.userReason) {
-                    userReason = 'No Blocker at the moment';
+                if (items.showCommits !== undefined) {
+                    showCommits = items.showCommits;
+                } else {
+                    showCommits = false; //default value
                 }
-
                 if (items.githubCache) {
                     githubCache.data = items.githubCache.data;
                     githubCache.cacheKey = items.githubCache.cacheKey;
@@ -1042,14 +1043,9 @@ ${userReason}`;
                     const hasCommitsInRange = showCommits && item._allCommits && item._allCommits.length > 0;
 
                     if (!hasCommitsInRange) {
-
                         continue; //skip these prs - created outside daterange with no commits
-                    } else {
-
-                    }
-                } else {
-
-                }
+                    } else {}
+                } else {}
                 const prAction = isNewPR ? 'Made PR' : 'Existing PR';
                 if (isDraft) {
                     li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_draft_button}</li>`;
