@@ -1417,7 +1417,7 @@ async function fetchUserRepositories(username, token, org = '') {
 
         const repoQueries = repoNames.slice(0, 50).map((repoFullName, i) => {
             const parts = repoFullName.split('/');
-            if (parts.length !== 2) return ''; // Skip invalid names
+            if (parts.length !== 2) return '';
             const owner = parts[0];
             const repo = parts[1];
             return `
@@ -1449,7 +1449,7 @@ async function fetchUserRepositories(username, token, org = '') {
 
             if (graphQLData.errors) {
                 logError("GraphQL errors fetching repos:", graphQLData.errors);
-                return []; // Return empty on partial errors
+                return []; 
             }
 
             const repos = Object.values(graphQLData.data)
