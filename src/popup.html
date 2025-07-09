@@ -142,8 +142,7 @@
 						<div>
 							<div class="flex items-center justify-between">
 								<div class="flex">
-									<p class="text-sm font-medium">Your GitHub Token</p>
-									<span class="tooltip-container">
+									<p class="text-sm font-medium">Your GitHub Token<span class="tooltip-container">
 										<i class="fa fa-question-circle question-icon"></i>
 										<span class="tooltip-bubble">
 											<b>Why is it recommended to add a GitHub token?</b><br>
@@ -162,7 +161,8 @@
 											4. Paste it here.<br>
 											<i>Keep your token secret!</i>
 										</span>
-									</span>
+									</span></p>
+									
 								</div>
 								<button id="toggleTokenVisibility" type="button" class="focus:outline-none">
 									<i id="tokenEyeIcon" class="fa fa-eye text-gray-600"></i>
@@ -174,8 +174,7 @@
 						</div>
             <div class="">
               <div class="flex items-center mt-4">
-                <h4>Organization Name</h4>
-                <span class="tooltip-container ml-2">
+                <p class="text-sm font-medium">Organization name<span class="tooltip-container ml-2">
                   <i class="fa fa-question-circle question-icon"></i>
                   <span class="tooltip-bubble">
                     <b>Which organization's GitHub activity?</b><br>
@@ -184,6 +183,7 @@
                     Organization name is not case-sensitive.
                   </span>
                 </span>
+				</p>
               </div>
               <div class="flex items-center mt-4 gap-2">
                 <input id="orgInput" type="text"
@@ -196,7 +196,12 @@
 					  </div>						
 						<div class="mb-4">
 							<div class="flex items-center justify-between mb-2">
-								<p class="text-sm font-medium">Filter by repositories</p>
+								<p class="text-sm font-medium">Filter by repositories<span class="tooltip-container">
+									<i class="fa fa-question-circle question-icon"></i>
+									<span class="tooltip-bubble">
+										Github Token required.
+									</span>
+								</span></p>
 								<div class="flex items-center">
 									<input type="checkbox" id="useRepoFilter" class="mr-2">
 									<label for="useRepoFilter" class="text-xs text-gray-600">Enable filtering</label>
@@ -241,12 +246,12 @@
 								<input type="checkbox" id="showCommits" checked class="form-checkbox h-4 w-4 text-blue-600 ">
 								<label id="showCommitsLabel" for="showCommits"
 									class="text-gray-700 font-medium text-sm flex items-center gap-1 ">Show commits made within date range
-									in Open PRs</label> <span class="tooltip-container">
+									in Open PRs<span class="tooltip-container">
 									<i class="fa fa-question-circle question-icon"></i>
 									<span class="tooltip-bubble">
 										Github Token required.
 									</span>
-								</span>
+								</span></label>
 							</div>
 						</div>
             <div class="cacheSection mt-3">
