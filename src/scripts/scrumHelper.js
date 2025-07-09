@@ -430,16 +430,37 @@ function allIncluded(outputTarget = 'email') {
                 logError('Failed to fetch repo data for filtering:', err);
             }
 
-            const repoQueries = selectedRepos.map(repo => `repo:${orgName}/${repo}`).join('+');
+            const repoQueries = selectedRepos
+                .filter(repo => repo !== null)
+                .map(repo => {
+                    if (typeof repo === 'object' && repo.fullName) {
+                        // FIXED: Remove leading slash if present
+                        const cleanName = repo.fullName.startsWith('/') ? repo.fullName.substring(1) : repo.fullName;
+                        return `repo:${cleanName}`;
+                    } else if (repo.includes('/')) {
+                        // FIXED: Remove leading slash if present
+                        const cleanName = repo.startsWith('/') ? repo.substring(1) : repo;
+                        return `repo:${cleanName}`;
+                    } else {
+                        const fullRepoInfo = githubCache.repoData?.find(r => r.name === repo);
+                        if (fullRepoInfo && fullRepoInfo.fullName) {
+                            return `repo:${fullRepoInfo.fullName}`;
+                        }
+                        logError(`Missing owner for repo ${repo} - search may fail`);
+                        return `repo:${repo}`;
+                    }
+                }).join('+');
 
-            issueUrl = `https://api.github.com/search/issues?q=author%3A${githubUsername}+${repoQueries}+${orgPart}+updated%3A${startingDate}..${endingDate}&per_page=100`;
-            prUrl = `https://api.github.com/search/issues?q=commenter%3A${githubUsername}+${repoQueries}+${orgPart}+updated%3A${startingDate}..${endingDate}&per_page=100`;
+            const orgQuery = orgPart ? `+${orgPart}` : '';
+            issueUrl = `https://api.github.com/search/issues?q=author%3A${githubUsername}+${repoQueries}${orgQuery}+updated%3A${startingDate}..${endingDate}&per_page=100`;
+            prUrl = `https://api.github.com/search/issues?q=commenter%3A${githubUsername}+${repoQueries}${orgQuery}+updated%3A${startingDate}..${endingDate}&per_page=100`;
             userUrl = `https://api.github.com/users/${githubUsername}`;
             log('Repository-filtered URLs:', { issueUrl, prUrl });
         } else {
             loadFromStorage('Using org wide search');
-            issueUrl = `https://api.github.com/search/issues?q=author%3A${githubUsername}+${orgPart}+updated%3A${startingDate}..${endingDate}&per_page=100`;
-            prUrl = `https://api.github.com/search/issues?q=commenter%3A${githubUsername}+${orgPart}+updated%3A${startingDate}..${endingDate}&per_page=100`;
+            const orgQuery = orgPart ? `+${orgPart}` : '';
+            issueUrl = `https://api.github.com/search/issues?q=author%3A${githubUsername}${orgQuery}+updated%3A${startingDate}..${endingDate}&per_page=100`;
+            prUrl = `https://api.github.com/search/issues?q=commenter%3A${githubUsername}${orgQuery}+updated%3A${startingDate}..${endingDate}&per_page=100`;
             userUrl = `https://api.github.com/users/${githubUsername}`;
         }
 
@@ -1044,8 +1065,8 @@ ${userReason}`;
 
                     if (!hasCommitsInRange) {
                         continue; //skip these prs - created outside daterange with no commits
-                    } else {}
-                } else {}
+                    } else { }
+                } else { }
                 const prAction = isNewPR ? 'Made PR' : 'Existing PR';
                 if (isDraft) {
                     li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_draft_button}</li>`;
@@ -1352,13 +1373,21 @@ async function fetchUserRepositories(username, token, org = '') {
 
         let repoSet = new Set();
 
+        const processRepoItems = (items) => {
+            items?.forEach(item=> {
+                if(item.repository_url) {
+                    const urlParts = item.repository_url.split('/');
+                    const repoFullName = `${urlParts[urlParts.length - 2]}/${urlParts[urlParts.length-1]}`;
+                    const repoName = `${urlParts[urlParts.length-1]}`
+                    repoSet.add(repoFullName);
+                }
+            })
+        }
+
         if (issuesRes.ok) {
             const issuesData = await issuesRes.json();
             issuesData.items?.forEach(item => {
-                if (item.repository_url) {
-                    const repoName = item.repository_url.split('/').pop();
-                    repoSet.add(repoName);
-                }
+                processRepoItems(issuesData.items);
             });
             console.log(`Found ${issuesData.items?.length || 0} issues/PRs authored by user in date range`);
         }
@@ -1366,10 +1395,7 @@ async function fetchUserRepositories(username, token, org = '') {
         if (commentsRes.ok) {
             const commentsData = await commentsRes.json();
             commentsData.items?.forEach(item => {
-                if (item.repository_url) {
-                    const repoName = item.repository_url.split('/').pop();
-                    repoSet.add(repoName);
-                }
+                processRepoItems(commentsData.items);
             })
             console.log(`Found ${commentsData.items?.length || 0} issues/PRs with user comments in date range`);
         }
@@ -1382,23 +1408,11 @@ async function fetchUserRepositories(username, token, org = '') {
             return [];
         }
 
-        const repoPromises = repoNames.slice(0, 50).map(async (repoName) => {
+        const repoPromises = repoNames.slice(0, 50).map(async (repoFullName) => {
             try {
-                let repoUrl;
-                if (org && org !== 'all' ) {
-                    repoUrl = `https://api.github.com/repos/${org}/${repoName}`;
-                } else {
-                    let repoApiUrl = null;
-                    for(const itemArr of [issuesRes.ok ? (await issuesRes.json()).items : [], commentsRes.ok ? (await commentsRes.json()).items : []]) {
-                        const found = itemArr.find(item => items.repository_url && items.repository_url.endswith('/' + repoName));
-                        if(found){
-                            repoApirUrl = found.repository_urll
-                            break;
-                        }
-                    }
-                    repoUrl = repoApiUrl || `https://api.github.com/repos/${repoName}`;
-                }
+                const repoUrl = `https://api.github.com/repos/${repoFullName}`;
                 const repoRes = await fetch(repoUrl, { headers });
+
                 if (repoRes.ok) {
                     const repo = await repoRes.json();
                     return {
@@ -1410,12 +1424,20 @@ async function fetchUserRepositories(username, token, org = '') {
                         stars: repo.stargazers_count
                     };
                 }
-                return null;
-            } catch (err) {
-                console.warn(`Dailed to fetch details for repo ${repoName}: `, err);
+                // If fetch fails for a specific repo, return a basic object
+                console.warn(`Failed to fetch details for repo ${repoFullName}, status: ${repoRes.status}`);
+                const [owner, repoName] = repoFullName.split('/');
                 return {
                     name: repoName,
-                    fullName: `${org}/${repoName}`,
+                    fullName: repoFullName,
+                };
+
+            } catch (err) {
+                console.warn(`Failed to fetch details for repo ${repoFullName}: `, err);
+                const [owner, repoName] = repoFullName.split('/');
+                return {
+                    name: repoName,
+                    fullName: repoFullName,
                 };
             }
         });

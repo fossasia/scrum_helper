@@ -438,7 +438,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     const repos = await window.fetchUserRepositories(
                         items.githubUsername,
                         items.githubToken,
-                        items.orgName || 'all'
+                        items.orgName || ''
                     );
                     
                     availableRepos = repos;
@@ -447,7 +447,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         repoStatus.textContent = `${repos.length} repositories loaded`;
                     }
 
-                    const repoCacheKey = `repos-${items.githubUsername}-${items.orgName || 'fossasia'}`;
+                    const repoCacheKey = `repos-${items.githubUsername}-${items.orgName || ''}`;
                     chrome.storage.local.set({
                         repoCache: {
                             data: repos,
@@ -510,7 +510,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     return;
                 }
 
-                const repoCacheKey = `repos-${items.githubUsername}-${items.orgName || 'fossasia'}`;
+                const repoCacheKey = `repos-${items.githubUsername}-${items.orgName || ''}`;
                 const now = Date.now();
                 const cacheAge = cacheData.repoCache?.timestamp ? now - cacheData.repoCache.timestamp : Infinity;
                 const cacheTTL = 10 * 60 * 1000; // 10 minutes 
@@ -533,7 +533,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     const repos = await window.fetchUserRepositories(
                         items.githubUsername,
                         items.githubToken,
-                        items.orgName || 'all',
+                        items.orgName || '',
                     );
                     availableRepos = repos;
                     repoStatus.textContent = `${repos.length} repositories loaded`;
@@ -622,7 +622,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 console.log('Current settings:', {
                     username: items.githubUsername,
                     hasToken: !!items.githubToken,
-                    org: items.orgName || 'fossasia'
+                    org: items.orgName || ''
                 });
             });
         }
@@ -663,7 +663,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 const storageItems = await new Promise( resolve => {
                     chrome.storage.local.get(['githubUsername', 'githubToken', 'orgName'], resolve);
                 })
-                const repoCacheKey = `repos-${storageItems.githubUsername}-${storageItems.orgName || 'fossasia'}`;
+                const repoCacheKey = `repos-${storageItems.githubUsername}-${storageItems.orgName || ''}`;
                 const now = Date.now();
                 const cacheAge = cacheData.repoCache?.timestamp ? now - cacheData.repoCache.timestamp : Infinity;
                 const cacheTTL = 10 * 60 * 1000; // 10 minutes
@@ -684,7 +684,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 availableRepos = await window.fetchUserRepositories(
                     storageItems.githubUsername, 
                     storageItems.githubToken, 
-                    storageItems.orgName || 'all'
+                    storageItems.orgName || ''
                 );
                 repoStatus.textContent = `${availableRepos.length} repositories loaded`;
 
@@ -800,8 +800,9 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         function saveRepoSelection() {
+            const cleanedRepos = selectedRepos.filter(repo => repo !== null);
             chrome.storage.local.set({
-                selectedRepos: selectedRepos,
+                selectedRepos: cleanedRepos,
                 githubCache: null
             });
         }
@@ -1104,7 +1105,7 @@ document.getElementById('refreshCache').addEventListener('click', async function
 const handleOrgInput = debounce(function () {
     let org = orgInput.value.trim().toLowerCase();
     if (!org) {
-        org = 'fossasia';
+        org = '';
     }
     console.log('[Org Check] Checking organization:', org);
     fetch(`https://api.github.com/orgs/${org}`)
