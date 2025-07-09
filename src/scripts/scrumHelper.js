@@ -132,7 +132,7 @@ function allIncluded(outputTarget = 'email') {
                         chrome.storage.local.set({ lastWeekContribution: true, yesterdayContribution: false });
                     }
                 }
-                console.log(`[DEBUG] githubUsername: ${githubUsername}, platformUsername: ${platformUsername}`);
+                
                 if (platform === 'github') {
                     if (githubUsername) {
                         console.log("[DEBUG] About to fetch GitHub data for:", githubUsername);
@@ -172,7 +172,7 @@ function allIncluded(outputTarget = 'email') {
                                         repository_url: issue.web_url ? issue.web_url.split('/-/')[0].replace('https://gitlab.com/', 'https://api.gitlab.com/repos/') : undefined,
                                         html_url: issue.web_url,
                                         number: issue.iid,
-                                        state: issue.state,
+                                        state: issue.state === "opened" ? "open" : issue.state, // normalize
                                         title: issue.title,
                                         body: issue.description,
                                         pull_request: undefined // not a PR
@@ -184,7 +184,7 @@ function allIncluded(outputTarget = 'email') {
                                         repository_url: mr.web_url ? mr.web_url.split('/-/')[0].replace('https://gitlab.com/', 'https://api.gitlab.com/repos/') : undefined,
                                         html_url: mr.web_url,
                                         number: mr.iid,
-                                        state: mr.state,
+                                        state: mr.state === "opened" ? "open" : mr.state, // normalize
                                         title: mr.title,
                                         body: mr.description,
                                         pull_request: {}, // mark as PR
@@ -219,7 +219,7 @@ function allIncluded(outputTarget = 'email') {
                         // Show error for missing GitLab username
                     }
                 } else {
-                    console.log(`[DEBUG] Unknown platform: ${platform}`);
+                   
                 }
                 if (items.cacheInput) {
                     cacheInput = items.cacheInput;
@@ -1055,21 +1055,21 @@ ${userReason}`;
                 const isNewPR = prCreatedDate >= startDate && prCreatedDate <= endDate;
                 if (platform === 'github') {
                     if (!isNewPR) {
-                    const hasCommitsInRange = showCommits && item._allCommits && item._allCommits.length > 0;
+                        const hasCommitsInRange = showCommits && item._allCommits && item._allCommits.length > 0;
 
-                    if (!hasCommitsInRange) {
+                        if (!hasCommitsInRange) {
 
-                        continue; //skip these prs - created outside daterange with no commits
+                            continue; //skip these prs - created outside daterange with no commits
+                        } else {
+
+                        }
                     } else {
 
                     }
-                } else {
-
-                }
                     prAction = isNewPR ? 'Made PR' : 'Existing PR';
 
                 } else if (platform === 'gitlab') {
-                      prAction = isNewPR ? 'Made Merge Request' : 'Existing Merge Request';
+                    prAction = isNewPR ? 'Made Merge Request' : 'Existing Merge Request';
                 }
                 if (isDraft) {
                     li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a> ${pr_draft_button}</li>`;
@@ -1082,6 +1082,8 @@ ${userReason}`;
                         });
                     }
                     li += `</li>`;
+                } else if (item.state === 'merged') { // Added for GitLab MRs
+                    li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a> ${pr_merged_button}</li>`;
                 } else if (item.state === 'closed') {
                     let merged = null;
                     if ((githubToken || (useMergedStatus && !fallbackToSimple)) && mergedStatusResults) {
