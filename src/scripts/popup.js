@@ -730,11 +730,13 @@ document.addEventListener('DOMContentLoaded', function () {
             } else {
                 repoDropdown.innerHTML = filtered.slice(0, 10).map(repo => `
                     <div class="repository-dropdown-item" data-repo-name="${repo.name}">
-                        <div class="repo-name">${repo.name}</div>
-                        <div class="repo-info">
+                        <div class="repo-name">
+                            <span>${repo.name}</span>
                             ${repo.language ? `<span class="repo-language">${repo.language}</span>` : ''}
                             ${repo.stars ? `<span class="repo-stars"><i class="fa fa-star"></i> ${repo.stars}</span>` : ''}
-                            <span class="repo-desc">${repo.description ? repo.description.substring(0, 50) + (repo.description.length > 50 ? '...' : '') : 'No description'}</span>
+                        </div>
+                        <div class="repo-info">
+                            ${repo.description ? `<span class="repo-desc">${repo.description.substring(0, 50)}${repo.description.length > 50 ? '...' : ''}</span>` : ''}
                         </div>
                     </div>
                 `).join('');

@@ -553,6 +553,24 @@ hr,
     color: #f3f4f6;
 }
 
+.repo-name {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.repo-name span:first-child {
+    font-weight: 500;
+}
+
+.repo-language, .repo-stars {
+    display: inline-flex;
+    align-items: center;
+    font-size: 0.75rem;
+    color: #666;
+    margin-left: 5px;
+}
+
 .dark-mode .repository-dropdown-item .repo-info {
     color: #9ca3af;
 }

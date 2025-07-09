@@ -1416,10 +1416,6 @@ async function fetchUserRepositories(username, token, org = '') {
                 return {
                     name: repoName,
                     fullName: `${org}/${repoName}`,
-                    description: 'Repostory details unavailable',
-                    language: null,
-                    updatedAt: new Date().toISOString(),
-                    stars: 0
                 };
             }
         });
