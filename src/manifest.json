@@ -11,6 +11,7 @@
     "96": "icons/icon.png",
     "48": "icons/icon.png"
   },
+  
   "background": {
     "service_worker": "scripts/background.js"
   },
@@ -51,5 +52,6 @@
     "*://*.office.com/*",
     "*://*.yahoo.com/*",
     "https://api.github.com/*"
-  ]
+  ],
+  "default_locale": "en"
 }

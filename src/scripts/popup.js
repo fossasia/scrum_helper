@@ -42,8 +42,26 @@ function getYesterday() {
     return yesterdayPadded;
 }
 
+function applyAllTranslations() {
+    document.querySelectorAll('[data-i18n]').forEach(elem => {
+        elem.textContent = chrome.i18n.getMessage(elem.getAttribute('data-i18n'));
+    });
+
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(elem => {
+        elem.placeholder = chrome.i18n.getMessage(elem.getAttribute('data-i18n-placeholder'));
+    });
+
+    document.querySelectorAll('[data-i18n-title]').forEach(elem => {
+        elem.title = chrome.i18n.getMessage(elem.getAttribute('data-i18n-title'));
+    });
+}
+
+
 document.addEventListener('DOMContentLoaded', function () {
-    // Dark mode setup
+    // First, apply all translations from messages.json
+    applyAllTranslations();
+
+    // Then, proceed with the rest of the initialization logic
     const darkModeToggle = document.querySelector('img[alt="Night Mode"]');
     const settingsIcon = document.getElementById('settingsIcon');
     const body = document.body;
@@ -178,9 +196,9 @@ document.addEventListener('DOMContentLoaded', function () {
         if (scrumReport) {
             scrumReport.contentEditable = enableToggle;
             if (!enableToggle) {
-                scrumReport.innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">Extension is disabled. Enable it from the options to generate scrum reports.</p>';
+                scrumReport.innerHTML = `<p style="text-align: center; color: #999; padding: 20px;">${chrome.i18n.getMessage('extensionDisabledMessage') || 'Extension is disabled. Enable it from the options to generate scrum reports.'}</p>`;
             } else {
-                const disabledMessage = '<p style="text-align: center; color: #999; padding: 20px;">Extension is disabled. Enable it from the options to generate scrum reports.</p>';
+                const disabledMessage = `<p style="text-align: center; color: #999; padding: 20px;">${chrome.i18n.getMessage('extensionDisabledMessage') || 'Extension is disabled. Enable it from the options to generate scrum reports.'}</p>`;
                 if (scrumReport.innerHTML === disabledMessage) {
                     scrumReport.innerHTML = '';
                 }
@@ -219,7 +237,7 @@ document.addEventListener('DOMContentLoaded', function () {
             let org = orgInput.value.trim().toLowerCase();
             // Allow empty org to fetch all GitHub activities
             chrome.storage.local.set({ orgName: org }, () => {
-                generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
+                generateBtn.innerHTML = `<i class="fa fa-spinner fa-spin"></i> ${chrome.i18n.getMessage('generatingButton')}`;
                 generateBtn.disabled = true;
                 window.generateScrumReport();
             });
@@ -241,9 +259,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
             try {
                 document.execCommand('copy');
-                this.innerHTML = '<i class="fa fa-check"></i> Copied!';
+                this.innerHTML = `<i class="fa fa-check"></i> ${chrome.i18n.getMessage('copiedButton')}`;
                 setTimeout(() => {
-                    this.innerHTML = '<i class="fa fa-copy"></i> Copy Report';
+                    this.innerHTML = `<i class="fa fa-copy"></i> ${chrome.i18n.getMessage('copyReportButton')}`;
                 }, 2000);
             } catch (err) {
                 console.error('Failed to copy: ', err);
@@ -437,7 +455,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     // Always clear the scrum report and show org changed message
                     const scrumReport = document.getElementById('scrumReport');
                     if (scrumReport) {
-                        scrumReport.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Organization changed. Click Generate button to fetch the GitHub activities.</p>';
+                        scrumReport.innerHTML = `<p style="text-align: center; color: #666; padding: 20px;">${chrome.i18n.getMessage('orgChangedMessage')}</p>`;
                     }
                     // Clear the githubCache for previous org
                     chrome.storage.local.remove('githubCache');
@@ -607,10 +625,10 @@ document.getElementById('refreshCache').addEventListener('click', async function
         // Clear the scrum report
         const scrumReport = document.getElementById('scrumReport');
         if (scrumReport) {
-            scrumReport.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Cache cleared successfully. Click "Generate Report" to fetch fresh data.</p>';
+            scrumReport.innerHTML = `<p style="text-align: center; color: #666; padding: 20px;">${chrome.i18n.getMessage('cacheClearedMessage')}</p>`;
         }
 
-        button.innerHTML = '<i class="fa fa-check"></i><span>Cache Cleared!</span>';
+        button.innerHTML = `<i class="fa fa-check"></i><span>${chrome.i18n.getMessage('cacheClearedButton')}</span>`;
         button.classList.remove('loading');
 
         setTimeout(() => {
