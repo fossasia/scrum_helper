@@ -28,7 +28,8 @@
 				<img src="icons/night-mode.png" alt="Night Mode" class="w-7 h-7 mx-3 cursor-pointer">
 			</div>
 			<div>
-				<p class="">Report your development progress by auto-fetching your Git activity for a selected period</p>
+				<p class="">Report your development progress by auto-fetching your Git activity for a selected period
+				</p>
 			</div>
 
 			<div class="center mt-2 flex justify-between">
@@ -47,7 +48,8 @@
 						<i class="fa fa-home text-2xl text-gray-600 dark:text-gray-300"></i>
 					</button>
 					<button id="settingsToggle">
-						<img id="settingsIcon" src="icons/settings-light.png" alt="Settings" class="w-6 h-6 mx-3 cursor-pointer">
+						<img id="settingsIcon" src="icons/settings-light.png" alt="Settings"
+							class="w-6 h-6 mx-3 cursor-pointer">
 					</button>
 				</div>
 			</div>
@@ -61,7 +63,8 @@
 						<h4>Your Project Name<span class="tooltip-container ml-2">
 								<i class="fa fa-question-circle question-icon"></i>
 								<span class="tooltip-bubble">
-									This is the name that appears in the subject line of your email, followed by timestamp.
+									This is the name that appears in the subject line of your email, followed by
+									timestamp.
 								</span>
 							</span> </h4>
 						<input id="projectName" type="text"
@@ -91,21 +94,35 @@
 						<div id="customDateContainer" class="flex justify-between items-center mt-2">
 							<div>
 								<label for="startingDate">Start Date:</label>
-								<input type="date" id="startingDate" class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1">
+								<input type="date" id="startingDate"
+									class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1">
 							</div>
 							<div>
 								<label for="endingDate">End Date:</label>
-								<input type="date" id="endingDate" class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1">
+								<input type="date" id="endingDate"
+									class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1">
 							</div>
 						</div>
 					</div>
 
 					<div class="col s12">
 						<br />
-						<input type="checkbox" id="showOpenLabel" class="form-checkbox h-4 w-4 text-blue-600">
-						<label id="checkboxLabel" for="showOpenLabel" class="text-gray-700 font-medium text-sm">Show Open/Closed
-							Label</label>
+						<input type="checkbox" id="showOpenLabel" class="form-checkbox text-blue-600">
+						<label id="checkboxLabel" for="showOpenLabel" class="text-gray-700 font-medium text-sm">Show Open/Closed Label</label>
 					</div>
+
+					<div class="col s12 my-4">
+						<div class="flex items-center gap-2">
+							<input type="checkbox" id="showCommits" checked class="form-checkbox text-blue-600 ">
+							<label id="showCommitsLabel" for="showCommits" class="text-gray-700 font-medium text-sm flex items-center gap-1 ">Show commits made within date range in Open PRs <span class="tooltip-container">
+									<i class="fa fa-question-circle question-icon"></i>
+									<span class="tooltip-bubble">
+										Github Token required.
+									</span>
+								</span></label>
+						</div>
+					</div>
+
 					<div class="my-4">
 						<p class="text-sm font-medium">What is blocking you from making progress?</p>
 						<input id="userReason" type="text" class="w-full text-gray-800 mt-3 rounded-xl px-4 py-1"
@@ -140,7 +157,8 @@
 								<i class="fa fa-question-circle question-icon"></i>
 								<span class="tooltip-bubble">
 									<b>Which organization's GitHub activity?</b><br>
-									Enter the GitHub organization name to fetch activities for. Leave empty to fetch all your GitHub
+									Enter the GitHub organization name to fetch activities for. Leave empty to fetch all
+									your GitHub
 									activities across all organizations.
 									Organization name is not case-sensitive.
 								</span>
@@ -163,13 +181,17 @@
 									<i class="fa fa-question-circle question-icon"></i>
 									<span class="tooltip-bubble">
 										<b>Why is it recommended to add a GitHub token?</b><br>
-										Scrum Helper works without a GitHub token, but adding a personal access token is recommended for a
-										better experience. It raises your API limits, allows access to private repos (if permitted), and
-										improves accuracy and speed. Tokens are stored locally and never sent to us and used only to fetch
+										Scrum Helper works without a GitHub token, but adding a personal access token is
+										recommended for a
+										better experience. It raises your API limits, allows access to private repos (if
+										permitted), and
+										improves accuracy and speed. Tokens are stored locally and never sent to us and
+										used only to fetch
 										your git data. You can add one anytime in the extension settings.<br><br>
 										<b>How to obtain:</b><br>
 										1. Go to <a href="https://github.com/settings/tokens" target="_blank"
-											style="color:#2563eb;text-decoration:underline;">GitHub Developer Settings</a>.<br>
+											style="color:#2563eb;text-decoration:underline;">GitHub Developer
+											Settings</a>.<br>
 										3. Click "Generate new token", select classic token<br>
 										4. Paste it here.<br>
 										<i>Keep your token secret!</i>
@@ -185,27 +207,15 @@
 							placeholder="Required for making authenticated requests">
 
 
-
-						<div class="col s12 my-4 ">
-							<div class="flex items-center gap-2">
-								<input type="checkbox" id="showCommits" checked class="form-checkbox h-4 w-4 text-blue-600 ">
-								<label id="showCommitsLabel" for="showCommits"
-									class="text-gray-700 font-medium text-sm flex items-center gap-1 ">Show commits made within date range
-									in Open PRs</label> <span class="tooltip-container">
-									<i class="fa fa-question-circle question-icon"></i>
-									<span class="tooltip-bubble">
-										Github Token required.
-									</span>
-								</span>
-							</div>
-						</div>
-
-						<p class="text-sm font-medium">Enter cache TTL <span class="text-sm font-normal">(in minutes)</span>
+						<p class="text-sm font-medium">Enter cache TTL <span class="text-sm font-normal">(in
+								minutes)</span>
 							<span class="tooltip-container">
 								<i class="fa fa-question-circle question-icon"></i>
 								<span class="tooltip-bubble">
-									We are caching the data to avoid redundant calls. By default the cache expires after 10 minutes, you
-									can change it here to your desired time. We have given a refresh cache button in case you want to
+									We are caching the data to avoid redundant calls. By default the cache expires after
+									10 minutes, you
+									can change it here to your desired time. We have given a refresh cache button in
+									case you want to
 									fetch fresh data right now.
 								</span>
 							</span>
@@ -234,11 +244,15 @@
 					<div>
 						<h4 class="font-semibold text-xl">Note:</h4>
 						<ul class="text-xs list-disc list-inside">
-							<li>The PRs fetched are based on the most recent review by any contributor. If you reviewed a PR 10 days
-								ago and someone else reviewed it 2 days ago, it will still appear in your activity for the past week.
-								(<a target="_blank" href="https://github.com/fossasia/scrum_helper/issues/20">See this issue</a>.)
+							<li>The PRs fetched are based on the most recent review by any contributor. If you reviewed
+								a PR 10 days
+								ago and someone else reviewed it 2 days ago, it will still appear in your activity for
+								the past week.
+								(<a target="_blank" href="https://github.com/fossasia/scrum_helper/issues/20">See this
+									issue</a>.)
 							</li>
-							<li>Please note that some discrepancies may occur in the generated SCRUM. We recommend manually reviewing
+							<li>Please note that some discrepancies may occur in the generated SCRUM. We recommend
+								manually reviewing
 								and editing the report to ensure accuracy before sharing
 							</li>
 
