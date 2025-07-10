@@ -39,5 +39,8 @@
     "orgChangedMessage": { "message": "Organisation modifiée. Cliquez sur le bouton Générer pour récupérer les activités GitHub." },
     "cacheClearedMessage": { "message": "Cache vidé avec succès. Cliquez sur \"Générer le Rapport\" pour récupérer des données fraîches." },
     "cacheClearedButton": { "message": "Cache Vidé !" },
-    "extensionDisabledMessage": { "message": "L'extension est désactivée. Activez-la dans les options pour générer des rapports scrum." }
+    "extensionDisabledMessage": { "message": "L'extension est désactivée. Activez-la dans les options pour générer des rapports scrum." },
+    "notePoint1": { "message": "Les PR récupérés sont basés sur la révision la plus récente de n'importe quel contributeur. Si vous avez révisé un PR il y a 10 jours et que quelqu'un d'autre l'a révisé il y a 2 jours, il apparaîtra toujours dans votre activité de la semaine passée." },
+    "notePoint2": { "message": "Veuillez noter que certaines divergences peuvent survenir dans le SCRUM généré. Nous vous recommandons de réviser et de modifier manuellement le rapport pour garantir son exactitude avant de le partager." },
+    "noteSeeIssue": { "message": "Voir ce problème" }
 }

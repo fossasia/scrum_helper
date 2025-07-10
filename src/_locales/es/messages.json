@@ -39,5 +39,8 @@
     "orgChangedMessage": { "message": "Organización cambiada. Haga clic en el botón Generar para obtener las actividades de GitHub." },
     "cacheClearedMessage": { "message": "Caché borrado con éxito. Haga clic en \"Generar Informe\" para obtener datos nuevos." },
     "cacheClearedButton": { "message": "¡Caché Borrado!" },
-    "extensionDisabledMessage": { "message": "La extensión está desactivada. Actívela desde las opciones para generar informes de scrum." }
+    "extensionDisabledMessage": { "message": "La extensión está desactivada. Actívela desde las opciones para generar informes de scrum." },
+    "notePoint1": { "message": "Los PRs obtenidos se basan en la revisión más reciente de cualquier contribuyente. Si revisaste un PR hace 10 días y otra persona lo revisó hace 2 días, seguirá apareciendo en tu actividad de la última semana." },
+    "notePoint2": { "message": "Ten en cuenta que pueden ocurrir algunas discrepancias en el SCRUM generado. Recomendamos revisar y editar manualmente el informe para garantizar la precisión antes de compartirlo." },
+    "noteSeeIssue": { "message": "Ver este problema" }
 }

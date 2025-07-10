@@ -39,5 +39,8 @@
     "orgChangedMessage": { "message": "Organisation geändert. Klicken Sie auf die Schaltfläche 'Generieren', um die GitHub-Aktivitäten abzurufen." },
     "cacheClearedMessage": { "message": "Cache erfolgreich geleert. Klicken Sie auf \"Bericht erstellen\", um neue Daten abzurufen." },
     "cacheClearedButton": { "message": "Cache geleert!" },
-    "extensionDisabledMessage": { "message": "Die Erweiterung ist deaktiviert. Aktivieren Sie sie in den Optionen, um Scrum-Berichte zu erstellen." }
+    "extensionDisabledMessage": { "message": "Die Erweiterung ist deaktiviert. Aktivieren Sie sie in den Optionen, um Scrum-Berichte zu erstellen." },
+    "notePoint1": { "message": "Die abgerufenen PRs basieren auf der letzten Überprüfung durch einen beliebigen Beitragenden. Wenn Sie einen PR vor 10 Tagen überprüft haben und jemand anderes ihn vor 2 Tagen überprüft hat, wird er trotzdem in Ihrer Aktivität der letzten Woche angezeigt." },
+    "notePoint2": { "message": "Bitte beachten Sie, dass es im generierten SCRUM zu Abweichungen kommen kann. Wir empfehlen, den Bericht vor dem Teilen manuell zu überprüfen und zu bearbeiten, um die Genauigkeit sicherzustellen." },
+    "noteSeeIssue": { "message": "Siehe dieses Problem" }
 }

@@ -162,5 +162,17 @@
     "extensionDisabledMessage": {
         "message": "Extension is disabled. Enable it from the options to generate scrum reports.",
         "description": "Message shown when the extension is disabled."
+    },
+    "notePoint1": {
+        "message": "The PRs fetched are based on the most recent review by any contributor. If you reviewed a PR 10 days ago and someone else reviewed it 2 days ago, it will still appear in your activity for the past week.",
+        "description": "First point in the notes section."
+    },
+    "notePoint2": {
+        "message": "Please note that some discrepancies may occur in the generated SCRUM. We recommend manually reviewing and editing the report to ensure accuracy before sharing.",
+        "description": "Second point in the notes section."
+    },
+    "noteSeeIssue": {
+        "message": "See this issue",
+        "description": "Link text for the GitHub issue in the notes."
     }
 }
