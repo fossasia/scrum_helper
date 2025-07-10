@@ -630,13 +630,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Update UI for platform
     function updatePlatformUI(platform) {
-        if (platform === 'gitlab') {
-            usernameLabel.textContent = 'Your GitLab Username';
-            platformUsername.placeholder = 'Required for fetching data from GitLab';
-        } else {
-            usernameLabel.textContent = 'Your GitHub Username';
-            platformUsername.placeholder = 'Required for fetching data from GitHub';
-        }
+        // Remove the updatePlatformUI function and all calls to it, as well as any code that changes the username label or placeholder based on platform.
     }
 
     // On platform change
