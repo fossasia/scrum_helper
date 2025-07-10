@@ -856,6 +856,14 @@ document.addEventListener('DOMContentLoaded', function () {
             // If org is empty, clear orgName in storage but don't auto-generate report
             chrome.storage.local.set({ orgName: '' }, function () {
                 console.log('[Org Check] Organization cleared from storage');
+                const scrumReport = document.getElementById('scrumReport');
+                if(scrumReport){
+                    scrumReport.innerHTML = `<p style="text-align: center; color: #666; padding: 20px;">Organization cleared. Click Generate button to fetch all your GitHub activities.</p>`;
+                }
+                chrome.storage.local.remove(['githubCache', 'repoCache']);
+                triggerRepoFetchIfEnabled();
+                setOrgBtn.disabled = false;
+                setOrgBtn.innerHTML = originalText;
             });
             return;
         }
@@ -1105,7 +1113,12 @@ document.getElementById('refreshCache').addEventListener('click', async function
 const handleOrgInput = debounce(function () {
     let org = orgInput.value.trim().toLowerCase();
     if (!org) {
-        org = '';
+        chrome.storage.local.set({ orgName: '' }, () => {
+            console.log(`Org cleared, triggering repo fetch for all git`);
+            chrome.storage.local.remove(['githubCache', 'repoCache']);
+            triggerRepoFetchIfEnabled();
+        })
+        return;
     }
     console.log('[Org Check] Checking organization:', org);
     fetch(`https://api.github.com/orgs/${org}`)
@@ -1138,9 +1151,8 @@ const handleOrgInput = debounce(function () {
             const oldToast = document.getElementById('invalid-org-toast');
             if (oldToast) oldToast.parentNode.removeChild(oldToast);
             console.log('[Org Check] Organisation exists on GitHub:', org);
-            console.log('[Org Check] Organization exists on GitHub:', org);
             chrome.storage.local.set({ orgName: org }, function () {
-                if (window.generateScrumReport) window.generateScrumReport();
+                // if (window.generateScrumReport) window.generateScrumReport();
                 triggerRepoFetchIfEnabled();
             });
         })
