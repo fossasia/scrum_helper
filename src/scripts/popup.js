@@ -231,6 +231,10 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
         if(changes.startingDate || changes.endingDate) {
+            console.log('[POPUP-DEBUG] Date changed in storage, triggering repo fetch.', {
+                startingDate: changes.startingDate?.newValue,
+                endingDate: changes.endingDate?.newValue
+            });
             if(window.triggerRepoFetchIfEnabled){
                 window.triggerRepoFetchIfEnabled();
             }
@@ -691,6 +695,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         async function performRepoFetch() {
+            console.log('[POPUP-DEBUG] performRepoFetch called.');
             repoStatus.textContent = 'Loading repositories...';
             repoSearch.classList.add('repository-search-loading');
 
@@ -706,11 +711,19 @@ document.addEventListener('DOMContentLoaded', function () {
                 const cacheAge = cacheData.repoCache?.timestamp ? now - cacheData.repoCache.timestamp : Infinity;
                 const cacheTTL = 10 * 60 * 1000; // 10 minutes
 
+                console.log('[POPUP-DEBUG] Repo cache check:', {
+                    key: repoCacheKey,
+                    cacheKeyInCache: cacheData.repoCache?.cacheKey,
+                    isMatch: cacheData.repoCache?.cacheKey === repoCacheKey,
+                    age: cacheAge,
+                    isFresh: cacheAge < cacheTTL
+                });
+
                 if (cacheData.repoCache && 
                     cacheData.repoCache.cacheKey === repoCacheKey && 
                     cacheAge < cacheTTL) {
                     
-                    console.log('Using cached repositories in manual fetch');
+                    console.log('[POPUP-DEBUG] Using cached repositories in manual fetch');
                     availableRepos = cacheData.repoCache.data;
                     repoStatus.textContent = `${availableRepos.length} repositories loaded`;
                     
@@ -719,12 +732,14 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                     return;
                 }
+                console.log('[POPUP-DEBUG] No valid cache. Fetching from network.');
                 availableRepos = await window.fetchUserRepositories(
                     storageItems.githubUsername, 
                     storageItems.githubToken, 
                     storageItems.orgName || ''
                 );
                 repoStatus.textContent = `${availableRepos.length} repositories loaded`;
+                console.log(`[POPUP-DEBUG] Fetched and loaded ${availableRepos.length} repos.`);
 
                 chrome.storage.local.set({
                     repoCache: {
