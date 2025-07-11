@@ -834,7 +834,7 @@ ${userReason}`;
     //load initial scrum subject
     function scrumSubjectLoaded() {
         try {
-            if (!enableToggle || hasInjectedContent) return;
+            if (!enableToggle) return;
             if (!scrumSubject) {
                 console.error('Subject element not found');
                 return;
@@ -1168,32 +1168,32 @@ ${userReason}`;
         }, 500);
 
         //check for github safe writing
-        let intervalWriteGithubIssues = setInterval(async () => {
-            try {
-                if (outputTarget === 'popup') {
-                    return;
-                } else {
-                    if (scrumBody && githubUsername && githubIssuesData && githubPrsReviewData) {
-                        clearInterval(intervalWriteGithubIssues);
-                        clearInterval(intervalWriteGithubPrs);
-                        writeGithubIssuesPrs();
-                    }
-                }
-            } catch (err) {
-                logError('Interval writeGithubIssuesPrs error:', err);
-            }
-        }, 500);
-        let intervalWriteGithubPrs = setInterval(() => {
-            if (outputTarget === 'popup') {
-                return;
-            } else {
-                if (scrumBody && githubUsername && githubPrsReviewData && githubIssuesData) {
-                    clearInterval(intervalWriteGithubPrs);
-                    clearInterval(intervalWriteGithubIssues);
-                    writeGithubPrsReviews();
-                }
-            }
-        }, 500);
+        // let intervalWriteGithubIssues = setInterval(async () => {
+        //     try {
+        //         if (outputTarget === 'popup') {
+        //             return;
+        //         } else {
+        //             if (scrumBody && githubUsername && githubIssuesData && githubPrsReviewData) {
+        //                 clearInterval(intervalWriteGithubIssues);
+        //                 clearInterval(intervalWriteGithubPrs);
+        //                 writeGithubIssuesPrs();
+        //             }
+        //         }
+        //     } catch (err) {
+        //         logError('Interval writeGithubIssuesPrs error:', err);
+        //     }
+        // }, 500);
+        // let intervalWriteGithubPrs = setInterval(() => {
+        //     if (outputTarget === 'popup') {
+        //         return;
+        //     } else {
+        //         if (scrumBody && githubUsername && githubPrsReviewData && githubIssuesData) {
+        //             clearInterval(intervalWriteGithubPrs);
+        //             clearInterval(intervalWriteGithubIssues);
+        //             writeGithubPrsReviews();
+        //         }
+        //     }
+        // }, 500);
         if (!refreshButton_Placed) {
             let intervalWriteButton = setInterval(() => {
                 if (document.getElementsByClassName('F0XO1GC-x-b').length == 3 && scrumBody && enableToggle) {
