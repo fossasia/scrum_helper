@@ -726,7 +726,7 @@ document.addEventListener('DOMContentLoaded', function () {
             );
 
             if(filtered.length === 0) {
-                repoDropdown.innerHTML = '<div class="p-3 text-center text-gray-500 text-sm">No repositories found</div>';
+                repoDropdown.innerHTML = '<div class="p-3 text-center text-gray-500 text-sm" style="padding-left: 10px; ">No repositories found</div>';
             } else {
                 repoDropdown.innerHTML = filtered.slice(0, 10).map(repo => `
                     <div class="repository-dropdown-item" data-repo-name="${repo.name}">
