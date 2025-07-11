@@ -504,6 +504,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
         useRepoFilter.addEventListener('change', debounce(async () => {
             const enabled = useRepoFilter.checked;
+            const hasToken = githubTokenInput.value.trim() !== '';
+            repoFilterContainer.classList.toggle('hidden', !enabled);
+
+            if(enabled && !hasToken) {
+                useRepoFilter.checked = false;
+                const tokenWarning = document.getElementById('tokenWarningForFilter');
+                if(tokenWarning) {
+                    tokenWarning.classList.remove('hidden');
+                    tokenWarning.classList.add('shake-animation');
+                    setTimeout(() => tokenWarning.classList.remove('shake-animation'), 620);
+                    setTimeout(() => {
+                        tokenWarning.classList.add('hidden');
+                    }, 3000);
+                }
+                return;
+            }
             repoFilterContainer.classList.toggle('hidden', !enabled);
 
             chrome.storage.local.set({
