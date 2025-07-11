@@ -8,7 +8,6 @@ let yesterdayContributionElement = document.getElementById('yesterdayContributio
 let startingDateElement = document.getElementById('startingDate');
 let endingDateElement = document.getElementById('endingDate');
 let showOpenLabelElement = document.getElementById('showOpenLabel');
-let userReasonElement = null; // userReason element removed from UI
 let showCommitsElement = document.getElementById('showCommits');
 
 function handleBodyOnLoad() {
@@ -20,7 +19,6 @@ function handleBodyOnLoad() {
 			'startingDate',
 			'endingDate',
 			'showOpenLabel',
-			'userReason',
 			'lastWeekContribution',
 			'yesterdayContribution',
 			'cacheInput',
@@ -261,5 +259,4 @@ endingDateElement.addEventListener('change', handleEndingDateChange);
 lastWeekContributionElement.addEventListener('change', handleLastWeekContributionChange);
 yesterdayContributionElement.addEventListener('change', handleYesterdayContributionChange);
 showOpenLabelElement.addEventListener('change', handleOpenLabelChange);
-// userReasonElement event listener removed - element no longer exists in UI
 document.addEventListener('DOMContentLoaded', handleBodyOnLoad);
