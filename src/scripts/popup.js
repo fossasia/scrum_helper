@@ -230,6 +230,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 initializePopup();
             }
         }
+        if(changes.startingDate || changes.endingDate) {
+            if(window.triggerRepoFetchIfEnabled){
+                window.triggerRepoFetchIfEnabled();
+            }
+        }
     });
 
     function initializePopup() {
