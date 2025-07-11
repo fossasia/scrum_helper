@@ -60,6 +60,10 @@ function allIncluded(outputTarget = 'email') {
         '<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #d73a49;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--red">closed</div>';
     let issue_opened_button =
         '<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
+    let issue_closed_completed_button =
+        '<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #6f42c1;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--purple">completed</div>';
+    let issue_closed_notplanned_button =
+        '<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #808080;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--gray">not planned</div>';
 
 
     // let linkStyle = '';
@@ -90,25 +94,24 @@ function allIncluded(outputTarget = 'email') {
                 if (outputTarget === 'popup') {
                     const usernameFromDOM = document.getElementById('githubUsername')?.value;
                     const projectFromDOM = document.getElementById('projectName')?.value;
-                    const reasonFromDOM = document.getElementById('userReason')?.value;
                     const tokenFromDOM = document.getElementById('githubToken')?.value;
 
                     items.githubUsername = usernameFromDOM || items.githubUsername;
                     items.projectName = projectFromDOM || items.projectName;
-                    items.userReason = reasonFromDOM || items.userReason;
                     items.githubToken = tokenFromDOM || items.githubToken;
 
                     chrome.storage.local.set({
                         githubUsername: items.githubUsername,
                         projectName: items.projectName,
-                        userReason: items.userReason,
                         githubToken: items.githubToken
                     });
                 }
 
                 githubUsername = items.githubUsername;
                 projectName = items.projectName;
-                userReason = items.userReason || 'No Blocker at the moment';
+
+                userReason = 'No Blocker at the moment';
+                chrome.storage.local.remove(['userReason']);
                 githubToken = items.githubToken;
                 lastWeekContribution = items.lastWeekContribution;
                 yesterdayContribution = items.yesterdayContribution;
@@ -361,7 +364,7 @@ function allIncluded(outputTarget = 'email') {
         const isCacheKeyMatch = githubCache.cacheKey === cacheKey;
         const needsToken = !!githubToken;
         const cacheUsedToken = !!githubCache.usedToken;
-        if (githubCache.data && isCacheFresh && isCacheKeyMatch) { 
+        if (githubCache.data && isCacheFresh && isCacheKeyMatch) {
             if (needsToken && !cacheUsedToken) {
                 log('Cache was fetched without token, but user now has a token. Invalidating cache.');
                 githubCache.data = null;
@@ -1026,7 +1029,14 @@ ${userReason}`;
                 if (item.state === 'open') {
                     li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_opened_button}</li>`;
                 } else if (item.state === 'closed') {
-                    li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_button}</li>`;
+                    // Use state_reason to distinguish closure reason
+                    if (item.state_reason === 'completed') {
+                        li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_completed_button}</li>`;
+                    } else if (item.state_reason === 'not_planned') {
+                        li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_notplanned_button}</li>`;
+                    } else {
+                        li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_button}</li>`;
+                    }
                 } else {
                     li =
                         '<li><i>(' +

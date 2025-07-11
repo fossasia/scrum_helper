@@ -8,7 +8,6 @@ let yesterdayContributionElement = document.getElementById('yesterdayContributio
 let startingDateElement = document.getElementById('startingDate');
 let endingDateElement = document.getElementById('endingDate');
 let showOpenLabelElement = document.getElementById('showOpenLabel');
-let userReasonElement = document.getElementById('userReason');
 let showCommitsElement = document.getElementById('showCommits');
 
 function handleBodyOnLoad() {
@@ -20,7 +19,6 @@ function handleBodyOnLoad() {
 			'startingDate',
 			'endingDate',
 			'showOpenLabel',
-			'userReason',
 			'lastWeekContribution',
 			'yesterdayContribution',
 			'cacheInput',
@@ -60,9 +58,7 @@ function handleBodyOnLoad() {
 				showOpenLabelElement.checked = true;
 				handleOpenLabelChange();
 			}
-			if (items.userReason) {
-				userReasonElement.value = items.userReason;
-			}
+
 			if (items.lastWeekContribution) {
 				lastWeekContributionElement.checked = items.lastWeekContribution;
 				handleLastWeekContributionChange();
@@ -79,7 +75,7 @@ function handleBodyOnLoad() {
 				yesterdayContributionElement.checked = true;
 				handleYesterdayContributionChange();
 			}
-			if (items.showCommits){
+			if (items.showCommits) {
 				showCommitsElement.checked = items.showCommits;
 			} else {
 				showCommitsElement.checked = false;
@@ -245,14 +241,11 @@ function handleOpenLabelChange() {
 	chrome.storage.local.set({ showOpenLabel: value });
 }
 
-function handleUserReasonChange() {
-	let value = userReasonElement.value;
-	chrome.storage.local.set({ userReason: value });
-}
+
 
 function handleShowCommitsChange() {
-    let value = showCommitsElement.checked;
-    chrome.storage.local.set({ showCommits: value });
+	let value = showCommitsElement.checked;
+	chrome.storage.local.set({ showCommits: value });
 }
 
 enableToggleElement.addEventListener('change', handleEnableChange);
@@ -266,5 +259,4 @@ endingDateElement.addEventListener('change', handleEndingDateChange);
 lastWeekContributionElement.addEventListener('change', handleLastWeekContributionChange);
 yesterdayContributionElement.addEventListener('change', handleYesterdayContributionChange);
 showOpenLabelElement.addEventListener('change', handleOpenLabelChange);
-userReasonElement.addEventListener('keyup', handleUserReasonChange);
 document.addEventListener('DOMContentLoaded', handleBodyOnLoad);
