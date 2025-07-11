@@ -90,25 +90,24 @@ function allIncluded(outputTarget = 'email') {
                 if (outputTarget === 'popup') {
                     const usernameFromDOM = document.getElementById('githubUsername')?.value;
                     const projectFromDOM = document.getElementById('projectName')?.value;
-                    const reasonFromDOM = document.getElementById('userReason')?.value;
                     const tokenFromDOM = document.getElementById('githubToken')?.value;
 
                     items.githubUsername = usernameFromDOM || items.githubUsername;
                     items.projectName = projectFromDOM || items.projectName;
-                    items.userReason = reasonFromDOM || items.userReason;
                     items.githubToken = tokenFromDOM || items.githubToken;
 
                     chrome.storage.local.set({
                         githubUsername: items.githubUsername,
                         projectName: items.projectName,
-                        userReason: items.userReason,
                         githubToken: items.githubToken
                     });
                 }
 
                 githubUsername = items.githubUsername;
                 projectName = items.projectName;
-                userReason = items.userReason || 'No Blocker at the moment';
+
+                userReason = 'No Blocker at the moment';
+                chrome.storage.local.remove(['userReason']);
                 githubToken = items.githubToken;
                 lastWeekContribution = items.lastWeekContribution;
                 yesterdayContribution = items.yesterdayContribution;
@@ -361,7 +360,7 @@ function allIncluded(outputTarget = 'email') {
         const isCacheKeyMatch = githubCache.cacheKey === cacheKey;
         const needsToken = !!githubToken;
         const cacheUsedToken = !!githubCache.usedToken;
-        if (githubCache.data && isCacheFresh && isCacheKeyMatch) { 
+        if (githubCache.data && isCacheFresh && isCacheKeyMatch) {
             if (needsToken && !cacheUsedToken) {
                 log('Cache was fetched without token, but user now has a token. Invalidating cache.');
                 githubCache.data = null;
