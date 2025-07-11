@@ -69,6 +69,20 @@ document.addEventListener('DOMContentLoaded', function () {
     const orgInput = document.getElementById('orgInput');
     const setOrgBtn = document.getElementById('setOrgBtn');
 
+    function checkTokenForFilter() {
+        const useRepoFilter = document.getElementById('useRepoFilter');
+        const githubTokenInput = document.getElementById('githubToken');
+        const tokenWarning = document.getElementById('tokenWarningForFilter');
+
+        if(!useRepoFilter || !githubTokenInput || !tokenWarning) {
+            return;
+        }
+        const isFilterEnabled = useRepoFilter.checked;
+        const hasToken = githubTokenInput.value.trim() != '';
+        tokenWarning.classList.toggle('hidden', !isFilterEnabled || hasToken);
+    }
+
+
     chrome.storage.local.get(['darkMode'], function (result) {
         if (result.darkMode) {
             body.classList.add('dark-mode');
@@ -90,6 +104,8 @@ document.addEventListener('DOMContentLoaded', function () {
         githubTokenInput.classList.add('token-animating');
         setTimeout(() => githubTokenInput.classList.remove('token-animating'), 300);
     });
+
+    githubTokenInput.addEventListener('input', checkTokenForFilter);
 
     darkModeToggle.addEventListener('click', function () {
         body.classList.toggle('dark-mode');
@@ -203,6 +219,7 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         initializePopup();
+        checkTokenForFilter();
     })
 
     chrome.storage.onChanged.addListener((changes, namespace) => {
@@ -493,7 +510,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 useRepoFilter: enabled,
                 githubCache: null, //forces refresh
             });
-
+            checkTokenForFilter();
             if(enabled) {
                repoStatus.textContent = 'Loading repos automatically..';
 
