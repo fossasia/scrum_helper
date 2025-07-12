@@ -753,20 +753,43 @@ function allIncluded(outputTarget = 'email') {
 
     //load initial text in scrum body
     function writeScrumBody() {
-        if (!enableToggle || (outputTarget === 'email' && hasInjectedContent)) return;
-
-        if (outputTarget === 'email') {
-            if (!window.emailClientAdapter) {
-                console.error('Email client adapter not found');
-                return;
-            }
-            if (!window.emailClientAdapter.isNewConversation()) {
-                console.log('Not a new conversation, skipping scrum helper');
-                return;
-            }
+        if (!enableToggle || (outputTarget === 'email' && hasInjectedContent)) {
+            scrumGenerationInProgress = false;
+            return;
         }
 
-        setTimeout(() => {
+        let attempts = 0;
+        const maxAttempts = 20; //Poll for 10 seconds 
+        const pollInterval = 500;
+
+        const injectionPoller = setInterval(() => {
+            let elements;
+            if (outputTarget === 'email') {
+                if (!window.emailClientAdapter || !window.emailClientAdapter.isNewConversation()) {
+                    attempts++;
+                    if (attempts > maxAttempts) {
+                        clearInterval(injectionPoller);
+                        logError('Aborting: Could not detect a new conversation window after 10 seconds.');
+                        scrumGenerationInProgress = false;
+                    }
+                    return;
+                }
+            }
+
+            elements = window.emailClientAdapter.getEditorElements();
+            if(!elements?.body){
+                attempts++;
+                if(attempts > maxAttempts) {
+                    clearInterval(injectionPoller);
+                    logError('Aborting: Could not find the editor body element after 10 seconds.');
+                    scrumGenerationInProgress = false;
+                }
+                return;
+            }
+
+            clearInterval(injectionPoller);
+            log('Context verified. Generating and injecting scrum content.');
+
             // Generate content first
             let lastWeekUl = '<ul>';
             let i;
@@ -819,16 +842,16 @@ ${userReason}`;
                     scrumGenerationInProgress = false;
                 }
             } else {
-                const elements = window.emailClientAdapter.getEditorElements();
                 if (!elements || !elements.body) {
-                    console.error('Email client editor not found');
+                    logError('Email client editor not found, aborting injection.');
+                    scrumGenerationInProgress = false;
                     return;
                 }
                 window.emailClientAdapter.injectContent(elements.body, content, elements.eventTypes.contentChange);
                 hasInjectedContent = true;
                 scrumGenerationInProgress = false;
             }
-        }, 500);
+        }, pollInterval);
     }
 
     //load initial scrum subject
@@ -946,9 +969,6 @@ ${userReason}`;
         }
 
         prsReviewDataProcessed = true;
-        if (outputTarget === 'email') {
-            triggerScrumGeneration();
-        }
     }
 
     function triggerScrumGeneration() {
@@ -1132,9 +1152,6 @@ ${userReason}`;
                 lastWeekArray.push(li);
             }
             issuesDataProcessed = true;
-            if (outputTarget === 'email') {
-                triggerScrumGeneration();
-            }
         }
 
         let intervalBody = setInterval(() => {
