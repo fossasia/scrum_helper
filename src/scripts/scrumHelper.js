@@ -716,12 +716,16 @@ function allIncluded(outputTarget = 'email') {
             scrumSubjectLoaded();
         }
         log('[SCRUM-DEBUG] Processing issues for main activity:', githubIssuesData?.items);
+
         if (platform === 'github') {
             await writeGithubIssuesPrs(githubIssuesData?.items || []);
         } else if (platform === 'gitlab') {
             await writeGithubIssuesPrs(githubIssuesData?.items || []);
             await writeGithubIssuesPrs(githubPrsReviewData?.items || []);
         }
+
+
+
         await writeGithubPrsReviews();
         log('[DEBUG] Both data processing functions completed, generating scrum body');
         writeScrumBody();
