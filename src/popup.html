@@ -107,17 +107,29 @@
 
 					<div class="col s12">
 						<br />
-						<input type="checkbox" id="showOpenLabel" class="form-checkbox h-4 w-4 text-blue-600">
+						<input type="checkbox" id="showOpenLabel" class="form-checkbox text-blue-600">
 
-						<label id="checkboxLabel" for="showOpenLabel" class="text-sm font-medium">Show Open/Closed
-							Label</label>
+						<label id="checkboxLabel" for="showOpenLabel" class="text-gray-700 font-medium text-sm"> Show Open/Merged/Closed Labels</label>
+
 					</div>
-					<div class="my-4">
-						<p class="text-sm font-medium">What is blocking you from making progress?</p>
-						<input id="userReason" type="text" class="w-full text-gray-800 mt-3 rounded-xl px-4 py-1"
-							placeholder="Enter your reason">
-						<hr class="border-t-2 border-gray-700 mt-1 ">
+
+					<div class="col s12 my-4">
+						<div class="flex items-center gap-2">
+							<input type="checkbox" id="showCommits" checked class="form-checkbox text-blue-600 ">
+
+							<label id="showCommitsLabel" for="showCommits" class="text-gray-700 font-medium text-sm flex items-center gap-1 ">Show commits on open PRs<span class="tooltip-container">
+
+									<i class="fa fa-question-circle question-icon"></i>
+									<span class="tooltip-bubble">
+										Github Token required, add it in the settings.
+									</span>
+								</span></label>
+						</div>
+
+
 					</div>
+
+
 					<div>
 						<div>
 							<h6 class="text-base font-semibold">Scrum Report</h6>
@@ -176,29 +188,30 @@
 								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2 pr-10"
 								placeholder="Required for making authenticated requests">
 						</div>
-						<div class="">
-							<div class="flex items-center mt-4">
-								<p class="text-sm font-medium">Organization name<span class="tooltip-container ml-2">
-										<i class="fa fa-question-circle question-icon"></i>
-										<span class="tooltip-bubble">
-											<b>Which organization's GitHub activity?</b><br>
-											Enter the GitHub organization name to fetch activities for. Leave empty to
-											fetch all your GitHub
-											activities across all organizations.
-											Organization name is not case-sensitive.
-										</span>
-									</span>
-								</p>
-							</div>
-							<div class="flex items-center mt-4 gap-2">
-								<input id="orgInput" type="text"
-									class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
-									placeholder="Enter organization name">
-								<button id="setOrgBtn" type="button"
-									class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl text-base my-2 h-[44px] flex-shrink-0"
-									style="min-width:60px;">Set</button>
-							</div>
+					<div class="">
+						<div class="flex items-center mt-4">
+							<h4>Organization Name</h4>
+							<span class="tooltip-container ml-2">
+								<i class="fa fa-question-circle question-icon"></i>
+								<span class="tooltip-bubble">
+									<b>Which organization's GitHub activity?</b><br>
+									Enter the GitHub organization name to fetch activities for. Leave empty to fetch all
+									your GitHub
+									activities across all organizations.
+									Organization name is not case-sensitive.
+								</span>
+							</span>
 						</div>
+						<div class="flex items-center mt-4 gap-2">
+							<input id="orgInput" type="text"
+								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
+								placeholder="Enter organization name">
+							<button id="setOrgBtn" type="button"
+								class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl text-base my-2 h-[44px] flex-shrink-0"
+								style="min-width:60px;">Set</button>
+						</div>
+					</div>
+	
 						<div class="mb-4">
 							<div class="flex items-center justify-between mb-2">
 								<p class="text-sm font-medium">Filter by repositories<span class="tooltip-container">

@@ -142,7 +142,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const elementsToToggle = [
             'startingDate',
             'endingDate',
-            'userReason',
             'generateReport',
             'copyReport',
             'refreshCache',
