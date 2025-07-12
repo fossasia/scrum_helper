@@ -73,12 +73,22 @@ document.addEventListener('DOMContentLoaded', function () {
         const useRepoFilter = document.getElementById('useRepoFilter');
         const githubTokenInput = document.getElementById('githubToken');
         const tokenWarning = document.getElementById('tokenWarningForFilter');
+        const repoFilterContainer = document.getElementById('repoFilterContainer');
 
-        if(!useRepoFilter || !githubTokenInput || !tokenWarning) {
+        if(!useRepoFilter || !githubTokenInput || !tokenWarning || !repoFilterContainer) {
             return;
         }
         const isFilterEnabled = useRepoFilter.checked;
         const hasToken = githubTokenInput.value.trim() != '';
+
+        if(isFilterEnabled && !hasToken) {
+            useRepoFilter.checked = false;
+            repoFilterContainer.classList.add('hidden');
+            if(typeof hideDropdown === 'function') {
+                hideDropdown();
+            }
+            chrome.storage.local.set({ useRepoFilter: false });
+        }
         tokenWarning.classList.toggle('hidden', !isFilterEnabled || hasToken);
     }
 
@@ -88,7 +98,7 @@ document.addEventListener('DOMContentLoaded', function () {
             body.classList.add('dark-mode');
             darkModeToggle.src = 'icons/light-mode.png';
             if (settingsIcon) {
-                settingsIcon.src = 'icons/settings-night.png'; // Changed from settings-night.png
+                settingsIcon.src = 'icons/settings-night.png';
             }
         }
     });
