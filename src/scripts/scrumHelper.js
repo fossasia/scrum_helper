@@ -716,9 +716,12 @@ function allIncluded(outputTarget = 'email') {
             scrumSubjectLoaded();
         }
         log('[SCRUM-DEBUG] Processing issues for main activity:', githubIssuesData?.items);
-        await writeGithubIssuesPrs(githubIssuesData?.items || []);
-        log('[SCRUM-DEBUG] Processing merge requests for main activity:', githubPrsReviewData?.items);
-        await writeGithubIssuesPrs(githubPrsReviewData?.items || []);
+        if (platform === 'github') {
+            await writeGithubIssuesPrs(githubIssuesData?.items || []);
+        } else if (platform === 'gitlab') {
+            await writeGithubIssuesPrs(githubIssuesData?.items || []);
+            await writeGithubIssuesPrs(githubPrsReviewData?.items || []);
+        }
         await writeGithubPrsReviews();
         log('[DEBUG] Both data processing functions completed, generating scrum body');
         writeScrumBody();
@@ -1087,18 +1090,11 @@ ${userReason}`;
                 if (platform === 'github') {
                     if (!isNewPR) {
                         const hasCommitsInRange = showCommits && item._allCommits && item._allCommits.length > 0;
-
                         if (!hasCommitsInRange) {
-
                             continue; //skip these prs - created outside daterange with no commits
-                        } else {
-
                         }
-                    } else {
-
                     }
                     prAction = isNewPR ? 'Made PR' : 'Existing PR';
-
                 } else if (platform === 'gitlab') {
                     prAction = isNewPR ? 'Made Merge Request' : 'Existing Merge Request';
                 }
@@ -1113,28 +1109,24 @@ ${userReason}`;
                         });
                     }
                     li += `</li>`;
-                } else if (item.state === 'closed') {
-                    // For GitLab, treat all closed as closed (no merged distinction)
-                    if (platform === 'gitlab') {
-                        li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a> ${pr_closed_button}</li>`;
-                    } else {
-                        let merged = null;
-                        if ((githubToken || (useMergedStatus && !fallbackToSimple)) && mergedStatusResults) {
-                            let repoParts = repository_url.split('/');
-                            let owner = repoParts[repoParts.length - 2];
-                            let repo = repoParts[repoParts.length - 1];
-                            merged = mergedStatusResults[`${owner}/${repo}#${number}`];
-                        }
-                        if (merged === true) {
-                            li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a> ${pr_merged_button}</li>`;
-                        } else {
-                            // Always show closed label for merged === false or merged === null/undefined
-                            li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a> ${pr_closed_button}</li>`;
-                        }
-                    }
+                } else if (platform === 'gitlab' && item.state === 'closed') {
+                    // For GitLab, always show closed label for closed MRs
+                    li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a> ${pr_closed_button}</li>`;
                 } else {
-                    // Fallback for unexpected state
-                    li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a></li>`;
+                    // GitHub: check merged status if possible
+                    let merged = null;
+                    if ((githubToken || (useMergedStatus && !fallbackToSimple)) && mergedStatusResults) {
+                        let repoParts = repository_url.split('/');
+                        let owner = repoParts[repoParts.length - 2];
+                        let repo = repoParts[repoParts.length - 1];
+                        merged = mergedStatusResults[`${owner}/${repo}#${number}`];
+                    }
+                    if (merged === true) {
+                        li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a> ${pr_merged_button}</li>`;
+                    } else {
+                        // Always show closed label for merged === false or merged === null/undefined
+                        li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a> ${pr_closed_button}</li>`;
+                    }
                 }
                 log('[SCRUM-DEBUG] Added PR/MR to lastWeekArray:', li, item);
                 lastWeekArray.push(li);
