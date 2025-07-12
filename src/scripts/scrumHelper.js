@@ -718,7 +718,7 @@ function allIncluded(outputTarget = 'email') {
         log('[SCRUM-DEBUG] Processing issues for main activity:', githubIssuesData?.items);
         await writeGithubIssuesPrs(githubIssuesData?.items || []);
         log('[SCRUM-DEBUG] Processing merge requests for main activity:', githubPrsReviewData?.items);
-        await writeGithubIssuesPrs(githubPrsReviewData?.items || []);
+
         await writeGithubPrsReviews();
         log('[DEBUG] Both data processing functions completed, generating scrum body');
         writeScrumBody();
