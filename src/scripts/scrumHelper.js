@@ -733,7 +733,6 @@ function allIncluded(outputTarget = 'email') {
         issuesDataProcessed = false;
         prsReviewDataProcessed = false;
 
-        // Update subject
         if (!githubCache.subject && scrumSubject) {
             scrumSubjectLoaded();
         }
@@ -751,107 +750,94 @@ function allIncluded(outputTarget = 'email') {
         return date.toLocaleDateString('en-US', options);
     }
 
-    //load initial text in scrum body
     function writeScrumBody() {
-        if (!enableToggle || (outputTarget === 'email' && hasInjectedContent)) {
+        if (!enableToggle) {
             scrumGenerationInProgress = false;
             return;
         }
 
-        let attempts = 0;
-        const maxAttempts = 20; //Poll for 10 seconds 
-        const pollInterval = 500;
+        let lastWeekUl = '<ul>';
+        for (let i = 0; i < lastWeekArray.length; i++) lastWeekUl += lastWeekArray[i];
+        for (let i = 0; i < reviewedPrsArray.length; i++) lastWeekUl += reviewedPrsArray[i];
+        lastWeekUl += '</ul>';
 
-        const injectionPoller = setInterval(() => {
-            let elements;
-            if (outputTarget === 'email') {
-                if (!window.emailClientAdapter || !window.emailClientAdapter.isNewConversation()) {
-                    attempts++;
-                    if (attempts > maxAttempts) {
-                        clearInterval(injectionPoller);
-                        logError('Aborting: Could not detect a new conversation window after 10 seconds.');
-                        scrumGenerationInProgress = false;
-                    }
-                    return;
+        let nextWeekUl = '<ul>';
+        for (let i = 0; i < nextWeekArray.length; i++) nextWeekUl += nextWeekArray[i];
+        nextWeekUl += '</ul>';
+
+        let weekOrDay = lastWeekContribution ? 'last week' : (yesterdayContribution ? 'yesterday' : 'the period');
+        let weekOrDay2 = lastWeekContribution ? 'this week' : 'today';
+
+        let content;
+        if (lastWeekContribution == true || yesterdayContribution == true) {
+            content = `<b>1. What did I do ${weekOrDay}?</b><br>
+${lastWeekUl}<br>
+<b>2. What do I plan to do ${weekOrDay2}?</b><br>
+${nextWeekUl}<br>
+<b>3. What is blocking me from making progress?</b><br>
+${userReason}`;
+        } else {
+            content = `<b>1. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?</b><br>
+${lastWeekUl}<br>
+<b>2. What do I plan to do ${weekOrDay2}?</b><br>
+${nextWeekUl}<br>
+<b>3. What is blocking me from making progress?</b><br>
+${userReason}`;
+        }
+
+        if (outputTarget === 'popup') {
+            const scrumReport = document.getElementById('scrumReport');
+            if (scrumReport) {
+                log("Found popup div, updating content");
+                scrumReport.innerHTML = content;
+
+                const generateBtn = document.getElementById('generateReport');
+                if (generateBtn) {
+                    generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+                    generateBtn.disabled = false;
                 }
+            } else {
+                logError('Scrum report div not found in popup');
             }
+            scrumGenerationInProgress = false;
 
-            elements = window.emailClientAdapter.getEditorElements();
-            if(!elements?.body){
-                attempts++;
-                if(attempts > maxAttempts) {
-                    clearInterval(injectionPoller);
-                    logError('Aborting: Could not find the editor body element after 10 seconds.');
-                    scrumGenerationInProgress = false;
-                }
+        } else if (outputTarget === 'email') {
+            if (hasInjectedContent) {
+                scrumGenerationInProgress = false;
                 return;
             }
 
-            clearInterval(injectionPoller);
-            log('Context verified. Generating and injecting scrum content.');
-
-            // Generate content first
-            let lastWeekUl = '<ul>';
-            let i;
-            for (i = 0; i < lastWeekArray.length; i++) lastWeekUl += lastWeekArray[i];
-            for (i = 0; i < reviewedPrsArray.length; i++) lastWeekUl += reviewedPrsArray[i];
-            lastWeekUl += '</ul>';
-
-            let nextWeekUl = '<ul>';
-            for (i = 0; i < nextWeekArray.length; i++) nextWeekUl += nextWeekArray[i];
-            nextWeekUl += '</ul>';
-
-            let weekOrDay = lastWeekContribution ? 'last week' : (yesterdayContribution ? 'yesterday' : 'the period');
-            let weekOrDay2 = lastWeekContribution ? 'this week' : 'today';
-
-            // Create the complete content
-            let content;
-            if (lastWeekContribution == true || yesterdayContribution == true) {
-                content = `<b>1. What did I do ${weekOrDay}?</b><br>
-${lastWeekUl}<br>
-<b>2. What do I plan to do ${weekOrDay2}?</b><br>
-${nextWeekUl}<br>
-<b>3. What is blocking me from making progress?</b><br>
-${userReason}`;
-            } else {
-                content = `<b>1. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?</b><br>
-${lastWeekUl}<br>
-<b>2. What do I plan to do ${weekOrDay2}?</b><br>
-${nextWeekUl}<br>
-<b>3. What is blocking me from making progress?</b><br>
-${userReason}`;
-
-            }
-
-
-            if (outputTarget === 'popup') {
-                const scrumReport = document.getElementById('scrumReport');
-                if (scrumReport) {
-                    log("found div, updating content");
-                    scrumReport.innerHTML = content;
-
-                    // Reset generate button
-                    const generateBtn = document.getElementById('generateReport');
-                    if (generateBtn) {
-                        generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
-                        generateBtn.disabled = false;
-                    }
-                    scrumGenerationInProgress = false;
-                } else {
-                    logError('Scrum report div not found');
-                    scrumGenerationInProgress = false;
-                }
-            } else {
-                if (!elements || !elements.body) {
-                    logError('Email client editor not found, aborting injection.');
-                    scrumGenerationInProgress = false;
+            const observer = new MutationObserver((mutations, obs) => {
+                if (!window.emailClientAdapter) {
+                    obs.disconnect();
                     return;
                 }
-                window.emailClientAdapter.injectContent(elements.body, content, elements.eventTypes.contentChange);
-                hasInjectedContent = true;
-                scrumGenerationInProgress = false;
-            }
-        }, pollInterval);
+
+                if (window.emailClientAdapter.isNewConversation()) {
+                    const elements = window.emailClientAdapter.getEditorElements();
+                    if (elements && elements.body) {
+                        obs.disconnect();
+                        log('MutationObserver found the editor body. Injecting scrum content.');
+                        window.emailClientAdapter.injectContent(elements.body, content, elements.eventTypes.contentChange);
+                        hasInjectedContent = true;
+                        scrumGenerationInProgress = false;
+                    }
+                }
+            });
+
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+
+            setTimeout(() => {
+                observer.disconnect();
+                if (!hasInjectedContent && scrumGenerationInProgress) {
+                    logError('Injection timed out after 30 seconds. The compose window might not have loaded.');
+                    scrumGenerationInProgress = false;
+                }
+            }, 30000);
+        }
     }
 
     //load initial scrum subject
@@ -1466,7 +1452,7 @@ async function fetchUserRepositories(username, token, org = '') {
 
             if (graphQLData.errors) {
                 logError("GraphQL errors fetching repos:", graphQLData.errors);
-                return []; 
+                return [];
             }
 
             const repos = Object.values(graphQLData.data)
