@@ -90,6 +90,10 @@ document.addEventListener('DOMContentLoaded', function () {
             chrome.storage.local.set({ useRepoFilter: false });
         }
         tokenWarning.classList.toggle('hidden', !isFilterEnabled || hasToken);
+        setTimeout( ()=> {
+            tokenWarning.classList.add('hidden');
+        }, 4000)
+        
     }
 
 
