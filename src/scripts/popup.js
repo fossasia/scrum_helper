@@ -517,6 +517,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if(enabled && !hasToken) {
                 useRepoFilter.checked = false;
+                repoFilterContainer.classList.add('hidden'); // Explicitly hide the container
+                hideDropdown();
                 const tokenWarning = document.getElementById('tokenWarningForFilter');
                 if(tokenWarning) {
                     tokenWarning.classList.remove('hidden');
