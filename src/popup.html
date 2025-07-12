@@ -17,6 +17,26 @@
 			overflow-y: scroll;
 			background: #eae4e4;
 		}
+
+		#platformSelect option {
+			font-family: 'FontAwesome', 'Arial', sans-serif;
+		}
+
+		#customPlatformDropdown {
+			position: relative;
+		}
+
+		#platformDropdownList {
+			display: none;
+		}
+
+		#customPlatformDropdown.open #platformDropdownList {
+			display: block;
+		}
+
+		#platformDropdownBtn:focus {
+			outline: 2px solid #2563eb;
+		}
 	</style>
 </head>
 
@@ -60,6 +80,33 @@
 
 				<div id="reportSection" class="tab-content">
 					<div>
+						<h4>Platform
+						</h4>
+						<div class="relative mb-4" id="customPlatformDropdown" style="margin-bottom: 0.8rem;">
+							<input type="hidden" id="platformSelect" value="github">
+							<button type="button" id="platformDropdownBtn"
+								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 pr-8 flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-blue-500">
+								<span id="platformDropdownSelected" class="flex items-center gap-2">
+									<i class="fa fa-github" style="margin-right:8px;"></i> GitHub
+								</span>
+								<i class="fa fa-chevron-down text-gray-500"></i>
+							</button>
+							<ul id="platformDropdownList"
+								class="absolute left-0 right-0 bg-white border-2 border-gray-200 rounded-xl mt-1 shadow-lg z-10 hidden">
+								<li
+									style="padding-left: 8px; padding-right: 16px; padding-top: 8px; padding-bottom: 8px; display: flex; align-items: center; cursor: pointer;"
+									class="hover:bg-gray-100" data-value="github">
+									<i class="fa fa-github" style="margin-right: 12px; font-size: 18px;"></i> GitHub
+								</li>
+								<li
+									style="padding-left: 8px; padding-right: 16px; padding-top: 8px; padding-bottom: 8px; display: flex; align-items: center; cursor: pointer;"
+									class="hover:bg-gray-100" data-value="gitlab">
+									<i class="fa fa-gitlab" style="margin-right: 12px; font-size: 18px;"></i> GitLab
+								</li>
+							</ul>
+						</div>
+					</div>
+					<div>
 						<h4>Your Project Name<span class="tooltip-container ml-2">
 								<i class="fa fa-question-circle question-icon"></i>
 								<span class="tooltip-bubble">
@@ -67,19 +114,21 @@
 									timestamp.
 								</span>
 							</span> </h4>
+
+
 						<input id="projectName" type="text"
-							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800  p-2 my-2"
-							placeholder="Enter your project name">
+							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
+							placeholder="Enter your project name" style="margin-top: 0.3rem; margin-bottom: 0.8rem;">
 					</div>
 					<div>
-						<h4>Your Github Username</h4>
-						<input id="githubUsername" type="text"
-							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800  p-2 my-2"
-							placeholder="Required for fetching your contributions">
+						<h4 id="usernameLabel">Your Username</h4>
+						<input id="platformUsername" type="text"
+							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
+							placeholder="Required for fetching your contributions" style="margin-top: 0.3rem; margin-bottom: 0.8rem;">
 					</div>
 
 					<div>
-						<p class="text-sm">Fetch your contributions between:</p>
+						<p class="text-lg mb-1">Fetch your contributions between:</p>
 						<div class="flex justify-between items-center my-2 mx-4">
 							<div class="flex items-center gap-2">
 								<input type="radio" id="lastWeekContribution" name="timeframe" class="form-radio">
@@ -288,7 +337,9 @@
 	</div>
 	<script src="scripts/jquery-3.2.1.min.js"></script>
 	<script type="text/javascript" type="text/javascript" src="materialize/js/materialize.min.js"></script>
+	<script src="scripts/emailClientAdapter.js"></script>
 	<script src="scripts/main.js"></script>
+	<script src="scripts/gitlabHelper.js"></script>
 	<script src="scripts/scrumHelper.js"></script>
 	<script src="scripts/popup.js"></script>
 </body>

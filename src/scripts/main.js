@@ -252,7 +252,9 @@ function handleShowCommitsChange() {
 
 enableToggleElement.addEventListener('change', handleEnableChange);
 githubUsernameElement.addEventListener('keyup', handleGithubUsernameChange);
-githubTokenElement.addEventListener('keyup', handleGithubTokenChange);
+if (githubTokenElement) {
+	githubTokenElement.addEventListener('keyup', handleGithubTokenChange);
+}
 cacheInputElement.addEventListener('keyup', handleCacheInputChange);
 projectNameElement.addEventListener('keyup', handleProjectNameChange);
 startingDateElement.addEventListener('change', handleStartingDateChange);
