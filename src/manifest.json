@@ -20,25 +20,33 @@
         "*://groups.google.com/forum/*",
         "*://groups.google.com/g/*",
         "*://groups.google.com/u/*/g/*",
-        "*://mail.google.com/*",         
-        "*://outlook.live.com/*",        
-        "*://outlook.office.com/*",      
+        "*://mail.google.com/*",
+        "*://outlook.live.com/*",
+        "*://outlook.office.com/*",
         "*://mail.yahoo.com/*"
       ],
-      "js": ["scripts/jquery-3.2.1.min.js", "scripts/emailClientAdapter.js", "scripts/scrumHelper.js"]
+      "js": [
+        "scripts/jquery-3.2.1.min.js",
+        "scripts/emailClientAdapter.js",
+        "scripts/gitlabHelper.js",
+        "scripts/scrumHelper.js"
+      ]
     }
   ],
-
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self';"
   },
-  "web_accessible_resources": [{
-    "resources": [
-      "/icons/night-mode.png",
-      "icons/night-mode.png"
-    ],
-    "matches": ["<all_urls>"]
-  }],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "/icons/night-mode.png",
+        "icons/night-mode.png"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ],
   "permissions": [
     "tabs",
     "storage",
@@ -50,7 +58,7 @@
     "*://*.outlook.live.com/*",
     "*://*.office.com/*",
     "*://*.yahoo.com/*",
-    "https://api.github.com/*"
-    
+    "https://api.github.com/*",
+    "https://gitlab.com/*"
   ]
 }

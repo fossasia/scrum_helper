@@ -132,7 +132,7 @@ function allIncluded(outputTarget = 'email') {
                         chrome.storage.local.set({ lastWeekContribution: true, yesterdayContribution: false });
                     }
                 }
-                
+
                 if (platform === 'github') {
                     if (githubUsername) {
                         console.log("[DEBUG] About to fetch GitHub data for:", githubUsername);
@@ -160,6 +160,11 @@ function allIncluded(outputTarget = 'email') {
                     if (!gitlabHelper) gitlabHelper = new window.GitLabHelper();
                     if (platformUsername) {
                         const generateBtn = document.getElementById('generateReport');
+                        if (generateBtn && outputTarget === 'popup') {
+                            generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
+                            generateBtn.disabled = true;
+                        }
+
                         gitlabHelper.fetchGitLabData(platformUsername, startingDate, endingDate)
                             .then(data => {
                                 console.log('[SCRUM-DEBUG] Raw GitLab data returned from fetchGitLabData:', data);
@@ -206,20 +211,35 @@ function allIncluded(outputTarget = 'email') {
                                 });
                             })
                             .catch(err => {
-                                if (generateBtn) {
-                                    generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
-                                    generateBtn.disabled = false;
+                                console.error('GitLab fetch failed:', err);
+                                if (outputTarget === 'popup') {
+                                    if (generateBtn) {
+                                        generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+                                        generateBtn.disabled = false;
+                                    }
+                                    const scrumReport = document.getElementById('scrumReport');
+                                    if (scrumReport) {
+                                        scrumReport.innerHTML = `<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">${err.message || 'An error occurred while fetching GitLab data.'}</div>`;
+                                    }
                                 }
-                                const scrumReport = document.getElementById('scrumReport');
-                                if (scrumReport) {
-                                    scrumReport.innerHTML = `<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">${err.message || 'An error occurred while fetching GitLab data.'}</div>`;
-                                }
+                                scrumGenerationInProgress = false;
                             });
                     } else {
-                        // Show error for missing GitLab username
+                        if (outputTarget === 'popup') {
+                            const scrumReport = document.getElementById('scrumReport');
+                            const generateBtn = document.getElementById('generateReport');
+                            if (scrumReport) {
+                                scrumReport.innerHTML = '<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">Please enter your GitLab username to generate a report.</div>';
+                            }
+                            if (generateBtn) {
+                                generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+                                generateBtn.disabled = false;
+                            }
+                        }
+                        scrumGenerationInProgress = false;
                     }
                 } else {
-                   
+
                 }
                 if (items.cacheInput) {
                     cacheInput = items.cacheInput;
@@ -712,94 +732,107 @@ function allIncluded(outputTarget = 'email') {
 
     //load initial text in scrum body
     function writeScrumBody() {
-        if (!enableToggle || (outputTarget === 'email' && hasInjectedContent)) return;
-
-        if (outputTarget === 'email') {
-            if (!window.emailClientAdapter) {
-                console.error('Email client adapter not found');
-                return;
-            }
-            if (!window.emailClientAdapter.isNewConversation()) {
-                console.log('Not a new conversation, skipping scrum helper');
-                return;
-            }
+        if (!enableToggle) {
+            scrumGenerationInProgress = false;
+            return;
         }
 
-        setTimeout(() => {
-            // Generate content first
-            let lastWeekUl = '<ul>';
-            let i;
-            for (i = 0; i < lastWeekArray.length; i++) lastWeekUl += lastWeekArray[i];
-            for (i = 0; i < reviewedPrsArray.length; i++) lastWeekUl += reviewedPrsArray[i];
-            lastWeekUl += '</ul>';
+        let lastWeekUl = '<ul>';
+        for (let i = 0; i < lastWeekArray.length; i++) lastWeekUl += lastWeekArray[i];
+        for (let i = 0; i < reviewedPrsArray.length; i++) lastWeekUl += reviewedPrsArray[i];
+        lastWeekUl += '</ul>';
 
-            let nextWeekUl = '<ul>';
-            for (i = 0; i < nextWeekArray.length; i++) nextWeekUl += nextWeekArray[i];
-            nextWeekUl += '</ul>';
+        let nextWeekUl = '<ul>';
+        for (let i = 0; i < nextWeekArray.length; i++) nextWeekUl += nextWeekArray[i];
+        nextWeekUl += '</ul>';
 
-            let weekOrDay = lastWeekContribution ? 'last week' : (yesterdayContribution ? 'yesterday' : 'the period');
-            let weekOrDay2 = lastWeekContribution ? 'this week' : 'today';
+        let weekOrDay = lastWeekContribution ? 'last week' : (yesterdayContribution ? 'yesterday' : 'the period');
+        let weekOrDay2 = lastWeekContribution ? 'this week' : 'today';
 
-            // Create the complete content
-            let content;
-            if (lastWeekContribution == true || yesterdayContribution == true) {
-                content = `<b>1. What did I do ${weekOrDay}?</b><br>
+        let content;
+        if (lastWeekContribution == true || yesterdayContribution == true) {
+            content = `<b>1. What did I do ${weekOrDay}?</b><br>
 ${lastWeekUl}<br>
 <b>2. What do I plan to do ${weekOrDay2}?</b><br>
 ${nextWeekUl}<br>
 <b>3. What is blocking me from making progress?</b><br>
 ${userReason}`;
-            } else {
-                content = `<b>1. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?</b><br>
+        } else {
+            content = `<b>1. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?</b><br>
 ${lastWeekUl}<br>
 <b>2. What do I plan to do ${weekOrDay2}?</b><br>
 ${nextWeekUl}<br>
 <b>3. What is blocking me from making progress?</b><br>
 ${userReason}`;
 
-            }
+        }
 
 
-            if (outputTarget === 'popup') {
-                const scrumReport = document.getElementById('scrumReport');
-                if (scrumReport) {
-                    log("found div, updating content");
-                    scrumReport.innerHTML = content;
+        if (outputTarget === 'popup') {
+            const scrumReport = document.getElementById('scrumReport');
+            if (scrumReport) {
+                log("Found popup div, updating content");
+                scrumReport.innerHTML = content;
 
-                    // Reset generate button
-                    const generateBtn = document.getElementById('generateReport');
-                    if (generateBtn) {
-                        generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
-                        generateBtn.disabled = false;
-                    }
-                    scrumGenerationInProgress = false;
-                } else {
-                    logError('Scrum report div not found');
-                    scrumGenerationInProgress = false;
+                const generateBtn = document.getElementById('generateReport');
+                if (generateBtn) {
+                    generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+                    generateBtn.disabled = false;
                 }
             } else {
-                const elements = window.emailClientAdapter.getEditorElements();
-                if (!elements || !elements.body) {
-                    console.error('Email client editor not found');
+                logError('Scrum report div not found in popup');
+            }
+            scrumGenerationInProgress = false;
+
+        } else if (outputTarget === 'email') {
+            if (hasInjectedContent) {
+                scrumGenerationInProgress = false;
+                return;
+            }
+
+            const observer = new MutationObserver((mutations, obs) => {
+                if (!window.emailClientAdapter) {
+                    obs.disconnect();
                     return;
                 }
-                window.emailClientAdapter.injectContent(elements.body, content, elements.eventTypes.contentChange);
-                hasInjectedContent = true;
-                scrumGenerationInProgress = false;
-            }
-        }, 500);
+
+                if (window.emailClientAdapter.isNewConversation()) {
+                    const elements = window.emailClientAdapter.getEditorElements();
+                    if (elements && elements.body) {
+                        obs.disconnect();
+                        log('MutationObserver found the editor body. Injecting scrum content.');
+                        window.emailClientAdapter.injectContent(elements.body, content, elements.eventTypes.contentChange);
+                        hasInjectedContent = true;
+                        scrumGenerationInProgress = false;
+                    }
+                }
+            });
+
+            observer.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
+
+            setTimeout(() => {
+                observer.disconnect();
+                if (!hasInjectedContent && scrumGenerationInProgress) {
+                    logError('Injection timed out after 30 seconds. The compose window might not have loaded.');
+                    scrumGenerationInProgress = false;
+                }
+            }, 30000);
+        }
     }
 
     //load initial scrum subject
     function scrumSubjectLoaded() {
         try {
-            if (!enableToggle || hasInjectedContent) return;
+            if (!enableToggle) return;
             if (!scrumSubject) {
                 console.error('Subject element not found');
                 return;
             }
             setTimeout(() => {
-                let name = githubUserData.name || githubUsername;
+                let name = githubUserData?.name || githubUserData?.username || githubUsername || platformUsername;
                 let project = projectName || '<project name>';
                 let curDate = new Date();
                 let year = curDate.getFullYear().toString();
@@ -918,9 +951,7 @@ ${userReason}`;
         }
 
         prsReviewDataProcessed = true;
-        if (outputTarget === 'email') {
-            triggerScrumGeneration();
-        }
+
 
     }
 
@@ -1082,21 +1113,24 @@ ${userReason}`;
                         });
                     }
                     li += `</li>`;
-                } else if (item.state === 'merged') { // Added for GitLab MRs
-                    li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a> ${pr_merged_button}</li>`;
                 } else if (item.state === 'closed') {
-                    let merged = null;
-                    if ((githubToken || (useMergedStatus && !fallbackToSimple)) && mergedStatusResults) {
-                        let repoParts = repository_url.split('/');
-                        let owner = repoParts[repoParts.length - 2];
-                        let repo = repoParts[repoParts.length - 1];
-                        merged = mergedStatusResults[`${owner}/${repo}#${number}`];
-                    }
-                    if (merged === true) {
-                        li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a> ${pr_merged_button}</li>`;
-                    } else {
-                        // Always show closed label for merged === false or merged === null/undefined
+                    // For GitLab, treat all closed as closed (no merged distinction)
+                    if (platform === 'gitlab') {
                         li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a> ${pr_closed_button}</li>`;
+                    } else {
+                        let merged = null;
+                        if ((githubToken || (useMergedStatus && !fallbackToSimple)) && mergedStatusResults) {
+                            let repoParts = repository_url.split('/');
+                            let owner = repoParts[repoParts.length - 2];
+                            let repo = repoParts[repoParts.length - 1];
+                            merged = mergedStatusResults[`${owner}/${repo}#${number}`];
+                        }
+                        if (merged === true) {
+                            li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a> ${pr_merged_button}</li>`;
+                        } else {
+                            // Always show closed label for merged === false or merged === null/undefined
+                            li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a> ${pr_closed_button}</li>`;
+                        }
                     }
                 } else {
                     // Fallback for unexpected state
@@ -1136,9 +1170,7 @@ ${userReason}`;
         }
         log('[SCRUM-DEBUG] Final lastWeekArray:', lastWeekArray);
         issuesDataProcessed = true;
-        if (outputTarget === 'email') {
-            triggerScrumGeneration();
-        }
+
     }
 
     let intervalBody = setInterval(() => {
@@ -1153,7 +1185,8 @@ ${userReason}`;
     }, 500);
 
     let intervalSubject = setInterval(() => {
-        if (!githubUserData || !window.emailClientAdapter) return;
+        const userData = platform === 'gitlab' ? (githubUserData || platformUsername) : githubUserData;
+        if (!userData || !window.emailClientAdapter) return;
 
         const elements = window.emailClientAdapter.getEditorElements();
         if (!elements || !elements.subject) return;
@@ -1177,7 +1210,8 @@ ${userReason}`;
         if (outputTarget === 'popup') {
             return;
         } else {
-            if (scrumBody && githubUsername && githubIssuesData && githubPrsReviewData) {
+            const username = platform === 'gitlab' ? platformUsername : githubUsername;
+            if (scrumBody && username && githubIssuesData && githubPrsReviewData) {
                 clearInterval(intervalWriteGithubIssues);
                 clearInterval(intervalWriteGithubPrs);
                 writeGithubIssuesPrs();
@@ -1188,7 +1222,8 @@ ${userReason}`;
         if (outputTarget === 'popup') {
             return;
         } else {
-            if (scrumBody && githubUsername && githubPrsReviewData && githubIssuesData) {
+            const username = platform === 'gitlab' ? platformUsername : githubUsername;
+            if (scrumBody && username && githubPrsReviewData && githubIssuesData) {
                 clearInterval(intervalWriteGithubPrs);
                 clearInterval(intervalWriteGithubIssues);
                 writeGithubPrsReviews();

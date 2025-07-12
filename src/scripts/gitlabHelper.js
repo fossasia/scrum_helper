@@ -118,28 +118,48 @@ class GitLabHelper {
         throw new Error(`Error fetching GitLab projects: ${projectsRes.status} ${projectsRes.statusText}`);
       }
       const projects = await projectsRes.json();
-      // Fetch merge requests created by user
-      const mergeRequestsUrl = `${this.baseUrl}/merge_requests?author_id=${userId}&created_after=${startDate}T00:00:00Z&created_before=${endDate}T23:59:59Z&per_page=100&order_by=updated_at&sort=desc`;
-      const mergeRequestsRes = await fetch(mergeRequestsUrl);
-      if (!mergeRequestsRes.ok) {
-        throw new Error(`Error fetching GitLab merge requests: ${mergeRequestsRes.status} ${mergeRequestsRes.statusText}`);
+
+      // Fetch merge requests from each project (works without auth for public projects)
+      let allMergeRequests = [];
+      for (const project of projects) {
+        try {
+          const projectMRsUrl = `${this.baseUrl}/projects/${project.id}/merge_requests?author_id=${userId}&created_after=${startDate}T00:00:00Z&created_before=${endDate}T23:59:59Z&per_page=100&order_by=updated_at&sort=desc`;
+          const projectMRsRes = await fetch(projectMRsUrl);
+          if (projectMRsRes.ok) {
+            const projectMRs = await projectMRsRes.json();
+            allMergeRequests = allMergeRequests.concat(projectMRs);
+          }
+          // Add small delay to avoid rate limiting
+          await new Promise(resolve => setTimeout(resolve, 100));
+        } catch (error) {
+          console.error(`Error fetching MRs for project ${project.name}:`, error);
+          // Continue with other projects
+        }
       }
-      const mergeRequests = await mergeRequestsRes.json();
-      // Fetch issues created by user
-      const issuesUrl = `${this.baseUrl}/issues?author_id=${userId}&created_after=${startDate}T00:00:00Z&created_before=${endDate}T23:59:59Z&per_page=100&order_by=updated_at&sort=desc`;
-      const issuesRes = await fetch(issuesUrl);
-      if (!issuesRes.ok) {
-        throw new Error(`Error fetching GitLab issues: ${issuesRes.status} ${issuesRes.statusText}`);
+
+      // Fetch issues from each project (works without auth for public projects)
+      let allIssues = [];
+      for (const project of projects) {
+        try {
+          const projectIssuesUrl = `${this.baseUrl}/projects/${project.id}/issues?author_id=${userId}&created_after=${startDate}T00:00:00Z&created_before=${endDate}T23:59:59Z&per_page=100&order_by=updated_at&sort=desc`;
+          const projectIssuesRes = await fetch(projectIssuesUrl);
+          if (projectIssuesRes.ok) {
+            const projectIssues = await projectIssuesRes.json();
+            allIssues = allIssues.concat(projectIssues);
+          }
+          // Add small delay to avoid rate limiting
+          await new Promise(resolve => setTimeout(resolve, 100));
+        } catch (error) {
+          console.error(`Error fetching issues for project ${project.name}:`, error);
+          // Continue with other projects
+        }
       }
-      const issues = await issuesRes.json();
-      // Remove detailed fetches for MRs and issues
-      // const detailedMergeRequests = await this.getDetailedMergeRequests(mergeRequests);
-      // const detailedIssues = await this.getDetailedIssues(issues);
+
       const gitlabData = {
         user: users[0],
         projects: projects,
-        mergeRequests: mergeRequests, // use list response directly
-        issues: issues, // use list response directly
+        mergeRequests: allMergeRequests, // use project-by-project response
+        issues: allIssues, // use project-by-project response
         comments: [] // Empty array since we're not fetching comments
       };
       // Cache the data

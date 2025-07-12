@@ -424,13 +424,14 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         // Platform change: clear username, update label/placeholder, clear storage
-        platformSelect.addEventListener('change', function () {
-            const platform = platformSelect.value;
-            chrome.storage.local.set({ platform });
-            updatePlatformUI(platform);
-            platformUsername.value = '';
-            chrome.storage.local.set({ platformUsername: '' });
-        });
+        // This is handled by the new dropdown system, so removing this old listener
+        // platformSelect.addEventListener('change', function () {
+        //     const platform = platformSelect.value;
+        //     chrome.storage.local.set({ platform });
+        //     updatePlatformUI(platform);
+        //     platformUsername.value = '';
+        //     chrome.storage.local.set({ platformUsername: '' });
+        // });
     }
 
     function showReportView() {
@@ -656,8 +657,8 @@ document.addEventListener('DOMContentLoaded', function () {
         platformSelectHidden.value = value;
         chrome.storage.local.set({ platform: value });
         updatePlatformUI(value);
-        platformUsername.value = '';
-        chrome.storage.local.set({ platformUsername: '' });
+        // Don't clear username when restoring platform from storage
+        // Only clear when user actually changes platform
     }
 
     dropdownBtn.addEventListener('click', function (e) {
@@ -668,7 +669,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
     dropdownList.querySelectorAll('li').forEach(item => {
         item.addEventListener('click', function (e) {
-            setPlatformDropdown(this.getAttribute('data-value'));
+            const newPlatform = this.getAttribute('data-value');
+            const currentPlatform = platformSelectHidden.value;
+
+            // Only clear username if platform is actually changing
+            if (newPlatform !== currentPlatform) {
+                platformUsername.value = '';
+                chrome.storage.local.set({ platformUsername: '' });
+            }
+
+            setPlatformDropdown(newPlatform);
             customDropdown.classList.remove('open');
             dropdownList.classList.add('hidden');
         });
@@ -701,7 +711,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 (arr[idx - 1] || arr[arr.length - 1]).focus();
             } else if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                setPlatformDropdown(this.getAttribute('data-value'));
+                const newPlatform = this.getAttribute('data-value');
+                const currentPlatform = platformSelectHidden.value;
+
+                // Only clear username if platform is actually changing
+                if (newPlatform !== currentPlatform) {
+                    platformUsername.value = '';
+                    chrome.storage.local.set({ platformUsername: '' });
+                }
+
+                setPlatformDropdown(newPlatform);
                 customDropdown.classList.remove('open');
                 dropdownList.classList.add('hidden');
                 dropdownBtn.focus();
@@ -712,7 +731,14 @@ document.addEventListener('DOMContentLoaded', function () {
     // On load, restore platform from storage
     chrome.storage.local.get(['platform'], function (result) {
         const platform = result.platform || 'github';
-        setPlatformDropdown(platform);
+        // Just update the UI without clearing username when restoring from storage
+        if (platform === 'gitlab') {
+            dropdownSelected.innerHTML = '<i class="fa fa-gitlab mr-2"></i> GitLab';
+        } else {
+            dropdownSelected.innerHTML = '<i class="fa fa-github mr-2"></i> GitHub';
+        }
+        platformSelectHidden.value = platform;
+        updatePlatformUI(platform);
     });
 
 });
