@@ -66,13 +66,6 @@
 - Edit it in the window.
 - Copy the rich HTML using the `COPY` button.
 
-## Setting up the code locally
-
-```
-$ git clone https://github.com/fossasia/scrum_helper/
-$ cd scrum_helper
-$ npm install
-```
 
 ## Screenshots
 
@@ -86,41 +79,25 @@ $ npm install
 
 ![SETTINGSMENU](docs/images/settings.png)
 
-## Using Scrum Helper with Your Own GitHub Organization
+## Setting up the code locally
 
-Scrum Helper is not limited to the [FOSSASIA](https://github.com/fossasia) organization. You can easily configure it to fetch and generate SCRUM reports for your own GitHub organization or repositories.
-
-### Steps to Set It Up for Your Organization
+```
+$ git clone https://github.com/fossasia/scrum_helper/
+$ cd scrum_helper
+$ npm install
+```
 
 1. **Install the Extension**
 
 * For Chrome: Load it into your browser through [Chrome Extension Developer Mode](https://developer.chrome.com/docs/extensions/mv3/getstarted/).
-* For Firefox: Load it as a temporary add-on through `about:debugging` as described above.
+<!-- * For Firefox: Load it as a temporary add-on through `about:debugging` as described above. -->
 
-2. **Update the Organization**
-   * Currently, the extension uses `org:fossasia` to fetch GitHub issues and PRs.
-   * To make it work with your GitHub organization:
-     * Open `scrumHelper.js` (or wherever the GitHub API URLs are defined).
-     * Replace:
 
-       ```js
-       +org:fossasia+
-       ```
-
-       with:
-
-       ```js
-       +org:your-org-name+
-       ```
-
-       **Example**
-       ![Code Snippet ](<Screenshot 2025-05-30 205822.png>)
-
-3. **Build the Extension**
-   * Save your changes.
+2. **Build the Extension**
    * For Chrome: Rebuild or reload the extension in your browser (`chrome://extensions` → Refresh your extension).
-   * For Firefox: Reload the temporary add-on by going to `about:debugging` → "This Firefox" → Click "Reload" next to your extension.
-4. **How to Obtain a GitHub Personal Access Token**
+   <!-- * For Firefox: Reload the temporary add-on by going to `about:debugging` → "This Firefox" → Click "Reload" next to your extension. -->
+   
+3. **How to Obtain a GitHub Personal Access Token**
 
 - To use Scrum Helper with authenticated requests (for higher rate limits and private repositories), you need a GitHub personal access token.
 
@@ -150,9 +127,6 @@ Scrum Helper is not limited to the [FOSSASIA](https://github.com/fossasia) organ
   **Why use a token?**  
   GitHub tokens allow the extension to make authenticated requests, increasing your API rate limit and enabling access to private repositories if you grant those permissions.
 
-  ---
-5. **Get Customized SCRUM Reports**
-    - The reports will now be generated using contributions from your organization.
 
 ## About contributing
 
