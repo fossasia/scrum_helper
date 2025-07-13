@@ -120,6 +120,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function updateContentState(enableToggle) {
+        console.log('[DEBUG] updateContentState called with:', enableToggle);
         const elementsToToggle = [
             'startingDate',
             'endingDate',
@@ -128,12 +129,15 @@ document.addEventListener('DOMContentLoaded', function () {
             'copyReport',
             'refreshCache',
             'showOpenLabel',
+            'showCommits',
             'scrumReport',
             'githubUsername',
             'githubToken',
             'projectName',
+            'platformUsername',
+            'orgInput',
+            'cacheInput',
             'settingsToggle',
-
         ];
 
         const radios = document.querySelectorAll('input[name="timeframe"]');
@@ -192,21 +196,36 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-    chrome.storage.local.get(['enable'], (items) => {
-        const enableToggle = items.enable !== false;
+    chrome.storage.local.get(['enableToggle'], (items) => {
+        console.log('[DEBUG] Storage items received:', items);
+        const enableToggle = items.enableToggle !== false;
+        console.log('[DEBUG] enableToggle calculated:', enableToggle);
+
+        // If enableToggle is undefined (first install), set it to true by default
+        if (typeof items.enableToggle === 'undefined') {
+            console.log('[DEBUG] Setting default enableToggle to true');
+            chrome.storage.local.set({ enableToggle: true });
+        }
+
+        console.log('[DEBUG] Calling updateContentState with:', enableToggle);
         updateContentState(enableToggle);
         if (!enableToggle) {
+            console.log('[DEBUG] Extension disabled, returning early');
             return;
         }
 
+        console.log('[DEBUG] Extension enabled, initializing popup');
         initializePopup();
     })
 
     chrome.storage.onChanged.addListener((changes, namespace) => {
-        if (namespace === 'local' && changes.enable) {
-            updateContentState(changes.enable.newValue);
-            if (changes.enable.newValue) {
+        console.log('[DEBUG] Storage changed:', changes, namespace);
+        if (namespace === 'local' && changes.enableToggle) {
+            console.log('[DEBUG] enableToggle changed to:', changes.enableToggle.newValue);
+            updateContentState(changes.enableToggle.newValue);
+            if (changes.enableToggle.newValue) {
                 // re-initialize if enabled
+                console.log('[DEBUG] Re-initializing popup due to enable toggle change');
                 initializePopup();
             }
         }
@@ -230,7 +249,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         chrome.storage.local.get([
             'projectName', 'orgName', 'userReason', 'showOpenLabel', 'showCommits', 'githubToken', 'cacheInput',
-            'enable', 'lastWeekContribution', 'yesterdayContribution', 'startingDate', 'endingDate', 'selectedTimeframe', 'platform', 'platformUsername'
+            'enableToggle', 'lastWeekContribution', 'yesterdayContribution', 'startingDate', 'endingDate', 'selectedTimeframe', 'platform', 'platformUsername'
         ], function (result) {
             if (result.projectName) projectNameInput.value = result.projectName;
             if (result.orgName) orgInput.value = result.orgName;
@@ -239,7 +258,13 @@ document.addEventListener('DOMContentLoaded', function () {
             if (typeof result.showCommits !== 'undefined') showCommitsCheckbox.checked = result.showCommits;
             if (result.githubToken) githubTokenInput.value = result.githubToken;
             if (result.cacheInput) cacheInput.value = result.cacheInput;
-            if (typeof result.enable !== 'undefined' && enableToggleSwitch) enableToggleSwitch.checked = result.enable;
+            if (enableToggleSwitch) {
+                if (typeof result.enableToggle !== 'undefined') {
+                    enableToggleSwitch.checked = result.enableToggle;
+                } else {
+                    enableToggleSwitch.checked = true; // Default to enabled
+                }
+            }
             if (typeof result.lastWeekContribution !== 'undefined') lastWeekRadio.checked = result.lastWeekContribution;
             if (typeof result.yesterdayContribution !== 'undefined') yesterdayRadio.checked = result.yesterdayContribution;
             if (result.startingDate) startingDateInput.value = result.startingDate;
@@ -401,8 +426,10 @@ document.addEventListener('DOMContentLoaded', function () {
             chrome.storage.local.set({ cacheInput: cacheInput.value });
         });
         if (enableToggleSwitch) {
+            console.log('[DEBUG] Setting up enable toggle switch event listener');
             enableToggleSwitch.addEventListener('change', function () {
-                chrome.storage.local.set({ enable: enableToggleSwitch.checked });
+                console.log('[DEBUG] Enable toggle changed to:', enableToggleSwitch.checked);
+                chrome.storage.local.set({ enableToggle: enableToggleSwitch.checked });
             });
         }
         lastWeekRadio.addEventListener('change', function () {
@@ -473,6 +500,13 @@ document.addEventListener('DOMContentLoaded', function () {
     chrome.storage.local.get(['orgName'], function (result) {
         orgInput.value = result.orgName || '';
     });
+
+    // Debug function to test storage
+    window.testStorage = function () {
+        chrome.storage.local.get(['enableToggle'], function (result) {
+            console.log('[TEST] Current enableToggle value:', result.enableToggle);
+        });
+    };
 
     // Auto-update orgName in storage on input change
     orgInput.addEventListener('input', function () {
