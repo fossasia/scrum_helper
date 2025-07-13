@@ -1,5 +1,5 @@
 let enableToggleElement = document.getElementById('enable');
-let githubUsernameElement = document.getElementById('githubUsername');
+let platformUsernameElement = document.getElementById('platformUsername');
 let githubTokenElement = document.getElementById('githubToken');
 let cacheInputElement = document.getElementById('cacheInput');
 let projectNameElement = document.getElementById('projectName');
@@ -14,7 +14,7 @@ let showCommitsElement = document.getElementById('showCommits');
 function handleBodyOnLoad() {
 	chrome.storage.local.get(
 		[
-			'githubUsername',
+			'platformUsername',
 			'projectName',
 			'enableToggle',
 			'startingDate',
@@ -28,8 +28,8 @@ function handleBodyOnLoad() {
 			'showCommits',
 		],
 		(items) => {
-			if (items.githubUsername) {
-				githubUsernameElement.value = items.githubUsername;
+			if (items.platformUsername) {
+				platformUsernameElement.value = items.platformUsername;
 			}
 			if (items.githubToken) {
 				githubTokenElement.value = items.githubToken;
@@ -212,9 +212,9 @@ function getToday() {
 	return WeekDisplayPadded;
 }
 
-function handleGithubUsernameChange() {
-	let value = githubUsernameElement.value;
-	chrome.storage.local.set({ githubUsername: value });
+function handlePlatformUsernameChange() {
+	let value = platformUsernameElement.value;
+	chrome.storage.local.set({ platformUsername: value });
 }
 function handleGithubTokenChange() {
 	let value = githubTokenElement.value;
@@ -251,7 +251,7 @@ function handleShowCommitsChange() {
 }
 
 enableToggleElement.addEventListener('change', handleEnableChange);
-githubUsernameElement.addEventListener('keyup', handleGithubUsernameChange);
+platformUsernameElement.addEventListener('keyup', handlePlatformUsernameChange);
 if (githubTokenElement) {
 	githubTokenElement.addEventListener('keyup', handleGithubTokenChange);
 }
