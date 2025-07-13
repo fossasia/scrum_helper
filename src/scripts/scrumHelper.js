@@ -118,6 +118,10 @@ function allIncluded(outputTarget = 'email') {
                 if (typeof items.enableToggle !== 'undefined') {
                     enableToggle = items.enableToggle;
                 }
+                // Fix: Assign missing variables from storage
+                showCommits = items.showCommits || false;
+                orgName = items.orgName || '';
+               
                 if (items.lastWeekContribution) {
                     handleLastWeekContributionChange();
                 } else if (items.yesterdayContribution) {
@@ -547,13 +551,13 @@ function allIncluded(outputTarget = 'email') {
 
             if (githubIssuesData && githubIssuesData.items) {
                 log('Fetched githubIssuesData:', githubIssuesData.items.length, 'items');
-                // Collect open PRs
+                // Collect only open PRs for commit fetching
                 const openPRs = githubIssuesData.items.filter(
                     item => item.pull_request && item.state === 'open'
                 );
                 log('Open PRs for commit fetching:', openPRs.map(pr => pr.number));
-                // Fetch commits for open PRs (batch)
-                if (openPRs.length && githubToken) {
+                // Fetch commits for open PRs (batch) if showCommits is enabled
+                if (openPRs.length && githubToken && showCommits) {
                     const commitMap = await fetchCommitsForOpenPRs(openPRs, githubToken, startingDate, endingDate);
                     log('Commit map returned from fetchCommitsForOpenPRs:', commitMap);
                     // Attach commits to PR objects
@@ -1150,9 +1154,13 @@ ${userReason}`;
 
                 if (platform === 'github') {
                     if (!isNewPR) {
+                        // Only show existing PRs if they are open and have commits in the date range
+                        if (item.state !== 'open') {
+                            continue; // Skip closed/merged existing PRs
+                        }
                         const hasCommitsInRange = showCommits && item._allCommits && item._allCommits.length > 0;
                         if (!hasCommitsInRange) {
-                            continue; //skip these prs - created outside daterange with no commits
+                            continue; // Skip existing PRs without commits in date range
                         }
                     }
                     prAction = isNewPR ? 'Made PR' : 'Existing PR';
@@ -1188,10 +1196,8 @@ ${userReason}`;
                     if (merged === true) {
                         li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a> ${pr_merged_button}</li>`;
                     } else {
-
                         // Always show closed label for merged === false or merged === null/undefined
                         li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a> ${pr_closed_button}</li>`;
-
                     }
                 }
                 log('[SCRUM-DEBUG] Added PR/MR to lastWeekArray:', li, item);
