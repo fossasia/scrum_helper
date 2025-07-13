@@ -61,6 +61,16 @@
    - Rich text formatting with clickable links
    - Copy report to clipboard with proper formatting
 
+2.  **Advanced Repository Filtering**
+    *   Select specific repositories to include in your report for a more focused summary.
+    *   Easily search and manage your repository list directly within the popup.
+    *   *Requires a GitHub token to fetch your repositories.*
+
+3.  **Include Commits on Existing PRs**
+    *   Option to include recent commits made to pull requests that were opened *before* the selected date range.
+    *   Provides a more detailed and accurate view of your work on long-running PRs.
+    *   *Requires a GitHub token.*
+
 ### Usage Standalone
 - Click on `GENERATE` button to generate the scrum preview.
 - Edit it in the window.
