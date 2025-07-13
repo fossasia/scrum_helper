@@ -1301,7 +1301,7 @@ document.addEventListener('DOMContentLoaded', function () {
         updatePlatformUI(platform);
     });
 
-});
+
 
 
 // Tooltip bubble 
