@@ -6,6 +6,7 @@ function log(...args) {
     }
 }
 
+
 function logError(...args) {
     if (DEBUG) {
         console.error('[SCRUM-HELPER]:', ...args);
@@ -25,7 +26,6 @@ let gitlabHelper = null;
 
 function allIncluded(outputTarget = 'email') {
     if (scrumGenerationInProgress) {
-
         return;
     }
     scrumGenerationInProgress = true;
@@ -133,7 +133,9 @@ function allIncluded(outputTarget = 'email') {
                     endingDate = items.endingDate;
                 } else {
 
+
                     handleLastWeekContributionChange();
+
 
                     if (outputTarget === 'popup') {
                         chrome.storage.local.set({ lastWeekContribution: true, yesterdayContribution: false });
@@ -142,9 +144,10 @@ function allIncluded(outputTarget = 'email') {
 
 
 
+               
                 if (platform === 'github') {
                     if (platformUsernameLocal) {
-
+                       
                         fetchGithubData();
                     } else {
                         if (outputTarget === 'popup') {
@@ -179,9 +182,11 @@ function allIncluded(outputTarget = 'email') {
                                 try {
                                     const data = await gitlabHelper.fetchGitLabData(platformUsernameLocal, startingDate, endingDate);
 
+
                                     function mapGitLabItem(item, projects, type) {
                                         const project = projects.find(p => p.id === item.project_id);
                                         const repoName = project ? project.name : 'unknown';
+
                                         return {
                                             ...item,
                                             repository_url: `https://gitlab.com/api/v4/projects/${item.project_id}`,
@@ -214,6 +219,7 @@ function allIncluded(outputTarget = 'email') {
                                     if (date < 10) date = '0' + date;
                                     let dateCode = year.toString() + month.toString() + date.toString();
                                     const subject = `[Scrum] ${name} - ${project} - ${dateCode}`;
+
 
                                     await processGithubData(mappedData, true, subject);
                                     scrumGenerationInProgress = false;
@@ -1118,8 +1124,10 @@ ${userReason}`;
     function triggerScrumGeneration() {
         if (issuesDataProcessed && prsReviewDataProcessed) {
 
+
             writeScrumBody();
         } else {
+
 
         }
     }
@@ -1152,13 +1160,12 @@ ${userReason}`;
 
     async function writeGithubIssuesPrs(items) {
 
-
         if (!items) {
-
+           
             return;
         }
         if (!items.length) {
-
+            
             return;
         }
         const headers = { 'Accept': 'application/vnd.github.v3+json' };
@@ -1658,15 +1665,15 @@ async function fetchUserRepositories(username, token, org = '') {
                     updatedAt: repo.pushedAt,
                     stars: repo.stargazerCount
                 }));
-
-
+            
             return repos.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
 
         } catch (err) {
-
+            
             throw err;
         }
     } catch (err) {
+       
 
         throw err;
     }
