@@ -5,12 +5,14 @@ function log(...args) {
         console.log(`[SCRUM-HELPER]:`, ...args);
     }
 }
+
 function logError(...args) {
     if (DEBUG) {
         console.error('[SCRUM-HELPER]:', ...args);
     }
 }
-console.log('Script loaded, adapter exists:', !!window.emailClientAdapter);
+
+
 let refreshButton_Placed = false;
 let enableToggle = true;
 let hasInjectedContent = false;
@@ -23,12 +25,12 @@ let gitlabHelper = null;
 
 function allIncluded(outputTarget = 'email') {
     if (scrumGenerationInProgress) {
-        console.warn('[SCRUM-HELPER]: Scrum generation already in progress, aborting new call.');
+
         return;
     }
     scrumGenerationInProgress = true;
     console.log('allIncluded called with outputTarget:', outputTarget);
-    console.log('Current window context:', window.location.href);
+
     let scrumBody = null;
     let scrumSubject = null;
     let startingDate = '';
@@ -118,7 +120,7 @@ function allIncluded(outputTarget = 'email') {
                 if (typeof items.enableToggle !== 'undefined') {
                     enableToggle = items.enableToggle;
                 }
-                // Fix: Assign missing variables from storage
+
                 showCommits = items.showCommits || false;
                 orgName = items.orgName || '';
 
@@ -131,7 +133,7 @@ function allIncluded(outputTarget = 'email') {
                     endingDate = items.endingDate;
                 } else {
 
-                    handleLastWeekContributionChange(); //when no date is stored i.e on fresh unpack - default to last week.
+                    handleLastWeekContributionChange();
 
                     if (outputTarget === 'popup') {
                         chrome.storage.local.set({ lastWeekContribution: true, yesterdayContribution: false });
@@ -139,10 +141,10 @@ function allIncluded(outputTarget = 'email') {
                 }
 
 
-                // PLATFORM LOGIC FIX
+
                 if (platform === 'github') {
                     if (platformUsernameLocal) {
-                        console.log("[DEBUG] About to fetch GitHub data for:", platformUsernameLocal);
+
                         fetchGithubData();
                     } else {
                         if (outputTarget === 'popup') {
@@ -171,15 +173,15 @@ function allIncluded(outputTarget = 'email') {
                             generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
                             generateBtn.disabled = true;
                         }
-                        // --- FIX START: Always await GitLab data before injecting for email ---
+
                         if (outputTarget === 'email') {
                             (async () => {
                                 try {
                                     const data = await gitlabHelper.fetchGitLabData(platformUsernameLocal, startingDate, endingDate);
-                                    // Map GitLab issues and MRs to the expected structure for both popup and email
+
                                     function mapGitLabItem(item, projects, type) {
                                         const project = projects.find(p => p.id === item.project_id);
-                                        const repoName = project ? project.name : 'unknown'; // Use project.name for display
+                                        const repoName = project ? project.name : 'unknown';
                                         return {
                                             ...item,
                                             repository_url: `https://gitlab.com/api/v4/projects/${item.project_id}`,
@@ -201,7 +203,7 @@ function allIncluded(outputTarget = 'email') {
                                         githubUserData: data.user || {},
                                     };
                                     githubUserData = mappedData.githubUserData;
-                                    // Generate subject using real name if available
+
                                     let name = githubUserData?.name || githubUserData?.username || platformUsernameLocal || platformUsername;
                                     let project = projectName || '<project name>';
                                     let curDate = new Date();
@@ -212,7 +214,7 @@ function allIncluded(outputTarget = 'email') {
                                     if (date < 10) date = '0' + date;
                                     let dateCode = year.toString() + month.toString() + date.toString();
                                     const subject = `[Scrum] ${name} - ${project} - ${dateCode}`;
-                                    // Process data to generate the scrum body (but do not inject yet)
+
                                     await processGithubData(mappedData, true, subject);
                                     scrumGenerationInProgress = false;
                                 } catch (err) {
@@ -231,7 +233,7 @@ function allIncluded(outputTarget = 'email') {
                                 }
                             })();
                         } else {
-                            // Original flow for popup
+
                             gitlabHelper.fetchGitLabData(platformUsernameLocal, startingDate, endingDate)
                                 .then(data => {
                                     function mapGitLabItem(item, projects, type) {
@@ -1115,13 +1117,10 @@ ${userReason}`;
 
     function triggerScrumGeneration() {
         if (issuesDataProcessed && prsReviewDataProcessed) {
-            log('Both data sets processed, generating scrum body.');
+
             writeScrumBody();
         } else {
-            log('Waiting for all data to be processed before generating scrum.', {
-                issues: issuesDataProcessed,
-                reviews: prsReviewDataProcessed,
-            });
+
         }
     }
 
@@ -1152,14 +1151,14 @@ ${userReason}`;
     }
 
     async function writeGithubIssuesPrs(items) {
-        log('writeGithubIssuesPrs called');
+
 
         if (!items) {
-            logError('No items to process for writeGithubIssuesPrs');
+
             return;
         }
         if (!items.length) {
-            logError('No items to process for writeGithubIssuesPrs');
+
             return;
         }
         const headers = { 'Accept': 'application/vnd.github.v3+json' };
@@ -1660,15 +1659,15 @@ async function fetchUserRepositories(username, token, org = '') {
                     stars: repo.stargazerCount
                 }));
 
-            console.log(`Successfully fetched details for ${repos.length} repositories via GraphQL`);
+
             return repos.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
 
         } catch (err) {
-            logError('Failed to fetch repository details via GraphQL:', err);
+
             throw err;
         }
     } catch (err) {
-        logError('Failed to fetch repositories:', err);
+
         throw err;
     }
 }
