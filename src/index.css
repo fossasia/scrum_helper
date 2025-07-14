@@ -689,3 +689,27 @@ hr,
     font-weight: 500;
     text-decoration: underline;
 }
+
+.dark-mode #platformDropdownBtn {
+    background-color: #404040 !important;
+    border-color: #505050 !important;
+    color: #ffffff !important;
+}
+
+.dark-mode #platformDropdownBtn:focus {
+    outline: 2px solid #2563eb;
+}
+
+.dark-mode #platformDropdownList {
+    background-color: #2d2d2d !important;
+    border-color: #404040 !important;
+    color: #ffffff !important;
+}
+
+.dark-mode #platformDropdownList li {
+    color: #ffffff !important;
+}
+
+.dark-mode #platformDropdownList li:hover {
+    background-color: #374151 !important;
+}
