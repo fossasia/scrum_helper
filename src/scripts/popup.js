@@ -484,15 +484,7 @@ document.addEventListener('DOMContentLoaded', function () {
             chrome.storage.local.set({ platformUsername: platformUsername.value });
         });
 
-        // Platform change: clear username, update label/placeholder, clear storage
-        // This is handled by the new dropdown system, so removing this old listener
-        // platformSelect.addEventListener('change', function () {
-        //     const platform = platformSelect.value;
-        //     chrome.storage.local.set({ platform });
-        //     updatePlatformUI(platform);
-        //     platformUsername.value = '';
-        //     chrome.storage.local.set({ platformUsername: '' });
-        // });
+        
     }
 
     function showReportView() {
@@ -500,7 +492,7 @@ document.addEventListener('DOMContentLoaded', function () {
         reportSection.classList.remove('hidden');
         settingsSection.classList.add('hidden');
         settingsToggle.classList.remove('active');
-        console.log('Switched to report view');
+       
     }
 
     function showSettingsView() {
@@ -508,7 +500,7 @@ document.addEventListener('DOMContentLoaded', function () {
         reportSection.classList.add('hidden');
         settingsSection.classList.remove('hidden');
         settingsToggle.classList.add('active');
-        console.log('Switched to settings view');
+       
     }
 
     if (settingsToggle) {
@@ -574,6 +566,19 @@ document.addEventListener('DOMContentLoaded', function () {
         let highlightedIndex = -1;
 
         async function triggerRepoFetchIfEnabled() {
+            // --- PLATFORM CHECK: Only run for GitHub ---
+            let platform = 'github';
+            try {
+                const items = await new Promise(resolve => {
+                    chrome.storage.local.get(['platform'], resolve);
+                });
+                platform = items.platform || 'github';
+            } catch (e) { }
+            if (platform !== 'github') {
+                // Do not run repo fetch for non-GitHub platforms
+                if (repoStatus) repoStatus.textContent = 'Repository filtering is only available for GitHub.';
+                return;
+            }
             if (!useRepoFilter.checked) {
                 return;
             }
@@ -628,7 +633,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 }
             } catch (err) {
-                console.error('Auto refetch failed:', err);
+                
                 if (repoStatus) {
                     repoStatus.textContent = `Error: ${err.message || 'Failed to refetch repos'}`;
                 }
@@ -649,6 +654,20 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         useRepoFilter.addEventListener('change', debounce(async () => {
+            // --- PLATFORM CHECK: Only run for GitHub ---
+            let platform = 'github';
+            try {
+                const items = await new Promise(resolve => {
+                    chrome.storage.local.get(['platform'], resolve);
+                });
+                platform = items.platform || 'github';
+            } catch (e) { }
+            if (platform !== 'github') {
+                repoFilterContainer.classList.add('hidden');
+                useRepoFilter.checked = false;
+                if (repoStatus) repoStatus.textContent = 'Repository filtering is only available for GitHub.';
+                return;
+            }
             const enabled = useRepoFilter.checked;
             const hasToken = githubTokenInput.value.trim() !== '';
             repoFilterContainer.classList.toggle('hidden', !enabled);
@@ -730,7 +749,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         }
                     }
                 } catch (err) {
-                    console.error('Auto load repos failed', err);
+                   
                     if (err.message?.includes('401')) {
                         repoStatus.textContent = 'Github token required for private repos';
                     } else if (err.message?.includes('username')) {
@@ -807,6 +826,18 @@ document.addEventListener('DOMContentLoaded', function () {
         }
         debugRepoFetch();
         async function loadRepos() {
+            // --- PLATFORM CHECK: Only run for GitHub ---
+            let platform = 'github';
+            try {
+                const items = await new Promise(resolve => {
+                    chrome.storage.local.get(['platform'], resolve);
+                });
+                platform = items.platform || 'github';
+            } catch (e) { }
+            if (platform !== 'github') {
+                if (repoStatus) repoStatus.textContent = 'Repository loading is only available for GitHub.';
+                return;
+            }
             console.log('window.fetchUserRepositories exists:', !!window.fetchUserRepositories);
             console.log('Available functions:', Object.keys(window).filter(key => key.includes('fetch')));
 
@@ -832,6 +863,18 @@ document.addEventListener('DOMContentLoaded', function () {
         }
 
         async function performRepoFetch() {
+            // --- PLATFORM CHECK: Only run for GitHub ---
+            let platform = 'github';
+            try {
+                const items = await new Promise(resolve => {
+                    chrome.storage.local.get(['platform'], resolve);
+                });
+                platform = items.platform || 'github';
+            } catch (e) { }
+            if (platform !== 'github') {
+                if (repoStatus) repoStatus.textContent = 'Repository fetching is only available for GitHub.';
+                return;
+            }
             console.log('[POPUP-DEBUG] performRepoFetch called.');
             repoStatus.textContent = 'Loading repositories...';
             repoSearch.classList.add('repository-search-loading');
@@ -1038,10 +1081,7 @@ orgInput.addEventListener('input', function () {
 // Add click event for setOrgBtn to set org
 setOrgBtn.addEventListener('click', function () {
     let org = orgInput.value.trim().toLowerCase();
-    // Do not default to any org, allow empty string
-    // if (!org) {
-    //     org = 'fossasia';
-    // }
+    
     console.log('[Org Check] Checking organization:', org);
     if (!org) {
         // If org is empty, clear orgName in storage but don't auto-generate report
