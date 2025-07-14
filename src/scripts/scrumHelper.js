@@ -121,7 +121,7 @@ function allIncluded(outputTarget = 'email') {
                 // Fix: Assign missing variables from storage
                 showCommits = items.showCommits || false;
                 orgName = items.orgName || '';
-               
+
                 if (items.lastWeekContribution) {
                     handleLastWeekContributionChange();
                 } else if (items.yesterdayContribution) {
@@ -171,50 +171,111 @@ function allIncluded(outputTarget = 'email') {
                             generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
                             generateBtn.disabled = true;
                         }
-                        gitlabHelper.fetchGitLabData(platformUsernameLocal, startingDate, endingDate)
-                            .then(data => {
-                                console.log('[SCRUM-HELPER] GitLab data:', data);
-                                // Map GitLab issues and MRs to the expected structure for both popup and email
-                                function mapGitLabItem(item, projects, type) {
-                                    const project = projects.find(p => p.id === item.project_id);
-                                    const repoName = project ? project.name : 'unknown'; // Use project.name for display
-                                    return {
-                                        ...item,
-                                        repository_url: `https://gitlab.com/api/v4/projects/${item.project_id}`,
-                                        html_url: type === 'issue'
-                                            ? (item.web_url || (project ? `${project.web_url}/-/issues/${item.iid}` : ''))
-                                            : (item.web_url || (project ? `${project.web_url}/-/merge_requests/${item.iid}` : '')),
-                                        number: item.iid,
-                                        title: item.title,
-                                        state: item.state,
-                                        project: repoName,
-                                        pull_request: type === 'mr',
+                        // --- FIX START: Always await GitLab data before injecting for email ---
+                        if (outputTarget === 'email') {
+                            (async () => {
+                                try {
+                                    const data = await gitlabHelper.fetchGitLabData(platformUsernameLocal, startingDate, endingDate);
+                                    // Map GitLab issues and MRs to the expected structure for both popup and email
+                                    function mapGitLabItem(item, projects, type) {
+                                        const project = projects.find(p => p.id === item.project_id);
+                                        const repoName = project ? project.name : 'unknown'; // Use project.name for display
+                                        return {
+                                            ...item,
+                                            repository_url: `https://gitlab.com/api/v4/projects/${item.project_id}`,
+                                            html_url: type === 'issue'
+                                                ? (item.web_url || (project ? `${project.web_url}/-/issues/${item.iid}` : ''))
+                                                : (item.web_url || (project ? `${project.web_url}/-/merge_requests/${item.iid}` : '')),
+                                            number: item.iid,
+                                            title: item.title,
+                                            state: item.state,
+                                            project: repoName,
+                                            pull_request: type === 'mr',
+                                        };
+                                    }
+                                    const mappedIssues = (data.issues || []).map(issue => mapGitLabItem(issue, data.projects, 'issue'));
+                                    const mappedMRs = (data.mergeRequests || data.mrs || []).map(mr => mapGitLabItem(mr, data.projects, 'mr'));
+                                    const mappedData = {
+                                        githubIssuesData: { items: mappedIssues },
+                                        githubPrsReviewData: { items: mappedMRs },
+                                        githubUserData: data.user || {},
                                     };
-                                }
-                                const mappedIssues = (data.issues || []).map(issue => mapGitLabItem(issue, data.projects, 'issue'));
-                                const mappedMRs = (data.mergeRequests || data.mrs || []).map(mr => mapGitLabItem(mr, data.projects, 'mr'));
-                                const mappedData = {
-                                    githubIssuesData: { items: mappedIssues },
-                                    githubPrsReviewData: { items: mappedMRs },
-                                    githubUserData: data.user || {},
-                                };
-                                processGithubData(mappedData);
-                                scrumGenerationInProgress = false;
-                            })
-                            .catch(err => {
-                                console.error('GitLab fetch failed:', err);
-                                if (outputTarget === 'popup') {
-                                    if (generateBtn) {
-                                        generateBtn.innerHTML = '<i class=\"fa fa-refresh\"></i> Generate Report';
-                                        generateBtn.disabled = false;
+                                    githubUserData = mappedData.githubUserData;
+                                    // Generate subject using real name if available
+                                    let name = githubUserData?.name || githubUserData?.username || platformUsernameLocal || platformUsername;
+                                    let project = projectName || '<project name>';
+                                    let curDate = new Date();
+                                    let year = curDate.getFullYear().toString();
+                                    let date = curDate.getDate();
+                                    let month = curDate.getMonth() + 1;
+                                    if (month < 10) month = '0' + month;
+                                    if (date < 10) date = '0' + date;
+                                    let dateCode = year.toString() + month.toString() + date.toString();
+                                    const subject = `[Scrum] ${name} - ${project} - ${dateCode}`;
+                                    // Process data to generate the scrum body (but do not inject yet)
+                                    await processGithubData(mappedData, true, subject);
+                                    scrumGenerationInProgress = false;
+                                } catch (err) {
+                                    console.error('GitLab fetch failed:', err);
+                                    if (outputTarget === 'popup') {
+                                        if (generateBtn) {
+                                            generateBtn.innerHTML = '<i class=\"fa fa-refresh\"></i> Generate Report';
+                                            generateBtn.disabled = false;
+                                        }
+                                        const scrumReport = document.getElementById('scrumReport');
+                                        if (scrumReport) {
+                                            scrumReport.innerHTML = `<div class=\"error-message\" style=\"color: #dc2626; font-weight: bold; padding: 10px;\">${err.message || 'An error occurred while fetching GitLab data.'}</div>`;
+                                        }
                                     }
-                                    const scrumReport = document.getElementById('scrumReport');
-                                    if (scrumReport) {
-                                        scrumReport.innerHTML = `<div class=\"error-message\" style=\"color: #dc2626; font-weight: bold; padding: 10px;\">${err.message || 'An error occurred while fetching GitLab data.'}</div>`;
-                                    }
+                                    scrumGenerationInProgress = false;
                                 }
-                                scrumGenerationInProgress = false;
-                            });
+                            })();
+                        } else {
+                            // Original flow for popup
+                            gitlabHelper.fetchGitLabData(platformUsernameLocal, startingDate, endingDate)
+                                .then(data => {
+                                    function mapGitLabItem(item, projects, type) {
+                                        const project = projects.find(p => p.id === item.project_id);
+                                        const repoName = project ? project.name : 'unknown';
+                                        return {
+                                            ...item,
+                                            repository_url: `https://gitlab.com/api/v4/projects/${item.project_id}`,
+                                            html_url: type === 'issue'
+                                                ? (item.web_url || (project ? `${project.web_url}/-/issues/${item.iid}` : ''))
+                                                : (item.web_url || (project ? `${project.web_url}/-/merge_requests/${item.iid}` : '')),
+                                            number: item.iid,
+                                            title: item.title,
+                                            state: item.state,
+                                            project: repoName,
+                                            pull_request: type === 'mr',
+                                        };
+                                    }
+                                    const mappedIssues = (data.issues || []).map(issue => mapGitLabItem(issue, data.projects, 'issue'));
+                                    const mappedMRs = (data.mergeRequests || data.mrs || []).map(mr => mapGitLabItem(mr, data.projects, 'mr'));
+                                    const mappedData = {
+                                        githubIssuesData: { items: mappedIssues },
+                                        githubPrsReviewData: { items: mappedMRs },
+                                        githubUserData: data.user || {},
+                                    };
+                                    processGithubData(mappedData);
+                                    scrumGenerationInProgress = false;
+                                })
+                                .catch(err => {
+                                    console.error('GitLab fetch failed:', err);
+                                    if (outputTarget === 'popup') {
+                                        if (generateBtn) {
+                                            generateBtn.innerHTML = '<i class=\"fa fa-refresh\"></i> Generate Report';
+                                            generateBtn.disabled = false;
+                                        }
+                                        const scrumReport = document.getElementById('scrumReport');
+                                        if (scrumReport) {
+                                            scrumReport.innerHTML = `<div class=\"error-message\" style=\"color: #dc2626; font-weight: bold; padding: 10px;\">${err.message || 'An error occurred while fetching GitLab data.'}</div>`;
+                                        }
+                                    }
+                                    scrumGenerationInProgress = false;
+                                });
+                        }
+                        // --- FIX END ---
                     } else {
                         if (outputTarget === 'popup') {
                             const scrumReport = document.getElementById('scrumReport');
@@ -766,8 +827,7 @@ function allIncluded(outputTarget = 'email') {
         }
     }
 
-    async function processGithubData(data) {
-
+    async function processGithubData(data, injectEmailTogether = false, subjectForEmail = null) {
         githubIssuesData = data.githubIssuesData;
         githubPrsReviewData = data.githubPrsReviewData;
         githubUserData = data.githubUserData;
@@ -777,33 +837,59 @@ function allIncluded(outputTarget = 'email') {
             user: githubUserData?.login,
             filtered: useRepoFilter
         });
-
         lastWeekArray = [];
         nextWeekArray = [];
         reviewedPrsArray = [];
         githubPrsReviewDataProcessed = {};
         issuesDataProcessed = false;
         prsReviewDataProcessed = false;
-
-        // Update subject
-
         if (!githubCache.subject && scrumSubject) {
             scrumSubjectLoaded();
         }
         log('[SCRUM-DEBUG] Processing issues for main activity:', githubIssuesData?.items);
-
         if (platform === 'github') {
             await writeGithubIssuesPrs(githubIssuesData?.items || []);
         } else if (platform === 'gitlab') {
             await writeGithubIssuesPrs(githubIssuesData?.items || []);
             await writeGithubIssuesPrs(githubPrsReviewData?.items || []);
         }
-
-
-
         await writeGithubPrsReviews();
         log('[DEBUG] Both data processing functions completed, generating scrum body');
-        writeScrumBody();
+        if (injectEmailTogether && subjectForEmail) {
+            // Synchronized subject and body injection for GitLab email
+            let lastWeekUl = '<ul>';
+            for (let i = 0; i < lastWeekArray.length; i++) lastWeekUl += lastWeekArray[i];
+            for (let i = 0; i < reviewedPrsArray.length; i++) lastWeekUl += reviewedPrsArray[i];
+            lastWeekUl += '</ul>';
+            let nextWeekUl = '<ul>';
+            for (let i = 0; i < nextWeekArray.length; i++) nextWeekUl += nextWeekArray[i];
+            nextWeekUl += '</ul>';
+            let weekOrDay = lastWeekContribution ? 'last week' : (yesterdayContribution ? 'yesterday' : 'the period');
+            let weekOrDay2 = lastWeekContribution ? 'this week' : 'today';
+            let content;
+            if (lastWeekContribution == true || yesterdayContribution == true) {
+                content = `<b>1. What did I do ${weekOrDay}?</b><br>${lastWeekUl}<br><b>2. What do I plan to do ${weekOrDay2}?</b><br>${nextWeekUl}<br><b>3. What is blocking me from making progress?</b><br>${userReason}`;
+            } else {
+                content = `<b>1. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?</b><br>${lastWeekUl}<br><b>2. What do I plan to do ${weekOrDay2}?</b><br>${nextWeekUl}<br><b>3. What is blocking me from making progress?</b><br>${userReason}`;
+            }
+            // Wait for both subject and body to be available, then inject both
+            let injected = false;
+            let interval = setInterval(() => {
+                const elements = window.emailClientAdapter?.getEditorElements();
+                if (elements && elements.subject && elements.body && !injected) {
+                    elements.subject.value = subjectForEmail;
+                    elements.subject.dispatchEvent(new Event('input', { bubbles: true }));
+                    window.emailClientAdapter.injectContent(elements.body, content, elements.eventTypes.contentChange);
+                    injected = true;
+                    clearInterval(interval);
+                }
+            }, 200);
+            setTimeout(() => {
+                if (!injected) clearInterval(interval);
+            }, 30000);
+        } else {
+            writeScrumBody();
+        }
     }
 
     function formatDate(dateString) {
