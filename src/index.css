@@ -700,10 +700,16 @@ hr,
     outline: 2px solid #2563eb;
 }
 
+#platformDropdownList {
+    min-width: unset;
+    width: unset !important;
+    z-index: 1000 !important;
+}
+
 .dark-mode #platformDropdownList {
-    background-color: #2d2d2d !important;
-    border-color: #404040 !important;
-    color: #ffffff !important;
+    min-width: unset;
+    width: unset !important;
+    z-index: 1000 !important;
 }
 
 .dark-mode #platformDropdownList li {
