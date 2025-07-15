@@ -714,9 +714,16 @@ function allIncluded(outputTarget = 'email') {
     async function processGithubData(data) {
         log('Processing Github data');
 
-        githubIssuesData = data.githubIssuesData;
-        githubPrsReviewData = data.githubPrsReviewData;
-        githubUserData = data.githubUserData;
+        let filteredData = data;
+        // Always apply repo filter if it's enabled and repos are selected.
+        if (useRepoFilter && selectedRepos && selectedRepos.length > 0) {
+            log('[SCRUM-HELPER]: Filtering data by selected repos:', selectedRepos);
+            filteredData = filterDataByRepos(data, selectedRepos);
+        }
+
+        githubIssuesData = filteredData.githubIssuesData;
+        githubPrsReviewData = filteredData.githubPrsReviewData;
+        githubUserData = filteredData.githubUserData;
 
         log('GitHub data set:', {
             issues: githubIssuesData?.items?.length || 0,
@@ -724,6 +731,8 @@ function allIncluded(outputTarget = 'email') {
             user: githubUserData?.login,
             filtered: useRepoFilter
         });
+
+        
 
         lastWeekArray = [];
         nextWeekArray = [];
