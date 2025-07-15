@@ -8,6 +8,9 @@ let yesterdayContributionElement = document.getElementById('yesterdayContributio
 let startingDateElement = document.getElementById('startingDate');
 let endingDateElement = document.getElementById('endingDate');
 let showOpenLabelElement = document.getElementById('showOpenLabel');
+
+let userReasonElement = null; 
+
 let showCommitsElement = document.getElementById('showCommits');
 
 function handleBodyOnLoad() {
@@ -259,4 +262,5 @@ endingDateElement.addEventListener('change', handleEndingDateChange);
 lastWeekContributionElement.addEventListener('change', handleLastWeekContributionChange);
 yesterdayContributionElement.addEventListener('change', handleYesterdayContributionChange);
 showOpenLabelElement.addEventListener('change', handleOpenLabelChange);
+
 document.addEventListener('DOMContentLoaded', handleBodyOnLoad);
