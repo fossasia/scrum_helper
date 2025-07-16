@@ -1,5 +1,5 @@
 {
-    "appName": { "message": "Assistant Scrum" },
+    "appName": { "message": "Scrum Helper" },
     "appDescription": { "message": "Rapportez votre progression de développement en récupérant automatiquement votre activité Git pour une période sélectionnée" },
     "disableLabel": { "message": "Désactiver" },
     "enableLabel": { "message": "Activer" },

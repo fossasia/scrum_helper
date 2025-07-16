@@ -1,5 +1,5 @@
 {
-    "appName": { "message": "Trợ lý Scrum" },
+    "appName": { "message": "Scrum Helper" },
     "appDescription": { "message": "Báo cáo tiến độ phát triển của bạn bằng cách tự động lấy hoạt động Git của bạn trong một khoảng thời gian đã chọn" },
     "disableLabel": { "message": "Tắt" },
     "enableLabel": { "message": "Bật" },
