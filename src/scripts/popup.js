@@ -484,7 +484,7 @@ document.addEventListener('DOMContentLoaded', function () {
             chrome.storage.local.set({ platformUsername: platformUsername.value });
         });
 
-        
+
     }
 
     function showReportView() {
@@ -492,7 +492,7 @@ document.addEventListener('DOMContentLoaded', function () {
         reportSection.classList.remove('hidden');
         settingsSection.classList.add('hidden');
         settingsToggle.classList.remove('active');
-       
+
     }
 
     function showSettingsView() {
@@ -500,7 +500,7 @@ document.addEventListener('DOMContentLoaded', function () {
         reportSection.classList.add('hidden');
         settingsSection.classList.remove('hidden');
         settingsToggle.classList.add('active');
-       
+
     }
 
     if (settingsToggle) {
@@ -633,7 +633,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 }
             } catch (err) {
-                
+
                 if (repoStatus) {
                     repoStatus.textContent = `Error: ${err.message || 'Failed to refetch repos'}`;
                 }
@@ -749,7 +749,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         }
                     }
                 } catch (err) {
-                   
+
                     if (err.message?.includes('401')) {
                         repoStatus.textContent = 'Github token required for private repos';
                     } else if (err.message?.includes('username')) {
@@ -1081,7 +1081,7 @@ orgInput.addEventListener('input', function () {
 // Add click event for setOrgBtn to set org
 setOrgBtn.addEventListener('click', function () {
     let org = orgInput.value.trim().toLowerCase();
-    
+
     console.log('[Org Check] Checking organization:', org);
     if (!org) {
         // If org is empty, clear orgName in storage but don't auto-generate report
@@ -1231,6 +1231,24 @@ chrome.storage.local.get(['platform'], function (result) {
 
 // Update UI for platform
 function updatePlatformUI(platform) {
+    // Hide GitHub-specific settings for GitLab using the 'hidden' class
+    const orgSection = document.querySelector('.orgSection');
+    if (orgSection) {
+        if (platform === 'gitlab') {
+            orgSection.classList.add('hidden');
+        } else {
+            orgSection.classList.remove('hidden');
+        }
+    }
+    // Hide all githubOnlySection elements for GitLab
+    const githubOnlySections = document.querySelectorAll('.githubOnlySection');
+    githubOnlySections.forEach(el => {
+        if (platform === 'gitlab') {
+            el.classList.add('hidden');
+        } else {
+            el.classList.remove('hidden');
+        }
+    });
     // (Optional) You can update the label/placeholder here if you want
     // Do NOT clear the username field here, only do it on actual platform change
 }
