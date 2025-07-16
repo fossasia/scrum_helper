@@ -1479,6 +1479,7 @@ document.querySelectorAll('input[name="timeframe"]').forEach(radio => {
 });
 
 // refresh cache button
+
 document.getElementById('refreshCache').addEventListener('click', async function () {
     const button = this;
     const originalText = button.innerHTML;
@@ -1488,9 +1489,19 @@ document.getElementById('refreshCache').addEventListener('click', async function
     button.disabled = true;
 
     try {
-        // Clear both caches
+        // Determine platform
+        let platform = 'github';
+        try {
+            const items = await new Promise(resolve => {
+                chrome.storage.local.get(['platform'], resolve);
+            });
+            platform = items.platform || 'github';
+        } catch (e) { }
+
+        // Clear all caches
+        const keysToRemove = ['githubCache', 'repoCache', 'gitlabCache'];
         await new Promise(resolve => {
-            chrome.storage.local.remove(['githubCache', 'repoCache'], resolve);
+            chrome.storage.local.remove(keysToRemove, resolve);
         });
 
         // Clear the scrum report
@@ -1511,7 +1522,7 @@ document.getElementById('refreshCache').addEventListener('click', async function
         button.innerHTML = '<i class="fa fa-check"></i><span>Cache Cleared!</span>';
         button.classList.remove('loading');
 
-        setTimeout(() => triggerRepoFetchIfEnabled(), 500);
+        // Do NOT trigger report generation automatically
 
         setTimeout(() => {
             button.innerHTML = originalText;

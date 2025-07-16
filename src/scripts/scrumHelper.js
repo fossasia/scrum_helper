@@ -25,6 +25,10 @@ let platformUsername = '';
 let gitlabHelper = null;
 
 function allIncluded(outputTarget = 'email') {
+    // Always re-instantiate gitlabHelper for gitlab platform to ensure fresh cache after refresh
+    if (platform === 'gitlab' || (typeof platform === 'undefined' && window.GitLabHelper)) {
+        gitlabHelper = new window.GitLabHelper();
+    }
     if (scrumGenerationInProgress) {
         return;
     }
@@ -1473,6 +1477,26 @@ async function forceGithubDataRefresh() {
     return { success: true };
 }
 
+async function forceGitlabDataRefresh() {
+    // Clear in-memory cache if gitlabHelper is loaded
+    if (window.GitLabHelper && gitlabHelper instanceof window.GitLabHelper) {
+        gitlabHelper.cache.data = null;
+        gitlabHelper.cache.cacheKey = null;
+        gitlabHelper.cache.timestamp = 0;
+        gitlabHelper.cache.fetching = false;
+        gitlabHelper.cache.queue = [];
+    }
+    await new Promise(resolve => {
+        chrome.storage.local.remove('gitlabCache', resolve);
+    });
+    hasInjectedContent = false;
+    // Re-instantiate gitlabHelper to ensure a fresh instance for next API call
+    if (window.GitLabHelper) {
+        gitlabHelper = new window.GitLabHelper();
+    }
+    return { success: true };
+}
+
 
 if (window.location.protocol.startsWith('http')) {
     allIncluded('email');
@@ -1487,11 +1511,22 @@ window.generateScrumReport = function () {
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === 'forceRefresh') {
-        forceGithubDataRefresh()
-            .then(result => sendResponse(result)).catch(err => {
-                console.error('Force refresh failed:', err);
-                sendResponse({ success: false, error: err.message });
-            });
+        chrome.storage.local.get(['platform'], async (result) => {
+            const platform = result.platform || 'github';
+            if (platform === 'gitlab') {
+                forceGitlabDataRefresh()
+                    .then(result => sendResponse(result)).catch(err => {
+                        console.error('Force refresh failed:', err);
+                        sendResponse({ success: false, error: err.message });
+                    });
+            } else {
+                forceGithubDataRefresh()
+                    .then(result => sendResponse(result)).catch(err => {
+                        console.error('Force refresh failed:', err);
+                        sendResponse({ success: false, error: err.message });
+                    });
+            }
+        });
         return true;
     }
 });
