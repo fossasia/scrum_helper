@@ -1,5 +1,5 @@
 {
-    "appName": { "message": "Scrum 助手" },
+    "appName": { "message": "Scrum Helper" },
     "appDescription": { "message": "通过自动获取选定时间段内的 Git 活动来报告您的开发进度" },
     "disableLabel": { "message": "禁用" },
     "enableLabel": { "message": "启用" },
