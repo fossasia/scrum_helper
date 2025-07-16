@@ -135,6 +135,86 @@
         "message": "Report Issue",
         "description": "Text for the button to report an issue on GitHub."
     },
+    "repoFilterLabel": {
+        "message": "Filter by repositories",
+        "description": "Label for the repository filter section."
+    },
+    "enableFilteringLabel": {
+        "message": "Enable filtering",
+        "description": "Label for the checkbox to enable repository filtering."
+    },
+    "tokenRequiredWarning": {
+        "message": "A GitHub token is required for repository filtering. Please add one in the settings.",
+        "description": "Warning message shown when repo filtering is enabled without a token."
+    },
+    "repoSearchPlaceholder": {
+        "message": "Search for a repository to add...",
+        "description": "Placeholder for the repository search input."
+    },
+    "repoPlaceholder": {
+        "message": "No repositories selected (all will be included)",
+        "description": "Placeholder text when no repositories are selected for filtering."
+    },
+    "repoCountNone": {
+        "message": "0 repositories selected",
+        "description": "Text showing the count of selected repositories when it's zero."
+    },
+    "repoCount": {
+        "message": "$1 repositories selected",
+        "description": "Text showing the count of selected repositories. $1 is a placeholder for the number."
+    },
+    "repoLoading": {
+        "message": "Loading repositories...",
+        "description": "Status message when repositories are being loaded."
+    },
+    "repoLoaded": {
+        "message": "Loaded $1 repositories.",
+        "description": "Status message after repositories have been successfully loaded. $1 is a placeholder for the number."
+    },
+    "repoNotFound": {
+        "message": "No repositories found",
+        "description": "Message shown in the dropdown when a search yields no results."
+    },
+    "repoRefetching": {
+        "message": "Refetching repositories...",
+        "description": "Status message when repositories are being refetched."
+    },
+    "repoLoadFailed": {
+        "message": "Failed to load repositories.",
+        "description": "Error message when repository loading fails."
+    },
+    "repoTokenPrivate": {
+        "message": "Token is invalid or does not have rights for private repos.",
+        "description": "Error message when the token is invalid or lacks permissions."
+    },
+    "repoRefetchFailed": {
+        "message": "Failed to refetch repositories.",
+        "description": "Error message when refetching repositories fails."
+    },
+    "orgSetMessage": {
+        "message": "Organization set successfully.",
+        "description": "Success toast message when an organization is set."
+    },
+    "orgClearedMessage": {
+        "message": "Organization cleared. Click 'Generate Report' to fetch all activities.",
+        "description": "Message shown when the organization is cleared."
+    },
+    "orgNotFoundMessage": {
+        "message": "Organization not found on GitHub.",
+        "description": "Error toast message when an organization is not found."
+    },
+    "orgValidationErrorMessage": {
+        "message": "Error validating organization.",
+        "description": "Error toast message for general organization validation errors."
+    },
+    "refreshingButton": {
+        "message": "Refreshing...",
+        "description": "Text on the refresh button while it's in a loading state."
+    },
+    "cacheClearFailed": {
+        "message": "Cache clear failed.",
+        "description": "Error message when clearing the cache fails."
+    },
     "madeWithLoveBy": {
         "message": "Made with ❤️ by",
         "description": "Footer credit text."

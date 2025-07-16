@@ -49,7 +49,47 @@ function getYesterday() {
     return yesterdayPadded;
 }
 
+/**
+ * Applies internationalization (i18n) to the popup UI.
+ * It finds all elements with `data-i18n-*` attributes and replaces
+ * their content or attributes with messages from the extension's locale files.
+ */
+function applyI18n() {
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        const message = chrome.i18n.getMessage(key);
+        if (message) {
+            // Use innerHTML to support simple formatting like <b> in tooltips
+            if (el.classList.contains('tooltip-bubble') || el.classList.contains('cache-info')) {
+                el.innerHTML = message;
+            } else {
+                el.textContent = message;
+            }
+        }
+    });
+
+    document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+        const key = el.getAttribute('data-i18n-placeholder');
+        const message = chrome.i18n.getMessage(key);
+        if (message) {
+            el.placeholder = message;
+        }
+    });
+
+    document.querySelectorAll('[data-i18n-title]').forEach(el => {
+        const key = el.getAttribute('data-i18n-title');
+        const message = chrome.i18n.getMessage(key);
+        if (message) {
+            el.title = message;
+        }
+    });
+}
+
+
 document.addEventListener('DOMContentLoaded', function () {
+    // Apply translations as soon as the DOM is ready
+    applyI18n();
+
     // Dark mode setup
     const darkModeToggle = document.querySelector('img[alt="Night Mode"]');
     const settingsIcon = document.getElementById('settingsIcon');
@@ -214,9 +254,9 @@ document.addEventListener('DOMContentLoaded', function () {
         if (scrumReport) {
             scrumReport.contentEditable = enableToggle;
             if (!enableToggle) {
-                scrumReport.innerHTML = '<p style="text-align: center; color: #999; padding: 20px;">Extension is disabled. Enable it from the options to generate scrum reports.</p>';
+                scrumReport.innerHTML = `<p style="text-align: center; color: #999; padding: 20px;">${chrome.i18n.getMessage('extensionDisabledMessage')}</p>`;
             } else {
-                const disabledMessage = '<p style="text-align: center; color: #999; padding: 20px;">Extension is disabled. Enable it from the options to generate scrum reports.</p>';
+                const disabledMessage = `<p style="text-align: center; color: #999; padding: 20px;">${chrome.i18n.getMessage('extensionDisabledMessage')}</p>`;
                 if (scrumReport.innerHTML === disabledMessage) {
                     scrumReport.innerHTML = '';
                 }
@@ -265,7 +305,7 @@ document.addEventListener('DOMContentLoaded', function () {
             let org = orgInput.value.trim().toLowerCase();
             // Allow empty org to fetch all GitHub activities
             chrome.storage.local.set({ orgName: org }, () => {
-                generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
+                generateBtn.innerHTML = `<i class="fa fa-spinner fa-spin"></i> ${chrome.i18n.getMessage('generatingButton')}`;
                 generateBtn.disabled = true;
                 window.generateScrumReport();
             });
@@ -287,9 +327,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
             try {
                 document.execCommand('copy');
-                this.innerHTML = '<i class="fa fa-check"></i> Copied!';
+                this.innerHTML = `<i class="fa fa-check"></i> ${chrome.i18n.getMessage('copiedButton')}`;
                 setTimeout(() => {
-                    this.innerHTML = '<i class="fa fa-copy"></i> Copy Report';
+                    this.innerHTML = `<i class="fa fa-copy"></i> ${chrome.i18n.getMessage('copyReportButton')}`;
                 }, 2000);
             } catch (err) {
                 console.error('Failed to copy: ', err);
@@ -455,7 +495,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             if (repoStatus) {
-                repoStatus.textContent = 'Refetching repositories...';
+                repoStatus.textContent = chrome.i18n.getMessage('repoRefetching');
             }
 
             try {
@@ -468,7 +508,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                 if (!items.githubUsername) {
                     if (repoStatus) {
-                        repoStatus.textContent = 'GitHub username required';
+                        repoStatus.textContent = chrome.i18n.getMessage('githubUsernamePlaceholder');
                     }
                     return;
                 }
@@ -483,7 +523,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     availableRepos = repos;
 
                     if (repoStatus) {
-                        repoStatus.textContent = `${repos.length} repositories loaded`;
+                        repoStatus.textContent = chrome.i18n.getMessage('repoLoaded', [repos.length]);
                     }
 
                     const repoCacheKey = `repos-${items.githubUsername}-${items.orgName || ''}`;
@@ -506,7 +546,7 @@ document.addEventListener('DOMContentLoaded', function () {
             } catch (err) {
                 console.error('Auto refetch failed:', err);
                 if (repoStatus) {
-                    repoStatus.textContent = `Error: ${err.message || 'Failed to refetch repos'}`;
+                    repoStatus.textContent = `${chrome.i18n.getMessage('errorLabel')}: ${err.message || chrome.i18n.getMessage('repoRefetchFailed')}`;
                 }
             }
         }
@@ -563,7 +603,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     });
 
                     if (!items.githubUsername) {
-                        repoStatus.textContent = 'Github Username required';
+                        repoStatus.textContent = chrome.i18n.getMessage('githubUsernamePlaceholder');
                         return;
                     }
 
@@ -578,7 +618,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                         console.log('Using cached repositories');
                         availableRepos = cacheData.repoCache.data;
-                        repoStatus.textContent = `${availableRepos.length} repositories loaded`;
+                        repoStatus.textContent = chrome.i18n.getMessage('repoLoaded', [availableRepos.length]);
 
                         if (document.activeElement === repoSearch) {
                             filterAndDisplayRepos(repoSearch.value.toLowerCase());
@@ -593,7 +633,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             items.orgName || '',
                         );
                         availableRepos = repos;
-                        repoStatus.textContent = `${repos.length} repositories loaded`;
+                        repoStatus.textContent = chrome.i18n.getMessage('repoLoaded', [repos.length]);
 
                         chrome.storage.local.set({
                             repoCache: {
@@ -610,11 +650,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 } catch (err) {
                     console.error('Auto load repos failed', err);
                     if (err.message?.includes('401')) {
-                        repoStatus.textContent = 'Github token required for private repos';
+                        repoStatus.textContent = chrome.i18n.getMessage('repoTokenPrivate');
                     } else if (err.message?.includes('username')) {
-                        repoStatus.textContent = 'Please enter your Github username first';
+                        repoStatus.textContent = chrome.i18n.getMessage('githubUsernamePlaceholder');
                     } else {
-                        repoStatus.textContent = `Error: ${err.message || 'Failed to load repos'}`;
+                        repoStatus.textContent = `${chrome.i18n.getMessage('errorLabel')}: ${err.message || chrome.i18n.getMessage('repoLoadFailed')}`;
                     }
                 }
             } else {
@@ -711,7 +751,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         async function performRepoFetch() {
             console.log('[POPUP-DEBUG] performRepoFetch called.');
-            repoStatus.textContent = 'Loading repositories...';
+            repoStatus.textContent = chrome.i18n.getMessage('repoLoading');
             repoSearch.classList.add('repository-search-loading');
 
             try {
@@ -740,7 +780,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     console.log('[POPUP-DEBUG] Using cached repositories in manual fetch');
                     availableRepos = cacheData.repoCache.data;
-                    repoStatus.textContent = `${availableRepos.length} repositories loaded`;
+                    repoStatus.textContent = chrome.i18n.getMessage('repoLoaded', [availableRepos.length]);
 
                     if (document.activeElement === repoSearch) {
                         filterAndDisplayRepos(repoSearch.value.toLowerCase());
@@ -753,7 +793,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     storageItems.githubToken,
                     storageItems.orgName || ''
                 );
-                repoStatus.textContent = `${availableRepos.length} repositories loaded`;
+                repoStatus.textContent = chrome.i18n.getMessage('repoLoaded', [availableRepos.length]);
                 console.log(`[POPUP-DEBUG] Fetched and loaded ${availableRepos.length} repos.`);
 
                 chrome.storage.local.set({
@@ -771,11 +811,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 console.error(`Failed to load repos:`, err);
 
                 if (err.message && err.message.includes('401')) {
-                    repoStatus.textContent = 'GitHub token required for private repos';
+                    repoStatus.textContent = chrome.i18n.getMessage('repoTokenPrivate');
                 } else if (err.message && err.message.includes('username')) {
-                    repoStatus.textContent = 'Please enter your GitHub username first';
+                    repoStatus.textContent = chrome.i18n.getMessage('githubUsernamePlaceholder');
                 } else {
-                    repoStatus.textContent = `Error: ${err.message || 'Failed to load repositories'}`;
+                    repoStatus.textContent = `${chrome.i18n.getMessage('errorLabel')}: ${err.message || chrome.i18n.getMessage('repoLoadFailed')}`;
                 }
             } finally {
                 repoSearch.classList.remove('repository-search-loading');
@@ -784,7 +824,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         function filterAndDisplayRepos(query) {
             if (availableRepos.length === 0) {
-                repoDropdown.innerHTML = '<div class="p-3 text-center text-gray-500 text-sm">Loading repositories automatically...</div>';
+                repoDropdown.innerHTML = `<div class="p-3 text-center text-gray-500 text-sm">${chrome.i18n.getMessage('repoLoading')}</div>`;
                 showDropdown();
                 return;
             }
@@ -794,7 +834,7 @@ document.addEventListener('DOMContentLoaded', function () {
             );
 
             if (filtered.length === 0) {
-                repoDropdown.innerHTML = '<div class="p-3 text-center text-gray-500 text-sm" style="padding-left: 10px; ">No repositories found</div>';
+                repoDropdown.innerHTML = `<div class="p-3 text-center text-gray-500 text-sm" style="padding-left: 10px; ">${chrome.i18n.getMessage('repoNotFound')}</div>`;
             } else {
                 repoDropdown.innerHTML = filtered.slice(0, 10).map(repo => `
                     <div class="repository-dropdown-item" data-repo-name="${repo.name}">
@@ -845,8 +885,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         function updateRepoDisplay() {
             if (selectedRepos.length === 0) {
-                repoTags.innerHTML = '<span class="text-xs text-gray-500 select-none" id="repoPlaceholder">No repositories selected (all will be included)</span>';
-                repoCount.textContent = ' 0 repositories selected';
+                repoTags.innerHTML = `<span class="text-xs text-gray-500 select-none" id="repoPlaceholder">${chrome.i18n.getMessage('repoPlaceholder')}</span>`;
+                repoCount.textContent = chrome.i18n.getMessage('repoCountNone');
             } else {
                 repoTags.innerHTML = selectedRepos.map(repo => `
                     <span class="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full" style="margin:5px;">
@@ -863,7 +903,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         removeRepo(repoName);
                     });
                 });
-                repoCount.textContent = `${selectedRepos.length} repository${selectedRepos.length === 1 ? '' : 's'} selected`;
+                repoCount.textContent = chrome.i18n.getMessage('repoCount', [selectedRepos.length]);
             }
         }
 
@@ -926,7 +966,7 @@ setOrgBtn.addEventListener('click', function () {
             console.log('[Org Check] Organization cleared from storage');
             const scrumReport = document.getElementById('scrumReport');
             if (scrumReport) {
-                scrumReport.innerHTML = `<p style="text-align: center; color: #666; padding: 20px;">Organization cleared. Click Generate button to fetch all your GitHub activities.</p>`;
+                scrumReport.innerHTML = `<p style="text-align: center; color: #666; padding: 20px;">${chrome.i18n.getMessage('orgClearedMessage')}</p>`;
             }
             chrome.storage.local.remove(['githubCache', 'repoCache']);
             triggerRepoFetchIfEnabled();
@@ -960,7 +1000,7 @@ setOrgBtn.addEventListener('click', function () {
                 toastDiv.style.left = '50%';
                 toastDiv.style.transform = 'translateX(-50%)';
                 toastDiv.style.zIndex = '9999';
-                toastDiv.innerText = 'Organization not found on GitHub.';
+                toastDiv.innerText = chrome.i18n.getMessage('orgNotFoundMessage');
                 document.body.appendChild(toastDiv);
                 setTimeout(() => {
                     if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
@@ -971,10 +1011,10 @@ setOrgBtn.addEventListener('click', function () {
             if (oldToast) oldToast.parentNode.removeChild(oldToast);
 
             chrome.storage.local.set({ orgName: org }, function () {
-                // Always clear the scrum report and show org changed message
+                // always clear the scrum report and show org changed message
                 const scrumReport = document.getElementById('scrumReport');
                 if (scrumReport) {
-                    scrumReport.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Organization changed. Click Generate button to fetch the GitHub activities.</p>';
+                    scrumReport.innerHTML = `<p style="text-align: center; color: #666; padding: 20px;">${chrome.i18n.getMessage('orgChangedMessage')}</p>`;
                 }
                 // Clear the githubCache for previous org
                 chrome.storage.local.remove('githubCache');
@@ -994,7 +1034,7 @@ setOrgBtn.addEventListener('click', function () {
                 toastDiv.style.left = '50%';
                 toastDiv.style.transform = 'translateX(-50%)';
                 toastDiv.style.zIndex = '9999';
-                toastDiv.innerText = 'Organization is set.';
+                toastDiv.innerText = chrome.i18n.getMessage('orgSetMessage');
                 document.body.appendChild(toastDiv);
                 setTimeout(() => {
                     if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
@@ -1020,7 +1060,7 @@ setOrgBtn.addEventListener('click', function () {
             toastDiv.style.left = '50%';
             toastDiv.style.transform = 'translateX(-50%)';
             toastDiv.style.zIndex = '9999';
-            toastDiv.innerText = 'Error validating organization.';
+            toastDiv.innerText = chrome.i18n.getMessage('orgValidationErrorMessage');
             document.body.appendChild(toastDiv);
             setTimeout(() => {
                 if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
@@ -1132,7 +1172,7 @@ document.getElementById('refreshCache').addEventListener('click', async function
     const originalText = button.innerHTML;
 
     button.classList.add('loading');
-    button.innerHTML = '<i class="fa fa-refresh fa-spin"></i><span>Refreshing...</span>';
+    button.innerHTML = `<i class="fa fa-refresh fa-spin"></i><span>${chrome.i18n.getMessage('refreshingButton')}</span>`;
     button.disabled = true;
 
     try {
@@ -1144,7 +1184,7 @@ document.getElementById('refreshCache').addEventListener('click', async function
         // Clear the scrum report
         const scrumReport = document.getElementById('scrumReport');
         if (scrumReport) {
-            scrumReport.innerHTML = '<p style="text-align: center; color: #666; padding: 20px;">Cache cleared successfully. Click "Generate Report" to fetch fresh data.</p>';
+            scrumReport.innerHTML = `<p style="text-align: center; color: #666; padding: 20px;">${chrome.i18n.getMessage('cacheClearedMessage')}</p>`;
         }
 
         if (typeof availableRepos !== 'undefined') {
@@ -1156,7 +1196,7 @@ document.getElementById('refreshCache').addEventListener('click', async function
             repoStatus.textContent = '';
         }
 
-        button.innerHTML = '<i class="fa fa-check"></i><span>Cache Cleared!</span>';
+        button.innerHTML = `<i class="fa fa-check"></i><span>${chrome.i18n.getMessage('cacheClearedButton')}</span>`;
         button.classList.remove('loading');
 
         setTimeout(() => triggerRepoFetchIfEnabled(), 500);
@@ -1168,7 +1208,7 @@ document.getElementById('refreshCache').addEventListener('click', async function
 
     } catch (error) {
         console.error('Cache clear failed:', error);
-        button.innerHTML = '<i class="fa fa-exclamation-triangle"></i><span>Failed to clear cache</span>';
+        button.innerHTML = `<i class="fa fa-exclamation-triangle"></i><span>${chrome.i18n.getMessage('cacheClearFailed')}</span>`;
         button.classList.remove('loading');
 
         setTimeout(() => {
@@ -1209,7 +1249,7 @@ const handleOrgInput = debounce(function () {
                 toastDiv.style.left = '50%';
                 toastDiv.style.transform = 'translateX(-50%)';
                 toastDiv.style.zIndex = '9999';
-                toastDiv.innerText = 'Organization not found on GitHub.';
+                toastDiv.innerText = chrome.i18n.getMessage('orgNotFoundMessage');
                 document.body.appendChild(toastDiv);
                 setTimeout(() => {
                     if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
@@ -1241,7 +1281,7 @@ const handleOrgInput = debounce(function () {
             toastDiv.style.left = '50%';
             toastDiv.style.transform = 'translateX(-50%)';
             toastDiv.style.zIndex = '9999';
-            toastDiv.innerText = 'Error validating organization.';
+            toastDiv.innerText = chrome.i18n.getMessage('orgValidationErrorMessage');
             document.body.appendChild(toastDiv);
             setTimeout(() => {
                 if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
