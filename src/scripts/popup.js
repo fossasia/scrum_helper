@@ -49,11 +49,6 @@ function getYesterday() {
     return yesterdayPadded;
 }
 
-/**
- * Applies internationalization (i18n) to the popup UI.
- * It finds all elements with `data-i18n-*` attributes and replaces
- * their content or attributes with messages from the extension's locale files.
- */
 function applyI18n() {
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
