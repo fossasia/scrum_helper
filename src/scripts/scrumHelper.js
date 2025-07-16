@@ -835,16 +835,29 @@ function allIncluded(outputTarget = 'email') {
         }
     }
 
-    async function processGithubData(data, injectEmailTogether = false, subjectForEmail = null) {
-        githubIssuesData = data.githubIssuesData;
-        githubPrsReviewData = data.githubPrsReviewData;
-        githubUserData = data.githubUserData;
-        log('[DEBUG] GitHub data set:', {
+
+    async function processGithubData(data) {
+        log('Processing Github data');
+
+        let filteredData = data;
+        // Always apply repo filter if it's enabled and repos are selected.
+        if (useRepoFilter && selectedRepos && selectedRepos.length > 0) {
+            log('[SCRUM-HELPER]: Filtering data by selected repos:', selectedRepos);
+            filteredData = filterDataByRepos(data, selectedRepos);
+        }
+
+        githubIssuesData = filteredData.githubIssuesData;
+        githubPrsReviewData = filteredData.githubPrsReviewData;
+        githubUserData = filteredData.githubUserData;
+
+        log('GitHub data set:', {
+
             issues: githubIssuesData?.items?.length || 0,
             prs: githubPrsReviewData?.items?.length || 0,
             user: githubUserData?.login,
             filtered: useRepoFilter
         });
+
         lastWeekArray = [];
         nextWeekArray = [];
         reviewedPrsArray = [];
@@ -1090,7 +1103,7 @@ ${userReason}`;
                     let prText = '';
                     prText +=
                         "<a href='" + pr_arr.html_url + "' target='_blank'>#" + pr_arr.number + '</a> (' + pr_arr.title + ') ';
-                    if (pr_arr.state === 'open') prText += issue_opened_button;
+                    if (showOpenLabel && pr_arr.state === 'open') prText += issue_opened_button;
                     // Do not show closed label for reviewed PRs
                     prText += '&nbsp;&nbsp;';
                     repoLi += prText;
@@ -1108,7 +1121,7 @@ ${userReason}`;
                         '</a> (' +
                         pr_arr1.title +
                         ') ';
-                    if (pr_arr1.state === 'open') prText1 += issue_opened_button;
+                    if (showOpenLabel && pr_arr1.state === 'open') prText1 += issue_opened_button;
                     // Do not show closed label for reviewed PRs
                     prText1 += '&nbsp;&nbsp;</li>';
                     repoLi += prText1;
@@ -1263,9 +1276,11 @@ ${userReason}`;
 
 
                 if (isDraft) {
+
                     li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_draft_button}</li>`;
                 } else if (item.state === 'open' || item.state === 'opened') {
                     li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a> ${pr_open_button}`;
+
                     if (showCommits && item._allCommits && item._allCommits.length && !isNewPR) {
                         log(`[PR DEBUG] Rendering commits for existing PR #${number}:`, item._allCommits);
                         item._allCommits.forEach(commit => {
@@ -1286,10 +1301,11 @@ ${userReason}`;
                         merged = mergedStatusResults[`${owner}/${repo}#${number}`];
                     }
                     if (merged === true) {
-                        li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a> ${pr_merged_button}</li>`;
+
+                        li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + pr_merged_button : ''}</li>`;
                     } else {
                         // Always show closed label for merged === false or merged === null/undefined
-                        li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a> ${pr_closed_button}</li>`;
+                        li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + pr_closed_button : ''}</li>`;
                     }
                 }
                 log('[SCRUM-DEBUG] Added PR/MR to lastWeekArray:', li, item);
@@ -1307,16 +1323,17 @@ ${userReason}`;
                         html_url +
                         "' target='_blank'>" +
                         title +
-                        '</a> ' +
-                        issue_opened_button +
+                        '</a>' + (showOpenLabel ? ' ' + issue_opened_button : '') +
                         '&nbsp;&nbsp;</li>';
                     nextWeekArray.push(li2);
                 }
-                if (item.state === 'open' || item.state === 'opened') {
-                    li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_opened_button}</li>`;
+
+                if (item.state === 'open') {
+                    li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + issue_opened_button : ''}</li>`;
+
                 } else if (item.state === 'closed') {
                     // Always show closed label for closed issues
-                    li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_button}</li>`;
+                    li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + issue_closed_button : ''}</li>`;
                 } else {
                     // Fallback for unexpected state
                     li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a></li>`;
