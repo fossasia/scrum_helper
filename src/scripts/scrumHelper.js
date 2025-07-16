@@ -52,6 +52,7 @@ function allIncluded(outputTarget = 'email') {
     let showOpenLabel = true;
     let showCommits = false;
     let userReason = '';
+    let subjectForEmail = null;
 
     let pr_open_button =
         '<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
@@ -144,10 +145,10 @@ function allIncluded(outputTarget = 'email') {
 
 
 
-               
+
                 if (platform === 'github') {
                     if (platformUsernameLocal) {
-                       
+
                         fetchGithubData();
                     } else {
                         if (outputTarget === 'popup') {
@@ -219,9 +220,10 @@ function allIncluded(outputTarget = 'email') {
                                     if (date < 10) date = '0' + date;
                                     let dateCode = year.toString() + month.toString() + date.toString();
                                     const subject = `[Scrum] ${name} - ${project} - ${dateCode}`;
+                                    subjectForEmail = subject;
 
 
-                                    await processGithubData(mappedData, true, subject);
+                                    await processGithubData(mappedData, true, subjectForEmail);
                                     scrumGenerationInProgress = false;
                                 } catch (err) {
                                     console.error('GitLab fetch failed:', err);
@@ -876,8 +878,8 @@ function allIncluded(outputTarget = 'email') {
         }
         await writeGithubPrsReviews();
         log('[DEBUG] Both data processing functions completed, generating scrum body');
-        if (injectEmailTogether && subjectForEmail) {
-            // Synchronized subject and body injection for GitLab email
+        if (subjectForEmail) {
+            // Synchronized subject and body injection for email
             let lastWeekUl = '<ul>';
             for (let i = 0; i < lastWeekArray.length; i++) lastWeekUl += lastWeekArray[i];
             for (let i = 0; i < reviewedPrsArray.length; i++) lastWeekUl += reviewedPrsArray[i];
@@ -1174,11 +1176,11 @@ ${userReason}`;
     async function writeGithubIssuesPrs(items) {
 
         if (!items) {
-           
+
             return;
         }
         if (!items.length) {
-            
+
             return;
         }
         const headers = { 'Accept': 'application/vnd.github.v3+json' };
@@ -1682,15 +1684,15 @@ async function fetchUserRepositories(username, token, org = '') {
                     updatedAt: repo.pushedAt,
                     stars: repo.stargazerCount
                 }));
-            
+
             return repos.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
 
         } catch (err) {
-            
+
             throw err;
         }
     } catch (err) {
-       
+
 
         throw err;
     }
