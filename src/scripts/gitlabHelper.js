@@ -111,17 +111,33 @@ class GitLabHelper {
         throw new Error(`GitLab user '${username}' not found`);
       }
       const userId = users[0].id;
-      // Fetch user's projects
-      const projectsUrl = `${this.baseUrl}/users/${userId}/projects?per_page=100&order_by=updated_at&sort=desc`;
-      const projectsRes = await fetch(projectsUrl);
-      if (!projectsRes.ok) {
-        throw new Error(`Error fetching GitLab projects: ${projectsRes.status} ${projectsRes.statusText}`);
+
+      // Fetch all projects the user is a member of (including group projects)
+      const membershipProjectsUrl = `${this.baseUrl}/users/${userId}/projects?membership=true&per_page=100&order_by=updated_at&sort=desc`;
+      const membershipProjectsRes = await fetch(membershipProjectsUrl);
+      if (!membershipProjectsRes.ok) {
+        throw new Error(`Error fetching GitLab membership projects: ${membershipProjectsRes.status} ${membershipProjectsRes.statusText}`);
       }
-      const projects = await projectsRes.json();
+      const membershipProjects = await membershipProjectsRes.json();
+
+      // Fetch all projects the user has contributed to (public, group, etc.)
+      const contributedProjectsUrl = `${this.baseUrl}/users/${userId}/contributed_projects?per_page=100&order_by=updated_at&sort=desc`;
+      const contributedProjectsRes = await fetch(contributedProjectsUrl);
+      if (!contributedProjectsRes.ok) {
+        throw new Error(`Error fetching GitLab contributed projects: ${contributedProjectsRes.status} ${contributedProjectsRes.statusText}`);
+      }
+      const contributedProjects = await contributedProjectsRes.json();
+
+      // Merge and deduplicate projects by project id
+      const allProjectsMap = new Map();
+      for (const p of [...membershipProjects, ...contributedProjects]) {
+        allProjectsMap.set(p.id, p);
+      }
+      const allProjects = Array.from(allProjectsMap.values());
 
       // Fetch merge requests from each project (works without auth for public projects)
       let allMergeRequests = [];
-      for (const project of projects) {
+      for (const project of allProjects) {
         try {
           const projectMRsUrl = `${this.baseUrl}/projects/${project.id}/merge_requests?author_id=${userId}&created_after=${startDate}T00:00:00Z&created_before=${endDate}T23:59:59Z&per_page=100&order_by=updated_at&sort=desc`;
           const projectMRsRes = await fetch(projectMRsUrl);
@@ -139,7 +155,7 @@ class GitLabHelper {
 
       // Fetch issues from each project (works without auth for public projects)
       let allIssues = [];
-      for (const project of projects) {
+      for (const project of allProjects) {
         try {
           const projectIssuesUrl = `${this.baseUrl}/projects/${project.id}/issues?author_id=${userId}&created_after=${startDate}T00:00:00Z&created_before=${endDate}T23:59:59Z&per_page=100&order_by=updated_at&sort=desc`;
           const projectIssuesRes = await fetch(projectIssuesUrl);
@@ -157,7 +173,7 @@ class GitLabHelper {
 
       const gitlabData = {
         user: users[0],
-        projects: projects,
+        projects: allProjects,
         mergeRequests: allMergeRequests, // use project-by-project response
         issues: allIssues, // use project-by-project response
         comments: [] // Empty array since we're not fetching comments
