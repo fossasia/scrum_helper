@@ -949,7 +949,7 @@ ${userReason}`;
         for (let i = 0; i < items.length; i++) {
     let item = items[i];
     let html_url = item.html_url;
-    let repository_url = item.repository_url;
+    let {repository_url} = item;
     let project = repository_url.substr(repository_url.lastIndexOf('/') + 1);
     let title = item.title;
     let {number} = item;
