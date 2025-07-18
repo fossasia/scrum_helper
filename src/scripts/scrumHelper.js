@@ -200,7 +200,7 @@ function allIncluded(outputTarget = 'email') {
                                                 : (item.web_url || (project ? `${project.web_url}/-/merge_requests/${item.iid}` : '')),
                                             number: item.iid,
                                             title: item.title,
-                                            state: item.state,
+                                            state: (type === 'issue' && item.state === 'opened') ? 'open' : item.state,
                                             project: repoName,
                                             pull_request: type === 'mr',
                                         };
@@ -259,7 +259,7 @@ function allIncluded(outputTarget = 'email') {
                                                 : (item.web_url || (project ? `${project.web_url}/-/merge_requests/${item.iid}` : '')),
                                             number: item.iid,
                                             title: item.title,
-                                            state: item.state,
+                                            state: (type === 'issue' && item.state === 'opened') ? 'open' : item.state,
                                             project: repoName,
                                             pull_request: type === 'mr',
                                         };
