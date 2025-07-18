@@ -952,7 +952,7 @@ ${userReason}`;
     let repository_url = item.repository_url;
     let project = repository_url.substr(repository_url.lastIndexOf('/') + 1);
     let title = item.title;
-    let number = item.number;
+    let {number} = item;
     let li = '';
     let isDraft = false;
 
