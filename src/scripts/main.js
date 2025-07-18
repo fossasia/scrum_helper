@@ -93,15 +93,6 @@ document.getElementById('refreshCache').addEventListener('click', async (e) => {
 	button.disabled = true;
 
 	try {
-		const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
-		await chrome.tabs.sendMessage(tabs[0].id, {
-			action: 'forceRefresh',
-			timestamp: Date.now()
-		});
-
-		// Reload the active tab to re-inject content
-		chrome.tabs.reload(tabs[0].id);
-
 		Materialize.toast({ html: 'Data refreshed successfully!', classes: 'green' });
 	} catch (err) {
 		console.log('Refresh successful',);

@@ -40,10 +40,7 @@
     "matches": ["<all_urls>"]
   }],
   "permissions": [
-    "tabs",
-    "storage",
-    "activeTab",
-    "notifications"
+    "storage"
   ],
   "host_permissions": [
     "*://*.google.com/*",
