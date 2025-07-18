@@ -812,7 +812,7 @@ ${userReason}`;
                     prText +=
                         "<a href='" + pr_arr.html_url + "' target='_blank'>#" + pr_arr.number + '</a> (' + pr_arr.title + ') ';
                     if (pr_arr.state === 'open') prText += issue_opened_button;
-                    else prText += issue_closed_button;
+                    //else prText += issue_closed_button;
 
                     prText += '&nbsp;&nbsp;';
                     repoLi += prText;
@@ -831,7 +831,7 @@ ${userReason}`;
                         pr_arr1.title +
                         ') ';
                     if (pr_arr1.state === 'open') prText1 += issue_opened_button;
-                    else prText1 += issue_closed_button;
+                    //else prText1 += issue_draft_button;
 
                     prText1 += '&nbsp;&nbsp;</li>';
                     repoLi += prText1;
