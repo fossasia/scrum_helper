@@ -947,102 +947,90 @@ ${userReason}`;
             }
         }
         for (let i = 0; i < items.length; i++) {
-            let item = items[i];
-            let html_url = item.html_url;
-            let repository_url = item.repository_url;
-            let project = repository_url.substr(repository_url.lastIndexOf('/') + 1);
-            let title = item.title;
-            let number = item.number;
-            let li = '';
-            let isDraft = false;
-            if (item.pull_request && typeof item.draft !== 'undefined') {
-                isDraft = item.draft;
+    let item = items[i];
+    let html_url = item.html_url;
+    let repository_url = item.repository_url;
+    let project = repository_url.substr(repository_url.lastIndexOf('/') + 1);
+    let title = item.title;
+    let number = item.number;
+    let li = '';
+    let isDraft = false;
+
+    if (item.pull_request && typeof item.draft !== 'undefined') {
+        isDraft = item.draft;
+    }
+
+    if (item.pull_request) {
+        const prCreatedDate = new Date(item.created_at);
+        const startDate = new Date(startingDate);
+        const endDate = new Date(endingDate + 'T23:59:59');
+        const isNewPR = prCreatedDate >= startDate && prCreatedDate <= endDate;
+
+        if (!isNewPR) {
+            const hasCommitsInRange = showCommits && item._allCommits && item._allCommits.length > 0;
+            if (!hasCommitsInRange) {
+                continue; // Skip PRs created outside the date range with no commits
             }
-            if (item.pull_request) {
-
-                const prCreatedDate = new Date(item.created_at);
-                const startDate = new Date(startingDate);
-                const endDate = new Date(endingDate + 'T23:59:59');
-                const isNewPR = prCreatedDate >= startDate && prCreatedDate <= endDate;
-
-                if (!isNewPR) {
-                    const hasCommitsInRange = showCommits && item._allCommits && item._allCommits.length > 0;
-
-                    if (!hasCommitsInRange) {
-
-                        continue; //skip these prs - created outside daterange with no commits
-                    } else {
-
-                    }
-                } else {
-
-                }
-                const prAction = isNewPR ? 'Made PR' : 'Existing PR';
-                if (isDraft) {
-                    li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a> ${pr_draft_button}</li>`;
-                } else if (item.state === 'open') {
-                    li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a> ${pr_open_button}`;
-                    if (showCommits && item._allCommits && item._allCommits.length && !isNewPR) {
-                        log(`[PR DEBUG] Rendering commits for existing PR #${number}:`, item._allCommits);
-                        item._allCommits.forEach(commit => {
-                            li += `<li style=\"list-style: disc; margin: 0 0 0 20px; padding: 0; color: #666;\"><span style=\"color:#2563eb;\">${commit.messageHeadline}</span><span style=\"color:#666; font-size: 11px;\"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
-                        });
-                    }
-                    li += `</li>`;
-                } else if (item.state === 'closed') {
-                    let merged = null;
-                    if ((githubToken || (useMergedStatus && !fallbackToSimple)) && mergedStatusResults) {
-                        let repoParts = repository_url.split('/');
-                        let owner = repoParts[repoParts.length - 2];
-                        let repo = repoParts[repoParts.length - 1];
-                        merged = mergedStatusResults[`${owner}/${repo}#${number}`];
-                    }
-                    if (merged === true) {
-                        li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_merged_button}</li>`;
-                    } else {
-                        // Always show closed label for merged === false or merged === null/undefined
-                        li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_closed_button}</li>`;
-                    }
-                }
-                lastWeekArray.push(li);
-                continue;
-            } else {
-                // is a issue
-                if (item.state === 'open' && item.body?.toUpperCase().indexOf('YES') > 0) {
-                    let li2 =
-                        '<li><i>(' +
-                        project +
-                        ')</i> - Work on Issue(#' +
-                        number +
-                        ") - <a href='" +
-                        html_url +
-                        "' target='_blank'>" +
-                        title +
-                        '</a> ' +
-                        issue_opened_button +
-                        '&nbsp;&nbsp;</li>';
-                    nextWeekArray.push(li2);
-                }
-                if (item.state === 'open') {
-                    li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_opened_button}</li>`;
-                } else if (item.state === 'closed') {
-                    li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_button}</li>`;
-                } else {
-                    li =
-                        '<li><i>(' +
-                        project +
-                        ')</i> - Opened Issue(#' +
-                        number +
-                        ") - <a href='" +
-                        html_url +
-                        "' target='_blank'>" +
-                        title +
-                        '</a> </li>';
-                }
-            }
-            lastWeekArray.push(li);
         }
-        issuesDataProcessed = true;
+
+        const prAction = isNewPR ? 'Made PR' : 'Existing PR';
+
+        // 🟤 Draft PR
+        if (isDraft) {
+            li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a> ${pr_draft_button}</li>`;
+
+        // 🟢 Open PR
+        } else if (item.state === 'open') {
+            li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a> ${pr_open_button}`;
+            if (showCommits && item._allCommits && item._allCommits.length && !isNewPR) {
+                log(`[PR DEBUG] Rendering commits for existing PR #${number}:`, item._allCommits);
+                item._allCommits.forEach(commit => {
+                    li += `<li style="list-style: disc; margin: 0 0 0 20px; padding: 0; color: #666;">
+                            <span style="color:#2563eb;">${commit.messageHeadline}</span>
+                            <span style="color:#666; font-size: 11px;"> (${new Date(commit.committedDate).toLocaleString()})</span>
+                        </li>`;
+                });
+            }
+            li += `</li>`;
+
+        // 🔴 Closed PR (check if merged or not)
+        } else if (item.state === 'closed') {
+            const isMerged = item.merged_at !== null && item.merged_at !== undefined;
+
+            if (isMerged) {
+                // Merged PR: no label shown
+                console.log(`[ScrumHelper] Reviewed PR #${number} is MERGED – no label shown.`);
+                li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a></li>`;
+            } else {
+                // Closed but not merged: no label either
+                console.log(`[ScrumHelper] Reviewed PR #${number} is CLOSED (not merged) – no label shown.`);
+                li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a></li>`;
+            }
+        }
+
+        lastWeekArray.push(li);
+        continue;
+
+    } else {
+        // 📌 It's an Issue
+        if (item.state === 'open' && item.body?.toUpperCase().indexOf('YES') > 0) {
+            let li2 =
+                `<li><i>(${project})</i> - Work on Issue(#${number}) - <a href='${html_url}' target='_blank'>${title}</a> ${issue_opened_button}</li>`;
+            nextWeekArray.push(li2);
+        }
+
+        if (item.state === 'open') {
+            li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_opened_button}</li>`;
+        } else if (item.state === 'closed') {
+            li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> </li>`;
+        } else {
+            li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}' target='_blank'>${title}</a></li>`;
+        }
+
+        lastWeekArray.push(li);
+    }
+}
+issuesDataProcessed = true;
         if (outputTarget === 'email') {
             triggerScrumGeneration();
         }
