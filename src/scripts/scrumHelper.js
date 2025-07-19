@@ -77,7 +77,8 @@ function allIncluded(outputTarget = 'email') {
         chrome.storage.local.get(
             [
                 'platform',
-                'platformUsername',
+                'githubUsername',
+                'gitlabUsername',
                 'githubToken',
                 'projectName',
                 'enableToggle',
@@ -98,7 +99,10 @@ function allIncluded(outputTarget = 'email') {
 
                 console.log("[DEBUG] Storage items received:", items);
                 platform = items.platform || 'github';
-                platformUsername = items.platformUsername || '';
+
+                // Load platform-specific username
+                const platformUsernameKey = `${platform}Username`;
+                platformUsername = items[platformUsernameKey] || '';
                 platformUsernameLocal = platformUsername;
                 console.log(`[DEBUG] platform: ${platform}, platformUsername: ${platformUsername}`);
 
@@ -106,11 +110,17 @@ function allIncluded(outputTarget = 'email') {
                     const usernameFromDOM = document.getElementById('platformUsername')?.value;
                     const projectFromDOM = document.getElementById('projectName')?.value;
                     const tokenFromDOM = document.getElementById('githubToken')?.value;
-                    items.platformUsername = usernameFromDOM || items.platformUsername;
+
+                    // Save to platform-specific storage
+                    if (usernameFromDOM) {
+                        chrome.storage.local.set({ [platformUsernameKey]: usernameFromDOM });
+                        platformUsername = usernameFromDOM;
+                        platformUsernameLocal = usernameFromDOM;
+                    }
+
                     items.projectName = projectFromDOM || items.projectName;
                     items.githubToken = tokenFromDOM || items.githubToken;
                     chrome.storage.local.set({
-                        platformUsername: items.platformUsername,
                         projectName: items.projectName,
                         githubToken: items.githubToken
                     });
@@ -127,6 +137,7 @@ function allIncluded(outputTarget = 'email') {
                 }
 
                 showCommits = items.showCommits || false;
+                showOpenLabel = items.showOpenLabel !== false; // Default to true if not explicitly set to false
                 orgName = items.orgName || '';
 
                 if (items.lastWeekContribution) {
@@ -1283,9 +1294,9 @@ ${userReason}`;
 
                 if (isDraft) {
 
-                    li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a> ${pr_draft_button}</li>`;
+                    li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + pr_draft_button : ''}</li>`;
                 } else if (item.state === 'open' || item.state === 'opened') {
-                    li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a> ${pr_open_button}`;
+                    li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + pr_open_button : ''}`;
 
                     if (showCommits && item._allCommits && item._allCommits.length && !isNewPR) {
                         log(`[PR DEBUG] Rendering commits for existing PR #${number}:`, item._allCommits);
@@ -1295,8 +1306,8 @@ ${userReason}`;
                     }
                     li += `</li>`;
                 } else if (platform === 'gitlab' && item.state === 'closed') {
-                    // For GitLab, always show closed label for closed MRs
-                    li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a> ${pr_closed_button}</li>`;
+                    // For GitLab, show closed label for closed MRs only if showOpenLabel is enabled
+                    li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + pr_closed_button : ''}</li>`;
                 } else {
                     // GitHub: check merged status if possible
                     let merged = null;

@@ -12,9 +12,23 @@ let userReasonElement = null; // userReason element removed from UI
 let showCommitsElement = document.getElementById('showCommits');
 
 function handleBodyOnLoad() {
+	// Migration: Handle existing users with old platformUsername storage
+	chrome.storage.local.get(['platform', 'platformUsername'], function (result) {
+		if (result.platformUsername && result.platform) {
+			// Migrate old platformUsername to platform-specific storage
+			const platformUsernameKey = `${result.platform}Username`;
+			chrome.storage.local.set({ [platformUsernameKey]: result.platformUsername });
+			// Remove the old key
+			chrome.storage.local.remove(['platformUsername']);
+			console.log(`[MIGRATION] Migrated platformUsername to ${platformUsernameKey}`);
+		}
+	});
+
 	chrome.storage.local.get(
 		[
-			'platformUsername',
+			'platform',
+			'githubUsername',
+			'gitlabUsername',
 			'projectName',
 			'enableToggle',
 			'startingDate',
@@ -28,9 +42,13 @@ function handleBodyOnLoad() {
 			'showCommits',
 		],
 		(items) => {
-			if (items.platformUsername) {
-				platformUsernameElement.value = items.platformUsername;
+			// Load platform-specific username
+			const platform = items.platform || 'github';
+			const platformUsernameKey = `${platform}Username`;
+			if (items[platformUsernameKey]) {
+				platformUsernameElement.value = items[platformUsernameKey];
 			}
+
 			if (items.githubToken) {
 				githubTokenElement.value = items.githubToken;
 			}
@@ -214,7 +232,11 @@ function getToday() {
 
 function handlePlatformUsernameChange() {
 	let value = platformUsernameElement.value;
-	chrome.storage.local.set({ platformUsername: value });
+	chrome.storage.local.get(['platform'], function (result) {
+		const platform = result.platform || 'github';
+		const platformUsernameKey = `${platform}Username`;
+		chrome.storage.local.set({ [platformUsernameKey]: value });
+	});
 }
 function handleGithubTokenChange() {
 	let value = githubTokenElement.value;

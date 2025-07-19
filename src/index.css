@@ -712,10 +712,24 @@ hr,
     z-index: 1000 !important;
 }
 
+/* Fix platform dropdown highlight in dark mode */
 .dark-mode #platformDropdownList li {
     color: #ffffff !important;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 8px 16px !important;
+    box-sizing: border-box;
+    border-radius: 0.75rem;
+    background: transparent;
+    transition: background 0.2s;
 }
 
-.dark-mode #platformDropdownList li:hover {
-    background-color: #374151 !important;
+/* Remove hover background color for platform dropdown in dark mode */
+.dark-mode #platformDropdownList li:hover,
+.dark-mode #platformDropdownList li.selected,
+.dark-mode #platformDropdownList li[aria-selected="true"] {
+    background-color: transparent !important;
+    color: #fff !important;
 }
