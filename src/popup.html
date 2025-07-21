@@ -25,25 +25,27 @@
 		<div class="bg-white px-4 py-4 mx-2 mb-2 rounded-3xl">
 			<div class="flex justify-between py-2">
 				<h3 id="scrumHelperHeading" class="text-3xl font-semibold cursor-pointer">Scrum Helper</h3>
-				<img src="icons/night-mode.png" alt="Night Mode" class="w-7 h-7 mx-3 cursor-pointer">
+				<img src="icons/night-mode.png" alt="Night Mode" class="w-7 h-7 mx-3 cursor-pointer"
+					id="darkModeToggle">
 			</div>
 			<div>
-				<p class="">Report your development progress by auto-fetching your Git activity for a selected period
+				<p class="" data-i18n="appDescription">Report your development progress by auto-fetching your Git
+					activity for a selected period
 				</p>
 			</div>
 
 			<div class="center mt-2 flex justify-between">
 				<label class="flex items-center justify-center gap-2 font-semibold">
-					Disable
+					<span data-i18n="disableLabel">Disable</span>
 					<input type="checkbox" value="" id="enable" class="sr-only peer">
 					<div
 						class="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600">
 					</div>
 					<span class=""></span>
-					Enable
+					<span data-i18n="enableLabel">Enable</span>
 				</label>
 				<div class="flex">
-					<button id="homeButton" title="Go to Report"
+					<button id="homeButton" data-i18n-title="homeButtonTitle"
 						class="ml-1 p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition">
 						<i class="fa fa-home text-2xl text-gray-600 dark:text-gray-300"></i>
 					</button>
@@ -60,45 +62,49 @@
 
 				<div id="reportSection" class="tab-content">
 					<div>
-						<p class="text-sm font-semibold">Your Project Name<span class="tooltip-container ml-2">
+						<p class="text-sm font-semibold" data-i18n="projectNameLabel">Your Project Name<span
+								class="tooltip-container ml-2">
 								<i class="fa fa-question-circle question-icon"></i>
-								<span class="tooltip-bubble">
+								<span class="tooltip-bubble" data-i18n="projectNameTooltip">
 									This is the name that appears in the subject line of your email, followed by
 									timestamp.
 								</span>
 							</span> </p>
 						<input id="projectName" type="text"
 							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800  p-2 my-2"
-							placeholder="Enter your project name">
+							data-i18n-placeholder="projectNamePlaceholder">
 					</div>
 					<div>
-						<p class="text-sm font-medium">Your GitHub Username</p>
+						<p class="text-sm font-medium" data-i18n="githubUsernameLabel">Your GitHub Username</p>
 						<input id="githubUsername" type="text"
 							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800  p-2 my-2"
-							placeholder="Required for fetching your contributions">
+							data-i18n-placeholder="githubUsernamePlaceholder">
 					</div>
 
 					<div>
-						<p class="text-sm font-medium">Fetch your contributions between:</p>
+						<p class="text-sm font-medium" data-i18n="contributionsLabel">Fetch your contributions between:
+						</p>
 						<div class="flex justify-between items-center my-2 mx-4">
 							<div class="flex items-center gap-2">
 								<input type="radio" id="lastWeekContribution" name="timeframe" class="form-radio">
-								<label for="lastWeekContribution" class="font-normal">Last 7 days</label>
+								<label for="lastWeekContribution" class="font-normal" data-i18n="last7DaysLabel">Last 7
+									days</label>
 							</div>
 							<div class="flex items-center gap-2">
 								<input type="radio" id="yesterdayContribution" name="timeframe" class="form-radio">
-								<label for="yesterdayContribution" class="font-normal">Last 1 day</label>
+								<label for="yesterdayContribution" class="font-normal" data-i18n="last1DayLabel">Last 1
+									day</label>
 							</div>
 						</div>
 
 						<div id="customDateContainer" class="flex justify-between items-center mt-2">
 							<div>
-								<label for="startingDate">Start Date:</label>
+								<label for="startingDate" data-i18n="startDateLabel">Start Date:</label>
 								<input type="date" id="startingDate"
 									class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1">
 							</div>
 							<div>
-								<label for="endingDate">End Date:</label>
+								<label for="endingDate" data-i18n="endDateLabel">End Date:</label>
 								<input type="date" id="endingDate"
 									class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1">
 							</div>
@@ -109,7 +115,8 @@
 						<br />
 						<input type="checkbox" id="showOpenLabel" class="form-checkbox text-blue-600">
 
-						<label id="checkboxLabel" for="showOpenLabel" class=" font-medium text-sm">Show
+						<label id="checkboxLabel" for="showOpenLabel" class=" font-medium text-sm"
+							data-i18n="showOpenClosedLabel">Show
 							Open/Merged/Closed Labels</label>
 
 					</div>
@@ -119,11 +126,11 @@
 							<input type="checkbox" id="showCommits" checked class="form-checkbox text-blue-600 ">
 
 							<label id="showCommitsLabel" for="showCommits"
-								class="font-medium text-sm flex items-center pl-5 ml-4" style="margin-left: 4px;">Show commits on open PRs<span
-									class="tooltip-container">
+								class="font-medium text-sm flex items-center pl-5 ml-4" style="margin-left: 4px;"
+								data-i18n="showCommitsLabel">Show commits on open PRs<span class="tooltip-container">
 
 									<i class="fa fa-question-circle question-icon"></i>
-									<span class="tooltip-bubble">
+									<span class="tooltip-bubble" data-i18n="showCommitsTooltip">
 										Github Token required, add it in the settings.
 									</span>
 								</span></label>
@@ -135,7 +142,7 @@
 
 					<div>
 						<div>
-							<h6 class="text-base font-semibold">Scrum Report</h6>
+							<h6 class="text-base font-semibold" data-i18n="scrumReportLabel">Scrum Report</h6>
 							<div id="scrumReport" contenteditable="true"
 								class="min-h-[200px] overflow-y-auto whitespace-pre-wrap border-2 border-gray-200 bg-gray-100 rounded-xl text-gray-800 p-2 my-2">
 							</div>
@@ -143,11 +150,12 @@
 						<div class="flex justify-between gap-2">
 							<button id="generateReport"
 								class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
-								<i class="fa fa-refresh"></i> Generate Report
+								<i class="fa fa-refresh"></i> <span data-i18n="generateReportButton">Generate
+									Report</span>
 							</button>
 							<button id="copyReport"
 								class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
-								<i class="fa fa-copy"></i> Copy Report
+								<i class="fa fa-copy"></i> <span data-i18n="copyReportButton">Copy Report</span>
 							</button>
 						</div>
 					</div>
@@ -158,9 +166,10 @@
 						<div>
 							<div class="flex items-center justify-between">
 								<div class="flex">
-									<p class="text-sm font-medium">Your GitHub Token<span class="tooltip-container">
+									<p class="text-sm font-medium" data-i18n="githubTokenLabel">Your GitHub Token<span
+											class="tooltip-container">
 											<i class="fa fa-question-circle question-icon"></i>
-											<span class="tooltip-bubble">
+											<span class="tooltip-bubble" data-i18n="githubTokenTooltip">
 												<b>Why is it recommended to add a GitHub token?</b><br>
 												Scrum Helper works without a GitHub token, but adding a personal access
 												token is recommended for a
@@ -189,14 +198,15 @@
 							</div>
 							<input id="githubToken" type="password"
 								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2 pr-10"
-								placeholder="Required for making authenticated requests">
+								data-i18n-placeholder="githubTokenPlaceholder">
 						</div>
 						<div class="">
 							<div class="flex items-center mt-4">
-								<p class="text-sm font-semibold">Your Organization Name</p>
+								<p class="text-sm font-semibold" data-i18n="settingsOrgNameLabel">Your Organization Name
+								</p>
 								<span class="tooltip-container ml-2">
 									<i class="fa fa-question-circle question-icon"></i>
-									<span class="tooltip-bubble">
+									<span class="tooltip-bubble" data-i18n="orgNameTooltip">
 										<b>Which organization's GitHub activity?</b><br>
 										Enter the GitHub organization name to fetch activities for. Leave empty to fetch
 										all
@@ -209,35 +219,40 @@
 							<div class="flex items-center mt-4 gap-2">
 								<input id="orgInput" type="text"
 									class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
-									placeholder="Enter organization name">
+									data-i18n-placeholder="settingsOrgNamePlaceholder">
 								<button id="setOrgBtn" type="button"
 									class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl text-base my-2 h-[44px] flex-shrink-0"
-									style="min-width:60px;">Set</button>
+									style="min-width:60px;" data-i18n="setButton">Set</button>
 							</div>
 						</div>
 
 						<div class="mb-4">
 							<div class="flex items-center justify-between mb-2">
-								<p class="text-sm font-medium">Filter by repositories<span class="tooltip-container">
+								<p class="text-sm font-medium">
+									<span data-i18n="repoFilterLabel">Filter by repositories</span><span
+										class="tooltip-container">
 										<i class="fa fa-question-circle question-icon"></i>
-										<span class="tooltip-bubble">
+										<span class="tooltip-bubble" data-i18n="repoFilterTooltip">
 											Github Token required.<br>
 											To force a repo list update, <br>
 											click the Refresh Data button.
 										</span>
-									</span></p>
+									</span>
+								</p>
 								<div class="flex items-center">
 									<input type="checkbox" id="useRepoFilter" class="mr-2">
-									<label for="useRepoFilter" class="text-xs text-gray-600">Enable filtering</label>
+									<label for="useRepoFilter" class="text-xs text-gray-600"><span
+											data-i18n="enableFilteringLabel">Enable filtering</span></label>
 								</div>
 							</div>
 							<div id="tokenWarningForFilter"
 								class="hidden text-xs text-red-600 p-2 bg-red-50 border border-red-200 rounded-xl mt-2">
-								A GitHub token is required for repository filtering. Please add one in the settings.
+								<span data-i18n="tokenRequiredWarning">A GitHub token is required for repository
+									filtering. Please add one in the settings.</span>
 							</div>
 
 
-							<input id="repoSearch" type="text" placeholder="Select repositories (optional)..."
+							<input id="repoSearch" type="text" data-i18n-placeholder="repoSearchPlaceholder"
 								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 pr-10"
 								autocomplete="off">
 							<div id="repoFilterContainer" class="hidden">
@@ -255,27 +270,29 @@
 								<div id="selectedRepos"
 									class="mt-3 min-h-[32px] p-2 border-2 border-gray-200 bg-gray-50 rounded-xl">
 									<div class="flex flex-wrap gap-1" id="repoTags">
-										<span class="text-xs text-gray-500 select-none" id="repoPlaceholder">No
+										<span class="text-xs text-gray-500 select-none" id="repoPlaceholder"
+											data-i18n="repoPlaceholder">No
 											repositories selected (all will be included)</span>
 									</div>
 								</div>
 
 								<!-- Status/Info -->
 								<div class="mt-2 text-xs text-gray-600 flex justify-between">
-									<span id="repoCount">0 repositories selected</span>
+									<span id="repoCount" data-i18n="repoCountNone">0 repositories selected</span>
 									<span id="repoStatus" class="text-blue-600"></span>
 								</div>
 							</div>
 						</div>
 					</div>
 
-					
+
 					<div class="cacheSection mt-3">
-						<p class="text-sm font-medium">Enter cache TTL <span class="text-sm font-normal">(in
+						<p class="text-sm font-medium"><span data-i18n="cacheTTLLabel">Enter cache TTL</span> <span
+								class="text-sm font-normal" data-i18n="cacheTTLUnit">(in
 								minutes)</span>
 							<span class="tooltip-container">
 								<i class="fa fa-question-circle question-icon"></i>
-								<span class="tooltip-bubble">
+								<span class="tooltip-bubble" data-i18n="cacheTTLTooltip">
 									We are caching the data to avoid redundant calls. By default the cache expires after
 									10 minutes, you
 									can change it here to your desired time. We have given a refresh cache button in
@@ -286,18 +303,18 @@
 						</p>
 						<input type="text" id="cacheInput"
 							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800  p-2 my-2"
-							placeholder="Write Cache TTL in minutes (Default 10 minutes)">
+							data-i18n-placeholder="cacheTTLPlaceholder">
 					</div>
 
 					<div class="">
 						<button id="refreshCache"
 							class="w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded flex items-center justify-center gap-2 transition-colors duration-200">
 							<i class="fa fa-refresh"></i>
-							<span>Refresh Data (bypass cache)</span>
+							<span data-i18n="refreshDataButton">Refresh Data (bypass cache)</span>
 						</button>
 						<p class="cache-info">
 							<i class="fa fa-info-circle"></i>
-							Use this button to fetch fresh data immediately.
+							<span data-i18n="refreshDataInfo">Use this button to fetch fresh data immediately.</span>
 						</p>
 					</div>
 
@@ -305,20 +322,22 @@
 
 				<div class="border-gray-100 border-2 bg-white rounded-3xl px-4 py-2 mx-2 my-2">
 					<div>
-						<h4 class="font-semibold text-xl">Note:</h4>
+						<h4 class="font-semibold text-xl" data-i18n="noteTitle">Note:</h4>
 						<ul class="text-xs list-disc list-inside">
-							<li>The PRs fetched are based on the most recent review by any contributor. If you reviewed
+							<li data-i18n="notePoint1">The PRs fetched are based on the most recent review by any
+								contributor. If you reviewed
 								a PR 10 days
 								ago and someone else reviewed it 2 days ago, it will still appear in your activity for
 								the past week.
-								(<a target="_blank" href="https://github.com/fossasia/scrum_helper/issues/20">See this
-									issue</a>.)
+								<a target="_blank" href="https://github.com/fossasia/scrum_helper/issues/20"
+									data-i18n="noteSeeIssue">(See this
+									issue)</a>
 							</li>
-							<li>Please note that some discrepancies may occur in the generated SCRUM. We recommend
+							<li data-i18n="notePoint2">Please note that some discrepancies may occur in the generated
+								SCRUM. We recommend
 								manually reviewing
-								and editing the report to ensure accuracy before sharing
+								and editing the report to ensure accuracy before sharing.
 							</li>
-
 						</ul>
 					</div>
 				</div>
@@ -330,12 +349,12 @@
 						<a target="_blank" href="https://github.com/fossasia/scrum_helper"
 							class="bg-blue-50 hover:bg-blue-100 text-blue-600 transition-all duration-200 rounded-lg px-4 py-2 flex items-center space-x-2">
 							<i class="fa fa-code text-sm"></i>
-							<span class="text-sm font-medium">View Code</span>
+							<span class="text-sm font-medium" data-i18n="viewCodeButton">View Code</span>
 						</a>
 						<a target="_blank" href="https://github.com/fossasia/scrum_helper/issues"
 							class="bg-blue-50 hover:bg-blue-100 text-blue-600 transition-all duration-200 rounded-lg px-4 py-2 flex items-center space-x-2">
 							<i class="fa fa-bug text-sm"></i>
-							<span class="text-sm font-medium">Report Issue</span>
+							<span class="text-sm font-medium" data-i18n="reportIssueButton">Report Issue</span>
 						</a>
 					</div>
 				</div>
