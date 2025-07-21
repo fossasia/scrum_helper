@@ -93,7 +93,6 @@ document.getElementById('refreshCache').addEventListener('click', async (e) => {
 	button.disabled = true;
 
 	try {
-		Materialize.toast({ html: 'Data refreshed successfully!', classes: 'green' });
 	} catch (err) {
 		console.log('Refresh successful',);
 	} finally {
