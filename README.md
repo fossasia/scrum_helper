@@ -147,6 +147,36 @@ $ npm install
 
 
 
+## Adding a New Language
+
+You can add a new language to Scrum Helper for your own use, or contribute it to the project.
+
+### Using a New Language Locally
+
+1. **Create a Locale Folder**
+   - Go to `src/_locales`.
+   - Create a new folder named with the [ISO language code](https://developer.chrome.com/docs/extensions/reference/i18n/#localeTable) (e.g., `it` for Italian, `fr` for French).
+
+2. **Add a `messages.json` File**
+   - Copy the `messages.json` from `src/_locales/en/messages.json` or any other language as a template.
+   - Translate only the `"message"` values into your language.  
+     **Do not translate the extension name ("Scrum Helper") or the footer ("Made with ❤️ by ...").**
+
+3. **Test the Extension**
+   - Reload the extension in your browser.
+   - Change your browser or system language to your new locale (see your browser’s language settings).
+   - The extension will use your translation automatically if your language is set.
+
+> **You do not need to make a pull request to use your language locally.**
+
+### Contributing Your Translation
+
+If you want to share your translation with others:
+- Make a pull request with your new locale folder and `messages.json` file.
+- We recommend double-checking your translations for accuracy and clarity.
+
+For more details, see the [Chrome i18n documentation](https://developer.chrome.com/docs/extensions/reference/i18n/).
+
 
 ## About contributing
 
