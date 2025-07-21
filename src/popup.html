@@ -45,8 +45,7 @@
 		<div class="bg-white px-4 py-4 mx-2 mb-2 rounded-3xl">
 			<div class="flex justify-between py-2">
 				<h3 id="scrumHelperHeading" class="text-3xl font-semibold cursor-pointer">Scrum Helper</h3>
-				<img src="icons/night-mode.png" alt="Night Mode" class="w-7 h-7 mx-3 cursor-pointer"
-					id="darkModeToggle">
+				<img src="icons/night-mode.png" alt="Night Mode" class="w-7 h-7 mx-3 cursor-pointer" id="darkModeToggle">
 			</div>
 			<div>
 				<p class="" data-i18n="appDescription">Report your development progress by auto-fetching your Git
@@ -83,7 +82,7 @@
 					<div>
 
 
-						<h4>Platform
+						<h4 data-i18n="platformLabel">Platform
 						</h4>
 						<div class="relative mb-4" id="customPlatformDropdown" style="margin-bottom: 0.8rem;">
 							<input type="hidden" id="platformSelect" value="github">
@@ -110,7 +109,7 @@
 						</div>
 					</div>
 					<div>
-						<h4>Your Project Name<span class="tooltip-container ml-2">
+						<h4 data-i18n="projectNameLabel">Your Project Name<span class="tooltip-container ml-2">
 
 
 								<i class="fa fa-question-circle question-icon"></i>
@@ -124,20 +123,19 @@
 
 
 						<input id="projectName" type="text"
-
 							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
 							placeholder="Enter your project name" style="margin-top: 0.3rem; margin-bottom: 0.8rem;">
 					</div>
 					<div>
 
-						<h4 id="usernameLabel">Your Username</h4>
+						<h4 id="usernameLabel" data-i18n="usernameLabel">Your Username</h4>
 						<input id="platformUsername" type="text"
 							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
 							placeholder="Required for fetching your contributions" style="margin-top: 0.3rem; margin-bottom: 0.8rem;">
 					</div>
 
 					<div>
-						<p class="text-lg mb-1">Fetch your contributions between:</p>
+						<p class="text-lg mb-1" data-i18n="contributionsLabel">Fetch your contributions between:</p>
 
 
 						<div class="flex justify-between items-center my-2 mx-4">
@@ -155,14 +153,12 @@
 
 						<div id="customDateContainer" class="flex justify-between items-center mt-2">
 							<div>
-
-								<label for="startingDate">Start Date:</label>
+								<label for="startingDate" data-i18n="startDateLabel">Start Date:</label>
 								<input type="date" id="startingDate" class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1">
 							</div>
 							<div>
-								<label for="endingDate">End Date:</label>
+								<label for="endingDate" data-i18n="endDateLabel">End Date:</label>
 								<input type="date" id="endingDate" class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1">
-
 							</div>
 						</div>
 					</div>
@@ -183,7 +179,8 @@
 
 
 							<label id="showCommitsLabel" for="showCommits" class="font-medium text-sm flex items-center pl-5 ml-4"
-								style="margin-left: 4px;">Show commits on open PRs<span class="tooltip-container">
+								style="margin-left: 4px;" data-i18n="showCommitsLabel">Show commits on open PRs<span
+									class="tooltip-container">
 
 
 									<i class="fa fa-question-circle question-icon"></i>
@@ -286,8 +283,7 @@
 						<div class="mb-4">
 							<div class="flex items-center justify-between mb-2">
 								<p class="text-sm font-medium">
-									<span data-i18n="repoFilterLabel">Filter by repositories</span><span
-										class="tooltip-container">
+									<span data-i18n="repoFilterLabel">Filter by repositories</span><span class="tooltip-container">
 										<i class="fa fa-question-circle question-icon"></i>
 										<span class="tooltip-bubble" data-i18n="repoFilterTooltip">
 											Github Token required.<br>
@@ -298,8 +294,8 @@
 								</p>
 								<div class="flex items-center">
 									<input type="checkbox" id="useRepoFilter" class="mr-2">
-									<label for="useRepoFilter" class="text-xs text-gray-600"><span
-											data-i18n="enableFilteringLabel">Enable filtering</span></label>
+									<label for="useRepoFilter" class="text-xs text-gray-600"><span data-i18n="enableFilteringLabel">Enable
+											filtering</span></label>
 								</div>
 							</div>
 							<div id="tokenWarningForFilter"
@@ -326,8 +322,7 @@
 								<!-- Selected Tags Container -->
 								<div id="selectedRepos" class="mt-3 min-h-[32px] p-2 border-2 border-gray-200 bg-gray-50 rounded-xl">
 									<div class="flex flex-wrap gap-1" id="repoTags">
-										<span class="text-xs text-gray-500 select-none" id="repoPlaceholder"
-											data-i18n="repoPlaceholder">No
+										<span class="text-xs text-gray-500 select-none" id="repoPlaceholder" data-i18n="repoPlaceholder">No
 											repositories selected (all will be included)</span>
 									</div>
 								</div>

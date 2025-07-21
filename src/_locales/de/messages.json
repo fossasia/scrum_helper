@@ -1,66 +1,200 @@
 {
-    "appName": { "message": "Scrum Helper" },
-    "appDescription": { "message": "Berichten Sie über Ihren Entwicklungsfortschritt, indem Sie Ihre Git-Aktivität für einen ausgewählten Zeitraum automatisch abrufen" },
-    "disableLabel": { "message": "Deaktivieren" },
-    "enableLabel": { "message": "Aktivieren" },
-    "homeButtonTitle": { "message": "Zum Bericht" },
-    "projectNameLabel": { "message": "Ihr Projektname" },
-    "projectNamePlaceholder": { "message": "Geben Sie Ihren Projektnamen ein" },
-    "githubUsernameLabel": { "message": "Ihr GitHub-Benutzername" },
-    "githubUsernamePlaceholder": { "message": "Erforderlich, um Ihre Beiträge abzurufen" },
-    "contributionsLabel": { "message": "Ihre Beiträge abrufen für:" },
-    "last7DaysLabel": { "message": "Letzte 7 Tage" },
-    "last1DayLabel": { "message": "Gestern" },
-    "startDateLabel": { "message": "Startdatum:" },
-    "endDateLabel": { "message": "Enddatum:" },
-    "showOpenClosedLabel": { "message": "Offen/Geschlossen-Status anzeigen" },
-    "blockersLabel": { "message": "Was hindert Sie am Fortschritt?" },
-    "blockersPlaceholder": { "message": "Geben Sie hier den Grund ein" },
-    "scrumReportLabel": { "message": "Scrum-Bericht" },
-    "generateReportButton": { "message": "Bericht erstellen" },
-    "copyReportButton": { "message": "Bericht kopieren" },
-    "settingsOrgNameLabel": { "message": "Name der Organisation" },
-    "settingsOrgNamePlaceholder": { "message": "Namen der Organisation eingeben" },
-    "setButton": { "message": "Festlegen" },
-    "githubTokenLabel": { "message": "Ihr GitHub-Token" },
-    "githubTokenPlaceholder": { "message": "Für authentifizierte Anfragen erforderlich" },
-    "showCommitsLabel": { "message": "Commits in offenen PRs innerhalb des Zeitraums anzeigen" },
-    "cacheTTLLabel": { "message": "Cache-TTL eingeben" },
-    "cacheTTLUnit": { "message": "(in Minuten)" },
-    "cacheTTLPlaceholder": { "message": "Cache-TTL in Minuten (Standard: 10)" },
-    "refreshDataButton": { "message": "Daten aktualisieren (Cache umgehen)" },
-    "refreshDataInfo": { "message": "Verwenden Sie diese Schaltfläche, um neue Daten sofort abzurufen." },
-    "noteTitle": { "message": "Hinweis:" },
-    "viewCodeButton": { "message": "Code ansehen" },
-    "reportIssueButton": { "message": "Problem melden" },
-    "repoFilterLabel": { "message": "Nach Repositories filtern" },
-    "enableFilteringLabel": { "message": "Filterung aktivieren" },
-    "tokenRequiredWarning": { "message": "Für die Repository-Filterung ist ein GitHub-Token erforderlich. Bitte fügen Sie einen in den Einstellungen hinzu." },
-    "repoSearchPlaceholder": { "message": "Repository zum Hinzufügen suchen..." },
-    "repoPlaceholder": { "message": "Keine Repositories ausgewählt (alle werden einbezogen)" },
-    "repoCountNone": { "message": "0 Repositories ausgewählt" },
-    "repoCount": { "message": "$1 Repositories ausgewählt" },
-    "repoLoading": { "message": "Lade Repositories..." },
-    "repoLoaded": { "message": "$1 Repositories geladen." },
-    "repoNotFound": { "message": "Keine Repositories gefunden" },
-    "repoRefetching": { "message": "Lade Repositories neu..." },
-    "repoLoadFailed": { "message": "Laden der Repositories fehlgeschlagen." },
-    "repoTokenPrivate": { "message": "Token ist ungültig oder hat keine Rechte für private Repos." },
-    "repoRefetchFailed": { "message": "Neuladen der Repositories fehlgeschlagen." },
-    "orgSetMessage": { "message": "Organisation erfolgreich festgelegt." },
-    "orgClearedMessage": { "message": "Organisation gelöscht. Klicken Sie auf 'Bericht erstellen', um alle Aktivitäten abzurufen." },
-    "orgNotFoundMessage": { "message": "Organisation auf GitHub nicht gefunden." },
-    "orgValidationErrorMessage": { "message": "Fehler bei der Validierung der Organisation." },
-    "refreshingButton": { "message": "Wird aktualisiert..." },
-    "cacheClearFailed": { "message": "Cache-Löschung fehlgeschlagen." },
-    "madeWithLoveBy": { "message": "Made with ❤️ by" },
-    "generatingButton": { "message": "Wird generiert..." },
-    "copiedButton": { "message": "Kopiert!" },
-    "orgChangedMessage": { "message": "Organisation geändert. Klicken Sie auf 'Bericht erstellen', um die GitHub-Aktivitäten abzurufen." },
-    "cacheClearedMessage": { "message": "Cache erfolgreich geleert. Klicken Sie auf 'Bericht erstellen', um neue Daten abzurufen." },
-    "cacheClearedButton": { "message": "Cache geleert!" },
-    "extensionDisabledMessage": { "message": "Erweiterung ist deaktiviert. Aktivieren Sie sie in den Einstellungen, um Scrum-Berichte zu erstellen." },
-    "notePoint1": { "message": "Die abgerufenen PRs basieren auf der letzten Überprüfung durch einen beliebigen Beitragenden. Wenn Sie einen PR vor 10 Tagen überprüft haben und jemand anderes ihn vor 2 Tagen, wird er trotzdem in Ihrer Aktivität der letzten Woche angezeigt." },
-    "notePoint2": { "message": "Bitte beachten Sie, dass es im generierten Scrum zu Abweichungen kommen kann. Wir empfehlen, den Bericht vor dem Teilen manuell zu überprüfen, um die Genauigkeit sicherzustellen." },
-    "noteSeeIssue": { "message": "Siehe dieses Issue" }
+    "appName": {
+        "message": "Scrum Helper"
+    },
+    "appDescription": {
+        "message": "Berichten Sie über Ihren Entwicklungsfortschritt, indem Sie Ihre Git-Aktivität für einen ausgewählten Zeitraum automatisch abrufen"
+    },
+    "disableLabel": {
+        "message": "Deaktivieren"
+    },
+    "enableLabel": {
+        "message": "Aktivieren"
+    },
+    "homeButtonTitle": {
+        "message": "Zum Bericht"
+    },
+    "projectNameLabel": {
+        "message": "Ihr Projektname"
+    },
+    "projectNamePlaceholder": {
+        "message": "Geben Sie Ihren Projektnamen ein"
+    },
+    "githubUsernameLabel": {
+        "message": "Ihr GitHub-Benutzername"
+    },
+    "githubUsernamePlaceholder": {
+        "message": "Erforderlich, um Ihre Beiträge abzurufen"
+    },
+    "contributionsLabel": {
+        "message": "Ihre Beiträge abrufen für:"
+    },
+    "last7DaysLabel": {
+        "message": "Letzte 7 Tage"
+    },
+    "last1DayLabel": {
+        "message": "Gestern"
+    },
+    "startDateLabel": {
+        "message": "Startdatum:"
+    },
+    "endDateLabel": {
+        "message": "Enddatum:"
+    },
+    "showOpenClosedLabel": {
+        "message": "Offen/Geschlossen-Status anzeigen"
+    },
+    "blockersLabel": {
+        "message": "Was hindert Sie am Fortschritt?"
+    },
+    "blockersPlaceholder": {
+        "message": "Geben Sie hier den Grund ein"
+    },
+    "scrumReportLabel": {
+        "message": "Scrum-Bericht"
+    },
+    "generateReportButton": {
+        "message": "Bericht erstellen"
+    },
+    "copyReportButton": {
+        "message": "Bericht kopieren"
+    },
+    "settingsOrgNameLabel": {
+        "message": "Name der Organisation"
+    },
+    "settingsOrgNamePlaceholder": {
+        "message": "Namen der Organisation eingeben"
+    },
+    "setButton": {
+        "message": "Festlegen"
+    },
+    "githubTokenLabel": {
+        "message": "Ihr GitHub-Token"
+    },
+    "githubTokenPlaceholder": {
+        "message": "Für authentifizierte Anfragen erforderlich"
+    },
+    "showCommitsLabel": {
+        "message": "Commits in offenen PRs innerhalb des Zeitraums anzeigen"
+    },
+    "cacheTTLLabel": {
+        "message": "Cache-TTL eingeben"
+    },
+    "cacheTTLUnit": {
+        "message": "(in Minuten)"
+    },
+    "cacheTTLPlaceholder": {
+        "message": "Cache-TTL in Minuten (Standard: 10)"
+    },
+    "refreshDataButton": {
+        "message": "Daten aktualisieren (Cache umgehen)"
+    },
+    "refreshDataInfo": {
+        "message": "Verwenden Sie diese Schaltfläche, um neue Daten sofort abzurufen."
+    },
+    "noteTitle": {
+        "message": "Hinweis:"
+    },
+    "viewCodeButton": {
+        "message": "Code ansehen"
+    },
+    "reportIssueButton": {
+        "message": "Problem melden"
+    },
+    "repoFilterLabel": {
+        "message": "Nach Repositories filtern"
+    },
+    "enableFilteringLabel": {
+        "message": "Filterung aktivieren"
+    },
+    "tokenRequiredWarning": {
+        "message": "Für die Repository-Filterung ist ein GitHub-Token erforderlich. Bitte fügen Sie einen in den Einstellungen hinzu."
+    },
+    "repoSearchPlaceholder": {
+        "message": "Repository zum Hinzufügen suchen..."
+    },
+    "repoPlaceholder": {
+        "message": "Keine Repositories ausgewählt (alle werden einbezogen)"
+    },
+    "repoCountNone": {
+        "message": "0 Repositories ausgewählt"
+    },
+    "repoCount": {
+        "message": "$1 Repositories ausgewählt"
+    },
+    "repoLoading": {
+        "message": "Lade Repositories..."
+    },
+    "repoLoaded": {
+        "message": "$1 Repositories geladen."
+    },
+    "repoNotFound": {
+        "message": "Keine Repositories gefunden"
+    },
+    "repoRefetching": {
+        "message": "Lade Repositories neu..."
+    },
+    "repoLoadFailed": {
+        "message": "Laden der Repositories fehlgeschlagen."
+    },
+    "repoTokenPrivate": {
+        "message": "Token ist ungültig oder hat keine Rechte für private Repos."
+    },
+    "repoRefetchFailed": {
+        "message": "Neuladen der Repositories fehlgeschlagen."
+    },
+    "orgSetMessage": {
+        "message": "Organisation erfolgreich festgelegt."
+    },
+    "orgClearedMessage": {
+        "message": "Organisation gelöscht. Klicken Sie auf 'Bericht erstellen', um alle Aktivitäten abzurufen."
+    },
+    "orgNotFoundMessage": {
+        "message": "Organisation auf GitHub nicht gefunden."
+    },
+    "orgValidationErrorMessage": {
+        "message": "Fehler bei der Validierung der Organisation."
+    },
+    "refreshingButton": {
+        "message": "Wird aktualisiert..."
+    },
+    "cacheClearFailed": {
+        "message": "Cache-Löschung fehlgeschlagen."
+    },
+    "madeWithLoveBy": {
+        "message": "Made with ❤️ by"
+    },
+    "generatingButton": {
+        "message": "Wird generiert..."
+    },
+    "copiedButton": {
+        "message": "Kopiert!"
+    },
+    "orgChangedMessage": {
+        "message": "Organisation geändert. Klicken Sie auf 'Bericht erstellen', um die GitHub-Aktivitäten abzurufen."
+    },
+    "cacheClearedMessage": {
+        "message": "Cache erfolgreich geleert. Klicken Sie auf 'Bericht erstellen', um neue Daten abzurufen."
+    },
+    "cacheClearedButton": {
+        "message": "Cache geleert!"
+    },
+    "extensionDisabledMessage": {
+        "message": "Erweiterung ist deaktiviert. Aktivieren Sie sie in den Einstellungen, um Scrum-Berichte zu erstellen."
+    },
+    "notePoint1": {
+        "message": "Die abgerufenen PRs basieren auf der letzten Überprüfung durch einen beliebigen Beitragenden. Wenn Sie einen PR vor 10 Tagen überprüft haben und jemand anderes ihn vor 2 Tagen, wird er trotzdem in Ihrer Aktivität der letzten Woche angezeigt."
+    },
+    "notePoint2": {
+        "message": "Bitte beachten Sie, dass es im generierten Scrum zu Abweichungen kommen kann. Wir empfehlen, den Bericht vor dem Teilen manuell zu überprüfen, um die Genauigkeit sicherzustellen."
+    },
+    "noteSeeIssue": {
+        "message": "Siehe dieses Issue"
+    },
+    "platformLabel": {
+        "message": "Plattform"
+    },
+    "usernameLabel": {
+        "message": "Ihr Benutzername"
+    }
 }
