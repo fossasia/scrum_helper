@@ -478,6 +478,13 @@ function allIncluded(outputTarget = 'email') {
     }
 
     async function fetchGithubData() {
+        // Always load latest repo filter settings from storage
+        const filterSettings = await new Promise(resolve => {
+            chrome.storage.local.get(['useRepoFilter', 'selectedRepos'], resolve);
+        });
+        useRepoFilter = filterSettings.useRepoFilter || false;
+        selectedRepos = Array.isArray(filterSettings.selectedRepos) ? filterSettings.selectedRepos : [];
+
         const cacheKey = `${platformUsernameLocal}-${startingDate}-${endingDate}-${orgName || 'all'}`;
 
         if (githubCache.fetching || (githubCache.cacheKey === cacheKey && githubCache.data)) {
@@ -1754,15 +1761,17 @@ function filterDataByRepos(data, selectedRepos) {
         githubIssuesData: {
             ...data.githubIssuesData,
             items: data.githubIssuesData?.items?.filter(item => {
-                const repoName = item.repository_url?.substr(item.repository_url.lastIndexOf('/') + 1);
-                return selectedRepos.includes(repoName);
+                const urlParts = item.repository_url?.split('/');
+                const fullName = urlParts ? `${urlParts[urlParts.length - 2]}/${urlParts[urlParts.length - 1]}` : '';
+                return selectedRepos.includes(fullName);
             }) || []
         },
         githubPrsReviewData: {
             ...data.githubPrsReviewData,
             items: data.githubPrsReviewData?.items?.filter(item => {
-                const repoName = item.repository_url?.substr(item.repository_url.lastIndexOf('/') + 1);
-                return selectedRepos.includes(repoName);
+                const urlParts = item.repository_url?.split('/');
+                const fullName = urlParts ? `${urlParts[urlParts.length - 2]}/${urlParts[urlParts.length - 1]}` : '';
+                return selectedRepos.includes(fullName);
             }) || []
         }
     };

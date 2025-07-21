@@ -1073,14 +1073,14 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             const filtered = availableRepos.filter(repo =>
-                !selectedRepos.includes(repo.name) && (repo.name.toLowerCase().includes(query) || repo.description?.toLowerCase().includes(query))
+                !selectedRepos.includes(repo.fullName) && (repo.name.toLowerCase().includes(query) || repo.description?.toLowerCase().includes(query))
             );
 
             if (filtered.length === 0) {
                 repoDropdown.innerHTML = `<div class="p-3 text-center text-gray-500 text-sm" style="padding-left: 10px; ">${chrome.i18n.getMessage('repoNotFound')}</div>`;
             } else {
                 repoDropdown.innerHTML = filtered.slice(0, 10).map(repo => `
-                    <div class="repository-dropdown-item" data-repo-name="${repo.name}">
+                    <div class="repository-dropdown-item" data-repo-name="${repo.fullName}">
                         <div class="repo-name">
                             <span>${repo.name}</span>
                             ${repo.language ? `<span class="repo-language">${repo.language}</span>` : ''}
@@ -1103,9 +1103,9 @@ document.addEventListener('DOMContentLoaded', function () {
             showDropdown();
         }
 
-        function fnSelectedRepos(repoName) {
-            if (!selectedRepos.includes(repoName)) {
-                selectedRepos.push(repoName);
+        function fnSelectedRepos(repoFullName) {
+            if (!selectedRepos.includes(repoFullName)) {
+                selectedRepos.push(repoFullName);
                 updateRepoDisplay();
                 saveRepoSelection();
             }
@@ -1116,8 +1116,8 @@ document.addEventListener('DOMContentLoaded', function () {
             repoSearch.focus();
         }
 
-        function removeRepo(repoName) {
-            selectedRepos = selectedRepos.filter(name => name !== repoName);
+        function removeRepo(repoFullName) {
+            selectedRepos = selectedRepos.filter(name => name !== repoFullName);
             updateRepoDisplay();
             saveRepoSelection();
 
@@ -1131,19 +1131,22 @@ document.addEventListener('DOMContentLoaded', function () {
                 repoTags.innerHTML = `<span class="text-xs text-gray-500 select-none" id="repoPlaceholder">${chrome.i18n.getMessage('repoPlaceholder')}</span>`;
                 repoCount.textContent = chrome.i18n.getMessage('repoCountNone');
             } else {
-                repoTags.innerHTML = selectedRepos.map(repo => `
-                    <span class="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full" style="margin:5px;">
-                        ${repo}
-                        <button type="button" class="ml-1 text-blue-600 hover:text-blue-800 remove-repo-btn cursor-pointer" data-repo-name="${repo}">
-                            <i class="fa fa-times"></i>
-                        </button>
-                    </span>
-                `).join(' ');
+                repoTags.innerHTML = selectedRepos.map(repoFullName => {
+                    const repoName = repoFullName.split('/')[1] || repoFullName;
+                    return `
+                        <span class="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full" style="margin:5px;">
+                            ${repoName}
+                            <button type="button" class="ml-1 text-blue-600 hover:text-blue-800 remove-repo-btn cursor-pointer" data-repo-name="${repoFullName}">
+                                <i class="fa fa-times"></i>
+                            </button>
+                        </span>
+                    `;
+                }).join(' ');
                 repoTags.querySelectorAll('.remove-repo-btn').forEach(btn => {
                     btn.addEventListener('click', (e) => {
                         e.stopPropagation();
-                        const repoName = btn.dataset.repoName;
-                        removeRepo(repoName);
+                        const repoFullName = btn.dataset.repoName;
+                        removeRepo(repoFullName);
                     });
                 });
                 repoCount.textContent = chrome.i18n.getMessage('repoCount', [selectedRepos.length]);
