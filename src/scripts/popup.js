@@ -1415,9 +1415,9 @@ const platformSelectHidden = document.getElementById('platformSelect');
 
 function setPlatformDropdown(value) {
     if (value === 'gitlab') {
-        dropdownSelected.innerHTML = '<i class="fa fa-gitlab mr-2"></i> GitLab';
+        dropdownSelected.innerHTML = '<i class="fab fa-gitlab mr-2"></i> GitLab';
     } else {
-        dropdownSelected.innerHTML = '<i class="fa fa-github mr-2"></i> GitHub';
+        dropdownSelected.innerHTML = '<i class="fab fa-github mr-2"></i> GitHub';
     }
 
     // Save current username for current platform before switching
@@ -1525,9 +1525,9 @@ chrome.storage.local.get(['platform'], function (result) {
     const platform = result.platform || 'github';
     // Just update the UI without clearing username when restoring from storage
     if (platform === 'gitlab') {
-        dropdownSelected.innerHTML = '<i class="fa fa-gitlab mr-2"></i> GitLab';
+        dropdownSelected.innerHTML = '<i class="fab fa-gitlab mr-2"></i> GitLab';
     } else {
-        dropdownSelected.innerHTML = '<i class="fa fa-github mr-2"></i> GitHub';
+        dropdownSelected.innerHTML = '<i class="fab fa-github mr-2"></i> GitHub';
     }
     platformSelectHidden.value = platform;
     updatePlatformUI(platform);
