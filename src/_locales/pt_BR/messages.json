@@ -24,7 +24,7 @@
     "setButton": { "message": "Definir" },
     "githubTokenLabel": { "message": "Seu Token do GitHub" },
     "githubTokenPlaceholder": { "message": "Necessário para solicitações autenticadas" },
-    "showCommitsLabel": { "message": "Mostrar commits em PRs abertos no período" },
+    "showCommitsLabel": { "message": "Mostrar commits em PRs abertos" },
     "cacheTTLLabel": { "message": "Digite o TTL do cache" },
     "cacheTTLUnit": { "message": "(em minutos)" },
     "cacheTTLPlaceholder": { "message": "Digite o TTL do cache em minutos (Padrão: 10)" },

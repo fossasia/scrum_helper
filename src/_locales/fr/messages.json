@@ -24,7 +24,7 @@
     "setButton": { "message": "Définir" },
     "githubTokenLabel": { "message": "Votre jeton GitHub" },
     "githubTokenPlaceholder": { "message": "Requis pour les requêtes authentifiées" },
-    "showCommitsLabel": { "message": "Afficher les commits dans les PR ouverts pour la période sélectionnée" },
+    "showCommitsLabel": { "message": "Afficher les commits sur les PRs ouverts" },
     "cacheTTLLabel": { "message": "Entrer le TTL du cache" },
     "cacheTTLUnit": { "message": "(en minutes)" },
     "cacheTTLPlaceholder": { "message": "Entrez le TTL du cache en minutes (Défaut : 10)" },

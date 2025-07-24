@@ -24,7 +24,7 @@
     "setButton": { "message": "Đặt" },
     "githubTokenLabel": { "message": "Mã token GitHub của bạn" },
     "githubTokenPlaceholder": { "message": "Bắt buộc cho các yêu cầu đã xác thực" },
-    "showCommitsLabel": { "message": "Hiển thị các commit trong PR đang mở theo khoảng ngày" },
+    "showCommitsLabel": { "message": "Hiển thị commit trên PR mở" },
     "cacheTTLLabel": { "message": "Nhập TTL bộ nhớ đệm" },
     "cacheTTLUnit": { "message": "(tính bằng phút)" },
     "cacheTTLPlaceholder": { "message": "Nhập TTL bộ nhớ đệm bằng phút (Mặc định: 10)" },

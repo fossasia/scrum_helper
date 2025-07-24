@@ -24,7 +24,7 @@
     "setButton": { "message": "Atur" },
     "githubTokenLabel": { "message": "Token GitHub Anda" },
     "githubTokenPlaceholder": { "message": "Diperlukan untuk permintaan terotentikasi" },
-    "showCommitsLabel": { "message": "Tampilkan commit di PR terbuka dalam rentang tanggal" },
+    "showCommitsLabel": { "message": "Tampilkan commit pada PR terbuka" },
     "cacheTTLLabel": { "message": "Masukkan TTL cache" },
     "cacheTTLUnit": { "message": "(dalam menit)" },
     "cacheTTLPlaceholder": { "message": "Tulis TTL Cache dalam menit (Default: 10)" },

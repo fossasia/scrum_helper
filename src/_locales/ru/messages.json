@@ -24,7 +24,7 @@
     "setButton": { "message": "Установить" },
     "githubTokenLabel": { "message": "Ваш токен GitHub" },
     "githubTokenPlaceholder": { "message": "Требуется для аутентифицированных запросов" },
-    "showCommitsLabel": { "message": "Показывать коммиты в открытых PR за указанный период" },
+    "showCommitsLabel": { "message": "Показать коммиты в открытых PR" },
     "cacheTTLLabel": { "message": "Введите TTL кэша" },
     "cacheTTLUnit": { "message": "(в минутах)" },
     "cacheTTLPlaceholder": { "message": "Укажите TTL кэша в минутах (по умолчанию: 10)" },

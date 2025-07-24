@@ -24,7 +24,7 @@
     "setButton": { "message": "सेट करें" },
     "githubTokenLabel": { "message": "आपका GitHub टोकन" },
     "githubTokenPlaceholder": { "message": "प्रमाणित अनुरोधों के लिए आवश्यक" },
-    "showCommitsLabel": { "message": "चयनित अवधि में खुले PRs में किए गए कमिट दिखाएं" },
+    "showCommitsLabel": { "message": "खुले PRs में कमिट दिखाएँ" },
     "cacheTTLLabel": { "message": "कैश TTL दर्ज करें" },
     "cacheTTLUnit": { "message": "(मिनटों में)" },
     "cacheTTLPlaceholder": { "message": "कैश TTL मिनटों में लिखें (डिफ़ॉल्ट: 10)" },

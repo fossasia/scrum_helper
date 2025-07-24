@@ -24,7 +24,7 @@
     "setButton": { "message": "設定" },
     "githubTokenLabel": { "message": "GitHubトークン" },
     "githubTokenPlaceholder": { "message": "認証済みリクエストに必要です" },
-    "showCommitsLabel": { "message": "期間内のオープンなPRのコミットを表示" },
+    "showCommitsLabel": { "message": "オープンPRのコミットを表示" },
     "cacheTTLLabel": { "message": "キャッシュTTLを入力" },
     "cacheTTLUnit": { "message": "（分）" },
     "cacheTTLPlaceholder": { "message": "キャッシュTTLを分単位で入力 (デフォルト: 10)" },

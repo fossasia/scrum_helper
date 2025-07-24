@@ -24,7 +24,7 @@
     "setButton": { "message": "設定" },
     "githubTokenLabel": { "message": "您的 GitHub 權杖" },
     "githubTokenPlaceholder": { "message": "進行身分驗證請求所必需" },
-    "showCommitsLabel": { "message": "顯示日期範圍內在進行中 PR 的提交" },
+    "showCommitsLabel": { "message": "顯示開放 PR 的提交" },
     "cacheTTLLabel": { "message": "輸入快取 TTL" },
     "cacheTTLUnit": { "message": "（分鐘）" },
     "cacheTTLPlaceholder": { "message": "以分鐘為單位輸入快取 TTL（預設為 10）" },

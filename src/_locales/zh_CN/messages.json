@@ -24,7 +24,7 @@
     "setButton": { "message": "设置" },
     "githubTokenLabel": { "message": "您的 GitHub 令牌" },
     "githubTokenPlaceholder": { "message": "进行身份验证请求所必需" },
-    "showCommitsLabel": { "message": "显示日期范围内在进行中 PR 的提交" },
+    "showCommitsLabel": { "message": "显示开放 PR 的提交" },
     "cacheTTLLabel": { "message": "输入缓存 TTL" },
     "cacheTTLUnit": { "message": "（分钟）" },
     "cacheTTLPlaceholder": { "message": "以分钟为单位输入缓存 TTL（默认为 10）" },
