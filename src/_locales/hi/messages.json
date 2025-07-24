@@ -13,7 +13,7 @@
     "last1DayLabel": { "message": "कल" },
     "startDateLabel": { "message": "प्रारंभ तिथि:" },
     "endDateLabel": { "message": "अंतिम तिथि:" },
-    "showOpenClosedLabel": { "message": "खुला/बंद स्थिति दिखाएं" },
+    "showOpenClosedLabel": { "message": "PRs लेबल दिखाएँ" },
     "blockersLabel": { "message": "आपको प्रगति करने से क्या रोक रहा है?" },
     "blockersPlaceholder": { "message": "अपना कारण दर्ज करें" },
     "scrumReportLabel": { "message": "स्क्रम रिपोर्ट" },

@@ -13,7 +13,7 @@
     "last1DayLabel": { "message": "昨日" },
     "startDateLabel": { "message": "開始日：" },
     "endDateLabel": { "message": "終了日：" },
-    "showOpenClosedLabel": { "message": "オープン/クローズ状態を表示" },
+    "showOpenClosedLabel": { "message": "PRラベルを表示" },
     "blockersLabel": { "message": "進捗の妨げになっているものは何ですか？" },
     "blockersPlaceholder": { "message": "理由を入力してください" },
     "scrumReportLabel": { "message": "スクラムレポート" },

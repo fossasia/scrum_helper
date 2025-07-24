@@ -13,7 +13,7 @@
     "last1DayLabel": { "message": "Kemarin" },
     "startDateLabel": { "message": "Tanggal Mulai:" },
     "endDateLabel": { "message": "Tanggal Selesai:" },
-    "showOpenClosedLabel": { "message": "Tampilkan status Buka/Tutup" },
+    "showOpenClosedLabel": { "message": "Tampilkan Label PRs" },
     "blockersLabel": { "message": "Apa yang menghalangi kemajuan Anda?" },
     "blockersPlaceholder": { "message": "Masukkan alasan Anda" },
     "scrumReportLabel": { "message": "Laporan Scrum" },

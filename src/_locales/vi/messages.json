@@ -13,7 +13,7 @@
     "last1DayLabel": { "message": "Hôm qua" },
     "startDateLabel": { "message": "Ngày bắt đầu:" },
     "endDateLabel": { "message": "Ngày kết thúc:" },
-    "showOpenClosedLabel": { "message": "Hiển thị trạng thái Mở/Đóng" },
+    "showOpenClosedLabel": { "message": "Hiển thị nhãn PRs" },
     "blockersLabel": { "message": "Điều gì đang cản trở bạn?" },
     "blockersPlaceholder": { "message": "Nhập lý do của bạn" },
     "scrumReportLabel": { "message": "Báo cáo Scrum" },

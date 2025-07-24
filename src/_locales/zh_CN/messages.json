@@ -13,7 +13,7 @@
     "last1DayLabel": { "message": "昨天" },
     "startDateLabel": { "message": "开始日期：" },
     "endDateLabel": { "message": "结束日期：" },
-    "showOpenClosedLabel": { "message": "显示“打开/关闭”状态" },
+    "showOpenClosedLabel": { "message": "显示 PR 标签" },
     "blockersLabel": { "message": "什么阻碍了您的进展？" },
     "blockersPlaceholder": { "message": "输入您的原因" },
     "scrumReportLabel": { "message": "Scrum 报告" },

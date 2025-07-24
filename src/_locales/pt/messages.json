@@ -13,7 +13,7 @@
     "last1DayLabel": { "message": "Último dia" },
     "startDateLabel": { "message": "Data de Início:" },
     "endDateLabel": { "message": "Data de Fim:" },
-    "showOpenClosedLabel": { "message": "Mostrar Rótulo Aberto/Fechado" },
+    "showOpenClosedLabel": { "message": "Mostrar rótulos de PRs" },
     "blockersLabel": { "message": "O que está impedindo você de progredir?" },
     "blockersPlaceholder": { "message": "Digite o seu motivo" },
     "scrumReportLabel": { "message": "Relatório Scrum" },

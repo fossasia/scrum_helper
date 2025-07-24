@@ -117,7 +117,7 @@
 
 						<label id="checkboxLabel" for="showOpenLabel" class=" font-medium text-sm"
 							data-i18n="showOpenClosedLabel">Show
-							Open/Merged/Closed Labels</label>
+							PRs Labels</label>
 
 					</div>
 
@@ -157,6 +157,29 @@
 								class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
 								<i class="fa fa-copy"></i> <span data-i18n="copyReportButton">Copy Report</span>
 							</button>
+						</div>
+					</div>
+					<div class="border-gray-100 border-2 bg-white rounded-3xl px-4 py-2 mx-2 my-2">
+						<div>
+							<h4 class="font-semibold text-xl" data-i18n="noteTitle">Note:</h4>
+							<ul class="text-xs list-disc list-inside">
+								<li data-i18n="notePoint1">The PRs fetched are based on the most recent review by any
+									contributor. If you reviewed
+									a PR 10 days
+									ago and someone else reviewed it 2 days ago, it will still appear in your activity
+									for
+									the past week.
+									<a target="_blank" href="https://github.com/fossasia/scrum_helper/issues/20"
+										data-i18n="noteSeeIssue">(See this
+										issue)</a>
+								</li>
+								<li data-i18n="notePoint2">Please note that some discrepancies may occur in the
+									generated
+									SCRUM. We recommend
+									manually reviewing
+									and editing the report to ensure accuracy before sharing.
+								</li>
+							</ul>
 						</div>
 					</div>
 				</div>
@@ -318,28 +341,6 @@
 						</p>
 					</div>
 
-				</div>
-
-				<div class="border-gray-100 border-2 bg-white rounded-3xl px-4 py-2 mx-2 my-2">
-					<div>
-						<h4 class="font-semibold text-xl" data-i18n="noteTitle">Note:</h4>
-						<ul class="text-xs list-disc list-inside">
-							<li data-i18n="notePoint1">The PRs fetched are based on the most recent review by any
-								contributor. If you reviewed
-								a PR 10 days
-								ago and someone else reviewed it 2 days ago, it will still appear in your activity for
-								the past week.
-								<a target="_blank" href="https://github.com/fossasia/scrum_helper/issues/20"
-									data-i18n="noteSeeIssue">(See this
-									issue)</a>
-							</li>
-							<li data-i18n="notePoint2">Please note that some discrepancies may occur in the generated
-								SCRUM. We recommend
-								manually reviewing
-								and editing the report to ensure accuracy before sharing.
-							</li>
-						</ul>
-					</div>
 				</div>
 			</div>
 

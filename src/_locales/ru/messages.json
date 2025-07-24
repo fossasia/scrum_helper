@@ -13,7 +13,7 @@
     "last1DayLabel": { "message": "Вчера" },
     "startDateLabel": { "message": "Дата начала:" },
     "endDateLabel": { "message": "Дата окончания:" },
-    "showOpenClosedLabel": { "message": "Показывать статус Открыто/Закрыто" },
+    "showOpenClosedLabel": { "message": "Показать метки PR" },
     "blockersLabel": { "message": "Что мешает вашему прогрессу?" },
     "blockersPlaceholder": { "message": "Введите причину" },
     "scrumReportLabel": { "message": "Scrum-отчет" },
