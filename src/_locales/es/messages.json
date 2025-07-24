@@ -3,7 +3,6 @@
     "appDescription": { "message": "Informe sobre su progreso de desarrollo obteniendo automáticamente su actividad de Git para un período seleccionado." },
     "disableLabel": { "message": "Desactivar" },
     "enableLabel": { "message": "Activar" },
-    "homeButtonTitle": { "message": "Ir al informe" },
     "projectNameLabel": { "message": "Nombre de su proyecto" },
     "projectNamePlaceholder": { "message": "Ingrese el nombre de su proyecto" },
     "githubUsernameLabel": { "message": "Su nombre de usuario de GitHub" },

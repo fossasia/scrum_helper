@@ -3,7 +3,6 @@
     "appDescription": { "message": "透過自動擷取選定時間段內的 Git 活動來報告您的開發進度。" },
     "disableLabel": { "message": "停用" },
     "enableLabel": { "message": "啟用" },
-    "homeButtonTitle": { "message": "前往報告" },
     "projectNameLabel": { "message": "您的專案名稱" },
     "projectNamePlaceholder": { "message": "輸入您的專案名稱" },
     "githubUsernameLabel": { "message": "您的 GitHub 使用者名稱" },

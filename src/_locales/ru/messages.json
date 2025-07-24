@@ -3,7 +3,6 @@
     "appDescription": { "message": "Сообщайте о своем прогрессе в разработке, автоматически получая данные о вашей активности в Git за выбранный период." },
     "disableLabel": { "message": "Отключить" },
     "enableLabel": { "message": "Включить" },
-    "homeButtonTitle": { "message": "Перейти к отчету" },
     "projectNameLabel": { "message": "Название вашего проекта" },
     "projectNamePlaceholder": { "message": "Введите название вашего проекта" },
     "githubUsernameLabel": { "message": "Ваше имя пользователя GitHub" },

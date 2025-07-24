@@ -3,7 +3,6 @@
     "appDescription": { "message": "Báo cáo tiến độ phát triển của bạn bằng cách tự động lấy hoạt động Git trong một khoảng thời gian đã chọn." },
     "disableLabel": { "message": "Tắt" },
     "enableLabel": { "message": "Bật" },
-    "homeButtonTitle": { "message": "Đi đến Báo cáo" },
     "projectNameLabel": { "message": "Tên dự án của bạn" },
     "projectNamePlaceholder": { "message": "Nhập tên dự án của bạn" },
     "githubUsernameLabel": { "message": "Tên người dùng GitHub của bạn" },

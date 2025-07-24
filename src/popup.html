@@ -45,8 +45,7 @@
 					<span data-i18n="enableLabel">Enable</span>
 				</label>
 				<div class="flex">
-					<button id="homeButton" data-i18n-title="homeButtonTitle"
-						class="ml-1 p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition">
+					<button id="homeButton" class="ml-1 p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition">
 						<i class="fa fa-home text-2xl text-gray-600 dark:text-gray-300"></i>
 					</button>
 					<button id="settingsToggle">
@@ -87,24 +86,24 @@
 						<div class="flex justify-between items-center my-2 mx-4">
 							<div class="flex items-center gap-2">
 								<input type="radio" id="lastWeekContribution" name="timeframe" class="form-radio">
-								<label for="lastWeekContribution" class="font-normal" data-i18n="last7DaysLabel">Last 7
+								<label for="lastWeekContribution" class="font-medium text-xs" data-i18n="last7DaysLabel">Last 7
 									days</label>
 							</div>
 							<div class="flex items-center gap-2">
 								<input type="radio" id="yesterdayContribution" name="timeframe" class="form-radio">
-								<label for="yesterdayContribution" class="font-normal" data-i18n="last1DayLabel">Last 1
+								<label for="yesterdayContribution" class="font-medium text-xs" data-i18n="last1DayLabel">Last 1
 									day</label>
 							</div>
 						</div>
 
 						<div id="customDateContainer" class="flex justify-between items-center mt-2">
 							<div>
-								<label for="startingDate" data-i18n="startDateLabel">Start Date:</label>
+								<label for="startingDate" class="font-medium text-xs" data-i18n="startDateLabel">Start Date:</label>
 								<input type="date" id="startingDate"
-									class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1">
+									class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1 ">
 							</div>
 							<div>
-								<label for="endingDate" data-i18n="endDateLabel">End Date:</label>
+								<label for="endingDate" class="font-medium text-xs" data-i18n="endDateLabel">End Date:</label>
 								<input type="date" id="endingDate"
 									class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1">
 							</div>
@@ -114,7 +113,7 @@
 					<div class="flex gap-[7px] mt-3">
 						<input type="checkbox" id="showOpenLabel" class="form-checkbox text-blue-600">
 
-						<label id="checkboxLabel" for="showOpenLabel" class=" font-medium text-sm" style="margin-left: 4px;"
+						<label id="checkboxLabel" for="showOpenLabel" class="font-medium text-sm" style="margin-left: 4px;"
 							data-i18n="showOpenClosedLabel">Show
 							PRs Labels</label>
 					</div>
@@ -135,7 +134,7 @@
 
 					<div>
 						<div>
-							<h6 class="text-base font-semibold" data-i18n="scrumReportLabel">Scrum Report</h6>
+							<h6 class="text-base font-semibold mt-2" data-i18n="scrumReportLabel">Scrum Report</h6>
 							<div id="scrumReport" contenteditable="true"
 								class="min-h-[200px] overflow-y-auto whitespace-pre-wrap border-2 border-gray-200 bg-gray-100 rounded-xl text-gray-800 p-2 my-2">
 							</div>
@@ -256,8 +255,8 @@
 									</span>
 								</p>
 								<div class="flex items-center">
-									<input type="checkbox" id="useRepoFilter" class="mr-2">
-									<label for="useRepoFilter" class="text-xs text-gray-600"><span
+									<input type="checkbox" id="useRepoFilter" style="margin-right: 4px;" class="mr-2">
+									<label for="useRepoFilter" class="font-medium text-xs text-gray-600"><span
 											data-i18n="enableFilteringLabel">Enable filtering</span></label>
 								</div>
 							</div>

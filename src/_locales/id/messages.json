@@ -3,7 +3,6 @@
     "appDescription": { "message": "Laporkan kemajuan pengembangan Anda dengan mengambil aktivitas Git Anda secara otomatis untuk periode yang dipilih." },
     "disableLabel": { "message": "Nonaktifkan" },
     "enableLabel": { "message": "Aktifkan" },
-    "homeButtonTitle": { "message": "Buka Laporan" },
     "projectNameLabel": { "message": "Nama Proyek Anda" },
     "projectNamePlaceholder": { "message": "Masukkan nama proyek Anda" },
     "githubUsernameLabel": { "message": "Nama Pengguna GitHub Anda" },

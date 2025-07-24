@@ -3,7 +3,6 @@
     "appDescription": { "message": "通过自动获取选定时间段内的 Git 活动来报告您的开发进度。" },
     "disableLabel": { "message": "禁用" },
     "enableLabel": { "message": "启用" },
-    "homeButtonTitle": { "message": "前往报告" },
     "projectNameLabel": { "message": "您的项目名称" },
     "projectNamePlaceholder": { "message": "输入您的项目名称" },
     "githubUsernameLabel": { "message": "您的 GitHub 用户名" },

@@ -3,7 +3,6 @@
     "appDescription": { "message": "Rendez compte de votre progression en récupérant automatiquement votre activité Git pour une période sélectionnée." },
     "disableLabel": { "message": "Désactiver" },
     "enableLabel": { "message": "Activer" },
-    "homeButtonTitle": { "message": "Aller au rapport" },
     "projectNameLabel": { "message": "Nom de votre projet" },
     "projectNamePlaceholder": { "message": "Entrez le nom de votre projet" },
     "githubUsernameLabel": { "message": "Votre nom d'utilisateur GitHub" },

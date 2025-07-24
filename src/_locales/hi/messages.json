@@ -3,7 +3,6 @@
     "appDescription": { "message": "एक चयनित अवधि के लिए अपनी Git गतिविधि को स्वतः प्राप्त करके अपनी विकास प्रगति की रिपोर्ट करें।" },
     "disableLabel": { "message": "अक्षम करें" },
     "enableLabel": { "message": "सक्षम करें" },
-    "homeButtonTitle": { "message": "रिपोर्ट पर जाएं" },
     "projectNameLabel": { "message": "आपकी परियोजना का नाम" },
     "projectNamePlaceholder": { "message": "अपनी परियोजना का नाम दर्ज करें" },
     "githubUsernameLabel": { "message": "आपका GitHub उपयोगकर्ता नाम" },

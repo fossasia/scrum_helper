@@ -3,7 +3,6 @@
     "appDescription": { "message": "選択した期間のGitアクティビティを自動的に取得して、開発の進捗を報告します。" },
     "disableLabel": { "message": "無効にする" },
     "enableLabel": { "message": "有効にする" },
-    "homeButtonTitle": { "message": "レポートに移動" },
     "projectNameLabel": { "message": "プロジェクト名" },
     "projectNamePlaceholder": { "message": "プロジェクト名を入力してください" },
     "githubUsernameLabel": { "message": "GitHubユーザー名" },

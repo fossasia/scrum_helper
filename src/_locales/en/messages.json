@@ -15,10 +15,6 @@
         "message": "Enable",
         "description": "Label for the toggle switch to enable the extension."
     },
-    "homeButtonTitle": {
-        "message": "Go to Report",
-        "description": "Tooltip for the home button."
-    },
     "projectNameLabel": {
         "message": "Your Project Name",
         "description": "Label for the project name input field."
