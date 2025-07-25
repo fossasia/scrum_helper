@@ -250,5 +250,13 @@
     "noteSeeIssue": {
         "message": "See this issue",
         "description": "Link text for the GitHub issue in the notes."
+    },
+    "platformLabel": {
+        "message": "Platform",
+        "description": "Label for the platform selection header."
+    },
+    "usernameLabel": {
+        "message": "Your Username",
+        "description": "Label for the username input header."
     }
 }

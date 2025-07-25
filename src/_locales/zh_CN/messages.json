@@ -1,65 +1,201 @@
 {
-    "appName": { "message": "Scrum Helper" },
-    "appDescription": { "message": "通过自动获取选定时间段内的 Git 活动来报告您的开发进度。" },
-    "disableLabel": { "message": "禁用" },
-    "enableLabel": { "message": "启用" },
-    "projectNameLabel": { "message": "您的项目名称" },
-    "projectNamePlaceholder": { "message": "输入您的项目名称" },
-    "githubUsernameLabel": { "message": "您的 GitHub 用户名" },
-    "githubUsernamePlaceholder": { "message": "获取您的贡献所必需" },
-    "contributionsLabel": { "message": "获取您在此期间的贡献：" },
-    "last7DaysLabel": { "message": "过去 7 天" },
-    "last1DayLabel": { "message": "昨天" },
-    "startDateLabel": { "message": "开始日期：" },
-    "endDateLabel": { "message": "结束日期：" },
-    "showOpenClosedLabel": { "message": "显示 PR 标签" },
-    "blockersLabel": { "message": "什么阻碍了您的进展？" },
-    "blockersPlaceholder": { "message": "输入您的原因" },
-    "scrumReportLabel": { "message": "Scrum 报告" },
-    "generateReportButton": { "message": "生成报告" },
-    "copyReportButton": { "message": "复制报告" },
-    "settingsOrgNameLabel": { "message": "组织名称" },
-    "settingsOrgNamePlaceholder": { "message": "输入组织名称" },
-    "setButton": { "message": "设置" },
-    "githubTokenLabel": { "message": "您的 GitHub 令牌" },
-    "githubTokenPlaceholder": { "message": "进行身份验证请求所必需" },
-    "showCommitsLabel": { "message": "显示开放 PR 的提交" },
-    "cacheTTLLabel": { "message": "输入缓存 TTL" },
-    "cacheTTLUnit": { "message": "（分钟）" },
-    "cacheTTLPlaceholder": { "message": "以分钟为单位输入缓存 TTL（默认为 10）" },
-    "refreshDataButton": { "message": "刷新数据（绕过缓存）" },
-    "refreshDataInfo": { "message": "使用此按钮立即获取新数据。" },
-    "noteTitle": { "message": "注意：" },
-    "viewCodeButton": { "message": "查看代码" },
-    "reportIssueButton": { "message": "报告问题" },
-    "repoFilterLabel": { "message": "按仓库筛选" },
-    "enableFilteringLabel": { "message": "启用筛选" },
-    "tokenRequiredWarning": { "message": "仓库筛选需要GitHub令牌。请在设置中添加一个。" },
-    "repoSearchPlaceholder": { "message": "搜索要添加的仓库..." },
-    "repoPlaceholder": { "message": "未选择任何仓库（将包含所有仓库）" },
-    "repoCountNone": { "message": "已选择 0 个仓库" },
-    "repoCount": { "message": "已选择 $1 个仓库" },
-    "repoLoading": { "message": "正在加载仓库..." },
-    "repoLoaded": { "message": "已加载 $1 个仓库。" },
-    "repoNotFound": { "message": "未找到仓库" },
-    "repoRefetching": { "message": "正在重新加载仓库..." },
-    "repoLoadFailed": { "message": "加载仓库失败。" },
-    "repoTokenPrivate": { "message": "令牌无效或没有私有仓库的权限。" },
-    "repoRefetchFailed": { "message": "重新加载仓库失败。" },
-    "orgSetMessage": { "message": "组织设置成功。" },
-    "orgClearedMessage": { "message": "组织已清除。点击“生成报告”以获取所有活动。" },
-    "orgNotFoundMessage": { "message": "在GitHub上找不到组织。" },
-    "orgValidationErrorMessage": { "message": "验证组织时出错。" },
-    "refreshingButton": { "message": "正在刷新..." },
-    "cacheClearFailed": { "message": "清除缓存失败。" },
-    "madeWithLoveBy": { "message": "Made with ❤️ by" },
-    "generatingButton": { "message": "正在生成..." },
-    "copiedButton": { "message": "已复制！" },
-    "orgChangedMessage": { "message": "组织已更改。单击“生成报告”按钮以获取 GitHub 活动。" },
-    "cacheClearedMessage": { "message": "缓存已成功清除。单击“生成报告”以获取新数据。" },
-    "cacheClearedButton": { "message": "缓存已清除！" },
-    "extensionDisabledMessage": { "message": "扩展已禁用。请在设置中启用它以生成 Scrum 报告。" },
-    "notePoint1": { "message": "获取的 PR 基于任何贡献者的最新审查。如果您在 10 天前审查了某个 PR，而其他人在 2 天前审查了它，它仍将出现在您上周的活动中。" },
-    "notePoint2": { "message": "请注意，生成的 Scrum 报告中可能会出现一些差异。我们建议在分享前手动审查和编辑报告以确保准确性。" },
-    "noteSeeIssue": { "message": "查看此 issue" }
+
+    "appName": {
+        "message": "Scrum Helper"
+    },
+    "appDescription": {
+        "message": "通过自动获取选定时间段内的 Git 活动来报告您的开发进度。"
+    },
+    "disableLabel": {
+        "message": "禁用"
+    },
+    "enableLabel": {
+        "message": "启用"
+    },
+    "homeButtonTitle": {
+        "message": "前往报告"
+    },
+    "projectNameLabel": {
+        "message": "您的项目名称"
+    },
+    "projectNamePlaceholder": {
+        "message": "输入您的项目名称"
+    },
+    "githubUsernameLabel": {
+        "message": "您的 GitHub 用户名"
+    },
+    "githubUsernamePlaceholder": {
+        "message": "获取您的贡献所必需"
+    },
+    "contributionsLabel": {
+        "message": "获取您在此期间的贡献："
+    },
+    "last7DaysLabel": {
+        "message": "过去 7 天"
+    },
+    "last1DayLabel": {
+        "message": "昨天"
+    },
+    "startDateLabel": {
+        "message": "开始日期："
+    },
+    "endDateLabel": {
+        "message": "结束日期："
+    },
+    "showOpenClosedLabel": {
+        "message": "显示“打开/关闭”状态"
+    },
+    "blockersLabel": {
+        "message": "什么阻碍了您的进展？"
+    },
+    "blockersPlaceholder": {
+        "message": "输入您的原因"
+    },
+    "scrumReportLabel": {
+        "message": "Scrum 报告"
+    },
+    "generateReportButton": {
+        "message": "生成报告"
+    },
+    "copyReportButton": {
+        "message": "复制报告"
+    },
+    "settingsOrgNameLabel": {
+        "message": "组织名称"
+    },
+    "settingsOrgNamePlaceholder": {
+        "message": "输入组织名称"
+    },
+    "setButton": {
+        "message": "设置"
+    },
+    "githubTokenLabel": {
+        "message": "您的 GitHub 令牌"
+    },
+    "githubTokenPlaceholder": {
+        "message": "进行身份验证请求所必需"
+    },
+    "showCommitsLabel": {
+        "message": "显示日期范围内在进行中 PR 的提交"
+    },
+    "cacheTTLLabel": {
+        "message": "输入缓存 TTL"
+    },
+    "cacheTTLUnit": {
+        "message": "（分钟）"
+    },
+    "cacheTTLPlaceholder": {
+        "message": "以分钟为单位输入缓存 TTL（默认为 10）"
+    },
+    "refreshDataButton": {
+        "message": "刷新数据（绕过缓存）"
+    },
+    "refreshDataInfo": {
+        "message": "使用此按钮立即获取新数据。"
+    },
+    "noteTitle": {
+        "message": "注意："
+    },
+    "viewCodeButton": {
+        "message": "查看代码"
+    },
+    "reportIssueButton": {
+        "message": "报告问题"
+    },
+    "repoFilterLabel": {
+        "message": "按仓库筛选"
+    },
+    "enableFilteringLabel": {
+        "message": "启用筛选"
+    },
+    "tokenRequiredWarning": {
+        "message": "仓库筛选需要GitHub令牌。请在设置中添加一个。"
+    },
+    "repoSearchPlaceholder": {
+        "message": "搜索要添加的仓库..."
+    },
+    "repoPlaceholder": {
+        "message": "未选择任何仓库（将包含所有仓库）"
+    },
+    "repoCountNone": {
+        "message": "已选择 0 个仓库"
+    },
+    "repoCount": {
+        "message": "已选择 $1 个仓库"
+    },
+    "repoLoading": {
+        "message": "正在加载仓库..."
+    },
+    "repoLoaded": {
+        "message": "已加载 $1 个仓库。"
+    },
+    "repoNotFound": {
+        "message": "未找到仓库"
+    },
+    "repoRefetching": {
+        "message": "正在重新加载仓库..."
+    },
+    "repoLoadFailed": {
+        "message": "加载仓库失败。"
+    },
+    "repoTokenPrivate": {
+        "message": "令牌无效或没有私有仓库的权限。"
+    },
+    "repoRefetchFailed": {
+        "message": "重新加载仓库失败。"
+    },
+    "orgSetMessage": {
+        "message": "组织设置成功。"
+    },
+    "orgClearedMessage": {
+        "message": "组织已清除。点击“生成报告”以获取所有活动。"
+    },
+    "orgNotFoundMessage": {
+        "message": "在GitHub上找不到组织。"
+    },
+    "orgValidationErrorMessage": {
+        "message": "验证组织时出错。"
+    },
+    "refreshingButton": {
+        "message": "正在刷新..."
+    },
+    "cacheClearFailed": {
+        "message": "清除缓存失败。"
+    },
+    "madeWithLoveBy": {
+        "message": "Made with ❤️ by"
+    },
+    "generatingButton": {
+        "message": "正在生成..."
+    },
+    "copiedButton": {
+        "message": "已复制！"
+    },
+    "orgChangedMessage": {
+        "message": "组织已更改。单击“生成报告”按钮以获取 GitHub 活动。"
+    },
+    "cacheClearedMessage": {
+        "message": "缓存已成功清除。单击“生成报告”以获取新数据。"
+    },
+    "cacheClearedButton": {
+        "message": "缓存已清除！"
+    },
+    "extensionDisabledMessage": {
+        "message": "扩展已禁用。请在设置中启用它以生成 Scrum 报告。"
+    },
+    "notePoint1": {
+        "message": "获取的 PR 基于任何贡献者的最新审查。如果您在 10 天前审查了某个 PR，而其他人在 2 天前审查了它，它仍将出现在您上周的活动中。"
+    },
+    "notePoint2": {
+        "message": "请注意，生成的 Scrum 报告中可能会出现一些差异。我们建议在分享前手动审查和编辑报告以确保准确性。"
+    },
+    "noteSeeIssue": {
+        "message": "查看此 issue"
+    },
+    "platformLabel": {
+        "message": "平台"
+    },
+    "usernameLabel": {
+        "message": "您的用户名"
+    }
 }

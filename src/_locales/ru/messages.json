@@ -1,65 +1,200 @@
 {
-    "appName": { "message": "Scrum Helper" },
-    "appDescription": { "message": "Сообщайте о своем прогрессе в разработке, автоматически получая данные о вашей активности в Git за выбранный период." },
-    "disableLabel": { "message": "Отключить" },
-    "enableLabel": { "message": "Включить" },
-    "projectNameLabel": { "message": "Название вашего проекта" },
-    "projectNamePlaceholder": { "message": "Введите название вашего проекта" },
-    "githubUsernameLabel": { "message": "Ваше имя пользователя GitHub" },
-    "githubUsernamePlaceholder": { "message": "Требуется для получения ваших вкладов" },
-    "contributionsLabel": { "message": "Получить ваши вклады за:" },
-    "last7DaysLabel": { "message": "Последние 7 дней" },
-    "last1DayLabel": { "message": "Вчера" },
-    "startDateLabel": { "message": "Дата начала:" },
-    "endDateLabel": { "message": "Дата окончания:" },
-    "showOpenClosedLabel": { "message": "Показать метки PR" },
-    "blockersLabel": { "message": "Что мешает вашему прогрессу?" },
-    "blockersPlaceholder": { "message": "Введите причину" },
-    "scrumReportLabel": { "message": "Scrum-отчет" },
-    "generateReportButton": { "message": "Создать отчет" },
-    "copyReportButton": { "message": "Копировать отчет" },
-    "settingsOrgNameLabel": { "message": "Название организации" },
-    "settingsOrgNamePlaceholder": { "message": "Введите название организации" },
-    "setButton": { "message": "Установить" },
-    "githubTokenLabel": { "message": "Ваш токен GitHub" },
-    "githubTokenPlaceholder": { "message": "Требуется для аутентифицированных запросов" },
-    "showCommitsLabel": { "message": "Показать коммиты в открытых PR" },
-    "cacheTTLLabel": { "message": "Введите TTL кэша" },
-    "cacheTTLUnit": { "message": "(в минутах)" },
-    "cacheTTLPlaceholder": { "message": "Укажите TTL кэша в минутах (по умолчанию: 10)" },
-    "refreshDataButton": { "message": "Обновить данные (в обход кэша)" },
-    "refreshDataInfo": { "message": "Используйте эту кнопку для немедленного получения свежих данных." },
-    "noteTitle": { "message": "Примечание:" },
-    "viewCodeButton": { "message": "Посмотреть код" },
-    "reportIssueButton": { "message": "Сообщить о проблеме" },
-    "repoFilterLabel": { "message": "Фильтровать по репозиториям" },
-    "enableFilteringLabel": { "message": "Включить фильтрацию" },
-    "tokenRequiredWarning": { "message": "Для фильтрации репозиториев требуется токен GitHub. Пожалуйста, добавьте его в настройках." },
-    "repoSearchPlaceholder": { "message": "Найти репозиторий для добавления..." },
-    "repoPlaceholder": { "message": "Репозитории не выбраны (будут включены все)" },
-    "repoCountNone": { "message": "0 репозиториев выбрано" },
-    "repoCount": { "message": "$1 репозиториев выбрано" },
-    "repoLoading": { "message": "Загрузка репозиториев..." },
-    "repoLoaded": { "message": "Загружено $1 репозиториев." },
-    "repoNotFound": { "message": "Репозитории не найдены" },
-    "repoRefetching": { "message": "Перезагрузка репозиториев..." },
-    "repoLoadFailed": { "message": "Не удалось загрузить репозитории." },
-    "repoTokenPrivate": { "message": "Токен недействителен или не имеет прав для частных репозиториев." },
-    "repoRefetchFailed": { "message": "Не удалось перезагрузить репозитории." },
-    "orgSetMessage": { "message": "Организация успешно установлена." },
-    "orgClearedMessage": { "message": "Организация удалена. Нажмите 'Создать отчет', чтобы получить все действия." },
-    "orgNotFoundMessage": { "message": "Организация не найдена на GitHub." },
-    "orgValidationErrorMessage": { "message": "Ошибка при проверке организации." },
-    "refreshingButton": { "message": "Обновление..." },
-    "cacheClearFailed": { "message": "Не удалось очистить кэш." },
-    "madeWithLoveBy": { "message": "Made with ❤️ by" },
-    "generatingButton": { "message": "Создание..." },
-    "copiedButton": { "message": "Скопировано!" },
-    "orgChangedMessage": { "message": "Организация изменена. Нажмите 'Создать отчет', чтобы получить данные о действиях в GitHub." },
-    "cacheClearedMessage": { "message": "Кэш успешно очищен. Нажмите 'Создать отчет', чтобы получить свежие данные." },
-    "cacheClearedButton": { "message": "Кэш очищен!" },
-    "extensionDisabledMessage": { "message": "Расширение отключено. Включите его в настройках, чтобы создавать scrum-отчеты." },
-    "notePoint1": { "message": "Полученные PR основаны на последнем ревью любого участника. Если вы сделали ревью PR 10 дней назад, а кто-то другой — 2 дня назад, он все равно появится в вашей активности за последнюю неделю." },
-    "notePoint2": { "message": "Обратите внимание, что в сгенерированном Scrum могут быть неточности. Мы рекомендуем вручную проверять и редактировать отчет для обеспечения точности перед отправкой." },
-    "noteSeeIssue": { "message": "Смотрите эту проблему" }
+    "appName": {
+        "message": "Scrum Helper"
+    },
+    "appDescription": {
+        "message": "Сообщайте о своем прогрессе в разработке, автоматически получая данные о вашей активности в Git за выбранный период."
+    },
+    "disableLabel": {
+        "message": "Отключить"
+    },
+    "enableLabel": {
+        "message": "Включить"
+    },
+    "homeButtonTitle": {
+        "message": "Перейти к отчету"
+    },
+    "projectNameLabel": {
+        "message": "Название вашего проекта"
+    },
+    "projectNamePlaceholder": {
+        "message": "Введите название вашего проекта"
+    },
+    "githubUsernameLabel": {
+        "message": "Ваше имя пользователя GitHub"
+    },
+    "githubUsernamePlaceholder": {
+        "message": "Требуется для получения ваших вкладов"
+    },
+    "contributionsLabel": {
+        "message": "Получить ваши вклады за:"
+    },
+    "last7DaysLabel": {
+        "message": "Последние 7 дней"
+    },
+    "last1DayLabel": {
+        "message": "Вчера"
+    },
+    "startDateLabel": {
+        "message": "Дата начала:"
+    },
+    "endDateLabel": {
+        "message": "Дата окончания:"
+    },
+    "showOpenClosedLabel": {
+        "message": "Показывать статус Открыто/Закрыто"
+    },
+    "blockersLabel": {
+        "message": "Что мешает вашему прогрессу?"
+    },
+    "blockersPlaceholder": {
+        "message": "Введите причину"
+    },
+    "scrumReportLabel": {
+        "message": "Scrum-отчет"
+    },
+    "generateReportButton": {
+        "message": "Создать отчет"
+    },
+    "copyReportButton": {
+        "message": "Копировать отчет"
+    },
+    "settingsOrgNameLabel": {
+        "message": "Название организации"
+    },
+    "settingsOrgNamePlaceholder": {
+        "message": "Введите название организации"
+    },
+    "setButton": {
+        "message": "Установить"
+    },
+    "githubTokenLabel": {
+        "message": "Ваш токен GitHub"
+    },
+    "githubTokenPlaceholder": {
+        "message": "Требуется для аутентифицированных запросов"
+    },
+    "showCommitsLabel": {
+        "message": "Показывать коммиты в открытых PR за указанный период"
+    },
+    "cacheTTLLabel": {
+        "message": "Введите TTL кэша"
+    },
+    "cacheTTLUnit": {
+        "message": "(в минутах)"
+    },
+    "cacheTTLPlaceholder": {
+        "message": "Укажите TTL кэша в минутах (по умолчанию: 10)"
+    },
+    "refreshDataButton": {
+        "message": "Обновить данные (в обход кэша)"
+    },
+    "refreshDataInfo": {
+        "message": "Используйте эту кнопку для немедленного получения свежих данных."
+    },
+    "noteTitle": {
+        "message": "Примечание:"
+    },
+    "viewCodeButton": {
+        "message": "Посмотреть код"
+    },
+    "reportIssueButton": {
+        "message": "Сообщить о проблеме"
+    },
+    "repoFilterLabel": {
+        "message": "Фильтровать по репозиториям"
+    },
+    "enableFilteringLabel": {
+        "message": "Включить фильтрацию"
+    },
+    "tokenRequiredWarning": {
+        "message": "Для фильтрации репозиториев требуется токен GitHub. Пожалуйста, добавьте его в настройках."
+    },
+    "repoSearchPlaceholder": {
+        "message": "Найти репозиторий для добавления..."
+    },
+    "repoPlaceholder": {
+        "message": "Репозитории не выбраны (будут включены все)"
+    },
+    "repoCountNone": {
+        "message": "0 репозиториев выбрано"
+    },
+    "repoCount": {
+        "message": "$1 репозиториев выбрано"
+    },
+    "repoLoading": {
+        "message": "Загрузка репозиториев..."
+    },
+    "repoLoaded": {
+        "message": "Загружено $1 репозиториев."
+    },
+    "repoNotFound": {
+        "message": "Репозитории не найдены"
+    },
+    "repoRefetching": {
+        "message": "Перезагрузка репозиториев..."
+    },
+    "repoLoadFailed": {
+        "message": "Не удалось загрузить репозитории."
+    },
+    "repoTokenPrivate": {
+        "message": "Токен недействителен или не имеет прав для частных репозиториев."
+    },
+    "repoRefetchFailed": {
+        "message": "Не удалось перезагрузить репозитории."
+    },
+    "orgSetMessage": {
+        "message": "Организация успешно установлена."
+    },
+    "orgClearedMessage": {
+        "message": "Организация удалена. Нажмите 'Создать отчет', чтобы получить все действия."
+    },
+    "orgNotFoundMessage": {
+        "message": "Организация не найдена на GitHub."
+    },
+    "orgValidationErrorMessage": {
+        "message": "Ошибка при проверке организации."
+    },
+    "refreshingButton": {
+        "message": "Обновление..."
+    },
+    "cacheClearFailed": {
+        "message": "Не удалось очистить кэш."
+    },
+    "madeWithLoveBy": {
+        "message": "Made with ❤️ by"
+    },
+    "generatingButton": {
+        "message": "Создание..."
+    },
+    "copiedButton": {
+        "message": "Скопировано!"
+    },
+    "orgChangedMessage": {
+        "message": "Организация изменена. Нажмите 'Создать отчет', чтобы получить данные о действиях в GitHub."
+    },
+    "cacheClearedMessage": {
+        "message": "Кэш успешно очищен. Нажмите 'Создать отчет', чтобы получить свежие данные."
+    },
+    "cacheClearedButton": {
+        "message": "Кэш очищен!"
+    },
+    "extensionDisabledMessage": {
+        "message": "Расширение отключено. Включите его в настройках, чтобы создавать scrum-отчеты."
+    },
+    "notePoint1": {
+        "message": "Полученные PR основаны на последнем ревью любого участника. Если вы сделали ревью PR 10 дней назад, а кто-то другой — 2 дня назад, он все равно появится в вашей активности за последнюю неделю."
+    },
+    "notePoint2": {
+        "message": "Обратите внимание, что в сгенерированном Scrum могут быть неточности. Мы рекомендуем вручную проверять и редактировать отчет для обеспечения точности перед отправкой."
+    },
+    "noteSeeIssue": {
+        "message": "Смотрите эту проблему"
+    },
+    "platformLabel": {
+        "message": "Платформа"
+    },
+    "usernameLabel": {
+        "message": "Ваше имя пользователя"
+    }
 }
