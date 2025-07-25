@@ -1,51 +1,51 @@
 # Frontend changes
 frontend:
-  - 'src/**/*.html'
-  - 'src/**/*.css'
+  - "src/**/*.html"
+  - "src/**/*.css"
 
-# JavaScript changes  
+# JavaScript changes
 javascript:
-  - 'src/scripts/**/*.js'
-  - 'src/**/*.js'
+  - "src/scripts/**/*.js"
+  - "src/**/*.js"
 
 # Core functionality
 core:
-  - 'src/scripts/scrumHelper.js'
-  - 'src/scripts/emailClientAdapter.js'
+  - "src/scripts/scrumHelper.js"
+  - "src/scripts/emailClientAdapter.js"
 
 # Documentation
 documentation:
-  - '**/*.md'
-  - 'docs/**'
-  - 'LICENSE'
-  - 'README.md'
+  - "**/*.md"
+  - "docs/**"
+  - "LICENSE"
+  - "README.md"
 
 # Configuration files
 config:
-  - '.github/**/*'
-  - '*.json'
-  - '*.yml'
-  - '*.yaml'
-  - 'package.json'
-  - 'package-lock.json'
+  - ".github/**/*"
+  - "*.json"
+  - "*.yml"
+  - "*.yaml"
+  - "package.json"
+  - "package-lock.json"
 
 # Browser extension specific
 extension:
-  - 'manifest.json'
-  - 'src/popup.html'
-  - 'src/scripts/main.js'
+  - "manifest.json"
+  - "src/popup.html"
+  - "src/scripts/main.js"
 
 # Testing
 testing:
-  - 'tests/**'
-  - '**/*.test.js'
-  - '**/*.spec.js'
+  - "tests/**"
+  - "**/*.test.js"
+  - "**/*.spec.js"
 
 # Dependencies
 dependencies:
-  - 'package.json'
-  - 'package-lock.json'
-  - 'yarn.lock'
+  - "package.json"
+  - "package-lock.json"
+  - "yarn.lock"
 
 # Additional labels (manually applied, no patterns)
 bug: []
