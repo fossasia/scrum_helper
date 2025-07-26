@@ -1,15 +1,34 @@
 # Scrum Helper
 
-**Scrum Helper** is a Chrome extension that simplifies writing development reports by auto-filling content based on your Git activity. Just enter your GitHub username, select a date range, and choose your preferences, the extension automatically fetches your commits, pull requests, issues, and code reviews via the GitHub API and generates a pre-filled report that you can edit as needed. While currently focused on Git-based workflows, Scrum Helper is designed to expand to other platforms in the future.
+**Scrum Helper** is a Chrome extension that simplifies writing development reports by auto-filling content based on your Git activity. Just enter your GitHub or GitLab username, select a date range, and choose your preferences, the extension automatically fetches your commits, pull requests/merge requests, issues, and code reviews via the GitHub and GitLab APIs and generates a pre-filled report that you can edit as needed. Scrum Helper supports both GitHub and GitLab platforms, making it versatile for different development workflows.
 
 ![SCRUMLOGO](docs/images/scrumhelper-png.png)
 
 ## Features
 
-- Automatically fetches your Git activity, including commits, pull requests, issues, and code reviews.
-- Currently supports GitHub, with plans to expand to other platforms
-- Generates editable scrum updates based on your selected date range
-- Integrates directly with compose windows in Google Groups, Gmail, Yahoo Mail, and Outlook
+- **Multi-Platform Support**: Automatically fetches your Git activity from both GitHub and GitLab
+- **Comprehensive Activity Tracking**: Includes commits, pull requests/merge requests, issues, and code reviews
+- **Flexible Date Ranges**: Generate reports for custom date ranges or use quick presets (last 7 days, last 1 day)
+- **Platform-Specific Features**:
+  - **GitHub**: Full support with personal access tokens for enhanced features
+  - **GitLab**: Support for public repositories and user contributions
+- **Smart Caching**: Configurable cache TTL to optimize API calls and improve performance
+
+
+## Supported Platforms
+
+### GitHub
+- Full API support with personal access tokens
+- Repository filtering capabilities
+- Enhanced rate limits with authentication
+- Commit tracking on existing pull requests
+
+### GitLab
+- Support for public repositories
+- User contribution tracking across projects
+- Merge request and issue tracking
+- Project-based activity aggregation
+
 
 ## How to install
 
@@ -20,7 +39,7 @@
 3. Enable Developer Mode (toggle in the top-right) if not already.
 4. Click Load unpacked and select the `src` folder inside the cloned repo
 5. Click the Scrum Helper icon on your browser toolbar
-6. Fill in your settings in the popup (GitHub username, date range, etc.)
+6. Fill in your settings in the popup (platform selection, username, date range, etc.)
 
 <!-- ### For Firefox:
 
@@ -31,13 +50,18 @@
 5. Navigate to the `src` folder inside the cloned repo and select the `manifest.json` file
 6. The extension will be loaded temporarily and will remain active only for the current browser session
 7. Click the Scrum Helper icon on your browser toolbar
-8. Fill in your settings in the popup (GitHub username, date range, etc.)
+8. Fill in your settings in the popup (platform selection, username, date range, etc.)
 
 **Note for Firefox users:** The extension will be automatically removed when you close Firefox. You'll need to reload it each time you start a new browser session by repeating steps 2-5.
 
 **Persistence Note:** If you need the extension to persist between sessions, use Firefox Developer Edition. You can enable persistence by setting `xpinstall.signatures.required` to `false` in the browser's configuration. -->
 
 ## Usage
+
+### Platform Selection
+- Choose between GitHub and GitLab from the platform dropdown
+- Each platform maintains separate username settings
+- Platform-specific features are automatically enabled/disabled based on selection
 
 ### For Google Groups:
 
@@ -60,12 +84,12 @@
    - Rich text formatting with clickable links
    - Copy report to clipboard with proper formatting
 
-2.  **Advanced Repository Filtering**
+2. **Advanced Repository Filtering** (GitHub only)
     *   Select specific repositories to include in your report for a more focused summary.
     *   Easily search and manage your repository list directly within the popup.
     *   *Requires a GitHub token to fetch your repositories.*
 
-3.  **Include Commits on Existing PRs**
+3. **Include Commits on Existing PRs** (GitHub only)
     *   Option to include recent commits made to pull requests that were opened *before* the selected date range.
     *   Provides a more detailed and accurate view of your work on long-running PRs.
     *   *Requires a GitHub token.*
@@ -75,7 +99,6 @@
 - Click on `GENERATE` button to generate the scrum preview.
 - Edit it in the window.
 - Copy the rich HTML using the `COPY` button.
-
 
 ## Screenshots
 
@@ -102,7 +125,6 @@ $ npm install
 
 * For Chrome: Load it into your browser through [Chrome Extension Developer Mode](https://developer.chrome.com/docs/extensions/mv3/getstarted/).
 <!-- * For Firefox: Load it as a temporary add-on through `about:debugging` as described above. -->
-
 
 
 
@@ -138,14 +160,14 @@ $ npm install
   5. **Paste the Token in Scrum Helper:**
 
   - Open the Scrum Helper extension popup.
-  - Paste your token into the "GitHub Token" field.
+  - Go to Settings and paste your token into the "GitHub Token" field.
 
   > **Keep your token secret!** Never share it or commit it to public repositories.
 
   **Why use a token?**  
   GitHub tokens allow the extension to make authenticated requests, increasing your API rate limit and enabling access to private repositories if you grant those permissions.
 
-
+ 
 
 ## Adding a New Language
 
