@@ -101,6 +101,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const tokenEyeIcon = document.getElementById('tokenEyeIcon');
     let tokenVisible = false;
 
+    // GitLab token elements
+    const gitlabTokenInput = document.getElementById('gitlabToken');
+    const toggleGitlabTokenBtn = document.getElementById('toggleGitlabTokenVisibility');
+    const gitlabTokenEyeIcon = document.getElementById('gitlabTokenEyeIcon');
+    let gitlabTokenVisible = false;
+
     const orgInput = document.getElementById('orgInput');
     const setOrgBtn = document.getElementById('setOrgBtn');
 
@@ -161,6 +167,26 @@ document.addEventListener('DOMContentLoaded', function () {
         githubTokenInput.classList.add('token-animating');
         setTimeout(() => githubTokenInput.classList.remove('token-animating'), 300);
     });
+
+    // GitLab token toggle functionality
+    if (toggleGitlabTokenBtn && gitlabTokenInput && gitlabTokenEyeIcon) {
+        toggleGitlabTokenBtn.addEventListener('click', function () {
+            gitlabTokenVisible = !gitlabTokenVisible;
+            gitlabTokenInput.type = gitlabTokenVisible ? 'text' : 'password';
+
+            gitlabTokenEyeIcon.classList.add('eye-animating');
+            setTimeout(() => gitlabTokenEyeIcon.classList.remove('eye-animating'), 400);
+            gitlabTokenEyeIcon.className = gitlabTokenVisible ? 'fa fa-eye-slash text-gray-600' : 'fa fa-eye text-gray-600';
+
+            gitlabTokenInput.classList.add('token-animating');
+            setTimeout(() => gitlabTokenInput.classList.remove('token-animating'), 300);
+        });
+
+        // Save GitLab token to storage when input changes
+        gitlabTokenInput.addEventListener('input', function () {
+            chrome.storage.local.set({ gitlabToken: gitlabTokenInput.value });
+        });
+    }
 
     githubTokenInput.addEventListener('input', checkTokenForFilter);
 
@@ -358,6 +384,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             if (typeof result.showCommits !== 'undefined') showCommitsCheckbox.checked = result.showCommits;
             if (result.githubToken) githubTokenInput.value = result.githubToken;
+            if (result.gitlabToken && gitlabTokenInput) gitlabTokenInput.value = result.gitlabToken;
             if (result.cacheInput) cacheInput.value = result.cacheInput;
             if (enableToggleSwitch) {
                 if (typeof result.enableToggle !== 'undefined') {
@@ -1360,6 +1387,26 @@ chrome.storage.local.get(['platform'], function (result) {
 
 // Update UI for platform
 function updatePlatformUI(platform) {
+    // Handle GitHub token section visibility
+    const githubTokenSection = document.querySelector('.githubTokenSection');
+    if (githubTokenSection) {
+        if (platform === 'github') {
+            githubTokenSection.classList.remove('hidden');
+        } else {
+            githubTokenSection.classList.add('hidden');
+        }
+    }
+
+    // Handle GitLab token section visibility
+    const gitlabTokenSection = document.querySelector('.gitlabTokenSection');
+    if (gitlabTokenSection) {
+        if (platform === 'gitlab') {
+            gitlabTokenSection.classList.remove('hidden');
+        } else {
+            gitlabTokenSection.classList.add('hidden');
+        }
+    }
+
     // Hide GitHub-specific settings for GitLab using the 'hidden' class
     const orgSection = document.querySelector('.orgSection');
     if (orgSection) {
@@ -1369,6 +1416,7 @@ function updatePlatformUI(platform) {
             orgSection.classList.remove('hidden');
         }
     }
+
     // Hide all githubOnlySection elements for GitLab
     const githubOnlySections = document.querySelectorAll('.githubOnlySection');
     githubOnlySections.forEach(el => {

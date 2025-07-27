@@ -74,6 +74,15 @@
     "githubTokenPlaceholder": {
         "message": "Für authentifizierte Anfragen erforderlich"
     },
+    "gitlabTokenLabel": {
+        "message": "Ihr GitLab-Token"
+    },
+    "gitlabTokenPlaceholder": {
+        "message": "Für authentifizierte Anfragen erforderlich"
+    },
+    "gitlabTokenTooltip": {
+        "message": "<b>Warum wird empfohlen, einen GitLab Token hinzuzufügen?</b><br>Scrum Helper funktioniert ohne GitLab Token, aber das Hinzufügen eines persönlichen Zugriffstokens wird für eine bessere Erfahrung empfohlen. Es erhöht Ihre API-Limits, ermöglicht den Zugriff auf private Repositories (falls erlaubt) und verbessert Genauigkeit und Geschwindigkeit. Tokens werden lokal gespeichert und niemals an uns gesendet und nur verwendet, um Ihre Git-Daten abzurufen. Sie können jederzeit einen in den Erweiterungseinstellungen hinzufügen.<br><br><b>Wie man erhält:</b><br>1. Gehen Sie zu <a href=\"https://gitlab.com/-/profile/personal_access_tokens\" target=\"_blank\" style=\"color:#2563eb;text-decoration:underline;\">GitLab Personal Access Tokens</a>.<br>2. Klicken Sie auf \"Persönlichen Zugriffstoken erstellen\"<br>3. Geben Sie ihm einen Namen und wählen Sie entsprechende Bereiche (read_api, read_user, read_repository)<br>4. Fügen Sie ihn hier ein.<br><i>Halten Sie Ihren Token geheim!</i>"
+    },
     "showCommitsLabel": {
         "message": "Commits in offenen PRs innerhalb des Zeitraums anzeigen"
     },

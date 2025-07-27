@@ -41,6 +41,7 @@ function allIncluded(outputTarget = 'email') {
     let endingDate = '';
     let platformUsernameLocal = '';
     let githubToken = '';
+    let gitlabToken = '';
     let projectName = '';
     let lastWeekArray = [];
     let nextWeekArray = [];
@@ -80,6 +81,7 @@ function allIncluded(outputTarget = 'email') {
                 'githubUsername',
                 'gitlabUsername',
                 'githubToken',
+                'gitlabToken',
                 'projectName',
                 'enableToggle',
                 'startingDate',
@@ -110,6 +112,7 @@ function allIncluded(outputTarget = 'email') {
                     const usernameFromDOM = document.getElementById('platformUsername')?.value;
                     const projectFromDOM = document.getElementById('projectName')?.value;
                     const tokenFromDOM = document.getElementById('githubToken')?.value;
+                    const gitlabTokenFromDOM = document.getElementById('gitlabToken')?.value;
 
                     // Save to platform-specific storage
                     if (usernameFromDOM) {
@@ -120,16 +123,21 @@ function allIncluded(outputTarget = 'email') {
 
                     items.projectName = projectFromDOM || items.projectName;
                     items.githubToken = tokenFromDOM || items.githubToken;
+                    items.gitlabToken = gitlabTokenFromDOM || items.gitlabToken;
                     chrome.storage.local.set({
                         projectName: items.projectName,
-                        githubToken: items.githubToken
+                        githubToken: items.githubToken,
+                        gitlabToken: items.gitlabToken
                     });
+
+
                 }
                 projectName = items.projectName;
 
                 userReason = 'No Blocker at the moment';
                 chrome.storage.local.remove(['userReason']);
                 githubToken = items.githubToken;
+                gitlabToken = items.gitlabToken;
                 lastWeekContribution = items.lastWeekContribution;
                 yesterdayContribution = items.yesterdayContribution;
                 if (typeof items.enableToggle !== 'undefined') {
@@ -196,7 +204,7 @@ function allIncluded(outputTarget = 'email') {
                         if (outputTarget === 'email') {
                             (async () => {
                                 try {
-                                    const data = await gitlabHelper.fetchGitLabData(platformUsernameLocal, startingDate, endingDate);
+                                    const data = await gitlabHelper.fetchGitLabData(platformUsernameLocal, startingDate, endingDate, gitlabToken);
 
 
                                     function mapGitLabItem(item, projects, type) {
@@ -257,7 +265,7 @@ function allIncluded(outputTarget = 'email') {
                             })();
                         } else {
 
-                            gitlabHelper.fetchGitLabData(platformUsernameLocal, startingDate, endingDate)
+                            gitlabHelper.fetchGitLabData(platformUsernameLocal, startingDate, endingDate, gitlabToken)
                                 .then(data => {
                                     function mapGitLabItem(item, projects, type) {
                                         const project = projects.find(p => p.id === item.project_id);
@@ -275,8 +283,14 @@ function allIncluded(outputTarget = 'email') {
                                             pull_request: type === 'mr',
                                         };
                                     }
-                                    const mappedIssues = (data.issues || []).map(issue => mapGitLabItem(issue, data.projects, 'issue'));
-                                    const mappedMRs = (data.mergeRequests || data.mrs || []).map(mr => mapGitLabItem(mr, data.projects, 'mr'));
+
+                                    // Ensure data is not null and has required properties
+                                    if (!data) {
+                                        throw new Error('GitLab data is null or undefined');
+                                    }
+
+                                    const mappedIssues = (data.issues || []).map(issue => mapGitLabItem(issue, data.projects || [], 'issue'));
+                                    const mappedMRs = (data.mergeRequests || data.mrs || []).map(mr => mapGitLabItem(mr, data.projects || [], 'mr'));
                                     const mappedData = {
                                         githubIssuesData: { items: mappedIssues },
                                         githubPrsReviewData: { items: mappedMRs },
@@ -294,7 +308,13 @@ function allIncluded(outputTarget = 'email') {
                                         }
                                         const scrumReport = document.getElementById('scrumReport');
                                         if (scrumReport) {
-                                            scrumReport.innerHTML = `<div class=\"error-message\" style=\"color: #dc2626; font-weight: bold; padding: 10px;\">${err.message || 'An error occurred while fetching GitLab data.'}</div>`;
+                                            const errorMessage = err.message || 'An error occurred while fetching GitLab data.';
+                                            console.error('GitLab error details:', {
+                                                message: err.message,
+                                                stack: err.stack,
+                                                name: err.name
+                                            });
+                                            scrumReport.innerHTML = `<div class=\"error-message\" style=\"color: #dc2626; font-weight: bold; padding: 10px;\">${errorMessage}</div>`;
                                         }
                                     }
                                     scrumGenerationInProgress = false;
@@ -1503,6 +1523,7 @@ async function forceGitlabDataRefresh() {
         gitlabHelper.cache.timestamp = 0;
         gitlabHelper.cache.fetching = false;
         gitlabHelper.cache.queue = [];
+        console.log('[DEBUG] Cleared GitLab cache (both GraphQL and REST)');
     }
     await new Promise(resolve => {
         chrome.storage.local.remove('gitlabCache', resolve);

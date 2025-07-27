@@ -74,6 +74,15 @@
     "githubTokenPlaceholder": {
         "message": "Diperlukan untuk permintaan terotentikasi"
     },
+    "gitlabTokenLabel": {
+        "message": "Token GitLab Anda"
+    },
+    "gitlabTokenPlaceholder": {
+        "message": "Diperlukan untuk permintaan terotentikasi"
+    },
+    "gitlabTokenTooltip": {
+        "message": "<b>Mengapa disarankan untuk menambahkan token GitLab?</b><br>Scrum Helper bekerja tanpa token GitLab, tetapi menambahkan token akses pribadi disarankan untuk pengalaman yang lebih baik. Ini meningkatkan batas API Anda, memungkinkan akses ke repositori pribadi (jika diizinkan), dan meningkatkan akurasi dan kecepatan. Token disimpan secara lokal dan tidak pernah dikirim kepada kami dan hanya digunakan untuk mengambil data git Anda. Anda dapat menambahkan satu kapan saja di pengaturan ekstensi.<br><br><b>Cara mendapatkan:</b><br>1. Kunjungi <a href=\"https://gitlab.com/-/profile/personal_access_tokens\" target=\"_blank\" style=\"color:#2563eb;text-decoration:underline;\">GitLab Personal Access Tokens</a>.<br>2. Klik \"Create personal access token\"<br>3. Beri nama dan pilih cakupan yang sesuai (read_api, read_user, read_repository)<br>4. Tempel di sini.<br><i>Jaga kerahasiaan token Anda!</i>"
+    },
     "showCommitsLabel": {
         "message": "Tampilkan commit di PR terbuka dalam rentang tanggal"
     },

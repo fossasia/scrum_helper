@@ -1,6 +1,7 @@
 let enableToggleElement = document.getElementById('enable');
 let platformUsernameElement = document.getElementById('platformUsername');
 let githubTokenElement = document.getElementById('githubToken');
+let gitlabTokenElement = document.getElementById('gitlabToken');
 let cacheInputElement = document.getElementById('cacheInput');
 let projectNameElement = document.getElementById('projectName');
 let lastWeekContributionElement = document.getElementById('lastWeekContribution');
@@ -39,6 +40,7 @@ function handleBodyOnLoad() {
 			'yesterdayContribution',
 			'cacheInput',
 			'githubToken',
+			'gitlabToken',
 			'showCommits',
 		],
 		(items) => {
@@ -51,6 +53,9 @@ function handleBodyOnLoad() {
 
 			if (items.githubToken) {
 				githubTokenElement.value = items.githubToken;
+			}
+			if (items.gitlabToken && gitlabTokenElement) {
+				gitlabTokenElement.value = items.gitlabToken;
 			}
 			if (items.projectName) {
 				projectNameElement.value = items.projectName;
@@ -232,6 +237,10 @@ function handleGithubTokenChange() {
 	let value = githubTokenElement.value;
 	chrome.storage.local.set({ githubToken: value });
 }
+function handleGitlabTokenChange() {
+	let value = gitlabTokenElement.value;
+	chrome.storage.local.set({ gitlabToken: value });
+}
 function handleProjectNameChange() {
 	let value = projectNameElement.value;
 	chrome.storage.local.set({ projectName: value });
@@ -266,6 +275,9 @@ enableToggleElement.addEventListener('change', handleEnableChange);
 platformUsernameElement.addEventListener('keyup', handlePlatformUsernameChange);
 if (githubTokenElement) {
 	githubTokenElement.addEventListener('keyup', handleGithubTokenChange);
+}
+if (gitlabTokenElement) {
+	gitlabTokenElement.addEventListener('keyup', handleGitlabTokenChange);
 }
 cacheInputElement.addEventListener('keyup', handleCacheInputChange);
 projectNameElement.addEventListener('keyup', handleProjectNameChange);

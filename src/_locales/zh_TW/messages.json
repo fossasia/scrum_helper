@@ -74,6 +74,15 @@
     "githubTokenPlaceholder": {
         "message": "進行身分驗證請求所必需"
     },
+    "gitlabTokenLabel": {
+        "message": "您的 GitLab 權杖"
+    },
+    "gitlabTokenPlaceholder": {
+        "message": "進行身分驗證請求所必需"
+    },
+    "gitlabTokenTooltip": {
+        "message": "<b>為什麼建議新增 GitLab 權杖？</b><br>Scrum Helper 無需 GitLab 權杖即可工作，但建議新增個人存取權杖以獲得更好的體驗。它會提高您的 API 限制，允許存取私有儲存庫（如果允許），並提高準確性和速度。權杖儲存在本地，永遠不會發送給我們，僅用於擷取您的 git 資料。您可以隨時在擴充功能設定中新增一個。<br><br><b>如何取得：</b><br>1. 造訪 <a href=\"https://gitlab.com/-/profile/personal_access_tokens\" target=\"_blank\" style=\"color:#2563eb;text-decoration:underline;\">GitLab Personal Access Tokens</a>。<br>2. 點擊 \"Create personal access token\"<br>3. 給它一個名稱並選擇適當的範圍（read_api, read_user, read_repository）<br>4. 貼上到這裡。<br><i>保持您的權杖秘密！</i>"
+    },
     "showCommitsLabel": {
         "message": "顯示日期範圍內在進行中 PR 的提交"
     },
