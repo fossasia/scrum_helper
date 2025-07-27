@@ -16,7 +16,7 @@
         "description": "Label for the toggle switch to enable the extension."
     },
     "projectNameLabel": {
-        "message": "Your Project Name",
+        "message": "Email subject",
         "description": "Label for the project name input field."
     },
     "projectNamePlaceholder": {
