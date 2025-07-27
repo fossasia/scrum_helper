@@ -30,7 +30,7 @@
         "message": "Récupérer vos contributions de :"
     },
     "last1DayLabel": {
-        "message": "Hier"
+        "message": "Jour précédent"
     },
     "startDateLabel": {
         "message": "Date de début :"

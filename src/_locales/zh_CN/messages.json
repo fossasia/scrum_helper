@@ -31,7 +31,7 @@
         "message": "获取您在此期间的贡献："
     },
     "last1DayLabel": {
-        "message": "昨天"
+        "message": "前一天"
     },
     "startDateLabel": {
         "message": "开始日期："

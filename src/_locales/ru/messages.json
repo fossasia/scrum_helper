@@ -30,7 +30,7 @@
         "message": "Получить ваши вклады за:"
     },
     "last1DayLabel": {
-        "message": "Вчера"
+        "message": "Предыдущий день"
     },
     "startDateLabel": {
         "message": "Дата начала:"

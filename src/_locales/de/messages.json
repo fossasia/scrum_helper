@@ -31,7 +31,7 @@
         "message": "Ihre Beiträge abrufen für:"
     },
     "last1DayLabel": {
-        "message": "Gestern"
+        "message": "Vorheriger Tag"
     },
     "startDateLabel": {
         "message": "Startdatum:"

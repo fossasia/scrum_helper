@@ -30,7 +30,7 @@
         "message": "取得するコントリビューションの期間："
     },
     "last1DayLabel": {
-        "message": "昨日"
+        "message": "前日"
     },
     "startDateLabel": {
         "message": "開始日："
