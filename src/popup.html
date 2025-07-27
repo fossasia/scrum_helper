@@ -147,15 +147,18 @@
 								<label for="yesterdayContribution" class="font-medium text-xs" style="padding-bottom: 13px;"
 									data-i18n="last1DayLabel">Previous Day</label>
 							</div>
-							<div>
-								<label for="startingDate" class="flex items-center font-medium text-xs" data-i18n="startDateLabel">Start Date:</label>
-								<input type="date" id="startingDate"
-								class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1 w-20">
-							</div>
-							<div>
-								<label for="endingDate" class="flex items-center font-medium text-xs" data-i18n="endDateLabel">End Date:</label>
-								<input type="date" id="endingDate"
-								class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1 w-20">
+							<div id="customDateContainer" class="flex gap-2">
+
+								<div>
+									<label for="startingDate" class="flex items-center font-medium text-xs" data-i18n="startDateLabel">Start Date:</label>
+									<input type="date" id="startingDate"
+									class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1 w-20">
+								</div>
+								<div>
+									<label for="endingDate" class="flex items-center font-medium text-xs" data-i18n="endDateLabel">End Date:</label>
+									<input type="date" id="endingDate"
+									class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1 w-20">
+								</div>
 							</div>
 						</div>
 					</div>
