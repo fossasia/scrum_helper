@@ -331,20 +331,7 @@ function allIncluded(outputTarget = 'email') {
         endingDate = getToday();
         startingDate = getYesterday();
     }
-    function getLastWeek() {
-        let today = new Date();
-        let lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
-        let lastWeekMonth = lastWeek.getMonth() + 1;
-        let lastWeekDay = lastWeek.getDate();
-        let lastWeekYear = lastWeek.getFullYear();
-        let lastWeekDisplayPadded =
-            ('0000' + lastWeekYear.toString()).slice(-4) +
-            '-' +
-            ('00' + lastWeekMonth.toString()).slice(-2) +
-            '-' +
-            ('00' + lastWeekDay.toString()).slice(-2);
-        return lastWeekDisplayPadded;
-    }
+
     function getYesterday() {
         let today = new Date();
         let yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
@@ -900,7 +887,7 @@ function allIncluded(outputTarget = 'email') {
             let nextWeekUl = '<ul>';
             for (let i = 0; i < nextWeekArray.length; i++) nextWeekUl += nextWeekArray[i];
             nextWeekUl += '</ul>';
-            let weekOrDay = (yesterdayContribution ? 'yesterday' : 'the period');
+            let weekOrDay = yesterdayContribution ? 'yesterday' : 'the period';
             let weekOrDay2 = 'today';
             let content;
             if (yesterdayContribution == true) {

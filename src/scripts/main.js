@@ -146,20 +146,6 @@ function handleYesterdayContributionChange() {
 	chrome.storage.local.set({ yesterdayContribution: value });
 }
 
-function getLastWeek() {
-	let today = new Date();
-	let lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
-	let lastWeekMonth = lastWeek.getMonth() + 1;
-	let lastWeekDay = lastWeek.getDate();
-	let lastWeekYear = lastWeek.getFullYear();
-	let lastWeekDisplayPadded =
-		('0000' + lastWeekYear.toString()).slice(-4) +
-		'-' +
-		('00' + lastWeekMonth.toString()).slice(-2) +
-		'-' +
-		('00' + lastWeekDay.toString()).slice(-2);
-	return lastWeekDisplayPadded;
-}
 function getYesterday() {
 	let today = new Date();
 	let yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);

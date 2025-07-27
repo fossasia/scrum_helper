@@ -5,20 +5,6 @@ function debounce(func, wait) {
         timeout = setTimeout(() => func.apply(this, args), wait);
     }
 }
-function getLastWeek() {
-    let today = new Date();
-    let lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
-    let lastWeekMonth = lastWeek.getMonth() + 1;
-    let lastWeekDay = lastWeek.getDate();
-    let lastWeekYear = lastWeek.getFullYear();
-    let lastWeekDisplayPadded =
-        ('0000' + lastWeekYear.toString()).slice(-4) +
-        '-' +
-        ('00' + lastWeekMonth.toString()).slice(-2) +
-        '-' +
-        ('00' + lastWeekDay.toString()).slice(-2);
-    return lastWeekDisplayPadded;
-}
 
 function getToday() {
     let today = new Date();
