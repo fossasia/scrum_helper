@@ -338,7 +338,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const githubTokenInput = document.getElementById('githubToken');
         const cacheInput = document.getElementById('cacheInput');
         const enableToggleSwitch = document.getElementById('enable');
-        const lastWeekRadio = document.getElementById('lastWeekContribution');
         const yesterdayRadio = document.getElementById('yesterdayContribution');
         const startingDateInput = document.getElementById('startingDate');
         const endingDateInput = document.getElementById('endingDate');
@@ -346,7 +345,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         chrome.storage.local.get([
             'projectName', 'orgName', 'userReason', 'showOpenLabel', 'showCommits', 'githubToken', 'cacheInput',
-            'enableToggle', 'lastWeekContribution', 'yesterdayContribution', 'startingDate', 'endingDate', 'selectedTimeframe', 'platform', 'githubUsername', 'gitlabUsername'
+            'enableToggle', 'yesterdayContribution', 'startingDate', 'endingDate', 'selectedTimeframe', 'platform', 'githubUsername', 'gitlabUsername'
         ], function (result) {
             if (result.projectName) projectNameInput.value = result.projectName;
             if (result.orgName) orgInput.value = result.orgName;
@@ -366,7 +365,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     enableToggleSwitch.checked = true; // Default to enabled
                 }
             }
-            if (typeof result.lastWeekContribution !== 'undefined') lastWeekRadio.checked = result.lastWeekContribution;
             if (typeof result.yesterdayContribution !== 'undefined') yesterdayRadio.checked = result.yesterdayContribution;
             if (result.startingDate) startingDateInput.value = result.startingDate;
             if (result.endingDate) endingDateInput.value = result.endingDate;
@@ -448,7 +446,6 @@ document.addEventListener('DOMContentLoaded', function () {
             endDateInput.readOnly = false;
 
             chrome.storage.local.set({
-                lastWeekContribution: false,
                 yesterdayContribution: false,
                 selectedTimeframe: null
             });
@@ -456,7 +453,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         chrome.storage.local.get([
             'selectedTimeframe',
-            'lastWeekContribution',
             'yesterdayContribution',
             'startingDate',
             'endingDate',
@@ -464,7 +460,7 @@ document.addEventListener('DOMContentLoaded', function () {
             console.log('Restoring state:', items);
 
 
-            if (items.startingDate && items.endingDate && !items.lastWeekContribution && !items.yesterdayContribution) {
+            if (items.startingDate && items.endingDate && !items.yesterdayContribution) {
                 const startDateInput = document.getElementById('startingDate');
                 const endDateInput = document.getElementById('endingDate');
 
@@ -484,7 +480,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (!items.selectedTimeframe) {
                 items.selectedTimeframe = 'yesterdayContribution';
-                items.lastWeekContribution = false;
                 items.yesterdayContribution = true;
             }
 
@@ -496,10 +491,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 const startDateInput = document.getElementById('startingDate');
                 const endDateInput = document.getElementById('endingDate');
 
-                if (items.selectedTimeframe === 'lastWeekContribution') {
-                    startDateInput.value = getLastWeek();
-                    endDateInput.value = getToday();
-                } else {
+                if (items.selectedTimeframe === 'yesterdayContribution') {
                     startDateInput.value = getYesterday();
                     endDateInput.value = getToday();
                 }
@@ -508,7 +500,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 chrome.storage.local.set({
                     startingDate: startDateInput.value,
                     endingDate: endDateInput.value,
-                    lastWeekContribution: items.selectedTimeframe === 'lastWeekContribution',
                     yesterdayContribution: items.selectedTimeframe === 'yesterdayContribution',
                     selectedTimeframe: items.selectedTimeframe
                 });
@@ -544,9 +535,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 chrome.storage.local.set({ enableToggle: enableToggleSwitch.checked });
             });
         }
-        lastWeekRadio.addEventListener('change', function () {
-            chrome.storage.local.set({ lastWeekContribution: lastWeekRadio.checked });
-        });
         yesterdayRadio.addEventListener('change', function () {
             chrome.storage.local.set({ yesterdayContribution: yesterdayRadio.checked });
         });
@@ -1590,7 +1578,6 @@ document.querySelectorAll('input[name="timeframe"]').forEach(radio => {
             endDateInput.readOnly = false;
 
             chrome.storage.local.set({
-                lastWeekContribution: false,
                 yesterdayContribution: false,
                 selectedTimeframe: null
             });
@@ -1747,10 +1734,7 @@ function toggleRadio(radio) {
 
     console.log('Toggling radio:', radio.id);
 
-    if (radio.id === 'lastWeekContribution') {
-        startDateInput.value = getLastWeek();
-        endDateInput.value = getToday();
-    } else if (radio.id === 'yesterdayContribution') {
+    if (radio.id === 'yesterdayContribution') {
         startDateInput.value = getYesterday();
         endDateInput.value = getToday();
     }
@@ -1760,7 +1744,6 @@ function toggleRadio(radio) {
     chrome.storage.local.set({
         startingDate: startDateInput.value,
         endingDate: endDateInput.value,
-        lastWeekContribution: radio.id === 'lastWeekContribution',
         yesterdayContribution: radio.id === 'yesterdayContribution',
         selectedTimeframe: radio.id,
         githubCache: null // Clear cache to force new fetch
@@ -1768,7 +1751,6 @@ function toggleRadio(radio) {
         console.log('State saved, dates:', {
             start: startDateInput.value,
             end: endDateInput.value,
-            isLastWeek: radio.id === 'lastWeekContribution'
         });
 
         triggerRepoFetchIfEnabled();

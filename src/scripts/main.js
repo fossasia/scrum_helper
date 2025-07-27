@@ -3,7 +3,6 @@ let platformUsernameElement = document.getElementById('platformUsername');
 let githubTokenElement = document.getElementById('githubToken');
 let cacheInputElement = document.getElementById('cacheInput');
 let projectNameElement = document.getElementById('projectName');
-let lastWeekContributionElement = document.getElementById('lastWeekContribution');
 let yesterdayContributionElement = document.getElementById('yesterdayContribution');
 let startingDateElement = document.getElementById('startingDate');
 let endingDateElement = document.getElementById('endingDate');
@@ -35,7 +34,6 @@ function handleBodyOnLoad() {
 			'endingDate',
 			'showOpenLabel',
 			'userReason',
-			'lastWeekContribution',
 			'yesterdayContribution',
 			'cacheInput',
 			'githubToken',
@@ -79,14 +77,6 @@ function handleBodyOnLoad() {
 				handleOpenLabelChange();
 			}
 
-			if (items.lastWeekContribution) {
-				lastWeekContributionElement.checked = items.lastWeekContribution;
-				handleLastWeekContributionChange();
-			}
-			else if (items.lastWeekContribution !== false) {
-				lastWeekContributionElement.checked = true;
-				handleLastWeekContributionChange();
-			}
 			if (items.yesterdayContribution) {
 				yesterdayContributionElement.checked = items.yesterdayContribution;
 				handleYesterdayContributionChange();
@@ -132,27 +122,6 @@ function handleStartingDateChange() {
 function handleEndingDateChange() {
 	let value = endingDateElement.value;
 	chrome.storage.local.set({ endingDate: value });
-}
-function handleLastWeekContributionChange() {
-	let value = lastWeekContributionElement.checked;
-	let labelElement = document.querySelector("label[for='lastWeekContribution']");
-	if (value) {
-		startingDateElement.readOnly = true;
-		endingDateElement.readOnly = true;
-		endingDateElement.value = getToday();
-		startingDateElement.value = getLastWeek();
-		handleEndingDateChange();
-		handleStartingDateChange();
-		labelElement.classList.add("selectedLabel");
-		labelElement.classList.remove("unselectedLabel");
-	} else {
-		startingDateElement.readOnly = false;
-		endingDateElement.readOnly = false;
-		labelElement.classList.add("unselectedLabel");
-		labelElement.classList.remove("selectedLabel");
-	}
-
-	chrome.storage.local.set({ lastWeekContribution: value });
 }
 
 function handleYesterdayContributionChange() {
@@ -272,8 +241,6 @@ projectNameElement.addEventListener('keyup', handleProjectNameChange);
 startingDateElement.addEventListener('change', handleStartingDateChange);
 showCommitsElement.addEventListener('change', handleShowCommitsChange);
 endingDateElement.addEventListener('change', handleEndingDateChange);
-lastWeekContributionElement.addEventListener('change', handleLastWeekContributionChange);
 yesterdayContributionElement.addEventListener('change', handleYesterdayContributionChange);
 showOpenLabelElement.addEventListener('change', handleOpenLabelChange);
-// userReasonElement event listener removed - element no longer exists in UI
 document.addEventListener('DOMContentLoaded', handleBodyOnLoad);
