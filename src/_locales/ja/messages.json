@@ -18,7 +18,7 @@
         "message": "プロジェクト名"
     },
     "projectNamePlaceholder": {
-        "message": "プロジェクト名を入力してください"
+        "message": "メール件名"
     },
     "githubUsernameLabel": {
         "message": "GitHubユーザー名"
