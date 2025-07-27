@@ -30,9 +30,6 @@
     "contributionsLabel": {
         "message": "获取您在此期间的贡献："
     },
-    "last7DaysLabel": {
-        "message": "过去 7 天"
-    },
     "last1DayLabel": {
         "message": "昨天"
     },

@@ -29,9 +29,6 @@
     "contributionsLabel": {
         "message": "इस अवधि के योगदान प्राप्त करें:"
     },
-    "last7DaysLabel": {
-        "message": "पिछले 7 दिन"
-    },
     "last1DayLabel": {
         "message": "कल"
     },

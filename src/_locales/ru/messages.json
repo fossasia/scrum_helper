@@ -29,9 +29,6 @@
     "contributionsLabel": {
         "message": "Получить ваши вклады за:"
     },
-    "last7DaysLabel": {
-        "message": "Последние 7 дней"
-    },
     "last1DayLabel": {
         "message": "Вчера"
     },

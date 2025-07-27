@@ -30,9 +30,6 @@
     "contributionsLabel": {
         "message": "Ihre Beiträge abrufen für:"
     },
-    "last7DaysLabel": {
-        "message": "Letzte 7 Tage"
-    },
     "last1DayLabel": {
         "message": "Gestern"
     },

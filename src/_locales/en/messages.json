@@ -35,10 +35,6 @@
         "message": "Fetch your contributions between:",
         "description": "Label for the date range selection."
     },
-    "last7DaysLabel": {
-        "message": "Last 7 days",
-        "description": "Radio button option for the last 7 days."
-    },
     "last1DayLabel": {
         "message": "Last 1 day",
         "description": "Radio button option for the last 1 day."

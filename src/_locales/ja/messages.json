@@ -29,9 +29,6 @@
     "contributionsLabel": {
         "message": "取得するコントリビューションの期間："
     },
-    "last7DaysLabel": {
-        "message": "過去7日間"
-    },
     "last1DayLabel": {
         "message": "昨日"
     },

@@ -29,9 +29,6 @@
     "contributionsLabel": {
         "message": "Récupérer vos contributions de :"
     },
-    "last7DaysLabel": {
-        "message": "7 derniers jours"
-    },
     "last1DayLabel": {
         "message": "Hier"
     },
