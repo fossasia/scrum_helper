@@ -181,10 +181,7 @@
         "message": "Erweiterung ist deaktiviert. Aktivieren Sie sie in den Einstellungen, um Scrum-Berichte zu erstellen."
     },
     "notePoint1": {
-        "message": "Die abgerufenen PRs basieren auf der letzten Überprüfung durch einen beliebigen Beitragenden. Wenn Sie einen PR vor 10 Tagen überprüft haben und jemand anderes ihn vor 2 Tagen, wird er trotzdem in Ihrer Aktivität der letzten Woche angezeigt."
-    },
-    "notePoint2": {
-        "message": "Bitte beachten Sie, dass es im generierten Scrum zu Abweichungen kommen kann. Wir empfehlen, den Bericht vor dem Teilen manuell zu überprüfen, um die Genauigkeit sicherzustellen."
+        "message": "Pull-Requests werden basierend auf der letzten Review-Aktivität eines beliebigen Beitragenden abgerufen, nicht nur Ihrer eigenen. Bitte überprüfen und passen Sie den generierten SCRUM-Bericht an, um sicherzustellen, dass er Ihre Arbeit korrekt widerspiegelt, bevor Sie ihn teilen."
     },
     "noteSeeIssue": {
         "message": "Siehe dieses Issue"

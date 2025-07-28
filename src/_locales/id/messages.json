@@ -177,13 +177,10 @@
         "message": "Cache Dihapus!"
     },
     "extensionDisabledMessage": {
-        "message": "Ekstensi dinonaktifkan. Aktifkan dari pengaturan untuk membuat laporan scrum."
+        "message": "Ekstensi dinonaktifkan. Aktifkan dari opsi untuk membuat laporan scrum."
     },
     "notePoint1": {
-        "message": "PR yang diambil didasarkan pada ulasan terbaru oleh kontributor mana pun. Jika Anda meninjau PR 10 hari yang lalu dan orang lain meninjaunya 2 hari yang lalu, itu akan tetap muncul di aktivitas Anda selama seminggu terakhir."
-    },
-    "notePoint2": {
-        "message": "Harap dicatat bahwa beberapa perbedaan mungkin terjadi pada Scrum yang dihasilkan. Kami menyarankan untuk meninjau dan mengedit laporan secara manual untuk memastikan akurasi sebelum membagikannya."
+        "message": "Pull request diambil berdasarkan aktivitas review terbaru oleh kontributor mana pun, bukan hanya milik Anda. Harap tinjau dan sesuaikan laporan SCRUM yang dihasilkan untuk memastikan laporan tersebut secara akurat mencerminkan pekerjaan Anda sebelum dibagikan."
     },
     "noteSeeIssue": {
         "message": "Lihat masalah ini"

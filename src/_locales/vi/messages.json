@@ -180,10 +180,7 @@
         "message": "Tiện ích mở rộng đã bị tắt. Bật nó từ cài đặt để tạo báo cáo scrum."
     },
     "notePoint1": {
-        "message": "Các PR được lấy dựa trên lần review gần đây nhất của bất kỳ người đóng góp nào. Nếu bạn review một PR 10 ngày trước và người khác review nó 2 ngày trước, nó vẫn sẽ xuất hiện trong hoạt động của bạn trong tuần qua."
-    },
-    "notePoint2": {
-        "message": "Xin lưu ý rằng có thể xảy ra một số khác biệt trong Scrum được tạo. Chúng tôi khuyên bạn nên xem xét và chỉnh sửa báo cáo thủ công để đảm bảo tính chính xác trước khi chia sẻ."
+        "message": "Pull request được lấy dựa trên hoạt động đánh giá gần đây nhất của bất kỳ người đóng góp nào, không chỉ của riêng bạn. Vui lòng xem xét và điều chỉnh báo cáo SCRUM được tạo để đảm bảo nó phản ánh chính xác công việc của bạn trước khi chia sẻ."
     },
     "noteSeeIssue": {
         "message": "Xem vấn đề này"

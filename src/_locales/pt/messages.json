@@ -121,10 +121,7 @@
         "message": "A extensão está desativada. Ative-a nas opções para gerar relatórios scrum."
     },
     "notePoint1": {
-        "message": "Os PRs buscados são baseados na revisão mais recente de qualquer contribuidor. Se você revisou um PR há 10 dias e outra pessoa o revisou há 2 dias, ele ainda aparecerá na sua atividade da última semana."
-    },
-    "notePoint2": {
-        "message": "Observe que algumas discrepâncias podem ocorrer no SCRUM gerado. Recomendamos revisar e editar manualmente o relatório para garantir a precisão antes de compartilhar."
+        "message": "As solicitações de pull são buscadas com base na atividade de revisão mais recente de qualquer contribuidor, não apenas na sua. Revise e ajuste o relatório SCRUM gerado para garantir que ele reflita com precisão o seu trabalho antes de compartilhá-lo."
     },
     "noteSeeIssue": {
         "message": "Veja este problema"
