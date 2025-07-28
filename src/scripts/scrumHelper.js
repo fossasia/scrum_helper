@@ -229,7 +229,7 @@ function allIncluded(outputTarget = 'email') {
                                     if (month < 10) month = '0' + month;
                                     if (date < 10) date = '0' + date;
                                     let dateCode = year.toString() + month.toString() + date.toString();
-                                    const subject = `[Scrum] ${name} - ${project} - ${dateCode}`;
+                                    const subject = `[Scrum] - ${project} - ${dateCode}`;
                                     subjectForEmail = subject;
 
 
@@ -1029,7 +1029,7 @@ ${userReason}`;
                 if (date < 10) date = '0' + date;
                 let dateCode = year.toString() + month.toString() + date.toString();
 
-                const subject = `[Scrum] ${name} - ${project} - ${dateCode}`;
+                const subject = `[Scrum] - ${project} - ${dateCode}`;
                 log('Generated subject:', subject);
                 githubCache.subject = subject;
                 saveToStorage(githubCache.data, subject);
