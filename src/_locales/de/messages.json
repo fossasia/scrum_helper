@@ -24,6 +24,9 @@
     "githubUsernameLabel": {
         "message": "Ihr GitHub-Benutzername"
     },
+    "gitlabUsernameLabel": {
+        "message": "Ihr GitLab-Benutzername"
+    },
     "githubUsernamePlaceholder": {
         "message": "Erforderlich, um Ihre Beiträge abzurufen"
     },

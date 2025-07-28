@@ -23,8 +23,11 @@
     "githubUsernameLabel": {
         "message": "Tên người dùng GitHub của bạn"
     },
+    "gitlabUsernameLabel": {
+        "message": "Tên người dùng GitLab của bạn"
+    },
     "githubUsernamePlaceholder": {
-        "message": "Bắt buộc để lấy đóng góp của bạn"
+        "message": "Bắt buộc để lấy các đóng góp của bạn"
     },
     "contributionsLabel": {
         "message": "Lấy đóng góp của bạn trong:"

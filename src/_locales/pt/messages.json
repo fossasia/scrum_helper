@@ -22,7 +22,10 @@
         "message": "Digite o nome do seu projeto"
     },
     "githubUsernameLabel": {
-        "message": "Seu Nome de Usuário do Github"
+        "message": "Seu nome de usuário do GitHub"
+    },
+    "gitlabUsernameLabel": {
+        "message": "Seu nome de usuário do GitLab"
     },
     "githubUsernamePlaceholder": {
         "message": "Necessário para buscar suas contribuições"

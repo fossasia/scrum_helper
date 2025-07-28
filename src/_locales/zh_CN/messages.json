@@ -24,6 +24,9 @@
     "githubUsernameLabel": {
         "message": "您的 GitHub 用户名"
     },
+    "gitlabUsernameLabel": {
+        "message": "您的 GitLab 用户名"
+    },
     "githubUsernamePlaceholder": {
         "message": "获取您的贡献所必需"
     },

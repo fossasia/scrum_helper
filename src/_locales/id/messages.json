@@ -23,6 +23,9 @@
     "githubUsernameLabel": {
         "message": "Nama Pengguna GitHub Anda"
     },
+    "gitlabUsernameLabel": {
+        "message": "Nama Pengguna GitLab Anda"
+    },
     "githubUsernamePlaceholder": {
         "message": "Diperlukan untuk mengambil kontribusi Anda"
     },

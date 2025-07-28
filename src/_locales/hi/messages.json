@@ -23,8 +23,11 @@
     "githubUsernameLabel": {
         "message": "आपका GitHub उपयोगकर्ता नाम"
     },
+    "gitlabUsernameLabel": {
+        "message": "आपका GitLab उपयोगकर्ता नाम"
+    },
     "githubUsernamePlaceholder": {
-        "message": "आपके योगदान प्राप्त करने के लिए आवश्यक"
+        "message": "आपके योगदानों को प्राप्त करने के लिए आवश्यक"
     },
     "contributionsLabel": {
         "message": "इस अवधि के योगदान प्राप्त करें:"

@@ -23,6 +23,9 @@
     "githubUsernameLabel": {
         "message": "Ваше имя пользователя GitHub"
     },
+    "gitlabUsernameLabel": {
+        "message": "Ваше имя пользователя GitLab"
+    },
     "githubUsernamePlaceholder": {
         "message": "Требуется для получения ваших вкладов"
     },

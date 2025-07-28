@@ -23,6 +23,9 @@
     "githubUsernameLabel": {
         "message": "Votre nom d'utilisateur GitHub"
     },
+    "gitlabUsernameLabel": {
+        "message": "Votre nom d'utilisateur GitLab"
+    },
     "githubUsernamePlaceholder": {
         "message": "Requis pour récupérer vos contributions"
     },

@@ -23,6 +23,9 @@
     "githubUsernameLabel": {
         "message": "GitHubユーザー名"
     },
+    "gitlabUsernameLabel": {
+        "message": "GitLabユーザー名"
+    },
     "githubUsernamePlaceholder": {
         "message": "コントリビューションの取得に必要です"
     },
