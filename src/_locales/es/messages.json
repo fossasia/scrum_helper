@@ -15,7 +15,7 @@
         "message": "Ir al informe"
     },
     "projectNameLabel": {
-        "message": "Asunto del correo electrónico"
+        "message": "Nombre del proyecto (usado en el asunto del correo)"
     },
     "projectNamePlaceholder": {
         "message": "Ingrese el nombre de su proyecto"

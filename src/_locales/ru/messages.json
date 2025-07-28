@@ -15,7 +15,7 @@
         "message": "Перейти к отчету"
     },
     "projectNameLabel": {
-        "message": "Тема письма"
+        "message": "Название проекта (используется в теме письма)"
     },
     "projectNamePlaceholder": {
         "message": "Введите название вашего проекта"

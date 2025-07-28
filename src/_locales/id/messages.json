@@ -15,7 +15,7 @@
         "message": "Buka Laporan"
     },
     "projectNameLabel": {
-        "message": "Subjek email"
+        "message": "Nama Proyek (digunakan di subjek email)"
     },
     "projectNamePlaceholder": {
         "message": "Masukkan nama proyek Anda"

@@ -16,7 +16,7 @@
         "message": "Ir para o Relatório"
     },
     "projectNameLabel": {
-        "message": "Assunto do e-mail"
+        "message": "Nome do Projeto (usado no assunto do e-mail)"
     },
     "projectNamePlaceholder": {
         "message": "Digite o nome do seu projeto"

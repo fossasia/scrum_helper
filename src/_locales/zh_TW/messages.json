@@ -15,7 +15,7 @@
     "message": "前往報告"
   },
   "projectNameLabel": {
-    "message": "電子郵件主旨"
+    "message": "專案名稱（用於電子郵件主旨）"
   },
   "projectNamePlaceholder": {
     "message": "輸入您的專案名稱"

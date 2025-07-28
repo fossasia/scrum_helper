@@ -15,7 +15,7 @@
         "message": "Zum Bericht"
     },
     "projectNameLabel": {
-        "message": "E-Mail-Betreff",
+        "message": "Projektname (wird im E-Mail-Betreff verwendet)",
         "description": "Label für das Betreff-Feld der E-Mail."
     },
     "projectNamePlaceholder": {

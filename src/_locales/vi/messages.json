@@ -15,7 +15,7 @@
         "message": "Đi đến Báo cáo"
     },
     "projectNameLabel": {
-        "message": "Chủ đề email"
+        "message": "Tên dự án (sử dụng trong chủ đề email)"
     },
     "projectNamePlaceholder": {
         "message": "Nhập tên dự án của bạn"

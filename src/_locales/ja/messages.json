@@ -15,7 +15,7 @@
         "message": "レポートに移動"
     },
     "projectNameLabel": {
-        "message": "プロジェクト名"
+        "message": "プロジェクト名（メールの件名に使用）"
     },
     "projectNamePlaceholder": {
         "message": "メール件名"

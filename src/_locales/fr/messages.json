@@ -15,7 +15,7 @@
         "message": "Aller au rapport"
     },
     "projectNameLabel": {
-        "message": "Objet de l'e-mail"
+        "message": "Nom du projet (utilisé dans l'objet de l'e-mail)"
     },
     "projectNamePlaceholder": {
         "message": "Entrez le nom de votre projet"
