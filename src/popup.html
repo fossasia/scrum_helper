@@ -109,18 +109,18 @@
 						</div>
 					</div>
 					<div>
-						<p class=" font-medium text-sm" data-i18n="projectNameLabel">Project Name (used in email subject)<span
-								class="tooltip-container ml-2">
+						<div class="flex">
 
-
+							<p class=" font-medium text-sm" data-i18n="projectNameLabel">Project Name (used in email
+								subject)</p><span class="tooltip-container ml-2">
 								<i class="fa fa-question-circle question-icon"></i>
 								<span class="tooltip-bubble" data-i18n="projectNameTooltip">
-									This is the name that appears in the subject line of your email, followed by
-									timestamp.
+									This project name will appear in the subject line of your email as part of:
+									"[Scrum] Project Name - Date”. Leave blank to skip.
 								</span>
+							</span>
 
-							</span> </p>
-
+						</div>
 
 
 						<input id="projectName" type="text"
@@ -177,12 +177,13 @@
 							<input type="checkbox" id="showCommits" checked class="form-checkbox text-blue-600 ">
 							<label id="showCommitsLabel" for="showCommits"
 								class="font-medium text-sm flex items-center pl-5 ml-4" style="margin-left: 4px;"
-								data-i18n="showCommitsLabel">Show commits on open PRs</label><span class="tooltip-container">
-									<i class="fa fa-question-circle question-icon"></i>
-									<span class="tooltip-bubble" data-i18n="showCommitsTooltip">
-										Github Token required, add it in the settings.
-									</span>
+								data-i18n="showCommitsLabel">Show commits on open PRs</label><span
+								class="tooltip-container">
+								<i class="fa fa-question-circle question-icon"></i>
+								<span class="tooltip-bubble" data-i18n="showCommitsTooltip">
+									Github Token required, add it in the settings.
 								</span>
+							</span>
 						</div>
 					</div>
 
