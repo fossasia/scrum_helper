@@ -1018,6 +1018,9 @@ ${userReason}`;
                 return;
             }
             setTimeout(() => {
+                if(!projectName) {
+                    return;
+                }
                 let name = githubUserData?.name || githubUserData?.username || platformUsernameLocal || platformUsername;
                 let project = projectName || '<project name>';
                 let curDate = new Date();
