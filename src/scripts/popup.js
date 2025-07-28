@@ -1325,7 +1325,6 @@ if (cacheInput) {
 }
 
 
-// Restore platform from storage or default to github
 chrome.storage.local.get(['platform'], function (result) {
     const platform = result.platform || 'github';
     platformSelect.value = platform;
@@ -1334,7 +1333,20 @@ chrome.storage.local.get(['platform'], function (result) {
 
 // Update UI for platform
 function updatePlatformUI(platform) {
-    // Hide GitHub-specific settings for GitLab using the 'hidden' class
+    const usernameLabel = document.getElementById('usernameLabel');
+    if (usernameLabel) {
+        if (platform === 'gitlab') {
+            usernameLabel.setAttribute('data-i18n', 'gitlabUsernameLabel');
+        } else {
+            usernameLabel.setAttribute('data-i18n', 'githubUsernameLabel');
+        }
+        const key = usernameLabel.getAttribute('data-i18n');
+        const message = chrome.i18n.getMessage(key);
+        if (message) {
+            usernameLabel.textContent = message;
+        }
+    }
+
     const orgSection = document.querySelector('.orgSection');
     if (orgSection) {
         if (platform === 'gitlab') {
@@ -1343,7 +1355,6 @@ function updatePlatformUI(platform) {
             orgSection.classList.remove('hidden');
         }
     }
-    // Hide all githubOnlySection elements for GitLab
     const githubOnlySections = document.querySelectorAll('.githubOnlySection');
     githubOnlySections.forEach(el => {
         if (platform === 'gitlab') {
@@ -1352,15 +1363,11 @@ function updatePlatformUI(platform) {
             el.classList.remove('hidden');
         }
     });
-    // (Optional) You can update the label/placeholder here if you want
-    // Do NOT clear the username field here, only do it on actual platform change
 }
 
-// On platform change
 platformSelect.addEventListener('change', function () {
     const platform = platformSelect.value;
     chrome.storage.local.set({ platform });
-    // Save current username for current platform before switching
     const platformUsername = document.getElementById('platformUsername');
     if (platformUsername) {
         const currentPlatform = platformSelect.value === 'github' ? 'gitlab' : 'github'; // Get the platform we're switching from
@@ -1370,7 +1377,6 @@ platformSelect.addEventListener('change', function () {
         }
     }
 
-    // Load username for the new platform
     chrome.storage.local.get([`${platform}Username`], function (result) {
         if (platformUsername) {
             platformUsername.value = result[`${platform}Username`] || '';
@@ -1380,7 +1386,6 @@ platformSelect.addEventListener('change', function () {
     updatePlatformUI(platform);
 });
 
-// Custom platform dropdown logic
 const customDropdown = document.getElementById('customPlatformDropdown');
 const dropdownBtn = document.getElementById('platformDropdownBtn');
 const dropdownList = document.getElementById('platformDropdownList');
@@ -1394,7 +1399,6 @@ function setPlatformDropdown(value) {
         dropdownSelected.innerHTML = '<i class="fab fa-github mr-2"></i> GitHub';
     }
 
-    // Save current username for current platform before switching
     const platformUsername = document.getElementById('platformUsername');
     if (platformUsername) {
         const currentPlatform = platformSelectHidden.value;
@@ -1407,7 +1411,6 @@ function setPlatformDropdown(value) {
     platformSelectHidden.value = value;
     chrome.storage.local.set({ platform: value });
 
-    // Load username for the new platform
     chrome.storage.local.get([`${value}Username`], function (result) {
         if (platformUsername) {
             platformUsername.value = result[`${value}Username`] || '';
@@ -1428,7 +1431,6 @@ dropdownList.querySelectorAll('li').forEach(item => {
         const newPlatform = this.getAttribute('data-value');
         const currentPlatform = platformSelectHidden.value;
 
-        // Save current username for current platform before switching
         if (newPlatform !== currentPlatform) {
             const platformUsername = document.getElementById('platformUsername');
             if (platformUsername) {

@@ -27,6 +27,10 @@
     "message": "Your Github Username",
     "description": "Label for the GitHub username input field."
   },
+  "gitlabUsernameLabel": {
+    "message": "Your GitLab Username",
+    "description": "Label for the GitLab username input field."
+  },
   "githubUsernamePlaceholder": {
     "message": "Required for fetching your contributions",
     "description": "Placeholder text for the GitHub username input."
