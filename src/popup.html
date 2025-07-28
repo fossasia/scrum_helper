@@ -158,10 +158,10 @@
 										class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1" style="width: 96px;">
 								</div>
 							</div>
-							<div class="flex items-center gap-2">
-								<input type="radio" id="yesterdayContribution" name="timeframe" class="form-radio">
+							<div class="flex items-center gap-1">
+								<input type="radio" id="yesterdayContribution" name="timeframe" class="form-radio" style="margin-right: 4px;">
 								<label for="yesterdayContribution" class="font-medium text-xs"
-									style="padding-bottom: px;" data-i18n="last1DayLabel">Previous Day</label>
+									data-i18n="last1DayLabel">Previous Day</label>
 							</div>
 						</div>
 					</div>
@@ -223,7 +223,7 @@
 						<div>
 							<div class="flex items-center justify-between">
 								<div class="flex">
-									<p class="text-sm font-medium" data-i18n="githubTokenLabel">Your GitHub Token<span
+									<p class="text-sm font-medium" data-i18n="githubTokenLabel">Your GitHub Token</p> <span
 											class="tooltip-container">
 											<i class="fa fa-question-circle question-icon"></i>
 											<span class="tooltip-bubble" data-i18n="githubTokenTooltip">
@@ -246,7 +246,7 @@
 												4. Paste it here.<br>
 												<i>Keep your token secret!</i>
 											</span>
-										</span></p>
+										</span>
 
 								</div>
 								<button id="toggleTokenVisibility" type="button" class="focus:outline-none">
@@ -298,7 +298,7 @@
 								</p>
 								<div class="flex items-center">
 
-									<input type="checkbox" id="useRepoFilter" class="mr-2">
+									<input type="checkbox" id="useRepoFilter" class="mr-2" style="margin-right: 4px;">
 									<label for="useRepoFilter" class="text-xs text-gray-600"><span
 											data-i18n="enableFilteringLabel">Enable
 											filtering</span></label>
