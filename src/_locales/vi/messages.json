@@ -33,10 +33,10 @@
         "message": "Ngày trước"
     },
     "startDateLabel": {
-        "message": "Ngày bắt đầu:"
+        "message": "Từ:"
     },
     "endDateLabel": {
-        "message": "Ngày kết thúc:"
+        "message": "Đến:"
     },
     "showOpenClosedLabel": {
         "message": "Hiển thị trạng thái Mở/Đóng"

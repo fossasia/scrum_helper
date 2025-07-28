@@ -33,10 +33,10 @@
         "message": "Hari sebelumnya"
     },
     "startDateLabel": {
-        "message": "Tanggal Mulai:"
+        "message": "Dari:"
     },
     "endDateLabel": {
-        "message": "Tanggal Selesai:"
+        "message": "Hingga:"
     },
     "showOpenClosedLabel": {
         "message": "Tampilkan status Buka/Tutup"

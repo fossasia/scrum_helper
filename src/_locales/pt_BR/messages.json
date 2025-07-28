@@ -34,10 +34,10 @@
         "message": "Dia anterior"
     },
     "startDateLabel": {
-        "message": "Data de Início:"
+        "message": "De:"
     },
     "endDateLabel": {
-        "message": "Data de Fim:"
+        "message": "Até:"
     },
     "showOpenClosedLabel": {
         "message": "Mostrar status Aberto/Fechado"

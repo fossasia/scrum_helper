@@ -40,11 +40,11 @@
         "description": "Radio button option for the last 1 day."
     },
     "startDateLabel": {
-        "message": "Start Date:",
+        "message": "From:",
         "description": "Label for the start date picker."
     },
     "endDateLabel": {
-        "message": "End Date:",
+        "message": "To:",
         "description": "Label for the end date picker."
     },
     "showOpenClosedLabel": {

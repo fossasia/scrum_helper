@@ -33,10 +33,10 @@
         "message": "前日"
     },
     "startDateLabel": {
-        "message": "開始日："
+        "message": "開始:"
     },
     "endDateLabel": {
-        "message": "終了日："
+        "message": "終了:"
     },
     "showOpenClosedLabel": {
         "message": "オープン/クローズ状態を表示"

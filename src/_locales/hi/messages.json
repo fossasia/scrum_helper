@@ -33,10 +33,10 @@
         "message": "पिछला दिन"
     },
     "startDateLabel": {
-        "message": "प्रारंभ तिथि:"
+        "message": "से:"
     },
     "endDateLabel": {
-        "message": "अंतिम तिथि:"
+        "message": "तक:"
     },
     "showOpenClosedLabel": {
         "message": "खुला/बंद स्थिति दिखाएं"

@@ -33,10 +33,10 @@
         "message": "Предыдущий день"
     },
     "startDateLabel": {
-        "message": "Дата начала:"
+        "message": "С:"
     },
     "endDateLabel": {
-        "message": "Дата окончания:"
+        "message": "До:"
     },
     "showOpenClosedLabel": {
         "message": "Показывать статус Открыто/Закрыто"

@@ -34,10 +34,10 @@
         "message": "前一天"
     },
     "startDateLabel": {
-        "message": "开始日期："
+        "message": "从:"
     },
     "endDateLabel": {
-        "message": "结束日期："
+        "message": "到:"
     },
     "showOpenClosedLabel": {
         "message": "显示“打开/关闭”状态"

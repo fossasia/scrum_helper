@@ -33,10 +33,10 @@
         "message": "Día anterior"
     },
     "startDateLabel": {
-        "message": "Fecha de inicio:"
+        "message": "Desde:"
     },
     "endDateLabel": {
-        "message": "Fecha de fin:"
+        "message": "Hasta:"
     },
     "showOpenClosedLabel": {
         "message": "Mostrar estado Abierto/Cerrado"
