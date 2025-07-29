@@ -1,4 +1,3 @@
-
 # Scrum Helper
 
 **Scrum Helper** is a Chrome extension that simplifies writing development reports by auto-filling content based on your Git activity. Just enter your GitHub username, select a date range, and choose your preferences, the extension automatically fetches your commits, pull requests, issues, and code reviews via the GitHub API and generates a pre-filled report that you can edit as needed. While currently focused on Git-based workflows, Scrum Helper is designed to expand to other platforms in the future.
@@ -72,6 +71,7 @@
     *   *Requires a GitHub token.*
 
 ### Usage Standalone
+
 - Click on `GENERATE` button to generate the scrum preview.
 - Edit it in the window.
 - Copy the rich HTML using the `COPY` button.
@@ -99,8 +99,11 @@ $ npm install
 
 1. **Install the Extension**
 
+
 * For Chrome: Load it into your browser through [Chrome Extension Developer Mode](https://developer.chrome.com/docs/extensions/mv3/getstarted/).
 <!-- * For Firefox: Load it as a temporary add-on through `about:debugging` as described above. -->
+
+
 
 
 2. **Build the Extension**
@@ -109,33 +112,70 @@ $ npm install
    
 3. **How to Obtain a GitHub Personal Access Token**
 
+
 - To use Scrum Helper with authenticated requests (for higher rate limits and private repositories), you need a GitHub personal access token.
 
   #### Steps to Generate a Token
 
   1. **Go to GitHub Developer Settings:**  
-    Visit [https://github.com/settings/tokens](https://github.com/settings/tokens) while logged in to your GitHub account.
+     Visit [https://github.com/settings/tokens](https://github.com/settings/tokens) while logged in to your GitHub account.
 
-  2. **Choose Token Type:**  
-    - Select **"Personal access tokens (classic)"**.
+  2. **Choose Token Type:**
 
-  3. **Generate a New Token:**  
-    - Click **"Generate new token"**.
-    - Give your token a descriptive name (e.g., "Scrum Helper Extension").
-    - Set an expiration date if desired.
+  - Select **"Personal access tokens (classic)"**.
 
-  4. **Create and Copy the Token:**  
-    - Click **"Generate token"** at the bottom.
-    - **Copy the token** and save it securely. You will not be able to see it again!
+  3. **Generate a New Token:**
 
-  5. **Paste the Token in Scrum Helper:**  
-    - Open the Scrum Helper extension popup.
-    - Paste your token into the "GitHub Token" field.
+  - Click **"Generate new token"**.
+  - Give your token a descriptive name (e.g., "Scrum Helper Extension").
+  - Set an expiration date if desired.
+
+  4. **Create and Copy the Token:**
+
+  - Click **"Generate token"** at the bottom.
+  - **Copy the token** and save it securely. You will not be able to see it again!
+
+  5. **Paste the Token in Scrum Helper:**
+
+  - Open the Scrum Helper extension popup.
+  - Paste your token into the "GitHub Token" field.
 
   > **Keep your token secret!** Never share it or commit it to public repositories.
 
   **Why use a token?**  
   GitHub tokens allow the extension to make authenticated requests, increasing your API rate limit and enabling access to private repositories if you grant those permissions.
+
+
+
+## Adding a New Language
+
+You can add a new language to Scrum Helper for your own use, or contribute it to the project.
+
+### Using a New Language Locally
+
+1. **Create a Locale Folder**
+   - Go to `src/_locales`.
+   - Create a new folder named with the [ISO language code](https://developer.chrome.com/docs/extensions/reference/i18n/#localeTable) (e.g., `it` for Italian, `fr` for French).
+
+2. **Add a `messages.json` File**
+   - Copy the `messages.json` from `src/_locales/en/messages.json` or any other language as a template.
+   - Translate only the `"message"` values into your language.  
+     **Do not translate the extension name ("Scrum Helper") or the footer ("Made with ❤️ by ...").**
+
+3. **Test the Extension**
+   - Reload the extension in your browser.
+   - Change your browser or system language to your new locale (see your browser’s language settings).
+   - The extension will use your translation automatically if your language is set.
+
+> **You do not need to make a pull request to use your language locally.**
+
+### Contributing Your Translation
+
+If you want to share your translation with others:
+- Make a pull request with your new locale folder and `messages.json` file.
+- We recommend double-checking your translations for accuracy and clarity.
+
+For more details, see the [Chrome i18n documentation](https://developer.chrome.com/docs/extensions/reference/i18n/).
 
 
 ## About contributing

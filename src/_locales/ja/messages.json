@@ -1,0 +1,197 @@
+{
+    "appName": {
+        "message": "Scrum Helper"
+    },
+    "appDescription": {
+        "message": "選択した期間のGitアクティビティを自動的に取得して、開発の進捗を報告します。"
+    },
+    "disableLabel": {
+        "message": "無効にする"
+    },
+    "enableLabel": {
+        "message": "有効にする"
+    },
+    "homeButtonTitle": {
+        "message": "レポートに移動"
+    },
+    "projectNameLabel": {
+        "message": "プロジェクト名（メールの件名に使用）"
+    },
+    "projectNamePlaceholder": {
+        "message": "メール件名"
+    },
+    "githubUsernameLabel": {
+        "message": "GitHubユーザー名"
+    },
+    "gitlabUsernameLabel": {
+        "message": "GitLabユーザー名"
+    },
+    "githubUsernamePlaceholder": {
+        "message": "コントリビューションの取得に必要です"
+    },
+    "contributionsLabel": {
+        "message": "取得するコントリビューションの期間："
+    },
+    "last1DayLabel": {
+        "message": "前日"
+    },
+    "startDateLabel": {
+        "message": "開始:"
+    },
+    "endDateLabel": {
+        "message": "終了:"
+    },
+    "showOpenClosedLabel": {
+        "message": "オープン/クローズ状態を表示"
+    },
+    "blockersLabel": {
+        "message": "進捗の妨げになっているものは何ですか？"
+    },
+    "blockersPlaceholder": {
+        "message": "理由を入力してください"
+    },
+    "scrumReportLabel": {
+        "message": "スクラムレポート"
+    },
+    "generateReportButton": {
+        "message": "レポートを生成"
+    },
+    "copyReportButton": {
+        "message": "レポートをコピー"
+    },
+    "settingsOrgNameLabel": {
+        "message": "組織名"
+    },
+    "settingsOrgNamePlaceholder": {
+        "message": "組織名を入力してください"
+    },
+    "setButton": {
+        "message": "設定"
+    },
+    "githubTokenLabel": {
+        "message": "GitHubトークン"
+    },
+    "githubTokenPlaceholder": {
+        "message": "認証済みリクエストに必要です"
+    },
+    "showCommitsLabel": {
+        "message": "期間内のオープンなPRのコミットを表示"
+    },
+    "cacheTTLLabel": {
+        "message": "キャッシュTTLを入力"
+    },
+    "cacheTTLUnit": {
+        "message": "（分）"
+    },
+    "cacheTTLPlaceholder": {
+        "message": "キャッシュTTLを分単位で入力 (デフォルト: 10)"
+    },
+    "refreshDataButton": {
+        "message": "データを更新 (キャッシュを無視)"
+    },
+    "refreshDataInfo": {
+        "message": "このボタンで最新のデータをすぐに取得します。"
+    },
+    "noteTitle": {
+        "message": "注："
+    },
+    "viewCodeButton": {
+        "message": "コードを見る"
+    },
+    "reportIssueButton": {
+        "message": "問題を報告"
+    },
+    "repoFilterLabel": {
+        "message": "リポジトリでフィルタリング"
+    },
+    "enableFilteringLabel": {
+        "message": "フィルタリングを有効にする"
+    },
+    "tokenRequiredWarning": {
+        "message": "リポジトリのフィルタリングにはGitHubトークンが必要です。設定で追加してください。"
+    },
+    "repoSearchPlaceholder": {
+        "message": "追加するリポジトリを検索..."
+    },
+    "repoPlaceholder": {
+        "message": "リポジトリが選択されていません（すべて含まれます）"
+    },
+    "repoCountNone": {
+        "message": "0件のリポジトリが選択されています"
+    },
+    "repoCount": {
+        "message": "$1件のリポジトリが選択されています"
+    },
+    "repoLoading": {
+        "message": "リポジトリを読み込み中..."
+    },
+    "repoLoaded": {
+        "message": "$1件のリポジトリを読み込みました。"
+    },
+    "repoNotFound": {
+        "message": "リポジトリが見つかりません"
+    },
+    "repoRefetching": {
+        "message": "リポジトリを再読み込み中..."
+    },
+    "repoLoadFailed": {
+        "message": "リポジトリの読み込みに失敗しました。"
+    },
+    "repoTokenPrivate": {
+        "message": "トークンが無効か、プライベートリポジトリへの権限がありません。"
+    },
+    "repoRefetchFailed": {
+        "message": "リポジトリの再読み込みに失敗しました。"
+    },
+    "orgSetMessage": {
+        "message": "組織が正常に設定されました。"
+    },
+    "orgClearedMessage": {
+        "message": "組織がクリアされました。「レポートを生成」をクリックしてすべてのアクティビティを取得してください。"
+    },
+    "orgNotFoundMessage": {
+        "message": "GitHubで組織が見つかりません。"
+    },
+    "orgValidationErrorMessage": {
+        "message": "組織の検証中にエラーが発生しました。"
+    },
+    "refreshingButton": {
+        "message": "更新中..."
+    },
+    "cacheClearFailed": {
+        "message": "キャッシュのクリアに失敗しました。"
+    },
+    "madeWithLoveBy": {
+        "message": "Made with ❤️ by"
+    },
+    "generatingButton": {
+        "message": "生成中..."
+    },
+    "copiedButton": {
+        "message": "コピーしました！"
+    },
+    "orgChangedMessage": {
+        "message": "組織が変更されました。「レポートを生成」ボタンをクリックしてGitHubアクティビティを取得してください。"
+    },
+    "cacheClearedMessage": {
+        "message": "キャッシュが正常にクリアされました。「レポートを生成」をクリックして新しいデータを取得してください。"
+    },
+    "cacheClearedButton": {
+        "message": "キャッシュクリア！"
+    },
+    "extensionDisabledMessage": {
+        "message": "拡張機能が無効です。スクラムレポートを生成するには、オプションから有効にしてください。"
+    },
+    "notePoint1": {
+        "message": "プルリクエストは、自分だけでなく、任意のコントリビューターによる最新のレビューアクティビティに基づいて取得されます。共有する前に、生成されたSCRUMレポートを確認および調整して、作業が正確に反映されていることを確認してください。"
+    },
+    "noteSeeIssue": {
+        "message": "このIssueを参照"
+    },
+    "platformLabel": {
+        "message": "プラットフォーム"
+    },
+    "usernameLabel": {
+        "message": "あなたのユーザー名"
+    }
+}

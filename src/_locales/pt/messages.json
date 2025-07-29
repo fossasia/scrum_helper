@@ -1,0 +1,138 @@
+{
+
+    "appName": {
+        "message": "Scrum Helper"
+    },
+    "appDescription": {
+        "message": "Relate o seu progresso de desenvolvimento buscando automaticamente a sua atividade no Git para um período selecionado"
+    },
+    "disableLabel": {
+        "message": "Desativar"
+    },
+    "enableLabel": {
+        "message": "Ativar"
+    },
+    "homeButtonTitle": {
+        "message": "Ir para o Relatório"
+    },
+    "projectNameLabel": {
+        "message": "Nome do Projeto (usado no assunto do e-mail)"
+    },
+    "projectNamePlaceholder": {
+        "message": "Digite o nome do seu projeto"
+    },
+    "githubUsernameLabel": {
+        "message": "Seu nome de usuário do GitHub"
+    },
+    "gitlabUsernameLabel": {
+        "message": "Seu nome de usuário do GitLab"
+    },
+    "githubUsernamePlaceholder": {
+        "message": "Necessário para buscar suas contribuições"
+    },
+    "contributionsLabel": {
+        "message": "Buscar suas contribuições entre:"
+    },
+    "last1DayLabel": {
+        "message": "Dia anterior"
+    },
+    "startDateLabel": {
+        "message": "De:"
+    },
+    "endDateLabel": {
+        "message": "Até:"
+    },
+    "showOpenClosedLabel": {
+        "message": "Mostrar Rótulo Aberto/Fechado"
+    },
+    "blockersLabel": {
+        "message": "O que está impedindo você de progredir?"
+    },
+    "blockersPlaceholder": {
+        "message": "Digite o seu motivo"
+    },
+    "scrumReportLabel": {
+        "message": "Relatório Scrum"
+    },
+    "generateReportButton": {
+        "message": "Gerar Relatório"
+    },
+    "copyReportButton": {
+        "message": "Copiar Relatório"
+    },
+    "settingsOrgNameLabel": {
+        "message": "Nome da Organização"
+    },
+    "settingsOrgNamePlaceholder": {
+        "message": "Digite o nome da organização"
+    },
+    "setButton": {
+        "message": "Definir"
+    },
+    "githubTokenLabel": {
+        "message": "Seu Token do Github"
+    },
+    "githubTokenPlaceholder": {
+        "message": "Necessário para fazer solicitações autenticadas"
+    },
+    "showCommitsLabel": {
+        "message": "Mostrar commits feitos dentro do intervalo de datas em PRs abertos"
+    },
+    "cacheTTLLabel": {
+        "message": "Digite o TTL do cache"
+    },
+    "cacheTTLUnit": {
+        "message": "(em minutos)"
+    },
+    "cacheTTLPlaceholder": {
+        "message": "Escreva o TTL do cache em minutos (Padrão 10 minutos)"
+    },
+    "refreshDataButton": {
+        "message": "Atualizar Dados (ignorar cache)"
+    },
+    "refreshDataInfo": {
+        "message": "Use este botão para buscar dados novos imediatamente."
+    },
+    "noteTitle": {
+        "message": "Nota:"
+    },
+    "viewCodeButton": {
+        "message": "Ver Código"
+    },
+    "reportIssueButton": {
+        "message": "Relatar Problema"
+    },
+    "madeWithLoveBy": {
+        "message": "Feito com ❤️ por"
+    },
+    "generatingButton": {
+        "message": "Gerando..."
+    },
+    "copiedButton": {
+        "message": "Copiado!"
+    },
+    "orgChangedMessage": {
+        "message": "Organização alterada. Clique no botão Gerar para buscar as atividades do GitHub."
+    },
+    "cacheClearedMessage": {
+        "message": "Cache limpo com sucesso. Clique em \"Gerar Relatório\" para buscar dados novos."
+    },
+    "cacheClearedButton": {
+        "message": "Cache Limpo!"
+    },
+    "extensionDisabledMessage": {
+        "message": "A extensão está desativada. Ative-a nas opções para gerar relatórios scrum."
+    },
+    "notePoint1": {
+        "message": "As solicitações de pull são buscadas com base na atividade de revisão mais recente de qualquer contribuidor, não apenas na sua. Revise e ajuste o relatório SCRUM gerado para garantir que ele reflita com precisão o seu trabalho antes de compartilhá-lo."
+    },
+    "noteSeeIssue": {
+        "message": "Veja este problema"
+    },
+    "platformLabel": {
+        "message": "Plataforma"
+    },
+    "usernameLabel": {
+        "message": "Seu nome de usuário"
+    }
+}

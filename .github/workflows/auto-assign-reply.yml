@@ -1,0 +1,41 @@
+name: Auto Reply to Assign Requests
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  auto-reply:
+    runs-on: ubuntu-latest
+    env:
+      ASSIGN_KEYWORDS: |
+        assign this to me
+        please assign
+        assign me
+        can you assign
+        assign to me
+        can i be assigned
+        may i be assigned
+        could you assign
+      ASSIGN_RESPONSE: |
+        Please go ahead and create a PR when you are ready. We do not formally assign issues. Contributors are free to pick up any open issue based on their availability. You can open a PR or even a draft PR to let others know that you’re working on it.
+    steps:
+      - name: Check for assign request and comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Get keywords from env, split by newlines, and trim
+            const assignKeywords = process.env.ASSIGN_KEYWORDS.split('\n').map(k => k.trim()).filter(Boolean);
+            // Create regex patterns for each keyword (case-insensitive)
+            const assignPatterns = assignKeywords.map(k => new RegExp(k, 'i'));
+            const commentBody = context.payload.comment.body;
+            if (assignPatterns.some(pattern => pattern.test(commentBody))) {
+              const commenter = context.payload.comment.user.login;
+              const response = `@${commenter} ${process.env.ASSIGN_RESPONSE}`;
+              github.rest.issues.createComment({
+                issue_number: context.payload.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: response
+              });
+            } 
