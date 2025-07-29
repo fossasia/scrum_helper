@@ -1302,6 +1302,13 @@ ${userReason}`;
                 if (isDraft) {
 
                     li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + pr_draft_button : ''}</li>`;
+                    if (showCommits && item._allCommits && item._allCommits.length && !isNewPR) {
+                        log(`[PR DEBUG] Rendering commits for existing draft PR #${number}:`, item._allCommits);
+                        item._allCommits.forEach(commit => {
+                            li += `<li style=\"list-style: disc; margin: 0 0 0 20px; padding: 0; color: #666;\"><span style=\"color:#2563eb;\">${commit.messageHeadline}</span><span style=\"color:#666; font-size: 11px;\"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
+                        });
+                    }
+                    li += `</li>`;
                 } else if (item.state === 'open' || item.state === 'opened') {
                     li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + pr_open_button : ''}`;
 
