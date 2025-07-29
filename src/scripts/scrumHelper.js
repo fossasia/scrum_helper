@@ -221,7 +221,7 @@ function allIncluded(outputTarget = 'email') {
                                     githubUserData = mappedData.githubUserData;
 
                                     let name = githubUserData?.name || githubUserData?.username || platformUsernameLocal || platformUsername;
-                                    let project = projectName || '<project name>';
+                                    let project = projectName;
                                     let curDate = new Date();
                                     let year = curDate.getFullYear().toString();
                                     let date = curDate.getDate();
@@ -229,7 +229,7 @@ function allIncluded(outputTarget = 'email') {
                                     if (month < 10) month = '0' + month;
                                     if (date < 10) date = '0' + date;
                                     let dateCode = year.toString() + month.toString() + date.toString();
-                                    const subject = `[Scrum] - ${project} - ${dateCode}`;
+                                    const subject = `[Scrum]${project ? ' - ' + project : ''} - ${dateCode}`;
                                     subjectForEmail = subject;
 
 
@@ -1018,11 +1018,8 @@ ${userReason}`;
                 return;
             }
             setTimeout(() => {
-                if(!projectName) {
-                    return;
-                }
                 let name = githubUserData?.name || githubUserData?.username || platformUsernameLocal || platformUsername;
-                let project = projectName || '<project name>';
+                let project = projectName;
                 let curDate = new Date();
                 let year = curDate.getFullYear().toString();
                 let date = curDate.getDate();
@@ -1032,7 +1029,7 @@ ${userReason}`;
                 if (date < 10) date = '0' + date;
                 let dateCode = year.toString() + month.toString() + date.toString();
 
-                const subject = `[Scrum] - ${project} - ${dateCode}`;
+                const subject = `[Scrum]${project ? ' - ' + project : ''} - ${dateCode}`;
                 log('Generated subject:', subject);
                 githubCache.subject = subject;
                 saveToStorage(githubCache.data, subject);
