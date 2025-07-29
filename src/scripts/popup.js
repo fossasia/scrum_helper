@@ -5,20 +5,6 @@ function debounce(func, wait) {
         timeout = setTimeout(() => func.apply(this, args), wait);
     }
 }
-function getLastWeek() {
-    let today = new Date();
-    let lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
-    let lastWeekMonth = lastWeek.getMonth() + 1;
-    let lastWeekDay = lastWeek.getDate();
-    let lastWeekYear = lastWeek.getFullYear();
-    let lastWeekDisplayPadded =
-        ('0000' + lastWeekYear.toString()).slice(-4) +
-        '-' +
-        ('00' + lastWeekMonth.toString()).slice(-2) +
-        '-' +
-        ('00' + lastWeekDay.toString()).slice(-2);
-    return lastWeekDisplayPadded;
-}
 
 function getToday() {
     let today = new Date();
@@ -338,7 +324,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const githubTokenInput = document.getElementById('githubToken');
         const cacheInput = document.getElementById('cacheInput');
         const enableToggleSwitch = document.getElementById('enable');
-        const lastWeekRadio = document.getElementById('lastWeekContribution');
         const yesterdayRadio = document.getElementById('yesterdayContribution');
         const startingDateInput = document.getElementById('startingDate');
         const endingDateInput = document.getElementById('endingDate');
@@ -346,7 +331,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         chrome.storage.local.get([
             'projectName', 'orgName', 'userReason', 'showOpenLabel', 'showCommits', 'githubToken', 'cacheInput',
-            'enableToggle', 'lastWeekContribution', 'yesterdayContribution', 'startingDate', 'endingDate', 'selectedTimeframe', 'platform', 'githubUsername', 'gitlabUsername'
+            'enableToggle', 'yesterdayContribution', 'startingDate', 'endingDate', 'selectedTimeframe', 'platform', 'githubUsername', 'gitlabUsername'
         ], function (result) {
             if (result.projectName) projectNameInput.value = result.projectName;
             if (result.orgName) orgInput.value = result.orgName;
@@ -366,7 +351,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     enableToggleSwitch.checked = true; // Default to enabled
                 }
             }
-            if (typeof result.lastWeekContribution !== 'undefined') lastWeekRadio.checked = result.lastWeekContribution;
             if (typeof result.yesterdayContribution !== 'undefined') yesterdayRadio.checked = result.yesterdayContribution;
             if (result.startingDate) startingDateInput.value = result.startingDate;
             if (result.endingDate) endingDateInput.value = result.endingDate;
@@ -448,7 +432,6 @@ document.addEventListener('DOMContentLoaded', function () {
             endDateInput.readOnly = false;
 
             chrome.storage.local.set({
-                lastWeekContribution: false,
                 yesterdayContribution: false,
                 selectedTimeframe: null
             });
@@ -456,7 +439,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         chrome.storage.local.get([
             'selectedTimeframe',
-            'lastWeekContribution',
             'yesterdayContribution',
             'startingDate',
             'endingDate',
@@ -464,7 +446,7 @@ document.addEventListener('DOMContentLoaded', function () {
             console.log('Restoring state:', items);
 
 
-            if (items.startingDate && items.endingDate && !items.lastWeekContribution && !items.yesterdayContribution) {
+            if (items.startingDate && items.endingDate && !items.yesterdayContribution) {
                 const startDateInput = document.getElementById('startingDate');
                 const endDateInput = document.getElementById('endingDate');
 
@@ -484,7 +466,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (!items.selectedTimeframe) {
                 items.selectedTimeframe = 'yesterdayContribution';
-                items.lastWeekContribution = false;
                 items.yesterdayContribution = true;
             }
 
@@ -496,10 +477,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 const startDateInput = document.getElementById('startingDate');
                 const endDateInput = document.getElementById('endingDate');
 
-                if (items.selectedTimeframe === 'lastWeekContribution') {
-                    startDateInput.value = getLastWeek();
-                    endDateInput.value = getToday();
-                } else {
+                if (items.selectedTimeframe === 'yesterdayContribution') {
                     startDateInput.value = getYesterday();
                     endDateInput.value = getToday();
                 }
@@ -508,7 +486,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 chrome.storage.local.set({
                     startingDate: startDateInput.value,
                     endingDate: endDateInput.value,
-                    lastWeekContribution: items.selectedTimeframe === 'lastWeekContribution',
                     yesterdayContribution: items.selectedTimeframe === 'yesterdayContribution',
                     selectedTimeframe: items.selectedTimeframe
                 });
@@ -544,9 +521,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 chrome.storage.local.set({ enableToggle: enableToggleSwitch.checked });
             });
         }
-        lastWeekRadio.addEventListener('change', function () {
-            chrome.storage.local.set({ lastWeekContribution: lastWeekRadio.checked });
-        });
         yesterdayRadio.addEventListener('change', function () {
             chrome.storage.local.set({ yesterdayContribution: yesterdayRadio.checked });
         });
@@ -1351,7 +1325,6 @@ if (cacheInput) {
 }
 
 
-// Restore platform from storage or default to github
 chrome.storage.local.get(['platform'], function (result) {
     const platform = result.platform || 'github';
     platformSelect.value = platform;
@@ -1360,7 +1333,20 @@ chrome.storage.local.get(['platform'], function (result) {
 
 // Update UI for platform
 function updatePlatformUI(platform) {
-    // Hide GitHub-specific settings for GitLab using the 'hidden' class
+    const usernameLabel = document.getElementById('usernameLabel');
+    if (usernameLabel) {
+        if (platform === 'gitlab') {
+            usernameLabel.setAttribute('data-i18n', 'gitlabUsernameLabel');
+        } else {
+            usernameLabel.setAttribute('data-i18n', 'githubUsernameLabel');
+        }
+        const key = usernameLabel.getAttribute('data-i18n');
+        const message = chrome.i18n.getMessage(key);
+        if (message) {
+            usernameLabel.textContent = message;
+        }
+    }
+
     const orgSection = document.querySelector('.orgSection');
     if (orgSection) {
         if (platform === 'gitlab') {
@@ -1369,7 +1355,6 @@ function updatePlatformUI(platform) {
             orgSection.classList.remove('hidden');
         }
     }
-    // Hide all githubOnlySection elements for GitLab
     const githubOnlySections = document.querySelectorAll('.githubOnlySection');
     githubOnlySections.forEach(el => {
         if (platform === 'gitlab') {
@@ -1378,15 +1363,11 @@ function updatePlatformUI(platform) {
             el.classList.remove('hidden');
         }
     });
-    // (Optional) You can update the label/placeholder here if you want
-    // Do NOT clear the username field here, only do it on actual platform change
 }
 
-// On platform change
 platformSelect.addEventListener('change', function () {
     const platform = platformSelect.value;
     chrome.storage.local.set({ platform });
-    // Save current username for current platform before switching
     const platformUsername = document.getElementById('platformUsername');
     if (platformUsername) {
         const currentPlatform = platformSelect.value === 'github' ? 'gitlab' : 'github'; // Get the platform we're switching from
@@ -1396,7 +1377,6 @@ platformSelect.addEventListener('change', function () {
         }
     }
 
-    // Load username for the new platform
     chrome.storage.local.get([`${platform}Username`], function (result) {
         if (platformUsername) {
             platformUsername.value = result[`${platform}Username`] || '';
@@ -1406,7 +1386,6 @@ platformSelect.addEventListener('change', function () {
     updatePlatformUI(platform);
 });
 
-// Custom platform dropdown logic
 const customDropdown = document.getElementById('customPlatformDropdown');
 const dropdownBtn = document.getElementById('platformDropdownBtn');
 const dropdownList = document.getElementById('platformDropdownList');
@@ -1420,7 +1399,6 @@ function setPlatformDropdown(value) {
         dropdownSelected.innerHTML = '<i class="fab fa-github mr-2"></i> GitHub';
     }
 
-    // Save current username for current platform before switching
     const platformUsername = document.getElementById('platformUsername');
     if (platformUsername) {
         const currentPlatform = platformSelectHidden.value;
@@ -1433,7 +1411,6 @@ function setPlatformDropdown(value) {
     platformSelectHidden.value = value;
     chrome.storage.local.set({ platform: value });
 
-    // Load username for the new platform
     chrome.storage.local.get([`${value}Username`], function (result) {
         if (platformUsername) {
             platformUsername.value = result[`${value}Username`] || '';
@@ -1454,7 +1431,6 @@ dropdownList.querySelectorAll('li').forEach(item => {
         const newPlatform = this.getAttribute('data-value');
         const currentPlatform = platformSelectHidden.value;
 
-        // Save current username for current platform before switching
         if (newPlatform !== currentPlatform) {
             const platformUsername = document.getElementById('platformUsername');
             if (platformUsername) {
@@ -1590,7 +1566,6 @@ document.querySelectorAll('input[name="timeframe"]').forEach(radio => {
             endDateInput.readOnly = false;
 
             chrome.storage.local.set({
-                lastWeekContribution: false,
                 yesterdayContribution: false,
                 selectedTimeframe: null
             });
@@ -1747,10 +1722,7 @@ function toggleRadio(radio) {
 
     console.log('Toggling radio:', radio.id);
 
-    if (radio.id === 'lastWeekContribution') {
-        startDateInput.value = getLastWeek();
-        endDateInput.value = getToday();
-    } else if (radio.id === 'yesterdayContribution') {
+    if (radio.id === 'yesterdayContribution') {
         startDateInput.value = getYesterday();
         endDateInput.value = getToday();
     }
@@ -1760,7 +1732,6 @@ function toggleRadio(radio) {
     chrome.storage.local.set({
         startingDate: startDateInput.value,
         endingDate: endDateInput.value,
-        lastWeekContribution: radio.id === 'lastWeekContribution',
         yesterdayContribution: radio.id === 'yesterdayContribution',
         selectedTimeframe: radio.id,
         githubCache: null // Clear cache to force new fetch
@@ -1768,7 +1739,6 @@ function toggleRadio(radio) {
         console.log('State saved, dates:', {
             start: startDateInput.value,
             end: endDateInput.value,
-            isLastWeek: radio.id === 'lastWeekContribution'
         });
 
         triggerRepoFetchIfEnabled();

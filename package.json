@@ -1,6 +1,6 @@
 {
 	"name": "scrum-helper",
-	"version": "1.0.0",
+	"version": "2.0.0",
 	"description": "This extension simplifies writing development reports by auto-filling content based on your Git activity.",
 	"repository": {
 		"type": "git",
