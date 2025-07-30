@@ -1261,7 +1261,6 @@ ${userReason}`;
 
                 if (platform === 'github') {
                     if (!isNewPR) {
-                        // Only show existing PRs if they are open and have commits in the date range
                         if (item.state !== 'open') {
                             continue; // Skip closed/merged existing PRs
                         }
@@ -1277,12 +1276,14 @@ ${userReason}`;
 
                 if (isDraft) {
 
-                    li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + pr_draft_button : ''}</li>`;
+                    li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + pr_draft_button : ''}`;
                     if (showCommits && item._allCommits && item._allCommits.length && !isNewPR) {
                         log(`[PR DEBUG] Rendering commits for existing draft PR #${number}:`, item._allCommits);
+                        li += '<ul>';
                         item._allCommits.forEach(commit => {
-                            li += `<li style=\"list-style: disc; margin: 0 0 0 20px; padding: 0; color: #666;\"><span style=\"color:#2563eb;\">${commit.messageHeadline}</span><span style=\"color:#666; font-size: 11px;\"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
+                            li += `<li style=\"list-style: disc; color: #666;\"><span style=\"color:#2563eb;\">${commit.messageHeadline}</span><span style=\"color:#666; font-size: 11px;\"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
                         });
+                        li += '</ul>';
                     }
                     li += `</li>`;
                 } else if (item.state === 'open' || item.state === 'opened') {
@@ -1296,10 +1297,8 @@ ${userReason}`;
                     }
                     li += `</li>`;
                 } else if (platform === 'gitlab' && item.state === 'closed') {
-                    // For GitLab, show closed label for closed MRs only if showOpenLabel is enabled
                     li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + pr_closed_button : ''}</li>`;
                 } else {
-                    // GitHub: check merged status if possible
                     let merged = null;
                     if ((githubToken || (useMergedStatus && !fallbackToSimple)) && mergedStatusResults) {
                         let repoParts = repository_url.split('/');
