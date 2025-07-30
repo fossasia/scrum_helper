@@ -7,7 +7,9 @@ let yesterdayContributionElement = document.getElementById('yesterdayContributio
 let startingDateElement = document.getElementById('startingDate');
 let endingDateElement = document.getElementById('endingDate');
 let showOpenLabelElement = document.getElementById('showOpenLabel');
-let userReasonElement = null; // userReason element removed from UI
+
+let userReasonElement = null; 
+
 let showCommitsElement = document.getElementById('showCommits');
 
 function handleBodyOnLoad() {
@@ -33,7 +35,9 @@ function handleBodyOnLoad() {
 			'startingDate',
 			'endingDate',
 			'showOpenLabel',
+
 			'userReason',
+
 			'yesterdayContribution',
 			'cacheInput',
 			'githubToken',
@@ -229,4 +233,5 @@ showCommitsElement.addEventListener('change', handleShowCommitsChange);
 endingDateElement.addEventListener('change', handleEndingDateChange);
 yesterdayContributionElement.addEventListener('change', handleYesterdayContributionChange);
 showOpenLabelElement.addEventListener('change', handleOpenLabelChange);
+
 document.addEventListener('DOMContentLoaded', handleBodyOnLoad);
