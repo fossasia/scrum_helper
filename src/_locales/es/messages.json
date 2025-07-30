@@ -75,10 +75,10 @@
         "message": "Requerido para realizar solicitudes autenticadas"
     },
     "showCommitsLabel": {
-        "message": "Mostrar commits en PRs abiertos dentro del rango de fechas"
+        "message": "Mostrar commits en PRs abiertos/ borradores de PRs"
     },
     "cacheTTLLabel": {
-        "message": "Ingresar TTL del caché"
+        "message": "Introducir TTL de caché"
     },
     "cacheTTLUnit": {
         "message": "(en minutos)"

@@ -75,7 +75,7 @@
         "message": "進行身分驗證請求所必需"
     },
     "showCommitsLabel": {
-        "message": "顯示日期範圍內在進行中 PR 的提交"
+        "message": "在開啟的 PR/草稿 PR 上顯示提交"
     },
     "cacheTTLLabel": {
         "message": "輸入快取 TTL"

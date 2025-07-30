@@ -75,7 +75,7 @@
         "message": "Bắt buộc cho các yêu cầu đã xác thực"
     },
     "showCommitsLabel": {
-        "message": "Hiển thị các commit trong PR đang mở theo khoảng ngày"
+        "message": "Hiển thị các commit trên PR đang mở/ PR nháp"
     },
     "cacheTTLLabel": {
         "message": "Nhập TTL bộ nhớ đệm"

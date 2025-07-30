@@ -72,10 +72,10 @@
         "message": "Ihr GitHub-Token"
     },
     "githubTokenPlaceholder": {
-        "message": "Für authentifizierte Anfragen erforderlich"
+        "message": "Erforderlich für authentifizierte Anfragen"
     },
     "showCommitsLabel": {
-        "message": "Commits in offenen PRs innerhalb des Zeitraums anzeigen"
+        "message": "Commits in offenen PRs/ Entwurfs-PRs anzeigen"
     },
     "cacheTTLLabel": {
         "message": "Cache-TTL eingeben"
