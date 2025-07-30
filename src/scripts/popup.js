@@ -261,9 +261,9 @@ document.addEventListener('DOMContentLoaded', function () {
         if (scrumReport) {
             scrumReport.contentEditable = enableToggle;
             if (!enableToggle) {
-                scrumReport.innerHTML = `<p style="text-align: center; color: #999; padding: 20px;">${chrome.i18n.getMessage('extensionDisabledMessage')}</p>`;
+                scrumReport.innerHTML = `<p style="text-align: center; color: #999; padding: 20px;">${browserAPI.i18n.getMessage('extensionDisabledMessage')}</p>`;
             } else {
-                const disabledMessage = `<p style="text-align: center; color: #999; padding: 20px;">${chrome.i18n.getMessage('extensionDisabledMessage')}</p>`;
+                const disabledMessage = `<p style="text-align: center; color: #999; padding: 20px;">${browserAPI.i18n.getMessage('extensionDisabledMessage')}</p>`;
                 if (scrumReport.innerHTML === disabledMessage) {
                     scrumReport.innerHTML = '';
                 }
@@ -423,9 +423,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
             try {
                 document.execCommand('copy');
-                this.innerHTML = `<i class="fa fa-check"></i> ${chrome.i18n.getMessage('copiedButton')}`;
+                this.innerHTML = `<i class="fa fa-check"></i> ${browserAPI.i18n.getMessage('copiedButton')}`;
                 setTimeout(() => {
-                    this.innerHTML = `<i class="fa fa-copy"></i> ${chrome.i18n.getMessage('copyReportButton')}`;
+                    this.innerHTML = `<i class="fa fa-copy"></i> ${browserAPI.i18n.getMessage('copyReportButton')}`;
                 }, 2000);
             } catch (err) {
                 console.error('Failed to copy: ', err);
@@ -666,7 +666,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
 
             if (repoStatus) {
-                repoStatus.textContent = chrome.i18n.getMessage('repoRefetching');
+                repoStatus.textContent = browserAPI.i18n.getMessage('repoRefetching');
             }
 
             try {
@@ -700,7 +700,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     availableRepos = repos;
 
                     if (repoStatus) {
-                        repoStatus.textContent = chrome.i18n.getMessage('repoLoaded', [repos.length]);
+                        repoStatus.textContent = browserAPI.i18n.getMessage('repoLoaded', [repos.length]);
                     }
 
                     const repoCacheKey = `repos-${username}-${items.orgName || ''}`;
@@ -723,7 +723,7 @@ document.addEventListener('DOMContentLoaded', function () {
             } catch (err) {
 
                 if (repoStatus) {
-                    repoStatus.textContent = `${chrome.i18n.getMessage('errorLabel')}: ${err.message || chrome.i18n.getMessage('repoRefetchFailed')}`;
+                    repoStatus.textContent = `${browserAPI.i18n.getMessage('errorLabel')}: ${err.message || browserAPI.i18n.getMessage('repoRefetchFailed')}`;
                 }
             }
         }
@@ -817,7 +817,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                         console.log('Using cached repositories');
                         availableRepos = cacheData.repoCache.data;
-                        repoStatus.textContent = chrome.i18n.getMessage('repoLoaded', [availableRepos.length]);
+                        repoStatus.textContent = browserAPI.i18n.getMessage('repoLoaded', [availableRepos.length]);
 
                         if (document.activeElement === repoSearch) {
                             filterAndDisplayRepos(repoSearch.value.toLowerCase());
@@ -834,7 +834,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             items.orgName || '',
                         );
                         availableRepos = repos;
-                        repoStatus.textContent = chrome.i18n.getMessage('repoLoaded', [repos.length]);
+                        repoStatus.textContent = browserAPI.i18n.getMessage('repoLoaded', [repos.length]);
 
                         browserAPI.storage.local.set({
                             repoCache: {
@@ -854,11 +854,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     console.error('Auto load repos failed', err);
 
                     if (err.message?.includes('401')) {
-                        repoStatus.textContent = chrome.i18n.getMessage('repoTokenPrivate');
+                        repoStatus.textContent = browserAPI.i18n.getMessage('repoTokenPrivate');
                     } else if (err.message?.includes('username')) {
-                        repoStatus.textContent = chrome.i18n.getMessage('githubUsernamePlaceholder');
+                        repoStatus.textContent = browserAPI.i18n.getMessage('githubUsernamePlaceholder');
                     } else {
-                        repoStatus.textContent = `${chrome.i18n.getMessage('errorLabel')}: ${err.message || chrome.i18n.getMessage('repoLoadFailed')}`;
+                        repoStatus.textContent = `${browserAPI.i18n.getMessage('errorLabel')}: ${err.message || browserAPI.i18n.getMessage('repoLoadFailed')}`;
                     }
                 }
             } else {
@@ -987,7 +987,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
             console.log('[POPUP-DEBUG] performRepoFetch called.');
-            repoStatus.textContent = chrome.i18n.getMessage('repoLoading');
+            repoStatus.textContent = browserAPI.i18n.getMessage('repoLoading');
             repoSearch.classList.add('repository-search-loading');
 
             try {
@@ -1021,7 +1021,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     console.log('[POPUP-DEBUG] Using cached repositories in manual fetch');
                     availableRepos = cacheData.repoCache.data;
-                    repoStatus.textContent = chrome.i18n.getMessage('repoLoaded', [availableRepos.length]);
+                    repoStatus.textContent = browserAPI.i18n.getMessage('repoLoaded', [availableRepos.length]);
 
                     if (document.activeElement === repoSearch) {
                         filterAndDisplayRepos(repoSearch.value.toLowerCase());
@@ -1036,7 +1036,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     storageItems.githubToken,
                     storageItems.orgName || ''
                 );
-                repoStatus.textContent = chrome.i18n.getMessage('repoLoaded', [availableRepos.length]);
+                repoStatus.textContent = browserAPI.i18n.getMessage('repoLoaded', [availableRepos.length]);
                 console.log(`[POPUP-DEBUG] Fetched and loaded ${availableRepos.length} repos.`);
 
                 browserAPI.storage.local.set({
@@ -1054,11 +1054,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 console.error(`Failed to load repos:`, err);
 
                 if (err.message && err.message.includes('401')) {
-                    repoStatus.textContent = chrome.i18n.getMessage('repoTokenPrivate');
+                    repoStatus.textContent = browserAPI.i18n.getMessage('repoTokenPrivate');
                 } else if (err.message && err.message.includes('username')) {
-                    repoStatus.textContent = chrome.i18n.getMessage('githubUsernamePlaceholder');
+                    repoStatus.textContent = browserAPI.i18n.getMessage('githubUsernamePlaceholder');
                 } else {
-                    repoStatus.textContent = `${chrome.i18n.getMessage('errorLabel')}: ${err.message || chrome.i18n.getMessage('repoLoadFailed')}`;
+                    repoStatus.textContent = `${browserAPI.i18n.getMessage('errorLabel')}: ${err.message || browserAPI.i18n.getMessage('repoLoadFailed')}`;
                 }
             } finally {
                 repoSearch.classList.remove('repository-search-loading');
@@ -1067,7 +1067,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         function filterAndDisplayRepos(query) {
             if (availableRepos.length === 0) {
-                repoDropdown.innerHTML = `<div class="p-3 text-center text-gray-500 text-sm">${chrome.i18n.getMessage('repoLoading')}</div>`;
+                repoDropdown.innerHTML = `<div class="p-3 text-center text-gray-500 text-sm">${browserAPI.i18n.getMessage('repoLoading')}</div>`;
                 showDropdown();
                 return;
             }
@@ -1077,7 +1077,7 @@ document.addEventListener('DOMContentLoaded', function () {
             );
 
             if (filtered.length === 0) {
-                repoDropdown.innerHTML = `<div class="p-3 text-center text-gray-500 text-sm" style="padding-left: 10px; ">${chrome.i18n.getMessage('repoNotFound')}</div>`;
+                repoDropdown.innerHTML = `<div class="p-3 text-center text-gray-500 text-sm" style="padding-left: 10px; ">${browserAPI.i18n.getMessage('repoNotFound')}</div>`;
             } else {
                 repoDropdown.innerHTML = filtered.slice(0, 10).map(repo => `
                     <div class="repository-dropdown-item" data-repo-name="${repo.fullName}">
@@ -1128,8 +1128,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         function updateRepoDisplay() {
             if (selectedRepos.length === 0) {
-                repoTags.innerHTML = `<span class="text-xs text-gray-500 select-none" id="repoPlaceholder">${chrome.i18n.getMessage('repoPlaceholder')}</span>`;
-                repoCount.textContent = chrome.i18n.getMessage('repoCountNone');
+                repoTags.innerHTML = `<span class="text-xs text-gray-500 select-none" id="repoPlaceholder">${browserAPI.i18n.getMessage('repoPlaceholder')}</span>`;
+                repoCount.textContent = browserAPI.i18n.getMessage('repoCountNone');
             } else {
                 repoTags.innerHTML = selectedRepos.map(repoFullName => {
                     const repoName = repoFullName.split('/')[1] || repoFullName;
@@ -1149,7 +1149,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         removeRepo(repoFullName);
                     });
                 });
-                repoCount.textContent = chrome.i18n.getMessage('repoCount', [selectedRepos.length]);
+                repoCount.textContent = browserAPI.i18n.getMessage('repoCount', [selectedRepos.length]);
             }
         }
 
@@ -1217,7 +1217,7 @@ setOrgBtn.addEventListener('click', function () {
             console.log('[Org Check] Organization cleared from storage');
             const scrumReport = document.getElementById('scrumReport');
             if (scrumReport) {
-                scrumReport.innerHTML = `<p style="text-align: center; color: #666; padding: 20px;">${chrome.i18n.getMessage('orgClearedMessage')}</p>`;
+                scrumReport.innerHTML = `<p style="text-align: center; color: #666; padding: 20px;">${browserAPI.i18n.getMessage('orgClearedMessage')}</p>`;
             }
             browserAPI.storage.local.remove(['githubCache', 'repoCache']);
             triggerRepoFetchIfEnabled();
@@ -1251,7 +1251,7 @@ setOrgBtn.addEventListener('click', function () {
                 toastDiv.style.left = '50%';
                 toastDiv.style.transform = 'translateX(-50%)';
                 toastDiv.style.zIndex = '9999';
-                toastDiv.innerText = chrome.i18n.getMessage('orgNotFoundMessage');
+                toastDiv.innerText = browserAPI.i18n.getMessage('orgNotFoundMessage');
                 document.body.appendChild(toastDiv);
                 setTimeout(() => {
                     if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
@@ -1266,7 +1266,7 @@ setOrgBtn.addEventListener('click', function () {
                 // always clear the scrum report and show org changed message
                 const scrumReport = document.getElementById('scrumReport');
                 if (scrumReport) {
-                    scrumReport.innerHTML = `<p style="text-align: center; color: #666; padding: 20px;">${chrome.i18n.getMessage('orgChangedMessage')}</p>`;
+                    scrumReport.innerHTML = `<p style="text-align: center; color: #666; padding: 20px;">${browserAPI.i18n.getMessage('orgChangedMessage')}</p>`;
                 }
                 // Clear the githubCache for previous org
                 browserAPI.storage.local.remove('githubCache');
@@ -1286,7 +1286,7 @@ setOrgBtn.addEventListener('click', function () {
                 toastDiv.style.left = '50%';
                 toastDiv.style.transform = 'translateX(-50%)';
                 toastDiv.style.zIndex = '9999';
-                toastDiv.innerText = chrome.i18n.getMessage('orgSetMessage');
+                toastDiv.innerText = browserAPI.i18n.getMessage('orgSetMessage');
                 document.body.appendChild(toastDiv);
                 setTimeout(() => {
                     if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
@@ -1312,7 +1312,7 @@ setOrgBtn.addEventListener('click', function () {
             toastDiv.style.left = '50%';
             toastDiv.style.transform = 'translateX(-50%)';
             toastDiv.style.zIndex = '9999';
-            toastDiv.innerText = chrome.i18n.getMessage('orgValidationErrorMessage');
+            toastDiv.innerText = browserAPI.i18n.getMessage('orgValidationErrorMessage');
             document.body.appendChild(toastDiv);
             setTimeout(() => {
                 if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
@@ -1611,7 +1611,7 @@ document.getElementById('refreshCache').addEventListener('click', async function
     const originalText = button.innerHTML;
 
     button.classList.add('loading');
-    button.innerHTML = `<i class="fa fa-refresh fa-spin"></i><span>${chrome.i18n.getMessage('refreshingButton')}</span>`;
+    button.innerHTML = `<i class="fa fa-refresh fa-spin"></i><span>${browserAPI.i18n.getMessage('refreshingButton')}</span>`;
     button.disabled = true;
 
     try {
@@ -1633,7 +1633,7 @@ document.getElementById('refreshCache').addEventListener('click', async function
         // Clear the scrum report
         const scrumReport = document.getElementById('scrumReport');
         if (scrumReport) {
-            scrumReport.innerHTML = `<p style="text-align: center; color: #666; padding: 20px;">${chrome.i18n.getMessage('cacheClearedMessage')}</p>`;
+            scrumReport.innerHTML = `<p style="text-align: center; color: #666; padding: 20px;">${browserAPI.i18n.getMessage('cacheClearedMessage')}</p>`;
         }
 
         if (typeof availableRepos !== 'undefined') {
@@ -1645,7 +1645,7 @@ document.getElementById('refreshCache').addEventListener('click', async function
             repoStatus.textContent = '';
         }
 
-        button.innerHTML = `<i class="fa fa-check"></i><span>${chrome.i18n.getMessage('cacheClearedButton')}</span>`;
+        button.innerHTML = `<i class="fa fa-check"></i><span>${browserAPI.i18n.getMessage('cacheClearedButton')}</span>`;
         button.classList.remove('loading');
 
         // Do NOT trigger report generation automatically
@@ -1657,7 +1657,7 @@ document.getElementById('refreshCache').addEventListener('click', async function
 
     } catch (error) {
         console.error('Cache clear failed:', error);
-        button.innerHTML = `<i class="fa fa-exclamation-triangle"></i><span>${chrome.i18n.getMessage('cacheClearFailed')}</span>`;
+        button.innerHTML = `<i class="fa fa-exclamation-triangle"></i><span>${browserAPI.i18n.getMessage('cacheClearFailed')}</span>`;
         button.classList.remove('loading');
 
         setTimeout(() => {
@@ -1698,7 +1698,7 @@ const handleOrgInput = debounce(function () {
                 toastDiv.style.left = '50%';
                 toastDiv.style.transform = 'translateX(-50%)';
                 toastDiv.style.zIndex = '9999';
-                toastDiv.innerText = chrome.i18n.getMessage('orgNotFoundMessage');
+                toastDiv.innerText = browserAPI.i18n.getMessage('orgNotFoundMessage');
                 document.body.appendChild(toastDiv);
                 setTimeout(() => {
                     if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
@@ -1730,7 +1730,7 @@ const handleOrgInput = debounce(function () {
             toastDiv.style.left = '50%';
             toastDiv.style.transform = 'translateX(-50%)';
             toastDiv.style.zIndex = '9999';
-            toastDiv.innerText = chrome.i18n.getMessage('orgValidationErrorMessage');
+            toastDiv.innerText = browserAPI.i18n.getMessage('orgValidationErrorMessage');
             document.body.appendChild(toastDiv);
             setTimeout(() => {
                 if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
