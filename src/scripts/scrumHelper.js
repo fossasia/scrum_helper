@@ -1297,8 +1297,6 @@ ${userReason}`;
                     prAction = isNewPR ? 'Made Merge Request' : 'Existing Merge Request';
                 }
 
-
-
                 if (isDraft) {
 
                     li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + pr_draft_button : ''}</li>`;
