@@ -1,9 +1,8 @@
 let enableToggleElement = document.getElementById('enable');
-let githubUsernameElement = document.getElementById('githubUsername');
+let platformUsernameElement = document.getElementById('platformUsername');
 let githubTokenElement = document.getElementById('githubToken');
 let cacheInputElement = document.getElementById('cacheInput');
 let projectNameElement = document.getElementById('projectName');
-let lastWeekContributionElement = document.getElementById('lastWeekContribution');
 let yesterdayContributionElement = document.getElementById('yesterdayContribution');
 let startingDateElement = document.getElementById('startingDate');
 let endingDateElement = document.getElementById('endingDate');
@@ -14,24 +13,44 @@ let userReasonElement = null;
 let showCommitsElement = document.getElementById('showCommits');
 
 function handleBodyOnLoad() {
+	// Migration: Handle existing users with old platformUsername storage
+	chrome.storage.local.get(['platform', 'platformUsername'], function (result) {
+		if (result.platformUsername && result.platform) {
+			// Migrate old platformUsername to platform-specific storage
+			const platformUsernameKey = `${result.platform}Username`;
+			chrome.storage.local.set({ [platformUsernameKey]: result.platformUsername });
+			// Remove the old key
+			chrome.storage.local.remove(['platformUsername']);
+			console.log(`[MIGRATION] Migrated platformUsername to ${platformUsernameKey}`);
+		}
+	});
+
 	chrome.storage.local.get(
 		[
+			'platform',
 			'githubUsername',
+			'gitlabUsername',
 			'projectName',
 			'enableToggle',
 			'startingDate',
 			'endingDate',
 			'showOpenLabel',
-			'lastWeekContribution',
+
+			'userReason',
+
 			'yesterdayContribution',
 			'cacheInput',
 			'githubToken',
 			'showCommits',
 		],
 		(items) => {
-			if (items.githubUsername) {
-				githubUsernameElement.value = items.githubUsername;
+			// Load platform-specific username
+			const platform = items.platform || 'github';
+			const platformUsernameKey = `${platform}Username`;
+			if (items[platformUsernameKey]) {
+				platformUsernameElement.value = items[platformUsernameKey];
 			}
+
 			if (items.githubToken) {
 				githubTokenElement.value = items.githubToken;
 			}
@@ -62,14 +81,6 @@ function handleBodyOnLoad() {
 				handleOpenLabelChange();
 			}
 
-			if (items.lastWeekContribution) {
-				lastWeekContributionElement.checked = items.lastWeekContribution;
-				handleLastWeekContributionChange();
-			}
-			else if (items.lastWeekContribution !== false) {
-				lastWeekContributionElement.checked = true;
-				handleLastWeekContributionChange();
-			}
 			if (items.yesterdayContribution) {
 				yesterdayContributionElement.checked = items.yesterdayContribution;
 				handleYesterdayContributionChange();
@@ -94,16 +105,6 @@ document.getElementById('refreshCache').addEventListener('click', async (e) => {
 	button.disabled = true;
 
 	try {
-		const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
-		await chrome.tabs.sendMessage(tabs[0].id, {
-			action: 'forceRefresh',
-			timestamp: Date.now()
-		});
-
-		// Reload the active tab to re-inject content
-		chrome.tabs.reload(tabs[0].id);
-
-		Materialize.toast({ html: 'Data refreshed successfully!', classes: 'green' });
 	} catch (err) {
 		console.log('Refresh successful',);
 	} finally {
@@ -125,27 +126,6 @@ function handleStartingDateChange() {
 function handleEndingDateChange() {
 	let value = endingDateElement.value;
 	chrome.storage.local.set({ endingDate: value });
-}
-function handleLastWeekContributionChange() {
-	let value = lastWeekContributionElement.checked;
-	let labelElement = document.querySelector("label[for='lastWeekContribution']");
-	if (value) {
-		startingDateElement.readOnly = true;
-		endingDateElement.readOnly = true;
-		endingDateElement.value = getToday();
-		startingDateElement.value = getLastWeek();
-		handleEndingDateChange();
-		handleStartingDateChange();
-		labelElement.classList.add("selectedLabel");
-		labelElement.classList.remove("unselectedLabel");
-	} else {
-		startingDateElement.readOnly = false;
-		endingDateElement.readOnly = false;
-		labelElement.classList.add("unselectedLabel");
-		labelElement.classList.remove("selectedLabel");
-	}
-
-	chrome.storage.local.set({ lastWeekContribution: value });
 }
 
 function handleYesterdayContributionChange() {
@@ -170,20 +150,6 @@ function handleYesterdayContributionChange() {
 	chrome.storage.local.set({ yesterdayContribution: value });
 }
 
-function getLastWeek() {
-	let today = new Date();
-	let lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
-	let lastWeekMonth = lastWeek.getMonth() + 1;
-	let lastWeekDay = lastWeek.getDate();
-	let lastWeekYear = lastWeek.getFullYear();
-	let lastWeekDisplayPadded =
-		('0000' + lastWeekYear.toString()).slice(-4) +
-		'-' +
-		('00' + lastWeekMonth.toString()).slice(-2) +
-		'-' +
-		('00' + lastWeekDay.toString()).slice(-2);
-	return lastWeekDisplayPadded;
-}
 function getYesterday() {
 	let today = new Date();
 	let yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
@@ -213,9 +179,13 @@ function getToday() {
 	return WeekDisplayPadded;
 }
 
-function handleGithubUsernameChange() {
-	let value = githubUsernameElement.value;
-	chrome.storage.local.set({ githubUsername: value });
+function handlePlatformUsernameChange() {
+	let value = platformUsernameElement.value;
+	chrome.storage.local.get(['platform'], function (result) {
+		const platform = result.platform || 'github';
+		const platformUsernameKey = `${platform}Username`;
+		chrome.storage.local.set({ [platformUsernameKey]: value });
+	});
 }
 function handleGithubTokenChange() {
 	let value = githubTokenElement.value;
@@ -252,14 +222,15 @@ function handleShowCommitsChange() {
 }
 
 enableToggleElement.addEventListener('change', handleEnableChange);
-githubUsernameElement.addEventListener('keyup', handleGithubUsernameChange);
-githubTokenElement.addEventListener('keyup', handleGithubTokenChange);
+platformUsernameElement.addEventListener('keyup', handlePlatformUsernameChange);
+if (githubTokenElement) {
+	githubTokenElement.addEventListener('keyup', handleGithubTokenChange);
+}
 cacheInputElement.addEventListener('keyup', handleCacheInputChange);
 projectNameElement.addEventListener('keyup', handleProjectNameChange);
 startingDateElement.addEventListener('change', handleStartingDateChange);
 showCommitsElement.addEventListener('change', handleShowCommitsChange);
 endingDateElement.addEventListener('change', handleEndingDateChange);
-lastWeekContributionElement.addEventListener('change', handleLastWeekContributionChange);
 yesterdayContributionElement.addEventListener('change', handleYesterdayContributionChange);
 showOpenLabelElement.addEventListener('change', handleOpenLabelChange);
 

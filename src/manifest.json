@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Scrum Helper",
-  "version": "1.0",
+  "version": "2.0",
   "description": "This extension simplifies writing development reports by auto-filling content based on your Git activity.",
   "action": {
     "default_popup": "popup.html",
@@ -21,37 +21,45 @@
         "*://groups.google.com/forum/*",
         "*://groups.google.com/g/*",
         "*://groups.google.com/u/*/g/*",
-        "*://mail.google.com/*",         
-        "*://outlook.live.com/*",        
-        "*://outlook.office.com/*",      
+        "*://mail.google.com/*",
+        "*://outlook.live.com/*",
+        "*://outlook.office.com/*",
         "*://mail.yahoo.com/*"
       ],
-      "js": ["scripts/jquery-3.2.1.min.js", "scripts/emailClientAdapter.js", "scripts/scrumHelper.js"]
+      "js": [
+        "scripts/jquery-3.2.1.min.js",
+        "scripts/emailClientAdapter.js",
+        "scripts/gitlabHelper.js",
+        "scripts/scrumHelper.js"
+      ]
     }
   ],
-
   "content_security_policy": {
     "extension_pages": "script-src 'self'; object-src 'self';"
   },
-  "web_accessible_resources": [{
-    "resources": [
-      "/icons/night-mode.png",
-      "icons/night-mode.png"
-    ],
-    "matches": ["<all_urls>"]
-  }],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "/icons/night-mode.png",
+        "icons/night-mode.png"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ],
   "permissions": [
-    "tabs",
-    "storage",
-    "activeTab",
-    "notifications"
+    "storage"
   ],
   "host_permissions": [
     "*://*.google.com/*",
     "*://*.outlook.live.com/*",
     "*://*.office.com/*",
     "*://*.yahoo.com/*",
-    "https://api.github.com/*"
-  ],
+
+    "https://api.github.com/*",
+    "https://gitlab.com/*"
+ ],
   "default_locale": "en"
+
 }

@@ -1,66 +1,197 @@
 {
-    "appName": { "message": "Scrum Helper" },
-    "appDescription": { "message": "Báo cáo tiến độ phát triển của bạn bằng cách tự động lấy hoạt động Git trong một khoảng thời gian đã chọn." },
-    "disableLabel": { "message": "Tắt" },
-    "enableLabel": { "message": "Bật" },
-    "homeButtonTitle": { "message": "Đi đến Báo cáo" },
-    "projectNameLabel": { "message": "Tên dự án của bạn" },
-    "projectNamePlaceholder": { "message": "Nhập tên dự án của bạn" },
-    "githubUsernameLabel": { "message": "Tên người dùng GitHub của bạn" },
-    "githubUsernamePlaceholder": { "message": "Bắt buộc để lấy đóng góp của bạn" },
-    "contributionsLabel": { "message": "Lấy đóng góp của bạn trong:" },
-    "last7DaysLabel": { "message": "7 ngày qua" },
-    "last1DayLabel": { "message": "Hôm qua" },
-    "startDateLabel": { "message": "Ngày bắt đầu:" },
-    "endDateLabel": { "message": "Ngày kết thúc:" },
-    "showOpenClosedLabel": { "message": "Hiển thị trạng thái Mở/Đóng" },
-    "blockersLabel": { "message": "Điều gì đang cản trở bạn?" },
-    "blockersPlaceholder": { "message": "Nhập lý do của bạn" },
-    "scrumReportLabel": { "message": "Báo cáo Scrum" },
-    "generateReportButton": { "message": "Tạo báo cáo" },
-    "copyReportButton": { "message": "Sao chép báo cáo" },
-    "settingsOrgNameLabel": { "message": "Tên tổ chức" },
-    "settingsOrgNamePlaceholder": { "message": "Nhập tên tổ chức" },
-    "setButton": { "message": "Đặt" },
-    "githubTokenLabel": { "message": "Mã token GitHub của bạn" },
-    "githubTokenPlaceholder": { "message": "Bắt buộc cho các yêu cầu đã xác thực" },
-    "showCommitsLabel": { "message": "Hiển thị các commit trong PR đang mở theo khoảng ngày" },
-    "cacheTTLLabel": { "message": "Nhập TTL bộ nhớ đệm" },
-    "cacheTTLUnit": { "message": "(tính bằng phút)" },
-    "cacheTTLPlaceholder": { "message": "Nhập TTL bộ nhớ đệm bằng phút (Mặc định: 10)" },
-    "refreshDataButton": { "message": "Làm mới dữ liệu (bỏ qua bộ nhớ đệm)" },
-    "refreshDataInfo": { "message": "Sử dụng nút này để lấy dữ liệu mới ngay lập tức." },
-    "noteTitle": { "message": "Lưu ý:" },
-    "viewCodeButton": { "message": "Xem mã" },
-    "reportIssueButton": { "message": "Báo cáo sự cố" },
-    "repoFilterLabel": { "message": "Lọc theo kho lưu trữ" },
-    "enableFilteringLabel": { "message": "Bật bộ lọc" },
-    "tokenRequiredWarning": { "message": "Cần có mã token GitHub để lọc kho lưu trữ. Vui lòng thêm một mã trong cài đặt." },
-    "repoSearchPlaceholder": { "message": "Tìm kiếm kho lưu trữ để thêm..." },
-    "repoPlaceholder": { "message": "Chưa chọn kho lưu trữ nào (tất cả sẽ được bao gồm)" },
-    "repoCountNone": { "message": "0 kho lưu trữ đã chọn" },
-    "repoCount": { "message": "$1 kho lưu trữ đã chọn" },
-    "repoLoading": { "message": "Đang tải kho lưu trữ..." },
-    "repoLoaded": { "message": "Đã tải $1 kho lưu trữ." },
-    "repoNotFound": { "message": "Không tìm thấy kho lưu trữ nào" },
-    "repoRefetching": { "message": "Đang tải lại kho lưu trữ..." },
-    "repoLoadFailed": { "message": "Không thể tải kho lưu trữ." },
-    "repoTokenPrivate": { "message": "Mã token không hợp lệ hoặc không có quyền đối với kho lưu trữ riêng tư." },
-    "repoRefetchFailed": { "message": "Không thể tải lại kho lưu trữ." },
-    "orgSetMessage": { "message": "Tổ chức đã được đặt thành công." },
-    "orgClearedMessage": { "message": "Đã xóa tổ chức. Nhấp vào 'Tạo báo cáo' để lấy tất cả hoạt động." },
-    "orgNotFoundMessage": { "message": "Không tìm thấy tổ chức trên GitHub." },
-    "orgValidationErrorMessage": { "message": "Lỗi khi xác thực tổ chức." },
-    "refreshingButton": { "message": "Đang làm mới..." },
-    "cacheClearFailed": { "message": "Xóa bộ nhớ đệm thất bại." },
-    "madeWithLoveBy": { "message": "Made with ❤️ by" },
-    "generatingButton": { "message": "Đang tạo..." },
-    "copiedButton": { "message": "Đã sao chép!" },
-    "orgChangedMessage": { "message": "Tổ chức đã thay đổi. Nhấp vào 'Tạo báo cáo' để lấy các hoạt động trên GitHub." },
-    "cacheClearedMessage": { "message": "Bộ nhớ đệm đã được xóa thành công. Nhấp vào 'Tạo báo cáo' để lấy dữ liệu mới." },
-    "cacheClearedButton": { "message": "Đã xóa bộ nhớ đệm!" },
-    "extensionDisabledMessage": { "message": "Tiện ích mở rộng đã bị tắt. Bật nó từ cài đặt để tạo báo cáo scrum." },
-    "notePoint1": { "message": "Các PR được lấy dựa trên lần review gần đây nhất của bất kỳ người đóng góp nào. Nếu bạn review một PR 10 ngày trước và người khác review nó 2 ngày trước, nó vẫn sẽ xuất hiện trong hoạt động của bạn trong tuần qua." },
-    "notePoint2": { "message": "Xin lưu ý rằng có thể xảy ra một số khác biệt trong Scrum được tạo. Chúng tôi khuyên bạn nên xem xét và chỉnh sửa báo cáo thủ công để đảm bảo tính chính xác trước khi chia sẻ." },
-    "noteSeeIssue": { "message": "Xem vấn đề này" }
+    "appName": {
+        "message": "Scrum Helper"
+    },
+    "appDescription": {
+        "message": "Báo cáo tiến độ phát triển của bạn bằng cách tự động lấy hoạt động Git trong một khoảng thời gian đã chọn."
+    },
+    "disableLabel": {
+        "message": "Tắt"
+    },
+    "enableLabel": {
+        "message": "Bật"
+    },
+    "homeButtonTitle": {
+        "message": "Đi đến Báo cáo"
+    },
+    "projectNameLabel": {
+        "message": "Tên dự án (sử dụng trong chủ đề email)"
+    },
+    "projectNamePlaceholder": {
+        "message": "Nhập tên dự án của bạn"
+    },
+    "githubUsernameLabel": {
+        "message": "Tên người dùng GitHub của bạn"
+    },
+    "gitlabUsernameLabel": {
+        "message": "Tên người dùng GitLab của bạn"
+    },
+    "githubUsernamePlaceholder": {
+        "message": "Bắt buộc để lấy các đóng góp của bạn"
+    },
+    "contributionsLabel": {
+        "message": "Lấy đóng góp của bạn trong:"
+    },
+    "last1DayLabel": {
+        "message": "Ngày trước"
+    },
+    "startDateLabel": {
+        "message": "Từ:"
+    },
+    "endDateLabel": {
+        "message": "Đến:"
+    },
+    "showOpenClosedLabel": {
+        "message": "Hiển thị trạng thái Mở/Đóng"
+    },
+    "blockersLabel": {
+        "message": "Điều gì đang cản trở bạn?"
+    },
+    "blockersPlaceholder": {
+        "message": "Nhập lý do của bạn"
+    },
+    "scrumReportLabel": {
+        "message": "Báo cáo Scrum"
+    },
+    "generateReportButton": {
+        "message": "Tạo báo cáo"
+    },
+    "copyReportButton": {
+        "message": "Sao chép báo cáo"
+    },
+    "settingsOrgNameLabel": {
+        "message": "Tên tổ chức"
+    },
+    "settingsOrgNamePlaceholder": {
+        "message": "Nhập tên tổ chức"
+    },
+    "setButton": {
+        "message": "Đặt"
+    },
+    "githubTokenLabel": {
+        "message": "Mã token GitHub của bạn"
+    },
+    "githubTokenPlaceholder": {
+        "message": "Bắt buộc cho các yêu cầu đã xác thực"
+    },
+    "showCommitsLabel": {
+        "message": "Hiển thị các commit trong PR đang mở theo khoảng ngày"
+    },
+    "cacheTTLLabel": {
+        "message": "Nhập TTL bộ nhớ đệm"
+    },
+    "cacheTTLUnit": {
+        "message": "(tính bằng phút)"
+    },
+    "cacheTTLPlaceholder": {
+        "message": "Nhập TTL bộ nhớ đệm bằng phút (Mặc định: 10)"
+    },
+    "refreshDataButton": {
+        "message": "Làm mới dữ liệu (bỏ qua bộ nhớ đệm)"
+    },
+    "refreshDataInfo": {
+        "message": "Sử dụng nút này để lấy dữ liệu mới ngay lập tức."
+    },
+    "noteTitle": {
+        "message": "Lưu ý:"
+    },
+    "viewCodeButton": {
+        "message": "Xem mã"
+    },
+    "reportIssueButton": {
+        "message": "Báo cáo sự cố"
+    },
+    "repoFilterLabel": {
+        "message": "Lọc theo kho lưu trữ"
+    },
+    "enableFilteringLabel": {
+        "message": "Bật bộ lọc"
+    },
+    "tokenRequiredWarning": {
+        "message": "Cần có mã token GitHub để lọc kho lưu trữ. Vui lòng thêm một mã trong cài đặt."
+    },
+    "repoSearchPlaceholder": {
+        "message": "Tìm kiếm kho lưu trữ để thêm..."
+    },
+    "repoPlaceholder": {
+        "message": "Chưa chọn kho lưu trữ nào (tất cả sẽ được bao gồm)"
+    },
+    "repoCountNone": {
+        "message": "0 kho lưu trữ đã chọn"
+    },
+    "repoCount": {
+        "message": "$1 kho lưu trữ đã chọn"
+    },
+    "repoLoading": {
+        "message": "Đang tải kho lưu trữ..."
+    },
+    "repoLoaded": {
+        "message": "Đã tải $1 kho lưu trữ."
+    },
+    "repoNotFound": {
+        "message": "Không tìm thấy kho lưu trữ nào"
+    },
+    "repoRefetching": {
+        "message": "Đang tải lại kho lưu trữ..."
+    },
+    "repoLoadFailed": {
+        "message": "Không thể tải kho lưu trữ."
+    },
+    "repoTokenPrivate": {
+        "message": "Mã token không hợp lệ hoặc không có quyền đối với kho lưu trữ riêng tư."
+    },
+    "repoRefetchFailed": {
+        "message": "Không thể tải lại kho lưu trữ."
+    },
+    "orgSetMessage": {
+        "message": "Tổ chức đã được đặt thành công."
+    },
+    "orgClearedMessage": {
+        "message": "Đã xóa tổ chức. Nhấp vào 'Tạo báo cáo' để lấy tất cả hoạt động."
+    },
+    "orgNotFoundMessage": {
+        "message": "Không tìm thấy tổ chức trên GitHub."
+    },
+    "orgValidationErrorMessage": {
+        "message": "Lỗi khi xác thực tổ chức."
+    },
+    "refreshingButton": {
+        "message": "Đang làm mới..."
+    },
+    "cacheClearFailed": {
+        "message": "Xóa bộ nhớ đệm thất bại."
+    },
+    "madeWithLoveBy": {
+        "message": "Made with ❤️ by"
+    },
+    "generatingButton": {
+        "message": "Đang tạo..."
+    },
+    "copiedButton": {
+        "message": "Đã sao chép!"
+    },
+    "orgChangedMessage": {
+        "message": "Tổ chức đã thay đổi. Nhấp vào 'Tạo báo cáo' để lấy các hoạt động trên GitHub."
+    },
+    "cacheClearedMessage": {
+        "message": "Bộ nhớ đệm đã được xóa thành công. Nhấp vào 'Tạo báo cáo' để lấy dữ liệu mới."
+    },
+    "cacheClearedButton": {
+        "message": "Đã xóa bộ nhớ đệm!"
+    },
+    "extensionDisabledMessage": {
+        "message": "Tiện ích mở rộng đã bị tắt. Bật nó từ cài đặt để tạo báo cáo scrum."
+    },
+    "notePoint1": {
+        "message": "Pull request được lấy dựa trên hoạt động đánh giá gần đây nhất của bất kỳ người đóng góp nào, không chỉ của riêng bạn. Vui lòng xem xét và điều chỉnh báo cáo SCRUM được tạo để đảm bảo nó phản ánh chính xác công việc của bạn trước khi chia sẻ."
+    },
+    "noteSeeIssue": {
+        "message": "Xem vấn đề này"
+    },
+    "platformLabel": {
+        "message": "Nền tảng"
+    },
+    "usernameLabel": {
+        "message": "Tên người dùng của bạn"
+    }
 }

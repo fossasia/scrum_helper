@@ -1,66 +1,197 @@
 {
-    "appName": { "message": "Scrum Helper" },
-    "appDescription": { "message": "एक चयनित अवधि के लिए अपनी Git गतिविधि को स्वतः प्राप्त करके अपनी विकास प्रगति की रिपोर्ट करें।" },
-    "disableLabel": { "message": "अक्षम करें" },
-    "enableLabel": { "message": "सक्षम करें" },
-    "homeButtonTitle": { "message": "रिपोर्ट पर जाएं" },
-    "projectNameLabel": { "message": "आपकी परियोजना का नाम" },
-    "projectNamePlaceholder": { "message": "अपनी परियोजना का नाम दर्ज करें" },
-    "githubUsernameLabel": { "message": "आपका GitHub उपयोगकर्ता नाम" },
-    "githubUsernamePlaceholder": { "message": "आपके योगदान प्राप्त करने के लिए आवश्यक" },
-    "contributionsLabel": { "message": "इस अवधि के योगदान प्राप्त करें:" },
-    "last7DaysLabel": { "message": "पिछले 7 दिन" },
-    "last1DayLabel": { "message": "कल" },
-    "startDateLabel": { "message": "प्रारंभ तिथि:" },
-    "endDateLabel": { "message": "अंतिम तिथि:" },
-    "showOpenClosedLabel": { "message": "खुला/बंद स्थिति दिखाएं" },
-    "blockersLabel": { "message": "आपको प्रगति करने से क्या रोक रहा है?" },
-    "blockersPlaceholder": { "message": "अपना कारण दर्ज करें" },
-    "scrumReportLabel": { "message": "स्क्रम रिपोर्ट" },
-    "generateReportButton": { "message": "रिपोर्ट बनाएं" },
-    "copyReportButton": { "message": "रिपोर्ट कॉपी करें" },
-    "settingsOrgNameLabel": { "message": "संगठन का नाम" },
-    "settingsOrgNamePlaceholder": { "message": "संगठन का नाम दर्ज करें" },
-    "setButton": { "message": "सेट करें" },
-    "githubTokenLabel": { "message": "आपका GitHub टोकन" },
-    "githubTokenPlaceholder": { "message": "प्रमाणित अनुरोधों के लिए आवश्यक" },
-    "showCommitsLabel": { "message": "चयनित अवधि में खुले PRs में किए गए कमिट दिखाएं" },
-    "cacheTTLLabel": { "message": "कैश TTL दर्ज करें" },
-    "cacheTTLUnit": { "message": "(मिनटों में)" },
-    "cacheTTLPlaceholder": { "message": "कैश TTL मिनटों में लिखें (डिफ़ॉल्ट: 10)" },
-    "refreshDataButton": { "message": "डेटा रीफ्रेश करें (कैश को बायपास करें)" },
-    "refreshDataInfo": { "message": "ताज़ा डेटा तुरंत प्राप्त करने के लिए इस बटन का उपयोग करें।" },
-    "noteTitle": { "message": "ध्यान दें:" },
-    "viewCodeButton": { "message": "कोड देखें" },
-    "reportIssueButton": { "message": "समस्या की रिपोर्ट करें" },
-    "repoFilterLabel": { "message": "रिपॉजिटरी द्वारा फ़िल्टर करें" },
-    "enableFilteringLabel": { "message": "फ़िल्टरिंग सक्षम करें" },
-    "tokenRequiredWarning": { "message": "रिपॉजिटरी फ़िल्टरिंग के लिए एक GitHub टोकन आवश्यक है। कृपया सेटिंग्स में एक जोड़ें।" },
-    "repoSearchPlaceholder": { "message": "जोड़ने के लिए एक रिपॉजिटरी खोजें..." },
-    "repoPlaceholder": { "message": "कोई रिपॉजिटरी चयनित नहीं (सभी शामिल होंगी)" },
-    "repoCountNone": { "message": "0 रिपॉजिटरी चयनित" },
-    "repoCount": { "message": "$1 रिपॉजिटरी चयनित" },
-    "repoLoading": { "message": "रिपॉजिटरी लोड हो रही हैं..." },
-    "repoLoaded": { "message": "$1 रिपॉजिटरी लोड हो गईं।" },
-    "repoNotFound": { "message": "कोई रिपॉजिटरी नहीं मिली" },
-    "repoRefetching": { "message": "रिपॉजिटरी फिर से लोड हो रही हैं..." },
-    "repoLoadFailed": { "message": "रिपॉजिटरी लोड करने में विफल।" },
-    "repoTokenPrivate": { "message": "टोकन अमान्य है या निजी रिपॉजिटरी के लिए अधिकार नहीं हैं।" },
-    "repoRefetchFailed": { "message": "रिपॉजिटरी फिर से लोड करने में विफल।" },
-    "orgSetMessage": { "message": "संगठन सफलतापूर्वक सेट हो गया।" },
-    "orgClearedMessage": { "message": "संगठन साफ़ हो गया। सभी गतिविधियाँ प्राप्त करने के लिए 'रिपोर्ट बनाएं' पर क्लिक करें।" },
-    "orgNotFoundMessage": { "message": "GitHub पर संगठन नहीं मिला।" },
-    "orgValidationErrorMessage": { "message": "संगठन को मान्य करने में त्रुटि।" },
-    "refreshingButton": { "message": "रीफ्रेश हो रहा है..." },
-    "cacheClearFailed": { "message": "कैश साफ़ करने में विफल।" },
-    "madeWithLoveBy": { "message": "Made with ❤️ by" },
-    "generatingButton": { "message": "बनाया जा रहा है..." },
-    "copiedButton": { "message": "कॉपी किया गया!" },
-    "orgChangedMessage": { "message": "संगठन बदल गया है। GitHub गतिविधियाँ प्राप्त करने के लिए 'रिपोर्ट बनाएं' बटन पर क्लिक करें।" },
-    "cacheClearedMessage": { "message": "कैश सफलतापूर्वक साफ़ हो गया। ताज़ा डेटा प्राप्त करने के लिए 'रिपोर्ट बनाएं' पर क्लिक करें।" },
-    "cacheClearedButton": { "message": "कैश साफ़ हो गया!" },
-    "extensionDisabledMessage": { "message": "एक्सटेंशन अक्षम है। स्क्रम रिपोर्ट बनाने के लिए इसे सेटिंग्स से सक्षम करें।" },
-    "notePoint1": { "message": "प्राप्त PRs किसी भी योगदानकर्ता द्वारा सबसे हालिया समीक्षा पर आधारित हैं। यदि आपने 10 दिन पहले एक PR की समीक्षा की और किसी और ने 2 दिन पहले, तो यह पिछले सप्ताह की आपकी गतिविधि में फिर भी दिखाई देगा।" },
-    "notePoint2": { "message": "कृपया ध्यान दें कि उत्पन्न स्क्रम में कुछ विसंगतियां हो सकती हैं। हम साझा करने से पहले सटीकता सुनिश्चित करने के लिए रिपोर्ट की मैन्युअल रूप से समीक्षा और संपादन करने की सलाह देते हैं।" },
-    "noteSeeIssue": { "message": "यह समस्या देखें" }
+    "appName": {
+        "message": "Scrum Helper"
+    },
+    "appDescription": {
+        "message": "एक चयनित अवधि के लिए अपनी Git गतिविधि को स्वतः प्राप्त करके अपनी विकास प्रगति की रिपोर्ट करें।"
+    },
+    "disableLabel": {
+        "message": "अक्षम करें"
+    },
+    "enableLabel": {
+        "message": "सक्षम करें"
+    },
+    "homeButtonTitle": {
+        "message": "रिपोर्ट पर जाएं"
+    },
+    "projectNameLabel": {
+        "message": "ईमेल विषय"
+    },
+    "projectNamePlaceholder": {
+        "message": "अपनी परियोजना का नाम दर्ज करें"
+    },
+    "githubUsernameLabel": {
+        "message": "आपका GitHub उपयोगकर्ता नाम"
+    },
+    "gitlabUsernameLabel": {
+        "message": "आपका GitLab उपयोगकर्ता नाम"
+    },
+    "githubUsernamePlaceholder": {
+        "message": "आपके योगदानों को प्राप्त करने के लिए आवश्यक"
+    },
+    "contributionsLabel": {
+        "message": "इस अवधि के योगदान प्राप्त करें:"
+    },
+    "last1DayLabel": {
+        "message": "पिछला दिन"
+    },
+    "startDateLabel": {
+        "message": "प्रारंभ तिथि:"
+    },
+    "endDateLabel": {
+        "message": "अंतिम तिथि:"
+    },
+    "showOpenClosedLabel": {
+        "message": "खुला/बंद स्थिति दिखाएं"
+    },
+    "blockersLabel": {
+        "message": "आपको प्रगति करने से क्या रोक रहा है?"
+    },
+    "blockersPlaceholder": {
+        "message": "अपना कारण दर्ज करें"
+    },
+    "scrumReportLabel": {
+        "message": "स्क्रम रिपोर्ट"
+    },
+    "generateReportButton": {
+        "message": "रिपोर्ट बनाएं"
+    },
+    "copyReportButton": {
+        "message": "रिपोर्ट कॉपी करें"
+    },
+    "settingsOrgNameLabel": {
+        "message": "संगठन का नाम"
+    },
+    "settingsOrgNamePlaceholder": {
+        "message": "संगठन का नाम दर्ज करें"
+    },
+    "setButton": {
+        "message": "सेट करें"
+    },
+    "githubTokenLabel": {
+        "message": "आपका GitHub टोकन"
+    },
+    "githubTokenPlaceholder": {
+        "message": "प्रमाणित अनुरोधों के लिए आवश्यक"
+    },
+    "showCommitsLabel": {
+        "message": "चयनित अवधि में खुले PRs में किए गए कमिट दिखाएं"
+    },
+    "cacheTTLLabel": {
+        "message": "कैश TTL दर्ज करें"
+    },
+    "cacheTTLUnit": {
+        "message": "(मिनटों में)"
+    },
+    "cacheTTLPlaceholder": {
+        "message": "कैश TTL मिनटों में लिखें (डिफ़ॉल्ट: 10)"
+    },
+    "refreshDataButton": {
+        "message": "डेटा रीफ्रेश करें (कैश को बायपास करें)"
+    },
+    "refreshDataInfo": {
+        "message": "ताज़ा डेटा तुरंत प्राप्त करने के लिए इस बटन का उपयोग करें।"
+    },
+    "noteTitle": {
+        "message": "ध्यान दें:"
+    },
+    "viewCodeButton": {
+        "message": "कोड देखें"
+    },
+    "reportIssueButton": {
+        "message": "समस्या की रिपोर्ट करें"
+    },
+    "repoFilterLabel": {
+        "message": "रिपॉजिटरी द्वारा फ़िल्टर करें"
+    },
+    "enableFilteringLabel": {
+        "message": "फ़िल्टरिंग सक्षम करें"
+    },
+    "tokenRequiredWarning": {
+        "message": "रिपॉजिटरी फ़िल्टरिंग के लिए एक GitHub टोकन आवश्यक है। कृपया सेटिंग्स में एक जोड़ें।"
+    },
+    "repoSearchPlaceholder": {
+        "message": "जोड़ने के लिए एक रिपॉजिटरी खोजें..."
+    },
+    "repoPlaceholder": {
+        "message": "कोई रिपॉजिटरी चयनित नहीं (सभी शामिल होंगी)"
+    },
+    "repoCountNone": {
+        "message": "0 रिपॉजिटरी चयनित"
+    },
+    "repoCount": {
+        "message": "$1 रिपॉजिटरी चयनित"
+    },
+    "repoLoading": {
+        "message": "रिपॉजिटरी लोड हो रही हैं..."
+    },
+    "repoLoaded": {
+        "message": "$1 रिपॉजिटरी लोड हो गईं।"
+    },
+    "repoNotFound": {
+        "message": "कोई रिपॉजिटरी नहीं मिली"
+    },
+    "repoRefetching": {
+        "message": "रिपॉजिटरी फिर से लोड हो रही हैं..."
+    },
+    "repoLoadFailed": {
+        "message": "रिपॉजिटरी लोड करने में विफल।"
+    },
+    "repoTokenPrivate": {
+        "message": "टोकन अमान्य है या निजी रिपॉजिटरी के लिए अधिकार नहीं हैं।"
+    },
+    "repoRefetchFailed": {
+        "message": "रिपॉजिटरी फिर से लोड करने में विफल।"
+    },
+    "orgSetMessage": {
+        "message": "संगठन सफलतापूर्वक सेट हो गया।"
+    },
+    "orgClearedMessage": {
+        "message": "संगठन साफ़ हो गया। सभी गतिविधियाँ प्राप्त करने के लिए 'रिपोर्ट बनाएं' पर क्लिक करें।"
+    },
+    "orgNotFoundMessage": {
+        "message": "GitHub पर संगठन नहीं मिला।"
+    },
+    "orgValidationErrorMessage": {
+        "message": "संगठन को मान्य करने में त्रुटि।"
+    },
+    "refreshingButton": {
+        "message": "रीफ्रेश हो रहा है..."
+    },
+    "cacheClearFailed": {
+        "message": "कैश साफ़ करने में विफल।"
+    },
+    "madeWithLoveBy": {
+        "message": "Made with ❤️ by"
+    },
+    "generatingButton": {
+        "message": "बनाया जा रहा है..."
+    },
+    "copiedButton": {
+        "message": "कॉपी किया गया!"
+    },
+    "orgChangedMessage": {
+        "message": "संगठन बदल गया है। GitHub गतिविधियाँ प्राप्त करने के लिए 'रिपोर्ट बनाएं' बटन पर क्लिक करें।"
+    },
+    "cacheClearedMessage": {
+        "message": "कैश सफलतापूर्वक साफ़ हो गया। ताज़ा डेटा प्राप्त करने के लिए 'रिपोर्ट बनाएं' पर क्लिक करें।"
+    },
+    "cacheClearedButton": {
+        "message": "कैश साफ़ हो गया!"
+    },
+    "extensionDisabledMessage": {
+        "message": "एक्सटेंशन अक्षम है। स्क्रम रिपोर्ट बनाने के लिए इसे विकल्पों से सक्षम करें।"
+    },
+    "notePoint1": {
+        "message": "पुल रिक्वेस्ट किसी भी योगदानकर्ता की सबसे हालिया समीक्षा गतिविधि के आधार पर प्राप्त की जाती हैं, न कि केवल आपकी अपनी। कृपया साझा करने से पहले उत्पन्न SCRUM रिपोर्ट की समीक्षा करें और उसे समायोजित करें ताकि यह सुनिश्चित हो सके कि यह आपके काम को सटीक रूप से दर्शाती है।"
+    },
+    "noteSeeIssue": {
+        "message": "यह समस्या देखें"
+    },
+    "platformLabel": {
+        "message": "प्लेटफ़ॉर्म"
+    },
+    "usernameLabel": {
+        "message": "आपका उपयोगकर्ता नाम"
+    }
 }
