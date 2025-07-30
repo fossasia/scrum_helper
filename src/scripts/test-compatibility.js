@@ -61,7 +61,32 @@ function testRuntime() {
     }
 }
 
-// Test 5: Detect browser
+// Test 5: Test sendMessage API (callback style)
+function testSendMessage() {
+    console.log('Testing sendMessage API (callback style)...');
+    
+    browserAPI.runtime.sendMessage({action: 'test'}, (response) => {
+        if (response) {
+            console.log('✅ sendMessage callback successful:', response);
+        } else {
+            console.log('⚠️ sendMessage callback returned null (this is normal if no handler)');
+        }
+    });
+}
+
+// Test 6: Test sendMessage API (Promise style)
+async function testSendMessagePromise() {
+    console.log('Testing sendMessage API (Promise style)...');
+    
+    try {
+        const response = await browserAPI.sendMessagePromise({action: 'test'});
+        console.log('✅ sendMessage Promise successful:', response);
+    } catch (error) {
+        console.log('⚠️ sendMessage Promise error (this is normal if no handler):', error);
+    }
+}
+
+// Test 7: Detect browser
 function detectBrowser() {
     if (typeof browser !== 'undefined' && browser.runtime) {
         console.log('🌐 Running in Firefox');
@@ -79,6 +104,8 @@ function runAllTests() {
     testStorage();
     testI18n();
     testRuntime();
+    testSendMessage();
+    testSendMessagePromise();
     console.log('=== Tests Complete ===');
 }
 

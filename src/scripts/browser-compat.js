@@ -67,11 +67,21 @@ const browserAPI = {
             }
         },
         lastError: isFirefox ? null : chrome.runtime.lastError,
-        sendMessage: (message) => {
+        sendMessage: (message, callback) => {
             if (isFirefox) {
-                return browser.runtime.sendMessage(message);
+                if (callback) {
+                    // Firefox with callback (convert Promise to callback)
+                    return browser.runtime.sendMessage(message).then(callback).catch(err => {
+                        console.error('Firefox sendMessage error:', err);
+                        callback(null, err);
+                    });
+                } else {
+                    // Firefox without callback (return Promise)
+                    return browser.runtime.sendMessage(message);
+                }
             } else {
-                return chrome.runtime.sendMessage(message);
+                // Chrome always uses callback pattern
+                return chrome.runtime.sendMessage(message, callback);
             }
         }
     },
@@ -84,6 +94,23 @@ const browserAPI = {
             } else {
                 return chrome.i18n.getMessage(messageName, substitutions);
             }
+        }
+    },
+    
+    // Helper function for Promise-based sendMessage
+    sendMessagePromise: (message) => {
+        if (isFirefox) {
+            return browser.runtime.sendMessage(message);
+        } else {
+            return new Promise((resolve, reject) => {
+                chrome.runtime.sendMessage(message, (response) => {
+                    if (chrome.runtime.lastError) {
+                        reject(chrome.runtime.lastError);
+                    } else {
+                        resolve(response);
+                    }
+                });
+            });
         }
     }
 };
