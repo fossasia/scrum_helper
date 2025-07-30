@@ -46,7 +46,6 @@ function allIncluded(outputTarget = 'email') {
     let nextWeekArray = [];
     let reviewedPrsArray = [];
     let githubIssuesData = null;
-    let lastWeekContribution = false;
     let yesterdayContribution = false;
     let githubPrsReviewData = null;
     let githubUserData = null;
@@ -85,7 +84,6 @@ function allIncluded(outputTarget = 'email') {
                 'startingDate',
                 'endingDate',
                 'showOpenLabel',
-                'lastWeekContribution',
                 'yesterdayContribution',
                 'userReason',
                 'githubCache',
@@ -130,7 +128,6 @@ function allIncluded(outputTarget = 'email') {
                 userReason = 'No Blocker at the moment';
                 chrome.storage.local.remove(['userReason']);
                 githubToken = items.githubToken;
-                lastWeekContribution = items.lastWeekContribution;
                 yesterdayContribution = items.yesterdayContribution;
                 if (typeof items.enableToggle !== 'undefined') {
                     enableToggle = items.enableToggle;
@@ -140,9 +137,7 @@ function allIncluded(outputTarget = 'email') {
                 showOpenLabel = items.showOpenLabel !== false; // Default to true if not explicitly set to false
                 orgName = items.orgName || '';
 
-                if (items.lastWeekContribution) {
-                    handleLastWeekContributionChange();
-                } else if (items.yesterdayContribution) {
+                if (items.yesterdayContribution) {
                     handleYesterdayContributionChange();
                 } else if (items.startingDate && items.endingDate) {
                     startingDate = items.startingDate;
@@ -150,11 +145,11 @@ function allIncluded(outputTarget = 'email') {
                 } else {
 
 
-                    handleLastWeekContributionChange();
+                    handleYesterdayContributionChange();
 
 
                     if (outputTarget === 'popup') {
-                        chrome.storage.local.set({ lastWeekContribution: true, yesterdayContribution: false });
+                        chrome.storage.local.set({ yesterdayContribution: true });
                     }
                 }
 
@@ -226,7 +221,7 @@ function allIncluded(outputTarget = 'email') {
                                     githubUserData = mappedData.githubUserData;
 
                                     let name = githubUserData?.name || githubUserData?.username || platformUsernameLocal || platformUsername;
-                                    let project = projectName || '<project name>';
+                                    let project = projectName;
                                     let curDate = new Date();
                                     let year = curDate.getFullYear().toString();
                                     let date = curDate.getDate();
@@ -234,7 +229,7 @@ function allIncluded(outputTarget = 'email') {
                                     if (month < 10) month = '0' + month;
                                     if (date < 10) date = '0' + date;
                                     let dateCode = year.toString() + month.toString() + date.toString();
-                                    const subject = `[Scrum] ${name} - ${project} - ${dateCode}`;
+                                    const subject = `[Scrum]${project ? ' - ' + project : ''} - ${dateCode}`;
                                     subjectForEmail = subject;
 
 
@@ -332,28 +327,11 @@ function allIncluded(outputTarget = 'email') {
 
 
 
-    function handleLastWeekContributionChange() {
-        endingDate = getToday();
-        startingDate = getLastWeek();
-    }
     function handleYesterdayContributionChange() {
         endingDate = getToday();
         startingDate = getYesterday();
     }
-    function getLastWeek() {
-        let today = new Date();
-        let lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
-        let lastWeekMonth = lastWeek.getMonth() + 1;
-        let lastWeekDay = lastWeek.getDate();
-        let lastWeekYear = lastWeek.getFullYear();
-        let lastWeekDisplayPadded =
-            ('0000' + lastWeekYear.toString()).slice(-4) +
-            '-' +
-            ('00' + lastWeekMonth.toString()).slice(-2) +
-            '-' +
-            ('00' + lastWeekDay.toString()).slice(-2);
-        return lastWeekDisplayPadded;
-    }
+
     function getYesterday() {
         let today = new Date();
         let yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
@@ -909,10 +887,10 @@ function allIncluded(outputTarget = 'email') {
             let nextWeekUl = '<ul>';
             for (let i = 0; i < nextWeekArray.length; i++) nextWeekUl += nextWeekArray[i];
             nextWeekUl += '</ul>';
-            let weekOrDay = lastWeekContribution ? 'last week' : (yesterdayContribution ? 'yesterday' : 'the period');
-            let weekOrDay2 = lastWeekContribution ? 'this week' : 'today';
+            let weekOrDay = yesterdayContribution ? 'yesterday' : 'the period';
+            let weekOrDay2 = 'today';
             let content;
-            if (lastWeekContribution == true || yesterdayContribution == true) {
+            if (yesterdayContribution == true) {
                 content = `<b>1. What did I do ${weekOrDay}?</b><br>${lastWeekUl}<br><b>2. What do I plan to do ${weekOrDay2}?</b><br>${nextWeekUl}<br><b>3. What is blocking me from making progress?</b><br>${userReason}`;
             } else {
                 content = `<b>1. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?</b><br>${lastWeekUl}<br><b>2. What do I plan to do ${weekOrDay2}?</b><br>${nextWeekUl}<br><b>3. What is blocking me from making progress?</b><br>${userReason}`;
@@ -958,11 +936,11 @@ function allIncluded(outputTarget = 'email') {
         for (let i = 0; i < nextWeekArray.length; i++) nextWeekUl += nextWeekArray[i];
         nextWeekUl += '</ul>';
 
-        let weekOrDay = lastWeekContribution ? 'last week' : (yesterdayContribution ? 'yesterday' : 'the period');
-        let weekOrDay2 = lastWeekContribution ? 'this week' : 'today';
+        let weekOrDay = yesterdayContribution ? 'yesterday' : 'the period';
+        let weekOrDay2 =  'today';
 
         let content;
-        if (lastWeekContribution == true || yesterdayContribution == true) {
+        if (yesterdayContribution == true) {
             content = `<b>1. What did I do ${weekOrDay}?</b><br>
 ${lastWeekUl}<br>
 <b>2. What do I plan to do ${weekOrDay2}?</b><br>
@@ -1041,7 +1019,7 @@ ${userReason}`;
             }
             setTimeout(() => {
                 let name = githubUserData?.name || githubUserData?.username || platformUsernameLocal || platformUsername;
-                let project = projectName || '<project name>';
+                let project = projectName;
                 let curDate = new Date();
                 let year = curDate.getFullYear().toString();
                 let date = curDate.getDate();
@@ -1051,7 +1029,7 @@ ${userReason}`;
                 if (date < 10) date = '0' + date;
                 let dateCode = year.toString() + month.toString() + date.toString();
 
-                const subject = `[Scrum] ${name} - ${project} - ${dateCode}`;
+                const subject = `[Scrum]${project ? ' - ' + project : ''} - ${dateCode}`;
                 log('Generated subject:', subject);
                 githubCache.subject = subject;
                 saveToStorage(githubCache.data, subject);
@@ -1607,16 +1585,11 @@ async function fetchUserRepositories(username, token, org = '') {
         let dateRange = '';
         try {
             const storageData = await new Promise(resolve => {
-                chrome.storage.local.get(['startingDate', 'endingDate', 'lastWeekContribution', 'yesterdayContribution'], resolve);
+                chrome.storage.local.get(['startingDate', 'endingDate', 'yesterdayContribution'], resolve);
             });
 
             let startDate, endDate;
-            if (storageData.lastWeekContribution) {
-                const today = new Date();
-                const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
-                startDate = lastWeek.toISOString().split('T')[0];
-                endDate = today.toISOString().split('T')[0];
-            } else if (storageData.yesterdayContribution) {
+            if (storageData.yesterdayContribution) {
                 const today = new Date();
                 const yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
                 startDate = yesterday.toISOString().split('T')[0];

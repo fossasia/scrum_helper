@@ -15,7 +15,7 @@
         "message": "Ir al informe"
     },
     "projectNameLabel": {
-        "message": "Nombre de su proyecto"
+        "message": "Nombre del proyecto (usado en el asunto del correo)"
     },
     "projectNamePlaceholder": {
         "message": "Ingrese el nombre de su proyecto"
@@ -23,23 +23,23 @@
     "githubUsernameLabel": {
         "message": "Su nombre de usuario de GitHub"
     },
+    "gitlabUsernameLabel": {
+        "message": "Su nombre de usuario de GitLab"
+    },
     "githubUsernamePlaceholder": {
         "message": "Requerido para obtener sus contribuciones"
     },
     "contributionsLabel": {
         "message": "Obtener sus contribuciones de:"
     },
-    "last7DaysLabel": {
-        "message": "Últimos 7 días"
-    },
     "last1DayLabel": {
-        "message": "Ayer"
+        "message": "Día anterior"
     },
     "startDateLabel": {
-        "message": "Fecha de inicio:"
+        "message": "Desde:"
     },
     "endDateLabel": {
-        "message": "Fecha de fin:"
+        "message": "Hasta:"
     },
     "showOpenClosedLabel": {
         "message": "Mostrar estado Abierto/Cerrado"
@@ -180,13 +180,10 @@
         "message": "¡Caché borrado!"
     },
     "extensionDisabledMessage": {
-        "message": "La extensión está desactivada. Actívela desde los ajustes para generar informes de scrum."
+        "message": "La extensión está deshabilitada. Habilítela desde las opciones para generar informes de scrum."
     },
     "notePoint1": {
-        "message": "Los PRs se obtienen según la revisión más reciente de cualquier contribuyente. Si revisó un PR hace 10 días y otra persona lo hizo hace 2 días, seguirá apareciendo en su actividad de la última semana."
-    },
-    "notePoint2": {
-        "message": "Tenga en cuenta que pueden ocurrir algunas discrepancias en el Scrum generado. Recomendamos revisar y editar manualmente el informe para garantizar la precisión antes de compartirlo."
+        "message": "Las solicitudes de extracción se obtienen en función de la actividad de revisión más reciente de cualquier colaborador, no solo la suya. Revise y ajuste el informe SCRUM generado para asegurarse de que refleje con precisión su trabajo antes de compartirlo."
     },
     "noteSeeIssue": {
         "message": "Ver este issue"

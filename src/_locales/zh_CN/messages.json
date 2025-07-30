@@ -1,4 +1,5 @@
 {
+
     "appName": {
         "message": "Scrum Helper"
     },
@@ -15,7 +16,7 @@
         "message": "前往报告"
     },
     "projectNameLabel": {
-        "message": "您的项目名称"
+        "message": "项目名称（用于电子邮件主题）"
     },
     "projectNamePlaceholder": {
         "message": "输入您的项目名称"
@@ -23,23 +24,23 @@
     "githubUsernameLabel": {
         "message": "您的 GitHub 用户名"
     },
+    "gitlabUsernameLabel": {
+        "message": "您的 GitLab 用户名"
+    },
     "githubUsernamePlaceholder": {
         "message": "获取您的贡献所必需"
     },
     "contributionsLabel": {
         "message": "获取您在此期间的贡献："
     },
-    "last7DaysLabel": {
-        "message": "过去 7 天"
-    },
     "last1DayLabel": {
-        "message": "昨天"
+        "message": "前一天"
     },
     "startDateLabel": {
-        "message": "开始日期："
+        "message": "从:"
     },
     "endDateLabel": {
-        "message": "结束日期："
+        "message": "到:"
     },
     "showOpenClosedLabel": {
         "message": "显示“打开/关闭”状态"
@@ -183,10 +184,7 @@
         "message": "扩展已禁用。请在设置中启用它以生成 Scrum 报告。"
     },
     "notePoint1": {
-        "message": "获取的 PR 基于任何贡献者的最新审查。如果您在 10 天前审查了某个 PR，而其他人在 2 天前审查了它，它仍将出现在您上周的活动中。"
-    },
-    "notePoint2": {
-        "message": "请注意，生成的 Scrum 报告中可能会出现一些差异。我们建议在分享前手动审查和编辑报告以确保准确性。"
+        "message": "拉取请求是根据任何贡献者最近的审查活动来获取的，而不仅仅是您自己的。在分享之前，请审查并调整生成的SCRUM报告，以确保它准确地反映您的工作。"
     },
     "noteSeeIssue": {
         "message": "查看此 issue"

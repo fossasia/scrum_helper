@@ -45,7 +45,8 @@
 		<div class="bg-white px-4 py-4 mx-2 mb-2 rounded-3xl">
 			<div class="flex justify-between py-2">
 				<h3 id="scrumHelperHeading" class="text-3xl font-semibold cursor-pointer">Scrum Helper</h3>
-				<img src="icons/night-mode.png" alt="Night Mode" class="w-7 h-7 mx-3 cursor-pointer" id="darkModeToggle">
+				<img src="icons/night-mode.png" alt="Night Mode" class="w-7 h-7 mx-3 cursor-pointer"
+					id="darkModeToggle">
 			</div>
 			<div>
 				<p class="" data-i18n="appDescription">Report your development progress by auto-fetching your Git
@@ -64,12 +65,13 @@
 					<span data-i18n="enableLabel">Enable</span>
 				</label>
 				<div class="flex">
-					<button id="homeButton" data-i18n-title="homeButtonTitle"
+					<button id="homeButton"
 						class="ml-1 p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition">
 						<i class="fa fa-home text-2xl text-gray-600 dark:text-gray-300"></i>
 					</button>
 					<button id="settingsToggle">
-						<img id="settingsIcon" src="icons/settings-light.png" alt="Settings" class="w-6 h-6 mx-3 cursor-pointer">
+						<img id="settingsIcon" src="icons/settings-light.png" alt="Settings"
+							class="w-6 h-6 mx-3 cursor-pointer">
 					</button>
 				</div>
 			</div>
@@ -82,8 +84,8 @@
 					<div>
 
 
-						<h4 data-i18n="platformLabel" style="margin-bottom: 0.3rem;">Platform
-						</h4>
+						<p data-i18n="platformLabel" class="font-medium text-sm" style="margin-bottom: 0.3rem;">Platform
+						</p>
 						<div class="relative mb-4" id="customPlatformDropdown" style="margin-bottom: 0.8rem;">
 							<input type="hidden" id="platformSelect" value="github">
 							<button type="button" id="platformDropdownBtn"
@@ -95,13 +97,11 @@
 							</button>
 							<ul id="platformDropdownList"
 								class="absolute left-0 right-0 bg-white border-2 border-gray-200 rounded-xl mt-1 shadow-lg z-10 hidden">
-								<li
-									style="padding-left: 8px; padding-right: 16px; padding-top: 8px; padding-bottom: 8px; display: flex; align-items: center; cursor: pointer;"
+								<li style="padding-left: 8px; padding-right: 16px; padding-top: 8px; padding-bottom: 8px; display: flex; align-items: center; cursor: pointer;"
 									class="hover:bg-gray-100" data-value="github">
 									<i class="fab fa-github" style="margin-right: 12px; font-size: 18px;"></i> GitHub
 								</li>
-								<li
-									style="padding-left: 8px; padding-right: 16px; padding-top: 8px; padding-bottom: 8px; display: flex; align-items: center; cursor: pointer;"
+								<li style="padding-left: 8px; padding-right: 16px; padding-top: 8px; padding-bottom: 8px; display: flex; align-items: center; cursor: pointer;"
 									class="hover:bg-gray-100" data-value="gitlab">
 									<i class="fab fa-gitlab" style="margin-right: 12px; font-size: 18px;"></i> GitLab
 								</li>
@@ -109,17 +109,18 @@
 						</div>
 					</div>
 					<div>
-						<h4 data-i18n="projectNameLabel">Your Project Name<span class="tooltip-container ml-2">
+						<div class="flex">
 
-
+							<p class=" font-medium text-sm" data-i18n="projectNameLabel">Project Name (used in email
+								subject)</p><span class="tooltip-container ml-2">
 								<i class="fa fa-question-circle question-icon"></i>
 								<span class="tooltip-bubble" data-i18n="projectNameTooltip">
-									This is the name that appears in the subject line of your email, followed by
-									timestamp.
+									This project name will appear in the subject line of your email as part of:
+									"[Scrum] Project Name - Date”. Leave blank to skip.
 								</span>
+							</span>
 
-							</span> </h4>
-
+						</div>
 
 
 						<input id="projectName" type="text"
@@ -128,75 +129,69 @@
 					</div>
 					<div>
 
-						<h4 id="usernameLabel" data-i18n="usernameLabel">Your Username</h4>
+						<p id="usernameLabel" class="font-medium text-sm" data-i18n="usernameLabel">Your Username</p>
 						<input id="platformUsername" type="text"
 							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
-							placeholder="Required for fetching your contributions" style="margin-top: 0.3rem; margin-bottom: 0.8rem;">
+							placeholder="Required for fetching your contributions"
+							style="margin-top: 0.3rem; margin-bottom: 0.8rem;">
 					</div>
 
 					<div>
-						<p class="text-lg mb-1" data-i18n="contributionsLabel">Fetch your contributions between:</p>
+						<p class="text-lg mb-1 font-medium text-sm" data-i18n="contributionsLabel">Fetch your
+							contributions between:</p>
 
 
-						<div class="flex justify-between items-center my-2 mx-4">
-							<div class="flex items-center gap-2">
-								<input type="radio" id="lastWeekContribution" name="timeframe" class="form-radio">
-								<label for="lastWeekContribution" class="font-normal" data-i18n="last7DaysLabel">Last 7
-									days</label>
-							</div>
-							<div class="flex items-center gap-2">
-								<input type="radio" id="yesterdayContribution" name="timeframe" class="form-radio">
-								<label for="yesterdayContribution" class="font-normal" data-i18n="last1DayLabel">Last 1
-									day</label>
-							</div>
-						</div>
+						<div class="flex gap-[3px] justify-between items-center mt-2" style="gap: 8px">
+							
+							<div id="customDateContainer" class="flex gap-2">
 
-						<div id="customDateContainer" class="flex justify-between items-center mt-2">
-							<div>
-								<label for="startingDate" data-i18n="startDateLabel">Start Date:</label>
-								<input type="date" id="startingDate" class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1">
+								<div>
+									<label for="startingDate" class="flex items-center font-medium text-xs"
+										data-i18n="startDateLabel">From:</label>
+									<input type="date" id="startingDate"
+										class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1" style="width: 96px;">
+								</div>
+								<div>
+									<label for="endingDate" class="flex items-center font-medium text-xs"
+										data-i18n="endDateLabel">To:</label>
+									<input type="date" id="endingDate"
+										class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1" style="width: 96px;">
+								</div>
 							</div>
-							<div>
-								<label for="endingDate" data-i18n="endDateLabel">End Date:</label>
-								<input type="date" id="endingDate" class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1">
+							<div class="flex items-center gap-1">
+								<input type="radio" id="yesterdayContribution" name="timeframe" class="form-radio" style="margin-right: 4px;">
+								<label for="yesterdayContribution" class="font-medium text-xs"
+									data-i18n="last1DayLabel">Previous Day</label>
 							</div>
 						</div>
 					</div>
 
-					<div class="col s12" style="margin-bottom: 1rem;">
+					<div style="margin-bottom: 1rem;">
 						<br />
 						<input type="checkbox" id="showOpenLabel" class="form-checkbox text-blue-600">
-
-						<label id="checkboxLabel" for="showOpenLabel" class=" font-medium text-sm"
-							data-i18n="showOpenClosedLabel">Show
-							Open/Merged/Closed Labels</label>
-
+						<label id="checkboxLabel" for="showOpenLabel" class="font-medium text-sm"
+							style="margin-left: 4px;" data-i18n="showOpenClosedLabel">Show
+							PRs Labels</label>
 					</div>
-
-					<div class="col s12 my-4 githubOnlySection">
+					<div class="my-4 githubOnlySection">
 						<div class="flex items-center">
 							<input type="checkbox" id="showCommits" checked class="form-checkbox text-blue-600 ">
 
-
-							<label id="showCommitsLabel" for="showCommits" class="font-medium text-sm flex items-center pl-5 ml-4"
-								style="margin-left: 4px;" data-i18n="showCommitsLabel">Show commits on open PRs/ draft PRs<span
-									class="tooltip-container">
-
-
-									<i class="fa fa-question-circle question-icon"></i>
-									<span class="tooltip-bubble" data-i18n="showCommitsTooltip">
-										Github Token required, add it in the settings.
-									</span>
-								</span></label>
+							<label id="showCommitsLabel" for="showCommits"
+								class="font-medium text-sm flex items-center pl-5 ml-4" style="margin-left: 4px;"
+								data-i18n="showCommitsLabel">Show commits on open PRs/ draft PRs</label><span
+								class="tooltip-container">
+								<i class="fa fa-question-circle question-icon"></i>
+								<span class="tooltip-bubble" data-i18n="showCommitsTooltip">
+									Github Token required, add it in the settings.
+								</span>
+							</span>
 						</div>
-
-
 					</div>
-
 
 					<div>
 						<div>
-							<h6 class="text-base font-semibold" data-i18n="scrumReportLabel">Scrum Report</h6>
+							<h6 class="text-base font-semibold mt-2" data-i18n="scrumReportLabel">Scrum Report</h6>
 							<div id="scrumReport" contenteditable="true"
 								class="min-h-[200px] overflow-y-auto whitespace-pre-wrap border-2 border-gray-200 bg-gray-100 rounded-xl text-gray-800 p-2 my-2">
 							</div>
@@ -213,6 +208,15 @@
 							</button>
 						</div>
 					</div>
+					<div class="border-gray-100 border-2 bg-white rounded-3xl px-4 py-2 mx-2 my-2">
+						<div>
+							<h4 class="font-semibold text-xl" data-i18n="noteTitle">Note:</h4>
+							<ul class="text-xs list-disc list-inside">
+								<p data-i18n="notePoint1">Pull requests are fetched based on the most recent review activity by any contributor, not just your own. Please review and adjust the generated SCRUM report to ensure it accurately reflects your work before sharing.
+								</p>
+							</ul>
+						</div>
+					</div>
 				</div>
 
 				<div id="settingsSection" class="tab-content hidden">
@@ -220,7 +224,7 @@
 						<div>
 							<div class="flex items-center justify-between">
 								<div class="flex">
-									<p class="text-sm font-medium" data-i18n="githubTokenLabel">Your GitHub Token<span
+									<p class="text-sm font-medium" data-i18n="githubTokenLabel">Your GitHub Token</p> <span
 											class="tooltip-container">
 											<i class="fa fa-question-circle question-icon"></i>
 											<span class="tooltip-bubble" data-i18n="githubTokenTooltip">
@@ -243,7 +247,7 @@
 												4. Paste it here.<br>
 												<i>Keep your token secret!</i>
 											</span>
-										</span></p>
+										</span>
 
 								</div>
 								<button id="toggleTokenVisibility" type="button" class="focus:outline-none">
@@ -283,7 +287,8 @@
 						<div class="mb-4">
 							<div class="flex items-center justify-between mb-2">
 								<p class="text-sm font-medium">
-									<span data-i18n="repoFilterLabel">Filter by repositories</span><span class="tooltip-container">
+									<span data-i18n="repoFilterLabel">Filter by repositories</span><span
+										class="tooltip-container">
 										<i class="fa fa-question-circle question-icon"></i>
 										<span class="tooltip-bubble" data-i18n="repoFilterTooltip">
 											Github Token required.<br>
@@ -293,8 +298,10 @@
 									</span>
 								</p>
 								<div class="flex items-center">
-									<input type="checkbox" id="useRepoFilter" class="mr-2">
-									<label for="useRepoFilter" class="text-xs text-gray-600"><span data-i18n="enableFilteringLabel">Enable
+
+									<input type="checkbox" id="useRepoFilter" class="mr-2" style="margin-right: 4px;">
+									<label for="useRepoFilter" class="text-xs text-gray-600"><span
+											data-i18n="enableFilteringLabel">Enable
 											filtering</span></label>
 								</div>
 							</div>
@@ -320,9 +327,11 @@
 								</div>
 
 								<!-- Selected Tags Container -->
-								<div id="selectedRepos" class="mt-3 min-h-[32px] p-2 border-2 border-gray-200 bg-gray-50 rounded-xl">
+								<div id="selectedRepos"
+									class="mt-3 min-h-[32px] p-2 border-2 border-gray-200 bg-gray-50 rounded-xl">
 									<div class="flex flex-wrap gap-1" id="repoTags">
-										<span class="text-xs text-gray-500 select-none" id="repoPlaceholder" data-i18n="repoPlaceholder">No
+										<span class="text-xs text-gray-500 select-none" id="repoPlaceholder"
+											data-i18n="repoPlaceholder">No
 											repositories selected (all will be included)</span>
 									</div>
 								</div>
@@ -370,40 +379,18 @@
 					</div>
 
 				</div>
-
-				<div class="border-gray-100 border-2 bg-white rounded-3xl px-4 py-2 mx-2 my-2">
-					<div>
-						<h4 class="font-semibold text-xl" data-i18n="noteTitle">Note:</h4>
-						<ul class="text-xs list-disc list-inside">
-							<li data-i18n="notePoint1">The PRs fetched are based on the most recent review by any
-								contributor. If you reviewed
-								a PR 10 days
-								ago and someone else reviewed it 2 days ago, it will still appear in your activity for
-								the past week.
-								<a target="_blank" href="https://github.com/fossasia/scrum_helper/issues/20"
-									data-i18n="noteSeeIssue">(See this
-									issue)</a>
-							</li>
-							<li data-i18n="notePoint2">Please note that some discrepancies may occur in the generated
-								SCRUM. We recommend
-								manually reviewing
-								and editing the report to ensure accuracy before sharing.
-							</li>
-						</ul>
-					</div>
-				</div>
 			</div>
 
 			<div class="mt-6 border-t border-gray-300">
 				<div class="bg-white rounded-3xl mx-2 mt-4 mb-2 p-4 border border-gray-100 shadow-sm">
 					<div class="flex items-center justify-center space-x-3">
 						<a target="_blank" href="https://github.com/fossasia/scrum_helper"
-							class="bg-blue-50 hover:bg-blue-100 text-blue-600 transition-all duration-200 rounded-lg px-4 py-2 flex items-center space-x-2">
-							<i class="fa fa-code text-sm"></i>
+							class="bg-blue-50 hover:bg-blue-100 text-blue-600 transition-all duration-200 rounded-lg px-4 py-2 flex items-center space-x-2 gap-2">
+							<i class="fa fa-code text-sm pl-1"></i>
 							<span class="text-sm font-medium" data-i18n="viewCodeButton">View Code</span>
 						</a>
 						<a target="_blank" href="https://github.com/fossasia/scrum_helper/issues"
-							class="bg-blue-50 hover:bg-blue-100 text-blue-600 transition-all duration-200 rounded-lg px-4 py-2 flex items-center space-x-2">
+							class="bg-blue-50 hover:bg-blue-100 text-blue-600 transition-all duration-200 rounded-lg px-4 py-2 flex items-center space-x-2 gap-2">
 							<i class="fa fa-bug text-sm"></i>
 							<span class="text-sm font-medium" data-i18n="reportIssueButton">Report Issue</span>
 						</a>

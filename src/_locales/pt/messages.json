@@ -1,4 +1,5 @@
 {
+
     "appName": {
         "message": "Scrum Helper"
     },
@@ -15,13 +16,16 @@
         "message": "Ir para o Relatório"
     },
     "projectNameLabel": {
-        "message": "Nome do seu Projeto"
+        "message": "Nome do Projeto (usado no assunto do e-mail)"
     },
     "projectNamePlaceholder": {
         "message": "Digite o nome do seu projeto"
     },
     "githubUsernameLabel": {
-        "message": "Seu Nome de Usuário do Github"
+        "message": "Seu nome de usuário do GitHub"
+    },
+    "gitlabUsernameLabel": {
+        "message": "Seu nome de usuário do GitLab"
     },
     "githubUsernamePlaceholder": {
         "message": "Necessário para buscar suas contribuições"
@@ -29,17 +33,14 @@
     "contributionsLabel": {
         "message": "Buscar suas contribuições entre:"
     },
-    "last7DaysLabel": {
-        "message": "Últimos 7 dias"
-    },
     "last1DayLabel": {
-        "message": "Último dia"
+        "message": "Dia anterior"
     },
     "startDateLabel": {
-        "message": "Data de Início:"
+        "message": "De:"
     },
     "endDateLabel": {
-        "message": "Data de Fim:"
+        "message": "Até:"
     },
     "showOpenClosedLabel": {
         "message": "Mostrar Rótulo Aberto/Fechado"
@@ -123,10 +124,7 @@
         "message": "A extensão está desativada. Ative-a nas opções para gerar relatórios scrum."
     },
     "notePoint1": {
-        "message": "Os PRs buscados são baseados na revisão mais recente de qualquer contribuidor. Se você revisou um PR há 10 dias e outra pessoa o revisou há 2 dias, ele ainda aparecerá na sua atividade da última semana."
-    },
-    "notePoint2": {
-        "message": "Observe que algumas discrepâncias podem ocorrer no SCRUM gerado. Recomendamos revisar e editar manualmente o relatório para garantir a precisão antes de compartilhar."
+        "message": "As solicitações de pull são buscadas com base na atividade de revisão mais recente de qualquer contribuidor, não apenas na sua. Revise e ajuste o relatório SCRUM gerado para garantir que ele reflita com precisão o seu trabalho antes de compartilhá-lo."
     },
     "noteSeeIssue": {
         "message": "Veja este problema"
