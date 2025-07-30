@@ -1277,7 +1277,7 @@ ${userReason}`;
                 if (isDraft) {
 
                     li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + pr_draft_button : ''}`;
-                    if (showCommits && item._allCommits && item._allCommits.length && !isNewPR && token) {
+                    if (showCommits && item._allCommits && item._allCommits.length && !isNewPR && githubToken) {
                         log(`[PR DEBUG] Rendering commits for existing draft PR #${number}:`, item._allCommits);
                         li += '<ul>';
                         item._allCommits.forEach(commit => {
