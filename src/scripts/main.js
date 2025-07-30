@@ -13,18 +13,18 @@ let showCommitsElement = document.getElementById('showCommits');
 
 function handleBodyOnLoad() {
 	// Migration: Handle existing users with old platformUsername storage
-	chrome.storage.local.get(['platform', 'platformUsername'], function (result) {
+	browserAPI.storage.local.get(['platform', 'platformUsername'], function (result) {
 		if (result.platformUsername && result.platform) {
 			// Migrate old platformUsername to platform-specific storage
 			const platformUsernameKey = `${result.platform}Username`;
-			chrome.storage.local.set({ [platformUsernameKey]: result.platformUsername });
+			browserAPI.storage.local.set({ [platformUsernameKey]: result.platformUsername });
 			// Remove the old key
-			chrome.storage.local.remove(['platformUsername']);
+			browserAPI.storage.local.remove(['platformUsername']);
 			console.log(`[MIGRATION] Migrated platformUsername to ${platformUsernameKey}`);
 		}
 	});
 
-	chrome.storage.local.get(
+	browserAPI.storage.local.get(
 		[
 			'platform',
 			'githubUsername',
@@ -123,15 +123,15 @@ document.getElementById('refreshCache').addEventListener('click', async (e) => {
 
 function handleEnableChange() {
 	let value = enableToggleElement.checked;
-	chrome.storage.local.set({ enableToggle: value });
+	browserAPI.storage.local.set({ enableToggle: value });
 }
 function handleStartingDateChange() {
 	let value = startingDateElement.value;
-	chrome.storage.local.set({ startingDate: value });
+	browserAPI.storage.local.set({ startingDate: value });
 }
 function handleEndingDateChange() {
 	let value = endingDateElement.value;
-	chrome.storage.local.set({ endingDate: value });
+	browserAPI.storage.local.set({ endingDate: value });
 }
 function handleLastWeekContributionChange() {
 	let value = lastWeekContributionElement.checked;
@@ -152,7 +152,7 @@ function handleLastWeekContributionChange() {
 		labelElement.classList.remove("selectedLabel");
 	}
 
-	chrome.storage.local.set({ lastWeekContribution: value });
+	browserAPI.storage.local.set({ lastWeekContribution: value });
 }
 
 function handleYesterdayContributionChange() {
@@ -174,7 +174,7 @@ function handleYesterdayContributionChange() {
 		labelElement.classList.add("unselectedLabel");
 		labelElement.classList.remove("selectedLabel");
 	}
-	chrome.storage.local.set({ yesterdayContribution: value });
+	browserAPI.storage.local.set({ yesterdayContribution: value });
 }
 
 function getLastWeek() {
@@ -222,23 +222,23 @@ function getToday() {
 
 function handlePlatformUsernameChange() {
 	let value = platformUsernameElement.value;
-	chrome.storage.local.get(['platform'], function (result) {
+	browserAPI.storage.local.get(['platform'], function (result) {
 		const platform = result.platform || 'github';
 		const platformUsernameKey = `${platform}Username`;
-		chrome.storage.local.set({ [platformUsernameKey]: value });
+		browserAPI.storage.local.set({ [platformUsernameKey]: value });
 	});
 }
 function handleGithubTokenChange() {
 	let value = githubTokenElement.value;
-	chrome.storage.local.set({ githubToken: value });
+	browserAPI.storage.local.set({ githubToken: value });
 }
 function handleProjectNameChange() {
 	let value = projectNameElement.value;
-	chrome.storage.local.set({ projectName: value });
+	browserAPI.storage.local.set({ projectName: value });
 }
 function handleCacheInputChange() {
 	let value = cacheInputElement.value;
-	chrome.storage.local.set({ cacheInput: value });
+	browserAPI.storage.local.set({ cacheInput: value });
 }
 function handleOpenLabelChange() {
 	let value = showOpenLabelElement.checked;
@@ -252,14 +252,14 @@ function handleOpenLabelChange() {
 		labelElement.classList.remove("selectedLabel");
 	}
 
-	chrome.storage.local.set({ showOpenLabel: value });
+	browserAPI.storage.local.set({ showOpenLabel: value });
 }
 
 
 
 function handleShowCommitsChange() {
 	let value = showCommitsElement.checked;
-	chrome.storage.local.set({ showCommits: value });
+	browserAPI.storage.local.set({ showCommits: value });
 }
 
 enableToggleElement.addEventListener('change', handleEnableChange);
