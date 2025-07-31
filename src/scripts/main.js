@@ -9,7 +9,7 @@ let startingDateElement = document.getElementById('startingDate');
 let endingDateElement = document.getElementById('endingDate');
 let showOpenLabelElement = document.getElementById('showOpenLabel');
 
-let userReasonElement = null; 
+let userReasonElement = null;
 
 let showCommitsElement = document.getElementById('showCommits');
 
@@ -89,8 +89,7 @@ function handleBodyOnLoad() {
 			if (items.yesterdayContribution) {
 				yesterdayContributionElement.checked = items.yesterdayContribution;
 				handleYesterdayContributionChange();
-			}
-			else if (items.yesterdayContribution !== false) {
+			} else if (items.yesterdayContribution !== false) {
 				yesterdayContributionElement.checked = true;
 				handleYesterdayContributionChange();
 			}
@@ -111,7 +110,7 @@ document.getElementById('refreshCache').addEventListener('click', async (e) => {
 
 	try {
 	} catch (err) {
-		console.log('Refresh successful',);
+		console.log('Refresh successful');
 	} finally {
 		setTimeout(() => {
 			button.classList.remove('loading');
@@ -144,13 +143,13 @@ function handleYesterdayContributionChange() {
 		startingDateElement.value = getYesterday();
 		handleEndingDateChange();
 		handleStartingDateChange();
-		labelElement.classList.add("selectedLabel");
-		labelElement.classList.remove("unselectedLabel");
+		labelElement.classList.add('selectedLabel');
+		labelElement.classList.remove('unselectedLabel');
 	} else {
 		startingDateElement.readOnly = false;
 		endingDateElement.readOnly = false;
-		labelElement.classList.add("unselectedLabel");
-		labelElement.classList.remove("selectedLabel");
+		labelElement.classList.add('unselectedLabel');
+		labelElement.classList.remove('selectedLabel');
 	}
 	chrome.storage.local.set({ yesterdayContribution: value });
 }
@@ -213,17 +212,15 @@ function handleOpenLabelChange() {
 	let labelElement = document.querySelector("label[for='showOpenLabel']");
 
 	if (value) {
-		labelElement.classList.add("selectedLabel");
-		labelElement.classList.remove("unselectedLabel");
+		labelElement.classList.add('selectedLabel');
+		labelElement.classList.remove('unselectedLabel');
 	} else {
-		labelElement.classList.add("unselectedLabel");
-		labelElement.classList.remove("selectedLabel");
+		labelElement.classList.add('unselectedLabel');
+		labelElement.classList.remove('selectedLabel');
 	}
 
 	chrome.storage.local.set({ showOpenLabel: value });
 }
-
-
 
 function handleShowCommitsChange() {
 	let value = showCommitsElement.checked;
