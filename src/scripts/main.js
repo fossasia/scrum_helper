@@ -133,6 +133,7 @@ function handleEndingDateChange() {
 	let value = endingDateElement.value;
 	browserAPI.storage.local.set({ endingDate: value });
 }
+
 function handleLastWeekContributionChange() {
 	let value = lastWeekContributionElement.checked;
 	let labelElement = document.querySelector("label[for='lastWeekContribution']");
@@ -179,7 +180,7 @@ function handleYesterdayContributionChange() {
 
 function getLastWeek() {
 	let today = new Date();
-	let lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+	let lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
 	let lastWeekMonth = lastWeek.getMonth() + 1;
 	let lastWeekDay = lastWeek.getDate();
 	let lastWeekYear = lastWeek.getFullYear();
@@ -191,6 +192,7 @@ function getLastWeek() {
 		('00' + lastWeekDay.toString()).slice(-2);
 	return lastWeekDisplayPadded;
 }
+
 function getYesterday() {
 	let today = new Date();
 	let yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
@@ -205,6 +207,7 @@ function getYesterday() {
 		('00' + yesterdayWeekDay.toString()).slice(-2);
 	return yesterdayPadded;
 }
+
 function getToday() {
 	let today = new Date();
 	let Week = new Date(today.getFullYear(), today.getMonth(), today.getDate());
@@ -254,8 +257,6 @@ function handleOpenLabelChange() {
 
 	browserAPI.storage.local.set({ showOpenLabel: value });
 }
-
-
 
 function handleShowCommitsChange() {
 	let value = showCommitsElement.checked;
