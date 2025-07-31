@@ -3,12 +3,13 @@ let platformUsernameElement = document.getElementById('platformUsername');
 let githubTokenElement = document.getElementById('githubToken');
 let cacheInputElement = document.getElementById('cacheInput');
 let projectNameElement = document.getElementById('projectName');
-let lastWeekContributionElement = document.getElementById('lastWeekContribution');
 let yesterdayContributionElement = document.getElementById('yesterdayContribution');
 let startingDateElement = document.getElementById('startingDate');
 let endingDateElement = document.getElementById('endingDate');
 let showOpenLabelElement = document.getElementById('showOpenLabel');
-let userReasonElement = null; // userReason element removed from UI
+
+let userReasonElement = null; 
+
 let showCommitsElement = document.getElementById('showCommits');
 
 function handleBodyOnLoad() {
@@ -34,8 +35,9 @@ function handleBodyOnLoad() {
 			'startingDate',
 			'endingDate',
 			'showOpenLabel',
+
 			'userReason',
-			'lastWeekContribution',
+
 			'yesterdayContribution',
 			'cacheInput',
 			'githubToken',
@@ -79,14 +81,6 @@ function handleBodyOnLoad() {
 				handleOpenLabelChange();
 			}
 
-			if (items.lastWeekContribution) {
-				lastWeekContributionElement.checked = items.lastWeekContribution;
-				handleLastWeekContributionChange();
-			}
-			else if (items.lastWeekContribution !== false) {
-				lastWeekContributionElement.checked = true;
-				handleLastWeekContributionChange();
-			}
 			if (items.yesterdayContribution) {
 				yesterdayContributionElement.checked = items.yesterdayContribution;
 				handleYesterdayContributionChange();
@@ -177,6 +171,7 @@ function handleYesterdayContributionChange() {
 	}
 	browserAPI.storage.local.set({ yesterdayContribution: value });
 }
+
 
 function getLastWeek() {
 	let today = new Date();
@@ -273,8 +268,8 @@ projectNameElement.addEventListener('keyup', handleProjectNameChange);
 startingDateElement.addEventListener('change', handleStartingDateChange);
 showCommitsElement.addEventListener('change', handleShowCommitsChange);
 endingDateElement.addEventListener('change', handleEndingDateChange);
-lastWeekContributionElement.addEventListener('change', handleLastWeekContributionChange);
 yesterdayContributionElement.addEventListener('change', handleYesterdayContributionChange);
 showOpenLabelElement.addEventListener('change', handleOpenLabelChange);
+
 // userReasonElement event listener removed - element no longer exists in UI
 document.addEventListener('DOMContentLoaded', handleBodyOnLoad);

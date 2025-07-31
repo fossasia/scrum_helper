@@ -15,7 +15,8 @@
         "message": "Zum Bericht"
     },
     "projectNameLabel": {
-        "message": "Ihr Projektname"
+        "message": "Projektname (wird im E-Mail-Betreff verwendet)",
+        "description": "Label für das Betreff-Feld der E-Mail."
     },
     "projectNamePlaceholder": {
         "message": "Geben Sie Ihren Projektnamen ein"
@@ -23,23 +24,23 @@
     "githubUsernameLabel": {
         "message": "Ihr GitHub-Benutzername"
     },
+    "gitlabUsernameLabel": {
+        "message": "Ihr GitLab-Benutzername"
+    },
     "githubUsernamePlaceholder": {
         "message": "Erforderlich, um Ihre Beiträge abzurufen"
     },
     "contributionsLabel": {
         "message": "Ihre Beiträge abrufen für:"
     },
-    "last7DaysLabel": {
-        "message": "Letzte 7 Tage"
-    },
     "last1DayLabel": {
-        "message": "Gestern"
+        "message": "Vorheriger Tag"
     },
     "startDateLabel": {
-        "message": "Startdatum:"
+        "message": "Von:"
     },
     "endDateLabel": {
-        "message": "Enddatum:"
+        "message": "Bis:"
     },
     "showOpenClosedLabel": {
         "message": "Offen/Geschlossen-Status anzeigen"
@@ -183,10 +184,7 @@
         "message": "Erweiterung ist deaktiviert. Aktivieren Sie sie in den Einstellungen, um Scrum-Berichte zu erstellen."
     },
     "notePoint1": {
-        "message": "Die abgerufenen PRs basieren auf der letzten Überprüfung durch einen beliebigen Beitragenden. Wenn Sie einen PR vor 10 Tagen überprüft haben und jemand anderes ihn vor 2 Tagen, wird er trotzdem in Ihrer Aktivität der letzten Woche angezeigt."
-    },
-    "notePoint2": {
-        "message": "Bitte beachten Sie, dass es im generierten Scrum zu Abweichungen kommen kann. Wir empfehlen, den Bericht vor dem Teilen manuell zu überprüfen, um die Genauigkeit sicherzustellen."
+        "message": "Pull-Requests werden basierend auf der letzten Review-Aktivität eines beliebigen Beitragenden abgerufen, nicht nur Ihrer eigenen. Bitte überprüfen und passen Sie den generierten SCRUM-Bericht an, um sicherzustellen, dass er Ihre Arbeit korrekt widerspiegelt, bevor Sie ihn teilen."
     },
     "noteSeeIssue": {
         "message": "Siehe dieses Issue"
