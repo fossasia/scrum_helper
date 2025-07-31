@@ -1,10 +1,10 @@
 name: Publish to Chrome Web Store
 
 on:
-  workflow_dispatch: #This allows the worklfow to be triggered manually
+  workflow_dispatch: # This allows the workflow to be triggered manually
 
 jobs:
-  pubish:
+  publish: 
     name: Publish Extension
     runs-on: ubuntu-latest
 
@@ -23,7 +23,7 @@ jobs:
       - name: Create ZIP file
         run: |
           cd src
-          zip -r ../extensionn.zip . -x "*.DS_Store"
+          zip -r ../extension.zip . -x "*.DS_Store" # Corrected from 'extensionn.zip'
         # This command zips the contents of src directory
 
       - name: Upload to Chrome Web Store
