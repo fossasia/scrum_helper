@@ -74,6 +74,15 @@
     "githubTokenPlaceholder": {
         "message": "प्रमाणित अनुरोधों के लिए आवश्यक"
     },
+    "gitlabTokenLabel": {
+        "message": "आपका GitLab टोकन"
+    },
+    "gitlabTokenPlaceholder": {
+        "message": "प्रमाणित अनुरोधों के लिए आवश्यक"
+    },
+    "gitlabTokenTooltip": {
+        "message": "<b>GitLab टोकन जोड़ने की सिफारिश क्यों की जाती है?</b><br>Scrum Helper GitLab टोकन के बिना काम करता है, लेकिन बेहतर अनुभव के लिए व्यक्तिगत एक्सेस टोकन जोड़ने की सिफारिश की जाती है। यह आपकी API सीमाओं को बढ़ाता है, निजी रिपॉजिटरी तक पहुंच की अनुमति देता है (यदि अनुमति दी गई है) और सटीकता और गति में सुधार करता है। टोकन स्थानीय रूप से संग्रहीत किए जाते हैं और कभी भी हमें नहीं भेजे जाते और केवल आपके git डेटा को प्राप्त करने के लिए उपयोग किए जाते हैं। आप एक्सटेंशन सेटिंग्स में किसी भी समय एक जोड़ सकते हैं।<br><br><b>कैसे प्राप्त करें:</b><br>1. <a href=\"https://gitlab.com/-/profile/personal_access_tokens\" target=\"_blank\" style=\"color:#2563eb;text-decoration:underline;\">GitLab Personal Access Tokens</a> पर जाएं।<br>2. \"Create personal access token\" पर क्लिक करें<br>3. इसे एक नाम दें और उचित स्कोप चुनें (read_api, read_user, read_repository)<br>4. इसे यहां पेस्ट करें।<br><i>अपना टोकन गुप्त रखें!</i>"
+    },
     "showCommitsLabel": {
         "message": "चयनित अवधि में खुले PRs में किए गए कमिट दिखाएं"
     },

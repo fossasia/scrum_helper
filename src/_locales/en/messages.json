@@ -1,4 +1,5 @@
 {
+
   "appName": {
     "message": "Scrum Helper",
     "description": "The name of the extension."
@@ -256,3 +257,4 @@
     "description": "Label for the username input header."
   }
 }
+
