@@ -15,13 +15,16 @@
         "message": "レポートに移動"
     },
     "projectNameLabel": {
-        "message": "プロジェクト名"
+        "message": "プロジェクト名（メールの件名に使用）"
     },
     "projectNamePlaceholder": {
-        "message": "プロジェクト名を入力してください"
+        "message": "メール件名"
     },
     "githubUsernameLabel": {
         "message": "GitHubユーザー名"
+    },
+    "gitlabUsernameLabel": {
+        "message": "GitLabユーザー名"
     },
     "githubUsernamePlaceholder": {
         "message": "コントリビューションの取得に必要です"
@@ -29,17 +32,14 @@
     "contributionsLabel": {
         "message": "取得するコントリビューションの期間："
     },
-    "last7DaysLabel": {
-        "message": "過去7日間"
-    },
     "last1DayLabel": {
-        "message": "昨日"
+        "message": "前日"
     },
     "startDateLabel": {
-        "message": "開始日："
+        "message": "開始:"
     },
     "endDateLabel": {
-        "message": "終了日："
+        "message": "終了:"
     },
     "showOpenClosedLabel": {
         "message": "オープン/クローズ状態を表示"
@@ -189,13 +189,10 @@
         "message": "キャッシュクリア！"
     },
     "extensionDisabledMessage": {
-        "message": "拡張機能が無効です。スクラムレポートを生成するには、設定から有効にしてください。"
+        "message": "拡張機能が無効です。スクラムレポートを生成するには、オプションから有効にしてください。"
     },
     "notePoint1": {
-        "message": "取得されるPRは、いずれかの貢献者による最新のレビューに基づきます。10日前にPRをレビューし、他の誰かが2日前にレビューした場合でも、過去1週間のアクティビティに表示されます。"
-    },
-    "notePoint2": {
-        "message": "生成されたスクラムには不一致が生じる可能性があります。共有する前に、レポートを手動で確認・編集して正確性を確保することをお勧めします。"
+        "message": "プルリクエストは、自分だけでなく、任意のコントリビューターによる最新のレビューアクティビティに基づいて取得されます。共有する前に、生成されたSCRUMレポートを確認および調整して、作業が正確に反映されていることを確認してください。"
     },
     "noteSeeIssue": {
         "message": "このIssueを参照"

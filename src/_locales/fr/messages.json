@@ -15,7 +15,7 @@
         "message": "Aller au rapport"
     },
     "projectNameLabel": {
-        "message": "Nom de votre projet"
+        "message": "Nom du projet (utilisé dans l'objet de l'e-mail)"
     },
     "projectNamePlaceholder": {
         "message": "Entrez le nom de votre projet"
@@ -23,23 +23,23 @@
     "githubUsernameLabel": {
         "message": "Votre nom d'utilisateur GitHub"
     },
+    "gitlabUsernameLabel": {
+        "message": "Votre nom d'utilisateur GitLab"
+    },
     "githubUsernamePlaceholder": {
         "message": "Requis pour récupérer vos contributions"
     },
     "contributionsLabel": {
         "message": "Récupérer vos contributions de :"
     },
-    "last7DaysLabel": {
-        "message": "7 derniers jours"
-    },
     "last1DayLabel": {
-        "message": "Hier"
+        "message": "Jour précédent"
     },
     "startDateLabel": {
-        "message": "Date de début :"
+        "message": "De :"
     },
     "endDateLabel": {
-        "message": "Date de fin :"
+        "message": "À :"
     },
     "showOpenClosedLabel": {
         "message": "Afficher le statut Ouvert/Fermé"
@@ -192,10 +192,7 @@
         "message": "L'extension est désactivée. Activez-la depuis les paramètres pour générer des rapports Scrum."
     },
     "notePoint1": {
-        "message": "Les PR récupérés sont basés sur la révision la plus récente de n'importe quel contributeur. Si vous avez révisé un PR il y a 10 jours et qu'un autre l'a fait il y a 2 jours, il apparaîtra toujours dans votre activité de la semaine passée."
-    },
-    "notePoint2": {
-        "message": "Veuillez noter que des divergences peuvent survenir dans le Scrum généré. Nous recommandons de réviser et de modifier manuellement le rapport pour garantir son exactitude avant de le partager."
+        "message": "Les pull requests sont récupérées en fonction de l'activité de revue la plus récente de n'importe quel contributeur, pas seulement la vôtre. Veuillez examiner et ajuster le rapport SCRUM généré pour vous assurer qu'il reflète fidèlement votre travail avant de le partager."
     },
     "noteSeeIssue": {
         "message": "Voir ce ticket"

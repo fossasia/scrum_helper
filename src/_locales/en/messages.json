@@ -1,278 +1,260 @@
 {
-    "appName": {
-        "message": "Scrum Helper",
-        "description": "The name of the extension."
-    },
-    "appDescription": {
-        "message": "Report your development progress by auto-fetching your Git activity for a selected period",
-        "description": "A brief description of what the extension does."
-    },
-    "disableLabel": {
-        "message": "Disable",
-        "description": "Label for the toggle switch to disable the extension."
-    },
-    "enableLabel": {
-        "message": "Enable",
-        "description": "Label for the toggle switch to enable the extension."
-    },
-    "homeButtonTitle": {
-        "message": "Go to Report",
-        "description": "Tooltip for the home button."
-    },
-    "projectNameLabel": {
-        "message": "Your Project Name",
-        "description": "Label for the project name input field."
-    },
-    "projectNamePlaceholder": {
-        "message": "Enter your project name",
-        "description": "Placeholder text for the project name input."
-    },
-    "githubUsernameLabel": {
-        "message": "Your Github Username",
-        "description": "Label for the GitHub username input field."
-    },
-    "githubUsernamePlaceholder": {
-        "message": "Required for fetching your contributions",
-        "description": "Placeholder text for the GitHub username input."
-    },
-    "contributionsLabel": {
-        "message": "Fetch your contributions between:",
-        "description": "Label for the date range selection."
-    },
-    "last7DaysLabel": {
-        "message": "Last 7 days",
-        "description": "Radio button option for the last 7 days."
-    },
-    "last1DayLabel": {
-        "message": "Last 1 day",
-        "description": "Radio button option for the last 1 day."
-    },
-    "startDateLabel": {
-        "message": "Start Date:",
-        "description": "Label for the start date picker."
-    },
-    "endDateLabel": {
-        "message": "End Date:",
-        "description": "Label for the end date picker."
-    },
-    "showOpenClosedLabel": {
-        "message": "Show Open/Closed Label",
-        "description": "Label for the checkbox to show open/closed status on PRs/issues."
-    },
-    "blockersLabel": {
-        "message": "What is blocking you from making progress?",
-        "description": "Label for the input field for blockers."
-    },
-    "blockersPlaceholder": {
-        "message": "Enter your reason",
-        "description": "Placeholder text for the blockers input field."
-    },
-    "scrumReportLabel": {
-        "message": "Scrum Report",
-        "description": "Heading for the generated scrum report."
-    },
-    "generateReportButton": {
-        "message": "Generate Report",
-        "description": "Text for the 'Generate Report' button."
-    },
-    "copyReportButton": {
-        "message": "Copy Report",
-        "description": "Text for the 'Copy Report' button."
-    },
-    "settingsOrgNameLabel": {
-        "message": "Organization Name",
-        "description": "Label for the organization name input in settings."
-    },
-    "settingsOrgNamePlaceholder": {
-        "message": "Enter organization name",
-        "description": "Placeholder for the organization name input."
-    },
-    "setButton": {
-        "message": "Set",
-        "description": "Text for the 'Set' button for the organization."
-    },
-    "githubTokenLabel": {
-        "message": "Your Github Token",
-        "description": "Label for the GitHub token input."
-    },
-    "githubTokenPlaceholder": {
-        "message": "Required for making authenticated requests",
-        "description": "Placeholder for the GitHub token input."
-    },
-    "gitlabTokenLabel": {
-        "message": "Your GitLab Token",
-        "description": "Label for the GitLab token input."
-    },
-    "gitlabTokenPlaceholder": {
-        "message": "Required for making authenticated requests",
-        "description": "Placeholder for the GitLab token input."
-    },
-    "gitlabTokenTooltip": {
-        "message": "<b>Why is it recommended to add a GitLab token?</b><br>Scrum Helper works without a GitLab token, but adding a personal access token is recommended for a better experience. It raises your API limits, allows access to private repos (if permitted), and improves accuracy and speed. Tokens are stored locally and never sent to us and used only to fetch your git data. You can add one anytime in the extension settings.<br><br><b>How to obtain:</b><br>1. Go to <a href=\"https://gitlab.com/-/profile/personal_access_tokens\" target=\"_blank\" style=\"color:#2563eb;text-decoration:underline;\">GitLab Personal Access Tokens</a>.<br>2. Click \"Create personal access token\"<br>3. Give it a name and select appropriate scopes (read_api, read_user, read_repository)<br>4. Paste it here.<br><i>Keep your token secret!</i>",
-        "description": "Tooltip text explaining GitLab token usage and how to obtain one."
-    },
-    "showCommitsLabel": {
-        "message": "Show commits made within date range in Open PRs",
-        "description": "Label for the checkbox to show commits in open PRs."
-    },
-    "cacheTTLLabel": {
-        "message": "Enter cache TTL",
-        "description": "Label for the cache time-to-live input."
-    },
-    "cacheTTLUnit": {
-        "message": "(in minutes)",
-        "description": "Unit for the cache TTL."
-    },
-    "cacheTTLPlaceholder": {
-        "message": "Write Cache TTL in minutes (Default 10 minutes)",
-        "description": "Placeholder for the cache TTL input."
-    },
-    "refreshDataButton": {
-        "message": "Refresh Data (bypass cache)",
-        "description": "Text for the button to refresh data, ignoring the cache."
-    },
-    "refreshDataInfo": {
-        "message": "Use this button to fetch fresh data immediately.",
-        "description": "Informational text below the refresh button."
-    },
-    "noteTitle": {
-        "message": "Note:",
-        "description": "Title for the notes section."
-    },
-    "viewCodeButton": {
-        "message": "View Code",
-        "description": "Text for the button to view the source code on GitHub."
-    },
-    "reportIssueButton": {
-        "message": "Report Issue",
-        "description": "Text for the button to report an issue on GitHub."
-    },
-    "repoFilterLabel": {
-        "message": "Filter by repositories",
-        "description": "Label for the repository filter section."
-    },
-    "enableFilteringLabel": {
-        "message": "Enable filtering",
-        "description": "Label for the checkbox to enable repository filtering."
-    },
-    "tokenRequiredWarning": {
-        "message": "A GitHub token is required for repository filtering. Please add one in the settings.",
-        "description": "Warning message shown when repo filtering is enabled without a token."
-    },
-    "repoSearchPlaceholder": {
-        "message": "Search for a repository to add...",
-        "description": "Placeholder for the repository search input."
-    },
-    "repoPlaceholder": {
-        "message": "No repositories selected (all will be included)",
-        "description": "Placeholder text when no repositories are selected for filtering."
-    },
-    "repoCountNone": {
-        "message": "0 repositories selected",
-        "description": "Text showing the count of selected repositories when it's zero."
-    },
-    "repoCount": {
-        "message": "$1 repositories selected",
-        "description": "Text showing the count of selected repositories. $1 is a placeholder for the number."
-    },
-    "repoLoading": {
-        "message": "Loading repositories...",
-        "description": "Status message when repositories are being loaded."
-    },
-    "repoLoaded": {
-        "message": "Loaded $1 repositories.",
-        "description": "Status message after repositories have been successfully loaded. $1 is a placeholder for the number."
-    },
-    "repoNotFound": {
-        "message": "No repositories found",
-        "description": "Message shown in the dropdown when a search yields no results."
-    },
-    "repoRefetching": {
-        "message": "Refetching repositories...",
-        "description": "Status message when repositories are being refetched."
-    },
-    "repoLoadFailed": {
-        "message": "Failed to load repositories.",
-        "description": "Error message when repository loading fails."
-    },
-    "repoTokenPrivate": {
-        "message": "Token is invalid or does not have rights for private repos.",
-        "description": "Error message when the token is invalid or lacks permissions."
-    },
-    "repoRefetchFailed": {
-        "message": "Failed to refetch repositories.",
-        "description": "Error message when refetching repositories fails."
-    },
-    "orgSetMessage": {
-        "message": "Organization set successfully.",
-        "description": "Success toast message when an organization is set."
-    },
-    "orgClearedMessage": {
-        "message": "Organization cleared. Click 'Generate Report' to fetch all activities.",
-        "description": "Message shown when the organization is cleared."
-    },
-    "orgNotFoundMessage": {
-        "message": "Organization not found on GitHub.",
-        "description": "Error toast message when an organization is not found."
-    },
-    "orgValidationErrorMessage": {
-        "message": "Error validating organization.",
-        "description": "Error toast message for general organization validation errors."
-    },
-    "refreshingButton": {
-        "message": "Refreshing...",
-        "description": "Text on the refresh button while it's in a loading state."
-    },
-    "cacheClearFailed": {
-        "message": "Cache clear failed.",
-        "description": "Error message when clearing the cache fails."
-    },
-    "madeWithLoveBy": {
-        "message": "Made with ❤️ by",
-        "description": "Footer credit text."
-    },
-    "generatingButton": {
-        "message": "Generating...",
-        "description": "Text shown on the generate button when the report is being created."
-    },
-    "copiedButton": {
-        "message": "Copied!",
-        "description": "Text shown on the copy button after a successful copy."
-    },
-    "orgChangedMessage": {
-        "message": "Organization changed. Click Generate button to fetch the GitHub activities.",
-        "description": "Message shown in the report area after the organization is changed."
-    },
-    "cacheClearedMessage": {
-        "message": "Cache cleared successfully. Click \"Generate Report\" to fetch fresh data.",
-        "description": "Message shown in the report area after the cache is cleared."
-    },
-    "cacheClearedButton": {
-        "message": "Cache Cleared!",
-        "description": "Text on the refresh button after the cache is cleared."
-    },
-    "extensionDisabledMessage": {
-        "message": "Extension is disabled. Enable it from the options to generate scrum reports.",
-        "description": "Message shown when the extension is disabled."
-    },
-    "notePoint1": {
-        "message": "The PRs fetched are based on the most recent review by any contributor. If you reviewed a PR 10 days ago and someone else reviewed it 2 days ago, it will still appear in your activity for the past week.",
-        "description": "First point in the notes section."
-    },
-    "notePoint2": {
-        "message": "Please note that some discrepancies may occur in the generated SCRUM. We recommend manually reviewing and editing the report to ensure accuracy before sharing.",
-        "description": "Second point in the notes section."
-    },
-    "noteSeeIssue": {
-        "message": "See this issue",
-        "description": "Link text for the GitHub issue in the notes."
-    },
-    "platformLabel": {
-        "message": "Platform",
-        "description": "Label for the platform selection header."
-    },
-    "usernameLabel": {
-        "message": "Your Username",
-        "description": "Label for the username input header."
-    }
+
+  "appName": {
+    "message": "Scrum Helper",
+    "description": "The name of the extension."
+  },
+  "appDescription": {
+    "message": "Report your development progress by auto-fetching your Git activity for a selected period",
+    "description": "A brief description of what the extension does."
+  },
+  "disableLabel": {
+    "message": "Disable",
+    "description": "Label for the toggle switch to disable the extension."
+  },
+  "enableLabel": {
+    "message": "Enable",
+    "description": "Label for the toggle switch to enable the extension."
+  },
+  "projectNameLabel": {
+    "message": "Project Name (used in email subject)",
+    "description": "Label for the project name input field."
+  },
+  "projectNamePlaceholder": {
+    "message": "Enter your project name",
+    "description": "Placeholder text for the project name input."
+  },
+  "githubUsernameLabel": {
+    "message": "Your Github Username",
+    "description": "Label for the GitHub username input field."
+  },
+  "gitlabUsernameLabel": {
+    "message": "Your GitLab Username",
+    "description": "Label for the GitLab username input field."
+  },
+  "githubUsernamePlaceholder": {
+    "message": "Required for fetching your contributions",
+    "description": "Placeholder text for the GitHub username input."
+  },
+  "contributionsLabel": {
+    "message": "Fetch your contributions between:",
+    "description": "Label for the date range selection."
+  },
+  "last1DayLabel": {
+    "message": "Previous day",
+    "description": "Radio button option for the last 1 day."
+  },
+  "startDateLabel": {
+    "message": "From:",
+    "description": "Label for the start date picker."
+  },
+  "endDateLabel": {
+    "message": "To:",
+    "description": "Label for the end date picker."
+  },
+  "showOpenClosedLabel": {
+    "message": "Show PRs Labels",
+    "description": "Label for the checkbox to show PR labels."
+  },
+  "blockersLabel": {
+    "message": "What is blocking you from making progress?",
+    "description": "Label for the input field for blockers."
+  },
+  "blockersPlaceholder": {
+    "message": "Enter your reason",
+    "description": "Placeholder text for the blockers input field."
+  },
+  "scrumReportLabel": {
+    "message": "Scrum Report",
+    "description": "Heading for the generated scrum report."
+  },
+  "generateReportButton": {
+    "message": "Generate Report",
+    "description": "Text for the 'Generate Report' button."
+  },
+  "copyReportButton": {
+    "message": "Copy Report",
+    "description": "Text for the 'Copy Report' button."
+  },
+  "settingsOrgNameLabel": {
+    "message": "Organization Name",
+    "description": "Label for the organization name input in settings."
+  },
+  "settingsOrgNamePlaceholder": {
+    "message": "Enter organization name",
+    "description": "Placeholder for the organization name input."
+  },
+  "setButton": {
+    "message": "Set",
+    "description": "Text for the 'Set' button for the organization."
+  },
+  "githubTokenLabel": {
+    "message": "Your Github Token",
+    "description": "Label for the GitHub token input."
+  },
+  "githubTokenPlaceholder": {
+    "message": "Required for making authenticated requests",
+    "description": "Placeholder for the GitHub token input."
+  },
+  "showCommitsLabel": {
+    "message": "Show commits on open PRs",
+    "description": "Label for the checkbox to show commits in open PRs."
+  },
+  "cacheTTLLabel": {
+    "message": "Enter cache TTL",
+    "description": "Label for the cache time-to-live input."
+  },
+  "cacheTTLUnit": {
+    "message": "(in minutes)",
+    "description": "Unit for the cache TTL."
+  },
+  "cacheTTLPlaceholder": {
+    "message": "Write Cache TTL in minutes (Default 10 minutes)",
+    "description": "Placeholder for the cache TTL input."
+  },
+  "refreshDataButton": {
+    "message": "Refresh Data (bypass cache)",
+    "description": "Text for the button to refresh data, ignoring the cache."
+  },
+  "refreshDataInfo": {
+    "message": "Use this button to fetch fresh data immediately.",
+    "description": "Informational text below the refresh button."
+  },
+  "noteTitle": {
+    "message": "Note:",
+    "description": "Title for the notes section."
+  },
+  "viewCodeButton": {
+    "message": "View Code",
+    "description": "Text for the button to view the source code on GitHub."
+  },
+  "reportIssueButton": {
+    "message": "Report Issue",
+    "description": "Text for the button to report an issue on GitHub."
+  },
+  "repoFilterLabel": {
+    "message": "Filter by repositories",
+    "description": "Label for the repository filter section."
+  },
+  "enableFilteringLabel": {
+    "message": "Enable filtering",
+    "description": "Label for the checkbox to enable repository filtering."
+  },
+  "tokenRequiredWarning": {
+    "message": "A GitHub token is required for repository filtering. Please add one in the settings.",
+    "description": "Warning message shown when repo filtering is enabled without a token."
+  },
+  "repoSearchPlaceholder": {
+    "message": "Search for a repository to add...",
+    "description": "Placeholder for the repository search input."
+  },
+  "repoPlaceholder": {
+    "message": "No repositories selected (all will be included)",
+    "description": "Placeholder text when no repositories are selected for filtering."
+  },
+  "repoCountNone": {
+    "message": "0 repositories selected",
+    "description": "Text showing the count of selected repositories when it's zero."
+  },
+  "repoCount": {
+    "message": "$1 repositories selected",
+    "description": "Text showing the count of selected repositories. $1 is a placeholder for the number."
+  },
+  "repoLoading": {
+    "message": "Loading repositories...",
+    "description": "Status message when repositories are being loaded."
+  },
+  "repoLoaded": {
+    "message": "Loaded $1 repositories.",
+    "description": "Status message after repositories have been successfully loaded. $1 is a placeholder for the number."
+  },
+  "repoNotFound": {
+    "message": "No repositories found",
+    "description": "Message shown in the dropdown when a search yields no results."
+  },
+  "repoRefetching": {
+    "message": "Refetching repositories...",
+    "description": "Status message when repositories are being refetched."
+  },
+  "repoLoadFailed": {
+    "message": "Failed to load repositories.",
+    "description": "Error message when repository loading fails."
+  },
+  "repoTokenPrivate": {
+    "message": "Token is invalid or does not have rights for private repos.",
+    "description": "Error message when the token is invalid or lacks permissions."
+  },
+  "repoRefetchFailed": {
+    "message": "Failed to refetch repositories.",
+    "description": "Error message when refetching repositories fails."
+  },
+  "orgSetMessage": {
+    "message": "Organization set successfully.",
+    "description": "Success toast message when an organization is set."
+  },
+  "orgClearedMessage": {
+    "message": "Organization cleared. Click 'Generate Report' to fetch all activities.",
+    "description": "Message shown when the organization is cleared."
+  },
+  "orgNotFoundMessage": {
+    "message": "Organization not found on GitHub.",
+    "description": "Error toast message when an organization is not found."
+  },
+  "orgValidationErrorMessage": {
+    "message": "Error validating organization.",
+    "description": "Error toast message for general organization validation errors."
+  },
+  "refreshingButton": {
+    "message": "Refreshing...",
+    "description": "Text on the refresh button while it's in a loading state."
+  },
+  "cacheClearFailed": {
+    "message": "Cache clear failed.",
+    "description": "Error message when clearing the cache fails."
+  },
+  "madeWithLoveBy": {
+    "message": "Made with ❤️ by",
+    "description": "Footer credit text."
+  },
+  "generatingButton": {
+    "message": "Generating...",
+    "description": "Text shown on the generate button when the report is being created."
+  },
+  "copiedButton": {
+    "message": "Copied!",
+    "description": "Text shown on the copy button after a successful copy."
+  },
+  "orgChangedMessage": {
+    "message": "Organization changed. Click Generate button to fetch the GitHub activities.",
+    "description": "Message shown in the report area after the organization is changed."
+  },
+  "cacheClearedMessage": {
+    "message": "Cache cleared successfully. Click \"Generate Report\" to fetch fresh data.",
+    "description": "Message shown in the report area after the cache is cleared."
+  },
+  "cacheClearedButton": {
+    "message": "Cache Cleared!",
+    "description": "Text on the refresh button after the cache is cleared."
+  },
+  "extensionDisabledMessage": {
+    "message": "Extension is disabled. Enable it from the options to generate scrum reports.",
+    "description": "Message shown when the extension is disabled."
+  },
+  "notePoint1": {
+    "message": "Pull requests are fetched based on the most recent review activity by any contributor, not just your own. Please review and adjust the generated SCRUM report to ensure it accurately reflects your work before sharing.",
+    "description": "First point in the notes section."
+  },
+  "noteSeeIssue": {
+    "message": "See this issue",
+    "description": "Link text for the GitHub issue in the notes."
+  },
+  "platformLabel": {
+    "message": "Platform",
+    "description": "Label for the platform selection header."
+  },
+  "usernameLabel": {
+    "message": "Your Username",
+    "description": "Label for the username input header."
+  }
 }
+
