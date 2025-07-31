@@ -23,7 +23,7 @@ jobs:
       - name: Create ZIP file
         run: |
           cd src
-          zip -r ../extension.zip . -x "*.DS_Store" # Corrected from 'extensionn.zip'
+          zip -r ../extension.zip . -x "*.DS_Store" 
         # This command zips the contents of src directory
 
       - name: Upload to Chrome Web Store
