@@ -4,7 +4,7 @@ on:
   workflow_dispatch: # This allows the workflow to be triggered manually
 
 jobs:
-  publish: 
+  publish:
     name: Publish Extension
     runs-on: ubuntu-latest
 
@@ -20,11 +20,13 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Build the extension
+        run: npm run build
+
       - name: Create ZIP file
         run: |
-          cd src
-          zip -r ../extension.zip . -x "*.DS_Store" 
-        # This command zips the contents of src directory
+          cd dist 
+          zip -r ../extension.zip . -x "*.DS_Store"
 
       - name: Upload to Chrome Web Store
         uses: w3c/chrome-webstore-upload-action@v1
