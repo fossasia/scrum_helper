@@ -75,7 +75,7 @@
         "message": "Diperlukan untuk permintaan terotentikasi"
     },
     "showCommitsLabel": {
-        "message": "Tampilkan commit di PR terbuka dalam rentang tanggal"
+        "message": "Tampilkan commit pada PR terbuka/ draf PR"
     },
     "cacheTTLLabel": {
         "message": "Masukkan TTL cache"

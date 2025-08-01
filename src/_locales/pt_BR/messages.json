@@ -76,7 +76,7 @@
         "message": "Necessário para solicitações autenticadas"
     },
     "showCommitsLabel": {
-        "message": "Mostrar commits em PRs abertos no período"
+        "message": "Mostrar commits em PRs abertos/ rascunhos de PRs"
     },
     "cacheTTLLabel": {
         "message": "Digite o TTL do cache"
