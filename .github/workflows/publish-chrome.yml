@@ -1,0 +1,40 @@
+name: Publish to Chrome Web Store
+
+on:
+  workflow_dispatch: # This allows the workflow to be triggered manually
+
+jobs:
+  publish:
+    name: Publish Extension
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: 'master'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build the extension
+        run: npm run build
+
+      - name: Create ZIP file
+        run: |
+          cd dist 
+          zip -r ../extension.zip . -x "*.DS_Store"
+
+      - name: Upload to Chrome Web Store
+        uses: w3c/chrome-webstore-upload-action@v1
+        with:
+          extension-id: ${{ secrets.CHROME_EXTENSION_ID }}
+          client-id: ${{ secrets.CHROME_CLIENT_ID }}
+          client-secret: ${{ secrets.CHROME_CLIENT_SECRET }}
+          refresh-token: ${{ secrets.CHROME_REFRESH_TOKEN }}
+          zip-file: extension.zip
