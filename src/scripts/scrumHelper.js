@@ -599,14 +599,14 @@ function allIncluded(outputTarget = 'email') {
                 }).join('+');
 
             const orgQuery = orgPart ? `+${orgPart}` : '';
-            issueUrl = `https://api.github.com/search/issues?q=author%3A${platformUsernameLocal}+${repoQueries}${orgQuery}+created%3A${startDateForCache}..${endDateForCache}&per_page=100`;
+            issueUrl = `https://api.github.com/search/issues?q=author%3A${platformUsernameLocal}+${repoQueries}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}&per_page=100`;
             prUrl = `https://api.github.com/search/issues?q=commenter%3A${platformUsernameLocal}+${repoQueries}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}&per_page=100`;
             userUrl = `https://api.github.com/users/${platformUsernameLocal}`;
             log('Repository-filtered URLs:', { issueUrl, prUrl });
         } else {
             loadFromStorage('Using org wide search');
             const orgQuery = orgPart ? `+${orgPart}` : '';
-            issueUrl = `https://api.github.com/search/issues?q=author%3A${platformUsernameLocal}${orgQuery}+created%3A${startDateForCache}..${endDateForCache}&per_page=100`;
+            issueUrl = `https://api.github.com/search/issues?q=author%3A${platformUsernameLocal}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}&per_page=100`;
             prUrl = `https://api.github.com/search/issues?q=commenter%3A${platformUsernameLocal}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}&per_page=100`;
             userUrl = `https://api.github.com/users/${platformUsernameLocal}`;
         }
@@ -675,6 +675,9 @@ function allIncluded(outputTarget = 'email') {
                     openPRs.forEach(pr => {
                         pr._allCommits = commitMap[pr.number] || [];
                         log(`Attached ${pr._allCommits.length} commits to PR #${pr.number}`);
+                        if (pr._allCommits.length > 0) {
+                            log(`Commits for PR #${pr.number}:`, pr._allCommits.map(c => `${c.messageHeadline} (${c.committedDate})`));
+                        }
                     });
                 }
             }
@@ -772,7 +775,9 @@ function allIncluded(outputTarget = 'email') {
                     const commitDate = new Date(commit.committedDate);
                     const sinceDate = new Date(since);
                     const untilDate = new Date(until);
-                    return commitDate >= sinceDate && commitDate <= untilDate;
+                    const isInRange = commitDate >= sinceDate && commitDate <= untilDate;
+                    log(`PR #${pr.number} commit "${commit.messageHeadline}" (${commit.committedDate}) - in range: ${isInRange}`);
+                    return isInRange;
                 });
                 log(`PR #${pr.number} filteredCommits:`, filteredCommits);
                 commitMap[pr.number] = filteredCommits;
@@ -1432,18 +1437,28 @@ ${userReason}`;
                 }
 
                 const isNewPR = prCreatedDate >= startDateFilter && prCreatedDate <= endDateFilter;
+                const prUpdatedDate = new Date(item.updated_at);
+                const isUpdatedInRange = prUpdatedDate >= startDateFilter && prUpdatedDate <= endDateFilter;
+
+                // Check if PR has commits in the date range
+                const hasCommitsInRange = item._allCommits && item._allCommits.length > 0;
+
+                log(`[PR DEBUG] PR #${number} - isNewPR: ${isNewPR}, isUpdatedInRange: ${isUpdatedInRange}, state: ${item.state}, hasCommitsInRange: ${hasCommitsInRange}, created: ${item.created_at}, updated: ${item.updated_at}`);
 
                 if (platform === 'github') {
+                    // For existing PRs (not new), they must be open AND have commits in the date range
                     if (!isNewPR) {
                         if (item.state !== 'open') {
-                            continue; // Skip closed/merged existing PRs
+                            log(`[PR DEBUG] Skipping PR #${number} - existing PR but not open`);
+                            continue;
                         }
-                        const hasCommitsInRange = showCommits && item._allCommits && item._allCommits.length > 0;
                         if (!hasCommitsInRange) {
-                            continue; // Skip existing PRs without commits in date range
+                            log(`[PR DEBUG] Skipping PR #${number} - existing PR but no commits in date range`);
+                            continue;
                         }
                     }
                     prAction = isNewPR ? 'Made PR' : 'Existing PR';
+                    log(`[PR DEBUG] Including PR #${number} as ${prAction}`);
                 } else if (platform === 'gitlab') {
                     prAction = isNewPR ? 'Made Merge Request' : 'Existing Merge Request';
                 }
@@ -1451,7 +1466,7 @@ ${userReason}`;
                 if (isDraft) {
 
                     li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + pr_draft_button : ''}`;
-                    if (showCommits && item._allCommits && item._allCommits.length && !isNewPR && githubToken) {
+                    if (showCommits && item._allCommits && item._allCommits.length && !isNewPR) {
                         log(`[PR DEBUG] Rendering commits for existing draft PR #${number}:`, item._allCommits);
                         li += '<ul>';
                         item._allCommits.forEach(commit => {
@@ -1465,9 +1480,11 @@ ${userReason}`;
 
                     if (showCommits && item._allCommits && item._allCommits.length && !isNewPR) {
                         log(`[PR DEBUG] Rendering commits for existing PR #${number}:`, item._allCommits);
+                        li += '<ul>';
                         item._allCommits.forEach(commit => {
-                            li += `<li style=\"list-style: disc; margin: 0 0 0 20px; padding: 0; color: #666;\"><span style=\"color:#2563eb;\">${commit.messageHeadline}</span><span style=\"color:#666; font-size: 11px;\"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
+                            li += `<li style=\"list-style: disc; color: #666;\"><span style=\"color:#2563eb;\">${commit.messageHeadline}</span><span style=\"color:#666; font-size: 11px;\"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
                         });
+                        li += '</ul>';
                     }
                     li += `</li>`;
                 } else if (platform === 'gitlab' && item.state === 'closed') {
