@@ -46,6 +46,7 @@ function allIncluded(outputTarget = 'email') {
     let nextWeekArray = [];
     let reviewedPrsArray = [];
     let githubIssuesData = null;
+    let lastWeekContribution = false;
     let yesterdayContribution = false;
     let githubPrsReviewData = null;
     let githubUserData = null;
@@ -70,14 +71,10 @@ function allIncluded(outputTarget = 'email') {
         '<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #d73a49;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--red">closed</div>';
     let issue_opened_button =
         '<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
-    let issue_closed_completed_button =
-        '<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #6f42c1;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--purple">closed</div>';
-    let issue_closed_notplanned_button =
-        '<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #808080;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--gray">closed</div>';
 
     function getChromeData() {
         console.log("[DEBUG] getChromeData called for outputTarget:", outputTarget);
-        chrome.storage.local.get(
+        browserAPI.storage.local.get(
             [
                 'platform',
                 'githubUsername',
@@ -88,6 +85,7 @@ function allIncluded(outputTarget = 'email') {
                 'startingDate',
                 'endingDate',
                 'showOpenLabel',
+                'lastWeekContribution',
                 'yesterdayContribution',
                 'userReason',
                 'githubCache',
@@ -115,14 +113,14 @@ function allIncluded(outputTarget = 'email') {
 
                     // Save to platform-specific storage
                     if (usernameFromDOM) {
-                        chrome.storage.local.set({ [platformUsernameKey]: usernameFromDOM });
+                        browserAPI.storage.local.set({ [platformUsernameKey]: usernameFromDOM });
                         platformUsername = usernameFromDOM;
                         platformUsernameLocal = usernameFromDOM;
                     }
 
                     items.projectName = projectFromDOM || items.projectName;
                     items.githubToken = tokenFromDOM || items.githubToken;
-                    chrome.storage.local.set({
+                    browserAPI.storage.local.set({
                         projectName: items.projectName,
                         githubToken: items.githubToken
                     });
@@ -130,8 +128,9 @@ function allIncluded(outputTarget = 'email') {
                 projectName = items.projectName;
 
                 userReason = 'No Blocker at the moment';
-                chrome.storage.local.remove(['userReason']);
+                browserAPI.storage.local.remove(['userReason']);
                 githubToken = items.githubToken;
+                lastWeekContribution = items.lastWeekContribution;
                 yesterdayContribution = items.yesterdayContribution;
                 if (typeof items.enableToggle !== 'undefined') {
                     enableToggle = items.enableToggle;
@@ -141,7 +140,9 @@ function allIncluded(outputTarget = 'email') {
                 showOpenLabel = items.showOpenLabel !== false; // Default to true if not explicitly set to false
                 orgName = items.orgName || '';
 
-                if (items.yesterdayContribution) {
+                if (items.lastWeekContribution) {
+                    handleLastWeekContributionChange();
+                } else if (items.yesterdayContribution) {
                     handleYesterdayContributionChange();
                 } else if (items.startingDate && items.endingDate) {
                     startingDate = items.startingDate;
@@ -149,11 +150,11 @@ function allIncluded(outputTarget = 'email') {
                 } else {
 
 
-                    handleYesterdayContributionChange();
+                    handleLastWeekContributionChange();
 
 
                     if (outputTarget === 'popup') {
-                        chrome.storage.local.set({ yesterdayContribution: true });
+                        browserAPI.storage.local.set({ lastWeekContribution: true, yesterdayContribution: false });
                     }
                 }
 
@@ -225,7 +226,7 @@ function allIncluded(outputTarget = 'email') {
                                     githubUserData = mappedData.githubUserData;
 
                                     let name = githubUserData?.name || githubUserData?.username || platformUsernameLocal || platformUsername;
-                                    let project = projectName;
+                                    let project = projectName || '<project name>';
                                     let curDate = new Date();
                                     let year = curDate.getFullYear().toString();
                                     let date = curDate.getDate();
@@ -233,7 +234,7 @@ function allIncluded(outputTarget = 'email') {
                                     if (month < 10) month = '0' + month;
                                     if (date < 10) date = '0' + date;
                                     let dateCode = year.toString() + month.toString() + date.toString();
-                                    const subject = `[Scrum]${project ? ' - ' + project : ''} - ${dateCode}`;
+                                    const subject = `[Scrum] ${name} - ${project} - ${dateCode}`;
                                     subjectForEmail = subject;
 
 
@@ -331,11 +332,28 @@ function allIncluded(outputTarget = 'email') {
 
 
 
+    function handleLastWeekContributionChange() {
+        endingDate = getToday();
+        startingDate = getLastWeek();
+    }
     function handleYesterdayContributionChange() {
         endingDate = getToday();
         startingDate = getYesterday();
     }
-
+    function getLastWeek() {
+        let today = new Date();
+        let lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
+        let lastWeekMonth = lastWeek.getMonth() + 1;
+        let lastWeekDay = lastWeek.getDate();
+        let lastWeekYear = lastWeek.getFullYear();
+        let lastWeekDisplayPadded =
+            ('0000' + lastWeekYear.toString()).slice(-4) +
+            '-' +
+            ('00' + lastWeekMonth.toString()).slice(-2) +
+            '-' +
+            ('00' + lastWeekDay.toString()).slice(-2);
+        return lastWeekDisplayPadded;
+    }
     function getYesterday() {
         let today = new Date();
         let yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
@@ -385,7 +403,7 @@ function allIncluded(outputTarget = 'email') {
 
     async function getCacheTTL() {
         return new Promise((resolve) => {
-            chrome.storage.local.get(['cacheInput'], function (result) {
+            browserAPI.storage.local.get(['cacheInput'], function (result) {
                 const ttlMinutes = result.cacheInput || 10;
                 resolve(ttlMinutes * 60 * 1000);
             });
@@ -408,9 +426,9 @@ function allIncluded(outputTarget = 'email') {
         });
 
         return new Promise((resolve) => {
-            chrome.storage.local.set({ githubCache: cacheData }, () => {
-                if (chrome.runtime.lastError) {
-                    logError('Storage save failed: ', chrome.runtime.lastError);
+            browserAPI.storage.local.set({ githubCache: cacheData }, () => {
+                if (browserAPI.runtime.lastError) {
+                    logError('Storage save failed: ', browserAPI.runtime.lastError);
                     resolve(false);
                 } else {
                     log('Cache saved successfuly');
@@ -426,7 +444,7 @@ function allIncluded(outputTarget = 'email') {
         log('Loading cache from storage');
         return new Promise(async (resolve) => {
             const currentTTL = await getCacheTTL();
-            chrome.storage.local.get('githubCache', (result) => {
+            browserAPI.storage.local.get('githubCache', (result) => {
                 const cache = result.githubCache;
                 if (!cache) {
                     log('No cache found in storage');
@@ -462,7 +480,7 @@ function allIncluded(outputTarget = 'email') {
     async function fetchGithubData() {
         // Always load latest repo filter settings from storage
         const filterSettings = await new Promise(resolve => {
-            chrome.storage.local.get(['useRepoFilter', 'selectedRepos'], resolve);
+            browserAPI.storage.local.get(['useRepoFilter', 'selectedRepos'], resolve);
         });
         useRepoFilter = filterSettings.useRepoFilter || false;
         selectedRepos = Array.isArray(filterSettings.selectedRepos) ? filterSettings.selectedRepos : [];
@@ -780,7 +798,7 @@ function allIncluded(outputTarget = 'email') {
             githubCache.repoData = repos;
             githubCache.repoTimeStamp = now;
 
-            chrome.storage.local.set({
+            browserAPI.storage.local.set({
                 repoCache: {
                     data: repos,
                     cacheKey: repoCacheKey,
@@ -813,7 +831,7 @@ function allIncluded(outputTarget = 'email') {
             queueLength: githubCache.queue.length
         });
         const storageData = await new Promise(resolve => {
-            chrome.storage.local.get('githubCache', resolve);
+            browserAPI.storage.local.get('githubCache', resolve);
         });
         log('Storage Status:', {
             hasStoredData: !!storageData.githubCache,
@@ -891,10 +909,10 @@ function allIncluded(outputTarget = 'email') {
             let nextWeekUl = '<ul>';
             for (let i = 0; i < nextWeekArray.length; i++) nextWeekUl += nextWeekArray[i];
             nextWeekUl += '</ul>';
-            let weekOrDay = yesterdayContribution ? 'yesterday' : 'the period';
-            let weekOrDay2 = 'today';
+            let weekOrDay = lastWeekContribution ? 'last week' : (yesterdayContribution ? 'yesterday' : 'the period');
+            let weekOrDay2 = lastWeekContribution ? 'this week' : 'today';
             let content;
-            if (yesterdayContribution == true) {
+            if (lastWeekContribution == true || yesterdayContribution == true) {
                 content = `<b>1. What did I do ${weekOrDay}?</b><br>${lastWeekUl}<br><b>2. What do I plan to do ${weekOrDay2}?</b><br>${nextWeekUl}<br><b>3. What is blocking me from making progress?</b><br>${userReason}`;
             } else {
                 content = `<b>1. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?</b><br>${lastWeekUl}<br><b>2. What do I plan to do ${weekOrDay2}?</b><br>${nextWeekUl}<br><b>3. What is blocking me from making progress?</b><br>${userReason}`;
@@ -940,11 +958,11 @@ function allIncluded(outputTarget = 'email') {
         for (let i = 0; i < nextWeekArray.length; i++) nextWeekUl += nextWeekArray[i];
         nextWeekUl += '</ul>';
 
-        let weekOrDay = yesterdayContribution ? 'yesterday' : 'the period';
-        let weekOrDay2 =  'today';
+        let weekOrDay = lastWeekContribution ? 'last week' : (yesterdayContribution ? 'yesterday' : 'the period');
+        let weekOrDay2 = lastWeekContribution ? 'this week' : 'today';
 
         let content;
-        if (yesterdayContribution == true) {
+        if (lastWeekContribution == true || yesterdayContribution == true) {
             content = `<b>1. What did I do ${weekOrDay}?</b><br>
 ${lastWeekUl}<br>
 <b>2. What do I plan to do ${weekOrDay2}?</b><br>
@@ -1023,7 +1041,7 @@ ${userReason}`;
             }
             setTimeout(() => {
                 let name = githubUserData?.name || githubUserData?.username || platformUsernameLocal || platformUsername;
-                let project = projectName;
+                let project = projectName || '<project name>';
                 let curDate = new Date();
                 let year = curDate.getFullYear().toString();
                 let date = curDate.getDate();
@@ -1033,7 +1051,7 @@ ${userReason}`;
                 if (date < 10) date = '0' + date;
                 let dateCode = year.toString() + month.toString() + date.toString();
 
-                const subject = `[Scrum]${project ? ' - ' + project : ''} - ${dateCode}`;
+                const subject = `[Scrum] ${name} - ${project} - ${dateCode}`;
                 log('Generated subject:', subject);
                 githubCache.subject = subject;
                 saveToStorage(githubCache.data, subject);
@@ -1342,18 +1360,8 @@ ${userReason}`;
                     li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + issue_opened_button : ''}</li>`;
 
                 } else if (item.state === 'closed') {
-
-
-                    // Use state_reason to distinguish closure reason
-                    if (item.state_reason === 'completed') {
-                        li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_completed_button}</li>`;
-                    } else if (item.state_reason === 'not_planned') {
-                        li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_notplanned_button}</li>`;
-                    } else {
-                        li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_button}</li>`;
-                    }
-
-
+                    // Always show closed label for closed issues
+                    li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + issue_closed_button : ''}</li>`;
                 } else {
                     // Fallback for unexpected state
                     li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a></li>`;
@@ -1463,7 +1471,7 @@ async function forceGithubDataRefresh() {
     let showCommits = false;
 
     await new Promise(resolve => {
-        chrome.storage.local.get('showCommits', (result) => {
+        browserAPI.storage.local.get('showCommits', (result) => {
             if (result.showCommits !== undefined) {
                 showCommits = result.showCommits;
             }
@@ -1481,10 +1489,10 @@ async function forceGithubDataRefresh() {
     }
 
     await new Promise(resolve => {
-        chrome.storage.local.remove('githubCache', resolve);
+        browserAPI.storage.local.remove('githubCache', resolve);
     });
 
-    chrome.storage.local.set({ showCommits: showCommits });
+    browserAPI.storage.local.set({ showCommits: showCommits });
 
     hasInjectedContent = false;
 
@@ -1501,7 +1509,7 @@ async function forceGitlabDataRefresh() {
         gitlabHelper.cache.queue = [];
     }
     await new Promise(resolve => {
-        chrome.storage.local.remove('gitlabCache', resolve);
+        browserAPI.storage.local.remove('gitlabCache', resolve);
     });
     hasInjectedContent = false;
     // Re-instantiate gitlabHelper to ensure a fresh instance for next API call
@@ -1523,9 +1531,9 @@ window.generateScrumReport = function () {
     allIncluded('popup');
 };
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+browserAPI.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === 'forceRefresh') {
-        chrome.storage.local.get(['platform'], async (result) => {
+        browserAPI.storage.local.get(['platform'], async (result) => {
             const platform = result.platform || 'github';
             if (platform === 'gitlab') {
                 forceGitlabDataRefresh()
@@ -1598,11 +1606,16 @@ async function fetchUserRepositories(username, token, org = '') {
         let dateRange = '';
         try {
             const storageData = await new Promise(resolve => {
-                chrome.storage.local.get(['startingDate', 'endingDate', 'yesterdayContribution'], resolve);
+                browserAPI.storage.local.get(['startingDate', 'endingDate', 'lastWeekContribution', 'yesterdayContribution'], resolve);
             });
 
             let startDate, endDate;
-            if (storageData.yesterdayContribution) {
+            if (storageData.lastWeekContribution) {
+                const today = new Date();
+                const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
+                startDate = lastWeek.toISOString().split('T')[0];
+                endDate = today.toISOString().split('T')[0];
+            } else if (storageData.yesterdayContribution) {
                 const today = new Date();
                 const yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
                 startDate = yesterday.toISOString().split('T')[0];
