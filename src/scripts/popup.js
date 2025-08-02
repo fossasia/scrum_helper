@@ -8,31 +8,14 @@ function debounce(func, wait) {
 
 function getToday() {
     let today = new Date();
-    let WeekMonth = today.getMonth() + 1;
-    let WeekDay = today.getDate();
-    let WeekYear = today.getFullYear();
-    let WeekDisplayPadded =
-        ('0000' + WeekYear.toString()).slice(-4) +
-        '-' +
-        ('00' + WeekMonth.toString()).slice(-2) +
-        '-' +
-        ('00' + WeekDay.toString()).slice(-2);
-    return WeekDisplayPadded;
+    return today.toISOString().split('T')[0];
 }
 
 function getYesterday() {
     let today = new Date();
-    let yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
-    let yesterdayMonth = yesterday.getMonth() + 1;
-    let yesterdayDay = yesterday.getDate();
-    let yesterdayYear = yesterday.getFullYear();
-    let yesterdayPadded =
-        ('0000' + yesterdayYear.toString()).slice(-4) +
-        '-' +
-        ('00' + yesterdayMonth.toString()).slice(-2) +
-        '-' +
-        ('00' + yesterdayDay.toString()).slice(-2);
-    return yesterdayPadded;
+    let yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
+    return yesterday.toISOString().split('T')[0];
 }
 
 function applyI18n() {
