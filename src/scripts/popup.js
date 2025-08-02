@@ -13,7 +13,8 @@ function getToday() {
 
 function getYesterday() {
     let today = new Date();
-    let yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+    let yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
     return yesterday.toISOString().split('T')[0];
 }
 
