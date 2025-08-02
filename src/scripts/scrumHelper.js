@@ -467,7 +467,25 @@ function allIncluded(outputTarget = 'email') {
         useRepoFilter = filterSettings.useRepoFilter || false;
         selectedRepos = Array.isArray(filterSettings.selectedRepos) ? filterSettings.selectedRepos : [];
 
-        const cacheKey = `${platformUsernameLocal}-${startingDate}-${endingDate}-${orgName || 'all'}`;
+        // Get the correct date range for cache key
+        let startDateForCache, endDateForCache;
+        if (yesterdayContribution) {
+            const today = new Date();
+            const yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+            startDateForCache = yesterday.toISOString().split('T')[0];
+            endDateForCache = today.toISOString().split('T')[0];
+        } else if (startingDate && endingDate) {
+            startDateForCache = startingDate;
+            endDateForCache = endingDate;
+        } else {
+            // Default to last 7 days if no date range is set
+            const today = new Date();
+            const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
+            startDateForCache = lastWeek.toISOString().split('T')[0];
+            endDateForCache = today.toISOString().split('T')[0];
+        }
+
+        const cacheKey = `${platformUsernameLocal}-${startDateForCache}-${endDateForCache}-${orgName || 'all'}`;
 
         if (githubCache.fetching || (githubCache.cacheKey === cacheKey && githubCache.data)) {
             log('Fetch already in progress or data already fetched. Skipping fetch.');
@@ -581,15 +599,15 @@ function allIncluded(outputTarget = 'email') {
                 }).join('+');
 
             const orgQuery = orgPart ? `+${orgPart}` : '';
-            issueUrl = `https://api.github.com/search/issues?q=author%3A${platformUsernameLocal}+${repoQueries}${orgQuery}+updated%3A${startingDate}..${endingDate}&per_page=100`;
-            prUrl = `https://api.github.com/search/issues?q=commenter%3A${platformUsernameLocal}+${repoQueries}${orgQuery}+updated%3A${startingDate}..${endingDate}&per_page=100`;
+            issueUrl = `https://api.github.com/search/issues?q=author%3A${platformUsernameLocal}+${repoQueries}${orgQuery}+created%3A${startDateForCache}..${endDateForCache}&per_page=100`;
+            prUrl = `https://api.github.com/search/issues?q=commenter%3A${platformUsernameLocal}+${repoQueries}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}&per_page=100`;
             userUrl = `https://api.github.com/users/${platformUsernameLocal}`;
             log('Repository-filtered URLs:', { issueUrl, prUrl });
         } else {
             loadFromStorage('Using org wide search');
             const orgQuery = orgPart ? `+${orgPart}` : '';
-            issueUrl = `https://api.github.com/search/issues?q=author%3A${platformUsernameLocal}${orgQuery}+updated%3A${startingDate}..${endingDate}&per_page=100`;
-            prUrl = `https://api.github.com/search/issues?q=commenter%3A${platformUsernameLocal}${orgQuery}+updated%3A${startingDate}..${endingDate}&per_page=100`;
+            issueUrl = `https://api.github.com/search/issues?q=author%3A${platformUsernameLocal}${orgQuery}+created%3A${startDateForCache}..${endDateForCache}&per_page=100`;
+            prUrl = `https://api.github.com/search/issues?q=commenter%3A${platformUsernameLocal}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}&per_page=100`;
             userUrl = `https://api.github.com/users/${platformUsernameLocal}`;
         }
 
@@ -633,7 +651,25 @@ function allIncluded(outputTarget = 'email') {
                 log('Open PRs for commit fetching:', openPRs.map(pr => pr.number));
                 // Fetch commits for open PRs (batch) if showCommits is enabled
                 if (openPRs.length && githubToken && showCommits) {
-                    const commitMap = await fetchCommitsForOpenPRs(openPRs, githubToken, startingDate, endingDate);
+                    // Get the correct date range for commit fetching
+                    let startDateForCommits, endDateForCommits;
+                    if (yesterdayContribution) {
+                        const today = new Date();
+                        const yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+                        startDateForCommits = yesterday.toISOString().split('T')[0];
+                        endDateForCommits = today.toISOString().split('T')[0];
+                    } else if (startingDate && endingDate) {
+                        startDateForCommits = startingDate;
+                        endDateForCommits = endingDate;
+                    } else {
+                        // Default to last 7 days if no date range is set
+                        const today = new Date();
+                        const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
+                        startDateForCommits = lastWeek.toISOString().split('T')[0];
+                        endDateForCommits = today.toISOString().split('T')[0];
+                    }
+
+                    const commitMap = await fetchCommitsForOpenPRs(openPRs, githubToken, startDateForCommits, endDateForCommits);
                     log('Commit map returned from fetchCommitsForOpenPRs:', commitMap);
                     // Attach commits to PR objects
                     openPRs.forEach(pr => {
@@ -752,7 +788,7 @@ function allIncluded(outputTarget = 'email') {
             log('Repo fiter disabled, skipping fetch');
             return [];
         }
-        const repoCacheKey = `repos-${platformUsernameLocal}-${orgName}-${startingDate}-${endingDate}`;
+        const repoCacheKey = `repos-${platformUsernameLocal}-${orgName}-${startDateForCache}-${endDateForCache}`;
 
         const now = Date.now();
         const isRepoCacheFresh = (now - githubCache.repoTimeStamp) < githubCache.ttl;
@@ -941,7 +977,7 @@ function allIncluded(outputTarget = 'email') {
         nextWeekUl += '</ul>';
 
         let weekOrDay = yesterdayContribution ? 'yesterday' : 'the period';
-        let weekOrDay2 =  'today';
+        let weekOrDay2 = 'today';
 
         let content;
         if (yesterdayContribution == true) {
@@ -1062,8 +1098,34 @@ ${userReason}`;
         reviewedPrsArray = [];
         githubPrsReviewDataProcessed = {};
         let i;
+
+        // Get the date range for filtering
+        let startDate, endDate;
+        if (yesterdayContribution) {
+            const today = new Date();
+            const yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+            startDate = yesterday.toISOString().split('T')[0];
+            endDate = today.toISOString().split('T')[0];
+        } else if (startingDate && endingDate) {
+            startDate = startingDate;
+            endDate = endingDate;
+        } else {
+            // Default to last 7 days if no date range is set
+            const today = new Date();
+            const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
+            startDate = lastWeek.toISOString().split('T')[0];
+            endDate = today.toISOString().split('T')[0];
+        }
+
+        const startDateTime = new Date(startDate + 'T00:00:00');
+        const endDateTime = new Date(endDate + 'T23:59:59');
+
+        log('Filtering PR reviews by date range:', { startDate, endDate, startDateTime, endDateTime });
+
         for (i = 0; i < items.length; i++) {
             let item = items[i];
+            log(`Processing PR #${item.number} - state: ${item.state}, updated_at: ${item.updated_at}, created_at: ${item.created_at}, merged_at: ${item.pull_request?.merged_at}`);
+
             // For GitHub: item.user.login, for GitLab: item.author?.username
             let isAuthoredByUser = false;
             if (platform === 'github') {
@@ -1073,6 +1135,77 @@ ${userReason}`;
             }
 
             if (isAuthoredByUser || !item.pull_request) continue;
+
+            // Check if the PR was actually reviewed/commented on within the date range
+            let itemDate = new Date(item.updated_at || item.created_at);
+            log(`PR #${item.number} - itemDate: ${itemDate}, startDateTime: ${startDateTime}, endDateTime: ${endDateTime}`);
+            if (itemDate < startDateTime || itemDate > endDateTime) {
+                log(`Skipping PR #${item.number} - updated at ${itemDate} outside date range ${startDate} to ${endDate}`);
+                continue;
+            }
+
+            // Additional check: Skip PRs that were merged before the date range
+            if (item.state === 'closed' && item.pull_request && item.pull_request.merged_at) {
+                const mergedDate = new Date(item.pull_request.merged_at);
+                if (mergedDate < startDateTime) {
+                    log(`Skipping merged PR #${item.number} - merged at ${mergedDate} before date range ${startDate} to ${endDate}`);
+                    continue;
+                }
+            }
+
+            // For closed PRs, ensure they were merged within the date range
+            if (item.state === 'closed' && item.pull_request) {
+                if (!item.pull_request.merged_at) {
+                    log(`Skipping closed PR #${item.number} - not merged`);
+                    continue;
+                }
+                const mergedDate = new Date(item.pull_request.merged_at);
+                if (mergedDate < startDateTime || mergedDate > endDateTime) {
+                    log(`Skipping closed PR #${item.number} - merged at ${mergedDate} outside date range ${startDate} to ${endDate}`);
+                    continue;
+                }
+            }
+
+            // Additional conservative check: For PRs that were created before the date range,
+            // only include them if they were updated very recently (within the last day of the range)
+            const createdDate = new Date(item.created_at);
+            if (createdDate < startDateTime) {
+                // If PR was created before the date range, only include if it was updated in the last day
+                const lastDayOfRange = new Date(endDateTime);
+                lastDayOfRange.setDate(lastDayOfRange.getDate() - 1);
+                if (itemDate < lastDayOfRange) {
+                    log(`Skipping PR #${item.number} - created before date range and not updated recently enough`);
+                    continue;
+                }
+            }
+
+            // Extra conservative check: For "yesterday" filter, be very strict
+            if (yesterdayContribution) {
+                // For yesterday filter, only include PRs that were either:
+                // 1. Created yesterday, OR
+                // 2. Updated yesterday AND the user actually commented yesterday
+                const yesterday = new Date(startDate + 'T00:00:00');
+                const today = new Date(endDate + 'T23:59:59');
+
+                const wasCreatedYesterday = createdDate >= yesterday && createdDate <= today;
+                const wasUpdatedYesterday = itemDate >= yesterday && itemDate <= today;
+
+                if (!wasCreatedYesterday && !wasUpdatedYesterday) {
+                    log(`Skipping PR #${item.number} - not created or updated yesterday`);
+                    continue;
+                }
+
+                // For yesterday filter, be extra strict about merged PRs
+                if (item.state === 'closed' && item.pull_request && item.pull_request.merged_at) {
+                    const mergedDate = new Date(item.pull_request.merged_at);
+                    const wasMergedYesterday = mergedDate >= yesterday && mergedDate <= today;
+                    if (!wasMergedYesterday) {
+                        log(`Skipping merged PR #${item.number} - not merged yesterday`);
+                        continue;
+                    }
+                }
+            }
+
             let repository_url = item.repository_url;
             if (!repository_url) {
                 logError('repository_url is undefined for item:', item);
@@ -1191,7 +1324,27 @@ ${userReason}`;
         if (githubToken) headers['Authorization'] = `token ${githubToken}`;
         let useMergedStatus = false;
         let fallbackToSimple = false;
-        let daysRange = getDaysBetween(startingDate, endingDate);
+
+        // Get the correct date range for days calculation
+        let startDateForRange, endDateForRange;
+        if (yesterdayContribution) {
+            const today = new Date();
+            const yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+            startDateForRange = yesterday.toISOString().split('T')[0];
+            endDateForRange = today.toISOString().split('T')[0];
+        } else if (startingDate && endingDate) {
+            startDateForRange = startingDate;
+            endDateForRange = endingDate;
+        } else {
+            // Default to last 7 days if no date range is set
+            const today = new Date();
+            const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
+            startDateForRange = lastWeek.toISOString().split('T')[0];
+            endDateForRange = today.toISOString().split('T')[0];
+        }
+
+        let daysRange = getDaysBetween(startDateForRange, endDateForRange);
+
         if (githubToken) {
             useMergedStatus = true;
         } else if (daysRange <= 7) {
@@ -1259,9 +1412,26 @@ ${userReason}`;
                 let prAction = '';
 
                 const prCreatedDate = new Date(item.created_at);
-                const startDate = new Date(startingDate);
-                const endDate = new Date(endingDate + 'T23:59:59');
-                const isNewPR = prCreatedDate >= startDate && prCreatedDate <= endDate;
+
+                // Get the correct date range for filtering
+                let startDateFilter, endDateFilter;
+                if (yesterdayContribution) {
+                    const today = new Date();
+                    const yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+                    startDateFilter = new Date(yesterday.toISOString().split('T')[0]);
+                    endDateFilter = new Date(today.toISOString().split('T')[0] + 'T23:59:59');
+                } else if (startingDate && endingDate) {
+                    startDateFilter = new Date(startingDate);
+                    endDateFilter = new Date(endingDate + 'T23:59:59');
+                } else {
+                    // Default to last 7 days if no date range is set
+                    const today = new Date();
+                    const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
+                    startDateFilter = new Date(lastWeek.toISOString().split('T')[0]);
+                    endDateFilter = new Date(today.toISOString().split('T')[0] + 'T23:59:59');
+                }
+
+                const isNewPR = prCreatedDate >= startDateFilter && prCreatedDate <= endDateFilter;
 
                 if (platform === 'github') {
                     if (!isNewPR) {
