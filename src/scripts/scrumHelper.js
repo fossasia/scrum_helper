@@ -338,31 +338,12 @@ function allIncluded(outputTarget = 'email') {
 
     function getYesterday() {
         let today = new Date();
-        let yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
-        let yesterdayMonth = yesterday.getMonth() + 1;
-        let yesterdayDay = yesterday.getDate();
-        let yesterdayYear = yesterday.getFullYear();
-        let yesterdayPadded =
-            ('0000' + yesterdayYear.toString()).slice(-4) +
-            '-' +
-            ('00' + yesterdayMonth.toString()).slice(-2) +
-            '-' +
-            ('00' + yesterdayDay.toString()).slice(-2);
-        return yesterdayPadded;
+        let yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+        return yesterday.toISOString().split('T')[0];
     }
     function getToday() {
         let today = new Date();
-        let Week = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-        let WeekMonth = Week.getMonth() + 1;
-        let WeekDay = Week.getDate();
-        let WeekYear = Week.getFullYear();
-        let WeekDisplayPadded =
-            ('0000' + WeekYear.toString()).slice(-4) +
-            '-' +
-            ('00' + WeekMonth.toString()).slice(-2) +
-            '-' +
-            ('00' + WeekDay.toString()).slice(-2);
-        return WeekDisplayPadded;
+        return today.toISOString().split('T')[0];
     }
 
     // Global cache object
@@ -471,9 +452,9 @@ function allIncluded(outputTarget = 'email') {
         let startDateForCache, endDateForCache;
         if (yesterdayContribution) {
             const today = new Date();
-            const yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+            const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
             startDateForCache = yesterday.toISOString().split('T')[0];
-            endDateForCache = today.toISOString().split('T')[0];
+            endDateForCache = yesterday.toISOString().split('T')[0]; // Use yesterday for both start and end
         } else if (startingDate && endingDate) {
             startDateForCache = startingDate;
             endDateForCache = endingDate;
@@ -655,9 +636,9 @@ function allIncluded(outputTarget = 'email') {
                     let startDateForCommits, endDateForCommits;
                     if (yesterdayContribution) {
                         const today = new Date();
-                        const yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+                        const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
                         startDateForCommits = yesterday.toISOString().split('T')[0];
-                        endDateForCommits = today.toISOString().split('T')[0];
+                        endDateForCommits = yesterday.toISOString().split('T')[0]; // Use yesterday for both start and end
                     } else if (startingDate && endingDate) {
                         startDateForCommits = startingDate;
                         endDateForCommits = endingDate;
@@ -726,8 +707,8 @@ function allIncluded(outputTarget = 'email') {
     async function fetchCommitsForOpenPRs(prs, githubToken, startDate, endDate) {
         log('fetchCommitsForOpenPRs called with PRs:', prs.map(pr => pr.number), 'startDate:', startDate, 'endDate:', endDate);
         if (!prs.length) return {};
-        const since = new Date(startDate).toISOString();
-        const until = new Date(endDate + 'T23:59:59').toISOString();
+        const since = new Date(startDate + 'T00:00:00Z').toISOString();
+        const until = new Date(endDate + 'T23:59:59Z').toISOString();
         let queries = prs.map((pr, idx) => {
             const repoParts = pr.repository_url.split('/');
             const owner = repoParts[repoParts.length - 2];
@@ -1108,9 +1089,9 @@ ${userReason}`;
         let startDate, endDate;
         if (yesterdayContribution) {
             const today = new Date();
-            const yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+            const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
             startDate = yesterday.toISOString().split('T')[0];
-            endDate = today.toISOString().split('T')[0];
+            endDate = yesterday.toISOString().split('T')[0]; // Use yesterday for both start and end
         } else if (startingDate && endingDate) {
             startDate = startingDate;
             endDate = endingDate;
@@ -1122,8 +1103,8 @@ ${userReason}`;
             endDate = today.toISOString().split('T')[0];
         }
 
-        const startDateTime = new Date(startDate + 'T00:00:00');
-        const endDateTime = new Date(endDate + 'T23:59:59');
+        const startDateTime = new Date(startDate + 'T00:00:00Z');
+        const endDateTime = new Date(endDate + 'T23:59:59Z');
 
         log('Filtering PR reviews by date range:', { startDate, endDate, startDateTime, endDateTime });
 
@@ -1189,8 +1170,8 @@ ${userReason}`;
                 // For yesterday filter, only include PRs that were either:
                 // 1. Created yesterday, OR
                 // 2. Updated yesterday AND the user actually commented yesterday
-                const yesterday = new Date(startDate + 'T00:00:00');
-                const today = new Date(endDate + 'T23:59:59');
+                const yesterday = new Date(startDate + 'T00:00:00Z');
+                const today = new Date(endDate + 'T23:59:59Z');
 
                 const wasCreatedYesterday = createdDate >= yesterday && createdDate <= today;
                 const wasUpdatedYesterday = itemDate >= yesterday && itemDate <= today;
@@ -1334,9 +1315,9 @@ ${userReason}`;
         let startDateForRange, endDateForRange;
         if (yesterdayContribution) {
             const today = new Date();
-            const yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+            const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
             startDateForRange = yesterday.toISOString().split('T')[0];
-            endDateForRange = today.toISOString().split('T')[0];
+            endDateForRange = yesterday.toISOString().split('T')[0]; // Use yesterday for both start and end
         } else if (startingDate && endingDate) {
             startDateForRange = startingDate;
             endDateForRange = endingDate;
@@ -1422,18 +1403,18 @@ ${userReason}`;
                 let startDateFilter, endDateFilter;
                 if (yesterdayContribution) {
                     const today = new Date();
-                    const yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
-                    startDateFilter = new Date(yesterday.toISOString().split('T')[0]);
-                    endDateFilter = new Date(today.toISOString().split('T')[0] + 'T23:59:59');
+                    const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+                    startDateFilter = new Date(yesterday.toISOString().split('T')[0] + 'T00:00:00Z');
+                    endDateFilter = new Date(yesterday.toISOString().split('T')[0] + 'T23:59:59Z'); // Use yesterday for both start and end
                 } else if (startingDate && endingDate) {
-                    startDateFilter = new Date(startingDate);
-                    endDateFilter = new Date(endingDate + 'T23:59:59');
+                    startDateFilter = new Date(startingDate + 'T00:00:00Z');
+                    endDateFilter = new Date(endingDate + 'T23:59:59Z');
                 } else {
                     // Default to last 7 days if no date range is set
                     const today = new Date();
                     const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
-                    startDateFilter = new Date(lastWeek.toISOString().split('T')[0]);
-                    endDateFilter = new Date(today.toISOString().split('T')[0] + 'T23:59:59');
+                    startDateFilter = new Date(lastWeek.toISOString().split('T')[0] + 'T00:00:00Z');
+                    endDateFilter = new Date(today.toISOString().split('T')[0] + 'T23:59:59Z');
                 }
 
                 const isNewPR = prCreatedDate >= startDateFilter && prCreatedDate <= endDateFilter;
@@ -1791,7 +1772,7 @@ async function fetchUserRepositories(username, token, org = '') {
             let startDate, endDate;
             if (storageData.yesterdayContribution) {
                 const today = new Date();
-                const yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+                const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
                 startDate = yesterday.toISOString().split('T')[0];
                 endDate = today.toISOString().split('T')[0];
             } else if (storageData.startingDate && storageData.endingDate) {

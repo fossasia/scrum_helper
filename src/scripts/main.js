@@ -8,7 +8,7 @@ let startingDateElement = document.getElementById('startingDate');
 let endingDateElement = document.getElementById('endingDate');
 let showOpenLabelElement = document.getElementById('showOpenLabel');
 
-let userReasonElement = null; 
+let userReasonElement = null;
 
 let showCommitsElement = document.getElementById('showCommits');
 
@@ -152,31 +152,12 @@ function handleYesterdayContributionChange() {
 
 function getYesterday() {
 	let today = new Date();
-	let yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
-	let yesterdayMonth = yesterday.getMonth() + 1;
-	let yesterdayWeekDay = yesterday.getDate();
-	let yesterdayYear = yesterday.getFullYear();
-	let yesterdayPadded =
-		('0000' + yesterdayYear.toString()).slice(-4) +
-		'-' +
-		('00' + yesterdayMonth.toString()).slice(-2) +
-		'-' +
-		('00' + yesterdayWeekDay.toString()).slice(-2);
-	return yesterdayPadded;
+	let yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+	return yesterday.toISOString().split('T')[0];
 }
 function getToday() {
 	let today = new Date();
-	let Week = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-	let WeekMonth = Week.getMonth() + 1;
-	let WeekDay = Week.getDate();
-	let WeekYear = Week.getFullYear();
-	let WeekDisplayPadded =
-		('0000' + WeekYear.toString()).slice(-4) +
-		'-' +
-		('00' + WeekMonth.toString()).slice(-2) +
-		'-' +
-		('00' + WeekDay.toString()).slice(-2);
-	return WeekDisplayPadded;
+	return today.toISOString().split('T')[0];
 }
 
 function handlePlatformUsernameChange() {
