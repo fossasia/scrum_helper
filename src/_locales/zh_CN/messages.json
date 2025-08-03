@@ -76,7 +76,7 @@
         "message": "进行身份验证请求所必需"
     },
     "showCommitsLabel": {
-        "message": "显示日期范围内在进行中 PR 的提交"
+        "message": "在打开的 PR/草稿 PR 上显示提交"
     },
     "cacheTTLLabel": {
         "message": "输入缓存 TTL"

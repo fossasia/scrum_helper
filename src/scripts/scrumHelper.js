@@ -70,6 +70,10 @@ function allIncluded(outputTarget = 'email') {
         '<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #d73a49;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--red">closed</div>';
     let issue_opened_button =
         '<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
+    let issue_closed_completed_button =
+        '<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #6f42c1;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--purple">closed</div>';
+    let issue_closed_notplanned_button =
+        '<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #808080;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--gray">closed</div>';
 
     function getChromeData() {
         console.log("[DEBUG] getChromeData called for outputTarget:", outputTarget);
@@ -1274,11 +1278,9 @@ ${userReason}`;
 
         const prAction = isNewPR ? 'Made PR' : 'Existing PR';
 
-        // 🟤 Draft PR
         if (isDraft) {
             li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a> ${pr_draft_button}</li>`;
 
-        // 🟢 Open PR
         } else if (item.state === 'open') {
             li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a> ${pr_open_button}`;
             if (showCommits && item._allCommits && item._allCommits.length && !isNewPR) {
@@ -1292,7 +1294,6 @@ ${userReason}`;
             }
             li += `</li>`;
 
-        // 🔴 Closed PR (check if merged or not)
         } else if (item.state === 'closed') {
             const isMerged = item.merged_at !== null && item.merged_at !== undefined;
 
