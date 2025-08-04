@@ -182,6 +182,25 @@ For more details, see the [Chrome i18n documentation](https://developer.chrome.c
 
 - Follow the Issues and PRs templates as far as possible.
 - If you want to make a PR, please mention in the corresponding issue that you are working on it.
+
+### Writing Meaningful Pull Requests
+
+The release notes are automatically generated from the pull requests merged into `master`. To ensure the release notes are clear and helpful, please:
+
+1.  **Write a descriptive title.** The PR title is the primary entry in the release notes. It should concisely summarize the change.
+2.  **Provide a clear description.** The body of your PR should explain the "what" and "why" of your changes. This context is invaluable for reviewers and for anyone looking back at the project's history.
+
+### Pull Request Labeling & Semantic Versioning
+This project uses an automated release process based on semantic versioning. To make this work, every pull request that should be included in the release notes **must be labeled correctly**.
+
+The label determines whether the next release is a `major`, `minor`, or `patch` update. Please apply one of the following labels to your PR:
+
+- `major`: For breaking changes that are not backward-compatible. This will result in a `vX.0.0` release.
+- `minor`: For new features or significant enhancements that are backward-compatible. This will result in a `v1.X.0` release.
+- `patch`: For backward-compatible bug fixes, documentation updates, or maintenance chores. This will result in a `v1.2.X` release.
+
+If a PR has no versioning label, it may be excluded from the release notes. If you are unsure, `patch` is usually a safe default for small fixes.
+
 - Before making a PR, ensure your code is properly formatted and linted:
   - Format your code: This command automatically formats your code based on the project's style guidelines.
     ```sh
