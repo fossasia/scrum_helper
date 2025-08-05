@@ -46,6 +46,7 @@ function allIncluded(outputTarget = 'email') {
     let nextWeekArray = [];
     let reviewedPrsArray = [];
     let githubIssuesData = null;
+    let lastWeekContribution = false;
     let yesterdayContribution = false;
     let githubPrsReviewData = null;
     let githubUserData = null;
@@ -70,14 +71,10 @@ function allIncluded(outputTarget = 'email') {
         '<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #d73a49;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--red">closed</div>';
     let issue_opened_button =
         '<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
-    let issue_closed_completed_button =
-        '<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #6f42c1;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--purple">closed</div>';
-    let issue_closed_notplanned_button =
-        '<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #808080;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--gray">closed</div>';
 
     function getChromeData() {
         console.log("[DEBUG] getChromeData called for outputTarget:", outputTarget);
-        chrome.storage.local.get(
+        browserAPI.storage.local.get(
             [
                 'platform',
                 'githubUsername',
@@ -88,6 +85,7 @@ function allIncluded(outputTarget = 'email') {
                 'startingDate',
                 'endingDate',
                 'showOpenLabel',
+                'lastWeekContribution',
                 'yesterdayContribution',
                 'userReason',
                 'githubCache',
@@ -115,14 +113,14 @@ function allIncluded(outputTarget = 'email') {
 
                     // Save to platform-specific storage
                     if (usernameFromDOM) {
-                        chrome.storage.local.set({ [platformUsernameKey]: usernameFromDOM });
+                        browserAPI.storage.local.set({ [platformUsernameKey]: usernameFromDOM });
                         platformUsername = usernameFromDOM;
                         platformUsernameLocal = usernameFromDOM;
                     }
 
                     items.projectName = projectFromDOM || items.projectName;
                     items.githubToken = tokenFromDOM || items.githubToken;
-                    chrome.storage.local.set({
+                    browserAPI.storage.local.set({
                         projectName: items.projectName,
                         githubToken: items.githubToken
                     });
@@ -130,8 +128,9 @@ function allIncluded(outputTarget = 'email') {
                 projectName = items.projectName;
 
                 userReason = 'No Blocker at the moment';
-                chrome.storage.local.remove(['userReason']);
+                browserAPI.storage.local.remove(['userReason']);
                 githubToken = items.githubToken;
+                lastWeekContribution = items.lastWeekContribution;
                 yesterdayContribution = items.yesterdayContribution;
                 if (typeof items.enableToggle !== 'undefined') {
                     enableToggle = items.enableToggle;
@@ -141,7 +140,9 @@ function allIncluded(outputTarget = 'email') {
                 showOpenLabel = items.showOpenLabel !== false; // Default to true if not explicitly set to false
                 orgName = items.orgName || '';
 
-                if (items.yesterdayContribution) {
+                if (items.lastWeekContribution) {
+                    handleLastWeekContributionChange();
+                } else if (items.yesterdayContribution) {
                     handleYesterdayContributionChange();
                 } else if (items.startingDate && items.endingDate) {
                     startingDate = items.startingDate;
@@ -149,11 +150,11 @@ function allIncluded(outputTarget = 'email') {
                 } else {
 
 
-                    handleYesterdayContributionChange();
+                    handleLastWeekContributionChange();
 
 
                     if (outputTarget === 'popup') {
-                        chrome.storage.local.set({ yesterdayContribution: true });
+                        browserAPI.storage.local.set({ lastWeekContribution: true, yesterdayContribution: false });
                     }
                 }
 
@@ -225,7 +226,7 @@ function allIncluded(outputTarget = 'email') {
                                     githubUserData = mappedData.githubUserData;
 
                                     let name = githubUserData?.name || githubUserData?.username || platformUsernameLocal || platformUsername;
-                                    let project = projectName;
+                                    let project = projectName || '<project name>';
                                     let curDate = new Date();
                                     let year = curDate.getFullYear().toString();
                                     let date = curDate.getDate();
@@ -233,7 +234,7 @@ function allIncluded(outputTarget = 'email') {
                                     if (month < 10) month = '0' + month;
                                     if (date < 10) date = '0' + date;
                                     let dateCode = year.toString() + month.toString() + date.toString();
-                                    const subject = `[Scrum]${project ? ' - ' + project : ''} - ${dateCode}`;
+                                    const subject = `[Scrum] ${name} - ${project} - ${dateCode}`;
                                     subjectForEmail = subject;
 
 
@@ -331,20 +332,55 @@ function allIncluded(outputTarget = 'email') {
 
 
 
+    function handleLastWeekContributionChange() {
+        endingDate = getToday();
+        startingDate = getLastWeek();
+    }
     function handleYesterdayContributionChange() {
         endingDate = getToday();
         startingDate = getYesterday();
     }
-
+    function getLastWeek() {
+        let today = new Date();
+        let lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
+        let lastWeekMonth = lastWeek.getMonth() + 1;
+        let lastWeekDay = lastWeek.getDate();
+        let lastWeekYear = lastWeek.getFullYear();
+        let lastWeekDisplayPadded =
+            ('0000' + lastWeekYear.toString()).slice(-4) +
+            '-' +
+            ('00' + lastWeekMonth.toString()).slice(-2) +
+            '-' +
+            ('00' + lastWeekDay.toString()).slice(-2);
+        return lastWeekDisplayPadded;
+    }
     function getYesterday() {
         let today = new Date();
-        let yesterday = new Date(today);
-        yesterday.setDate(today.getDate() - 1);
-        return yesterday.toISOString().split('T')[0];
+        let yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
+        let yesterdayMonth = yesterday.getMonth() + 1;
+        let yesterdayDay = yesterday.getDate();
+        let yesterdayYear = yesterday.getFullYear();
+        let yesterdayPadded =
+            ('0000' + yesterdayYear.toString()).slice(-4) +
+            '-' +
+            ('00' + yesterdayMonth.toString()).slice(-2) +
+            '-' +
+            ('00' + yesterdayDay.toString()).slice(-2);
+        return yesterdayPadded;
     }
     function getToday() {
         let today = new Date();
-        return today.toISOString().split('T')[0];
+        let Week = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        let WeekMonth = Week.getMonth() + 1;
+        let WeekDay = Week.getDate();
+        let WeekYear = Week.getFullYear();
+        let WeekDisplayPadded =
+            ('0000' + WeekYear.toString()).slice(-4) +
+            '-' +
+            ('00' + WeekMonth.toString()).slice(-2) +
+            '-' +
+            ('00' + WeekDay.toString()).slice(-2);
+        return WeekDisplayPadded;
     }
 
     // Global cache object
@@ -367,7 +403,7 @@ function allIncluded(outputTarget = 'email') {
 
     async function getCacheTTL() {
         return new Promise((resolve) => {
-            chrome.storage.local.get(['cacheInput'], function (result) {
+            browserAPI.storage.local.get(['cacheInput'], function (result) {
                 const ttlMinutes = result.cacheInput || 10;
                 resolve(ttlMinutes * 60 * 1000);
             });
@@ -390,9 +426,9 @@ function allIncluded(outputTarget = 'email') {
         });
 
         return new Promise((resolve) => {
-            chrome.storage.local.set({ githubCache: cacheData }, () => {
-                if (chrome.runtime.lastError) {
-                    logError('Storage save failed: ', chrome.runtime.lastError);
+            browserAPI.storage.local.set({ githubCache: cacheData }, () => {
+                if (browserAPI.runtime.lastError) {
+                    logError('Storage save failed: ', browserAPI.runtime.lastError);
                     resolve(false);
                 } else {
                     log('Cache saved successfuly');
@@ -408,7 +444,7 @@ function allIncluded(outputTarget = 'email') {
         log('Loading cache from storage');
         return new Promise(async (resolve) => {
             const currentTTL = await getCacheTTL();
-            chrome.storage.local.get('githubCache', (result) => {
+            browserAPI.storage.local.get('githubCache', (result) => {
                 const cache = result.githubCache;
                 if (!cache) {
                     log('No cache found in storage');
@@ -444,30 +480,12 @@ function allIncluded(outputTarget = 'email') {
     async function fetchGithubData() {
         // Always load latest repo filter settings from storage
         const filterSettings = await new Promise(resolve => {
-            chrome.storage.local.get(['useRepoFilter', 'selectedRepos'], resolve);
+            browserAPI.storage.local.get(['useRepoFilter', 'selectedRepos'], resolve);
         });
         useRepoFilter = filterSettings.useRepoFilter || false;
         selectedRepos = Array.isArray(filterSettings.selectedRepos) ? filterSettings.selectedRepos : [];
 
-        // Get the correct date range for cache key
-        let startDateForCache, endDateForCache;
-        if (yesterdayContribution) {
-            const today = new Date();
-            const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
-            startDateForCache = yesterday.toISOString().split('T')[0];
-            endDateForCache = today.toISOString().split('T')[0]; // Use yesterday for start and today for end
-        } else if (startingDate && endingDate) {
-            startDateForCache = startingDate;
-            endDateForCache = endingDate;
-        } else {
-            // Default to last 7 days if no date range is set
-            const today = new Date();
-            const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
-            startDateForCache = lastWeek.toISOString().split('T')[0];
-            endDateForCache = today.toISOString().split('T')[0];
-        }
-
-        const cacheKey = `${platformUsernameLocal}-${startDateForCache}-${endDateForCache}-${orgName || 'all'}`;
+        const cacheKey = `${platformUsernameLocal}-${startingDate}-${endingDate}-${orgName || 'all'}`;
 
         if (githubCache.fetching || (githubCache.cacheKey === cacheKey && githubCache.data)) {
             log('Fetch already in progress or data already fetched. Skipping fetch.');
@@ -581,15 +599,15 @@ function allIncluded(outputTarget = 'email') {
                 }).join('+');
 
             const orgQuery = orgPart ? `+${orgPart}` : '';
-            issueUrl = `https://api.github.com/search/issues?q=author%3A${platformUsernameLocal}+${repoQueries}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}&per_page=100`;
-            prUrl = `https://api.github.com/search/issues?q=commenter%3A${platformUsernameLocal}+${repoQueries}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}&per_page=100`;
+            issueUrl = `https://api.github.com/search/issues?q=author%3A${platformUsernameLocal}+${repoQueries}${orgQuery}+updated%3A${startingDate}..${endingDate}&per_page=100`;
+            prUrl = `https://api.github.com/search/issues?q=commenter%3A${platformUsernameLocal}+${repoQueries}${orgQuery}+updated%3A${startingDate}..${endingDate}&per_page=100`;
             userUrl = `https://api.github.com/users/${platformUsernameLocal}`;
             log('Repository-filtered URLs:', { issueUrl, prUrl });
         } else {
             loadFromStorage('Using org wide search');
             const orgQuery = orgPart ? `+${orgPart}` : '';
-            issueUrl = `https://api.github.com/search/issues?q=author%3A${platformUsernameLocal}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}&per_page=100`;
-            prUrl = `https://api.github.com/search/issues?q=commenter%3A${platformUsernameLocal}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}&per_page=100`;
+            issueUrl = `https://api.github.com/search/issues?q=author%3A${platformUsernameLocal}${orgQuery}+updated%3A${startingDate}..${endingDate}&per_page=100`;
+            prUrl = `https://api.github.com/search/issues?q=commenter%3A${platformUsernameLocal}${orgQuery}+updated%3A${startingDate}..${endingDate}&per_page=100`;
             userUrl = `https://api.github.com/users/${platformUsernameLocal}`;
         }
 
@@ -633,33 +651,12 @@ function allIncluded(outputTarget = 'email') {
                 log('Open PRs for commit fetching:', openPRs.map(pr => pr.number));
                 // Fetch commits for open PRs (batch) if showCommits is enabled
                 if (openPRs.length && githubToken && showCommits) {
-                    // Get the correct date range for commit fetching
-                    let startDateForCommits, endDateForCommits;
-                    if (yesterdayContribution) {
-                        const today = new Date();
-                        const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
-                        startDateForCommits = yesterday.toISOString().split('T')[0];
-                        endDateForCommits = today.toISOString().split('T')[0]; // Use yesterday for start and today for end
-                    } else if (startingDate && endingDate) {
-                        startDateForCommits = startingDate;
-                        endDateForCommits = endingDate;
-                    } else {
-                        // Default to last 7 days if no date range is set
-                        const today = new Date();
-                        const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
-                        startDateForCommits = lastWeek.toISOString().split('T')[0];
-                        endDateForCommits = today.toISOString().split('T')[0];
-                    }
-
-                    const commitMap = await fetchCommitsForOpenPRs(openPRs, githubToken, startDateForCommits, endDateForCommits);
+                    const commitMap = await fetchCommitsForOpenPRs(openPRs, githubToken, startingDate, endingDate);
                     log('Commit map returned from fetchCommitsForOpenPRs:', commitMap);
                     // Attach commits to PR objects
                     openPRs.forEach(pr => {
                         pr._allCommits = commitMap[pr.number] || [];
                         log(`Attached ${pr._allCommits.length} commits to PR #${pr.number}`);
-                        if (pr._allCommits.length > 0) {
-                            log(`Commits for PR #${pr.number}:`, pr._allCommits.map(c => `${c.messageHeadline} (${c.committedDate})`));
-                        }
                     });
                 }
             }
@@ -708,8 +705,8 @@ function allIncluded(outputTarget = 'email') {
     async function fetchCommitsForOpenPRs(prs, githubToken, startDate, endDate) {
         log('fetchCommitsForOpenPRs called with PRs:', prs.map(pr => pr.number), 'startDate:', startDate, 'endDate:', endDate);
         if (!prs.length) return {};
-        const since = new Date(startDate + 'T00:00:00Z').toISOString();
-        const until = new Date(endDate + 'T23:59:59Z').toISOString();
+        const since = new Date(startDate).toISOString();
+        const until = new Date(endDate + 'T23:59:59').toISOString();
         let queries = prs.map((pr, idx) => {
             const repoParts = pr.repository_url.split('/');
             const owner = repoParts[repoParts.length - 2];
@@ -757,9 +754,7 @@ function allIncluded(outputTarget = 'email') {
                     const commitDate = new Date(commit.committedDate);
                     const sinceDate = new Date(since);
                     const untilDate = new Date(until);
-                    const isInRange = commitDate >= sinceDate && commitDate <= untilDate;
-                    log(`PR #${pr.number} commit "${commit.messageHeadline}" (${commit.committedDate}) - in range: ${isInRange}`);
-                    return isInRange;
+                    return commitDate >= sinceDate && commitDate <= untilDate;
                 });
                 log(`PR #${pr.number} filteredCommits:`, filteredCommits);
                 commitMap[pr.number] = filteredCommits;
@@ -775,7 +770,7 @@ function allIncluded(outputTarget = 'email') {
             log('Repo fiter disabled, skipping fetch');
             return [];
         }
-        const repoCacheKey = `repos-${platformUsernameLocal}-${orgName}-${startDateForCache}-${endDateForCache}`;
+        const repoCacheKey = `repos-${platformUsernameLocal}-${orgName}-${startingDate}-${endingDate}`;
 
         const now = Date.now();
         const isRepoCacheFresh = (now - githubCache.repoTimeStamp) < githubCache.ttl;
@@ -803,7 +798,7 @@ function allIncluded(outputTarget = 'email') {
             githubCache.repoData = repos;
             githubCache.repoTimeStamp = now;
 
-            chrome.storage.local.set({
+            browserAPI.storage.local.set({
                 repoCache: {
                     data: repos,
                     cacheKey: repoCacheKey,
@@ -836,7 +831,7 @@ function allIncluded(outputTarget = 'email') {
             queueLength: githubCache.queue.length
         });
         const storageData = await new Promise(resolve => {
-            chrome.storage.local.get('githubCache', resolve);
+            browserAPI.storage.local.get('githubCache', resolve);
         });
         log('Storage Status:', {
             hasStoredData: !!storageData.githubCache,
@@ -914,10 +909,10 @@ function allIncluded(outputTarget = 'email') {
             let nextWeekUl = '<ul>';
             for (let i = 0; i < nextWeekArray.length; i++) nextWeekUl += nextWeekArray[i];
             nextWeekUl += '</ul>';
-            let weekOrDay = yesterdayContribution ? 'yesterday' : 'the period';
-            let weekOrDay2 = 'today';
+            let weekOrDay = lastWeekContribution ? 'last week' : (yesterdayContribution ? 'yesterday' : 'the period');
+            let weekOrDay2 = lastWeekContribution ? 'this week' : 'today';
             let content;
-            if (yesterdayContribution == true) {
+            if (lastWeekContribution == true || yesterdayContribution == true) {
                 content = `<b>1. What did I do ${weekOrDay}?</b><br>${lastWeekUl}<br><b>2. What do I plan to do ${weekOrDay2}?</b><br>${nextWeekUl}<br><b>3. What is blocking me from making progress?</b><br>${userReason}`;
             } else {
                 content = `<b>1. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?</b><br>${lastWeekUl}<br><b>2. What do I plan to do ${weekOrDay2}?</b><br>${nextWeekUl}<br><b>3. What is blocking me from making progress?</b><br>${userReason}`;
@@ -963,11 +958,11 @@ function allIncluded(outputTarget = 'email') {
         for (let i = 0; i < nextWeekArray.length; i++) nextWeekUl += nextWeekArray[i];
         nextWeekUl += '</ul>';
 
-        let weekOrDay = yesterdayContribution ? 'yesterday' : 'the period';
-        let weekOrDay2 = 'today';
+        let weekOrDay = lastWeekContribution ? 'last week' : (yesterdayContribution ? 'yesterday' : 'the period');
+        let weekOrDay2 = lastWeekContribution ? 'this week' : 'today';
 
         let content;
-        if (yesterdayContribution == true) {
+        if (lastWeekContribution == true || yesterdayContribution == true) {
             content = `<b>1. What did I do ${weekOrDay}?</b><br>
 ${lastWeekUl}<br>
 <b>2. What do I plan to do ${weekOrDay2}?</b><br>
@@ -1046,7 +1041,7 @@ ${userReason}`;
             }
             setTimeout(() => {
                 let name = githubUserData?.name || githubUserData?.username || platformUsernameLocal || platformUsername;
-                let project = projectName;
+                let project = projectName || '<project name>';
                 let curDate = new Date();
                 let year = curDate.getFullYear().toString();
                 let date = curDate.getDate();
@@ -1056,7 +1051,7 @@ ${userReason}`;
                 if (date < 10) date = '0' + date;
                 let dateCode = year.toString() + month.toString() + date.toString();
 
-                const subject = `[Scrum]${project ? ' - ' + project : ''} - ${dateCode}`;
+                const subject = `[Scrum] ${name} - ${project} - ${dateCode}`;
                 log('Generated subject:', subject);
                 githubCache.subject = subject;
                 saveToStorage(githubCache.data, subject);
@@ -1085,34 +1080,8 @@ ${userReason}`;
         reviewedPrsArray = [];
         githubPrsReviewDataProcessed = {};
         let i;
-
-        // Get the date range for filtering
-        let startDate, endDate;
-        if (yesterdayContribution) {
-            const today = new Date();
-            const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
-            startDate = yesterday.toISOString().split('T')[0];
-            endDate = today.toISOString().split('T')[0]; // Use yesterday for start and today for end
-        } else if (startingDate && endingDate) {
-            startDate = startingDate;
-            endDate = endingDate;
-        } else {
-            // Default to last 7 days if no date range is set
-            const today = new Date();
-            const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
-            startDate = lastWeek.toISOString().split('T')[0];
-            endDate = today.toISOString().split('T')[0];
-        }
-
-        const startDateTime = new Date(startDate + 'T00:00:00Z');
-        const endDateTime = new Date(endDate + 'T23:59:59Z');
-
-        log('Filtering PR reviews by date range:', { startDate, endDate, startDateTime, endDateTime });
-
         for (i = 0; i < items.length; i++) {
             let item = items[i];
-            log(`Processing PR #${item.number} - state: ${item.state}, updated_at: ${item.updated_at}, created_at: ${item.created_at}, merged_at: ${item.pull_request?.merged_at}`);
-
             // For GitHub: item.user.login, for GitLab: item.author?.username
             let isAuthoredByUser = false;
             if (platform === 'github') {
@@ -1122,77 +1091,6 @@ ${userReason}`;
             }
 
             if (isAuthoredByUser || !item.pull_request) continue;
-
-            // Check if the PR was actually reviewed/commented on within the date range
-            let itemDate = new Date(item.updated_at || item.created_at);
-            log(`PR #${item.number} - itemDate: ${itemDate}, startDateTime: ${startDateTime}, endDateTime: ${endDateTime}`);
-            if (itemDate < startDateTime || itemDate > endDateTime) {
-                log(`Skipping PR #${item.number} - updated at ${itemDate} outside date range ${startDate} to ${endDate}`);
-                continue;
-            }
-
-            // Additional check: Skip PRs that were merged before the date range
-            if (item.state === 'closed' && item.pull_request && item.pull_request.merged_at) {
-                const mergedDate = new Date(item.pull_request.merged_at);
-                if (mergedDate < startDateTime) {
-                    log(`Skipping merged PR #${item.number} - merged at ${mergedDate} before date range ${startDate} to ${endDate}`);
-                    continue;
-                }
-            }
-
-            // For closed PRs, ensure they were merged within the date range
-            if (item.state === 'closed' && item.pull_request) {
-                if (!item.pull_request.merged_at) {
-                    log(`Skipping closed PR #${item.number} - not merged`);
-                    continue;
-                }
-                const mergedDate = new Date(item.pull_request.merged_at);
-                if (mergedDate < startDateTime || mergedDate > endDateTime) {
-                    log(`Skipping closed PR #${item.number} - merged at ${mergedDate} outside date range ${startDate} to ${endDate}`);
-                    continue;
-                }
-            }
-
-            // Additional conservative check: For PRs that were created before the date range,
-            // only include them if they were updated very recently (within the last day of the range)
-            const createdDate = new Date(item.created_at);
-            if (createdDate < startDateTime) {
-                // If PR was created before the date range, only include if it was updated in the last day
-                const lastDayOfRange = new Date(endDateTime);
-                lastDayOfRange.setDate(lastDayOfRange.getDate() - 1);
-                if (itemDate < lastDayOfRange) {
-                    log(`Skipping PR #${item.number} - created before date range and not updated recently enough`);
-                    continue;
-                }
-            }
-
-            // Extra conservative check: For "yesterday" filter, be very strict
-            if (yesterdayContribution) {
-                // For yesterday filter, only include PRs that were either:
-                // 1. Created yesterday, OR
-                // 2. Updated yesterday AND the user actually commented yesterday
-                const yesterday = new Date(startDate + 'T00:00:00Z');
-                const today = new Date(endDate + 'T23:59:59Z');
-
-                const wasCreatedYesterday = createdDate >= yesterday && createdDate <= today;
-                const wasUpdatedYesterday = itemDate >= yesterday && itemDate <= today;
-
-                if (!wasCreatedYesterday && !wasUpdatedYesterday) {
-                    log(`Skipping PR #${item.number} - not created or updated yesterday`);
-                    continue;
-                }
-
-                // For yesterday filter, be extra strict about merged PRs
-                if (item.state === 'closed' && item.pull_request && item.pull_request.merged_at) {
-                    const mergedDate = new Date(item.pull_request.merged_at);
-                    const wasMergedYesterday = mergedDate >= yesterday && mergedDate <= today;
-                    if (!wasMergedYesterday) {
-                        log(`Skipping merged PR #${item.number} - not merged yesterday`);
-                        continue;
-                    }
-                }
-            }
-
             let repository_url = item.repository_url;
             if (!repository_url) {
                 logError('repository_url is undefined for item:', item);
@@ -1311,27 +1209,7 @@ ${userReason}`;
         if (githubToken) headers['Authorization'] = `token ${githubToken}`;
         let useMergedStatus = false;
         let fallbackToSimple = false;
-
-        // Get the correct date range for days calculation
-        let startDateForRange, endDateForRange;
-        if (yesterdayContribution) {
-            const today = new Date();
-            const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
-            startDateForRange = yesterday.toISOString().split('T')[0];
-            endDateForRange = today.toISOString().split('T')[0]; // Use yesterday for start and today for end
-        } else if (startingDate && endingDate) {
-            startDateForRange = startingDate;
-            endDateForRange = endingDate;
-        } else {
-            // Default to last 7 days if no date range is set
-            const today = new Date();
-            const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
-            startDateForRange = lastWeek.toISOString().split('T')[0];
-            endDateForRange = today.toISOString().split('T')[0];
-        }
-
-        let daysRange = getDaysBetween(startDateForRange, endDateForRange);
-
+        let daysRange = getDaysBetween(startingDate, endingDate);
         if (githubToken) {
             useMergedStatus = true;
         } else if (daysRange <= 7) {
@@ -1399,79 +1277,46 @@ ${userReason}`;
                 let prAction = '';
 
                 const prCreatedDate = new Date(item.created_at);
-
-                // Get the correct date range for filtering
-                let startDateFilter, endDateFilter;
-                if (yesterdayContribution) {
-                    const today = new Date();
-                    const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
-                    startDateFilter = new Date(yesterday.toISOString().split('T')[0] + 'T00:00:00Z');
-                    endDateFilter = new Date(today.toISOString().split('T')[0] + 'T23:59:59Z'); // Use yesterday for start and today for end
-                } else if (startingDate && endingDate) {
-                    startDateFilter = new Date(startingDate + 'T00:00:00Z');
-                    endDateFilter = new Date(endingDate + 'T23:59:59Z');
-                } else {
-                    // Default to last 7 days if no date range is set
-                    const today = new Date();
-                    const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
-                    startDateFilter = new Date(lastWeek.toISOString().split('T')[0] + 'T00:00:00Z');
-                    endDateFilter = new Date(today.toISOString().split('T')[0] + 'T23:59:59Z');
-                }
-
-                const isNewPR = prCreatedDate >= startDateFilter && prCreatedDate <= endDateFilter;
-                const prUpdatedDate = new Date(item.updated_at);
-                const isUpdatedInRange = prUpdatedDate >= startDateFilter && prUpdatedDate <= endDateFilter;
-
-                // Check if PR has commits in the date range
-                const hasCommitsInRange = item._allCommits && item._allCommits.length > 0;
-
-                log(`[PR DEBUG] PR #${number} - isNewPR: ${isNewPR}, isUpdatedInRange: ${isUpdatedInRange}, state: ${item.state}, hasCommitsInRange: ${hasCommitsInRange}, created: ${item.created_at}, updated: ${item.updated_at}`);
+                const startDate = new Date(startingDate);
+                const endDate = new Date(endingDate + 'T23:59:59');
+                const isNewPR = prCreatedDate >= startDate && prCreatedDate <= endDate;
 
                 if (platform === 'github') {
-                    // For existing PRs (not new), they must be open AND have commits in the date range
                     if (!isNewPR) {
+                        // Only show existing PRs if they are open and have commits in the date range
                         if (item.state !== 'open') {
-                            log(`[PR DEBUG] Skipping PR #${number} - existing PR but not open`);
-                            continue;
+                            continue; // Skip closed/merged existing PRs
                         }
+                        const hasCommitsInRange = showCommits && item._allCommits && item._allCommits.length > 0;
                         if (!hasCommitsInRange) {
-                            log(`[PR DEBUG] Skipping PR #${number} - existing PR but no commits in date range`);
-                            continue;
+                            continue; // Skip existing PRs without commits in date range
                         }
                     }
                     prAction = isNewPR ? 'Made PR' : 'Existing PR';
-                    log(`[PR DEBUG] Including PR #${number} as ${prAction}`);
                 } else if (platform === 'gitlab') {
                     prAction = isNewPR ? 'Made Merge Request' : 'Existing Merge Request';
                 }
 
+
+
                 if (isDraft) {
 
-                    li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + pr_draft_button : ''}`;
-                    if (showCommits && item._allCommits && item._allCommits.length && !isNewPR) {
-                        log(`[PR DEBUG] Rendering commits for existing draft PR #${number}:`, item._allCommits);
-                        li += '<ul>';
-                        item._allCommits.forEach(commit => {
-                            li += `<li style=\"list-style: disc; color: #666;\"><span style=\"color:#2563eb;\">${commit.messageHeadline}</span><span style=\"color:#666; font-size: 11px;\"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
-                        });
-                        li += '</ul>';
-                    }
-                    li += `</li>`;
+                    li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + pr_draft_button : ''}</li>`;
                 } else if (item.state === 'open' || item.state === 'opened') {
                     li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + pr_open_button : ''}`;
 
                     if (showCommits && item._allCommits && item._allCommits.length && !isNewPR) {
                         log(`[PR DEBUG] Rendering commits for existing PR #${number}:`, item._allCommits);
-                        li += '<ul>';
                         item._allCommits.forEach(commit => {
-                            li += `<li style=\"list-style: disc; color: #666;\"><span style=\"color:#2563eb;\">${commit.messageHeadline}</span><span style=\"color:#666; font-size: 11px;\"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
+                            li += `<li style=\"list-style: disc; margin: 0 0 0 20px; padding: 0; color: #666;\"><span style=\"color:#2563eb;\">${commit.messageHeadline}</span><span style=\"color:#666; font-size: 11px;\"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
                         });
-                        li += '</ul>';
                     }
                     li += `</li>`;
                 } else if (platform === 'gitlab' && item.state === 'closed') {
+                    // For GitLab, show closed label for closed MRs only if showOpenLabel is enabled
                     li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + pr_closed_button : ''}</li>`;
                 } else {
+                    // GitHub: check merged status if possible
                     let merged = null;
                     if ((githubToken || (useMergedStatus && !fallbackToSimple)) && mergedStatusResults) {
                         let repoParts = repository_url.split('/');
@@ -1511,18 +1356,8 @@ ${userReason}`;
                     li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + issue_opened_button : ''}</li>`;
 
                 } else if (item.state === 'closed') {
-
-
-                    // Use state_reason to distinguish closure reason
-                    if (item.state_reason === 'completed') {
-                        li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_completed_button}</li>`;
-                    } else if (item.state_reason === 'not_planned') {
-                        li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_notplanned_button}</li>`;
-                    } else {
-                        li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_button}</li>`;
-                    }
-
-
+                    // Always show closed label for closed issues
+                    li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + issue_closed_button : ''}</li>`;
                 } else {
                     // Fallback for unexpected state
                     li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a></li>`;
@@ -1632,7 +1467,7 @@ async function forceGithubDataRefresh() {
     let showCommits = false;
 
     await new Promise(resolve => {
-        chrome.storage.local.get('showCommits', (result) => {
+        browserAPI.storage.local.get('showCommits', (result) => {
             if (result.showCommits !== undefined) {
                 showCommits = result.showCommits;
             }
@@ -1650,10 +1485,10 @@ async function forceGithubDataRefresh() {
     }
 
     await new Promise(resolve => {
-        chrome.storage.local.remove('githubCache', resolve);
+        browserAPI.storage.local.remove('githubCache', resolve);
     });
 
-    chrome.storage.local.set({ showCommits: showCommits });
+    browserAPI.storage.local.set({ showCommits: showCommits });
 
     hasInjectedContent = false;
 
@@ -1670,7 +1505,7 @@ async function forceGitlabDataRefresh() {
         gitlabHelper.cache.queue = [];
     }
     await new Promise(resolve => {
-        chrome.storage.local.remove('gitlabCache', resolve);
+        browserAPI.storage.local.remove('gitlabCache', resolve);
     });
     hasInjectedContent = false;
     // Re-instantiate gitlabHelper to ensure a fresh instance for next API call
@@ -1692,9 +1527,9 @@ window.generateScrumReport = function () {
     allIncluded('popup');
 };
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+browserAPI.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.action === 'forceRefresh') {
-        chrome.storage.local.get(['platform'], async (result) => {
+        browserAPI.storage.local.get(['platform'], async (result) => {
             const platform = result.platform || 'github';
             if (platform === 'gitlab') {
                 forceGitlabDataRefresh()
@@ -1767,13 +1602,18 @@ async function fetchUserRepositories(username, token, org = '') {
         let dateRange = '';
         try {
             const storageData = await new Promise(resolve => {
-                chrome.storage.local.get(['startingDate', 'endingDate', 'yesterdayContribution'], resolve);
+                browserAPI.storage.local.get(['startingDate', 'endingDate', 'lastWeekContribution', 'yesterdayContribution'], resolve);
             });
 
             let startDate, endDate;
-            if (storageData.yesterdayContribution) {
+            if (storageData.lastWeekContribution) {
                 const today = new Date();
-                const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+                const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
+                startDate = lastWeek.toISOString().split('T')[0];
+                endDate = today.toISOString().split('T')[0];
+            } else if (storageData.yesterdayContribution) {
+                const today = new Date();
+                const yesterday = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 1);
                 startDate = yesterday.toISOString().split('T')[0];
                 endDate = today.toISOString().split('T')[0];
             } else if (storageData.startingDate && storageData.endingDate) {

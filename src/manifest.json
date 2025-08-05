@@ -13,7 +13,7 @@
   },
   
   "background": {
-    "service_worker": "scripts/background.js"
+    "scripts": ["scripts/background.js"]
   },
   "content_scripts": [
     {
@@ -60,6 +60,11 @@
     "https://api.github.com/*",
     "https://gitlab.com/*"
  ],
-  "default_locale": "en"
-
+  "default_locale": "en",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "scrum-helper@example.com",
+      "strict_min_version": "109.0"
+    }
+  }
 }
