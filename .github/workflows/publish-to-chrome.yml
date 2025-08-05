@@ -1,0 +1,28 @@
+name: Publish to Chrome Web Store
+
+on:
+    release:
+        types: [published] # triggers when a release is published manually
+
+jobs:
+    publish:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+                ref: ${{ github.ref_name }}
+            
+            - name: Create ZIP file
+              run: |
+                cd src
+                zip -r ../scrum-helper.zip .
+
+            - name: Upload to Chrome Web Store
+              uses: PlasmoHQ/chrome-extension@v3
+              with:
+                client_id: ${{ secrets.CHROME_CLIENT_ID }}
+                client_secret: ${{ secrets.CHROME_CLIENT_SECRET }}
+                refresh_token: ${{ secrets.CHROME_REFRESH_TOKEN }}
+                extension_id: ${{ secrets.CHROME_EXTENSION_ID }}
+                zip: scrum-helper.zip
