@@ -10,7 +10,7 @@ on:
     types: [opened, reopened, synchronize]
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   update_release_draft:
@@ -36,6 +36,13 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Ensure correct branch is checked out (only on PR)
+        if: github.event_name == 'pull_request'
+        run: |
+          echo "Checking out PR source branch: ${{ github.head_ref }}"
+          git fetch origin ${{ github.head_ref }}
+          git checkout ${{ github.head_ref }}
         
       - name: Setup Node.js
         uses: actions/setup-node@v4
