@@ -1424,14 +1424,13 @@ ${userReason}`;
                 itemCreatedDate.setHours(0,0,0,0);
                 const isCreatedToday = today.getTime() === itemCreatedDate.getTime();
 
-                const isNewPR = prCreatedDate == new Date();
+                const isNewPR = prCreatedDate >= startDateFilter && prCreatedDate << endDateFilter;
                 const prUpdatedDate = new Date(item.updated_at);
                 const isUpdatedInRange = prUpdatedDate >= startDateFilter && prUpdatedDate <= endDateFilter;
 
                 // Check if PR has commits in the date range
                 const hasCommitsInRange = item._allCommits && item._allCommits.length > 0;
 
-                log(`[PR DEBUG] PR #${number} - isNewPR: ${isNewPR}, isUpdatedInRange: ${isUpdatedInRange}, state: ${item.state}, hasCommitsInRange: ${hasCommitsInRange}, created: ${item.created_at}, updated: ${item.updated_at}`);
 
                 if (platform === 'github') {
                     // For existing PRs (not new), they must be open AND have commits in the date range
