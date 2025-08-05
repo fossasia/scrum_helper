@@ -75,7 +75,7 @@
         "message": "Requis pour les requêtes authentifiées"
     },
     "showCommitsLabel": {
-        "message": "Afficher les commits dans les PR ouverts pour la période sélectionnée"
+        "message": "Afficher les commits sur les PRs ouverts/ brouillons de PRs"
     },
     "cacheTTLLabel": {
         "message": "Entrer le TTL du cache"
