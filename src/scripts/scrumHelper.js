@@ -1417,8 +1417,14 @@ ${userReason}`;
                     startDateFilter = new Date(lastWeek.toISOString().split('T')[0] + 'T00:00:00Z');
                     endDateFilter = new Date(today.toISOString().split('T')[0] + 'T23:59:59Z');
                 }
+                
+                const today = new Date();
+                today.setHours(0,0,0,0);
+                const itemCreatedDate = new Date(item.created_at);
+                itemCreatedDate.setHours(0,0,0,0);
+                const isCreatedToday = today.getTime() === itemCreatedDate.getTime();
 
-                const isNewPR = prCreatedDate >= startDateFilter && prCreatedDate <= endDateFilter;
+                const isNewPR = prCreatedDate == new Date();
                 const prUpdatedDate = new Date(item.updated_at);
                 const isUpdatedInRange = prUpdatedDate >= startDateFilter && prUpdatedDate <= endDateFilter;
 
@@ -1439,10 +1445,10 @@ ${userReason}`;
                             continue;
                         }
                     }
-                    prAction = isNewPR ? 'Made PR' : 'Existing PR';
+                    prAction = isNewPR ? 'Made PR' : 'Updated PR';
                     log(`[PR DEBUG] Including PR #${number} as ${prAction}`);
                 } else if (platform === 'gitlab') {
-                    prAction = isNewPR ? 'Made Merge Request' : 'Existing Merge Request';
+                    prAction = isNewPR ? 'Made Merge Request' : 'Updated Merge Request';
                 }
 
                 if (isDraft) {
@@ -1507,25 +1513,31 @@ ${userReason}`;
                     nextWeekArray.push(li2);
                 }
 
+                const today = new Date();
+                today.setHours(0,0,0,0);
+                const itemCreatedDate = new Date(item.created_at);
+                itemCreatedDate.setHours(0,0,0,0);
+                const isCreatedToday = today.getTime() === itemCreatedDate.getTime();
+                const issueActionText = isCreatedToday ? 'Opened Issue' : 'Updated Issue'
                 if (item.state === 'open') {
-                    li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + issue_opened_button : ''}</li>`;
+                    li = `<li><i>(${project})</i> - ${issueActionText}(#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + issue_opened_button : ''}</li>`;
 
                 } else if (item.state === 'closed') {
 
 
                     // Use state_reason to distinguish closure reason
                     if (item.state_reason === 'completed') {
-                        li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_completed_button}</li>`;
+                        li = `<li><i>(${project})</i> - ${issueActionText}(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_completed_button}</li>`;
                     } else if (item.state_reason === 'not_planned') {
-                        li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_notplanned_button}</li>`;
+                        li = `<li><i>(${project})</i> - ${issueActionText}(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_notplanned_button}</li>`;
                     } else {
-                        li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_button}</li>`;
+                        li = `<li><i>(${project})</i> - ${issueActionText}(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_button}</li>`;
                     }
 
 
                 } else {
                     // Fallback for unexpected state
-                    li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a></li>`;
+                    li = `<li><i>(${project})</i> - ${issueActionText}(#${number}) - <a href='${html_url}'>${title}</a></li>`;
                 }
 
                 log('[SCRUM-DEBUG] Added issue to lastWeekArray:', li, item);
