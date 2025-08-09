@@ -168,7 +168,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	function renderTokenPreview() {
 		tokenPreview.innerHTML = '';
-		const value = githubTokenInput.value;
+		const {value} = githubTokenInput;
 		const isDark = document.body.classList.contains('dark-mode');
 		for (let i = 0; i < value.length; i++) {
 			const charBox = document.createElement('span');
