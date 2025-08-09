@@ -178,7 +178,7 @@ function handleGithubTokenChange() {
 	chrome.storage.local.set({ githubToken: value });
 }
 function handleGitlabTokenChange() {
-	let value = gitlabTokenElement.value;
+	let {value} = gitlabTokenElement;
 	chrome.storage.local.set({ gitlabToken: value });
 }
 function handleProjectNameChange() {
