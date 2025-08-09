@@ -84,7 +84,7 @@
         "message": "<b>GitLabトークンを追加することが推奨される理由は？</b><br>Scrum HelperはGitLabトークンなしでも動作しますが、より良い体験のために個人アクセストークンを追加することが推奨されます。API制限を引き上げ、プライベートリポジトリへのアクセスを許可し（許可されている場合）、精度と速度を向上させます。トークンはローカルに保存され、私たちに送信されることはなく、あなたのgitデータを取得するためにのみ使用されます。拡張機能の設定でいつでも追加できます。<br><br><b>取得方法：</b><br>1. <a href=\"https://gitlab.com/-/profile/personal_access_tokens\" target=\"_blank\" style=\"color:#2563eb;text-decoration:underline;\">GitLab Personal Access Tokens</a>に移動します。<br>2. \"Create personal access token\"をクリックします<br>3.名前を付けて適切なスコープを選択します（read_api, read_user, read_repository）<br>4.ここに貼り付けます。<br><i>トークンを秘密に保ってください！</i>"
     },
     "showCommitsLabel": {
-        "message": "期間内のオープンなPRのコミットを表示"
+        "message": "オープンなPR/ドラフトPRのコミットを表示"
     },
     "cacheTTLLabel": {
         "message": "キャッシュTTLを入力"

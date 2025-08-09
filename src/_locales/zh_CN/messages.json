@@ -85,7 +85,7 @@
         "message": "<b>为什么建议添加 GitLab 令牌？</b><br>Scrum Helper 无需 GitLab 令牌即可工作，但建议添加个人访问令牌以获得更好的体验。它会提高您的 API 限制，允许访问私有仓库（如果允许），并提高准确性和速度。令牌存储在本地，永远不会发送给我们，仅用于获取您的 git 数据。您可以随时在扩展设置中添加一个。<br><br><b>如何获取：</b><br>1. 访问 <a href=\"https://gitlab.com/-/profile/personal_access_tokens\" target=\"_blank\" style=\"color:#2563eb;text-decoration:underline;\">GitLab Personal Access Tokens</a>。<br>2. 点击 \"Create personal access token\"<br>3. 给它一个名称并选择适当的范围（read_api, read_user, read_repository）<br>4. 粘贴到这里。<br><i>保持您的令牌秘密！</i>"
     },
     "showCommitsLabel": {
-        "message": "显示日期范围内在进行中 PR 的提交"
+        "message": "在打开的 PR/草稿 PR 上显示提交"
     },
     "cacheTTLLabel": {
         "message": "输入缓存 TTL"

@@ -97,7 +97,7 @@
     "description": "Placeholder for the GitHub token input."
   },
   "showCommitsLabel": {
-    "message": "Show commits on open PRs",
+    "message": "Show commits on open PRs/ draft PRs",
     "description": "Label for the checkbox to show commits in open PRs."
   },
   "cacheTTLLabel": {
