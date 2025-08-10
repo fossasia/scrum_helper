@@ -13,6 +13,47 @@ function logError(...args) {
     }
 }
 
+/**
+ * Helper function to get date range filters with proper UTC handling
+ * @param {boolean} yesterdayContribution - Whether to use yesterday contribution mode
+ * @param {string} startingDate - Starting date string (YYYY-MM-DD format)
+ * @param {string} endingDate - Ending date string (YYYY-MM-DD format)
+ * @returns {Object} Object with startDateFilter and endDateFilter as Date objects
+ */
+function getDateRangeFilters(yesterdayContribution, startingDate, endingDate) {
+    let startDateFilter, endDateFilter;
+    
+    if (yesterdayContribution) {
+        const now = new Date();
+        // Use time-based arithmetic to avoid timezone issues
+        const yesterdayTime = now.getTime() - 24 * 60 * 60 * 1000;
+        const yesterday = new Date(yesterdayTime);
+        
+        // Create UTC dates to avoid timezone inconsistencies
+        const yesterdayStr = yesterday.toISOString().split('T')[0];
+        const todayStr = now.toISOString().split('T')[0];
+        
+        startDateFilter = new Date(yesterdayStr + 'T00:00:00.000Z');
+        endDateFilter = new Date(todayStr + 'T23:59:59.999Z');
+    } else if (startingDate && endingDate) {
+        startDateFilter = new Date(startingDate + 'T00:00:00.000Z');
+        endDateFilter = new Date(endingDate + 'T23:59:59.999Z');
+    } else {
+        // Default to last 7 days - use time arithmetic for consistency
+        const now = new Date();
+        const lastWeekTime = now.getTime() - 7 * 24 * 60 * 60 * 1000;
+        const lastWeek = new Date(lastWeekTime);
+        
+        const lastWeekStr = lastWeek.toISOString().split('T')[0];
+        const todayStr = now.toISOString().split('T')[0];
+        
+        startDateFilter = new Date(lastWeekStr + 'T00:00:00.000Z');
+        endDateFilter = new Date(todayStr + 'T23:59:59.999Z');
+    }
+    
+    return { startDateFilter, endDateFilter };
+}
+
 
 let refreshButton_Placed = false;
 let enableToggle = true;
@@ -1399,33 +1440,21 @@ ${userReason}`;
                 let prAction = '';
 
                 const prCreatedDate = new Date(item.created_at);
+                const prUpdatedDate = new Date(item.updated_at);
 
-                // Get the correct date range for filtering
-                let startDateFilter, endDateFilter;
-                if (yesterdayContribution) {
-                    const today = new Date();
-                    const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
-                    startDateFilter = new Date(yesterday.toISOString().split('T')[0] + 'T00:00:00Z');
-                    endDateFilter = new Date(today.toISOString().split('T')[0] + 'T23:59:59Z'); // Use yesterday for start and today for end
-                } else if (startingDate && endingDate) {
-                    startDateFilter = new Date(startingDate + 'T00:00:00Z');
-                    endDateFilter = new Date(endingDate + 'T23:59:59Z');
-                } else {
-                    // Default to last 7 days if no date range is set
-                    const today = new Date();
-                    const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
-                    startDateFilter = new Date(lastWeek.toISOString().split('T')[0] + 'T00:00:00Z');
-                    endDateFilter = new Date(today.toISOString().split('T')[0] + 'T23:59:59Z');
-                }
+                // Get date range filters using helper function
+                const { startDateFilter, endDateFilter } = getDateRangeFilters(yesterdayContribution, startingDate, endingDate);
 
                 const isNewPR = prCreatedDate >= startDateFilter && prCreatedDate <= endDateFilter;
-                const prUpdatedDate = new Date(item.updated_at);
                 const isUpdatedInRange = prUpdatedDate >= startDateFilter && prUpdatedDate <= endDateFilter;
 
                 // Check if PR has commits in the date range
                 const hasCommitsInRange = item._allCommits && item._allCommits.length > 0;
 
-                log(`[PR DEBUG] PR #${number} - isNewPR: ${isNewPR}, isUpdatedInRange: ${isUpdatedInRange}, state: ${item.state}, hasCommitsInRange: ${hasCommitsInRange}, created: ${item.created_at}, updated: ${item.updated_at}`);
+                // Only log in debug mode to avoid production noise
+                if (DEBUG) {
+                    log(`[PR DEBUG] PR #${number} - isNewPR: ${isNewPR}, isUpdatedInRange: ${isUpdatedInRange}, state: ${item.state}, hasCommitsInRange: ${hasCommitsInRange}, created: ${item.created_at}, updated: ${item.updated_at}`);
+                }
 
                 if (platform === 'github') {
                     // For existing PRs (not new), they must be open AND have commits in the date range
@@ -1509,29 +1538,23 @@ ${userReason}`;
 
                 // Determine if issue was created or updated in date range
                 const issueCreatedDate = new Date(item.created_at);
+                const issueUpdatedDate = new Date(item.updated_at);
                 
-                // Get the correct date range for filtering
-                let startDateFilter, endDateFilter;
-                if (yesterdayContribution) {
-                    const today = new Date();
-                    const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
-                    startDateFilter = new Date(yesterday.toISOString().split('T')[0] + 'T00:00:00Z');
-                    endDateFilter = new Date(today.toISOString().split('T')[0] + 'T23:59:59Z');
-                } else if (startingDate && endingDate) {
-                    startDateFilter = new Date(startingDate + 'T00:00:00Z');
-                    endDateFilter = new Date(endingDate + 'T23:59:59Z');
-                } else {
-                    // Default to last 7 days if no date range is set
-                    const today = new Date();
-                    const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
-                    startDateFilter = new Date(lastWeek.toISOString().split('T')[0] + 'T00:00:00Z');
-                    endDateFilter = new Date(today.toISOString().split('T')[0] + 'T23:59:59Z');
-                }
+                // Get date range filters using helper function
+                const { startDateFilter, endDateFilter } = getDateRangeFilters(yesterdayContribution, startingDate, endingDate);
 
                 const isNewIssue = issueCreatedDate >= startDateFilter && issueCreatedDate <= endDateFilter;
-                const issueAction = isNewIssue ? 'Opened Issue' : 'Updated Issue';
+                
+                // For "Updated Issue" label, verify both:
+                // 1. Issue was NOT created in the date range
+                // 2. Issue was actually updated within the date range
+                const isUpdatedInRange = issueUpdatedDate >= startDateFilter && issueUpdatedDate <= endDateFilter;
+                const issueAction = isNewIssue ? 'Opened Issue' : (isUpdatedInRange ? 'Updated Issue' : 'Opened Issue');
 
-                log(`[ISSUE DEBUG] Issue #${number} - isNewIssue: ${isNewIssue}, issueAction: ${issueAction}, state: ${item.state}, created: ${item.created_at}, updated: ${item.updated_at}`);
+                // Only log in debug mode to avoid production noise
+                if (DEBUG) {
+                    log(`[ISSUE DEBUG] Issue #${number} - isNewIssue: ${isNewIssue}, isUpdatedInRange: ${isUpdatedInRange}, issueAction: ${issueAction}, state: ${item.state}, created: ${item.created_at}, updated: ${item.updated_at}`);
+                }
 
                 if (item.state === 'open') {
                     li = `<li><i>(${project})</i> - ${issueAction}(#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + issue_opened_button : ''}</li>`;
