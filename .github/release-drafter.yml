@@ -21,16 +21,20 @@ template: |
 
   $CHANGES
 
+change-template: '* $TITLE (#$NUMBER) @$AUTHOR'
 change-title-escapes: '\<*_&' # You can add # and @ to disable mentions, and add ` to disable code blocks.
 version-resolver:
   major:
     labels:
-      - 'major'
+      - 'release:major'
+      - 'major' # major in pr title
   minor:
     labels:
+      - 'release:minor'
       - 'minor'
   patch:
     labels:
+      - 'release:patch'
       - 'patch'
       - 'fix'
       - 'documentation'
@@ -39,3 +43,4 @@ version-resolver:
 
 exclude-labels:
   - 'skip-changelog'
+  - 'release:none'
