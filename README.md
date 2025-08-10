@@ -178,6 +178,30 @@ If you want to share your translation with others:
 For more details, see the [Chrome i18n documentation](https://developer.chrome.com/docs/extensions/reference/i18n/).
 
 
+## Release Process
+
+This project uses a fully automated release process powered by GitHub Actions. Understanding this process is helpful for both maintainers and contributors.
+
+The process is split into two parts:
+
+### 1. Automated Release Drafting
+
+This part runs every time a pull request is merged into the `master` branch.
+
+1.  **PR Merge**: A contributor's pull request is reviewed and merged.
+2.  **Drafting Workflow**: The "Release Drafter" workflow is triggered.
+3.  **Versioning**: The workflow inspects the `release:*` label or PR title to determine the next semantic version.
+4.  **Changelog Update**: The `CHANGELOG.md` file is automatically updated with the titles of the merged PRs.
+5.  **Draft Creation**: A new draft release is created or updated in the [Releases](https://github.com/fossasia/scrum-helper/releases) section. This draft includes the new version tag and the updated changelog notes.
+
+### 2. Manual Release Publishing
+
+This part is performed manually by maintainers when it's time to publish a new version.
+
+1.  **Verification**: A maintainer reviews the draft release to ensure it's accurate and complete.
+2.  **Publishing**: The maintainer publishes the release from the GitHub UI.
+3.  **Chrome Web Store Deployment**: Publishing the release triggers the "Publish to Chrome Web Store" workflow, which automatically packages the extension and uploads it for review.
+
 ## About contributing
 
 - Follow the Issues and PRs templates as far as possible.
