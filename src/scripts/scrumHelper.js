@@ -1507,25 +1507,51 @@ ${userReason}`;
                     nextWeekArray.push(li2);
                 }
 
+                // Determine if issue was created or updated in date range
+                const issueCreatedDate = new Date(item.created_at);
+                
+                // Get the correct date range for filtering
+                let startDateFilter, endDateFilter;
+                if (yesterdayContribution) {
+                    const today = new Date();
+                    const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+                    startDateFilter = new Date(yesterday.toISOString().split('T')[0] + 'T00:00:00Z');
+                    endDateFilter = new Date(today.toISOString().split('T')[0] + 'T23:59:59Z');
+                } else if (startingDate && endingDate) {
+                    startDateFilter = new Date(startingDate + 'T00:00:00Z');
+                    endDateFilter = new Date(endingDate + 'T23:59:59Z');
+                } else {
+                    // Default to last 7 days if no date range is set
+                    const today = new Date();
+                    const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
+                    startDateFilter = new Date(lastWeek.toISOString().split('T')[0] + 'T00:00:00Z');
+                    endDateFilter = new Date(today.toISOString().split('T')[0] + 'T23:59:59Z');
+                }
+
+                const isNewIssue = issueCreatedDate >= startDateFilter && issueCreatedDate <= endDateFilter;
+                const issueAction = isNewIssue ? 'Opened Issue' : 'Updated Issue';
+
+                log(`[ISSUE DEBUG] Issue #${number} - isNewIssue: ${isNewIssue}, issueAction: ${issueAction}, state: ${item.state}, created: ${item.created_at}, updated: ${item.updated_at}`);
+
                 if (item.state === 'open') {
-                    li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + issue_opened_button : ''}</li>`;
+                    li = `<li><i>(${project})</i> - ${issueAction}(#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + issue_opened_button : ''}</li>`;
 
                 } else if (item.state === 'closed') {
 
 
                     // Use state_reason to distinguish closure reason
                     if (item.state_reason === 'completed') {
-                        li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_completed_button}</li>`;
+                        li = `<li><i>(${project})</i> - ${issueAction}(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_completed_button}</li>`;
                     } else if (item.state_reason === 'not_planned') {
-                        li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_notplanned_button}</li>`;
+                        li = `<li><i>(${project})</i> - ${issueAction}(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_notplanned_button}</li>`;
                     } else {
-                        li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_button}</li>`;
+                        li = `<li><i>(${project})</i> - ${issueAction}(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_button}</li>`;
                     }
 
 
                 } else {
                     // Fallback for unexpected state
-                    li = `<li><i>(${project})</i> - Opened Issue(#${number}) - <a href='${html_url}'>${title}</a></li>`;
+                    li = `<li><i>(${project})</i> - ${issueAction}(#${number}) - <a href='${html_url}'>${title}</a></li>`;
                 }
 
                 log('[SCRUM-DEBUG] Added issue to lastWeekArray:', li, item);
