@@ -191,15 +191,26 @@ The release notes are automatically generated from the pull requests merged into
 2.  **Provide a clear description.** The body of your PR should explain the "what" and "why" of your changes. This context is invaluable for reviewers and for anyone looking back at the project's history.
 
 ### Pull Request Labeling & Semantic Versioning
-This project uses an automated release process based on semantic versioning. To make this work, every pull request that should be included in the release notes **must be labeled correctly**.
+This project uses an automated release process that relies on pull request labels and titles to determine the semantic version for a new release. For your contribution to be included in the release notes, please use one of the methods below.
 
-The label determines whether the next release is a `major`, `minor`, or `patch` update. Please apply one of the following labels to your PR:
+**Method 1: Using Labels (Preferred)**
 
-- `major`: For breaking changes that are not backward-compatible. This will result in a `vX.0.0` release.
-- `minor`: For new features or significant enhancements that are backward-compatible. This will result in a `v1.X.0` release.
-- `patch`: For backward-compatible bug fixes, documentation updates, or maintenance chores. This will result in a `v1.2.X` release.
+The clearest way to signal the impact of your change is to apply **one** of the following labels to your pull request. This is the recommended approach.
 
-If a PR has no versioning label, it may be excluded from the release notes. If you are unsure, `patch` is usually a safe default for small fixes.
+-   `release:major`: For breaking changes that are not backward-compatible.
+-   `release:minor`: For new features or significant enhancements.
+-   `release:patch`: For backward-compatible bug fixes, documentation updates, or maintenance.
+-   `release:none`: To exclude the change from the release notes entirely.
+
+**Method 2: Using PR Titles**
+
+As a fallback, if no `release:*` label is applied, the system will inspect your pull request title for the following keywords (case-insensitive) to determine the version bump:
+
+-   `major`: For breaking changes.
+-   `minor`: For new features.
+-   `patch`, `fix`, `chore`, `documentation` : For bug fixes and other small changes.
+
+If you are unsure which label to use, please write a clear and descriptive title, and a maintainer will apply the correct label before merging.
 
 - Before making a PR, ensure your code is properly formatted and linted:
   - Format your code: This command automatically formats your code based on the project's style guidelines.
