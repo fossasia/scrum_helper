@@ -1,6 +1,7 @@
 let enableToggleElement = document.getElementById('enable');
 let platformUsernameElement = document.getElementById('platformUsername');
 let githubTokenElement = document.getElementById('githubToken');
+let gitlabTokenElement = document.getElementById('gitlabToken');
 let cacheInputElement = document.getElementById('cacheInput');
 let projectNameElement = document.getElementById('projectName');
 let yesterdayContributionElement = document.getElementById('yesterdayContribution');
@@ -41,6 +42,7 @@ function handleBodyOnLoad() {
 			'yesterdayContribution',
 			'cacheInput',
 			'githubToken',
+			'gitlabToken',
 			'showCommits',
 		],
 		(items) => {
@@ -53,6 +55,9 @@ function handleBodyOnLoad() {
 
 			if (items.githubToken) {
 				githubTokenElement.value = items.githubToken;
+			}
+			if (items.gitlabToken && gitlabTokenElement) {
+				gitlabTokenElement.value = items.gitlabToken;
 			}
 			if (items.projectName) {
 				projectNameElement.value = items.projectName;
@@ -84,8 +89,7 @@ function handleBodyOnLoad() {
 			if (items.yesterdayContribution) {
 				yesterdayContributionElement.checked = items.yesterdayContribution;
 				handleYesterdayContributionChange();
-			}
-			else if (items.yesterdayContribution !== false) {
+			} else if (items.yesterdayContribution !== false) {
 				yesterdayContributionElement.checked = true;
 				handleYesterdayContributionChange();
 			}
@@ -106,7 +110,7 @@ document.getElementById('refreshCache').addEventListener('click', async (e) => {
 
 	try {
 	} catch (err) {
-		console.log('Refresh successful',);
+		console.log('Refresh successful');
 	} finally {
 		setTimeout(() => {
 			button.classList.remove('loading');
@@ -139,13 +143,13 @@ function handleYesterdayContributionChange() {
 		startingDateElement.value = getYesterday();
 		handleEndingDateChange();
 		handleStartingDateChange();
-		labelElement.classList.add("selectedLabel");
-		labelElement.classList.remove("unselectedLabel");
+		labelElement.classList.add('selectedLabel');
+		labelElement.classList.remove('unselectedLabel');
 	} else {
 		startingDateElement.readOnly = false;
 		endingDateElement.readOnly = false;
-		labelElement.classList.add("unselectedLabel");
-		labelElement.classList.remove("selectedLabel");
+		labelElement.classList.add('unselectedLabel');
+		labelElement.classList.remove('selectedLabel');
 	}
 	chrome.storage.local.set({ yesterdayContribution: value });
 }
@@ -173,6 +177,10 @@ function handleGithubTokenChange() {
 	let value = githubTokenElement.value;
 	chrome.storage.local.set({ githubToken: value });
 }
+function handleGitlabTokenChange() {
+	let {value} = gitlabTokenElement;
+	chrome.storage.local.set({ gitlabToken: value });
+}
 function handleProjectNameChange() {
 	let value = projectNameElement.value;
 	chrome.storage.local.set({ projectName: value });
@@ -186,17 +194,15 @@ function handleOpenLabelChange() {
 	let labelElement = document.querySelector("label[for='showOpenLabel']");
 
 	if (value) {
-		labelElement.classList.add("selectedLabel");
-		labelElement.classList.remove("unselectedLabel");
+		labelElement.classList.add('selectedLabel');
+		labelElement.classList.remove('unselectedLabel');
 	} else {
-		labelElement.classList.add("unselectedLabel");
-		labelElement.classList.remove("selectedLabel");
+		labelElement.classList.add('unselectedLabel');
+		labelElement.classList.remove('selectedLabel');
 	}
 
 	chrome.storage.local.set({ showOpenLabel: value });
 }
-
-
 
 function handleShowCommitsChange() {
 	let value = showCommitsElement.checked;
@@ -207,6 +213,9 @@ enableToggleElement.addEventListener('change', handleEnableChange);
 platformUsernameElement.addEventListener('keyup', handlePlatformUsernameChange);
 if (githubTokenElement) {
 	githubTokenElement.addEventListener('keyup', handleGithubTokenChange);
+}
+if (gitlabTokenElement) {
+	gitlabTokenElement.addEventListener('keyup', handleGitlabTokenChange);
 }
 cacheInputElement.addEventListener('keyup', handleCacheInputChange);
 projectNameElement.addEventListener('keyup', handleProjectNameChange);

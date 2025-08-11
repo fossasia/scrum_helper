@@ -6,13 +6,11 @@ function log(...args) {
     }
 }
 
-
 function logError(...args) {
     if (DEBUG) {
         console.error('[SCRUM-HELPER]:', ...args);
     }
 }
-
 
 let refreshButton_Placed = false;
 let enableToggle = true;
@@ -41,6 +39,7 @@ function allIncluded(outputTarget = 'email') {
     let endingDate = '';
     let platformUsernameLocal = '';
     let githubToken = '';
+    let gitlabToken = '';
     let projectName = '';
     let lastWeekArray = [];
     let nextWeekArray = [];
@@ -76,13 +75,14 @@ function allIncluded(outputTarget = 'email') {
         '<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #808080;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--gray">closed</div>';
 
     function getChromeData() {
-        console.log("[DEBUG] getChromeData called for outputTarget:", outputTarget);
+        console.log('[DEBUG] getChromeData called for outputTarget:', outputTarget);
         chrome.storage.local.get(
             [
                 'platform',
                 'githubUsername',
                 'gitlabUsername',
                 'githubToken',
+                'gitlabToken',
                 'projectName',
                 'enableToggle',
                 'startingDate',
@@ -98,8 +98,7 @@ function allIncluded(outputTarget = 'email') {
                 'showCommits',
             ],
             (items) => {
-
-                console.log("[DEBUG] Storage items received:", items);
+                console.log('[DEBUG] Storage items received:', items);
                 platform = items.platform || 'github';
 
                 // Load platform-specific username
@@ -112,6 +111,7 @@ function allIncluded(outputTarget = 'email') {
                     const usernameFromDOM = document.getElementById('platformUsername')?.value;
                     const projectFromDOM = document.getElementById('projectName')?.value;
                     const tokenFromDOM = document.getElementById('githubToken')?.value;
+                    const gitlabTokenFromDOM = document.getElementById('gitlabToken')?.value;
 
                     // Save to platform-specific storage
                     if (usernameFromDOM) {
@@ -122,9 +122,11 @@ function allIncluded(outputTarget = 'email') {
 
                     items.projectName = projectFromDOM || items.projectName;
                     items.githubToken = tokenFromDOM || items.githubToken;
+                    items.gitlabToken = gitlabTokenFromDOM || items.gitlabToken;
                     chrome.storage.local.set({
                         projectName: items.projectName,
-                        githubToken: items.githubToken
+                        githubToken: items.githubToken,
+                        gitlabToken: items.gitlabToken,
                     });
                 }
                 projectName = items.projectName;
@@ -132,6 +134,9 @@ function allIncluded(outputTarget = 'email') {
                 userReason = 'No Blocker at the moment';
                 chrome.storage.local.remove(['userReason']);
                 githubToken = items.githubToken;
+
+                gitlabToken = items.gitlabToken;
+
                 yesterdayContribution = items.yesterdayContribution;
                 if (typeof items.enableToggle !== 'undefined') {
                     enableToggle = items.enableToggle;
@@ -147,8 +152,6 @@ function allIncluded(outputTarget = 'email') {
                     startingDate = items.startingDate;
                     endingDate = items.endingDate;
                 } else {
-
-
                     handleYesterdayContributionChange();
 
 
@@ -156,10 +159,6 @@ function allIncluded(outputTarget = 'email') {
                         chrome.storage.local.set({ yesterdayContribution: true });
                     }
                 }
-
-
-
-
                 if (platform === 'github') {
                     if (platformUsernameLocal) {
 
@@ -195,7 +194,12 @@ function allIncluded(outputTarget = 'email') {
                         if (outputTarget === 'email') {
                             (async () => {
                                 try {
-                                    const data = await gitlabHelper.fetchGitLabData(platformUsernameLocal, startingDate, endingDate);
+                                    const data = await gitlabHelper.fetchGitLabData(
+                                        platformUsernameLocal,
+                                        startingDate,
+                                        endingDate,
+                                        gitlabToken,
+                                    );
 
 
                                     function mapGitLabItem(item, projects, type) {
@@ -256,7 +260,12 @@ function allIncluded(outputTarget = 'email') {
                             })();
                         } else {
 
-                            gitlabHelper.fetchGitLabData(platformUsernameLocal, startingDate, endingDate)
+                            gitlabHelper.fetchGitLabData(
+                                platformUsernameLocal,
+                                startingDate,
+                                endingDate,
+                                gitlabToken,
+                            )
                                 .then(data => {
                                     function mapGitLabItem(item, projects, type) {
                                         const project = projects.find(p => p.id === item.project_id);
@@ -273,6 +282,9 @@ function allIncluded(outputTarget = 'email') {
                                             project: repoName,
                                             pull_request: type === 'mr',
                                         };
+                                    }
+                                    if (!data) {
+                                        throw new Error('GitLab data is null or undefined');
                                     }
                                     const mappedIssues = (data.issues || []).map(issue => mapGitLabItem(issue, data.projects, 'issue'));
                                     const mappedMRs = (data.mergeRequests || data.mrs || []).map(mr => mapGitLabItem(mr, data.projects, 'mr'));
@@ -293,13 +305,19 @@ function allIncluded(outputTarget = 'email') {
                                         }
                                         const scrumReport = document.getElementById('scrumReport');
                                         if (scrumReport) {
-                                            scrumReport.innerHTML = `<div class=\"error-message\" style=\"color: #dc2626; font-weight: bold; padding: 10px;\">${err.message || 'An error occurred while fetching GitLab data.'}</div>`;
+                                            const errorMessage = err.message || 'An error occurred while fetching GitLab data.';
+                                            console.error('GitLab error details:', {
+                                                message: err.message,
+                                                stack: err.stack,
+                                                name: err.name,
+                                            });
+                                            scrumReport.innerHTML = `<div class=\"error-message\" style=\"color: #dc2626; font-weight: bold; padding: 10px;\">${errorMessage}</div>`;
                                         }
                                     }
                                     scrumGenerationInProgress = false;
                                 });
                         }
-                        // --- FIX END ---
+
                     } else {
                         if (outputTarget === 'popup') {
                             const scrumReport = document.getElementById('scrumReport');
@@ -313,13 +331,16 @@ function allIncluded(outputTarget = 'email') {
                             }
                         }
                         scrumGenerationInProgress = false;
+
                     }
+
                 } else {
-                    // Unknown platform
+
                     if (outputTarget === 'popup') {
                         const scrumReport = document.getElementById('scrumReport');
                         if (scrumReport) {
-                            scrumReport.innerHTML = '<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">Unknown platform selected.</div>';
+                            scrumReport.innerHTML =
+                                '<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">Unknown platform selected.</div>';
                         }
                     }
                     scrumGenerationInProgress = false;
@@ -715,6 +736,7 @@ function allIncluded(outputTarget = 'email') {
             const owner = repoParts[repoParts.length - 2];
             const repo = repoParts[repoParts.length - 1];
             return `
+
 			pr${idx}: repository(owner: "${owner}", name: "${repo}") {
 				pullRequest(number: ${pr.number}) {
 					commits(first: 100) {
@@ -733,6 +755,7 @@ function allIncluded(outputTarget = 'email') {
 				}
 
 			}`;
+
         }).join('\n');
         const query = `query { ${queries} }`;
         log('GraphQL query for commits:', query);
@@ -969,6 +992,7 @@ function allIncluded(outputTarget = 'email') {
         let content;
         if (yesterdayContribution == true) {
             content = `<b>1. What did I do ${weekOrDay}?</b><br>
+
 ${lastWeekUl}<br>
 <b>2. What do I plan to do ${weekOrDay2}?</b><br>
 ${nextWeekUl}<br>
@@ -981,6 +1005,7 @@ ${lastWeekUl}<br>
 ${nextWeekUl}<br>
 <b>3. What is blocking me from making progress?</b><br>
 ${userReason}`;
+
         }
 
         if (outputTarget === 'popup') {
@@ -1166,11 +1191,8 @@ ${userReason}`;
                 }
             }
 
-            // Extra conservative check: For "yesterday" filter, be very strict
             if (yesterdayContribution) {
-                // For yesterday filter, only include PRs that were either:
-                // 1. Created yesterday, OR
-                // 2. Updated yesterday AND the user actually commented yesterday
+
                 const yesterday = new Date(startDate + 'T00:00:00Z');
                 const today = new Date(endDate + 'T23:59:59Z');
 
@@ -1566,11 +1588,11 @@ ${userReason}`;
         clearInterval(intervalSubject);
         scrumSubject = elements.subject;
 
+
         setTimeout(() => {
             scrumSubjectLoaded();
         }, 500);
     }, 500);
-
 
     // check for github safe writing
     let intervalWriteGithubIssues = setInterval(() => {
@@ -1624,14 +1646,10 @@ ${userReason}`;
     }
 }
 
-
-
-
-
 async function forceGithubDataRefresh() {
     let showCommits = false;
 
-    await new Promise(resolve => {
+    await new Promise((resolve) => {
         chrome.storage.local.get('showCommits', (result) => {
             if (result.showCommits !== undefined) {
                 showCommits = result.showCommits;
@@ -1649,7 +1667,7 @@ async function forceGithubDataRefresh() {
         githubCache.queue = [];
     }
 
-    await new Promise(resolve => {
+    await new Promise((resolve) => {
         chrome.storage.local.remove('githubCache', resolve);
     });
 
@@ -1668,8 +1686,9 @@ async function forceGitlabDataRefresh() {
         gitlabHelper.cache.timestamp = 0;
         gitlabHelper.cache.fetching = false;
         gitlabHelper.cache.queue = [];
+        console.log('[DEBUG] Cleared GitLab cache (both GraphQL and REST)');
     }
-    await new Promise(resolve => {
+    await new Promise((resolve) => {
         chrome.storage.local.remove('gitlabCache', resolve);
     });
     hasInjectedContent = false;
@@ -1680,12 +1699,13 @@ async function forceGitlabDataRefresh() {
     return { success: true };
 }
 
-
 if (window.location.protocol.startsWith('http')) {
     allIncluded('email');
-    $('button>span:contains(New conversation)').parent('button').click(() => {
-        allIncluded();
-    });
+    $('button>span:contains(New conversation)')
+        .parent('button')
+        .click(() => {
+            allIncluded();
+        });
 }
 
 window.generateScrumReport = function () {
@@ -1698,13 +1718,15 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             const platform = result.platform || 'github';
             if (platform === 'gitlab') {
                 forceGitlabDataRefresh()
-                    .then(result => sendResponse(result)).catch(err => {
+                    .then((result) => sendResponse(result))
+                    .catch((err) => {
                         console.error('Force refresh failed:', err);
                         sendResponse({ success: false, error: err.message });
                     });
             } else {
                 forceGithubDataRefresh()
-                    .then(result => sendResponse(result)).catch(err => {
+                    .then((result) => sendResponse(result))
+                    .catch((err) => {
                         console.error('Force refresh failed:', err);
                         sendResponse({ success: false, error: err.message });
                     });
@@ -1718,9 +1740,13 @@ async function fetchPrsMergedStatusBatch(prs, headers) {
     const results = {};
     if (prs.length === 0) return results;
     const query = `query {
-${prs.map((pr, i) => `	repo${i}: repository(owner: \"${pr.owner}\", name: \"${pr.repo}\") {
+${prs
+            .map(
+                (pr, i) => `	repo${i}: repository(owner: \"${pr.owner}\", name: \"${pr.repo}\") {
 		pr${i}: pullRequest(number: ${pr.number}) { merged }
-	}`).join('\n')}
+	}`,
+            )
+            .join('\n')}
 }`;
 
     try {
@@ -1742,13 +1768,13 @@ ${prs.map((pr, i) => `	repo${i}: repository(owner: \"${pr.owner}\", name: \"${pr
     } catch (e) {
         return results;
     }
-
 }
 
 let selectedRepos = [];
 let useRepoFilter = false;
 
 async function fetchUserRepositories(username, token, org = '') {
+
     const headers = {
         'Accept': 'application/vnd.github.v3+json',
     };
@@ -1840,6 +1866,7 @@ async function fetchUserRepositories(username, token, org = '') {
         }
 
         const repoFields = `
+
             name
             nameWithOwner
             description
@@ -1850,19 +1877,22 @@ async function fetchUserRepositories(username, token, org = '') {
             }
         `;
 
-        const repoQueries = repoNames.slice(0, 50).map((repoFullName, i) => {
-            const parts = repoFullName.split('/');
-            if (parts.length !== 2) return '';
-            const owner = parts[0];
-            const repo = parts[1];
-            return `
+        const repoQueries = repoNames
+            .slice(0, 50)
+            .map((repoFullName, i) => {
+                const parts = repoFullName.split('/');
+                if (parts.length !== 2) return '';
+                const owner = parts[0];
+                const repo = parts[1];
+                return `
                 repo${i}: repository(owner: "${owner}", name: "${repo}") {
                     ... on Repository {
                         ${repoFields}
                     }
                 }
             `;
-        }).join('\n');
+            })
+            .join('\n');
 
         const query = `query { ${repoQueries} }`;
 
@@ -1883,30 +1913,26 @@ async function fetchUserRepositories(username, token, org = '') {
             const graphQLData = await res.json();
 
             if (graphQLData.errors) {
-                logError("GraphQL errors fetching repos:", graphQLData.errors);
+                logError('GraphQL errors fetching repos:', graphQLData.errors);
                 return [];
             }
 
             const repos = Object.values(graphQLData.data)
-                .filter(repo => repo !== null)
-                .map(repo => ({
+                .filter((repo) => repo !== null)
+                .map((repo) => ({
                     name: repo.name,
                     fullName: repo.nameWithOwner,
                     description: repo.description,
                     language: repo.primaryLanguage ? repo.primaryLanguage.name : null,
                     updatedAt: repo.pushedAt,
-                    stars: repo.stargazerCount
+                    stars: repo.stargazerCount,
                 }));
 
             return repos.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-
         } catch (err) {
-
             throw err;
         }
     } catch (err) {
-
-
         throw err;
     }
 }
@@ -1920,22 +1946,23 @@ function filterDataByRepos(data, selectedRepos) {
         ...data,
         githubIssuesData: {
             ...data.githubIssuesData,
-            items: data.githubIssuesData?.items?.filter(item => {
-                const urlParts = item.repository_url?.split('/');
-                const fullName = urlParts ? `${urlParts[urlParts.length - 2]}/${urlParts[urlParts.length - 1]}` : '';
-                return selectedRepos.includes(fullName);
-            }) || []
+            items:
+                data.githubIssuesData?.items?.filter((item) => {
+                    const urlParts = item.repository_url?.split('/');
+                    const fullName = urlParts ? `${urlParts[urlParts.length - 2]}/${urlParts[urlParts.length - 1]}` : '';
+                    return selectedRepos.includes(fullName);
+                }) || [],
         },
         githubPrsReviewData: {
             ...data.githubPrsReviewData,
-            items: data.githubPrsReviewData?.items?.filter(item => {
-                const urlParts = item.repository_url?.split('/');
-                const fullName = urlParts ? `${urlParts[urlParts.length - 2]}/${urlParts[urlParts.length - 1]}` : '';
-                return selectedRepos.includes(fullName);
-            }) || []
-        }
+            items:
+                data.githubPrsReviewData?.items?.filter((item) => {
+                    const urlParts = item.repository_url?.split('/');
+                    const fullName = urlParts ? `${urlParts[urlParts.length - 2]}/${urlParts[urlParts.length - 1]}` : '';
+                    return selectedRepos.includes(fullName);
+                }) || [],
+        },
     };
     return filteredData;
 }
 window.fetchUserRepositories = fetchUserRepositories;
-
