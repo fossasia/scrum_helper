@@ -178,10 +178,64 @@ If you want to share your translation with others:
 For more details, see the [Chrome i18n documentation](https://developer.chrome.com/docs/extensions/reference/i18n/).
 
 
+## Release Process
+
+This project uses a fully automated release process powered by GitHub Actions. Understanding this process is helpful for both maintainers and contributors.
+
+The process is split into two parts:
+
+### 1. Automated Release Drafting
+
+This part runs every time a pull request is merged into the `master` branch.
+
+1.  **PR Merge**: A contributor's pull request is reviewed and merged.
+2.  **Drafting Workflow**: The "Release Drafter" workflow is triggered.
+3.  **Versioning**: The workflow inspects the `release:*` label or PR title to determine the next semantic version.
+4.  **Changelog Update**: The `CHANGELOG.md` file is automatically updated with the titles of the merged PRs.
+5.  **Draft Creation**: A new draft release is created or updated in the [Releases](https://github.com/fossasia/scrum-helper/releases) section. This draft includes the new version tag and the updated changelog notes.
+
+### 2. Manual Release Publishing
+
+This part is performed manually by maintainers when it's time to publish a new version.
+
+1.  **Verification**: A maintainer reviews the draft release to ensure it's accurate and complete.
+2.  **Publishing**: The maintainer publishes the release from the GitHub UI.
+3.  **Chrome Web Store Deployment**: Publishing the release triggers the "Publish to Chrome Web Store" workflow, which automatically packages the extension and uploads it for review.
+
 ## About contributing
 
 - Follow the Issues and PRs templates as far as possible.
 - If you want to make a PR, please mention in the corresponding issue that you are working on it.
+
+### Writing Meaningful Pull Requests
+
+The release notes are automatically generated from the pull requests merged into `master`. To ensure the release notes are clear and helpful, please:
+
+1.  **Write a descriptive title.** The PR title is the primary entry in the release notes. It should concisely summarize the change.
+2.  **Provide a clear description.** The body of your PR should explain the "what" and "why" of your changes. This context is invaluable for reviewers and for anyone looking back at the project's history.
+
+### Pull Request Labeling & Semantic Versioning
+This project uses an automated release process that relies on pull request labels and titles to determine the semantic version for a new release. For your contribution to be included in the release notes, please use one of the methods below.
+
+**Method 1: Using Labels (Preferred)**
+
+The clearest way to signal the impact of your change is to apply **one** of the following labels to your pull request. This is the recommended approach.
+
+-   `release:major`: For breaking changes that are not backward-compatible.
+-   `release:minor`: For new features or significant enhancements.
+-   `release:patch`: For backward-compatible bug fixes, documentation updates, or maintenance.
+-   `release:none`: To exclude the change from the release notes entirely.
+
+**Method 2: Using PR Titles**
+
+As a fallback, if no `release:*` label is applied, the system will inspect your pull request title for the following keywords (case-insensitive) to determine the version bump:
+
+-   `major`: For breaking changes.
+-   `minor`: For new features.
+-   `patch`, `fix`, `chore`, `documentation` : For bug fixes and other small changes.
+
+If you are unsure which label to use, please write a clear and descriptive title, and a maintainer will apply the correct label before merging.
+
 - Before making a PR, ensure your code is properly formatted and linted:
   - Format your code: This command automatically formats your code based on the project's style guidelines.
     ```sh
