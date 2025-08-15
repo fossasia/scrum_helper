@@ -9,7 +9,10 @@
 	"scripts": {
 		"format": "biome format --write",
 		"check": "biome check .",
-		"fix": "biome lint --write"
+		"fix": "biome lint --write",
+		"test:firefox": "echo 'Load extension in Firefox at about:debugging and test functionality'",
+		"test:chrome": "echo 'Load extension in Chrome at chrome://extensions and test functionality'",
+		"build:firefox": "echo 'Extension ready for Firefox testing - see firefox-testing-guide.md'"
 	},
 	"keywords": [
 		"scrum",
