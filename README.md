@@ -76,6 +76,15 @@
 - Edit it in the window.
 - Copy the rich HTML using the `COPY` button.
 
+## Contributing
+
+We welcome contributions from the community! Whether it's reporting a bug, suggesting a new feature, or writing code, your help is appreciated.
+
+Please read our **[Contributing Guide](CONTRIBUTING.md)** to learn how you can get involved.
+
+## License
+
+This project is licensed under the LGPL-2.1 License - see the [LICENSE](LICENSE) file for details.
 
 ## Screenshots
 
@@ -102,8 +111,6 @@ $ npm install
 
 * For Chrome: Load it into your browser through [Chrome Extension Developer Mode](https://developer.chrome.com/docs/extensions/mv3/getstarted/).
 <!-- * For Firefox: Load it as a temporary add-on through `about:debugging` as described above. -->
-
-
 
 
 2. **Build the Extension**
@@ -147,36 +154,6 @@ $ npm install
 
 
 
-## Adding a New Language
-
-You can add a new language to Scrum Helper for your own use, or contribute it to the project.
-
-### Using a New Language Locally
-
-1. **Create a Locale Folder**
-   - Go to `src/_locales`.
-   - Create a new folder named with the [ISO language code](https://developer.chrome.com/docs/extensions/reference/i18n/#localeTable) (e.g., `it` for Italian, `fr` for French).
-
-2. **Add a `messages.json` File**
-   - Copy the `messages.json` from `src/_locales/en/messages.json` or any other language as a template.
-   - Translate only the `"message"` values into your language.  
-     **Do not translate the extension name ("Scrum Helper") or the footer ("Made with ❤️ by ...").**
-
-3. **Test the Extension**
-   - Reload the extension in your browser.
-   - Change your browser or system language to your new locale (see your browser’s language settings).
-   - The extension will use your translation automatically if your language is set.
-
-> **You do not need to make a pull request to use your language locally.**
-
-### Contributing Your Translation
-
-If you want to share your translation with others:
-- Make a pull request with your new locale folder and `messages.json` file.
-- We recommend double-checking your translations for accuracy and clarity.
-
-For more details, see the [Chrome i18n documentation](https://developer.chrome.com/docs/extensions/reference/i18n/).
-
 
 ## Release Process
 
@@ -202,51 +179,5 @@ This part is performed manually by maintainers when it's time to publish a new v
 2.  **Publishing**: The maintainer publishes the release from the GitHub UI.
 3.  **Chrome Web Store Deployment**: Publishing the release triggers the "Publish to Chrome Web Store" workflow, which automatically packages the extension and uploads it for review.
 
-## About contributing
 
-- Follow the Issues and PRs templates as far as possible.
-- If you want to make a PR, please mention in the corresponding issue that you are working on it.
-
-### Writing Meaningful Pull Requests
-
-The release notes are automatically generated from the pull requests merged into `master`. To ensure the release notes are clear and helpful, please:
-
-1.  **Write a descriptive title.** The PR title is the primary entry in the release notes. It should concisely summarize the change.
-2.  **Provide a clear description.** The body of your PR should explain the "what" and "why" of your changes. This context is invaluable for reviewers and for anyone looking back at the project's history.
-
-### Pull Request Labeling & Semantic Versioning
-This project uses an automated release process that relies on pull request labels and titles to determine the semantic version for a new release. For your contribution to be included in the release notes, please use one of the methods below.
-
-**Method 1: Using Labels (Preferred)**
-
-The clearest way to signal the impact of your change is to apply **one** of the following labels to your pull request. This is the recommended approach.
-
--   `release:major`: For breaking changes that are not backward-compatible.
--   `release:minor`: For new features or significant enhancements.
--   `release:patch`: For backward-compatible bug fixes, documentation updates, or maintenance.
--   `release:none`: To exclude the change from the release notes entirely.
-
-**Method 2: Using PR Titles**
-
-As a fallback, if no `release:*` label is applied, the system will inspect your pull request title for the following keywords (case-insensitive) to determine the version bump:
-
--   `major`: For breaking changes.
--   `minor`: For new features.
--   `patch`, `fix`, `chore`, `documentation` : For bug fixes and other small changes.
-
-If you are unsure which label to use, please write a clear and descriptive title, and a maintainer will apply the correct label before merging.
-
-- Before making a PR, ensure your code is properly formatted and linted:
-  - Format your code: This command automatically formats your code based on the project's style guidelines.
-    ```sh
-    npm run format
-    ```
-  - Check for issues: This command runs the formatter, linter, and import sorting on the requested files to enforce coding standards.
-    ```sh
-    npm run check
-    ```
-  - Fix linting errors: If the linter detects fixable issues, this command will automatically apply the necessary corrections.
-    ```sh
-    npm run fix
-    ```
-- If you encounter any bugs, please report them at the [Issues page](https://github.com/fossasia/scrum_helper/issues).
+### If you encounter any bugs, please report them at the [Issues page](https://github.com/fossasia/scrum_helper/issues).
