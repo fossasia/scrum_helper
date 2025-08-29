@@ -1,3 +1,11 @@
+## v1.0.4 (2025-08-29)
+
+## What's Changed
+
+* [Patch]; drafts the releases instead of pubishing them (#234) @vedansh-5
+
+
+
 # Changelog
 
 All notable changes to this project will be documented in this file. This project adheres to [Semantic Versioning](https://semver.org/).
