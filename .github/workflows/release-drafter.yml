@@ -35,7 +35,7 @@ jobs:
       - name: Debug release-drafter outputs
         run: |
           echo "release-drafter.tag_name='${{ steps.release_drafter.outputs.tag_name }}"
-          echo "release-drafter.body:""
+          echo "release-drafter.body:"
           echo "${{ steps.release_drafter.outputs.body }}"
 
       - name: Create / prepend CHANGELOG entry
