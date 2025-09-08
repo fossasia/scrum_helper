@@ -32,6 +32,48 @@ jobs:
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
         
+      - name: Debug release-drafter outputs
+        run: |
+          echo "release-drafter.tag_name='${{ steps.release_drafter.outputs.tag_name }}"
+          echo "release-drafter.body:""
+          echo "${{ steps.release_drafter.outputs.body }}"
+
+      - name: Create / prepend CHANGELOG entry
+        if: steps.release_drafter.outputs.tag_name != ''
+        run: |
+          TAG="${{ steps.release_drafter.outputs.tag_name }}"
+          BODY="${{ steps.release_drafter.outputs.body }}"
+          DATE="$(date +%F)"
+          printf "## %s - %s\n\n%s\n\n---\n\n" "$TAG" "$DATE" "$BODY" > /tmp/new_changelog.md
+          if [ -f CHANGELOG.md ]; then
+            cat CHANGELOG.md >> /tmp/new_changelog.md
+          fi
+          mv /tmp/new_changelog.md CHANGELOG.md
+          git status --porcelain
+
+      - name: Commit CHANGELOG, create & push tag
+        if: steps.release_drafter.outputs.tag_name != ''
+        env:
+          TAG: ${{ steps.release_drafter.outputs.tag_name }}
+          GIT_AUTHOR_NAME: "github-actions[bot]"
+          GIT_AUTHOR_EMAIL: "github-actions[bot]@users.noreply.github.com"
+        run: |
+          git config user.name "$GIT_AUTHOR_NAME"
+          git config user.email "$GIT_AUTHOR_EMAIL"
+          git add CHANGELOG.md || true
+          if git diff --cached --quiet; then
+            echo "No CHANGELOG.md changes to commit"
+          else
+            git commit -m "docs(changelog): update for ${TAG}"
+            git push origin HEAD:master
+          fi
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "Tag ${TAG} already exists locally"
+          else
+            git tag -a "${TAG}" -m "Release ${TAG}"
+          fi
+          git push origin "refs/tags/${TAG}" || echo "Tag push failed or tag already exists remotely"
+
       - name: Checkout code
         uses: actions/checkout@v4
         with:
