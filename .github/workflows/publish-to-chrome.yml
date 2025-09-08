@@ -25,7 +25,7 @@ jobs:
                 echo "Created zip:"
                 unzip -l ../scrum-helper.zip
                 if unzip -l ../scrum-helper.zip | awk '{print $4}' | grep -q '^manifest.json$'; then
-                  echo "mannifest.json is at zip root"
+                  echo "manifest.json is at zip root"
                 else
                   echo "ERROR: manifest.json NOT at zip root; zip will fail on Chrome Web Store"
                   exit 1
