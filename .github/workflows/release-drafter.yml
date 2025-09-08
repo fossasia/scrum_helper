@@ -2,10 +2,8 @@ name: Release Drafter
 
 on:
   push:
-    # branches to consider in the event; optional, defaults to all
     branches:
       - master
-
   pull_request:
     types: [opened, reopened, synchronize]
 
@@ -15,14 +13,15 @@ permissions:
 jobs:
   update_release_draft:
     permissions:
-      # write permission is required to create a github release
       contents: write
-      # write permission is required for autolabeler
       pull-requests: write
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      # Drafts your next Release notes as Pull Requests are merged into "master"
       - name: Draft Release
         id: release_drafter
         uses: release-drafter/release-drafter@v6
@@ -30,33 +29,40 @@ jobs:
           config-name: release-drafter.yml
           publish: false
         env:
-          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
-        
-      - name: Debug release-drafter outputs
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Debug release-drafter outputs (safe)
         run: |
-          echo "release-drafter.tag_name='${{ steps.release_drafter.outputs.tag_name }}"
-          echo "release-drafter.body:"
-          echo "${{ steps.release_drafter.outputs.body }}"
+          printf 'release-drafter.tag_name=%s\n' "${{ steps.release_drafter.outputs.tag_name }}"
+          echo 'release-drafter.body:'
+          printf '%s\n' "${{ steps.release_drafter.outputs.body }}" > /tmp/release_drafter_body.txt
+          echo "Wrote release body to /tmp/release_drafter_body.txt"
 
       - name: Create / prepend CHANGELOG entry
         if: steps.release_drafter.outputs.tag_name != ''
         run: |
           TAG="${{ steps.release_drafter.outputs.tag_name }}"
-          BODY="${{ steps.release_drafter.outputs.body }}"
+          BODY_FILE="/tmp/release_drafter_body.txt"
           DATE="$(date +%F)"
+          if [ -f "$BODY_FILE" ]; then
+            BODY="$(cat "$BODY_FILE")"
+          else
+            BODY="${{ steps.release_drafter.outputs.body }}"
+          fi
           printf "## %s - %s\n\n%s\n\n---\n\n" "$TAG" "$DATE" "$BODY" > /tmp/new_changelog.md
           if [ -f CHANGELOG.md ]; then
             cat CHANGELOG.md >> /tmp/new_changelog.md
           fi
           mv /tmp/new_changelog.md CHANGELOG.md
-          git status --porcelain
+          git status --porcelain || true
 
-      - name: Commit CHANGELOG, create & push tag (explicit)
+      - name: Commit & push CHANGELOG and tag via GITHUB_TOKEN
         if: steps.release_drafter.outputs.tag_name != ''
         env:
           TAG: ${{ steps.release_drafter.outputs.tag_name }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          set -e
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
@@ -69,9 +75,11 @@ jobs:
           fi
 
           REPO="${{ github.repository }}"
-          echo "Pushing commit to origin..."
-          git push "https://x-access-token:${GITHUB_TOKEN}@github.com/${REPO}.git" HEAD:master || echo "Push failed"
 
+          # Push commit (use token to authenticate)
+          git push "https://x-access-token:${GITHUB_TOKEN}@github.com/${REPO}.git" HEAD:refs/heads/master
+
+          # Create annotated tag if missing and push it
           if git rev-parse "${TAG}" >/dev/null 2>&1; then
             echo "Tag ${TAG} already exists locally"
           else
@@ -79,44 +87,12 @@ jobs:
           fi
           git push "https://x-access-token:${GITHUB_TOKEN}@github.com/${REPO}.git" "refs/tags/${TAG}" || echo "Tag push failed or tag exists"
 
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Ensure correct branch is checked out (only on PR)
-        if: github.event_name == 'pull_request'
-        run: |
-          echo "Checking out PR source branch: ${{ github.head_ref }}"
-          git fetch origin ${{ github.head_ref }}
-          git checkout ${{ github.head_ref }}
-        
       - name: Setup Node.js
         uses: actions/setup-node@v4
-        with: 
+        with:
           node-version: '20'
 
-      - name: Update Changelog
+      - name: (Optional) Update Changelog formatting / run scripts
         run: |
-          VERSION="${{ steps.release_drafter.outputs.tag_name }}"
-          BODY="${{ steps.release_drafter.outputs.body }}"
-
-          # Create a new changelog entry file
-          echo -e "## ${VERSION} ($(date +'%Y-%m-%d'))\n\n${BODY}\n\n" > new_changelog_entry.md
-          
-          # Prepend the new entry to the existing CHANGELOG.md
-          if [ -f CHANGELOG.md ]; then
-            cat CHANGELOG.md >> new_changelog_entry.md
-          fi
-          mv new_changelog_entry.md CHANGELOG.md
-
-      # Commits the updated CHANGELOG.md and creates a tag for the new version
-      - name: Commit and Push Changelog
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: 'docs: Update CHANGELOG.md for ${{ steps.release_drafter.outputs.tag_name }}'
-          file_pattern: 'CHANGELOG.md'
-          tagging_message: ${{ steps.release_drafter.outputs.tag_name }}
-
-
-      
+          # placeholder for any project-specific changelog formatting commands
+          echo "Changelog updated; no additional formatting configured"
