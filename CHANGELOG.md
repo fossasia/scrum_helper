@@ -1,3 +1,12 @@
+## v1.0.4 - 2025-09-10
+
+## What's Changed
+
+* [PATCH] Release and Chrome webstore workflow changes. (#237) @vedansh-5
+* [Patch]; drafts the releases instead of pubishing them (#234) @vedansh-5
+
+---
+
 ## v0.1.2 - 2025-09-08
 
 ## What's Changed
