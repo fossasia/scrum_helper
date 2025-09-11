@@ -1348,29 +1348,18 @@ ${userReason}`;
 
             return;
         }
+
         const headers = { 'Accept': 'application/vnd.github.v3+json' };
         if (githubToken) headers['Authorization'] = `token ${githubToken}`;
         let useMergedStatus = false;
         let fallbackToSimple = false;
 
-        // Get the correct date range for days calculation
-        let startDateForRange, endDateForRange;
-        if (yesterdayContribution) {
-            const today = new Date();
-            const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
-            startDateForRange = yesterday.toISOString().split('T')[0];
-            endDateForRange = today.toISOString().split('T')[0]; // Use yesterday for start and today for end
-        } else if (startingDate && endingDate) {
-            startDateForRange = startingDate;
-            endDateForRange = endingDate;
-        } else {
-            // Default to last 7 days if no date range is set
-            const today = new Date();
-            const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
-            startDateForRange = lastWeek.toISOString().split('T')[0];
-            endDateForRange = today.toISOString().split('T')[0];
-        }
+        // Use helper for consistent UTC date range
+        const { startDateFilter, endDateFilter } = getDateRangeFilters(yesterdayContribution, startingDate, endingDate);
 
+        // For days calculation (for merged status logic)
+        let startDateForRange = startDateFilter.toISOString().split('T')[0];
+        let endDateForRange = endDateFilter.toISOString().split('T')[0];
         let daysRange = getDaysBetween(startDateForRange, endDateForRange);
 
         if (githubToken) {
@@ -1378,6 +1367,7 @@ ${userReason}`;
         } else if (daysRange <= 7) {
             useMergedStatus = true;
         }
+
 
         let prsToCheck = [];
         for (let i = 0; i < items.length; i++) {
@@ -1418,238 +1408,127 @@ ${userReason}`;
 
         for (let i = 0; i < items.length; i++) {
             let item = items[i];
-            log('[SCRUM-DEBUG] Processing item:', item);
-            // For GitLab, treat all items in the MRs array as MRs
-            let isMR = !!item.pull_request; // works for both GitHub and mapped GitLab data
-            log('[SCRUM-DEBUG] isMR:', isMR, 'platform:', platform, 'item:', item);
-            let html_url = item.html_url;
-            let repository_url = item.repository_url;
-            // Use project name for GitLab, repo extraction for GitHub
-            let project = (platform === 'gitlab' && item.project) ? item.project : (repository_url ? repository_url.substr(repository_url.lastIndexOf('/') + 1) : '');
-            let title = item.title;
-            let number = item.number;
-            let li = '';
 
-            let isDraft = false;
-            if (isMR && typeof item.draft !== 'undefined') {
-                isDraft = item.draft;
-            }
-
-            if (isMR) {
-                // Platform-specific label
-                let prAction = '';
-
-                const prCreatedDate = new Date(item.created_at);
-                const prUpdatedDate = new Date(item.updated_at);
-
-                // Get date range filters using helper function
-                const { startDateFilter, endDateFilter } = getDateRangeFilters(yesterdayContribution, startingDate, endingDate);
-
-                const isNewPR = prCreatedDate >= startDateFilter && prCreatedDate <= endDateFilter;
-                const isUpdatedInRange = prUpdatedDate >= startDateFilter && prUpdatedDate <= endDateFilter;
-
-                // Check if PR has commits in the date range
-                const hasCommitsInRange = item._allCommits && item._allCommits.length > 0;
-
-                // Only log in debug mode to avoid production noise
-                if (DEBUG) {
-                    log(`[PR DEBUG] PR #${number} - isNewPR: ${isNewPR}, isUpdatedInRange: ${isUpdatedInRange}, state: ${item.state}, hasCommitsInRange: ${hasCommitsInRange}, created: ${item.created_at}, updated: ${item.updated_at}`);
+                let isMR = !!item.pull_request;
+                log('[SCRUM-DEBUG] Processing item:', item);
+                let html_url = item.html_url;
+                let repository_url = item.repository_url;
+                let project = (platform === 'gitlab' && item.project) ? item.project : (repository_url ? repository_url.substr(repository_url.lastIndexOf('/') + 1) : '');
+                let title = item.title;
+                let number = item.number;
+                let li = '';
+                let isDraft = false;
+                if (isMR && typeof item.draft !== 'undefined') {
+                    isDraft = item.draft;
                 }
 
-                if (platform === 'github') {
-                    // For existing PRs (not new), they must be open AND have commits in the date range
-                    if (!isNewPR) {
-                        if (item.state !== 'open') {
-                            log(`[PR DEBUG] Skipping PR #${number} - existing PR but not open`);
-                            continue;
+                if (isMR) {
+                    // PR/MR date logic
+                    const prCreatedDate = new Date(item.created_at);
+                    const prUpdatedDate = new Date(item.updated_at);
+                    const isNewPR = prCreatedDate >= startDateFilter && prCreatedDate <= endDateFilter;
+                    const isUpdatedInRange = prUpdatedDate >= startDateFilter && prUpdatedDate <= endDateFilter;
+                    const hasCommitsInRange = item._allCommits && item._allCommits.length > 0;
+                    if (DEBUG) {
+                        log(`[PR DEBUG] PR #${number} - isNewPR: ${isNewPR}, isUpdatedInRange: ${isUpdatedInRange}, state: ${item.state}, hasCommitsInRange: ${hasCommitsInRange}, created: ${item.created_at}, updated: ${item.updated_at}`);
+                    }
+                    let prAction = '';
+                    if (platform === 'github') {
+                        if (!isNewPR) {
+                            if (item.state !== 'open') {
+                                log(`[PR DEBUG] Skipping PR #${number} - existing PR but not open`);
+                                continue;
+                            }
+                            if (!hasCommitsInRange) {
+                                log(`[PR DEBUG] Skipping PR #${number} - existing PR but no commits in date range`);
+                                continue;
+                            }
                         }
-                        if (!hasCommitsInRange) {
-                            log(`[PR DEBUG] Skipping PR #${number} - existing PR but no commits in date range`);
-                            continue;
+                        prAction = isNewPR ? 'Made PR' : 'Updated PR';
+                    } else if (platform === 'gitlab') {
+                        prAction = isNewPR ? 'Made Merge Request' : 'Updated Merge Request';
+                    }
+                    if (isDraft) {
+                        li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + pr_draft_button : ''}`;
+                        if (showCommits && item._allCommits && item._allCommits.length && !isNewPR) {
+                            log(`[PR DEBUG] Rendering commits for existing draft PR #${number}:`, item._allCommits);
+                            li += '<ul>';
+                            item._allCommits.forEach(commit => {
+                                li += `<li style=\"list-style: disc; color: #666;\"><span style=\"color:#2563eb;\">${commit.messageHeadline}</span><span style=\"color:#666; font-size: 11px;\"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
+                            });
+                            li += '</ul>';
                         }
-                    }
-                    prAction = isNewPR ? 'Made PR' : 'Existing PR';
-                    log(`[PR DEBUG] Including PR #${number} as ${prAction}`);
-                } else if (platform === 'gitlab') {
-                    prAction = isNewPR ? 'Made Merge Request' : 'Existing Merge Request';
-                }
-
-                if (isDraft) {
-
-                    li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + pr_draft_button : ''}`;
-                    if (showCommits && item._allCommits && item._allCommits.length && !isNewPR) {
-                        log(`[PR DEBUG] Rendering commits for existing draft PR #${number}:`, item._allCommits);
-                        li += '<ul>';
-                        item._allCommits.forEach(commit => {
-                            li += `<li style=\"list-style: disc; color: #666;\"><span style=\"color:#2563eb;\">${commit.messageHeadline}</span><span style=\"color:#666; font-size: 11px;\"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
-                        });
-                        li += '</ul>';
-                    }
-                    li += `</li>`;
-                } else if (item.state === 'open' || item.state === 'opened') {
-                    li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + pr_open_button : ''}`;
-
-                    if (showCommits && item._allCommits && item._allCommits.length && !isNewPR) {
-                        log(`[PR DEBUG] Rendering commits for existing PR #${number}:`, item._allCommits);
-                        li += '<ul>';
-                        item._allCommits.forEach(commit => {
-                            li += `<li style=\"list-style: disc; color: #666;\"><span style=\"color:#2563eb;\">${commit.messageHeadline}</span><span style=\"color:#666; font-size: 11px;\"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
-                        });
-                        li += '</ul>';
-                    }
-                    li += `</li>`;
-                } else if (platform === 'gitlab' && item.state === 'closed') {
-                    li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + pr_closed_button : ''}</li>`;
-                } else {
-                    let merged = null;
-                    if ((githubToken || (useMergedStatus && !fallbackToSimple)) && mergedStatusResults) {
-                        let repoParts = repository_url.split('/');
-                        let owner = repoParts[repoParts.length - 2];
-                        let repo = repoParts[repoParts.length - 1];
-                        merged = mergedStatusResults[`${owner}/${repo}#${number}`];
-                    }
-                    if (merged === true) {
-
-                        li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + pr_merged_button : ''}</li>`;
-                    } else {
-                        // Always show closed label for merged === false or merged === null/undefined
+                        li += `</li>`;
+                    } else if (item.state === 'open' || item.state === 'opened') {
+                        li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + pr_open_button : ''}`;
+                        if (showCommits && item._allCommits && item._allCommits.length && !isNewPR) {
+                            log(`[PR DEBUG] Rendering commits for existing PR #${number}:`, item._allCommits);
+                            li += '<ul>';
+                            item._allCommits.forEach(commit => {
+                                li += `<li style=\"list-style: disc; color: #666;\"><span style=\"color:#2563eb;\">${commit.messageHeadline}</span><span style=\"color:#666; font-size: 11px;\"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
+                            });
+                            li += '</ul>';
+                        }
+                        li += `</li>`;
+                    } else if (platform === 'gitlab' && item.state === 'closed') {
                         li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + pr_closed_button : ''}</li>`;
-                    }
-                }
-                log('[SCRUM-DEBUG] Added PR/MR to lastWeekArray:', li, item);
-                lastWeekArray.push(li);
-                continue; // Prevent issue logic from overwriting PR li
-            } else {
-                // Only process as issue if not a PR
-                if (item.state === 'open' && item.body?.toUpperCase().indexOf('YES') > 0) {
-                    let li2 =
-                        '<li><i>(' +
-                        project +
-                        ')</i> - Work on Issue(#' +
-                        number +
-                        ") - <a href='" +
-                        html_url +
-                        "' target='_blank'>" +
-                        title +
-                        '</a>' + (showOpenLabel ? ' ' + issue_opened_button : '') +
-                        '&nbsp;&nbsp;</li>';
-                    nextWeekArray.push(li2);
-                }
-
-                // Determine if issue was created or updated in date range
-                const issueCreatedDate = new Date(item.created_at);
-                const issueUpdatedDate = new Date(item.updated_at);
-                
-                // Get date range filters using helper function
-                const { startDateFilter, endDateFilter } = getDateRangeFilters(yesterdayContribution, startingDate, endingDate);
-
-                const isNewIssue = issueCreatedDate >= startDateFilter && issueCreatedDate <= endDateFilter;
-                
-                // For "Updated Issue" label, verify both:
-                // 1. Issue was NOT created in the date range
-                // 2. Issue was actually updated within the date range
-                const isUpdatedInRange = issueUpdatedDate >= startDateFilter && issueUpdatedDate <= endDateFilter;
-                const issueAction = isNewIssue ? 'Opened Issue' : (isUpdatedInRange ? 'Updated Issue' : 'Opened Issue');
-
-                // Only log in debug mode to avoid production noise
-                if (DEBUG) {
-                    log(`[ISSUE DEBUG] Issue #${number} - isNewIssue: ${isNewIssue}, isUpdatedInRange: ${isUpdatedInRange}, issueAction: ${issueAction}, state: ${item.state}, created: ${item.created_at}, updated: ${item.updated_at}`);
-                }
-
-                if (item.state === 'open') {
-                    li = `<li><i>(${project})</i> - ${issueAction}(#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + issue_opened_button : ''}</li>`;
-
-                } else if (item.state === 'closed') {
-
-
-                    // Use state_reason to distinguish closure reason
-                    if (item.state_reason === 'completed') {
-                        li = `<li><i>(${project})</i> - ${issueAction}(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_completed_button}</li>`;
-                    } else if (item.state_reason === 'not_planned') {
-                        li = `<li><i>(${project})</i> - ${issueAction}(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_notplanned_button}</li>`;
                     } else {
-                        li = `<li><i>(${project})</i> - ${issueAction}(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_button}</li>`;
+                        let merged = null;
+                        if ((githubToken || (useMergedStatus && !fallbackToSimple)) && mergedStatusResults) {
+                            let repoParts = repository_url.split('/');
+                            let owner = repoParts[repoParts.length - 2];
+                            let repo = repoParts[repoParts.length - 1];
+                            merged = mergedStatusResults[`${owner}/${repo}#${number}`];
+                        }
+                        if (merged === true) {
+                            li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + pr_merged_button : ''}</li>`;
+                        } else {
+                            li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + pr_closed_button : ''}</li>`;
+                        }
                     }
-
-
+                    log('[SCRUM-DEBUG] Added PR/MR to lastWeekArray:', li, item);
+                    lastWeekArray.push(li);
+                    continue;
                 } else {
-                    // Fallback for unexpected state
-                    li = `<li><i>(${project})</i> - ${issueAction}(#${number}) - <a href='${html_url}'>${title}</a></li>`;
+                    // Only process as issue if not a PR
+                    if (item.state === 'open' && item.body?.toUpperCase().indexOf('YES') > 0) {
+                        let li2 = `<li><i>(${project})</i> - Work on Issue(#${number}) - <a href='${html_url}' target='_blank'>${title}</a>${showOpenLabel ? ' ' + issue_opened_button : ''}&nbsp;&nbsp;</li>`;
+                        nextWeekArray.push(li2);
+                    }
+                    // Issue date logic
+                    const issueCreatedDate = new Date(item.created_at);
+                    const issueUpdatedDate = new Date(item.updated_at);
+                    const isNewIssue = issueCreatedDate >= startDateFilter && issueCreatedDate <= endDateFilter;
+                    const isUpdatedInRange = issueUpdatedDate >= startDateFilter && issueUpdatedDate <= endDateFilter;
+                    const issueAction = isNewIssue ? 'Opened Issue' : (isUpdatedInRange ? 'Updated Issue' : 'Opened Issue');
+                    if (DEBUG) {
+                        log(`[ISSUE DEBUG] Issue #${number} - isNewIssue: ${isNewIssue}, isUpdatedInRange: ${isUpdatedInRange}, issueAction: ${issueAction}, state: ${item.state}, created: ${item.created_at}, updated: ${item.updated_at}`);
+                    }
+                    if (item.state === 'open') {
+                        li = `<li><i>(${project})</i> - ${issueAction}(#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + issue_opened_button : ''}</li>`;
+                    } else if (item.state === 'closed') {
+                        if (item.state_reason === 'completed') {
+                            li = `<li><i>(${project})</i> - ${issueAction}(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_completed_button}</li>`;
+                        } else if (item.state_reason === 'not_planned') {
+                            li = `<li><i>(${project})</i> - ${issueAction}(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_notplanned_button}</li>`;
+                        } else {
+                            li = `<li><i>(${project})</i> - ${issueAction}(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_button}</li>`;
+                        }
+                    } else {
+                        li = `<li><i>(${project})</i> - ${issueAction}(#${number}) - <a href='${html_url}'>${title}</a></li>`;
+                    }
+                    log('[SCRUM-DEBUG] Added issue to lastWeekArray:', li, item);
+                    lastWeekArray.push(li);
                 }
-
-                log('[SCRUM-DEBUG] Added issue to lastWeekArray:', li, item);
-                lastWeekArray.push(li);
             }
-        }
-        log('[SCRUM-DEBUG] Final lastWeekArray:', lastWeekArray);
-        issuesDataProcessed = true;
-
-    }
-
-
-    let intervalBody = setInterval(() => {
-        if (!window.emailClientAdapter) return;
-
-        const elements = window.emailClientAdapter.getEditorElements();
-        if (!elements || !elements.body) return;
-
-        clearInterval(intervalBody);
-        scrumBody = elements.body;
-    }, 500);
-
-
-    let intervalSubject = setInterval(() => {
-        const userData = platform === 'gitlab' ? (githubUserData || platformUsername) : githubUserData;
-        if (!userData || !window.emailClientAdapter) return;
-
-
-        const elements = window.emailClientAdapter.getEditorElements();
-        if (!elements || !elements.subject) return;
-
-        if (outputTarget === 'email' && !window.emailClientAdapter.isNewConversation()) {
-            console.log('Not a new conversation, skipping subject interval');
-            clearInterval(intervalSubject);
-            return;
+            log('[SCRUM-DEBUG] Final lastWeekArray:', lastWeekArray);
+            issuesDataProcessed = true;
         }
 
-        clearInterval(intervalSubject);
-        scrumSubject = elements.subject;
-
-        setTimeout(() => {
-            scrumSubjectLoaded();
-        }, 500);
-    }, 500);
-
-
-    // check for github safe writing
-    let intervalWriteGithubIssues = setInterval(() => {
-        if (outputTarget === 'popup') {
-            return;
-        } else {
-            const username = platform === 'gitlab' ? platformUsername : platformUsernameLocal;
-            if (scrumBody && username && githubIssuesData && githubPrsReviewData) {
-                clearInterval(intervalWriteGithubIssues);
-                clearInterval(intervalWriteGithubPrs);
-                writeGithubIssuesPrs();
-            }
-        }
-    }, 500);
-    let intervalWriteGithubPrs = setInterval(() => {
-        if (outputTarget === 'popup') {
-            return;
-        } else {
-            const username = platform === 'gitlab' ? platformUsername : platformUsernameLocal;
-            if (scrumBody && username && githubPrsReviewData && githubIssuesData) {
-                clearInterval(intervalWriteGithubPrs);
-                clearInterval(intervalWriteGithubIssues);
-                writeGithubPrsReviews();
-            }
-        }
-    }, 500);
-
+    // Place the refresh button in the UI if not already placed
     if (!refreshButton_Placed) {
         let intervalWriteButton = setInterval(() => {
-            if (document.getElementsByClassName('F0XO1GC-x-b').length == 3 && scrumBody && enableToggle) {
+            if (document.getElementsByClassName('F0XO1GC-x-b').length == 3 && typeof scrumBody !== 'undefined' && scrumBody && enableToggle) {
                 refreshButton_Placed = true;
                 clearInterval(intervalWriteButton);
                 let td = document.createElement('td');
@@ -1670,11 +1549,6 @@ ${userReason}`;
     function handleRefresh() {
         hasInjectedContent = false; // Reset the flag before refresh
         allIncluded();
-    }
-}
-
-
-
 
 
 async function forceGithubDataRefresh() {
