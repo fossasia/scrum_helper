@@ -1,3 +1,11 @@
+## v0.1.2 - 2025-09-11
+
+## What's Changed
+
+* No changes
+
+---
+
 ## v0.1.2 - 2025-09-10
 
 ## What's Changed
