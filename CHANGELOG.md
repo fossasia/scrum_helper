@@ -1,3 +1,36 @@
+## v1.0.4 - 2025-09-10
+
+## What's Changed
+
+* [PATCH] Release and Chrome webstore workflow changes. (#237) @vedansh-5
+* [Patch]; drafts the releases instead of pubishing them (#234) @vedansh-5
+
+---
+
+## v0.1.2 - 2025-09-08
+
+## What's Changed
+
+* No changes
+
+---
+
+## v0.1.2 (2025-09-08)
+
+## What's Changed
+
+* No changes
+
+
+
+## v1.0.4 (2025-08-29)
+
+## What's Changed
+
+* [Patch]; drafts the releases instead of pubishing them (#234) @vedansh-5
+
+
+
 # Changelog
 
 All notable changes to this project will be documented in this file. This project adheres to [Semantic Versioning](https://semver.org/).

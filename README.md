@@ -76,6 +76,15 @@
 - Edit it in the window.
 - Copy the rich HTML using the `COPY` button.
 
+## Contributing
+
+We welcome contributions from the community! Whether it's reporting a bug, suggesting a new feature, or writing code, your help is appreciated.
+
+Please read our **[Contributing Guide](CONTRIBUTING.md)** to learn how you can get involved.
+
+## License
+
+This project is licensed under the LGPL-2.1 License - see the [LICENSE](LICENSE) file for details.
 
 ## Screenshots
 
@@ -102,8 +111,6 @@ $ npm install
 
 * For Chrome: Load it into your browser through [Chrome Extension Developer Mode](https://developer.chrome.com/docs/extensions/mv3/getstarted/).
 <!-- * For Firefox: Load it as a temporary add-on through `about:debugging` as described above. -->
-
-
 
 
 2. **Build the Extension**
@@ -147,52 +154,30 @@ $ npm install
 
 
 
-## Adding a New Language
 
-You can add a new language to Scrum Helper for your own use, or contribute it to the project.
+## Release Process
 
-### Using a New Language Locally
+This project uses a fully automated release process powered by GitHub Actions. Understanding this process is helpful for both maintainers and contributors.
 
-1. **Create a Locale Folder**
-   - Go to `src/_locales`.
-   - Create a new folder named with the [ISO language code](https://developer.chrome.com/docs/extensions/reference/i18n/#localeTable) (e.g., `it` for Italian, `fr` for French).
+The process is split into two parts:
 
-2. **Add a `messages.json` File**
-   - Copy the `messages.json` from `src/_locales/en/messages.json` or any other language as a template.
-   - Translate only the `"message"` values into your language.  
-     **Do not translate the extension name ("Scrum Helper") or the footer ("Made with ❤️ by ...").**
+### 1. Automated Release Drafting
 
-3. **Test the Extension**
-   - Reload the extension in your browser.
-   - Change your browser or system language to your new locale (see your browser’s language settings).
-   - The extension will use your translation automatically if your language is set.
+This part runs every time a pull request is merged into the `master` branch.
 
-> **You do not need to make a pull request to use your language locally.**
+1.  **PR Merge**: A contributor's pull request is reviewed and merged.
+2.  **Drafting Workflow**: The "Release Drafter" workflow is triggered.
+3.  **Versioning**: The workflow inspects the `release:*` label or PR title to determine the next semantic version.
+4.  **Changelog Update**: The `CHANGELOG.md` file is automatically updated with the titles of the merged PRs.
+5.  **Draft Creation**: A new draft release is created or updated in the [Releases](https://github.com/fossasia/scrum-helper/releases) section. This draft includes the new version tag and the updated changelog notes.
 
-### Contributing Your Translation
+### 2. Manual Release Publishing
 
-If you want to share your translation with others:
-- Make a pull request with your new locale folder and `messages.json` file.
-- We recommend double-checking your translations for accuracy and clarity.
+This part is performed manually by maintainers when it's time to publish a new version.
 
-For more details, see the [Chrome i18n documentation](https://developer.chrome.com/docs/extensions/reference/i18n/).
+1.  **Verification**: A maintainer reviews the draft release to ensure it's accurate and complete.
+2.  **Publishing**: The maintainer publishes the release from the GitHub UI.
+3.  **Chrome Web Store Deployment**: Publishing the release triggers the "Publish to Chrome Web Store" workflow, which automatically packages the extension and uploads it for review.
 
 
-## About contributing
-
-- Follow the Issues and PRs templates as far as possible.
-- If you want to make a PR, please mention in the corresponding issue that you are working on it.
-- Before making a PR, ensure your code is properly formatted and linted:
-  - Format your code: This command automatically formats your code based on the project's style guidelines.
-    ```sh
-    npm run format
-    ```
-  - Check for issues: This command runs the formatter, linter, and import sorting on the requested files to enforce coding standards.
-    ```sh
-    npm run check
-    ```
-  - Fix linting errors: If the linter detects fixable issues, this command will automatically apply the necessary corrections.
-    ```sh
-    npm run fix
-    ```
-- If you encounter any bugs, please report them at the [Issues page](https://github.com/fossasia/scrum_helper/issues).
+### If you encounter any bugs, please report them at the [Issues page](https://github.com/fossasia/scrum_helper/issues).
