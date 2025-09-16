@@ -11,9 +11,6 @@
     "enableLabel": {
         "message": "Aktivieren"
     },
-    "homeButtonTitle": {
-        "message": "Zum Bericht"
-    },
     "projectNameLabel": {
         "message": "Projektname (wird im E-Mail-Betreff verwendet)",
         "description": "Label für das Betreff-Feld der E-Mail."
