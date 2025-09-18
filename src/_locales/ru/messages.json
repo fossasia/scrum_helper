@@ -11,9 +11,6 @@
     "enableLabel": {
         "message": "Включить"
     },
-    "homeButtonTitle": {
-        "message": "Перейти к отчету"
-    },
     "projectNameLabel": {
         "message": "Название проекта (используется в теме письма)"
     },

@@ -11,9 +11,6 @@
     "enableLabel": {
         "message": "Activer"
     },
-    "homeButtonTitle": {
-        "message": "Aller au rapport"
-    },
     "projectNameLabel": {
         "message": "Nom du projet (utilisé dans l'objet de l'e-mail)"
     },

@@ -12,9 +12,6 @@
     "enableLabel": {
         "message": "Ativar"
     },
-    "homeButtonTitle": {
-        "message": "Ir para o Relatório"
-    },
     "projectNameLabel": {
         "message": "Nome do Projeto (usado no assunto do e-mail)"
     },
@@ -134,5 +131,65 @@
     },
     "usernameLabel": {
         "message": "Seu nome de usuário"
+    },
+    "repoFilterLabel": {
+        "message": "Filter by repositories"
+    },
+    "enableFilteringLabel": {
+        "message": "Enable filtering"
+    },
+    "tokenRequiredWarning": {
+        "message": "A GitHub token is required for repository filtering. Please add one in the settings."
+    },
+    "repoSearchPlaceholder": {
+        "message": "Search for a repository to add..."
+    },
+    "repoPlaceholder": {
+        "message": "No repositories selected (all will be included)"
+    },
+    "repoCountNone": {
+        "message": "0 repositories selected"
+    },
+    "repoCount": {
+        "message": "$1 repositories selected"
+    },
+    "repoLoading": {
+        "message": "Loading repositories..."
+    },
+    "repoLoaded": {
+        "message": "Loaded $1 repositories."
+    },
+    "repoNotFound": {
+        "message": "No repositories found"
+    },
+    "repoRefetching": {
+        "message": "Refetching repositories..."
+    },
+    "repoLoadFailed": {
+        "message": "Failed to load repositories."
+    },
+    "repoTokenPrivate": {
+        "message": "Token is invalid or does not have rights for private repos."
+    },
+    "repoRefetchFailed": {
+        "message": "Failed to refetch repositories."
+    },
+    "orgSetMessage": {
+        "message": "Organization set successfully."
+    },
+    "orgClearedMessage": {
+        "message": "Organization cleared. Click 'Generate Report' to fetch all activities."
+    },
+    "orgNotFoundMessage": {
+        "message": "Organization not found on GitHub."
+    },
+    "orgValidationErrorMessage": {
+        "message": "Error validating organization."
+    },
+    "refreshingButton": {
+        "message": "Refreshing..."
+    },
+    "cacheClearFailed": {
+        "message": "Cache clear failed."
     }
 }

@@ -12,9 +12,6 @@
     "enableLabel": {
         "message": "启用"
     },
-    "homeButtonTitle": {
-        "message": "前往报告"
-    },
     "projectNameLabel": {
         "message": "项目名称（用于电子邮件主题）"
     },
