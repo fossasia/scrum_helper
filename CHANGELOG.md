@@ -1,3 +1,12 @@
+## v1.0.5 - 2025-09-18
+
+## What's Changed
+
+* Changed version number in manifest to upload the extension on chrome webstore (#239) @vedansh-5
+* [PATCH] Release and Chrome webstore workflow changes. (#237) @vedansh-5
+
+---
+
 ## v0.1.2 - 2025-09-11
 
 ## What's Changed
