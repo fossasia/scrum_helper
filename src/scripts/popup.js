@@ -475,8 +475,98 @@ document.addEventListener('DOMContentLoaded', function () {
         projectNameInput.addEventListener('input', function () {
             chrome.storage.local.set({ projectName: projectNameInput.value });
         });
+        
+        // Simple, efficient organization validation
+        async function validateOrganization(orgName, githubToken = '') {
+            const validationMessage = document.getElementById('orgValidationMessage');
+            const validationText = document.getElementById('orgValidationText');
+            
+            // Safety check - if elements don't exist, return early
+            if (!validationMessage || !validationText) {
+                console.warn('Validation elements not found');
+                return true;
+            }
+            
+            // Hide validation for empty input (valid case)
+            if (!orgName || orgName.trim() === '') {
+                validationMessage.classList.add('hidden');
+                return true;
+            }
+            
+            const cleanOrgName = orgName.trim();
+            
+            // GitHub org/username validation: alphanumeric, hyphens, underscores
+            const validPattern = /^[a-zA-Z0-9\-_]+$/;
+            if (!validPattern.test(cleanOrgName)) {
+                showValidationMessage('error', `Organization name contains invalid characters`);
+                return false;
+            }
+            
+            // Check length constraints (GitHub max is 39 characters)
+            if (cleanOrgName.length > 39) {
+                showValidationMessage('error', `Organization name too long (max 39 characters)`);
+                return false;
+            }
+            
+            // Optional: Only validate against API if user has provided a token
+            if (githubToken && githubToken.trim()) {
+                try {
+                    const headers = { 'Authorization': `token ${githubToken}` };
+                    const response = await fetch(`https://api.github.com/orgs/${cleanOrgName}`, { 
+                        method: 'HEAD', 
+                        headers 
+                    });
+                    
+                    if (response.status === 200) {
+                        showValidationMessage('success', `Organization "${cleanOrgName}" verified`);
+                        return true;
+                    } else if (response.status === 404) {
+                        showValidationMessage('warning', `Organization "${cleanOrgName}" not found (will search public repos)`);
+                        return true; // Still allow it - might be private or user/org distinction
+                    } else if (response.status === 403) {
+                        showValidationMessage('warning', `Rate limited or private organization`);
+                        return true;
+                    }
+                } catch (error) {
+                    // Network error - fail silently, don't block user
+                    console.log('Org validation network error:', error);
+                }
+            }
+            
+            // Default: assume it's valid, user will find out during report generation if not
+            validationMessage.classList.add('hidden');
+            return true;
+        }
+        
+        function showValidationMessage(type, message) {
+            const validationMessage = document.getElementById('orgValidationMessage');
+            const validationText = document.getElementById('orgValidationText');
+            
+            // Safety check
+            if (!validationMessage || !validationText) return;
+            
+            validationMessage.className = `${type} text-xs mt-1 mb-2 px-3 py-2 rounded-lg`;
+            validationText.textContent = message; // Use textContent for security
+            validationMessage.classList.remove('hidden');
+        }
+        
+        // Debounced validation and save (fixed async handling)
+        const debouncedOrgValidateAndSave = debounce(async function(value) {
+            const cleanValue = value.trim().toLowerCase();
+            
+            // Get user's GitHub token for validation (properly handle async)
+            const result = await new Promise(resolve => {
+                chrome.storage.local.get(['githubToken'], resolve);
+            });
+            
+            await validateOrganization(value, result.githubToken);
+            
+            // Always save to storage
+            chrome.storage.local.set({ orgName: cleanValue });
+        }, 1000);
+        
         orgInput.addEventListener('input', function () {
-            chrome.storage.local.set({ orgName: orgInput.value.trim().toLowerCase() });
+            debouncedOrgValidateAndSave(this.value);
         });
         userReasonInput.addEventListener('input', function () {
             chrome.storage.local.set({ userReason: userReasonInput.value });
