@@ -476,8 +476,8 @@ document.addEventListener('DOMContentLoaded', function () {
             chrome.storage.local.set({ projectName: projectNameInput.value });
         });
         
-        // Organization validation function (keeps validation but changes when it runs)
-        async function validateOrganization(orgName, githubToken = '') {
+        // Organization validation function (using function expression to avoid hoisting issues)
+        const validateOrganization = async function(orgName, githubToken = '') {
             const validationMessage = document.getElementById('orgValidationMessage');
             const validationText = document.getElementById('orgValidationText');
             
@@ -538,7 +538,7 @@ document.addEventListener('DOMContentLoaded', function () {
             return true;
         }
         
-        function showValidationMessage(type, message) {
+        const showValidationMessage = function(type, message) {
             const validationMessage = document.getElementById('orgValidationMessage');
             const validationText = document.getElementById('orgValidationText');
             
@@ -548,7 +548,10 @@ document.addEventListener('DOMContentLoaded', function () {
             validationMessage.className = `${type} text-xs mt-1 mb-2 px-3 py-2 rounded-lg`;
             validationText.textContent = message; // Use textContent for security
             validationMessage.classList.remove('hidden');
-        }
+        };
+        
+        // Track the latest validation request to avoid race conditions
+        let orgValidationRequestId = 0;
         
         // CORRECT IMPLEMENTATION: Save only on blur (when user clicks out)
         orgInput.addEventListener('focus', function () {
@@ -562,14 +565,23 @@ document.addEventListener('DOMContentLoaded', function () {
             
             // Save to storage only when user finishes editing (clicks out)
             const cleanValue = this.value.trim().toLowerCase();
-            chrome.storage.local.set({ orgName: cleanValue });
+            chrome.storage.local.set({ 
+                orgName: cleanValue,
+                githubCache: null // Clear cache when organization changes
+            });
+            
+            // Increment validation request id to handle race conditions
+            const currentRequestId = ++orgValidationRequestId;
             
             // Validate and show feedback only after user finishes editing
             const result = await new Promise(resolve => {
                 chrome.storage.local.get(['githubToken'], resolve);
             });
             
-            await validateOrganization(this.value, result.githubToken);
+            // Only process the result if this is the latest request
+            if (currentRequestId === orgValidationRequestId) {
+                await validateOrganization(this.value, result.githubToken);
+            }
         });
         userReasonInput.addEventListener('input', function () {
             chrome.storage.local.set({ userReason: userReasonInput.value });
