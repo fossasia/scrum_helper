@@ -476,7 +476,7 @@ document.addEventListener('DOMContentLoaded', function () {
             chrome.storage.local.set({ projectName: projectNameInput.value });
         });
         
-        // Simple, efficient organization validation
+        // Organization validation function (keeps validation but changes when it runs)
         async function validateOrganization(orgName, githubToken = '') {
             const validationMessage = document.getElementById('orgValidationMessage');
             const validationText = document.getElementById('orgValidationText');
@@ -550,23 +550,26 @@ document.addEventListener('DOMContentLoaded', function () {
             validationMessage.classList.remove('hidden');
         }
         
-        // Debounced validation and save (fixed async handling)
-        const debouncedOrgValidateAndSave = debounce(async function(value) {
-            const cleanValue = value.trim().toLowerCase();
+        // CORRECT IMPLEMENTATION: Save only on blur (when user clicks out)
+        orgInput.addEventListener('focus', function () {
+            // Add visual highlight when field becomes active
+            this.classList.add('org-input-active');
+        });
+        
+        orgInput.addEventListener('blur', async function () {
+            // Remove highlight when field loses focus
+            this.classList.remove('org-input-active');
             
-            // Get user's GitHub token for validation (properly handle async)
+            // Save to storage only when user finishes editing (clicks out)
+            const cleanValue = this.value.trim().toLowerCase();
+            chrome.storage.local.set({ orgName: cleanValue });
+            
+            // Validate and show feedback only after user finishes editing
             const result = await new Promise(resolve => {
                 chrome.storage.local.get(['githubToken'], resolve);
             });
             
-            await validateOrganization(value, result.githubToken);
-            
-            // Always save to storage
-            chrome.storage.local.set({ orgName: cleanValue });
-        }, 1000);
-        
-        orgInput.addEventListener('input', function () {
-            debouncedOrgValidateAndSave(this.value);
+            await validateOrganization(this.value, result.githubToken);
         });
         userReasonInput.addEventListener('input', function () {
             chrome.storage.local.set({ userReason: userReasonInput.value });

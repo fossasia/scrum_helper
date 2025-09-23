@@ -742,10 +742,23 @@ hr,
     outline: none;
 }
 
+/* Organization input active state (manual highlighting) */
+#orgInput.org-input-active {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
+    background-color: #f0f9ff !important;
+}
+
 .dark-mode #orgInput:focus {
     border-color: #3b82f6 !important;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
     background-color: #374151 !important;
+}
+
+.dark-mode #orgInput.org-input-active {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
+    background-color: #1e3a8a !important;
 }
 
 /* Organization validation message styles */
