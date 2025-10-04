@@ -475,113 +475,8 @@ document.addEventListener('DOMContentLoaded', function () {
         projectNameInput.addEventListener('input', function () {
             chrome.storage.local.set({ projectName: projectNameInput.value });
         });
-        
-        // Organization validation function (using function expression to avoid hoisting issues)
-        const validateOrganization = async function(orgName, githubToken = '') {
-            const validationMessage = document.getElementById('orgValidationMessage');
-            const validationText = document.getElementById('orgValidationText');
-            
-            // Safety check - if elements don't exist, return early
-            if (!validationMessage || !validationText) {
-                console.warn('Validation elements not found');
-                return true;
-            }
-            
-            // Hide validation for empty input (valid case)
-            if (!orgName || orgName.trim() === '') {
-                validationMessage.classList.add('hidden');
-                return true;
-            }
-            
-            const cleanOrgName = orgName.trim();
-            
-            // GitHub org/username validation: alphanumeric, hyphens, underscores
-            const validPattern = /^[a-zA-Z0-9\-_]+$/;
-            if (!validPattern.test(cleanOrgName)) {
-                showValidationMessage('error', `Organization name contains invalid characters`);
-                return false;
-            }
-            
-            // Check length constraints (GitHub max is 39 characters)
-            if (cleanOrgName.length > 39) {
-                showValidationMessage('error', `Organization name too long (max 39 characters)`);
-                return false;
-            }
-            
-            // Optional: Only validate against API if user has provided a token
-            if (githubToken && githubToken.trim()) {
-                try {
-                    const headers = { 'Authorization': `token ${githubToken}` };
-                    const response = await fetch(`https://api.github.com/orgs/${cleanOrgName}`, { 
-                        method: 'HEAD', 
-                        headers 
-                    });
-                    
-                    if (response.status === 200) {
-                        showValidationMessage('success', `Organization "${cleanOrgName}" verified`);
-                        return true;
-                    } else if (response.status === 404) {
-                        showValidationMessage('warning', `Organization "${cleanOrgName}" not found (will search public repos)`);
-                        return true; // Still allow it - might be private or user/org distinction
-                    } else if (response.status === 403) {
-                        showValidationMessage('warning', `Rate limited or private organization`);
-                        return true;
-                    }
-                } catch (error) {
-                    // Network error - fail silently, don't block user
-                    console.log('Org validation network error:', error);
-                }
-            }
-            
-            // Default: assume it's valid, user will find out during report generation if not
-            validationMessage.classList.add('hidden');
-            return true;
-        }
-        
-        const showValidationMessage = function(type, message) {
-            const validationMessage = document.getElementById('orgValidationMessage');
-            const validationText = document.getElementById('orgValidationText');
-            
-            // Safety check
-            if (!validationMessage || !validationText) return;
-            
-            validationMessage.className = `${type} text-xs mt-1 mb-2 px-3 py-2 rounded-lg`;
-            validationText.textContent = message; // Use textContent for security
-            validationMessage.classList.remove('hidden');
-        };
-        
-        // Track the latest validation request to avoid race conditions
-        let orgValidationRequestId = 0;
-        
-        // CORRECT IMPLEMENTATION: Save only on blur (when user clicks out)
-        orgInput.addEventListener('focus', function () {
-            // Add visual highlight when field becomes active
-            this.classList.add('org-input-active');
-        });
-        
-        orgInput.addEventListener('blur', async function () {
-            // Remove highlight when field loses focus
-            this.classList.remove('org-input-active');
-            
-            // Save to storage only when user finishes editing (clicks out)
-            const cleanValue = this.value.trim().toLowerCase();
-            chrome.storage.local.set({ 
-                orgName: cleanValue,
-                githubCache: null // Clear cache when organization changes
-            });
-            
-            // Increment validation request id to handle race conditions
-            const currentRequestId = ++orgValidationRequestId;
-            
-            // Validate and show feedback only after user finishes editing
-            const result = await new Promise(resolve => {
-                chrome.storage.local.get(['githubToken'], resolve);
-            });
-            
-            // Only process the result if this is the latest request
-            if (currentRequestId === orgValidationRequestId) {
-                await validateOrganization(this.value, result.githubToken);
-            }
+        orgInput.addEventListener('input', function () {
+            chrome.storage.local.set({ orgName: orgInput.value.trim().toLowerCase() });
         });
         userReasonInput.addEventListener('input', function () {
             chrome.storage.local.set({ userReason: userReasonInput.value });
@@ -1631,3 +1526,76 @@ async function triggerRepoFetchIfEnabled() {
         await window.triggerRepoFetchIfEnabled();
     }
 }
+
+const handleOrgInput = debounce(function () {
+    let org = orgInput.value.trim().toLowerCase();
+    if (!org) {
+        chrome.storage.local.set({ orgName: '' }, () => {
+            console.log(`Org cleared, triggering repo fetch for all git`);
+            chrome.storage.local.remove(['githubCache', 'repoCache']);
+            triggerRepoFetchIfEnabled();
+        })
+        return;
+    }
+    console.log('[Org Check] Checking organization:', org);
+    fetch(`https://api.github.com/orgs/${org}`)
+        .then(res => {
+            console.log('[Org Check] Response status for', org, ':', res.status);
+            if (res.status === 404) {
+                console.log('[Org Check] Organization not found on GitHub:', org);
+                const oldToast = document.getElementById('invalid-org-toast');
+                if (oldToast) oldToast.parentNode.removeChild(oldToast);
+                const toastDiv = document.createElement('div');
+                toastDiv.id = 'invalid-org-toast';
+                toastDiv.className = 'toast';
+                toastDiv.style.background = '#dc2626';
+                toastDiv.style.color = '#fff';
+                toastDiv.style.fontWeight = 'bold';
+                toastDiv.style.padding = '12px 24px';
+                toastDiv.style.borderRadius = '8px';
+                toastDiv.style.position = 'fixed';
+                toastDiv.style.top = '24px';
+                toastDiv.style.left = '50%';
+                toastDiv.style.transform = 'translateX(-50%)';
+                toastDiv.style.zIndex = '9999';
+                toastDiv.innerText = chrome.i18n.getMessage('orgNotFoundMessage');
+                document.body.appendChild(toastDiv);
+                setTimeout(() => {
+                    if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
+                }, 3000);
+                return;
+            }
+            const oldToast = document.getElementById('invalid-org-toast');
+            if (oldToast) oldToast.parentNode.removeChild(oldToast);
+            console.log('[Org Check] Organisation exists on GitHub:', org);
+            chrome.storage.local.set({ orgName: org }, function () {
+                // if (window.generateScrumReport) window.generateScrumReport();
+                triggerRepoFetchIfEnabled();
+            });
+        })
+        .catch((err) => {
+            console.log('[Org Check] Error validating organisation:', org, err);
+            const oldToast = document.getElementById('invalid-org-toast');
+            if (oldToast) oldToast.parentNode.removeChild(oldToast);
+            const toastDiv = document.createElement('div');
+            toastDiv.id = 'invalid-org-toast';
+            toastDiv.className = 'toast';
+            toastDiv.style.background = '#dc2626';
+            toastDiv.style.color = '#fff';
+            toastDiv.style.fontWeight = 'bold';
+            toastDiv.style.padding = '12px 24px';
+            toastDiv.style.borderRadius = '8px';
+            toastDiv.style.position = 'fixed';
+            toastDiv.style.top = '24px';
+            toastDiv.style.left = '50%';
+            toastDiv.style.transform = 'translateX(-50%)';
+            toastDiv.style.zIndex = '9999';
+            toastDiv.innerText = chrome.i18n.getMessage('orgValidationErrorMessage');
+            document.body.appendChild(toastDiv);
+            setTimeout(() => {
+                if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
+            }, 3000);
+        });
+}, 500);
+
+orgInput.addEventListener('input', handleOrgInput);
