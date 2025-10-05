@@ -475,8 +475,20 @@ document.addEventListener('DOMContentLoaded', function () {
         projectNameInput.addEventListener('input', function () {
             chrome.storage.local.set({ projectName: projectNameInput.value });
         });
-        orgInput.addEventListener('input', function () {
-            chrome.storage.local.set({ orgName: orgInput.value.trim().toLowerCase() });
+        
+        // Save to storage and validate ONLY when user clicks out (blur event)
+        orgInput.addEventListener('blur', function () {
+            const org = orgInput.value.trim().toLowerCase();
+            chrome.storage.local.set({ orgName: org });
+            
+            // Only validate if org name is not empty
+            if (org) {
+                validateOrgOnBlur(org);
+            } else {
+                // Clear any existing toast if org is empty
+                const oldToast = document.getElementById('invalid-org-toast');
+                if (oldToast) oldToast.parentNode.removeChild(oldToast);
+            }
         });
         userReasonInput.addEventListener('input', function () {
             chrome.storage.local.set({ userReason: userReasonInput.value });
@@ -1527,17 +1539,9 @@ async function triggerRepoFetchIfEnabled() {
     }
 }
 
-const handleOrgInput = debounce(function () {
-    let org = orgInput.value.trim().toLowerCase();
-    if (!org) {
-        chrome.storage.local.set({ orgName: '' }, () => {
-            console.log(`Org cleared, triggering repo fetch for all git`);
-            chrome.storage.local.remove(['githubCache', 'repoCache']);
-            triggerRepoFetchIfEnabled();
-        })
-        return;
-    }
-    console.log('[Org Check] Checking organization:', org);
+// Validate organization only when user is done typing (on blur)
+function validateOrgOnBlur(org) {
+    console.log('[Org Check] Checking organization on blur:', org);
     fetch(`https://api.github.com/orgs/${org}`)
         .then(res => {
             console.log('[Org Check] Response status for', org, ':', res.status);
@@ -1568,10 +1572,8 @@ const handleOrgInput = debounce(function () {
             const oldToast = document.getElementById('invalid-org-toast');
             if (oldToast) oldToast.parentNode.removeChild(oldToast);
             console.log('[Org Check] Organisation exists on GitHub:', org);
-            chrome.storage.local.set({ orgName: org }, function () {
-                // if (window.generateScrumReport) window.generateScrumReport();
-                triggerRepoFetchIfEnabled();
-            });
+            chrome.storage.local.remove(['githubCache', 'repoCache']);
+            triggerRepoFetchIfEnabled();
         })
         .catch((err) => {
             console.log('[Org Check] Error validating organisation:', org, err);
@@ -1596,6 +1598,4 @@ const handleOrgInput = debounce(function () {
                 if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
             }, 3000);
         });
-}, 500);
-
-orgInput.addEventListener('input', handleOrgInput);
+}
