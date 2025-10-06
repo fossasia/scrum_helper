@@ -11,9 +11,6 @@
   "enableLabel": {
     "message": "啟用"
   },
-  "homeButtonTitle": {
-    "message": "前往報告"
-  },
   "projectNameLabel": {
     "message": "專案名稱（用於電子郵件主旨）"
   },

@@ -11,9 +11,6 @@
     "enableLabel": {
         "message": "有効にする"
     },
-    "homeButtonTitle": {
-        "message": "レポートに移動"
-    },
     "projectNameLabel": {
         "message": "プロジェクト名（メールの件名に使用）"
     },
