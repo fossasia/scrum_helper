@@ -32,7 +32,7 @@ jobs:
                 fi
 
             - name: Upload and Publish to Chrome Web Store
-              uses: PlasmoHQ/chrome-extension-action@v3
+              uses: PlasmoHQ/chrome-extension-action@c15984c0a74f452851c605cab46f34d9fd6cb158
               with:
                 client_id: ${{ secrets.CHROME_CLIENT_ID }}
                 client_secret: ${{ secrets.CHROME_CLIENT_SECRET }}
