@@ -2,6 +2,18 @@
 
 ## What's Changed
 
+* fix: resolve Weblate integration issues with translation key inconsistencies (#243) @Anshumancanrock
+* Publish workflow correction (#251) @vedansh-5
+* chore: update UI version number to v2.0.1 to match manifest.json (#242) @Mariam-Saeed
+* Changed version number in manifest to upload the extension on chrome webstore (#239) @vedansh-5
+* [PATCH] Release and Chrome webstore workflow changes. (#237) @vedansh-5
+
+---
+
+## v1.0.5 - 2025-10-06
+
+## What's Changed
+
 * Publish workflow correction (#251) @vedansh-5
 * chore: update UI version number to v2.0.1 to match manifest.json (#242) @Mariam-Saeed
 * Changed version number in manifest to upload the extension on chrome webstore (#239) @vedansh-5
