@@ -1,3 +1,11 @@
+## v1.0.8 - 2025-10-08
+
+## What's Changed
+
+* Minor: Publish workflow to kebab-case (#255) @vedansh-5
+
+---
+
 ## v1.0.6 - 2025-10-08
 
 ## What's Changed
