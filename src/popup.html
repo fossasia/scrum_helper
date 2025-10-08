@@ -277,13 +277,13 @@
 									</span>
 								</span>
 							</div>
-							<div class="flex items-center mt-4 gap-2">
-								<input id="orgInput" type="text"
-									class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
-									data-i18n-placeholder="settingsOrgNamePlaceholder">
-								<button id="setOrgBtn" type="button"
-									class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl text-base my-2 h-[44px] flex-shrink-0"
-									style="min-width:60px;" data-i18n="setButton">Set</button>
+							<input id="orgInput" type="text"
+								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
+								data-i18n-placeholder="settingsOrgNamePlaceholder" style="margin-top: 0.3rem; margin-bottom: 0.8rem;">
+							
+							<!-- Organization validation feedback -->
+							<div id="orgValidationMessage" class="hidden text-xs mt-1 mb-2 px-3 py-2 rounded-lg">
+								<span id="orgValidationText"></span>
 							</div>
 						</div>
 
