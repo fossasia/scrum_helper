@@ -32,11 +32,10 @@ jobs:
                 fi
 
             - name: Upload and Publish to Chrome Web Store
-              uses: PlasmoHQ/chrome-extension-action@c15984c0a74f452851c605cab46f34d9fd6cb158
+              uses: mnao305/chrome-extension-upload@v5.0.0
               with:
                 client_id: ${{ secrets.CHROME_CLIENT_ID }}
                 client_secret: ${{ secrets.CHROME_CLIENT_SECRET }}
                 refresh_token: ${{ secrets.CHROME_REFRESH_TOKEN }}
                 extension_id: ${{ secrets.CHROME_EXTENSION_ID }}
-                zip: scrum-helper.zip
-                publish: true
+                file-path: scrum-helper.zip
