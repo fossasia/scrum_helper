@@ -34,8 +34,8 @@ jobs:
             - name: Upload and Publish to Chrome Web Store
               uses: mnao305/chrome-extension-upload@v5.0.0
               with:
-                client_id: ${{ secrets.CHROME_CLIENT_ID }}
-                client_secret: ${{ secrets.CHROME_CLIENT_SECRET }}
-                refresh_token: ${{ secrets.CHROME_REFRESH_TOKEN }}
-                extension_id: ${{ secrets.CHROME_EXTENSION_ID }}
+                client-id: ${{ secrets.CHROME_CLIENT_ID }}
+                client-secret: ${{ secrets.CHROME_CLIENT_SECRET }}
+                refresh-token: ${{ secrets.CHROME_REFRESH_TOKEN }}
+                extension-id: ${{ secrets.CHROME_EXTENSION_ID }}
                 file-path: scrum-helper.zip
