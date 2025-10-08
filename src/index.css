@@ -733,3 +733,74 @@ hr,
     background-color: transparent !important;
     color: #fff !important;
 }
+
+/* Enhanced focus styles for organization input */
+#orgInput:focus {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+    background-color: #f8fafc !important;
+    outline: none;
+}
+
+/* Organization input active state (manual highlighting) */
+#orgInput.org-input-active {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
+    background-color: #f0f9ff !important;
+}
+
+.dark-mode #orgInput:focus {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+    background-color: #374151 !important;
+}
+
+.dark-mode #orgInput.org-input-active {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15) !important;
+    background-color: #1e3a8a !important;
+}
+
+/* Organization validation message styles */
+#orgValidationMessage {
+    transition: all 0.3s ease;
+    margin-top: -8px;
+    margin-bottom: 8px;
+}
+
+#orgValidationMessage.success {
+    background-color: #ecfdf5;
+    border: 1px solid #a7f3d0;
+    color: #065f46;
+}
+
+#orgValidationMessage.error {
+    background-color: #fef2f2;
+    border: 1px solid #fca5a5;
+    color: #dc2626;
+}
+
+#orgValidationMessage.warning {
+    background-color: #fffbeb;
+    border: 1px solid #fde68a;
+    color: #d97706;
+}
+
+/* Dark mode validation styles */
+.dark-mode #orgValidationMessage.success {
+    background-color: #064e3b;
+    border-color: #065f46;
+    color: #a7f3d0;
+}
+
+.dark-mode #orgValidationMessage.error {
+    background-color: #7f1d1d;
+    border-color: #dc2626;
+    color: #fca5a5;
+}
+
+.dark-mode #orgValidationMessage.warning {
+    background-color: #78350f;
+    border-color: #d97706;
+    color: #fde68a;
+}

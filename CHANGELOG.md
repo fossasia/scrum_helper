@@ -1,8 +1,11 @@
-## v0.1.2 - 2025-10-08
+## v1.0.6 - 2025-10-08
 
 ## What's Changed
 
-* No changes
+* feat: Remove Set button from Organization Name field (#244) @Anshumancanrock
+* fix: resolve Weblate integration issues with translation key inconsistencies (#243) @Anshumancanrock
+* Publish workflow correction (#251) @vedansh-5
+* chore: update UI version number to v2.0.1 to match manifest.json (#242) @Mariam-Saeed
 
 ---
 
