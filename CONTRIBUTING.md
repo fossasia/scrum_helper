@@ -94,6 +94,12 @@ You can add a new language to Scrum Helper for your own use or contribute it to 
 1. **Create a Locale Folder**
    - Go to `src/_locales`.
    - Create a new folder named with the [ISO language code](https://developer.chrome.com/docs/extensions/reference/i18n/#localeTable) (e.g., `it` for Italian, `fr` for French).
+   - **Important:** Use canonical locale codes to avoid duplicates:
+     - For Chinese (Simplified): use `zh_CN` (not `zh_Hans` or `zh-CN`)
+     - For Chinese (Traditional): use `zh_TW` (not `zh_Hant` or `zh-TW`)
+     - For Portuguese (Brazil): use `pt_BR` (not `pt-BR`)
+     - For English: use `en` (not `en_US` or `en-US`)
+   - Run `npm run validate:locales` to check for duplicate locale codes before submitting.
 
 2. **Add a `messages.json` File**
    - Copy the `messages.json` from `src/_locales/en/messages.json` or any other language as a template.
