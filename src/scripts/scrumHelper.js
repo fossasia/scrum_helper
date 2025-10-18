@@ -23,6 +23,7 @@ let orgName = '';
 let platform = 'github';
 let platformUsername = '';
 let gitlabHelper = null;
+let giteeHelper = null;
 
 function allIncluded(outputTarget = 'email') {
     // Always re-instantiate gitlabHelper for gitlab platform to ensure fresh cache after refresh
@@ -313,6 +314,59 @@ function allIncluded(outputTarget = 'email') {
                             }
                         }
                         scrumGenerationInProgress = false;
+                    }
+                } else if (platform === 'gitee') {
+                    console.log("Gitee Code is reading...");
+                    if (!giteeHelper)
+                         giteeHelper = new window.GiteeHelper();
+
+  
+                    if (!platformUsernameLocal) {
+                        if (outputTarget === 'popup') {
+                            const generateBtn = document.getElementById('generateReport');
+                            const scrumReport = document.getElementById('scrumReport');
+
+                            if (scrumReport) {
+                                scrumReport.innerHTML = `<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">Please enter your username to generate a report.</div>`;
+                            }
+
+                            if (generateBtn) {
+                                generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+                                generateBtn.disabled = false;
+                            }
+                        }
+
+                        scrumGenerationInProgress = false;
+                        return; 
+                    }
+
+                    if (platformUsernameLocal) {
+                        
+                        giteeHelper.fetchGiteeData(platformUsernameLocal, startingDate, endingDate)
+                            .then(data => {
+                                const mappedData = {
+                                    githubIssuesData: { items: data.issues || [] },
+                                    githubPrsReviewData: { items: data.mergeRequests || [] },
+                                    githubUserData: data.user || {},
+                                };
+                                processGithubData(mappedData);
+                                scrumGenerationInProgress = false;
+                            })
+                            .catch(err => {
+                                console.error('Gitee fetch failed:', err);
+                                if (outputTarget === 'popup') {
+                                    const generateBtn = document.getElementById('generateReport');
+                                    const scrumReport = document.getElementById('scrumReport');
+                                    if (generateBtn) {
+                                        generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+                                        generateBtn.disabled = false;
+                                    }
+                                    if (scrumReport) {
+                                        scrumReport.innerHTML = `<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">${err.message || 'An error occurred while fetching Gitee data.'}</div>`;
+                                    }
+                                }
+                                scrumGenerationInProgress = false;
+                            });
                     }
                 } else {
                     // Unknown platform
