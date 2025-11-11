@@ -12,9 +12,6 @@
     "48": "icons/icon.png"
   },
   
-  "background": {
-    "service_worker": "scripts/background.js"
-  },
   "content_scripts": [
     {
       "matches": [
