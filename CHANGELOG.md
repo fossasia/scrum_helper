@@ -5,6 +5,19 @@
 * fix:  Empty Background Service Worker Declaration (#253) @Anshumancanrock
 * fix: Input text box color does not change along with rest of the interface (#249) @Anshumancanrock
 
+## Maintenance
+
+* chore(deps)(deps-dev): bump @biomejs/biome from 1.9.4 to 2.3.4 (#264) @[dependabot[bot]](https://github.com/apps/dependabot)
+
+---
+
+## v1.0.9 - 2025-11-11
+
+## What's Changed
+
+* fix:  Empty Background Service Worker Declaration (#253) @Anshumancanrock
+* fix: Input text box color does not change along with rest of the interface (#249) @Anshumancanrock
+
 ---
 
 ## v1.0.9 - 2025-11-11
