@@ -1,3 +1,11 @@
+## v1.0.9 - 2025-11-11
+
+## What's Changed
+
+* fix: Input text box color does not change along with rest of the interface (#249) @Anshumancanrock
+
+---
+
 ## v1.0.8 - 2025-10-08
 
 ## What's Changed
