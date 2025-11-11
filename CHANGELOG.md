@@ -2,6 +2,15 @@
 
 ## What's Changed
 
+* fix:  Empty Background Service Worker Declaration (#253) @Anshumancanrock
+* fix: Input text box color does not change along with rest of the interface (#249) @Anshumancanrock
+
+---
+
+## v1.0.9 - 2025-11-11
+
+## What's Changed
+
 * fix: Input text box color does not change along with rest of the interface (#249) @Anshumancanrock
 
 ---
