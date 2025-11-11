@@ -1198,6 +1198,8 @@ function updatePlatformUI(platform) {
     if (usernameLabel) {
         if (platform === 'gitlab') {
             usernameLabel.setAttribute('data-i18n', 'gitlabUsernameLabel');
+        } else if (platform === 'gitee') {
+            usernameLabel.setAttribute('data-i18n', 'giteeUsernameLabel');
         } else {
             usernameLabel.setAttribute('data-i18n', 'githubUsernameLabel');
         }
@@ -1210,7 +1212,7 @@ function updatePlatformUI(platform) {
 
     const orgSection = document.querySelector('.orgSection');
     if (orgSection) {
-        if (platform === 'gitlab') {
+        if (platform === 'gitlab' || platform === 'gitee') {
             orgSection.classList.add('hidden');
         } else {
             orgSection.classList.remove('hidden');
@@ -1256,7 +1258,9 @@ const platformSelectHidden = document.getElementById('platformSelect');
 function setPlatformDropdown(value) {
     if (value === 'gitlab') {
         dropdownSelected.innerHTML = '<i class="fab fa-gitlab mr-2"></i> GitLab';
-    } else {
+    }else if (value === 'gitee') {
+        dropdownSelected.innerHTML = '<i class="fab ri-git-repository-fill"></i> Gitee';
+    }else {
         dropdownSelected.innerHTML = '<i class="fab fa-github mr-2"></i> GitHub';
     }
 
@@ -1363,6 +1367,8 @@ chrome.storage.local.get(['platform'], function (result) {
     // Just update the UI without clearing username when restoring from storage
     if (platform === 'gitlab') {
         dropdownSelected.innerHTML = '<i class="fab fa-gitlab mr-2"></i> GitLab';
+    } else if (platform === 'gitee') {
+        dropdownSelected.innerHTML = '<i class="fab ri-git-repository-fill"></i> Gitee';
     } else {
         dropdownSelected.innerHTML = '<i class="fab fa-github mr-2"></i> GitHub';
     }
