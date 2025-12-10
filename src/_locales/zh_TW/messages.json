@@ -190,5 +190,65 @@
   },
   "usernameLabel": {
     "message": "您的用戶名"
-  }
+  },
+  "gitlabTokenLabel": {
+    "message": "您的 GitLab 令牌"
+  },
+  "gitlabTokenPlaceholder": {
+    "message": "貼上您的 GitLab 個人存取令牌"
+  },
+  "gitlabTokenTooltip": {
+    "message": "<b>為什麼建議添加 GitLab 令牌？</b><br>Scrum Helper 在沒有 GitLab 令牌的情況下也能工作，但添加個人存取令牌建議以獲得更好的體驗。它可以提高您的 API 限制，允許存取私人儲存庫（如果允許），並提高準確性和速度。令牌在本地存儲，從不發送給我們。<br><br><b>如何獲取：</b><br>1. 轉到 <a href='https://gitlab.com/-/profile/personal_access_tokens' target='_blank' style='color:#2563eb;text-decoration:underline;'>GitLab 令牌設定</a>。<br>2. 點擊「添加新令牌」<br>3. 選擇範圍：<code>read_api</code> 和 <code>read_repository</code><br>4. 生成並貼上到此處。<br><i>保持您的令牌秘密！</i>"
+  },
+  "testTokenButton": {
+    "message": "測試令牌"
+  },
+  "testingTokenButton": {
+    "message": "正在測試..."
+  },
+  "tokenValidButton": {
+    "message": "有效！"
+  },
+  "tokenInvalidButton": {
+    "message": "無效"
+  },
+  "clearTokenButton": {
+    "message": "清除令牌"
+  },
+  "tokenSecurityNotice": {
+    "message": "令牌本地存儲在您的瀏覽器中，從不發送給第三方"
+  },
+  "orgNameTooltipGitLab": {
+    "message": "<b>哪個 GitLab 組織/群組？</b><br>輸入 GitLab 組織或群組名稱以獲取活動。留空以獲取您的所有 GitLab 活動。組織名稱不區分大小寫。"
+  },
+  "confirmClearToken": {
+    "message": "您確定要清除 GitLab 令牌嗎？"
+  },
+  "tokenAuthError": {
+    "message": "身份驗證失敗。請檢查您的令牌。"
+  },
+  "tokenPermissionError": {
+    "message": "令牌缺少所需權限。請確保它具有 read_api 範圍。"
+  },
+  "tokenRateLimitError": {
+    "message": "超出速率限制。請稍後重試。"
+  },
+  "tokenNetworkError": {
+    "message": "網路錯誤。請檢查您的連接。"
+  },
+  "tokenTimeoutError": {
+    "message": "請求超時。請重試。"
+  },
+    "dataFetchPartialError": {
+        "message": "無法獲取某些資料。結果可能不完整。"
+    },
+    "notePoint1GitLab": {
+        "message": "合併請求是根據任何貢獻者最近的審查活動獲取的，而不僅僅是您自己的。請在分享之前審查和調整生成的SCRUM報告，以確保它準確地反映您的工作。"
+    },
+    "showOpenClosedLabelGitLab": {
+        "message": "顯示MRs標籤"
+    },
+    "showCommitsLabelGitLab": {
+        "message": "在開放MRs / 草稿MRs上顯示提交"
+    }
 }

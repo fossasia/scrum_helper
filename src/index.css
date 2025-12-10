@@ -13,6 +13,15 @@ body {
     box-sizing: border-box;
 }
 
+/* Platform-specific section visibility */
+.githubOnlySection {
+    display: block;
+}
+
+.gitlabOnlySection {
+    display: none;
+}
+
 .datepicker {
     margin-bottom: 5px !important;
 }

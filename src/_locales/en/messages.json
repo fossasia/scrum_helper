@@ -243,6 +243,18 @@
     "message": "Pull requests are fetched based on the most recent review activity by any contributor, not just your own. Please review and adjust the generated SCRUM report to ensure it accurately reflects your work before sharing.",
     "description": "First point in the notes section."
   },
+  "notePoint1GitLab": {
+    "message": "Merge requests are fetched based on the most recent review activity by any contributor, not just your own. Please review and adjust the generated SCRUM report to ensure it accurately reflects your work before sharing.",
+    "description": "First point in the notes section for GitLab."
+  },
+  "showOpenClosedLabelGitLab": {
+    "message": "Show MRs Labels",
+    "description": "Label for the checkbox to show MR labels (GitLab)."
+  },
+  "showCommitsLabelGitLab": {
+    "message": "Show commits on open MRs/ draft MRs",
+    "description": "Label for the checkbox to show commits in open MRs (GitLab)."
+  },
   "noteSeeIssue": {
     "message": "See this issue",
     "description": "Link text for the GitHub issue in the notes."
@@ -254,5 +266,73 @@
   "usernameLabel": {
     "message": "Your Username",
     "description": "Label for the username input header."
+  },
+  "gitlabTokenLabel": {
+    "message": "Your GitLab Token",
+    "description": "Label for the GitLab token input."
+  },
+  "gitlabTokenPlaceholder": {
+    "message": "Paste your GitLab Personal Access Token",
+    "description": "Placeholder for the GitLab token input."
+  },
+  "gitlabTokenTooltip": {
+    "message": "<b>Why is it recommended to add a GitLab token?</b><br>Scrum Helper works without a GitLab token, but adding a personal access token is recommended for a better experience. It raises your API limits, allows access to private repos (if permitted), and improves accuracy and speed. Tokens are stored locally and never sent to us and used only to fetch your git data.<br><br><b>How to obtain:</b><br>1. Go to <a href='https://gitlab.com/-/profile/personal_access_tokens' target='_blank' style='color:#2563eb;text-decoration:underline;'>GitLab Token Settings</a>.<br>2. Click 'Add new token'<br>3. Select scopes: <code>read_api</code> and <code>read_repository</code><br>4. Generate and paste it here.<br><i>Keep your token secret!</i>",
+    "description": "Tooltip explaining how to get a GitLab token."
+  },
+  "testTokenButton": {
+    "message": "Test Token",
+    "description": "Button text to test/validate a GitLab token."
+  },
+  "testingTokenButton": {
+    "message": "Testing...",
+    "description": "Button text while token validation is in progress."
+  },
+  "tokenValidButton": {
+    "message": "Valid!",
+    "description": "Button text when token is validated successfully."
+  },
+  "tokenInvalidButton": {
+    "message": "Invalid",
+    "description": "Button text when token validation fails."
+  },
+  "clearTokenButton": {
+    "message": "Clear Token",
+    "description": "Button text to remove/clear the token."
+  },
+  "tokenSecurityNotice": {
+    "message": "Token stored locally in your browser, never sent to third parties",
+    "description": "Security notice text below token input."
+  },
+  "orgNameTooltipGitLab": {
+    "message": "<b>Which organization/group's GitLab activity?</b><br>Enter the GitLab organization or group name to fetch activities for. Leave empty to fetch all your GitLab activities across all projects. Organization name is not case-sensitive.",
+    "description": "Tooltip for organization name when GitLab is selected."
+  },
+  "confirmClearToken": {
+    "message": "Are you sure you want to clear the GitLab token?",
+    "description": "Confirmation message before clearing the token."
+  },
+  "tokenAuthError": {
+    "message": "Authentication failed. Please check your token.",
+    "description": "Error message when token authentication fails."
+  },
+  "tokenPermissionError": {
+    "message": "Token lacks required permissions. Ensure it has read_api scope.",
+    "description": "Error message when token has insufficient permissions."
+  },
+  "tokenRateLimitError": {
+    "message": "Rate limit exceeded. Please wait and try again.",
+    "description": "Error message when API rate limit is hit."
+  },
+  "tokenNetworkError": {
+    "message": "Network error. Please check your connection.",
+    "description": "Error message for network issues."
+  },
+  "tokenTimeoutError": {
+    "message": "Request timed out. Please try again.",
+    "description": "Error message when request times out."
+  },
+  "dataFetchPartialError": {
+    "message": "Some data could not be fetched. Results may be incomplete.",
+    "description": "Warning when partial data fetch occurs."
   }
 }

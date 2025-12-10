@@ -190,5 +190,65 @@
     },
     "usernameLabel": {
         "message": "Su nombre de usuario"
+    },
+    "gitlabTokenLabel": {
+        "message": "Su token de GitLab"
+    },
+    "gitlabTokenPlaceholder": {
+        "message": "Pegue su Token de Acceso Personal de GitLab"
+    },
+    "gitlabTokenTooltip": {
+        "message": "<b>¿Por qué se recomienda agregar un token de GitLab?</b><br>Scrum Helper funciona sin un token de GitLab, pero agregar un token de acceso personal se recomienda para una mejor experiencia. Aumenta sus límites de API, permite el acceso a repos privados (si está permitido) y mejora la precisión y velocidad. Los tokens se almacenan localmente y nunca se envían a nosotros.<br><br><b>Cómo obtenerlo:</b><br>1. Vaya a <a href='https://gitlab.com/-/profile/personal_access_tokens' target='_blank' style='color:#2563eb;text-decoration:underline;'>Configuración de Token de GitLab</a>.<br>2. Haga clic en 'Agregar nuevo token'<br>3. Seleccione ámbitos: <code>read_api</code> y <code>read_repository</code><br>4. Genere y péguelo aquí.<br><i>¡Mantenga su token en secreto!</i>"
+    },
+    "testTokenButton": {
+        "message": "Probar token"
+    },
+    "testingTokenButton": {
+        "message": "Probando..."
+    },
+    "tokenValidButton": {
+        "message": "¡Válido!"
+    },
+    "tokenInvalidButton": {
+        "message": "Inválido"
+    },
+    "clearTokenButton": {
+        "message": "Borrar token"
+    },
+    "tokenSecurityNotice": {
+        "message": "Token almacenado localmente en su navegador, nunca enviado a terceros"
+    },
+    "orgNameTooltipGitLab": {
+        "message": "<b>¿Qué organización/grupo de GitLab?</b><br>Ingrese el nombre de la organización o grupo de GitLab para obtener actividades. Déjelo vacío para obtener todas sus actividades de GitLab. El nombre de la organización no distingue entre mayúsculas y minúsculas."
+    },
+    "confirmClearToken": {
+        "message": "¿Está seguro de que desea borrar el token de GitLab?"
+    },
+    "tokenAuthError": {
+        "message": "Autenticación fallida. Por favor verifique su token."
+    },
+    "tokenPermissionError": {
+        "message": "El token carece de permisos requeridos. Asegúrese de que tenga el ámbito read_api."
+    },
+    "tokenRateLimitError": {
+        "message": "Límite de tasa excedido. Por favor espere e intente nuevamente."
+    },
+    "tokenNetworkError": {
+        "message": "Error de red. Por favor verifique su conexión."
+    },
+    "tokenTimeoutError": {
+        "message": "Tiempo de espera agotado. Por favor intente nuevamente."
+    },
+    "dataFetchPartialError": {
+        "message": "No se pudieron obtener algunos datos. Los resultados pueden estar incompletos."
+    },
+    "notePoint1GitLab": {
+        "message": "Las solicitudes de fusión se obtienen según la actividad de revisión más reciente de cualquier colaborador, no solo la suya. Revise y ajuste el informe SCRUM generado para asegurarse de que refleje con precisión su trabajo antes de compartirlo."
+    },
+    "showOpenClosedLabelGitLab": {
+        "message": "Mostrar etiquetas de MRs"
+    },
+    "showCommitsLabelGitLab": {
+        "message": "Mostrar commits en MRs abiertos / MRs borrador"
     }
 }

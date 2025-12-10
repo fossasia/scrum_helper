@@ -190,5 +190,65 @@
     },
     "usernameLabel": {
         "message": "Votre nom d'utilisateur"
+    },
+    "gitlabTokenLabel": {
+        "message": "Votre jeton GitLab"
+    },
+    "gitlabTokenPlaceholder": {
+        "message": "Collez votre jeton d'accès personnel GitLab"
+    },
+    "gitlabTokenTooltip": {
+        "message": "<b>Pourquoi est-il recommandé d'ajouter un jeton GitLab ?</b><br>Scrum Helper fonctionne sans jeton GitLab, mais l'ajout d'un jeton d'accès personnel est recommandé pour une meilleure expérience. Il augmente vos limites d'API, permet l'accès aux dépôts privés (si autorisé) et améliore la précision et la vitesse. Les jetons sont stockés localement et ne nous sont jamais envoyés.<br><br><b>Comment l'obtenir :</b><br>1. Allez dans <a href='https://gitlab.com/-/profile/personal_access_tokens' target='_blank' style='color:#2563eb;text-decoration:underline;'>Paramètres de jeton GitLab</a>.<br>2. Cliquez sur 'Ajouter un nouveau jeton'<br>3. Sélectionnez les portées : <code>read_api</code> et <code>read_repository</code><br>4. Générez et collez-le ici.<br><i>Gardez votre jeton secret !</i>"
+    },
+    "testTokenButton": {
+        "message": "Tester le jeton"
+    },
+    "testingTokenButton": {
+        "message": "Test en cours..."
+    },
+    "tokenValidButton": {
+        "message": "Valide !"
+    },
+    "tokenInvalidButton": {
+        "message": "Invalide"
+    },
+    "clearTokenButton": {
+        "message": "Effacer le jeton"
+    },
+    "tokenSecurityNotice": {
+        "message": "Jeton stocké localement dans votre navigateur, jamais envoyé à des tiers"
+    },
+    "orgNameTooltipGitLab": {
+        "message": "<b>Quelle organisation/groupe GitLab ?</b><br>Entrez le nom de l'organisation ou du groupe GitLab pour récupérer les activités. Laissez vide pour récupérer toutes vos activités GitLab. Le nom de l'organisation n'est pas sensible à la casse."
+    },
+    "confirmClearToken": {
+        "message": "Êtes-vous sûr de vouloir effacer le jeton GitLab ?"
+    },
+    "tokenAuthError": {
+        "message": "Échec de l'authentification. Veuillez vérifier votre jeton."
+    },
+    "tokenPermissionError": {
+        "message": "Le jeton manque de permissions requises. Assurez-vous qu'il a la portée read_api."
+    },
+    "tokenRateLimitError": {
+        "message": "Limite de taux dépassée. Veuillez attendre et réessayer."
+    },
+    "tokenNetworkError": {
+        "message": "Erreur réseau. Veuillez vérifier votre connexion."
+    },
+    "tokenTimeoutError": {
+        "message": "Délai d'attente de la requête. Veuillez réessayer."
+    },
+    "dataFetchPartialError": {
+        "message": "Certaines données n'ont pas pu être récupérées. Les résultats peuvent être incomplets."
+    },
+    "notePoint1GitLab": {
+        "message": "Les demandes de fusion sont récupérées en fonction de l'activité de révision la plus récente de n'importe quel contributeur, pas seulement la vôtre. Veuillez examiner et ajuster le rapport SCRUM généré pour vous assurer qu'il reflète fidèlement votre travail avant de le partager."
+    },
+    "showOpenClosedLabelGitLab": {
+        "message": "Afficher les étiquettes des MRs"
+    },
+    "showCommitsLabelGitLab": {
+        "message": "Afficher les commits sur les MRs ouvertes / MRs brouillon"
     }
 }
