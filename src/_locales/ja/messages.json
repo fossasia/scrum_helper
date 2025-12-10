@@ -190,5 +190,65 @@
     },
     "usernameLabel": {
         "message": "あなたのユーザー名"
+    },
+    "gitlabTokenLabel": {
+        "message": "あなたのGitLabトークン"
+    },
+    "gitlabTokenPlaceholder": {
+        "message": "GitLabパーソナルアクセストークンを貼り付けてください"
+    },
+    "gitlabTokenTooltip": {
+        "message": "<b>なぜGitLabトークンの追加が推奨されるのか？</b><br>Scrum HelperはGitLabトークンなしでも動作しますが、より良い体験のためにパーソナルアクセストークンを追加することをお勧めします。API制限が増え、プライベートリポジトリへのアクセスが可能になり（許可されている場合）、精度と速度が向上します。トークンはローカルに保存され、私たちに送信されることはありません。<br><br><b>取得方法：</b><br>1. <a href='https://gitlab.com/-/profile/personal_access_tokens' target='_blank' style='color:#2563eb;text-decoration:underline;'>GitLabトークン設定</a>にアクセス。<br>2. '新しいトークンを追加'をクリック<br>3. スコープを選択：<code>read_api</code>と<code>read_repository</code><br>4. 生成してここに貼り付けます。<br><i>トークンは秘密に保ってください！</i>"
+    },
+    "testTokenButton": {
+        "message": "トークンをテスト"
+    },
+    "testingTokenButton": {
+        "message": "テスト中..."
+    },
+    "tokenValidButton": {
+        "message": "有効！"
+    },
+    "tokenInvalidButton": {
+        "message": "無効"
+    },
+    "clearTokenButton": {
+        "message": "トークンをクリア"
+    },
+    "tokenSecurityNotice": {
+        "message": "トークンはブラウザにローカルで保存され、第三者に送信されることはありません"
+    },
+    "orgNameTooltipGitLab": {
+        "message": "<b>どのGitLab組織/グループ？</b><br>アクティビティを取得するためにGitLab組織またはグループ名を入力します。空欄のままにすると、すべてのGitLabアクティビティを取得します。組織名は大文字と小文字を区別しません。"
+    },
+    "confirmClearToken": {
+        "message": "GitLabトークンをクリアしてもよろしいですか？"
+    },
+    "tokenAuthError": {
+        "message": "認証に失敗しました。トークンを確認してください。"
+    },
+    "tokenPermissionError": {
+        "message": "トークンに必要な権限がありません。read_apiスコープがあることを確認してください。"
+    },
+    "tokenRateLimitError": {
+        "message": "レート制限を超えました。しばらく待ってからもう一度試してください。"
+    },
+    "tokenNetworkError": {
+        "message": "ネットワークエラー。接続を確認してください。"
+    },
+    "tokenTimeoutError": {
+        "message": "リクエストがタイムアウトしました。もう一度試してください。"
+    },
+    "dataFetchPartialError": {
+        "message": "一部のデータを取得できませんでした。結果が不完全な可能性があります。"
+    },
+    "notePoint1GitLab": {
+        "message": "マージリクエストは、自分だけでなく、任意の貢献者による最新のレビューアクティビティに基づいて取得されます。共有する前に、生成されたSCRUMレポートを確認し、作業を正確に反映していることを確認してください。"
+    },
+    "showOpenClosedLabelGitLab": {
+        "message": "MRラベルを表示"
+    },
+    "showCommitsLabelGitLab": {
+        "message": "オープンMR / ドラフトMRにコミットを表示"
     }
 }

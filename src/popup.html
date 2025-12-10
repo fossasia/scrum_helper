@@ -1,420 +1,743 @@
 <!DOCTYPE html>
 <html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <link rel="stylesheet" href="tailwindcss.css" />
+    <link rel="stylesheet" type="text/css" href="index.css" />
+    <link rel="stylesheet" href="fontawesome/css/all.min.css" />
+    <style type="text/css">
+      html,
+      body {
+        width: 375px !important;
+        height: 600px !important;
+        max-height: 600px !important;
+        overflow-y: scroll;
+        background: #eae4e4;
+      }
 
-<head>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<meta http-equiv="X-UA-Compatible" content="ie=edge">
-	<link rel="stylesheet" href="tailwindcss.css">
-	<link rel="stylesheet" type="text/css" href="index.css">
-	<link rel="stylesheet" href="fontawesome/css/all.min.css">
-	<style type="text/css">
-		html,
-		body {
-			width: 375px !important;
-			height: 600px !important;
-			max-height: 600px !important;
-			overflow-y: scroll;
-			background: #eae4e4;
-		}
+      #platformSelect option {
+        font-family: "FontAwesome", "Arial", sans-serif;
+      }
 
-		#platformSelect option {
-			font-family: 'FontAwesome', 'Arial', sans-serif;
-		}
+      #customPlatformDropdown {
+        position: relative;
+      }
 
-		#customPlatformDropdown {
-			position: relative;
-		}
+      #platformDropdownList {
+        display: none;
+      }
 
-		#platformDropdownList {
-			display: none;
-		}
+      #customPlatformDropdown.open #platformDropdownList {
+        display: block;
+      }
 
-		#customPlatformDropdown.open #platformDropdownList {
-			display: block;
-		}
+      #platformDropdownBtn:focus {
+        outline: 2px solid #2563eb;
+      }
+    </style>
+  </head>
 
-		#platformDropdownBtn:focus {
-			outline: 2px solid #2563eb;
-		}
-	</style>
-</head>
+  <body>
+    <div class="pl-1 py-2 rounded-2xl">
+      <div class="bg-white px-4 py-4 mx-2 mb-2 rounded-3xl">
+        <div class="flex justify-between py-2">
+          <h3
+            id="scrumHelperHeading"
+            class="text-3xl font-semibold cursor-pointer"
+          >
+            Scrum Helper
+          </h3>
+          <img
+            src="icons/night-mode.png"
+            alt="Night Mode"
+            class="w-7 h-7 mx-3 cursor-pointer"
+            id="darkModeToggle"
+          />
+        </div>
+        <div>
+          <p class="" data-i18n="appDescription">
+            Report your development progress by auto-fetching your Git activity
+            for a selected period
+          </p>
+        </div>
 
-<body>
-	<div class="pl-1 py-2 rounded-2xl">
-		<div class="bg-white px-4 py-4 mx-2 mb-2 rounded-3xl">
-			<div class="flex justify-between py-2">
-				<h3 id="scrumHelperHeading" class="text-3xl font-semibold cursor-pointer">Scrum Helper</h3>
-				<img src="icons/night-mode.png" alt="Night Mode" class="w-7 h-7 mx-3 cursor-pointer"
-					id="darkModeToggle">
-			</div>
-			<div>
-				<p class="" data-i18n="appDescription">Report your development progress by auto-fetching your Git
-					activity for a selected period
-				</p>
-			</div>
+        <div class="center mt-2 flex justify-between">
+          <label class="flex items-center justify-center gap-2 font-semibold">
+            <span data-i18n="disableLabel">Disable</span>
+            <input type="checkbox" value="" id="enable" class="sr-only peer" />
+            <div
+              class="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"
+            ></div>
+            <span class=""></span>
+            <span data-i18n="enableLabel">Enable</span>
+          </label>
+          <div class="flex">
+            <button
+              id="homeButton"
+              class="ml-1 p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition"
+            >
+              <i
+                class="fa fa-home text-2xl text-gray-600 dark:text-gray-300"
+              ></i>
+            </button>
+            <button id="settingsToggle">
+              <img
+                id="settingsIcon"
+                src="icons/settings-light.png"
+                alt="Settings"
+                class="w-6 h-6 mx-3 cursor-pointer"
+              />
+            </button>
+          </div>
+        </div>
+      </div>
 
-			<div class="center mt-2 flex justify-between">
-				<label class="flex items-center justify-center gap-2 font-semibold">
-					<span data-i18n="disableLabel">Disable</span>
-					<input type="checkbox" value="" id="enable" class="sr-only peer">
-					<div
-						class="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600">
-					</div>
-					<span class=""></span>
-					<span data-i18n="enableLabel">Enable</span>
-				</label>
-				<div class="flex">
-					<button id="homeButton"
-						class="ml-1 p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition">
-						<i class="fa fa-home text-2xl text-gray-600 dark:text-gray-300"></i>
-					</button>
-					<button id="settingsToggle">
-						<img id="settingsIcon" src="icons/settings-light.png" alt="Settings"
-							class="w-6 h-6 mx-3 cursor-pointer">
-					</button>
-				</div>
-			</div>
-		</div>
+      <div class="rounded-2xl">
+        <div
+          class="border-gray-100 border-2 bg-white rounded-3xl px-4 py-4 mx-2 my-2"
+        >
+          <div id="reportSection" class="tab-content">
+            <div>
+              <p
+                data-i18n="platformLabel"
+                class="font-medium text-sm"
+                style="margin-bottom: 0.3rem"
+              >
+                Platform
+              </p>
+              <div
+                class="relative mb-4"
+                id="customPlatformDropdown"
+                style="margin-bottom: 0.8rem"
+              >
+                <input type="hidden" id="platformSelect" value="github" />
+                <button
+                  type="button"
+                  id="platformDropdownBtn"
+                  class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 pr-8 flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                  <span
+                    id="platformDropdownSelected"
+                    class="flex items-center gap-2"
+                  >
+                    <i class="fab fa-github" style="margin-right: 8px"></i>
+                    GitHub
+                  </span>
+                  <i class="fa fa-chevron-down text-gray-500"></i>
+                </button>
+                <ul
+                  id="platformDropdownList"
+                  class="absolute left-0 right-0 bg-white border-2 border-gray-200 rounded-xl mt-1 shadow-lg z-10 hidden"
+                >
+                  <li
+                    style="
+                      padding-left: 8px;
+                      padding-right: 16px;
+                      padding-top: 8px;
+                      padding-bottom: 8px;
+                      display: flex;
+                      align-items: center;
+                      cursor: pointer;
+                    "
+                    class="hover:bg-gray-100"
+                    data-value="github"
+                  >
+                    <i
+                      class="fab fa-github"
+                      style="margin-right: 12px; font-size: 18px"
+                    ></i>
+                    GitHub
+                  </li>
+                  <li
+                    style="
+                      padding-left: 8px;
+                      padding-right: 16px;
+                      padding-top: 8px;
+                      padding-bottom: 8px;
+                      display: flex;
+                      align-items: center;
+                      cursor: pointer;
+                    "
+                    class="hover:bg-gray-100"
+                    data-value="gitlab"
+                  >
+                    <i
+                      class="fab fa-gitlab"
+                      style="margin-right: 12px; font-size: 18px"
+                    ></i>
+                    GitLab
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div>
+              <div class="flex">
+                <p class="font-medium text-sm" data-i18n="projectNameLabel">
+                  Project Name (used in email subject)
+                </p>
+                <span class="tooltip-container ml-2">
+                  <i class="fa fa-question-circle question-icon"></i>
+                  <span class="tooltip-bubble" data-i18n="projectNameTooltip">
+                    This project name will appear in the subject line of your
+                    email as part of: "[Scrum] Project Name - Date”. Leave blank
+                    to skip.
+                  </span>
+                </span>
+              </div>
 
-		<div class="rounded-2xl">
-			<div class=" border-gray-100 border-2 bg-white rounded-3xl px-4 py-4 mx-2 my-2">
+              <input
+                id="projectName"
+                type="text"
+                class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
+                placeholder="Enter your project name"
+                style="margin-top: 0.3rem; margin-bottom: 0.8rem"
+              />
+            </div>
+            <div>
+              <p
+                id="usernameLabel"
+                class="font-medium text-sm"
+                data-i18n="usernameLabel"
+              >
+                Your Username
+              </p>
+              <input
+                id="platformUsername"
+                type="text"
+                class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
+                placeholder="Required for fetching your contributions"
+                style="margin-top: 0.3rem; margin-bottom: 0.8rem"
+              />
+            </div>
 
-				<div id="reportSection" class="tab-content">
-					<div>
+            <div>
+              <p
+                class="text-lg mb-1 font-medium text-sm"
+                data-i18n="contributionsLabel"
+              >
+                Fetch your contributions between:
+              </p>
 
+              <div
+                class="flex gap-[3px] justify-between items-center mt-2"
+                style="gap: 8px"
+              >
+                <div id="customDateContainer" class="flex gap-2">
+                  <div>
+                    <label
+                      for="startingDate"
+                      class="flex items-center font-medium text-xs"
+                      data-i18n="startDateLabel"
+                      >From:</label
+                    >
+                    <input
+                      type="date"
+                      id="startingDate"
+                      class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1"
+                      style="width: 96px"
+                    />
+                  </div>
+                  <div>
+                    <label
+                      for="endingDate"
+                      class="flex items-center font-medium text-xs"
+                      data-i18n="endDateLabel"
+                      >To:</label
+                    >
+                    <input
+                      type="date"
+                      id="endingDate"
+                      class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1"
+                      style="width: 96px"
+                    />
+                  </div>
+                </div>
+                <div class="flex items-center gap-1">
+                  <input
+                    type="radio"
+                    id="yesterdayContribution"
+                    name="timeframe"
+                    class="form-radio"
+                    style="margin-right: 4px"
+                  />
+                  <label
+                    for="yesterdayContribution"
+                    class="font-medium text-xs"
+                    data-i18n="last1DayLabel"
+                    >Previous Day</label
+                  >
+                </div>
+              </div>
+            </div>
 
-						<p data-i18n="platformLabel" class="font-medium text-sm" style="margin-bottom: 0.3rem;">Platform
-						</p>
-						<div class="relative mb-4" id="customPlatformDropdown" style="margin-bottom: 0.8rem;">
-							<input type="hidden" id="platformSelect" value="github">
-							<button type="button" id="platformDropdownBtn"
-								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 pr-8 flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-blue-500">
-								<span id="platformDropdownSelected" class="flex items-center gap-2">
-									<i class="fab fa-github" style="margin-right:8px;"></i> GitHub
-								</span>
-								<i class="fa fa-chevron-down text-gray-500"></i>
-							</button>
-							<ul id="platformDropdownList"
-								class="absolute left-0 right-0 bg-white border-2 border-gray-200 rounded-xl mt-1 shadow-lg z-10 hidden">
-								<li style="padding-left: 8px; padding-right: 16px; padding-top: 8px; padding-bottom: 8px; display: flex; align-items: center; cursor: pointer;"
-									class="hover:bg-gray-100" data-value="github">
-									<i class="fab fa-github" style="margin-right: 12px; font-size: 18px;"></i> GitHub
-								</li>
-								<li style="padding-left: 8px; padding-right: 16px; padding-top: 8px; padding-bottom: 8px; display: flex; align-items: center; cursor: pointer;"
-									class="hover:bg-gray-100" data-value="gitlab">
-									<i class="fab fa-gitlab" style="margin-right: 12px; font-size: 18px;"></i> GitLab
-								</li>
-							</ul>
-						</div>
-					</div>
-					<div>
-						<div class="flex">
+            <div style="margin-bottom: 1rem">
+              <br />
+              <input
+                type="checkbox"
+                id="showOpenLabel"
+                class="form-checkbox text-blue-600"
+              />
 
-							<p class=" font-medium text-sm" data-i18n="projectNameLabel">Project Name (used in email
-								subject)</p><span class="tooltip-container ml-2">
-								<i class="fa fa-question-circle question-icon"></i>
-								<span class="tooltip-bubble" data-i18n="projectNameTooltip">
-									This project name will appear in the subject line of your email as part of:
-									"[Scrum] Project Name - Date”. Leave blank to skip.
-								</span>
-							</span>
+              <label
+                id="showOpenLabelText"
+                for="showOpenLabel"
+                class="font-medium text-sm"
+                style="margin-left: 4px"
+                data-i18n="showOpenClosedLabel"
+                >Show PRs Labels</label
+              >
+            </div>
+            <div class="my-4 githubOnlySection">
+              <div class="flex items-center">
+                <input
+                  type="checkbox"
+                  id="showCommits"
+                  checked
+                  class="form-checkbox text-blue-600"
+                />
 
-						</div>
+                <label
+                  id="showCommitsLabelText"
+                  for="showCommits"
+                  class="font-medium text-sm flex items-center pl-5 ml-4"
+                  style="margin-left: 4px"
+                  data-i18n="showCommitsLabel"
+                  >Show commits on open PRs/ draft PRs</label
+                ><span class="tooltip-container">
+                  <i class="fa fa-question-circle question-icon"></i>
+                  <span class="tooltip-bubble" data-i18n="showCommitsTooltip">
+                    Github Token required, add it in the settings.
+                  </span>
+                </span>
+              </div>
+            </div>
 
+            <div>
+              <div>
+                <h6
+                  class="text-base font-semibold mt-2"
+                  data-i18n="scrumReportLabel"
+                >
+                  Scrum Report
+                </h6>
+                <div
+                  id="scrumReport"
+                  contenteditable="true"
+                  class="min-h-[200px] overflow-y-auto whitespace-pre-wrap border-2 border-gray-200 bg-gray-100 rounded-xl text-gray-800 p-2 my-2"
+                ></div>
+              </div>
+              <div class="flex justify-between gap-2">
+                <button
+                  id="generateReport"
+                  class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded"
+                >
+                  <i class="fa fa-refresh"></i>
+                  <span data-i18n="generateReportButton">Generate Report</span>
+                </button>
+                <button
+                  id="copyReport"
+                  class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded"
+                >
+                  <i class="fa fa-copy"></i>
+                  <span data-i18n="copyReportButton">Copy Report</span>
+                </button>
+              </div>
+            </div>
+            <div
+              class="border-gray-100 border-2 bg-white rounded-3xl px-4 py-2 mx-2 my-2"
+            >
+              <div>
+                <h4 class="font-semibold text-xl" data-i18n="noteTitle">
+                  Note:
+                </h4>
+                <ul class="text-xs list-disc list-inside">
+                  <p id="notePoint1Text" data-i18n="notePoint1">
+                    Pull requests are fetched based on the most recent review
+                    activity by any contributor, not just your own. Please
+                    review and adjust the generated SCRUM report to ensure it
+                    accurately reflects your work before sharing.
+                  </p>
+                </ul>
+              </div>
+            </div>
+          </div>
 
-						<input id="projectName" type="text"
-							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
-							placeholder="Enter your project name" style="margin-top: 0.3rem; margin-bottom: 0.8rem;">
-					</div>
-					<div>
+          <div id="settingsSection" class="tab-content hidden">
+            <div class="orgSection">
+              <!-- GitHub Token Section - only show for GitHub -->
+              <div class="githubOnlySection">
+                <div>
+                  <div class="flex items-center justify-between">
+                    <div class="flex">
+                      <p
+                        class="text-sm font-medium"
+                        data-i18n="githubTokenLabel"
+                      >
+                        Your GitHub Token
+                      </p>
+                      <span class="tooltip-container">
+                        <i class="fa fa-question-circle question-icon"></i>
+                        <span
+                          class="tooltip-bubble"
+                          data-i18n="githubTokenTooltip"
+                        >
+                          <b>Why is it recommended to add a GitHub token?</b
+                          ><br />
+                          Scrum Helper works without a GitHub token, but adding
+                          a personal access token is recommended for a better
+                          experience. It raises your API limits, allows access
+                          to private repos (if permitted), and improves accuracy
+                          and speed. Tokens are stored locally and never sent to
+                          us and used only to fetch your git data. You can add
+                          one anytime in the extension settings.<br /><br />
+                          <b>How to obtain:</b><br />
+                          1. Go to
+                          <a
+                            href="https://github.com/settings/tokens"
+                            target="_blank"
+                            style="color: #2563eb; text-decoration: underline"
+                            >GitHub Developer Settings</a
+                          >.<br />
+                          3. Click "Generate new token", select classic token<br />
+                          4. Paste it here.<br />
+                          <i>Keep your token secret!</i>
+                        </span>
+                      </span>
+                    </div>
+                    <button
+                      id="toggleTokenVisibility"
+                      type="button"
+                      class="focus:outline-none"
+                    >
+                      <i id="tokenEyeIcon" class="fa fa-eye text-gray-600"></i>
+                    </button>
+                  </div>
+                  <input
+                    id="githubToken"
+                    type="password"
+                    class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2 pr-10"
+                    data-i18n-placeholder="githubTokenPlaceholder"
+                  />
+                </div>
+              </div>
 
-						<p id="usernameLabel" class="font-medium text-sm" data-i18n="usernameLabel">Your Username</p>
-						<input id="platformUsername" type="text"
-							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
-							placeholder="Required for fetching your contributions"
-							style="margin-top: 0.3rem; margin-bottom: 0.8rem;">
-					</div>
+              <!-- GitLab Token Section - only show for GitLab -->
+              <div class="gitlabOnlySection">
+                <div>
+                  <div class="flex items-center justify-between">
+                    <div class="flex">
+                      <p
+                        class="text-sm font-medium"
+                        data-i18n="gitlabTokenLabel"
+                      >
+                        Your GitLab Token
+                      </p>
+                      <span class="tooltip-container">
+                        <i class="fa fa-question-circle question-icon"></i>
+                        <span
+                          class="tooltip-bubble"
+                          data-i18n="gitlabTokenTooltip"
+                        >
+                          <b>Why is it recommended to add a GitLab token?</b
+                          ><br />
+                          Scrum Helper works without a GitLab token, but adding
+                          a personal access token is recommended for a better
+                          experience. It raises your API limits, allows access
+                          to private repos (if permitted), and improves accuracy
+                          and speed. Tokens are stored locally and never sent to
+                          us and used only to fetch your git data.<br /><br />
+                          <b>How to obtain:</b><br />
+                          1. Go to
+                          <a
+                            href="https://gitlab.com/-/profile/personal_access_tokens"
+                            target="_blank"
+                            style="color: #2563eb; text-decoration: underline"
+                            >GitLab Token Settings</a
+                          >.<br />
+                          2. Click "Add new token"<br />
+                          3. Select scopes: <code>read_api</code> and
+                          <code>read_repository</code><br />
+                          4. Generate and paste it here.<br />
+                          <i>Keep your token secret!</i>
+                        </span>
+                      </span>
+                    </div>
+                    <button
+                      id="toggleGitlabTokenVisibility"
+                      type="button"
+                      class="focus:outline-none"
+                    >
+                      <i
+                        id="gitlabTokenEyeIcon"
+                        class="fa fa-eye text-gray-600"
+                      ></i>
+                    </button>
+                  </div>
+                  <input
+                    id="gitlabToken"
+                    type="password"
+                    class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2 pr-10"
+                    placeholder="Paste your GitLab Personal Access Token"
+                    data-i18n-placeholder="gitlabTokenPlaceholder"
+                  />
 
-					<div>
-						<p class="text-lg mb-1 font-medium text-sm" data-i18n="contributionsLabel">Fetch your
-							contributions between:</p>
+                  <!-- Token Action Buttons -->
+                  <div class="flex gap-2 mt-2">
+                    <button
+                      id="testGitlabToken"
+                      class="text-sm bg-blue-50 hover:bg-blue-100 text-blue-600 px-3 py-1 rounded-lg transition-colors"
+                    >
+                      <i class="fa fa-check-circle"></i>
+                      <span data-i18n="testTokenButton">Test Token</span>
+                    </button>
+                    <button
+                      id="clearGitlabToken"
+                      class="text-sm bg-red-50 hover:bg-red-100 text-red-600 px-3 py-1 rounded-lg transition-colors"
+                    >
+                      <i class="fa fa-trash"></i>
+                      <span data-i18n="clearTokenButton">Clear Token</span>
+                    </button>
+                  </div>
 
+                  <!-- Token Validation Feedback -->
+                  <div
+                    id="gitlabTokenValidation"
+                    class="hidden text-xs mt-2 px-3 py-2 rounded-lg"
+                  >
+                    <span id="gitlabTokenValidationText"></span>
+                  </div>
 
-						<div class="flex gap-[3px] justify-between items-center mt-2" style="gap: 8px">
-							
-							<div id="customDateContainer" class="flex gap-2">
+                  <!-- Security Notice -->
+                  <p class="text-xs text-gray-500 mt-2">
+                    <i class="fa fa-lock"></i>
+                    <span data-i18n="tokenSecurityNotice"
+                      >Token stored locally in your browser, never sent to third
+                      parties</span
+                    >
+                  </p>
+                </div>
+              </div>
+              <div class="">
+                <div class="flex items-center mt-4">
+                  <p
+                    class="text-sm font-semibold"
+                    id="orgNameLabelText"
+                    data-i18n="settingsOrgNameLabel"
+                  >
+                    Your Organization Name
+                  </p>
+                  <span class="tooltip-container ml-2">
+                    <i class="fa fa-question-circle question-icon"></i>
+                    <span
+                      class="tooltip-bubble"
+                      id="orgNameTooltipText"
+                      data-i18n="orgNameTooltip"
+                    >
+                      <b>Which organization's GitHub activity?</b><br />
+                      Enter the GitHub organization name to fetch activities
+                      for. Leave empty to fetch all your GitHub activities
+                      across all organizations. Organization name is not
+                      case-sensitive.
+                    </span>
+                  </span>
+                </div>
+                <input
+                  id="orgInput"
+                  type="text"
+                  class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
+                  data-i18n-placeholder="settingsOrgNamePlaceholder"
+                  style="margin-top: 0.3rem; margin-bottom: 0.8rem"
+                />
 
-								<div>
-									<label for="startingDate" class="flex items-center font-medium text-xs"
-										data-i18n="startDateLabel">From:</label>
-									<input type="date" id="startingDate"
-										class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1" style="width: 96px;">
-								</div>
-								<div>
-									<label for="endingDate" class="flex items-center font-medium text-xs"
-										data-i18n="endDateLabel">To:</label>
-									<input type="date" id="endingDate"
-										class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1" style="width: 96px;">
-								</div>
-							</div>
-							<div class="flex items-center gap-1">
-								<input type="radio" id="yesterdayContribution" name="timeframe" class="form-radio" style="margin-right: 4px;">
-								<label for="yesterdayContribution" class="font-medium text-xs"
-									data-i18n="last1DayLabel">Previous Day</label>
-							</div>
-						</div>
-					</div>
+                <!-- Organization validation feedback -->
+                <div
+                  id="orgValidationMessage"
+                  class="hidden text-xs mt-1 mb-2 px-3 py-2 rounded-lg"
+                >
+                  <span id="orgValidationText"></span>
+                </div>
+              </div>
 
-					<div style="margin-bottom: 1rem;">
-						<br />
-						<input type="checkbox" id="showOpenLabel" class="form-checkbox text-blue-600">
+              <!-- Repository Filter - GitHub only -->
+              <div class="mb-4 githubOnlySection">
+                <div class="flex items-center justify-between mb-2">
+                  <p class="text-sm font-medium">
+                    <span data-i18n="repoFilterLabel"
+                      >Filter by repositories</span
+                    ><span class="tooltip-container">
+                      <i class="fa fa-question-circle question-icon"></i>
+                      <span
+                        class="tooltip-bubble"
+                        data-i18n="repoFilterTooltip"
+                      >
+                        Github Token required.<br />
+                        To force a repo list update, <br />
+                        click the Refresh Data button.
+                      </span>
+                    </span>
+                  </p>
+                  <div class="flex items-center">
+                    <input
+                      type="checkbox"
+                      id="useRepoFilter"
+                      class="mr-2"
+                      style="margin-right: 4px"
+                    />
+                    <label for="useRepoFilter" class="text-xs text-gray-600"
+                      ><span data-i18n="enableFilteringLabel"
+                        >Enable filtering</span
+                      ></label
+                    >
+                  </div>
+                </div>
+                <div
+                  id="tokenWarningForFilter"
+                  class="hidden text-xs text-red-600 p-2 bg-red-50 border border-red-200 rounded-xl mt-2"
+                >
+                  <span data-i18n="tokenRequiredWarning"
+                    >A GitHub token is required for repository filtering. Please
+                    add one in the settings.</span
+                  >
+                </div>
 
-						<label id="checkboxLabel" for="showOpenLabel" class="font-medium text-sm"
-							style="margin-left: 4px;" data-i18n="showOpenClosedLabel">Show
-							PRs Labels</label>
+                <input
+                  id="repoSearch"
+                  type="text"
+                  data-i18n-placeholder="repoSearchPlaceholder"
+                  class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 pr-10"
+                  autocomplete="off"
+                />
+                <div id="repoFilterContainer" class="hidden">
+                  <!-- Typeahead Input -->
+                  <div class="relative">
+                    <!-- Dropdown -->
+                    <div
+                      id="repoDropdown"
+                      class="absolute w-full bg-white border border-gray-300 rounded-xl shadow-lg hidden max-h-48 overflow-y-auto"
+                      style="z-index: 1000; margin-top: -10px"
+                    ></div>
+                  </div>
 
-					</div>
-					<div class="my-4 githubOnlySection">
-						<div class="flex items-center">
-							<input type="checkbox" id="showCommits" checked class="form-checkbox text-blue-600 ">
+                  <!-- Selected Tags Container -->
+                  <div
+                    id="selectedRepos"
+                    class="mt-3 min-h-[32px] p-2 border-2 border-gray-200 bg-gray-50 rounded-xl"
+                  >
+                    <div class="flex flex-wrap gap-1" id="repoTags">
+                      <span
+                        class="text-xs text-gray-500 select-none"
+                        id="repoPlaceholder"
+                        data-i18n="repoPlaceholder"
+                        >No repositories selected (all will be included)</span
+                      >
+                    </div>
+                  </div>
 
-							<label id="showCommitsLabel" for="showCommits"
-								class="font-medium text-sm flex items-center pl-5 ml-4" style="margin-left: 4px;"
-								data-i18n="showCommitsLabel">Show commits on open PRs/ draft PRs</label><span
-								class="tooltip-container">
-								<i class="fa fa-question-circle question-icon"></i>
-								<span class="tooltip-bubble" data-i18n="showCommitsTooltip">
-									Github Token required, add it in the settings.
-								</span>
-							</span>
+                  <!-- Status/Info -->
+                  <div class="mt-2 text-xs text-gray-600 flex justify-between">
+                    <span id="repoCount" data-i18n="repoCountNone"
+                      >0 repositories selected</span
+                    >
+                    <span id="repoStatus" class="text-blue-600"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-						</div>
-					</div>
+            <div class="cacheSection mt-3">
+              <p class="text-sm font-medium">
+                <span data-i18n="cacheTTLLabel">Enter cache TTL</span>
+                <span class="text-sm font-normal" data-i18n="cacheTTLUnit"
+                  >(in minutes)</span
+                >
+                <span class="tooltip-container">
+                  <i class="fa fa-question-circle question-icon"></i>
+                  <span class="tooltip-bubble" data-i18n="cacheTTLTooltip">
+                    We are caching the data to avoid redundant calls. By default
+                    the cache expires after 10 minutes, you can change it here
+                    to your desired time. We have given a refresh cache button
+                    in case you want to fetch fresh data right now.
+                  </span>
+                </span>
+              </p>
+              <input
+                type="text"
+                id="cacheInput"
+                class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
+                data-i18n-placeholder="cacheTTLPlaceholder"
+              />
+            </div>
 
-					<div>
-						<div>
-							<h6 class="text-base font-semibold mt-2" data-i18n="scrumReportLabel">Scrum Report</h6>
-							<div id="scrumReport" contenteditable="true"
-								class="min-h-[200px] overflow-y-auto whitespace-pre-wrap border-2 border-gray-200 bg-gray-100 rounded-xl text-gray-800 p-2 my-2">
-							</div>
-						</div>
-						<div class="flex justify-between gap-2">
-							<button id="generateReport"
-								class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
-								<i class="fa fa-refresh"></i> <span data-i18n="generateReportButton">Generate
-									Report</span>
-							</button>
-							<button id="copyReport"
-								class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
-								<i class="fa fa-copy"></i> <span data-i18n="copyReportButton">Copy Report</span>
-							</button>
-						</div>
-					</div>
-					<div class="border-gray-100 border-2 bg-white rounded-3xl px-4 py-2 mx-2 my-2">
-						<div>
-							<h4 class="font-semibold text-xl" data-i18n="noteTitle">Note:</h4>
-							<ul class="text-xs list-disc list-inside">
-								<p data-i18n="notePoint1">Pull requests are fetched based on the most recent review activity by any contributor, not just your own. Please review and adjust the generated SCRUM report to ensure it accurately reflects your work before sharing.
-								</p>
-							</ul>
-						</div>
-					</div>
-				</div>
+            <div class="">
+              <button
+                id="refreshCache"
+                class="w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded flex items-center justify-center gap-2 transition-colors duration-200"
+              >
+                <i class="fa fa-refresh"></i>
+                <span data-i18n="refreshDataButton"
+                  >Refresh Data (bypass cache)</span
+                >
+              </button>
+              <p class="cache-info">
+                <i class="fa fa-info-circle"></i>
+                <span data-i18n="refreshDataInfo"
+                  >Use this button to fetch fresh data immediately.</span
+                >
+              </p>
+            </div>
+          </div>
+        </div>
 
-				<div id="settingsSection" class="tab-content hidden">
-					<div class="orgSection">
-						<div>
-							<div class="flex items-center justify-between">
-								<div class="flex">
-									<p class="text-sm font-medium" data-i18n="githubTokenLabel">Your GitHub Token</p> <span
-											class="tooltip-container">
-											<i class="fa fa-question-circle question-icon"></i>
-											<span class="tooltip-bubble" data-i18n="githubTokenTooltip">
-												<b>Why is it recommended to add a GitHub token?</b><br>
-												Scrum Helper works without a GitHub token, but adding a personal access
-												token is recommended for a
-												better experience. It raises your API limits, allows access to private
-												repos
-												(if permitted), and
-												improves accuracy and speed. Tokens are stored locally and never sent to
-												us
-												and used only to fetch
-												your git data. You can add one anytime in the extension
-												settings.<br><br>
-												<b>How to obtain:</b><br>
-												1. Go to <a href="https://github.com/settings/tokens" target="_blank"
-													style="color:#2563eb;text-decoration:underline;">GitHub Developer
-													Settings</a>.<br>
-												3. Click "Generate new token", select classic token<br>
-												4. Paste it here.<br>
-												<i>Keep your token secret!</i>
-											</span>
-										</span>
-
-								</div>
-								<button id="toggleTokenVisibility" type="button" class="focus:outline-none">
-									<i id="tokenEyeIcon" class="fa fa-eye text-gray-600"></i>
-								</button>
-							</div>
-							<input id="githubToken" type="password"
-								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2 pr-10"
-								data-i18n-placeholder="githubTokenPlaceholder">
-						</div>
-						<div class="">
-							<div class="flex items-center mt-4">
-								<p class="text-sm font-semibold" data-i18n="settingsOrgNameLabel">Your Organization Name
-								</p>
-								<span class="tooltip-container ml-2">
-									<i class="fa fa-question-circle question-icon"></i>
-									<span class="tooltip-bubble" data-i18n="orgNameTooltip">
-										<b>Which organization's GitHub activity?</b><br>
-										Enter the GitHub organization name to fetch activities for. Leave empty to fetch
-										all
-										your GitHub
-										activities across all organizations.
-										Organization name is not case-sensitive.
-									</span>
-								</span>
-							</div>
-							<input id="orgInput" type="text"
-								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
-								data-i18n-placeholder="settingsOrgNamePlaceholder" style="margin-top: 0.3rem; margin-bottom: 0.8rem;">
-							
-							<!-- Organization validation feedback -->
-							<div id="orgValidationMessage" class="hidden text-xs mt-1 mb-2 px-3 py-2 rounded-lg">
-								<span id="orgValidationText"></span>
-							</div>
-						</div>
-
-						<div class="mb-4">
-							<div class="flex items-center justify-between mb-2">
-								<p class="text-sm font-medium">
-									<span data-i18n="repoFilterLabel">Filter by repositories</span><span
-										class="tooltip-container">
-										<i class="fa fa-question-circle question-icon"></i>
-										<span class="tooltip-bubble" data-i18n="repoFilterTooltip">
-											Github Token required.<br>
-											To force a repo list update, <br>
-											click the Refresh Data button.
-										</span>
-									</span>
-								</p>
-								<div class="flex items-center">
-
-									<input type="checkbox" id="useRepoFilter" class="mr-2" style="margin-right: 4px;">
-									<label for="useRepoFilter" class="text-xs text-gray-600"><span
-											data-i18n="enableFilteringLabel">Enable
-											filtering</span></label>
-								</div>
-							</div>
-							<div id="tokenWarningForFilter"
-								class="hidden text-xs text-red-600 p-2 bg-red-50 border border-red-200 rounded-xl mt-2">
-								<span data-i18n="tokenRequiredWarning">A GitHub token is required for repository
-									filtering. Please add one in the settings.</span>
-							</div>
-
-
-							<input id="repoSearch" type="text" data-i18n-placeholder="repoSearchPlaceholder"
-								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 pr-10"
-								autocomplete="off">
-							<div id="repoFilterContainer" class="hidden">
-								<!-- Typeahead Input -->
-								<div class="relative">
-
-									<!-- Dropdown -->
-									<div id="repoDropdown"
-										class="absolute w-full bg-white border border-gray-300 rounded-xl shadow-lg hidden max-h-48 overflow-y-auto"
-										style="z-index: 1000; margin-top: -10px;">
-									</div>
-								</div>
-
-								<!-- Selected Tags Container -->
-								<div id="selectedRepos"
-									class="mt-3 min-h-[32px] p-2 border-2 border-gray-200 bg-gray-50 rounded-xl">
-									<div class="flex flex-wrap gap-1" id="repoTags">
-										<span class="text-xs text-gray-500 select-none" id="repoPlaceholder"
-											data-i18n="repoPlaceholder">No
-											repositories selected (all will be included)</span>
-									</div>
-								</div>
-
-								<!-- Status/Info -->
-								<div class="mt-2 text-xs text-gray-600 flex justify-between">
-									<span id="repoCount" data-i18n="repoCountNone">0 repositories selected</span>
-									<span id="repoStatus" class="text-blue-600"></span>
-								</div>
-							</div>
-						</div>
-					</div>
-
-
-					<div class="cacheSection mt-3">
-						<p class="text-sm font-medium"><span data-i18n="cacheTTLLabel">Enter cache TTL</span> <span
-								class="text-sm font-normal" data-i18n="cacheTTLUnit">(in
-								minutes)</span>
-							<span class="tooltip-container">
-								<i class="fa fa-question-circle question-icon"></i>
-								<span class="tooltip-bubble" data-i18n="cacheTTLTooltip">
-									We are caching the data to avoid redundant calls. By default the cache expires after
-									10 minutes, you
-									can change it here to your desired time. We have given a refresh cache button in
-									case you want to
-									fetch fresh data right now.
-								</span>
-							</span>
-						</p>
-						<input type="text" id="cacheInput"
-							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800  p-2 my-2"
-							data-i18n-placeholder="cacheTTLPlaceholder">
-					</div>
-
-					<div class="">
-						<button id="refreshCache"
-							class="w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded flex items-center justify-center gap-2 transition-colors duration-200">
-							<i class="fa fa-refresh"></i>
-							<span data-i18n="refreshDataButton">Refresh Data (bypass cache)</span>
-						</button>
-						<p class="cache-info">
-							<i class="fa fa-info-circle"></i>
-							<span data-i18n="refreshDataInfo">Use this button to fetch fresh data immediately.</span>
-						</p>
-					</div>
-
-				</div>
-			</div>
-
-			<div class="mt-6 border-t border-gray-300">
-				<div class="bg-white rounded-3xl mx-2 mt-4 mb-2 p-4 border border-gray-100 shadow-sm">
-					<div class="flex items-center justify-center space-x-3">
-						<a target="_blank" href="https://github.com/fossasia/scrum_helper"
-							class="bg-blue-50 hover:bg-blue-100 text-blue-600 transition-all duration-200 rounded-lg px-4 py-2 flex items-center space-x-2 gap-2">
-							<i class="fa fa-code text-sm pl-1"></i>
-							<span class="text-sm font-medium" data-i18n="viewCodeButton">View Code</span>
-						</a>
-						<a target="_blank" href="https://github.com/fossasia/scrum_helper/issues"
-							class="bg-blue-50 hover:bg-blue-100 text-blue-600 transition-all duration-200 rounded-lg px-4 py-2 flex items-center space-x-2 gap-2">
-							<i class="fa fa-bug text-sm"></i>
-							<span class="text-sm font-medium" data-i18n="reportIssueButton">Report Issue</span>
-						</a>
-					</div>
-				</div>
-				<div class="mt-3 pt-3 border-t border-gray-200 flex justify-center items-center py-">
-					<p class="text-xs text-gray-600 text-center">
-						Made with ❤️ by <strong>FOSSASIA</strong> •
-						<span class="text-gray-500 dark:text-gray-300">v2.0.1</span>
-					</p>
-				</div>
-			</div>
-		</div>
-	</div>
-	<script src="scripts/jquery-3.2.1.min.js"></script>
-	<script type="text/javascript" type="text/javascript" src="materialize/js/materialize.min.js"></script>
-	<script src="scripts/emailClientAdapter.js"></script>
-	<script src="scripts/main.js"></script>
-	<script src="scripts/gitlabHelper.js"></script>
-	<script src="scripts/scrumHelper.js"></script>
-	<script src="scripts/popup.js"></script>
-</body>
-
+        <div class="mt-6 border-t border-gray-300">
+          <div
+            class="bg-white rounded-3xl mx-2 mt-4 mb-2 p-4 border border-gray-100 shadow-sm"
+          >
+            <div class="flex items-center justify-center space-x-3">
+              <a
+                target="_blank"
+                href="https://github.com/fossasia/scrum_helper"
+                class="bg-blue-50 hover:bg-blue-100 text-blue-600 transition-all duration-200 rounded-lg px-4 py-2 flex items-center space-x-2 gap-2"
+              >
+                <i class="fa fa-code text-sm pl-1"></i>
+                <span class="text-sm font-medium" data-i18n="viewCodeButton"
+                  >View Code</span
+                >
+              </a>
+              <a
+                target="_blank"
+                href="https://github.com/fossasia/scrum_helper/issues"
+                class="bg-blue-50 hover:bg-blue-100 text-blue-600 transition-all duration-200 rounded-lg px-4 py-2 flex items-center space-x-2 gap-2"
+              >
+                <i class="fa fa-bug text-sm"></i>
+                <span class="text-sm font-medium" data-i18n="reportIssueButton"
+                  >Report Issue</span
+                >
+              </a>
+            </div>
+          </div>
+          <div
+            class="mt-3 pt-3 border-t border-gray-200 flex justify-center items-center py-"
+          >
+            <p class="text-xs text-gray-600 text-center">
+              Made with ❤️ by <strong>FOSSASIA</strong> •
+              <span class="text-gray-500 dark:text-gray-300">v2.0.1</span>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="scripts/jquery-3.2.1.min.js"></script>
+    <script
+      type="text/javascript"
+      type="text/javascript"
+      src="materialize/js/materialize.min.js"
+    ></script>
+    <script src="scripts/emailClientAdapter.js"></script>
+    <script src="scripts/main.js"></script>
+    <script src="scripts/gitlabHelper.js"></script>
+    <script src="scripts/scrumHelper.js"></script>
+    <script src="scripts/popup.js"></script>
+  </body>
 </html>

@@ -191,5 +191,65 @@
     },
     "usernameLabel": {
         "message": "您的用户名"
+    },
+    "gitlabTokenLabel": {
+        "message": "您的 GitLab 令牌"
+    },
+    "gitlabTokenPlaceholder": {
+        "message": "粘贴您的 GitLab 个人访问令牌"
+    },
+    "gitlabTokenTooltip": {
+        "message": "<b>为什么建议添加 GitLab 令牌？</b><br>Scrum Helper 在没有 GitLab 令牌的情况下也能工作，但添加个人访问令牌建议以获得更好的体验。它可以提高您的 API 限制，允许访问私有仓库（如果允许），并提高准确性和速度。令牌在本地存储，从不发送给我们。<br><br><b>如何获取：</b><br>1. 转到 <a href='https://gitlab.com/-/profile/personal_access_tokens' target='_blank' style='color:#2563eb;text-decoration:underline;'>GitLab 令牌设置</a>。<br>2. 点击“添加新令牌”<br>3. 选择范围：<code>read_api</code> 和 <code>read_repository</code><br>4. 生成并粘贴到此处。<br><i>保持您的令牌秘密！</i>"
+    },
+    "testTokenButton": {
+        "message": "测试令牌"
+    },
+    "testingTokenButton": {
+        "message": "正在测试..."
+    },
+    "tokenValidButton": {
+        "message": "有效！"
+    },
+    "tokenInvalidButton": {
+        "message": "无效"
+    },
+    "clearTokenButton": {
+        "message": "清除令牌"
+    },
+    "tokenSecurityNotice": {
+        "message": "令牌本地存储在您的浏览器中，从不发送给第三方"
+    },
+    "orgNameTooltipGitLab": {
+        "message": "<b>哪个 GitLab 组织/群组？</b><br>输入 GitLab 组织或群组名称以获取活动。留空以获取您的所有 GitLab 活动。组织名称不区分大小写。"
+    },
+    "confirmClearToken": {
+        "message": "您确定要清除 GitLab 令牌吗？"
+    },
+    "tokenAuthError": {
+        "message": "身份验证失败。请检查您的令牌。"
+    },
+    "tokenPermissionError": {
+        "message": "令牌缺少所需权限。请确保它具有 read_api 范围。"
+    },
+    "tokenRateLimitError": {
+        "message": "超出速率限制。请稍后重试。"
+    },
+    "tokenNetworkError": {
+        "message": "网络错误。请检查您的连接。"
+    },
+    "tokenTimeoutError": {
+        "message": "请求超时。请重试。"
+    },
+    "dataFetchPartialError": {
+        "message": "无法获取某些数据。结果可能不完整。"
+    },
+    "notePoint1GitLab": {
+        "message": "合并请求是根据任何贡献者最近的审查活动获取的，而不仅仅是您自己的。请在分享之前审查和调整生成的SCRUM报告，以确保它准确地反映您的工作。"
+    },
+    "showOpenClosedLabelGitLab": {
+        "message": "显示MRs标签"
+    },
+    "showCommitsLabelGitLab": {
+        "message": "在开放MRs / 草稿MRs上显示提交"
     }
 }

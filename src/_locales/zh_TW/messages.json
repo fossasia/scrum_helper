@@ -1,0 +1,254 @@
+{
+  "appName": {
+    "message": "Scrum Helper"
+  },
+  "appDescription": {
+    "message": "透過自動擷取選定時間段內的 Git 活動來報告您的開發進度。"
+  },
+  "disableLabel": {
+    "message": "停用"
+  },
+  "enableLabel": {
+    "message": "啟用"
+  },
+  "projectNameLabel": {
+    "message": "專案名稱（用於電子郵件主旨）"
+  },
+  "projectNamePlaceholder": {
+    "message": "輸入您的專案名稱"
+  },
+  "githubUsernameLabel": {
+    "message": "您的 GitHub 使用者名稱"
+  },
+  "gitlabUsernameLabel": {
+    "message": "您的 GitLab 使用者名稱"
+  },
+  "githubUsernamePlaceholder": {
+    "message": "擷取您的貢獻所必需"
+  },
+  "contributionsLabel": {
+    "message": "擷取您在此期間的貢獻："
+  },
+  "last1DayLabel": {
+    "message": "前一天"
+  },
+  "startDateLabel": {
+    "message": "開始日期："
+  },
+  "endDateLabel": {
+    "message": "結束日期："
+  },
+  "showOpenClosedLabel": {
+    "message": "顯示「開啟/關閉」狀態"
+  },
+  "blockersLabel": {
+    "message": "什麼阻礙了您的進度？"
+  },
+  "blockersPlaceholder": {
+    "message": "輸入您的原因"
+  },
+  "scrumReportLabel": {
+    "message": "Scrum 報告"
+  },
+  "generateReportButton": {
+    "message": "產生報告"
+  },
+  "copyReportButton": {
+    "message": "複製報告"
+  },
+  "settingsOrgNameLabel": {
+    "message": "組織名稱"
+  },
+  "settingsOrgNamePlaceholder": {
+    "message": "輸入組織名稱"
+  },
+  "setButton": {
+    "message": "設定"
+  },
+  "githubTokenLabel": {
+    "message": "您的 GitHub 權杖"
+  },
+  "githubTokenPlaceholder": {
+    "message": "進行身分驗證請求所必需"
+  },
+  "showCommitsLabel": {
+    "message": "在開啟的 PR/草稿 PR 上顯示提交"
+  },
+  "cacheTTLLabel": {
+    "message": "輸入快取 TTL"
+  },
+  "cacheTTLUnit": {
+    "message": "（分鐘）"
+  },
+  "cacheTTLPlaceholder": {
+    "message": "以分鐘為單位輸入快取 TTL（預設為 10）"
+  },
+  "refreshDataButton": {
+    "message": "重新整理資料（繞過快取）"
+  },
+  "refreshDataInfo": {
+    "message": "使用此按鈕立即擷取新資料。"
+  },
+  "noteTitle": {
+    "message": "注意："
+  },
+  "viewCodeButton": {
+    "message": "檢視程式碼"
+  },
+  "reportIssueButton": {
+    "message": "回報問題"
+  },
+  "repoFilterLabel": {
+    "message": "按儲存庫篩選"
+  },
+  "enableFilteringLabel": {
+    "message": "啟用篩選"
+  },
+  "tokenRequiredWarning": {
+    "message": "儲存庫篩選需要GitHub權杖。請在設定中新增一個。"
+  },
+  "repoSearchPlaceholder": {
+    "message": "搜尋要新增的儲存庫..."
+  },
+  "repoPlaceholder": {
+    "message": "未選擇任何儲存庫（將包含所有儲存庫）"
+  },
+  "repoCountNone": {
+    "message": "已選擇 0 個儲存庫"
+  },
+  "repoCount": {
+    "message": "已選擇 $1 個儲存庫"
+  },
+  "repoLoading": {
+    "message": "正在載入儲存庫..."
+  },
+  "repoLoaded": {
+    "message": "已載入 $1 個儲存庫。"
+  },
+  "repoNotFound": {
+    "message": "找不到儲存庫"
+  },
+  "repoRefetching": {
+    "message": "正在重新載入儲存庫..."
+  },
+  "repoLoadFailed": {
+    "message": "載入儲存庫失敗。"
+  },
+  "repoTokenPrivate": {
+    "message": "權杖無效或沒有私有儲存庫的權限。"
+  },
+  "repoRefetchFailed": {
+    "message": "重新載入儲存庫失敗。"
+  },
+  "orgSetMessage": {
+    "message": "組織設定成功。"
+  },
+  "orgClearedMessage": {
+    "message": "組織已清除。點擊「產生報告」以擷取所有活動。"
+  },
+  "orgNotFoundMessage": {
+    "message": "在GitHub上找不到組織。"
+  },
+  "orgValidationErrorMessage": {
+    "message": "驗證組織時發生錯誤。"
+  },
+  "refreshingButton": {
+    "message": "正在重新整理..."
+  },
+  "cacheClearFailed": {
+    "message": "清除快取失敗。"
+  },
+  "madeWithLoveBy": {
+    "message": "Made with ❤️ by"
+  },
+  "generatingButton": {
+    "message": "正在產生..."
+  },
+  "copiedButton": {
+    "message": "已複製！"
+  },
+  "orgChangedMessage": {
+    "message": "組織已變更。點擊「產生報告」按鈕以擷取 GitHub 活動。"
+  },
+  "cacheClearedMessage": {
+    "message": "快取已成功清除。點擊「產生報告」以擷取新資料。"
+  },
+  "cacheClearedButton": {
+    "message": "快取已清除！"
+  },
+  "extensionDisabledMessage": {
+    "message": "擴充功能已停用。請在設定中啟用它以產生 Scrum 報告。"
+  },
+  "notePoint1": {
+    "message": "拉取請求是根據任何貢獻者最近的審查活動來獲取的，而不僅僅是您自己的。在分享之前，請審查並調整生成的SCRUM報告，以確保它準確地反映您的工作。"
+  },
+  "noteSeeIssue": {
+    "message": "查看此 issue"
+  },
+  "platformLabel": {
+    "message": "平台"
+  },
+  "usernameLabel": {
+    "message": "您的用戶名"
+  },
+  "gitlabTokenLabel": {
+    "message": "您的 GitLab 令牌"
+  },
+  "gitlabTokenPlaceholder": {
+    "message": "貼上您的 GitLab 個人存取令牌"
+  },
+  "gitlabTokenTooltip": {
+    "message": "<b>為什麼建議添加 GitLab 令牌？</b><br>Scrum Helper 在沒有 GitLab 令牌的情況下也能工作，但添加個人存取令牌建議以獲得更好的體驗。它可以提高您的 API 限制，允許存取私人儲存庫（如果允許），並提高準確性和速度。令牌在本地存儲，從不發送給我們。<br><br><b>如何獲取：</b><br>1. 轉到 <a href='https://gitlab.com/-/profile/personal_access_tokens' target='_blank' style='color:#2563eb;text-decoration:underline;'>GitLab 令牌設定</a>。<br>2. 點擊「添加新令牌」<br>3. 選擇範圍：<code>read_api</code> 和 <code>read_repository</code><br>4. 生成並貼上到此處。<br><i>保持您的令牌秘密！</i>"
+  },
+  "testTokenButton": {
+    "message": "測試令牌"
+  },
+  "testingTokenButton": {
+    "message": "正在測試..."
+  },
+  "tokenValidButton": {
+    "message": "有效！"
+  },
+  "tokenInvalidButton": {
+    "message": "無效"
+  },
+  "clearTokenButton": {
+    "message": "清除令牌"
+  },
+  "tokenSecurityNotice": {
+    "message": "令牌本地存儲在您的瀏覽器中，從不發送給第三方"
+  },
+  "orgNameTooltipGitLab": {
+    "message": "<b>哪個 GitLab 組織/群組？</b><br>輸入 GitLab 組織或群組名稱以獲取活動。留空以獲取您的所有 GitLab 活動。組織名稱不區分大小寫。"
+  },
+  "confirmClearToken": {
+    "message": "您確定要清除 GitLab 令牌嗎？"
+  },
+  "tokenAuthError": {
+    "message": "身份驗證失敗。請檢查您的令牌。"
+  },
+  "tokenPermissionError": {
+    "message": "令牌缺少所需權限。請確保它具有 read_api 範圍。"
+  },
+  "tokenRateLimitError": {
+    "message": "超出速率限制。請稍後重試。"
+  },
+  "tokenNetworkError": {
+    "message": "網路錯誤。請檢查您的連接。"
+  },
+  "tokenTimeoutError": {
+    "message": "請求超時。請重試。"
+  },
+    "dataFetchPartialError": {
+        "message": "無法獲取某些資料。結果可能不完整。"
+    },
+    "notePoint1GitLab": {
+        "message": "合併請求是根據任何貢獻者最近的審查活動獲取的，而不僅僅是您自己的。請在分享之前審查和調整生成的SCRUM報告，以確保它準確地反映您的工作。"
+    },
+    "showOpenClosedLabelGitLab": {
+        "message": "顯示MRs標籤"
+    },
+    "showCommitsLabelGitLab": {
+        "message": "在開放MRs / 草稿MRs上顯示提交"
+    }
+}
