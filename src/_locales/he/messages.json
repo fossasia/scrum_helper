@@ -73,7 +73,13 @@
     },
     "showCommitsLabel": {
         "message": "הצג קומיטים ב-PR פתוחים/טיוטות PR"
-    },\n  "onlyIssuesLabel": {\n    "message": "Only include issues in report"\n  },\n  "onlyIssuesTooltip": {\n    "message": "If checked, the report will only include issues created or assigned to the user."\n  },
+    },
+    "onlyIssuesLabel": {
+        "message": "Only include issues in report"
+    },
+    "onlyIssuesTooltip": {
+        "message": "If checked, the report will only include issues created or assigned to the user."
+    },
     "cacheTTLLabel": {
         "message": "הזן TTL למטמון"
     },

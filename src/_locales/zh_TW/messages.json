@@ -73,7 +73,13 @@
   },
   "showCommitsLabel": {
     "message": "在開啟的 PR/草稿 PR 上顯示提交"
-  },\n  "onlyIssuesLabel": {\n    "message": "Only include issues in report"\n  },\n  "onlyIssuesTooltip": {\n    "message": "If checked, the report will only include issues created or assigned to the user."\n  },
+  },
+  "onlyIssuesLabel": {
+    "message": "Only include issues in report"
+  },
+  "onlyIssuesTooltip": {
+    "message": "If checked, the report will only include issues created or assigned to the user."
+  },
   "cacheTTLLabel": {
     "message": "輸入快取 TTL"
   },

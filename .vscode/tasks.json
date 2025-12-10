@@ -1,0 +1,16 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Run scrum_helper",
+			"type": "shell",
+			"command": "npx tailwindcss -i ./src/index.css -o ./src/tailwindcss.css --watch",
+			"args": [],
+			"isBackground": true,
+			"problemMatcher": [
+				"$tsc"
+			],
+			"group": "build"
+		}
+	]
+}
