@@ -1438,6 +1438,21 @@ document.querySelectorAll('input[name="timeframe"]').forEach(radio => {
             toggleRadio(this);
         }
     });
+
+    // Handle clicks on links within scrumReport to open in new tabs
+    document.addEventListener('click', function(e) {
+        const target = e.target.closest('a');
+        if (target && target.closest('#scrumReport')) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            const href = target.getAttribute('href');
+            if (href && href.startsWith('http')) {
+                chrome.tabs.create({ url: href });
+            }
+            return false;
+        }
+    }, true); // Use capture phase to handle before contentEditable
 });
 
 // refresh cache button
@@ -1598,19 +1613,4 @@ function validateOrgOnBlur(org) {
                 if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
             }, 3000);
         });
-
-    // Handle clicks on links within scrumReport to open in new tabs
-    document.addEventListener('click', function(e) {
-        const target = e.target.closest('a');
-        if (target && target.closest('#scrumReport')) {
-            e.preventDefault();
-            e.stopPropagation();
-            e.stopImmediatePropagation();
-            const href = target.getAttribute('href');
-            if (href && href.startsWith('http')) {
-                chrome.tabs.create({ url: href });
-            }
-            return false;
-        }
-    }, true); // Use capture phase to handle before contentEditable
 }

@@ -1228,7 +1228,7 @@ ${userReason}`;
                     let pr_arr = githubPrsReviewDataProcessed[repo][pr];
                     let prText = '';
                     prText +=
-                        "<a href='" + pr_arr.html_url + "' target='_blank'>#" + pr_arr.number + '</a> (' + pr_arr.title + ') ';
+                        "<a href='" + pr_arr.html_url + "' target='_blank' rel='noopener noreferrer'>#" + pr_arr.number + '</a> (' + pr_arr.title + ') ';
                     if (showOpenLabel && pr_arr.state === 'open') prText += issue_opened_button;
                     // Do not show closed label for reviewed PRs
                     prText += '&nbsp;&nbsp;';
@@ -1242,7 +1242,7 @@ ${userReason}`;
                     prText1 +=
                         "<li><a href='" +
                         pr_arr1.html_url +
-                        "' target='_blank'>#" +
+                        "' target='_blank' rel='noopener noreferrer'>#" +
                         pr_arr1.number +
                         '</a> (' +
                         pr_arr1.title +
@@ -1463,7 +1463,7 @@ ${userReason}`;
 
                 if (isDraft) {
 
-                    li = `<li><i>(${project})</i> - Made PR <a href='${html_url}' target='_blank' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_draft_button : ''}`;
+                    li = `<li><i>(${project})</i> - Made PR <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_draft_button : ''}`;
                     if (showCommits && item._allCommits && item._allCommits.length && !isNewPR) {
                         log(`[PR DEBUG] Rendering commits for existing draft PR #${number}:`, item._allCommits);
                         li += '<ul>';
@@ -1474,7 +1474,7 @@ ${userReason}`;
                     }
                     li += `</li>`;
                 } else if (item.state === 'open' || item.state === 'opened') {
-                    li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_open_button : ''}`;
+                    li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_open_button : ''}`;
 
                     if (showCommits && item._allCommits && item._allCommits.length && !isNewPR) {
                         log(`[PR DEBUG] Rendering commits for existing PR #${number}:`, item._allCommits);
@@ -1486,7 +1486,7 @@ ${userReason}`;
                     }
                     li += `</li>`;
                 } else if (platform === 'gitlab' && item.state === 'closed') {
-                    li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_closed_button : ''}</li>`;
+                    li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_closed_button : ''}</li>`;
                 } else {
                     let merged = null;
                     if ((githubToken || (useMergedStatus && !fallbackToSimple)) && mergedStatusResults) {
@@ -1497,10 +1497,10 @@ ${userReason}`;
                     }
                     if (merged === true) {
 
-                        li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_merged_button : ''}</li>`;
+                        li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_merged_button : ''}</li>`;
                     } else {
                         // Always show closed label for merged === false or merged === null/undefined
-                        li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_closed_button : ''}</li>`;
+                        li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_closed_button : ''}</li>`;
                     }
                 }
                 log('[SCRUM-DEBUG] Added PR/MR to lastWeekArray:', li, item);
@@ -1516,7 +1516,7 @@ ${userReason}`;
                         number +
                         ") - <a href='" +
                         html_url +
-                        "' target='_blank'>" +
+                        "' target='_blank' rel='noopener noreferrer'>" +
                         title +
                         '</a>' + (showOpenLabel ? ' ' + issue_opened_button : '') +
                         '&nbsp;&nbsp;</li>';

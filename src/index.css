@@ -61,7 +61,6 @@ a {
 #scrumReport a {
     cursor: pointer;
     -webkit-user-modify: read-only;
-    user-select: none;
 }
 
 .btn,
