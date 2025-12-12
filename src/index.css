@@ -58,6 +58,11 @@ a {
     color: #3f51b5;
 }
 
+#scrumReport a {
+    -webkit-user-modify: read-only;
+    user-select: none;
+}
+
 .btn,
 .btn-large {
     background-color: #3f51b5;
