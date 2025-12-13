@@ -51,17 +51,63 @@ class BitBucketHelper{
  }
 
  async loadAuthCredentials() {
-    return new Promise((resolve) => {
-      chrome.storage.local.get(['bitbucketToken', 'bitbucketEmail'], (items) => {
-        this.authToken = items.bitbucketToken || null;
-        this.authEmail = items.bitbucketEmail || null;
-        resolve();
-      });
+    return new Promise((resolve, reject) => {
+      try {
+        chrome.storage.local.get(['bitbucketToken', 'bitbucketEmail'], (items) => {
+          if (chrome.runtime.lastError) {
+            console.error('Error loading Bitbucket credentials:', chrome.runtime.lastError);
+            reject(chrome.runtime.lastError);
+          } else {
+            this.authToken = items.bitbucketToken || null;
+            this.authEmail = items.bitbucketEmail || null;
+            resolve();
+          }
+        });
+      } catch (error) {
+        console.error('Error in loadAuthCredentials:', error);
+        reject(error);
+      }
     });
   }
 
-   async fetchBitbucketData(username, startDate, endDate) {
-    const cacheKey = `${username}-${startDate}-${endDate}`;
+   validateDateFormat(dateString) {
+    // Validate YYYY-MM-DD format
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!dateRegex.test(dateString)) {
+      throw new Error(`Invalid date format: ${dateString}. Expected YYYY-MM-DD`);
+    }
+    
+    // Validate date is actually valid
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) {
+      throw new Error(`Invalid date: ${dateString}`);
+    }
+    return true;
+  }
+
+
+   async fetchBitbucketData(startDate, endDate, workspaces, repositories) {
+    // Validate required parameters
+    if (!workspaces || !Array.isArray(workspaces) || workspaces.length === 0) {
+      throw new Error('Workspaces parameter is required and must be a non-empty array');
+    }
+    
+    if (!repositories || !Array.isArray(repositories) || repositories.length === 0) {
+      throw new Error('Repositories parameter is required and must be a non-empty array');
+    }
+
+    // Validate date formats
+    try {
+      this.validateDateFormat(startDate);
+      this.validateDateFormat(endDate);
+    } catch (error) {
+      console.error('Date validation failed:', error);
+      throw error;
+    }
+
+    const workspaceKey = workspaces.join(',');
+    const repoKey = repositories.join(',');
+    const cacheKey = `${startDate}-${endDate}-${workspaceKey}-${repoKey}`;
 
     if (this.cache.fetching || (this.cache.cacheKey === cacheKey && this.cache.data)) {
       console.log('Bitbucket fetch already in progress or data already fetched. Skipping fetch.');
@@ -69,16 +115,17 @@ class BitBucketHelper{
     }
 
     console.log('Fetching Bitbucket data:', {
-      username: username,
       startDate: startDate,
       endDate: endDate,
+      workspaces: workspaces,
+      repositories: repositories
     });
 
     // Load auth credentials
     await this.loadAuthCredentials();
     
-    if (!this.authToken) {
-      throw new Error('Bitbucket API token not found. Please configure authentication in settings.');
+    if (!this.authToken || !this.authEmail) {
+      throw new Error('Bitbucket API token and email not found. Please configure authentication in settings.');
     }
 
     // Check if we need to load from storage
@@ -120,12 +167,14 @@ class BitBucketHelper{
       // Throttling 500ms to avoid burst
       await new Promise(res => setTimeout(res, 500));
 
+      // Use Basic Authentication with email and API token
+      const credentials = btoa(`${this.authEmail}:${this.authToken}`);
       const headers = {
-        'Authorization': `Bearer ${this.authToken}`,
+        'Authorization': `Basic ${credentials}`,
         'Accept': 'application/json'
       };
 
-      // Step 1: Get authenticated user info
+      // Get authenticated user info
       const userUrl = `${this.baseUrl}/user`;
       const userRes = await fetch(userUrl, { headers });
       if (!userRes.ok) {
@@ -136,50 +185,43 @@ class BitBucketHelper{
 
       console.log(`Fetched Bitbucket user: ${user.username} (${userUuid})`);
 
-      // Step 2: Get all workspaces the user has access to
-      const workspacesUrl = `${this.baseUrl}/workspaces?pagelen=100`;
-      const workspacesRes = await fetch(workspacesUrl, { headers });
-      if (!workspacesRes.ok) {
-        throw new Error(`Error fetching Bitbucket workspaces: ${workspacesRes.status} ${workspacesRes.statusText}`);
-      }
-      const workspacesData = await workspacesRes.json();
-      const workspaces = workspacesData.values || [];
-
-      console.log(`Found ${workspaces.length} workspaces`);
-
-      // Step 3: Get all repositories from all workspaces
+      // Fetch only the specified repositories
+      // repositories parameter format: ['workspace1/repo1', 'workspace1/repo2', 'workspace2/repo3']
       let allRepositories = [];
-      for (const workspace of workspaces) {
+      
+      for (const repoPath of repositories) {
+        const [workspaceSlug, repoSlug] = repoPath.split('/');
+        
+        if (!workspaceSlug || !repoSlug) {
+          console.warn(`Invalid repository format: ${repoPath}. Expected format: workspace/repo-slug`);
+          continue;
+        }
+        
         try {
-          let reposUrl = `${this.baseUrl}/repositories/${workspace.slug}?pagelen=100`;
+          const repoUrl = `${this.baseUrl}/repositories/${workspaceSlug}/${repoSlug}`;
+          const repoRes = await fetch(repoUrl, { headers });
           
-          // Handle pagination for repositories
-          while (reposUrl) {
-            const reposRes = await fetch(reposUrl, { headers });
-            if (reposRes.ok) {
-              const reposData = await reposRes.json();
-              allRepositories = allRepositories.concat(reposData.values || []);
-              reposUrl = reposData.next || null;
-            } else {
-              console.warn(`Failed to fetch repos for workspace ${workspace.slug}`);
-              break;
-            }
-            // Add delay to avoid rate limiting
-            await new Promise(resolve => setTimeout(resolve, 100));
+          if (repoRes.ok) {
+            const repo = await repoRes.json();
+            allRepositories.push(repo);
+          } else {
+            console.warn(`Repository '${repoPath}' not found or no access: ${repoRes.status}`);
           }
+          
+          // Add delay to avoid rate limiting
+          await new Promise(resolve => setTimeout(resolve, 100));
         } catch (error) {
-          console.error(`Error fetching repos for workspace ${workspace.slug}:`, error);
+          console.error(`Error fetching repository ${repoPath}:`, error);
         }
       }
 
-      console.log(`Found ${allRepositories.length} total repositories`);
+      console.log(`Fetched ${allRepositories.length} repositories`);
 
-      // Step 4: Fetch pull requests from each repository
+      // Fetch pull requests from each repository
       let allPullRequests = [];
       for (const repo of allRepositories) {
         try {
-          // Use BBQL (Bitbucket Query Language) to filter by author and date
-          // Filter: author.uuid matches user AND created_on is in date range
+          // Use BBQL to filter by author and date
           const startDateISO = `${startDate}T00:00:00Z`;
           const endDateISO = `${endDate}T23:59:59Z`;
           
@@ -194,7 +236,6 @@ class BitBucketHelper{
               allPullRequests = allPullRequests.concat(prsData.values || []);
               prsUrl = prsData.next || null;
             } else {
-              // Silently skip if PR endpoint fails (might not have permissions)
               break;
             }
             // Add delay to avoid rate limiting
@@ -207,7 +248,7 @@ class BitBucketHelper{
 
       console.log(`Found ${allPullRequests.length} pull requests`);
 
-      // Step 5: Fetch issues from each repository (if issues are enabled)
+      // Fetch issues from each repository
       let allIssues = [];
       for (const repo of allRepositories) {
         try {
@@ -242,11 +283,11 @@ class BitBucketHelper{
 
       const bitbucketData = {
         user: user,
-        workspaces: workspaces,
+        workspaces: targetWorkspaces,
         repositories: allRepositories,
         pullRequests: allPullRequests,
         issues: allIssues,
-        comments: [] // Empty array since we're not fetching comments
+        comments: []
       };
 
       // Cache the data
@@ -255,7 +296,6 @@ class BitBucketHelper{
 
       await this.saveToStorage(bitbucketData);
 
-      // Resolve queued calls
       this.cache.queue.forEach(({ resolve }) => resolve(bitbucketData));
       this.cache.queue = [];
 
@@ -263,7 +303,6 @@ class BitBucketHelper{
 
     } catch (err) {
       console.error('Bitbucket Fetch Failed:', err);
-      // Reject queued calls on error
       this.cache.queue.forEach(({ reject }) => reject(err));
       this.cache.queue = [];
       throw err;
@@ -272,7 +311,32 @@ class BitBucketHelper{
     }
   }
 
+    formatDate(dateString) {
+    const date = new Date(dateString);
+    const options = { day: '2-digit', month: 'short', year: 'numeric' };
+    return date.toLocaleDateString('en-US', options);
+  }
+
+
+
+processBitBucketData(data){
+    const processed = {
+        mergeRequests: data.mergeRequests || [],
+        issues: data.issues || [],
+        comments: data.comments || [],
+        user: data.user
+    };
+
+
+    return processed;
+}
   
 
 
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = BitbucketHelper;
+} else {
+  window.BitbucketHelper = BitbucketHelper;
 }
