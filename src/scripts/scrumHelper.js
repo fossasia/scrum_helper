@@ -442,6 +442,22 @@ function allIncluded(outputTarget = 'email') {
     }
 
     async function fetchGithubData() {
+
+        //onboarding guard: github token missing
+        if (!githubToken) {
+            log('GitHub token missing. Showing onboarding guidance.');
+
+            githubCache.fetching = false;
+            scrumGenerationInProgress = false;
+
+            // resolve any queued callers
+            githubCache.queue.forEach(({ resolve }) => resolve());
+            githubCache.queue = [];
+
+            showMissingTokenMessage();
+            return;
+        }
+
         // Always load latest repo filter settings from storage
         const filterSettings = await new Promise(resolve => {
             chrome.storage.local.get(['useRepoFilter', 'selectedRepos'], resolve);
@@ -848,21 +864,328 @@ function allIncluded(outputTarget = 'email') {
     }
     verifyCacheStatus();
 
-    function showInvalidTokenMessage() {
-        if (outputTarget === 'popup') {
-            const reportDiv = document.getElementById('scrumReport');
-            if (reportDiv) {
-                reportDiv.innerHTML = '<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">Invalid or expired GitHub token. Please check your token in the settings and try again.</div>';
-                const generateBtn = document.getElementById('generateReport');
-                if (generateBtn) {
-                    generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
-                    generateBtn.disabled = false;
+        function showMissingTokenMessage() {
+            const scrumReport = document.getElementById('scrumReport');
+            const generateBtn = document.getElementById('generateReport');
+
+            if (!scrumReport) return;
+
+            // Helper function for i18n with fallbacks
+            const getMessage = (key, fallback) => {
+                try {
+                    const msg = chrome.i18n?.getMessage?.(key);
+                    return msg && msg.length > 0 ? msg : fallback;
+                } catch (e) {
+                    return fallback;
                 }
-            } else {
-                alert('Invalid or expired GitHub token. Please check your token in the extension popup and try again.');
+            };
+
+            // Get all localized messages
+            const messages = {
+                title: getMessage('tokenRequiredTitle', 'GitHub Token Required'),
+                description: getMessage('tokenRequiredDescription', 
+                    'A GitHub token is needed to fetch your contribution data and generate the scrum report.'),
+                addButton: getMessage('addTokenButton', 'Go to Settings'),
+                benefitsTitle: getMessage('tokenBenefitsTitle', 'Why is a token needed?'),
+                benefit1: getMessage('tokenBenefitAuth', 'Access your GitHub activity'),
+                benefit2: getMessage('tokenBenefitRateLimit', 'Higher API rate limits (5,000/hr)'),
+                benefit3: getMessage('tokenBenefitPrivate', 'Include private repositories'),
+                learnMore: getMessage('tokenLearnMore', 'Learn how to create a token')
+            };
+
+            scrumReport.innerHTML = `
+                <div style="
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: flex-start;
+                    padding: 20px 20px 20px 20px;
+                    box-sizing: border-box;
+                    background: #1e1e1e;
+                    color: #e1e1e1;
+                    width: 100%;
+                    overflow-y: auto;">
+                    
+                    <!-- Icon Container -->
+                    <div style="
+                        width: 64px;
+                        height: 64px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        border-radius: 50%;
+                        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+                        border: 3px solid #fbbf24;
+                        margin-bottom: 16px;
+                        flex-shrink: 0;">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#b45309" 
+                            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                        </svg>
+                    </div>
+
+                    <!-- Title -->
+                    <h3 style="
+                        margin: 0 0 10px 0;
+                        font-size: 18px;
+                        font-weight: 600;
+                        text-align: center;
+                        color: #ffffff;
+                        line-height: 1.3;
+                        width: 100%;
+                        padding: auto;
+                        box-sizing: border-box;">
+                        ${messages.title}
+                    </h3>
+
+                    <!-- Description -->
+                    <p style="
+                        margin: 0 0 18px 0;
+                        font-size: 13px;
+                        text-align: center;
+                        color: #b8b8b8;
+                        line-height: 1.5;
+                        width: 100%;
+                        padding: 0 20px;
+                        box-sizing: border-box;">
+                        ${messages.description}
+                    </p>
+
+                    <!-- Benefits Box -->
+                    <div style="
+                        width: 100%;
+                        max-width: 280px;
+                        background: #2d2d2d;
+                        border: 1px solid #404040;
+                        border-radius: 8px;
+                        padding: 14px 16px;
+                        margin-bottom: 18px;
+                        box-sizing: border-box;">
+                        
+                        <div style="
+                            font-size: 12px;
+                            font-weight: 600;
+                            color: #ffffff;
+                            margin-bottom: 16px;
+                            text-align: center;">
+                            ${messages.benefitsTitle}
+                        </div>
+                        
+                        <div style="
+                            display: flex;
+                            flex-direction: column;
+                            gap: 9px;">
+                            
+                            <div style="
+                                display: flex;
+                                align-items: flex-start;
+                                gap: 8px;">
+                                <span style="
+                                    color: #4ade80;
+                                    font-weight: bold;
+                                    flex-shrink: 0;
+                                    font-size: 14px;
+                                    line-height: 1.3;
+                                    margin-top: 1px;">✓</span>
+                                <span style="
+                                    font-size: 12px;
+                                    color: #d1d1d1;
+                                    line-height: 1.3;">${messages.benefit1}</span>
+                            </div>
+                            
+                            <div style="
+                                display: flex;
+                                align-items: flex-start;
+                                gap: 8px;">
+                                <span style="
+                                    color: #4ade80;
+                                    font-weight: bold;
+                                    flex-shrink: 0;
+                                    font-size: 14px;
+                                    line-height: 1.3;
+                                    margin-top: 1px;">✓</span>
+                                <span style="
+                                    font-size: 12px;
+                                    color: #d1d1d1;
+                                    line-height: 1.3;">${messages.benefit2}</span>
+                            </div>
+                            
+                            <div style="
+                                display: flex;
+                                align-items: flex-start;
+                                gap: 8px;">
+                                <span style="
+                                    color: #4ade80;
+                                    font-weight: bold;
+                                    flex-shrink: 0;
+                                    font-size: 14px;
+                                    line-height: 1.3;
+                                    margin-top: 1px;">✓</span>
+                                <span style="
+                                    font-size: 12px;
+                                    color: #d1d1d1;
+                                    line-height: 1.3;">${messages.benefit3}</span>
+                            </div>
+                            
+                        </div>
+                    </div>
+
+                    <!-- CTA Button -->
+                    <button id="add-github-token-btn" 
+                        style="
+                            width: 100%;
+                            max-width: 280px;
+                            padding: 14px 20px;
+                            border: none;
+                            border-radius: 8px;
+                            font-size: 14px;
+                            font-weight: 600;
+                            color: #ffffff;
+                            cursor: pointer;
+                            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+                            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+                            transition: all 0.2s ease;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            gap: 8px;
+                            box-sizing: border-box;
+                            margin-bottom: 16px;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" 
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+                            <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                        <span>${messages.addButton}</span>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" 
+                            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 18 15 12 9 6"/>
+                        </svg>
+                    </button>
+
+                    <!-- Help Link -->
+                    <a href="#" id="learn-more-link" 
+                        style="
+                            font-size: 12px;
+                            color: #8b8b8b;
+                            text-decoration: none;
+                            display: inline-flex;
+                            align-items: center;
+                            gap: 6px;
+                            transition: all 0.2s ease;
+                            padding: 6px 10px;
+                            border-radius: 4px;
+                            cursor: pointer;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" 
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+                            <line x1="12" y1="17" x2="12.01" y2="17"/>
+                        </svg>
+                        <span>${messages.learnMore}</span>
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" 
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                            <polyline points="15 3 21 3 21 9"/>
+                            <line x1="10" y1="14" x2="21" y2="3"/>
+                        </svg>
+                    </a>
+
+                </div>
+            `;
+
+            // Reset the generate button state
+            if (generateBtn) {
+                generateBtn.innerHTML = '<i class="fa fa-refresh"></i> ' + getMessage('generateReportButton', 'Generate Report');
+                generateBtn.disabled = false;
+            }
+
+            // CTA Button: Go to Settings
+            const addTokenBtn = document.getElementById('add-github-token-btn');
+            if (addTokenBtn) {
+                addTokenBtn.addEventListener('click', () => {
+                    const settingsToggle = document.getElementById('settingsToggle');
+                    if (settingsToggle) {
+                        settingsToggle.click();
+
+                        setTimeout(() => {
+                            const tokenInput = document.getElementById('githubToken');
+                            if (tokenInput) {
+                                tokenInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                tokenInput.focus();
+
+                                tokenInput.style.transition = 'all 0.3s ease';
+                                tokenInput.style.boxShadow = '0 0 0 4px rgba(59, 130, 246, 0.5)';
+                                tokenInput.style.borderColor = '#3b82f6';
+
+                                setTimeout(() => {
+                                    tokenInput.style.boxShadow = '';
+                                    tokenInput.style.borderColor = '';
+                                }, 2000);
+                            }
+                        }, 300);
+                    }
+                });
+
+                // Button hover effects
+                addTokenBtn.addEventListener('mouseenter', () => {
+                    addTokenBtn.style.transform = 'translateY(-2px)';
+                    addTokenBtn.style.boxShadow = '0 6px 16px rgba(59, 130, 246, 0.5)';
+                    addTokenBtn.style.background = 'linear-gradient(135deg, #4f90ff 0%, #3570d4 100%)';
+                });
+                
+                addTokenBtn.addEventListener('mouseleave', () => {
+                    addTokenBtn.style.transform = 'translateY(0)';
+                    addTokenBtn.style.boxShadow = '0 4px 12px rgba(59, 130, 246, 0.4)';
+                    addTokenBtn.style.background = 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)';
+                });
+                
+                addTokenBtn.addEventListener('mousedown', () => {
+                    addTokenBtn.style.transform = 'translateY(0) scale(0.98)';
+                });
+                
+                addTokenBtn.addEventListener('mouseup', () => {
+                    addTokenBtn.style.transform = 'translateY(-2px) scale(1)';
+                });
+            }
+
+            // "Learn how to create a token" link with proper cursor
+            const learnMoreLink = document.getElementById('learn-more-link');
+            if (learnMoreLink) {
+                learnMoreLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    chrome.tabs.create({ url: 'https://github.com/settings/tokens/new' });
+                });
+                
+                // Hover effects for link
+                learnMoreLink.addEventListener('mouseenter', () => {
+                    learnMoreLink.style.color = '#3b82f6';
+                    learnMoreLink.style.backgroundColor = 'rgba(59, 130, 246, 0.1)';
+                });
+                
+                learnMoreLink.addEventListener('mouseleave', () => {
+                    learnMoreLink.style.color = '#8b8b8b';
+                    learnMoreLink.style.backgroundColor = 'transparent';
+                });
             }
         }
-    }
+
+        function showInvalidTokenMessage() {
+            if (outputTarget === 'popup') {
+                const reportDiv = document.getElementById('scrumReport');
+                if (reportDiv) {
+                    reportDiv.innerHTML = '<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">Invalid or expired GitHub token. Please check your token in the settings and try again.</div>';
+                    const generateBtn = document.getElementById('generateReport');
+                    if (generateBtn) {
+                        generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+                        generateBtn.disabled = false;
+                    }
+                } else {
+                    alert('Invalid or expired GitHub token. Please check your token in the extension popup and try again.');
+                }
+            }
+        }
 
 
     async function processGithubData(data) {

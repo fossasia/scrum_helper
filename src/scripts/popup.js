@@ -340,7 +340,7 @@ document.addEventListener('DOMContentLoaded', function () {
             // Load platform-specific username
             const platform = result.platform || 'github';
             const platformUsernameKey = `${platform}Username`;
-            platformUsername.value = result[platformUsernameKey] || '';
+            platformUsername.value = result?.[platformUsernameKey] || '';
         });
 
         // Button setup

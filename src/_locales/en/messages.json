@@ -143,6 +143,42 @@
     "message": "A GitHub token is required for repository filtering. Please add one in the settings.",
     "description": "Warning message shown when repo filtering is enabled without a token."
   },
+  "tokenRequiredTitle": {
+    "message": "GitHub Token Required",
+    "description": "Title shown when a GitHub token is missing during report generation."
+  },
+  "tokenRequiredDescription": {
+    "message": "A GitHub token is needed to fetch your contribution data and generate the scrum report.",
+    "description": "Description explaining why a GitHub token is needed."
+  },
+  "addTokenButton": {
+    "message": "Go to Settings",
+    "description": "Text for the button that navigates to settings to add a GitHub token."
+  },
+  "tokenBenefitsTitle": {
+    "message": "Why is a token needed?",
+    "description": "Section header explaining the benefits of using a token."
+  },
+  "tokenBenefitAuth": {
+    "message": "Access your GitHub activity",
+    "description": "First benefit of using a token."
+  },
+  "tokenBenefitRateLimit": {
+    "message": "Higher API rate limits (5,000/hr)",
+    "description": "Second benefit of using a token."
+  },
+  "tokenBenefitPrivate": {
+    "message": "Include private repositories",
+    "description": "Third benefit of using a token."
+  },
+  "tokenLearnMore": {
+    "message": "Learn how to create a token",
+    "description": "Link text to learn about creating a GitHub token."
+  },
+  "errorLabel": {
+    "message": "Error",
+    "description": "Generic error label used in error messages."
+  },
   "repoSearchPlaceholder": {
     "message": "Search for a repository to add...",
     "description": "Placeholder for the repository search input."
