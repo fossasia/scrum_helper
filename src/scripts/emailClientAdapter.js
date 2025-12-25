@@ -155,27 +155,42 @@ class EmailClientAdapter {
 		}
 		const clientType = this.detectClient();
 		const config = this.clientConfigs[clientType];
+		const isFirefox = navigator.userAgent.toLowerCase().indexOf('firefox') > -1;
 
 		try {
 			switch (config?.injectMethod) {
 				case 'focusAndPaste':
 					// Special handling for Outlook
 					element.focus();
-					element.innerHTML = content;
+					if (isFirefox) {
+						if (!document.execCommand('insertHTML', false, content)) {
+							element.innerHTML = content;
+						}
+					} else {
+						element.innerHTML = content;
+					}
 					this.dispatchElementEvents(element, ['input', 'change'], true);
 					break;
 
 				case 'setContent':
 					// Special handling for Yahoo
-					element.innerHTML = content;
-					element.focus();
-					// Force Yahoo's editor to recognize the change
-					const selection = window.getSelection();
-					const range = document.createRange();
-					range.selectNodeContents(element);
-					selection.removeAllRanges();
-					selection.addRange(range);
-					this.dispatchElementEvents(element, ['input', 'change']);
+					if (isFirefox) {
+						element.focus();
+						if (!document.execCommand('insertHTML', false, content)) {
+							element.innerHTML = content;
+						}
+						this.dispatchElementEvents(element, ['input', 'change']);
+					} else {
+						element.innerHTML = content;
+						element.focus();
+						// Force Yahoo's editor to recognize the change
+						const selection = window.getSelection();
+						const range = document.createRange();
+						range.selectNodeContents(element);
+						selection.removeAllRanges();
+						selection.addRange(range);
+						this.dispatchElementEvents(element, ['input', 'change']);
+					}
 					break;
 
 				default:
