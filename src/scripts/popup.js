@@ -54,6 +54,25 @@ document.addEventListener('DOMContentLoaded', function () {
     // Apply translations as soon as the DOM is ready
     applyI18n();
 
+    // Load and save mergedPrOnly setting
+    const checkbox = document.getElementById("mergedPrOnly");
+
+    if (checkbox) {
+        chrome.storage.sync.get(["mergedPrOnly"], (res) => {
+            checkbox.checked = res.mergedPrOnly === true;
+        });
+
+    checkbox.addEventListener("change", () => {
+        chrome.storage.sync.set({ mergedPrOnly: checkbox.checked });
+        // Clear cache to ensure new setting is applied
+        chrome.storage.local.set({ githubCache: null });
+        // Regenerate the report with the new setting
+        if (window.generateScrumReport) {
+            window.generateScrumReport();
+        }
+    });
+    }
+
     // Dark mode setup
     const darkModeToggle = document.querySelector('img[alt="Night Mode"]');
     const settingsIcon = document.getElementById('settingsIcon');
@@ -303,6 +322,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const userReasonInput = document.getElementById('userReason');
         const showOpenLabelCheckbox = document.getElementById('showOpenLabel');
         const showCommitsCheckbox = document.getElementById('showCommits');
+        const mergedPrOnlyCheckbox = document.getElementById('mergedPrOnly');
         const githubTokenInput = document.getElementById('githubToken');
         const cacheInput = document.getElementById('cacheInput');
         const enableToggleSwitch = document.getElementById('enable');
@@ -315,9 +335,15 @@ document.addEventListener('DOMContentLoaded', function () {
             'projectName', 'orgName', 'userReason', 'showOpenLabel', 'showCommits', 'githubToken', 'cacheInput',
             'enableToggle', 'yesterdayContribution', 'startingDate', 'endingDate', 'selectedTimeframe', 'platform', 'githubUsername', 'gitlabUsername'
         ], function (result) {
+            // Also load mergedPrOnly from sync storage
+            chrome.storage.sync.get(['mergedPrOnly'], function (syncResult) {
+                if (mergedPrOnlyCheckbox && typeof syncResult.mergedPrOnly !== 'undefined') {
+                    mergedPrOnlyCheckbox.checked = syncResult.mergedPrOnly === true;
+                }
+            });
             if (result.projectName) projectNameInput.value = result.projectName;
             if (result.orgName) orgInput.value = result.orgName;
-            if (result.userReason) userReasonInput.value = result.userReason;
+            if (result.userReason && userReasonInput) userReasonInput.value = result.userReason;
             if (typeof result.showOpenLabel !== 'undefined') {
                 showOpenLabelCheckbox.checked = result.showOpenLabel;
             } else {
@@ -341,6 +367,13 @@ document.addEventListener('DOMContentLoaded', function () {
             const platform = result.platform || 'github';
             const platformUsernameKey = `${platform}Username`;
             platformUsername.value = result[platformUsernameKey] || '';
+            
+            // Also load mergedPrOnly from sync storage
+            chrome.storage.sync.get(['mergedPrOnly'], function (syncResult) {
+                if (mergedPrOnlyCheckbox && typeof syncResult.mergedPrOnly !== 'undefined') {
+                    mergedPrOnlyCheckbox.checked = syncResult.mergedPrOnly === true;
+                }
+            });
         });
 
         // Button setup
@@ -490,15 +523,22 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (oldToast) oldToast.parentNode.removeChild(oldToast);
             }
         });
-        userReasonInput.addEventListener('input', function () {
-            chrome.storage.local.set({ userReason: userReasonInput.value });
-        });
+        if (userReasonInput) {
+            userReasonInput.addEventListener('input', function () {
+                chrome.storage.local.set({ userReason: userReasonInput.value });
+            });
+        }
         showOpenLabelCheckbox.addEventListener('change', function () {
             chrome.storage.local.set({ showOpenLabel: showOpenLabelCheckbox.checked });
         });
         showCommitsCheckbox.addEventListener('change', function () {
             chrome.storage.local.set({ showCommits: showCommitsCheckbox.checked });
         });
+        if (mergedPrOnlyCheckbox) {
+            mergedPrOnlyCheckbox.addEventListener('change', function () {
+                chrome.storage.sync.set({ mergedPrOnly: mergedPrOnlyCheckbox.checked });
+            });
+        }
         githubTokenInput.addEventListener('input', function () {
             chrome.storage.local.set({ githubToken: githubTokenInput.value });
         });

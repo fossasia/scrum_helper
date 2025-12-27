@@ -1,19 +1,3 @@
-const DEBUG = true;
-
-function log(...args) {
-    if (DEBUG) {
-        console.log(`[SCRUM-HELPER]:`, ...args);
-    }
-}
-
-
-function logError(...args) {
-    if (DEBUG) {
-        console.error('[SCRUM-HELPER]:', ...args);
-    }
-}
-
-
 let refreshButton_Placed = false;
 let enableToggle = true;
 let hasInjectedContent = false;
@@ -383,7 +367,7 @@ function allIncluded(outputTarget = 'email') {
             subject: subject,
             usedToken: !!githubToken,
         }
-        log(`Saving data to storage:`, {
+        console.log(`Saving data to storage:`, {
             cacheKey: githubCache.cacheKey,
             timestamp: githubCache.timestamp,
             hasSubject: !!subject,
@@ -395,7 +379,7 @@ function allIncluded(outputTarget = 'email') {
                     logError('Storage save failed: ', chrome.runtime.lastError);
                     resolve(false);
                 } else {
-                    log('Cache saved successfuly');
+                    console.log('Cache saved successfuly');
                     githubCache.data = data;
                     githubCache.subject = subject;
                     resolve(true);
@@ -405,23 +389,23 @@ function allIncluded(outputTarget = 'email') {
     }
 
     function loadFromStorage() {
-        log('Loading cache from storage');
+        console.log('Loading cache from storage');
         return new Promise(async (resolve) => {
             const currentTTL = await getCacheTTL();
             chrome.storage.local.get('githubCache', (result) => {
                 const cache = result.githubCache;
                 if (!cache) {
-                    log('No cache found in storage');
+                    console.log('No cache found in storage');
                     resolve(false);
                     return;
                 }
                 const isCacheExpired = (Date.now() - cache.timestamp) > currentTTL;
                 if (isCacheExpired) {
-                    log('Cached data is expired');
+                    console.log('Cached data is expired');
                     resolve(false);
                     return;
                 }
-                log('Found valid cache:', {
+                console.log('Found valid cache:', {
                     cacheKey: cache.cacheKey,
                     age: `${((Date.now() - cache.timestamp) / 1000 / 60).toFixed(1)} minutes`,
                 });
@@ -459,6 +443,13 @@ function allIncluded(outputTarget = 'email') {
         } else if (startingDate && endingDate) {
             startDateForCache = startingDate;
             endDateForCache = endingDate;
+            // Validate date range - start must be before or equal to end
+            if (new Date(startDateForCache) > new Date(endDateForCache)) {
+                logError('Invalid date range: start date is after end date. Swapping dates.');
+                const temp = startDateForCache;
+                startDateForCache = endDateForCache;
+                endDateForCache = temp;
+            }
         } else {
             // Default to last 7 days if no date range is set
             const today = new Date();
@@ -466,23 +457,36 @@ function allIncluded(outputTarget = 'email') {
             startDateForCache = lastWeek.toISOString().split('T')[0];
             endDateForCache = today.toISOString().split('T')[0];
         }
+        
+        // Validate username is not empty
+        if (!platformUsernameLocal || platformUsernameLocal.trim() === '') {
+            const errorMsg = 'GitHub username is required. Please enter your username.';
+            logError(errorMsg);
+            if (outputTarget === 'popup') {
+                const reportDiv = document.getElementById('scrumReport');
+                if (reportDiv) {
+                    reportDiv.innerHTML = `<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">${errorMsg}</div>`;
+                }
+            }
+            throw new Error(errorMsg);
+        }
 
         const cacheKey = `${platformUsernameLocal}-${startDateForCache}-${endDateForCache}-${orgName || 'all'}`;
 
         if (githubCache.fetching || (githubCache.cacheKey === cacheKey && githubCache.data)) {
-            log('Fetch already in progress or data already fetched. Skipping fetch.');
+            console.log('Fetch already in progress or data already fetched. Skipping fetch.');
             return;
         }
 
-        log('Fetching Github data:', {
+        console.log('Fetching Github data:', {
             username: platformUsernameLocal,
             startDate: startingDate,
             endDate: endingDate,
         });
 
-        log('CacheKey in cache:', githubCache.cacheKey);
-        log('Incoming cacheKey:', cacheKey);
-        log('Has data:', !!githubCache.data);
+        console.log('CacheKey in cache:', githubCache.cacheKey);
+        console.log('Incoming cacheKey:', cacheKey);
+        console.log('Has data:', !!githubCache.data);
 
         // Check if we need to load from storage
         if (!githubCache.data && !githubCache.fetching) {
@@ -491,7 +495,7 @@ function allIncluded(outputTarget = 'email') {
 
         const currentTTL = await getCacheTTL();
         githubCache.ttl = currentTTL;
-        log(`Caching for ${currentTTL / (60 * 1000)} minutes`);
+        console.log(`Caching for ${currentTTL / (60 * 1000)} minutes`);
 
         const now = Date.now();
         const isCacheFresh = (now - githubCache.timestamp) < githubCache.ttl;
@@ -501,25 +505,25 @@ function allIncluded(outputTarget = 'email') {
 
         if (githubCache.data && isCacheFresh && isCacheKeyMatch) {
             if (needsToken && !cacheUsedToken) {
-                log('Cache was fetched without token, but user now has a token. Invalidating cache.');
+                console.log('Cache was fetched without token, but user now has a token. Invalidating cache.');
                 githubCache.data = null;
             } else {
-                log('Using cached data - cache is fresh and key matches');
+                console.log('Using cached data - cache is fresh and key matches');
                 processGithubData(githubCache.data);
                 return Promise.resolve();
             }
         }
         // if cache key does not match our cache is stale, fetch new data
         if (!isCacheKeyMatch) {
-            log('Cache key mismatch - fetching new Data');
+            console.log('Cache key mismatch - fetching new Data');
             githubCache.data = null;
         } else if (!isCacheFresh) {
-            log('Cache is stale - fetching new data');
+            console.log('Cache is stale - fetching new data');
         }
 
         // if fetching is in progress, queue the calls and return a promise resolved when done
         if (githubCache.fetching) {
-            log('Fetch in progress, queuing requests');
+            console.log('Fetch in progress, queuing requests');
             return new Promise((resolve, reject) => {
                 githubCache.queue.push({ resolve, reject });
             });
@@ -534,11 +538,11 @@ function allIncluded(outputTarget = 'email') {
         };
 
         if (githubToken) {
-            log('Making authenticated requests.');
+            console.log('Making authenticated requests.');
             headers['Authorization'] = `token ${githubToken}`;
 
         } else {
-            log('Making public requests');
+            console.log('Making public requests');
         }
 
         console.log('[SCRUM-HELPER] orgName before API query:', orgName);
@@ -551,7 +555,7 @@ function allIncluded(outputTarget = 'email') {
         let issueUrl, prUrl, userUrl;
 
         if (useRepoFilter && selectedRepos && selectedRepos.length > 0) {
-            log('Using repo filter for api calls:', selectedRepos);
+            console.log('Using repo filter for api calls:', selectedRepos);
 
             try {
                 await fetchReposIfNeeded();
@@ -580,57 +584,140 @@ function allIncluded(outputTarget = 'email') {
                     }
                 }).join('+');
 
+            // Validate repo queries are not empty
+            if (!repoQueries || repoQueries.trim() === '') {
+                logError('Repository filter is enabled but no valid repositories found');
+                throw new Error('Repository filter is enabled but no valid repositories selected. Please check your repository filter settings.');
+            }
+            
             const orgQuery = orgPart ? `+${orgPart}` : '';
-            issueUrl = `https://api.github.com/search/issues?q=author%3A${platformUsernameLocal}+${repoQueries}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}&per_page=100`;
-            prUrl = `https://api.github.com/search/issues?q=commenter%3A${platformUsernameLocal}+${repoQueries}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}&per_page=100`;
-            userUrl = `https://api.github.com/users/${platformUsernameLocal}`;
-            log('Repository-filtered URLs:', { issueUrl, prUrl });
+            const encodedUsername = encodeURIComponent(platformUsernameLocal);
+            // GitHub API requires 'is:issue' or 'is:pull-request' in the query
+            // We need both issues and PRs, so we make separate queries and combine results
+            const authorBaseQuery = `author%3A${encodedUsername}+${repoQueries}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}`;
+            const commenterBaseQuery = `commenter%3A${encodedUsername}+${repoQueries}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}`;
+            // Store URLs for both issues and PRs - we'll fetch all 4 and combine
+            issueUrl = `https://api.github.com/search/issues?q=${authorBaseQuery}+is%3Aissue&per_page=100`;
+            const prAuthorUrl = `https://api.github.com/search/issues?q=${authorBaseQuery}+is%3Apr&per_page=100`;
+            prUrl = `https://api.github.com/search/issues?q=${commenterBaseQuery}+is%3Aissue&per_page=100`;
+            const prCommenterUrl = `https://api.github.com/search/issues?q=${commenterBaseQuery}+is%3Apr&per_page=100`;
+            userUrl = `https://api.github.com/users/${encodedUsername}`;
+            console.log('Repository-filtered URLs:', { issueUrl, prAuthorUrl, prUrl, prCommenterUrl });
         } else {
             loadFromStorage('Using org wide search');
             const orgQuery = orgPart ? `+${orgPart}` : '';
-            issueUrl = `https://api.github.com/search/issues?q=author%3A${platformUsernameLocal}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}&per_page=100`;
-            prUrl = `https://api.github.com/search/issues?q=commenter%3A${platformUsernameLocal}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}&per_page=100`;
-            userUrl = `https://api.github.com/users/${platformUsernameLocal}`;
+            const encodedUsername = encodeURIComponent(platformUsernameLocal);
+            // GitHub API requires 'is:issue' or 'is:pull-request' in the query
+            // Make separate queries for issues and PRs, then combine
+            const authorBaseQuery = `author%3A${encodedUsername}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}`;
+            const commenterBaseQuery = `commenter%3A${encodedUsername}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}`;
+            issueUrl = `https://api.github.com/search/issues?q=${authorBaseQuery}+is%3Aissue&per_page=100`;
+            const prAuthorUrl = `https://api.github.com/search/issues?q=${authorBaseQuery}+is%3Apr&per_page=100`;
+            prUrl = `https://api.github.com/search/issues?q=${commenterBaseQuery}+is%3Aissue&per_page=100`;
+            const prCommenterUrl = `https://api.github.com/search/issues?q=${commenterBaseQuery}+is%3Apr&per_page=100`;
+            userUrl = `https://api.github.com/users/${encodedUsername}`;
         }
+        
+        // Log the URLs for debugging
+        console.log('GitHub API URLs:', { issueUrl, prUrl, userUrl, username: platformUsernameLocal, startDate: startDateForCache, endDate: endDateForCache });
 
         try {
             // throttling 500ms to avoid burst
             await new Promise(res => setTimeout(res, 500));
 
-            const [issuesRes, prRes, userRes] = await Promise.all([
+            // Build PR URLs from issue URLs by replacing is:issue with is:pr
+            const prAuthorUrl = issueUrl.replace('+is%3Aissue', '+is%3Apr');
+            const prCommenterUrl = prUrl.replace('+is%3Aissue', '+is%3Apr');
+            
+            // Fetch all 4 queries: issues authored, PRs authored, issues commented, PRs commented
+            const [issuesAuthRes, prsAuthRes, issuesCommentRes, prsCommentRes, userRes] = await Promise.all([
                 fetch(issueUrl, { headers }),
+                fetch(prAuthorUrl, { headers }),
                 fetch(prUrl, { headers }),
+                fetch(prCommenterUrl, { headers }),
                 fetch(userUrl, { headers }),
             ]);
 
-            if (issuesRes.status === 401 || prRes.status === 401 || userRes.status === 401 ||
-                issuesRes.status === 403 || prRes.status === 403 || userRes.status === 403) {
+            // Check for auth errors
+            if (issuesAuthRes.status === 401 || prsAuthRes.status === 401 || issuesCommentRes.status === 401 || 
+                prsCommentRes.status === 401 || userRes.status === 401 ||
+                issuesAuthRes.status === 403 || prsAuthRes.status === 403 || issuesCommentRes.status === 403 || 
+                prsCommentRes.status === 403 || userRes.status === 403) {
                 showInvalidTokenMessage();
                 return;
             }
 
-            if (issuesRes.status === 404 || prRes.status === 404) {
+            if (issuesAuthRes.status === 404 || prsAuthRes.status === 404 || issuesCommentRes.status === 404 || prsCommentRes.status === 404) {
                 if (outputTarget === 'popup') {
                     Materialize.toast && Materialize.toast('Organization not found on GitHub', 3000);
                 }
                 throw new Error('Organization not found');
             }
 
-            if (!issuesRes.ok) throw new Error(`Error fetching Github issues: ${issuesRes.status} ${issuesRes.statusText}`);
-            if (!prRes.ok) throw new Error(`Error fetching Github PR review data: ${prRes.status} ${prRes.statusText}`);
+            // Handle errors and combine results
+            let issuesAuthData = { items: [] };
+            let prsAuthData = { items: [] };
+            let issuesCommentData = { items: [] };
+            let prsCommentData = { items: [] };
+
+            if (!issuesAuthRes.ok) {
+                const errorBody = await issuesAuthRes.text();
+                let errorMsg = `Error fetching Github issues (auth): ${issuesAuthRes.status} ${issuesAuthRes.statusText}`;
+                try {
+                    const errorJson = JSON.parse(errorBody);
+                    if (errorJson.message) errorMsg += ` - ${errorJson.message}`;
+                } catch (e) {
+                    errorMsg += ` - ${errorBody}`;
+                }
+                logError('GitHub API Error:', { status: issuesAuthRes.status, url: issueUrl, error: errorMsg });
+            } else {
+                issuesAuthData = await issuesAuthRes.json();
+            }
+
+            if (!prsAuthRes.ok) {
+                logError('Error fetching PRs (auth):', prsAuthRes.status, prsAuthRes.statusText);
+            } else {
+                prsAuthData = await prsAuthRes.json();
+            }
+
+            if (!issuesCommentRes.ok) {
+                logError('Error fetching issues (commenter):', issuesCommentRes.status, issuesCommentRes.statusText);
+            } else {
+                issuesCommentData = await issuesCommentRes.json();
+            }
+
+            if (!prsCommentRes.ok) {
+                const errorBody = await prsCommentRes.text();
+                let errorMsg = `Error fetching Github PR review data: ${prsCommentRes.status} ${prsCommentRes.statusText}`;
+                try {
+                    const errorJson = JSON.parse(errorBody);
+                    if (errorJson.message) errorMsg += ` - ${errorJson.message}`;
+                } catch (e) {
+                    errorMsg += ` - ${errorBody}`;
+                }
+                logError('GitHub API Error:', { status: prsCommentRes.status, url: prCommenterUrl, error: errorMsg });
+            } else {
+                prsCommentData = await prsCommentRes.json();
+            }
+
             if (!userRes.ok) throw new Error(`Error fetching Github userdata: ${userRes.status} ${userRes.statusText}`);
 
-            githubIssuesData = await issuesRes.json();
-            githubPrsReviewData = await prRes.json();
+            // Combine issues and PRs from author search
+            const combinedAuthItems = [...(issuesAuthData.items || []), ...(prsAuthData.items || [])];
+            // Combine issues and PRs from commenter search  
+            const combinedCommentItems = [...(issuesCommentData.items || []), ...(prsCommentData.items || [])];
+
+            githubIssuesData = { items: combinedAuthItems, total_count: combinedAuthItems.length };
+            githubPrsReviewData = { items: combinedCommentItems, total_count: combinedCommentItems.length };
             githubUserData = await userRes.json();
 
             if (githubIssuesData && githubIssuesData.items) {
-                log('Fetched githubIssuesData:', githubIssuesData.items.length, 'items');
+                console.log('Fetched githubIssuesData:', githubIssuesData.items.length, 'items');
                 // Collect only open PRs for commit fetching
                 const openPRs = githubIssuesData.items.filter(
                     item => item.pull_request && item.state === 'open'
                 );
-                log('Open PRs for commit fetching:', openPRs.map(pr => pr.number));
+                console.log('Open PRs for commit fetching:', openPRs.map(pr => pr.number));
                 // Fetch commits for open PRs (batch) if showCommits is enabled
                 if (openPRs.length && githubToken && showCommits) {
                     // Get the correct date range for commit fetching
@@ -652,13 +739,13 @@ function allIncluded(outputTarget = 'email') {
                     }
 
                     const commitMap = await fetchCommitsForOpenPRs(openPRs, githubToken, startDateForCommits, endDateForCommits);
-                    log('Commit map returned from fetchCommitsForOpenPRs:', commitMap);
+                    console.log('Commit map returned from fetchCommitsForOpenPRs:', commitMap);
                     // Attach commits to PR objects
                     openPRs.forEach(pr => {
                         pr._allCommits = commitMap[pr.number] || [];
-                        log(`Attached ${pr._allCommits.length} commits to PR #${pr.number}`);
+                        console.log(`Attached ${pr._allCommits.length} commits to PR #${pr.number}`);
                         if (pr._allCommits.length > 0) {
-                            log(`Commits for PR #${pr.number}:`, pr._allCommits.map(c => `${c.messageHeadline} (${c.committedDate})`));
+                            console.log(`Commits for PR #${pr.number}:`, pr._allCommits.map(c => `${c.messageHeadline} (${c.committedDate})`));
                         }
                     });
                 }
@@ -706,7 +793,7 @@ function allIncluded(outputTarget = 'email') {
     }
 
     async function fetchCommitsForOpenPRs(prs, githubToken, startDate, endDate) {
-        log('fetchCommitsForOpenPRs called with PRs:', prs.map(pr => pr.number), 'startDate:', startDate, 'endDate:', endDate);
+        console.log('fetchCommitsForOpenPRs called with PRs:', prs.map(pr => pr.number), 'startDate:', startDate, 'endDate:', endDate);
         if (!prs.length) return {};
         const since = new Date(startDate + 'T00:00:00Z').toISOString();
         const until = new Date(endDate + 'T23:59:59Z').toISOString();
@@ -735,7 +822,7 @@ function allIncluded(outputTarget = 'email') {
 			}`;
         }).join('\n');
         const query = `query { ${queries} }`;
-        log('GraphQL query for commits:', query);
+        console.log('GraphQL query for commits:', query);
         const res = await fetch('https://api.github.com/graphql', {
             method: 'POST',
             headers: {
@@ -744,27 +831,27 @@ function allIncluded(outputTarget = 'email') {
             },
             body: JSON.stringify({ query })
         });
-        log('fetchCommitsForOpenPRs response status:', res.status);
+        console.log('fetchCommitsForOpenPRs response status:', res.status);
         const data = await res.json();
-        log('fetchCommitsForOpenPRs response data:', data);
+        console.log('fetchCommitsForOpenPRs response data:', data);
         let commitMap = {};
         prs.forEach((pr, idx) => {
             const prData = data.data && data.data[`pr${idx}`] && data.data[`pr${idx}`].pullRequest;
             if (prData && prData.commits && prData.commits.nodes) {
                 const allCommits = prData.commits.nodes.map(n => n.commit);
-                log(`PR #${pr.number} allCommits:`, allCommits);
+                console.log(`PR #${pr.number} allCommits:`, allCommits);
                 const filteredCommits = allCommits.filter(commit => {
                     const commitDate = new Date(commit.committedDate);
                     const sinceDate = new Date(since);
                     const untilDate = new Date(until);
                     const isInRange = commitDate >= sinceDate && commitDate <= untilDate;
-                    log(`PR #${pr.number} commit "${commit.messageHeadline}" (${commit.committedDate}) - in range: ${isInRange}`);
+                    console.log(`PR #${pr.number} commit "${commit.messageHeadline}" (${commit.committedDate}) - in range: ${isInRange}`);
                     return isInRange;
                 });
-                log(`PR #${pr.number} filteredCommits:`, filteredCommits);
+                console.log(`PR #${pr.number} filteredCommits:`, filteredCommits);
                 commitMap[pr.number] = filteredCommits;
             } else {
-                log(`No commits found for PR #${pr.number}`);
+                console.log(`No commits found for PR #${pr.number}`);
             }
         });
         return commitMap;
@@ -772,7 +859,7 @@ function allIncluded(outputTarget = 'email') {
 
     async function fetchReposIfNeeded() {
         if (!useRepoFilter) {
-            log('Repo fiter disabled, skipping fetch');
+            console.log('Repo fiter disabled, skipping fetch');
             return [];
         }
         const repoCacheKey = `repos-${platformUsernameLocal}-${orgName}-${startDateForCache}-${endDateForCache}`;
@@ -782,12 +869,12 @@ function allIncluded(outputTarget = 'email') {
         const isRepoCacheKeyMatch = githubCache.repoCacheKey === repoCacheKey;
 
         if (githubCache.repoData && isRepoCacheFresh && isRepoCacheKeyMatch) {
-            log('Using cached repo data');
+            console.log('Using cached repo data');
             return githubCache.repoData;
         }
 
         if (githubCache.repoFetching) {
-            log('Repo fetch is in progress, queuing request');
+            console.log('Repo fetch is in progress, queuing request');
             return new Promise((resolve, reject) => {
                 githubCache.repoQueue.push({ resolve, reject });
             });
@@ -797,7 +884,7 @@ function allIncluded(outputTarget = 'email') {
         githubCache.repoCacheKey = repoCacheKey;
 
         try {
-            log('Fetching repos automatically');
+            console.log('Fetching repos automatically');
             const repos = await fetchUserRepositories(platformUsernameLocal, githubToken, orgName);
 
             githubCache.repoData = repos;
@@ -814,7 +901,7 @@ function allIncluded(outputTarget = 'email') {
             githubCache.repoQueue.forEach(({ resolve }) => resolve(repos));
             githubCache.repoQueue = [];
 
-            log(`Successfuly cached ${repos.length} repositories`);
+            console.log(`Successfuly cached ${repos.length} repositories`);
             return repos;
         } catch (err) {
             logError('Failed to fetch reppos:', err);
@@ -828,7 +915,7 @@ function allIncluded(outputTarget = 'email') {
     }
 
     async function verifyCacheStatus() {
-        log('Cache Status: ', {
+        console.log('Cache Status: ', {
             hasCachedData: !!githubCache.data,
             cacheAge: githubCache.timestamp ? `${((Date.now() - githubCache.timestamp) / 1000 / 60).toFixed(1)} minutes` : `no cache`,
             cacheKey: githubCache.cacheKey,
@@ -838,7 +925,7 @@ function allIncluded(outputTarget = 'email') {
         const storageData = await new Promise(resolve => {
             chrome.storage.local.get('githubCache', resolve);
         });
-        log('Storage Status:', {
+        console.log('Storage Status:', {
             hasStoredData: !!storageData.githubCache,
             storedCacheKey: storageData.githubCache?.cacheKey,
             storageAge: storageData.githubCache?.timestamp ?
@@ -866,20 +953,31 @@ function allIncluded(outputTarget = 'email') {
 
 
     async function processGithubData(data) {
-        log('Processing Github data');
+        console.log('Processing Github data');
 
         let filteredData = data;
         // Always apply repo filter if it's enabled and repos are selected.
         if (useRepoFilter && selectedRepos && selectedRepos.length > 0) {
-            log('[SCRUM-HELPER]: Filtering data by selected repos:', selectedRepos);
+            console.log('[SCRUM-HELPER]: Filtering data by selected repos:', selectedRepos);
             filteredData = filterDataByRepos(data, selectedRepos);
         }
+
+        // Store mergedPrOnly setting for later use in processing functions
+        // We'll filter after merged status is determined, not here, because
+        // GitHub Search API may not include pull_request.merged_at in search results
+        const mergedPrSettings = await new Promise((resolve) => {
+            chrome.storage.sync.get(["mergedPrOnly"], resolve);
+        });
+        const mergedPrOnly = mergedPrSettings.mergedPrOnly === true;
+        // Store in a way that processing functions can access it
+        window._mergedPrOnlyFilter = mergedPrOnly;
+        console.log(`[SCRUM-HELPER] Merged PR filter setting loaded: ${mergedPrOnly} (from storage: ${mergedPrSettings.mergedPrOnly})`);
 
         githubIssuesData = filteredData.githubIssuesData;
         githubPrsReviewData = filteredData.githubPrsReviewData;
         githubUserData = filteredData.githubUserData;
 
-        log('GitHub data set:', {
+        console.log('GitHub data set:', {
 
             issues: githubIssuesData?.items?.length || 0,
             prs: githubPrsReviewData?.items?.length || 0,
@@ -896,7 +994,7 @@ function allIncluded(outputTarget = 'email') {
         if (!githubCache.subject && scrumSubject) {
             scrumSubjectLoaded();
         }
-        log('[SCRUM-DEBUG] Processing issues for main activity:', githubIssuesData?.items);
+        console.log('[SCRUM-DEBUG] Processing issues for main activity:', githubIssuesData?.items);
         if (platform === 'github') {
             await writeGithubIssuesPrs(githubIssuesData?.items || []);
         } else if (platform === 'gitlab') {
@@ -904,7 +1002,7 @@ function allIncluded(outputTarget = 'email') {
             await writeGithubIssuesPrs(githubPrsReviewData?.items || []);
         }
         await writeGithubPrsReviews();
-        log('[DEBUG] Both data processing functions completed, generating scrum body');
+        console.log('[DEBUG] Both data processing functions completed, generating scrum body');
         if (subjectForEmail) {
             // Synchronized subject and body injection for email
             let lastWeekUl = '<ul>';
@@ -986,7 +1084,7 @@ ${userReason}`;
         if (outputTarget === 'popup') {
             const scrumReport = document.getElementById('scrumReport');
             if (scrumReport) {
-                log("Found popup div, updating content");
+                console.log("Found popup div, updating content");
                 scrumReport.innerHTML = content;
 
                 const generateBtn = document.getElementById('generateReport');
@@ -1013,7 +1111,7 @@ ${userReason}`;
                     const elements = window.emailClientAdapter.getEditorElements();
                     if (elements && elements.body) {
                         obs.disconnect();
-                        log('MutationObserver found the editor body. Injecting scrum content.');
+                        console.log('MutationObserver found the editor body. Injecting scrum content.');
                         window.emailClientAdapter.injectContent(elements.body, content, elements.eventTypes.contentChange);
                         hasInjectedContent = true;
                         scrumGenerationInProgress = false;
@@ -1057,7 +1155,7 @@ ${userReason}`;
                 let dateCode = year.toString() + month.toString() + date.toString();
 
                 const subject = `[Scrum]${project ? ' - ' + project : ''} - ${dateCode}`;
-                log('Generated subject:', subject);
+                console.log('Generated subject:', subject);
                 githubCache.subject = subject;
                 saveToStorage(githubCache.data, subject);
 
@@ -1071,9 +1169,9 @@ ${userReason}`;
         }
     }
 
-    function writeGithubPrsReviews() {
+    async function writeGithubPrsReviews() {
         let items = githubPrsReviewData.items;
-        log('Processing PR reviews:', {
+        console.log('Processing PR reviews:', {
             hasItems: !!items,
             itemCount: items?.length,
             firstItem: items?.[0]
@@ -1082,6 +1180,7 @@ ${userReason}`;
             logError('No Github PR review data available');
             return;
         }
+
         reviewedPrsArray = [];
         githubPrsReviewDataProcessed = {};
         let i;
@@ -1107,11 +1206,112 @@ ${userReason}`;
         const startDateTime = new Date(startDate + 'T00:00:00Z');
         const endDateTime = new Date(endDate + 'T23:59:59Z');
 
-        log('Filtering PR reviews by date range:', { startDate, endDate, startDateTime, endDateTime });
+        console.log('Filtering PR reviews by date range:', { startDate, endDate, startDateTime, endDateTime });
+
+        // Apply merged PR filter - use same logic as writeGithubIssuesPrs
+        const mergedPrOnly = window._mergedPrOnlyFilter === true;
+        console.log(`[SCRUM-HELPER] writeGithubPrsReviews - mergedPrOnly: ${mergedPrOnly}, items: ${items.length}`);
+
+        // Prepare headers for API calls
+        const headers = { 'Accept': 'application/vnd.github.v3+json' };
+        if (githubToken) headers['Authorization'] = `token ${githubToken}`;
+
+        let prsToCheck = [];
+        if (mergedPrOnly) {
+            for (let i = 0; i < items.length; i++) {
+                let item = items[i];
+                // If merged filter is enabled, check ALL closed PRs (not just when useMergedStatus is true)
+                // Otherwise, only check when useMergedStatus is enabled
+                if (item.pull_request && item.state === 'closed') {
+                    let repository_url = item.repository_url;
+                    if (!repository_url) {
+                        logError('repository_url is undefined for item:', item);
+                        continue;
+                    }
+                    let repoParts = repository_url.split('/');
+                    let owner = repoParts[repoParts.length - 2];
+                    let repo = repoParts[repoParts.length - 1];
+                    prsToCheck.push({ owner, repo, number: item.number, idx: i });
+                }
+            }
+        }
+
+        let mergedStatusResults = {};
+        // If merged filter is enabled, we MUST check merged status for all closed PRs
+        // Otherwise, only check if useMergedStatus is enabled
+        if (mergedPrOnly && prsToCheck.length > 0) {
+            if (githubToken) {
+                // Use GraphQL batching for all cases when we have a token
+                mergedStatusResults = await fetchPrsMergedStatusBatch(prsToCheck, headers);
+            } else {
+                // Without token, use REST API but warn if too many
+                if (prsToCheck.length > 30) {
+                    if (typeof Materialize !== 'undefined' && Materialize.toast) {
+                        Materialize.toast('Many PRs to check. A GitHub token is recommended for accurate merged PR filtering.', 5000);
+                    }
+                    // Still try to check, but limit to 30
+                    const limitedPRs = prsToCheck.slice(0, 30);
+                    for (let pr of limitedPRs) {
+                        let merged = await fetchPrMergedStatusREST(pr.owner, pr.repo, pr.number, headers);
+                        mergedStatusResults[`${pr.owner}/${pr.repo}#${pr.number}`] = merged;
+                    }
+                } else {
+                    // Use REST API for each PR, cache results
+                    for (let pr of prsToCheck) {
+                        let merged = await fetchPrMergedStatusREST(pr.owner, pr.repo, pr.number, headers);
+                        mergedStatusResults[`${pr.owner}/${pr.repo}#${pr.number}`] = merged;
+                    }
+                }
+            }
+        }
+
+        if (mergedPrOnly) {
+            const originalLength = items.length;
+            items = items.filter(item => {
+                // Keep all non-PRs (issues) as-is - don't filter issues
+                if (!item.pull_request) {
+                    return true;
+                }
+
+                // For PRs, we need to determine if they are merged
+                // Strategy: Check multiple sources in order of reliability
+
+                // 1. If PR is open or draft, it's definitely NOT merged - exclude immediately
+                if (item.state === 'open' || item.draft === true) {
+                    return false;
+                }
+
+                // 2. First check mergedStatusResults (most reliable - from GraphQL/REST API)
+                if (item.repository_url && mergedStatusResults) {
+                    let repoParts = item.repository_url.split('/');
+                    let owner = repoParts[repoParts.length - 2];
+                    let repo = repoParts[repoParts.length - 1];
+                    let merged = mergedStatusResults[`${owner}/${repo}#${item.number}`];
+                    if (merged === true) {
+                        return true; // Definitely merged
+                    }
+                    if (merged === false) {
+                        return false; // Definitely not merged (closed but not merged)
+                    }
+                    // merged is null/undefined - continue to next check
+                }
+
+                // 3. Check if merged_at is directly available in API response
+                if (item.pull_request.merged_at !== null && item.pull_request.merged_at !== undefined) {
+                    return true; // Has merged_at date, so it's merged
+                }
+
+                // 4. If PR is closed but we can't determine merged status, exclude it to be safe
+                // (Better to exclude than include non-merged PRs)
+                // This handles cases where mergedStatusResults wasn't populated (no token, API limit, etc.)
+                return false;
+            });
+            console.log(`[SCRUM-HELPER] Filtered PR reviews: ${originalLength} items -> ${items.length} items (showing only merged PRs)`);
+        }
 
         for (i = 0; i < items.length; i++) {
             let item = items[i];
-            log(`Processing PR #${item.number} - state: ${item.state}, updated_at: ${item.updated_at}, created_at: ${item.created_at}, merged_at: ${item.pull_request?.merged_at}`);
+            console.log(`Processing PR #${item.number} - state: ${item.state}, updated_at: ${item.updated_at}, created_at: ${item.created_at}, merged_at: ${item.pull_request?.merged_at}`);
 
             // For GitHub: item.user.login, for GitLab: item.author?.username
             let isAuthoredByUser = false;
@@ -1125,9 +1325,9 @@ ${userReason}`;
 
             // Check if the PR was actually reviewed/commented on within the date range
             let itemDate = new Date(item.updated_at || item.created_at);
-            log(`PR #${item.number} - itemDate: ${itemDate}, startDateTime: ${startDateTime}, endDateTime: ${endDateTime}`);
+            console.log(`PR #${item.number} - itemDate: ${itemDate}, startDateTime: ${startDateTime}, endDateTime: ${endDateTime}`);
             if (itemDate < startDateTime || itemDate > endDateTime) {
-                log(`Skipping PR #${item.number} - updated at ${itemDate} outside date range ${startDate} to ${endDate}`);
+                console.log(`Skipping PR #${item.number} - updated at ${itemDate} outside date range ${startDate} to ${endDate}`);
                 continue;
             }
 
@@ -1135,7 +1335,7 @@ ${userReason}`;
             if (item.state === 'closed' && item.pull_request && item.pull_request.merged_at) {
                 const mergedDate = new Date(item.pull_request.merged_at);
                 if (mergedDate < startDateTime) {
-                    log(`Skipping merged PR #${item.number} - merged at ${mergedDate} before date range ${startDate} to ${endDate}`);
+                    console.log(`Skipping merged PR #${item.number} - merged at ${mergedDate} before date range ${startDate} to ${endDate}`);
                     continue;
                 }
             }
@@ -1143,12 +1343,12 @@ ${userReason}`;
             // For closed PRs, ensure they were merged within the date range
             if (item.state === 'closed' && item.pull_request) {
                 if (!item.pull_request.merged_at) {
-                    log(`Skipping closed PR #${item.number} - not merged`);
+                    console.log(`Skipping closed PR #${item.number} - not merged`);
                     continue;
                 }
                 const mergedDate = new Date(item.pull_request.merged_at);
                 if (mergedDate < startDateTime || mergedDate > endDateTime) {
-                    log(`Skipping closed PR #${item.number} - merged at ${mergedDate} outside date range ${startDate} to ${endDate}`);
+                    console.log(`Skipping closed PR #${item.number} - merged at ${mergedDate} outside date range ${startDate} to ${endDate}`);
                     continue;
                 }
             }
@@ -1161,7 +1361,7 @@ ${userReason}`;
                 const lastDayOfRange = new Date(endDateTime);
                 lastDayOfRange.setDate(lastDayOfRange.getDate() - 1);
                 if (itemDate < lastDayOfRange) {
-                    log(`Skipping PR #${item.number} - created before date range and not updated recently enough`);
+                    console.log(`Skipping PR #${item.number} - created before date range and not updated recently enough`);
                     continue;
                 }
             }
@@ -1178,7 +1378,7 @@ ${userReason}`;
                 const wasUpdatedYesterday = itemDate >= yesterday && itemDate <= today;
 
                 if (!wasCreatedYesterday && !wasUpdatedYesterday) {
-                    log(`Skipping PR #${item.number} - not created or updated yesterday`);
+                    console.log(`Skipping PR #${item.number} - not created or updated yesterday`);
                     continue;
                 }
 
@@ -1187,7 +1387,7 @@ ${userReason}`;
                     const mergedDate = new Date(item.pull_request.merged_at);
                     const wasMergedYesterday = mergedDate >= yesterday && mergedDate <= today;
                     if (!wasMergedYesterday) {
-                        log(`Skipping merged PR #${item.number} - not merged yesterday`);
+                        console.log(`Skipping merged PR #${item.number} - not merged yesterday`);
                         continue;
                     }
                 }
@@ -1297,6 +1497,32 @@ ${userReason}`;
         }
     }
 
+    /**
+     * Filters pull requests to show only merged ones when mergedOnly is true.
+     * This function is called at the earliest safe point after data is retrieved
+     * but before processing, ensuring PRs are still structured objects.
+     * 
+     * @param {Array} items - Array of issues/PRs from GitHub API
+     * @param {boolean} mergedOnly - If true, filter to show only merged PRs
+     * @returns {Array} Filtered array of items
+     */
+    function filterMergedPullRequests(items, mergedOnly) {
+        if (!mergedOnly || !items) return items;
+
+        return items.filter(item => {
+            // Keep all non-PRs (issues) - they don't have pull_request property
+            if (!item.pull_request) {
+                return true;
+            }
+            
+            // For PRs, check if they are merged
+            // GitHub Search API may include pull_request.merged_at if the PR is merged
+            // If merged_at exists and is not null, the PR is merged
+            const mergedAt = item.pull_request?.merged_at;
+            return mergedAt !== null && mergedAt !== undefined;
+        });
+    }
+
     async function writeGithubIssuesPrs(items) {
 
         if (!items) {
@@ -1307,6 +1533,7 @@ ${userReason}`;
 
             return;
         }
+
         const headers = { 'Accept': 'application/vnd.github.v3+json' };
         if (githubToken) headers['Authorization'] = `token ${githubToken}`;
         let useMergedStatus = false;
@@ -1338,10 +1565,19 @@ ${userReason}`;
             useMergedStatus = true;
         }
 
+        // Check if merged PR filter is enabled - if so, we need to check ALL closed PRs
+        const mergedPrOnly = window._mergedPrOnlyFilter === true;
+        
         let prsToCheck = [];
         for (let i = 0; i < items.length; i++) {
             let item = items[i];
-            if (item.pull_request && item.state === 'closed' && useMergedStatus && !fallbackToSimple) {
+            // If merged filter is enabled, check ALL closed PRs (not just when useMergedStatus is true)
+            // Otherwise, only check when useMergedStatus is enabled
+            const shouldCheck = mergedPrOnly 
+                ? (item.pull_request && item.state === 'closed')
+                : (item.pull_request && item.state === 'closed' && useMergedStatus && !fallbackToSimple);
+                
+            if (shouldCheck) {
                 let repository_url = item.repository_url;
                 if (!repository_url) {
                     logError('repository_url is undefined for item:', item);
@@ -1355,32 +1591,72 @@ ${userReason}`;
         }
 
         let mergedStatusResults = {};
-        if (githubToken) {
-            // Use GraphQL batching for all cases
-            if (prsToCheck.length > 0) {
+        // If merged filter is enabled, we MUST check merged status for all closed PRs
+        // Otherwise, only check if useMergedStatus is enabled
+        const needsMergedStatus = mergedPrOnly || (useMergedStatus && !fallbackToSimple);
+        
+        if (needsMergedStatus && prsToCheck.length > 0) {
+            if (githubToken) {
+                // Use GraphQL batching for all cases when we have a token
                 mergedStatusResults = await fetchPrsMergedStatusBatch(prsToCheck, headers);
-            }
-        } else if (useMergedStatus) {
-            if (prsToCheck.length > 30) {
-                fallbackToSimple = true;
-                if (typeof Materialize !== 'undefined' && Materialize.toast) {
-                    Materialize.toast('API limit exceeded. Please use a GitHub token for full status. Showing only open/closed PRs.', 5000);
-                }
             } else {
-                // Use REST API for each PR, cache results
-                for (let pr of prsToCheck) {
-                    let merged = await fetchPrMergedStatusREST(pr.owner, pr.repo, pr.number, headers);
-                    mergedStatusResults[`${pr.owner}/${pr.repo}#${pr.number}`] = merged;
+                // Without token, use REST API but warn if too many
+                if (prsToCheck.length > 30) {
+                    if (!mergedPrOnly) {
+                        fallbackToSimple = true;
+                        if (typeof Materialize !== 'undefined' && Materialize.toast) {
+                            Materialize.toast('API limit exceeded. Please use a GitHub token for full status. Showing only open/closed PRs.', 5000);
+                        }
+                    } else {
+                        // If merged filter is enabled, we MUST check status - warn user
+                        if (typeof Materialize !== 'undefined' && Materialize.toast) {
+                            Materialize.toast('Many PRs to check. A GitHub token is recommended for accurate merged PR filtering.', 5000);
+                        }
+                        // Still try to check, but limit to 30
+                        const limitedPRs = prsToCheck.slice(0, 30);
+                        for (let pr of limitedPRs) {
+                            let merged = await fetchPrMergedStatusREST(pr.owner, pr.repo, pr.number, headers);
+                            mergedStatusResults[`${pr.owner}/${pr.repo}#${pr.number}`] = merged;
+                        }
+                    }
+                } else {
+                    // Use REST API for each PR, cache results
+                    for (let pr of prsToCheck) {
+                        let merged = await fetchPrMergedStatusREST(pr.owner, pr.repo, pr.number, headers);
+                        mergedStatusResults[`${pr.owner}/${pr.repo}#${pr.number}`] = merged;
+                    }
                 }
             }
         }
 
+        // Apply merged PR filter AFTER merged status is determined
+        // This is the earliest safe point where we can reliably determine if a PR is merged
+        console.log(`[SCRUM-HELPER] Filter check - mergedPrOnly setting: ${mergedPrOnly}, window._mergedPrOnlyFilter: ${window._mergedPrOnlyFilter}, items count: ${items.length}`);
+        console.log("[DEBUG] PRs before filter:", items.filter(item => item.pull_request).map(pr => ({ title: pr.title, state: pr.state })));
+        if (mergedPrOnly) {
+            items = items.filter(item => {
+                if (!item.pull_request) return true;
+                return item.state === "closed";
+            });
+            console.log("[DEBUG] PRs after filter:", items.filter(item => item.pull_request).map(pr => ({ title: pr.title, state: pr.state })));
+        }
+
+        console.log(
+          "[TEST] Final PR list:",
+          items.filter(item => item.pull_request).map(pr => ({
+            title: pr.title,
+            merged_at: pr.merged_at,
+            state: pr.state,
+            draft: pr.draft
+          }))
+        );
+
         for (let i = 0; i < items.length; i++) {
             let item = items[i];
-            log('[SCRUM-DEBUG] Processing item:', item);
+            console.log('[SCRUM-DEBUG] Processing item:', item);
             // For GitLab, treat all items in the MRs array as MRs
             let isMR = !!item.pull_request; // works for both GitHub and mapped GitLab data
-            log('[SCRUM-DEBUG] isMR:', isMR, 'platform:', platform, 'item:', item);
+            console.log('[SCRUM-DEBUG] isMR:', isMR, 'platform:', platform, 'item:', item);
             let html_url = item.html_url;
             let repository_url = item.repository_url;
             // Use project name for GitLab, repo extraction for GitHub
@@ -1436,16 +1712,16 @@ ${userReason}`;
                     // For existing PRs (not new), they must be open AND have commits in the date range
                     if (!isNewPR) {
                         if (item.state !== 'open') {
-                            log(`[PR DEBUG] Skipping PR #${number} - existing PR but not open`);
+                            console.log(`[PR DEBUG] Skipping PR #${number} - existing PR but not open`);
                             continue;
                         }
                         if (!hasCommitsInRange) {
-                            log(`[PR DEBUG] Skipping PR #${number} - existing PR but no commits in date range`);
+                            console.log(`[PR DEBUG] Skipping PR #${number} - existing PR but no commits in date range`);
                             continue;
                         }
                     }
                     prAction = isNewPR ? 'Made PR' : 'Updated PR';
-                    log(`[PR DEBUG] Including PR #${number} as ${prAction}`);
+                   console.log(`[PR DEBUG] Including PR #${number} as ${prAction}`);
 
                     if (isCreatedToday && item.State === 'open') {
                         prAction = 'Made PR';
@@ -1465,7 +1741,7 @@ ${userReason}`;
 
                     li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + pr_draft_button : ''}`;
                     if (showCommits && item._allCommits && item._allCommits.length && !isNewPR) {
-                        log(`[PR DEBUG] Rendering commits for existing draft PR #${number}:`, item._allCommits);
+                      console.log(`[PR DEBUG] Rendering commits for existing draft PR #${number}:`, item._allCommits);
                         li += '<ul>';
                         item._allCommits.forEach(commit => {
                             li += `<li style=\"list-style: disc; color: #666;\"><span style=\"color:#2563eb;\">${commit.messageHeadline}</span><span style=\"color:#666; font-size: 11px;\"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
@@ -1477,7 +1753,7 @@ ${userReason}`;
                     li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + pr_open_button : ''}`;
 
                     if (showCommits && item._allCommits && item._allCommits.length && !isNewPR) {
-                        log(`[PR DEBUG] Rendering commits for existing PR #${number}:`, item._allCommits);
+                       console.log(`[PR DEBUG] Rendering commits for existing PR #${number}:`, item._allCommits);
                         li += '<ul>';
                         item._allCommits.forEach(commit => {
                             li += `<li style=\"list-style: disc; color: #666;\"><span style=\"color:#2563eb;\">${commit.messageHeadline}</span><span style=\"color:#666; font-size: 11px;\"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
@@ -1503,7 +1779,7 @@ ${userReason}`;
                         li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + pr_closed_button : ''}</li>`;
                     }
                 }
-                log('[SCRUM-DEBUG] Added PR/MR to lastWeekArray:', li, item);
+               console.log('[SCRUM-DEBUG] Added PR/MR to lastWeekArray:', li, item);
                 lastWeekArray.push(li);
                 continue; // Prevent issue logic from overwriting PR li
             } else {
@@ -1550,11 +1826,11 @@ ${userReason}`;
                     li = `<li><i>(${project})</i> - ${issueActionText}(#${number}) - <a href='${html_url}'>${title}</a></li>`;
                 }
 
-                log('[SCRUM-DEBUG] Added issue to lastWeekArray:', li, item);
+               console.log('[SCRUM-DEBUG] Added issue to lastWeekArray:', li, item);
                 lastWeekArray.push(li);
             }
         }
-        log('[SCRUM-DEBUG] Final lastWeekArray:', lastWeekArray);
+       console.log('[SCRUM-DEBUG] Final lastWeekArray:', lastWeekArray);
         issuesDataProcessed = true;
 
     }
