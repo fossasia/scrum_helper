@@ -17,8 +17,25 @@ class BitbucketHelper {
   async getCacheTTL() {
     return new Promise((resolve) => {
       chrome.storage.local.get(['cacheInput'], (items) => {
-        const ttl = items.cacheInput ? parseInt(items.cacheInput) * 60 * 1000 : 10 * 60 * 1000;
-        resolve(ttl);
+        const DEFAULT_TTL_MS = 10 * 60 * 1000; // 10 minutes
+        const rawInput = items.cacheInput;
+
+        let ttlMs = DEFAULT_TTL_MS;
+
+        // Validate input to prevent NaN or extreme values
+        if (typeof rawInput === 'string' && rawInput.trim() !== '') {
+          const ttlMinutes = Number.parseInt(rawInput, 10);
+
+          if (
+            Number.isFinite(ttlMinutes) &&
+            ttlMinutes >= 1 &&
+            ttlMinutes <= 24 * 60
+          ) {
+            ttlMs = ttlMinutes * 60 * 1000;
+          }
+        }
+
+        resolve(ttlMs);
       });
     });
   }
@@ -57,6 +74,7 @@ class BitbucketHelper {
         } else {
           this.authToken = items.bitbucketToken || null;
           this.authEmail = items.bitbucketEmail || null;
+          // For Basic Auth with API Tokens, both email and token are required.
           if (!this.authToken || !this.authEmail) {
             reject(new Error('Bitbucket email or token missing'));
             return;
@@ -67,20 +85,35 @@ class BitbucketHelper {
     });
   }
 
+  /**
+   * Main entry point to fetch Bitbucket data.
+   * Matches signature of GitLabHelper.fetchGitLabData.
+   */
   async fetchBitbucketData(username, startDate, endDate) {
     const cacheKey = `${username}-${startDate}-${endDate}`;
 
-    if (this.cache.fetching || (this.cache.cacheKey === cacheKey && this.cache.data)) {
-      console.log('[BITBUCKET-HELPER] Fetch already in progress or data already fetched. Skipping fetch.');
+    // 1. Check if data is already fetched
+    if (this.cache.data && this.cache.cacheKey === cacheKey) {
+      console.log('[BITBUCKET-HELPER] Using cached data - cache is fresh and key matches');
       return this.cache.data;
+    }
+
+    // 2. Check if a fetch is already in progress
+    if (this.cache.fetching) {
+      console.log('[BITBUCKET-HELPER] Fetching in progress, queuing request.');
+      return new Promise((resolve, reject) => {
+        this.cache.queue.push({ resolve, reject });
+      });
     }
 
     console.log('[BITBUCKET-HELPER] Fetching data:', { username, startDate, endDate });
 
+    // 3. Try to restore from storage if not in memory
     if (!this.cache.data && !this.cache.fetching) {
       await this.loadFromStorage();
     }
 
+    // 4. Get Cache TTL
     const currentTTL = await this.getCacheTTL();
     this.cache.ttl = currentTTL;
 
@@ -88,8 +121,9 @@ class BitbucketHelper {
     const isCacheFresh = (now - this.cache.timestamp) < this.cache.ttl;
     const isCacheKeyMatch = this.cache.cacheKey === cacheKey;
 
+    // 5. Check if cached data is valid
     if (this.cache.data && isCacheFresh && isCacheKeyMatch) {
-      console.log('[BITBUCKET-HELPER] Using cached data - cache is fresh and key matches');
+      console.log('[BITBUCKET-HELPER] Using valid cached data.');
       return this.cache.data;
     }
 
@@ -98,20 +132,17 @@ class BitbucketHelper {
       this.cache.data = null;
     }
 
-    if (this.cache.fetching) {
-      console.log('[BITBUCKET-HELPER] Fetching in progress, queuing requests.');
-      return new Promise((resolve, reject) => {
-        this.cache.queue.push({ resolve, reject });
-      });
-    }
-
+    // 6. Set fetching flag
     this.cache.fetching = true;
     this.cache.cacheKey = cacheKey;
 
     try {
+      // Small delay to avoid burst
       await new Promise(res => setTimeout(res, 500));
+
       await this.loadAuthCredentials();
 
+      // Setup Basic Auth headers using Email + API Token
       if (!this.authEmail || !this.authToken) {
         throw new Error('Bitbucket credentials not loaded.');
       }
@@ -138,7 +169,7 @@ class BitbucketHelper {
       const user = await userRes.json();
       const userUuid = user.uuid;
 
-      // 2. Discover Repositories
+      // 2. Discover Repositories (Dual Strategy)
       const startDateISO = `${startDate}T00:00:00+00:00`;
       const endDateISO = `${endDate}T23:59:59+00:00`;
       const repoQuery = `updated_on>="${startDateISO}"`;
@@ -146,13 +177,18 @@ class BitbucketHelper {
       let allRepos = [];
 
       // Strategy A: Workspaces (Preferred)
-      const workspacesUrl = `${this.baseUrl}/workspaces?role=member&pagelen=50&fields=values.slug`;
+      let workspacesUrl = `${this.baseUrl}/workspaces?role=member&pagelen=50&fields=values.slug,values.name,values.links.html.href`;
       const wsRes = await fetch(workspacesUrl, { headers });
       
+      let wsOk = false;
+
       if (wsRes.ok) {
+        wsOk = true;
         const wsData = await wsRes.json();
         const workspaces = wsData.values || [];
         
+        console.log(`[BITBUCKET-HELPER] Found ${workspaces.length} workspaces. Scanning for repositories...`);
+
         for (const ws of workspaces) {
           const workspaceSlug = ws.slug;
           let repoListUrl = `${this.baseUrl}/repositories/${workspaceSlug}?q=${encodeURIComponent(repoQuery)}&pagelen=50&fields=values.slug,values.workspace.slug,values.name,values.links.html.href,values.uuid,values.updated_on&sort=-updated_on`;
@@ -174,8 +210,9 @@ class BitbucketHelper {
         }
       }
 
-      // Strategy B: Fallback to User Repos (if Workspaces fail)
-      if (allRepos.length === 0 && (!wsRes.ok || wsRes.status === 403)) {
+      // Strategy B: Fallback to User Repos (if Workspaces fail or return empty list)
+      // We check if allRepos is empty to ensure we try fallback even if WS request was 200 OK but empty
+      if (allRepos.length === 0 && (!wsOk || wsRes.status === 403)) {
         console.log('[BITBUCKET-HELPER] Falling back to /repositories/{username}');
         let userReposUrl = `${this.baseUrl}/repositories/${username}?pagelen=100&sort=-updated_on&fields=values.slug,values.workspace.slug,values.name,values.links.html.href,values.uuid,values.updated_on`;
 
@@ -188,6 +225,7 @@ class BitbucketHelper {
             }
             userReposUrl = repoData.next || null;
           } else {
+            console.warn('[BITBUCKET-HELPER] Failed to fetch user repositories.');
             break;
           }
           await new Promise(r => setTimeout(r, 100));
@@ -243,7 +281,7 @@ class BitbucketHelper {
               const issuesWithRepo = issuesData.values.map(issue => ({
                 ...issue,
                 repo_full_name: `${workspaceSlug}/${repoSlug}`,
-                repo_web_url: repo.links.html.href
+                repo_web_url: issue.links.html.href
               }));
               allIssues = allIssues.concat(issuesWithRepo);
             }
@@ -264,7 +302,7 @@ class BitbucketHelper {
         projects: allRepos,
         mergeRequests: allPRs,
         issues: allIssues,
-        comments: []
+        comments: [] // Not fetched to save API calls, matching GitLab behavior
       };
 
       // Update Cache
@@ -286,12 +324,6 @@ class BitbucketHelper {
     } finally {
       this.cache.fetching = false;
     }
-  }
-
-  formatDate(dateString) {
-    const date = new Date(dateString);
-    const options = { day: '2-digit', month: 'short', year: 'numeric' };
-    return date.toLocaleDateString('en-US', options);
   }
 
   processBitbucketData(data) {
