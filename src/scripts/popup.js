@@ -93,6 +93,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
         mergedPrCheckbox.addEventListener("change", () => {
             chrome.storage.sync.set({ mergedPrOnly: mergedPrCheckbox.checked });
+            // Clear cache to ensure new setting is applied
+            chrome.storage.local.set({ githubCache: null });
+            // Regenerate the report with the new setting
+            if (window.generateScrumReport) {
+                window.generateScrumReport();
+            }
         });
     }
 
@@ -340,13 +346,13 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     }
 
-        chrome.storage.local.get(['enableToggle'], (items) => {
-            const enableToggle = items.enableToggle !== false;
+    chrome.storage.local.get(['enableToggle'], (items) => {
+        const enableToggle = items.enableToggle !== false;
 
-            // If enableToggle is undefined (first install), set it to true by default
-            if (typeof items.enableToggle === 'undefined') {
-                chrome.storage.local.set({ enableToggle: true });
-            }
+        // If enableToggle is undefined (first install), set it to true by default
+        if (typeof items.enableToggle === 'undefined') {
+            chrome.storage.local.set({ enableToggle: true });
+        }
 
         console.log('[DEBUG] Calling updateContentState with:', enableToggle);
         updateContentState(enableToggle);
@@ -611,7 +617,7 @@ document.addEventListener('DOMContentLoaded', function () {
         showOpenLabelCheckbox.addEventListener('change', function () {
             chrome.storage.local.set({ showOpenLabel: showOpenLabelCheckbox.checked });
         });
-        if(onlyIssuesCheckbox){
+        if (onlyIssuesCheckbox) {
             onlyIssuesCheckbox.addEventListener('change', function () {
                 chrome.storage.local.set({ onlyIssues: onlyIssuesCheckbox.checked });
             })
@@ -1535,7 +1541,7 @@ document.querySelectorAll('input[name="timeframe"]').forEach(radio => {
     });
 
     // Handle clicks on links within scrumReport to open in new tabs
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
         const target = e.target.closest('a');
         if (target && target.closest('#scrumReport')) {
             e.preventDefault();
