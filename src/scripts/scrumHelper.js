@@ -6,13 +6,38 @@ function log(...args) {
     }
 }
 
-
 function logError(...args) {
     if (DEBUG) {
         console.error('[SCRUM-HELPER]:', ...args);
     }
 }
 
+function getMessage(key, fallback = '') {
+    try {
+        const message = chrome.i18n.getMessage(key);
+        return message || fallback;
+    } catch (e) {
+        logError('i18n error:', e);
+        return fallback;
+    }
+}
+
+function setGenerateButtonState(loading) {
+    const generateBtn = document.getElementById('generateReport');
+    if (!generateBtn) return;
+    
+    generateBtn.textContent = '';
+    const icon = document.createElement('i');
+    icon.className = loading ? 'fa fa-spinner fa-spin' : 'fa fa-refresh';
+    generateBtn.appendChild(icon);
+    
+    const text = document.createTextNode(loading ? 
+        ' ' + getMessage('generatingButton', 'Generating...') : 
+        ' ' + getMessage('generateReportButton', 'Generate Report')
+    );
+    generateBtn.appendChild(text);
+    generateBtn.disabled = loading;
+}
 
 let refreshButton_Placed = false;
 let enableToggle = true;
@@ -57,23 +82,42 @@ function allIncluded(outputTarget = 'email') {
     let userReason = '';
     let subjectForEmail = null;
 
-    let pr_open_button =
-        '<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
-    let pr_closed_button =
-        '<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color:rgb(210, 20, 39);border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--red">closed</div>';
-    let pr_merged_button =
-        '<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #6f42c1;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--purple">merged</div>';
-    let pr_draft_button =
-        '<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #808080;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--gray">draft</div>';
+    function createStatusBadge(text, bgColor) {
+        const badge = document.createElement('span');
+        badge.textContent = text;
+        badge.style.cssText = `
+            vertical-align: middle;
+            display: inline-block;
+            padding: 0px 4px;
+            font-size: 9px;
+            font-weight: 600;
+            color: #fff;
+            text-align: center;
+            background-color: ${bgColor};
+            border-radius: 3px;
+            line-height: 12px;
+            margin-bottom: 2px;
+        `;
+        return badge;
+    }
 
-    let issue_closed_button =
-        '<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #d73a49;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--red">closed</div>';
-    let issue_opened_button =
-        '<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
-    let issue_closed_completed_button =
-        '<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #6f42c1;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--purple">closed</div>';
-    let issue_closed_notplanned_button =
-        '<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #808080;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--gray">closed</div>';
+    const pr_open_button =
+        '<span style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;">open</span>';
+    const pr_closed_button =
+        '<span style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color:rgb(210, 20, 39);border-radius: 3px;line-height: 12px;margin-bottom: 2px;">closed</span>';
+    const pr_merged_button =
+        '<span style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #6f42c1;border-radius: 3px;line-height: 12px;margin-bottom: 2px;">merged</span>';
+    const pr_draft_button =
+        '<span style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #808080;border-radius: 3px;line-height: 12px;margin-bottom: 2px;">draft</span>';
+
+    const issue_closed_button =
+        '<span style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #d73a49;border-radius: 3px;line-height: 12px;margin-bottom: 2px;">closed</span>';
+    const issue_opened_button =
+        '<span style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;">open</span>';
+    const issue_closed_completed_button =
+        '<span style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #6f42c1;border-radius: 3px;line-height: 12px;margin-bottom: 2px;">closed</span>';
+    const issue_closed_notplanned_button =
+        '<span style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #808080;border-radius: 3px;line-height: 12px;margin-bottom: 2px;">closed</span>';
 
     function getChromeData() {
         console.log("[DEBUG] getChromeData called for outputTarget:", outputTarget);
@@ -108,24 +152,19 @@ function allIncluded(outputTarget = 'email') {
                 platformUsernameLocal = platformUsername;
                 console.log(`[DEBUG] platform: ${platform}, platformUsername: ${platformUsername}`);
 
-                if (outputTarget === 'popup') {
-                    const usernameFromDOM = document.getElementById('platformUsername')?.value;
-                    const projectFromDOM = document.getElementById('projectName')?.value;
-                    const tokenFromDOM = document.getElementById('githubToken')?.value;
-
-                    // Save to platform-specific storage
-                    if (usernameFromDOM) {
-                        chrome.storage.local.set({ [platformUsernameKey]: usernameFromDOM });
-                        platformUsername = usernameFromDOM;
-                        platformUsernameLocal = usernameFromDOM;
+                if (outputTarget === 'popup' && !platformUsernameLocal) {
+                    console.log("[DEBUG] No username found - popup context");
+                    const scrumReport = document.getElementById('scrumReport');
+                    if (scrumReport) {
+                        scrumReport.textContent = '';
+                        const errorDiv = document.createElement('div');
+                        errorDiv.className = 'error-message';
+                        errorDiv.style.cssText = 'color: #dc2626; font-weight: bold; padding: 10px;';
+                        errorDiv.textContent = getMessage('errorUsernameRequired', 'Please enter your username to generate a report.');
+                        scrumReport.appendChild(errorDiv);
                     }
-
-                    items.projectName = projectFromDOM || items.projectName;
-                    items.githubToken = tokenFromDOM || items.githubToken;
-                    chrome.storage.local.set({
-                        projectName: items.projectName,
-                        githubToken: items.githubToken
-                    });
+                    setGenerateButtonState(false);
+                    scrumGenerationInProgress = false;
                 }
                 projectName = items.projectName;
 
@@ -146,47 +185,28 @@ function allIncluded(outputTarget = 'email') {
                     startingDate = items.startingDate;
                     endingDate = items.endingDate;
                 } else {
-
-
                     handleYesterdayContributionChange();
-
 
                     if (outputTarget === 'popup') {
                         chrome.storage.local.set({ yesterdayContribution: true });
                     }
                 }
 
-
-
-
                 if (platform === 'github') {
                     if (platformUsernameLocal) {
-
                         fetchGithubData();
                     } else {
                         if (outputTarget === 'popup') {
                             console.log("[DEBUG] No username found - popup context");
                             const scrumReport = document.getElementById('scrumReport');
-                            const generateBtn = document.getElementById('generateReport');
                             if (scrumReport) {
                                 scrumReport.textContent = '';
-
                                 const errorDiv = document.createElement('div');
-                                errorDiv.textContent = err?.message || 'An error occurred while generating the report.';
-                                errorDiv.style.color = '#dc2626';
-                                errorDiv.style.fontWeight = 'bold';
-                                errorDiv.style.padding = '10px';
-
+                                errorDiv.style.cssText = 'color: #dc2626; font-weight: bold; padding: 10px;';
+                                errorDiv.textContent = getMessage('errorUsernameRequired', 'Please enter your username to generate a report.');
                                 scrumReport.appendChild(errorDiv);
                             }
-                            if (generateBtn) {
-                                generateBtn.textContent = '';
-                                const refreshIcon = document.createElement('i');
-                                refreshIcon.className = 'fa fa-refresh';
-                                generateBtn.appendChild(refreshIcon);
-                                generateBtn.appendChild(document.createTextNode(' Generate Report'));
-                                generateBtn.disabled = false;
-                            }
+                            setGenerateButtonState(false);
                             scrumGenerationInProgress = false;
                         } else {
                             console.warn('[DEBUG] No username found in storage');
@@ -199,20 +219,13 @@ function allIncluded(outputTarget = 'email') {
                     if (platformUsernameLocal) {
                         const generateBtn = document.getElementById('generateReport');
                         if (generateBtn && outputTarget === 'popup') {
-                            generateBtn.textContent = '';
-                            const refreshIcon = document.createElement('i');
-                            refreshIcon.className = 'fa fa-refresh';
-
-                            generateBtn.appendChild(refreshIcon);
-                            generateBtn.appendChild(document.createTextNode(' Generate Report'));
-                            generateBtn.disabled = true;
+                            setGenerateButtonState(true);
                         }
 
                         if (outputTarget === 'email') {
                             (async () => {
                                 try {
                                     const data = await gitlabHelper.fetchGitLabData(platformUsernameLocal, startingDate, endingDate);
-
 
                                     function mapGitLabItem(item, projects, type) {
                                         const project = projects.find(p => p.id === item.project_id);
@@ -252,30 +265,26 @@ function allIncluded(outputTarget = 'email') {
                                     const subject = `[Scrum]${project ? ' - ' + project : ''} - ${dateCode}`;
                                     subjectForEmail = subject;
 
-
                                     await processGithubData(mappedData, true, subjectForEmail);
                                     scrumGenerationInProgress = false;
                                 } catch (err) {
                                     console.error('GitLab fetch failed:', err);
                                     if (outputTarget === 'popup') {
-                                        if (generateBtn) {
-                                            generateBtn.textContent = '';
-                                            const refreshIcon = document.createElement('i');
-                                            refreshIcon.className = 'fa fa-refresh';
-                                            generateBtn.appendChild(refreshIcon);
-                                            generateBtn.appendChild(document.createTextNode(' Generate Report'));
-                                            generateBtn.disabled = false;
-                                        }
+                                        setGenerateButtonState(false);
                                         const scrumReport = document.getElementById('scrumReport');
                                         if (scrumReport) {
-                                            scrumReport.innerHTML = `<div class=\"error-message\" style=\"color: #dc2626; font-weight: bold; padding: 10px;\">${err.message || 'An error occurred while fetching GitLab data.'}</div>`;
+                                            scrumReport.textContent = '';
+                                            const errorDiv = document.createElement('div');
+                                            errorDiv.className = 'error-message';
+                                            errorDiv.style.cssText = 'color: #dc2626; font-weight: bold; padding: 10px;';
+                                            errorDiv.textContent = err.message || getMessage('errorGenericMessage', 'An error occurred while fetching GitLab data.');
+                                            scrumReport.appendChild(errorDiv);
                                         }
                                     }
                                     scrumGenerationInProgress = false;
                                 }
                             })();
                         } else {
-
                             gitlabHelper.fetchGitLabData(platformUsernameLocal, startingDate, endingDate)
                                 .then(data => {
                                     function mapGitLabItem(item, projects, type) {
@@ -307,38 +316,32 @@ function allIncluded(outputTarget = 'email') {
                                 .catch(err => {
                                     console.error('GitLab fetch failed:', err);
                                     if (outputTarget === 'popup') {
-                                        if (generateBtn) {
-                                            generateBtn.textContent = '';
-                                            const refreshIcon = document.createElement('i');
-                                            refreshIcon.className = 'fa fa-refresh';
-                                            generateBtn.appendChild(refreshIcon);
-                                            generateBtn.appendChild(document.createTextNode(' Generate Report'));
-                                            generateBtn.disabled = false;
-                                        }
+                                        setGenerateButtonState(false);
                                         const scrumReport = document.getElementById('scrumReport');
                                         if (scrumReport) {
-                                            scrumReport.innerHTML = `<div class=\"error-message\" style=\"color: #dc2626; font-weight: bold; padding: 10px;\">${err.message || 'An error occurred while fetching GitLab data.'}</div>`;
+                                            scrumReport.textContent = '';
+                                            const errorDiv = document.createElement('div');
+                                            errorDiv.className = 'error-message';
+                                            errorDiv.style.cssText = 'color: #dc2626; font-weight: bold; padding: 10px;';
+                                            errorDiv.textContent = err.message || getMessage('errorGenericMessage', 'An error occurred while fetching GitLab data.');
+                                            scrumReport.appendChild(errorDiv);
                                         }
                                     }
                                     scrumGenerationInProgress = false;
                                 });
                         }
-                        // --- FIX END ---
                     } else {
                         if (outputTarget === 'popup') {
                             const scrumReport = document.getElementById('scrumReport');
-                            const generateBtn = document.getElementById('generateReport');
                             if (scrumReport) {
-                                scrumReport.innerHTML = '<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">Please enter your username to generate a report.</div>';
+                                scrumReport.textContent = '';
+                                const errorDiv = document.createElement('div');
+                                errorDiv.className = 'error-message';
+                                errorDiv.style.cssText = 'color: #dc2626; font-weight: bold; padding: 10px;';
+                                errorDiv.textContent = getMessage('errorUsernameRequired', 'Please enter your username to generate a report.');
+                                scrumReport.appendChild(errorDiv);
                             }
-                            if (generateBtn) {
-                                generateBtn.textContent = '';
-                                const refreshIcon = document.createElement('i');
-                                refreshIcon.className = 'fa fa-refresh';
-                                generateBtn.appendChild(refreshIcon);
-                                generateBtn.appendChild(document.createTextNode(' Generate Report'));
-                                generateBtn.disabled = false;
-                            }
+                            setGenerateButtonState(false);
                         }
                         scrumGenerationInProgress = false;
                     }
@@ -347,7 +350,12 @@ function allIncluded(outputTarget = 'email') {
                     if (outputTarget === 'popup') {
                         const scrumReport = document.getElementById('scrumReport');
                         if (scrumReport) {
-                            scrumReport.innerHTML = '<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">Unknown platform selected.</div>';
+                            scrumReport.textContent = '';
+                            const errorDiv = document.createElement('div');
+                            errorDiv.className = 'error-message';
+                            errorDiv.style.cssText = 'color: #dc2626; font-weight: bold; padding: 10px;';
+                            errorDiv.textContent = 'Unknown platform selected.';
+                            scrumReport.appendChild(errorDiv);
                         }
                     }
                     scrumGenerationInProgress = false;
@@ -356,8 +364,6 @@ function allIncluded(outputTarget = 'email') {
         );
     }
     getChromeData();
-
-
 
     function handleYesterdayContributionChange() {
         endingDate = getToday();
@@ -401,7 +407,6 @@ function allIncluded(outputTarget = 'email') {
             });
         });
     }
-
 
     function saveToStorage(data, subject = null) {
         const cacheData = {
@@ -470,21 +475,8 @@ function allIncluded(outputTarget = 'email') {
     }
 
     async function fetchGithubData() {
-
-        //onboarding guard: github token missing
-        if (!githubToken) {
-            log('GitHub token missing. Showing onboarding guidance.');
-
-            githubCache.fetching = false;
-            scrumGenerationInProgress = false;
-
-            // resolve any queued callers
-            githubCache.queue.forEach(({ resolve }) => resolve());
-            githubCache.queue = [];
-
-            showMissingTokenMessage();
-            return;
-        }
+        // REMOVED: Token check at start - allow unauthenticated requests
+        // Token UI will only show when rate limit is actually hit
 
         // Always load latest repo filter settings from storage
         const filterSettings = await new Promise(resolve => {
@@ -499,12 +491,11 @@ function allIncluded(outputTarget = 'email') {
             const today = new Date();
             const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
             startDateForCache = yesterday.toISOString().split('T')[0];
-            endDateForCache = today.toISOString().split('T')[0]; // Use yesterday for start and today for end
+            endDateForCache = today.toISOString().split('T')[0];
         } else if (startingDate && endingDate) {
             startDateForCache = startingDate;
             endDateForCache = endingDate;
         } else {
-            // Default to last 7 days if no date range is set
             const today = new Date();
             const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
             startDateForCache = lastWeek.toISOString().split('T')[0];
@@ -580,9 +571,8 @@ function allIncluded(outputTarget = 'email') {
         if (githubToken) {
             log('Making authenticated requests.');
             headers['Authorization'] = `token ${githubToken}`;
-
         } else {
-            log('Making public requests');
+            log('Making public requests (60 requests/hour limit)');
         }
 
         console.log('[SCRUM-HELPER] orgName before API query:', orgName);
@@ -607,11 +597,9 @@ function allIncluded(outputTarget = 'email') {
                 .filter(repo => repo !== null)
                 .map(repo => {
                     if (typeof repo === 'object' && repo.fullName) {
-                        // FIXED: Remove leading slash if present
                         const cleanName = repo.fullName.startsWith('/') ? repo.fullName.substring(1) : repo.fullName;
                         return `repo:${cleanName}`;
                     } else if (repo.includes('/')) {
-                        // FIXED: Remove leading slash if present
                         const cleanName = repo.startsWith('/') ? repo.substring(1) : repo;
                         return `repo:${cleanName}`;
                     } else {
@@ -647,15 +635,30 @@ function allIncluded(outputTarget = 'email') {
                 fetch(userUrl, { headers }),
             ]);
 
-            if (issuesRes.status === 401 || prRes.status === 401 || userRes.status === 401 ||
-                issuesRes.status === 403 || prRes.status === 403 || userRes.status === 403) {
+            // Check for rate limit error (403 with rate limit message)
+            if (issuesRes.status === 403 || prRes.status === 403 || userRes.status === 403) {
+                const errorBody = await issuesRes.json().catch(() => ({}));
+                
+                // Check if it's a rate limit error - ONLY show rate limit UI here
+                if (errorBody.message && errorBody.message.toLowerCase().includes('rate limit')) {
+                    showRateLimitMessage();
+                    githubCache.fetching = false;
+                    scrumGenerationInProgress = false;
+                    return;
+                }
+            }
+
+            // Handle invalid token (401 Unauthorized)
+            if (issuesRes.status === 401 || prRes.status === 401 || userRes.status === 401) {
                 showInvalidTokenMessage();
+                githubCache.fetching = false;
+                scrumGenerationInProgress = false;
                 return;
             }
 
             if (issuesRes.status === 404 || prRes.status === 404) {
                 if (outputTarget === 'popup') {
-                    Materialize.toast && Materialize.toast('Organization not found on GitHub', 3000);
+                    Materialize.toast && Materialize.toast(getMessage('orgNotFoundMessage', 'Organization not found on GitHub'), 3000);
                 }
                 throw new Error('Organization not found');
             }
@@ -683,12 +686,11 @@ function allIncluded(outputTarget = 'email') {
                         const today = new Date();
                         const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
                         startDateForCommits = yesterday.toISOString().split('T')[0];
-                        endDateForCommits = today.toISOString().split('T')[0]; // Use yesterday for start and today for end
+                        endDateForCommits = today.toISOString().split('T')[0];
                     } else if (startingDate && endingDate) {
                         startDateForCommits = startingDate;
                         endDateForCommits = endingDate;
                     } else {
-                        // Default to last 7 days if no date range is set
                         const today = new Date();
                         const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
                         startDateForCommits = lastWeek.toISOString().split('T')[0];
@@ -725,30 +727,16 @@ function allIncluded(outputTarget = 'email') {
             githubCache.fetching = false;
 
             if (outputTarget === 'popup') {
-                const generateBtn = document.getElementById('generateReport');
+                const scrumReport = document.getElementById('scrumReport');
                 if (scrumReport) {
-                    let errorMsg = 'An error occurred while generating the report.';
-                    if (err) {
-                        if (typeof err === 'string') errorMsg = err;
-                        else if (err.message) errorMsg = err.message;
-                        else errorMsg = JSON.stringify(err)
-                    }
-                    scrumReport.innerHTML = `<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">${err.message || 'An error occurred while generating the report.'}</div>`;
-                    generateBtn.textContent = '';
-                    const refreshIcon = document.createElement('i');
-                    refreshIcon.className = 'fa fa-refresh';
-                    generateBtn.appendChild(refreshIcon);
-                    generateBtn.appendChild(document.createTextNode(' Generate Report'));
-                    generateBtn.disabled = false;
+                    scrumReport.textContent = '';
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'error-message';
+                    errorDiv.style.cssText = 'color: #dc2626; font-weight: bold; padding: 10px;';
+                    errorDiv.textContent = err.message || getMessage('errorGenericMessage', 'An error occurred while generating the report.');
+                    scrumReport.appendChild(errorDiv);
                 }
-                if (generateBtn) {
-                    generateBtn.textContent = '';
-                    const refreshIcon = document.createElement('i');
-                    refreshIcon.className = 'fa fa-refresh';
-                    generateBtn.appendChild(refreshIcon);
-                    generateBtn.appendChild(document.createTextNode(' Generate Report'));
-                    generateBtn.disabled = false;
-                }
+                setGenerateButtonState(false);
             }
             scrumGenerationInProgress = false;
             throw err;
@@ -900,226 +888,210 @@ function allIncluded(outputTarget = 'email') {
     }
     verifyCacheStatus();
 
-        function showMissingTokenMessage() {
-            if (outputTarget !== 'popup') {
-                return;
-            }
+    function showRateLimitMessage() {
+        if (outputTarget !== 'popup') {
+            return;
+        }
 
-            const scrumReport = document.getElementById('scrumReport');
-            const generateBtn = document.getElementById('generateReport');
-            if (!scrumReport) return;
+        const scrumReport = document.getElementById('scrumReport');
+        if (!scrumReport) return;
 
-            // Helper function for i18n with fallbacks
-            const getMessage = (key, fallback) => {
-                try {
-                    const msg = chrome?.i18n?.getMessage?.(key);
-                    return msg && msg.length > 0 ? msg : fallback;
-                } catch {
-                    return fallback;
-                }
-            };
+        scrumReport.textContent = '';
 
-            // Localized messages
-            const messages = {
-                title: getMessage('tokenRequiredTitle', 'GitHub Token Required'),
-                description: getMessage(
-                    'tokenRequiredDescription',
-                    'A GitHub token is needed to fetch your contribution data and generate the scrum report.'
-                ),
-                addButton: getMessage('addTokenButton', 'Go to Settings'),
-                benefitsTitle: getMessage('tokenBenefitsTitle', 'Why is a token needed?'),
-                benefit1: getMessage('tokenBenefitAuth', 'Access your GitHub activity'),
-                benefit2: getMessage('tokenBenefitRateLimit', 'Higher API rate limits (5,000/hr)'),
-                benefit3: getMessage('tokenBenefitPrivate', 'Include private repositories'),
-                learnMore: getMessage('tokenLearnMore', 'Learn how to create a token')
-            };
+        const container = document.createElement('div');
+        container.style.cssText = `
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 24px;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: #e1e1e1;
+            width: 100%;
+            box-sizing: border-box;
+            border-radius: 12px;
+        `;
 
-            // Clear existing content safely
-            scrumReport.textContent = '';
+        // Icon
+        const iconContainer = document.createElement('div');
+        iconContainer.style.cssText = 'margin-bottom: 16px; padding: 12px; background: rgba(239, 68, 68, 0.1); border-radius: 50%;';
+        
+        const icon = document.createElement('i');
+        icon.className = 'fa fa-exclamation-triangle';
+        icon.style.cssText = 'font-size: 32px; color: #ef4444;';
+        iconContainer.appendChild(icon);
 
-            // Root container
-            const container = document.createElement('div');
-            container.style.cssText = `
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                padding: 20px;
-                background: #1e1e1e;
-                color: #e1e1e1;
-                width: 100%;
-                box-sizing: border-box;
-            `;
+        // Title
+        const title = document.createElement('h3');
+        title.textContent = getMessage('rateLimitTitle', 'API Rate Limit Reached');
+        title.style.cssText = `
+            font-weight: 700;
+            font-size: 18px;
+            margin: 0 0 12px 0;
+            text-align: center;
+        `;
 
-            // Icon with SVG
-            const iconContainer = document.createElement('div');
-            iconContainer.style.marginBottom = '16px';
-            
-            const svgNS = 'http://www.w3.org/2000/svg';
-            const svg = document.createElementNS(svgNS, 'svg');
-            svg.setAttribute('width', '32');
-            svg.setAttribute('height', '32');
-            svg.setAttribute('viewBox', '0 0 24 24');
-            svg.setAttribute('fill', 'none');
-            svg.setAttribute('stroke', '#b45309');
-            svg.setAttribute('stroke-width', '2.5');
-            svg.setAttribute('stroke-linecap', 'round');
-            svg.setAttribute('stroke-linejoin', 'round');
-            
-            const rect = document.createElementNS(svgNS, 'rect');
-            rect.setAttribute('x', '3');
-            rect.setAttribute('y', '11');
-            rect.setAttribute('width', '18');
-            rect.setAttribute('height', '11');
-            rect.setAttribute('rx', '2');
-            rect.setAttribute('ry', '2');
-            
-            const path = document.createElementNS(svgNS, 'path');
-            path.setAttribute('d', 'M7 11V7a5 5 0 0 1 10 0v4');
-            
-            svg.append(rect, path);
-            iconContainer.appendChild(svg);
+        // Description
+        const description = document.createElement('p');
+        description.textContent = getMessage('rateLimitDescription', 'You\'ve exceeded GitHub\'s free API limit (60 requests/hour). Add a GitHub token to continue with 5,000 requests/hour.');
+        description.style.cssText = `
+            color: #cbd5e1;
+            text-align: center;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        `;
 
-            // Title
-            const title = document.createElement('h3');
-            title.textContent = messages.title;
-            title.style.cssText = `
-                font-weight: 700;
-                font-size: 18px;
-                margin: 0 0 12px 0;
-            `;
+        // Benefits
+        const benefits = document.createElement('div');
+        benefits.style.cssText = `
+            background: rgba(255, 255, 255, 0.05);
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            width: 100%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        `;
+        
+        const benefitsTitle = document.createElement('div');
+        benefitsTitle.textContent = getMessage('tokenBenefitsTitle', 'Token Benefits:');
+        benefitsTitle.style.cssText = `
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 12px;
+            color: #60a5fa;
+        `;
+        benefits.appendChild(benefitsTitle);
 
-            // Description
-            const description = document.createElement('p');
-            description.textContent = messages.description;
-            description.style.cssText = `
-                color: #b8b8b8;
-                text-align: center;
-                margin-bottom: 16px;
-            `;
+        const benefitsList = [
+            getMessage('tokenBenefitRateLimit', 'Higher API rate limits (5,000/hr)'),
+            getMessage('tokenBenefitPrivate', 'Include private repositories'),
+            getMessage('tokenBenefitAuth', 'Access your full GitHub activity')
+        ];
 
-            // Benefits container
-            const benefits = document.createElement('div');
-            benefits.style.cssText = `
-                background: #2d2d2d;
-                padding: 12px;
-                border-radius: 8px;
-                margin-bottom: 16px;
-                width: 100%;
-            `;
-            
-            const benefitsTitle = document.createElement('div');
-            benefitsTitle.textContent = messages.benefitsTitle;
-            benefitsTitle.style.cssText = `
-                font-weight: 600;
+        benefitsList.forEach(text => {
+            const item = document.createElement('div');
+            item.style.cssText = `
+                color: #e2e8f0;
                 font-size: 13px;
                 margin-bottom: 8px;
-                color: #ffffff;
-            `;
-            benefits.appendChild(benefitsTitle);
-
-            // Benefit items
-            [messages.benefit1, messages.benefit2, messages.benefit3].forEach(text => {
-                const item = document.createElement('div');
-                item.textContent = `✓ ${text}`;
-                item.style.cssText = `
-                    color: #d1d1d1;
-                    font-size: 12px;
-                    margin-bottom: 6px;
-                `;
-                benefits.appendChild(item);
-            });
-
-            // CTA Button
-            const addTokenBtn = document.createElement('button');
-            addTokenBtn.id = 'add-github-token-btn';
-            addTokenBtn.textContent = messages.addButton;
-            addTokenBtn.style.cssText = `
-                padding: 12px 20px;
-                border-radius: 8px;
-                border: none;
-                cursor: pointer;
-                background: #2563eb;
-                color: #ffffff;
-                margin-bottom: 12px;
-            `;
-            
-            addTokenBtn.addEventListener('click', () => {
-                const settingsToggle = document.getElementById('settingsToggle');
-                if (settingsToggle) settingsToggle.click();
-            });
-
-            // Learn more link
-            const learnMoreLink = document.createElement('a');
-            learnMoreLink.href = '#';
-            learnMoreLink.style.cssText = `
-                font-size: 12px;
-                color: #93c5fd;
-                cursor: pointer;
                 display: flex;
                 align-items: center;
-                gap: 6px;
+                gap: 8px;
             `;
+            const checkIcon = document.createElement('i');
+            checkIcon.className = 'fa fa-check-circle';
+            checkIcon.style.color = '#10b981';
+            item.appendChild(checkIcon);
+            item.appendChild(document.createTextNode(text));
+            benefits.appendChild(item);
+        });
+
+        // CTA Button
+        const addTokenBtn = document.createElement('button');
+        addTokenBtn.textContent = getMessage('addTokenButton', 'Add GitHub Token');
+        addTokenBtn.style.cssText = `
+            padding: 12px 24px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 12px;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3);
+        `;
+        
+        addTokenBtn.addEventListener('mouseenter', () => {
+            addTokenBtn.style.transform = 'translateY(-2px)';
+            addTokenBtn.style.boxShadow = '0 6px 8px rgba(37, 99, 235, 0.4)';
+        });
+        
+        addTokenBtn.addEventListener('mouseleave', () => {
+            addTokenBtn.style.transform = 'translateY(0)';
+            addTokenBtn.style.boxShadow = '0 4px 6px rgba(37, 99, 235, 0.3)';
+        });
+        
+        addTokenBtn.addEventListener('click', () => {
+            const settingsToggle = document.getElementById('settingsToggle');
+            if (settingsToggle) settingsToggle.click();
             
-            const linkIcon = document.createElement('i');
-            linkIcon.className = 'fa fa-external-link';
-            learnMoreLink.appendChild(linkIcon);
-            learnMoreLink.appendChild(document.createTextNode(` ${messages.learnMore}`));
-            
-            learnMoreLink.addEventListener('click', (e) => {
-                e.preventDefault();
-                chrome.tabs.create({ url: 'https://github.com/settings/tokens/new' });
-            });
-
-            // Assemble everything
-            container.append(
-                iconContainer,
-                title,
-                description,
-                benefits,
-                addTokenBtn,
-                learnMoreLink
-            );
-
-            scrumReport.appendChild(container);
-
-            // Reset Generate button safely
-            if (generateBtn) {
-                generateBtn.textContent = '';
-                const refreshIcon = document.createElement('i');
-                refreshIcon.className = 'fa fa-refresh';
-                generateBtn.appendChild(refreshIcon);
-                generateBtn.appendChild(document.createTextNode(' ' + getMessage('generateReportButton', 'Generate Report')));
-                generateBtn.disabled = false;
-            }
-        }
-
-        function showInvalidTokenMessage() {
-            if (outputTarget === 'popup') {
-                const reportDiv = document.getElementById('scrumReport');
-                if (reportDiv) {
-                    reportDiv.textContent = '';
-
-                    const errorDiv = document.createElement('div');
-                    errorDiv.textContent = 'Invalid or expired GitHub token. Please check your token in the settings and try again.';
-                    errorDiv.style.color = '#dc2626';
-                    errorDiv.style.fontWeight = 'bold';
-                    errorDiv.style.padding = '10px';
-
-                    reportDiv.appendChild(errorDiv);
-                    const generateBtn = document.getElementById('generateReport');
-                    if (generateBtn) {
-                        generateBtn.textContent = '';
-                        const refreshIcon = document.createElement('i');
-                        refreshIcon.className = 'fa fa-refresh';
-                        generateBtn.appendChild(refreshIcon);
-                        generateBtn.appendChild(document.createTextNode(' Generate Report'));
-                        generateBtn.disabled = false;
-                    }
-                } else {
-                    alert('Invalid or expired GitHub token. Please check your token in the extension popup and try again.');
+            // Scroll to token input
+            setTimeout(() => {
+                const tokenInput = document.getElementById('githubToken');
+                if (tokenInput) {
+                    tokenInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    tokenInput.focus();
                 }
+            }, 300);
+        });
+
+        // Learn more link
+        const learnMoreLink = document.createElement('a');
+        learnMoreLink.href = '#';
+        learnMoreLink.style.cssText = `
+            font-size: 12px;
+            color: #93c5fd;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            transition: color 0.2s;
+        `;
+        
+        learnMoreLink.addEventListener('mouseenter', () => {
+            learnMoreLink.style.color = '#60a5fa';
+        });
+        
+        learnMoreLink.addEventListener('mouseleave', () => {
+            learnMoreLink.style.color = '#93c5fd';
+        });
+        
+        const linkIcon = document.createElement('i');
+        linkIcon.className = 'fa fa-external-link';
+        learnMoreLink.appendChild(linkIcon);
+        learnMoreLink.appendChild(document.createTextNode(' ' + getMessage('tokenLearnMore', 'Learn how to create a token')));
+        
+        learnMoreLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            chrome.tabs.create({ url: 'https://github.com/settings/tokens/new' });
+        });
+
+        // Assemble
+        container.append(
+            iconContainer,
+            title,
+            description,
+            benefits,
+            addTokenBtn,
+            learnMoreLink
+        );
+
+        scrumReport.appendChild(container);
+        setGenerateButtonState(false);
+    }
+
+    function showInvalidTokenMessage() {
+        if (outputTarget === 'popup') {
+            const reportDiv = document.getElementById('scrumReport');
+            if (reportDiv) {
+                reportDiv.textContent = '';
+
+                const errorDiv = document.createElement('div');
+                errorDiv.textContent = getMessage('errorInvalidToken', 'Invalid or expired GitHub token. Please check your token in the settings and try again.');
+                errorDiv.style.color = '#dc2626';
+                errorDiv.style.fontWeight = 'bold';
+                errorDiv.style.padding = '10px';
+
+                reportDiv.appendChild(errorDiv);
+                setGenerateButtonState(false);
+            } else {
+                alert(getMessage('errorInvalidToken', 'Invalid or expired GitHub token. Please check your token in the extension popup and try again.'));
             }
+            scrumGenerationInProgress = false;
         }
+    }
 
 
     async function processGithubData(data) {
@@ -1245,16 +1217,7 @@ ${userReason}`;
             if (scrumReport) {
                 log("Found popup div, updating content");
                 scrumReport.innerHTML = content;
-
-                const generateBtn = document.getElementById('generateReport');
-                if (generateBtn) {
-                    generateBtn.textContent = '';
-                    const refreshIcon = document.createElement('i');
-                    refreshIcon.className = 'fa fa-refresh';
-                    generateBtn.appendChild(refreshIcon);
-                    generateBtn.appendChild(document.createTextNode(' Generate Report'));
-                    generateBtn.disabled = false;
-                }
+                setGenerateButtonState(false);
             } else {
                 logError('Scrum report div not found in popup');
             }
@@ -1353,12 +1316,11 @@ ${userReason}`;
             const today = new Date();
             const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
             startDate = yesterday.toISOString().split('T')[0];
-            endDate = today.toISOString().split('T')[0]; // Use yesterday for start and today for end
+            endDate = today.toISOString().split('T')[0];
         } else if (startingDate && endingDate) {
             startDate = startingDate;
             endDate = endingDate;
         } else {
-            // Default to last 7 days if no date range is set
             const today = new Date();
             const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
             startDate = lastWeek.toISOString().split('T')[0];
@@ -1523,12 +1485,7 @@ ${userReason}`;
 
     function triggerScrumGeneration() {
         if (issuesDataProcessed && prsReviewDataProcessed) {
-
-
             writeScrumBody();
-        } else {
-
-
         }
     }
 
@@ -1561,11 +1518,9 @@ ${userReason}`;
     async function writeGithubIssuesPrs(items) {
 
         if (!items) {
-
             return;
         }
         if (!items.length) {
-
             return;
         }
         const headers = { 'Accept': 'application/vnd.github.v3+json' };
@@ -1579,12 +1534,11 @@ ${userReason}`;
             const today = new Date();
             const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
             startDateForRange = yesterday.toISOString().split('T')[0];
-            endDateForRange = today.toISOString().split('T')[0]; // Use yesterday for start and today for end
+            endDateForRange = today.toISOString().split('T')[0];
         } else if (startingDate && endingDate) {
             startDateForRange = startingDate;
             endDateForRange = endingDate;
         } else {
-            // Default to last 7 days if no date range is set
             const today = new Date();
             const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
             startDateForRange = lastWeek.toISOString().split('T')[0];
@@ -1667,12 +1621,11 @@ ${userReason}`;
                     const today = new Date();
                     const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
                     startDateFilter = new Date(yesterday.toISOString().split('T')[0] + 'T00:00:00Z');
-                    endDateFilter = new Date(today.toISOString().split('T')[0] + 'T23:59:59Z'); // Use yesterday for start and today for end
+                    endDateFilter = new Date(today.toISOString().split('T')[0] + 'T23:59:59Z');
                 } else if (startingDate && endingDate) {
                     startDateFilter = new Date(startingDate + 'T00:00:00Z');
                     endDateFilter = new Date(endingDate + 'T23:59:59Z');
                 } else {
-                    // Default to last 7 days if no date range is set
                     const today = new Date();
                     const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
                     startDateFilter = new Date(lastWeek.toISOString().split('T')[0] + 'T00:00:00Z');
@@ -1685,7 +1638,7 @@ ${userReason}`;
                 itemCreatedDate.setHours(0,0,0,0);
                 const isCreatedToday = today.getTime() === itemCreatedDate.getTime();
 
-                const isNewPR = prCreatedDate >= startDateFilter && prCreatedDate << endDateFilter;
+                const isNewPR = prCreatedDate >= startDateFilter && prCreatedDate <= endDateFilter;
                 const prUpdatedDate = new Date(item.updated_at);
                 const isUpdatedInRange = prUpdatedDate >= startDateFilter && prUpdatedDate <= endDateFilter;
 
@@ -1723,13 +1676,12 @@ ${userReason}`;
                 }
 
                 if (isDraft) {
-
                     li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + pr_draft_button : ''}`;
                     if (showCommits && item._allCommits && item._allCommits.length && !isNewPR) {
                         log(`[PR DEBUG] Rendering commits for existing draft PR #${number}:`, item._allCommits);
                         li += '<ul>';
                         item._allCommits.forEach(commit => {
-                            li += `<li style=\"list-style: disc; color: #666;\"><span style=\"color:#2563eb;\">${commit.messageHeadline}</span><span style=\"color:#666; font-size: 11px;\"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
+                            li += `<li style="list-style: disc; color: #666;"><span style="color:#2563eb;">${commit.messageHeadline}</span><span style="color:#666; font-size: 11px;"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
                         });
                         li += '</ul>';
                     }
@@ -1741,7 +1693,7 @@ ${userReason}`;
                         log(`[PR DEBUG] Rendering commits for existing PR #${number}:`, item._allCommits);
                         li += '<ul>';
                         item._allCommits.forEach(commit => {
-                            li += `<li style=\"list-style: disc; color: #666;\"><span style=\"color:#2563eb;\">${commit.messageHeadline}</span><span style=\"color:#666; font-size: 11px;\"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
+                            li += `<li style="list-style: disc; color: #666;"><span style="color:#2563eb;">${commit.messageHeadline}</span><span style="color:#666; font-size: 11px;"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
                         });
                         li += '</ul>';
                     }
@@ -1757,7 +1709,6 @@ ${userReason}`;
                         merged = mergedStatusResults[`${owner}/${repo}#${number}`];
                     }
                     if (merged === true) {
-
                         li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + pr_merged_button : ''}</li>`;
                     } else {
                         // Always show closed label for merged === false or merged === null/undefined
@@ -1794,8 +1745,6 @@ ${userReason}`;
                     li = `<li><i>(${project})</i> - ${issueActionText}(#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + issue_opened_button : ''}</li>`;
 
                 } else if (item.state === 'closed') {
-
-
                     // Use state_reason to distinguish closure reason
                     if (item.state_reason === 'completed') {
                         li = `<li><i>(${project})</i> - ${issueActionText}(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_completed_button}</li>`;
@@ -1804,8 +1753,6 @@ ${userReason}`;
                     } else {
                         li = `<li><i>(${project})</i> - ${issueActionText}(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_button}</li>`;
                     }
-
-
                 } else {
                     // Fallback for unexpected state
                     li = `<li><i>(${project})</i> - ${issueActionText}(#${number}) - <a href='${html_url}'>${title}</a></li>`;
@@ -1817,7 +1764,6 @@ ${userReason}`;
         }
         log('[SCRUM-DEBUG] Final lastWeekArray:', lastWeekArray);
         issuesDataProcessed = true;
-
     }
 
 
@@ -1906,10 +1852,6 @@ ${userReason}`;
         allIncluded();
     }
 }
-
-
-
-
 
 async function forceGithubDataRefresh() {
     let showCommits = false;
@@ -2001,7 +1943,7 @@ async function fetchPrsMergedStatusBatch(prs, headers) {
     const results = {};
     if (prs.length === 0) return results;
     const query = `query {
-${prs.map((pr, i) => `	repo${i}: repository(owner: \"${pr.owner}\", name: \"${pr.repo}\") {
+${prs.map((pr, i) => `	repo${i}: repository(owner: "${pr.owner}", name: "${pr.repo}") {
 		pr${i}: pullRequest(number: ${pr.number}) { merged }
 	}`).join('\n')}
 }`;
@@ -2025,7 +1967,6 @@ ${prs.map((pr, i) => `	repo${i}: repository(owner: \"${pr.owner}\", name: \"${pr
     } catch (e) {
         return results;
     }
-
 }
 
 let selectedRepos = [];
@@ -2184,12 +2125,9 @@ async function fetchUserRepositories(username, token, org = '') {
             return repos.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
 
         } catch (err) {
-
             throw err;
         }
     } catch (err) {
-
-
         throw err;
     }
 }
@@ -2221,4 +2159,3 @@ function filterDataByRepos(data, selectedRepos) {
     return filteredData;
 }
 window.fetchUserRepositories = fetchUserRepositories;
-

@@ -145,6 +145,9 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     function renderTokenPreview() {
+        const tokenPreview = document.getElementById('tokenPreview');
+        if (!tokenPreview) return; 
+        
         tokenPreview.innerHTML = '';
         const value = githubTokenInput.value;
         const isDark = document.body.classList.contains('dark-mode');

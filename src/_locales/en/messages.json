@@ -152,15 +152,15 @@
     "description": "Description explaining why a GitHub token is needed."
   },
   "addTokenButton": {
-    "message": "Go to Settings",
+    "message": "Add GitHub Token",
     "description": "Text for the button that navigates to settings to add a GitHub token."
   },
   "tokenBenefitsTitle": {
-    "message": "Why is a token needed?",
+    "message": "Token Benefits:",
     "description": "Section header explaining the benefits of using a token."
   },
   "tokenBenefitAuth": {
-    "message": "Access your GitHub activity",
+    "message": "Access your full GitHub activity",
     "description": "First benefit of using a token."
   },
   "tokenBenefitRateLimit": {
@@ -178,6 +178,26 @@
   "errorLabel": {
     "message": "Error",
     "description": "Generic error label used in error messages."
+  },
+  "errorGenericMessage": {
+    "message": "An error occurred while generating the report.",
+    "description": "Generic error message when report generation fails."
+  },
+  "errorInvalidToken": {
+    "message": "Invalid or expired GitHub token. Please check your token in the settings and try again.",
+    "description": "Error message when the GitHub token is invalid or expired."
+  },
+  "errorUsernameRequired": {
+    "message": "Please enter your username to generate a report.",
+    "description": "Error message when username is missing."
+  },
+  "rateLimitTitle": {
+    "message": "API Rate Limit Reached",
+    "description": "Title shown when GitHub API rate limit is exceeded."
+  },
+  "rateLimitDescription": {
+    "message": "You've exceeded GitHub's free API limit (60 requests/hour). Add a GitHub token to continue with 5,000 requests/hour.",
+    "description": "Description explaining the rate limit and solution."
   },
   "repoSearchPlaceholder": {
     "message": "Search for a repository to add...",
@@ -290,5 +310,9 @@
   "usernameLabel": {
     "message": "Your Username",
     "description": "Label for the username input header."
+  },
+  "userReasonLabel": {
+    "message": "Your Reason",
+    "description": "Label for the user reason input field."
   }
 }
