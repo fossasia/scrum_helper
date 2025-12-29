@@ -54,25 +54,6 @@ document.addEventListener('DOMContentLoaded', function () {
     // Apply translations as soon as the DOM is ready
     applyI18n();
 
-    // Load and save mergedPrOnly setting
-    const checkbox = document.getElementById("mergedPrOnly");
-
-    if (checkbox) {
-        chrome.storage.sync.get(["mergedPrOnly"], (res) => {
-            checkbox.checked = res.mergedPrOnly === true;
-        });
-
-    checkbox.addEventListener("change", () => {
-        chrome.storage.sync.set({ mergedPrOnly: checkbox.checked });
-        // Clear cache to ensure new setting is applied
-        chrome.storage.local.set({ githubCache: null });
-        // Regenerate the report with the new setting
-        if (window.generateScrumReport) {
-            window.generateScrumReport();
-        }
-    });
-    }
-
     // Dark mode setup
     const darkModeToggle = document.querySelector('img[alt="Night Mode"]');
     const settingsIcon = document.getElementById('settingsIcon');
@@ -85,6 +66,42 @@ document.addEventListener('DOMContentLoaded', function () {
 
     let isSettingsVisible = false;
     const githubTokenInput = document.getElementById('githubToken');
+
+    // Load and save mergedPrOnly setting
+    const mergedPrCheckbox = document.getElementById("mergedPrOnly");
+
+    if (mergedPrCheckbox) {
+        chrome.storage.sync.get(["mergedPrOnly"], (res) => {
+            mergedPrCheckbox.checked = res.mergedPrOnly === true;
+        });
+
+        // Function to update checkbox disabled state based on token
+        const updateMergedPrCheckboxState = () => {
+            const hasToken = githubTokenInput.value.trim() !== '';
+            mergedPrCheckbox.disabled = !hasToken;
+            if (!hasToken && mergedPrCheckbox.checked) {
+                mergedPrCheckbox.checked = false;
+                chrome.storage.sync.set({ mergedPrOnly: false });
+            }
+        };
+
+        // Initial check
+        updateMergedPrCheckboxState();
+
+        // Update when token changes
+        githubTokenInput.addEventListener('input', updateMergedPrCheckboxState);
+
+        mergedPrCheckbox.addEventListener("change", () => {
+            chrome.storage.sync.set({ mergedPrOnly: mergedPrCheckbox.checked });
+            // Clear cache to ensure new setting is applied
+            chrome.storage.local.set({ githubCache: null });
+            // Regenerate the report with the new setting
+            if (window.generateScrumReport) {
+                window.generateScrumReport();
+            }
+        });
+    }
+
     const toggleTokenBtn = document.getElementById('toggleTokenVisibility');
     const tokenEyeIcon = document.getElementById('tokenEyeIcon');
     let tokenVisible = false;

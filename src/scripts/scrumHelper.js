@@ -8,6 +8,10 @@ let platform = 'github';
 let platformUsername = '';
 let gitlabHelper = null;
 
+function logError(message, data) {
+    console.error(message, data);
+}
+
 function allIncluded(outputTarget = 'email') {
     // Always re-instantiate gitlabHelper for gitlab platform to ensure fresh cache after refresh
     if (platform === 'gitlab' || (typeof platform === 'undefined' && window.GitLabHelper)) {
@@ -968,10 +972,16 @@ function allIncluded(outputTarget = 'email') {
         const mergedPrSettings = await new Promise((resolve) => {
             chrome.storage.sync.get(["mergedPrOnly"], resolve);
         });
-        const mergedPrOnly = mergedPrSettings.mergedPrOnly === true;
+        const mergedPrOnly = Boolean(githubToken && mergedPrSettings.mergedPrOnly === true);
         // Store in a way that processing functions can access it
         window._mergedPrOnlyFilter = mergedPrOnly;
         console.log(`[SCRUM-HELPER] Merged PR filter setting loaded: ${mergedPrOnly} (from storage: ${mergedPrSettings.mergedPrOnly})`);
+        console.log(
+          '[DEBUG FINAL CHECK]',
+          'token:', !!githubToken,
+          'mergedPrOnly from storage:', mergedPrSettings.mergedPrOnly,
+          'checkbox window flag:', window._mergedPrOnlyFilter
+        );
 
         githubIssuesData = filteredData.githubIssuesData;
         githubPrsReviewData = filteredData.githubPrsReviewData;
@@ -1212,101 +1222,18 @@ ${userReason}`;
         const mergedPrOnly = window._mergedPrOnlyFilter === true;
         console.log(`[SCRUM-HELPER] writeGithubPrsReviews - mergedPrOnly: ${mergedPrOnly}, items: ${items.length}`);
 
-        // Prepare headers for API calls
-        const headers = { 'Accept': 'application/vnd.github.v3+json' };
-        if (githubToken) headers['Authorization'] = `token ${githubToken}`;
-
-        let prsToCheck = [];
-        if (mergedPrOnly) {
-            for (let i = 0; i < items.length; i++) {
-                let item = items[i];
-                // If merged filter is enabled, check ALL closed PRs (not just when useMergedStatus is true)
-                // Otherwise, only check when useMergedStatus is enabled
-                if (item.pull_request && item.state === 'closed') {
-                    let repository_url = item.repository_url;
-                    if (!repository_url) {
-                        logError('repository_url is undefined for item:', item);
-                        continue;
-                    }
-                    let repoParts = repository_url.split('/');
-                    let owner = repoParts[repoParts.length - 2];
-                    let repo = repoParts[repoParts.length - 1];
-                    prsToCheck.push({ owner, repo, number: item.number, idx: i });
-                }
-            }
-        }
-
-        let mergedStatusResults = {};
-        // If merged filter is enabled, we MUST check merged status for all closed PRs
-        // Otherwise, only check if useMergedStatus is enabled
-        if (mergedPrOnly && prsToCheck.length > 0) {
-            if (githubToken) {
-                // Use GraphQL batching for all cases when we have a token
-                mergedStatusResults = await fetchPrsMergedStatusBatch(prsToCheck, headers);
-            } else {
-                // Without token, use REST API but warn if too many
-                if (prsToCheck.length > 30) {
-                    if (typeof Materialize !== 'undefined' && Materialize.toast) {
-                        Materialize.toast('Many PRs to check. A GitHub token is recommended for accurate merged PR filtering.', 5000);
-                    }
-                    // Still try to check, but limit to 30
-                    const limitedPRs = prsToCheck.slice(0, 30);
-                    for (let pr of limitedPRs) {
-                        let merged = await fetchPrMergedStatusREST(pr.owner, pr.repo, pr.number, headers);
-                        mergedStatusResults[`${pr.owner}/${pr.repo}#${pr.number}`] = merged;
-                    }
-                } else {
-                    // Use REST API for each PR, cache results
-                    for (let pr of prsToCheck) {
-                        let merged = await fetchPrMergedStatusREST(pr.owner, pr.repo, pr.number, headers);
-                        mergedStatusResults[`${pr.owner}/${pr.repo}#${pr.number}`] = merged;
-                    }
-                }
-            }
-        }
-
         if (mergedPrOnly) {
             const originalLength = items.length;
-            items = items.filter(item => {
-                // Keep all non-PRs (issues) as-is - don't filter issues
-                if (!item.pull_request) {
-                    return true;
-                }
-
-                // For PRs, we need to determine if they are merged
-                // Strategy: Check multiple sources in order of reliability
-
-                // 1. If PR is open or draft, it's definitely NOT merged - exclude immediately
-                if (item.state === 'open' || item.draft === true) {
-                    return false;
-                }
-
-                // 2. First check mergedStatusResults (most reliable - from GraphQL/REST API)
-                if (item.repository_url && mergedStatusResults) {
-                    let repoParts = item.repository_url.split('/');
-                    let owner = repoParts[repoParts.length - 2];
-                    let repo = repoParts[repoParts.length - 1];
-                    let merged = mergedStatusResults[`${owner}/${repo}#${item.number}`];
-                    if (merged === true) {
-                        return true; // Definitely merged
-                    }
-                    if (merged === false) {
-                        return false; // Definitely not merged (closed but not merged)
-                    }
-                    // merged is null/undefined - continue to next check
-                }
-
-                // 3. Check if merged_at is directly available in API response
-                if (item.pull_request.merged_at !== null && item.pull_request.merged_at !== undefined) {
-                    return true; // Has merged_at date, so it's merged
-                }
-
-                // 4. If PR is closed but we can't determine merged status, exclude it to be safe
-                // (Better to exclude than include non-merged PRs)
-                // This handles cases where mergedStatusResults wasn't populated (no token, API limit, etc.)
-                return false;
-            });
+            items = items.filter(item => item.pull_request && item.merged_at);
             console.log(`[SCRUM-HELPER] Filtered PR reviews: ${originalLength} items -> ${items.length} items (showing only merged PRs)`);
+            console.log(
+                "[SCRUM-HELPER] PRs after merged-only filter:",
+                items.map(pr => ({
+                    number: pr.number,
+                    state: pr.state,
+                    merged_at: pr.merged_at
+                }))
+            );
         }
 
         for (i = 0; i < items.length; i++) {
@@ -1636,7 +1563,27 @@ ${userReason}`;
         if (mergedPrOnly) {
             items = items.filter(item => {
                 if (!item.pull_request) return true;
-                return item.state === "closed";
+
+                // Check merged status from API results first
+                let merged = null;
+                if (mergedStatusResults) {
+                    let repoParts = item.repository_url.split('/');
+                    let owner = repoParts[repoParts.length - 2];
+                    let repo = repoParts[repoParts.length - 1];
+                    merged = mergedStatusResults[`${owner}/${repo}#${item.number}`];
+                }
+
+                // If we have a definitive answer from API, use it
+                if (merged === true) return true;
+                if (merged === false) return false;
+
+                // Fallback: check if merged_at exists in the item data
+                if (item.pull_request.merged_at !== null && item.pull_request.merged_at !== undefined) {
+                    return true;
+                }
+
+                // If we can't determine merged status, exclude to be safe
+                return false;
             });
             console.log("[DEBUG] PRs after filter:", items.filter(item => item.pull_request).map(pr => ({ title: pr.title, state: pr.state })));
         }

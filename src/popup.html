@@ -175,10 +175,17 @@
 							PRs Labels</label>
 
 					</div>
+
 					<div style="margin-bottom: 1rem;">
 						<input type="checkbox" id="mergedPrOnly" class="form-checkbox text-blue-600">
-						<label for="mergedPrOnly" class="font-medium text-sm" style="margin-left: 4px;">
-							Include only merged pull requests
+						<label for="mergedPrOnly" class="font-medium text-sm " style="margin-left: 4px;">
+							     Include only merged pull requests
+							<span class="tooltip-container ml-2">
+								<i class="fa fa-question-circle question-icon"></i>
+								<span class="tooltip-bubble">
+									When enabled, only pull requests that have been merged will be included in the report. This requires a GitHub token for accurate filtering.
+								</span>
+							</span>
 						</label>
 					</div>
 					<div class="my-4 githubOnlySection">
