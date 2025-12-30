@@ -594,31 +594,87 @@ function allIncluded(outputTarget = 'email') {
         }
 
         try {
-            // throttling 500ms to avoid burst
+            // Throttling 500ms to avoid burst requests
             await new Promise(res => setTimeout(res, 500));
 
-            const [issuesRes, prRes, userRes] = await Promise.all([
-                fetch(issueUrl, { headers }),
-                fetch(prUrl, { headers }),
-                fetch(userUrl, { headers }),
-            ]);
-
-            if (issuesRes.status === 401 || prRes.status === 401 || userRes.status === 401 ||
-                issuesRes.status === 403 || prRes.status === 403 || userRes.status === 403) {
+            // STEP 1: Validate that the GitHub user exists before fetching issues
+            log('Validating GitHub user existence for:', platformUsernameLocal);
+            const userCheckRes = await fetch(userUrl, { headers });
+            
+            // Handle user not found (404)
+            if (userCheckRes.status === 404) {
+                const errorMsg = `GitHub user "${platformUsernameLocal}" not found (404). Please check the username and try again.`;
+                logError(errorMsg);
+                if (outputTarget === 'popup') {
+                    Materialize.toast && Materialize.toast(errorMsg, 4000);
+                }
+                throw new Error(errorMsg);
+            }
+            
+            // Handle authentication errors
+            if (userCheckRes.status === 401 || userCheckRes.status === 403) {
                 showInvalidTokenMessage();
+                githubCache.fetching = false;
                 return;
             }
 
-            if (issuesRes.status === 404 || prRes.status === 404) {
-                if (outputTarget === 'popup') {
-                    Materialize.toast && Materialize.toast('Organization not found on GitHub', 3000);
-                }
-                throw new Error('Organization not found');
+            // Handle other user validation errors
+            if (!userCheckRes.ok) {
+                const errorMsg = `Error validating GitHub user: ${userCheckRes.status} ${userCheckRes.statusText}`;
+                logError(errorMsg);
+                throw new Error(errorMsg);
             }
 
-            if (!issuesRes.ok) throw new Error(`Error fetching Github issues: ${issuesRes.status} ${issuesRes.statusText}`);
-            if (!prRes.ok) throw new Error(`Error fetching Github PR review data: ${prRes.status} ${prRes.statusText}`);
-            if (!userRes.ok) throw new Error(`Error fetching Github userdata: ${userRes.status} ${userRes.statusText}`);
+            // STEP 2: User exists, now fetch the issues and PRs data
+            const [issuesRes, prRes, userRes] = await Promise.all([
+                fetch(issueUrl, { headers }),
+                fetch(prUrl, { headers }),
+                userCheckRes // Reuse the already validated user response
+            ]);
+
+            // Handle authentication errors for issues/PRs
+            if (issuesRes.status === 401 || prRes.status === 401 ||
+                issuesRes.status === 403 || prRes.status === 403) {
+                showInvalidTokenMessage();
+                githubCache.fetching = false;
+                return;
+            }
+
+            // Handle organization not found (404)
+            if (issuesRes.status === 404 || prRes.status === 404) {
+                const errorMsg = 'Organization not found on GitHub. Please check the organization name.';
+                if (outputTarget === 'popup') {
+                    Materialize.toast && Materialize.toast(errorMsg, 4000);
+                }
+                throw new Error(errorMsg);
+            }
+
+            // Handle 422 Unprocessable Entity errors (invalid search query or date range)
+            if (issuesRes.status === 422 || prRes.status === 422) {
+                const errorMsg = `Invalid search query or date range. Please verify your date range format and try again.`;
+                logError(errorMsg);
+                if (outputTarget === 'popup') {
+                    Materialize.toast && Materialize.toast(errorMsg, 4000);
+                }
+                throw new Error(errorMsg);
+            }
+
+            // Handle other HTTP errors
+            if (!issuesRes.ok) {
+                const errorMsg = `Error fetching GitHub issues: ${issuesRes.status} ${issuesRes.statusText}`;
+                logError(errorMsg);
+                throw new Error(errorMsg);
+            }
+            if (!prRes.ok) {
+                const errorMsg = `Error fetching GitHub PR review data: ${prRes.status} ${prRes.statusText}`;
+                logError(errorMsg);
+                throw new Error(errorMsg);
+            }
+            if (!userRes.ok) {
+                const errorMsg = `Error fetching GitHub user data: ${userRes.status} ${userRes.statusText}`;
+                logError(errorMsg);
+                throw new Error(errorMsg);
+            }
 
             githubIssuesData = await issuesRes.json();
             githubPrsReviewData = await prRes.json();
