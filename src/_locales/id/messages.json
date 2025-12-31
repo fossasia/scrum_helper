@@ -190,5 +190,65 @@
     },
     "usernameLabel": {
         "message": "Nama pengguna Anda"
+    },
+    "gitlabTokenLabel": {
+        "message": "Token GitLab Anda"
+    },
+    "gitlabTokenPlaceholder": {
+        "message": "Tempel Token Akses Personal GitLab Anda"
+    },
+    "gitlabTokenTooltip": {
+        "message": "<b>Mengapa disarankan menambahkan token GitLab?</b><br>Scrum Helper berfungsi tanpa token GitLab, tetapi menambahkan token akses personal disarankan untuk pengalaman yang lebih baik. Ini meningkatkan batas API Anda, memungkinkan akses ke repo privat (jika diizinkan), dan meningkatkan akurasi dan kecepatan. Token disimpan secara lokal dan tidak pernah dikirim kepada kami.<br><br><b>Cara mendapatkan:</b><br>1. Buka <a href='https://gitlab.com/-/profile/personal_access_tokens' target='_blank' style='color:#2563eb;text-decoration:underline;'>Pengaturan Token GitLab</a>.<br>2. Klik 'Tambahkan token baru'<br>3. Pilih cakupan: <code>read_api</code> dan <code>read_repository</code><br>4. Generate dan tempel di sini.<br><i>Jaga kerahasiaan token Anda!</i>"
+    },
+    "testTokenButton": {
+        "message": "Uji Token"
+    },
+    "testingTokenButton": {
+        "message": "Menguji..."
+    },
+    "tokenValidButton": {
+        "message": "Valid!"
+    },
+    "tokenInvalidButton": {
+        "message": "Tidak valid"
+    },
+    "clearTokenButton": {
+        "message": "Hapus Token"
+    },
+    "tokenSecurityNotice": {
+        "message": "Token disimpan secara lokal di browser Anda, tidak pernah dikirim ke pihak ketiga"
+    },
+    "orgNameTooltipGitLab": {
+        "message": "<b>Organisasi/grup GitLab mana?</b><br>Masukkan nama organisasi atau grup GitLab untuk mengambil aktivitas. Biarkan kosong untuk mengambil semua aktivitas GitLab Anda. Nama organisasi tidak peka huruf besar/kecil."
+    },
+    "confirmClearToken": {
+        "message": "Apakah Anda yakin ingin menghapus token GitLab?"
+    },
+    "tokenAuthError": {
+        "message": "Autentikasi gagal. Silakan periksa token Anda."
+    },
+    "tokenPermissionError": {
+        "message": "Token tidak memiliki izin yang diperlukan. Pastikan memiliki cakupan read_api."
+    },
+    "tokenRateLimitError": {
+        "message": "Batas laju terlampaui. Silakan tunggu dan coba lagi."
+    },
+    "tokenNetworkError": {
+        "message": "Kesalahan jaringan. Silakan periksa koneksi Anda."
+    },
+    "tokenTimeoutError": {
+        "message": "Permintaan habis waktu. Silakan coba lagi."
+    },
+    "dataFetchPartialError": {
+        "message": "Beberapa data tidak dapat diambil. Hasil mungkin tidak lengkap."
+    },
+    "notePoint1GitLab": {
+        "message": "Permintaan penggabungan diambil berdasarkan aktivitas tinjauan terbaru oleh kontributor mana pun, bukan hanya milik Anda. Harap tinjau dan sesuaikan laporan SCRUM yang dihasilkan untuk memastikan laporan tersebut mencerminkan pekerjaan Anda secara akurat sebelum dibagikan."
+    },
+    "showOpenClosedLabelGitLab": {
+        "message": "Tampilkan Label MRs"
+    },
+    "showCommitsLabelGitLab": {
+        "message": "Tampilkan commit pada MRs terbuka / MRs draft"
     }
 }

@@ -1,8 +1,8 @@
 {
-	"$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+	"$schema": "https://biomejs.dev/schemas/2.3.4/schema.json",
 	"files": {
-		"include": ["src/**/*.js", "docs/**"],
-		"ignore": ["docs/images", "**/*.min.js", "src/icons", "src/materialize", "src/scripts/fontawesome.js"]
+		"includes": ["src/**/*.js", "docs/**"],
+		"ignoreUnknown": true
 	},
 	"formatter": {
 		"enabled": true,
@@ -12,12 +12,20 @@
 	"linter": {
 		"enabled": true
 	},
-	"organizeImports": {
-		"enabled": true
-	},
 	"javascript": {
 		"formatter": {
 			"quoteStyle": "single"
 		}
-	}
+	},
+	"overrides": [
+		{
+			"includes": ["docs/images/**", "**/*.min.js", "src/icons/**", "src/materialize/**", "src/scripts/fontawesome.js"],
+			"linter": {
+				"enabled": false
+			},
+			"formatter": {
+				"enabled": false
+			}
+		}
+	]
 }

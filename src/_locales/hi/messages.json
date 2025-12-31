@@ -190,5 +190,65 @@
     },
     "usernameLabel": {
         "message": "आपका उपयोगकर्ता नाम"
+    },
+    "gitlabTokenLabel": {
+        "message": "आपका GitLab टोकन"
+    },
+    "gitlabTokenPlaceholder": {
+        "message": "अपना GitLab Personal Access Token पेस्ट करें"
+    },
+    "gitlabTokenTooltip": {
+        "message": "<b>GitLab टोकन जोड़ने की सिफारिश क्यों की जाती है?</b><br>Scrum Helper GitLab टोकन के बिना काम करता है, लेकिन बेहतर अनुभव के लिए Personal Access Token जोड़ने की सिफारिश की जाती है। यह आपकी API सीमाओं को बढ़ाता है, निजी रिपॉजिटरी तक पहुंच की अनुमति देता है (यदि अनुमति हो) और सटीकता और गति में सुधार करता है। टोकन स्थानीय रूप से संग्रहीत होते हैं और हमें कभी नहीं भेजे जाते।<br><br><b>इसे कैसे प्राप्त करें:</b><br>1. <a href='https://gitlab.com/-/profile/personal_access_tokens' target='_blank' style='color:#2563eb;text-decoration:underline;'>GitLab टोकन सेटिंग्स</a> पर जाएं।<br>2. 'नया टोकन जोड़ें' पर क्लिक करें<br>3. स्कोप चुनें: <code>read_api</code> और <code>read_repository</code><br>4. जनरेट करें और यहां पेस्ट करें।<br><i>अपना टोकन गुप्त रखें!</i>"
+    },
+    "testTokenButton": {
+        "message": "टोकन टेस्ट करें"
+    },
+    "testingTokenButton": {
+        "message": "टेस्ट कर रहे हैं..."
+    },
+    "tokenValidButton": {
+        "message": "मान्य!"
+    },
+    "tokenInvalidButton": {
+        "message": "अमान्य"
+    },
+    "clearTokenButton": {
+        "message": "टोकन हटाएं"
+    },
+    "tokenSecurityNotice": {
+        "message": "टोकन आपके ब्राउज़र में स्थानीय रूप से संग्रहीत, कभी भी तीसरे पक्ष को नहीं भेजा गया"
+    },
+    "orgNameTooltipGitLab": {
+        "message": "<b>कौन सा GitLab संगठन/समूह?</b><br>गतिविधियों को प्राप्त करने के लिए GitLab संगठन या समूह का नाम दर्ज करें। अपनी सभी GitLab गतिविधियों को प्राप्त करने के लिए खाली छोड़ दें। संगठन का नाम केस-सेंसिटिव नहीं है।"
+    },
+    "confirmClearToken": {
+        "message": "क्या आप निश्चित हैं कि आप GitLab टोकन हटाना चाहते हैं?"
+    },
+    "tokenAuthError": {
+        "message": "प्रमाणीकरण विफल। कृपया अपना टोकन जांचें।"
+    },
+    "tokenPermissionError": {
+        "message": "टोकन में आवश्यक अनुमतियों की कमी है। सुनिश्चित करें कि इसमें read_api स्कोप है।"
+    },
+    "tokenRateLimitError": {
+        "message": "रेट लिमिट पार हो गई। कृपया प्रतीक्षा करें और पुनः प्रयास करें।"
+    },
+    "tokenNetworkError": {
+        "message": "नेटवर्क त्रुटि। कृपया अपना कनेक्शन जांचें।"
+    },
+    "tokenTimeoutError": {
+        "message": "अनुरोध समय समाप्त। कृपया पुनः प्रयास करें।"
+    },
+    "dataFetchPartialError": {
+        "message": "कुछ डेटा प्राप्त नहीं किया जा सका। परिणाम अधूरे हो सकते हैं।"
+    },
+    "notePoint1GitLab": {
+        "message": "मर्ज अनुरोध किसी भी योगदानकर्ता की सबसे हालिया समीक्षा गतिविधि के आधार पर प्राप्त किए जाते हैं, न कि केवल आपके। कृपया साझा करने से पहले उत्पन्न SCRUM रिपोर्ट की समीक्षा करें और समायोजित करें ताकि यह सुनिश्चित हो सके कि यह आपके काम को सटीक रूप से दर्शाती है।"
+    },
+    "showOpenClosedLabelGitLab": {
+        "message": "MRs लेबल दिखाएं"
+    },
+    "showCommitsLabelGitLab": {
+        "message": "खुले MRs / ड्राफ्ट MRs पर कमिट दिखाएं"
     }
 }

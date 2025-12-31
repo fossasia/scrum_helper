@@ -7,9 +7,12 @@
 		"url": "git+https://github.com/fossasia/scrum_helper.git"
 	},
 	"scripts": {
-		"format": "biome format --write",
+		"format": "biome format --write .",
 		"check": "biome check .",
-		"fix": "biome lint --write"
+		"fix": "biome check --write .",
+		"build:css": "npx tailwindcss -c tailwind.config.js -i ./src/index.css -o ./src/tailwindcss.css --minify",
+		"watch:css": "npx tailwindcss -c tailwind.config.js -i ./src/index.css -o ./src/tailwindcss.css --watch",
+		"dev": "npm run watch:css"
 	},
 	"keywords": [
 		"scrum",
