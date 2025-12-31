@@ -50,6 +50,11 @@ let platformUsername = '';
 let gitlabHelper = null;
 
 function allIncluded(outputTarget = 'email') {
+
+    function createBadgeHTML(text, bgColor) {
+        return `<span style="display: inline-block; padding: 2px 6px; font-size: 11px; font-weight: 600; color: #fff; background-color: ${bgColor}; border-radius: 6px; vertical-align: middle; margin-left: 4px;">${text}</span>`;
+    }
+
     // Always re-instantiate gitlabHelper for gitlab platform to ensure fresh cache after refresh
     if (platform === 'gitlab' || (typeof platform === 'undefined' && window.GitLabHelper)) {
         gitlabHelper = new window.GitLabHelper();
@@ -85,39 +90,34 @@ function allIncluded(outputTarget = 'email') {
     function createStatusBadge(text, bgColor) {
         const badge = document.createElement('span');
         badge.textContent = text;
-        badge.style.cssText = `
-            vertical-align: middle;
+        badge.style.cssText = `            
             display: inline-block;
-            padding: 0px 4px;
-            font-size: 9px;
+            padding: 2px 6px;
+            font-size: 11px;
             font-weight: 600;
             color: #fff;
             text-align: center;
             background-color: ${bgColor};
-            border-radius: 3px;
-            line-height: 12px;
-            margin-bottom: 2px;
+            border-radius: 6px;
+            vertical-align: middle;
+            margin-left: 4px;
         `;
         return badge;
     }
 
-    const pr_open_button =
-        '<span style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;">open</span>';
-    const pr_closed_button =
-        '<span style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color:rgb(210, 20, 39);border-radius: 3px;line-height: 12px;margin-bottom: 2px;">closed</span>';
-    const pr_merged_button =
-        '<span style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #6f42c1;border-radius: 3px;line-height: 12px;margin-bottom: 2px;">merged</span>';
-    const pr_draft_button =
-        '<span style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #808080;border-radius: 3px;line-height: 12px;margin-bottom: 2px;">draft</span>';
+    function createErrorStyle() {
+        return 'color: #dc2626; font-size: 13px; padding: 8px 12px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px;';
+    }
 
-    const issue_closed_button =
-        '<span style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #d73a49;border-radius: 3px;line-height: 12px;margin-bottom: 2px;">closed</span>';
-    const issue_opened_button =
-        '<span style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;">open</span>';
-    const issue_closed_completed_button =
-        '<span style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #6f42c1;border-radius: 3px;line-height: 12px;margin-bottom: 2px;">closed</span>';
-    const issue_closed_notplanned_button =
-        '<span style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #808080;border-radius: 3px;line-height: 12px;margin-bottom: 2px;">closed</span>';
+    const pr_open_button = createBadgeHTML('open', '#2cbe4e');
+    const pr_closed_button = createBadgeHTML('closed', '#dc2626'); 
+    const pr_merged_button = createBadgeHTML('merged', '#8b5cf6');
+    const pr_draft_button = createBadgeHTML('draft', '#6b7280'); 
+
+    const issue_closed_button = createBadgeHTML('closed', '#dc2626');
+    const issue_opened_button = createBadgeHTML('open', '#2cbe4e');
+    const issue_closed_completed_button = createBadgeHTML('completed', '#8b5cf6');
+    const issue_closed_notplanned_button = createBadgeHTML('not planned', '#6b7280');
 
     function getChromeData() {
         console.log("[DEBUG] getChromeData called for outputTarget:", outputTarget);
@@ -159,7 +159,7 @@ function allIncluded(outputTarget = 'email') {
                         scrumReport.textContent = '';
                         const errorDiv = document.createElement('div');
                         errorDiv.className = 'error-message';
-                        errorDiv.style.cssText = 'color: #dc2626; font-weight: bold; padding: 10px;';
+                        errorDiv.style.cssText = createErrorStyle();
                         errorDiv.textContent = getMessage('errorUsernameRequired', 'Please enter your username to generate a report.');
                         scrumReport.appendChild(errorDiv);
                     }
@@ -202,7 +202,7 @@ function allIncluded(outputTarget = 'email') {
                             if (scrumReport) {
                                 scrumReport.textContent = '';
                                 const errorDiv = document.createElement('div');
-                                errorDiv.style.cssText = 'color: #dc2626; font-weight: bold; padding: 10px;';
+                                errorDiv.style.cssText = createErrorStyle();
                                 errorDiv.textContent = getMessage('errorUsernameRequired', 'Please enter your username to generate a report.');
                                 scrumReport.appendChild(errorDiv);
                             }
@@ -276,7 +276,7 @@ function allIncluded(outputTarget = 'email') {
                                             scrumReport.textContent = '';
                                             const errorDiv = document.createElement('div');
                                             errorDiv.className = 'error-message';
-                                            errorDiv.style.cssText = 'color: #dc2626; font-weight: bold; padding: 10px;';
+                                            errorDiv.style.cssText = createErrorStyle();
                                             errorDiv.textContent = err.message || getMessage('errorGenericMessage', 'An error occurred while fetching GitLab data.');
                                             scrumReport.appendChild(errorDiv);
                                         }
@@ -322,7 +322,7 @@ function allIncluded(outputTarget = 'email') {
                                             scrumReport.textContent = '';
                                             const errorDiv = document.createElement('div');
                                             errorDiv.className = 'error-message';
-                                            errorDiv.style.cssText = 'color: #dc2626; font-weight: bold; padding: 10px;';
+                                            errorDiv.style.cssText = createErrorStyle();
                                             errorDiv.textContent = err.message || getMessage('errorGenericMessage', 'An error occurred while fetching GitLab data.');
                                             scrumReport.appendChild(errorDiv);
                                         }
@@ -337,7 +337,7 @@ function allIncluded(outputTarget = 'email') {
                                 scrumReport.textContent = '';
                                 const errorDiv = document.createElement('div');
                                 errorDiv.className = 'error-message';
-                                errorDiv.style.cssText = 'color: #dc2626; font-weight: bold; padding: 10px;';
+                                errorDiv.style.cssText = createErrorStyle();
                                 errorDiv.textContent = getMessage('errorUsernameRequired', 'Please enter your username to generate a report.');
                                 scrumReport.appendChild(errorDiv);
                             }
@@ -353,7 +353,7 @@ function allIncluded(outputTarget = 'email') {
                             scrumReport.textContent = '';
                             const errorDiv = document.createElement('div');
                             errorDiv.className = 'error-message';
-                            errorDiv.style.cssText = 'color: #dc2626; font-weight: bold; padding: 10px;';
+                            errorDiv.style.cssText = createErrorStyle();
                             errorDiv.textContent = 'Unknown platform selected.';
                             scrumReport.appendChild(errorDiv);
                         }
@@ -732,7 +732,7 @@ function allIncluded(outputTarget = 'email') {
                     scrumReport.textContent = '';
                     const errorDiv = document.createElement('div');
                     errorDiv.className = 'error-message';
-                    errorDiv.style.cssText = 'color: #dc2626; font-weight: bold; padding: 10px;';
+                    errorDiv.style.cssText = createErrorStyle();
                     errorDiv.textContent = err.message || getMessage('errorGenericMessage', 'An error occurred while generating the report.');
                     scrumReport.appendChild(errorDiv);
                 }
@@ -889,9 +889,7 @@ function allIncluded(outputTarget = 'email') {
     verifyCacheStatus();
 
     function showRateLimitMessage() {
-        if (outputTarget !== 'popup') {
-            return;
-        }
+        if (outputTarget !== 'popup') return;
 
         const scrumReport = document.getElementById('scrumReport');
         if (!scrumReport) return;
@@ -900,33 +898,36 @@ function allIncluded(outputTarget = 'email') {
 
         const container = document.createElement('div');
         container.style.cssText = `
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 24px;
-            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            color: #e1e1e1;
-            width: 100%;
-            box-sizing: border-box;
-            border-radius: 12px;
+            padding: 16px;
+            background: #fef2f2;
+            color: #374151;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            text-align: center;
         `;
 
         // Icon
         const iconContainer = document.createElement('div');
-        iconContainer.style.cssText = 'margin-bottom: 16px; padding: 12px; background: rgba(239, 68, 68, 0.1); border-radius: 50%;';
+        iconContainer.style.cssText = `
+            display: flex;
+            justify-content: center;
+            margin-bottom: 12px;
+            color: #dc2626;
+        `;
         
         const icon = document.createElement('i');
         icon.className = 'fa fa-exclamation-triangle';
-        icon.style.cssText = 'font-size: 32px; color: #ef4444;';
+        icon.style.cssText = 'font-size: 24px;';
         iconContainer.appendChild(icon);
 
         // Title
         const title = document.createElement('h3');
         title.textContent = getMessage('rateLimitTitle', 'API Rate Limit Reached');
         title.style.cssText = `
-            font-weight: 700;
-            font-size: 18px;
-            margin: 0 0 12px 0;
+            font-weight: 600;
+            font-size: 16px;
+            margin: 0 0 8px 0;
+            color: #374151;
             text-align: center;
         `;
 
@@ -934,30 +935,32 @@ function allIncluded(outputTarget = 'email') {
         const description = document.createElement('p');
         description.textContent = getMessage('rateLimitDescription', 'You\'ve exceeded GitHub\'s free API limit (60 requests/hour). Add a GitHub token to continue with 5,000 requests/hour.');
         description.style.cssText = `
-            color: #cbd5e1;
-            text-align: center;
-            margin-bottom: 20px;
+            color: #6b7280;
+            margin-bottom: 12px;
+            font-size: 13px;
             line-height: 1.5;
+            text-align: center;
         `;
 
-        // Benefits
+        // Benefits box 
         const benefits = document.createElement('div');
         benefits.style.cssText = `
-            background: rgba(255, 255, 255, 0.05);
-            padding: 16px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            width: 100%;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: #f9fafb;
+            padding: 12px;
+            border-radius: 6px;
+            margin: 0 auto 12px auto;
+            border: 1px solid #e5e7eb;
+            max-width: 320px;
+            text-align: left;
         `;
         
         const benefitsTitle = document.createElement('div');
         benefitsTitle.textContent = getMessage('tokenBenefitsTitle', 'Token Benefits:');
         benefitsTitle.style.cssText = `
             font-weight: 600;
-            font-size: 14px;
-            margin-bottom: 12px;
-            color: #60a5fa;
+            font-size: 13px;
+            margin-bottom: 8px;
+            color: #374151;
         `;
         benefits.appendChild(benefitsTitle);
 
@@ -970,12 +973,12 @@ function allIncluded(outputTarget = 'email') {
         benefitsList.forEach(text => {
             const item = document.createElement('div');
             item.style.cssText = `
-                color: #e2e8f0;
+                color: #6b7280;
                 font-size: 13px;
-                margin-bottom: 8px;
+                margin-bottom: 6px;
                 display: flex;
                 align-items: center;
-                gap: 8px;
+                gap: 6px;
             `;
             const checkIcon = document.createElement('i');
             checkIcon.className = 'fa fa-check-circle';
@@ -985,38 +988,40 @@ function allIncluded(outputTarget = 'email') {
             benefits.appendChild(item);
         });
 
+        const buttonContainer = document.createElement('div');
+        buttonContainer.style.cssText = `
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        `;
+
         // CTA Button
         const addTokenBtn = document.createElement('button');
         addTokenBtn.textContent = getMessage('addTokenButton', 'Add GitHub Token');
         addTokenBtn.style.cssText = `
-            padding: 12px 24px;
-            border-radius: 8px;
+            padding: 8px 16px;
+            border-radius: 6px;
             border: none;
             cursor: pointer;
-            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            background: #2563eb;
             color: #ffffff;
-            font-weight: 600;
-            font-size: 14px;
-            margin-bottom: 12px;
-            transition: all 0.2s;
-            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3);
+            font-weight: 500;
+            font-size: 13px;
         `;
         
         addTokenBtn.addEventListener('mouseenter', () => {
-            addTokenBtn.style.transform = 'translateY(-2px)';
-            addTokenBtn.style.boxShadow = '0 6px 8px rgba(37, 99, 235, 0.4)';
+            addTokenBtn.style.background = '#1d4ed8';
         });
         
         addTokenBtn.addEventListener('mouseleave', () => {
-            addTokenBtn.style.transform = 'translateY(0)';
-            addTokenBtn.style.boxShadow = '0 4px 6px rgba(37, 99, 235, 0.3)';
+            addTokenBtn.style.background = '#2563eb';
         });
         
         addTokenBtn.addEventListener('click', () => {
             const settingsToggle = document.getElementById('settingsToggle');
             if (settingsToggle) settingsToggle.click();
             
-            // Scroll to token input
             setTimeout(() => {
                 const tokenInput = document.getElementById('githubToken');
                 if (tokenInput) {
@@ -1031,25 +1036,25 @@ function allIncluded(outputTarget = 'email') {
         learnMoreLink.href = '#';
         learnMoreLink.style.cssText = `
             font-size: 12px;
-            color: #93c5fd;
+            color: #2563eb;
             cursor: pointer;
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
             text-decoration: none;
-            transition: color 0.2s;
         `;
         
         learnMoreLink.addEventListener('mouseenter', () => {
-            learnMoreLink.style.color = '#60a5fa';
+            learnMoreLink.style.color = '#1d4ed8';
         });
         
         learnMoreLink.addEventListener('mouseleave', () => {
-            learnMoreLink.style.color = '#93c5fd';
+            learnMoreLink.style.color = '#2563eb';
         });
         
         const linkIcon = document.createElement('i');
         linkIcon.className = 'fa fa-external-link';
+        linkIcon.style.fontSize = '11px';
         learnMoreLink.appendChild(linkIcon);
         learnMoreLink.appendChild(document.createTextNode(' ' + getMessage('tokenLearnMore', 'Learn how to create a token')));
         
@@ -1058,14 +1063,17 @@ function allIncluded(outputTarget = 'email') {
             chrome.tabs.create({ url: 'https://github.com/settings/tokens/new' });
         });
 
+        // Add button and link to button container
+        buttonContainer.appendChild(addTokenBtn);
+        buttonContainer.appendChild(learnMoreLink);
+
         // Assemble
         container.append(
             iconContainer,
             title,
             description,
             benefits,
-            addTokenBtn,
-            learnMoreLink
+            buttonContainer
         );
 
         scrumReport.appendChild(container);
@@ -1080,9 +1088,7 @@ function allIncluded(outputTarget = 'email') {
 
                 const errorDiv = document.createElement('div');
                 errorDiv.textContent = getMessage('errorInvalidToken', 'Invalid or expired GitHub token. Please check your token in the settings and try again.');
-                errorDiv.style.color = '#dc2626';
-                errorDiv.style.fontWeight = 'bold';
-                errorDiv.style.padding = '10px';
+                errorDiv.style.cssText = createErrorStyle();
 
                 reportDiv.appendChild(errorDiv);
                 setGenerateButtonState(false);
