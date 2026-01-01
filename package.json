@@ -8,8 +8,9 @@
 	},
 	"scripts": {
 		"format": "biome format --write",
-		"check": "biome check .",
-		"fix": "biome lint --write"
+		"check": "biome check . && node scripts/validate-locales.js",
+		"fix": "biome lint --write",
+		"validate:locales": "node scripts/validate-locales.js"
 	},
 	"keywords": [
 		"scrum",
