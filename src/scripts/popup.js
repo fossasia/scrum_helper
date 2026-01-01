@@ -49,71 +49,78 @@ function applyI18n() {
     });
 }
 
+let enableToggleCached = false;
+
+// Initial load
+chrome.storage.local.get(['enableToggle'], (items) => {
+    enableToggleCached = items.enableToggle !== false;
+});
+
+// Keep in sync
+chrome.storage.onChanged.addListener((changes, area) => {
+    if (area === 'local' && changes.enableToggle) {
+        enableToggleCached = changes.enableToggle.newValue !== false;
+    }
+});
+
+function guardIfDisabled(e, revertFn) {
+    if (enableToggleCached) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+    if (typeof revertFn === 'function') {
+        revertFn();
+    }
+}
+
 function addDisabledStateGuard() {
     // Guard platform dropdown interactions
     const platformDropdownBtn = document.getElementById('platformDropdownBtn');
     if (platformDropdownBtn) {
-        const originalClickHandler = platformDropdownBtn.onclick;
-        platformDropdownBtn.addEventListener('click', function(e) {
-            chrome.storage.local.get(['enableToggle'], (items) => {
-                const enableToggle = items.enableToggle !== false;
-                if (!enableToggle) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    return false;
-                }
-            });
-        }, true);
+        platformDropdownBtn.addEventListener(
+            'click',
+            (e) => guardIfDisabled(e),
+            true
+        );
     }
 
     // Guard repository search interactions
     const repoSearch = document.getElementById('repoSearch');
     if (repoSearch) {
         ['click', 'focus', 'input', 'keydown'].forEach(eventType => {
-            repoSearch.addEventListener(eventType, function(e) {
-                chrome.storage.local.get(['enableToggle'], (items) => {
-                    const enableToggle = items.enableToggle !== false;
-                    if (!enableToggle) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        return false;
-                    }
-                });
-            }, true);
+            repoSearch.addEventListener(
+                eventType,
+                (e) => guardIfDisabled(e),
+                true
+            );
         });
     }
 
     // Guard token visibility toggle
     const toggleTokenBtn = document.getElementById('toggleTokenVisibility');
     if (toggleTokenBtn) {
-        toggleTokenBtn.addEventListener('click', function(e) {
-            chrome.storage.local.get(['enableToggle'], (items) => {
-                const enableToggle = items.enableToggle !== false;
-                if (!enableToggle) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    return false;
-                }
-            });
-        }, true);
+        toggleTokenBtn.addEventListener(
+            'click',
+            (e) => guardIfDisabled(e),
+            true
+        );
     }
 
     // Guard repo filter checkbox
     const useRepoFilter = document.getElementById('useRepoFilter');
     if (useRepoFilter) {
-        useRepoFilter.addEventListener('change', function(e) {
-            chrome.storage.local.get(['enableToggle'], (items) => {
-                const enableToggle = items.enableToggle !== false;
-                if (!enableToggle) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    this.checked = !this.checked; // Revert the change
-                    return false;
-                }
-            });
-        }, true);
+        useRepoFilter.addEventListener(
+            'change',
+            function (e) {
+                guardIfDisabled(e, () => {
+                    this.checked = !this.checked; // revert change
+                });
+            },
+            true
+        );
     }
 }
+
     
 document.addEventListener('DOMContentLoaded', function () {
     // Apply translations as soon as the DOM is ready
@@ -130,6 +137,8 @@ document.addEventListener('DOMContentLoaded', function () {
     const settingsToggle = document.getElementById('settingsToggle');
     const reportSection = document.getElementById('reportSection');
     const settingsSection = document.getElementById('settingsSection');
+
+    const tokenPreview = document.getElementById('tokenPreview');
 
     let isSettingsVisible = false;
     const githubTokenInput = document.getElementById('githubToken');
@@ -212,6 +221,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     function renderTokenPreview() {
+        if (!tokenPreview) return;
         tokenPreview.innerHTML = '';
         const value = githubTokenInput.value;
         const isDark = document.body.classList.contains('dark-mode');
@@ -416,73 +426,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
-
-// Add event listener guards for disabled state
-function addDisabledStateGuard() {
-    // Guard platform dropdown interactions
-    const platformDropdownBtn = document.getElementById('platformDropdownBtn');
-    if (platformDropdownBtn) {
-        const originalClickHandler = platformDropdownBtn.onclick;
-        platformDropdownBtn.addEventListener('click', function(e) {
-            chrome.storage.local.get(['enableToggle'], (items) => {
-                const enableToggle = items.enableToggle !== false;
-                if (!enableToggle) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    return false;
-                }
-            });
-        }, true);
-    }
-
-    // Guard repository search interactions
-    const repoSearch = document.getElementById('repoSearch');
-    if (repoSearch) {
-        ['click', 'focus', 'input', 'keydown'].forEach(eventType => {
-            repoSearch.addEventListener(eventType, function(e) {
-                chrome.storage.local.get(['enableToggle'], (items) => {
-                    const enableToggle = items.enableToggle !== false;
-                    if (!enableToggle) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        return false;
-                    }
-                });
-            }, true);
-        });
-    }
-
-    // Guard token visibility toggle
-    const toggleTokenBtn = document.getElementById('toggleTokenVisibility');
-    if (toggleTokenBtn) {
-        toggleTokenBtn.addEventListener('click', function(e) {
-            chrome.storage.local.get(['enableToggle'], (items) => {
-                const enableToggle = items.enableToggle !== false;
-                if (!enableToggle) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    return false;
-                }
-            });
-        }, true);
-    }
-
-    // Guard repo filter checkbox
-    const useRepoFilter = document.getElementById('useRepoFilter');
-    if (useRepoFilter) {
-        useRepoFilter.addEventListener('change', function(e) {
-            chrome.storage.local.get(['enableToggle'], (items) => {
-                const enableToggle = items.enableToggle !== false;
-                if (!enableToggle) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    this.checked = !this.checked; // Revert the change
-                    return false;
-                }
-            });
-        }, true);
-    }
-}
 
     chrome.storage.local.get(['enableToggle'], (items) => {
         console.log('[DEBUG] Storage items received:', items);
