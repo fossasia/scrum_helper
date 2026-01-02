@@ -68,9 +68,8 @@ function guardIfDisabled(e, revertFn) {
 
     e.preventDefault();
     e.stopPropagation();
-    if (typeof revertFn === 'function') {
-        revertFn();
-    }
+    if (typeof revertFn === 'function') revertFn();
+    
 }
 
 function addDisabledStateGuard() {
