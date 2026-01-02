@@ -51,6 +51,43 @@ function applyI18n() {
 
 let enableToggleCached = false;
 
+// ============================================================
+// SHARED CONFIGURATION: Element IDs for disabled state guarding
+// This consolidates the list used in both addDisabledStateGuard()
+// and updateContentState() for easier maintenance.
+// ============================================================
+const GUARDED_ELEMENTS_CONFIG = {
+    // Elements that need event-based guarding (for custom interactions)
+    eventGuarded: {
+        platformDropdownBtn: ['click'],
+        repoSearch: ['click', 'focus', 'input', 'keydown'],
+        toggleTokenVisibility: ['click'],
+        useRepoFilter: ['change']
+    },
+    // Elements that get disabled/enabled via updateContentState
+    // NOTE: 'settingsToggle' and 'homeButton' are NOT in this list - they should always be enabled
+    toggled: [
+        'startingDate',
+        'endingDate',
+        'generateReport',
+        'copyReport',
+        'refreshCache',
+        'showOpenLabel',
+        'showCommits',
+        'scrumReport',
+        'githubToken',
+        'projectName',
+        'platformUsername',
+        'orgInput',
+        'cacheInput',
+        'toggleTokenVisibility',
+        'useRepoFilter',
+        'repoSearch',
+    ],
+    // Checkbox IDs for label styling
+    checkboxes: ['showOpenLabel', 'showCommits', 'useRepoFilter']
+};
+
 // Initial load
 chrome.storage.local.get(['enableToggle'], (items) => {
     enableToggleCached = items.enableToggle !== false;
@@ -84,12 +121,33 @@ function addDisabledStateGuard() {
     }
 
     // Guard repository search interactions
+    // FIX: Track previous value and provide revertFn to restore it when disabled
     const repoSearch = document.getElementById('repoSearch');
     if (repoSearch) {
-        ['click', 'focus', 'input', 'keydown'].forEach(eventType => {
+        let lastValidValue = repoSearch.value;
+        
+        // Update lastValidValue only when extension is enabled
+        repoSearch.addEventListener('input', () => {
+            if (enableToggleCached) {
+                lastValidValue = repoSearch.value;
+            }
+        });
+        
+        GUARDED_ELEMENTS_CONFIG.eventGuarded.repoSearch.forEach(eventType => {
             repoSearch.addEventListener(
                 eventType,
-                (e) => guardIfDisabled(e),
+                (e) => {
+                    guardIfDisabled(e, () => {
+                        // Revert the input value to the last valid state
+                        if (eventType === 'input') {
+                            repoSearch.value = lastValidValue;
+                        }
+                        // Blur the input to remove focus when disabled
+                        if (eventType === 'focus') {
+                            repoSearch.blur();
+                        }
+                    });
+                },
                 true
             );
         });
@@ -145,6 +203,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const tokenEyeIcon = document.getElementById('tokenEyeIcon');
     let tokenVisible = false;
 
+    if (tokenEyeIcon) {
+        tokenEyeIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+        tokenEyeIcon.className = 'text-gray-600';
+    }
+
     const orgInput = document.getElementById('orgInput');
 
 
@@ -199,7 +262,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
         tokenEyeIcon.classList.add('eye-animating');
         setTimeout(() => tokenEyeIcon.classList.remove('eye-animating'), 400);
-        tokenEyeIcon.className = tokenVisible ? 'fa fa-eye-slash text-gray-600' : 'fa fa-eye text-gray-600';
+        
+        // Use inline SVG icons instead of Font Awesome (which may not be loaded)
+        if (tokenVisible) {
+            // Eye-slash icon (hide)
+            tokenEyeIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
+        } else {
+            // Eye icon (show)
+            tokenEyeIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+        }
+        tokenEyeIcon.className = 'text-gray-600';
 
         githubTokenInput.classList.add('token-animating');
         setTimeout(() => githubTokenInput.classList.remove('token-animating'), 300);
@@ -242,26 +314,8 @@ document.addEventListener('DOMContentLoaded', function () {
     function updateContentState(enableToggle) {
         console.log('[DEBUG] updateContentState called with:', enableToggle);
         
-        // List of all input/interactive element IDs to toggle
-        // NOTE: 'settingsToggle' and 'homeButton' are NOT in this list - they should always be enabled
-        const elementsToToggle = [
-            'startingDate',
-            'endingDate',
-            'generateReport',
-            'copyReport',
-            'refreshCache',
-            'showOpenLabel',
-            'showCommits',
-            'scrumReport',
-            'githubToken',
-            'projectName',
-            'platformUsername',
-            'orgInput',
-            'cacheInput',
-            'toggleTokenVisibility',  // Eye toggle for token
-            'useRepoFilter',          // Repository filter checkbox
-            'repoSearch',             // Repository search input
-        ];
+        // Use shared configuration for element IDs
+        const elementsToToggle = GUARDED_ELEMENTS_CONFIG.toggled;
 
         const radios = document.querySelectorAll('input[name="timeframe"]');
         const customDateContainer = document.getElementById('customDateContainer');
@@ -407,8 +461,8 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
 
-        // Disable all checkboxes' labels for better UX
-        const checkboxes = ['showOpenLabel', 'showCommits', 'useRepoFilter'];
+        // Disable all checkboxes' labels for better UX - use shared config
+        const checkboxes = GUARDED_ELEMENTS_CONFIG.checkboxes;
         checkboxes.forEach(id => {
             const checkbox = document.getElementById(id);
             if (checkbox) {
@@ -489,7 +543,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const showOpenLabelCheckbox = document.getElementById('showOpenLabel');
         const showCommitsCheckbox = document.getElementById('showCommits');
         const githubTokenInput = document.getElementById('githubToken');
-        const cacheInput = document.getElementById('cacheInput');
         const enableToggleSwitch = document.getElementById('enable');
         const yesterdayRadio = document.getElementById('yesterdayContribution');
         const startingDateInput = document.getElementById('startingDate');
@@ -595,6 +648,36 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             });
         }
+
+        let cacheInput = document.getElementById('cacheInput');
+        if (cacheInput) {
+            chrome.storage.local.get(['cacheInput'], function (result) {
+                if (result.cacheInput) {
+                    cacheInput.value = result.cacheInput;
+                } else {
+                    cacheInput.value = 10;
+                }
+            });
+
+            cacheInput.addEventListener('blur', function () {
+                let ttlValue = parseInt(this.value);
+                if (isNaN(ttlValue) || ttlValue <= 0 || this.value.trim() === '') {
+                    ttlValue = 10;
+                    this.value = ttlValue;
+                    this.style.borderColor = '#ef4444';
+                } else if (ttlValue > 1440) {
+                    ttlValue = 1440;
+                    this.value = ttlValue;
+                    this.style.borderColor = '#f59e0b';
+                } else {
+                    this.style.borderColor = '#10b981';
+                }
+
+                chrome.storage.local.set({ cacheInput: ttlValue }, function () {
+                    console.log('Cache TTL saved:', ttlValue, 'minutes');
+                });
+            });
+        }        
 
         // Custom date container handler
         const customDateContainer = document.getElementById('customDateContainer');
@@ -1382,35 +1465,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
-let cacheInput = document.getElementById('cacheInput');
-if (cacheInput) {
-    chrome.storage.local.get(['cacheInput'], function (result) {
-        if (result.cacheInput) {
-            cacheInput.value = result.cacheInput;
-        } else {
-            cacheInput.value = 10;
-        }
-    });
 
-    cacheInput.addEventListener('blur', function () {
-        let ttlValue = parseInt(this.value);
-        if (isNaN(ttlValue) || ttlValue <= 0 || this.value.trim() === '') {
-            ttlValue = 10;
-            this.value = ttlValue;
-            this.style.borderColor = '#ef4444';
-        } else if (ttlValue > 1440) {
-            ttlValue = 1440;
-            this.value = ttlValue;
-            this.style.borderColor = '#f59e0b';
-        } else {
-            this.style.borderColor = '#10b981';
-        }
-
-        chrome.storage.local.set({ cacheInput: ttlValue }, function () {
-            console.log('Cache TTL saved:', ttlValue, 'minutes');
-        });
-    });
-}
 
 
 chrome.storage.local.get(['platform'], function (result) {
@@ -1596,7 +1651,6 @@ chrome.storage.local.get(['platform'], function (result) {
     platformSelectHidden.value = platform;
     updatePlatformUI(platform);
 });
-
 
 
 
