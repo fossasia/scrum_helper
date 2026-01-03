@@ -724,23 +724,23 @@ function allIncluded(outputTarget = 'email') {
                 console.log('Open PRs for commit fetching:', openPRs.map(pr => pr.number));
                 // Fetch commits for open PRs (batch) if showCommits is enabled
                 if (openPRs.length && githubToken && showCommits) {
-                    // Get the correct date range for commit fetching
-                    let startDateForCommits, endDateForCommits;
-                    if (yesterdayContribution) {
-                        const today = new Date();
-                        const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
-                        startDateForCommits = yesterday.toISOString().split('T')[0];
-                        endDateForCommits = today.toISOString().split('T')[0]; // Use yesterday for start and today for end
-                    } else if (startingDate && endingDate) {
-                        startDateForCommits = startingDate;
-                        endDateForCommits = endingDate;
-                    } else {
-                        // Default to last 7 days if no date range is set
-                        const today = new Date();
-                        const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
-                        startDateForCommits = lastWeek.toISOString().split('T')[0];
-                        endDateForCommits = today.toISOString().split('T')[0];
-                    }
+                // Get the correct date range for commit fetching
+                let startDateForCommits, endDateForCommits;
+                if (yesterdayContribution) {
+                    const today = new Date();
+                    const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+                    startDateForCommits = yesterday.toISOString().split('T')[0];
+                    endDateForCommits = yesterday.toISOString().split('T')[0]; // Use yesterday for start and end
+                } else if (startingDate && endingDate) {
+                    startDateForCommits = startingDate;
+                    endDateForCommits = endingDate;
+                } else {
+                    // Default to last 7 days if no date range is set
+                    const today = new Date();
+                    const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
+                    startDateForCommits = lastWeek.toISOString().split('T')[0];
+                    endDateForCommits = today.toISOString().split('T')[0];
+                }
 
                     const commitMap = await fetchCommitsForOpenPRs(openPRs, githubToken, startDateForCommits, endDateForCommits);
                     console.log('Commit map returned from fetchCommitsForOpenPRs:', commitMap);
