@@ -142,9 +142,23 @@ document.addEventListener('DOMContentLoaded', function () {
             settingsIcon.src = isDarkMode ? 'icons/settings-night.png' : 'icons/settings-light.png';
         }
         renderTokenPreview();
+
+        // Trigger re-render of error messages if they exist
+        const scrumReport = document.getElementById('scrumReport');
+        if (scrumReport && scrumReport.querySelector('.error-message, [style*="fef2f2"]')) {
+            // Re-generate the report to apply new theme colors
+            const generateBtn = document.getElementById('generateReport');
+            if (generateBtn && !generateBtn.disabled) {
+                // Only regenerate if there's already an error message showing
+                window.generateScrumReport && window.generateScrumReport();
+            }
+        }
     });
 
     function renderTokenPreview() {
+        const tokenPreview = document.getElementById('tokenPreview');
+        if (!tokenPreview) return; 
+        
         tokenPreview.innerHTML = '';
         const value = githubTokenInput.value;
         const isDark = document.body.classList.contains('dark-mode');
@@ -340,7 +354,7 @@ document.addEventListener('DOMContentLoaded', function () {
             // Load platform-specific username
             const platform = result.platform || 'github';
             const platformUsernameKey = `${platform}Username`;
-            platformUsername.value = result[platformUsernameKey] || '';
+            platformUsername.value = result?.[platformUsernameKey] || '';
         });
 
         // Button setup
