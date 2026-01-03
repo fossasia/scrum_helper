@@ -225,6 +225,38 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
 
+        // Handle labels and section headers - apply disabled styles when extension is disabled
+        const labelSelectors = [
+            // Home page labels
+            'p[data-i18n="platformLabel"]',
+            'p[data-i18n="projectNameLabel"]',
+            '#usernameLabel',
+            'p[data-i18n="contributionsLabel"]',
+            'label[for="startingDate"]',
+            'label[for="endingDate"]',
+            'label[for="yesterdayContribution"]',
+            '#checkboxLabel',
+            '#showCommitsLabel',
+            'h6[data-i18n="scrumReportLabel"]',
+            // Settings page labels
+            'p[data-i18n="githubTokenLabel"]',
+            'p[data-i18n="settingsOrgNameLabel"]',
+            'span[data-i18n="repoFilterLabel"]',
+            'span[data-i18n="cacheTTLLabel"]',
+            'span[data-i18n="cacheTTLUnit"]'
+        ];
+
+        labelSelectors.forEach(selector => {
+            const elements = document.querySelectorAll(selector);
+            elements.forEach(element => {
+                if (!enableToggle) {
+                    element.style.opacity = '0.5';
+                } else {
+                    element.style.opacity = '1';
+                }
+            });
+        });
+
         const scrumReport = document.getElementById('scrumReport');
         if (scrumReport) {
             scrumReport.contentEditable = enableToggle;
