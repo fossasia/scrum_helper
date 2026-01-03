@@ -12,6 +12,48 @@ function logError(...args) {
     }
 }
 
+function isDarkMode() {
+    return document.body.classList.contains('dark-mode');
+}
+
+function getThemeColors() {
+    const dark = isDarkMode();
+
+    return {
+        // Base surfaces
+        extensionBg: dark ? '#0d1117' : '#ffffff',
+        surfaceBg: dark ? '#161b22' : '#f9fafb',
+        surfaceRaised: dark ? '#1f2933' : '#ffffff',
+
+        // Error container (neutral, native)
+        errorBg: dark ? '#161b22' : '#fef2f2',
+        errorBorder: dark ? '#30363d' : '#e5e7eb', // neutral border
+        errorText: dark ? '#e6edf3' : '#374151',
+
+        // Error accents
+        errorIcon: dark ? '#f85149' : '#dc2626',
+        errorTitle: dark ? '#f0f6fc' : '#374151',
+
+        // Description text
+        descText: dark ? '#9da7b3' : '#6b7280',
+
+        // Benefits box
+        benefitsBg: dark ? '#1f2933' : '#ffffff',
+        benefitsBorder: dark ? '#30363d' : '#e5e7eb',
+        benefitsTitle: dark ? '#e6edf3' : '#374151',
+        benefitsText: dark ? '#c9d1d9' : '#6b7280',
+
+        // Buttons
+        buttonBg: '#2563eb',
+        buttonHover: '#1d4ed8',
+        buttonText: '#ffffff',
+
+        // Links
+        linkColor: dark ? '#58a6ff' : '#2563eb',
+        linkHover: dark ? '#79c0ff' : '#1d4ed8',
+    };
+}
+
 function getMessage(key, fallback = '') {
     try {
         const message = chrome.i18n.getMessage(key);
@@ -48,6 +90,8 @@ let orgName = '';
 let platform = 'github';
 let platformUsername = '';
 let gitlabHelper = null;
+let currentErrorUI = null; 
+let themeObserver = null;
 
 function allIncluded(outputTarget = 'email') {
 
@@ -106,8 +150,61 @@ function allIncluded(outputTarget = 'email') {
     }
 
     function createErrorStyle() {
-        return 'color: #dc2626; font-size: 13px; padding: 8px 12px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px;';
+        const colors = getThemeColors();
+        return `
+            color: ${colors.errorText};
+            font-size: 13px;
+            padding: 8px 12px;
+            background: ${colors.errorBg};
+            border: 1px solid ${colors.errorBorder};
+            border-radius: 6px;
+        `;
     }
+
+     function initThemeObserver() {
+        // Clean up existing observer to prevent memory leaks
+        if (themeObserver) {
+            themeObserver.disconnect();
+            themeObserver = null;
+        }
+
+        // Only set up observer if we're in popup context
+        if (typeof document === 'undefined' || !document.body) return;
+
+        themeObserver = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                    // Theme changed - re-render active error UI if exists
+                    if (currentErrorUI) {
+                        log('Theme changed, re-rendering error UI:', currentErrorUI);
+                        
+                        // Re-render the appropriate error UI
+                        if (currentErrorUI === 'rateLimit') {
+                            showRateLimitMessage();
+                        } else if (currentErrorUI === 'invalidToken') {
+                            showInvalidTokenMessage();
+                        }
+                    }
+                }
+            });
+        });
+
+        // Watch for class changes on body element
+        themeObserver.observe(document.body, {
+            attributes: true,
+            attributeFilter: ['class']
+        });
+
+        log('Theme observer initialized');
+    }
+
+    function cleanupThemeObserver() {
+        if (themeObserver) {
+            themeObserver.disconnect();
+            themeObserver = null;
+            log('Theme observer cleaned up');
+        }
+    }  
 
     const pr_open_button = createBadgeHTML('open', '#2cbe4e');
     const pr_closed_button = createBadgeHTML('closed', '#dc2626'); 
@@ -894,14 +991,23 @@ function allIncluded(outputTarget = 'email') {
         const scrumReport = document.getElementById('scrumReport');
         if (!scrumReport) return;
 
+        // Mark that rate limit UI is active
+        currentErrorUI = 'rateLimit';
+        
+        // Initialize theme observer if not already done
+        initThemeObserver();
+
         scrumReport.textContent = '';
+
+        // Get theme-aware colors (will be fresh on every call)
+        const colors = getThemeColors();
 
         const container = document.createElement('div');
         container.style.cssText = `
             padding: 16px;
-            background: #fef2f2;
-            color: #374151;
-            border: 1px solid #fecaca;
+            background: ${colors.errorBg};
+            color: ${colors.errorText};
+            border: 1px solid ${colors.errorBorder};
             border-radius: 8px;
             text-align: center;
         `;
@@ -912,7 +1018,7 @@ function allIncluded(outputTarget = 'email') {
             display: flex;
             justify-content: center;
             margin-bottom: 12px;
-            color: #dc2626;
+            color: ${colors.errorIcon};
         `;
         
         const icon = document.createElement('i');
@@ -927,7 +1033,7 @@ function allIncluded(outputTarget = 'email') {
             font-weight: 600;
             font-size: 16px;
             margin: 0 0 8px 0;
-            color: #374151;
+            color: ${colors.errorTitle};
             text-align: center;
         `;
 
@@ -935,7 +1041,7 @@ function allIncluded(outputTarget = 'email') {
         const description = document.createElement('p');
         description.textContent = getMessage('rateLimitDescription', 'You\'ve exceeded GitHub\'s free API limit (60 requests/hour). Add a GitHub token to continue with 5,000 requests/hour.');
         description.style.cssText = `
-            color: #6b7280;
+            color: ${colors.descText};
             margin-bottom: 12px;
             font-size: 13px;
             line-height: 1.5;
@@ -945,11 +1051,11 @@ function allIncluded(outputTarget = 'email') {
         // Benefits box 
         const benefits = document.createElement('div');
         benefits.style.cssText = `
-            background: #f9fafb;
+            background: ${colors.benefitsBg};
             padding: 12px;
             border-radius: 6px;
             margin: 0 auto 12px auto;
-            border: 1px solid #e5e7eb;
+            border: 1px solid ${colors.benefitsBorder};
             max-width: 320px;
             text-align: left;
         `;
@@ -960,7 +1066,7 @@ function allIncluded(outputTarget = 'email') {
             font-weight: 600;
             font-size: 13px;
             margin-bottom: 8px;
-            color: #374151;
+            color: ${colors.benefitsTitle};
         `;
         benefits.appendChild(benefitsTitle);
 
@@ -973,7 +1079,7 @@ function allIncluded(outputTarget = 'email') {
         benefitsList.forEach(text => {
             const item = document.createElement('div');
             item.style.cssText = `
-                color: #6b7280;
+                color: ${colors.benefitsText};
                 font-size: 13px;
                 margin-bottom: 6px;
                 display: flex;
@@ -1004,21 +1110,25 @@ function allIncluded(outputTarget = 'email') {
             border-radius: 6px;
             border: none;
             cursor: pointer;
-            background: #2563eb;
-            color: #ffffff;
+            background: ${colors.buttonBg};
+            color: ${colors.buttonText};
             font-weight: 500;
             font-size: 13px;
+            transition: background 0.2s ease;
         `;
         
         addTokenBtn.addEventListener('mouseenter', () => {
-            addTokenBtn.style.background = '#1d4ed8';
+            addTokenBtn.style.background = colors.buttonHover;
         });
         
         addTokenBtn.addEventListener('mouseleave', () => {
-            addTokenBtn.style.background = '#2563eb';
+            addTokenBtn.style.background = colors.buttonBg;
         });
         
         addTokenBtn.addEventListener('click', () => {
+            // Clear error UI state when navigating away
+            currentErrorUI = null;
+            
             const settingsToggle = document.getElementById('settingsToggle');
             if (settingsToggle) settingsToggle.click();
             
@@ -1036,20 +1146,21 @@ function allIncluded(outputTarget = 'email') {
         learnMoreLink.href = '#';
         learnMoreLink.style.cssText = `
             font-size: 12px;
-            color: #2563eb;
+            color: ${colors.linkColor};
             cursor: pointer;
             display: inline-flex;
             align-items: center;
             gap: 4px;
             text-decoration: none;
+            transition: color 0.2s ease;
         `;
         
         learnMoreLink.addEventListener('mouseenter', () => {
-            learnMoreLink.style.color = '#1d4ed8';
+            learnMoreLink.style.color = colors.linkHover;
         });
         
         learnMoreLink.addEventListener('mouseleave', () => {
-            learnMoreLink.style.color = '#2563eb';
+            learnMoreLink.style.color = colors.linkColor;
         });
         
         const linkIcon = document.createElement('i');
@@ -1084,11 +1195,28 @@ function allIncluded(outputTarget = 'email') {
         if (outputTarget === 'popup') {
             const reportDiv = document.getElementById('scrumReport');
             if (reportDiv) {
+                // Mark that invalid token UI is active
+                currentErrorUI = 'invalidToken';
+                
+                // Initialize theme observer if not already done
+                initThemeObserver();
+
                 reportDiv.textContent = '';
+
+                const colors = getThemeColors(); // Fresh colors on every call
 
                 const errorDiv = document.createElement('div');
                 errorDiv.textContent = getMessage('errorInvalidToken', 'Invalid or expired GitHub token. Please check your token in the settings and try again.');
-                errorDiv.style.cssText = createErrorStyle();
+                
+                // Update to use dynamic colors
+                errorDiv.style.cssText = `
+                    color: ${colors.errorText};
+                    font-size: 13px;
+                    padding: 8px 12px;
+                    background: ${colors.errorBg};
+                    border: 1px solid ${colors.errorBorder};
+                    border-radius: 6px;
+                `;
 
                 reportDiv.appendChild(errorDiv);
                 setGenerateButtonState(false);
@@ -1098,6 +1226,7 @@ function allIncluded(outputTarget = 'email') {
             scrumGenerationInProgress = false;
         }
     }
+
 
 
     async function processGithubData(data) {
@@ -1188,6 +1317,8 @@ function allIncluded(outputTarget = 'email') {
             scrumGenerationInProgress = false;
             return;
         }
+
+        currentErrorUI = null;
 
         let lastWeekUl = '<ul>';
         for (let i = 0; i < lastWeekArray.length; i++) lastWeekUl += lastWeekArray[i];
