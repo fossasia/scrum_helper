@@ -815,3 +815,77 @@ hr,
     border-color: #d97706;
     color: #fde68a;
 }
+
+[disabled],
+[aria-disabled="true"] {
+    cursor: not-allowed !important;
+    opacity: 0.5 !important;
+    pointer-events: none !important;
+}
+
+[aria-disabled="true"] * {
+    user-select: none !important;
+    -webkit-user-select: none !important;
+}
+
+#platformDropdownBtn[disabled] {
+    background-color: #e5e7eb !important;
+    cursor: not-allowed !important;
+}
+
+#platformDropdownBtn[aria-disabled="true"] {
+    background-color: #e5e7eb !important;
+    cursor: not-allowed !important;
+}
+
+#customPlatformDropdown[aria-disabled="true"] #platformDropdownList {
+    display: none !important;
+}
+
+#repoFilterContainer[aria-disabled="true"],
+#repoFilterContainer[aria-disabled="true"] * {
+    pointer-events: none !important;
+    opacity: 0.5 !important;
+}
+
+#githubToken[disabled],
+#toggleTokenVisibility[disabled] {
+    cursor: not-allowed !important;
+}
+
+input[type="checkbox"][disabled] + label {
+    cursor: not-allowed !important;
+    opacity: 0.5 !important;
+}
+
+input[type="radio"][disabled] + label {
+    cursor: not-allowed !important;
+    opacity: 0.5 !important;
+}
+
+[contenteditable="false"] {
+    cursor: not-allowed !important;
+    background-color: #f3f4f6 !important;
+}
+
+button[disabled],
+button[aria-disabled="true"] {
+    cursor: not-allowed !important;
+    opacity: 0.5 !important;
+    background-color: #d1d5db !important;
+}
+
+button[disabled]:hover,
+button[aria-disabled="true"]:hover {
+    background-color: #d1d5db !important;
+}
+
+#customDateContainer[aria-disabled="true"] input {
+    pointer-events: none !important;
+    cursor: not-allowed !important;
+}
+
+.remove-repo-btn[disabled] {
+    cursor: not-allowed !important;
+    opacity: 0.3 !important;
+}
