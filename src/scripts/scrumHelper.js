@@ -27,7 +27,7 @@ function getThemeColors() {
 
         // Error container (neutral, native)
         errorBg: dark ? '#161b22' : '#fef2f2',
-        errorBorder: dark ? '#30363d' : '#e5e7eb', // neutral border
+        errorBorder: dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)',
         errorText: dark ? '#e6edf3' : '#374151',
 
         // Error accents
@@ -1004,10 +1004,10 @@ function allIncluded(outputTarget = 'email') {
 
         const container = document.createElement('div');
         container.style.cssText = `
-            padding: 8px 6px;
+            padding: 12px 6px;
             background: ${colors.errorBg};
             color: ${colors.errorText};
-            border: 0.5px solid ${colors.errorBorder};
+            border: 1px solid ${colors.errorBorder};
             border-radius: 6px;
             text-align: center;
         `;
