@@ -280,11 +280,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Handle repository dropdown
         const repoDropdown = document.getElementById('repoDropdown');
-        if (repoDropdown) {
-            if (!enableToggle) {
-                repoDropdown.classList.add('hidden');
-            }
-            // When enabled, dropdown visibility is controlled by user interaction, so we just ensure pointer events are restored via repoFilterContainer
+        if (repoDropdown && !enableToggle) {
+            repoDropdown.classList.add('hidden');
         }
 
         // Handle useRepoFilter label
