@@ -932,10 +932,10 @@ function allIncluded(outputTarget = 'email') {
         window._mergedPrOnlyFilter = mergedPrOnly;
         console.log(`[SCRUM-HELPER] Merged PR filter setting loaded: ${mergedPrOnly} (from storage: ${mergedPrSettings.mergedPrOnly})`);
         console.log(
-          '[DEBUG FINAL CHECK]',
-          'token:', !!githubToken,
-          'mergedPrOnly from storage:', mergedPrSettings.mergedPrOnly,
-          'checkbox window flag:', window._mergedPrOnlyFilter
+            '[DEBUG FINAL CHECK]',
+            'token:', !!githubToken,
+            'mergedPrOnly from storage:', mergedPrSettings.mergedPrOnly,
+            'checkbox window flag:', window._mergedPrOnlyFilter
         );
 
         githubIssuesData = filteredData.githubIssuesData;

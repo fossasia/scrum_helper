@@ -93,12 +93,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
         mergedPrCheckbox.addEventListener("change", () => {
             chrome.storage.sync.set({ mergedPrOnly: mergedPrCheckbox.checked });
-            // Clear cache to ensure new setting is applied
-            chrome.storage.local.set({ githubCache: null });
-            // Regenerate the report with the new setting
-            if (window.generateScrumReport) {
-                window.generateScrumReport();
-            }
         });
     }
 

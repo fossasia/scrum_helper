@@ -157,6 +157,7 @@
               Fetch your contributions between:
             </p>
 
+
             <div class="flex gap-[3px] justify-between items-center mt-2" style="gap: 8px">
               <div id="customDateContainer" class="flex gap-2">
                 <div>
@@ -181,220 +182,7 @@
             </div>
           </div>
 
-          <div style="margin-bottom: 1rem">
-            <br />
-            <input type="checkbox" id="showOpenLabel" class="form-checkbox text-blue-600" />
-
-            <label id="checkboxLabel" for="showOpenLabel" class="font-medium text-sm" style="margin-left: 4px"
-              data-i18n="showOpenClosedLabel">Show PRs Labels</label>
-          </div>
-
-          <div style="margin-bottom: 1rem">
-            <input type="checkbox" id="mergedPrOnly" class="form-checkbox text-blue-600" />
-            <label for="mergedPrOnly" class="font-medium text-sm" style="margin-left: 4px">
-              Include only merged pull requests
-              <span class="tooltip-container ml-2">
-                <i class="fa fa-question-circle question-icon"></i>
-                <span class="tooltip-bubble">
-                  When enabled, only pull requests that have been merged will
-                  be included in the report. This requires a GitHub token for
-                  accurate filtering.
-                </span>
-              </span>
-            </label>
-          </div>
-          <div class="my-4 githubOnlySection">
-            <div class="flex items-center">
-              <input type="checkbox" id="showCommits" checked class="form-checkbox text-blue-600" />
-
-              <label id="showCommitsLabel" for="showCommits" class="font-medium text-sm flex items-center pl-5 ml-4"
-                style="margin-left: 4px" data-i18n="showCommitsLabel">Show commits on open PRs/ draft PRs</label><span
-                class="tooltip-container">
-                <i class="fa fa-question-circle question-icon"></i>
-                <span class="tooltip-bubble" data-i18n="showCommitsTooltip">
-                  Github Token required, add it in the settings.
-                </span>
-              </span>
-            </div>
-          </div>
-
-          <div>
-            <div>
-              <h6 class="text-base font-semibold mt-2" data-i18n="scrumReportLabel">
-                Scrum Report
-              </h6>
-              <div id="scrumReport" contenteditable="true"
-                class="min-h-[200px] overflow-y-auto whitespace-pre-wrap border-2 border-gray-200 bg-gray-100 rounded-xl text-gray-800 p-2 my-2">
-              </div>
-            </div>
-            <div class="flex justify-between gap-2">
-              <button id="generateReport"
-                class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
-                <i class="fa fa-refresh"></i>
-                <span data-i18n="generateReportButton">Generate Report</span>
-              </button>
-              <button id="copyReport"
-                class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
-                <i class="fa fa-copy"></i>
-                <span data-i18n="copyReportButton">Copy Report</span>
-              </button>
-            </div>
-          </div>
-          <div class="border-gray-100 border-2 bg-white rounded-3xl px-4 py-2 mx-2 my-2">
-            <div>
-              <h4 class="font-semibold text-xl" data-i18n="noteTitle">
-                Note:
-              </h4>
-              <ul class="text-xs list-disc list-inside">
-                <p data-i18n="notePoint1">
-                  Pull requests are fetched based on the most recent review
-                  activity by any contributor, not just your own. Please
-                  review and adjust the generated SCRUM report to ensure it
-                  accurately reflects your work before sharing.
-                </p>
-              </ul>
-            </div>
-          </div>
-        </div>
-
-        <div id="settingsSection" class="tab-content hidden">
-          <div class="orgSection">
-            <div>
-              <div class="flex items-center justify-between">
-                <div class="flex">
-                  <p class="text-sm font-medium" data-i18n="githubTokenLabel">
-                    Your GitHub Token
-                  </p>
-                  <span class="tooltip-container">
-                    <i class="fa fa-question-circle question-icon"></i>
-                    <span class="tooltip-bubble" data-i18n="githubTokenTooltip">
-                      <b>Why is it recommended to add a GitHub token?</b><br />
-                      Scrum Helper works without a GitHub token, but adding a
-                      personal access token is recommended for a better
-                      experience. It raises your API limits, allows access to
-                      private repos (if permitted), and improves accuracy and
-                      speed. Tokens are stored locally and never sent to us
-                      and used only to fetch your git data. You can add one
-                      anytime in the extension settings.<br /><br />
-                      <b>How to obtain:</b><br />
-                      1. Go to
-                      <a href="https://github.com/settings/tokens" target="_blank"
-                        style="color: #2563eb; text-decoration: underline">GitHub Developer Settings</a>.<br />
-                      3. Click "Generate new token", select classic token<br />
-                      4. Paste it here.<br />
-                      <i>Keep your token secret!</i>
-                    </span>
-                  </span>
-                </div>
-                <button id="toggleTokenVisibility" type="button" class="focus:outline-none">
-                  <i id="tokenEyeIcon" class="fa fa-eye text-gray-600"></i>
-                </button>
-              </div>
-              <input id="githubToken" type="password"
-                class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2 pr-10"
-                data-i18n-placeholder="githubTokenPlaceholder" />
-              <div id="tokenPreview" class="flex flex-wrap gap-1 mt-2"></div>
-            </div>
-            <div class="">
-              <div class="flex items-center mt-4">
-                <p class="text-sm font-semibold" data-i18n="settingsOrgNameLabel">
-                  Your Organization Name
-                </p>
-                <span class="tooltip-container ml-2">
-                  <i class="fa fa-question-circle question-icon"></i>
-                  <span class="tooltip-bubble" data-i18n="orgNameTooltip">
-                    <b>Which organization's GitHub activity?</b><br />
-                    Enter the GitHub organization name to fetch activities
-                    for. Leave empty to fetch all your GitHub activities
-                    across all organizations. Organization name is not
-                    case-sensitive.
-                  </span>
-                </span>
-              </div>
-              <input id="orgInput" type="text"
-                class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
-                data-i18n-placeholder="settingsOrgNamePlaceholder" style="margin-top: 0.3rem; margin-bottom: 0.8rem" />
-
-              <!-- Organization validation feedback -->
-              <div id="orgValidationMessage" class="hidden text-xs mt-1 mb-2 px-3 py-2 rounded-lg">
-                <span id="orgValidationText"></span>
-              </div>
-            </div>
-
-            <div class="mb-4">
-              <div class="flex items-center justify-between mb-2">
-                <p class="text-sm font-medium">
-                  <span data-i18n="repoFilterLabel">Filter by repositories</span><span class="tooltip-container">
-                    <i class="fa fa-question-circle question-icon"></i>
-                    <span class="tooltip-bubble" data-i18n="repoFilterTooltip">
-                      Github Token required.<br />
-                      To force a repo list update, <br />
-                      click the Refresh Data button.
-                    </span>
-                  </span>
-                </p>
-                <div class="flex items-center">
-                  <input type="checkbox" id="useRepoFilter" class="mr-2" style="margin-right: 4px" />
-                  <label for="useRepoFilter" class="text-xs text-gray-600"><span data-i18n="enableFilteringLabel">Enable
-                      filtering</span></label>
-                </div>
-              </div>
-              <div id="tokenWarningForFilter"
-                class="hidden text-xs text-red-600 p-2 bg-red-50 border border-red-200 rounded-xl mt-2">
-                <span data-i18n="tokenRequiredWarning">A GitHub token is required for repository filtering. Please
-                  add one in the settings.</span>
-              </div>
-
-              <input id="repoSearch" type="text" data-i18n-placeholder="repoSearchPlaceholder"
-                class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 pr-10"
-                autocomplete="off" />
-              <div id="repoFilterContainer" class="hidden">
-                <!-- Typeahead Input -->
-                <div class="relative">
-                  <!-- Dropdown -->
-                  <div id="repoDropdown"
-                    class="absolute w-full bg-white border border-gray-300 rounded-xl shadow-lg hidden max-h-48 overflow-y-auto"
-                    style="z-index: 1000; margin-top: -10px"></div>
-                </div>
-
-                <!-- Selected Tags Container -->
-                <div id="selectedRepos" class="mt-3 min-h-[32px] p-2 border-2 border-gray-200 bg-gray-50 rounded-xl">
-                  <div class="flex flex-wrap gap-1" id="repoTags">
-                    <span class="text-xs text-gray-500 select-none" id="repoPlaceholder" data-i18n="repoPlaceholder">No
-                      repositories selected (all will be included)</span>
-                  </div>
-                </div>
-
-                <!-- Status/Info -->
-                <div class="mt-2 text-xs text-gray-600 flex justify-between">
-                  <span id="repoCount" data-i18n="repoCountNone">0 repositories selected</span>
-                  <span id="repoStatus" class="text-blue-600"></span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="cacheSection mt-3">
-            <p class="text-sm font-medium">
-              <span data-i18n="cacheTTLLabel">Enter cache TTL</span>
-              <span class="text-sm font-normal" data-i18n="cacheTTLUnit">(in minutes)</span>
-              <span class="tooltip-container">
-                <i class="fa fa-question-circle question-icon"></i>
-                <span class="tooltip-bubble" data-i18n="cacheTTLTooltip">
-                  We are caching the data to avoid redundant calls. By default
-                  the cache expires after 10 minutes, you can change it here
-                  to your desired time. We have given a refresh cache button
-                  in case you want to fetch fresh data right now.
-                </span>
-              </span>
-            </p>
-            <input type="text" id="cacheInput"
-              class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
-              data-i18n-placeholder="cacheTTLPlaceholder" />
-          </div>
-
-
-          <div class="">
+          <<<<<<< HEAD <div class="">
             <button id="refreshCache"
               class="w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded flex items-center justify-center gap-2 transition-colors duration-200">
               <i class="fa fa-refresh"></i>
@@ -404,33 +192,33 @@
               <i class="fa fa-info-circle"></i>
               <span data-i18n="refreshDataInfo">Use this button to fetch fresh data immediately.</span>
             </p>
-          </div>
-        </div>
-      </div>
-
-      <div class="mt-6 border-t border-gray-300">
-        <div class="bg-white rounded-3xl mx-2 mt-4 mb-2 p-4 border border-gray-100 shadow-sm">
-          <div class="flex items-center justify-center space-x-3">
-            <a target="_blank" href="https://github.com/fossasia/scrum_helper"
-              class="bg-blue-50 hover:bg-blue-100 text-blue-600 transition-all duration-200 rounded-lg px-4 py-2 flex items-center space-x-2 gap-2">
-              <i class="fa fa-code text-sm pl-1"></i>
-              <span class="text-sm font-medium" data-i18n="viewCodeButton">View Code</span>
-            </a>
-            <a target="_blank" href="https://github.com/fossasia/scrum_helper/issues"
-              class="bg-blue-50 hover:bg-blue-100 text-blue-600 transition-all duration-200 rounded-lg px-4 py-2 flex items-center space-x-2 gap-2">
-              <i class="fa fa-bug text-sm"></i>
-              <span class="text-sm font-medium" data-i18n="reportIssueButton">Report Issue</span>
-            </a>
-          </div>
-        </div>
-        <div class="mt-3 pt-3 border-t border-gray-200 flex justify-center items-center py-">
-          <p class="text-xs text-gray-600 text-center">
-            Made with ❤️ by <strong>FOSSASIA</strong> •
-            <span class="text-gray-500 dark:text-gray-300">v2.0.1</span>
-          </p>
         </div>
       </div>
     </div>
+
+    <div class="mt-6 border-t border-gray-300">
+      <div class="bg-white rounded-3xl mx-2 mt-4 mb-2 p-4 border border-gray-100 shadow-sm">
+        <div class="flex items-center justify-center space-x-3">
+          <a target="_blank" href="https://github.com/fossasia/scrum_helper"
+            class="bg-blue-50 hover:bg-blue-100 text-blue-600 transition-all duration-200 rounded-lg px-4 py-2 flex items-center space-x-2 gap-2">
+            <i class="fa fa-code text-sm pl-1"></i>
+            <span class="text-sm font-medium" data-i18n="viewCodeButton">View Code</span>
+          </a>
+          <a target="_blank" href="https://github.com/fossasia/scrum_helper/issues"
+            class="bg-blue-50 hover:bg-blue-100 text-blue-600 transition-all duration-200 rounded-lg px-4 py-2 flex items-center space-x-2 gap-2">
+            <i class="fa fa-bug text-sm"></i>
+            <span class="text-sm font-medium" data-i18n="reportIssueButton">Report Issue</span>
+          </a>
+        </div>
+      </div>
+      <div class="mt-3 pt-3 border-t border-gray-200 flex justify-center items-center py-">
+        <p class="text-xs text-gray-600 text-center">
+          Made with ❤️ by <strong>FOSSASIA</strong> •
+          <span class="text-gray-500 dark:text-gray-300">v2.0.1</span>
+        </p>
+      </div>
+    </div>
+  </div>
   </div>
   <div class="my-4">
     <div class="flex items-center">
@@ -584,72 +372,236 @@
           <span data-i18n="tokenRequiredWarning">A GitHub token is required for repository
             filtering. Please add one in the settings.</span>
         </div>
+        =======
+        <div style="margin-bottom: 1rem">
+          <br />
+          <input type="checkbox" id="showOpenLabel" class="form-checkbox text-blue-600" />
 
+          <label id="checkboxLabel" for="showOpenLabel" class="font-medium text-sm" style="margin-left: 4px"
+            data-i18n="showOpenClosedLabel">Show PRs Labels</label>
+        </div>
 
-        <input id="repoSearch" type="text" data-i18n-placeholder="repoSearchPlaceholder"
-          class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 pr-10" autocomplete="off">
-        <div id="repoFilterContainer" class="hidden">
-          <!-- Typeahead Input -->
-          <div class="relative">
+        <div style="margin-bottom: 1rem">
+          <input type="checkbox" id="mergedPrOnly" class="form-checkbox text-blue-600" />
+          <label for="mergedPrOnly" class="font-medium text-sm" style="margin-left: 4px">
+            Include only merged pull requests
+            <span class="tooltip-container ml-2">
+              <i class="fa fa-question-circle question-icon"></i>
+              <span class="tooltip-bubble">
+                When enabled, only pull requests that have been merged will
+                be included in the report. This requires a GitHub token for
+                accurate filtering.
+              </span>
+            </span>
+          </label>
+        </div>
+        <div class="my-4 githubOnlySection">
+          <div class="flex items-center">
+            <input type="checkbox" id="showCommits" checked class="form-checkbox text-blue-600" />
+            >>>>>>> 53cda1d (fix(github): prevent API calls on merged PR toggle and reduce fetches)
 
-            <!-- Dropdown -->
-            <div id="repoDropdown"
-              class="absolute w-full bg-white border border-gray-300 rounded-xl shadow-lg hidden max-h-48 overflow-y-auto"
-              style="z-index: 1000; margin-top: -10px;">
-            </div>
-          </div>
-
-          <!-- Selected Tags Container -->
-          <div id="selectedRepos" class="mt-3 min-h-[32px] p-2 border-2 border-gray-200 bg-gray-50 rounded-xl">
-            <div class="flex flex-wrap gap-1" id="repoTags">
-              <span class="text-xs text-gray-500 select-none" id="repoPlaceholder" data-i18n="repoPlaceholder">No
-                repositories selected (all will be included)</span>
-            </div>
-          </div>
-
-          <!-- Status/Info -->
-          <div class="mt-2 text-xs text-gray-600 flex justify-between">
-            <span id="repoCount" data-i18n="repoCountNone">0 repositories selected</span>
-            <span id="repoStatus" class="text-blue-600"></span>
+            <label id="showCommitsLabel" for="showCommits" class="font-medium text-sm flex items-center pl-5 ml-4"
+              style="margin-left: 4px" data-i18n="showCommitsLabel">Show commits on open PRs/ draft PRs</label><span
+              class="tooltip-container">
+              <i class="fa fa-question-circle question-icon"></i>
+              <span class="tooltip-bubble" data-i18n="showCommitsTooltip">
+                Github Token required, add it in the settings.
+              </span>
+            </span>
           </div>
         </div>
+
+        <<<<<<< HEAD <input id="repoSearch" type="text" data-i18n-placeholder="repoSearchPlaceholder"
+          class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 pr-10" autocomplete="off">
+          <div id="repoFilterContainer" class="hidden">
+            <!-- Typeahead Input -->
+            <div class="relative">
+
+              <!-- Dropdown -->
+              <div id="repoDropdown"
+                class="absolute w-full bg-white border border-gray-300 rounded-xl shadow-lg hidden max-h-48 overflow-y-auto"
+                style="z-index: 1000; margin-top: -10px;">
+              </div>
+            </div>
+
+            <!-- Selected Tags Container -->
+            <div id="selectedRepos" class="mt-3 min-h-[32px] p-2 border-2 border-gray-200 bg-gray-50 rounded-xl">
+              <div class="flex flex-wrap gap-1" id="repoTags">
+                <span class="text-xs text-gray-500 select-none" id="repoPlaceholder" data-i18n="repoPlaceholder">No
+                  repositories selected (all will be included)</span>
+              </div>
+            </div>
+
+            <!-- Status/Info -->
+            <div class="mt-2 text-xs text-gray-600 flex justify-between">
+              <span id="repoCount" data-i18n="repoCountNone">0 repositories selected</span>
+              <span id="repoStatus" class="text-blue-600"></span>
+            </div>
+          </div>
       </div>
     </div>
-
-
-    <div class="cacheSection mt-3">
-      <p class="text-sm font-medium"><span data-i18n="cacheTTLLabel">Enter cache TTL</span> <span
-          class="text-sm font-normal" data-i18n="cacheTTLUnit">(in
-          minutes)</span>
-        <span class="tooltip-container">
-          <i class="fa fa-question-circle question-icon"></i>
-          <span class="tooltip-bubble" data-i18n="cacheTTLTooltip">
-            We are caching the data to avoid redundant calls. By default the cache expires after
-            10 minutes, you
-            can change it here to your desired time. We have given a refresh cache button in
-            case you want to
-            fetch fresh data right now.
-          </span>
-        </span>
-      </p>
-      <input type="text" id="cacheInput"
-        class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800  p-2 my-2"
-        data-i18n-placeholder="cacheTTLPlaceholder">
+    =======
+    <div>
+      <div>
+        <h6 class="text-base font-semibold mt-2" data-i18n="scrumReportLabel">
+          Scrum Report
+        </h6>
+        <div id="scrumReport" contenteditable="true"
+          class="min-h-[200px] overflow-y-auto whitespace-pre-wrap border-2 border-gray-200 bg-gray-100 rounded-xl text-gray-800 p-2 my-2">
+        </div>
+      </div>
+      <div class="flex justify-between gap-2">
+        <button id="generateReport"
+          class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
+          <i class="fa fa-refresh"></i>
+          <span data-i18n="generateReportButton">Generate Report</span>
+        </button>
+        <button id="copyReport"
+          class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
+          <i class="fa fa-copy"></i>
+          <span data-i18n="copyReportButton">Copy Report</span>
+        </button>
+      </div>
     </div>
-
-    <div class="">
-      <button id="refreshCache"
-        class="w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded flex items-center justify-center gap-2 transition-colors duration-200">
-        <i class="fa fa-refresh"></i>
-        <span data-i18n="refreshDataButton">Refresh Data (bypass cache)</span>
-      </button>
-      <p class="cache-info">
-        <i class="fa fa-info-circle"></i>
-        <span data-i18n="refreshDataInfo">Use this button to fetch fresh data immediately.</span>
-      </p>
+    <div class="border-gray-100 border-2 bg-white rounded-3xl px-4 py-2 mx-2 my-2">
+      <div>
+        <h4 class="font-semibold text-xl" data-i18n="noteTitle">
+          Note:
+        </h4>
+        <ul class="text-xs list-disc list-inside">
+          <p data-i18n="notePoint1">
+            Pull requests are fetched based on the most recent review
+            activity by any contributor, not just your own. Please
+            review and adjust the generated SCRUM report to ensure it
+            accurately reflects your work before sharing.
+          </p>
+        </ul>
+      </div>
     </div>
-
   </div>
+
+  <div id="settingsSection" class="tab-content hidden">
+    <div class="orgSection">
+      <div>
+        <div class="flex items-center justify-between">
+          <div class="flex">
+            <p class="text-sm font-medium" data-i18n="githubTokenLabel">
+              Your GitHub Token
+            </p>
+            <span class="tooltip-container">
+              <i class="fa fa-question-circle question-icon"></i>
+              <span class="tooltip-bubble" data-i18n="githubTokenTooltip">
+                <b>Why is it recommended to add a GitHub token?</b><br />
+                Scrum Helper works without a GitHub token, but adding a
+                personal access token is recommended for a better
+                experience. It raises your API limits, allows access to
+                private repos (if permitted), and improves accuracy and
+                speed. Tokens are stored locally and never sent to us
+                and used only to fetch your git data. You can add one
+                anytime in the extension settings.<br /><br />
+                <b>How to obtain:</b><br />
+                1. Go to
+                <a href="https://github.com/settings/tokens" target="_blank"
+                  style="color: #2563eb; text-decoration: underline">GitHub Developer Settings</a>.<br />
+                3. Click "Generate new token", select classic token<br />
+                4. Paste it here.<br />
+                <i>Keep your token secret!</i>
+              </span>
+            </span>
+          </div>
+          <button id="toggleTokenVisibility" type="button" class="focus:outline-none">
+            <i id="tokenEyeIcon" class="fa fa-eye text-gray-600"></i>
+          </button>
+        </div>
+        <input id="githubToken" type="password"
+          class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2 pr-10"
+          data-i18n-placeholder="githubTokenPlaceholder" />
+        <div id="tokenPreview" class="flex flex-wrap gap-1 mt-2"></div>
+      </div>
+      <div class="">
+        <div class="flex items-center mt-4">
+          <p class="text-sm font-semibold" data-i18n="settingsOrgNameLabel">
+            Your Organization Name
+          </p>
+          <span class="tooltip-container ml-2">
+            <i class="fa fa-question-circle question-icon"></i>
+            <span class="tooltip-bubble" data-i18n="orgNameTooltip">
+              <b>Which organization's GitHub activity?</b><br />
+              Enter the GitHub organization name to fetch activities
+              for. Leave empty to fetch all your GitHub activities
+              across all organizations. Organization name is not
+              case-sensitive.
+            </span>
+          </span>
+        </div>
+        <input id="orgInput" type="text"
+          class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
+          data-i18n-placeholder="settingsOrgNamePlaceholder" style="margin-top: 0.3rem; margin-bottom: 0.8rem" />
+
+        <!-- Organization validation feedback -->
+        <div id="orgValidationMessage" class="hidden text-xs mt-1 mb-2 px-3 py-2 rounded-lg">
+          <span id="orgValidationText"></span>
+        </div>
+      </div>
+      >>>>>>> 53cda1d (fix(github): prevent API calls on merged PR toggle and reduce fetches)
+
+      <div class="mb-4">
+        <div class="flex items-center justify-between mb-2">
+          <p class="text-sm font-medium">
+            <span data-i18n="repoFilterLabel">Filter by repositories</span><span class="tooltip-container">
+              <i class="fa fa-question-circle question-icon"></i>
+              <span class="tooltip-bubble" data-i18n="repoFilterTooltip">
+                Github Token required.<br />
+                To force a repo list update, <br />
+                click the Refresh Data button.
+              </span>
+            </span>
+          </p>
+          <div class="flex items-center">
+            <input type="checkbox" id="useRepoFilter" class="mr-2" style="margin-right: 4px" />
+            <label for="useRepoFilter" class="text-xs text-gray-600"><span data-i18n="enableFilteringLabel">Enable
+                filtering</span></label>
+          </div>
+        </div>
+        <div id="tokenWarningForFilter"
+          class="hidden text-xs text-red-600 p-2 bg-red-50 border border-red-200 rounded-xl mt-2">
+          <span data-i18n="tokenRequiredWarning">A GitHub token is required for repository filtering. Please
+            add one in the settings.</span>
+        </div>
+
+        <<<<<<< HEAD <div class="cacheSection mt-3">
+          <p class="text-sm font-medium"><span data-i18n="cacheTTLLabel">Enter cache TTL</span> <span
+              class="text-sm font-normal" data-i18n="cacheTTLUnit">(in
+              minutes)</span>
+            <span class="tooltip-container">
+              <i class="fa fa-question-circle question-icon"></i>
+              <span class="tooltip-bubble" data-i18n="cacheTTLTooltip">
+                We are caching the data to avoid redundant calls. By default the cache expires after
+                10 minutes, you
+                can change it here to your desired time. We have given a refresh cache button in
+                case you want to
+                fetch fresh data right now.
+              </span>
+            </span>
+          </p>
+          <input type="text" id="cacheInput"
+            class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800  p-2 my-2"
+            data-i18n-placeholder="cacheTTLPlaceholder">
+      </div>
+
+      <div class="">
+        <button id="refreshCache"
+          class="w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded flex items-center justify-center gap-2 transition-colors duration-200">
+          <i class="fa fa-refresh"></i>
+          <span data-i18n="refreshDataButton">Refresh Data (bypass cache)</span>
+        </button>
+        <p class="cache-info">
+          <i class="fa fa-info-circle"></i>
+          <span data-i18n="refreshDataInfo">Use this button to fetch fresh data immediately.</span>
+        </p>
+      </div>
+
+    </div>
   </div>
 
   <div class="mt-6 border-t border-gray-300">
@@ -686,3 +638,100 @@
 </body>
 
 </html>
+=======
+<input id="repoSearch" type="text" data-i18n-placeholder="repoSearchPlaceholder"
+  class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 pr-10" autocomplete="off" />
+<div id="repoFilterContainer" class="hidden">
+  <!-- Typeahead Input -->
+  <div class="relative">
+    <!-- Dropdown -->
+    <div id="repoDropdown"
+      class="absolute w-full bg-white border border-gray-300 rounded-xl shadow-lg hidden max-h-48 overflow-y-auto"
+      style="z-index: 1000; margin-top: -10px"></div>
+  </div>
+
+  <!-- Selected Tags Container -->
+  <div id="selectedRepos" class="mt-3 min-h-[32px] p-2 border-2 border-gray-200 bg-gray-50 rounded-xl">
+    <div class="flex flex-wrap gap-1" id="repoTags">
+      <span class="text-xs text-gray-500 select-none" id="repoPlaceholder" data-i18n="repoPlaceholder">No repositories
+        selected (all will be included)</span>
+    </div>
+  </div>
+
+  <!-- Status/Info -->
+  <div class="mt-2 text-xs text-gray-600 flex justify-between">
+    <span id="repoCount" data-i18n="repoCountNone">0 repositories selected</span>
+    <span id="repoStatus" class="text-blue-600"></span>
+  </div>
+</div>
+</div>
+</div>
+
+<div class="cacheSection mt-3">
+  <p class="text-sm font-medium">
+    <span data-i18n="cacheTTLLabel">Enter cache TTL</span>
+    <span class="text-sm font-normal" data-i18n="cacheTTLUnit">(in minutes)</span>
+    <span class="tooltip-container">
+      <i class="fa fa-question-circle question-icon"></i>
+      <span class="tooltip-bubble" data-i18n="cacheTTLTooltip">
+        We are caching the data to avoid redundant calls. By default
+        the cache expires after 10 minutes, you can change it here
+        to your desired time. We have given a refresh cache button
+        in case you want to fetch fresh data right now.
+      </span>
+    </span>
+  </p>
+  <input type="text" id="cacheInput"
+    class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
+    data-i18n-placeholder="cacheTTLPlaceholder" />
+</div>
+
+<div class="">
+  <button id="refreshCache"
+    class="w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded flex items-center justify-center gap-2 transition-colors duration-200">
+    <i class="fa fa-refresh"></i>
+    <span data-i18n="refreshDataButton">Refresh Data (bypass cache)</span>
+  </button>
+  <p class="cache-info">
+    <i class="fa fa-info-circle"></i>
+    <span data-i18n="refreshDataInfo">Use this button to fetch fresh data immediately.</span>
+  </p>
+</div>
+</div>
+</div>
+
+<div class="mt-6 border-t border-gray-300">
+  <div class="bg-white rounded-3xl mx-2 mt-4 mb-2 p-4 border border-gray-100 shadow-sm">
+    <div class="flex items-center justify-center space-x-3">
+      <a target="_blank" href="https://github.com/fossasia/scrum_helper"
+        class="bg-blue-50 hover:bg-blue-100 text-blue-600 transition-all duration-200 rounded-lg px-4 py-2 flex items-center space-x-2 gap-2">
+        <i class="fa fa-code text-sm pl-1"></i>
+        <span class="text-sm font-medium" data-i18n="viewCodeButton">View Code</span>
+      </a>
+      <a target="_blank" href="https://github.com/fossasia/scrum_helper/issues"
+        class="bg-blue-50 hover:bg-blue-100 text-blue-600 transition-all duration-200 rounded-lg px-4 py-2 flex items-center space-x-2 gap-2">
+        <i class="fa fa-bug text-sm"></i>
+        <span class="text-sm font-medium" data-i18n="reportIssueButton">Report Issue</span>
+      </a>
+    </div>
+  </div>
+  <div class="mt-3 pt-3 border-t border-gray-200 flex justify-center items-center py-">
+    <p class="text-xs text-gray-600 text-center">
+      Made with ❤️ by <strong>FOSSASIA</strong> •
+      <span class="text-gray-500 dark:text-gray-300">v2.0.1</span>
+    </p>
+  </div>
+</div>
+</div>
+</div>
+<script src="scripts/jquery-3.2.1.min.js"></script>
+<script type="text/javascript" type="text/javascript" src="materialize/js/materialize.min.js"></script>
+<script src="scripts/emailClientAdapter.js"></script>
+<script src="scripts/main.js"></script>
+<script src="scripts/gitlabHelper.js"></script>
+<script src="scripts/scrumHelper.js"></script>
+<script src="scripts/popup.js"></script>
+</body>
+
+</html>
+>>>>>>> 53cda1d (fix(github): prevent API calls on merged PR toggle and reduce fetches)
