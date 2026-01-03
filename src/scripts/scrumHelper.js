@@ -1,4 +1,4 @@
-const DEBUG = true;
+const DEBUG = false;
 
 function log(...args) {
     if (DEBUG) {
@@ -1960,4 +1960,3 @@ function filterDataByRepos(data, selectedRepos) {
     return filteredData;
 }
 window.fetchUserRepositories = fetchUserRepositories;
-
