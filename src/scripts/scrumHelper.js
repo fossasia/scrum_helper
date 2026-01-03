@@ -1004,11 +1004,11 @@ function allIncluded(outputTarget = 'email') {
 
         const container = document.createElement('div');
         container.style.cssText = `
-            padding: 16px;
+            padding: 8px 6px;
             background: ${colors.errorBg};
             color: ${colors.errorText};
-            border: 1px solid ${colors.errorBorder};
-            border-radius: 8px;
+            border: 0.5px solid ${colors.errorBorder};
+            border-radius: 6px;
             text-align: center;
         `;
 
