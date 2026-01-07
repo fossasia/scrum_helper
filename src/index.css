@@ -144,6 +144,62 @@ hr,
     color: #00b7ff !important;
 }
 
+.dark-mode #platformDropdownBtn {
+    background-color: #404040 !important;
+    border: 2px solid #505050 !important;
+    color: #ffffff !important;
+}
+
+.dark-mode #platformDropdownBtn:hover {
+    border-color: #606060 !important;
+}
+
+.dark-mode #platformDropdownBtn:focus {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+.dark-mode #platformDropdownBtn:disabled,
+.dark-mode #platformDropdownBtn[aria-disabled="true"] {
+  background-color: #404040 !important;
+  border: 2px solid #505050 !important;
+  color: #ffffff !important;
+
+  opacity: 0.5 !important;
+
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.dark-mode #platformDropdownBtn:disabled:hover,
+.dark-mode #platformDropdownBtn:disabled:focus {
+  border-color: #505050 !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.dark-mode #platformDropdownBtn:disabled .fa-chevron-down,
+.dark-mode #platformDropdownBtn[aria-disabled="true"] .fa-chevron-down {
+  color: #9ca3af !important;
+}
+
+.dark-mode #platformDropdownList {
+    background-color: #404040 !important;
+    border: 2px solid #505050 !important;
+}
+
+.dark-mode #platformDropdownList li {
+    color: #ffffff !important;
+}
+
+.dark-mode #platformDropdownList li:hover {
+    background-color: #505050 !important;
+}
+
+.dark-mode #platformDropdownBtn .fa-chevron-down {
+    color: #9ca3af !important;
+}
+
 #refreshCache {
     background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
     border: none;
@@ -158,6 +214,27 @@ hr,
 }
 
 #refreshCache:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+}
+
+#generateReport,
+#copyReport {
+    background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+    border: none;
+    box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+    transition: all 0.2s ease;
+}
+
+#generateReport:hover,
+#copyReport:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+    transform: translateY(-1px);
+}
+
+#generateReport:active,
+#copyReport:active {
     transform: translateY(0);
     box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
 }
