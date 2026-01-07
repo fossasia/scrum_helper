@@ -348,14 +348,11 @@ document.addEventListener('DOMContentLoaded', function () {
             chrome.storage.local.set({ enableToggle: true });
         }
 
-        console.log('[DEBUG] Calling updateContentState with:', enableToggle);
         updateContentState(enableToggle);
         if (!enableToggle) {
-            console.log('[DEBUG] Extension disabled, returning early');
             return;
         }
 
-        console.log('[DEBUG] Extension enabled, initializing popup');
         initializePopup();
         checkTokenForFilter();
     })

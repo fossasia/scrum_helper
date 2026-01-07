@@ -1,25 +1,8 @@
-
 const DEBUG = false;
 
-function log(...args) {
-    if (DEBUG) {
-        console.log(`[SCRUM-HELPER]:`, ...args);
-    }
-}
-
-function debugLog(...args) {
-    if (DEBUG) {
-        console.log('[DEBUG]', ...args);
-    }
-}
-
-
-function logError(...args) {
-    if (DEBUG) {
-        console.error('[SCRUM-HELPER]:', ...args);
-    }
-}
-
+const debugLog = (...args) => {
+    if (DEBUG) console_log(...args);
+};
 
 let refreshButton_Placed = false;
 let enableToggle = true;
@@ -396,6 +379,7 @@ function allIncluded(outputTarget = 'email') {
         }
 
 
+
         return new Promise((resolve) => {
             chrome.storage.local.set({ githubCache: cacheData }, () => {
                 if (chrome.runtime.lastError) {
@@ -424,6 +408,7 @@ function allIncluded(outputTarget = 'email') {
                     resolve(false);
                     return;
                 }
+
 
 
                 githubCache.data = cache.data;
@@ -495,6 +480,7 @@ function allIncluded(outputTarget = 'email') {
 
         ;
 
+
         // Check if we need to load from storage
         if (!githubCache.data && !githubCache.fetching) {
             await loadFromStorage();
@@ -542,6 +528,7 @@ function allIncluded(outputTarget = 'email') {
             headers['Authorization'] = `token ${githubToken}`;
         } else {
             // if (DEBUG) console.log('Making public requests');
+
         }
 
         let orgPart = orgName && orgName.trim() ? `+org%3A${orgName}` : '';
@@ -733,6 +720,7 @@ function allIncluded(outputTarget = 'email') {
                         pr._allCommits = commitMap[pr.number] || [];
                         if (pr._allCommits.length > 0) {
                             //   if (DEBUG) console.log(`Commits for PR #${pr.number}:`, pr._allCommits.map(c => `${c.messageHeadline} (${c.committedDate})`));
+
                         }
                     });
                 }
@@ -930,18 +918,10 @@ function allIncluded(outputTarget = 'email') {
         const mergedPrOnly = Boolean(githubToken && mergedPrSettings.mergedPrOnly === true);
         // Store in a way that processing functions can access it
         window._mergedPrOnlyFilter = mergedPrOnly;
-        console.log(`[SCRUM-HELPER] Merged PR filter setting loaded: ${mergedPrOnly} (from storage: ${mergedPrSettings.mergedPrOnly})`);
-        console.log(
-            '[DEBUG FINAL CHECK]',
-            'token:', !!githubToken,
-            'mergedPrOnly from storage:', mergedPrSettings.mergedPrOnly,
-            'checkbox window flag:', window._mergedPrOnlyFilter
-        );
 
         githubIssuesData = filteredData.githubIssuesData;
         githubPrsReviewData = filteredData.githubPrsReviewData;
         githubUserData = filteredData.githubUserData;
-
 
 
         lastWeekArray = [];
