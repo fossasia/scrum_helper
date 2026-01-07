@@ -20,28 +20,28 @@ function getThemeColors() {
     const dark = isDarkMode();
 
     return {
-        // Base surfaces
-        extensionBg: dark ? '#0d1117' : '#ffffff',
-        surfaceBg: dark ? '#161b22' : '#f9fafb',
-        surfaceRaised: dark ? '#1f2933' : '#ffffff',
+        // Base surfaces - aligned with index.css dark mode colors
+        extensionBg: dark ? '#1a1a1a' : '#ffffff',
+        surfaceBg: dark ? '#2d2d2d' : '#f9fafb',
+        surfaceRaised: dark ? '#404040' : '#ffffff',
 
-        // Error container (neutral, native)
-        errorBg: dark ? '#161b22' : '#fef2f2',
-        errorBorder: dark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)',
-        errorText: dark ? '#e6edf3' : '#374151',
+        // Error container - NEUTRAL backgrounds (no rose/pink tint)
+        errorBg: dark ? '#2d2d2d' : '#ffffff',
+        errorBorder: dark ? '#404040' : '#e5e7eb',
+        errorText: dark ? '#ffffff' : '#374151',
 
-        // Error accents
-        errorIcon: dark ? '#f85149' : '#dc2626',
-        errorTitle: dark ? '#f0f6fc' : '#374151',
+        // Error accents - only icon and title use red
+        errorIcon: '#dc2626',
+        errorTitle: '#dc2626',
 
         // Description text
-        descText: dark ? '#9da7b3' : '#6b7280',
+        descText: dark ? '#9ca3af' : '#6b7280',
 
         // Benefits box
-        benefitsBg: dark ? '#1f2933' : '#ffffff',
-        benefitsBorder: dark ? '#30363d' : '#e5e7eb',
-        benefitsTitle: dark ? '#e6edf3' : '#374151',
-        benefitsText: dark ? '#c9d1d9' : '#6b7280',
+        benefitsBg: dark ? '#404040' : '#f9fafb',
+        benefitsBorder: dark ? '#505050' : '#e5e7eb',
+        benefitsTitle: dark ? '#ffffff' : '#374151',
+        benefitsText: dark ? '#d1d5db' : '#6b7280',
 
         // Buttons
         buttonBg: '#2563eb',
@@ -49,8 +49,8 @@ function getThemeColors() {
         buttonText: '#ffffff',
 
         // Links
-        linkColor: dark ? '#58a6ff' : '#2563eb',
-        linkHover: dark ? '#79c0ff' : '#1d4ed8',
+        linkColor: dark ? '#60a5fa' : '#2563eb',
+        linkHover: dark ? '#93c5fd' : '#1d4ed8',
     };
 }
 
@@ -156,7 +156,6 @@ function allIncluded(outputTarget = 'email') {
             font-size: 13px;
             padding: 8px 12px;
             background: ${colors.errorBg};
-            border: 1px solid ${colors.errorBorder};
             border-radius: 6px;
         `;
     }
@@ -1007,7 +1006,6 @@ function allIncluded(outputTarget = 'email') {
             padding: 12px 6px;
             background: ${colors.errorBg};
             color: ${colors.errorText};
-            border: 1px solid ${colors.errorBorder};
             border-radius: 6px;
             text-align: center;
         `;
@@ -1214,7 +1212,6 @@ function allIncluded(outputTarget = 'email') {
                     font-size: 13px;
                     padding: 8px 12px;
                     background: ${colors.errorBg};
-                    border: 1px solid ${colors.errorBorder};
                     border-radius: 6px;
                 `;
 

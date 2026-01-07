@@ -314,7 +314,6 @@ document.addEventListener('DOMContentLoaded', function () {
         // Restore all persistent fields immediately on DOMContentLoaded
         const projectNameInput = document.getElementById('projectName');
         const orgInput = document.getElementById('orgInput');
-        const userReasonInput = document.getElementById('userReason');
         const showOpenLabelCheckbox = document.getElementById('showOpenLabel');
         const showCommitsCheckbox = document.getElementById('showCommits');
         const githubTokenInput = document.getElementById('githubToken');
@@ -326,12 +325,11 @@ document.addEventListener('DOMContentLoaded', function () {
         const platformUsername = document.getElementById('platformUsername');
 
         chrome.storage.local.get([
-            'projectName', 'orgName', 'userReason', 'showOpenLabel', 'showCommits', 'githubToken', 'cacheInput',
+            'projectName', 'orgName', 'showOpenLabel', 'showCommits', 'githubToken', 'cacheInput',
             'enableToggle', 'yesterdayContribution', 'startingDate', 'endingDate', 'selectedTimeframe', 'platform', 'githubUsername', 'gitlabUsername'
         ], function (result) {
             if (result.projectName) projectNameInput.value = result.projectName;
             if (result.orgName) orgInput.value = result.orgName;
-            if (result.userReason) userReasonInput.value = result.userReason;
             if (typeof result.showOpenLabel !== 'undefined') {
                 showOpenLabelCheckbox.checked = result.showOpenLabel;
             } else {
@@ -503,9 +501,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 const oldToast = document.getElementById('invalid-org-toast');
                 if (oldToast) oldToast.parentNode.removeChild(oldToast);
             }
-        });
-        userReasonInput.addEventListener('input', function () {
-            chrome.storage.local.set({ userReason: userReasonInput.value });
         });
         showOpenLabelCheckbox.addEventListener('change', function () {
             chrome.storage.local.set({ showOpenLabel: showOpenLabelCheckbox.checked });
