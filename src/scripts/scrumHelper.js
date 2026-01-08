@@ -1,4 +1,4 @@
-const DEBUG = true;
+const DEBUG = false;
 
 function log(...args) {
     if (DEBUG) {
@@ -998,6 +998,11 @@ function allIncluded(outputTarget = 'email') {
 
         scrumReport.textContent = '';
 
+        scrumReport.style.background = 'transparent';
+        scrumReport.style.border = 'none';
+        scrumReport.style.padding = '0';
+        scrumReport.style.minHeight = 'auto';
+
         // Get theme-aware colors (will be fresh on every call)
         const colors = getThemeColors();
 
@@ -1008,6 +1013,7 @@ function allIncluded(outputTarget = 'email') {
             color: ${colors.errorText};
             border-radius: 6px;
             text-align: center;
+            border: 4px solid ${colors.errorBorder};
         `;
 
         // Icon
@@ -1201,6 +1207,11 @@ function allIncluded(outputTarget = 'email') {
 
                 reportDiv.textContent = '';
 
+                reportDiv.style.background = 'transparent';
+                reportDiv.style.border = 'none';
+                reportDiv.style.padding = '0';
+                reportDiv.style.minHeight = 'auto';            
+
                 const colors = getThemeColors(); // Fresh colors on every call
 
                 const errorDiv = document.createElement('div');
@@ -1213,6 +1224,7 @@ function allIncluded(outputTarget = 'email') {
                     padding: 8px 12px;
                     background: ${colors.errorBg};
                     border-radius: 6px;
+                    border: 4px solid ${colors.errorBorder};
                 `;
 
                 reportDiv.appendChild(errorDiv);
@@ -1350,6 +1362,12 @@ ${userReason}`;
             const scrumReport = document.getElementById('scrumReport');
             if (scrumReport) {
                 log("Found popup div, updating content");
+
+                scrumReport.style.background = '';
+                scrumReport.style.border = '';
+                scrumReport.style.padding = '';
+                scrumReport.style.minHeight = '';
+
                 scrumReport.innerHTML = content;
                 setGenerateButtonState(false);
             } else {
