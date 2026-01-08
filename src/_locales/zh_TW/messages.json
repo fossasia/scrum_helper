@@ -239,16 +239,16 @@
   "tokenTimeoutError": {
     "message": "請求超時。請重試。"
   },
-    "dataFetchPartialError": {
-        "message": "無法獲取某些資料。結果可能不完整。"
-    },
-    "notePoint1GitLab": {
-        "message": "合併請求是根據任何貢獻者最近的審查活動獲取的，而不僅僅是您自己的。請在分享之前審查和調整生成的SCRUM報告，以確保它準確地反映您的工作。"
-    },
-    "showOpenClosedLabelGitLab": {
-        "message": "顯示MRs標籤"
-    },
-    "showCommitsLabelGitLab": {
-        "message": "在開放MRs / 草稿MRs上顯示提交"
-    }
+  "dataFetchPartialError": {
+    "message": "無法獲取某些資料。結果可能不完整。"
+  },
+  "notePoint1GitLab": {
+    "message": "合併請求是根據任何貢獻者最近的審查活動獲取的，而不僅僅是您自己的。請在分享之前審查和調整生成的SCRUM報告，以確保它準確地反映您的工作。"
+  },
+  "showOpenClosedLabelGitLab": {
+    "message": "顯示MRs標籤"
+  },
+  "showCommitsLabelGitLab": {
+    "message": "在開放MRs / 草稿MRs上顯示提交"
+  }
 }
