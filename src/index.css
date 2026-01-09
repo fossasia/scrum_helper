@@ -817,5 +817,10 @@ hr,
 }
 .disabled-section {
   opacity: 0.4;
+}
+.disabled-section input,
+.disabled-section button,
+.disabled-section select,
+.disabled-section textarea {
   pointer-events: none;
 }
