@@ -64,8 +64,7 @@
     "description": "Placeholder text for the blockers input field."
   },
   "scrumReportLabel": {
-    "message": "Scrum Report",
-    "description": "Heading for the generated scrum report."
+    "message": "Scrum Report"
   },
   "generateReportButton": {
     "message": "Generate Report",
@@ -98,6 +97,15 @@
   "showCommitsLabel": {
     "message": "Show commits on open PRs/ draft PRs",
     "description": "Label for the checkbox to show commits in open PRs."
+  },
+  "showCommitsTooltip": {
+    "message": "Github Token required, add it in the settings."
+  },
+  "onlyIssuesLabel": {
+    "message": "Include only issues in the report"
+  },
+  "onlyIssuesTooltip": {
+    "message": "If checked, the report will exclude Pull/Merge Requests and reviewed PRs."
   },
   "cacheTTLLabel": {
     "message": "Enter cache TTL",
