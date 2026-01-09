@@ -199,6 +199,16 @@ document.addEventListener('DOMContentLoaded', function () {
                 }
             }
         });
+        // inputs are already disabled. This block ensures visual consistency.
+        const sections = document.querySelectorAll('.section-wrapper');
+
+        sections.forEach(section => {
+            if (!enableToggle) {
+                section.classList.add('disabled-section');
+            } else {
+                section.classList.remove('disabled-section');
+            }
+        });
 
         radios.forEach(radio => {
             radio.disabled = !enableToggle;
