@@ -608,6 +608,9 @@ function allIncluded(outputTarget = 'email') {
                 showInvalidTokenMessage();
                 return;
             }
+            if (userRes.status === 404) {
+                 throw new Error("404: User not found. Please check that the username is correct.");
+                }
 
             if (issuesRes.status === 404 || prRes.status === 404) {
                 if (outputTarget === 'popup') {
