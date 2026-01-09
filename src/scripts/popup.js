@@ -173,6 +173,7 @@ document.addEventListener('DOMContentLoaded', function () {
             'refreshCache',
             'showOpenLabel',
             'showCommits',
+            'onlyIssues',
             'scrumReport',
             'githubUsername',
             'githubToken',
@@ -252,12 +253,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
         console.log('[DEBUG] Calling updateContentState with:', enableToggle);
         updateContentState(enableToggle);
+
+        console.log('[DEBUG] Extension enabled, initializing popup');
         if (!enableToggle) {
             console.log('[DEBUG] Extension disabled, returning early');
             return;
         }
-
-        console.log('[DEBUG] Extension enabled, initializing popup');
         initializePopup();
         checkTokenForFilter();
     })
@@ -305,6 +306,8 @@ document.addEventListener('DOMContentLoaded', function () {
         const showOpenLabelCheckbox = document.getElementById('showOpenLabel');
         const showCommitsCheckbox = document.getElementById('showCommits');
         const onlyIssuesCheckbox = document.getElementById('onlyIssues');
+        console.log('[DEBUG-ONLYISSUES] Element found:', !!onlyIssuesCheckbox);
+
         const githubTokenInput = document.getElementById('githubToken');
         const cacheInput = document.getElementById('cacheInput');
         const enableToggleSwitch = document.getElementById('enable');
@@ -317,6 +320,10 @@ document.addEventListener('DOMContentLoaded', function () {
             'projectName', 'orgName', 'userReason', 'showOpenLabel', 'showCommits', 'githubToken', 'cacheInput', 'onlyIssues',
             'enableToggle', 'yesterdayContribution', 'startingDate', 'endingDate', 'selectedTimeframe', 'platform', 'githubUsername', 'gitlabUsername'
         ], function (result) {
+
+            console.log('[DEBUG-ONLYISSUES] Storage result:', result.onlyIssues);
+
+
             if (result.projectName) projectNameInput.value = result.projectName;
             if (result.orgName) orgInput.value = result.orgName;
             if (result.userReason) userReasonInput.value = result.userReason;
@@ -495,9 +502,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (oldToast) oldToast.parentNode.removeChild(oldToast);
             }
         });
-        userReasonInput.addEventListener('input', function () {
-            chrome.storage.local.set({ userReason: userReasonInput.value });
-        });
+        if (userReasonInput) {
+            userReasonInput.addEventListener('input', function () {
+                chrome.storage.local.set({ userReason: userReasonInput.value });
+            });
+        }
         showOpenLabelCheckbox.addEventListener('change', function () {
             chrome.storage.local.set({ showOpenLabel: showOpenLabelCheckbox.checked });
         });
