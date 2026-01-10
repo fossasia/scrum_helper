@@ -507,9 +507,11 @@ document.addEventListener('DOMContentLoaded', function () {
         showOpenLabelCheckbox.addEventListener('change', function () {
             chrome.storage.local.set({ showOpenLabel: showOpenLabelCheckbox.checked });
         });
-        onlyIssuesCheckbox.addEventListener('change', function () {
-            chrome.storage.local.set({ onlyIssues: onlyIssuesCheckbox.checked });
-        })
+        if(onlyIssuesCheckbox){
+            onlyIssuesCheckbox.addEventListener('change', function () {
+                chrome.storage.local.set({ onlyIssues: onlyIssuesCheckbox.checked });
+            })
+        }
         showCommitsCheckbox.addEventListener('change', function () {
             chrome.storage.local.set({ showCommits: showCommitsCheckbox.checked });
         });
