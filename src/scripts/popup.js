@@ -306,7 +306,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const showOpenLabelCheckbox = document.getElementById('showOpenLabel');
         const showCommitsCheckbox = document.getElementById('showCommits');
         const onlyIssuesCheckbox = document.getElementById('onlyIssues');
-        console.log('[DEBUG-ONLYISSUES] Element found:', !!onlyIssuesCheckbox);
 
         const githubTokenInput = document.getElementById('githubToken');
         const cacheInput = document.getElementById('cacheInput');
@@ -320,8 +319,6 @@ document.addEventListener('DOMContentLoaded', function () {
             'projectName', 'orgName', 'userReason', 'showOpenLabel', 'showCommits', 'githubToken', 'cacheInput', 'onlyIssues',
             'enableToggle', 'yesterdayContribution', 'startingDate', 'endingDate', 'selectedTimeframe', 'platform', 'githubUsername', 'gitlabUsername'
         ], function (result) {
-
-            console.log('[DEBUG-ONLYISSUES] Storage result:', result.onlyIssues);
 
 
             if (result.projectName) projectNameInput.value = result.projectName;
