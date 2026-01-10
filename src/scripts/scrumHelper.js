@@ -706,6 +706,10 @@ function allIncluded(outputTarget = 'email') {
     }
 
     async function fetchCommitsForOpenPRs(prs, githubToken, startDate, endDate) {
+        if (!githubToken) {
+            log('Skipping GraphQL commit fetch: missing GitHub token');
+            return {};
+        }
         log('fetchCommitsForOpenPRs called with PRs:', prs.map(pr => pr.number), 'startDate:', startDate, 'endDate:', endDate);
         if (!prs.length) return {};
         const since = new Date(startDate + 'T00:00:00Z').toISOString();

@@ -68,7 +68,34 @@ document.addEventListener('DOMContentLoaded', function () {
     const githubTokenInput = document.getElementById('githubToken');
     const toggleTokenBtn = document.getElementById('toggleTokenVisibility');
     const tokenEyeIcon = document.getElementById('tokenEyeIcon');
+    const tokenPreview = document.getElementById('tokenPreview');
     let tokenVisible = false;
+
+    function renderTokenPreview() {
+        if (!tokenPreview) return;
+
+        tokenPreview.innerHTML = '';
+        const value = githubTokenInput.value;
+        const isDark = document.body.classList.contains('dark-mode');
+
+        for (let i = 0; i < value.length; i++) {
+            const charBox = document.createElement('span');
+            charBox.className =
+                'token-preview-char' + (isDark ? ' dark-mode' : '');
+
+            if (tokenVisible) {
+                charBox.textContent = value[i];
+            } else {
+                const dot = document.createElement('span');
+                dot.className =
+                    'token-preview-dot' + (isDark ? ' dark-mode' : '');
+                charBox.appendChild(dot);
+            }
+
+            tokenPreview.appendChild(charBox);
+            setTimeout(() => charBox.classList.add('flip'), 10 + i * 30);
+        }
+    }
 
     const orgInput = document.getElementById('orgInput');
 
@@ -78,32 +105,18 @@ document.addEventListener('DOMContentLoaded', function () {
     const platformUsername = document.getElementById('platformUsername');
 
     function checkTokenForFilter() {
-        const useRepoFilter = document.getElementById('useRepoFilter');
-        const githubTokenInput = document.getElementById('githubToken');
         const tokenWarning = document.getElementById('tokenWarningForFilter');
-        const repoFilterContainer = document.getElementById('repoFilterContainer');
+        if (!tokenWarning || !useRepoFilter || !githubTokenInput) return;
 
+        const enabled = useRepoFilter.checked;
+        const hasToken = githubTokenInput.value.trim() !== '';
 
-        if (!useRepoFilter || !githubTokenInput || !tokenWarning || !repoFilterContainer) {
+        // ONLY show / hide warning — no state mutation
+        tokenWarning.classList.toggle('hidden', hasToken || !enabled);
 
-            return;
+        if (enabled && !hasToken) {
+            setTimeout(() => tokenWarning.classList.add('hidden'), 4000);
         }
-        const isFilterEnabled = useRepoFilter.checked;
-        const hasToken = githubTokenInput.value.trim() != '';
-
-        if (isFilterEnabled && !hasToken) {
-            useRepoFilter.checked = false;
-            repoFilterContainer.classList.add('hidden');
-            if (typeof hideDropdown === 'function') {
-                hideDropdown();
-            }
-            chrome.storage.local.set({ useRepoFilter: false });
-        }
-        tokenWarning.classList.toggle('hidden', !isFilterEnabled || hasToken);
-        setTimeout(() => {
-            tokenWarning.classList.add('hidden');
-        }, 4000)
-
     }
 
 
@@ -129,8 +142,6 @@ document.addEventListener('DOMContentLoaded', function () {
         githubTokenInput.classList.add('token-animating');
         setTimeout(() => githubTokenInput.classList.remove('token-animating'), 300);
     });
-
-    githubTokenInput.addEventListener('input', checkTokenForFilter);
 
     darkModeToggle.addEventListener('click', function () {
         body.classList.toggle('dark-mode');
@@ -589,15 +600,18 @@ document.addEventListener('DOMContentLoaded', function () {
     const useRepoFilter = document.getElementById('useRepoFilter');
     const repoFilterContainer = document.getElementById('repoFilterContainer');
 
-    if (repoSearch && useRepoFilter && repoFilterContainer) {
-        repoSearch.addEventListener('click', function () {
-            if (!useRepoFilter.checked) {
-                useRepoFilter.checked = true;
-                repoFilterContainer.classList.remove('hidden');
-                chrome.storage.local.set({ useRepoFilter: true });
-            }
-        })
+    function syncRepoFilterUI(enabled) {
+        if (!repoFilterContainer) return;
+
+        repoFilterContainer.classList.toggle('hidden', !enabled);
+
+        if (!enabled) {
+            if (repoSearch) repoSearch.value = '';
+            if (repoDropdown) repoDropdown.innerHTML = '';
+            if (selectedReposDiv) selectedReposDiv.innerHTML = '';
+        }
     }
+
 
     if (!repoSearch || !useRepoFilter) {
         console.log('Repository, filter elements not found in DOM');
@@ -609,19 +623,31 @@ document.addEventListener('DOMContentLoaded', function () {
 
         async function triggerRepoFetchIfEnabled() {
             // --- PLATFORM CHECK: Only run for GitHub ---
-            let platform = 'github';
-            try {
-                const items = await new Promise(resolve => {
-                    chrome.storage.local.get(['platform'], resolve);
-                });
-                platform = items.platform || 'github';
-            } catch (e) { }
+            const items = await new Promise(resolve => {
+                chrome.storage.local.get(
+                    ['platform', 'githubUsername', 'githubToken', 'orgName'],
+                    resolve
+                );
+            });
+
+            const platform = items.platform || 'github';
+
             if (platform !== 'github') {
-                // Do not run repo fetch for non-GitHub platforms
-                if (repoStatus) repoStatus.textContent = 'Repository filtering is only available for GitHub.';
+                if (repoStatus) {
+                    repoStatus.textContent =
+                        'Repository filtering is only available for GitHub.';
+                }
                 return;
             }
+
             if (!useRepoFilter.checked) {
+                return;
+            }
+
+            if (!items.githubToken) {
+                if (repoStatus) {
+                    repoStatus.textContent = 'GitHub token required';
+                }
                 return;
             }
 
@@ -633,11 +659,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 const cacheData = await new Promise(resolve => {
                     chrome.storage.local.get(['repoCache'], resolve);
                 });
-                const items = await new Promise(resolve => {
-                    chrome.storage.local.get(['platform', 'githubUsername', 'githubToken', 'orgName'], resolve);
-                });
 
-                const platform = items.platform || 'github';
                 const platformUsernameKey = `${platform}Username`;
                 const username = items[platformUsernameKey];
 
@@ -690,144 +712,83 @@ document.addEventListener('DOMContentLoaded', function () {
 
         window.triggerRepoFetchIfEnabled = triggerRepoFetchIfEnabled;
 
-        chrome.storage.local.get(['selectedRepos', 'useRepoFilter'], (items) => {
-            if (items.selectedRepos) {
-                selectedRepos = items.selectedRepos;
-                updateRepoDisplay();
+        chrome.storage.local.get(['selectedRepos', 'useRepoFilter', 'githubToken'],(items) => {
+                const canEnable = Boolean(items.useRepoFilter && items.githubToken);
+
+                useRepoFilter.checked = canEnable;
+                syncRepoFilterUI(canEnable);
+
+                // Sanitize bad persisted state
+                if (items.useRepoFilter && !items.githubToken) {
+                    chrome.storage.local.set({ useRepoFilter: false });
+                }
+
+                if (Array.isArray(items.selectedRepos)) {
+                    selectedRepos = items.selectedRepos;
+                    updateRepoDisplay();
+                }
             }
-            if (items.useRepoFilter) {
-                useRepoFilter.checked = items.useRepoFilter;
-                repoFilterContainer.classList.toggle('hidden', !items.useRepoFilter);
-            }
-        });
+        );
 
         useRepoFilter.addEventListener('change', debounce(async () => {
-            // --- PLATFORM CHECK: Only run for GitHub ---
-            let platform = 'github';
-            try {
-                const items = await new Promise(resolve => {
-                    chrome.storage.local.get(['platform'], resolve);
-                });
-                platform = items.platform || 'github';
-            } catch (e) { }
-            if (platform !== 'github') {
-                repoFilterContainer.classList.add('hidden');
-                useRepoFilter.checked = false;
-                if (repoStatus) repoStatus.textContent = 'Repository filtering is only available for GitHub.';
-                return;
-            }
-            const enabled = useRepoFilter.checked;
-            const hasToken = githubTokenInput.value.trim() !== '';
-            repoFilterContainer.classList.toggle('hidden', !enabled);
+                // Platform guard
+                const { platform, githubToken } = await new Promise(resolve =>
+                    chrome.storage.local.get(['platform', 'githubToken'], resolve)
+                );
 
-            if (enabled && !hasToken) {
-                useRepoFilter.checked = false;
-                repoFilterContainer.classList.add('hidden'); // Explicitly hide the container
-                hideDropdown();
-                const tokenWarning = document.getElementById('tokenWarningForFilter');
-                if (tokenWarning) {
-                    tokenWarning.classList.remove('hidden');
-                    tokenWarning.classList.add('shake-animation');
-                    setTimeout(() => tokenWarning.classList.remove('shake-animation'), 620);
-                    setTimeout(() => {
-                        tokenWarning.classList.add('hidden');
-                    }, 3000);
+                if (platform !== 'github') {
+                    useRepoFilter.checked = false;
+                    syncRepoFilterUI(false);
+                    chrome.storage.local.set({ useRepoFilter: false });
+                    if (repoStatus) {
+                        repoStatus.textContent =
+                            'Repository filtering is only available for GitHub.';
+                    }
+                    return;
                 }
-                return;
-            }
-            repoFilterContainer.classList.toggle('hidden', !enabled);
 
-            chrome.storage.local.set({
-                useRepoFilter: enabled,
-                githubCache: null, //forces refresh
-            });
-            checkTokenForFilter();
-            if (enabled) {
-                repoStatus.textContent = 'Loading repos automatically..';
+                // Token guard
+                if (useRepoFilter.checked && !githubToken) {
+                    useRepoFilter.checked = false;
+                    syncRepoFilterUI(false);
+                    chrome.storage.local.set({ useRepoFilter: false });
 
-                try {
-                    const cacheData = await new Promise(resolve => {
-                        chrome.storage.local.get(['repoCache'], resolve);
-                    });
-                    const items = await new Promise(resolve => {
-
-                        chrome.storage.local.get(['platform', 'githubUsername', 'githubToken', 'orgName'], resolve);
-                    });
-
-                    const platform = items.platform || 'github';
-                    const platformUsernameKey = `${platform}Username`;
-                    const username = items[platformUsernameKey];
-
-                    if (!username) {
-
-                        repoStatus.textContent = 'Github Username required';
-
-                        return;
-                    }
-
-                    const repoCacheKey = `repos-${username}-${items.orgName || ''}`;
-
-                    const now = Date.now();
-                    const cacheAge = cacheData.repoCache?.timestamp ? now - cacheData.repoCache.timestamp : Infinity;
-                    const cacheTTL = 10 * 60 * 1000; // 10 minutes 
-
-                    if (cacheData.repoCache &&
-                        cacheData.repoCache.cacheKey === repoCacheKey &&
-                        cacheAge < cacheTTL) {
-
-                        console.log('Using cached repositories');
-                        availableRepos = cacheData.repoCache.data;
-                        repoStatus.textContent = chrome.i18n.getMessage('repoLoaded', [availableRepos.length]);
-
-                        if (document.activeElement === repoSearch) {
-                            filterAndDisplayRepos(repoSearch.value.toLowerCase());
-                        }
-                        return;
-                    }
-
-                    if (window.fetchUserRepositories) {
-                        const repos = await window.fetchUserRepositories(
-
-                            username,
-
-                            items.githubToken,
-                            items.orgName || '',
+                    const tokenWarning = document.getElementById(
+                        'tokenWarningForFilter'
+                    );
+                    if (tokenWarning) {
+                        tokenWarning.classList.remove('hidden');
+                        setTimeout(
+                            () => tokenWarning.classList.add('hidden'),
+                            3000
                         );
-                        availableRepos = repos;
-                        repoStatus.textContent = chrome.i18n.getMessage('repoLoaded', [repos.length]);
-
-                        chrome.storage.local.set({
-                            repoCache: {
-                                data: repos,
-                                cacheKey: repoCacheKey,
-                                timestamp: now
-                            }
-                        });
-
-                        if (document.activeElement === repoSearch) {
-                            filterAndDisplayRepos(repoSearch.value.toLowerCase());
-                        }
                     }
-                } catch (err) {
-
-
-                    console.error('Auto load repos failed', err);
-
-                    if (err.message?.includes('401')) {
-                        repoStatus.textContent = chrome.i18n.getMessage('repoTokenPrivate');
-                    } else if (err.message?.includes('username')) {
-                        repoStatus.textContent = chrome.i18n.getMessage('githubUsernamePlaceholder');
-                    } else {
-                        repoStatus.textContent = `${chrome.i18n.getMessage('errorLabel')}: ${err.message || chrome.i18n.getMessage('repoLoadFailed')}`;
-                    }
+                    return;
                 }
-            } else {
-                selectedRepos = [];
-                updateRepoDisplay();
-                chrome.storage.local.set({ selectedRepos: [] });
-                repoStatus.textContent = '';
-            }
-        }, 300));
+
+                const enabled = useRepoFilter.checked;
+
+                chrome.storage.local.set({
+                    useRepoFilter: enabled,
+                    githubCache: null, // force refresh
+                });
+
+                syncRepoFilterUI(enabled);
+
+                if (enabled) {
+                    if (repoStatus) {
+                        repoStatus.textContent =
+                            chrome.i18n.getMessage('repoLoading');
+                    }
+                    triggerRepoFetchIfEnabled();
+                } else {
+                    selectedRepos = [];
+                    updateRepoDisplay();
+                    chrome.storage.local.set({ selectedRepos: [] });
+                    if (repoStatus) repoStatus.textContent = '';
+                }
+            }, 300)
+        );
 
         repoSearch.addEventListener('keydown', (e) => {
             const items = repoDropdown.querySelectorAll('.repository-dropdown-item');
