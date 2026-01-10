@@ -105,7 +105,7 @@
     "message": "Include only issues in the report"
   },
   "onlyIssuesTooltip": {
-    "message": "If checked, the report will exclude Pull/Merge Requests and reviewed PRs."
+    "message": "If checked, the report will only include issues created or assigned to the user."
   },
   "cacheTTLLabel": {
     "message": "Enter cache TTL",
