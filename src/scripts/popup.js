@@ -49,6 +49,13 @@ function applyI18n() {
     });
 }
 
+// -----------------
+// DOM helpers
+// -----------------
+function on(el, event, handler, options) {
+    if (!el) return;
+    el.addEventListener(event, handler, options);
+}
 
 document.addEventListener('DOMContentLoaded', function () {
     // Apply translations as soon as the DOM is ready
@@ -347,7 +354,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const generateBtn = document.getElementById('generateReport');
         const copyBtn = document.getElementById('copyReport');
 
-        generateBtn.addEventListener('click', function () {
+        on(generateBtn, 'click', function () {
 
             chrome.storage.local.get(['platform'], function (result) {
                 const platform = result.platform || 'github';
@@ -370,7 +377,7 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
 
-        copyBtn.addEventListener('click', function () {
+        on(copyBtn, 'click', function () {
             const scrumReport = document.getElementById('scrumReport');
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = scrumReport.innerHTML;
@@ -399,7 +406,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         // Custom date container click handler
-        document.getElementById('customDateContainer').addEventListener('click', () => {
+        on(document.getElementById('customDateContainer'), 'click', () => {
             document.querySelectorAll('input[name="timeframe"]').forEach(radio => {
                 radio.checked = false
                 radio.dataset.wasChecked = 'false'
@@ -472,12 +479,12 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         // Save all fields to storage on input/change
-        projectNameInput.addEventListener('input', function () {
+        on(projectNameInput, 'input', function () {
             chrome.storage.local.set({ projectName: projectNameInput.value });
         });
         
         // Save to storage and validate ONLY when user clicks out (blur event)
-        orgInput.addEventListener('blur', function () {
+        on(orgInput, 'blur', function () {
             const org = orgInput.value.trim().toLowerCase();
             chrome.storage.local.set({ orgName: org });
             
@@ -490,19 +497,19 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (oldToast) oldToast.parentNode.removeChild(oldToast);
             }
         });
-        userReasonInput.addEventListener('input', function () {
+        on(userReasonInput, 'input', function () {
             chrome.storage.local.set({ userReason: userReasonInput.value });
         });
-        showOpenLabelCheckbox.addEventListener('change', function () {
+        on(showOpenLabelCheckbox, 'change', function () {
             chrome.storage.local.set({ showOpenLabel: showOpenLabelCheckbox.checked });
         });
-        showCommitsCheckbox.addEventListener('change', function () {
+        on(showCommitsCheckbox, 'change', function () {
             chrome.storage.local.set({ showCommits: showCommitsCheckbox.checked });
         });
-        githubTokenInput.addEventListener('input', function () {
+        on(githubTokenInput, 'input', function () {
             chrome.storage.local.set({ githubToken: githubTokenInput.value });
         });
-        cacheInput.addEventListener('input', function () {
+        on(cacheInput, 'input', function () {
             chrome.storage.local.set({ cacheInput: cacheInput.value });
         });
         if (enableToggleSwitch) {
@@ -512,18 +519,18 @@ document.addEventListener('DOMContentLoaded', function () {
                 chrome.storage.local.set({ enableToggle: enableToggleSwitch.checked });
             });
         }
-        yesterdayRadio.addEventListener('change', function () {
+        on(yesterdayRadio, 'change', function () {
             chrome.storage.local.set({ yesterdayContribution: yesterdayRadio.checked });
         });
-        startingDateInput.addEventListener('input', function () {
+        on(startingDateInput, 'input', function () {
             chrome.storage.local.set({ startingDate: startingDateInput.value });
         });
-        endingDateInput.addEventListener('input', function () {
+        on(endingDateInput, 'input', function () {
             chrome.storage.local.set({ endingDate: endingDateInput.value });
         });
 
         // Save username to storage on input
-        platformUsername.addEventListener('input', function () {
+        on(platformUsername, 'input', function () {
             chrome.storage.local.get(['platform'], function (result) {
                 const platform = result.platform || 'github';
                 const platformUsernameKey = `${platform}Username`;
@@ -1315,18 +1322,21 @@ document.addEventListener('click', function (e) {
     }
 });
 
-// Keyboard navigation
-platformDropdownBtn.addEventListener('keydown', function (e) {
+// Keyboard support for platform dropdown button
+on(dropdownBtn, 'keydown', function (e) {
     if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         customDropdown.classList.add('open');
         dropdownList.classList.remove('hidden');
-        dropdownList.querySelector('li').focus();
+        dropdownList.querySelector('li')?.focus();
     }
 });
-dropdownList.querySelectorAll('li').forEach((item, idx, arr) => {
+
+// Keyboard navigation for dropdown items
+dropdownList?.querySelectorAll('li').forEach((item, idx, arr) => {
     item.setAttribute('tabindex', '0');
-    item.addEventListener('keydown', function (e) {
+
+    on(item, 'keydown', function (e) {
         if (e.key === 'ArrowDown') {
             e.preventDefault();
             (arr[idx + 1] || arr[0]).focus();
@@ -1335,6 +1345,7 @@ dropdownList.querySelectorAll('li').forEach((item, idx, arr) => {
             (arr[idx - 1] || arr[arr.length - 1]).focus();
         } else if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
+
             const newPlatform = this.getAttribute('data-value');
             const currentPlatform = platformSelectHidden.value;
 
@@ -1344,7 +1355,9 @@ dropdownList.querySelectorAll('li').forEach((item, idx, arr) => {
                 if (platformUsername) {
                     const currentUsername = platformUsername.value;
                     if (currentUsername.trim()) {
-                        chrome.storage.local.set({ [`${currentPlatform}Username`]: currentUsername });
+                        chrome.storage.local.set({
+                            [`${currentPlatform}Username`]: currentUsername
+                        });
                     }
                 }
             }
@@ -1352,7 +1365,7 @@ dropdownList.querySelectorAll('li').forEach((item, idx, arr) => {
             setPlatformDropdown(newPlatform);
             customDropdown.classList.remove('open');
             dropdownList.classList.add('hidden');
-            dropdownBtn.focus();
+            dropdownBtn?.focus();
         }
     });
 });
@@ -1442,7 +1455,7 @@ document.querySelectorAll('input[name="timeframe"]').forEach(radio => {
 
 // refresh cache button
 
-document.getElementById('refreshCache').addEventListener('click', async function () {
+on(document.getElementById('refreshCache'), 'click', async function () {
     const button = this;
     const originalText = button.innerHTML;
 
