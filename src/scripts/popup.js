@@ -174,6 +174,7 @@ document.addEventListener('DOMContentLoaded', function () {
             'showOpenLabel',
             'showCommits',
             'onlyIssues',
+            'onlyPRs',
             'scrumReport',
             'githubUsername',
             'githubToken',
@@ -377,6 +378,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const showOpenLabelCheckbox = document.getElementById('showOpenLabel');
         const showCommitsCheckbox = document.getElementById('showCommits');
         const onlyIssuesCheckbox = document.getElementById('onlyIssues');
+        const onlyPRsCheckbox = document.getElementById('onlyPRs');
 
         const githubTokenInput = document.getElementById('githubToken');
         const cacheInput = document.getElementById('cacheInput');
@@ -387,7 +389,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const platformUsername = document.getElementById('platformUsername');
 
         chrome.storage.local.get([
-            'projectName', 'orgName', 'userReason', 'showOpenLabel', 'showCommits', 'githubToken', 'cacheInput', 'onlyIssues',
+            'projectName', 'orgName', 'userReason', 'showOpenLabel', 'showCommits', 'githubToken', 'cacheInput', 'onlyIssues', 'onlyPRs',
             'enableToggle', 'yesterdayContribution', 'startingDate', 'endingDate', 'selectedTimeframe', 'platform', 'githubUsername', 'gitlabUsername'
         ], function (result) {
 
@@ -403,6 +405,9 @@ document.addEventListener('DOMContentLoaded', function () {
             if (typeof result.showCommits !== 'undefined') showCommitsCheckbox.checked = result.showCommits;
             if (typeof result.onlyIssues !== 'undefined') {
                 onlyIssuesCheckbox.checked = result.onlyIssues;
+            }
+            if (typeof result.onlyPRs !== 'undefined') {
+                onlyPRsCheckbox.checked = result.onlyPRs;
             }
             if (result.githubToken) githubTokenInput.value = result.githubToken;
             if (result.cacheInput) cacheInput.value = result.cacheInput;
@@ -581,6 +586,11 @@ document.addEventListener('DOMContentLoaded', function () {
         if(onlyIssuesCheckbox){
             onlyIssuesCheckbox.addEventListener('change', function () {
                 chrome.storage.local.set({ onlyIssues: onlyIssuesCheckbox.checked });
+            })
+        }
+        if(onlyPRsCheckbox){
+            onlyPRsCheckbox.addEventListener('change', function () {
+                chrome.storage.local.set({ onlyPRs: onlyPRsCheckbox.checked });
             })
         }
         showCommitsCheckbox.addEventListener('change', function () {

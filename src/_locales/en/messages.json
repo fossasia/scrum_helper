@@ -107,6 +107,12 @@
   "onlyIssuesTooltip": {
     "message": "If checked, the report will only include issues created or assigned to the user."
   },
+  "onlyPRsLabel": {
+    "message": "Include only PRs in the report"
+  },
+  "onlyPRsTooltip": {
+    "message": "If checked, the report will only include PRs created by the user"
+  },
   "cacheTTLLabel": {
     "message": "Enter cache TTL",
     "description": "Label for the cache time-to-live input."

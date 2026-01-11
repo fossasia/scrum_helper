@@ -57,6 +57,7 @@ function allIncluded(outputTarget = 'email') {
     let userReason = '';
     let subjectForEmail = null;
     let onlyIssues = false;
+    let onlyPRs = false;
 
     let pr_open_button =
         '<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
@@ -98,6 +99,7 @@ function allIncluded(outputTarget = 'email') {
                 'useRepoFilter',
                 'showCommits',
                 'onlyIssues',
+                'onlyPrs',
             ],
             (items) => {
 
@@ -140,6 +142,7 @@ function allIncluded(outputTarget = 'email') {
                 }
 
                 onlyIssues = items.onlyIssues === true;
+                onlyPrs = items.onlyPRs === true;
                 showCommits = items.showCommits || false;
                 showOpenLabel = items.showOpenLabel !== false; // Default to true if not explicitly set to false
                 orgName = items.orgName || '';
@@ -1304,6 +1307,15 @@ ${userReason}`;
     }
 
     async function writeGithubIssuesPrs(items) {
+
+        if(onlyPrs){
+            log(' "Only PRs" is checked, skipping issues.')
+            lastWeekArray = [];
+            nextWeekArray = [];
+            issuesDataProcessed = true;
+            return;
+
+        }
 
         if (!items) {
 
