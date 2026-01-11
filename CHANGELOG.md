@@ -2,6 +2,26 @@
 
 ## What's Changed
 
+* feat: Make PRs and PR numbers clickable with links to GitHub (#273) @Anshumancanrock
+* Fix/disable UI when extension of (#286) @diyasharma12
+* Minor: Added translation files for Hebrew, Norwegian Bokmål, Ukrainian and Italian (#292) @vedansh-5
+* Minor: Added a checkbox for filtering in issues only (#302) @vedansh-5
+* fix: zh\_Hans and zh\_CN conflict in weblate (#289) @vedansh-5
+* fix:  Empty Background Service Worker Declaration (#253) @Anshumancanrock
+* fix: Input text box color does not change along with rest of the interface (#249) @Anshumancanrock
+
+## Maintenance
+
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.9 to 2.3.10 (#275) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.4 to 2.3.9 (#274) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 1.9.4 to 2.3.4 (#264) @[dependabot[bot]](https://github.com/apps/dependabot)
+
+---
+
+## v1.0.9 - 2026-01-11
+
+## What's Changed
+
 * Fix/disable UI when extension of (#286) @diyasharma12
 * Minor: Added translation files for Hebrew, Norwegian Bokmål, Ukrainian and Italian (#292) @vedansh-5
 * Minor: Added a checkbox for filtering in issues only (#302) @vedansh-5
