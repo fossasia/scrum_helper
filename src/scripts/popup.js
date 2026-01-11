@@ -182,6 +182,10 @@ document.addEventListener('DOMContentLoaded', function () {
             'orgInput',
             'cacheInput',
             'settingsToggle',
+            'toggleTokenVisibility',
+            'useRepoFilter',
+            'repoSearch',
+            'platformDropdownBtn',
         ];
 
         const radios = document.querySelectorAll('input[name="timeframe"]');
@@ -223,6 +227,73 @@ document.addEventListener('DOMContentLoaded', function () {
             } else {
                 customDateContainer.style.opacity = '1';
                 customDateContainer.style.pointerEvents = 'auto';
+            }
+        }
+
+        // Handle platform dropdown list items
+        const platformDropdownList = document.getElementById('platformDropdownList');
+        const customPlatformDropdown = document.getElementById('customPlatformDropdown');
+        if (platformDropdownList && customPlatformDropdown) {
+            if (!enableToggle) {
+                customPlatformDropdown.style.opacity = '0.5';
+                customPlatformDropdown.style.pointerEvents = 'none';
+                // Close dropdown if open
+                customPlatformDropdown.classList.remove('open');
+                platformDropdownList.classList.add('hidden');
+            } else {
+                customPlatformDropdown.style.opacity = '1';
+                customPlatformDropdown.style.pointerEvents = 'auto';
+            }
+        }
+
+        // Handle repository filter container and selected repos
+        const repoFilterContainer = document.getElementById('repoFilterContainer');
+        const selectedRepos = document.getElementById('selectedRepos');
+        if (repoFilterContainer) {
+            if (!enableToggle) {
+                repoFilterContainer.style.opacity = '0.5';
+                repoFilterContainer.style.pointerEvents = 'none';
+            } else {
+                repoFilterContainer.style.opacity = '1';
+                repoFilterContainer.style.pointerEvents = 'auto';
+            }
+        }
+        if (selectedRepos) {
+            if (!enableToggle) {
+                selectedRepos.style.opacity = '0.5';
+                selectedRepos.style.pointerEvents = 'none';
+                // Disable all remove buttons inside
+                const removeButtons = selectedRepos.querySelectorAll('.remove-repo-btn');
+                removeButtons.forEach(btn => {
+                    btn.disabled = true;
+                    btn.style.pointerEvents = 'none';
+                });
+            } else {
+                selectedRepos.style.opacity = '1';
+                selectedRepos.style.pointerEvents = 'auto';
+                const removeButtons = selectedRepos.querySelectorAll('.remove-repo-btn');
+                removeButtons.forEach(btn => {
+                    btn.disabled = false;
+                    btn.style.pointerEvents = 'auto';
+                });
+            }
+        }
+
+        // Handle repository dropdown
+        const repoDropdown = document.getElementById('repoDropdown');
+        if (repoDropdown && !enableToggle) {
+            repoDropdown.classList.add('hidden');
+        }
+
+        // Handle useRepoFilter label
+        const useRepoFilterLabel = document.querySelector('label[for="useRepoFilter"]');
+        if (useRepoFilterLabel) {
+            if (!enableToggle) {
+                useRepoFilterLabel.style.opacity = '0.5';
+                useRepoFilterLabel.style.pointerEvents = 'none';
+            } else {
+                useRepoFilterLabel.style.opacity = '1';
+                useRepoFilterLabel.style.pointerEvents = 'auto';
             }
         }
 
