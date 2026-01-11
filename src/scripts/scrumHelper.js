@@ -1,4 +1,4 @@
-const DEBUG = true;
+const DEBUG = false;
 
 function log(...args) {
     if (DEBUG) {
@@ -56,6 +56,7 @@ function allIncluded(outputTarget = 'email') {
     let showCommits = false;
     let userReason = '';
     let subjectForEmail = null;
+    let onlyIssues = false;
 
     let pr_open_button =
         '<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
@@ -96,6 +97,7 @@ function allIncluded(outputTarget = 'email') {
                 'selectedRepos',
                 'useRepoFilter',
                 'showCommits',
+                'onlyIssues',
             ],
             (items) => {
 
@@ -137,6 +139,7 @@ function allIncluded(outputTarget = 'email') {
                     enableToggle = items.enableToggle;
                 }
 
+                onlyIssues = items.onlyIssues === true;
                 showCommits = items.showCommits || false;
                 showOpenLabel = items.showOpenLabel !== false; // Default to true if not explicitly set to false
                 orgName = items.orgName || '';
@@ -156,9 +159,6 @@ function allIncluded(outputTarget = 'email') {
                         chrome.storage.local.set({ yesterdayContribution: true });
                     }
                 }
-
-
-
 
                 if (platform === 'github') {
                     if (platformUsernameLocal) {
@@ -1072,6 +1072,12 @@ ${userReason}`;
     }
 
     function writeGithubPrsReviews() {
+        if(onlyIssues){
+            log(' "Only Issues" is checked, skipping PR reviews.')
+            reviewedPrsArray = [];
+            prsReviewDataProcessed = true;
+            return;
+        }
         let items = githubPrsReviewData.items;
         log('Processing PR reviews:', {
             hasItems: !!items,
@@ -1380,6 +1386,12 @@ ${userReason}`;
             log('[SCRUM-DEBUG] Processing item:', item);
             // For GitLab, treat all items in the MRs array as MRs
             let isMR = !!item.pull_request; // works for both GitHub and mapped GitLab data
+
+            if (onlyIssues && isMR) {
+                log('[SCRUM-DEBUG] "Only Issues" checked, skipping PR/MR:', item.number);
+                continue;
+            }
+            
             log('[SCRUM-DEBUG] isMR:', isMR, 'platform:', platform, 'item:', item);
             let html_url = item.html_url;
             let repository_url = item.repository_url;
