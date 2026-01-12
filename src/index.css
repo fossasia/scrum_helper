@@ -94,7 +94,7 @@ hr,
 .dark-mode .bg-white {
     background-color: #2d2d2d !important;
     border-color: #404040 !important;
-    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+    transition: background-color 0.3s ease-in-out, border-color 0.3s ease-in-out;
 }
 
 .dark-mode input[type="text"],
@@ -103,7 +103,6 @@ hr,
     background-color: #404040 !important;
     border-color: #505050 !important;
     color: #ffffff !important;
-    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
 }
 
 .dark-mode h3,
