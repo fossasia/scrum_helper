@@ -51,43 +51,6 @@ function applyI18n() {
 
 let enableToggleCached = false;
 
-// ============================================================
-// SHARED CONFIGURATION: Element IDs for disabled state guarding
-// This consolidates the list used in both addDisabledStateGuard()
-// and updateContentState() for easier maintenance.
-// ============================================================
-const GUARDED_ELEMENTS_CONFIG = {
-    // Elements that need event-based guarding (for custom interactions)
-    eventGuarded: {
-        platformDropdownBtn: ['click'],
-        repoSearch: ['click', 'focus', 'input', 'keydown'],
-        toggleTokenVisibility: ['click'],
-        useRepoFilter: ['change']
-    },
-    // Elements that get disabled/enabled via updateContentState
-    // NOTE: 'settingsToggle' and 'homeButton' are NOT in this list - they should always be enabled
-    toggled: [
-        'startingDate',
-        'endingDate',
-        'generateReport',
-        'copyReport',
-        'refreshCache',
-        'showOpenLabel',
-        'showCommits',
-        'scrumReport',
-        'githubToken',
-        'projectName',
-        'platformUsername',
-        'orgInput',
-        'cacheInput',
-        'toggleTokenVisibility',
-        'useRepoFilter',
-        'repoSearch',
-    ],
-    // Checkbox IDs for label styling
-    checkboxes: ['showOpenLabel', 'showCommits', 'useRepoFilter']
-};
-
 // Initial load
 chrome.storage.local.get(['enableToggle'], (items) => {
     enableToggleCached = items.enableToggle !== false;
@@ -106,7 +69,6 @@ function guardIfDisabled(e, revertFn) {
     e.preventDefault();
     e.stopPropagation();
     if (typeof revertFn === 'function') revertFn();
-    
 }
 
 function addDisabledStateGuard() {
@@ -121,28 +83,24 @@ function addDisabledStateGuard() {
     }
 
     // Guard repository search interactions
-    // FIX: Track previous value and provide revertFn to restore it when disabled
     const repoSearch = document.getElementById('repoSearch');
     if (repoSearch) {
         let lastValidValue = repoSearch.value;
         
-        // Update lastValidValue only when extension is enabled
         repoSearch.addEventListener('input', () => {
             if (enableToggleCached) {
                 lastValidValue = repoSearch.value;
             }
         });
         
-        GUARDED_ELEMENTS_CONFIG.eventGuarded.repoSearch.forEach(eventType => {
+        ['click', 'focus', 'input', 'keydown'].forEach(eventType => {
             repoSearch.addEventListener(
                 eventType,
                 (e) => {
                     guardIfDisabled(e, () => {
-                        // Revert the input value to the last valid state
                         if (eventType === 'input') {
                             repoSearch.value = lastValidValue;
                         }
-                        // Blur the input to remove focus when disabled
                         if (eventType === 'focus') {
                             repoSearch.blur();
                         }
@@ -170,7 +128,7 @@ function addDisabledStateGuard() {
             'change',
             function (e) {
                 guardIfDisabled(e, () => {
-                    this.checked = !this.checked; // revert change
+                    this.checked = !this.checked;
                 });
             },
             true
@@ -178,7 +136,6 @@ function addDisabledStateGuard() {
     }
 }
 
-    
 document.addEventListener('DOMContentLoaded', function () {
     // Apply translations as soon as the DOM is ready
     applyI18n();
@@ -195,18 +152,11 @@ document.addEventListener('DOMContentLoaded', function () {
     const reportSection = document.getElementById('reportSection');
     const settingsSection = document.getElementById('settingsSection');
 
-    const tokenPreview = document.getElementById('tokenPreview');
-
     let isSettingsVisible = false;
     const githubTokenInput = document.getElementById('githubToken');
     const toggleTokenBtn = document.getElementById('toggleTokenVisibility');
     const tokenEyeIcon = document.getElementById('tokenEyeIcon');
     let tokenVisible = false;
-
-    if (tokenEyeIcon) {
-        tokenEyeIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
-        tokenEyeIcon.className = 'text-gray-600';
-    }
 
     const orgInput = document.getElementById('orgInput');
 
@@ -263,12 +213,10 @@ document.addEventListener('DOMContentLoaded', function () {
         tokenEyeIcon.classList.add('eye-animating');
         setTimeout(() => tokenEyeIcon.classList.remove('eye-animating'), 400);
         
-        // Use inline SVG icons instead of Font Awesome (which may not be loaded)
+        // Use inline SVG icons instead of Font Awesome
         if (tokenVisible) {
-            // Eye-slash icon (hide)
             tokenEyeIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
         } else {
-            // Eye icon (show)
             tokenEyeIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
         }
         tokenEyeIcon.className = 'text-gray-600';
@@ -289,10 +237,23 @@ document.addEventListener('DOMContentLoaded', function () {
             settingsIcon.src = isDarkMode ? 'icons/settings-night.png' : 'icons/settings-light.png';
         }
         renderTokenPreview();
+
+        // Trigger re-render of error messages if they exist
+        const scrumReport = document.getElementById('scrumReport');
+        if (scrumReport && scrumReport.querySelector('.error-message, [style*="fef2f2"]')) {
+            // Re-generate the report to apply new theme colors
+            const generateBtn = document.getElementById('generateReport');
+            if (generateBtn && !generateBtn.disabled) {
+                // Only regenerate if there's already an error message showing
+                window.generateScrumReport && window.generateScrumReport();
+            }
+        }
     });
 
     function renderTokenPreview() {
-        if (!tokenPreview) return;
+        const tokenPreview = document.getElementById('tokenPreview');
+        if (!tokenPreview) return; 
+        
         tokenPreview.innerHTML = '';
         const value = githubTokenInput.value;
         const isDark = document.body.classList.contains('dark-mode');
@@ -313,19 +274,28 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function updateContentState(enableToggle) {
         console.log('[DEBUG] updateContentState called with:', enableToggle);
-        
-        // Use shared configuration for element IDs
-        const elementsToToggle = GUARDED_ELEMENTS_CONFIG.toggled;
+        const elementsToToggle = [
+            'startingDate',
+            'endingDate',
+            'generateReport',
+            'copyReport',
+            'refreshCache',
+            'showOpenLabel',
+            'showCommits',
+            'scrumReport',
+            'githubToken',
+            'projectName',
+            'platformUsername',
+            'orgInput',
+            'cacheInput',
+            'toggleTokenVisibility',
+            'useRepoFilter',
+            'repoSearch',
+        ];
 
         const radios = document.querySelectorAll('input[name="timeframe"]');
         const customDateContainer = document.getElementById('customDateContainer');
-        
-        // Disable/enable platform dropdown
-        const platformDropdownBtn = document.getElementById('platformDropdownBtn');
-        const platformDropdownList = document.getElementById('platformDropdownList');
-        const customPlatformDropdown = document.getElementById('customPlatformDropdown');
-        
-        // Toggle all standard form elements
+
         elementsToToggle.forEach(id => {
             const element = document.getElementById(id);
             if (element) {
@@ -333,16 +303,13 @@ document.addEventListener('DOMContentLoaded', function () {
                 if (!enableToggle) {
                     element.style.opacity = '0.5';
                     element.style.pointerEvents = 'none';
-                    element.setAttribute('aria-disabled', 'true');
                 } else {
                     element.style.opacity = '1';
                     element.style.pointerEvents = 'auto';
-                    element.setAttribute('aria-disabled', 'false');
                 }
             }
         });
 
-        // Handle radio buttons and their labels
         radios.forEach(radio => {
             radio.disabled = !enableToggle;
             const label = document.querySelector(`label[for="${radio.id}"]`);
@@ -357,7 +324,17 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
-        // Handle custom date container
+
+        if (customDateContainer) {
+            if (!enableToggle) {
+                customDateContainer.style.opacity = '0.5';
+                customDateContainer.style.pointerEvents = 'none';
+            } else {
+                customDateContainer.style.opacity = '1';
+                customDateContainer.style.pointerEvents = 'auto';
+            }
+        }
+
         if (customDateContainer) {
             if (!enableToggle) {
                 customDateContainer.style.opacity = '0.5';
@@ -370,7 +347,11 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
 
-        // Handle platform dropdown (custom implementation)
+        // Disable/enable platform dropdown
+        const platformDropdownBtn = document.getElementById('platformDropdownBtn');
+        const platformDropdownList = document.getElementById('platformDropdownList');
+        const customPlatformDropdown = document.getElementById('customPlatformDropdown');
+        
         if (platformDropdownBtn) {
             if (!enableToggle) {
                 platformDropdownBtn.disabled = true;
@@ -379,7 +360,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 platformDropdownBtn.setAttribute('aria-disabled', 'true');
                 platformDropdownBtn.setAttribute('tabindex', '-1');
                 
-                // Close and disable dropdown list
                 if (customPlatformDropdown) {
                     customPlatformDropdown.classList.remove('open');
                 }
@@ -421,7 +401,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 repoFilterContainer.style.opacity = '0.5';
                 repoFilterContainer.style.pointerEvents = 'none';
                 
-                // Close repository dropdown if open
                 if (repoDropdown) {
                     repoDropdown.classList.add('hidden');
                 }
@@ -447,7 +426,6 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
-        // Handle scrum report contenteditable
         const scrumReport = document.getElementById('scrumReport');
         if (scrumReport) {
             scrumReport.contentEditable = enableToggle;
@@ -461,8 +439,8 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
 
-        // Disable all checkboxes' labels for better UX - use shared config
-        const checkboxes = GUARDED_ELEMENTS_CONFIG.checkboxes;
+        // Disable all checkboxes' labels for better UX
+        const checkboxes = ['showOpenLabel', 'showCommits', 'useRepoFilter'];
         checkboxes.forEach(id => {
             const checkbox = document.getElementById(id);
             if (checkbox) {
@@ -529,178 +507,132 @@ document.addEventListener('DOMContentLoaded', function () {
         // Migration: Handle existing users with old platformUsername storage
         chrome.storage.local.get(['platform', 'platformUsername'], function (result) {
             if (result.platformUsername && result.platform) {
+                // Migrate old platformUsername to platform-specific storage
                 const platformUsernameKey = `${result.platform}Username`;
                 chrome.storage.local.set({ [platformUsernameKey]: result.platformUsername });
+                // Remove the old key
                 chrome.storage.local.remove(['platformUsername']);
                 console.log(`[MIGRATION] Migrated platformUsername to ${platformUsernameKey}`);
             }
         });
 
-        // Get all elements 
+        // Restore all persistent fields immediately on DOMContentLoaded
         const projectNameInput = document.getElementById('projectName');
         const orgInput = document.getElementById('orgInput');
-        const userReasonInput = document.getElementById('userReason');
         const showOpenLabelCheckbox = document.getElementById('showOpenLabel');
         const showCommitsCheckbox = document.getElementById('showCommits');
         const githubTokenInput = document.getElementById('githubToken');
+        const cacheInput = document.getElementById('cacheInput');
         const enableToggleSwitch = document.getElementById('enable');
         const yesterdayRadio = document.getElementById('yesterdayContribution');
         const startingDateInput = document.getElementById('startingDate');
         const endingDateInput = document.getElementById('endingDate');
         const platformUsername = document.getElementById('platformUsername');
 
-        // Restore values from storage
         chrome.storage.local.get([
-            'projectName', 'orgName', 'userReason', 'showOpenLabel', 'showCommits', 
-            'githubToken', 'cacheInput', 'enableToggle', 'yesterdayContribution', 
-            'startingDate', 'endingDate', 'selectedTimeframe', 'platform', 
-            'githubUsername', 'gitlabUsername'
+            'projectName', 'orgName', 'showOpenLabel', 'showCommits', 'githubToken', 'cacheInput',
+            'enableToggle', 'yesterdayContribution', 'startingDate', 'endingDate', 'selectedTimeframe', 'platform', 'githubUsername', 'gitlabUsername'
         ], function (result) {
-            if (projectNameInput && result.projectName) projectNameInput.value = result.projectName;
-            if (orgInput && result.orgName) orgInput.value = result.orgName;
-            if (userReasonInput && result.userReason) userReasonInput.value = result.userReason;
-            
-            if (showOpenLabelCheckbox) {
-                showOpenLabelCheckbox.checked = result.showOpenLabel !== undefined ? result.showOpenLabel : true;
+            if (result.projectName) projectNameInput.value = result.projectName;
+            if (result.orgName) orgInput.value = result.orgName;
+            if (typeof result.showOpenLabel !== 'undefined') {
+                showOpenLabelCheckbox.checked = result.showOpenLabel;
+            } else {
+                showOpenLabelCheckbox.checked = true; // Default to true for new users
             }
-            
-            if (showCommitsCheckbox && result.showCommits !== undefined) {
-                showCommitsCheckbox.checked = result.showCommits;
-            }
-            
-            if (githubTokenInput && result.githubToken) githubTokenInput.value = result.githubToken;
-            if (cacheInput && result.cacheInput) cacheInput.value = result.cacheInput;
-            
+            if (typeof result.showCommits !== 'undefined') showCommitsCheckbox.checked = result.showCommits;
+            if (result.githubToken) githubTokenInput.value = result.githubToken;
+            if (result.cacheInput) cacheInput.value = result.cacheInput;
             if (enableToggleSwitch) {
-                enableToggleSwitch.checked = result.enableToggle !== undefined ? result.enableToggle : true;
+                if (typeof result.enableToggle !== 'undefined') {
+                    enableToggleSwitch.checked = result.enableToggle;
+                } else {
+                    enableToggleSwitch.checked = true; // Default to enabled
+                }
             }
-            
-            if (yesterdayRadio && result.yesterdayContribution !== undefined) {
-                yesterdayRadio.checked = result.yesterdayContribution;
-            }
-            
-            if (startingDateInput && result.startingDate) startingDateInput.value = result.startingDate;
-            if (endingDateInput && result.endingDate) endingDateInput.value = result.endingDate;
+            if (typeof result.yesterdayContribution !== 'undefined') yesterdayRadio.checked = result.yesterdayContribution;
+            if (result.startingDate) startingDateInput.value = result.startingDate;
+            if (result.endingDate) endingDateInput.value = result.endingDate;
 
-            if (platformUsername) {
-                const platform = result.platform || 'github';
-                const platformUsernameKey = `${platform}Username`;
-                platformUsername.value = result[platformUsernameKey] || '';
-            }
+            // Load platform-specific username
+            const platform = result.platform || 'github';
+            const platformUsernameKey = `${platform}Username`;
+            platformUsername.value = result?.[platformUsernameKey] || '';
         });
 
         // Button setup
         const generateBtn = document.getElementById('generateReport');
         const copyBtn = document.getElementById('copyReport');
 
-        if (generateBtn) {
-            generateBtn.addEventListener('click', function () {
-                chrome.storage.local.get(['platform'], function (result) {
-                    const platform = result.platform || 'github';
-                    const platformUsernameKey = `${platform}Username`;
-                    const platformSelect = document.getElementById('platformSelect');
-                    const platformUsername = document.getElementById('platformUsername');
+        generateBtn.addEventListener('click', function () {
 
-                    chrome.storage.local.set({
-                        platform: platformSelect ? platformSelect.value : 'github',
-                        [platformUsernameKey]: platformUsername ? platformUsername.value : ''
-                    }, () => {
-                        chrome.storage.local.get(['platform'], function (res) {
-                            if (platformSelect) platformSelect.value = res.platform || 'github';
-                            updatePlatformUI(res.platform || 'github');
-                            generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
-                            generateBtn.disabled = true;
-                            window.generateScrumReport && window.generateScrumReport();
-                        });
-                    });
-                });
-            });
-        }
-
-        if (copyBtn) {
-            copyBtn.addEventListener('click', function () {
-                const scrumReport = document.getElementById('scrumReport');
-                if (!scrumReport) return;
-                
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = scrumReport.innerHTML;
-                document.body.appendChild(tempDiv);
-                tempDiv.style.position = 'absolute';
-                tempDiv.style.left = '-9999px';
-
-                const range = document.createRange();
-                range.selectNode(tempDiv);
-                const selection = window.getSelection();
-                selection.removeAllRanges();
-                selection.addRange(range);
-
-                try {
-                    document.execCommand('copy');
-                    this.innerHTML = `<i class="fa fa-check"></i> ${chrome.i18n.getMessage('copiedButton')}`;
-                    setTimeout(() => {
-                        this.innerHTML = `<i class="fa fa-copy"></i> ${chrome.i18n.getMessage('copyReportButton')}`;
-                    }, 2000);
-                } catch (err) {
-                    console.error('Failed to copy: ', err);
-                } finally {
-                    selection.removeAllRanges();
-                    document.body.removeChild(tempDiv);
-                }
-            });
-        }
-
-        let cacheInput = document.getElementById('cacheInput');
-        if (cacheInput) {
-            chrome.storage.local.get(['cacheInput'], function (result) {
-                if (result.cacheInput) {
-                    cacheInput.value = result.cacheInput;
-                } else {
-                    cacheInput.value = 10;
-                }
-            });
-
-            cacheInput.addEventListener('blur', function () {
-                let ttlValue = parseInt(this.value);
-                if (isNaN(ttlValue) || ttlValue <= 0 || this.value.trim() === '') {
-                    ttlValue = 10;
-                    this.value = ttlValue;
-                    this.style.borderColor = '#ef4444';
-                } else if (ttlValue > 1440) {
-                    ttlValue = 1440;
-                    this.value = ttlValue;
-                    this.style.borderColor = '#f59e0b';
-                } else {
-                    this.style.borderColor = '#10b981';
-                }
-
-                chrome.storage.local.set({ cacheInput: ttlValue }, function () {
-                    console.log('Cache TTL saved:', ttlValue, 'minutes');
-                });
-            });
-        }        
-
-        // Custom date container handler
-        const customDateContainer = document.getElementById('customDateContainer');
-        if (customDateContainer) {
-            customDateContainer.addEventListener('click', () => {
-                document.querySelectorAll('input[name="timeframe"]').forEach(radio => {
-                    radio.checked = false;
-                    radio.dataset.wasChecked = 'false';
-                });
-
-                const startDateInput = document.getElementById('startingDate');
-                const endDateInput = document.getElementById('endingDate');
-                if (startDateInput) startDateInput.readOnly = false;
-                if (endDateInput) endDateInput.readOnly = false;
+            chrome.storage.local.get(['platform'], function (result) {
+                const platform = result.platform || 'github';
+                const platformUsernameKey = `${platform}Username`;
 
                 chrome.storage.local.set({
-                    yesterdayContribution: false,
-                    selectedTimeframe: null
+                    platform: platformSelect.value,
+                    [platformUsernameKey]: platformUsername.value
+                }, () => {
+                    // Reload platform from storage before generating report
+                    chrome.storage.local.get(['platform'], function (res) {
+                        platformSelect.value = res.platform || 'github';
+                        updatePlatformUI(platformSelect.value);
+                        generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
+                        generateBtn.disabled = true;
+                        window.generateScrumReport && window.generateScrumReport();
+                    });
                 });
-            });
-        }
 
-        // Restore date selection state
+            });
+        });
+
+        copyBtn.addEventListener('click', function () {
+            const scrumReport = document.getElementById('scrumReport');
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = scrumReport.innerHTML;
+            document.body.appendChild(tempDiv);
+            tempDiv.style.position = 'absolute';
+            tempDiv.style.left = '-9999px';
+
+            const range = document.createRange();
+            range.selectNode(tempDiv);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+
+            try {
+                document.execCommand('copy');
+                this.innerHTML = `<i class="fa fa-check"></i> ${chrome.i18n.getMessage('copiedButton')}`;
+                setTimeout(() => {
+                    this.innerHTML = `<i class="fa fa-copy"></i> ${chrome.i18n.getMessage('copyReportButton')}`;
+                }, 2000);
+            } catch (err) {
+                console.error('Failed to copy: ', err);
+            } finally {
+                selection.removeAllRanges();
+                document.body.removeChild(tempDiv);
+            }
+        });
+
+        // Custom date container click handler
+        document.getElementById('customDateContainer').addEventListener('click', () => {
+            document.querySelectorAll('input[name="timeframe"]').forEach(radio => {
+                radio.checked = false
+                radio.dataset.wasChecked = 'false'
+            });
+
+            const startDateInput = document.getElementById('startingDate');
+            const endDateInput = document.getElementById('endingDate');
+            startDateInput.readOnly = false;
+            endDateInput.readOnly = false;
+
+            chrome.storage.local.set({
+                yesterdayContribution: false,
+                selectedTimeframe: null
+            });
+        });
+
         chrome.storage.local.get([
             'selectedTimeframe',
             'yesterdayContribution',
@@ -709,11 +641,13 @@ document.addEventListener('DOMContentLoaded', function () {
         ], (items) => {
             console.log('Restoring state:', items);
 
+
             if (items.startingDate && items.endingDate && !items.yesterdayContribution) {
                 const startDateInput = document.getElementById('startingDate');
                 const endDateInput = document.getElementById('endingDate');
 
                 if (startDateInput && endDateInput) {
+
                     startDateInput.value = items.startingDate;
                     endDateInput.value = items.endingDate;
                     startDateInput.readOnly = false;
@@ -722,7 +656,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 document.querySelectorAll('input[name="timeframe"]').forEach(radio => {
                     radio.checked = false;
                     radio.dataset.wasChecked = 'false';
-                });
+                })
                 return;
             }
 
@@ -739,74 +673,52 @@ document.addEventListener('DOMContentLoaded', function () {
                 const startDateInput = document.getElementById('startingDate');
                 const endDateInput = document.getElementById('endingDate');
 
-                if (startDateInput && endDateInput) {
-                    if (items.selectedTimeframe === 'yesterdayContribution') {
-                        startDateInput.value = getYesterday();
-                        endDateInput.value = getToday();
-                    }
-                    startDateInput.readOnly = endDateInput.readOnly = true;
-
-                    chrome.storage.local.set({
-                        startingDate: startDateInput.value,
-                        endingDate: endDateInput.value,
-                        yesterdayContribution: items.selectedTimeframe === 'yesterdayContribution',
-                        selectedTimeframe: items.selectedTimeframe
-                    });
+                if (items.selectedTimeframe === 'yesterdayContribution') {
+                    startDateInput.value = getYesterday();
+                    endDateInput.value = getToday();
                 }
+                startDateInput.readOnly = endDateInput.readOnly = true;
+
+                chrome.storage.local.set({
+                    startingDate: startDateInput.value,
+                    endingDate: endDateInput.value,
+                    yesterdayContribution: items.selectedTimeframe === 'yesterdayContribution',
+                    selectedTimeframe: items.selectedTimeframe
+                });
             }
         });
 
-        // Add event listeners with null checks
-        if (projectNameInput) {
-            projectNameInput.addEventListener('input', function () {
-                chrome.storage.local.set({ projectName: projectNameInput.value });
-            });
-        }
+        // Save all fields to storage on input/change
+        projectNameInput.addEventListener('input', function () {
+            chrome.storage.local.set({ projectName: projectNameInput.value });
+        });
         
-        if (orgInput) {
-            orgInput.addEventListener('blur', function () {
-                const org = orgInput.value.trim().toLowerCase();
-                chrome.storage.local.set({ orgName: org });
-                
-                if (org) {
-                    validateOrgOnBlur(org);
-                } else {
-                    const oldToast = document.getElementById('invalid-org-toast');
-                    if (oldToast) oldToast.parentNode.removeChild(oldToast);
-                }
-            });
-        }
-        
-        if (userReasonInput) {
-            userReasonInput.addEventListener('input', function () {
-                chrome.storage.local.set({ userReason: userReasonInput.value });
-            });
-        }
-        
-        if (showOpenLabelCheckbox) {
-            showOpenLabelCheckbox.addEventListener('change', function () {
-                chrome.storage.local.set({ showOpenLabel: showOpenLabelCheckbox.checked });
-            });
-        }
-        
-        if (showCommitsCheckbox) {
-            showCommitsCheckbox.addEventListener('change', function () {
-                chrome.storage.local.set({ showCommits: showCommitsCheckbox.checked });
-            });
-        }
-        
-        if (githubTokenInput) {
-            githubTokenInput.addEventListener('input', function () {
-                chrome.storage.local.set({ githubToken: githubTokenInput.value });
-            });
-        }
-        
-        if (cacheInput) {
-            cacheInput.addEventListener('input', function () {
-                chrome.storage.local.set({ cacheInput: cacheInput.value });
-            });
-        }
-        
+        // Save to storage and validate ONLY when user clicks out (blur event)
+        orgInput.addEventListener('blur', function () {
+            const org = orgInput.value.trim().toLowerCase();
+            chrome.storage.local.set({ orgName: org });
+            
+            // Only validate if org name is not empty
+            if (org) {
+                validateOrgOnBlur(org);
+            } else {
+                // Clear any existing toast if org is empty
+                const oldToast = document.getElementById('invalid-org-toast');
+                if (oldToast) oldToast.parentNode.removeChild(oldToast);
+            }
+        });
+        showOpenLabelCheckbox.addEventListener('change', function () {
+            chrome.storage.local.set({ showOpenLabel: showOpenLabelCheckbox.checked });
+        });
+        showCommitsCheckbox.addEventListener('change', function () {
+            chrome.storage.local.set({ showCommits: showCommitsCheckbox.checked });
+        });
+        githubTokenInput.addEventListener('input', function () {
+            chrome.storage.local.set({ githubToken: githubTokenInput.value });
+        });
+        cacheInput.addEventListener('input', function () {
+            chrome.storage.local.set({ cacheInput: cacheInput.value });
+        });
         if (enableToggleSwitch) {
             console.log('[DEBUG] Setting up enable toggle switch event listener');
             enableToggleSwitch.addEventListener('change', function () {
@@ -814,34 +726,26 @@ document.addEventListener('DOMContentLoaded', function () {
                 chrome.storage.local.set({ enableToggle: enableToggleSwitch.checked });
             });
         }
-        
-        if (yesterdayRadio) {
-            yesterdayRadio.addEventListener('change', function () {
-                chrome.storage.local.set({ yesterdayContribution: yesterdayRadio.checked });
-            });
-        }
-        
-        if (startingDateInput) {
-            startingDateInput.addEventListener('input', function () {
-                chrome.storage.local.set({ startingDate: startingDateInput.value });
-            });
-        }
-        
-        if (endingDateInput) {
-            endingDateInput.addEventListener('input', function () {
-                chrome.storage.local.set({ endingDate: endingDateInput.value });
-            });
-        }
+        yesterdayRadio.addEventListener('change', function () {
+            chrome.storage.local.set({ yesterdayContribution: yesterdayRadio.checked });
+        });
+        startingDateInput.addEventListener('input', function () {
+            chrome.storage.local.set({ startingDate: startingDateInput.value });
+        });
+        endingDateInput.addEventListener('input', function () {
+            chrome.storage.local.set({ endingDate: endingDateInput.value });
+        });
 
-        if (platformUsername) {
-            platformUsername.addEventListener('input', function () {
-                chrome.storage.local.get(['platform'], function (result) {
-                    const platform = result.platform || 'github';
-                    const platformUsernameKey = `${platform}Username`;
-                    chrome.storage.local.set({ [platformUsernameKey]: platformUsername.value });
-                });
+        // Save username to storage on input
+        platformUsername.addEventListener('input', function () {
+            chrome.storage.local.get(['platform'], function (result) {
+                const platform = result.platform || 'github';
+                const platformUsernameKey = `${platform}Username`;
+                chrome.storage.local.set({ [platformUsernameKey]: platformUsername.value });
             });
-        }
+        });
+
+
     }
 
     function showReportView() {
@@ -1465,7 +1369,35 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
+let cacheInput = document.getElementById('cacheInput');
+if (cacheInput) {
+    chrome.storage.local.get(['cacheInput'], function (result) {
+        if (result.cacheInput) {
+            cacheInput.value = result.cacheInput;
+        } else {
+            cacheInput.value = 10;
+        }
+    });
 
+    cacheInput.addEventListener('blur', function () {
+        let ttlValue = parseInt(this.value);
+        if (isNaN(ttlValue) || ttlValue <= 0 || this.value.trim() === '') {
+            ttlValue = 10;
+            this.value = ttlValue;
+            this.style.borderColor = '#ef4444';
+        } else if (ttlValue > 1440) {
+            ttlValue = 1440;
+            this.value = ttlValue;
+            this.style.borderColor = '#f59e0b';
+        } else {
+            this.style.borderColor = '#10b981';
+        }
+
+        chrome.storage.local.set({ cacheInput: ttlValue }, function () {
+            console.log('Cache TTL saved:', ttlValue, 'minutes');
+        });
+    });
+}
 
 
 chrome.storage.local.get(['platform'], function (result) {
@@ -1651,6 +1583,7 @@ chrome.storage.local.get(['platform'], function (result) {
     platformSelectHidden.value = platform;
     updatePlatformUI(platform);
 });
+
 
 
 
