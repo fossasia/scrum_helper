@@ -583,15 +583,28 @@ document.addEventListener('DOMContentLoaded', function () {
         showOpenLabelCheckbox.addEventListener('change', function () {
             chrome.storage.local.set({ showOpenLabel: showOpenLabelCheckbox.checked });
         });
-        if(onlyIssuesCheckbox){
+        if (onlyIssuesCheckbox && onlyPRsCheckbox) {
             onlyIssuesCheckbox.addEventListener('change', function () {
-                chrome.storage.local.set({ onlyIssues: onlyIssuesCheckbox.checked });
-            })
-        }
-        if(onlyPRsCheckbox){
+                const checked = onlyIssuesCheckbox.checked;
+                chrome.storage.local.set({ onlyIssues: checked }, () => {
+                    if (checked && onlyPRsCheckbox.checked) {
+                        // Uncheck the previously selected "Only PRs"
+                        onlyPRsCheckbox.checked = false;
+                        chrome.storage.local.set({ onlyPRs: false });
+                    }
+                });
+            });
+
             onlyPRsCheckbox.addEventListener('change', function () {
-                chrome.storage.local.set({ onlyPRs: onlyPRsCheckbox.checked });
-            })
+                const checked = onlyPRsCheckbox.checked;
+                chrome.storage.local.set({ onlyPRs: checked }, () => {
+                    if (checked && onlyIssuesCheckbox.checked) {
+                        // Uncheck the previously selected "Only Issues"
+                        onlyIssuesCheckbox.checked = false;
+                        chrome.storage.local.set({ onlyIssues: false });
+                    }
+                });
+            });
         }
         showCommitsCheckbox.addEventListener('change', function () {
             chrome.storage.local.set({ showCommits: showCommitsCheckbox.checked });
@@ -1537,7 +1550,7 @@ document.querySelectorAll('input[name="timeframe"]').forEach(radio => {
     });
 
     // Handle clicks on links within scrumReport to open in new tabs
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
         const target = e.target.closest('a');
         if (target && target.closest('#scrumReport')) {
             e.preventDefault();
