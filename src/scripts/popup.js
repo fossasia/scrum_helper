@@ -202,6 +202,7 @@ document.addEventListener('DOMContentLoaded', function () {
             'refreshCache',
             'showOpenLabel',
             'showCommits',
+            'onlyIssues',
             'scrumReport',
             'githubUsername',
             'githubToken',
@@ -210,6 +211,10 @@ document.addEventListener('DOMContentLoaded', function () {
             'orgInput',
             'cacheInput',
             'settingsToggle',
+            'toggleTokenVisibility',
+            'useRepoFilter',
+            'repoSearch',
+            'platformDropdownBtn',
         ];
 
         const radios = document.querySelectorAll('input[name="timeframe"]');
@@ -254,6 +259,73 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
 
+        // Handle platform dropdown list items
+        const platformDropdownList = document.getElementById('platformDropdownList');
+        const customPlatformDropdown = document.getElementById('customPlatformDropdown');
+        if (platformDropdownList && customPlatformDropdown) {
+            if (!enableToggle) {
+                customPlatformDropdown.style.opacity = '0.5';
+                customPlatformDropdown.style.pointerEvents = 'none';
+                // Close dropdown if open
+                customPlatformDropdown.classList.remove('open');
+                platformDropdownList.classList.add('hidden');
+            } else {
+                customPlatformDropdown.style.opacity = '1';
+                customPlatformDropdown.style.pointerEvents = 'auto';
+            }
+        }
+
+        // Handle repository filter container and selected repos
+        const repoFilterContainer = document.getElementById('repoFilterContainer');
+        const selectedRepos = document.getElementById('selectedRepos');
+        if (repoFilterContainer) {
+            if (!enableToggle) {
+                repoFilterContainer.style.opacity = '0.5';
+                repoFilterContainer.style.pointerEvents = 'none';
+            } else {
+                repoFilterContainer.style.opacity = '1';
+                repoFilterContainer.style.pointerEvents = 'auto';
+            }
+        }
+        if (selectedRepos) {
+            if (!enableToggle) {
+                selectedRepos.style.opacity = '0.5';
+                selectedRepos.style.pointerEvents = 'none';
+                // Disable all remove buttons inside
+                const removeButtons = selectedRepos.querySelectorAll('.remove-repo-btn');
+                removeButtons.forEach(btn => {
+                    btn.disabled = true;
+                    btn.style.pointerEvents = 'none';
+                });
+            } else {
+                selectedRepos.style.opacity = '1';
+                selectedRepos.style.pointerEvents = 'auto';
+                const removeButtons = selectedRepos.querySelectorAll('.remove-repo-btn');
+                removeButtons.forEach(btn => {
+                    btn.disabled = false;
+                    btn.style.pointerEvents = 'auto';
+                });
+            }
+        }
+
+        // Handle repository dropdown
+        const repoDropdown = document.getElementById('repoDropdown');
+        if (repoDropdown && !enableToggle) {
+            repoDropdown.classList.add('hidden');
+        }
+
+        // Handle useRepoFilter label
+        const useRepoFilterLabel = document.querySelector('label[for="useRepoFilter"]');
+        if (useRepoFilterLabel) {
+            if (!enableToggle) {
+                useRepoFilterLabel.style.opacity = '0.5';
+                useRepoFilterLabel.style.pointerEvents = 'none';
+            } else {
+                useRepoFilterLabel.style.opacity = '1';
+                useRepoFilterLabel.style.pointerEvents = 'auto';
+            }
+        }
+
         const scrumReport = document.getElementById('scrumReport');
         if (scrumReport) {
             scrumReport.contentEditable = enableToggle;
@@ -276,12 +348,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 chrome.storage.local.set({ enableToggle: true });
             }
 
-            updateContentState(enableToggle);
-            if (!enableToggle) {
-                return;
-            }
+        console.log('[DEBUG] Calling updateContentState with:', enableToggle);
+        updateContentState(enableToggle);
+        if (!enableToggle) {
+            console.log('[DEBUG] Extension disabled, returning early');
+            return;
+        }
 
-            initializePopup();
+        console.log('[DEBUG] Extension enabled, initializing popup');
+        initializePopup();
         checkTokenForFilter();
     })
 
@@ -299,6 +374,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
     });
+
 
     function initializePopup() {
         // Migration: Handle existing users with old platformUsername storage
@@ -318,6 +394,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const userReasonInput = document.getElementById('userReason');
         const showOpenLabelCheckbox = document.getElementById('showOpenLabel');
         const showCommitsCheckbox = document.getElementById('showCommits');
+        const onlyIssuesCheckbox = document.getElementById('onlyIssues');
         const mergedPrOnlyCheckbox = document.getElementById('mergedPrOnly');
         const githubTokenInput = document.getElementById('githubToken');
         const cacheInput = document.getElementById('cacheInput');
@@ -328,15 +405,9 @@ document.addEventListener('DOMContentLoaded', function () {
         const platformUsername = document.getElementById('platformUsername');
 
         chrome.storage.local.get([
-            'projectName', 'orgName', 'userReason', 'showOpenLabel', 'showCommits', 'githubToken', 'cacheInput',
+            'projectName', 'orgName', 'userReason', 'showOpenLabel', 'showCommits', 'githubToken', 'cacheInput', 'onlyIssues',
             'enableToggle', 'yesterdayContribution', 'startingDate', 'endingDate', 'selectedTimeframe', 'platform', 'githubUsername', 'gitlabUsername'
         ], function (result) {
-            // Also load mergedPrOnly from sync storage
-            chrome.storage.sync.get(['mergedPrOnly'], function (syncResult) {
-                if (mergedPrOnlyCheckbox && typeof syncResult.mergedPrOnly !== 'undefined') {
-                    mergedPrOnlyCheckbox.checked = syncResult.mergedPrOnly === true;
-                }
-            });
             if (result.projectName) projectNameInput.value = result.projectName;
             if (result.orgName) orgInput.value = result.orgName;
             if (result.userReason && userReasonInput) userReasonInput.value = result.userReason;
@@ -346,6 +417,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 showOpenLabelCheckbox.checked = true; // Default to true for new users
             }
             if (typeof result.showCommits !== 'undefined') showCommitsCheckbox.checked = result.showCommits;
+            if (onlyIssuesCheckbox && typeof result.onlyIssues !== 'undefined') {
+                onlyIssuesCheckbox.checked = result.onlyIssues;
+            }
             if (result.githubToken) githubTokenInput.value = result.githubToken;
             if (result.cacheInput) cacheInput.value = result.cacheInput;
             if (enableToggleSwitch) {
@@ -514,12 +588,12 @@ document.addEventListener('DOMContentLoaded', function () {
         projectNameInput.addEventListener('input', function () {
             chrome.storage.local.set({ projectName: projectNameInput.value });
         });
-        
+
         // Save to storage and validate ONLY when user clicks out (blur event)
         orgInput.addEventListener('blur', function () {
             const org = orgInput.value.trim().toLowerCase();
             chrome.storage.local.set({ orgName: org });
-            
+
             // Only validate if org name is not empty
             if (org) {
                 validateOrgOnBlur(org);
@@ -537,6 +611,11 @@ document.addEventListener('DOMContentLoaded', function () {
         showOpenLabelCheckbox.addEventListener('change', function () {
             chrome.storage.local.set({ showOpenLabel: showOpenLabelCheckbox.checked });
         });
+        if(onlyIssuesCheckbox){
+            onlyIssuesCheckbox.addEventListener('change', function () {
+                chrome.storage.local.set({ onlyIssues: onlyIssuesCheckbox.checked });
+            })
+        }
         showCommitsCheckbox.addEventListener('change', function () {
             chrome.storage.local.set({ showCommits: showCommitsCheckbox.checked });
         });
@@ -1454,6 +1533,21 @@ document.querySelectorAll('input[name="timeframe"]').forEach(radio => {
             toggleRadio(this);
         }
     });
+
+    // Handle clicks on links within scrumReport to open in new tabs
+    document.addEventListener('click', function(e) {
+        const target = e.target.closest('a');
+        if (target && target.closest('#scrumReport')) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            const href = target.getAttribute('href');
+            if (href && href.startsWith('http')) {
+                chrome.tabs.create({ url: href });
+            }
+            return false;
+        }
+    }, true); // Use capture phase to handle before contentEditable
 });
 
 // refresh cache button

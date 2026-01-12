@@ -1,8 +1,25 @@
+
 const DEBUG = false;
 
-const debugLog = (...args) => {
-    if (DEBUG) console_log(...args);
-};
+function log(...args) {
+    if (DEBUG) {
+        console.log(`[SCRUM-HELPER]:`, ...args);
+    }
+}
+
+function debugLog(...args) {
+    if (DEBUG) {
+        console.log('[DEBUG]', ...args);
+    }
+}
+
+
+function logError(...args) {
+    if (DEBUG) {
+        console.error('[SCRUM-HELPER]:', ...args);
+    }
+}
+
 
 let refreshButton_Placed = false;
 let enableToggle = true;
@@ -52,6 +69,7 @@ function allIncluded(outputTarget = 'email') {
     let showCommits = false;
     let userReason = '';
     let subjectForEmail = null;
+    let onlyIssues = false;
 
     let pr_open_button =
         '<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
@@ -94,6 +112,7 @@ function allIncluded(outputTarget = 'email') {
                 'selectedRepos',
                 'useRepoFilter',
                 'showCommits',
+                'onlyIssues',
             ],
             (items) => {
                 platform = items.platform || 'github';
@@ -132,6 +151,7 @@ function allIncluded(outputTarget = 'email') {
                     enableToggle = items.enableToggle;
                 }
 
+                onlyIssues = items.onlyIssues === true;
                 showCommits = items.showCommits || false;
                 showOpenLabel = items.showOpenLabel !== false; // Default to true if not explicitly set to false
                 orgName = items.orgName || '';
@@ -151,9 +171,6 @@ function allIncluded(outputTarget = 'email') {
                         chrome.storage.local.set({ yesterdayContribution: true });
                     }
                 }
-
-
-
 
                 if (platform === 'github') {
                     if (platformUsernameLocal) {
@@ -1100,188 +1117,194 @@ ${userReason}`;
         }
     }
 
-    async function writeGithubPrsReviews() {
-        let items = githubPrsReviewData.items;
-        if (!items) {
-            logError('No Github PR review data available');
-            return;
-        }
-
+async function writeGithubPrsReviews() {
+    if(onlyIssues){
+        log(' "Only Issues" is checked, skipping PR reviews.')
         reviewedPrsArray = [];
-        githubPrsReviewDataProcessed = {};
-        let i;
+        prsReviewDataProcessed = true;
+        return;
+    }
+    let items = githubPrsReviewData.items;
+    if (!items) {
+        logError('No Github PR review data available');
+        return;
+    }
 
-        // Get the date range for filtering
-        let startDate, endDate;
-        if (yesterdayContribution) {
-            const today = new Date();
-            const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
-            startDate = yesterday.toISOString().split('T')[0];
-            endDate = today.toISOString().split('T')[0]; // Use yesterday for start and today for end
-        } else if (startingDate && endingDate) {
-            startDate = startingDate;
-            endDate = endingDate;
-        } else {
-            // Default to last 7 days if no date range is set
-            const today = new Date();
-            const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
-            startDate = lastWeek.toISOString().split('T')[0];
-            endDate = today.toISOString().split('T')[0];
+    reviewedPrsArray = [];
+    githubPrsReviewDataProcessed = {};
+    let i;
+
+    // Get the date range for filtering
+    let startDate, endDate;
+    if (yesterdayContribution) {
+        const today = new Date();
+        const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+        startDate = yesterday.toISOString().split('T')[0];
+        endDate = today.toISOString().split('T')[0]; // Use yesterday for start and today for end
+    } else if (startingDate && endingDate) {
+        startDate = startingDate;
+        endDate = endingDate;
+    } else {
+        // Default to last 7 days if no date range is set
+        const today = new Date();
+        const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
+        startDate = lastWeek.toISOString().split('T')[0];
+        endDate = today.toISOString().split('T')[0];
+    }
+
+    const startDateTime = new Date(startDate + 'T00:00:00Z');
+    const endDateTime = new Date(endDate + 'T23:59:59Z');
+
+
+    // Apply merged PR filter - use same logic as writeGithubIssuesPrs
+    const mergedPrOnly = window._mergedPrOnlyFilter === true;
+
+    if (mergedPrOnly) {
+        const originalLength = items.length;
+        items = items.filter(item => item.pull_request && item.merged_at);
+    }
+
+    for (i = 0; i < items.length; i++) {
+        let item = items[i];
+
+        // For GitHub: item.user.login, for GitLab: item.author?.username
+        let isAuthoredByUser = false;
+        if (platform === 'github') {
+            isAuthoredByUser = item.user && item.user.login === platformUsernameLocal;
+        } else if (platform === 'gitlab') {
+            isAuthoredByUser = item.author && (item.author.username === platformUsername);
         }
 
-        const startDateTime = new Date(startDate + 'T00:00:00Z');
-        const endDateTime = new Date(endDate + 'T23:59:59Z');
+        if (isAuthoredByUser || !item.pull_request) continue;
 
-
-        // Apply merged PR filter - use same logic as writeGithubIssuesPrs
-        const mergedPrOnly = window._mergedPrOnlyFilter === true;
-
-        if (mergedPrOnly) {
-            const originalLength = items.length;
-            items = items.filter(item => item.pull_request && item.merged_at);
+        // Check if the PR was actually reviewed/commented on within the date range
+        let itemDate = new Date(item.updated_at || item.created_at);
+        if (itemDate < startDateTime || itemDate > endDateTime) {
+            continue;
         }
 
-        for (i = 0; i < items.length; i++) {
-            let item = items[i];
-
-            // For GitHub: item.user.login, for GitLab: item.author?.username
-            let isAuthoredByUser = false;
-            if (platform === 'github') {
-                isAuthoredByUser = item.user && item.user.login === platformUsernameLocal;
-            } else if (platform === 'gitlab') {
-                isAuthoredByUser = item.author && (item.author.username === platformUsername);
+        // Additional check: Skip PRs that were merged before the date range
+        if (item.state === 'closed' && item.pull_request && item.pull_request.merged_at) {
+            const mergedDate = new Date(item.pull_request.merged_at);
+            if (mergedDate < startDateTime) {
+                continue;
             }
+        }
 
-            if (isAuthoredByUser || !item.pull_request) continue;
+        // For closed PRs, ensure they were merged within the date range
+        if (item.state === 'closed' && item.pull_request) {
+            if (!item.pull_request.merged_at) {
+                continue;
+            }
+            const mergedDate = new Date(item.pull_request.merged_at);
+            if (mergedDate < startDateTime || mergedDate > endDateTime) {
+                continue;
+            }
+        }
 
-            // Check if the PR was actually reviewed/commented on within the date range
-            let itemDate = new Date(item.updated_at || item.created_at);
-            if (itemDate < startDateTime || itemDate > endDateTime) {
+        // Additional conservative check: For PRs that were created before the date range,
+        // only include them if they were updated very recently (within the last day of the range)
+        const createdDate = new Date(item.created_at);
+        if (createdDate < startDateTime) {
+            // If PR was created before the date range, only include if it was updated in the last day
+            const lastDayOfRange = new Date(endDateTime);
+            lastDayOfRange.setDate(lastDayOfRange.getDate() - 1);
+            if (itemDate < lastDayOfRange) {
+                continue;
+            }
+        }
+
+        // Extra conservative check: For "yesterday" filter, be very strict
+        if (yesterdayContribution) {
+            // For yesterday filter, only include PRs that were either:
+            // 1. Created yesterday, OR
+            // 2. Updated yesterday AND the user actually commented yesterday
+            const yesterday = new Date(startDate + 'T00:00:00Z');
+            const today = new Date(endDate + 'T23:59:59Z');
+
+            const wasCreatedYesterday = createdDate >= yesterday && createdDate <= today;
+            const wasUpdatedYesterday = itemDate >= yesterday && itemDate <= today;
+
+            if (!wasCreatedYesterday && !wasUpdatedYesterday) {
                 continue;
             }
 
-            // Additional check: Skip PRs that were merged before the date range
+            // For yesterday filter, be extra strict about merged PRs
             if (item.state === 'closed' && item.pull_request && item.pull_request.merged_at) {
                 const mergedDate = new Date(item.pull_request.merged_at);
-                if (mergedDate < startDateTime) {
+                const wasMergedYesterday = mergedDate >= yesterday && mergedDate <= today;
+                if (!wasMergedYesterday) {
                     continue;
                 }
             }
-
-            // For closed PRs, ensure they were merged within the date range
-            if (item.state === 'closed' && item.pull_request) {
-                if (!item.pull_request.merged_at) {
-                    continue;
-                }
-                const mergedDate = new Date(item.pull_request.merged_at);
-                if (mergedDate < startDateTime || mergedDate > endDateTime) {
-                    continue;
-                }
-            }
-
-            // Additional conservative check: For PRs that were created before the date range,
-            // only include them if they were updated very recently (within the last day of the range)
-            const createdDate = new Date(item.created_at);
-            if (createdDate < startDateTime) {
-                // If PR was created before the date range, only include if it was updated in the last day
-                const lastDayOfRange = new Date(endDateTime);
-                lastDayOfRange.setDate(lastDayOfRange.getDate() - 1);
-                if (itemDate < lastDayOfRange) {
-                    continue;
-                }
-            }
-
-            // Extra conservative check: For "yesterday" filter, be very strict
-            if (yesterdayContribution) {
-                // For yesterday filter, only include PRs that were either:
-                // 1. Created yesterday, OR
-                // 2. Updated yesterday AND the user actually commented yesterday
-                const yesterday = new Date(startDate + 'T00:00:00Z');
-                const today = new Date(endDate + 'T23:59:59Z');
-
-                const wasCreatedYesterday = createdDate >= yesterday && createdDate <= today;
-                const wasUpdatedYesterday = itemDate >= yesterday && itemDate <= today;
-
-                if (!wasCreatedYesterday && !wasUpdatedYesterday) {
-                    continue;
-                }
-
-                // For yesterday filter, be extra strict about merged PRs
-                if (item.state === 'closed' && item.pull_request && item.pull_request.merged_at) {
-                    const mergedDate = new Date(item.pull_request.merged_at);
-                    const wasMergedYesterday = mergedDate >= yesterday && mergedDate <= today;
-                    if (!wasMergedYesterday) {
-                        continue;
-                    }
-                }
-            }
-
-            let repository_url = item.repository_url;
-            if (!repository_url) {
-                logError('repository_url is undefined for item:', item);
-                continue;
-            }
-            let project = repository_url.substr(repository_url.lastIndexOf('/') + 1);
-            let title = item.title;
-            let number = item.number;
-            let html_url = item.html_url;
-            if (!githubPrsReviewDataProcessed[project]) {
-                // first pr in this repo
-                githubPrsReviewDataProcessed[project] = [];
-            }
-            let obj = {
-                number: number,
-                html_url: html_url,
-                title: title,
-                state: item.state,
-            };
-            githubPrsReviewDataProcessed[project].push(obj);
         }
-        for (let repo in githubPrsReviewDataProcessed) {
-            let repoLi =
-                '<li> <i>(' +
-                repo +
-                ')</i> - Reviewed ';
-            if (githubPrsReviewDataProcessed[repo].length > 1) repoLi += 'PRs - ';
-            else {
-                repoLi += 'PR - ';
-            }
-            if (githubPrsReviewDataProcessed[repo].length <= 1) {
-                for (let pr in githubPrsReviewDataProcessed[repo]) {
-                    let pr_arr = githubPrsReviewDataProcessed[repo][pr];
-                    let prText = '';
-                    prText +=
-                        "<a href='" + pr_arr.html_url + "' target='_blank'>#" + pr_arr.number + '</a> (' + pr_arr.title + ') ';
-                    if (showOpenLabel && pr_arr.state === 'open') prText += issue_opened_button;
-                    // Do not show closed label for reviewed PRs
-                    prText += '&nbsp;&nbsp;';
-                    repoLi += prText;
-                }
-            } else {
-                repoLi += '<ul>';
-                for (let pr1 in githubPrsReviewDataProcessed[repo]) {
-                    let pr_arr1 = githubPrsReviewDataProcessed[repo][pr1];
-                    let prText1 = '';
-                    prText1 +=
-                        "<li><a href='" +
-                        pr_arr1.html_url +
-                        "' target='_blank'>#" +
-                        pr_arr1.number +
-                        '</a> (' +
-                        pr_arr1.title +
-                        ') ';
-                    if (showOpenLabel && pr_arr1.state === 'open') prText1 += issue_opened_button;
-                    // Do not show closed label for reviewed PRs
-                    prText1 += '&nbsp;&nbsp;</li>';
-                    repoLi += prText1;
-                }
-                repoLi += '</ul>';
-            }
-            repoLi += '</li>';
-            reviewedPrsArray.push(repoLi);
+
+        let repository_url = item.repository_url;
+        if (!repository_url) {
+            logError('repository_url is undefined for item:', item);
+            continue;
         }
-        prsReviewDataProcessed = true;
+        let project = repository_url.substr(repository_url.lastIndexOf('/') + 1);
+        let title = item.title;
+        let number = item.number;
+        let html_url = item.html_url;
+        if (!githubPrsReviewDataProcessed[project]) {
+            // first pr in this repo
+            githubPrsReviewDataProcessed[project] = [];
+        }
+        let obj = {
+            number: number,
+            html_url: html_url,
+            title: title,
+            state: item.state,
+        };
+        githubPrsReviewDataProcessed[project].push(obj);
     }
+    for (let repo in githubPrsReviewDataProcessed) {
+        let repoLi =
+            '<li> <i>(' +
+            repo +
+            ')</i> - Reviewed ';
+        if (githubPrsReviewDataProcessed[repo].length > 1) repoLi += 'PRs - ';
+        else {
+            repoLi += 'PR - ';
+        }
+        if (githubPrsReviewDataProcessed[repo].length <= 1) {
+            for (let pr in githubPrsReviewDataProcessed[repo]) {
+                let pr_arr = githubPrsReviewDataProcessed[repo][pr];
+                let prText = '';
+                prText +=
+                    "<a href='" + pr_arr.html_url + "' target='_blank' rel='noopener noreferrer'>#" + pr_arr.number + '</a> (' + pr_arr.title + ') ';
+                if (showOpenLabel && pr_arr.state === 'open') prText += issue_opened_button;
+                // Do not show closed label for reviewed PRs
+                prText += '&nbsp;&nbsp;';
+                repoLi += prText;
+            }
+        } else {
+            repoLi += '<ul>';
+            for (let pr1 in githubPrsReviewDataProcessed[repo]) {
+                let pr_arr1 = githubPrsReviewDataProcessed[repo][pr1];
+                let prText1 = '';
+                prText1 +=
+                    "<li><a href='" +
+                    pr_arr1.html_url +
+                    "' target='_blank' rel='noopener noreferrer'>#" +
+                    pr_arr1.number +
+                    '</a> (' +
+                    pr_arr1.title +
+                    ') ';
+                if (showOpenLabel && pr_arr1.state === 'open') prText1 += issue_opened_button;
+                // Do not show closed label for reviewed PRs
+                prText1 += '&nbsp;&nbsp;</li>';
+                repoLi += prText1;
+            }
+            repoLi += '</ul>';
+        }
+        repoLi += '</li>';
+        reviewedPrsArray.push(repoLi);
+    }
+    prsReviewDataProcessed = true;
+}
 
     function triggerScrumGeneration() {
         if (issuesDataProcessed && prsReviewDataProcessed) {
@@ -1563,7 +1586,7 @@ ${userReason}`;
 
                 if (isDraft) {
 
-                    li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + pr_draft_button : ''}`;
+                    li = `<li><i>(${project})</i> - Made PR <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_draft_button : ''}`;
                     if (showCommits && item._allCommits && item._allCommits.length && !isNewPR) {
                         li += '<ul>';
                         item._allCommits.forEach(commit => {
@@ -1573,7 +1596,7 @@ ${userReason}`;
                     }
                     li += `</li>`;
                 } else if (item.state === 'open' || item.state === 'opened') {
-                    li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + pr_open_button : ''}`;
+                    li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_open_button : ''}`;
 
                     if (showCommits && item._allCommits && item._allCommits.length && !isNewPR) {
                         li += '<ul>';
@@ -1584,7 +1607,7 @@ ${userReason}`;
                     }
                     li += `</li>`;
                 } else if (platform === 'gitlab' && item.state === 'closed') {
-                    li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + pr_closed_button : ''}</li>`;
+                    li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_closed_button : ''}</li>`;
                 } else {
                     let merged = null;
                     if ((githubToken || (useMergedStatus && !fallbackToSimple)) && mergedStatusResults) {
@@ -1595,10 +1618,10 @@ ${userReason}`;
                     }
                     if (merged === true) {
 
-                        li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + pr_merged_button : ''}</li>`;
+                        li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_merged_button : ''}</li>`;
                     } else {
                         // Always show closed label for merged === false or merged === null/undefined
-                        li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + pr_closed_button : ''}</li>`;
+                        li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_closed_button : ''}</li>`;
                     }
                 }
                 lastWeekArray.push(li);
@@ -1613,7 +1636,7 @@ ${userReason}`;
                         number +
                         ") - <a href='" +
                         html_url +
-                        "' target='_blank'>" +
+                        "' target='_blank' rel='noopener noreferrer'>" +
                         title +
                         '</a>' + (showOpenLabel ? ' ' + issue_opened_button : '') +
                         '&nbsp;&nbsp;</li>';
@@ -2045,4 +2068,3 @@ function filterDataByRepos(data, selectedRepos) {
     return filteredData;
 }
 window.fetchUserRepositories = fetchUserRepositories;
-
