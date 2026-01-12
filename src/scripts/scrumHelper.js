@@ -99,7 +99,7 @@ function allIncluded(outputTarget = 'email') {
                 'useRepoFilter',
                 'showCommits',
                 'onlyIssues',
-                'onlyPrs',
+                'onlyPRs',
             ],
             (items) => {
 
@@ -142,7 +142,7 @@ function allIncluded(outputTarget = 'email') {
                 }
 
                 onlyIssues = items.onlyIssues === true;
-                onlyPrs = items.onlyPRs === true;
+                onlyPRs = items.onlyPRs === true;
                 showCommits = items.showCommits || false;
                 showOpenLabel = items.showOpenLabel !== false; // Default to true if not explicitly set to false
                 orgName = items.orgName || '';
@@ -1119,6 +1119,7 @@ ${userReason}`;
         log('Filtering PR reviews by date range:', { startDate, endDate, startDateTime, endDateTime });
 
         for (i = 0; i < items.length; i++) {
+            
             let item = items[i];
             log(`Processing PR #${item.number} - state: ${item.state}, updated_at: ${item.updated_at}, created_at: ${item.created_at}, merged_at: ${item.pull_request?.merged_at}`);
 
@@ -1308,15 +1309,6 @@ ${userReason}`;
 
     async function writeGithubIssuesPrs(items) {
 
-        if(onlyPrs){
-            log(' "Only PRs" is checked, skipping issues.')
-            lastWeekArray = [];
-            nextWeekArray = [];
-            issuesDataProcessed = true;
-            return;
-
-        }
-
         if (!items) {
 
             return;
@@ -1398,6 +1390,10 @@ ${userReason}`;
             log('[SCRUM-DEBUG] Processing item:', item);
             // For GitLab, treat all items in the MRs array as MRs
             let isMR = !!item.pull_request; // works for both GitHub and mapped GitLab data
+            if(onlyPRs && !isMR){
+                log('[SCRUM-DEBUG] "Only PRs" checked, skipping issues:', item.number);
+                continue;
+            }
 
             if (onlyIssues && isMR) {
                 log('[SCRUM-DEBUG] "Only Issues" checked, skipping PR/MR:', item.number);
