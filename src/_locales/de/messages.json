@@ -75,6 +75,12 @@
     "showCommitsLabel": {
         "message": "Commits in offenen PRs/ Entwurfs-PRs anzeigen"
     },
+    "onlyIssuesLabel": {
+        "message": "Nur Probleme in den Bericht aufnehmen"
+    },
+    "onlyIssuesTooltip": {
+        "message": "Wenn diese Option aktiviert ist, enthält der Bericht nur Probleme, die vom Benutzer erstellt oder ihm zugewiesen wurden."
+    },
     "cacheTTLLabel": {
         "message": "Cache-TTL eingeben"
     },

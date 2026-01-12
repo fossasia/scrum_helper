@@ -74,8 +74,18 @@
     "showCommitsLabel": {
         "message": "Mostrar commits en PRs abiertos/ borradores de PRs"
     },
+    "showCommitsTooltip": {
+        "message": "Se requiere un token de Github, agréguelo en la configuración."
+    },
+    "onlyIssuesLabel": {
+        "message": "Incluir solo incidencias en el informe"
+    },
+    "onlyIssuesTooltip": {
+        "message": "Si está marcado, el informe solo incluirá las incidencias creadas o asignadas al usuario."
+    },
     "cacheTTLLabel": {
-        "message": "Introducir TTL de caché"
+        "message": "Introducir TTL de caché",
+        "description": "Etiqueta para la entrada de tiempo de vida de la caché."
     },
     "cacheTTLUnit": {
         "message": "(en minutos)"

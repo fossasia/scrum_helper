@@ -74,8 +74,18 @@
     "showCommitsLabel": {
         "message": "Показывать коммиты в открытых PR/ черновиках PR"
     },
+    "showCommitsTooltip": {
+        "message": "Требуется токен Github, добавьте его в настройках."
+    },
+    "onlyIssuesLabel": {
+        "message": "Включить в отчет только задачи"
+    },
+    "onlyIssuesTooltip": {
+        "message": "Если флажок установлен, в отчет будут включены только задачи, созданные пользователем или назначенные ему."
+    },
     "cacheTTLLabel": {
-        "message": "Введите TTL кэша"
+        "message": "Введите TTL кеша",
+        "description": "Метка для ввода времени жизни кеша."
     },
     "cacheTTLUnit": {
         "message": "(в минутах)"
