@@ -1,0 +1,194 @@
+{
+    "appName": {
+        "message": "Scrum Helper"
+    },
+    "appDescription": {
+        "message": "Segnala i tuoi progressi di sviluppo recuperando automaticamente la tua attività Git per un periodo selezionato."
+    },
+    "disableLabel": {
+        "message": "Disabilita"
+    },
+    "enableLabel": {
+        "message": "Abilita"
+    },
+    "projectNameLabel": {
+        "message": "Nome del progetto (usato nell'oggetto dell'email)"
+    },
+    "projectNamePlaceholder": {
+        "message": "Inserisci il nome del tuo progetto"
+    },
+    "githubUsernameLabel": {
+        "message": "Il tuo nome utente GitHub"
+    },
+    "gitlabUsernameLabel": {
+        "message": "Il tuo nome utente GitLab"
+    },
+    "githubUsernamePlaceholder": {
+        "message": "Richiesto per recuperare i tuoi contributi"
+    },
+    "contributionsLabel": {
+        "message": "Recupera i tuoi contributi per:"
+    },
+    "last1DayLabel": {
+        "message": "Giorno precedente"
+    },
+    "startDateLabel": {
+        "message": "Da:"
+    },
+    "endDateLabel": {
+        "message": "A:"
+    },
+    "showOpenClosedLabel": {
+        "message": "Mostra stato Aperto/Chiuso"
+    },
+    "blockersLabel": {
+        "message": "Cosa ti impedisce di progredire?"
+    },
+    "blockersPlaceholder": {
+        "message": "Inserisci il motivo"
+    },
+    "scrumReportLabel": {
+        "message": "Rapporto Scrum"
+    },
+    "generateReportButton": {
+        "message": "Genera Rapporto"
+    },
+    "copyReportButton": {
+        "message": "Copia Rapporto"
+    },
+    "settingsOrgNameLabel": {
+        "message": "Nome dell'organizzazione"
+    },
+    "settingsOrgNamePlaceholder": {
+        "message": "Inserisci il nome dell'organizzazione"
+    },
+    "setButton": {
+        "message": "Imposta"
+    },
+    "githubTokenLabel": {
+        "message": "Il tuo token GitHub"
+    },
+    "githubTokenPlaceholder": {
+        "message": "Richiesto per richieste autenticate"
+    },
+    "showCommitsLabel": {
+        "message": "Mostra commit su PR aperti/ bozze di PR"
+    },
+    "cacheTTLLabel": {
+        "message": "Inserisci TTL della cache"
+    },
+    "cacheTTLUnit": {
+        "message": "(in minuti)"
+    },
+    "cacheTTLPlaceholder": {
+        "message": "Scrivi il TTL della cache in minuti (Predefinito: 10)"
+    },
+    "refreshDataButton": {
+        "message": "Aggiorna dati (ignora cache)"
+    },
+    "refreshDataInfo": {
+        "message": "Usa questo pulsante per recuperare immediatamente dati aggiornati."
+    },
+    "noteTitle": {
+        "message": "Nota:"
+    },
+    "viewCodeButton": {
+        "message": "Visualizza Codice"
+    },
+    "reportIssueButton": {
+        "message": "Segnala un problema"
+    },
+    "repoFilterLabel": {
+        "message": "Filtra per repository"
+    },
+    "enableFilteringLabel": {
+        "message": "Abilita filtro"
+    },
+    "tokenRequiredWarning": {
+        "message": "È richiesto un token GitHub per filtrare i repository. Aggiungine uno nelle impostazioni."
+    },
+    "repoSearchPlaceholder": {
+        "message": "Cerca un repository da aggiungere..."
+    },
+    "repoPlaceholder": {
+        "message": "Nessun repository selezionato (tutti saranno inclusi)"
+    },
+    "repoCountNone": {
+        "message": "0 repository selezionati"
+    },
+    "repoCount": {
+        "message": "$1 repository selezionati"
+    },
+    "repoLoading": {
+        "message": "Caricamento repository..."
+    },
+    "repoLoaded": {
+        "message": "Caricati $1 repository."
+    },
+    "repoNotFound": {
+        "message": "Nessun repository trovato"
+    },
+    "repoRefetching": {
+        "message": "Recupero repository in corso..."
+    },
+    "repoLoadFailed": {
+        "message": "Caricamento repository fallito."
+    },
+    "repoTokenPrivate": {
+        "message": "Il token non è valido o non ha i permessi per i repository privati."
+    },
+    "repoRefetchFailed": {
+        "message": "Recupero repository fallito."
+    },
+    "orgSetMessage": {
+        "message": "Organizzazione impostata con successo."
+    },
+    "orgClearedMessage": {
+        "message": "Organizzazione rimossa. Clicca 'Genera Rapporto' per recuperare tutte le attività."
+    },
+    "orgNotFoundMessage": {
+        "message": "Organizzazione non trovata su GitHub."
+    },
+    "orgValidationErrorMessage": {
+        "message": "Errore durante la convalida dell'organizzazione."
+    },
+    "refreshingButton": {
+        "message": "Aggiornamento..."
+    },
+    "cacheClearFailed": {
+        "message": "Pulizia della cache fallita."
+    },
+    "madeWithLoveBy": {
+        "message": "Made with ❤️ by"
+    },
+    "generatingButton": {
+        "message": "Generazione in corso..."
+    },
+    "copiedButton": {
+        "message": "Copiato!"
+    },
+    "orgChangedMessage": {
+        "message": "Organizzazione modificata. Clicca 'Genera Rapporto' per recuperare le attività di GitHub."
+    },
+    "cacheClearedMessage": {
+        "message": "Cache svuotata con successo. Clicca 'Genera Rapporto' per recuperare dati aggiornati."
+    },
+    "cacheClearedButton": {
+        "message": "Cache Svuotata!"
+    },
+    "extensionDisabledMessage": {
+        "message": "L'estensione è disabilitata. Abilitala dalle impostazioni per generare rapporti scrum."
+    },
+    "notePoint1": {
+        "message": "Le pull request vengono recuperate in base all'attività di revisione più recente di qualsiasi contributore, non solo la tua. Si prega di rivedere e modificare il rapporto SCRUM generato per assicurarsi che rifletta accuratamente il proprio lavoro prima di condividerlo."
+    },
+    "noteSeeIssue": {
+        "message": "Vedi questo problema"
+    },
+    "platformLabel": {
+        "message": "Piattaforma"
+    },
+    "usernameLabel": {
+        "message": "Il tuo nome utente"
+    }
+}
