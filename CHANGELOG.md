@@ -2,6 +2,15 @@
 
 ## What's Changed
 
+* Fix popup crash on dark mode toggle due to missing tokenPreview (#300) @gurusatsangi
+* fix(popup): remove invalid Tailwind runtime directives (#304) @skyforge-glitch
+
+---
+
+## v2.0.2 - 2026-01-13
+
+## What's Changed
+
 * fix(popup): remove invalid Tailwind runtime directives (#304) @skyforge-glitch
 
 ---
