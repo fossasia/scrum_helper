@@ -495,10 +495,18 @@ class IssueSelectionModal {
      * Close the modal
      */
     close() {
+        console.log('🔒 Modal close() method called');
         this.isOpen = false;
-        document.getElementById('issue-selection-modal').style.display = 'none';
+        const modalElement = document.getElementById('issue-selection-modal');
+        console.log('🔍 Modal element found:', !!modalElement);
+        if (modalElement) {
+            modalElement.style.display = 'none';
+            console.log('✅ Modal display set to none');
+        }
         document.body.style.overflow = '';
+        console.log('📱 Body overflow reset');
         this.saveSelections();
+        console.log('💾 Selections saved');
     }
 
     /**
@@ -798,13 +806,20 @@ const result = await chrome.storage.local.get(['githubToken']);
      * Apply selection and close modal
      */
     applySelection() {
+        console.log('🎯 Apply selection clicked!');
         const selectedData = this.getSelectedItemsWithNotes();
+        console.log('📦 Selected data:', selectedData);
         
         if (this.onSelectionComplete) {
+            console.log('✅ Calling selection complete callback...');
             this.onSelectionComplete(selectedData);
+        } else {
+            console.error('❌ No onSelectionComplete callback set!');
         }
         
+        console.log('🔒 Closing modal...');
         this.close();
+        console.log('✅ Modal close called');
     }
 
     /**
