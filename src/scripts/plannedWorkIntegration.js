@@ -73,8 +73,11 @@ async function openPlannedWorkModal() {
         // Check if GitHub token is available
         console.log('🔑 Checking for GitHub token...');
         const result = await chrome.storage.sync.get(['githubToken']);
+        console.log('📦 Storage result:', result);
+        console.log('🔍 Token value:', result.githubToken ? 'Token found' : 'No token');
+        
         if (!result.githubToken) {
-            console.warn('⚠️  No GitHub token found');
+            console.warn('⚠️  No GitHub token found in storage');
             alert('GitHub token not configured. Please set up your GitHub token in the extension settings first.');
             return;
         }
@@ -189,5 +192,21 @@ window.testPlannedWorkButton = function() {
         openPlannedWorkModal();
     } else {
         console.log('Button NOT found!');
+    }
+};
+
+// Add storage debugging function
+window.checkGitHubToken = async function() {
+    console.log('🔍 Checking GitHub token in storage...');
+    try {
+        const result = await chrome.storage.sync.get(['githubToken']);
+        console.log('📦 Storage result:', result);
+        if (result.githubToken) {
+            console.log('✅ Token found:', result.githubToken.substring(0, 10) + '...');
+        } else {
+            console.log('❌ No token found in storage');
+        }
+    } catch (error) {
+        console.error('❌ Error checking storage:', error);
     }
 };
