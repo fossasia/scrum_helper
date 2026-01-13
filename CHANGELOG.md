@@ -1,3 +1,11 @@
+## v2.0.2 - 2026-01-13
+
+## What's Changed
+
+* fix(popup): remove invalid Tailwind runtime directives (#304) @skyforge-glitch
+
+---
+
 ## v1.0.9 - 2026-01-11
 
 ## What's Changed
