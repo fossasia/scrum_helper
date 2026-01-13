@@ -1081,6 +1081,12 @@ ${userReason}`;
             prsReviewDataProcessed = true;
             return;
         }
+        if(onlyPRs){
+            log('"Only PRs" checked, skipping PRs reviews');
+            reviewedPrsArray = [];
+            prsReviewDataProcessed = true;
+            return;
+        }
         let items = githubPrsReviewData.items;
         log('Processing PR reviews:', {
             hasItems: !!items,
