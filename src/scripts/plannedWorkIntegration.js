@@ -10,39 +10,64 @@ let selectedPlannedWork = [];
  * Initialize planned work functionality
  */
 function initPlannedWork() {
+    console.log('Initializing planned work functionality...');
+    
     // Create modal instance
     if (typeof window.IssueSelectionModal !== 'undefined') {
         issueSelectionModal = new window.IssueSelectionModal();
+        console.log('Issue selection modal created successfully');
+    } else {
+        console.error('IssueSelectionModal class not found');
+        setTimeout(initPlannedWork, 1000); // Retry after 1 second
+        return;
     }
     
     // Set up button event listener
     const selectButton = document.getElementById('selectPlannedWork');
     if (selectButton) {
+        console.log('Adding click listener to Select Planned Work button');
         selectButton.addEventListener('click', openPlannedWorkModal);
+    } else {
+        console.warn('selectPlannedWork button not found, retrying...');
+        setTimeout(initPlannedWork, 500); // Retry after 500ms
+        return;
     }
     
     // Load existing selections on startup
     loadSelectedPlannedWork();
+    console.log('Planned work initialization complete');
 }
 
 /**
  * Open the planned work selection modal
  */
 async function openPlannedWorkModal() {
+    console.log('Opening planned work modal...');
+    
     if (!issueSelectionModal) {
+        console.error('Issue selection modal not initialized');
         alert('Issue selection modal not available. Please refresh the extension.');
         return;
     }
     
     try {
+        // Check if GitHub token is available
+        const result = await chrome.storage.sync.get(['githubToken']);
+        if (!result.githubToken) {
+            alert('GitHub token not configured. Please set up your GitHub token in the extension settings first.');
+            return;
+        }
+        
+        console.log('Opening modal with token available');
         await issueSelectionModal.open((selectedItems) => {
+            console.log('Selection completed:', selectedItems.length, 'items');
             selectedPlannedWork = selectedItems;
             updateSelectedItemsDisplay();
             saveSelectedPlannedWork();
         });
     } catch (error) {
         console.error('Failed to open planned work modal:', error);
-        alert('Failed to open planned work selection. Please check your GitHub token in settings.');
+        alert(`Failed to open planned work selection: ${error.message}\n\nPlease check your GitHub token in settings.`);
     }
 }
 

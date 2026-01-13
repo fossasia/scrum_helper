@@ -105,12 +105,24 @@ class GitHubApiHelper {
      * @returns {Promise} Array of pull requests
      */
     async getUserPullRequests(state = 'open') {
-        if (!this.username) {
-            await this.getCurrentUser();
+        try {
+            if (!this.username) {
+                await this.getCurrentUser();
+            }
+            
+            const prs = await this.makeRequest(`/search/issues?q=type:pr+author:${this.username}+state:${state}&sort=updated&per_page=50`);
+            return this.formatIssues(prs.items || []);
+        } catch (error) {
+            console.warn('Failed to fetch user PRs, trying alternative method:', error);
+            // Fallback to assigned PRs if author search fails
+            try {
+                const assignedPRs = await this.makeRequest(`/issues?filter=assigned&state=${state}&sort=updated&per_page=50`);
+                return this.formatIssues(assignedPRs.filter(item => item.pull_request));
+            } catch (fallbackError) {
+                console.error('Both PR fetch methods failed:', fallbackError);
+                return [];
+            }
         }
-        
-        const prs = await this.makeRequest(`/search/issues?q=type:pr+author:${this.username}+state:${state}&sort=updated&per_page=100`);
-        return this.formatIssues(prs.items || []);
     }
 
     /**
