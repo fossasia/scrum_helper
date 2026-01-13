@@ -72,7 +72,7 @@ async function openPlannedWorkModal() {
     try {
         // Check if GitHub token is available
         console.log('🔑 Checking for GitHub token...');
-        const result = await chrome.storage.sync.get(['githubToken']);
+        const result = await chrome.storage.local.get(['githubToken']);
         console.log('📦 Storage result:', result);
         console.log('🔍 Token value:', result.githubToken ? 'Token found' : 'No token');
         
@@ -199,7 +199,7 @@ window.testPlannedWorkButton = function() {
 window.checkGitHubToken = async function() {
     console.log('🔍 Checking GitHub token in storage...');
     try {
-        const result = await chrome.storage.sync.get(['githubToken']);
+        const result = await chrome.storage.local.get(['githubToken']);
         console.log('📦 Storage result:', result);
         if (result.githubToken) {
             console.log('✅ Token found:', result.githubToken.substring(0, 10) + '...');

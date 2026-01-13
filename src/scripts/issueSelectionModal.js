@@ -509,7 +509,7 @@ class IssueSelectionModal {
         
         try {
             // Get token from storage
-            const result = await chrome.storage.sync.get(['githubToken']);
+const result = await chrome.storage.local.get(['githubToken']);
             if (!result.githubToken) {
                 throw new Error('GitHub token not configured. Please set up your GitHub token in the extension settings.');
             }
