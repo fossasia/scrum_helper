@@ -10,63 +10,84 @@ let selectedPlannedWork = [];
  * Initialize planned work functionality
  */
 function initPlannedWork() {
-    console.log('Initializing planned work functionality...');
+    console.log('🔧 Starting initPlannedWork...');
     
-    // Create modal instance
-    if (typeof window.IssueSelectionModal !== 'undefined') {
-        issueSelectionModal = new window.IssueSelectionModal();
-        console.log('Issue selection modal created successfully');
-    } else {
-        console.error('IssueSelectionModal class not found');
-        setTimeout(initPlannedWork, 1000); // Retry after 1 second
-        return;
+    try {
+        // Create modal instance
+        if (typeof window.IssueSelectionModal !== 'undefined') {
+            issueSelectionModal = new window.IssueSelectionModal();
+            console.log('✅ Issue selection modal created successfully');
+        } else {
+            console.warn('⚠️  IssueSelectionModal class not found, retrying...');
+            setTimeout(initPlannedWork, 1000); // Retry after 1 second
+            return;
+        }
+        
+        // Set up button event listener
+        const selectButton = document.getElementById('selectPlannedWork');
+        if (selectButton) {
+            console.log('✅ Found Select Planned Work button, adding click listener');
+            
+            // Remove any existing listeners
+            selectButton.replaceWith(selectButton.cloneNode(true));
+            const newButton = document.getElementById('selectPlannedWork');
+            
+            // Add the click listener
+            newButton.addEventListener('click', (e) => {
+                console.log('🎯 SELECT PLANNED WORK BUTTON CLICKED!');
+                e.preventDefault();
+                e.stopPropagation();
+                openPlannedWorkModal();
+            });
+            
+            console.log('✅ Click listener added to button');
+        } else {
+            console.warn('⚠️  selectPlannedWork button not found, retrying...');
+            setTimeout(initPlannedWork, 500); // Retry after 500ms
+            return;
+        }
+        
+        // Load existing selections on startup
+        loadSelectedPlannedWork();
+        console.log('✅ Planned work initialization complete');
+        
+    } catch (error) {
+        console.error('❌ Error in initPlannedWork:', error);
+        setTimeout(initPlannedWork, 2000); // Retry after error
     }
-    
-    // Set up button event listener
-    const selectButton = document.getElementById('selectPlannedWork');
-    if (selectButton) {
-        console.log('Adding click listener to Select Planned Work button');
-        selectButton.addEventListener('click', openPlannedWorkModal);
-    } else {
-        console.warn('selectPlannedWork button not found, retrying...');
-        setTimeout(initPlannedWork, 500); // Retry after 500ms
-        return;
-    }
-    
-    // Load existing selections on startup
-    loadSelectedPlannedWork();
-    console.log('Planned work initialization complete');
 }
 
 /**
  * Open the planned work selection modal
  */
 async function openPlannedWorkModal() {
-    console.log('Opening planned work modal...');
+    console.log('🚀 Opening planned work modal...');
     
     if (!issueSelectionModal) {
-        console.error('Issue selection modal not initialized');
+        console.error('❌ Issue selection modal not initialized');
         alert('Issue selection modal not available. Please refresh the extension.');
         return;
     }
     
     try {
         // Check if GitHub token is available
+        console.log('🔑 Checking for GitHub token...');
         const result = await chrome.storage.sync.get(['githubToken']);
         if (!result.githubToken) {
+            console.warn('⚠️  No GitHub token found');
             alert('GitHub token not configured. Please set up your GitHub token in the extension settings first.');
             return;
         }
         
-        console.log('Opening modal with token available');
+        console.log('✅ GitHub token available, opening modal...');
         await issueSelectionModal.open((selectedItems) => {
-            console.log('Selection completed:', selectedItems.length, 'items');
+            console.log('✅ Selection completed:', selectedItems.length, 'items');
             selectedPlannedWork = selectedItems;
             updateSelectedItemsDisplay();
             saveSelectedPlannedWork();
         });
     } catch (error) {
-        console.error('Failed to open planned work modal:', error);
+        console.error('❌ Failed to open planned work modal:', error);
         alert(`Failed to open planned work selection: ${error.message}\n\nPlease check your GitHub token in settings.`);
     }
 }
@@ -141,12 +162,32 @@ function clearSelectedPlannedWork() {
 
 // Initialize when DOM is ready
 if (document.readyState === 'loading') {
+    console.log('DOM still loading, adding DOMContentLoaded listener');
     document.addEventListener('DOMContentLoaded', initPlannedWork);
 } else {
+    console.log('DOM already loaded, initializing immediately');
     initPlannedWork();
 }
+
+// Also try to initialize after a short delay to ensure popup is fully rendered
+setTimeout(() => {
+    console.log('Attempting delayed initialization...');
+    initPlannedWork();
+}, 2000);
 
 // Make functions available globally for the scrum generation
 window.generatePlannedWorkHTML = generatePlannedWorkHTML;
 window.openPlannedWorkModal = openPlannedWorkModal;
 window.clearSelectedPlannedWork = clearSelectedPlannedWork;
+
+// Add global test function for debugging
+window.testPlannedWorkButton = function() {
+    console.log('Testing planned work button click...');
+    const button = document.getElementById('selectPlannedWork');
+    if (button) {
+        console.log('Button found, triggering click...');
+        openPlannedWorkModal();
+    } else {
+        console.log('Button NOT found!');
+    }
+};
