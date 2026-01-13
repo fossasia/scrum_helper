@@ -87,7 +87,7 @@
         "message": "Hanya sertakan PR dalam laporan"
     },
     "onlyPRsTooltip": {
-        "message": "Jika dicentang, laporan hanya akan menyertakan pull request yang dibuat oleh pengguna; isu akan dikecualikan."
+        "message": "Jika dicentang, laporan hanya akan menyertakan PR yang dibuat oleh pengguna; PR yang telah ditinjau akan dikecualikan."
     },
     "cacheTTLLabel": {
         "message": "Masukkan TTL cache",

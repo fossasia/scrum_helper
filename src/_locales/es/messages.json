@@ -87,7 +87,7 @@
         "message": "Incluir solo PRs en el informe"
     },
     "onlyPRsTooltip": {
-        "message": "Si está marcado, el informe solo incluirá pull requests creados por el usuario; se excluirán los issues."
+        "message": "Si está marcado, el informe solo incluirá pull requests creados por el usuario; los pull requests revisados se excluirán."
     },
     "cacheTTLLabel": {
         "message": "Introducir TTL de caché",

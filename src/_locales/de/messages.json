@@ -85,7 +85,7 @@
     "message": "Nur PRs in den Bericht aufnehmen"
   },
   "onlyPRsTooltip": {
-    "message": "Wenn diese Option aktiviert ist, enthält der Bericht nur von Ihnen erstellte Pull Requests; Probleme werden ausgeschlossen."
+    "message": "Wenn diese Option aktiviert ist, enthält der Bericht nur von Ihnen erstellte Pull Requests; überprüfte PRs werden ausgeschlossen."
   },
   "cacheTTLLabel": {
     "message": "Cache-TTL eingeben"

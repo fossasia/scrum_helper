@@ -87,7 +87,7 @@
         "message": "レポートにPRのみを含める"
     },
     "onlyPRsTooltip": {
-        "message": "チェックすると、レポートにはユーザーが作成したプルリクエストのみが含まれ、Issueは除外されます。"
+        "message": "チェックすると、レポートにはユーザーが作成したPRのみが含まれ、レビュー済みのPRは除外されます。"
     },
     "cacheTTLLabel": {
         "message": "キャッシュTTLを入力",

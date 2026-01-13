@@ -78,7 +78,7 @@
         "message": "Includi solo le PR nel report"
     },
     "onlyPRsTooltip": {
-        "message": "Se selezionato, il report includerà solo le pull request create dall'utente; le issue saranno escluse."
+        "message": "Se selezionato, il report includerà solo le pull request create dall'utente; le PR revisionate saranno escluse."
     },
     "cacheTTLLabel": {
         "message": "Inserisci TTL della cache"

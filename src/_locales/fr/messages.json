@@ -87,7 +87,7 @@
         "message": "Inclure uniquement les PRs dans le rapport"
     },
     "onlyPRsTooltip": {
-        "message": "Si coché, le rapport n'inclura que les pull requests créées par l'utilisateur; les issues seront exclues."
+        "message": "Si coché, le rapport n'inclura que les pull requests créées par l'utilisateur ; les pull requests revues seront exclues."
     },
     "cacheTTLLabel": {
         "message": "Entrez le TTL du cache",

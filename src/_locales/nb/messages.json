@@ -78,7 +78,7 @@
         "message": "Inkluder kun PR-er i rapporten"
     },
     "onlyPRsTooltip": {
-        "message": "Hvis valgt, vil rapporten kun inkludere pull requests opprettet av brukeren; saker vil utelates."
+        "message": "Hvis valgt, vil rapporten kun inkludere PR-er opprettet av brukeren; gjennomgåtte PR-er vil utelates."
     },
     "cacheTTLLabel": {
         "message": "Angi cache-TTL"

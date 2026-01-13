@@ -87,7 +87,7 @@
         "message": "Chỉ bao gồm PR trong báo cáo"
     },
     "onlyPRsTooltip": {
-        "message": "Nếu được chọn, báo cáo chỉ bao gồm các pull request do người dùng tạo; vấn đề (issue) sẽ bị loại trừ."
+        "message": "Nếu được chọn, báo cáo chỉ bao gồm các pull request do người dùng tạo; các PR đã được xem xét sẽ bị loại trừ."
     },
     "cacheTTLLabel": {
         "message": "Nhập TTL bộ nhớ cache",

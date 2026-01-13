@@ -88,7 +88,7 @@
         "message": "报告中仅包含PR"
     },
     "onlyPRsTooltip": {
-        "message": "勾选后，报告将只包含用户创建的拉取请求，问题（issue）将被排除。"
+        "message": "勾选后，报告将只包含用户创建的拉取请求；已审核的PR将被排除。"
     },
     "cacheTTLLabel": {
         "message": "输入缓存 TTL",
