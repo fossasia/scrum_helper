@@ -25,6 +25,9 @@
       ],
       "js": [
         "scripts/jquery-3.2.1.min.js",
+        "scripts/githubApiHelper.js",
+        "scripts/issueSelectionModal.js",
+        "scripts/plannedWorkIntegration.js",
         "scripts/emailClientAdapter.js",
         "scripts/gitlabHelper.js",
         "scripts/scrumHelper.js"
