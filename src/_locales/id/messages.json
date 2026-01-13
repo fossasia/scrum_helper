@@ -83,6 +83,12 @@
     "onlyIssuesTooltip": {
         "message": "Jika dicentang, laporan hanya akan menyertakan masalah yang dibuat atau ditugaskan kepada pengguna."
     },
+    "onlyPRsLabel": {
+        "message": "Hanya sertakan PR dalam laporan"
+    },
+    "onlyPRsTooltip": {
+        "message": "Jika dicentang, laporan hanya akan menyertakan pull request yang dibuat oleh pengguna; isu akan dikecualikan."
+    },
     "cacheTTLLabel": {
         "message": "Masukkan TTL cache",
         "description": "Label untuk masukan time-to-live cache."

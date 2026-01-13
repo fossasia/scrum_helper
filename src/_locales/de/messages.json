@@ -81,6 +81,12 @@
   "onlyIssuesTooltip": {
     "message": "Wenn diese Option aktiviert ist, enthält der Bericht nur Probleme, die vom Benutzer erstellt oder ihm zugewiesen wurden."
   },
+  "onlyPRsLabel": {
+    "message": "Nur PRs in den Bericht aufnehmen"
+  },
+  "onlyPRsTooltip": {
+    "message": "Wenn diese Option aktiviert ist, enthält der Bericht nur von Ihnen erstellte Pull Requests; Probleme werden ausgeschlossen."
+  },
   "cacheTTLLabel": {
     "message": "Cache-TTL eingeben"
   },

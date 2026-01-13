@@ -84,6 +84,12 @@
     "onlyIssuesTooltip": {
         "message": "如果选中，报告将仅包含由用户创建或分配给用户的问题。"
     },
+    "onlyPRsLabel": {
+        "message": "报告中仅包含PR"
+    },
+    "onlyPRsTooltip": {
+        "message": "勾选后，报告将只包含用户创建的拉取请求，问题（issue）将被排除。"
+    },
     "cacheTTLLabel": {
         "message": "输入缓存 TTL",
         "description": "缓存生存时间输入的标签。"

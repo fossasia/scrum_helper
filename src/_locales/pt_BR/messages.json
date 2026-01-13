@@ -84,6 +84,12 @@
     "onlyIssuesTooltip": {
         "message": "Se marcado, o relatório incluirá apenas as issues criadas ou atribuídas ao usuário."
     },
+    "onlyPRsLabel": {
+        "message": "Incluir apenas PRs no relatório"
+    },
+    "onlyPRsTooltip": {
+        "message": "Se marcado, o relatório incluirá apenas PRs criadas pelo usuário; issues serão excluídas."
+    },
     "cacheTTLLabel": {
         "message": "Digite o TTL do cache",
         "description": "Rótulo para a entrada de tempo de vida do cache."

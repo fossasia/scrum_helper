@@ -83,6 +83,12 @@
     "onlyIssuesTooltip": {
         "message": "Si cette case est cochée, le rapport n'inclura que les problèmes créés par l'utilisateur ou qui lui sont assignés."
     },
+    "onlyPRsLabel": {
+        "message": "Inclure uniquement les PRs dans le rapport"
+    },
+    "onlyPRsTooltip": {
+        "message": "Si coché, le rapport n'inclura que les pull requests créées par l'utilisateur; les issues seront exclues."
+    },
     "cacheTTLLabel": {
         "message": "Entrez le TTL du cache",
         "description": "Étiquette pour le champ de saisie de la durée de vie du cache."

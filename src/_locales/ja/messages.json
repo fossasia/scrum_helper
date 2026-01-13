@@ -83,6 +83,12 @@
     "onlyIssuesTooltip": {
         "message": "チェックした場合、レポートにはユーザーが作成または割り当てられた課題のみが含まれます。"
     },
+    "onlyPRsLabel": {
+        "message": "レポートにPRのみを含める"
+    },
+    "onlyPRsTooltip": {
+        "message": "チェックすると、レポートにはユーザーが作成したプルリクエストのみが含まれ、Issueは除外されます。"
+    },
     "cacheTTLLabel": {
         "message": "キャッシュTTLを入力",
         "description": "キャッシュの有効期間入力のラベル。"
