@@ -49,14 +49,6 @@ function applyI18n() {
     });
 }
 
-// -----------------
-// DOM helpers
-// -----------------
-function on(el, event, handler, options) {
-    if (!el) return;
-    el.addEventListener(event, handler, options);
-}
-
 document.addEventListener('DOMContentLoaded', function () {
     // Apply translations as soon as the DOM is ready
     applyI18n();
@@ -434,74 +426,83 @@ document.addEventListener('DOMContentLoaded', function () {
         const generateBtn = document.getElementById('generateReport');
         const copyBtn = document.getElementById('copyReport');
 
-        on(generateBtn, 'click', function () {
+        if (generateBtn){
+            generateBtn.addEventListener('click', function () {
 
-            chrome.storage.local.get(['platform'], function (result) {
-                const platform = result.platform || 'github';
-                const platformUsernameKey = `${platform}Username`;
+                chrome.storage.local.get(['platform'], function (result) {
+                    const platform = result.platform || 'github';
+                    const platformUsernameKey = `${platform}Username`;
 
-                chrome.storage.local.set({
-                    platform: platformSelect.value,
-                    [platformUsernameKey]: platformUsername.value
-                }, () => {
-                    // Reload platform from storage before generating report
-                    chrome.storage.local.get(['platform'], function (res) {
-                        platformSelect.value = res.platform || 'github';
-                        updatePlatformUI(platformSelect.value);
-                        generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
-                        generateBtn.disabled = true;
-                        window.generateScrumReport && window.generateScrumReport();
+                    chrome.storage.local.set({
+                        platform: platformSelect.value,
+                        [platformUsernameKey]: platformUsername.value
+                    }, () => {
+                        // Reload platform from storage before generating report
+                        chrome.storage.local.get(['platform'], function (res) {
+                            platformSelect.value = res.platform || 'github';
+                            updatePlatformUI(platformSelect.value);
+                            generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
+                            generateBtn.disabled = true;
+                            window.generateScrumReport && window.generateScrumReport();
+                        });
                     });
+
                 });
-
             });
-        });
+        }
 
-        on(copyBtn, 'click', function () {
-            const scrumReport = document.getElementById('scrumReport');
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = scrumReport.innerHTML;
-            document.body.appendChild(tempDiv);
-            tempDiv.style.position = 'absolute';
-            tempDiv.style.left = '-9999px';
+        if (copyBtn){
+            copyBtn.addEventListener('click', function () {
+                const scrumReport = document.getElementById('scrumReport');
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = scrumReport.innerHTML;
+                document.body.appendChild(tempDiv);
+                tempDiv.style.position = 'absolute';
+                tempDiv.style.left = '-9999px';
 
-            const range = document.createRange();
-            range.selectNode(tempDiv);
-            const selection = window.getSelection();
-            selection.removeAllRanges();
-            selection.addRange(range);
-
-            try {
-                document.execCommand('copy');
-                this.innerHTML = `<i class="fa fa-check"></i> ${chrome.i18n.getMessage('copiedButton')}`;
-                setTimeout(() => {
-                    this.innerHTML = `<i class="fa fa-copy"></i> ${chrome.i18n.getMessage('copyReportButton')}`;
-                }, 2000);
-            } catch (err) {
-                console.error('Failed to copy: ', err);
-            } finally {
+                const range = document.createRange();
+                range.selectNode(tempDiv);
+                const selection = window.getSelection();
                 selection.removeAllRanges();
-                document.body.removeChild(tempDiv);
-            }
-        });
+                selection.addRange(range);
+
+                try {
+                    document.execCommand('copy');
+                    this.innerHTML = `<i class="fa fa-check"></i> ${chrome.i18n.getMessage('copiedButton')}`;
+                    setTimeout(() => {
+                        this.innerHTML = `<i class="fa fa-copy"></i> ${chrome.i18n.getMessage('copyReportButton')}`;
+                    }, 2000);
+                } catch (err) {
+                    console.error('Failed to copy: ', err);
+                } finally {
+                    selection.removeAllRanges();
+                    document.body.removeChild(tempDiv);
+                }
+            });
+        }
 
         // Custom date container click handler
-        on(document.getElementById('customDateContainer'), 'click', () => {
-            document.querySelectorAll('input[name="timeframe"]').forEach(radio => {
-                radio.checked = false
-                radio.dataset.wasChecked = 'false'
-            });
+        const customDateContainer = document.getElementById('customDateContainer');
 
-            const startDateInput = document.getElementById('startingDate');
-            const endDateInput = document.getElementById('endingDate');
-            startDateInput.readOnly = false;
-            endDateInput.readOnly = false;
+        if (customDateContainer) {
+            customDateContainer.addEventListener('click', () => {
+                document.querySelectorAll('input[name="timeframe"]').forEach(radio => {
+                    radio.checked = false;
+                    radio.dataset.wasChecked = 'false';
+                });
 
-            chrome.storage.local.set({
-                yesterdayContribution: false,
-                selectedTimeframe: null
+                const startDateInput = document.getElementById('startingDate');
+                const endDateInput = document.getElementById('endingDate');
+
+                if (startDateInput) startDateInput.readOnly = false;
+                if (endDateInput) endDateInput.readOnly = false;
+
+                chrome.storage.local.set({
+                    yesterdayContribution: false,
+                    selectedTimeframe: null
+                });
             });
-        });
+        }
 
         chrome.storage.local.get([
             'selectedTimeframe',
@@ -559,39 +560,53 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         // Save all fields to storage on input/change
-        on(projectNameInput, 'input', function () {
-            chrome.storage.local.set({ projectName: projectNameInput.value });
-        });
-
+        if (projectNameInput) {
+            projectNameInput.addEventListener('input', function () {
+                chrome.storage.local.set({ projectName: projectNameInput.value });
+            });
+        }
+        
         // Save to storage and validate ONLY when user clicks out (blur event)
-        on(orgInput, 'blur', function () {
-            const org = orgInput.value.trim().toLowerCase();
-            chrome.storage.local.set({ orgName: org });
-
-            // Only validate if org name is not empty
-            if (org) {
-                validateOrgOnBlur(org);
-            } else {
-                // Clear any existing toast if org is empty
-                const oldToast = document.getElementById('invalid-org-toast');
-                if (oldToast) oldToast.parentNode.removeChild(oldToast);
-            }
-        });
-        on(userReasonInput, 'input', function () {
-            chrome.storage.local.set({ userReason: userReasonInput.value });
-        });
-        on(showOpenLabelCheckbox, 'change', function () {
-            chrome.storage.local.set({ showOpenLabel: showOpenLabelCheckbox.checked });
-        });
-        on(showCommitsCheckbox, 'change', function () {
-            chrome.storage.local.set({ showCommits: showCommitsCheckbox.checked });
-        });
-        on(githubTokenInput, 'input', function () {
-            chrome.storage.local.set({ githubToken: githubTokenInput.value });
-        });
-        on(cacheInput, 'input', function () {
-            chrome.storage.local.set({ cacheInput: cacheInput.value });
-        });
+        if (orgInput) {
+            orgInput.addEventListener('blur', function () {
+                const org = orgInput.value.trim().toLowerCase();
+                chrome.storage.local.set({ orgName: org });
+                
+                // Only validate if org name is not empty
+                if (org) {
+                    validateOrgOnBlur(org);
+                } else {
+                    // Clear any existing toast if org is empty
+                    const oldToast = document.getElementById('invalid-org-toast');
+                    if (oldToast) oldToast.parentNode.removeChild(oldToast);
+                }
+            });
+        }
+        if (userReasonInput) {
+            userReasonInput.addEventListener('input', function () {
+                chrome.storage.local.set({ userReason: userReasonInput.value });
+            });
+        }
+        if (showOpenLabelCheckbox) {
+            showOpenLabelCheckbox.addEventListener('change', function () {
+                chrome.storage.local.set({ showOpenLabel: showOpenLabelCheckbox.checked });
+            });
+        }
+        if (showCommitsCheckbox) {
+            showCommitsCheckbox.addEventListener('change', function () {
+                chrome.storage.local.set({ showCommits: showCommitsCheckbox.checked });
+            });
+        }
+        if (githubTokenInput) {
+            githubTokenInput.addEventListener('input', function () {
+                chrome.storage.local.set({ githubToken: githubTokenInput.value });
+            });
+        }
+        if (cacheInput) {
+            cacheInput.addEventListener('input', function () {
+                chrome.storage.local.set({ cacheInput: cacheInput.value });
+            });
+        }
         if (enableToggleSwitch) {
             console.log('[DEBUG] Setting up enable toggle switch event listener');
             enableToggleSwitch.addEventListener('change', function () {
@@ -599,24 +614,32 @@ document.addEventListener('DOMContentLoaded', function () {
                 chrome.storage.local.set({ enableToggle: enableToggleSwitch.checked });
             });
         }
-        on(yesterdayRadio, 'change', function () {
-            chrome.storage.local.set({ yesterdayContribution: yesterdayRadio.checked });
-        });
-        on(startingDateInput, 'input', function () {
-            chrome.storage.local.set({ startingDate: startingDateInput.value });
-        });
-        on(endingDateInput, 'input', function () {
-            chrome.storage.local.set({ endingDate: endingDateInput.value });
-        });
+        if (yesterdayRadio) {
+            yesterdayRadio.addEventListener('change', function () {
+                chrome.storage.local.set({ yesterdayContribution: yesterdayRadio.checked });
+            });
+        }
+        if (startingDateInput) {
+            startingDateInput.addEventListener('input', function () {
+                chrome.storage.local.set({ startingDate: startingDateInput.value });
+            });
+        }
+        if (endingDateInput) {
+            endingDateInput.addEventListener('input', function () {
+                chrome.storage.local.set({ endingDate: endingDateInput.value });
+            });
+        }
 
         // Save username to storage on input
-        on(platformUsername, 'input', function () {
-            chrome.storage.local.get(['platform'], function (result) {
-                const platform = result.platform || 'github';
-                const platformUsernameKey = `${platform}Username`;
-                chrome.storage.local.set({ [platformUsernameKey]: platformUsername.value });
+        if (platformUsername) {
+            platformUsername.addEventListener('input', function () {
+                chrome.storage.local.get(['platform'], function (result) {
+                    const platform = result.platform || 'github';
+                    const platformUsernameKey = `${platform}Username`;
+                    chrome.storage.local.set({ [platformUsernameKey]: platformUsername.value });
+                });
             });
-        });
+        }
 
 
     }
@@ -1403,20 +1426,22 @@ document.addEventListener('click', function (e) {
 });
 
 // Keyboard support for platform dropdown button
-on(dropdownBtn, 'keydown', function (e) {
-    if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        customDropdown.classList.add('open');
-        dropdownList.classList.remove('hidden');
-        dropdownList.querySelector('li')?.focus();
-    }
-});
+if (dropdownBtn) {
+    dropdownBtn.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            customDropdown.classList.add('open');
+            dropdownList.classList.remove('hidden');
+            dropdownList.querySelector('li')?.focus();
+        }
+    });
+}
 
 // Keyboard navigation for dropdown items
 dropdownList?.querySelectorAll('li').forEach((item, idx, arr) => {
     item.setAttribute('tabindex', '0');
 
-    on(item, 'keydown', function (e) {
+    item.addEventListener('keydown', function (e) {
         if (e.key === 'ArrowDown') {
             e.preventDefault();
             (arr[idx + 1] || arr[0]).focus();
@@ -1549,67 +1574,70 @@ document.querySelectorAll('input[name="timeframe"]').forEach(radio => {
 });
 
 // refresh cache button
+const refreshCacheBtn = document.getElementById('refreshCache');
 
-on(document.getElementById('refreshCache'), 'click', async function () {
-    const button = this;
-    const originalText = button.innerHTML;
+if (refreshCacheBtn) {
+    refreshCacheBtn.addEventListener('click', async function () {
+        const button = this;
+        const originalText = button.innerHTML;
 
-    button.classList.add('loading');
-    button.innerHTML = `<i class="fa fa-refresh fa-spin"></i><span>${chrome.i18n.getMessage('refreshingButton')}</span>`;
-    button.disabled = true;
+        button.classList.add('loading');
+        button.innerHTML = `<i class="fa fa-refresh fa-spin"></i><span>${chrome.i18n.getMessage('refreshingButton')}</span>`;
+        button.disabled = true;
 
-    try {
-        // Determine platform
-        let platform = 'github';
         try {
-            const items = await new Promise(resolve => {
-                chrome.storage.local.get(['platform'], resolve);
+            // Determine platform
+            let platform = 'github';
+            try {
+                const items = await new Promise(resolve => {
+                    chrome.storage.local.get(['platform'], resolve);
+                });
+                platform = items.platform || 'github';
+            } catch (e) { }
+
+            // Clear all caches
+            const keysToRemove = ['githubCache', 'repoCache', 'gitlabCache'];
+            await new Promise(resolve => {
+                chrome.storage.local.remove(keysToRemove, resolve);
             });
-            platform = items.platform || 'github';
-        } catch (e) { }
 
-        // Clear all caches
-        const keysToRemove = ['githubCache', 'repoCache', 'gitlabCache'];
-        await new Promise(resolve => {
-            chrome.storage.local.remove(keysToRemove, resolve);
-        });
+            // Clear the scrum report
+            const scrumReport = document.getElementById('scrumReport');
+            if (scrumReport) {
+                scrumReport.innerHTML = `<p style="text-align: center; color: #666; padding: 20px;">${chrome.i18n.getMessage('cacheClearedMessage')}</p>`;
+            }
 
-        // Clear the scrum report
-        const scrumReport = document.getElementById('scrumReport');
-        if (scrumReport) {
-            scrumReport.innerHTML = `<p style="text-align: center; color: #666; padding: 20px;">${chrome.i18n.getMessage('cacheClearedMessage')}</p>`;
+            if (typeof availableRepos !== 'undefined') {
+                availableRepos = [];
+            }
+
+            const repoStatus = document.getElementById('repoStatus');
+            if (repoStatus) {
+                repoStatus.textContent = '';
+            }
+
+            button.innerHTML = `<i class="fa fa-check"></i><span>${chrome.i18n.getMessage('cacheClearedButton')}</span>`;
+            button.classList.remove('loading');
+
+            // Do NOT trigger report generation automatically
+
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }, 2000);
+
+        } catch (error) {
+            console.error('Cache clear failed:', error);
+            button.innerHTML = `<i class="fa fa-exclamation-triangle"></i><span>${chrome.i18n.getMessage('cacheClearFailed')}</span>`;
+            button.classList.remove('loading');
+
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.disabled = false;
+            }, 3000);
         }
-
-        if (typeof availableRepos !== 'undefined') {
-            availableRepos = [];
-        }
-
-        const repoStatus = document.getElementById('repoStatus');
-        if (repoStatus) {
-            repoStatus.textContent = '';
-        }
-
-        button.innerHTML = `<i class="fa fa-check"></i><span>${chrome.i18n.getMessage('cacheClearedButton')}</span>`;
-        button.classList.remove('loading');
-
-        // Do NOT trigger report generation automatically
-
-        setTimeout(() => {
-            button.innerHTML = originalText;
-            button.disabled = false;
-        }, 2000);
-
-    } catch (error) {
-        console.error('Cache clear failed:', error);
-        button.innerHTML = `<i class="fa fa-exclamation-triangle"></i><span>${chrome.i18n.getMessage('cacheClearFailed')}</span>`;
-        button.classList.remove('loading');
-
-        setTimeout(() => {
-            button.innerHTML = originalText;
-            button.disabled = false;
-        }, 3000);
-    }
-});
+    });
+}
 
 function toggleRadio(radio) {
     const startDateInput = document.getElementById('startingDate');
