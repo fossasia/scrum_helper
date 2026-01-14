@@ -1,4 +1,4 @@
-const DEBUG = true;
+const DEBUG = false;
 
 function log(...args) {
     if (DEBUG) {
@@ -56,6 +56,7 @@ function allIncluded(outputTarget = 'email') {
     let showCommits = false;
     let userReason = '';
     let subjectForEmail = null;
+    let onlyIssues = false;
 
     let pr_open_button =
         '<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
@@ -96,6 +97,7 @@ function allIncluded(outputTarget = 'email') {
                 'selectedRepos',
                 'useRepoFilter',
                 'showCommits',
+                'onlyIssues',
             ],
             (items) => {
 
@@ -137,6 +139,7 @@ function allIncluded(outputTarget = 'email') {
                     enableToggle = items.enableToggle;
                 }
 
+                onlyIssues = items.onlyIssues === true;
                 showCommits = items.showCommits || false;
                 showOpenLabel = items.showOpenLabel !== false; // Default to true if not explicitly set to false
                 orgName = items.orgName || '';
@@ -156,9 +159,6 @@ function allIncluded(outputTarget = 'email') {
                         chrome.storage.local.set({ yesterdayContribution: true });
                     }
                 }
-
-
-
 
                 if (platform === 'github') {
                     if (platformUsernameLocal) {
@@ -1128,6 +1128,12 @@ ${userReason}`;
     }
 
     function writeGithubPrsReviews() {
+        if(onlyIssues){
+            log(' "Only Issues" is checked, skipping PR reviews.')
+            reviewedPrsArray = [];
+            prsReviewDataProcessed = true;
+            return;
+        }
         let items = githubPrsReviewData.items;
         log('Processing PR reviews:', {
             hasItems: !!items,
@@ -1284,7 +1290,7 @@ ${userReason}`;
                     let pr_arr = githubPrsReviewDataProcessed[repo][pr];
                     let prText = '';
                     prText +=
-                        "<a href='" + pr_arr.html_url + "' target='_blank'>#" + pr_arr.number + '</a> (' + pr_arr.title + ') ';
+                        "<a href='" + pr_arr.html_url + "' target='_blank' rel='noopener noreferrer'>#" + pr_arr.number + '</a> (' + pr_arr.title + ') ';
                     if (showOpenLabel && pr_arr.state === 'open') prText += issue_opened_button;
                     // Do not show closed label for reviewed PRs
                     prText += '&nbsp;&nbsp;';
@@ -1298,7 +1304,7 @@ ${userReason}`;
                     prText1 +=
                         "<li><a href='" +
                         pr_arr1.html_url +
-                        "' target='_blank'>#" +
+                        "' target='_blank' rel='noopener noreferrer'>#" +
                         pr_arr1.number +
                         '</a> (' +
                         pr_arr1.title +
@@ -1436,6 +1442,12 @@ ${userReason}`;
             log('[SCRUM-DEBUG] Processing item:', item);
             // For GitLab, treat all items in the MRs array as MRs
             let isMR = !!item.pull_request; // works for both GitHub and mapped GitLab data
+
+            if (onlyIssues && isMR) {
+                log('[SCRUM-DEBUG] "Only Issues" checked, skipping PR/MR:', item.number);
+                continue;
+            }
+            
             log('[SCRUM-DEBUG] isMR:', isMR, 'platform:', platform, 'item:', item);
             let html_url = item.html_url;
             let repository_url = item.repository_url;
@@ -1480,7 +1492,7 @@ ${userReason}`;
                 itemCreatedDate.setHours(0,0,0,0);
                 const isCreatedToday = today.getTime() === itemCreatedDate.getTime();
 
-                const isNewPR = prCreatedDate >= startDateFilter && prCreatedDate << endDateFilter;
+                const isNewPR = prCreatedDate >= startDateFilter && prCreatedDate <= endDateFilter;
                 const prUpdatedDate = new Date(item.updated_at);
                 const isUpdatedInRange = prUpdatedDate >= startDateFilter && prUpdatedDate <= endDateFilter;
 
@@ -1519,7 +1531,7 @@ ${userReason}`;
 
                 if (isDraft) {
 
-                    li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + pr_draft_button : ''}`;
+                    li = `<li><i>(${project})</i> - Made PR <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_draft_button : ''}`;
                     if (showCommits && item._allCommits && item._allCommits.length && !isNewPR) {
                         log(`[PR DEBUG] Rendering commits for existing draft PR #${number}:`, item._allCommits);
                         li += '<ul>';
@@ -1530,7 +1542,7 @@ ${userReason}`;
                     }
                     li += `</li>`;
                 } else if (item.state === 'open' || item.state === 'opened') {
-                    li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + pr_open_button : ''}`;
+                    li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_open_button : ''}`;
 
                     if (showCommits && item._allCommits && item._allCommits.length && !isNewPR) {
                         log(`[PR DEBUG] Rendering commits for existing PR #${number}:`, item._allCommits);
@@ -1542,7 +1554,7 @@ ${userReason}`;
                     }
                     li += `</li>`;
                 } else if (platform === 'gitlab' && item.state === 'closed') {
-                    li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + pr_closed_button : ''}</li>`;
+                    li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_closed_button : ''}</li>`;
                 } else {
                     let merged = null;
                     if ((githubToken || (useMergedStatus && !fallbackToSimple)) && mergedStatusResults) {
@@ -1553,10 +1565,10 @@ ${userReason}`;
                     }
                     if (merged === true) {
 
-                        li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + pr_merged_button : ''}</li>`;
+                        li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_merged_button : ''}</li>`;
                     } else {
                         // Always show closed label for merged === false or merged === null/undefined
-                        li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + pr_closed_button : ''}</li>`;
+                        li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_closed_button : ''}</li>`;
                     }
                 }
                 log('[SCRUM-DEBUG] Added PR/MR to lastWeekArray:', li, item);
@@ -1572,7 +1584,7 @@ ${userReason}`;
                         number +
                         ") - <a href='" +
                         html_url +
-                        "' target='_blank'>" +
+                        "' target='_blank' rel='noopener noreferrer'>" +
                         title +
                         '</a>' + (showOpenLabel ? ' ' + issue_opened_button : '') +
                         '&nbsp;&nbsp;</li>';
