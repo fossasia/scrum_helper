@@ -98,6 +98,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const toggleTokenBtn = document.getElementById('toggleTokenVisibility');
     const tokenEyeIcon = document.getElementById('tokenEyeIcon');
+    const tokenPreview = document.getElementById('tokenPreview');
     let tokenVisible = false;
 
     const orgInput = document.getElementById('orgInput');
@@ -175,6 +176,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     function renderTokenPreview() {
+        if (!tokenPreview || !githubTokenInput) return;
         tokenPreview.innerHTML = '';
         const value = githubTokenInput.value;
         const isDark = document.body.classList.contains('dark-mode');
