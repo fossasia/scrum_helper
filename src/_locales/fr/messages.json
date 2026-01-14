@@ -74,8 +74,18 @@
     "showCommitsLabel": {
         "message": "Afficher les commits sur les PRs ouverts/ brouillons de PRs"
     },
+    "showCommitsTooltip": {
+        "message": "Jeton Github requis, ajoutez-le dans les paramètres."
+    },
+    "onlyIssuesLabel": {
+        "message": "Inclure uniquement les problèmes dans le rapport"
+    },
+    "onlyIssuesTooltip": {
+        "message": "Si cette case est cochée, le rapport n'inclura que les problèmes créés par l'utilisateur ou qui lui sont assignés."
+    },
     "cacheTTLLabel": {
-        "message": "Entrer le TTL du cache"
+        "message": "Entrez le TTL du cache",
+        "description": "Étiquette pour le champ de saisie de la durée de vie du cache."
     },
     "cacheTTLUnit": {
         "message": "(en minutes)"
