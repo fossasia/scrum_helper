@@ -776,6 +776,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 syncRepoFilterUI(enabled);
 
                 if (enabled) {
+                    updateRepoDisplay();
                     if (repoStatus) {
                         repoStatus.textContent =
                             chrome.i18n.getMessage('repoLoading');
