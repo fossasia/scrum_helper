@@ -142,24 +142,27 @@
 
 
 						<div class="flex gap-[3px] justify-between items-center mt-2" style="gap: 8px">
-							
+
 							<div id="customDateContainer" class="flex gap-2">
 
 								<div>
 									<label for="startingDate" class="flex items-center font-medium text-xs"
 										data-i18n="startDateLabel">From:</label>
 									<input type="date" id="startingDate"
-										class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1" style="width: 96px;">
+										class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1"
+										style="width: 96px;">
 								</div>
 								<div>
 									<label for="endingDate" class="flex items-center font-medium text-xs"
 										data-i18n="endDateLabel">To:</label>
 									<input type="date" id="endingDate"
-										class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1" style="width: 96px;">
+										class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1"
+										style="width: 96px;">
 								</div>
 							</div>
 							<div class="flex items-center gap-1">
-								<input type="radio" id="yesterdayContribution" name="timeframe" class="form-radio" style="margin-right: 4px;">
+								<input type="radio" id="yesterdayContribution" name="timeframe" class="form-radio"
+									style="margin-right: 4px;">
 								<label for="yesterdayContribution" class="font-medium text-xs"
 									data-i18n="last1DayLabel">Previous Day</label>
 							</div>
@@ -176,19 +179,20 @@
 
 					</div>
 					<div class="my-4">
-                        <div class="flex items-center">
-                            <input type="checkbox" id="onlyIssues" class="form-checkbox text-blue-600">
-                            <label for="onlyIssues" class="font-medium text-sm flex items-center" style="margin-left: 4px;" data-i18n="onlyIssuesLabel">
-                                If checked, the report will only include issues created or assigned to the user.
-                            </label>
-                            <span class="tooltip-container">
-                                <i class="fa fa-question-circle question-icon"></i>
-                                <span class="tooltip-bubble" data-i18n="onlyIssuesTooltip">
-                                    If checked, the report will only include issues created or assigned to the user.
-                                </span>
-                            </span>
-                        </div>
-                    </div>
+						<div class="flex items-center">
+							<input type="checkbox" id="onlyIssues" class="form-checkbox text-blue-600">
+							<label for="onlyIssues" class="font-medium text-sm flex items-center"
+								style="margin-left: 4px;" data-i18n="onlyIssuesLabel">
+								If checked, the report will only include issues created or assigned to the user.
+							</label>
+							<span class="tooltip-container">
+								<i class="fa fa-question-circle question-icon"></i>
+								<span class="tooltip-bubble" data-i18n="onlyIssuesTooltip">
+									If checked, the report will only include issues created or assigned to the user.
+								</span>
+							</span>
+						</div>
+					</div>
 					<div class="my-4 githubOnlySection">
 						<div class="flex items-center">
 							<input type="checkbox" id="showCommits" checked class="form-checkbox text-blue-600 ">
@@ -229,7 +233,9 @@
 						<div>
 							<h4 class="font-semibold text-xl" data-i18n="noteTitle">Note:</h4>
 							<ul class="text-xs list-disc list-inside">
-								<p data-i18n="notePoint1">Pull requests are fetched based on the most recent review activity by any contributor, not just your own. Please review and adjust the generated SCRUM report to ensure it accurately reflects your work before sharing.
+								<p data-i18n="notePoint1">Pull requests are fetched based on the most recent review
+									activity by any contributor, not just your own. Please review and adjust the
+									generated SCRUM report to ensure it accurately reflects your work before sharing.
 								</p>
 							</ul>
 						</div>
@@ -241,30 +247,31 @@
 						<div>
 							<div class="flex items-center justify-between">
 								<div class="flex">
-									<p class="text-sm font-medium" data-i18n="githubTokenLabel">Your GitHub Token</p> <span
-											class="tooltip-container">
-											<i class="fa fa-question-circle question-icon"></i>
-											<span class="tooltip-bubble" data-i18n="githubTokenTooltip">
-												<b>Why is it recommended to add a GitHub token?</b><br>
-												Scrum Helper works without a GitHub token, but adding a personal access
-												token is recommended for a
-												better experience. It raises your API limits, allows access to private
-												repos
-												(if permitted), and
-												improves accuracy and speed. Tokens are stored locally and never sent to
-												us
-												and used only to fetch
-												your git data. You can add one anytime in the extension
-												settings.<br><br>
-												<b>How to obtain:</b><br>
-										1. Go to <a href="https://github.com/settings/tokens" target="_blank" rel="noopener noreferrer"
-													style="color:#2563eb;text-decoration:underline;">GitHub Developer
-													Settings</a>.<br>
-												3. Click "Generate new token", select classic token<br>
-												4. Paste it here.<br>
-												<i>Keep your token secret!</i>
-											</span>
+									<p class="text-sm font-medium" data-i18n="githubTokenLabel">Your GitHub Token</p>
+									<span class="tooltip-container">
+										<i class="fa fa-question-circle question-icon"></i>
+										<span class="tooltip-bubble" data-i18n="githubTokenTooltip">
+											<b>Why is it recommended to add a GitHub token?</b><br>
+											Scrum Helper works without a GitHub token, but adding a personal access
+											token is recommended for a
+											better experience. It raises your API limits, allows access to private
+											repos
+											(if permitted), and
+											improves accuracy and speed. Tokens are stored locally and never sent to
+											us
+											and used only to fetch
+											your git data. You can add one anytime in the extension
+											settings.<br><br>
+											<b>How to obtain:</b><br>
+											1. Go to <a href="https://github.com/settings/tokens" target="_blank"
+												rel="noopener noreferrer"
+												style="color:#2563eb;text-decoration:underline;">GitHub Developer
+												Settings</a>.<br>
+											3. Click "Generate new token", select classic token<br>
+											4. Paste it here.<br>
+											<i>Keep your token secret!</i>
 										</span>
+									</span>
 
 								</div>
 								<button id="toggleTokenVisibility" type="button" class="focus:outline-none">
@@ -293,8 +300,9 @@
 							</div>
 							<input id="orgInput" type="text"
 								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
-								data-i18n-placeholder="settingsOrgNamePlaceholder" style="margin-top: 0.3rem; margin-bottom: 0.8rem;">
-							
+								data-i18n-placeholder="settingsOrgNamePlaceholder"
+								style="margin-top: 0.3rem; margin-bottom: 0.8rem;">
+
 							<!-- Organization validation feedback -->
 							<div id="orgValidationMessage" class="hidden text-xs mt-1 mb-2 px-3 py-2 rounded-lg">
 								<span id="orgValidationText"></span>
@@ -362,7 +370,6 @@
 						</div>
 					</div>
 
-
 					<div class="cacheSection mt-3">
 						<p class="text-sm font-medium"><span data-i18n="cacheTTLLabel">Enter cache TTL</span> <span
 								class="text-sm font-normal" data-i18n="cacheTTLUnit">(in
@@ -401,12 +408,13 @@
 			<div class="mt-6 border-t border-gray-300">
 				<div class="bg-white rounded-3xl mx-2 mt-4 mb-2 p-4 border border-gray-100 shadow-sm">
 					<div class="flex items-center justify-center space-x-3">
-					<a target="_blank" rel="noopener noreferrer" href="https://github.com/fossasia/scrum_helper"
+						<a target="_blank" rel="noopener noreferrer" href="https://github.com/fossasia/scrum_helper"
 							class="bg-blue-50 hover:bg-blue-100 text-blue-600 transition-all duration-200 rounded-lg px-4 py-2 flex items-center space-x-2 gap-2">
 							<i class="fa fa-code text-sm pl-1"></i>
 							<span class="text-sm font-medium" data-i18n="viewCodeButton">View Code</span>
 						</a>
-					<a target="_blank" rel="noopener noreferrer" href="https://github.com/fossasia/scrum_helper/issues"
+						<a target="_blank" rel="noopener noreferrer"
+							href="https://github.com/fossasia/scrum_helper/issues"
 							class="bg-blue-50 hover:bg-blue-100 text-blue-600 transition-all duration-200 rounded-lg px-4 py-2 flex items-center space-x-2 gap-2">
 							<i class="fa fa-bug text-sm"></i>
 							<span class="text-sm font-medium" data-i18n="reportIssueButton">Report Issue</span>
