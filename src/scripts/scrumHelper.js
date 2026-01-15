@@ -913,6 +913,12 @@ function allIncluded(outputTarget = 'email') {
             lastWeekUl += '</ul>';
             let nextWeekUl = '<ul>';
             for (let i = 0; i < nextWeekArray.length; i++) nextWeekUl += nextWeekArray[i];
+            
+            // Add planned work items if available
+            if (typeof window.generatePlannedWorkHTML === 'function') {
+                nextWeekUl += window.generatePlannedWorkHTML();
+            }
+            
             nextWeekUl += '</ul>';
             let weekOrDay = yesterdayContribution ? 'yesterday' : 'the period';
             let weekOrDay2 = 'today';
@@ -961,6 +967,12 @@ function allIncluded(outputTarget = 'email') {
 
         let nextWeekUl = '<ul>';
         for (let i = 0; i < nextWeekArray.length; i++) nextWeekUl += nextWeekArray[i];
+        
+        // Add planned work items if available
+        if (typeof window.generatePlannedWorkHTML === 'function') {
+            nextWeekUl += window.generatePlannedWorkHTML();
+        }
+        
         nextWeekUl += '</ul>';
 
         let weekOrDay = yesterdayContribution ? 'yesterday' : 'the period';
