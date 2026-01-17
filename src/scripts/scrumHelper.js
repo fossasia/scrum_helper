@@ -603,9 +603,24 @@ function allIncluded(outputTarget = 'email') {
                 fetch(userUrl, { headers }),
             ]);
 
-            if (issuesRes.status === 401 || prRes.status === 401 || userRes.status === 401 ||
-                issuesRes.status === 403 || prRes.status === 403 || userRes.status === 403) {
-                showInvalidTokenMessage();
+            // Handle authentication errors (401)
+            if (issuesRes.status === 401 || prRes.status === 401 || userRes.status === 401) {
+                showEmptyState('NO_TOKEN');
+                return;
+            }
+
+            // Handle 403 errors - differentiate between rate limit and auth issues
+            if (issuesRes.status === 403 || prRes.status === 403 || userRes.status === 403) {
+                // Check if it's a rate limit issue
+                const rateLimitRemaining = issuesRes.headers.get('X-RateLimit-Remaining') ||
+                    prRes.headers.get('X-RateLimit-Remaining') ||
+                    userRes.headers.get('X-RateLimit-Remaining');
+
+                if (rateLimitRemaining === '0') {
+                    showEmptyState('RATE_LIMIT');
+                } else {
+                    showEmptyState('NO_TOKEN');
+                }
                 return;
             }
 
@@ -623,6 +638,15 @@ function allIncluded(outputTarget = 'email') {
             githubIssuesData = await issuesRes.json();
             githubPrsReviewData = await prRes.json();
             githubUserData = await userRes.json();
+
+            // Check if no data was found
+            const hasIssues = githubIssuesData?.items && githubIssuesData.items.length > 0;
+            const hasPRs = githubPrsReviewData?.items && githubPrsReviewData.items.length > 0;
+
+            if (!hasIssues && !hasPRs) {
+                showEmptyState('NO_REPOS');
+                return;
+            }
 
             if (githubIssuesData && githubIssuesData.items) {
                 log('Fetched githubIssuesData:', githubIssuesData.items.length, 'items');
@@ -848,20 +872,37 @@ function allIncluded(outputTarget = 'email') {
     }
     verifyCacheStatus();
 
-    function showInvalidTokenMessage() {
+    /**
+     * Shows an empty state in the popup UI
+     * @param {string} stateKey - Key from EMPTY_STATES configuration
+     */
+    function showEmptyState(stateKey) {
         if (outputTarget === 'popup') {
-            const reportDiv = document.getElementById('scrumReport');
-            if (reportDiv) {
-                reportDiv.innerHTML = '<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">Invalid or expired GitHub token. Please check your token in the settings and try again.</div>';
-                const generateBtn = document.getElementById('generateReport');
-                if (generateBtn) {
-                    generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
-                    generateBtn.disabled = false;
+            const scrumReport = document.getElementById('scrumReport');
+            const generateBtn = document.getElementById('generateReport');
+
+            if (scrumReport && window.renderEmptyState && window.EMPTY_STATES) {
+                const config = window.EMPTY_STATES[stateKey];
+                if (config) {
+                    scrumReport.innerHTML = window.renderEmptyState(config);
+                } else {
+                    // Fallback to generic error message
+                    scrumReport.innerHTML = '<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">An error occurred. Please try again.</div>';
                 }
-            } else {
-                alert('Invalid or expired GitHub token. Please check your token in the extension popup and try again.');
+            }
+
+            if (generateBtn) {
+                generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+                generateBtn.disabled = false;
             }
         }
+        githubCache.fetching = false;
+        scrumGenerationInProgress = false;
+    }
+
+    // Legacy function for backward compatibility
+    function showInvalidTokenMessage() {
+        showEmptyState('NO_TOKEN');
     }
 
 
@@ -1072,7 +1113,7 @@ ${userReason}`;
     }
 
     function writeGithubPrsReviews() {
-        if(onlyIssues){
+        if (onlyIssues) {
             log(' "Only Issues" is checked, skipping PR reviews.')
             reviewedPrsArray = [];
             prsReviewDataProcessed = true;
@@ -1391,7 +1432,7 @@ ${userReason}`;
                 log('[SCRUM-DEBUG] "Only Issues" checked, skipping PR/MR:', item.number);
                 continue;
             }
-            
+
             log('[SCRUM-DEBUG] isMR:', isMR, 'platform:', platform, 'item:', item);
             let html_url = item.html_url;
             let repository_url = item.repository_url;
@@ -1429,11 +1470,11 @@ ${userReason}`;
                     startDateFilter = new Date(lastWeek.toISOString().split('T')[0] + 'T00:00:00Z');
                     endDateFilter = new Date(today.toISOString().split('T')[0] + 'T23:59:59Z');
                 }
-                
+
                 const today = new Date();
-                today.setHours(0,0,0,0);
+                today.setHours(0, 0, 0, 0);
                 const itemCreatedDate = new Date(item.created_at);
-                itemCreatedDate.setHours(0,0,0,0);
+                itemCreatedDate.setHours(0, 0, 0, 0);
                 const isCreatedToday = today.getTime() === itemCreatedDate.getTime();
 
                 const isNewPR = prCreatedDate >= startDateFilter && prCreatedDate <= endDateFilter;
@@ -1536,9 +1577,9 @@ ${userReason}`;
                 }
 
                 const today = new Date();
-                today.setHours(0,0,0,0);
+                today.setHours(0, 0, 0, 0);
                 const itemCreatedDate = new Date(item.created_at);
-                itemCreatedDate.setHours(0,0,0,0);
+                itemCreatedDate.setHours(0, 0, 0, 0);
                 const isCreatedToday = today.getTime() === itemCreatedDate.getTime();
                 const issueActionText = isCreatedToday ? 'Opened Issue' : 'Updated Issue'
                 if (item.state === 'open') {

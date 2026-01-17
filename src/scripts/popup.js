@@ -580,7 +580,7 @@ document.addEventListener('DOMContentLoaded', function () {
         showOpenLabelCheckbox.addEventListener('change', function () {
             chrome.storage.local.set({ showOpenLabel: showOpenLabelCheckbox.checked });
         });
-        if(onlyIssuesCheckbox){
+        if (onlyIssuesCheckbox) {
             onlyIssuesCheckbox.addEventListener('change', function () {
                 chrome.storage.local.set({ onlyIssues: onlyIssuesCheckbox.checked });
             })
@@ -638,6 +638,9 @@ document.addEventListener('DOMContentLoaded', function () {
         settingsToggle.classList.add('active');
 
     }
+
+    // Make showSettingsView globally accessible for empty state CTAs
+    window.showSettingsView = showSettingsView;
 
     if (settingsToggle) {
         settingsToggle.addEventListener('click', function () {
@@ -1529,7 +1532,7 @@ document.querySelectorAll('input[name="timeframe"]').forEach(radio => {
     });
 
     // Handle clicks on links within scrumReport to open in new tabs
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
         const target = e.target.closest('a');
         if (target && target.closest('#scrumReport')) {
             e.preventDefault();
