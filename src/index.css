@@ -1,7 +1,8 @@
 body {
     margin: 0;
     padding: 0;
-    background-color: rgba(251, 251, 251, 0.6);
+    background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 
 * {
@@ -81,14 +82,15 @@ hr,
 }
 
 .dark-mode {
-    background: #1a1a1a !important;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%) !important;
     color: #ffffff !important;
     transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
 }
 
 .dark-mode .bg-white {
-    background-color: #2d2d2d !important;
-    border-color: #404040 !important;
+    background: linear-gradient(135deg, #2d2d3d 0%, #252535 100%) !important;
+    border-color: #404050 !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
 }
 
@@ -241,12 +243,11 @@ hr,
 }
 
 #settingsToggle:hover {
-    transform: scale(1.05);
     background: none !important;
 }
 
 #settingsToggle:active {
-    transform: scale(0.95);
+    background: none !important;
 }
 
 #settingsToggle img {
@@ -814,4 +815,577 @@ hr,
     background-color: #78350f;
     border-color: #d97706;
     color: #fde68a;
+}
+
+/* ===== MODERN UI ENHANCEMENTS ===== */
+
+/* Enhanced Card Styling */
+.bg-white {
+    background: #ffffff !important;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    transition: all 0.3s ease;
+}
+
+.bg-white:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+/* Improved Input Fields */
+input[type="text"],
+input[type="date"],
+input[type="password"],
+#scrumReport {
+    transition: all 0.2s ease;
+    border: 2px solid #e5e7eb !important;
+}
+
+input[type="text"]:focus,
+input[type="date"]:focus,
+input[type="password"]:focus,
+#scrumReport:focus {
+    outline: none;
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    transform: translateY(-1px);
+}
+
+/* Enhanced Buttons */
+button {
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+button:not(#settingsToggle):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+button:active {
+    transform: translateY(0);
+}
+
+#generateReport,
+#copyReport {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    border: none;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+#generateReport:hover,
+#copyReport:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+/* Typography Enhancements */
+h3 {
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    color: #1f2937;
+}
+
+h4,
+h6 {
+    font-weight: 600;
+    color: #374151;
+}
+
+p {
+    color: #4b5563;
+    line-height: 1.6;
+}
+
+label {
+    font-weight: 500;
+    color: #374151;
+}
+
+.dark-mode h3 {
+    color: #f9fafb !important;
+}
+
+.dark-mode h4,
+.dark-mode h6 {
+    color: #e5e7eb !important;
+}
+
+.dark-mode p,
+.dark-mode label {
+    color: #d1d5db !important;
+}
+
+/* Smooth Scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #cbd5e1 0%, #94a3b8 100%);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #94a3b8 0%, #64748b 100%);
+}
+
+.dark-mode ::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
+}
+
+.dark-mode ::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+}
+
+/* Toggle Switch Enhancement */
+.peer-checked\:bg-blue-600 {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+}
+
+/* Checkbox Styling */
+input[type="checkbox"] {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+input[type="checkbox"]:hover {
+    transform: scale(1.1);
+}
+
+/* Radio Button Styling */
+input[type="radio"] {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+input[type="radio"]:hover {
+    transform: scale(1.1);
+}
+
+/* Enhanced Rounded Corners */
+.rounded-3xl {
+    border-radius: 20px !important;
+}
+
+.rounded-2xl {
+    border-radius: 16px !important;
+}
+
+.rounded-xl {
+    border-radius: 12px !important;
+}
+
+/* Subtle Fade-in Animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.tab-content {
+    animation: fadeIn 0.3s ease;
+}
+
+/* Icon Enhancements */
+.fa,
+.fab {
+    transition: all 0.2s ease;
+}
+
+button:hover .fa,
+button:hover .fab {
+    transform: scale(1.1);
+}
+
+/* Dark Mode Toggle Icon */
+#darkModeToggle {
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+#darkModeToggle:hover {
+    transform: rotate(20deg) scale(1.1);
+}
+
+/* Settings Icon */
+#settingsIcon {
+    transition: all 0.3s ease;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+}
+
+#settingsToggle:hover #settingsIcon {
+    transform: rotate(90deg);
+}
+
+/* Exclude settings button from generic button hover styles */
+#settingsToggle:hover {
+    background: transparent !important;
+    transform: none !important;
+}
+
+/* Home Button Enhancement */
+#homeButton {
+    transition: all 0.2s ease;
+}
+
+#homeButton:hover {
+    background: rgba(59, 130, 246, 0.1) !important;
+    border-radius: 8px;
+}
+
+.dark-mode #homeButton:hover {
+    background: rgba(59, 130, 246, 0.2) !important;
+}
+
+/* ===== MODERN TOGGLE SWITCH STYLING ===== */
+
+/* Hide the actual checkbox for toggle switch */
+#enable.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Enhanced Toggle Switch - Gray when disabled (unchecked) */
+#enable+div {
+    background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+}
+
+#enable:checked+div {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4), inset 0 1px 2px rgba(255, 255, 255, 0.2);
+}
+
+#enable+div::after {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+#enable:checked+div::after {
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.3);
+}
+
+#enable:focus+div {
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+/* Dark mode toggle - Gray when disabled (unchecked) */
+.dark-mode #enable+div {
+    background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+}
+
+.dark-mode #enable:checked+div {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.2);
+}
+
+/* Toggle label styling */
+label:has(#enable) {
+    transition: all 0.2s ease;
+}
+
+label:has(#enable) span {
+    transition: all 0.2s ease;
+    font-weight: 500;
+    color: #6b7280;
+}
+
+label:has(#enable) span:first-child {
+    opacity: 0.5;
+}
+
+label:has(#enable) span:last-child {
+    opacity: 0.5;
+}
+
+#enable:not(:checked)~span:first-child,
+label:has(#enable:not(:checked)) span:first-child {
+    opacity: 1;
+    color: #374151;
+    font-weight: 600;
+}
+
+#enable:checked~span:last-child,
+label:has(#enable:checked) span:last-child {
+    opacity: 1;
+    color: #3b82f6;
+    font-weight: 600;
+}
+
+.dark-mode label:has(#enable) span {
+    color: #9ca3af;
+}
+
+.dark-mode #enable:not(:checked)~span:first-child,
+.dark-mode label:has(#enable:not(:checked)) span:first-child {
+    color: #e5e7eb;
+}
+
+.dark-mode #enable:checked~span:last-child,
+.dark-mode label:has(#enable:checked) span:last-child {
+    color: #60a5fa;
+}
+
+/* ===== MODERN CHECKBOX STYLING ===== */
+
+/* Custom checkbox styling */
+input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid #d1d5db;
+    border-radius: 5px;
+    background: #ffffff;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
+}
+
+input[type="checkbox"]:hover {
+    border-color: #3b82f6;
+    transform: scale(1.05);
+}
+
+input[type="checkbox"]:checked {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    border-color: #2563eb;
+    box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+}
+
+input[type="checkbox"]:checked::after {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 2px;
+    width: 4px;
+    height: 8px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+input[type="checkbox"]:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+/* Dark mode checkboxes */
+.dark-mode input[type="checkbox"] {
+    background: #374151;
+    border-color: #4b5563;
+}
+
+.dark-mode input[type="checkbox"]:hover {
+    border-color: #60a5fa;
+}
+
+.dark-mode input[type="checkbox"]:checked {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    border-color: #2563eb;
+}
+
+/* ===== MODERN RADIO BUTTON STYLING ===== */
+
+input[type="radio"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid #d1d5db;
+    border-radius: 50%;
+    background: #ffffff;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    flex-shrink: 0;
+}
+
+input[type="radio"]:hover {
+    border-color: #3b82f6;
+    transform: scale(1.05);
+}
+
+input[type="radio"]:checked {
+    border-color: #2563eb;
+    background: #ffffff;
+    box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+}
+
+input[type="radio"]:checked::after {
+    content: '';
+    position: absolute;
+    left: 3px;
+    top: 3px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+}
+
+input[type="radio"]:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+/* Dark mode radio buttons */
+.dark-mode input[type="radio"] {
+    background: #374151;
+    border-color: #4b5563;
+}
+
+.dark-mode input[type="radio"]:hover {
+    border-color: #60a5fa;
+}
+
+.dark-mode input[type="radio"]:checked {
+    background: #374151;
+    border-color: #2563eb;
+}
+
+/* ===== ENHANCED BUTTON STYLING ===== */
+
+/* Primary action buttons */
+button.bg-blue-600,
+button[class*="bg-blue"] {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+    border: none;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    font-weight: 600;
+    position: relative;
+    overflow: hidden;
+}
+
+button.bg-blue-600::before,
+button[class*="bg-blue"]::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s ease;
+}
+
+button.bg-blue-600:hover::before,
+button[class*="bg-blue"]:hover::before {
+    left: 100%;
+}
+
+button.bg-blue-600:hover,
+button[class*="bg-blue"]:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+    transform: translateY(-2px);
+}
+
+button.bg-blue-600:active,
+button[class*="bg-blue"]:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 6px rgba(59, 130, 246, 0.3);
+}
+
+/* Secondary buttons (home, settings) */
+button:not([class*="bg-blue"]):not(#refreshCache):not(#generateReport):not(#copyReport) {
+    background: transparent;
+    border: none;
+    transition: all 0.2s ease;
+}
+
+button:not([class*="bg-blue"]):not(#refreshCache):not(#generateReport):not(#copyReport):hover {
+    background: rgba(59, 130, 246, 0.08);
+    transform: scale(1.05);
+}
+
+button:not([class*="bg-blue"]):not(#refreshCache):not(#generateReport):not(#copyReport):active {
+    transform: scale(0.98);
+}
+
+/* Platform dropdown button */
+#platformDropdownBtn {
+    background: #f9fafb !important;
+    border: 2px solid #e5e7eb !important;
+    transition: all 0.2s ease;
+}
+
+#platformDropdownBtn:hover {
+    border-color: #3b82f6 !important;
+    background: #f0f9ff !important;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.1);
+}
+
+.dark-mode #platformDropdownBtn {
+    background: #374151 !important;
+    border-color: #4b5563 !important;
+}
+
+.dark-mode #platformDropdownBtn:hover {
+    border-color: #60a5fa !important;
+    background: #1e3a8a !important;
+}
+
+/* Link-style buttons (View Code, Report Issue) */
+a.bg-blue-50 {
+    background: transparent !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none !important;
+    box-shadow: none !important;
+}
+
+a.bg-blue-50:hover {
+    background: transparent !important;
+    transform: translateY(-2px);
+    box-shadow: none !important;
+}
+
+a.bg-blue-50:active {
+    transform: translateY(0);
+}
+
+.dark-mode a.bg-blue-50 {
+    background: transparent !important;
+}
+
+.dark-mode a.bg-blue-50:hover {
+    background: transparent !important;
+}
+
+/* Disabled state for all interactive elements */
+button:disabled,
+input:disabled {
+    opacity: 0.5;
+    cursor: not-allowed !important;
+    pointer-events: none;
+}
+
+/* Focus visible for accessibility */
+button:focus-visible,
+input:focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
 }
