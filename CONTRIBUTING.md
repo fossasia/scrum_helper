@@ -6,7 +6,7 @@ This document provides guidelines for contributing to the project. Please feel f
 
 ## How Can I Contribute?
 
-- **Reporting Bugs:** If you find a bug, please open an issue on our [GitHub Issues page](https://github.com/fossasia/scrum-helper/issues). Make sure to use the "Bug Report" template and provide as much detail as possible.
+- **Reporting Bugs:** If you find a bug, please open an issue on our [GitHub Issues page](https://github.com/fossasia/scrum_helper/issues~). Make sure to use the "Bug Report" template and provide as much detail as possible.
 - **Suggesting Enhancements:** If you have an idea for a new feature or an improvement to an existing one, you can open an issue using the "Feature or Enhancement Request" template.
 - **Pull Requests:** If you're ready to contribute code, we'd be happy to review your pull request.
 
