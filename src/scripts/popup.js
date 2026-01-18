@@ -402,7 +402,17 @@ document.addEventListener('DOMContentLoaded', function () {
             } else {
                 showOpenLabelCheckbox.checked = true; // Default to true for new users
             }
-            if (typeof result.showCommits !== 'undefined') showCommitsCheckbox.checked = result.showCommits;
+            if (typeof result.showCommits !== 'undefined') {
+                const hasToken = result.githubToken && result.githubToken.trim() !== '';
+                showCommitsCheckbox.checked = hasToken ? result.showCommits : false;
+            } else {
+                // When showCommits is undefined, align with main.js behavior:
+                // If there's no token, explicitly disable commits display to avoid race with HTML default.
+                const hasToken = result.githubToken && result.githubToken.trim() !== '';
+                if (!hasToken) {
+                    showCommitsCheckbox.checked = false;
+                }
+            }
             if (typeof result.onlyIssues !== 'undefined') {
                 onlyIssuesCheckbox.checked = result.onlyIssues;
             }
@@ -586,7 +596,21 @@ document.addEventListener('DOMContentLoaded', function () {
             })
         }
         showCommitsCheckbox.addEventListener('change', function () {
-            chrome.storage.local.set({ showCommits: showCommitsCheckbox.checked });
+            chrome.storage.local.get(['githubToken'], function(result) {
+                const hasToken = result.githubToken && result.githubToken.trim() !== '';
+                if (showCommitsCheckbox.checked && !hasToken) {
+                    showCommitsCheckbox.checked = false;
+                    const tokenWarning = document.getElementById('tokenWarningForCommits');
+                    if (tokenWarning) {
+                        tokenWarning.classList.remove('hidden');
+                        tokenWarning.classList.add('shake-animation');
+                        setTimeout(() => tokenWarning.classList.remove('shake-animation'), 620);
+                        setTimeout(() => tokenWarning.classList.add('hidden'), 3000);
+                    }
+                    return;
+                }
+                chrome.storage.local.set({ showCommits: showCommitsCheckbox.checked });
+            });
         });
         githubTokenInput.addEventListener('input', function () {
             chrome.storage.local.set({ githubToken: githubTokenInput.value });
