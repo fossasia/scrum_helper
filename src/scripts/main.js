@@ -94,7 +94,6 @@ function handleBodyOnLoad() {
 				showCommitsElement.checked = items.showCommits;
 			} else {
 				showCommitsElement.checked = false;
-				handleShowCommitsChange();
 			}
 		},
 	);
