@@ -158,7 +158,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function renderTokenPreview() {
         const tokenPreview = document.getElementById('tokenPreview');
-        if (!tokenPreview) return; 
+        
         
         if (!tokenPreview || !githubTokenInput) return;
         tokenPreview.innerHTML = '';
