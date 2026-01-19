@@ -146,7 +146,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Trigger re-render of error messages if they exist
         const scrumReport = document.getElementById('scrumReport');
-        if (scrumReport && scrumReport.querySelector('.error-message, [style*="fef2f2"]')) {
+        if (scrumReport && scrumReport.querySelector('.error-message')) {
             // Re-generate the report to apply new theme colors
             const generateBtn = document.getElementById('generateReport');
             if (generateBtn && !generateBtn.disabled) {
