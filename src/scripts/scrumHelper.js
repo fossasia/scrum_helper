@@ -132,23 +132,6 @@ function allIncluded(outputTarget = 'email') {
     let subjectForEmail = null;
     let onlyIssues = false;
 
-    function createStatusBadge(text, bgColor) {
-        const badge = document.createElement('span');
-        badge.textContent = text;
-        badge.style.cssText = `            
-            display: inline-block;
-            padding: 2px 6px;
-            font-size: 11px;
-            font-weight: 600;
-            color: #fff;
-            text-align: center;
-            background-color: ${bgColor};
-            border-radius: 6px;
-            vertical-align: middle;
-            margin-left: 4px;
-        `;
-        return badge;
-    }
 
     function createErrorStyle() {
         const colors = getThemeColors();
