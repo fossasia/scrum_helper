@@ -263,6 +263,7 @@ function allIncluded(outputTarget = 'email') {
                     }
                     setGenerateButtonState(false);
                     scrumGenerationInProgress = false;
+                    return;
                 }
                 projectName = items.projectName;
 
