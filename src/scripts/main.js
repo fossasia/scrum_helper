@@ -9,8 +9,6 @@ const startingDateElement = document.getElementById('startingDate');
 const endingDateElement = document.getElementById('endingDate');
 const showOpenLabelElement = document.getElementById('showOpenLabel');
 
-const _userReasonElement = null;
-
 const showCommitsElement = document.getElementById('showCommits');
 
 function handleBodyOnLoad() {
