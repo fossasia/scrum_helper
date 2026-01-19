@@ -206,6 +206,11 @@ function allIncluded(outputTarget = 'email') {
         }
     }  
 
+    // Ensure the theme observer is cleaned up when the page or popup is closed
+    if (typeof window !== 'undefined') {
+        window.addEventListener('beforeunload', cleanupThemeObserver);
+        window.addEventListener('unload', cleanupThemeObserver);
+    }
     const pr_open_button = createBadgeHTML('open', '#2cbe4e');
     const pr_closed_button = createBadgeHTML('closed', '#dc2626'); 
     const pr_merged_button = createBadgeHTML('merged', '#8b5cf6');
