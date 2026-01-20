@@ -509,7 +509,7 @@ function allIncluded(outputTarget = 'email') {
                 return Promise.resolve();
             }
         }
-        // if cache key does not match our cache is stale, fetch new data
+
         if (!isCacheKeyMatch) {
             log('Cache key mismatch - fetching new Data');
             githubCache.data = null;
@@ -517,7 +517,6 @@ function allIncluded(outputTarget = 'email') {
             log('Cache is stale - fetching new data');
         }
 
-        // if fetching is in progress, queue the calls and return a promise resolved when done
         if (githubCache.fetching) {
             log('Fetch in progress, queuing requests');
             return new Promise((resolve, reject) => {
@@ -594,14 +593,12 @@ function allIncluded(outputTarget = 'email') {
         }
 
         try {
-            // Throttling 500ms to avoid burst requests
+
             await new Promise(res => setTimeout(res, 500));
 
-            // STEP 1: Validate that the GitHub user exists before fetching issues
             log('Validating GitHub user existence for:', platformUsernameLocal);
             const userCheckRes = await fetch(userUrl, { headers });
             
-            // Handle user not found (404)
             if (userCheckRes.status === 404) {
                 const errorMsg = `GitHub user "${platformUsernameLocal}" not found (404). Please check the username and try again.`;
                 logError(errorMsg);
@@ -611,28 +608,24 @@ function allIncluded(outputTarget = 'email') {
                 throw new Error(errorMsg);
             }
             
-            // Handle authentication errors
             if (userCheckRes.status === 401 || userCheckRes.status === 403) {
                 showInvalidTokenMessage();
                 githubCache.fetching = false;
                 return;
             }
 
-            // Handle other user validation errors
             if (!userCheckRes.ok) {
                 const errorMsg = `Error validating GitHub user: ${userCheckRes.status} ${userCheckRes.statusText}`;
                 logError(errorMsg);
                 throw new Error(errorMsg);
             }
 
-            // STEP 2: User exists, now fetch the issues and PRs data
             const [issuesRes, prRes, userRes] = await Promise.all([
                 fetch(issueUrl, { headers }),
                 fetch(prUrl, { headers }),
                 userCheckRes // Reuse the already validated user response
             ]);
 
-            // Handle authentication errors for issues/PRs
             if (issuesRes.status === 401 || prRes.status === 401 ||
                 issuesRes.status === 403 || prRes.status === 403) {
                 showInvalidTokenMessage();
@@ -640,16 +633,6 @@ function allIncluded(outputTarget = 'email') {
                 return;
             }
 
-            // Handle organization not found (404)
-            if (issuesRes.status === 404 || prRes.status === 404) {
-                const errorMsg = 'Organization not found on GitHub. Please check the organization name.';
-                if (outputTarget === 'popup') {
-                    Materialize.toast && Materialize.toast(errorMsg, 4000);
-                }
-                throw new Error(errorMsg);
-            }
-
-            // Handle 422 Unprocessable Entity errors (invalid search query or date range)
             if (issuesRes.status === 422 || prRes.status === 422) {
                 const errorMsg = `Invalid search query or date range. Please verify your date range format and try again.`;
                 logError(errorMsg);
@@ -659,15 +642,21 @@ function allIncluded(outputTarget = 'email') {
                 throw new Error(errorMsg);
             }
 
-            // Handle other HTTP errors
+
             if (!issuesRes.ok) {
                 const errorMsg = `Error fetching GitHub issues: ${issuesRes.status} ${issuesRes.statusText}`;
                 logError(errorMsg);
+                if (outputTarget === 'popup') {
+                    Materialize.toast && Materialize.toast(errorMsg, 4000);
+                }
                 throw new Error(errorMsg);
             }
             if (!prRes.ok) {
                 const errorMsg = `Error fetching GitHub PR review data: ${prRes.status} ${prRes.statusText}`;
                 logError(errorMsg);
+                if (outputTarget === 'popup') {
+                    Materialize.toast && Materialize.toast(errorMsg, 4000);
+                }
                 throw new Error(errorMsg);
             }
             if (!userRes.ok) {
@@ -689,7 +678,7 @@ function allIncluded(outputTarget = 'email') {
                 log('Open PRs for commit fetching:', openPRs.map(pr => pr.number));
                 // Fetch commits for open PRs (batch) if showCommits is enabled
                 if (openPRs.length && githubToken && showCommits) {
-                    // Get the correct date range for commit fetching
+                   
                     let startDateForCommits, endDateForCommits;
                     if (yesterdayContribution) {
                         const today = new Date();
