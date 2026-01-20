@@ -7,11 +7,11 @@
 const EMPTY_STATES = {
     NO_TOKEN: {
         icon: '🔑',
-        title: 'GitHub Token Not Found',
-        description: 'Add a GitHub token to access your repositories and generate reports.',
+        title: 'GitHub Authentication Required',
+        description: 'Your GitHub token is missing, invalid, or expired. Please check your token in settings.',
         cta: {
             text: 'Open Settings',
-            action: 'window.showSettingsView && window.showSettingsView()'
+            action: 'showSettingsView'
         }
     },
 
@@ -28,7 +28,7 @@ const EMPTY_STATES = {
         description: 'You\'ve hit the GitHub API rate limit. Add a token to increase your limits.',
         cta: {
             text: 'Add GitHub Token',
-            action: 'window.showSettingsView && window.showSettingsView()'
+            action: 'showSettingsView'
         },
         secondaryText: 'Rate limits typically reset within 1 hour.'
     }
@@ -45,7 +45,7 @@ function renderEmptyState(config) {
         return '';
     }
 
-    return `<div style="text-align: center; padding-top: 40px;"><div style="font-size: 40px; margin-bottom: 8px; opacity: 0.6;">${config.icon || '📋'}</div><h3 style="font-size: 16px; font-weight: 600; margin: 0 0 6px 0; color: #374151;">${config.title || 'Something went wrong'}</h3><p style="font-size: 13px; color: #6b7280; margin: 0 0 12px 0; line-height: 1.4;">${config.description || 'Please try again later.'}</p>${config.cta ? `<button onclick="${config.cta.action}" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 13px; margin-bottom: ${config.secondaryText ? '8px' : '0'};">${config.cta.text}</button>` : ''}${config.secondaryText ? `<p style="font-size: 11px; color: #9ca3af; margin: 0;">${config.secondaryText}</p>` : ''}</div>`;
+    return `<div style="text-align: center; padding-top: 40px;"><div style="font-size: 40px; margin-bottom: 8px; opacity: 0.6;">${config.icon || '📋'}</div><h3 style="font-size: 16px; font-weight: 600; margin: 0 0 6px 0; color: #374151;">${config.title || 'Something went wrong'}</h3><p style="font-size: 13px; color: #6b7280; margin: 0 0 12px 0; line-height: 1.4;">${config.description || 'Please try again later.'}</p>${config.cta ? `<button class="empty-state-cta" data-action="${config.cta.action}" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 13px; margin-bottom: ${config.secondaryText ? '8px' : '0'};">${config.cta.text}</button>` : ''}${config.secondaryText ? `<p style="font-size: 11px; color: #9ca3af; margin: 0;">${config.secondaryText}</p>` : ''}</div>`;
 }
 
 // Make functions and configs globally available

@@ -885,6 +885,22 @@ function allIncluded(outputTarget = 'email') {
                 const config = window.EMPTY_STATES[stateKey];
                 if (config) {
                     scrumReport.innerHTML = window.renderEmptyState(config);
+
+                    // Add event delegation for CTA buttons (CSP-compliant)
+                    const ctaButton = scrumReport.querySelector('.empty-state-cta');
+                    if (ctaButton) {
+                        const action = ctaButton.getAttribute('data-action');
+                        ctaButton.addEventListener('click', function () {
+                            try {
+                                // Safely execute the action
+                                if (action === 'showSettingsView') {
+                                    window.showSettingsView && window.showSettingsView();
+                                }
+                            } catch (err) {
+                                console.error('Empty state CTA action failed:', err);
+                            }
+                        });
+                    }
                 } else {
                     // Fallback to generic error message
                     scrumReport.innerHTML = '<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">An error occurred. Please try again.</div>';
@@ -895,14 +911,28 @@ function allIncluded(outputTarget = 'email') {
                 generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
                 generateBtn.disabled = false;
             }
+        } else {
+            // Handle email/content-script flow - provide user feedback
+            console.error(`Empty state: ${stateKey}`);
+            if (window.emailClientAdapter && window.emailClientAdapter.showNotification) {
+                const messages = {
+                    'NO_TOKEN': 'GitHub token is missing or invalid. Please check your extension settings.',
+                    'RATE_LIMIT': 'GitHub API rate limit exceeded. Please try again later or add a token.',
+                    'NO_REPOS': 'No repositories found for the selected period.'
+                };
+                window.emailClientAdapter.showNotification(messages[stateKey] || 'An error occurred.');
+            } else {
+                // Fallback to alert for email flow
+                const messages = {
+                    'NO_TOKEN': 'Invalid or expired GitHub token. Please check your token in the extension settings.',
+                    'RATE_LIMIT': 'GitHub API rate limit reached. Add a token to increase limits.',
+                    'NO_REPOS': 'No repositories found for this account during the selected period.'
+                };
+                alert(messages[stateKey] || 'An error occurred while generating the report.');
+            }
         }
         githubCache.fetching = false;
         scrumGenerationInProgress = false;
-    }
-
-    // Legacy function for backward compatibility
-    function showInvalidTokenMessage() {
-        showEmptyState('NO_TOKEN');
     }
 
 
