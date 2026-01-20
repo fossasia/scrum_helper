@@ -1,3 +1,24 @@
+function showGithubError(err, outputTarget) {
+    if (outputTarget !== 'popup') return;
+
+    const scrumReport = document.getElementById('scrumReport');
+    const generateBtn = document.getElementById('generateReport');
+
+    const message = err?.message || 'Please enter your GitHub username to generate a report.';
+
+    if (scrumReport) {
+        scrumReport.innerHTML =
+            '<div class="error-message" style="color:#dc2626;font-weight:bold;padding:10px;">' +
+            message +
+            '</div>';
+    }
+
+    if (generateBtn) {
+        generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+        generateBtn.disabled = false;
+    }
+}
+
 const DEBUG = false;
 
 function log(...args) {
@@ -163,7 +184,7 @@ function allIncluded(outputTarget = 'email') {
                 if (platform === 'github') {
                     if (platformUsernameLocal) {
 
-                        fetchGithubData();
+                        fetchGithubData(outputTarget);
                     } else {
                         if (outputTarget === 'popup') {
                             console.log("[DEBUG] No username found - popup context");
@@ -441,7 +462,7 @@ function allIncluded(outputTarget = 'email') {
         });
     }
 
-    async function fetchGithubData() {
+    async function fetchGithubData(outputTarget) {
         // Always load latest repo filter settings from storage
         const filterSettings = await new Promise(resolve => {
             chrome.storage.local.get(['useRepoFilter', 'selectedRepos'], resolve);
@@ -1972,4 +1993,5 @@ function filterDataByRepos(data, selectedRepos) {
     return filteredData;
 }
 window.fetchUserRepositories = fetchUserRepositories;
+
 
