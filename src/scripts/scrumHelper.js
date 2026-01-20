@@ -1,3 +1,32 @@
+function showGithubError(err, outputTarget) {
+    if (outputTarget !== 'popup') return;
+
+    const scrumReport = document.getElementById('scrumReport');
+    const generateBtn = document.getElementById('generateReport');
+
+    let message = 'An error occurred while fetching GitHub data.';
+    if (err && typeof err.message === 'string') {
+        message = err.message;
+    }
+
+    if (scrumReport) {
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message';
+        errorDiv.style.color = '#dc2626';
+        errorDiv.style.fontWeight = 'bold';
+        errorDiv.style.padding = '10px';
+        errorDiv.textContent = message;
+
+        scrumReport.innerHTML = '';
+        scrumReport.appendChild(errorDiv);
+    }
+
+    if (generateBtn) {
+        generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+        generateBtn.disabled = false;
+    }
+}
+
 function sanitizeErrorMessage(message) {
     if (!message) return 'An error occurred.';
     return String(message).replace(/[<>]/g, '');
@@ -470,7 +499,7 @@ function allIncluded(outputTarget = 'email') {
         });
     }
 
-    async function fetchGithubData() {
+    async function fetchGithubData(outputTarget = 'email') {
         // Always load latest repo filter settings from storage
         const filterSettings = await new Promise(resolve => {
             chrome.storage.local.get(['useRepoFilter', 'selectedRepos'], resolve);
@@ -2001,6 +2030,7 @@ function filterDataByRepos(data, selectedRepos) {
     return filteredData;
 }
 window.fetchUserRepositories = fetchUserRepositories;
+
 
 
 
