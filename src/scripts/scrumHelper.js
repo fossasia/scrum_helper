@@ -1,16 +1,24 @@
-function showGithubError(err, outputTarget) {
+function sanitizeErrorMessage(message) {
+    if (!message) return 'An error occurred.';
+    return String(message).replace(/[<>]/g, '');
+}
+
+function showGithubErrorSafe(message, outputTarget) {
     if (outputTarget !== 'popup') return;
 
     const scrumReport = document.getElementById('scrumReport');
     const generateBtn = document.getElementById('generateReport');
 
-    const message = err?.message || 'Please enter your GitHub username to generate a report.';
-
     if (scrumReport) {
-        scrumReport.innerHTML =
-            '<div class="error-message" style="color:#dc2626;font-weight:bold;padding:10px;">' +
-            message +
-            '</div>';
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message';
+        errorDiv.style.color = '#dc2626';
+        errorDiv.style.fontWeight = 'bold';
+        errorDiv.style.padding = '10px';
+        errorDiv.textContent = message;
+
+        scrumReport.innerHTML = '';
+        scrumReport.appendChild(errorDiv);
     }
 
     if (generateBtn) {
@@ -184,7 +192,7 @@ function allIncluded(outputTarget = 'email') {
                 if (platform === 'github') {
                     if (platformUsernameLocal) {
 
-                        fetchGithubData(outputTarget);
+                        fetchGithubData();
                     } else {
                         if (outputTarget === 'popup') {
                             console.log("[DEBUG] No username found - popup context");
@@ -269,7 +277,7 @@ function allIncluded(outputTarget = 'email') {
                                         }
                                         const scrumReport = document.getElementById('scrumReport');
                                         if (scrumReport) {
-                                            scrumReport.innerHTML = `<div class=\"error-message\" style=\"color: #dc2626; font-weight: bold; padding: 10px;\">${err.message || 'An error occurred while fetching GitLab data.'}</div>`;
+                                            scrumReport.innerHTML = `<div class=\"error-message\" style=\"color: #dc2626; font-weight: bold; padding: 10px;\">${sanitizeErrorMessage(err?.message)}</div>`;
                                         }
                                     }
                                     scrumGenerationInProgress = false;
@@ -314,7 +322,7 @@ function allIncluded(outputTarget = 'email') {
                                         }
                                         const scrumReport = document.getElementById('scrumReport');
                                         if (scrumReport) {
-                                            scrumReport.innerHTML = `<div class=\"error-message\" style=\"color: #dc2626; font-weight: bold; padding: 10px;\">${err.message || 'An error occurred while fetching GitLab data.'}</div>`;
+                                            scrumReport.innerHTML = `<div class=\"error-message\" style=\"color: #dc2626; font-weight: bold; padding: 10px;\">${sanitizeErrorMessage(err?.message)}</div>`;
                                         }
                                     }
                                     scrumGenerationInProgress = false;
@@ -462,7 +470,7 @@ function allIncluded(outputTarget = 'email') {
         });
     }
 
-    async function fetchGithubData(outputTarget) {
+    async function fetchGithubData() {
         // Always load latest repo filter settings from storage
         const filterSettings = await new Promise(resolve => {
             chrome.storage.local.get(['useRepoFilter', 'selectedRepos'], resolve);
@@ -710,7 +718,7 @@ function allIncluded(outputTarget = 'email') {
                         else if (err.message) errorMsg = err.message;
                         else errorMsg = JSON.stringify(err)
                     }
-                    scrumReport.innerHTML = `<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">${err.message || 'An error occurred while generating the report.'}</div>`;
+                    scrumReport.innerHTML = `<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">${sanitizeErrorMessage(err?.message)}</div>`;
                     generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
                     generateBtn.disabled = false;
                 }
@@ -1993,5 +2001,8 @@ function filterDataByRepos(data, selectedRepos) {
     return filteredData;
 }
 window.fetchUserRepositories = fetchUserRepositories;
+
+
+
 
 
