@@ -15,12 +15,10 @@
 
 ### For Chrome:
 
-1. Clone this repository to your local machine.
-2. Go to `chrome://extensions` on your chrome browser.
-3. Enable Developer Mode (toggle in the top-right) if not already.
-4. Click Load unpacked and select the `src` folder inside the cloned repo
-5. Click the Scrum Helper icon on your browser toolbar
-6. Fill in your settings in the popup (GitHub username, date range, etc.)
+1. Open the Chrome Web Store and search for “Scrum Helper” by FOSSASIA.
+2. Click “Add to Chrome”.
+3. Pin the extension to your toolbar (optional).
+4. Open the extension popup and set your GitHub username, date range, and preferences.
 
 <!-- ### For Firefox:
 
