@@ -15,7 +15,7 @@
 
 ### For Chrome:
 
-1. Open the Chrome Web Store and search for “Scrum Helper” by FOSSASIA.
+1. Open the Chrome Web Store and search for [“Scrum Helper”](https://chromewebstore.google.com/detail/Scrum%20Helper/begjldpiiihpnaflcbdbbophiifphokg) by FOSSASIA.
 2. Click “Add to Chrome”.
 3. Pin the extension to your toolbar (optional).
 4. Open the extension popup and set your GitHub username, date range, and preferences.
