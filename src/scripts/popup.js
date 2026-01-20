@@ -106,9 +106,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     function checkTokenForFilter() {
         const tokenWarning = document.getElementById('tokenWarningForFilter');
-        if (!tokenWarning || !useRepoFilter || !githubTokenInput) return;
+        const useRepoFilterEl = document.getElementById('useRepoFilter');
 
-        const enabled = useRepoFilter.checked;
+        if (!tokenWarning || !useRepoFilterEl || !githubTokenInput) return;
+
+        const enabled = useRepoFilterEl.checked;
         const hasToken = githubTokenInput.value.trim() !== '';
 
         // ONLY show / hide warning — no state mutation
@@ -155,24 +157,6 @@ document.addEventListener('DOMContentLoaded', function () {
         renderTokenPreview();
     });
 
-    function renderTokenPreview() {
-        tokenPreview.innerHTML = '';
-        const value = githubTokenInput.value;
-        const isDark = document.body.classList.contains('dark-mode');
-        for (let i = 0; i < value.length; i++) {
-            const charBox = document.createElement('span');
-            charBox.className = 'token-preview-char' + (isDark ? ' dark-mode' : '');
-            if (tokenVisible) {
-                charBox.textContent = value[i];
-            } else {
-                const dot = document.createElement('span');
-                dot.className = 'token-preview-dot' + (isDark ? ' dark-mode' : '');
-                charBox.appendChild(dot);
-            }
-            tokenPreview.appendChild(charBox);
-            setTimeout(() => charBox.classList.add('flip'), 10 + i * 30);
-        }
-    }
 
     function updateContentState(enableToggle) {
         console.log('[DEBUG] updateContentState called with:', enableToggle);
