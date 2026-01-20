@@ -6,6 +6,9 @@ function debounce(func, wait) {
     }
 }
 
+const EYE_ICON_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+const EYE_SLASH_ICON_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>';
+
 function getToday() {
     let today = new Date();
     return today.toISOString().split('T')[0];
@@ -54,6 +57,11 @@ let enableToggleCached = false;
 // Initial load
 chrome.storage.local.get(['enableToggle'], (items) => {
     enableToggleCached = items.enableToggle !== false;
+    // If enableToggle is undefined (first install), set it to true by default
+    if (typeof items.enableToggle === 'undefined') {
+        chrome.storage.local.set({ enableToggle: true });
+        enableToggleCached = true;
+    }
 });
 
 // Keep in sync
@@ -125,17 +133,18 @@ function addDisabledStateGuard() {
     const useRepoFilter = document.getElementById('useRepoFilter');
     if (useRepoFilter) {
         useRepoFilter.addEventListener(
-            'change',
+            'click',
             function (e) {
-                guardIfDisabled(e, () => {
-                    this.checked = !this.checked;
-                });
+                if (!enableToggleCached) {
+                    e.preventDefault();
+                    e.stopImmediatePropagation();
+                }
             },
             true
         );
     }
 }
-
+    
 document.addEventListener('DOMContentLoaded', function () {
     // Apply translations as soon as the DOM is ready
     applyI18n();
@@ -216,9 +225,11 @@ document.addEventListener('DOMContentLoaded', function () {
         
         // Use inline SVG icons instead of Font Awesome
         if (tokenVisible) {
-            tokenEyeIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
+            // Eye-slash icon (hide)
+            tokenEyeIcon.innerHTML = EYE_SLASH_ICON_SVG;
         } else {
-            tokenEyeIcon.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+            // Eye icon (show)
+            tokenEyeIcon.innerHTML = EYE_ICON_SVG;
         }
         tokenEyeIcon.className = 'text-gray-600';
 
@@ -511,17 +522,16 @@ document.addEventListener('DOMContentLoaded', function () {
         const platformUsername = document.getElementById('platformUsername');
 
         chrome.storage.local.get([
-            'projectName', 'orgName', 'userReason', 'showOpenLabel', 'showCommits', 'githubToken', 'cacheInput', 'onlyIssues',
-            'enableToggle', 'yesterdayContribution', 'startingDate', 'endingDate', 'selectedTimeframe', 'platform', 'githubUsername', 'gitlabUsername'
+            'projectName', 'orgName', 'showOpenLabel', 'showCommits', 
+            'githubToken', 'cacheInput', 'enableToggle', 'yesterdayContribution', 
+            'startingDate', 'endingDate', 'selectedTimeframe', 'platform', 
+            'githubUsername', 'gitlabUsername'
         ], function (result) {
-
-
-            if (result.projectName) projectNameInput.value = result.projectName;
-            if (result.orgName) orgInput.value = result.orgName;
-            if (typeof result.showOpenLabel !== 'undefined') {
-                showOpenLabelCheckbox.checked = result.showOpenLabel;
-            } else {
-                showOpenLabelCheckbox.checked = true; // Default to true for new users
+            if (projectNameInput && result.projectName) projectNameInput.value = result.projectName;
+            if (orgInput && result.orgName) orgInput.value = result.orgName;
+            
+            if (showOpenLabelCheckbox) {
+                showOpenLabelCheckbox.checked = result.showOpenLabel !== undefined ? result.showOpenLabel : true;
             }
             if (typeof result.showCommits !== 'undefined') showCommitsCheckbox.checked = result.showCommits;
             if (typeof result.onlyIssues !== 'undefined') {
@@ -674,37 +684,31 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
-        // Save all fields to storage on input/change
-        projectNameInput.addEventListener('input', function () {
-            chrome.storage.local.set({ projectName: projectNameInput.value });
-        });
-
-        // Save to storage and validate ONLY when user clicks out (blur event)
-        orgInput.addEventListener('blur', function () {
-            const org = orgInput.value.trim().toLowerCase();
-            chrome.storage.local.set({ orgName: org });
-
-            // Only validate if org name is not empty
-            if (org) {
-                validateOrgOnBlur(org);
-            } else {
-                // Clear any existing toast if org is empty
-                const oldToast = document.getElementById('invalid-org-toast');
-                if (oldToast) oldToast.parentNode.removeChild(oldToast);
-            }
-        });
-        if (userReasonInput) {
-            userReasonInput.addEventListener('input', function () {
-                chrome.storage.local.set({ userReason: userReasonInput.value });
+        // Add event listeners with null checks
+        if (projectNameInput) {
+            projectNameInput.addEventListener('input', function () {
+                chrome.storage.local.set({ projectName: projectNameInput.value });
             });
         }
-        showOpenLabelCheckbox.addEventListener('change', function () {
-            chrome.storage.local.set({ showOpenLabel: showOpenLabelCheckbox.checked });
-        });
-        if(onlyIssuesCheckbox){
-            onlyIssuesCheckbox.addEventListener('change', function () {
-                chrome.storage.local.set({ onlyIssues: onlyIssuesCheckbox.checked });
-            })
+        
+        if (orgInput) {
+            orgInput.addEventListener('blur', function () {
+                const org = orgInput.value.trim().toLowerCase();
+                chrome.storage.local.set({ orgName: org });
+                
+                if (org) {
+                    validateOrgOnBlur(org);
+                } else {
+                    const oldToast = document.getElementById('invalid-org-toast');
+                    if (oldToast) oldToast.parentNode.removeChild(oldToast);
+                }
+            });
+        }
+        
+        if (showOpenLabelCheckbox) {
+            showOpenLabelCheckbox.addEventListener('change', function () {
+                chrome.storage.local.set({ showOpenLabel: showOpenLabelCheckbox.checked });
+            });
         }
         showCommitsCheckbox.addEventListener('change', function () {
             chrome.storage.local.set({ showCommits: showCommitsCheckbox.checked });
