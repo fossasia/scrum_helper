@@ -443,7 +443,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const generateBtn = document.getElementById('generateReport');
         const copyBtn = document.getElementById('copyReport');
 
-        if (generateBtn){
+        if (generateBtn) {
             generateBtn.addEventListener('click', function () {
 
                 chrome.storage.local.get(['platform'], function (result) {
@@ -468,9 +468,11 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         }
 
-        if (copyBtn){
+        if (copyBtn) {
             copyBtn.addEventListener('click', function () {
                 const scrumReport = document.getElementById('scrumReport');
+                if (!scrumReport) return;
+
                 const tempDiv = document.createElement('div');
                 tempDiv.innerHTML = scrumReport.innerHTML;
                 document.body.appendChild(tempDiv);
@@ -582,13 +584,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 chrome.storage.local.set({ projectName: projectNameInput.value });
             });
         }
-        
         // Save to storage and validate ONLY when user clicks out (blur event)
         if (orgInput) {
             orgInput.addEventListener('blur', function () {
                 const org = orgInput.value.trim().toLowerCase();
                 chrome.storage.local.set({ orgName: org });
-                
                 // Only validate if org name is not empty
                 if (org) {
                     validateOrgOnBlur(org);
@@ -1480,6 +1480,8 @@ if (dropdownBtn) {
     dropdownBtn.addEventListener('keydown', function (e) {
         if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
+            if (!customDropdown || !dropdownList) return;
+
             customDropdown.classList.add('open');
             dropdownList.classList.remove('hidden');
             dropdownList.querySelector('li')?.focus();
