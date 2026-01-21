@@ -1455,7 +1455,7 @@ ${userReason}`;
                 itemCreatedDate.setHours(0,0,0,0);
                 const isCreatedToday = today.getTime() === itemCreatedDate.getTime();
 
-                const isNewPR = prCreatedDate >= startDateFilter && prCreatedDate << endDateFilter;
+                const isNewPR = prCreatedDate >= startDateFilter && prCreatedDate <= endDateFilter;
                 const prUpdatedDate = new Date(item.updated_at);
                 const isUpdatedInRange = prUpdatedDate >= startDateFilter && prUpdatedDate <= endDateFilter;
 
