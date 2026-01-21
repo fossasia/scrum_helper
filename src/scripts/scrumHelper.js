@@ -1087,7 +1087,7 @@ ${userReason}`;
             return;
         }
         if(onlyPRs){
-            log('"Only PRs" checked, skipping PRs reviews');
+            log('"Only PRs" checked, skipping PR reviews');
             reviewedPrsArray = [];
             prsReviewDataProcessed = true;
             return;
