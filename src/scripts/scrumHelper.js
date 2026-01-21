@@ -143,6 +143,11 @@ function allIncluded(outputTarget = 'email') {
 
                 onlyIssues = items.onlyIssues === true;
                 onlyPRs = items.onlyPRs === true;
+                // Enforce mutual exclusivity between onlyIssues and onlyPRs to avoid filtering out everything
+                if (onlyIssues && onlyPRs) {
+                    console.warn('[SCRUM-HELPER]: Detected both onlyIssues and onlyPRs enabled; normalizing to onlyIssues.');
+                    onlyPRs = false;
+                }
                 showCommits = items.showCommits || false;
                 showOpenLabel = items.showOpenLabel !== false; // Default to true if not explicitly set to false
                 orgName = items.orgName || '';
