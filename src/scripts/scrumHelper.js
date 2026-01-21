@@ -57,6 +57,7 @@ function allIncluded(outputTarget = 'email') {
     let userReason = '';
     let subjectForEmail = null;
     let onlyIssues = false;
+    let onlyPRs = false;
 
     let pr_open_button =
         '<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
@@ -98,6 +99,7 @@ function allIncluded(outputTarget = 'email') {
                 'useRepoFilter',
                 'showCommits',
                 'onlyIssues',
+                'onlyPRs',
             ],
             (items) => {
 
@@ -140,6 +142,12 @@ function allIncluded(outputTarget = 'email') {
                 }
 
                 onlyIssues = items.onlyIssues === true;
+                onlyPRs = items.onlyPRs === true;
+                // Enforce mutual exclusivity between onlyIssues and onlyPRs to avoid filtering out everything
+                if (onlyIssues && onlyPRs) {
+                    console.warn('[SCRUM-HELPER]: Detected both onlyIssues and onlyPRs enabled; normalizing to onlyIssues.');
+                    onlyPRs = false;
+                }
                 showCommits = items.showCommits || false;
                 showOpenLabel = items.showOpenLabel !== false; // Default to true if not explicitly set to false
                 orgName = items.orgName || '';
@@ -509,7 +517,7 @@ function allIncluded(outputTarget = 'email') {
                 return Promise.resolve();
             }
         }
-        // if cache key does not match our cache is stale, fetch new data
+
         if (!isCacheKeyMatch) {
             log('Cache key mismatch - fetching new Data');
             githubCache.data = null;
@@ -517,7 +525,6 @@ function allIncluded(outputTarget = 'email') {
             log('Cache is stale - fetching new data');
         }
 
-        // if fetching is in progress, queue the calls and return a promise resolved when done
         if (githubCache.fetching) {
             log('Fetch in progress, queuing requests');
             return new Promise((resolve, reject) => {
@@ -594,31 +601,77 @@ function allIncluded(outputTarget = 'email') {
         }
 
         try {
-            // throttling 500ms to avoid burst
+
             await new Promise(res => setTimeout(res, 500));
+
+            log('Validating GitHub user existence for:', platformUsernameLocal);
+            const userCheckRes = await fetch(userUrl, { headers });
+            
+            if (userCheckRes.status === 404) {
+                const errorMsg = `GitHub user "${platformUsernameLocal}" not found (404). Please check the username and try again.`;
+                logError(errorMsg);
+                if (outputTarget === 'popup') {
+                    Materialize.toast && Materialize.toast(errorMsg, 4000);
+                }
+                throw new Error(errorMsg);
+            }
+            
+            if (userCheckRes.status === 401 || userCheckRes.status === 403) {
+                showInvalidTokenMessage();
+                githubCache.fetching = false;
+                return;
+            }
+
+            if (!userCheckRes.ok) {
+                const errorMsg = `Error validating GitHub user: ${userCheckRes.status} ${userCheckRes.statusText}`;
+                logError(errorMsg);
+                throw new Error(errorMsg);
+            }
 
             const [issuesRes, prRes, userRes] = await Promise.all([
                 fetch(issueUrl, { headers }),
                 fetch(prUrl, { headers }),
-                fetch(userUrl, { headers }),
+                userCheckRes // Reuse the already validated user response
             ]);
 
-            if (issuesRes.status === 401 || prRes.status === 401 || userRes.status === 401 ||
-                issuesRes.status === 403 || prRes.status === 403 || userRes.status === 403) {
+            if (issuesRes.status === 401 || prRes.status === 401 ||
+                issuesRes.status === 403 || prRes.status === 403) {
                 showInvalidTokenMessage();
+                githubCache.fetching = false;
                 return;
             }
 
-            if (issuesRes.status === 404 || prRes.status === 404) {
+            if (issuesRes.status === 422 || prRes.status === 422) {
+                const errorMsg = `Invalid search query or date range. Please verify your date range format and try again.`;
+                logError(errorMsg);
                 if (outputTarget === 'popup') {
-                    Materialize.toast && Materialize.toast('Organization not found on GitHub', 3000);
+                    Materialize.toast && Materialize.toast(errorMsg, 4000);
                 }
-                throw new Error('Organization not found');
+                throw new Error(errorMsg);
             }
 
-            if (!issuesRes.ok) throw new Error(`Error fetching Github issues: ${issuesRes.status} ${issuesRes.statusText}`);
-            if (!prRes.ok) throw new Error(`Error fetching Github PR review data: ${prRes.status} ${prRes.statusText}`);
-            if (!userRes.ok) throw new Error(`Error fetching Github userdata: ${userRes.status} ${userRes.statusText}`);
+
+            if (!issuesRes.ok) {
+                const errorMsg = `Error fetching GitHub issues: ${issuesRes.status} ${issuesRes.statusText}`;
+                logError(errorMsg);
+                if (outputTarget === 'popup') {
+                    Materialize.toast && Materialize.toast(errorMsg, 4000);
+                }
+                throw new Error(errorMsg);
+            }
+            if (!prRes.ok) {
+                const errorMsg = `Error fetching GitHub PR review data: ${prRes.status} ${prRes.statusText}`;
+                logError(errorMsg);
+                if (outputTarget === 'popup') {
+                    Materialize.toast && Materialize.toast(errorMsg, 4000);
+                }
+                throw new Error(errorMsg);
+            }
+            if (!userRes.ok) {
+                const errorMsg = `Error fetching GitHub user data: ${userRes.status} ${userRes.statusText}`;
+                logError(errorMsg);
+                throw new Error(errorMsg);
+            }
 
             githubIssuesData = await issuesRes.json();
             githubPrsReviewData = await prRes.json();
@@ -633,7 +686,7 @@ function allIncluded(outputTarget = 'email') {
                 log('Open PRs for commit fetching:', openPRs.map(pr => pr.number));
                 // Fetch commits for open PRs (batch) if showCommits is enabled
                 if (openPRs.length && githubToken && showCommits) {
-                    // Get the correct date range for commit fetching
+                   
                     let startDateForCommits, endDateForCommits;
                     if (yesterdayContribution) {
                         const today = new Date();
@@ -1078,6 +1131,12 @@ ${userReason}`;
             prsReviewDataProcessed = true;
             return;
         }
+        if(onlyPRs){
+            log('"Only PRs" checked, skipping PR reviews');
+            reviewedPrsArray = [];
+            prsReviewDataProcessed = true;
+            return;
+        }
         let items = githubPrsReviewData.items;
         log('Processing PR reviews:', {
             hasItems: !!items,
@@ -1116,6 +1175,7 @@ ${userReason}`;
         log('Filtering PR reviews by date range:', { startDate, endDate, startDateTime, endDateTime });
 
         for (i = 0; i < items.length; i++) {
+            
             let item = items[i];
             log(`Processing PR #${item.number} - state: ${item.state}, updated_at: ${item.updated_at}, created_at: ${item.created_at}, merged_at: ${item.pull_request?.merged_at}`);
 
@@ -1386,6 +1446,10 @@ ${userReason}`;
             log('[SCRUM-DEBUG] Processing item:', item);
             // For GitLab, treat all items in the MRs array as MRs
             let isMR = !!item.pull_request; // works for both GitHub and mapped GitLab data
+            if(onlyPRs && !isMR){
+                log('[SCRUM-DEBUG] "Only PRs" checked, skipping issues:', item.number);
+                continue;
+            }
 
             if (onlyIssues && isMR) {
                 log('[SCRUM-DEBUG] "Only Issues" checked, skipping PR/MR:', item.number);
@@ -1436,7 +1500,7 @@ ${userReason}`;
                 itemCreatedDate.setHours(0,0,0,0);
                 const isCreatedToday = today.getTime() === itemCreatedDate.getTime();
 
-                const isNewPR = prCreatedDate >= startDateFilter && prCreatedDate << endDateFilter;
+                const isNewPR = prCreatedDate >= startDateFilter && prCreatedDate <= endDateFilter;
                 const prUpdatedDate = new Date(item.updated_at);
                 const isUpdatedInRange = prUpdatedDate >= startDateFilter && prUpdatedDate <= endDateFilter;
 
