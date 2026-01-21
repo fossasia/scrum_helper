@@ -57,6 +57,7 @@ function allIncluded(outputTarget = 'email') {
     let userReason = '';
     let subjectForEmail = null;
     let onlyIssues = false;
+    let onlyPRs = false;
 
     let pr_open_button =
         '<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
@@ -98,6 +99,7 @@ function allIncluded(outputTarget = 'email') {
                 'useRepoFilter',
                 'showCommits',
                 'onlyIssues',
+                'onlyPRs',
             ],
             (items) => {
 
@@ -140,6 +142,12 @@ function allIncluded(outputTarget = 'email') {
                 }
 
                 onlyIssues = items.onlyIssues === true;
+                onlyPRs = items.onlyPRs === true;
+                // Enforce mutual exclusivity between onlyIssues and onlyPRs to avoid filtering out everything
+                if (onlyIssues && onlyPRs) {
+                    console.warn('[SCRUM-HELPER]: Detected both onlyIssues and onlyPRs enabled; normalizing to onlyIssues.');
+                    onlyPRs = false;
+                }
                 showCommits = items.showCommits || false;
                 showOpenLabel = items.showOpenLabel !== false; // Default to true if not explicitly set to false
                 orgName = items.orgName || '';
@@ -1078,6 +1086,12 @@ ${userReason}`;
             prsReviewDataProcessed = true;
             return;
         }
+        if(onlyPRs){
+            log('"Only PRs" checked, skipping PR reviews');
+            reviewedPrsArray = [];
+            prsReviewDataProcessed = true;
+            return;
+        }
         let items = githubPrsReviewData.items;
         log('Processing PR reviews:', {
             hasItems: !!items,
@@ -1116,6 +1130,7 @@ ${userReason}`;
         log('Filtering PR reviews by date range:', { startDate, endDate, startDateTime, endDateTime });
 
         for (i = 0; i < items.length; i++) {
+            
             let item = items[i];
             log(`Processing PR #${item.number} - state: ${item.state}, updated_at: ${item.updated_at}, created_at: ${item.created_at}, merged_at: ${item.pull_request?.merged_at}`);
 
@@ -1386,6 +1401,10 @@ ${userReason}`;
             log('[SCRUM-DEBUG] Processing item:', item);
             // For GitLab, treat all items in the MRs array as MRs
             let isMR = !!item.pull_request; // works for both GitHub and mapped GitLab data
+            if(onlyPRs && !isMR){
+                log('[SCRUM-DEBUG] "Only PRs" checked, skipping issues:', item.number);
+                continue;
+            }
 
             if (onlyIssues && isMR) {
                 log('[SCRUM-DEBUG] "Only Issues" checked, skipping PR/MR:', item.number);
