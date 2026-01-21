@@ -351,11 +351,12 @@
 									filtering. Please add one in the settings.</span>
 							</div>
 
+							<div id="repoFilterContainer" class="hidden">
 
-							<input id="repoSearch" type="text" data-i18n-placeholder="repoSearchPlaceholder"
+								<input id="repoSearch" type="text" data-i18n-placeholder="repoSearchPlaceholder"
 								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 pr-10"
 								autocomplete="off">
-							<div id="repoFilterContainer" class="hidden">
+
 								<!-- Typeahead Input -->
 								<div class="relative">
 
@@ -368,7 +369,7 @@
 
 								<!-- Selected Tags Container -->
 								<div id="selectedRepos"
-									class="mt-3 min-h-[32px] p-2 border-2 border-gray-200 bg-gray-50 rounded-xl">
+									class="mt-3 min-h-[32px] max-h-[96px] overflow-y-auto p-2 border-2 border-gray-200 bg-gray-50 rounded-xl">
 									<div class="flex flex-wrap gap-1" id="repoTags">
 										<span class="text-xs text-gray-500 select-none" id="repoPlaceholder"
 											data-i18n="repoPlaceholder">No
