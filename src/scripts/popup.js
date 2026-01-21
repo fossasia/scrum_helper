@@ -411,6 +411,16 @@ document.addEventListener('DOMContentLoaded', function () {
             if (typeof result.onlyPRs !== 'undefined') {
                 onlyPRsCheckbox.checked = result.onlyPRs;
             }
+
+            // Reconcile mutually exclusive "Only Issues" and "Only PRs" flags on initialization.
+            // If both are somehow true in storage (e.g., from an older version or manual edits),
+            // prefer "Only Issues" and clear "Only PRs", then persist the corrected state.
+            if (onlyIssuesCheckbox.checked && onlyPRsCheckbox.checked) {
+                onlyPRsCheckbox.checked = false;
+                if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync) {
+                    chrome.storage.sync.set({ onlyPRs: false });
+                }
+            }
             if (result.githubToken) githubTokenInput.value = result.githubToken;
             if (result.cacheInput) cacheInput.value = result.cacheInput;
             if (enableToggleSwitch) {
