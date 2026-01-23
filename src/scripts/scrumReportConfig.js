@@ -37,7 +37,9 @@ class ScrumReportConfigManager {
             if (!stored) {
                 return null;
             }
-            return JSON.parse(stored);
+            const parsed = JSON.parse(stored);
+            const merged = { ...this.DEFAULT_CONFIG, ...parsed };
+            return this.isValid(merged) ? merged : null;
         } catch (error) {
             console.error('[ScrumReportConfig] Error reading configuration:', error);
             return null;
@@ -50,8 +52,14 @@ class ScrumReportConfigManager {
             if (typeof chrome !== 'undefined' && chrome.storage) {
                 chrome.storage.local.get([this.STORAGE_KEY], (items) => {
                     try {
-                        const config = items[this.STORAGE_KEY];
-                        resolve(config || this.DEFAULT_CONFIG);
+                        const config = this.isValid(items[this.STORAGE_KEY]) ? items[this.STORAGE_KEY] : null;
+                        const resolved = config || this.getConfig() || this.DEFAULT_CONFIG;
+                        try {
+                            localStorage.setItem(this.STORAGE_KEY, JSON.stringify(resolved));
+                        } catch (error) {
+                            console.error('[ScrumReportConfig] Error syncing to localStorage:', error);
+                        }
+                        resolve(resolved);
                     } catch (error) {
                         console.error('[ScrumReportConfig] Error reading configuration:', error);
                         resolve(this.DEFAULT_CONFIG);
@@ -66,6 +74,13 @@ class ScrumReportConfigManager {
 
    
     static saveConfig(config) {
+        const mergedConfig = { ...this.DEFAULT_CONFIG, ...config };
+        if (!this.isValid(mergedConfig)) {
+            console.error('[ScrumReportConfig] Invalid configuration, falling back to defaults');
+            config = { ...this.DEFAULT_CONFIG };
+        } else {
+            config = mergedConfig;
+        }
         try {
             localStorage.setItem(this.STORAGE_KEY, JSON.stringify(config));
 
@@ -79,21 +94,28 @@ class ScrumReportConfigManager {
     }
 
 
-    static isSectionEnabled(section) {
-        const config = this.getConfig() || this.DEFAULT_CONFIG;
-        return config[section] !== false;
+    static isSectionEnabled(section, config = null) {
+        const resolvedConfig = config || this.getConfig() || this.DEFAULT_CONFIG;
+        return resolvedConfig[section] !== false;
     }
 
 
     static getEnabledSections() {
-        return this.getConfig() || this.DEFAULT_CONFIG;
+        const config = this.getConfig() || this.DEFAULT_CONFIG;
+        return Object.fromEntries(Object.entries(config).filter(([, value]) => value !== false));
     }
 
  
-    static toggleSection(section, enabled) {
-        const config = this.getConfig() || { ...this.DEFAULT_CONFIG };
-        config[section] = enabled;
-        this.saveConfig(config);
+    static toggleSection(section, enabled, options = {}) {
+        const baseConfig = options.baseConfig ? { ...options.baseConfig } : (this.getConfig() || { ...this.DEFAULT_CONFIG });
+        baseConfig[section] = !!enabled;
+
+        if (options.persist === false) {
+            return baseConfig;
+        }
+
+        this.saveConfig(baseConfig);
+        return baseConfig;
     }
 
  
@@ -102,11 +124,8 @@ class ScrumReportConfigManager {
     }
 
  
-    static getTemplateConfig(templateName = 'default') {
-        const config = this.getConfig() || this.DEFAULT_CONFIG;
-
-  
-        return config;
+    static getTemplateConfig() {
+        return this.getConfig() || this.DEFAULT_CONFIG;
     }
 
 
@@ -115,12 +134,8 @@ class ScrumReportConfigManager {
             return false;
         }
 
-        // Check that it has expected keys
         const expectedKeys = Object.values(this.SECTIONS);
-        const configKeys = Object.keys(config);
-
-        return expectedKeys.every(key => key in config) &&
-               configKeys.every(key => expectedKeys.includes(key));
+        return expectedKeys.every(key => typeof config[key] === 'boolean');
     }
 }
 

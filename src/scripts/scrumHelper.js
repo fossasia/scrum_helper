@@ -1008,24 +1008,26 @@ function allIncluded(outputTarget = 'email') {
         }
 
         
+        const sections = ScrumReportConfigManager.SECTIONS;
         const config = ScrumReportConfigManager.getConfig() || ScrumReportConfigManager.DEFAULT_CONFIG;
-    
+
         let lastWeekUl = '<ul>';
-        
-      
-        if (config.pullRequests !== false) {
+        const hasPullRequestData = config[sections.PULL_REQUESTS] !== false && lastWeekArray.length > 0;
+        const hasReviewedPrData = config[sections.REVIEWED_PULL_REQUESTS] !== false && reviewedPrsArray.length > 0;
+        const hasDoneSectionData = hasPullRequestData || hasReviewedPrData;
+
+        if (hasPullRequestData) {
             for (let i = 0; i < lastWeekArray.length; i++) lastWeekUl += lastWeekArray[i];
         }
-        
-       
-        if (config.reviewedPullRequests !== false) {
+
+        if (hasReviewedPrData) {
             for (let i = 0; i < reviewedPrsArray.length; i++) lastWeekUl += reviewedPrsArray[i];
         }
-        
+
         lastWeekUl += '</ul>';
 
         let nextWeekUl = '<ul>';
-        if (config.tasks !== false) {
+        if (config[sections.TASKS] !== false) {
             for (let i = 0; i < nextWeekArray.length; i++) nextWeekUl += nextWeekArray[i];
         }
         nextWeekUl += '</ul>';
@@ -1036,7 +1038,7 @@ function allIncluded(outputTarget = 'email') {
         let content;
         let contentSections = [];
 
-        if (config.tasks !== false || config.pullRequests !== false || config.reviewedPullRequests !== false) {
+        if (hasDoneSectionData) {
             if (yesterdayContribution == true) {
                 contentSections.push(`<b>1. What did I do ${weekOrDay}?</b><br>${lastWeekUl}`);
             } else {
@@ -1044,12 +1046,12 @@ function allIncluded(outputTarget = 'email') {
             }
         }
 
-        if (config.tasks !== false) {
+        if (config[sections.TASKS] !== false) {
             contentSections.push(`<b>2. What do I plan to do ${weekOrDay2}?</b><br>${nextWeekUl}`);
         }
 
        
-        if (config.blockers !== false) {
+        if (config[sections.BLOCKERS] !== false) {
             contentSections.push(`<b>3. What is blocking me from making progress?</b><br>${userReason}`);
         }
 
@@ -1145,10 +1147,11 @@ function allIncluded(outputTarget = 'email') {
 
     function writeGithubPrsReviews() {
       
+        const sections = ScrumReportConfigManager.SECTIONS;
         const config = ScrumReportConfigManager.getConfig() || ScrumReportConfigManager.DEFAULT_CONFIG;
         
      
-        if (config.reviewedPullRequests === false) {
+        if (config[sections.REVIEWED_PULL_REQUESTS] === false) {
             log('[SCRUM-CONFIG] Reviewed Pull Requests disabled, skipping PR reviews');
             reviewedPrsArray = [];
             prsReviewDataProcessed = true;
@@ -1405,11 +1408,14 @@ function allIncluded(outputTarget = 'email') {
         }
 
       
+        const sections = ScrumReportConfigManager.SECTIONS;
         const config = ScrumReportConfigManager.getConfig() || ScrumReportConfigManager.DEFAULT_CONFIG;
         
        
-        if (config.pullRequests === false && config.reviewedPullRequests === false && config.issues === false) {
+        if (config[sections.PULL_REQUESTS] === false && config[sections.REVIEWED_PULL_REQUESTS] === false && config[sections.ISSUES] === false) {
             log('[SCRUM-CONFIG] All GitHub data sections disabled, skipping processing');
+            issuesDataProcessed = true;
+            prsReviewDataProcessed = true;
             return;
         }
 
@@ -1488,16 +1494,17 @@ function allIncluded(outputTarget = 'email') {
             let isMR = !!item.pull_request; // works for both GitHub and mapped GitLab data
             
             // Load configuration for filtering
+            const sections = ScrumReportConfigManager.SECTIONS;
             const config = ScrumReportConfigManager.getConfig() || ScrumReportConfigManager.DEFAULT_CONFIG;
             
             // Skip if this is a PR and PRs are disabled
-            if (isMR && config.pullRequests === false) {
+            if (isMR && config[sections.PULL_REQUESTS] === false) {
                 log('[SCRUM-CONFIG] Pull Requests disabled, skipping PR #' + item.number);
                 continue;
             }
             
             // Skip if this is an issue and Issues are disabled
-            if (!isMR && config.issues === false) {
+            if (!isMR && config[sections.ISSUES] === false) {
                 log('[SCRUM-CONFIG] Issues disabled, skipping issue #' + item.number);
                 continue;
             }

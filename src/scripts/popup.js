@@ -50,39 +50,53 @@ function applyI18n() {
 }
 
 
+// Small utility to avoid rapid-fire saves when toggling multiple checkboxes
+function debounce(fn, delay = 200) {
+    let timeoutId;
+    return (...args) => {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => fn(...args), delay);
+    };
+}
+
 function initializeScrumReportConfig() {
+    const sections = ScrumReportConfigManager.SECTIONS;
     const configCheckboxes = {
-        tasks: document.getElementById('configTasks'),
-        blockers: document.getElementById('configBlockers'),
-        pullRequests: document.getElementById('configPullRequests'),
-        reviewedPullRequests: document.getElementById('configReviewedPullRequests'),
-        issues: document.getElementById('configIssues')
+        [sections.TASKS]: document.getElementById('configTasks'),
+        [sections.BLOCKERS]: document.getElementById('configBlockers'),
+        [sections.PULL_REQUESTS]: document.getElementById('configPullRequests'),
+        [sections.REVIEWED_PULL_REQUESTS]: document.getElementById('configReviewedPullRequests'),
+        [sections.ISSUES]: document.getElementById('configIssues')
     };
 
     const resetButton = document.getElementById('resetReportConfig');
+    let configState = { ...ScrumReportConfigManager.DEFAULT_CONFIG };
+    const scheduleSave = debounce(() => {
+        ScrumReportConfigManager.saveConfig(configState);
+        console.log('[ScrumReportConfig] Configuration saved:', configState);
+    }, 200);
 
     // Load saved configuration and update UI
     ScrumReportConfigManager.getConfigAsync().then(config => {
-        configCheckboxes.tasks.checked = config.tasks !== false;
-        configCheckboxes.blockers.checked = config.blockers !== false;
-        configCheckboxes.pullRequests.checked = config.pullRequests !== false;
-        configCheckboxes.reviewedPullRequests.checked = config.reviewedPullRequests !== false;
-        configCheckboxes.issues.checked = config.issues !== false;
+        configState = { ...ScrumReportConfigManager.DEFAULT_CONFIG, ...config };
+        const setChecked = (checkbox, sectionKey) => {
+            if (checkbox) {
+                checkbox.checked = ScrumReportConfigManager.isSectionEnabled(sectionKey, configState);
+            }
+        };
+        setChecked(configCheckboxes[sections.TASKS], sections.TASKS);
+        setChecked(configCheckboxes[sections.BLOCKERS], sections.BLOCKERS);
+        setChecked(configCheckboxes[sections.PULL_REQUESTS], sections.PULL_REQUESTS);
+        setChecked(configCheckboxes[sections.REVIEWED_PULL_REQUESTS], sections.REVIEWED_PULL_REQUESTS);
+        setChecked(configCheckboxes[sections.ISSUES], sections.ISSUES);
     });
 
     // Set up event listeners for checkboxes
     Object.entries(configCheckboxes).forEach(([key, checkbox]) => {
         if (checkbox) {
             checkbox.addEventListener('change', function () {
-                const newConfig = {
-                    tasks: configCheckboxes.tasks.checked,
-                    blockers: configCheckboxes.blockers.checked,
-                    pullRequests: configCheckboxes.pullRequests.checked,
-                    reviewedPullRequests: configCheckboxes.reviewedPullRequests.checked,
-                    issues: configCheckboxes.issues.checked
-                };
-                ScrumReportConfigManager.saveConfig(newConfig);
-                console.log('[ScrumReportConfig] Configuration saved:', newConfig);
+                configState = ScrumReportConfigManager.toggleSection(key, checkbox.checked, { persist: false, baseConfig: configState });
+                scheduleSave();
             });
         }
     });
@@ -90,12 +104,11 @@ function initializeScrumReportConfig() {
     // Set up reset button
     if (resetButton) {
         resetButton.addEventListener('click', function () {
-            ScrumReportConfigManager.resetToDefaults();
-            configCheckboxes.tasks.checked = true;
-            configCheckboxes.blockers.checked = true;
-            configCheckboxes.pullRequests.checked = true;
-            configCheckboxes.reviewedPullRequests.checked = true;
-            configCheckboxes.issues.checked = true;
+            configState = { ...ScrumReportConfigManager.DEFAULT_CONFIG };
+            ScrumReportConfigManager.saveConfig(configState);
+            Object.values(configCheckboxes).forEach(cb => {
+                if (cb) cb.checked = true;
+            });
             console.log('[ScrumReportConfig] Configuration reset to defaults');
         });
     }
