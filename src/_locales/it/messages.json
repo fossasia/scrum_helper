@@ -74,6 +74,12 @@
     "showCommitsLabel": {
         "message": "Mostra commit su PR aperti/ bozze di PR"
     },
+    "onlyPRsLabel": {
+        "message": "Includi solo le PR nel report"
+    },
+    "onlyPRsTooltip": {
+        "message": "Se selezionato, il report includerà solo le pull request create dall'utente; le PR revisionate saranno escluse."
+    },
     "cacheTTLLabel": {
         "message": "Inserisci TTL della cache"
     },

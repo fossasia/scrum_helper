@@ -293,6 +293,7 @@ document.addEventListener('DOMContentLoaded', function () {
             'showOpenLabel',
             'showCommits',
             'onlyIssues',
+            'onlyPRs',
             'scrumReport',
             'githubToken',
             'projectName',
@@ -512,6 +513,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const showOpenLabelCheckbox = document.getElementById('showOpenLabel');
         const showCommitsCheckbox = document.getElementById('showCommits');
         const onlyIssuesCheckbox = document.getElementById('onlyIssues');
+        const onlyPRsCheckbox = document.getElementById('onlyPRs');
 
         const githubTokenInput = document.getElementById('githubToken');
         const cacheInput = document.getElementById('cacheInput');
@@ -536,6 +538,19 @@ document.addEventListener('DOMContentLoaded', function () {
             if (typeof result.showCommits !== 'undefined') showCommitsCheckbox.checked = result.showCommits;
             if (typeof result.onlyIssues !== 'undefined') {
                 onlyIssuesCheckbox.checked = result.onlyIssues;
+            }
+            if (typeof result.onlyPRs !== 'undefined') {
+                onlyPRsCheckbox.checked = result.onlyPRs;
+            }
+
+            // Reconcile mutually exclusive "Only Issues" and "Only PRs" flags on initialization.
+            // If both are somehow true in storage (e.g., from an older version or manual edits),
+            // prefer "Only Issues" and clear "Only PRs", then persist the corrected state.
+            if (onlyIssuesCheckbox.checked && onlyPRsCheckbox.checked) {
+                onlyPRsCheckbox.checked = false;
+                if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync) {
+                    chrome.storage.sync.set({ onlyPRs: false });
+                }
             }
             if (result.githubToken) githubTokenInput.value = result.githubToken;
             if (result.cacheInput) cacheInput.value = result.cacheInput;
@@ -1654,7 +1669,7 @@ document.querySelectorAll('input[name="timeframe"]').forEach(radio => {
     });
 
     // Handle clicks on links within scrumReport to open in new tabs
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
         const target = e.target.closest('a');
         if (target && target.closest('#scrumReport')) {
             e.preventDefault();
