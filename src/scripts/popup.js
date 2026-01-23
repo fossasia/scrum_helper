@@ -73,6 +73,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const orgInput = document.getElementById('orgInput');
 
+    // Section include toggles
+    const includeIssuesSectionCheckbox = document.getElementById('includeIssuesSection');
+    const includePRsSectionCheckbox = document.getElementById('includePRsSection');
+    const includeReviewedPRsSectionCheckbox = document.getElementById('includeReviewedPRsSection');
+    const includeTasksSectionCheckbox = document.getElementById('includeTasksSection');
+    const includeBlockersSectionCheckbox = document.getElementById('includeBlockersSection');
+
 
     const platformSelect = document.getElementById('platformSelect');
     const usernameLabel = document.getElementById('usernameLabel');
@@ -189,6 +196,11 @@ document.addEventListener('DOMContentLoaded', function () {
             'useRepoFilter',
             'repoSearch',
             'platformDropdownBtn',
+            'includeIssuesSection',
+            'includePRsSection',
+            'includeReviewedPRsSection',
+            'includeTasksSection',
+            'includeBlockersSection',
         ];
 
         const radios = document.querySelectorAll('input[name="timeframe"]');
@@ -392,7 +404,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         chrome.storage.local.get([
             'projectName', 'orgName', 'userReason', 'showOpenLabel', 'showCommits', 'githubToken', 'cacheInput', 'onlyIssues', 'onlyPRs',
-            'enableToggle', 'yesterdayContribution', 'startingDate', 'endingDate', 'selectedTimeframe', 'platform', 'githubUsername', 'gitlabUsername'
+            'enableToggle', 'yesterdayContribution', 'startingDate', 'endingDate', 'selectedTimeframe', 'platform', 'githubUsername', 'gitlabUsername',
+            'includeIssuesSection', 'includePRsSection', 'includeReviewedPRsSection', 'includeTasksSection', 'includeBlockersSection',
         ], function (result) {
 
 
@@ -410,6 +423,23 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             if (typeof result.onlyPRs !== 'undefined') {
                 onlyPRsCheckbox.checked = result.onlyPRs;
+            }
+
+            // Section toggles restore with defaults to true
+            if (includeIssuesSectionCheckbox) {
+                includeIssuesSectionCheckbox.checked = typeof result.includeIssuesSection === 'undefined' ? true : !!result.includeIssuesSection;
+            }
+            if (includePRsSectionCheckbox) {
+                includePRsSectionCheckbox.checked = typeof result.includePRsSection === 'undefined' ? true : !!result.includePRsSection;
+            }
+            if (includeReviewedPRsSectionCheckbox) {
+                includeReviewedPRsSectionCheckbox.checked = typeof result.includeReviewedPRsSection === 'undefined' ? true : !!result.includeReviewedPRsSection;
+            }
+            if (includeTasksSectionCheckbox) {
+                includeTasksSectionCheckbox.checked = typeof result.includeTasksSection === 'undefined' ? true : !!result.includeTasksSection;
+            }
+            if (includeBlockersSectionCheckbox) {
+                includeBlockersSectionCheckbox.checked = typeof result.includeBlockersSection === 'undefined' ? true : !!result.includeBlockersSection;
             }
 
             // Reconcile mutually exclusive "Only Issues" and "Only PRs" flags on initialization.
@@ -621,6 +651,33 @@ document.addEventListener('DOMContentLoaded', function () {
         showCommitsCheckbox.addEventListener('change', function () {
             chrome.storage.local.set({ showCommits: showCommitsCheckbox.checked });
         });
+
+        // Persist section toggles
+        if (includeIssuesSectionCheckbox) {
+            includeIssuesSectionCheckbox.addEventListener('change', function () {
+                chrome.storage.local.set({ includeIssuesSection: includeIssuesSectionCheckbox.checked });
+            });
+        }
+        if (includePRsSectionCheckbox) {
+            includePRsSectionCheckbox.addEventListener('change', function () {
+                chrome.storage.local.set({ includePRsSection: includePRsSectionCheckbox.checked });
+            });
+        }
+        if (includeReviewedPRsSectionCheckbox) {
+            includeReviewedPRsSectionCheckbox.addEventListener('change', function () {
+                chrome.storage.local.set({ includeReviewedPRsSection: includeReviewedPRsSectionCheckbox.checked });
+            });
+        }
+        if (includeTasksSectionCheckbox) {
+            includeTasksSectionCheckbox.addEventListener('change', function () {
+                chrome.storage.local.set({ includeTasksSection: includeTasksSectionCheckbox.checked });
+            });
+        }
+        if (includeBlockersSectionCheckbox) {
+            includeBlockersSectionCheckbox.addEventListener('change', function () {
+                chrome.storage.local.set({ includeBlockersSection: includeBlockersSectionCheckbox.checked });
+            });
+        }
         githubTokenInput.addEventListener('input', function () {
             chrome.storage.local.set({ githubToken: githubTokenInput.value });
         });
@@ -652,6 +709,66 @@ document.addEventListener('DOMContentLoaded', function () {
                 chrome.storage.local.set({ [platformUsernameKey]: platformUsername.value });
             });
         });
+
+        // Layout template save/load
+        const saveLayoutTemplateBtn = document.getElementById('saveLayoutTemplate');
+        const loadLayoutTemplateBtn = document.getElementById('loadLayoutTemplate');
+
+        if (saveLayoutTemplateBtn) {
+            saveLayoutTemplateBtn.addEventListener('click', function () {
+                const template = {
+                    includeIssuesSection: includeIssuesSectionCheckbox ? includeIssuesSectionCheckbox.checked : true,
+                    includePRsSection: includePRsSectionCheckbox ? includePRsSectionCheckbox.checked : true,
+                    includeReviewedPRsSection: includeReviewedPRsSectionCheckbox ? includeReviewedPRsSectionCheckbox.checked : true,
+                    includeTasksSection: includeTasksSectionCheckbox ? includeTasksSectionCheckbox.checked : true,
+                    includeBlockersSection: includeBlockersSectionCheckbox ? includeBlockersSectionCheckbox.checked : true,
+                    onlyIssues: document.getElementById('onlyIssues')?.checked ?? false,
+                    onlyPRs: document.getElementById('onlyPRs')?.checked ?? false
+                };
+                chrome.storage.local.set({ scrumLayoutTemplate: template });
+            });
+        }
+
+        if (loadLayoutTemplateBtn) {
+            loadLayoutTemplateBtn.addEventListener('click', function () {
+                chrome.storage.local.get(['scrumLayoutTemplate'], function (result) {
+                    const template = result.scrumLayoutTemplate;
+                    if (!template) {
+                        return;
+                    }
+                    if (includeIssuesSectionCheckbox && typeof template.includeIssuesSection !== 'undefined') {
+                        includeIssuesSectionCheckbox.checked = !!template.includeIssuesSection;
+                        chrome.storage.local.set({ includeIssuesSection: includeIssuesSectionCheckbox.checked });
+                    }
+                    if (includePRsSectionCheckbox && typeof template.includePRsSection !== 'undefined') {
+                        includePRsSectionCheckbox.checked = !!template.includePRsSection;
+                        chrome.storage.local.set({ includePRsSection: includePRsSectionCheckbox.checked });
+                    }
+                    if (includeReviewedPRsSectionCheckbox && typeof template.includeReviewedPRsSection !== 'undefined') {
+                        includeReviewedPRsSectionCheckbox.checked = !!template.includeReviewedPRsSection;
+                        chrome.storage.local.set({ includeReviewedPRsSection: includeReviewedPRsSectionCheckbox.checked });
+                    }
+                    if (includeTasksSectionCheckbox && typeof template.includeTasksSection !== 'undefined') {
+                        includeTasksSectionCheckbox.checked = !!template.includeTasksSection;
+                        chrome.storage.local.set({ includeTasksSection: includeTasksSectionCheckbox.checked });
+                    }
+                    if (includeBlockersSectionCheckbox && typeof template.includeBlockersSection !== 'undefined') {
+                        includeBlockersSectionCheckbox.checked = !!template.includeBlockersSection;
+                        chrome.storage.local.set({ includeBlockersSection: includeBlockersSectionCheckbox.checked });
+                    }
+                    const onlyIssuesCheckbox = document.getElementById('onlyIssues');
+                    const onlyPRsCheckbox = document.getElementById('onlyPRs');
+                    if (onlyIssuesCheckbox && typeof template.onlyIssues !== 'undefined') {
+                        onlyIssuesCheckbox.checked = !!template.onlyIssues;
+                        chrome.storage.local.set({ onlyIssues: onlyIssuesCheckbox.checked });
+                    }
+                    if (onlyPRsCheckbox && typeof template.onlyPRs !== 'undefined') {
+                        onlyPRsCheckbox.checked = !!template.onlyPRs;
+                        chrome.storage.local.set({ onlyPRs: onlyPRsCheckbox.checked });
+                    }
+                });
+            });
+        }
 
 
     }

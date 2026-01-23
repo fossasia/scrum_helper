@@ -178,6 +178,42 @@
 							PRs Labels</label>
 
 					</div>
+
+					<div class="my-3">
+						<p class="text-sm font-medium mb-1" data-i18n="reportSectionsLabel">Report sections</p>
+						<div class="space-y-2">
+							<div class="flex items-center">
+								<input type="checkbox" id="includeIssuesSection" class="form-checkbox text-blue-600" checked>
+								<label for="includeIssuesSection" class="font-medium text-sm ml-2" data-i18n="includeIssuesSectionLabel">
+									Include issues
+								</label>
+							</div>
+							<div class="flex items-center">
+								<input type="checkbox" id="includePRsSection" class="form-checkbox text-blue-600" checked>
+								<label for="includePRsSection" class="font-medium text-sm ml-2" data-i18n="includePRsSectionLabel">
+									Include pull requests
+								</label>
+							</div>
+							<div class="flex items-center">
+								<input type="checkbox" id="includeReviewedPRsSection" class="form-checkbox text-blue-600" checked>
+								<label for="includeReviewedPRsSection" class="font-medium text-sm ml-2" data-i18n="includeReviewedPRsSectionLabel">
+									Include reviewed pull requests
+								</label>
+							</div>
+							<div class="flex items-center">
+								<input type="checkbox" id="includeTasksSection" class="form-checkbox text-blue-600" checked>
+								<label for="includeTasksSection" class="font-medium text-sm ml-2" data-i18n="includeTasksSectionLabel">
+									Include “What do I plan to do?” section
+								</label>
+							</div>
+							<div class="flex items-center">
+								<input type="checkbox" id="includeBlockersSection" class="form-checkbox text-blue-600" checked>
+								<label for="includeBlockersSection" class="font-medium text-sm ml-2" data-i18n="includeBlockersSectionLabel">
+									Include “What is blocking me?” section
+								</label>
+							</div>
+						</div>
+					</div>
 					<div class="my-4">
                         <div class="flex items-center">
                             <input type="checkbox" id="onlyIssues" class="form-checkbox text-blue-600">
@@ -405,7 +441,24 @@
 							data-i18n-placeholder="cacheTTLPlaceholder">
 					</div>
 
-					<div class="">
+					<div class="mt-4">
+						<div class="mb-3">
+							<p class="text-sm font-medium mb-1" data-i18n="layoutTemplateLabel">Layout template</p>
+							<p class="text-xs text-gray-600 mb-2" data-i18n="layoutTemplateDescription">
+								Save your current section selection as a reusable template and quickly re-apply it later.
+							</p>
+							<div class="flex gap-2">
+								<button id="saveLayoutTemplate"
+									class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-2 px-3 rounded text-xs">
+									<span data-i18n="saveLayoutTemplateButton">Save layout as template</span>
+								</button>
+								<button id="loadLayoutTemplate"
+									class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-800 font-medium py-2 px-3 rounded text-xs">
+									<span data-i18n="loadLayoutTemplateButton">Load saved template</span>
+								</button>
+							</div>
+						</div>
+
 						<button id="refreshCache"
 							class="w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded flex items-center justify-center gap-2 transition-colors duration-200">
 							<i class="fa fa-refresh"></i>
