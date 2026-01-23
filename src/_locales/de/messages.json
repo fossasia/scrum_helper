@@ -203,5 +203,29 @@
   },
   "usernameLabel": {
     "message": "Ihr Benutzername"
+  },
+  "scrumReportConfigLabel": {
+    "message": "Scrum-Berichtabschnitte"
+  },
+  "scrumReportConfigTooltip": {
+    "message": "Wählen Sie aus, welche Abschnitte in Ihren Scrum-Bericht aufgenommen werden sollen. Sie können Abschnitte wie Aufgaben, Blocker, Pull-Anfragen und Probleme aktivieren oder deaktivieren."
+  },
+  "configTasksLabel": {
+    "message": "Aufgaben einschließen (durchgeführte Arbeiten)"
+  },
+  "configBlockersLabel": {
+    "message": "Blocker einschließen"
+  },
+  "configPullRequestsLabel": {
+    "message": "Pull-Anfragen einschließen"
+  },
+  "configReviewedPullRequestsLabel": {
+    "message": "Überprüfte Pull-Anfragen einschließen"
+  },
+  "configIssuesLabel": {
+    "message": "Probleme einschließen"
+  },
+  "resetConfigButton": {
+    "message": "Auf Standard zurücksetzen"
   }
 }

@@ -11,7 +11,6 @@
     "96": "icons/icon.png",
     "48": "icons/icon.png"
   },
-  
   "content_scripts": [
     {
       "matches": [
@@ -26,6 +25,7 @@
       "js": [
         "scripts/jquery-3.2.1.min.js",
         "scripts/emailClientAdapter.js",
+        "scripts/scrumReportConfig.js",
         "scripts/gitlabHelper.js",
         "scripts/scrumHelper.js"
       ]
@@ -54,10 +54,8 @@
     "*://*.outlook.live.com/*",
     "*://*.office.com/*",
     "*://*.yahoo.com/*",
-
     "https://api.github.com/*",
     "https://gitlab.com/*"
- ],
+  ],
   "default_locale": "en"
-
 }

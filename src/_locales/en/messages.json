@@ -268,5 +268,37 @@
   "usernameLabel": {
     "message": "Your Username",
     "description": "Label for the username input header."
+  },
+  "scrumReportConfigLabel": {
+    "message": "Scrum Report Sections",
+    "description": "Label for the scrum report configuration section."
+  },
+  "scrumReportConfigTooltip": {
+    "message": "Choose which sections to include in your scrum report. You can enable or disable sections like Tasks, Blockers, Pull Requests, and Issues.",
+    "description": "Tooltip explaining the scrum report configuration."
+  },
+  "configTasksLabel": {
+    "message": "Include Tasks (Work Done)",
+    "description": "Label for the tasks section configuration checkbox."
+  },
+  "configBlockersLabel": {
+    "message": "Include Blockers",
+    "description": "Label for the blockers section configuration checkbox."
+  },
+  "configPullRequestsLabel": {
+    "message": "Include Pull Requests",
+    "description": "Label for the pull requests section configuration checkbox."
+  },
+  "configReviewedPullRequestsLabel": {
+    "message": "Include Reviewed Pull Requests",
+    "description": "Label for the reviewed pull requests section configuration checkbox."
+  },
+  "configIssuesLabel": {
+    "message": "Include Issues",
+    "description": "Label for the issues section configuration checkbox."
+  },
+  "resetConfigButton": {
+    "message": "Reset to Defaults",
+    "description": "Text for the reset configuration button."
   }
 }

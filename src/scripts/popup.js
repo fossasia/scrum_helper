@@ -50,6 +50,58 @@ function applyI18n() {
 }
 
 
+function initializeScrumReportConfig() {
+    const configCheckboxes = {
+        tasks: document.getElementById('configTasks'),
+        blockers: document.getElementById('configBlockers'),
+        pullRequests: document.getElementById('configPullRequests'),
+        reviewedPullRequests: document.getElementById('configReviewedPullRequests'),
+        issues: document.getElementById('configIssues')
+    };
+
+    const resetButton = document.getElementById('resetReportConfig');
+
+    // Load saved configuration and update UI
+    ScrumReportConfigManager.getConfigAsync().then(config => {
+        configCheckboxes.tasks.checked = config.tasks !== false;
+        configCheckboxes.blockers.checked = config.blockers !== false;
+        configCheckboxes.pullRequests.checked = config.pullRequests !== false;
+        configCheckboxes.reviewedPullRequests.checked = config.reviewedPullRequests !== false;
+        configCheckboxes.issues.checked = config.issues !== false;
+    });
+
+    // Set up event listeners for checkboxes
+    Object.entries(configCheckboxes).forEach(([key, checkbox]) => {
+        if (checkbox) {
+            checkbox.addEventListener('change', function () {
+                const newConfig = {
+                    tasks: configCheckboxes.tasks.checked,
+                    blockers: configCheckboxes.blockers.checked,
+                    pullRequests: configCheckboxes.pullRequests.checked,
+                    reviewedPullRequests: configCheckboxes.reviewedPullRequests.checked,
+                    issues: configCheckboxes.issues.checked
+                };
+                ScrumReportConfigManager.saveConfig(newConfig);
+                console.log('[ScrumReportConfig] Configuration saved:', newConfig);
+            });
+        }
+    });
+
+    // Set up reset button
+    if (resetButton) {
+        resetButton.addEventListener('click', function () {
+            ScrumReportConfigManager.resetToDefaults();
+            configCheckboxes.tasks.checked = true;
+            configCheckboxes.blockers.checked = true;
+            configCheckboxes.pullRequests.checked = true;
+            configCheckboxes.reviewedPullRequests.checked = true;
+            configCheckboxes.issues.checked = true;
+            console.log('[ScrumReportConfig] Configuration reset to defaults');
+        });
+    }
+}
+
+
 document.addEventListener('DOMContentLoaded', function () {
     // Apply translations as soon as the DOM is ready
     applyI18n();
@@ -653,6 +705,8 @@ document.addEventListener('DOMContentLoaded', function () {
             });
         });
 
+     
+        initializeScrumReportConfig();
 
     }
 

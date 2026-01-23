@@ -1,5 +1,4 @@
 {
-
     "appName": {
         "message": "Scrum Helper"
     },
@@ -207,5 +206,29 @@
     },
     "cacheClearFailed": {
         "message": "Cache clear failed."
+    },
+    "scrumReportConfigLabel": {
+        "message": "Seções do Relatório Scrum"
+    },
+    "scrumReportConfigTooltip": {
+        "message": "Escolha quais seções incluir no seu relatório scrum. Você pode ativar ou desativar seções como Tarefas, Bloqueadores, Solicitações de Pull e Problemas."
+    },
+    "configTasksLabel": {
+        "message": "Incluir Tarefas (Trabalho Realizado)"
+    },
+    "configBlockersLabel": {
+        "message": "Incluir Bloqueadores"
+    },
+    "configPullRequestsLabel": {
+        "message": "Incluir Solicitações de Pull"
+    },
+    "configReviewedPullRequestsLabel": {
+        "message": "Incluir Solicitações de Pull Revisadas"
+    },
+    "configIssuesLabel": {
+        "message": "Incluir Problemas"
+    },
+    "resetConfigButton": {
+        "message": "Redefinir para Padrões"
     }
 }

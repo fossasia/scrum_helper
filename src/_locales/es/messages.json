@@ -206,5 +206,29 @@
     },
     "usernameLabel": {
         "message": "Su nombre de usuario"
+    },
+    "scrumReportConfigLabel": {
+        "message": "Secciones del Informe Scrum"
+    },
+    "scrumReportConfigTooltip": {
+        "message": "Elija qué secciones incluir en su informe scrum. Puede habilitar o deshabilitar secciones como Tareas, Bloqueadores, Solicitudes de Extracción e Incidencias."
+    },
+    "configTasksLabel": {
+        "message": "Incluir Tareas (Trabajo Realizado)"
+    },
+    "configBlockersLabel": {
+        "message": "Incluir Bloqueadores"
+    },
+    "configPullRequestsLabel": {
+        "message": "Incluir Solicitudes de Extracción"
+    },
+    "configReviewedPullRequestsLabel": {
+        "message": "Incluir Solicitudes de Extracción Revisadas"
+    },
+    "configIssuesLabel": {
+        "message": "Incluir Incidencias"
+    },
+    "resetConfigButton": {
+        "message": "Restablecer Valores Predeterminados"
     }
 }

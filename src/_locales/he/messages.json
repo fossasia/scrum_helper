@@ -190,5 +190,29 @@
     },
     "usernameLabel": {
         "message": "שם המשתמש שלך"
+    },
+    "scrumReportConfigLabel": {
+        "message": "קטעי דוח Scrum"
+    },
+    "scrumReportConfigTooltip": {
+        "message": "בחר אילו קטעים להוסיף לדוח scrum שלך. אתה יכול להפעיל או להשבית קטעים כמו משימות, חסימות, בקשות pull והערות."
+    },
+    "configTasksLabel": {
+        "message": "כלול משימות (עבודה שבוצעה)"
+    },
+    "configBlockersLabel": {
+        "message": "כלול חסימות"
+    },
+    "configPullRequestsLabel": {
+        "message": "כלול בקשות Pull"
+    },
+    "configReviewedPullRequestsLabel": {
+        "message": "כלול בקשות Pull שנבדקו"
+    },
+    "configIssuesLabel": {
+        "message": "כלול הערות"
+    },
+    "resetConfigButton": {
+        "message": "אפס לערכי ברירת מחדל"
     }
 }

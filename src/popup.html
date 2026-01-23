@@ -324,6 +324,54 @@
 							</div>
 						</div>
 
+						<!-- Scrum Report Configuration Section -->
+						<div class="mt-6 pt-4 border-t border-gray-200">
+							<div class="flex items-center justify-between mb-3">
+								<h5 class="text-sm font-semibold" data-i18n="scrumReportConfigLabel">Scrum Report Sections</h5>
+								<span class="tooltip-container">
+									<i class="fa fa-question-circle question-icon"></i>
+									<span class="tooltip-bubble" data-i18n="scrumReportConfigTooltip">
+										Choose which sections to include in your scrum report. You can enable or disable sections like Tasks, Blockers, Pull Requests, and Issues.
+									</span>
+								</span>
+							</div>
+							
+							<!-- Tasks Section Toggle -->
+							<div class="flex items-center mb-3">
+								<input type="checkbox" id="configTasks" class="form-checkbox text-blue-600" checked>
+								<label for="configTasks" class="font-medium text-sm ml-2" data-i18n="configTasksLabel">Include Tasks (Work Done)</label>
+							</div>
+
+							<!-- Blockers Section Toggle -->
+							<div class="flex items-center mb-3">
+								<input type="checkbox" id="configBlockers" class="form-checkbox text-blue-600" checked>
+								<label for="configBlockers" class="font-medium text-sm ml-2" data-i18n="configBlockersLabel">Include Blockers</label>
+							</div>
+
+							<!-- Pull Requests Section Toggle -->
+							<div class="flex items-center mb-3">
+								<input type="checkbox" id="configPullRequests" class="form-checkbox text-blue-600" checked>
+								<label for="configPullRequests" class="font-medium text-sm ml-2" data-i18n="configPullRequestsLabel">Include Pull Requests</label>
+							</div>
+
+							<!-- Reviewed Pull Requests Section Toggle -->
+							<div class="flex items-center mb-3">
+								<input type="checkbox" id="configReviewedPullRequests" class="form-checkbox text-blue-600" checked>
+								<label for="configReviewedPullRequests" class="font-medium text-sm ml-2" data-i18n="configReviewedPullRequestsLabel">Include Reviewed Pull Requests</label>
+							</div>
+
+							<!-- Issues Section Toggle -->
+							<div class="flex items-center mb-3">
+								<input type="checkbox" id="configIssues" class="form-checkbox text-blue-600" checked>
+								<label for="configIssues" class="font-medium text-sm ml-2" data-i18n="configIssuesLabel">Include Issues</label>
+							</div>
+
+							<!-- Reset Button -->
+							<button id="resetReportConfig"
+								class="mt-3 w-full text-sm px-3 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition"
+								data-i18n="resetConfigButton">Reset to Defaults</button>
+						</div>
+
 						<div class="mb-4">
 							<div class="flex items-center justify-between mb-2">
 								<p class="text-sm font-medium">
@@ -448,6 +496,7 @@
 	<script src="scripts/jquery-3.2.1.min.js"></script>
 	<script type="text/javascript" type="text/javascript" src="materialize/js/materialize.min.js"></script>
 	<script src="scripts/emailClientAdapter.js"></script>
+	<script src="scripts/scrumReportConfig.js"></script>
 	<script src="scripts/main.js"></script>
 	<script src="scripts/gitlabHelper.js"></script>
 	<script src="scripts/scrumHelper.js"></script>

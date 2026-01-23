@@ -206,5 +206,29 @@
     },
     "usernameLabel": {
         "message": "Votre nom d'utilisateur"
+    },
+    "scrumReportConfigLabel": {
+        "message": "Sections du Rapport Scrum"
+    },
+    "scrumReportConfigTooltip": {
+        "message": "Choisissez les sections à inclure dans votre rapport scrum. Vous pouvez activer ou désactiver des sections comme Tâches, Blocages, Demandes de Tirage et Problèmes."
+    },
+    "configTasksLabel": {
+        "message": "Inclure les Tâches (Travail Effectué)"
+    },
+    "configBlockersLabel": {
+        "message": "Inclure les Blocages"
+    },
+    "configPullRequestsLabel": {
+        "message": "Inclure les Demandes de Tirage"
+    },
+    "configReviewedPullRequestsLabel": {
+        "message": "Inclure les Demandes de Tirage Examinées"
+    },
+    "configIssuesLabel": {
+        "message": "Inclure les Problèmes"
+    },
+    "resetConfigButton": {
+        "message": "Réinitialiser les Valeurs par Défaut"
     }
 }

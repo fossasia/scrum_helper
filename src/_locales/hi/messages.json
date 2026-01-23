@@ -206,5 +206,29 @@
     },
     "usernameLabel": {
         "message": "आपका उपयोगकर्ता नाम"
+    },
+    "scrumReportConfigLabel": {
+        "message": "Scrum रिपोर्ट सेक्शन"
+    },
+    "scrumReportConfigTooltip": {
+        "message": "अपनी scrum रिपोर्ट में कौन से सेक्शन शामिल करने हैं यह चुनें। आप कार्य, अवरोधक, पुल अनुरोध और समस्याओं जैसे सेक्शन को सक्षम या अक्षम कर सकते हैं।"
+    },
+    "configTasksLabel": {
+        "message": "कार्य शामिल करें (किया गया काम)"
+    },
+    "configBlockersLabel": {
+        "message": "अवरोधक शामिल करें"
+    },
+    "configPullRequestsLabel": {
+        "message": "पुल अनुरोध शामिल करें"
+    },
+    "configReviewedPullRequestsLabel": {
+        "message": "समीक्षा किए गए पुल अनुरोध शामिल करें"
+    },
+    "configIssuesLabel": {
+        "message": "समस्याएं शामिल करें"
+    },
+    "resetConfigButton": {
+        "message": "डिफ़ॉल्ट पर रीसेट करें"
     }
 }

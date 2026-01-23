@@ -196,5 +196,29 @@
     },
     "usernameLabel": {
         "message": "Ваше ім'я користувача"
+    },
+    "scrumReportConfigLabel": {
+        "message": "Розділи звіту Scrum"
+    },
+    "scrumReportConfigTooltip": {
+        "message": "Виберіть, які розділи включити у звіт scrum. Ви можете ввімкнути або вимкнути розділи, такі як Завдання, Блокатори, Pull-запити та Проблеми."
+    },
+    "configTasksLabel": {
+        "message": "Включити Завдання (Виконана робота)"
+    },
+    "configBlockersLabel": {
+        "message": "Включити Блокатори"
+    },
+    "configPullRequestsLabel": {
+        "message": "Включити Pull-запити"
+    },
+    "configReviewedPullRequestsLabel": {
+        "message": "Включити Перевірені Pull-запити"
+    },
+    "configIssuesLabel": {
+        "message": "Включити Проблеми"
+    },
+    "resetConfigButton": {
+        "message": "Скинути на значення за замовчуванням"
     }
 }

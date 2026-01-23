@@ -206,5 +206,29 @@
     },
     "usernameLabel": {
         "message": "Nama pengguna Anda"
+    },
+    "scrumReportConfigLabel": {
+        "message": "Bagian Laporan Scrum"
+    },
+    "scrumReportConfigTooltip": {
+        "message": "Pilih bagian mana yang akan disertakan dalam laporan scrum Anda. Anda dapat mengaktifkan atau menonaktifkan bagian seperti Tugas, Pemblokir, Permintaan Tarik, dan Masalah."
+    },
+    "configTasksLabel": {
+        "message": "Sertakan Tugas (Pekerjaan yang Dilakukan)"
+    },
+    "configBlockersLabel": {
+        "message": "Sertakan Pemblokir"
+    },
+    "configPullRequestsLabel": {
+        "message": "Sertakan Permintaan Tarik"
+    },
+    "configReviewedPullRequestsLabel": {
+        "message": "Sertakan Permintaan Tarik yang Ditinjau"
+    },
+    "configIssuesLabel": {
+        "message": "Sertakan Masalah"
+    },
+    "resetConfigButton": {
+        "message": "Atur Ulang ke Default"
     }
 }

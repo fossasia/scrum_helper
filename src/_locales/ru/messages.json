@@ -206,5 +206,29 @@
     },
     "usernameLabel": {
         "message": "Ваше имя пользователя"
+    },
+    "scrumReportConfigLabel": {
+        "message": "Разделы отчета Scrum"
+    },
+    "scrumReportConfigTooltip": {
+        "message": "Выберите, какие разделы включить в свой отчет scrum. Вы можете включать или отключать разделы, такие как Задачи, Блокаторы, Pull-реквесты и Проблемы."
+    },
+    "configTasksLabel": {
+        "message": "Включить Задачи (Выполненная работа)"
+    },
+    "configBlockersLabel": {
+        "message": "Включить Блокаторы"
+    },
+    "configPullRequestsLabel": {
+        "message": "Включить Pull-реквесты"
+    },
+    "configReviewedPullRequestsLabel": {
+        "message": "Включить Проверенные Pull-реквесты"
+    },
+    "configIssuesLabel": {
+        "message": "Включить Проблемы"
+    },
+    "resetConfigButton": {
+        "message": "Сбросить на значения по умолчанию"
     }
 }

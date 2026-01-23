@@ -206,5 +206,29 @@
     },
     "usernameLabel": {
         "message": "あなたのユーザー名"
+    },
+    "scrumReportConfigLabel": {
+        "message": "スクラムレポートセクション"
+    },
+    "scrumReportConfigTooltip": {
+        "message": "スクラムレポートに含めるセクションを選択してください。タスク、ブロッカー、プルリクエスト、Issuesなどのセクションを有効または無効にできます。"
+    },
+    "configTasksLabel": {
+        "message": "タスクを含める（完了した作業）"
+    },
+    "configBlockersLabel": {
+        "message": "ブロッカーを含める"
+    },
+    "configPullRequestsLabel": {
+        "message": "プルリクエストを含める"
+    },
+    "configReviewedPullRequestsLabel": {
+        "message": "レビュー済みプルリクエストを含める"
+    },
+    "configIssuesLabel": {
+        "message": "Issuesを含める"
+    },
+    "resetConfigButton": {
+        "message": "デフォルトにリセット"
     }
 }

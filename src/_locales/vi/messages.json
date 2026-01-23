@@ -206,5 +206,29 @@
     },
     "usernameLabel": {
         "message": "Tên người dùng của bạn"
+    },
+    "scrumReportConfigLabel": {
+        "message": "Các Phần Báo Cáo Scrum"
+    },
+    "scrumReportConfigTooltip": {
+        "message": "Chọn những phần nào sẽ được đưa vào báo cáo scrum của bạn. Bạn có thể bật hoặc tắt các phần như Tác Vụ, Trở Ngại, Yêu Cầu Kéo và Vấn Đề."
+    },
+    "configTasksLabel": {
+        "message": "Bao Gồm Tác Vụ (Công Việc Đã Hoàn Thành)"
+    },
+    "configBlockersLabel": {
+        "message": "Bao Gồm Trở Ngại"
+    },
+    "configPullRequestsLabel": {
+        "message": "Bao Gồm Yêu Cầu Kéo"
+    },
+    "configReviewedPullRequestsLabel": {
+        "message": "Bao Gồm Yêu Cầu Kéo Đã Được Xem Xét"
+    },
+    "configIssuesLabel": {
+        "message": "Bao Gồm Vấn Đề"
+    },
+    "resetConfigButton": {
+        "message": "Đặt Lại Về Mặc Định"
     }
 }

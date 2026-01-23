@@ -1,5 +1,4 @@
 {
-
     "appName": {
         "message": "Scrum Helper"
     },
@@ -207,5 +206,29 @@
     },
     "usernameLabel": {
         "message": "您的用户名"
+    },
+    "scrumReportConfigLabel": {
+        "message": "Scrum 报告部分"
+    },
+    "scrumReportConfigTooltip": {
+        "message": "选择要包含在 Scrum 报告中的部分。您可以启用或禁用任务、阻碍、拉取请求和问题等部分。"
+    },
+    "configTasksLabel": {
+        "message": "包括任务（已完成的工作）"
+    },
+    "configBlockersLabel": {
+        "message": "包括阻碍"
+    },
+    "configPullRequestsLabel": {
+        "message": "包括拉取请求"
+    },
+    "configReviewedPullRequestsLabel": {
+        "message": "包括已审查的拉取请求"
+    },
+    "configIssuesLabel": {
+        "message": "包括问题"
+    },
+    "resetConfigButton": {
+        "message": "重置为默认值"
     }
 }

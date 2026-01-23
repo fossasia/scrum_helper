@@ -196,5 +196,29 @@
     },
     "usernameLabel": {
         "message": "Ditt brukernavn"
+    },
+    "scrumReportConfigLabel": {
+        "message": "Scrum-rapportseksjoner"
+    },
+    "scrumReportConfigTooltip": {
+        "message": "Velg hvilke seksjoner som skal inkluderes i scrum-rapporten din. Du kan aktivere eller deaktivere seksjoner som Oppgaver, Blokkere, Pull Requests og Issues."
+    },
+    "configTasksLabel": {
+        "message": "Inkluder Oppgaver (Utført arbeid)"
+    },
+    "configBlockersLabel": {
+        "message": "Inkluder Blokkere"
+    },
+    "configPullRequestsLabel": {
+        "message": "Inkluder Pull Requests"
+    },
+    "configReviewedPullRequestsLabel": {
+        "message": "Inkluder Gjennomgåtte Pull Requests"
+    },
+    "configIssuesLabel": {
+        "message": "Inkluder Issues"
+    },
+    "resetConfigButton": {
+        "message": "Tilbakestill til Standardverdier"
     }
 }

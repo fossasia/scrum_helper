@@ -196,5 +196,29 @@
     },
     "usernameLabel": {
         "message": "Il tuo nome utente"
+    },
+    "scrumReportConfigLabel": {
+        "message": "Sezioni del Rapporto Scrum"
+    },
+    "scrumReportConfigTooltip": {
+        "message": "Scegli quali sezioni includere nel tuo rapporto scrum. Puoi abilitare o disabilitare sezioni come Attività, Blocchi, Richieste di Pull e Problemi."
+    },
+    "configTasksLabel": {
+        "message": "Includi Attività (Lavoro Svolto)"
+    },
+    "configBlockersLabel": {
+        "message": "Includi Blocchi"
+    },
+    "configPullRequestsLabel": {
+        "message": "Includi Richieste di Pull"
+    },
+    "configReviewedPullRequestsLabel": {
+        "message": "Includi Richieste di Pull Revisionate"
+    },
+    "configIssuesLabel": {
+        "message": "Includi Problemi"
+    },
+    "resetConfigButton": {
+        "message": "Ripristina Predefiniti"
     }
 }
