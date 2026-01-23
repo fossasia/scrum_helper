@@ -107,15 +107,14 @@ This project is licensed under the LGPL-2.1 License - see the [LICENSE](LICENSE)
 
 ## Screenshots
 
-![SCRUM](docs/images/scrum.png)
+| | |
+|---|---|
+| ![POPUP](docs/images/popup.png) | ![POPUP2](docs/images/popup2.png) |
+| ![STANDALONE](docs/images/standalone.png) | ![SETTINGSMENU](docs/images/settings.png) |
 
-![POPUP](docs/images/popup.png)
-
-![POPUP2](docs/images/popup2.png)
-
-![STANDALONE](docs/images/standalone.png)
-
-![SETTINGSMENU](docs/images/settings.png)
+| |
+|---|
+| ![SCRUM](docs/images/scrum.png) |
 
 ## Setting up the code locally
 
