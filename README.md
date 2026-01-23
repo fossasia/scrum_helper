@@ -20,6 +20,27 @@
 3. Pin the extension to your toolbar (optional).
 4. Open the extension popup and set your GitHub username, date range, and preferences.
 
+## Setting Up Your Development Environment
+
+1.  **Fork & Clone the Repository**
+
+    ```sh
+    git clone https://github.com/YOUR_USERNAME/scrum-helper.git
+    cd scrum-helper
+    ```
+
+2.  **Install Dependencies**
+
+    ```sh
+    npm install
+    ```
+
+3.  **Load the Extension in Your Browser**
+
+    -   Go to `chrome://extensions` in your Chrome browser.
+    -   Enable "Developer Mode" (toggle in the top-right).
+    -   Click "Load unpacked" and select the `src` folder inside the cloned repository.
+
 <!-- ### For Firefox:
 
 1. Clone this repository to your local machine.
