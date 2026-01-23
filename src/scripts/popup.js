@@ -190,6 +190,7 @@ document.addEventListener('DOMContentLoaded', function () {
             'showOpenLabel',
             'showCommits',
             'onlyIssues',
+            'onlyPRs',
             'scrumReport',
             'githubUsername',
             'githubToken',
@@ -392,6 +393,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const showOpenLabelCheckbox = document.getElementById('showOpenLabel');
         const showCommitsCheckbox = document.getElementById('showCommits');
         const onlyIssuesCheckbox = document.getElementById('onlyIssues');
+        const onlyPRsCheckbox = document.getElementById('onlyPRs');
 
         const githubTokenInput = document.getElementById('githubToken');
         const cacheInput = document.getElementById('cacheInput');
@@ -402,7 +404,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const platformUsername = document.getElementById('platformUsername');
 
         chrome.storage.local.get([
-            'projectName', 'orgName', 'userReason', 'showOpenLabel', 'showCommits', 'githubToken', 'cacheInput', 'onlyIssues',
+            'projectName', 'orgName', 'userReason', 'showOpenLabel', 'showCommits', 'githubToken', 'cacheInput', 'onlyIssues', 'onlyPRs',
             'enableToggle', 'yesterdayContribution', 'startingDate', 'endingDate', 'selectedTimeframe', 'platform', 'githubUsername', 'gitlabUsername'
         ], function (result) {
 
@@ -417,6 +419,19 @@ document.addEventListener('DOMContentLoaded', function () {
             if (typeof result.showCommits !== 'undefined') showCommitsCheckbox.checked = result.showCommits;
             if (typeof result.onlyIssues !== 'undefined') {
                 onlyIssuesCheckbox.checked = result.onlyIssues;
+            }
+            if (typeof result.onlyPRs !== 'undefined') {
+                onlyPRsCheckbox.checked = result.onlyPRs;
+            }
+
+            // Reconcile mutually exclusive "Only Issues" and "Only PRs" flags on initialization.
+            // If both are somehow true in storage (e.g., from an older version or manual edits),
+            // prefer "Only Issues" and clear "Only PRs", then persist the corrected state.
+            if (onlyIssuesCheckbox.checked && onlyPRsCheckbox.checked) {
+                onlyPRsCheckbox.checked = false;
+                if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync) {
+                    chrome.storage.sync.set({ onlyPRs: false });
+                }
             }
             if (result.githubToken) githubTokenInput.value = result.githubToken;
             if (result.cacheInput) cacheInput.value = result.cacheInput;
@@ -592,10 +607,28 @@ document.addEventListener('DOMContentLoaded', function () {
         showOpenLabelCheckbox.addEventListener('change', function () {
             chrome.storage.local.set({ showOpenLabel: showOpenLabelCheckbox.checked });
         });
-        if(onlyIssuesCheckbox){
+        if (onlyIssuesCheckbox && onlyPRsCheckbox) {
             onlyIssuesCheckbox.addEventListener('change', function () {
-                chrome.storage.local.set({ onlyIssues: onlyIssuesCheckbox.checked });
-            })
+                const checked = onlyIssuesCheckbox.checked;
+                chrome.storage.local.set({ onlyIssues: checked }, () => {
+                    if (checked && onlyPRsCheckbox.checked) {
+                        // Uncheck the previously selected "Only PRs"
+                        onlyPRsCheckbox.checked = false;
+                        chrome.storage.local.set({ onlyPRs: false });
+                    }
+                });
+            });
+
+            onlyPRsCheckbox.addEventListener('change', function () {
+                const checked = onlyPRsCheckbox.checked;
+                chrome.storage.local.set({ onlyPRs: checked }, () => {
+                    if (checked && onlyIssuesCheckbox.checked) {
+                        // Uncheck the previously selected "Only Issues"
+                        onlyIssuesCheckbox.checked = false;
+                        chrome.storage.local.set({ onlyIssues: false });
+                    }
+                });
+            });
         }
         showCommitsCheckbox.addEventListener('change', function () {
             chrome.storage.local.set({ showCommits: showCommitsCheckbox.checked });
@@ -1541,7 +1574,7 @@ document.querySelectorAll('input[name="timeframe"]').forEach(radio => {
     });
 
     // Handle clicks on links within scrumReport to open in new tabs
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
         const target = e.target.closest('a');
         if (target && target.closest('#scrumReport')) {
             e.preventDefault();
