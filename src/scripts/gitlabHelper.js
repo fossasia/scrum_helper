@@ -53,32 +53,31 @@ class GitLabHelper {
       return this.cache.data;
     }
 
-    console.log('Fetching GitLab data:', {
+    // Check if we need to load from storage
     if (!this.cache.data && !this.cache.fetching) {
       await this.loadFromStorage();
     }
 
     const currentTTL = await this.getCacheTTL();
     this.cache.ttl = currentTTL;
-    console.log(`GitLab caching for ${currentTTL / (60 * 1000)} minutes`);
 
     const now = Date.now();
     const isCacheFresh = (now - this.cache.timestamp) < this.cache.ttl;
     const isCacheKeyMatch = this.cache.cacheKey === cacheKey;
 
-      console.log('Using cached GitLab data - cache is fresh and key matches');
-      
+    if (this.cache.data && isCacheFresh && isCacheKeyMatch) {
+      return this.cache.data;
+    }
 
     if (!isCacheKeyMatch) {
-      console.log('GitLab cache key mismatch - fetching new data');
       this.cache.data = null;
-    } else if (!isCacheFresh) {
+    }
 
     if (this.cache.fetching) {
-      console.log('GitLab fetch in progress, queuing requests');
       return new Promise((resolve, reject) => {
         this.cache.queue.push({ resolve, reject });
-      
+      });
+    }
 
     this.cache.fetching = true;
     this.cache.cacheKey = cacheKey;
