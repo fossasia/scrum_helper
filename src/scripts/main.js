@@ -105,8 +105,9 @@ document.getElementById('refreshCache').addEventListener('click', async (e) => {
 	button.disabled = true;
 
 	try {
-	} catch (err) {
-		console.log('Refresh successful',);
+		// Placeholder for cache refresh logic
+	} catch (_err) {
+		// Handle error if needed
 	} finally {
 		setTimeout(() => {
 			button.classList.remove('loading');
