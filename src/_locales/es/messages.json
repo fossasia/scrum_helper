@@ -77,6 +77,9 @@
     "gitlabTokenPlaceholder": {
         "message": "Requerido para repos privados y límites de API más altos"
     },
+    "gitlabTokenTooltip": {
+        "message": "<b>¿Por qué añadir un token de GitLab?</b><br>Scrum Helper funciona sin un token de GitLab para repositorios públicos, pero se recomienda añadir un token de acceso personal para una mejor experiencia. Aumenta tus límites de API, permite acceso a repos privados (si está permitido) y mejora la precisión y velocidad. Los tokens se almacenan localmente y nunca se envían a nosotros.<br><br><b>Cómo obtenerlo:</b><br>1. Ve a <a href='https://gitlab.com/-/user_settings/personal_access_tokens' target='_blank' rel='noopener noreferrer' style='color:#2563eb;text-decoration:underline;'>GitLab Access Tokens</a>.<br>2. Haz clic en \"Añadir nuevo token\"<br>3. Selecciona permisos: <b>read_api</b>, <b>read_user</b><br>4. Haz clic en \"Crear token de acceso personal\"<br>5. Copia y pégalo aquí.<br><i>¡Mantén tu token en secreto!</i>"
+    },
     "showCommitsLabel": {
         "message": "Mostrar commits en PRs abiertos/ borradores de PRs"
     },

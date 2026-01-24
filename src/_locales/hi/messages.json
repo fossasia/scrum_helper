@@ -77,6 +77,9 @@
     "gitlabTokenPlaceholder": {
         "message": "निजी रेपो और उच्च API सीमाओं के लिए आवश्यक"
     },
+    "gitlabTokenTooltip": {
+        "message": "<b>GitLab टोकन क्यों जोड़ें?</b><br>Scrum Helper सार्वजनिक रिपॉजिटरी के लिए GitLab टोकन के बिना काम करता है, लेकिन बेहतर अनुभव के लिए व्यक्तिगत एक्सेस टोकन जोड़ने की सिफारिश की जाती है। यह आपकी API सीमाएं बढ़ाता है, निजी रेपो तक पहुंच की अनुमति देता है (यदि अनुमति हो) और सटीकता और गति में सुधार करता है। टोकन स्थानीय रूप से संग्रहीत किए जाते हैं और हमें कभी नहीं भेजे जाते।<br><br><b>कैसे प्राप्त करें:</b><br>1. <a href='https://gitlab.com/-/user_settings/personal_access_tokens' target='_blank' rel='noopener noreferrer' style='color:#2563eb;text-decoration:underline;'>GitLab Access Tokens</a> पर जाएं।<br>2. \"नया टोकन जोड़ें\" पर क्लिक करें<br>3. स्कोप चुनें: <b>read_api</b>, <b>read_user</b><br>4. \"व्यक्तिगत एक्सेस टोकन बनाएं\" पर क्लिक करें<br>5. कॉपी करें और यहां पेस्ट करें।<br><i>अपना टोकन गुप्त रखें!</i>"
+    },
     "showCommitsLabel": {
         "message": "खुले पीआर/ ड्राफ्ट पीआर पर कमिट दिखाएं"
     },

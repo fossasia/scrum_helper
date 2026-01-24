@@ -77,6 +77,9 @@
   "gitlabTokenPlaceholder": {
     "message": "私有倉庫和更高API限制需要"
   },
+  "gitlabTokenTooltip": {
+    "message": "<b>為什麼要添加GitLab權杖？</b><br>Scrum Helper在公共倉庫中無需GitLab權杖即可工作，但建議添加個人存取權杖以獲得更好的體驗。它可以提高您的API限制，允許存取私有倉庫（如果允許），並提高準確性和速度。權杖存儲在本地，絕不會發送給我們。<br><br><b>如何獲取：</b><br>1. 前往 <a href='https://gitlab.com/-/user_settings/personal_access_tokens' target='_blank' rel='noopener noreferrer' style='color:#2563eb;text-decoration:underline;'>GitLab Access Tokens</a>。<br>2. 點擊\"添加新權杖\"<br>3. 選擇範圍：<b>read_api</b>、<b>read_user</b><br>4. 點擊\"創建個人存取權杖\"<br>5. 複製並貼上到此處。<br><i>請保管好您的權杖！</i>"
+  },
   "showCommitsLabel": {
     "message": "在開啟的 PR/草稿 PR 上顯示提交"
   },

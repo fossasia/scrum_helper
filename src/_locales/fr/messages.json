@@ -77,6 +77,9 @@
     "gitlabTokenPlaceholder": {
         "message": "Requis pour les dépôts privés et des limites API plus élevées"
     },
+    "gitlabTokenTooltip": {
+        "message": "<b>Pourquoi ajouter un jeton GitLab ?</b><br>Scrum Helper fonctionne sans jeton GitLab pour les dépôts publics, mais l'ajout d'un jeton d'accès personnel est recommandé pour une meilleure expérience. Il augmente vos limites API, permet l'accès aux dépôts privés (si autorisé) et améliore la précision et la vitesse. Les jetons sont stockés localement et ne sont jamais envoyés à nous.<br><br><b>Comment l'obtenir :</b><br>1. Allez sur <a href='https://gitlab.com/-/user_settings/personal_access_tokens' target='_blank' rel='noopener noreferrer' style='color:#2563eb;text-decoration:underline;'>GitLab Access Tokens</a>.<br>2. Cliquez sur \"Ajouter un nouveau jeton\"<br>3. Sélectionnez les portées : <b>read_api</b>, <b>read_user</b><br>4. Cliquez sur \"Créer un jeton d'accès personnel\"<br>5. Copiez et collez-le ici.<br><i>Gardez votre jeton secret !</i>"
+    },
     "showCommitsLabel": {
         "message": "Afficher les commits sur les PRs ouverts/ brouillons de PRs"
     },

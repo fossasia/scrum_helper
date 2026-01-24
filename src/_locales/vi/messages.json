@@ -77,6 +77,9 @@
     "gitlabTokenPlaceholder": {
         "message": "Bắt buộc cho repo riêng tư và giới hạn API cao hơn"
     },
+    "gitlabTokenTooltip": {
+        "message": "<b>Tại sao thêm mã token GitLab?</b><br>Scrum Helper hoạt động mà không cần mã token GitLab cho các kho lưu trữ công khai, nhưng việc thêm mã token truy cập cá nhân được khuyến nghị để có trải nghiệm tốt hơn. Nó tăng giới hạn API của bạn, cho phép truy cập vào repo riêng tư (nếu được phép) và cải thiện độ chính xác và tốc độ. Mã token được lưu trữ cục bộ và không bao giờ được gửi cho chúng tôi.<br><br><b>Cách lấy:</b><br>1. Truy cập <a href='https://gitlab.com/-/user_settings/personal_access_tokens' target='_blank' rel='noopener noreferrer' style='color:#2563eb;text-decoration:underline;'>GitLab Access Tokens</a>.<br>2. Nhấp vào \"Thêm token mới\"<br>3. Chọn phạm vi: <b>read_api</b>, <b>read_user</b><br>4. Nhấp vào \"Tạo token truy cập cá nhân\"<br>5. Sao chép và dán vào đây.<br><i>Giữ bí mật token của bạn!</i>"
+    },
     "showCommitsLabel": {
         "message": "Hiển thị các commit trên PR đang mở/ PR nháp"
     },

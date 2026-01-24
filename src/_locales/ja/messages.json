@@ -77,6 +77,9 @@
     "gitlabTokenPlaceholder": {
         "message": "プライベートリポジトリとAPIレート制限の引き上げに必要"
     },
+    "gitlabTokenTooltip": {
+        "message": "<b>なぜGitLabトークンを追加するのですか？</b><br>Scrum Helperは公開リポジトリではGitLabトークンなしで動作しますが、より良い体験のためにパーソナルアクセストークンを追加することをお勧めします。APIリミットが上がり、プライベートリポジトリへのアクセスが可能になり（許可されている場合）、精度と速度が向上します。トークンはローカルに保存され、私たちに送信されることはありません。<br><br><b>取得方法：</b><br>1. <a href='https://gitlab.com/-/user_settings/personal_access_tokens' target='_blank' rel='noopener noreferrer' style='color:#2563eb;text-decoration:underline;'>GitLab Access Tokens</a>にアクセス。<br>2. \"新しいトークンを追加\"をクリック<br>3. スコープを選択：<b>read_api</b>、<b>read_user</b><br>4. \"パーソナルアクセストークンを作成\"をクリック<br>5. コピーしてここに貼り付け。<br><i>トークンは秘密にしてください！</i>"
+    },
     "showCommitsLabel": {
         "message": "オープンなPR/ドラフトPRのコミットを表示"
     },

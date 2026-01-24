@@ -22,10 +22,13 @@ class GitLabHelper {
     });
   }
 
-  getHeaders() {
+  getHeaders(includeContentType = false) {
     const headers = {
-      'Content-Type': 'application/json'
+      'Accept': 'application/json'
     };
+    if (includeContentType) {
+      headers['Content-Type'] = 'application/json';
+    }
     if (this.token) {
       headers['PRIVATE-TOKEN'] = this.token;
     }

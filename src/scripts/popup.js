@@ -197,6 +197,8 @@ document.addEventListener('DOMContentLoaded', function () {
             'scrumReport',
             'githubUsername',
             'githubToken',
+            'gitlabToken',
+            'toggleGitlabTokenVisibility',
             'projectName',
             'platformUsername',
             'orgInput',
