@@ -71,6 +71,12 @@
     "githubTokenPlaceholder": {
         "message": "Diperlukan untuk permintaan terotentikasi"
     },
+    "gitlabTokenLabel": {
+        "message": "Token GitLab Anda"
+    },
+    "gitlabTokenPlaceholder": {
+        "message": "Diperlukan untuk repo privat dan batas API lebih tinggi"
+    },
     "showCommitsLabel": {
         "message": "Tampilkan commit pada PR terbuka/ draf PR"
     },

@@ -72,6 +72,12 @@
     "githubTokenPlaceholder": {
         "message": "Necessário para solicitações autenticadas"
     },
+    "gitlabTokenLabel": {
+        "message": "Seu Token do GitLab"
+    },
+    "gitlabTokenPlaceholder": {
+        "message": "Necessário para repos privados e limites de API mais altos"
+    },
     "showCommitsLabel": {
         "message": "Mostrar commits em PRs abertos/ rascunhos de PRs"
     },

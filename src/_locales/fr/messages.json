@@ -71,6 +71,12 @@
     "githubTokenPlaceholder": {
         "message": "Requis pour les requêtes authentifiées"
     },
+    "gitlabTokenLabel": {
+        "message": "Votre jeton GitLab"
+    },
+    "gitlabTokenPlaceholder": {
+        "message": "Requis pour les dépôts privés et des limites API plus élevées"
+    },
     "showCommitsLabel": {
         "message": "Afficher les commits sur les PRs ouverts/ brouillons de PRs"
     },

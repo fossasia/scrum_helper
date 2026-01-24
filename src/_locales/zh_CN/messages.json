@@ -72,6 +72,12 @@
     "githubTokenPlaceholder": {
         "message": "进行身份验证请求所必需"
     },
+    "gitlabTokenLabel": {
+        "message": "您的 GitLab 令牌"
+    },
+    "gitlabTokenPlaceholder": {
+        "message": "私有仓库和更高API限制需要"
+    },
     "showCommitsLabel": {
         "message": "在打开的 PR/草稿 PR 上显示提交"
     },

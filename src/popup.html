@@ -223,7 +223,8 @@
 				</div>
 
 				<div id="settingsSection" class="tab-content hidden">
-					<div class="orgSection">
+					<!-- GitHub Token Section -->
+					<div class="githubOnlySection">
 						<div>
 							<div class="flex items-center justify-between">
 								<div class="flex">
@@ -261,6 +262,45 @@
 								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2 pr-10"
 								data-i18n-placeholder="githubTokenPlaceholder">
 						</div>
+					</div>
+
+					<!-- GitLab Token Section -->
+					<div class="gitlabOnlySection hidden">
+						<div>
+							<div class="flex items-center justify-between">
+								<div class="flex">
+									<p class="text-sm font-medium" data-i18n="gitlabTokenLabel">Your GitLab Token</p>
+									<span class="tooltip-container">
+										<i class="fa fa-question-circle question-icon"></i>
+										<span class="tooltip-bubble" data-i18n="gitlabTokenTooltip">
+											<b>Why add a GitLab token?</b><br>
+											Scrum Helper works without a GitLab token for public repositories, but adding a personal access
+											token is recommended for a better experience. It raises your API limits, allows access to private
+											repos (if permitted), and improves accuracy and speed. Tokens are stored locally and never sent to
+											us.<br><br>
+											<b>How to obtain:</b><br>
+											1. Go to <a href="https://gitlab.com/-/user_settings/personal_access_tokens" target="_blank"
+												style="color:#2563eb;text-decoration:underline;">GitLab Access Tokens</a>.<br>
+											2. Click "Add new token"<br>
+											3. Select scopes: <b>read_api</b>, <b>read_user</b><br>
+											4. Click "Create personal access token"<br>
+											5. Copy and paste it here.<br>
+											<i>Keep your token secret!</i>
+										</span>
+									</span>
+								</div>
+								<button id="toggleGitlabTokenVisibility" type="button" class="focus:outline-none">
+									<i id="gitlabTokenEyeIcon" class="fa fa-eye text-gray-600"></i>
+								</button>
+							</div>
+							<input id="gitlabToken" type="password"
+								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2 pr-10"
+								data-i18n-placeholder="gitlabTokenPlaceholder">
+						</div>
+					</div>
+
+					<!-- Organization Section (GitHub only) -->
+					<div class="orgSection githubOnlySection">
 						<div class="">
 							<div class="flex items-center mt-4">
 								<p class="text-sm font-semibold" data-i18n="settingsOrgNameLabel">Your Organization Name

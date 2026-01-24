@@ -70,6 +70,12 @@ document.addEventListener('DOMContentLoaded', function () {
     const tokenEyeIcon = document.getElementById('tokenEyeIcon');
     let tokenVisible = false;
 
+    // GitLab token elements
+    const gitlabTokenInput = document.getElementById('gitlabToken');
+    const toggleGitlabTokenBtn = document.getElementById('toggleGitlabTokenVisibility');
+    const gitlabTokenEyeIcon = document.getElementById('gitlabTokenEyeIcon');
+    let gitlabTokenVisible = false;
+
     const orgInput = document.getElementById('orgInput');
 
 
@@ -129,6 +135,21 @@ document.addEventListener('DOMContentLoaded', function () {
         githubTokenInput.classList.add('token-animating');
         setTimeout(() => githubTokenInput.classList.remove('token-animating'), 300);
     });
+
+    // GitLab token visibility toggle
+    if (toggleGitlabTokenBtn) {
+        toggleGitlabTokenBtn.addEventListener('click', function () {
+            gitlabTokenVisible = !gitlabTokenVisible;
+            gitlabTokenInput.type = gitlabTokenVisible ? 'text' : 'password';
+
+            gitlabTokenEyeIcon.classList.add('eye-animating');
+            setTimeout(() => gitlabTokenEyeIcon.classList.remove('eye-animating'), 400);
+            gitlabTokenEyeIcon.className = gitlabTokenVisible ? 'fa fa-eye-slash text-gray-600' : 'fa fa-eye text-gray-600';
+
+            gitlabTokenInput.classList.add('token-animating');
+            setTimeout(() => gitlabTokenInput.classList.remove('token-animating'), 300);
+        });
+    }
 
     githubTokenInput.addEventListener('input', checkTokenForFilter);
 
@@ -304,6 +325,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const showOpenLabelCheckbox = document.getElementById('showOpenLabel');
         const showCommitsCheckbox = document.getElementById('showCommits');
         const githubTokenInput = document.getElementById('githubToken');
+        const gitlabTokenInput = document.getElementById('gitlabToken');
         const cacheInput = document.getElementById('cacheInput');
         const enableToggleSwitch = document.getElementById('enable');
         const yesterdayRadio = document.getElementById('yesterdayContribution');
@@ -312,7 +334,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const platformUsername = document.getElementById('platformUsername');
 
         chrome.storage.local.get([
-            'projectName', 'orgName', 'userReason', 'showOpenLabel', 'showCommits', 'githubToken', 'cacheInput',
+            'projectName', 'orgName', 'userReason', 'showOpenLabel', 'showCommits', 'githubToken', 'gitlabToken', 'cacheInput',
             'enableToggle', 'yesterdayContribution', 'startingDate', 'endingDate', 'selectedTimeframe', 'platform', 'githubUsername', 'gitlabUsername'
         ], function (result) {
             if (result.projectName) projectNameInput.value = result.projectName;
@@ -325,6 +347,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             if (typeof result.showCommits !== 'undefined') showCommitsCheckbox.checked = result.showCommits;
             if (result.githubToken) githubTokenInput.value = result.githubToken;
+            if (result.gitlabToken && gitlabTokenInput) gitlabTokenInput.value = result.gitlabToken;
             if (result.cacheInput) cacheInput.value = result.cacheInput;
             if (enableToggleSwitch) {
                 if (typeof result.enableToggle !== 'undefined') {
@@ -502,6 +525,11 @@ document.addEventListener('DOMContentLoaded', function () {
         githubTokenInput.addEventListener('input', function () {
             chrome.storage.local.set({ githubToken: githubTokenInput.value });
         });
+        if (gitlabTokenInput) {
+            gitlabTokenInput.addEventListener('input', function () {
+                chrome.storage.local.set({ gitlabToken: gitlabTokenInput.value });
+            });
+        }
         cacheInput.addEventListener('input', function () {
             chrome.storage.local.set({ cacheInput: cacheInput.value });
         });
@@ -1222,6 +1250,16 @@ function updatePlatformUI(platform) {
             el.classList.add('hidden');
         } else {
             el.classList.remove('hidden');
+        }
+    });
+
+    // Show/hide GitLab-only sections
+    const gitlabOnlySections = document.querySelectorAll('.gitlabOnlySection');
+    gitlabOnlySections.forEach(el => {
+        if (platform === 'gitlab') {
+            el.classList.remove('hidden');
+        } else {
+            el.classList.add('hidden');
         }
     });
 }
