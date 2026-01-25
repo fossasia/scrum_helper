@@ -399,11 +399,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
 
         document.addEventListener('keydown', function (e) {
-            const isEditable = e.target.tagName === 'INPUT' || 
-                               e.target.tagName === 'TEXTAREA' ||
-                               e.target.contentEditable === 'true';
-            if (isEditable) return;
-
             if (e.ctrlKey && e.key.toLowerCase() === 'g') {
                 e.preventDefault();
                 if (!generateBtn.disabled) {
@@ -412,7 +407,9 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             if (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'c') {
                 e.preventDefault();
-                copyBtn.click();
+                if (!copyBtn.disabled) {
+                    copyBtn.click();
+                }
             }
         });
 
