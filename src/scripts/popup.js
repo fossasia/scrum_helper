@@ -495,6 +495,18 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.key === 'g') {
+                e.preventDefault();
+                generateBtn.click();
+            }
+            if (e.ctrlKey && e.shiftKey && e.key === 'C') {
+                e.preventDefault();
+                copyBtn.click();
+            }
+        });
+
         // Custom date container click handler
         document.getElementById('customDateContainer').addEventListener('click', () => {
             document.querySelectorAll('input[name="timeframe"]').forEach(radio => {
