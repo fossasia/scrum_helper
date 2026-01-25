@@ -497,11 +497,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Keyboard shortcuts
         document.addEventListener('keydown', (e) => {
-            if (e.ctrlKey && e.key === 'g') {
+            const key = (e.key || '').toLowerCase();
+            if (e.ctrlKey && key === 'g' && !e.repeat && !generateBtn.disabled) {
                 e.preventDefault();
                 generateBtn.click();
             }
-            if (e.ctrlKey && e.shiftKey && e.key === 'C') {
+            if (e.ctrlKey && e.shiftKey && key === 'c' && !e.repeat) {
                 e.preventDefault();
                 copyBtn.click();
             }
