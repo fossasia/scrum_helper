@@ -332,8 +332,60 @@ document.addEventListener('DOMContentLoaded', function () {
             console.log('[DEBUG] Extension disabled, returning early');
             return;
         }
+
+ function setupGenerateButtonValidation() {
+    const generateBtn = document.getElementById("generateReport");
+    const usernameInput = document.getElementById("platformUsername");
+    const fromDateInput = document.getElementById("startingDate");
+    const toDateInput = document.getElementById("endingDate");
+
+    if (!generateBtn || !usernameInput || !fromDateInput || !toDateInput) {
+        return;
+    }
+
+    function validate() {
+        const username = usernameInput.value.trim();
+        const fromDate = fromDateInput.value;
+        const toDate = toDateInput.value;
+
+        // Check if username exists and dates are valid
+        const hasUsername = username.length > 0;
+        const hasDates = fromDate !== "" && toDate !== "";
+        const logicalDates = new Date(fromDate) <= new Date(toDate);
+
+        const isValid = hasUsername && hasDates && logicalDates;
+
+        generateBtn.disabled = !isValid;
+        
+        // Optional: Add a visual cue for the disabled state
+        if (!isValid) {
+            generateBtn.classList.add('opacity-50', 'cursor-not-allowed');
+        } else {
+            generateBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+        }
+    }
+
+    // Listen for typing and date selection
+    usernameInput.addEventListener("input", validate);
+    fromDateInput.addEventListener("change", validate);
+    toDateInput.addEventListener("change", validate);
+
+    // Also listen for clicks on the "Previous Day" radio which sets dates programmatically
+    document.querySelectorAll('input[name="timeframe"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+            // Small delay to let the date values update in the DOM
+            setTimeout(validate, 100);
+        });
+    });
+
+    // Run once on load
+    validate();
+}
+
+
         initializePopup();
-        checkTokenForFilter();
+               checkTokenForFilter();
+        setupGenerateButtonValidation();
     })
 
     chrome.storage.onChanged.addListener((changes, namespace) => {
