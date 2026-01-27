@@ -128,13 +128,7 @@
   "repoPlaceholder": {
     "message": "రిపోజిటరీలు ఎంచుకోబడలేదు (అన్నీ చేర్చబడతాయి)"
   },
-  "repoCountNone": {
-    "message": "రిపోజిటరీలు ఎంచుకోబడలేదు"
-  },
   "repoCount": {
-    "message": "$1 రిపోజిటరీ ఎంచుకోబడింది"
-  },
-  "repoCountMany": {
     "message": "$1 రిపోజిటరీలు ఎంచుకోబడ్డాయి"
   },
   "loadingRepos": {
