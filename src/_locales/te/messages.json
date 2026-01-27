@@ -131,8 +131,8 @@
   "repoCountNone": {
     "message": "రిపోజిటరీలు ఎంచుకోబడలేదు"
   },
-  "repoCountOne": {
-    "message": "1 రిపోజిటరీ ఎంచుకోబడింది"
+  "repoCount": {
+    "message": "$1 రిపోజిటరీ ఎంచుకోబడింది"
   },
   "repoCountMany": {
     "message": "$1 రిపోజిటరీలు ఎంచుకోబడ్డాయి"
