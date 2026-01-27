@@ -86,11 +86,6 @@ class GitLabHelper {
 
     // Load token from storage
     await this.getToken();
-    if (this.token) {
-      console.log('Using GitLab token for authenticated requests');
-    } else {
-      console.log('No GitLab token found, using unauthenticated requests');
-    }
 
     // Check if we need to load from storage
     if (!this.cache.data && !this.cache.fetching) {

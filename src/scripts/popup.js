@@ -130,7 +130,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
         tokenEyeIcon.classList.add('eye-animating');
         setTimeout(() => tokenEyeIcon.classList.remove('eye-animating'), 400);
-        tokenEyeIcon.className = tokenVisible ? 'fa fa-eye-slash text-gray-600' : 'fa fa-eye text-gray-600';
+        tokenEyeIcon.classList.remove('fa-eye', 'fa-eye-slash');
+        tokenEyeIcon.classList.add(tokenVisible ? 'fa-eye-slash' : 'fa-eye');
 
         githubTokenInput.classList.add('token-animating');
         setTimeout(() => githubTokenInput.classList.remove('token-animating'), 300);
@@ -144,7 +145,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
             gitlabTokenEyeIcon.classList.add('eye-animating');
             setTimeout(() => gitlabTokenEyeIcon.classList.remove('eye-animating'), 400);
-            gitlabTokenEyeIcon.className = gitlabTokenVisible ? 'fa fa-eye-slash text-gray-600' : 'fa fa-eye text-gray-600';
+            gitlabTokenEyeIcon.classList.remove('fa-eye', 'fa-eye-slash');
+            gitlabTokenEyeIcon.classList.add(gitlabTokenVisible ? 'fa-eye-slash' : 'fa-eye');
 
             gitlabTokenInput.classList.add('token-animating');
             setTimeout(() => gitlabTokenInput.classList.remove('token-animating'), 300);
@@ -198,6 +200,7 @@ document.addEventListener('DOMContentLoaded', function () {
             'githubUsername',
             'githubToken',
             'gitlabToken',
+            'toggleTokenVisibility',
             'toggleGitlabTokenVisibility',
             'projectName',
             'platformUsername',
