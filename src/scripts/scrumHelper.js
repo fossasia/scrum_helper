@@ -1492,7 +1492,7 @@ ${userReason}`;
             } else {
                 // Only process as issue if not a PR
                 if (item.state === 'open' && item.body?.toUpperCase().indexOf('YES') > 0) {
-                    let li2 = `<li><i>(${project})</i> - Work on Issue(#${number}) - <a href='${html_url}' target='_blank'>${title}</a>${showOpenLabel ? ' ' + issue_opened_button : ''}&nbsp;&nbsp;</li>`;
+                    let li2 = `<li><i>(${project})</i> - Work on Issue(#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + issue_opened_button : ''}&nbsp;&nbsp;</li>`;
                     nextWeekArray.push(li2);
                 }
                 // Issue date logic
