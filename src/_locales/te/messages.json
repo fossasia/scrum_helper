@@ -137,7 +137,7 @@
   "repoLoadFailed": {
     "message": "రిపోజిటరీలను లోడ్ చేయడంలో లోపం"
   },
-  "noReposFound": {
+  "repoNotFound": {
     "message": "రిపోజిటరీలు కనుగొనబడలేదు"
   },
   "platformLabel": {
