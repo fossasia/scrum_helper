@@ -134,7 +134,7 @@
   "loadingRepos": {
     "message": "రిపోజిటరీలు లోడ్ అవుతున్నాయి..."
   },
-  "errorLoadingRepos": {
+  "repoLoadFailed": {
     "message": "రిపోజిటరీలను లోడ్ చేయడంలో లోపం"
   },
   "noReposFound": {
