@@ -131,7 +131,7 @@
   "repoCount": {
     "message": "$1 రిపోజిటరీలు ఎంచుకోబడ్డాయి"
   },
-  "loadingRepos": {
+  "repoLoading": {
     "message": "రిపోజిటరీలు లోడ్ అవుతున్నాయి..."
   },
   "repoLoadFailed": {
