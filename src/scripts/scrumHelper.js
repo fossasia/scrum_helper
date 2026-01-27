@@ -657,9 +657,9 @@ function allIncluded(outputTarget = 'email') {
                 throw new Error('Organization not found');
             }
 
-            if (!issuesRes.ok) throw new Error(`Error fetching Github issues: ${issuesRes.status} ${issuesRes.statusText}`);
-            if (!prRes.ok) throw new Error(`Error fetching Github PR review data: ${prRes.status} ${prRes.statusText}`);
-            if (!userRes.ok) throw new Error(`Error fetching Github userdata: ${userRes.status} ${userRes.statusText}`);
+            if (!issuesRes.ok) throw new Error(`Error fetching GitHub issues: ${issuesRes.status} ${issuesRes.statusText}`);
+            if (!prRes.ok) throw new Error(`Error fetching GitHub PR review data: ${prRes.status} ${prRes.statusText}`);
+            if (!userRes.ok) throw new Error(`Error fetching GitHub userdata: ${userRes.status} ${userRes.statusText}`);
 
             githubIssuesData = await issuesRes.json();
             githubPrsReviewData = await prRes.json();
