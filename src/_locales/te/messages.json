@@ -1,6 +1,6 @@
 {
   "appName": {
-    "message": "స్క్రమ్ హెల్పర్"
+    "message": "Scrum Helper"
   },
   "appDescription": {
     "message": "ఎంచుకున్న కాలవ్యవధికి మీ Git కార్యకలాపాలను స్వయంచాలకంగా తెచ్చి, మీ అభివృద్ధి పురోగతిని నివేదించండి"
@@ -165,7 +165,7 @@
     "message": "రిపోజిటరీలను రిఫ్రెష్ చేయడం విఫలమైంది. దయచేసి తర్వాత మళ్లీ ప్రయత్నించండి."
   },
   "orgSetMessage": {
-    "message": "ప్రస్తుత సంస్థ: $ORG$"
+    "message": "ప్రస్తుత సంస్థ"
   },
   "orgClearedMessage": {
     "message": "సంస్థ సెట్టింగ్ క్లియర్ చేయబడింది."
@@ -183,7 +183,7 @@
     "message": "క్యాచ్ క్లియర్ చేయడం విఫలమైంది. దయచేసి మళ్లీ ప్రయత్నించండి."
   },
   "madeWithLoveBy": {
-    "message": "ప్రేమతో తయారు చేసింది: $AUTHOR$"
+    "message": "Made with ❤️ by"
   },
   "generatingButton": {
     "message": "జనరేట్ చేస్తోంది…"
@@ -192,7 +192,7 @@
     "message": "కాపీ అయింది!"
   },
   "orgChangedMessage": {
-    "message": "సంస్థ $ORG$ కి మార్చబడింది."
+    "message": "సంస్థ కి మార్చబడింది."
   },
   "cacheClearedMessage": {
     "message": "లోకల్ క్యాచ్ క్లియర్ చేయబడింది."
