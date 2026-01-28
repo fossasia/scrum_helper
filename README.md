@@ -18,7 +18,9 @@
 1. Open the Chrome Web Store and search for [“Scrum Helper”](https://chromewebstore.google.com/detail/Scrum%20Helper/begjldpiiihpnaflcbdbbophiifphokg) by FOSSASIA.
 2. Click “Add to Chrome”.
 3. Pin the extension to your toolbar (optional).
-4. Open the extension popup and set your GitHub username, date range, and preferences.
+4. Open the extension popup from your browser toolbar.
+5. Set your GitHub username, date range, and preferences in the popup.
+6. Start composing your reports in Gmail, Yahoo Mail, Outlook, or Google Groups using the extension.
 
 ## Setting Up Your Development Environment
 
