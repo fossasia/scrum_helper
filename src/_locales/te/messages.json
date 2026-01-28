@@ -148,5 +148,62 @@
   },
   "notePoint1": {
     "message": "పుల్ రిక్వెస్ట్‌లు ఏదైనా కంట్రిబ్యూటర్ యొక్క ఇటీవలి రివ్యూ కార్యకలాపాల ఆధారంగా తీసుకోబడతాయి, మీ స్వంత కార్యకలాపాలు మాత్రమే కాదు. షేర్ చేసే ముందు మీ పనిని ఖచ్చితంగా ప్రతిబింబించేలా SCRUM నివేదికను సమీక్షించి సరిచేయండి."
+  },
+  "repoCountNone": {
+    "message": "ఈ ఫిల్టర్‌కు సరిపోయే ఏ రిపోజిటరీలు లేవు."
+  },
+  "repoLoaded": {
+    "message": "రిపోజిటరీలు లోడ్ అయ్యాయి."
+  },
+  "repoRefetching": {
+    "message": "రిపోజిటరీలను మళ్లీ తెచ్చుకుంటోంది…"
+  },
+  "repoTokenPrivate": {
+    "message": "మీ యాక్సెస్ టోకెన్‌కు ఈ ప్రైవేట్ రిపోజిటరీకి ప్రవేశం ఉండకపోవచ్చు."
+  },
+  "repoRefetchFailed": {
+    "message": "రిపోజిటరీలను రిఫ్రెష్ చేయడం విఫలమైంది. దయచేసి తర్వాత మళ్లీ ప్రయత్నించండి."
+  },
+  "orgSetMessage": {
+    "message": "ప్రస్తుత సంస్థ: $ORG$"
+  },
+  "orgClearedMessage": {
+    "message": "సంస్థ సెట్టింగ్ క్లియర్ చేయబడింది."
+  },
+  "orgNotFoundMessage": {
+    "message": "ఆ పేరుతో ఉన్న GitHub సంస్థ దొరకలేదు."
+  },
+  "orgValidationErrorMessage": {
+    "message": "దయచేసి సరైన GitHub సంస్థ పేరును నమోదు చేయండి."
+  },
+  "refreshingButton": {
+    "message": "రిఫ్రెష్ చేస్తోంది…"
+  },
+  "cacheClearFailed": {
+    "message": "క్యాచ్ క్లియర్ చేయడం విఫలమైంది. దయచేసి మళ్లీ ప్రయత్నించండి."
+  },
+  "madeWithLoveBy": {
+    "message": "ప్రేమతో తయారు చేసింది: $AUTHOR$"
+  },
+  "generatingButton": {
+    "message": "జనరేట్ చేస్తోంది…"
+  },
+  "copiedButton": {
+    "message": "కాపీ అయింది!"
+  },
+  "orgChangedMessage": {
+    "message": "సంస్థ $ORG$ కి మార్చబడింది."
+  },
+  "cacheClearedMessage": {
+    "message": "లోకల్ క్యాచ్ క్లియర్ చేయబడింది."
+  },
+  "cacheClearedButton": {
+    "message": "క్యాచ్ క్లియర్ అయింది!"
+  },
+  "extensionDisabledMessage": {
+    "message": "ఎక్స్‌టెన్షన్ ప్రస్తుతం నిర్వీర్యం చేయబడింది. దయచేసి సెట్టింగ్‌లను తనిఖీ చేయండి."
+  },
+  "noteSeeIssue": {
+    "message": "ఇది సమస్య అయితే, దయచేసి GitHub ఇష్యూ ఓపెన్ చేయండి."
   }
 }
