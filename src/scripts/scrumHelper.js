@@ -1127,8 +1127,8 @@ ${userReason}`;
         }
     }
 
+    const isAnyFilterActive = onlyIssues || onlyIssues || onlyRevPRs;
     function writeGithubPrsReviews() {
-        const isAnyFilterActive = onlyIssues || onlyIssues || onlyRevPRs;
         if (isAnyFilterActive && !onlyRevPRs) {
             if (isAnyFilterActive && !onlyRevPRs) {
                 log('Filters active but onlyRevPRs not checked, skipping PR reviews.');
