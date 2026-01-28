@@ -10,7 +10,33 @@
 		"lineWidth": 120
 	},
 	"linter": {
-		"enabled": true
+		"enabled": true,
+		"rules": {
+			"correctness": {
+				"noUnusedVariables": "off",
+				"noUnusedImports": "off",
+				"noSwitchDeclarations": "off",
+				"noUnreachable": "off",
+				"noUnnecessaryContinue": "off"
+			},
+			"complexity": {
+				"noForEach": "off",
+				"useOptionalChain": "off",
+				"useLiteralKeys": "off",
+				"noUselessCatch": "off"
+			},
+			"style": {
+				"useTemplate": "off",
+				"useSingleVarDeclarator": "off",
+				"noUnusedTemplateLiteral": "off",
+				"noUselessElse": "off"
+			},
+			"suspicious": {
+				"noDoubleEquals": "off",
+				"noGlobalIsNan": "off",
+				"noAsyncPromiseExecutor": "off"
+			}
+		}
 	},
 	"organizeImports": {
 		"enabled": true
