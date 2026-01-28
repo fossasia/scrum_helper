@@ -1367,7 +1367,7 @@ ${userReason}`;
     }
 
     async function writeGithubIssuesPrs(items) {
-        let isAnyFilterActive = onlyIssues || onlyIssues || onlyRevPRs;
+        let isAnyFilterActive = onlyIssues || onlyPRs || onlyRevPRs;
         if (!items) {
 
             return;
