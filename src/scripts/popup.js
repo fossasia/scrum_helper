@@ -177,6 +177,7 @@ document.addEventListener('DOMContentLoaded', function () {
             'showCommits',
             'onlyIssues',
             'onlyPRs',
+            'onlyRevPRs',
             'scrumReport',
             'githubUsername',
             'githubToken',
@@ -381,6 +382,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const showCommitsCheckbox = document.getElementById('showCommits');
         const onlyIssuesCheckbox = document.getElementById('onlyIssues');
         const onlyPRsCheckbox = document.getElementById('onlyPRs');
+        const onlyRevPRsCheckbox = document.getElementById('onlyRevPRs');
 
         const githubTokenInput = document.getElementById('githubToken');
         const cacheInput = document.getElementById('cacheInput');
@@ -410,6 +412,9 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             if (typeof result.onlyPRs !== 'undefined') {
                 onlyPRsCheckbox.checked = result.onlyPRs;
+            }
+            if (typeof result.onlyRevPRs !== 'undefined') {
+                onlyRevPRsCheckbox.checked = result.onlyRevPRs;
             }
 
             // Reconcile mutually exclusive "Only Issues" and "Only PRs" flags on initialization.
