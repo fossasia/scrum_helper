@@ -143,9 +143,23 @@ document.addEventListener('DOMContentLoaded', function () {
             settingsIcon.src = isDarkMode ? 'icons/settings-night.png' : 'icons/settings-light.png';
         }
         renderTokenPreview();
+
+        // Trigger re-render of error messages if they exist
+        const scrumReport = document.getElementById('scrumReport');
+        if (scrumReport && scrumReport.querySelector('.error-message')) {
+            // Re-generate the report to apply new theme colors
+            const generateBtn = document.getElementById('generateReport');
+            if (generateBtn && !generateBtn.disabled) {
+                // Only regenerate if there's already an error message showing
+                window.generateScrumReport && window.generateScrumReport();
+            }
+        }
     });
 
     function renderTokenPreview() {
+        const tokenPreview = document.getElementById('tokenPreview');
+        
+        
         if (!tokenPreview || !githubTokenInput) return;
         tokenPreview.innerHTML = '';
         const value = githubTokenInput.value;
@@ -376,7 +390,6 @@ document.addEventListener('DOMContentLoaded', function () {
         // Restore all persistent fields immediately on DOMContentLoaded
         const projectNameInput = document.getElementById('projectName');
         const orgInput = document.getElementById('orgInput');
-        const userReasonInput = document.getElementById('userReason');
         const showOpenLabelCheckbox = document.getElementById('showOpenLabel');
         const showCommitsCheckbox = document.getElementById('showCommits');
         const onlyIssuesCheckbox = document.getElementById('onlyIssues');
@@ -398,7 +411,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (result.projectName) projectNameInput.value = result.projectName;
             if (result.orgName) orgInput.value = result.orgName;
-            if (result.userReason) userReasonInput.value = result.userReason;
             if (typeof result.showOpenLabel !== 'undefined') {
                 showOpenLabelCheckbox.checked = result.showOpenLabel;
             } else {
@@ -437,7 +449,7 @@ document.addEventListener('DOMContentLoaded', function () {
             // Load platform-specific username
             const platform = result.platform || 'github';
             const platformUsernameKey = `${platform}Username`;
-            platformUsername.value = result[platformUsernameKey] || '';
+            platformUsername.value = result?.[platformUsernameKey] || '';
         });
 
         // Button setup
