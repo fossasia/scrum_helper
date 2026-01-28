@@ -2,7 +2,7 @@
 
 ## What's Changed
 
-* No changes
+* Fixed Telugu translation inconsistencies for appName and madeWithLoveBy fields
 
 ---
 
