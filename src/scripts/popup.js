@@ -622,6 +622,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 });
             });
+
+            if(onlyRevPRsCheckbox){
+                onlyRevPRsCheckbox.addEventListener('change', function() {
+                    chrome.storage.local.set({ onlyRevPRs: onlyRevPRsCheckbox.checked });
+                });
+            }
         }
         showCommitsCheckbox.addEventListener('change', function () {
             chrome.storage.local.set({ showCommits: showCommitsCheckbox.checked });

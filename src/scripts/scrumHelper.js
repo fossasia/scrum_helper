@@ -146,6 +146,7 @@ function allIncluded(outputTarget = 'email') {
                 onlyIssues = items.onlyIssues === true;
                 onlyPRs = items.onlyPRs === true;
                 onlyRevPRs = items.onlyRevPRs === true;
+                console.log('[SCRUM-DEBUG] loaded flags:', { onlyIssues, onlyPRs, onlyRevPRs });
                 // Enforce mutual exclusivity between onlyIssues and onlyPRs to avoid filtering out everything
                 if (onlyIssues && onlyPRs) {
                     console.warn('[SCRUM-HELPER]: Detected both onlyIssues and onlyPRs enabled; normalizing to onlyIssues.');
@@ -1127,8 +1128,9 @@ ${userReason}`;
         }
     }
 
-    const isAnyFilterActive = onlyIssues || onlyIssues || onlyRevPRs;
+    
     function writeGithubPrsReviews() {
+        let isAnyFilterActive = onlyIssues || onlyIssues || onlyRevPRs;
         if (isAnyFilterActive && !onlyRevPRs) {
             if (isAnyFilterActive && !onlyRevPRs) {
                 log('Filters active but onlyRevPRs not checked, skipping PR reviews.');
@@ -1365,7 +1367,7 @@ ${userReason}`;
     }
 
     async function writeGithubIssuesPrs(items) {
-
+        let isAnyFilterActive = onlyIssues || onlyIssues || onlyRevPRs;
         if (!items) {
 
             return;
