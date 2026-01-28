@@ -15,10 +15,27 @@ class GitLabHelper {
 
   async getToken() {
     return new Promise((resolve) => {
-      chrome.storage.local.get(['gitlabToken'], (items) => {
-        this.token = items.gitlabToken || null;
-        resolve(this.token);
-      });
+      // Try session storage first (more secure, memory-only), then fallback to local storage
+      if (chrome.storage.session && typeof chrome.storage.session.get === 'function') {
+        chrome.storage.session.get(['gitlabToken'], (sessionItems) => {
+          if (sessionItems.gitlabToken) {
+            this.token = sessionItems.gitlabToken;
+            resolve(this.token);
+          } else {
+            // Fallback to local storage
+            chrome.storage.local.get(['gitlabToken'], (items) => {
+              this.token = items.gitlabToken || null;
+              resolve(this.token);
+            });
+          }
+        });
+      } else {
+        // Fallback for environments without session storage support
+        chrome.storage.local.get(['gitlabToken'], (items) => {
+          this.token = items.gitlabToken || null;
+          resolve(this.token);
+        });
+      }
     });
   }
 
