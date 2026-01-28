@@ -74,6 +74,12 @@
     "showCommitsLabel": {
         "message": "Показувати коміти у відкритих PR/ чернетках PR"
     },
+    "onlyPRsLabel": {
+        "message": "Включати до звіту лише PR"
+    },
+    "onlyPRsTooltip": {
+        "message": "Якщо позначено, звіт включатиме лише pull requests, створені користувачем; переглянуті PR будуть виключені."
+    },
     "cacheTTLLabel": {
         "message": "Введіть TTL кешу"
     },

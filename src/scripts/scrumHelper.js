@@ -64,6 +64,7 @@ function allIncluded(outputTarget = 'email') {
     let userReason = '';
     let subjectForEmail = null;
     let onlyIssues = false;
+    let onlyPRs = false;
 
     let pr_open_button =
         '<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
@@ -107,6 +108,7 @@ function allIncluded(outputTarget = 'email') {
                 'useRepoFilter',
                 'showCommits',
                 'onlyIssues',
+                'onlyPRs',
             ],
             (items) => {
                 platform = items.platform || 'github';
@@ -146,6 +148,12 @@ function allIncluded(outputTarget = 'email') {
                 }
 
                 onlyIssues = items.onlyIssues === true;
+                onlyPRs = items.onlyPRs === true;
+                // Enforce mutual exclusivity between onlyIssues and onlyPRs to avoid filtering out everything
+                if (onlyIssues && onlyPRs) {
+                    console.warn('[SCRUM-HELPER]: Detected both onlyIssues and onlyPRs enabled; normalizing to onlyIssues.');
+                    onlyPRs = false;
+                }
                 showCommits = items.showCommits || false;
                 showOpenLabel = items.showOpenLabel !== false; // Default to true if not explicitly set to false
                 orgName = items.orgName || '';
@@ -511,13 +519,12 @@ function allIncluded(outputTarget = 'email') {
                 return Promise.resolve();
             }
         }
-        // if cache key does not match our cache is stale, fetch new data
+
         if (!isCacheKeyMatch) {
             githubCache.data = null;
         } else if (!isCacheFresh) {
         }
 
-        // if fetching is in progress, queue the calls and return a promise resolved when done
         if (githubCache.fetching) {
             return new Promise((resolve, reject) => {
                 githubCache.queue.push({ resolve, reject });
@@ -607,7 +614,7 @@ function allIncluded(outputTarget = 'email') {
         // Log the URLs for debugging
 
         try {
-            // throttling 500ms to avoid burst
+
             await new Promise(res => setTimeout(res, 500));
 
             // Build PR URLs from issue URLs by replacing is:issue with is:pr
@@ -629,14 +636,15 @@ function allIncluded(outputTarget = 'email') {
                 issuesAuthRes.status === 403 || prsAuthRes.status === 403 || issuesCommentRes.status === 403 || 
                 prsCommentRes.status === 403 || userRes.status === 403) {
                 showInvalidTokenMessage();
+                githubCache.fetching = false;
                 return;
             }
 
             if (issuesAuthRes.status === 404 || prsAuthRes.status === 404 || issuesCommentRes.status === 404 || prsCommentRes.status === 404) {
                 if (outputTarget === 'popup') {
-                    Materialize.toast && Materialize.toast('Organization not found on GitHub', 3000);
+                    Materialize.toast && Materialize.toast(errorMsg, 4000);
                 }
-                throw new Error('Organization not found');
+                throw new Error(errorMsg);
             }
 
             // Handle errors and combine results
