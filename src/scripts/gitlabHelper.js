@@ -40,7 +40,6 @@ class GitLabHelper {
           this.cache.data = items.gitlabCache.data;
           this.cache.cacheKey = items.gitlabCache.cacheKey;
           this.cache.timestamp = items.gitlabCache.timestamp;
-          console.log('Restored GitLab cache from storage');
         }
         resolve();
       });
@@ -51,15 +50,8 @@ class GitLabHelper {
     const cacheKey = `${username}-${startDate}-${endDate}`;
 
     if (this.cache.fetching || (this.cache.cacheKey === cacheKey && this.cache.data)) {
-      console.log('GitLab fetch already in progress or data already fetched. Skipping fetch.');
       return this.cache.data;
     }
-
-    console.log('Fetching GitLab data:', {
-      username: username,
-      startDate: startDate,
-      endDate: endDate,
-    });
 
     // Check if we need to load from storage
     if (!this.cache.data && !this.cache.fetching) {
@@ -68,26 +60,20 @@ class GitLabHelper {
 
     const currentTTL = await this.getCacheTTL();
     this.cache.ttl = currentTTL;
-    console.log(`GitLab caching for ${currentTTL / (60 * 1000)} minutes`);
 
     const now = Date.now();
     const isCacheFresh = (now - this.cache.timestamp) < this.cache.ttl;
     const isCacheKeyMatch = this.cache.cacheKey === cacheKey;
 
     if (this.cache.data && isCacheFresh && isCacheKeyMatch) {
-      console.log('Using cached GitLab data - cache is fresh and key matches');
       return this.cache.data;
     }
 
     if (!isCacheKeyMatch) {
-      console.log('GitLab cache key mismatch - fetching new data');
       this.cache.data = null;
-    } else if (!isCacheFresh) {
-      console.log('GitLab cache is stale - fetching new data');
     }
 
     if (this.cache.fetching) {
-      console.log('GitLab fetch in progress, queuing requests');
       return new Promise((resolve, reject) => {
         this.cache.queue.push({ resolve, reject });
       });
@@ -254,14 +240,6 @@ class GitLabHelper {
       comments: data.comments || [],
       user: data.user
     };
-    console.log('[GITLAB-DEBUG] processGitLabData input:', data);
-    console.log('[GITLAB-DEBUG] processGitLabData output:', processed);
-    console.log('GitLab data processed:', {
-      mergeRequests: processed.mergeRequests.length,
-      issues: processed.issues.length,
-      comments: processed.comments.length,
-      user: processed.user?.username
-    });
 
     return processed;
   }
