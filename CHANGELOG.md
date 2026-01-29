@@ -13,7 +13,6 @@
 * Fixed Telugu translation inconsistencies for appName and madeWithLoveBy fields
 
 ---
-
 ## v0.1.3 - 2026-01-23
 
 ## What's Changed
