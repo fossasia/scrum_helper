@@ -104,16 +104,10 @@ document.getElementById('refreshCache').addEventListener('click', async (e) => {
 	button.classList.add('loading');
 	button.disabled = true;
 
-	try {
-		// Placeholder for cache refresh logic
-	} catch (_err) {
-		// Handle error if needed
-	} finally {
-		setTimeout(() => {
-			button.classList.remove('loading');
-			button.disabled = false;
-		}, 500);
-	}
+	setTimeout(() => {
+		button.classList.remove('loading');
+		button.disabled = false;
+	}, 500);
 });
 
 function handleEnableChange() {
