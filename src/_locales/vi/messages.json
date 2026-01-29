@@ -74,8 +74,24 @@
     "showCommitsLabel": {
         "message": "Hiển thị các commit trên PR đang mở/ PR nháp"
     },
+    "showCommitsTooltip": {
+        "message": "Yêu cầu mã thông báo Github, hãy thêm nó trong cài đặt."
+    },
+    "onlyIssuesLabel": {
+        "message": "Chỉ bao gồm các vấn đề trong báo cáo"
+    },
+    "onlyIssuesTooltip": {
+        "message": "Nếu được chọn, báo cáo sẽ chỉ bao gồm các vấn đề do người dùng tạo hoặc được giao."
+    },
+    "onlyPRsLabel": {
+        "message": "Chỉ bao gồm PR trong báo cáo"
+    },
+    "onlyPRsTooltip": {
+        "message": "Nếu được chọn, báo cáo chỉ bao gồm các pull request do người dùng tạo; các PR đã được xem xét sẽ bị loại trừ."
+    },
     "cacheTTLLabel": {
-        "message": "Nhập TTL bộ nhớ đệm"
+        "message": "Nhập TTL bộ nhớ cache",
+        "description": "Nhãn cho đầu vào thời gian tồn tại của bộ nhớ cache."
     },
     "cacheTTLUnit": {
         "message": "(tính bằng phút)"

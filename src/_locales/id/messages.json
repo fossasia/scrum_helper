@@ -74,8 +74,24 @@
     "showCommitsLabel": {
         "message": "Tampilkan commit pada PR terbuka/ draf PR"
     },
+    "showCommitsTooltip": {
+        "message": "Token Github diperlukan, tambahkan di pengaturan."
+    },
+    "onlyIssuesLabel": {
+        "message": "Hanya sertakan masalah dalam laporan"
+    },
+    "onlyIssuesTooltip": {
+        "message": "Jika dicentang, laporan hanya akan menyertakan masalah yang dibuat atau ditugaskan kepada pengguna."
+    },
+    "onlyPRsLabel": {
+        "message": "Hanya sertakan PR dalam laporan"
+    },
+    "onlyPRsTooltip": {
+        "message": "Jika dicentang, laporan hanya akan menyertakan PR yang dibuat oleh pengguna; PR yang telah ditinjau akan dikecualikan."
+    },
     "cacheTTLLabel": {
-        "message": "Masukkan TTL cache"
+        "message": "Masukkan TTL cache",
+        "description": "Label untuk masukan time-to-live cache."
     },
     "cacheTTLUnit": {
         "message": "(dalam menit)"

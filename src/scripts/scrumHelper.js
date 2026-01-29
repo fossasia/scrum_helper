@@ -129,24 +129,9 @@ function allIncluded(outputTarget = 'email') {
     let showOpenLabel = true;
     let showCommits = false;
     let subjectForEmail = null;
+    let onlyIssues = false;
+    let onlyPRs = false;
 
-    function createStatusBadge(text, bgColor) {
-        const badge = document.createElement('span');
-        badge.textContent = text;
-        badge.style.cssText = `            
-            display: inline-block;
-            padding: 2px 6px;
-            font-size: 11px;
-            font-weight: 600;
-            color: #fff;
-            text-align: center;
-            background-color: ${bgColor};
-            border-radius: 6px;
-            vertical-align: middle;
-            margin-left: 4px;
-        `;
-        return badge;
-    }
 
     function createErrorStyle() {
         const colors = getThemeColors();
@@ -204,6 +189,15 @@ function allIncluded(outputTarget = 'email') {
         }
     }  
 
+    // Ensure the theme observer is cleaned up when the page or popup is closed
+    if (typeof window !== 'undefined') {
+        // Register cleanup listeners only once per window to avoid multiple registrations
+        if (!window.__scrumHelperThemeCleanupRegistered) {
+            window.addEventListener('beforeunload', cleanupThemeObserver);
+            window.addEventListener('unload', cleanupThemeObserver);
+            window.__scrumHelperThemeCleanupRegistered = true;
+        }
+    }
     const pr_open_button = createBadgeHTML('open', '#2cbe4e');
     const pr_closed_button = createBadgeHTML('closed', '#dc2626'); 
     const pr_merged_button = createBadgeHTML('merged', '#8b5cf6');
@@ -234,6 +228,8 @@ function allIncluded(outputTarget = 'email') {
                 'selectedRepos',
                 'useRepoFilter',
                 'showCommits',
+                'onlyIssues',
+                'onlyPRs',
             ],
             (items) => {
 
@@ -259,6 +255,7 @@ function allIncluded(outputTarget = 'email') {
                     }
                     setGenerateButtonState(false);
                     scrumGenerationInProgress = false;
+                    return;
                 }
                 projectName = items.projectName;
 
@@ -268,6 +265,13 @@ function allIncluded(outputTarget = 'email') {
                     enableToggle = items.enableToggle;
                 }
 
+                onlyIssues = items.onlyIssues === true;
+                onlyPRs = items.onlyPRs === true;
+                // Enforce mutual exclusivity between onlyIssues and onlyPRs to avoid filtering out everything
+                if (onlyIssues && onlyPRs) {
+                    console.warn('[SCRUM-HELPER]: Detected both onlyIssues and onlyPRs enabled; normalizing to onlyIssues.');
+                    onlyPRs = false;
+                }
                 showCommits = items.showCommits || false;
                 showOpenLabel = items.showOpenLabel !== false; // Default to true if not explicitly set to false
                 orgName = items.orgName || '';
@@ -637,7 +641,7 @@ function allIncluded(outputTarget = 'email') {
                 return Promise.resolve();
             }
         }
-        // if cache key does not match our cache is stale, fetch new data
+
         if (!isCacheKeyMatch) {
             log('Cache key mismatch - fetching new Data');
             githubCache.data = null;
@@ -645,7 +649,6 @@ function allIncluded(outputTarget = 'email') {
             log('Cache is stale - fetching new data');
         }
 
-        // if fetching is in progress, queue the calls and return a promise resolved when done
         if (githubCache.fetching) {
             log('Fetch in progress, queuing requests');
             return new Promise((resolve, reject) => {
@@ -719,13 +722,37 @@ function allIncluded(outputTarget = 'email') {
         }
 
         try {
-            // throttling 500ms to avoid burst
+
             await new Promise(res => setTimeout(res, 500));
+
+            log('Validating GitHub user existence for:', platformUsernameLocal);
+            const userCheckRes = await fetch(userUrl, { headers });
+            
+            if (userCheckRes.status === 404) {
+                const errorMsg = `GitHub user "${platformUsernameLocal}" not found (404). Please check the username and try again.`;
+                logError(errorMsg);
+                if (outputTarget === 'popup') {
+                    Materialize.toast && Materialize.toast(errorMsg, 4000);
+                }
+                throw new Error(errorMsg);
+            }
+            
+            if (userCheckRes.status === 401 || userCheckRes.status === 403) {
+                showInvalidTokenMessage();
+                githubCache.fetching = false;
+                return;
+            }
+
+            if (!userCheckRes.ok) {
+                const errorMsg = `Error validating GitHub user: ${userCheckRes.status} ${userCheckRes.statusText}`;
+                logError(errorMsg);
+                throw new Error(errorMsg);
+            }
 
             const [issuesRes, prRes, userRes] = await Promise.all([
                 fetch(issueUrl, { headers }),
                 fetch(prUrl, { headers }),
-                fetch(userUrl, { headers }),
+                userCheckRes // Reuse the already validated user response
             ]);
 
             // Check for rate limit error (403 with rate limit message)
@@ -754,16 +781,37 @@ function allIncluded(outputTarget = 'email') {
                 return;
             }
 
-            if (issuesRes.status === 404 || prRes.status === 404) {
+            if (issuesRes.status === 422 || prRes.status === 422) {
+                const errorMsg = `Invalid search query or date range. Please verify your date range format and try again.`;
+                logError(errorMsg);
                 if (outputTarget === 'popup') {
-                    Materialize.toast && Materialize.toast(getMessage('orgNotFoundMessage', 'Organization not found on GitHub'), 3000);
+                    Materialize.toast && Materialize.toast(errorMsg, 4000);
                 }
-                throw new Error('Organization not found');
+                throw new Error(errorMsg);
             }
 
-            if (!issuesRes.ok) throw new Error(`Error fetching Github issues: ${issuesRes.status} ${issuesRes.statusText}`);
-            if (!prRes.ok) throw new Error(`Error fetching Github PR review data: ${prRes.status} ${prRes.statusText}`);
-            if (!userRes.ok) throw new Error(`Error fetching Github userdata: ${userRes.status} ${userRes.statusText}`);
+
+            if (!issuesRes.ok) {
+                const errorMsg = `Error fetching GitHub issues: ${issuesRes.status} ${issuesRes.statusText}`;
+                logError(errorMsg);
+                if (outputTarget === 'popup') {
+                    Materialize.toast && Materialize.toast(errorMsg, 4000);
+                }
+                throw new Error(errorMsg);
+            }
+            if (!prRes.ok) {
+                const errorMsg = `Error fetching GitHub PR review data: ${prRes.status} ${prRes.statusText}`;
+                logError(errorMsg);
+                if (outputTarget === 'popup') {
+                    Materialize.toast && Materialize.toast(errorMsg, 4000);
+                }
+                throw new Error(errorMsg);
+            }
+            if (!userRes.ok) {
+                const errorMsg = `Error fetching GitHub user data: ${userRes.status} ${userRes.statusText}`;
+                logError(errorMsg);
+                throw new Error(errorMsg);
+            }
 
             githubIssuesData = await issuesRes.json();
             githubPrsReviewData = await prRes.json();
@@ -778,7 +826,7 @@ function allIncluded(outputTarget = 'email') {
                 log('Open PRs for commit fetching:', openPRs.map(pr => pr.number));
                 // Fetch commits for open PRs (batch) if showCommits is enabled
                 if (openPRs.length && githubToken && showCommits) {
-                    // Get the correct date range for commit fetching
+                   
                     let startDateForCommits, endDateForCommits;
                     if (yesterdayContribution) {
                         const today = new Date();
@@ -1030,6 +1078,7 @@ function allIncluded(outputTarget = 'email') {
         const icon = document.createElement('i');
         icon.className = 'fa fa-exclamation-triangle';
         icon.style.cssText = 'font-size: 24px;';
+        icon.setAttribute('aria-hidden', 'true');
         iconContainer.appendChild(icon);
 
         // Title
@@ -1132,6 +1181,15 @@ function allIncluded(outputTarget = 'email') {
         addTokenBtn.addEventListener('mouseleave', () => {
             addTokenBtn.style.background = colors.buttonBg;
         });
+
+        // Ensure keyboard users get the same visual feedback as mouse users
+        addTokenBtn.addEventListener('focus', () => {
+            addTokenBtn.style.background = colors.buttonHover;
+        });
+
+        addTokenBtn.addEventListener('blur', () => {
+            addTokenBtn.style.background = colors.buttonBg;
+        });
         
         addTokenBtn.addEventListener('click', () => {
             // Clear error UI state when navigating away
@@ -1168,6 +1226,15 @@ function allIncluded(outputTarget = 'email') {
         });
         
         learnMoreLink.addEventListener('mouseleave', () => {
+            learnMoreLink.style.color = colors.linkColor;
+        });
+        
+        // Ensure keyboard users get the same visual feedback as mouse users
+        learnMoreLink.addEventListener('focus', () => {
+            learnMoreLink.style.color = colors.linkHover;
+        });
+        
+        learnMoreLink.addEventListener('blur', () => {
             learnMoreLink.style.color = colors.linkColor;
         });
         
@@ -1451,6 +1518,18 @@ ${nextWeekUl}<br>
     }
 
     function writeGithubPrsReviews() {
+        if(onlyIssues){
+            log(' "Only Issues" is checked, skipping PR reviews.')
+            reviewedPrsArray = [];
+            prsReviewDataProcessed = true;
+            return;
+        }
+        if(onlyPRs){
+            log('"Only PRs" checked, skipping PR reviews');
+            reviewedPrsArray = [];
+            prsReviewDataProcessed = true;
+            return;
+        }
         let items = githubPrsReviewData.items;
         log('Processing PR reviews:', {
             hasItems: !!items,
@@ -1488,6 +1567,7 @@ ${nextWeekUl}<br>
         log('Filtering PR reviews by date range:', { startDate, endDate, startDateTime, endDateTime });
 
         for (i = 0; i < items.length; i++) {
+            
             let item = items[i];
             log(`Processing PR #${item.number} - state: ${item.state}, updated_at: ${item.updated_at}, created_at: ${item.created_at}, merged_at: ${item.pull_request?.merged_at}`);
 
@@ -1606,7 +1686,7 @@ ${nextWeekUl}<br>
                     let pr_arr = githubPrsReviewDataProcessed[repo][pr];
                     let prText = '';
                     prText +=
-                        "<a href='" + pr_arr.html_url + "' target='_blank'>#" + pr_arr.number + '</a> (' + pr_arr.title + ') ';
+                        "<a href='" + pr_arr.html_url + "' target='_blank' rel='noopener noreferrer'>#" + pr_arr.number + '</a> (' + pr_arr.title + ') ';
                     if (showOpenLabel && pr_arr.state === 'open') prText += issue_opened_button;
                     // Do not show closed label for reviewed PRs
                     prText += '&nbsp;&nbsp;';
@@ -1620,7 +1700,7 @@ ${nextWeekUl}<br>
                     prText1 +=
                         "<li><a href='" +
                         pr_arr1.html_url +
-                        "' target='_blank'>#" +
+                        "' target='_blank' rel='noopener noreferrer'>#" +
                         pr_arr1.number +
                         '</a> (' +
                         pr_arr1.title +
@@ -1750,6 +1830,16 @@ ${nextWeekUl}<br>
             log('[SCRUM-DEBUG] Processing item:', item);
             // For GitLab, treat all items in the MRs array as MRs
             let isMR = !!item.pull_request; // works for both GitHub and mapped GitLab data
+            if(onlyPRs && !isMR){
+                log('[SCRUM-DEBUG] "Only PRs" checked, skipping issues:', item.number);
+                continue;
+            }
+
+            if (onlyIssues && isMR) {
+                log('[SCRUM-DEBUG] "Only Issues" checked, skipping PR/MR:', item.number);
+                continue;
+            }
+            
             log('[SCRUM-DEBUG] isMR:', isMR, 'platform:', platform, 'item:', item);
             let html_url = item.html_url;
             let repository_url = item.repository_url;
@@ -1831,7 +1921,7 @@ ${nextWeekUl}<br>
                 }
 
                 if (isDraft) {
-                    li = `<li><i>(${project})</i> - Made PR (#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + pr_draft_button : ''}`;
+                    li = `<li><i>(${project})</i> - Made PR <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_draft_button : ''}`;
                     if (showCommits && item._allCommits && item._allCommits.length && !isNewPR) {
                         log(`[PR DEBUG] Rendering commits for existing draft PR #${number}:`, item._allCommits);
                         li += '<ul>';
@@ -1842,7 +1932,7 @@ ${nextWeekUl}<br>
                     }
                     li += `</li>`;
                 } else if (item.state === 'open' || item.state === 'opened') {
-                    li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + pr_open_button : ''}`;
+                    li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_open_button : ''}`;
 
                     if (showCommits && item._allCommits && item._allCommits.length && !isNewPR) {
                         log(`[PR DEBUG] Rendering commits for existing PR #${number}:`, item._allCommits);
@@ -1854,7 +1944,7 @@ ${nextWeekUl}<br>
                     }
                     li += `</li>`;
                 } else if (platform === 'gitlab' && item.state === 'closed') {
-                    li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + pr_closed_button : ''}</li>`;
+                    li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_closed_button : ''}</li>`;
                 } else {
                     let merged = null;
                     if ((githubToken || (useMergedStatus && !fallbackToSimple)) && mergedStatusResults) {
@@ -1864,10 +1954,10 @@ ${nextWeekUl}<br>
                         merged = mergedStatusResults[`${owner}/${repo}#${number}`];
                     }
                     if (merged === true) {
-                        li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + pr_merged_button : ''}</li>`;
+                        li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_merged_button : ''}</li>`;
                     } else {
                         // Always show closed label for merged === false or merged === null/undefined
-                        li = `<li><i>(${project})</i> - ${prAction} (#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + pr_closed_button : ''}</li>`;
+                        li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_closed_button : ''}</li>`;
                     }
                 }
                 log('[SCRUM-DEBUG] Added PR/MR to lastWeekArray:', li, item);
@@ -1883,7 +1973,7 @@ ${nextWeekUl}<br>
                         number +
                         ") - <a href='" +
                         html_url +
-                        "' target='_blank'>" +
+                        "' target='_blank' rel='noopener noreferrer'>" +
                         title +
                         '</a>' + (showOpenLabel ? ' ' + issue_opened_button : '') +
                         '&nbsp;&nbsp;</li>';

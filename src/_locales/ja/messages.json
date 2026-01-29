@@ -74,8 +74,24 @@
     "showCommitsLabel": {
         "message": "オープンなPR/ドラフトPRのコミットを表示"
     },
+    "showCommitsTooltip": {
+        "message": "Githubトークンが必要です。設定で追加してください。"
+    },
+    "onlyIssuesLabel": {
+        "message": "レポートに課題のみを含める"
+    },
+    "onlyIssuesTooltip": {
+        "message": "チェックした場合、レポートにはユーザーが作成または割り当てられた課題のみが含まれます。"
+    },
+    "onlyPRsLabel": {
+        "message": "レポートにPRのみを含める"
+    },
+    "onlyPRsTooltip": {
+        "message": "チェックすると、レポートにはユーザーが作成したPRのみが含まれ、レビュー済みのPRは除外されます。"
+    },
     "cacheTTLLabel": {
-        "message": "キャッシュTTLを入力"
+        "message": "キャッシュTTLを入力",
+        "description": "キャッシュの有効期間入力のラベル。"
     },
     "cacheTTLUnit": {
         "message": "（分）"
