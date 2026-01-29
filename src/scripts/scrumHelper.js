@@ -1177,6 +1177,15 @@ function allIncluded(outputTarget = 'email') {
         addTokenBtn.addEventListener('mouseleave', () => {
             addTokenBtn.style.background = colors.buttonBg;
         });
+
+        // Ensure keyboard users get the same visual feedback as mouse users
+        addTokenBtn.addEventListener('focus', () => {
+            addTokenBtn.style.background = colors.buttonHover;
+        });
+
+        addTokenBtn.addEventListener('blur', () => {
+            addTokenBtn.style.background = colors.buttonBg;
+        });
         
         addTokenBtn.addEventListener('click', () => {
             // Clear error UI state when navigating away
