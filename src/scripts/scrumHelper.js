@@ -1225,6 +1225,15 @@ function allIncluded(outputTarget = 'email') {
             learnMoreLink.style.color = colors.linkColor;
         });
         
+        // Ensure keyboard users get the same visual feedback as mouse users
+        learnMoreLink.addEventListener('focus', () => {
+            learnMoreLink.style.color = colors.linkHover;
+        });
+        
+        learnMoreLink.addEventListener('blur', () => {
+            learnMoreLink.style.color = colors.linkColor;
+        });
+        
         const linkIcon = document.createElement('i');
         linkIcon.className = 'fa fa-external-link';
         linkIcon.style.fontSize = '11px';
