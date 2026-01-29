@@ -1128,18 +1128,16 @@ ${userReason}`;
         }
     }
 
-    
+
     function writeGithubPrsReviews() {
-        let isAnyFilterActive = onlyIssues || onlyIssues || onlyRevPRs;
+        let isAnyFilterActive = onlyIssues || onlyPRs || onlyRevPRs;
         if (isAnyFilterActive && !onlyRevPRs) {
-            if (isAnyFilterActive && !onlyRevPRs) {
-                log('Filters active but onlyRevPRs not checked, skipping PR reviews.');
-                reviewedPrsArray = [];
-                prsReviewDataProcessed = true;
-                return;
-            }
+            log('Filters active but onlyRevPRs not checked, skipping PR reviews.');
+            reviewedPrsArray = [];
+            prsReviewDataProcessed = true;
+            return;
         }
-        
+
         let items = githubPrsReviewData.items;
         log('Processing PR reviews:', {
             hasItems: !!items,
@@ -1367,7 +1365,7 @@ ${userReason}`;
     }
 
     async function writeGithubIssuesPrs(items) {
-        let isAnyFilterActive = onlyIssues || onlyIssues || onlyRevPRs;
+        let isAnyFilterActive = onlyIssues || onlyPRs || onlyRevPRs;
         if (!items) {
 
             return;

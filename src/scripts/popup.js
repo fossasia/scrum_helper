@@ -393,7 +393,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const platformUsername = document.getElementById('platformUsername');
 
         chrome.storage.local.get([
-            'projectName', 'orgName', 'userReason', 'showOpenLabel', 'showCommits', 'githubToken', 'cacheInput', 'onlyIssues', 'onlyPRs',
+            'projectName', 'orgName', 'userReason', 'showOpenLabel', 'showCommits', 'githubToken', 'cacheInput', 'onlyIssues', 'onlyPRs', 'onlyRevPRs',
             'enableToggle', 'yesterdayContribution', 'startingDate', 'endingDate', 'selectedTimeframe', 'platform', 'githubUsername', 'gitlabUsername'
         ], function (result) {
 
