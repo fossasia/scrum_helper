@@ -355,14 +355,16 @@ document.addEventListener('DOMContentLoaded', function () {
             // Try to get GitLab token from session storage first (more secure), fallback to local storage
             if (chrome.storage.session && typeof chrome.storage.session.get === 'function') {
                 chrome.storage.session.get(['gitlabToken'], function (sessionResult) {
-                    if (sessionResult.gitlabToken && gitlabTokenInput) {
-                        gitlabTokenInput.value = sessionResult.gitlabToken;
-                    } else if (result.gitlabToken && gitlabTokenInput) {
-                        gitlabTokenInput.value = result.gitlabToken;
+                    if (gitlabTokenInput) {
+                        if ('gitlabToken' in sessionResult) {
+                            gitlabTokenInput.value = sessionResult.gitlabToken || '';
+                        } else if ('gitlabToken' in result) {
+                            gitlabTokenInput.value = result.gitlabToken || '';
+                        }
                     }
                 });
-            } else if (result.gitlabToken && gitlabTokenInput) {
-                gitlabTokenInput.value = result.gitlabToken;
+            } else if ('gitlabToken' in result && gitlabTokenInput) {
+                gitlabTokenInput.value = result.gitlabToken || '';
             }
             if (result.cacheInput) cacheInput.value = result.cacheInput;
             if (enableToggleSwitch) {
@@ -544,12 +546,10 @@ document.addEventListener('DOMContentLoaded', function () {
         if (gitlabTokenInput) {
             gitlabTokenInput.addEventListener('input', function () {
                 const tokenValue = gitlabTokenInput.value;
-                // Store GitLab token in session storage (memory-only, not persisted to disk) for better security
+                // Store in both session (for runtime security) and local (for persistence across restarts)
+                chrome.storage.local.set({ gitlabToken: tokenValue });
                 if (chrome.storage.session && typeof chrome.storage.session.set === 'function') {
                     chrome.storage.session.set({ gitlabToken: tokenValue });
-                } else {
-                    // Fallback for environments without session storage support
-                    chrome.storage.local.set({ gitlabToken: tokenValue });
                 }
             });
         }
