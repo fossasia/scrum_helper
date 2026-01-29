@@ -502,7 +502,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 e.preventDefault();
                 generateBtn.click();
             }
-            if (e.ctrlKey && e.shiftKey && key === 'c' && !e.repeat) {
+            if (e.ctrlKey && e.shiftKey && key === 'c' && !e.repeat && !copyBtn.disabled) {
                 e.preventDefault();
                 copyBtn.click();
             }
