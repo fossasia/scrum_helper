@@ -128,7 +128,6 @@ function allIncluded(outputTarget = 'email') {
     let prsReviewDataProcessed = false;
     let showOpenLabel = true;
     let showCommits = false;
-    let userReason = '';
     let subjectForEmail = null;
 
     function createStatusBadge(text, bgColor) {
@@ -229,7 +228,6 @@ function allIncluded(outputTarget = 'email') {
                 'endingDate',
                 'showOpenLabel',
                 'yesterdayContribution',
-                'userReason',
                 'githubCache',
                 'cacheInput',
                 'orgName',
@@ -264,7 +262,6 @@ function allIncluded(outputTarget = 'email') {
                 }
                 projectName = items.projectName;
 
-                userReason = items.userReason || 'No Blocker at the moment';
                 githubToken = items.githubToken;
                 yesterdayContribution = items.yesterdayContribution;
                 if (typeof items.enableToggle !== 'undefined') {
@@ -732,11 +729,16 @@ function allIncluded(outputTarget = 'email') {
             ]);
 
             // Check for rate limit error (403 with rate limit message)
-            if (issuesRes.status === 403 || prRes.status === 403 || userRes.status === 403) {
-                const errorBody = await issuesRes.json().catch(() => ({}));
-                
-                // Check if it's a rate limit error - ONLY show rate limit UI here
-                if (errorBody.message && errorBody.message.toLowerCase().includes('rate limit')) {
+            const rateLimitRes =
+                issuesRes.status === 403 ? issuesRes :
+                prRes.status === 403 ? prRes :
+                userRes.status === 403 ? userRes :
+                null;
+
+            if (rateLimitRes) {
+                const errorBody = await rateLimitRes.json().catch(() => ({}));
+
+                if (errorBody.message?.toLowerCase().includes('rate limit')) {
                     showRateLimitMessage();
                     githubCache.fetching = false;
                     scrumGenerationInProgress = false;
@@ -1108,6 +1110,8 @@ function allIncluded(outputTarget = 'email') {
 
         // CTA Button
         const addTokenBtn = document.createElement('button');
+        addTokenBtn.setAttribute('type', 'button'); 
+        addTokenBtn.setAttribute('aria-label', 'Navigate to settings to add GitHub token');
         addTokenBtn.textContent = getMessage('addTokenButton', 'Add GitHub Token');
         addTokenBtn.style.cssText = `
             padding: 8px 16px;
@@ -1291,9 +1295,9 @@ function allIncluded(outputTarget = 'email') {
             let weekOrDay2 = 'today';
             let content;
             if (yesterdayContribution == true) {
-                content = `<b>1. What did I do ${weekOrDay}?</b><br>${lastWeekUl}<br><b>2. What do I plan to do ${weekOrDay2}?</b><br>${nextWeekUl}<br><b>3. What is blocking me from making progress?</b><br>${userReason}`;
+                content = `<b>1. What did I do ${weekOrDay}?</b><br>${lastWeekUl}<br><b>2. What do I plan to do ${weekOrDay2}?</b><br>${nextWeekUl}<br><b>3. What is blocking me from making progress?</b><br>`;
             } else {
-                content = `<b>1. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?</b><br>${lastWeekUl}<br><b>2. What do I plan to do ${weekOrDay2}?</b><br>${nextWeekUl}<br><b>3. What is blocking me from making progress?</b><br>${userReason}`;
+                content = `<b>1. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?</b><br>${lastWeekUl}<br><b>2. What do I plan to do ${weekOrDay2}?</b><br>${nextWeekUl}<br><b>3. What is blocking me from making progress?</b><br>`;
             }
             // Wait for both subject and body to be available, then inject both
             let injected = false;
@@ -1347,15 +1351,14 @@ function allIncluded(outputTarget = 'email') {
 ${lastWeekUl}<br>
 <b>2. What do I plan to do ${weekOrDay2}?</b><br>
 ${nextWeekUl}<br>
-<b>3. What is blocking me from making progress?</b><br>
-${userReason}`;
+<b>3. What is blocking me from making progress?</b><br>`;
         } else {
             content = `<b>1. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?</b><br>
 ${lastWeekUl}<br>
 <b>2. What do I plan to do ${weekOrDay2}?</b><br>
 ${nextWeekUl}<br>
 <b>3. What is blocking me from making progress?</b><br>
-${userReason}`;
+`;
         }
 
         if (outputTarget === 'popup') {
