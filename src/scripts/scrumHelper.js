@@ -1076,6 +1076,7 @@ function allIncluded(outputTarget = 'email') {
         const icon = document.createElement('i');
         icon.className = 'fa fa-exclamation-triangle';
         icon.style.cssText = 'font-size: 24px;';
+        icon.setAttribute('aria-hidden', 'true');
         iconContainer.appendChild(icon);
 
         // Title
