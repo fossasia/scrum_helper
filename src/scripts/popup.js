@@ -495,6 +495,19 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            const key = (e.key || '').toLowerCase();
+            if (e.ctrlKey && key === 'g' && !e.repeat && !generateBtn.disabled) {
+                e.preventDefault();
+                generateBtn.click();
+            }
+            if (e.ctrlKey && e.shiftKey && key === 'c' && !e.repeat && !copyBtn.disabled) {
+                e.preventDefault();
+                copyBtn.click();
+            }
+        });
+
         // Custom date container click handler
         document.getElementById('customDateContainer').addEventListener('click', () => {
             document.querySelectorAll('input[name="timeframe"]').forEach(radio => {
