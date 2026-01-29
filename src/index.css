@@ -91,7 +91,9 @@ hr,
     border-color: #404040 !important;
     transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
 }
-
+.dark-mode input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+}
 .dark-mode input[type="text"],
 .dark-mode input[type="date"],
 .dark-mode #scrumReport {
