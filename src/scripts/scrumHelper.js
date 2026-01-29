@@ -58,6 +58,11 @@ function allIncluded(outputTarget = 'email') {
     let subjectForEmail = null;
     let onlyIssues = false;
     let onlyPRs = false;
+    let includeIssuesSection = true;
+    let includePRsSection = true;
+    let includeReviewedPRsSection = true;
+    let includeTasksSection = true;
+    let includeBlockersSection = true;
 
     let pr_open_button =
         '<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
@@ -100,6 +105,11 @@ function allIncluded(outputTarget = 'email') {
                 'showCommits',
                 'onlyIssues',
                 'onlyPRs',
+                'includeIssuesSection',
+                'includePRsSection',
+                'includeReviewedPRsSection',
+                'includeTasksSection',
+                'includeBlockersSection',
             ],
             (items) => {
 
@@ -151,6 +161,13 @@ function allIncluded(outputTarget = 'email') {
                 showCommits = items.showCommits || false;
                 showOpenLabel = items.showOpenLabel !== false; // Default to true if not explicitly set to false
                 orgName = items.orgName || '';
+
+                // Section include flags (default to true when undefined)
+                includeIssuesSection = items.includeIssuesSection !== false;
+                includePRsSection = items.includePRsSection !== false;
+                includeReviewedPRsSection = items.includeReviewedPRsSection !== false;
+                includeTasksSection = items.includeTasksSection !== false;
+                includeBlockersSection = items.includeBlockersSection !== false;
 
                 if (items.yesterdayContribution) {
                     handleYesterdayContributionChange();
@@ -1019,22 +1036,28 @@ function allIncluded(outputTarget = 'email') {
         let weekOrDay = yesterdayContribution ? 'yesterday' : 'the period';
         let weekOrDay2 = 'today';
 
-        let content;
-        if (yesterdayContribution == true) {
-            content = `<b>1. What did I do ${weekOrDay}?</b><br>
-${lastWeekUl}<br>
-<b>2. What do I plan to do ${weekOrDay2}?</b><br>
-${nextWeekUl}<br>
-<b>3. What is blocking me from making progress?</b><br>
-${userReason}`;
-        } else {
-            content = `<b>1. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?</b><br>
-${lastWeekUl}<br>
-<b>2. What do I plan to do ${weekOrDay2}?</b><br>
-${nextWeekUl}<br>
-<b>3. What is blocking me from making progress?</b><br>
-${userReason}`;
+        // Build sections dynamically based on enabled flags
+        let sections = [];
+        let idx = 1;
+
+        if (includeIssuesSection || includePRsSection || includeReviewedPRsSection) {
+            const heading = yesterdayContribution
+                ? `What did I do ${weekOrDay}?`
+                : `What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?`;
+            sections.push(`<b>${idx}. ${heading}</b><br>${lastWeekUl}`);
+            idx++;
         }
+
+        if (includeTasksSection) {
+            sections.push(`<b>${idx}. What do I plan to do ${weekOrDay2}?</b><br>${nextWeekUl}`);
+            idx++;
+        }
+
+        if (includeBlockersSection) {
+            sections.push(`<b>${idx}. What is blocking me from making progress?</b><br>${userReason}`);
+        }
+
+        let content = sections.join('<br>');
 
         if (outputTarget === 'popup') {
             const scrumReport = document.getElementById('scrumReport');
@@ -1125,13 +1148,20 @@ ${userReason}`;
     }
 
     function writeGithubPrsReviews() {
-        if(onlyIssues){
+        // Entire reviewed PRs section disabled from popup
+        if (!includeReviewedPRsSection) {
+            log('[SCRUM-HELPER]: Reviewed PRs section disabled, skipping PR review processing.');
+            reviewedPrsArray = [];
+            prsReviewDataProcessed = true;
+            return;
+        }
+        if (onlyIssues) {
             log(' "Only Issues" is checked, skipping PR reviews.')
             reviewedPrsArray = [];
             prsReviewDataProcessed = true;
             return;
         }
-        if(onlyPRs){
+        if (onlyPRs) {
             log('"Only PRs" checked, skipping PR reviews');
             reviewedPrsArray = [];
             prsReviewDataProcessed = true;
@@ -1446,7 +1476,18 @@ ${userReason}`;
             log('[SCRUM-DEBUG] Processing item:', item);
             // For GitLab, treat all items in the MRs array as MRs
             let isMR = !!item.pull_request; // works for both GitHub and mapped GitLab data
-            if(onlyPRs && !isMR){
+
+            // High-level section toggles
+            if (isMR && !includePRsSection) {
+                log('[SCRUM-DEBUG] PR section disabled, skipping PR/MR:', item.number);
+                continue;
+            }
+            if (!isMR && !includeIssuesSection) {
+                log('[SCRUM-DEBUG] Issues section disabled, skipping issue:', item.number);
+                continue;
+            }
+
+            if (onlyPRs && !isMR) {
                 log('[SCRUM-DEBUG] "Only PRs" checked, skipping issues:', item.number);
                 continue;
             }
@@ -1584,7 +1625,7 @@ ${userReason}`;
                 continue; // Prevent issue logic from overwriting PR li
             } else {
                 // Only process as issue if not a PR
-                if (item.state === 'open' && item.body?.toUpperCase().indexOf('YES') > 0) {
+                if (includeTasksSection && item.state === 'open' && item.body?.toUpperCase().indexOf('YES') > 0) {
                     let li2 =
                         '<li><i>(' +
                         project +
