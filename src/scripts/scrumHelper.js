@@ -758,12 +758,42 @@ function allIncluded(outputTarget = 'email') {
                 userCheckRes // Reuse the already validated user response
             ]);
 
-            // Check for rate limit error (403 with rate limit message)
+            // Check for rate limit error (403 with rate limit headers / structure)
             if (issuesRes.status === 403 || prRes.status === 403 || userRes.status === 403) {
-                const errorBody = await issuesRes.json().catch(() => ({}));
-                
-                // Check if it's a rate limit error - ONLY show rate limit UI here
-                if (errorBody.message && errorBody.message.toLowerCase().includes('rate limit')) {
+                // Prefer header-based detection: GitHub sets X-RateLimit-Remaining to 0 when rate-limited
+                const responses = [issuesRes, prRes, userRes];
+                const isRateLimitedByHeader = responses.some(function (res) {
+                    if (!res || res.status !== 403 || !res.headers || typeof res.headers.get !== 'function') {
+                        return false;
+                    }
+                    const remaining = res.headers.get('x-ratelimit-remaining');
+                    return remaining === '0';
+                });
+
+                if (isRateLimitedByHeader) {
+                    showRateLimitMessage();
+                    githubCache.fetching = false;
+                    scrumGenerationInProgress = false;
+                    return;
+                }
+
+                // Fallback: inspect the structured error body from the 403 response
+                let rateLimitedResponse = issuesRes.status === 403 ? issuesRes
+                    : prRes.status === 403 ? prRes
+                    : userRes;
+
+                let errorBody = {};
+                try {
+                    if (rateLimitedResponse && typeof rateLimitedResponse.json === 'function') {
+                        errorBody = await rateLimitedResponse.json();
+                    }
+                } catch (e) {
+                    errorBody = {};
+                }
+
+                // GitHub rate limit errors include a documentation_url pointing to rate-limiting docs
+                if (errorBody && typeof errorBody.documentation_url === 'string' &&
+                    errorBody.documentation_url.toLowerCase().includes('rate-limiting')) {
                     showRateLimitMessage();
                     githubCache.fetching = false;
                     scrumGenerationInProgress = false;
