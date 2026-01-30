@@ -88,7 +88,21 @@ class GitLabHelper {
   }
 
   async fetchGitLabData(username, startDate, endDate) {
-    const cacheKey = `${username}-${startDate}-${endDate}`;
+    // Load token from storage first to ensure we have current auth state
+    const previousToken = this.token;
+    await this.getToken();
+    
+    // Create cache key that includes token authentication state
+    const tokenMarker = this.token ? 'auth' : 'noauth';
+    const cacheKey = `${username}-${startDate}-${endDate}-${tokenMarker}`;
+
+    // Clear cache if token value changed (added, updated, or removed)
+    if (previousToken !== this.token) {
+      console.log('Token changed - clearing cache');
+      this.cache.data = null;
+      this.cache.cacheKey = null;
+      this.cache.timestamp = 0;
+    }
 
     if (this.cache.fetching || (this.cache.cacheKey === cacheKey && this.cache.data)) {
       console.log('GitLab fetch already in progress or data already fetched. Skipping fetch.');
@@ -100,9 +114,6 @@ class GitLabHelper {
       startDate: startDate,
       endDate: endDate,
     });
-
-    // Load token from storage
-    await this.getToken();
 
     // Check if we need to load from storage
     if (!this.cache.data && !this.cache.fetching) {
