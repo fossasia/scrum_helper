@@ -191,12 +191,12 @@ function allIncluded(outputTarget = 'email') {
 
     // Ensure the theme observer is cleaned up when the page or popup is closed
     if (typeof window !== 'undefined') {
-        // Register cleanup listeners only once per window to avoid multiple registrations
-        if (!window.__scrumHelperThemeCleanupRegistered) {
-            window.addEventListener('beforeunload', cleanupThemeObserver);
-            window.addEventListener('unload', cleanupThemeObserver);
-            window.__scrumHelperThemeCleanupRegistered = true;
-        }
+        // Make registration idempotent by removing any existing listeners first
+        window.removeEventListener('beforeunload', cleanupThemeObserver);
+        window.removeEventListener('unload', cleanupThemeObserver);
+
+        window.addEventListener('beforeunload', cleanupThemeObserver);
+        window.addEventListener('unload', cleanupThemeObserver);
     }
     const pr_open_button = createBadgeHTML('open', '#2cbe4e');
     const pr_closed_button = createBadgeHTML('closed', '#dc2626'); 
