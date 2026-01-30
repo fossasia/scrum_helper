@@ -1034,24 +1034,30 @@ function allIncluded(outputTarget = 'email') {
     }
     verifyCacheStatus();
 
+    function prepareErrorContainer(errorType) {
+        currentErrorUI = errorType;
+
+        // Initialize theme observer
+        initThemeObserver();
+
+        const reportDiv = document.getElementById('scrumReport');
+        if (!reportDiv) return null;
+
+        reportDiv.textContent = '';
+        reportDiv.style.background = 'transparent';
+        reportDiv.style.border = 'none';
+        reportDiv.style.padding = '0';
+        reportDiv.style.minHeight = 'auto';
+
+        return reportDiv;
+    }
+
     function showRateLimitMessage() {
         if (outputTarget !== 'popup') return;
 
-        const scrumReport = document.getElementById('scrumReport');
+        const scrumReport = prepareErrorContainer('rateLimit');
         if (!scrumReport) return;
 
-        // Mark that rate limit UI is active
-        currentErrorUI = 'rateLimit';
-        
-        // Initialize theme observer if not already done
-        initThemeObserver();
-
-        scrumReport.textContent = '';
-
-        scrumReport.style.background = 'transparent';
-        scrumReport.style.border = 'none';
-        scrumReport.style.padding = '0';
-        scrumReport.style.minHeight = 'auto';
 
         // Get theme-aware colors (will be fresh on every call)
         const colors = getThemeColors();
@@ -1270,18 +1276,8 @@ function allIncluded(outputTarget = 'email') {
         if (outputTarget === 'popup') {
             const reportDiv = document.getElementById('scrumReport');
             if (reportDiv) {
-                // Mark that invalid token UI is active
-                currentErrorUI = 'invalidToken';
-                
-                // Initialize theme observer if not already done
-                initThemeObserver();
-
-                reportDiv.textContent = '';
-
-                reportDiv.style.background = 'transparent';
-                reportDiv.style.border = 'none';
-                reportDiv.style.padding = '0';
-                reportDiv.style.minHeight = 'auto';            
+                const reportDiv = prepareErrorContainer('invalidToken');
+                if (!reportDiv) return;            
 
                 const colors = getThemeColors(); // Fresh colors on every call
 
