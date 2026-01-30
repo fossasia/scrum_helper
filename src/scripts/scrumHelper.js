@@ -131,6 +131,7 @@ function allIncluded(outputTarget = 'email') {
     let subjectForEmail = null;
     let onlyIssues = false;
     let onlyPRs = false;
+    let onlyRevPRs = false;
 
 
     function createErrorStyle() {
@@ -230,6 +231,7 @@ function allIncluded(outputTarget = 'email') {
                 'showCommits',
                 'onlyIssues',
                 'onlyPRs',
+                'onlyRevPRs'
             ],
             (items) => {
 
@@ -267,6 +269,8 @@ function allIncluded(outputTarget = 'email') {
 
                 onlyIssues = items.onlyIssues === true;
                 onlyPRs = items.onlyPRs === true;
+                onlyRevPRs = items.onlyRevPRs === true;
+                console.log('[SCRUM-DEBUG] loaded flags:', { onlyIssues, onlyPRs, onlyRevPRs });
                 // Enforce mutual exclusivity between onlyIssues and onlyPRs to avoid filtering out everything
                 if (onlyIssues && onlyPRs) {
                     console.warn('[SCRUM-HELPER]: Detected both onlyIssues and onlyPRs enabled; normalizing to onlyIssues.');
@@ -727,7 +731,7 @@ function allIncluded(outputTarget = 'email') {
 
             log('Validating GitHub user existence for:', platformUsernameLocal);
             const userCheckRes = await fetch(userUrl, { headers });
-            
+
             if (userCheckRes.status === 404) {
                 const errorMsg = `GitHub user "${platformUsernameLocal}" not found (404). Please check the username and try again.`;
                 logError(errorMsg);
@@ -736,7 +740,7 @@ function allIncluded(outputTarget = 'email') {
                 }
                 throw new Error(errorMsg);
             }
-            
+
             if (userCheckRes.status === 401 || userCheckRes.status === 403) {
                 showInvalidTokenMessage();
                 githubCache.fetching = false;
@@ -826,7 +830,7 @@ function allIncluded(outputTarget = 'email') {
                 log('Open PRs for commit fetching:', openPRs.map(pr => pr.number));
                 // Fetch commits for open PRs (batch) if showCommits is enabled
                 if (openPRs.length && githubToken && showCommits) {
-                   
+
                     let startDateForCommits, endDateForCommits;
                     if (yesterdayContribution) {
                         const today = new Date();
@@ -1513,19 +1517,16 @@ ${nextWeekUl}<br>
         }
     }
 
+
     function writeGithubPrsReviews() {
-        if(onlyIssues){
-            log(' "Only Issues" is checked, skipping PR reviews.')
+        let isAnyFilterActive = onlyIssues || onlyPRs || onlyRevPRs;
+        if (isAnyFilterActive && !onlyRevPRs) {
+            log('Filters active but onlyRevPRs not checked, skipping PR reviews.');
             reviewedPrsArray = [];
             prsReviewDataProcessed = true;
             return;
         }
-        if(onlyPRs){
-            log('"Only PRs" checked, skipping PR reviews');
-            reviewedPrsArray = [];
-            prsReviewDataProcessed = true;
-            return;
-        }
+
         let items = githubPrsReviewData.items;
         log('Processing PR reviews:', {
             hasItems: !!items,
@@ -1563,7 +1564,7 @@ ${nextWeekUl}<br>
         log('Filtering PR reviews by date range:', { startDate, endDate, startDateTime, endDateTime });
 
         for (i = 0; i < items.length; i++) {
-            
+
             let item = items[i];
             log(`Processing PR #${item.number} - state: ${item.state}, updated_at: ${item.updated_at}, created_at: ${item.created_at}, merged_at: ${item.pull_request?.merged_at}`);
 
@@ -1747,7 +1748,7 @@ ${nextWeekUl}<br>
     }
 
     async function writeGithubIssuesPrs(items) {
-
+        let isAnyFilterActive = onlyIssues || onlyPRs || onlyRevPRs;
         if (!items) {
             return;
         }
@@ -1826,16 +1827,18 @@ ${nextWeekUl}<br>
             log('[SCRUM-DEBUG] Processing item:', item);
             // For GitLab, treat all items in the MRs array as MRs
             let isMR = !!item.pull_request; // works for both GitHub and mapped GitLab data
-            if(onlyPRs && !isMR){
-                log('[SCRUM-DEBUG] "Only PRs" checked, skipping issues:', item.number);
-                continue;
+
+            if (isAnyFilterActive) {
+                if (isMR && !onlyPRs) {
+                    log('[SCRUM-DEBUG] Filters active, skipping PR because onlyPRs is not checked:', item.number);
+                    continue;
+                }
+                if (!isMR && !onlyIssues) {
+                    log('[SCRUM-DEBUG] Filters active, skipping Issue because onlyIssues is not checked:', item.number);
+                    continue;
+                }
             }
 
-            if (onlyIssues && isMR) {
-                log('[SCRUM-DEBUG] "Only Issues" checked, skipping PR/MR:', item.number);
-                continue;
-            }
-            
             log('[SCRUM-DEBUG] isMR:', isMR, 'platform:', platform, 'item:', item);
             let html_url = item.html_url;
             let repository_url = item.repository_url;
@@ -1872,11 +1875,11 @@ ${nextWeekUl}<br>
                     startDateFilter = new Date(lastWeek.toISOString().split('T')[0] + 'T00:00:00Z');
                     endDateFilter = new Date(today.toISOString().split('T')[0] + 'T23:59:59Z');
                 }
-                
+
                 const today = new Date();
-                today.setHours(0,0,0,0);
+                today.setHours(0, 0, 0, 0);
                 const itemCreatedDate = new Date(item.created_at);
-                itemCreatedDate.setHours(0,0,0,0);
+                itemCreatedDate.setHours(0, 0, 0, 0);
                 const isCreatedToday = today.getTime() === itemCreatedDate.getTime();
 
                 const isNewPR = prCreatedDate >= startDateFilter && prCreatedDate <= endDateFilter;
@@ -1977,9 +1980,9 @@ ${nextWeekUl}<br>
                 }
 
                 const today = new Date();
-                today.setHours(0,0,0,0);
+                today.setHours(0, 0, 0, 0);
                 const itemCreatedDate = new Date(item.created_at);
-                itemCreatedDate.setHours(0,0,0,0);
+                itemCreatedDate.setHours(0, 0, 0, 0);
                 const isCreatedToday = today.getTime() === itemCreatedDate.getTime();
                 const issueActionText = isCreatedToday ? 'Opened Issue' : 'Updated Issue'
                 if (item.state === 'open') {

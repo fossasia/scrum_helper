@@ -2,10 +2,17 @@
 
 ## What's Changed
 
-* Fixed Telugu translation inconsistencies for appName and madeWithLoveBy fields
+* No changes
 
 ---
 
+## v0.1.3 - 2026-01-28
+
+## What's Changed
+
+* Fixed Telugu translation inconsistencies for appName and madeWithLoveBy fields
+
+---
 ## v0.1.3 - 2026-01-23
 
 ## What's Changed

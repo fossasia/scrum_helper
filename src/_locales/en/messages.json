@@ -328,5 +328,11 @@
   "userReasonLabel": {
     "message": "Your Reason",
     "description": "Label for the user reason input field."
+  "onlyRevPRsLabel": {
+    "message": "Include only reviewed PRs in the report",
+    "description": "Label for the checkbox to include only reviewed PRs."
+  },
+  "onlyRevPRsTooltip": {
+    "message": "If checked, the report will only include PRs reviewed by you."
   }
 }

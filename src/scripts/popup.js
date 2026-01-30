@@ -180,6 +180,7 @@ document.addEventListener('DOMContentLoaded', function () {
             'showCommits',
             'onlyIssues',
             'onlyPRs',
+            'onlyRevPRs',
             'scrumReport',
             'githubUsername',
             'githubToken',
@@ -383,6 +384,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const showCommitsCheckbox = document.getElementById('showCommits');
         const onlyIssuesCheckbox = document.getElementById('onlyIssues');
         const onlyPRsCheckbox = document.getElementById('onlyPRs');
+        const onlyRevPRsCheckbox = document.getElementById('onlyRevPRs');
 
         const githubTokenInput = document.getElementById('githubToken');
         const cacheInput = document.getElementById('cacheInput');
@@ -393,7 +395,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const platformUsername = document.getElementById('platformUsername');
 
         chrome.storage.local.get([
-            'projectName', 'orgName', 'userReason', 'showOpenLabel', 'showCommits', 'githubToken', 'cacheInput', 'onlyIssues', 'onlyPRs',
+            'projectName', 'orgName', 'userReason', 'showOpenLabel', 'showCommits', 'githubToken', 'cacheInput', 'onlyIssues', 'onlyPRs', 'onlyRevPRs',
             'enableToggle', 'yesterdayContribution', 'startingDate', 'endingDate', 'selectedTimeframe', 'platform', 'githubUsername', 'gitlabUsername'
         ], function (result) {
 
@@ -411,6 +413,9 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             if (typeof result.onlyPRs !== 'undefined') {
                 onlyPRsCheckbox.checked = result.onlyPRs;
+            }
+            if (typeof result.onlyRevPRs !== 'undefined') {
+                onlyRevPRsCheckbox.checked = result.onlyRevPRs;
             }
 
             // Reconcile mutually exclusive "Only Issues" and "Only PRs" flags on initialization.
@@ -618,6 +623,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     }
                 });
             });
+
+            if(onlyRevPRsCheckbox){
+                onlyRevPRsCheckbox.addEventListener('change', function() {
+                    chrome.storage.local.set({ onlyRevPRs: onlyRevPRsCheckbox.checked });
+                });
+            }
         }
         showCommitsCheckbox.addEventListener('change', function () {
             chrome.storage.local.set({ showCommits: showCommitsCheckbox.checked });
