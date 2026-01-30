@@ -165,7 +165,7 @@ class EmailClientAdapter {
 					this.dispatchElementEvents(element, ['input', 'change'], true);
 					break;
 
-				case 'setContent':
+				case 'setContent': {
 					// Special handling for Yahoo
 					element.innerHTML = content;
 					element.focus();
@@ -177,6 +177,7 @@ class EmailClientAdapter {
 					selection.addRange(range);
 					this.dispatchElementEvents(element, ['input', 'change']);
 					break;
+				}
 
 				default:
 					// Default handling for Google clients

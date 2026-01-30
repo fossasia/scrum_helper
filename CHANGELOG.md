@@ -1,4 +1,4 @@
-## v0.1.3 - 2026-01-28
+## v0.1.3 - 2026-01-29
 
 ## What's Changed
 
@@ -6,24 +6,16 @@
 
 ---
 
-<<<<<<< HEAD
-=======
 ## v0.1.3 - 2026-01-28
 
 ## What's Changed
 
-* Fixed Telugu translation inconsistencies for appName and madeWithLoveBy fields
+* No changes
 
----
-
->>>>>>> 8eb39bdcd22705b365e9456522cf189166444e5d
-## v0.1.3 - 2026-01-23
 
 ## What's Changed
 
 * Update README documentation
-
----
 
 ## v2.0.2 - 2026-01-21
 
