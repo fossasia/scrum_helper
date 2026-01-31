@@ -945,23 +945,15 @@ input[type="radio"][disabled] + label {
     background-color: #f3f4f6 !important;
 }
 
-button[disabled],
-button[aria-disabled="true"] {
+button[disabled] {
     cursor: not-allowed !important;
     opacity: 0.5 !important;
     background-color: #d1d5db !important;
 }
 
-button[disabled]:hover,
-button[aria-disabled="true"]:hover {
+button[disabled]:hover {
     background-color: #d1d5db !important;
 }
-
-#customDateContainer[aria-disabled="true"] input {
-    pointer-events: none !important;
-    cursor: not-allowed !important;
-}
-
 .remove-repo-btn[disabled] {
     cursor: not-allowed !important;
     opacity: 0.3 !important;
