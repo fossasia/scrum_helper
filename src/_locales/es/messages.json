@@ -95,12 +95,7 @@
     "onlyRevPRsTooltip": {
         "message": "Si está marcado, el informe solo incluirá PRs revisados por usted."
     },
-    "onlyReviewedPrsLabel": {
-        "message": "Incluir solo PRs revisados en el informe"
-    },
-    "onlyReviewedPrsTooltip": {
-        "message": "Si está marcado, el informe solo incluirá PRs revisados por usted."
-    },
+
     "cacheTTLLabel": {
         "message": "Introducir TTL de caché",
         "description": "Etiqueta para la entrada de tiempo de vida de la caché."

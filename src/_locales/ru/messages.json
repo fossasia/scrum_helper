@@ -95,12 +95,7 @@
     "onlyRevPRsTooltip": {
         "message": "Если отмечено, отчёт будет включать только PR, проверенные вами."
     },
-    "onlyReviewedPrsLabel": {
-        "message": "Включить в отчет только проверенные PR"
-    },
-    "onlyReviewedPrsTooltip": {
-        "message": "Если отмечено, отчёт будет включать только PR, проверенные вами."
-    },
+
     "cacheTTLLabel": {
         "message": "Введите TTL кеша",
         "description": "Метка для ввода времени жизни кеша."

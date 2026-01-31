@@ -93,12 +93,7 @@
   "onlyRevPRsTooltip": {
     "message": "Wenn diese Option aktiviert ist, enthält der Bericht nur PRs, die von Ihnen überprüft wurden."
   },
-  "onlyReviewedPrsLabel": {
-    "message": "Nur überprüfte PRs in den Bericht aufnehmen"
-  },
-  "onlyReviewedPrsTooltip": {
-    "message": "Wenn diese Option aktiviert ist, enthält der Bericht nur PRs, die von Ihnen überprüft wurden."
-  },
+
   "cacheTTLLabel": {
     "message": "Cache-TTL eingeben"
   },

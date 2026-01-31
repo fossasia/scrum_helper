@@ -95,12 +95,7 @@
     "onlyRevPRsTooltip": {
         "message": "Nếu được chọn, báo cáo sẽ chỉ bao gồm các PR bạn đã xem xét."
     },
-    "onlyReviewedPrsLabel": {
-        "message": "Chỉ bao gồm các PR bạn đã xem xét trong báo cáo"
-    },
-    "onlyReviewedPrsTooltip": {
-        "message": "Nếu được chọn, báo cáo sẽ chỉ bao gồm các PR bạn đã xem xét."
-    },
+
     "cacheTTLLabel": {
         "message": "Nhập TTL bộ nhớ cache",
         "description": "Nhãn cho đầu vào thời gian tồn tại của bộ nhớ cache."

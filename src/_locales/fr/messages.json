@@ -95,12 +95,7 @@
     "onlyRevPRsTooltip": {
         "message": "Si coché, le rapport n'inclura que les PRs que vous avez revues."
     },
-    "onlyReviewedPrsLabel": {
-        "message": "Inclure uniquement les PRs revues dans le rapport"
-    },
-    "onlyReviewedPrsTooltip": {
-        "message": "Si coché, le rapport n'inclura que les PRs que vous avez revues."
-    },
+
     "cacheTTLLabel": {
         "message": "Entrez le TTL du cache",
         "description": "Étiquette pour le champ de saisie de la durée de vie du cache."

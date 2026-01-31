@@ -95,12 +95,7 @@
     "onlyRevPRsTooltip": {
         "message": "यदि चेक किया गया है, तो रिपोर्ट में केवल आपके द्वारा समीक्षित PRs शामिल होंगे।"
     },
-    "onlyReviewedPrsLabel": {
-        "message": "रिपोर्ट में केवल समीक्षित PRs शामिल करें"
-    },
-    "onlyReviewedPrsTooltip": {
-        "message": "यदि चेक किया गया है, तो रिपोर्ट में केवल आपके द्वारा समीक्षित PRs शामिल होंगे।"
-    },
+
     "cacheTTLLabel": {
         "message": "कैश टीटीएल दर्ज करें",
         "description": "कैश टाइम-टू-लाइव इनपुट के लिए लेबल।"

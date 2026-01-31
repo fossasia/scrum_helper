@@ -86,12 +86,7 @@
     "onlyRevPRsTooltip": {
         "message": "Se selezionato, il report includerà solo le PR revisionate da te."
     },
-    "onlyReviewedPrsLabel": {
-        "message": "Includi solo le PR revisionate nel report"
-    },
-    "onlyReviewedPrsTooltip": {
-        "message": "Se selezionato, il report includerà solo le PR revisionate da te."
-    },
+
     "cacheTTLLabel": {
         "message": "Inserisci TTL della cache"
     },

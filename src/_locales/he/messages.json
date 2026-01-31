@@ -196,11 +196,6 @@
     },
     "onlyRevPRsTooltip": {
         "message": "אם מסומן, הדוח יכלול רק PR שנבדקו על ידך."
-    },
-    "onlyReviewedPrsLabel": {
-        "message": "כלול בדוח רק PR שנבדקו על ידך"
-    },
-    "onlyReviewedPrsTooltip": {
-        "message": "אם מסומן, הדוח יכלול רק PR שנבדקו על ידך."
+
     }
 }

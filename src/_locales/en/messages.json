@@ -275,14 +275,6 @@
   },
   "onlyRevPRsTooltip": {
     "message": "If checked, the report will only include PRs reviewed by you."
-  },
 
-  "onlyReviewedPrsLabel": {
-    "message": "Include only reviewed PRs in the report",
-    "description": "Label for the checkbox to include only reviewed PRs (alternate key)."
-  },
-  "onlyReviewedPrsTooltip": {
-    "message": "If checked, the report will only include PRs reviewed by you.",
-    "description": "Tooltip for the checkbox to include only reviewed PRs (alternate key)."
   }
 }

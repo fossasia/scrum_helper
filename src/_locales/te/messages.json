@@ -95,12 +95,7 @@
   "onlyRevPRsTooltip": {
     "message": "ఎంచుకుంటే, నివేదికలో మీరు సమీక్షించిన PRలు మాత్రమే చూపబడతాయి."
   },
-  "onlyReviewedPrsLabel": {
-    "message": "నివేదికలో మీరు సమీక్షించిన PRలను మాత్రమే చేర్చు"
-  },
-  "onlyReviewedPrsTooltip": {
-    "message": "ఎంచుకుంటే, నివేదికలో మీరు సమీక్షించిన PRలు మాత్రమే చూపబడతాయి."
-  },
+
   "cacheTTLLabel": {
     "message": "క్యాష్ TTL ను నమోదు చేయండి"
   },
