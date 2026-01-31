@@ -50,6 +50,24 @@ function applyI18n() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+		// Keyboard shortcut for report generation
+		document.addEventListener('keydown', (e) => {
+			// Only trigger if popup is focused and not in a textarea/input
+			const active = document.activeElement;
+			const isInput = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.isContentEditable);
+			if (!isInput) {
+				// Ctrl+Enter or Enter triggers report generation
+				if ((e.ctrlKey && e.key === 'Enter') || (e.key === 'Enter' && !e.ctrlKey)) {
+					const generateBtn = document.getElementById('generateReport');
+					if (generateBtn && !generateBtn.disabled) {
+						generateBtn.click();
+						// Optionally, add a visual feedback
+						generateBtn.classList.add('ring', 'ring-blue-400');
+						setTimeout(() => generateBtn.classList.remove('ring', 'ring-blue-400'), 300);
+					}
+				}
+			}
+		});
 	// Apply translations as soon as the DOM is ready
 	applyI18n();
 
@@ -457,6 +475,8 @@ document.addEventListener('DOMContentLoaded', () => {
 		const generateBtn = document.getElementById('generateReport');
 		const copyBtn = document.getElementById('copyReport');
 
+		// Add tooltip for keyboard shortcut
+		generateBtn.setAttribute('title', 'Generate report (Ctrl+Enter or Enter)');
 		generateBtn.addEventListener('click', () => {
 			chrome.storage.local.get(['platform'], (result) => {
 				const platform = result.platform || 'github';
