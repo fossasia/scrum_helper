@@ -495,14 +495,16 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
 
-        // Keyboard shortcuts
+        // Keyboard shortcuts: Ctrl+G (Cmd+G on macOS) to generate, Ctrl+Shift+C (Cmd+Shift+C on macOS) to copy
         document.addEventListener('keydown', (e) => {
             const key = (e.key || '').toLowerCase();
-            if (e.ctrlKey && key === 'g' && !e.repeat && !generateBtn.disabled) {
+            const modifier = e.ctrlKey || e.metaKey;
+            
+            if (modifier && key === 'g' && !e.repeat && !generateBtn.disabled) {
                 e.preventDefault();
                 generateBtn.click();
             }
-            if (e.ctrlKey && e.shiftKey && key === 'c' && !e.repeat) {
+            if (modifier && e.shiftKey && key === 'c' && !e.repeat) {
                 e.preventDefault();
                 copyBtn.click();
             }
