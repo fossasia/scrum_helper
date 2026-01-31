@@ -50,24 +50,28 @@ function applyI18n() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-		// Keyboard shortcut for report generation
-		document.addEventListener('keydown', (e) => {
-			// Only trigger if popup is focused and not in a textarea/input
-			const active = document.activeElement;
-			const isInput = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.isContentEditable);
-			if (!isInput) {
-				// Ctrl+Enter or Enter triggers report generation
-				if ((e.ctrlKey && e.key === 'Enter') || (e.key === 'Enter' && !e.ctrlKey)) {
-					const generateBtn = document.getElementById('generateReport');
-					if (generateBtn && !generateBtn.disabled) {
-						generateBtn.click();
-						// Optionally, add a visual feedback
-						generateBtn.classList.add('ring', 'ring-blue-400');
-						setTimeout(() => generateBtn.classList.remove('ring', 'ring-blue-400'), 300);
+		// Keyboard shortcut for report generation (scoped to popup container)
+		const popupContainer = document.querySelector('body');
+		if (popupContainer) {
+			popupContainer.addEventListener('keydown', (e) => {
+				const active = document.activeElement;
+				const isInput = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.isContentEditable);
+				// Only trigger if focus is on body or main popup elements
+				const isPopupFocus = active === popupContainer || active === document.body || active.id === 'reportSection';
+				if (!isInput && isPopupFocus) {
+					// Ctrl+Enter or Enter triggers report generation
+					if ((e.ctrlKey && e.key === 'Enter') || (e.key === 'Enter' && !e.ctrlKey)) {
+						const generateBtn = document.getElementById('generateReport');
+						if (generateBtn && !generateBtn.disabled) {
+							generateBtn.click();
+							// Add a CSS animation class for feedback
+							generateBtn.classList.add('keyboard-triggered');
+							setTimeout(() => generateBtn.classList.remove('keyboard-triggered'), 300);
+						}
 					}
 				}
-			}
-		});
+			});
+		}
 	// Apply translations as soon as the DOM is ready
 	applyI18n();
 
@@ -475,8 +479,10 @@ document.addEventListener('DOMContentLoaded', () => {
 		const generateBtn = document.getElementById('generateReport');
 		const copyBtn = document.getElementById('copyReport');
 
-		// Add tooltip for keyboard shortcut
-		generateBtn.setAttribute('title', 'Generate report (Ctrl+Enter or Enter)');
+		// Add i18n tooltip for keyboard shortcut
+		const shortcutTooltip = chrome.i18n.getMessage('generateReportShortcutTooltip') || 'Generate report (Ctrl+Enter or Enter)';
+		generateBtn.setAttribute('title', shortcutTooltip);
+
 		generateBtn.addEventListener('click', () => {
 			chrome.storage.local.get(['platform'], (result) => {
 				const platform = result.platform || 'github';
