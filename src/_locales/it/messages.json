@@ -80,6 +80,13 @@
     "onlyPRsTooltip": {
         "message": "Se selezionato, il report includerà solo le pull request create dall'utente; le PR revisionate saranno escluse."
     },
+    "onlyRevPRsLabel": {
+        "message": "Includi solo le PR revisionate nel report"
+    },
+    "onlyRevPRsTooltip": {
+        "message": "Se selezionato, il report includerà solo le PR revisionate da te."
+    },
+
     "cacheTTLLabel": {
         "message": "Inserisci TTL della cache"
     },

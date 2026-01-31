@@ -1,3 +1,11 @@
+## v0.1.3 - 2026-01-31
+
+## What's Changed
+
+* Add translations for onlyReviewedPRs feature
+* Update Telugu translations
+---
+
 ## v0.1.3 - 2026-01-30
 
 ## What's Changed
