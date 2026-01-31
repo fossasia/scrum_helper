@@ -1613,7 +1613,6 @@ ${userReason}`;
 				}
 				log('[SCRUM-DEBUG] Added PR/MR to lastWeekArray:', li, item);
 				lastWeekArray.push(li);
-				// biome-ignore lint/correctness/noUselessContinue: keep explicit early-exit after handling PR/MR items
 				continue; // Prevent issue logic from overwriting PR li
 			} else {
 				// Only process as issue if not a PR
