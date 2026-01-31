@@ -40,10 +40,10 @@ jobs:
                 echo " npm run lint"
                 echo ""
                 echo "Check tool versions:"
-                echo " node --versions || true"
+                echo " node --version || true"
                 node --version 
                 echo " npm --version"
-                npm --versions || true
+                npm --version || true
                 echo " npx biome --version"
                 npx biome --version || true
                 echo ""
