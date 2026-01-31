@@ -15,7 +15,7 @@ class GitLabHelper {
   async getCacheTTL() {
     return new Promise((resolve) => {
       chrome.storage.local.get(['cacheInput'], (items) => {
-        const ttl = items.cacheInput ? parseInt(items.cacheInput) * 60 * 1000 : 10 * 60 * 1000;
+        const ttl = items.cacheInput ? Number.parseInt(items.cacheInput) * 60 * 1000 : 10 * 60 * 1000;
         resolve(ttl);
       });
     });
