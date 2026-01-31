@@ -15,7 +15,7 @@ class GitLabHelper {
 	async getCacheTTL() {
 		return new Promise((resolve) => {
 			chrome.storage.local.get(['cacheInput'], (items) => {
-				const ttl = items.cacheInput ? Number.parseInt(items.cacheInput) * 60 * 1000 : 10 * 60 * 1000;
+				const ttl = items.cacheInput ? Number.parseInt(items.cacheInput, 10) * 60 * 1000 : 10 * 60 * 1000;
 				resolve(ttl);
 			});
 		});
@@ -178,14 +178,18 @@ class GitLabHelper {
 			await this.saveToStorage(gitlabData);
 
 			// Resolve queued calls
-			this.cache.queue.forEach(({ resolve }) => resolve(gitlabData));
+			this.cache.queue.forEach(({ resolve }) => {
+				resolve(gitlabData);
+			});
 			this.cache.queue = [];
 
 			return gitlabData;
 		} catch (err) {
 			console.error('GitLab Fetch Failed:', err);
 			// Reject queued calls on error
-			this.cache.queue.forEach(({ reject }) => reject(err));
+			this.cache.queue.forEach(({ reject }) => {
+				reject(err);
+			});
 			this.cache.queue = [];
 			throw err;
 		} finally {

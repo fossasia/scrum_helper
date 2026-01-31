@@ -730,12 +730,16 @@ function allIncluded(outputTarget = 'email') {
 			await saveToStorage(githubCache.data);
 			processGithubData(githubCache.data);
 
-			githubCache.queue.forEach(({ resolve }) => resolve());
+			githubCache.queue.forEach(({ resolve }) => {
+				resolve();
+			});
 			githubCache.queue = [];
 		} catch (err) {
 			logError('Fetch Failed:', err);
 			// Reject queued calls on error
-			githubCache.queue.forEach(({ reject }) => reject(err));
+			githubCache.queue.forEach(({ reject }) => {
+				reject(err);
+			});
 			githubCache.queue = [];
 			githubCache.fetching = false;
 
@@ -879,14 +883,18 @@ function allIncluded(outputTarget = 'email') {
 				},
 			});
 
-			githubCache.repoQueue.forEach(({ resolve }) => resolve(repos));
+			githubCache.repoQueue.forEach(({ resolve }) => {
+				resolve(repos);
+			});
 			githubCache.repoQueue = [];
 
 			log(`Successfuly cached ${repos.length} repositories`);
 			return repos;
 		} catch (err) {
 			logError('Failed to fetch reppos:', err);
-			githubCache.repoQueue.forEach(({ reject }) => reject(err));
+			githubCache.repoQueue.forEach(({ reject }) => {
+				reject(err);
+			});
 			githubCache.repoQueue = [];
 
 			throw err;
@@ -1605,7 +1613,7 @@ ${userReason}`;
 				}
 				log('[SCRUM-DEBUG] Added PR/MR to lastWeekArray:', li, item);
 				lastWeekArray.push(li);
-				// biome-ignore lint/correctness/noUnnecessaryContinue:keep explicit early-exit after handling PR/MR items
+				// biome-ignore lint/correctness/noUselessContinue: keep explicit early-exit after handling PR/MR items
 				continue; // Prevent issue logic from overwriting PR li
 			} else {
 				// Only process as issue if not a PR

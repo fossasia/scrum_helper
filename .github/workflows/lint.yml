@@ -34,7 +34,7 @@ jobs:
               if: ${{ always() && steps.lint.outcome == 'failure' }}
               shell: bash
               run: |
-                echo "::group:: Troubleshooting: Biome lint failed"
+                echo "::group::Troubleshooting: Biome lint failed"
                 echo "Reproduce locally (same as CI):"
                 echo " npm ci"
                 echo " npm run lint"
@@ -48,7 +48,7 @@ jobs:
                 npx biome --version || true
                 echo ""
                 echo "Common fixes:"
-                echo " - Auto-fix (safe): npm run fix"
+                echo " - Auto-fix (safe): npm run lint fix"
                 echo " - Format:          npm run format"
                 echo " - Full check:      npm run check"
                 echo ""

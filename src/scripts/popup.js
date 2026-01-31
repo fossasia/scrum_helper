@@ -1289,7 +1289,7 @@ if (cacheInput) {
 	});
 
 	cacheInput.addEventListener('blur', function () {
-		let ttlValue = Number.parseInt(this.value);
+		let ttlValue = Number.parseInt(this.value, 10);
 		if (Number.isNaN(ttlValue) || ttlValue <= 0 || this.value.trim() === '') {
 			ttlValue = 10;
 			this.value = ttlValue;
