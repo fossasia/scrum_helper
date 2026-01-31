@@ -691,6 +691,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
+    }
 	if (homeButton) {
         homeButton.addEventListener('click', showReportView);
     }
