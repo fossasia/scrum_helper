@@ -48,7 +48,7 @@ jobs:
                 npx biome --version || true
                 echo ""
                 echo "Common fixes:"
-                echo " - Auto-fix (safe): npm run lint fix"
+                echo " - Auto-fix (safe): npm run fix"
                 echo " - Format:          npm run format"
                 echo " - Full check:      npm run check"
                 echo ""
