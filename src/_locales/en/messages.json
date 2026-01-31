@@ -275,6 +275,5 @@
   },
   "onlyRevPRsTooltip": {
     "message": "If checked, the report will only include PRs reviewed by you."
-
   }
 }
