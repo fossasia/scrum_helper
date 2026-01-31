@@ -504,7 +504,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 e.preventDefault();
                 generateBtn.click();
             }
-            if (modifier && e.shiftKey && key === 'c' && !e.repeat) {
+            if (modifier && e.shiftKey && key === 'c' && !e.repeat && !copyBtn.disabled) {
                 e.preventDefault();
                 copyBtn.click();
             }
