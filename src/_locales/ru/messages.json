@@ -89,6 +89,18 @@
     "onlyPRsTooltip": {
         "message": "Если отмечено, отчёт будет включать только pull request'ы, созданные пользователем; проверенные PR будут исключены."
     },
+    "onlyRevPRsLabel": {
+        "message": "Включить в отчет только проверенные PR"
+    },
+    "onlyRevPRsTooltip": {
+        "message": "Если отмечено, отчёт будет включать только PR, проверенные вами."
+    },
+    "onlyReviewedPrsLabel": {
+        "message": "Включить в отчет только проверенные PR"
+    },
+    "onlyReviewedPrsTooltip": {
+        "message": "Если отмечено, отчёт будет включать только PR, проверенные вами."
+    },
     "cacheTTLLabel": {
         "message": "Введите TTL кеша",
         "description": "Метка для ввода времени жизни кеша."

@@ -90,6 +90,18 @@
     "onlyPRsTooltip": {
         "message": "Se marcado, o relatório incluirá apenas PRs criadas pelo usuário; as PRs revisadas serão excluídas."
     },
+    "onlyRevPRsLabel": {
+        "message": "Incluir apenas PRs revisadas no relatório"
+    },
+    "onlyRevPRsTooltip": {
+        "message": "Se marcado, o relatório incluirá apenas PRs revisadas por você."
+    },
+    "onlyReviewedPrsLabel": {
+        "message": "Incluir apenas PRs revisadas no relatório"
+    },
+    "onlyReviewedPrsTooltip": {
+        "message": "Se marcado, o relatório incluirá apenas PRs revisadas por você."
+    },
     "cacheTTLLabel": {
         "message": "Digite o TTL do cache",
         "description": "Rótulo para a entrada de tempo de vida do cache."
