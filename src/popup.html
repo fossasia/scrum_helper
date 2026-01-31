@@ -45,7 +45,7 @@
 		<div class="bg-white px-4 py-4 mx-2 mb-2 rounded-3xl">
 			<div class="flex justify-between py-2">
 				<h3 id="scrumHelperHeading" class="text-3xl font-semibold cursor-pointer">Scrum Helper</h3>
-				   <button id="darkModeToggleBtn" aria-label="Toggle night mode" class="focus:outline-none focus:ring-2 focus:ring-blue-500 rounded">
+				   <button id="darkModeToggleBtn" type="button" aria-label="Toggle night mode" class="focus:outline-none focus:ring-2 focus:ring-blue-500 rounded">
 					   <img src="icons/night-mode.png" alt="Toggle night mode" class="w-7 h-7 mx-3 cursor-pointer" id="darkModeToggle">
 				   </button>
 			</div>
@@ -66,10 +66,10 @@
 					   <span data-i18n="enableLabel">Enable</span>
 				   </label>
 				<div class="flex">
-					   <button id="homeButton" class="ml-1 p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="Home">
+					   <button id="homeButton" type="button" class="ml-1 p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="Home">
 						   <i class="fa fa-home text-2xl text-gray-600 dark:text-gray-300"></i>
 					   </button>
-					   <button id="settingsToggle" class="focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="Settings">
+					   <button id="settingsToggle" type="button" class="focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="Settings">
 						   <img id="settingsIcon" src="icons/settings-light.png" alt="Settings" class="w-6 h-6 mx-3 cursor-pointer">
 					   </button>
 				</div>
@@ -122,8 +122,8 @@
 						</div>
 
 
-						   <label for="projectName" class="sr-only">Project Name</label>
-						   <input id="projectName" type="text"
+						   <label id="projectNameLabel" for="projectName" class="font-medium text-sm">Project Name (used in email subject)</label>
+						   <input id="projectName" type="text" aria-labelledby="projectNameLabel"
 							   class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
 							   placeholder="Enter your project name" style="margin-top: 0.3rem; margin-bottom: 0.8rem;">
 					</div>
@@ -131,7 +131,7 @@
 
 						<p id="usernameLabel" class="font-medium text-sm" data-i18n="usernameLabel">Your Username</p>
 						   <label for="platformUsername" class="sr-only">Your Username</label>
-						   <input id="platformUsername" type="text"
+						   <input id="platformUsername" type="text" aria-labelledby="usernameLabel"
 							   class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
 							   placeholder="Required for fetching your contributions"
 							   style="margin-top: 0.3rem; margin-bottom: 0.8rem;">
@@ -330,7 +330,7 @@
 								</span>
 							</div>
 							<label for="orgInput" class="sr-only">Organization Name</label>
-							<input id="orgInput" type="text"
+							<input id="orgInput" type="text" aria-labelledby="orgNameLabel"
 								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
 								data-i18n-placeholder="settingsOrgNamePlaceholder"
 								style="margin-top: 0.3rem; margin-bottom: 0.8rem;">
@@ -370,7 +370,7 @@
 
 
 							<label for="repoSearch" class="sr-only">Repository Search</label>
-							<input id="repoSearch" type="text" data-i18n-placeholder="repoSearchPlaceholder"
+							<input id="repoSearch" type="text" aria-labelledby="repoSearchLabel" data-i18n-placeholder="repoSearchPlaceholder"
 								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
 								autocomplete="off">
 							<div id="repoFilterContainer" class="hidden">
@@ -419,7 +419,7 @@
 							</span>
 						</p>
 						<label for="cacheInput" class="sr-only">Cache TTL</label>
-						<input type="text" id="cacheInput"
+						<input type="text" id="cacheInput" aria-labelledby="cacheTTLLabel"
 							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800  p-2 my-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
 							data-i18n-placeholder="cacheTTLPlaceholder">
 					</div>
