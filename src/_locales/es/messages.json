@@ -83,6 +83,19 @@
     "onlyIssuesTooltip": {
         "message": "Si está marcado, el informe solo incluirá las incidencias creadas o asignadas al usuario."
     },
+    "onlyPRsLabel": {
+        "message": "Incluir solo PRs en el informe"
+    },
+    "onlyPRsTooltip": {
+        "message": "Si está marcado, el informe solo incluirá pull requests creados por el usuario; los pull requests revisados se excluirán."
+    },
+    "onlyRevPRsLabel": {
+        "message": "Incluir solo PRs revisados en el informe"
+    },
+    "onlyRevPRsTooltip": {
+        "message": "Si está marcado, el informe solo incluirá PRs revisados por usted."
+    },
+
     "cacheTTLLabel": {
         "message": "Introducir TTL de caché",
         "description": "Etiqueta para la entrada de tiempo de vida de la caché."
