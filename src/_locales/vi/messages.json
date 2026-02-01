@@ -214,4 +214,65 @@
     "usernameLabel": {
         "message": "Tên người dùng của bạn"
     }
+,
+  "gitlabTokenLabel": {
+    "message": "Your GitLab Token",
+    "description": "Label for the GitLab token input."
+  },
+  "gitlabTokenPlaceholder": {
+    "message": "Paste your GitLab Personal Access Token",
+    "description": "Placeholder for the GitLab token input."
+  },
+  "gitlabTokenTooltip": {
+    "message": "<b>Why is it recommended to add a GitLab token?</b><br>Scrum Helper works without a GitLab token, but adding a personal access token is recommended for a better experience. It raises your API limits, allows access to private repos (if permitted), and improves accuracy and speed. Tokens are stored locally and never sent to us and used only to fetch your git data.<br><br><b>How to obtain:</b><br>1. Go to <a href='https://gitlab.com/-/profile/personal_access_tokens' target='_blank' style='color:#2563eb;text-decoration:underline;'>GitLab Token Settings</a>.<br>2. Click 'Add new token'<br>3. Select scopes: <code>read_api</code> and <code>read_repository</code><br>4. Generate and paste it here.<br><i>Keep your token secret!</i>",
+    "description": "Tooltip explaining how to get a GitLab token."
+  },
+  "testTokenButton": {
+    "message": "Test Token",
+    "description": "Button text to test/validate a GitLab token."
+  },
+  "clearTokenButton": {
+    "message": "Clear Token",
+    "description": "Button text to clear the stored token."
+  },
+  "confirmClearToken": {
+    "message": "Are you sure you want to clear the GitLab token?",
+    "description": "Confirmation message before clearing the token."
+  },
+  "testingTokenButton": {
+    "message": "Testing...",
+    "description": "Button text while token validation is in progress."
+  },
+  "tokenValidButton": {
+    "message": "Valid!",
+    "description": "Button text when token is validated successfully."
+  },
+  "tokenInvalidButton": {
+    "message": "Invalid",
+    "description": "Button text when token validation fails."
+  },
+  "gitlabGroupLabel": {
+    "message": "Nhóm GitLab của bạn",
+    "description": "Label for the GitLab group input."
+  },
+  "gitlabGroupPlaceholder": {
+    "message": "Nhập tên nhóm GitLab",
+    "description": "Placeholder for the GitLab group input."
+  },
+  "gitlabGroupTooltip": {
+    "message": "<b>Hoạt động của nhóm GitLab nào?</b><br>Nhập tên nhóm GitLab để lấy hoạt động. Để trống để lấy tất cả hoạt động GitLab của bạn trong tất cả các nhóm. Tên nhóm không phân biệt chữ hoa chữ thường.",
+    "description": "Tooltip explaining GitLab group filtering."
+  },
+  "gitlabProjectFilterLabel": {
+    "message": "Lọc theo dự án",
+    "description": "Label for GitLab project filter."
+  },
+  "gitlabProjectFilterTooltip": {
+    "message": "Cần mã thông báo GitLab.<br>Để buộc cập nhật danh sách dự án, <br>nhấp vào nút Làm mới dữ liệu.",
+    "description": "Tooltip for GitLab project filter."
+  },
+  "gitlabTokenRequiredWarning": {
+    "message": "Cần mã thông báo GitLab để lọc dự án. Vui lòng thêm một mã trong cài đặt.",
+    "description": "Warning message when GitLab token is missing for project filtering."
+  }
 }

@@ -214,4 +214,65 @@
     "usernameLabel": {
         "message": "Nama pengguna Anda"
     }
+,
+  "gitlabTokenLabel": {
+    "message": "Your GitLab Token",
+    "description": "Label for the GitLab token input."
+  },
+  "gitlabTokenPlaceholder": {
+    "message": "Paste your GitLab Personal Access Token",
+    "description": "Placeholder for the GitLab token input."
+  },
+  "gitlabTokenTooltip": {
+    "message": "<b>Why is it recommended to add a GitLab token?</b><br>Scrum Helper works without a GitLab token, but adding a personal access token is recommended for a better experience. It raises your API limits, allows access to private repos (if permitted), and improves accuracy and speed. Tokens are stored locally and never sent to us and used only to fetch your git data.<br><br><b>How to obtain:</b><br>1. Go to <a href='https://gitlab.com/-/profile/personal_access_tokens' target='_blank' style='color:#2563eb;text-decoration:underline;'>GitLab Token Settings</a>.<br>2. Click 'Add new token'<br>3. Select scopes: <code>read_api</code> and <code>read_repository</code><br>4. Generate and paste it here.<br><i>Keep your token secret!</i>",
+    "description": "Tooltip explaining how to get a GitLab token."
+  },
+  "testTokenButton": {
+    "message": "Test Token",
+    "description": "Button text to test/validate a GitLab token."
+  },
+  "clearTokenButton": {
+    "message": "Clear Token",
+    "description": "Button text to clear the stored token."
+  },
+  "confirmClearToken": {
+    "message": "Are you sure you want to clear the GitLab token?",
+    "description": "Confirmation message before clearing the token."
+  },
+  "testingTokenButton": {
+    "message": "Testing...",
+    "description": "Button text while token validation is in progress."
+  },
+  "tokenValidButton": {
+    "message": "Valid!",
+    "description": "Button text when token is validated successfully."
+  },
+  "tokenInvalidButton": {
+    "message": "Invalid",
+    "description": "Button text when token validation fails."
+  },
+  "gitlabGroupLabel": {
+    "message": "Grup GitLab Anda",
+    "description": "Label for the GitLab group input."
+  },
+  "gitlabGroupPlaceholder": {
+    "message": "Masukkan nama grup GitLab",
+    "description": "Placeholder for the GitLab group input."
+  },
+  "gitlabGroupTooltip": {
+    "message": "<b>Aktivitas grup GitLab mana?</b><br>Masukkan nama grup GitLab untuk mengambil aktivitas. Biarkan kosong untuk mengambil semua aktivitas GitLab Anda di semua grup. Nama grup tidak peka huruf besar/kecil.",
+    "description": "Tooltip explaining GitLab group filtering."
+  },
+  "gitlabProjectFilterLabel": {
+    "message": "Filter berdasarkan proyek",
+    "description": "Label for GitLab project filter."
+  },
+  "gitlabProjectFilterTooltip": {
+    "message": "Token GitLab diperlukan.<br>Untuk memaksa pembaruan daftar proyek, <br>klik tombol Segarkan Data.",
+    "description": "Tooltip for GitLab project filter."
+  },
+  "gitlabTokenRequiredWarning": {
+    "message": "Token GitLab diperlukan untuk penyaringan proyek. Silakan tambahkan satu di pengaturan.",
+    "description": "Warning message when GitLab token is missing for project filtering."
+  }
 }

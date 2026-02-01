@@ -1,3 +1,14 @@
+// Utility function to escape HTML and prevent XSS
+function escapeHtml(unsafe) {
+	if (typeof unsafe !== 'string') return '';
+	return unsafe
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/"/g, '&quot;')
+		.replace(/'/g, '&#039;');
+}
+
 function debounce(func, wait) {
 	let timeout;
 	return function (...args) {
@@ -72,6 +83,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	const orgInput = document.getElementById('orgInput');
 
+	// GitLab elements
+	const gitlabTokenInput = document.getElementById('gitlabToken');
+	const toggleGitlabTokenBtn = document.getElementById('toggleGitlabTokenVisibility');
+	const gitlabTokenEyeIcon = document.getElementById('gitlabTokenEyeIcon');
+	let gitlabTokenVisible = false;
+
 	const platformSelect = document.getElementById('platformSelect');
 	const usernameLabel = document.getElementById('usernameLabel');
 	const platformUsername = document.getElementById('platformUsername');
@@ -102,6 +119,32 @@ document.addEventListener('DOMContentLoaded', () => {
 		}, 4000);
 	}
 
+	function checkGitlabTokenForFilter() {
+		const useGitlabProjectFilter = document.getElementById('useGitlabProjectFilter');
+		const gitlabTokenInput = document.getElementById('gitlabToken');
+		const gitlabTokenWarning = document.getElementById('gitlabTokenWarningForFilter');
+		const gitlabProjectFilterContainer = document.getElementById('gitlabProjectFilterContainer');
+
+		if (!useGitlabProjectFilter || !gitlabTokenInput || !gitlabTokenWarning || !gitlabProjectFilterContainer) {
+			return;
+		}
+		const isFilterEnabled = useGitlabProjectFilter.checked;
+		const hasToken = gitlabTokenInput.value.trim() !== '';
+
+		if (isFilterEnabled && !hasToken) {
+			useGitlabProjectFilter.checked = false;
+			gitlabProjectFilterContainer.classList.add('hidden');
+			if (typeof hideGitlabProjectDropdown === 'function') {
+				hideGitlabProjectDropdown();
+			}
+			chrome.storage.local.set({ useGitlabProjectFilter: false });
+		}
+		gitlabTokenWarning.classList.toggle('hidden', !isFilterEnabled || hasToken);
+		setTimeout(() => {
+			gitlabTokenWarning.classList.add('hidden');
+		}, 4000);
+	}
+
 	chrome.storage.local.get(['darkMode'], (result) => {
 		if (result.darkMode) {
 			body.classList.add('dark-mode');
@@ -125,6 +168,23 @@ document.addEventListener('DOMContentLoaded', () => {
 	});
 
 	githubTokenInput.addEventListener('input', checkTokenForFilter);
+
+	// GitLab token toggle
+	if (toggleGitlabTokenBtn && gitlabTokenInput && gitlabTokenEyeIcon) {
+		toggleGitlabTokenBtn.addEventListener('click', () => {
+			gitlabTokenVisible = !gitlabTokenVisible;
+			gitlabTokenInput.type = gitlabTokenVisible ? 'text' : 'password';
+
+			gitlabTokenEyeIcon.classList.add('eye-animating');
+			setTimeout(() => gitlabTokenEyeIcon.classList.remove('eye-animating'), 400);
+			gitlabTokenEyeIcon.className = gitlabTokenVisible ? 'fa fa-eye-slash text-gray-600' : 'fa fa-eye text-gray-600';
+
+			gitlabTokenInput.classList.add('token-animating');
+			setTimeout(() => gitlabTokenInput.classList.remove('token-animating'), 300);
+		});
+
+		gitlabTokenInput.addEventListener('input', checkGitlabTokenForFilter);
+	}
 
 	darkModeToggle.addEventListener('click', function () {
 		body.classList.toggle('dark-mode');
@@ -391,6 +451,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				'showOpenLabel',
 				'showCommits',
 				'githubToken',
+				'gitlabToken',
 				'cacheInput',
 				'onlyIssues',
 				'onlyPRs',
@@ -434,6 +495,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					}
 				}
 				if (result.githubToken) githubTokenInput.value = result.githubToken;
+				if (result.gitlabToken && gitlabTokenInput) gitlabTokenInput.value = result.gitlabToken;
 				if (result.cacheInput) cacheInput.value = result.cacheInput;
 				if (enableToggleSwitch) {
 					if (typeof result.enableToggle !== 'undefined') {
@@ -1160,18 +1222,25 @@ document.addEventListener('DOMContentLoaded', () => {
 				repoDropdown.innerHTML = filtered
 					.slice(0, 10)
 					.map(
-						(repo) => `
-                    <div class="repository-dropdown-item" data-repo-name="${repo.fullName}">
+						(repo) => {
+							const safeName = escapeHtml(repo.name);
+							const safeFullName = escapeHtml(repo.fullName);
+							const safeLanguage = escapeHtml(repo.language);
+							const safeStars = escapeHtml(String(repo.stars));
+							const safeDescription = escapeHtml(repo.description?.substring(0, 50));
+							return `
+                    <div class="repository-dropdown-item" data-repo-name="${safeFullName}">
                         <div class="repo-name">
-                            <span>${repo.name}</span>
-                            ${repo.language ? `<span class="repo-language">${repo.language}</span>` : ''}
-                            ${repo.stars ? `<span class="repo-stars"><i class="fa fa-star"></i> ${repo.stars}</span>` : ''}
+                            <span>${safeName}</span>
+                            ${repo.language ? `<span class="repo-language">${safeLanguage}</span>` : ''}
+                            ${repo.stars ? `<span class="repo-stars"><i class="fa fa-star"></i> ${safeStars}</span>` : ''}
                         </div>
                         <div class="repo-info">
-                            ${repo.description ? `<span class="repo-desc">${repo.description.substring(0, 50)}${repo.description.length > 50 ? '...' : ''}</span>` : ''}
+                            ${repo.description ? `<span class="repo-desc">${safeDescription}${repo.description.length > 50 ? '...' : ''}</span>` : ''}
                         </div>
                     </div>
-                `,
+                `;
+						},
 					)
 					.join('');
 
@@ -1217,10 +1286,12 @@ document.addEventListener('DOMContentLoaded', () => {
 				repoTags.innerHTML = selectedRepos
 					.map((repoFullName) => {
 						const repoName = repoFullName.split('/')[1] || repoFullName;
+						const safeRepoName = escapeHtml(repoName);
+						const safeRepoFullName = escapeHtml(repoFullName);
 						return `
                         <span class="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full" style="margin:5px;">
-                            ${repoName}
-                            <button type="button" class="ml-1 text-blue-600 hover:text-blue-800 remove-repo-btn cursor-pointer" data-repo-name="${repoFullName}">
+                            ${safeRepoName}
+                            <button type="button" class="ml-1 text-blue-600 hover:text-blue-800 remove-repo-btn cursor-pointer" data-repo-name="${safeRepoFullName}">
                                 <i class="fa fa-times"></i>
                             </button>
                         </span>
@@ -1276,6 +1347,408 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		});
 	}
+
+	// ======= GitLab Project Filter Section =======
+	const gitlabProjectSearch = document.getElementById('gitlabProjectSearch');
+	const gitlabProjectDropdown = document.getElementById('gitlabProjectDropdown');
+	const selectedGitlabProjectsDiv = document.getElementById('selectedGitlabProjects');
+	const gitlabProjectTags = document.getElementById('gitlabProjectTags');
+	const gitlabProjectPlaceholder = document.getElementById('gitlabProjectPlaceholder');
+	const gitlabProjectCount = document.getElementById('gitlabProjectCount');
+	const gitlabProjectStatus = document.getElementById('gitlabProjectStatus');
+	const useGitlabProjectFilter = document.getElementById('useGitlabProjectFilter');
+	const gitlabProjectFilterContainer = document.getElementById('gitlabProjectFilterContainer');
+
+	if (gitlabProjectSearch && useGitlabProjectFilter && gitlabProjectFilterContainer) {
+		gitlabProjectSearch.addEventListener('click', () => {
+			if (!useGitlabProjectFilter.checked) {
+				useGitlabProjectFilter.checked = true;
+				gitlabProjectFilterContainer.classList.remove('hidden');
+				chrome.storage.local.set({ useGitlabProjectFilter: true });
+			}
+		});
+	}
+
+	if (!gitlabProjectSearch || !useGitlabProjectFilter) {
+		console.log('GitLab project filter elements not found in DOM');
+	} else {
+		let availableGitlabProjects = [];
+		let selectedGitlabProjects = [];
+		let gitlabHighlightedIndex = -1;
+
+		async function triggerGitlabProjectFetchIfEnabled() {
+			let platform = 'github';
+			try {
+				const items = await new Promise((resolve) => {
+					chrome.storage.local.get(['platform'], resolve);
+				});
+				platform = items.platform || 'github';
+			} catch (e) {}
+			if (platform !== 'gitlab') {
+				if (gitlabProjectStatus) gitlabProjectStatus.textContent = 'Project filtering is only available for GitLab.';
+				return;
+			}
+			if (!useGitlabProjectFilter.checked) {
+				return;
+			}
+
+			if (gitlabProjectStatus) {
+				gitlabProjectStatus.textContent = 'Fetching projects...';
+			}
+
+			try {
+				const items = await new Promise((resolve) => {
+					chrome.storage.local.get(['platform', 'gitlabUsername', 'gitlabToken'], resolve);
+				});
+
+				const platform = items.platform || 'github';
+				const username = items.gitlabUsername;
+
+				if (!username) {
+					if (gitlabProjectStatus) {
+						gitlabProjectStatus.textContent = 'Username required';
+					}
+					return;
+				}
+
+				if (window.fetchUserProjects) {
+					const projects = await window.fetchUserProjects(username, items.gitlabToken);
+					availableGitlabProjects = projects;
+
+					if (gitlabProjectStatus) {
+						gitlabProjectStatus.textContent = `${projects.length} projects loaded`;
+					}
+				}
+			} catch (err) {
+				console.error('Auto load GitLab projects failed', err);
+				if (gitlabProjectStatus) {
+					if (err.message && err.message.includes('401')) {
+						gitlabProjectStatus.textContent = 'Token required for private projects';
+					} else if (err.message && err.message.includes('username')) {
+						gitlabProjectStatus.textContent = 'Username required';
+					} else {
+						gitlabProjectStatus.textContent = `Error: ${escapeHtml(err.message || 'Failed to load projects')}`;
+					}
+				}
+			}
+		}
+
+		useGitlabProjectFilter.addEventListener(
+			'change',
+			debounce(async function () {
+				const isChecked = this.checked;
+				chrome.storage.local.set({ useGitlabProjectFilter: isChecked });
+
+				if (isChecked) {
+					gitlabProjectFilterContainer.classList.remove('hidden');
+					if (availableGitlabProjects.length === 0) {
+						await loadGitlabProjects();
+					}
+				} else {
+					gitlabProjectFilterContainer.classList.add('hidden');
+					selectedGitlabProjects = [];
+					updateGitlabProjectDisplay();
+					chrome.storage.local.set({ selectedGitlabProjects: [] });
+					gitlabProjectStatus.textContent = '';
+				}
+			}, 300),
+		);
+
+		gitlabProjectSearch.addEventListener('keydown', (e) => {
+			const items = gitlabProjectDropdown.querySelectorAll('.gitlab-project-dropdown-item');
+
+			switch (e.key) {
+				case 'ArrowDown':
+					e.preventDefault();
+					gitlabHighlightedIndex = Math.min(gitlabHighlightedIndex + 1, items.length - 1);
+					updateGitlabHighlight(items);
+					break;
+				case 'ArrowUp':
+					e.preventDefault();
+					gitlabHighlightedIndex = Math.max(gitlabHighlightedIndex - 1, 0);
+					updateGitlabHighlight(items);
+					break;
+				case 'Enter':
+					e.preventDefault();
+					if (gitlabHighlightedIndex >= 0 && items[gitlabHighlightedIndex]) {
+						addGitlabProject(items[gitlabHighlightedIndex].dataset.projectId);
+					}
+					break;
+				case 'Escape':
+					hideGitlabProjectDropdown();
+					break;
+			}
+		});
+
+		gitlabProjectSearch.addEventListener('input', (e) => {
+			const query = e.target.value.toLowerCase();
+			filterAndDisplayGitlabProjects(query);
+		});
+
+		let programmaticGitlabFocus = false;
+		gitlabProjectSearch.addEventListener('focus', () => {
+			if (programmaticGitlabFocus) {
+				programmaticGitlabFocus = false;
+				return;
+			}
+			if (gitlabProjectSearch.value) {
+				filterAndDisplayGitlabProjects(gitlabProjectSearch.value.toLowerCase());
+			} else if (availableGitlabProjects.length > 0) {
+				filterAndDisplayGitlabProjects('');
+			}
+		});
+
+		document.addEventListener('click', (e) => {
+			if (!e.target.closest('#gitlabProjectSearch') && !e.target.closest('#gitlabProjectDropdown')) {
+				hideGitlabProjectDropdown();
+			}
+		});
+
+		async function loadGitlabProjects() {
+			let platform = 'github';
+			try {
+				const items = await new Promise((resolve) => {
+					chrome.storage.local.get(['platform'], resolve);
+				});
+				platform = items.platform || 'github';
+			} catch (e) {}
+			if (platform !== 'gitlab') {
+				if (gitlabProjectStatus) gitlabProjectStatus.textContent = 'Project loading is only available for GitLab.';
+				return;
+			}
+
+			if (!window.fetchUserProjects) {
+				gitlabProjectStatus.textContent = 'Project fetching not available';
+				return;
+			}
+
+			chrome.storage.local.get(['platform', 'gitlabUsername', 'gitlabToken'], async (items) => {
+				const platform = items.platform || 'github';
+				const username = items.gitlabUsername;
+
+				if (!username) {
+					gitlabProjectStatus.textContent = 'Username required';
+					return;
+				}
+
+				await performGitlabProjectFetch();
+			});
+		}
+
+		async function performGitlabProjectFetch() {
+			let platform = 'github';
+			try {
+				const items = await new Promise((resolve) => {
+					chrome.storage.local.get(['platform'], resolve);
+				});
+				platform = items.platform || 'github';
+			} catch (e) {}
+			if (platform !== 'gitlab') {
+				if (gitlabProjectStatus) gitlabProjectStatus.textContent = 'Project fetching is only available for GitLab.';
+				return;
+			}
+
+			gitlabProjectStatus.textContent = 'Loading projects...';
+			gitlabProjectSearch.classList.add('repository-search-loading');
+
+			try {
+				const storageItems = await new Promise((resolve) => {
+					chrome.storage.local.get(['platform', 'gitlabUsername', 'gitlabToken'], resolve);
+				});
+				const username = storageItems.gitlabUsername;
+
+				if (!username) {
+					gitlabProjectStatus.textContent = 'Username required';
+					gitlabProjectSearch.classList.remove('repository-search-loading');
+					return;
+				}
+
+				if (window.fetchUserProjects) {
+					const projects = await window.fetchUserProjects(username, storageItems.gitlabToken);
+					availableGitlabProjects = projects;
+					gitlabProjectStatus.textContent = `${projects.length} projects loaded`;
+					gitlabProjectSearch.classList.remove('repository-search-loading');
+
+					if (document.activeElement === gitlabProjectSearch) {
+						filterAndDisplayGitlabProjects(gitlabProjectSearch.value.toLowerCase());
+					}
+				}
+			} catch (err) {
+				console.error('GitLab project fetch failed', err);
+				gitlabProjectSearch.classList.remove('repository-search-loading');
+
+				if (err.message && err.message.includes('401')) {
+					gitlabProjectStatus.textContent = 'Token required for private projects';
+				} else if (err.message && err.message.includes('username')) {
+					gitlabProjectStatus.textContent = 'Username required';
+				} else {
+					gitlabProjectStatus.textContent = `Error: ${escapeHtml(err.message || 'Failed to load projects')}`;
+				}
+			}
+		}
+
+		function filterAndDisplayGitlabProjects(query) {
+			if (availableGitlabProjects.length === 0) {
+				gitlabProjectDropdown.innerHTML = '<div class="p-3 text-gray-500 text-sm">No projects available. Click to load.</div>';
+				showGitlabProjectDropdown();
+				gitlabProjectDropdown.addEventListener(
+					'click',
+					async () => {
+						await loadGitlabProjects();
+						if (gitlabProjectSearch.value) {
+							filterAndDisplayGitlabProjects(gitlabProjectSearch.value.toLowerCase());
+						}
+					},
+					{ once: true },
+				);
+				return;
+			}
+
+			const filtered = availableGitlabProjects.filter(
+				(proj) =>
+					proj.name.toLowerCase().includes(query) ||
+					proj.path_with_namespace.toLowerCase().includes(query) ||
+					(proj.description && proj.description.toLowerCase().includes(query)),
+			);
+
+			if (filtered.length === 0) {
+				gitlabProjectDropdown.innerHTML = '<div class="p-3 text-gray-500 text-sm">No matching projects found.</div>';
+				showGitlabProjectDropdown();
+				return;
+			}
+
+			gitlabProjectDropdown.innerHTML = filtered
+				.map((proj) => {
+					const isSelected = selectedGitlabProjects.includes(proj.id.toString());
+					const safeName = escapeHtml(proj.name);
+					const safeNamespace = escapeHtml(proj.path_with_namespace);
+					const safeDescription = proj.description ? escapeHtml(proj.description.substring(0, 60)) : '';
+					return `
+					<div class="gitlab-project-dropdown-item p-3 hover:bg-gray-100 cursor-pointer border-b border-gray-200 ${isSelected ? 'bg-blue-50' : ''}" data-project-id="${proj.id}">
+						<div class="font-medium text-sm">${safeName}</div>
+						<div class="text-xs text-gray-500">${safeNamespace}</div>
+						${safeDescription ? `<div class="text-xs text-gray-400 mt-1">${safeDescription}...</div>` : ''}
+					</div>
+				`;
+				})
+				.join('');
+
+			gitlabProjectDropdown.querySelectorAll('.gitlab-project-dropdown-item').forEach((item) => {
+				item.addEventListener('click', (e) => {
+					e.stopPropagation();
+					const projectId = item.dataset.projectId;
+					addGitlabProject(projectId);
+				});
+			});
+
+			gitlabHighlightedIndex = -1;
+			showGitlabProjectDropdown();
+		}
+
+		function addGitlabProject(projectId) {
+			if (!selectedGitlabProjects.includes(projectId)) {
+				selectedGitlabProjects.push(projectId);
+				updateGitlabProjectDisplay();
+				saveGitlabProjectSelection();
+			}
+
+			gitlabProjectSearch.value = '';
+			filterAndDisplayGitlabProjects('');
+			programmaticGitlabFocus = true;
+			gitlabProjectSearch.focus();
+		}
+
+		function removeGitlabProject(projectId) {
+			selectedGitlabProjects = selectedGitlabProjects.filter((id) => id !== projectId);
+			updateGitlabProjectDisplay();
+			saveGitlabProjectSelection();
+
+			if (gitlabProjectSearch.value) {
+				filterAndDisplayGitlabProjects(gitlabProjectSearch.value.toLowerCase());
+			}
+		}
+
+		function updateGitlabProjectDisplay() {
+			if (selectedGitlabProjects.length === 0) {
+				gitlabProjectTags.innerHTML = '<span class="text-xs text-gray-500 select-none" id="gitlabProjectPlaceholder">No projects selected (all will be included)</span>';
+				gitlabProjectCount.textContent = '0 projects selected';
+			} else {
+				gitlabProjectTags.innerHTML = selectedGitlabProjects
+					.map((projectId) => {
+						const project = availableGitlabProjects.find((p) => p.id.toString() === projectId);
+						const projectName = project ? project.name : `Project ${projectId}`;
+						const safeProjectName = escapeHtml(projectName);
+						const safeProjectId = escapeHtml(projectId);
+						return `
+						<span class="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full" style="margin:5px;">
+							${safeProjectName}
+							<button type="button" class="ml-1 text-blue-600 hover:text-blue-800 remove-gitlab-project-btn cursor-pointer" data-project-id="${safeProjectId}">
+								<i class="fa fa-times"></i>
+							</button>
+						</span>
+					`;
+					})
+					.join(' ');
+				gitlabProjectTags.querySelectorAll('.remove-gitlab-project-btn').forEach((btn) => {
+					btn.addEventListener('click', (e) => {
+						e.stopPropagation();
+						const projectId = btn.dataset.projectId;
+						removeGitlabProject(projectId);
+					});
+				});
+				gitlabProjectCount.textContent = `${selectedGitlabProjects.length} project${selectedGitlabProjects.length !== 1 ? 's' : ''} selected`;
+			}
+		}
+
+		function saveGitlabProjectSelection() {
+			const cleanedProjects = selectedGitlabProjects.filter((id) => id !== null);
+			chrome.storage.local.set({
+				selectedGitlabProjects: cleanedProjects,
+				gitlabCache: null,
+			});
+		}
+
+		function showGitlabProjectDropdown() {
+			gitlabProjectDropdown.classList.remove('hidden');
+		}
+
+		function hideGitlabProjectDropdown() {
+			gitlabProjectDropdown.classList.add('hidden');
+			gitlabHighlightedIndex = -1;
+		}
+
+		function updateGitlabHighlight(items) {
+			items.forEach((item, index) => {
+				item.classList.toggle('highlighted', index === gitlabHighlightedIndex);
+			});
+
+			if (gitlabHighlightedIndex >= 0 && items[gitlabHighlightedIndex]) {
+				items[gitlabHighlightedIndex].scrollIntoView({ block: 'nearest' });
+			}
+		}
+
+		window.removeGitlabProject = removeGitlabProject;
+
+		// Load saved projects on init
+		chrome.storage.local.get(['platform', 'gitlabUsername', 'selectedGitlabProjects', 'useGitlabProjectFilter'], (items) => {
+			const platform = items.platform || 'github';
+			const username = items.gitlabUsername;
+
+			if (items.selectedGitlabProjects) {
+				selectedGitlabProjects = items.selectedGitlabProjects;
+				updateGitlabProjectDisplay();
+			}
+
+			if (items.useGitlabProjectFilter) {
+				useGitlabProjectFilter.checked = true;
+				gitlabProjectFilterContainer.classList.remove('hidden');
+			}
+
+			if (username && useGitlabProjectFilter.checked && availableGitlabProjects.length === 0) {
+				setTimeout(() => loadGitlabProjects(), 1000);
+			}
+		});
+	}
 });
 
 const cacheInput = document.getElementById('cacheInput');
@@ -1316,6 +1789,17 @@ chrome.storage.local.get(['platform'], (result) => {
 
 // Update UI for platform
 function updatePlatformUI(platform) {
+	const body = document.body;
+	
+	// Set body class for CSS-based visibility
+	if (platform === 'gitlab') {
+		body.classList.remove('github-selected');
+		body.classList.add('gitlab-selected');
+	} else {
+		body.classList.remove('gitlab-selected');
+		body.classList.add('github-selected');
+	}
+
 	const usernameLabel = document.getElementById('usernameLabel');
 	if (usernameLabel) {
 		if (platform === 'gitlab') {
@@ -1338,14 +1822,6 @@ function updatePlatformUI(platform) {
 			orgSection.classList.remove('hidden');
 		}
 	}
-	const githubOnlySections = document.querySelectorAll('.githubOnlySection');
-	githubOnlySections.forEach((el) => {
-		if (platform === 'gitlab') {
-			el.classList.add('hidden');
-		} else {
-			el.classList.remove('hidden');
-		}
-	});
 }
 
 platformSelect.addEventListener('change', () => {
