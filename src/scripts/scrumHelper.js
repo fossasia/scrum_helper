@@ -637,6 +637,22 @@ function allIncluded(outputTarget = 'email') {
 				fetch(prUrl, { headers }),
 				userCheckRes, // Reuse the already validated user response
 			]);
+        if (!userCheckRes.ok && outputTarget === 'popup') {
+            const scrumReport = document.getElementById('scrumReport');
+            const generateBtn = document.getElementById('generateReport');
+
+            if (scrumReport) {
+                scrumReport.textContent = 'GitHub user not found or API error occurred.';
+            }
+
+            if (generateBtn) {
+                generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+                generateBtn.disabled = false;
+            }
+
+            return;
+        }
+
 
 			if (issuesRes.status === 401 || prRes.status === 401 || issuesRes.status === 403 || prRes.status === 403) {
 				showInvalidTokenMessage();
