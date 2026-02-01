@@ -70,8 +70,12 @@
     },
     "githubTokenPlaceholder": {
         "message": "Richiesto per richieste autenticate"
+    },    "gitlabTokenLabel": {
+        "message": "Il tuo token GitLab"
     },
-    "showCommitsLabel": {
+    "gitlabTokenPlaceholder": {
+        "message": "Richiesto per repo privati"
+    },    "showCommitsLabel": {
         "message": "Mostra commit su PR aperti/ bozze di PR"
     },
     "onlyPRsLabel": {
