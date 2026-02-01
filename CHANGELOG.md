@@ -1,3 +1,11 @@
+## v0.1.0 - 2026-02-01
+
+## What's Changed
+
+* No changes
+
+---
+
 ## v0.1.3 - 2026-01-31
 
 ## What's Changed
