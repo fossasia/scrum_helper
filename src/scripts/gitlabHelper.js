@@ -150,7 +150,7 @@ class GitLabHelper {
 
 		try {
 			// First get user ID
-			const userUrl = `${this.baseUrl}/users?username=${username}`;
+			const userUrl = `${this.baseUrl}/users?username=${encodeURIComponent(username)}`;
 			const userRes = await this.fetchWithTimeout(userUrl, { headers: this.getHeaders() }, 10000);
 			const users = await this.handleApiResponse(userRes, 'fetching user for projects');
 			
@@ -269,7 +269,7 @@ class GitLabHelper {
 			await new Promise((res) => setTimeout(res, 500));
 
 			// Get user info first
-			const userUrl = `${this.baseUrl}/users?username=${username}`;
+			const userUrl = `${this.baseUrl}/users?username=${encodeURIComponent(username)}`;
 			const userRes = await this.fetchWithTimeout(userUrl, { headers: this.getHeaders() });
 			const users = await this.handleApiResponse(userRes, 'fetching user');
 			if (users.length === 0) {

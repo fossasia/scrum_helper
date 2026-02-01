@@ -41,6 +41,7 @@ function applyI18n() {
 				el.textContent = message;
 			}
 		}
+        
 	});
 
 	document.querySelectorAll('[data-i18n-placeholder]').forEach((el) => {
@@ -134,9 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (isFilterEnabled && !hasToken) {
 			useGitlabProjectFilter.checked = false;
 			gitlabProjectFilterContainer.classList.add('hidden');
-			if (typeof hideGitlabProjectDropdown === 'function') {
 				hideGitlabProjectDropdown();
-			}
 			chrome.storage.local.set({ useGitlabProjectFilter: false });
 		}
 		gitlabTokenWarning.classList.toggle('hidden', !isFilterEnabled || hasToken);
@@ -183,7 +182,31 @@ document.addEventListener('DOMContentLoaded', () => {
 			setTimeout(() => gitlabTokenInput.classList.remove('token-animating'), 300);
 		});
 
-		gitlabTokenInput.addEventListener('input', checkGitlabTokenForFilter);
+			gitlabTokenInput.addEventListener('input', function (event) {
+				checkGitlabTokenForFilter(event);
+				chrome.storage.local.set({ gitlabToken: gitlabTokenInput.value });
+				if (window.triggerGitlabProjectFetchIfEnabled) window.triggerGitlabProjectFetchIfEnabled();
+			});
+			gitlabTokenInput.addEventListener('blur', function () {
+				chrome.storage.local.set({ gitlabToken: gitlabTokenInput.value });
+				if (window.triggerGitlabProjectFetchIfEnabled) window.triggerGitlabProjectFetchIfEnabled();
+			});
+
+			// GitLab group input persistence
+			const gitlabGroupInput = document.getElementById('gitlabGroupInput');
+			if (gitlabGroupInput) {
+				chrome.storage.local.get(['gitlabGroup'], (res) => {
+					if (res.gitlabGroup) gitlabGroupInput.value = res.gitlabGroup;
+				});
+
+				gitlabGroupInput.addEventListener('input', debounce(function () {
+					chrome.storage.local.set({ gitlabGroup: gitlabGroupInput.value });
+				}, 300));
+
+				gitlabGroupInput.addEventListener('blur', function () {
+					chrome.storage.local.set({ gitlabGroup: gitlabGroupInput.value });
+				});
+			}
 	}
 
 	darkModeToggle.addEventListener('click', function () {
@@ -1351,9 +1374,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	// ======= GitLab Project Filter Section =======
 	const gitlabProjectSearch = document.getElementById('gitlabProjectSearch');
 	const gitlabProjectDropdown = document.getElementById('gitlabProjectDropdown');
-	const selectedGitlabProjectsDiv = document.getElementById('selectedGitlabProjects');
 	const gitlabProjectTags = document.getElementById('gitlabProjectTags');
-	const gitlabProjectPlaceholder = document.getElementById('gitlabProjectPlaceholder');
 	const gitlabProjectCount = document.getElementById('gitlabProjectCount');
 	const gitlabProjectStatus = document.getElementById('gitlabProjectStatus');
 	const useGitlabProjectFilter = document.getElementById('useGitlabProjectFilter');
@@ -1376,13 +1397,28 @@ document.addEventListener('DOMContentLoaded', () => {
 		let selectedGitlabProjects = [];
 		let gitlabHighlightedIndex = -1;
 
+			// Provide a lightweight wrapper so popup code can fetch projects via GitLabHelper
+			window.fetchUserProjects = async function (username, token) {
+				if (typeof window.GitLabHelper === 'undefined') {
+					console.warn('GitLabHelper not available in this context');
+					return [];
+				}
+				try {
+					const helper = new window.GitLabHelper(token);
+					return await helper.fetchUserProjects(username);
+				} catch (err) {
+					console.error('fetchUserProjects failed', err);
+					return [];
+				}
+			};
+		let gitlabProjectClickListenerAttached = false;
+
 		async function triggerGitlabProjectFetchIfEnabled() {
 			let platform = 'github';
 			try {
 				const items = await new Promise((resolve) => {
 					chrome.storage.local.get(['platform'], resolve);
 				});
-				platform = items.platform || 'github';
 			} catch (e) {}
 			if (platform !== 'gitlab') {
 				if (gitlabProjectStatus) gitlabProjectStatus.textContent = 'Project filtering is only available for GitLab.';
@@ -1522,8 +1558,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				return;
 			}
 
-			chrome.storage.local.get(['platform', 'gitlabUsername', 'gitlabToken'], async (items) => {
-				const platform = items.platform || 'github';
+			chrome.storage.local.get(['gitlabUsername', 'gitlabToken'], async (items) => {
 				const username = items.gitlabUsername;
 
 				if (!username) {
@@ -1591,16 +1626,21 @@ document.addEventListener('DOMContentLoaded', () => {
 			if (availableGitlabProjects.length === 0) {
 				gitlabProjectDropdown.innerHTML = '<div class="p-3 text-gray-500 text-sm">No projects available. Click to load.</div>';
 				showGitlabProjectDropdown();
-				gitlabProjectDropdown.addEventListener(
-					'click',
-					async () => {
-						await loadGitlabProjects();
-						if (gitlabProjectSearch.value) {
-							filterAndDisplayGitlabProjects(gitlabProjectSearch.value.toLowerCase());
-						}
-					},
-					{ once: true },
-				);
+				if (!gitlabProjectClickListenerAttached) {
+					gitlabProjectClickListenerAttached = true;
+					gitlabProjectDropdown.addEventListener(
+						'click',
+						async () => {
+							await loadGitlabProjects();
+							if (gitlabProjectSearch.value) {
+								filterAndDisplayGitlabProjects(gitlabProjectSearch.value.toLowerCase());
+							}
+							// allow re-attaching after handler runs
+							gitlabProjectClickListenerAttached = false;
+						},
+						{ once: true },
+					);
+				}
 				return;
 			}
 
@@ -1731,7 +1771,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		// Load saved projects on init
 		chrome.storage.local.get(['platform', 'gitlabUsername', 'selectedGitlabProjects', 'useGitlabProjectFilter'], (items) => {
-			const platform = items.platform || 'github';
 			const username = items.gitlabUsername;
 
 			if (items.selectedGitlabProjects) {
@@ -1843,6 +1882,7 @@ platformSelect.addEventListener('change', () => {
 	});
 
 	updatePlatformUI(platform);
+	if (window.triggerGitlabProjectFetchIfEnabled) window.triggerGitlabProjectFetchIfEnabled();
 });
 
 const customDropdown = document.getElementById('customPlatformDropdown');

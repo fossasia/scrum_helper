@@ -34,6 +34,12 @@ let platformUsername = '';
 let gitlabHelper = null;
 
 async function allIncluded(outputTarget = 'email') {
+	// Prevent concurrent report generation: set guard immediately
+	if (scrumGenerationInProgress) {
+		return;
+	}
+	scrumGenerationInProgress = true;
+
 	// Always re-instantiate gitlabHelper for gitlab platform to ensure fresh cache after refresh
 	if (platform === 'gitlab' || (typeof platform === 'undefined' && window.GitLabHelper)) {
 		const result = await new Promise((resolve) => {
@@ -42,10 +48,6 @@ async function allIncluded(outputTarget = 'email') {
 		const gitlabToken = result.gitlabToken || null;
 		gitlabHelper = new window.GitLabHelper(gitlabToken);
 	}
-	if (scrumGenerationInProgress) {
-		return;
-	}
-	scrumGenerationInProgress = true;
 	console.log('allIncluded called with outputTarget:', outputTarget);
 
 	let scrumBody = null;
