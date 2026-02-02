@@ -1411,8 +1411,8 @@ document.addEventListener('DOMContentLoaded', () => {
 				} catch (err) {
 					console.error('fetchUserProjects failed', err);
 					return [];
-				}
-			};
+				};
+				};
 		let gitlabProjectClickListenerAttached = false;
 
 		async function triggerGitlabProjectFetchIfEnabled() {
