@@ -130,43 +130,44 @@ async function allIncluded(outputTarget = 'email') {
 				const platformUsernameKey = `${platform}Username`;
 				platformUsername = items[platformUsernameKey] || '';
 				
-				// Store GitLab token for use with GitLabHelper
-				const gitlabToken = items.gitlabToken || null;
 				platformUsernameLocal = platformUsername;
 				console.log(`[DEBUG] platform: ${platform}, platformUsername: ${platformUsername}`);
 
 				if (outputTarget === 'popup') {
 					const usernameFromDOM = document.getElementById('platformUsername')?.value;
 					const projectFromDOM = document.getElementById('projectName')?.value;
-				const tokenFromDOM = platform === 'gitlab' 
-					? document.getElementById('gitlabToken')?.value 
-					: document.getElementById('githubToken')?.value;
+					const tokenFromDOM = platform === 'gitlab' 
+						? document.getElementById('gitlabToken')?.value 
+						: document.getElementById('githubToken')?.value;
 
-				// Save to platform-specific storage
-				if (usernameFromDOM) {
-					chrome.storage.local.set({ [platformUsernameKey]: usernameFromDOM });
-					platformUsername = usernameFromDOM;
-					platformUsernameLocal = usernameFromDOM;
+					// Save to platform-specific storage
+					if (usernameFromDOM) {
+						chrome.storage.local.set({ [platformUsernameKey]: usernameFromDOM });
+						platformUsername = usernameFromDOM;
+						platformUsernameLocal = usernameFromDOM;
+					}
+
+					items.projectName = projectFromDOM || items.projectName;
+					
+					// Save platform-specific token
+					if (platform === 'gitlab') {
+						items.gitlabToken = tokenFromDOM || items.gitlabToken;
+						chrome.storage.local.set({
+							projectName: items.projectName,
+							gitlabToken: items.gitlabToken,
+						});
+					} else {
+						items.githubToken = tokenFromDOM || items.githubToken;
+						chrome.storage.local.set({
+							projectName: items.projectName,
+							githubToken: items.githubToken,
+						});
+					}
 				}
-
-				items.projectName = projectFromDOM || items.projectName;
 				
-				// Save platform-specific token
-				if (platform === 'gitlab') {
-					items.gitlabToken = tokenFromDOM || items.gitlabToken;
-					chrome.storage.local.set({
-						projectName: items.projectName,
-						gitlabToken: items.gitlabToken,
-					});
-				} else {
-					items.githubToken = tokenFromDOM || items.githubToken;
-					chrome.storage.local.set({
-						projectName: items.projectName,
-						githubToken: items.githubToken,
-					});
-				}
-			}
-			projectName = items.projectName;
+				// Capture GitLab token after DOM read/update to use fresh value
+				const gitlabToken = items.gitlabToken || null;
+				projectName = items.projectName;
 
 			userReason = 'No Blocker at the moment';
 			chrome.storage.local.remove(['userReason']);

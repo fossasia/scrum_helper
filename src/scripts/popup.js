@@ -135,7 +135,9 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (isFilterEnabled && !hasToken) {
 			useGitlabProjectFilter.checked = false;
 			gitlabProjectFilterContainer.classList.add('hidden');
+			if (typeof hideGitlabProjectDropdown === 'function') {
 				hideGitlabProjectDropdown();
+			}
 			chrome.storage.local.set({ useGitlabProjectFilter: false });
 		}
 		gitlabTokenWarning.classList.toggle('hidden', !isFilterEnabled || hasToken);
@@ -183,13 +185,13 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 
 			gitlabTokenInput.addEventListener('input', function (event) {
-				checkGitlabTokenForFilter(event);
+				checkGitlabTokenForFilter();
 				chrome.storage.local.set({ gitlabToken: gitlabTokenInput.value });
-				if (window.triggerGitlabProjectFetchIfEnabled) window.triggerGitlabProjectFetchIfEnabled();
+				if (typeof triggerGitlabProjectFetchIfEnabled === 'function') triggerGitlabProjectFetchIfEnabled();
 			});
 			gitlabTokenInput.addEventListener('blur', function () {
 				chrome.storage.local.set({ gitlabToken: gitlabTokenInput.value });
-				if (window.triggerGitlabProjectFetchIfEnabled) window.triggerGitlabProjectFetchIfEnabled();
+				if (typeof triggerGitlabProjectFetchIfEnabled === 'function') triggerGitlabProjectFetchIfEnabled();
 			});
 
 			// GitLab group input persistence
@@ -1419,6 +1421,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				const items = await new Promise((resolve) => {
 					chrome.storage.local.get(['platform'], resolve);
 				});
+				platform = items.platform || 'github';
 			} catch (e) {}
 			if (platform !== 'gitlab') {
 				if (gitlabProjectStatus) gitlabProjectStatus.textContent = 'Project filtering is only available for GitLab.';
@@ -1437,7 +1440,6 @@ document.addEventListener('DOMContentLoaded', () => {
 					chrome.storage.local.get(['platform', 'gitlabUsername', 'gitlabToken'], resolve);
 				});
 
-				const platform = items.platform || 'github';
 				const username = items.gitlabUsername;
 
 				if (!username) {
@@ -1468,6 +1470,10 @@ document.addEventListener('DOMContentLoaded', () => {
 				}
 			}
 		}
+
+		// Expose the function so it can be invoked from other handlers,
+		// ensuring it is not considered unused by static analysis.
+		window.triggerGitlabProjectFetchIfEnabled = triggerGitlabProjectFetchIfEnabled;
 
 		useGitlabProjectFilter.addEventListener(
 			'change',
@@ -1647,7 +1653,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			const filtered = availableGitlabProjects.filter(
 				(proj) =>
 					proj.name.toLowerCase().includes(query) ||
-					proj.path_with_namespace.toLowerCase().includes(query) ||
+					proj.path.toLowerCase().includes(query) ||
 					(proj.description && proj.description.toLowerCase().includes(query)),
 			);
 
@@ -1661,7 +1667,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				.map((proj) => {
 					const isSelected = selectedGitlabProjects.includes(proj.id.toString());
 					const safeName = escapeHtml(proj.name);
-					const safeNamespace = escapeHtml(proj.path_with_namespace);
+					const safeNamespace = escapeHtml(proj.path);
 					const safeDescription = proj.description ? escapeHtml(proj.description.substring(0, 60)) : '';
 					return `
 					<div class="gitlab-project-dropdown-item p-3 hover:bg-gray-100 cursor-pointer border-b border-gray-200 ${isSelected ? 'bg-blue-50' : ''}" data-project-id="${proj.id}">
