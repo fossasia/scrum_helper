@@ -89,6 +89,13 @@
     "onlyPRsTooltip": {
         "message": "Jika dicentang, laporan hanya akan menyertakan PR yang dibuat oleh pengguna; PR yang telah ditinjau akan dikecualikan."
     },
+    "onlyRevPRsLabel": {
+        "message": "Hanya sertakan PR yang ditinjau dalam laporan"
+    },
+    "onlyRevPRsTooltip": {
+        "message": "Jika dicentang, laporan hanya akan menyertakan PR yang ditinjau oleh Anda."
+    },
+
     "cacheTTLLabel": {
         "message": "Masukkan TTL cache",
         "description": "Label untuk masukan time-to-live cache."

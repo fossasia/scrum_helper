@@ -1,8 +1,21 @@
 {
-	"$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+	"$schema": "https://biomejs.dev/schemas/2.3.13/schema.json",
+	"vcs": {
+		"enabled": true,
+		"clientKind": "git",
+		"useIgnoreFile": true
+	},
 	"files": {
-		"include": ["src/**/*.js", "docs/**"],
-		"ignore": ["docs/images", "**/*.min.js", "src/icons", "src/materialize", "src/scripts/fontawesome.js"]
+		"ignoreUnknown": false,
+		"includes": [
+			"src/**/*.js",
+			"docs/**",
+			"!!src/fontawesome/",
+			"!!src/materialize/",
+			"!!src/scripts/jquery-3.2.1.min.js",
+			"!!src/scripts/materialize.min.js",
+			"!!src/**/*.min.js"
+		]
 	},
 	"formatter": {
 		"enabled": true,
@@ -10,12 +23,37 @@
 		"lineWidth": 120
 	},
 	"linter": {
-		"enabled": true
-	},
-	"organizeImports": {
-		"enabled": true
+		"enabled": true,
+		"rules": {
+			"recommended": false,
+			"complexity": {
+				"noForEach": "off",
+				"useOptionalChain": "off"
+			},
+			"style": {
+				"useTemplate": "off",
+				"noUnusedTemplateLiteral": "off",
+				"noUselessElse": "off"
+			}
+		}
 	},
 	"javascript": {
+		"globals": [
+			"chrome",
+			"$",
+			"jQuery",
+			"Materialize",
+			"window",
+			"document",
+			"console",
+			"fetch",
+			"alert",
+			"setTimeout",
+			"setInterval",
+			"clearInterval",
+			"MutationObserver",
+			"Image"
+		],
 		"formatter": {
 			"quoteStyle": "single"
 		}
