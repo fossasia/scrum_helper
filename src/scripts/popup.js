@@ -384,7 +384,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 
         initializePopup();
-               checkTokenForFilter();
+        checkTokenForFilter();
         setupGenerateButtonValidation();
     })
 
