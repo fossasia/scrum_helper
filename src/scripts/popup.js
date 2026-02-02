@@ -1650,12 +1650,12 @@ document.addEventListener('DOMContentLoaded', () => {
 				return;
 			}
 
-			const filtered = availableGitlabProjects.filter(
-				(proj) =>
-					proj.name.toLowerCase().includes(query) ||
-					proj.path.toLowerCase().includes(query) ||
-					(proj.description && proj.description.toLowerCase().includes(query)),
-			);
+			const filtered = availableGitlabProjects.filter((proj) => {
+				const name = (proj.name || '').toLowerCase();
+				const pathNs = (proj.path_with_namespace || proj.path || '').toLowerCase();
+				const desc = (proj.description || '').toLowerCase();
+				return name.includes(query) || pathNs.includes(query) || desc.includes(query);
+			});
 
 			if (filtered.length === 0) {
 				gitlabProjectDropdown.innerHTML = '<div class="p-3 text-gray-500 text-sm">No matching projects found.</div>';

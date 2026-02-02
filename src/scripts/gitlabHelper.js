@@ -180,7 +180,9 @@ class GitLabHelper {
 			return projects.map(p => ({
 				id: p.id,
 				name: p.name,
+				// Keep both `path` (used by UI) and `path_with_namespace` (matches GitLab API shape)
 				path: p.path_with_namespace,
+				path_with_namespace: p.path_with_namespace,
 				description: p.description || '',
 				visibility: p.visibility,
 				namespace: p.namespace ? p.namespace.name : ''
