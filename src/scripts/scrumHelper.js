@@ -227,7 +227,7 @@ async function allIncluded(outputTarget = 'email') {
 						return;
 					}
 				} else if (platform === 'gitlab') {
-					if (!gitlabHelper) gitlabHelper = new window.GitLabHelper(gitlabToken);
+					if (!gitlabHelper) gitlabHelper = new window.GitLabHelper(items.gitlabToken || null);
 					if (platformUsernameLocal) {
 						const generateBtn = document.getElementById('generateReport');
 						if (generateBtn && outputTarget === 'popup') {
