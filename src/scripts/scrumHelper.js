@@ -165,8 +165,6 @@ async function allIncluded(outputTarget = 'email') {
 					}
 				}
 				
-				// Capture GitLab token after DOM read/update to use fresh value
-				const gitlabToken = items.gitlabToken || null;
 				projectName = items.projectName;
 
 			userReason = 'No Blocker at the moment';

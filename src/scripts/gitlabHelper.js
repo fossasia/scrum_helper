@@ -1,5 +1,7 @@
 // GitLab API Helper for Scrum Helper Extension
 class GitLabHelper {
+	// Set to `true` during development to enable verbose logging from this helper
+	static debug = false;
 	constructor(token = null) {
 		this.baseUrl = 'https://gitlab.com/api/v4';
 		this.token = token;
@@ -20,9 +22,9 @@ class GitLabHelper {
 		if (this.token) {
 			// GitLab Personal Access Token authentication
 			headers['PRIVATE-TOKEN'] = this.token;
-			console.log('[GITLAB] Using authenticated requests with token');
+			if (GitLabHelper.debug) console.log('[GITLAB] Using authenticated requests with token');
 		} else {
-			console.log('[GITLAB] Using unauthenticated requests');
+			if (GitLabHelper.debug) console.log('[GITLAB] Using unauthenticated requests');
 		}
 		return headers;
 	}

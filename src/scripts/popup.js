@@ -187,11 +187,11 @@ document.addEventListener('DOMContentLoaded', () => {
 			gitlabTokenInput.addEventListener('input', function (event) {
 				checkGitlabTokenForFilter();
 				chrome.storage.local.set({ gitlabToken: gitlabTokenInput.value });
-				if (typeof triggerGitlabProjectFetchIfEnabled === 'function') triggerGitlabProjectFetchIfEnabled();
+				triggerGitlabProjectFetchIfEnabled();
 			});
 			gitlabTokenInput.addEventListener('blur', function () {
 				chrome.storage.local.set({ gitlabToken: gitlabTokenInput.value });
-				if (typeof triggerGitlabProjectFetchIfEnabled === 'function') triggerGitlabProjectFetchIfEnabled();
+				triggerGitlabProjectFetchIfEnabled();
 			});
 
 			// GitLab group input persistence
@@ -1398,6 +1398,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		let availableGitlabProjects = [];
 		let selectedGitlabProjects = [];
 		let gitlabHighlightedIndex = -1;
+		let gitlabProjectDelegateAttached = false;
 
 			// Provide a lightweight wrapper so popup code can fetch projects via GitLabHelper
 			window.fetchUserProjects = async function (username, token) {
@@ -1479,19 +1480,31 @@ document.addEventListener('DOMContentLoaded', () => {
 			'change',
 			debounce(async function () {
 				const isChecked = this.checked;
-				chrome.storage.local.set({ useGitlabProjectFilter: isChecked });
-
+				
 				if (isChecked) {
+					// Require a GitLab token before enabling project filtering to avoid
+					// silently loading 0 projects with no explanation.
+					if (!gitlabTokenInput || !gitlabTokenInput.value || gitlabTokenInput.value.trim() === '') {
+						// Revert the toggle since we cannot enable filtering without a token.
+						this.checked = false;
+						// Surface the appropriate warning if a helper is available.
+						if (typeof checkGitlabTokenForFilter === 'function') {
+							checkGitlabTokenForFilter();
+						}
+						return;
+					}
 					gitlabProjectFilterContainer.classList.remove('hidden');
 					if (availableGitlabProjects.length === 0) {
 						await loadGitlabProjects();
 					}
+					chrome.storage.local.set({ useGitlabProjectFilter: true });
 				} else {
 					gitlabProjectFilterContainer.classList.add('hidden');
 					selectedGitlabProjects = [];
 					updateGitlabProjectDisplay();
 					chrome.storage.local.set({ selectedGitlabProjects: [] });
 					gitlabProjectStatus.textContent = '';
+					chrome.storage.local.set({ useGitlabProjectFilter: false });
 				}
 			}, 300),
 		);
@@ -1663,29 +1676,44 @@ document.addEventListener('DOMContentLoaded', () => {
 				return;
 			}
 
-			gitlabProjectDropdown.innerHTML = filtered
+			// Limit number of rendered projects to avoid huge DOMs and many listeners
+			const MAX_GITLAB_RESULTS = 50;
+			const toRender = filtered.slice(0, MAX_GITLAB_RESULTS);
+			const remaining = filtered.length - toRender.length;
+
+			gitlabProjectDropdown.innerHTML = toRender
 				.map((proj) => {
 					const isSelected = selectedGitlabProjects.includes(proj.id.toString());
 					const safeName = escapeHtml(proj.name);
-					const safeNamespace = escapeHtml(proj.path);
+					const safeNamespace = escapeHtml(proj.path_with_namespace || proj.path || '');
 					const safeDescription = proj.description ? escapeHtml(proj.description.substring(0, 60)) : '';
 					return `
-					<div class="gitlab-project-dropdown-item p-3 hover:bg-gray-100 cursor-pointer border-b border-gray-200 ${isSelected ? 'bg-blue-50' : ''}" data-project-id="${proj.id}">
-						<div class="font-medium text-sm">${safeName}</div>
-						<div class="text-xs text-gray-500">${safeNamespace}</div>
-						${safeDescription ? `<div class="text-xs text-gray-400 mt-1">${safeDescription}...</div>` : ''}
-					</div>
-				`;
+						<div class="gitlab-project-dropdown-item p-3 hover:bg-gray-100 cursor-pointer border-b border-gray-200 ${isSelected ? 'bg-blue-50' : ''}" data-project-id="${proj.id}">
+							<div class="font-medium text-sm">${safeName}</div>
+							<div class="text-xs text-gray-500">${safeNamespace}</div>
+							${safeDescription ? `<div class="text-xs text-gray-400 mt-1">${safeDescription}...</div>` : ''}
+						</div>
+					`;
 				})
 				.join('');
 
-			gitlabProjectDropdown.querySelectorAll('.gitlab-project-dropdown-item').forEach((item) => {
-				item.addEventListener('click', (e) => {
+			if (remaining > 0) {
+				gitlabProjectDropdown.innerHTML += `
+					<div class="p-2 text-sm text-gray-500">+${remaining} more — refine search to see more</div>
+				`;
+			}
+
+			// Use event delegation to handle clicks with a single listener
+			if (!gitlabProjectDelegateAttached) {
+				gitlabProjectDelegateAttached = true;
+				gitlabProjectDropdown.addEventListener('click', (e) => {
+					const item = e.target.closest('.gitlab-project-dropdown-item');
+					if (!item) return;
 					e.stopPropagation();
 					const projectId = item.dataset.projectId;
 					addGitlabProject(projectId);
 				});
-			});
+			}
 
 			gitlabHighlightedIndex = -1;
 			showGitlabProjectDropdown();
