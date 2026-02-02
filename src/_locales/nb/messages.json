@@ -74,6 +74,15 @@
     "showCommitsLabel": {
         "message": "Vis commits på åpne PR-er/utkast til PR-er"
     },
+    "showCommitsTooltip": {
+        "message": "GitHub-token påkrevd, legg til ett i innstillingene."
+    },
+    "onlyIssuesLabel": {
+        "message": "Inkluder kun problemer i rapporten"
+    },
+    "onlyIssuesTooltip": {
+        "message": "Hvis valgt, vil rapporten kun inkludere problemer opprettet eller tildelt brukeren."
+    },
     "onlyPRsLabel": {
         "message": "Inkluder kun PR-er i rapporten"
     },

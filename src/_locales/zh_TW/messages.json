@@ -1,0 +1,210 @@
+{
+    "appName": {
+        "message": "Scrum Helper"
+    },
+    "appDescription": {
+        "message": "通過自動獲取選定時間段內的 Git 活動來報告您的開發進度。"
+    },
+    "disableLabel": {
+        "message": "禁用"
+    },
+    "enableLabel": {
+        "message": "啟用"
+    },
+    "projectNameLabel": {
+        "message": "項目名稱（用於電子郵件主題）"
+    },
+    "projectNamePlaceholder": {
+        "message": "輸入您的項目名稱"
+    },
+    "githubUsernameLabel": {
+        "message": "您的 GitHub 用戶名"
+    },
+    "gitlabUsernameLabel": {
+        "message": "您的 GitLab 用戶名"
+    },
+    "githubUsernamePlaceholder": {
+        "message": "獲取您的貢獻所必需"
+    },
+    "contributionsLabel": {
+        "message": "獲取您在此期間的貢獻："
+    },
+    "last1DayLabel": {
+        "message": "前一天"
+    },
+    "startDateLabel": {
+        "message": "從:"
+    },
+    "endDateLabel": {
+        "message": "到:"
+    },
+    "showOpenClosedLabel": {
+        "message": "顯示 \"打開/關閉\" 狀態"
+    },
+    "blockersLabel": {
+        "message": "什麼阻礙了您的進展？"
+    },
+    "blockersPlaceholder": {
+        "message": "輸入您的原因"
+    },
+    "scrumReportLabel": {
+        "message": "Scrum 報告"
+    },
+    "generateReportButton": {
+        "message": "生成報告"
+    },
+    "copyReportButton": {
+        "message": "複製報告"
+    },
+    "settingsOrgNameLabel": {
+        "message": "組織名稱"
+    },
+    "settingsOrgNamePlaceholder": {
+        "message": "輸入組織名稱"
+    },
+    "setButton": {
+        "message": "設置"
+    },
+    "githubTokenLabel": {
+        "message": "您的 GitHub 令牌"
+    },
+    "githubTokenPlaceholder": {
+        "message": "進行身份驗證請求所必需"
+    },
+    "showCommitsLabel": {
+        "message": "在打開的 PR/草稿 PR 上顯示提交"
+    },
+    "showCommitsTooltip": {
+        "message": "需要 Github 令牌，請在設置中添加。"
+    },
+    "onlyIssuesLabel": {
+        "message": "報告中僅包含問題"
+    },
+    "onlyIssuesTooltip": {
+        "message": "如果選中，報告將僅包含由用戶創建或分配給用戶的問題。"
+    },
+    "onlyPRsLabel": {
+        "message": "報告中僅包含PR"
+    },
+    "onlyPRsTooltip": {
+        "message": "勾選後，報告將只包含用戶創建的拉取請求；已審核的PR將被排除。"
+    },
+    "cacheTTLLabel": {
+        "message": "輸入緩存 TTL",
+        "description": "緩存生存時間輸入的標籤。"
+    },
+    "cacheTTLUnit": {
+        "message": "（分鐘）"
+    },
+    "cacheTTLPlaceholder": {
+        "message": "以分鐘為單位輸入緩存 TTL（默認為 10）"
+    },
+    "refreshDataButton": {
+        "message": "刷新數據（繞過緩存）"
+    },
+    "refreshDataInfo": {
+        "message": "使用此按鈕立即獲取新數據。"
+    },
+    "noteTitle": {
+        "message": "註意："
+    },
+    "viewCodeButton": {
+        "message": "查看代碼"
+    },
+    "reportIssueButton": {
+        "message": "報告問題"
+    },
+    "repoFilterLabel": {
+        "message": "按倉庫篩選"
+    },
+    "enableFilteringLabel": {
+        "message": "啟用篩選"
+    },
+    "tokenRequiredWarning": {
+        "message": "倉庫篩選需要GitHub令牌。請在設置中添加一個。"
+    },
+    "repoSearchPlaceholder": {
+        "message": "搜索要添加的倉庫..."
+    },
+    "repoPlaceholder": {
+        "message": "未選擇任何倉庫（將包含所有倉庫）"
+    },
+    "repoCountNone": {
+        "message": "已選擇 0 個倉庫"
+    },
+    "repoCount": {
+        "message": "已選擇 $1 個倉庫"
+    },
+    "repoLoading": {
+        "message": "正在加載倉庫..."
+    },
+    "repoLoaded": {
+        "message": "已加載 $1 個倉庫。"
+    },
+    "repoNotFound": {
+        "message": "未找到倉庫"
+    },
+    "repoRefetching": {
+        "message": "正在重新加載倉庫..."
+    },
+    "repoLoadFailed": {
+        "message": "加載倉庫失敗。"
+    },
+    "repoTokenPrivate": {
+        "message": "令牌無效或沒有私有倉庫的權限。"
+    },
+    "repoRefetchFailed": {
+        "message": "重新加載倉庫失敗。"
+    },
+    "orgSetMessage": {
+        "message": "組織設置成功。"
+    },
+    "orgClearedMessage": {
+        "message": "組織已清除。點擊 \"生成報告\" 以獲取所有活動。"
+    },
+    "orgNotFoundMessage": {
+        "message": "在GitHub上找不到組織。"
+    },
+    "orgValidationErrorMessage": {
+        "message": "驗證組織時出錯。"
+    },
+    "refreshingButton": {
+        "message": "正在刷新..."
+    },
+    "cacheClearFailed": {
+        "message": "清除緩存失敗。"
+    },
+    "madeWithLoveBy": {
+        "message": "Made with ❤️ by"
+    },
+    "generatingButton": {
+        "message": "正在生成..."
+    },
+    "copiedButton": {
+        "message": "已複製！"
+    },
+    "orgChangedMessage": {
+        "message": "組織已更改。單擊 \"生成報告\" 按鈕以獲取 GitHub 活動。"
+    },
+    "cacheClearedMessage": {
+        "message": "緩存已成功清除。單擊 \"生成報告\" 以獲取新數據。"
+    },
+    "cacheClearedButton": {
+        "message": "緩存已清除！"
+    },
+    "extensionDisabledMessage": {
+        "message": "擴展已禁用。請在設置中啟用它以生成 Scrum 報告。"
+    },
+    "notePoint1": {
+        "message": "拉取請求是根據任何貢獻者最近的審查活動來獲取的，而不僅僅是您自己的。在分享之前，請審查並調整生成的SCRUM報告，以確保它準確地反映您的工作。"
+    },
+    "noteSeeIssue": {
+        "message": "查看此 issue"
+    },
+    "platformLabel": {
+        "message": "平台"
+    },
+    "usernameLabel": {
+        "message": "您的用戶名"
+    }
+}

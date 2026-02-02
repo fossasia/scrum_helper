@@ -74,6 +74,15 @@
     "showCommitsLabel": {
         "message": "Mostra commit su PR aperti/ bozze di PR"
     },
+    "showCommitsTooltip": {
+        "message": "Token GitHub richiesto, aggiungi uno nelle impostazioni."
+    },
+    "onlyIssuesLabel": {
+        "message": "Includi solo i problemi nel report"
+    },
+    "onlyIssuesTooltip": {
+        "message": "Se selezionato, il report includerà solo i problemi creati o assegnati all'utente."
+    },
     "onlyPRsLabel": {
         "message": "Includi solo le PR nel report"
     },

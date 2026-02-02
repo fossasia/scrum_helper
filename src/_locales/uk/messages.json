@@ -74,6 +74,15 @@
     "showCommitsLabel": {
         "message": "Показувати коміти у відкритих PR/ чернетках PR"
     },
+    "showCommitsTooltip": {
+        "message": "Потрібен токен Github, додайте його в налаштуваннях."
+    },
+    "onlyIssuesLabel": {
+        "message": "Включати до звіту лише проблеми"
+    },
+    "onlyIssuesTooltip": {
+        "message": "Якщо позначено, звіт включатиме лише проблеми, створені або призначені користувачу."
+    },
     "onlyPRsLabel": {
         "message": "Включати до звіту лише PR"
     },

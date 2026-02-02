@@ -75,6 +75,9 @@
   "showCommitsLabel": {
     "message": "Commits in offenen PRs/ Entwurfs-PRs anzeigen"
   },
+  "showCommitsTooltip": {
+    "message": "Github-Token erforderlich, bitte in den Einstellungen hinzufügen."
+  },
   "onlyIssuesLabel": {
     "message": "Nur Probleme in den Bericht aufnehmen"
   },
