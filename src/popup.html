@@ -179,9 +179,60 @@
 
 					</div>
 
-					<div class="my-3">
-						<p class="text-sm font-medium mb-1" data-i18n="reportSectionsLabel">Report sections</p>
-						<div class="space-y-2">
+					<!-- Data Filtering Controls -->
+					<div class="my-4 bg-gray-50 rounded-xl p-4 border border-gray-200">
+						<div class="flex items-start gap-2 mb-3">
+							<i class="fa fa-filter text-blue-600 mt-0.5"></i>
+							<div>
+								<p class="text-sm font-medium text-gray-900" data-i18n="dataFiltersLabel">Data filters</p>
+								<p class="text-xs text-gray-600 mb-2" data-i18n="dataFiltersHelp">
+									These options control which issues or pull requests are fetched from GitHub. They do not add or remove report sections.
+								</p>
+							</div>
+						</div>
+						<div class="space-y-3 ml-6">
+							<div class="flex items-center">
+								<input type="checkbox" id="onlyIssues" class="form-checkbox text-blue-600">
+								<label for="onlyIssues" class="font-medium text-sm ml-2 flex items-center" style="margin-left: 4px;" data-i18n="onlyIssuesLabel">
+									Only fetch issues created or assigned to me
+								</label>
+								<span class="tooltip-container">
+									<i class="fa fa-question-circle question-icon"></i>
+									<span class="tooltip-bubble" data-i18n="onlyIssuesTooltip">
+										If checked, only issues created or assigned to you will be fetched from GitHub.
+									</span>
+								</span>
+							</div>
+							<div class="flex items-center">
+								<input type="checkbox" id="onlyPRs" class="form-checkbox text-blue-600">
+								<label for="onlyPRs" class="font-medium text-sm ml-2 flex items-center" style="margin-left: 4px;" data-i18n="onlyPRsLabel">
+									Only fetch pull requests created by me
+								</label>
+								<span class="tooltip-container">
+									<i class="fa fa-question-circle question-icon"></i>
+									<span class="tooltip-bubble" data-i18n="onlyPRsTooltip">
+										If checked, only pull requests created by you will be fetched from GitHub.
+									</span>
+								</span>
+							</div>
+						</div>
+					</div>
+
+					<!-- Report Sections Controls -->
+					<div class="my-4 bg-gray-50 rounded-xl p-4 border border-gray-200">
+						<div class="flex items-start gap-2 mb-3">
+							<i class="fa fa-list text-blue-600 mt-0.5"></i>
+							<div>
+								<p class="text-sm font-medium text-gray-900" data-i18n="reportSectionsLabel">Report sections</p>
+								<p class="text-xs text-gray-600" data-i18n="reportSectionsDescription">
+									Choose which sections to include in your final report. These determine what appears in the output.
+								</p>
+							</div>
+						</div>
+						<p class="text-xs text-gray-600 mt-2" data-i18n="reportSectionsHelp">
+							These options control which sections appear in the generated report. They do not change which issues or pull requests are fetched.
+						</p>
+						<div class="space-y-2 ml-6">
 							<div class="flex items-center">
 								<input type="checkbox" id="includeIssuesSection" class="form-checkbox text-blue-600" checked>
 								<label for="includeIssuesSection" class="font-medium text-sm ml-2" data-i18n="includeIssuesSectionLabel">
@@ -203,46 +254,33 @@
 							<div class="flex items-center">
 								<input type="checkbox" id="includeTasksSection" class="form-checkbox text-blue-600" checked>
 								<label for="includeTasksSection" class="font-medium text-sm ml-2" data-i18n="includeTasksSectionLabel">
-									Include “What do I plan to do?” section
+									Include "What do I plan to do?" section
 								</label>
 							</div>
 							<div class="flex items-center">
 								<input type="checkbox" id="includeBlockersSection" class="form-checkbox text-blue-600" checked>
 								<label for="includeBlockersSection" class="font-medium text-sm ml-2" data-i18n="includeBlockersSectionLabel">
-									Include “What is blocking me?” section
+									Include "What is blocking me?" section
 								</label>
 							</div>
 						</div>
 					</div>
-					<div class="my-4">
-                        <div class="flex items-center">
-                            <input type="checkbox" id="onlyIssues" class="form-checkbox text-blue-600">
-                            <label for="onlyIssues" class="font-medium text-sm flex items-center" style="margin-left: 4px;" data-i18n="onlyIssuesLabel">
-                                If checked, the report will only include issues created or assigned to the user.
-                            </label>
-                            <span class="tooltip-container">
-                                <i class="fa fa-question-circle question-icon"></i>
-                                <span class="tooltip-bubble" data-i18n="onlyIssuesTooltip">
-                                    If checked, the report will only include issues created or assigned to the user.
-                                </span>
-                            </span>
-                        </div>
-                    </div>
 
-					<div class="my-4">
-                        <div class="flex items-center">
-                            <input type="checkbox" id="onlyPRs" class="form-checkbox text-blue-600">
-                            <label for="onlyPRs" class="font-medium text-sm flex items-center" style="margin-left: 4px;" data-i18n="onlyPRsLabel">
-                                If checked, the report will only include PRs created by you.
-                            </label>
-                            <span class="tooltip-container">
-                                <i class="fa fa-question-circle question-icon"></i>
-                                <span class="tooltip-bubble" data-i18n="onlyPRsTooltip">
-                                    If checked, the report will only include PRs created by you.
-                                </span>
-                            </span>
-                        </div>
-                    </div>
+					<!-- Relationship Explanation -->
+					<div class="my-4 bg-blue-50 rounded-xl p-3 border border-blue-200">
+						<div class="flex items-start gap-2">
+							<i class="fa fa-info-circle text-blue-600 mt-0.5"></i>
+							<div>
+								<p class="text-xs font-medium text-blue-900" data-i18n="relationshipExplanationTitle">How these controls work together</p>
+								<p class="text-xs text-blue-800" data-i18n="relationshipExplanation">
+									<strong>Data filtering</strong> determines what information is fetched from GitHub. 
+									<strong>Report sections</strong> determine which sections appear in your final report. 
+									For example, if you uncheck "Include pull requests" but check "Only fetch pull requests created by me", 
+									no pull request data will appear in your report even though it was fetched.
+								</p>
+							</div>
+						</div>
+					</div>
 					
 					<div class="my-4 githubOnlySection">
 						<div class="flex items-center">

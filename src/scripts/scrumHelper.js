@@ -1048,7 +1048,7 @@ function allIncluded(outputTarget = 'email') {
             idx++;
         }
 
-        if (includeTasksSection) {
+        if (includeTasksSection && nextWeekArray.length > 0) {
             sections.push(`<b>${idx}. What do I plan to do ${weekOrDay2}?</b><br>${nextWeekUl}`);
             idx++;
         }
@@ -1056,7 +1056,11 @@ function allIncluded(outputTarget = 'email') {
         if (includeBlockersSection && userReason && String(userReason).trim().length > 0) {
             sections.push(`<b>${idx}. What is blocking me from making progress?</b><br>${userReason}`);
         }
-
+         
+        if (sections.length === 0) {
+            logError('No sections enabled for report generation');
+            sections.push('<i>No sections enabled for this report.</i>');
+        }
         let content = sections.join('<br>');
 
         if (outputTarget === 'popup') {
