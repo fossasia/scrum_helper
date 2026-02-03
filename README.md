@@ -15,12 +15,33 @@
 
 ### For Chrome:
 
-1. Clone this repository to your local machine.
-2. Go to `chrome://extensions` on your chrome browser.
-3. Enable Developer Mode (toggle in the top-right) if not already.
-4. Click Load unpacked and select the `src` folder inside the cloned repo
-5. Click the Scrum Helper icon on your browser toolbar
-6. Fill in your settings in the popup (GitHub username, date range, etc.)
+1. Open the Chrome Web Store and search for [“Scrum Helper”](https://chromewebstore.google.com/detail/Scrum%20Helper/begjldpiiihpnaflcbdbbophiifphokg) by FOSSASIA.
+2. Click “Add to Chrome”.
+3. Pin the extension to your toolbar (optional).
+4. Open the extension popup from your browser toolbar.
+5. Set your GitHub username, date range, and preferences in the popup.
+6. Start composing your reports in Gmail, Yahoo Mail, Outlook, or Google Groups using the extension.
+
+## Setting Up Your Development Environment
+
+1.  **Fork & Clone the Repository**
+
+    ```sh
+    git clone https://github.com/YOUR_USERNAME/scrum-helper.git
+    cd scrum-helper
+    ```
+
+2.  **Install Dependencies**
+
+    ```sh
+    npm install
+    ```
+
+3.  **Load the Extension in Your Browser**
+
+    -   Go to `chrome://extensions` in your Chrome browser.
+    -   Enable "Developer Mode" (toggle in the top-right).
+    -   Click "Load unpacked" and select the `src` folder inside the cloned repository.
 
 <!-- ### For Firefox:
 
@@ -88,15 +109,14 @@ This project is licensed under the LGPL-2.1 License - see the [LICENSE](LICENSE)
 
 ## Screenshots
 
-![SCRUM](docs/images/scrum.png)
+| | |
+|---|---|
+| ![POPUP](docs/images/popup.png) | ![POPUP2](docs/images/popup2.png) |
+| ![STANDALONE](docs/images/standalone.png) | ![SETTINGSMENU](docs/images/settings.png) |
 
-![POPUP](docs/images/popup.png)
-
-![POPUP2](docs/images/popup2.png)
-
-![STANDALONE](docs/images/standalone.png)
-
-![SETTINGSMENU](docs/images/settings.png)
+| |
+|---|
+| ![SCRUM](docs/images/scrum.png) |
 
 ## Setting up the code locally
 

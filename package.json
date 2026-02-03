@@ -1,34 +1,36 @@
 {
-	"name": "scrum-helper",
-	"version": "2.0.0",
-	"description": "This extension simplifies writing development reports by auto-filling content based on your Git activity.",
-	"repository": {
-		"type": "git",
-		"url": "git+https://github.com/fossasia/scrum_helper.git"
-	},
-	"scripts": {
-		"format": "biome format --write",
-		"check": "biome check .",
-		"fix": "biome lint --write"
-	},
-	"keywords": [
-		"scrum",
-		"google groups",
-		"fossasia"
-	],
-	"author": "FOSSASIA",
-	"license": "LGPL-2.1",
-	"bugs": {
-		"url": "https://github.com/fossasia/scrum_helper/issues"
-	},
-	"homepage": "https://github.com/fossasia/scrum_helper",
-	"devDependencies": {
-		"@biomejs/biome": "2.3.10",
-		"autoprefixer": "^10.4.21",
-		"postcss": "^8.5.3",
-		"tailwindcss": "^4.1.4"
-	},
-	"dependencies": {
-		"@tailwindcss/cli": "^4.1.3"
-	}
+  "name": "scrum-helper",
+  "version": "2.0.2",
+  "description": "This extension simplifies writing development reports by auto-filling content based on your Git activity.",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fossasia/scrum_helper.git"
+  },
+  "scripts": {
+    "lint": "biome lint .",
+    "format": "biome format --write .",
+    "check": "biome check .",
+    "fix": "biome lint --write .",
+    "check:write": "biome check --write ."
+  },
+  "keywords": [
+    "scrum",
+    "google groups",
+    "fossasia"
+  ],
+  "author": "FOSSASIA",
+  "license": "LGPL-2.1",
+  "bugs": {
+    "url": "https://github.com/fossasia/scrum_helper/issues"
+  },
+  "homepage": "https://github.com/fossasia/scrum_helper",
+  "devDependencies": {
+    "@biomejs/biome": "2.3.13",
+    "autoprefixer": "^10.4.24",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^4.1.18"
+  },
+  "dependencies": {
+    "@tailwindcss/cli": "^4.1.3"
+  }
 }

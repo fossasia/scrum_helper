@@ -1,3 +1,91 @@
+## v0.1.3 - 2026-01-31
+
+## What's Changed
+
+* Add translations for onlyReviewedPRs feature
+* Update Telugu translations
+---
+
+## v0.1.3 - 2026-01-30
+
+## What's Changed
+
+* No changes
+
+---
+
+## v0.1.3 - 2026-01-29
+
+## What's Changed
+
+* No changes
+
+---
+
+## v0.1.3 - 2026-01-28
+
+## What's Changed
+
+* No changes
+
+
+## What's Changed
+
+* Update README documentation
+
+## v2.0.2 - 2026-01-21
+
+## What's Changed
+
+* Improve GitHub user validation and error handling (#283) @Mateeb-Haider
+* OnlyPRs filter (#308) @vedansh-5
+* Improve CONTRIBUTING.md and fix broken link (#312) @Salmaan-M
+* Bug fixed in isNewPr condition (#306) @vedansh-5
+* Fix popup crash on dark mode toggle due to missing tokenPreview (#300) @gurusatsangi
+* fix(popup): remove invalid Tailwind runtime directives (#304) @skyforge-glitch
+
+## Maintenance
+
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.10 to 2.3.11 (#290) @[dependabot[bot]](https://github.com/apps/dependabot)
+
+---
+
+## v2.0.2 - 2026-01-21
+
+## What's Changed
+
+* Improve GitHub user validation and error handling (#283) @Mateeb-Haider
+* OnlyPRs filter (#308) @vedansh-5
+* Improve CONTRIBUTING.md and fix broken link (#312) @Salmaan-M
+* Bug fixed in isNewPr condition (#306) @vedansh-5
+* Fix popup crash on dark mode toggle due to missing tokenPreview (#300) @gurusatsangi
+* fix(popup): remove invalid Tailwind runtime directives (#304) @skyforge-glitch
+
+---
+
+## v2.0.2 - 2026-01-21
+
+## What's Changed
+
+* OnlyPRs filter (#308) @vedansh-5
+* Improve CONTRIBUTING.md and fix broken link (#312) @Salmaan-M
+* Bug fixed in isNewPr condition (#306) @vedansh-5
+* Fix popup crash on dark mode toggle due to missing tokenPreview (#300) @gurusatsangi
+* fix(popup): remove invalid Tailwind runtime directives (#304) @skyforge-glitch
+
+---
+
+## v2.0.2 - 2026-01-21
+
+## What's Changed
+
+* Improve CONTRIBUTING.md and fix broken link (#312) @Salmaan-M
+* Bug fixed in isNewPr condition (#306) @vedansh-5
+* Fix popup crash on dark mode toggle due to missing tokenPreview (#300) @gurusatsangi
+* fix(popup): remove invalid Tailwind runtime directives (#304) @skyforge-glitch
+
+---
+
 ## v2.0.2 - 2026-01-14
 
 ## What's Changed
