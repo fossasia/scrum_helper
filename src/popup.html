@@ -316,7 +316,7 @@
 								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2 pr-10"
 								data-i18n-placeholder="githubTokenPlaceholder">
 						</div>
-						<div class="">
+						<div class="githubOnlySection">
 							<div class="flex items-center mt-4">
 								<p class="text-sm font-semibold" data-i18n="settingsOrgNameLabel">Your Organization Name
 								</p>
@@ -402,6 +402,35 @@
 								</div>
 							</div>
 						</div>
+					</div>
+
+					<div class="gitlabOnlySection hidden mt-3">
+						<div class="flex items-center justify-between">
+							<div class="flex">
+								<p class="text-sm font-medium" data-i18n="gitlabTokenLabel">Your GitLab Token</p>
+								<span class="tooltip-container">
+									<i class="fa fa-question-circle question-icon"></i>
+									<span class="tooltip-bubble" data-i18n="gitlabTokenTooltip">
+										<b>Why add a GitLab token?</b><br>
+										Works without a token for public projects, but a personal access token enables private repos and better rate limits. Your token stays local and is only used to fetch your GitLab data.<br><br>
+										<b>How to get one:</b><br>
+										1. Go to <a href="https://gitlab.com/-/profile/personal_access_tokens" target="_blank"
+											rel="noopener noreferrer"
+											style="color:#2563eb;text-decoration:underline;">GitLab Access Tokens</a><br>
+										2. Click "Add new token"<br>
+										3. Select "read_api" scope<br>
+										4. Paste it here<br>
+										<i>Keep it secret!</i>
+									</span>
+								</span>
+							</div>
+							<button id="toggleGitlabTokenVisibility" type="button" class="focus:outline-none">
+								<i id="gitlabTokenEyeIcon" class="fa fa-eye text-gray-600"></i>
+							</button>
+						</div>
+						<input id="gitlabToken" type="password"
+							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2 pr-10"
+							data-i18n-placeholder="gitlabTokenPlaceholder">
 					</div>
 
 					<div class="cacheSection mt-3">
