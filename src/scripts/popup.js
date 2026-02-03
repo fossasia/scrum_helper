@@ -352,20 +352,7 @@ document.addEventListener('DOMContentLoaded', function () {
             }
             if (typeof result.showCommits !== 'undefined') showCommitsCheckbox.checked = result.showCommits;
             if (result.githubToken) githubTokenInput.value = result.githubToken;
-            // Try to get GitLab token from session storage first (more secure), fallback to local storage
-            if (chrome.storage.session && typeof chrome.storage.session.get === 'function') {
-                chrome.storage.session.get(['gitlabToken'], function (sessionResult) {
-                    if (gitlabTokenInput) {
-                        if ('gitlabToken' in sessionResult) {
-                            gitlabTokenInput.value = sessionResult.gitlabToken || '';
-                        } else if ('gitlabToken' in result) {
-                            gitlabTokenInput.value = result.gitlabToken || '';
-                        }
-                    }
-                });
-            } else if ('gitlabToken' in result && gitlabTokenInput) {
-                gitlabTokenInput.value = result.gitlabToken || '';
-            }
+            if (result.gitlabToken && gitlabTokenInput) gitlabTokenInput.value = result.gitlabToken;
             if (result.cacheInput) cacheInput.value = result.cacheInput;
             if (enableToggleSwitch) {
                 if (typeof result.enableToggle !== 'undefined') {
@@ -545,12 +532,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
         if (gitlabTokenInput) {
             gitlabTokenInput.addEventListener('input', function () {
-                const tokenValue = gitlabTokenInput.value;
-                // Store in both session (for runtime security) and local (for persistence across restarts)
-                chrome.storage.local.set({ gitlabToken: tokenValue });
-                if (chrome.storage.session && typeof chrome.storage.session.set === 'function') {
-                    chrome.storage.session.set({ gitlabToken: tokenValue });
-                }
+                chrome.storage.local.set({ gitlabToken: gitlabTokenInput.value });
             });
         }
         cacheInput.addEventListener('input', function () {
