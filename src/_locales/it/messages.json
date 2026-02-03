@@ -74,6 +74,12 @@
     "showCommitsLabel": {
         "message": "Mostra commit su PR aperti/ bozze di PR"
     },
+    "onlyIssuesLabel": {
+        "message": "Include only issues in the report"
+    },
+    "onlyIssuesTooltip": {
+        "message": "If checked, the report will only include issues created or assigned to the user."
+    },
     "onlyPRsLabel": {
         "message": "Includi solo le PR nel report"
     },
@@ -204,4 +210,65 @@
     "usernameLabel": {
         "message": "Il tuo nome utente"
     }
+,
+  "gitlabTokenLabel": {
+    "message": "Your GitLab Token",
+    "description": "Label for the GitLab token input."
+  },
+  "gitlabTokenPlaceholder": {
+    "message": "Paste your GitLab Personal Access Token",
+    "description": "Placeholder for the GitLab token input."
+  },
+  "gitlabTokenTooltip": {
+    "message": "<b>Why is it recommended to add a GitLab token?</b><br>Scrum Helper works without a GitLab token, but adding a personal access token is recommended for a better experience. It raises your API limits, allows access to private repos (if permitted), and improves accuracy and speed. Tokens are stored locally and never sent to us and used only to fetch your git data.<br><br><b>How to obtain:</b><br>1. Go to <a href='https://gitlab.com/-/profile/personal_access_tokens' target='_blank' style='color:#2563eb;text-decoration:underline;'>GitLab Token Settings</a>.<br>2. Click 'Add new token'<br>3. Select scopes: <code>read_api</code> and <code>read_repository</code><br>4. Generate and paste it here.<br><i>Keep your token secret!</i>",
+    "description": "Tooltip explaining how to get a GitLab token."
+  },
+  "testTokenButton": {
+    "message": "Test Token",
+    "description": "Button text to test/validate a GitLab token."
+  },
+  "clearTokenButton": {
+    "message": "Clear Token",
+    "description": "Button text to clear the stored token."
+  },
+  "confirmClearToken": {
+    "message": "Are you sure you want to clear the GitLab token?",
+    "description": "Confirmation message before clearing the token."
+  },
+  "testingTokenButton": {
+    "message": "Testing...",
+    "description": "Button text while token validation is in progress."
+  },
+  "tokenValidButton": {
+    "message": "Valid!",
+    "description": "Button text when token is validated successfully."
+  },
+  "tokenInvalidButton": {
+    "message": "Invalid",
+    "description": "Button text when token validation fails."
+  },
+  "gitlabGroupLabel": {
+    "message": "Il tuo gruppo GitLab",
+    "description": "Label for the GitLab group input."
+  },
+  "gitlabGroupPlaceholder": {
+    "message": "Inserisci il nome del gruppo GitLab",
+    "description": "Placeholder for the GitLab group input."
+  },
+  "gitlabGroupTooltip": {
+    "message": "<b>Attività di quale gruppo GitLab?</b><br>Inserisci il nome del gruppo GitLab per recuperare le attività. Lascia vuoto per recuperare tutte le tue attività GitLab in tutti i gruppi. Il nome del gruppo non è sensibile alle maiuscole.",
+    "description": "Tooltip explaining GitLab group filtering."
+  },
+  "gitlabProjectFilterLabel": {
+    "message": "Filtra per progetti",
+    "description": "Label for GitLab project filter."
+  },
+  "gitlabProjectFilterTooltip": {
+    "message": "Token GitLab richiesto.<br>Per forzare un aggiornamento dell'elenco dei progetti, <br>fai clic sul pulsante Aggiorna dati.",
+    "description": "Tooltip for GitLab project filter."
+  },
+  "gitlabTokenRequiredWarning": {
+    "message": "È necessario un token GitLab per filtrare i progetti. Aggiungine uno nelle impostazioni.",
+    "description": "Warning message when GitLab token is missing for project filtering."
+  }
 }
