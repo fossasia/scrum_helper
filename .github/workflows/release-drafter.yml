@@ -12,6 +12,7 @@ permissions:
 
 jobs:
   update_release_draft:
+    if: github.repository == 'FOSSASIA/scrum_helper'
     permissions:
       contents: write
       pull-requests: write
