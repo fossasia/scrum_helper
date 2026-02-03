@@ -530,8 +530,16 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		});
 
-		// Keyboard shortcuts: Ctrl+G (Cmd+G on macOS) to generate, Ctrl+Shift+C (Cmd+Shift+C on macOS) to copy
+		// Keyboard shortcuts: Ctrl+G (Cmd+G on macOS) to generate, Ctrl+C (Cmd+C on macOS) or Ctrl+Shift+K (Cmd+Shift+K on macOS) to copy
 		document.addEventListener('keydown', (e) => {
+			if (
+				e.target?.tagName === 'INPUT' ||
+				e.target?.tagName === 'TEXTAREA' ||
+				e.target?.isContentEditable
+			) {
+				return;
+			}
+
 			const key = (e.key || '').toLowerCase();
 			const modifier = e.ctrlKey || e.metaKey;
 
@@ -539,7 +547,11 @@ document.addEventListener('DOMContentLoaded', () => {
 				e.preventDefault();
 				generateBtn.click();
 			}
-			if (modifier && e.shiftKey && key === 'c' && !e.repeat && !copyBtn.disabled) {
+			if (modifier && !e.shiftKey && key === 'c' && !e.repeat && !copyBtn.disabled) {
+				e.preventDefault();
+				copyBtn.click();
+			}
+			if (modifier && e.shiftKey && key === 'k' && !e.repeat && !copyBtn.disabled) {
 				e.preventDefault();
 				copyBtn.click();
 			}
