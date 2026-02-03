@@ -1053,7 +1053,7 @@ function allIncluded(outputTarget = 'email') {
             idx++;
         }
 
-        if (includeBlockersSection) {
+        if (includeBlockersSection && userReason && String(userReason).trim().length > 0) {
             sections.push(`<b>${idx}. What is blocking me from making progress?</b><br>${userReason}`);
         }
 
