@@ -137,6 +137,22 @@
     "repoLoaded": {
         "message": "Завантажено $1 репозиторіїв."
     },
+       "gitlabProjectCountNone": {
+           "message": "0 projects selected",
+           "description": "Text showing the count of selected GitLab projects when it's zero."
+       },
+       "gitlabProjectCount": {
+           "message": "$1 projects selected",
+           "description": "Text showing the count of selected GitLab projects. $1 is a placeholder for the number."
+       },
+       "gitlabProjectSearchPlaceholder": {
+           "message": "Search projects",
+           "description": "Placeholder/title for the GitLab project search input."
+       },
+       "gitlabProjectPlaceholder": {
+           "message": "No projects selected (all will be included)",
+           "description": "Placeholder text when no GitLab projects are selected for filtering."
+       },
     "repoNotFound": {
         "message": "Репозиторіїв не знайдено"
     },

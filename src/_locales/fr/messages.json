@@ -275,4 +275,21 @@
     "message": "Un jeton GitLab est requis pour le filtrage des projets. Veuillez en ajouter un dans les paramètres.",
     "description": "Warning message when GitLab token is missing for project filtering."
   }
+    ,
+    "gitlabProjectCountNone": {
+        "message": "0 projets sélectionnés",
+        "description": "Text showing the count of selected GitLab projects when it's zero."
+    },
+    "gitlabProjectCount": {
+        "message": "$1 projets sélectionnés",
+        "description": "Text showing the count of selected GitLab projects. $1 is a placeholder for the number."
+    },
+    "gitlabProjectSearchPlaceholder": {
+        "message": "Rechercher des projets",
+        "description": "Placeholder/title for the GitLab project search input."
+    },
+    "gitlabProjectPlaceholder": {
+        "message": "Aucun projet sélectionné (tous seront inclus)",
+        "description": "Placeholder text when no GitLab projects are selected for filtering."
+    }
 }

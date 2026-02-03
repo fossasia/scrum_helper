@@ -281,4 +281,21 @@
     "message": "專案篩選需要 GitLab 權杖。請在設定中新增一個。",
     "description": "Warning message when GitLab token is missing for project filtering."
   }
+  ,
+  "gitlabProjectSearchPlaceholder": {
+    "message": "搜尋專案",
+    "description": "Placeholder/title for the GitLab project search input."
+  },
+  "gitlabProjectCountNone": {
+    "message": "已選擇 0 個專案",
+    "description": "Text showing the count of selected GitLab projects when it's zero."
+  },
+  "gitlabProjectCount": {
+    "message": "已選擇 $1 個專案",
+    "description": "Text showing the count of selected GitLab projects. $1 is a placeholder for the number."
+  },
+  "gitlabProjectPlaceholder": {
+    "message": "未選擇任何專案（將包含所有專案）",
+    "description": "Placeholder text when no GitLab projects are selected for filtering."
+  }
 }

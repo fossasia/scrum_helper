@@ -143,7 +143,9 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (isFilterEnabled && !hasToken) {
 			useGitlabProjectFilter.checked = false;
 			gitlabProjectFilterContainer.classList.add('hidden');
-			hideGitlabProjectDropdown();
+			if (typeof hideGitlabProjectDropdown === 'function') {
+				hideGitlabProjectDropdown();
+			}
 			chrome.storage.local.set({ useGitlabProjectFilter: false });
 		}
 		gitlabTokenWarning.classList.toggle('hidden', !isFilterEnabled || hasToken);
@@ -193,11 +195,15 @@ document.addEventListener('DOMContentLoaded', () => {
 			gitlabTokenInput.addEventListener('input', function (event) {
 				checkGitlabTokenForFilter();
 				chrome.storage.local.set({ gitlabToken: gitlabTokenInput.value });
-				triggerGitlabProjectFetchIfEnabled();
+				if (window.triggerGitlabProjectFetchIfEnabled) {
+					window.triggerGitlabProjectFetchIfEnabled();
+				}
 			});
 			gitlabTokenInput.addEventListener('blur', function () {
 				chrome.storage.local.set({ gitlabToken: gitlabTokenInput.value });
-				triggerGitlabProjectFetchIfEnabled();
+				if (window.triggerGitlabProjectFetchIfEnabled) {
+					window.triggerGitlabProjectFetchIfEnabled();
+				}
 			});
 
 			// GitLab group input persistence

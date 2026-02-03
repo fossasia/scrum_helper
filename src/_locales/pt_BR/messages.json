@@ -276,4 +276,21 @@
     "message": "É necessário um token do GitLab para filtragem de projetos. Por favor, adicione um nas configurações.",
     "description": "Warning message when GitLab token is missing for project filtering."
   }
+    ,
+    "gitlabProjectCountNone": {
+        "message": "0 projetos selecionados",
+        "description": "Text showing the count of selected GitLab projects when it's zero."
+    },
+    "gitlabProjectCount": {
+        "message": "$1 projetos selecionados",
+        "description": "Text showing the count of selected GitLab projects. $1 is a placeholder for the number."
+    },
+    "gitlabProjectSearchPlaceholder": {
+        "message": "Procurar projetos",
+        "description": "Placeholder/title for the GitLab project search input."
+    },
+    "gitlabProjectPlaceholder": {
+        "message": "Nenhum projeto selecionado (todos serão incluídos)",
+        "description": "Placeholder text when no GitLab projects are selected for filtering."
+    }
 }

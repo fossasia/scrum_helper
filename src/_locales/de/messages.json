@@ -139,6 +139,22 @@
   "repoCount": {
     "message": "$1 Repositories ausgewählt"
   },
+  "gitlabProjectCountNone": {
+    "message": "0 Projekte ausgewählt",
+    "description": "Text showing the count of selected GitLab projects when it's zero."
+  },
+  "gitlabProjectCount": {
+    "message": "$1 Projekte ausgewählt",
+    "description": "Text showing the count of selected GitLab projects. $1 is a placeholder for the number."
+  },
+  "gitlabProjectSearchPlaceholder": {
+    "message": "Projekte suchen",
+    "description": "Placeholder/title for the GitLab project search input."
+  },
+  "gitlabProjectPlaceholder": {
+    "message": "Keine Projekte ausgewählt (alle werden einbezogen)",
+    "description": "Placeholder text when no GitLab projects are selected for filtering."
+  },
   "repoLoading": {
     "message": "Lade Repositories..."
   },

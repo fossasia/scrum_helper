@@ -167,10 +167,9 @@ async function allIncluded(outputTarget = 'email') {
 				
 				projectName = items.projectName;
 
-			userReason = 'No Blocker at the moment';
-			chrome.storage.local.remove(['userReason']);
-			githubToken = items.githubToken;
-			yesterdayContribution = items.yesterdayContribution;
+			userReason = items.userReason || 'No Blocker at the moment';
+				githubToken = items.githubToken;
+				yesterdayContribution = items.yesterdayContribution;
 				if (typeof items.enableToggle !== 'undefined') {
 					enableToggle = items.enableToggle;
 				}

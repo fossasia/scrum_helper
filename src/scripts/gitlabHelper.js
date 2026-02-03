@@ -161,16 +161,48 @@ class GitLabHelper {
 			}
 			const userId = users[0].id;
 
-			// Fetch user's projects
+			// Helper to fetch all pages for a given base URL using GitLab pagination headers
+			const fetchAllProjectsForUrl = async (baseUrl, description) => {
+				const allProjects = [];
+				let page = 1;
+				let hasNextPage = true;
+				while (hasNextPage) {
+					const urlWithPage = `${baseUrl}&page=${page}`;
+					const res = await this.fetchWithTimeout(urlWithPage, { headers: this.getHeaders() }, 15000);
+					const pageProjects = await this.handleApiResponse(res, description);
+					if (Array.isArray(pageProjects) && pageProjects.length > 0) {
+						allProjects.push(...pageProjects);
+					}
+					// GitLab provides X-Next-Page header; if empty, there are no more pages
+					const nextPageHeader = res.headers && typeof res.headers.get === 'function'
+						? res.headers.get('x-next-page')
+						: null;
+					if (nextPageHeader) {
+						const nextPageNumber = parseInt(nextPageHeader, 10);
+						if (!isNaN(nextPageNumber) && nextPageNumber > page) {
+							page = nextPageNumber;
+						} else {
+							// Malformed or non-incrementing next page; stop to avoid infinite loop
+							hasNextPage = false;
+						}
+					} else {
+						hasNextPage = false;
+					}
+				}
+				return allProjects;
+			};
+			// Fetch user's projects (all pages)
 			const membershipProjectsUrl = `${this.baseUrl}/users/${userId}/projects?membership=true&per_page=100&order_by=updated_at&sort=desc`;
-			const membershipProjectsRes = await this.fetchWithTimeout(membershipProjectsUrl, { headers: this.getHeaders() }, 15000);
-			const membershipProjects = await this.handleApiResponse(membershipProjectsRes, 'fetching user projects');
-
-			// Fetch contributed projects
+			const membershipProjects = await fetchAllProjectsForUrl(
+				membershipProjectsUrl,
+				'fetching user projects'
+			);
+			// Fetch contributed projects (all pages)
 			const contributedProjectsUrl = `${this.baseUrl}/users/${userId}/contributed_projects?per_page=100&order_by=updated_at&sort=desc`;
-			const contributedProjectsRes = await this.fetchWithTimeout(contributedProjectsUrl, { headers: this.getHeaders() }, 15000);
-			const contributedProjects = await this.handleApiResponse(contributedProjectsRes, 'fetching contributed projects');
-
+			const contributedProjects = await fetchAllProjectsForUrl(
+				contributedProjectsUrl,
+				'fetching contributed projects'
+			);
 			// Merge and deduplicate
 			const allProjectsMap = new Map();
 			for (const p of [...membershipProjects, ...contributedProjects]) {
@@ -319,7 +351,8 @@ class GitLabHelper {
 			if (selectedProjects && selectedProjects.length > 0) {
 				const selectedProjectIds = selectedProjects.map(id => parseInt(id, 10));
 				allProjects = allProjects.filter(p => selectedProjectIds.includes(p.id));
-				console.log(`[GITLAB] Filtered to ${allProjects.length} selected projects`);
+				
+				if (GitLabHelper.debug) console.log(`[GITLAB] Filtered to ${allProjects.length} selected projects`);
 			}
 
 			// Fetch merge requests from each project (works without auth for public projects)

@@ -249,4 +249,21 @@
     "message": "ప్రాజెక్ట్ ఫిల్టరింగ్ కోసం GitLab టోకెన్ అవసరం. దయచేసి సెట్టింగ్‌లలో ఒకదాన్ని జోడించండి.",
     "description": "Warning message when GitLab token is missing for project filtering."
   }
-}
+    ,
+    "gitlabProjectCountNone": {
+      "message": "0 projects selected",
+      "description": "Text showing the count of selected GitLab projects when it's zero."
+    },
+    "gitlabProjectCount": {
+      "message": "$1 projects selected",
+      "description": "Text showing the count of selected GitLab projects. $1 is a placeholder for the number."
+    },
+    "gitlabProjectSearchPlaceholder": {
+      "message": "Search projects",
+      "description": "Placeholder/title for the GitLab project search input."
+    },
+    "gitlabProjectPlaceholder": {
+      "message": "No projects selected (all will be included)",
+      "description": "Placeholder text when no GitLab projects are selected for filtering."
+    }
+  }
