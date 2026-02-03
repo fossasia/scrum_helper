@@ -59,6 +59,14 @@ function applyI18n() {
 			el.title = message;
 		}
 	});
+
+		document.querySelectorAll('[data-i18n-aria]').forEach((el) => {
+			const key = el.getAttribute('data-i18n-aria');
+			const message = chrome.i18n.getMessage(key);
+			if (message) {
+				el.setAttribute('aria-label', message);
+			}
+		});
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -135,9 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (isFilterEnabled && !hasToken) {
 			useGitlabProjectFilter.checked = false;
 			gitlabProjectFilterContainer.classList.add('hidden');
-			if (typeof hideGitlabProjectDropdown === 'function') {
-				hideGitlabProjectDropdown();
-			}
+			hideGitlabProjectDropdown();
 			chrome.storage.local.set({ useGitlabProjectFilter: false });
 		}
 		gitlabTokenWarning.classList.toggle('hidden', !isFilterEnabled || hasToken);
@@ -1412,7 +1418,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				} catch (err) {
 					console.error('fetchUserProjects failed', err);
 					return [];
-				};
+				}
 				};
 		let gitlabProjectClickListenerAttached = false;
 
@@ -1487,10 +1493,8 @@ document.addEventListener('DOMContentLoaded', () => {
 					if (!gitlabTokenInput || !gitlabTokenInput.value || gitlabTokenInput.value.trim() === '') {
 						// Revert the toggle since we cannot enable filtering without a token.
 						this.checked = false;
-						// Surface the appropriate warning if a helper is available.
-						if (typeof checkGitlabTokenForFilter === 'function') {
-							checkGitlabTokenForFilter();
-						}
+						// Surface the appropriate warning
+						checkGitlabTokenForFilter();
 						return;
 					}
 					gitlabProjectFilterContainer.classList.remove('hidden');
@@ -1744,8 +1748,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		function updateGitlabProjectDisplay() {
 			if (selectedGitlabProjects.length === 0) {
-				gitlabProjectTags.innerHTML = '<span class="text-xs text-gray-500 select-none" id="gitlabProjectPlaceholder">No projects selected (all will be included)</span>';
-				gitlabProjectCount.textContent = '0 projects selected';
+				gitlabProjectTags.innerHTML = `<span class="text-xs text-gray-500 select-none" id="gitlabProjectPlaceholder">${chrome.i18n.getMessage('gitlabProjectPlaceholder')}</span>`;
+				gitlabProjectCount.textContent = chrome.i18n.getMessage('gitlabProjectCountNone');
 			} else {
 				gitlabProjectTags.innerHTML = selectedGitlabProjects
 					.map((projectId) => {
@@ -1770,7 +1774,7 @@ document.addEventListener('DOMContentLoaded', () => {
 						removeGitlabProject(projectId);
 					});
 				});
-				gitlabProjectCount.textContent = `${selectedGitlabProjects.length} project${selectedGitlabProjects.length !== 1 ? 's' : ''} selected`;
+				gitlabProjectCount.textContent = chrome.i18n.getMessage('gitlabProjectCount', [selectedGitlabProjects.length]);
 			}
 		}
 

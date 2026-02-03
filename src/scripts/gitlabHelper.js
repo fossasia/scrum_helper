@@ -102,7 +102,7 @@ class GitLabHelper {
 
 			if (response.ok) {
 				const user = await response.json();
-				console.log('[GITLAB] Token validation successful:', user.username);
+				if (GitLabHelper.debug) console.log('[GITLAB] Token validation successful:', user.username);
 				return {
 					valid: true,
 					user: {
@@ -178,7 +178,7 @@ class GitLabHelper {
 			}
 			const projects = Array.from(allProjectsMap.values());
 
-			console.log(`[GITLAB] Fetched ${projects.length} projects for user ${username}`);
+			if (GitLabHelper.debug) console.log(`[GITLAB] Fetched ${projects.length} projects for user ${username}`);
 			return projects.map(p => ({
 				id: p.id,
 				name: p.name,
@@ -312,7 +312,7 @@ class GitLabHelper {
 					}
 					return false;
 				});
-				console.log(`[GITLAB] Filtered ${allProjects.length} projects by group: ${group}`);
+				if (GitLabHelper.debug) console.log(`[GITLAB] Filtered ${allProjects.length} projects by group: ${group}`);
 			}
 
 			// Apply project filter if specified
