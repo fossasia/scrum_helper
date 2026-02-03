@@ -1,6 +1,7 @@
 const enableToggleElement = document.getElementById('enable');
 const platformUsernameElement = document.getElementById('platformUsername');
 const githubTokenElement = document.getElementById('githubToken');
+const gitlabTokenElement = document.getElementById('gitlabToken');
 const cacheInputElement = document.getElementById('cacheInput');
 const projectNameElement = document.getElementById('projectName');
 const yesterdayContributionElement = document.getElementById('yesterdayContribution');
@@ -41,6 +42,7 @@ function handleBodyOnLoad() {
 			'yesterdayContribution',
 			'cacheInput',
 			'githubToken',
+			'gitlabToken',
 			'showCommits',
 		],
 		(items) => {
@@ -51,8 +53,11 @@ function handleBodyOnLoad() {
 				platformUsernameElement.value = items[platformUsernameKey];
 			}
 
-			if (items.githubToken) {
+			if (items.githubToken && githubTokenElement) {
 				githubTokenElement.value = items.githubToken;
+			}
+			if (items.gitlabToken && gitlabTokenElement) {
+				gitlabTokenElement.value = items.gitlabToken;
 			}
 			if (items.projectName) {
 				projectNameElement.value = items.projectName;
@@ -167,6 +172,10 @@ function handleGithubTokenChange() {
 	const value = githubTokenElement.value;
 	chrome.storage.local.set({ githubToken: value });
 }
+function handleGitlabTokenChange() {
+	const value = gitlabTokenElement.value;
+	chrome.storage.local.set({ gitlabToken: value });
+}
 function handleProjectNameChange() {
 	const value = projectNameElement.value;
 	chrome.storage.local.set({ projectName: value });
@@ -199,6 +208,9 @@ enableToggleElement.addEventListener('change', handleEnableChange);
 platformUsernameElement.addEventListener('keyup', handlePlatformUsernameChange);
 if (githubTokenElement) {
 	githubTokenElement.addEventListener('keyup', handleGithubTokenChange);
+}
+if (gitlabTokenElement) {
+	gitlabTokenElement.addEventListener('keyup', handleGitlabTokenChange);
 }
 cacheInputElement.addEventListener('keyup', handleCacheInputChange);
 projectNameElement.addEventListener('keyup', handleProjectNameChange);
