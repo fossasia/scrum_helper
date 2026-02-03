@@ -734,6 +734,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 chrome.storage.local.get(['scrumLayoutTemplate'], function (result) {
                     const template = result.scrumLayoutTemplate;
                     if (!template) {
+                        alert('No saved layout template found. Please save a template first.');
                         return;
                     }
                     if (includeIssuesSectionCheckbox && typeof template.includeIssuesSection !== 'undefined') {
