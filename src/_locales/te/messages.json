@@ -80,6 +80,12 @@
   "githubTokenPlaceholder": {
     "message": "ఆథెంటికేటెడ్ అభ్యర్థనలకు అవసరం"
   },
+  "gitlabTokenLabel": {
+    "message": "మీ GitLab టోకెన్"
+  },
+  "gitlabTokenPlaceholder": {
+    "message": "ప్రైవేట్ రెపోస్ కోసం అవసరం"
+  },
   "showCommitsLabel": {
     "message": "ఓపెన్ PRలు / డ్రాఫ్ట్ PRలపై కమిట్లు చూపించు"
   },
