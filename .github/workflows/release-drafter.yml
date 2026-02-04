@@ -78,7 +78,7 @@ jobs:
           REPO="${{ github.repository }}"
 
           # Push commit (use token to authenticate)
-          git push "https://x-access-token:${GITHUB_TOKEN}@github.com/${REPO}.git" HEAD:refs/heads/${{ github.ref_name }}
+          git push "https://x-access-token:${GITHUB_TOKEN}@github.com/${REPO}.git" HEAD:refs/heads/main
 
           # Create annotated tag if missing and push it
           if git rev-parse "${TAG}" >/dev/null 2>&1; then
