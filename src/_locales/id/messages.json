@@ -77,6 +77,12 @@
     "gitlabTokenPlaceholder": {
         "message": "Diperlukan untuk repo pribadi"
     },
+    "githubTokenTooltip": {
+        "message": "Mengapa disarankan untuk menambahkan token GitHub? Scrum Helper berfungsi tanpa token GitHub, tetapi menambahkan token akses pribadi disarankan untuk pengalaman yang lebih baik."
+    },
+    "gitlabTokenTooltip": {
+        "message": "Mengapa disarankan untuk menambahkan token GitLab? Scrum Helper berfungsi tanpa token GitLab untuk proyek publik, tetapi menambahkan token akses pribadi disarankan untuk pengalaman yang lebih baik."
+    },
     "showCommitsLabel": {
         "message": "Tampilkan commit pada PR terbuka/ draf PR"
     },
@@ -101,7 +107,6 @@
     "onlyRevPRsTooltip": {
         "message": "Jika dicentang, laporan hanya akan menyertakan PR yang ditinjau oleh Anda."
     },
-
     "cacheTTLLabel": {
         "message": "Masukkan TTL cache",
         "description": "Label untuk masukan time-to-live cache."

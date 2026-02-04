@@ -71,11 +71,17 @@
   "githubTokenPlaceholder": {
     "message": "ఆథెంటికేటెడ్ అభ్యర్థనలకు అవసరం"
   },
+  "githubTokenTooltip": {
+    "message": "GitHub టోకెన్‌ను జోడించడం ఎందుకు సిఫారసు చేయబడుతుంది? Scrum Helper GitHub టోకెన్ లేకుండా పనిచేస్తుంది, కాని మెరుగైన అనుభవం కోసం ఒక ఖాతా ఆక్సెస్ టోకెన్‌ను జోడించడం సిఫారసు చేయబడుతుంది."
+  },
   "gitlabTokenLabel": {
     "message": "మీ GitLab టోకెన్"
   },
   "gitlabTokenPlaceholder": {
     "message": "ప్రైవేట్ రెపోస్ కోసం అవసరం"
+  },
+  "gitlabTokenTooltip": {
+    "message": "GitLab టోకెన్‌ను జోడించడం ఎందుకు సిఫారసు చేయబడుతుంది? Scrum Helper పబ్లిక్ ప్రాజెక్ట్‌ల కోసం GitLab టోకెన్ లేకుండా పనిచేస్తుంది, కానీ మెరుగైన అనుభవం కోసం ఒక ఖాతా ఆక్సెస్ టోకెన్‌ను జోడించడం సిఫారసు చేయబడుతుంది."
   },
   "showCommitsLabel": {
     "message": "ఓపెన్ PRలు / డ్రాఫ్ట్ PRలపై కమిట్లు చూపించు"

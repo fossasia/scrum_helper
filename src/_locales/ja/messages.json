@@ -71,6 +71,18 @@
   "githubTokenPlaceholder": {
     "message": "認証済みリクエストに必要です"
   },
+  "githubTokenTooltip": {
+    "message": "GitHubトークンを追加することをお勧めするのはなぜですか？Scrum HelperはGitHubトークンなしで機能しますが、より良いエクスペリエンスのためにパーソナルアクセストークンを追加することをお勧めします。"
+  },
+  "gitlabTokenLabel": {
+    "message": "GitLabトークン"
+  },
+  "gitlabTokenPlaceholder": {
+    "message": "プライベートプロジェクトへのアクセスに必要です"
+  },
+  "gitlabTokenTooltip": {
+    "message": "GitLabトークンを追加することをお勧めするのはなぜですか？Scrum HelperはパブリックプロジェクトのGitLabトークンなしで機能しますが、より良いエクスペリエンスのためにパーソナルアクセストークンを追加することをお勧めします。"
+  },
   "showCommitsLabel": {
     "message": "オープンなPR/ドラフトPRのコミットを表示"
   },

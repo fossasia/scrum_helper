@@ -71,6 +71,18 @@
   "githubTokenPlaceholder": {
     "message": "Потрібно для автентифікованих запитів"
   },
+  "githubTokenTooltip": {
+    "message": "Чому рекомендується додати токен GitHub? Scrum Helper працює без токена GitHub, але додавання особистого токена доступу рекомендується для кращого досвіду."
+  },
+  "gitlabTokenLabel": {
+    "message": "Ваш токен GitLab"
+  },
+  "gitlabTokenPlaceholder": {
+    "message": "Потрібно для доступу до приватних проектів"
+  },
+  "gitlabTokenTooltip": {
+    "message": "Чому рекомендується додати токен GitLab? Scrum Helper працює без токена GitLab для публічних проектів, але додавання особистого токена доступу рекомендується для кращого досвіду."
+  },
   "showCommitsLabel": {
     "message": "Показувати коміти у відкритих PR/ чернетках PR"
   },
