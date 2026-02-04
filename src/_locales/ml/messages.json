@@ -71,6 +71,12 @@
     "githubTokenPlaceholder": {
       "message": "ഓതന്റിക്കേറ്റഡ് അഭ്യർത്ഥനകൾക്കായി ആവശ്യമാണ്"
     },
+    "gitlabTokenLabel": {
+      "message": "നിങ്ങളുടെ GitLab ടോക്കൺ"
+    },
+    "gitlabTokenPlaceholder": {
+      "message": "സ്വകാര്യ പ്രോജക്റ്റുകൾ ആക്‌സസ് ചെയ്യാൻ ആവശ്യമാണ്"
+    },
     "showCommitsLabel": {
       "message": "ഓപ്പൺ / ഡ്രാഫ്റ്റ് PRകളിലെ കമ്മിറ്റുകൾ കാണിക്കുക"
     },
