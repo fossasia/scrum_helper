@@ -70,8 +70,12 @@
     },
     "githubTokenPlaceholder": {
         "message": "Richiesto per richieste autenticate"
+    },    "gitlabTokenLabel": {
+        "message": "Il tuo token GitLab"
     },
-    "showCommitsLabel": {
+    "gitlabTokenPlaceholder": {
+        "message": "Richiesto per repo privati"
+    },    "showCommitsLabel": {
         "message": "Mostra commit su PR aperti/ bozze di PR"
     },
     "onlyPRsLabel": {
@@ -80,6 +84,13 @@
     "onlyPRsTooltip": {
         "message": "Se selezionato, il report includerà solo le pull request create dall'utente; le PR revisionate saranno escluse."
     },
+    "onlyRevPRsLabel": {
+        "message": "Includi solo le PR revisionate nel report"
+    },
+    "onlyRevPRsTooltip": {
+        "message": "Se selezionato, il report includerà solo le PR revisionate da te."
+    },
+
     "cacheTTLLabel": {
         "message": "Inserisci TTL della cache"
     },
