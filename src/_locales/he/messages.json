@@ -80,6 +80,12 @@
     "githubTokenPlaceholder": {
         "message": "נדרש לבקשות מאומתות"
     },
+    "gitlabTokenLabel": {
+        "message": "אסימון ה-GitLab שלך"
+    },
+    "gitlabTokenPlaceholder": {
+        "message": "נדרש למאגרים פרטיים"
+    },
     "showCommitsLabel": {
         "message": "הצג קומיטים ב-PR פתוחים/טיוטות PR"
     },

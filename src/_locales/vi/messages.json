@@ -80,6 +80,12 @@
     "githubTokenPlaceholder": {
         "message": "Bắt buộc cho các yêu cầu đã xác thực"
     },
+    "gitlabTokenLabel": {
+        "message": "Mã token GitLab"
+    },
+    "gitlabTokenPlaceholder": {
+        "message": "Bắt buộc cho repo riêng tư"
+    },
     "showCommitsLabel": {
         "message": "Hiển thị các commit trên PR đang mở/ PR nháp"
     },

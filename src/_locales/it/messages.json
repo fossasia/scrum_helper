@@ -1,4 +1,5 @@
 {
+
   "appName": {
     "message": "Scrum Helper"
   },
@@ -237,3 +238,4 @@
     "message": "Se selezionato, il report includerà solo i problemi creati o assegnati all'utente."
   }
 }
+
