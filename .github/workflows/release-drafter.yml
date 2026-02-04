@@ -3,7 +3,7 @@ name: Release Drafter
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
     types: [opened, reopened, synchronize]
 
@@ -12,6 +12,7 @@ permissions:
 
 jobs:
   update_release_draft:
+    if: github.repository == 'FOSSASIA/scrum_helper'
     permissions:
       contents: write
       pull-requests: write
@@ -77,7 +78,7 @@ jobs:
           REPO="${{ github.repository }}"
 
           # Push commit (use token to authenticate)
-          git push "https://x-access-token:${GITHUB_TOKEN}@github.com/${REPO}.git" HEAD:refs/heads/master
+          git push "https://x-access-token:${GITHUB_TOKEN}@github.com/${REPO}.git" HEAD:refs/heads/main
 
           # Create annotated tag if missing and push it
           if git rev-parse "${TAG}" >/dev/null 2>&1; then

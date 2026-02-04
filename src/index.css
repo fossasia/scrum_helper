@@ -419,6 +419,7 @@ hr,
 }
 
 .dark-mode #githubToken,
+.dark-mode #gitlabToken,
 .dark-mode .token-preview-char {
     background: #404040 !important;
     border-color: #505050 !important;
