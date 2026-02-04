@@ -75,7 +75,10 @@
     "message": "GitLabトークン"
   },
   "gitlabTokenPlaceholder": {
-    "message": "プライベートリポジトリに必要"
+    "message": "プライベートプロジェクトへのアクセスに必要です"
+  },
+  "gitlabTokenTooltip": {
+    "message": "GitLabトークンを追加することをお勧めするのはなぜですか？Scrum HelperはパブリックプロジェクトのGitLabトークンなしで機能しますが、より良いエクスペリエンスのためにパーソナルアクセストークンを追加することをお勧めします。"
   },
   "showCommitsLabel": {
     "message": "オープンなPR/ドラフトPRのコミットを表示"

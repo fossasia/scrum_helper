@@ -71,11 +71,17 @@
   "githubTokenPlaceholder": {
     "message": "Påkrevd for autentiserte forespørsler"
   },
+  "githubTokenTooltip": {
+    "message": "Hvorfor anbefales det å legge til et GitHub-token? Scrum Helper fungerer uten et GitHub-token, men det anbefales å legge til et personlig tilgangstoken for en bedre opplevelse."
+  },
   "gitlabTokenLabel": {
     "message": "Ditt GitLab-token"
   },
   "gitlabTokenPlaceholder": {
-    "message": "Påkrevd for private repoer"
+    "message": "Påkrevd for private repositorier"
+  },
+  "gitlabTokenTooltip": {
+    "message": "Hvorfor anbefales det å legge til et GitLab-token? Scrum Helper fungerer uten et GitLab-token for offentlige prosjekter, men det anbefales å legge til et personlig tilgangstoken for en bedre opplevelse."
   },
   "showCommitsLabel": {
     "message": "Vis commits på åpne PR-er/utkast til PR-er"
