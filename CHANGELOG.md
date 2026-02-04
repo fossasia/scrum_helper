@@ -1,3 +1,13 @@
+## v2.0.4 - 2026-02-04
+
+## What's Changed
+
+## Maintenance
+
+* versionbump (#365) @vedansh-5
+
+---
+
 ## v2.0.3 - 2026-02-04
 
 ## What's Changed
