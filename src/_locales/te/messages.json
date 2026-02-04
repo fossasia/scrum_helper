@@ -53,8 +53,20 @@
   "generateReportButton": {
     "message": "నివేదికను రూపొందించు"
   },
+  "generateReportTooltip": {
+    "message": "నివేదికను రూపొందించు (Ctrl+G / Cmd+G)"
+  },
   "copyReportButton": {
     "message": "నివేదికను కాపీ చేయి"
+  },
+  "copyReportTooltip": {
+    "message": "నివేదికను కాపీ చేయి (Ctrl+Shift+K / Cmd+Shift+K)"
+  },
+  "generatingReportNotification": {
+    "message": "నివేదిక రూపొందించబడుతోంది ({0})"
+  },
+  "copyingReportNotification": {
+    "message": "నివేదిక కాపీ చేస్తోంది ({0})"
   },
   "settingsOrgNameLabel": {
     "message": "సంస్థ పేరు"
@@ -101,7 +113,6 @@
   "onlyRevPRsTooltip": {
     "message": "ఎంచుకుంటే, నివేదికలో మీరు సమీక్షించిన PRలు మాత్రమే చూపబడతాయి."
   },
-
   "cacheTTLLabel": {
     "message": "క్యాష్ TTL ను నమోదు చేయండి"
   },
