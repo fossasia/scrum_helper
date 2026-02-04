@@ -51,7 +51,7 @@
     "message": "స్క్రమ్ నివేదిక"
   },
   "generateButton": {
-    "message": "రూపండేమిక బేసుతచు"
+    "message": "రూపొందించు"
   },
   "copyButton": {
     "message": "కాపీ చేయు"
@@ -104,7 +104,6 @@
   "onlyRevPRsTooltip": {
     "message": "ఎంచుకుంటే, నివేదికలో మీరు సమీక్షించిన PRలు మాత్రమే చూపబడతాయి."
   },
-
   "cacheTTLLabel": {
     "message": "క్యాష్ TTL ను నమోదు చేయండి"
   },

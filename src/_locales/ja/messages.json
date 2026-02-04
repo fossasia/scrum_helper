@@ -206,5 +206,17 @@
   },
   "usernameLabel": {
     "message": "あなたのユーザー名"
+  },
+  "generateButton": {
+    "message": "生成"
+  },
+  "copyButton": {
+    "message": "コピー"
+  },
+  "insertToEmailButton": {
+    "message": "メールに挿入"
+  },
+  "insertedButton": {
+    "message": "挿入しました！"
   }
 }

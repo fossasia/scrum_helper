@@ -51,13 +51,13 @@
         "message": "स्क्रम रिपोर्ट"
     },
     "generateButton": {
-        "message": "तैयर करें"
+        "message": "तैयार करें"
     },
     "copyButton": {
         "message": "कॉपी करें"
     },
     "insertToEmailButton": {
-        "message": "ईमेल में बैठाइए"
+        "message": "ईमेल में डालें"
     },
     "generateReportButton": {
         "message": "रिपोर्ट बनाएं"
@@ -104,7 +104,6 @@
     "onlyRevPRsTooltip": {
         "message": "यदि चेक किया गया है, तो रिपोर्ट में केवल आपके द्वारा समीक्षित PRs शामिल होंगे।"
     },
-
     "cacheTTLLabel": {
         "message": "कैश टीटीएल दर्ज करें",
         "description": "कैश टाइम-टू-लाइव इनपुट के लिए लेबल।"

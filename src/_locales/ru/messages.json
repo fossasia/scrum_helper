@@ -54,10 +54,10 @@
         "message": "Создать"
     },
     "copyButton": {
-        "message": "Копия"
+        "message": "Копировать"
     },
     "insertToEmailButton": {
-        "message": "Внести в э-адрес"
+        "message": "Вставить в письмо"
     },
     "generateReportButton": {
         "message": "Создать отчет"
