@@ -71,6 +71,18 @@
     "githubTokenPlaceholder": {
         "message": "進行身份驗證請求所必需"
     },
+    "githubTokenTooltip": {
+        "message": "為什麼建議添加 GitHub 令牌？Scrum Helper 無需 GitHub 令牌也能工作，但添加個人訪問令牌可以提供更好的體驗。"
+    },
+    "gitlabTokenLabel": {
+        "message": "您的 GitLab 令牌"
+    },
+    "gitlabTokenPlaceholder": {
+        "message": "訪問私有項目所必需"
+    },
+    "gitlabTokenTooltip": {
+        "message": "為什麼建議添加 GitLab 令牌？Scrum Helper 對於公開項目無需 GitLab 令牌也能工作，但添加個人訪問令牌可以提供更好的體驗。"
+    },
     "showCommitsLabel": {
         "message": "在打開的 PR/草稿 PR 上顯示提交"
     },

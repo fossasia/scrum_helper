@@ -1,5 +1,4 @@
 {
-<<<<<<< HEAD
   "appName": {
     "message": "Scrum Helper"
   },
@@ -72,11 +71,17 @@
   "githubTokenPlaceholder": {
     "message": "נדרש לבקשות מאומתות"
   },
+  "githubTokenTooltip": {
+    "message": "למה מומלץ להוסיף אסימון GitHub? Scrum Helper עובד ללא אסימון GitHub, אך הוספת אסימון גישה אישי מומלצת לחוויה טובה יותר."
+  },
   "gitlabTokenLabel": {
     "message": "אסימון ה-GitLab שלך"
   },
   "gitlabTokenPlaceholder": {
     "message": "נדרש למאגרים פרטיים"
+  },
+  "gitlabTokenTooltip": {
+    "message": "למה מומלץ להוסיף אסימון GitLab? Scrum Helper עובד ללא אסימון GitLab לפרויקטים ציבוריים, אך הוספת אסימון גישה אישי מומלצת לחוויה טובה יותר."
   },
   "showCommitsLabel": {
     "message": "הצג קומיטים ב-PR פתוחים/טיוטות PR"
@@ -203,5 +208,20 @@
   },
   "onlyRevPRsTooltip": {
     "message": "אם מסומן, הדוח יכלול רק PR שנבדקו על ידך."
+  },
+  "showCommitsTooltip": {
+    "message": "נדרש אסימון Github, הוסף אותו בהגדרות."
+  },
+  "onlyIssuesLabel": {
+    "message": "הכלל רק בעיות בדוח"
+  },
+  "onlyIssuesTooltip": {
+    "message": "אם מסומן, הדוח יכיל רק בעיות שנוצרו או הוקצו למשתמש."
+  },
+  "onlyPRsLabel": {
+    "message": "הכלל רק PR בדוח"
+  },
+  "onlyPRsTooltip": {
+    "message": "אם מסומן, הדוח יכיל רק pull requests שנוצרו על ידי המשתמש; PR שנסקרו יוחרגו."
   }
 }
