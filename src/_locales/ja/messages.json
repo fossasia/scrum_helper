@@ -53,8 +53,20 @@
     "generateReportButton": {
         "message": "レポートを生成"
     },
+    "generateReportTooltip": {
+        "message": "レポートを生成 (Ctrl+G / Cmd+G)"
+    },
     "copyReportButton": {
         "message": "レポートをコピー"
+    },
+    "copyReportTooltip": {
+        "message": "レポートをコピー (Ctrl+Shift+K / Cmd+Shift+K)"
+    },
+    "generatingReportNotification": {
+        "message": "レポートを生成中 ({0})"
+    },
+    "copyingReportNotification": {
+        "message": "レポートをコピー中 ({0})"
     },
     "settingsOrgNameLabel": {
         "message": "組織名"

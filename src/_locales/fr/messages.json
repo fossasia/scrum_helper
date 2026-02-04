@@ -53,8 +53,20 @@
     "generateReportButton": {
         "message": "Générer le rapport"
     },
+    "generateReportTooltip": {
+        "message": "Générer le rapport (Ctrl+G / Cmd+G)"
+    },
     "copyReportButton": {
         "message": "Copier le rapport"
+    },
+    "copyReportTooltip": {
+        "message": "Copier le rapport (Ctrl+Maj+K / Cmd+Maj+K)"
+    },
+    "generatingReportNotification": {
+        "message": "Génération du rapport ({0})"
+    },
+    "copyingReportNotification": {
+        "message": "Copie du rapport ({0})"
     },
     "settingsOrgNameLabel": {
         "message": "Nom de l'organisation"
@@ -101,7 +113,6 @@
     "onlyRevPRsTooltip": {
         "message": "Si coché, le rapport n'inclura que les PRs que vous avez revues."
     },
-
     "cacheTTLLabel": {
         "message": "Entrez le TTL du cache",
         "description": "Étiquette pour le champ de saisie de la durée de vie du cache."

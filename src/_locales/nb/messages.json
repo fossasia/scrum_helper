@@ -53,8 +53,20 @@
     "generateReportButton": {
         "message": "Generer rapport"
     },
+    "generateReportTooltip": {
+        "message": "Generer rapport (Ctrl+G / Cmd+G)"
+    },
     "copyReportButton": {
         "message": "Kopier rapport"
+    },
+    "copyReportTooltip": {
+        "message": "Kopier rapport (Ctrl+Shift+K / Cmd+Shift+K)"
+    },
+    "generatingReportNotification": {
+        "message": "Genererer rapport ({0})"
+    },
+    "copyingReportNotification": {
+        "message": "Kopierer rapport ({0})"
     },
     "settingsOrgNameLabel": {
         "message": "Organisasjonsnavn"
