@@ -50,6 +50,15 @@
     "scrumReportLabel": {
         "message": "דוח סקראם"
     },
+    "generateButton": {
+        "message": "צור"
+    },
+    "copyButton": {
+        "message": "העתק"
+    },
+    "insertToEmailButton": {
+        "message": "הכנס לדואר אלקטרוני"
+    },
     "generateReportButton": {
         "message": "צור דוח"
     },
@@ -166,6 +175,9 @@
     },
     "copiedButton": {
         "message": "הועתק!"
+    },
+    "insertedButton": {
+        "message": "הוכנסו!"
     },
     "orgChangedMessage": {
         "message": "הארגון השתנה. לחץ על 'צור דוח' כדי להביא פעילויות GitHub."

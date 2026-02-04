@@ -51,6 +51,15 @@
     "scrumReportLabel": {
         "message": "Relatório Scrum"
     },
+    "generateButton": {
+        "message": "Gerar"
+    },
+    "copyButton": {
+        "message": "Copiar"
+    },
+    "insertToEmailButton": {
+        "message": "Inserir no Email"
+    },
     "generateReportButton": {
         "message": "Gerar Relatório"
     },
@@ -130,6 +139,9 @@
     },
     "copiedButton": {
         "message": "Copiado!"
+    },
+    "insertedButton": {
+        "message": "Inserido!"
     },
     "orgChangedMessage": {
         "message": "Organização alterada. Clique no botão Gerar para buscar as atividades do GitHub."

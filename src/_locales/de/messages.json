@@ -51,6 +51,15 @@
   "scrumReportLabel": {
     "message": "Scrum-Bericht"
   },
+  "generateButton": {
+    "message": "Erstellen"
+  },
+  "copyButton": {
+    "message": "Kopieren"
+  },
+  "insertToEmailButton": {
+    "message": "In E-Mail einfügen"
+  },
   "generateReportButton": {
     "message": "Bericht erstellen"
   },
@@ -186,6 +195,9 @@
   },
   "copiedButton": {
     "message": "Kopiert!"
+  },
+  "insertedButton": {
+    "message": "Eingefügt!"
   },
   "orgChangedMessage": {
     "message": "Organisation geändert. Klicken Sie auf 'Bericht erstellen', um die GitHub-Aktivitäten abzurufen."

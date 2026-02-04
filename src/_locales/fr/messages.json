@@ -50,6 +50,15 @@
     "scrumReportLabel": {
         "message": "Rapport Scrum"
     },
+    "generateButton": {
+        "message": "Générer"
+    },
+    "copyButton": {
+        "message": "Copier"
+    },
+    "insertToEmailButton": {
+        "message": "Insérer dans le courrier électronique"
+    },
     "generateReportButton": {
         "message": "Générer le rapport"
     },
@@ -95,7 +104,6 @@
     "onlyRevPRsTooltip": {
         "message": "Si coché, le rapport n'inclura que les PRs que vous avez revues."
     },
-
     "cacheTTLLabel": {
         "message": "Entrez le TTL du cache",
         "description": "Étiquette pour le champ de saisie de la durée de vie du cache."
@@ -189,6 +197,9 @@
     },
     "copiedButton": {
         "message": "Copié !"
+    },
+    "insertedButton": {
+        "message": "Inséré!"
     },
     "orgChangedMessage": {
         "message": "Organisation modifiée. Cliquez sur 'Générer le rapport' pour récupérer les activités GitHub."

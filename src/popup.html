@@ -54,26 +54,15 @@
 				</p>
 			</div>
 
-			<div class="center mt-2 flex justify-between">
-				<label class="flex items-center justify-center gap-2 font-semibold">
-					<span data-i18n="disableLabel">Disable</span>
-					<input type="checkbox" value="" id="enable" class="sr-only peer">
-					<div
-						class="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600">
-					</div>
-					<span class=""></span>
-					<span data-i18n="enableLabel">Enable</span>
-				</label>
-				<div class="flex">
-					<button id="homeButton"
-						class="ml-1 p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition">
-						<i class="fa fa-home text-2xl text-gray-600 dark:text-gray-300"></i>
-					</button>
-					<button id="settingsToggle">
-						<img id="settingsIcon" src="icons/settings-light.png" alt="Settings"
-							class="w-6 h-6 mx-3 cursor-pointer">
-					</button>
-				</div>
+			<div class="center mt-2 flex justify-between px-4">
+				<button id="homeButton"
+					class="ml-1 p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition">
+					<i class="fa fa-home text-2xl text-gray-600 dark:text-gray-300"></i>
+				</button>
+				<button id="settingsToggle">
+					<img id="settingsIcon" src="icons/settings-light.png" alt="Settings"
+						class="w-6 h-6 mx-3 cursor-pointer">
+				</button>
 			</div>
 		</div>
 
@@ -250,14 +239,17 @@
 						<div class="flex justify-between gap-2">
 							<button id="generateReport"
 								class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
-								<i class="fa fa-refresh"></i> <span data-i18n="generateReportButton">Generate
-									Report</span>
+								<i class="fa fa-refresh"></i> <span data-i18n="generateButton">Generate</span>
 							</button>
 							<button id="copyReport"
 								class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
-								<i class="fa fa-copy"></i> <span data-i18n="copyReportButton">Copy Report</span>
+								<i class="fa fa-copy"></i> <span data-i18n="copyButton">Copy</span>
 							</button>
 						</div>
+						<button id="insertToEmail"
+							class="w-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded mt-2">
+							<i class="fa fa-envelope"></i> <span data-i18n="insertToEmailButton">Insert to Email</span>
+						</button>
 					</div>
 					<div class="border-gray-100 border-2 bg-white rounded-3xl px-4 py-2 mx-2 my-2">
 						<div>

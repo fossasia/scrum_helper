@@ -50,6 +50,15 @@
     "scrumReportLabel": {
         "message": "Scrum-отчет"
     },
+    "generateButton": {
+        "message": "Создать"
+    },
+    "copyButton": {
+        "message": "Копия"
+    },
+    "insertToEmailButton": {
+        "message": "Внести в э-адрес"
+    },
     "generateReportButton": {
         "message": "Создать отчет"
     },
@@ -95,7 +104,6 @@
     "onlyRevPRsTooltip": {
         "message": "Если отмечено, отчёт будет включать только PR, проверенные вами."
     },
-
     "cacheTTLLabel": {
         "message": "Введите TTL кеша",
         "description": "Метка для ввода времени жизни кеша."
@@ -189,6 +197,9 @@
     },
     "copiedButton": {
         "message": "Скопировано!"
+    },
+    "insertedButton": {
+        "message": "Внесёно!"
     },
     "orgChangedMessage": {
         "message": "Организация изменена. Нажмите 'Создать отчет', чтобы получить данные о действиях в GitHub."

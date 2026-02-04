@@ -13,7 +13,6 @@ function logError(...args) {
 }
 
 let refreshButton_Placed = false;
-let enableToggle = true;
 let hasInjectedContent = false;
 let scrumGenerationInProgress = false;
 
@@ -85,7 +84,6 @@ function allIncluded(outputTarget = 'email') {
 				'gitlabUsername',
 				'githubToken',
 				'projectName',
-				'enableToggle',
 				'startingDate',
 				'endingDate',
 				'showOpenLabel',
@@ -136,9 +134,6 @@ function allIncluded(outputTarget = 'email') {
 				chrome.storage.local.remove(['userReason']);
 				githubToken = items.githubToken;
 				yesterdayContribution = items.yesterdayContribution;
-				if (typeof items.enableToggle !== 'undefined') {
-					enableToggle = items.enableToggle;
-				}
 
 				onlyIssues = items.onlyIssues === true;
 				onlyPRs = items.onlyPRs === true;
@@ -1026,11 +1021,6 @@ function allIncluded(outputTarget = 'email') {
 	}
 
 	function writeScrumBody() {
-		if (!enableToggle) {
-			scrumGenerationInProgress = false;
-			return;
-		}
-
 		let lastWeekUl = '<ul>';
 		for (let i = 0; i < lastWeekArray.length; i++) lastWeekUl += lastWeekArray[i];
 		for (let i = 0; i < reviewedPrsArray.length; i++) lastWeekUl += reviewedPrsArray[i];
@@ -1116,7 +1106,6 @@ ${userReason}`;
 	//load initial scrum subject
 	function scrumSubjectLoaded() {
 		try {
-			if (!enableToggle) return;
 			if (!scrumSubject) {
 				console.error('Subject element not found');
 				return;
@@ -1720,7 +1709,7 @@ ${userReason}`;
 
 	if (!refreshButton_Placed) {
 		const intervalWriteButton = setInterval(() => {
-			if (document.getElementsByClassName('F0XO1GC-x-b').length === 3 && scrumBody && enableToggle) {
+			if (document.getElementsByClassName('F0XO1GC-x-b').length === 3 && scrumBody) {
 				refreshButton_Placed = true;
 				clearInterval(intervalWriteButton);
 				const td = document.createElement('td');
@@ -1807,6 +1796,42 @@ if (window.location.protocol.startsWith('http')) {
 
 window.generateScrumReport = () => {
 	allIncluded('popup');
+};
+
+window.insertScrumsToEmail = () => {
+	// Retrieve the pending report content from storage
+	chrome.storage.local.get(['pendingReportContent'], (items) => {
+		if (!items.pendingReportContent) {
+			console.warn('No pending report content to insert');
+			return;
+		}
+
+		const reportContent = items.pendingReportContent;
+
+		// Check if email adapter is available
+		if (!window.emailClientAdapter) {
+			console.warn('Email client adapter not available');
+			return;
+		}
+
+		// Get editor elements (subject and body)
+		const elements = window.emailClientAdapter?.getEditorElements();
+		if (!elements || !elements.body) {
+			console.warn('Email editor elements not found');
+			return;
+		}
+
+		// Inject the report content into the email body
+		try {
+			window.emailClientAdapter.injectContent(elements.body, reportContent, elements.eventTypes.contentChange);
+			console.log('Report successfully inserted into email');
+		} catch (err) {
+			console.error('Failed to insert report to email:', err);
+		}
+
+		// Clean up the pending content from storage
+		chrome.storage.local.remove(['pendingReportContent']);
+	});
 };
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {

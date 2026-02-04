@@ -50,6 +50,15 @@
     "scrumReportLabel": {
         "message": "Laporan Scrum"
     },
+    "generateButton": {
+        "message": "Buat"
+    },
+    "copyButton": {
+        "message": "Salin"
+    },
+    "insertToEmailButton": {
+        "message": "Sisipkan ke Email"
+    },
     "generateReportButton": {
         "message": "Buat Laporan"
     },
@@ -189,6 +198,9 @@
     },
     "copiedButton": {
         "message": "Tersalin!"
+    },
+    "insertedButton": {
+        "message": "Dimasukkan!"
     },
     "orgChangedMessage": {
         "message": "Organisasi diubah. Klik tombol 'Buat Laporan' untuk mengambil aktivitas GitHub."

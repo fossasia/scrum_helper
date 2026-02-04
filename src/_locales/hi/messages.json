@@ -50,6 +50,15 @@
     "scrumReportLabel": {
         "message": "स्क्रम रिपोर्ट"
     },
+    "generateButton": {
+        "message": "तैयर करें"
+    },
+    "copyButton": {
+        "message": "कॉपी करें"
+    },
+    "insertToEmailButton": {
+        "message": "ईमेल में बैठाइए"
+    },
     "generateReportButton": {
         "message": "रिपोर्ट बनाएं"
     },
@@ -189,6 +198,9 @@
     },
     "copiedButton": {
         "message": "कॉपी किया गया!"
+    },
+    "insertedButton": {
+        "message": "सम्मिलित किया गया!"
     },
     "orgChangedMessage": {
         "message": "संगठन बदल गया है। GitHub गतिविधियाँ प्राप्त करने के लिए 'रिपोर्ट बनाएं' बटन पर क्लिक करें।"

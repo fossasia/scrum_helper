@@ -1,200 +1,200 @@
 {
-    "appName": {
-        "message": "Scrum Helper"
-    },
-    "appDescription": {
-        "message": "Звітуйте про свій прогрес у розробці, автоматично отримуючи вашу активність у Git за вибраний період."
-    },
-    "disableLabel": {
-        "message": "Вимкнути"
-    },
-    "enableLabel": {
-        "message": "Увімкнути"
-    },
-    "projectNameLabel": {
-        "message": "Назва проекту (використовується в темі електронного листа)"
-    },
-    "projectNamePlaceholder": {
-        "message": "Введіть назву вашого проекту"
-    },
-    "githubUsernameLabel": {
-        "message": "Ваше ім'я користувача GitHub"
-    },
-    "gitlabUsernameLabel": {
-        "message": "Ваше ім'я користувача GitLab"
-    },
-    "githubUsernamePlaceholder": {
-        "message": "Потрібно для отримання ваших внесків"
-    },
-    "contributionsLabel": {
-        "message": "Отримати ваші внески за:"
-    },
-    "last1DayLabel": {
-        "message": "Попередній день"
-    },
-    "startDateLabel": {
-        "message": "З:"
-    },
-    "endDateLabel": {
-        "message": "По:"
-    },
-    "showOpenClosedLabel": {
-        "message": "Показувати статус Відкрито/Закрито"
-    },
-    "blockersLabel": {
-        "message": "Що заважає вашому прогресу?"
-    },
-    "blockersPlaceholder": {
-        "message": "Введіть вашу причину"
-    },
-    "scrumReportLabel": {
-        "message": "Звіт Scrum"
-    },
-    "generateReportButton": {
-        "message": "Створити звіт"
-    },
-    "copyReportButton": {
-        "message": "Копіювати звіт"
-    },
-    "settingsOrgNameLabel": {
-        "message": "Назва організації"
-    },
-    "settingsOrgNamePlaceholder": {
-        "message": "Введіть назву організації"
-    },
-    "setButton": {
-        "message": "Встановити"
-    },
-    "githubTokenLabel": {
-        "message": "Ваш токен GitHub"
-    },
-    "githubTokenPlaceholder": {
-        "message": "Потрібно для автентифікованих запитів"
-    },
-    "showCommitsLabel": {
-        "message": "Показувати коміти у відкритих PR/ чернетках PR"
-    },
-    "onlyPRsLabel": {
-        "message": "Включати до звіту лише PR"
-    },
-    "onlyPRsTooltip": {
-        "message": "Якщо позначено, звіт включатиме лише pull requests, створені користувачем; переглянуті PR будуть виключені."
-    },
-    "cacheTTLLabel": {
-        "message": "Введіть TTL кешу"
-    },
-    "cacheTTLUnit": {
-        "message": "(у хвилинах)"
-    },
-    "cacheTTLPlaceholder": {
-        "message": "Введіть TTL кешу в хвилинах (За замовчуванням: 10)"
-    },
-    "refreshDataButton": {
-        "message": "Оновити дані (обійти кеш)"
-    },
-    "refreshDataInfo": {
-        "message": "Використовуйте цю кнопку, щоб негайно отримати свіжі дані."
-    },
-    "noteTitle": {
-        "message": "Примітка:"
-    },
-    "viewCodeButton": {
-        "message": "Переглянути код"
-    },
-    "reportIssueButton": {
-        "message": "Повідомити про проблему"
-    },
-    "repoFilterLabel": {
-        "message": "Фільтрувати за репозиторіями"
-    },
-    "enableFilteringLabel": {
-        "message": "Увімкнути фільтрацію"
-    },
-    "tokenRequiredWarning": {
-        "message": "Для фільтрації репозиторіїв потрібен токен GitHub. Будь ласка, додайте його в налаштуваннях."
-    },
-    "repoSearchPlaceholder": {
-        "message": "Шукати репозиторій для додавання..."
-    },
-    "repoPlaceholder": {
-        "message": "Репозиторії не вибрано (будуть включені всі)"
-    },
-    "repoCountNone": {
-        "message": "Вибрано 0 репозиторіїв"
-    },
-    "repoCount": {
-        "message": "Вибрано $1 репозиторіїв"
-    },
-    "repoLoading": {
-        "message": "Завантаження репозиторіїв..."
-    },
-    "repoLoaded": {
-        "message": "Завантажено $1 репозиторіїв."
-    },
-    "repoNotFound": {
-        "message": "Репозиторіїв не знайдено"
-    },
-    "repoRefetching": {
-        "message": "Повторне завантаження репозиторіїв..."
-    },
-    "repoLoadFailed": {
-        "message": "Не вдалося завантажити репозиторії."
-    },
-    "repoTokenPrivate": {
-        "message": "Токен недійсний або не має прав для приватних репозиторіїв."
-    },
-    "repoRefetchFailed": {
-        "message": "Не вдалося повторно завантажити репозиторії."
-    },
-    "orgSetMessage": {
-        "message": "Організацію встановлено успішно."
-    },
-    "orgClearedMessage": {
-        "message": "Організацію очищено. Натисніть 'Створити звіт', щоб отримати всі активності."
-    },
-    "orgNotFoundMessage": {
-        "message": "Організацію не знайдено на GitHub."
-    },
-    "orgValidationErrorMessage": {
-        "message": "Помилка під час перевірки організації."
-    },
-    "refreshingButton": {
-        "message": "Оновлення..."
-    },
-    "cacheClearFailed": {
-        "message": "Не вдалося очистити кеш."
-    },
-    "madeWithLoveBy": {
-        "message": "Made with ❤️ by"
-    },
-    "generatingButton": {
-        "message": "Створення..."
-    },
-    "copiedButton": {
-        "message": "Скопійовано!"
-    },
-    "orgChangedMessage": {
-        "message": "Організацію змінено. Натисніть 'Створити звіт', щоб отримати активності GitHub."
-    },
-    "cacheClearedMessage": {
-        "message": "Кеш успішно очищено. Натисніть 'Створити звіт', щоб отримати свіжі дані."
-    },
-    "cacheClearedButton": {
-        "message": "Кеш очищено!"
-    },
-    "extensionDisabledMessage": {
-        "message": "Розширення вимкнено. Увімкніть його в налаштуваннях, щоб створювати звіти scrum."
-    },
-    "notePoint1": {
-        "message": "Pull-запити отримуються на основі останньої активності рецензування будь-якого учасника, а не лише вашої. Будь ласка, перегляньте та відкоригуйте згенерований звіт SCRUM, щоб переконатися, що він точно відображає вашу роботу, перш ніж ділитися ним."
-    },
-    "noteSeeIssue": {
-        "message": "Дивіться цю проблему"
-    },
-    "platformLabel": {
-        "message": "Платформа"
-    },
-    "usernameLabel": {
-        "message": "Ваше ім'я користувача"
-    }
+  "appName": {
+    "message": "Scrum Helper"
+  },
+  "appDescription": {
+    "message": "Звітуйте про свій прогрес у розробці, автоматично отримуючи вашу активність у Git за вибраний період."
+  },
+  "disableLabel": {
+    "message": "Вимкнути"
+  },
+  "enableLabel": {
+    "message": "Увімкнути"
+  },
+  "projectNameLabel": {
+    "message": "Назва проекту (використовується в темі електронного листа)"
+  },
+  "projectNamePlaceholder": {
+    "message": "Введіть назву вашого проекту"
+  },
+  "githubUsernameLabel": {
+    "message": "Ваше ім'я користувача GitHub"
+  },
+  "gitlabUsernameLabel": {
+    "message": "Ваше ім'я користувача GitLab"
+  },
+  "githubUsernamePlaceholder": {
+    "message": "Потрібно для отримання ваших внесків"
+  },
+  "contributionsLabel": {
+    "message": "Отримати ваші внески за:"
+  },
+  "last1DayLabel": {
+    "message": "Попередній день"
+  },
+  "startDateLabel": {
+    "message": "З:"
+  },
+  "endDateLabel": {
+    "message": "По:"
+  },
+  "showOpenClosedLabel": {
+    "message": "Показувати статус Відкрито/Закрито"
+  },
+  "blockersLabel": {
+    "message": "Що заважає вашому прогресу?"
+  },
+  "blockersPlaceholder": {
+    "message": "Введіть вашу причину"
+  },
+  "scrumReportLabel": {
+    "message": "Звіт Scrum"
+  },
+  "generateReportButton": {
+    "message": "Створити звіт"
+  },
+  "copyReportButton": {
+    "message": "Копіювати звіт"
+  },
+  "settingsOrgNameLabel": {
+    "message": "Назва організації"
+  },
+  "settingsOrgNamePlaceholder": {
+    "message": "Введіть назву організації"
+  },
+  "setButton": {
+    "message": "Встановити"
+  },
+  "githubTokenLabel": {
+    "message": "Ваш токен GitHub"
+  },
+  "githubTokenPlaceholder": {
+    "message": "Потрібно для автентифікованих запитів"
+  },
+  "showCommitsLabel": {
+    "message": "Показувати коміти у відкритих PR/ чернетках PR"
+  },
+  "onlyPRsLabel": {
+    "message": "Включати до звіту лише PR"
+  },
+  "onlyPRsTooltip": {
+    "message": "Якщо позначено, звіт включатиме лише pull requests, створені користувачем; переглянуті PR будуть виключені."
+  },
+  "cacheTTLLabel": {
+    "message": "Введіть TTL кешу"
+  },
+  "cacheTTLUnit": {
+    "message": "(у хвилинах)"
+  },
+  "cacheTTLPlaceholder": {
+    "message": "Введіть TTL кешу в хвилинах (За замовчуванням: 10)"
+  },
+  "refreshDataButton": {
+    "message": "Оновити дані (обійти кеш)"
+  },
+  "refreshDataInfo": {
+    "message": "Використовуйте цю кнопку, щоб негайно отримати свіжі дані."
+  },
+  "noteTitle": {
+    "message": "Примітка:"
+  },
+  "viewCodeButton": {
+    "message": "Переглянути код"
+  },
+  "reportIssueButton": {
+    "message": "Повідомити про проблему"
+  },
+  "repoFilterLabel": {
+    "message": "Фільтрувати за репозиторіями"
+  },
+  "enableFilteringLabel": {
+    "message": "Увімкнути фільтрацію"
+  },
+  "tokenRequiredWarning": {
+    "message": "Для фільтрації репозиторіїв потрібен токен GitHub. Будь ласка, додайте його в налаштуваннях."
+  },
+  "repoSearchPlaceholder": {
+    "message": "Шукати репозиторій для додавання..."
+  },
+  "repoPlaceholder": {
+    "message": "Репозиторії не вибрано (будуть включені всі)"
+  },
+  "repoCountNone": {
+    "message": "Вибрано 0 репозиторіїв"
+  },
+  "repoCount": {
+    "message": "Вибрано $1 репозиторіїв"
+  },
+  "repoLoading": {
+    "message": "Завантаження репозиторіїв..."
+  },
+  "repoLoaded": {
+    "message": "Завантажено $1 репозиторіїв."
+  },
+  "repoNotFound": {
+    "message": "Репозиторіїв не знайдено"
+  },
+  "repoRefetching": {
+    "message": "Повторне завантаження репозиторіїв..."
+  },
+  "repoLoadFailed": {
+    "message": "Не вдалося завантажити репозиторії."
+  },
+  "repoTokenPrivate": {
+    "message": "Токен недійсний або не має прав для приватних репозиторіїв."
+  },
+  "repoRefetchFailed": {
+    "message": "Не вдалося повторно завантажити репозиторії."
+  },
+  "orgSetMessage": {
+    "message": "Організацію встановлено успішно."
+  },
+  "orgClearedMessage": {
+    "message": "Організацію очищено. Натисніть 'Створити звіт', щоб отримати всі активності."
+  },
+  "orgNotFoundMessage": {
+    "message": "Організацію не знайдено на GitHub."
+  },
+  "orgValidationErrorMessage": {
+    "message": "Помилка під час перевірки організації."
+  },
+  "refreshingButton": {
+    "message": "Оновлення..."
+  },
+  "cacheClearFailed": {
+    "message": "Не вдалося очистити кеш."
+  },
+  "madeWithLoveBy": {
+    "message": "Made with ❤️ by"
+  },
+  "generatingButton": {
+    "message": "Створення..."
+  },
+  "copiedButton": {
+    "message": "Скопійовано!"
+  },
+  "orgChangedMessage": {
+    "message": "Організацію змінено. Натисніть 'Створити звіт', щоб отримати активності GitHub."
+  },
+  "cacheClearedMessage": {
+    "message": "Кеш успішно очищено. Натисніть 'Створити звіт', щоб отримати свіжі дані."
+  },
+  "cacheClearedButton": {
+    "message": "Кеш очищено!"
+  },
+  "extensionDisabledMessage": {
+    "message": "Розширення вимкнено. Увімкніть його в налаштуваннях, щоб створювати звіти scrum."
+  },
+  "notePoint1": {
+    "message": "Pull-запити отримуються на основі останньої активності рецензування будь-якого учасника, а не лише вашої. Будь ласка, перегляньте та відкоригуйте згенерований звіт SCRUM, щоб переконатися, що він точно відображає вашу роботу, перш ніж ділитися ним."
+  },
+  "noteSeeIssue": {
+    "message": "Дивіться цю проблему"
+  },
+  "platformLabel": {
+    "message": "Платформа"
+  },
+  "usernameLabel": {
+    "message": "Ваше ім'я користувача"
+  }
 }

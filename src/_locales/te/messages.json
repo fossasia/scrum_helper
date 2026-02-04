@@ -50,6 +50,15 @@
   "scrumReportLabel": {
     "message": "స్క్రమ్ నివేదిక"
   },
+  "generateButton": {
+    "message": "రూపండేమిక బేసుతచు"
+  },
+  "copyButton": {
+    "message": "కాపీ చేయు"
+  },
+  "insertToEmailButton": {
+    "message": "ఇ-మేల్ లో ఇంష్టి చేయు"
+  },
   "generateReportButton": {
     "message": "నివేదికను రూపొందించు"
   },
@@ -176,6 +185,9 @@
   },
   "copiedButton": {
     "message": "కాపీ అయింది!"
+  },
+  "insertedButton": {
+    "message": "చేర్చబడింది!"
   },
   "orgChangedMessage": {
     "message": "సంస్థ మార్చబడింది. GitHub కార్యకలాపాలను తెచ్చుకోవడానికి 'నివేదికను రూపొందించు' పై క్లిక్ చేయండి."

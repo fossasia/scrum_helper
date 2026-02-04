@@ -50,6 +50,15 @@
     "scrumReportLabel": {
         "message": "Báo cáo Scrum"
     },
+    "generateButton": {
+        "message": "Tạo"
+    },
+    "copyButton": {
+        "message": "Sao chép"
+    },
+    "insertToEmailButton": {
+        "message": "Chèn vào Email"
+    },
     "generateReportButton": {
         "message": "Tạo báo cáo"
     },
@@ -95,7 +104,6 @@
     "onlyRevPRsTooltip": {
         "message": "Nếu được chọn, báo cáo sẽ chỉ bao gồm các PR bạn đã xem xét."
     },
-
     "cacheTTLLabel": {
         "message": "Nhập TTL bộ nhớ cache",
         "description": "Nhãn cho đầu vào thời gian tồn tại của bộ nhớ cache."
@@ -189,6 +197,9 @@
     },
     "copiedButton": {
         "message": "Đã sao chép!"
+    },
+    "insertedButton": {
+        "message": "Đã chèn!"
     },
     "orgChangedMessage": {
         "message": "Tổ chức đã thay đổi. Nhấp vào 'Tạo báo cáo' để lấy các hoạt động trên GitHub."

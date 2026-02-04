@@ -51,6 +51,15 @@
     "scrumReportLabel": {
         "message": "Scrum 报告"
     },
+    "generateButton": {
+        "message": "生成"
+    },
+    "copyButton": {
+        "message": "复制"
+    },
+    "insertToEmailButton": {
+        "message": "插入到电子邮件"
+    },
     "generateReportButton": {
         "message": "生成报告"
     },
@@ -190,6 +199,9 @@
     },
     "copiedButton": {
         "message": "已复制！"
+    },
+    "insertedButton": {
+        "message": "已插入"
     },
     "orgChangedMessage": {
         "message": "组织已更改。单击“生成报告”按钮以获取 GitHub 活动。"

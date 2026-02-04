@@ -66,13 +66,25 @@
   "scrumReportLabel": {
     "message": "Scrum Report"
   },
+  "generateButton": {
+    "message": "Generate",
+    "description": "Text for the 'Generate' button."
+  },
+  "copyButton": {
+    "message": "Copy",
+    "description": "Text for the 'Copy' button."
+  },
+  "insertToEmailButton": {
+    "message": "Insert to Email",
+    "description": "Text for the 'Insert to Email' button."
+  },
   "generateReportButton": {
     "message": "Generate Report",
-    "description": "Text for the 'Generate Report' button."
+    "description": "Text for the 'Generate Report' button (deprecated, use generateButton)."
   },
   "copyReportButton": {
     "message": "Copy Report",
-    "description": "Text for the 'Copy Report' button."
+    "description": "Text for the 'Copy Report' button (deprecated, use copyButton)."
   },
   "settingsOrgNameLabel": {
     "message": "Organization Name",
@@ -236,6 +248,10 @@
   "copiedButton": {
     "message": "Copied!",
     "description": "Text shown on the copy button after a successful copy."
+  },
+  "insertedButton": {
+    "message": "Inserted!",
+    "description": "Text shown on the insert button after successfully inserting the report to email."
   },
   "orgChangedMessage": {
     "message": "Organization changed. Click Generate button to fetch the GitHub activities.",
