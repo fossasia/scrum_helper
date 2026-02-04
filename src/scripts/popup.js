@@ -6,6 +6,77 @@ function debounce(func, wait) {
 	};
 }
 
+function showShortcutNotification(messageKey, shortcutKey) {
+	// Detect OS and format shortcut appropriately
+	const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+	const modifier = isMac ? 'Cmd' : 'Ctrl';
+	const formattedShortcut = shortcutKey.replace('Ctrl', modifier);
+
+	// Get localized message and replace placeholder with shortcut
+	const message = chrome.i18n.getMessage(messageKey, [formattedShortcut]);
+
+	// Create notification element
+	const notification = document.createElement('div');
+	notification.textContent = message;
+	notification.style.cssText = `
+		position: fixed;
+		top: 20px;
+		left: 50%;
+		transform: translateX(-50%);
+		background: #2563eb;
+		color: white;
+		padding: 12px 20px;
+		border-radius: 8px;
+		font-size: 14px;
+		font-weight: 500;
+		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+		z-index: 10000;
+		animation: slideIn 0.3s ease-out;
+	`;
+
+	// Add animation
+	const style = document.createElement('style');
+	style.textContent = `
+		@keyframes slideIn {
+			from {
+				transform: translate(-50%, -10px);
+				opacity: 0;
+			}
+			to {
+				transform: translate(-50%, 0);
+				opacity: 1;
+			}
+		}
+		@keyframes slideOut {
+			from {
+				transform: translate(-50%, 0);
+				opacity: 1;
+			}
+			to {
+				transform: translate(-50%, -10px);
+				opacity: 0;
+			}
+		}
+	`;
+
+	if (!document.querySelector('style[data-shortcut-notification]')) {
+		style.setAttribute('data-shortcut-notification', 'true');
+		document.head.appendChild(style);
+	}
+
+	document.body.appendChild(notification);
+
+	// Remove after 2 seconds
+	setTimeout(() => {
+		notification.style.animation = 'slideOut 0.3s ease-out';
+		setTimeout(() => {
+			if (notification.parentNode) {
+				notification.parentNode.removeChild(notification);
+			}
+		}, 300);
+	}, 2000);
+}
+
 function getToday() {
 	const today = new Date();
 	return today.toISOString().split('T')[0];
@@ -530,29 +601,26 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		});
 
-		// Keyboard shortcuts: Ctrl+G (Cmd+G on macOS) to generate, Ctrl+C (Cmd+C on macOS) or Ctrl+Shift+K (Cmd+Shift+K on macOS) to copy
+		// Keyboard shortcuts: Ctrl+G (Cmd+G on macOS) to generate, Ctrl+Shift+K (Cmd+Shift+K on macOS) to copy
 		document.addEventListener('keydown', (e) => {
-			if (
-				e.target?.tagName === 'INPUT' ||
-				e.target?.tagName === 'TEXTAREA' ||
-				e.target?.isContentEditable
-			) {
+			if (e.target?.tagName === 'INPUT' || e.target?.tagName === 'TEXTAREA' || e.target?.isContentEditable) {
 				return;
 			}
 
 			const key = (e.key || '').toLowerCase();
 			const modifier = e.ctrlKey || e.metaKey;
 
-			if (modifier && key === 'g' && !e.repeat && !generateBtn.disabled) {
+			// Ctrl+G / Cmd+G to generate report
+			if (modifier && !e.shiftKey && key === 'g' && !e.repeat && !generateBtn.disabled) {
 				e.preventDefault();
+				showShortcutNotification('generatingReportNotification', 'Ctrl+G');
 				generateBtn.click();
 			}
-			if (modifier && !e.shiftKey && key === 'c' && !e.repeat && !copyBtn.disabled) {
-				e.preventDefault();
-				copyBtn.click();
-			}
+
+			// Ctrl+Shift+K / Cmd+Shift+K to copy report
 			if (modifier && e.shiftKey && key === 'k' && !e.repeat && !copyBtn.disabled) {
 				e.preventDefault();
+				showShortcutNotification('copyingReportNotification', 'Ctrl+Shift+K');
 				copyBtn.click();
 			}
 		});

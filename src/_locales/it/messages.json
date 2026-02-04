@@ -53,8 +53,20 @@
     "generateReportButton": {
         "message": "Genera Rapporto"
     },
+    "generateReportTooltip": {
+        "message": "Genera Rapporto (Ctrl+G / Cmd+G)"
+    },
     "copyReportButton": {
         "message": "Copia Rapporto"
+    },
+    "copyReportTooltip": {
+        "message": "Copia Rapporto (Ctrl+Maiusc+K / Cmd+Maiusc+K)"
+    },
+    "generatingReportNotification": {
+        "message": "Generazione rapporto ({0})"
+    },
+    "copyingReportNotification": {
+        "message": "Copia rapporto ({0})"
     },
     "settingsOrgNameLabel": {
         "message": "Nome dell'organizzazione"
@@ -90,7 +102,6 @@
     "onlyRevPRsTooltip": {
         "message": "Se selezionato, il report includerà solo le PR revisionate da te."
     },
-
     "cacheTTLLabel": {
         "message": "Inserisci TTL della cache"
     },
