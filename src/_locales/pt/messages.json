@@ -165,6 +165,12 @@
     "usernameLabel": {
         "message": "Seu nome de usuário"
     },
+    "githubTokenTooltip": {
+        "message": "Por que é recomendado adicionar um token do GitHub? O Scrum Helper funciona sem um token do GitHub, mas adicionar um token de acesso pessoal é recomendado para uma melhor experiência."
+    },
+    "gitlabTokenTooltip": {
+        "message": "Por que é recomendado adicionar um token do GitLab? O Scrum Helper funciona sem um token do GitLab para projetos públicos, mas adicionar um token de acesso pessoal é recomendado para uma melhor experiência."
+    },
     "repoFilterLabel": {
         "message": "Filtrar por repositórios"
     },
