@@ -20,6 +20,7 @@ let scrumGenerationInProgress = false;
 let orgName = '';
 let platform = 'github';
 let platformUsername = '';
+let gitlabToken = '';
 let gitlabHelper = null;
 
 function allIncluded(outputTarget = 'email') {
@@ -84,6 +85,7 @@ function allIncluded(outputTarget = 'email') {
 				'githubUsername',
 				'gitlabUsername',
 				'githubToken',
+				'gitlabToken',
 				'projectName',
 				'enableToggle',
 				'startingDate',
@@ -115,6 +117,7 @@ function allIncluded(outputTarget = 'email') {
 					const usernameFromDOM = document.getElementById('platformUsername')?.value;
 					const projectFromDOM = document.getElementById('projectName')?.value;
 					const tokenFromDOM = document.getElementById('githubToken')?.value;
+					const gitlabTokenFromDOM = document.getElementById('gitlabToken')?.value;
 
 					// Save to platform-specific storage
 					if (usernameFromDOM) {
@@ -125,9 +128,11 @@ function allIncluded(outputTarget = 'email') {
 
 					items.projectName = projectFromDOM || items.projectName;
 					items.githubToken = tokenFromDOM || items.githubToken;
+					items.gitlabToken = gitlabTokenFromDOM || items.gitlabToken;
 					chrome.storage.local.set({
 						projectName: items.projectName,
 						githubToken: items.githubToken,
+						gitlabToken: items.gitlabToken,
 					});
 				}
 				projectName = items.projectName;
@@ -135,6 +140,7 @@ function allIncluded(outputTarget = 'email') {
 				userReason = 'No Blocker at the moment';
 				chrome.storage.local.remove(['userReason']);
 				githubToken = items.githubToken;
+				gitlabToken = items.gitlabToken || '';
 				yesterdayContribution = items.yesterdayContribution;
 				if (typeof items.enableToggle !== 'undefined') {
 					enableToggle = items.enableToggle;
@@ -201,7 +207,7 @@ function allIncluded(outputTarget = 'email') {
 						if (outputTarget === 'email') {
 							(async () => {
 								try {
-									const data = await gitlabHelper.fetchGitLabData(platformUsernameLocal, startingDate, endingDate);
+									const data = await gitlabHelper.fetchGitLabData(platformUsernameLocal, startingDate, endingDate, gitlabToken);
 
 									function mapGitLabItem(item, projects, type) {
 										const project = projects.find((p) => p.id === item.project_id);
@@ -264,7 +270,7 @@ function allIncluded(outputTarget = 'email') {
 							})();
 						} else {
 							gitlabHelper
-								.fetchGitLabData(platformUsernameLocal, startingDate, endingDate)
+								.fetchGitLabData(platformUsernameLocal, startingDate, endingDate, gitlabToken)
 								.then((data) => {
 									function mapGitLabItem(item, projects, type) {
 										const project = projects.find((p) => p.id === item.project_id);

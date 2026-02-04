@@ -70,6 +70,12 @@ document.addEventListener('DOMContentLoaded', () => {
 	const tokenPreview = document.getElementById('tokenPreview');
 	let tokenVisible = false;
 
+	// GitLab token elements
+	const gitlabTokenInput = document.getElementById('gitlabToken');
+	const toggleGitlabTokenBtn = document.getElementById('toggleGitlabTokenVisibility');
+	const gitlabTokenEyeIcon = document.getElementById('gitlabTokenEyeIcon');
+	let gitlabTokenVisible = false;
+
 	const orgInput = document.getElementById('orgInput');
 
 	const platformSelect = document.getElementById('platformSelect');
@@ -123,6 +129,21 @@ document.addEventListener('DOMContentLoaded', () => {
 		githubTokenInput.classList.add('token-animating');
 		setTimeout(() => githubTokenInput.classList.remove('token-animating'), 300);
 	});
+
+	// GitLab token visibility toggle
+	if (toggleGitlabTokenBtn && gitlabTokenInput) {
+		toggleGitlabTokenBtn.addEventListener('click', () => {
+			gitlabTokenVisible = !gitlabTokenVisible;
+			gitlabTokenInput.type = gitlabTokenVisible ? 'text' : 'password';
+
+			gitlabTokenEyeIcon.classList.add('eye-animating');
+			setTimeout(() => gitlabTokenEyeIcon.classList.remove('eye-animating'), 400);
+			gitlabTokenEyeIcon.className = gitlabTokenVisible ? 'fa fa-eye-slash text-gray-600' : 'fa fa-eye text-gray-600';
+
+			gitlabTokenInput.classList.add('token-animating');
+			setTimeout(() => gitlabTokenInput.classList.remove('token-animating'), 300);
+		});
+	}
 
 	githubTokenInput.addEventListener('input', checkTokenForFilter);
 
@@ -1341,6 +1362,14 @@ function updatePlatformUI(platform) {
 	const githubOnlySections = document.querySelectorAll('.githubOnlySection');
 	githubOnlySections.forEach((el) => {
 		if (platform === 'gitlab') {
+			el.classList.add('hidden');
+		} else {
+			el.classList.remove('hidden');
+		}
+	});
+	const gitlabOnlySections = document.querySelectorAll('.gitlabOnlySection');
+	gitlabOnlySections.forEach((el) => {
+		if (platform === 'github') {
 			el.classList.add('hidden');
 		} else {
 			el.classList.remove('hidden');
