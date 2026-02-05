@@ -779,10 +779,9 @@ function allIncluded(outputTarget = 'email') {
     const generateBtn = document.getElementById('generateReport');
 
     if (scrumReport) {
-        scrumReport.innerHTML = `<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">
-            ${err.message || 'An error occurred while generating the report.'}
-        </div>`;
-    }
+    scrumReport.textContent = err.message || 'An error occurred while generating the report.';
+    scrumReport.className = 'error-message';
+}
 
     if (generateBtn) {
         generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
