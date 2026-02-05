@@ -612,13 +612,19 @@ function allIncluded(outputTarget = 'email') {
 			const userCheckRes = await fetch(userUrl, { headers });
 
 			if (userCheckRes.status === 404) {
-				const errorMsg = `GitHub user "${platformUsernameLocal}" not found (404). Please check the username and try again.`;
-				logError(errorMsg);
-				if (outputTarget === 'popup') {
-					Materialize.toast && Materialize.toast(errorMsg, 4000);
-				}
-				throw new Error(errorMsg);
-			}
+    const errorMsg = `GitHub user "${platformUsernameLocal}" not found (404). Please check the username and try again.`;
+    logError(errorMsg);
+    if (outputTarget === 'popup') {
+        Materialize.toast && Materialize.toast(errorMsg, 4000);
+
+        const btn = document.getElementById('generateReport');
+        if (btn) {
+            btn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+            btn.disabled = false;
+        }
+    }
+    throw new Error(errorMsg);
+}
 
 			if (userCheckRes.status === 401 || userCheckRes.status === 403) {
 				showInvalidTokenMessage();
@@ -627,10 +633,19 @@ function allIncluded(outputTarget = 'email') {
 			}
 
 			if (!userCheckRes.ok) {
-				const errorMsg = `Error validating GitHub user: ${userCheckRes.status} ${userCheckRes.statusText}`;
-				logError(errorMsg);
-				throw new Error(errorMsg);
-			}
+    const errorMsg = `Error validating GitHub user: ${userCheckRes.status} ${userCheckRes.statusText}`;
+    logError(errorMsg);
+
+    if (outputTarget === 'popup') {
+        const btn = document.getElementById('generateReport');
+        if (btn) {
+            btn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+            btn.disabled = false;
+        }
+    }
+
+    throw new Error(errorMsg);
+}
 
 			const [issuesRes, prRes, userRes] = await Promise.all([
 				fetch(issueUrl, { headers }),
@@ -760,23 +775,20 @@ function allIncluded(outputTarget = 'email') {
 			githubCache.fetching = false;
 
 			if (outputTarget === 'popup') {
-				const generateBtn = document.getElementById('generateReport');
-				if (scrumReport) {
-					let errorMsg = 'An error occurred while generating the report.';
-					if (err) {
-						if (typeof err === 'string') errorMsg = err;
-						else if (err.message) errorMsg = err.message;
-						else errorMsg = JSON.stringify(err);
-					}
-					scrumReport.innerHTML = `<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">${err.message || 'An error occurred while generating the report.'}</div>`;
-					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
-					generateBtn.disabled = false;
-				}
-				if (generateBtn) {
-					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
-					generateBtn.disabled = false;
-				}
-			}
+    const scrumReport = document.getElementById('scrumReport');
+    const generateBtn = document.getElementById('generateReport');
+
+    if (scrumReport) {
+        scrumReport.innerHTML = `<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">
+            ${err.message || 'An error occurred while generating the report.'}
+        </div>`;
+    }
+
+    if (generateBtn) {
+        generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+        generateBtn.disabled = false;
+    }
+}
 			scrumGenerationInProgress = false;
 			throw err;
 		} finally {
