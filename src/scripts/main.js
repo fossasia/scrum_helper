@@ -93,11 +93,15 @@ function handleBodyOnLoad() {
 				yesterdayContributionElement.checked = true;
 				handleYesterdayContributionChange();
 			}
-			if (items.showCommits) {
+			const hasToken = items.githubToken && items.githubToken.trim() !== '';
+			if (items.showCommits && hasToken) {
 				showCommitsElement.checked = items.showCommits;
 			} else {
 				showCommitsElement.checked = false;
-				handleShowCommitsChange();
+				// Persist false state when token is missing to keep storage aligned with UI
+				if (items.showCommits && !hasToken) {
+					chrome.storage.local.set({ showCommits: false });
+				}
 			}
 		},
 	);
@@ -200,8 +204,14 @@ function handleOpenLabelChange() {
 }
 
 function handleShowCommitsChange() {
-	const value = showCommitsElement.checked;
-	chrome.storage.local.set({ showCommits: value });
+	chrome.storage.local.get(['githubToken'], function(result) {
+		const hasToken = result.githubToken && result.githubToken.trim() !== '';
+		if (showCommitsElement.checked && !hasToken) {
+			showCommitsElement.checked = false;
+			return;
+		}
+		chrome.storage.local.set({ showCommits: showCommitsElement.checked });
+	});
 }
 
 enableToggleElement.addEventListener('change', handleEnableChange);
