@@ -264,8 +264,10 @@ class GitLabHelper {
 		});
 	}
 
-	async fetchGitLabData(username, startDate, endDate, group = '', selectedProjects = []) {
-		const cacheKey = `${username}-${startDate}-${endDate}-${group}-${selectedProjects.join(',')}`;
+	async fetchGitLabData(username, startDate, endDate, group = '', selectedProjects = [], token = null) {
+		// Include token state and filters in cache key to invalidate when auth or filters change
+		const tokenMarker = token ? 'auth' : 'noauth';
+		const cacheKey = `${username}-${startDate}-${endDate}-${group}-${selectedProjects.join(',')}-${tokenMarker}`;
 
 		if (this.cache.fetching || (this.cache.cacheKey === cacheKey && this.cache.data)) {
 			return this.cache.data;
@@ -299,6 +301,11 @@ class GitLabHelper {
 
 		this.cache.fetching = true;
 		this.cache.cacheKey = cacheKey;
+
+		// Update token if provided
+		if (token) {
+			this.token = token;
+		}
 
 		try {
 			// Throttling 500ms to avoid burst
@@ -447,7 +454,11 @@ class GitLabHelper {
 		}
 	}
 
-	async getDetailedMergeRequests(mergeRequests) {
+	async getDetailedMergeRequests(mergeRequests, token = null) {
+		// Update token if provided
+		if (token) {
+			this.token = token;
+		}
 		const detailed = [];
 		for (const mr of mergeRequests) {
 			try {
@@ -467,7 +478,11 @@ class GitLabHelper {
 		return detailed;
 	}
 
-	async getDetailedIssues(issues) {
+	async getDetailedIssues(issues, token = null) {
+		// Update token if provided
+		if (token) {
+			this.token = token;
+		}
 		const detailed = [];
 		for (const issue of issues) {
 			try {
