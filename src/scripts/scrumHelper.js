@@ -31,6 +31,7 @@ let scrumGenerationInProgress = false;
 let orgName = '';
 let platform = 'github';
 let platformUsername = '';
+let gitlabToken = '';
 let gitlabHelper = null;
 
 async function allIncluded(outputTarget = 'email') {
@@ -174,6 +175,7 @@ async function allIncluded(outputTarget = 'email') {
 
 			userReason = items.userReason || 'No Blocker at the moment';
 				githubToken = items.githubToken;
+				gitlabToken = items.gitlabToken || '';
 				yesterdayContribution = items.yesterdayContribution;
 				if (typeof items.enableToggle !== 'undefined') {
 					enableToggle = items.enableToggle;

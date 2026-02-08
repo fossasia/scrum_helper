@@ -315,6 +315,7 @@ class GitLabHelper {
 			const userUrl = `${this.baseUrl}/users?username=${encodeURIComponent(username)}`;
 			const userRes = await this.fetchWithTimeout(userUrl, { headers: this.getHeaders() });
 			const users = await this.handleApiResponse(userRes, 'fetching user');
+			
 			if (users.length === 0) {
 				throw new Error(`GitLab user '${username}' not found`);
 			}
@@ -368,7 +369,7 @@ class GitLabHelper {
 			for (const project of allProjects) {
 				try {
 					const projectMRsUrl = `${this.baseUrl}/projects/${project.id}/merge_requests?author_id=${userId}&created_after=${startDate}T00:00:00Z&created_before=${endDate}T23:59:59Z&per_page=100&order_by=updated_at&sort=desc`;
-					const projectMRsRes = await this.fetchWithTimeout(projectMRsUrl, { headers: this.getHeaders() }, 15000);
+				const projectMRsRes = await this.fetchWithTimeout(projectMRsUrl, { headers: this.getHeaders() }, 15000);
 					if (projectMRsRes.ok) {
 						const projectMRs = await projectMRsRes.json();
 						allMergeRequests = allMergeRequests.concat(projectMRs);
@@ -398,7 +399,7 @@ class GitLabHelper {
 			for (const project of allProjects) {
 				try {
 					const projectIssuesUrl = `${this.baseUrl}/projects/${project.id}/issues?author_id=${userId}&created_after=${startDate}T00:00:00Z&created_before=${endDate}T23:59:59Z&per_page=100&order_by=updated_at&sort=desc`;
-					const projectIssuesRes = await this.fetchWithTimeout(projectIssuesUrl, { headers: this.getHeaders() }, 15000);
+				const projectIssuesRes = await this.fetchWithTimeout(projectIssuesUrl, { headers: this.getHeaders() }, 15000);
 					if (projectIssuesRes.ok) {
 						const projectIssues = await projectIssuesRes.json();
 						allIssues = allIssues.concat(projectIssues);
@@ -464,6 +465,7 @@ class GitLabHelper {
 			try {
 				const url = `${this.baseUrl}/projects/${mr.project_id}/merge_requests/${mr.iid}`;
 				const res = await this.fetchWithTimeout(url, { headers: this.getHeaders() }, 10000);
+
 				if (res.ok) {
 					const detailedMr = await res.json();
 					detailed.push(detailedMr);
