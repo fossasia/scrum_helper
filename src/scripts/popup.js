@@ -2086,7 +2086,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 
 		// Keyboard navigation
-		platformDropdownBtn.addEventListener('keydown', (e) => {
+		dropdownBtn.addEventListener('keydown', (e) => {
 			if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
 				e.preventDefault();
 				customDropdown.classList.add('open');
@@ -2235,15 +2235,6 @@ document.addEventListener('DOMContentLoaded', () => {
 			this.disabled = true;
 
 			try {
-				// Determine platform
-				let platform = 'github';
-				try {
-					const items = await new Promise((resolve) => {
-						chrome.storage.local.get(['platform'], resolve);
-					});
-					platform = items.platform || 'github';
-				} catch (e) {}
-
 				// Clear all caches
 				const keysToRemove = ['githubCache', 'repoCache', 'gitlabCache'];
 				await new Promise((resolve) => {

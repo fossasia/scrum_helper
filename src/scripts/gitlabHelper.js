@@ -15,13 +15,16 @@ class GitLabHelper {
 		};
 	}
 
-	getHeaders() {
+	// Accept an optional overrideToken to allow callers to request headers
+	// for a specific token without mutating this.token.
+	getHeaders(overrideToken = null) {
 		const headers = {
 			'Content-Type': 'application/json',
 		};
-		if (this.token) {
+		const tokenToUse = overrideToken || this.token;
+		if (tokenToUse) {
 			// GitLab Personal Access Token authentication
-			headers['PRIVATE-TOKEN'] = this.token;
+			headers['PRIVATE-TOKEN'] = tokenToUse;
 			if (GitLabHelper.debug) console.log('[GITLAB] Using authenticated requests with token');
 		} else {
 			if (GitLabHelper.debug) console.log('[GITLAB] Using unauthenticated requests');

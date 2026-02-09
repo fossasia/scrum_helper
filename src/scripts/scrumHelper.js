@@ -137,40 +137,33 @@ async function allIncluded(outputTarget = 'email') {
 				if (outputTarget === 'popup') {
 					const usernameFromDOM = document.getElementById('platformUsername')?.value;
 					const projectFromDOM = document.getElementById('projectName')?.value;
-const tokenFromDOM = document.getElementById('githubToken')?.value;
+					const tokenFromDOM = document.getElementById('githubToken')?.value;
 					const gitlabTokenFromDOM = document.getElementById('gitlabToken')?.value;
 
-					chrome.storage.local.set({ [platformUsernameKey]: usernameFromDOM });
-					platformUsername = usernameFromDOM;
-					platformUsernameLocal = usernameFromDOM;
+					// Save platform-specific username only when non-empty (avoid clearing stored value)
+					const usernameTrim = (usernameFromDOM || '').trim();
+					if (usernameTrim) {
+						chrome.storage.local.set({ [platformUsernameKey]: usernameTrim });
+						platformUsername = usernameTrim;
+						platformUsernameLocal = usernameTrim;
+					}
 
 					// apply projectName from DOM immediately in popup mode
 					items.projectName = projectFromDOM || items.projectName;
 
-					// Save platform-specific token and handle both tokens
+					// Save platform-specific token (use gitlabToken input when platform is gitlab)
 					if (platform === 'gitlab') {
-						items.gitlabToken = tokenFromDOM || items.gitlabToken;
-						chrome.storage.local.set({
-							projectName: items.projectName,
-							gitlabToken: items.gitlabToken,
-						});
+						items.gitlabToken = gitlabTokenFromDOM || items.gitlabToken;
 					} else {
 						items.githubToken = tokenFromDOM || items.githubToken;
-						chrome.storage.local.set({
-							projectName: items.projectName,
-							githubToken: items.githubToken,
-						});
 					}
 
-				// Save tokens and project name  
-				items.projectName = projectFromDOM || items.projectName;
-				items.githubToken = tokenFromDOM || items.githubToken;
-				items.gitlabToken = gitlabTokenFromDOM || items.gitlabToken;
-				chrome.storage.local.set({
-					projectName: items.projectName,
-					githubToken: items.githubToken,
-					gitlabToken: items.gitlabToken,
-				});
+					// Persist projectName and tokens in one call
+					chrome.storage.local.set({
+						projectName: items.projectName,
+						githubToken: items.githubToken,
+						gitlabToken: items.gitlabToken,
+					});
 			}
 
 			userReason = items.userReason || 'No Blocker at the moment';
@@ -249,13 +242,15 @@ const tokenFromDOM = document.getElementById('githubToken')?.value;
 							(async () => {
 								try {
 
-									const gitlabTokenLocal = items.gitlabToken || null;
+									const gitlabGroup = items.gitlabGroup || '';
+									const useGitlabProjectFilter = items.useGitlabProjectFilter || false;
+									const selectedGitlabProjects = useGitlabProjectFilter ? (items.selectedGitlabProjects || []) : [];
 
 									const data = await gitlabHelper.fetchGitLabData(
 										platformUsernameLocal,
 										startingDate,
 										endingDate,
-										gitlabToken,
+										gitlabTokenLocal,
 										gitlabGroup,
 										selectedGitlabProjects
 									);
@@ -1172,11 +1167,48 @@ ${userReason}`;
 					const doc = parser.parseFromString(content, 'text/html');
 					// Remove potentially dangerous nodes
 					doc.querySelectorAll('script,style').forEach((n) => n.remove());
-					// Remove inline event handlers and ensure safe link attributes
+
+					// Helper: allow only safe URL schemes or relative anchors/paths
+					function isSafeUrl(u) {
+						if (!u) return false;
+						const s = u.trim().toLowerCase();
+						return (
+							s.startsWith('http:') ||
+							s.startsWith('https:') ||
+							s.startsWith('mailto:') ||
+							s.startsWith('tel:') ||
+							s.startsWith('/') ||
+							s.startsWith('#') ||
+							s.startsWith('//')
+						);
+					}
+
+					// Remove inline event handlers, sanitize href/src/srcset and ensure safe link attributes
 					doc.body.querySelectorAll('*').forEach((node) => {
 						[...node.attributes].forEach((attr) => {
-							if (attr.name.startsWith('on')) node.removeAttribute(attr.name);
+							const name = attr.name.toLowerCase();
+							const val = attr.value;
+							// Strip inline event handlers
+							if (name.startsWith('on')) {
+								node.removeAttribute(attr.name);
+								return;
+							}
+
+							// Validate URL-bearing attributes
+							if (name === 'href' || name === 'src') {
+								if (!isSafeUrl(val)) {
+									node.removeAttribute(attr.name);
+								}
+								return;
+							}
+
+							// Remove srcset as it can contain multiple URLs; keep simple src only
+							if (name === 'srcset') {
+								node.removeAttribute('srcset');
+								return;
+							}
 						});
+
 						if (node.tagName === 'A') {
 							if (!node.getAttribute('rel')) node.setAttribute('rel', 'noopener noreferrer');
 							if (!node.getAttribute('target')) node.setAttribute('target', '_blank');
