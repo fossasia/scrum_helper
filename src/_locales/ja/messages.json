@@ -71,6 +71,12 @@
     "githubTokenPlaceholder": {
         "message": "認証済みリクエストに必要です"
     },
+    "gitlabTokenLabel": {
+        "message": "GitLabトークン"
+    },
+    "gitlabTokenPlaceholder": {
+        "message": "プライベートリポジトリに必要"
+    },
     "showCommitsLabel": {
         "message": "オープンなPR/ドラフトPRのコミットを表示"
     },

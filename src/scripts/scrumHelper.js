@@ -137,9 +137,7 @@ async function allIncluded(outputTarget = 'email') {
 				if (outputTarget === 'popup') {
 					const usernameFromDOM = document.getElementById('platformUsername')?.value;
 					const projectFromDOM = document.getElementById('projectName')?.value;
-					const tokenFromDOM = platform === 'gitlab'
-						? document.getElementById('gitlabToken')?.value
-						: document.getElementById('githubToken')?.value;
+const tokenFromDOM = document.getElementById('githubToken')?.value;
 					const gitlabTokenFromDOM = document.getElementById('gitlabToken')?.value;
 
 					chrome.storage.local.set({ [platformUsernameKey]: usernameFromDOM });
@@ -164,14 +162,16 @@ async function allIncluded(outputTarget = 'email') {
 						});
 					}
 
-					// Also save GitLab token separately if provided
-					if (gitlabTokenFromDOM) {
-						items.gitlabToken = gitlabTokenFromDOM;
-						chrome.storage.local.set({ gitlabToken: gitlabTokenFromDOM });
-					}
-				}
-
-				projectName = items.projectName;
+				// Save tokens and project name  
+				items.projectName = projectFromDOM || items.projectName;
+				items.githubToken = tokenFromDOM || items.githubToken;
+				items.gitlabToken = gitlabTokenFromDOM || items.gitlabToken;
+				chrome.storage.local.set({
+					projectName: items.projectName,
+					githubToken: items.githubToken,
+					gitlabToken: items.gitlabToken,
+				});
+			}
 
 			userReason = items.userReason || 'No Blocker at the moment';
 				githubToken = items.githubToken;
@@ -242,18 +242,16 @@ async function allIncluded(outputTarget = 'email') {
 						if (outputTarget === 'email') {
 							(async () => {
 								try {
-									const gitlabGroup = items.gitlabGroup || '';
-									const useGitlabProjectFilter = items.useGitlabProjectFilter || false;
-									const selectedGitlabProjects = useGitlabProjectFilter ? (items.selectedGitlabProjects || []) : [];
+
 									const gitlabTokenLocal = items.gitlabToken || null;
 
 									const data = await gitlabHelper.fetchGitLabData(
 										platformUsernameLocal,
 										startingDate,
 										endingDate,
+										gitlabToken,
 										gitlabGroup,
-										selectedGitlabProjects,
-										gitlabTokenLocal
+										selectedGitlabProjects
 									);
 
 									function mapGitLabItem(item, projects, type) {
@@ -324,10 +322,10 @@ async function allIncluded(outputTarget = 'email') {
 								.fetchGitLabData(
 									platformUsernameLocal, 
 									startingDate, 
-									endingDate, 
+									endingDate,
+									gitlabToken,
 									gitlabGroup, 
-									selectedGitlabProjects,
-									gitlabToken
+									selectedGitlabProjects
 								)
 								.then((data) => {
 									function mapGitLabItem(item, projects, type) {

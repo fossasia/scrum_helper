@@ -71,6 +71,12 @@
     "githubTokenPlaceholder": {
         "message": "Потрібно для автентифікованих запитів"
     },
+    "gitlabTokenLabel": {
+        "message": "Ваш токен GitLab"
+    },
+    "gitlabTokenPlaceholder": {
+        "message": "Потрібно для приватних репо"
+    },
     "showCommitsLabel": {
         "message": "Показувати коміти у відкритих PR/ чернетках PR"
     },

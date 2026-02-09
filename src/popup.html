@@ -289,7 +289,7 @@
 				</div>
 
 				<div id="settingsSection" class="tab-content hidden">
-					<!-- GitHub Token Section (Original structure) -->
+					<!-- GitHub Token Section -->
 					<div class="githubOnlySection">
 						<div class="flex items-center justify-between">
 							<div class="flex">
@@ -329,6 +329,9 @@
 							title="GitHub Personal Access Token"
 							placeholder="Paste your GitHub Personal Access Token"
 							data-i18n-placeholder="githubTokenPlaceholder">
+						
+						<!-- Token Preview -->
+						<div id="tokenPreview" class="text-xs text-gray-500 mb-2 font-mono tracking-wider"></div>
 					</div>
 
 					<!-- GitLab Token Section -->
@@ -502,189 +505,6 @@
 								<span id="gitlabProjectStatus" class="text-blue-600"></span>
 							</div>
 						</div>
-									activities across all organizations.
-									Organization name is not case-sensitive.
-								</span>
-							</span>
-						</div>
-						<label for="orgInput" class="sr-only" data-i18n="settingsOrgNameLabel">Your Organization Name</label>
-						<input id="orgInput" type="text"
-							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
-							data-i18n-placeholder="settingsOrgNamePlaceholder"
-							placeholder="Enter organization name"
-							title="Organization name">
-
-						<!-- Organization validation feedback -->
-						<div id="orgValidationMessage" class="hidden text-xs mt-1 mb-2 px-3 py-2 rounded-lg">
-							<span id="orgValidationText"></span>
-						</div>
-					</div>
-
-					<!-- GitLab Organization/Group Section - Added to match GitHub -->
-					<div class="gitlabOnlySection">
-						<div class="flex items-center mt-4">
-							<p class="text-sm font-semibold" data-i18n="gitlabGroupLabel">Your GitLab Group</p>
-							<span class="tooltip-container ml-2">
-								<i class="fa fa-question-circle question-icon"></i>
-								<span class="tooltip-bubble" data-i18n="gitlabGroupTooltip">
-									<b>Which GitLab group's activity?</b><br>
-									Enter the GitLab group name to fetch activities for. Leave empty to fetch
-									all your GitLab activities across all groups.
-									Group name is not case-sensitive.
-								</span>
-							</span>
-						</div>
-						<label for="gitlabGroupInput" class="sr-only" data-i18n="gitlabGroupLabel">Your GitLab Group</label>
-						<input id="gitlabGroupInput" type="text"
-							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
-							data-i18n-placeholder="gitlabGroupPlaceholder"
-							title="GitLab group name">
-
-						<!-- Group validation feedback -->
-						<div id="gitlabGroupValidationMessage" class="hidden text-xs mt-1 mb-2 px-3 py-2 rounded-lg">
-							<span id="gitlabGroupValidationText"></span>
-						</div>
-					</div>
-
-					<!-- GitHub Repository Filter Section -->
-					<div class="githubOnlySection mb-4">
-						<div class="flex items-center justify-between mb-2">
-							<p class="text-sm font-medium">
-								<span data-i18n="repoFilterLabel">Filter by repositories</span><span
-									class="tooltip-container">
-									<i class="fa fa-question-circle question-icon"></i>
-									<span class="tooltip-bubble" data-i18n="repoFilterTooltip">
-										Github Token required.<br>
-										To force a repo list update, <br>
-										click the Refresh Data button.
-									</span>
-								</span>
-							</p>
-							<div class="flex items-center">
-								<input type="checkbox" id="useRepoFilter" class="mr-2" style="margin-right: 4px;">
-								<label for="useRepoFilter" class="text-xs text-gray-600"><span
-										data-i18n="enableFilteringLabel">Enable
-										filtering</span></label>
-							</div>
-						</div>
-						<div id="tokenWarningForFilter"
-							class="hidden text-xs text-red-600 p-2 bg-red-50 border border-red-200 rounded-xl mt-2">
-							<span data-i18n="tokenRequiredWarning">A GitHub token is required for repository
-								filtering. Please add one in the settings.</span>
-						</div>
-
-						<input id="repoSearch" type="text" data-i18n-placeholder="repoSearchPlaceholder" placeholder="Search repositories" title="Search repositories" aria-label="Search repositories"
-							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 pr-10"
-							autocomplete="off">
-						<div id="repoFilterContainer" class="hidden">
-							<!-- Typeahead Input -->
-							<div class="relative">
-								<!-- Dropdown -->
-								<div id="repoDropdown"
-									class="absolute w-full bg-white border border-gray-300 rounded-xl shadow-lg hidden max-h-48 overflow-y-auto"
-									style="z-index: 1000; margin-top: -10px;">
-								</div>
-							</div>
-
-							<!-- Selected Tags Container -->
-							<div id="selectedRepos"
-								class="mt-3 min-h-[32px] p-2 border-2 border-gray-200 bg-gray-50 rounded-xl">
-								<div class="flex flex-wrap gap-1" id="repoTags">
-									<span class="text-xs text-gray-500 select-none" id="repoPlaceholder"
-										data-i18n="repoPlaceholder">No
-										repositories selected (all will be included)</span>
-								</div>
-							</div>
-
-							<!-- Status/Info -->
-							<div class="mt-2 text-xs text-gray-600 flex justify-between">
-								<span id="repoCount" data-i18n="repoCountNone">0 repositories selected</span>
-								<span id="repoStatus" class="text-blue-600"></span>
-							</div>
-						</div>
-					</div>
-
-					<!-- GitLab Project Filter Section - Added to match GitHub -->
-					<div class="gitlabOnlySection mb-4">
-						<div class="flex items-center justify-between mb-2">
-							<p class="text-sm font-medium">
-								<span data-i18n="gitlabProjectFilterLabel">Filter by projects</span><span
-									class="tooltip-container">
-									<i class="fa fa-question-circle question-icon"></i>
-									<span class="tooltip-bubble" data-i18n="gitlabProjectFilterTooltip">
-										GitLab Token required.<br>
-										To force a project list update, <br>
-										click the Refresh Data button.
-									</span>
-								</span>
-							</p>
-							<div class="flex items-center">
-								<input type="checkbox" id="useGitlabProjectFilter" class="mr-2" style="margin-right: 4px;">
-								<label for="useGitlabProjectFilter" class="text-xs text-gray-600"><span
-										data-i18n="enableFilteringLabel">Enable
-										filtering</span></label>
-							</div>
-						</div>
-						<div id="gitlabTokenWarningForFilter"
-							class="hidden text-xs text-red-600 p-2 bg-red-50 border border-red-200 rounded-xl mt-2">
-							<span data-i18n="gitlabTokenRequiredWarning">A GitLab token is required for project
-								filtering. Please add one in the settings.</span>
-						</div>
-
-						<input id="gitlabProjectSearch" type="text" data-i18n-placeholder="gitlabProjectSearchPlaceholder" data-i18n-title="gitlabProjectSearchPlaceholder" data-i18n-aria="gitlabProjectSearchPlaceholder"
-							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 pr-10"
-							placeholder="Filter by projects" title="Filter by projects" aria-label="Filter by projects" autocomplete="off">
-						<div id="gitlabProjectFilterContainer" class="hidden">
-							<div class="relative">
-								<div id="gitlabProjectDropdown"
-									class="absolute w-full bg-white border border-gray-300 rounded-xl shadow-lg hidden max-h-48 overflow-y-auto"
-									style="z-index: 1000; margin-top: -10px;">
-								</div>
-							</div>
-
-							<div id="selectedGitlabProjects"
-								class="mt-3 min-h-[32px] p-2 border-2 border-gray-200 bg-gray-50 rounded-xl">
-								<div class="flex flex-wrap gap-1" id="gitlabProjectTags">
-									<span class="text-xs text-gray-500 select-none" id="gitlabProjectPlaceholder" data-i18n="gitlabProjectPlaceholder">
-										No projects selected (all will be included)
-									</span>
-								</div>
-							</div>
-
-							<div class="mt-2 text-xs text-gray-600 flex justify-between">
-								<span id="gitlabProjectCount" data-i18n="gitlabProjectCountNone">0 projects selected</span>
-								<span id="gitlabProjectStatus" class="text-blue-600"></span>
-							</div>
-						</div>
-					</div>
-
-					<div class="gitlabOnlySection hidden mt-3">
-						<div class="flex items-center justify-between">
-							<div class="flex">
-								<p class="text-sm font-medium" data-i18n="gitlabTokenLabel">Your GitLab Token</p>
-								<span class="tooltip-container">
-									<i class="fa fa-question-circle question-icon"></i>
-									<span class="tooltip-bubble" data-i18n="gitlabTokenTooltip">
-										<b>Why add a GitLab token?</b><br>
-										Works without a token for public projects, but a personal access token enables private repos and better rate limits. Your token stays local and is only used to fetch your GitLab data.<br><br>
-										<b>How to get one:</b><br>
-										1. Go to <a href="https://gitlab.com/-/profile/personal_access_tokens" target="_blank"
-											rel="noopener noreferrer"
-											style="color:#2563eb;text-decoration:underline;">GitLab Access Tokens</a><br>
-										2. Click "Add new token"<br>
-										3. Select "read_api" scope<br>
-										4. Paste it here<br>
-										<i>Keep it secret!</i>
-									</span>
-								</span>
-							</div>
-							<button id="toggleGitlabTokenVisibility" type="button" class="focus:outline-none">
-								<i id="gitlabTokenEyeIcon" class="fa fa-eye text-gray-600"></i>
-							</button>
-						</div>
-						<input id="gitlabToken" type="password"
-							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2 pr-10"
-							data-i18n-placeholder="gitlabTokenPlaceholder">
 					</div>
 
 					<div class="cacheSection mt-3">

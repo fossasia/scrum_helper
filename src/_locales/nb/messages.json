@@ -71,6 +71,12 @@
     "githubTokenPlaceholder": {
         "message": "Påkrevd for autentiserte forespørsler"
     },
+    "gitlabTokenLabel": {
+        "message": "Ditt GitLab-token"
+    },
+    "gitlabTokenPlaceholder": {
+        "message": "Påkrevd for private repoer"
+    },
     "showCommitsLabel": {
         "message": "Vis commits på åpne PR-er/utkast til PR-er"
     },

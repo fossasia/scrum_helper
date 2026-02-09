@@ -264,7 +264,7 @@ class GitLabHelper {
 		});
 	}
 
-	async fetchGitLabData(username, startDate, endDate, group = '', selectedProjects = [], token = null) {
+	async fetchGitLabData(username, startDate, endDate, token = null, group = '', selectedProjects = []) {
 		// Include token state and filters in cache key to invalidate when auth or filters change
 		const tokenMarker = token ? 'auth' : 'noauth';
 		const cacheKey = `${username}-${startDate}-${endDate}-${group}-${selectedProjects.join(',')}-${tokenMarker}`;
@@ -302,9 +302,13 @@ class GitLabHelper {
 		this.cache.fetching = true;
 		this.cache.cacheKey = cacheKey;
 
-		// Update token if provided
+		// Update token if provided and build headers
 		if (token) {
 			this.token = token;
+		}
+		const headers = {};
+		if (token) {
+			headers['PRIVATE-TOKEN'] = token;
 		}
 
 		try {
@@ -313,9 +317,8 @@ class GitLabHelper {
 
 			// Get user info first
 			const userUrl = `${this.baseUrl}/users?username=${encodeURIComponent(username)}`;
-			const userRes = await this.fetchWithTimeout(userUrl, { headers: this.getHeaders() });
+			const userRes = await this.fetchWithTimeout(userUrl, { headers: this.getHeaders(token) });
 			const users = await this.handleApiResponse(userRes, 'fetching user');
-			
 			if (users.length === 0) {
 				throw new Error(`GitLab user '${username}' not found`);
 			}
@@ -323,17 +326,15 @@ class GitLabHelper {
 
 			// Fetch all projects the user is a member of (including group projects)
 			const membershipProjectsUrl = `${this.baseUrl}/users/${userId}/projects?membership=true&per_page=100&order_by=updated_at&sort=desc`;
-			const membershipProjectsRes = await this.fetchWithTimeout(membershipProjectsUrl, { headers: this.getHeaders() });
-			const membershipProjects = await this.handleApiResponse(membershipProjectsRes, 'fetching membership projects');
+		const membershipProjectsRes = await this.fetchWithTimeout(membershipProjectsUrl, { headers: this.getHeaders(token) });
+		const membershipProjects = await this.handleApiResponse(membershipProjectsRes, 'fetching membership projects');
 
-			// Fetch all projects the user has contributed to (public, group, etc.)
-			const contributedProjectsUrl = `${this.baseUrl}/users/${userId}/contributed_projects?per_page=100&order_by=updated_at&sort=desc`;
-			const contributedProjectsRes = await this.fetchWithTimeout(contributedProjectsUrl, {
-				headers: this.getHeaders(),
-			});
-			const contributedProjects = await this.handleApiResponse(contributedProjectsRes, 'fetching contributed projects');
-
-			// Merge and deduplicate projects by project id
+		// Fetch all projects the user has contributed to (public, group, etc.)
+		const contributedProjectsUrl = `${this.baseUrl}/users/${userId}/contributed_projects?per_page=100&order_by=updated_at&sort=desc`;
+		const contributedProjectsRes = await this.fetchWithTimeout(contributedProjectsUrl, {
+			headers: this.getHeaders(token),
+		});
+		const contributedProjects = await this.handleApiResponse(contributedProjectsRes, 'fetching contributed projects');
 			const allProjectsMap = new Map();
 			for (const p of [...membershipProjects, ...contributedProjects]) {
 				allProjectsMap.set(p.id, p);
@@ -369,7 +370,7 @@ class GitLabHelper {
 			for (const project of allProjects) {
 				try {
 					const projectMRsUrl = `${this.baseUrl}/projects/${project.id}/merge_requests?author_id=${userId}&created_after=${startDate}T00:00:00Z&created_before=${endDate}T23:59:59Z&per_page=100&order_by=updated_at&sort=desc`;
-				const projectMRsRes = await this.fetchWithTimeout(projectMRsUrl, { headers: this.getHeaders() }, 15000);
+				const projectMRsRes = await this.fetchWithTimeout(projectMRsUrl, { headers: this.getHeaders(token) }, 15000);
 					if (projectMRsRes.ok) {
 						const projectMRs = await projectMRsRes.json();
 						allMergeRequests = allMergeRequests.concat(projectMRs);
@@ -399,7 +400,7 @@ class GitLabHelper {
 			for (const project of allProjects) {
 				try {
 					const projectIssuesUrl = `${this.baseUrl}/projects/${project.id}/issues?author_id=${userId}&created_after=${startDate}T00:00:00Z&created_before=${endDate}T23:59:59Z&per_page=100&order_by=updated_at&sort=desc`;
-				const projectIssuesRes = await this.fetchWithTimeout(projectIssuesUrl, { headers: this.getHeaders() }, 15000);
+				const projectIssuesRes = await this.fetchWithTimeout(projectIssuesUrl, { headers: this.getHeaders(token) }, 15000);
 					if (projectIssuesRes.ok) {
 						const projectIssues = await projectIssuesRes.json();
 						allIssues = allIssues.concat(projectIssues);
@@ -464,8 +465,7 @@ class GitLabHelper {
 		for (const mr of mergeRequests) {
 			try {
 				const url = `${this.baseUrl}/projects/${mr.project_id}/merge_requests/${mr.iid}`;
-				const res = await this.fetchWithTimeout(url, { headers: this.getHeaders() }, 10000);
-
+				const res = await this.fetchWithTimeout(url, { headers: this.getHeaders(token) }, 10000);
 				if (res.ok) {
 					const detailedMr = await res.json();
 					detailed.push(detailedMr);
@@ -489,7 +489,7 @@ class GitLabHelper {
 		for (const issue of issues) {
 			try {
 				const url = `${this.baseUrl}/projects/${issue.project_id}/issues/${issue.iid}`;
-				const res = await this.fetchWithTimeout(url, { headers: this.getHeaders() }, 10000);
+				const res = await this.fetchWithTimeout(url, { headers: this.getHeaders(token) }, 10000);
 				if (res.ok) {
 					const detailedIssue = await res.json();
 					detailed.push(detailedIssue);
