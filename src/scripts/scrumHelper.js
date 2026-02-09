@@ -216,8 +216,14 @@ const tokenFromDOM = document.getElementById('githubToken')?.value;
 							const scrumReport = document.getElementById('scrumReport');
 							const generateBtn = document.getElementById('generateReport');
 							if (scrumReport) {
-								scrumReport.innerHTML =
-									'<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">Please enter your username to generate a report.</div>';
+								scrumReport.textContent = '';
+								const errDiv = document.createElement('div');
+								errDiv.className = 'error-message';
+								errDiv.style.color = '#dc2626';
+								errDiv.style.fontWeight = 'bold';
+								errDiv.style.padding = '10px';
+								errDiv.textContent = 'Please enter your username to generate a report.';
+								scrumReport.appendChild(errDiv);
 							}
 							if (generateBtn) {
 								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
@@ -307,7 +313,14 @@ const tokenFromDOM = document.getElementById('githubToken')?.value;
 										}
 										const scrumReport = document.getElementById('scrumReport');
 										if (scrumReport) {
-											scrumReport.innerHTML = `<div class=\"error-message\" style=\"color: #dc2626; font-weight: bold; padding: 10px;\">${escapeHtml(err.message || 'An error occurred while fetching GitLab data.')}</div>`;
+												scrumReport.textContent = '';
+												const errDiv = document.createElement('div');
+												errDiv.className = 'error-message';
+												errDiv.style.color = '#dc2626';
+												errDiv.style.fontWeight = 'bold';
+												errDiv.style.padding = '10px';
+												errDiv.textContent = err.message || 'An error occurred while fetching GitLab data.';
+												scrumReport.appendChild(errDiv);
 										}
 									}
 									scrumGenerationInProgress = false;
@@ -366,7 +379,14 @@ const tokenFromDOM = document.getElementById('githubToken')?.value;
 										}
 										const scrumReport = document.getElementById('scrumReport');
 										if (scrumReport) {
-											scrumReport.innerHTML = `<div class=\"error-message\" style=\"color: #dc2626; font-weight: bold; padding: 10px;\">${escapeHtml(err.message || 'An error occurred while fetching GitLab data.')}</div>`;
+												scrumReport.textContent = '';
+												const errDiv2 = document.createElement('div');
+												errDiv2.className = 'error-message';
+												errDiv2.style.color = '#dc2626';
+												errDiv2.style.fontWeight = 'bold';
+												errDiv2.style.padding = '10px';
+												errDiv2.textContent = err.message || 'An error occurred while fetching GitLab data.';
+												scrumReport.appendChild(errDiv2);
 										}
 									}
 									scrumGenerationInProgress = false;
@@ -378,8 +398,14 @@ const tokenFromDOM = document.getElementById('githubToken')?.value;
 							const scrumReport = document.getElementById('scrumReport');
 							const generateBtn = document.getElementById('generateReport');
 							if (scrumReport) {
-								scrumReport.innerHTML =
-									'<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">Please enter your username to generate a report.</div>';
+								scrumReport.textContent = '';
+								const errDiv = document.createElement('div');
+								errDiv.className = 'error-message';
+								errDiv.style.color = '#dc2626';
+								errDiv.style.fontWeight = 'bold';
+								errDiv.style.padding = '10px';
+								errDiv.textContent = 'Please enter your username to generate a report.';
+								scrumReport.appendChild(errDiv);
 							}
 							if (generateBtn) {
 								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
@@ -393,8 +419,14 @@ const tokenFromDOM = document.getElementById('githubToken')?.value;
 					if (outputTarget === 'popup') {
 						const scrumReport = document.getElementById('scrumReport');
 						if (scrumReport) {
-							scrumReport.innerHTML =
-								'<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">Unknown platform selected.</div>';
+							scrumReport.textContent = '';
+							const errDiv = document.createElement('div');
+							errDiv.className = 'error-message';
+							errDiv.style.color = '#dc2626';
+							errDiv.style.fontWeight = 'bold';
+							errDiv.style.padding = '10px';
+							errDiv.textContent = 'Unknown platform selected.';
+							scrumReport.appendChild(errDiv);
 						}
 					}
 					scrumGenerationInProgress = false;
@@ -814,7 +846,14 @@ const tokenFromDOM = document.getElementById('githubToken')?.value;
 						else if (err.message) errorMsg = err.message;
 						else errorMsg = JSON.stringify(err);
 					}
-					scrumReport.innerHTML = `<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">${escapeHtml(err.message || 'An error occurred while generating the report.')}</div>`;
+								scrumReport.textContent = '';
+								const genErrDiv = document.createElement('div');
+								genErrDiv.className = 'error-message';
+								genErrDiv.style.color = '#dc2626';
+								genErrDiv.style.fontWeight = 'bold';
+								genErrDiv.style.padding = '10px';
+								genErrDiv.textContent = err.message || 'An error occurred while generating the report.';
+								scrumReport.appendChild(genErrDiv);
 					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
 					generateBtn.disabled = false;
 				}
@@ -1126,7 +1165,30 @@ ${userReason}`;
 			const scrumReport = document.getElementById('scrumReport');
 			if (scrumReport) {
 				log('Found popup div, updating content');
-				scrumReport.innerHTML = content;
+				// Parse the generated HTML with DOMParser and sanitize before inserting to avoid unsafe innerHTML usage
+				scrumReport.textContent = '';
+				try {
+					const parser = new DOMParser();
+					const doc = parser.parseFromString(content, 'text/html');
+					// Remove potentially dangerous nodes
+					doc.querySelectorAll('script,style').forEach((n) => n.remove());
+					// Remove inline event handlers and ensure safe link attributes
+					doc.body.querySelectorAll('*').forEach((node) => {
+						[...node.attributes].forEach((attr) => {
+							if (attr.name.startsWith('on')) node.removeAttribute(attr.name);
+						});
+						if (node.tagName === 'A') {
+							if (!node.getAttribute('rel')) node.setAttribute('rel', 'noopener noreferrer');
+							if (!node.getAttribute('target')) node.setAttribute('target', '_blank');
+						}
+					});
+					while (doc.body.firstChild) {
+						scrumReport.appendChild(doc.body.firstChild);
+					}
+				} catch (err) {
+					// Fallback: insert as plain text if parsing fails
+					scrumReport.textContent = content.replace(/<[^>]+>/g, '');
+				}
 
 				const generateBtn = document.getElementById('generateReport');
 				if (generateBtn) {
