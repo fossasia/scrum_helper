@@ -305,7 +305,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					const tabId = tabs?.[0]?.id;
 					if(!tabId) return;
 
-					chrome.tabs.sendMessage(tabId, { action: 'insertReportToEmail', content }, (response) => {
+					chrome.tabs.sendMessage(tabId, { action: 'insertReportToEmail', content, subject }, (response) => {
 						if (chrome.runtime.lastError) {
 							console.warn('Insert to Email failed:', chrome.runtime.lastError.message);
 							return;
@@ -1273,6 +1273,14 @@ const dropdownBtn = document.getElementById('platformDropdownBtn');
 const dropdownList = document.getElementById('platformDropdownList');
 const dropdownSelected = document.getElementById('platformDropdownSelected');
 const platformSelectHidden = document.getElementById('platformSelect');
+const projectName = document.getElementById('projectName')?.value?.trim() || '';
+const now = new Date();
+const dateCode =
+    String(now.getFullYear()) +
+    String(now.getMonth() + 1).padStart(2, '0') +
+    String(now.getDate()).padStart(2, '0');
+
+const subject = `[Scrum]${projectName ? ' - ' + projectName : ''} - ${dateCode}`;
 
 function setPlatformDropdown(value) {
 	if (value === 'gitlab') {
