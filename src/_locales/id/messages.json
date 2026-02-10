@@ -51,10 +51,13 @@
         "message": "Laporan Scrum"
     },
     "generateReportButton": {
-        "message": "Buat Laporan"
+        "message": "Buat"
     },
     "copyReportButton": {
-        "message": "Salin Laporan"
+        "message": "Salin"
+    },
+    "insertToEmailButton": {
+        "message": "Sisipkan ke Email"
     },
     "settingsOrgNameLabel": {
         "message": "Nama Organisasi"

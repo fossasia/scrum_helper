@@ -51,10 +51,13 @@
         "message": "Informe de Scrum"
     },
     "generateReportButton": {
-        "message": "Generar informe"
+        "message": "Generar"
     },
     "copyReportButton": {
-        "message": "Copiar informe"
+        "message": "Copiar"
+    },
+    "insertToEmailButton": {
+        "message": "Insertar en correo"
     },
     "settingsOrgNameLabel": {
         "message": "Nombre de la organización"

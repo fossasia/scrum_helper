@@ -51,10 +51,13 @@
         "message": "スクラムレポート"
     },
     "generateReportButton": {
-        "message": "レポートを生成"
+        "message": "生成"
     },
     "copyReportButton": {
-        "message": "レポートをコピー"
+        "message": "コピー"
+    },
+    "insertToEmailButton": {
+        "message": "メールに挿入"
     },
     "settingsOrgNameLabel": {
         "message": "組織名"

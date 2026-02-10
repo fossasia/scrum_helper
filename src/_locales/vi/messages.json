@@ -51,10 +51,13 @@
         "message": "Báo cáo Scrum"
     },
     "generateReportButton": {
-        "message": "Tạo báo cáo"
+        "message": "Tạo"
     },
     "copyReportButton": {
-        "message": "Sao chép báo cáo"
+        "message": "Sao chép"
+    },
+    "insertToEmailButton": {
+        "message": "Chèn vào email"
     },
     "settingsOrgNameLabel": {
         "message": "Tên tổ chức"

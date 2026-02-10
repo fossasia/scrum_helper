@@ -51,10 +51,13 @@
         "message": "Scrum-rapport"
     },
     "generateReportButton": {
-        "message": "Generer rapport"
+        "message": "Generer"
     },
     "copyReportButton": {
-        "message": "Kopier rapport"
+        "message": "Kopier"
+    },
+    "insertToEmailButton": {
+        "message": "Sett inn i e-post"
     },
     "settingsOrgNameLabel": {
         "message": "Organisasjonsnavn"
