@@ -118,63 +118,110 @@ class EmailClientAdapter {
 	}
 
 	getEditorElements() {
-		const clientType = this.detectClient();
-		if (!clientType) return null;
+    const clientType = this.detectClient();
+    if (!clientType) return null;
 
-		const config = this.clientConfigs[clientType];
-		const normalizeSelector = (sel) => (Array.isArray(sel) ? sel.join(', '): sel);
+    const config = this.clientConfigs[clientType];
+    const normalizeSelector = (sel) => (Array.isArray(sel) ? sel.join(', ') : sel);
 
-		const isVisible = (el) => {
-			if(!el) return false;
-			const style = window.getComputedStyle(el);
-			if (style.display === 'none' || style.visibility === 'hidden' || style.opacity ==='0') return false;
-			return el.getClientRects().length > 0;
-		};
+    const bodySel = normalizeSelector(config.selectors.body);
+    const subjectSel = normalizeSelector(config.selectors.subject);
 
-		const zIndexOf = (el) => {
-			const z = window.getComputedStyle(el).zIndex;
-			const n = Number.parseInt(z,10);
-			return Number.isFinite(n) ? n : 0;
-		};
+    const isVisible = (el) => {
+        if (!el) return false;
+        if (el.closest('[aria-hidden="true"]')) return false;
 
-		const pickBestBody = (bodies) => {
-			const visible = bodies.filter(isVisible);
-			if(!visible.length) return bodies[bodies.length -1] ?? null;
+        const style = window.getComputedStyle(el);
+        if (style.display === 'none' || style.visibility === 'hidden') return false;
 
-			if(clientType === 'gmail'){
-				let best = visible[0];
-				let bestZ = -Infinity;
+        const rect = el.getBoundingClientRect();
+        return rect.width > 0 && rect.height > 0;
+    };
 
-				for(const body of visible){
-					const dialog = body.closest('div[role="dialog"]');
-					const z = dialog ? zIndexOf(dialog) : 0;
-					if(z >= bestZ){
-						bestZ = z;
-						best = body;
-					}
-				}
-				return best;
-			}
-			return visible[visible.length - 1];
-		}
+    const maxAncestorZIndex = (el) => {
+        let cur = el;
+        let best = 0;
+        for (let i = 0; i < 10 && cur; i++) {
+            const z = Number.parseInt(window.getComputedStyle(cur).zIndex, 10);
+            if (Number.isFinite(z)) best = Math.max(best, z);
+            cur = cur.parentElement;
+        }
+        return best;
+    };
 
-		const pickBestSubject = (subjects) => {
-			const visible = subjects.filter(isVisible);
-			return (visible.length ? visible[visible.length - 1]: subjects[subjects.length - 1]) ?? null;
-		};
+    const activeEl = document.activeElement;
 
-		const bodySel = normalizeSelector(config.selectors.body);
-		const subjectSel = normalizeSelector(config.selectors.subject);
+    // when multiple compose windows exists, we choose the focused one.
+    if (clientType === 'gmail') {
+        const bodiesAll = Array.from(document.querySelectorAll(bodySel));
+        const bodies = bodiesAll.filter(isVisible);
+        const candidates = bodies.length ? bodies : bodiesAll;
 
-		const bodies = Array.from(document.querySelectorAll(bodySel));
-		const subjects = Array.from(document.querySelectorAll(subjectSel));
+        let bestBody = null;
+        let bestScore = -Infinity;
 
-		return {
-			body: document.querySelector(config.selectors.body),
-			subject: document.querySelector(config.selectors.subject),
-			eventTypes: config.eventTypes,
-		};
-	}
+        for (let i = 0; i < candidates.length; i++) {
+            const body = candidates[i];
+            const dialog = body.closest('div[role="dialog"]') || body.closest('[role="dialog"]');
+
+            const focused = activeEl && (body === activeEl || body.contains(activeEl)) ? 1_000_000 : 0;
+            const z = maxAncestorZIndex(dialog || body);
+
+            const score = focused + z * 1000 + i;
+
+            if (score >= bestScore) {
+                bestScore = score;
+                bestBody = body;
+            }
+        }
+
+        const container =
+            bestBody?.closest('div[role="dialog"]') ||
+            bestBody?.closest('[role="dialog"]') ||
+            document;
+
+        const scopedSubjects = Array.from(container.querySelectorAll(subjectSel));
+        const subject =
+            scopedSubjects.filter(isVisible).pop() ||
+            scopedSubjects.pop() ||
+            document.querySelector(subjectSel);
+
+        return {
+            body: bestBody,
+            subject,
+            eventTypes: config.eventTypes,
+        };
+    }
+
+    const bodiesAll = Array.from(document.querySelectorAll(bodySel));
+    const subjectsAll = Array.from(document.querySelectorAll(subjectSel));
+
+    const body = bodiesAll.filter(isVisible).pop() || bodiesAll.pop() || null;
+
+    let subject = null;
+    if (body) {
+        const container =
+            body.closest('[role="dialog"]') ||
+            body.closest('[data-test-id*="compose"]') ||
+            body.closest('.compose-editor') ||
+            body.closest('#editor-container') ||
+            body.closest('#editor-container-mobile') ||
+            document;
+
+        const scoped = Array.from(container.querySelectorAll(subjectSel));
+        subject = scoped.filter(isVisible).pop() || scoped.pop() || null;
+    }
+
+    if (!subject) {
+        subject = subjectsAll.filter(isVisible).pop() || subjectsAll.pop() || null;
+    }
+
+    return {
+        body,
+        subject,
+        eventTypes: config.eventTypes,
+    };
+}
 
 	// Helper method to injectContent
 	dispatchElementEvents(element, events, includeKeyboard = false) {
