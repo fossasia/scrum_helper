@@ -818,3 +818,68 @@ hr,
     border-color: #d97706;
     color: #fde68a;
 }
+
+/* Custom button tooltip styling */
+.button-tooltip-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.button-tooltip {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1f2937;
+    color: #f3f4f6;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+    z-index: 1000;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.2s ease-in-out;
+    margin-bottom: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border: 1px solid #374151;
+}
+
+.button-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: #1f2937;
+}
+
+.button-tooltip-wrapper:hover .button-tooltip,
+.button-tooltip-wrapper:focus-within .button-tooltip {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+/* Light mode adjustments for tooltips */
+.light-mode .button-tooltip {
+    background: #2d3748;
+    color: #f3f4f6;
+    border-color: #374151;
+}
+
+.light-mode .button-tooltip::after {
+    border-top-color: #2d3748;
+}
+
+/* Dark mode adjustments for tooltips */
+.dark-mode .button-tooltip {
+    background: #f3f4f6;
+    color: #1f2937;
+    border-color: #d1d5db;
+}
+
+.dark-mode .button-tooltip::after {
+    border-top-color: #f3f4f6;
+}
