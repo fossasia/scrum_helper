@@ -222,7 +222,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		const githubTokenInput = document.getElementById('githubToken');
 		const cacheInput = document.getElementById('cacheInput');
-		const enableToggleSwitch = document.getElementById('enable');
 		const yesterdayRadio = document.getElementById('yesterdayContribution');
 		const startingDateInput = document.getElementById('startingDate');
 		const endingDateInput = document.getElementById('endingDate');
@@ -240,7 +239,6 @@ document.addEventListener('DOMContentLoaded', () => {
 				'onlyIssues',
 				'onlyPRs',
 				'onlyRevPRs',
-				'enableToggle',
 				'yesterdayContribution',
 				'startingDate',
 				'endingDate',
@@ -280,13 +278,6 @@ document.addEventListener('DOMContentLoaded', () => {
 				}
 				if (result.githubToken) githubTokenInput.value = result.githubToken;
 				if (result.cacheInput) cacheInput.value = result.cacheInput;
-				if (enableToggleSwitch) {
-					if (typeof result.enableToggle !== 'undefined') {
-						enableToggleSwitch.checked = result.enableToggle;
-					} else {
-						enableToggleSwitch.checked = true; // Default to enabled
-					}
-				}
 				if (typeof result.yesterdayContribution !== 'undefined') yesterdayRadio.checked = result.yesterdayContribution;
 				if (result.startingDate) startingDateInput.value = result.startingDate;
 				if (result.endingDate) endingDateInput.value = result.endingDate;
@@ -510,13 +501,6 @@ document.addEventListener('DOMContentLoaded', () => {
 		cacheInput.addEventListener('input', () => {
 			chrome.storage.local.set({ cacheInput: cacheInput.value });
 		});
-		if (enableToggleSwitch) {
-			console.log('[DEBUG] Setting up enable toggle switch event listener');
-			enableToggleSwitch.addEventListener('change', () => {
-				console.log('[DEBUG] Enable toggle changed to:', enableToggleSwitch.checked);
-				chrome.storage.local.set({ enableToggle: enableToggleSwitch.checked });
-			});
-		}
 		yesterdayRadio.addEventListener('change', () => {
 			chrome.storage.local.set({ yesterdayContribution: yesterdayRadio.checked });
 		});
@@ -569,13 +553,6 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	showReportView();
-
-	// Debug function to test storage
-	window.testStorage = () => {
-		chrome.storage.local.get(['enableToggle'], (result) => {
-			console.log('[TEST] Current enableToggle value:', result.enableToggle);
-		});
-	};
 
 	//report filter
 	const repoSearch = document.getElementById('repoSearch');
