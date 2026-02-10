@@ -1840,7 +1840,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 	}
 
 	if (request.action === 'insertReportToEmail') {
-		injectIntoEmailEditor(request.content)
+		injectIntoEmailEditor(request.content, request.subject)
 			.then(sendResponse)
 			.catch((err) =>
 				sendResponse({ success: false, error: err?.message || String(err) }),
@@ -1849,18 +1849,23 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 	}
 });
 
-async function injectIntoEmailEditor(content) {
+async function injectIntoEmailEditor(content, subject) {
 	if (!window.emailClientAdapter) {
 		return { success: false, error: 'emailClientAdapter not available' };
 	}
 
 	const tryInject = () => {
 		const elements = window.emailClientAdapter.getEditorElements?.();
-		if (elements?.body) {
-			window.emailClientAdapter.injectContent(elements.body, content, elements.eventTypes?.contentChange);
-			return true;
-		}
-		return false;
+		if (!elements?.body) return false;
+
+		if (subject && elements.subject) {
+            elements.subject.value = subject;
+            elements.subject.dispatchEvent(new Event(elements.eventTypes?.subjectChange || 'input', { bubbles: true }));
+        }
+
+		//for body
+		window.emailClientAdapter.injectContent(elements.body, content, elements.eventTypes?.contentChange || 'input');
+		return true;
 	};
 
 	if (tryInject()) return { success: true };
