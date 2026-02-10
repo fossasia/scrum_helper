@@ -240,6 +240,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				'onlyIssues',
 				'onlyPRs',
 				'onlyRevPRs',
+				'enableToggle',
 				'yesterdayContribution',
 				'startingDate',
 				'endingDate',
@@ -323,7 +324,7 @@ document.addEventListener('DOMContentLoaded', () => {
 						}
 					});
 				});
-			});
+			})
 		}
 
 		generateBtn.addEventListener('click', () => {
