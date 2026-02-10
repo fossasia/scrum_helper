@@ -9,6 +9,60 @@ function escapeHtml(unsafe) {
 		.replace(/'/g, '&#039;');
 }
 
+function sanitizeTooltipHtml(html) {
+	const parser = new DOMParser();
+	const doc = parser.parseFromString(String(html), 'text/html');
+	const allowedTags = new Set(['B', 'STRONG', 'I', 'EM', 'CODE', 'A', 'BR', 'SPAN', 'P', 'U']);
+
+	function cleanNode(node) {
+		const children = Array.from(node.childNodes);
+		children.forEach((child) => {
+			if (child.nodeType === Node.ELEMENT_NODE) {
+				const tag = child.nodeName.toUpperCase();
+				if (!allowedTags.has(tag)) {
+					// Replace disallowed element with its text content
+					const text = document.createTextNode(child.textContent || '');
+					node.replaceChild(text, child);
+				} else {
+					// Remove inline event handlers and unsafe attributes
+					Array.from(child.attributes).forEach((attr) => {
+						const name = attr.name.toLowerCase();
+						const value = attr.value || '';
+						if (name.startsWith('on')) {
+							child.removeAttribute(attr.name);
+						} else if (name === 'href' || name === 'src') {
+							// allow only safe schemes: http(s), mailto, tel, or relative/anchor
+							if (!/^(https?:|mailto:|tel:|\/|#)/i.test(value)) {
+								child.removeAttribute(attr.name);
+							}
+						} else if (!['class', 'title', 'rel', 'target', 'aria-label', 'href', 'src'].includes(name)) {
+							child.removeAttribute(attr.name);
+						}
+					});
+
+					if (child.nodeName.toUpperCase() === 'A') {
+						child.setAttribute('rel', 'noopener noreferrer');
+						if (!child.getAttribute('target')) child.setAttribute('target', '_blank');
+					}
+
+					// Recurse into allowed children
+					cleanNode(child);
+				}
+			} else if (child.nodeType === Node.TEXT_NODE) {
+				// text nodes are safe
+			} else {
+				// remove comments, processing instructions, etc.
+				node.removeChild(child);
+			}
+		});
+	}
+
+	cleanNode(doc.body);
+	const frag = document.createDocumentFragment();
+	Array.from(doc.body.childNodes).forEach((n) => frag.appendChild(n.cloneNode(true)));
+	return frag;
+}
+
 function debounce(func, wait) {
 	let timeout;
 	return function (...args) {
@@ -34,9 +88,16 @@ function applyI18n() {
 		const key = el.getAttribute('data-i18n');
 		const message = chrome.i18n.getMessage(key);
 		if (message) {
-			// Use innerHTML to support simple formatting like <b> in tooltips
+			// For tooltip-like elements allow a small set of safe inline formatting.
 			if (el.classList.contains('tooltip-bubble') || el.classList.contains('cache-info')) {
-				el.innerHTML = message;
+				try {
+					const frag = sanitizeTooltipHtml(message);
+					while (el.firstChild) el.removeChild(el.firstChild);
+					el.appendChild(frag);
+				} catch (e) {
+					// Fallback to textContent on any parser/sanitizer error
+					el.textContent = message;
+				}
 			} else {
 				el.textContent = message;
 			}
@@ -526,8 +587,8 @@ document.addEventListener('DOMContentLoaded', () => {
 				// prefer "Only Issues" and clear "Only PRs", then persist the corrected state.
 				if (onlyIssuesCheckbox.checked && onlyPRsCheckbox.checked) {
 					onlyPRsCheckbox.checked = false;
-					if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync) {
-						chrome.storage.sync.set({ onlyPRs: false });
+					if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.local) {
+						chrome.storage.local.set({ onlyPRs: false });
 					}
 				}
 				if (result.githubToken) githubTokenInput.value = result.githubToken;
@@ -1508,7 +1569,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					} else if (err.message && err.message.includes('username')) {
 						gitlabProjectStatus.textContent = 'Username required';
 					} else {
-						gitlabProjectStatus.textContent = `Error: ${escapeHtml(err.message || 'Failed to load projects')}`;
+						gitlabProjectStatus.textContent = `Error: ${err.message || 'Failed to load projects'}`;
 					}
 				}
 			}

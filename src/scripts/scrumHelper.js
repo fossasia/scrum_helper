@@ -1,16 +1,5 @@
 const DEBUG = false;
 
-// Utility function to escape HTML and prevent XSS
-function escapeHtml(unsafe) {
-	if (typeof unsafe !== 'string') return '';
-	return unsafe
-		.replace(/&/g, '&amp;')
-		.replace(/</g, '&lt;')
-		.replace(/>/g, '&gt;')
-		.replace(/"/g, '&quot;')
-		.replace(/'/g, '&#039;');
-}
-
 function log(...args) {
 	if (DEBUG) {
 		console.log(`[SCRUM-HELPER]:`, ...args);
@@ -250,7 +239,7 @@ async function allIncluded(outputTarget = 'email') {
 										platformUsernameLocal,
 										startingDate,
 										endingDate,
-										gitlabTokenLocal,
+										items.gitlabToken || null,
 										gitlabGroup,
 										selectedGitlabProjects
 									);

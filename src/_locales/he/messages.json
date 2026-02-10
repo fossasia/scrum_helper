@@ -248,8 +248,7 @@
     },
     "onlyRevPRsTooltip": {
         "message": "אם מסומן, הדוח יכלול רק PR שנבדקו על ידך."
-
-    ,
+    },
     "gitlabProjectCountNone": {
         "message": "0 פרויקטים נבחרו",
         "description": "Text showing the count of selected GitLab projects when it's zero."
@@ -265,6 +264,5 @@
     "gitlabProjectPlaceholder": {
         "message": "לא נבחרו פרויקטים (כולם יכללו)",
         "description": "Placeholder text when no GitLab projects are selected for filtering."
-    }
     }
 }
