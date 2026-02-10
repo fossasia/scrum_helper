@@ -122,6 +122,53 @@ class EmailClientAdapter {
 		if (!clientType) return null;
 
 		const config = this.clientConfigs[clientType];
+		const normalizeSelector = (sel) => (Array.isArray(sel) ? sel.join(', '): sel);
+
+		const isVisible = (el) => {
+			if(!el) return false;
+			const style = window.getComputedStyle(el);
+			if (style.display === 'none' || style.visibility === 'hidden' || style.opacity ==='0') return false;
+			return el.getClientRects().length > 0;
+		};
+
+		const zIndexOf = (el) => {
+			const z = window.getComputedStyle(el).zIndex;
+			const n = Number.parseInt(z,10);
+			return Number.isFinite(n) ? n : 0;
+		};
+
+		const pickBestBody = (bodies) => {
+			const visible = bodies.filter(isVisible);
+			if(!visible.length) return bodies[bodies.length -1] ?? null;
+
+			if(clientType === 'gmail'){
+				let best = visible[0];
+				let bestZ = -Infinity;
+
+				for(const body of visible){
+					const dialog = body.closest('div[role="dialog"]');
+					const z = dialog ? zIndexOf(dialog) : 0;
+					if(z >= bestZ){
+						bestZ = z;
+						best = body;
+					}
+				}
+				return best;
+			}
+			return visible[visible.length - 1];
+		}
+
+		const pickBestSubject = (subjects) => {
+			const visible = subjects.filter(isVisible);
+			return (visible.length ? visible[visible.length - 1]: subjects[subjects.length - 1]) ?? null;
+		};
+
+		const bodySel = normalizeSelector(config.selectors.body);
+		const subjectSel = normalizeSelector(config.selectors.subject);
+
+		const bodies = Array.from(document.querySelectorAll(bodySel));
+		const subjects = Array.from(document.querySelectorAll(subjectSel));
+
 		return {
 			body: document.querySelector(config.selectors.body),
 			subject: document.querySelector(config.selectors.subject),
