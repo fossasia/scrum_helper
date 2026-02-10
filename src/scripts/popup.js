@@ -298,6 +298,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			insertBtn.addEventListener('click', () => {
 				const scrumReport = document.getElementById('scrumReport');
 				const content = scrumReport ? scrumReport.innerHTML : '';
+				const subject = buildScrumSubjectFromPopup();
 
 				if(!content) return;
 
@@ -1273,14 +1274,17 @@ const dropdownBtn = document.getElementById('platformDropdownBtn');
 const dropdownList = document.getElementById('platformDropdownList');
 const dropdownSelected = document.getElementById('platformDropdownSelected');
 const platformSelectHidden = document.getElementById('platformSelect');
-const projectName = document.getElementById('projectName')?.value?.trim() || '';
+
+function buildScrumSubjectFromPopup() {
+	const projectName = document.getElementById('projectName')?.value?.trim() || '';
 const now = new Date();
 const dateCode =
     String(now.getFullYear()) +
     String(now.getMonth() + 1).padStart(2, '0') +
     String(now.getDate()).padStart(2, '0');
 
-const subject = `[Scrum]${projectName ? ' - ' + projectName : ''} - ${dateCode}`;
+return `[Scrum]${projectName ? ' - ' + projectName : ''} - ${dateCode}`;
+}
 
 function setPlatformDropdown(value) {
 	if (value === 'gitlab') {
