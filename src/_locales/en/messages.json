@@ -67,14 +67,14 @@
     "message": "Scrum Report"
   },
   "generateReportButton": {
-    "message": "Generate Report",
-    "description": "Text for the 'Generate Report' button."
+    "message": "Generate",
+    "description": "Text for the 'Generate' button."
   },
   "copyReportButton": {
-    "message": "Copy Report",
-    "description": "Text for the 'Copy Report' button."
+    "message": "Copy",
+    "description": "Text for the 'Copy' button."
   },
-  "insertToEmailButton" : {
+  "insertToEmailButton": {
     "message": "Insert to Email",
     "description": "Text for the 'Insert to Email' button."
   },
