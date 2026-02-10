@@ -13,7 +13,6 @@ function logError(...args) {
 }
 
 let refreshButton_Placed = false;
-let enableToggle = true;
 let hasInjectedContent = false;
 let scrumGenerationInProgress = false;
 
@@ -87,7 +86,6 @@ function allIncluded(outputTarget = 'email') {
 				'githubToken',
 				'gitlabToken',
 				'projectName',
-				'enableToggle',
 				'startingDate',
 				'endingDate',
 				'showOpenLabel',
@@ -142,9 +140,6 @@ function allIncluded(outputTarget = 'email') {
 				githubToken = items.githubToken;
 				gitlabToken = items.gitlabToken || '';
 				yesterdayContribution = items.yesterdayContribution;
-				if (typeof items.enableToggle !== 'undefined') {
-					enableToggle = items.enableToggle;
-				}
 
 				onlyIssues = items.onlyIssues === true;
 				onlyPRs = items.onlyPRs === true;
@@ -1042,10 +1037,6 @@ function allIncluded(outputTarget = 'email') {
 	}
 
 	function writeScrumBody() {
-		if (!enableToggle) {
-			scrumGenerationInProgress = false;
-			return;
-		}
 
 		let lastWeekUl = '<ul>';
 		for (let i = 0; i < lastWeekArray.length; i++) lastWeekUl += lastWeekArray[i];
@@ -1132,7 +1123,6 @@ ${userReason}`;
 	//load initial scrum subject
 	function scrumSubjectLoaded() {
 		try {
-			if (!enableToggle) return;
 			if (!scrumSubject) {
 				console.error('Subject element not found');
 				return;
@@ -1736,7 +1726,7 @@ ${userReason}`;
 
 	if (!refreshButton_Placed) {
 		const intervalWriteButton = setInterval(() => {
-			if (document.getElementsByClassName('F0XO1GC-x-b').length === 3 && scrumBody && enableToggle) {
+			if (document.getElementsByClassName('F0XO1GC-x-b').length === 3 && scrumBody ) {
 				refreshButton_Placed = true;
 				clearInterval(intervalWriteButton);
 				const td = document.createElement('td');
