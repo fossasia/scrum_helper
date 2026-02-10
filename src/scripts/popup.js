@@ -120,9 +120,34 @@ function applyI18n() {
 	});
 }
 
+function setupButtonTooltips() {
+	// Detect OS and get appropriate modifier key
+	const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+	const modifier = isMac ? 'Cmd' : 'Ctrl';
+
+	
+	const generateReportTooltipEl = document.getElementById('generateReportTooltipText');
+	if (generateReportTooltipEl) {
+		const generateMsg = chrome.i18n.getMessage('generateReportTooltip');
+		if (generateMsg) {
+			generateReportTooltipEl.textContent = generateMsg;
+		}
+	}
+
+	// Setup Copy Report button tooltip
+	const copyReportTooltipEl = document.getElementById('copyReportTooltipText');
+	if (copyReportTooltipEl) {
+		const copyMsg = chrome.i18n.getMessage('copyReportTooltip');
+		if (copyMsg) {
+			copyReportTooltipEl.textContent = copyMsg;
+		}
+	}
+}
+
 document.addEventListener('DOMContentLoaded', () => {
 	// Apply translations as soon as the DOM is ready
 	applyI18n();
+	setupButtonTooltips();
 
 	// Dark mode setup
 	const darkModeToggle = document.querySelector('img[alt="Night Mode"]');
