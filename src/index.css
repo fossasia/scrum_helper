@@ -862,17 +862,6 @@ hr,
     pointer-events: auto;
 }
 
-/* Light mode adjustments for tooltips */
-.light-mode .button-tooltip {
-    background: #2d3748;
-    color: #f3f4f6;
-    border-color: #374151;
-}
-
-.light-mode .button-tooltip::after {
-    border-top-color: #2d3748;
-}
-
 /* Dark mode adjustments for tooltips */
 .dark-mode .button-tooltip {
     background: #f3f4f6;
