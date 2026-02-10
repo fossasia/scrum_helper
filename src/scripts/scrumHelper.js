@@ -1849,6 +1849,47 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 	}
 });
 
+async function injectIntoEmailEditor(content) {
+	if(!window.emailClientAdapter) {
+		return { success: false, error: 'emailClientAdapter not available'};
+	}
+
+	const tryInject = () => {
+		const elements = window.emailClientAdapter.getEditorElements?.();
+		if(elements?.body){
+			window.emailClientAdapter.injectContent(elements.body, content, elements.eventTypes?.contentChange);
+			return true;
+		}
+		return false;
+	};
+
+	if(tryInject()) return { success: true };
+
+	return await new Promise((resolve) => {
+		let done = false;
+		const observer = new MutationObserver(() => {
+			if (!done && tryInject()) {
+				done = true;
+				observer.disconnect();
+				resolve({ success: true});
+			}
+		});
+
+		observer.observe(document.body, { childList: true, subtree: true });
+		setTimeout(() => {
+			if (!done) observer.disconnect();
+			resolve({ success: false, error: 'Editor not found (timeout)' });
+		}, 30000);
+	});
+}
+
+chrome.runtime.onMessage.addEventListener((request, sender, sendResponse) => {
+	if(request.action === 'insertReportToEmail') {
+		injectIntoEmailEditor(request.content).then(sendResponse).catch((err) => sendResponse({ success: false, error: err?.message || String(err) }));
+		return true;
+	}
+});
+
 async function fetchPrsMergedStatusBatch(prs, headers) {
 	const results = {};
 	if (prs.length === 0) return results;
