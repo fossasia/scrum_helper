@@ -179,189 +179,13 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	}
 
-	function updateContentState(enableToggle) {
-		console.log('[DEBUG] updateContentState called with:', enableToggle);
-		const elementsToToggle = [
-			'startingDate',
-			'endingDate',
-			'generateReport',
-			'copyReport',
-			'refreshCache',
-			'showOpenLabel',
-			'showCommits',
-			'onlyIssues',
-			'onlyPRs',
-			'onlyRevPRs',
-			'scrumReport',
-			'githubUsername',
-			'githubToken',
-			'projectName',
-			'platformUsername',
-			'orgInput',
-			'cacheInput',
-			'settingsToggle',
-			'toggleTokenVisibility',
-			'useRepoFilter',
-			'repoSearch',
-			'platformDropdownBtn',
-		];
-
-		const radios = document.querySelectorAll('input[name="timeframe"]');
-		const customDateContainer = document.getElementById('customDateContainer');
-
-		elementsToToggle.forEach((id) => {
-			const element = document.getElementById(id);
-			if (element) {
-				element.disabled = !enableToggle;
-				if (!enableToggle) {
-					element.style.opacity = '0.5';
-					element.style.pointerEvents = 'none';
-				} else {
-					element.style.opacity = '1';
-					element.style.pointerEvents = 'auto';
-				}
-			}
-		});
-
-		radios.forEach((radio) => {
-			radio.disabled = !enableToggle;
-			const label = document.querySelector(`label[for="${radio.id}"]`);
-			if (label) {
-				if (!enableToggle) {
-					label.style.opacity = '0.5';
-					label.style.pointerEvents = 'none';
-				} else {
-					label.style.opacity = '1';
-					label.style.pointerEvents = 'auto';
-				}
-			}
-		});
-
-		if (customDateContainer) {
-			if (!enableToggle) {
-				customDateContainer.style.opacity = '0.5';
-				customDateContainer.style.pointerEvents = 'none';
-			} else {
-				customDateContainer.style.opacity = '1';
-				customDateContainer.style.pointerEvents = 'auto';
-			}
-		}
-
-		// Handle platform dropdown list items
-		const platformDropdownList = document.getElementById('platformDropdownList');
-		const customPlatformDropdown = document.getElementById('customPlatformDropdown');
-		if (platformDropdownList && customPlatformDropdown) {
-			if (!enableToggle) {
-				customPlatformDropdown.style.opacity = '0.5';
-				customPlatformDropdown.style.pointerEvents = 'none';
-				// Close dropdown if open
-				customPlatformDropdown.classList.remove('open');
-				platformDropdownList.classList.add('hidden');
-			} else {
-				customPlatformDropdown.style.opacity = '1';
-				customPlatformDropdown.style.pointerEvents = 'auto';
-			}
-		}
-
-		// Handle repository filter container and selected repos
-		const repoFilterContainer = document.getElementById('repoFilterContainer');
-		const selectedRepos = document.getElementById('selectedRepos');
-		if (repoFilterContainer) {
-			if (!enableToggle) {
-				repoFilterContainer.style.opacity = '0.5';
-				repoFilterContainer.style.pointerEvents = 'none';
-			} else {
-				repoFilterContainer.style.opacity = '1';
-				repoFilterContainer.style.pointerEvents = 'auto';
-			}
-		}
-		if (selectedRepos) {
-			if (!enableToggle) {
-				selectedRepos.style.opacity = '0.5';
-				selectedRepos.style.pointerEvents = 'none';
-				// Disable all remove buttons inside
-				const removeButtons = selectedRepos.querySelectorAll('.remove-repo-btn');
-				removeButtons.forEach((btn) => {
-					btn.disabled = true;
-					btn.style.pointerEvents = 'none';
-				});
-			} else {
-				selectedRepos.style.opacity = '1';
-				selectedRepos.style.pointerEvents = 'auto';
-				const removeButtons = selectedRepos.querySelectorAll('.remove-repo-btn');
-				removeButtons.forEach((btn) => {
-					btn.disabled = false;
-					btn.style.pointerEvents = 'auto';
-				});
-			}
-		}
-
-		// Handle repository dropdown
-		const repoDropdown = document.getElementById('repoDropdown');
-		if (repoDropdown && !enableToggle) {
-			repoDropdown.classList.add('hidden');
-		}
-
-		// Handle useRepoFilter label
-		const useRepoFilterLabel = document.querySelector('label[for="useRepoFilter"]');
-		if (useRepoFilterLabel) {
-			if (!enableToggle) {
-				useRepoFilterLabel.style.opacity = '0.5';
-				useRepoFilterLabel.style.pointerEvents = 'none';
-			} else {
-				useRepoFilterLabel.style.opacity = '1';
-				useRepoFilterLabel.style.pointerEvents = 'auto';
-			}
-		}
-
-		const scrumReport = document.getElementById('scrumReport');
-		if (scrumReport) {
-			scrumReport.contentEditable = enableToggle;
-			if (!enableToggle) {
-				scrumReport.innerHTML = `<p style="text-align: center; color: #999; padding: 20px;">${chrome?.i18n.getMessage('extensionDisabledMessage')}</p>`;
-			} else {
-				const disabledMessage = `<p style="text-align: center; color: #999; padding: 20px;">${chrome?.i18n.getMessage('extensionDisabledMessage')}</p>`;
-				if (scrumReport.innerHTML === disabledMessage) {
-					scrumReport.innerHTML = '';
-				}
-			}
-		}
-	}
-
-	chrome?.storage.local.get(['enableToggle'], (items) => {
-		console.log('[DEBUG] Storage items received:', items);
-		const enableToggle = items.enableToggle !== false;
-		console.log('[DEBUG] enableToggle calculated:', enableToggle);
-
-		// If enableToggle is undefined (first install), set it to true by default
-		if (typeof items.enableToggle === 'undefined') {
-			console.log('[DEBUG] Setting default enableToggle to true');
-			chrome?.storage.local.set({ enableToggle: true });
-		}
-
-		console.log('[DEBUG] Calling updateContentState with:', enableToggle);
-		updateContentState(enableToggle);
-
-		console.log('[DEBUG] Extension enabled, initializing popup');
-		if (!enableToggle) {
-			console.log('[DEBUG] Extension disabled, returning early');
-			return;
-		}
+	chrome.storage.local.remove(['enableToggle'], () => {
 		initializePopup();
 		checkTokenForFilter();
 	});
 
 	chrome?.storage.onChanged.addListener((changes, namespace) => {
 		console.log('[DEBUG] Storage changed:', changes, namespace);
-		if (namespace === 'local' && changes.enableToggle) {
-			console.log('[DEBUG] enableToggle changed to:', changes.enableToggle.newValue);
-			updateContentState(changes.enableToggle.newValue);
-			if (changes.enableToggle.newValue) {
-				// re-initialize if enabled
-				console.log('[DEBUG] Re-initializing popup due to enable toggle change');
-				initializePopup();
-			}
-		}
 		if (changes.startingDate || changes.endingDate) {
 			console.log('[POPUP-DEBUG] Date changed in storage, triggering repo fetch.', {
 				startingDate: changes.startingDate?.newValue,
@@ -416,7 +240,6 @@ document.addEventListener('DOMContentLoaded', () => {
 				'onlyIssues',
 				'onlyPRs',
 				'onlyRevPRs',
-				'enableToggle',
 				'yesterdayContribution',
 				'startingDate',
 				'endingDate',
@@ -477,6 +300,31 @@ document.addEventListener('DOMContentLoaded', () => {
 		// Button setup
 		const generateBtn = document.getElementById('generateReport');
 		const copyBtn = document.getElementById('copyReport');
+		const insertBtn = document.getElementById('insertToEmail');
+
+		if (insertBtn) {
+			insertBtn.addEventListener('click', () => {
+				const scrumReport = document.getElementById('scrumReport');
+				const content = scrumReport ? scrumReport.innerHTML : '';
+
+				if(!content) return;
+
+				chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+					const tabId = tabs?.[0]?.id;
+					if(!tabId) return;
+
+					chrome.tabs.sendMessage(tabId, { action: 'insertReportToEmail', content }, (response) => {
+						if (chrome.runtime.lastError) {
+							console.warn('Insert to Email failed:', chrome.runtime.lastError.message);
+							return;
+						}
+						if(!response?.success) {
+							console.warn('Insert to Email failed:', response?.error);
+						}
+					});
+				});
+			});
+		}
 
 		generateBtn.addEventListener('click', () => {
 			chrome?.storage.local.get(['platform'], (result) => {

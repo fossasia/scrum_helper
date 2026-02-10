@@ -74,6 +74,10 @@
     "message": "Copy Report",
     "description": "Text for the 'Copy Report' button."
   },
+  "insertToEmailButton" : {
+    "message": "Insert to Email",
+    "description": "Text for the 'Insert to Email' button."
+  },
   "settingsOrgNameLabel": {
     "message": "Organization Name",
     "description": "Label for the organization name input in settings."
