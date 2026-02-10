@@ -1726,7 +1726,7 @@ ${userReason}`;
 
 	if (!refreshButton_Placed) {
 		const intervalWriteButton = setInterval(() => {
-			if (document.getElementsByClassName('F0XO1GC-x-b').length === 3 && scrumBody ) {
+			if (document.getElementsByClassName('F0XO1GC-x-b').length === 3 && scrumBody) {
 				refreshButton_Placed = true;
 				clearInterval(intervalWriteButton);
 				const td = document.createElement('td');
@@ -1802,14 +1802,15 @@ async function forceGitlabDataRefresh() {
 	return { success: true };
 }
 
-if (window.location.protocol.startsWith('http')) {
-	allIncluded('email');
-	$('button>span:contains(New conversation)')
-		.parent('button')
-		.click(() => {
-			allIncluded();
-		});
-}
+// Auto inject report on email client load
+// if (window.location.protocol.startsWith('http')) {
+// 	allIncluded('email');
+// 	$('button>span:contains(New conversation)')
+// 		.parent('button')
+// 		.click(() => {
+// 			allIncluded();
+// 		});
+// }
 
 window.generateScrumReport = () => {
 	allIncluded('popup');
@@ -1837,23 +1838,32 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 		});
 		return true;
 	}
+
+	if (request.action === 'insertReportToEmail') {
+		injectIntoEmailEditor(request.content)
+			.then(sendResponse)
+			.catch((err) =>
+				sendResponse({ success: false, error: err?.message || String(err) }),
+			);
+		return true;
+	}
 });
 
 async function injectIntoEmailEditor(content) {
-	if(!window.emailClientAdapter) {
-		return { success: false, error: 'emailClientAdapter not available'};
+	if (!window.emailClientAdapter) {
+		return { success: false, error: 'emailClientAdapter not available' };
 	}
 
 	const tryInject = () => {
 		const elements = window.emailClientAdapter.getEditorElements?.();
-		if(elements?.body){
+		if (elements?.body) {
 			window.emailClientAdapter.injectContent(elements.body, content, elements.eventTypes?.contentChange);
 			return true;
 		}
 		return false;
 	};
 
-	if(tryInject()) return { success: true };
+	if (tryInject()) return { success: true };
 
 	return await new Promise((resolve) => {
 		let done = false;
@@ -1861,7 +1871,7 @@ async function injectIntoEmailEditor(content) {
 			if (!done && tryInject()) {
 				done = true;
 				observer.disconnect();
-				resolve({ success: true});
+				resolve({ success: true });
 			}
 		});
 
@@ -1873,24 +1883,17 @@ async function injectIntoEmailEditor(content) {
 	});
 }
 
-chrome.runtime.onMessage.addEventListener((request, sender, sendResponse) => {
-	if(request.action === 'insertReportToEmail') {
-		injectIntoEmailEditor(request.content).then(sendResponse).catch((err) => sendResponse({ success: false, error: err?.message || String(err) }));
-		return true;
-	}
-});
-
 async function fetchPrsMergedStatusBatch(prs, headers) {
 	const results = {};
 	if (prs.length === 0) return results;
 	const query = `query {
 ${prs
-	.map(
-		(pr, i) => `	repo${i}: repository(owner: \"${pr.owner}\", name: \"${pr.repo}\") {
+			.map(
+				(pr, i) => `	repo${i}: repository(owner: \"${pr.owner}\", name: \"${pr.repo}\") {
 		pr${i}: pullRequest(number: ${pr.number}) { merged }
 	}`,
-	)
-	.join('\n')}
+			)
+			.join('\n')}
 }`;
 
 	try {
@@ -2072,8 +2075,8 @@ async function fetchUserRepositories(username, token, org = '') {
 				}));
 
 			return repos.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-		} catch (err) {}
-	} catch (err) {}
+		} catch (err) { }
+	} catch (err) { }
 }
 
 function filterDataByRepos(data, selectedRepos) {
