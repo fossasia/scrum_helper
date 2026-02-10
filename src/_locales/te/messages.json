@@ -51,10 +51,13 @@
     "message": "స్క్రమ్ నివేదిక"
   },
   "generateReportButton": {
-    "message": "నివేదికను రూపొందించు"
+    "message": "సృష్టించు"
   },
   "copyReportButton": {
-    "message": "నివేదికను కాపీ చేయి"
+    "message": "కాపీ"
+  },
+  "insertToEmailButton": {
+    "message": "ఇమెయిల్‌లో చేర్చు"
   },
   "settingsOrgNameLabel": {
     "message": "సంస్థ పేరు"
