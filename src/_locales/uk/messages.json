@@ -86,11 +86,26 @@
   "showCommitsLabel": {
     "message": "Показувати коміти у відкритих PR/ чернетках PR"
   },
+  "showCommitsTooltip": {
+    "message": "Потрібен токен Github, додайте його в налаштуваннях."
+  },
+  "onlyIssuesLabel": {
+    "message": "Включати до звіту лише проблеми"
+  },
+  "onlyIssuesTooltip": {
+    "message": "Якщо позначено, звіт включатиме лише проблеми, створені користувачем або призначені йому."
+  },
   "onlyPRsLabel": {
     "message": "Включати до звіту лише PR"
   },
   "onlyPRsTooltip": {
     "message": "Якщо позначено, звіт включатиме лише pull requests, створені користувачем; переглянуті PR будуть виключені."
+  },
+  "onlyRevPRsLabel": {
+    "message": "Включати до звіту лише переглянуті PR"
+  },
+  "onlyRevPRsTooltip": {
+    "message": "Якщо позначено, звіт включатиме лише PR, переглянуті вами."
   },
   "cacheTTLLabel": {
     "message": "Введіть TTL кешу"

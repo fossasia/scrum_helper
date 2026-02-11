@@ -86,11 +86,26 @@
   "showCommitsLabel": {
     "message": "Vis commits på åpne PR-er/utkast til PR-er"
   },
+  "showCommitsTooltip": {
+    "message": "Github-token kreves. Legg det til i innstillingene."
+  },
+  "onlyIssuesLabel": {
+    "message": "Inkluder kun problemer i rapporten"
+  },
+  "onlyIssuesTooltip": {
+    "message": "Hvis valgt, vil rapporten kun inkludere problemer opprettet eller tildelt brukeren."
+  },
   "onlyPRsLabel": {
     "message": "Inkluder kun PR-er i rapporten"
   },
   "onlyPRsTooltip": {
     "message": "Hvis valgt, vil rapporten kun inkludere PR-er opprettet av brukeren; gjennomgåtte PR-er vil utelates."
+  },
+  "onlyRevPRsLabel": {
+    "message": "Inkluder kun gjennomgåtte PR-er i rapporten"
+  },
+  "onlyRevPRsTooltip": {
+    "message": "Hvis valgt, vil rapporten kun inkludere PR-er gjennomgått av deg."
   },
   "cacheTTLLabel": {
     "message": "Angi cache-TTL"
