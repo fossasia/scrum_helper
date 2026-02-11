@@ -1,3 +1,16 @@
+## v2.0.4 - 2026-02-11
+
+## What's Changed
+
+* Add Malayalam (ml) language support (#367) @SourishMerugu
+
+## Maintenance
+
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.13 to 2.3.14 (#368) @[dependabot[bot]](https://github.com/apps/dependabot)
+* versionbump (#365) @vedansh-5
+
+---
+
 ## v2.0.4 - 2026-02-04
 
 ## What's Changed
