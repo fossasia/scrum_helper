@@ -1,4 +1,4 @@
-/* global chrome, browser */
+/* global chrome */
 // GitLab API Helper for Scrum Helper Extension
 class GitLabHelper {
 	// Set to `true` during development to enable verbose logging from this helper
@@ -281,8 +281,11 @@ class GitLabHelper {
 	}
 
 	async fetchGitLabData(username, startDate, endDate, token = null, group = '', selectedProjects = []) {
-		// Include token state and filters in cache key to invalidate when auth or filters change
-		const tokenMarker = token ? 'auth' : 'noauth';
+		// Include token fingerprint and filters in cache key to invalidate when auth or filters change
+		const effectiveToken = token || this.token || '';
+		const tokenMarker = effectiveToken
+			? `auth-${effectiveToken.length}-${effectiveToken.slice(-4)}`
+			: 'noauth';
 		const cacheKey = `${username}-${startDate}-${endDate}-${group}-${selectedProjects.join(',')}-${tokenMarker}`;
 
 		if (this.cache.fetching || (this.cache.cacheKey === cacheKey && this.cache.data)) {

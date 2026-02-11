@@ -1,4 +1,4 @@
-/* global chrome, browser */
+/* global chrome */
 // Utility function to escape HTML and prevent XSS
 function escapeHtml(unsafe) {
 	if (typeof unsafe !== 'string') return '';
@@ -910,7 +910,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				});
 				platform = items.platform || 'github';
 			} catch (e) {
-				console.error('Failed to retrieve platform from chrome.storage.local during performGitlabProjectFetch, defaulting to "github".', e);
+				console.error('Failed to retrieve platform from chrome.storage.local during triggerRepoFetchIfEnabled, defaulting to "github".', e);
 			}
 			if (platform !== 'github') {
 				// Do not run repo fetch for non-GitHub platforms
@@ -1711,7 +1711,9 @@ document.addEventListener('DOMContentLoaded', () => {
 					chrome.storage.local.get(['platform'], resolve);
 				});
 				platform = items.platform || 'github';
-			} catch (e) {}
+			} catch (e) {
+				console.error('Failed to retrieve platform from chrome.storage.local, defaulting to "github".', e);
+			}
 			if (platform !== 'gitlab') {
 				if (gitlabProjectStatus) gitlabProjectStatus.textContent = 'Project fetching is only available for GitLab.';
 				return;
@@ -1751,7 +1753,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				} else if (err.message && err.message.includes('username')) {
 					gitlabProjectStatus.textContent = 'Username required';
 				} else {
-					gitlabProjectStatus.textContent = `Error: ${escapeHtml(err.message || 'Failed to load projects')}`;gitlabProjectStatus.textContent = `Error: ${err && err.message ? err.message : 'Failed to load projects'}`;
+					gitlabProjectStatus.textContent = `Error: ${escapeHtml(err && err.message ? err.message : 'Failed to load projects')}`;
 				}
 			}
 		}

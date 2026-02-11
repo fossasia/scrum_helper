@@ -1,4 +1,4 @@
-/* global chrome, browser */
+/* global chrome */
 
 const DEBUG = false;
 
@@ -825,6 +825,7 @@ async function allIncluded(outputTarget = 'email') {
 
 			if (outputTarget === 'popup') {
 				const generateBtn = document.getElementById('generateReport');
+				const scrumReport = document.getElementById('scrumReport');
 				if (scrumReport) {
 					let errorMsg = 'An error occurred while generating the report.';
 					if (err) {
@@ -840,8 +841,6 @@ async function allIncluded(outputTarget = 'email') {
 								genErrDiv.style.padding = '10px';
 								genErrDiv.textContent = errorMsg || err.message || 'An error occurred while generating the report.';
 								scrumReport.appendChild(genErrDiv);
-					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
-					generateBtn.disabled = false;
 				}
 				if (generateBtn) {
 					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';

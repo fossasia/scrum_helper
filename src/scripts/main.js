@@ -1,4 +1,4 @@
-/* global chrome, browser */
+/* global chrome */
 
 const enableToggleElement = document.getElementById('enable');
 const platformUsernameElement = document.getElementById('platformUsername');
