@@ -838,7 +838,7 @@ async function allIncluded(outputTarget = 'email') {
 								genErrDiv.style.color = '#dc2626';
 								genErrDiv.style.fontWeight = 'bold';
 								genErrDiv.style.padding = '10px';
-								genErrDiv.textContent = err.message || 'An error occurred while generating the report.';
+								genErrDiv.textContent = errorMsg || err.message || 'An error occurred while generating the report.';
 								scrumReport.appendChild(genErrDiv);
 					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
 					generateBtn.disabled = false;
@@ -1156,10 +1156,15 @@ ${userReason}`;
 				try {
 					const parser = new DOMParser();
 					const doc = parser.parseFromString(content, 'text/html');
-					// Remove potentially dangerous nodes
-					doc.querySelectorAll('script,style').forEach((n) => n.remove());
 
-					// Helper: allow only safe URL schemes or relative anchors/paths
+					// Strict allowlist of tags and per-tag allowed attributes
+					const allowedTags = new Set([
+						'A','B','STRONG','I','EM','CODE','BR','P','UL','OL','LI','SPAN','DIV',
+						'PRE','BLOCKQUOTE','H1','H2','H3','H4','H5','H6','IMG','TABLE','THEAD','TBODY','TR','TD','TH'
+					]);
+
+					const globalAllowedAttrs = new Set(['class','id','title','role','aria-label']);
+
 					function isSafeUrl(u) {
 						if (!u) return false;
 						const s = u.trim().toLowerCase();
@@ -1174,43 +1179,83 @@ ${userReason}`;
 						);
 					}
 
-					// Remove inline event handlers, sanitize href/src/srcset and ensure safe link attributes
+					// Remove dangerous elements entirely
+					doc.querySelectorAll('script,style,iframe,object,embed,link,meta,svg,math,form,input,button,textarea,select').forEach(n => n.remove());
+
+					// Walk elements and enforce allowlist
 					doc.body.querySelectorAll('*').forEach((node) => {
+						const tag = node.tagName.toUpperCase();
+						if (!allowedTags.has(tag)) {
+							// Replace disallowed tag with its text content
+							const txt = document.createTextNode(node.textContent || '');
+							node.parentNode && node.parentNode.replaceChild(txt, node);
+							return;
+						}
+
+						// Sanitize attributes: remove anything not explicitly allowed per-tag
 						[...node.attributes].forEach((attr) => {
 							const name = attr.name.toLowerCase();
 							const val = attr.value;
-							// Strip inline event handlers
-							if (name.startsWith('on')) {
+
+							// Strip inline event handlers and style
+							if (name.startsWith('on') || name === 'style') {
 								node.removeAttribute(attr.name);
 								return;
 							}
 
-							// Validate URL-bearing attributes
-							if (name === 'href' || name === 'src') {
-								if (!isSafeUrl(val)) {
+							// Always remove attributes that can embed HTML/JS
+							if (['srcdoc','formaction','xlink:href','xmlns'].includes(name)) {
+								node.removeAttribute(attr.name);
+								return;
+							}
+
+							// img: allow only src/alt/width/height
+							if (tag === 'IMG') {
+								if (['src','alt','title','width','height','class','id'].includes(name)) {
+									if (name === 'src') {
+										if (!isSafeUrl(val)) node.removeAttribute(attr.name);
+									}
+									// keep allowed
+								} else {
 									node.removeAttribute(attr.name);
 								}
 								return;
 							}
 
-							// Remove srcset as it can contain multiple URLs; keep simple src only
-							if (name === 'srcset') {
-								node.removeAttribute('srcset');
+							// a: allow only href, title, rel, target
+							if (tag === 'A') {
+								if (['href','title','rel','target','class','id','aria-label'].includes(name)) {
+									if (name === 'href') {
+										if (!isSafeUrl(val)) node.removeAttribute(attr.name);
+									}
+								} else {
+									node.removeAttribute(attr.name);
+								}
 								return;
+							}
+
+							// table and text elements: allow only global attrs
+							if (!globalAllowedAttrs.has(name)) {
+								node.removeAttribute(attr.name);
 							}
 						});
 
-						if (node.tagName === 'A') {
+						// Ensure safe link attributes
+						if (tag === 'A') {
 							if (!node.getAttribute('rel')) node.setAttribute('rel', 'noopener noreferrer');
 							if (!node.getAttribute('target')) node.setAttribute('target', '_blank');
 						}
 					});
-					while (doc.body.firstChild) {
-						scrumReport.appendChild(doc.body.firstChild);
-					}
+
+					// Append sanitized nodes
+					const frag = document.createDocumentFragment();
+					Array.from(doc.body.childNodes).forEach((n) => frag.appendChild(n.cloneNode(true)));
+					scrumReport.appendChild(frag);
 				} catch (err) {
-					// Fallback: insert as plain text if parsing fails
-					scrumReport.textContent = content.replace(/<[^>]+>/g, '');
+					// Log the parse/sanitization error for diagnostics and fall back to safe text
+					logError('Failed to parse/sanitize scrum content:', err);
+					const fallback = typeof content === 'string' ? content.replace(/<[^>]+>/g, '') : 'Unable to generate report.';
+					scrumReport.textContent = fallback;
 				}
 
 				const generateBtn = document.getElementById('generateReport');

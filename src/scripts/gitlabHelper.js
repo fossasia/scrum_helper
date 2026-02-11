@@ -17,12 +17,24 @@ class GitLabHelper {
 	}
 
 	// Accept an optional overrideToken to allow callers to request headers
-	// for a specific token without mutating this.token.
-	getHeaders(overrideToken = null) {
+	// for a specific token without mutating `this.token`.
+	// Semantics:
+	//  - `overrideToken === undefined` -> use the instance token (`this.token`)
+	//  - `overrideToken === null` -> force no token (unauthenticated request)
+	//  - otherwise -> use the provided override token (may be empty string)
+	getHeaders(overrideToken = undefined) {
 		const headers = {
 			'Content-Type': 'application/json',
 		};
-		const tokenToUse = overrideToken || this.token;
+
+		let tokenToUse;
+		if (typeof overrideToken === 'undefined') {
+			tokenToUse = this.token;
+		} else {
+			// explicit null means "force no token"
+			tokenToUse = overrideToken;
+		}
+
 		if (tokenToUse) {
 			// GitLab Personal Access Token authentication
 			headers['PRIVATE-TOKEN'] = tokenToUse;

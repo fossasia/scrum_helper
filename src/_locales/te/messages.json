@@ -195,14 +195,6 @@
   "noteSeeIssue": {
     "message": "ఈ ఇష్యూ చూడండి"
   },
-  "gitlabTokenLabel": {
-    "message": "Your GitLab Token",
-    "description": "Label for the GitLab token input."
-  },
-  "gitlabTokenPlaceholder": {
-    "message": "Paste your GitLab Personal Access Token",
-    "description": "Placeholder for the GitLab token input."
-  },
   "gitlabTokenTooltip": {
     "message": "<b>Why is it recommended to add a GitLab token?</b><br>Scrum Helper works without a GitLab token, but adding a personal access token is recommended for a better experience. It raises your API limits, allows access to private repos (if permitted), and improves accuracy and speed. Tokens are stored locally and never sent to us and used only to fetch your git data.<br><br><b>How to obtain:</b><br>1. Go to <a href='https://gitlab.com/-/profile/personal_access_tokens' target='_blank' style='color:#2563eb;text-decoration:underline;'>GitLab Token Settings</a>.<br>2. Click 'Add new token'<br>3. Select scopes: <code>read_api</code> and <code>read_repository</code><br>4. Generate and paste it here.<br><i>Keep your token secret!</i>",
     "description": "Tooltip explaining how to get a GitLab token."

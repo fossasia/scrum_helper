@@ -95,7 +95,7 @@ function applyI18n() {
 					const frag = sanitizeTooltipHtml(message);
 					while (el.firstChild) el.removeChild(el.firstChild);
 					el.appendChild(frag);
-				} catch (e) {
+				} catch{
 					// Fallback to textContent on any parser/sanitizer error
 					el.textContent = message;
 				}
@@ -172,10 +172,12 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (!useRepoFilter || !githubTokenInput || !tokenWarning || !repoFilterContainer) {
 			return;
 		}
-		const isFilterEnabled = useRepoFilter.checked;
-		const hasToken = githubTokenInput.value.trim() !== '';
+		// Normalize to strict booleans to make intent explicit and avoid
+		// subtle truthiness issues that static analyzers may warn about.
+		const isFilterEnabled = Boolean(useRepoFilter.checked);
+		const hasToken = Boolean(githubTokenInput.value && githubTokenInput.value.trim().length > 0);
 
-		if (isFilterEnabled && !hasToken) {
+		if (isFilterEnabled === true && hasToken === false) {
 			useRepoFilter.checked = false;
 			repoFilterContainer.classList.add('hidden');
 			if (typeof hideDropdown === 'function') {
@@ -198,14 +200,16 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (!useGitlabProjectFilter || !gitlabTokenInput || !gitlabTokenWarning || !gitlabProjectFilterContainer) {
 			return;
 		}
-		const isFilterEnabled = useGitlabProjectFilter.checked;
-		const hasToken = gitlabTokenInput.value.trim() !== '';
+		// Normalize to strict booleans to make intent explicit and avoid
+		// subtle truthiness issues that static analyzers may warn about.
+		const isFilterEnabled = Boolean(useGitlabProjectFilter.checked);
+		const hasToken = Boolean(gitlabTokenInput.value && gitlabTokenInput.value.trim().length > 0);
 
-		if (isFilterEnabled && !hasToken) {
+		if (isFilterEnabled === true && hasToken === false) {
 			useGitlabProjectFilter.checked = false;
 			gitlabProjectFilterContainer.classList.add('hidden');
-			if (typeof hideGitlabProjectDropdown === 'function') {
-				hideGitlabProjectDropdown();
+			if (typeof window !== 'undefined' && typeof window.hideGitlabProjectDropdown === 'function') {
+				window.hideGitlabProjectDropdown();
 			}
 			chrome.storage.local.set({ useGitlabProjectFilter: false });
 		}
@@ -251,7 +255,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			setTimeout(() => gitlabTokenInput.classList.remove('token-animating'), 300);
 		});
 
-		gitlabTokenInput.addEventListener('input', function (event) {
+		gitlabTokenInput.addEventListener('input', function () {
 			checkGitlabTokenForFilter();
 			chrome.storage.local.set({ gitlabToken: gitlabTokenInput.value });
 			if (window.triggerGitlabProjectFetchIfEnabled) {
@@ -888,12 +892,14 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 	}
 
+	// shared state for repository filter UI (declared here so other handlers can access)
+	let availableRepos = [];
+	let selectedRepos = [];
+	let highlightedIndex = -1;
+
 	if (!repoSearch || !useRepoFilter) {
 		console.log('Repository, filter elements not found in DOM');
 	} else {
-		let availableRepos = [];
-		let selectedRepos = [];
-		let highlightedIndex = -1;
 
 		async function triggerRepoFetchIfEnabled() {
 			// --- PLATFORM CHECK: Only run for GitHub ---
@@ -903,7 +909,9 @@ document.addEventListener('DOMContentLoaded', () => {
 					chrome.storage.local.get(['platform'], resolve);
 				});
 				platform = items.platform || 'github';
-			} catch (e) {}
+			} catch (e) {
+				console.error('Failed to retrieve platform from chrome.storage.local during performGitlabProjectFetch, defaulting to "github".', e);
+			}
 			if (platform !== 'github') {
 				// Do not run repo fetch for non-GitHub platforms
 				if (repoStatus) repoStatus.textContent = 'Repository filtering is only available for GitHub.';
@@ -1527,7 +1535,10 @@ document.addEventListener('DOMContentLoaded', () => {
 					chrome.storage.local.get(['platform'], resolve);
 				});
 				platform = items.platform || 'github';
-			} catch (e) {}
+			} catch (e) {
+				// If reading the platform from storage fails, continue with the default.
+				console.warn('Failed to read platform from storage; using default "github".', e);
+			}
 			if (platform !== 'gitlab') {
 				if (gitlabProjectStatus) gitlabProjectStatus.textContent = 'Project filtering is only available for GitLab.';
 				return;
@@ -1668,7 +1679,9 @@ document.addEventListener('DOMContentLoaded', () => {
 					chrome.storage.local.get(['platform'], resolve);
 				});
 				platform = items.platform || 'github';
-			} catch (e) {}
+			} catch (e) {
+				console.error('Failed to retrieve platform from chrome.storage.local, defaulting to "github".', e);
+			}
 			if (platform !== 'gitlab') {
 				if (gitlabProjectStatus) gitlabProjectStatus.textContent = 'Project loading is only available for GitLab.';
 				return;
@@ -1738,7 +1751,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				} else if (err.message && err.message.includes('username')) {
 					gitlabProjectStatus.textContent = 'Username required';
 				} else {
-					gitlabProjectStatus.textContent = `Error: ${escapeHtml(err.message || 'Failed to load projects')}`;
+					gitlabProjectStatus.textContent = `Error: ${escapeHtml(err.message || 'Failed to load projects')}`;gitlabProjectStatus.textContent = `Error: ${err && err.message ? err.message : 'Failed to load projects'}`;
 				}
 			}
 		}
@@ -2024,7 +2037,15 @@ document.addEventListener('DOMContentLoaded', () => {
 					usernameLabel.setAttribute('data-i18n', 'githubUsernameLabel');
 				}
 				const key = usernameLabel.getAttribute('data-i18n');
-				const message = chrome.i18n.getMessage(key);
+				let message = key;
+				if (typeof chrome !== 'undefined' &&
+					chrome.i18n &&
+					typeof chrome.i18n.getMessage === 'function') {
+					const resolved = chrome.i18n.getMessage(key);
+					if (resolved) {
+						message = resolved;
+					}
+				}
 				if (message) {
 					usernameLabel.textContent = message;
 				}
@@ -2120,7 +2141,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 
 		dropdownList.querySelectorAll('li').forEach((item) => {
-			item.addEventListener('click', function (e) {
+			item.addEventListener('click', function () {
 				const newPlatform = this.getAttribute('data-value');
 				const currentPlatform = platformSelectHidden.value;
 
