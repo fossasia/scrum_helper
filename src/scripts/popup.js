@@ -1,3 +1,4 @@
+/* global chrome, browser */
 // Utility function to escape HTML and prevent XSS
 function escapeHtml(unsafe) {
 	if (typeof unsafe !== 'string') return '';

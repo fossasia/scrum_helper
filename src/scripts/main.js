@@ -1,3 +1,5 @@
+/* global chrome, browser */
+
 const enableToggleElement = document.getElementById('enable');
 const platformUsernameElement = document.getElementById('platformUsername');
 const githubTokenElement = document.getElementById('githubToken');

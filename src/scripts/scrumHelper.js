@@ -1,3 +1,5 @@
+/* global chrome, browser */
+
 const DEBUG = false;
 
 function log(...args) {

@@ -1,3 +1,5 @@
+/* global chrome, browser */
+
 class EmailClientAdapter {
 	isNewConversation() {
 		const clientType = this.detectClient();

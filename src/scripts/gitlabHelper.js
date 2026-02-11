@@ -1,3 +1,4 @@
+/* global chrome, browser */
 // GitLab API Helper for Scrum Helper Extension
 class GitLabHelper {
 	// Set to `true` during development to enable verbose logging from this helper
