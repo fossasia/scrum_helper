@@ -11,11 +11,26 @@
 	<style type="text/css">
 		html,
 		body {
-			width: 375px !important;
-			height: 600px !important;
-			max-height: 600px !important;
-			overflow-y: scroll;
+			width: 100vw !important;
+			height: 100vh !important;
+			max-width: 100vw !important;
+			max-height: 100vh !important;
+			min-width: 360px;
+			min-height: 100vh !important;
+			margin: 0;
+			overflow: hidden;
 			background: #eae4e4;
+		}
+
+		body {
+			display: flex;
+		}
+
+		#popupRoot {
+			flex: 1;
+			height: 100%;
+			overflow-y: auto;
+			overflow-x: hidden;
 		}
 
 		#platformSelect option {
@@ -41,7 +56,7 @@
 </head>
 
 <body>
-	<div class="pl-1 py-2 rounded-2xl">
+	<div id="popupRoot" class="pl-1 py-2 rounded-2xl">
 		<div class="bg-white px-4 py-4 mx-2 mb-2 rounded-3xl">
 			<div class="flex justify-between py-2">
 				<h3 id="scrumHelperHeading" class="text-3xl font-semibold cursor-pointer">Scrum Helper</h3>
