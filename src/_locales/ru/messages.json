@@ -71,11 +71,17 @@
     "githubTokenPlaceholder": {
         "message": "Требуется для аутентифицированных запросов"
     },
+    "githubTokenTooltip": {
+        "message": "Зачем рекомендуется добавлять токен GitHub? Scrum Helper работает без токена GitHub, но для лучшего опыта рекомендуется добавить токен личного доступа."
+    },
     "gitlabTokenLabel": {
         "message": "Ваш токен GitLab"
     },
     "gitlabTokenPlaceholder": {
         "message": "Требуется для приватных репо"
+    },
+    "gitlabTokenTooltip": {
+        "message": "Зачем рекомендуется добавлять токен GitLab? Scrum Helper работает без токена GitLab для публичных проектов, но для лучшего опыта рекомендуется добавить токен личного доступа."
     },
     "showCommitsLabel": {
         "message": "Показывать коммиты в открытых PR/ черновиках PR"
@@ -101,7 +107,6 @@
     "onlyRevPRsTooltip": {
         "message": "Если отмечено, отчёт будет включать только PR, проверенные вами."
     },
-
     "cacheTTLLabel": {
         "message": "Введите TTL кеша",
         "description": "Метка для ввода времени жизни кеша."

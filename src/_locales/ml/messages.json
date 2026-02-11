@@ -1,222 +1,227 @@
 {
-    "appName": {
-      "message": "Scrum Helper"
-    },
-    "appDescription": {
-      "message": "തിരഞ്ഞെടുത്ത കാലയളവിലെ നിങ്ങളുടെ Git പ്രവർത്തനങ്ങൾ സ്വയമേവ ശേഖരിച്ചു നിങ്ങളുടെ വികസന പുരോഗതി റിപ്പോർട്ട് ചെയ്യുക"
-    },
-    "disableLabel": {
-      "message": "അപ്രാപ്തമാക്കുക"
-    },
-    "enableLabel": {
-      "message": "സജീവമാക്കുക"
-    },
-    "projectNameLabel": {
-      "message": "പ്രോജക്ട് പേര് (ഇമെയിൽ വിഷയം ആയി ഉപയോഗിക്കും)"
-    },
-    "projectNamePlaceholder": {
-      "message": "നിങ്ങളുടെ പ്രോജക്ട് പേര് നൽകുക"
-    },
-    "githubUsernameLabel": {
-      "message": "നിങ്ങളുടെ GitHub ഉപയോക്തൃനാമം"
-    },
-    "gitlabUsernameLabel": {
-      "message": "നിങ്ങളുടെ GitLab ഉപയോക്തൃനാമം"
-    },
-    "githubUsernamePlaceholder": {
-      "message": "നിങ്ങളുടെ സംഭാവനകൾ ശേഖരിക്കാൻ ആവശ്യമാണ്"
-    },
-    "contributionsLabel": {
-      "message": "ഈ സമയപരിധിക്കുള്ളിൽ നിങ്ങളുടെ സംഭാവനകൾ ശേഖരിക്കുക:"
-    },
-    "last1DayLabel": {
-      "message": "മുൻ ദിവസം"
-    },
-    "startDateLabel": {
-      "message": "മുതൽ:"
-    },
-    "endDateLabel": {
-      "message": "വരെ:"
-    },
-    "showOpenClosedLabel": {
-      "message": "PR ലേബലുകൾ കാണിക്കുക"
-    },
-    "blockersLabel": {
-      "message": "നിങ്ങളുടെ പുരോഗതിയെ തടയുന്നത് എന്താണ്?"
-    },
-    "blockersPlaceholder": {
-      "message": "നിങ്ങളുടെ കാരണം നൽകുക"
-    },
-    "scrumReportLabel": {
-      "message": "സ്ക്രം റിപ്പോർട്ട്"
-    },
-    "generateReportButton": {
-      "message": "റിപ്പോർട്ട് സൃഷ്ടിക്കുക"
-    },
-    "copyReportButton": {
-      "message": "റിപ്പോർട്ട് പകർത്തുക"
-    },
-    "settingsOrgNameLabel": {
-      "message": "സ്ഥാപനത്തിന്റെ പേര്"
-    },
-    "settingsOrgNamePlaceholder": {
-      "message": "സ്ഥാപനത്തിന്റെ പേര് നൽകുക"
-    },
-    "setButton": {
-      "message": "സെറ്റ് ചെയ്യുക"
-    },
-    "githubTokenLabel": {
-      "message": "നിങ്ങളുടെ GitHub ടോക്കൺ"
-    },
-    "githubTokenPlaceholder": {
-      "message": "ഓതന്റിക്കേറ്റഡ് അഭ്യർത്ഥനകൾക്കായി ആവശ്യമാണ്"
-    },
-    "gitlabTokenLabel": {
-      "message": "നിങ്ങളുടെ GitLab ടോക്കൺ"
-    },
-    "gitlabTokenPlaceholder": {
-      "message": "സ്വകാര്യ പ്രോജക്ടുകൾ ആക്സസ് ചെയ്യാൻ ആവശ്യമാണ്"
-    },
-    "showCommitsLabel": {
-      "message": "ഓപ്പൺ / ഡ്രാഫ്റ്റ് PRകളിലെ കമ്മിറ്റുകൾ കാണിക്കുക"
-    },
-    "showCommitsTooltip": {
-      "message": "GitHub ടോക്കൺ ആവശ്യമാണ്, ദയവായി സെറ്റിംഗ്സിൽ ചേർക്കുക."
-    },
-    "onlyIssuesLabel": {
-      "message": "റിപ്പോർട്ടിൽ ഇഷ്യൂകൾ മാത്രം ഉൾപ്പെടുത്തുക"
-    },
-    "onlyIssuesTooltip": {
-      "message": "തിരഞ്ഞെടുത്താൽ, ഉപയോക്താവ് സൃഷ്ടിച്ചതോ ഏൽപ്പിച്ചതോ ആയ ഇഷ്യൂകൾ മാത്രം റിപ്പോർട്ടിൽ ഉൾപ്പെടും."
-    },
-    "onlyPRsLabel": {
-      "message": "റിപ്പോർട്ടിൽ PRകൾ മാത്രം ഉൾപ്പെടുത്തുക"
-    },
-    "onlyPRsTooltip": {
-      "message": "തിരഞ്ഞെടുത്താൽ, നിങ്ങൾ സൃഷ്ടിച്ച PRകൾ മാത്രം റിപ്പോർട്ടിൽ ഉൾപ്പെടും. റിവ്യൂ ചെയ്ത PRകൾ ഒഴിവാക്കപ്പെടും."
-    },
-    "cacheTTLLabel": {
-      "message": "കാഷ് TTL നൽകുക"
-    },
-    "cacheTTLUnit": {
-      "message": "(മിനിറ്റുകളിൽ)"
-    },
-    "cacheTTLPlaceholder": {
-      "message": "കാഷ് TTL മിനിറ്റുകളിൽ നൽകുക (ഡിഫോൾട്ട് 10 മിനിറ്റ്)"
-    },
-    "refreshDataButton": {
-      "message": "ഡാറ്റ പുതുക്കുക (കാഷ് ഒഴിവാക്കി)"
-    },
-    "refreshDataInfo": {
-      "message": "പുതിയ ഡാറ്റ ഉടൻ ശേഖരിക്കാൻ ഈ ബട്ടൺ ഉപയോഗിക്കുക."
-    },
-    "noteTitle": {
-      "message": "കുറിപ്പ്:"
-    },
-    "viewCodeButton": {
-      "message": "കോഡ് കാണുക"
-    },
-    "reportIssueButton": {
-      "message": "പ്രശ്നം റിപ്പോർട്ട് ചെയ്യുക"
-    },
-    "repoFilterLabel": {
-      "message": "റിപ്പോസിറ്ററികളിലൂടെ ഫിൽറ്റർ ചെയ്യുക"
-    },
-    "enableFilteringLabel": {
-      "message": "ഫിൽറ്ററിംഗ് സജീവമാക്കുക"
-    },
-    "tokenRequiredWarning": {
-      "message": "റിപ്പോസിറ്ററി ഫിൽറ്ററിംഗിന് GitHub ടോക്കൺ ആവശ്യമാണ്. ദയവായി സെറ്റിംഗ്സിൽ ചേർക്കുക."
-    },
-    "repoSearchPlaceholder": {
-      "message": "ചേർക്കാനുള്ള റിപ്പോസിറ്ററി തിരയുക..."
-    },
-    "repoPlaceholder": {
-      "message": "റിപ്പോസിറ്ററികളൊന്നും തിരഞ്ഞെടുത്തിട്ടില്ല (എല്ലാം ഉൾപ്പെടും)"
-    },
-    "repoCountNone": {
-      "message": "0 റിപ്പോസിറ്ററികൾ തിരഞ്ഞെടുത്തു"
-    },
-    "repoCount": {
-      "message": "$1 റിപ്പോസിറ്ററികൾ തിരഞ്ഞെടുത്തു"
-    },
-    "repoLoading": {
-      "message": "റിപ്പോസിറ്ററികൾ ലോഡ് ചെയ്യുന്നു..."
-    },
-    "repoLoaded": {
-      "message": "$1 റിപ്പോസിറ്ററികൾ ലോഡ് ചെയ്തു."
-    },
-    "repoNotFound": {
-      "message": "റിപ്പോസിറ്ററികൾ കണ്ടെത്തിയില്ല"
-    },
-    "repoRefetching": {
-      "message": "റിപ്പോസിറ്ററികൾ വീണ്ടും ശേഖരിക്കുന്നു..."
-    },
-    "repoLoadFailed": {
-      "message": "റിപ്പോസിറ്ററികൾ ലോഡ് ചെയ്യാൻ പരാജയപ്പെട്ടു."
-    },
-    "repoTokenPrivate": {
-      "message": "ടോക്കൺ അസാധുവാണ് അല്ലെങ്കിൽ സ്വകാര്യ റിപ്പോസിറ്ററികൾക്ക് അനുമതിയില്ല."
-    },
-    "repoRefetchFailed": {
-      "message": "റിപ്പോസിറ്ററികൾ വീണ്ടും ശേഖരിക്കാൻ പരാജയപ്പെട്ടു."
-    },
-    "orgSetMessage": {
-      "message": "സ്ഥാപനം വിജയകരമായി സെറ്റ് ചെയ്തു."
-    },
-    "orgClearedMessage": {
-      "message": "സ്ഥാപനം നീക്കം ചെയ്തു. എല്ലാ പ്രവർത്തനങ്ങളും ശേഖരിക്കാൻ 'റിപ്പോർട്ട് സൃഷ്ടിക്കുക' ക്ലിക്ക് ചെയ്യുക."
-    },
-    "orgNotFoundMessage": {
-      "message": "GitHub-ൽ സ്ഥാപനം കണ്ടെത്തിയില്ല."
-    },
-    "orgValidationErrorMessage": {
-      "message": "സ്ഥാപനം സ്ഥിരീകരിക്കുന്നതിൽ പിശക്."
-    },
-    "refreshingButton": {
-      "message": "പുതുക്കുന്നു..."
-    },
-    "cacheClearFailed": {
-      "message": "കാഷ് ക്ലിയർ ചെയ്യൽ പരാജയപ്പെട്ടു."
-    },
-    "madeWithLoveBy": {
-      "message": "Made with ❤️ by"
-    },
-    "generatingButton": {
-      "message": "സൃഷ്ടിക്കുന്നു..."
-    },
-    "copiedButton": {
-      "message": "പകർത്തി!"
-    },
-    "orgChangedMessage": {
-      "message": "സംഘടന മാറി. GitHub പ്രവർത്തനങ്ങൾ ശേഖരിക്കാൻ റിപ്പോർട്ട് സൃഷ്ടിക്കുക ബട്ടൺ ക്ലിക്ക് ചെയ്യുക."
-    },
-    "cacheClearedMessage": {
-      "message": "കാഷ് വിജയകരമായി ക്ലിയർ ചെയ്തു. പുതിയ ഡാറ്റയ്ക്കായി \"റിപ്പോർട്ട് സൃഷ്ടിക്കുക\" ക്ലിക്ക് ചെയ്യുക."
-    },
-    "cacheClearedButton": {
-      "message": "കാഷ് ക്ലിയർ ചെയ്തു!"
-    },
-    "extensionDisabledMessage": {
-      "message": "എക്സ്റ്റെൻഷൻ അപ്രാപ്തമാണ്. സ്ക്രം റിപ്പോർട്ടുകൾ സൃഷ്ടിക്കാൻ ഓപ്ഷനുകളിൽ നിന്ന് സജീവമാക്കുക."
-    },
-    "notePoint1": {
-      "message": "Pull request-കൾ നിങ്ങൾ മാത്രമല്ല, മറ്റ് സംഭാവനകർത്താക്കളുടെ ഏറ്റവും പുതിയ റിവ്യൂ പ്രവർത്തനത്തെ അടിസ്ഥാനമാക്കിയാണ് ശേഖരിക്കുന്നത്. പങ്കിടുന്നതിന് മുമ്പ് സൃഷ്ടിച്ച SCRUM റിപ്പോർട്ട് നിങ്ങളുടെ പ്രവർത്തനം ശരിയായി പ്രതിഫലിപ്പിക്കുന്നുവെന്ന് ഉറപ്പാക്കാൻ പരിശോധിച്ച് തിരുത്തുക."
-    },
-    "noteSeeIssue": {
-      "message": "ഈ ഇഷ്യൂ കാണുക"
-    },
-    "platformLabel": {
-      "message": "പ്ലാറ്റ്ഫോം"
-    },
-    "usernameLabel": {
-      "message": "നിങ്ങളുടെ ഉപയോക്തൃനാമം"
-    },
-    "onlyRevPRsLabel": {
-      "message": "റിപ്പോർട്ടിൽ റിവ്യൂ ചെയ്ത PRകൾ മാത്രം ഉൾപ്പെടുത്തുക"
-    },
-    "onlyRevPRsTooltip": {
-      "message": "തിരഞ്ഞെടുത്താൽ, നിങ്ങൾ റിവ്യൂ ചെയ്ത PRകൾ മാത്രം റിപ്പോർട്ടിൽ ഉൾപ്പെടും."
-    }
+  "appName": {
+    "message": "Scrum Helper"
+  },
+  "appDescription": {
+    "message": "തിരഞ്ഞെടുത്ത കാലയളവിലെ നിങ്ങളുടെ Git പ്രവർത്തനങ്ങൾ സ്വയമേവ ശേഖരിച്ചു നിങ്ങളുടെ വികസന പുരോഗതി റിപ്പോർട്ട് ചെയ്യുക"
+  },
+  "disableLabel": {
+    "message": "അപ്രാപ്തമാക്കുക"
+  },
+  "enableLabel": {
+    "message": "സജീവമാക്കുക"
+  },
+  "projectNameLabel": {
+    "message": "പ്രോജക്ട് പേര് (ഇമെയിൽ വിഷയം ആയി ഉപയോഗിക്കും)"
+  },
+  "projectNamePlaceholder": {
+    "message": "നിങ്ങളുടെ പ്രോജക്ട് പേര് നൽകുക"
+  },
+  "githubUsernameLabel": {
+    "message": "നിങ്ങളുടെ GitHub ഉപയോക്തൃനാമം"
+  },
+  "gitlabUsernameLabel": {
+    "message": "നിങ്ങളുടെ GitLab ഉപയോക്തൃനാമം"
+  },
+  "githubUsernamePlaceholder": {
+    "message": "നിങ്ങളുടെ സംഭാവനകൾ ശേഖരിക്കാൻ ആവശ്യമാണ്"
+  },
+  "contributionsLabel": {
+    "message": "ഈ സമയപരിധിക്കുള്ളിൽ നിങ്ങളുടെ സംഭാവനകൾ ശേഖരിക്കുക:"
+  },
+  "last1DayLabel": {
+    "message": "മുൻ ദിവസം"
+  },
+  "startDateLabel": {
+    "message": "മുതൽ:"
+  },
+  "endDateLabel": {
+    "message": "വരെ:"
+  },
+  "showOpenClosedLabel": {
+    "message": "PR ലേബലുകൾ കാണിക്കുക"
+  },
+  "blockersLabel": {
+    "message": "നിങ്ങളുടെ പുരോഗതിയെ തടയുന്നത് എന്താണ്?"
+  },
+  "blockersPlaceholder": {
+    "message": "നിങ്ങളുടെ കാരണം നൽകുക"
+  },
+  "scrumReportLabel": {
+    "message": "സ്ക്രം റിപ്പോർട്ട്"
+  },
+  "generateReportButton": {
+    "message": "റിപ്പോർട്ട് സൃഷ്ടിക്കുക"
+  },
+  "copyReportButton": {
+    "message": "റിപ്പോർട്ട് പകർത്തുക"
+  },
+  "settingsOrgNameLabel": {
+    "message": "സ്ഥാപനത്തിന്റെ പേര്"
+  },
+  "settingsOrgNamePlaceholder": {
+    "message": "സ്ഥാപനത്തിന്റെ പേര് നൽകുക"
+  },
+  "setButton": {
+    "message": "സെറ്റ് ചെയ്യുക"
+  },
+  "githubTokenLabel": {
+    "message": "നിങ്ങളുടെ GitHub ടോക്കൺ"
+  },
+  "githubTokenPlaceholder": {
+    "message": "ഓതന്റിക്കേറ്റഡ് അഭ്യർത്ഥനകൾക്കായി ആവശ്യമാണ്"
+  },
+  "githubTokenTooltip": {
+    "message": "GitHub ടോക്കൻ ചേർക്കാൻ എന്ത് ശുപാർശ ചെയ്യുന്നത്? സ്ക്രം ഹെൽപർ GitHub ടോക്കൻ ഇല്ലാതെ പ്രവർത്തിക്കുന്നു, എന്നാൽ നല്ലതായ അനുഭവത്തിന് പ്രത്യക്ഷ ആക്സസ് ടോക്കൻ ചേർക്കാൻ ശുപാർശ ചെയ്യുന്നു."
+  },
+  "gitlabTokenLabel": {
+    "message": "നിങ്ങളുടെ GitLab ടോക്കൺ"
+  },
+  "gitlabTokenPlaceholder": {
+    "message": "സ്വകാര്യ പ്രോജക്ടുകൾ ആക്സസ് ചെയ്യാൻ ആവശ്യമാണ്"
+  },
+  "gitlabTokenTooltip": {
+    "message": "GitLab ടോക്കൻ ചേർക്കാൻ എന്ത് ശുപാർശ ചെയ്യുന്നത്? സ്ക്രം ഹെൽപർ പബ്ലിക് പ്രോജക്ടുകൾക്കായി GitLab ടോക്കൻ ഇല്ലാതെ പ്രവർത്തിക്കുന്നു, എന്നാൽ നല്ലതായ അനുഭവത്തിന് പ്രത്യക്ഷ ആക്സസ് ടോക്കൻ ചേർക്കാൻ ശുപാർശ ചെയ്യുന്നു."
+  },
+  "showCommitsLabel": {
+    "message": "ഓപ്പൺ / ഡ്രാഫ്റ്റ് PRകളിലെ കമ്മിറ്റുകൾ കാണിക്കുക"
+  },
+  "showCommitsTooltip": {
+    "message": "GitHub ടോക്കൺ ആവശ്യമാണ്, ദയവായി സെറ്റിംഗ്സിൽ ചേർക്കുക."
+  },
+  "onlyIssuesLabel": {
+    "message": "റിപ്പോർട്ടിൽ ഇഷ്യൂകൾ മാത്രം ഉൾപ്പെടുത്തുക"
+  },
+  "onlyIssuesTooltip": {
+    "message": "തിരഞ്ഞെടുത്താൽ, ഉപയോക്താവ് സൃഷ്ടിച്ചതോ ഏൽപ്പിച്ചതോ ആയ ഇഷ്യൂകൾ മാത്രം റിപ്പോർട്ടിൽ ഉൾപ്പെടും."
+  },
+  "onlyPRsLabel": {
+    "message": "റിപ്പോർട്ടിൽ PRകൾ മാത്രം ഉൾപ്പെടുത്തുക"
+  },
+  "onlyPRsTooltip": {
+    "message": "തിരഞ്ഞെടുത്താൽ, നിങ്ങൾ സൃഷ്ടിച്ച PRകൾ മാത്രം റിപ്പോർട്ടിൽ ഉൾപ്പെടും. റിവ്യൂ ചെയ്ത PRകൾ ഒഴിവാക്കപ്പെടും."
+  },
+  "cacheTTLLabel": {
+    "message": "കാഷ് TTL നൽകുക"
+  },
+  "cacheTTLUnit": {
+    "message": "(മിനിറ്റുകളിൽ)"
+  },
+  "cacheTTLPlaceholder": {
+    "message": "കാഷ് TTL മിനിറ്റുകളിൽ നൽകുക (ഡിഫോൾട്ട് 10 മിനിറ്റ്)"
+  },
+  "refreshDataButton": {
+    "message": "ഡാറ്റ പുതുക്കുക (കാഷ് ഒഴിവാക്കി)"
+  },
+  "refreshDataInfo": {
+    "message": "പുതിയ ഡാറ്റ ഉടൻ ശേഖരിക്കാൻ ഈ ബട്ടൺ ഉപയോഗിക്കുക."
+  },
+  "noteTitle": {
+    "message": "കുറിപ്പ്:"
+  },
+  "viewCodeButton": {
+    "message": "കോഡ് കാണുക"
+  },
+  "reportIssueButton": {
+    "message": "പ്രശ്നം റിപ്പോർട്ട് ചെയ്യുക"
+  },
+  "repoFilterLabel": {
+    "message": "റിപ്പോസിറ്ററികളിലൂടെ ഫിൽറ്റർ ചെയ്യുക"
+  },
+  "enableFilteringLabel": {
+    "message": "ഫിൽറ്ററിംഗ് സജീവമാക്കുക"
+  },
+  "tokenRequiredWarning": {
+    "message": "റിപ്പോസിറ്ററി ഫിൽറ്ററിംഗിന് GitHub ടോക്കൺ ആവശ്യമാണ്. ദയവായി സെറ്റിംഗ്സിൽ ചേർക്കുക."
+  },
+  "repoSearchPlaceholder": {
+    "message": "ചേർക്കാനുള്ള റിപ്പോസിറ്ററി തിരയുക..."
+  },
+  "repoPlaceholder": {
+    "message": "റിപ്പോസിറ്ററികളൊന്നും തിരഞ്ഞെടുത്തിട്ടില്ല (എല്ലാം ഉൾപ്പെടും)"
+  },
+  "repoCountNone": {
+    "message": "0 റിപ്പോസിറ്ററികൾ തിരഞ്ഞെടുത്തു"
+  },
+  "repoCount": {
+    "message": "$1 റിപ്പോസിറ്ററികൾ തിരഞ്ഞെടുത്തു"
+  },
+  "repoLoading": {
+    "message": "റിപ്പോസിറ്ററികൾ ലോഡ് ചെയ്യുന്നു..."
+  },
+  "repoLoaded": {
+    "message": "$1 റിപ്പോസിറ്ററികൾ ലോഡ് ചെയ്തു."
+  },
+  "repoNotFound": {
+    "message": "റിപ്പോസിറ്ററികൾ കണ്ടെത്തിയില്ല"
+  },
+  "repoRefetching": {
+    "message": "റിപ്പോസിറ്ററികൾ വീണ്ടും ശേഖരിക്കുന്നു..."
+  },
+  "repoLoadFailed": {
+    "message": "റിപ്പോസിറ്ററികൾ ലോഡ് ചെയ്യാൻ പരാജയപ്പെട്ടു."
+  },
+  "repoTokenPrivate": {
+    "message": "ടോക്കൺ അസാധുവാണ് അല്ലെങ്കിൽ സ്വകാര്യ റിപ്പോസിറ്ററികൾക്ക് അനുമതിയില്ല."
+  },
+  "repoRefetchFailed": {
+    "message": "റിപ്പോസിറ്ററികൾ വീണ്ടും ശേഖരിക്കാൻ പരാജയപ്പെട്ടു."
+  },
+  "orgSetMessage": {
+    "message": "സ്ഥാപനം വിജയകരമായി സെറ്റ് ചെയ്തു."
+  },
+  "orgClearedMessage": {
+    "message": "സ്ഥാപനം നീക്കം ചെയ്തു. എല്ലാ പ്രവർത്തനങ്ങളും ശേഖരിക്കാൻ 'റിപ്പോർട്ട് സൃഷ്ടിക്കുക' ക്ലിക്ക് ചെയ്യുക."
+  },
+  "orgNotFoundMessage": {
+    "message": "GitHub-ൽ സ്ഥാപനം കണ്ടെത്തിയില്ല."
+  },
+  "orgValidationErrorMessage": {
+    "message": "സ്ഥാപനം സ്ഥിരീകരിക്കുന്നതിൽ പിശക്."
+  },
+  "refreshingButton": {
+    "message": "പുതുക്കുന്നു..."
+  },
+  "cacheClearFailed": {
+    "message": "കാഷ് ക്ലിയർ ചെയ്യൽ പരാജയപ്പെട്ടു."
+  },
+  "madeWithLoveBy": {
+    "message": "Made with ❤️ by"
+  },
+  "generatingButton": {
+    "message": "സൃഷ്ടിക്കുന്നു..."
+  },
+  "copiedButton": {
+    "message": "പകർത്തി!"
+  },
+  "orgChangedMessage": {
+    "message": "സംഘടന മാറി. GitHub പ്രവർത്തനങ്ങൾ ശേഖരിക്കാൻ റിപ്പോർട്ട് സൃഷ്ടിക്കുക ബട്ടൺ ക്ലിക്ക് ചെയ്യുക."
+  },
+  "cacheClearedMessage": {
+    "message": "കാഷ് വിജയകരമായി ക്ലിയർ ചെയ്തു. പുതിയ ഡാറ്റയ്ക്കായി \"റിപ്പോർട്ട് സൃഷ്ടിക്കുക\" ക്ലിക്ക് ചെയ്യുക."
+  },
+  "cacheClearedButton": {
+    "message": "കാഷ് ക്ലിയർ ചെയ്തു!"
+  },
+  "extensionDisabledMessage": {
+    "message": "എക്സ്റ്റെൻഷൻ അപ്രാപ്തമാണ്. സ്ക്രം റിപ്പോർട്ടുകൾ സൃഷ്ടിക്കാൻ ഓപ്ഷനുകളിൽ നിന്ന് സജീവമാക്കുക."
+  },
+  "notePoint1": {
+    "message": "Pull request-കൾ നിങ്ങൾ മാത്രമല്ല, മറ്റ് സംഭാവനകർത്താക്കളുടെ ഏറ്റവും പുതിയ റിവ്യൂ പ്രവർത്തനത്തെ അടിസ്ഥാനമാക്കിയാണ് ശേഖരിക്കുന്നത്. പങ്കിടുന്നതിന് മുമ്പ് സൃഷ്ടിച്ച SCRUM റിപ്പോർട്ട് നിങ്ങളുടെ പ്രവർത്തനം ശരിയായി പ്രതിഫലിപ്പിക്കുന്നുവെന്ന് ഉറപ്പാക്കാൻ പരിശോധിച്ച് തിരുത്തുക."
+  },
+  "noteSeeIssue": {
+    "message": "ഈ ഇഷ്യൂ കാണുക"
+  },
+  "platformLabel": {
+    "message": "പ്ലാറ്റ്ഫോം"
+  },
+  "usernameLabel": {
+    "message": "നിങ്ങളുടെ ഉപയോക്തൃനാമം"
+  },
+  "onlyRevPRsLabel": {
+    "message": "റിപ്പോർട്ടിൽ റിവ്യൂ ചെയ്ത PRകൾ മാത്രം ഉൾപ്പെടുത്തുക"
+  },
+  "onlyRevPRsTooltip": {
+    "message": "തിരഞ്ഞെടുത്താൽ, നിങ്ങൾ റിവ്യൂ ചെയ്ത PRകൾ മാത്രം റിപ്പോർട്ടിൽ ഉൾപ്പെടും."
   }
-  
+}

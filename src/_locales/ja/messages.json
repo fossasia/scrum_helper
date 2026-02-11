@@ -71,6 +71,9 @@
   "githubTokenPlaceholder": {
     "message": "認証済みリクエストに必要です"
   },
+  "githubTokenTooltip": {
+    "message": "GitHubトークンを追加することをお勧めするのはなぜですか？Scrum HelperはGitHubトークンなしで機能しますが、より良いエクスペリエンスのためにパーソナルアクセストークンを追加することをお勧めします。"
+  },
   "gitlabTokenLabel": {
     "message": "GitLabトークン"
   },
@@ -97,6 +100,12 @@
   },
   "onlyPRsTooltip": {
     "message": "チェックすると、レポートにはユーザーが作成したPRのみが含まれ、レビュー済みのPRは除外されます。"
+  },
+  "onlyRevPRsLabel": {
+    "message": "レポートにレビュー済みのPRのみを含める"
+  },
+  "onlyRevPRsTooltip": {
+    "message": "チェックした場合、レポートにはあなたがレビューしたPRのみが含まれます。"
   },
   "cacheTTLLabel": {
     "message": "キャッシュTTLを入力",
