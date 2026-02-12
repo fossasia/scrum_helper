@@ -321,14 +321,6 @@ class GitLabHelper {
 		this.cache.fetching = true;
 		this.cache.cacheKey = cacheKey;
 
-		// Update token if provided and build headers
-		if (token) {
-			this.token = token;
-		}
-		const headers = {};
-		if (token) {
-			headers['PRIVATE-TOKEN'] = token;
-		}
 
 		try {
 			// Throttling 500ms to avoid burst
@@ -336,7 +328,7 @@ class GitLabHelper {
 
 			// Get user info first
 			const userUrl = `${this.baseUrl}/users?username=${encodeURIComponent(username)}`;
-			const userRes = await this.fetchWithTimeout(userUrl, { headers: this.getHeaders(token) });
+			const userRes = await this.fetchWithTimeout(userUrl, { headers: this.getHeaders(effectiveToken) });
 			const users = await this.handleApiResponse(userRes, 'fetching user');
 			if (users.length === 0) {
 				throw new Error(`GitLab user '${username}' not found`);
@@ -346,9 +338,15 @@ class GitLabHelper {
 			const fetchAllPages = async (baseUrl, description) => {
 				const all = [];
 				let page = 1;
+				const MAX_PAGE_ITERATIONS = 1000;
+				let pageIterations = 0;
 				while (true) {
+					if (++pageIterations > MAX_PAGE_ITERATIONS) {
+						console.warn(`fetchAllPages: reached max iterations (${MAX_PAGE_ITERATIONS}), aborting to avoid infinite loop.`);
+						break;
+					}
 					const urlWithPage = `${baseUrl}&page=${page}`;
-					const res = await this.fetchWithTimeout(urlWithPage, { headers: this.getHeaders(token) }, 15000);
+					const res = await this.fetchWithTimeout(urlWithPage, { headers: this.getHeaders(effectiveToken) }, 15000);
 					const pageItems = await this.handleApiResponse(res, description);
 					if (Array.isArray(pageItems) && pageItems.length > 0) {
 						all.push(...pageItems);
@@ -358,8 +356,12 @@ class GitLabHelper {
 						: null;
 					if (nextPageHeader) {
 						const nextPageNumber = parseInt(nextPageHeader, 10);
-						if (!isNaN(nextPageNumber) && nextPageNumber > page) {
-							page = nextPageNumber;
+						if (!isNaN(nextPageNumber)) {
+							if (nextPageNumber > page) {
+								page = nextPageNumber;
+								continue;
+							}
+							page += 1;
 							continue;
 						}
 					}
@@ -413,7 +415,7 @@ class GitLabHelper {
 			for (const project of allProjects) {
 				try {
 					const projectMRsUrl = `${this.baseUrl}/projects/${project.id}/merge_requests?author_id=${userId}&created_after=${startDate}T00:00:00Z&created_before=${endDate}T23:59:59Z&per_page=100&order_by=updated_at&sort=desc`;
-				    const projectMRsRes = await this.fetchWithTimeout(projectMRsUrl, { headers: this.getHeaders(token) }, 15000);
+					const projectMRsRes = await this.fetchWithTimeout(projectMRsUrl, { headers: this.getHeaders(effectiveToken) }, 15000);
 					if (projectMRsRes.ok) {
 						const projectMRs = await projectMRsRes.json();
 						allMergeRequests = allMergeRequests.concat(projectMRs);
@@ -443,7 +445,7 @@ class GitLabHelper {
 			for (const project of allProjects) {
 				try {
 					const projectIssuesUrl = `${this.baseUrl}/projects/${project.id}/issues?author_id=${userId}&created_after=${startDate}T00:00:00Z&created_before=${endDate}T23:59:59Z&per_page=100&order_by=updated_at&sort=desc`;
-				    const projectIssuesRes = await this.fetchWithTimeout(projectIssuesUrl, { headers: this.getHeaders(token) }, 15000);
+					const projectIssuesRes = await this.fetchWithTimeout(projectIssuesUrl, { headers: this.getHeaders(effectiveToken) }, 15000);
 					if (projectIssuesRes.ok) {
 						const projectIssues = await projectIssuesRes.json();
 						allIssues = allIssues.concat(projectIssues);

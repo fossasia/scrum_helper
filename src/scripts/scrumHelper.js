@@ -319,12 +319,12 @@ async function allIncluded(outputTarget = 'email') {
 
 							gitlabHelper
 								.fetchGitLabData(
-									platformUsernameLocal, 
-									startingDate, 
+									platformUsernameLocal,
+									startingDate,
 									endingDate,
 									items.gitlabToken,
-									gitlabGroup, 
-									selectedGitlabProjects
+									gitlabGroup,
+									selectedGitlabProjects,
 								)
 								.then((data) => {
 									function mapGitLabItem(item, projects, type) {

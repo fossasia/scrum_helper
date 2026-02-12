@@ -1,14 +1,4 @@
 /* global chrome */
-// Utility function to escape HTML and prevent XSS
-function escapeHtml(unsafe) {
-	if (typeof unsafe !== 'string') return '';
-	return unsafe
-		.replace(/&/g, '&amp;')
-		.replace(/</g, '&lt;')
-		.replace(/>/g, '&gt;')
-		.replace(/"/g, '&quot;')
-		.replace(/'/g, '&#039;');
-}
 
 function sanitizeTooltipHtml(html) {
 	const parser = new DOMParser();
@@ -2097,9 +2087,11 @@ document.addEventListener('DOMContentLoaded', () => {
 			chrome.storage.local.set({ platform });
 			const platformUsername = document.getElementById('platformUsername');
 			if (platformUsername) {
-				const currentPlatform = platformSelect.value === 'github' ? 'gitlab' : 'github'; // Get the platform we're switching from
-				const currentUsername = platformUsername.value;
-				if (currentUsername.trim()) {
+				const currentPlatform = platformSelect && platformSelect.value === 'github' ? 'gitlab' : 'github'; // Get the platform we're switching from
+				const currentUsername = platformUsername && typeof platformUsername.value === 'string'
+					? platformUsername.value.trim()
+					: '';
+				if (currentUsername) {
 					chrome.storage.local.set({ [`${currentPlatform}Username`]: currentUsername });
 				}
 			}
@@ -2230,11 +2222,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		chrome.storage.local.get(['platform'], (result) => {
 			const platform = result.platform || 'github';
 			// Just update the UI without clearing username when restoring from storage
-			if (platform === 'gitlab') {
-				dropdownSelected.innerHTML = '<i class="fab fa-gitlab mr-2"></i> GitLab';
-			} else {
-				dropdownSelected.innerHTML = '<i class="fab fa-github mr-2"></i> GitHub';
-			}while (dropdownSelected.firstChild) {
+			while (dropdownSelected.firstChild) {
 				dropdownSelected.removeChild(dropdownSelected.firstChild);
 			}
 			const iconEl = document.createElement('i');
