@@ -345,15 +345,15 @@ class GitLabHelper {
 
 			// Fetch all projects the user is a member of (including group projects)
 			const membershipProjectsUrl = `${this.baseUrl}/users/${userId}/projects?membership=true&per_page=100&order_by=updated_at&sort=desc`;
-		const membershipProjectsRes = await this.fetchWithTimeout(membershipProjectsUrl, { headers: this.getHeaders(token) });
-		const membershipProjects = await this.handleApiResponse(membershipProjectsRes, 'fetching membership projects');
+			const membershipProjectsRes = await this.fetchWithTimeout(membershipProjectsUrl, { headers: this.getHeaders(token) });
+			const membershipProjects = await this.handleApiResponse(membershipProjectsRes, 'fetching membership projects');
 
-		// Fetch all projects the user has contributed to (public, group, etc.)
-		const contributedProjectsUrl = `${this.baseUrl}/users/${userId}/contributed_projects?per_page=100&order_by=updated_at&sort=desc`;
-		const contributedProjectsRes = await this.fetchWithTimeout(contributedProjectsUrl, {
-			headers: this.getHeaders(token),
-		});
-		const contributedProjects = await this.handleApiResponse(contributedProjectsRes, 'fetching contributed projects');
+			// Fetch all projects the user has contributed to (public, group, etc.)
+			const contributedProjectsUrl = `${this.baseUrl}/users/${userId}/contributed_projects?per_page=100&order_by=updated_at&sort=desc`;
+			const contributedProjectsRes = await this.fetchWithTimeout(contributedProjectsUrl, {
+				headers: this.getHeaders(token),
+			});
+			const contributedProjects = await this.handleApiResponse(contributedProjectsRes, 'fetching contributed projects');
 			const allProjectsMap = new Map();
 			for (const p of [...membershipProjects, ...contributedProjects]) {
 				allProjectsMap.set(p.id, p);
@@ -365,12 +365,15 @@ class GitLabHelper {
 				const groupLower = group.trim().toLowerCase();
 				allProjects = allProjects.filter(p => {
 					// Check if project belongs to a group/namespace matching the filter
-					if (p.namespace && p.namespace.path) {
-						return p.namespace.path.toLowerCase().includes(groupLower) || 
-						       p.namespace.full_path.toLowerCase().includes(groupLower) ||
-						       (p.namespace.name && p.namespace.name.toLowerCase().includes(groupLower));
+					if (!p.namespace) {
+						return false;
 					}
-					return false;
+					const namespacePath = (p.namespace.path ?? '').toLowerCase();
+					const namespaceFullPath = (p.namespace.full_path ?? '').toLowerCase();
+					const namespaceName = (p.namespace.name ?? '').toLowerCase();
+					return namespacePath.includes(groupLower) ||
+					       namespaceFullPath.includes(groupLower) ||
+					       namespaceName.includes(groupLower);
 				});
 				if (GitLabHelper.debug) console.log(`[GITLAB] Filtered ${allProjects.length} projects by group: ${group}`);
 			}
@@ -389,7 +392,7 @@ class GitLabHelper {
 			for (const project of allProjects) {
 				try {
 					const projectMRsUrl = `${this.baseUrl}/projects/${project.id}/merge_requests?author_id=${userId}&created_after=${startDate}T00:00:00Z&created_before=${endDate}T23:59:59Z&per_page=100&order_by=updated_at&sort=desc`;
-				const projectMRsRes = await this.fetchWithTimeout(projectMRsUrl, { headers: this.getHeaders(token) }, 15000);
+				    const projectMRsRes = await this.fetchWithTimeout(projectMRsUrl, { headers: this.getHeaders(token) }, 15000);
 					if (projectMRsRes.ok) {
 						const projectMRs = await projectMRsRes.json();
 						allMergeRequests = allMergeRequests.concat(projectMRs);
@@ -419,7 +422,7 @@ class GitLabHelper {
 			for (const project of allProjects) {
 				try {
 					const projectIssuesUrl = `${this.baseUrl}/projects/${project.id}/issues?author_id=${userId}&created_after=${startDate}T00:00:00Z&created_before=${endDate}T23:59:59Z&per_page=100&order_by=updated_at&sort=desc`;
-				const projectIssuesRes = await this.fetchWithTimeout(projectIssuesUrl, { headers: this.getHeaders(token) }, 15000);
+				    const projectIssuesRes = await this.fetchWithTimeout(projectIssuesUrl, { headers: this.getHeaders(token) }, 15000);
 					if (projectIssuesRes.ok) {
 						const projectIssues = await projectIssuesRes.json();
 						allIssues = allIssues.concat(projectIssues);
