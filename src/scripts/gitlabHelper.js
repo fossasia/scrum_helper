@@ -343,17 +343,38 @@ class GitLabHelper {
 			}
 			const userId = users[0].id;
 
+			const fetchAllPages = async (baseUrl, description) => {
+				const all = [];
+				let page = 1;
+				while (true) {
+					const urlWithPage = `${baseUrl}&page=${page}`;
+					const res = await this.fetchWithTimeout(urlWithPage, { headers: this.getHeaders(token) }, 15000);
+					const pageItems = await this.handleApiResponse(res, description);
+					if (Array.isArray(pageItems) && pageItems.length > 0) {
+						all.push(...pageItems);
+					}
+					const nextPageHeader = res.headers && typeof res.headers.get === 'function'
+						? res.headers.get('x-next-page')
+						: null;
+					if (nextPageHeader) {
+						const nextPageNumber = parseInt(nextPageHeader, 10);
+						if (!isNaN(nextPageNumber) && nextPageNumber > page) {
+							page = nextPageNumber;
+							continue;
+						}
+					}
+					break;
+				}
+				return all;
+			};
+
 			// Fetch all projects the user is a member of (including group projects)
 			const membershipProjectsUrl = `${this.baseUrl}/users/${userId}/projects?membership=true&per_page=100&order_by=updated_at&sort=desc`;
-			const membershipProjectsRes = await this.fetchWithTimeout(membershipProjectsUrl, { headers: this.getHeaders(token) });
-			const membershipProjects = await this.handleApiResponse(membershipProjectsRes, 'fetching membership projects');
+			const membershipProjects = await fetchAllPages(membershipProjectsUrl, 'fetching membership projects');
 
 			// Fetch all projects the user has contributed to (public, group, etc.)
 			const contributedProjectsUrl = `${this.baseUrl}/users/${userId}/contributed_projects?per_page=100&order_by=updated_at&sort=desc`;
-			const contributedProjectsRes = await this.fetchWithTimeout(contributedProjectsUrl, {
-				headers: this.getHeaders(token),
-			});
-			const contributedProjects = await this.handleApiResponse(contributedProjectsRes, 'fetching contributed projects');
+			const contributedProjects = await fetchAllPages(contributedProjectsUrl, 'fetching contributed projects');
 			const allProjectsMap = new Map();
 			for (const p of [...membershipProjects, ...contributedProjects]) {
 				allProjectsMap.set(p.id, p);

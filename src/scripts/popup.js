@@ -1765,7 +1765,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				} else if (err.message && err.message.includes('username')) {
 					gitlabProjectStatus.textContent = 'Username required';
 				} else {
-					gitlabProjectStatus.textContent = `Error: ${escapeHtml(err && err.message ? err.message : 'Failed to load projects')}`;
+					gitlabProjectStatus.textContent = `Error: ${err && err.message ? err.message : 'Failed to load projects'}`;
 				}
 			}
 		}

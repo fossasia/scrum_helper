@@ -322,7 +322,7 @@ async function allIncluded(outputTarget = 'email') {
 									platformUsernameLocal, 
 									startingDate, 
 									endingDate,
-									gitlabToken,
+									items.gitlabToken,
 									gitlabGroup, 
 									selectedGitlabProjects
 								)
