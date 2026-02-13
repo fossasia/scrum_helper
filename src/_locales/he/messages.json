@@ -71,6 +71,12 @@
     "githubTokenPlaceholder": {
         "message": "נדרש לבקשות מאומתות"
     },
+    "gitlabTokenLabel": {
+        "message": "אסימון ה-GitLab שלך"
+    },
+    "gitlabTokenPlaceholder": {
+        "message": "נדרש למאגרים פרטיים"
+    },
     "showCommitsLabel": {
         "message": "הצג קומיטים ב-PR פתוחים/טיוטות PR"
     },
@@ -190,5 +196,12 @@
     },
     "usernameLabel": {
         "message": "שם המשתמש שלך"
+    },
+    "onlyRevPRsLabel": {
+        "message": "כלול בדוח רק PR שנבדקו על ידך"
+    },
+    "onlyRevPRsTooltip": {
+        "message": "אם מסומן, הדוח יכלול רק PR שנבדקו על ידך."
+
     }
 }

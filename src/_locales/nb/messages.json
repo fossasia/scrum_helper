@@ -71,8 +71,20 @@
     "githubTokenPlaceholder": {
         "message": "Påkrevd for autentiserte forespørsler"
     },
+    "gitlabTokenLabel": {
+        "message": "Ditt GitLab-token"
+    },
+    "gitlabTokenPlaceholder": {
+        "message": "Påkrevd for private repoer"
+    },
     "showCommitsLabel": {
         "message": "Vis commits på åpne PR-er/utkast til PR-er"
+    },
+    "onlyPRsLabel": {
+        "message": "Inkluder kun PR-er i rapporten"
+    },
+    "onlyPRsTooltip": {
+        "message": "Hvis valgt, vil rapporten kun inkludere PR-er opprettet av brukeren; gjennomgåtte PR-er vil utelates."
     },
     "cacheTTLLabel": {
         "message": "Angi cache-TTL"

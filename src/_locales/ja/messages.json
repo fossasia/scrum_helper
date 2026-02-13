@@ -71,6 +71,12 @@
     "githubTokenPlaceholder": {
         "message": "認証済みリクエストに必要です"
     },
+    "gitlabTokenLabel": {
+        "message": "GitLabトークン"
+    },
+    "gitlabTokenPlaceholder": {
+        "message": "プライベートリポジトリに必要"
+    },
     "showCommitsLabel": {
         "message": "オープンなPR/ドラフトPRのコミットを表示"
     },
@@ -82,6 +88,12 @@
     },
     "onlyIssuesTooltip": {
         "message": "チェックした場合、レポートにはユーザーが作成または割り当てられた課題のみが含まれます。"
+    },
+    "onlyPRsLabel": {
+        "message": "レポートにPRのみを含める"
+    },
+    "onlyPRsTooltip": {
+        "message": "チェックすると、レポートにはユーザーが作成したPRのみが含まれ、レビュー済みのPRは除外されます。"
     },
     "cacheTTLLabel": {
         "message": "キャッシュTTLを入力",

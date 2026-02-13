@@ -71,6 +71,12 @@
     "githubTokenPlaceholder": {
         "message": "Diperlukan untuk permintaan terotentikasi"
     },
+    "gitlabTokenLabel": {
+        "message": "Token GitLab Anda"
+    },
+    "gitlabTokenPlaceholder": {
+        "message": "Diperlukan untuk repo pribadi"
+    },
     "showCommitsLabel": {
         "message": "Tampilkan commit pada PR terbuka/ draf PR"
     },
@@ -83,6 +89,19 @@
     "onlyIssuesTooltip": {
         "message": "Jika dicentang, laporan hanya akan menyertakan masalah yang dibuat atau ditugaskan kepada pengguna."
     },
+    "onlyPRsLabel": {
+        "message": "Hanya sertakan PR dalam laporan"
+    },
+    "onlyPRsTooltip": {
+        "message": "Jika dicentang, laporan hanya akan menyertakan PR yang dibuat oleh pengguna; PR yang telah ditinjau akan dikecualikan."
+    },
+    "onlyRevPRsLabel": {
+        "message": "Hanya sertakan PR yang ditinjau dalam laporan"
+    },
+    "onlyRevPRsTooltip": {
+        "message": "Jika dicentang, laporan hanya akan menyertakan PR yang ditinjau oleh Anda."
+    },
+
     "cacheTTLLabel": {
         "message": "Masukkan TTL cache",
         "description": "Label untuk masukan time-to-live cache."

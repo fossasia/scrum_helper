@@ -1,0 +1,198 @@
+{
+  "appName": {
+    "message": "Scrum Helper"
+  },
+  "appDescription": {
+    "message": "ఎంచుకున్న కాలవ్యవధికి మీ Git కార్యకలాపాలను స్వయంచాలకంగా తెచ్చి, మీ అభివృద్ధి పురోగతిని నివేదించండి"
+  },
+  "disableLabel": {
+    "message": "అచేతనం"
+  },
+  "enableLabel": {
+    "message": "సక్రియం"
+  },
+  "projectNameLabel": {
+    "message": "ప్రాజెక్ట్ పేరు (ఇమెయిల్ విషయంలో వాడబడుతుంది)"
+  },
+  "projectNamePlaceholder": {
+    "message": "మీ ప్రాజెక్ట్ పేరును నమోదు చేయండి"
+  },
+  "githubUsernameLabel": {
+    "message": "మీ GitHub వాడుకరి పేరు"
+  },
+  "gitlabUsernameLabel": {
+    "message": "మీ GitLab వాడుకరి పేరు"
+  },
+  "githubUsernamePlaceholder": {
+    "message": "మీ సహకారాలను తెచ్చుకోవడానికి అవసరం"
+  },
+  "contributionsLabel": {
+    "message": "మీ సహకారాలను ఇక్కడ నుండి తెచ్చుకోండి:"
+  },
+  "last1DayLabel": {
+    "message": "గత రోజు"
+  },
+  "startDateLabel": {
+    "message": "నుండి:"
+  },
+  "endDateLabel": {
+    "message": "వరకు:"
+  },
+  "showOpenClosedLabel": {
+    "message": "PR లేబుళ్లు చూపించు"
+  },
+  "blockersLabel": {
+    "message": "మీరు ఏమి కారణంగా ముందుకు సాగలేకపోతున్నారు?"
+  },
+  "blockersPlaceholder": {
+    "message": "మీ కారణం ఇక్కడ రాయండి"
+  },
+  "scrumReportLabel": {
+    "message": "స్క్రమ్ నివేదిక"
+  },
+  "generateReportButton": {
+    "message": "నివేదికను రూపొందించు"
+  },
+  "copyReportButton": {
+    "message": "నివేదికను కాపీ చేయి"
+  },
+  "settingsOrgNameLabel": {
+    "message": "సంస్థ పేరు"
+  },
+  "settingsOrgNamePlaceholder": {
+    "message": "సంస్థ పేరును నమోదు చేయండి"
+  },
+  "setButton": {
+    "message": "సెట్ చేయి"
+  },
+  "githubTokenLabel": {
+    "message": "మీ GitHub టోకెన్"
+  },
+  "githubTokenPlaceholder": {
+    "message": "ఆథెంటికేటెడ్ అభ్యర్థనలకు అవసరం"
+  },
+  "gitlabTokenLabel": {
+    "message": "మీ GitLab టోకెన్"
+  },
+  "gitlabTokenPlaceholder": {
+    "message": "ప్రైవేట్ రెపోస్ కోసం అవసరం"
+  },
+  "showCommitsLabel": {
+    "message": "ఓపెన్ PRలు / డ్రాఫ్ట్ PRలపై కమిట్లు చూపించు"
+  },
+  "showCommitsTooltip": {
+    "message": "GitHub టోకెన్ అవసరం — దయచేసి సెట్టింగ్స్‌లో జోడించండి."
+  },
+  "onlyIssuesLabel": {
+    "message": "నివేదికలో ఇష్యూలను మాత్రమే చేర్చు"
+  },
+  "onlyIssuesTooltip": {
+    "message": "ఎంచుకుంటే, నివేదికలో వాడుకరికి కేటాయించబడిన లేదా సృష్టించబడిన ఇష్యూలు మాత్రమే చూపబడతాయి."
+  },
+  "onlyPRsLabel": {
+    "message": "నివేదికలో PRలను మాత్రమే చేర్చు"
+  },
+  "onlyPRsTooltip": {
+    "message": "ఎంచుకుంటే, నివేదికలో మీరు సృష్టించిన PRలు మాత్రమే ఉంటాయి. సమీక్షించిన PRలు తప్పించబడతాయి."
+  },
+  "onlyRevPRsLabel": {
+    "message": "నివేదికలో మీరు సమీక్షించిన PRలను మాత్రమే చేర్చు"
+  },
+  "onlyRevPRsTooltip": {
+    "message": "ఎంచుకుంటే, నివేదికలో మీరు సమీక్షించిన PRలు మాత్రమే చూపబడతాయి."
+  },
+
+  "cacheTTLLabel": {
+    "message": "క్యాష్ TTL ను నమోదు చేయండి"
+  },
+  "cacheTTLUnit": {
+    "message": "(నిమిషాలలో)"
+  },
+  "cacheTTLPlaceholder": {
+    "message": "క్యాష్ TTL ని నిమిషాలలో రాయండి (డిఫాల్ట్ 10 నిమిషాలు)"
+  },
+  "refreshDataButton": {
+    "message": "డేటా రీఫ్రెష్ చేయండి (క్యాష్‌ను దాటవేయండి)"
+  },
+  "refreshDataInfo": {
+    "message": "తాజా డేటాను వెంటనే తెచ్చుకోవడానికి ఈ బటన్‌ను ఉపయోగించండి."
+  },
+  "noteTitle": {
+    "message": "గమనిక:"
+  },
+  "viewCodeButton": {
+    "message": "కోడ్ చూడండి"
+  },
+  "reportIssueButton": {
+    "message": "సమస్యను నివేదించండి"
+  },
+  "repoFilterLabel": {
+    "message": "రిపోజిటరీల ద్వారా ఫిల్టర్ చేయండి"
+  },
+  "enableFilteringLabel": {
+    "message": "ఫిల్టరింగ్‌ని ప్రారంభించండి"
+  },
+  "tokenRequiredWarning": {
+    "message": "రిపోజిటరీ ఫిల్టరింగ్ కోసం GitHub టోకెన్ అవసరం. దయచేసి సెట్టింగ్‌లలో ఒకదాన్ని జోడించండి."
+  },
+  "repoSearchPlaceholder": {
+    "message": "రిపోజిటరీల కోసం శోధించండి..."
+  },
+  "repoPlaceholder": {
+    "message": "ఎంచుకున్న రిపోజిటరీలు లేవు (అన్నీ చేర్చబడతాయి)"
+  },
+  "repoCountNone": {
+    "message": "0 రిపోజిటరీలు ఎంచుకోబడ్డాయి"
+  },
+  "repoLoaded": {
+    "message": "$1 రిపోజిటరీలు లోడ్ అయ్యాయి."
+  },
+  "repoRefetching": {
+    "message": "రిపోజిటరీలను మళ్లీ తెచ్చుకుంటున్నారు..."
+  },
+  "repoLoadFailed": {
+    "message": "రిపోజిటరీలను లోడ్ చేయలేకపోయాం."
+  },
+  "repoNotFound": {
+    "message": "రిపోజిటరీలు కనబడలేదు"
+  },
+  "repoTokenPrivate": {
+    "message": "టోకెన్ చెల్లదు లేదా ప్రైవేట్ రిపోజిటరీలకు అనుమతి లేదు."
+  },
+  "repoRefetchFailed": {
+    "message": "రిపోజిటరీలను మళ్లీ తెచ్చుకోవడం విఫలమైంది."
+  },
+  "orgSetMessage": {
+    "message": "సంస్థ విజయవంతంగా సెట్ చేయబడింది."
+  },
+  "orgClearedMessage": {
+    "message": "సంస్థ తొలగించబడింది. అన్ని కార్యకలాపాలు తెచ్చుకోవడానికి 'నివేదికను రూపొందించు' పై క్లిక్ చేయండి."
+  },
+  "orgValidationErrorMessage": {
+    "message": "సంస్థను ధృవీకరించడంలో లోపం."
+  },
+  "refreshingButton": {
+    "message": "రిఫ్రెష్ అవుతోంది..."
+  },
+  "cacheClearFailed": {
+    "message": "క్యాష్ క్లియర్ చేయడం విఫలమైంది."
+  },
+  "generatingButton": {
+    "message": "జనరేట్ అవుతోంది..."
+  },
+  "copiedButton": {
+    "message": "కాపీ అయింది!"
+  },
+  "orgChangedMessage": {
+    "message": "సంస్థ మార్చబడింది. GitHub కార్యకలాపాలను తెచ్చుకోవడానికి 'నివేదికను రూపొందించు' పై క్లిక్ చేయండి."
+  },
+  "cacheClearedMessage": {
+    "message": "క్యాష్ విజయవంతంగా క్లియర్ చేయబడింది. తాజా డేటా కోసం \"నివేదికను రూపొందించు\" పై క్లిక్ చేయండి."
+  },
+  "extensionDisabledMessage": {
+    "message": "ఎక్స్‌టెన్షన్ నిలిపివేయబడింది. స్క్రమ్ నివేదికలు రూపొందించేందుకు సెట్టింగ్స్‌లో ఎనేబుల్ చేయండి."
+  },
+  "noteSeeIssue": {
+    "message": "ఈ ఇష్యూ చూడండి"
+  }
+}

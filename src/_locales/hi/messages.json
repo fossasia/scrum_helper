@@ -71,6 +71,12 @@
     "githubTokenPlaceholder": {
         "message": "प्रमाणित अनुरोधों के लिए आवश्यक"
     },
+    "gitlabTokenLabel": {
+        "message": "आपका GitLab टोकन"
+    },
+    "gitlabTokenPlaceholder": {
+        "message": "निजी रेपो के लिए आवश्यक"
+    },
     "showCommitsLabel": {
         "message": "खुले पीआर/ ड्राफ्ट पीआर पर कमिट दिखाएं"
     },
@@ -83,6 +89,19 @@
     "onlyIssuesTooltip": {
         "message": "यदि चेक किया गया है, तो रिपोर्ट में केवल उपयोगकर्ता द्वारा बनाए गए या सौंपे गए मुद्दे शामिल होंगे।"
     },
+    "onlyPRsLabel": {
+        "message": "रिपोर्ट में केवल PRs शामिल करें"
+    },
+    "onlyPRsTooltip": {
+        "message": "चेक करने पर रिपोर्ट में केवल उपयोगकर्ता द्वारा बनाई गई PRs शामिल होंगी; समीक्षित PRs बाहर रखी जाएँगी."
+    },
+    "onlyRevPRsLabel": {
+        "message": "रिपोर्ट में केवल समीक्षित PRs शामिल करें"
+    },
+    "onlyRevPRsTooltip": {
+        "message": "यदि चेक किया गया है, तो रिपोर्ट में केवल आपके द्वारा समीक्षित PRs शामिल होंगे।"
+    },
+
     "cacheTTLLabel": {
         "message": "कैश टीटीएल दर्ज करें",
         "description": "कैश टाइम-टू-लाइव इनपुट के लिए लेबल।"
