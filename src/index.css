@@ -890,6 +890,11 @@ hr,
     animation: slideIn 0.3s ease-out;
 }
 
+.dark-mode .shortcut-notification {
+    background: #1f2937;
+    color: #e5e7eb;
+}
+
 @keyframes slideIn {
     from {
         transform: translate(-50%, -10px);

@@ -6,15 +6,25 @@ function debounce(func, wait) {
 	};
 }
 
+// Utility: Detect if the current OS is macOS
+function isMacOS() {
+	return navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+}
+
 function showShortcutNotification(messageKey, shortcutKey) {
 	// Check if chrome API is available
 	if (typeof chrome === 'undefined' || !chrome.i18n) {
 		return;
 	}
 
+	// Remove any existing notification to prevent stacking
+	const existingNotification = document.querySelector('.shortcut-notification');
+	if (existingNotification) {
+		existingNotification.remove();
+	}
+
 	// Detect OS and format shortcut appropriately
-	const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
-	const modifier = isMac ? 'Cmd' : 'Ctrl';
+	const modifier = isMacOS() ? 'Cmd' : 'Ctrl';
 	const formattedShortcut = shortcutKey.replace('Ctrl', modifier);
 
 	// Get localized message and replace placeholder with shortcut
@@ -1397,14 +1407,15 @@ if (cacheInput) {
 }
 
 // Keyboard shortcuts: Ctrl+G (Cmd+G on macOS) to generate, Ctrl+Shift+K (Cmd+Shift+K on macOS) to copy
+// Registered once at the top level to avoid duplicate listeners
 document.addEventListener('keydown', (e) => {
-	if (e.target?.tagName === 'INPUT' || e.target?.tagName === 'TEXTAREA' || e.target?.isContentEditable) {
+	// Ignore shortcuts when typing in form elements
+	if (e.target?.tagName === 'INPUT' || e.target?.tagName === 'TEXTAREA' || e.target?.tagName === 'SELECT' || e.target?.isContentEditable) {
 		return;
 	}
 
 	const key = (e.key || '').toLowerCase();
-	const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
-	const modifier = isMac ? e.metaKey : e.ctrlKey;
+	const modifier = isMacOS() ? e.metaKey : e.ctrlKey;
 
 	
 	const generateBtn = document.getElementById('generateReport');
