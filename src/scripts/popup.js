@@ -1959,10 +1959,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			if (gitlabHighlightedIndex >= 0 && items[gitlabHighlightedIndex]) {
 				items[gitlabHighlightedIndex].scrollIntoView({ block: 'nearest' });
-				}
 			}
+		}
 
-			window.removeGitLabProject = removeGitLabProject;
+		window.removeGitLabProject = removeGitLabProject;
 
 			// Load saved projects on init
 			chrome.storage.local.get(['platform', 'gitlabUsername', 'selectedGitlabProjects', 'useGitlabProjectFilter'], (items) => {
@@ -1983,6 +1983,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				}
 			});
 		}
+
 
 		const cacheInput = document.getElementById('cacheInput');
 		if (cacheInput) {

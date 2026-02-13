@@ -281,11 +281,8 @@ class GitLabHelper {
 	}
 
 	async fetchGitLabData(username, startDate, endDate, token = null, group = '', selectedProjects = []) {
-		// Include token fingerprint and filters in cache key to invalidate when auth or filters change
 		const effectiveToken = token || this.token || '';
-		const tokenMarker = effectiveToken
-			? `auth-${effectiveToken.length}-${effectiveToken.slice(-4)}`
-			: 'noauth';
+		const tokenMarker = effectiveToken ? 'auth' : 'noauth';
 		const cacheKey = `${username}-${startDate}-${endDate}-${group}-${selectedProjects.join(',')}-${tokenMarker}`;
 
 		if (this.cache.fetching || (this.cache.cacheKey === cacheKey && this.cache.data)) {
@@ -502,15 +499,12 @@ class GitLabHelper {
 	}
 
 	async getDetailedMergeRequests(mergeRequests, token = null) {
-		// Update token if provided
-		if (token) {
-			this.token = token;
-		}
+		const effectiveToken = typeof token === 'undefined' ? this.token : token;
 		const detailed = [];
 		for (const mr of mergeRequests) {
 			try {
 				const url = `${this.baseUrl}/projects/${mr.project_id}/merge_requests/${mr.iid}`;
-				const res = await this.fetchWithTimeout(url, { headers: this.getHeaders(token) }, 10000);
+				const res = await this.fetchWithTimeout(url, { headers: this.getHeaders(effectiveToken) }, 10000);
 				if (res.ok) {
 					const detailedMr = await res.json();
 					detailed.push(detailedMr);
@@ -526,15 +520,12 @@ class GitLabHelper {
 	}
 
 	async getDetailedIssues(issues, token = null) {
-		// Update token if provided
-		if (token) {
-			this.token = token;
-		}
+		const effectiveToken = typeof token === 'undefined' ? this.token : token;
 		const detailed = [];
 		for (const issue of issues) {
 			try {
 				const url = `${this.baseUrl}/projects/${issue.project_id}/issues/${issue.iid}`;
-				const res = await this.fetchWithTimeout(url, { headers: this.getHeaders(token) }, 10000);
+				const res = await this.fetchWithTimeout(url, { headers: this.getHeaders(effectiveToken) }, 10000);
 				if (res.ok) {
 					const detailedIssue = await res.json();
 					detailed.push(detailedIssue);

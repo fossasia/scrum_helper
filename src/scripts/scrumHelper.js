@@ -155,15 +155,15 @@ async function allIncluded(outputTarget = 'email') {
 						githubToken: items.githubToken,
 						gitlabToken: items.gitlabToken,
 					});
-			}
+					}
 
-			userReason = items.userReason || 'No Blocker at the moment';
-				githubToken = items.githubToken;
-				gitlabToken = items.gitlabToken || '';
-				yesterdayContribution = items.yesterdayContribution;
-				if (typeof items.enableToggle !== 'undefined') {
-					enableToggle = items.enableToggle;
-				}
+					userReason = items.userReason || 'No Blocker at the moment';
+					githubToken = items.githubToken;
+					gitlabToken = items.gitlabToken || '';
+					yesterdayContribution = items.yesterdayContribution;
+					if (typeof items.enableToggle !== 'undefined') {
+						enableToggle = items.enableToggle;
+					}
 
 				onlyIssues = items.onlyIssues === true;
 				onlyPRs = items.onlyPRs === true;
