@@ -100,8 +100,7 @@ function setupButtonTooltips() {
 	}
 
 	// Detect OS and get appropriate modifier key
-	const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
-	const modifier = isMac ? 'Cmd' : 'Ctrl';
+	const modifier = isMacOS() ? 'Cmd' : 'Ctrl';
 
 	
 	const generateReportTooltipEl = document.getElementById('generateReportTooltipText');
@@ -1424,14 +1423,14 @@ document.addEventListener('keydown', (e) => {
 	const copyBtn = document.getElementById('copyReport');
 
 	// Ctrl+G / Cmd+G to generate report
-	if (modifier && !e.shiftKey && key === 'g' && !e.repeat && generateBtn && !generateBtn.disabled) {
+	if (modifier && !e.shiftKey && !e.altKey && key === 'g' && !e.repeat && generateBtn && !generateBtn.disabled) {
 		e.preventDefault();
 		showShortcutNotification('generatingReportNotification', 'Ctrl+G');
 		generateBtn.click();
 	}
 
-	
-	if (modifier && e.shiftKey && key === 'k' && !e.repeat && copyBtn && !copyBtn.disabled) {
+	// Ctrl+Shift+K / Cmd+Shift+K to copy report
+	if (modifier && e.shiftKey && !e.altKey && key === 'k' && !e.repeat && copyBtn && !copyBtn.disabled) {
 		e.preventDefault();
 		showShortcutNotification('copyingReportNotification', 'Ctrl+Shift+K');
 		copyBtn.click();
