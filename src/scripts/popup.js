@@ -7,6 +7,11 @@ function debounce(func, wait) {
 }
 
 function showShortcutNotification(messageKey, shortcutKey) {
+	// Check if chrome API is available
+	if (typeof chrome === 'undefined' || !chrome.i18n) {
+		return;
+	}
+
 	// Detect OS and format shortcut appropriately
 	const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
 	const modifier = isMac ? 'Cmd' : 'Ctrl';
@@ -17,52 +22,8 @@ function showShortcutNotification(messageKey, shortcutKey) {
 
 	// Create notification element
 	const notification = document.createElement('div');
+	notification.className = 'shortcut-notification';
 	notification.textContent = message;
-	notification.style.cssText = `
-		position: fixed;
-		top: 20px;
-		left: 50%;
-		transform: translateX(-50%);
-		background: #2563eb;
-		color: white;
-		padding: 12px 20px;
-		border-radius: 8px;
-		font-size: 14px;
-		font-weight: 500;
-		box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-		z-index: 10000;
-		animation: slideIn 0.3s ease-out;
-	`;
-
-	// Add animation
-	const style = document.createElement('style');
-	style.textContent = `
-		@keyframes slideIn {
-			from {
-				transform: translate(-50%, -10px);
-				opacity: 0;
-			}
-			to {
-				transform: translate(-50%, 0);
-				opacity: 1;
-			}
-		}
-		@keyframes slideOut {
-			from {
-				transform: translate(-50%, 0);
-				opacity: 1;
-			}
-			to {
-				transform: translate(-50%, -10px);
-				opacity: 0;
-			}
-		}
-	`;
-
-	if (!document.querySelector('style[data-shortcut-notification]')) {
-		style.setAttribute('data-shortcut-notification', 'true');
-		document.head.appendChild(style);
-	}
 
 	document.body.appendChild(notification);
 
@@ -121,6 +82,11 @@ function applyI18n() {
 }
 
 function setupButtonTooltips() {
+	
+	if (typeof chrome === 'undefined' || !chrome.i18n) {
+		return;
+	}
+
 	// Detect OS and get appropriate modifier key
 	const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
 	const modifier = isMac ? 'Cmd' : 'Ctrl';
@@ -130,7 +96,8 @@ function setupButtonTooltips() {
 	if (generateReportTooltipEl) {
 		const generateMsg = chrome.i18n.getMessage('generateReportTooltip');
 		if (generateMsg) {
-			generateReportTooltipEl.textContent = generateMsg;
+			
+			generateReportTooltipEl.textContent = generateMsg.replace(/Ctrl/g, modifier);
 		}
 	}
 
@@ -139,7 +106,8 @@ function setupButtonTooltips() {
 	if (copyReportTooltipEl) {
 		const copyMsg = chrome.i18n.getMessage('copyReportTooltip');
 		if (copyMsg) {
-			copyReportTooltipEl.textContent = copyMsg;
+			
+			copyReportTooltipEl.textContent = copyMsg.replace(/Ctrl/g, modifier);
 		}
 	}
 }
@@ -623,30 +591,6 @@ document.addEventListener('DOMContentLoaded', () => {
 			} finally {
 				selection.removeAllRanges();
 				document.body.removeChild(tempDiv);
-			}
-		});
-
-		// Keyboard shortcuts: Ctrl+G (Cmd+G on macOS) to generate, Ctrl+Shift+K (Cmd+Shift+K on macOS) to copy
-		document.addEventListener('keydown', (e) => {
-			if (e.target?.tagName === 'INPUT' || e.target?.tagName === 'TEXTAREA' || e.target?.isContentEditable) {
-				return;
-			}
-
-			const key = (e.key || '').toLowerCase();
-			const modifier = e.ctrlKey || e.metaKey;
-
-			// Ctrl+G / Cmd+G to generate report
-			if (modifier && !e.shiftKey && key === 'g' && !e.repeat && !generateBtn.disabled) {
-				e.preventDefault();
-				showShortcutNotification('generatingReportNotification', 'Ctrl+G');
-				generateBtn.click();
-			}
-
-			// Ctrl+Shift+K / Cmd+Shift+K to copy report
-			if (modifier && e.shiftKey && key === 'k' && !e.repeat && !copyBtn.disabled) {
-				e.preventDefault();
-				showShortcutNotification('copyingReportNotification', 'Ctrl+Shift+K');
-				copyBtn.click();
 			}
 		});
 
@@ -1451,6 +1395,35 @@ if (cacheInput) {
 		});
 	});
 }
+
+// Keyboard shortcuts: Ctrl+G (Cmd+G on macOS) to generate, Ctrl+Shift+K (Cmd+Shift+K on macOS) to copy
+document.addEventListener('keydown', (e) => {
+	if (e.target?.tagName === 'INPUT' || e.target?.tagName === 'TEXTAREA' || e.target?.isContentEditable) {
+		return;
+	}
+
+	const key = (e.key || '').toLowerCase();
+	const isMac = navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+	const modifier = isMac ? e.metaKey : e.ctrlKey;
+
+	
+	const generateBtn = document.getElementById('generateReport');
+	const copyBtn = document.getElementById('copyReport');
+
+	// Ctrl+G / Cmd+G to generate report
+	if (modifier && !e.shiftKey && key === 'g' && !e.repeat && generateBtn && !generateBtn.disabled) {
+		e.preventDefault();
+		showShortcutNotification('generatingReportNotification', 'Ctrl+G');
+		generateBtn.click();
+	}
+
+	
+	if (modifier && e.shiftKey && key === 'k' && !e.repeat && copyBtn && !copyBtn.disabled) {
+		e.preventDefault();
+		showShortcutNotification('copyingReportNotification', 'Ctrl+Shift+K');
+		copyBtn.click();
+	}
+});
 
 chrome.storage.local.get(['platform'], (result) => {
 	const platform = result.platform || 'github';
