@@ -80,6 +80,12 @@
     "showCommitsLabel": {
         "message": "Vis commits på åpne PR-er/utkast til PR-er"
     },
+    "onlyIssuesLabel": {
+        "message": "Include only issues in the report"
+    },
+    "onlyIssuesTooltip": {
+        "message": "If checked, the report will only include issues created or assigned to the user."
+    },
     "onlyPRsLabel": {
         "message": "Inkluder kun PR-er i rapporten"
     },
@@ -202,5 +208,83 @@
     },
     "usernameLabel": {
         "message": "Ditt brukernavn"
+    }
+,
+  "gitlabTokenLabel": {
+    "message": "Your GitLab Token",
+    "description": "Label for the GitLab token input."
+  },
+  "gitlabTokenPlaceholder": {
+    "message": "Paste your GitLab Personal Access Token",
+    "description": "Placeholder for the GitLab token input."
+  },
+  "gitlabTokenTooltip": {
+    "message": "<b>Why is it recommended to add a GitLab token?</b><br>Scrum Helper works without a GitLab token, but adding a personal access token is recommended for a better experience. It raises your API limits, allows access to private repos (if permitted), and improves accuracy and speed. Tokens are stored locally and never sent to us and used only to fetch your git data.<br><br><b>How to obtain:</b><br>1. Go to <a href='https://gitlab.com/-/profile/personal_access_tokens' target='_blank' style='color:#2563eb;text-decoration:underline;'>GitLab Token Settings</a>.<br>2. Click 'Add new token'<br>3. Select scopes: <code>read_api</code> and <code>read_repository</code><br>4. Generate and paste it here.<br><i>Keep your token secret!</i>",
+    "description": "Tooltip explaining how to get a GitLab token."
+  },
+  "testTokenButton": {
+    "message": "Test Token",
+    "description": "Button text to test/validate a GitLab token."
+  },
+  "clearTokenButton": {
+    "message": "Clear Token",
+    "description": "Button text to clear the stored token."
+  },
+  "confirmClearToken": {
+    "message": "Are you sure you want to clear the GitLab token?",
+    "description": "Confirmation message before clearing the token."
+  },
+  "testingTokenButton": {
+    "message": "Testing...",
+    "description": "Button text while token validation is in progress."
+  },
+  "tokenValidButton": {
+    "message": "Valid!",
+    "description": "Button text when token is validated successfully."
+  },
+  "tokenInvalidButton": {
+    "message": "Invalid",
+    "description": "Button text when token validation fails."
+  },
+  "gitlabGroupLabel": {
+    "message": "Din GitLab-gruppe",
+    "description": "Label for the GitLab group input."
+  },
+  "gitlabGroupPlaceholder": {
+    "message": "Skriv inn GitLab-gruppenavn",
+    "description": "Placeholder for the GitLab group input."
+  },
+  "gitlabGroupTooltip": {
+    "message": "<b>Hvilken GitLab-gruppes aktivitet?</b><br>Skriv inn GitLab-gruppenavnet for å hente aktiviteter. La feltet stå tomt for å hente alle dine GitLab-aktiviteter på tvers av alle grupper. Gruppenavn er ikke case-sensitive.",
+    "description": "Tooltip explaining GitLab group filtering."
+  },
+  "gitlabProjectFilterLabel": {
+    "message": "Filtrer etter prosjekter",
+    "description": "Label for GitLab project filter."
+  },
+  "gitlabProjectFilterTooltip": {
+    "message": "GitLab-token påkrevd.<br>For å tvinge en prosjektlisteoppdatering, <br>klikk på Oppdater data-knappen.",
+    "description": "Tooltip for GitLab project filter."
+  },
+  "gitlabTokenRequiredWarning": {
+    "message": "En GitLab-token er nødvendig for prosjektfiltrering. Vennligst legg til en i innstillingene.",
+    "description": "Warning message when GitLab token is missing for project filtering."
+  }
+    ,
+    "gitlabProjectCountNone": {
+        "message": "0 prosjekter valgt",
+        "description": "Text showing the count of selected GitLab projects when it's zero."
+    },
+    "gitlabProjectCount": {
+        "message": "$1 prosjekter valgt",
+        "description": "Text showing the count of selected GitLab projects. $1 is a placeholder for the number."
+    },
+    "gitlabProjectSearchPlaceholder": {
+        "message": "Søk prosjekter",
+        "description": "Placeholder/title for the GitLab project search input."
+    },
+    "gitlabProjectPlaceholder": {
+        "message": "Ingen prosjekter valgt (alle vil bli inkludert)",
+        "description": "Placeholder text when no GitLab projects are selected for filtering."
     }
 }
