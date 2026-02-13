@@ -180,7 +180,7 @@ function allIncluded(outputTarget = 'email') {
 									'<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">Please enter your username to generate a report.</div>';
 							}
 							if (generateBtn) {
-								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
 								generateBtn.disabled = false;
 							}
 							scrumGenerationInProgress = false;
@@ -257,7 +257,7 @@ function allIncluded(outputTarget = 'email') {
 									console.error('GitLab fetch failed:', err);
 									if (outputTarget === 'popup') {
 										if (generateBtn) {
-											generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+											generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
 											generateBtn.disabled = false;
 										}
 										const scrumReport = document.getElementById('scrumReport');
@@ -305,7 +305,7 @@ function allIncluded(outputTarget = 'email') {
 									console.error('GitLab fetch failed:', err);
 									if (outputTarget === 'popup') {
 										if (generateBtn) {
-											generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+											generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
 											generateBtn.disabled = false;
 										}
 										const scrumReport = document.getElementById('scrumReport');
@@ -326,7 +326,7 @@ function allIncluded(outputTarget = 'email') {
 									'<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">Please enter your username to generate a report.</div>';
 							}
 							if (generateBtn) {
-								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
 								generateBtn.disabled = false;
 							}
 						}
@@ -764,11 +764,11 @@ function allIncluded(outputTarget = 'email') {
 						else errorMsg = JSON.stringify(err);
 					}
 					scrumReport.innerHTML = `<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">${err.message || 'An error occurred while generating the report.'}</div>`;
-					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
 					generateBtn.disabled = false;
 				}
 				if (generateBtn) {
-					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
 					generateBtn.disabled = false;
 				}
 			}
@@ -945,7 +945,7 @@ function allIncluded(outputTarget = 'email') {
 					'<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">Invalid or expired GitHub token. Please check your token in the settings and try again.</div>';
 				const generateBtn = document.getElementById('generateReport');
 				if (generateBtn) {
-					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
 					generateBtn.disabled = false;
 				}
 			} else {
@@ -1075,7 +1075,7 @@ ${userReason}`;
 
 				const generateBtn = document.getElementById('generateReport');
 				if (generateBtn) {
-					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
 					generateBtn.disabled = false;
 				}
 			} else {

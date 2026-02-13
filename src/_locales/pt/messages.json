@@ -210,7 +210,7 @@
         "message": "Organization set successfully."
     },
     "orgClearedMessage": {
-        "message": "Organization cleared. Click 'Generate Report' to fetch all activities."
+        "message": "Organization cleared. Click 'Generate' to fetch all activities."
     },
     "orgNotFoundMessage": {
         "message": "Organization not found on GitHub."

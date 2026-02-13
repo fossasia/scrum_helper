@@ -226,7 +226,7 @@
     "description": "Success toast message when an organization is set."
   },
   "orgClearedMessage": {
-    "message": "Organization cleared. Click 'Generate Report' to fetch all activities.",
+    "message": "Organization cleared. Click 'Generate' to fetch all activities.",
     "description": "Message shown when the organization is cleared."
   },
   "orgNotFoundMessage": {
@@ -262,7 +262,7 @@
     "description": "Message shown in the report area after the organization is changed."
   },
   "cacheClearedMessage": {
-    "message": "Cache cleared successfully. Click \"Generate Report\" to fetch fresh data.",
+    "message": "Cache cleared successfully. Click \"Generate\" to fetch fresh data.",
     "description": "Message shown in the report area after the cache is cleared."
   },
   "cacheClearedButton": {
