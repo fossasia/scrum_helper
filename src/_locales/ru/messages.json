@@ -53,8 +53,20 @@
     "generateReportButton": {
         "message": "Создать отчет"
     },
+    "generateReportTooltip": {
+        "message": "Создать отчет (Ctrl+G / Cmd+G)"
+    },
     "copyReportButton": {
         "message": "Копировать отчет"
+    },
+    "copyReportTooltip": {
+        "message": "Копировать отчет (Ctrl+Shift+K / Cmd+Shift+K)"
+    },
+    "generatingReportNotification": {
+        "message": "Создание отчета ({0})"
+    },
+    "copyingReportNotification": {
+        "message": "Копирование отчета ({0})"
     },
     "settingsOrgNameLabel": {
         "message": "Название организации"
@@ -101,7 +113,6 @@
     "onlyRevPRsTooltip": {
         "message": "Если отмечено, отчёт будет включать только PR, проверенные вами."
     },
-
     "cacheTTLLabel": {
         "message": "Введите TTL кеша",
         "description": "Метка для ввода времени жизни кеша."

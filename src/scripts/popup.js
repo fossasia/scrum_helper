@@ -1,9 +1,53 @@
+/* global chrome */
+
 function debounce(func, wait) {
 	let timeout;
 	return function (...args) {
 		clearTimeout(timeout);
 		timeout = setTimeout(() => func.apply(this, args), wait);
 	};
+}
+
+// Utility: Detect if the current OS is macOS
+function isMacOS() {
+	return navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+}
+
+function showShortcutNotification(messageKey, shortcutKey) {
+	// Check if chrome API is available
+	if (typeof chrome === 'undefined' || !chrome.i18n) {
+		return;
+	}
+
+	// Remove any existing notification to prevent stacking
+	const existingNotification = document.querySelector('.shortcut-notification');
+	if (existingNotification) {
+		existingNotification.remove();
+	}
+
+	// Detect OS and format shortcut appropriately
+	const modifier = isMacOS() ? 'Cmd' : 'Ctrl';
+	const formattedShortcut = shortcutKey.replace('Ctrl', modifier);
+
+	// Get localized message and replace placeholder with shortcut
+	const message = chrome.i18n.getMessage(messageKey, [formattedShortcut]);
+
+	// Create notification element
+	const notification = document.createElement('div');
+	notification.className = 'shortcut-notification';
+	notification.textContent = message;
+
+	document.body.appendChild(notification);
+
+	// Remove after 2 seconds
+	setTimeout(() => {
+		notification.style.animation = 'slideOut 0.3s ease-out';
+		setTimeout(() => {
+			if (notification.parentNode) {
+				notification.parentNode.removeChild(notification);
+			}
+		}, 300);
+	}, 2000);
 }
 
 function getToday() {
@@ -49,9 +93,40 @@ function applyI18n() {
 	});
 }
 
+function setupButtonTooltips() {
+	
+	if (typeof chrome === 'undefined' || !chrome.i18n) {
+		return;
+	}
+
+	// Detect OS and get appropriate modifier key
+	const modifier = isMacOS() ? 'Cmd' : 'Ctrl';
+
+	
+	const generateReportTooltipEl = document.getElementById('generateReportTooltipText');
+	if (generateReportTooltipEl) {
+		const generateMsg = chrome.i18n.getMessage('generateReportTooltip');
+		if (generateMsg) {
+			
+			generateReportTooltipEl.textContent = generateMsg.replace(/Ctrl/g, modifier);
+		}
+	}
+
+	// Setup Copy Report button tooltip
+	const copyReportTooltipEl = document.getElementById('copyReportTooltipText');
+	if (copyReportTooltipEl) {
+		const copyMsg = chrome.i18n.getMessage('copyReportTooltip');
+		if (copyMsg) {
+			
+			copyReportTooltipEl.textContent = copyMsg.replace(/Ctrl/g, modifier);
+		}
+	}
+}
+
 document.addEventListener('DOMContentLoaded', () => {
 	// Apply translations as soon as the DOM is ready
 	applyI18n();
+	setupButtonTooltips();
 
 	// Dark mode setup
 	const darkModeToggle = document.querySelector('img[alt="Night Mode"]');
@@ -1329,9 +1404,42 @@ if (cacheInput) {
 	});
 }
 
+// Keyboard shortcuts: Ctrl+G (Cmd+G on macOS) to generate, Ctrl+Shift+K (Cmd+Shift+K on macOS) to copy
+// Registered once at the top level to avoid duplicate listeners
+document.addEventListener('keydown', (e) => {
+	// Ignore shortcuts when typing in form elements
+	if (e.target?.tagName === 'INPUT' || e.target?.tagName === 'TEXTAREA' || e.target?.tagName === 'SELECT' || e.target?.isContentEditable) {
+		return;
+	}
+
+	const key = (e.key || '').toLowerCase();
+	const modifier = isMacOS() ? e.metaKey : e.ctrlKey;
+
+	
+	const generateBtn = document.getElementById('generateReport');
+	const copyBtn = document.getElementById('copyReport');
+
+	// Ctrl+G / Cmd+G to generate report
+	if (modifier && !e.shiftKey && !e.altKey && key === 'g' && !e.repeat && generateBtn && !generateBtn.disabled) {
+		e.preventDefault();
+		showShortcutNotification('generatingReportNotification', 'Ctrl+G');
+		generateBtn.click();
+	}
+
+	// Ctrl+Shift+K / Cmd+Shift+K to copy report
+	if (modifier && e.shiftKey && !e.altKey && key === 'k' && !e.repeat && copyBtn && !copyBtn.disabled) {
+		e.preventDefault();
+		showShortcutNotification('copyingReportNotification', 'Ctrl+Shift+K');
+		copyBtn.click();
+	}
+});
+
 chrome.storage.local.get(['platform'], (result) => {
 	const platform = result.platform || 'github';
-	platformSelect.value = platform;
+	const platformSelect = document.getElementById('platformSelect');
+	if (platformSelect) {
+		platformSelect.value = platform;
+	}
 	updatePlatformUI(platform);
 });
 
