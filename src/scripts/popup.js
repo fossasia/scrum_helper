@@ -1,3 +1,5 @@
+/* global chrome */
+
 function debounce(func, wait) {
 	let timeout;
 	return function (...args) {
@@ -1438,7 +1440,10 @@ document.addEventListener('keydown', (e) => {
 
 chrome.storage.local.get(['platform'], (result) => {
 	const platform = result.platform || 'github';
-	platformSelect.value = platform;
+	const platformSelect = document.getElementById('platformSelect');
+	if (platformSelect) {
+		platformSelect.value = platform;
+	}
 	updatePlatformUI(platform);
 });
 
