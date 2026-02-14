@@ -1,4 +1,3 @@
-const enableToggleElement = document.getElementById('enable');
 const platformUsernameElement = document.getElementById('platformUsername');
 const githubTokenElement = document.getElementById('githubToken');
 const gitlabTokenElement = document.getElementById('gitlabToken');
@@ -32,13 +31,10 @@ function handleBodyOnLoad() {
 			'githubUsername',
 			'gitlabUsername',
 			'projectName',
-			'enableToggle',
 			'startingDate',
 			'endingDate',
 			'showOpenLabel',
-
 			'userReason',
-
 			'yesterdayContribution',
 			'cacheInput',
 			'githubToken',
@@ -64,13 +60,6 @@ function handleBodyOnLoad() {
 			}
 			if (items.cacheInput) {
 				cacheInputElement.value = items.cacheInput;
-			}
-			if (items.enableToggle) {
-				enableToggleElement.checked = items.enableToggle;
-			} else if (items.enableToggle !== false) {
-				// undefined
-				enableToggleElement.checked = true;
-				handleEnableChange();
 			}
 			if (items.endingDate) {
 				endingDateElement.value = items.endingDate;
@@ -114,10 +103,6 @@ document.getElementById('refreshCache').addEventListener('click', async (e) => {
 	}, 500);
 });
 
-function handleEnableChange() {
-	const value = enableToggleElement.checked;
-	chrome.storage.local.set({ enableToggle: value });
-}
 function handleStartingDateChange() {
 	const value = startingDateElement.value;
 	chrome.storage.local.set({ startingDate: value });
@@ -204,7 +189,6 @@ function handleShowCommitsChange() {
 	chrome.storage.local.set({ showCommits: value });
 }
 
-enableToggleElement.addEventListener('change', handleEnableChange);
 platformUsernameElement.addEventListener('keyup', handlePlatformUsernameChange);
 if (githubTokenElement) {
 	githubTokenElement.addEventListener('keyup', handleGithubTokenChange);

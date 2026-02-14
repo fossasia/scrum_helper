@@ -51,10 +51,13 @@
         "message": "Scrum-отчет"
     },
     "generateReportButton": {
-        "message": "Создать отчет"
+        "message": "Создать"
     },
     "copyReportButton": {
-        "message": "Копировать отчет"
+        "message": "Копировать"
+    },
+    "insertToEmailButton": {
+        "message": "Вставить в письмо"
     },
     "settingsOrgNameLabel": {
         "message": "Название организации"

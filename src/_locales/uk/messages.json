@@ -51,10 +51,13 @@
         "message": "Звіт Scrum"
     },
     "generateReportButton": {
-        "message": "Створити звіт"
+        "message": "Згенерувати"
     },
     "copyReportButton": {
-        "message": "Копіювати звіт"
+        "message": "Копіювати"
+    },
+    "insertToEmailButton": {
+        "message": "Вставити в лист"
     },
     "settingsOrgNameLabel": {
         "message": "Назва організації"
