@@ -1004,11 +1004,8 @@ document.addEventListener('DOMContentLoaded', () => {
 				programmaticFocus = false;
 				return;
 			}
-			if (repoSearch.value) {
-				filterAndDisplayRepos(repoSearch.value.toLowerCase());
-			} else if (availableRepos.length > 0) {
-				filterAndDisplayRepos('');
-			}
+		const searchTerm = repoSearch.value.toLowerCase();
+			filterAndDisplayRepos(searchTerm);
 		});
 
 		document.addEventListener('click', (e) => {
@@ -1170,9 +1167,15 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 
 			const filtered = availableRepos.filter(
-				(repo) =>
-					!selectedRepos.includes(repo.fullName) &&
-					(repo.name.toLowerCase().includes(query) || repo.description?.toLowerCase().includes(query)),
+				(repo) => {
+					if (selectedRepos.includes(repo.fullName)) {
+						return false;
+					}
+				if (!query) {
+						return true;
+					}
+					return repo.name.toLowerCase().includes(query) || repo.description?.toLowerCase().includes(query);
+				}
 			);
 
 			if (filtered.length === 0) {

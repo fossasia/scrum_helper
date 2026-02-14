@@ -596,7 +596,8 @@ function allIncluded(outputTarget = 'email') {
 					}
 					logError(`Missing owner for repo ${repo} - search may fail`);
 					return `repo:${repo}`;
-				});
+				})
+				.join('+'); 
 
 			const orgQuery = orgPart ? `+${orgPart}` : '';
 			issueUrl = `https://api.github.com/search/issues?q=author%3A${platformUsernameLocal}+${repoQueries}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}&per_page=100`;
