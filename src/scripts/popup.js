@@ -316,7 +316,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 
 			showPopupMessage(
-				chrome.i18n.getMessage('cacheClearedMessage') ||
+				chrome.i18n.getMessage('cacheExpiredMessage') ||
 				'Cache expired. Click "Generate" to fetch fresh data.',
 			);
 
@@ -726,7 +726,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					chrome.storage.local.get(['platform'], resolve);
 				});
 				platform = items.platform || 'github';
-			} catch (e) { }
+			} catch { }
 			if (platform !== 'github') {
 				// Do not run repo fetch for non-GitHub platforms
 				if (repoStatus) repoStatus.textContent = 'Repository filtering is only available for GitHub.';
@@ -815,7 +815,7 @@ document.addEventListener('DOMContentLoaded', () => {
 						chrome.storage.local.get(['platform'], resolve);
 					});
 					platform = items.platform || 'github';
-				} catch (e) { }
+				} catch { }
 				if (platform !== 'github') {
 					repoFilterContainer.classList.add('hidden');
 					useRepoFilter.checked = false;
@@ -1000,7 +1000,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					chrome.storage.local.get(['platform'], resolve);
 				});
 				platform = items.platform || 'github';
-			} catch (e) { }
+			} catch { }
 			if (platform !== 'github') {
 				if (repoStatus) repoStatus.textContent = 'Repository loading is only available for GitHub.';
 				return;
