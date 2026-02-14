@@ -198,7 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	});
 
 	function storageLocalGet(keys) {
-		return new Promise((resolve) => chrome.storage.local.get(keys, resolve));
+		return new Promise((resolve) => chrome?.storage.local.get(keys, resolve));
 	}
 
 	function parsePositiveInt(value) {
@@ -210,7 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (!generateBtn) return;
 		if (!isLoading) return;
 
-		const msg = chrome.i18n.getMessage('generatingButton') || 'Generating...';
+		const msg = chrome?.i18n.getMessage('generatingButton') || 'Generating...';
 		generateBtn.innerHTML = `<i class="fa fa-spinner fa-spin"></i> ${msg}`;
 		generateBtn.disabled = true;
 	}
@@ -256,7 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			'platform',
 			'cacheInput',
 			'githubCache',
-			'gitlabCache'
+			'gitlabCache',
 		]);
 
 		const ttlMinutes = parsePositiveInt(cacheInput) ?? 10;
@@ -281,11 +281,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			// if healthy cache available, render it in scrumReport
 			if (age < ttlMs) {
 				// Prefer instant restore from last rendered HTML (no spinner, no fetch)
-				const {
-					lastScrumReportHtml,
-					lastScrumReportPlatform,
-					lastScrumReportCacheKey,
-				} = await storageLocalGet([
+				const { lastScrumReportHtml, lastScrumReportPlatform, lastScrumReportCacheKey } = await storageLocalGet([
 					'lastScrumReportHtml',
 					'lastScrumReportPlatform',
 					'lastScrumReportCacheKey',
@@ -304,7 +300,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					return;
 				}
 
-				// if we can't restore then generate 
+				// if we can't restore then generate
 				window.generateScrumReport();
 				return;
 			}
@@ -316,8 +312,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 
 			showPopupMessage(
-				chrome.i18n.getMessage('cacheExpiredMessage') ||
-				'Cache expired. Click "Generate" to fetch fresh data.',
+				chrome.i18n.getMessage('cacheExpiredMessage') || 'Cache expired. Click "Generate" to fetch fresh data.',
 			);
 
 			if (generateBtn) generateBtn.disabled = false;
@@ -447,7 +442,7 @@ document.addEventListener('DOMContentLoaded', () => {
 						}
 					});
 				});
-			})
+			});
 		}
 
 		generateBtn.addEventListener('click', () => {
@@ -767,7 +762,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					chrome?.storage.local.get(['platform'], resolve);
 				});
 				platform = items.platform || 'github';
-			} catch { }
+			} catch {}
 			if (platform !== 'github') {
 				// Do not run repo fetch for non-GitHub platforms
 				if (repoStatus) repoStatus.textContent = 'Repository filtering is only available for GitHub.';
@@ -856,7 +851,7 @@ document.addEventListener('DOMContentLoaded', () => {
 						chrome?.storage.local.get(['platform'], resolve);
 					});
 					platform = items.platform || 'github';
-				} catch { }
+				} catch {}
 				if (platform !== 'github') {
 					repoFilterContainer.classList.add('hidden');
 					useRepoFilter.checked = false;
@@ -1038,7 +1033,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					chrome?.storage.local.get(['platform'], resolve);
 				});
 				platform = items.platform || 'github';
-			} catch { }
+			} catch {}
 			if (platform !== 'github') {
 				if (repoStatus) repoStatus.textContent = 'Repository loading is only available for GitHub.';
 				return;
@@ -1082,7 +1077,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					chrome?.storage.local.get(['platform'], resolve);
 				});
 				platform = items.platform || 'github';
-			} catch (e) { }
+			} catch (e) {}
 			if (platform !== 'github') {
 				if (repoStatus) repoStatus.textContent = 'Repository fetching is only available for GitHub.';
 				return;
@@ -1414,9 +1409,7 @@ function buildScrumSubjectFromPopup() {
 	const projectName = document.getElementById('projectName')?.value?.trim() || '';
 	const now = new Date();
 	const dateCode =
-		String(now.getFullYear()) +
-		String(now.getMonth() + 1).padStart(2, '0') +
-		String(now.getDate()).padStart(2, '0');
+		String(now.getFullYear()) + String(now.getMonth() + 1).padStart(2, '0') + String(now.getDate()).padStart(2, '0');
 
 	return `[Scrum]${projectName ? ' - ' + projectName : ''} - ${dateCode}`;
 }
@@ -1640,7 +1633,7 @@ document.getElementById('refreshCache').addEventListener('click', async function
 				chrome?.storage.local.get(['platform'], resolve);
 			});
 			platform = items.platform || 'github';
-		} catch (e) { }
+		} catch (e) {}
 
 		// Clear all caches
 		const keysToRemove = ['githubCache', 'repoCache', 'gitlabCache'];
