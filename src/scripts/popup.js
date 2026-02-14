@@ -280,7 +280,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			// if healthy cache available, render it in scrumReport
 			if (age < ttlMs) {
-				setGenerateButtonLoading(generateBtn, true);
+				// Prefer instant restore from last rendered HTML (no spinner, no fetch)
+				const {
+					lastScrumReportHtml,
+					lastScrumReportPlatform,
+					lastScrumReportCacheKey,
+				} = await storageLocalGet([
+					'lastScrumReportHtml',
+					'lastScrumReportPlatform',
+					'lastScrumReportCacheKey',
+				]);
+
+				const cacheKey = cache?.cacheKey ?? null;
+				const reportEmpty = !scrumReport.innerHTML || !scrumReport.innerHTML.trim();
+
+				const matches =
+					(!lastScrumReportPlatform || lastScrumReportPlatform === activePlatform) &&
+					(!lastScrumReportCacheKey || lastScrumReportCacheKey === cacheKey);
+
+				if (reportEmpty && lastScrumReportHtml && matches) {
+					scrumReport.innerHTML = lastScrumReportHtml;
+					if (generateBtn) generateBtn.disabled = false;
+					return;
+				}
+
+				// if we can't restore then generate 
 				window.generateScrumReport();
 				return;
 			}

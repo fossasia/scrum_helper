@@ -1072,6 +1072,20 @@ ${userReason}`;
 			if (scrumReport) {
 				log('Found popup div, updating content');
 				scrumReport.innerHTML = content;
+				try {
+					const cacheKey =
+						platform === 'gitlab'
+							? gitlabHelper?.cache?.cacheKey ?? null
+							: githubCache?.cacheKey ?? null;
+
+					chrome.storage.local.set({
+						lastScrumReportHtml: content,
+						lastScrumReportPlatform: platform,
+						lastScrumReportCacheKey: cacheKey,
+					});
+				} catch (e) {
+					// ignore
+				}
 
 				const generateBtn = document.getElementById('generateReport');
 				if (generateBtn) {
@@ -1860,9 +1874,9 @@ async function injectIntoEmailEditor(content, subject) {
 		if (!elements?.body) return false;
 
 		if (subject && elements.subject) {
-            elements.subject.value = subject;
-            elements.subject.dispatchEvent(new Event(elements.eventTypes?.subjectChange || 'input', { bubbles: true }));
-        }
+			elements.subject.value = subject;
+			elements.subject.dispatchEvent(new Event(elements.eventTypes?.subjectChange || 'input', { bubbles: true }));
+		}
 
 		//for body
 		window.emailClientAdapter.injectContent(elements.body, content, elements.eventTypes?.contentChange || 'input');
