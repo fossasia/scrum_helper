@@ -597,13 +597,20 @@ function allIncluded(outputTarget = 'email') {
 					logError(`Missing owner for repo ${repo} - search may fail`);
 					return `repo:${repo}`;
 				})
-				.join('+'); 
+				.join('+');
 
 			const orgQuery = orgPart ? `+${orgPart}` : '';
-			issueUrl = `https://api.github.com/search/issues?q=author%3A${platformUsernameLocal}+${repoQueries}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}&per_page=100`;
-			prUrl = `https://api.github.com/search/issues?q=commenter%3A${platformUsernameLocal}+${repoQueries}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}&per_page=100`;
-			userUrl = `https://api.github.com/users/${platformUsernameLocal}`;
-			log('Repository-filtered URLs:', { issueUrl, prUrl });
+			if (!repoQueries) {
+				loadFromStorage('Repo filter empty, using org wide search');
+				issueUrl = `https://api.github.com/search/issues?q=author%3A${platformUsernameLocal}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}&per_page=100`;
+				prUrl = `https://api.github.com/search/issues?q=commenter%3A${platformUsernameLocal}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}&per_page=100`;
+				userUrl = `https://api.github.com/users/${platformUsernameLocal}`;
+			} else {
+				issueUrl = `https://api.github.com/search/issues?q=author%3A${platformUsernameLocal}+${repoQueries}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}&per_page=100`;
+				prUrl = `https://api.github.com/search/issues?q=commenter%3A${platformUsernameLocal}+${repoQueries}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}&per_page=100`;
+				userUrl = `https://api.github.com/users/${platformUsernameLocal}`;
+				log('Repository-filtered URLs:', { issueUrl, prUrl });
+			}
 		} else {
 			loadFromStorage('Using org wide search');
 			const orgQuery = orgPart ? `+${orgPart}` : '';
