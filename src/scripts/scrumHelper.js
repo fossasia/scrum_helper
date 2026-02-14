@@ -202,7 +202,12 @@ function allIncluded(outputTarget = 'email') {
 						if (outputTarget === 'email') {
 							(async () => {
 								try {
-									const data = await gitlabHelper.fetchGitLabData(platformUsernameLocal, startingDate, endingDate, gitlabToken);
+									const data = await gitlabHelper.fetchGitLabData(
+										platformUsernameLocal,
+										startingDate,
+										endingDate,
+										gitlabToken,
+									);
 
 									function mapGitLabItem(item, projects, type) {
 										const project = projects.find((p) => p.id === item.project_id);
@@ -1027,7 +1032,6 @@ function allIncluded(outputTarget = 'email') {
 	}
 
 	function writeScrumBody() {
-
 		let lastWeekUl = '<ul>';
 		for (let i = 0; i < lastWeekArray.length; i++) lastWeekUl += lastWeekArray[i];
 		for (let i = 0; i < reviewedPrsArray.length; i++) lastWeekUl += reviewedPrsArray[i];
@@ -1064,9 +1068,7 @@ ${userReason}`;
 				scrumReport.innerHTML = content;
 				try {
 					const cacheKey =
-						platform === 'gitlab'
-							? gitlabHelper?.cache?.cacheKey ?? null
-							: githubCache?.cacheKey ?? null;
+						platform === 'gitlab' ? (gitlabHelper?.cache?.cacheKey ?? null) : (githubCache?.cacheKey ?? null);
 
 					chrome.storage.local.set({
 						lastScrumReportHtml: content,
@@ -1847,9 +1849,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 	if (request.action === 'insertReportToEmail') {
 		injectIntoEmailEditor(request.content, request.subject)
 			.then(sendResponse)
-			.catch((err) =>
-				sendResponse({ success: false, error: err?.message || String(err) }),
-			);
+			.catch((err) => sendResponse({ success: false, error: err?.message || String(err) }));
 		return true;
 	}
 });
@@ -1898,12 +1898,12 @@ async function fetchPrsMergedStatusBatch(prs, headers) {
 	if (prs.length === 0) return results;
 	const query = `query {
 ${prs
-			.map(
-				(pr, i) => `	repo${i}: repository(owner: "${pr.owner}\", name: "${pr.repo}\") {
+	.map(
+		(pr, i) => `	repo${i}: repository(owner: "${pr.owner}\", name: "${pr.repo}\") {
 		pr${i}: pullRequest(number: ${pr.number}) { merged }
 	}`,
-			)
-			.join('\n')}
+	)
+	.join('\n')}
 }`;
 
 	try {
@@ -2085,8 +2085,8 @@ async function fetchUserRepositories(username, token, org = '') {
 				}));
 
 			return repos.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-		} catch (err) { }
-	} catch (err) { }
+		} catch (err) {}
+	} catch (err) {}
 }
 
 function filterDataByRepos(data, selectedRepos) {
