@@ -278,7 +278,7 @@
     "description": "Link text for the GitHub issue in the notes."
   },
   "platformLabel": {
-    "message": "Platforming",
+    "message": "Platform",
     "description": "Label for the platform selection header."
   },
   "usernameLabel": {
