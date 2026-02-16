@@ -71,6 +71,12 @@
     "githubTokenPlaceholder": {
         "message": "Требуется для аутентифицированных запросов"
     },
+    "gitlabTokenLabel": {
+        "message": "Ваш токен GitLab"
+    },
+    "gitlabTokenPlaceholder": {
+        "message": "Требуется для приватных репо"
+    },
     "showCommitsLabel": {
         "message": "Показывать коммиты в открытых PR/ черновиках PR"
     },
@@ -89,6 +95,13 @@
     "onlyPRsTooltip": {
         "message": "Если отмечено, отчёт будет включать только pull request'ы, созданные пользователем; проверенные PR будут исключены."
     },
+    "onlyRevPRsLabel": {
+        "message": "Включить в отчет только проверенные PR"
+    },
+    "onlyRevPRsTooltip": {
+        "message": "Если отмечено, отчёт будет включать только PR, проверенные вами."
+    },
+
     "cacheTTLLabel": {
         "message": "Введите TTL кеша",
         "description": "Метка для ввода времени жизни кеша."

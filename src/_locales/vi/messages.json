@@ -71,6 +71,12 @@
     "githubTokenPlaceholder": {
         "message": "Bắt buộc cho các yêu cầu đã xác thực"
     },
+    "gitlabTokenLabel": {
+        "message": "Mã token GitLab"
+    },
+    "gitlabTokenPlaceholder": {
+        "message": "Bắt buộc cho repo riêng tư"
+    },
     "showCommitsLabel": {
         "message": "Hiển thị các commit trên PR đang mở/ PR nháp"
     },
@@ -89,6 +95,13 @@
     "onlyPRsTooltip": {
         "message": "Nếu được chọn, báo cáo chỉ bao gồm các pull request do người dùng tạo; các PR đã được xem xét sẽ bị loại trừ."
     },
+    "onlyRevPRsLabel": {
+        "message": "Chỉ bao gồm các PR bạn đã xem xét trong báo cáo"
+    },
+    "onlyRevPRsTooltip": {
+        "message": "Nếu được chọn, báo cáo sẽ chỉ bao gồm các PR bạn đã xem xét."
+    },
+
     "cacheTTLLabel": {
         "message": "Nhập TTL bộ nhớ cache",
         "description": "Nhãn cho đầu vào thời gian tồn tại của bộ nhớ cache."

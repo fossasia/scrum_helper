@@ -1,20 +1,21 @@
-let enableToggleElement = document.getElementById('enable');
-let platformUsernameElement = document.getElementById('platformUsername');
-let githubTokenElement = document.getElementById('githubToken');
-let cacheInputElement = document.getElementById('cacheInput');
-let projectNameElement = document.getElementById('projectName');
-let yesterdayContributionElement = document.getElementById('yesterdayContribution');
-let startingDateElement = document.getElementById('startingDate');
-let endingDateElement = document.getElementById('endingDate');
-let showOpenLabelElement = document.getElementById('showOpenLabel');
+const enableToggleElement = document.getElementById('enable');
+const platformUsernameElement = document.getElementById('platformUsername');
+const githubTokenElement = document.getElementById('githubToken');
+const gitlabTokenElement = document.getElementById('gitlabToken');
+const cacheInputElement = document.getElementById('cacheInput');
+const projectNameElement = document.getElementById('projectName');
+const yesterdayContributionElement = document.getElementById('yesterdayContribution');
+const startingDateElement = document.getElementById('startingDate');
+const endingDateElement = document.getElementById('endingDate');
+const showOpenLabelElement = document.getElementById('showOpenLabel');
 
-let userReasonElement = null;
+const userReasonElement = null;
 
-let showCommitsElement = document.getElementById('showCommits');
+const showCommitsElement = document.getElementById('showCommits');
 
 function handleBodyOnLoad() {
 	// Migration: Handle existing users with old platformUsername storage
-	chrome.storage.local.get(['platform', 'platformUsername'], function (result) {
+	chrome.storage.local.get(['platform', 'platformUsername'], (result) => {
 		if (result.platformUsername && result.platform) {
 			// Migrate old platformUsername to platform-specific storage
 			const platformUsernameKey = `${result.platform}Username`;
@@ -41,6 +42,7 @@ function handleBodyOnLoad() {
 			'yesterdayContribution',
 			'cacheInput',
 			'githubToken',
+			'gitlabToken',
 			'showCommits',
 		],
 		(items) => {
@@ -51,8 +53,11 @@ function handleBodyOnLoad() {
 				platformUsernameElement.value = items[platformUsernameKey];
 			}
 
-			if (items.githubToken) {
+			if (items.githubToken && githubTokenElement) {
 				githubTokenElement.value = items.githubToken;
+			}
+			if (items.gitlabToken && gitlabTokenElement) {
+				gitlabTokenElement.value = items.gitlabToken;
 			}
 			if (items.projectName) {
 				projectNameElement.value = items.projectName;
@@ -84,8 +89,7 @@ function handleBodyOnLoad() {
 			if (items.yesterdayContribution) {
 				yesterdayContributionElement.checked = items.yesterdayContribution;
 				handleYesterdayContributionChange();
-			}
-			else if (items.yesterdayContribution !== false) {
+			} else if (items.yesterdayContribution !== false) {
 				yesterdayContributionElement.checked = true;
 				handleYesterdayContributionChange();
 			}
@@ -111,21 +115,21 @@ document.getElementById('refreshCache').addEventListener('click', async (e) => {
 });
 
 function handleEnableChange() {
-	let value = enableToggleElement.checked;
+	const value = enableToggleElement.checked;
 	chrome.storage.local.set({ enableToggle: value });
 }
 function handleStartingDateChange() {
-	let value = startingDateElement.value;
+	const value = startingDateElement.value;
 	chrome.storage.local.set({ startingDate: value });
 }
 function handleEndingDateChange() {
-	let value = endingDateElement.value;
+	const value = endingDateElement.value;
 	chrome.storage.local.set({ endingDate: value });
 }
 
 function handleYesterdayContributionChange() {
-	let value = yesterdayContributionElement.checked;
-	let labelElement = document.querySelector("label[for='yesterdayContribution']");
+	const value = yesterdayContributionElement.checked;
+	const labelElement = document.querySelector("label[for='yesterdayContribution']");
 
 	if (value) {
 		startingDateElement.readOnly = true;
@@ -134,67 +138,69 @@ function handleYesterdayContributionChange() {
 		startingDateElement.value = getYesterday();
 		handleEndingDateChange();
 		handleStartingDateChange();
-		labelElement.classList.add("selectedLabel");
-		labelElement.classList.remove("unselectedLabel");
+		labelElement.classList.add('selectedLabel');
+		labelElement.classList.remove('unselectedLabel');
 	} else {
 		startingDateElement.readOnly = false;
 		endingDateElement.readOnly = false;
-		labelElement.classList.add("unselectedLabel");
-		labelElement.classList.remove("selectedLabel");
+		labelElement.classList.add('unselectedLabel');
+		labelElement.classList.remove('selectedLabel');
 	}
 	chrome.storage.local.set({ yesterdayContribution: value });
 }
 
 function getYesterday() {
-	let today = new Date();
-	let yesterday = new Date(today);
+	const today = new Date();
+	const yesterday = new Date(today);
 	yesterday.setDate(today.getDate() - 1);
 	return yesterday.toISOString().split('T')[0];
 }
 function getToday() {
-	let today = new Date();
+	const today = new Date();
 	return today.toISOString().split('T')[0];
 }
 
 function handlePlatformUsernameChange() {
-	let value = platformUsernameElement.value;
-	chrome.storage.local.get(['platform'], function (result) {
+	const value = platformUsernameElement.value;
+	chrome.storage.local.get(['platform'], (result) => {
 		const platform = result.platform || 'github';
 		const platformUsernameKey = `${platform}Username`;
 		chrome.storage.local.set({ [platformUsernameKey]: value });
 	});
 }
 function handleGithubTokenChange() {
-	let value = githubTokenElement.value;
+	const value = githubTokenElement.value;
 	chrome.storage.local.set({ githubToken: value });
 }
+function handleGitlabTokenChange() {
+	const value = gitlabTokenElement.value;
+	chrome.storage.local.set({ gitlabToken: value });
+}
 function handleProjectNameChange() {
-	let value = projectNameElement.value;
+	const value = projectNameElement.value;
 	chrome.storage.local.set({ projectName: value });
 }
 function handleCacheInputChange() {
-	let value = cacheInputElement.value;
+	const value = cacheInputElement.value;
 	chrome.storage.local.set({ cacheInput: value });
 }
 function handleOpenLabelChange() {
-	let value = showOpenLabelElement.checked;
-	let labelElement = document.querySelector("label[for='showOpenLabel']");
+	const value = showOpenLabelElement.checked;
+	const labelElement = document.querySelector("label[for='showOpenLabel']");
 
 	if (value) {
-		labelElement.classList.add("selectedLabel");
-		labelElement.classList.remove("unselectedLabel");
+		labelElement.classList.add('selectedLabel');
+		labelElement.classList.remove('unselectedLabel');
 	} else {
-		labelElement.classList.add("unselectedLabel");
-		labelElement.classList.remove("selectedLabel");
+		labelElement.classList.add('unselectedLabel');
+		labelElement.classList.remove('selectedLabel');
 	}
 
 	chrome.storage.local.set({ showOpenLabel: value });
 }
 
-
-
 function handleShowCommitsChange() {
-	let value = showCommitsElement.checked;
+	const value = showCommitsElement.checked;
 	chrome.storage.local.set({ showCommits: value });
 }
 
@@ -202,6 +208,9 @@ enableToggleElement.addEventListener('change', handleEnableChange);
 platformUsernameElement.addEventListener('keyup', handlePlatformUsernameChange);
 if (githubTokenElement) {
 	githubTokenElement.addEventListener('keyup', handleGithubTokenChange);
+}
+if (gitlabTokenElement) {
+	gitlabTokenElement.addEventListener('keyup', handleGitlabTokenChange);
 }
 cacheInputElement.addEventListener('keyup', handleCacheInputChange);
 projectNameElement.addEventListener('keyup', handleProjectNameChange);
