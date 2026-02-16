@@ -279,6 +279,7 @@
   },
   "platformLabel": {
     "message": "Platform",
+
     "description": "Label for the platform selection header."
   },
   "usernameLabel": {
