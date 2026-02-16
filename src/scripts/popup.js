@@ -326,7 +326,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				}
 			}
 		}
-		const textElements=document.querySelectorAll("#reportSection p, #reportSection label, #reportSection h3, #reportSection h4, #reportSection h6, #reportSection span.tooltip-bubble")
+		const textElements=document.querySelectorAll("#reportSection p, #reportSection label, #reportSection h3, #reportSection h4, #reportSection h6")
 		textElements.forEach(el=>{
 			if(!enableToggle)
 			{
