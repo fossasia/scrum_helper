@@ -818,3 +818,7 @@ hr,
     border-color: #d97706;
     color: #fde68a;
 }
+.ui-disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}

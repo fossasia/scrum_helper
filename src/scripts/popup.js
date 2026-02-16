@@ -222,7 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				}
 			}
 		});
-
+        
 		radios.forEach((radio) => {
 			radio.disabled = !enableToggle;
 			const label = document.querySelector(`label[for="${radio.id}"]`);
@@ -326,8 +326,20 @@ document.addEventListener('DOMContentLoaded', () => {
 				}
 			}
 		}
+		const textElements=document.querySelectorAll("#reportSection p, #reportSection label, #reportSection h3, #reportSection h4, #reportSection h6, #reportSection span.tooltip-bubble")
+		textElements.forEach(el=>{
+			if(!enableToggle)
+			{
+				el.classList.add("ui-disabled")
+			}
+			else
+			{
+				el.classList.remove("ui-disabled")
+			}
+		})
+		
 	}
-
+    
 	chrome.storage.local.get(['enableToggle'], (items) => {
 		console.log('[DEBUG] Storage items received:', items);
 		const enableToggle = items.enableToggle !== false;
