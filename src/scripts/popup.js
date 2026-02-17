@@ -1004,7 +1004,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				programmaticFocus = false;
 				return;
 			}
-		const searchTerm = repoSearch.value.toLowerCase();
+			const searchTerm = repoSearch.value.toLowerCase();
 			filterAndDisplayRepos(searchTerm);
 		});
 
@@ -1171,7 +1171,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					if (selectedRepos.includes(repo.fullName)) {
 						return false;
 					}
-				if (!query) {
+					if (!query) {
 						return true;
 					}
 					return repo.name.toLowerCase().includes(query) || repo.description?.toLowerCase().includes(query);
