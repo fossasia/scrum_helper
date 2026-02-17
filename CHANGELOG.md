@@ -7,6 +7,21 @@
 
 ## Maintenance
 
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.14 to 2.4.2 (#378) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.13 to 2.3.14 (#368) @[dependabot[bot]](https://github.com/apps/dependabot)
+* versionbump (#365) @vedansh-5
+
+---
+
+## v2.0.4 - 2026-02-17
+
+## What's Changed
+
+* fix: repo-filtering \& input search visibility (#375) @Mateeb-Haider
+* Add Malayalam (ml) language support (#367) @SourishMerugu
+
+## Maintenance
+
 * chore(deps)(deps-dev): bump @biomejs/biome from 2.3.13 to 2.3.14 (#368) @[dependabot[bot]](https://github.com/apps/dependabot)
 * versionbump (#365) @vedansh-5
 
