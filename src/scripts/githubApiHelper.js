@@ -69,7 +69,20 @@ class GitHubApiHelper {
                 throw new Error('Invalid GitHub token. Please check your token in settings.');
             }
             if (response.status === 403) {
-                throw new Error('API rate limit exceeded. Please try again later.');
+                let extraMessage = '';
+
+                try {
+                    const errorBody = await response.json();
+                    if (errorBody && errorBody.message) {
+                        extraMessage = ` Details from GitHub: ${errorBody.message}`;
+                    }
+                } catch (e) {
+                    // Ignore JSON parsing errors and fall back to the generic message below
+                }
+
+                throw new Error(
+                    `GitHub API returned 403 Forbidden. This may be due to rate limiting or insufficient permissions. ${response.statusText}.${extraMessage}`
+                );
             }
             throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
         }
