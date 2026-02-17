@@ -86,6 +86,21 @@
   "showCommitsLabel": {
     "message": "הצג קומיטים ב-PR פתוחים/טיוטות PR"
   },
+  "showCommitsTooltip": {
+    "message": "נדרש אסימון GitHub, הוסף אותו בהגדרות."
+  },
+  "onlyIssuesLabel": {
+    "message": "הכלל רק בעיות בדוח"
+  },
+  "onlyIssuesTooltip": {
+    "message": "אם מסומן, הדוח יכיל רק בעיות שנוצרו או הוקצו למשתמש."
+  },
+  "onlyPRsLabel": {
+    "message": "הכלל רק PR בדוח"
+  },
+  "onlyPRsTooltip": {
+    "message": "אם מסומן, הדוח יכיל רק pull requests שנוצרו על ידי המשתמש; PR שנסקרו יוחרגו."
+  },
   "cacheTTLLabel": {
     "message": "הזן TTL למטמון"
   },
@@ -208,20 +223,5 @@
   },
   "onlyRevPRsTooltip": {
     "message": "אם מסומן, הדוח יכלול רק PR שנבדקו על ידך."
-  },
-  "showCommitsTooltip": {
-    "message": "נדרש אסימון Github, הוסף אותו בהגדרות."
-  },
-  "onlyIssuesLabel": {
-    "message": "הכלל רק בעיות בדוח"
-  },
-  "onlyIssuesTooltip": {
-    "message": "אם מסומן, הדוח יכיל רק בעיות שנוצרו או הוקצו למשתמש."
-  },
-  "onlyPRsLabel": {
-    "message": "הכלל רק PR בדוח"
-  },
-  "onlyPRsTooltip": {
-    "message": "אם מסומן, הדוח יכיל רק pull requests שנוצרו על ידי המשתמש; PR שנסקרו יוחרגו."
   }
 }
