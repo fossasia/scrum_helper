@@ -663,8 +663,8 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 
 
-		// Display mode(popup / sidepanel)
-
+		// Display mode (popup / sidepanel)
+		// Apply the stored display mode class on next launch
 		function applyDisplayModeClass(mode) {
 			const className = mode === 'popup' ? 'mode-popup' : 'mode-sidepanel';
 			document.documentElement.classList.remove('mode-popup', 'mode-sidepanel');
@@ -676,16 +676,23 @@ document.addEventListener('DOMContentLoaded', () => {
 		chrome.storage.local.get({ displayMode: 'sidePanel' }, (result) => {
 			applyDisplayModeClass(result.displayMode);
 		});
+
 		const displayModeSelect = document.getElementById('displayModeSelect');
+		const displayModeNotice = document.getElementById('displayModeNotice');
+		const displayModeNoticeText = document.getElementById('displayModeNoticeText');
 		if (displayModeSelect) {
 			chrome.storage.local.get({ displayMode: 'sidePanel' }, (result) => {
 				displayModeSelect.value = result.displayMode;
-				applyDisplayModeClass(result.displayMode);
 			});
 			displayModeSelect.addEventListener('change', () => {
 				const mode = displayModeSelect.value;
 				chrome.storage.local.set({ displayMode: mode });
-				applyDisplayModeClass(mode);
+				// Show notice instead of applying immediately
+				const modeLabel = mode === 'popup' ? 'Popup' : 'Side Panel';
+				if (displayModeNotice && displayModeNoticeText) {
+					displayModeNoticeText.textContent = `The extension will open in ${modeLabel} mode on the next launch.`;
+					displayModeNotice.classList.remove('hidden');
+				}
 			});
 		}
 
