@@ -60,7 +60,7 @@
         "message": "レポートをコピー"
     },
     "copyReportTooltip": {
-        "message": "レポートをコピー (Ctrl+Shift+K / Cmd+Shift+K)"
+        "message": "レポートをコピー (Ctrl+Shift+Y / Cmd+Shift+Y)"
     },
     "generatingReportNotification": {
         "message": "レポートを生成中 ({0})"

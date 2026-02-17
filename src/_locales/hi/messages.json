@@ -60,7 +60,7 @@
         "message": "रिपोर्ट कॉपी करें"
     },
     "copyReportTooltip": {
-        "message": "रिपोर्ट कॉपी करें (Ctrl+Shift+K / Cmd+Shift+K)"
+        "message": "रिपोर्ट कॉपी करें (Ctrl+Shift+Y / Cmd+Shift+Y)"
     },
     "generatingReportNotification": {
         "message": "रिपोर्ट बनाई जा रही है ({0})"

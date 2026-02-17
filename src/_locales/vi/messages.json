@@ -60,7 +60,7 @@
         "message": "Sao chép báo cáo"
     },
     "copyReportTooltip": {
-        "message": "Sao chép báo cáo (Ctrl+Shift+K / Cmd+Shift+K)"
+        "message": "Sao chép báo cáo (Ctrl+Shift+Y / Cmd+Shift+Y)"
     },
     "generatingReportNotification": {
         "message": "Đang tạo báo cáo ({0})"

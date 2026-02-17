@@ -99,16 +99,12 @@ function setupButtonTooltips() {
 		return;
 	}
 
-	// Detect OS and get appropriate modifier key
-	const modifier = isMacOS() ? 'Cmd' : 'Ctrl';
-
 	
 	const generateReportTooltipEl = document.getElementById('generateReportTooltipText');
 	if (generateReportTooltipEl) {
 		const generateMsg = chrome.i18n.getMessage('generateReportTooltip');
 		if (generateMsg) {
-			
-			generateReportTooltipEl.textContent = generateMsg.replace(/Ctrl/g, modifier);
+			generateReportTooltipEl.textContent = generateMsg;
 		}
 	}
 
@@ -117,8 +113,7 @@ function setupButtonTooltips() {
 	if (copyReportTooltipEl) {
 		const copyMsg = chrome.i18n.getMessage('copyReportTooltip');
 		if (copyMsg) {
-			
-			copyReportTooltipEl.textContent = copyMsg.replace(/Ctrl/g, modifier);
+			copyReportTooltipEl.textContent = copyMsg;
 		}
 	}
 }
@@ -1407,11 +1402,22 @@ if (cacheInput) {
 	});
 }
 
-// Keyboard shortcuts: Ctrl+G (Cmd+G on macOS) to generate, Ctrl+Shift+K (Cmd+Shift+K on macOS) to copy
+// Keyboard shortcuts: Ctrl+G (Cmd+G on macOS) to generate, Ctrl+Shift+Y (Cmd+Shift+Y on macOS) to copy
 // Registered once at the top level to avoid duplicate listeners
 document.addEventListener('keydown', (e) => {
-	// Ignore shortcuts when typing in form elements
-	if (e.target?.tagName === 'INPUT' || e.target?.tagName === 'TEXTAREA' || e.target?.tagName === 'SELECT' || e.target?.isContentEditable) {
+	// Only handle shortcuts when this popup document is focused
+	if (!document.hasFocus()) {
+		return;
+	}
+
+	const target = e.target;
+	const tagName = target?.tagName;
+	const editableAncestor = typeof target?.closest === 'function' ? target.closest('[contenteditable="true"]') : null;
+	const isFormField = tagName === 'INPUT' || tagName === 'TEXTAREA' || tagName === 'SELECT';
+	const isEditableOutsideReport = editableAncestor && editableAncestor.id !== 'scrumReport';
+
+	// Ignore shortcuts in form fields and non-report editable regions
+	if (isFormField || isEditableOutsideReport) {
 		return;
 	}
 
@@ -1429,10 +1435,10 @@ document.addEventListener('keydown', (e) => {
 		generateBtn.click();
 	}
 
-	// Ctrl+Shift+K / Cmd+Shift+K to copy report
-	if (modifier && e.shiftKey && !e.altKey && key === 'k' && !e.repeat && copyBtn && !copyBtn.disabled) {
+	// Ctrl+Shift+Y / Cmd+Shift+Y to copy report
+	if (modifier && e.shiftKey && !e.altKey && key === 'y' && !e.repeat && copyBtn && !copyBtn.disabled) {
 		e.preventDefault();
-		showShortcutNotification('copyingReportNotification', 'Ctrl+Shift+K');
+		showShortcutNotification('copyingReportNotification', 'Ctrl+Shift+Y');
 		copyBtn.click();
 	}
 });

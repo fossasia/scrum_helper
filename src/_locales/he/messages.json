@@ -60,7 +60,7 @@
         "message": "העתק דוח"
     },
     "copyReportTooltip": {
-        "message": "העתק דוח (Ctrl+Shift+K / Cmd+Shift+K)"
+        "message": "העתק דוח (Ctrl+Shift+Y / Cmd+Shift+Y)"
     },
     "generatingReportNotification": {
         "message": "יוצר דוח ({0})"

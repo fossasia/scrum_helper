@@ -60,7 +60,7 @@
         "message": "Salin Laporan"
     },
     "copyReportTooltip": {
-        "message": "Salin Laporan (Ctrl+Shift+K / Cmd+Shift+K)"
+        "message": "Salin Laporan (Ctrl+Shift+Y / Cmd+Shift+Y)"
     },
     "generatingReportNotification": {
         "message": "Membuat laporan ({0})"

@@ -60,7 +60,7 @@
     "message": "నివేదికను కాపీ చేయి"
   },
   "copyReportTooltip": {
-    "message": "నివేదికను కాపీ చేయి (Ctrl+Shift+K / Cmd+Shift+K)"
+    "message": "నివేదికను కాపీ చేయి (Ctrl+Shift+Y / Cmd+Shift+Y)"
   },
   "generatingReportNotification": {
     "message": "నివేదిక రూపొందించబడుతోంది ({0})"

@@ -60,7 +60,7 @@
         "message": "Копировать отчет"
     },
     "copyReportTooltip": {
-        "message": "Копировать отчет (Ctrl+Shift+K / Cmd+Shift+K)"
+        "message": "Копировать отчет (Ctrl+Shift+Y / Cmd+Shift+Y)"
     },
     "generatingReportNotification": {
         "message": "Создание отчета ({0})"

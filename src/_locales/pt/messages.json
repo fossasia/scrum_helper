@@ -60,7 +60,7 @@
         "message": "Copiar Relatório"
     },
     "copyReportTooltip": {
-        "message": "Copiar Relatório (Ctrl+Shift+K / Cmd+Shift+K)"
+        "message": "Copiar Relatório (Ctrl+Shift+Y / Cmd+Shift+Y)"
     },
     "generatingReportNotification": {
         "message": "Gerando relatório ({0})"

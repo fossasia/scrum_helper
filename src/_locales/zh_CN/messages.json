@@ -60,7 +60,7 @@
         "message": "复制报告"
     },
     "copyReportTooltip": {
-        "message": "复制报告 (Ctrl+Shift+K / Cmd+Shift+K)"
+        "message": "复制报告 (Ctrl+Shift+Y / Cmd+Shift+Y)"
     },
     "generatingReportNotification": {
         "message": "正在生成报告 ({0})"
