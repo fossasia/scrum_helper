@@ -61,7 +61,7 @@
     "message": "Bericht kopieren"
   },
   "copyReportTooltip": {
-    "message": "Bericht kopieren (Strg+Umschalt+K / Cmd+Umschalt+K)"
+    "message": "Bericht kopieren (Strg+Umschalt+Y / Cmd+Umschalt+Y)"
   },
   "generatingReportNotification": {
     "message": "Bericht wird erstellt ({0})"

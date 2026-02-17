@@ -60,7 +60,7 @@
         "message": "Copier le rapport"
     },
     "copyReportTooltip": {
-        "message": "Copier le rapport (Ctrl+Maj+K / Cmd+Maj+K)"
+        "message": "Copier le rapport (Ctrl+Maj+Y / Cmd+Maj+Y)"
     },
     "generatingReportNotification": {
         "message": "Génération du rapport ({0})"

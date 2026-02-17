@@ -60,7 +60,7 @@
         "message": "Copiar informe"
     },
     "copyReportTooltip": {
-        "message": "Copiar informe (Ctrl+Mayús+K / Cmd+Mayús+K)"
+        "message": "Copiar informe (Ctrl+Mayús+Y / Cmd+Mayús+Y)"
     },
     "generatingReportNotification": {
         "message": "Generando informe ({0})"
