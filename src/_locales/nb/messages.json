@@ -87,7 +87,7 @@
     "message": "Vis commits på åpne PR-er/utkast til PR-er"
   },
   "showCommitsTooltip": {
-    "message": "Github-token kreves. Legg det til i innstillingene."
+    "message": "GitHub-token kreves. Legg det til i innstillingene."
   },
   "onlyIssuesLabel": {
     "message": "Inkluder kun problemer i rapporten"

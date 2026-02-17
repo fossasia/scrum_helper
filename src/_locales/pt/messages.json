@@ -66,10 +66,13 @@
         "message": "Definir"
     },
     "githubTokenLabel": {
-        "message": "Seu Token do Github"
+        "message": "Seu Token do GitHub"
     },
     "githubTokenPlaceholder": {
         "message": "Necessário para fazer solicitações autenticadas"
+    },
+    "githubTokenTooltip": {
+        "message": "Por que é recomendado adicionar um token do GitHub? O Scrum Helper funciona sem um token do GitHub, mas adicionar um token de acesso pessoal é recomendado para uma melhor experiência."
     },
     "gitlabTokenLabel": {
         "message": "Seu Token GitLab"
@@ -77,11 +80,14 @@
     "gitlabTokenPlaceholder": {
         "message": "Necessário para repos privados"
     },
+    "gitlabTokenTooltip": {
+        "message": "Por que é recomendado adicionar um token do GitLab? O Scrum Helper funciona sem um token do GitLab para projetos públicos, mas adicionar um token de acesso pessoal é recomendado para uma melhor experiência."
+    },
     "showCommitsLabel": {
         "message": "Mostrar commits em PRs abertos/ rascunhos de PRs"
     },
     "showCommitsTooltip": {
-        "message": "Token do Github necessário, adicione-o nas configurações."
+        "message": "Token do GitHub necessário, adicione-o nas configurações."
     },
     "onlyIssuesLabel": {
         "message": "Incluir apenas problemas no relatório"
@@ -158,12 +164,6 @@
     },
     "usernameLabel": {
         "message": "Seu nome de usuário"
-    },
-    "githubTokenTooltip": {
-        "message": "Por que é recomendado adicionar um token do GitHub? O Scrum Helper funciona sem um token do GitHub, mas adicionar um token de acesso pessoal é recomendado para uma melhor experiência."
-    },
-    "gitlabTokenTooltip": {
-        "message": "Por que é recomendado adicionar um token do GitLab? O Scrum Helper funciona sem um token do GitLab para projetos públicos, mas adicionar um token de acesso pessoal é recomendado para uma melhor experiência."
     },
     "repoFilterLabel": {
         "message": "Filtrar por repositórios"

@@ -149,17 +149,23 @@
   "repoCountNone": {
     "message": "0 రిపోజిటరీలు ఎంచుకోబడ్డాయి"
   },
+  "repoCount": {
+    "message": "$1 రిపోజిటరీలు ఎంపిక చేయబడ్డాయి"
+  },
+  "repoLoading": {
+    "message": "రిపోజిటరీలు లోడ్ అవుతున్నాయి..."
+  },
   "repoLoaded": {
     "message": "$1 రిపోజిటరీలు లోడ్ అయ్యాయి."
+  },
+  "repoNotFound": {
+    "message": "రిపోజిటరీలు కనబడలేదు"
   },
   "repoRefetching": {
     "message": "రిపోజిటరీలను మళ్లీ తెచ్చుకుంటున్నారు..."
   },
   "repoLoadFailed": {
     "message": "రిపోజిటరీలను లోడ్ చేయలేకపోయాం."
-  },
-  "repoNotFound": {
-    "message": "రిపోజిటరీలు కనబడలేదు"
   },
   "repoTokenPrivate": {
     "message": "టోకెన్ చెల్లదు లేదా ప్రైవేట్ రిపోజిటరీలకు అనుమతి లేదు."
@@ -214,12 +220,6 @@
   },
   "platformLabel": {
     "message": "ప్లాట్‌ఫారమ్"
-  },
-  "repoCount": {
-    "message": "$1 రిపోజిటరీలు ఎంపిక చేయబడ్డాయి"
-  },
-  "repoLoading": {
-    "message": "రిపోజిటరీలు లోడ్ అవుతున్నాయి..."
   },
   "usernameLabel": {
     "message": "మీ యూజర్‌నేమ్"
