@@ -4,6 +4,28 @@ chrome.tabs?.onRemoved?.addListener((tabId) => {
   openByTabId.delete(tabId);
 });
 
+// Apply the display mode (popup vs sidePanel)
+function applyDisplayMode(mode) {
+  if (mode === "popup") {
+    chrome.action.setPopup({ popup: "popup.html" });
+  } else {
+    // sidePanel mode: clear popup so onClicked fires
+    chrome.action.setPopup({ popup: "" });
+  }
+}
+
+// Initialize display mode on startup
+chrome.storage.local.get({ displayMode: "sidePanel" }, (result) => {
+  applyDisplayMode(result.displayMode);
+});
+
+// Listen for changes to displayMode
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area === "local" && changes.displayMode) {
+    applyDisplayMode(changes.displayMode.newValue);
+  }
+});
+
 chrome.action.onClicked.addListener((tab) => {
   try {
     if (!chrome.sidePanel?.open) {

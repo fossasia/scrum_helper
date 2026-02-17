@@ -661,6 +661,34 @@ document.addEventListener('DOMContentLoaded', () => {
 		cacheInput.addEventListener('input', () => {
 			chrome.storage.local.set({ cacheInput: cacheInput.value });
 		});
+
+
+		// Display mode(popup / sidepanel)
+
+		function applyDisplayModeClass(mode) {
+			const className = mode === 'popup' ? 'mode-popup' : 'mode-sidepanel';
+			document.documentElement.classList.remove('mode-popup', 'mode-sidepanel');
+			body.classList.remove('mode-popup', 'mode-sidepanel');
+			document.documentElement.classList.add(className);
+			body.classList.add(className);
+		}
+
+		chrome.storage.local.get({ displayMode: 'sidePanel' }, (result) => {
+			applyDisplayModeClass(result.displayMode);
+		});
+		const displayModeSelect = document.getElementById('displayModeSelect');
+		if (displayModeSelect) {
+			chrome.storage.local.get({ displayMode: 'sidePanel' }, (result) => {
+				displayModeSelect.value = result.displayMode;
+				applyDisplayModeClass(result.displayMode);
+			});
+			displayModeSelect.addEventListener('change', () => {
+				const mode = displayModeSelect.value;
+				chrome.storage.local.set({ displayMode: mode });
+				applyDisplayModeClass(mode);
+			});
+		}
+
 		if (enableToggleSwitch) {
 			console.log('[DEBUG] Setting up enable toggle switch event listener');
 			enableToggleSwitch.addEventListener('change', () => {
@@ -764,7 +792,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					chrome.storage.local.get(['platform'], resolve);
 				});
 				platform = items.platform || 'github';
-			} catch (e) {}
+			} catch (e) { }
 			if (platform !== 'github') {
 				// Do not run repo fetch for non-GitHub platforms
 				if (repoStatus) repoStatus.textContent = 'Repository filtering is only available for GitHub.';
@@ -853,7 +881,7 @@ document.addEventListener('DOMContentLoaded', () => {
 						chrome.storage.local.get(['platform'], resolve);
 					});
 					platform = items.platform || 'github';
-				} catch (e) {}
+				} catch (e) { }
 				if (platform !== 'github') {
 					repoFilterContainer.classList.add('hidden');
 					useRepoFilter.checked = false;
@@ -1038,7 +1066,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					chrome.storage.local.get(['platform'], resolve);
 				});
 				platform = items.platform || 'github';
-			} catch (e) {}
+			} catch (e) { }
 			if (platform !== 'github') {
 				if (repoStatus) repoStatus.textContent = 'Repository loading is only available for GitHub.';
 				return;
@@ -1082,7 +1110,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					chrome.storage.local.get(['platform'], resolve);
 				});
 				platform = items.platform || 'github';
-			} catch (e) {}
+			} catch (e) { }
 			if (platform !== 'github') {
 				if (repoStatus) repoStatus.textContent = 'Repository fetching is only available for GitHub.';
 				return;
@@ -1623,7 +1651,7 @@ document.getElementById('refreshCache').addEventListener('click', async function
 				chrome.storage.local.get(['platform'], resolve);
 			});
 			platform = items.platform || 'github';
-		} catch (e) {}
+		} catch (e) { }
 
 		// Clear all caches
 		const keysToRemove = ['githubCache', 'repoCache', 'gitlabCache'];
