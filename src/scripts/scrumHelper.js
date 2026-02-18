@@ -207,7 +207,12 @@ function allIncluded(outputTarget = 'email') {
 						if (outputTarget === 'email') {
 							(async () => {
 								try {
-									const data = await gitlabHelper.fetchGitLabData(platformUsernameLocal, startingDate, endingDate, gitlabToken);
+									const data = await gitlabHelper.fetchGitLabData(
+										platformUsernameLocal,
+										startingDate,
+										endingDate,
+										gitlabToken,
+									);
 
 									function mapGitLabItem(item, projects, type) {
 										const project = projects.find((p) => p.id === item.project_id);
@@ -628,9 +633,6 @@ function allIncluded(outputTarget = 'email') {
 			if (userCheckRes.status === 404) {
 				const errorMsg = `GitHub user "${platformUsernameLocal}" not found (404). Please check the username and try again.`;
 				logError(errorMsg);
-				if (outputTarget === 'popup') {
-					Materialize.toast && Materialize.toast(errorMsg, 4000);
-				}
 				throw new Error(errorMsg);
 			}
 
