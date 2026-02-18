@@ -247,10 +247,18 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	async function bootstrapScrumReportOnPopupLoad(generateBtn) {
-		if (typeof window.generateScrumReport !== 'function') return;
+		console.log('[BOOTSTRAP] bootstrapScrumReportOnPopupLoad called');
+
+		if (typeof window.generateScrumReport !== 'function') {
+			console.warn('[BOOTSTRAP] window.generateScrumReport is not a function, aborting');
+			return;
+		}
 
 		const scrumReport = document.getElementById('scrumReport');
-		if (!scrumReport) return;
+		if (!scrumReport) {
+			console.warn('[BOOTSTRAP] scrumReport element not found, aborting');
+			return;
+		}
 
 		const { platform, cacheInput, githubCache, gitlabCache } = await storageLocalGet([
 			'platform',
@@ -268,8 +276,16 @@ document.addEventListener('DOMContentLoaded', () => {
 		const hasCacheData = !!cache?.data;
 		const timestamp = typeof cache?.timestamp === 'number' ? cache.timestamp : 0;
 
-		// no cache-> autogenerate from username
+		console.log('[BOOTSTRAP] Cache state:', {
+			activePlatform,
+			hasCacheData,
+			timestamp,
+			ttlMinutes,
+			ageMinutes: timestamp > 0 ? ((Date.now() - timestamp) / 60000).toFixed(1) : 'N/A',
+		});
+
 		if (!hasCacheData) {
+			console.log('[BOOTSTRAP] No cache found, auto-generating report');
 			setGenerateButtonLoading(generateBtn, true);
 			window.generateScrumReport();
 			return;
@@ -278,9 +294,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (timestamp > 0) {
 			const age = Date.now() - timestamp;
 
-			// if healthy cache available, render it in scrumReport
 			if (age < ttlMs) {
-				// Prefer instant restore from last rendered HTML (no spinner, no fetch)
 				const { lastScrumReportHtml, lastScrumReportPlatform, lastScrumReportCacheKey } = await storageLocalGet([
 					'lastScrumReportHtml',
 					'lastScrumReportPlatform',
@@ -295,24 +309,24 @@ document.addEventListener('DOMContentLoaded', () => {
 					(!lastScrumReportCacheKey || lastScrumReportCacheKey === cacheKey);
 
 				if (reportEmpty && lastScrumReportHtml && matches) {
+					console.log('[BOOTSTRAP] Healthy cache: restoring last rendered HTML');
 					scrumReport.innerHTML = lastScrumReportHtml;
 					if (generateBtn) generateBtn.disabled = false;
 					return;
 				}
 
-				// if we can't restore then generate
+				setGenerateButtonLoading(generateBtn, true);
 				window.generateScrumReport();
 				return;
 			}
 
-			//expired cache => user must press generate to generate -> display message to user for the same
 			const { lastScrumReportHtml } = await storageLocalGet(['lastScrumReportHtml']);
 			if ((!scrumReport.innerHTML || !scrumReport.innerHTML.trim()) && lastScrumReportHtml) {
 				scrumReport.innerHTML = lastScrumReportHtml;
 			}
 
 			showPopupMessage(
-				chrome.i18n.getMessage('cacheExpiredMessage') || 'Cache expired. Click "Generate" to fetch fresh data.',
+				chrome?.i18n.getMessage('cacheExpiredMessage') || 'Cache expired. Click "Generate" to fetch fresh data.',
 			);
 
 			if (generateBtn) generateBtn.disabled = false;
@@ -324,13 +338,10 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	function initializePopup() {
-		// Migration: Handle existing users with old platformUsername storage
 		chrome?.storage.local.get(['platform', 'platformUsername'], (result) => {
 			if (result.platformUsername && result.platform) {
-				// Migrate old platformUsername to platform-specific storage
 				const platformUsernameKey = `${result.platform}Username`;
 				chrome?.storage.local.set({ [platformUsernameKey]: result.platformUsername });
-				// Remove the old key
 				chrome?.storage.local.remove(['platformUsername']);
 				console.log(`[MIGRATION] Migrated platformUsername to ${platformUsernameKey}`);
 			}
@@ -662,13 +673,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			});
 		}
 
-		if (enableToggleSwitch) {
-			console.log('[DEBUG] Setting up enable toggle switch event listener');
-			enableToggleSwitch.addEventListener('change', () => {
-				console.log('[DEBUG] Enable toggle changed to:', enableToggleSwitch.checked);
-				chrome?.storage.local.set({ enableToggle: enableToggleSwitch.checked });
-			});
-		}
+
 		yesterdayRadio.addEventListener('change', () => {
 			chrome?.storage.local.set({ yesterdayContribution: yesterdayRadio.checked });
 		});
