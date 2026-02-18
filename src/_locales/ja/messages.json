@@ -87,7 +87,7 @@
     "message": "オープンなPR/ドラフトPRのコミットを表示"
   },
   "showCommitsTooltip": {
-    "message": "Githubトークンが必要です。設定で追加してください。"
+    "message": "GitHubトークンが必要です。設定で追加してください。"
   },
   "onlyIssuesLabel": {
     "message": "レポートに課題のみを含める"
