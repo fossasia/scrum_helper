@@ -71,14 +71,14 @@
     "githubTokenPlaceholder": {
         "message": "Requerido para realizar solicitudes autenticadas"
     },
+    "githubTokenTooltip": {
+        "message": "¿Por qué se recomienda agregar un token de GitHub? Scrum Helper funciona sin un token de GitHub, pero se recomienda agregar un token de acceso personal para una mejor experiencia."
+    },
     "gitlabTokenLabel": {
         "message": "Tu token de GitLab"
     },
     "gitlabTokenPlaceholder": {
         "message": "Requerido para repos privados"
-    },
-    "githubTokenTooltip": {
-        "message": "¿Por qué se recomienda agregar un token de GitHub? Scrum Helper funciona sin un token de GitHub, pero se recomienda agregar un token de acceso personal para una mejor experiencia."
     },
     "gitlabTokenTooltip": {
         "message": "¿Por qué se recomienda agregar un token de GitLab? Scrum Helper funciona sin un token de GitLab para proyectos públicos, pero se recomienda agregar un token de acceso personal para una mejor experiencia."
@@ -87,7 +87,7 @@
         "message": "Mostrar commits en PRs abiertos/ borradores de PRs"
     },
     "showCommitsTooltip": {
-        "message": "Se requiere un token de Github, agréguelo en la configuración."
+        "message": "Se requiere un token de GitHub, agréguelo en la configuración."
     },
     "onlyIssuesLabel": {
         "message": "Incluir solo incidencias en el informe"
