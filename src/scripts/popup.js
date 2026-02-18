@@ -13,6 +13,42 @@ function isMacOS() {
 	return navigator.platform.toUpperCase().indexOf('MAC') >= 0;
 }
 
+function getLocalizedShortcutLabel(messageKey, fallbackShortcut) {
+	if (typeof chrome === 'undefined' || !chrome.i18n) {
+		return fallbackShortcut;
+	}
+
+	const tooltipKeyByNotification = {
+		generatingReportNotification: 'generateReportTooltip',
+		copyingReportNotification: 'copyReportTooltip',
+	};
+	const tooltipKey = tooltipKeyByNotification[messageKey];
+	if (!tooltipKey) {
+		return fallbackShortcut;
+	}
+
+	const tooltipMessage = chrome.i18n.getMessage(tooltipKey);
+	if (!tooltipMessage) {
+		return fallbackShortcut;
+	}
+
+	const shortcutGroupMatch = tooltipMessage.match(/\(([^)]+)\)/);
+	if (!shortcutGroupMatch || !shortcutGroupMatch[1]) {
+		return fallbackShortcut;
+	}
+
+	const variants = shortcutGroupMatch[1].split('/').map((value) => value.trim()).filter(Boolean);
+	if (variants.length === 0) {
+		return fallbackShortcut;
+	}
+
+	if (isMacOS()) {
+		return variants[1] || variants[0] || fallbackShortcut;
+	}
+
+	return variants[0] || fallbackShortcut;
+}
+
 function showShortcutNotification(messageKey, shortcutKey) {
 	// Check if chrome API is available
 	if (typeof chrome === 'undefined' || !chrome.i18n) {
@@ -25,12 +61,14 @@ function showShortcutNotification(messageKey, shortcutKey) {
 		existingNotification.remove();
 	}
 
-	// Detect OS and format shortcut appropriately
-	const modifier = isMacOS() ? 'Cmd' : 'Ctrl';
-	const formattedShortcut = shortcutKey.replace('Ctrl', modifier);
+const defaultShortcut = isMacOS() ? shortcutKey.replace('Ctrl', 'Cmd') : shortcutKey;
+	const formattedShortcut = getLocalizedShortcutLabel(messageKey, defaultShortcut);
 
 	// Get localized message and replace placeholder with shortcut
 	const message = chrome.i18n.getMessage(messageKey, [formattedShortcut]);
+	if (!message) {
+		return;
+	}
 
 	// Create notification element
 	const notification = document.createElement('div');
@@ -1414,10 +1452,10 @@ document.addEventListener('keydown', (e) => {
 	const tagName = target?.tagName;
 	const editableAncestor = typeof target?.closest === 'function' ? target.closest('[contenteditable="true"]') : null;
 	const isFormField = tagName === 'INPUT' || tagName === 'TEXTAREA' || tagName === 'SELECT';
-	const isEditableOutsideReport = editableAncestor && editableAncestor.id !== 'scrumReport';
+	const isContentEditable = !!(editableAncestor || (target && target.isContentEditable));
 
-	// Ignore shortcuts in form fields and non-report editable regions
-	if (isFormField || isEditableOutsideReport) {
+	// Ignore shortcuts in form fields and all editable regions (including #scrumReport)
+	if (isFormField || isContentEditable) {
 		return;
 	}
 
@@ -1445,9 +1483,9 @@ document.addEventListener('keydown', (e) => {
 
 chrome.storage.local.get(['platform'], (result) => {
 	const platform = result.platform || 'github';
-	const platformSelect = document.getElementById('platformSelect');
-	if (platformSelect) {
-		platformSelect.value = platform;
+	const platformSelectElement = document.getElementById('platformSelect');
+	if (platformSelectElement) {
+		platformSelectElement.value = platform;
 	}
 	updatePlatformUI(platform);
 });
@@ -1494,26 +1532,29 @@ function updatePlatformUI(platform) {
 	});
 }
 
-platformSelect.addEventListener('change', () => {
-	const platform = platformSelect.value;
-	chrome.storage.local.set({ platform });
-	const platformUsername = document.getElementById('platformUsername');
-	if (platformUsername) {
-		const currentPlatform = platformSelect.value === 'github' ? 'gitlab' : 'github'; // Get the platform we're switching from
-		const currentUsername = platformUsername.value;
-		if (currentUsername.trim()) {
-			chrome.storage.local.set({ [`${currentPlatform}Username`]: currentUsername });
-		}
-	}
-
-	chrome.storage.local.get([`${platform}Username`], (result) => {
+const platformSelectElement = document.getElementById('platformSelect');
+if (platformSelectElement) {
+	platformSelectElement.addEventListener('change', () => {
+		const platform = platformSelectElement.value;
+		chrome.storage.local.set({ platform });
+		const platformUsername = document.getElementById('platformUsername');
 		if (platformUsername) {
-			platformUsername.value = result[`${platform}Username`] || '';
+			const currentPlatform = platformSelectElement.value === 'github' ? 'gitlab' : 'github'; // Get the platform we're switching from
+			const currentUsername = platformUsername.value;
+			if (currentUsername.trim()) {
+				chrome.storage.local.set({ [`${currentPlatform}Username`]: currentUsername });
+			}
 		}
-	});
 
-	updatePlatformUI(platform);
-});
+		chrome.storage.local.get([`${platform}Username`], (result) => {
+			if (platformUsername) {
+				platformUsername.value = result[`${platform}Username`] || '';
+			}
+		});
+
+		updatePlatformUI(platform);
+	});
+}
 
 const customDropdown = document.getElementById('customPlatformDropdown');
 const dropdownBtn = document.getElementById('platformDropdownBtn');
@@ -1584,14 +1625,16 @@ document.addEventListener('click', (e) => {
 });
 
 // Keyboard navigation
-platformDropdownBtn.addEventListener('keydown', (e) => {
-	if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
-		e.preventDefault();
-		customDropdown.classList.add('open');
-		dropdownList.classList.remove('hidden');
-		dropdownList.querySelector('li').focus();
-	}
-});
+if (dropdownBtn) {
+	dropdownBtn.addEventListener('keydown', (e) => {
+		if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
+			e.preventDefault();
+			customDropdown.classList.add('open');
+			dropdownList.classList.remove('hidden');
+			dropdownList.querySelector('li').focus();
+		}
+	});
+}
 dropdownList.querySelectorAll('li').forEach((item, idx, arr) => {
 	item.setAttribute('tabindex', '0');
 	item.addEventListener('keydown', function (e) {
