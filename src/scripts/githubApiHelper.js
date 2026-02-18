@@ -25,6 +25,12 @@ class GitHubApiHelper {
         if (!token || typeof token !== 'string') {
             throw new Error('Invalid token provided');
         }
+
+        // If the token is changing, clear any cached responses associated with the previous token
+        if (this.token && this.token !== token) {
+            this.cache.clear();
+        }
+
         this.token = token;
     }
 
