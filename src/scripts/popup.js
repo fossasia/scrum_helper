@@ -25,7 +25,8 @@ function applyI18n() {
 		if (message) {
 			// Use innerHTML to support simple formatting like <b> in tooltips
 			if (el.classList.contains('tooltip-bubble') || el.classList.contains('cache-info')) {
-				el.innerHTML = message;
+				//fix 5
+				el.textContent = message;
 			} else {
 				el.textContent = message;
 			}
@@ -318,7 +319,18 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (scrumReport) {
 			scrumReport.contentEditable = enableToggle;
 			if (!enableToggle) {
-				scrumReport.innerHTML = `<p style="text-align: center; color: #999; padding: 20px;">${chrome.i18n.getMessage('extensionDisabledMessage')}</p>`;
+
+				// fix 1
+				scrumReport.innerHTML = '';
+
+				const p = document.createElement('p');
+				p.style.textAlign = 'center';
+				p.style.color = '#999';
+				p.style.padding = '20px';
+				p.textContent = chrome.i18n.getMessage('extensionDisabledMessage');
+
+				scrumReport.appendChild(p);
+
 			} else {
 				const disabledMessage = `<p style="text-align: center; color: #999; padding: 20px;">${chrome.i18n.getMessage('extensionDisabledMessage')}</p>`;
 				if (scrumReport.innerHTML === disabledMessage) {
@@ -347,8 +359,60 @@ document.addEventListener('DOMContentLoaded', () => {
 			console.log('[DEBUG] Extension disabled, returning early');
 			return;
 		}
+
+		//change 1 
+		function setupGenerateButtonValidation() {
+			const generateBtn = document.getElementById("generateReport");
+			const usernameInput = document.getElementById("platformUsername");
+			const fromDateInput = document.getElementById("startingDate");
+			const toDateInput = document.getElementById("endingDate");
+
+			if (!generateBtn || !usernameInput || !fromDateInput || !toDateInput) {
+				return;
+			}
+
+			function validate() {
+				const username = usernameInput.value.trim();
+				const fromDate = fromDateInput.value;
+				const toDate = toDateInput.value;
+
+				// Check if username exists and dates are valid
+				const hasUsername = username.length > 0;
+				const hasDates = fromDate !== "" && toDate !== "";
+				const logicalDates = new Date(fromDate) <= new Date(toDate);
+
+				const isValid = hasUsername && hasDates && logicalDates;
+
+				generateBtn.disabled = !isValid;
+
+				// Optional: Add a visual cue for the disabled state
+				if (!isValid) {
+					generateBtn.classList.add('opacity-50', 'cursor-not-allowed');
+				} else {
+					generateBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+				}
+			}
+
+			// Listen for typing and date selection
+			usernameInput.addEventListener("input", validate);
+			fromDateInput.addEventListener("change", validate);
+			toDateInput.addEventListener("change", validate);
+
+			// Also listen for clicks on the "Previous Day" radio which sets dates programmatically
+			document.querySelectorAll('input[name="timeframe"]').forEach(radio => {
+				radio.addEventListener('change', () => {
+					// Small delay to let the date values update in the DOM
+					setTimeout(validate, 100);
+				});
+			});
+
+			// Run once on load
+			validate();
+		}
 		initializePopup();
 		checkTokenForFilter();
+		//change 2
+		setupGenerateButtonValidation();
 	});
 
 	chrome.storage.onChanged.addListener((changes, namespace) => {
@@ -764,7 +828,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					chrome.storage.local.get(['platform'], resolve);
 				});
 				platform = items.platform || 'github';
-			} catch (e) {}
+			} catch (e) { }
 			if (platform !== 'github') {
 				// Do not run repo fetch for non-GitHub platforms
 				if (repoStatus) repoStatus.textContent = 'Repository filtering is only available for GitHub.';
@@ -853,7 +917,7 @@ document.addEventListener('DOMContentLoaded', () => {
 						chrome.storage.local.get(['platform'], resolve);
 					});
 					platform = items.platform || 'github';
-				} catch (e) {}
+				} catch (e) { }
 				if (platform !== 'github') {
 					repoFilterContainer.classList.add('hidden');
 					useRepoFilter.checked = false;
@@ -1035,7 +1099,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					chrome.storage.local.get(['platform'], resolve);
 				});
 				platform = items.platform || 'github';
-			} catch (e) {}
+			} catch (e) { }
 			if (platform !== 'github') {
 				if (repoStatus) repoStatus.textContent = 'Repository loading is only available for GitHub.';
 				return;
@@ -1079,7 +1143,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					chrome.storage.local.get(['platform'], resolve);
 				});
 				platform = items.platform || 'github';
-			} catch (e) {}
+			} catch (e) { }
 			if (platform !== 'github') {
 				if (repoStatus) repoStatus.textContent = 'Repository fetching is only available for GitHub.';
 				return;
@@ -1178,26 +1242,64 @@ document.addEventListener('DOMContentLoaded', () => {
 				}
 			);
 
+
+			//fix 3
 			if (filtered.length === 0) {
-				repoDropdown.innerHTML = `<div class="p-3 text-center text-gray-500 text-sm" style="padding-left: 10px; ">${chrome.i18n.getMessage('repoNotFound')}</div>`;
-			} else {
-				repoDropdown.innerHTML = filtered
-					.slice(0, 10)
-					.map(
-						(repo) => `
-                    <div class="repository-dropdown-item" data-repo-name="${repo.fullName}">
-                        <div class="repo-name">
-                            <span>${repo.name}</span>
-                            ${repo.language ? `<span class="repo-language">${repo.language}</span>` : ''}
-                            ${repo.stars ? `<span class="repo-stars"><i class="fa fa-star"></i> ${repo.stars}</span>` : ''}
-                        </div>
-                        <div class="repo-info">
-                            ${repo.description ? `<span class="repo-desc">${repo.description.substring(0, 50)}${repo.description.length > 50 ? '...' : ''}</span>` : ''}
-                        </div>
-                    </div>
-                `,
-					)
-					.join('');
+				repoDropdown.innerHTML = '';
+
+				const emptyDiv = document.createElement('div');
+				emptyDiv.className = 'p-3 text-center text-gray-500 text-sm';
+				emptyDiv.textContent = 'No repositories found';
+
+				repoDropdown.appendChild(emptyDiv);
+			}
+			else {
+
+				//fix 2
+				repoDropdown.innerHTML = '';
+
+				filtered.slice(0, 10).forEach(repo => {
+					const item = document.createElement('div');
+					item.className = 'repository-dropdown-item';
+					item.dataset.repoName = repo.fullName;
+
+					const nameDiv = document.createElement('div');
+					nameDiv.className = 'repo-name';
+
+					const nameSpan = document.createElement('span');
+					nameSpan.textContent = repo.name;
+					nameDiv.appendChild(nameSpan);
+
+					if (repo.language) {
+						const langSpan = document.createElement('span');
+						langSpan.className = 'repo-language';
+						langSpan.textContent = repo.language;
+						nameDiv.appendChild(langSpan);
+					}
+
+					if (repo.stars) {
+						const starSpan = document.createElement('span');
+						starSpan.className = 'repo-stars';
+						starSpan.textContent = `⭐ ${repo.stars}`;
+						nameDiv.appendChild(starSpan);
+					}
+
+					item.appendChild(nameDiv);
+
+					if (repo.description) {
+						const infoDiv = document.createElement('div');
+						infoDiv.className = 'repo-info';
+
+						const descSpan = document.createElement('span');
+						descSpan.className = 'repo-desc';
+						descSpan.textContent = repo.description.substring(0, 100);
+
+						infoDiv.appendChild(descSpan);
+						item.appendChild(infoDiv);
+					}
+
+					repoDropdown.appendChild(item);
+				});
 
 				repoDropdown.querySelectorAll('.repository-dropdown-item').forEach((item) => {
 					item.addEventListener('click', (e) => {
@@ -1238,19 +1340,30 @@ document.addEventListener('DOMContentLoaded', () => {
 				repoTags.innerHTML = `<span class="text-xs text-gray-500 select-none" id="repoPlaceholder">${chrome.i18n.getMessage('repoPlaceholder')}</span>`;
 				repoCount.textContent = chrome.i18n.getMessage('repoCountNone');
 			} else {
-				repoTags.innerHTML = selectedRepos
-					.map((repoFullName) => {
-						const repoName = repoFullName.split('/')[1] || repoFullName;
-						return `
-                        <span class="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full" style="margin:5px;">
-                            ${repoName}
-                            <button type="button" class="ml-1 text-blue-600 hover:text-blue-800 remove-repo-btn cursor-pointer" data-repo-name="${repoFullName}">
-                                <i class="fa fa-times"></i>
-                            </button>
-                        </span>
-                    `;
-					})
-					.join(' ');
+
+				//fix 4 
+
+				// repoTags.innerHTML = selectedRepos
+				// 	.map((repoFullName) => {
+				// 		const repoName = repoFullName.split('/')[1] || repoFullName;
+				// 		return `
+				//         <span class="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full" style="margin:5px;">
+				//             ${repoName}
+				//             <button type="button" class="ml-1 text-blue-600 hover:text-blue-800 remove-repo-btn cursor-pointer" data-repo-name="${repoFullName}">
+				//                 <i class="fa fa-times"></i>
+				//             </button>
+				//         </span>
+				//     `;
+				// 	})
+				// 	.join(' ');
+
+				repoTags.textContent = '';
+				selectedRepos.forEach(repo => {
+					const tag = document.createElement('span');
+					tag.className = 'repo-tag';
+					tag.textContent = repo;
+					repoTags.appendChild(tag);
+				});
 				repoTags.querySelectorAll('.remove-repo-btn').forEach((btn) => {
 					btn.addEventListener('click', (e) => {
 						e.stopPropagation();
@@ -1626,7 +1739,7 @@ document.getElementById('refreshCache').addEventListener('click', async function
 				chrome.storage.local.get(['platform'], resolve);
 			});
 			platform = items.platform || 'github';
-		} catch (e) {}
+		} catch (e) { }
 
 		// Clear all caches
 		const keysToRemove = ['githubCache', 'repoCache', 'gitlabCache'];

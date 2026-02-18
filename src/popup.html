@@ -179,50 +179,53 @@
 
 					</div>
 					<div class="my-4">
-                        <div class="flex items-center">
-                            <input type="checkbox" id="onlyIssues" class="form-checkbox text-blue-600">
-                            <label for="onlyIssues" class="font-medium text-sm flex items-center" style="margin-left: 4px;" data-i18n="onlyIssuesLabel">
-                                Include only issues in the report
-                            </label>
-                            <span class="tooltip-container">
-                                <i class="fa fa-question-circle question-icon"></i>
-                                <span class="tooltip-bubble" data-i18n="onlyIssuesTooltip">
-                                    If checked, the report will only include issues created or assigned to the user.
-                                </span>
-                            </span>
-                        </div>
-                    </div>
+						<div class="flex items-center">
+							<input type="checkbox" id="onlyIssues" class="form-checkbox text-blue-600">
+							<label for="onlyIssues" class="font-medium text-sm flex items-center"
+								style="margin-left: 4px;" data-i18n="onlyIssuesLabel">
+								Include only issues in the report
+							</label>
+							<span class="tooltip-container">
+								<i class="fa fa-question-circle question-icon"></i>
+								<span class="tooltip-bubble" data-i18n="onlyIssuesTooltip">
+									If checked, the report will only include issues created or assigned to the user.
+								</span>
+							</span>
+						</div>
+					</div>
 
 					<div class="my-4">
-                        <div class="flex items-center">
-                            <input type="checkbox" id="onlyPRs" class="form-checkbox text-blue-600">
-                            <label for="onlyPRs" class="font-medium text-sm flex items-center" style="margin-left: 4px;" data-i18n="onlyPRsLabel">
-                                Include only PRs in the report
-                            </label>
-                            <span class="tooltip-container">
-                                <i class="fa fa-question-circle question-icon"></i>
-                                <span class="tooltip-bubble" data-i18n="onlyPRsTooltip">
-                                    If checked, the report will only include PRs created by you.
-                                </span>
-                            </span>
-                        </div>
-                    </div>
+						<div class="flex items-center">
+							<input type="checkbox" id="onlyPRs" class="form-checkbox text-blue-600">
+							<label for="onlyPRs" class="font-medium text-sm flex items-center" style="margin-left: 4px;"
+								data-i18n="onlyPRsLabel">
+								Include only PRs in the report
+							</label>
+							<span class="tooltip-container">
+								<i class="fa fa-question-circle question-icon"></i>
+								<span class="tooltip-bubble" data-i18n="onlyPRsTooltip">
+									If checked, the report will only include PRs created by you.
+								</span>
+							</span>
+						</div>
+					</div>
 
 					<div class="my-4">
-                        <div class="flex items-center">
-                            <input type="checkbox" id="onlyRevPRs" class="form-checkbox text-blue-600">
-                            <label for="onlyRevPRs" class="font-medium text-sm flex items-center" style="margin-left: 4px;" data-i18n="onlyRevPRsLabel">
-                                Include only Reviewed PRs in the report
-                            </label>
-                            <span class="tooltip-container">
-                                <i class="fa fa-question-circle question-icon"></i>
-                                <span class="tooltip-bubble" data-i18n="onlyPRsTooltip">
-                                    If checked, the report will only include PRs reviewed by you.
-                                </span>
-                            </span>
-                        </div>
-                    </div>
-					
+						<div class="flex items-center">
+							<input type="checkbox" id="onlyRevPRs" class="form-checkbox text-blue-600">
+							<label for="onlyRevPRs" class="font-medium text-sm flex items-center"
+								style="margin-left: 4px;" data-i18n="onlyRevPRsLabel">
+								Include only Reviewed PRs in the report
+							</label>
+							<span class="tooltip-container">
+								<i class="fa fa-question-circle question-icon"></i>
+								<span class="tooltip-bubble" data-i18n="onlyPRsTooltip">
+									If checked, the report will only include PRs reviewed by you.
+								</span>
+							</span>
+						</div>
+					</div>
+
 					<div class="my-4 githubOnlySection">
 						<div class="flex items-center">
 							<input type="checkbox" id="showCommits" checked class="form-checkbox text-blue-600 ">
@@ -248,11 +251,22 @@
 							</div>
 						</div>
 						<div class="flex justify-between gap-2">
-							<button id="generateReport"
-								class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
-								<i class="fa fa-refresh"></i> <span data-i18n="generateReportButton">Generate
-									Report</span>
+
+							<!-- <button id="generateReport" disabled
+								class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded disabled:opacity-50 disabled:cursor-not-allowed">
+								<i class="fa fa-refresh"></i>
+								<span data-i18n="generateReportButton">Generate Report</span>
+							</button> -->
+							
+							<!-- corrected -->
+							<button id="generateReport" disabled
+								class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded disabled:opacity-50 disabled:cursor-not-allowed">
+								<i class="fa fa-refresh"></i>
+								<span data-i18n="generateReportButton">Generate Report</span>
 							</button>
+
+
+
 							<button id="copyReport"
 								class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
 								<i class="fa fa-copy"></i> <span data-i18n="copyReportButton">Copy Report</span>
@@ -407,11 +421,17 @@
 									<i class="fa fa-question-circle question-icon"></i>
 									<span class="tooltip-bubble" data-i18n="gitlabTokenTooltip">
 										<b>Why add a GitLab token?</b><br>
-										Works without a token for public projects, but a personal access token enables private repos and better rate limits. Your token stays local and is only used to fetch your GitLab data.<br><br>
+
+										Works without a token for public projects, but a personal access token enables
+										private repos and better rate limits. Your token stays local and is only used to
+										fetch your GitLab data.<br><br>
 										<b>How to get one:</b><br>
-										1. Go to <a href="https://gitlab.com/-/profile/personal_access_tokens" target="_blank"
-											rel="noopener noreferrer"
-											style="color:#2563eb;text-decoration:underline;">GitLab Access Tokens</a><br>
+										1. Go to <a href="https://gitlab.com/-/profile/personal_access_tokens"
+											target="_blank" rel="noopener noreferrer"
+											style="color:#2563eb;text-decoration:underline;">GitLab Access
+											Tokens</a><br>
+
+							
 										2. Click "Add new token"<br>
 										3. Select "read_api" scope<br>
 										4. Paste it here<br>
