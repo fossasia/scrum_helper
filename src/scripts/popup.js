@@ -250,13 +250,11 @@ document.addEventListener('DOMContentLoaded', () => {
 		console.log('[BOOTSTRAP] bootstrapScrumReportOnPopupLoad called');
 
 		if (typeof window.generateScrumReport !== 'function') {
-			console.warn('[BOOTSTRAP] window.generateScrumReport is not a function, aborting');
 			return;
 		}
 
 		const scrumReport = document.getElementById('scrumReport');
 		if (!scrumReport) {
-			console.warn('[BOOTSTRAP] scrumReport element not found, aborting');
 			return;
 		}
 
@@ -276,16 +274,8 @@ document.addEventListener('DOMContentLoaded', () => {
 		const hasCacheData = !!cache?.data;
 		const timestamp = typeof cache?.timestamp === 'number' ? cache.timestamp : 0;
 
-		console.log('[BOOTSTRAP] Cache state:', {
-			activePlatform,
-			hasCacheData,
-			timestamp,
-			ttlMinutes,
-			ageMinutes: timestamp > 0 ? ((Date.now() - timestamp) / 60000).toFixed(1) : 'N/A',
-		});
 
 		if (!hasCacheData) {
-			console.log('[BOOTSTRAP] No cache found, auto-generating report');
 			setGenerateButtonLoading(generateBtn, true);
 			window.generateScrumReport();
 			return;
@@ -309,7 +299,6 @@ document.addEventListener('DOMContentLoaded', () => {
 					(!lastScrumReportCacheKey || lastScrumReportCacheKey === cacheKey);
 
 				if (reportEmpty && lastScrumReportHtml && matches) {
-					console.log('[BOOTSTRAP] Healthy cache: restoring last rendered HTML');
 					scrumReport.innerHTML = lastScrumReportHtml;
 					if (generateBtn) generateBtn.disabled = false;
 					return;
