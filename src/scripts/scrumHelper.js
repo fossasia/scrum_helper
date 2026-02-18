@@ -23,6 +23,10 @@ let platformUsername = '';
 let gitlabToken = '';
 let gitlabHelper = null;
 
+function logError(message, data) {
+    console.error(message, data);
+}
+
 function allIncluded(outputTarget = 'email') {
 	// Always re-instantiate gitlabHelper for gitlab platform to ensure fresh cache after refresh
 	if (platform === 'gitlab' || (typeof platform === 'undefined' && window.GitLabHelper)) {
