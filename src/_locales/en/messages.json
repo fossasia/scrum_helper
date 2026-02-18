@@ -265,6 +265,10 @@
     "message": "Cache cleared successfully. Click \"Generate\" to fetch fresh data.",
     "description": "Message shown in the report area after the cache is cleared."
   },
+  "cacheExpiredMessage": {
+    "message": "Cache expired. Click \"Generate\" to fetch fresh data.",
+    "description": "Message shown when the cached data has expired and user needs to regenerate."
+  },
   "cacheClearedButton": {
     "message": "Cache Cleared!",
     "description": "Text on the refresh button after the cache is cleared."
