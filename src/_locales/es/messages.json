@@ -71,17 +71,23 @@
     "githubTokenPlaceholder": {
         "message": "Requerido para realizar solicitudes autenticadas"
     },
+    "githubTokenTooltip": {
+        "message": "¿Por qué se recomienda agregar un token de GitHub? Scrum Helper funciona sin un token de GitHub, pero se recomienda agregar un token de acceso personal para una mejor experiencia."
+    },
     "gitlabTokenLabel": {
         "message": "Tu token de GitLab"
     },
     "gitlabTokenPlaceholder": {
         "message": "Requerido para repos privados"
     },
+    "gitlabTokenTooltip": {
+        "message": "¿Por qué se recomienda agregar un token de GitLab? Scrum Helper funciona sin un token de GitLab para proyectos públicos, pero se recomienda agregar un token de acceso personal para una mejor experiencia."
+    },
     "showCommitsLabel": {
         "message": "Mostrar commits en PRs abiertos/ borradores de PRs"
     },
     "showCommitsTooltip": {
-        "message": "Se requiere un token de Github, agréguelo en la configuración."
+        "message": "Se requiere un token de GitHub, agréguelo en la configuración."
     },
     "onlyIssuesLabel": {
         "message": "Incluir solo incidencias en el informe"
@@ -101,7 +107,6 @@
     "onlyRevPRsTooltip": {
         "message": "Si está marcado, el informe solo incluirá PRs revisados por usted."
     },
-
     "cacheTTLLabel": {
         "message": "Introducir TTL de caché",
         "description": "Etiqueta para la entrada de tiempo de vida de la caché."

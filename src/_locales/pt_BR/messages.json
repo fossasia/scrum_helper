@@ -1,5 +1,4 @@
 {
-
     "appName": {
         "message": "Scrum Helper"
     },
@@ -72,11 +71,17 @@
     "githubTokenPlaceholder": {
         "message": "Necessário para solicitações autenticadas"
     },
+    "githubTokenTooltip": {
+        "message": "Por que é recomendado adicionar um token do GitHub? O Scrum Helper funciona sem um token do GitHub, mas é recomendado adicionar um token de acesso pessoal para uma melhor experiência."
+    },
     "gitlabTokenLabel": {
         "message": "Seu Token GitLab"
     },
     "gitlabTokenPlaceholder": {
         "message": "Necessário para repos privados"
+    },
+    "gitlabTokenTooltip": {
+        "message": "Por que é recomendado adicionar um token do GitLab? O Scrum Helper funciona sem um token do GitLab para projetos públicos, mas é recomendado adicionar um token de acesso pessoal para uma melhor experiência."
     },
     "showCommitsLabel": {
         "message": "Mostrar commits em PRs abertos/ rascunhos de PRs"
@@ -102,7 +107,6 @@
     "onlyRevPRsTooltip": {
         "message": "Se marcado, o relatório incluirá apenas PRs revisadas por você."
     },
-
     "cacheTTLLabel": {
         "message": "Digite o TTL do cache",
         "description": "Rótulo para a entrada de tempo de vida do cache."

@@ -1,206 +1,227 @@
 {
-    "appName": {
-        "message": "Scrum Helper"
-    },
-    "appDescription": {
-        "message": "Rapporter utviklingsfremgangen din ved å automatisk hente Git-aktiviteten din for en valgt periode."
-    },
-    "disableLabel": {
-        "message": "Deaktiver"
-    },
-    "enableLabel": {
-        "message": "Aktiver"
-    },
-    "projectNameLabel": {
-        "message": "Prosjektnavn (brukes i e-postemne)"
-    },
-    "projectNamePlaceholder": {
-        "message": "Skriv inn prosjektnavnet ditt"
-    },
-    "githubUsernameLabel": {
-        "message": "Ditt GitHub-brukernavn"
-    },
-    "gitlabUsernameLabel": {
-        "message": "Ditt GitLab-brukernavn"
-    },
-    "githubUsernamePlaceholder": {
-        "message": "Påkrevd for å hente bidragene dine"
-    },
-    "contributionsLabel": {
-        "message": "Hent dine bidrag for:"
-    },
-    "last1DayLabel": {
-        "message": "Forrige dag"
-    },
-    "startDateLabel": {
-        "message": "Fra:"
-    },
-    "endDateLabel": {
-        "message": "Til:"
-    },
-    "showOpenClosedLabel": {
-        "message": "Vis Åpen/Lukket-status"
-    },
-    "blockersLabel": {
-        "message": "Hva hindrer deg i å gjøre fremgang?"
-    },
-    "blockersPlaceholder": {
-        "message": "Skriv inn din grunn"
-    },
-    "scrumReportLabel": {
-        "message": "Scrum-rapport"
-    },
-    "generateReportButton": {
-        "message": "Generer rapport"
-    },
-    "copyReportButton": {
-        "message": "Kopier rapport"
-    },
-    "settingsOrgNameLabel": {
-        "message": "Organisasjonsnavn"
-    },
-    "settingsOrgNamePlaceholder": {
-        "message": "Skriv inn organisasjonsnavn"
-    },
-    "setButton": {
-        "message": "Angi"
-    },
-    "githubTokenLabel": {
-        "message": "Ditt GitHub-token"
-    },
-    "githubTokenPlaceholder": {
-        "message": "Påkrevd for autentiserte forespørsler"
-    },
-    "gitlabTokenLabel": {
-        "message": "Ditt GitLab-token"
-    },
-    "gitlabTokenPlaceholder": {
-        "message": "Påkrevd for private repoer"
-    },
-    "showCommitsLabel": {
-        "message": "Vis commits på åpne PR-er/utkast til PR-er"
-    },
-    "onlyPRsLabel": {
-        "message": "Inkluder kun PR-er i rapporten"
-    },
-    "onlyPRsTooltip": {
-        "message": "Hvis valgt, vil rapporten kun inkludere PR-er opprettet av brukeren; gjennomgåtte PR-er vil utelates."
-    },
-    "cacheTTLLabel": {
-        "message": "Angi cache-TTL"
-    },
-    "cacheTTLUnit": {
-        "message": "(i minutter)"
-    },
-    "cacheTTLPlaceholder": {
-        "message": "Skriv inn cache-TTL i minutter (Standard: 10)"
-    },
-    "refreshDataButton": {
-        "message": "Oppdater data (omgå cache)"
-    },
-    "refreshDataInfo": {
-        "message": "Bruk denne knappen for å hente ferske data umiddelbart."
-    },
-    "noteTitle": {
-        "message": "Merk:"
-    },
-    "viewCodeButton": {
-        "message": "Se kode"
-    },
-    "reportIssueButton": {
-        "message": "Rapporter et problem"
-    },
-    "repoFilterLabel": {
-        "message": "Filtrer etter repositorier"
-    },
-    "enableFilteringLabel": {
-        "message": "Aktiver filtrering"
-    },
-    "tokenRequiredWarning": {
-        "message": "Et GitHub-token er påkrevd for repositoriefiltrering. Vennligst legg til ett i innstillingene."
-    },
-    "repoSearchPlaceholder": {
-        "message": "Søk etter et repositorium for å legge til..."
-    },
-    "repoPlaceholder": {
-        "message": "Ingen repositorier valgt (alle vil bli inkludert)"
-    },
-    "repoCountNone": {
-        "message": "0 repositorier valgt"
-    },
-    "repoCount": {
-        "message": "$1 repositorier valgt"
-    },
-    "repoLoading": {
-        "message": "Laster repositorier..."
-    },
-    "repoLoaded": {
-        "message": "Lastet $1 repositorier."
-    },
-    "repoNotFound": {
-        "message": "Ingen repositorier funnet"
-    },
-    "repoRefetching": {
-        "message": "Henter repositorier på nytt..."
-    },
-    "repoLoadFailed": {
-        "message": "Kunne ikke laste repositorier."
-    },
-    "repoTokenPrivate": {
-        "message": "Tokenet er ugyldig eller har ikke rettigheter for private repositorier."
-    },
-    "repoRefetchFailed": {
-        "message": "Kunne ikke hente repositorier på nytt."
-    },
-    "orgSetMessage": {
-        "message": "Organisasjon satt."
-    },
-    "orgClearedMessage": {
-        "message": "Organisasjon fjernet. Klikk 'Generer rapport' for å hente alle aktiviteter."
-    },
-    "orgNotFoundMessage": {
-        "message": "Organisasjon ikke funnet på GitHub."
-    },
-    "orgValidationErrorMessage": {
-        "message": "Feil ved validering av organisasjon."
-    },
-    "refreshingButton": {
-        "message": "Oppdaterer..."
-    },
-    "cacheClearFailed": {
-        "message": "Tømming av cache mislyktes."
-    },
-    "madeWithLoveBy": {
-        "message": "Made with ❤️ by"
-    },
-    "generatingButton": {
-        "message": "Genererer..."
-    },
-    "copiedButton": {
-        "message": "Kopiert!"
-    },
-    "orgChangedMessage": {
-        "message": "Organisasjon endret. Klikk 'Generer rapport' for å hente GitHub-aktiviteter."
-    },
-    "cacheClearedMessage": {
-        "message": "Cache tømt. Klikk 'Generer rapport' for å hente ferske data."
-    },
-    "cacheClearedButton": {
-        "message": "Cache tømt!"
-    },
-    "extensionDisabledMessage": {
-        "message": "Utvidelsen er deaktivert. Aktiver den fra innstillingene for å generere scrum-rapporter."
-    },
-    "notePoint1": {
-        "message": "Pull-forespørsler hentes basert på den siste gjennomgangsaktiviteten til enhver bidragsyter, ikke bare din egen. Vennligst gjennomgå og juster den genererte SCRUM-rapporten for å sikre at den nøyaktig gjenspeiler arbeidet ditt før du deler den."
-    },
-    "noteSeeIssue": {
-        "message": "Se dette problemet"
-    },
-    "platformLabel": {
-        "message": "Plattform"
-    },
-    "usernameLabel": {
-        "message": "Ditt brukernavn"
-    }
+  "appName": {
+    "message": "Scrum Helper"
+  },
+  "appDescription": {
+    "message": "Rapporter utviklingsfremgangen din ved å automatisk hente Git-aktiviteten din for en valgt periode."
+  },
+  "disableLabel": {
+    "message": "Deaktiver"
+  },
+  "enableLabel": {
+    "message": "Aktiver"
+  },
+  "projectNameLabel": {
+    "message": "Prosjektnavn (brukes i e-postemne)"
+  },
+  "projectNamePlaceholder": {
+    "message": "Skriv inn prosjektnavnet ditt"
+  },
+  "githubUsernameLabel": {
+    "message": "Ditt GitHub-brukernavn"
+  },
+  "gitlabUsernameLabel": {
+    "message": "Ditt GitLab-brukernavn"
+  },
+  "githubUsernamePlaceholder": {
+    "message": "Påkrevd for å hente bidragene dine"
+  },
+  "contributionsLabel": {
+    "message": "Hent dine bidrag for:"
+  },
+  "last1DayLabel": {
+    "message": "Forrige dag"
+  },
+  "startDateLabel": {
+    "message": "Fra:"
+  },
+  "endDateLabel": {
+    "message": "Til:"
+  },
+  "showOpenClosedLabel": {
+    "message": "Vis Åpen/Lukket-status"
+  },
+  "blockersLabel": {
+    "message": "Hva hindrer deg i å gjøre fremgang?"
+  },
+  "blockersPlaceholder": {
+    "message": "Skriv inn din grunn"
+  },
+  "scrumReportLabel": {
+    "message": "Scrum-rapport"
+  },
+  "generateReportButton": {
+    "message": "Generer rapport"
+  },
+  "copyReportButton": {
+    "message": "Kopier rapport"
+  },
+  "settingsOrgNameLabel": {
+    "message": "Organisasjonsnavn"
+  },
+  "settingsOrgNamePlaceholder": {
+    "message": "Skriv inn organisasjonsnavn"
+  },
+  "setButton": {
+    "message": "Angi"
+  },
+  "githubTokenLabel": {
+    "message": "Ditt GitHub-token"
+  },
+  "githubTokenPlaceholder": {
+    "message": "Påkrevd for autentiserte forespørsler"
+  },
+  "githubTokenTooltip": {
+    "message": "Hvorfor anbefales det å legge til et GitHub-token? Scrum Helper fungerer uten et GitHub-token, men det anbefales å legge til et personlig tilgangstoken for en bedre opplevelse."
+  },
+  "gitlabTokenLabel": {
+    "message": "Ditt GitLab-token"
+  },
+  "gitlabTokenPlaceholder": {
+    "message": "Påkrevd for private repositorier"
+  },
+  "gitlabTokenTooltip": {
+    "message": "Hvorfor anbefales det å legge til et GitLab-token? Scrum Helper fungerer uten et GitLab-token for offentlige prosjekter, men det anbefales å legge til et personlig tilgangstoken for en bedre opplevelse."
+  },
+  "showCommitsLabel": {
+    "message": "Vis commits på åpne PR-er/utkast til PR-er"
+  },
+  "showCommitsTooltip": {
+    "message": "GitHub-token kreves. Legg det til i innstillingene."
+  },
+  "onlyIssuesLabel": {
+    "message": "Inkluder kun problemer i rapporten"
+  },
+  "onlyIssuesTooltip": {
+    "message": "Hvis valgt, vil rapporten kun inkludere problemer opprettet eller tildelt brukeren."
+  },
+  "onlyPRsLabel": {
+    "message": "Inkluder kun PR-er i rapporten"
+  },
+  "onlyPRsTooltip": {
+    "message": "Hvis valgt, vil rapporten kun inkludere PR-er opprettet av brukeren; gjennomgåtte PR-er vil utelates."
+  },
+  "onlyRevPRsLabel": {
+    "message": "Inkluder kun gjennomgåtte PR-er i rapporten"
+  },
+  "onlyRevPRsTooltip": {
+    "message": "Hvis valgt, vil rapporten kun inkludere PR-er gjennomgått av deg."
+  },
+  "cacheTTLLabel": {
+    "message": "Angi cache-TTL"
+  },
+  "cacheTTLUnit": {
+    "message": "(i minutter)"
+  },
+  "cacheTTLPlaceholder": {
+    "message": "Skriv inn cache-TTL i minutter (Standard: 10)"
+  },
+  "refreshDataButton": {
+    "message": "Oppdater data (omgå cache)"
+  },
+  "refreshDataInfo": {
+    "message": "Bruk denne knappen for å hente ferske data umiddelbart."
+  },
+  "noteTitle": {
+    "message": "Merk:"
+  },
+  "viewCodeButton": {
+    "message": "Se kode"
+  },
+  "reportIssueButton": {
+    "message": "Rapporter et problem"
+  },
+  "repoFilterLabel": {
+    "message": "Filtrer etter repositorier"
+  },
+  "enableFilteringLabel": {
+    "message": "Aktiver filtrering"
+  },
+  "tokenRequiredWarning": {
+    "message": "Et GitHub-token er påkrevd for repositoriefiltrering. Vennligst legg til ett i innstillingene."
+  },
+  "repoSearchPlaceholder": {
+    "message": "Søk etter et repositorium for å legge til..."
+  },
+  "repoPlaceholder": {
+    "message": "Ingen repositorier valgt (alle vil bli inkludert)"
+  },
+  "repoCountNone": {
+    "message": "0 repositorier valgt"
+  },
+  "repoCount": {
+    "message": "$1 repositorier valgt"
+  },
+  "repoLoading": {
+    "message": "Laster repositorier..."
+  },
+  "repoLoaded": {
+    "message": "Lastet $1 repositorier."
+  },
+  "repoNotFound": {
+    "message": "Ingen repositorier funnet"
+  },
+  "repoRefetching": {
+    "message": "Henter repositorier på nytt..."
+  },
+  "repoLoadFailed": {
+    "message": "Kunne ikke laste repositorier."
+  },
+  "repoTokenPrivate": {
+    "message": "Tokenet er ugyldig eller har ikke rettigheter for private repositorier."
+  },
+  "repoRefetchFailed": {
+    "message": "Kunne ikke hente repositorier på nytt."
+  },
+  "orgSetMessage": {
+    "message": "Organisasjon satt."
+  },
+  "orgClearedMessage": {
+    "message": "Organisasjon fjernet. Klikk 'Generer rapport' for å hente alle aktiviteter."
+  },
+  "orgNotFoundMessage": {
+    "message": "Organisasjon ikke funnet på GitHub."
+  },
+  "orgValidationErrorMessage": {
+    "message": "Feil ved validering av organisasjon."
+  },
+  "refreshingButton": {
+    "message": "Oppdaterer..."
+  },
+  "cacheClearFailed": {
+    "message": "Tømming av cache mislyktes."
+  },
+  "madeWithLoveBy": {
+    "message": "Made with ❤️ by"
+  },
+  "generatingButton": {
+    "message": "Genererer..."
+  },
+  "copiedButton": {
+    "message": "Kopiert!"
+  },
+  "orgChangedMessage": {
+    "message": "Organisasjon endret. Klikk 'Generer rapport' for å hente GitHub-aktiviteter."
+  },
+  "cacheClearedMessage": {
+    "message": "Cache tømt. Klikk 'Generer rapport' for å hente ferske data."
+  },
+  "cacheClearedButton": {
+    "message": "Cache tømt!"
+  },
+  "extensionDisabledMessage": {
+    "message": "Utvidelsen er deaktivert. Aktiver den fra innstillingene for å generere scrum-rapporter."
+  },
+  "notePoint1": {
+    "message": "Pull-forespørsler hentes basert på den siste gjennomgangsaktiviteten til enhver bidragsyter, ikke bare din egen. Vennligst gjennomgå og juster den genererte SCRUM-rapporten for å sikre at den nøyaktig gjenspeiler arbeidet ditt før du deler den."
+  },
+  "noteSeeIssue": {
+    "message": "Se dette problemet"
+  },
+  "platformLabel": {
+    "message": "Plattform"
+  },
+  "usernameLabel": {
+    "message": "Ditt brukernavn"
+  }
 }

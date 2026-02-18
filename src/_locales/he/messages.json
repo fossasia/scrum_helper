@@ -1,207 +1,227 @@
 {
-    "appName": {
-        "message": "Scrum Helper"
-    },
-    "appDescription": {
-        "message": "דווח על התקדמות הפיתוח שלך על ידי שליפה אוטומטית של פעילות ה-Git שלך לתקופה נבחרת."
-    },
-    "disableLabel": {
-        "message": "השבת"
-    },
-    "enableLabel": {
-        "message": "הפעל"
-    },
-    "projectNameLabel": {
-        "message": "שם פרויקט (משמש בנושא האימייל)"
-    },
-    "projectNamePlaceholder": {
-        "message": "הזן את שם הפרויקט שלך"
-    },
-    "githubUsernameLabel": {
-        "message": "שם המשתמש שלך ב-GitHub"
-    },
-    "gitlabUsernameLabel": {
-        "message": "שם המשתמש שלך ב-GitLab"
-    },
-    "githubUsernamePlaceholder": {
-        "message": "נדרש כדי להביא את התרומות שלך"
-    },
-    "contributionsLabel": {
-        "message": "הבא את התרומות שלך עבור:"
-    },
-    "last1DayLabel": {
-        "message": "היום הקודם"
-    },
-    "startDateLabel": {
-        "message": "מ:"
-    },
-    "endDateLabel": {
-        "message": "עד:"
-    },
-    "showOpenClosedLabel": {
-        "message": "הצג סטטוס פתוח/סגור"
-    },
-    "blockersLabel": {
-        "message": "מה מונע ממך להתקדם?"
-    },
-    "blockersPlaceholder": {
-        "message": "הזן את הסיבה שלך"
-    },
-    "scrumReportLabel": {
-        "message": "דוח סקראם"
-    },
-    "generateReportButton": {
-        "message": "צור דוח"
-    },
-    "copyReportButton": {
-        "message": "העתק דוח"
-    },
-    "settingsOrgNameLabel": {
-        "message": "שם הארגון"
-    },
-    "settingsOrgNamePlaceholder": {
-        "message": "הזן את שם הארגון"
-    },
-    "setButton": {
-        "message": "הגדר"
-    },
-    "githubTokenLabel": {
-        "message": "אסימון ה-GitHub שלך"
-    },
-    "githubTokenPlaceholder": {
-        "message": "נדרש לבקשות מאומתות"
-    },
-    "gitlabTokenLabel": {
-        "message": "אסימון ה-GitLab שלך"
-    },
-    "gitlabTokenPlaceholder": {
-        "message": "נדרש למאגרים פרטיים"
-    },
-    "showCommitsLabel": {
-        "message": "הצג קומיטים ב-PR פתוחים/טיוטות PR"
-    },
-    "cacheTTLLabel": {
-        "message": "הזן TTL למטמון"
-    },
-    "cacheTTLUnit": {
-        "message": "(בדקות)"
-    },
-    "cacheTTLPlaceholder": {
-        "message": "כתוב את ה-TTL של המטמון בדקות (ברירת מחדל: 10)"
-    },
-    "refreshDataButton": {
-        "message": "רענן נתונים (עקוף מטמון)"
-    },
-    "refreshDataInfo": {
-        "message": "השתמש בכפתור זה כדי להביא נתונים טריים באופן מיידי."
-    },
-    "noteTitle": {
-        "message": "הערה:"
-    },
-    "viewCodeButton": {
-        "message": "הצג קוד"
-    },
-    "reportIssueButton": {
-        "message": "דווח על בעיה"
-    },
-    "repoFilterLabel": {
-        "message": "סנן לפי מאגרים"
-    },
-    "enableFilteringLabel": {
-        "message": "הפעל סינון"
-    },
-    "tokenRequiredWarning": {
-        "message": "נדרש אסימון GitHub לסינון מאגרים. אנא הוסף אחד בהגדרות."
-    },
-    "repoSearchPlaceholder": {
-        "message": "חפש מאגר להוספה..."
-    },
-    "repoPlaceholder": {
-        "message": "לא נבחרו מאגרים (כולם ייכללו)"
-    },
-    "repoCountNone": {
-        "message": "נבחרו 0 מאגרים"
-    },
-    "repoCount": {
-        "message": "נבחרו $1 מאגרים"
-    },
-    "repoLoading": {
-        "message": "טוען מאגרים..."
-    },
-    "repoLoaded": {
-        "message": "נטענו $1 מאגרים."
-    },
-    "repoNotFound": {
-        "message": "לא נמצאו מאגרים"
-    },
-    "repoRefetching": {
-        "message": "מביא מחדש מאגרים..."
-    },
-    "repoLoadFailed": {
-        "message": "נכשל בטעינת מאגרים."
-    },
-    "repoTokenPrivate": {
-        "message": "האסימון אינו חוקי או שאין לו הרשאות למאגרים פרטיים."
-    },
-    "repoRefetchFailed": {
-        "message": "נכשל בהבאה מחדש של מאגרים."
-    },
-    "orgSetMessage": {
-        "message": "הארגון הוגדר בהצלחה."
-    },
-    "orgClearedMessage": {
-        "message": "הארגון נוקה. לחץ על 'צור דוח' כדי להביא את כל הפעילויות."
-    },
-    "orgNotFoundMessage": {
-        "message": "הארגון לא נמצא ב-GitHub."
-    },
-    "orgValidationErrorMessage": {
-        "message": "שגיאה באימות הארגון."
-    },
-    "refreshingButton": {
-        "message": "מרענן..."
-    },
-    "cacheClearFailed": {
-        "message": "ניקוי המטמון נכשל."
-    },
-    "madeWithLoveBy": {
-        "message": "Made with ❤️ by"
-    },
-    "generatingButton": {
-        "message": "יוצר..."
-    },
-    "copiedButton": {
-        "message": "הועתק!"
-    },
-    "orgChangedMessage": {
-        "message": "הארגון השתנה. לחץ על 'צור דוח' כדי להביא פעילויות GitHub."
-    },
-    "cacheClearedMessage": {
-        "message": "המטמון נוקה בהצלחה. לחץ על 'צור דוח' כדי להביא נתונים טריים."
-    },
-    "cacheClearedButton": {
-        "message": "המטמון נוקה!"
-    },
-    "extensionDisabledMessage": {
-        "message": "ההרחבה מושבתת. הפעל אותה מההגדרות כדי ליצור דוחות סקראם."
-    },
-    "notePoint1": {
-        "message": "בקשות משיכה (Pull requests) מאוחזרות על סמך פעילות הסקירה האחרונה של כל תורם, לא רק שלך. אנא בדוק והתאם את דוח ה-SCRUM שנוצר כדי לוודא שהוא משקף במדויק את עבודתך לפני השיתוף."
-    },
-    "noteSeeIssue": {
-        "message": "ראה בעיה זו"
-    },
-    "platformLabel": {
-        "message": "פלטפורמה"
-    },
-    "usernameLabel": {
-        "message": "שם המשתמש שלך"
-    },
-    "onlyRevPRsLabel": {
-        "message": "כלול בדוח רק PR שנבדקו על ידך"
-    },
-    "onlyRevPRsTooltip": {
-        "message": "אם מסומן, הדוח יכלול רק PR שנבדקו על ידך."
-
-    }
+  "appName": {
+    "message": "Scrum Helper"
+  },
+  "appDescription": {
+    "message": "דווח על התקדמות הפיתוח שלך על ידי שליפה אוטומטית של פעילות ה-Git שלך לתקופה נבחרת."
+  },
+  "disableLabel": {
+    "message": "השבת"
+  },
+  "enableLabel": {
+    "message": "הפעל"
+  },
+  "projectNameLabel": {
+    "message": "שם פרויקט (משמש בנושא האימייל)"
+  },
+  "projectNamePlaceholder": {
+    "message": "הזן את שם הפרויקט שלך"
+  },
+  "githubUsernameLabel": {
+    "message": "שם המשתמש שלך ב-GitHub"
+  },
+  "gitlabUsernameLabel": {
+    "message": "שם המשתמש שלך ב-GitLab"
+  },
+  "githubUsernamePlaceholder": {
+    "message": "נדרש כדי להביא את התרומות שלך"
+  },
+  "contributionsLabel": {
+    "message": "הבא את התרומות שלך עבור:"
+  },
+  "last1DayLabel": {
+    "message": "היום הקודם"
+  },
+  "startDateLabel": {
+    "message": "מ:"
+  },
+  "endDateLabel": {
+    "message": "עד:"
+  },
+  "showOpenClosedLabel": {
+    "message": "הצג סטטוס פתוח/סגור"
+  },
+  "blockersLabel": {
+    "message": "מה מונע ממך להתקדם?"
+  },
+  "blockersPlaceholder": {
+    "message": "הזן את הסיבה שלך"
+  },
+  "scrumReportLabel": {
+    "message": "דוח סקראם"
+  },
+  "generateReportButton": {
+    "message": "צור דוח"
+  },
+  "copyReportButton": {
+    "message": "העתק דוח"
+  },
+  "settingsOrgNameLabel": {
+    "message": "שם הארגון"
+  },
+  "settingsOrgNamePlaceholder": {
+    "message": "הזן את שם הארגון"
+  },
+  "setButton": {
+    "message": "הגדר"
+  },
+  "githubTokenLabel": {
+    "message": "אסימון ה-GitHub שלך"
+  },
+  "githubTokenPlaceholder": {
+    "message": "נדרש לבקשות מאומתות"
+  },
+  "githubTokenTooltip": {
+    "message": "למה מומלץ להוסיף אסימון GitHub? Scrum Helper עובד ללא אסימון GitHub, אך הוספת אסימון גישה אישי מומלצת לחוויה טובה יותר."
+  },
+  "gitlabTokenLabel": {
+    "message": "אסימון ה-GitLab שלך"
+  },
+  "gitlabTokenPlaceholder": {
+    "message": "נדרש למאגרים פרטיים"
+  },
+  "gitlabTokenTooltip": {
+    "message": "למה מומלץ להוסיף אסימון GitLab? Scrum Helper עובד ללא אסימון GitLab לפרויקטים ציבוריים, אך הוספת אסימון גישה אישי מומלצת לחוויה טובה יותר."
+  },
+  "showCommitsLabel": {
+    "message": "הצג קומיטים ב-PR פתוחים/טיוטות PR"
+  },
+  "showCommitsTooltip": {
+    "message": "נדרש אסימון GitHub, הוסף אותו בהגדרות."
+  },
+  "onlyIssuesLabel": {
+    "message": "הכלל רק בעיות בדוח"
+  },
+  "onlyIssuesTooltip": {
+    "message": "אם מסומן, הדוח יכיל רק בעיות שנוצרו או הוקצו למשתמש."
+  },
+  "onlyPRsLabel": {
+    "message": "הכלל רק PR בדוח"
+  },
+  "onlyPRsTooltip": {
+    "message": "אם מסומן, הדוח יכיל רק pull requests שנוצרו על ידי המשתמש; PR שנסקרו יוחרגו."
+  },
+  "cacheTTLLabel": {
+    "message": "הזן TTL למטמון"
+  },
+  "cacheTTLUnit": {
+    "message": "(בדקות)"
+  },
+  "cacheTTLPlaceholder": {
+    "message": "כתוב את ה-TTL של המטמון בדקות (ברירת מחדל: 10)"
+  },
+  "refreshDataButton": {
+    "message": "רענן נתונים (עקוף מטמון)"
+  },
+  "refreshDataInfo": {
+    "message": "השתמש בכפתור זה כדי להביא נתונים טריים באופן מיידי."
+  },
+  "noteTitle": {
+    "message": "הערה:"
+  },
+  "viewCodeButton": {
+    "message": "הצג קוד"
+  },
+  "reportIssueButton": {
+    "message": "דווח על בעיה"
+  },
+  "repoFilterLabel": {
+    "message": "סנן לפי מאגרים"
+  },
+  "enableFilteringLabel": {
+    "message": "הפעל סינון"
+  },
+  "tokenRequiredWarning": {
+    "message": "נדרש אסימון GitHub לסינון מאגרים. אנא הוסף אחד בהגדרות."
+  },
+  "repoSearchPlaceholder": {
+    "message": "חפש מאגר להוספה..."
+  },
+  "repoPlaceholder": {
+    "message": "לא נבחרו מאגרים (כולם ייכללו)"
+  },
+  "repoCountNone": {
+    "message": "נבחרו 0 מאגרים"
+  },
+  "repoCount": {
+    "message": "נבחרו $1 מאגרים"
+  },
+  "repoLoading": {
+    "message": "טוען מאגרים..."
+  },
+  "repoLoaded": {
+    "message": "נטענו $1 מאגרים."
+  },
+  "repoNotFound": {
+    "message": "לא נמצאו מאגרים"
+  },
+  "repoRefetching": {
+    "message": "מביא מחדש מאגרים..."
+  },
+  "repoLoadFailed": {
+    "message": "נכשל בטעינת מאגרים."
+  },
+  "repoTokenPrivate": {
+    "message": "האסימון אינו חוקי או שאין לו הרשאות למאגרים פרטיים."
+  },
+  "repoRefetchFailed": {
+    "message": "נכשל בהבאה מחדש של מאגרים."
+  },
+  "orgSetMessage": {
+    "message": "הארגון הוגדר בהצלחה."
+  },
+  "orgClearedMessage": {
+    "message": "הארגון נוקה. לחץ על 'צור דוח' כדי להביא את כל הפעילויות."
+  },
+  "orgNotFoundMessage": {
+    "message": "הארגון לא נמצא ב-GitHub."
+  },
+  "orgValidationErrorMessage": {
+    "message": "שגיאה באימות הארגון."
+  },
+  "refreshingButton": {
+    "message": "מרענן..."
+  },
+  "cacheClearFailed": {
+    "message": "ניקוי המטמון נכשל."
+  },
+  "madeWithLoveBy": {
+    "message": "Made with ❤️ by"
+  },
+  "generatingButton": {
+    "message": "יוצר..."
+  },
+  "copiedButton": {
+    "message": "הועתק!"
+  },
+  "orgChangedMessage": {
+    "message": "הארגון השתנה. לחץ על 'צור דוח' כדי להביא פעילויות GitHub."
+  },
+  "cacheClearedMessage": {
+    "message": "המטמון נוקה בהצלחה. לחץ על 'צור דוח' כדי להביא נתונים טריים."
+  },
+  "cacheClearedButton": {
+    "message": "המטמון נוקה!"
+  },
+  "extensionDisabledMessage": {
+    "message": "ההרחבה מושבתת. הפעל אותה מההגדרות כדי ליצור דוחות סקראם."
+  },
+  "notePoint1": {
+    "message": "בקשות משיכה (Pull requests) מאוחזרות על סמך פעילות הסקירה האחרונה של כל תורם, לא רק שלך. אנא בדוק והתאם את דוח ה-SCRUM שנוצר כדי לוודא שהוא משקף במדויק את עבודתך לפני השיתוף."
+  },
+  "noteSeeIssue": {
+    "message": "ראה בעיה זו"
+  },
+  "platformLabel": {
+    "message": "פלטפורמה"
+  },
+  "usernameLabel": {
+    "message": "שם המשתמש שלך"
+  },
+  "onlyRevPRsLabel": {
+    "message": "כלול בדוח רק PR שנבדקו על ידך"
+  },
+  "onlyRevPRsTooltip": {
+    "message": "אם מסומן, הדוח יכלול רק PR שנבדקו על ידך."
+  }
 }

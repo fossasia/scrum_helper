@@ -1,5 +1,4 @@
 {
-
     "appName": {
         "message": "Scrum Helper"
     },
@@ -67,10 +66,13 @@
         "message": "Definir"
     },
     "githubTokenLabel": {
-        "message": "Seu Token do Github"
+        "message": "Seu Token do GitHub"
     },
     "githubTokenPlaceholder": {
         "message": "Necessário para fazer solicitações autenticadas"
+    },
+    "githubTokenTooltip": {
+        "message": "Por que é recomendado adicionar um token do GitHub? O Scrum Helper funciona sem um token do GitHub, mas adicionar um token de acesso pessoal é recomendado para uma melhor experiência."
     },
     "gitlabTokenLabel": {
         "message": "Seu Token GitLab"
@@ -78,11 +80,14 @@
     "gitlabTokenPlaceholder": {
         "message": "Necessário para repos privados"
     },
+    "gitlabTokenTooltip": {
+        "message": "Por que é recomendado adicionar um token do GitLab? O Scrum Helper funciona sem um token do GitLab para projetos públicos, mas adicionar um token de acesso pessoal é recomendado para uma melhor experiência."
+    },
     "showCommitsLabel": {
         "message": "Mostrar commits em PRs abertos/ rascunhos de PRs"
     },
     "showCommitsTooltip": {
-        "message": "Token do Github necessário, adicione-o nas configurações."
+        "message": "Token do GitHub necessário, adicione-o nas configurações."
     },
     "onlyIssuesLabel": {
         "message": "Incluir apenas problemas no relatório"
@@ -102,7 +107,6 @@
     "onlyRevPRsTooltip": {
         "message": "Se marcado, o relatório incluirá apenas PRs revisadas por você."
     },
-
     "cacheTTLLabel": {
         "message": "Digite o TTL do cache",
         "description": "Rótulo para a entrada de tempo de vida do cache."
@@ -162,63 +166,63 @@
         "message": "Seu nome de usuário"
     },
     "repoFilterLabel": {
-        "message": "Filter by repositories"
+        "message": "Filtrar por repositórios"
     },
     "enableFilteringLabel": {
-        "message": "Enable filtering"
+        "message": "Ativar filtragem"
     },
     "tokenRequiredWarning": {
-        "message": "A GitHub token is required for repository filtering. Please add one in the settings."
+        "message": "Um token do GitHub é necessário para filtragem de repositórios. Por favor, adicione um nas configurações."
     },
     "repoSearchPlaceholder": {
-        "message": "Search for a repository to add..."
+        "message": "Pesquisar um repositório para adicionar..."
     },
     "repoPlaceholder": {
-        "message": "No repositories selected (all will be included)"
+        "message": "Nenhum repositório selecionado (todos serão incluídos)"
     },
     "repoCountNone": {
-        "message": "0 repositories selected"
+        "message": "0 repositórios selecionados"
     },
     "repoCount": {
-        "message": "$1 repositories selected"
+        "message": "$1 repositórios selecionados"
     },
     "repoLoading": {
-        "message": "Loading repositories..."
+        "message": "Carregando repositórios..."
     },
     "repoLoaded": {
-        "message": "Loaded $1 repositories."
+        "message": "Carregados $1 repositórios."
     },
     "repoNotFound": {
-        "message": "No repositories found"
+        "message": "Nenhum repositório encontrado"
     },
     "repoRefetching": {
-        "message": "Refetching repositories..."
+        "message": "Recarregando repositórios..."
     },
     "repoLoadFailed": {
-        "message": "Failed to load repositories."
+        "message": "Falha ao carregar repositórios."
     },
     "repoTokenPrivate": {
-        "message": "Token is invalid or does not have rights for private repos."
+        "message": "Token é inválido ou não tem direitos para repositórios privados."
     },
     "repoRefetchFailed": {
-        "message": "Failed to refetch repositories."
+        "message": "Falha ao recarregar repositórios."
     },
     "orgSetMessage": {
-        "message": "Organization set successfully."
+        "message": "Organização configurada com sucesso."
     },
     "orgClearedMessage": {
-        "message": "Organization cleared. Click 'Generate Report' to fetch all activities."
+        "message": "Organização removida. Clique em 'Gerar Relatório' para buscar todas as atividades."
     },
     "orgNotFoundMessage": {
-        "message": "Organization not found on GitHub."
+        "message": "Organização não encontrada no GitHub."
     },
     "orgValidationErrorMessage": {
-        "message": "Error validating organization."
+        "message": "Erro ao validar a organização."
     },
     "refreshingButton": {
-        "message": "Refreshing..."
+        "message": "Atualizando..."
     },
     "cacheClearFailed": {
-        "message": "Cache clear failed."
+        "message": "Falha ao limpar o cache."
     }
 }
