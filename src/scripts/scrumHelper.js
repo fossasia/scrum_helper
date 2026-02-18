@@ -628,7 +628,6 @@ function allIncluded(outputTarget = 'email') {
 			if (userCheckRes.status === 404) {
 				const errorMsg = `GitHub user "${platformUsernameLocal}" not found (404). Please check the username and try again.`;
 				logError(errorMsg);
-			
 				throw new Error(errorMsg);
 			}
 
