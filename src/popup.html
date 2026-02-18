@@ -27,7 +27,7 @@
 			height: 100vh !important;
 			max-width: 100vw !important;
 			max-height: 100vh !important;
-			min-width: 360px;
+			min-width: 375px;
 			min-height: 100vh !important;
 		}
 
@@ -84,16 +84,7 @@
 				</p>
 			</div>
 
-			<div class="center mt-2 flex justify-between">
-				<label class="flex items-center justify-center gap-2 font-semibold">
-					<span data-i18n="disableLabel">Disable</span>
-					<input type="checkbox" value="" id="enable" class="sr-only peer">
-					<div
-						class="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600">
-					</div>
-					<span class=""></span>
-					<span data-i18n="enableLabel">Enable</span>
-				</label>
+			<div class="center mt-2 flex justify-end">
 				<div class="flex">
 					<button id="homeButton"
 						class="ml-1 p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition">
@@ -280,17 +271,26 @@
 								class="min-h-[200px] overflow-y-auto whitespace-pre-wrap border-2 border-gray-200 bg-gray-100 rounded-xl text-gray-800 p-2 my-2">
 							</div>
 						</div>
-						<div class="flex justify-between gap-2">
+
+						<div class="scrum-actions my-2">
 							<button id="generateReport"
-								class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
-								<i class="fa fa-refresh"></i> <span data-i18n="generateReportButton">Generate
-									Report</span>
+								class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-3 rounded">
+								<i class="fa fa-refresh"></i> <span data-i18n="generateReportButton">Generate</span>
 							</button>
+
+							<button id="insertToEmail"
+								class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
+								<i class="fa fa-envelope"></i> <span data-i18n="insertToEmailButton">Insert to
+									Email</span>
+							</button>
+
 							<button id="copyReport"
-								class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
-								<i class="fa fa-copy"></i> <span data-i18n="copyReportButton">Copy Report</span>
+								class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-2 rounded">
+								<i class="fa fa-copy"></i> <span data-i18n="copyReportButton">Copy</span>
 							</button>
 						</div>
+
+
 					</div>
 					<div class="border-gray-100 border-2 bg-white rounded-3xl px-4 py-2 mx-2 my-2">
 						<div>

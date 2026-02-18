@@ -51,10 +51,13 @@
         "message": "स्क्रम रिपोर्ट"
     },
     "generateReportButton": {
-        "message": "रिपोर्ट बनाएं"
+        "message": "जनरेट"
     },
     "copyReportButton": {
-        "message": "रिपोर्ट कॉपी करें"
+        "message": "कॉपी"
+    },
+    "insertToEmailButton": {
+        "message": "ईमेल में डालें"
     },
     "settingsOrgNameLabel": {
         "message": "संगठन का नाम"

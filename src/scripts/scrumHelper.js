@@ -13,7 +13,6 @@ function logError(...args) {
 }
 
 let refreshButton_Placed = false;
-let enableToggle = true;
 let hasInjectedContent = false;
 let scrumGenerationInProgress = false;
 
@@ -87,7 +86,6 @@ function allIncluded(outputTarget = 'email') {
 				'githubToken',
 				'gitlabToken',
 				'projectName',
-				'enableToggle',
 				'startingDate',
 				'endingDate',
 				'showOpenLabel',
@@ -142,9 +140,6 @@ function allIncluded(outputTarget = 'email') {
 				githubToken = items.githubToken;
 				gitlabToken = items.gitlabToken || '';
 				yesterdayContribution = items.yesterdayContribution;
-				if (typeof items.enableToggle !== 'undefined') {
-					enableToggle = items.enableToggle;
-				}
 
 				onlyIssues = items.onlyIssues === true;
 				onlyPRs = items.onlyPRs === true;
@@ -185,7 +180,7 @@ function allIncluded(outputTarget = 'email') {
 									'<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">Please enter your username to generate a report.</div>';
 							}
 							if (generateBtn) {
-								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
 								generateBtn.disabled = false;
 							}
 							scrumGenerationInProgress = false;
@@ -262,12 +257,12 @@ function allIncluded(outputTarget = 'email') {
 									console.error('GitLab fetch failed:', err);
 									if (outputTarget === 'popup') {
 										if (generateBtn) {
-											generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+											generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
 											generateBtn.disabled = false;
 										}
 										const scrumReport = document.getElementById('scrumReport');
 										if (scrumReport) {
-											scrumReport.innerHTML = `<div class=\"error-message\" style=\"color: #dc2626; font-weight: bold; padding: 10px;\">${err.message || 'An error occurred while fetching GitLab data.'}</div>`;
+											scrumReport.innerHTML = `<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">${err.message || 'An error occurred while fetching GitLab data.'}</div>`;
 										}
 									}
 									scrumGenerationInProgress = false;
@@ -310,12 +305,12 @@ function allIncluded(outputTarget = 'email') {
 									console.error('GitLab fetch failed:', err);
 									if (outputTarget === 'popup') {
 										if (generateBtn) {
-											generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+											generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
 											generateBtn.disabled = false;
 										}
 										const scrumReport = document.getElementById('scrumReport');
 										if (scrumReport) {
-											scrumReport.innerHTML = `<div class=\"error-message\" style=\"color: #dc2626; font-weight: bold; padding: 10px;\">${err.message || 'An error occurred while fetching GitLab data.'}</div>`;
+											scrumReport.innerHTML = `<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">${err.message || 'An error occurred while fetching GitLab data.'}</div>`;
 										}
 									}
 									scrumGenerationInProgress = false;
@@ -331,7 +326,7 @@ function allIncluded(outputTarget = 'email') {
 									'<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">Please enter your username to generate a report.</div>';
 							}
 							if (generateBtn) {
-								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
 								generateBtn.disabled = false;
 							}
 						}
@@ -769,11 +764,11 @@ function allIncluded(outputTarget = 'email') {
 						else errorMsg = JSON.stringify(err);
 					}
 					scrumReport.innerHTML = `<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">${err.message || 'An error occurred while generating the report.'}</div>`;
-					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
 					generateBtn.disabled = false;
 				}
 				if (generateBtn) {
-					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
 					generateBtn.disabled = false;
 				}
 			}
@@ -950,7 +945,7 @@ function allIncluded(outputTarget = 'email') {
 					'<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">Invalid or expired GitHub token. Please check your token in the settings and try again.</div>';
 				const generateBtn = document.getElementById('generateReport');
 				if (generateBtn) {
-					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
 					generateBtn.disabled = false;
 				}
 			} else {
@@ -1042,11 +1037,6 @@ function allIncluded(outputTarget = 'email') {
 	}
 
 	function writeScrumBody() {
-		if (!enableToggle) {
-			scrumGenerationInProgress = false;
-			return;
-		}
-
 		let lastWeekUl = '<ul>';
 		for (let i = 0; i < lastWeekArray.length; i++) lastWeekUl += lastWeekArray[i];
 		for (let i = 0; i < reviewedPrsArray.length; i++) lastWeekUl += reviewedPrsArray[i];
@@ -1081,10 +1071,22 @@ ${userReason}`;
 			if (scrumReport) {
 				log('Found popup div, updating content');
 				scrumReport.innerHTML = content;
+				try {
+					const cacheKey =
+						platform === 'gitlab' ? (gitlabHelper?.cache?.cacheKey ?? null) : (githubCache?.cacheKey ?? null);
+
+					chrome.storage.local.set({
+						lastScrumReportHtml: content,
+						lastScrumReportPlatform: platform,
+						lastScrumReportCacheKey: cacheKey,
+					});
+				} catch (e) {
+					// ignore
+				}
 
 				const generateBtn = document.getElementById('generateReport');
 				if (generateBtn) {
-					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
 					generateBtn.disabled = false;
 				}
 			} else {
@@ -1132,7 +1134,6 @@ ${userReason}`;
 	//load initial scrum subject
 	function scrumSubjectLoaded() {
 		try {
-			if (!enableToggle) return;
 			if (!scrumSubject) {
 				console.error('Subject element not found');
 				return;
@@ -1605,7 +1606,8 @@ ${userReason}`;
 						log(`[PR DEBUG] Rendering commits for existing PR #${number}:`, item._allCommits);
 						li += '<ul>';
 						item._allCommits.forEach((commit) => {
-							li += `<li style=\"list-style: disc; color: #666;\"><span style=\"color:#2563eb;\">${commit.messageHeadline}</span><span style=\"color:#666; font-size: 11px;\"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
+							li += `<li style="list-style: disc; color: #666;">
+<span style="color:#2563eb;">${commit.messageHeadline}</span><span style="color:#666; font-size: 11px;"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
 						});
 						li += '</ul>';
 					}
@@ -1736,7 +1738,7 @@ ${userReason}`;
 
 	if (!refreshButton_Placed) {
 		const intervalWriteButton = setInterval(() => {
-			if (document.getElementsByClassName('F0XO1GC-x-b').length === 3 && scrumBody && enableToggle) {
+			if (document.getElementsByClassName('F0XO1GC-x-b').length === 3 && scrumBody) {
 				refreshButton_Placed = true;
 				clearInterval(intervalWriteButton);
 				const td = document.createElement('td');
@@ -1812,14 +1814,15 @@ async function forceGitlabDataRefresh() {
 	return { success: true };
 }
 
-if (window.location.protocol.startsWith('http')) {
-	allIncluded('email');
-	$('button>span:contains(New conversation)')
-		.parent('button')
-		.click(() => {
-			allIncluded();
-		});
-}
+// Auto inject report on email client load
+// if (window.location.protocol.startsWith('http')) {
+// 	allIncluded('email');
+// 	$('button>span:contains(New conversation)')
+// 		.parent('button')
+// 		.click(() => {
+// 			allIncluded();
+// 		});
+// }
 
 window.generateScrumReport = () => {
 	allIncluded('popup');
@@ -1847,7 +1850,53 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 		});
 		return true;
 	}
+
+	if (request.action === 'insertReportToEmail') {
+		injectIntoEmailEditor(request.content, request.subject)
+			.then(sendResponse)
+			.catch((err) => sendResponse({ success: false, error: err?.message || String(err) }));
+		return true;
+	}
 });
+
+async function injectIntoEmailEditor(content, subject) {
+	if (!window.emailClientAdapter) {
+		return { success: false, error: 'emailClientAdapter not available' };
+	}
+
+	const tryInject = () => {
+		const elements = window.emailClientAdapter.getEditorElements?.();
+		if (!elements?.body) return false;
+
+		if (subject && elements.subject) {
+			elements.subject.value = subject;
+			elements.subject.dispatchEvent(new Event(elements.eventTypes?.subjectChange || 'input', { bubbles: true }));
+		}
+
+		//for body
+		window.emailClientAdapter.injectContent(elements.body, content, elements.eventTypes?.contentChange || 'input');
+		return true;
+	};
+
+	if (tryInject()) return { success: true };
+
+	return await new Promise((resolve) => {
+		let done = false;
+		const observer = new MutationObserver(() => {
+			if (!done && tryInject()) {
+				done = true;
+				observer.disconnect();
+				resolve({ success: true });
+			}
+		});
+
+		observer.observe(document.body, { childList: true, subtree: true });
+		setTimeout(() => {
+			if (!done) observer.disconnect();
+			resolve({ success: false, error: 'Editor not found (timeout)' });
+		}, 30000);
+	});
+}
 
 async function fetchPrsMergedStatusBatch(prs, headers) {
 	const results = {};
@@ -1855,7 +1904,7 @@ async function fetchPrsMergedStatusBatch(prs, headers) {
 	const query = `query {
 ${prs
 	.map(
-		(pr, i) => `	repo${i}: repository(owner: \"${pr.owner}\", name: \"${pr.repo}\") {
+		(pr, i) => `	repo${i}: repository(owner: "${pr.owner}\", name: "${pr.repo}\") {
 		pr${i}: pullRequest(number: ${pr.number}) { merged }
 	}`,
 	)

@@ -179,189 +179,13 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	}
 
-	function updateContentState(enableToggle) {
-		console.log('[DEBUG] updateContentState called with:', enableToggle);
-		const elementsToToggle = [
-			'startingDate',
-			'endingDate',
-			'generateReport',
-			'copyReport',
-			'refreshCache',
-			'showOpenLabel',
-			'showCommits',
-			'onlyIssues',
-			'onlyPRs',
-			'onlyRevPRs',
-			'scrumReport',
-			'githubUsername',
-			'githubToken',
-			'projectName',
-			'platformUsername',
-			'orgInput',
-			'cacheInput',
-			'settingsToggle',
-			'toggleTokenVisibility',
-			'useRepoFilter',
-			'repoSearch',
-			'platformDropdownBtn',
-		];
-
-		const radios = document.querySelectorAll('input[name="timeframe"]');
-		const customDateContainer = document.getElementById('customDateContainer');
-
-		elementsToToggle.forEach((id) => {
-			const element = document.getElementById(id);
-			if (element) {
-				element.disabled = !enableToggle;
-				if (!enableToggle) {
-					element.style.opacity = '0.5';
-					element.style.pointerEvents = 'none';
-				} else {
-					element.style.opacity = '1';
-					element.style.pointerEvents = 'auto';
-				}
-			}
-		});
-
-		radios.forEach((radio) => {
-			radio.disabled = !enableToggle;
-			const label = document.querySelector(`label[for="${radio.id}"]`);
-			if (label) {
-				if (!enableToggle) {
-					label.style.opacity = '0.5';
-					label.style.pointerEvents = 'none';
-				} else {
-					label.style.opacity = '1';
-					label.style.pointerEvents = 'auto';
-				}
-			}
-		});
-
-		if (customDateContainer) {
-			if (!enableToggle) {
-				customDateContainer.style.opacity = '0.5';
-				customDateContainer.style.pointerEvents = 'none';
-			} else {
-				customDateContainer.style.opacity = '1';
-				customDateContainer.style.pointerEvents = 'auto';
-			}
-		}
-
-		// Handle platform dropdown list items
-		const platformDropdownList = document.getElementById('platformDropdownList');
-		const customPlatformDropdown = document.getElementById('customPlatformDropdown');
-		if (platformDropdownList && customPlatformDropdown) {
-			if (!enableToggle) {
-				customPlatformDropdown.style.opacity = '0.5';
-				customPlatformDropdown.style.pointerEvents = 'none';
-				// Close dropdown if open
-				customPlatformDropdown.classList.remove('open');
-				platformDropdownList.classList.add('hidden');
-			} else {
-				customPlatformDropdown.style.opacity = '1';
-				customPlatformDropdown.style.pointerEvents = 'auto';
-			}
-		}
-
-		// Handle repository filter container and selected repos
-		const repoFilterContainer = document.getElementById('repoFilterContainer');
-		const selectedRepos = document.getElementById('selectedRepos');
-		if (repoFilterContainer) {
-			if (!enableToggle) {
-				repoFilterContainer.style.opacity = '0.5';
-				repoFilterContainer.style.pointerEvents = 'none';
-			} else {
-				repoFilterContainer.style.opacity = '1';
-				repoFilterContainer.style.pointerEvents = 'auto';
-			}
-		}
-		if (selectedRepos) {
-			if (!enableToggle) {
-				selectedRepos.style.opacity = '0.5';
-				selectedRepos.style.pointerEvents = 'none';
-				// Disable all remove buttons inside
-				const removeButtons = selectedRepos.querySelectorAll('.remove-repo-btn');
-				removeButtons.forEach((btn) => {
-					btn.disabled = true;
-					btn.style.pointerEvents = 'none';
-				});
-			} else {
-				selectedRepos.style.opacity = '1';
-				selectedRepos.style.pointerEvents = 'auto';
-				const removeButtons = selectedRepos.querySelectorAll('.remove-repo-btn');
-				removeButtons.forEach((btn) => {
-					btn.disabled = false;
-					btn.style.pointerEvents = 'auto';
-				});
-			}
-		}
-
-		// Handle repository dropdown
-		const repoDropdown = document.getElementById('repoDropdown');
-		if (repoDropdown && !enableToggle) {
-			repoDropdown.classList.add('hidden');
-		}
-
-		// Handle useRepoFilter label
-		const useRepoFilterLabel = document.querySelector('label[for="useRepoFilter"]');
-		if (useRepoFilterLabel) {
-			if (!enableToggle) {
-				useRepoFilterLabel.style.opacity = '0.5';
-				useRepoFilterLabel.style.pointerEvents = 'none';
-			} else {
-				useRepoFilterLabel.style.opacity = '1';
-				useRepoFilterLabel.style.pointerEvents = 'auto';
-			}
-		}
-
-		const scrumReport = document.getElementById('scrumReport');
-		if (scrumReport) {
-			scrumReport.contentEditable = enableToggle;
-			if (!enableToggle) {
-				scrumReport.innerHTML = `<p style="text-align: center; color: #999; padding: 20px;">${chrome?.i18n.getMessage('extensionDisabledMessage')}</p>`;
-			} else {
-				const disabledMessage = `<p style="text-align: center; color: #999; padding: 20px;">${chrome?.i18n.getMessage('extensionDisabledMessage')}</p>`;
-				if (scrumReport.innerHTML === disabledMessage) {
-					scrumReport.innerHTML = '';
-				}
-			}
-		}
-	}
-
-	chrome?.storage.local.get(['enableToggle'], (items) => {
-		console.log('[DEBUG] Storage items received:', items);
-		const enableToggle = items.enableToggle !== false;
-		console.log('[DEBUG] enableToggle calculated:', enableToggle);
-
-		// If enableToggle is undefined (first install), set it to true by default
-		if (typeof items.enableToggle === 'undefined') {
-			console.log('[DEBUG] Setting default enableToggle to true');
-			chrome?.storage.local.set({ enableToggle: true });
-		}
-
-		console.log('[DEBUG] Calling updateContentState with:', enableToggle);
-		updateContentState(enableToggle);
-
-		console.log('[DEBUG] Extension enabled, initializing popup');
-		if (!enableToggle) {
-			console.log('[DEBUG] Extension disabled, returning early');
-			return;
-		}
+	chrome.storage.local.remove(['enableToggle'], () => {
 		initializePopup();
 		checkTokenForFilter();
 	});
 
 	chrome?.storage.onChanged.addListener((changes, namespace) => {
 		console.log('[DEBUG] Storage changed:', changes, namespace);
-		if (namespace === 'local' && changes.enableToggle) {
-			console.log('[DEBUG] enableToggle changed to:', changes.enableToggle.newValue);
-			updateContentState(changes.enableToggle.newValue);
-			if (changes.enableToggle.newValue) {
-				// re-initialize if enabled
-				console.log('[DEBUG] Re-initializing popup due to enable toggle change');
-				initializePopup();
-			}
-		}
 		if (changes.startingDate || changes.endingDate) {
 			console.log('[POPUP-DEBUG] Date changed in storage, triggering repo fetch.', {
 				startingDate: changes.startingDate?.newValue,
@@ -373,14 +197,140 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	});
 
+	function storageLocalGet(keys) {
+		return new Promise((resolve) => chrome?.storage.local.get(keys, resolve));
+	}
+
+	function parsePositiveInt(value) {
+		const n = Number.parseInt(value, 10);
+		return Number.isFinite(n) && n > 0 ? n : null;
+	}
+
+	function setGenerateButtonLoading(generateBtn, isLoading) {
+		if (!generateBtn) return;
+		if (!isLoading) return;
+
+		const msg = chrome?.i18n.getMessage('generatingButton') || 'Generating...';
+		generateBtn.innerHTML = `<i class="fa fa-spinner fa-spin"></i> ${msg}`;
+		generateBtn.disabled = true;
+	}
+
+	function showPopupMessage(message) {
+		if (!message) return;
+
+		// Materialize toast if available
+		if (window.Materialize && typeof window.Materialize.toast === 'function') {
+			window.Materialize.toast(message, 4000);
+			return;
+		}
+
+		const old = document.getElementById('scrum-cache-toast');
+		if (old) old.remove();
+
+		const toast = document.createElement('div');
+		toast.id = 'scrum-cache-toast';
+		toast.className = 'toast';
+		toast.style.background = '#2563eb';
+		toast.style.color = '#fff';
+		toast.style.fontWeight = 'bold';
+		toast.style.padding = '12px 24px';
+		toast.style.borderRadius = '8px';
+		toast.style.position = 'fixed';
+		toast.style.top = '24px';
+		toast.style.left = '50%';
+		toast.style.transform = 'translateX(-50%)';
+		toast.style.zIndex = '9999';
+		toast.textContent = message;
+
+		document.body.appendChild(toast);
+		setTimeout(() => toast.remove(), 4000);
+	}
+
+	async function bootstrapScrumReportOnPopupLoad(generateBtn) {
+		console.log('[BOOTSTRAP] bootstrapScrumReportOnPopupLoad called');
+
+		if (typeof window.generateScrumReport !== 'function') {
+			return;
+		}
+
+		const scrumReport = document.getElementById('scrumReport');
+		if (!scrumReport) {
+			return;
+		}
+
+		const { platform, cacheInput, githubCache, gitlabCache } = await storageLocalGet([
+			'platform',
+			'cacheInput',
+			'githubCache',
+			'gitlabCache',
+		]);
+
+		const ttlMinutes = parsePositiveInt(cacheInput) ?? 10;
+		const ttlMs = ttlMinutes * 60 * 1000;
+
+		const activePlatform = platform || 'github';
+		const cache = activePlatform === 'gitlab' ? gitlabCache : githubCache;
+
+		const hasCacheData = !!cache?.data;
+		const timestamp = typeof cache?.timestamp === 'number' ? cache.timestamp : 0;
+
+
+		if (!hasCacheData) {
+			setGenerateButtonLoading(generateBtn, true);
+			window.generateScrumReport();
+			return;
+		}
+
+		if (timestamp > 0) {
+			const age = Date.now() - timestamp;
+
+			if (age < ttlMs) {
+				const { lastScrumReportHtml, lastScrumReportPlatform, lastScrumReportCacheKey } = await storageLocalGet([
+					'lastScrumReportHtml',
+					'lastScrumReportPlatform',
+					'lastScrumReportCacheKey',
+				]);
+
+				const cacheKey = cache?.cacheKey ?? null;
+				const reportEmpty = !scrumReport.innerHTML || !scrumReport.innerHTML.trim();
+
+				const matches =
+					(!lastScrumReportPlatform || lastScrumReportPlatform === activePlatform) &&
+					(!lastScrumReportCacheKey || lastScrumReportCacheKey === cacheKey);
+
+				if (reportEmpty && lastScrumReportHtml && matches) {
+					scrumReport.innerHTML = lastScrumReportHtml;
+					if (generateBtn) generateBtn.disabled = false;
+					return;
+				}
+
+				setGenerateButtonLoading(generateBtn, true);
+				window.generateScrumReport();
+				return;
+			}
+
+			const { lastScrumReportHtml } = await storageLocalGet(['lastScrumReportHtml']);
+			if ((!scrumReport.innerHTML || !scrumReport.innerHTML.trim()) && lastScrumReportHtml) {
+				scrumReport.innerHTML = lastScrumReportHtml;
+			}
+
+			showPopupMessage(
+				chrome?.i18n.getMessage('cacheExpiredMessage') || 'Cache expired. Click "Generate" to fetch fresh data.',
+			);
+
+			if (generateBtn) generateBtn.disabled = false;
+			return;
+		}
+
+		setGenerateButtonLoading(generateBtn, true);
+		window.generateScrumReport();
+	}
+
 	function initializePopup() {
-		// Migration: Handle existing users with old platformUsername storage
 		chrome?.storage.local.get(['platform', 'platformUsername'], (result) => {
 			if (result.platformUsername && result.platform) {
-				// Migrate old platformUsername to platform-specific storage
 				const platformUsernameKey = `${result.platform}Username`;
 				chrome?.storage.local.set({ [platformUsernameKey]: result.platformUsername });
-				// Remove the old key
 				chrome?.storage.local.remove(['platformUsername']);
 				console.log(`[MIGRATION] Migrated platformUsername to ${platformUsernameKey}`);
 			}
@@ -398,7 +348,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		const githubTokenInput = document.getElementById('githubToken');
 		const cacheInput = document.getElementById('cacheInput');
-		const enableToggleSwitch = document.getElementById('enable');
 		const yesterdayRadio = document.getElementById('yesterdayContribution');
 		const startingDateInput = document.getElementById('startingDate');
 		const endingDateInput = document.getElementById('endingDate');
@@ -416,7 +365,6 @@ document.addEventListener('DOMContentLoaded', () => {
 				'onlyIssues',
 				'onlyPRs',
 				'onlyRevPRs',
-				'enableToggle',
 				'yesterdayContribution',
 				'startingDate',
 				'endingDate',
@@ -456,13 +404,6 @@ document.addEventListener('DOMContentLoaded', () => {
 				}
 				if (result.githubToken) githubTokenInput.value = result.githubToken;
 				if (result.cacheInput) cacheInput.value = result.cacheInput;
-				if (enableToggleSwitch) {
-					if (typeof result.enableToggle !== 'undefined') {
-						enableToggleSwitch.checked = result.enableToggle;
-					} else {
-						enableToggleSwitch.checked = true; // Default to enabled
-					}
-				}
 				if (typeof result.yesterdayContribution !== 'undefined') yesterdayRadio.checked = result.yesterdayContribution;
 				if (result.startingDate) startingDateInput.value = result.startingDate;
 				if (result.endingDate) endingDateInput.value = result.endingDate;
@@ -477,6 +418,32 @@ document.addEventListener('DOMContentLoaded', () => {
 		// Button setup
 		const generateBtn = document.getElementById('generateReport');
 		const copyBtn = document.getElementById('copyReport');
+		const insertBtn = document.getElementById('insertToEmail');
+
+		if (insertBtn) {
+			insertBtn.addEventListener('click', () => {
+				const scrumReport = document.getElementById('scrumReport');
+				const content = scrumReport ? scrumReport.innerHTML : '';
+				const subject = buildScrumSubjectFromPopup();
+
+				if (!content) return;
+
+				chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+					const tabId = tabs?.[0]?.id;
+					if (!tabId) return;
+
+					chrome.tabs.sendMessage(tabId, { action: 'insertReportToEmail', content, subject }, (response) => {
+						if (chrome.runtime.lastError) {
+							console.warn('Insert to Email failed:', chrome.runtime.lastError.message);
+							return;
+						}
+						if (!response?.success) {
+							console.warn('Insert to Email failed:', response?.error);
+						}
+					});
+				});
+			});
+		}
 
 		generateBtn.addEventListener('click', () => {
 			chrome?.storage.local.get(['platform'], (result) => {
@@ -695,13 +662,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			});
 		}
 
-		if (enableToggleSwitch) {
-			console.log('[DEBUG] Setting up enable toggle switch event listener');
-			enableToggleSwitch.addEventListener('change', () => {
-				console.log('[DEBUG] Enable toggle changed to:', enableToggleSwitch.checked);
-				chrome?.storage.local.set({ enableToggle: enableToggleSwitch.checked });
-			});
-		}
+
 		yesterdayRadio.addEventListener('change', () => {
 			chrome?.storage.local.set({ yesterdayContribution: yesterdayRadio.checked });
 		});
@@ -719,6 +680,10 @@ document.addEventListener('DOMContentLoaded', () => {
 				const platformUsernameKey = `${platform}Username`;
 				chrome?.storage.local.set({ [platformUsernameKey]: platformUsername.value });
 			});
+		});
+		// Bootstrap report on popup open (restore cache / auto-generate / expired-cache toast)
+		bootstrapScrumReportOnPopupLoad(generateBtn).catch((err) => {
+			console.error('[POPUP] bootstrapScrumReportOnPopupLoad failed', err);
 		});
 	}
 
@@ -754,13 +719,6 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	showReportView();
-
-	// Debug function to test storage
-	window.testStorage = () => {
-		chrome?.storage.local.get(['enableToggle'], (result) => {
-			console.log('[TEST] Current enableToggle value:', result.enableToggle);
-		});
-	};
 
 	//report filter
 	const repoSearch = document.getElementById('repoSearch');
@@ -798,7 +756,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					chrome?.storage.local.get(['platform'], resolve);
 				});
 				platform = items.platform || 'github';
-			} catch (e) {}
+			} catch {}
 			if (platform !== 'github') {
 				// Do not run repo fetch for non-GitHub platforms
 				if (repoStatus) repoStatus.textContent = 'Repository filtering is only available for GitHub.';
@@ -887,7 +845,7 @@ document.addEventListener('DOMContentLoaded', () => {
 						chrome?.storage.local.get(['platform'], resolve);
 					});
 					platform = items.platform || 'github';
-				} catch (e) {}
+				} catch {}
 				if (platform !== 'github') {
 					repoFilterContainer.classList.add('hidden');
 					useRepoFilter.checked = false;
@@ -1069,7 +1027,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					chrome?.storage.local.get(['platform'], resolve);
 				});
 				platform = items.platform || 'github';
-			} catch (e) {}
+			} catch {}
 			if (platform !== 'github') {
 				if (repoStatus) repoStatus.textContent = 'Repository loading is only available for GitHub.';
 				return;
@@ -1440,6 +1398,15 @@ const dropdownBtn = document.getElementById('platformDropdownBtn');
 const dropdownList = document.getElementById('platformDropdownList');
 const dropdownSelected = document.getElementById('platformDropdownSelected');
 const platformSelectHidden = document.getElementById('platformSelect');
+
+function buildScrumSubjectFromPopup() {
+	const projectName = document.getElementById('projectName')?.value?.trim() || '';
+	const now = new Date();
+	const dateCode =
+		String(now.getFullYear()) + String(now.getMonth() + 1).padStart(2, '0') + String(now.getDate()).padStart(2, '0');
+
+	return `[Scrum]${projectName ? ' - ' + projectName : ''} - ${dateCode}`;
+}
 
 function setPlatformDropdown(value) {
 	if (value === 'gitlab') {

@@ -51,10 +51,13 @@
         "message": "דוח סקראם"
     },
     "generateReportButton": {
-        "message": "צור דוח"
+        "message": "הפק"
     },
     "copyReportButton": {
-        "message": "העתק דוח"
+        "message": "העתק"
+    },
+    "insertToEmailButton": {
+        "message": "הכנס לדוא״ל"
     },
     "settingsOrgNameLabel": {
         "message": "שם הארגון"
