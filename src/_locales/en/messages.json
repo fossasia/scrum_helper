@@ -173,6 +173,62 @@
     "message": "A GitHub token is required for repository filtering. Please add one in the settings.",
     "description": "Warning message shown when repo filtering is enabled without a token."
   },
+  "tokenRequiredTitle": {
+    "message": "GitHub Token Required",
+    "description": "Title shown when a GitHub token is missing during report generation."
+  },
+  "tokenRequiredDescription": {
+    "message": "A GitHub token is needed to fetch your contribution data and generate the scrum report.",
+    "description": "Description explaining why a GitHub token is needed."
+  },
+  "addTokenButton": {
+    "message": "Add GitHub Token",
+    "description": "Text for the button that navigates to settings to add a GitHub token."
+  },
+  "tokenBenefitsTitle": {
+    "message": "Token Benefits:",
+    "description": "Section header explaining the benefits of using a token."
+  },
+  "tokenBenefitAuth": {
+    "message": "Access your full GitHub activity",
+    "description": "First benefit of using a token."
+  },
+  "tokenBenefitRateLimit": {
+    "message": "Higher API rate limits (5,000/hr)",
+    "description": "Second benefit of using a token."
+  },
+  "tokenBenefitPrivate": {
+    "message": "Include private repositories",
+    "description": "Third benefit of using a token."
+  },
+  "tokenLearnMore": {
+    "message": "Learn how to create a token",
+    "description": "Link text to learn about creating a GitHub token."
+  },
+  "errorLabel": {
+    "message": "Error",
+    "description": "Generic error label used in error messages."
+  },
+  "errorGenericMessage": {
+    "message": "An error occurred while generating the report.",
+    "description": "Generic error message when report generation fails."
+  },
+  "errorInvalidToken": {
+    "message": "Invalid or expired GitHub token. Please check your token in the settings and try again.",
+    "description": "Error message when the GitHub token is invalid or expired."
+  },
+  "errorUsernameRequired": {
+    "message": "Please enter your username to generate a report.",
+    "description": "Error message when username is missing."
+  },
+  "rateLimitTitle": {
+    "message": "API Rate Limit Reached",
+    "description": "Title shown when GitHub API rate limit is exceeded."
+  },
+  "rateLimitDescription": {
+    "message": "You've exceeded GitHub's free API limit (60 requests/hour). Add a GitHub token to continue with 5,000 requests/hour.",
+    "description": "Description explaining the rate limit and solution."
+  },
   "repoSearchPlaceholder": {
     "message": "Search for a repository to add...",
     "description": "Placeholder for the repository search input."
@@ -285,6 +341,9 @@
     "message": "Your Username",
     "description": "Label for the username input header."
   },
+  "userReasonLabel": {
+    "message": "Your Reason",
+    "description": "Label for the user reason input field."
   "onlyRevPRsLabel": {
     "message": "Include only reviewed PRs in the report",
     "description": "Label for the checkbox to include only reviewed PRs."
