@@ -520,9 +520,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			try {
 				document.execCommand('copy');
-				this.innerHTML = '<i class="fa fa-check"></i> ' + chrome?.i18n.getMessage('copiedButton');
+				this.innerHTML = '';
+				const checkIcon = document.createElement('i');
+				checkIcon.className = 'fa fa-check';
+				this.appendChild(checkIcon);
+				const checkText = document.createElement('span');
+				checkText.textContent = ' ' + chrome?.i18n.getMessage('copiedButton');
+				this.appendChild(checkText);
 				setTimeout(() => {
-					this.innerHTML = '<i class="fa fa-copy"></i> ' + chrome?.i18n.getMessage('copyReportButton');
+					this.innerHTML = '';
+					const copyIcon = document.createElement('i');
+					copyIcon.className = 'fa fa-copy';
+					this.appendChild(copyIcon);
+					const copyText = document.createElement('span');
+					copyText.textContent = ' ' + chrome?.i18n.getMessage('copyReportButton');
+					this.appendChild(copyText);
 				}, 2000);
 			} catch (err) {
 				console.error('Failed to copy: ', err);
@@ -1236,7 +1248,12 @@ document.addEventListener('DOMContentLoaded', () => {
 					if (repo.stars) {
 						const starSpan = document.createElement('span');
 						starSpan.className = 'repo-stars';
-						starSpan.innerHTML = '<i class="fa fa-star"></i> ' + repo.stars;
+						const starIcon = document.createElement('i');
+						starIcon.className = 'fa fa-star';
+						starSpan.appendChild(starIcon);
+						const starText = document.createElement('span');
+						starText.textContent = ' ' + repo.stars;
+						starSpan.appendChild(starText);
 						nameDiv.appendChild(starSpan);
 					}
 					div.appendChild(nameDiv);
@@ -1661,10 +1678,17 @@ document.querySelectorAll('input[name="timeframe"]').forEach((radio) => {
 // refresh cache button
 
 document.getElementById('refreshCache').addEventListener('click', async function () {
-	const originalText = this.innerHTML;
+	const originalBtn = this;
+	const originalChildren = Array.from(this.children);
 
 	this.classList.add('loading');
-	this.innerHTML = `<i class="fa fa-refresh fa-spin"></i><span>${chrome?.i18n.getMessage('refreshingButton')}</span>`;
+	this.innerHTML = '';
+	const spinIcon = document.createElement('i');
+	spinIcon.className = 'fa fa-refresh fa-spin';
+	this.appendChild(spinIcon);
+	const spinSpan = document.createElement('span');
+	spinSpan.textContent = chrome?.i18n.getMessage('refreshingButton');
+	this.appendChild(spinSpan);
 	this.disabled = true;
 
 	try {
@@ -1686,7 +1710,13 @@ document.getElementById('refreshCache').addEventListener('click', async function
 		// Clear the scrum report
 		const scrumReport = document.getElementById('scrumReport');
 		if (scrumReport) {
-			scrumReport.innerHTML = `<p style="text-align: center; color: #666; padding: 20px;">${chrome?.i18n.getMessage('cacheClearedMessage')}</p>`;
+			scrumReport.innerHTML = '';
+			const p = document.createElement('p');
+			p.style.textAlign = 'center';
+			p.style.color = '#666';
+			p.style.padding = '20px';
+			p.textContent = chrome?.i18n.getMessage('cacheClearedMessage');
+			scrumReport.appendChild(p);
 		}
 
 		if (typeof availableRepos !== 'undefined') {
@@ -1698,23 +1728,37 @@ document.getElementById('refreshCache').addEventListener('click', async function
 			repoStatus.textContent = '';
 		}
 
-		this.innerHTML = '<i class="fa fa-check"></i><span>' + chrome?.i18n.getMessage('cacheClearedButton') + '</span>';
+		this.innerHTML = '';
+		const checkIcon = document.createElement('i');
+		checkIcon.className = 'fa fa-check';
+		this.appendChild(checkIcon);
+		const checkSpan = document.createElement('span');
+		checkSpan.textContent = chrome?.i18n.getMessage('cacheClearedButton');
+		this.appendChild(checkSpan);
 		this.classList.remove('loading');
 
 		// Do NOT trigger report generation automatically
 
 		setTimeout(() => {
-			this.innerHTML = originalText;
-			this.disabled = false;
+			originalBtn.innerHTML = '';
+			originalChildren.forEach(child => originalBtn.appendChild(child));
+			originalBtn.disabled = false;
 		}, 2000);
 	} catch (error) {
 		console.error('Cache clear failed:', error);
-		this.innerHTML = '<i class="fa fa-exclamation-triangle"></i><span>' + chrome?.i18n.getMessage('cacheClearFailed') + '</span>';
+		this.innerHTML = '';
+		const errorIcon = document.createElement('i');
+		errorIcon.className = 'fa fa-exclamation-triangle';
+		this.appendChild(errorIcon);
+		const errorSpan = document.createElement('span');
+		errorSpan.textContent = chrome?.i18n.getMessage('cacheClearFailed');
+		this.appendChild(errorSpan);
 		this.classList.remove('loading');
 
 		setTimeout(() => {
-			this.innerHTML = originalText;
-			this.disabled = false;
+			originalBtn.innerHTML = '';
+			originalChildren.forEach(child => originalBtn.appendChild(child));
+			originalBtn.disabled = false;
 		}, 3000);
 	}
 });
