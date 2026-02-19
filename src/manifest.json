@@ -1,11 +1,16 @@
 {
   "manifest_version": 3,
   "name": "Scrum Helper",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "This extension simplifies writing development reports by auto-filling content based on your Git activity.",
   "action": {
-    "default_popup": "popup.html",
     "default_title": "Scrum Helper"
+  },
+  "side_panel": {
+    "default_path": "popup.html"
+  },
+  "background": {
+    "service_worker": "scripts/background.js"
   },
   "icons": {
     "96": "icons/icon.png",
@@ -47,7 +52,8 @@
   ],
   "permissions": [
     "storage",
-    "tabs"
+    "tabs",
+    "sidePanel"
   ],
   "host_permissions": [
     "*://*.google.com/*",

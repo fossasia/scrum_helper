@@ -20,6 +20,7 @@ let scrumGenerationInProgress = false;
 let orgName = '';
 let platform = 'github';
 let platformUsername = '';
+let gitlabToken = '';
 let gitlabHelper = null;
 
 function allIncluded(outputTarget = 'email') {
@@ -84,6 +85,7 @@ function allIncluded(outputTarget = 'email') {
 				'githubUsername',
 				'gitlabUsername',
 				'githubToken',
+				'gitlabToken',
 				'projectName',
 				'enableToggle',
 				'startingDate',
@@ -115,6 +117,7 @@ function allIncluded(outputTarget = 'email') {
 					const usernameFromDOM = document.getElementById('platformUsername')?.value;
 					const projectFromDOM = document.getElementById('projectName')?.value;
 					const tokenFromDOM = document.getElementById('githubToken')?.value;
+					const gitlabTokenFromDOM = document.getElementById('gitlabToken')?.value;
 
 					// Save to platform-specific storage
 					if (usernameFromDOM) {
@@ -125,9 +128,11 @@ function allIncluded(outputTarget = 'email') {
 
 					items.projectName = projectFromDOM || items.projectName;
 					items.githubToken = tokenFromDOM || items.githubToken;
+					items.gitlabToken = gitlabTokenFromDOM || items.gitlabToken;
 					chrome.storage.local.set({
 						projectName: items.projectName,
 						githubToken: items.githubToken,
+						gitlabToken: items.gitlabToken,
 					});
 				}
 				projectName = items.projectName;
@@ -135,6 +140,7 @@ function allIncluded(outputTarget = 'email') {
 				userReason = 'No Blocker at the moment';
 				chrome.storage.local.remove(['userReason']);
 				githubToken = items.githubToken;
+				gitlabToken = items.gitlabToken || '';
 				yesterdayContribution = items.yesterdayContribution;
 				if (typeof items.enableToggle !== 'undefined') {
 					enableToggle = items.enableToggle;
@@ -201,7 +207,12 @@ function allIncluded(outputTarget = 'email') {
 						if (outputTarget === 'email') {
 							(async () => {
 								try {
-									const data = await gitlabHelper.fetchGitLabData(platformUsernameLocal, startingDate, endingDate);
+									const data = await gitlabHelper.fetchGitLabData(
+										platformUsernameLocal,
+										startingDate,
+										endingDate,
+										gitlabToken,
+									);
 
 									function mapGitLabItem(item, projects, type) {
 										const project = projects.find((p) => p.id === item.project_id);
@@ -264,7 +275,7 @@ function allIncluded(outputTarget = 'email') {
 							})();
 						} else {
 							gitlabHelper
-								.fetchGitLabData(platformUsernameLocal, startingDate, endingDate)
+								.fetchGitLabData(platformUsernameLocal, startingDate, endingDate, gitlabToken)
 								.then((data) => {
 									function mapGitLabItem(item, projects, type) {
 										const project = projects.find((p) => p.id === item.project_id);
@@ -590,13 +601,21 @@ function allIncluded(outputTarget = 'email') {
 					}
 					logError(`Missing owner for repo ${repo} - search may fail`);
 					return `repo:${repo}`;
-				});
+				})
+				.join('+');
 
 			const orgQuery = orgPart ? `+${orgPart}` : '';
-			issueUrl = `https://api.github.com/search/issues?q=author%3A${platformUsernameLocal}+${repoQueries}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}&per_page=100`;
-			prUrl = `https://api.github.com/search/issues?q=commenter%3A${platformUsernameLocal}+${repoQueries}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}&per_page=100`;
-			userUrl = `https://api.github.com/users/${platformUsernameLocal}`;
-			log('Repository-filtered URLs:', { issueUrl, prUrl });
+			if (!repoQueries) {
+				loadFromStorage('Repo filter empty, using org wide search');
+				issueUrl = `https://api.github.com/search/issues?q=author%3A${platformUsernameLocal}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}&per_page=100`;
+				prUrl = `https://api.github.com/search/issues?q=commenter%3A${platformUsernameLocal}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}&per_page=100`;
+				userUrl = `https://api.github.com/users/${platformUsernameLocal}`;
+			} else {
+				issueUrl = `https://api.github.com/search/issues?q=author%3A${platformUsernameLocal}+${repoQueries}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}&per_page=100`;
+				prUrl = `https://api.github.com/search/issues?q=commenter%3A${platformUsernameLocal}+${repoQueries}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}&per_page=100`;
+				userUrl = `https://api.github.com/users/${platformUsernameLocal}`;
+				log('Repository-filtered URLs:', { issueUrl, prUrl });
+			}
 		} else {
 			loadFromStorage('Using org wide search');
 			const orgQuery = orgPart ? `+${orgPart}` : '';
@@ -614,9 +633,6 @@ function allIncluded(outputTarget = 'email') {
 			if (userCheckRes.status === 404) {
 				const errorMsg = `GitHub user "${platformUsernameLocal}" not found (404). Please check the username and try again.`;
 				logError(errorMsg);
-				if (outputTarget === 'popup') {
-					Materialize.toast && Materialize.toast(errorMsg, 4000);
-				}
 				throw new Error(errorMsg);
 			}
 
