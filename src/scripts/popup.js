@@ -1316,8 +1316,18 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 
 		function filterAndDisplayRepos(query) {
+			function renderRepoDropdownMessage(message, withLeftPadding = false) {
+				const messageDiv = document.createElement('div');
+				messageDiv.className = 'p-3 text-center text-gray-500 text-sm';
+				if (withLeftPadding) {
+					messageDiv.style.paddingLeft = '10px';
+				}
+				messageDiv.textContent = message;
+				repoDropdown.replaceChildren(messageDiv);
+			}
+
 			if (availableRepos.length === 0) {
-				repoDropdown.innerHTML = `<div class="p-3 text-center text-gray-500 text-sm">${chrome?.i18n.getMessage('repoLoading')}</div>`;
+				renderRepoDropdownMessage(chrome?.i18n.getMessage('repoLoading') || 'Loading...');
 				showDropdown();
 				return;
 			}
@@ -1333,32 +1343,62 @@ document.addEventListener('DOMContentLoaded', () => {
 			});
 
 			if (filtered.length === 0) {
-				repoDropdown.innerHTML = `<div class="p-3 text-center text-gray-500 text-sm" style="padding-left: 10px; ">${chrome?.i18n.getMessage('repoNotFound')}</div>`;
+				renderRepoDropdownMessage(chrome?.i18n.getMessage('repoNotFound') || 'No repositories found', true);
 			} else {
-				repoDropdown.innerHTML = filtered
-					.slice(0, 10)
-					.map(
-						(repo) => `
-                    <div class="repository-dropdown-item" data-repo-name="${repo.fullName}">
-                        <div class="repo-name">
-                            <span>${repo.name}</span>
-                            ${repo.language ? `<span class="repo-language">${repo.language}</span>` : ''}
-                            ${repo.stars ? `<span class="repo-stars"><i class="fa fa-star"></i> ${repo.stars}</span>` : ''}
-                        </div>
-                        <div class="repo-info">
-                            ${repo.description ? `<span class="repo-desc">${repo.description.substring(0, 50)}${repo.description.length > 50 ? '...' : ''}</span>` : ''}
-                        </div>
-                    </div>
-                `,
-					)
-					.join('');
+				const fragment = document.createDocumentFragment();
 
-				repoDropdown.querySelectorAll('.repository-dropdown-item').forEach((item) => {
+				filtered.slice(0, 10).forEach((repo) => {
+					const item = document.createElement('div');
+					item.className = 'repository-dropdown-item';
+					item.dataset.repoName = repo.fullName || '';
+
+					const repoNameContainer = document.createElement('div');
+					repoNameContainer.className = 'repo-name';
+
+					const nameSpan = document.createElement('span');
+					nameSpan.textContent = repo.name || repo.fullName || '';
+					repoNameContainer.appendChild(nameSpan);
+
+					if (repo.language) {
+						const languageSpan = document.createElement('span');
+						languageSpan.className = 'repo-language';
+						languageSpan.textContent = repo.language;
+						repoNameContainer.appendChild(languageSpan);
+					}
+
+					if (repo.stars) {
+						const starsSpan = document.createElement('span');
+						starsSpan.className = 'repo-stars';
+
+						const starIcon = document.createElement('i');
+						starIcon.className = 'fa fa-star';
+						starsSpan.appendChild(starIcon);
+						starsSpan.appendChild(document.createTextNode(` ${repo.stars}`));
+						repoNameContainer.appendChild(starsSpan);
+					}
+
+					const repoInfoContainer = document.createElement('div');
+					repoInfoContainer.className = 'repo-info';
+
+					if (repo.description) {
+						const descriptionSpan = document.createElement('span');
+						descriptionSpan.className = 'repo-desc';
+						descriptionSpan.textContent =
+							repo.description.length > 50 ? `${repo.description.substring(0, 50)}...` : repo.description;
+						repoInfoContainer.appendChild(descriptionSpan);
+					}
+
+					item.appendChild(repoNameContainer);
+					item.appendChild(repoInfoContainer);
 					item.addEventListener('click', (e) => {
 						e.stopPropagation();
 						fnSelectedRepos(item.dataset.repoName);
 					});
+
+					fragment.appendChild(item);
 				});
+
+				repoDropdown.replaceChildren(fragment);
 			}
 			highlightedIndex = -1;
 			showDropdown();
