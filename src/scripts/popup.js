@@ -10,7 +10,20 @@ function debounce(func, wait) {
 
 // Utility: Detect if the current OS is macOS
 function isMacOS() {
-	return navigator.platform.toUpperCase().indexOf('MAC') >= 0;
+	if (typeof navigator === 'undefined') {
+		return false;
+	}
+
+	if (navigator.userAgentData && typeof navigator.userAgentData.platform === 'string') {
+		return navigator.userAgentData.platform.toLowerCase().includes('mac');
+	}
+
+	const platform = navigator.platform || '';
+	if (navigator.maxTouchPoints && navigator.maxTouchPoints > 2 && /MacIntel/.test(platform)) {
+		return true;
+	}
+
+	return /Mac/.test(platform);
 }
 
 function getLocalizedShortcutLabel(messageKey, fallbackShortcut) {
@@ -37,7 +50,10 @@ function getLocalizedShortcutLabel(messageKey, fallbackShortcut) {
 		return fallbackShortcut;
 	}
 
-	const variants = shortcutGroupMatch[1].split('/').map((value) => value.trim()).filter(Boolean);
+	const variants = shortcutGroupMatch[1]
+		.split('/')
+		.map((value) => value.trim())
+		.filter(Boolean);
 	if (variants.length === 0) {
 		return fallbackShortcut;
 	}
@@ -61,7 +77,7 @@ function showShortcutNotification(messageKey, shortcutKey) {
 		existingNotification.remove();
 	}
 
-const defaultShortcut = isMacOS() ? shortcutKey.replace('Ctrl', 'Cmd') : shortcutKey;
+	const defaultShortcut = isMacOS() ? shortcutKey.replace('Ctrl', 'Cmd') : shortcutKey;
 	const formattedShortcut = getLocalizedShortcutLabel(messageKey, defaultShortcut);
 
 	// Get localized message and replace placeholder with shortcut
@@ -132,12 +148,10 @@ function applyI18n() {
 }
 
 function setupButtonTooltips() {
-	
 	if (typeof chrome === 'undefined' || !chrome.i18n) {
 		return;
 	}
 
-	
 	const generateReportTooltipEl = document.getElementById('generateReportTooltipText');
 	if (generateReportTooltipEl) {
 		const generateMsg = chrome.i18n.getMessage('generateReportTooltip');
@@ -1308,17 +1322,15 @@ document.addEventListener('DOMContentLoaded', () => {
 				return;
 			}
 
-			const filtered = availableRepos.filter(
-				(repo) => {
-					if (selectedRepos.includes(repo.fullName)) {
-						return false;
-					}
-					if (!query) {
-						return true;
-					}
-					return repo.name.toLowerCase().includes(query) || repo.description?.toLowerCase().includes(query);
+			const filtered = availableRepos.filter((repo) => {
+				if (selectedRepos.includes(repo.fullName)) {
+					return false;
 				}
-			);
+				if (!query) {
+					return true;
+				}
+				return repo.name.toLowerCase().includes(query) || repo.description?.toLowerCase().includes(query);
+			});
 
 			if (filtered.length === 0) {
 				repoDropdown.innerHTML = `<div class="p-3 text-center text-gray-500 text-sm" style="padding-left: 10px; ">${chrome?.i18n.getMessage('repoNotFound')}</div>`;
@@ -1496,7 +1508,6 @@ document.addEventListener('keydown', (e) => {
 	const key = (e.key || '').toLowerCase();
 	const modifier = isMacOS() ? e.metaKey : e.ctrlKey;
 
-	
 	const generateBtn = document.getElementById('generateReport');
 	const copyBtn = document.getElementById('copyReport');
 
