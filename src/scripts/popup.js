@@ -154,6 +154,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		const tokenWarning = document.getElementById('tokenWarningForShowCommits');
 		if (tokenWarning) {
+			if (showCommitsWarningTimeout) {
+				clearTimeout(showCommitsWarningTimeout);
+				showCommitsWarningTimeout = null;
+			}
 			tokenWarning.classList.add('hidden');
 		}
 	}
@@ -1258,15 +1262,17 @@ document.addEventListener('DOMContentLoaded', () => {
 				return;
 			}
 
-			const filtered = availableRepos.filter((repo) => {
-				if (selectedRepos.includes(repo.fullName)) {
-					return false;
+			const filtered = availableRepos.filter(
+				(repo) => {
+					if (selectedRepos.includes(repo.fullName)) {
+						return false;
+					}
+					if (!query) {
+						return true;
+					}
+					return repo.name.toLowerCase().includes(query) || repo.description?.toLowerCase().includes(query);
 				}
-				if (!query) {
-					return true;
-				}
-				return repo.name.toLowerCase().includes(query) || repo.description?.toLowerCase().includes(query);
-			});
+			);
 
 			if (filtered.length === 0) {
 				repoDropdown.innerHTML = `<div class="p-3 text-center text-gray-500 text-sm" style="padding-left: 10px; ">${chrome?.i18n.getMessage('repoNotFound')}</div>`;
