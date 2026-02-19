@@ -173,6 +173,10 @@
     "message": "A GitHub token is required for repository filtering. Please add one in the settings.",
     "description": "Warning message shown when repo filtering is enabled without a token."
   },
+  "tokenRequiredShowCommitsWarning": {
+    "message": "A GitHub token is required to show commits on open or draft PRs. Please add one in the settings.",
+    "description": "Warning message shown when show commits is enabled without a token."
+  },
   "repoSearchPlaceholder": {
     "message": "Search for a repository to add...",
     "description": "Placeholder for the repository search input."
