@@ -75,8 +75,9 @@
 		<div class="bg-white px-4 py-4 mx-2 mb-2 rounded-3xl">
 			<div class="flex justify-between py-2">
 				<h3 id="scrumHelperHeading" class="text-3xl font-semibold cursor-pointer">Scrum Helper</h3>
-				<img src="icons/night-mode.png" alt="Night Mode" class="w-7 h-7 mx-3 cursor-pointer"
-					id="darkModeToggle">
+				   <button id="darkModeToggleBtn" type="button" aria-label="Toggle night mode" class="focus:outline-none focus:ring-2 focus:ring-blue-500 rounded">
+					   <img src="icons/night-mode.png" alt="Toggle night mode" class="w-7 h-7 mx-3 cursor-pointer" id="darkModeToggle">
+				   </button>
 			</div>
 			<div>
 				<p class="" data-i18n="appDescription">Report your development progress by auto-fetching your Git
@@ -85,24 +86,22 @@
 			</div>
 
 			<div class="center mt-2 flex justify-between">
-				<label class="flex items-center justify-center gap-2 font-semibold">
-					<span data-i18n="disableLabel">Disable</span>
-					<input type="checkbox" value="" id="enable" class="sr-only peer">
-					<div
-						class="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600">
-					</div>
-					<span class=""></span>
-					<span data-i18n="enableLabel">Enable</span>
-				</label>
+				   <label for="enable" class="flex items-center justify-center gap-2 font-semibold cursor-pointer">
+					   <span data-i18n="disableLabel">Disable</span>
+					   <input type="checkbox" value="" id="enable" class="sr-only peer" aria-checked="false">
+					   <div
+						   class="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+					   </div>
+					   <span class=""></span>
+					   <span data-i18n="enableLabel">Enable</span>
+				   </label>
 				<div class="flex">
-					<button id="homeButton"
-						class="ml-1 p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition">
-						<i class="fa fa-home text-2xl text-gray-600 dark:text-gray-300"></i>
-					</button>
-					<button id="settingsToggle">
-						<img id="settingsIcon" src="icons/settings-light.png" alt="Settings"
-							class="w-6 h-6 mx-3 cursor-pointer">
-					</button>
+					   <button id="homeButton" type="button" class="ml-1 p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="Home">
+						   <i class="fa fa-home text-2xl text-gray-600 dark:text-gray-300"></i>
+					   </button>
+					   <button id="settingsToggle" type="button" class="focus:outline-none focus:ring-2 focus:ring-blue-500" aria-label="Settings">
+						   <img id="settingsIcon" src="icons/settings-light.png" alt="Settings" class="w-6 h-6 mx-3 cursor-pointer">
+					   </button>
 				</div>
 			</div>
 		</div>
@@ -153,17 +152,19 @@
 						</div>
 
 
-						<input id="projectName" type="text"
-							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
-							placeholder="Enter your project name" style="margin-top: 0.3rem; margin-bottom: 0.8rem;">
+						   <label id="projectNameLabel" for="projectName" class="font-medium text-sm">Project Name (used in email subject)</label>
+						   <input id="projectName" type="text" aria-labelledby="projectNameLabel"
+							   class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+							   placeholder="Enter your project name" style="margin-top: 0.3rem; margin-bottom: 0.8rem;">
 					</div>
 					<div>
 
 						<p id="usernameLabel" class="font-medium text-sm" data-i18n="usernameLabel">Your Username</p>
-						<input id="platformUsername" type="text"
-							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
-							placeholder="Required for fetching your contributions"
-							style="margin-top: 0.3rem; margin-bottom: 0.8rem;">
+						   <label for="platformUsername" class="sr-only">Your Username</label>
+						   <input id="platformUsername" type="text" aria-labelledby="usernameLabel"
+							   class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+							   placeholder="Required for fetching your contributions"
+							   style="margin-top: 0.3rem; margin-bottom: 0.8rem;">
 					</div>
 
 					<div>
@@ -178,21 +179,21 @@
 								<div>
 									<label for="startingDate" class="flex items-center font-medium text-xs"
 										data-i18n="startDateLabel">From:</label>
-									<input type="date" id="startingDate"
-										class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1"
-										style="width: 96px;">
+									   <input type="date" id="startingDate"
+										   class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+										   style="width: 96px;">
 								</div>
 								<div>
 									<label for="endingDate" class="flex items-center font-medium text-xs"
 										data-i18n="endDateLabel">To:</label>
-									<input type="date" id="endingDate"
-										class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1"
-										style="width: 96px;">
+									   <input type="date" id="endingDate"
+										   class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+										   style="width: 96px;">
 								</div>
 							</div>
 							<div class="flex items-center gap-1">
-								<input type="radio" id="yesterdayContribution" name="timeframe" class="form-radio"
-									style="margin-right: 4px;">
+								   <input type="radio" id="yesterdayContribution" name="timeframe" class="form-radio focus:outline-none focus:ring-2 focus:ring-blue-500"
+									   style="margin-right: 4px;">
 								<label for="yesterdayContribution" class="font-medium text-xs"
 									data-i18n="last1DayLabel">Previous Day</label>
 							</div>
@@ -201,7 +202,7 @@
 
 					<div style="margin-bottom: 1rem;">
 						<br />
-						<input type="checkbox" id="showOpenLabel" class="form-checkbox text-blue-600">
+						   <input type="checkbox" id="showOpenLabel" class="form-checkbox text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
 
 						<label id="checkboxLabel" for="showOpenLabel" class="font-medium text-sm"
 							style="margin-left: 4px;" data-i18n="showOpenClosedLabel">Show
@@ -210,7 +211,7 @@
 					</div>
 					<div class="my-4">
 						<div class="flex items-center">
-							<input type="checkbox" id="onlyIssues" class="form-checkbox text-blue-600">
+							<input type="checkbox" id="onlyIssues" class="form-checkbox text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
 							<label for="onlyIssues" class="font-medium text-sm flex items-center"
 								style="margin-left: 4px;" data-i18n="onlyIssuesLabel">
 								Include only issues in the report
@@ -226,7 +227,7 @@
 
 					<div class="my-4">
 						<div class="flex items-center">
-							<input type="checkbox" id="onlyPRs" class="form-checkbox text-blue-600">
+							<input type="checkbox" id="onlyPRs" class="form-checkbox text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
 							<label for="onlyPRs" class="font-medium text-sm flex items-center" style="margin-left: 4px;"
 								data-i18n="onlyPRsLabel">
 								Include only PRs in the report
@@ -242,7 +243,7 @@
 
 					<div class="my-4">
 						<div class="flex items-center">
-							<input type="checkbox" id="onlyRevPRs" class="form-checkbox text-blue-600">
+							<input type="checkbox" id="onlyRevPRs" class="form-checkbox text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
 							<label for="onlyRevPRs" class="font-medium text-sm flex items-center"
 								style="margin-left: 4px;" data-i18n="onlyRevPRsLabel">
 								Include only Reviewed PRs in the report
@@ -255,10 +256,9 @@
 							</span>
 						</div>
 					</div>
-
 					<div class="my-4 githubOnlySection">
 						<div class="flex items-center">
-							<input type="checkbox" id="showCommits" checked class="form-checkbox text-blue-600 ">
+							   <input type="checkbox" id="showCommits" checked class="form-checkbox text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
 
 							<label id="showCommitsLabel" for="showCommits"
 								class="font-medium text-sm flex items-center pl-5 ml-4" style="margin-left: 4px;"
@@ -361,8 +361,9 @@
 									</span>
 								</span>
 							</div>
-							<input id="orgInput" type="text"
-								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
+							<label for="orgInput" class="sr-only">Organization Name</label>
+							<input id="orgInput" type="text" aria-labelledby="orgNameLabel"
+								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
 								data-i18n-placeholder="settingsOrgNamePlaceholder"
 								style="margin-top: 0.3rem; margin-bottom: 0.8rem;">
 
@@ -398,10 +399,10 @@
 								<span data-i18n="tokenRequiredWarning">A GitHub token is required for repository
 									filtering. Please add one in the settings.</span>
 							</div>
-
 							<div id="repoFilterContainer" class="hidden">
-								<input id="repoSearch" type="text" data-i18n-placeholder="repoSearchPlaceholder"
-									class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 pr-10"
+								<label for="repoSearch" class="sr-only">Repository Search</label>
+								<input id="repoSearch" type="text" aria-label="Repository Search" data-i18n-placeholder="repoSearchPlaceholder"
+									class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500"
 									autocomplete="off">
 								<!-- Typeahead Input -->
 								<div class="relative">
@@ -504,8 +505,9 @@
 								</span>
 							</span>
 						</p>
-						<input type="text" id="cacheInput"
-							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800  p-2 my-2"
+						<label for="cacheInput" class="sr-only">Cache TTL</label>
+						<input type="text" id="cacheInput" aria-labelledby="cacheTTLLabel"
+							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800  p-2 my-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
 							data-i18n-placeholder="cacheTTLPlaceholder">
 					</div>
 
