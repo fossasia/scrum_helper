@@ -108,6 +108,29 @@ document.addEventListener('DOMContentLoaded', () => {
 		}, 4000);
 	}
 
+	function checkTokenForShowCommits() {
+		const showCommits = document.getElementById('showCommits');
+		const githubTokenInput = document.getElementById('githubToken');
+		const tokenWarning = document.getElementById('tokenWarningForShowCommits');
+
+		if (!showCommits || !githubTokenInput || !tokenWarning) {
+			return;
+		}
+
+		const isShowCommitsEnabled = showCommits.checked;
+		const hasToken = githubTokenInput.value.trim() !== '';
+
+		if (isShowCommitsEnabled && !hasToken) {
+			showCommits.checked = false;
+			chrome?.storage.local.set({ showCommits: false });
+		}
+
+		tokenWarning.classList.toggle('hidden', !isShowCommitsEnabled || hasToken);
+		setTimeout(() => {
+			tokenWarning.classList.add('hidden');
+		}, 4000);
+	}
+
 	chrome?.storage.local.get(['darkMode'], (result) => {
 		if (result.darkMode) {
 			body.classList.add('dark-mode');
@@ -146,6 +169,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	githubTokenInput.addEventListener('input', checkTokenForFilter);
+	githubTokenInput.addEventListener('input', checkTokenForShowCommits);
 
 	darkModeToggle.addEventListener('click', function () {
 		body.classList.toggle('dark-mode');
@@ -349,6 +373,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 		initializePopup();
 		checkTokenForFilter();
+		checkTokenForShowCommits();
 	});
 
 	chrome?.storage.onChanged.addListener((changes, namespace) => {
@@ -471,6 +496,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				const platform = result.platform || 'github';
 				const platformUsernameKey = `${platform}Username`;
 				platformUsername.value = result[platformUsernameKey] || '';
+				checkTokenForShowCommits();
 			},
 		);
 
@@ -653,6 +679,21 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		}
 		showCommitsCheckbox.addEventListener('change', () => {
+			const hasToken = githubTokenInput.value.trim() !== '';
+
+			if (showCommitsCheckbox.checked && !hasToken) {
+				showCommitsCheckbox.checked = false;
+				const tokenWarning = document.getElementById('tokenWarningForShowCommits');
+				if (tokenWarning) {
+					tokenWarning.classList.remove('hidden');
+					tokenWarning.classList.add('shake-animation');
+					setTimeout(() => tokenWarning.classList.remove('shake-animation'), 620);
+					setTimeout(() => {
+						tokenWarning.classList.add('hidden');
+					}, 3000);
+				}
+			}
+
 			chrome?.storage.local.set({ showCommits: showCommitsCheckbox.checked });
 		});
 		githubTokenInput.addEventListener('input', () => {
@@ -1200,17 +1241,15 @@ document.addEventListener('DOMContentLoaded', () => {
 				return;
 			}
 
-			const filtered = availableRepos.filter(
-				(repo) => {
-					if (selectedRepos.includes(repo.fullName)) {
-						return false;
-					}
-					if (!query) {
-						return true;
-					}
-					return repo.name.toLowerCase().includes(query) || repo.description?.toLowerCase().includes(query);
+			const filtered = availableRepos.filter((repo) => {
+				if (selectedRepos.includes(repo.fullName)) {
+					return false;
 				}
-			);
+				if (!query) {
+					return true;
+				}
+				return repo.name.toLowerCase().includes(query) || repo.description?.toLowerCase().includes(query);
+			});
 
 			if (filtered.length === 0) {
 				repoDropdown.innerHTML = `<div class="p-3 text-center text-gray-500 text-sm" style="padding-left: 10px; ">${chrome?.i18n.getMessage('repoNotFound')}</div>`;
