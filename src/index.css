@@ -917,6 +917,7 @@ hr,
         transform: translate(-50%, -10px);
         opacity: 0;
     }
+}
 /* Display Mode Dropdown Styles */
 #displayModeSelect {
     appearance: none;

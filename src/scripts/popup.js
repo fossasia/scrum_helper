@@ -1566,7 +1566,7 @@ document.addEventListener('keydown', (e) => {
 	}
 });
 
-chrome.storage.local.get(['platform'], (result) => {
+chrome?.storage.local.get(['platform'], (result) => {
 	const platform = result.platform || 'github';
 	const platformSelectElement = document.getElementById('platformSelect');
 	if (platformSelectElement) {
@@ -1621,13 +1621,13 @@ const platformSelectElement = document.getElementById('platformSelect');
 if (platformSelectElement) {
 	platformSelectElement.addEventListener('change', () => {
 		const platform = platformSelectElement.value;
-		chrome.storage.local.set({ platform });
+		chrome?.storage.local.set({ platform });
 		const platformUsername = document.getElementById('platformUsername');
 		if (platformUsername) {
 			const currentPlatform = platformSelectElement.value === 'github' ? 'gitlab' : 'github'; // Get the platform we're switching from
 			const currentUsername = platformUsername.value;
 			if (currentUsername.trim()) {
-				chrome.storage.local.set({ [`${currentPlatform}Username`]: currentUsername });
+				chrome?.storage.local.set({ [`${currentPlatform}Username`]: currentUsername });
 			}
 		}
 
