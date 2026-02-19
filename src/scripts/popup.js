@@ -320,11 +320,11 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (scrumReport) {
 			scrumReport.contentEditable = enableToggle;
 			if (!enableToggle) {
-				scrumReport.innerHTML = `<p style="text-align: center; color: #999; padding: 20px;">${chrome?.i18n.getMessage('extensionDisabledMessage')}</p>`;
+				scrumReport.textContent = chrome?.i18n.getMessage('extensionDisabledMessage');
 			} else {
-				const disabledMessage = `<p style="text-align: center; color: #999; padding: 20px;">${chrome?.i18n.getMessage('extensionDisabledMessage')}</p>`;
-				if (scrumReport.innerHTML === disabledMessage) {
-					scrumReport.innerHTML = '';
+				const disabledMessage = chrome?.i18n.getMessage('extensionDisabledMessage');
+				if (scrumReport.textContent === disabledMessage) {
+					scrumReport.textContent = '';
 				}
 			}
 		}
@@ -520,9 +520,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			try {
 				document.execCommand('copy');
-				this.innerHTML = `<i class="fa fa-check"></i> ${chrome?.i18n.getMessage('copiedButton')}`;
+				this.innerHTML = '<i class="fa fa-check"></i> ' + chrome?.i18n.getMessage('copiedButton');
 				setTimeout(() => {
-					this.innerHTML = `<i class="fa fa-copy"></i> ${chrome?.i18n.getMessage('copyReportButton')}`;
+					this.innerHTML = '<i class="fa fa-copy"></i> ' + chrome?.i18n.getMessage('copyReportButton');
 				}, 2000);
 			} catch (err) {
 				console.error('Failed to copy: ', err);
@@ -1197,7 +1197,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		function filterAndDisplayRepos(query) {
 			if (availableRepos.length === 0) {
-				repoDropdown.innerHTML = `<div class="p-3 text-center text-gray-500 text-sm">${chrome?.i18n.getMessage('repoLoading')}</div>`;
+				repoDropdown.textContent = chrome?.i18n.getMessage('repoLoading');
 				showDropdown();
 				return;
 			}
@@ -1215,31 +1215,45 @@ document.addEventListener('DOMContentLoaded', () => {
 			);
 
 			if (filtered.length === 0) {
-				repoDropdown.innerHTML = `<div class="p-3 text-center text-gray-500 text-sm" style="padding-left: 10px; ">${chrome?.i18n.getMessage('repoNotFound')}</div>`;
+				repoDropdown.textContent = chrome?.i18n.getMessage('repoNotFound');
 			} else {
-				repoDropdown.innerHTML = filtered
-					.slice(0, 10)
-					.map(
-						(repo) => `
-                    <div class="repository-dropdown-item" data-repo-name="${repo.fullName}">
-                        <div class="repo-name">
-                            <span>${repo.name}</span>
-                            ${repo.language ? `<span class="repo-language">${repo.language}</span>` : ''}
-                            ${repo.stars ? `<span class="repo-stars"><i class="fa fa-star"></i> ${repo.stars}</span>` : ''}
-                        </div>
-                        <div class="repo-info">
-                            ${repo.description ? `<span class="repo-desc">${repo.description.substring(0, 50)}${repo.description.length > 50 ? '...' : ''}</span>` : ''}
-                        </div>
-                    </div>
-                `,
-					)
-					.join('');
-
-				repoDropdown.querySelectorAll('.repository-dropdown-item').forEach((item) => {
-					item.addEventListener('click', (e) => {
+				repoDropdown.textContent = '';
+				filtered.slice(0, 10).forEach((repo) => {
+					const div = document.createElement('div');
+					div.className = 'repository-dropdown-item';
+					div.setAttribute('data-repo-name', repo.fullName);
+					const nameDiv = document.createElement('div');
+					nameDiv.className = 'repo-name';
+					const nameSpan = document.createElement('span');
+					nameSpan.textContent = repo.name;
+					nameDiv.appendChild(nameSpan);
+					if (repo.language) {
+						const langSpan = document.createElement('span');
+						langSpan.className = 'repo-language';
+						langSpan.textContent = repo.language;
+						nameDiv.appendChild(langSpan);
+					}
+					if (repo.stars) {
+						const starSpan = document.createElement('span');
+						starSpan.className = 'repo-stars';
+						starSpan.innerHTML = '<i class="fa fa-star"></i> ' + repo.stars;
+						nameDiv.appendChild(starSpan);
+					}
+					div.appendChild(nameDiv);
+					const infoDiv = document.createElement('div');
+					infoDiv.className = 'repo-info';
+					if (repo.description) {
+						const descSpan = document.createElement('span');
+						descSpan.className = 'repo-desc';
+						descSpan.textContent = repo.description.substring(0, 50) + (repo.description.length > 50 ? '...' : '');
+						infoDiv.appendChild(descSpan);
+					}
+					div.appendChild(infoDiv);
+					div.addEventListener('click', (e) => {
 						e.stopPropagation();
-						fnSelectedRepos(item.dataset.repoName);
+						fnSelectedRepos(repo.fullName);
 					});
+					repoDropdown.appendChild(div);
 				});
 			}
 			highlightedIndex = -1;
@@ -1271,28 +1285,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		function updateRepoDisplay() {
 			if (selectedRepos.length === 0) {
-				repoTags.innerHTML = `<span class="text-xs text-gray-500 select-none" id="repoPlaceholder">${chrome?.i18n.getMessage('repoPlaceholder')}</span>`;
+				repoTags.textContent = chrome?.i18n.getMessage('repoPlaceholder');
 				repoCount.textContent = chrome?.i18n.getMessage('repoCountNone');
 			} else {
-				repoTags.innerHTML = selectedRepos
-					.map((repoFullName) => {
-						const repoName = repoFullName.split('/')[1] || repoFullName;
-						return `
-                        <span class="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full" style="margin:5px;">
-                            ${repoName}
-                            <button type="button" class="ml-1 text-blue-600 hover:text-blue-800 remove-repo-btn cursor-pointer" data-repo-name="${repoFullName}">
-                                <i class="fa fa-times"></i>
-                            </button>
-                        </span>
-                    `;
-					})
-					.join(' ');
-				repoTags.querySelectorAll('.remove-repo-btn').forEach((btn) => {
+				repoTags.textContent = '';
+				selectedRepos.forEach((repoFullName) => {
+					const repoName = repoFullName.split('/')[1] || repoFullName;
+					const span = document.createElement('span');
+					span.className = 'inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full';
+					span.style.margin = '5px';
+					span.textContent = repoName + ' ';
+					const btn = document.createElement('button');
+					btn.type = 'button';
+					btn.className = 'ml-1 text-blue-600 hover:text-blue-800 remove-repo-btn cursor-pointer';
+					btn.setAttribute('data-repo-name', repoFullName);
+					btn.innerHTML = '<i class="fa fa-times"></i>';
 					btn.addEventListener('click', (e) => {
 						e.stopPropagation();
-						const repoFullName = btn.dataset.repoName;
 						removeRepo(repoFullName);
 					});
+					span.appendChild(btn);
+					repoTags.appendChild(span);
 				});
 				repoCount.textContent = chrome?.i18n.getMessage('repoCount', [selectedRepos.length]);
 			}
@@ -1685,7 +1698,7 @@ document.getElementById('refreshCache').addEventListener('click', async function
 			repoStatus.textContent = '';
 		}
 
-		this.innerHTML = `<i class="fa fa-check"></i><span>${chrome?.i18n.getMessage('cacheClearedButton')}</span>`;
+		this.innerHTML = '<i class="fa fa-check"></i><span>' + chrome?.i18n.getMessage('cacheClearedButton') + '</span>';
 		this.classList.remove('loading');
 
 		// Do NOT trigger report generation automatically
@@ -1696,7 +1709,7 @@ document.getElementById('refreshCache').addEventListener('click', async function
 		}, 2000);
 	} catch (error) {
 		console.error('Cache clear failed:', error);
-		this.innerHTML = `<i class="fa fa-exclamation-triangle"></i><span>${chrome?.i18n.getMessage('cacheClearFailed')}</span>`;
+		this.innerHTML = '<i class="fa fa-exclamation-triangle"></i><span>' + chrome?.i18n.getMessage('cacheClearFailed') + '</span>';
 		this.classList.remove('loading');
 
 		setTimeout(() => {
