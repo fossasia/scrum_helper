@@ -1631,7 +1631,7 @@ if (platformSelectElement) {
 			}
 		}
 
-		chrome.storage.local.get([`${platform}Username`], (result) => {
+		chrome?.storage.local.get([`${platform}Username`], (result) => {
 			if (platformUsername) {
 				platformUsername.value = result[`${platform}Username`] || '';
 			}
