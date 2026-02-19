@@ -70,9 +70,25 @@
     "message": "Generate Report",
     "description": "Text for the 'Generate Report' button."
   },
+  "generateReportTooltip": {
+    "message": "Generate Report (Ctrl+G / Cmd+G)",
+    "description": "Tooltip for the 'Generate Report' button showing keyboard shortcut."
+  },
   "copyReportButton": {
     "message": "Copy Report",
     "description": "Text for the 'Copy Report' button."
+  },
+  "copyReportTooltip": {
+    "message": "Copy Report (Ctrl+Shift+Y / Cmd+Shift+Y)",
+    "description": "Tooltip for the 'Copy Report' button showing keyboard shortcut."
+  },
+  "generatingReportNotification": {
+    "message": "Generating report ({0})",
+    "description": "Notification shown when generating report via keyboard shortcut. {0} is the shortcut key combination."
+  },
+  "copyingReportNotification": {
+    "message": "Report copied ({0})",
+    "description": "Notification shown when copying report via keyboard shortcut. {0} is the shortcut key combination."
   },
   "settingsOrgNameLabel": {
     "message": "Organization Name",

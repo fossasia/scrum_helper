@@ -1,9 +1,107 @@
+/* global chrome */
+
 function debounce(func, wait) {
 	let timeout;
 	return function (...args) {
 		clearTimeout(timeout);
 		timeout = setTimeout(() => func.apply(this, args), wait);
 	};
+}
+
+// Utility: Detect if the current OS is macOS
+function isMacOS() {
+	if (typeof navigator === 'undefined') {
+		return false;
+	}
+
+	if (navigator.userAgentData && typeof navigator.userAgentData.platform === 'string') {
+		return navigator.userAgentData.platform.toLowerCase().includes('mac');
+	}
+
+	const platform = navigator.platform || '';
+	if (navigator.maxTouchPoints && navigator.maxTouchPoints > 2 && /MacIntel/.test(platform)) {
+		return true;
+	}
+
+	return /Mac/.test(platform);
+}
+
+function getLocalizedShortcutLabel(messageKey, fallbackShortcut) {
+	if (typeof chrome === 'undefined' || !chrome.i18n) {
+		return fallbackShortcut;
+	}
+
+	const tooltipKeyByNotification = {
+		generatingReportNotification: 'generateReportTooltip',
+		copyingReportNotification: 'copyReportTooltip',
+	};
+	const tooltipKey = tooltipKeyByNotification[messageKey];
+	if (!tooltipKey) {
+		return fallbackShortcut;
+	}
+
+	const tooltipMessage = chrome.i18n.getMessage(tooltipKey);
+	if (!tooltipMessage) {
+		return fallbackShortcut;
+	}
+
+	const shortcutGroupMatch = tooltipMessage.match(/\(([^)]+)\)/);
+	if (!shortcutGroupMatch || !shortcutGroupMatch[1]) {
+		return fallbackShortcut;
+	}
+
+	const variants = shortcutGroupMatch[1]
+		.split('/')
+		.map((value) => value.trim())
+		.filter(Boolean);
+	if (variants.length === 0) {
+		return fallbackShortcut;
+	}
+
+	if (isMacOS()) {
+		return variants[1] || variants[0] || fallbackShortcut;
+	}
+
+	return variants[0] || fallbackShortcut;
+}
+
+function showShortcutNotification(messageKey, shortcutKey) {
+	// Check if chrome API is available
+	if (typeof chrome === 'undefined' || !chrome.i18n) {
+		return;
+	}
+
+	// Remove any existing notification to prevent stacking
+	const existingNotification = document.querySelector('.shortcut-notification');
+	if (existingNotification) {
+		existingNotification.remove();
+	}
+
+	const defaultShortcut = isMacOS() ? shortcutKey.replace('Ctrl', 'Cmd') : shortcutKey;
+	const formattedShortcut = getLocalizedShortcutLabel(messageKey, defaultShortcut);
+
+	// Get localized message and replace placeholder with shortcut
+	const message = chrome.i18n.getMessage(messageKey, [formattedShortcut]);
+	if (!message) {
+		return;
+	}
+
+	// Create notification element
+	const notification = document.createElement('div');
+	notification.className = 'shortcut-notification';
+	notification.textContent = message;
+
+	document.body.appendChild(notification);
+
+	// Remove after 2 seconds
+	setTimeout(() => {
+		notification.style.animation = 'slideOut 0.3s ease-out';
+		setTimeout(() => {
+			if (notification.parentNode) {
+				notification.parentNode.removeChild(notification);
+			}
+		}, 300);
+	}, 2000);
 }
 
 function getToday() {
@@ -49,9 +147,33 @@ function applyI18n() {
 	});
 }
 
+function setupButtonTooltips() {
+	if (typeof chrome === 'undefined' || !chrome.i18n) {
+		return;
+	}
+
+	const generateReportTooltipEl = document.getElementById('generateReportTooltipText');
+	if (generateReportTooltipEl) {
+		const generateMsg = chrome.i18n.getMessage('generateReportTooltip');
+		if (generateMsg) {
+			generateReportTooltipEl.textContent = generateMsg;
+		}
+	}
+
+	// Setup Copy Report button tooltip
+	const copyReportTooltipEl = document.getElementById('copyReportTooltipText');
+	if (copyReportTooltipEl) {
+		const copyMsg = chrome.i18n.getMessage('copyReportTooltip');
+		if (copyMsg) {
+			copyReportTooltipEl.textContent = copyMsg;
+		}
+	}
+}
+
 document.addEventListener('DOMContentLoaded', () => {
 	// Apply translations as soon as the DOM is ready
 	applyI18n();
+	setupButtonTooltips();
 
 	// Dark mode setup
 	const darkModeToggle = document.querySelector('img[alt="Night Mode"]');
@@ -1194,51 +1316,89 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 
 		function filterAndDisplayRepos(query) {
+			function renderRepoDropdownMessage(message, withLeftPadding = false) {
+				const messageDiv = document.createElement('div');
+				messageDiv.className = 'p-3 text-center text-gray-500 text-sm';
+				if (withLeftPadding) {
+					messageDiv.style.paddingLeft = '10px';
+				}
+				messageDiv.textContent = message;
+				repoDropdown.replaceChildren(messageDiv);
+			}
+
 			if (availableRepos.length === 0) {
-				repoDropdown.innerHTML = `<div class="p-3 text-center text-gray-500 text-sm">${chrome?.i18n.getMessage('repoLoading')}</div>`;
+				renderRepoDropdownMessage(chrome?.i18n.getMessage('repoLoading') || 'Loading...');
 				showDropdown();
 				return;
 			}
 
-			const filtered = availableRepos.filter(
-				(repo) => {
-					if (selectedRepos.includes(repo.fullName)) {
-						return false;
-					}
-					if (!query) {
-						return true;
-					}
-					return repo.name.toLowerCase().includes(query) || repo.description?.toLowerCase().includes(query);
+			const filtered = availableRepos.filter((repo) => {
+				if (selectedRepos.includes(repo.fullName)) {
+					return false;
 				}
-			);
+				if (!query) {
+					return true;
+				}
+				return repo.name.toLowerCase().includes(query) || repo.description?.toLowerCase().includes(query);
+			});
 
 			if (filtered.length === 0) {
-				repoDropdown.innerHTML = `<div class="p-3 text-center text-gray-500 text-sm" style="padding-left: 10px; ">${chrome?.i18n.getMessage('repoNotFound')}</div>`;
+				renderRepoDropdownMessage(chrome?.i18n.getMessage('repoNotFound') || 'No repositories found', true);
 			} else {
-				repoDropdown.innerHTML = filtered
-					.slice(0, 10)
-					.map(
-						(repo) => `
-                    <div class="repository-dropdown-item" data-repo-name="${repo.fullName}">
-                        <div class="repo-name">
-                            <span>${repo.name}</span>
-                            ${repo.language ? `<span class="repo-language">${repo.language}</span>` : ''}
-                            ${repo.stars ? `<span class="repo-stars"><i class="fa fa-star"></i> ${repo.stars}</span>` : ''}
-                        </div>
-                        <div class="repo-info">
-                            ${repo.description ? `<span class="repo-desc">${repo.description.substring(0, 50)}${repo.description.length > 50 ? '...' : ''}</span>` : ''}
-                        </div>
-                    </div>
-                `,
-					)
-					.join('');
+				const fragment = document.createDocumentFragment();
 
-				repoDropdown.querySelectorAll('.repository-dropdown-item').forEach((item) => {
+				filtered.slice(0, 10).forEach((repo) => {
+					const item = document.createElement('div');
+					item.className = 'repository-dropdown-item';
+					item.dataset.repoName = repo.fullName || '';
+
+					const repoNameContainer = document.createElement('div');
+					repoNameContainer.className = 'repo-name';
+
+					const nameSpan = document.createElement('span');
+					nameSpan.textContent = repo.name || repo.fullName || '';
+					repoNameContainer.appendChild(nameSpan);
+
+					if (repo.language) {
+						const languageSpan = document.createElement('span');
+						languageSpan.className = 'repo-language';
+						languageSpan.textContent = repo.language;
+						repoNameContainer.appendChild(languageSpan);
+					}
+
+					if (repo.stars) {
+						const starsSpan = document.createElement('span');
+						starsSpan.className = 'repo-stars';
+
+						const starIcon = document.createElement('i');
+						starIcon.className = 'fa fa-star';
+						starsSpan.appendChild(starIcon);
+						starsSpan.appendChild(document.createTextNode(` ${repo.stars}`));
+						repoNameContainer.appendChild(starsSpan);
+					}
+
+					const repoInfoContainer = document.createElement('div');
+					repoInfoContainer.className = 'repo-info';
+
+					if (repo.description) {
+						const descriptionSpan = document.createElement('span');
+						descriptionSpan.className = 'repo-desc';
+						descriptionSpan.textContent =
+							repo.description.length > 50 ? `${repo.description.substring(0, 50)}...` : repo.description;
+						repoInfoContainer.appendChild(descriptionSpan);
+					}
+
+					item.appendChild(repoNameContainer);
+					item.appendChild(repoInfoContainer);
 					item.addEventListener('click', (e) => {
 						e.stopPropagation();
 						fnSelectedRepos(item.dataset.repoName);
 					});
+
+					fragment.appendChild(item);
 				});
+
+				repoDropdown.replaceChildren(fragment);
 			}
 			highlightedIndex = -1;
 			showDropdown();
@@ -1366,9 +1526,52 @@ if (cacheInput) {
 	});
 }
 
+// Keyboard shortcuts: Ctrl+G (Cmd+G on macOS) to generate, Ctrl+Shift+Y (Cmd+Shift+Y on macOS) to copy
+// Registered once at the top level to avoid duplicate listeners
+document.addEventListener('keydown', (e) => {
+	// Only handle shortcuts when this popup document is focused
+	if (!document.hasFocus()) {
+		return;
+	}
+
+	const target = e.target;
+	const tagName = target?.tagName;
+	const editableAncestor = typeof target?.closest === 'function' ? target.closest('[contenteditable="true"]') : null;
+	const isFormField = tagName === 'INPUT' || tagName === 'TEXTAREA' || tagName === 'SELECT';
+	const isContentEditable = !!(editableAncestor || (target && target.isContentEditable));
+
+	// Ignore shortcuts in form fields and all editable regions (including #scrumReport)
+	if (isFormField || isContentEditable) {
+		return;
+	}
+
+	const key = (e.key || '').toLowerCase();
+	const modifier = isMacOS() ? e.metaKey : e.ctrlKey;
+
+	const generateBtn = document.getElementById('generateReport');
+	const copyBtn = document.getElementById('copyReport');
+
+	// Ctrl+G / Cmd+G to generate report
+	if (modifier && !e.shiftKey && !e.altKey && key === 'g' && !e.repeat && generateBtn && !generateBtn.disabled) {
+		e.preventDefault();
+		showShortcutNotification('generatingReportNotification', 'Ctrl+G');
+		generateBtn.click();
+	}
+
+	// Ctrl+Shift+Y / Cmd+Shift+Y to copy report
+	if (modifier && e.shiftKey && !e.altKey && key === 'y' && !e.repeat && copyBtn && !copyBtn.disabled) {
+		e.preventDefault();
+		showShortcutNotification('copyingReportNotification', 'Ctrl+Shift+Y');
+		copyBtn.click();
+	}
+});
+
 chrome?.storage.local.get(['platform'], (result) => {
 	const platform = result.platform || 'github';
-	platformSelect.value = platform;
+	const platformSelectElement = document.getElementById('platformSelect');
+	if (platformSelectElement) {
+		platformSelectElement.value = platform;
+	}
 	updatePlatformUI(platform);
 });
 
@@ -1414,26 +1617,29 @@ function updatePlatformUI(platform) {
 	});
 }
 
-platformSelect.addEventListener('change', () => {
-	const platform = platformSelect.value;
-	chrome?.storage.local.set({ platform });
-	const platformUsername = document.getElementById('platformUsername');
-	if (platformUsername) {
-		const currentPlatform = platformSelect.value === 'github' ? 'gitlab' : 'github'; // Get the platform we're switching from
-		const currentUsername = platformUsername.value;
-		if (currentUsername.trim()) {
-			chrome?.storage.local.set({ [`${currentPlatform}Username`]: currentUsername });
-		}
-	}
-
-	chrome?.storage.local.get([`${platform}Username`], (result) => {
+const platformSelectElement = document.getElementById('platformSelect');
+if (platformSelectElement) {
+	platformSelectElement.addEventListener('change', () => {
+		const platform = platformSelectElement.value;
+		chrome?.storage.local.set({ platform });
+		const platformUsername = document.getElementById('platformUsername');
 		if (platformUsername) {
-			platformUsername.value = result[`${platform}Username`] || '';
+			const currentPlatform = platformSelectElement.value === 'github' ? 'gitlab' : 'github'; // Get the platform we're switching from
+			const currentUsername = platformUsername.value;
+			if (currentUsername.trim()) {
+				chrome?.storage.local.set({ [`${currentPlatform}Username`]: currentUsername });
+			}
 		}
-	});
 
-	updatePlatformUI(platform);
-});
+		chrome?.storage.local.get([`${platform}Username`], (result) => {
+			if (platformUsername) {
+				platformUsername.value = result[`${platform}Username`] || '';
+			}
+		});
+
+		updatePlatformUI(platform);
+	});
+}
 
 const customDropdown = document.getElementById('customPlatformDropdown');
 const dropdownBtn = document.getElementById('platformDropdownBtn');
@@ -1504,14 +1710,16 @@ document.addEventListener('click', (e) => {
 });
 
 // Keyboard navigation
-platformDropdownBtn.addEventListener('keydown', (e) => {
-	if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
-		e.preventDefault();
-		customDropdown.classList.add('open');
-		dropdownList.classList.remove('hidden');
-		dropdownList.querySelector('li').focus();
-	}
-});
+if (dropdownBtn) {
+	dropdownBtn.addEventListener('keydown', (e) => {
+		if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
+			e.preventDefault();
+			customDropdown.classList.add('open');
+			dropdownList.classList.remove('hidden');
+			dropdownList.querySelector('li').focus();
+		}
+	});
+}
 dropdownList.querySelectorAll('li').forEach((item, idx, arr) => {
 	item.setAttribute('tabindex', '0');
 	item.addEventListener('keydown', function (e) {

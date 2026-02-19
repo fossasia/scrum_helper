@@ -53,8 +53,20 @@
     "generateReportButton": {
         "message": "रिपोर्ट बनाएं"
     },
+    "generateReportTooltip": {
+        "message": "रिपोर्ट बनाएं (Ctrl+G / Cmd+G)"
+    },
     "copyReportButton": {
         "message": "रिपोर्ट कॉपी करें"
+    },
+    "copyReportTooltip": {
+        "message": "रिपोर्ट कॉपी करें (Ctrl+Shift+Y / Cmd+Shift+Y)"
+    },
+    "generatingReportNotification": {
+        "message": "रिपोर्ट बनाई जा रही है ({0})"
+    },
+    "copyingReportNotification": {
+        "message": "रिपोर्ट कॉपी की जा रही है ({0})"
     },
     "settingsOrgNameLabel": {
         "message": "संगठन का नाम"
@@ -101,7 +113,6 @@
     "onlyRevPRsTooltip": {
         "message": "यदि चेक किया गया है, तो रिपोर्ट में केवल आपके द्वारा समीक्षित PRs शामिल होंगे।"
     },
-
     "cacheTTLLabel": {
         "message": "कैश टीटीएल दर्ज करें",
         "description": "कैश टाइम-टू-लाइव इनपुट के लिए लेबल।"

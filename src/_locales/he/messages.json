@@ -53,8 +53,20 @@
     "generateReportButton": {
         "message": "צור דוח"
     },
+    "generateReportTooltip": {
+        "message": "צור דוח (Ctrl+G / Cmd+G)"
+    },
     "copyReportButton": {
         "message": "העתק דוח"
+    },
+    "copyReportTooltip": {
+        "message": "העתק דוח (Ctrl+Shift+Y / Cmd+Shift+Y)"
+    },
+    "generatingReportNotification": {
+        "message": "יוצר דוח ({0})"
+    },
+    "copyingReportNotification": {
+        "message": "מעתיק דוח ({0})"
     },
     "settingsOrgNameLabel": {
         "message": "שם הארגון"
@@ -202,6 +214,5 @@
     },
     "onlyRevPRsTooltip": {
         "message": "אם מסומן, הדוח יכלול רק PR שנבדקו על ידך."
-
     }
 }

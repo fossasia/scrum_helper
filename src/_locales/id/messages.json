@@ -53,8 +53,20 @@
     "generateReportButton": {
         "message": "Buat Laporan"
     },
+    "generateReportTooltip": {
+        "message": "Buat Laporan (Ctrl+G / Cmd+G)"
+    },
     "copyReportButton": {
         "message": "Salin Laporan"
+    },
+    "copyReportTooltip": {
+        "message": "Salin Laporan (Ctrl+Shift+Y / Cmd+Shift+Y)"
+    },
+    "generatingReportNotification": {
+        "message": "Membuat laporan ({0})"
+    },
+    "copyingReportNotification": {
+        "message": "Menyalin laporan ({0})"
     },
     "settingsOrgNameLabel": {
         "message": "Nama Organisasi"
@@ -101,7 +113,6 @@
     "onlyRevPRsTooltip": {
         "message": "Jika dicentang, laporan hanya akan menyertakan PR yang ditinjau oleh Anda."
     },
-
     "cacheTTLLabel": {
         "message": "Masukkan TTL cache",
         "description": "Label untuk masukan time-to-live cache."

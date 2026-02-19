@@ -1,5 +1,4 @@
 {
-
     "appName": {
         "message": "Scrum Helper"
     },
@@ -54,8 +53,20 @@
     "generateReportButton": {
         "message": "生成报告"
     },
+    "generateReportTooltip": {
+        "message": "生成报告 (Ctrl+G / Cmd+G)"
+    },
     "copyReportButton": {
         "message": "复制报告"
+    },
+    "copyReportTooltip": {
+        "message": "复制报告 (Ctrl+Shift+Y / Cmd+Shift+Y)"
+    },
+    "generatingReportNotification": {
+        "message": "正在生成报告 ({0})"
+    },
+    "copyingReportNotification": {
+        "message": "正在复制报告 ({0})"
     },
     "settingsOrgNameLabel": {
         "message": "组织名称"
@@ -102,7 +113,6 @@
     "onlyRevPRsTooltip": {
         "message": "如果选中，报告将仅包含由您审核的 PR。"
     },
-
     "cacheTTLLabel": {
         "message": "输入缓存 TTL",
         "description": "缓存生存时间输入的标签。"

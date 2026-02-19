@@ -53,8 +53,20 @@
     "generateReportButton": {
         "message": "Tạo báo cáo"
     },
+    "generateReportTooltip": {
+        "message": "Tạo báo cáo (Ctrl+G / Cmd+G)"
+    },
     "copyReportButton": {
         "message": "Sao chép báo cáo"
+    },
+    "copyReportTooltip": {
+        "message": "Sao chép báo cáo (Ctrl+Shift+Y / Cmd+Shift+Y)"
+    },
+    "generatingReportNotification": {
+        "message": "Đang tạo báo cáo ({0})"
+    },
+    "copyingReportNotification": {
+        "message": "Đang sao chép báo cáo ({0})"
     },
     "settingsOrgNameLabel": {
         "message": "Tên tổ chức"
@@ -101,7 +113,6 @@
     "onlyRevPRsTooltip": {
         "message": "Nếu được chọn, báo cáo sẽ chỉ bao gồm các PR bạn đã xem xét."
     },
-
     "cacheTTLLabel": {
         "message": "Nhập TTL bộ nhớ cache",
         "description": "Nhãn cho đầu vào thời gian tồn tại của bộ nhớ cache."

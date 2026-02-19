@@ -53,8 +53,20 @@
     "generateReportButton": {
         "message": "Створити звіт"
     },
+    "generateReportTooltip": {
+        "message": "Створити звіт (Ctrl+G / Cmd+G)"
+    },
     "copyReportButton": {
         "message": "Копіювати звіт"
+    },
+    "copyReportTooltip": {
+        "message": "Копіювати звіт (Ctrl+Shift+Y / Cmd+Shift+Y)"
+    },
+    "generatingReportNotification": {
+        "message": "Створення звіту ({0})"
+    },
+    "copyingReportNotification": {
+        "message": "Копіювання звіту ({0})"
     },
     "settingsOrgNameLabel": {
         "message": "Назва організації"

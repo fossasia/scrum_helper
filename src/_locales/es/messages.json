@@ -53,8 +53,20 @@
     "generateReportButton": {
         "message": "Generar informe"
     },
+    "generateReportTooltip": {
+        "message": "Generar informe (Ctrl+G / Cmd+G)"
+    },
     "copyReportButton": {
         "message": "Copiar informe"
+    },
+    "copyReportTooltip": {
+        "message": "Copiar informe (Ctrl+Mayús+Y / Cmd+Mayús+Y)"
+    },
+    "generatingReportNotification": {
+        "message": "Generando informe ({0})"
+    },
+    "copyingReportNotification": {
+        "message": "Copiando informe ({0})"
     },
     "settingsOrgNameLabel": {
         "message": "Nombre de la organización"
@@ -101,7 +113,6 @@
     "onlyRevPRsTooltip": {
         "message": "Si está marcado, el informe solo incluirá PRs revisados por usted."
     },
-
     "cacheTTLLabel": {
         "message": "Introducir TTL de caché",
         "description": "Etiqueta para la entrada de tiempo de vida de la caché."

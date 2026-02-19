@@ -54,8 +54,20 @@
   "generateReportButton": {
     "message": "Bericht erstellen"
   },
+  "generateReportTooltip": {
+    "message": "Bericht erstellen (Strg+G / Cmd+G)"
+  },
   "copyReportButton": {
     "message": "Bericht kopieren"
+  },
+  "copyReportTooltip": {
+    "message": "Bericht kopieren (Strg+Umschalt+Y / Cmd+Umschalt+Y)"
+  },
+  "generatingReportNotification": {
+    "message": "Bericht wird erstellt ({0})"
+  },
+  "copyingReportNotification": {
+    "message": "Bericht wird kopiert ({0})"
   },
   "settingsOrgNameLabel": {
     "message": "Name der Organisation"
@@ -99,7 +111,6 @@
   "onlyRevPRsTooltip": {
     "message": "Wenn diese Option aktiviert ist, enthält der Bericht nur PRs, die von Ihnen überprüft wurden."
   },
-
   "cacheTTLLabel": {
     "message": "Cache-TTL eingeben"
   },
