@@ -155,6 +155,22 @@
     "repoLoaded": {
         "message": "已加载 $1 个仓库。"
     },
+       "gitlabProjectCountNone": {
+        "message": "已选择 0 个专案",
+        "description": "Text showing the count of selected GitLab projects when it's zero."
+    },
+    "gitlabProjectCount": {
+        "message": "已选择 $1 个专案",
+        "description": "Text showing the count of selected GitLab projects. $1 is a placeholder for the number."
+    },
+    "gitlabProjectSearchPlaceholder": {
+        "message": "搜尋專案",
+        "description": "Placeholder/title for the GitLab project search input."
+    },
+    "gitlabProjectPlaceholder": {
+        "message": "未選擇專案（將包含所有專案）",
+        "description": "Placeholder text when no GitLab projects are selected for filtering."
+    },
     "repoNotFound": {
         "message": "未找到仓库"
     },
@@ -220,5 +236,57 @@
     },
     "usernameLabel": {
         "message": "您的用户名"
-    }
+    },
+    "gitlabTokenTooltip": {
+        "message": "<b>为什么建议添加 GitLab 令牌？</b><br>Scrum Helper 即使没有 GitLab 令牌也能运行，但添加个人访问令牌能够改善使用体验。它可以提高 API 限额、在有权限时访问私有仓库，并提升数据获取的准确性和速度。令牌仅保存在本地，不会发送给我们，仅用于获取您的 Git 数据。<br><br><b>如何获取：</b><br>1. 访问 <a href='https://gitlab.com/-/profile/personal_access_tokens' target='_blank' style='color:#2563eb;text-decoration:underline;'>GitLab 令牌设置</a>。<br>2. 点击“添加新令牌”。<br>3. 选择权限：<code>read_api</code> 和 <code>read_repository</code>。<br>4. 生成并将令牌粘贴到此处。<br><i>请妥善保管您的令牌！</i>",
+        "description": "Tooltip explaining how to get a GitLab token."
+    },
+  "testTokenButton": {
+    "message": "Test Token",
+    "description": "Button text to test/validate a GitLab token."
+  },
+  "clearTokenButton": {
+    "message": "Clear Token",
+    "description": "Button text to clear the stored token."
+  },
+  "confirmClearToken": {
+    "message": "Are you sure you want to clear the GitLab token?",
+    "description": "Confirmation message before clearing the token."
+  },
+  "testingTokenButton": {
+    "message": "Testing...",
+    "description": "Button text while token validation is in progress."
+  },
+  "tokenValidButton": {
+    "message": "Valid!",
+    "description": "Button text when token is validated successfully."
+  },
+  "tokenInvalidButton": {
+    "message": "Invalid",
+    "description": "Button text when token validation fails."
+  },
+  "gitlabGroupLabel": {
+    "message": "您的 GitLab 组",
+    "description": "Label for the GitLab group input."
+  },
+  "gitlabGroupPlaceholder": {
+    "message": "输入 GitLab 组名称",
+    "description": "Placeholder for the GitLab group input."
+  },
+  "gitlabGroupTooltip": {
+    "message": "<b>哪个 GitLab 组的活动？</b><br>输入 GitLab 组名称以获取活动。留空以获取所有组中的所有 GitLab 活动。组名不区分大小写。",
+    "description": "Tooltip explaining GitLab group filtering."
+  },
+  "gitlabProjectFilterLabel": {
+    "message": "按项目筛选",
+    "description": "Label for GitLab project filter."
+  },
+  "gitlabProjectFilterTooltip": {
+    "message": "需要 GitLab 令牌。<br>要强制更新项目列表，<br>请单击刷新数据按钮。",
+    "description": "Tooltip for GitLab project filter."
+  },
+  "gitlabTokenRequiredWarning": {
+    "message": "项目筛选需要 GitLab 令牌。请在设置中添加一个。",
+    "description": "Warning message when GitLab token is missing for project filtering."
+  }
 }

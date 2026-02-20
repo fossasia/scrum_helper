@@ -194,5 +194,74 @@
   },
   "noteSeeIssue": {
     "message": "ఈ ఇష్యూ చూడండి"
+  },
+  "gitlabTokenTooltip": {
+    "message": "<b>Why is it recommended to add a GitLab token?</b><br>Scrum Helper works without a GitLab token, but adding a personal access token is recommended for a better experience. It raises your API limits, allows access to private repos (if permitted), and improves accuracy and speed. Tokens are stored locally and never sent to us and used only to fetch your git data.<br><br><b>How to obtain:</b><br>1. Go to <a href='https://gitlab.com/-/profile/personal_access_tokens' target='_blank' style='color:#2563eb;text-decoration:underline;'>GitLab Token Settings</a>.<br>2. Click 'Add new token'<br>3. Select scopes: <code>read_api</code> and <code>read_repository</code><br>4. Generate and paste it here.<br><i>Keep your token secret!</i>",
+    "description": "Tooltip explaining how to get a GitLab token."
+  },
+  "testTokenButton": {
+    "message": "Test Token",
+    "description": "Button text to test/validate a GitLab token."
+  },
+  "clearTokenButton": {
+    "message": "Clear Token",
+    "description": "Button text to clear the stored token."
+  },
+  "confirmClearToken": {
+    "message": "Are you sure you want to clear the GitLab token?",
+    "description": "Confirmation message before clearing the token."
+  },
+  "testingTokenButton": {
+    "message": "Testing...",
+    "description": "Button text while token validation is in progress."
+  },
+  "tokenValidButton": {
+    "message": "Valid!",
+    "description": "Button text when token is validated successfully."
+  },
+  "tokenInvalidButton": {
+    "message": "Invalid",
+    "description": "Button text when token validation fails."
+  },
+  "gitlabGroupLabel": {
+    "message": "మీ GitLab గ్రూప్",
+    "description": "Label for the GitLab group input."
+  },
+  "gitlabGroupPlaceholder": {
+    "message": "GitLab గ్రూప్ పేరు నమోదు చేయండి",
+    "description": "Placeholder for the GitLab group input."
+  },
+  "gitlabGroupTooltip": {
+    "message": "<b>ఏ GitLab గ్రూప్ క్రియాశీలత?</b><br>క్రియాశీలతను తెచ్చుకోవడానికి GitLab గ్రూప్ పేరు నమోదు చేయండి. అన్ని గ్రూప్‌లలో మీ అన్ని GitLab క్రియాశీలతను తెచ్చుకోవడానికి ఖాలీగా వ్రాయండి. గ్రూప్ పేరు కేస్-సెన్సిటివ్ కాదు.",
+    "description": "Tooltip explaining GitLab group filtering."
+  },
+  "gitlabProjectFilterLabel": {
+    "message": "ప్రాజెక్ట్‌ల ద్వారా ఫిల్టర్ చేయండి",
+    "description": "Label for GitLab project filter."
+  },
+  "gitlabProjectFilterTooltip": {
+    "message": "GitLab టోకెన్ అవసరం.<br>ప్రాజెక్ట్ జాబితా అప్‌డేట్‌ను బలవంతం చేయాలంటే, <br>డేటా రిఫ్రెష్ బటన్ క్లిక్ చేయండి.",
+    "description": "Tooltip for GitLab project filter."
+  },
+  "gitlabTokenRequiredWarning": {
+    "message": "ప్రాజెక్ట్ ఫిల్టరింగ్ కోసం GitLab టోకెన్ అవసరం. దయచేసి సెట్టింగ్‌లలో ఒకదాన్ని జోడించండి.",
+    "description": "Warning message when GitLab token is missing for project filtering."
   }
-}
+    ,
+    "gitlabProjectCountNone": {
+      "message": "0 projects selected",
+      "description": "Text showing the count of selected GitLab projects when it's zero."
+    },
+    "gitlabProjectCount": {
+      "message": "$1 projects selected",
+      "description": "Text showing the count of selected GitLab projects. $1 is a placeholder for the number."
+    },
+    "gitlabProjectSearchPlaceholder": {
+      "message": "Search projects",
+      "description": "Placeholder/title for the GitLab project search input."
+    },
+    "gitlabProjectPlaceholder": {
+      "message": "No projects selected (all will be included)",
+      "description": "Placeholder text when no GitLab projects are selected for filtering."
+    }
+  }

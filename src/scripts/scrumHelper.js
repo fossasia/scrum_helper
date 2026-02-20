@@ -1,3 +1,5 @@
+/* global chrome */
+
 const DEBUG = false;
 
 function log(...args) {
@@ -23,15 +25,21 @@ let platformUsername = '';
 let gitlabToken = '';
 let gitlabHelper = null;
 
-function allIncluded(outputTarget = 'email') {
-	// Always re-instantiate gitlabHelper for gitlab platform to ensure fresh cache after refresh
-	if (platform === 'gitlab' || (typeof platform === 'undefined' && window.GitLabHelper)) {
-		gitlabHelper = new window.GitLabHelper();
-	}
+async function allIncluded(outputTarget = 'email') {
+	// Prevent concurrent report generation: set guard immediately
 	if (scrumGenerationInProgress) {
 		return;
 	}
 	scrumGenerationInProgress = true;
+
+	// Always re-instantiate gitlabHelper for gitlab platform to ensure fresh cache after refresh
+	if (platform === 'gitlab' || (typeof platform === 'undefined' && window.GitLabHelper)) {
+		const result = await new Promise((resolve) => {
+			chrome.storage.local.get(['gitlabToken'], resolve);
+		});
+		const gitlabToken = result.gitlabToken || null;
+		gitlabHelper = new window.GitLabHelper(gitlabToken);
+	}
 	console.log('allIncluded called with outputTarget:', outputTarget);
 
 	let scrumBody = null;
@@ -86,6 +94,9 @@ function allIncluded(outputTarget = 'email') {
 				'gitlabUsername',
 				'githubToken',
 				'gitlabToken',
+				'gitlabGroup',
+				'useGitlabProjectFilter',
+				'selectedGitlabProjects',
 				'projectName',
 				'enableToggle',
 				'startingDate',
@@ -110,6 +121,7 @@ function allIncluded(outputTarget = 'email') {
 				// Load platform-specific username
 				const platformUsernameKey = `${platform}Username`;
 				platformUsername = items[platformUsernameKey] || '';
+				
 				platformUsernameLocal = platformUsername;
 				console.log(`[DEBUG] platform: ${platform}, platformUsername: ${platformUsername}`);
 
@@ -119,32 +131,39 @@ function allIncluded(outputTarget = 'email') {
 					const tokenFromDOM = document.getElementById('githubToken')?.value;
 					const gitlabTokenFromDOM = document.getElementById('gitlabToken')?.value;
 
-					// Save to platform-specific storage
-					if (usernameFromDOM) {
-						chrome.storage.local.set({ [platformUsernameKey]: usernameFromDOM });
-						platformUsername = usernameFromDOM;
-						platformUsernameLocal = usernameFromDOM;
+					// Save platform-specific username only when non-empty (avoid clearing stored value)
+					const usernameTrim = (usernameFromDOM || '').trim();
+					if (usernameTrim) {
+						chrome.storage.local.set({ [platformUsernameKey]: usernameTrim });
+						platformUsername = usernameTrim;
+						platformUsernameLocal = usernameTrim;
 					}
 
+					// apply projectName from DOM immediately in popup mode
 					items.projectName = projectFromDOM || items.projectName;
-					items.githubToken = tokenFromDOM || items.githubToken;
-					items.gitlabToken = gitlabTokenFromDOM || items.gitlabToken;
+
+					// Save platform-specific token (use gitlabToken input when platform is gitlab)
+					if (platform === 'gitlab') {
+						items.gitlabToken = gitlabTokenFromDOM || items.gitlabToken;
+					} else {
+						items.githubToken = tokenFromDOM || items.githubToken;
+					}
+
+					// Persist projectName and tokens in one call
 					chrome.storage.local.set({
 						projectName: items.projectName,
 						githubToken: items.githubToken,
 						gitlabToken: items.gitlabToken,
 					});
-				}
-				projectName = items.projectName;
+					}
 
-				userReason = 'No Blocker at the moment';
-				chrome.storage.local.remove(['userReason']);
-				githubToken = items.githubToken;
-				gitlabToken = items.gitlabToken || '';
-				yesterdayContribution = items.yesterdayContribution;
-				if (typeof items.enableToggle !== 'undefined') {
-					enableToggle = items.enableToggle;
-				}
+					userReason = items.userReason || 'No Blocker at the moment';
+					githubToken = items.githubToken;
+					gitlabToken = items.gitlabToken || '';
+					yesterdayContribution = items.yesterdayContribution;
+					if (typeof items.enableToggle !== 'undefined') {
+						enableToggle = items.enableToggle;
+					}
 
 				onlyIssues = items.onlyIssues === true;
 				onlyPRs = items.onlyPRs === true;
@@ -181,8 +200,14 @@ function allIncluded(outputTarget = 'email') {
 							const scrumReport = document.getElementById('scrumReport');
 							const generateBtn = document.getElementById('generateReport');
 							if (scrumReport) {
-								scrumReport.innerHTML =
-									'<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">Please enter your username to generate a report.</div>';
+								scrumReport.textContent = '';
+								const errDiv = document.createElement('div');
+								errDiv.className = 'error-message';
+								errDiv.style.color = '#dc2626';
+								errDiv.style.fontWeight = 'bold';
+								errDiv.style.padding = '10px';
+								errDiv.textContent = 'Please enter your username to generate a report.';
+								scrumReport.appendChild(errDiv);
 							}
 							if (generateBtn) {
 								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
@@ -196,7 +221,7 @@ function allIncluded(outputTarget = 'email') {
 						return;
 					}
 				} else if (platform === 'gitlab') {
-					if (!gitlabHelper) gitlabHelper = new window.GitLabHelper();
+					if (!gitlabHelper) gitlabHelper = new window.GitLabHelper(items.gitlabToken || null);
 					if (platformUsernameLocal) {
 						const generateBtn = document.getElementById('generateReport');
 						if (generateBtn && outputTarget === 'popup') {
@@ -207,11 +232,18 @@ function allIncluded(outputTarget = 'email') {
 						if (outputTarget === 'email') {
 							(async () => {
 								try {
+
+									const gitlabGroup = items.gitlabGroup || '';
+									const useGitlabProjectFilter = items.useGitlabProjectFilter || false;
+									const selectedGitlabProjects = useGitlabProjectFilter ? (items.selectedGitlabProjects || []) : [];
+
 									const data = await gitlabHelper.fetchGitLabData(
 										platformUsernameLocal,
 										startingDate,
 										endingDate,
-										gitlabToken,
+										items.gitlabToken || null,
+										gitlabGroup,
+										selectedGitlabProjects
 									);
 
 									function mapGitLabItem(item, projects, type) {
@@ -267,15 +299,33 @@ function allIncluded(outputTarget = 'email') {
 										}
 										const scrumReport = document.getElementById('scrumReport');
 										if (scrumReport) {
-											scrumReport.innerHTML = `<div class=\"error-message\" style=\"color: #dc2626; font-weight: bold; padding: 10px;\">${err.message || 'An error occurred while fetching GitLab data.'}</div>`;
+												scrumReport.textContent = '';
+												const errDiv = document.createElement('div');
+												errDiv.className = 'error-message';
+												errDiv.style.color = '#dc2626';
+												errDiv.style.fontWeight = 'bold';
+												errDiv.style.padding = '10px';
+												errDiv.textContent = err.message || 'An error occurred while fetching GitLab data.';
+												scrumReport.appendChild(errDiv);
 										}
 									}
 									scrumGenerationInProgress = false;
 								}
 							})();
 						} else {
+							const gitlabGroup = items.gitlabGroup || '';
+							const useGitlabProjectFilter = items.useGitlabProjectFilter || false;
+							const selectedGitlabProjects = useGitlabProjectFilter ? (items.selectedGitlabProjects || []) : [];
+
 							gitlabHelper
-								.fetchGitLabData(platformUsernameLocal, startingDate, endingDate, gitlabToken)
+								.fetchGitLabData(
+									platformUsernameLocal,
+									startingDate,
+									endingDate,
+									items.gitlabToken,
+									gitlabGroup,
+									selectedGitlabProjects,
+								)
 								.then((data) => {
 									function mapGitLabItem(item, projects, type) {
 										const project = projects.find((p) => p.id === item.project_id);
@@ -315,7 +365,14 @@ function allIncluded(outputTarget = 'email') {
 										}
 										const scrumReport = document.getElementById('scrumReport');
 										if (scrumReport) {
-											scrumReport.innerHTML = `<div class=\"error-message\" style=\"color: #dc2626; font-weight: bold; padding: 10px;\">${err.message || 'An error occurred while fetching GitLab data.'}</div>`;
+												scrumReport.textContent = '';
+												const errDiv2 = document.createElement('div');
+												errDiv2.className = 'error-message';
+												errDiv2.style.color = '#dc2626';
+												errDiv2.style.fontWeight = 'bold';
+												errDiv2.style.padding = '10px';
+												errDiv2.textContent = err.message || 'An error occurred while fetching GitLab data.';
+												scrumReport.appendChild(errDiv2);
 										}
 									}
 									scrumGenerationInProgress = false;
@@ -327,8 +384,14 @@ function allIncluded(outputTarget = 'email') {
 							const scrumReport = document.getElementById('scrumReport');
 							const generateBtn = document.getElementById('generateReport');
 							if (scrumReport) {
-								scrumReport.innerHTML =
-									'<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">Please enter your username to generate a report.</div>';
+								scrumReport.textContent = '';
+								const errDiv = document.createElement('div');
+								errDiv.className = 'error-message';
+								errDiv.style.color = '#dc2626';
+								errDiv.style.fontWeight = 'bold';
+								errDiv.style.padding = '10px';
+								errDiv.textContent = 'Please enter your username to generate a report.';
+								scrumReport.appendChild(errDiv);
 							}
 							if (generateBtn) {
 								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
@@ -342,8 +405,14 @@ function allIncluded(outputTarget = 'email') {
 					if (outputTarget === 'popup') {
 						const scrumReport = document.getElementById('scrumReport');
 						if (scrumReport) {
-							scrumReport.innerHTML =
-								'<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">Unknown platform selected.</div>';
+							scrumReport.textContent = '';
+							const errDiv = document.createElement('div');
+							errDiv.className = 'error-message';
+							errDiv.style.color = '#dc2626';
+							errDiv.style.fontWeight = 'bold';
+							errDiv.style.padding = '10px';
+							errDiv.textContent = 'Unknown platform selected.';
+							scrumReport.appendChild(errDiv);
 						}
 					}
 					scrumGenerationInProgress = false;
@@ -761,6 +830,7 @@ function allIncluded(outputTarget = 'email') {
 
 			if (outputTarget === 'popup') {
 				const generateBtn = document.getElementById('generateReport');
+				const scrumReport = document.getElementById('scrumReport');
 				if (scrumReport) {
 					let errorMsg = 'An error occurred while generating the report.';
 					if (err) {
@@ -768,9 +838,14 @@ function allIncluded(outputTarget = 'email') {
 						else if (err.message) errorMsg = err.message;
 						else errorMsg = JSON.stringify(err);
 					}
-					scrumReport.innerHTML = `<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">${err.message || 'An error occurred while generating the report.'}</div>`;
-					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
-					generateBtn.disabled = false;
+								scrumReport.textContent = '';
+								const genErrDiv = document.createElement('div');
+								genErrDiv.className = 'error-message';
+								genErrDiv.style.color = '#dc2626';
+								genErrDiv.style.fontWeight = 'bold';
+								genErrDiv.style.padding = '10px';
+								genErrDiv.textContent = errorMsg || err.message || 'An error occurred while generating the report.';
+								scrumReport.appendChild(genErrDiv);
 				}
 				if (generateBtn) {
 					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
@@ -1080,7 +1155,112 @@ ${userReason}`;
 			const scrumReport = document.getElementById('scrumReport');
 			if (scrumReport) {
 				log('Found popup div, updating content');
-				scrumReport.innerHTML = content;
+				// Parse the generated HTML with DOMParser and sanitize before inserting to avoid unsafe innerHTML usage
+				scrumReport.textContent = '';
+				try {
+					const parser = new DOMParser();
+					const doc = parser.parseFromString(content, 'text/html');
+
+					// Strict allowlist of tags and per-tag allowed attributes
+					const allowedTags = new Set([
+						'A','B','STRONG','I','EM','CODE','BR','P','UL','OL','LI','SPAN','DIV',
+						'PRE','BLOCKQUOTE','H1','H2','H3','H4','H5','H6','IMG','TABLE','THEAD','TBODY','TR','TD','TH'
+					]);
+
+					const globalAllowedAttrs = new Set(['class','id','title','role','aria-label']);
+
+					function isSafeUrl(u) {
+						if (!u) return false;
+						const s = u.trim().toLowerCase();
+						return (
+							s.startsWith('http:') ||
+							s.startsWith('https:') ||
+							s.startsWith('mailto:') ||
+							s.startsWith('tel:') ||
+							s.startsWith('/') ||
+							s.startsWith('#') ||
+							s.startsWith('//')
+						);
+					}
+
+					// Remove dangerous elements entirely
+					doc.querySelectorAll('script,style,iframe,object,embed,link,meta,svg,math,form,input,button,textarea,select').forEach(n => n.remove());
+
+					// Walk elements and enforce allowlist
+					doc.body.querySelectorAll('*').forEach((node) => {
+						const tag = node.tagName.toUpperCase();
+						if (!allowedTags.has(tag)) {
+							// Replace disallowed tag with its text content
+							const txt = document.createTextNode(node.textContent || '');
+							node.parentNode && node.parentNode.replaceChild(txt, node);
+							return;
+						}
+
+						// Sanitize attributes: remove anything not explicitly allowed per-tag
+						[...node.attributes].forEach((attr) => {
+							const name = attr.name.toLowerCase();
+							const val = attr.value;
+
+							// Strip inline event handlers and style
+							if (name.startsWith('on') || name === 'style') {
+								node.removeAttribute(attr.name);
+								return;
+							}
+
+							// Always remove attributes that can embed HTML/JS
+							if (['srcdoc','formaction','xlink:href','xmlns'].includes(name)) {
+								node.removeAttribute(attr.name);
+								return;
+							}
+
+							// img: allow only src/alt/width/height
+							if (tag === 'IMG') {
+								if (['src','alt','title','width','height','class','id'].includes(name)) {
+									if (name === 'src') {
+										if (!isSafeUrl(val)) node.removeAttribute(attr.name);
+									}
+									// keep allowed
+								} else {
+									node.removeAttribute(attr.name);
+								}
+								return;
+							}
+
+							// a: allow only href, title, rel, target
+							if (tag === 'A') {
+								if (['href','title','rel','target','class','id','aria-label'].includes(name)) {
+									if (name === 'href') {
+										if (!isSafeUrl(val)) node.removeAttribute(attr.name);
+									}
+								} else {
+									node.removeAttribute(attr.name);
+								}
+								return;
+							}
+
+							// table and text elements: allow only global attrs
+							if (!globalAllowedAttrs.has(name)) {
+								node.removeAttribute(attr.name);
+							}
+						});
+
+						// Ensure safe link attributes
+						if (tag === 'A') {
+							if (!node.getAttribute('rel')) node.setAttribute('rel', 'noopener noreferrer');
+							if (!node.getAttribute('target')) node.setAttribute('target', '_blank');
+						}
+					});
+
+					// Append sanitized nodes
+					const frag = document.createDocumentFragment();
+					Array.from(doc.body.childNodes).forEach((n) => frag.appendChild(n.cloneNode(true)));
+					scrumReport.appendChild(frag);
+				} catch (err) {
+					// Log the parse/sanitization error for diagnostics and fall back to safe text
+					logError('Failed to parse/sanitize scrum content:', err);
+					const fallback = typeof content === 'string' ? content.replace(/<[^>]+>/g, '') : 'Unable to generate report.';
+					scrumReport.textContent = fallback;
+				}
 
 				const generateBtn = document.getElementById('generateReport');
 				if (generateBtn) {
@@ -1807,7 +1987,11 @@ async function forceGitlabDataRefresh() {
 	hasInjectedContent = false;
 	// Re-instantiate gitlabHelper to ensure a fresh instance for next API call
 	if (window.GitLabHelper) {
-		gitlabHelper = new window.GitLabHelper();
+		const result = await new Promise((resolve) => {
+			chrome.storage.local.get(['gitlabToken'], resolve);
+		});
+		const gitlabToken = result.gitlabToken || null;
+		gitlabHelper = new window.GitLabHelper(gitlabToken);
 	}
 	return { success: true };
 }
