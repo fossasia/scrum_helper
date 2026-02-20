@@ -100,9 +100,11 @@ hr,
     border-color: #404040 !important;
     transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
 }
+
 .dark-mode input[type="date"]::-webkit-calendar-picker-indicator {
     filter: invert(1);
 }
+
 .dark-mode input[type="text"],
 .dark-mode input[type="date"],
 .dark-mode #scrumReport {
@@ -826,4 +828,67 @@ hr,
     background-color: #78350f;
     border-color: #d97706;
     color: #fde68a;
+}
+
+/* Display Mode Dropdown Styles */
+#displayModeSelect {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    border-radius: 14px !important;
+    overflow: hidden;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 12px;
+    padding-right: 32px !important;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease-in-out, border-color 0.3s ease-in-out, color 0.3s ease-in-out;
+}
+
+#displayModeSelect:focus {
+    outline: none;
+    border-color: #3b82f6 !important;
+    border-radius: 14px;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+#displayModeSelect option {
+    padding: 8px 12px;
+    font-size: 14px;
+    background-color: #fff;
+    color: #1f2937;
+    border-radius: 14px;
+}
+
+#displayModeSelect option:hover,
+#displayModeSelect option:checked {
+    background-color: #3b82f6;
+    color: #fff;
+}
+
+/* Dark mode Display Mode Dropdown */
+.dark-mode #displayModeSelect {
+    background-color: #404040 !important;
+    border-color: #505050 !important;
+    color: #ffffff !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+}
+
+.dark-mode #displayModeSelect:focus {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    background-color: #374151 !important;
+}
+
+.dark-mode #displayModeSelect option {
+    background-color: #2d2d2d;
+    color: #f3f4f6;
+}
+
+.dark-mode #displayModeSelect option:hover,
+.dark-mode #displayModeSelect option:checked {
+    background-color: #3b82f6;
+    color: #fff;
 }

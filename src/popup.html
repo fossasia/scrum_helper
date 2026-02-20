@@ -11,11 +11,41 @@
 	<style type="text/css">
 		html,
 		body {
-			width: 375px !important;
-			height: 600px !important;
-			max-height: 600px !important;
-			overflow-y: scroll;
+
+			margin: 0;
+			overflow: hidden;
 			background: #eae4e4;
+		}
+
+		body {
+			display: flex;
+		}
+
+		html.mode-sidepanel,
+		body.mode-sidepanel {
+			width: 100vw !important;
+			height: 100vh !important;
+			max-width: 100vw !important;
+			max-height: 100vh !important;
+			min-width: 360px;
+			min-height: 100vh !important;
+		}
+
+		html.mode-popup,
+		body.mode-popup {
+			width: 375px !important;
+			height: 640px !important;
+			min-width: 360px;
+			max-width: 420px;
+			min-height: 640px !important;
+			max-height: 640px !important;
+		}
+
+		#popupRoot {
+			flex: 1;
+			height: 100%;
+			overflow-y: auto;
+			overflow-x: hidden;
 		}
 
 		#platformSelect option {
@@ -71,7 +101,7 @@
 </head>
 
 <body>
-	<div class="pl-1 py-2 rounded-2xl">
+	<div id="popupRoot" class="pl-1 py-2 rounded-2xl">
 		<div class="bg-white px-4 py-4 mx-2 mb-2 rounded-3xl">
 			<div class="flex justify-between py-2">
 				<h3 id="scrumHelperHeading" class="text-3xl font-semibold cursor-pointer">Scrum Helper</h3>
@@ -199,7 +229,8 @@
 					<div class="my-4">
 						<div class="flex items-center">
 							<input type="checkbox" id="onlyIssues" class="form-checkbox text-blue-600">
-							<label for="onlyIssues" class="font-medium text-sm flex items-center" style="margin-left: 4px;" data-i18n="onlyIssuesLabel">
+									<label for="onlyIssues" class="font-medium text-sm flex items-center"
+										style="margin-left: 4px;" data-i18n="onlyIssuesLabel">
 								Include only issues in the report
 							</label>
 							<span class="tooltip-container">
@@ -214,7 +245,8 @@
 					<div class="my-4">
 						<div class="flex items-center">
 							<input type="checkbox" id="onlyPRs" class="form-checkbox text-blue-600">
-							<label for="onlyPRs" class="font-medium text-sm flex items-center" style="margin-left: 4px;" data-i18n="onlyPRsLabel">
+									<label for="onlyPRs" class="font-medium text-sm flex items-center" style="margin-left: 4px;"
+										data-i18n="onlyPRsLabel">
 								Include only PRs in the report
 							</label>
 							<span class="tooltip-container">
@@ -229,18 +261,19 @@
 					<div class="my-4">
 						<div class="flex items-center">
 							<input type="checkbox" id="onlyRevPRs" class="form-checkbox text-blue-600">
-							<label for="onlyRevPRs" class="font-medium text-sm flex items-center" style="margin-left: 4px;" data-i18n="onlyRevPRsLabel">
+									<label for="onlyRevPRs" class="font-medium text-sm flex items-center"
+										style="margin-left: 4px;" data-i18n="onlyRevPRsLabel">
 								Include only Reviewed PRs in the report
 							</label>
 							<span class="tooltip-container">
 								<i class="fa fa-question-circle question-icon"></i>
-								<span class="tooltip-bubble" data-i18n="onlyRevPRsTooltip">
+									<span class="tooltip-bubble" data-i18n="onlyRevPRsTooltip">
 									If checked, the report will only include PRs reviewed by you.
 								</span>
 							</span>
 						</div>
 					</div>
-					
+
 					<div class="my-4 githubOnlySection">
 						<div class="flex items-center">
 							<input type="checkbox" id="showCommits" checked class="form-checkbox text-blue-600">
@@ -503,6 +536,46 @@
 								<span id="gitlabProjectCount" data-i18n="gitlabProjectCountNone">0 projects selected</span>
 								<span id="gitlabProjectStatus" class="text-blue-600"></span>
 							</div>
+						</div>
+					</div>
+
+					<div class="cacheSection mt-3">
+						<div class="flex items-center justify-between mb-2">
+							<div class="flex items-center">
+								<p class="text-sm font-medium" data-i18n="displayModeLabel">Display Mode</p>
+								<span class="tooltip-container ml-2">
+									<i class="fa fa-question-circle question-icon"></i>
+									<span class="tooltip-bubble" data-i18n="displayModeTooltip">
+										Choose how Scrum Helper opens when you click its icon.
+										<b>Side Panel</b> keeps it docked alongside your page.
+										<b>Popup</b> opens a floating window.
+									</span>
+								</span>
+							</div>
+						</div>
+						<select id="displayModeSelect"
+							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 mb-2">
+							<option value="sidePanel">Side Panel</option>
+							<option value="popup">Popup</option>
+						</select>
+						<div id="displayModeNotice" class="hidden text-xs text-blue-700 bg-blue-50 border border-blue-200 rounded-xl p-2 mt-1 mb-2 flex items-center gap-2">
+							<i class="fa fa-info-circle"></i>
+							<span id="displayModeNoticeText"></span>
+ts icon.
+										<b>Side Panel</b> keeps it docked alongside your page.
+										<b>Popup</b> opens a floating window.
+									</span>
+								</span>
+							</div>
+						</div>
+						<select id="displayModeSelect"
+							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 mb-2">
+							<option value="sidePanel">Side Panel</option>
+							<option value="popup">Popup</option>
+						</select>
+						<div id="displayModeNotice" class="hidden text-xs text-blue-700 bg-blue-50 border border-blue-200 rounded-xl p-2 mt-1 mb-2 flex items-center gap-2">
+							<i class="fa fa-info-circle"></i>
+							<span id="displayModeNoticeText"></span>
 						</div>
 					</div>
 
