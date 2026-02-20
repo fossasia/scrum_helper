@@ -1334,6 +1334,24 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		});
 	}
+	    // Advanced Filters Toggle
+    	const toggleBtn = document.getElementById("toggleAdvancedFilters");
+    	const content = document.getElementById("advancedFiltersContent");
+
+    	if (toggleBtn && content) {
+        	toggleBtn.addEventListener("click", function () {
+
+            	content.classList.toggle("hidden");
+
+            	if (content.classList.contains("hidden")) {
+                toggleBtn.textContent = "Advanced Filters ▼";
+            	} else {
+                toggleBtn.textContent = "Advanced Filters ▲";
+            }
+
+        });
+    }
+
 });
 
 const cacheInput = document.getElementById('cacheInput');
