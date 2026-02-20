@@ -367,5 +367,45 @@
   },
   "onlyRevPRsTooltip": {
     "message": "If checked, the report will only include PRs reviewed by you."
+  },
+  "gitlabProjectOnlyGitLab": {
+    "message": "Project filtering is only available for GitLab.",
+    "description": "Status message when GitLab project filter is used on a non-GitLab platform."
+  },
+  "gitlabProjectFetching": {
+    "message": "Fetching projects...",
+    "description": "Status message when GitLab projects are being fetched."
+  },
+  "gitlabProjectUsernameRequired": {
+    "message": "Username required",
+    "description": "Status message when GitLab username is missing for project filtering."
+  },
+  "gitlabProjectLoaded": {
+    "message": "$1 projects loaded",
+    "description": "Status message after GitLab projects have been loaded. $1 is the number."
+  },
+  "gitlabProjectTokenRequired": {
+    "message": "Token required for private projects",
+    "description": "Error message when GitLab token is required for accessing private projects."
+  },
+  "gitlabProjectLoading": {
+    "message": "Loading projects...",
+    "description": "Status message while GitLab projects are loading."
+  },
+  "gitlabProjectFetchNotAvailable": {
+    "message": "Project fetching not available",
+    "description": "Status message when GitLab project fetching functionality is unavailable."
+  },
+  "gitlabProjectNoneAvailable": {
+    "message": "No projects available. Click to load.",
+    "description": "Message shown in the dropdown when no GitLab projects have been loaded yet."
+  },
+  "gitlabProjectNoMatch": {
+    "message": "No matching projects found.",
+    "description": "Message shown in the dropdown when a GitLab project search yields no results."
+  },
+  "gitlabProjectLoadFailed": {
+    "message": "Failed to load projects",
+    "description": "Fallback error message when GitLab project loading fails without a specific error."
   }
 }

@@ -155,22 +155,22 @@
     "repoLoaded": {
         "message": "已加载 $1 个仓库。"
     },
-        "gitlabProjectCountNone": {
-            "message": "已选择 0 个专案",
-            "description": "Text showing the count of selected GitLab projects when it's zero."
-        },
-        "gitlabProjectCount": {
-            "message": "已选择 $1 个专案",
-            "description": "Text showing the count of selected GitLab projects. $1 is a placeholder for the number."
-        },
-        "gitlabProjectSearchPlaceholder": {
-            "message": "搜尋專案",
-            "description": "Placeholder/title for the GitLab project search input."
-        },
-        "gitlabProjectPlaceholder": {
-            "message": "未選擇專案（將包含所有專案）",
-            "description": "Placeholder text when no GitLab projects are selected for filtering."
-        },
+       "gitlabProjectCountNone": {
+        "message": "已选择 0 个专案",
+        "description": "Text showing the count of selected GitLab projects when it's zero."
+    },
+    "gitlabProjectCount": {
+        "message": "已选择 $1 个专案",
+        "description": "Text showing the count of selected GitLab projects. $1 is a placeholder for the number."
+    },
+    "gitlabProjectSearchPlaceholder": {
+        "message": "搜尋專案",
+        "description": "Placeholder/title for the GitLab project search input."
+    },
+    "gitlabProjectPlaceholder": {
+        "message": "未選擇專案（將包含所有專案）",
+        "description": "Placeholder text when no GitLab projects are selected for filtering."
+    },
     "repoNotFound": {
         "message": "未找到仓库"
     },

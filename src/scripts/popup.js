@@ -1564,7 +1564,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				}
 
 				if (platform !== 'gitlab') {
-					if (gitlabProjectStatus) gitlabProjectStatus.textContent = 'Project filtering is only available for GitLab.';
+					if (gitlabProjectStatus) gitlabProjectStatus.textContent = chrome?.i18n.getMessage('gitlabProjectOnlyGitLab');
 					return;
 				}
 
@@ -1574,7 +1574,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				}
 
 				if (gitlabProjectStatus) {
-					gitlabProjectStatus.textContent = 'Fetching projects...';
+					gitlabProjectStatus.textContent = chrome?.i18n.getMessage('gitlabProjectFetching');
 				}
 
 				try {
@@ -1596,7 +1596,7 @@ document.addEventListener('DOMContentLoaded', () => {
 						availableGitlabProjects = projects || [];
 
 						if (gitlabProjectStatus) {
-							gitlabProjectStatus.textContent = `${availableGitlabProjects.length} projects loaded`;
+							gitlabProjectStatus.textContent = chrome?.i18n.getMessage('gitlabProjectLoaded', [String(availableGitlabProjects.length)]);
 						}
 					}
 				} catch (err) {
@@ -1716,12 +1716,12 @@ document.addEventListener('DOMContentLoaded', () => {
 				console.error('Failed to retrieve platform from chrome.storage.local, defaulting to "github".', e);
 			}
 			if (platform !== 'gitlab') {
-				if (gitlabProjectStatus) gitlabProjectStatus.textContent = 'Project loading is only available for GitLab.';
+				if (gitlabProjectStatus) gitlabProjectStatus.textContent = chrome?.i18n.getMessage('gitlabProjectOnlyGitLab');
 				return;
 			}
 
 			if (!window.fetchUserProjects) {
-				gitlabProjectStatus.textContent = 'Project fetching not available';
+				gitlabProjectStatus.textContent = chrome?.i18n.getMessage('gitlabProjectFetchNotAvailable');
 				return;
 			}
 
@@ -1752,7 +1752,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				return;
 			}
 
-			gitlabProjectStatus.textContent = 'Loading projects...';
+			gitlabProjectStatus.textContent = chrome?.i18n.getMessage('gitlabProjectLoading');
 			gitlabProjectSearch.classList.add('repository-search-loading');
 
 			try {
@@ -1770,7 +1770,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				if (window.fetchUserProjects) {
 					const projects = await window.fetchUserProjects(username, storageItems.gitlabToken);
 					availableGitlabProjects = projects;
-					gitlabProjectStatus.textContent = `${projects.length} projects loaded`;
+					gitlabProjectStatus.textContent = chrome?.i18n.getMessage('gitlabProjectLoaded', [String(projects.length)]);
 					gitlabProjectSearch.classList.remove('repository-search-loading');
 
 					if (document.activeElement === gitlabProjectSearch) {
@@ -1796,7 +1796,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				gitlabProjectDropdown.textContent = '';
 				const noProjDiv = document.createElement('div');
 				noProjDiv.className = 'p-3 text-gray-500 text-sm';
-				noProjDiv.textContent = 'No projects available. Click to load.';
+				noProjDiv.textContent = chrome?.i18n.getMessage('gitlabProjectNoneAvailable');
 				gitlabProjectDropdown.appendChild(noProjDiv);
 				showGitLabProjectDropdown();
 				if (!gitlabProjectClickListenerAttached) {
@@ -1828,7 +1828,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				gitlabProjectDropdown.textContent = '';
 				const noMatchDiv = document.createElement('div');
 				noMatchDiv.className = 'p-3 text-gray-500 text-sm';
-				noMatchDiv.textContent = 'No matching projects found.';
+				noMatchDiv.textContent = chrome?.i18n.getMessage('gitlabProjectNoMatch');
 				gitlabProjectDropdown.appendChild(noMatchDiv);
 				showGitLabProjectDropdown();
 				return;
