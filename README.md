@@ -81,6 +81,10 @@
    - Rich text formatting with clickable links
    - Copy report to clipboard with proper formatting
 
+1.1 **Collapsible Advanced Filters**
+   - Filter checkboxes such as "include only issues", "include only PRs", etc. are now hidden inside an expandable section
+   - Keeps the popup compact by default and improves visual clarity
+
 2.  **Advanced Repository Filtering**
     *   Select specific repositories to include in your report for a more focused summary.
     *   Easily search and manage your repository list directly within the popup.

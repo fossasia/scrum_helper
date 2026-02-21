@@ -199,77 +199,79 @@
 						</div>
 					</div>
 
-					<div style="margin-bottom: 1rem;">
-						<br />
-						<input type="checkbox" id="showOpenLabel" class="form-checkbox text-blue-600">
-
-						<label id="checkboxLabel" for="showOpenLabel" class="font-medium text-sm"
-							style="margin-left: 4px;" data-i18n="showOpenClosedLabel">Show
-							PRs Labels</label>
-
-					</div>
-					<div class="my-4">
-						<div class="flex items-center">
-							<input type="checkbox" id="onlyIssues" class="form-checkbox text-blue-600">
-							<label for="onlyIssues" class="font-medium text-sm flex items-center"
-								style="margin-left: 4px;" data-i18n="onlyIssuesLabel">
-								Include only issues in the report
-							</label>
-							<span class="tooltip-container">
-								<i class="fa fa-question-circle question-icon"></i>
-								<span class="tooltip-bubble" data-i18n="onlyIssuesTooltip">
-									If checked, the report will only include issues created or assigned to the user.
-								</span>
-							</span>
-						</div>
-					</div>
-
-					<div class="my-4">
-						<div class="flex items-center">
-							<input type="checkbox" id="onlyPRs" class="form-checkbox text-blue-600">
-							<label for="onlyPRs" class="font-medium text-sm flex items-center" style="margin-left: 4px;"
-								data-i18n="onlyPRsLabel">
-								Include only PRs in the report
-							</label>
-							<span class="tooltip-container">
-								<i class="fa fa-question-circle question-icon"></i>
-								<span class="tooltip-bubble" data-i18n="onlyPRsTooltip">
-									If checked, the report will only include PRs created by you.
-								</span>
-							</span>
-						</div>
-					</div>
-
-					<div class="my-4">
-						<div class="flex items-center">
-							<input type="checkbox" id="onlyRevPRs" class="form-checkbox text-blue-600">
-							<label for="onlyRevPRs" class="font-medium text-sm flex items-center"
-								style="margin-left: 4px;" data-i18n="onlyRevPRsLabel">
-								Include only Reviewed PRs in the report
-							</label>
-							<span class="tooltip-container">
-								<i class="fa fa-question-circle question-icon"></i>
-								<span class="tooltip-bubble" data-i18n="onlyPRsTooltip">
-									If checked, the report will only include PRs reviewed by you.
-								</span>
-							</span>
-						</div>
-					</div>
-
-					<div class="my-4 githubOnlySection">
-						<div class="flex items-center">
-							<input type="checkbox" id="showCommits" checked class="form-checkbox text-blue-600 ">
-
-							<label id="showCommitsLabel" for="showCommits"
-								class="font-medium text-sm flex items-center pl-5 ml-4" style="margin-left: 4px;"
-								data-i18n="showCommitsLabel">Show commits on open PRs/ draft PRs</label><span
-								class="tooltip-container">
-								<i class="fa fa-question-circle question-icon"></i>
-								<span class="tooltip-bubble" data-i18n="showCommitsTooltip">
-									Github Token required, add it in the settings.
-								</span>
-							</span>
-
+<div class="mb-4">
+                        <!-- advanced filters button -->
+                        <button id="advancedFiltersToggle" class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <span data-i18n="advancedFiltersLabel">Advanced Filters</span>
+                            <i id="advancedFiltersIcon" class="fa fa-chevron-down text-gray-500"></i>
+                        </button>
+                        <div id="advancedFiltersContainer" class="hidden mt-2">
+                            <div style="margin-bottom: 1rem;">
+                                <br />
+                                <input type="checkbox" id="showOpenLabel" class="form-checkbox text-blue-600">
+                                <label id="checkboxLabel" for="showOpenLabel" class="font-medium text-sm"
+                                    style="margin-left: 4px;" data-i18n="showOpenClosedLabel">Show
+                                    PRs Labels</label>
+                            </div>
+                            <div class="my-4">
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="onlyIssues" class="form-checkbox text-blue-600">
+                                    <label for="onlyIssues" class="font-medium text-sm flex items-center"
+                                        style="margin-left: 4px;" data-i18n="onlyIssuesLabel">
+                                        Include only issues in the report
+                                    </label>
+                                    <span class="tooltip-container">
+                                        <i class="fa fa-question-circle question-icon"></i>
+                                        <span class="tooltip-bubble" data-i18n="onlyIssuesTooltip">
+                                            If checked, the report will only include issues created or assigned to the user.
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="my-4">
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="onlyPRs" class="form-checkbox text-blue-600">
+                                    <label for="onlyPRs" class="font-medium text-sm flex items-center" style="margin-left: 4px;"
+                                        data-i18n="onlyPRsLabel">
+                                        Include only PRs in the report
+                                    </label>
+                                    <span class="tooltip-container">
+                                        <i class="fa fa-question-circle question-icon"></i>
+                                        <span class="tooltip-bubble" data-i18n="onlyPRsTooltip">
+                                            If checked, the report will only include PRs created by you.
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="my-4">
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="onlyRevPRs" class="form-checkbox text-blue-600">
+                                    <label for="onlyRevPRs" class="font-medium text-sm flex items-center"
+                                        style="margin-left: 4px;" data-i18n="onlyRevPRsLabel">
+                                        Include only Reviewed PRs in the report
+                                    </label>
+                                    <span class="tooltip-container">
+                                        <i class="fa fa-question-circle question-icon"></i>
+                                        <span class="tooltip-bubble" data-i18n="onlyPRsTooltip">
+                                            If checked, the report will only include PRs reviewed by you.
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="my-4 githubOnlySection">
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="showCommits" checked class="form-checkbox text-blue-600 ">
+                                    <label id="showCommitsLabel" for="showCommits"
+                                        class="font-medium text-sm flex items-center pl-5 ml-4" style="margin-left: 4px;"
+                                        data-i18n="showCommitsLabel">Show commits on open PRs/ draft PRs</label><span
+                                        class="tooltip-container">
+                                        <i class="fa fa-question-circle question-icon"></i>
+                                        <span class="tooltip-bubble" data-i18n="showCommitsTooltip">
+                                            Github Token required, add it in the settings.
+                                        </span>
+                                    </span>
+                                </div>
+                            </div>
 						</div>
 					</div>
 
