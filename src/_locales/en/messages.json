@@ -117,9 +117,14 @@
   "showCommitsTooltip": {
     "message": "Github Token required, add it in the settings."
   },
+  "advancedFiltersLabel": {
+    "message": "Advanced Filters",
+    "description": "Label for the collapsible advanced filters section."
+  },
   "onlyIssuesLabel": {
     "message": "Include only issues in the report"
   },
+
   "onlyIssuesTooltip": {
     "message": "If checked, the report will only include issues created or assigned to the user."
   },

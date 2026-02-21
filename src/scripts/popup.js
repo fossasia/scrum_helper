@@ -147,6 +147,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	githubTokenInput.addEventListener('input', checkTokenForFilter);
 
+		// advanced filters toggle behaviour
+		if (advancedFiltersToggle && advancedFiltersContainer && advancedFiltersIcon) {
+			advancedFiltersToggle.addEventListener('click', () => {
+				const isCurrentlyOpen = !advancedFiltersContainer.classList.contains('hidden');
+				if (isCurrentlyOpen) {
+					advancedFiltersContainer.classList.add('hidden');
+					advancedFiltersIcon.classList.replace('fa-chevron-up', 'fa-chevron-down');
+				} else {
+					advancedFiltersContainer.classList.remove('hidden');
+					advancedFiltersIcon.classList.replace('fa-chevron-down', 'fa-chevron-up');
+				}
+				chrome?.storage.local.set({ advancedFiltersOpen: !isCurrentlyOpen });
+			});
+
+			// restore state from storage
+			chrome?.storage.local.get(['advancedFiltersOpen'], (result) => {
+				if (result.advancedFiltersOpen) {
+					advancedFiltersContainer.classList.remove('hidden');
+					advancedFiltersIcon.classList.replace('fa-chevron-down', 'fa-chevron-up');
+				}
+			});
+		}
 	darkModeToggle.addEventListener('click', function () {
 		body.classList.toggle('dark-mode');
 		const isDarkMode = body.classList.contains('dark-mode');
@@ -203,6 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			'toggleTokenVisibility',
 			'useRepoFilter',
 			'repoSearch',
+			'advancedFiltersToggle',
 			'platformDropdownBtn',
 		];
 
