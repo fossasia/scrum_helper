@@ -54,7 +54,8 @@ document.addEventListener('DOMContentLoaded', () => {
 	applyI18n();
 
 	// Dark mode setup
-	const darkModeToggle = document.querySelector('img[alt="Night Mode"]');
+	const darkModeToggleBtn = document.getElementById('darkModeToggle');
+	const darkModeToggleImg = darkModeToggleBtn ? darkModeToggleBtn.querySelector('img') : null;
 	const settingsIcon = document.getElementById('settingsIcon');
 	const body = document.body;
 	const homeButton = document.getElementById('homeButton');
@@ -111,7 +112,9 @@ document.addEventListener('DOMContentLoaded', () => {
 	chrome?.storage.local.get(['darkMode'], (result) => {
 		if (result.darkMode) {
 			body.classList.add('dark-mode');
-			darkModeToggle.src = 'icons/light-mode.png';
+			if (darkModeToggleImg) {
+				darkModeToggleImg.src = 'icons/light-mode.png';
+			}
 			if (settingsIcon) {
 				settingsIcon.src = 'icons/settings-night.png';
 			}
@@ -147,11 +150,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	githubTokenInput.addEventListener('input', checkTokenForFilter);
 
-	darkModeToggle.addEventListener('click', function () {
+	darkModeToggleBtn.addEventListener('click', function () {
 		body.classList.toggle('dark-mode');
 		const isDarkMode = body.classList.contains('dark-mode');
 		chrome?.storage.local.set({ darkMode: isDarkMode });
-		this.src = isDarkMode ? 'icons/light-mode.png' : 'icons/night-mode.png';
+		if (darkModeToggleImg) {
+			darkModeToggleImg.src = isDarkMode ? 'icons/light-mode.png' : 'icons/night-mode.png';
+		}
 		const settingsIcon = document.getElementById('settingsIcon');
 		if (settingsIcon) {
 			settingsIcon.src = isDarkMode ? 'icons/settings-night.png' : 'icons/settings-light.png';

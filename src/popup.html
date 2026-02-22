@@ -67,6 +67,10 @@
 		#platformDropdownBtn:focus {
 			outline: 2px solid #2563eb;
 		}
+
+		#platformDropdownList li:focus {
+			outline: 2px solid #2563eb;
+		}
 	</style>
 </head>
 
@@ -75,19 +79,20 @@
 		<div class="bg-white px-4 py-4 mx-2 mb-2 rounded-3xl">
 			<div class="flex justify-between py-2">
 				<h3 id="scrumHelperHeading" class="text-3xl font-semibold cursor-pointer">Scrum Helper</h3>
-				<img src="icons/night-mode.png" alt="Night Mode" class="w-7 h-7 mx-3 cursor-pointer"
-					id="darkModeToggle">
+<button id="darkModeToggle" aria-label="Toggle night mode" class="w-7 h-7 mx-3 cursor-pointer p-1 bg-transparent border-none">
+				<img src="icons/night-mode.png" alt="Night Mode" class="w-full h-full" />
+			</button>
 			</div>
 			<div>
 				<p class="" data-i18n="appDescription">Report your development progress by auto-fetching your Git
 					activity for a selected period
-				</p>
+				</label>
 			</div>
 
 			<div class="center mt-2 flex justify-between">
 				<label class="flex items-center justify-center gap-2 font-semibold">
 					<span data-i18n="disableLabel">Disable</span>
-					<input type="checkbox" value="" id="enable" class="sr-only peer">
+					<input type="checkbox" value="" id="enable" class="sr-only peer" aria-label="Enable or disable Scrum Helper">
 					<div
 						class="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600">
 					</div>
@@ -95,7 +100,7 @@
 					<span data-i18n="enableLabel">Enable</span>
 				</label>
 				<div class="flex">
-					<button id="homeButton"
+					<button id="homeButton" aria-label="Go to home"
 						class="ml-1 p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition">
 						<i class="fa fa-home text-2xl text-gray-600 dark:text-gray-300"></i>
 					</button>
@@ -114,8 +119,8 @@
 					<div>
 
 
-						<p data-i18n="platformLabel" class="font-medium text-sm" style="margin-bottom: 0.3rem;">Platform
-						</p>
+						<label for="platformDropdownBtn" data-i18n="platformLabel" class="font-medium text-sm" style="margin-bottom: 0.3rem;">Platform
+						</label>
 						<div class="relative mb-4" id="customPlatformDropdown" style="margin-bottom: 0.8rem;">
 							<input type="hidden" id="platformSelect" value="github">
 							<button type="button" id="platformDropdownBtn"
@@ -141,8 +146,8 @@
 					<div>
 						<div class="flex">
 
-							<p class=" font-medium text-sm" data-i18n="projectNameLabel">Project Name (used in email
-								subject)</p><span class="tooltip-container ml-2">
+<label for="projectName" class=" font-medium text-sm" data-i18n="projectNameLabel">Project Name (used in email
+				subject)</label><span class="tooltip-container ml-2">
 								<i class="fa fa-question-circle question-icon"></i>
 								<span class="tooltip-bubble" data-i18n="projectNameTooltip">
 									This project name will appear in the subject line of your email as part of:
@@ -159,7 +164,7 @@
 					</div>
 					<div>
 
-						<p id="usernameLabel" class="font-medium text-sm" data-i18n="usernameLabel">Your Username</p>
+						<label id="usernameLabel" for="platformUsername" class="font-medium text-sm" data-i18n="usernameLabel">Your Username</label>
 						<input id="platformUsername" type="text"
 							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
 							placeholder="Required for fetching your contributions"
@@ -310,7 +315,7 @@
 						<div>
 							<div class="flex items-center justify-between">
 								<div class="flex">
-									<p class="text-sm font-medium" data-i18n="githubTokenLabel">Your GitHub Token</p>
+									<label for="githubToken" class="text-sm font-medium" data-i18n="githubTokenLabel">Your GitHub Token</label>
 									<span class="tooltip-container">
 										<i class="fa fa-question-circle question-icon"></i>
 										<span class="tooltip-bubble" data-i18n="githubTokenTooltip">
@@ -347,8 +352,8 @@
 						</div>
 						<div class="githubOnlySection">
 							<div class="flex items-center mt-4">
-								<p class="text-sm font-semibold" data-i18n="settingsOrgNameLabel">Your Organization Name
-								</p>
+								<label for="orgInput" class="text-sm font-semibold" data-i18n="settingsOrgNameLabel">Your Organization Name
+								</label>
 								<span class="tooltip-container ml-2">
 									<i class="fa fa-question-circle question-icon"></i>
 									<span class="tooltip-bubble" data-i18n="orgNameTooltip">
@@ -435,7 +440,7 @@
 					<div class="gitlabOnlySection hidden mt-3">
 						<div class="flex items-center justify-between">
 							<div class="flex">
-								<p class="text-sm font-medium" data-i18n="gitlabTokenLabel">Your GitLab Token</p>
+								<label for="gitlabToken" class="text-sm font-medium" data-i18n="gitlabTokenLabel">Your GitLab Token</label>
 								<span class="tooltip-container">
 									<i class="fa fa-question-circle question-icon"></i>
 									<span class="tooltip-bubble" data-i18n="gitlabTokenTooltip">
@@ -467,7 +472,7 @@
 					<div class="cacheSection mt-3">
 						<div class="flex items-center justify-between mb-2">
 							<div class="flex items-center">
-								<p class="text-sm font-medium" data-i18n="displayModeLabel">Display Mode</p>
+								<label for="displayModeSelect" class="text-sm font-medium" data-i18n="displayModeLabel">Display Mode</label>
 								<span class="tooltip-container ml-2">
 									<i class="fa fa-question-circle question-icon"></i>
 									<span class="tooltip-bubble" data-i18n="displayModeTooltip">
