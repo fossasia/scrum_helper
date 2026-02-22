@@ -180,6 +180,15 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	function updateContentState(enableToggle) {
+		const reportSection = document.getElementById("reportSection");
+
+		if (reportSection) {
+			if (!enableToggle) {
+				reportSection.classList.add("extension-disabled");
+			} else {
+				reportSection.classList.remove("extension-disabled");
+			}
+		}
 		console.log('[DEBUG] updateContentState called with:', enableToggle);
 		const elementsToToggle = [
 			'startingDate',
