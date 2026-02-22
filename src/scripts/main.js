@@ -204,6 +204,23 @@ function handleShowCommitsChange() {
 	chrome.storage.local.set({ showCommits: value });
 }
 
+// ====== TEAMS DETECTION ======
+function checkIfTeamsOpen() {
+	chrome.tabs.query({ url: '*://teams.microsoft.com/*' }, (tabs) => {
+		if (tabs && tabs.length > 0) {
+			console.log('[SCRUM-HELPER] Teams is currently open');
+			const teamsNote = document.getElementById('teamsNote');
+			if (teamsNote) {
+				teamsNote.style.display = 'block';
+			}
+		}
+	});
+}
+
+// Check when popup opens
+checkIfTeamsOpen();
+// ====== END TEAMS DETECTION ======
+
 enableToggleElement.addEventListener('change', handleEnableChange);
 platformUsernameElement.addEventListener('keyup', handlePlatformUsernameChange);
 if (githubTokenElement) {

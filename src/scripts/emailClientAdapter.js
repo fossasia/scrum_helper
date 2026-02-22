@@ -98,11 +98,22 @@ class EmailClientAdapter {
 				},
 				injectMethod: 'setContent', // Custom injection method
 			},
+			teams: {
+				selectors: {
+					body: '[contenteditable="true"][role="textbox"][data-empty="true"]',
+				},
+				eventTypes: {
+					messageChange: 'input',
+					paste: 'paste',
+				},
+				injectMethod: 'setContent',
+			},
 		};
 	}
 
 	detectClient() {
 		const hostname = window.location.hostname;
+		if (hostname.includes('teams.microsoft.com')) return 'teams';
 		if (hostname === 'groups.google.com') return 'google-groups';
 		if (hostname === 'mail.google.com') return 'gmail';
 		if (
@@ -188,6 +199,33 @@ class EmailClientAdapter {
 			console.error('Content injection failed:', error);
 			return false;
 		}
+	}
+
+	injectIntoTeams(content) {
+		// Find Teams message input box
+		const teamsInput = document.querySelector(
+			'[contenteditable="true"][role="textbox"][data-empty="true"]'
+		);
+		
+		if (!teamsInput) {
+			console.error('[SCRUM-HELPER] Teams input not found');
+			return false;
+		}
+		
+		// Teams doesn't support HTML, convert to plain text
+		const plainText = content
+			.replace(/<[^>]*>/g, '')   // Remove HTML tags
+			.replace(/&nbsp;/g, ' '); // Replace HTML spaces with regular spaces
+		
+		// Insert text into Teams
+		teamsInput.innerText = plainText;
+		
+		// Trigger input event to notify Teams
+		teamsInput.dispatchEvent(new Event('input', { bubbles: true }));
+		teamsInput.dispatchEvent(new Event('paste', { bubbles: true }));
+		
+		console.log('[SCRUM-HELPER] Injected into Teams successfully');
+		return true;
 	}
 
 	retryInjection(element, content, eventType, maxRetries = 3) {

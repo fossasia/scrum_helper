@@ -26,7 +26,8 @@
         "*://mail.google.com/*",
         "*://outlook.live.com/*",
         "*://outlook.office.com/*",
-        "*://mail.yahoo.com/*"
+        "*://mail.yahoo.com/*",
+        "*://teams.microsoft.com/*"
       ],
       "js": [
         "scripts/jquery-3.2.1.min.js",

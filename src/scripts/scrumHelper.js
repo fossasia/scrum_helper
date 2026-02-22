@@ -1076,6 +1076,27 @@ ${nextWeekUl}<br>
 ${userReason}`;
 		}
 
+		// ====== TEAMS INJECTION ======
+		if (outputTarget === 'teams') {
+			// Convert HTML to plain text for Teams
+			const plainTextContent = content
+				.replace(/<b>/g, '')           // Remove bold tags
+				.replace(/<\/b>/g, '')         // Remove closing bold
+				.replace(/<br>/g, '\n')        // Convert <br> to newlines
+				.replace(/<li>/g, '• ')        // Convert lists to bullets
+				.replace(/<\/?ul>/g, '')       // Remove ul tags
+				.replace(/<\/?li>/g, '');      // Remove li tags
+			
+			// Inject into Teams
+			if (window.emailClientAdapter) {
+				window.emailClientAdapter.injectIntoTeams(plainTextContent);
+				log('[SCRUM] Teams injection successful');
+			}
+			scrumGenerationInProgress = false;
+			return;
+		}
+		// ====== END TEAMS INJECTION ======
+
 		if (outputTarget === 'popup') {
 			const scrumReport = document.getElementById('scrumReport');
 			if (scrumReport) {
