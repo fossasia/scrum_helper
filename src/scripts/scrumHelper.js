@@ -1000,10 +1000,7 @@ function allIncluded(outputTarget = 'email') {
 		log('[DEBUG] Both data processing functions completed, generating scrum body');
 		if (subjectForEmail) {
 			// Synchronized subject and body injection for email
-			let lastWeekUl = '<ul>';
-			for (let i = 0; i < lastWeekArray.length; i++) lastWeekUl += lastWeekArray[i];
-			for (let i = 0; i < reviewedPrsArray.length; i++) lastWeekUl += reviewedPrsArray[i];
-			lastWeekUl += '</ul>';
+			const lastWeekUl = buildActivityListHtml();
 			let nextWeekUl = '<ul>';
 			for (let i = 0; i < nextWeekArray.length; i++) nextWeekUl += nextWeekArray[i];
 			nextWeekUl += '</ul>';
@@ -1041,16 +1038,33 @@ function allIncluded(outputTarget = 'email') {
 		return date.toLocaleDateString('en-US', options);
 	}
 
+	function buildActivityListHtml() {
+		if (lastWeekArray.length === 0 && reviewedPrsArray.length === 0) {
+			let periodDescription;
+			if (yesterdayContribution) {
+				periodDescription = 'yesterday';
+			} else if (startingDate && endingDate) {
+				periodDescription = `${formatDate(startingDate)} – ${formatDate(endingDate)}`;
+			} else {
+				periodDescription = 'the selected period';
+			}
+			return `<ul><li>No contributions found for ${periodDescription}.</li></ul>`;
+		}
+
+		let activityList = '<ul>';
+		for (let i = 0; i < lastWeekArray.length; i++) activityList += lastWeekArray[i];
+		for (let i = 0; i < reviewedPrsArray.length; i++) activityList += reviewedPrsArray[i];
+		activityList += '</ul>';
+		return activityList;
+	}
+
 	function writeScrumBody() {
 		if (!enableToggle) {
 			scrumGenerationInProgress = false;
 			return;
 		}
 
-		let lastWeekUl = '<ul>';
-		for (let i = 0; i < lastWeekArray.length; i++) lastWeekUl += lastWeekArray[i];
-		for (let i = 0; i < reviewedPrsArray.length; i++) lastWeekUl += reviewedPrsArray[i];
-		lastWeekUl += '</ul>';
+		const lastWeekUl = buildActivityListHtml();
 
 		let nextWeekUl = '<ul>';
 		for (let i = 0; i < nextWeekArray.length; i++) nextWeekUl += nextWeekArray[i];
