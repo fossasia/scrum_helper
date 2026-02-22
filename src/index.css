@@ -883,3 +883,7 @@ hr,
     background-color: #3b82f6;
     color: #fff;
 }
+.extension-disabled {
+  opacity: 0.5;
+  transition: opacity 0.2s ease-in-out;
+}
