@@ -565,7 +565,7 @@ function allIncluded(outputTarget = 'email') {
 		console.log('[SCRUM-HELPER] orgName before API query:', orgName);
 		console.log('[SCRUM-HELPER] orgName type:', typeof orgName);
 		console.log('[SCRUM-HELPER] orgName length:', orgName ? orgName.length : 0);
-		const orgPart = orgName && orgName.trim() ? `+org%3A${orgName}` : '';
+		const orgPart = orgName && orgName.trim() ? `org%3A${orgName.trim()}` : '';
 		console.log('[SCRUM-HELPER] orgPart for API:', orgPart);
 		console.log('[SCRUM-HELPER] orgPart length:', orgPart.length);
 
@@ -600,8 +600,9 @@ function allIncluded(outputTarget = 'email') {
 						return `repo:${fullRepoInfo.fullName}`;
 					}
 					logError(`Missing owner for repo ${repo} - search may fail`);
-					return `repo:${repo}`;
+					return null;
 				})
+				.filter(Boolean)
 				.join('+');
 
 			const orgQuery = orgPart ? `+${orgPart}` : '';
@@ -1934,9 +1935,10 @@ async function fetchUserRepositories(username, token, org = '') {
 			const startDate = thirtyDaysAgo.toISOString().split('T')[0];
 			const endDate = today.toISOString().split('T')[0];
 		}
-		const orgPart = org && org !== 'all' ? `+org:${org}` : '';
-		const issuesUrl = `https://api.github.com/search/issues?q=author:${username}${orgPart}${dateRange}&per_page=100`;
-		const commentsUrl = `https://api.github.com/search/issues?q=commenter:${username}${orgPart}${dateRange.replace('created:', 'updated:')}&per_page=100`;
+		const orgPart = org && org !== 'all' ? `org:${org}` : '';
+		const orgQuery = orgPart ? `+${orgPart}` : '';
+		const issuesUrl = `https://api.github.com/search/issues?q=author:${username}${orgQuery}${dateRange}&per_page=100`;
+		const commentsUrl = `https://api.github.com/search/issues?q=commenter:${username}${orgQuery}${dateRange.replace('created:', 'updated:')}&per_page=100`;
 
 		console.log('Search URLs:', { issuesUrl, commentsUrl });
 
