@@ -186,6 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		const reportSection = document.getElementById('reportSection');
 		const settingsSection = document.getElementById('settingsSection');
 		const popupRoot = document.getElementById('popupRoot');
+		const scrumReport = document.getElementById('scrumReport');
 
 		// Get or create the disabled banner
 		let disabledBanner = document.getElementById('extensionDisabledBanner');
@@ -196,20 +197,22 @@ document.addEventListener('DOMContentLoaded', () => {
 				disabledBanner = document.createElement('div');
 				disabledBanner.id = 'extensionDisabledBanner';
 				disabledBanner.className = 'extension-disabled-banner';
-				disabledBanner.setAttribute('data-i18n-parent', 'true');
-				disabledBanner.innerHTML = `
-					<i class="fa fa-lock"></i>
-					<p data-i18n="extensionDisabledBannerText">Extension disabled - click Enable to activate</p>
-				`;
+
+				// Create icon element
+				const iconElement = document.createElement('i');
+				iconElement.className = 'fa fa-lock';
+
+				// Create text element
+				const textElement = document.createElement('p');
+				const message = chrome?.i18n.getMessage('extensionDisabledBannerText') || 'Extension disabled - click Enable to activate';
+				textElement.textContent = message;
+
+				// Append elements to banner
+				disabledBanner.appendChild(iconElement);
+				disabledBanner.appendChild(textElement);
+
+				// Insert banner at the top
 				popupRoot.insertBefore(disabledBanner, popupRoot.firstChild);
-				// Apply i18n to the banner
-				const bannerText = disabledBanner.querySelector('p');
-				if (bannerText) {
-					const message = chrome?.i18n.getMessage('extensionDisabledBannerText');
-					if (message) {
-						bannerText.textContent = message;
-					}
-				}
 			}
 
 			// Apply disabled-content class to both sections
@@ -233,11 +236,17 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 
 			// Update scrum report message
-			const scrumReport = document.getElementById('scrumReport');
 			if (scrumReport) {
 				scrumReport.contentEditable = false;
-				const message = chrome?.i18n.getMessage('extensionDisabledMessage') || 'Extension is disabled. Enable it using the toggle above.';
-				scrumReport.innerHTML = `<p style="text-align: center; color: #999; padding: 20px;">${message}</p>`;
+				// Save original content before clearing
+				scrumReport.setAttribute('data-original-content', scrumReport.textContent);
+				// Clear and set message
+				scrumReport.textContent = '';
+				const messageText = chrome?.i18n.getMessage('extensionDisabledMessage') || 'Extension is disabled. Enable it using the toggle above.';
+				scrumReport.style.textAlign = 'center';
+				scrumReport.style.color = '#999';
+				scrumReport.style.padding = '20px';
+				scrumReport.textContent = messageText;
 			}
 		} else {
 			// Remove disabled banner
@@ -250,12 +259,15 @@ document.addEventListener('DOMContentLoaded', () => {
 			if (settingsSection) settingsSection.classList.remove('disabled-content');
 
 			// Enable scrum report for editing
-			const scrumReport = document.getElementById('scrumReport');
 			if (scrumReport) {
 				scrumReport.contentEditable = true;
-				const disabledMessage = `<p style="text-align: center; color: #999; padding: 20px;">${chrome?.i18n.getMessage('extensionDisabledMessage')}</p>`;
-				if (scrumReport.innerHTML === disabledMessage || scrumReport.innerHTML.includes('Extension is disabled')) {
-					scrumReport.innerHTML = '';
+				// Check if message is the disabled message
+				if (scrumReport.textContent.includes('Extension is disabled') || 
+					scrumReport.textContent.includes('Enable it using the toggle')) {
+					scrumReport.textContent = '';
+					scrumReport.style.textAlign = '';
+					scrumReport.style.color = '';
+					scrumReport.style.padding = '';
 				}
 			}
 		}
