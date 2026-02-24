@@ -269,6 +269,10 @@
     "message": "Extension is disabled. Enable it from the options to generate scrum reports.",
     "description": "Message shown when the extension is disabled."
   },
+  "extensionDisabledBannerText": {
+    "message": "Extension disabled - click Enable to activate",
+    "description": "Banner text shown at the top when the extension is disabled."
+  },
   "notePoint1": {
     "message": "Pull requests are fetched based on the most recent review activity by any contributor, not just your own. Please review and adjust the generated SCRUM report to ensure it accurately reflects your work before sharing.",
     "description": "First point in the notes section."

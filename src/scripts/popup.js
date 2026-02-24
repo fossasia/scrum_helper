@@ -181,147 +181,80 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	function updateContentState(enableToggle) {
 		console.log('[DEBUG] updateContentState called with:', enableToggle);
-		const elementsToToggle = [
-			'startingDate',
-			'endingDate',
-			'generateReport',
-			'copyReport',
-			'refreshCache',
-			'showOpenLabel',
-			'showCommits',
-			'onlyIssues',
-			'onlyPRs',
-			'onlyRevPRs',
-			'scrumReport',
-			'githubUsername',
-			'githubToken',
-			'projectName',
-			'platformUsername',
-			'orgInput',
-			'cacheInput',
-			'settingsToggle',
-			'toggleTokenVisibility',
-			'useRepoFilter',
-			'repoSearch',
-			'platformDropdownBtn',
-		];
 
-		const radios = document.querySelectorAll('input[name="timeframe"]');
-		const customDateContainer = document.getElementById('customDateContainer');
+		// Get the report and settings sections
+		const reportSection = document.getElementById('reportSection');
+		const settingsSection = document.getElementById('settingsSection');
+		const popupRoot = document.getElementById('popupRoot');
 
-		elementsToToggle.forEach((id) => {
-			const element = document.getElementById(id);
-			if (element) {
-				element.disabled = !enableToggle;
-				if (!enableToggle) {
-					element.style.opacity = '0.5';
-					element.style.pointerEvents = 'none';
-				} else {
-					element.style.opacity = '1';
-					element.style.pointerEvents = 'auto';
+		// Get or create the disabled banner
+		let disabledBanner = document.getElementById('extensionDisabledBanner');
+
+		if (!enableToggle) {
+			// Create disabled banner if it doesn't exist
+			if (!disabledBanner) {
+				disabledBanner = document.createElement('div');
+				disabledBanner.id = 'extensionDisabledBanner';
+				disabledBanner.className = 'extension-disabled-banner';
+				disabledBanner.setAttribute('data-i18n-parent', 'true');
+				disabledBanner.innerHTML = `
+					<i class="fa fa-lock"></i>
+					<p data-i18n="extensionDisabledBannerText">Extension disabled - click Enable to activate</p>
+				`;
+				popupRoot.insertBefore(disabledBanner, popupRoot.firstChild);
+				// Apply i18n to the banner
+				const bannerText = disabledBanner.querySelector('p');
+				if (bannerText) {
+					const message = chrome?.i18n.getMessage('extensionDisabledBannerText');
+					if (message) {
+						bannerText.textContent = message;
+					}
 				}
 			}
-		});
 
-		radios.forEach((radio) => {
-			radio.disabled = !enableToggle;
-			const label = document.querySelector(`label[for="${radio.id}"]`);
-			if (label) {
-				if (!enableToggle) {
-					label.style.opacity = '0.5';
-					label.style.pointerEvents = 'none';
-				} else {
-					label.style.opacity = '1';
-					label.style.pointerEvents = 'auto';
-				}
-			}
-		});
+			// Apply disabled-content class to both sections
+			if (reportSection) reportSection.classList.add('disabled-content');
+			if (settingsSection) settingsSection.classList.add('disabled-content');
 
-		if (customDateContainer) {
-			if (!enableToggle) {
-				customDateContainer.style.opacity = '0.5';
-				customDateContainer.style.pointerEvents = 'none';
-			} else {
-				customDateContainer.style.opacity = '1';
-				customDateContainer.style.pointerEvents = 'auto';
-			}
-		}
-
-		// Handle platform dropdown list items
-		const platformDropdownList = document.getElementById('platformDropdownList');
-		const customPlatformDropdown = document.getElementById('customPlatformDropdown');
-		if (platformDropdownList && customPlatformDropdown) {
-			if (!enableToggle) {
-				customPlatformDropdown.style.opacity = '0.5';
-				customPlatformDropdown.style.pointerEvents = 'none';
-				// Close dropdown if open
+			// Close any open dropdowns
+			const customPlatformDropdown = document.getElementById('customPlatformDropdown');
+			if (customPlatformDropdown) {
 				customPlatformDropdown.classList.remove('open');
-				platformDropdownList.classList.add('hidden');
-			} else {
-				customPlatformDropdown.style.opacity = '1';
-				customPlatformDropdown.style.pointerEvents = 'auto';
+				const platformDropdownList = document.getElementById('platformDropdownList');
+				if (platformDropdownList) {
+					platformDropdownList.classList.add('hidden');
+				}
 			}
-		}
 
-		// Handle repository filter container and selected repos
-		const repoFilterContainer = document.getElementById('repoFilterContainer');
-		const selectedRepos = document.getElementById('selectedRepos');
-		if (repoFilterContainer) {
-			if (!enableToggle) {
-				repoFilterContainer.style.opacity = '0.5';
-				repoFilterContainer.style.pointerEvents = 'none';
-			} else {
-				repoFilterContainer.style.opacity = '1';
-				repoFilterContainer.style.pointerEvents = 'auto';
+			// Hide repo dropdown
+			const repoDropdown = document.getElementById('repoDropdown');
+			if (repoDropdown) {
+				repoDropdown.classList.add('hidden');
 			}
-		}
-		if (selectedRepos) {
-			if (!enableToggle) {
-				selectedRepos.style.opacity = '0.5';
-				selectedRepos.style.pointerEvents = 'none';
-				// Disable all remove buttons inside
-				const removeButtons = selectedRepos.querySelectorAll('.remove-repo-btn');
-				removeButtons.forEach((btn) => {
-					btn.disabled = true;
-					btn.style.pointerEvents = 'none';
-				});
-			} else {
-				selectedRepos.style.opacity = '1';
-				selectedRepos.style.pointerEvents = 'auto';
-				const removeButtons = selectedRepos.querySelectorAll('.remove-repo-btn');
-				removeButtons.forEach((btn) => {
-					btn.disabled = false;
-					btn.style.pointerEvents = 'auto';
-				});
+
+			// Update scrum report message
+			const scrumReport = document.getElementById('scrumReport');
+			if (scrumReport) {
+				scrumReport.contentEditable = false;
+				const message = chrome?.i18n.getMessage('extensionDisabledMessage') || 'Extension is disabled. Enable it using the toggle above.';
+				scrumReport.innerHTML = `<p style="text-align: center; color: #999; padding: 20px;">${message}</p>`;
 			}
-		}
-
-		// Handle repository dropdown
-		const repoDropdown = document.getElementById('repoDropdown');
-		if (repoDropdown && !enableToggle) {
-			repoDropdown.classList.add('hidden');
-		}
-
-		// Handle useRepoFilter label
-		const useRepoFilterLabel = document.querySelector('label[for="useRepoFilter"]');
-		if (useRepoFilterLabel) {
-			if (!enableToggle) {
-				useRepoFilterLabel.style.opacity = '0.5';
-				useRepoFilterLabel.style.pointerEvents = 'none';
-			} else {
-				useRepoFilterLabel.style.opacity = '1';
-				useRepoFilterLabel.style.pointerEvents = 'auto';
+		} else {
+			// Remove disabled banner
+			if (disabledBanner) {
+				disabledBanner.remove();
 			}
-		}
 
-		const scrumReport = document.getElementById('scrumReport');
-		if (scrumReport) {
-			scrumReport.contentEditable = enableToggle;
-			if (!enableToggle) {
-				scrumReport.innerHTML = `<p style="text-align: center; color: #999; padding: 20px;">${chrome?.i18n.getMessage('extensionDisabledMessage')}</p>`;
-			} else {
+			// Remove disabled-content class from both sections
+			if (reportSection) reportSection.classList.remove('disabled-content');
+			if (settingsSection) settingsSection.classList.remove('disabled-content');
+
+			// Enable scrum report for editing
+			const scrumReport = document.getElementById('scrumReport');
+			if (scrumReport) {
+				scrumReport.contentEditable = true;
 				const disabledMessage = `<p style="text-align: center; color: #999; padding: 20px;">${chrome?.i18n.getMessage('extensionDisabledMessage')}</p>`;
-				if (scrumReport.innerHTML === disabledMessage) {
+				if (scrumReport.innerHTML === disabledMessage || scrumReport.innerHTML.includes('Extension is disabled')) {
 					scrumReport.innerHTML = '';
 				}
 			}

@@ -99,7 +99,6 @@
   "onlyRevPRsTooltip": {
     "message": "Wenn diese Option aktiviert ist, enthält der Bericht nur PRs, die von Ihnen überprüft wurden."
   },
-
   "cacheTTLLabel": {
     "message": "Cache-TTL eingeben"
   },
@@ -204,6 +203,10 @@
   },
   "extensionDisabledMessage": {
     "message": "Erweiterung ist deaktiviert. Aktivieren Sie sie in den Einstellungen, um Scrum-Berichte zu erstellen."
+  },
+  "extensionDisabledBannerText": {
+    "message": "Extension disabled - click Enable to activate",
+    "description": "Banner text shown at the top when the extension is disabled."
   },
   "notePoint1": {
     "message": "Pull-Requests werden basierend auf der letzten Review-Aktivität eines beliebigen Beitragenden abgerufen, nicht nur Ihrer eigenen. Bitte überprüfen und passen Sie den generierten SCRUM-Bericht an, um sicherzustellen, dass er Ihre Arbeit korrekt widerspiegelt, bevor Sie ihn teilen."

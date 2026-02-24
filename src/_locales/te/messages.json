@@ -101,7 +101,6 @@
   "onlyRevPRsTooltip": {
     "message": "ఎంచుకుంటే, నివేదికలో మీరు సమీక్షించిన PRలు మాత్రమే చూపబడతాయి."
   },
-
   "cacheTTLLabel": {
     "message": "క్యాష్ TTL ను నమోదు చేయండి"
   },
@@ -191,6 +190,10 @@
   },
   "extensionDisabledMessage": {
     "message": "ఎక్స్‌టెన్షన్ నిలిపివేయబడింది. స్క్రమ్ నివేదికలు రూపొందించేందుకు సెట్టింగ్స్‌లో ఎనేబుల్ చేయండి."
+  },
+  "extensionDisabledBannerText": {
+    "message": "Extension disabled - click Enable to activate",
+    "description": "Banner text shown at the top when the extension is disabled."
   },
   "noteSeeIssue": {
     "message": "ఈ ఇష్యూ చూడండి"
