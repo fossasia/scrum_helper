@@ -1,4 +1,4 @@
-﻿{
+{
   "appName": {
     "message": "Scrum Helper"
   },
@@ -129,7 +129,7 @@
     "message": "repositoriesများအလိုက် စစ်ထုတ်ပါ။"
   },
   "enableFilteringLabel": {
-    "message": "filterကို enableလုပ်ပါ။။"
+    "message": "filterကို enableလုပ်ပါ။"
   },
   "tokenRequiredWarning": {
     "message": "Filteringအတွက် GitHub တိုကင်တစ်ခု လိုအပ်သည်။ settingတွင် တစ်ခုထည့်ပါ။"
