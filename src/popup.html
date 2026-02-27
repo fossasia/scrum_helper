@@ -201,10 +201,24 @@
 				<!-- Advanced Filters Wrapper -->
 				<div class="advanced-filters-container">
 
-					<button id="toggleAdvancedFilters" class="advanced-filters-btn">
-					Advanced Filters ▼
-					</button>
+					<p class="font-medium text-sm"style="margin-bottom: 0.3rem;">
+    					Advanced Filters
+					</p>
 
+					<div class="relative mb-4" >
+						<button type="button"
+							id="toggleAdvancedFilters"
+							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 pr-8 flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-blue-500">
+
+							<span class="flex items-center">
+								Advanced Filters
+							</span>
+
+							<i id="advancedFiltersArrow"
+							class="fa fa-chevron-down text-gray-500 transition-transform duration-200">
+							</i>
+						</button>
+					</div>
 					<div id="advancedFiltersContent" class="advanced-filters-content hidden">
 
 					<div style="margin-bottom: 1rem;">

@@ -1335,22 +1335,16 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 	}
 	    // Advanced Filters Toggle
-    	const toggleBtn = document.getElementById("toggleAdvancedFilters");
-    	const content = document.getElementById("advancedFiltersContent");
+		const toggleBtn = document.getElementById("toggleAdvancedFilters");
+		const content = document.getElementById("advancedFiltersContent");
+		const arrow = document.getElementById("advancedFiltersArrow");
 
-    	if (toggleBtn && content) {
-        	toggleBtn.addEventListener("click", function () {
-
-            	content.classList.toggle("hidden");
-
-            	if (content.classList.contains("hidden")) {
-                toggleBtn.textContent = "Advanced Filters ▼";
-            	} else {
-                toggleBtn.textContent = "Advanced Filters ▲";
-            }
-
-        });
-    }
+		if (toggleBtn && content && arrow) {
+    		toggleBtn.addEventListener("click", function () {
+        	content.classList.toggle("hidden");
+        	arrow.classList.toggle("rotate-180");
+    		});
+		}
 
 });
 
