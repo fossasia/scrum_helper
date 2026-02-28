@@ -179,6 +179,40 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	}
 
+	function generateReport() {
+    chrome.storage.local.get(['github_token'], function(result) {
+        const token = result.github_token;
+
+        if (!token) {
+            const container = document.getElementById('report-container');
+            container.innerHTML = `
+                <div class="token-warning" style="padding: 10px; border: 1px solid #f39c12; background-color: #fff3e0; border-radius: 5px;">
+                    <p>
+                        A GitHub Personal Access Token is required to fetch data.
+                        This allows authenticated requests and access to private repos.
+                    </p>
+                    <button id="add-token-btn" style="padding: 5px 10px; background-color: #f39c12; color: white; border: none; border-radius: 3px; cursor: pointer;">
+                        Add GitHub Token
+                    </button>
+                </div>
+            `;
+            document.getElementById('add-token-btn').addEventListener('click', () => {
+                window.location.href = 'settings.html'; // go to token input page
+            });
+            return; // stop further execution
+        }
+
+        // If token exists, run existing report code
+        fetchGitHubData(token)
+            .then(renderReport)
+            .catch(err => {
+                const container = document.getElementById('report-container');
+                container.innerHTML = `<p style="color:red;">Error fetching data: ${err.message}</p>`;
+            });
+    });
+	}
+	document.getElementById('generate-report-btn').addEventListener('click', generateReport);
+
 	function updateContentState(enableToggle) {
 		console.log('[DEBUG] updateContentState called with:', enableToggle);
 		const elementsToToggle = [
