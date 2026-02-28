@@ -52,7 +52,29 @@ function applyI18n() {
 document.addEventListener('DOMContentLoaded', () => {
 	// Apply translations as soon as the DOM is ready
 	applyI18n();
+	const usernameInput = document.getElementById("platformUsername");
+    const fromDateInput = document.getElementById("startingDate");
+    const toDateInput = document.getElementById("endingDate");
+    const generateBtn = document.getElementById("generateReport");
 
+    function validateForm() {
+        const username = usernameInput.value.trim();
+        const fromDate = fromDateInput.value;
+        const toDate = toDateInput.value;
+
+        const isValid =
+            username !== "" &&
+            fromDate !== "" &&
+            toDate !== "" &&
+            new Date(fromDate) <= new Date(toDate);
+
+        generateBtn.disabled = !isValid;
+    }
+
+    // Attach listeners
+    usernameInput.addEventListener("input", validateForm);
+    fromDateInput.addEventListener("change", validateForm);
+    toDateInput.addEventListener("change", validateForm);
 	// Dark mode setup
 	const darkModeToggle = document.querySelector('img[alt="Night Mode"]');
 	const settingsIcon = document.getElementById('settingsIcon');
