@@ -418,7 +418,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		// Button setup
 		const generateBtn = document.getElementById('generateReport');
 		const copyBtn = document.getElementById('copyReport');
-		const insertBtn = document.getElementById('insertToEmail');
+		const insertBtn = document.getElementById('insertInEmail');
 
 		if (insertBtn) {
 			insertBtn.addEventListener('click', () => {

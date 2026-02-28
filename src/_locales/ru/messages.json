@@ -56,7 +56,7 @@
     "copyReportButton": {
         "message": "Копировать"
     },
-    "insertToEmailButton": {
+    "insertInEmailButton": {
         "message": "Вставить в письмо"
     },
     "settingsOrgNameLabel": {

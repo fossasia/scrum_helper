@@ -56,7 +56,7 @@
     "copyReportButton": {
         "message": "コピー"
     },
-    "insertToEmailButton": {
+    "insertInEmailButton": {
         "message": "メールに挿入"
     },
     "settingsOrgNameLabel": {

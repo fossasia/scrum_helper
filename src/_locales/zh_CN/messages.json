@@ -57,7 +57,7 @@
     "copyReportButton": {
         "message": "复制"
     },
-    "insertToEmailButton": {
+    "insertInEmailButton": {
         "message": "插入到邮件"
     },
     "settingsOrgNameLabel": {
