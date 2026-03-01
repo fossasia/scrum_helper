@@ -405,7 +405,7 @@ function allIncluded(outputTarget = 'email') {
 					logError('Storage save failed: ', chrome.runtime.lastError);
 					resolve(false);
 				} else {
-							log('Cache saved successfully');
+					log('Cache saved successfully');
 					githubCache.data = data;
 					githubCache.subject = subject;
 					resolve(true);
@@ -888,10 +888,10 @@ function allIncluded(outputTarget = 'email') {
 			});
 			githubCache.repoQueue = [];
 
-					log(`Successfully cached ${repos.length} repositories`);
+			log(`Successfully cached ${repos.length} repositories`);
 			return repos;
 		} catch (err) {
-					logError('Failed to fetch repos:', err);
+			logError('Failed to fetch repos:', err);
 			githubCache.repoQueue.forEach(({ reject }) => {
 				reject(err);
 			});
