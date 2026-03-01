@@ -13,9 +13,7 @@
 		body {
 
 			margin: 0;
-			overflow: hidden;
-			background: #eae4e4;
-		}
+			background: #eae4e4;			overflow: hidden;		}
 
 		body {
 			display: flex;
@@ -33,7 +31,7 @@
 
 		html.mode-popup,
 		body.mode-popup {
-			width: 375px !important;
+			width: 360px !important;
 			height: 640px !important;
 			min-width: 360px;
 			max-width: 420px;
@@ -46,8 +44,9 @@
 			height: 100%;
 			overflow-y: auto;
 			overflow-x: hidden;
+			scrollbar-width: thin;
+            -ms-overflow-style: auto;
 		}
-
 		#platformSelect option {
 			font-family: 'FontAwesome', 'Arial', sans-serif;
 		}
@@ -114,16 +113,7 @@
 				</p>
 			</div>
 
-			<div class="center mt-2 flex justify-between">
-				<label class="flex items-center justify-center gap-2 font-semibold">
-					<span data-i18n="disableLabel">Disable</span>
-					<input type="checkbox" value="" id="enable" class="sr-only peer">
-					<div
-						class="relative w-11 h-6 bg-gray-200 rounded-full peer peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600">
-					</div>
-					<span class=""></span>
-					<span data-i18n="enableLabel">Enable</span>
-				</label>
+			<div class="center mt-2 flex justify-end">
 				<div class="flex">
 					<button id="homeButton" title="Home" aria-label="Home"
 						class="ml-1 p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition">
@@ -296,16 +286,25 @@
 								class="min-h-[200px] overflow-y-auto whitespace-pre-wrap border-2 border-gray-200 bg-gray-100 rounded-xl text-gray-800 p-2 my-2">
 							</div>
 						</div>
-						<div class="flex justify-between gap-2">
+
+						<div class="scrum-actions my-2">
 							<button id="generateReport"
-								class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
-								<i class="fa fa-refresh"></i> <span data-i18n="generateReportButton">Generate Report</span>
+							class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-3 rounded">
+							<i class="fa fa-refresh"></i> <span data-i18n="generateReportButton">Generate</span>
+
+							<button id="insertInEmail"
+								class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
+								<i class="fa fa-envelope"></i> <span data-i18n="insertInEmailButton">Insert in
+									Email</span>
 							</button>
+
 							<button id="copyReport"
-								class="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
-								<i class="fa fa-copy"></i> <span data-i18n="copyReportButton">Copy Report</span>
+								class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-2 rounded">
+								<i class="fa fa-copy"></i> <span data-i18n="copyReportButton">Copy</span>
 							</button>
 						</div>
+
+
 					</div>
 					
 					<div class="border-gray-100 border-2 bg-white rounded-3xl px-4 py-2 mx-2 my-2">
@@ -554,19 +553,14 @@
 							</div>
 						</div>
 						<select id="displayModeSelect"
-							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 mb-2">
+							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 mb-2"
+							title="Choose display mode: Side Panel or Popup">
 							<option value="sidePanel">Side Panel</option>
 							<option value="popup">Popup</option>
 						</select>
 						<div id="displayModeNotice" class="hidden text-xs text-blue-700 bg-blue-50 border border-blue-200 rounded-xl p-2 mt-1 mb-2 flex items-center gap-2">
 							<i class="fa fa-info-circle"></i>
 							<span id="displayModeNoticeText"></span>
-ts icon.
-										<b>Side Panel</b> keeps it docked alongside your page.
-										<b>Popup</b> opens a floating window.
-									</span>
-								</span>
-							</div>
 						</div>
 					</div>
 
@@ -625,7 +619,7 @@ ts icon.
 				<div class="mt-3 pt-3 border-t border-gray-200 flex justify-center items-center py-2">
 					<p class="text-xs text-gray-600 text-center">
 						Made with ❤️ by <strong>FOSSASIA</strong> •
-						<span class="text-gray-500 dark:text-gray-300">v2.0.2</span>
+						<span class="text-gray-500 dark:text-gray-300">v2.1.4</span>
 					</p>
 				</div>
 			</div>
