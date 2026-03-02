@@ -2,6 +2,20 @@
 
 ## What's Changed
 
+* Resolve snap bug (#418) @vedansh-5
+* Fix typos in Scrum Helper user-facing strings (#410) @puneetnith28
+
+## Maintenance
+
+* chore(deps)(deps): bump @tailwindcss/cli from 4.1.18 to 4.2.1 (#395) @[dependabot[bot]](https://github.com/apps/dependabot)
+* version bump to 2.1.4 (#408) @vedansh-5
+
+---
+
+## v2.1.5 - 2026-03-02
+
+## What's Changed
+
 * Fix typos in Scrum Helper user-facing strings (#410) @puneetnith28
 
 ## Maintenance
