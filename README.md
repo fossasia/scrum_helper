@@ -92,7 +92,7 @@
     *   *Requires a GitHub personal access token (classic).*
 
 4.  **Flexible Display Modes**
-    *   Easily toggle the extension display mode between a traditional **Popup** or a persistent **Side Panel** in the settings.
+    *   Easily toggle the extension display mode between a traditional **Popup** and a persistent **Side Panel** in the settings.
     *   *Note: The older standard extension on/off toggle has been removed in favor of this UI flexibility.*
 
 5.  **Smart Caching & Auto-Generation**
