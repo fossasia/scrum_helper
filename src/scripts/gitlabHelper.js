@@ -1,17 +1,4 @@
 // GitLab API Helper for Scrum Helper Extension
-const DEBUG = false;
-
-function log(...args) {
-	if (DEBUG) {
-		// console.log(`[GITLAB-HELPER]:`, ...args);
-	}
-}
-
-function logError(...args) {
-	if (DEBUG) {
-		console.error('[GITLAB-HELPER]:', ...args);
-	}
-}
 
 class GitLabHelper {
 	constructor() {
