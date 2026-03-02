@@ -223,5 +223,9 @@
   },
   "onlyRevPRsTooltip": {
     "message": "၎င်းကိုစစ်ဆေးပါက၊ အစီရင်ခံစာတွင် သင်သုံးသပ်ထားသော PR များသာ ပါဝင်မည်ဖြစ်သည်။"
+  },
+  "clearAllReposButton": {
+    "message": "အားလုံးဖျက်မည်",
+    "description": "Text for the button to clear all selected repositories."
   }
 }

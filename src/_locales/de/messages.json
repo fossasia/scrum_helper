@@ -99,7 +99,6 @@
   "onlyRevPRsTooltip": {
     "message": "Wenn diese Option aktiviert ist, enthält der Bericht nur PRs, die von Ihnen überprüft wurden."
   },
-
   "cacheTTLLabel": {
     "message": "Cache-TTL eingeben"
   },
@@ -216,5 +215,9 @@
   },
   "usernameLabel": {
     "message": "Ihr Benutzername"
+  },
+  "clearAllReposButton": {
+    "message": "Alle löschen",
+    "description": "Text for the button to clear all selected repositories."
   }
 }

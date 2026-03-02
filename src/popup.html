@@ -424,9 +424,14 @@
 								</div>
 
 								<!-- Status/Info -->
-								<div class="mt-2 text-xs text-gray-600 flex justify-between">
+								<div class="mt-2 text-xs text-gray-600 flex justify-between items-center">
 									<span id="repoCount" data-i18n="repoCountNone">0 repositories selected</span>
-									<span id="repoStatus" class="text-blue-600"></span>
+									<div class="flex items-center gap-2">
+										<button id="clearAllRepos" type="button"
+											class="hidden text-xs text-red-500 hover:text-red-700 font-medium transition-colors duration-150"
+											data-i18n="clearAllReposButton">Clear All</button>
+										<span id="repoStatus" class="text-blue-600"></span>
+									</div>
 								</div>
 							</div>
 						</div>

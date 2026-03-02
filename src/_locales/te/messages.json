@@ -101,7 +101,6 @@
   "onlyRevPRsTooltip": {
     "message": "ఎంచుకుంటే, నివేదికలో మీరు సమీక్షించిన PRలు మాత్రమే చూపబడతాయి."
   },
-
   "cacheTTLLabel": {
     "message": "క్యాష్ TTL ను నమోదు చేయండి"
   },
@@ -194,5 +193,9 @@
   },
   "noteSeeIssue": {
     "message": "ఈ ఇష్యూ చూడండి"
+  },
+  "clearAllReposButton": {
+    "message": "అన్నీ తొలగించు",
+    "description": "Text for the button to clear all selected repositories."
   }
 }

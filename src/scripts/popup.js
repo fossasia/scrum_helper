@@ -772,6 +772,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	const repoStatus = document.getElementById('repoStatus');
 	const useRepoFilter = document.getElementById('useRepoFilter');
 	const repoFilterContainer = document.getElementById('repoFilterContainer');
+	const clearAllReposBtn = document.getElementById('clearAllRepos');
 
 	if (repoSearch && useRepoFilter && repoFilterContainer) {
 		repoSearch.addEventListener('click', () => {
@@ -1267,7 +1268,14 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		}
 
+		function clearAllRepos() {
+			selectedRepos = [];
+			updateRepoDisplay();
+			saveRepoSelection();
+		}
+
 		function updateRepoDisplay() {
+			if (clearAllReposBtn) clearAllReposBtn.classList.toggle('hidden', selectedRepos.length === 0);
 			if (selectedRepos.length === 0) {
 				repoTags.innerHTML = `<span class="text-xs text-gray-500 select-none" id="repoPlaceholder">${chrome?.i18n.getMessage('repoPlaceholder')}</span>`;
 				repoCount.textContent = chrome?.i18n.getMessage('repoCountNone');
@@ -1324,6 +1332,14 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 
 		window.removeRepo = removeRepo;
+		window.clearAllRepos = clearAllRepos;
+
+		if (clearAllReposBtn) {
+			clearAllReposBtn.addEventListener('click', (e) => {
+				e.stopPropagation();
+				clearAllRepos();
+			});
+		}
 
 		chrome?.storage.local.get(['platform', 'githubUsername'], (items) => {
 			const platform = items.platform || 'github';
