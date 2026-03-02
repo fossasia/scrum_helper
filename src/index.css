@@ -798,6 +798,53 @@ hr,
     margin-bottom: 8px;
 }
 
+/* Profile Management Styles */
+#profileManagement {
+    box-shadow: none;
+}
+
+#profileSelect {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1rem;
+    padding-right: 2.5rem;
+    border: 2px solid #e5e7eb;
+}
+
+.dark-mode #profileSelect {
+    background-color:  #404040 !important;
+    border-color: #404040 !important;
+    color: #f3f4f6 !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%239ca3af'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+}
+
+.dark-mode #profileSelect option {
+    background-color:  #404040;
+    color: #f3f4f6;
+}
+
+#addProfile:hover, #deleteProfile:hover {
+    text-decoration: underline;
+}
+
+.dark-mode #addProfile {
+    color: #60a5fa !important;
+}
+
+.dark-mode #deleteProfile {
+    color: #e5e7eb !important;
+}
+
+.dark-mode #addProfile:hover {
+    color: #93c5fd !important;
+}
+
+.dark-mode #deleteProfile:hover {
+    color: #f87171 !important;
+}
+
 #orgValidationMessage.success {
     background-color: #ecfdf5;
     border: 1px solid #a7f3d0;

@@ -98,13 +98,9 @@
     "onlyPRsTooltip": {
         "message": "Jika dicentang, laporan hanya akan menyertakan PR yang dibuat oleh pengguna; PR yang telah ditinjau akan dikecualikan."
     },
-    "onlyRevPRsLabel": {
-        "message": "Hanya sertakan PR yang ditinjau dalam laporan"
-    },
     "onlyRevPRsTooltip": {
         "message": "Jika dicentang, laporan hanya akan menyertakan PR yang ditinjau oleh Anda."
     },
-
     "cacheTTLLabel": {
         "message": "Masukkan TTL cache",
         "description": "Label untuk masukan time-to-live cache."
@@ -222,5 +218,33 @@
     },
     "usernameLabel": {
         "message": "Nama pengguna Anda"
+    },
+    "profileLabel": {
+        "message": "Profil",
+        "description": "Label for the profiles section."
+    },
+    "profileTooltip": {
+        "message": "Kelola pengaturan yang berbeda untuk berbagai proyek atau organisasi.",
+        "description": "Tooltip explaining profiles."
+    },
+    "addProfileButton": {
+        "message": "Tambah",
+        "description": "Link text to add a new profile."
+    },
+    "deleteProfileButton": {
+        "message": "Hapus",
+        "description": "Link text to delete the active profile."
+    },
+    "profileNamePrompt": {
+        "message": "Masukkan nama profil baru Anda:",
+        "description": "Prompt message for the new profile name."
+    },
+    "confirmDeleteProfile": {
+        "message": "Apakah Anda yakin ingin menghapus profil: ",
+        "description": "Confirmation message before deleting a profile."
+    },
+    "cannotDeleteLastProfile": {
+        "message": "Anda tidak dapat menghapus satu-satunya profil Anda.",
+        "description": "Error message when trying to delete the only profile."
     }
 }

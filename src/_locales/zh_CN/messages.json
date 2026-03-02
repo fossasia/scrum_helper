@@ -99,13 +99,9 @@
     "onlyPRsTooltip": {
         "message": "勾选后，报告将只包含用户创建的拉取请求；已审核的PR将被排除。"
     },
-    "onlyRevPRsLabel": {
-        "message": "报告中仅包含已审核的 PR"
-    },
     "onlyRevPRsTooltip": {
         "message": "如果选中，报告将仅包含由您审核的 PR。"
     },
-
     "cacheTTLLabel": {
         "message": "输入缓存 TTL",
         "description": "缓存生存时间输入的标签。"
@@ -223,5 +219,33 @@
     },
     "usernameLabel": {
         "message": "您的用户名"
-    }
+    },
+  "profileLabel": {
+    "message": "配置文件",
+    "description": "Label for the profiles section."
+  },
+  "profileTooltip": {
+    "message": "管理不同项目或组织的设置。",
+    "description": "Tooltip explaining profiles."
+  },
+  "addProfileButton": {
+    "message": "添加",
+    "description": "Link text to add a new profile."
+  },
+  "deleteProfileButton": {
+    "message": "删除",
+    "description": "Link text to delete the active profile."
+  },
+  "profileNamePrompt": {
+    "message": "请输入新配置文件的名称：",
+    "description": "Prompt message for the new profile name."
+  },
+  "confirmDeleteProfile": {
+    "message": "您确定要删除配置文件吗：",
+    "description": "Confirmation message before deleting a profile."
+  },
+  "cannotDeleteLastProfile": {
+    "message": "您不能删除唯一的配置文件。",
+    "description": "Error message when trying to delete the only profile."
+  }
 }

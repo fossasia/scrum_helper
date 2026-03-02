@@ -222,5 +222,33 @@
     },
     "usernameLabel": {
         "message": "Su nombre de usuario"
+    },
+    "profileLabel": {
+        "message": "Perfiles",
+        "description": "Label for the profiles section."
+    },
+    "profileTooltip": {
+        "message": "Gestionar diferentes configuraciones para diversos proyectos u organizaciones.",
+        "description": "Tooltip explaining profiles."
+    },
+    "addProfileButton": {
+        "message": "Añadir",
+        "description": "Link text to add a new profile."
+    },
+    "deleteProfileButton": {
+        "message": "Eliminar",
+        "description": "Link text to delete the active profile."
+    },
+    "profileNamePrompt": {
+        "message": "Introduzca el nombre de su nuevo perfil:",
+        "description": "Prompt message for the new profile name."
+    },
+    "confirmDeleteProfile": {
+        "message": "¿Está seguro de que desea eliminar el perfil: ",
+        "description": "Confirmation message before deleting a profile."
+    },
+    "cannotDeleteLastProfile": {
+        "message": "No puede eliminar su único perfil.",
+        "description": "Error message when trying to delete the only profile."
     }
 }

@@ -92,6 +92,9 @@
     "onlyIssuesTooltip": {
         "message": "チェックした場合、レポートにはユーザーが作成または割り当てられた課題のみが含まれます。"
     },
+    "onlyRevPRsTooltip": {
+    "message": "チェックされている場合、レポートにはあなたがレビューしたPRのみが含まれます。"
+  },
     "onlyPRsLabel": {
         "message": "レポートにPRのみを含める"
     },
@@ -215,5 +218,33 @@
     },
     "usernameLabel": {
         "message": "あなたのユーザー名"
-    }
+    },
+  "profileLabel": {
+    "message": "プロファイル",
+    "description": "Label for the profiles section."
+  },
+  "profileTooltip": {
+    "message": "さまざまなプロジェクトや組織ごとに異なる設定を管理します。",
+    "description": "Tooltip explaining profiles."
+  },
+  "addProfileButton": {
+    "message": "追加",
+    "description": "Link text to add a new profile."
+  },
+  "deleteProfileButton": {
+    "message": "削除",
+    "description": "Link text to delete the active profile."
+  },
+  "profileNamePrompt": {
+    "message": "新しいプロファイルの名前を入力してください：",
+    "description": "Prompt message for the new profile name."
+  },
+  "confirmDeleteProfile": {
+    "message": "本当にこのプロファイルを削除しますか：",
+    "description": "Confirmation message before deleting a profile."
+  },
+  "cannotDeleteLastProfile": {
+    "message": "唯一のプロファイルを削除することはできません。",
+    "description": "Error message when trying to delete the only profile."
+  }
 }

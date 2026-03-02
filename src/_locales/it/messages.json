@@ -93,7 +93,6 @@
     "onlyRevPRsTooltip": {
         "message": "Se selezionato, il report includerà solo le PR revisionate da te."
     },
-
     "cacheTTLLabel": {
         "message": "Inserisci TTL della cache"
     },
@@ -210,5 +209,33 @@
     },
     "usernameLabel": {
         "message": "Il tuo nome utente"
+    },
+    "profileLabel": {
+        "message": "Profili",
+        "description": "Label for the profiles section."
+    },
+    "profileTooltip": {
+        "message": "Gestisci diverse impostazioni per vari progetti o organizzazioni.",
+        "description": "Tooltip explaining profiles."
+    },
+    "addProfileButton": {
+        "message": "Aggiungi",
+        "description": "Link text to add a new profile."
+    },
+    "deleteProfileButton": {
+        "message": "Elimina",
+        "description": "Link text to delete the active profile."
+    },
+    "profileNamePrompt": {
+        "message": "Inserisci il nome del tuo nuovo profilo:",
+        "description": "Prompt message for the new profile name."
+    },
+    "confirmDeleteProfile": {
+        "message": "Sei sicuro di voler eliminare il profilo: ",
+        "description": "Confirmation message before deleting a profile."
+    },
+    "cannotDeleteLastProfile": {
+        "message": "Non puoi eliminare il tuo unico profilo.",
+        "description": "Error message when trying to delete the only profile."
     }
 }

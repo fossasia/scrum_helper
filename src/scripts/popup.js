@@ -6,6 +6,205 @@ function debounce(func, wait) {
 	};
 }
 
+class ProfileManager {
+	constructor() {
+		this.profiles = {};
+		this.activeProfileId = 'default';
+		this.profileSpecificKeys = [
+			'projectName',
+			'orgName',
+			'githubToken',
+			'gitlabToken',
+			'githubUsername',
+			'gitlabUsername',
+			'platform',
+			'useRepoFilter',
+			'selectedRepos',
+			'userReason',
+			'lastScrumReportHtml',
+			'lastScrumReportPlatform',
+			'lastScrumReportCacheKey',
+			'githubCache',
+			'gitlabCache',
+			'repoCache',
+			'startingDate',
+			'endingDate',
+			'yesterdayContribution'
+		];
+	}
+
+	getDefaultSettings() {
+		return {
+			projectName: '',
+			orgName: '',
+			githubUsername: '',
+			gitlabUsername: '',
+			githubToken: '',
+			gitlabToken: '',
+			platform: 'github',
+			useRepoFilter: false,
+			selectedRepos: [],
+			userReason: '',
+			lastScrumReportHtml: '',
+			lastScrumReportPlatform: 'github',
+			lastScrumReportCacheKey: '',
+			githubCache: null,
+			gitlabCache: null,
+			repoCache: null,
+			startingDate: getYesterday(),
+			endingDate: getToday(),
+			yesterdayContribution: true
+		};
+	}
+
+	async init() {
+		const result = await new Promise(resolve => chrome.storage.local.get(['profiles', 'activeProfileId'], resolve));
+		
+		if (!result.profiles) {
+			await this.migrateLegacySettings();
+		} else {
+			this.profiles = result.profiles;
+			this.activeProfileId = result.activeProfileId;
+			
+			// Safety: if activeProfileId is invalid, fallback to first available
+			if (!this.profiles[this.activeProfileId]) {
+				this.activeProfileId = Object.keys(this.profiles)[0] || 'default';
+			}
+		}
+		
+		this.renderProfileSelect();
+		await this.applyActiveProfile();
+	}
+
+	async migrateLegacySettings() {
+		const legacyKeys = [...this.profileSpecificKeys, 'darkMode', 'cacheInput', 'displayMode'];
+		const legacySettings = await new Promise(resolve => chrome.storage.local.get(legacyKeys, resolve));
+		
+		this.profiles = {
+			'default': {
+				id: 'default',
+				name: 'Default',
+				settings: {}
+			}
+		};
+
+		this.profileSpecificKeys.forEach(key => {
+			if (legacySettings[key] !== undefined) {
+				this.profiles.default.settings[key] = legacySettings[key];
+			}
+		});
+
+		this.activeProfileId = 'default';
+		await this.saveToStorage();
+	}
+
+	async saveToStorage() {
+		await new Promise(resolve => chrome.storage.local.set({
+			profiles: this.profiles,
+			activeProfileId: this.activeProfileId
+		}, resolve));
+	}
+
+	renderProfileSelect() {
+		const select = document.getElementById('profileSelect');
+		if (!select) return;
+		
+		select.innerHTML = '';
+		Object.values(this.profiles).forEach(profile => {
+			const option = document.createElement('option');
+			option.value = profile.id;
+			option.textContent = profile.name;
+			option.selected = profile.id === this.activeProfileId;
+			select.appendChild(option);
+		});
+	}
+
+	async switchProfile(profileId) {
+		if (this.profiles[profileId]) {
+			// Save current settings to old profile before switching
+			await this.syncCurrentUIStateToActiveProfile();
+			
+			this.activeProfileId = profileId;
+			await this.saveToStorage();
+			
+			// Reload the popup to apply new profile settings cleanly
+			window.location.reload();
+		}
+	}
+
+	async syncCurrentUIStateToActiveProfile() {
+		const currentSettings = this.profiles[this.activeProfileId].settings;
+		const storage = await new Promise(resolve => chrome.storage.local.get(this.profileSpecificKeys, resolve));
+		
+		this.profileSpecificKeys.forEach(key => {
+			if (storage[key] !== undefined) {
+				currentSettings[key] = storage[key];
+			}
+		});
+		
+		await this.saveToStorage();
+	}
+
+	async applyActiveProfile() {
+		const profile = this.profiles[this.activeProfileId];
+		if (!profile || !profile.settings) {
+			console.error('[ProfileManager] Cannot apply undefined profile:', this.activeProfileId);
+			return;
+		}
+
+		// To prevent data leakage, we ensure every profileSpecificKey has a value
+		// If a key is missing in the profile settings, we use a default empty value
+		const settingsToSet = {};
+		this.profileSpecificKeys.forEach(key => {
+			const value = profile.settings[key];
+			if (value !== undefined) {
+				settingsToSet[key] = value;
+			} else {
+				// Default values to "clear" the root storage for this profile
+				if (key === 'selectedRepos') settingsToSet[key] = [];
+				else if (key === 'useRepoFilter') settingsToSet[key] = false;
+				else if (key === 'platform') settingsToSet[key] = 'github';
+				else if (key === 'githubCache' || key === 'gitlabCache' || key === 'repoCache') settingsToSet[key] = null;
+				else if (key === 'yesterdayContribution') settingsToSet[key] = true;
+				else if (key === 'startingDate') settingsToSet[key] = getYesterday();
+				else if (key === 'endingDate') settingsToSet[key] = getToday();
+				else settingsToSet[key] = '';
+			}
+		});
+
+		await new Promise(resolve => chrome.storage.local.set(settingsToSet, resolve));
+	}
+
+	async addProfile(name) {
+		const id = 'profile_' + Date.now();
+		this.profiles[id] = {
+			id: id,
+			name: name,
+			settings: this.getDefaultSettings()
+		};
+		await this.saveToStorage();
+		this.renderProfileSelect();
+		await this.switchProfile(id);
+	}
+
+	async deleteProfile(id) {
+		if (Object.keys(this.profiles).length <= 1) {
+			alert(chrome.i18n.getMessage('cannotDeleteLastProfile') || 'Cannot delete the last profile.');
+			return;
+		}
+
+		delete this.profiles[id];
+		if (this.activeProfileId === id) {
+			this.activeProfileId = Object.keys(this.profiles)[0];
+		}
+		
+		await this.saveToStorage();
+		window.location.reload();
+	}
+}
+
+const profileManager = new ProfileManager();
+
 function getToday() {
 	const today = new Date();
 	return today.toISOString().split('T')[0];
@@ -49,7 +248,10 @@ function applyI18n() {
 	});
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+	// Initialize Profile Manager
+	await profileManager.init();
+
 	// Apply translations as soon as the DOM is ready
 	applyI18n();
 
@@ -62,6 +264,36 @@ document.addEventListener('DOMContentLoaded', () => {
 	const settingsToggle = document.getElementById('settingsToggle');
 	const reportSection = document.getElementById('reportSection');
 	const settingsSection = document.getElementById('settingsSection');
+
+	// Profile Management Event Listeners
+	const profileSelect = document.getElementById('profileSelect');
+	const addProfileBtn = document.getElementById('addProfile');
+	const deleteProfileBtn = document.getElementById('deleteProfile');
+
+	if (profileSelect) {
+		profileSelect.addEventListener('change', (e) => {
+			profileManager.switchProfile(e.target.value);
+		});
+	}
+
+	if (addProfileBtn) {
+		addProfileBtn.addEventListener('click', () => {
+			const name = prompt(chrome.i18n.getMessage('profileNamePrompt') || 'Enter profile name:');
+			if (name && name.trim()) {
+				profileManager.addProfile(name.trim());
+			}
+		});
+	}
+
+	if (deleteProfileBtn) {
+		deleteProfileBtn.addEventListener('click', () => {
+			const activeId = profileManager.activeProfileId;
+			const activeName = profileManager.profiles[activeId].name;
+			if (confirm((chrome.i18n.getMessage('confirmDeleteProfile') || 'Are you sure you want to delete profile: ') + activeName + '?')) {
+				profileManager.deleteProfile(activeId);
+			}
+		});
+	}
 
 	let isSettingsVisible = false;
 	const githubTokenInput = document.getElementById('githubToken');
@@ -111,6 +343,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	chrome?.storage.local.get(['darkMode'], (result) => {
 		if (result.darkMode) {
 			body.classList.add('dark-mode');
+			body.classList.add('dark');
 			darkModeToggle.src = 'icons/light-mode.png';
 			if (settingsIcon) {
 				settingsIcon.src = 'icons/settings-night.png';
@@ -149,6 +382,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	darkModeToggle.addEventListener('click', function () {
 		body.classList.toggle('dark-mode');
+		body.classList.toggle('dark');
 		const isDarkMode = body.classList.contains('dark-mode');
 		chrome?.storage.local.set({ darkMode: isDarkMode });
 		this.src = isDarkMode ? 'icons/light-mode.png' : 'icons/night-mode.png';

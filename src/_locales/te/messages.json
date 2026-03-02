@@ -92,25 +92,6 @@
   "onlyIssuesTooltip": {
     "message": "ఎంచుకుంటే, నివేదికలో వాడుకరికి కేటాయించబడిన లేదా సృష్టించబడిన ఇష్యూలు మాత్రమే చూపబడతాయి."
   },
-  "onlyPRsLabel": {
-    "message": "నివేదికలో PRలను మాత్రమే చేర్చు"
-  },
-  "onlyPRsTooltip": {
-    "message": "ఎంచుకుంటే, నివేదికలో మీరు సృష్టించిన PRలు మాత్రమే ఉంటాయి. సమీక్షించిన PRలు తప్పించబడతాయి."
-  },
-  "onlyRevPRsLabel": {
-    "message": "నివేదికలో మీరు సమీక్షించిన PRలను మాత్రమే చేర్చు"
-  },
-  "onlyRevPRsTooltip": {
-    "message": "ఎంచుకుంటే, నివేదికలో మీరు సమీక్షించిన PRలు మాత్రమే చూపబడతాయి."
-  },
-
-  "cacheTTLLabel": {
-    "message": "క్యాష్ TTL ను నమోదు చేయండి"
-  },
-  "cacheTTLUnit": {
-    "message": "(నిమిషాలలో)"
-  },
   "cacheTTLPlaceholder": {
     "message": "క్యాష్ TTL ని నిమిషాలలో రాయండి (డిఫాల్ట్ 10 నిమిషాలు)"
   },
@@ -197,5 +178,33 @@
   },
   "noteSeeIssue": {
     "message": "ఈ ఇష్యూ చూడండి"
+  },
+  "profileLabel": {
+    "message": "ప్రొఫైల్స్",
+    "description": "Label for the profiles section."
+  },
+  "profileTooltip": {
+    "message": "వివిధ ప్రాజెక్ట్‌లు లేదా సంస్థల కోసం విభిన్న సెట్టింగ్‌లను నిర్వహించండి。",
+    "description": "Tooltip explaining profiles."
+  },
+  "addProfileButton": {
+    "message": "జోడించు",
+    "description": "Link text to add a new profile."
+  },
+  "deleteProfileButton": {
+    "message": "తొలగించు",
+    "description": "Link text to delete the active profile."
+  },
+  "profileNamePrompt": {
+    "message": "మీ కొత్త ప్రొఫైల్ పేరును నమోదు చేయండి:",
+    "description": "Prompt message for the new profile name."
+  },
+  "confirmDeleteProfile": {
+    "message": "మీరు నిజంగా ప్రొఫైల్‌ను తొలగించాలనుకుంటున్నారా: ",
+    "description": "Confirmation message before deleting a profile."
+  },
+  "cannotDeleteLastProfile": {
+    "message": "మీరు మీ ఏకైక ప్రొఫైల్‌ను తొలగించలేరు.",
+    "description": "Error message when trying to delete the only profile."
   }
 }

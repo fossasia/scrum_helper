@@ -222,6 +222,34 @@
     "message": "အစီရင်ခံစာတွင် သုံးသပ်ထားသော PR များသာ ပါဝင်ပါသည်။"
   },
   "onlyRevPRsTooltip": {
-    "message": "၎င်းကိုစစ်ဆေးပါက၊ အစီရင်ခံစာတွင် သင်သုံးသပ်ထားသော PR များသာ ပါဝင်မည်ဖြစ်သည်။"
+    "message": "အမှန်ခြစ်ထားလျှင် သင်သုံးသပ်ထားသော PR များကိုသာ အစီရင်ခံစာတွင် ထည့်သွင်းပါမည်။"
+  },
+  "profileLabel": {
+    "message": "ပရိုဖိုင်များ",
+    "description": "Label for the profiles section."
+  },
+  "profileTooltip": {
+    "message": "မတူညီသော ပရောဂျက်များ သို့မဟုတ် အဖွဲ့အစည်းများအတွက် မတူညီသော ဆက်တင်များကို စီမံပါ။",
+    "description": "Tooltip explaining profiles."
+  },
+  "addProfileButton": {
+    "message": "ထည့်ရန်",
+    "description": "Link text to add a new profile."
+  },
+  "deleteProfileButton": {
+    "message": "ဖျက်ရန်",
+    "description": "Link text to delete the active profile."
+  },
+  "profileNamePrompt": {
+    "message": "သင်၏ ပရိုဖိုင်အသစ်အမည်ကို ထည့်ပါ-",
+    "description": "Prompt message for the new profile name."
+  },
+  "confirmDeleteProfile": {
+    "message": "ဤပရိုဖိုင်ကို ဖျက်ရန် သေချာပါသလား- ",
+    "description": "Confirmation message before deleting a profile."
+  },
+  "cannotDeleteLastProfile": {
+    "message": "သင်၏ တစ်ခုတည်းသော ပရိုဖိုင်ကို ဖျက်၍မရပါ။",
+    "description": "Error message when trying to delete the only profile."
   }
 }

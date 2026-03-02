@@ -89,6 +89,9 @@
     "onlyPRsTooltip": {
         "message": "Hvis valgt, vil rapporten kun inkludere PR-er opprettet av brukeren; gjennomgåtte PR-er vil utelates."
     },
+    "onlyRevPRsTooltip": {
+    "message": "Hvis avmerket, vil rapporten bare inkludere PR-er vurdert av deg."
+  },
     "cacheTTLLabel": {
         "message": "Angi cache-TTL"
     },
@@ -205,5 +208,33 @@
     },
     "usernameLabel": {
         "message": "Ditt brukernavn"
-    }
+    },
+  "profileLabel": {
+    "message": "Profiler",
+    "description": "Label for the profiles section."
+  },
+  "profileTooltip": {
+    "message": "Administrer ulike innstillinger for ulike prosjekter eller organisasjoner.",
+    "description": "Tooltip explaining profiles."
+  },
+  "addProfileButton": {
+    "message": "Legg til",
+    "description": "Link text to add a new profile."
+  },
+  "deleteProfileButton": {
+    "message": "Slett",
+    "description": "Link text to delete the active profile."
+  },
+  "profileNamePrompt": {
+    "message": "Skriv inn navnet på din nye profil:",
+    "description": "Prompt message for the new profile name."
+  },
+  "confirmDeleteProfile": {
+    "message": "Er du sikker på at du vil slette profilen: ",
+    "description": "Confirmation message before deleting a profile."
+  },
+  "cannotDeleteLastProfile": {
+    "message": "Du kan ikke slette din eneste profil.",
+    "description": "Error message when trying to delete the only profile."
+  }
 }

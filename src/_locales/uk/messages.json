@@ -86,6 +86,9 @@
     "onlyPRsLabel": {
         "message": "Включати до звіту лише PR"
     },
+    "onlyRevPRsTooltip": {
+        "message": "Якщо позначено, звіт включатиме лише PR, перевірені вами."
+    },
     "onlyPRsTooltip": {
         "message": "Якщо позначено, звіт включатиме лише pull requests, створені користувачем; переглянуті PR будуть виключені."
     },
@@ -205,5 +208,33 @@
     },
     "usernameLabel": {
         "message": "Ваше ім'я користувача"
+    },
+    "profileLabel": {
+        "message": "Профілі",
+        "description": "Label for the profiles section."
+    },
+    "profileTooltip": {
+        "message": "Керуйте різними налаштуваннями для різних проектів або організацій.",
+        "description": "Tooltip explaining profiles."
+    },
+    "addProfileButton": {
+        "message": "Додати",
+        "description": "Link text to add a new profile."
+    },
+    "deleteProfileButton": {
+        "message": "Видалити",
+        "description": "Link text to delete the active profile."
+    },
+    "profileNamePrompt": {
+        "message": "Введіть назву вашого нового профілю:",
+        "description": "Prompt message for the new profile name."
+    },
+    "confirmDeleteProfile": {
+        "message": "Ви впевнені, що хочете видалити профіль: ",
+        "description": "Confirmation message before deleting a profile."
+    },
+    "cannotDeleteLastProfile": {
+        "message": "Ви не можете видалити свій єдиний профіль.",
+        "description": "Error message when trying to delete the only profile."
     }
 }

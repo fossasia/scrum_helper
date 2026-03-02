@@ -98,13 +98,9 @@
     "onlyPRsTooltip": {
         "message": "चेक करने पर रिपोर्ट में केवल उपयोगकर्ता द्वारा बनाई गई PRs शामिल होंगी; समीक्षित PRs बाहर रखी जाएँगी."
     },
-    "onlyRevPRsLabel": {
-        "message": "रिपोर्ट में केवल समीक्षित PRs शामिल करें"
-    },
     "onlyRevPRsTooltip": {
         "message": "यदि चेक किया गया है, तो रिपोर्ट में केवल आपके द्वारा समीक्षित PRs शामिल होंगे।"
     },
-
     "cacheTTLLabel": {
         "message": "कैश टीटीएल दर्ज करें",
         "description": "कैश टाइम-टू-लाइव इनपुट के लिए लेबल।"
@@ -222,5 +218,33 @@
     },
     "usernameLabel": {
         "message": "आपका उपयोगकर्ता नाम"
+    },
+    "profileLabel": {
+        "message": "प्रोफ़ाइल",
+        "description": "Label for the profiles section."
+    },
+    "profileTooltip": {
+        "message": "विभिन्न परियोजनाओं या संगठनों के लिए अलग-अलग सेटिंग्स प्रबंधित करें।",
+        "description": "Tooltip explaining profiles."
+    },
+    "addProfileButton": {
+        "message": "जोड़ें",
+        "description": "Link text to add a new profile."
+    },
+    "deleteProfileButton": {
+        "message": "हटाएं",
+        "description": "Link text to delete the active profile."
+    },
+    "profileNamePrompt": {
+        "message": "अपनी नई प्रोफाइल का नाम दर्ज करें:",
+        "description": "Prompt message for the new profile name."
+    },
+    "confirmDeleteProfile": {
+        "message": "क्या आप वाकई प्रोफाइल हटाना चाहते हैं: ",
+        "description": "Confirmation message before deleting a profile."
+    },
+    "cannotDeleteLastProfile": {
+        "message": "आप अपनी एकमात्र प्रोफाइल नहीं हटा सकते।",
+        "description": "Error message when trying to delete the only profile."
     }
 }

@@ -216,7 +216,34 @@
       "message": "റിപ്പോർട്ടിൽ റിവ്യൂ ചെയ്ത PRകൾ മാത്രം ഉൾപ്പെടുത്തുക"
     },
     "onlyRevPRsTooltip": {
-      "message": "തിരഞ്ഞെടുത്താൽ, നിങ്ങൾ റിവ്യൂ ചെയ്ത PRകൾ മാത്രം റിപ്പോർട്ടിൽ ഉൾപ്പെടും."
-    }
+    "message": "ചെക്ക് ചെയ്താൽ, നിങ്ങൾ റിവ്യൂ ചെയ്ത PR-കൾ മാത്രമേ റിപ്പോർട്ടിൽ ഉൾപ്പെടുത്തൂ."
+  },
+  "profileLabel": {
+    "message": "പ്രൊഫൈലുകൾ",
+    "description": "Label for the profiles section."
+  },
+  "profileTooltip": {
+    "message": "വിവിധ പ്രോജക്റ്റുകൾക്കോ ഓർഗനൈസേഷനുകൾക്കോ വേണ്ടി വ്യത്യസ്ത ക്രമീകരണങ്ങൾ നിയന്ത്രിക്കുക.",
+    "description": "Tooltip explaining profiles."
+  },
+  "addProfileButton": {
+    "message": "ചേർക്കുക",
+    "description": "Link text to add a new profile."
+  },
+  "deleteProfileButton": {
+    "message": "ഇല്ലാതാക്കുക",
+    "description": "Link text to delete the active profile."
+  },
+  "profileNamePrompt": {
+    "message": "നിങ്ങളുടെ പുതിയ പ്രൊഫൈലിന്റെ പേര് നൽകുക:",
+    "description": "Prompt message for the new profile name."
+  },
+  "confirmDeleteProfile": {
+    "message": "ഈ പ്രൊഫൈൽ ഇല്ലാതാക്കണമെന്ന് നിങ്ങൾക്ക് ഉറപ്പാണോ: ",
+    "description": "Confirmation message before deleting a profile."
+  },
+  "cannotDeleteLastProfile": {
+    "message": "നിങ്ങളുടെ ഏക പ്രൊഫൈൽ ഇല്ലാതാക്കാൻ കഴിയില്ല.",
+    "description": "Error message when trying to delete the only profile."
   }
-  
+}
