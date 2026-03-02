@@ -104,6 +104,12 @@
     "onlyPRsTooltip": {
         "message": "Se marcado, o relatório incluirá apenas PRs criadas pelo usuário; as PRs revisadas serão excluídas."
     },
+    "onlyRevPRsLabel": {
+        "message": "Incluir apenas PRs revisadas no relatório"
+    },
+    "onlyRevPRsTooltip": {
+        "message": "Se selecionado, o relatório incluirá apenas PRs revisados por si."
+    },
     "cacheTTLLabel": {
         "message": "Digite o TTL do cache",
         "description": "Rótulo para a entrada de tempo de vida do cache."
@@ -231,5 +237,90 @@
     },
     "onlyRevPRsTooltip": {
         "message": "Se marcado, o relatório incluirá apenas PRs revisadas por você."
+    },    
+    "enableFilteringLabel": {
+        "message": "Enable filtering"
+    },
+    "tokenRequiredWarning": {
+        "message": "A GitHub token is required for repository filtering. Please add one in the settings."
+    },
+    "repoSearchPlaceholder": {
+        "message": "Search for a repository to add..."
+    },
+    "repoPlaceholder": {
+        "message": "No repositories selected (all will be included)"
+    },
+    "repoCountNone": {
+        "message": "0 repositories selected"
+    },
+    "repoCount": {
+        "message": "$1 repositories selected"
+    },
+    "repoLoading": {
+        "message": "Loading repositories..."
+    },
+    "repoLoaded": {
+        "message": "Loaded $1 repositories."
+    },
+    "repoNotFound": {
+        "message": "No repositories found"
+    },
+    "repoRefetching": {
+        "message": "Refetching repositories..."
+    },
+    "repoLoadFailed": {
+        "message": "Failed to load repositories."
+    },
+    "repoTokenPrivate": {
+        "message": "Token is invalid or does not have rights for private repos."
+    },
+    "repoRefetchFailed": {
+        "message": "Failed to refetch repositories."
+    },
+    "orgSetMessage": {
+        "message": "Organization set successfully."
+    },
+    "orgClearedMessage": {
+        "message": "Organization cleared. Click 'Generate' to fetch all activities."
+    },
+    "orgNotFoundMessage": {
+        "message": "Organization not found on GitHub."
+    },
+    "orgValidationErrorMessage": {
+        "message": "Error validating organization."
+    },
+    "refreshingButton": {
+        "message": "Refreshing..."
+    },
+    "cacheClearFailed": {
+        "message": "Cache clear failed."
+    },
+    "profileLabel": {
+        "message": "Perfis",
+        "description": "Label for the profiles section."
+    },
+    "profileTooltip": {
+        "message": "Gerir diferentes configurações para vários projetos ou organizações.",
+        "description": "Tooltip explaining profiles."
+    },
+    "addProfileButton": {
+        "message": "Adicionar",
+        "description": "Link text to add a new profile."
+    },
+    "deleteProfileButton": {
+        "message": "Eliminar",
+        "description": "Link text to delete the active profile."
+    },
+    "profileNamePrompt": {
+        "message": "Introduza o nome do seu novo perfil:",
+        "description": "Prompt message for the new profile name."
+    },
+    "confirmDeleteProfile": {
+        "message": "Tem a certeza que deseja eliminar o perfil: ",
+        "description": "Confirmation message before deleting a profile."
+    },
+    "cannotDeleteLastProfile": {
+        "message": "Não pode eliminar o seu único perfil.",
+        "description": "Error message when trying to delete the only profile."
     }
 }

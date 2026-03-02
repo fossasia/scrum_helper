@@ -73,9 +73,10 @@
 		}
 	</style>
 </head>
-<body class="mode-sidepanel text-gray-800 bg-gray-50 flex flex-col font-sans">
-	<div id="popupRoot" class="pl-1 py-2 rounded-2xl">
-		<div class="bg-white px-4 py-4 mx-2 mb-2 rounded-3xl">
+
+<body>
+	<div id="popupRoot" class="pl-1 py-2 rounded-2xl dark:bg-black">
+		<div class="bg-white dark:bg-gray-900 px-4 py-4 mx-2 mb-2 rounded-3xl">
 			<div class="flex justify-between py-2">
 				<h3 id="scrumHelperHeading" class="text-3xl font-semibold cursor-pointer">Scrum Helper</h3>
 				<img src="icons/night-mode.png" alt="Night Mode" class="w-7 h-7 mx-3 cursor-pointer"
@@ -102,7 +103,7 @@
 		</div>
 
 		<div class="rounded-2xl">
-			<div class=" border-gray-100 border-2 bg-white rounded-3xl px-4 py-4 mx-2 my-2">
+			<div class=" border-gray-100 dark:border-gray-800 border-2 bg-white dark:bg-gray-900 rounded-3xl px-4 py-4 mx-2 my-2">
 
 				<div id="reportSection" class="tab-content">
 					<div>
@@ -299,7 +300,7 @@
 
 
 					</div>
-					<div class="border-gray-100 border-2 bg-white rounded-3xl px-4 py-2 mx-2 my-2">
+					<div class="border-gray-100 dark:border-gray-800 border-2 bg-white dark:bg-gray-900 rounded-3xl px-4 py-2 mx-2 my-2">
 						<div>
 							<h4 class="font-semibold text-xl" data-i18n="noteTitle">Note:</h4>
 							<ul class="text-xs list-disc list-inside">
@@ -313,6 +314,29 @@
 				</div>
 
 				<div id="settingsSection" class="tab-content hidden">
+					<div id="profileManagement" class="mb-4">
+						<div class="flex justify-between items-center mb-1">
+							<div class="flex items-center gap-1">
+								<label class="text-sm font-semibold text-gray-800 dark:text-gray-200" data-i18n="profileLabel">Profiles</label>
+								<span class="tooltip-container">
+									<i class="fa fa-question-circle question-icon text-xs"></i>
+									<span class="tooltip-bubble" data-i18n="profileTooltip">Manage different settings for various projects.</span>
+								</span>
+							</div>
+							<div class="flex gap-6 text-xs">
+								<button id="addProfile" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors flex items-center gap-1 font-medium bg-transparent border-none p-0 cursor-pointer">
+									<i class="fa fa-plus text-[10px]"></i><span data-i18n="addProfileButton">Add</span>
+								</button>
+								<button id="deleteProfile" class="ml-20 text-gray-800 hover:text-red-600 dark:text-gray-200 dark:hover:text-red-400 transition-colors flex items-center gap-1 font-medium bg-transparent border-none p-0 cursor-pointer">
+									<i class="fa fa-trash text-[10px]"></i><span data-i18n="deleteProfileButton">Delete</span>
+								</button>
+							</div>
+						</div>
+						<select id="profileSelect" class="w-full border-2 border-gray-200 dark:border-gray-700 rounded-xl p-2 bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+							<!-- Profiles will be populated by JS -->
+						</select>
+					</div>
+
 					<div class="orgSection">
 						<div>
 							<div class="flex items-center justify-between">
@@ -531,8 +555,8 @@
 				</div>
 			</div>
 
-			<div class="mt-6 border-t border-gray-300">
-				<div class="bg-white rounded-3xl mx-2 mt-4 mb-2 p-4 border border-gray-100 shadow-sm">
+			<div class="mt-6 border-t border-gray-300 dark:border-gray-700">
+				<div class="bg-white dark:bg-gray-900 rounded-3xl mx-2 mt-4 mb-2 p-4 border border-gray-100 dark:border-gray-800 shadow-sm">
 					<div class="flex items-center justify-center space-x-3">
 						<a target="_blank" rel="noopener noreferrer" href="https://github.com/fossasia/scrum_helper"
 							class="bg-blue-50 hover:bg-blue-100 text-blue-600 transition-all duration-200 rounded-lg px-4 py-2 flex items-center space-x-2 gap-2">

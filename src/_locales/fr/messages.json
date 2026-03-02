@@ -231,5 +231,33 @@
     },
     "onlyRevPRsTooltip": {
         "message": "Si coché, le rapport n'inclura que les PRs que vous avez revues."
+    },    
+    "profileLabel": {
+        "message": "Profils",
+        "description": "Label for the profiles section."
+    },
+    "profileTooltip": {
+        "message": "Gérez différents paramètres pour divers projets ou organisations.",
+        "description": "Tooltip explaining profiles."
+    },
+    "addProfileButton": {
+        "message": "Ajouter",
+        "description": "Link text to add a new profile."
+    },
+    "deleteProfileButton": {
+        "message": "Supprimer",
+        "description": "Link text to delete the active profile."
+    },
+    "profileNamePrompt": {
+        "message": "Entrez le nom de votre nouveau profil :",
+        "description": "Prompt message for the new profile name."
+    },
+    "confirmDeleteProfile": {
+        "message": "Êtes-vous sûr de vouloir supprimer le profil : ",
+        "description": "Confirmation message before deleting a profile."
+    },
+    "cannotDeleteLastProfile": {
+        "message": "Vous ne pouvez pas supprimer votre seul profil.",
+        "description": "Error message when trying to delete the only profile."
     }
 }

@@ -230,6 +230,34 @@
         "message": "כלול בדוח רק PR שנבדקו על ידך"
     },
     "onlyRevPRsTooltip": {
-        "message": "אם מסומן, הדוח יכלול רק PR שנבדקו על ידך."
-    }
+    "message": "אם מסומן, הדוח יכלול רק יחסי ציבור שנסקרו על ידך."
+  },
+  "profileLabel": {
+    "message": "פרופילים",
+    "description": "Label for the profiles section."
+  },
+  "profileTooltip": {
+    "message": "נהל הגדרות שונות עבור פרויקטים או ארגונים שונים.",
+    "description": "Tooltip explaining profiles."
+  },
+  "addProfileButton": {
+    "message": "הוסף",
+    "description": "Link text to add a new profile."
+  },
+  "deleteProfileButton": {
+    "message": "מחק",
+    "description": "Link text to delete the active profile."
+  },
+  "profileNamePrompt": {
+    "message": "הזן את שם הפרופיל החדש שלך:",
+    "description": "Prompt message for the new profile name."
+  },
+  "confirmDeleteProfile": {
+    "message": "האם אתה בטוח שברצונך למחוק את הפרופיל: ",
+    "description": "Confirmation message before deleting a profile."
+  },
+  "cannotDeleteLastProfile": {
+    "message": "אינך יכול למחוק את הפרופיל היחיד שלך.",
+    "description": "Error message when trying to delete the only profile."
+  }
 }

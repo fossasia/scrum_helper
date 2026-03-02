@@ -104,6 +104,9 @@
     "onlyPRsTooltip": {
         "message": "Nếu được chọn, báo cáo chỉ bao gồm các pull request do người dùng tạo; các PR đã được xem xét sẽ bị loại trừ."
     },
+    "onlyRevPRsTooltip": {
+        "message": "Nếu được tích, báo cáo sẽ chỉ bao gồm các PR do bạn đánh giá."
+    },
     "cacheTTLLabel": {
         "message": "Nhập TTL bộ nhớ cache",
         "description": "Nhãn cho đầu vào thời gian tồn tại của bộ nhớ cache."
@@ -231,5 +234,33 @@
     },
     "onlyRevPRsTooltip": {
         "message": "Nếu được chọn, báo cáo sẽ chỉ bao gồm các PR bạn đã xem xét."
+    },
+    "profileLabel": {
+        "message": "Hồ sơ",
+        "description": "Label for the profiles section."
+    },
+    "profileTooltip": {
+        "message": "Quản lý các cài đặt khác nhau cho các dự án hoặc tổ chức khác nhau.",
+        "description": "Tooltip explaining profiles."
+    },
+    "addProfileButton": {
+        "message": "Thêm",
+        "description": "Link text to add a new profile."
+    },
+    "deleteProfileButton": {
+        "message": "Xóa",
+        "description": "Link text to delete the active profile."
+    },
+    "profileNamePrompt": {
+        "message": "Nhập tên hồ sơ mới của bạn:",
+        "description": "Prompt message for the new profile name."
+    },
+    "confirmDeleteProfile": {
+        "message": "Bạn có chắc chắn muốn xóa hồ sơ: ",
+        "description": "Confirmation message before deleting a profile."
+    },
+    "cannotDeleteLastProfile": {
+        "message": "Bạn không thể xóa hồ sơ duy nhất của mình.",
+        "description": "Error message when trying to delete the only profile."
     }
 }
