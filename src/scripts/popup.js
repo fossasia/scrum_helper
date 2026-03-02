@@ -1286,8 +1286,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 
 		window.removeRepo = removeRepo;
-		window.clearAllRepos = clearAllRepos;
-
+		
 		if (clearAllReposBtn) {
 			clearAllReposBtn.addEventListener('click', (e) => {
 				e.stopPropagation();
