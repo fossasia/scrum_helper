@@ -21,7 +21,7 @@ function getYesterday() {
 function applyI18n() {
 	document.querySelectorAll('[data-i18n]').forEach((el) => {
 		const key = el.getAttribute('data-i18n');
-		const message = chrome.i18n.getMessage(key);
+		const message = chrome?.i18n.getMessage(key);
 		if (message) {
 			// Use innerHTML to support simple formatting like <b> in tooltips
 			if (el.classList.contains('tooltip-bubble') || el.classList.contains('cache-info')) {
@@ -35,7 +35,7 @@ function applyI18n() {
 
 	document.querySelectorAll('[data-i18n-placeholder]').forEach((el) => {
 		const key = el.getAttribute('data-i18n-placeholder');
-		const message = chrome.i18n.getMessage(key);
+		const message = chrome?.i18n.getMessage(key);
 		if (message) {
 			el.placeholder = message;
 		}
@@ -43,7 +43,7 @@ function applyI18n() {
 
 	document.querySelectorAll('[data-i18n-title]').forEach((el) => {
 		const key = el.getAttribute('data-i18n-title');
-		const message = chrome.i18n.getMessage(key);
+		const message = chrome?.i18n.getMessage(key);
 		if (message) {
 			el.title = message;
 		}
@@ -101,7 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			if (typeof hideDropdown === 'function') {
 				hideDropdown();
 			}
-			chrome.storage.local.set({ useRepoFilter: false });
+			chrome?.storage.local.set({ useRepoFilter: false });
 		}
 		tokenWarning.classList.toggle('hidden', !isFilterEnabled || hasToken);
 		setTimeout(() => {
@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		}, 4000);
 	}
 
-	chrome.storage.local.get(['darkMode'], (result) => {
+	chrome?.storage.local.get(['darkMode'], (result) => {
 		if (result.darkMode) {
 			body.classList.add('dark-mode');
 			darkModeToggle.src = 'icons/light-mode.png';
@@ -151,7 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	darkModeToggle.addEventListener('click', function () {
 		body.classList.toggle('dark-mode');
 		const isDarkMode = body.classList.contains('dark-mode');
-		chrome.storage.local.set({ darkMode: isDarkMode });
+		chrome?.storage.local.set({ darkMode: isDarkMode });
 		this.src = isDarkMode ? 'icons/light-mode.png' : 'icons/night-mode.png';
 		const settingsIcon = document.getElementById('settingsIcon');
 		if (settingsIcon) {
@@ -180,252 +180,13 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	}
 
-	function updateContentState(enableToggle) {
-		console.log('[DEBUG] updateContentState called with:', enableToggle);
-		const elementsToToggle = [
-			'startingDate',
-			'endingDate',
-			'generateReport',
-			'copyReport',
-			'refreshCache',
-			'showOpenLabel',
-			'showCommits',
-			'onlyIssues',
-			'onlyPRs',
-			'onlyRevPRs',
-			'scrumReport',
-			'githubUsername',
-			'githubToken',
-			'projectName',
-			'platformUsername',
-			'orgInput',
-			'cacheInput',
-			'settingsToggle',
-			'toggleTokenVisibility',
-			'useRepoFilter',
-			'repoSearch',
-			'platformDropdownBtn',
-		];
-
-		const radios = document.querySelectorAll('input[name="timeframe"]');
-		const customDateContainer = document.getElementById('customDateContainer');
-
-		elementsToToggle.forEach((id) => {
-			const element = document.getElementById(id);
-			if (element) {
-				element.disabled = !enableToggle;
-				if (!enableToggle) {
-					element.style.opacity = '0.5';
-					element.style.pointerEvents = 'none';
-				} else {
-					element.style.opacity = '1';
-					element.style.pointerEvents = 'auto';
-				}
-			}
-		});
-
-		radios.forEach((radio) => {
-			radio.disabled = !enableToggle;
-			const label = document.querySelector(`label[for="${radio.id}"]`);
-			if (label) {
-				if (!enableToggle) {
-					label.style.opacity = '0.5';
-					label.style.pointerEvents = 'none';
-				} else {
-					label.style.opacity = '1';
-					label.style.pointerEvents = 'auto';
-				}
-			}
-		});
-
-		if (customDateContainer) {
-			if (!enableToggle) {
-				customDateContainer.style.opacity = '0.5';
-				customDateContainer.style.pointerEvents = 'none';
-			} else {
-				customDateContainer.style.opacity = '1';
-				customDateContainer.style.pointerEvents = 'auto';
-			}
-		}
-
-		// Handle platform dropdown list items
-		const platformDropdownList = document.getElementById('platformDropdownList');
-		const customPlatformDropdown = document.getElementById('customPlatformDropdown');
-		if (platformDropdownList && customPlatformDropdown) {
-			if (!enableToggle) {
-				customPlatformDropdown.style.opacity = '0.5';
-				customPlatformDropdown.style.pointerEvents = 'none';
-				// Close dropdown if open
-				customPlatformDropdown.classList.remove('open');
-				platformDropdownList.classList.add('hidden');
-			} else {
-				customPlatformDropdown.style.opacity = '1';
-				customPlatformDropdown.style.pointerEvents = 'auto';
-			}
-		}
-
-		// Handle repository filter container and selected repos
-		const repoFilterContainer = document.getElementById('repoFilterContainer');
-		const selectedRepos = document.getElementById('selectedRepos');
-		if (repoFilterContainer) {
-			if (!enableToggle) {
-				repoFilterContainer.style.opacity = '0.5';
-				repoFilterContainer.style.pointerEvents = 'none';
-			} else {
-				repoFilterContainer.style.opacity = '1';
-				repoFilterContainer.style.pointerEvents = 'auto';
-			}
-		}
-		if (selectedRepos) {
-			if (!enableToggle) {
-				selectedRepos.style.opacity = '0.5';
-				selectedRepos.style.pointerEvents = 'none';
-				// Disable all remove buttons inside
-				const removeButtons = selectedRepos.querySelectorAll('.remove-repo-btn');
-				removeButtons.forEach((btn) => {
-					btn.disabled = true;
-					btn.style.pointerEvents = 'none';
-				});
-			} else {
-				selectedRepos.style.opacity = '1';
-				selectedRepos.style.pointerEvents = 'auto';
-				const removeButtons = selectedRepos.querySelectorAll('.remove-repo-btn');
-				removeButtons.forEach((btn) => {
-					btn.disabled = false;
-					btn.style.pointerEvents = 'auto';
-				});
-			}
-		}
-
-		// Handle repository dropdown
-		const repoDropdown = document.getElementById('repoDropdown');
-		if (repoDropdown && !enableToggle) {
-			repoDropdown.classList.add('hidden');
-		}
-
-		// Handle useRepoFilter label
-		const useRepoFilterLabel = document.querySelector('label[for="useRepoFilter"]');
-		if (useRepoFilterLabel) {
-			if (!enableToggle) {
-				useRepoFilterLabel.style.opacity = '0.5';
-				useRepoFilterLabel.style.pointerEvents = 'none';
-			} else {
-				useRepoFilterLabel.style.opacity = '1';
-				useRepoFilterLabel.style.pointerEvents = 'auto';
-			}
-		}
-
-		const scrumReport = document.getElementById('scrumReport');
-		if (scrumReport) {
-			scrumReport.contentEditable = enableToggle;
-			if (!enableToggle) {
-
-				// fix 1
-				scrumReport.innerHTML = '';
-
-				const p = document.createElement('p');
-				p.style.textAlign = 'center';
-				p.style.color = '#999';
-				p.style.padding = '20px';
-				p.textContent = chrome.i18n.getMessage('extensionDisabledMessage');
-
-				scrumReport.appendChild(p);
-
-			} else {
-				const disabledMessage = `<p style="text-align: center; color: #999; padding: 20px;">${chrome.i18n.getMessage('extensionDisabledMessage')}</p>`;
-				if (scrumReport.innerHTML === disabledMessage) {
-					scrumReport.innerHTML = '';
-				}
-			}
-		}
-	}
-
-	chrome.storage.local.get(['enableToggle'], (items) => {
-		console.log('[DEBUG] Storage items received:', items);
-		const enableToggle = items.enableToggle !== false;
-		console.log('[DEBUG] enableToggle calculated:', enableToggle);
-
-		// If enableToggle is undefined (first install), set it to true by default
-		if (typeof items.enableToggle === 'undefined') {
-			console.log('[DEBUG] Setting default enableToggle to true');
-			chrome.storage.local.set({ enableToggle: true });
-		}
-
-		console.log('[DEBUG] Calling updateContentState with:', enableToggle);
-		updateContentState(enableToggle);
-
-		console.log('[DEBUG] Extension enabled, initializing popup');
-		if (!enableToggle) {
-			console.log('[DEBUG] Extension disabled, returning early');
-			return;
-		}
-
-		//change 1 
-		function setupGenerateButtonValidation() {
-			const generateBtn = document.getElementById("generateReport");
-			const usernameInput = document.getElementById("platformUsername");
-			const fromDateInput = document.getElementById("startingDate");
-			const toDateInput = document.getElementById("endingDate");
-
-			if (!generateBtn || !usernameInput || !fromDateInput || !toDateInput) {
-				return;
-			}
-
-			function validate() {
-				const username = usernameInput.value.trim();
-				const fromDate = fromDateInput.value;
-				const toDate = toDateInput.value;
-
-				// Check if username exists and dates are valid
-				const hasUsername = username.length > 0;
-				const hasDates = fromDate !== "" && toDate !== "";
-				const logicalDates = new Date(fromDate) <= new Date(toDate);
-
-				const isValid = hasUsername && hasDates && logicalDates;
-
-				generateBtn.disabled = !isValid;
-
-				// Optional: Add a visual cue for the disabled state
-				if (!isValid) {
-					generateBtn.classList.add('opacity-50', 'cursor-not-allowed');
-				} else {
-					generateBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-				}
-			}
-
-			// Listen for typing and date selection
-			usernameInput.addEventListener("input", validate);
-			fromDateInput.addEventListener("change", validate);
-			toDateInput.addEventListener("change", validate);
-
-			// Also listen for clicks on the "Previous Day" radio which sets dates programmatically
-			document.querySelectorAll('input[name="timeframe"]').forEach(radio => {
-				radio.addEventListener('change', () => {
-					// Small delay to let the date values update in the DOM
-					setTimeout(validate, 100);
-				});
-			});
-
-			// Run once on load
-			validate();
-		}
+	chrome.storage.local.remove(['enableToggle'], () => {
 		initializePopup();
 		checkTokenForFilter();
-		//change 2
-		setupGenerateButtonValidation();
 	});
 
-	chrome.storage.onChanged.addListener((changes, namespace) => {
+	chrome?.storage.onChanged.addListener((changes, namespace) => {
 		console.log('[DEBUG] Storage changed:', changes, namespace);
-		if (namespace === 'local' && changes.enableToggle) {
-			console.log('[DEBUG] enableToggle changed to:', changes.enableToggle.newValue);
-			updateContentState(changes.enableToggle.newValue);
-			if (changes.enableToggle.newValue) {
-				// re-initialize if enabled
-				console.log('[DEBUG] Re-initializing popup due to enable toggle change');
-				initializePopup();
-			}
-		}
 		if (changes.startingDate || changes.endingDate) {
 			console.log('[POPUP-DEBUG] Date changed in storage, triggering repo fetch.', {
 				startingDate: changes.startingDate?.newValue,
@@ -437,15 +198,162 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	});
 
+	function storageLocalGet(keys) {
+		return new Promise((resolve) => chrome?.storage.local.get(keys, resolve));
+	}
+
+	function parsePositiveInt(value) {
+		const n = Number.parseInt(value, 10);
+		return Number.isFinite(n) && n > 0 ? n : null;
+	}
+
+	function setGenerateButtonLoading(generateBtn, isLoading) {
+		if (!generateBtn) return;
+		if (!isLoading) return;
+
+		const msg = chrome?.i18n.getMessage('generatingButton') || 'Generating...';
+		generateBtn.innerHTML = `<i class="fa fa-spinner fa-spin"></i> ${msg}`;
+		generateBtn.disabled = true;
+	}
+
+	function showPopupMessage(message) {
+		if (!message) return;
+
+		// Materialize toast if available
+		if (window.Materialize && typeof window.Materialize.toast === 'function') {
+			window.Materialize.toast(message, 4000);
+			return;
+		}
+
+		const old = document.getElementById('scrum-cache-toast');
+		if (old) old.remove();
+
+		const toast = document.createElement('div');
+		toast.id = 'scrum-cache-toast';
+		toast.className = 'toast';
+		toast.style.background = '#2563eb';
+		toast.style.color = '#fff';
+		toast.style.fontWeight = 'bold';
+		toast.style.padding = '12px 24px';
+		toast.style.borderRadius = '8px';
+		toast.style.position = 'fixed';
+		toast.style.top = '24px';
+		toast.style.left = '50%';
+		toast.style.transform = 'translateX(-50%)';
+		toast.style.zIndex = '9999';
+		toast.textContent = message;
+
+		document.body.appendChild(toast);
+		setTimeout(() => toast.remove(), 4000);
+	}
+
+	async function bootstrapScrumReportOnPopupLoad(generateBtn) {
+		console.log('[BOOTSTRAP] bootstrapScrumReportOnPopupLoad called');
+
+		if (typeof window.generateScrumReport !== 'function') {
+			return;
+		}
+
+		const scrumReport = document.getElementById('scrumReport');
+		const scrumReport = document.getElementById('scrumReport');
+		if (scrumReport) {
+			scrumReport.contentEditable = enableToggle;
+			if (!enableToggle) {
+
+				// fix 1
+				scrumReport.textContent = '';
+
+				const p = document.createElement('p');
+				p.style.textAlign = 'center';
+				p.style.color = '#999';
+				p.style.padding = '20px';
+				p.textContent = chrome.i18n.getMessage('extensionDisabledMessage');
+
+				scrumReport.appendChild(p);
+			} else {
+				if (scrumReport.firstElementChild && scrumReport.firstElementChild.textContent === chrome.i18n.getMessage('extensionDisabledMessage')) {
+					scrumReport.textContent = '';
+				}
+			}
+		}
+
+		}
+
+		const { platform, cacheInput, githubCache, gitlabCache } = await storageLocalGet([
+			'platform',
+			'cacheInput',
+			'githubCache',
+			'gitlabCache',
+		]);
+
+		const ttlMinutes = parsePositiveInt(cacheInput) ?? 10;
+		const ttlMs = ttlMinutes * 60 * 1000;
+
+		const activePlatform = platform || 'github';
+		const cache = activePlatform === 'gitlab' ? gitlabCache : githubCache;
+
+		const hasCacheData = !!cache?.data;
+		const timestamp = typeof cache?.timestamp === 'number' ? cache.timestamp : 0;
+
+
+		if (!hasCacheData) {
+			setGenerateButtonLoading(generateBtn, true);
+			window.generateScrumReport();
+			return;
+		}
+
+
+		if (timestamp > 0) {
+			const age = Date.now() - timestamp;
+
+			if (age < ttlMs) {
+				const { lastScrumReportHtml, lastScrumReportPlatform, lastScrumReportCacheKey } = await storageLocalGet([
+					'lastScrumReportHtml',
+					'lastScrumReportPlatform',
+					'lastScrumReportCacheKey',
+				]);
+
+				const cacheKey = cache?.cacheKey ?? null;
+				const reportEmpty = !scrumReport.innerHTML || !scrumReport.innerHTML.trim();
+
+				const matches =
+					(!lastScrumReportPlatform || lastScrumReportPlatform === activePlatform) &&
+					(!lastScrumReportCacheKey || lastScrumReportCacheKey === cacheKey);
+
+				if (reportEmpty && lastScrumReportHtml && matches) {
+					scrumReport.innerHTML = lastScrumReportHtml;
+					if (generateBtn) generateBtn.disabled = false;
+					return;
+				}
+
+				setGenerateButtonLoading(generateBtn, true);
+				window.generateScrumReport();
+				return;
+			}
+
+			const { lastScrumReportHtml } = await storageLocalGet(['lastScrumReportHtml']);
+			if ((!scrumReport.innerHTML || !scrumReport.innerHTML.trim()) && lastScrumReportHtml) {
+				scrumReport.innerHTML = lastScrumReportHtml;
+			}
+
+			showPopupMessage(
+				chrome?.i18n.getMessage('cacheExpiredMessage') || 'Cache expired. Click "Generate" to fetch fresh data.',
+			);
+
+			if (generateBtn) generateBtn.disabled = false;
+			return;
+		}
+
+		setGenerateButtonLoading(generateBtn, true);
+		window.generateScrumReport();
+	}
+
 	function initializePopup() {
-		// Migration: Handle existing users with old platformUsername storage
-		chrome.storage.local.get(['platform', 'platformUsername'], (result) => {
+		chrome?.storage.local.get(['platform', 'platformUsername'], (result) => {
 			if (result.platformUsername && result.platform) {
-				// Migrate old platformUsername to platform-specific storage
 				const platformUsernameKey = `${result.platform}Username`;
-				chrome.storage.local.set({ [platformUsernameKey]: result.platformUsername });
-				// Remove the old key
-				chrome.storage.local.remove(['platformUsername']);
+				chrome?.storage.local.set({ [platformUsernameKey]: result.platformUsername });
+				chrome?.storage.local.remove(['platformUsername']);
 				console.log(`[MIGRATION] Migrated platformUsername to ${platformUsernameKey}`);
 			}
 		});
@@ -462,13 +370,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		const githubTokenInput = document.getElementById('githubToken');
 		const cacheInput = document.getElementById('cacheInput');
-		const enableToggleSwitch = document.getElementById('enable');
 		const yesterdayRadio = document.getElementById('yesterdayContribution');
 		const startingDateInput = document.getElementById('startingDate');
 		const endingDateInput = document.getElementById('endingDate');
 		const platformUsername = document.getElementById('platformUsername');
 
-		chrome.storage.local.get(
+		chrome?.storage.local.get(
 			[
 				'projectName',
 				'orgName',
@@ -480,7 +387,6 @@ document.addEventListener('DOMContentLoaded', () => {
 				'onlyIssues',
 				'onlyPRs',
 				'onlyRevPRs',
-				'enableToggle',
 				'yesterdayContribution',
 				'startingDate',
 				'endingDate',
@@ -514,19 +420,12 @@ document.addEventListener('DOMContentLoaded', () => {
 				// prefer "Only Issues" and clear "Only PRs", then persist the corrected state.
 				if (onlyIssuesCheckbox.checked && onlyPRsCheckbox.checked) {
 					onlyPRsCheckbox.checked = false;
-					if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync) {
-						chrome.storage.sync.set({ onlyPRs: false });
+					if (typeof chrome !== 'undefined' && chrome?.storage && chrome?.storage.sync) {
+						chrome?.storage.sync.set({ onlyPRs: false });
 					}
 				}
 				if (result.githubToken) githubTokenInput.value = result.githubToken;
 				if (result.cacheInput) cacheInput.value = result.cacheInput;
-				if (enableToggleSwitch) {
-					if (typeof result.enableToggle !== 'undefined') {
-						enableToggleSwitch.checked = result.enableToggle;
-					} else {
-						enableToggleSwitch.checked = true; // Default to enabled
-					}
-				}
 				if (typeof result.yesterdayContribution !== 'undefined') yesterdayRadio.checked = result.yesterdayContribution;
 				if (result.startingDate) startingDateInput.value = result.startingDate;
 				if (result.endingDate) endingDateInput.value = result.endingDate;
@@ -541,20 +440,46 @@ document.addEventListener('DOMContentLoaded', () => {
 		// Button setup
 		const generateBtn = document.getElementById('generateReport');
 		const copyBtn = document.getElementById('copyReport');
+		const insertBtn = document.getElementById('insertInEmail');
+
+		if (insertBtn) {
+			insertBtn.addEventListener('click', () => {
+				const scrumReport = document.getElementById('scrumReport');
+				const content = scrumReport ? scrumReport.innerHTML : '';
+				const subject = buildScrumSubjectFromPopup();
+
+				if (!content) return;
+
+				chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+					const tabId = tabs?.[0]?.id;
+					if (!tabId) return;
+
+					chrome.tabs.sendMessage(tabId, { action: 'insertReportToEmail', content, subject }, (response) => {
+						if (chrome.runtime.lastError) {
+							console.warn('Insert to Email failed:', chrome.runtime.lastError.message);
+							return;
+						}
+						if (!response?.success) {
+							console.warn('Insert to Email failed:', response?.error);
+						}
+					});
+				});
+			});
+		}
 
 		generateBtn.addEventListener('click', () => {
-			chrome.storage.local.get(['platform'], (result) => {
+			chrome?.storage.local.get(['platform'], (result) => {
 				const platform = result.platform || 'github';
 				const platformUsernameKey = `${platform}Username`;
 
-				chrome.storage.local.set(
+				chrome?.storage.local.set(
 					{
 						platform: platformSelect.value,
 						[platformUsernameKey]: platformUsername.value,
 					},
 					() => {
 						// Reload platform from storage before generating report
-						chrome.storage.local.get(['platform'], (res) => {
+						chrome?.storage.local.get(['platform'], (res) => {
 							platformSelect.value = res.platform || 'github';
 							updatePlatformUI(platformSelect.value);
 							generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
@@ -582,9 +507,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			try {
 				document.execCommand('copy');
-				this.innerHTML = `<i class="fa fa-check"></i> ${chrome.i18n.getMessage('copiedButton')}`;
+				this.innerHTML = `<i class="fa fa-check"></i> ${chrome?.i18n.getMessage('copiedButton')}`;
 				setTimeout(() => {
-					this.innerHTML = `<i class="fa fa-copy"></i> ${chrome.i18n.getMessage('copyReportButton')}`;
+					this.innerHTML = `<i class="fa fa-copy"></i> ${chrome?.i18n.getMessage('copyReportButton')}`;
 				}, 2000);
 			} catch (err) {
 				console.error('Failed to copy: ', err);
@@ -606,13 +531,13 @@ document.addEventListener('DOMContentLoaded', () => {
 			startDateInput.readOnly = false;
 			endDateInput.readOnly = false;
 
-			chrome.storage.local.set({
+			chrome?.storage.local.set({
 				yesterdayContribution: false,
 				selectedTimeframe: null,
 			});
 		});
 
-		chrome.storage.local.get(['selectedTimeframe', 'yesterdayContribution', 'startingDate', 'endingDate'], (items) => {
+		chrome?.storage.local.get(['selectedTimeframe', 'yesterdayContribution', 'startingDate', 'endingDate'], (items) => {
 			console.log('Restoring state:', items);
 
 			if (items.startingDate && items.endingDate && !items.yesterdayContribution) {
@@ -651,7 +576,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				}
 				startDateInput.readOnly = endDateInput.readOnly = true;
 
-				chrome.storage.local.set({
+				chrome?.storage.local.set({
 					startingDate: startDateInput.value,
 					endingDate: endDateInput.value,
 					yesterdayContribution: items.selectedTimeframe === 'yesterdayContribution',
@@ -662,13 +587,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		// Save all fields to storage on input/change
 		projectNameInput.addEventListener('input', () => {
-			chrome.storage.local.set({ projectName: projectNameInput.value });
+			chrome?.storage.local.set({ projectName: projectNameInput.value });
 		});
 
 		// Save to storage and validate ONLY when user clicks out (blur event)
 		orgInput.addEventListener('blur', () => {
 			const org = orgInput.value.trim().toLowerCase();
-			chrome.storage.local.set({ orgName: org });
+			chrome?.storage.local.set({ orgName: org });
 
 			// Only validate if org name is not empty
 			if (org) {
@@ -681,74 +606,106 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 		if (userReasonInput) {
 			userReasonInput.addEventListener('input', () => {
-				chrome.storage.local.set({ userReason: userReasonInput.value });
+				chrome?.storage.local.set({ userReason: userReasonInput.value });
 			});
 		}
 		showOpenLabelCheckbox.addEventListener('change', () => {
-			chrome.storage.local.set({ showOpenLabel: showOpenLabelCheckbox.checked });
+			chrome?.storage.local.set({ showOpenLabel: showOpenLabelCheckbox.checked });
 		});
 		if (onlyIssuesCheckbox && onlyPRsCheckbox) {
 			onlyIssuesCheckbox.addEventListener('change', () => {
 				const checked = onlyIssuesCheckbox.checked;
-				chrome.storage.local.set({ onlyIssues: checked }, () => {
+				chrome?.storage.local.set({ onlyIssues: checked }, () => {
 					if (checked && onlyPRsCheckbox.checked) {
 						// Uncheck the previously selected "Only PRs"
 						onlyPRsCheckbox.checked = false;
-						chrome.storage.local.set({ onlyPRs: false });
+						chrome?.storage.local.set({ onlyPRs: false });
 					}
 				});
 			});
 
 			onlyPRsCheckbox.addEventListener('change', () => {
 				const checked = onlyPRsCheckbox.checked;
-				chrome.storage.local.set({ onlyPRs: checked }, () => {
+				chrome?.storage.local.set({ onlyPRs: checked }, () => {
 					if (checked && onlyIssuesCheckbox.checked) {
 						// Uncheck the previously selected "Only Issues"
 						onlyIssuesCheckbox.checked = false;
-						chrome.storage.local.set({ onlyIssues: false });
+						chrome?.storage.local.set({ onlyIssues: false });
 					}
 				});
 			});
 
 			if (onlyRevPRsCheckbox) {
 				onlyRevPRsCheckbox.addEventListener('change', () => {
-					chrome.storage.local.set({ onlyRevPRs: onlyRevPRsCheckbox.checked });
+					chrome?.storage.local.set({ onlyRevPRs: onlyRevPRsCheckbox.checked });
 				});
 			}
 		}
 		showCommitsCheckbox.addEventListener('change', () => {
-			chrome.storage.local.set({ showCommits: showCommitsCheckbox.checked });
+			chrome?.storage.local.set({ showCommits: showCommitsCheckbox.checked });
 		});
 		githubTokenInput.addEventListener('input', () => {
-			chrome.storage.local.set({ githubToken: githubTokenInput.value });
+			chrome?.storage.local.set({ githubToken: githubTokenInput.value });
 		});
 		cacheInput.addEventListener('input', () => {
-			chrome.storage.local.set({ cacheInput: cacheInput.value });
+			chrome?.storage.local.set({ cacheInput: cacheInput.value });
 		});
-		if (enableToggleSwitch) {
-			console.log('[DEBUG] Setting up enable toggle switch event listener');
-			enableToggleSwitch.addEventListener('change', () => {
-				console.log('[DEBUG] Enable toggle changed to:', enableToggleSwitch.checked);
-				chrome.storage.local.set({ enableToggle: enableToggleSwitch.checked });
+
+		// Display mode (popup / sidepanel)
+		// Apply the stored display mode class on next launch
+		function applyDisplayModeClass(mode) {
+			const className = mode === 'popup' ? 'mode-popup' : 'mode-sidepanel';
+			document.documentElement.classList.remove('mode-popup', 'mode-sidepanel');
+			body.classList.remove('mode-popup', 'mode-sidepanel');
+			document.documentElement.classList.add(className);
+			body.classList.add(className);
+		}
+
+		chrome?.storage.local.get({ displayMode: 'sidePanel' }, (result) => {
+			applyDisplayModeClass(result.displayMode);
+		});
+
+		const displayModeSelect = document.getElementById('displayModeSelect');
+		const displayModeNotice = document.getElementById('displayModeNotice');
+		const displayModeNoticeText = document.getElementById('displayModeNoticeText');
+		if (displayModeSelect) {
+			chrome?.storage.local.get({ displayMode: 'sidePanel' }, (result) => {
+				displayModeSelect.value = result.displayMode;
+			});
+			displayModeSelect.addEventListener('change', () => {
+				const mode = displayModeSelect.value;
+				chrome?.storage.local.set({ displayMode: mode });
+				// Show notice instead of applying immediately
+				const modeLabel = mode === 'popup' ? 'Popup' : 'Side Panel';
+				if (displayModeNotice && displayModeNoticeText) {
+					displayModeNoticeText.textContent = `The extension will open in ${modeLabel} mode on the next launch.`;
+					displayModeNotice.classList.remove('hidden');
+				}
 			});
 		}
+
+
 		yesterdayRadio.addEventListener('change', () => {
-			chrome.storage.local.set({ yesterdayContribution: yesterdayRadio.checked });
+			chrome?.storage.local.set({ yesterdayContribution: yesterdayRadio.checked });
 		});
 		startingDateInput.addEventListener('input', () => {
-			chrome.storage.local.set({ startingDate: startingDateInput.value });
+			chrome?.storage.local.set({ startingDate: startingDateInput.value });
 		});
 		endingDateInput.addEventListener('input', () => {
-			chrome.storage.local.set({ endingDate: endingDateInput.value });
+			chrome?.storage.local.set({ endingDate: endingDateInput.value });
 		});
 
 		// Save username to storage on input
 		platformUsername.addEventListener('input', () => {
-			chrome.storage.local.get(['platform'], (result) => {
+			chrome?.storage.local.get(['platform'], (result) => {
 				const platform = result.platform || 'github';
 				const platformUsernameKey = `${platform}Username`;
-				chrome.storage.local.set({ [platformUsernameKey]: platformUsername.value });
+				chrome?.storage.local.set({ [platformUsernameKey]: platformUsername.value });
 			});
+		});
+		// Bootstrap report on popup open (restore cache / auto-generate / expired-cache toast)
+		bootstrapScrumReportOnPopupLoad(generateBtn).catch((err) => {
+			console.error('[POPUP] bootstrapScrumReportOnPopupLoad failed', err);
 		});
 	}
 
@@ -785,13 +742,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	showReportView();
 
-	// Debug function to test storage
-	window.testStorage = () => {
-		chrome.storage.local.get(['enableToggle'], (result) => {
-			console.log('[TEST] Current enableToggle value:', result.enableToggle);
-		});
-	};
-
 	//report filter
 	const repoSearch = document.getElementById('repoSearch');
 	const repoDropdown = document.getElementById('repoDropdown');
@@ -808,7 +758,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			if (!useRepoFilter.checked) {
 				useRepoFilter.checked = true;
 				repoFilterContainer.classList.remove('hidden');
-				chrome.storage.local.set({ useRepoFilter: true });
+				chrome?.storage.local.set({ useRepoFilter: true });
 			}
 		});
 	}
@@ -825,10 +775,11 @@ document.addEventListener('DOMContentLoaded', () => {
 			let platform = 'github';
 			try {
 				const items = await new Promise((resolve) => {
-					chrome.storage.local.get(['platform'], resolve);
+					chrome?.storage.local.get(['platform'], resolve);
 				});
 				platform = items.platform || 'github';
-			} catch (e) { }
+        } catch {}
+
 			if (platform !== 'github') {
 				// Do not run repo fetch for non-GitHub platforms
 				if (repoStatus) repoStatus.textContent = 'Repository filtering is only available for GitHub.';
@@ -839,15 +790,15 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 
 			if (repoStatus) {
-				repoStatus.textContent = chrome.i18n.getMessage('repoRefetching');
+				repoStatus.textContent = chrome?.i18n.getMessage('repoRefetching');
 			}
 
 			try {
 				const cacheData = await new Promise((resolve) => {
-					chrome.storage.local.get(['repoCache'], resolve);
+					chrome?.storage.local.get(['repoCache'], resolve);
 				});
 				const items = await new Promise((resolve) => {
-					chrome.storage.local.get(['platform', 'githubUsername', 'githubToken', 'orgName'], resolve);
+					chrome?.storage.local.get(['platform', 'githubUsername', 'githubToken', 'orgName'], resolve);
 				});
 
 				const platform = items.platform || 'github';
@@ -867,11 +818,11 @@ document.addEventListener('DOMContentLoaded', () => {
 					availableRepos = repos;
 
 					if (repoStatus) {
-						repoStatus.textContent = chrome.i18n.getMessage('repoLoaded', [repos.length]);
+						repoStatus.textContent = chrome?.i18n.getMessage('repoLoaded', [repos.length]);
 					}
 
 					const repoCacheKey = `repos-${username}-${items.orgName || ''}`;
-					chrome.storage.local.set({
+					chrome?.storage.local.set({
 						repoCache: {
 							data: repos,
 							cacheKey: repoCacheKey,
@@ -889,14 +840,14 @@ document.addEventListener('DOMContentLoaded', () => {
 				}
 			} catch (err) {
 				if (repoStatus) {
-					repoStatus.textContent = `${chrome.i18n.getMessage('errorLabel')}: ${err.message || chrome.i18n.getMessage('repoRefetchFailed')}`;
+					repoStatus.textContent = `${chrome?.i18n.getMessage('errorLabel')}: ${err.message || chrome?.i18n.getMessage('repoRefetchFailed')}`;
 				}
 			}
 		}
 
 		window.triggerRepoFetchIfEnabled = triggerRepoFetchIfEnabled;
 
-		chrome.storage.local.get(['selectedRepos', 'useRepoFilter'], (items) => {
+		chrome?.storage.local.get(['selectedRepos', 'useRepoFilter'], (items) => {
 			if (items.selectedRepos) {
 				selectedRepos = items.selectedRepos;
 				updateRepoDisplay();
@@ -914,10 +865,10 @@ document.addEventListener('DOMContentLoaded', () => {
 				let platform = 'github';
 				try {
 					const items = await new Promise((resolve) => {
-						chrome.storage.local.get(['platform'], resolve);
+						chrome?.storage.local.get(['platform'], resolve);
 					});
 					platform = items.platform || 'github';
-				} catch (e) { }
+				} catch {}
 				if (platform !== 'github') {
 					repoFilterContainer.classList.add('hidden');
 					useRepoFilter.checked = false;
@@ -945,7 +896,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				}
 				repoFilterContainer.classList.toggle('hidden', !enabled);
 
-				chrome.storage.local.set({
+				chrome?.storage.local.set({
 					useRepoFilter: enabled,
 					githubCache: null, //forces refresh
 				});
@@ -955,10 +906,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
 					try {
 						const cacheData = await new Promise((resolve) => {
-							chrome.storage.local.get(['repoCache'], resolve);
+							chrome?.storage.local.get(['repoCache'], resolve);
 						});
 						const items = await new Promise((resolve) => {
-							chrome.storage.local.get(['platform', 'githubUsername', 'githubToken', 'orgName'], resolve);
+							chrome?.storage.local.get(['platform', 'githubUsername', 'githubToken', 'orgName'], resolve);
 						});
 
 						const platform = items.platform || 'github';
@@ -982,7 +933,7 @@ document.addEventListener('DOMContentLoaded', () => {
 						if (cacheData.repoCache && cacheData.repoCache.cacheKey === repoCacheKey && cacheAge < cacheTTL) {
 							console.log('Using cached repositories');
 							availableRepos = cacheData.repoCache.data;
-							repoStatus.textContent = chrome.i18n.getMessage('repoLoaded', [availableRepos.length]);
+							repoStatus.textContent = chrome?.i18n.getMessage('repoLoaded', [availableRepos.length]);
 
 							if (document.activeElement === repoSearch) {
 								filterAndDisplayRepos(repoSearch.value.toLowerCase());
@@ -998,9 +949,9 @@ document.addEventListener('DOMContentLoaded', () => {
 								items.orgName || '',
 							);
 							availableRepos = repos;
-							repoStatus.textContent = chrome.i18n.getMessage('repoLoaded', [repos.length]);
+							repoStatus.textContent = chrome?.i18n.getMessage('repoLoaded', [repos.length]);
 
-							chrome.storage.local.set({
+							chrome?.storage.local.set({
 								repoCache: {
 									data: repos,
 									cacheKey: repoCacheKey,
@@ -1016,17 +967,17 @@ document.addEventListener('DOMContentLoaded', () => {
 						console.error('Auto load repos failed', err);
 
 						if (err.message?.includes('401')) {
-							repoStatus.textContent = chrome.i18n.getMessage('repoTokenPrivate');
+							repoStatus.textContent = chrome?.i18n.getMessage('repoTokenPrivate');
 						} else if (err.message?.includes('username')) {
-							repoStatus.textContent = chrome.i18n.getMessage('githubUsernamePlaceholder');
+							repoStatus.textContent = chrome?.i18n.getMessage('githubUsernamePlaceholder');
 						} else {
-							repoStatus.textContent = `${chrome.i18n.getMessage('errorLabel')}: ${err.message || chrome.i18n.getMessage('repoLoadFailed')}`;
+							repoStatus.textContent = `${chrome?.i18n.getMessage('errorLabel')}: ${err.message || chrome?.i18n.getMessage('repoLoadFailed')}`;
 						}
 					}
 				} else {
 					selectedRepos = [];
 					updateRepoDisplay();
-					chrome.storage.local.set({ selectedRepos: [] });
+					chrome?.storage.local.set({ selectedRepos: [] });
 					repoStatus.textContent = '';
 				}
 			}, 300),
@@ -1068,11 +1019,8 @@ document.addEventListener('DOMContentLoaded', () => {
 				programmaticFocus = false;
 				return;
 			}
-			if (repoSearch.value) {
-				filterAndDisplayRepos(repoSearch.value.toLowerCase());
-			} else if (availableRepos.length > 0) {
-				filterAndDisplayRepos('');
-			}
+			const searchTerm = repoSearch.value.toLowerCase();
+			filterAndDisplayRepos(searchTerm);
 		});
 
 		document.addEventListener('click', (e) => {
@@ -1082,7 +1030,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 
 		function debugRepoFetch() {
-			chrome.storage.local.get(['platform', 'githubUsername', 'githubToken', 'orgName'], (items) => {
+			chrome?.storage.local.get(['platform', 'githubUsername', 'githubToken', 'orgName'], (items) => {
 				const platform = items.platform || 'github';
 				const platformUsernameKey = `${platform}Username`;
 				const username = items[platformUsernameKey];
@@ -1099,10 +1047,10 @@ document.addEventListener('DOMContentLoaded', () => {
 			let platform = 'github';
 			try {
 				const items = await new Promise((resolve) => {
-					chrome.storage.local.get(['platform'], resolve);
+					chrome?.storage.local.get(['platform'], resolve);
 				});
 				platform = items.platform || 'github';
-			} catch (e) { }
+			} catch {}
 			if (platform !== 'github') {
 				if (repoStatus) repoStatus.textContent = 'Repository loading is only available for GitHub.';
 				return;
@@ -1118,7 +1066,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				return;
 			}
 
-			chrome.storage.local.get(['platform', 'githubUsername', 'githubToken'], (items) => {
+			chrome?.storage.local.get(['platform', 'githubUsername', 'githubToken'], (items) => {
 				const platform = items.platform || 'github';
 				const platformUsernameKey = `${platform}Username`;
 				const username = items[platformUsernameKey];
@@ -1143,7 +1091,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			let platform = 'github';
 			try {
 				const items = await new Promise((resolve) => {
-					chrome.storage.local.get(['platform'], resolve);
+					chrome?.storage.local.get(['platform'], resolve);
 				});
 				platform = items.platform || 'github';
 			} catch (e) { }
@@ -1152,15 +1100,15 @@ document.addEventListener('DOMContentLoaded', () => {
 				return;
 			}
 			console.log('[POPUP-DEBUG] performRepoFetch called.');
-			repoStatus.textContent = chrome.i18n.getMessage('repoLoading');
+			repoStatus.textContent = chrome?.i18n.getMessage('repoLoading');
 			repoSearch.classList.add('repository-search-loading');
 
 			try {
 				const cacheData = await new Promise((resolve) => {
-					chrome.storage.local.get(['repoCache'], resolve);
+					chrome?.storage.local.get(['repoCache'], resolve);
 				});
 				const storageItems = await new Promise((resolve) => {
-					chrome.storage.local.get(['platform', 'githubUsername', 'githubToken', 'orgName'], resolve);
+					chrome?.storage.local.get(['platform', 'githubUsername', 'githubToken', 'orgName'], resolve);
 				});
 				const platform = storageItems.platform || 'github';
 				const platformUsernameKey = `${platform}Username`;
@@ -1183,7 +1131,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				if (cacheData.repoCache && cacheData.repoCache.cacheKey === repoCacheKey && cacheAge < cacheTTL) {
 					console.log('[POPUP-DEBUG] Using cached repositories in manual fetch');
 					availableRepos = cacheData.repoCache.data;
-					repoStatus.textContent = chrome.i18n.getMessage('repoLoaded', [availableRepos.length]);
+					repoStatus.textContent = chrome?.i18n.getMessage('repoLoaded', [availableRepos.length]);
 
 					if (document.activeElement === repoSearch) {
 						filterAndDisplayRepos(repoSearch.value.toLowerCase());
@@ -1197,10 +1145,10 @@ document.addEventListener('DOMContentLoaded', () => {
 					storageItems.githubToken,
 					storageItems.orgName || '',
 				);
-				repoStatus.textContent = chrome.i18n.getMessage('repoLoaded', [availableRepos.length]);
+				repoStatus.textContent = chrome?.i18n.getMessage('repoLoaded', [availableRepos.length]);
 				console.log(`[POPUP-DEBUG] Fetched and loaded ${availableRepos.length} repos.`);
 
-				chrome.storage.local.set({
+				chrome?.storage.local.set({
 					repoCache: {
 						data: availableRepos,
 						cacheKey: repoCacheKey,
@@ -1215,11 +1163,11 @@ document.addEventListener('DOMContentLoaded', () => {
 				console.error(`Failed to load repos:`, err);
 
 				if (err.message && err.message.includes('401')) {
-					repoStatus.textContent = chrome.i18n.getMessage('repoTokenPrivate');
+					repoStatus.textContent = chrome?.i18n.getMessage('repoTokenPrivate');
 				} else if (err.message && err.message.includes('username')) {
-					repoStatus.textContent = chrome.i18n.getMessage('githubUsernamePlaceholder');
+					repoStatus.textContent = chrome?.i18n.getMessage('githubUsernamePlaceholder');
 				} else {
-					repoStatus.textContent = `${chrome.i18n.getMessage('errorLabel')}: ${err.message || chrome.i18n.getMessage('repoLoadFailed')}`;
+					repoStatus.textContent = `${chrome?.i18n.getMessage('errorLabel')}: ${err.message || chrome?.i18n.getMessage('repoLoadFailed')}`;
 				}
 			} finally {
 				repoSearch.classList.remove('repository-search-loading');
@@ -1228,20 +1176,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		function filterAndDisplayRepos(query) {
 			if (availableRepos.length === 0) {
-				repoDropdown.innerHTML = `<div class="p-3 text-center text-gray-500 text-sm">${chrome.i18n.getMessage('repoLoading')}</div>`;
+				repoDropdown.innerHTML = `<div class="p-3 text-center text-gray-500 text-sm">${chrome?.i18n.getMessage('repoLoading')}</div>`;
 				showDropdown();
 				return;
 			}
 
 			const filtered = availableRepos.filter(
-				(repo) =>
-					!selectedRepos.includes(repo.fullName) &&
-					(repo.name.toLowerCase().includes(query) || repo.description?.toLowerCase().includes(query)),
+				(repo) => {
+					if (selectedRepos.includes(repo.fullName)) {
+						return false;
+					}
+					if (!query) {
+						return true;
+					}
+					return repo.name.toLowerCase().includes(query) || repo.description?.toLowerCase().includes(query);
+				}
 			);
 
 
 			//fix 3
 			if (filtered.length === 0) {
+
 				repoDropdown.innerHTML = '';
 
 				const emptyDiv = document.createElement('div');
@@ -1298,6 +1253,27 @@ document.addEventListener('DOMContentLoaded', () => {
 					repoDropdown.appendChild(item);
 				});
 
+				repoDropdown.innerHTML = `<div class="p-3 text-center text-gray-500 text-sm" style="padding-left: 10px; ">${chrome?.i18n.getMessage('repoNotFound')}</div>`;
+			} else {
+				repoDropdown.innerHTML = filtered
+					.slice(0, 10)
+					.map(
+						(repo) => `
+                    <div class="repository-dropdown-item" data-repo-name="${repo.fullName}">
+                        <div class="repo-name">
+                            <span>${repo.name}</span>
+                            ${repo.language ? `<span class="repo-language">${repo.language}</span>` : ''}
+                            ${repo.stars ? `<span class="repo-stars"><i class="fa fa-star"></i> ${repo.stars}</span>` : ''}
+                        </div>
+                        <div class="repo-info">
+                            ${repo.description ? `<span class="repo-desc">${repo.description.substring(0, 50)}${repo.description.length > 50 ? '...' : ''}</span>` : ''}
+                        </div>
+                    </div>
+                `,
+					)
+					.join('');
+
+
 				repoDropdown.querySelectorAll('.repository-dropdown-item').forEach((item) => {
 					item.addEventListener('click', (e) => {
 						e.stopPropagation();
@@ -1334,8 +1310,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		function updateRepoDisplay() {
 			if (selectedRepos.length === 0) {
-				repoTags.innerHTML = `<span class="text-xs text-gray-500 select-none" id="repoPlaceholder">${chrome.i18n.getMessage('repoPlaceholder')}</span>`;
-				repoCount.textContent = chrome.i18n.getMessage('repoCountNone');
+				repoTags.innerHTML = `<span class="text-xs text-gray-500 select-none" id="repoPlaceholder">${chrome?.i18n.getMessage('repoPlaceholder')}</span>`;
+				repoCount.textContent = chrome?.i18n.getMessage('repoCountNone');
 			} else {
 
 				//fix 4 
@@ -1368,13 +1344,13 @@ document.addEventListener('DOMContentLoaded', () => {
 						removeRepo(repoFullName);
 					});
 				});
-				repoCount.textContent = chrome.i18n.getMessage('repoCount', [selectedRepos.length]);
+				repoCount.textContent = chrome?.i18n.getMessage('repoCount', [selectedRepos.length]);
 			}
 		}
 
 		function saveRepoSelection() {
 			const cleanedRepos = selectedRepos.filter((repo) => repo !== null);
-			chrome.storage.local.set({
+			chrome?.storage.local.set({
 				selectedRepos: cleanedRepos,
 				githubCache: null,
 			});
@@ -1401,7 +1377,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		window.removeRepo = removeRepo;
 
-		chrome.storage.local.get(['platform', 'githubUsername'], (items) => {
+		chrome?.storage.local.get(['platform', 'githubUsername'], (items) => {
 			const platform = items.platform || 'github';
 			const platformUsernameKey = `${platform}Username`;
 			const username = items[platformUsernameKey];
@@ -1414,7 +1390,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 const cacheInput = document.getElementById('cacheInput');
 if (cacheInput) {
-	chrome.storage.local.get(['cacheInput'], (result) => {
+	chrome?.storage.local.get(['cacheInput'], (result) => {
 		if (result.cacheInput) {
 			cacheInput.value = result.cacheInput;
 		} else {
@@ -1436,13 +1412,13 @@ if (cacheInput) {
 			this.style.borderColor = '#10b981';
 		}
 
-		chrome.storage.local.set({ cacheInput: ttlValue }, () => {
+		chrome?.storage.local.set({ cacheInput: ttlValue }, () => {
 			console.log('Cache TTL saved:', ttlValue, 'minutes');
 		});
 	});
 }
 
-chrome.storage.local.get(['platform'], (result) => {
+chrome?.storage.local.get(['platform'], (result) => {
 	const platform = result.platform || 'github';
 	platformSelect.value = platform;
 	updatePlatformUI(platform);
@@ -1458,7 +1434,7 @@ function updatePlatformUI(platform) {
 			usernameLabel.setAttribute('data-i18n', 'githubUsernameLabel');
 		}
 		const key = usernameLabel.getAttribute('data-i18n');
-		const message = chrome.i18n.getMessage(key);
+		const message = chrome?.i18n.getMessage(key);
 		if (message) {
 			usernameLabel.textContent = message;
 		}
@@ -1492,17 +1468,17 @@ function updatePlatformUI(platform) {
 
 platformSelect.addEventListener('change', () => {
 	const platform = platformSelect.value;
-	chrome.storage.local.set({ platform });
+	chrome?.storage.local.set({ platform });
 	const platformUsername = document.getElementById('platformUsername');
 	if (platformUsername) {
 		const currentPlatform = platformSelect.value === 'github' ? 'gitlab' : 'github'; // Get the platform we're switching from
 		const currentUsername = platformUsername.value;
 		if (currentUsername.trim()) {
-			chrome.storage.local.set({ [`${currentPlatform}Username`]: currentUsername });
+			chrome?.storage.local.set({ [`${currentPlatform}Username`]: currentUsername });
 		}
 	}
 
-	chrome.storage.local.get([`${platform}Username`], (result) => {
+	chrome?.storage.local.get([`${platform}Username`], (result) => {
 		if (platformUsername) {
 			platformUsername.value = result[`${platform}Username`] || '';
 		}
@@ -1517,6 +1493,15 @@ const dropdownList = document.getElementById('platformDropdownList');
 const dropdownSelected = document.getElementById('platformDropdownSelected');
 const platformSelectHidden = document.getElementById('platformSelect');
 
+function buildScrumSubjectFromPopup() {
+	const projectName = document.getElementById('projectName')?.value?.trim() || '';
+	const now = new Date();
+	const dateCode =
+		String(now.getFullYear()) + String(now.getMonth() + 1).padStart(2, '0') + String(now.getDate()).padStart(2, '0');
+
+	return `[Scrum]${projectName ? ' - ' + projectName : ''} - ${dateCode}`;
+}
+
 function setPlatformDropdown(value) {
 	if (value === 'gitlab') {
 		dropdownSelected.innerHTML = '<i class="fab fa-gitlab mr-2"></i> GitLab';
@@ -1529,14 +1514,14 @@ function setPlatformDropdown(value) {
 		const currentPlatform = platformSelectHidden.value;
 		const currentUsername = platformUsername.value;
 		if (currentUsername.trim()) {
-			chrome.storage.local.set({ [`${currentPlatform}Username`]: currentUsername });
+			chrome?.storage.local.set({ [`${currentPlatform}Username`]: currentUsername });
 		}
 	}
 
 	platformSelectHidden.value = value;
-	chrome.storage.local.set({ platform: value });
+	chrome?.storage.local.set({ platform: value });
 
-	chrome.storage.local.get([`${value}Username`], (result) => {
+	chrome?.storage.local.get([`${value}Username`], (result) => {
 		if (platformUsername) {
 			platformUsername.value = result[`${value}Username`] || '';
 		}
@@ -1561,7 +1546,7 @@ dropdownList.querySelectorAll('li').forEach((item) => {
 			if (platformUsername) {
 				const currentUsername = platformUsername.value;
 				if (currentUsername.trim()) {
-					chrome.storage.local.set({ [`${currentPlatform}Username`]: currentUsername });
+					chrome?.storage.local.set({ [`${currentPlatform}Username`]: currentUsername });
 				}
 			}
 		}
@@ -1608,7 +1593,7 @@ dropdownList.querySelectorAll('li').forEach((item, idx, arr) => {
 				if (platformUsername) {
 					const currentUsername = platformUsername.value;
 					if (currentUsername.trim()) {
-						chrome.storage.local.set({ [`${currentPlatform}Username`]: currentUsername });
+						chrome?.storage.local.set({ [`${currentPlatform}Username`]: currentUsername });
 					}
 				}
 			}
@@ -1622,7 +1607,7 @@ dropdownList.querySelectorAll('li').forEach((item, idx, arr) => {
 });
 
 // On load, restore platform from storage
-chrome.storage.local.get(['platform'], (result) => {
+chrome?.storage.local.get(['platform'], (result) => {
 	const platform = result.platform || 'github';
 	// Just update the UI without clearing username when restoring from storage
 	if (platform === 'gitlab') {
@@ -1686,7 +1671,7 @@ document.querySelectorAll('input[name="timeframe"]').forEach((radio) => {
 			startDateInput.readOnly = false;
 			endDateInput.readOnly = false;
 
-			chrome.storage.local.set({
+			chrome?.storage.local.set({
 				yesterdayContribution: false,
 				selectedTimeframe: null,
 			});
@@ -1710,7 +1695,7 @@ document.querySelectorAll('input[name="timeframe"]').forEach((radio) => {
 				e.stopImmediatePropagation();
 				const href = target.getAttribute('href');
 				if (href && href.startsWith('http')) {
-					chrome.tabs.create({ url: href });
+					chrome?.tabs.create({ url: href });
 				}
 				return false;
 			}
@@ -1725,7 +1710,7 @@ document.getElementById('refreshCache').addEventListener('click', async function
 	const originalText = this.innerHTML;
 
 	this.classList.add('loading');
-	this.innerHTML = `<i class="fa fa-refresh fa-spin"></i><span>${chrome.i18n.getMessage('refreshingButton')}</span>`;
+	this.innerHTML = `<i class="fa fa-refresh fa-spin"></i><span>${chrome?.i18n.getMessage('refreshingButton')}</span>`;
 	this.disabled = true;
 
 	try {
@@ -1733,7 +1718,7 @@ document.getElementById('refreshCache').addEventListener('click', async function
 		let platform = 'github';
 		try {
 			const items = await new Promise((resolve) => {
-				chrome.storage.local.get(['platform'], resolve);
+				chrome?.storage.local.get(['platform'], resolve);
 			});
 			platform = items.platform || 'github';
 		} catch (e) { }
@@ -1741,13 +1726,13 @@ document.getElementById('refreshCache').addEventListener('click', async function
 		// Clear all caches
 		const keysToRemove = ['githubCache', 'repoCache', 'gitlabCache'];
 		await new Promise((resolve) => {
-			chrome.storage.local.remove(keysToRemove, resolve);
+			chrome?.storage.local.remove(keysToRemove, resolve);
 		});
 
 		// Clear the scrum report
 		const scrumReport = document.getElementById('scrumReport');
 		if (scrumReport) {
-			scrumReport.innerHTML = `<p style="text-align: center; color: #666; padding: 20px;">${chrome.i18n.getMessage('cacheClearedMessage')}</p>`;
+			scrumReport.innerHTML = `<p style="text-align: center; color: #666; padding: 20px;">${chrome?.i18n.getMessage('cacheClearedMessage')}</p>`;
 		}
 
 		if (typeof availableRepos !== 'undefined') {
@@ -1759,7 +1744,7 @@ document.getElementById('refreshCache').addEventListener('click', async function
 			repoStatus.textContent = '';
 		}
 
-		this.innerHTML = `<i class="fa fa-check"></i><span>${chrome.i18n.getMessage('cacheClearedButton')}</span>`;
+		this.innerHTML = `<i class="fa fa-check"></i><span>${chrome?.i18n.getMessage('cacheClearedButton')}</span>`;
 		this.classList.remove('loading');
 
 		// Do NOT trigger report generation automatically
@@ -1770,7 +1755,7 @@ document.getElementById('refreshCache').addEventListener('click', async function
 		}, 2000);
 	} catch (error) {
 		console.error('Cache clear failed:', error);
-		this.innerHTML = `<i class="fa fa-exclamation-triangle"></i><span>${chrome.i18n.getMessage('cacheClearFailed')}</span>`;
+		this.innerHTML = `<i class="fa fa-exclamation-triangle"></i><span>${chrome?.i18n.getMessage('cacheClearFailed')}</span>`;
 		this.classList.remove('loading');
 
 		setTimeout(() => {
@@ -1793,7 +1778,7 @@ function toggleRadio(radio) {
 
 	startDateInput.readOnly = endDateInput.readOnly = true;
 
-	chrome.storage.local.set(
+	chrome?.storage.local.set(
 		{
 			startingDate: startDateInput.value,
 			endingDate: endDateInput.value,
@@ -1841,7 +1826,7 @@ function validateOrgOnBlur(org) {
 				toastDiv.style.left = '50%';
 				toastDiv.style.transform = 'translateX(-50%)';
 				toastDiv.style.zIndex = '9999';
-				toastDiv.innerText = chrome.i18n.getMessage('orgNotFoundMessage');
+				toastDiv.innerText = chrome?.i18n.getMessage('orgNotFoundMessage');
 				document.body.appendChild(toastDiv);
 				setTimeout(() => {
 					if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
@@ -1851,7 +1836,7 @@ function validateOrgOnBlur(org) {
 			const oldToast = document.getElementById('invalid-org-toast');
 			if (oldToast) oldToast.parentNode.removeChild(oldToast);
 			console.log('[Org Check] Organisation exists on GitHub:', org);
-			chrome.storage.local.remove(['githubCache', 'repoCache']);
+			chrome?.storage.local.remove(['githubCache', 'repoCache']);
 			triggerRepoFetchIfEnabled();
 		})
 		.catch((err) => {
@@ -1871,7 +1856,7 @@ function validateOrgOnBlur(org) {
 			toastDiv.style.left = '50%';
 			toastDiv.style.transform = 'translateX(-50%)';
 			toastDiv.style.zIndex = '9999';
-			toastDiv.innerText = chrome.i18n.getMessage('orgValidationErrorMessage');
+			toastDiv.innerText = chrome?.i18n.getMessage('orgValidationErrorMessage');
 			document.body.appendChild(toastDiv);
 			setTimeout(() => {
 				if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
