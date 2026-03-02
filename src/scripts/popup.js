@@ -633,10 +633,12 @@ document.addEventListener('DOMContentLoaded', () => {
 		// Apply the stored display mode class on next launch
 		function applyDisplayModeClass(mode) {
 			const className = mode === 'popup' ? 'mode-popup' : 'mode-sidepanel';
-			document.documentElement.classList.remove('mode-popup', 'mode-sidepanel');
-			body.classList.remove('mode-popup', 'mode-sidepanel');
-			document.documentElement.classList.add(className);
-			body.classList.add(className);
+			if(!document.documentElement.classList.contains(className)){
+				document.documentElement.classList.remove('mode-popup', 'mode-sidepanel');
+				body.classList.remove('mode-popup', 'mode-sidepanel');
+				document.documentElement.classList.add(className);
+				body.classList.add(className);
+			}
 		}
 
 		chrome?.storage.local.get({ displayMode: 'sidePanel' }, (result) => {
