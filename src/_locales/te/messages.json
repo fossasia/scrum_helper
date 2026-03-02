@@ -104,7 +104,6 @@
   "onlyRevPRsTooltip": {
     "message": "ఎంచుకుంటే, నివేదికలో మీరు సమీక్షించిన PRలు మాత్రమే చూపబడతాయి."
   },
-
   "cacheTTLLabel": {
     "message": "క్యాష్ TTL ను నమోదు చేయండి"
   },
@@ -197,5 +196,26 @@
   },
   "noteSeeIssue": {
     "message": "ఈ ఇష్యూ చూడండి"
+  },
+  "profilesLabel": {
+    "message": "Profiles"
+  },
+  "profilesTooltip": {
+    "message": "Create and switch between different sets of credentials and repositories."
+  },
+  "addProfileButton": {
+    "message": "Add"
+  },
+  "deleteProfileButton": {
+    "message": "Delete"
+  },
+  "newProfilePrompt": {
+    "message": "Enter a name for the new profile:"
+  },
+  "deleteProfileConfirm": {
+    "message": "Are you sure you want to delete the profile '$1'?"
+  },
+  "defaultProfileName": {
+    "message": "Default"
   }
 }

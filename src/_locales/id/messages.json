@@ -1,226 +1,246 @@
 {
-    "appName": {
-        "message": "Scrum Helper"
-    },
-    "appDescription": {
-        "message": "Laporkan kemajuan pengembangan Anda dengan mengambil aktivitas Git Anda secara otomatis untuk periode yang dipilih."
-    },
-    "disableLabel": {
-        "message": "Nonaktifkan"
-    },
-    "enableLabel": {
-        "message": "Aktifkan"
-    },
-    "projectNameLabel": {
-        "message": "Nama Proyek (digunakan di subjek email)"
-    },
-    "projectNamePlaceholder": {
-        "message": "Masukkan nama proyek Anda"
-    },
-    "githubUsernameLabel": {
-        "message": "Nama Pengguna GitHub Anda"
-    },
-    "gitlabUsernameLabel": {
-        "message": "Nama Pengguna GitLab Anda"
-    },
-    "githubUsernamePlaceholder": {
-        "message": "Diperlukan untuk mengambil kontribusi Anda"
-    },
-    "contributionsLabel": {
-        "message": "Ambil kontribusi Anda untuk:"
-    },
-    "last1DayLabel": {
-        "message": "Hari sebelumnya"
-    },
-    "startDateLabel": {
-        "message": "Dari:"
-    },
-    "endDateLabel": {
-        "message": "Hingga:"
-    },
-    "showOpenClosedLabel": {
-        "message": "Tampilkan status Buka/Tutup"
-    },
-    "blockersLabel": {
-        "message": "Apa yang menghalangi kemajuan Anda?"
-    },
-    "blockersPlaceholder": {
-        "message": "Masukkan alasan Anda"
-    },
-    "scrumReportLabel": {
-        "message": "Laporan Scrum"
-    },
-    "generateReportButton": {
-        "message": "Buat"
-    },
-    "copyReportButton": {
-        "message": "Salin"
-    },
-    "insertInEmailButton": {
-        "message": "Sisipkan ke Email"
-    },
-    "settingsOrgNameLabel": {
-        "message": "Nama Organisasi"
-    },
-    "settingsOrgNamePlaceholder": {
-        "message": "Masukkan nama organisasi"
-    },
-    "setButton": {
-        "message": "Atur"
-    },
-    "githubTokenLabel": {
-        "message": "Token GitHub Anda"
-    },
-    "githubTokenPlaceholder": {
-        "message": "Diperlukan untuk permintaan terotentikasi"
-    },
-    "gitlabTokenLabel": {
-        "message": "Token GitLab Anda"
-    },
-    "gitlabTokenPlaceholder": {
-        "message": "Diperlukan untuk repo pribadi"
-    },
-    "showCommitsLabel": {
-        "message": "Tampilkan commit pada PR terbuka/ draf PR"
-    },
-    "showCommitsTooltip": {
-        "message": "Token Github diperlukan, tambahkan di pengaturan."
-    },
-    "onlyIssuesLabel": {
-        "message": "Hanya sertakan masalah dalam laporan"
-    },
-    "onlyIssuesTooltip": {
-        "message": "Jika dicentang, laporan hanya akan menyertakan masalah yang dibuat atau ditugaskan kepada pengguna."
-    },
-    "onlyPRsLabel": {
-        "message": "Hanya sertakan PR dalam laporan"
-    },
-    "onlyPRsTooltip": {
-        "message": "Jika dicentang, laporan hanya akan menyertakan PR yang dibuat oleh pengguna; PR yang telah ditinjau akan dikecualikan."
-    },
-    "onlyRevPRsLabel": {
-        "message": "Hanya sertakan PR yang ditinjau dalam laporan"
-    },
-    "onlyRevPRsTooltip": {
-        "message": "Jika dicentang, laporan hanya akan menyertakan PR yang ditinjau oleh Anda."
-    },
-
-    "cacheTTLLabel": {
-        "message": "Masukkan TTL cache",
-        "description": "Label untuk masukan time-to-live cache."
-    },
-    "cacheTTLUnit": {
-        "message": "(dalam menit)"
-    },
-    "cacheTTLPlaceholder": {
-        "message": "Tulis TTL Cache dalam menit (Default: 10)"
-    },
-    "refreshDataButton": {
-        "message": "Segarkan Data (abaikan cache)"
-    },
-    "refreshDataInfo": {
-        "message": "Gunakan tombol ini untuk mengambil data baru segera."
-    },
-    "noteTitle": {
-        "message": "Catatan:"
-    },
-    "viewCodeButton": {
-        "message": "Lihat Kode"
-    },
-    "reportIssueButton": {
-        "message": "Laporkan Masalah"
-    },
-    "repoFilterLabel": {
-        "message": "Filter berdasarkan repositori"
-    },
-    "enableFilteringLabel": {
-        "message": "Aktifkan pemfilteran"
-    },
-    "tokenRequiredWarning": {
-        "message": "Token GitHub diperlukan untuk pemfilteran repositori. Harap tambahkan di pengaturan."
-    },
-    "repoSearchPlaceholder": {
-        "message": "Cari repositori untuk ditambahkan..."
-    },
-    "repoPlaceholder": {
-        "message": "Tidak ada repositori yang dipilih (semua akan disertakan)"
-    },
-    "repoCountNone": {
-        "message": "0 repositori dipilih"
-    },
-    "repoCount": {
-        "message": "$1 repositori dipilih"
-    },
-    "repoLoading": {
-        "message": "Memuat repositori..."
-    },
-    "repoLoaded": {
-        "message": "$1 repositori dimuat."
-    },
-    "repoNotFound": {
-        "message": "Tidak ada repositori ditemukan"
-    },
-    "repoRefetching": {
-        "message": "Memuat ulang repositori..."
-    },
-    "repoLoadFailed": {
-        "message": "Gagal memuat repositori."
-    },
-    "repoTokenPrivate": {
-        "message": "Token tidak valid atau tidak memiliki hak untuk repo pribadi."
-    },
-    "repoRefetchFailed": {
-        "message": "Gagal memuat ulang repositori."
-    },
-    "orgSetMessage": {
-        "message": "Organisasi berhasil diatur."
-    },
-    "orgClearedMessage": {
-        "message": "Organisasi dihapus. Klik 'Buat Laporan' untuk mengambil semua aktivitas."
-    },
-    "orgNotFoundMessage": {
-        "message": "Organisasi tidak ditemukan di GitHub."
-    },
-    "orgValidationErrorMessage": {
-        "message": "Gagal memvalidasi organisasi."
-    },
-    "refreshingButton": {
-        "message": "Menyegarkan..."
-    },
-    "cacheClearFailed": {
-        "message": "Gagal membersihkan cache."
-    },
-    "madeWithLoveBy": {
-        "message": "Made with ❤️ by"
-    },
-    "generatingButton": {
-        "message": "Membuat..."
-    },
-    "copiedButton": {
-        "message": "Tersalin!"
-    },
-    "orgChangedMessage": {
-        "message": "Organisasi diubah. Klik tombol 'Buat Laporan' untuk mengambil aktivitas GitHub."
-    },
-    "cacheClearedMessage": {
-        "message": "Cache berhasil dihapus. Klik 'Buat Laporan' untuk mengambil data baru."
-    },
-    "cacheClearedButton": {
-        "message": "Cache Dihapus!"
-    },
-    "extensionDisabledMessage": {
-        "message": "Ekstensi dinonaktifkan. Aktifkan dari opsi untuk membuat laporan scrum."
-    },
-    "notePoint1": {
-        "message": "Pull request diambil berdasarkan aktivitas review terbaru oleh kontributor mana pun, bukan hanya milik Anda. Harap tinjau dan sesuaikan laporan SCRUM yang dihasilkan untuk memastikan laporan tersebut secara akurat mencerminkan pekerjaan Anda sebelum dibagikan."
-    },
-    "noteSeeIssue": {
-        "message": "Lihat masalah ini"
-    },
-    "platformLabel": {
-        "message": "Platform"
-    },
-    "usernameLabel": {
-        "message": "Nama pengguna Anda"
-    }
+  "appName": {
+    "message": "Scrum Helper"
+  },
+  "appDescription": {
+    "message": "Laporkan kemajuan pengembangan Anda dengan mengambil aktivitas Git Anda secara otomatis untuk periode yang dipilih."
+  },
+  "disableLabel": {
+    "message": "Nonaktifkan"
+  },
+  "enableLabel": {
+    "message": "Aktifkan"
+  },
+  "projectNameLabel": {
+    "message": "Nama Proyek (digunakan di subjek email)"
+  },
+  "projectNamePlaceholder": {
+    "message": "Masukkan nama proyek Anda"
+  },
+  "githubUsernameLabel": {
+    "message": "Nama Pengguna GitHub Anda"
+  },
+  "gitlabUsernameLabel": {
+    "message": "Nama Pengguna GitLab Anda"
+  },
+  "githubUsernamePlaceholder": {
+    "message": "Diperlukan untuk mengambil kontribusi Anda"
+  },
+  "contributionsLabel": {
+    "message": "Ambil kontribusi Anda untuk:"
+  },
+  "last1DayLabel": {
+    "message": "Hari sebelumnya"
+  },
+  "startDateLabel": {
+    "message": "Dari:"
+  },
+  "endDateLabel": {
+    "message": "Hingga:"
+  },
+  "showOpenClosedLabel": {
+    "message": "Tampilkan status Buka/Tutup"
+  },
+  "blockersLabel": {
+    "message": "Apa yang menghalangi kemajuan Anda?"
+  },
+  "blockersPlaceholder": {
+    "message": "Masukkan alasan Anda"
+  },
+  "scrumReportLabel": {
+    "message": "Laporan Scrum"
+  },
+  "generateReportButton": {
+    "message": "Buat"
+  },
+  "copyReportButton": {
+    "message": "Salin"
+  },
+  "insertInEmailButton": {
+    "message": "Sisipkan ke Email"
+  },
+  "settingsOrgNameLabel": {
+    "message": "Nama Organisasi"
+  },
+  "settingsOrgNamePlaceholder": {
+    "message": "Masukkan nama organisasi"
+  },
+  "setButton": {
+    "message": "Atur"
+  },
+  "githubTokenLabel": {
+    "message": "Token GitHub Anda"
+  },
+  "githubTokenPlaceholder": {
+    "message": "Diperlukan untuk permintaan terotentikasi"
+  },
+  "gitlabTokenLabel": {
+    "message": "Token GitLab Anda"
+  },
+  "gitlabTokenPlaceholder": {
+    "message": "Diperlukan untuk repo pribadi"
+  },
+  "showCommitsLabel": {
+    "message": "Tampilkan commit pada PR terbuka/ draf PR"
+  },
+  "showCommitsTooltip": {
+    "message": "Token Github diperlukan, tambahkan di pengaturan."
+  },
+  "onlyIssuesLabel": {
+    "message": "Hanya sertakan masalah dalam laporan"
+  },
+  "onlyIssuesTooltip": {
+    "message": "Jika dicentang, laporan hanya akan menyertakan masalah yang dibuat atau ditugaskan kepada pengguna."
+  },
+  "onlyPRsLabel": {
+    "message": "Hanya sertakan PR dalam laporan"
+  },
+  "onlyPRsTooltip": {
+    "message": "Jika dicentang, laporan hanya akan menyertakan PR yang dibuat oleh pengguna; PR yang telah ditinjau akan dikecualikan."
+  },
+  "onlyRevPRsLabel": {
+    "message": "Hanya sertakan PR yang ditinjau dalam laporan"
+  },
+  "onlyRevPRsTooltip": {
+    "message": "Jika dicentang, laporan hanya akan menyertakan PR yang ditinjau oleh Anda."
+  },
+  "cacheTTLLabel": {
+    "message": "Masukkan TTL cache",
+    "description": "Label untuk masukan time-to-live cache."
+  },
+  "cacheTTLUnit": {
+    "message": "(dalam menit)"
+  },
+  "cacheTTLPlaceholder": {
+    "message": "Tulis TTL Cache dalam menit (Default: 10)"
+  },
+  "refreshDataButton": {
+    "message": "Segarkan Data (abaikan cache)"
+  },
+  "refreshDataInfo": {
+    "message": "Gunakan tombol ini untuk mengambil data baru segera."
+  },
+  "noteTitle": {
+    "message": "Catatan:"
+  },
+  "viewCodeButton": {
+    "message": "Lihat Kode"
+  },
+  "reportIssueButton": {
+    "message": "Laporkan Masalah"
+  },
+  "repoFilterLabel": {
+    "message": "Filter berdasarkan repositori"
+  },
+  "enableFilteringLabel": {
+    "message": "Aktifkan pemfilteran"
+  },
+  "tokenRequiredWarning": {
+    "message": "Token GitHub diperlukan untuk pemfilteran repositori. Harap tambahkan di pengaturan."
+  },
+  "repoSearchPlaceholder": {
+    "message": "Cari repositori untuk ditambahkan..."
+  },
+  "repoPlaceholder": {
+    "message": "Tidak ada repositori yang dipilih (semua akan disertakan)"
+  },
+  "repoCountNone": {
+    "message": "0 repositori dipilih"
+  },
+  "repoCount": {
+    "message": "$1 repositori dipilih"
+  },
+  "repoLoading": {
+    "message": "Memuat repositori..."
+  },
+  "repoLoaded": {
+    "message": "$1 repositori dimuat."
+  },
+  "repoNotFound": {
+    "message": "Tidak ada repositori ditemukan"
+  },
+  "repoRefetching": {
+    "message": "Memuat ulang repositori..."
+  },
+  "repoLoadFailed": {
+    "message": "Gagal memuat repositori."
+  },
+  "repoTokenPrivate": {
+    "message": "Token tidak valid atau tidak memiliki hak untuk repo pribadi."
+  },
+  "repoRefetchFailed": {
+    "message": "Gagal memuat ulang repositori."
+  },
+  "orgSetMessage": {
+    "message": "Organisasi berhasil diatur."
+  },
+  "orgClearedMessage": {
+    "message": "Organisasi dihapus. Klik 'Buat Laporan' untuk mengambil semua aktivitas."
+  },
+  "orgNotFoundMessage": {
+    "message": "Organisasi tidak ditemukan di GitHub."
+  },
+  "orgValidationErrorMessage": {
+    "message": "Gagal memvalidasi organisasi."
+  },
+  "refreshingButton": {
+    "message": "Menyegarkan..."
+  },
+  "cacheClearFailed": {
+    "message": "Gagal membersihkan cache."
+  },
+  "madeWithLoveBy": {
+    "message": "Made with ❤️ by"
+  },
+  "generatingButton": {
+    "message": "Membuat..."
+  },
+  "copiedButton": {
+    "message": "Tersalin!"
+  },
+  "orgChangedMessage": {
+    "message": "Organisasi diubah. Klik tombol 'Buat Laporan' untuk mengambil aktivitas GitHub."
+  },
+  "cacheClearedMessage": {
+    "message": "Cache berhasil dihapus. Klik 'Buat Laporan' untuk mengambil data baru."
+  },
+  "cacheClearedButton": {
+    "message": "Cache Dihapus!"
+  },
+  "extensionDisabledMessage": {
+    "message": "Ekstensi dinonaktifkan. Aktifkan dari opsi untuk membuat laporan scrum."
+  },
+  "notePoint1": {
+    "message": "Pull request diambil berdasarkan aktivitas review terbaru oleh kontributor mana pun, bukan hanya milik Anda. Harap tinjau dan sesuaikan laporan SCRUM yang dihasilkan untuk memastikan laporan tersebut secara akurat mencerminkan pekerjaan Anda sebelum dibagikan."
+  },
+  "noteSeeIssue": {
+    "message": "Lihat masalah ini"
+  },
+  "platformLabel": {
+    "message": "Platform"
+  },
+  "usernameLabel": {
+    "message": "Nama pengguna Anda"
+  },
+  "profilesLabel": {
+    "message": "Profiles"
+  },
+  "profilesTooltip": {
+    "message": "Create and switch between different sets of credentials and repositories."
+  },
+  "addProfileButton": {
+    "message": "Add"
+  },
+  "deleteProfileButton": {
+    "message": "Delete"
+  },
+  "newProfilePrompt": {
+    "message": "Enter a name for the new profile:"
+  },
+  "deleteProfileConfirm": {
+    "message": "Are you sure you want to delete the profile '$1'?"
+  },
+  "defaultProfileName": {
+    "message": "Default"
+  }
 }

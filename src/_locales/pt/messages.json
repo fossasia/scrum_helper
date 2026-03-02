@@ -1,227 +1,246 @@
 {
-
-    "appName": {
-        "message": "Scrum Helper"
-    },
-    "appDescription": {
-        "message": "Relate o seu progresso de desenvolvimento buscando automaticamente a sua atividade no Git para um período selecionado"
-    },
-    "disableLabel": {
-        "message": "Desativar"
-    },
-    "enableLabel": {
-        "message": "Ativar"
-    },
-    "projectNameLabel": {
-        "message": "Nome do Projeto (usado no assunto do e-mail)"
-    },
-    "projectNamePlaceholder": {
-        "message": "Digite o nome do seu projeto"
-    },
-    "githubUsernameLabel": {
-        "message": "Seu nome de usuário do GitHub"
-    },
-    "gitlabUsernameLabel": {
-        "message": "Seu nome de usuário do GitLab"
-    },
-    "githubUsernamePlaceholder": {
-        "message": "Necessário para buscar suas contribuições"
-    },
-    "contributionsLabel": {
-        "message": "Buscar suas contribuições entre:"
-    },
-    "last1DayLabel": {
-        "message": "Dia anterior"
-    },
-    "startDateLabel": {
-        "message": "De:"
-    },
-    "endDateLabel": {
-        "message": "Até:"
-    },
-    "showOpenClosedLabel": {
-        "message": "Mostrar Rótulo Aberto/Fechado"
-    },
-    "blockersLabel": {
-        "message": "O que está impedindo você de progredir?"
-    },
-    "blockersPlaceholder": {
-        "message": "Digite o seu motivo"
-    },
-    "scrumReportLabel": {
-        "message": "Relatório Scrum"
-    },
-    "generateReportButton": {
-        "message": "Gerar"
-    },
-    "copyReportButton": {
-        "message": "Copiar"
-    },
-    "insertInEmailButton": {
-        "message": "Inserir no email"
-    },
-    "settingsOrgNameLabel": {
-        "message": "Nome da Organização"
-    },
-    "settingsOrgNamePlaceholder": {
-        "message": "Digite o nome da organização"
-    },
-    "setButton": {
-        "message": "Definir"
-    },
-    "githubTokenLabel": {
-        "message": "Seu Token do Github"
-    },
-    "githubTokenPlaceholder": {
-        "message": "Necessário para fazer solicitações autenticadas"
-    },
-    "gitlabTokenLabel": {
-        "message": "Seu Token GitLab"
-    },
-    "gitlabTokenPlaceholder": {
-        "message": "Necessário para repos privados"
-    },
-    "showCommitsLabel": {
-        "message": "Mostrar commits em PRs abertos/ rascunhos de PRs"
-    },
-    "showCommitsTooltip": {
-        "message": "Token do Github necessário, adicione-o nas configurações."
-    },
-    "onlyIssuesLabel": {
-        "message": "Incluir apenas problemas no relatório"
-    },
-    "onlyIssuesTooltip": {
-        "message": "Se marcado, o relatório incluirá apenas os problemas criados ou atribuídos ao usuário."
-    },
-    "onlyPRsLabel": {
-        "message": "Incluir apenas PRs no relatório"
-    },
-    "onlyPRsTooltip": {
-        "message": "Se marcado, o relatório incluirá apenas PRs criadas pelo usuário; as PRs revisadas serão excluídas."
-    },
-    "onlyRevPRsLabel": {
-        "message": "Incluir apenas PRs revisadas no relatório"
-    },
-    "onlyRevPRsTooltip": {
-        "message": "Se marcado, o relatório incluirá apenas PRs revisadas por você."
-    },
-
-    "cacheTTLLabel": {
-        "message": "Digite o TTL do cache",
-        "description": "Rótulo para a entrada de tempo de vida do cache."
-    },
-    "cacheTTLUnit": {
-        "message": "(em minutos)"
-    },
-    "cacheTTLPlaceholder": {
-        "message": "Escreva o TTL do cache em minutos (Padrão 10 minutos)"
-    },
-    "refreshDataButton": {
-        "message": "Atualizar Dados (ignorar cache)"
-    },
-    "refreshDataInfo": {
-        "message": "Use este botão para buscar dados novos imediatamente."
-    },
-    "noteTitle": {
-        "message": "Nota:"
-    },
-    "viewCodeButton": {
-        "message": "Ver Código"
-    },
-    "reportIssueButton": {
-        "message": "Relatar Problema"
-    },
-    "madeWithLoveBy": {
-        "message": "Feito com ❤️ por"
-    },
-    "generatingButton": {
-        "message": "Gerando..."
-    },
-    "copiedButton": {
-        "message": "Copiado!"
-    },
-    "orgChangedMessage": {
-        "message": "Organização alterada. Clique no botão Gerar para buscar as atividades do GitHub."
-    },
-    "cacheClearedMessage": {
-        "message": "Cache limpo com sucesso. Clique em \"Gerar Relatório\" para buscar dados novos."
-    },
-    "cacheClearedButton": {
-        "message": "Cache Limpo!"
-    },
-    "extensionDisabledMessage": {
-        "message": "A extensão está desativada. Ative-a nas opções para gerar relatórios scrum."
-    },
-    "notePoint1": {
-        "message": "As solicitações de pull são buscadas com base na atividade de revisão mais recente de qualquer contribuidor, não apenas na sua. Revise e ajuste o relatório SCRUM gerado para garantir que ele reflita com precisão o seu trabalho antes de compartilhá-lo."
-    },
-    "noteSeeIssue": {
-        "message": "Veja este problema"
-    },
-    "platformLabel": {
-        "message": "Plataforma"
-    },
-    "usernameLabel": {
-        "message": "Seu nome de usuário"
-    },
-    "repoFilterLabel": {
-        "message": "Filter by repositories"
-    },
-    "enableFilteringLabel": {
-        "message": "Enable filtering"
-    },
-    "tokenRequiredWarning": {
-        "message": "A GitHub token is required for repository filtering. Please add one in the settings."
-    },
-    "repoSearchPlaceholder": {
-        "message": "Search for a repository to add..."
-    },
-    "repoPlaceholder": {
-        "message": "No repositories selected (all will be included)"
-    },
-    "repoCountNone": {
-        "message": "0 repositories selected"
-    },
-    "repoCount": {
-        "message": "$1 repositories selected"
-    },
-    "repoLoading": {
-        "message": "Loading repositories..."
-    },
-    "repoLoaded": {
-        "message": "Loaded $1 repositories."
-    },
-    "repoNotFound": {
-        "message": "No repositories found"
-    },
-    "repoRefetching": {
-        "message": "Refetching repositories..."
-    },
-    "repoLoadFailed": {
-        "message": "Failed to load repositories."
-    },
-    "repoTokenPrivate": {
-        "message": "Token is invalid or does not have rights for private repos."
-    },
-    "repoRefetchFailed": {
-        "message": "Failed to refetch repositories."
-    },
-    "orgSetMessage": {
-        "message": "Organization set successfully."
-    },
-    "orgClearedMessage": {
-        "message": "Organization cleared. Click 'Generate' to fetch all activities."
-    },
-    "orgNotFoundMessage": {
-        "message": "Organization not found on GitHub."
-    },
-    "orgValidationErrorMessage": {
-        "message": "Error validating organization."
-    },
-    "refreshingButton": {
-        "message": "Refreshing..."
-    },
-    "cacheClearFailed": {
-        "message": "Cache clear failed."
-    }
+  "appName": {
+    "message": "Scrum Helper"
+  },
+  "appDescription": {
+    "message": "Relate o seu progresso de desenvolvimento buscando automaticamente a sua atividade no Git para um período selecionado"
+  },
+  "disableLabel": {
+    "message": "Desativar"
+  },
+  "enableLabel": {
+    "message": "Ativar"
+  },
+  "projectNameLabel": {
+    "message": "Nome do Projeto (usado no assunto do e-mail)"
+  },
+  "projectNamePlaceholder": {
+    "message": "Digite o nome do seu projeto"
+  },
+  "githubUsernameLabel": {
+    "message": "Seu nome de usuário do GitHub"
+  },
+  "gitlabUsernameLabel": {
+    "message": "Seu nome de usuário do GitLab"
+  },
+  "githubUsernamePlaceholder": {
+    "message": "Necessário para buscar suas contribuições"
+  },
+  "contributionsLabel": {
+    "message": "Buscar suas contribuições entre:"
+  },
+  "last1DayLabel": {
+    "message": "Dia anterior"
+  },
+  "startDateLabel": {
+    "message": "De:"
+  },
+  "endDateLabel": {
+    "message": "Até:"
+  },
+  "showOpenClosedLabel": {
+    "message": "Mostrar Rótulo Aberto/Fechado"
+  },
+  "blockersLabel": {
+    "message": "O que está impedindo você de progredir?"
+  },
+  "blockersPlaceholder": {
+    "message": "Digite o seu motivo"
+  },
+  "scrumReportLabel": {
+    "message": "Relatório Scrum"
+  },
+  "generateReportButton": {
+    "message": "Gerar"
+  },
+  "copyReportButton": {
+    "message": "Copiar"
+  },
+  "insertInEmailButton": {
+    "message": "Inserir no email"
+  },
+  "settingsOrgNameLabel": {
+    "message": "Nome da Organização"
+  },
+  "settingsOrgNamePlaceholder": {
+    "message": "Digite o nome da organização"
+  },
+  "setButton": {
+    "message": "Definir"
+  },
+  "githubTokenLabel": {
+    "message": "Seu Token do Github"
+  },
+  "githubTokenPlaceholder": {
+    "message": "Necessário para fazer solicitações autenticadas"
+  },
+  "gitlabTokenLabel": {
+    "message": "Seu Token GitLab"
+  },
+  "gitlabTokenPlaceholder": {
+    "message": "Necessário para repos privados"
+  },
+  "showCommitsLabel": {
+    "message": "Mostrar commits em PRs abertos/ rascunhos de PRs"
+  },
+  "showCommitsTooltip": {
+    "message": "Token do Github necessário, adicione-o nas configurações."
+  },
+  "onlyIssuesLabel": {
+    "message": "Incluir apenas problemas no relatório"
+  },
+  "onlyIssuesTooltip": {
+    "message": "Se marcado, o relatório incluirá apenas os problemas criados ou atribuídos ao usuário."
+  },
+  "onlyPRsLabel": {
+    "message": "Incluir apenas PRs no relatório"
+  },
+  "onlyPRsTooltip": {
+    "message": "Se marcado, o relatório incluirá apenas PRs criadas pelo usuário; as PRs revisadas serão excluídas."
+  },
+  "onlyRevPRsLabel": {
+    "message": "Incluir apenas PRs revisadas no relatório"
+  },
+  "onlyRevPRsTooltip": {
+    "message": "Se marcado, o relatório incluirá apenas PRs revisadas por você."
+  },
+  "cacheTTLLabel": {
+    "message": "Digite o TTL do cache",
+    "description": "Rótulo para a entrada de tempo de vida do cache."
+  },
+  "cacheTTLUnit": {
+    "message": "(em minutos)"
+  },
+  "cacheTTLPlaceholder": {
+    "message": "Escreva o TTL do cache em minutos (Padrão 10 minutos)"
+  },
+  "refreshDataButton": {
+    "message": "Atualizar Dados (ignorar cache)"
+  },
+  "refreshDataInfo": {
+    "message": "Use este botão para buscar dados novos imediatamente."
+  },
+  "noteTitle": {
+    "message": "Nota:"
+  },
+  "viewCodeButton": {
+    "message": "Ver Código"
+  },
+  "reportIssueButton": {
+    "message": "Relatar Problema"
+  },
+  "madeWithLoveBy": {
+    "message": "Feito com ❤️ por"
+  },
+  "generatingButton": {
+    "message": "Gerando..."
+  },
+  "copiedButton": {
+    "message": "Copiado!"
+  },
+  "orgChangedMessage": {
+    "message": "Organização alterada. Clique no botão Gerar para buscar as atividades do GitHub."
+  },
+  "cacheClearedMessage": {
+    "message": "Cache limpo com sucesso. Clique em \"Gerar Relatório\" para buscar dados novos."
+  },
+  "cacheClearedButton": {
+    "message": "Cache Limpo!"
+  },
+  "extensionDisabledMessage": {
+    "message": "A extensão está desativada. Ative-a nas opções para gerar relatórios scrum."
+  },
+  "notePoint1": {
+    "message": "As solicitações de pull são buscadas com base na atividade de revisão mais recente de qualquer contribuidor, não apenas na sua. Revise e ajuste o relatório SCRUM gerado para garantir que ele reflita com precisão o seu trabalho antes de compartilhá-lo."
+  },
+  "noteSeeIssue": {
+    "message": "Veja este problema"
+  },
+  "platformLabel": {
+    "message": "Plataforma"
+  },
+  "usernameLabel": {
+    "message": "Seu nome de usuário"
+  },
+  "repoFilterLabel": {
+    "message": "Filter by repositories"
+  },
+  "enableFilteringLabel": {
+    "message": "Enable filtering"
+  },
+  "tokenRequiredWarning": {
+    "message": "A GitHub token is required for repository filtering. Please add one in the settings."
+  },
+  "repoSearchPlaceholder": {
+    "message": "Search for a repository to add..."
+  },
+  "repoPlaceholder": {
+    "message": "No repositories selected (all will be included)"
+  },
+  "repoCountNone": {
+    "message": "0 repositories selected"
+  },
+  "repoCount": {
+    "message": "$1 repositories selected"
+  },
+  "repoLoading": {
+    "message": "Loading repositories..."
+  },
+  "repoLoaded": {
+    "message": "Loaded $1 repositories."
+  },
+  "repoNotFound": {
+    "message": "No repositories found"
+  },
+  "repoRefetching": {
+    "message": "Refetching repositories..."
+  },
+  "repoLoadFailed": {
+    "message": "Failed to load repositories."
+  },
+  "repoTokenPrivate": {
+    "message": "Token is invalid or does not have rights for private repos."
+  },
+  "repoRefetchFailed": {
+    "message": "Failed to refetch repositories."
+  },
+  "orgSetMessage": {
+    "message": "Organization set successfully."
+  },
+  "orgClearedMessage": {
+    "message": "Organization cleared. Click 'Generate' to fetch all activities."
+  },
+  "orgNotFoundMessage": {
+    "message": "Organization not found on GitHub."
+  },
+  "orgValidationErrorMessage": {
+    "message": "Error validating organization."
+  },
+  "refreshingButton": {
+    "message": "Refreshing..."
+  },
+  "cacheClearFailed": {
+    "message": "Cache clear failed."
+  },
+  "profilesLabel": {
+    "message": "Profiles"
+  },
+  "profilesTooltip": {
+    "message": "Create and switch between different sets of credentials and repositories."
+  },
+  "addProfileButton": {
+    "message": "Add"
+  },
+  "deleteProfileButton": {
+    "message": "Delete"
+  },
+  "newProfilePrompt": {
+    "message": "Enter a name for the new profile:"
+  },
+  "deleteProfileConfirm": {
+    "message": "Are you sure you want to delete the profile '$1'?"
+  },
+  "defaultProfileName": {
+    "message": "Default"
+  }
 }

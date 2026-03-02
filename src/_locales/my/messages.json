@@ -223,5 +223,26 @@
   },
   "onlyRevPRsTooltip": {
     "message": "၎င်းကိုစစ်ဆေးပါက၊ အစီရင်ခံစာတွင် သင်သုံးသပ်ထားသော PR များသာ ပါဝင်မည်ဖြစ်သည်။"
+  },
+  "profilesLabel": {
+    "message": "Profiles"
+  },
+  "profilesTooltip": {
+    "message": "Create and switch between different sets of credentials and repositories."
+  },
+  "addProfileButton": {
+    "message": "Add"
+  },
+  "deleteProfileButton": {
+    "message": "Delete"
+  },
+  "newProfilePrompt": {
+    "message": "Enter a name for the new profile:"
+  },
+  "deleteProfileConfirm": {
+    "message": "Are you sure you want to delete the profile '$1'?"
+  },
+  "defaultProfileName": {
+    "message": "Default"
   }
 }

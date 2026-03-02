@@ -299,5 +299,33 @@
   },
   "onlyRevPRsTooltip": {
     "message": "If checked, the report will only include PRs reviewed by you."
+  },
+  "profilesLabel": {
+    "message": "Profiles",
+    "description": "Label for the profile management section."
+  },
+  "profilesTooltip": {
+    "message": "Create and switch between different sets of credentials and repositories for different projects or clients.",
+    "description": "Tooltip explaining multi-profile support."
+  },
+  "addProfileButton": {
+    "message": "Add",
+    "description": "Button to add a new profile."
+  },
+  "deleteProfileButton": {
+    "message": "Delete",
+    "description": "Button to delete the current profile."
+  },
+  "newProfilePrompt": {
+    "message": "Enter a name for the new profile:",
+    "description": "Prompt for new profile name."
+  },
+  "deleteProfileConfirm": {
+    "message": "Are you sure you want to delete the profile '$1'?",
+    "description": "Confirmation message before deleting a profile. $1 is the profile name."
+  },
+  "defaultProfileName": {
+    "message": "Default",
+    "description": "Default name for the first profile."
   }
 }
