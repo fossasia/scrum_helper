@@ -1066,7 +1066,8 @@ function allIncluded(outputTarget = 'email') {
 	}
 
 	function writeScrumBody() {
-		if (!enableToggle) {
+		const isToggleDisabled = typeof enableToggle !== 'undefined' && !enableToggle;
+		if (isToggleDisabled) {
 			scrumGenerationInProgress = false;
 			return;
 		}
