@@ -9,7 +9,30 @@ const NotificationSystem = {
 	},
 
 	_showCustomToast(message, type, duration, onDismiss) {
+		// Validate type to prevent unexpected CSS class injection
+		const VALID_TYPES = ['success', 'error', 'info'];
+		type = VALID_TYPES.includes(type) ? type : 'info';
+
 		this._dismissCurrent();
+
+		// Lazily inject animation styles once when the first toast is shown,
+		// so the script is safe to load in content-script contexts where
+		// document.head may not be ready at module parse time.
+		if (!document.getElementById('scrum-helper-toast-styles')) {
+			const style = document.createElement('style');
+			style.id = 'scrum-helper-toast-styles';
+			style.textContent = `
+				@keyframes toast-in {
+					from { opacity: 0; transform: translateY(-20px) scale(0.9); }
+					to { opacity: 1; transform: translateY(0) scale(1); }
+				}
+				@keyframes toast-out {
+					from { opacity: 1; transform: translateY(0) scale(1); }
+					to { opacity: 0; transform: scale(0.95); }
+				}
+			`;
+			document.head.appendChild(style);
+		}
 
 		const containerId = 'scrum-helper-toast-container';
 		let container = document.getElementById(containerId);
@@ -33,6 +56,16 @@ const NotificationSystem = {
 
 		const toast = document.createElement('div');
 		toast.className = `scrum-toast scrum-toast-${type}`;
+
+		// Accessibility: allow assistive technologies to announce the toast
+		if (type === 'error') {
+			toast.setAttribute('role', 'alert');
+			toast.setAttribute('aria-live', 'assertive');
+		} else {
+			toast.setAttribute('role', 'status');
+			toast.setAttribute('aria-live', 'polite');
+		}
+		toast.setAttribute('aria-atomic', 'true');
 
 		let bg = '#3b82f6';
 		let icon = 'fa-info-circle';
@@ -62,7 +95,14 @@ const NotificationSystem = {
 			max-width: 90vw;
 		`;
 
-		toast.innerHTML = `<i class="fa ${icon}"></i><span>${message}</span>`;
+		// Build toast content via DOM API to prevent XSS when message contains
+		// user-controlled or API-returned text (org names, error strings, etc.)
+		const iconElement = document.createElement('i');
+		iconElement.className = `fa ${icon}`;
+		const messageSpan = document.createElement('span');
+		messageSpan.textContent = message;
+		toast.appendChild(iconElement);
+		toast.appendChild(messageSpan);
 
 		container.appendChild(toast);
 		this._activeToast = toast;
@@ -106,22 +146,6 @@ const NotificationSystem = {
 		this._activeToast = null;
 	},
 };
-
-if (!document.getElementById('scrum-helper-toast-styles')) {
-	const style = document.createElement('style');
-	style.id = 'scrum-helper-toast-styles';
-	style.textContent = `
-		@keyframes toast-in {
-			from { opacity: 0; transform: translateY(-20px) scale(0.9); }
-			to { opacity: 1; transform: translateY(0) scale(1); }
-		}
-		@keyframes toast-out {
-			from { opacity: 1; transform: translateY(0) scale(1); }
-			to { opacity: 0; transform: scale(0.95); }
-		}
-	`;
-	document.head.appendChild(style);
-}
 
 if (typeof module !== 'undefined' && module.exports) {
 	module.exports = NotificationSystem;

@@ -92,7 +92,6 @@ function handleBodyOnLoad() {
 	);
 }
 
-
 function handleStartingDateChange() {
 	const value = startingDateElement.value;
 	chrome.storage.local.set({ startingDate: value });

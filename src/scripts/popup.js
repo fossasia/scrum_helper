@@ -425,7 +425,17 @@ document.addEventListener('DOMContentLoaded', () => {
 						'mail.yahoo.com',
 						'groups.google.com',
 					];
-					if (!supportedDomains.some((d) => tabUrl.includes(d))) {
+					// Parse the hostname to prevent domain-check bypass via URL params or
+					// crafted subdomains (e.g. evil.com/?mail.google.com)
+					let tabHostname = '';
+					try {
+						tabHostname = new URL(tabUrl).hostname;
+					} catch (e) {
+						tabHostname = '';
+					}
+					const isSupported =
+						tabHostname && supportedDomains.some((d) => tabHostname === d || tabHostname.endsWith('.' + d));
+					if (!isSupported) {
 						NotificationSystem.showToast('Please open Gmail, Outlook, or Yahoo Mail first.', 'error', 4000);
 						return;
 					}
@@ -584,6 +594,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			if (org) {
 				validateOrgOnBlur(org);
+			} else {
+				// Clear any stale org-validation toast when the org field is emptied
+				NotificationSystem._dismissCurrent?.();
 			}
 		});
 		if (userReasonInput) {

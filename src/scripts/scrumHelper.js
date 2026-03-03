@@ -417,7 +417,7 @@ function allIncluded(outputTarget = 'email') {
 					logError('Storage save failed: ', chrome.runtime.lastError);
 					resolve(false);
 				} else {
-					log('Cache saved successfuly');
+					log('Cache saved successfully');
 					githubCache.data = data;
 					githubCache.subject = subject;
 					resolve(true);
@@ -789,6 +789,7 @@ function allIncluded(outputTarget = 'email') {
 
 			if (outputTarget === 'popup') {
 				const generateBtn = document.getElementById('generateReport');
+				const scrumReport = document.getElementById('scrumReport');
 				if (!err?.toastShown) {
 					let errorMsg = 'An error occurred while generating the report.';
 					if (err) {
@@ -936,10 +937,10 @@ function allIncluded(outputTarget = 'email') {
 			});
 			githubCache.repoQueue = [];
 
-			log(`Successfuly cached ${repos.length} repositories`);
+			log(`Successfully cached ${repos.length} repositories`);
 			return repos;
 		} catch (err) {
-			logError('Failed to fetch reppos:', err);
+			logError('Failed to fetch repos:', err);
 			githubCache.repoQueue.forEach(({ reject }) => {
 				reject(err);
 			});
@@ -1510,11 +1511,15 @@ ${userReason}`;
 		} else if (useMergedStatus) {
 			if (prsToCheck.length > 30) {
 				fallbackToSimple = true;
-				NotificationSystem.showToast(
-					'API limit exceeded. Please use a GitHub token for full status. Showing only open/closed PRs.',
-					'info',
-					5000,
-				);
+				// Only show the UI toast in popup context; avoid injecting into third-party
+				// email pages when running as a content script.
+				if (outputTarget === 'popup') {
+					NotificationSystem.showToast(
+						'API limit exceeded. Please use a GitHub token for full status. Showing only open/closed PRs.',
+						'info',
+						5000,
+					);
+				}
 			} else {
 				// Use REST API for each PR, cache results
 				for (const pr of prsToCheck) {
@@ -2062,7 +2067,7 @@ async function fetchUserRepositories(username, token, org = '') {
 		console.log(`Found ${repoNames.length} unique repositories with contributions in the selected date range`);
 
 		if (repoNames.length === 0) {
-			console.log(`No repositories with contrbutions found in the selected date range`);
+			console.log(`No repositories with contributions found in the selected date range`);
 			return [];
 		}
 

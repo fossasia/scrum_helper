@@ -41,9 +41,13 @@ chrome?.action.onClicked.addListener((tab) => {
 
 		if (isOpen) {
 			if (typeof chrome?.sidePanel.close === 'function') {
-				chrome?.sidePanel.close({ tabId }).catch(() => { /* ignore */ });
+				chrome?.sidePanel.close({ tabId }).catch(() => {
+					/* ignore */
+				});
 			} else if (typeof chrome?.sidePanel.setOptions === 'function') {
-				chrome?.sidePanel.setOptions({ tabId, enabled: false }).catch(() => { /* ignore */ });
+				chrome?.sidePanel.setOptions({ tabId, enabled: false }).catch(() => {
+					/* ignore */
+				});
 			}
 			openByTabId.set(tabId, false);
 			return;
@@ -51,9 +55,9 @@ chrome?.action.onClicked.addListener((tab) => {
 
 		// Fire-and-forget
 		if (typeof chrome?.sidePanel.setOptions === 'function') {
-			chrome?.sidePanel
-				.setOptions({ tabId, enabled: true, path: 'popup.html' })
-				.catch(() => { /* ignore */ });
+			chrome?.sidePanel.setOptions({ tabId, enabled: true, path: 'popup.html' }).catch(() => {
+				/* ignore */
+			});
 		}
 
 		chrome?.sidePanel
@@ -62,5 +66,7 @@ chrome?.action.onClicked.addListener((tab) => {
 			.catch(() => {
 				openByTabId.set(tabId, false);
 			});
-	} catch (error) { /* ignore */ }
+	} catch (error) {
+		/* ignore */
+	}
 });
