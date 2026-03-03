@@ -58,6 +58,20 @@ a {
     -webkit-user-modify: read-only;
 }
 
+.scrum-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.scrum-actions > button {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.scrum-actions > button span {
+    white-space: nowrap;
+}
+
 .btn,
 .btn-large {
     background-color: #3f51b5;
@@ -883,3 +897,16 @@ hr,
     background-color: #3b82f6;
     color: #fff;
 }
+<<<<<<< HEAD
+=======
+
+html.mode-sidepanel, body.mode-sidepanel {
+    width: 100%;
+    min-width: 360px;
+}
+
+html.mode-popup, body.mode-popup {
+    width: 360px; 
+    min-width: 360px;
+}
+>>>>>>> ee7c93f79c4116bff1c3aa0d235fa85a01a89e52
