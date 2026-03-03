@@ -1,0 +1,227 @@
+{
+  "appName": {
+    "message": "Scrum Helper"
+  },
+  "appDescription": {
+    "message": "ရွေးချယ်ထားသောကာလတစ်ခုအတွက် သင်၏ Git လုပ်ဆောင်ချက်ကို အလိုအလျောက်ရယူခြင်းဖြင့် သင်၏ဖွံ့ဖြိုးတိုးတက်မှုကို အစီရင်ခံပါ။"
+  },
+  "disableLabel": {
+    "message": "ပိတ်ပါ။"
+  },
+  "enableLabel": {
+    "message": "ဖွင့်ပါ။"
+  },
+  "projectNameLabel": {
+    "message": "ပရောဂျက်အမည် (အီးမေးလ်အကြောင်းအရာတွင်သုံးသည်)။"
+  },
+  "projectNamePlaceholder": {
+    "message": "သင့်ပရောဂျက်အမည်ကို ထည့်သွင်းပါ။"
+  },
+  "githubUsernameLabel": {
+    "message": "သင်၏ Github အသုံးပြုသူအမည်"
+  },
+  "gitlabUsernameLabel": {
+    "message": "သင်၏ Gitlab အသုံးပြုသူအမည်"
+  },
+  "githubUsernamePlaceholder": {
+    "message": "သင်၏ contributions များကို ရယူရန်အတွက် လိုအပ်ပါသည်။"
+  },
+  "contributionsLabel": {
+    "message": "contributionsရရှိမည့်ကြာချိန် ："
+  },
+  "last1DayLabel": {
+    "message": "အရင်နေ့"
+  },
+  "startDateLabel": {
+    "message": "မှ :"
+  },
+  "endDateLabel": {
+    "message": "အထိ :"
+  },
+  "showOpenClosedLabel": {
+    "message": "PRs labelsကို ပြပါ။"
+  },
+  "blockersLabel": {
+    "message": "သင့်တိုးတက်မှုကို ရပ်တန့်စေသောအရာများ။"
+  },
+  "blockersPlaceholder": {
+    "message": "သင်၏တိုးတက်မှုကို ရပ်တန့်စေသောအရာများကိုထည့်ပါ။"
+  },
+  "scrumReportLabel": {
+    "message": "Scrum အစီရင်ခံစာ"
+  },
+  "generateReportButton": {
+    "message": "အစီရင်ခံစာထုတ်ပါ။"
+  },
+  "copyReportButton": {
+    "message": "အစီရင်ခံစာကူးယူပါ။"
+  },
+  "settingsOrgNameLabel": {
+    "message": "အဖွဲ့အစည်းအမည်"
+  },
+  "settingsOrgNamePlaceholder": {
+    "message": "အဖွဲ့အစည်းအမည်ကိုထည့်ပါ။"
+  },
+  "setButton": {
+    "message": "သတ်မှတ်မည်။"
+  },
+  "githubTokenLabel": {
+    "message": "သင်၏ Github တိုကင်"
+  },
+  "githubTokenPlaceholder": {
+    "message": "Authenticated requests ပြုလုပ်ရန်အတွက် လိုအပ်ပါသည်။"
+  },
+  "githubTokenTooltip": {
+    "message": "GitHub တိုကင်ထည့်ရန် အဘယ်ကြောင့် အကြံပြုရသနည်း။ Scrum Helper သည် GitHub တိုကင်မပါဘဲ အလုပ်လုပ်သော်လည်း ပိုမိုကောင်းမွန်သော အတွေ့အကြုံအတွက် ကိုယ်ပိုင်အသုံးပြုခွင့် တိုကင်တစ်ခုထည့်ခြင်းကို အကြံပြုပါသည်။"
+  },
+  "gitlabTokenLabel": {
+    "message": "သင်၏ Gitlab တိုကင်"
+  },
+  "gitlabTokenPlaceholder": {
+    "message": "ပုဂ္ဂလိကပရောဂျက်များကို ဝင်ရောက်အသုံးပြုရန် လိုအပ်ပါသည်။"
+  },
+  "gitlabTokenTooltip": {
+    "message": "Gitlab တိုကင်ထည့်ရန် အဘယ်ကြောင့် အကြံပြုရသနည်း။ Scrum Helper သည် အများပြည်သူကြည့်ရှုနိုင်သော ပရောဂျက်များအတွက် Gitlab တိုကင်မပါဘဲ အလုပ်လုပ်သော်လည်း၊ သီးခြား (ပုဂ္ဂလိက) ပရောဂျက်များနှင့် ပိုမိုကောင်းမွန်သော အတွေ့အကြုံအတွက် ကိုယ်ပိုင်အသုံးပြုခွင့် တိုကင်တစ်ခုထည့်ရန် အကြံပြုပါသည်။"
+  },
+  "showCommitsLabel": {
+    "message": "OpenPRများ/DraftPR များပေါ်မှ commits များကို ပြပါ။"
+  },
+  "showCommitsTooltip": {
+    "message": "Github Token လိုအပ်သည်၊ ၎င်းကို settingတွင် ရှာတွေ့နိုင်ပါသည်။"
+  },
+  "onlyIssuesLabel": {
+    "message": "အစီရင်ခံစာတွင် issuesများသာ ပါဝင်ပါသည်။"
+  },
+  "onlyIssuesTooltip": {
+    "message": "စစ်ဆေးပြီး ကြည့်ရှုပါက အစီရင်ခံစာတွင် အသုံးပြုသူအတွက် ဖန်တီးထားသော သို့မဟုတ် သတ်မှတ်ပေးထားသည့် ပြဿနာများသာ ပါဝင်မည်ဖြစ်သည်။"
+  },
+  "onlyPRsLabel": {
+    "message": "အစီရင်ခံစာတွင် PR များသာပါဝင်သည်။"
+  },
+  "onlyPRsTooltip": {
+    "message": "စစ်ဆေးပါက အစီရင်ခံစာတွင် အသုံးပြုသူ ဖန်တီးထားသည့် PR များသာ ပါဝင်မည်ဖြစ်သည်။ သုံးသပ်ထားသော PR များကို ဖယ်ထုတ်ထားပါမည်။"
+  },
+  "cacheTTLLabel": {
+    "message": "cache TTL ကိုထည့်ပါ။"
+  },
+  "cacheTTLUnit": {
+    "message": "(မိနစ်)"
+  },
+  "cacheTTLPlaceholder": {
+    "message": "cache TTL ထည့်သွင်းရာတွင် မိနစ်ကို အသုံးပြုပါ။ (ပုံသေ 10 မိနစ်)"
+  },
+  "refreshDataButton": {
+    "message": "ဒေတာကို ပြန်လည်စတင်ပါ (bypass cache)"
+  },
+  "refreshDataInfo": {
+    "message": "ဒေတာအသစ်များကို ချက်ချင်းရယူရန် ဤခလုတ်ကို အသုံးပြုပါ။"
+  },
+  "noteTitle": {
+    "message": "မှတ်စု မှတ်သားရန် :"
+  },
+  "viewCodeButton": {
+    "message": "Code ကြည့်ရန်"
+  },
+  "reportIssueButton": {
+    "message": "ပြဿနာကို သတင်းပို့ရန်"
+  },
+  "repoFilterLabel": {
+    "message": "repositoriesများအလိုက် စစ်ထုတ်ပါ။"
+  },
+  "enableFilteringLabel": {
+    "message": "filterကို enableလုပ်ပါ။"
+  },
+  "tokenRequiredWarning": {
+    "message": "Filteringအတွက် GitHub တိုကင်တစ်ခု လိုအပ်သည်။ settingတွင် တစ်ခုထည့်ပါ။"
+  },
+  "repoSearchPlaceholder": {
+    "message": "ထည့်သွင်းလိုသော repository ကိုရှာဖွေရန်..."
+  },
+  "repoPlaceholder": {
+    "message": "filterရန်အတွက် ရွေးချယ်ထားသော repository မရှိပါ။(all will be included)"
+  },
+  "repoCountNone": {
+    "message": "ရွေးချယ်ထားသော repositoryအရေအတွက်သည် 0 ဖြစ်သည်။"
+  },
+  "repoCount": {
+    "message": "ရွေးချယ်ထားသော repositoryအရေအတွက်သည် $1 ဖြစ်သည်။"
+  },
+  "repoLoading": {
+    "message": "repositoryကို ဖွင့်နေသည်....."
+  },
+  "repoLoaded": {
+    "message": "$1 repositoryကို ဖွင့်ပြီးပြီ။"
+  },
+  "repoNotFound": {
+    "message": "repository မတွေ့ပါ။"
+  },
+  "repoRefetching": {
+    "message": "repositoryများကို ပြန်လည်ရယူနေသည်..."
+  },
+  "repoLoadFailed": {
+    "message": "ဖွင့်၍မရပါ။"
+  },
+  "repoTokenPrivate": {
+    "message": "တိုကင်သည် မမှန်ကန်ပါ သို့မဟုတ် သီးသန့် repos အတွက် လုပ်ပိုင်ခွင့်မရှိပါ။"
+  },
+  "repoRefetchFailed": {
+    "message": "repositoryများကို ပြန်ယူရန် မအောင်မြင်ပါ။"
+  },
+  "orgSetMessage": {
+    "message": "အဖွဲ့အစည်းသတ်မှတ်ခြင်းသည် အောင်မြင်သည်။"
+  },
+  "orgClearedMessage": {
+    "message": "အဖွဲ့အစည်း ရှင်းလင်းပြီးသည်။ activitiesအားလုံးကိုရယူရန် 'အစီရင်ခံစာထုတ်လုပ်ရန်' ကိုနှိပ်ပါ။"
+  },
+  "orgNotFoundMessage": {
+    "message": "အဖွဲ့အစည်းကို GitHub တွင် ရှာမတွေ့ပါ။"
+  },
+  "orgValidationErrorMessage": {
+    "message": "အဖွဲ့အစည်းကို အတည်ပြုရာတွင် အမှားအယွင်းရှိသည်။"
+  },
+  "refreshingButton": {
+    "message": "refresh လုပ်နေသည်..."
+  },
+  "cacheClearFailed": {
+    "message": "cache ရှင်းလင်းခြင်း မအောင်မြင်ပါ။"
+  },
+  "madeWithLoveBy": {
+    "message": "Made with ❤️ by"
+  },
+  "generatingButton": {
+    "message": "generate လုပ်နေသည်..."
+  },
+  "copiedButton": {
+    "message": "copyကူးယူပြီးပါပြီ!"
+  },
+  "orgChangedMessage": {
+    "message": "အဖွဲ့အစည်းပြောင်းသွားသည်။ GitHub လုပ်ဆောင်ချက်များကို ရယူရန် Generate ခလုတ်ကို နှိပ်ပါ။"
+  },
+  "cacheClearedMessage": {
+    "message": "cacheကို အောင်မြင်စွာ ရှင်းလင်းပြီးပါပြီ။ ဒေတာအသစ်ရယူရန် \"အစီရင်ခံစာကို ထုတ်လုပ်ပါ\" ကိုနှိပ်ပါ။"
+  },
+  "cacheClearedButton": {
+    "message": "cache ရှင်းလင်းပြီးပါပြီ!"
+  },
+  "extensionDisabledMessage": {
+    "message": "Extensionကို ပိတ်ထားသည်။ scrum အစီရင်ခံစာများထုတ်လုပ်ရန် optionsမှ ၎င်းကိုဖွင့်ပါ။"
+  },
+  "notePoint1": {
+    "message": "PR ရယူခြင်းသည် သင်အပါအဝင် contributorများ၏ အနီးဆုံး လုပ်ဆောင်ချက်ပေါ်တွင် မူတည်သည်။ ကျေးဇူးပြု၍ မမျှဝေမီ SCRUM အစီရင်ခံစာကို သင်လိုချင်တဲ့အလုပ် မှန်မမှန် အတွက်ပြန်လည်သုံးသပ်ပြီး ချိန်ညှိပါ။"
+  },
+  "noteSeeIssue": {
+    "message": "ဒီissueကို ကြည့်ပါ။"
+  },
+  "platformLabel": {
+    "message": "Platform"
+  },
+  "usernameLabel": {
+    "message": "သင်၏အသုံးပြုသူအမည်"
+  },
+  "onlyRevPRsLabel": {
+    "message": "အစီရင်ခံစာတွင် သုံးသပ်ထားသော PR များသာ ပါဝင်ပါသည်။"
+  },
+  "onlyRevPRsTooltip": {
+    "message": "၎င်းကိုစစ်ဆေးပါက၊ အစီရင်ခံစာတွင် သင်သုံးသပ်ထားသော PR များသာ ပါဝင်မည်ဖြစ်သည်။"
+  }
+}

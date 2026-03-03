@@ -58,6 +58,20 @@ a {
     -webkit-user-modify: read-only;
 }
 
+.scrum-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.scrum-actions > button {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.scrum-actions > button span {
+    white-space: nowrap;
+}
+
 .btn,
 .btn-large {
     background-color: #3f51b5;
@@ -882,4 +896,14 @@ hr,
 .dark-mode #displayModeSelect option:checked {
     background-color: #3b82f6;
     color: #fff;
+}
+
+html.mode-sidepanel, body.mode-sidepanel {
+    width: 100%;
+    min-width: 360px;
+}
+
+html.mode-popup, body.mode-popup {
+    width: 360px; 
+    min-width: 360px;
 }
