@@ -907,3 +907,18 @@ html.mode-popup, body.mode-popup {
     width: 360px; 
     min-width: 360px;
 }
+.dark-mode #toggleAdvancedFilters {
+    background-color: #404040 !important;
+    border-color: #505050 !important;
+    color: #f3f4f6 !important;
+}
+
+.dark-mode #advancedFiltersArrow {
+    color: #d1d5db !important;
+}
+#advancedFiltersArrow {
+  transition: transform 0.2s ease-in-out;
+}
+.rotate-180 {
+    transform: rotate(180deg);
+}

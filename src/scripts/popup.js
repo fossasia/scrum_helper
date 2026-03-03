@@ -1297,8 +1297,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		if (toggleBtn && content && arrow) {
 			toggleBtn.addEventListener("click", function () {
-				content.classList.toggle("hidden");
+				const isHidden = content.classList.toggle("hidden");
 				arrow.classList.toggle("rotate-180");
+				toggleBtn.setAttribute("aria-expanded", !isHidden);
 			});
 		}
 
