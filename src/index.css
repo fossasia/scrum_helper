@@ -906,3 +906,13 @@ hr,
     background-color: #3b82f6;
     color: #fff;
 }
+
+html.mode-sidepanel, body.mode-sidepanel {
+    width: 100%;
+    min-width: 360px;
+}
+
+html.mode-popup, body.mode-popup {
+    width: 360px; 
+    min-width: 360px;
+}

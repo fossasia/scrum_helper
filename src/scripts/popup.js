@@ -406,7 +406,6 @@ document.addEventListener('DOMContentLoaded', () => {
 		const hasCacheData = !!cache?.data;
 		const timestamp = typeof cache?.timestamp === 'number' ? cache.timestamp : 0;
 
-
 		if (!hasCacheData) {
 			setGenerateButtonLoading(generateBtn, true);
 			window.generateScrumReport();
@@ -767,10 +766,12 @@ document.addEventListener('DOMContentLoaded', () => {
 		// Apply the stored display mode class on next launch
 		function applyDisplayModeClass(mode) {
 			const className = mode === 'popup' ? 'mode-popup' : 'mode-sidepanel';
-			document.documentElement.classList.remove('mode-popup', 'mode-sidepanel');
-			body.classList.remove('mode-popup', 'mode-sidepanel');
-			document.documentElement.classList.add(className);
-			body.classList.add(className);
+			if (!document.documentElement.classList.contains(className)) {
+				document.documentElement.classList.remove('mode-popup', 'mode-sidepanel');
+				body.classList.remove('mode-popup', 'mode-sidepanel');
+				document.documentElement.classList.add(className);
+				body.classList.add(className);
+			}
 		}
 
 		chrome?.storage.local.get({ displayMode: 'sidePanel' }, (result) => {
@@ -795,7 +796,6 @@ document.addEventListener('DOMContentLoaded', () => {
 				}
 			});
 		}
-
 
 		yesterdayRadio.addEventListener('change', () => {
 			chrome?.storage.local.set({ yesterdayContribution: yesterdayRadio.checked });
@@ -1301,11 +1301,15 @@ document.addEventListener('DOMContentLoaded', () => {
 				return;
 			}
 
-			const filtered = availableRepos.filter(
-				(repo) =>
-					!selectedRepos.includes(repo.fullName) &&
-					(repo.name.toLowerCase().includes(query) || repo.description?.toLowerCase().includes(query))
-			);
+			const filtered = availableRepos.filter((repo) => {
+				if (selectedRepos.includes(repo.fullName)) {
+					return false;
+				}
+				if (!query) {
+					return true;
+				}
+				return repo.name.toLowerCase().includes(query) || repo.description?.toLowerCase().includes(query);
+			});
 
 			if (filtered.length === 0) {
 				repoDropdown.textContent = '';
@@ -1544,7 +1548,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 					if (!username) {
 						if (gitlabProjectStatus) {
-							gitlabProjectStatus.textContent = 'Username required';
+							gitlabProjectStatus.textContent = chrome?.i18n.getMessage('gitlabProjectUsernameRequired');
 						}
 						return;
 					}
@@ -1559,21 +1563,21 @@ document.addEventListener('DOMContentLoaded', () => {
 					}
 				} catch (err) {
 					console.error('Auto load GitLab projects failed', err);
-					if (gitlabProjectStatus) {
-						if (err && err.message && err.message.includes('401')) {
-							gitlabProjectStatus.textContent = 'Token required for private projects';
-						} else if (err && err.message && err.message.includes('username')) {
-							gitlabProjectStatus.textContent = 'Username required';
-						} else {
-							gitlabProjectStatus.textContent = `Error: ${err && err.message ? err.message : 'Failed to load projects'}`;
+						if (gitlabProjectStatus) {
+							if (err && err.message && err.message.includes('401')) {
+								gitlabProjectStatus.textContent = chrome?.i18n.getMessage('gitlabProjectTokenRequired');
+							} else if (err && err.message && err.message.includes('username')) {
+								gitlabProjectStatus.textContent = chrome?.i18n.getMessage('gitlabProjectUsernameRequired');
+							} else {
+								gitlabProjectStatus.textContent = `Error: ${err && err.message ? err.message : chrome?.i18n.getMessage('gitlabProjectLoadFailed')}`;
+							}
 						}
-					}
 				}
-			} catch (outerErr) {
+				} catch (outerErr) {
 				// Catch any unexpected errors in the outer function scope
 				console.error('triggerGitLabProjectFetchIfEnabled failed', outerErr);
 				if (gitlabProjectStatus) {
-					gitlabProjectStatus.textContent = `Error: ${outerErr && outerErr.message ? outerErr.message : 'Failed to fetch projects'}`;
+					gitlabProjectStatus.textContent = `Error: ${outerErr && outerErr.message ? outerErr.message : chrome?.i18n.getMessage('gitlabProjectLoadFailed')}`;
 				}
 			}
 		}
@@ -1687,7 +1691,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				const username = items.gitlabUsername;
 
 				if (!username) {
-					gitlabProjectStatus.textContent = 'Username required';
+					gitlabProjectStatus.textContent = chrome?.i18n.getMessage('gitlabProjectUsernameRequired');
 					return;
 				}
 
@@ -1706,7 +1710,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				console.error('Failed to retrieve platform from chrome.storage.local, defaulting to "github".', e);
 			}
 			if (platform !== 'gitlab') {
-				if (gitlabProjectStatus) gitlabProjectStatus.textContent = 'Project fetching is only available for GitLab.';
+				if (gitlabProjectStatus) gitlabProjectStatus.textContent = chrome?.i18n.getMessage('gitlabProjectOnlyGitLab');
 				return;
 			}
 
@@ -1720,7 +1724,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				const username = storageItems.gitlabUsername;
 
 				if (!username) {
-					gitlabProjectStatus.textContent = 'Username required';
+					gitlabProjectStatus.textContent = chrome?.i18n.getMessage('gitlabProjectUsernameRequired');
 					gitlabProjectSearch.classList.remove('repository-search-loading');
 					return;
 				}
@@ -1740,11 +1744,11 @@ document.addEventListener('DOMContentLoaded', () => {
 				gitlabProjectSearch.classList.remove('repository-search-loading');
 
 				if (err.message && err.message.includes('401')) {
-					gitlabProjectStatus.textContent = 'Token required for private projects';
+					gitlabProjectStatus.textContent = chrome?.i18n.getMessage('gitlabProjectTokenRequired');
 				} else if (err.message && err.message.includes('username')) {
-					gitlabProjectStatus.textContent = 'Username required';
+					gitlabProjectStatus.textContent = chrome?.i18n.getMessage('gitlabProjectUsernameRequired');
 				} else {
-					gitlabProjectStatus.textContent = `Error: ${err && err.message ? err.message : 'Failed to load projects'}`;
+					gitlabProjectStatus.textContent = `Error: ${err && err.message ? err.message : chrome?.i18n.getMessage('gitlabProjectLoadFailed')}`;
 				}
 			}
 		}

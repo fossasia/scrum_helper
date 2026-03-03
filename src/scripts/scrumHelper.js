@@ -483,7 +483,7 @@ async function allIncluded(outputTarget = 'email') {
 					logError('Storage save failed: ', chrome.runtime.lastError);
 					resolve(false);
 				} else {
-					log('Cache saved successfuly');
+					log('Cache saved successfully');
 					githubCache.data = data;
 					githubCache.subject = subject;
 					resolve(true);
@@ -977,10 +977,10 @@ async function allIncluded(outputTarget = 'email') {
 			});
 			githubCache.repoQueue = [];
 
-			log(`Successfuly cached ${repos.length} repositories`);
+			log(`Successfully cached ${repos.length} repositories`);
 			return repos;
 		} catch (err) {
-			logError('Failed to fetch reppos:', err);
+			logError('Failed to fetch repos:', err);
 			githubCache.repoQueue.forEach(({ reject }) => {
 				reject(err);
 			});
@@ -2210,7 +2210,7 @@ async function fetchUserRepositories(username, token, org = '') {
 		console.log(`Found ${repoNames.length} unique repositories with contributions in the selected date range`);
 
 		if (repoNames.length === 0) {
-			console.log(`No repositories with contrbutions found in the selected date range`);
+			console.log(`No repositories with contributions found in the selected date range`);
 			return [];
 		}
 
