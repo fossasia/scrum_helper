@@ -1342,7 +1342,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (toggleBtn && content && arrow) {
     		toggleBtn.addEventListener("click", function () {
         	content.classList.toggle("hidden");
-        	arrow.classList.toggle("rotate-180");
+        	arrow.classList.toggle("fa-rotate-180");
     		});
 		}
 
