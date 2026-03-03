@@ -222,5 +222,65 @@
     },
     "usernameLabel": {
         "message": "Tên người dùng của bạn"
+    },
+    "usernameRequiredError": {
+        "message": "Vui lòng nhập tên người dùng để tạo báo cáo."
+    },
+    "unknownPlatformError": {
+        "message": "Đã chọn nền tảng không xác định."
+    },
+    "gitlabFetchingError": {
+        "message": "Đã xảy ra lỗi khi lấy dữ liệu GitLab."
+    },
+    "reportGenerationError": {
+        "message": "Đã xảy ra lỗi khi tạo báo cáo."
+    },
+    "githubUserNotFoundError": {
+        "message": "Không tìm thấy người dùng GitHub \"$1\" (404). Vui lòng kiểm tra tên người dùng và thử lại."
+    },
+    "githubUserValidationError": {
+        "message": "Lỗi khi xác thực người dùng GitHub: $1 $2"
+    },
+    "invalidSearchQueryError": {
+        "message": "Truy vấn tìm kiếm hoặc khoảng ngày không hợp lệ. Vui lòng kiểm tra định dạng và thử lại."
+    },
+    "githubIssuesFetchError": {
+        "message": "Lỗi khi lấy các vấn đề từ GitHub: $1 $2"
+    },
+    "githubPRReviewFetchError": {
+        "message": "Lỗi khi lấy dữ liệu đánh giá PR từ GitHub: $1 $2"
+    },
+    "githubUserFetchError": {
+        "message": "Lỗi khi lấy dữ liệu người dùng GitHub: $1 $2"
+    },
+    "invalidTokenError": {
+        "message": "Mã token GitHub không hợp lệ hoặc đã hết hạn. Vui lòng kiểm tra mã token trong cài đặt Scrum Helper và thử lại."
+    },
+    "displayModeNotice": {
+        "message": "Tiện ích sẽ mở ở chế độ $1 trong lần khởi động tiếp theo."
+    },
+    "repoFilteringGithubOnly": {
+        "message": "Chỉ có thể lọc kho lưu trữ trên GitHub."
+    },
+    "repoLoadingGithubOnly": {
+        "message": "Chỉ có thể tải kho lưu trữ trên GitHub."
+    },
+    "repoFetchingGithubOnly": {
+        "message": "Chỉ có thể lấy kho lưu trữ trên GitHub."
+    },
+    "loadingReposAutomatically": {
+        "message": "Đang tự động tải kho lưu trữ..."
+    },
+    "gitlabUserFetchError": {
+        "message": "Lỗi khi lấy người dùng GitLab: $1 $2"
+    },
+    "gitlabUserNotFoundError": {
+        "message": "Không tìm thấy người dùng GitLab '$1'"
+    },
+    "gitlabMembershipError": {
+        "message": "Lỗi khi lấy dự án thành viên GitLab: $1 $2"
+    },
+    "gitlabContributedError": {
+        "message": "Lỗi khi lấy dự án đóng góp GitLab: $1 $2"
     }
 }

@@ -197,5 +197,65 @@
   },
   "noteSeeIssue": {
     "message": "ఈ ఇష్యూ చూడండి"
+  },
+  "usernameRequiredError": {
+    "message": "నివేదికను రూపొందించేందుకు దయచేసి మీ వాడుకరి పేరును నమోదు చేయండి."
+  },
+  "unknownPlatformError": {
+    "message": "తెలియని ప్లాట్‌ఫారమ్ ఎంచుకోబడింది."
+  },
+  "gitlabFetchingError": {
+    "message": "GitLab డేటాను తెచ్చుకోవడంలో లోపం జరిగింది."
+  },
+  "reportGenerationError": {
+    "message": "నివేదికను రూపొందించడంలో లోపం జరిగింది."
+  },
+  "githubUserNotFoundError": {
+    "message": "GitHub వాడుకరి \"$1\" కనబడలేదు (404). వాడుకరి పేరును తనిఖీ చేసి మళ్లీ ప్రయత్నించండి."
+  },
+  "githubUserValidationError": {
+    "message": "GitHub వాడుకరిని ధృవీకరించడంలో లోపం: $1 $2"
+  },
+  "invalidSearchQueryError": {
+    "message": "చెల్లని శోధన ప్రశ్న లేదా తేదీ పరిధి. మీ తేదీ పరిధి ఫార్మాట్‌ను తనిఖీ చేసి మళ్లీ ప్రయత్నించండి."
+  },
+  "githubIssuesFetchError": {
+    "message": "GitHub ఇష్యూలను తెచ్చుకోవడంలో లోపం: $1 $2"
+  },
+  "githubPRReviewFetchError": {
+    "message": "GitHub PR సమీక్ష డేటాను తెచ్చుకోవడంలో లోపం: $1 $2"
+  },
+  "githubUserFetchError": {
+    "message": "GitHub వాడుకరి డేటాను తెచ్చుకోవడంలో లోపం: $1 $2"
+  },
+  "invalidTokenError": {
+    "message": "చెల్లని లేదా గడువు ముగిసిన GitHub టోకెన్. Scrum Helper సెట్టింగ్స్‌లో మీ టోకెన్‌ను తనిఖీ చేసి మళ్లీ ప్రయత్నించండి."
+  },
+  "displayModeNotice": {
+    "message": "ఎక్స్‌టెన్షన్ తదుపరి ప్రారంభంలో $1 మోడ్‌లో తెరవబడుతుంది."
+  },
+  "repoFilteringGithubOnly": {
+    "message": "రిపోజిటరీ ఫిల్టరింగ్ GitHub కోసం మాత్రమే అందుబాటులో ఉంది."
+  },
+  "repoLoadingGithubOnly": {
+    "message": "రిపోజిటరీ లోడింగ్ GitHub కోసం మాత్రమే అందుబాటులో ఉంది."
+  },
+  "repoFetchingGithubOnly": {
+    "message": "రిపోజిటరీ తెచ్చుకోవడం GitHub కోసం మాత్రమే అందుబాటులో ఉంది."
+  },
+  "loadingReposAutomatically": {
+    "message": "రిపోజిటరీలు స్వయంచాలకంగా లోడ్ అవుతున్నాయి..."
+  },
+  "gitlabUserFetchError": {
+    "message": "GitLab వాడుకరిని తెచ్చుకోవడంలో లోపం: $1 $2"
+  },
+  "gitlabUserNotFoundError": {
+    "message": "GitLab వాడుకరి '$1' కనబడలేదు"
+  },
+  "gitlabMembershipError": {
+    "message": "GitLab సభ్యత్వ ప్రాజెక్టులను తెచ్చుకోవడంలో లోపం: $1 $2"
+  },
+  "gitlabContributedError": {
+    "message": "GitLab సహకరించిన ప్రాజెక్టులను తెచ్చుకోవడంలో లోపం: $1 $2"
   }
 }

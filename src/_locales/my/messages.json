@@ -215,13 +215,73 @@
   "platformLabel": {
     "message": "Platform"
   },
-  "usernameLabel": {
-    "message": "သင်၏အသုံးပြုသူအမည်"
-  },
   "onlyRevPRsLabel": {
     "message": "အစီရင်ခံစာတွင် သုံးသပ်ထားသော PR များသာ ပါဝင်ပါသည်။"
   },
   "onlyRevPRsTooltip": {
     "message": "၎င်းကိုစစ်ဆေးပါက၊ အစီရင်ခံစာတွင် သင်သုံးသပ်ထားသော PR များသာ ပါဝင်မည်ဖြစ်သည်။"
+  },
+  "usernameLabel": {
+    "message": "သင်၏အသုံးပြုသူအမည်"
+  },
+  "usernameRequiredError": {
+    "message": "အစီရင်ခံစာထုတ်လုပ်ရန် သင်၏အသုံးပြုသူအမည်ကို ထည့်သွင်းပါ။"
+  },
+  "unknownPlatformError": {
+    "message": "အမျိုးအမည်မသိ platformကို ရွေးချယ်ထားသည်။"
+  },
+  "gitlabFetchingError": {
+    "message": "GitLab ဒေတာကို ရယူနေစဉ် အမှားအယွင်းတစ်ခု ဖြစ်ပွားခဲ့သည်။"
+  },
+  "reportGenerationError": {
+    "message": "အစီရင်ခံစာကို ထုတ်လုပ်နေစဉ် အမှားအယွင်းတစ်ခု ဖြစ်ပွားခဲ့သည်။"
+  },
+  "githubUserNotFoundError": {
+    "message": "GitHub အသုံးပြုသူ \"$1\" ကို ရှာမတွေ့ပါ (404)။ အသုံးပြုသူအမည်ကို စစ်ဆေးပြီး ပြန်လည်ကြိုးစားပါ။"
+  },
+  "githubUserValidationError": {
+    "message": "GitHub အသုံးပြုသူကို အတည်ပြုရာတွင် အမှား: $1 $2"
+  },
+  "invalidSearchQueryError": {
+    "message": "မမှန်ကန်သော ရှာဖွေမှုမေးခွန်း သို့မဟုတ် ရက်စွဲအပိုင်းအခြား။ သင်၏ ရက်စွဲအပိုင်းအခြား ပုံစံကို အတည်ပြုပြီး ပြန်လည်ကြိုးစားပါ။"
+  },
+  "githubIssuesFetchError": {
+    "message": "GitHub issueများကို ရယူရာတွင် အမှား: $1 $2"
+  },
+  "githubPRReviewFetchError": {
+    "message": "GitHub PR သုံးသပ်ချက် ဒေတာကို ရယူရာတွင် အမှား: $1 $2"
+  },
+  "githubUserFetchError": {
+    "message": "GitHub အသုံးပြုသူ ဒေတာကို ရယူရာတွင် အမှား: $1 $2"
+  },
+  "invalidTokenError": {
+    "message": "မမှန်ကန်သော သို့မဟုတ် သက်တမ်းကုန်ဆုံးသွားသော GitHub တိုကင်။ Scrum Helper ဆက်တင်များတွင် သင်၏တိုကင်ကို စစ်ဆေးပြီး ပြန်လည်ကြိုးစားပါ။"
+  },
+  "displayModeNotice": {
+    "message": "နောက်တစ်ကြိမ် ဖွင့်လှစ်သည့်အခါ extensionသည် $1 မုဒ်ဖြင့် ဖွင့်မည်ဖြစ်သည်။"
+  },
+  "repoFilteringGithubOnly": {
+    "message": "Repository filteringသည် GitHub အတွက်သာ ရရှိနိုင်ပါသည်။"
+  },
+  "repoLoadingGithubOnly": {
+    "message": "Repository loadingသည် GitHub အတွက်သာ ရရှိနိုင်ပါသည်။"
+  },
+  "repoFetchingGithubOnly": {
+    "message": "Repository ရယူခြင်းသည် GitHub အတွက်သာ ရရှိနိုင်ပါသည်။"
+  },
+  "loadingReposAutomatically": {
+    "message": "Repositoriesများကို အလိုအလျောက် ဖွင့်နေသည်..."
+  },
+  "gitlabUserFetchError": {
+    "message": "GitLab အသုံးပြုသူကို ရယူရာတွင် အမှား: $1 $2"
+  },
+  "gitlabUserNotFoundError": {
+    "message": "GitLab အသုံးပြုသူ '$1' ကို ရှာမတွေ့ပါ"
+  },
+  "gitlabMembershipError": {
+    "message": "GitLab အဖွဲ့ဝင်ပရောဂျက်များကို ရယူရာတွင် အမှား: $1 $2"
+  },
+  "gitlabContributedError": {
+    "message": "GitLab ပံ့ပိုးထားသော ပရောဂျက်များကို ရယူရာတွင် အမှား: $1 $2"
   }
 }

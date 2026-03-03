@@ -205,6 +205,65 @@
     },
     "onlyRevPRsTooltip": {
         "message": "אם מסומן, הדוח יכלול רק PR שנבדקו על ידך."
-
-    }
+    },
+    	"usernameRequiredError": {
+		"message": "אנא הזן את שם המשתמש שלך כדי ליצור דוח."
+	},
+	"unknownPlatformError": {
+		"message": "נבחרה פלטפורמה לא מוכרת."
+	},
+	"gitlabFetchingError": {
+		"message": "אירעה שגיאה בעת אחזור נתוני GitLab."
+	},
+	"reportGenerationError": {
+		"message": "אירעה שגיאה בעת יצירת הדוח."
+	},
+	"githubUserNotFoundError": {
+		"message": "משתמש GitHub \"$1\" לא נמצא (404). אנא בדוק את שם המשתמש ונסה שוב."
+	},
+	"githubUserValidationError": {
+		"message": "שגיאה באימות משתמש GitHub: $1 $2"
+	},
+	"invalidSearchQueryError": {
+		"message": "שאילתת חיפוש או טווח תאריכים לא תקינים. אנא בדוק את פורמט טווח התאריכים ונסה שוב."
+	},
+	"githubIssuesFetchError": {
+		"message": "שגיאה באחזור Issues מ-GitHub: $1 $2"
+	},
+	"githubPRReviewFetchError": {
+		"message": "שגיאה באחזור נתוני סקירת PR מ-GitHub: $1 $2"
+	},
+	"githubUserFetchError": {
+		"message": "שגיאה באחזור נתוני משתמש GitHub: $1 $2"
+	},
+	"invalidTokenError": {
+		"message": "טוקן GitHub לא תקין או שפג תוקפו. אנא בדוק את הטוקן שלך בהגדרות Scrum Helper ונסה שוב."
+	},
+	"displayModeNotice": {
+		"message": "ההרחבה תיפתח במצב $1 בהפעלה הבאה."
+	},
+	"repoFilteringGithubOnly": {
+		"message": "סינון מאגרים זמין רק עבור GitHub."
+	},
+	"repoLoadingGithubOnly": {
+		"message": "טעינת מאגרים זמינה רק עבור GitHub."
+	},
+	"repoFetchingGithubOnly": {
+		"message": "אחזור מאגרים זמין רק עבור GitHub."
+	},
+	"loadingAutomatically": {
+		"message": "טוען מאגרים באופן אוטומטי.."
+	},
+	"gitlabUserFetchError": {
+		"message": "שגיאה באחזור משתמש GitLab: $1 $2"
+	},
+	"gitlabUserNotFoundError": {
+		"message": "משתמש GitLab '$1' לא נמצא"
+	},
+	"gitlabMembershipError": {
+		"message": "שגיאה באחזור פרויקטי חברות ב-GitLab: $1 $2"
+	},
+	"gitlabContributedError": {
+		"message": "שגיאה באחזור פרויקטים שאליהם המשתמש תרם ב-GitLab: $1 $2"
+	}
 }

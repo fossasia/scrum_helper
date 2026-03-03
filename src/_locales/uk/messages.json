@@ -205,5 +205,65 @@
     },
     "usernameLabel": {
         "message": "Ваше ім'я користувача"
+    },
+    "usernameRequiredError": {
+        "message": "Будь ласка, введіть ім'я користувача для створення звіту."
+    },
+    "unknownPlatformError": {
+        "message": "Вибрано невідому платформу."
+    },
+    "gitlabFetchingError": {
+        "message": "Сталася помилка під час отримання даних GitLab."
+    },
+    "reportGenerationError": {
+        "message": "Сталася помилка під час створення звіту."
+    },
+    "githubUserNotFoundError": {
+        "message": "Користувача GitHub \"$1\" не знайдено (404). Перевірте ім'я користувача і спробуйте ще раз."
+    },
+    "githubUserValidationError": {
+        "message": "Помилка під час перевірки користувача GitHub: $1 $2"
+    },
+    "invalidSearchQueryError": {
+        "message": "Недійсний пошуковий запит або діапазон дат. Перевірте формат і спробуйте ще раз."
+    },
+    "githubIssuesFetchError": {
+        "message": "Помилка під час отримання задач GitHub: $1 $2"
+    },
+    "githubPRReviewFetchError": {
+        "message": "Помилка під час отримання даних перевірки PR GitHub: $1 $2"
+    },
+    "githubUserFetchError": {
+        "message": "Помилка під час отримання даних користувача GitHub: $1 $2"
+    },
+    "invalidTokenError": {
+        "message": "Недійсний або прострочений токен GitHub. Перевірте токен у налаштуваннях Scrum Helper і спробуйте ще раз."
+    },
+    "displayModeNotice": {
+        "message": "Розширення відкриється в режимі $1 при наступному запуску."
+    },
+    "repoFilteringGithubOnly": {
+        "message": "Фільтрація репозиторіїв доступна лише для GitHub."
+    },
+    "repoLoadingGithubOnly": {
+        "message": "Завантаження репозиторіїв доступне лише для GitHub."
+    },
+    "repoFetchingGithubOnly": {
+        "message": "Отримання репозиторіїв доступне лише для GitHub."
+    },
+    "loadingReposAutomatically": {
+        "message": "Репозиторії завантажуються автоматично..."
+    },
+    "gitlabUserFetchError": {
+        "message": "Помилка під час отримання користувача GitLab: $1 $2"
+    },
+    "gitlabUserNotFoundError": {
+        "message": "Користувача GitLab '$1' не знайдено"
+    },
+    "gitlabMembershipError": {
+        "message": "Помилка під час отримання проектів членства GitLab: $1 $2"
+    },
+    "gitlabContributedError": {
+        "message": "Помилка під час отримання проектів з внеском GitLab: $1 $2"
     }
 }
