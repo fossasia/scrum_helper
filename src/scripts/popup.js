@@ -133,7 +133,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		showWarning = false,
 		animateWarning = false,
 		warningDurationMs = 4000,
-		persistState = true,
+		persistState = false,
 	} = {}) {
 		const showCommits = document.getElementById('showCommits');
 		const githubTokenInput = document.getElementById('githubToken');
@@ -153,9 +153,8 @@ document.addEventListener('DOMContentLoaded', () => {
 					durationMs: warningDurationMs,
 				});
 			}
-			if (persistState) {
-				chrome?.storage.local.set({ showCommits: false });
-			}
+			// Always persist correction of invalid state
+			chrome?.storage.local.set({ showCommits: false });
 			return;
 		}
 
@@ -210,7 +209,9 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	githubTokenInput.addEventListener('input', checkTokenForFilter);
-	githubTokenInput.addEventListener('input', checkTokenForShowCommits);
+	githubTokenInput.addEventListener('input', () =>
+		checkTokenForShowCommits({ persistState: false }),
+	);
 
 	darkModeToggle.addEventListener('click', function () {
 		body.classList.toggle('dark-mode');
@@ -690,6 +691,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				showWarning: true,
 				animateWarning: true,
 				warningDurationMs: 3000,
+				persistState: true,
 			});
 		});
 		githubTokenInput.addEventListener('input', () => {
