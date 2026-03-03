@@ -174,16 +174,14 @@ function allIncluded(outputTarget = 'email') {
 						if (outputTarget === 'popup') {
 							console.log('[DEBUG] No username found - popup context');
 							const generateBtn = document.getElementById('generateReport');
+							if (generateBtn) {
+								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+								generateBtn.disabled = false;
+							}
 							NotificationSystem.showToast(
 								chrome?.i18n.getMessage('usernameRequired') || 'Please enter your username to generate a report.',
 								'error',
 								4000,
-								() => {
-									if (generateBtn) {
-										generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
-										generateBtn.disabled = false;
-									}
-								},
 							);
 							scrumGenerationInProgress = false;
 						} else {
@@ -258,16 +256,14 @@ function allIncluded(outputTarget = 'email') {
 								} catch (err) {
 									console.error('GitLab fetch failed:', err);
 									if (outputTarget === 'popup') {
+										if (generateBtn) {
+											generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+											generateBtn.disabled = false;
+										}
 										NotificationSystem.showToast(
 											err.message || 'An error occurred while fetching GitLab data.',
 											'error',
 											5000,
-											() => {
-												if (generateBtn) {
-													generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
-													generateBtn.disabled = false;
-												}
-											},
 										);
 									}
 									scrumGenerationInProgress = false;
@@ -309,35 +305,30 @@ function allIncluded(outputTarget = 'email') {
 								.catch((err) => {
 									console.error('GitLab fetch failed:', err);
 									if (outputTarget === 'popup') {
+										if (generateBtn) {
+											generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+											generateBtn.disabled = false;
+										}
 										NotificationSystem.showToast(
 											err.message || 'An error occurred while fetching GitLab data.',
 											'error',
 											5000,
-											() => {
-												if (generateBtn) {
-													generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
-													generateBtn.disabled = false;
-												}
-											},
 										);
 									}
 									scrumGenerationInProgress = false;
 								});
 						}
-						// --- FIX END ---
 					} else {
 						if (outputTarget === 'popup') {
 							const generateBtn = document.getElementById('generateReport');
+							if (generateBtn) {
+								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+								generateBtn.disabled = false;
+							}
 							NotificationSystem.showToast(
 								chrome?.i18n.getMessage('usernameRequired') || 'Please enter your username to generate a report.',
 								'error',
 								4000,
-								() => {
-									if (generateBtn) {
-										generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
-										generateBtn.disabled = false;
-									}
-								},
 							);
 						}
 						scrumGenerationInProgress = false;
@@ -475,11 +466,13 @@ function allIncluded(outputTarget = 'email') {
 		// Get the correct date range for cache key
 		let startDateForCache;
 		let endDateForCache;
+		const toLocalDateStr = (d) =>
+			`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
 		if (yesterdayContribution) {
 			const today = new Date();
 			const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
-			startDateForCache = yesterday.toISOString().split('T')[0];
-			endDateForCache = today.toISOString().split('T')[0]; // Use yesterday for start and today for end
+			startDateForCache = toLocalDateStr(yesterday);
+			endDateForCache = toLocalDateStr(today);
 		} else if (startingDate && endingDate) {
 			startDateForCache = startingDate;
 			endDateForCache = endingDate;
@@ -487,24 +480,23 @@ function allIncluded(outputTarget = 'email') {
 			// Default to last 7 days if no date range is set
 			const today = new Date();
 			const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
-			startDateForCache = lastWeek.toISOString().split('T')[0];
-			endDateForCache = today.toISOString().split('T')[0];
+			startDateForCache = toLocalDateStr(lastWeek);
+			endDateForCache = toLocalDateStr(today);
 		}
 
-		// Normalize dates to YYYY-MM-DD – fixes legacy MM/DD/YYYY or other formats stored from older versions
 		const ensureISODate = (d) => {
 			if (!d) return null;
 			if (/^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
 			const parsed = new Date(d);
-			return isNaN(parsed.getTime()) ? null : parsed.toISOString().split('T')[0];
+			return isNaN(parsed.getTime()) ? null : toLocalDateStr(parsed);
 		};
 		startDateForCache = ensureISODate(startDateForCache);
 		endDateForCache = ensureISODate(endDateForCache);
 		if (!startDateForCache || !endDateForCache || startDateForCache > endDateForCache) {
 			const now = new Date();
-			endDateForCache = now.toISOString().split('T')[0];
+			endDateForCache = toLocalDateStr(now);
 			const fallbackStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
-			startDateForCache = fallbackStart.toISOString().split('T')[0];
+			startDateForCache = toLocalDateStr(fallbackStart);
 		}
 
 		const cacheKey = `${platformUsernameLocal}-${startDateForCache}-${endDateForCache}-${orgName || 'all'}`;
@@ -648,7 +640,7 @@ function allIncluded(outputTarget = 'email') {
 			const userCheckRes = await fetch(userUrl, { headers });
 
 			if (userCheckRes.status === 404) {
-				const errorMsg = `GitHub user "${platformUsernameLocal}" not found (404). Please check the username and try again.`;
+				const errorMsg = `GitHub user "${platformUsernameLocal}" not found. Please check the username and try again.`;
 				logError(errorMsg);
 				if (outputTarget === 'popup') {
 					NotificationSystem.showToast(errorMsg, 'error', 5000);
@@ -790,6 +782,10 @@ function allIncluded(outputTarget = 'email') {
 			if (outputTarget === 'popup') {
 				const generateBtn = document.getElementById('generateReport');
 				const scrumReport = document.getElementById('scrumReport');
+				if (generateBtn) {
+					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+					generateBtn.disabled = false;
+				}
 				if (!err?.toastShown) {
 					let errorMsg = 'An error occurred while generating the report.';
 					if (err) {
@@ -797,21 +793,12 @@ function allIncluded(outputTarget = 'email') {
 						else if (err.message) errorMsg = err.message;
 						else errorMsg = JSON.stringify(err);
 					}
-					NotificationSystem.showToast(errorMsg, 'error', 5000, () => {
-						if (generateBtn) {
-							generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
-							generateBtn.disabled = false;
-						}
-					});
-				} else {
-					if (generateBtn) {
-						generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
-						generateBtn.disabled = false;
-					}
+					NotificationSystem.showToast(errorMsg, 'error', 5000);
 				}
 				if (scrumReport) scrumReport.innerHTML = '';
 			}
 			scrumGenerationInProgress = false;
+			throw err;
 		} finally {
 			githubCache.fetching = false;
 		}
@@ -978,16 +965,14 @@ function allIncluded(outputTarget = 'email') {
 	function showInvalidTokenMessage() {
 		if (outputTarget === 'popup') {
 			const generateBtn = document.getElementById('generateReport');
+			if (generateBtn) {
+				generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+				generateBtn.disabled = false;
+			}
 			NotificationSystem.showToast(
 				'Invalid or expired GitHub token. Please check your token in the settings and try again.',
 				'error',
 				5000,
-				() => {
-					if (generateBtn) {
-						generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
-						generateBtn.disabled = false;
-					}
-				},
 			);
 		} else {
 			alert('Invalid or expired GitHub token. Please check your token in the extension popup and try again.');

@@ -31,7 +31,7 @@ const NotificationSystem = {
 					to { opacity: 0; transform: scale(0.95); }
 				}
 			`;
-			document.head.appendChild(style);
+			(document.head || document.documentElement).appendChild(style);
 		}
 
 		const containerId = 'scrum-helper-toast-container';

@@ -376,7 +376,8 @@ document.addEventListener('DOMContentLoaded', () => {
 					if (!s) return '';
 					if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
 					const parsed = new Date(s);
-					return isNaN(parsed.getTime()) ? '' : parsed.toISOString().split('T')[0];
+					if (isNaN(parsed.getTime())) return '';
+					return `${parsed.getFullYear()}-${String(parsed.getMonth() + 1).padStart(2, '0')}-${String(parsed.getDate()).padStart(2, '0')}`;
 				};
 				if (result.startingDate) {
 					const sd = normDate(result.startingDate);
@@ -1737,7 +1738,11 @@ function validateOrgOnBlur(org) {
 			console.log('[Org Check] Response status for', org, ':', res.status);
 			if (res.status === 404) {
 				console.log('[Org Check] Organization not found on GitHub:', org);
-				NotificationSystem.showToast(`Organisation "${org}" not found.`, 'error', 4000);
+				NotificationSystem.showToast(
+					(chrome?.i18n.getMessage('orgNotFoundMessage') || 'Organization not found on GitHub.') + ` (${org})`,
+					'error',
+					4000,
+				);
 				return;
 			}
 			console.log('[Org Check] Organisation exists on GitHub:', org);
