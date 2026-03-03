@@ -6,16 +6,19 @@ function debounce(func, wait) {
 	};
 }
 
+function localDateStr(d) {
+	return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
 function getToday() {
-	const today = new Date();
-	return today.toISOString().split('T')[0];
+	return localDateStr(new Date());
 }
 
 function getYesterday() {
 	const today = new Date();
 	const yesterday = new Date(today);
 	yesterday.setDate(today.getDate() - 1);
-	return yesterday.toISOString().split('T')[0];
+	return localDateStr(yesterday);
 }
 
 function applyI18n() {
@@ -384,9 +387,11 @@ document.addEventListener('DOMContentLoaded', () => {
 				const normDate = (s) => {
 					if (!s) return '';
 					if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+					// Parse legacy formats (e.g. MM/DD/YYYY) and reformat using local date
+					// components to avoid UTC-offset day shifts from toISOString().
 					const parsed = new Date(s);
 					if (isNaN(parsed.getTime())) return '';
-					return `${parsed.getFullYear()}-${String(parsed.getMonth() + 1).padStart(2, '0')}-${String(parsed.getDate()).padStart(2, '0')}`;
+					return localDateStr(parsed);
 				};
 				if (result.startingDate) {
 					const sd = normDate(result.startingDate);
@@ -1757,6 +1762,10 @@ function validateOrgOnBlur(org) {
 				return;
 			}
 			console.log('[Org Check] Organisation exists on GitHub:', org);
+			// Clear any stale org-validation error toast when org is confirmed valid
+			if (typeof NotificationSystem !== 'undefined' && typeof NotificationSystem.dismiss === 'function') {
+				NotificationSystem.dismiss();
+			}
 			chrome?.storage.local.remove(['githubCache', 'repoCache']);
 			triggerRepoFetchIfEnabled();
 		})

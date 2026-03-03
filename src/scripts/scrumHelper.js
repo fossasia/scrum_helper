@@ -121,11 +121,13 @@ function allIncluded(outputTarget = 'email') {
 					const tokenFromDOM = document.getElementById('githubToken')?.value;
 					const gitlabTokenFromDOM = document.getElementById('gitlabToken')?.value;
 
-					// Save to platform-specific storage
+					// Save to platform-specific storage (persist the trimmed value so storage
+					// stays canonical across all code paths that read it verbatim)
 					if (usernameFromDOM) {
-						chrome.storage.local.set({ [platformUsernameKey]: usernameFromDOM.trim() });
-						platformUsername = usernameFromDOM.trim();
-						platformUsernameLocal = usernameFromDOM.trim();
+						const trimmedUsername = usernameFromDOM.trim();
+						chrome.storage.local.set({ [platformUsernameKey]: trimmedUsername });
+						platformUsername = trimmedUsername;
+						platformUsernameLocal = trimmedUsername;
 					}
 
 					items.projectName = projectFromDOM || items.projectName;
@@ -567,7 +569,7 @@ function allIncluded(outputTarget = 'email') {
 		console.log('[SCRUM-HELPER] orgName before API query:', orgName);
 		console.log('[SCRUM-HELPER] orgName type:', typeof orgName);
 		console.log('[SCRUM-HELPER] orgName length:', orgName ? orgName.length : 0);
-		const orgPart = orgName && orgName.trim() ? `+org%3A${orgName}` : '';
+		const orgPart = orgName && orgName.trim() ? `+org%3A${encodeURIComponent(orgName.trim())}` : '';
 		console.log('[SCRUM-HELPER] orgPart for API:', orgPart);
 		console.log('[SCRUM-HELPER] orgPart length:', orgPart.length);
 
@@ -629,6 +631,8 @@ function allIncluded(outputTarget = 'email') {
 		try {
 			await new Promise((res) => setTimeout(res, 500));
 
+			console.log('[SCRUM-HELPER] fetchGithubData issueUrl:', issueUrl);
+			console.log('[SCRUM-HELPER] fetchGithubData prUrl:', prUrl);
 			log('Validating GitHub user existence for:', platformUsernameLocal);
 			const userCheckRes = await fetch(userUrl, { headers });
 
@@ -655,11 +659,8 @@ function allIncluded(outputTarget = 'email') {
 				throw new Error(errorMsg);
 			}
 
-			const [issuesRes, prRes, userRes] = await Promise.all([
-				fetch(issueUrl, { headers }),
-				fetch(prUrl, { headers }),
-				userCheckRes, // Reuse the already validated user response
-			]);
+			let [issuesRes, prRes] = await Promise.all([fetch(issueUrl, { headers }), fetch(prUrl, { headers })]);
+			const userRes = userCheckRes;
 
 			if (issuesRes.status === 401 || prRes.status === 401 || issuesRes.status === 403 || prRes.status === 403) {
 				showInvalidTokenMessage();
@@ -667,8 +668,42 @@ function allIncluded(outputTarget = 'email') {
 				return;
 			}
 
+			if ((issuesRes.status === 422 || prRes.status === 422) && orgPart) {
+				const failedRes = issuesRes.status === 422 ? issuesRes : prRes;
+				try {
+					const body = await failedRes.json();
+					console.warn('[SCRUM-HELPER] GitHub 422 with org filter, retrying without org:', JSON.stringify(body));
+				} catch (_) {
+					// ignore
+				}
+				if (outputTarget === 'popup') {
+					NotificationSystem.showToast(
+						`Organisation "${orgName}" not found or inaccessible — showing all results instead.`,
+						'warning',
+						5000,
+					);
+				}
+				// Rebuild URLs without the org filter
+				const noOrgIssueUrl = issueUrl.replace(orgPart, '');
+				const noOrgPrUrl = prUrl.replace(orgPart, '');
+				[issuesRes, prRes] = await Promise.all([fetch(noOrgIssueUrl, { headers }), fetch(noOrgPrUrl, { headers })]);
+			}
+
 			if (issuesRes.status === 422 || prRes.status === 422) {
-				const errorMsg = `Invalid date range. Check your dates and try again.`;
+				const failedRes = issuesRes.status === 422 ? issuesRes : prRes;
+				let githubDetail = '';
+				try {
+					const body = await failedRes.json();
+					console.log('[SCRUM-HELPER] GitHub 422 full body:', JSON.stringify(body));
+					if (body?.message) githubDetail = body.message;
+					if (body?.errors?.length)
+						githubDetail += ' — ' + body.errors.map((e) => e.message || e.code || JSON.stringify(e)).join('; ');
+				} catch (_) {
+					// ignore JSON parse failure
+				}
+				const errorMsg = githubDetail
+					? `GitHub search failed: ${githubDetail}`
+					: 'Invalid date range. Check your dates and try again.';
 				logError(errorMsg);
 				if (outputTarget === 'popup') {
 					NotificationSystem.showToast(errorMsg, 'error', 4000);
@@ -751,6 +786,8 @@ function allIncluded(outputTarget = 'email') {
 					});
 				}
 			}
+			// Cache the data
+			githubCache.data = { githubIssuesData, githubPrsReviewData, githubUserData };
 			githubCache.timestamp = Date.now();
 
 			await saveToStorage(githubCache.data);
@@ -2001,7 +2038,7 @@ async function fetchUserRepositories(username, token, org = '') {
 			const thirtyDaysAgo = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 30);
 			dateRange = `+created:${toLocalDateStr(thirtyDaysAgo)}..${toLocalDateStr(today)}`;
 		}
-		const orgPart = org && org !== 'all' ? `+org:${org}` : '';
+		const orgPart = org && org !== 'all' ? `+org:${encodeURIComponent(org.trim())}` : '';
 		const issuesUrl = `https://api.github.com/search/issues?q=author:${username}${orgPart}${dateRange}&per_page=100`;
 		const commentsUrl = `https://api.github.com/search/issues?q=commenter:${username}${orgPart}${dateRange.replace('created:', 'updated:')}&per_page=100`;
 
