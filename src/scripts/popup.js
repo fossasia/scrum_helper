@@ -249,7 +249,8 @@ document.addEventListener('DOMContentLoaded', () => {
 		const timestamp = typeof cache?.timestamp === 'number' ? cache.timestamp : 0;
 
 		if (!hasCacheData) {
-			if (generateBtn) generateBtn.disabled = false;
+			setGenerateButtonLoading(generateBtn, true);
+			window.generateScrumReport();
 			return;
 		}
 
@@ -596,8 +597,9 @@ document.addEventListener('DOMContentLoaded', () => {
 			if (org) {
 				validateOrgOnBlur(org);
 			} else {
-				// Clear any stale org-validation toast when the org field is emptied
-				NotificationSystem._dismissCurrent?.();
+				if (typeof NotificationSystem !== 'undefined' && typeof NotificationSystem._dismissCurrent === 'function') {
+					NotificationSystem._dismissCurrent();
+				}
 			}
 		});
 		if (userReasonInput) {

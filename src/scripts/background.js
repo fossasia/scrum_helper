@@ -63,10 +63,11 @@ chrome?.action.onClicked.addListener((tab) => {
 		chrome?.sidePanel
 			.open({ tabId })
 			.then(() => openByTabId.set(tabId, true))
-			.catch(() => {
+			.catch((error) => {
 				openByTabId.set(tabId, false);
+				console.error('Failed to open side panel:', error);
 			});
 	} catch (error) {
-		/* ignore */
+		console.error('Failed to toggle side panel:', error);
 	}
 });

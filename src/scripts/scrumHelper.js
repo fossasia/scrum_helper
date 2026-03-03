@@ -119,7 +119,7 @@ function allIncluded(outputTarget = 'email') {
 
 					// Save to platform-specific storage
 					if (usernameFromDOM) {
-						chrome.storage.local.set({ [platformUsernameKey]: usernameFromDOM });
+						chrome.storage.local.set({ [platformUsernameKey]: usernameFromDOM.trim() });
 						platformUsername = usernameFromDOM.trim();
 						platformUsernameLocal = usernameFromDOM.trim();
 					}
