@@ -178,11 +178,7 @@ function allIncluded(outputTarget = 'email') {
 								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
 								generateBtn.disabled = false;
 							}
-							NotificationSystem.showToast(
-								chrome?.i18n.getMessage('usernameRequired') || 'Please enter your username to generate a report.',
-								'error',
-								4000,
-							);
+							NotificationSystem.showToast('Please enter your username to generate a report.', 'error', 4000);
 							scrumGenerationInProgress = false;
 						} else {
 							console.warn('[DEBUG] No username found in storage');
@@ -325,11 +321,7 @@ function allIncluded(outputTarget = 'email') {
 								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
 								generateBtn.disabled = false;
 							}
-							NotificationSystem.showToast(
-								chrome?.i18n.getMessage('usernameRequired') || 'Please enter your username to generate a report.',
-								'error',
-								4000,
-							);
+							NotificationSystem.showToast('Please enter your username to generate a report.', 'error', 4000);
 						}
 						scrumGenerationInProgress = false;
 					}
@@ -975,7 +967,7 @@ function allIncluded(outputTarget = 'email') {
 				5000,
 			);
 		} else {
-			alert('Invalid or expired GitHub token. Please check your token in the extension popup and try again.');
+			console.warn('Invalid or expired GitHub token. Please check your token in the extension popup and try again.');
 		}
 	}
 

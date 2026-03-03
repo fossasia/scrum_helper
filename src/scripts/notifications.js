@@ -127,6 +127,10 @@ const NotificationSystem = {
 		}, duration);
 	},
 
+	dismiss() {
+		this._dismissCurrent();
+	},
+
 	_dismissCurrent() {
 		if (this._activeTimer) {
 			clearTimeout(this._activeTimer);

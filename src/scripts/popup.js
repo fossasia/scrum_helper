@@ -597,8 +597,8 @@ document.addEventListener('DOMContentLoaded', () => {
 			if (org) {
 				validateOrgOnBlur(org);
 			} else {
-				if (typeof NotificationSystem !== 'undefined' && typeof NotificationSystem._dismissCurrent === 'function') {
-					NotificationSystem._dismissCurrent();
+				if (typeof NotificationSystem !== 'undefined' && typeof NotificationSystem.dismiss === 'function') {
+					NotificationSystem.dismiss();
 				}
 			}
 		});
@@ -889,7 +889,8 @@ document.addEventListener('DOMContentLoaded', () => {
 						}, 3000);
 					}
 					NotificationSystem.showToast(
-						'A GitHub token is required for repository filtering. Please add one in the settings.',
+						chrome?.i18n.getMessage('tokenRequiredWarning') ||
+							'A GitHub token is required for repository filtering. Please add one in the settings.',
 						'error',
 						4000,
 					);
