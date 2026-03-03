@@ -273,6 +273,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
 				if (reportEmpty && lastScrumReportHtml && matches) {
 					scrumReport.innerHTML = lastScrumReportHtml;
+				} else if (reportEmpty && typeof window.generateScrumReport === 'function') {
+					try {
+						setGenerateButtonLoading(generateBtn, true);
+						window.generateScrumReport();
+						return;
+					} catch (e) {
+						console.error('Failed to generate scrum report from fresh cache on popup load:', e);
+					}
 				}
 				if (generateBtn) generateBtn.disabled = false;
 				return;
