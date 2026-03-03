@@ -508,7 +508,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 		const hasCacheData = !!cache?.data;
 		const timestamp = typeof cache?.timestamp === 'number' ? cache.timestamp : 0;
 
-
 		if (!hasCacheData) {
 			setGenerateButtonLoading(generateBtn, true);
 			window.generateScrumReport();
@@ -867,10 +866,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 		// Apply the stored display mode class on next launch
 		function applyDisplayModeClass(mode) {
 			const className = mode === 'popup' ? 'mode-popup' : 'mode-sidepanel';
-			document.documentElement.classList.remove('mode-popup', 'mode-sidepanel');
-			body.classList.remove('mode-popup', 'mode-sidepanel');
-			document.documentElement.classList.add(className);
-			body.classList.add(className);
+			if (!document.documentElement.classList.contains(className)) {
+				document.documentElement.classList.remove('mode-popup', 'mode-sidepanel');
+				body.classList.remove('mode-popup', 'mode-sidepanel');
+				document.documentElement.classList.add(className);
+				body.classList.add(className);
+			}
 		}
 
 		chrome?.storage.local.get({ displayMode: 'sidePanel' }, (result) => {
@@ -895,7 +896,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 				}
 			});
 		}
-
 
 		yesterdayRadio.addEventListener('change', () => {
 			chrome?.storage.local.set({ yesterdayContribution: yesterdayRadio.checked });
@@ -1392,17 +1392,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 				return;
 			}
 
-			const filtered = availableRepos.filter(
-				(repo) => {
-					if (selectedRepos.includes(repo.fullName)) {
-						return false;
-					}
-					if (!query) {
-						return true;
-					}
-					return repo.name.toLowerCase().includes(query) || repo.description?.toLowerCase().includes(query);
+			const filtered = availableRepos.filter((repo) => {
+				if (selectedRepos.includes(repo.fullName)) {
+					return false;
 				}
-			);
+				if (!query) {
+					return true;
+				}
+				return repo.name.toLowerCase().includes(query) || repo.description?.toLowerCase().includes(query);
+			});
 
 			if (filtered.length === 0) {
 				repoDropdown.innerHTML = `<div class="p-3 text-center text-gray-500 text-sm" style="padding-left: 10px; ">${chrome?.i18n.getMessage('repoNotFound')}</div>`;
