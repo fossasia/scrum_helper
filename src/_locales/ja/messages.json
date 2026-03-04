@@ -233,7 +233,7 @@
     "onlyRevPRsTooltip": {
         "message": "チェックした場合、レポートにはあなたがレビューしたPRのみが含まれます。"
     },
-    	"usernameRequiredError": {
+    "usernameRequiredError": {
 		"message": "レポートを生成するには、ユーザー名を入力してください。"
 	},
 	"unknownPlatformError": {

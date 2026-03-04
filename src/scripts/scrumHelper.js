@@ -14,15 +14,15 @@ function logError(...args) {
 
 function renderErrorMessage(container, key, fallback, args = []) {
 	// add message (or fallback) into HTML container in a protected manner
-    let message = chrome?.i18n.getMessage(key, args) || fallback;
-    const errorDiv = document.createElement('div');
-    errorDiv.className = 'error-message';
-    errorDiv.style.color = '#dc2626';
-    errorDiv.style.fontWeight = 'bold';
-    errorDiv.style.padding = '10px';
-    errorDiv.textContent = message; 
-    container.innerHTML = '';
-    container.appendChild(errorDiv);
+	let message = chrome?.i18n.getMessage(key, args) || fallback;
+	const errorDiv = document.createElement('div');
+	errorDiv.className = 'error-message';
+	errorDiv.style.color = '#dc2626';
+	errorDiv.style.fontWeight = 'bold';
+	errorDiv.style.padding = '10px';
+	errorDiv.textContent = message; 
+	container.innerHTML = '';
+	container.appendChild(errorDiv);
 }
 
 let refreshButton_Placed = false;
