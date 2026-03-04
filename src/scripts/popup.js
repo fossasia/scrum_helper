@@ -313,10 +313,6 @@ document.addEventListener('DOMContentLoaded', () => {
 				scrumReport.innerHTML = lastScrumReportHtml;
 			}
 
-			showPopupMessage(
-				chrome?.i18n.getMessage('cacheExpiredMessage') || 'Cache expired. Click "Generate" to fetch fresh data.',
-			);
-
 			if (generateBtn) generateBtn.disabled = false;
 			return;
 		}
