@@ -232,12 +232,6 @@
     "usernameLabel": {
         "message": "Ваше имя пользователя"
     },
-    "onlyRevPRsLabel": {
-        "message": "Включить в отчет только проверенные PR"
-    },
-    "onlyRevPRsTooltip": {
-        "message": "Если отмечено, отчёт будет включать только PR, проверенные вами."
-    },    
     "profileLabel": {
         "message": "Профили",
         "description": "Label for the profiles section."

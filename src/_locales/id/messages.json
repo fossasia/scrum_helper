@@ -229,12 +229,6 @@
     "usernameLabel": {
         "message": "Nama pengguna Anda"
     },
-    "onlyRevPRsLabel": {
-        "message": "Hanya sertakan PR yang ditinjau dalam laporan"
-    },
-    "onlyRevPRsTooltip": {
-        "message": "Jika dicentang, laporan hanya akan menyertakan PR yang ditinjau oleh Anda."
-    },
     "profileLabel": {
         "message": "Profil",
         "description": "Label for the profiles section."

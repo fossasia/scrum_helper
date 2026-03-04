@@ -229,12 +229,6 @@
     "usernameLabel": {
         "message": "Tên người dùng của bạn"
     },
-    "onlyRevPRsLabel": {
-        "message": "Chỉ bao gồm các PR bạn đã xem xét trong báo cáo"
-    },
-    "onlyRevPRsTooltip": {
-        "message": "Nếu được chọn, báo cáo sẽ chỉ bao gồm các PR bạn đã xem xét."
-    },
     "profileLabel": {
         "message": "Hồ sơ",
         "description": "Label for the profiles section."

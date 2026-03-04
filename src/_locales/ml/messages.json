@@ -260,4 +260,5 @@
     "message": "നിങ്ങളുടെ ഏക പ്രൊഫൈൽ ഇല്ലാതാക്കാൻ കഴിയില്ല.",
     "description": "Error message when trying to delete the only profile."
   }
+
 }

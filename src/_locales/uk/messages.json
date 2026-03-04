@@ -229,12 +229,6 @@
     "usernameLabel": {
         "message": "Ваше ім'я користувача"
     },
-    "onlyRevPRsLabel": {
-        "message": "Включати до звіту лише переглянуті PR"
-    },
-    "onlyRevPRsTooltip": {
-        "message": "Якщо позначено, звіт включатиме лише PR, переглянуті вами."
-    },
     "profileLabel": {
         "message": "Профілі",
         "description": "Label for the profiles section."

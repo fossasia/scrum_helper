@@ -232,12 +232,6 @@
     "usernameLabel": {
         "message": "Seu nome de usuário"
     },
-    "onlyRevPRsLabel": {
-        "message": "Incluir apenas PRs revisadas no relatório"
-    },
-    "onlyRevPRsTooltip": {
-        "message": "Se marcado, o relatório incluirá apenas PRs revisadas por você."
-    },
     "profileLabel": {
         "message": "Perfis",
         "description": "Label for the profiles section."
