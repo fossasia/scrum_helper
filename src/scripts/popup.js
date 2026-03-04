@@ -84,6 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	const platformSelect = document.getElementById('platformSelect');
 	const usernameLabel = document.getElementById('usernameLabel');
 	const platformUsername = document.getElementById('platformUsername');
+	let showCommitsWarningTimeout;
 
 	function checkTokenForFilter() {
 		const useRepoFilter = document.getElementById('useRepoFilter');
@@ -109,6 +110,68 @@ document.addEventListener('DOMContentLoaded', () => {
 		setTimeout(() => {
 			tokenWarning.classList.add('hidden');
 		}, 4000);
+	}
+
+	function showTokenWarningForShowCommits({ animate = false, durationMs = 4000 } = {}) {
+		const tokenWarning = document.getElementById('tokenWarningForShowCommits');
+		if (!tokenWarning) {
+			return;
+		}
+
+		tokenWarning.classList.remove('hidden');
+		if (animate) {
+			tokenWarning.classList.add('shake-animation');
+			setTimeout(() => tokenWarning.classList.remove('shake-animation'), 620);
+		}
+
+		if (showCommitsWarningTimeout) {
+			clearTimeout(showCommitsWarningTimeout);
+		}
+		showCommitsWarningTimeout = setTimeout(() => {
+			tokenWarning.classList.add('hidden');
+		}, durationMs);
+	}
+
+	function checkTokenForShowCommits({
+		showWarning = false,
+		animateWarning = false,
+		warningDurationMs = 4000,
+		persistState = false,
+	} = {}) {
+		const showCommits = document.getElementById('showCommits');
+		const githubTokenInput = document.getElementById('githubToken');
+
+		if (!showCommits || !githubTokenInput) {
+			return;
+		}
+
+		const isShowCommitsEnabled = showCommits.checked;
+		const hasToken = githubTokenInput.value.trim() !== '';
+
+		if (isShowCommitsEnabled && !hasToken) {
+			showCommits.checked = false;
+			if (showWarning) {
+				showTokenWarningForShowCommits({
+					animate: animateWarning,
+					durationMs: warningDurationMs,
+				});
+			}
+			// Always persist correction of invalid state
+			chrome?.storage.local.set({ showCommits: false });
+			return;
+		}
+
+		const tokenWarning = document.getElementById('tokenWarningForShowCommits');
+		if (tokenWarning) {
+			if (showCommitsWarningTimeout) {
+				clearTimeout(showCommitsWarningTimeout);
+				showCommitsWarningTimeout = null;
+			}
+			tokenWarning.classList.add('hidden');
+		}
+		if (persistState) {
+			chrome?.storage.local.set({ showCommits: showCommits.checked });
+		}
 	}
 
 	chrome?.storage.local.get(['darkMode'], (result) => {
@@ -149,6 +212,9 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	githubTokenInput.addEventListener('input', checkTokenForFilter);
+	githubTokenInput.addEventListener('input', () =>
+		checkTokenForShowCommits({ persistState: false }),
+	);
 
 	darkModeToggle.addEventListener('click', function () {
 		body.classList.toggle('dark-mode');
@@ -185,6 +251,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	chrome.storage.local.remove(['enableToggle'], () => {
 		initializePopup();
 		checkTokenForFilter();
+		checkTokenForShowCommits();
 	});
 
 	chrome?.storage.onChanged.addListener((changes, namespace) => {
@@ -316,10 +383,6 @@ document.addEventListener('DOMContentLoaded', () => {
 				scrumReport.innerHTML = lastScrumReportHtml;
 			}
 
-			showPopupMessage(
-				chrome?.i18n.getMessage('cacheExpiredMessage') || 'Cache expired. Click "Generate" to fetch fresh data.',
-			);
-
 			if (generateBtn) generateBtn.disabled = false;
 			return;
 		}
@@ -414,6 +477,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				const platform = result.platform || 'github';
 				const platformUsernameKey = `${platform}Username`;
 				platformUsername.value = result[platformUsernameKey] || '';
+				checkTokenForShowCommits();
 			},
 		);
 
@@ -622,7 +686,12 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		}
 		showCommitsCheckbox.addEventListener('change', () => {
-			chrome?.storage.local.set({ showCommits: showCommitsCheckbox.checked });
+			checkTokenForShowCommits({
+				showWarning: true,
+				animateWarning: true,
+				warningDurationMs: 3000,
+				persistState: true,
+			});
 		});
 		githubTokenInput.addEventListener('input', () => {
 			chrome?.storage.local.set({ githubToken: githubTokenInput.value });
