@@ -1133,7 +1133,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Reset the Generate button so the user can try again later
     const generateBtn = document.getElementById("generateReport");
     if (generateBtn) {
-      generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+      const iconEl = generateBtn.querySelector("i");
+      if (iconEl) {
+        iconEl.className = "fa fa-refresh";
+      }
+      const labelEl = generateBtn.querySelector('[data-i18n="generateReportButton"]');
+      if (labelEl && typeof chrome !== "undefined" && chrome.i18n && chrome.i18n.getMessage) {
+        labelEl.textContent = chrome.i18n.getMessage("generateReportButton");
+      }
       generateBtn.disabled = false;
     }
   };

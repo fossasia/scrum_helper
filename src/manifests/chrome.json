@@ -32,7 +32,9 @@
         "scripts/jquery-3.2.1.min.js",
         "scripts/emailClientAdapter.js",
         "scripts/gitlabHelper.js",
-        "scripts/scrumHelper.js"
+        "scripts/scrumHelper.js",
+        "scripts/utils/githubRequest.js",
+        "scripts/utils/gitlabRequest.js"
       ]
     }
   ],

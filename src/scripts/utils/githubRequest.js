@@ -22,16 +22,22 @@ async function githubRequest(url, options = {}) {
 
   // Also handle explicit 429 Too Many Requests
   if (response.status === 429) {
-    const retryAfter = Number(response.headers.get("retry-after") || 60);
-    console.warn(`GitHub 429 rate limit hit. Retry after ${retryAfter}s`);
+    // retry-after header is a duration in seconds; x-ratelimit-reset is a Unix timestamp
+    const retryAfterHeader = Number(response.headers.get("x-ratelimit-remaining") || response.headers.get("retry-after"));
+    const waitSeconds = resetMs
+      ? Math.ceil((resetMs - Date.now()) / 1000)
+      : retryAfterHeader > 0
+        ? retryAfterHeader
+        : 60;
+    console.warn(`GitHub 429 rate limit hit. Retry after ${waitSeconds}s`);
     const error = new Error(
-      `GitHub API rate limit exceeded (429). Retry after ${retryAfter}s.`,
+      `GitHub API rate limit exceeded (429). Retry after ${waitSeconds}s.`,
     );
     error.name = "RateLimitError";
     error.platform = "github";
-    error.resetAt = resetMs || Date.now() + retryAfter * 1000;
+    error.resetAt = resetMs || Date.now() + waitSeconds * 1000;
     error.remaining = 0;
-    error.retryAfter = retryAfter;
+    error.retryAfter = waitSeconds > 0 ? waitSeconds : 60;
     throw error;
   }
 

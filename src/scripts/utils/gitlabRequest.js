@@ -1,15 +1,15 @@
 async function gitlabApiRequest(url, headers = {}) {
   const response = await fetch(url, { headers });
 
-  const remaining = response.headers.get("ratelimit-remaining");
-  const retryAfter = response.headers.get("retry-after");
-  const resetHeader = response.headers.get("ratelimit-reset");
+  const remaining = response.headers.get("RateLimit-Remaining");
+  const resetHeader = response.headers.get("RateLimit-Reset");
 
   if (response.status === 429) {
-    const waitSeconds = Number(retryAfter || 60);
-    const resetMs = resetHeader
-      ? Number(resetHeader) * 1000
-      : Date.now() + waitSeconds * 1000;
+    // ratelimit-reset is a Unix timestamp in seconds
+    const resetMs = resetHeader ? Number(resetHeader) * 1000 : 0;
+    const waitSeconds = resetMs
+      ? Math.max(1, Math.ceil((resetMs - Date.now()) / 1000))
+      : 60;
 
     console.warn(`GitLab rate limit hit. Retry after ${waitSeconds}s`);
     const error = new Error(
