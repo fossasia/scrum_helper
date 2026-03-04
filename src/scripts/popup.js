@@ -153,6 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	const platformSelect = document.getElementById('platformSelect');
 	const usernameLabel = document.getElementById('usernameLabel');
 	const platformUsername = document.getElementById('platformUsername');
+	let showCommitsWarningTimeout;
 
 	function checkTokenForFilter() {
 		const useRepoFilter = document.getElementById('useRepoFilter');
@@ -199,8 +200,8 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (isFilterEnabled === true && hasToken === false) {
 			useGitlabProjectFilter.checked = false;
 			gitlabProjectFilterContainer.classList.add('hidden');
-			if (typeof window !== 'undefined' && typeof window.hideGitLabProjectDropdown === 'function') {
-				window.hideGitLabProjectDropdown();
+			if (typeof hideGitLabProjectDropdown === 'function') {
+				hideGitLabProjectDropdown();
 			}
 			chrome.storage.local.set({ useGitlabProjectFilter: false });
 		}
@@ -210,7 +211,69 @@ document.addEventListener('DOMContentLoaded', () => {
 		}, 4000);
 	}
 
-	chrome.storage.local.get(['darkMode'], (result) => {
+	function showTokenWarningForShowCommits({ animate = false, durationMs = 4000 } = {}) {
+		const tokenWarning = document.getElementById('tokenWarningForShowCommits');
+		if (!tokenWarning) {
+			return;
+		}
+
+		tokenWarning.classList.remove('hidden');
+		if (animate) {
+			tokenWarning.classList.add('shake-animation');
+			setTimeout(() => tokenWarning.classList.remove('shake-animation'), 620);
+		}
+
+		if (showCommitsWarningTimeout) {
+			clearTimeout(showCommitsWarningTimeout);
+		}
+		showCommitsWarningTimeout = setTimeout(() => {
+			tokenWarning.classList.add('hidden');
+		}, durationMs);
+	}
+
+	function checkTokenForShowCommits({
+		showWarning = false,
+		animateWarning = false,
+		warningDurationMs = 4000,
+		persistState = false,
+	} = {}) {
+		const showCommits = document.getElementById('showCommits');
+		const githubTokenInput = document.getElementById('githubToken');
+
+		if (!showCommits || !githubTokenInput) {
+			return;
+		}
+
+		const isShowCommitsEnabled = showCommits.checked;
+		const hasToken = githubTokenInput.value.trim() !== '';
+
+		if (isShowCommitsEnabled && !hasToken) {
+			showCommits.checked = false;
+			if (showWarning) {
+				showTokenWarningForShowCommits({
+					animate: animateWarning,
+					durationMs: warningDurationMs,
+				});
+			}
+			// Always persist correction of invalid state
+			chrome?.storage.local.set({ showCommits: false });
+			return;
+		}
+
+		const tokenWarning = document.getElementById('tokenWarningForShowCommits');
+		if (tokenWarning) {
+			if (showCommitsWarningTimeout) {
+				clearTimeout(showCommitsWarningTimeout);
+				showCommitsWarningTimeout = null;
+			}
+			tokenWarning.classList.add('hidden');
+		}
+		if (persistState) {
+			chrome?.storage.local.set({ showCommits: showCommits.checked });
+		}
+	}
+
+	chrome?.storage.local.get(['darkMode'], (result) => {
 		if (result.darkMode) {
 			body.classList.add('dark-mode');
 			darkModeToggle.src = 'icons/light-mode.png';
@@ -278,6 +341,9 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	githubTokenInput.addEventListener('input', checkTokenForFilter);
+	githubTokenInput.addEventListener('input', () =>
+		checkTokenForShowCommits({ persistState: false }),
+	);
 
 	darkModeToggle.addEventListener('click', function () {
 		body.classList.toggle('dark-mode');
@@ -314,6 +380,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	chrome.storage.local.remove(['enableToggle'], () => {
 		initializePopup();
 		checkTokenForFilter();
+		checkTokenForShowCommits();
 	});
 
 	chrome?.storage.onChanged.addListener((changes, namespace) => {
@@ -445,10 +512,6 @@ document.addEventListener('DOMContentLoaded', () => {
 				scrumReport.innerHTML = lastScrumReportHtml;
 			}
 
-			showPopupMessage(
-				chrome?.i18n.getMessage('cacheExpiredMessage') || 'Cache expired. Click "Generate" to fetch fresh data.',
-			);
-
 			if (generateBtn) generateBtn.disabled = false;
 			return;
 		}
@@ -545,8 +608,24 @@ document.addEventListener('DOMContentLoaded', () => {
 				const platform = result.platform || 'github';
 				const platformUsernameKey = `${platform}Username`;
 				platformUsername.value = result[platformUsernameKey] || '';
-			}
+				checkTokenForShowCommits();
+			},
 		);
+
+		// Build the email subject from the most recently generated report,
+		// falling back to constructing one from the project name + current date.
+		function buildScrumSubjectFromPopup() {
+			if (window.scrumSubjectForEmail) return window.scrumSubjectForEmail;
+			const project = document.getElementById('projectName')?.value?.trim() || '';
+			const curDate = new Date();
+			const year = curDate.getFullYear().toString();
+			let month = curDate.getMonth() + 1;
+			let date = curDate.getDate();
+			if (month < 10) month = '0' + month;
+			if (date < 10) date = '0' + date;
+			const dateCode = year + month.toString() + date.toString();
+			return `[Scrum]${project ? ' - ' + project : ''} - ${dateCode}`;
+		}
 
 		// Button setup
 		const generateBtn = document.getElementById('generateReport');
@@ -565,15 +644,42 @@ document.addEventListener('DOMContentLoaded', () => {
 					const tabId = tabs?.[0]?.id;
 					if (!tabId) return;
 
-					chrome.tabs.sendMessage(tabId, { action: 'insertReportToEmail', content, subject }, (response) => {
-						if (chrome.runtime.lastError) {
-							console.warn('Insert to Email failed:', chrome.runtime.lastError.message);
-							return;
-						}
-						if (!response?.success) {
-							console.warn('Insert to Email failed:', response?.error);
-						}
-					});
+					const sendInsert = (retry = false) => {
+						chrome.tabs.sendMessage(tabId, { action: 'insertReportToEmail', content, subject }, (response) => {
+							if (chrome.runtime.lastError) {
+								const errMsg = chrome.runtime.lastError.message || '';
+								if (!retry && errMsg.includes('Receiving end does not exist')) {
+									// Content scripts not yet injected in this tab — inject and retry once
+									chrome.scripting.executeScript(
+										{
+											target: { tabId },
+											files: [
+												'scripts/jquery-3.2.1.min.js',
+												'scripts/emailClientAdapter.js',
+												'scripts/gitlabHelper.js',
+												'scripts/scrumHelper.js',
+											],
+										},
+										() => {
+											if (chrome.runtime.lastError) {
+												console.warn('Script injection failed:', chrome.runtime.lastError.message);
+												return;
+											}
+											setTimeout(() => sendInsert(true), 500);
+										}
+									);
+								} else {
+									console.warn('Insert to Email failed:', errMsg);
+								}
+								return;
+							}
+							if (!response?.success) {
+								console.warn('Insert to Email failed:', response?.error);
+							}
+						});
+					};
+
+					sendInsert();
 				});
 			});
 		}
@@ -753,7 +859,12 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		}
 		showCommitsCheckbox.addEventListener('change', () => {
-			chrome?.storage.local.set({ showCommits: showCommitsCheckbox.checked });
+			checkTokenForShowCommits({
+				showWarning: true,
+				animateWarning: true,
+				warningDurationMs: 3000,
+				persistState: true,
+			});
 		});
 		githubTokenInput.addEventListener('input', () => {
 			chrome?.storage.local.set({ githubToken: githubTokenInput.value });
@@ -1780,6 +1891,9 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 
 			const filtered = availableGitlabProjects.filter((proj) => {
+
+				if (selectedGitlabProjects.includes(proj.id.toString())) return false;
+				if (!query) return true;
 				const name = (proj.name || '').toLowerCase();
 				const pathNs = (proj.path_with_namespace || proj.path || '').toLowerCase();
 				const desc = (proj.description || '').toLowerCase();
@@ -1806,27 +1920,48 @@ document.addEventListener('DOMContentLoaded', () => {
 			const fragment = document.createDocumentFragment();
 
 			toRender.forEach((proj) => {
-				const isSelected = selectedGitlabProjects.includes(proj.id.toString());
-
 				const item = document.createElement('div');
-				item.className = 'gitlab-project-dropdown-item p-3 hover:bg-gray-100 cursor-pointer border-b border-gray-200' + (isSelected ? ' bg-blue-50' : '');
+				item.className = 'repository-dropdown-item gitlab-project-dropdown-item';
 				item.dataset.projectId = String(proj.id);
 
-				const nameDiv = document.createElement('div');
-				nameDiv.className = 'font-medium text-sm';
-				nameDiv.textContent = proj.name || '';
-				item.appendChild(nameDiv);
 
-				const nsDiv = document.createElement('div');
-				nsDiv.className = 'text-xs text-gray-500';
-				nsDiv.textContent = proj.path_with_namespace || proj.path || '';
-				item.appendChild(nsDiv);
+				const repoNameDiv = document.createElement('div');
+				repoNameDiv.className = 'repo-name';
+
+				const nameSpan = document.createElement('span');
+				nameSpan.textContent = proj.name || '';
+				repoNameDiv.appendChild(nameSpan);
+
+				if (proj.language) {
+					const langSpan = document.createElement('span');
+					langSpan.className = 'repo-language';
+					langSpan.textContent = proj.language;
+					repoNameDiv.appendChild(langSpan);
+				}
+
+				const starsSpan = document.createElement('span');
+				starsSpan.className = 'repo-stars';
+				const starIcon = document.createElement('i');
+				starIcon.className = 'fa fa-star';
+				starsSpan.appendChild(starIcon);
+				starsSpan.appendChild(document.createTextNode(' ' + (proj.star_count || 0)));
+				repoNameDiv.appendChild(starsSpan);
+
+				item.appendChild(repoNameDiv);
+
+				// Second row: namespace/project path (mirrors GitHub's owner/repo identifier)
+				const repoInfoDiv = document.createElement('div');
+				repoInfoDiv.className = 'repo-info';
+				const pathSpan = document.createElement('span');
+				pathSpan.textContent = proj.path_with_namespace || proj.path || '';
+				repoInfoDiv.appendChild(pathSpan);
+				item.appendChild(repoInfoDiv);
 
 				if (proj.description) {
 					const descDiv = document.createElement('div');
-					descDiv.className = 'text-xs text-gray-400 mt-1';
-					let desc = String(proj.description).substring(0, 60);
-					if (proj.description.length > 60) desc += '...';
+					descDiv.className = 'repo-info';
+					let desc = String(proj.description).substring(0, 50);
+					if (proj.description.length > 50) desc += '...';
 					descDiv.textContent = desc;
 					item.appendChild(descDiv);
 				}

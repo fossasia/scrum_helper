@@ -51,13 +51,14 @@
         "message": "דוח סקראם"
     },
     "generateReportButton": {
-        "message": "הפק"
+        "message": "צור דוח"
     },
     "copyReportButton": {
-        "message": "העתק"
+        "message": "העתק דוח"
     },
     "insertInEmailButton": {
-        "message": "הכנס לדוא״ל"
+        "message": "הוסף לאימייל",
+        "description": "Text for the 'Insert to Email' button."
     },
     "settingsOrgNameLabel": {
         "message": "שם הארגון"
@@ -74,20 +75,36 @@
     "githubTokenPlaceholder": {
         "message": "נדרש לבקשות מאומתות"
     },
+    "githubTokenTooltip": {
+        "message": "למה מומלץ להוסיף אסימון GitHub? Scrum Helper עובד ללא אסימון GitHub, אך הוספת אסימון גישה אישי מומלצת לחוויה טובה יותר."
+    },
     "gitlabTokenLabel": {
         "message": "אסימון ה-GitLab שלך"
     },
     "gitlabTokenPlaceholder": {
         "message": "נדרש למאגרים פרטיים"
     },
+    "gitlabTokenTooltip": {
+        "message": "למה מומלץ להוסיף אסימון GitLab? Scrum Helper עובד ללא אסימון GitLab לפרויקטים ציבוריים, אך הוספת אסימון גישה אישי מומלצת לחוויה טובה יותר."
+    },
     "showCommitsLabel": {
         "message": "הצג קומיטים ב-PR פתוחים/טיוטות PR"
     },
+    "showCommitsTooltip": {
+        "message": "נדרש אסימון GitHub, הוסף אותו בהגדרות."
+    },
     "onlyIssuesLabel": {
-        "message": "Include only issues in the report"
+        "message": "הכלל רק בעיות בדוח"
     },
     "onlyIssuesTooltip": {
-        "message": "If checked, the report will only include issues created or assigned to the user."
+        "message": "אם מסומן, הדוח יכיל רק בעיות שנוצרו או הוקצו למשתמש."
+    },
+    "onlyPRsLabel": {
+        "message": "הכלל רק PR בדוח"
+    },
+    "onlyPRsTooltip": {
+        "message": "אם מסומן, הדוח יכיל רק pull requests שנוצרו על ידי המשתמש; PR שנסקרו יוחרגו."
+
     },
     "cacheTTLLabel": {
         "message": "הזן TTL למטמון"
@@ -187,6 +204,10 @@
     },
     "cacheClearedMessage": {
         "message": "המטמון נוקה בהצלחה. לחץ על 'צור דוח' כדי להביא נתונים טריים."
+    },
+    "cacheExpiredMessage": {
+        "message": "המטמון פג תוקף. לחץ על \"צור\" כדי להביא נתונים חדשים.",
+        "description": "Message shown when the cached data has expired and user needs to regenerate."
     },
     "cacheClearedButton": {
         "message": "המטמון נוקה!"

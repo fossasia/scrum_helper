@@ -227,6 +227,31 @@ class GitLabHelper {
 			const projects = Array.from(allProjectsMap.values());
 
 			if (GitLabHelper.debug) console.log(`[GITLAB] Fetched ${projects.length} projects for user ${username}`);
+
+
+			const projectsForLang = projects.slice(0, 30);
+			const langResults = await Promise.allSettled(
+				projectsForLang.map((p) =>
+					this.fetchWithTimeout(
+						`${this.baseUrl}/projects/${p.id}/languages`,
+						{ headers: this.getHeaders() },
+						5000
+					)
+						.then((r) => (r.ok ? r.json() : {}))
+						.catch(() => ({}))
+				)
+			);
+			const languageMap = {};
+			projectsForLang.forEach((p, i) => {
+				const result = langResults[i];
+				if (result.status === 'fulfilled' && result.value && typeof result.value === 'object') {
+					const langs = Object.keys(result.value);
+					languageMap[p.id] = langs[0] || null;
+				} else {
+					languageMap[p.id] = null;
+				}
+			});
+
 			return projects.map(p => ({
 				id: p.id,
 				name: p.name,
@@ -235,7 +260,9 @@ class GitLabHelper {
 				path_with_namespace: p.path_with_namespace,
 				description: p.description || '',
 				visibility: p.visibility,
-				namespace: p.namespace ? p.namespace.name : ''
+				namespace: p.namespace ? p.namespace.name : '',
+				star_count: p.star_count || 0,
+				language: languageMap[p.id] || null,
 			}));
 		} catch (error) {
 			console.error('[GITLAB] Error fetching user projects:', error);

@@ -285,8 +285,7 @@ async function allIncluded(outputTarget = 'email') {
 									const dateCode = year.toString() + month.toString() + date.toString();
 									const subject = `[Scrum]${project ? ' - ' + project : ''} - ${dateCode}`;
 									subjectForEmail = subject;
-
-									await processGithubData(mappedData, true, subjectForEmail);
+								window.scrumSubjectForEmail = subject;
 									scrumGenerationInProgress = false;
 								} catch (err) {
 									console.error('GitLab fetch failed:', err);
@@ -1336,6 +1335,7 @@ ${userReason}`;
 				const subject = `[Scrum]${project ? ' - ' + project : ''} - ${dateCode}`;
 				log('Generated subject:', subject);
 				githubCache.subject = subject;
+				window.scrumSubjectForEmail = subject;
 				saveToStorage(githubCache.data, subject);
 
 				if (scrumSubject && scrumSubject.value !== subject) {

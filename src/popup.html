@@ -282,6 +282,10 @@
 								</span>
 							</span>
 						</div>
+						<div id="tokenWarningForShowCommits"
+							class="hidden text-xs text-red-600 p-2 bg-red-50 border border-red-200 rounded-xl mt-2">
+							<span data-i18n="tokenRequiredShowCommitsWarning">A GitHub token is required to show commits on open or draft PRs. Please add one in the settings.</span>
+						</div>
 					</div>
 
 					<div>
@@ -523,10 +527,10 @@
 							<span data-i18n="gitlabTokenRequiredWarning">A GitLab token is required for project filtering. Please add one in the settings.</span>
 						</div>
 
-						<input id="gitlabProjectSearch" type="text" data-i18n-placeholder="gitlabProjectSearchPlaceholder"
-							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 pr-10"
-							placeholder="Filter by projects" autocomplete="off">
 						<div id="gitlabProjectFilterContainer" class="hidden">
+							<input id="gitlabProjectSearch" type="text" data-i18n-placeholder="gitlabProjectSearchPlaceholder"
+								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 pr-10"
+								placeholder="Search projects" autocomplete="off">
 							<div class="relative">
 								<div id="gitlabProjectDropdown" class="absolute w-full bg-white border border-gray-300 rounded-xl shadow-lg hidden max-h-48 overflow-y-auto" style="z-index: 1000; margin-top: -10px;"></div>
 							</div>
