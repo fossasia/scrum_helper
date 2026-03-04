@@ -51,10 +51,13 @@
         "message": "Scrum 报告"
     },
     "generateReportButton": {
-        "message": "生成报告"
+        "message": "生成"
     },
     "copyReportButton": {
-        "message": "复制报告"
+        "message": "复制"
+    },
+    "insertInEmailButton": {
+        "message": "插入到邮件"
     },
     "settingsOrgNameLabel": {
         "message": "组织名称"
