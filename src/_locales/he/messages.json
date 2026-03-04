@@ -251,7 +251,7 @@
 	"repoFetchingGithubOnly": {
 		"message": "אחזור מאגרים זמין רק עבור GitHub."
 	},
-	"loadingAutomatically": {
+	"loadingReposAutomatically": {
 		"message": "טוען מאגרים באופן אוטומטי.."
 	},
 	"gitlabUserFetchError": {

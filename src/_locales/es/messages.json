@@ -268,7 +268,7 @@
 	"repoFetchingGithubOnly": {
 		"message": "La obtención de repositorios solo está disponible para GitHub."
 	},
-	"loadingAutomatically": {
+	"loadingReposAutomatically": {
 		"message": "Cargando repositorios automáticamente.."
 	},
 	"gitlabUserFetchError": {

@@ -268,7 +268,7 @@
 	"repoFetchingGithubOnly": {
 		"message": "La récupération des dépôts est uniquement disponible pour GitHub."
 	},
-	"loadingAutomatically": {
+	"loadingReposAutomatically": {
 		"message": "Chargement automatique des dépôts.."
 	},
 	"gitlabUserFetchError": {

@@ -361,7 +361,7 @@
     "message": "Repository fetching is only available for GitHub.",
     "description": "Shown when repo fetching is not available for other platforms."
   },
-  "loadingAutomatically": {
+  "loadingReposAutomatically": {
     "message": "Loading repos automatically..",
     "description": "Status message when repos are loading."
   },

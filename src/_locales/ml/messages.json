@@ -278,5 +278,4 @@
     "gitlabContributedError": {
       "message": "GitLab സംഭാവന പ്രോജക്ടുകൾ ശേഖരിക്കുന്നതിൽ പിശക്: $1 $2"
     }
-  }
-  
+}

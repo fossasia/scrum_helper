@@ -12,6 +12,19 @@ function logError(...args) {
 	}
 }
 
+function renderErrorMessage(container, key, fallback, args = []) {
+	// add message (or fallback) into HTML container in a protected manner
+    let message = chrome?.i18n.getMessage(key, args) || fallback;
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-message';
+    errorDiv.style.color = '#dc2626';
+    errorDiv.style.fontWeight = 'bold';
+    errorDiv.style.padding = '10px';
+    errorDiv.textContent = message; 
+    container.innerHTML = '';
+    container.appendChild(errorDiv);
+}
+
 let refreshButton_Placed = false;
 let hasInjectedContent = false;
 let scrumGenerationInProgress = false;
@@ -176,8 +189,7 @@ function allIncluded(outputTarget = 'email') {
 							const scrumReport = document.getElementById('scrumReport');
 							const generateBtn = document.getElementById('generateReport');
 							if (scrumReport) {
-								scrumReport.innerHTML =
-									'<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">' + (chrome?.i18n.getMessage('usernameRequiredError') || 'Please enter your username to generate a report.') + '</div>';
+								renderErrorMessage(scrumReport, 'usernameRequiredError', 'Please enter your username to generate a report.');
 							}
 							if (generateBtn) {
 								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
@@ -262,7 +274,7 @@ function allIncluded(outputTarget = 'email') {
 										}
 										const scrumReport = document.getElementById('scrumReport');
 										if (scrumReport) {
-											scrumReport.innerHTML = `<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">${err.message || chrome?.i18n.getMessage('gitlabFetchingError') || 'An error occurred while fetching GitLab data.'}</div>`;
+											renderErrorMessage(scrumReport, 'gitlabFetchingError', 'An error occurred while fetching GitLab data.');
 										}
 									}
 									scrumGenerationInProgress = false;
@@ -310,7 +322,7 @@ function allIncluded(outputTarget = 'email') {
 										}
 										const scrumReport = document.getElementById('scrumReport');
 										if (scrumReport) {
-											scrumReport.innerHTML = `<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">${err.message || chrome?.i18n.getMessage('gitlabFetchingError') || 'An error occurred while fetching GitLab data.'}</div>`;
+											renderErrorMessage(scrumReport, 'gitlabFetchingError', 'An error occurred while fetching GitLab data.');
 										}
 									}
 									scrumGenerationInProgress = false;
@@ -322,8 +334,7 @@ function allIncluded(outputTarget = 'email') {
 							const scrumReport = document.getElementById('scrumReport');
 							const generateBtn = document.getElementById('generateReport');
 							if (scrumReport) {
-								scrumReport.innerHTML =
-									`<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">${chrome?.i18n.getMessage('usernameRequiredError') || 'Please enter your username to generate a report.'}</div>`;
+								renderErrorMessage(scrumReport, 'usernameRequiredError', 'Please enter your username to generate a report.');
 							}
 							if (generateBtn) {
 								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
@@ -337,8 +348,7 @@ function allIncluded(outputTarget = 'email') {
 					if (outputTarget === 'popup') {
 						const scrumReport = document.getElementById('scrumReport');
 						if (scrumReport) {
-							scrumReport.innerHTML =
-								`<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">${chrome?.i18n.getMessage('unknownPlatformError') || 'Unknown platform selected.'}</div>`;
+							renderErrorMessage(scrumReport, 'unknownPlatformError', 'Unsupported platform. Scrum Helper currently supports GitHub and GitLab.');
 						}
 					}
 					scrumGenerationInProgress = false;
@@ -938,12 +948,11 @@ function allIncluded(outputTarget = 'email') {
 	verifyCacheStatus();
 
 	function showInvalidTokenMessage() {
-		errMsg = chrome?.i18n.getMessage('invalidTokenError') || 'Invalid or expired GitHub token. Please check your token in the Scrum Helper settings and try again.';
+		const errMsg = chrome?.i18n.getMessage('invalidTokenError') || 'Invalid or expired GitHub token. Please check your token in the Scrum Helper settings and try again.';
 		if (outputTarget === 'popup') {
 			const reportDiv = document.getElementById('scrumReport');
 			if (reportDiv) {
-				reportDiv.innerHTML =
-					`<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">${errMsg}</div>`;
+				renderErrorMessage(reportDiv, '', errMsg);
 				const generateBtn = document.getElementById('generateReport');
 				if (generateBtn) {
 					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';

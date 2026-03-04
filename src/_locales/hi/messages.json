@@ -268,7 +268,7 @@
 	"repoFetchingGithubOnly": {
 		"message": "रिपॉज़िटरी प्राप्त करना केवल GitHub के लिए उपलब्ध है।"
 	},
-	"loadingAutomatically": {
+	"loadingReposAutomatically": {
 		"message": "रिपॉज़िटरी स्वचालित रूप से लोड हो रही हैं.."
 	},
 	"gitlabUserFetchError": {

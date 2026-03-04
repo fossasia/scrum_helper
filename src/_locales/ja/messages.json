@@ -261,7 +261,7 @@
 	"repoFetchingGithubOnly": {
 		"message": "リポジトリの取得はGitHubでのみ利用可能です。"
 	},
-	"loadingAutomatically": {
+	"loadingReposAutomatically": {
 		"message": "リポジトリを自動的に読み込み中.."
 	},
 	"gitlabUserFetchError": {
