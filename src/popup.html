@@ -310,6 +310,108 @@
 					<div>
 						<div>
 							<h6 class="text-base font-semibold mt-2" data-i18n="scrumReportLabel">Scrum Report</h6>
+							 <!-- Rate Limit Warning — GitHub -->
+                <div
+                  id="rateLimitWarning"
+                  class="rate-limit-banner hidden my-3 p-4 border-2 rounded-xl"
+                  style="background-color: #fefce8; border-color: #fde047"
+                >
+                  <div class="flex items-start gap-3">
+                    <i
+                      class="fa fa-exclamation-triangle text-xl mt-1"
+                      style="color: #ca8a04"
+                    ></i>
+                    <div class="flex-1">
+                      <h4 class="font-semibold text-sm" style="color: #854d0e">
+                        API Rate Limit Reached
+                      </h4>
+                      <p
+                        class="text-xs mt-1"
+                        id="rateLimitMessage"
+                        style="color: #a16207"
+                      >
+                        You've exceeded the GitHub API rate limit for
+                        unauthenticated requests (60/hour). Adding a Personal
+                        Access Token increases your limit to 5,000 requests/hour
+                        and enables access to private repositories.
+                      </p>
+                      <div class="flex items-center gap-2 mt-3">
+                        <button
+                          id="rateLimitAddToken"
+                          class="flex items-center justify-center gap-2 text-white font-medium py-2 px-4 rounded-lg text-sm transition-colors duration-200"
+                          style="background-color: #ca8a04"
+                        >
+                          <i class="fa fa-key"></i>
+                          <span>Add GitHub Token</span>
+                        </button>
+                        <button
+                          id="rateLimitDismiss"
+                          class="text-xs underline ml-2"
+                          style="color: #ca8a04"
+                        >
+                          Dismiss
+                        </button>
+                      </div>
+                      <p
+                        class="text-xs mt-2"
+                        id="rateLimitRetryInfo"
+                        style="color: #a16207"
+                      ></p>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Rate Limit Warning — GitLab -->
+                <div
+                  id="rateLimitWarningGitlab"
+                  class="rate-limit-banner hidden my-3 p-4 border-2 rounded-xl"
+                  style="background-color: #fff7ed; border-color: #fdba74"
+                >
+                  <div class="flex items-start gap-3">
+                    <i
+                      class="fa fa-exclamation-triangle text-xl mt-1"
+                      style="color: #ea580c"
+                    ></i>
+                    <div class="flex-1">
+                      <h4 class="font-semibold text-sm" style="color: #9a3412">
+                        API Rate Limit Reached
+                      </h4>
+                      <p
+                        class="text-xs mt-1"
+                        id="rateLimitMessageGitlab"
+                        style="color: #c2410c"
+                      >
+                        You've exceeded the GitLab API rate limit. Adding a
+                        Personal Access Token increases your limit and enables
+                        access to private projects.
+                      </p>
+                      <div class="flex items-center gap-2 mt-3">
+                        <button
+                          id="rateLimitAddTokenGitlab"
+                          class="flex items-center justify-center gap-2 text-white font-medium py-2 px-4 rounded-lg text-sm transition-colors duration-200"
+                          style="background-color: #ea580c"
+                        >
+                          <i class="fa fa-key"></i>
+                          <span>Add GitLab Token</span>
+                        </button>
+                        <button
+                          id="rateLimitDismissGitlab"
+                          class="text-xs underline ml-2"
+                          style="color: #ea580c"
+                        >
+                          Dismiss
+                        </button>
+                      </div>
+                      <p
+                        class="text-xs mt-2"
+                        id="rateLimitRetryInfoGitlab"
+                        style="color: #c2410c"
+                      ></p>
+                    </div>
+                  </div>
+                </div>
+
+
 							<div id="scrumReport" contenteditable="true"
 								class="min-h-[200px] overflow-y-auto whitespace-pre-wrap border-2 border-gray-200 bg-gray-100 rounded-xl text-gray-800 p-2 my-2">
 							</div>
@@ -609,6 +711,8 @@
 	<script src="scripts/jquery-3.2.1.min.js"></script>
 	<script type="text/javascript" type="text/javascript" src="materialize/js/materialize.min.js"></script>
 	<script src="scripts/emailClientAdapter.js"></script>
+	<script src="scripts/utils/githubRequest.js"></script>
+	<script src="scripts/utils/gitlabRequest.js"></script>
 	<script src="scripts/main.js"></script>
 	<script src="scripts/gitlabHelper.js"></script>
 	<script src="scripts/scrumHelper.js"></script>

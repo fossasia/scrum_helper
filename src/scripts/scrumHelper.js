@@ -680,7 +680,7 @@ function allIncluded(outputTarget = 'email') {
 			await new Promise((res) => setTimeout(res, 500));
 
 			log('Validating GitHub user existence for:', platformUsernameLocal);
-			const userCheckRes = await fetch(userUrl, { headers });
+			const userCheckRes = await githubRequest(userUrl, { headers });
 
 			if (userCheckRes.status === 404) {
 				const errorMsg = chrome?.i18n.getMessage('githubUserNotFoundError', [platformUsernameLocal]) || `GitHub user "${platformUsernameLocal}" not found (404). Please check the username and try again.`;
@@ -701,8 +701,8 @@ function allIncluded(outputTarget = 'email') {
 			}
 
 			const [issuesRes, prRes, userRes] = await Promise.all([
-				fetch(issueUrl, { headers }),
-				fetch(prUrl, { headers }),
+				githubRequest(issueUrl, { headers }),
+				githubRequest(prUrl, { headers }),
 				userCheckRes, // Reuse the already validated user response
 			]);
 
@@ -804,6 +804,17 @@ function allIncluded(outputTarget = 'email') {
 			githubCache.queue = [];
 		} catch (err) {
 			logError('Fetch Failed:', err);
+
+			// Handle rate limit errors by showing the banner instead of a generic error
+			if (err.name === 'RateLimitError') {
+				if (typeof showRateLimitWarning === 'function') showRateLimitWarning(err);
+				githubCache.queue.forEach(({ reject }) => reject(err));
+				githubCache.queue = [];
+				githubCache.fetching = false;
+				scrumGenerationInProgress = false;
+				return;
+			}
+
 			// Reject queued calls on error
 			githubCache.queue.forEach(({ reject }) => {
 				reject(err);
@@ -876,7 +887,7 @@ function allIncluded(outputTarget = 'email') {
 			.join('\n');
 		const query = `query { ${queries} }`;
 		log('GraphQL query for commits:', query);
-		const res = await fetch('https://api.github.com/graphql', {
+		const res = await githubRequest('https://api.github.com/graphql', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
@@ -1494,7 +1505,7 @@ ${blockerText}`;
 		}
 		const url = `https://api.github.com/repos/${owner}/${repo}/pulls/${number}`;
 		try {
-			const res = await fetch(url, { headers });
+			const res = await githubRequest(url, { headers });
 			if (!res.ok) return null;
 			const data = await res.json();
 			const merged = !!data.merged_at;
@@ -2068,7 +2079,7 @@ ${prs
 }`;
 
 	try {
-		const res = await fetch('https://api.github.com/graphql', {
+		const res = await githubRequest('https://api.github.com/graphql', {
 			method: 'POST',
 			headers: graphqlHeaders,
 			body: JSON.stringify({ query }),
@@ -2081,6 +2092,9 @@ ${prs
 		});
 		return results;
 	} catch (e) {
+		if (e.name === 'RateLimitError') {
+			if (typeof showRateLimitWarning === 'function') showRateLimitWarning(e);
+		}
 		return results;
 	}
 }
@@ -2209,7 +2223,7 @@ async function fetchUserRepositories(username, token, org = '') {
 		const query = `query { ${repoQueries} }`;
 
 		try {
-			const res = await fetch('https://api.github.com/graphql', {
+			const res = await githubRequest('https://api.github.com/graphql', {
 				method: 'POST',
 				headers: {
 					...headers,
