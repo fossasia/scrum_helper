@@ -35,6 +35,9 @@
   "startDateLabel": {
     "message": "De:"
   },
+  "insertInEmailButton": {
+  "message": "Inserir no Email"
+  },
   "endDateLabel": {
     "message": "Até:"
   },
