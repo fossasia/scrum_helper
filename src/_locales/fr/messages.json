@@ -104,12 +104,6 @@
     "onlyPRsTooltip": {
         "message": "Si coché, le rapport n'inclura que les pull requests créées par l'utilisateur ; les pull requests revues seront exclues."
     },
-    "onlyRevPRsLabel": {
-        "message": "Inclure uniquement les PRs revues dans le rapport"
-    },
-    "onlyRevPRsTooltip": {
-        "message": "Si coché, le rapport n'inclura que les PRs que vous avez revues."
-    },
     "cacheTTLLabel": {
         "message": "Entrez le TTL du cache",
         "description": "Étiquette pour le champ de saisie de la durée de vie du cache."
@@ -210,6 +204,10 @@
     "cacheClearedMessage": {
         "message": "Cache vidé avec succès. Cliquez sur 'Générer le rapport' pour récupérer des données fraîches."
     },
+    "cacheExpiredMessage": {
+        "message": "Le cache a expiré. Cliquez sur \"Générer\" pour récupérer des données fraîches.",
+        "description": "Message shown when the cached data has expired and user needs to regenerate."
+    },
     "cacheClearedButton": {
         "message": "Cache vidé !"
     },
@@ -227,5 +225,11 @@
     },
     "usernameLabel": {
         "message": "Votre nom d'utilisateur"
+    },
+    "onlyRevPRsLabel": {
+        "message": "Inclure uniquement les PRs revues dans le rapport"
+    },
+    "onlyRevPRsTooltip": {
+        "message": "Si coché, le rapport n'inclura que les PRs que vous avez revues."
     }
 }

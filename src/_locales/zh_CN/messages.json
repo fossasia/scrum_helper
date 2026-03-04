@@ -104,12 +104,6 @@
     "onlyPRsTooltip": {
         "message": "勾选后，报告将只包含用户创建的拉取请求；已审核的PR将被排除。"
     },
-    "onlyRevPRsLabel": {
-        "message": "报告中仅包含已审核的 PR"
-    },
-    "onlyRevPRsTooltip": {
-        "message": "如果选中，报告将仅包含由您审核的 PR。"
-    },
     "cacheTTLLabel": {
         "message": "输入缓存 TTL",
         "description": "缓存生存时间输入的标签。"
@@ -210,6 +204,10 @@
     "cacheClearedMessage": {
         "message": "缓存已成功清除。单击“生成报告”以获取新数据。"
     },
+    "cacheExpiredMessage": {
+        "message": "缓存已过期。点击\"生成\"以获取最新数据。",
+        "description": "Message shown when the cached data has expired and user needs to regenerate."
+    },
     "cacheClearedButton": {
         "message": "缓存已清除！"
     },
@@ -227,5 +225,11 @@
     },
     "usernameLabel": {
         "message": "您的用户名"
+    },
+    "onlyRevPRsLabel": {
+        "message": "报告中仅包含已审核的 PR"
+    },
+    "onlyRevPRsTooltip": {
+        "message": "如果选中，报告将仅包含由您审核的 PR。"
     }
 }
