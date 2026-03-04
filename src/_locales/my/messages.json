@@ -286,5 +286,8 @@
   },
   "usernameMissingError": {
     "message": "အသုံးပြုသူအမည် လိုအပ်သည်။"
+  },
+  "insertInEmailButton": {
+    "message": "အီးမေးလ်သို့ ထည့်ပါ"
   }
 }

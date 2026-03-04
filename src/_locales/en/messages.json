@@ -366,7 +366,7 @@
     "description": "Shown when repo fetching is not available for other platforms."
   },
   "loadingReposAutomatically": {
-    "message": "Loading repos automatically..",
+    "message": "Loading repos automatically...",
     "description": "Status message when repos are loading."
   },
   "gitlabUserFetchError": {

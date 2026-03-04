@@ -274,6 +274,7 @@ function allIncluded(outputTarget = 'email') {
 										}
 										const scrumReport = document.getElementById('scrumReport');
 										if (scrumReport) {
+											let errMsg = '';
 											if (err && typeof err.message === 'string' && err.message.trim().length > 0) {
 												errMsg = err.message;
 											} else {
@@ -327,6 +328,7 @@ function allIncluded(outputTarget = 'email') {
 										}
 										const scrumReport = document.getElementById('scrumReport');
 										if (scrumReport) {
+											let errMsg = '';
 											if (err && typeof err.message === 'string' && err.message.trim().length > 0) {
 												errMsg = err.message;
 											} else {
