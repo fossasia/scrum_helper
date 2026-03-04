@@ -291,5 +291,8 @@
 	},
 	"gitlabContributedError": {
 		"message": "Error al obtener los proyectos a los que contribuyó en GitLab: $1 $2"
+	},
+	"usernameMissingError": {
+		"message": "Nombre de usuario requerido."
 	}
 }

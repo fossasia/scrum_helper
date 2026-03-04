@@ -291,5 +291,8 @@
 	},
 	"gitlabContributedError": {
 		"message": "Erreur lors de la récupération des projets auxquels l'utilisateur a contribué sur GitLab : $1 $2"
+	},
+	"usernameMissingError": {
+		"message": "Nom d'utilisateur requis."
 	}
 }

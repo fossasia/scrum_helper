@@ -291,5 +291,8 @@
 	},
 	"gitlabContributedError": {
 		"message": "Kesalahan saat mengambil proyek kontribusi GitLab: $1 $2"
+	},
+	"usernameMissingError": {
+		"message": "Nama pengguna diperlukan."
 	}
 }

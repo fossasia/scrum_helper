@@ -230,5 +230,8 @@
     },
     "onlyRevPRsTooltip": {
         "message": "ఎంచుకుంటే, నివేదికలో మీరు సమీక్షించిన PRలు మాత్రమే చూపబడతాయి."
+    },
+    "usernameMissingError": {
+        "message": "యూజర్‌నేమ్ అవసరం."
     }
 }

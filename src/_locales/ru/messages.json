@@ -291,5 +291,8 @@
     },
     "onlyRevPRsTooltip": {
         "message": "Если отмечено, отчёт будет включать только PR, проверенные вами."
+    },
+    "usernameMissingError": {
+        "message": "Требуется имя пользователя."
     }
 }

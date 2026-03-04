@@ -291,5 +291,8 @@
     },
     "onlyRevPRsTooltip": {
         "message": "Якщо позначено, звіт включатиме лише PR, переглянуті вами."
+    },
+    "usernameMissingError": {
+        "message": "Потрібне ім'я користувача."
     }
 }

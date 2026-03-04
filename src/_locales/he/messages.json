@@ -232,7 +232,7 @@
     "onlyRevPRsTooltip": {
         "message": "אם מסומן, הדוח יכלול רק PR שנבדקו על ידך."
     },
-    	"usernameRequiredError": {
+    "usernameRequiredError": {
 		"message": "אנא הזן את שם המשתמש שלך כדי ליצור דוח."
 	},
 	"unknownPlatformError": {
@@ -291,5 +291,8 @@
 	},
 	"gitlabContributedError": {
 		"message": "שגיאה באחזור פרויקטים שאליהם המשתמש תרם ב-GitLab: $1 $2"
+    },
+    "usernameMissingError": {
+		"message": "שם משתמש נדרש."
     }
 }

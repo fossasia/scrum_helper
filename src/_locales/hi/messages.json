@@ -291,5 +291,8 @@
 	},
 	"gitlabContributedError": {
 		"message": "GitLab योगदान किए गए प्रोजेक्ट्स प्राप्त करते समय त्रुटि: $1 $2"
+	},
+	"usernameMissingError": {
+		"message": "उपयोगकर्ता नाम आवश्यक है।"
 	}
 }

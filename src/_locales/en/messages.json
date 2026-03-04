@@ -384,5 +384,9 @@
   "gitlabContributedError": {
     "message": "Error fetching GitLab contributed projects: $1 $2",
     "description": "Error when fetching GitLab contributed projects fails. $1=status, $2=statusText"
+  },
+  "usernameMissingError": {
+    "message": "Username required.",
+    "description": "Error shown when username is missing."
   }
 }

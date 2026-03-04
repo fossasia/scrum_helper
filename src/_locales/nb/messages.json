@@ -291,5 +291,8 @@
     },
     "gitlabContributedError": {
         "message": "Feil ved henting av GitLab-bidragsprosjekter: $1 $2"
+    },
+    "usernameMissingError": {
+        "message": "Brukernavn påkrevd."
     }
 }

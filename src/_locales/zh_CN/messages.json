@@ -291,5 +291,8 @@
     },
     "gitlabContributedError": {
         "message": "获取 GitLab 贡献项目时出错：$1 $2"
+    },
+    "usernameMissingError": {
+        "message": "需要用户名。"
     }
 }

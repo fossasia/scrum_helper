@@ -853,7 +853,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 				if (!username) {
 					if (repoStatus) {
-						repoStatus.textContent = chrome?.i18n.getMessage('usernameRequiredError') || 'Username required';
+						repoStatus.textContent = chrome?.i18n.getMessage('usernameMissingError') || 'Username required';
 					}
 					return;
 				}
@@ -963,7 +963,7 @@ document.addEventListener('DOMContentLoaded', () => {
 						const username = items[platformUsernameKey];
 
 						if (!username) {
-							repoStatus.textContent = chrome?.i18n.getMessage('usernameRequiredError') || 'Username required';
+							repoStatus.textContent = chrome?.i18n.getMessage('usernameMissingError') || 'Username required';
 							return;
 						}
 
@@ -1122,7 +1122,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				});
 
 				if (!username) {
-					repoStatus.textContent = chrome?.i18n.getMessage('usernameRequiredError') || 'Username required';
+					repoStatus.textContent = chrome?.i18n.getMessage('usernameMissingError') || 'Username required';
 					return;
 				}
 

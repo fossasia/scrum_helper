@@ -283,5 +283,8 @@
   },
   "gitlabContributedError": {
     "message": "GitLab ပံ့ပိုးထားသော ပရောဂျက်များကို ရယူရာတွင် အမှား: $1 $2"
+  },
+  "usernameMissingError": {
+    "message": "အသုံးပြုသူအမည် လိုအပ်သည်။"
   }
 }

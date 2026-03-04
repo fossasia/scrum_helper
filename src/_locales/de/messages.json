@@ -291,5 +291,8 @@
   },
   "gitlabContributedError": {
     "message": "Fehler beim Abrufen der GitLab-Beitragsprojekte: $1 $2"
+  },
+  "usernameMissingError": {
+    "message": "Benutzername erforderlich."
   }
 }

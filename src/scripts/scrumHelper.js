@@ -274,7 +274,12 @@ function allIncluded(outputTarget = 'email') {
 										}
 										const scrumReport = document.getElementById('scrumReport');
 										if (scrumReport) {
-											renderErrorMessage(scrumReport, 'gitlabFetchingError', 'An error occurred while fetching GitLab data.');
+											if (err && typeof err.message === 'string' && err.message.trim().length > 0) {
+												errMsg = err.message;
+											} else {
+												errMsg = chrome?.i18n.getMessage('gitlabFetchingError') || 'An error occurred while fetching GitLab data.';
+											}
+											renderErrorMessage(scrumReport, '', errMsg);
 										}
 									}
 									scrumGenerationInProgress = false;
@@ -322,7 +327,12 @@ function allIncluded(outputTarget = 'email') {
 										}
 										const scrumReport = document.getElementById('scrumReport');
 										if (scrumReport) {
-											renderErrorMessage(scrumReport, 'gitlabFetchingError', 'An error occurred while fetching GitLab data.');
+											if (err && typeof err.message === 'string' && err.message.trim().length > 0) {
+												errMsg = err.message;
+											} else {
+												errMsg = chrome?.i18n.getMessage('gitlabFetchingError') || 'An error occurred while fetching GitLab data.';
+											}
+											renderErrorMessage(scrumReport, '', errMsg);
 										}
 									}
 									scrumGenerationInProgress = false;
@@ -348,7 +358,7 @@ function allIncluded(outputTarget = 'email') {
 					if (outputTarget === 'popup') {
 						const scrumReport = document.getElementById('scrumReport');
 						if (scrumReport) {
-							renderErrorMessage(scrumReport, 'unknownPlatformError', 'Unsupported platform. Scrum Helper currently supports GitHub and GitLab.');
+							renderErrorMessage(scrumReport, 'unknownPlatformError', 'Unknown platform selected.');
 						}
 					}
 					scrumGenerationInProgress = false;

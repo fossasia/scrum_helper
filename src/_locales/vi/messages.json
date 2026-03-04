@@ -291,5 +291,8 @@
     },
     "onlyRevPRsTooltip": {
         "message": "Nếu được chọn, báo cáo sẽ chỉ bao gồm các PR bạn đã xem xét."
+    },
+    "usernameMissingError": {
+        "message": "Yêu cầu tên người dùng."
     }
 }
