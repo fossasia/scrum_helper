@@ -14,7 +14,13 @@ function logError(...args) {
 
 function renderErrorMessage(container, key, fallback, args = []) {
 	// add message (or fallback) into HTML container in a protected manner
-	let message = chrome?.i18n.getMessage(key, args) || fallback;
+	let message = fallback;
+	if (key && chrome?.i18n) {
+		const localized = chrome.i18n.getMessage(key, args);
+		if (localized) {
+			message = localized;
+		}
+	}
 	const errorDiv = document.createElement('div');
 	errorDiv.className = 'error-message';
 	errorDiv.style.color = '#dc2626';
