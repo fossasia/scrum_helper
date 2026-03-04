@@ -166,11 +166,6 @@ class ProfileManager {
 
   async switchProfile(profileId) {
     if (this.profiles[profileId]) {
-      // Force sync of latest UI values
-      document.querySelectorAll("input, textarea, select").forEach((el) => {
-        el.dispatchEvent(new Event("change"));
-        el.dispatchEvent(new Event("blur"));
-      });
       // Save current settings to old profile before switching
       await this.syncCurrentUIStateToActiveProfile();
 

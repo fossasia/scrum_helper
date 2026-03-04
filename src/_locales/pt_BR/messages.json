@@ -99,6 +99,9 @@
     "onlyPRsTooltip": {
         "message": "Se marcado, o relatório incluirá apenas PRs criadas pelo usuário; as PRs revisadas serão excluídas."
     },
+    "onlyRevPRsLabel": {
+    "message": "Incluir apenas PRs revisadas no relatório"
+  },
     "onlyRevPRsTooltip": {
         "message": "Se marcado, o relatório incluirá apenas PRs revisadas por você."
     },
