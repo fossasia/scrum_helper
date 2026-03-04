@@ -51,13 +51,14 @@
         "message": "Scrum-rapport"
     },
     "generateReportButton": {
-        "message": "Generer"
+        "message": "Generer rapport"
     },
     "copyReportButton": {
-        "message": "Kopier"
+        "message": "Kopier rapport"
     },
     "insertInEmailButton": {
-        "message": "Sett inn i e-post"
+        "message": "Sett inn i e-post",
+        "description": "Text for the 'Insert to Email' button."
     },
     "settingsOrgNameLabel": {
         "message": "Organisasjonsnavn"
@@ -74,14 +75,29 @@
     "githubTokenPlaceholder": {
         "message": "Påkrevd for autentiserte forespørsler"
     },
+    "githubTokenTooltip": {
+        "message": "Hvorfor anbefales det å legge til et GitHub-token? Scrum Helper fungerer uten et GitHub-token, men det anbefales å legge til et personlig tilgangstoken for en bedre opplevelse."
+    },
     "gitlabTokenLabel": {
         "message": "Ditt GitLab-token"
     },
     "gitlabTokenPlaceholder": {
-        "message": "Påkrevd for private repoer"
+        "message": "Påkrevd for private repositorier"
+    },
+    "gitlabTokenTooltip": {
+        "message": "Hvorfor anbefales det å legge til et GitLab-token? Scrum Helper fungerer uten et GitLab-token for offentlige prosjekter, men det anbefales å legge til et personlig tilgangstoken for en bedre opplevelse."
     },
     "showCommitsLabel": {
         "message": "Vis commits på åpne PR-er/utkast til PR-er"
+    },
+    "showCommitsTooltip": {
+        "message": "GitHub-token kreves. Legg det til i innstillingene."
+    },
+    "onlyIssuesLabel": {
+        "message": "Inkluder kun problemer i rapporten"
+    },
+    "onlyIssuesTooltip": {
+        "message": "Hvis valgt, vil rapporten kun inkludere problemer opprettet eller tildelt brukeren."
     },
     "onlyPRsLabel": {
         "message": "Inkluder kun PR-er i rapporten"
@@ -188,6 +204,10 @@
     "cacheClearedMessage": {
         "message": "Cache tømt. Klikk 'Generer rapport' for å hente ferske data."
     },
+    "cacheExpiredMessage": {
+        "message": "Hurtigbufferen har utløpt. Klikk \"Generer\" for å hente nye data.",
+        "description": "Message shown when the cached data has expired and user needs to regenerate."
+    },
     "cacheClearedButton": {
         "message": "Cache tømt!"
     },
@@ -205,6 +225,12 @@
     },
     "usernameLabel": {
         "message": "Ditt brukernavn"
+    },
+    "onlyRevPRsLabel": {
+        "message": "Inkluder kun gjennomgåtte PR-er i rapporten"
+    },
+    "onlyRevPRsTooltip": {
+        "message": "Hvis valgt, vil rapporten kun inkludere PR-er gjennomgått av deg."
     },
     "usernameRequiredError": {
         "message": "Vennligst skriv inn brukernavn for å generere rapport."

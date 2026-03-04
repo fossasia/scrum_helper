@@ -74,11 +74,17 @@
     "githubTokenPlaceholder": {
         "message": "Diperlukan untuk permintaan terotentikasi"
     },
+    "githubTokenTooltip": {
+        "message": "Mengapa disarankan untuk menambahkan token GitHub? Scrum Helper berfungsi tanpa token GitHub, tetapi menambahkan token akses pribadi disarankan untuk pengalaman yang lebih baik."
+    },
     "gitlabTokenLabel": {
         "message": "Token GitLab Anda"
     },
     "gitlabTokenPlaceholder": {
         "message": "Diperlukan untuk repo pribadi"
+    },
+    "gitlabTokenTooltip": {
+        "message": "Mengapa disarankan untuk menambahkan token GitLab? Scrum Helper berfungsi tanpa token GitLab untuk proyek publik, tetapi menambahkan token akses pribadi disarankan untuk pengalaman yang lebih baik."
     },
     "showCommitsLabel": {
         "message": "Tampilkan commit pada PR terbuka/ draf PR"
@@ -98,13 +104,6 @@
     "onlyPRsTooltip": {
         "message": "Jika dicentang, laporan hanya akan menyertakan PR yang dibuat oleh pengguna; PR yang telah ditinjau akan dikecualikan."
     },
-    "onlyRevPRsLabel": {
-        "message": "Hanya sertakan PR yang ditinjau dalam laporan"
-    },
-    "onlyRevPRsTooltip": {
-        "message": "Jika dicentang, laporan hanya akan menyertakan PR yang ditinjau oleh Anda."
-    },
-
     "cacheTTLLabel": {
         "message": "Masukkan TTL cache",
         "description": "Label untuk masukan time-to-live cache."
@@ -205,6 +204,10 @@
     "cacheClearedMessage": {
         "message": "Cache berhasil dihapus. Klik 'Buat Laporan' untuk mengambil data baru."
     },
+    "cacheExpiredMessage": {
+        "message": "Cache telah kedaluwarsa. Klik \"Buat\" untuk mengambil data baru.",
+        "description": "Message shown when the cached data has expired and user needs to regenerate."
+    },
     "cacheClearedButton": {
         "message": "Cache Dihapus!"
     },
@@ -222,6 +225,12 @@
     },
     "usernameLabel": {
         "message": "Nama pengguna Anda"
+    },
+    "onlyRevPRsLabel": {
+        "message": "Hanya sertakan PR yang ditinjau dalam laporan"
+    },
+    "onlyRevPRsTooltip": {
+        "message": "Jika dicentang, laporan hanya akan menyertakan PR yang ditinjau oleh Anda."
     },
     	"usernameRequiredError": {
 		"message": "Silakan masukkan nama pengguna Anda untuk membuat laporan."
