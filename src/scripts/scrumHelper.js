@@ -1689,6 +1689,9 @@ ${userReason}`;
 		clearInterval(intervalBody);
 		scrumBody = elements.body;
 	}, 500);
+	setTimeout(() => {
+		clearInterval(intervalBody);
+	}, 30000);
 
 	const intervalSubject = setInterval(() => {
 		const userData = platform === 'gitlab' ? githubUserData || platformUsername : githubUserData;
@@ -1698,7 +1701,6 @@ ${userReason}`;
 		if (!elements || !elements.subject) return;
 
 		if (outputTarget === 'email' && !window.emailClientAdapter.isNewConversation()) {
-			console.log('Not a new conversation, skipping subject interval');
 			clearInterval(intervalSubject);
 			return;
 		}
@@ -1710,10 +1712,14 @@ ${userReason}`;
 			scrumSubjectLoaded();
 		}, 500);
 	}, 500);
+	setTimeout(() => {
+		clearInterval(intervalSubject);
+	}, 30000);
 
 	// check for github safe writing
 	const intervalWriteGithubIssues = setInterval(() => {
 		if (outputTarget === 'popup') {
+			clearInterval(intervalWriteGithubIssues);
 			return;
 		}
 		const username = platform === 'gitlab' ? platformUsername : platformUsernameLocal;
@@ -1723,8 +1729,13 @@ ${userReason}`;
 			writeGithubIssuesPrs();
 		}
 	}, 500);
+	setTimeout(() => {
+		clearInterval(intervalWriteGithubIssues);
+	}, 30000);
+
 	const intervalWriteGithubPrs = setInterval(() => {
 		if (outputTarget === 'popup') {
+			clearInterval(intervalWriteGithubPrs);
 			return;
 		}
 
@@ -1735,6 +1746,9 @@ ${userReason}`;
 			writeGithubPrsReviews();
 		}
 	}, 500);
+	setTimeout(() => {
+		clearInterval(intervalWriteGithubPrs);
+	}, 30000);
 
 	if (!refreshButton_Placed) {
 		const intervalWriteButton = setInterval(() => {
@@ -1754,6 +1768,9 @@ ${userReason}`;
 				document.getElementById('refreshButton').addEventListener('click', handleRefresh);
 			}
 		}, 1000);
+		setTimeout(() => {
+			clearInterval(intervalWriteButton);
+		}, 30000);
 	}
 
 	function handleRefresh() {
