@@ -18,7 +18,7 @@ function logError(...args) {
 // away, email client doesn't load, or extension runs in popup mode). That causes a silent memory
 // and CPU leak for the entire browser session.
 //
-// This helper automatically stops the interval after INTERVAL_GUARD_TIMEOUT_MS (30s) if the
+// This helper automatically stops the interval after INTERVAL_GUARD_TIMEOUT_MS if the
 // callback never cancels it. The callback receives NO arguments — when your condition is met,
 // call the cancel function returned by this helper (NOT clearInterval) to stop both the
 // interval and the guard timeout at the same time.
@@ -31,11 +31,18 @@ function logError(...args) {
 //   }, 500);
 function setGuardedInterval(callback, delay) {
 	const id = setInterval(callback, delay);
-	const timeoutId = setTimeout(() => clearInterval(id), INTERVAL_GUARD_TIMEOUT_MS);
-	return () => {
+	let timeoutId;
+	let cancelled = false;
+
+	function cancel() {
+		if (cancelled) return;
+		cancelled = true;
 		clearInterval(id);
-		clearTimeout(timeoutId);
-	};
+		if (timeoutId !== undefined) clearTimeout(timeoutId);
+	}
+
+	timeoutId = setTimeout(cancel, INTERVAL_GUARD_TIMEOUT_MS);
+	return cancel;
 }
 
 let refreshButton_Placed = false;
@@ -1712,8 +1719,8 @@ ${userReason}`;
 		const elements = window.emailClientAdapter.getEditorElements();
 		if (!elements || !elements.body) return;
 
-		intervalBody();
 		scrumBody = elements.body;
+		intervalBody();
 	}, 500);
 
 	const intervalSubject = setGuardedInterval(() => {
@@ -1728,9 +1735,8 @@ ${userReason}`;
 			return;
 		}
 
-		intervalSubject();
 		scrumSubject = elements.subject;
-
+		intervalSubject();
 		setTimeout(() => {
 			scrumSubjectLoaded();
 		}, 500);
@@ -1745,7 +1751,6 @@ ${userReason}`;
 		const username = platform === 'gitlab' ? platformUsername : platformUsernameLocal;
 		if (scrumBody && username && githubIssuesData && githubPrsReviewData) {
 			intervalWriteGithubIssues();
-			intervalWriteGithubPrs();
 			writeGithubIssuesPrs();
 		}
 	}, 500);
@@ -1759,7 +1764,6 @@ ${userReason}`;
 		const username = platform === 'gitlab' ? platformUsername : platformUsernameLocal;
 		if (scrumBody && username && githubPrsReviewData && githubIssuesData) {
 			intervalWriteGithubPrs();
-			intervalWriteGithubIssues();
 			writeGithubPrsReviews();
 		}
 	}, 500);
@@ -1931,12 +1935,12 @@ async function fetchPrsMergedStatusBatch(prs, headers) {
 	if (prs.length === 0) return results;
 	const query = `query {
 ${prs
-			.map(
-				(pr, i) => `	repo${i}: repository(owner: "${pr.owner}\", name: "${pr.repo}\") {
+	.map(
+		(pr, i) => `	repo${i}: repository(owner: "${pr.owner}\", name: "${pr.repo}\") {
 		pr${i}: pullRequest(number: ${pr.number}) { merged }
 	}`,
-			)
-			.join('\n')}
+	)
+	.join('\n')}
 }`;
 
 	try {
@@ -2118,8 +2122,8 @@ async function fetchUserRepositories(username, token, org = '') {
 				}));
 
 			return repos.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-		} catch (err) { }
-	} catch (err) { }
+		} catch (err) {}
+	} catch (err) {}
 }
 
 function filterDataByRepos(data, selectedRepos) {
