@@ -1,9 +1,73 @@
+/* global chrome */
+
 function debounce(func, wait) {
 	let timeout;
 	return function (...args) {
 		clearTimeout(timeout);
 		timeout = setTimeout(() => func.apply(this, args), wait);
 	};
+}
+
+// Utility: Detect if the current OS is macOS
+function isMacOS() {
+	if (typeof navigator === 'undefined') {
+		return false;
+	}
+
+	if (navigator.userAgentData && typeof navigator.userAgentData.platform === 'string') {
+		return navigator.userAgentData.platform.toLowerCase().includes('mac');
+	}
+
+	const platform = navigator.platform || '';
+	if (navigator.maxTouchPoints && navigator.maxTouchPoints > 2 && /MacIntel/.test(platform)) {
+		return true;
+	}
+
+	return /Mac/.test(platform);
+}
+
+function showShortcutNotification(messageKey) {
+	if (typeof chrome === 'undefined' || !chrome.i18n) {
+		return;
+	}
+
+	const existingNotification = document.querySelector('.shortcut-notification');
+	if (existingNotification) {
+		existingNotification.remove();
+	}
+
+	const message = chrome.i18n.getMessage(messageKey);
+	if (!message) {
+		return;
+	}
+
+	const notification = document.createElement('div');
+	notification.className = 'shortcut-notification';
+	notification.textContent = message;
+	document.body.appendChild(notification);
+
+	setTimeout(() => {
+		notification.style.animation = 'slideOut 0.3s ease-out';
+		setTimeout(() => {
+			if (notification.parentNode) {
+				notification.parentNode.removeChild(notification);
+			}
+		}, 300);
+	}, 2000);
+}
+
+function setupButtonTooltips() {
+	const mac = isMacOS();
+
+	const generateTooltipEl = document.getElementById('generateReportTooltipText');
+	if (generateTooltipEl) {
+		generateTooltipEl.textContent = mac ? 'Cmd+G' : 'Ctrl+G';
+	}
+
+	const copyTooltipEl = document.getElementById('copyReportTooltipText');
+	if (copyTooltipEl) {
+		copyTooltipEl.textContent = mac ? 'Cmd+Shift+Y' : 'Ctrl+Shift+Y';
+	}
 }
 
 function getToday() {
@@ -52,6 +116,7 @@ function applyI18n() {
 document.addEventListener('DOMContentLoaded', () => {
 	// Apply translations as soon as the DOM is ready
 	applyI18n();
+	setupButtonTooltips();
 
 	// Dark mode setup
 	const darkModeToggle = document.querySelector('img[alt="Night Mode"]');
@@ -209,9 +274,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	githubTokenInput.addEventListener('input', checkTokenForFilter);
-	githubTokenInput.addEventListener('input', () =>
-		checkTokenForShowCommits({ persistState: false }),
-	);
+	githubTokenInput.addEventListener('input', () => checkTokenForShowCommits({ persistState: false }));
 
 	darkModeToggle.addEventListener('click', function () {
 		body.classList.toggle('dark-mode');
@@ -1793,6 +1856,41 @@ async function triggerRepoFetchIfEnabled() {
 		await window.triggerRepoFetchIfEnabled();
 	}
 }
+
+// Keyboard shortcuts: Ctrl+G / Cmd+G to generate, Ctrl+Shift+Y / Cmd+Shift+Y to copy
+document.addEventListener('keydown', (e) => {
+	if (!document.hasFocus()) {
+		return;
+	}
+
+	const target = e.target;
+	const tagName = target?.tagName;
+	const editableAncestor = typeof target?.closest === 'function' ? target.closest('[contenteditable="true"]') : null;
+	const isFormField = tagName === 'INPUT' || tagName === 'TEXTAREA' || tagName === 'SELECT';
+	const isContentEditable = !!(editableAncestor || (target && target.isContentEditable));
+
+	if (isFormField || isContentEditable) {
+		return;
+	}
+
+	const key = (e.key || '').toLowerCase();
+	const modifier = isMacOS() ? e.metaKey : e.ctrlKey;
+
+	const generateBtn = document.getElementById('generateReport');
+	const copyBtn = document.getElementById('copyReport');
+
+	if (modifier && !e.shiftKey && !e.altKey && key === 'g' && !e.repeat && generateBtn && !generateBtn.disabled) {
+		e.preventDefault();
+		showShortcutNotification('generatingReportNotification');
+		generateBtn.click();
+	}
+
+	if (modifier && e.shiftKey && !e.altKey && key === 'y' && !e.repeat && copyBtn && !copyBtn.disabled) {
+		e.preventDefault();
+		showShortcutNotification('copyingReportNotification');
+		copyBtn.click();
+	}
+});
 
 // Validate organization only when user is done typing (on blur)
 function validateOrgOnBlur(org) {

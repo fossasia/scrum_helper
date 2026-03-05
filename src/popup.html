@@ -282,10 +282,13 @@
 						</div>
 
 						<div class="scrum-actions my-2">
-							<button id="generateReport"
-								class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-3 rounded">
-								<i class="fa fa-refresh"></i> <span data-i18n="generateReportButton">Generate</span>
-							</button>
+							<div class="tooltip-container">
+								<button id="generateReport"
+									class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-3 rounded">
+									<i class="fa fa-refresh"></i> <span data-i18n="generateReportButton">Generate</span>
+								</button>
+								<span class="shortcut-tooltip" id="generateReportTooltipText">Ctrl+G</span>
+							</div>
 
 							<button id="insertInEmail"
 								class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
@@ -293,10 +296,13 @@
 									Email</span>
 							</button>
 
-							<button id="copyReport"
-								class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-2 rounded">
-								<i class="fa fa-copy"></i> <span data-i18n="copyReportButton">Copy</span>
-							</button>
+							<div class="tooltip-container">
+								<button id="copyReport"
+									class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
+									<i class="fa fa-copy"></i> <span data-i18n="copyReportButton">Copy</span>
+								</button>
+								<span class="shortcut-tooltip" id="copyReportTooltipText">Ctrl+Shift+Y</span>
+							</div>
 						</div>
 
 
