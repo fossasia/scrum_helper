@@ -412,5 +412,9 @@
   "insertingInEmailNotification": {
     "message": "Inserting report into email...",
     "description": "Notification shown when report insertion into email is triggered via keyboard shortcut."
+  },
+  "insertedInEmailNotification": {
+    "message": "Report inserted into email!",
+    "description": "Notification shown when report is successfully inserted into email."
   }
 }
