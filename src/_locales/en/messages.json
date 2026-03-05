@@ -388,5 +388,21 @@
   "usernameMissingError": {
     "message": "Username required.",
     "description": "Error shown when username is missing."
+   },
+  "generateReportTooltip": {
+    "message": "Ctrl+G",
+    "description": "Tooltip shortcut for the Generate button. Dynamically replaced with Cmd+G on macOS."
+  },
+  "copyReportTooltip": {
+    "message": "Ctrl+Shift+Y",
+    "description": "Tooltip shortcut for the Copy button. Dynamically replaced with Cmd+Shift+Y on macOS."
+  },
+  "generatingReportNotification": {
+    "message": "Generating report...",
+    "description": "Notification shown when report generation is triggered via keyboard shortcut."
+  },
+  "copyingReportNotification": {
+    "message": "Report copied!",
+    "description": "Notification shown when report is copied via keyboard shortcut."
   }
 }
