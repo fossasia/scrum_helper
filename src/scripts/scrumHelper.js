@@ -13,6 +13,22 @@ function logError(...args) {
 	}
 }
 
+// ⚠️ IMPORTANT: Always use this instead of setInterval() for any DOM polling in this file.
+// Raw setInterval() will run forever if the target element never appears (e.g. user navigates
+// away, email client doesn't load, or extension runs in popup mode). That causes a silent memory
+// and CPU leak for the entire browser session.
+//
+// This helper automatically stops the interval after INTERVAL_GUARD_TIMEOUT_MS (30s) if the
+// callback never cancels it. The callback receives NO arguments — when your condition is met,
+// call the cancel function returned by this helper (NOT clearInterval) to stop both the
+// interval and the guard timeout at the same time.
+//
+// Usage:
+//   const stopPolling = setGuardedInterval(() => {
+//     if (!conditionMet) return;
+//     stopPolling(); // cancels interval + guard timeout
+//     doWork();
+//   }, 500);
 function setGuardedInterval(callback, delay) {
 	const id = setInterval(callback, delay);
 	const timeoutId = setTimeout(() => clearInterval(id), INTERVAL_GUARD_TIMEOUT_MS);
@@ -1915,12 +1931,12 @@ async function fetchPrsMergedStatusBatch(prs, headers) {
 	if (prs.length === 0) return results;
 	const query = `query {
 ${prs
-	.map(
-		(pr, i) => `	repo${i}: repository(owner: "${pr.owner}\", name: "${pr.repo}\") {
+			.map(
+				(pr, i) => `	repo${i}: repository(owner: "${pr.owner}\", name: "${pr.repo}\") {
 		pr${i}: pullRequest(number: ${pr.number}) { merged }
 	}`,
-	)
-	.join('\n')}
+			)
+			.join('\n')}
 }`;
 
 	try {
@@ -2102,8 +2118,8 @@ async function fetchUserRepositories(username, token, org = '') {
 				}));
 
 			return repos.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-		} catch (err) {}
-	} catch (err) {}
+		} catch (err) { }
+	} catch (err) { }
 }
 
 function filterDataByRepos(data, selectedRepos) {
