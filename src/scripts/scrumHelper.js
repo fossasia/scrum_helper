@@ -1,4 +1,5 @@
 const DEBUG = false;
+const INTERVAL_GUARD_TIMEOUT_MS = 30000;
 
 function log(...args) {
 	if (DEBUG) {
@@ -10,6 +11,15 @@ function logError(...args) {
 	if (DEBUG) {
 		console.error('[SCRUM-HELPER]:', ...args);
 	}
+}
+
+function setGuardedInterval(callback, delay) {
+	const id = setInterval(callback, delay);
+	const timeoutId = setTimeout(() => clearInterval(id), INTERVAL_GUARD_TIMEOUT_MS);
+	return () => {
+		clearInterval(id);
+		clearTimeout(timeoutId);
+	};
 }
 
 let refreshButton_Placed = false;
@@ -1127,7 +1137,7 @@ ${userReason}`;
 					logError('Injection timed out after 30 seconds. The compose window might not have loaded.');
 					scrumGenerationInProgress = false;
 				}
-			}, 30000);
+			}, INTERVAL_GUARD_TIMEOUT_MS);
 		}
 	}
 
@@ -1680,20 +1690,17 @@ ${userReason}`;
 		issuesDataProcessed = true;
 	}
 
-	const intervalBody = setInterval(() => {
+	const intervalBody = setGuardedInterval(() => {
 		if (!window.emailClientAdapter) return;
 
 		const elements = window.emailClientAdapter.getEditorElements();
 		if (!elements || !elements.body) return;
 
-		clearInterval(intervalBody);
+		intervalBody();
 		scrumBody = elements.body;
 	}, 500);
-	setTimeout(() => {
-		clearInterval(intervalBody);
-	}, 30000);
 
-	const intervalSubject = setInterval(() => {
+	const intervalSubject = setGuardedInterval(() => {
 		const userData = platform === 'gitlab' ? githubUserData || platformUsername : githubUserData;
 		if (!userData || !window.emailClientAdapter) return;
 
@@ -1701,60 +1708,51 @@ ${userReason}`;
 		if (!elements || !elements.subject) return;
 
 		if (outputTarget === 'email' && !window.emailClientAdapter.isNewConversation()) {
-			clearInterval(intervalSubject);
+			intervalSubject();
 			return;
 		}
 
-		clearInterval(intervalSubject);
+		intervalSubject();
 		scrumSubject = elements.subject;
 
 		setTimeout(() => {
 			scrumSubjectLoaded();
 		}, 500);
 	}, 500);
-	setTimeout(() => {
-		clearInterval(intervalSubject);
-	}, 30000);
 
 	// check for github safe writing
-	const intervalWriteGithubIssues = setInterval(() => {
+	const intervalWriteGithubIssues = setGuardedInterval(() => {
 		if (outputTarget === 'popup') {
-			clearInterval(intervalWriteGithubIssues);
+			intervalWriteGithubIssues();
 			return;
 		}
 		const username = platform === 'gitlab' ? platformUsername : platformUsernameLocal;
 		if (scrumBody && username && githubIssuesData && githubPrsReviewData) {
-			clearInterval(intervalWriteGithubIssues);
-			clearInterval(intervalWriteGithubPrs);
+			intervalWriteGithubIssues();
+			intervalWriteGithubPrs();
 			writeGithubIssuesPrs();
 		}
 	}, 500);
-	setTimeout(() => {
-		clearInterval(intervalWriteGithubIssues);
-	}, 30000);
 
-	const intervalWriteGithubPrs = setInterval(() => {
+	const intervalWriteGithubPrs = setGuardedInterval(() => {
 		if (outputTarget === 'popup') {
-			clearInterval(intervalWriteGithubPrs);
+			intervalWriteGithubPrs();
 			return;
 		}
 
 		const username = platform === 'gitlab' ? platformUsername : platformUsernameLocal;
 		if (scrumBody && username && githubPrsReviewData && githubIssuesData) {
-			clearInterval(intervalWriteGithubPrs);
-			clearInterval(intervalWriteGithubIssues);
+			intervalWriteGithubPrs();
+			intervalWriteGithubIssues();
 			writeGithubPrsReviews();
 		}
 	}, 500);
-	setTimeout(() => {
-		clearInterval(intervalWriteGithubPrs);
-	}, 30000);
 
 	if (!refreshButton_Placed) {
-		const intervalWriteButton = setInterval(() => {
+		const intervalWriteButton = setGuardedInterval(() => {
 			if (document.getElementsByClassName('F0XO1GC-x-b').length === 3 && scrumBody) {
 				refreshButton_Placed = true;
-				clearInterval(intervalWriteButton);
+				intervalWriteButton();
 				const td = document.createElement('td');
 				const button = document.createElement('button');
 				button.style = 'background-image:none;background-color:#3F51B5;';
@@ -1768,9 +1766,6 @@ ${userReason}`;
 				document.getElementById('refreshButton').addEventListener('click', handleRefresh);
 			}
 		}, 1000);
-		setTimeout(() => {
-			clearInterval(intervalWriteButton);
-		}, 30000);
 	}
 
 	function handleRefresh() {
