@@ -6,16 +6,19 @@ function debounce(func, wait) {
 	};
 }
 
+function localDateStr(d) {
+	return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
 function getToday() {
-	const today = new Date();
-	return today.toISOString().split('T')[0];
+	return localDateStr(new Date());
 }
 
 function getYesterday() {
 	const today = new Date();
 	const yesterday = new Date(today);
 	yesterday.setDate(today.getDate() - 1);
-	return yesterday.toISOString().split('T')[0];
+	return localDateStr(yesterday);
 }
 
 function applyI18n() {
@@ -81,7 +84,6 @@ document.addEventListener('DOMContentLoaded', () => {
 	const platformSelect = document.getElementById('platformSelect');
 	const usernameLabel = document.getElementById('usernameLabel');
 	const platformUsername = document.getElementById('platformUsername');
-	let showCommitsWarningTimeout;
 
 	function checkTokenForFilter() {
 		const useRepoFilter = document.getElementById('useRepoFilter');
@@ -107,68 +109,6 @@ document.addEventListener('DOMContentLoaded', () => {
 		setTimeout(() => {
 			tokenWarning.classList.add('hidden');
 		}, 4000);
-	}
-
-	function showTokenWarningForShowCommits({ animate = false, durationMs = 4000 } = {}) {
-		const tokenWarning = document.getElementById('tokenWarningForShowCommits');
-		if (!tokenWarning) {
-			return;
-		}
-
-		tokenWarning.classList.remove('hidden');
-		if (animate) {
-			tokenWarning.classList.add('shake-animation');
-			setTimeout(() => tokenWarning.classList.remove('shake-animation'), 620);
-		}
-
-		if (showCommitsWarningTimeout) {
-			clearTimeout(showCommitsWarningTimeout);
-		}
-		showCommitsWarningTimeout = setTimeout(() => {
-			tokenWarning.classList.add('hidden');
-		}, durationMs);
-	}
-
-	function checkTokenForShowCommits({
-		showWarning = false,
-		animateWarning = false,
-		warningDurationMs = 4000,
-		persistState = false,
-	} = {}) {
-		const showCommits = document.getElementById('showCommits');
-		const githubTokenInput = document.getElementById('githubToken');
-
-		if (!showCommits || !githubTokenInput) {
-			return;
-		}
-
-		const isShowCommitsEnabled = showCommits.checked;
-		const hasToken = githubTokenInput.value.trim() !== '';
-
-		if (isShowCommitsEnabled && !hasToken) {
-			showCommits.checked = false;
-			if (showWarning) {
-				showTokenWarningForShowCommits({
-					animate: animateWarning,
-					durationMs: warningDurationMs,
-				});
-			}
-			// Always persist correction of invalid state
-			chrome?.storage.local.set({ showCommits: false });
-			return;
-		}
-
-		const tokenWarning = document.getElementById('tokenWarningForShowCommits');
-		if (tokenWarning) {
-			if (showCommitsWarningTimeout) {
-				clearTimeout(showCommitsWarningTimeout);
-				showCommitsWarningTimeout = null;
-			}
-			tokenWarning.classList.add('hidden');
-		}
-		if (persistState) {
-			chrome?.storage.local.set({ showCommits: showCommits.checked });
-		}
 	}
 
 	chrome?.storage.local.get(['darkMode'], (result) => {
@@ -209,9 +149,6 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	githubTokenInput.addEventListener('input', checkTokenForFilter);
-	githubTokenInput.addEventListener('input', () =>
-		checkTokenForShowCommits({ persistState: false }),
-	);
 
 	darkModeToggle.addEventListener('click', function () {
 		body.classList.toggle('dark-mode');
@@ -248,7 +185,6 @@ document.addEventListener('DOMContentLoaded', () => {
 	chrome.storage.local.remove(['enableToggle'], () => {
 		initializePopup();
 		checkTokenForFilter();
-		checkTokenForShowCommits();
 	});
 
 	chrome?.storage.onChanged.addListener((changes, namespace) => {
@@ -284,33 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	function showPopupMessage(message) {
 		if (!message) return;
-
-		// Materialize toast if available
-		if (window.Materialize && typeof window.Materialize.toast === 'function') {
-			window.Materialize.toast(message, 4000);
-			return;
-		}
-
-		const old = document.getElementById('scrum-cache-toast');
-		if (old) old.remove();
-
-		const toast = document.createElement('div');
-		toast.id = 'scrum-cache-toast';
-		toast.className = 'toast';
-		toast.style.background = '#2563eb';
-		toast.style.color = '#fff';
-		toast.style.fontWeight = 'bold';
-		toast.style.padding = '12px 24px';
-		toast.style.borderRadius = '8px';
-		toast.style.position = 'fixed';
-		toast.style.top = '24px';
-		toast.style.left = '50%';
-		toast.style.transform = 'translateX(-50%)';
-		toast.style.zIndex = '9999';
-		toast.textContent = message;
-
-		document.body.appendChild(toast);
-		setTimeout(() => toast.remove(), 4000);
+		NotificationSystem.showToast(message, 'info', 4000);
 	}
 
 	async function bootstrapScrumReportOnPopupLoad(generateBtn) {
@@ -366,12 +276,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
 				if (reportEmpty && lastScrumReportHtml && matches) {
 					scrumReport.innerHTML = lastScrumReportHtml;
-					if (generateBtn) generateBtn.disabled = false;
-					return;
+				} else if (reportEmpty && typeof window.generateScrumReport === 'function') {
+					try {
+						setGenerateButtonLoading(generateBtn, true);
+						window.generateScrumReport();
+						return;
+					} catch (e) {
+						console.error('Failed to generate scrum report from fresh cache on popup load:', e);
+					}
 				}
-
-				setGenerateButtonLoading(generateBtn, true);
-				window.generateScrumReport();
+				if (generateBtn) generateBtn.disabled = false;
 				return;
 			}
 
@@ -380,12 +294,15 @@ document.addEventListener('DOMContentLoaded', () => {
 				scrumReport.innerHTML = lastScrumReportHtml;
 			}
 
+			showPopupMessage(
+				chrome?.i18n.getMessage('cacheExpiredMessage') || 'Cache expired. Click "Generate" to fetch fresh data.',
+			);
+
 			if (generateBtn) generateBtn.disabled = false;
 			return;
 		}
 
-		setGenerateButtonLoading(generateBtn, true);
-		window.generateScrumReport();
+		if (generateBtn) generateBtn.disabled = false;
 	}
 
 	function initializePopup() {
@@ -467,14 +384,30 @@ document.addEventListener('DOMContentLoaded', () => {
 				if (result.githubToken) githubTokenInput.value = result.githubToken;
 				if (result.cacheInput) cacheInput.value = result.cacheInput;
 				if (typeof result.yesterdayContribution !== 'undefined') yesterdayRadio.checked = result.yesterdayContribution;
-				if (result.startingDate) startingDateInput.value = result.startingDate;
-				if (result.endingDate) endingDateInput.value = result.endingDate;
+				const normDate = (s) => {
+					if (!s) return '';
+					if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+					// Parse legacy formats (e.g. MM/DD/YYYY) and reformat using local date
+					// components to avoid UTC-offset day shifts from toISOString().
+					const parsed = new Date(s);
+					if (isNaN(parsed.getTime())) return '';
+					return localDateStr(parsed);
+				};
+				if (result.startingDate) {
+					const sd = normDate(result.startingDate);
+					startingDateInput.value = sd;
+					if (sd && sd !== result.startingDate) chrome?.storage.local.set({ startingDate: sd });
+				}
+				if (result.endingDate) {
+					const ed = normDate(result.endingDate);
+					endingDateInput.value = ed;
+					if (ed && ed !== result.endingDate) chrome?.storage.local.set({ endingDate: ed });
+				}
 
 				// Load platform-specific username
 				const platform = result.platform || 'github';
 				const platformUsernameKey = `${platform}Username`;
 				platformUsername.value = result[platformUsernameKey] || '';
-				checkTokenForShowCommits();
 			},
 		);
 
@@ -489,19 +422,50 @@ document.addEventListener('DOMContentLoaded', () => {
 				const content = scrumReport ? scrumReport.innerHTML : '';
 				const subject = buildScrumSubjectFromPopup();
 
-				if (!content) return;
+				if (!content || !content.trim()) {
+					NotificationSystem.showToast('Generate a report first before inserting.', 'error', 3000);
+					return;
+				}
 
 				chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-					const tabId = tabs?.[0]?.id;
+					const tab = tabs?.[0];
+					const tabId = tab?.id;
+					const tabUrl = tab?.url || '';
 					if (!tabId) return;
+
+					const supportedDomains = [
+						'mail.google.com',
+						'outlook.live.com',
+						'outlook.office.com',
+						'mail.yahoo.com',
+						'groups.google.com',
+					];
+					// Parse the hostname to prevent domain-check bypass via URL params or
+					// crafted subdomains (e.g. evil.com/?mail.google.com)
+					let tabHostname = '';
+					try {
+						tabHostname = new URL(tabUrl).hostname;
+					} catch (e) {
+						tabHostname = '';
+					}
+					const isSupported =
+						tabHostname && supportedDomains.some((d) => tabHostname === d || tabHostname.endsWith('.' + d));
+					if (!isSupported) {
+						NotificationSystem.showToast('Please open Gmail, Outlook, or Yahoo Mail first.', 'error', 4000);
+						return;
+					}
 
 					chrome.tabs.sendMessage(tabId, { action: 'insertReportToEmail', content, subject }, (response) => {
 						if (chrome.runtime.lastError) {
 							console.warn('Insert to Email failed:', chrome.runtime.lastError.message);
+							NotificationSystem.showToast('Failed to insert report into email.', 'error', 3000);
 							return;
 						}
 						if (!response?.success) {
 							console.warn('Insert to Email failed:', response?.error);
+							NotificationSystem.showToast('Failed to insert report into email.', 'error', 3000);
+						} else {
+							NotificationSystem.showToast('Report inserted into email!', 'success', 3000);
 						}
 					});
 				});
@@ -525,6 +489,7 @@ document.addEventListener('DOMContentLoaded', () => {
 							updatePlatformUI(platformSelect.value);
 							generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
 							generateBtn.disabled = true;
+							NotificationSystem.showToast('Generating your report…', 'info', 60000);
 							window.generateScrumReport && window.generateScrumReport();
 						});
 					},
@@ -534,6 +499,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		copyBtn.addEventListener('click', function () {
 			const scrumReport = document.getElementById('scrumReport');
+			if (!scrumReport || !scrumReport.innerHTML.trim()) {
+				NotificationSystem.showToast('Nothing to copy. Generate a report first.', 'error', 3000);
+				return;
+			}
 			const tempDiv = document.createElement('div');
 			tempDiv.innerHTML = scrumReport.innerHTML;
 			document.body.appendChild(tempDiv);
@@ -549,11 +518,13 @@ document.addEventListener('DOMContentLoaded', () => {
 			try {
 				document.execCommand('copy');
 				this.innerHTML = `<i class="fa fa-check"></i> ${chrome?.i18n.getMessage('copiedButton')}`;
+				NotificationSystem.showToast(chrome?.i18n.getMessage('copiedButton') || 'Report copied!', 'success', 3000);
 				setTimeout(() => {
 					this.innerHTML = `<i class="fa fa-copy"></i> ${chrome?.i18n.getMessage('copyReportButton')}`;
 				}, 2000);
 			} catch (err) {
 				console.error('Failed to copy: ', err);
+				NotificationSystem.showToast('Failed to copy report.', 'error', 3000);
 			} finally {
 				selection.removeAllRanges();
 				document.body.removeChild(tempDiv);
@@ -636,13 +607,12 @@ document.addEventListener('DOMContentLoaded', () => {
 			const org = orgInput.value.trim().toLowerCase();
 			chrome?.storage.local.set({ orgName: org });
 
-			// Only validate if org name is not empty
 			if (org) {
 				validateOrgOnBlur(org);
 			} else {
-				// Clear any existing toast if org is empty
-				const oldToast = document.getElementById('invalid-org-toast');
-				if (oldToast) oldToast.parentNode.removeChild(oldToast);
+				if (typeof NotificationSystem !== 'undefined' && typeof NotificationSystem.dismiss === 'function') {
+					NotificationSystem.dismiss();
+				}
 			}
 		});
 		if (userReasonInput) {
@@ -683,12 +653,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		}
 		showCommitsCheckbox.addEventListener('change', () => {
-			checkTokenForShowCommits({
-				showWarning: true,
-				animateWarning: true,
-				warningDurationMs: 3000,
-				persistState: true,
-			});
+			chrome?.storage.local.set({ showCommits: showCommitsCheckbox.checked });
 		});
 		githubTokenInput.addEventListener('input', () => {
 			chrome?.storage.local.set({ githubToken: githubTokenInput.value });
@@ -701,12 +666,10 @@ document.addEventListener('DOMContentLoaded', () => {
 		// Apply the stored display mode class on next launch
 		function applyDisplayModeClass(mode) {
 			const className = mode === 'popup' ? 'mode-popup' : 'mode-sidepanel';
-			if (!document.documentElement.classList.contains(className)) {
-				document.documentElement.classList.remove('mode-popup', 'mode-sidepanel');
-				body.classList.remove('mode-popup', 'mode-sidepanel');
-				document.documentElement.classList.add(className);
-				body.classList.add(className);
-			}
+			document.documentElement.classList.remove('mode-popup', 'mode-sidepanel');
+			body.classList.remove('mode-popup', 'mode-sidepanel');
+			document.documentElement.classList.add(className);
+			body.classList.add(className);
 		}
 
 		chrome?.storage.local.get({ displayMode: 'sidePanel' }, (result) => {
@@ -938,6 +901,12 @@ document.addEventListener('DOMContentLoaded', () => {
 							tokenWarning.classList.add('hidden');
 						}, 3000);
 					}
+					NotificationSystem.showToast(
+						chrome?.i18n.getMessage('tokenRequiredWarning') ||
+							'A GitHub token is required for repository filtering. Please add one in the settings.',
+						'error',
+						4000,
+					);
 					return;
 				}
 				repoFilterContainer.classList.toggle('hidden', !enabled);
@@ -1705,7 +1674,7 @@ document.getElementById('refreshCache').addEventListener('click', async function
 		// Clear the scrum report
 		const scrumReport = document.getElementById('scrumReport');
 		if (scrumReport) {
-			scrumReport.innerHTML = `<p style="text-align: center; color: #666; padding: 20px;">${chrome?.i18n.getMessage('cacheClearedMessage')}</p>`;
+			scrumReport.innerHTML = '';
 		}
 
 		if (typeof availableRepos !== 'undefined') {
@@ -1730,6 +1699,7 @@ document.getElementById('refreshCache').addEventListener('click', async function
 		console.error('Cache clear failed:', error);
 		this.innerHTML = `<i class="fa fa-exclamation-triangle"></i><span>${chrome?.i18n.getMessage('cacheClearFailed')}</span>`;
 		this.classList.remove('loading');
+		NotificationSystem.showToast(chrome?.i18n.getMessage('cacheClearFailed') || 'Cache clear failed.', 'error', 4000);
 
 		setTimeout(() => {
 			this.innerHTML = originalText;
@@ -1784,55 +1754,23 @@ function validateOrgOnBlur(org) {
 			console.log('[Org Check] Response status for', org, ':', res.status);
 			if (res.status === 404) {
 				console.log('[Org Check] Organization not found on GitHub:', org);
-				const oldToast = document.getElementById('invalid-org-toast');
-				if (oldToast) oldToast.parentNode.removeChild(oldToast);
-				const toastDiv = document.createElement('div');
-				toastDiv.id = 'invalid-org-toast';
-				toastDiv.className = 'toast';
-				toastDiv.style.background = '#dc2626';
-				toastDiv.style.color = '#fff';
-				toastDiv.style.fontWeight = 'bold';
-				toastDiv.style.padding = '12px 24px';
-				toastDiv.style.borderRadius = '8px';
-				toastDiv.style.position = 'fixed';
-				toastDiv.style.top = '24px';
-				toastDiv.style.left = '50%';
-				toastDiv.style.transform = 'translateX(-50%)';
-				toastDiv.style.zIndex = '9999';
-				toastDiv.innerText = chrome?.i18n.getMessage('orgNotFoundMessage');
-				document.body.appendChild(toastDiv);
-				setTimeout(() => {
-					if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
-				}, 3000);
+				NotificationSystem.showToast(
+					(chrome?.i18n.getMessage('orgNotFoundMessage') || 'Organization not found on GitHub.') + ` (${org})`,
+					'error',
+					4000,
+				);
 				return;
 			}
-			const oldToast = document.getElementById('invalid-org-toast');
-			if (oldToast) oldToast.parentNode.removeChild(oldToast);
 			console.log('[Org Check] Organisation exists on GitHub:', org);
+			// Clear any stale org-validation error toast when org is confirmed valid
+			if (typeof NotificationSystem !== 'undefined' && typeof NotificationSystem.dismiss === 'function') {
+				NotificationSystem.dismiss();
+			}
 			chrome?.storage.local.remove(['githubCache', 'repoCache']);
 			triggerRepoFetchIfEnabled();
 		})
 		.catch((err) => {
 			console.log('[Org Check] Error validating organisation:', org, err);
-			const oldToast = document.getElementById('invalid-org-toast');
-			if (oldToast) oldToast.parentNode.removeChild(oldToast);
-			const toastDiv = document.createElement('div');
-			toastDiv.id = 'invalid-org-toast';
-			toastDiv.className = 'toast';
-			toastDiv.style.background = '#dc2626';
-			toastDiv.style.color = '#fff';
-			toastDiv.style.fontWeight = 'bold';
-			toastDiv.style.padding = '12px 24px';
-			toastDiv.style.borderRadius = '8px';
-			toastDiv.style.position = 'fixed';
-			toastDiv.style.top = '24px';
-			toastDiv.style.left = '50%';
-			toastDiv.style.transform = 'translateX(-50%)';
-			toastDiv.style.zIndex = '9999';
-			toastDiv.innerText = chrome?.i18n.getMessage('orgValidationErrorMessage');
-			document.body.appendChild(toastDiv);
-			setTimeout(() => {
-				if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
-			}, 3000);
+			NotificationSystem.showToast(chrome?.i18n.getMessage('orgValidationErrorMessage'), 'error', 3000);
 		});
 }

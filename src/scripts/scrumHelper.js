@@ -12,6 +12,10 @@ function logError(...args) {
 	}
 }
 
+function toLocalDateStr(d) {
+	return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
 let refreshButton_Placed = false;
 let hasInjectedContent = false;
 let scrumGenerationInProgress = false;
@@ -107,7 +111,7 @@ function allIncluded(outputTarget = 'email') {
 
 				// Load platform-specific username
 				const platformUsernameKey = `${platform}Username`;
-				platformUsername = items[platformUsernameKey] || '';
+				platformUsername = (items[platformUsernameKey] || '').trim();
 				platformUsernameLocal = platformUsername;
 				console.log(`[DEBUG] platform: ${platform}, platformUsername: ${platformUsername}`);
 
@@ -117,11 +121,13 @@ function allIncluded(outputTarget = 'email') {
 					const tokenFromDOM = document.getElementById('githubToken')?.value;
 					const gitlabTokenFromDOM = document.getElementById('gitlabToken')?.value;
 
-					// Save to platform-specific storage
+					// Save to platform-specific storage (persist the trimmed value so storage
+					// stays canonical across all code paths that read it verbatim)
 					if (usernameFromDOM) {
-						chrome.storage.local.set({ [platformUsernameKey]: usernameFromDOM });
-						platformUsername = usernameFromDOM;
-						platformUsernameLocal = usernameFromDOM;
+						const trimmedUsername = usernameFromDOM.trim();
+						chrome.storage.local.set({ [platformUsernameKey]: trimmedUsername });
+						platformUsername = trimmedUsername;
+						platformUsernameLocal = trimmedUsername;
 					}
 
 					items.projectName = projectFromDOM || items.projectName;
@@ -173,16 +179,12 @@ function allIncluded(outputTarget = 'email') {
 					} else {
 						if (outputTarget === 'popup') {
 							console.log('[DEBUG] No username found - popup context');
-							const scrumReport = document.getElementById('scrumReport');
 							const generateBtn = document.getElementById('generateReport');
-							if (scrumReport) {
-								scrumReport.innerHTML =
-									'<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">Please enter your username to generate a report.</div>';
-							}
 							if (generateBtn) {
 								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
 								generateBtn.disabled = false;
 							}
+							NotificationSystem.showToast('Please enter your username to generate a report.', 'error', 4000);
 							scrumGenerationInProgress = false;
 						} else {
 							console.warn('[DEBUG] No username found in storage');
@@ -260,10 +262,11 @@ function allIncluded(outputTarget = 'email') {
 											generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
 											generateBtn.disabled = false;
 										}
-										const scrumReport = document.getElementById('scrumReport');
-										if (scrumReport) {
-											scrumReport.innerHTML = `<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">${err.message || 'An error occurred while fetching GitLab data.'}</div>`;
-										}
+										NotificationSystem.showToast(
+											err.message || 'An error occurred while fetching GitLab data.',
+											'error',
+											5000,
+										);
 									}
 									scrumGenerationInProgress = false;
 								}
@@ -308,38 +311,30 @@ function allIncluded(outputTarget = 'email') {
 											generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
 											generateBtn.disabled = false;
 										}
-										const scrumReport = document.getElementById('scrumReport');
-										if (scrumReport) {
-											scrumReport.innerHTML = `<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">${err.message || 'An error occurred while fetching GitLab data.'}</div>`;
-										}
+										NotificationSystem.showToast(
+											err.message || 'An error occurred while fetching GitLab data.',
+											'error',
+											5000,
+										);
 									}
 									scrumGenerationInProgress = false;
 								});
 						}
-						// --- FIX END ---
 					} else {
 						if (outputTarget === 'popup') {
-							const scrumReport = document.getElementById('scrumReport');
 							const generateBtn = document.getElementById('generateReport');
-							if (scrumReport) {
-								scrumReport.innerHTML =
-									'<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">Please enter your username to generate a report.</div>';
-							}
 							if (generateBtn) {
 								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
 								generateBtn.disabled = false;
 							}
+							NotificationSystem.showToast('Please enter your username to generate a report.', 'error', 4000);
 						}
 						scrumGenerationInProgress = false;
 					}
 				} else {
 					// Unknown platform
 					if (outputTarget === 'popup') {
-						const scrumReport = document.getElementById('scrumReport');
-						if (scrumReport) {
-							scrumReport.innerHTML =
-								'<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">Unknown platform selected.</div>';
-						}
+						NotificationSystem.showToast('Unknown platform selected.', 'error', 4000);
 					}
 					scrumGenerationInProgress = false;
 				}
@@ -357,11 +352,10 @@ function allIncluded(outputTarget = 'email') {
 		const today = new Date();
 		const yesterday = new Date(today);
 		yesterday.setDate(today.getDate() - 1);
-		return yesterday.toISOString().split('T')[0];
+		return toLocalDateStr(yesterday);
 	}
 	function getToday() {
-		const today = new Date();
-		return today.toISOString().split('T')[0];
+		return toLocalDateStr(new Date());
 	}
 
 	// Global cache object
@@ -472,8 +466,8 @@ function allIncluded(outputTarget = 'email') {
 		if (yesterdayContribution) {
 			const today = new Date();
 			const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
-			startDateForCache = yesterday.toISOString().split('T')[0];
-			endDateForCache = today.toISOString().split('T')[0]; // Use yesterday for start and today for end
+			startDateForCache = toLocalDateStr(yesterday);
+			endDateForCache = toLocalDateStr(today);
 		} else if (startingDate && endingDate) {
 			startDateForCache = startingDate;
 			endDateForCache = endingDate;
@@ -481,8 +475,23 @@ function allIncluded(outputTarget = 'email') {
 			// Default to last 7 days if no date range is set
 			const today = new Date();
 			const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
-			startDateForCache = lastWeek.toISOString().split('T')[0];
-			endDateForCache = today.toISOString().split('T')[0];
+			startDateForCache = toLocalDateStr(lastWeek);
+			endDateForCache = toLocalDateStr(today);
+		}
+
+		const ensureISODate = (d) => {
+			if (!d) return null;
+			if (/^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
+			const parsed = new Date(d);
+			return isNaN(parsed.getTime()) ? null : toLocalDateStr(parsed);
+		};
+		startDateForCache = ensureISODate(startDateForCache);
+		endDateForCache = ensureISODate(endDateForCache);
+		if (!startDateForCache || !endDateForCache || startDateForCache > endDateForCache) {
+			const now = new Date();
+			endDateForCache = toLocalDateStr(now);
+			const fallbackStart = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 7);
+			startDateForCache = toLocalDateStr(fallbackStart);
 		}
 
 		const cacheKey = `${platformUsernameLocal}-${startDateForCache}-${endDateForCache}-${orgName || 'all'}`;
@@ -560,7 +569,7 @@ function allIncluded(outputTarget = 'email') {
 		console.log('[SCRUM-HELPER] orgName before API query:', orgName);
 		console.log('[SCRUM-HELPER] orgName type:', typeof orgName);
 		console.log('[SCRUM-HELPER] orgName length:', orgName ? orgName.length : 0);
-		const orgPart = orgName && orgName.trim() ? `+org%3A${orgName}` : '';
+		const orgPart = orgName && orgName.trim() ? `+org%3A${encodeURIComponent(orgName.trim())}` : '';
 		console.log('[SCRUM-HELPER] orgPart for API:', orgPart);
 		console.log('[SCRUM-HELPER] orgPart length:', orgPart.length);
 
@@ -599,7 +608,7 @@ function allIncluded(outputTarget = 'email') {
 				})
 				.join('+');
 
-			const orgQuery = orgPart ? `+${orgPart}` : '';
+			const orgQuery = orgPart;
 			if (!repoQueries) {
 				loadFromStorage('Repo filter empty, using org wide search');
 				issueUrl = `https://api.github.com/search/issues?q=author%3A${platformUsernameLocal}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}&per_page=100`;
@@ -613,7 +622,7 @@ function allIncluded(outputTarget = 'email') {
 			}
 		} else {
 			loadFromStorage('Using org wide search');
-			const orgQuery = orgPart ? `+${orgPart}` : '';
+			const orgQuery = orgPart;
 			issueUrl = `https://api.github.com/search/issues?q=author%3A${platformUsernameLocal}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}&per_page=100`;
 			prUrl = `https://api.github.com/search/issues?q=commenter%3A${platformUsernameLocal}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}&per_page=100`;
 			userUrl = `https://api.github.com/users/${platformUsernameLocal}`;
@@ -622,13 +631,20 @@ function allIncluded(outputTarget = 'email') {
 		try {
 			await new Promise((res) => setTimeout(res, 500));
 
+			console.log('[SCRUM-HELPER] fetchGithubData issueUrl:', issueUrl);
+			console.log('[SCRUM-HELPER] fetchGithubData prUrl:', prUrl);
 			log('Validating GitHub user existence for:', platformUsernameLocal);
 			const userCheckRes = await fetch(userUrl, { headers });
 
 			if (userCheckRes.status === 404) {
-				const errorMsg = `GitHub user "${platformUsernameLocal}" not found (404). Please check the username and try again.`;
+				const errorMsg = `GitHub user "${platformUsernameLocal}" not found. Please check the username and try again.`;
 				logError(errorMsg);
-				throw new Error(errorMsg);
+				if (outputTarget === 'popup') {
+					NotificationSystem.showToast(errorMsg, 'error', 5000);
+				}
+				const handledErr404 = new Error(errorMsg);
+				handledErr404.toastShown = true;
+				throw handledErr404;
 			}
 
 			if (userCheckRes.status === 401 || userCheckRes.status === 403) {
@@ -643,11 +659,8 @@ function allIncluded(outputTarget = 'email') {
 				throw new Error(errorMsg);
 			}
 
-			const [issuesRes, prRes, userRes] = await Promise.all([
-				fetch(issueUrl, { headers }),
-				fetch(prUrl, { headers }),
-				userCheckRes, // Reuse the already validated user response
-			]);
+			let [issuesRes, prRes] = await Promise.all([fetch(issueUrl, { headers }), fetch(prUrl, { headers })]);
+			const userRes = userCheckRes;
 
 			if (issuesRes.status === 401 || prRes.status === 401 || issuesRes.status === 403 || prRes.status === 403) {
 				showInvalidTokenMessage();
@@ -655,30 +668,70 @@ function allIncluded(outputTarget = 'email') {
 				return;
 			}
 
+			if ((issuesRes.status === 422 || prRes.status === 422) && orgPart) {
+				const failedRes = issuesRes.status === 422 ? issuesRes : prRes;
+				try {
+					const body = await failedRes.json();
+					console.warn('[SCRUM-HELPER] GitHub 422 with org filter, retrying without org:', JSON.stringify(body));
+				} catch (_) {
+					// ignore
+				}
+				if (outputTarget === 'popup') {
+					NotificationSystem.showToast(
+						`Organisation "${orgName}" not found or inaccessible — showing all results instead.`,
+						'warning',
+						5000,
+					);
+				}
+				// Rebuild URLs without the org filter
+				const noOrgIssueUrl = issueUrl.replace(orgPart, '');
+				const noOrgPrUrl = prUrl.replace(orgPart, '');
+				[issuesRes, prRes] = await Promise.all([fetch(noOrgIssueUrl, { headers }), fetch(noOrgPrUrl, { headers })]);
+			}
+
 			if (issuesRes.status === 422 || prRes.status === 422) {
-				const errorMsg = `Invalid search query or date range. Please verify your date range format and try again.`;
+				const failedRes = issuesRes.status === 422 ? issuesRes : prRes;
+				let githubDetail = '';
+				try {
+					const body = await failedRes.json();
+					console.log('[SCRUM-HELPER] GitHub 422 full body:', JSON.stringify(body));
+					if (body?.message) githubDetail = body.message;
+					if (body?.errors?.length)
+						githubDetail += ' — ' + body.errors.map((e) => e.message || e.code || JSON.stringify(e)).join('; ');
+				} catch (_) {
+					// ignore JSON parse failure
+				}
+				const errorMsg = githubDetail
+					? `GitHub search failed: ${githubDetail}`
+					: 'Invalid date range. Check your dates and try again.';
 				logError(errorMsg);
 				if (outputTarget === 'popup') {
-					Materialize.toast && Materialize.toast(errorMsg, 4000);
+					NotificationSystem.showToast(errorMsg, 'error', 4000);
 				}
-				throw new Error(errorMsg);
+				const handledErr422 = new Error(errorMsg);
+				handledErr422.toastShown = true;
+				throw handledErr422;
 			}
 
 			if (!issuesRes.ok) {
 				const errorMsg = `Error fetching GitHub issues: ${issuesRes.status} ${issuesRes.statusText}`;
 				logError(errorMsg);
 				if (outputTarget === 'popup') {
-					Materialize.toast && Materialize.toast(errorMsg, 4000);
+					NotificationSystem.showToast(errorMsg, 'error', 4000);
 				}
-				throw new Error(errorMsg);
+				const handledErr = new Error(errorMsg);
+				handledErr.toastShown = true;
+				throw handledErr;
 			}
 			if (!prRes.ok) {
 				const errorMsg = `Error fetching GitHub PR review data: ${prRes.status} ${prRes.statusText}`;
 				logError(errorMsg);
 				if (outputTarget === 'popup') {
-					Materialize.toast && Materialize.toast(errorMsg, 4000);
+					NotificationSystem.showToast(errorMsg, 'error', 4000);
 				}
-				throw new Error(errorMsg);
+				const handledErr = new Error(errorMsg);
+				handledErr.toastShown = true;
+				throw handledErr;
 			}
 			if (!userRes.ok) {
 				const errorMsg = `Error fetching GitHub user data: ${userRes.status} ${userRes.statusText}`;
@@ -705,8 +758,8 @@ function allIncluded(outputTarget = 'email') {
 					if (yesterdayContribution) {
 						const today = new Date();
 						const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
-						startDateForCommits = yesterday.toISOString().split('T')[0];
-						endDateForCommits = today.toISOString().split('T')[0]; // Use yesterday for start and today for end
+						startDateForCommits = toLocalDateStr(yesterday);
+						endDateForCommits = toLocalDateStr(today); // Use yesterday for start and today for end
 					} else if (startingDate && endingDate) {
 						startDateForCommits = startingDate;
 						endDateForCommits = endingDate;
@@ -714,8 +767,8 @@ function allIncluded(outputTarget = 'email') {
 						// Default to last 7 days if no date range is set
 						const today = new Date();
 						const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
-						startDateForCommits = lastWeek.toISOString().split('T')[0];
-						endDateForCommits = today.toISOString().split('T')[0];
+						startDateForCommits = toLocalDateStr(lastWeek);
+						endDateForCommits = toLocalDateStr(today);
 					}
 
 					const commitMap = await fetchCommitsForOpenPRs(openPRs, githubToken, startDateForCommits, endDateForCommits);
@@ -733,7 +786,6 @@ function allIncluded(outputTarget = 'email') {
 					});
 				}
 			}
-
 			// Cache the data
 			githubCache.data = { githubIssuesData, githubPrsReviewData, githubUserData };
 			githubCache.timestamp = Date.now();
@@ -756,21 +808,21 @@ function allIncluded(outputTarget = 'email') {
 
 			if (outputTarget === 'popup') {
 				const generateBtn = document.getElementById('generateReport');
-				if (scrumReport) {
+				const scrumReport = document.getElementById('scrumReport');
+				if (generateBtn) {
+					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+					generateBtn.disabled = false;
+				}
+				if (!err?.toastShown) {
 					let errorMsg = 'An error occurred while generating the report.';
 					if (err) {
 						if (typeof err === 'string') errorMsg = err;
 						else if (err.message) errorMsg = err.message;
 						else errorMsg = JSON.stringify(err);
 					}
-					scrumReport.innerHTML = `<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">${err.message || 'An error occurred while generating the report.'}</div>`;
-					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
-					generateBtn.disabled = false;
+					NotificationSystem.showToast(errorMsg, 'error', 5000);
 				}
-				if (generateBtn) {
-					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
-					generateBtn.disabled = false;
-				}
+				if (scrumReport) scrumReport.innerHTML = '';
 			}
 			scrumGenerationInProgress = false;
 			throw err;
@@ -939,18 +991,18 @@ function allIncluded(outputTarget = 'email') {
 
 	function showInvalidTokenMessage() {
 		if (outputTarget === 'popup') {
-			const reportDiv = document.getElementById('scrumReport');
-			if (reportDiv) {
-				reportDiv.innerHTML =
-					'<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">Invalid or expired GitHub token. Please check your token in the settings and try again.</div>';
-				const generateBtn = document.getElementById('generateReport');
-				if (generateBtn) {
-					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
-					generateBtn.disabled = false;
-				}
-			} else {
-				alert('Invalid or expired GitHub token. Please check your token in the extension popup and try again.');
+			const generateBtn = document.getElementById('generateReport');
+			if (generateBtn) {
+				generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+				generateBtn.disabled = false;
 			}
+			NotificationSystem.showToast(
+				'Invalid or expired GitHub token. Please check your token in the settings and try again.',
+				'error',
+				5000,
+			);
+		} else {
+			console.warn('Invalid or expired GitHub token. Please check your token in the extension popup and try again.');
 		}
 	}
 
@@ -1089,6 +1141,7 @@ ${userReason}`;
 					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
 					generateBtn.disabled = false;
 				}
+				NotificationSystem.showToast('Report generated!', 'success', 3000);
 			} else {
 				logError('Scrum report div not found in popup');
 			}
@@ -1194,8 +1247,8 @@ ${userReason}`;
 		if (yesterdayContribution) {
 			const today = new Date();
 			const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
-			startDate = yesterday.toISOString().split('T')[0];
-			endDate = today.toISOString().split('T')[0]; // Use yesterday for start and today for end
+			startDate = toLocalDateStr(yesterday);
+			endDate = toLocalDateStr(today);
 		} else if (startingDate && endingDate) {
 			startDate = startingDate;
 			endDate = endingDate;
@@ -1203,8 +1256,8 @@ ${userReason}`;
 			// Default to last 7 days if no date range is set
 			const today = new Date();
 			const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
-			startDate = lastWeek.toISOString().split('T')[0];
-			endDate = today.toISOString().split('T')[0];
+			startDate = toLocalDateStr(lastWeek);
+			endDate = toLocalDateStr(today);
 		}
 
 		const startDateTime = new Date(startDate + 'T00:00:00Z');
@@ -1424,8 +1477,8 @@ ${userReason}`;
 		if (yesterdayContribution) {
 			const today = new Date();
 			const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
-			startDateForRange = yesterday.toISOString().split('T')[0];
-			endDateForRange = today.toISOString().split('T')[0]; // Use yesterday for start and today for end
+			startDateForRange = toLocalDateStr(yesterday);
+			endDateForRange = toLocalDateStr(today);
 		} else if (startingDate && endingDate) {
 			startDateForRange = startingDate;
 			endDateForRange = endingDate;
@@ -1433,8 +1486,8 @@ ${userReason}`;
 			// Default to last 7 days if no date range is set
 			const today = new Date();
 			const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
-			startDateForRange = lastWeek.toISOString().split('T')[0];
-			endDateForRange = today.toISOString().split('T')[0];
+			startDateForRange = toLocalDateStr(lastWeek);
+			endDateForRange = toLocalDateStr(today);
 		}
 
 		const daysRange = getDaysBetween(startDateForRange, endDateForRange);
@@ -1470,9 +1523,12 @@ ${userReason}`;
 		} else if (useMergedStatus) {
 			if (prsToCheck.length > 30) {
 				fallbackToSimple = true;
-				if (typeof Materialize !== 'undefined' && Materialize.toast) {
-					Materialize.toast(
+				// Only show the UI toast in popup context; avoid injecting into third-party
+				// email pages when running as a content script.
+				if (outputTarget === 'popup') {
+					NotificationSystem.showToast(
 						'API limit exceeded. Please use a GitHub token for full status. Showing only open/closed PRs.',
+						'info',
 						5000,
 					);
 				}
@@ -1533,8 +1589,8 @@ ${userReason}`;
 				if (yesterdayContribution) {
 					const today = new Date();
 					const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
-					startDateFilter = new Date(yesterday.toISOString().split('T')[0] + 'T00:00:00Z');
-					endDateFilter = new Date(today.toISOString().split('T')[0] + 'T23:59:59Z'); // Use yesterday for start and today for end
+					startDateFilter = new Date(toLocalDateStr(yesterday) + 'T00:00:00Z');
+					endDateFilter = new Date(toLocalDateStr(today) + 'T23:59:59Z'); // Use yesterday for start and today for end
 				} else if (startingDate && endingDate) {
 					startDateFilter = new Date(startingDate + 'T00:00:00Z');
 					endDateFilter = new Date(endingDate + 'T23:59:59Z');
@@ -1542,8 +1598,8 @@ ${userReason}`;
 					// Default to last 7 days if no date range is set
 					const today = new Date();
 					const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
-					startDateFilter = new Date(lastWeek.toISOString().split('T')[0] + 'T00:00:00Z');
-					endDateFilter = new Date(today.toISOString().split('T')[0] + 'T23:59:59Z');
+					startDateFilter = new Date(toLocalDateStr(lastWeek) + 'T00:00:00Z');
+					endDateFilter = new Date(toLocalDateStr(today) + 'T23:59:59Z');
 				}
 
 				const today = new Date();
@@ -1962,16 +2018,16 @@ async function fetchUserRepositories(username, token, org = '') {
 			if (storageData.yesterdayContribution) {
 				const today = new Date();
 				const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
-				startDate = yesterday.toISOString().split('T')[0];
-				endDate = today.toISOString().split('T')[0];
+				startDate = toLocalDateStr(yesterday);
+				endDate = toLocalDateStr(today);
 			} else if (storageData.startingDate && storageData.endingDate) {
 				startDate = storageData.startingDate;
 				endDate = storageData.endingDate;
 			} else {
 				const today = new Date();
 				const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
-				startDate = lastWeek.toISOString().split('T')[0];
-				endDate = today.toISOString().split('T')[0];
+				startDate = toLocalDateStr(lastWeek);
+				endDate = toLocalDateStr(today);
 			}
 
 			dateRange = `+created:${startDate}..${endDate}`;
@@ -1980,10 +2036,9 @@ async function fetchUserRepositories(username, token, org = '') {
 			console.warn('Could not determine date range, using last 30 days:', err);
 			const today = new Date();
 			const thirtyDaysAgo = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 30);
-			const startDate = thirtyDaysAgo.toISOString().split('T')[0];
-			const endDate = today.toISOString().split('T')[0];
+			dateRange = `+created:${toLocalDateStr(thirtyDaysAgo)}..${toLocalDateStr(today)}`;
 		}
-		const orgPart = org && org !== 'all' ? `+org:${org}` : '';
+		const orgPart = org && org !== 'all' ? `+org:${encodeURIComponent(org.trim())}` : '';
 		const issuesUrl = `https://api.github.com/search/issues?q=author:${username}${orgPart}${dateRange}&per_page=100`;
 		const commentsUrl = `https://api.github.com/search/issues?q=commenter:${username}${orgPart}${dateRange.replace('created:', 'updated:')}&per_page=100`;
 
