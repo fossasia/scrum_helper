@@ -1044,7 +1044,7 @@ function allIncluded(outputTarget = 'email') {
 
 		//show message if no GitHub activity found
 		if (lastWeekArray.length === 0 && reviewedPrsArray.length === 0) {
-			lastWeekUl = '<p>No GitHub activity found for the selected date range.</p>';
+			lastWeekUl = '<ul><li>No GitHub activity found for the selected date range.</li></ul>';
 		}
 		let nextWeekUl = '<ul>';
 		for (let i = 0; i < nextWeekArray.length; i++) nextWeekUl += nextWeekArray[i];
