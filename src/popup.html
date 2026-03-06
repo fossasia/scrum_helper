@@ -250,19 +250,23 @@
 						</div>
 					</div>
 
-						<div class="my-4">
+					<div class="my-4 githubOnlySection">
 						<div class="flex items-center">
-							<input type="checkbox"  class="form-checkbox text-blue-600">
-							<label  class="font-medium text-sm flex items-center"
-								style="margin-left: 4px;" >
+							<input type="checkbox" id="onlyMergedPRs" class="form-checkbox text-blue-600">
+							<label for="onlyMergedPRs" class="font-medium text-sm flex items-center"
+								style="margin-left: 4px;" data-i18n="onlyMergedPRsLabel">
 								Include only Merged PRs in the report
 							</label>
 							<span class="tooltip-container">
 								<i class="fa fa-question-circle question-icon"></i>
-								<span class="tooltip-bubble">
-									If checked, the report will only include merged PRs.
+								<span class="tooltip-bubble" data-i18n="onlyMergedPRsTooltip">
+									If checked, the report will only include merged PRs. A GitHub token is required.
 								</span>
 							</span>
+						</div>
+						<div id="tokenWarningForMergedPRs"
+							class="hidden text-xs text-red-600 p-2 bg-red-50 border border-red-200 rounded-xl mt-2">
+							<span data-i18n="tokenRequiredMergedPRsWarning">A GitHub token is required to filter by merged PRs. Please add one in the settings.</span>
 						</div>
 					</div>
 

@@ -82,6 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	const usernameLabel = document.getElementById('usernameLabel');
 	const platformUsername = document.getElementById('platformUsername');
 	let showCommitsWarningTimeout;
+	let mergedPRsWarningTimeout;
 
 	function checkTokenForFilter() {
 		const useRepoFilter = document.getElementById('useRepoFilter');
@@ -107,6 +108,67 @@ document.addEventListener('DOMContentLoaded', () => {
 		setTimeout(() => {
 			tokenWarning.classList.add('hidden');
 		}, 4000);
+	}
+
+	function showTokenWarningForMergedPRs({ animate = false, durationMs = 4000 } = {}) {
+		const tokenWarning = document.getElementById('tokenWarningForMergedPRs');
+		if (!tokenWarning) {
+			return;
+		}
+
+		tokenWarning.classList.remove('hidden');
+		if (animate) {
+			tokenWarning.classList.add('shake-animation');
+			setTimeout(() => tokenWarning.classList.remove('shake-animation'), 620);
+		}
+
+		if (mergedPRsWarningTimeout) {
+			clearTimeout(mergedPRsWarningTimeout);
+		}
+		mergedPRsWarningTimeout = setTimeout(() => {
+			tokenWarning.classList.add('hidden');
+		}, durationMs);
+	}
+
+	function checkTokenForMergedPRs({
+		showWarning = false,
+		animateWarning = false,
+		warningDurationMs = 4000,
+		persistState = false,
+	} = {}) {
+		const mergedPRsCheckbox = document.getElementById('onlyMergedPRs');
+		const githubTokenInput = document.getElementById('githubToken');
+
+		if (!mergedPRsCheckbox || !githubTokenInput) {
+			return;
+		}
+
+		const isMergedPRsEnabled = mergedPRsCheckbox.checked;
+		const hasToken = githubTokenInput.value.trim() !== '';
+
+		if (isMergedPRsEnabled && !hasToken) {
+			mergedPRsCheckbox.checked = false;
+			if (showWarning) {
+				showTokenWarningForMergedPRs({
+					animate: animateWarning,
+					durationMs: warningDurationMs,
+				});
+			}
+			chrome?.storage.local.set({ onlyMergedPRs: false });
+			return;
+		}
+
+		const tokenWarning = document.getElementById('tokenWarningForMergedPRs');
+		if (tokenWarning) {
+			if (mergedPRsWarningTimeout) {
+				clearTimeout(mergedPRsWarningTimeout);
+				mergedPRsWarningTimeout = null;
+			}
+			tokenWarning.classList.add('hidden');
+		}
+		if (persistState) {
+			chrome?.storage.local.set({ onlyMergedPRs: mergedPRsCheckbox.checked });
+		}
 	}
 
 	function showTokenWarningForShowCommits({ animate = false, durationMs = 4000 } = {}) {
@@ -211,6 +273,9 @@ document.addEventListener('DOMContentLoaded', () => {
 	githubTokenInput.addEventListener('input', checkTokenForFilter);
 	githubTokenInput.addEventListener('input', () =>
 		checkTokenForShowCommits({ persistState: false }),
+	);
+	githubTokenInput.addEventListener('input', () =>
+		checkTokenForMergedPRs({ persistState: false }),
 	);
 
 	darkModeToggle.addEventListener('click', function () {
@@ -407,6 +472,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		const onlyIssuesCheckbox = document.getElementById('onlyIssues');
 		const onlyPRsCheckbox = document.getElementById('onlyPRs');
 		const onlyRevPRsCheckbox = document.getElementById('onlyRevPRs');
+		const onlyMergedPRsCheckbox = document.getElementById('onlyMergedPRs');
 
 		const githubTokenInput = document.getElementById('githubToken');
 		const cacheInput = document.getElementById('cacheInput');
@@ -427,6 +493,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				'onlyIssues',
 				'onlyPRs',
 				'onlyRevPRs',
+				'onlyMergedPRs',
 				'yesterdayContribution',
 				'startingDate',
 				'endingDate',
@@ -454,6 +521,9 @@ document.addEventListener('DOMContentLoaded', () => {
 				if (typeof result.onlyRevPRs !== 'undefined') {
 					onlyRevPRsCheckbox.checked = result.onlyRevPRs;
 				}
+				if (typeof result.onlyMergedPRs !== 'undefined') {
+					onlyMergedPRsCheckbox.checked = result.onlyMergedPRs;
+				}
 
 				// Reconcile mutually exclusive "Only Issues" and "Only PRs" flags on initialization.
 				// If both are somehow true in storage (e.g., from an older version or manual edits),
@@ -475,6 +545,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				const platformUsernameKey = `${platform}Username`;
 				platformUsername.value = result[platformUsernameKey] || '';
 				checkTokenForShowCommits();
+				checkTokenForMergedPRs();
 			},
 		);
 
@@ -678,7 +749,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			if (onlyRevPRsCheckbox) {
 				onlyRevPRsCheckbox.addEventListener('change', () => {
-					chrome?.storage.local.set({ onlyRevPRs: onlyRevPRsCheckbox.checked });
+					const checked = onlyRevPRsCheckbox.checked;
+					chrome?.storage.local.set({ onlyRevPRs: checked }, () => {
+						if (checked && onlyMergedPRsCheckbox && onlyMergedPRsCheckbox.checked) {
+							onlyMergedPRsCheckbox.checked = false;
+							chrome?.storage.local.set({ onlyMergedPRs: false });
+						}
+					});
+				});
+			}
+			if (onlyMergedPRsCheckbox) {
+				onlyMergedPRsCheckbox.addEventListener('change', () => {
+					if (onlyMergedPRsCheckbox.checked && onlyRevPRsCheckbox && onlyRevPRsCheckbox.checked) {
+						onlyRevPRsCheckbox.checked = false;
+						chrome?.storage.local.set({ onlyRevPRs: false });
+					}
+					checkTokenForMergedPRs({
+						showWarning: true,
+						animateWarning: true,
+						warningDurationMs: 3000,
+						persistState: true,
+					});
 				});
 			}
 		}

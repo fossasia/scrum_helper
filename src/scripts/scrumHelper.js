@@ -57,6 +57,7 @@ function allIncluded(outputTarget = 'email') {
 	let onlyIssues = false;
 	let onlyPRs = false;
 	let onlyRevPRs = false;
+	let onlyMergedPRs = false;
 
 	const pr_open_button =
 		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
@@ -100,6 +101,7 @@ function allIncluded(outputTarget = 'email') {
 				'onlyIssues',
 				'onlyPRs',
 				'onlyRevPRs',
+				'onlyMergedPRs',
 			],
 			(items) => {
 				console.log('[DEBUG] Storage items received:', items);
@@ -144,7 +146,7 @@ function allIncluded(outputTarget = 'email') {
 				onlyIssues = items.onlyIssues === true;
 				onlyPRs = items.onlyPRs === true;
 				onlyRevPRs = items.onlyRevPRs === true;
-				console.log('[SCRUM-DEBUG] loaded flags:', { onlyIssues, onlyPRs, onlyRevPRs });
+				onlyMergedPRs = items.onlyMergedPRs === true;
 				// Enforce mutual exclusivity between onlyIssues and onlyPRs to avoid filtering out everything
 				if (onlyIssues && onlyPRs) {
 					console.warn('[SCRUM-HELPER]: Detected both onlyIssues and onlyPRs enabled; normalizing to onlyIssues.');
@@ -1174,6 +1176,14 @@ ${userReason}`;
 			return;
 		}
 
+		// onlyMergedPRs and onlyRevPRs are mutually exclusive; skip reviewed PRs when merged filter is active
+		if (onlyMergedPRs) {
+			log('onlyMergedPRs filter active, skipping PR reviews section.');
+			reviewedPrsArray = [];
+			prsReviewDataProcessed = true;
+			return;
+		}
+
 		const items = githubPrsReviewData.items;
 		log('Processing PR reviews:', {
 			hasItems: !!items,
@@ -1227,6 +1237,15 @@ ${userReason}`;
 			}
 
 			if (isAuthoredByUser || !item.pull_request) continue;
+
+			
+			if (onlyMergedPRs) {
+				const isMerged = !!item.pull_request?.merged_at;
+				if (!isMerged) {
+					log(`Skipping reviewed PR #${item.number} - not merged (onlyMergedPRs filter)`);
+					continue;
+				}
+			}
 
 			// Check if the PR was actually reviewed/commented on within the date range
 			const itemDate = new Date(item.updated_at || item.created_at);
@@ -1502,6 +1521,28 @@ ${userReason}`;
 				}
 			}
 
+			if (onlyMergedPRs) {
+				if (!isMR && !onlyIssues) {
+					log('[SCRUM-DEBUG] Skipping issue because onlyMergedPRs is checked and onlyIssues is not:', item.number);
+					continue;
+				}
+				if (isMR) {
+					const repoUrl = item.repository_url;
+					const repoParts = repoUrl ? repoUrl.split('/') : [];
+					const prOwner = repoParts[repoParts.length - 2];
+					const prRepo = repoParts[repoParts.length - 1];
+					const prCacheKey = `${prOwner}/${prRepo}#${item.number}`;
+					const isMerged =
+						prCacheKey in mergedStatusResults
+							? !!mergedStatusResults[prCacheKey]
+							: !!item.pull_request?.merged_at;
+					if (!isMerged) {
+						log('[SCRUM-DEBUG] Skipping non-merged PR:', item.number);
+						continue;
+					}
+				}
+			}
+
 			log('[SCRUM-DEBUG] isMR:', isMR, 'platform:', platform, 'item:', item);
 			const html_url = item.html_url;
 			const repository_url = item.repository_url;
@@ -1562,11 +1603,12 @@ ${userReason}`;
 				if (platform === 'github') {
 					// For existing PRs (not new), they must be open AND have commits in the date range
 					if (!isNewPR) {
-						if (item.state !== 'open') {
+						if (onlyMergedPRs) {
+							// When filtering for merged PRs, skip only non-merged existing PRs
+					} else if (item.state !== 'open') {
 							log(`[PR DEBUG] Skipping PR #${number} - existing PR but not open`);
 							continue;
-						}
-						if (!hasCommitsInRange) {
+						} else if (!hasCommitsInRange) {
 							log(`[PR DEBUG] Skipping PR #${number} - existing PR but no commits in date range`);
 							continue;
 						}
@@ -1904,7 +1946,7 @@ async function fetchPrsMergedStatusBatch(prs, headers) {
 	const query = `query {
 ${prs
 	.map(
-		(pr, i) => `	repo${i}: repository(owner: "${pr.owner}\", name: "${pr.repo}\") {
+		(pr, i) => `	repo${i}: repository(owner: "${pr.owner}", name: "${pr.repo}") {
 		pr${i}: pullRequest(number: ${pr.number}) { merged }
 	}`,
 	)
