@@ -1238,15 +1238,6 @@ ${userReason}`;
 
 			if (isAuthoredByUser || !item.pull_request) continue;
 
-			
-			if (onlyMergedPRs) {
-				const isMerged = !!item.pull_request?.merged_at;
-				if (!isMerged) {
-					log(`Skipping reviewed PR #${item.number} - not merged (onlyMergedPRs filter)`);
-					continue;
-				}
-			}
-
 			// Check if the PR was actually reviewed/commented on within the date range
 			const itemDate = new Date(item.updated_at || item.created_at);
 			log(`PR #${item.number} - itemDate: ${itemDate}, startDateTime: ${startDateTime}, endDateTime: ${endDateTime}`);
@@ -1602,13 +1593,12 @@ ${userReason}`;
 
 				if (platform === 'github') {
 					// For existing PRs (not new), they must be open AND have commits in the date range
-					if (!isNewPR) {
-						if (onlyMergedPRs) {
-							// When filtering for merged PRs, skip only non-merged existing PRs
-					} else if (item.state !== 'open') {
+					if (!isNewPR && !onlyMergedPRs) {
+						if (item.state !== 'open') {
 							log(`[PR DEBUG] Skipping PR #${number} - existing PR but not open`);
 							continue;
-						} else if (!hasCommitsInRange) {
+						}
+						if (!hasCommitsInRange) {
 							log(`[PR DEBUG] Skipping PR #${number} - existing PR but no commits in date range`);
 							continue;
 						}

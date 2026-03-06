@@ -530,9 +530,11 @@ document.addEventListener('DOMContentLoaded', () => {
 				// prefer "Only Issues" and clear "Only PRs", then persist the corrected state.
 				if (onlyIssuesCheckbox.checked && onlyPRsCheckbox.checked) {
 					onlyPRsCheckbox.checked = false;
-					if (typeof chrome !== 'undefined' && chrome?.storage && chrome?.storage.sync) {
-						chrome?.storage.sync.set({ onlyPRs: false });
-					}
+					chrome?.storage.local.set({ onlyPRs: false });
+				}
+				if (onlyMergedPRsCheckbox.checked && onlyRevPRsCheckbox.checked) {
+					onlyRevPRsCheckbox.checked = false;
+					chrome?.storage.local.set({ onlyRevPRs: false });
 				}
 				if (result.githubToken) githubTokenInput.value = result.githubToken;
 				if (result.cacheInput) cacheInput.value = result.cacheInput;
