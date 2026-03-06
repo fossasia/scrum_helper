@@ -211,7 +211,13 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (!isLoading) return;
 
 		const msg = chrome?.i18n.getMessage('generatingButton') || 'Generating...';
-		generateBtn.innerHTML = `<i class="fa fa-spinner fa-spin"></i> ${msg}`;
+		generateBtn.textContent = "";
+
+		const icon = document.createElement("i");
+		icon.className = "fa fa-spinner fa-spin";
+
+		generateBtn.appendChild(icon);
+		generateBtn.appendChild(document.createTextNode(" " + msg));
 		generateBtn.disabled = true;
 	}
 
@@ -298,7 +304,8 @@ document.addEventListener('DOMContentLoaded', () => {
 					(!lastScrumReportCacheKey || lastScrumReportCacheKey === cacheKey);
 
 				if (reportEmpty && lastScrumReportHtml && matches) {
-					scrumReport.innerHTML = lastScrumReportHtml;
+					scrumReport.textContent = "";
+					scrumReport.insertAdjacentHTML("beforeend", lastScrumReportHtml);
 					if (generateBtn) generateBtn.disabled = false;
 					return;
 				}
@@ -310,7 +317,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			const { lastScrumReportHtml } = await storageLocalGet(['lastScrumReportHtml']);
 			if ((!scrumReport.innerHTML || !scrumReport.innerHTML.trim()) && lastScrumReportHtml) {
-				scrumReport.innerHTML = lastScrumReportHtml;
+				scrumReport.textContent = "";
+				scrumReport.insertAdjacentHTML("beforeend", lastScrumReportHtml);
 			}
 
 			showPopupMessage(
