@@ -151,19 +151,28 @@ function allIncluded(outputTarget = 'email') {
 				if (onlyIssues && onlyPRs) {
 					console.warn('[SCRUM-HELPER]: Detected both onlyIssues and onlyPRs enabled; normalizing to onlyIssues.');
 					onlyPRs = false;
+					chrome.storage.local.set({ onlyPRs: false });
 				}
+				// Enforce mutual exclusivity: onlyMergedPRs overrides onlyRevPRs, onlyIssues, and onlyPRs
 				if (onlyMergedPRs) {
+					const corrections = {};
 					if (onlyRevPRs) {
 						console.warn('[SCRUM-HELPER]: onlyMergedPRs and onlyRevPRs both enabled; disabling onlyRevPRs.');
 						onlyRevPRs = false;
+						corrections.onlyRevPRs = false;
 					}
 					if (onlyIssues) {
 						console.warn('[SCRUM-HELPER]: onlyMergedPRs and onlyIssues both enabled; disabling onlyIssues.');
 						onlyIssues = false;
+						corrections.onlyIssues = false;
 					}
 					if (onlyPRs) {
 						console.warn('[SCRUM-HELPER]: onlyMergedPRs and onlyPRs both enabled; disabling onlyPRs.');
 						onlyPRs = false;
+						corrections.onlyPRs = false;
+					}
+					if (Object.keys(corrections).length > 0) {
+						chrome.storage.local.set(corrections);
 					}
 				}
 				showCommits = items.showCommits || false;
@@ -1533,12 +1542,21 @@ ${userReason}`;
 				}
 				if (isMR) {
 					const repoUrl = item.repository_url;
-					const repoParts = repoUrl ? repoUrl.split('/') : [];
-					const prOwner = repoParts[repoParts.length - 2];
-					const prRepo = repoParts[repoParts.length - 1];
-					const prCacheKey = `${prOwner}/${prRepo}#${item.number}`;
+					let prCacheKey = null;
+					if (repoUrl) {
+						const repoParts = repoUrl.split('/');
+						const prOwner = repoParts[repoParts.length - 2];
+						const prRepo = repoParts[repoParts.length - 1];
+						if (prOwner && prRepo) {
+							prCacheKey = `${prOwner}/${prRepo}#${item.number}`;
+						} else {
+							logError('[SCRUM-HELPER] Unable to derive PR cache key from repository_url:', repoUrl, 'for item:', item.number);
+						}
+					} else {
+						logError('[SCRUM-HELPER] Missing repository_url for PR item when onlyMergedPRs is enabled. Falling back to merged_at flag. Item number:', item.number);
+					}
 					const isMerged =
-						prCacheKey in mergedStatusResults
+						prCacheKey && prCacheKey in mergedStatusResults
 							? !!mergedStatusResults[prCacheKey]
 							: !!item.pull_request?.merged_at;
 					if (!isMerged) {
@@ -1947,6 +1965,13 @@ async function injectIntoEmailEditor(content, subject) {
 async function fetchPrsMergedStatusBatch(prs, headers) {
 	const results = {};
 	if (prs.length === 0) return results;
+
+	// GitHub's GraphQL API requires "bearer" auth, not "token"
+	const graphqlHeaders = { ...headers, 'Content-Type': 'application/json' };
+	if (graphqlHeaders.Authorization && graphqlHeaders.Authorization.startsWith('token ')) {
+		graphqlHeaders.Authorization = graphqlHeaders.Authorization.replace('token ', 'bearer ');
+	}
+
 	const query = `query {
 ${prs
 	.map(
@@ -1960,10 +1985,7 @@ ${prs
 	try {
 		const res = await fetch('https://api.github.com/graphql', {
 			method: 'POST',
-			headers: {
-				...headers,
-				'Content-Type': 'application/json',
-			},
+			headers: graphqlHeaders,
 			body: JSON.stringify({ query }),
 		});
 		if (!res.ok) return results;
