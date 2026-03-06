@@ -152,6 +152,20 @@ function allIncluded(outputTarget = 'email') {
 					console.warn('[SCRUM-HELPER]: Detected both onlyIssues and onlyPRs enabled; normalizing to onlyIssues.');
 					onlyPRs = false;
 				}
+				if (onlyMergedPRs) {
+					if (onlyRevPRs) {
+						console.warn('[SCRUM-HELPER]: onlyMergedPRs and onlyRevPRs both enabled; disabling onlyRevPRs.');
+						onlyRevPRs = false;
+					}
+					if (onlyIssues) {
+						console.warn('[SCRUM-HELPER]: onlyMergedPRs and onlyIssues both enabled; disabling onlyIssues.');
+						onlyIssues = false;
+					}
+					if (onlyPRs) {
+						console.warn('[SCRUM-HELPER]: onlyMergedPRs and onlyPRs both enabled; disabling onlyPRs.');
+						onlyPRs = false;
+					}
+				}
 				showCommits = items.showCommits || false;
 				showOpenLabel = items.showOpenLabel !== false; // Default to true if not explicitly set to false
 				orgName = items.orgName || '';
@@ -1513,8 +1527,8 @@ ${userReason}`;
 			}
 
 			if (onlyMergedPRs) {
-				if (!isMR && !onlyIssues) {
-					log('[SCRUM-DEBUG] Skipping issue because onlyMergedPRs is checked and onlyIssues is not:', item.number);
+				if (!isMR) {
+					log('[SCRUM-DEBUG] Skipping non-PR item because onlyMergedPRs is checked:', item.number);
 					continue;
 				}
 				if (isMR) {

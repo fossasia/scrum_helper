@@ -536,6 +536,15 @@ document.addEventListener('DOMContentLoaded', () => {
 					onlyRevPRsCheckbox.checked = false;
 					chrome?.storage.local.set({ onlyRevPRs: false });
 				}
+				// onlyMergedPRs overrides onlyIssues and onlyPRs
+				if (onlyMergedPRsCheckbox.checked && onlyIssuesCheckbox.checked) {
+					onlyIssuesCheckbox.checked = false;
+					chrome?.storage.local.set({ onlyIssues: false });
+				}
+				if (onlyMergedPRsCheckbox.checked && onlyPRsCheckbox.checked) {
+					onlyPRsCheckbox.checked = false;
+					chrome?.storage.local.set({ onlyPRs: false });
+				}
 				if (result.githubToken) githubTokenInput.value = result.githubToken;
 				if (result.cacheInput) cacheInput.value = result.cacheInput;
 				if (typeof result.yesterdayContribution !== 'undefined') yesterdayRadio.checked = result.yesterdayContribution;
@@ -762,9 +771,19 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 			if (onlyMergedPRsCheckbox) {
 				onlyMergedPRsCheckbox.addEventListener('change', () => {
-					if (onlyMergedPRsCheckbox.checked && onlyRevPRsCheckbox && onlyRevPRsCheckbox.checked) {
-						onlyRevPRsCheckbox.checked = false;
-						chrome?.storage.local.set({ onlyRevPRs: false });
+					if (onlyMergedPRsCheckbox.checked) {
+						if (onlyRevPRsCheckbox && onlyRevPRsCheckbox.checked) {
+							onlyRevPRsCheckbox.checked = false;
+							chrome?.storage.local.set({ onlyRevPRs: false });
+						}
+						if (onlyIssuesCheckbox && onlyIssuesCheckbox.checked) {
+							onlyIssuesCheckbox.checked = false;
+							chrome?.storage.local.set({ onlyIssues: false });
+						}
+						if (onlyPRsCheckbox && onlyPRsCheckbox.checked) {
+							onlyPRsCheckbox.checked = false;
+							chrome?.storage.local.set({ onlyPRs: false });
+						}
 					}
 					checkTokenForMergedPRs({
 						showWarning: true,
