@@ -1,17 +1,21 @@
+// All valid toast types. Defined at module level to avoid re-allocation on every call.
+const TOAST_VALID_TYPES = ['success', 'error', 'info', 'warning'];
+
 const NotificationSystem = {
 	_activeToast: null,
 	_activeTimer: null,
 	_activeAnimTimer: null,
 
 	showToast(message, type = 'info', duration = 3000, onDismiss = null) {
-		console.log(`[Notification] ${type.toUpperCase()}: ${message}`);
+		if (typeof DEBUG !== 'undefined' && DEBUG) {
+			console.log(`[Notification] ${type.toUpperCase()}: ${message}`);
+		}
 		this._showCustomToast(message, type, duration, onDismiss);
 	},
 
 	_showCustomToast(message, type, duration, onDismiss) {
 		// Validate type to prevent unexpected CSS class injection
-		const VALID_TYPES = ['success', 'error', 'info'];
-		type = VALID_TYPES.includes(type) ? type : 'info';
+		type = TOAST_VALID_TYPES.includes(type) ? type : 'info';
 
 		this._dismissCurrent();
 
@@ -57,8 +61,8 @@ const NotificationSystem = {
 		const toast = document.createElement('div');
 		toast.className = `scrum-toast scrum-toast-${type}`;
 
-		// Accessibility: allow assistive technologies to announce the toast
-		if (type === 'error') {
+		// Accessibility: warnings are urgent like errors — use assertive live region
+		if (type === 'error' || type === 'warning') {
 			toast.setAttribute('role', 'alert');
 			toast.setAttribute('aria-live', 'assertive');
 		} else {
@@ -76,6 +80,9 @@ const NotificationSystem = {
 		} else if (type === 'success') {
 			bg = '#10b981';
 			icon = 'fa-check-circle';
+		} else if (type === 'warning') {
+			bg = '#f59e0b';
+			icon = 'fa-exclamation-triangle';
 		}
 
 		toast.style.cssText = `

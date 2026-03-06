@@ -653,7 +653,28 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		}
 		showCommitsCheckbox.addEventListener('change', () => {
-			chrome?.storage.local.set({ showCommits: showCommitsCheckbox.checked });
+			const checked = showCommitsCheckbox.checked;
+			const token = githubTokenInput ? githubTokenInput.value.trim() : '';
+
+			// Prevent enabling "Show Commits" when no GitHub token is configured —
+			// scrumHelper.js gates commit fetching on githubToken && showCommits,
+			// so without a token the checkbox would be checked but silently do nothing.
+			if (checked && !token) {
+				showCommitsCheckbox.checked = false;
+				const warningEl = document.getElementById('tokenWarningForShowCommits');
+				if (warningEl) {
+					warningEl.classList.remove('hidden');
+					setTimeout(() => warningEl.classList.add('hidden'), 4000);
+				}
+				NotificationSystem.showToast(
+					chrome?.i18n.getMessage('tokenRequiredShowCommitsWarning') ||
+						'A GitHub token is required to show commits. Please add one in settings.',
+					'warning',
+					4000,
+				);
+				return;
+			}
+			chrome?.storage.local.set({ showCommits: checked });
 		});
 		githubTokenInput.addEventListener('input', () => {
 			chrome?.storage.local.set({ githubToken: githubTokenInput.value });
