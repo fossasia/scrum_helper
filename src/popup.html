@@ -43,14 +43,8 @@
 
 		#popupRoot {
 			flex: 1;
-			min-width: 360px; 
-			flex-shrink: 0;
-
-			height: 100%;
-			overflow-y: auto;
-			overflow-x: hidden;
-			scrollbar-width: auto;
-            -ms-overflow-style: auto;
+			min-width: 360px;
+    		overscroll-behavior: contain; 
 		}
 		#platformSelect option {
 			font-family: 'FontAwesome', 'Arial', sans-serif;
