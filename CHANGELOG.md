@@ -2,6 +2,34 @@
 
 ## What's Changed
 
+* Revert Fix
+double
+scrollbar
+appearing
+in
+popup
+window (#435) @vedansh-5
+* Fix double scrollbar appearing in popup window (#434) @gurusatsangi
+* Check box state handling when token not  present (#384) @Mateeb-Haider
+* fixed UI Bug (#425) @vedansh-5
+* feat: complete translations for all languages (100% coverage) (#360) @Mateeb-Haider
+* readme update and lint (#419) @vedansh-5
+* Resolve snap bug (#418) @vedansh-5
+* Fix typos in Scrum Helper user-facing strings (#410) @puneetnith28
+
+## Maintenance
+
+* chore(deps)(deps-dev): bump postcss from 8.5.6 to 8.5.8 (#421) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.4 to 2.4.5 (#416) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps): bump @tailwindcss/cli from 4.1.18 to 4.2.1 (#395) @[dependabot[bot]](https://github.com/apps/dependabot)
+* version bump to 2.1.4 (#408) @vedansh-5
+
+---
+
+## v2.1.5 - 2026-03-07
+
+## What's Changed
+
 * Fix double scrollbar appearing in popup window (#434) @gurusatsangi
 * Check box state handling when token not  present (#384) @Mateeb-Haider
 * fixed UI Bug (#425) @vedansh-5
