@@ -13,6 +13,12 @@ function logError(...args) {
     }
 }
 
+function extractGitHubUsername(value) {
+    if (!value || typeof value !== 'string') return value;
+    const trimmed = value.trim();
+    const m = trimmed.match(/github\.com\/([^/?#]+)/i);
+    return m ? m[1] : trimmed;
+}
 
 let refreshButton_Placed = false;
 let enableToggle = true;
@@ -122,6 +128,14 @@ function allIncluded(outputTarget = 'email') {
                 const platformUsernameKey = `${platform}Username`;
                 platformUsername = items[platformUsernameKey] || '';
                 platformUsernameLocal = platformUsername;
+                if (platform === 'github' && platformUsernameLocal) {
+                    const normalized = extractGitHubUsername(platformUsernameLocal);
+                    if (normalized !== platformUsernameLocal) {
+                        platformUsername = normalized;
+                        platformUsernameLocal = normalized;
+                        chrome.storage.local.set({ [platformUsernameKey]: normalized });
+                    }
+                }
                 console.log(`[DEBUG] platform: ${platform}, platformUsername: ${platformUsername}`);
 
                 if (outputTarget === 'popup') {
@@ -131,9 +145,10 @@ function allIncluded(outputTarget = 'email') {
 
                     // Save to platform-specific storage
                     if (usernameFromDOM) {
-                        chrome.storage.local.set({ [platformUsernameKey]: usernameFromDOM });
-                        platformUsername = usernameFromDOM;
-                        platformUsernameLocal = usernameFromDOM;
+                        const normalized = platform === 'github' ? extractGitHubUsername(usernameFromDOM) : usernameFromDOM.trim();
+                        chrome.storage.local.set({ [platformUsernameKey]: normalized });
+                        platformUsername = normalized;
+                        platformUsernameLocal = normalized;
                     }
 
                     items.projectName = projectFromDOM || items.projectName;
