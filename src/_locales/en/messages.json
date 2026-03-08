@@ -110,6 +110,22 @@
     "message": "Why is it recommended to add a GitLab token? Scrum Helper works without a GitLab token for public projects, but adding a personal access token is recommended for a better experience.",
     "description": "Tooltip for GitLab token explaining why it's needed."
   },
+  "giteeUsernameLabel": {
+    "message": "Your Gitee Username",
+    "description": "Label for the Gitee username input field."
+  },
+  "giteeTokenLabel": {
+    "message": "Your Gitee Token",
+    "description": "Label for the Gitee token input."
+  },
+  "giteeTokenPlaceholder": {
+    "message": "Required for accessing private projects",
+    "description": "Placeholder for the Gitee token input."
+  },
+  "giteeTokenTooltip": {
+    "message": "Why is it recommended to add a Gitee token? Scrum Helper works without a Gitee token for public projects, but adding a personal access token is recommended for a better experience.",
+    "description": "Tooltip for Gitee token explaining why it's needed."
+  },
   "showCommitsLabel": {
     "message": "Show commits on open PRs/ draft PRs",
     "description": "Label for the checkbox to show commits in open PRs."

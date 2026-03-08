@@ -89,6 +89,8 @@ function allIncluded(outputTarget = 'email') {
                 'platform',
                 'githubUsername',
                 'gitlabUsername',
+                'giteeUsername',
+                'giteeToken',
                 'githubToken',
                 'projectName',
                 'enableToggle',
@@ -334,6 +336,62 @@ function allIncluded(outputTarget = 'email') {
                             }
                             if (generateBtn) {
                                 generateBtn.innerHTML = '<i class=\"fa fa-refresh\"></i> Generate Report';
+                                generateBtn.disabled = false;
+                            }
+                        }
+                        scrumGenerationInProgress = false;
+                    }
+                } else if (platform === 'gitee') {
+                    if (!window.GiteeHelper) {
+                        if (outputTarget === 'popup') {
+                            const scrumReport = document.getElementById('scrumReport');
+                            if (scrumReport) scrumReport.innerHTML = '<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">Gitee helper not loaded.</div>';
+                        }
+                        scrumGenerationInProgress = false;
+                        return;
+                    }
+                    const giteeHelper = new window.GiteeHelper();
+                    const giteeToken = items.giteeToken || (outputTarget === 'popup' ? document.getElementById('giteeToken')?.value : null);
+                    if (platformUsernameLocal) {
+                        const generateBtn = document.getElementById('generateReport');
+                        if (generateBtn && outputTarget === 'popup') {
+                            generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
+                            generateBtn.disabled = true;
+                        }
+                        const doFetch = async () => {
+                            try {
+                                const data = await giteeHelper.fetchGiteeData(platformUsernameLocal, startingDate, endingDate, giteeToken);
+                                const mappedData = {
+                                    githubIssuesData: { items: [...(data.issues || []), ...(data.mergeRequests || [])] },
+                                    githubPrsReviewData: { items: [] },
+                                    githubUserData: data.user || {},
+                                };
+                                await processGithubData(mappedData);
+                            } catch (err) {
+                                console.error('Gitee fetch failed:', err);
+                                if (outputTarget === 'popup') {
+                                    if (generateBtn) {
+                                        generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
+                                        generateBtn.disabled = false;
+                                    }
+                                    const scrumReport = document.getElementById('scrumReport');
+                                    if (scrumReport) scrumReport.innerHTML = `<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">${err.message || 'An error occurred while fetching Gitee data.'}</div>`;
+                                }
+                            }
+                            scrumGenerationInProgress = false;
+                        };
+                        if (outputTarget === 'email') {
+                            doFetch();
+                        } else {
+                            doFetch();
+                        }
+                    } else {
+                        if (outputTarget === 'popup') {
+                            const scrumReport = document.getElementById('scrumReport');
+                            const generateBtn = document.getElementById('generateReport');
+                            if (scrumReport) scrumReport.innerHTML = '<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">Please enter your Gitee username to generate a report.</div>';
+                            if (generateBtn) {
+                                generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
                                 generateBtn.disabled = false;
                             }
                         }
@@ -1219,6 +1277,8 @@ function allIncluded(outputTarget = 'email') {
                 isAuthoredByUser = item.user && item.user.login === platformUsernameLocal;
             } else if (platform === 'gitlab') {
                 isAuthoredByUser = item.author && (item.author.username === platformUsername);
+            } else if (platform === 'gitee') {
+                isAuthoredByUser = item.user && item.user.login === platformUsernameLocal;
             }
 
             if (isAuthoredByUser || !item.pull_request) continue;
@@ -1505,7 +1565,7 @@ function allIncluded(outputTarget = 'email') {
             let html_url = item.html_url;
             let repository_url = item.repository_url;
             // Use project name for GitLab, repo extraction for GitHub
-            let project = (platform === 'gitlab' && item.project) ? item.project : (repository_url ? repository_url.substr(repository_url.lastIndexOf('/') + 1) : '');
+            let project = ((platform === 'gitlab' || platform === 'gitee') && item.project) ? item.project : (repository_url ? repository_url.substr(repository_url.lastIndexOf('/') + 1) : '');
             let title = item.title;
             let number = item.number;
             let li = '';
@@ -1575,11 +1635,8 @@ function allIncluded(outputTarget = 'email') {
                     }
                 } else if (platform === 'gitlab') {
                     prAction = isNewPR ? 'Made Merge Request' : 'Updated Merge Request';
-                    if (isCreatedToday && item.State === 'open') {
-                        prAction = 'Made Merge Request';
-                    } else {
-                        prAction = 'Updated Merge Request';
-                    }
+                } else if (platform === 'gitee') {
+                    prAction = isNewPR ? 'Made Pull Request' : 'Updated Pull Request';
                 }
 
                 if (isDraft) {
@@ -1606,7 +1663,7 @@ function allIncluded(outputTarget = 'email') {
                         li += '</ul>';
                     }
                     li += `</li>`;
-                } else if (platform === 'gitlab' && item.state === 'closed') {
+                } else if ((platform === 'gitlab' || platform === 'gitee') && item.state === 'closed') {
                     li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_closed_button : ''}</li>`;
                 } else {
                     let merged = null;
@@ -1693,7 +1750,7 @@ function allIncluded(outputTarget = 'email') {
 
 
     let intervalSubject = setInterval(() => {
-        const userData = platform === 'gitlab' ? (githubUserData || platformUsername) : githubUserData;
+        const userData = (platform === 'gitlab' || platform === 'gitee') ? (githubUserData || platformUsername) : githubUserData;
         if (!userData || !window.emailClientAdapter) return;
 
 
@@ -1720,7 +1777,7 @@ function allIncluded(outputTarget = 'email') {
         if (outputTarget === 'popup') {
             return;
         } else {
-            const username = platform === 'gitlab' ? platformUsername : platformUsernameLocal;
+            const username = (platform === 'gitlab' || platform === 'gitee') ? platformUsername : platformUsernameLocal;
             if (scrumBody && username && githubIssuesData && githubPrsReviewData) {
                 clearInterval(intervalWriteGithubIssues);
                 clearInterval(intervalWriteGithubPrs);
@@ -1732,7 +1789,7 @@ function allIncluded(outputTarget = 'email') {
         if (outputTarget === 'popup') {
             return;
         } else {
-            const username = platform === 'gitlab' ? platformUsername : platformUsernameLocal;
+            const username = (platform === 'gitlab' || platform === 'gitee') ? platformUsername : platformUsernameLocal;
             if (scrumBody && username && githubPrsReviewData && githubIssuesData) {
                 clearInterval(intervalWriteGithubPrs);
                 clearInterval(intervalWriteGithubIssues);
@@ -1823,6 +1880,14 @@ async function forceGitlabDataRefresh() {
     return { success: true };
 }
 
+async function forceGiteeDataRefresh() {
+    await new Promise(resolve => {
+        chrome.storage.local.remove('giteeCache', resolve);
+    });
+    hasInjectedContent = false;
+    return { success: true };
+}
+
 
 if (window.location.protocol.startsWith('http')) {
     allIncluded('email');
@@ -1841,6 +1906,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             const platform = result.platform || 'github';
             if (platform === 'gitlab') {
                 forceGitlabDataRefresh()
+                    .then(result => sendResponse(result)).catch(err => {
+                        console.error('Force refresh failed:', err);
+                        sendResponse({ success: false, error: err.message });
+                    });
+            } else if (platform === 'gitee') {
+                forceGiteeDataRefresh()
                     .then(result => sendResponse(result)).catch(err => {
                         console.error('Force refresh failed:', err);
                         sendResponse({ success: false, error: err.message });

@@ -138,6 +138,30 @@ document.addEventListener('DOMContentLoaded', function () {
         setTimeout(() => githubTokenInput.classList.remove('token-animating'), 300);
     });
 
+    const giteeTokenInput = document.getElementById('giteeToken');
+    const toggleGiteeTokenBtn = document.getElementById('toggleGiteeTokenVisibility');
+    const giteeTokenEyeIcon = document.getElementById('giteeTokenEyeIcon');
+    if (giteeTokenInput && toggleGiteeTokenBtn && giteeTokenEyeIcon) {
+        let giteeTokenVisible = false;
+        toggleGiteeTokenBtn.addEventListener('click', function () {
+            giteeTokenVisible = !giteeTokenVisible;
+            giteeTokenInput.type = giteeTokenVisible ? 'text' : 'password';
+            giteeTokenEyeIcon.className = giteeTokenVisible ? 'fa fa-eye-slash text-gray-600' : 'fa fa-eye text-gray-600';
+        });
+    }
+
+    const gitlabTokenInput = document.getElementById('gitlabToken');
+    const toggleGitlabTokenBtn = document.getElementById('toggleGitlabTokenVisibility');
+    const gitlabTokenEyeIcon = document.getElementById('gitlabTokenEyeIcon');
+    if (gitlabTokenInput && toggleGitlabTokenBtn && gitlabTokenEyeIcon) {
+        let gitlabTokenVisible = false;
+        toggleGitlabTokenBtn.addEventListener('click', function () {
+            gitlabTokenVisible = !gitlabTokenVisible;
+            gitlabTokenInput.type = gitlabTokenVisible ? 'text' : 'password';
+            gitlabTokenEyeIcon.className = gitlabTokenVisible ? 'fa fa-eye-slash text-gray-600' : 'fa fa-eye text-gray-600';
+        });
+    }
+
     githubTokenInput.addEventListener('input', checkTokenForFilter);
 
     darkModeToggle.addEventListener('click', function () {
@@ -403,8 +427,8 @@ document.addEventListener('DOMContentLoaded', function () {
         const platformUsername = document.getElementById('platformUsername');
 
         chrome.storage.local.get([
-            'projectName', 'orgName', 'userReason', 'showOpenLabel', 'showCommits', 'githubToken', 'cacheInput', 'onlyIssues', 'onlyPRs',
-            'enableToggle', 'yesterdayContribution', 'startingDate', 'endingDate', 'selectedTimeframe', 'platform', 'githubUsername', 'gitlabUsername',
+            'projectName', 'orgName', 'userReason', 'showOpenLabel', 'showCommits', 'githubToken', 'gitlabToken', 'giteeToken', 'cacheInput', 'onlyIssues', 'onlyPRs',
+            'enableToggle', 'yesterdayContribution', 'startingDate', 'endingDate', 'selectedTimeframe', 'platform', 'githubUsername', 'gitlabUsername', 'giteeUsername',
             'includeIssuesSection', 'includePRsSection', 'includeReviewedPRsSection', 'includeTasksSection', 'includeBlockersSection',
         ], function (result) {
 
@@ -1439,6 +1463,8 @@ function updatePlatformUI(platform) {
 	if (usernameLabel) {
 		if (platform === 'gitlab') {
 			usernameLabel.setAttribute('data-i18n', 'gitlabUsernameLabel');
+		} else if (platform === 'gitee') {
+			usernameLabel.setAttribute('data-i18n', 'giteeUsernameLabel');
 		} else {
 			usernameLabel.setAttribute('data-i18n', 'githubUsernameLabel');
 		}
@@ -1451,7 +1477,7 @@ function updatePlatformUI(platform) {
 
 	const orgSection = document.querySelector('.orgSection');
 	if (orgSection) {
-		if (platform === 'gitlab') {
+		if (platform === 'gitlab' || platform === 'gitee') {
 			orgSection.classList.add('hidden');
 		} else {
 			orgSection.classList.remove('hidden');
@@ -1459,7 +1485,7 @@ function updatePlatformUI(platform) {
 	}
 	const githubOnlySections = document.querySelectorAll('.githubOnlySection');
 	githubOnlySections.forEach((el) => {
-		if (platform === 'gitlab') {
+		if (platform === 'gitlab' || platform === 'gitee') {
 			el.classList.add('hidden');
 		} else {
 			el.classList.remove('hidden');
@@ -1467,7 +1493,15 @@ function updatePlatformUI(platform) {
 	});
 	const gitlabOnlySections = document.querySelectorAll('.gitlabOnlySection');
 	gitlabOnlySections.forEach((el) => {
-		if (platform === 'github') {
+		if (platform === 'github' || platform === 'gitee') {
+			el.classList.add('hidden');
+		} else {
+			el.classList.remove('hidden');
+		}
+	});
+	const giteeOnlySections = document.querySelectorAll('.giteeOnlySection');
+	giteeOnlySections.forEach((el) => {
+		if (platform === 'github' || platform === 'gitlab') {
 			el.classList.add('hidden');
 		} else {
 			el.classList.remove('hidden');
@@ -1479,20 +1513,11 @@ platformSelect.addEventListener('change', () => {
 	const platform = platformSelect.value;
 	chrome.storage.local.set({ platform });
 	const platformUsername = document.getElementById('platformUsername');
-	if (platformUsername) {
-		const currentPlatform = platformSelect.value === 'github' ? 'gitlab' : 'github'; // Get the platform we're switching from
-		const currentUsername = platformUsername.value;
-		if (currentUsername.trim()) {
-			chrome.storage.local.set({ [`${currentPlatform}Username`]: currentUsername });
-		}
-	}
-
 	chrome.storage.local.get([`${platform}Username`], (result) => {
 		if (platformUsername) {
 			platformUsername.value = result[`${platform}Username`] || '';
 		}
 	});
-
 	updatePlatformUI(platform);
 });
 
@@ -1505,6 +1530,8 @@ const platformSelectHidden = document.getElementById('platformSelect');
 function setPlatformDropdown(value) {
 	if (value === 'gitlab') {
 		dropdownSelected.innerHTML = '<i class="fab fa-gitlab mr-2"></i> GitLab';
+	} else if (value === 'gitee') {
+		dropdownSelected.innerHTML = '<i class="fa fa-code mr-2"></i> Gitee';
 	} else {
 		dropdownSelected.innerHTML = '<i class="fab fa-github mr-2"></i> GitHub';
 	}
@@ -1609,9 +1636,10 @@ dropdownList.querySelectorAll('li').forEach((item, idx, arr) => {
 // On load, restore platform from storage
 chrome.storage.local.get(['platform'], (result) => {
 	const platform = result.platform || 'github';
-	// Just update the UI without clearing username when restoring from storage
 	if (platform === 'gitlab') {
 		dropdownSelected.innerHTML = '<i class="fab fa-gitlab mr-2"></i> GitLab';
+	} else if (platform === 'gitee') {
+		dropdownSelected.innerHTML = '<i class="fa fa-code mr-2"></i> Gitee';
 	} else {
 		dropdownSelected.innerHTML = '<i class="fab fa-github mr-2"></i> GitHub';
 	}

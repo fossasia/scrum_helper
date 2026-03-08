@@ -105,6 +105,10 @@
 									class="hover:bg-gray-100" data-value="gitlab">
 									<i class="fab fa-gitlab" style="margin-right: 12px; font-size: 18px;"></i> GitLab
 								</li>
+								<li style="padding-left: 8px; padding-right: 16px; padding-top: 8px; padding-bottom: 8px; display: flex; align-items: center; cursor: pointer;"
+									class="hover:bg-gray-100" data-value="gitee">
+									<i class="fa fa-code" style="margin-right: 12px; font-size: 18px;"></i> Gitee
+								</li>
 							</ul>
 						</div>
 					</div>
@@ -459,6 +463,28 @@
 						</div>
 					</div>
 
+					<div class="giteeOnlySection hidden mt-3">
+						<div class="flex items-center justify-between">
+							<div class="flex">
+								<p class="text-sm font-medium" data-i18n="giteeTokenLabel">Your Gitee Token</p>
+								<span class="tooltip-container ml-2">
+									<i class="fa fa-question-circle question-icon"></i>
+									<span class="tooltip-bubble" data-i18n="giteeTokenTooltip">
+										<b>Why add a Gitee token?</b><br>
+										Works without a token for public projects, but a personal access token enables private repos and better rate limits. Get one at <a href="https://gitee.com/profile/personal_access_tokens" target="_blank" rel="noopener noreferrer" style="color:#2563eb;text-decoration:underline;">Gitee Access Tokens</a>.<br>
+										<i>Keep it secret!</i>
+									</span>
+								</span>
+							</div>
+							<button id="toggleGiteeTokenVisibility" type="button" class="focus:outline-none">
+								<i id="giteeTokenEyeIcon" class="fa fa-eye text-gray-600"></i>
+							</button>
+						</div>
+						<input id="giteeToken" type="password"
+							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2 pr-10"
+							data-i18n-placeholder="giteeTokenPlaceholder">
+					</div>
+
 					<div class="gitlabOnlySection hidden mt-3">
 						<div class="flex items-center justify-between">
 							<div class="flex">
@@ -570,6 +596,7 @@
 	<script src="scripts/emailClientAdapter.js"></script>
 	<script src="scripts/main.js"></script>
 	<script src="scripts/gitlabHelper.js"></script>
+	<script src="scripts/giteeHelper.js"></script>
 	<script src="scripts/scrumHelper.js"></script>
 	<script src="scripts/popup.js"></script>
 </body>
