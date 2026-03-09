@@ -240,8 +240,8 @@ class GitHubApiHelper {
         } catch (error) {
             return {
                 success: false,
-                message: error.message,
-                error: error
+                message: (error && error.message) ? error.message : 'Unknown error',
+                errorName: (error && error.name) ? error.name : 'Error'
             };
         }
     }
