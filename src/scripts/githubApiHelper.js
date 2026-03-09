@@ -141,8 +141,12 @@ class GitHubApiHelper {
         
         try {
             // Use search API for author-based query
+            let query = `type:pr+author:${this.username}`;
+            if (state === 'open' || state === 'closed') {
+                query += `+state:${state}`;
+            }
             const prs = await this.makeRequest(
-                `/search/issues?q=type:pr+author:${this.username}+state:${state}&sort=updated&per_page=50`
+                `/search/issues?q=${query}&sort=updated&per_page=50`
             );
             return this.formatIssues(prs.items || []);
         } catch (error) {
