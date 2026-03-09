@@ -12,6 +12,45 @@ function logError(...args) {
 	}
 }
 
+// Basic HTML sanitizer to escape user/content-provided strings before inserting into HTML
+function sanitizeHtml(input) {
+	if (input == null) return '';
+	return String(input)
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/"/g, '&quot;')
+		.replace(/'/g, '&#39;');
+}
+
+// Fetch wrapper with basic retry and rate-limit handling. Returns Response-like object.
+async function fetchWithRetry(url, options = {}, retries = 3) {
+	for (let attempt = 0; attempt < retries; attempt++) {
+		try {
+			const res = await fetch(url, options);
+			if (res.status === 429) {
+				const retryAfter = res.headers.get('Retry-After');
+				const waitMs = retryAfter ? parseInt(retryAfter, 10) * 1000 : (attempt + 1) * 1000;
+				await new Promise((r) => setTimeout(r, waitMs));
+				continue;
+			}
+			// Retry on server errors
+			if (res.status >= 500 && attempt < retries - 1) {
+				await new Promise((r) => setTimeout(r, (attempt + 1) * 200));
+				continue;
+			}
+			return res;
+		} catch (err) {
+			if (attempt < retries - 1) {
+				await new Promise((r) => setTimeout(r, (attempt + 1) * 200));
+				continue;
+			}
+			throw err;
+		}
+	}
+	throw new Error('Max retries reached for ' + url);
+}
+
 let refreshButton_Placed = false;
 let hasInjectedContent = false;
 let scrumGenerationInProgress = false;
@@ -221,7 +260,7 @@ function allIncluded(outputTarget = 'email') {
 													? item.web_url || (project ? `${project.web_url}/-/issues/${item.iid}` : '')
 													: item.web_url || (project ? `${project.web_url}/-/merge_requests/${item.iid}` : ''),
 											number: item.iid,
-											title: item.title,
+											title: sanitizeHtml(item.title || ''),
 											state: type === 'issue' && item.state === 'opened' ? 'open' : item.state,
 											project: repoName,
 											pull_request: type === 'mr',
@@ -283,7 +322,7 @@ function allIncluded(outputTarget = 'email') {
 													? item.web_url || (project ? `${project.web_url}/-/issues/${item.iid}` : '')
 													: item.web_url || (project ? `${project.web_url}/-/merge_requests/${item.iid}` : ''),
 											number: item.iid,
-											title: item.title,
+											title: sanitizeHtml(item.title || ''),
 											state: type === 'issue' && item.state === 'opened' ? 'open' : item.state,
 											project: repoName,
 											pull_request: type === 'mr',
@@ -623,7 +662,7 @@ function allIncluded(outputTarget = 'email') {
 			await new Promise((res) => setTimeout(res, 500));
 
 			log('Validating GitHub user existence for:', platformUsernameLocal);
-			const userCheckRes = await fetch(userUrl, { headers });
+			const userCheckRes = await fetchWithRetry(userUrl, { headers });
 
 			if (userCheckRes.status === 404) {
 				const errorMsg = `GitHub user "${platformUsernameLocal}" not found (404). Please check the username and try again.`;
@@ -644,8 +683,8 @@ function allIncluded(outputTarget = 'email') {
 			}
 
 			const [issuesRes, prRes, userRes] = await Promise.all([
-				fetch(issueUrl, { headers }),
-				fetch(prUrl, { headers }),
+				fetchWithRetry(issueUrl, { headers }),
+				fetchWithRetry(prUrl, { headers }),
 				userCheckRes, // Reuse the already validated user response
 			]);
 
@@ -819,14 +858,18 @@ function allIncluded(outputTarget = 'email') {
 			.join('\n');
 		const query = `query { ${queries} }`;
 		log('GraphQL query for commits:', query);
-		const res = await fetch('https://api.github.com/graphql', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				...(githubToken ? { Authorization: `bearer ${githubToken}` } : {}),
+		const res = await fetchWithRetry(
+			'https://api.github.com/graphql',
+			{
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					...(githubToken ? { Authorization: `bearer ${githubToken}` } : {}),
+				},
+				body: JSON.stringify({ query }),
 			},
-			body: JSON.stringify({ query }),
-		});
+			3,
+		);
 		log('fetchCommitsForOpenPRs response status:', res.status);
 		const data = await res.json();
 		log('fetchCommitsForOpenPRs response data:', data);
@@ -1308,7 +1351,7 @@ ${userReason}`;
 				continue;
 			}
 			const project = repository_url.substr(repository_url.lastIndexOf('/') + 1);
-			const title = item.title;
+			const title = sanitizeHtml(item.title || '');
 			const number = item.number;
 			const html_url = item.html_url;
 			if (!githubPrsReviewDataProcessed[project]) {
@@ -1512,7 +1555,7 @@ ${userReason}`;
 					: repository_url
 						? repository_url.substr(repository_url.lastIndexOf('/') + 1)
 						: '';
-			const title = item.title;
+			const title = sanitizeHtml(item.title || '');
 			const number = item.number;
 			let li = '';
 
@@ -1912,14 +1955,18 @@ ${prs
 }`;
 
 	try {
-		const res = await fetch('https://api.github.com/graphql', {
-			method: 'POST',
-			headers: {
-				...headers,
-				'Content-Type': 'application/json',
+		const res = await fetchWithRetry(
+			'https://api.github.com/graphql',
+			{
+				method: 'POST',
+				headers: {
+					...headers,
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({ query }),
 			},
-			body: JSON.stringify({ query }),
-		});
+			3,
+		);
 		if (!res.ok) return results;
 		const data = await res.json();
 		prs.forEach((pr, i) => {
@@ -2058,14 +2105,18 @@ async function fetchUserRepositories(username, token, org = '') {
 		const query = `query { ${repoQueries} }`;
 
 		try {
-			const res = await fetch('https://api.github.com/graphql', {
-				method: 'POST',
-				headers: {
-					...headers,
-					'Content-Type': 'application/json',
+			const res = await fetchWithRetry(
+				'https://api.github.com/graphql',
+				{
+					method: 'POST',
+					headers: {
+						...headers,
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({ query }),
 				},
-				body: JSON.stringify({ query }),
-			});
+				3,
+			);
 
 			if (!res.ok) {
 				throw new Error(`GraphQL request for repos failed: ${res.status}`);

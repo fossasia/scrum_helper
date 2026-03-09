@@ -295,6 +295,21 @@
 								class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-2 rounded">
 								<i class="fa fa-copy"></i> <span data-i18n="copyReportButton">Copy</span>
 							</button>
+
+							<button id="exportPdf"
+								class="flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-2 rounded">
+								<i class="fa fa-file-pdf"></i> <span>Export PDF</span>
+							</button>
+
+							<button id="shareReport"
+								class="flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-2 rounded">
+								<i class="fa fa-share-alt"></i> <span>Share</span>
+							</button>
+
+							<button id="postWebhook"
+								class="flex items-center justify-center gap-2 bg-yellow-600 hover:bg-yellow-700 text-white font-medium py-2 px-2 rounded">
+								<i class="fa fa-paper-plane"></i> <span>Post to Webhook</span>
+							</button>
 						</div>
 
 
@@ -472,6 +487,21 @@
 					</div>
 
 					<div class="cacheSection mt-3">
+					<!-- Webhook share settings -->
+					<div class="mt-3 mb-3">
+						<p class="text-sm font-medium">Share Webhook URL (optional)</p>
+						<span class="tooltip-container">
+							<i class="fa fa-question-circle question-icon"></i>
+							<span class="tooltip-bubble">Provide a webhook URL (Slack, Teams, or custom) to post reports directly. This is stored locally. Use with care.</span>
+						</span>
+						<input id="shareWebhookUrl" type="url" placeholder="https://hooks.slack.com/services/..."
+							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2">
+						<div class="flex items-center gap-2">
+							<input type="checkbox" id="enableWebhookShare">
+							<label for="enableWebhookShare" class="text-xs text-gray-600">Enable posting to webhook</label>
+						</div>
+					</div>
+
 						<div class="flex items-center justify-between mb-2">
 							<div class="flex items-center">
 								<p class="text-sm font-medium" data-i18n="displayModeLabel">Display Mode</p>

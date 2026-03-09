@@ -138,39 +138,70 @@ class GitLabHelper {
 
 			// Fetch merge requests from each project (works without auth for public projects)
 			let allMergeRequests = [];
-			for (const project of allProjects) {
-				try {
-					const projectMRsUrl = `${this.baseUrl}/projects/${project.id}/merge_requests?author_id=${userId}&created_after=${startDate}T00:00:00Z&created_before=${endDate}T23:59:59Z&per_page=100&order_by=updated_at&sort=desc`;
-					const projectMRsRes = await fetch(projectMRsUrl, { headers });
-					if (projectMRsRes.ok) {
-						const projectMRs = await projectMRsRes.json();
-						allMergeRequests = allMergeRequests.concat(projectMRs);
+			// concurrency helper
+			const fetchWithRetry = async (url, headers, retries = 3) => {
+				for (let attempt = 0; attempt < retries; attempt++) {
+					const res = await fetch(url, { headers });
+					if (res.status === 429) {
+						const retryAfter = res.headers.get('Retry-After');
+						const waitMs = retryAfter ? parseInt(retryAfter, 10) * 1000 : (attempt + 1) * 1000;
+						await new Promise((r) => setTimeout(r, waitMs));
+						continue;
 					}
-					// Add small delay to avoid rate limiting
-					await new Promise((resolve) => setTimeout(resolve, 100));
-				} catch (error) {
-					console.error(`Error fetching MRs for project ${project.name}:`, error);
-					// Continue with other projects
+					if (!res.ok) {
+						// for 5xx errors retry
+						if (res.status >= 500 && attempt < retries - 1) {
+							await new Promise((r) => setTimeout(r, (attempt + 1) * 200));
+							continue;
+						}
+						throw new Error(`Fetch failed: ${res.status} ${res.statusText}`);
+					}
+					return res.json();
 				}
-			}
+				throw new Error('Max retries reached');
+			};
+
+			const concurrency = 4;
+			const queue = allProjects.slice();
+			const workers = new Array(concurrency).fill(null).map(async () => {
+				while (queue.length) {
+					const project = queue.shift();
+					try {
+						const projectMRsUrl = `${this.baseUrl}/projects/${project.id}/merge_requests?author_id=${userId}&created_after=${startDate}T00:00:00Z&created_before=${endDate}T23:59:59Z&per_page=100&order_by=updated_at&sort=desc`;
+						const projectMRs = await fetchWithRetry(projectMRsUrl, headers).catch((e) => {
+							console.error(`Error fetching MRs for project ${project.name}:`, e);
+							return [];
+						});
+						if (projectMRs && projectMRs.length) allMergeRequests = allMergeRequests.concat(projectMRs);
+						// small pause to be polite
+						await new Promise((r) => setTimeout(r, 50));
+					} catch (error) {
+						console.error(`Error fetching MRs for project ${project.name}:`, error);
+					}
+				}
+			});
+			await Promise.all(workers);
 
 			// Fetch issues from each project (works without auth for public projects)
 			let allIssues = [];
-			for (const project of allProjects) {
-				try {
-					const projectIssuesUrl = `${this.baseUrl}/projects/${project.id}/issues?author_id=${userId}&created_after=${startDate}T00:00:00Z&created_before=${endDate}T23:59:59Z&per_page=100&order_by=updated_at&sort=desc`;
-					const projectIssuesRes = await fetch(projectIssuesUrl, { headers });
-					if (projectIssuesRes.ok) {
-						const projectIssues = await projectIssuesRes.json();
-						allIssues = allIssues.concat(projectIssues);
+			const issueQueue = allProjects.slice();
+			const issueWorkers = new Array(concurrency).fill(null).map(async () => {
+				while (issueQueue.length) {
+					const project = issueQueue.shift();
+					try {
+						const projectIssuesUrl = `${this.baseUrl}/projects/${project.id}/issues?author_id=${userId}&created_after=${startDate}T00:00:00Z&created_before=${endDate}T23:59:59Z&per_page=100&order_by=updated_at&sort=desc`;
+						const projectIssues = await fetchWithRetry(projectIssuesUrl, headers).catch((e) => {
+							console.error(`Error fetching issues for project ${project.name}:`, e);
+							return [];
+						});
+						if (projectIssues && projectIssues.length) allIssues = allIssues.concat(projectIssues);
+						await new Promise((r) => setTimeout(r, 50));
+					} catch (error) {
+						console.error(`Error fetching issues for project ${project.name}:`, error);
 					}
-					// Add small delay to avoid rate limiting
-					await new Promise((resolve) => setTimeout(resolve, 100));
-				} catch (error) {
-					console.error(`Error fetching issues for project ${project.name}:`, error);
-					// Continue with other projects
 				}
-			}
+			});
+			await Promise.all(issueWorkers);
 
 			const gitlabData = {
 				user: users[0],

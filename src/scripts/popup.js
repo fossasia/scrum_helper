@@ -6,6 +6,182 @@ function debounce(func, wait) {
 	};
 }
 
+// Export report as PDF (opens print dialog where user can save as PDF)
+function exportReportAsPdf() {
+	const scrumReport = document.getElementById('scrumReport');
+	if (!scrumReport || !scrumReport.innerHTML || !scrumReport.innerHTML.trim()) {
+		showPopupMessage(chrome?.i18n.getMessage('noReportToExport') || 'No report available to export.');
+		return;
+	}
+
+	const printableHtml = `<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Scrum Report</title>
+  <link rel="stylesheet" href="tailwindcss.css">
+  <link rel="stylesheet" href="index.css">
+  <style>body{padding:20px;background:#fff;color:#111}</style>
+</head>
+<body>
+  <div id="export-root">${scrumReport.innerHTML}</div>
+  <script>
+	setTimeout(() => { window.print(); }, 250);
+  <\/script>
+</body>
+</html>`;
+
+	const win = window.open('', '_blank');
+	if (!win) {
+		showPopupMessage(chrome?.i18n.getMessage('popupBlocked') || 'Unable to open print window (popup blocked).');
+		return;
+	}
+	win.document.open();
+	win.document.write(printableHtml);
+	win.document.close();
+	try {
+		win.focus();
+	} catch (e) {}
+}
+
+// Share the report: prefer Web Share API, fall back to clipboard copy
+async function shareReport() {
+	const scrumReport = document.getElementById('scrumReport');
+	if (!scrumReport || !scrumReport.innerText || !scrumReport.innerText.trim()) {
+		showPopupMessage(chrome?.i18n.getMessage('noReportToShare') || 'No report available to share.');
+		return;
+	}
+
+	const title = document.getElementById('projectName')?.value || chrome?.i18n.getMessage('appName') || 'Scrum Report';
+	const text = scrumReport.innerText.trim();
+
+	if (navigator.share) {
+		try {
+			await navigator.share({ title, text });
+			showPopupMessage(chrome?.i18n.getMessage('sharedSuccessfully') || 'Report shared successfully.');
+			return;
+		} catch (err) {
+			// fallthrough to clipboard fallback
+			console.warn('Web Share failed:', err);
+		}
+	}
+
+	// Fallback: copy plain text to clipboard
+	try {
+		await navigator.clipboard.writeText(text);
+		showPopupMessage(chrome?.i18n.getMessage('copiedToClipboard') || 'Report copied to clipboard. Paste to share.');
+	} catch (err) {
+		console.error('Clipboard write failed:', err);
+		showPopupMessage(chrome?.i18n.getMessage('shareFailed') || 'Unable to share or copy the report.');
+	}
+}
+
+// Attach listeners for the new buttons when popup loads
+document.addEventListener('DOMContentLoaded', () => {
+	const exportBtn = document.getElementById('exportPdf');
+	if (exportBtn) exportBtn.addEventListener('click', exportReportAsPdf);
+
+	const shareBtn = document.getElementById('shareReport');
+	if (shareBtn)
+		shareBtn.addEventListener('click', (e) => {
+			e.preventDefault();
+			shareReport();
+		});
+
+	const postWebhookBtn = document.getElementById('postWebhook');
+	if (postWebhookBtn)
+		postWebhookBtn.addEventListener('click', async (e) => {
+			e.preventDefault();
+			await postReportToWebhook();
+		});
+
+	// Load webhook settings into UI
+	chrome?.storage.local.get(['shareWebhookUrl', 'enableWebhookShare'], (items) => {
+		const urlEl = document.getElementById('shareWebhookUrl');
+		const enabledEl = document.getElementById('enableWebhookShare');
+		if (urlEl && items.shareWebhookUrl) urlEl.value = items.shareWebhookUrl;
+		if (enabledEl) enabledEl.checked = items.enableWebhookShare === true;
+	});
+
+	// Save webhook settings on change
+	const webhookUrlEl = document.getElementById('shareWebhookUrl');
+	if (webhookUrlEl)
+		webhookUrlEl.addEventListener('change', (e) => {
+			chrome?.storage.local.set({ shareWebhookUrl: e.target.value });
+		});
+	const enableWebhookEl = document.getElementById('enableWebhookShare');
+	if (enableWebhookEl)
+		enableWebhookEl.addEventListener('change', (e) => {
+			chrome?.storage.local.set({ enableWebhookShare: e.target.checked });
+		});
+});
+
+// Post report to configured webhook (Slack/Teams/custom)
+async function postReportToWebhook() {
+	const enabled = await new Promise((res) =>
+		chrome?.storage.local.get(['enableWebhookShare'], (it) => res(it?.enableWebhookShare)),
+	);
+	const webhookUrl = await new Promise((res) =>
+		chrome?.storage.local.get(['shareWebhookUrl'], (it) => res(it?.shareWebhookUrl)),
+	);
+
+	if (!webhookUrl) {
+		// Prompt user to enter webhook URL if not configured
+		const entered = window.prompt('Enter webhook URL to post the report (Slack/Teams webhook):');
+		if (!entered) return showPopupMessage('Webhook URL not provided.');
+		await new Promise((res) => chrome?.storage.local.set({ shareWebhookUrl: entered }, res));
+	}
+
+	const isEnabled =
+		enabled === true ||
+		!!(document.getElementById('enableWebhookShare') && document.getElementById('enableWebhookShare').checked);
+	if (!isEnabled) {
+		const confirmEnable = window.confirm('Posting to webhooks is disabled in settings. Enable and proceed?');
+		if (!confirmEnable) return;
+		await new Promise((res) => chrome?.storage.local.set({ enableWebhookShare: true }, res));
+	}
+
+	const scrumReport = document.getElementById('scrumReport');
+	if (!scrumReport || !scrumReport.innerText || !scrumReport.innerText.trim()) {
+		return showPopupMessage(chrome?.i18n.getMessage('noReportToShare') || 'No report available to share.');
+	}
+
+	const text = scrumReport.innerText.trim();
+	const url = await new Promise((res) =>
+		chrome?.storage.local.get(['shareWebhookUrl'], (it) => res(it?.shareWebhookUrl)),
+	);
+	if (!url) return showPopupMessage('Webhook URL not configured.');
+
+	showPopupMessage('Posting report...');
+
+	try {
+		const payload = JSON.stringify({ text });
+		const res = await fetch(url, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: payload,
+		});
+
+		if (res.ok || res.status === 200 || res.status === 204) {
+			showPopupMessage('Report posted to webhook.');
+			return;
+		}
+
+		// Some webhooks (like Slack) return 200 OK with text 'ok' — treat non-ok but 200 as success
+		const textResp = await res.text();
+		if (res.status === 200 && (textResp.trim().toLowerCase() === 'ok' || textResp.trim().length > 0)) {
+			showPopupMessage('Report posted to webhook.');
+			return;
+		}
+
+		console.error('Webhook post failed:', res.status, textResp);
+		showPopupMessage('Failed to post report to webhook. See console for details.');
+	} catch (err) {
+		console.error('Webhook post error:', err);
+		showPopupMessage('Error posting to webhook. Check URL and permissions.');
+	}
+}
+
 function getToday() {
 	const today = new Date();
 	return today.toISOString().split('T')[0];
@@ -209,9 +385,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	githubTokenInput.addEventListener('input', checkTokenForFilter);
-	githubTokenInput.addEventListener('input', () =>
-		checkTokenForShowCommits({ persistState: false }),
-	);
+	githubTokenInput.addEventListener('input', () => checkTokenForShowCommits({ persistState: false }));
 
 	darkModeToggle.addEventListener('click', function () {
 		body.classList.toggle('dark-mode');
