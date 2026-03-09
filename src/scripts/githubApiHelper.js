@@ -76,18 +76,46 @@ class GitHubApiHelper {
             }
             if (response.status === 403) {
                 let extraMessage = '';
+                let isRateLimitError = false;
+                let rateLimitMessage = '';
 
                 try {
                     const errorBody = await response.json();
                     if (errorBody && errorBody.message) {
                         extraMessage = ` Details from GitHub: ${errorBody.message}`;
+                        const messageLower = errorBody.message.toLowerCase();
+                        if (messageLower.includes('rate limit') || messageLower.includes('abuse detection')) {
+                            isRateLimitError = true;
+                        }
                     }
-                } catch {
+                } catch (e) {
                     // Ignore JSON parsing errors and fall back to the generic message below
                 }
 
+                const remaining = response.headers.get('X-RateLimit-Remaining');
+                const reset = response.headers.get('X-RateLimit-Reset');
+
+                if (!isRateLimitError && remaining === '0') {
+                    isRateLimitError = true;
+                }
+
+                if (isRateLimitError) {
+                    let resetInfo = '';
+                    if (reset) {
+                        const resetTime = new Date(parseInt(reset, 10) * 1000);
+                        if (!isNaN(resetTime.getTime())) {
+                            resetInfo = ` The rate limit will reset at ${resetTime.toLocaleString()}.`;
+                        }
+                    }
+                    const remainingInfo = typeof remaining === 'string'
+                        ? ` You have ${remaining} requests remaining.`
+                        : '';
+                    rateLimitMessage = `GitHub API rate limit exceeded.${remainingInfo}${resetInfo}${extraMessage}`;
+                    throw new Error(rateLimitMessage);
+                }
+
                 throw new Error(
-                    `GitHub API returned 403 Forbidden. This may be due to rate limiting or insufficient permissions. ${response.statusText}.${extraMessage}`
+                    `GitHub API returned 403 Forbidden. This may be due to insufficient permissions or other access restrictions. ${response.statusText}.${extraMessage}`
                 );
             }
             throw new Error(`GitHub API error: ${response.status} ${response.statusText}`);
