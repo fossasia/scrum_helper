@@ -150,8 +150,13 @@ class GitHubApiHelper {
      * @throws {Error} If request fails
      */
     async getAssignedIssues(state = 'open') {
+        const allowedStates = new Set(['open', 'closed', 'all']);
+        const normalizedState =
+            typeof state === 'string' && allowedStates.has(state) ? state : 'open';
+        const encodedState = encodeURIComponent(normalizedState);
+
         const issues = await this.makeRequest(
-            `/issues?filter=assigned&state=${state}&sort=updated&per_page=100`
+            `/issues?filter=assigned&state=${encodedState}&sort=updated&per_page=100`
         );
         // The /issues endpoint returns both issues and pull requests; filter out PRs.
         const issueOnly = Array.isArray(issues)
