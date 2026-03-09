@@ -243,7 +243,10 @@ class GitHubApiHelper {
     }
 }
 
-// Export for use in extension
+// Export for use in extension and CommonJS environments
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = GitHubApiHelper;
+}
 if (typeof window !== 'undefined') {
     window.GitHubApiHelper = GitHubApiHelper;
 }
