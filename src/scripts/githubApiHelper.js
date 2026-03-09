@@ -65,7 +65,7 @@ class GitHubApiHelper {
         const headers = {
             'Authorization': `token ${this.token}`,
             'Accept': 'application/vnd.github.v3+json',
-            'User-Agent': 'Scrum-Helper-Extension'
+            'X-Client-Name': 'Scrum-Helper-Extension'
         };
 
         const response = await fetch(`${this.baseUrl}${endpoint}`, { headers });
