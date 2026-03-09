@@ -82,7 +82,7 @@ class GitHubApiHelper {
                     if (errorBody && errorBody.message) {
                         extraMessage = ` Details from GitHub: ${errorBody.message}`;
                     }
-                } catch (e) {
+                } catch {
                     // Ignore JSON parsing errors and fall back to the generic message below
                 }
 
