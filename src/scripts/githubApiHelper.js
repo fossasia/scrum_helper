@@ -153,7 +153,11 @@ class GitHubApiHelper {
         const issues = await this.makeRequest(
             `/issues?filter=assigned&state=${state}&sort=updated&per_page=100`
         );
-        return this.formatIssues(issues);
+        // The /issues endpoint returns both issues and pull requests; filter out PRs.
+        const issueOnly = Array.isArray(issues)
+            ? issues.filter(item => !item.pull_request)
+            : [];
+        return this.formatIssues(issueOnly);
     }
 
     /**
