@@ -60,12 +60,43 @@ a {
 
 .scrum-actions {
     display: flex;
+    flex-wrap: wrap;
     gap: 8px;
+    align-items: center;
 }
 
 .scrum-actions > button {
-    flex: 1 1 0;
+    flex: 0 1 auto;
     min-width: 0;
+}
+
+/* Primary actions expand to fill available space */
+#generateReport,
+#insertInEmail {
+    flex: 1 1 0;
+    min-width: 120px;
+}
+
+/* Ensure icons and labels align nicely */
+.scrum-actions > button i {
+    font-size: 16px;
+    line-height: 1;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.scrum-actions > button span {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+/* Slightly larger padding for icon-only buttons to avoid cramped layout */
+.scrum-actions > button#copyReport,
+.scrum-actions > button#exportPdf,
+.scrum-actions > button#shareReport,
+.scrum-actions > button#postWebhook {
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
 .scrum-actions > button span {

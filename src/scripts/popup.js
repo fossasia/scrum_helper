@@ -666,16 +666,25 @@ document.addEventListener('DOMContentLoaded', () => {
 				if (!content) return;
 
 				chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-					const tabId = tabs?.[0]?.id;
-					if (!tabId) return;
+					const tab = tabs && tabs.length ? tabs[0] : null;
+					if (!tab || !tab.id) {
+						showPopupMessage('No active tab found to insert the report. Open your email compose window and try again.');
+						return;
+					}
 
-					chrome.tabs.sendMessage(tabId, { action: 'insertReportToEmail', content, subject }, (response) => {
+					chrome.tabs.sendMessage(tab.id, { action: 'insertReportToEmail', content, subject }, (response) => {
 						if (chrome.runtime.lastError) {
 							console.warn('Insert to Email failed:', chrome.runtime.lastError.message);
+							showPopupMessage('Failed to insert into email composer: ' + chrome.runtime.lastError.message);
 							return;
 						}
-						if (!response?.success) {
-							console.warn('Insert to Email failed:', response?.error);
+
+						if (response && response.success) {
+							showPopupMessage('Report inserted into the open compose window.');
+						} else {
+							const err = response?.error || 'Editor not found or injection failed.';
+							console.warn('Insert to Email failed:', err);
+							showPopupMessage('Insert failed: ' + err);
 						}
 					});
 				});
