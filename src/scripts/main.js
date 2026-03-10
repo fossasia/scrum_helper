@@ -12,6 +12,10 @@ const userReasonElement = null;
 
 const showCommitsElement = document.getElementById('showCommits');
 
+function formatDateLocal(date) {
+	return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+}
+
 function handleBodyOnLoad() {
 	// Migration: Handle existing users with old platformUsername storage
 	chrome.storage.local.get(['platform', 'platformUsername'], (result) => {
@@ -138,11 +142,11 @@ function getYesterday() {
 	const today = new Date();
 	const yesterday = new Date(today);
 	yesterday.setDate(today.getDate() - 1);
-	return yesterday.toISOString().split('T')[0];
+	return formatDateLocal(yesterday);
 }
 function getToday() {
 	const today = new Date();
-	return today.toISOString().split('T')[0];
+	return formatDateLocal(today);
 }
 
 function handlePlatformUsernameChange() {
