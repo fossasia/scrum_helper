@@ -303,5 +303,41 @@
   },
   "onlyRevPRsTooltip": {
     "message": "If checked, the report will only include PRs reviewed by you."
+  },
+  "exportPdfButton": {
+    "message": "Export PDF",
+    "description": "Text for the 'Export PDF' button."
+  },
+  "exportingPdfButton": {
+    "message": "Exporting...",
+    "description": "Text shown on the export button while generating PDF."
+  },
+  "exportedPdfButton": {
+    "message": "Exported!",
+    "description": "Text shown on the export button after successful PDF export."
+  },
+  "exportPdfError": {
+    "message": "PDF export failed. Please try again.",
+    "description": "Error message when PDF export fails."
+  },
+  "shareButton": {
+    "message": "Share",
+    "description": "Text for the 'Share' dropdown button."
+  },
+  "shareNativeLabel": {
+    "message": "Native Share",
+    "description": "Label for the native share option in the share dropdown."
+  },
+  "shareClipboardLabel": {
+    "message": "Copy to Clipboard",
+    "description": "Label for the copy to clipboard option in the share dropdown."
+  },
+  "copiedToClipboard": {
+    "message": "Copied to clipboard!",
+    "description": "Toast message after successfully copying to clipboard."
+  },
+  "clipboardError": {
+    "message": "Failed to copy to clipboard.",
+    "description": "Error message when clipboard copy fails."
   }
 }

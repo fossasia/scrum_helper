@@ -295,6 +295,26 @@
 								class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-2 rounded">
 								<i class="fa fa-copy"></i> <span data-i18n="copyReportButton">Copy</span>
 							</button>
+
+							<button id="exportPdf"
+								class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-2 rounded">
+								<i class="fa fa-file-pdf-o"></i> <span data-i18n="exportPdfButton">Export PDF</span>
+							</button>
+
+							<div class="share-dropdown-wrapper" style="position:relative;">
+								<button id="shareMenuBtn"
+									class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-2 rounded">
+									<i class="fa fa-share-alt"></i> <span data-i18n="shareButton">Share</span> <i class="fa fa-caret-down"></i>
+								</button>
+								<ul id="shareDropdownMenu" class="share-dropdown hidden">
+									<li id="shareNative" class="share-dropdown-item">
+										<i class="fa fa-share"></i> <span data-i18n="shareNativeLabel">Native Share</span>
+									</li>
+									<li id="shareClipboard" class="share-dropdown-item">
+										<i class="fa fa-clipboard"></i> <span data-i18n="shareClipboardLabel">Copy to Clipboard</span>
+									</li>
+								</ul>
+							</div>
 						</div>
 
 
@@ -556,6 +576,7 @@
 			</div>
 		</div>
 	</div>
+	<script src="vendor/html2pdf.bundle.min.js"></script>
 	<script src="scripts/jquery-3.2.1.min.js"></script>
 	<script type="text/javascript" type="text/javascript" src="materialize/js/materialize.min.js"></script>
 	<script src="scripts/emailClientAdapter.js"></script>

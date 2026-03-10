@@ -560,6 +560,125 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		});
 
+		// Export PDF button
+		const exportPdfBtn = document.getElementById('exportPdf');
+		if (exportPdfBtn) {
+			exportPdfBtn.addEventListener('click', async function () {
+				const scrumReport = document.getElementById('scrumReport');
+				if (!scrumReport || !scrumReport.innerHTML.trim()) return;
+
+				this.classList.add('exporting');
+				const origHtml = this.innerHTML;
+				this.innerHTML = `<i class="fa fa-spinner fa-spin"></i> <span>${chrome?.i18n.getMessage('exportingPdfButton') || 'Exporting...'}</span>`;
+
+				try {
+					const today = new Date();
+					const dateStr = today.toISOString().split('T')[0];
+					const filename = `scrum-report-${dateStr}.pdf`;
+
+					const clone = scrumReport.cloneNode(true);
+					clone.removeAttribute('contenteditable');
+					clone.style.padding = '16px';
+					clone.style.fontSize = '13px';
+					clone.style.lineHeight = '1.6';
+					clone.style.color = '#222';
+					clone.style.background = '#fff';
+
+					const opt = {
+						margin: [10, 10, 10, 10],
+						filename: filename,
+						image: { type: 'jpeg', quality: 0.95 },
+						html2canvas: { scale: 2, useCORS: true },
+						jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+					};
+
+					await html2pdf().set(opt).from(clone).save();
+
+					this.innerHTML = `<i class="fa fa-check"></i> <span>${chrome?.i18n.getMessage('exportedPdfButton') || 'Exported!'}</span>`;
+					setTimeout(() => {
+						this.innerHTML = origHtml;
+					}, 2000);
+				} catch (err) {
+					console.error('PDF export failed:', err);
+					showToast(chrome?.i18n.getMessage('exportPdfError') || 'PDF export failed', 'error');
+					this.innerHTML = origHtml;
+				} finally {
+					this.classList.remove('exporting');
+				}
+			});
+		}
+
+		// Share dropdown
+		const shareMenuBtn = document.getElementById('shareMenuBtn');
+		const shareDropdown = document.getElementById('shareDropdownMenu');
+		if (shareMenuBtn && shareDropdown) {
+			shareMenuBtn.addEventListener('click', (e) => {
+				e.stopPropagation();
+				shareDropdown.classList.toggle('hidden');
+			});
+
+			document.addEventListener('click', (e) => {
+				if (!e.target.closest('.share-dropdown-wrapper')) {
+					shareDropdown.classList.add('hidden');
+				}
+			});
+
+			// Native Share
+			const shareNativeBtn = document.getElementById('shareNative');
+			if (shareNativeBtn) {
+				if (!navigator.share) {
+					shareNativeBtn.style.display = 'none';
+				}
+				shareNativeBtn.addEventListener('click', async () => {
+					shareDropdown.classList.add('hidden');
+					const scrumReport = document.getElementById('scrumReport');
+					const text = scrumReport ? scrumReport.innerText : '';
+					if (!text.trim()) return;
+
+					try {
+						await navigator.share({
+							title: chrome?.i18n.getMessage('scrumReportLabel') || 'Scrum Report',
+							text: text,
+						});
+					} catch (err) {
+						if (err.name !== 'AbortError') {
+							console.error('Share failed:', err);
+						}
+					}
+				});
+			}
+
+			// Copy to Clipboard (share version)
+			const shareClipboardBtn = document.getElementById('shareClipboard');
+			if (shareClipboardBtn) {
+				shareClipboardBtn.addEventListener('click', async () => {
+					shareDropdown.classList.add('hidden');
+					const scrumReport = document.getElementById('scrumReport');
+					const text = scrumReport ? scrumReport.innerText : '';
+					if (!text.trim()) return;
+
+					try {
+						await navigator.clipboard.writeText(text);
+						showToast(chrome?.i18n.getMessage('copiedToClipboard') || 'Copied to clipboard!', 'success');
+					} catch (err) {
+						console.error('Clipboard write failed:', err);
+						showToast(chrome?.i18n.getMessage('clipboardError') || 'Failed to copy', 'error');
+					}
+				});
+			}
+		}
+
+		function showToast(message, type) {
+			const old = document.querySelector('.scrum-toast');
+			if (old) old.remove();
+
+			const toast = document.createElement('div');
+			toast.className = `scrum-toast${type ? ' toast-' + type : ''}`;
+			toast.textContent = message;
+			document.body.appendChild(toast);
+			setTimeout(() => toast.remove(), 3000);
+		}
+
 		// Custom date container click handler
 		document.getElementById('customDateContainer').addEventListener('click', () => {
 			document.querySelectorAll('input[name="timeframe"]').forEach((radio) => {

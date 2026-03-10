@@ -1,4 +1,4 @@
-{
+﻿{
     "appName": {
         "message": "Scrum Helper"
     },
@@ -231,5 +231,33 @@
     },
     "onlyRevPRsTooltip": {
         "message": "אם מסומן, הדוח יכלול רק PR שנבדקו על ידך."
+    }
+,
+    "exportPdfButton": {
+        "message": "Export PDF"
+    },
+    "exportingPdfButton": {
+        "message": "Exporting..."
+    },
+    "exportedPdfButton": {
+        "message": "Exported!"
+    },
+    "exportPdfError": {
+        "message": "PDF export failed. Please try again."
+    },
+    "shareButton": {
+        "message": "Share"
+    },
+    "shareNativeLabel": {
+        "message": "Native Share"
+    },
+    "shareClipboardLabel": {
+        "message": "Copy to Clipboard"
+    },
+    "copiedToClipboard": {
+        "message": "Copied to clipboard!"
+    },
+    "clipboardError": {
+        "message": "Failed to copy to clipboard."
     }
 }

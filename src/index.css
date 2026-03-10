@@ -61,6 +61,7 @@ a {
 .scrum-actions {
     display: flex;
     gap: 8px;
+    flex-wrap: wrap;
 }
 
 .scrum-actions > button {
@@ -904,6 +905,100 @@ html.mode-sidepanel, body.mode-sidepanel {
 }
 
 html.mode-popup, body.mode-popup {
-    width: 360px; 
+    width: 360px;
     min-width: 360px;
+}
+
+/* Share dropdown */
+.share-dropdown-wrapper {
+    position: relative;
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.share-dropdown {
+    position: absolute;
+    bottom: 100%;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    list-style: none !important;
+    padding: 4px 0;
+    margin: 0 0 4px 0;
+    z-index: 100;
+    min-width: 170px;
+}
+
+.share-dropdown-item {
+    list-style: none !important;
+    margin-left: 0 !important;
+    padding: 8px 14px;
+    cursor: pointer;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #374151;
+    transition: background 0.15s;
+}
+
+.share-dropdown-item:hover {
+    background: #f3f4f6;
+}
+
+.share-dropdown-item i {
+    width: 16px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.dark-mode .share-dropdown {
+    background: #2d2d2d;
+    border-color: #404040;
+}
+
+.dark-mode .share-dropdown-item {
+    color: #e5e7eb;
+}
+
+.dark-mode .share-dropdown-item:hover {
+    background: #374151;
+}
+
+/* Export PDF spinner */
+#exportPdf.exporting {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+/* Toast notification */
+.scrum-toast {
+    position: fixed;
+    top: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    background: #2563eb;
+    color: #fff;
+    font-weight: bold;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 13px;
+    animation: toastFadeIn 0.2s ease-out;
+}
+
+.scrum-toast.toast-success {
+    background: #16a34a;
+}
+
+.scrum-toast.toast-error {
+    background: #dc2626;
+}
+
+@keyframes toastFadeIn {
+    from { opacity: 0; transform: translateX(-50%) translateY(-8px); }
+    to { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
