@@ -53,6 +53,14 @@ document.addEventListener('DOMContentLoaded', () => {
 	// Apply translations as soon as the DOM is ready
 	applyI18n();
 
+	// Initialize versioned reportConfig storage once (non-destructive).
+	// Keeps existing legacy keys as the source of truth for now, but creates/syncs reportConfig for later PRs.
+	try {
+		window.ReportConfigStorage?.migrateLegacyIfNeeded?.();
+	} catch (e) {
+		console.warn('[reportConfig] migration skipped/failed:', e);
+	}
+
 	// Dark mode setup
 	const darkModeToggle = document.querySelector('img[alt="Night Mode"]');
 	const settingsIcon = document.getElementById('settingsIcon');
@@ -651,16 +659,20 @@ document.addEventListener('DOMContentLoaded', () => {
 			});
 		}
 		showOpenLabelCheckbox.addEventListener('change', () => {
-			chrome?.storage.local.set({ showOpenLabel: showOpenLabelCheckbox.checked });
+			const value = showOpenLabelCheckbox.checked;
+			chrome?.storage.local.set({ showOpenLabel: value });
+			window.ReportConfigStorage?.syncFromLegacyPatch?.({ showOpenLabel: value });
 		});
 		if (onlyIssuesCheckbox && onlyPRsCheckbox) {
 			onlyIssuesCheckbox.addEventListener('change', () => {
 				const checked = onlyIssuesCheckbox.checked;
 				chrome?.storage.local.set({ onlyIssues: checked }, () => {
+					window.ReportConfigStorage?.syncFromLegacyPatch?.({ onlyIssues: checked });
 					if (checked && onlyPRsCheckbox.checked) {
 						// Uncheck the previously selected "Only PRs"
 						onlyPRsCheckbox.checked = false;
 						chrome?.storage.local.set({ onlyPRs: false });
+						window.ReportConfigStorage?.syncFromLegacyPatch?.({ onlyPRs: false });
 					}
 				});
 			});
@@ -668,17 +680,21 @@ document.addEventListener('DOMContentLoaded', () => {
 			onlyPRsCheckbox.addEventListener('change', () => {
 				const checked = onlyPRsCheckbox.checked;
 				chrome?.storage.local.set({ onlyPRs: checked }, () => {
+					window.ReportConfigStorage?.syncFromLegacyPatch?.({ onlyPRs: checked });
 					if (checked && onlyIssuesCheckbox.checked) {
 						// Uncheck the previously selected "Only Issues"
 						onlyIssuesCheckbox.checked = false;
 						chrome?.storage.local.set({ onlyIssues: false });
+						window.ReportConfigStorage?.syncFromLegacyPatch?.({ onlyIssues: false });
 					}
 				});
 			});
 
 			if (onlyRevPRsCheckbox) {
 				onlyRevPRsCheckbox.addEventListener('change', () => {
-					chrome?.storage.local.set({ onlyRevPRs: onlyRevPRsCheckbox.checked });
+					const checked = onlyRevPRsCheckbox.checked;
+					chrome?.storage.local.set({ onlyRevPRs: checked });
+					window.ReportConfigStorage?.syncFromLegacyPatch?.({ onlyRevPRs: checked });
 				});
 			}
 		}
@@ -689,6 +705,8 @@ document.addEventListener('DOMContentLoaded', () => {
 				warningDurationMs: 3000,
 				persistState: true,
 			});
+			// PersistState writes legacy `showCommits`. Mirror it into reportConfig.
+			window.ReportConfigStorage?.syncFromLegacyPatch?.({ showCommits: showCommitsCheckbox.checked });
 		});
 		githubTokenInput.addEventListener('input', () => {
 			chrome?.storage.local.set({ githubToken: githubTokenInput.value });
