@@ -586,13 +586,15 @@ document.addEventListener('DOMContentLoaded', () => {
 					chrome.tabs.sendMessage(tabId, { action: 'insertReportToEmail', content, subject }, (response) => {
 						if (chrome.runtime.lastError) {
 							console.warn('Insert to Email failed:', chrome.runtime.lastError.message);
+							insertBtn._triggeredByShortcut = false;
 							return;
 						}
-						if (response?.success) {
+						if (response?.success && insertBtn._triggeredByShortcut) {
 							showShortcutNotification('insertedInEmailNotification');
-						} else {
+						} else if (!response?.success) {
 							console.warn('Insert to Email failed:', response?.error);
 						}
+						insertBtn._triggeredByShortcut = false;
 					});
 				});
 			});
@@ -638,6 +640,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			try {
 				document.execCommand('copy');
+				if (this._triggeredByShortcut) {
+					showShortcutNotification('copiedReportNotification');
+				}
 				this.innerHTML = `<i class="fa fa-check"></i> ${chrome?.i18n.getMessage('copiedButton')}`;
 				setTimeout(() => {
 					this.innerHTML = `<i class="fa fa-copy"></i> ${chrome?.i18n.getMessage('copyReportButton')}`;
@@ -645,6 +650,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			} catch (err) {
 				console.error('Failed to copy: ', err);
 			} finally {
+				this._triggeredByShortcut = false;
 				selection.removeAllRanges();
 				document.body.removeChild(tempDiv);
 			}
@@ -1896,12 +1902,14 @@ document.addEventListener('keydown', (e) => {
 	if (modifier && e.shiftKey && !e.altKey && key === 'y' && !e.repeat && copyBtn && !copyBtn.disabled) {
 		e.preventDefault();
 		showShortcutNotification('copyingReportNotification');
+		copyBtn._triggeredByShortcut = true;
 		copyBtn.click();
 	}
 
 	if (modifier && e.shiftKey && !e.altKey && key === 'm' && !e.repeat && insertEmailBtn && !insertEmailBtn.disabled) {
 		e.preventDefault();
 		showShortcutNotification('insertingInEmailNotification');
+		insertEmailBtn._triggeredByShortcut = true;
 		insertEmailBtn.click();
 	}
 });

@@ -402,8 +402,12 @@
     "description": "Notification shown when report generation is triggered via keyboard shortcut."
   },
   "copyingReportNotification": {
+    "message": "Copying report...",
+    "description": "Notification shown when report copy is triggered via keyboard shortcut."
+  },
+  "copiedReportNotification": {
     "message": "Report copied!",
-    "description": "Notification shown when report is copied via keyboard shortcut."
+    "description": "Notification shown when report is successfully copied via keyboard shortcut."
   },
   "insertInEmailTooltip": {
     "message": "Ctrl+Shift+M",
