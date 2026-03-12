@@ -315,5 +315,9 @@
     },
     "insertedInEmailNotification": {
         "message": "¡Informe insertado en el correo!"
+<<<<<<< HEAD
    }
+=======
+    }
+>>>>>>> 52d84e7 (fix: translation related problems)
 }

@@ -238,21 +238,6 @@
     "copyReportTooltip": {
         "message": "Ctrl+Shift+Y"
    },
-    "generatingReportNotification": {
-        "message": "Bericht wird erstellt..."
-  },
-    "copyingReportNotification": {
-        "message": "Bericht kopiert!"
-   },
-    "insertInEmailTooltip": {
-        "message": "Ctrl+Shift+M"
- },
-    "insertingInEmailNotification": {
-        "message": "Bericht wird in E-Mail eingefügt..."
- },
-    "insertedInEmailNotification": {
-        "message": "Bericht in E-Mail eingefügt!"
-   },
         "usernameRequiredError": {
         "message": "Bitte geben Sie Ihren Benutzernamen ein, um einen Bericht zu erstellen."
     },
@@ -315,5 +300,20 @@
     },
     "usernameMissingError": {
         "message": "Benutzername erforderlich."
+    },
+    "generatingReportNotification": {
+        "message": "Bericht wird erstellt..."
+    },
+    "copyingReportNotification": {
+        "message": "Bericht kopiert!"
+    },
+    "insertInEmailTooltip": {
+        "message": "Ctrl+Shift+M"
+    },
+    "insertingInEmailNotification": {
+        "message": "Bericht wird in E-Mail eingefügt..."
+    },
+    "insertedInEmailNotification": {
+        "message": "Bericht in E-Mail eingefügt!"
     }
 }

@@ -580,11 +580,17 @@ document.addEventListener('DOMContentLoaded', () => {
 				const content = scrumReport ? scrumReport.innerHTML : '';
 				const subject = buildScrumSubjectFromPopup();
 
-				if (!content) return;
+				if (!content) {
+					insertBtn._triggeredByShortcut = false;
+					return;
+				}
 
 				chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
 					const tabId = tabs?.[0]?.id;
-					if (!tabId) return;
+					if (!tabId) {
+						insertBtn._triggeredByShortcut = false;
+						return;
+					}
 
 					chrome.tabs.sendMessage(tabId, { action: 'insertReportToEmail', content, subject }, (response) => {
 						if (chrome.runtime.lastError) {
