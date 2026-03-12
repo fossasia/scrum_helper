@@ -1553,13 +1553,28 @@ ${userReason}`;
 							logError('[SCRUM-HELPER] Unable to derive PR cache key from repository_url:', repoUrl, 'for item:', item.number);
 						}
 					} else {
-						logError('[SCRUM-HELPER] Missing repository_url for PR item when onlyMergedPRs is enabled. Falling back to merged_at flag. Item number:', item.number);
+						logError('[SCRUM-HELPER] Missing repository_url for PR item when onlyMergedPRs is enabled.', 'Item number:', item.number);
 					}
-					const isMerged =
-						prCacheKey && prCacheKey in mergedStatusResults
-							? !!mergedStatusResults[prCacheKey]
-							: !!item.pull_request?.merged_at;
-					if (!isMerged) {
+					// Determine merge status. If we cannot determine it reliably, do NOT
+					// treat the PR as "not merged" – instead, skip the onlyMergedPRs filter
+					// for this item to avoid silently dropping all results when merge status
+					// cannot be fetched (e.g., missing token or incomplete cache).
+					let hasMergeInfo = false;
+					let isMerged = false;
+					if (prCacheKey && prCacheKey in mergedStatusResults) {
+						hasMergeInfo = true;
+						isMerged = !!mergedStatusResults[prCacheKey];
+					} else if (item.pull_request && Object.prototype.hasOwnProperty.call(item.pull_request, 'merged_at')) {
+						hasMergeInfo = true;
+						isMerged = !!item.pull_request.merged_at;
+					}
+					if (!hasMergeInfo) {
+						logError(
+							'[SCRUM-HELPER] onlyMergedPRs is enabled but merge status could not be determined for item:',
+							item.number,
+							'- skipping onlyMergedPRs filter for this item.',
+						);
+					} else if (!isMerged) {
 						log('[SCRUM-DEBUG] Skipping non-merged PR:', item.number);
 						continue;
 					}
