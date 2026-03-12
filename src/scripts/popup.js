@@ -61,17 +61,20 @@ function setupButtonTooltips() {
 
 	const generateTooltipEl = document.getElementById('generateReportTooltipText');
 	if (generateTooltipEl) {
-		generateTooltipEl.textContent = mac ? 'Cmd+G' : 'Ctrl+G';
+		const text = chrome?.i18n.getMessage('generateReportTooltip') || 'Ctrl+G';
+		generateTooltipEl.textContent = mac ? text.replace('Ctrl', 'Cmd') : text;
 	}
 
 	const copyTooltipEl = document.getElementById('copyReportTooltipText');
 	if (copyTooltipEl) {
-		copyTooltipEl.textContent = mac ? 'Cmd+Shift+Y' : 'Ctrl+Shift+Y';
+		const text = chrome?.i18n.getMessage('copyReportTooltip') || 'Ctrl+Shift+Y';
+		copyTooltipEl.textContent = mac ? text.replace('Ctrl', 'Cmd') : text;
 	}
 
 	const insertEmailTooltipEl = document.getElementById('insertInEmailTooltipText');
 	if (insertEmailTooltipEl) {
-		insertEmailTooltipEl.textContent = mac ? 'Cmd+Shift+M' : 'Ctrl+Shift+M';
+		const text = chrome?.i18n.getMessage('insertInEmailTooltip') || 'Ctrl+Shift+M';
+		insertEmailTooltipEl.textContent = mac ? text.replace('Ctrl', 'Cmd') : text;
 	}
 }
 

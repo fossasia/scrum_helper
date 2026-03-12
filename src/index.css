@@ -919,6 +919,7 @@ body.mode-popup {
 /* Shortcut tooltip on button hover */
 .scrum-actions .tooltip-container {
     position: relative;
+    margin-left: 0;
 }
 
 .shortcut-tooltip {
