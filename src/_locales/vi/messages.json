@@ -74,11 +74,17 @@
     "githubTokenPlaceholder": {
         "message": "Bắt buộc cho các yêu cầu đã xác thực"
     },
+    "githubTokenTooltip": {
+        "message": "Tại sao nên thêm mã token GitHub? Scrum Helper hoạt động mà không cần mã token GitHub, nhưng việc thêm mã thông báo truy cập cá nhân được khuyến nghị để có trải nghiệm tốt hơn."
+    },
     "gitlabTokenLabel": {
         "message": "Mã token GitLab"
     },
     "gitlabTokenPlaceholder": {
         "message": "Bắt buộc cho repo riêng tư"
+    },
+    "gitlabTokenTooltip": {
+        "message": "Tại sao nên thêm mã token GitLab? Scrum Helper hoạt động mà không cần mã token GitLab cho các dự án công khai, nhưng việc thêm mã thông báo truy cập cá nhân được khuyến nghị để có trải nghiệm tốt hơn."
     },
     "showCommitsLabel": {
         "message": "Hiển thị các commit trên PR đang mở/ PR nháp"
@@ -98,13 +104,6 @@
     "onlyPRsTooltip": {
         "message": "Nếu được chọn, báo cáo chỉ bao gồm các pull request do người dùng tạo; các PR đã được xem xét sẽ bị loại trừ."
     },
-    "onlyRevPRsLabel": {
-        "message": "Chỉ bao gồm các PR bạn đã xem xét trong báo cáo"
-    },
-    "onlyRevPRsTooltip": {
-        "message": "Nếu được chọn, báo cáo sẽ chỉ bao gồm các PR bạn đã xem xét."
-    },
-
     "cacheTTLLabel": {
         "message": "Nhập TTL bộ nhớ cache",
         "description": "Nhãn cho đầu vào thời gian tồn tại của bộ nhớ cache."
@@ -205,6 +204,10 @@
     "cacheClearedMessage": {
         "message": "Bộ nhớ đệm đã được xóa thành công. Nhấp vào 'Tạo báo cáo' để lấy dữ liệu mới."
     },
+    "cacheExpiredMessage": {
+        "message": "Bộ nhớ đệm đã hết hạn. Nhấp vào \"Tạo\" để lấy dữ liệu mới.",
+        "description": "Message shown when the cached data has expired and user needs to regenerate."
+    },
     "cacheClearedButton": {
         "message": "Đã xóa bộ nhớ đệm!"
     },
@@ -222,5 +225,11 @@
     },
     "usernameLabel": {
         "message": "Tên người dùng của bạn"
+    },
+    "onlyRevPRsLabel": {
+        "message": "Chỉ bao gồm các PR bạn đã xem xét trong báo cáo"
+    },
+    "onlyRevPRsTooltip": {
+        "message": "Nếu được chọn, báo cáo sẽ chỉ bao gồm các PR bạn đã xem xét."
     }
 }

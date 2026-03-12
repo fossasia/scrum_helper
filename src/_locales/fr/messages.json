@@ -74,11 +74,17 @@
     "githubTokenPlaceholder": {
         "message": "Requis pour les requêtes authentifiées"
     },
+    "githubTokenTooltip": {
+        "message": "Pourquoi est-il recommandé d'ajouter un jeton GitHub ? Scrum Helper fonctionne sans jeton GitHub, mais l'ajout d'un jeton d'accès personnel est recommandé pour une meilleure expérience."
+    },
     "gitlabTokenLabel": {
         "message": "Votre jeton GitLab"
     },
     "gitlabTokenPlaceholder": {
         "message": "Requis pour les dépôts privés"
+    },
+    "gitlabTokenTooltip": {
+        "message": "Pourquoi est-il recommandé d'ajouter un jeton GitLab ? Scrum Helper fonctionne sans jeton GitLab pour les projets publics, mais l'ajout d'un jeton d'accès personnel est recommandé pour une meilleure expérience."
     },
     "showCommitsLabel": {
         "message": "Afficher les commits sur les PRs ouverts/ brouillons de PRs"
@@ -98,13 +104,6 @@
     "onlyPRsTooltip": {
         "message": "Si coché, le rapport n'inclura que les pull requests créées par l'utilisateur ; les pull requests revues seront exclues."
     },
-    "onlyRevPRsLabel": {
-        "message": "Inclure uniquement les PRs revues dans le rapport"
-    },
-    "onlyRevPRsTooltip": {
-        "message": "Si coché, le rapport n'inclura que les PRs que vous avez revues."
-    },
-
     "cacheTTLLabel": {
         "message": "Entrez le TTL du cache",
         "description": "Étiquette pour le champ de saisie de la durée de vie du cache."
@@ -205,6 +204,10 @@
     "cacheClearedMessage": {
         "message": "Cache vidé avec succès. Cliquez sur 'Générer le rapport' pour récupérer des données fraîches."
     },
+    "cacheExpiredMessage": {
+        "message": "Le cache a expiré. Cliquez sur \"Générer\" pour récupérer des données fraîches.",
+        "description": "Message shown when the cached data has expired and user needs to regenerate."
+    },
     "cacheClearedButton": {
         "message": "Cache vidé !"
     },
@@ -222,5 +225,11 @@
     },
     "usernameLabel": {
         "message": "Votre nom d'utilisateur"
+    },
+    "onlyRevPRsLabel": {
+        "message": "Inclure uniquement les PRs revues dans le rapport"
+    },
+    "onlyRevPRsTooltip": {
+        "message": "Si coché, le rapport n'inclura que les PRs que vous avez revues."
     }
 }

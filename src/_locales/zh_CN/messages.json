@@ -1,5 +1,4 @@
 {
-
     "appName": {
         "message": "Scrum Helper"
     },
@@ -75,11 +74,17 @@
     "githubTokenPlaceholder": {
         "message": "进行身份验证请求所必需"
     },
+    "githubTokenTooltip": {
+        "message": "为什么建议添加 GitHub 令牌？Scrum Helper 无需 GitHub 令牌也能工作，但添加个人访问令牌可以提供更好的体验。"
+    },
     "gitlabTokenLabel": {
         "message": "您的 GitLab 令牌"
     },
     "gitlabTokenPlaceholder": {
         "message": "私有仓库需要"
+    },
+    "gitlabTokenTooltip": {
+        "message": "为什么建议添加 GitLab 令牌？Scrum Helper 对于公开项目无需 GitLab 令牌也能工作，但添加个人访问令牌可以提供更好的体验。"
     },
     "showCommitsLabel": {
         "message": "在打开的 PR/草稿 PR 上显示提交"
@@ -99,13 +104,6 @@
     "onlyPRsTooltip": {
         "message": "勾选后，报告将只包含用户创建的拉取请求；已审核的PR将被排除。"
     },
-    "onlyRevPRsLabel": {
-        "message": "报告中仅包含已审核的 PR"
-    },
-    "onlyRevPRsTooltip": {
-        "message": "如果选中，报告将仅包含由您审核的 PR。"
-    },
-
     "cacheTTLLabel": {
         "message": "输入缓存 TTL",
         "description": "缓存生存时间输入的标签。"
@@ -206,6 +204,10 @@
     "cacheClearedMessage": {
         "message": "缓存已成功清除。单击“生成报告”以获取新数据。"
     },
+    "cacheExpiredMessage": {
+        "message": "缓存已过期。点击\"生成\"以获取最新数据。",
+        "description": "Message shown when the cached data has expired and user needs to regenerate."
+    },
     "cacheClearedButton": {
         "message": "缓存已清除！"
     },
@@ -223,5 +225,11 @@
     },
     "usernameLabel": {
         "message": "您的用户名"
+    },
+    "onlyRevPRsLabel": {
+        "message": "报告中仅包含已审核的 PR"
+    },
+    "onlyRevPRsTooltip": {
+        "message": "如果选中，报告将仅包含由您审核的 PR。"
     }
 }
