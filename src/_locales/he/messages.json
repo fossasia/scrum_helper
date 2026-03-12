@@ -294,5 +294,26 @@
     },
     "usernameMissingError": {
 		"message": "שם משתמש נדרש."
+    },
+    "generateReportTooltip": {
+        "message": "Ctrl+G"
+    },
+    "copyReportTooltip": {
+        "message": "Ctrl+Shift+Y"
+    },
+    "generatingReportNotification": {
+        "message": "מייצר דוח..."
+    },
+    "copyingReportNotification": {
+        "message": "הדוח הועתק!"
+    },
+    "insertInEmailTooltip": {
+        "message": "Ctrl+Shift+M"
+    },
+    "insertingInEmailNotification": {
+        "message": "מוסיף דוח לאימייל..."
+    },
+    "insertedInEmailNotification": {
+        "message": "הדוח הוכנס לאימייל!"
     }
 }

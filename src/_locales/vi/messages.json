@@ -294,5 +294,26 @@
     },
     "usernameMissingError": {
         "message": "Yêu cầu tên người dùng."
+    },
+    "generateReportTooltip": {
+        "message": "Ctrl+G"
+    },
+    "copyReportTooltip": {
+        "message": "Ctrl+Shift+Y"
+    },
+    "generatingReportNotification": {
+        "message": "Đang tạo báo cáo..."
+    },
+    "copyingReportNotification": {
+        "message": "Đã sao chép báo cáo!"
+    },
+    "insertInEmailTooltip": {
+        "message": "Ctrl+Shift+M"
+    },
+    "insertingInEmailNotification": {
+        "message": "Đang chèn báo cáo vào email..."
+    },
+    "insertedInEmailNotification": {
+        "message": "Đã chèn báo cáo vào email!"
     }
 }
