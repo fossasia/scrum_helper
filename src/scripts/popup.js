@@ -650,7 +650,11 @@ document.addEventListener('DOMContentLoaded', () => {
 			try {
 				document.execCommand('copy');
 				if (this._triggeredByShortcut) {
-					showShortcutNotification('copiedReportNotification');
+					const notificationKey =
+						chrome?.i18n && chrome.i18n.getMessage('copiedReportNotification')
+							? 'copiedReportNotification'
+							: 'copiedButton';
+					showShortcutNotification(notificationKey);
 				}
 				this.innerHTML = `<i class="fa fa-check"></i> ${chrome?.i18n.getMessage('copiedButton')}`;
 				setTimeout(() => {
