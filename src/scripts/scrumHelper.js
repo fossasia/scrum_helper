@@ -1034,8 +1034,21 @@ function allIncluded(outputTarget = 'email') {
 
 	const compactTextStyle = 'display: inline-block; padding: 0 8px; margin: 0; line-height: 1.2;';
 
+	function escapeHtml(str) {
+		if (str == null) {
+			return '';
+		}
+		return String(str)
+			.replace(/&/g, '&amp;')
+			.replace(/</g, '&lt;')
+			.replace(/>/g, '&gt;')
+			.replace(/"/g, '&quot;')
+			.replace(/'/g, '&#39;');
+	}
+
 	function wrapCompactText(content) {
-		return `<span style="${compactTextStyle}">${content}</span>`;
+		const safeContent = escapeHtml(content);
+		return `<span style="${compactTextStyle}">${safeContent}</span>`;
 	}
 
 	function buildActivityListHtml() {
@@ -1066,12 +1079,6 @@ function allIncluded(outputTarget = 'email') {
 	}
 
 	function writeScrumBody() {
-		const isToggleDisabled = typeof enableToggle !== 'undefined' && !enableToggle;
-		if (isToggleDisabled) {
-			scrumGenerationInProgress = false;
-			return;
-		}
-
 		const lastWeekUl = buildActivityListHtml();
 		const nextWeekUl = buildNextWeekListHtml();
 		const blockerText = buildBlockerTextHtml();
