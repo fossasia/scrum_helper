@@ -56,6 +56,10 @@
     "copyReportButton": {
         "message": "Копіювати звіт"
     },
+    "insertInEmailButton": {
+        "message": "Вставити в електронний лист",
+        "description": "Text for the 'Insert to Email' button."
+    },
     "settingsOrgNameLabel": {
         "message": "Назва організації"
     },
@@ -71,14 +75,29 @@
     "githubTokenPlaceholder": {
         "message": "Потрібно для автентифікованих запитів"
     },
+    "githubTokenTooltip": {
+        "message": "Чому рекомендується додати токен GitHub? Scrum Helper працює без токена GitHub, але додавання особистого токена доступу рекомендується для кращого досвіду."
+    },
     "gitlabTokenLabel": {
         "message": "Ваш токен GitLab"
     },
     "gitlabTokenPlaceholder": {
-        "message": "Потрібно для приватних репо"
+        "message": "Потрібно для доступу до приватних проектів"
+    },
+    "gitlabTokenTooltip": {
+        "message": "Чому рекомендується додати токен GitLab? Scrum Helper працює без токена GitLab для публічних проектів, але додавання особистого токена доступу рекомендується для кращого досвіду."
     },
     "showCommitsLabel": {
         "message": "Показувати коміти у відкритих PR/ чернетках PR"
+    },
+    "showCommitsTooltip": {
+        "message": "Потрібен токен GitHub, додайте його в налаштуваннях."
+    },
+    "onlyIssuesLabel": {
+        "message": "Включати до звіту лише проблеми"
+    },
+    "onlyIssuesTooltip": {
+        "message": "Якщо позначено, звіт включатиме лише проблеми, створені користувачем або призначені йому."
     },
     "onlyPRsLabel": {
         "message": "Включати до звіту лише PR"
@@ -185,6 +204,10 @@
     "cacheClearedMessage": {
         "message": "Кеш успішно очищено. Натисніть 'Створити звіт', щоб отримати свіжі дані."
     },
+    "cacheExpiredMessage": {
+        "message": "Кеш закінчився. Натисніть \"Створити\", щоб отримати нові дані.",
+        "description": "Message shown when the cached data has expired and user needs to regenerate."
+    },
     "cacheClearedButton": {
         "message": "Кеш очищено!"
     },
@@ -202,5 +225,11 @@
     },
     "usernameLabel": {
         "message": "Ваше ім'я користувача"
+    },
+    "onlyRevPRsLabel": {
+        "message": "Включати до звіту лише переглянуті PR"
+    },
+    "onlyRevPRsTooltip": {
+        "message": "Якщо позначено, звіт включатиме лише PR, переглянуті вами."
     }
 }

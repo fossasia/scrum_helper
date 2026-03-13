@@ -56,6 +56,10 @@
     "copyReportButton": {
         "message": "Copia Rapporto"
     },
+    "insertInEmailButton": {
+        "message": "Inserisci nell'email",
+        "description": "Text for the 'Insert to Email' button."
+    },
     "settingsOrgNameLabel": {
         "message": "Nome dell'organizzazione"
     },
@@ -70,13 +74,30 @@
     },
     "githubTokenPlaceholder": {
         "message": "Richiesto per richieste autenticate"
-    },    "gitlabTokenLabel": {
+    },
+    "githubTokenTooltip": {
+        "message": "Perché è consigliato aggiungere un token GitHub? Scrum Helper funziona senza un token GitHub, ma aggiungere un token di accesso personale è consigliato per un'esperienza migliore."
+    },
+    "gitlabTokenLabel": {
         "message": "Il tuo token GitLab"
     },
     "gitlabTokenPlaceholder": {
         "message": "Richiesto per repo privati"
-    },    "showCommitsLabel": {
+    },
+    "gitlabTokenTooltip": {
+        "message": "Perché è consigliato aggiungere un token GitLab? Scrum Helper funziona senza un token GitLab per progetti pubblici, ma aggiungere un token di accesso personale è consigliato per un'esperienza migliore."
+    },
+    "showCommitsLabel": {
         "message": "Mostra commit su PR aperti/ bozze di PR"
+    },
+    "showCommitsTooltip": {
+        "message": "Token GitHub richiesto, aggiungilo nelle impostazioni."
+    },
+    "onlyIssuesLabel": {
+        "message": "Includi solo i problemi nel report"
+    },
+    "onlyIssuesTooltip": {
+        "message": "Se selezionato, il report includerà solo i problemi creati o assegnati all'utente."
     },
     "onlyPRsLabel": {
         "message": "Includi solo le PR nel report"
@@ -84,13 +105,6 @@
     "onlyPRsTooltip": {
         "message": "Se selezionato, il report includerà solo le pull request create dall'utente; le PR revisionate saranno escluse."
     },
-    "onlyRevPRsLabel": {
-        "message": "Includi solo le PR revisionate nel report"
-    },
-    "onlyRevPRsTooltip": {
-        "message": "Se selezionato, il report includerà solo le PR revisionate da te."
-    },
-
     "cacheTTLLabel": {
         "message": "Inserisci TTL della cache"
     },
@@ -190,6 +204,10 @@
     "cacheClearedMessage": {
         "message": "Cache svuotata con successo. Clicca 'Genera Rapporto' per recuperare dati aggiornati."
     },
+    "cacheExpiredMessage": {
+        "message": "Cache scaduta. Clicca \"Genera\" per recuperare dati aggiornati.",
+        "description": "Message shown when the cached data has expired and user needs to regenerate."
+    },
     "cacheClearedButton": {
         "message": "Cache Svuotata!"
     },
@@ -207,5 +225,11 @@
     },
     "usernameLabel": {
         "message": "Il tuo nome utente"
+    },
+    "onlyRevPRsLabel": {
+        "message": "Includi solo le PR revisionate nel report"
+    },
+    "onlyRevPRsTooltip": {
+        "message": "Se selezionato, il report includerà solo le PR revisionate da te."
     }
 }

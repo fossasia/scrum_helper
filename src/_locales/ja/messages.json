@@ -56,6 +56,10 @@
     "copyReportButton": {
         "message": "レポートをコピー"
     },
+    "insertInEmailButton": {
+        "message": "メールに挿入",
+        "description": "Text for the 'Insert to Email' button."
+    },
     "settingsOrgNameLabel": {
         "message": "組織名"
     },
@@ -71,17 +75,23 @@
     "githubTokenPlaceholder": {
         "message": "認証済みリクエストに必要です"
     },
+    "githubTokenTooltip": {
+        "message": "GitHubトークンを追加することをお勧めするのはなぜですか？Scrum HelperはGitHubトークンなしで機能しますが、より良いエクスペリエンスのためにパーソナルアクセストークンを追加することをお勧めします。"
+    },
     "gitlabTokenLabel": {
         "message": "GitLabトークン"
     },
     "gitlabTokenPlaceholder": {
-        "message": "プライベートリポジトリに必要"
+        "message": "プライベートプロジェクトへのアクセスに必要です"
+    },
+    "gitlabTokenTooltip": {
+        "message": "GitLabトークンを追加することをお勧めするのはなぜですか？Scrum HelperはパブリックプロジェクトのGitLabトークンなしで機能しますが、より良いエクスペリエンスのためにパーソナルアクセストークンを追加することをお勧めします。"
     },
     "showCommitsLabel": {
         "message": "オープンなPR/ドラフトPRのコミットを表示"
     },
     "showCommitsTooltip": {
-        "message": "Githubトークンが必要です。設定で追加してください。"
+        "message": "GitHubトークンが必要です。設定で追加してください。"
     },
     "onlyIssuesLabel": {
         "message": "レポートに課題のみを含める"
@@ -195,6 +205,10 @@
     "cacheClearedMessage": {
         "message": "キャッシュが正常にクリアされました。「レポートを生成」をクリックして新しいデータを取得してください。"
     },
+    "cacheExpiredMessage": {
+        "message": "キャッシュの有効期限が切れました。「生成」をクリックして最新のデータを取得してください。",
+        "description": "Message shown when the cached data has expired and user needs to regenerate."
+    },
     "cacheClearedButton": {
         "message": "キャッシュクリア！"
     },
@@ -212,5 +226,11 @@
     },
     "usernameLabel": {
         "message": "あなたのユーザー名"
+    },
+    "onlyRevPRsLabel": {
+        "message": "レポートにレビュー済みのPRのみを含める"
+    },
+    "onlyRevPRsTooltip": {
+        "message": "チェックした場合、レポートにはあなたがレビューしたPRのみが含まれます。"
     }
 }
