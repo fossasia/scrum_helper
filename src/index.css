@@ -58,7 +58,6 @@ a {
     -webkit-user-modify: read-only;
 }
 
-/* Report header row */
 .report-header {
     display: flex;
     justify-content: space-between;

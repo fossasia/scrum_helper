@@ -560,12 +560,48 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		});
 
-		// PDF download button placeholder
+		
 		const downloadPdfBtn = document.getElementById('downloadPdfBtn');
 		if (downloadPdfBtn) {
 			downloadPdfBtn.addEventListener('click', () => {
-				// PDF export logic will be implemented here
-				console.log('Download PDF clicked');
+				const scrumReport = document.getElementById('scrumReport');
+				const reportContent = scrumReport ? scrumReport.innerHTML.trim() : '';
+				if (!reportContent || !reportContent.includes('<b>')) {
+					showPopupMessage(chrome?.i18n.getMessage('generateReportFirst') || 'Please generate a report first.');
+					return;
+				}
+
+				html2canvas(scrumReport, { scale: 2, useCORS: true }).then((canvas) => {
+					const { jsPDF } = window.jspdf;
+					const imgData = canvas.toDataURL('image/png');
+					const imgWidth = canvas.width;
+					const imgHeight = canvas.height;
+
+					const pdfWidth = 210; // A4 width in mm
+					const pdfContentWidth = pdfWidth - 20; 
+					const scaleFactor = pdfContentWidth / imgWidth;
+					const pdfContentHeight = imgHeight * scaleFactor;
+
+					const pdf = new jsPDF('p', 'mm', 'a4');
+					const pageHeight = pdf.internal.pageSize.getHeight() - 20; 
+					let position = 10; 
+					let remainingHeight = pdfContentHeight;
+
+					
+					pdf.addImage(imgData, 'PNG', 10, position, pdfContentWidth, pdfContentHeight);
+
+					// Add extra pages if content overflows
+					while (remainingHeight > pageHeight) {
+						remainingHeight -= pageHeight;
+						pdf.addPage();
+						pdf.addImage(imgData, 'PNG', 10, position - (pdfContentHeight - remainingHeight), pdfContentWidth, pdfContentHeight);
+					}
+
+					pdf.save('scrum-report.pdf');
+				}).catch((err) => {
+					console.error('PDF generation failed:', err);
+					showPopupMessage('Failed to generate PDF. Please try again.');
+				});
 			});
 		}
 
