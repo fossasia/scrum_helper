@@ -4,8 +4,16 @@ chrome?.tabs?.onRemoved?.addListener((tabId) => {
   openByTabId.delete(tabId);
 });
 
+// Firefox does not support chrome.sidePanel — detect it once at startup
+const isFirefox = typeof chrome?.sidePanel === "undefined";
+
 // Apply the display mode (popup vs sidePanel)
 function applyDisplayMode(mode) {
+  // Firefox: always use popup since sidePanel API is not available
+  if (isFirefox) {
+    chrome?.action.setPopup({ popup: "popup.html" });
+    return;
+  }
   if (mode === "popup") {
     chrome?.action.setPopup({ popup: "popup.html" });
   } else {
@@ -18,11 +26,6 @@ function applyDisplayMode(mode) {
 chrome?.storage.local.get({ displayMode: "sidePanel" }, (result) => {
   applyDisplayMode(result.displayMode);
 });
-
-// Firefox does not support chrome.sidePanel — fall back to popup mode automatically
-if (typeof chrome?.sidePanel === "undefined") {
-  chrome?.action.setPopup({ popup: "popup.html" });
-}
 
 // Listen for changes to displayMode
 chrome?.storage.onChanged.addListener((changes, area) => {
