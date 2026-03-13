@@ -560,6 +560,15 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		});
 
+		// PDF download button placeholder
+		const downloadPdfBtn = document.getElementById('downloadPdfBtn');
+		if (downloadPdfBtn) {
+			downloadPdfBtn.addEventListener('click', () => {
+				// PDF export logic will be implemented here
+				console.log('Download PDF clicked');
+			});
+		}
+
 		// Custom date container click handler
 		document.getElementById('customDateContainer').addEventListener('click', () => {
 			document.querySelectorAll('input[name="timeframe"]').forEach((radio) => {

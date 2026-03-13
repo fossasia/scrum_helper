@@ -58,6 +58,44 @@ a {
     -webkit-user-modify: read-only;
 }
 
+/* Report header row */
+.report-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.5rem;
+    margin-bottom: 0.25rem;
+}
+
+.report-title {
+    user-select: none;
+}
+
+.icon-button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #6b7280;
+    font-size: 16px;
+    padding: 4px 6px;
+    border-radius: 6px;
+    transition: color 0.2s ease, background-color 0.2s ease;
+}
+
+.icon-button:hover {
+    color: #2563eb;
+    background-color: rgba(37, 99, 235, 0.1);
+}
+
+.dark-mode .icon-button {
+    color: #9ca3af;
+}
+
+.dark-mode .icon-button:hover {
+    color: #60a5fa;
+    background-color: rgba(96, 165, 250, 0.15);
+}
+
 .scrum-actions {
     display: flex;
     gap: 8px;
