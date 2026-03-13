@@ -560,16 +560,13 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		});
 
-		
+		//download pdf logic is here..
 		const downloadPdfBtn = document.getElementById('downloadPdfBtn');
 		if (downloadPdfBtn) {
 			downloadPdfBtn.addEventListener('click', () => {
 				const scrumReport = document.getElementById('scrumReport');
 				const reportContent = scrumReport ? scrumReport.innerHTML.trim() : '';
-				if (!reportContent || !reportContent.includes('<b>')) {
-					showPopupMessage(chrome?.i18n.getMessage('generateReportFirst') || 'Please generate a report first.');
-					return;
-				}
+				if (!reportContent || !reportContent.includes('<b>')) {return};
 
 				html2canvas(scrumReport, { scale: 2, useCORS: true }).then((canvas) => {
 					const { jsPDF } = window.jspdf;
@@ -578,23 +575,37 @@ document.addEventListener('DOMContentLoaded', () => {
 					const imgHeight = canvas.height;
 
 					const pdfWidth = 210; // A4 width in mm
-					const pdfContentWidth = pdfWidth - 20; 
+					const margin = 10; // in mm
+					const pdfContentWidth = pdfWidth - margin * 2;
 					const scaleFactor = pdfContentWidth / imgWidth;
 					const pdfContentHeight = imgHeight * scaleFactor;
 
-					const pdf = new jsPDF('p', 'mm', 'a4');
-					const pageHeight = pdf.internal.pageSize.getHeight() - 20; 
-					let position = 10; 
+					const a4Height = 297; // in mm
+					const a4ContentHeight = a4Height - margin * 2;
+
+					const isSinglePage = pdfContentHeight <= a4ContentHeight;
+					const pdf = isSinglePage
+						? new jsPDF('p', 'mm', [pdfWidth, pdfContentHeight + margin * 2])
+						: new jsPDF('p', 'mm', 'a4');
+
+					const pageHeight = pdf.internal.pageSize.getHeight() - margin * 2;
+					let position = margin;
 					let remainingHeight = pdfContentHeight;
 
-					
-					pdf.addImage(imgData, 'PNG', 10, position, pdfContentWidth, pdfContentHeight);
+					pdf.addImage(imgData, 'PNG', margin, position, pdfContentWidth, pdfContentHeight);
 
-					// Add extra pages if content overflows
-					while (remainingHeight > pageHeight) {
+					// Add extra pages if content overflows (A4 only to have good pagination)
+					while (!isSinglePage && remainingHeight > pageHeight) {
 						remainingHeight -= pageHeight;
 						pdf.addPage();
-						pdf.addImage(imgData, 'PNG', 10, position - (pdfContentHeight - remainingHeight), pdfContentWidth, pdfContentHeight);
+						pdf.addImage(
+							imgData,
+							'PNG',
+							margin,
+							position - (pdfContentHeight - remainingHeight),
+							pdfContentWidth,
+							pdfContentHeight,
+						);
 					}
 
 					pdf.save('scrum-report.pdf');
