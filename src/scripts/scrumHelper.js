@@ -800,7 +800,7 @@ function allIncluded(outputTarget = 'email') {
 						else if (err.message) errorMsg = err.message;
 						else errorMsg = JSON.stringify(err);
 					}
-					const ErrMessage = `${err.message || 'An error occurred while generating the report.'}`;
+					const ErrMessage = `${errorMsg || 'An error occurred while generating the report.'}`;
 					showReportMessage(ErrMessage);
 				}
 				if (generateBtn) {
