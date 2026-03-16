@@ -1079,6 +1079,7 @@ ${userReason}`;
 						lastScrumReportHtml: content,
 						lastScrumReportPlatform: platform,
 						lastScrumReportCacheKey: cacheKey,
+						lastScrumReportUsername: platformUsername,
 					});
 				} catch (e) {
 					// ignore
