@@ -307,8 +307,8 @@ class GitLabHelper {
 		});
 	}
 
-	async fetchGitLabData(username, startDate, endDate, token = null, group = '', selectedProjects = []) {
-		const effectiveToken = token || this.token || '';
+	async fetchGitLabData(username, startDate, endDate, token, group = '', selectedProjects = []) {
+ 		const effectiveToken = (typeof token === 'undefined' ? this.token : token);
 		const tokenMarker = effectiveToken ? 'auth' : 'noauth';
 		const cacheKey = `${username}-${startDate}-${endDate}-${group}-${selectedProjects.join(',')}-${tokenMarker}`;
 

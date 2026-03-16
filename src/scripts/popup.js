@@ -593,8 +593,8 @@ document.addEventListener('DOMContentLoaded', () => {
 				// prefer "Only Issues" and clear "Only PRs", then persist the corrected state.
 				if (onlyIssuesCheckbox.checked && onlyPRsCheckbox.checked) {
 					onlyPRsCheckbox.checked = false;
-					if (typeof chrome !== 'undefined' && chrome?.storage && chrome?.storage.sync) {
-						chrome?.storage.sync.set({ onlyPRs: false });
+					if (typeof chrome !== 'undefined' && chrome?.storage && chrome?.storage.local) {
+ 						chrome.storage.local.set({ onlyPRs: false });
 					}
 				}
 				if (result.githubToken) githubTokenInput.value = result.githubToken;

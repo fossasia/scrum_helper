@@ -159,9 +159,6 @@ async function allIncluded(outputTarget = 'email') {
 					githubToken = items.githubToken;
 					gitlabToken = items.gitlabToken || '';
 					yesterdayContribution = items.yesterdayContribution;
-					if (typeof items.enableToggle !== 'undefined') {
-						enableToggle = items.enableToggle;
-					}
 
 				onlyIssues = items.onlyIssues === true;
 				onlyPRs = items.onlyPRs === true;
@@ -272,7 +269,33 @@ async function allIncluded(outputTarget = 'email') {
 										githubUserData: data.user || {},
 									};
 									githubUserData = mappedData.githubUserData;
-
+                  // Feed the mapped GitLab data into the same report-generation
+ 									// pipeline used for GitHub data so that the email body is updated,
+ 									// not just the subject.
+ 									let processedScrumData = mappedData;
+ 									if (typeof processGithubData === 'function') {
+ 										try {
+ 											processedScrumData = processGithubData(
+ 												mappedData,
+ 												{
+ 													platformUsername: platformUsernameLocal || platformUsername,
+ 													startingDate,
+ 													endingDate,
+ 													source: 'gitlab',
+ 												},
+ 											);
+ 										} catch (e) {
+ 											logError('Failed to process GitLab-mapped data via processGithubData:', e);
+ 											processedScrumData = mappedData;
+ 										}
+ 									}
+ 									if (typeof writeScrumBody === 'function') {
+ 										try {
+ 											writeScrumBody(processedScrumData, outputTarget);
+ 										} catch (e) {
+ 											logError('Failed to write scrum body for GitLab data:', e);
+ 										}
+ 									}
 									const name =
 										githubUserData?.name || githubUserData?.username || platformUsernameLocal || platformUsername;
 									const project = projectName;
@@ -285,7 +308,7 @@ async function allIncluded(outputTarget = 'email') {
 									const dateCode = year.toString() + month.toString() + date.toString();
 									const subject = `[Scrum]${project ? ' - ' + project : ''} - ${dateCode}`;
 									subjectForEmail = subject;
-								window.scrumSubjectForEmail = subject;
+								  window.scrumSubjectForEmail = subject;
 									scrumGenerationInProgress = false;
 								} catch (err) {
 									console.error('GitLab fetch failed:', err);
