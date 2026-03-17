@@ -73,6 +73,16 @@
 		#platformDropdownBtn:focus {
 			outline: 2px solid #2563eb;
 		}
+
+		/* Firefox Sidebar Fixes ONLY */
+		html.firefox-sidebar, 
+		body.firefox-sidebar {
+			background: transparent !important;
+			min-width: 100% !important;
+		}
+		body.firefox-sidebar #popupRoot {
+			min-width: 100% !important;
+		}
 	</style>
 </head>
 <body class="mode-sidepanel text-gray-800 bg-gray-50 flex flex-col font-sans">

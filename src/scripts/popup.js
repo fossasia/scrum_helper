@@ -694,6 +694,13 @@ document.addEventListener('DOMContentLoaded', () => {
 		// Display mode (popup / sidepanel)
 		// Apply the stored display mode class on next launch
 		function applyDisplayModeClass(mode) {
+			// If opened via Firefox sidebar_action, force sidepanel mode
+			if (window.location.search.includes('view=sidebar')) {
+				mode = 'sidepanel';
+				document.documentElement.classList.add('firefox-sidebar');
+				document.body.classList.add('firefox-sidebar');
+			}
+			
 			const className = mode === 'popup' ? 'mode-popup' : 'mode-sidepanel';
 			if (!document.documentElement.classList.contains(className)) {
 				document.documentElement.classList.remove('mode-popup', 'mode-sidepanel');
