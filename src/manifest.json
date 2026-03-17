@@ -12,6 +12,12 @@
   "background": {
     "service_worker": "scripts/background.js"
   },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "scrum_helper@fossasia.org",
+      "strict_min_version": "109.0"
+    }
+  },
   "icons": {
     "96": "icons/icon.png",
     "48": "icons/icon.png"
@@ -29,6 +35,7 @@
         "*://mail.yahoo.com/*"
       ],
       "js": [
+        "scripts/browser-polyfill.min.js",
         "scripts/jquery-3.2.1.min.js",
         "scripts/emailClientAdapter.js",
         "scripts/gitlabHelper.js",

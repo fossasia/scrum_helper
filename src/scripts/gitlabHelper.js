@@ -14,7 +14,7 @@ class GitLabHelper {
 
 	async getCacheTTL() {
 		return new Promise((resolve) => {
-			chrome.storage.local.get(['cacheInput'], (items) => {
+			browser.storage.local.get(['cacheInput']).then((items) => {
 				const ttl = items.cacheInput ? Number.parseInt(items.cacheInput, 10) * 60 * 1000 : 10 * 60 * 1000;
 				resolve(ttl);
 			});
@@ -23,22 +23,21 @@ class GitLabHelper {
 
 	async saveToStorage(data) {
 		return new Promise((resolve) => {
-			chrome.storage.local.set(
-				{
+			browser.storage.local
+				.set({
 					gitlabCache: {
 						data: data,
 						cacheKey: this.cache.cacheKey,
 						timestamp: this.cache.timestamp,
 					},
-				},
-				resolve,
-			);
+				})
+				.then(resolve);
 		});
 	}
 
 	async loadFromStorage() {
 		return new Promise((resolve) => {
-			chrome.storage.local.get(['gitlabCache'], (items) => {
+			browser.storage.local.get(['gitlabCache']).then((items) => {
 				if (items.gitlabCache) {
 					this.cache.data = items.gitlabCache.data;
 					this.cache.cacheKey = items.gitlabCache.cacheKey;

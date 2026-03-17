@@ -78,8 +78,8 @@ function allIncluded(outputTarget = 'email') {
 
 	function getChromeData() {
 		console.log('[DEBUG] getChromeData called for outputTarget:', outputTarget);
-		chrome.storage.local.get(
-			[
+		browser.storage.local
+			.get([
 				'platform',
 				'githubUsername',
 				'gitlabUsername',
@@ -100,8 +100,8 @@ function allIncluded(outputTarget = 'email') {
 				'onlyIssues',
 				'onlyPRs',
 				'onlyRevPRs',
-			],
-			(items) => {
+			])
+			.then((items) => {
 				console.log('[DEBUG] Storage items received:', items);
 				platform = items.platform || 'github';
 
@@ -119,7 +119,7 @@ function allIncluded(outputTarget = 'email') {
 
 					// Save to platform-specific storage
 					if (usernameFromDOM) {
-						chrome.storage.local.set({ [platformUsernameKey]: usernameFromDOM });
+						browser.storage.local.set({ [platformUsernameKey]: usernameFromDOM });
 						platformUsername = usernameFromDOM;
 						platformUsernameLocal = usernameFromDOM;
 					}
@@ -127,7 +127,7 @@ function allIncluded(outputTarget = 'email') {
 					items.projectName = projectFromDOM || items.projectName;
 					items.githubToken = tokenFromDOM || items.githubToken;
 					items.gitlabToken = gitlabTokenFromDOM || items.gitlabToken;
-					chrome.storage.local.set({
+					browser.storage.local.set({
 						projectName: items.projectName,
 						githubToken: items.githubToken,
 						gitlabToken: items.gitlabToken,
@@ -136,7 +136,7 @@ function allIncluded(outputTarget = 'email') {
 				projectName = items.projectName;
 
 				userReason = 'No Blocker at the moment';
-				chrome.storage.local.remove(['userReason']);
+				browser.storage.local.remove(['userReason']);
 				githubToken = items.githubToken;
 				gitlabToken = items.gitlabToken || '';
 				yesterdayContribution = items.yesterdayContribution;
@@ -163,7 +163,7 @@ function allIncluded(outputTarget = 'email') {
 					handleYesterdayContributionChange();
 
 					if (outputTarget === 'popup') {
-						chrome.storage.local.set({ yesterdayContribution: true });
+						browser.storage.local.set({ yesterdayContribution: true });
 					}
 				}
 
@@ -343,8 +343,7 @@ function allIncluded(outputTarget = 'email') {
 					}
 					scrumGenerationInProgress = false;
 				}
-			},
-		);
+			});
 	}
 	getChromeData();
 
@@ -384,7 +383,7 @@ function allIncluded(outputTarget = 'email') {
 
 	async function getCacheTTL() {
 		return new Promise((resolve) => {
-			chrome.storage.local.get(['cacheInput'], (result) => {
+			browser.storage.local.get(['cacheInput']).then((result) => {
 				const ttlMinutes = result.cacheInput || 10;
 				resolve(ttlMinutes * 60 * 1000);
 			});
@@ -406,17 +405,18 @@ function allIncluded(outputTarget = 'email') {
 		});
 
 		return new Promise((resolve) => {
-			chrome.storage.local.set({ githubCache: cacheData }, () => {
-				if (chrome.runtime.lastError) {
-					logError('Storage save failed: ', chrome.runtime.lastError);
-					resolve(false);
-				} else {
+			browser.storage.local
+				.set({ githubCache: cacheData })
+				.then(() => {
 					log('Cache saved successfully');
 					githubCache.data = data;
 					githubCache.subject = subject;
 					resolve(true);
-				}
-			});
+				})
+				.catch((error) => {
+					logError('Storage save failed: ', error);
+					resolve(false);
+				});
 		});
 	}
 
@@ -424,7 +424,7 @@ function allIncluded(outputTarget = 'email') {
 		log('Loading cache from storage');
 		return getCacheTTL().then((currentTTL) => {
 			return new Promise((resolve) => {
-				chrome.storage.local.get('githubCache', (result) => {
+				browser.storage.local.get('githubCache').then((result) => {
 					const cache = result.githubCache;
 					if (!cache) {
 						log('No cache found in storage');
@@ -461,7 +461,7 @@ function allIncluded(outputTarget = 'email') {
 	async function fetchGithubData() {
 		// Always load latest repo filter settings from storage
 		const filterSettings = await new Promise((resolve) => {
-			chrome.storage.local.get(['useRepoFilter', 'selectedRepos'], resolve);
+			browser.storage.local.get(['useRepoFilter', 'selectedRepos']).then(resolve);
 		});
 		useRepoFilter = filterSettings.useRepoFilter || false;
 		selectedRepos = Array.isArray(filterSettings.selectedRepos) ? filterSettings.selectedRepos : [];
@@ -886,7 +886,7 @@ function allIncluded(outputTarget = 'email') {
 			githubCache.repoData = repos;
 			githubCache.repoTimeStamp = now;
 
-			chrome.storage.local.set({
+			browser.storage.local.set({
 				repoCache: {
 					data: repos,
 					cacheKey: repoCacheKey,
@@ -925,7 +925,7 @@ function allIncluded(outputTarget = 'email') {
 			queueLength: githubCache.queue.length,
 		});
 		const storageData = await new Promise((resolve) => {
-			chrome.storage.local.get('githubCache', resolve);
+			browser.storage.local.get('githubCache').then(resolve);
 		});
 		log('Storage Status:', {
 			hasStoredData: !!storageData.githubCache,
@@ -1075,7 +1075,7 @@ ${userReason}`;
 					const cacheKey =
 						platform === 'gitlab' ? (gitlabHelper?.cache?.cacheKey ?? null) : (githubCache?.cacheKey ?? null);
 
-					chrome.storage.local.set({
+					browser.storage.local.set({
 						lastScrumReportHtml: content,
 						lastScrumReportPlatform: platform,
 						lastScrumReportCacheKey: cacheKey,
@@ -1766,7 +1766,7 @@ async function forceGithubDataRefresh() {
 	let showCommits = false;
 
 	await new Promise((resolve) => {
-		chrome.storage.local.get('showCommits', (result) => {
+		browser.storage.local.get('showCommits').then((result) => {
 			if (result.showCommits !== undefined) {
 				showCommits = result.showCommits;
 			}
@@ -1784,10 +1784,10 @@ async function forceGithubDataRefresh() {
 	}
 
 	await new Promise((resolve) => {
-		chrome.storage.local.remove('githubCache', resolve);
+		browser.storage.local.remove('githubCache').then(resolve);
 	});
 
-	chrome.storage.local.set({ showCommits: showCommits });
+	browser.storage.local.set({ showCommits: showCommits });
 
 	hasInjectedContent = false;
 
@@ -1804,7 +1804,7 @@ async function forceGitlabDataRefresh() {
 		gitlabHelper.cache.queue = [];
 	}
 	await new Promise((resolve) => {
-		chrome.storage.local.remove('gitlabCache', resolve);
+		browser.storage.local.remove('gitlabCache').then(resolve);
 	});
 	hasInjectedContent = false;
 	// Re-instantiate gitlabHelper to ensure a fresh instance for next API call
@@ -1828,9 +1828,9 @@ window.generateScrumReport = () => {
 	allIncluded('popup');
 };
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
 	if (request.action === 'forceRefresh') {
-		chrome.storage.local.get(['platform'], async (result) => {
+		browser.storage.local.get(['platform']).then(async (result) => {
 			const platform = result.platform || 'github';
 			if (platform === 'gitlab') {
 				forceGitlabDataRefresh()
@@ -1954,7 +1954,7 @@ async function fetchUserRepositories(username, token, org = '') {
 		let dateRange = '';
 		try {
 			const storageData = await new Promise((resolve) => {
-				chrome.storage.local.get(['startingDate', 'endingDate', 'yesterdayContribution'], resolve);
+				browser.storage.local.get(['startingDate', 'endingDate', 'yesterdayContribution']).then(resolve);
 			});
 
 			let startDate;
