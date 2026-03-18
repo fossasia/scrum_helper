@@ -356,17 +356,21 @@ document.addEventListener('DOMContentLoaded', () => {
 				lastScrumReportCacheKey,
 				lastScrumReportUsername,
 				githubUsername,
-				gitlabUsername
+				gitlabUsername,
+				platformUsername
 			} = await storageLocalGet([
 				'lastScrumReportHtml',
 				'lastScrumReportPlatform',
 				'lastScrumReportCacheKey',
 				'lastScrumReportUsername',
 				'githubUsername',
-				'gitlabUsername'
+				'gitlabUsername',
+				'platformUsername'
 			]);
 
-			const expectedUsername = activePlatform === 'gitlab' ? gitlabUsername : githubUsername;
+			const expectedUsername = activePlatform === 'gitlab'
+				? (gitlabUsername || platformUsername)
+				: (githubUsername || platformUsername);
 			const isUsernameMatch = lastScrumReportUsername 
 				? lastScrumReportUsername === expectedUsername
 				: (lastScrumReportCacheKey && expectedUsername && lastScrumReportCacheKey.startsWith(expectedUsername + '-'));
