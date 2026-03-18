@@ -39,6 +39,14 @@ function classifyBatch(messages, rules = DEFAULT_RULES) {
 }
 
 function getWorkTypeSummary(messages, rules = DEFAULT_RULES) {
+  if (!Array.isArray(messages)) return {
+    feature: 0,
+    bug: 0,
+    docs: 0,
+    refactor: 0,
+    other: 0,
+  };
+
   const summary = {
     feature: 0,
     bug: 0,
@@ -48,7 +56,8 @@ function getWorkTypeSummary(messages, rules = DEFAULT_RULES) {
   };
 
   for (const msg of messages) {
-    summary[classifyCommit(msg, rules)]++;
+    const type = classifyCommit(msg, rules);
+    summary[type] = (summary[type] ?? 0) + 1;
   }
 
   return summary;
