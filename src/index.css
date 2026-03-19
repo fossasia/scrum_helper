@@ -907,3 +907,12 @@ html.mode-popup, body.mode-popup {
     width: 360px; 
     min-width: 360px;
 }
+.editable-empty {
+	color: #9ca3af;   /* grey */
+	outline: none;
+	cursor: text;
+}
+
+.editable-empty.active {
+	color: #111827;   /* dark (same as normal text) */
+}

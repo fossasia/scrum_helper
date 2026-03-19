@@ -1035,16 +1035,35 @@ function allIncluded(outputTarget = 'email') {
 		const options = { day: '2-digit', month: 'short', year: 'numeric' };
 		return date.toLocaleDateString('en-US', options);
 	}
-
+	function buildList(items, emptyMessage) {
+	if (!items || items.length === 0) {
+		return `
+			<div 
+				class="editable-empty" 
+				contenteditable="true"
+				onfocus="this.classList.add('active')"
+				onblur="if(this.innerText.trim()===''){this.innerText='${emptyMessage}'; this.classList.remove('active')}"
+			>
+				${emptyMessage}
+			</div>
+		`;
+	}
+	return `<ul>${items.join('')}</ul>`;
+}
+    
 	function writeScrumBody() {
-		let lastWeekUl = '<ul>';
-		for (let i = 0; i < lastWeekArray.length; i++) lastWeekUl += lastWeekArray[i];
-		for (let i = 0; i < reviewedPrsArray.length; i++) lastWeekUl += reviewedPrsArray[i];
-		lastWeekUl += '</ul>';
+		// Combine work + reviewed PRs for Q1
+		const combinedLastWeek = [...lastWeekArray, ...reviewedPrsArray];
 
-		let nextWeekUl = '<ul>';
-		for (let i = 0; i < nextWeekArray.length; i++) nextWeekUl += nextWeekArray[i];
-		nextWeekUl += '</ul>';
+		let lastWeekUl = buildList(
+			combinedLastWeek,
+			'No work found for this period'
+		);
+
+		let nextWeekUl = buildList(
+			nextWeekArray,
+			'No planned tasks for today'
+		);
 
 		const weekOrDay = yesterdayContribution ? 'yesterday' : 'the period';
 		const weekOrDay2 = 'today';
