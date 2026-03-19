@@ -1064,6 +1064,25 @@ function allIncluded(outputTarget = 'email') {
 
 		return `<ul>${items.join('')}</ul>`;
 	}
+	function attachEditableHandlers() {
+	document.querySelectorAll('.editable-empty').forEach(div => {
+		const placeholder = div.innerText;
+
+		div.addEventListener('focus', () => {
+			div.classList.add('active');
+			if (div.innerText.trim() === placeholder) {
+				div.innerText = '';
+			}
+		});
+
+		div.addEventListener('blur', () => {
+			if (div.innerText.trim() === '') {
+				div.innerText = placeholder;
+				div.classList.remove('active');
+			}
+		});
+	});
+	}
     
 	function writeScrumBody() {
 		// Combine work + reviewed PRs for Q1
@@ -1104,6 +1123,7 @@ ${userReason}`;
 			if (scrumReport) {
 				log('Found popup div, updating content');
 				scrumReport.innerHTML = content;
+				attachEditableHandlers();
 				try {
 					const cacheKey =
 						platform === 'gitlab' ? (gitlabHelper?.cache?.cacheKey ?? null) : (githubCache?.cacheKey ?? null);
