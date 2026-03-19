@@ -1036,20 +1036,28 @@ function allIncluded(outputTarget = 'email') {
 		return date.toLocaleDateString('en-US', options);
 	}
 	function buildList(items, emptyMessage) {
-	if (!items || items.length === 0) {
-		return `
-			<div 
-				class="editable-empty" 
-				contenteditable="true"
-				onfocus="this.classList.add('active')"
-				onblur="if(this.innerText.trim()===''){this.innerText='${emptyMessage}'; this.classList.remove('active')}"
-			>
-				${emptyMessage}
-			</div>
-		`;
+		if (!items || items.length === 0) {
+			const div = document.createElement('div');
+			div.className = 'editable-empty';
+			div.contentEditable = 'true';
+			div.innerText = emptyMessage;
+
+			div.addEventListener('focus', () => {
+				div.classList.add('active');
+			});
+
+			div.addEventListener('blur', () => {
+				if (div.innerText.trim() === '') {
+					div.innerText = emptyMessage;
+					div.classList.remove('active');
+				}
+			});
+
+			return div.outerHTML;
+		}
+
+		return `<ul>${items.join('')}</ul>`;
 	}
-	return `<ul>${items.join('')}</ul>`;
-}
     
 	function writeScrumBody() {
 		// Combine work + reviewed PRs for Q1
