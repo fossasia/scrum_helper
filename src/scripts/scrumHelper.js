@@ -1043,7 +1043,13 @@ function allIncluded(outputTarget = 'email') {
 			div.innerText = emptyMessage;
 
 			div.addEventListener('focus', () => {
+				// Mark as active for styling
 				div.classList.add('active');
+
+				// Clear placeholder text on first focus, if it hasn't been edited yet
+				if (div.innerText.trim() === emptyMessage) {
+					div.innerText = '';
+				}
 			});
 
 			div.addEventListener('blur', () => {
