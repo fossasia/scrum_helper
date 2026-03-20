@@ -262,7 +262,16 @@ function allIncluded(outputTarget = 'email') {
 										}
 										const scrumReport = document.getElementById('scrumReport');
 										if (scrumReport) {
-											scrumReport.innerHTML = `<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">${err.message || 'An error occurred while fetching GitLab data.'}</div>`;
+											const errorDiv = document.createElement('div');
+											errorDiv.className = 'error-message';
+											errorDiv.style.color = '#dc2626';
+											errorDiv.style.fontWeight = 'bold';
+											errorDiv.style.padding = '10px';
+
+											errorDiv.textContent = err.message || 'An error occurred while fetching GitLab data.';
+
+											scrumReport.innerHTML = '';
+											scrumReport.appendChild(errorDiv);
 										}
 									}
 									scrumGenerationInProgress = false;
