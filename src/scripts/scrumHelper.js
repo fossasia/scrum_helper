@@ -1184,7 +1184,16 @@ ${userReason}`;
 
 				// Then add existing report
 				const contentDiv = document.createElement('div');
-				contentDiv.innerHTML = content;
+				const parser = new DOMParser();
+				const parsed = parser.parseFromString(content, 'text/html');
+
+				// Remove script/style tags (basic sanitization)
+				parsed.querySelectorAll('script, style').forEach(el => el.remove());
+
+				// Append safely
+				Array.from(parsed.body.childNodes).forEach(node => {
+					contentDiv.appendChild(node);
+				});
 				scrumReport.appendChild(contentDiv);
 
 				try {
