@@ -60,6 +60,7 @@ a {
 
 .scrum-actions {
     display: flex;
+    flex-wrap: wrap;
     gap: 8px;
 }
 
@@ -69,7 +70,7 @@ a {
 }
 
 .scrum-actions > button span {
-    white-space: nowrap;
+    text-align: center;
 }
 
 .btn,
