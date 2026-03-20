@@ -1036,7 +1036,114 @@ function allIncluded(outputTarget = 'email') {
 		return date.toLocaleDateString('en-US', options);
 	}
 
+	function createWorkSummaryElement(counts) {
+	const container = document.createElement('div');
+	container.style.marginBottom = '12px';
+	container.style.padding = '8px 0';
+
+	// Header
+	const header = document.createElement('div');
+	header.style.fontWeight = '600';
+	header.style.marginBottom = '8px';
+	header.innerText = '📊 Work Summary';
+	container.appendChild(header);
+
+	// Row
+	const row = document.createElement('div');
+	row.style.display = 'flex';
+	row.style.gap = '10px';
+
+	function createCard(label, value, lightBg, darkBg, icon) {
+		const isDark =
+			document.body.classList.contains('dark') ||
+			document.documentElement.classList.contains('dark');
+
+		const card = document.createElement('div');
+		card.style.flex = '1';
+		card.style.background = isDark ? darkBg : lightBg;
+		card.style.color = isDark ? '#ffffff' : '#000000'; 
+		card.style.padding = '12px';
+		card.style.borderRadius = '12px';
+		card.style.textAlign = 'center';
+
+		// Top (icon + label)
+		const top = document.createElement('div');
+		top.style.display = 'flex';
+		top.style.alignItems = 'center';
+		top.style.justifyContent = 'center';
+		top.style.gap = '6px';
+		top.style.fontWeight = '600';
+		top.style.marginBottom = '8px';
+
+		const iconSpan = document.createElement('span');
+		iconSpan.innerText = icon;
+
+		const labelSpan = document.createElement('span');
+		labelSpan.innerText = label;
+
+		top.appendChild(iconSpan);
+		top.appendChild(labelSpan);
+
+		// Value
+		const total = counts.Bug + counts.Feature + counts.Docs;
+		const percent = total > 0 ? Math.round((value / total) * 100) : 0;
+
+		const valueEl = document.createElement('div');
+
+		const number = document.createElement('div');
+		number.innerText = value;
+		number.style.fontSize = '20px';
+		number.style.fontWeight = 'bold';
+
+		const percentEl = document.createElement('div');
+		percentEl.innerText = `(${percent}%)`;
+		percentEl.style.fontSize = '12px';
+		percentEl.style.marginTop = '4px';
+		percentEl.style.color = isDark ? '#dddddd' : '#555';
+
+		valueEl.appendChild(number);
+		valueEl.appendChild(percentEl);
+
+		card.appendChild(top);
+		card.appendChild(valueEl);
+
+		return card;
+	}
+
+	// Cards
+	row.appendChild(createCard('Bugs', counts.Bug, '#ffe5e5', '#3a1f1f', '🐞'));
+	row.appendChild(createCard('Features', counts.Feature, '#e6f0ff', '#1f2a3a', '✨'));
+	row.appendChild(createCard('Docs', counts.Docs, '#e6ffe6', '#1f3a2a', '📄'));
+
+	container.appendChild(row);
+
+	return container;
+}
 	function writeScrumBody() {
+		// Work Summary Counts
+		const counts = {
+		Bug: 0,
+		Feature: 0,
+		Docs: 0,
+		Other: 0
+		};
+
+		function extractTypeFromHTML(html) {
+		if (html.includes('[Bug]')) return 'Bug';
+		if (html.includes('[Feature]')) return 'Feature';
+		if (html.includes('[Docs]')) return 'Docs';
+		return 'Other';
+		}
+
+		// Combine all work items
+		const allItems = [...lastWeekArray, ...reviewedPrsArray];
+
+		// Count types
+		allItems.forEach(item => {
+		const type = extractTypeFromHTML(item);
+		counts[type]++;
+		});
+
 		let lastWeekUl = '<ul>';
 		for (let i = 0; i < lastWeekArray.length; i++) lastWeekUl += lastWeekArray[i];
 		for (let i = 0; i < reviewedPrsArray.length; i++) lastWeekUl += reviewedPrsArray[i];
@@ -1070,13 +1177,22 @@ ${userReason}`;
 			const scrumReport = document.getElementById('scrumReport');
 			if (scrumReport) {
 				log('Found popup div, updating content');
-				scrumReport.innerHTML = content;
+				scrumReport.innerHTML = '';
+				// Add summary first
+				const summaryElement = createWorkSummaryElement(counts);
+				scrumReport.appendChild(summaryElement);
+
+				// Then add existing report
+				const contentDiv = document.createElement('div');
+				contentDiv.innerHTML = content;
+				scrumReport.appendChild(contentDiv);
+
 				try {
 					const cacheKey =
 						platform === 'gitlab' ? (gitlabHelper?.cache?.cacheKey ?? null) : (githubCache?.cacheKey ?? null);
 
 					chrome.storage.local.set({
-						lastScrumReportHtml: content,
+						lastScrumReportHtml: scrumReport.innerHTML,
 						lastScrumReportPlatform: platform,
 						lastScrumReportCacheKey: cacheKey,
 					});
