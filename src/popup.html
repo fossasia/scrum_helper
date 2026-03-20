@@ -15,6 +15,7 @@
 			background: #eae4e4;
 			width: 100%;
             height: 100%;
+			overflow: hidden;
 		}
 
 		body {
@@ -34,11 +35,12 @@
 		html.mode-popup,
 		body.mode-popup {
 			width: 360px !important;
-			height: 640px !important;
+			height: 600px !important;
 			min-width: 360px;
 			max-width: 420px;
-			min-height: 640px !important;
-			max-height: 640px !important;
+			min-height: 600px !important;
+			max-height: 600px !important;
+			overflow: hidden !important;
 		}
 
 		#popupRoot {
@@ -283,6 +285,10 @@
 								</span>
 							</span>
 
+						</div>
+						<div id="tokenWarningForShowCommits"
+							class="hidden text-xs text-red-600 p-2 bg-red-50 border border-red-200 rounded-xl mt-2">
+							<span data-i18n="tokenRequiredShowCommitsWarning">A GitHub token is required to show commits on open or draft PRs. Please add one in the settings.</span>
 						</div>
 					</div>
 					

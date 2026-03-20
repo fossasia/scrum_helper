@@ -74,11 +74,17 @@
     "githubTokenPlaceholder": {
         "message": "प्रमाणित अनुरोधों के लिए आवश्यक"
     },
+    "githubTokenTooltip": {
+        "message": "GitHub टोकन जोड़ने की सिफारिश क्यों की जाती है? Scrum Helper बिना GitHub टोकन के काम करता है, लेकिन बेहतर अनुभव के लिए व्यक्तिगत एक्सेस टोकन जोड़ने की सिफारिश की जाती है।"
+    },
     "gitlabTokenLabel": {
         "message": "आपका GitLab टोकन"
     },
     "gitlabTokenPlaceholder": {
         "message": "निजी रेपो के लिए आवश्यक"
+    },
+    "gitlabTokenTooltip": {
+        "message": "GitLab टोकन जोड़ने की सिफारिश क्यों की जाती है? Scrum Helper सार्वजनिक परियोजनाओं के लिए बिना GitLab टोकन के काम करता है, लेकिन बेहतर अनुभव के लिए व्यक्तिगत एक्सेस टोकन जोड़ने की सिफारिश की जाती है।"
     },
     "showCommitsLabel": {
         "message": "खुले पीआर/ ड्राफ्ट पीआर पर कमिट दिखाएं"
@@ -98,13 +104,6 @@
     "onlyPRsTooltip": {
         "message": "चेक करने पर रिपोर्ट में केवल उपयोगकर्ता द्वारा बनाई गई PRs शामिल होंगी; समीक्षित PRs बाहर रखी जाएँगी."
     },
-    "onlyRevPRsLabel": {
-        "message": "रिपोर्ट में केवल समीक्षित PRs शामिल करें"
-    },
-    "onlyRevPRsTooltip": {
-        "message": "यदि चेक किया गया है, तो रिपोर्ट में केवल आपके द्वारा समीक्षित PRs शामिल होंगे।"
-    },
-
     "cacheTTLLabel": {
         "message": "कैश टीटीएल दर्ज करें",
         "description": "कैश टाइम-टू-लाइव इनपुट के लिए लेबल।"
@@ -205,6 +204,10 @@
     "cacheClearedMessage": {
         "message": "कैश सफलतापूर्वक साफ़ हो गया। ताज़ा डेटा प्राप्त करने के लिए 'रिपोर्ट बनाएं' पर क्लिक करें।"
     },
+    "cacheExpiredMessage": {
+        "message": "कैश समाप्त हो गया। नया डेटा प्राप्त करने के लिए \"रिपोर्ट बनाएं\" पर क्लिक करें।",
+        "description": "Message shown when the cached data has expired and user needs to regenerate."
+    },
     "cacheClearedButton": {
         "message": "कैश साफ़ हो गया!"
     },
@@ -222,5 +225,11 @@
     },
     "usernameLabel": {
         "message": "आपका उपयोगकर्ता नाम"
+    },
+    "onlyRevPRsLabel": {
+        "message": "रिपोर्ट में केवल समीक्षित PRs शामिल करें"
+    },
+    "onlyRevPRsTooltip": {
+        "message": "यदि चेक किया गया है, तो रिपोर्ट में केवल आपके द्वारा समीक्षित PRs शामिल होंगे।"
     }
 }
