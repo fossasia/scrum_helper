@@ -922,3 +922,12 @@ html.mode-popup, body.mode-popup {
 .rotate-180 {
     transform: rotate(180deg);
 }
+.advanced-filters-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+}
+
+.advanced-filters-content.open {
+    max-height: 500px;
+}

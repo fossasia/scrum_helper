@@ -1367,19 +1367,17 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		});
 	}
-		// Advanced Filters Toggle
+	    // Advanced Filters Toggle
 		const toggleBtn = document.getElementById("toggleAdvancedFilters");
 		const content = document.getElementById("advancedFiltersContent");
 		const arrow = document.getElementById("advancedFiltersArrow");
 
 		if (toggleBtn && content && arrow) {
-			toggleBtn.addEventListener("click", function () {
-				const isHidden = content.classList.toggle("hidden");
-				arrow.classList.toggle("rotate-180");
-				toggleBtn.setAttribute("aria-expanded", !isHidden);
+		toggleBtn.addEventListener("click", function () {
+			content.classList.toggle("open");   
+			arrow.classList.toggle("rotate-180"); 
 			});
 		}
-
 });
 
 const cacheInput = document.getElementById('cacheInput');
