@@ -12,6 +12,25 @@ function logError(...args) {
 	}
 }
 
+function renderErrorMessage(container, key, fallback, args = []) {
+	// add message (or fallback) into HTML container in a protected manner
+	let message = fallback;
+	if (key && chrome?.i18n) {
+		const localized = chrome.i18n.getMessage(key, args);
+		if (localized) {
+			message = localized;
+		}
+	}
+	const errorDiv = document.createElement('div');
+	errorDiv.className = 'error-message';
+	errorDiv.style.color = '#dc2626';
+	errorDiv.style.fontWeight = 'bold';
+	errorDiv.style.padding = '10px';
+	errorDiv.textContent = message; 
+	container.innerHTML = '';
+	container.appendChild(errorDiv);
+}
+
 let refreshButton_Placed = false;
 let hasInjectedContent = false;
 let scrumGenerationInProgress = false;
@@ -185,8 +204,7 @@ function allIncluded(outputTarget = 'email') {
 							const scrumReport = document.getElementById('scrumReport');
 							const generateBtn = document.getElementById('generateReport');
 							if (scrumReport) {
-								scrumReport.innerHTML =
-									'<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">Please enter your username to generate a report.</div>';
+								renderErrorMessage(scrumReport, 'usernameRequiredError', 'Please enter your username to generate a report.');
 							}
 							if (generateBtn) {
 								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
@@ -270,7 +288,13 @@ function allIncluded(outputTarget = 'email') {
 										}
 										const scrumReport = document.getElementById('scrumReport');
 										if (scrumReport) {
-											scrumReport.innerHTML = `<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">${err.message || 'An error occurred while fetching GitLab data.'}</div>`;
+											let errMsg = '';
+											if (err && typeof err.message === 'string' && err.message.trim().length > 0) {
+												errMsg = err.message;
+											} else {
+												errMsg = chrome?.i18n.getMessage('gitlabFetchingError') || 'An error occurred while fetching GitLab data.';
+											}
+											renderErrorMessage(scrumReport, '', errMsg);
 										}
 									}
 									scrumGenerationInProgress = false;
@@ -318,7 +342,13 @@ function allIncluded(outputTarget = 'email') {
 										}
 										const scrumReport = document.getElementById('scrumReport');
 										if (scrumReport) {
-											scrumReport.innerHTML = `<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">${err.message || 'An error occurred while fetching GitLab data.'}</div>`;
+											let errMsg = '';
+											if (err && typeof err.message === 'string' && err.message.trim().length > 0) {
+												errMsg = err.message;
+											} else {
+												errMsg = chrome?.i18n.getMessage('gitlabFetchingError') || 'An error occurred while fetching GitLab data.';
+											}
+											renderErrorMessage(scrumReport, '', errMsg);
 										}
 									}
 									scrumGenerationInProgress = false;
@@ -330,8 +360,7 @@ function allIncluded(outputTarget = 'email') {
 							const scrumReport = document.getElementById('scrumReport');
 							const generateBtn = document.getElementById('generateReport');
 							if (scrumReport) {
-								scrumReport.innerHTML =
-									'<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">Please enter your username to generate a report.</div>';
+								renderErrorMessage(scrumReport, 'usernameRequiredError', 'Please enter your username to generate a report.');
 							}
 							if (generateBtn) {
 								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
@@ -345,8 +374,7 @@ function allIncluded(outputTarget = 'email') {
 					if (outputTarget === 'popup') {
 						const scrumReport = document.getElementById('scrumReport');
 						if (scrumReport) {
-							scrumReport.innerHTML =
-								'<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">Unknown platform selected.</div>';
+							renderErrorMessage(scrumReport, 'unknownPlatformError', 'Unknown platform selected.');
 						}
 					}
 					scrumGenerationInProgress = false;
@@ -634,7 +662,7 @@ function allIncluded(outputTarget = 'email') {
 			const userCheckRes = await fetch(userUrl, { headers });
 
 			if (userCheckRes.status === 404) {
-				const errorMsg = `GitHub user "${platformUsernameLocal}" not found (404). Please check the username and try again.`;
+				const errorMsg = chrome?.i18n.getMessage('githubUserNotFoundError', [platformUsernameLocal]) || `GitHub user "${platformUsernameLocal}" not found (404). Please check the username and try again.`;
 				logError(errorMsg);
 				throw new Error(errorMsg);
 			}
@@ -646,7 +674,7 @@ function allIncluded(outputTarget = 'email') {
 			}
 
 			if (!userCheckRes.ok) {
-				const errorMsg = `Error validating GitHub user: ${userCheckRes.status} ${userCheckRes.statusText}`;
+				const errorMsg = chrome?.i18n.getMessage('githubUserValidationError', [userCheckRes.status, userCheckRes.statusText]) || `Error validating GitHub user: ${userCheckRes.status} ${userCheckRes.statusText}`;
 				logError(errorMsg);
 				throw new Error(errorMsg);
 			}
@@ -664,7 +692,7 @@ function allIncluded(outputTarget = 'email') {
 			}
 
 			if (issuesRes.status === 422 || prRes.status === 422) {
-				const errorMsg = `Invalid search query or date range. Please verify your date range format and try again.`;
+				const errorMsg = chrome?.i18n.getMessage('invalidSearchQueryError') || `Invalid search query or date range. Please verify your date range format and try again.`;
 				logError(errorMsg);
 				if (outputTarget === 'popup') {
 					Materialize.toast && Materialize.toast(errorMsg, 4000);
@@ -673,7 +701,7 @@ function allIncluded(outputTarget = 'email') {
 			}
 
 			if (!issuesRes.ok) {
-				const errorMsg = `Error fetching GitHub issues: ${issuesRes.status} ${issuesRes.statusText}`;
+				const errorMsg = chrome?.i18n.getMessage('githubIssuesFetchError', [issuesRes.status, issuesRes.statusText]) || `Error fetching GitHub issues: ${issuesRes.status} ${issuesRes.statusText}`;
 				logError(errorMsg);
 				if (outputTarget === 'popup') {
 					Materialize.toast && Materialize.toast(errorMsg, 4000);
@@ -681,7 +709,7 @@ function allIncluded(outputTarget = 'email') {
 				throw new Error(errorMsg);
 			}
 			if (!prRes.ok) {
-				const errorMsg = `Error fetching GitHub PR review data: ${prRes.status} ${prRes.statusText}`;
+				const errorMsg = chrome?.i18n.getMessage('githubPRReviewFetchError', [prRes.status, prRes.statusText]) || `Error fetching GitHub PR review data: ${prRes.status} ${prRes.statusText}`;
 				logError(errorMsg);
 				if (outputTarget === 'popup') {
 					Materialize.toast && Materialize.toast(errorMsg, 4000);
@@ -689,7 +717,7 @@ function allIncluded(outputTarget = 'email') {
 				throw new Error(errorMsg);
 			}
 			if (!userRes.ok) {
-				const errorMsg = `Error fetching GitHub user data: ${userRes.status} ${userRes.statusText}`;
+				const errorMsg = chrome?.i18n.getMessage('githubUserFetchError', [userRes.status, userRes.statusText]) || `Error fetching GitHub user data: ${userRes.status} ${userRes.statusText}`;
 				logError(errorMsg);
 				throw new Error(errorMsg);
 			}
@@ -765,13 +793,13 @@ function allIncluded(outputTarget = 'email') {
 			if (outputTarget === 'popup') {
 				const generateBtn = document.getElementById('generateReport');
 				if (scrumReport) {
-					let errorMsg = 'An error occurred while generating the report.';
+					let errorMsg = chrome?.i18n.getMessage('reportGenerationError') || 'An error occurred while generating the report.';
 					if (err) {
 						if (typeof err === 'string') errorMsg = err;
 						else if (err.message) errorMsg = err.message;
 						else errorMsg = JSON.stringify(err);
 					}
-					scrumReport.innerHTML = `<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">${err.message || 'An error occurred while generating the report.'}</div>`;
+					renderErrorMessage(scrumReport, '', errorMsg);
 					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
 					generateBtn.disabled = false;
 				}
@@ -946,18 +974,18 @@ function allIncluded(outputTarget = 'email') {
 	verifyCacheStatus();
 
 	function showInvalidTokenMessage() {
+		const errMsg = chrome?.i18n.getMessage('invalidTokenError') || 'Invalid or expired GitHub token. Please check your token in the Scrum Helper settings and try again.';
 		if (outputTarget === 'popup') {
 			const reportDiv = document.getElementById('scrumReport');
 			if (reportDiv) {
-				reportDiv.innerHTML =
-					'<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">Invalid or expired GitHub token. Please check your token in the settings and try again.</div>';
+				renderErrorMessage(reportDiv, '', errMsg);
 				const generateBtn = document.getElementById('generateReport');
 				if (generateBtn) {
 					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
 					generateBtn.disabled = false;
 				}
 			} else {
-				alert('Invalid or expired GitHub token. Please check your token in the extension popup and try again.');
+				alert(errMsg);
 			}
 		}
 	}
