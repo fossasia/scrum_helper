@@ -163,7 +163,13 @@
 						<input id="platformUsername" type="text"
 							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
 							placeholder="Required for fetching your contributions"
+							aria-describedby="platformUsernameError"
+							aria-invalid="false"
 							style="margin-top: 0.3rem; margin-bottom: 0.8rem;">
+						<p id="platformUsernameError" class="hidden text-xs username-error" role="alert" aria-live="polite">
+							<span class="username-error-icon" aria-hidden="true">!</span>
+							<span class="username-error-text"></span>
+						</p>
 					</div>
 
 					<div>

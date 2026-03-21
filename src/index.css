@@ -777,6 +777,65 @@ hr,
     background-color: #1e3a8a !important;
 }
 
+/* Username validation styles */
+#platformUsernameError {
+    margin-top: -6px;
+    margin-bottom: 8px;
+    color: #dc2626;
+    align-items: center;
+    gap: 8px;
+}
+
+#platformUsernameError:not(.hidden) {
+    display: flex;
+}
+
+#platformUsername.username-input-invalid {
+    border-color: #f87171 !important;
+    box-shadow: 0 0 0 2px rgba(248, 113, 113, 0.2) !important;
+    background-color: #ffffff !important;
+}
+
+#platformUsername.username-input-invalid:focus {
+    border-color: #f87171 !important;
+    box-shadow: 0 0 0 2px rgba(248, 113, 113, 0.25) !important;
+    outline: none;
+}
+
+.dark-mode #platformUsername.username-input-invalid {
+    border-color: #f87171 !important;
+    box-shadow: 0 0 0 2px rgba(248, 113, 113, 0.25) !important;
+    background-color: #1f1f1f !important;
+    color: #ffffff !important;
+}
+
+.dark-mode #platformUsernameError {
+    color: #fca5a5;
+}
+
+.username-error-icon {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 1px solid #f87171;
+    color: #ef4444;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.dark-mode .username-error-icon {
+    border-color: #fca5a5;
+    color: #fca5a5;
+}
+
+.username-error-text {
+    color: inherit;
+}
+
 /* Organization validation message styles */
 #orgValidationMessage {
     transition: all 0.3s ease;

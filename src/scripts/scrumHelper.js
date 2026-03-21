@@ -178,12 +178,7 @@ function allIncluded(outputTarget = 'email') {
 					} else {
 						if (outputTarget === 'popup') {
 							console.log('[DEBUG] No username found - popup context');
-							const scrumReport = document.getElementById('scrumReport');
 							const generateBtn = document.getElementById('generateReport');
-							if (scrumReport) {
-								scrumReport.innerHTML =
-									'<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">Please enter your username to generate a report.</div>';
-							}
 							if (generateBtn) {
 								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
 								generateBtn.disabled = false;
@@ -324,12 +319,7 @@ function allIncluded(outputTarget = 'email') {
 						// --- FIX END ---
 					} else {
 						if (outputTarget === 'popup') {
-							const scrumReport = document.getElementById('scrumReport');
 							const generateBtn = document.getElementById('generateReport');
-							if (scrumReport) {
-								scrumReport.innerHTML =
-									'<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">Please enter your username to generate a report.</div>';
-							}
 							if (generateBtn) {
 								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate Report';
 								generateBtn.disabled = false;

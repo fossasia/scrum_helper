@@ -403,6 +403,55 @@ document.addEventListener('DOMContentLoaded', () => {
 		const startingDateInput = document.getElementById('startingDate');
 		const endingDateInput = document.getElementById('endingDate');
 		const platformUsername = document.getElementById('platformUsername');
+		const platformUsernameError = document.getElementById('platformUsernameError');
+		const usernameRequiredMessage = 'Username is required.';
+
+		function isUsernameValid() {
+			return platformUsername.value.trim().length > 0;
+		}
+
+		function showUsernameValidationError() {
+			platformUsername.classList.add('username-input-invalid');
+			platformUsername.setAttribute('aria-invalid', 'true');
+			if (platformUsernameError) {
+				const textNode = platformUsernameError.querySelector('.username-error-text');
+				if (textNode) {
+					textNode.textContent = usernameRequiredMessage;
+				} else {
+					platformUsernameError.textContent = usernameRequiredMessage;
+				}
+				platformUsernameError.classList.remove('hidden');
+			}
+		}
+
+		function clearUsernameValidationError() {
+			platformUsername.classList.remove('username-input-invalid');
+			platformUsername.setAttribute('aria-invalid', 'false');
+			if (platformUsernameError) {
+				const textNode = platformUsernameError.querySelector('.username-error-text');
+				if (textNode) {
+					textNode.textContent = '';
+				} else {
+					platformUsernameError.textContent = '';
+				}
+				platformUsernameError.classList.add('hidden');
+			}
+		}
+
+		function validateUsername({ showError = false } = {}) {
+			const valid = isUsernameValid();
+			if (valid) {
+				clearUsernameValidationError();
+			} else if (showError) {
+				showUsernameValidationError();
+			}
+			return valid;
+		}
+
+		window.validatePlatformUsernameInput = (showError = false) => validateUsername({ showError });
+
+		platformUsername.setAttribute('aria-describedby', 'platformUsernameError');
+		platformUsername.setAttribute('aria-invalid', 'false');
 
 		chrome?.storage.local.get(
 			[
@@ -471,6 +520,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				const platform = result.platform || 'github';
 				const platformUsernameKey = `${platform}Username`;
 				platformUsername.value = result[platformUsernameKey] || '';
+				validateUsername({ showError: false });
 			},
 		);
 
@@ -478,7 +528,11 @@ document.addEventListener('DOMContentLoaded', () => {
 		const generateBtn = document.getElementById('generateReport');
 		const copyBtn = document.getElementById('copyReport');
 
-		generateBtn.addEventListener('click', () => {
+		function handleGenerateReport() {
+			if (!validateUsername({ showError: true })) {
+				return;
+			}
+
 			chrome?.storage.local.get(['platform'], (result) => {
 				const platform = result.platform || 'github';
 				const platformUsernameKey = `${platform}Username`;
@@ -500,6 +554,15 @@ document.addEventListener('DOMContentLoaded', () => {
 					},
 				);
 			});
+		}
+
+		generateBtn.addEventListener('click', handleGenerateReport);
+
+		platformUsername.addEventListener('keydown', (e) => {
+			if (e.key === 'Enter') {
+				e.preventDefault();
+				handleGenerateReport();
+			}
 		});
 
 		copyBtn.addEventListener('click', function () {
@@ -719,6 +782,10 @@ document.addEventListener('DOMContentLoaded', () => {
 				const platformUsernameKey = `${platform}Username`;
 				chrome?.storage.local.set({ [platformUsernameKey]: platformUsername.value });
 			});
+			validateUsername({ showError: false });
+		});
+		platformUsername.addEventListener('blur', () => {
+			validateUsername({ showError: true });
 		});
 	}
 
@@ -1387,6 +1454,9 @@ function updatePlatformUI(platform) {
 			usernameLabel.textContent = message;
 		}
 	}
+	if (typeof window.validatePlatformUsernameInput === 'function') {
+		window.validatePlatformUsernameInput(false);
+	}
 
 	const orgSection = document.querySelector('.orgSection');
 	if (orgSection) {
@@ -1430,6 +1500,9 @@ platformSelect.addEventListener('change', () => {
 		if (platformUsername) {
 			platformUsername.value = result[`${platform}Username`] || '';
 		}
+		if (typeof window.validatePlatformUsernameInput === 'function') {
+			window.validatePlatformUsernameInput(false);
+		}
 	});
 
 	updatePlatformUI(platform);
@@ -1463,6 +1536,9 @@ function setPlatformDropdown(value) {
 	chrome?.storage.local.get([`${value}Username`], (result) => {
 		if (platformUsername) {
 			platformUsername.value = result[`${value}Username`] || '';
+		}
+		if (typeof window.validatePlatformUsernameInput === 'function') {
+			window.validatePlatformUsernameInput(false);
 		}
 	});
 
