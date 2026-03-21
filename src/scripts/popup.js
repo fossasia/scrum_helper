@@ -350,19 +350,39 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (timestamp > 0) {
 			const age = Date.now() - timestamp;
 
-			if (age < ttlMs) {
-				const { lastScrumReportHtml, lastScrumReportPlatform, lastScrumReportCacheKey } = await storageLocalGet([
-					'lastScrumReportHtml',
-					'lastScrumReportPlatform',
-					'lastScrumReportCacheKey',
-				]);
+			const {
+				lastScrumReportHtml,
+				lastScrumReportPlatform,
+				lastScrumReportCacheKey,
+				lastScrumReportUsername,
+				githubUsername,
+				gitlabUsername,
+				platformUsername
+			} = await storageLocalGet([
+				'lastScrumReportHtml',
+				'lastScrumReportPlatform',
+				'lastScrumReportCacheKey',
+				'lastScrumReportUsername',
+				'githubUsername',
+				'gitlabUsername',
+				'platformUsername'
+			]);
 
+			const expectedUsername = activePlatform === 'gitlab'
+				? (gitlabUsername || platformUsername)
+				: (githubUsername || platformUsername);
+			const isUsernameMatch = lastScrumReportUsername 
+				? lastScrumReportUsername === expectedUsername
+				: (lastScrumReportCacheKey && expectedUsername && lastScrumReportCacheKey.startsWith(expectedUsername + '-'));
+
+			if (age < ttlMs) {
 				const cacheKey = cache?.cacheKey ?? null;
 				const reportEmpty = !scrumReport.innerHTML || !scrumReport.innerHTML.trim();
 
 				const matches =
 					(!lastScrumReportPlatform || lastScrumReportPlatform === activePlatform) &&
-					(!lastScrumReportCacheKey || lastScrumReportCacheKey === cacheKey);
+					(!lastScrumReportCacheKey || lastScrumReportCacheKey === cacheKey) &&
+					isUsernameMatch;
 
 				if (reportEmpty && lastScrumReportHtml && matches) {
 					scrumReport.innerHTML = lastScrumReportHtml;
@@ -375,8 +395,8 @@ document.addEventListener('DOMContentLoaded', () => {
 				return;
 			}
 
-			const { lastScrumReportHtml } = await storageLocalGet(['lastScrumReportHtml']);
-			if ((!scrumReport.innerHTML || !scrumReport.innerHTML.trim()) && lastScrumReportHtml) {
+			// If cache is expired, still only show the old HTML if it was for the current username
+			if ((!scrumReport.innerHTML || !scrumReport.innerHTML.trim()) && lastScrumReportHtml && isUsernameMatch) {
 				scrumReport.innerHTML = lastScrumReportHtml;
 			}
 
