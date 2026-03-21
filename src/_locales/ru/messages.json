@@ -226,10 +226,73 @@
     "usernameLabel": {
         "message": "Ваше имя пользователя"
     },
+    "usernameRequiredError": {
+        "message": "Пожалуйста, введите имя пользователя для создания отчета."
+    },
+    "unknownPlatformError": {
+        "message": "Выбрана неизвестная платформа."
+    },
+    "gitlabFetchingError": {
+        "message": "Произошла ошибка при получении данных GitLab."
+    },
+    "reportGenerationError": {
+        "message": "Произошла ошибка при создании отчета."
+    },
+    "githubUserNotFoundError": {
+        "message": "Пользователь GitHub \"$1\" не найден (404). Проверьте имя пользователя и попробуйте снова."
+    },
+    "githubUserValidationError": {
+        "message": "Ошибка при проверке пользователя GitHub: $1 $2"
+    },
+    "invalidSearchQueryError": {
+        "message": "Недопустимый поисковый запрос или диапазон дат. Проверьте формат и попробуйте снова."
+    },
+    "githubIssuesFetchError": {
+        "message": "Ошибка при получении задач GitHub: $1 $2"
+    },
+    "githubPRReviewFetchError": {
+        "message": "Ошибка при получении данных проверки PR GitHub: $1 $2"
+    },
+    "githubUserFetchError": {
+        "message": "Ошибка при получении данных пользователя GitHub: $1 $2"
+    },
+    "invalidTokenError": {
+        "message": "Недействительный или истекший токен GitHub. Проверьте токен в настройках Scrum Helper и попробуйте снова."
+    },
+    "displayModeNotice": {
+        "message": "Расширение откроется в режиме $1 при следующем запуске."
+    },
+    "repoFilteringGithubOnly": {
+        "message": "Фильтрация репозиториев доступна только для GitHub."
+    },
+    "repoLoadingGithubOnly": {
+        "message": "Загрузка репозиториев доступна только для GitHub."
+    },
+    "repoFetchingGithubOnly": {
+        "message": "Получение репозиториев доступно только для GitHub."
+    },
+    "loadingReposAutomatically": {
+        "message": "Репозитории загружаются автоматически..."
+    },
+    "gitlabUserFetchError": {
+        "message": "Ошибка при получении пользователя GitLab: $1 $2"
+    },
+    "gitlabUserNotFoundError": {
+        "message": "Пользователь GitLab '$1' не найден"
+    },
+    "gitlabMembershipError": {
+        "message": "Ошибка при получении проектов членства GitLab: $1 $2"
+    },
+    "gitlabContributedError": {
+        "message": "Ошибка при получении проектов с вкладом GitLab: $1 $2"
+    },
     "onlyRevPRsLabel": {
         "message": "Включить в отчет только проверенные PR"
     },
     "onlyRevPRsTooltip": {
         "message": "Если отмечено, отчёт будет включать только PR, проверенные вами."
+    },
+    "usernameMissingError": {
+        "message": "Требуется имя пользователя."
     }
 }

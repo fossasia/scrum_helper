@@ -305,6 +305,91 @@
     "message": "If checked, the report will only include PRs reviewed by you."
   },
   "advanced_filters": {
-  "message": "Advanced Filters"
+  "message": "Advanced Filters",
+    "description": "If checked, the report will only include PRs reviewed by you."
+  },
+  "usernameRequiredError": {
+    "message": "Please enter your username to generate a report.",
+    "description": "Error shown when username is missing."
+  },
+  "unknownPlatformError": {
+    "message": "Unknown platform selected.",
+    "description": "Error shown when an unsupported platform is selected."
+  },
+  "gitlabFetchingError": {
+    "message": "An error occurred while fetching GitLab data.",
+    "description": "Error shown when GitLab data fetch fails."
+  },
+  "reportGenerationError": {
+    "message": "An error occurred while generating the report.",
+    "description": "Error when report generation fails."
+  },
+  "githubUserNotFoundError": {
+    "message": "GitHub user \"$1\" not found (404). Please check the username and try again.",
+    "description": "Error when GitHub user is not found."
+  },
+  "githubUserValidationError": {
+    "message": "Error validating GitHub user: $1 $2",
+    "description": "Error when validating GitHub user fails. $1=status, $2=statusText"
+  },
+  "invalidSearchQueryError": {
+    "message": "Invalid search query or date range. Please verify your date range format and try again.",
+    "description": "Error when the search query or date range is invalid."
+  },
+  "githubIssuesFetchError": {
+    "message": "Error fetching GitHub issues: $1 $2",
+    "description": "Error when fetching GitHub issues fails. $1=status, $2=statusText"
+  },
+  "githubPRReviewFetchError": {
+    "message": "Error fetching GitHub PR review data: $1 $2",
+    "description": "Error when fetching GitHub PR review data fails. $1=status, $2=statusText"
+  },
+  "githubUserFetchError": {
+    "message": "Error fetching GitHub user data: $1 $2",
+    "description": "Error when fetching GitHub user data fails. $1=status, $2=statusText"
+  },
+  "invalidTokenError": {
+    "message": "Invalid or expired GitHub token. Please check your token in the Scrum Helper settings and try again.",
+    "description": "Error for invalid or expired GitHub token."
+  },
+  "displayModeNotice": {
+    "message": "The extension will open in $1 mode on the next launch.",
+    "description": "Notice for display mode change. $1=mode label"
+  },
+  "repoFilteringGithubOnly": {
+    "message": "Repository filtering is only available for GitHub.",
+    "description": "Shown when repo filtering is not available for other platforms."
+  },
+  "repoLoadingGithubOnly": {
+    "message": "Repository loading is only available for GitHub.",
+    "description": "Shown when repo loading is not available for other platforms."
+  },
+  "repoFetchingGithubOnly": {
+    "message": "Repository fetching is only available for GitHub.",
+    "description": "Shown when repo fetching is not available for other platforms."
+  },
+  "loadingReposAutomatically": {
+    "message": "Loading repos automatically...",
+    "description": "Status message when repos are loading."
+  },
+  "gitlabUserFetchError": {
+    "message": "Error fetching GitLab user: $1 $2",
+    "description": "Error when fetching GitLab user fails. $1=status, $2=statusText"
+  },
+  "gitlabUserNotFoundError": {
+    "message": "GitLab user '$1' not found",
+    "description": "Error when GitLab user is not found. $1=username"
+  },
+  "gitlabMembershipError": {
+    "message": "Error fetching GitLab membership projects: $1 $2",
+    "description": "Error when fetching GitLab membership projects fails. $1=status, $2=statusText"
+  },
+  "gitlabContributedError": {
+    "message": "Error fetching GitLab contributed projects: $1 $2",
+    "description": "Error when fetching GitLab contributed projects fails. $1=status, $2=statusText"
+  },
+  "usernameMissingError": {
+    "message": "Username required.",
+    "description": "Error shown when username is missing."
   }
 }

@@ -231,5 +231,68 @@
     },
     "onlyRevPRsTooltip": {
         "message": "Si está marcado, el informe solo incluirá PRs revisados por usted."
-    }
+    },
+	"usernameRequiredError": {
+		"message": "Por favor, introduzca su nombre de usuario para generar un informe."
+	},
+	"unknownPlatformError": {
+		"message": "Plataforma desconocida seleccionada."
+	},
+	"gitlabFetchingError": {
+		"message": "Se produjo un error al obtener los datos de GitLab."
+	},
+	"reportGenerationError": {
+		"message": "Se produjo un error al generar el informe."
+	},
+	"githubUserNotFoundError": {
+		"message": "Usuario de GitHub \"$1\" no encontrado (404). Por favor, verifique el nombre de usuario e inténtelo de nuevo."
+	},
+	"githubUserValidationError": {
+		"message": "Error al validar el usuario de GitHub: $1 $2"
+	},
+	"invalidSearchQueryError": {
+		"message": "Consulta de búsqueda o rango de fechas no válido. Por favor, verifique el formato de su rango de fechas e inténtelo de nuevo."
+	},
+	"githubIssuesFetchError": {
+		"message": "Error al obtener los issues de GitHub: $1 $2"
+	},
+	"githubPRReviewFetchError": {
+		"message": "Error al obtener los datos de revisión de PR de GitHub: $1 $2"
+	},
+	"githubUserFetchError": {
+		"message": "Error al obtener los datos del usuario de GitHub: $1 $2"
+	},
+	"invalidTokenError": {
+		"message": "Token de GitHub no válido o caducado. Por favor, verifique su token en la configuración de Scrum Helper e inténtelo de nuevo."
+	},
+	"displayModeNotice": {
+		"message": "La extensión se abrirá en modo $1 en el próximo inicio."
+	},
+	"repoFilteringGithubOnly": {
+		"message": "El filtrado de repositorios solo está disponible para GitHub."
+	},
+	"repoLoadingGithubOnly": {
+		"message": "La carga de repositorios solo está disponible para GitHub."
+	},
+	"repoFetchingGithubOnly": {
+		"message": "La obtención de repositorios solo está disponible para GitHub."
+	},
+	"loadingReposAutomatically": {
+		"message": "Cargando repositorios automáticamente.."
+	},
+	"gitlabUserFetchError": {
+		"message": "Error al obtener el usuario de GitLab: $1 $2"
+	},
+	"gitlabUserNotFoundError": {
+		"message": "Usuario de GitLab '$1' no encontrado"
+	},
+	"gitlabMembershipError": {
+		"message": "Error al obtener los proyectos de membresía de GitLab: $1 $2"
+	},
+	"gitlabContributedError": {
+		"message": "Error al obtener los proyectos a los que contribuyó en GitLab: $1 $2"
+	},
+	"usernameMissingError": {
+		"message": "Nombre de usuario requerido."
+	}
 }
