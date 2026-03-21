@@ -193,10 +193,6 @@ function allIncluded(outputTarget = 'email') {
 						if (outputTarget === 'popup') {
 							console.log('[DEBUG] No username found - popup context');
 							const generateBtn = document.getElementById('generateReport');
-<<<<<<< HEAD
-							if (scrumReport) {
-								renderErrorMessage(scrumReport, 'usernameRequiredError', 'Please enter your username to generate a report.');
-=======
 							const usernameInput = document.getElementById('platformUsername');
 							const usernameError = document.getElementById('username-error');
 							if (usernameError) {
@@ -205,13 +201,13 @@ function allIncluded(outputTarget = 'email') {
 							if (usernameInput) {
 								usernameInput.classList.add('input-error');
 								usernameInput.focus();
->>>>>>> f516a43 (fix(popup): show username validation inline and highlight input error)
 							}
 							if (generateBtn) {
 								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
 								generateBtn.disabled = false;
 							}
 							scrumGenerationInProgress = false;
+							return;
 						} else {
 							console.warn('[DEBUG] No username found in storage');
 							scrumGenerationInProgress = false;
@@ -375,6 +371,7 @@ function allIncluded(outputTarget = 'email') {
 							}
 						}
 						scrumGenerationInProgress = false;
+						return;
 					}
 				} else {
 					// Unknown platform
