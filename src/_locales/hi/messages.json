@@ -51,10 +51,13 @@
         "message": "स्क्रम रिपोर्ट"
     },
     "generateReportButton": {
-        "message": "रिपोर्ट बनाएं"
+        "message": "जनरेट"
     },
     "copyReportButton": {
-        "message": "रिपोर्ट कॉपी करें"
+        "message": "कॉपी"
+    },
+    "insertInEmailButton": {
+        "message": "ईमेल में डालें"
     },
     "settingsOrgNameLabel": {
         "message": "संगठन का नाम"
@@ -71,11 +74,17 @@
     "githubTokenPlaceholder": {
         "message": "प्रमाणित अनुरोधों के लिए आवश्यक"
     },
+    "githubTokenTooltip": {
+        "message": "GitHub टोकन जोड़ने की सिफारिश क्यों की जाती है? Scrum Helper बिना GitHub टोकन के काम करता है, लेकिन बेहतर अनुभव के लिए व्यक्तिगत एक्सेस टोकन जोड़ने की सिफारिश की जाती है।"
+    },
     "gitlabTokenLabel": {
         "message": "आपका GitLab टोकन"
     },
     "gitlabTokenPlaceholder": {
         "message": "निजी रेपो के लिए आवश्यक"
+    },
+    "gitlabTokenTooltip": {
+        "message": "GitLab टोकन जोड़ने की सिफारिश क्यों की जाती है? Scrum Helper सार्वजनिक परियोजनाओं के लिए बिना GitLab टोकन के काम करता है, लेकिन बेहतर अनुभव के लिए व्यक्तिगत एक्सेस टोकन जोड़ने की सिफारिश की जाती है।"
     },
     "showCommitsLabel": {
         "message": "खुले पीआर/ ड्राफ्ट पीआर पर कमिट दिखाएं"
@@ -95,13 +104,6 @@
     "onlyPRsTooltip": {
         "message": "चेक करने पर रिपोर्ट में केवल उपयोगकर्ता द्वारा बनाई गई PRs शामिल होंगी; समीक्षित PRs बाहर रखी जाएँगी."
     },
-    "onlyRevPRsLabel": {
-        "message": "रिपोर्ट में केवल समीक्षित PRs शामिल करें"
-    },
-    "onlyRevPRsTooltip": {
-        "message": "यदि चेक किया गया है, तो रिपोर्ट में केवल आपके द्वारा समीक्षित PRs शामिल होंगे।"
-    },
-
     "cacheTTLLabel": {
         "message": "कैश टीटीएल दर्ज करें",
         "description": "कैश टाइम-टू-लाइव इनपुट के लिए लेबल।"
@@ -202,6 +204,10 @@
     "cacheClearedMessage": {
         "message": "कैश सफलतापूर्वक साफ़ हो गया। ताज़ा डेटा प्राप्त करने के लिए 'रिपोर्ट बनाएं' पर क्लिक करें।"
     },
+    "cacheExpiredMessage": {
+        "message": "कैश समाप्त हो गया। नया डेटा प्राप्त करने के लिए \"रिपोर्ट बनाएं\" पर क्लिक करें।",
+        "description": "Message shown when the cached data has expired and user needs to regenerate."
+    },
     "cacheClearedButton": {
         "message": "कैश साफ़ हो गया!"
     },
@@ -219,5 +225,74 @@
     },
     "usernameLabel": {
         "message": "आपका उपयोगकर्ता नाम"
-    }
+    },
+    "onlyRevPRsLabel": {
+        "message": "रिपोर्ट में केवल समीक्षित PRs शामिल करें"
+    },
+    "onlyRevPRsTooltip": {
+        "message": "यदि चेक किया गया है, तो रिपोर्ट में केवल आपके द्वारा समीक्षित PRs शामिल होंगे।"
+    },
+    "usernameRequiredError": {
+		"message": "रिपोर्ट बनाने के लिए कृपया अपना उपयोगकर्ता नाम दर्ज करें।"
+	},
+	"unknownPlatformError": {
+		"message": "अज्ञात प्लेटफ़ॉर्म चुना गया है।"
+	},
+	"gitlabFetchingError": {
+		"message": "GitLab डेटा प्राप्त करते समय एक त्रुटि हुई।"
+	},
+	"reportGenerationError": {
+		"message": "रिपोर्ट तैयार करते समय एक त्रुटि हुई।"
+	},
+	"githubUserNotFoundError": {
+		"message": "GitHub उपयोगकर्ता \"$1\" नहीं मिला (404)। कृपया उपयोगकर्ता नाम जांचें और पुनः प्रयास करें।"
+	},
+	"githubUserValidationError": {
+		"message": "GitHub उपयोगकर्ता सत्यापित करते समय त्रुटि: $1 $2"
+	},
+	"invalidSearchQueryError": {
+		"message": "अमान्य खोज क्वेरी या दिनांक सीमा। कृपया अपनी दिनांक सीमा का प्रारूप जांचें और पुनः प्रयास करें।"
+	},
+	"githubIssuesFetchError": {
+		"message": "GitHub issues प्राप्त करते समय त्रुटि: $1 $2"
+	},
+	"githubPRReviewFetchError": {
+		"message": "GitHub PR समीक्षा डेटा प्राप्त करते समय त्रुटि: $1 $2"
+	},
+	"githubUserFetchError": {
+		"message": "GitHub उपयोगकर्ता डेटा प्राप्त करते समय त्रुटि: $1 $2"
+	},
+	"invalidTokenError": {
+		"message": "अमान्य या समाप्त हो चुका GitHub टोकन। कृपया Scrum Helper सेटिंग्स में अपना टोकन जांचें और पुनः प्रयास करें।"
+	},
+	"displayModeNotice": {
+		"message": "एक्सटेंशन अगली बार शुरू होने पर $1 मोड में खुलेगा।"
+	},
+	"repoFilteringGithubOnly": {
+		"message": "रिपॉज़िटरी फ़िल्टरिंग केवल GitHub के लिए उपलब्ध है।"
+	},
+	"repoLoadingGithubOnly": {
+		"message": "रिपॉज़िटरी लोडिंग केवल GitHub के लिए उपलब्ध है।"
+	},
+	"repoFetchingGithubOnly": {
+		"message": "रिपॉज़िटरी प्राप्त करना केवल GitHub के लिए उपलब्ध है।"
+	},
+	"loadingReposAutomatically": {
+		"message": "रिपॉज़िटरी स्वचालित रूप से लोड हो रही हैं.."
+	},
+	"gitlabUserFetchError": {
+		"message": "GitLab उपयोगकर्ता प्राप्त करते समय त्रुटि: $1 $2"
+	},
+	"gitlabUserNotFoundError": {
+		"message": "GitLab उपयोगकर्ता '$1' नहीं मिला"
+	},
+	"gitlabMembershipError": {
+		"message": "GitLab सदस्यता प्रोजेक्ट्स प्राप्त करते समय त्रुटि: $1 $2"
+	},
+	"gitlabContributedError": {
+		"message": "GitLab योगदान किए गए प्रोजेक्ट्स प्राप्त करते समय त्रुटि: $1 $2"
+	},
+	"usernameMissingError": {
+		"message": "उपयोगकर्ता नाम आवश्यक है।"
+	}
 }

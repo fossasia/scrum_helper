@@ -58,6 +58,20 @@ a {
     -webkit-user-modify: read-only;
 }
 
+.scrum-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.scrum-actions > button {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.scrum-actions > button span {
+    white-space: nowrap;
+}
+
 .btn,
 .btn-large {
     background-color: #3f51b5;

@@ -51,10 +51,13 @@
         "message": "Rapport Scrum"
     },
     "generateReportButton": {
-        "message": "Générer le rapport"
+        "message": "Générer"
     },
     "copyReportButton": {
-        "message": "Copier le rapport"
+        "message": "Copier"
+    },
+    "insertInEmailButton": {
+        "message": "Insérer dans l’e-mail"
     },
     "settingsOrgNameLabel": {
         "message": "Nom de l'organisation"
@@ -71,11 +74,17 @@
     "githubTokenPlaceholder": {
         "message": "Requis pour les requêtes authentifiées"
     },
+    "githubTokenTooltip": {
+        "message": "Pourquoi est-il recommandé d'ajouter un jeton GitHub ? Scrum Helper fonctionne sans jeton GitHub, mais l'ajout d'un jeton d'accès personnel est recommandé pour une meilleure expérience."
+    },
     "gitlabTokenLabel": {
         "message": "Votre jeton GitLab"
     },
     "gitlabTokenPlaceholder": {
         "message": "Requis pour les dépôts privés"
+    },
+    "gitlabTokenTooltip": {
+        "message": "Pourquoi est-il recommandé d'ajouter un jeton GitLab ? Scrum Helper fonctionne sans jeton GitLab pour les projets publics, mais l'ajout d'un jeton d'accès personnel est recommandé pour une meilleure expérience."
     },
     "showCommitsLabel": {
         "message": "Afficher les commits sur les PRs ouverts/ brouillons de PRs"
@@ -95,13 +104,6 @@
     "onlyPRsTooltip": {
         "message": "Si coché, le rapport n'inclura que les pull requests créées par l'utilisateur ; les pull requests revues seront exclues."
     },
-    "onlyRevPRsLabel": {
-        "message": "Inclure uniquement les PRs revues dans le rapport"
-    },
-    "onlyRevPRsTooltip": {
-        "message": "Si coché, le rapport n'inclura que les PRs que vous avez revues."
-    },
-
     "cacheTTLLabel": {
         "message": "Entrez le TTL du cache",
         "description": "Étiquette pour le champ de saisie de la durée de vie du cache."
@@ -202,6 +204,10 @@
     "cacheClearedMessage": {
         "message": "Cache vidé avec succès. Cliquez sur 'Générer le rapport' pour récupérer des données fraîches."
     },
+    "cacheExpiredMessage": {
+        "message": "Le cache a expiré. Cliquez sur \"Générer\" pour récupérer des données fraîches.",
+        "description": "Message shown when the cached data has expired and user needs to regenerate."
+    },
     "cacheClearedButton": {
         "message": "Cache vidé !"
     },
@@ -219,5 +225,74 @@
     },
     "usernameLabel": {
         "message": "Votre nom d'utilisateur"
-    }
+    },
+    "onlyRevPRsLabel": {
+        "message": "Inclure uniquement les PRs revues dans le rapport"
+    },
+    "onlyRevPRsTooltip": {
+        "message": "Si coché, le rapport n'inclura que les PRs que vous avez revues."
+    },
+    	"usernameRequiredError": {
+		"message": "Veuillez saisir votre nom d'utilisateur pour générer un rapport."
+	},
+	"unknownPlatformError": {
+		"message": "Plateforme inconnue sélectionnée."
+	},
+	"gitlabFetchingError": {
+		"message": "Une erreur s'est produite lors de la récupération des données GitLab."
+	},
+	"reportGenerationError": {
+		"message": "Une erreur s'est produite lors de la génération du rapport."
+	},
+	"githubUserNotFoundError": {
+		"message": "Utilisateur GitHub \"$1\" introuvable (404). Veuillez vérifier le nom d'utilisateur et réessayer."
+	},
+	"githubUserValidationError": {
+		"message": "Erreur lors de la validation de l'utilisateur GitHub : $1 $2"
+	},
+	"invalidSearchQueryError": {
+		"message": "Requête de recherche ou plage de dates invalide. Veuillez vérifier le format de votre plage de dates et réessayer."
+	},
+	"githubIssuesFetchError": {
+		"message": "Erreur lors de la récupération des issues GitHub : $1 $2"
+	},
+	"githubPRReviewFetchError": {
+		"message": "Erreur lors de la récupération des données de révision de PR GitHub : $1 $2"
+	},
+	"githubUserFetchError": {
+		"message": "Erreur lors de la récupération des données utilisateur GitHub : $1 $2"
+	},
+	"invalidTokenError": {
+		"message": "Jeton GitHub invalide ou expiré. Veuillez vérifier votre jeton dans les paramètres de Scrum Helper et réessayer."
+	},
+	"displayModeNotice": {
+		"message": "L'extension s'ouvrira en mode $1 au prochain lancement."
+	},
+	"repoFilteringGithubOnly": {
+		"message": "Le filtrage des dépôts est uniquement disponible pour GitHub."
+	},
+	"repoLoadingGithubOnly": {
+		"message": "Le chargement des dépôts est uniquement disponible pour GitHub."
+	},
+	"repoFetchingGithubOnly": {
+		"message": "La récupération des dépôts est uniquement disponible pour GitHub."
+	},
+	"loadingReposAutomatically": {
+		"message": "Chargement automatique des dépôts.."
+	},
+	"gitlabUserFetchError": {
+		"message": "Erreur lors de la récupération de l'utilisateur GitLab : $1 $2"
+	},
+	"gitlabUserNotFoundError": {
+		"message": "Utilisateur GitLab '$1' introuvable"
+	},
+	"gitlabMembershipError": {
+		"message": "Erreur lors de la récupération des projets d'adhésion GitLab : $1 $2"
+	},
+	"gitlabContributedError": {
+		"message": "Erreur lors de la récupération des projets auxquels l'utilisateur a contribué sur GitLab : $1 $2"
+	},
+	"usernameMissingError": {
+		"message": "Nom d'utilisateur requis."
+	}
 }

@@ -56,6 +56,10 @@
     "copyReportButton": {
         "message": "העתק דוח"
     },
+    "insertInEmailButton": {
+        "message": "הוסף לאימייל",
+        "description": "Text for the 'Insert to Email' button."
+    },
     "settingsOrgNameLabel": {
         "message": "שם הארגון"
     },
@@ -71,14 +75,35 @@
     "githubTokenPlaceholder": {
         "message": "נדרש לבקשות מאומתות"
     },
+    "githubTokenTooltip": {
+        "message": "למה מומלץ להוסיף אסימון GitHub? Scrum Helper עובד ללא אסימון GitHub, אך הוספת אסימון גישה אישי מומלצת לחוויה טובה יותר."
+    },
     "gitlabTokenLabel": {
         "message": "אסימון ה-GitLab שלך"
     },
     "gitlabTokenPlaceholder": {
         "message": "נדרש למאגרים פרטיים"
     },
+    "gitlabTokenTooltip": {
+        "message": "למה מומלץ להוסיף אסימון GitLab? Scrum Helper עובד ללא אסימון GitLab לפרויקטים ציבוריים, אך הוספת אסימון גישה אישי מומלצת לחוויה טובה יותר."
+    },
     "showCommitsLabel": {
         "message": "הצג קומיטים ב-PR פתוחים/טיוטות PR"
+    },
+    "showCommitsTooltip": {
+        "message": "נדרש אסימון GitHub, הוסף אותו בהגדרות."
+    },
+    "onlyIssuesLabel": {
+        "message": "הכלל רק בעיות בדוח"
+    },
+    "onlyIssuesTooltip": {
+        "message": "אם מסומן, הדוח יכיל רק בעיות שנוצרו או הוקצו למשתמש."
+    },
+    "onlyPRsLabel": {
+        "message": "הכלל רק PR בדוח"
+    },
+    "onlyPRsTooltip": {
+        "message": "אם מסומן, הדוח יכיל רק pull requests שנוצרו על ידי המשתמש; PR שנסקרו יוחרגו."
     },
     "cacheTTLLabel": {
         "message": "הזן TTL למטמון"
@@ -179,6 +204,10 @@
     "cacheClearedMessage": {
         "message": "המטמון נוקה בהצלחה. לחץ על 'צור דוח' כדי להביא נתונים טריים."
     },
+    "cacheExpiredMessage": {
+        "message": "המטמון פג תוקף. לחץ על \"צור\" כדי להביא נתונים חדשים.",
+        "description": "Message shown when the cached data has expired and user needs to regenerate."
+    },
     "cacheClearedButton": {
         "message": "המטמון נוקה!"
     },
@@ -202,6 +231,68 @@
     },
     "onlyRevPRsTooltip": {
         "message": "אם מסומן, הדוח יכלול רק PR שנבדקו על ידך."
-
+    },
+    "usernameRequiredError": {
+		"message": "אנא הזן את שם המשתמש שלך כדי ליצור דוח."
+	},
+	"unknownPlatformError": {
+		"message": "נבחרה פלטפורמה לא מוכרת."
+	},
+	"gitlabFetchingError": {
+		"message": "אירעה שגיאה בעת אחזור נתוני GitLab."
+	},
+	"reportGenerationError": {
+		"message": "אירעה שגיאה בעת יצירת הדוח."
+	},
+	"githubUserNotFoundError": {
+		"message": "משתמש GitHub \"$1\" לא נמצא (404). אנא בדוק את שם המשתמש ונסה שוב."
+	},
+	"githubUserValidationError": {
+		"message": "שגיאה באימות משתמש GitHub: $1 $2"
+	},
+	"invalidSearchQueryError": {
+		"message": "שאילתת חיפוש או טווח תאריכים לא תקינים. אנא בדוק את פורמט טווח התאריכים ונסה שוב."
+	},
+	"githubIssuesFetchError": {
+		"message": "שגיאה באחזור Issues מ-GitHub: $1 $2"
+	},
+	"githubPRReviewFetchError": {
+		"message": "שגיאה באחזור נתוני סקירת PR מ-GitHub: $1 $2"
+	},
+	"githubUserFetchError": {
+		"message": "שגיאה באחזור נתוני משתמש GitHub: $1 $2"
+	},
+	"invalidTokenError": {
+		"message": "טוקן GitHub לא תקין או שפג תוקפו. אנא בדוק את הטוקן שלך בהגדרות Scrum Helper ונסה שוב."
+	},
+	"displayModeNotice": {
+		"message": "ההרחבה תיפתח במצב $1 בהפעלה הבאה."
+	},
+	"repoFilteringGithubOnly": {
+		"message": "סינון מאגרים זמין רק עבור GitHub."
+	},
+	"repoLoadingGithubOnly": {
+		"message": "טעינת מאגרים זמינה רק עבור GitHub."
+	},
+	"repoFetchingGithubOnly": {
+		"message": "אחזור מאגרים זמין רק עבור GitHub."
+	},
+	"loadingReposAutomatically": {
+		"message": "טוען מאגרים באופן אוטומטי.."
+	},
+	"gitlabUserFetchError": {
+		"message": "שגיאה באחזור משתמש GitLab: $1 $2"
+	},
+	"gitlabUserNotFoundError": {
+		"message": "משתמש GitLab '$1' לא נמצא"
+	},
+	"gitlabMembershipError": {
+		"message": "שגיאה באחזור פרויקטי חברות ב-GitLab: $1 $2"
+	},
+	"gitlabContributedError": {
+		"message": "שגיאה באחזור פרויקטים שאליהם המשתמש תרם ב-GitLab: $1 $2"
+    },
+    "usernameMissingError": {
+		"message": "שם משתמש נדרש."
     }
 }
