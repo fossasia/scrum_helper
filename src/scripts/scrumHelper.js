@@ -192,10 +192,20 @@ function allIncluded(outputTarget = 'email') {
 					} else {
 						if (outputTarget === 'popup') {
 							console.log('[DEBUG] No username found - popup context');
-							const scrumReport = document.getElementById('scrumReport');
 							const generateBtn = document.getElementById('generateReport');
+<<<<<<< HEAD
 							if (scrumReport) {
 								renderErrorMessage(scrumReport, 'usernameRequiredError', 'Please enter your username to generate a report.');
+=======
+							const usernameInput = document.getElementById('platformUsername');
+							const usernameError = document.getElementById('username-error');
+							if (usernameError) {
+								usernameError.classList.add('visible');
+							}
+							if (usernameInput) {
+								usernameInput.classList.add('input-error');
+								usernameInput.focus();
+>>>>>>> f516a43 (fix(popup): show username validation inline and highlight input error)
 							}
 							if (generateBtn) {
 								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
@@ -349,10 +359,15 @@ function allIncluded(outputTarget = 'email') {
 						// --- FIX END ---
 					} else {
 						if (outputTarget === 'popup') {
-							const scrumReport = document.getElementById('scrumReport');
 							const generateBtn = document.getElementById('generateReport');
-							if (scrumReport) {
-								renderErrorMessage(scrumReport, 'usernameRequiredError', 'Please enter your username to generate a report.');
+							const usernameInput = document.getElementById('platformUsername');
+							const usernameError = document.getElementById('username-error');
+							if (usernameError) {
+								usernameError.classList.add('visible');
+							}
+							if (usernameInput) {
+								usernameInput.classList.add('input-error');
+								usernameInput.focus();
 							}
 							if (generateBtn) {
 								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';

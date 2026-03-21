@@ -907,3 +907,23 @@ html.mode-popup, body.mode-popup {
     width: 360px; 
     min-width: 360px;
 }
+.field-error {
+    display: none;
+    color: #dc2626;
+    font-size: 11px;
+    margin-top: -4px;
+    margin-bottom: 8px;
+    align-items: center;
+    gap: 4px;
+}
+
+.field-error.visible {
+    display: flex;
+}
+
+body #platformUsername.input-error {
+    border-color: #e53e3e !important;
+    border-width: 1px !important;
+    border-style: solid !important;
+    outline: none;
+}

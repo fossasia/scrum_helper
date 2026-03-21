@@ -82,6 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	const usernameLabel = document.getElementById('usernameLabel');
 	const platformUsername = document.getElementById('platformUsername');
 	let showCommitsWarningTimeout;
+	const usernameError = document.getElementById('username-error');
 
 	function checkTokenForFilter() {
 		const useRepoFilter = document.getElementById('useRepoFilter');
@@ -529,6 +530,11 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 
 		generateBtn.addEventListener('click', () => {
+			if (platformUsername.value) {
+				usernameError?.classList.remove('visible');
+				platformUsername.classList.remove('input-error');
+			}
+
 			chrome?.storage.local.get(['platform'], (result) => {
 				const platform = result.platform || 'github';
 				const platformUsernameKey = `${platform}Username`;
@@ -764,6 +770,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		// Save username to storage on input
 		platformUsername.addEventListener('input', () => {
+			usernameError?.classList.remove('visible');
+			platformUsername.classList.remove('input-error');
+
 			chrome?.storage.local.get(['platform'], (result) => {
 				const platform = result.platform || 'github';
 				const platformUsernameKey = `${platform}Username`;
