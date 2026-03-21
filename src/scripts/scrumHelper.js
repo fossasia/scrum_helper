@@ -995,20 +995,16 @@ function allIncluded(outputTarget = 'email') {
 		log('[DEBUG] Both data processing functions completed, generating scrum body');
 		if (subjectForEmail) {
 			// Synchronized subject and body injection for email
-			let lastWeekUl = '<ul>';
-			for (let i = 0; i < lastWeekArray.length; i++) lastWeekUl += lastWeekArray[i];
-			for (let i = 0; i < reviewedPrsArray.length; i++) lastWeekUl += reviewedPrsArray[i];
-			lastWeekUl += '</ul>';
-			let nextWeekUl = '<ul>';
-			for (let i = 0; i < nextWeekArray.length; i++) nextWeekUl += nextWeekArray[i];
-			nextWeekUl += '</ul>';
+			const lastWeekUl = buildActivityListHtml();
+			const nextWeekUl = buildNextWeekListHtml();
+			const blockerText = buildBlockerTextHtml();
 			const weekOrDay = yesterdayContribution ? 'yesterday' : 'the period';
 			const weekOrDay2 = 'today';
 			let content;
 			if (yesterdayContribution) {
-				content = `<b>1. What did I do ${weekOrDay}?</b><br>${lastWeekUl}<br><b>2. What do I plan to do ${weekOrDay2}?</b><br>${nextWeekUl}<br><b>3. What is blocking me from making progress?</b><br>${userReason}`;
+				content = `<b>1. What did I do ${weekOrDay}?</b><br>${lastWeekUl}<br><b>2. What do I plan to do ${weekOrDay2}?</b><br>${nextWeekUl}<br><b>3. What is blocking me from making progress?</b><br>${blockerText}`;
 			} else {
-				content = `<b>1. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?</b><br>${lastWeekUl}<br><b>2. What do I plan to do ${weekOrDay2}?</b><br>${nextWeekUl}<br><b>3. What is blocking me from making progress?</b><br>${userReason}`;
+				content = `<b>1. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?</b><br>${lastWeekUl}<br><b>2. What do I plan to do ${weekOrDay2}?</b><br>${nextWeekUl}<br><b>3. What is blocking me from making progress?</b><br>${blockerText}`;
 			}
 			// Wait for both subject and body to be available, then inject both
 			let injected = false;
@@ -1036,15 +1032,56 @@ function allIncluded(outputTarget = 'email') {
 		return date.toLocaleDateString('en-US', options);
 	}
 
-	function writeScrumBody() {
-		let lastWeekUl = '<ul>';
-		for (let i = 0; i < lastWeekArray.length; i++) lastWeekUl += lastWeekArray[i];
-		for (let i = 0; i < reviewedPrsArray.length; i++) lastWeekUl += reviewedPrsArray[i];
-		lastWeekUl += '</ul>';
+	const compactTextStyle = 'display: inline-block; padding: 0 8px; margin: 0; line-height: 1.2;';
 
-		let nextWeekUl = '<ul>';
-		for (let i = 0; i < nextWeekArray.length; i++) nextWeekUl += nextWeekArray[i];
-		nextWeekUl += '</ul>';
+	function escapeHtml(str) {
+		if (str == null) {
+			return '';
+		}
+		return String(str)
+			.replace(/&/g, '&amp;')
+			.replace(/</g, '&lt;')
+			.replace(/>/g, '&gt;')
+			.replace(/"/g, '&quot;')
+			.replace(/'/g, '&#39;');
+	}
+
+	function wrapCompactText(content) {
+		const safeContent = escapeHtml(content);
+		return `<span style="${compactTextStyle}">${safeContent}</span>`;
+	}
+
+	function buildActivityListHtml() {
+		if (lastWeekArray.length === 0 && reviewedPrsArray.length === 0) {
+			return wrapCompactText('No activity to report for the selected time period.');
+		}
+
+		let activityList = '<ul>';
+		for (let i = 0; i < lastWeekArray.length; i++) activityList += lastWeekArray[i];
+		for (let i = 0; i < reviewedPrsArray.length; i++) activityList += reviewedPrsArray[i];
+		activityList += '</ul>';
+		return activityList;
+	}
+
+	function buildNextWeekListHtml() {
+		if (nextWeekArray.length === 0) {
+			return wrapCompactText('No plans added yet.');
+		}
+
+		let nextWeekList = '<ul>';
+		for (let i = 0; i < nextWeekArray.length; i++) nextWeekList += nextWeekArray[i];
+		nextWeekList += '</ul>';
+		return nextWeekList;
+	}
+
+	function buildBlockerTextHtml() {
+		return wrapCompactText(userReason);
+	}
+
+	function writeScrumBody() {
+		const lastWeekUl = buildActivityListHtml();
+		const nextWeekUl = buildNextWeekListHtml();
+		const blockerText = buildBlockerTextHtml();
 
 		const weekOrDay = yesterdayContribution ? 'yesterday' : 'the period';
 		const weekOrDay2 = 'today';
@@ -1056,14 +1093,14 @@ ${lastWeekUl}<br>
 <b>2. What do I plan to do ${weekOrDay2}?</b><br>
 ${nextWeekUl}<br>
 <b>3. What is blocking me from making progress?</b><br>
-${userReason}`;
+${blockerText}`;
 		} else {
 			content = `<b>1. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?</b><br>
 ${lastWeekUl}<br>
 <b>2. What do I plan to do ${weekOrDay2}?</b><br>
 ${nextWeekUl}<br>
 <b>3. What is blocking me from making progress?</b><br>
-${userReason}`;
+${blockerText}`;
 		}
 
 		if (outputTarget === 'popup') {
