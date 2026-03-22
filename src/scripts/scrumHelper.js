@@ -21,12 +21,10 @@ let platform = 'github';
 let platformUsername = '';
 let gitlabToken = '';
 let gitlabHelper = null;
+let gitlabSelfHostedUrl = '';
 
 function allIncluded(outputTarget = 'email') {
-	// Always re-instantiate gitlabHelper for gitlab platform to ensure fresh cache after refresh
-	if (platform === 'gitlab' || (typeof platform === 'undefined' && window.GitLabHelper)) {
-		gitlabHelper = new window.GitLabHelper();
-	}
+	// Note: gitlabHelper will be instantiated after gitlabSelfHostedUrl is loaded from storage in getChromeData()
 	if (scrumGenerationInProgress) {
 		return;
 	}
@@ -100,6 +98,7 @@ function allIncluded(outputTarget = 'email') {
 				'onlyIssues',
 				'onlyPRs',
 				'onlyRevPRs',
+				'gitlabSelfHostedUrl',
 			],
 			(items) => {
 				console.log('[DEBUG] Storage items received:', items);
@@ -116,6 +115,7 @@ function allIncluded(outputTarget = 'email') {
 					const projectFromDOM = document.getElementById('projectName')?.value;
 					const tokenFromDOM = document.getElementById('githubToken')?.value;
 					const gitlabTokenFromDOM = document.getElementById('gitlabToken')?.value;
+					const gitlabUrlFromDOM = document.getElementById('gitlabSelfHostedUrl')?.value;
 
 					// Save to platform-specific storage
 					if (usernameFromDOM) {
@@ -127,10 +127,12 @@ function allIncluded(outputTarget = 'email') {
 					items.projectName = projectFromDOM || items.projectName;
 					items.githubToken = tokenFromDOM || items.githubToken;
 					items.gitlabToken = gitlabTokenFromDOM || items.gitlabToken;
+					items.gitlabSelfHostedUrl = gitlabUrlFromDOM || items.gitlabSelfHostedUrl;
 					chrome.storage.local.set({
 						projectName: items.projectName,
 						githubToken: items.githubToken,
 						gitlabToken: items.gitlabToken,
+						gitlabSelfHostedUrl: items.gitlabSelfHostedUrl,
 					});
 				}
 				projectName = items.projectName;
@@ -139,8 +141,15 @@ function allIncluded(outputTarget = 'email') {
 				chrome.storage.local.remove(['userReason']);
 				githubToken = items.githubToken;
 				gitlabToken = items.gitlabToken || '';
-				yesterdayContribution = items.yesterdayContribution;
+				gitlabSelfHostedUrl = items.gitlabSelfHostedUrl || '';
 
+				// Instantiate gitlabHelper after loading all config from storage
+				if (platform === 'gitlab') {
+					if (!gitlabHelper) {
+						gitlabHelper = new window.GitLabHelper(gitlabSelfHostedUrl);
+					}
+				}
+				yesterdayContribution = items.yesterdayContribution;
 				onlyIssues = items.onlyIssues === true;
 				onlyPRs = items.onlyPRs === true;
 				onlyRevPRs = items.onlyRevPRs === true;
@@ -191,7 +200,6 @@ function allIncluded(outputTarget = 'email') {
 						return;
 					}
 				} else if (platform === 'gitlab') {
-					if (!gitlabHelper) gitlabHelper = new window.GitLabHelper();
 					if (platformUsernameLocal) {
 						const generateBtn = document.getElementById('generateReport');
 						if (generateBtn && outputTarget === 'popup') {
@@ -215,7 +223,7 @@ function allIncluded(outputTarget = 'email') {
 
 										return {
 											...item,
-											repository_url: `https://gitlab.com/api/v4/projects/${item.project_id}`,
+											repository_url: `${gitlabHelper.baseUrl}/projects/${item.project_id}`,
 											html_url:
 												type === 'issue'
 													? item.web_url || (project ? `${project.web_url}/-/issues/${item.iid}` : '')
@@ -277,7 +285,7 @@ function allIncluded(outputTarget = 'email') {
 										const repoName = project ? project.name : 'unknown';
 										return {
 											...item,
-											repository_url: `https://gitlab.com/api/v4/projects/${item.project_id}`,
+											repository_url: `${gitlabHelper.baseUrl}/projects/${item.project_id}`,
 											html_url:
 												type === 'issue'
 													? item.web_url || (project ? `${project.web_url}/-/issues/${item.iid}` : '')
@@ -1723,6 +1731,7 @@ ${userReason}`;
 			writeGithubIssuesPrs();
 		}
 	}, 500);
+
 	const intervalWriteGithubPrs = setInterval(() => {
 		if (outputTarget === 'popup') {
 			return;
@@ -1809,7 +1818,7 @@ async function forceGitlabDataRefresh() {
 	hasInjectedContent = false;
 	// Re-instantiate gitlabHelper to ensure a fresh instance for next API call
 	if (window.GitLabHelper) {
-		gitlabHelper = new window.GitLabHelper();
+		gitlabHelper = new window.GitLabHelper(gitlabSelfHostedUrl || null);
 	}
 	return { success: true };
 }

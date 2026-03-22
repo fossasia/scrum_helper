@@ -53,17 +53,20 @@
   "permissions": [
     "storage",
     "tabs",
-    "sidePanel"
+    "sidePanel",
+    "permissions"
   ],
   "host_permissions": [
     "*://*.google.com/*",
     "*://*.outlook.live.com/*",
     "*://*.office.com/*",
     "*://*.yahoo.com/*",
-
     "https://api.github.com/*",
     "https://gitlab.com/*"
- ],
+  ],
+  "optional_host_permissions": [
+    "https://*/*/api/v4/*"
+  ],
   "default_locale": "en"
 
 }
