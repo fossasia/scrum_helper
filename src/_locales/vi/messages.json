@@ -286,5 +286,9 @@
     "gitlabProjectPlaceholder": {
         "message": "No projects selected (all will be included)",
         "description": "Placeholder text when no GitLab projects are selected for filtering."
+    },
+    "usernameRequiredError": {
+        "message": "Vui lòng nhập tên người dùng của bạn để tạo báo cáo.",
+        "description": "Error message shown when the user tries to generate a report without entering a username."
     }
 }

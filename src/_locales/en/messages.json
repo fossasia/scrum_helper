@@ -419,5 +419,9 @@
   "gitlabProjectLoadFailed": {
     "message": "Failed to load projects",
     "description": "Fallback error message when GitLab project loading fails without a specific error."
+  },
+  "usernameRequiredError": {
+    "message": "Please enter your username to generate a report.",
+    "description": "Error message shown when the user tries to generate a report without entering a username."
   }
 }

@@ -635,16 +635,24 @@ document.addEventListener('DOMContentLoaded', () => {
 		// Build the email subject from the most recently generated report,
 		// falling back to constructing one from the project name + current date.
 		function buildScrumSubjectFromPopup() {
-			if (window.scrumSubjectForEmail) return window.scrumSubjectForEmail;
-			const project = document.getElementById('projectName')?.value?.trim() || '';
-			const curDate = new Date();
-			const year = curDate.getFullYear().toString();
-			let month = curDate.getMonth() + 1;
-			let date = curDate.getDate();
-			if (month < 10) month = '0' + month;
-			if (date < 10) date = '0' + date;
-			const dateCode = year + month.toString() + date.toString();
-			return `[Scrum]${project ? ' - ' + project : ''} - ${dateCode}`;
+			return new Promise((resolve) => {
+				chrome.storage.local.get(['lastScrumSubject'], (result) => {
+					if (result.lastScrumSubject) {
+						resolve(result.lastScrumSubject);
+						return;
+					}
+
+					const project = document.getElementById('projectName')?.value?.trim() || '';
+					const curDate = new Date();
+					const year = curDate.getFullYear().toString();
+					let month = curDate.getMonth() + 1;
+					let date = curDate.getDate();
+					if (month < 10) month = '0' + month;
+					if (date < 10) date = '0' + date;
+					const dateCode = year + month.toString() + date.toString();
+					resolve(`[Scrum]${project ? ' - ' + project : ''} - ${dateCode}`);
+				});
+			});
 		}
 
 		// Button setup
@@ -653,10 +661,10 @@ document.addEventListener('DOMContentLoaded', () => {
 		const insertBtn = document.getElementById('insertInEmail');
 
 		if (insertBtn) {
-			insertBtn.addEventListener('click', () => {
+			insertBtn.addEventListener('click', async () => {
 				const scrumReport = document.getElementById('scrumReport');
 				const content = scrumReport ? scrumReport.innerHTML : '';
-				const subject = buildScrumSubjectFromPopup();
+				const subject = await buildScrumSubjectFromPopup();
 
 				if (!content) return;
 

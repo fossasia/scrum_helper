@@ -309,5 +309,9 @@
     "gitlabProjectPlaceholder": {
         "message": "Aucun projet sélectionné (tous seront inclus)",
         "description": "Placeholder text when no GitLab projects are selected for filtering."
+    },
+    "usernameRequiredError": {
+        "message": "Veuillez entrer votre nom d'utilisateur pour générer un rapport.",
+        "description": "Error message shown when the user tries to generate a report without entering a username."
     }
 }

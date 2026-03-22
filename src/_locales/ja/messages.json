@@ -284,6 +284,8 @@
         "message": "レポートにレビュー済みのPRのみを含める"
     },
     "onlyRevPRsTooltip": {
-        "message": "チェックした場合、レポートにはあなたがレビューしたPRのみが含まれます。"
-    }
+        "message": "チェックした場合、レポートにはあなたがレビューしたPRのみが含まれます。"    },
+    "usernameRequiredError": {
+        "message": "レポートを生戛するには、ユーザー名を入力してください。",
+        "description": "Error message shown when the user tries to generate a report without entering a username."    }
 }

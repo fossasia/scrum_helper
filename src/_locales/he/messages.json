@@ -288,5 +288,9 @@
     "gitlabProjectPlaceholder": {
         "message": "לא נבחרו פרויקטים (כולם יכללו)",
         "description": "Placeholder text when no GitLab projects are selected for filtering."
+    },
+    "usernameRequiredError": {
+        "message": "אנא הזן את שם המשתמש שלך כדי ליצור דוח.",
+        "description": "Error message shown when the user tries to generate a report without entering a username."
     }
 }

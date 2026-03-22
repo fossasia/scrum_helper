@@ -288,5 +288,9 @@
         "message": "Nenhum projeto selecionado (todos serão incluídos)",
         "description": "Placeholder text when no GitLab projects are selected for filtering."
 
+    },
+    "usernameRequiredError": {
+        "message": "Digite seu nome de usuário para gerar um relatório.",
+        "description": "Error message shown when the user tries to generate a report without entering a username."
     }
 }

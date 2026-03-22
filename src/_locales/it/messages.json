@@ -293,5 +293,9 @@
   "gitlabTokenRequiredWarning": {
     "message": "È necessario un token GitLab per filtrare i progetti. Aggiungine uno nelle impostazioni.",
     "description": "Warning message when GitLab token is missing for project filtering."
+  },
+  "usernameRequiredError": {
+    "message": "Immettere il nome utente per generare un rapporto.",
+    "description": "Error message shown when the user tries to generate a report without entering a username."
   }
 }

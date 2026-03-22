@@ -1,4 +1,4 @@
-{
+﻿{
     "appName": {
         "message": "Scrum Helper"
     },
@@ -291,8 +291,11 @@
     },
     "gitlabContributedError": {
       "message": "GitLab സംഭാവന പ്രോജക്ടുകൾ ശേഖരിക്കുന്നതിൽ പിശക്: $1 $2"
-    },
-    "usernameMissingError": {
+    },    "usernameMissingError": {
       "message": "ഉപയോക്തൃനാമം ആവശ്യമാണ്."
+    },
+    "usernameRequiredError": {
+      "message": "ജനറേറ്റരുമായി ചെയ്യിങ്കാണാതിം ക്രപയുടെ ദയാചെയ്യി നിന്നുടെ ഊപയോഗപ്പേര്നലെറ്റിറ്റട്ട് നലെറ്റിറ്റിറ്റ്.",
+      "description": "Error message shown when the user tries to generate a report without entering a username."
     }
 }

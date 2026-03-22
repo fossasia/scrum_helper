@@ -296,6 +296,8 @@
   },
   "gitlabProjectPlaceholder": {
     "message": "未選擇任何專案（將包含所有專案）",
-    "description": "Placeholder text when no GitLab projects are selected for filtering."
-  }
+    "description": "Placeholder text when no GitLab projects are selected for filtering."  },
+  "usernameRequiredError": {
+    "message": "請輸入您的用戶名以生成報告。",
+    "description": "Error message shown when the user tries to generate a report without entering a username."  }
 }

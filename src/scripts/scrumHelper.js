@@ -14,6 +14,116 @@ function logError(...args) {
 	}
 }
 
+
+function sanitizeHtmlContent(content) {
+	try {
+		const parser = new DOMParser();
+		const doc = parser.parseFromString(content, 'text/html');
+
+
+		const allowedTags = new Set([
+			'A','B','STRONG','I','EM','CODE','BR','P','UL','OL','LI','SPAN','DIV',
+			'PRE','BLOCKQUOTE','H1','H2','H3','H4','H5','H6','IMG','TABLE','THEAD','TBODY','TR','TD','TH'
+		]);
+
+		const globalAllowedAttrs = new Set(['class','id','title','role','aria-label']);
+
+		function isSafeUrl(u) {
+			if (!u) return false;
+			const s = u.trim().toLowerCase();
+			return (
+				s.startsWith('http:') ||
+				s.startsWith('https:') ||
+				s.startsWith('mailto:') ||
+				s.startsWith('tel:') ||
+				s.startsWith('/') ||
+				s.startsWith('#') ||
+				s.startsWith('//')
+			);
+		}
+
+
+		doc.querySelectorAll('script,style,iframe,object,embed,link,meta,svg,math,form,input,button,textarea,select').forEach(n => n.remove());
+
+		doc.body.querySelectorAll('*').forEach((node) => {
+			const tag = node.tagName.toUpperCase();
+			if (!allowedTags.has(tag)) {
+				const txt = document.createTextNode(node.textContent || '');
+				node.parentNode && node.parentNode.replaceChild(txt, node);
+				return;
+			}
+
+			[...node.attributes].forEach((attr) => {
+				const name = attr.name.toLowerCase();
+				const val = attr.value;
+
+				if (name.startsWith('on') || name === 'style') {
+					node.removeAttribute(attr.name);
+					return;
+				}
+
+				if (['srcdoc','formaction','xlink:href','xmlns'].includes(name)) {
+					node.removeAttribute(attr.name);
+					return;
+				}
+
+				if (tag === 'IMG') {
+					if (['src','alt','title','width','height','class','id'].includes(name)) {
+						if (name === 'src') {
+							if (!isSafeUrl(val)) node.removeAttribute(attr.name);
+						}
+					} else {
+						node.removeAttribute(attr.name);
+					}
+					return;
+				}
+
+				if (tag === 'A') {
+					if (['href','title','rel','target','class','id','aria-label'].includes(name)) {
+						if (name === 'href') {
+							if (!isSafeUrl(val)) node.removeAttribute(attr.name);
+						}
+					} else {
+						node.removeAttribute(attr.name);
+					}
+					return;
+				}
+
+				if (!globalAllowedAttrs.has(name)) {
+					node.removeAttribute(attr.name);
+				}
+			});
+
+			if (tag === 'A') {
+				if (!node.getAttribute('rel')) node.setAttribute('rel', 'noopener noreferrer');
+				if (!node.getAttribute('target')) node.setAttribute('target', '_blank');
+			}
+		});
+
+		return doc.body.innerHTML;
+	} catch (err) {
+		logError('Failed to sanitize HTML content:', err);
+		const div = document.createElement('div');
+		div.textContent = content;
+		return div.innerHTML;
+	}
+}
+
+// Escape HTML special characters in text to prevent XSS when inserted into HTML strings
+function escapeHtml(text) {
+	if (!text || typeof text !== 'string') {
+		return '';
+	}
+	const map = {
+		'&': '&amp;',
+		'<': '&lt;',
+		'>': '&gt;',
+		'"': '&quot;',
+		"'": '&#39;',
+	};
+	return text.replace(/[&<>"']/g, (char) => map[char]);
+}
+
 let refreshButton_Placed = false;
 let hasInjectedContent = false;
 let scrumGenerationInProgress = false;
@@ -201,7 +311,7 @@ async function allIncluded(outputTarget = 'email') {
 								errDiv.style.color = '#dc2626';
 								errDiv.style.fontWeight = 'bold';
 								errDiv.style.padding = '10px';
-								errDiv.textContent = 'Please enter your username to generate a report.';
+								errDiv.textContent = chrome?.i18n?.getMessage('usernameRequiredError') || 'Please enter your username to generate a report.';
 								scrumReport.appendChild(errDiv);
 							}
 							if (generateBtn) {
@@ -410,7 +520,7 @@ async function allIncluded(outputTarget = 'email') {
 								errDiv.style.color = '#dc2626';
 								errDiv.style.fontWeight = 'bold';
 								errDiv.style.padding = '10px';
-								errDiv.textContent = 'Please enter your username to generate a report.';
+								errDiv.textContent = chrome?.i18n?.getMessage('usernameRequiredError') || 'Please enter your username to generate a report.';
 								scrumReport.appendChild(errDiv);
 							}
 							if (generateBtn) {
@@ -1156,123 +1266,27 @@ ${lastWeekUl}<br>
 <b>2. What do I plan to do ${weekOrDay2}?</b><br>
 ${nextWeekUl}<br>
 <b>3. What is blocking me from making progress?</b><br>
-${userReason}`;
+${escapeHtml(userReason)}`;
 		} else {
 			content = `<b>1. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?</b><br>
 ${lastWeekUl}<br>
 <b>2. What do I plan to do ${weekOrDay2}?</b><br>
 ${nextWeekUl}<br>
 <b>3. What is blocking me from making progress?</b><br>
-${userReason}`;
+${escapeHtml(userReason)}`;
 		}
 
 		if (outputTarget === 'popup') {
 			const scrumReport = document.getElementById('scrumReport');
 			if (scrumReport) {
 				log('Found popup div, updating content');
-				// Parse the generated HTML with DOMParser and sanitize before inserting to avoid unsafe innerHTML usage
 				scrumReport.textContent = '';
+
+				const sanitizedHtml = sanitizeHtmlContent(content);
 				try {
-					const parser = new DOMParser();
-					const doc = parser.parseFromString(content, 'text/html');
-
-					// Strict allowlist of tags and per-tag allowed attributes
-					const allowedTags = new Set([
-						'A','B','STRONG','I','EM','CODE','BR','P','UL','OL','LI','SPAN','DIV',
-						'PRE','BLOCKQUOTE','H1','H2','H3','H4','H5','H6','IMG','TABLE','THEAD','TBODY','TR','TD','TH'
-					]);
-
-					const globalAllowedAttrs = new Set(['class','id','title','role','aria-label']);
-
-					function isSafeUrl(u) {
-						if (!u) return false;
-						const s = u.trim().toLowerCase();
-						return (
-							s.startsWith('http:') ||
-							s.startsWith('https:') ||
-							s.startsWith('mailto:') ||
-							s.startsWith('tel:') ||
-							s.startsWith('/') ||
-							s.startsWith('#') ||
-							s.startsWith('//')
-						);
-					}
-
-					// Remove dangerous elements entirely
-					doc.querySelectorAll('script,style,iframe,object,embed,link,meta,svg,math,form,input,button,textarea,select').forEach(n => n.remove());
-
-					// Walk elements and enforce allowlist
-					doc.body.querySelectorAll('*').forEach((node) => {
-						const tag = node.tagName.toUpperCase();
-						if (!allowedTags.has(tag)) {
-							// Replace disallowed tag with its text content
-							const txt = document.createTextNode(node.textContent || '');
-							node.parentNode && node.parentNode.replaceChild(txt, node);
-							return;
-						}
-
-						// Sanitize attributes: remove anything not explicitly allowed per-tag
-						[...node.attributes].forEach((attr) => {
-							const name = attr.name.toLowerCase();
-							const val = attr.value;
-
-							// Strip inline event handlers and style
-							if (name.startsWith('on') || name === 'style') {
-								node.removeAttribute(attr.name);
-								return;
-							}
-
-							// Always remove attributes that can embed HTML/JS
-							if (['srcdoc','formaction','xlink:href','xmlns'].includes(name)) {
-								node.removeAttribute(attr.name);
-								return;
-							}
-
-							// img: allow only src/alt/width/height
-							if (tag === 'IMG') {
-								if (['src','alt','title','width','height','class','id'].includes(name)) {
-									if (name === 'src') {
-										if (!isSafeUrl(val)) node.removeAttribute(attr.name);
-									}
-									// keep allowed
-								} else {
-									node.removeAttribute(attr.name);
-								}
-								return;
-							}
-
-							// a: allow only href, title, rel, target
-							if (tag === 'A') {
-								if (['href','title','rel','target','class','id','aria-label'].includes(name)) {
-									if (name === 'href') {
-										if (!isSafeUrl(val)) node.removeAttribute(attr.name);
-									}
-								} else {
-									node.removeAttribute(attr.name);
-								}
-								return;
-							}
-
-							// table and text elements: allow only global attrs
-							if (!globalAllowedAttrs.has(name)) {
-								node.removeAttribute(attr.name);
-							}
-						});
-
-						// Ensure safe link attributes
-						if (tag === 'A') {
-							if (!node.getAttribute('rel')) node.setAttribute('rel', 'noopener noreferrer');
-							if (!node.getAttribute('target')) node.setAttribute('target', '_blank');
-						}
-					});
-
-					// Append sanitized nodes
-					const frag = document.createDocumentFragment();
-					Array.from(doc.body.childNodes).forEach((n) => frag.appendChild(n.cloneNode(true)));
-					scrumReport.appendChild(frag);
+					scrumReport.innerHTML = sanitizedHtml;
 				} catch (err) {
-					// Log the parse/sanitization error for diagnostics and fall back to safe text
-					logError('Failed to parse/sanitize scrum content:', err);
+					logError('Failed to insert sanitized content:', err);
 					const fallback = typeof content === 'string' ? content.replace(/<[^>]+>/g, '') : 'Unable to generate report.';
 					scrumReport.textContent = fallback;
 				}
@@ -1280,15 +1294,27 @@ ${userReason}`;
 					const cacheKey =
 						platform === 'gitlab' ? (gitlabHelper?.cache?.cacheKey ?? null) : (githubCache?.cacheKey ?? null);
 
+					// Generate the subject to persist for use in popup
+					const projectName = document.getElementById('projectName')?.value?.trim() || '';
+					const curDate = new Date();
+					const year = curDate.getFullYear();
+					let month = curDate.getMonth() + 1;
+					let date = curDate.getDate();
+					if (month < 10) month = '0' + month;
+					if (date < 10) date = '0' + date;
+					const dateCode = year.toString() + month.toString() + date.toString();
+					const subject = `[Scrum]${projectName ? ' - ' + projectName : ''} - ${dateCode}`;
+
 					chrome.storage.local.set({
-						lastScrumReportHtml: content,
+						lastScrumReportHtml: scrumReport.innerHTML,
 						lastScrumReportPlatform: platform,
 						lastScrumReportCacheKey: cacheKey,
+						lastScrumReportUsername: platformUsername,
+						lastScrumSubject: subject,
 					});
-				} catch (e) {
-					// ignore
+				} catch (err) {
+					logError('Failed to save report to storage:', err);
 				}
-
 				const generateBtn = document.getElementById('generateReport');
 				if (generateBtn) {
 					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
@@ -1304,6 +1330,9 @@ ${userReason}`;
 				return;
 			}
 
+
+			const sanitizedContent = sanitizeHtmlContent(content);
+
 			const observer = new MutationObserver((mutations, obs) => {
 				if (!window.emailClientAdapter) {
 					obs.disconnect();
@@ -1314,7 +1343,7 @@ ${userReason}`;
 					if (elements && elements.body) {
 						obs.disconnect();
 						log('MutationObserver found the editor body. Injecting scrum content.');
-						window.emailClientAdapter.injectContent(elements.body, content, elements.eventTypes.contentChange);
+						window.emailClientAdapter.injectContent(elements.body, sanitizedContent, elements.eventTypes.contentChange);
 						hasInjectedContent = true;
 						scrumGenerationInProgress = false;
 					}
