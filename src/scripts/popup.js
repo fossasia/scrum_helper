@@ -355,7 +355,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				lastScrumReportUsername,
 				githubUsername,
 				gitlabUsername,
-				platformUsername
+				platformUsername,
 			} = await storageLocalGet([
 				'lastScrumReportHtml',
 				'lastScrumReportPlatform',
@@ -363,15 +363,14 @@ document.addEventListener('DOMContentLoaded', () => {
 				'lastScrumReportUsername',
 				'githubUsername',
 				'gitlabUsername',
-				'platformUsername'
+				'platformUsername',
 			]);
 
-			const expectedUsername = activePlatform === 'gitlab'
-				? (gitlabUsername || platformUsername)
-				: (githubUsername || platformUsername);
-			const isUsernameMatch = lastScrumReportUsername 
+			const expectedUsername =
+				activePlatform === 'gitlab' ? gitlabUsername || platformUsername : githubUsername || platformUsername;
+			const isUsernameMatch = lastScrumReportUsername
 				? lastScrumReportUsername === expectedUsername
-				: (lastScrumReportCacheKey && expectedUsername && lastScrumReportCacheKey.startsWith(expectedUsername + '-'));
+				: lastScrumReportCacheKey && expectedUsername && lastScrumReportCacheKey.startsWith(expectedUsername + '-');
 
 			if (age < ttlMs) {
 				const cacheKey = cache?.cacheKey ?? null;
@@ -541,11 +540,12 @@ document.addEventListener('DOMContentLoaded', () => {
 					},
 					() => {
 						// Reload platform from storage before generating report
-						chrome?.storage.local.get(['platform'], (res) => {
+						chrome?.storage.local.get(['platform', 'gitlabSelfHostedUrl'], (res) => {
 							platformSelect.value = res.platform || 'github';
 							updatePlatformUI(platformSelect.value);
 							generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
 							generateBtn.disabled = true;
+
 							window.generateScrumReport && window.generateScrumReport();
 						});
 					},
@@ -652,24 +652,52 @@ document.addEventListener('DOMContentLoaded', () => {
 			chrome?.storage.local.set({ projectName: projectNameInput.value });
 		});
 
+		function getGitLabOriginPattern(rawUrl) {
+			if (!rawUrl) return null;
+
+			const withScheme = /^https?:\/\//i.test(rawUrl) ? rawUrl : `https://${rawUrl}`;
+			let parsedUrl;
+			try {
+				parsedUrl = new URL(withScheme);
+			} catch {
+				return null;
+			}
+
+			if (parsedUrl.protocol !== 'https:') {
+				return null;
+			}
+
+			const hostname = parsedUrl.hostname.toLowerCase();
+			if (!hostname || hostname === 'gitlab.com') {
+				return null;
+			}
+
+			// Return just the origin for host permission requests
+			return `https://${hostname}`;
+		}
+
 		gitlabSelfHostedUrl.addEventListener('input', () => {
 			const url = gitlabSelfHostedUrl.value.trim();
 			chrome?.storage.local.set({ gitlabSelfHostedUrl: url });
+			gitlabSelfHostedUrl.setCustomValidity('');
+		});
 
-			// Request host permission for self-hosted GitLab instances
-			if (url && !url.includes('gitlab.com')) {
-				// Construct origin pattern: ensure https:// prefix and append /*
-				const originPattern = url.startsWith('http')
-					? `${url.split('/').slice(0, 3).join('/')}/*`
-					: `https://${url.split('/')[0]}/*`;
-				chrome?.permissions.request({ origins: [originPattern] }, (granted) => {
-					if (granted) {
-						console.log(`[Popup] Host permission granted for ${url}`);
-					} else {
-						console.warn(`[Popup] Host permission denied for ${url}. Self-hosted GitLab fetches may be blocked.`);
-					}
-				});
+		gitlabSelfHostedUrl.addEventListener('blur', () => {
+			const url = gitlabSelfHostedUrl.value.trim();
+			chrome?.storage.local.set({ gitlabSelfHostedUrl: url });
+
+			if (!url) {
+				gitlabSelfHostedUrl.setCustomValidity('');
+				return;
 			}
+
+			const originPattern = getGitLabOriginPattern(url);
+			if (!originPattern) {
+				gitlabSelfHostedUrl.setCustomValidity('Enter a valid self-hosted GitLab URL or hostname over HTTPS.');
+				return;
+			}
+
+			gitlabSelfHostedUrl.setCustomValidity('');
 		});
 
 		// Save to storage and validate ONLY when user clicks out (blur event)
@@ -767,7 +795,9 @@ document.addEventListener('DOMContentLoaded', () => {
 				// Show notice instead of applying immediately
 				const modeLabel = mode === 'popup' ? 'Popup' : 'Side Panel';
 				if (displayModeNotice && displayModeNoticeText) {
-					displayModeNoticeText.textContent = chrome?.i18n.getMessage('displayModeNotice', [modeLabel]) || `The extension will open in ${modeLabel} mode on the next launch.`;
+					displayModeNoticeText.textContent =
+						chrome?.i18n.getMessage('displayModeNotice', [modeLabel]) ||
+						`The extension will open in ${modeLabel} mode on the next launch.`;
 					displayModeNotice.classList.remove('hidden');
 				}
 			});
@@ -869,7 +899,9 @@ document.addEventListener('DOMContentLoaded', () => {
 			} catch {}
 			if (platform !== 'github') {
 				// Do not run repo fetch for non-GitHub platforms
-				if (repoStatus) repoStatus.textContent = chrome?.i18n.getMessage('repoFilteringGithubOnly') || 'Repository filtering is only available for GitHub.';
+				if (repoStatus)
+					repoStatus.textContent =
+						chrome?.i18n.getMessage('repoFilteringGithubOnly') || 'Repository filtering is only available for GitHub.';
 				return;
 			}
 			if (!useRepoFilter.checked) {
@@ -959,7 +991,10 @@ document.addEventListener('DOMContentLoaded', () => {
 				if (platform !== 'github') {
 					repoFilterContainer.classList.add('hidden');
 					useRepoFilter.checked = false;
-					if (repoStatus) repoStatus.textContent = chrome?.i18n.getMessage('repoFilteringGithubOnly') || 'Repository filtering is only available for GitHub.';
+					if (repoStatus)
+						repoStatus.textContent =
+							chrome?.i18n.getMessage('repoFilteringGithubOnly') ||
+							'Repository filtering is only available for GitHub.';
 					return;
 				}
 				const enabled = useRepoFilter.checked;
@@ -989,7 +1024,8 @@ document.addEventListener('DOMContentLoaded', () => {
 				});
 				checkTokenForFilter();
 				if (enabled) {
-					repoStatus.textContent = chrome?.i18n.getMessage('loadingReposAutomatically') || 'Loading repos automatically...';
+					repoStatus.textContent =
+						chrome?.i18n.getMessage('loadingReposAutomatically') || 'Loading repos automatically...';
 
 					try {
 						const cacheData = await new Promise((resolve) => {
@@ -1138,7 +1174,9 @@ document.addEventListener('DOMContentLoaded', () => {
 				platform = items.platform || 'github';
 			} catch {}
 			if (platform !== 'github') {
-				if (repoStatus) repoStatus.textContent = chrome?.i18n.getMessage('repoLoadingGithubOnly') || 'Repository loading is only available for GitHub.';
+				if (repoStatus)
+					repoStatus.textContent =
+						chrome?.i18n.getMessage('repoLoadingGithubOnly') || 'Repository loading is only available for GitHub.';
 				return;
 			}
 			console.log('window.fetchUserRepositories exists:', !!window.fetchUserRepositories);
@@ -1181,7 +1219,9 @@ document.addEventListener('DOMContentLoaded', () => {
 				platform = items.platform || 'github';
 			} catch (e) {}
 			if (platform !== 'github') {
-				if (repoStatus) repoStatus.textContent = chrome?.i18n.getMessage('repoFetchingGithubOnly') || 'Repository fetching is only available for GitHub.';
+				if (repoStatus)
+					repoStatus.textContent =
+						chrome?.i18n.getMessage('repoFetchingGithubOnly') || 'Repository fetching is only available for GitHub.';
 				return;
 			}
 			console.log('[POPUP-DEBUG] performRepoFetch called.');
