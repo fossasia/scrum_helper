@@ -277,9 +277,10 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (!generateBtn) return;
 		if (!isLoading) return;
 
-		const msg = chrome?.i18n.getMessage('generatingButton') || 'Generating...';
-		generateBtn.innerHTML = `<i class="fa fa-spinner fa-spin"></i> ${msg}`;
+		generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>';
 		generateBtn.disabled = true;
+		generateBtn.setAttribute('aria-busy', 'true');
+		generateBtn.title = chrome?.i18n.getMessage('generatingButton') || 'Generating...';
 	}
 
 	function showPopupMessage(message) {
@@ -543,8 +544,10 @@ document.addEventListener('DOMContentLoaded', () => {
 						chrome?.storage.local.get(['platform'], (res) => {
 							platformSelect.value = res.platform || 'github';
 							updatePlatformUI(platformSelect.value);
-							generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
+							generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>';
 							generateBtn.disabled = true;
+							generateBtn.setAttribute('aria-busy', 'true');
+							generateBtn.title = chrome?.i18n.getMessage('generatingButton') || 'Generating...';
 							window.generateScrumReport && window.generateScrumReport();
 						});
 					},
