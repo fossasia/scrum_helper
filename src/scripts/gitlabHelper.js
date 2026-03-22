@@ -29,6 +29,7 @@ class GitLabHelper {
 						data: data,
 						cacheKey: this.cache.cacheKey,
 						timestamp: this.cache.timestamp,
+						baseUrl: this.baseUrl,
 					},
 				},
 				resolve,
@@ -39,7 +40,7 @@ class GitLabHelper {
 	async loadFromStorage() {
 		return new Promise((resolve) => {
 			chrome.storage.local.get(['gitlabCache'], (items) => {
-				if (items.gitlabCache) {
+				if (items.gitlabCache && items.gitlabCache.baseUrl === this.baseUrl) {
 					this.cache.data = items.gitlabCache.data;
 					this.cache.cacheKey = items.gitlabCache.cacheKey;
 					this.cache.timestamp = items.gitlabCache.timestamp;
@@ -52,7 +53,7 @@ class GitLabHelper {
 	async fetchGitLabData(username, startDate, endDate, token = null) {
 		// Include token state in cache key to invalidate when auth changes
 		const tokenMarker = token ? 'auth' : 'noauth';
-		const cacheKey = `${username}-${startDate}-${endDate}-${tokenMarker}`;
+		const cacheKey = `${this.baseUrl}-${username}-${startDate}-${endDate}-${tokenMarker}`;
 
 		if (this.cache.fetching || (this.cache.cacheKey === cacheKey && this.cache.data)) {
 			return this.cache.data;
@@ -89,10 +90,8 @@ class GitLabHelper {
 			const headers = {};
 			if (token) {
 				headers['PRIVATE-TOKEN'] = token;
-			}
-			// Use /version endpoint for health check - distinguishes auth failures from connectivity
-			const reachabilityRes = await fetch(`${this.baseUrl}/version`, {
-				method: 'GET',
+			}			const reachabilityRes = await fetch(`${this.baseUrl}/projects`, {
+				method: 'HEAD',
 				headers,
 			});
 			if (!reachabilityRes.ok) {
@@ -136,11 +135,16 @@ class GitLabHelper {
 			const userUrl = `${this.baseUrl}/users?username=${username}`;
 			const userRes = await fetch(userUrl, { headers });
 			if (!userRes.ok) {
-				throw new Error(`Error fetching GitLab user: ${userRes.status} ${userRes.statusText}`);
+				throw new Error(
+					chrome?.i18n.getMessage('gitlabUserFetchError', [userRes.status, userRes.statusText]) ||
+						`Error fetching GitLab user: ${userRes.status} ${userRes.statusText}`,
+				);
 			}
 			const users = await userRes.json();
 			if (users.length === 0) {
-				throw new Error(`GitLab user '${username}' not found at ${this.baseUrl}`);
+				throw new Error(
+					chrome?.i18n.getMessage('gitlabUserNotFoundError', [username]) || `GitLab user '${username}' not found`,
+				);
 			}
 			const userId = users[0].id;
 
@@ -149,7 +153,11 @@ class GitLabHelper {
 			const membershipProjectsRes = await fetch(membershipProjectsUrl, { headers });
 			if (!membershipProjectsRes.ok) {
 				throw new Error(
-					`Error fetching GitLab membership projects: ${membershipProjectsRes.status} ${membershipProjectsRes.statusText}`,
+					chrome?.i18n.getMessage('gitlabMembershipError', [
+						membershipProjectsRes.status,
+						membershipProjectsRes.statusText,
+					]) ||
+						`Error fetching GitLab membership projects: ${membershipProjectsRes.status} ${membershipProjectsRes.statusText}`,
 				);
 			}
 			const membershipProjects = await membershipProjectsRes.json();
@@ -159,7 +167,11 @@ class GitLabHelper {
 			const contributedProjectsRes = await fetch(contributedProjectsUrl, { headers });
 			if (!contributedProjectsRes.ok) {
 				throw new Error(
-					`Error fetching GitLab contributed projects: ${contributedProjectsRes.status} ${contributedProjectsRes.statusText}`,
+					chrome?.i18n.getMessage('gitlabContributedError', [
+						contributedProjectsRes.status,
+						contributedProjectsRes.statusText,
+					]) ||
+						`Error fetching GitLab contributed projects: ${contributedProjectsRes.status} ${contributedProjectsRes.statusText}`,
 				);
 			}
 			const contributedProjects = await contributedProjectsRes.json();

@@ -65,7 +65,7 @@
     "https://gitlab.com/*"
   ],
   "optional_host_permissions": [
-    "https://*/*/api/v4/*"
+    "https://*/*"
   ],
   "default_locale": "en"
 
