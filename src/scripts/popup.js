@@ -209,9 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	githubTokenInput.addEventListener('input', checkTokenForFilter);
-	githubTokenInput.addEventListener('input', () =>
-		checkTokenForShowCommits({ persistState: false }),
-	);
+	githubTokenInput.addEventListener('input', () => checkTokenForShowCommits({ persistState: false }));
 
 	darkModeToggle.addEventListener('click', function () {
 		body.classList.toggle('dark-mode');
@@ -414,6 +412,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		const startingDateInput = document.getElementById('startingDate');
 		const endingDateInput = document.getElementById('endingDate');
 		const platformUsername = document.getElementById('platformUsername');
+		const gitlabSelfHostedUrl = document.getElementById('gitlabSelfHostedUrl');
 
 		chrome?.storage.local.get(
 			[
@@ -434,6 +433,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				'platform',
 				'githubUsername',
 				'gitlabUsername',
+				'gitlabSelfHostedUrl',
 			],
 			(result) => {
 				if (result.projectName) projectNameInput.value = result.projectName;
@@ -469,6 +469,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				if (typeof result.yesterdayContribution !== 'undefined') yesterdayRadio.checked = result.yesterdayContribution;
 				if (result.startingDate) startingDateInput.value = result.startingDate;
 				if (result.endingDate) endingDateInput.value = result.endingDate;
+				if (result.gitlabSelfHostedUrl) gitlabSelfHostedUrl.value = result.gitlabSelfHostedUrl;
 
 				// Load platform-specific username
 				const platform = result.platform || 'github';
@@ -629,6 +630,26 @@ document.addEventListener('DOMContentLoaded', () => {
 		// Save all fields to storage on input/change
 		projectNameInput.addEventListener('input', () => {
 			chrome?.storage.local.set({ projectName: projectNameInput.value });
+		});
+
+		gitlabSelfHostedUrl.addEventListener('input', () => {
+			const url = gitlabSelfHostedUrl.value.trim();
+			chrome?.storage.local.set({ gitlabSelfHostedUrl: url });
+
+			// Request host permission for self-hosted GitLab instances
+			if (url && !url.includes('gitlab.com')) {
+				// Construct origin pattern: ensure https:// prefix and append /*
+				const originPattern = url.startsWith('http')
+					? `${url.split('/').slice(0, 3).join('/')}/*`
+					: `https://${url.split('/')[0]}/*`;
+				chrome?.permissions.request({ origins: [originPattern] }, (granted) => {
+					if (granted) {
+						console.log(`[Popup] Host permission granted for ${url}`);
+					} else {
+						console.warn(`[Popup] Host permission denied for ${url}. Self-hosted GitLab fetches may be blocked.`);
+					}
+				});
+			}
 		});
 
 		// Save to storage and validate ONLY when user clicks out (blur event)
@@ -1437,6 +1458,16 @@ function updatePlatformUI(platform) {
 			el.classList.remove('hidden');
 		}
 	});
+
+	// Show/hide GitLab self-hosted URL input
+	const gitlabSelfHostedUrlContainer = document.getElementById('gitlabSelfHostedUrlContainer');
+	if (gitlabSelfHostedUrlContainer) {
+		if (platform === 'gitlab') {
+			gitlabSelfHostedUrlContainer.classList.remove('hidden');
+		} else {
+			gitlabSelfHostedUrlContainer.classList.add('hidden');
+		}
+	}
 }
 
 platformSelect.addEventListener('change', () => {

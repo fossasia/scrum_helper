@@ -1,7 +1,7 @@
 // GitLab API Helper for Scrum Helper Extension
 class GitLabHelper {
-	constructor() {
-		this.baseUrl = 'https://gitlab.com/api/v4';
+	constructor(domain = null) {
+		this.baseUrl = `https://${domain ? domain : 'gitlab.com'}/api/v4`;
 		this.cache = {
 			data: null,
 			cacheKey: null,
@@ -84,6 +84,37 @@ class GitLabHelper {
 			});
 		}
 
+		// Reachability check with auth header if token is present
+		try {
+			const headers = {};
+			if (token) {
+				headers['PRIVATE-TOKEN'] = token;
+			}
+			// Use /version endpoint for health check - distinguishes auth failures from connectivity
+			const reachabilityRes = await fetch(`${this.baseUrl}/version`, {
+				method: 'GET',
+				headers,
+			});
+			if (!reachabilityRes.ok) {
+				if (reachabilityRes.status === 401 || reachabilityRes.status === 403) {
+					throw new Error(
+						`GitLab authentication failed (${reachabilityRes.status}). Please verify your token and domain.`,
+					);
+				}
+				throw new Error(`GitLab domain returned status ${reachabilityRes.status}`);
+			}
+		} catch (error) {
+			if (this.cache.data) {
+				console.warn(`[GITLAB-DEBUG] Reachability check failed, using stale cache: ${error.message}`);
+				return this.cache.data;
+			}
+			// Distinguish between different error types for better UX
+			if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+				throw new Error(`GitLab domain not reachable (${this.baseUrl}): ${error.message}`);
+			}
+			throw new Error(`${error.message}`);
+		}
+
 		this.cache.fetching = true;
 		this.cache.cacheKey = cacheKey;
 
@@ -98,6 +129,10 @@ class GitLabHelper {
 			await new Promise((res) => setTimeout(res, 500));
 
 			// Get user info first
+
+			console.log(
+				`[GITLAB-DEBUG] Fetching user info for '${username}' from ${this.baseUrl} with token: ${token ? 'YES' : 'NO'}`,
+			);
 			const userUrl = `${this.baseUrl}/users?username=${username}`;
 			const userRes = await fetch(userUrl, { headers });
 			if (!userRes.ok) {
@@ -105,7 +140,7 @@ class GitLabHelper {
 			}
 			const users = await userRes.json();
 			if (users.length === 0) {
-				throw new Error(`GitLab user '${username}' not found`);
+				throw new Error(`GitLab user '${username}' not found at ${this.baseUrl}`);
 			}
 			const userId = users[0].id;
 
