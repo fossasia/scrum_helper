@@ -8,6 +8,11 @@
 	<link rel="stylesheet" type="text/css" href="index.css">
 	<link rel="stylesheet" href="fontawesome/css/all.min.css">
 	<style type="text/css">
+		button:disabled {
+			opacity: 0.6;
+			cursor: not-allowed;
+		}
+
 		html,
 		body {
 
@@ -154,8 +159,10 @@
 							data-i18n-placeholder="projectNamePlaceholder" style="margin-top: 0.3rem; margin-bottom: 0.8rem;">
 					</div>
 					<div>
-
-						<p id="usernameLabel" class="font-medium text-sm" data-i18n="usernameLabel">Your Username</p>
+						<div class="flex items-center gap-1">
+							<p id="usernameLabel" class="font-medium text-sm" data-i18n="usernameLabel">Your Username</p>
+							<span style="color:#dc2626">*</span>
+						</div>
 						<input id="platformUsername" type="text"
 							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
 							data-i18n-placeholder="githubUsernamePlaceholder"
@@ -283,17 +290,20 @@
 
 						<div class="scrum-actions my-2">
 							<button id="generateReport"
+								disabled
 								class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-3 rounded">
 								<i class="fa fa-refresh"></i> <span data-i18n="generateReportButton">Generate</span>
 							</button>
 
 							<button id="insertInEmail"
+								disabled
 								class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
 								<i class="fa fa-envelope"></i> <span data-i18n="insertInEmailButton">Insert in
 									Email</span>
 							</button>
 
 							<button id="copyReport"
+								disabled
 								class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-2 rounded">
 								<i class="fa fa-copy"></i> <span data-i18n="copyReportButton">Copy</span>
 							</button>

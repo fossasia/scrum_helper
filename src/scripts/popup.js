@@ -325,6 +325,12 @@ document.addEventListener('DOMContentLoaded', () => {
 			return;
 		}
 
+		const currentUsername = document.getElementById('platformUsername')?.value?.trim() || '';
+		const insertBtn = document.getElementById('insertInEmail');
+		const copyBtn = document.getElementById('copyReport');
+		if (insertBtn) insertBtn.disabled = currentUsername === '';
+		if (copyBtn) copyBtn.disabled = currentUsername === '';
+
 		const { platform, cacheInput, githubCache, gitlabCache } = await storageLocalGet([
 			'platform',
 			'cacheInput',
@@ -342,6 +348,10 @@ document.addEventListener('DOMContentLoaded', () => {
 		const timestamp = typeof cache?.timestamp === 'number' ? cache.timestamp : 0;
 
 		if (!hasCacheData) {
+			if (!currentUsername) {
+				generateBtn.disabled = true;
+				return;
+			}
 			setGenerateButtonLoading(generateBtn, true);
 			window.generateScrumReport();
 			return;
@@ -386,7 +396,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 				if (reportEmpty && lastScrumReportHtml && matches) {
 					scrumReport.innerHTML = lastScrumReportHtml;
-					if (generateBtn) generateBtn.disabled = false;
+					if (generateBtn) generateBtn.disabled = ((expectedUsername || '').trim() === '');
+					return;
+				}
+
+				if (!currentUsername) {
+					generateBtn.disabled = true;
 					return;
 				}
 
@@ -400,7 +415,12 @@ document.addEventListener('DOMContentLoaded', () => {
 				scrumReport.innerHTML = lastScrumReportHtml;
 			}
 
-			if (generateBtn) generateBtn.disabled = false;
+			if (generateBtn) generateBtn.disabled = ((expectedUsername || '').trim() === '');
+			return;
+		}
+
+		if (!currentUsername) {
+			generateBtn.disabled = true;
 			return;
 		}
 
@@ -494,6 +514,13 @@ document.addEventListener('DOMContentLoaded', () => {
 				const platform = result.platform || 'github';
 				const platformUsernameKey = `${platform}Username`;
 				platformUsername.value = result[platformUsernameKey] || '';
+				const btn = document.getElementById('generateReport');
+				const isDisabled = platformUsername.value.trim() === '';
+				if (btn) btn.disabled = isDisabled;
+				const insertBtn = document.getElementById('insertInEmail');
+				if (insertBtn) insertBtn.disabled = isDisabled;
+				const copyBtn = document.getElementById('copyReport');
+				if (copyBtn) copyBtn.disabled = isDisabled;
 				checkTokenForShowCommits();
 			},
 		);
@@ -503,8 +530,23 @@ document.addEventListener('DOMContentLoaded', () => {
 		const copyBtn = document.getElementById('copyReport');
 		const insertBtn = document.getElementById('insertInEmail');
 
+		const syncGenerateButtonState = () => {
+			const hasUsername = platformUsername?.value?.trim() !== '';
+			generateBtn.disabled = !hasUsername;
+			if (insertBtn) insertBtn.disabled = !hasUsername;
+			if (copyBtn) copyBtn.disabled = !hasUsername;
+		};
+
+		// Disable by default when username is empty.
+		syncGenerateButtonState();
+
 		if (insertBtn) {
 			insertBtn.addEventListener('click', () => {
+				if (platformUsername?.value?.trim() === '') {
+					insertBtn.disabled = true;
+					return;
+				}
+
 				const scrumReport = document.getElementById('scrumReport');
 				const content = scrumReport ? scrumReport.innerHTML : '';
 				const subject = buildScrumSubjectFromPopup();
@@ -529,6 +571,11 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 
 		generateBtn.addEventListener('click', () => {
+			if (platformUsername?.value?.trim() === '') {
+				generateBtn.disabled = true;
+				return;
+			}
+
 			chrome?.storage.local.get(['platform'], (result) => {
 				const platform = result.platform || 'github';
 				const platformUsernameKey = `${platform}Username`;
@@ -553,6 +600,11 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 
 		copyBtn.addEventListener('click', function () {
+			if (platformUsername?.value?.trim() === '') {
+				copyBtn.disabled = true;
+				return;
+			}
+
 			const scrumReport = document.getElementById('scrumReport');
 			const tempDiv = document.createElement('div');
 			tempDiv.innerHTML = scrumReport.innerHTML;
@@ -769,6 +821,8 @@ document.addEventListener('DOMContentLoaded', () => {
 				const platformUsernameKey = `${platform}Username`;
 				chrome?.storage.local.set({ [platformUsernameKey]: platformUsername.value });
 			});
+
+			syncGenerateButtonState();
 		});
 		// Bootstrap report on popup open (restore cache / auto-generate / expired-cache toast)
 		bootstrapScrumReportOnPopupLoad(generateBtn).catch((err) => {
