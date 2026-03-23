@@ -48,13 +48,16 @@ This document provides guidelines for contributing to the project. Please feel f
 3.  **Format and Lint Your Code:** Before committing, run the following commands to ensure your code is clean and consistent.
 
     ```sh
+    # Run biome linter
+    npm run lint
+
     # Auto-format your code
     npm run format
 
     # Check for any linting or formatting issues
     npm run check
 
-    # Automatically fix any fixable linting issues
+    # Automatically fix(safe) any fixable linting issues
     npm run fix
     ```
 

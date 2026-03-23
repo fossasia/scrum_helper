@@ -51,10 +51,13 @@
         "message": "Informe de Scrum"
     },
     "generateReportButton": {
-        "message": "Generar informe"
+        "message": "Generar"
     },
     "copyReportButton": {
-        "message": "Copiar informe"
+        "message": "Copiar"
+    },
+    "insertInEmailButton": {
+        "message": "Insertar en correo"
     },
     "settingsOrgNameLabel": {
         "message": "Nombre de la organización"
@@ -71,17 +74,35 @@
     "githubTokenPlaceholder": {
         "message": "Requerido para realizar solicitudes autenticadas"
     },
+    "githubTokenTooltip": {
+        "message": "¿Por qué se recomienda agregar un token de GitHub? Scrum Helper funciona sin un token de GitHub, pero se recomienda agregar un token de acceso personal para una mejor experiencia."
+    },
+    "gitlabTokenLabel": {
+        "message": "Tu token de GitLab"
+    },
+    "gitlabTokenPlaceholder": {
+        "message": "Requerido para repos privados"
+    },
+    "gitlabTokenTooltip": {
+        "message": "¿Por qué se recomienda agregar un token de GitLab? Scrum Helper funciona sin un token de GitLab para proyectos públicos, pero se recomienda agregar un token de acceso personal para una mejor experiencia."
+    },
     "showCommitsLabel": {
         "message": "Mostrar commits en PRs abiertos/ borradores de PRs"
     },
     "showCommitsTooltip": {
-        "message": "Se requiere un token de Github, agréguelo en la configuración."
+        "message": "Se requiere un token de GitHub, agréguelo en la configuración."
     },
     "onlyIssuesLabel": {
         "message": "Incluir solo incidencias en el informe"
     },
     "onlyIssuesTooltip": {
         "message": "Si está marcado, el informe solo incluirá las incidencias creadas o asignadas al usuario."
+    },
+    "onlyPRsLabel": {
+        "message": "Incluir solo PRs en el informe"
+    },
+    "onlyPRsTooltip": {
+        "message": "Si está marcado, el informe solo incluirá pull requests creados por el usuario; los pull requests revisados se excluirán."
     },
     "cacheTTLLabel": {
         "message": "Introducir TTL de caché",
@@ -183,6 +204,10 @@
     "cacheClearedMessage": {
         "message": "Caché borrado con éxito. Haga clic en 'Generar informe' para obtener datos nuevos."
     },
+    "cacheExpiredMessage": {
+        "message": "La caché ha expirado. Haga clic en \"Generar\" para obtener datos nuevos.",
+        "description": "Message shown when the cached data has expired and user needs to regenerate."
+    },
     "cacheClearedButton": {
         "message": "¡Caché borrado!"
     },
@@ -200,5 +225,74 @@
     },
     "usernameLabel": {
         "message": "Su nombre de usuario"
-    }
+    },
+    "onlyRevPRsLabel": {
+        "message": "Incluir solo PRs revisados en el informe"
+    },
+    "onlyRevPRsTooltip": {
+        "message": "Si está marcado, el informe solo incluirá PRs revisados por usted."
+    },
+	"usernameRequiredError": {
+		"message": "Por favor, introduzca su nombre de usuario para generar un informe."
+	},
+	"unknownPlatformError": {
+		"message": "Plataforma desconocida seleccionada."
+	},
+	"gitlabFetchingError": {
+		"message": "Se produjo un error al obtener los datos de GitLab."
+	},
+	"reportGenerationError": {
+		"message": "Se produjo un error al generar el informe."
+	},
+	"githubUserNotFoundError": {
+		"message": "Usuario de GitHub \"$1\" no encontrado (404). Por favor, verifique el nombre de usuario e inténtelo de nuevo."
+	},
+	"githubUserValidationError": {
+		"message": "Error al validar el usuario de GitHub: $1 $2"
+	},
+	"invalidSearchQueryError": {
+		"message": "Consulta de búsqueda o rango de fechas no válido. Por favor, verifique el formato de su rango de fechas e inténtelo de nuevo."
+	},
+	"githubIssuesFetchError": {
+		"message": "Error al obtener los issues de GitHub: $1 $2"
+	},
+	"githubPRReviewFetchError": {
+		"message": "Error al obtener los datos de revisión de PR de GitHub: $1 $2"
+	},
+	"githubUserFetchError": {
+		"message": "Error al obtener los datos del usuario de GitHub: $1 $2"
+	},
+	"invalidTokenError": {
+		"message": "Token de GitHub no válido o caducado. Por favor, verifique su token en la configuración de Scrum Helper e inténtelo de nuevo."
+	},
+	"displayModeNotice": {
+		"message": "La extensión se abrirá en modo $1 en el próximo inicio."
+	},
+	"repoFilteringGithubOnly": {
+		"message": "El filtrado de repositorios solo está disponible para GitHub."
+	},
+	"repoLoadingGithubOnly": {
+		"message": "La carga de repositorios solo está disponible para GitHub."
+	},
+	"repoFetchingGithubOnly": {
+		"message": "La obtención de repositorios solo está disponible para GitHub."
+	},
+	"loadingReposAutomatically": {
+		"message": "Cargando repositorios automáticamente.."
+	},
+	"gitlabUserFetchError": {
+		"message": "Error al obtener el usuario de GitLab: $1 $2"
+	},
+	"gitlabUserNotFoundError": {
+		"message": "Usuario de GitLab '$1' no encontrado"
+	},
+	"gitlabMembershipError": {
+		"message": "Error al obtener los proyectos de membresía de GitLab: $1 $2"
+	},
+	"gitlabContributedError": {
+		"message": "Error al obtener los proyectos a los que contribuyó en GitLab: $1 $2"
+	},
+	"usernameMissingError": {
+		"message": "Nombre de usuario requerido."
+	}
 }

@@ -15,12 +15,33 @@
 
 ### For Chrome:
 
-1. Clone this repository to your local machine.
-2. Go to `chrome://extensions` on your chrome browser.
-3. Enable Developer Mode (toggle in the top-right) if not already.
-4. Click Load unpacked and select the `src` folder inside the cloned repo
-5. Click the Scrum Helper icon on your browser toolbar
-6. Fill in your settings in the popup (GitHub username, date range, etc.)
+1. Open the Chrome Web Store and search for [“Scrum Helper”](https://chromewebstore.google.com/detail/Scrum%20Helper/begjldpiiihpnaflcbdbbophiifphokg) by FOSSASIA.
+2. Click “Add to Chrome”.
+3. Pin the extension to your toolbar (optional).
+4. Open the extension popup from your browser toolbar.
+5. Set your GitHub username, date range, and preferences in the popup.
+6. Start composing your reports in Gmail, Yahoo Mail, Outlook, or Google Groups using the extension.
+
+## Setting Up Your Development Environment
+
+1.  **Fork & Clone the Repository**
+
+    ```sh
+    git clone https://github.com/YOUR_USERNAME/scrum-helper.git
+    cd scrum-helper
+    ```
+
+2.  **Install Dependencies**
+
+    ```sh
+    npm install
+    ```
+
+3.  **Load the Extension in Your Browser**
+
+    -   Go to `chrome://extensions` in your Chrome browser.
+    -   Enable "Developer Mode" (toggle in the top-right).
+    -   Click "Load unpacked" and select the `src` folder inside the cloned repository.
 
 <!-- ### For Firefox:
 
@@ -63,16 +84,25 @@
 2.  **Advanced Repository Filtering**
     *   Select specific repositories to include in your report for a more focused summary.
     *   Easily search and manage your repository list directly within the popup.
-    *   *Requires a GitHub token to fetch your repositories.*
+    *   *Requires a GitHub personal access token (classic) to fetch your repositories.*
 
 3.  **Include Commits on Existing PRs**
     *   Option to include recent commits made to pull requests that were opened *before* the selected date range.
     *   Provides a more detailed and accurate view of your work on long-running PRs.
-    *   *Requires a GitHub token.*
+    *   *Requires a GitHub personal access token (classic).*
+
+4.  **Flexible Display Modes**
+    *   Easily toggle the extension display mode between a traditional **Popup** and a persistent **Side Panel** in the settings.
+    *   *Note: The older standard extension on/off toggle has been removed in favor of this UI flexibility.*
+
+5.  **Smart Caching & Auto-Generation**
+    *   **Auto-Load:** When you open the extension, it instantly restores your previously generated Scrum report if there is a healthy cache in memory.
+    *   **Auto-Generate:** If there is no cached report available, the extension automatically calculates and generates a new report without requiring you to click anything.
+    *   **Manual Refresh:** If the cache duration expires (defaults to 10 minutes), the auto-load stops, and you just need to click the "Generate" button yourself to fetch fresh data.
 
 ### Usage Standalone
 
-- Click on `GENERATE` button to generate the scrum preview.
+- Click on `GENERATE` button to generate the scrum preview (if not auto-generated).
 - Edit it in the window.
 - Copy the rich HTML using the `COPY` button.
 
@@ -88,15 +118,14 @@ This project is licensed under the LGPL-2.1 License - see the [LICENSE](LICENSE)
 
 ## Screenshots
 
-![SCRUM](docs/images/scrum.png)
+| | |
+|---|---|
+| ![POPUP](docs/images/popup.png) | ![POPUP2](docs/images/popup2.png) |
+| ![STANDALONE](docs/images/standalone.png) | ![SETTINGSMENU](docs/images/settings.png) |
 
-![POPUP](docs/images/popup.png)
-
-![POPUP2](docs/images/popup2.png)
-
-![STANDALONE](docs/images/standalone.png)
-
-![SETTINGSMENU](docs/images/settings.png)
+| |
+|---|
+| ![SCRUM](docs/images/scrum.png) |
 
 ## Setting up the code locally
 
@@ -108,17 +137,14 @@ $ npm install
 
 1. **Install the Extension**
 
-
 * For Chrome: Load it into your browser through [Chrome Extension Developer Mode](https://developer.chrome.com/docs/extensions/mv3/getstarted/).
 <!-- * For Firefox: Load it as a temporary add-on through `about:debugging` as described above. -->
-
 
 2. **Build the Extension**
    * For Chrome: Rebuild or reload the extension in your browser (`chrome://extensions` → Refresh your extension).
    <!-- * For Firefox: Reload the temporary add-on by going to `about:debugging` → "This Firefox" → Click "Reload" next to your extension. -->
    
 3. **How to Obtain a GitHub Personal Access Token**
-
 
 - To use Scrum Helper with authenticated requests (for higher rate limits and private repositories), you need a GitHub personal access token.
 
@@ -133,27 +159,24 @@ $ npm install
 
   3. **Generate a New Token:**
 
-  - Click **"Generate new token"**.
+  - Click **"Generate new token"** and select **"Generate new token (classic)"** from the dropdown.
   - Give your token a descriptive name (e.g., "Scrum Helper Extension").
   - Set an expiration date if desired.
 
   4. **Create and Copy the Token:**
 
   - Click **"Generate token"** at the bottom.
-  - **Copy the token** and save it securely. You will not be able to see it again!
+  - **Copy the personal access token (classic)** and save it securely. You will not be able to see it again!
 
   5. **Paste the Token in Scrum Helper:**
 
   - Open the Scrum Helper extension popup.
-  - Paste your token into the "GitHub Token" field.
+  - Paste your classic token into the "GitHub Token" field.
 
   > **Keep your token secret!** Never share it or commit it to public repositories.
 
   **Why use a token?**  
-  GitHub tokens allow the extension to make authenticated requests, increasing your API rate limit and enabling access to private repositories if you grant those permissions.
-
-
-
+  Classic GitHub tokens allow the extension to make authenticated requests, increasing your API rate limit and enabling access to private repositories if you grant those permissions.
 
 ## Release Process
 
@@ -178,6 +201,5 @@ This part is performed manually by maintainers when it's time to publish a new v
 1.  **Verification**: A maintainer reviews the draft release to ensure it's accurate and complete.
 2.  **Publishing**: The maintainer publishes the release from the GitHub UI.
 3.  **Chrome Web Store Deployment**: Publishing the release triggers the "Publish to Chrome Web Store" workflow, which automatically packages the extension and uploads it for review.
-
 
 ### If you encounter any bugs, please report them at the [Issues page](https://github.com/fossasia/scrum_helper/issues).

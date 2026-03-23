@@ -1,3 +1,680 @@
+## v2.1.5 - 2026-03-21
+
+## What's Changed
+
+* Translation enhancements (#423) @Bekka592
+* Fix: Show message when user have no activity for selected days (#390) @Mateeb-Haider
+*  Fix multi-user cache contamination  (#454) @vedansh-5
+* Fix double scrollbar in popup mode (#452) @vedansh-5
+* Revert Fix
+double
+scrollbar
+appearing
+in
+popup
+window (#435) @vedansh-5
+* Fix double scrollbar appearing in popup window (#434) @gurusatsangi
+* Check box state handling when token not  present (#384) @Mateeb-Haider
+* fixed UI Bug (#425) @vedansh-5
+* feat: complete translations for all languages (100% coverage) (#360) @Mateeb-Haider
+* readme update and lint (#419) @vedansh-5
+* Resolve snap bug (#418) @vedansh-5
+* Fix typos in Scrum Helper user-facing strings (#410) @puneetnith28
+
+## Maintenance
+
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.5 to 2.4.7 (#457) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump postcss from 8.5.6 to 8.5.8 (#421) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.4 to 2.4.5 (#416) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps): bump @tailwindcss/cli from 4.1.18 to 4.2.1 (#395) @[dependabot[bot]](https://github.com/apps/dependabot)
+* version bump to 2.1.4 (#408) @vedansh-5
+
+---
+
+## v2.1.5 - 2026-03-21
+
+## What's Changed
+
+* Fix: Show message when user have no activity for selected days (#390) @Mateeb-Haider
+*  Fix multi-user cache contamination  (#454) @vedansh-5
+* Fix double scrollbar in popup mode (#452) @vedansh-5
+* Revert Fix
+double
+scrollbar
+appearing
+in
+popup
+window (#435) @vedansh-5
+* Fix double scrollbar appearing in popup window (#434) @gurusatsangi
+* Check box state handling when token not  present (#384) @Mateeb-Haider
+* fixed UI Bug (#425) @vedansh-5
+* feat: complete translations for all languages (100% coverage) (#360) @Mateeb-Haider
+* readme update and lint (#419) @vedansh-5
+* Resolve snap bug (#418) @vedansh-5
+* Fix typos in Scrum Helper user-facing strings (#410) @puneetnith28
+
+## Maintenance
+
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.5 to 2.4.7 (#457) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump postcss from 8.5.6 to 8.5.8 (#421) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.4 to 2.4.5 (#416) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps): bump @tailwindcss/cli from 4.1.18 to 4.2.1 (#395) @[dependabot[bot]](https://github.com/apps/dependabot)
+* version bump to 2.1.4 (#408) @vedansh-5
+
+---
+
+## v2.1.5 - 2026-03-21
+
+## What's Changed
+
+*  Fix multi-user cache contamination  (#454) @vedansh-5
+* Fix double scrollbar in popup mode (#452) @vedansh-5
+* Revert Fix
+double
+scrollbar
+appearing
+in
+popup
+window (#435) @vedansh-5
+* Fix double scrollbar appearing in popup window (#434) @gurusatsangi
+* Check box state handling when token not  present (#384) @Mateeb-Haider
+* fixed UI Bug (#425) @vedansh-5
+* feat: complete translations for all languages (100% coverage) (#360) @Mateeb-Haider
+* readme update and lint (#419) @vedansh-5
+* Resolve snap bug (#418) @vedansh-5
+* Fix typos in Scrum Helper user-facing strings (#410) @puneetnith28
+
+## Maintenance
+
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.5 to 2.4.7 (#457) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump postcss from 8.5.6 to 8.5.8 (#421) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.4 to 2.4.5 (#416) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps): bump @tailwindcss/cli from 4.1.18 to 4.2.1 (#395) @[dependabot[bot]](https://github.com/apps/dependabot)
+* version bump to 2.1.4 (#408) @vedansh-5
+
+---
+
+## v2.1.5 - 2026-03-18
+
+## What's Changed
+
+* Fix double scrollbar in popup mode (#452) @vedansh-5
+* Revert Fix
+double
+scrollbar
+appearing
+in
+popup
+window (#435) @vedansh-5
+* Fix double scrollbar appearing in popup window (#434) @gurusatsangi
+* Check box state handling when token not  present (#384) @Mateeb-Haider
+* fixed UI Bug (#425) @vedansh-5
+* feat: complete translations for all languages (100% coverage) (#360) @Mateeb-Haider
+* readme update and lint (#419) @vedansh-5
+* Resolve snap bug (#418) @vedansh-5
+* Fix typos in Scrum Helper user-facing strings (#410) @puneetnith28
+
+## Maintenance
+
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.5 to 2.4.7 (#457) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump postcss from 8.5.6 to 8.5.8 (#421) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.4 to 2.4.5 (#416) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps): bump @tailwindcss/cli from 4.1.18 to 4.2.1 (#395) @[dependabot[bot]](https://github.com/apps/dependabot)
+* version bump to 2.1.4 (#408) @vedansh-5
+
+---
+
+## v2.1.5 - 2026-03-16
+
+## What's Changed
+
+* Fix double scrollbar in popup mode (#452) @vedansh-5
+* Revert Fix
+double
+scrollbar
+appearing
+in
+popup
+window (#435) @vedansh-5
+* Fix double scrollbar appearing in popup window (#434) @gurusatsangi
+* Check box state handling when token not  present (#384) @Mateeb-Haider
+* fixed UI Bug (#425) @vedansh-5
+* feat: complete translations for all languages (100% coverage) (#360) @Mateeb-Haider
+* readme update and lint (#419) @vedansh-5
+* Resolve snap bug (#418) @vedansh-5
+* Fix typos in Scrum Helper user-facing strings (#410) @puneetnith28
+
+## Maintenance
+
+* chore(deps)(deps-dev): bump postcss from 8.5.6 to 8.5.8 (#421) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.4 to 2.4.5 (#416) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps): bump @tailwindcss/cli from 4.1.18 to 4.2.1 (#395) @[dependabot[bot]](https://github.com/apps/dependabot)
+* version bump to 2.1.4 (#408) @vedansh-5
+
+---
+
+## v2.1.5 - 2026-03-07
+
+## What's Changed
+
+* Revert Fix
+double
+scrollbar
+appearing
+in
+popup
+window (#435) @vedansh-5
+* Fix double scrollbar appearing in popup window (#434) @gurusatsangi
+* Check box state handling when token not  present (#384) @Mateeb-Haider
+* fixed UI Bug (#425) @vedansh-5
+* feat: complete translations for all languages (100% coverage) (#360) @Mateeb-Haider
+* readme update and lint (#419) @vedansh-5
+* Resolve snap bug (#418) @vedansh-5
+* Fix typos in Scrum Helper user-facing strings (#410) @puneetnith28
+
+## Maintenance
+
+* chore(deps)(deps-dev): bump postcss from 8.5.6 to 8.5.8 (#421) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.4 to 2.4.5 (#416) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps): bump @tailwindcss/cli from 4.1.18 to 4.2.1 (#395) @[dependabot[bot]](https://github.com/apps/dependabot)
+* version bump to 2.1.4 (#408) @vedansh-5
+
+---
+
+## v2.1.5 - 2026-03-07
+
+## What's Changed
+
+* Fix double scrollbar appearing in popup window (#434) @gurusatsangi
+* Check box state handling when token not  present (#384) @Mateeb-Haider
+* fixed UI Bug (#425) @vedansh-5
+* feat: complete translations for all languages (100% coverage) (#360) @Mateeb-Haider
+* readme update and lint (#419) @vedansh-5
+* Resolve snap bug (#418) @vedansh-5
+* Fix typos in Scrum Helper user-facing strings (#410) @puneetnith28
+
+## Maintenance
+
+* chore(deps)(deps-dev): bump postcss from 8.5.6 to 8.5.8 (#421) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.4 to 2.4.5 (#416) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps): bump @tailwindcss/cli from 4.1.18 to 4.2.1 (#395) @[dependabot[bot]](https://github.com/apps/dependabot)
+* version bump to 2.1.4 (#408) @vedansh-5
+
+---
+
+## v2.1.5 - 2026-03-04
+
+## What's Changed
+
+* Check box state handling when token not  present (#384) @Mateeb-Haider
+* fixed UI Bug (#425) @vedansh-5
+* feat: complete translations for all languages (100% coverage) (#360) @Mateeb-Haider
+* readme update and lint (#419) @vedansh-5
+* Resolve snap bug (#418) @vedansh-5
+* Fix typos in Scrum Helper user-facing strings (#410) @puneetnith28
+
+## Maintenance
+
+* chore(deps)(deps-dev): bump postcss from 8.5.6 to 8.5.8 (#421) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.4 to 2.4.5 (#416) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps): bump @tailwindcss/cli from 4.1.18 to 4.2.1 (#395) @[dependabot[bot]](https://github.com/apps/dependabot)
+* version bump to 2.1.4 (#408) @vedansh-5
+
+---
+
+## v2.1.5 - 2026-03-04
+
+## What's Changed
+
+* fixed UI Bug (#425) @vedansh-5
+* feat: complete translations for all languages (100% coverage) (#360) @Mateeb-Haider
+* readme update and lint (#419) @vedansh-5
+* Resolve snap bug (#418) @vedansh-5
+* Fix typos in Scrum Helper user-facing strings (#410) @puneetnith28
+
+## Maintenance
+
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.4 to 2.4.5 (#416) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps): bump @tailwindcss/cli from 4.1.18 to 4.2.1 (#395) @[dependabot[bot]](https://github.com/apps/dependabot)
+* version bump to 2.1.4 (#408) @vedansh-5
+
+---
+
+## v2.1.5 - 2026-03-04
+
+## What's Changed
+
+* feat: complete translations for all languages (100% coverage) (#360) @Mateeb-Haider
+* readme update and lint (#419) @vedansh-5
+* Resolve snap bug (#418) @vedansh-5
+* Fix typos in Scrum Helper user-facing strings (#410) @puneetnith28
+
+## Maintenance
+
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.4 to 2.4.5 (#416) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps): bump @tailwindcss/cli from 4.1.18 to 4.2.1 (#395) @[dependabot[bot]](https://github.com/apps/dependabot)
+* version bump to 2.1.4 (#408) @vedansh-5
+
+---
+
+## v2.1.5 - 2026-03-04
+
+## What's Changed
+
+* feat: complete translations for all languages (100% coverage) (#360) @Mateeb-Haider
+* readme update and lint (#419) @vedansh-5
+* Resolve snap bug (#418) @vedansh-5
+* Fix typos in Scrum Helper user-facing strings (#410) @puneetnith28
+
+## Maintenance
+
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.4 to 2.4.5 (#416) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps): bump @tailwindcss/cli from 4.1.18 to 4.2.1 (#395) @[dependabot[bot]](https://github.com/apps/dependabot)
+* version bump to 2.1.4 (#408) @vedansh-5
+
+---
+
+## v2.1.5 - 2026-03-02
+
+## What's Changed
+
+* readme update and lint (#419) @vedansh-5
+* Resolve snap bug (#418) @vedansh-5
+* Fix typos in Scrum Helper user-facing strings (#410) @puneetnith28
+
+## Maintenance
+
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.4 to 2.4.5 (#416) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps): bump @tailwindcss/cli from 4.1.18 to 4.2.1 (#395) @[dependabot[bot]](https://github.com/apps/dependabot)
+* version bump to 2.1.4 (#408) @vedansh-5
+
+---
+
+## v2.1.5 - 2026-03-02
+
+## What's Changed
+
+* readme update and lint (#419) @vedansh-5
+* Resolve snap bug (#418) @vedansh-5
+* Fix typos in Scrum Helper user-facing strings (#410) @puneetnith28
+
+## Maintenance
+
+* chore(deps)(deps): bump @tailwindcss/cli from 4.1.18 to 4.2.1 (#395) @[dependabot[bot]](https://github.com/apps/dependabot)
+* version bump to 2.1.4 (#408) @vedansh-5
+
+---
+
+## v2.1.5 - 2026-03-02
+
+## What's Changed
+
+* Resolve snap bug (#418) @vedansh-5
+* Fix typos in Scrum Helper user-facing strings (#410) @puneetnith28
+
+## Maintenance
+
+* chore(deps)(deps): bump @tailwindcss/cli from 4.1.18 to 4.2.1 (#395) @[dependabot[bot]](https://github.com/apps/dependabot)
+* version bump to 2.1.4 (#408) @vedansh-5
+
+---
+
+## v2.1.5 - 2026-03-02
+
+## What's Changed
+
+* Fix typos in Scrum Helper user-facing strings (#410) @puneetnith28
+
+## Maintenance
+
+* chore(deps)(deps): bump @tailwindcss/cli from 4.1.18 to 4.2.1 (#395) @[dependabot[bot]](https://github.com/apps/dependabot)
+* version bump to 2.1.4 (#408) @vedansh-5
+
+---
+
+## v2.1.5 - 2026-02-28
+
+## What's Changed
+
+## Maintenance
+
+* version bump to 2.1.4 (#408) @vedansh-5
+
+---
+
+## v2.1.5 - 2026-02-28
+
+## What's Changed
+
+## Maintenance
+
+* version bump to 2.1.4 (#408) @vedansh-5
+
+---
+
+## v2.0.4 - 2026-02-28
+
+## What's Changed
+
+* Removed on/off toggle and added insert to email button (#372) @vedansh-5
+* Add Burmese (my) locale support (#402) @kaungmyatshwe1397
+* Feature: Side panel extension window instead of popup window (#373) @vedansh-5
+* fix: remove toast for non-existed users (#381) @Mateeb-Haider
+* fix: repo-filtering \& input search visibility (#375) @Mateeb-Haider
+* Add Malayalam (ml) language support (#367) @SourishMerugu
+
+## Maintenance
+
+* chore(deps)(deps-dev): bump autoprefixer from 10.4.24 to 10.4.27 (#403) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.2 to 2.4.4 (#394) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump tailwindcss from 4.1.18 to 4.2.1 (#396) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.14 to 2.4.2 (#378) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.13 to 2.3.14 (#368) @[dependabot[bot]](https://github.com/apps/dependabot)
+* versionbump (#365) @vedansh-5
+
+---
+
+## v2.0.4 - 2026-02-26
+
+## What's Changed
+
+* Add Burmese (my) locale support (#402) @kaungmyatshwe1397
+* Feature: Side panel extension window instead of popup window (#373) @vedansh-5
+* fix: remove toast for non-existed users (#381) @Mateeb-Haider
+* fix: repo-filtering \& input search visibility (#375) @Mateeb-Haider
+* Add Malayalam (ml) language support (#367) @SourishMerugu
+
+## Maintenance
+
+* chore(deps)(deps-dev): bump autoprefixer from 10.4.24 to 10.4.27 (#403) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.2 to 2.4.4 (#394) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump tailwindcss from 4.1.18 to 4.2.1 (#396) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.14 to 2.4.2 (#378) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.13 to 2.3.14 (#368) @[dependabot[bot]](https://github.com/apps/dependabot)
+* versionbump (#365) @vedansh-5
+
+---
+
+## v2.0.4 - 2026-02-26
+
+## What's Changed
+
+* Add Burmese (my) locale support (#402) @kaungmyatshwe1397
+* Feature: Side panel extension window instead of popup window (#373) @vedansh-5
+* fix: remove toast for non-existed users (#381) @Mateeb-Haider
+* fix: repo-filtering \& input search visibility (#375) @Mateeb-Haider
+* Add Malayalam (ml) language support (#367) @SourishMerugu
+
+## Maintenance
+
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.2 to 2.4.4 (#394) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump tailwindcss from 4.1.18 to 4.2.1 (#396) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.14 to 2.4.2 (#378) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.13 to 2.3.14 (#368) @[dependabot[bot]](https://github.com/apps/dependabot)
+* versionbump (#365) @vedansh-5
+
+---
+
+## v2.0.4 - 2026-02-26
+
+## What's Changed
+
+* Feature: Side panel extension window instead of popup window (#373) @vedansh-5
+* fix: remove toast for non-existed users (#381) @Mateeb-Haider
+* fix: repo-filtering \& input search visibility (#375) @Mateeb-Haider
+* Add Malayalam (ml) language support (#367) @SourishMerugu
+
+## Maintenance
+
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.2 to 2.4.4 (#394) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump tailwindcss from 4.1.18 to 4.2.1 (#396) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.14 to 2.4.2 (#378) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.13 to 2.3.14 (#368) @[dependabot[bot]](https://github.com/apps/dependabot)
+* versionbump (#365) @vedansh-5
+
+---
+
+## v2.0.4 - 2026-02-26
+
+## What's Changed
+
+* Feature: Side panel extension window instead of popup window (#373) @vedansh-5
+* fix: remove toast for non-existed users (#381) @Mateeb-Haider
+* fix: repo-filtering \& input search visibility (#375) @Mateeb-Haider
+* Add Malayalam (ml) language support (#367) @SourishMerugu
+
+## Maintenance
+
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.14 to 2.4.2 (#378) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.13 to 2.3.14 (#368) @[dependabot[bot]](https://github.com/apps/dependabot)
+* versionbump (#365) @vedansh-5
+
+---
+
+## v2.0.4 - 2026-02-18
+
+## What's Changed
+
+* fix: remove toast for non-existed users (#381) @Mateeb-Haider
+* fix: repo-filtering \& input search visibility (#375) @Mateeb-Haider
+* Add Malayalam (ml) language support (#367) @SourishMerugu
+
+## Maintenance
+
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.14 to 2.4.2 (#378) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.13 to 2.3.14 (#368) @[dependabot[bot]](https://github.com/apps/dependabot)
+* versionbump (#365) @vedansh-5
+
+---
+
+## v2.0.4 - 2026-02-18
+
+## What's Changed
+
+* fix: remove toast for non-existed users (#381) @Mateeb-Haider
+* fix: repo-filtering \& input search visibility (#375) @Mateeb-Haider
+* Add Malayalam (ml) language support (#367) @SourishMerugu
+
+## Maintenance
+
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.14 to 2.4.2 (#378) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.13 to 2.3.14 (#368) @[dependabot[bot]](https://github.com/apps/dependabot)
+* versionbump (#365) @vedansh-5
+
+---
+
+## v2.0.4 - 2026-02-17
+
+## What's Changed
+
+* fix: repo-filtering \& input search visibility (#375) @Mateeb-Haider
+* Add Malayalam (ml) language support (#367) @SourishMerugu
+
+## Maintenance
+
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.14 to 2.4.2 (#378) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.13 to 2.3.14 (#368) @[dependabot[bot]](https://github.com/apps/dependabot)
+* versionbump (#365) @vedansh-5
+
+---
+
+## v2.0.4 - 2026-02-17
+
+## What's Changed
+
+* fix: repo-filtering \& input search visibility (#375) @Mateeb-Haider
+* Add Malayalam (ml) language support (#367) @SourishMerugu
+
+## Maintenance
+
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.13 to 2.3.14 (#368) @[dependabot[bot]](https://github.com/apps/dependabot)
+* versionbump (#365) @vedansh-5
+
+---
+
+## v2.0.4 - 2026-02-11
+
+## What's Changed
+
+* Add Malayalam (ml) language support (#367) @SourishMerugu
+
+## Maintenance
+
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.13 to 2.3.14 (#368) @[dependabot[bot]](https://github.com/apps/dependabot)
+* versionbump (#365) @vedansh-5
+
+---
+
+## v2.0.4 - 2026-02-04
+
+## What's Changed
+
+## Maintenance
+
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.13 to 2.3.14 (#368) @[dependabot[bot]](https://github.com/apps/dependabot)
+* versionbump (#365) @vedansh-5
+
+---
+
+## v2.0.4 - 2026-02-04
+
+## What's Changed
+
+## Maintenance
+
+* versionbump (#365) @vedansh-5
+
+---
+
+## v2.0.3 - 2026-02-04
+
+## What's Changed
+
+* Release drafter workflow fix (#364) @vedansh-5
+* Delete PR\_DESCRIPTION.md (#362) @vedansh-5
+* feat: add GitLab token support (#354) @Anshumancanrock
+* Translation for onlyReviewedPRs feature \& telugu translation (#346) @vedansh-5
+* Clearing codebase  (#345) @vedansh-5
+* Only reviewed prs filter (#338) @vedansh-5
+* Version2.0.2 version bump (#341) @vedansh-5
+* fix(logging): remove debug console.log statements (#325) @Nsanjayboruds
+* Fixed translation bug and changed the appname and madewithlove to english (#337) @vedansh-5
+* Revert Revert
+Added Translation : Telugu language (#335) @vedansh-5
+* Revert Added
+Translation
+:
+Telugu
+language (#334) @vedansh-5
+* Readme changes to encourage new users to use extension from chrome webstore, rather than setting it up locally (#315) @vedansh-5
+* Added Translation : Telugu language (#327) @MiriyalaJayanth-19
+* Improve date picker icon visibility in dark mode (#321) @abhivyakti2
+* Improve GitHub user validation and error handling (#283) @Mateeb-Haider
+* OnlyPRs filter (#308) @vedansh-5
+* Improve CONTRIBUTING.md and fix broken link (#312) @Salmaan-M
+* Bug fixed in isNewPr condition (#306) @vedansh-5
+* Fix popup crash on dark mode toggle due to missing tokenPreview (#300) @gurusatsangi
+
+## Maintenance
+
+* chore(deps)(deps): bump @tailwindcss/cli from 4.1.10 to 4.1.18 (#358) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump postcss from 8.5.4 to 8.5.6 (#357) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump autoprefixer from 10.4.21 to 10.4.24 (#356) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump tailwindcss from 4.1.10 to 4.1.18 (#359) @[dependabot[bot]](https://github.com/apps/dependabot)
+* Adding lint and formatting test (GH Actions) (#343) @vedansh-5
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.11 to 2.3.13 (#333) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.10 to 2.3.11 (#290) @[dependabot[bot]](https://github.com/apps/dependabot)
+
+---
+
+## v0.1.3 - 2026-01-31
+
+## What's Changed
+
+* Add translations for onlyReviewedPRs feature
+* Update Telugu translations
+---
+
+## v0.1.3 - 2026-01-30
+
+## What's Changed
+
+* No changes
+
+---
+
+## v0.1.3 - 2026-01-29
+
+## What's Changed
+
+* No changes
+
+---
+
+## v0.1.3 - 2026-01-28
+
+## What's Changed
+
+* No changes
+
+
+## What's Changed
+
+* Update README documentation
+
+## v2.0.2 - 2026-01-21
+
+## What's Changed
+
+* Improve GitHub user validation and error handling (#283) @Mateeb-Haider
+* OnlyPRs filter (#308) @vedansh-5
+* Improve CONTRIBUTING.md and fix broken link (#312) @Salmaan-M
+* Bug fixed in isNewPr condition (#306) @vedansh-5
+* Fix popup crash on dark mode toggle due to missing tokenPreview (#300) @gurusatsangi
+* fix(popup): remove invalid Tailwind runtime directives (#304) @skyforge-glitch
+
+## Maintenance
+
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.10 to 2.3.11 (#290) @[dependabot[bot]](https://github.com/apps/dependabot)
+
+---
+
+## v2.0.2 - 2026-01-21
+
+## What's Changed
+
+* Improve GitHub user validation and error handling (#283) @Mateeb-Haider
+* OnlyPRs filter (#308) @vedansh-5
+* Improve CONTRIBUTING.md and fix broken link (#312) @Salmaan-M
+* Bug fixed in isNewPr condition (#306) @vedansh-5
+* Fix popup crash on dark mode toggle due to missing tokenPreview (#300) @gurusatsangi
+* fix(popup): remove invalid Tailwind runtime directives (#304) @skyforge-glitch
+
+---
+
+## v2.0.2 - 2026-01-21
+
+## What's Changed
+
+* OnlyPRs filter (#308) @vedansh-5
+* Improve CONTRIBUTING.md and fix broken link (#312) @Salmaan-M
+* Bug fixed in isNewPr condition (#306) @vedansh-5
+* Fix popup crash on dark mode toggle due to missing tokenPreview (#300) @gurusatsangi
+* fix(popup): remove invalid Tailwind runtime directives (#304) @skyforge-glitch
+
+---
+
+## v2.0.2 - 2026-01-21
+
+## What's Changed
+
+* Improve CONTRIBUTING.md and fix broken link (#312) @Salmaan-M
+* Bug fixed in isNewPr condition (#306) @vedansh-5
+* Fix popup crash on dark mode toggle due to missing tokenPreview (#300) @gurusatsangi
+* fix(popup): remove invalid Tailwind runtime directives (#304) @skyforge-glitch
+
+---
+
 ## v2.0.2 - 2026-01-14
 
 ## What's Changed

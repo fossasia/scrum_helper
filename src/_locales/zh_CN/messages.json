@@ -1,5 +1,4 @@
 {
-
     "appName": {
         "message": "Scrum Helper"
     },
@@ -52,10 +51,13 @@
         "message": "Scrum 报告"
     },
     "generateReportButton": {
-        "message": "生成报告"
+        "message": "生成"
     },
     "copyReportButton": {
-        "message": "复制报告"
+        "message": "复制"
+    },
+    "insertInEmailButton": {
+        "message": "插入到邮件"
     },
     "settingsOrgNameLabel": {
         "message": "组织名称"
@@ -72,6 +74,18 @@
     "githubTokenPlaceholder": {
         "message": "进行身份验证请求所必需"
     },
+    "githubTokenTooltip": {
+        "message": "为什么建议添加 GitHub 令牌？Scrum Helper 无需 GitHub 令牌也能工作，但添加个人访问令牌可以提供更好的体验。"
+    },
+    "gitlabTokenLabel": {
+        "message": "您的 GitLab 令牌"
+    },
+    "gitlabTokenPlaceholder": {
+        "message": "私有仓库需要"
+    },
+    "gitlabTokenTooltip": {
+        "message": "为什么建议添加 GitLab 令牌？Scrum Helper 对于公开项目无需 GitLab 令牌也能工作，但添加个人访问令牌可以提供更好的体验。"
+    },
     "showCommitsLabel": {
         "message": "在打开的 PR/草稿 PR 上显示提交"
     },
@@ -83,6 +97,12 @@
     },
     "onlyIssuesTooltip": {
         "message": "如果选中，报告将仅包含由用户创建或分配给用户的问题。"
+    },
+    "onlyPRsLabel": {
+        "message": "报告中仅包含PR"
+    },
+    "onlyPRsTooltip": {
+        "message": "勾选后，报告将只包含用户创建的拉取请求；已审核的PR将被排除。"
     },
     "cacheTTLLabel": {
         "message": "输入缓存 TTL",
@@ -184,6 +204,10 @@
     "cacheClearedMessage": {
         "message": "缓存已成功清除。单击“生成报告”以获取新数据。"
     },
+    "cacheExpiredMessage": {
+        "message": "缓存已过期。点击\"生成\"以获取最新数据。",
+        "description": "Message shown when the cached data has expired and user needs to regenerate."
+    },
     "cacheClearedButton": {
         "message": "缓存已清除！"
     },
@@ -201,5 +225,74 @@
     },
     "usernameLabel": {
         "message": "您的用户名"
+    },
+    "onlyRevPRsLabel": {
+        "message": "报告中仅包含已审核的 PR"
+    },
+    "onlyRevPRsTooltip": {
+        "message": "如果选中，报告将仅包含由您审核的 PR。"
+    },
+    "usernameRequiredError": {
+        "message": "请填写用户名以生成报告。"
+    },
+    "unknownPlatformError": {
+        "message": "选择了未知的平台。"
+    },
+    "gitlabFetchingError": {
+        "message": "获取 GitLab 数据时发生错误。"
+    },
+    "reportGenerationError": {
+        "message": "生成报告时发生错误。"
+    },
+    "githubUserNotFoundError": {
+        "message": "未找到 GitHub 用户 \"$1\"（404）。请检查用户名后重试。"
+    },
+    "githubUserValidationError": {
+        "message": "验证 GitHub 用户时出错：$1 $2"
+    },
+    "invalidSearchQueryError": {
+        "message": "无效的搜索查询或日期范围。请检查格式后重试。"
+    },
+    "githubIssuesFetchError": {
+        "message": "获取 GitHub 问题时出错：$1 $2"
+    },
+    "githubPRReviewFetchError": {
+        "message": "获取 GitHub PR 审查数据时出错：$1 $2"
+    },
+    "githubUserFetchError": {
+        "message": "获取 GitHub 用户数据时出错：$1 $2"
+    },
+    "invalidTokenError": {
+        "message": "GitHub 令牌无效或已过期。请在 Scrum Helper 设置中检查您的令牌并重试。"
+    },
+    "displayModeNotice": {
+        "message": "扩展将在下次启动时以 $1 模式打开。"
+    },
+    "repoFilteringGithubOnly": {
+        "message": "仓库筛选仅适用于 GitHub。"
+    },
+    "repoLoadingGithubOnly": {
+        "message": "仓库加载仅适用于 GitHub。"
+    },
+    "repoFetchingGithubOnly": {
+        "message": "仓库获取仅适用于 GitHub。"
+    },
+    "loadingReposAutomatically": {
+        "message": "正在自动加载仓库..."
+    },
+    "gitlabUserFetchError": {
+        "message": "获取 GitLab 用户时出错：$1 $2"
+    },
+    "gitlabUserNotFoundError": {
+        "message": "未找到 GitLab 用户 '$1'"
+    },
+    "gitlabMembershipError": {
+        "message": "获取 GitLab 成员项目时出错：$1 $2"
+    },
+    "gitlabContributedError": {
+        "message": "获取 GitLab 贡献项目时出错：$1 $2"
+    },
+    "usernameMissingError": {
+        "message": "需要用户名。"
     }
 }

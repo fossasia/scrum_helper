@@ -1,0 +1,56 @@
+name: Lint
+
+on:
+    push:
+        branches: [master, main]
+    pull_request:
+        branches: [master, main]
+
+jobs:
+    lint:
+        runs-on: ubuntu-latest
+
+        strategy:
+            matrix:
+                node-version: [18.x, 20.x]
+
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Use Node.js ${{ matrix.node-version }}
+              uses: actions/setup-node@v4
+              with:
+                node-version: ${{ matrix.node-version }}
+                cache: 'npm'
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Run linter
+              id: lint
+              run: npm run lint
+
+            - name: Troubleshoot lint failures
+              if: ${{ always() && steps.lint.outcome == 'failure' }}
+              shell: bash
+              run: |
+                echo "::group::Troubleshooting: Biome lint failed"
+                echo "Reproduce locally (same as CI):"
+                echo " npm ci"
+                echo " npm run lint"
+                echo ""
+                echo "Check tool versions:"
+                echo " node --version || true"
+                node --version 
+                echo " npm --version"
+                npm --version || true
+                echo " npx biome --version"
+                npx biome --version || true
+                echo ""
+                echo "Common fixes:"
+                echo " - Auto-fix (safe): npm run fix"
+                echo " - Format:          npm run format"
+                echo " - Full check:      npm run check"
+                echo ""
+                echo " If CI fails but local passes, try Node 18/20 locally (CI runs both)."
+                echo "::endgroup::"

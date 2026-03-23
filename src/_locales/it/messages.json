@@ -56,6 +56,10 @@
     "copyReportButton": {
         "message": "Copia Rapporto"
     },
+    "insertInEmailButton": {
+        "message": "Inserisci nell'email",
+        "description": "Text for the 'Insert to Email' button."
+    },
     "settingsOrgNameLabel": {
         "message": "Nome dell'organizzazione"
     },
@@ -71,8 +75,35 @@
     "githubTokenPlaceholder": {
         "message": "Richiesto per richieste autenticate"
     },
+    "githubTokenTooltip": {
+        "message": "Perché è consigliato aggiungere un token GitHub? Scrum Helper funziona senza un token GitHub, ma aggiungere un token di accesso personale è consigliato per un'esperienza migliore."
+    },
+    "gitlabTokenLabel": {
+        "message": "Il tuo token GitLab"
+    },
+    "gitlabTokenPlaceholder": {
+        "message": "Richiesto per repo privati"
+    },
+    "gitlabTokenTooltip": {
+        "message": "Perché è consigliato aggiungere un token GitLab? Scrum Helper funziona senza un token GitLab per progetti pubblici, ma aggiungere un token di accesso personale è consigliato per un'esperienza migliore."
+    },
     "showCommitsLabel": {
         "message": "Mostra commit su PR aperti/ bozze di PR"
+    },
+    "showCommitsTooltip": {
+        "message": "Token GitHub richiesto, aggiungilo nelle impostazioni."
+    },
+    "onlyIssuesLabel": {
+        "message": "Includi solo i problemi nel report"
+    },
+    "onlyIssuesTooltip": {
+        "message": "Se selezionato, il report includerà solo i problemi creati o assegnati all'utente."
+    },
+    "onlyPRsLabel": {
+        "message": "Includi solo le PR nel report"
+    },
+    "onlyPRsTooltip": {
+        "message": "Se selezionato, il report includerà solo le pull request create dall'utente; le PR revisionate saranno escluse."
     },
     "cacheTTLLabel": {
         "message": "Inserisci TTL della cache"
@@ -173,6 +204,10 @@
     "cacheClearedMessage": {
         "message": "Cache svuotata con successo. Clicca 'Genera Rapporto' per recuperare dati aggiornati."
     },
+    "cacheExpiredMessage": {
+        "message": "Cache scaduta. Clicca \"Genera\" per recuperare dati aggiornati.",
+        "description": "Message shown when the cached data has expired and user needs to regenerate."
+    },
     "cacheClearedButton": {
         "message": "Cache Svuotata!"
     },
@@ -190,5 +225,74 @@
     },
     "usernameLabel": {
         "message": "Il tuo nome utente"
-    }
+    },
+    "onlyRevPRsLabel": {
+        "message": "Includi solo le PR revisionate nel report"
+    },
+    "onlyRevPRsTooltip": {
+        "message": "Se selezionato, il report includerà solo le PR revisionate da te."
+    },
+    	"usernameRequiredError": {
+		"message": "Inserisci il tuo nome utente per generare un report."
+	},
+	"unknownPlatformError": {
+		"message": "Piattaforma selezionata sconosciuta."
+	},
+	"gitlabFetchingError": {
+		"message": "Si è verificato un errore durante il recupero dei dati di GitLab."
+	},
+	"reportGenerationError": {
+		"message": "Si è verificato un errore durante la generazione del report."
+	},
+	"githubUserNotFoundError": {
+		"message": "Utente GitHub \"$1\" non trovato (404). Verifica il nome utente e riprova."
+	},
+	"githubUserValidationError": {
+		"message": "Errore durante la convalida dell'utente GitHub: $1 $2"
+	},
+	"invalidSearchQueryError": {
+		"message": "Query di ricerca o intervallo di date non valido. Verifica il formato dell'intervallo di date e riprova."
+	},
+	"githubIssuesFetchError": {
+		"message": "Errore durante il recupero delle issue di GitHub: $1 $2"
+	},
+	"githubPRReviewFetchError": {
+		"message": "Errore durante il recupero dei dati di revisione PR di GitHub: $1 $2"
+	},
+	"githubUserFetchError": {
+		"message": "Errore durante il recupero dei dati dell'utente GitHub: $1 $2"
+	},
+	"invalidTokenError": {
+		"message": "Token GitHub non valido o scaduto. Verifica il tuo token nelle impostazioni di Scrum Helper e riprova."
+	},
+	"displayModeNotice": {
+		"message": "L'estensione si aprirà in modalità $1 al prossimo avvio."
+	},
+	"repoFilteringGithubOnly": {
+		"message": "Il filtro dei repository è disponibile solo per GitHub."
+	},
+	"repoLoadingGithubOnly": {
+		"message": "Il caricamento dei repository è disponibile solo per GitHub."
+	},
+	"repoFetchingGithubOnly": {
+		"message": "Il recupero dei repository è disponibile solo per GitHub."
+	},
+	"loadingReposAutomatically": {
+		"message": "Caricamento automatico dei repository.."
+	},
+	"gitlabUserFetchError": {
+		"message": "Errore durante il recupero dell'utente GitLab: $1 $2"
+	},
+	"gitlabUserNotFoundError": {
+		"message": "Utente GitLab '$1' non trovato"
+	},
+	"gitlabMembershipError": {
+		"message": "Errore durante il recupero dei progetti di appartenenza GitLab: $1 $2"
+	},
+	"gitlabContributedError": {
+		"message": "Errore durante il recupero dei progetti a cui l'utente ha contribuito su GitLab: $1 $2"
+	},
+	"usernameMissingError": {
+		"message": "Nome utente richiesto."
+	}
 }

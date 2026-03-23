@@ -1,38 +1,37 @@
-
 class EmailClientAdapter {
 	isNewConversation() {
-	const clientType = this.detectClient();
-	if (!clientType) return false;
-	const elements = this.getEditorElements();
-	if (!elements || !elements.subject) return false;
-	const currentSubject = elements.subject.value || '';
-	const isReplySubject = currentSubject.startsWith('Re:') || currentSubject.startsWith('Fwd:');	
-	let isReplyContext = false;
+		const clientType = this.detectClient();
+		if (!clientType) return false;
+		const elements = this.getEditorElements();
+		if (!elements || !elements.subject) return false;
+		const currentSubject = elements.subject.value || '';
+		const isReplySubject = currentSubject.startsWith('Re:') || currentSubject.startsWith('Fwd:');
+		let isReplyContext = false;
 
-	switch (clientType) {
-		case 'gmail': {
-            const editor = document.querySelector('.Am.Al.editable.LW-avf');
-            const isNewWindow = editor ? !!editor.closest('div[role="dialog"]') : false;
-            isReplyContext = !isNewWindow;
-            break;
-        }
+		switch (clientType) {
+			case 'gmail': {
+				const editor = document.querySelector('.Am.Al.editable.LW-avf');
+				const isNewWindow = editor ? !!editor.closest('div[role="dialog"]') : false;
+				isReplyContext = !isNewWindow;
+				break;
+			}
 
-		case 'outlook': {
-            isReplyContext = !!document.querySelector('[aria-label="Reply"]');
-            break;
-        }
+			case 'outlook': {
+				isReplyContext = !!document.querySelector('[aria-label="Reply"]');
+				break;
+			}
 
-		case 'yahoo': {
-            const header = document.querySelector('[data-test-id="compose-header-title"]');
-            if (header) {
-                const title = header.innerText.trim().toLowerCase();
-                isReplyContext = title.includes('reply') || title.includes('forward');
-            }
-            break;
-        }
-    }
-	return !(isReplySubject || isReplyContext);
-}
+			case 'yahoo': {
+				const header = document.querySelector('[data-test-id="compose-header-title"]');
+				if (header) {
+					const title = header.innerText.trim().toLowerCase();
+					isReplyContext = title.includes('reply') || title.includes('forward');
+				}
+				break;
+			}
+		}
+		return !(isReplySubject || isReplyContext);
+	}
 	constructor() {
 		this.clientConfigs = {
 			'google-groups': {
@@ -45,7 +44,7 @@ class EmailClientAdapter {
 					subjectChange: 'input',
 				},
 			},
-			'gmail': {
+			gmail: {
 				selectors: {
 					body: 'div.editable.LW-avf[contenteditable="true"][role="textbox"]',
 					subject: 'input[name="subjectbox"][tabindex="1"]',
@@ -55,7 +54,7 @@ class EmailClientAdapter {
 					subjectChange: 'input',
 				},
 			},
-			'outlook': {
+			outlook: {
 				selectors: {
 					body: 'div[role="textbox"][contenteditable="true"][aria-multiline="true"]',
 					subject: [
@@ -69,12 +68,12 @@ class EmailClientAdapter {
 				},
 				injectMethod: 'focusAndPaste', // Custom injection method
 			},
-			'yahoo': {
+			yahoo: {
 				selectors: {
 					body: [
 						// Desktop selectors
 						'#editor-container [contenteditable="true"][role="textbox"]',
-            '[aria-multiline="true"][aria-label="Message body"][contenteditable="true"][role="textbox"]',
+						'[aria-multiline="true"][aria-label="Message body"][contenteditable="true"][role="textbox"]',
 						'[aria-label="Message body"][contenteditable="true"]',
 						'[role="textbox"][contenteditable="true"]',
 						'[data-test-id*="compose"][contenteditable="true"]',
@@ -85,12 +84,12 @@ class EmailClientAdapter {
 					subject: [
 						// Desktop selectors
 						'#compose-subject-input, input[placeholder="Subject"][id="compose-subject-input"]',
-            '#compose-subject-input',
-							'input[placeholder="Subject"]',
-							'input[aria-label*="subject" i]',
-							'input[data-test-id*="subject" i]',
+						'#compose-subject-input',
+						'input[placeholder="Subject"]',
+						'input[aria-label*="subject" i]',
+						'input[data-test-id*="subject" i]',
 						// Mobile selectors
-						'#compose-subject-input-mobile, input[placeholder="Subject"][id="compose-subject-input-mobile"]'
+						'#compose-subject-input-mobile, input[placeholder="Subject"][id="compose-subject-input-mobile"]',
 					].join(', '),
 				},
 				eventTypes: {
@@ -123,9 +122,98 @@ class EmailClientAdapter {
 		if (!clientType) return null;
 
 		const config = this.clientConfigs[clientType];
+		const normalizeSelector = (sel) => (Array.isArray(sel) ? sel.join(', ') : sel);
+
+		const bodySel = normalizeSelector(config.selectors.body);
+		const subjectSel = normalizeSelector(config.selectors.subject);
+
+		const isVisible = (el) => {
+			if (!el) return false;
+			if (el.closest('[aria-hidden="true"]')) return false;
+
+			const style = window.getComputedStyle(el);
+			if (style.display === 'none' || style.visibility === 'hidden') return false;
+
+			const rect = el.getBoundingClientRect();
+			return rect.width > 0 && rect.height > 0;
+		};
+
+		const maxAncestorZIndex = (el) => {
+			let cur = el;
+			let best = 0;
+			for (let i = 0; i < 10 && cur; i++) {
+				const z = Number.parseInt(window.getComputedStyle(cur).zIndex, 10);
+				if (Number.isFinite(z)) best = Math.max(best, z);
+				cur = cur.parentElement;
+			}
+			return best;
+		};
+
+		const activeEl = document.activeElement;
+
+		// when multiple compose windows exists, we choose the focused one.
+		if (clientType === 'gmail') {
+			const bodiesAll = Array.from(document.querySelectorAll(bodySel));
+			const bodies = bodiesAll.filter(isVisible);
+			const candidates = bodies.length ? bodies : bodiesAll;
+
+			let bestBody = null;
+			let bestScore = -Infinity;
+
+			for (let i = 0; i < candidates.length; i++) {
+				const body = candidates[i];
+				const dialog = body.closest('div[role="dialog"]') || body.closest('[role="dialog"]');
+
+				const focused = activeEl && (body === activeEl || body.contains(activeEl)) ? 1_000_000 : 0;
+				const z = maxAncestorZIndex(dialog || body);
+
+				const score = focused + z * 1000 + i;
+
+				if (score >= bestScore) {
+					bestScore = score;
+					bestBody = body;
+				}
+			}
+
+			const container = bestBody?.closest('div[role="dialog"]') || bestBody?.closest('[role="dialog"]') || document;
+
+			const scopedSubjects = Array.from(container.querySelectorAll(subjectSel));
+			const subject =
+				scopedSubjects.filter(isVisible).pop() || scopedSubjects.pop() || document.querySelector(subjectSel);
+
+			return {
+				body: bestBody,
+				subject,
+				eventTypes: config.eventTypes,
+			};
+		}
+
+		const bodiesAll = Array.from(document.querySelectorAll(bodySel));
+		const subjectsAll = Array.from(document.querySelectorAll(subjectSel));
+
+		const body = bodiesAll.filter(isVisible).pop() || bodiesAll.pop() || null;
+
+		let subject = null;
+		if (body) {
+			const container =
+				body.closest('[role="dialog"]') ||
+				body.closest('[data-test-id*="compose"]') ||
+				body.closest('.compose-editor') ||
+				body.closest('#editor-container') ||
+				body.closest('#editor-container-mobile') ||
+				document;
+
+			const scoped = Array.from(container.querySelectorAll(subjectSel));
+			subject = scoped.filter(isVisible).pop() || scoped.pop() || null;
+		}
+
+		if (!subject) {
+			subject = subjectsAll.filter(isVisible).pop() || subjectsAll.pop() || null;
+		}
+
 		return {
-			body: document.querySelector(config.selectors.body),
-			subject: document.querySelector(config.selectors.subject),
+			body,
+			subject,
 			eventTypes: config.eventTypes,
 		};
 	}
@@ -165,7 +253,7 @@ class EmailClientAdapter {
 					this.dispatchElementEvents(element, ['input', 'change'], true);
 					break;
 
-				case 'setContent':
+				case 'setContent': {
 					// Special handling for Yahoo
 					element.innerHTML = content;
 					element.focus();
@@ -177,6 +265,7 @@ class EmailClientAdapter {
 					selection.addRange(range);
 					this.dispatchElementEvents(element, ['input', 'change']);
 					break;
+				}
 
 				default:
 					// Default handling for Google clients
