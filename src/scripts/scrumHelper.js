@@ -12,6 +12,10 @@ function logError(...args) {
 	}
 }
 
+function hasValidUsername(value) {
+	return !!value && String(value).trim() !== '';
+}
+
 function renderErrorMessage(container, key, fallback, args = []) {
 	// add message (or fallback) into HTML container in a protected manner
 	let message = fallback;
@@ -199,7 +203,7 @@ function allIncluded(outputTarget = 'email') {
 							}
 							if (generateBtn) {
 								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
-								generateBtn.disabled = String(platformUsernameLocal).trim() === '';
+								generateBtn.disabled = !hasValidUsername(platformUsernameLocal);
 							}
 							scrumGenerationInProgress = false;
 						} else {
@@ -276,7 +280,7 @@ function allIncluded(outputTarget = 'email') {
 									if (outputTarget === 'popup') {
 										if (generateBtn) {
 											generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
-											generateBtn.disabled = String(platformUsernameLocal).trim() === '';
+											generateBtn.disabled = !hasValidUsername(platformUsernameLocal);
 										}
 										const scrumReport = document.getElementById('scrumReport');
 										if (scrumReport) {
@@ -330,7 +334,7 @@ function allIncluded(outputTarget = 'email') {
 									if (outputTarget === 'popup') {
 										if (generateBtn) {
 											generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
-											generateBtn.disabled = String(platformUsernameLocal).trim() === '';
+											generateBtn.disabled = !hasValidUsername(platformUsernameLocal);
 										}
 										const scrumReport = document.getElementById('scrumReport');
 										if (scrumReport) {
@@ -356,7 +360,7 @@ function allIncluded(outputTarget = 'email') {
 							}
 							if (generateBtn) {
 								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
-								generateBtn.disabled = String(platformUsernameLocal).trim() === '';
+								generateBtn.disabled = !hasValidUsername(platformUsernameLocal);
 							}
 						}
 						scrumGenerationInProgress = false;
@@ -793,11 +797,11 @@ function allIncluded(outputTarget = 'email') {
 					}
 					renderErrorMessage(scrumReport, '', errorMsg);
 					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
-					generateBtn.disabled = String(platformUsernameLocal).trim() === '';
+					generateBtn.disabled = !hasValidUsername(platformUsernameLocal);
 				}
 				if (generateBtn) {
 					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
-					generateBtn.disabled = String(platformUsernameLocal).trim() === '';
+					generateBtn.disabled = !hasValidUsername(platformUsernameLocal);
 				}
 			}
 			scrumGenerationInProgress = false;
@@ -974,7 +978,7 @@ function allIncluded(outputTarget = 'email') {
 				const generateBtn = document.getElementById('generateReport');
 				if (generateBtn) {
 					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
-					generateBtn.disabled = String(platformUsernameLocal).trim() === '';
+					generateBtn.disabled = !hasValidUsername(platformUsernameLocal);
 				}
 			} else {
 				alert(errMsg);
@@ -1153,7 +1157,7 @@ ${blockerText}`;
 				const generateBtn = document.getElementById('generateReport');
 				if (generateBtn) {
 					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
-					generateBtn.disabled = String(platformUsernameLocal).trim() === '';
+					generateBtn.disabled = !hasValidUsername(platformUsernameLocal);
 				}
 			} else {
 				logError('Scrum report div not found in popup');
