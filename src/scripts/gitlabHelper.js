@@ -90,7 +90,8 @@ class GitLabHelper {
 			const headers = {};
 			if (token) {
 				headers['PRIVATE-TOKEN'] = token;
-			}			const reachabilityRes = await fetch(`${this.baseUrl}/projects`, {
+			}
+			const reachabilityRes = await fetch(`${this.baseUrl}/projects`, {
 				method: 'HEAD',
 				headers,
 			});
@@ -107,11 +108,11 @@ class GitLabHelper {
 				console.warn(`[GITLAB-DEBUG] Reachability check failed, using stale cache: ${error.message}`);
 				return this.cache.data;
 			}
-			// Distinguish between different error types for better UX
-			if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+
+			if (error instanceof TypeError) {
 				throw new Error(`GitLab domain not reachable (${this.baseUrl}): ${error.message}`);
 			}
-			throw new Error(`${error.message}`);
+			throw error;
 		}
 
 		this.cache.fetching = true;
