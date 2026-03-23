@@ -1913,7 +1913,7 @@ async function forceGitlabDataRefresh() {
 	hasInjectedContent = false;
 	// Re-instantiate gitlabHelper to ensure a fresh instance for next API call
 	if (window.GitLabHelper) {
-		gitlabHelper = new window.GitLabHelper(gitlabSelfHostedUrl || null);
+		gitlabHelper = new window.GitLabHelper(gitlabSelfHostedUrl);
 	}
 	return { success: true };
 }
