@@ -315,8 +315,6 @@
   "tokenRequiredMergedPRsWarning": {
     "message": "A GitHub token is required to filter by merged PRs. Please add one in the settings.",
     "description": "Warning shown when merged PRs filter is enabled without a GitHub token."
-    "message": "If checked, the report will only include PRs reviewed by you.",
-    "description": "Tooltip for the checkbox to include only reviewed PRs."
   },
   "usernameRequiredError": {
     "message": "Please enter your username to generate a report.",
