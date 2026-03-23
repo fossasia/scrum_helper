@@ -232,5 +232,68 @@
     },
     "onlyRevPRsTooltip": {
         "message": "チェックした場合、レポートにはあなたがレビューしたPRのみが含まれます。"
-    }
+    },
+    "usernameRequiredError": {
+		"message": "レポートを生成するには、ユーザー名を入力してください。"
+	},
+	"unknownPlatformError": {
+		"message": "不明なプラットフォームが選択されました。"
+	},
+	"gitlabFetchingError": {
+		"message": "GitLabデータの取得中にエラーが発生しました。"
+	},
+	"reportGenerationError": {
+		"message": "レポートの生成中にエラーが発生しました。"
+	},
+	"githubUserNotFoundError": {
+		"message": "GitHubユーザー \"$1\" が見つかりませんでした (404)。ユーザー名を確認して再試行してください。"
+	},
+	"githubUserValidationError": {
+		"message": "GitHubユーザーの検証中にエラーが発生しました: $1 $2"
+	},
+	"invalidSearchQueryError": {
+		"message": "無効な検索クエリまたは日付範囲です。日付範囲の形式を確認して再試行してください。"
+	},
+	"githubIssuesFetchError": {
+		"message": "GitHubのIssue取得中にエラーが発生しました: $1 $2"
+	},
+	"githubPRReviewFetchError": {
+		"message": "GitHubのPRレビュー データ取得中にエラーが発生しました: $1 $2"
+	},
+	"githubUserFetchError": {
+		"message": "GitHubユーザーデータ取得中にエラーが発生しました: $1 $2"
+	},
+	"invalidTokenError": {
+		"message": "GitHubトークンが無効または期限切れです。Scrum Helperの設定でトークンを確認し、再試行してください。"
+	},
+	"displayModeNotice": {
+		"message": "拡張機能は次回起動時に $1 モードで開きます。"
+	},
+	"repoFilteringGithubOnly": {
+		"message": "リポジトリのフィルタリングはGitHubでのみ利用可能です。"
+	},
+	"repoLoadingGithubOnly": {
+		"message": "リポジトリの読み込みはGitHubでのみ利用可能です。"
+	},
+	"repoFetchingGithubOnly": {
+		"message": "リポジトリの取得はGitHubでのみ利用可能です。"
+	},
+	"loadingReposAutomatically": {
+		"message": "リポジトリを自動的に読み込み中.."
+	},
+	"gitlabUserFetchError": {
+		"message": "GitLabユーザー取得中にエラーが発生しました: $1 $2"
+	},
+	"gitlabUserNotFoundError": {
+		"message": "GitLabユーザー '$1' が見つかりませんでした"
+	},
+	"gitlabMembershipError": {
+		"message": "GitLabのメンバーシッププロジェクト取得中にエラーが発生しました: $1 $2"
+	},
+	"gitlabContributedError": {
+		"message": "GitLabの貢献プロジェクト取得中にエラーが発生しました: $1 $2"
+	},
+	"usernameMissingError": {
+		"message": "ユーザー名が必要です。"
+	}
 }

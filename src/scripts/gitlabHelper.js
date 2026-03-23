@@ -101,11 +101,11 @@ class GitLabHelper {
 			const userUrl = `${this.baseUrl}/users?username=${username}`;
 			const userRes = await fetch(userUrl, { headers });
 			if (!userRes.ok) {
-				throw new Error(`Error fetching GitLab user: ${userRes.status} ${userRes.statusText}`);
+				throw new Error(chrome?.i18n.getMessage('gitlabUserFetchError', [userRes.status, userRes.statusText]) || `Error fetching GitLab user: ${userRes.status} ${userRes.statusText}`);
 			}
 			const users = await userRes.json();
 			if (users.length === 0) {
-				throw new Error(`GitLab user '${username}' not found`);
+				throw new Error(chrome?.i18n.getMessage('gitlabUserNotFoundError', [username]) || `GitLab user '${username}' not found`);
 			}
 			const userId = users[0].id;
 
@@ -113,9 +113,7 @@ class GitLabHelper {
 			const membershipProjectsUrl = `${this.baseUrl}/users/${userId}/projects?membership=true&per_page=100&order_by=updated_at&sort=desc`;
 			const membershipProjectsRes = await fetch(membershipProjectsUrl, { headers });
 			if (!membershipProjectsRes.ok) {
-				throw new Error(
-					`Error fetching GitLab membership projects: ${membershipProjectsRes.status} ${membershipProjectsRes.statusText}`,
-				);
+				throw new Error(chrome?.i18n.getMessage('gitlabMembershipError', [membershipProjectsRes.status, membershipProjectsRes.statusText]) || `Error fetching GitLab membership projects: ${membershipProjectsRes.status} ${membershipProjectsRes.statusText}`);
 			}
 			const membershipProjects = await membershipProjectsRes.json();
 
@@ -124,7 +122,7 @@ class GitLabHelper {
 			const contributedProjectsRes = await fetch(contributedProjectsUrl, { headers });
 			if (!contributedProjectsRes.ok) {
 				throw new Error(
-					`Error fetching GitLab contributed projects: ${contributedProjectsRes.status} ${contributedProjectsRes.statusText}`,
+					chrome?.i18n.getMessage('gitlabContributedError', [contributedProjectsRes.status, contributedProjectsRes.statusText]) || `Error fetching GitLab contributed projects: ${contributedProjectsRes.status} ${contributedProjectsRes.statusText}`,
 				);
 			}
 			const contributedProjects = await contributedProjectsRes.json();

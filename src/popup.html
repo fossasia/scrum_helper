@@ -15,6 +15,7 @@
 			background: #eae4e4;
 			width: 100%;
             height: 100%;
+			overflow: hidden;
 		}
 
 		body {
@@ -34,11 +35,12 @@
 		html.mode-popup,
 		body.mode-popup {
 			width: 360px !important;
-			height: 640px !important;
+			height: 600px !important;
 			min-width: 360px;
 			max-width: 420px;
-			min-height: 640px !important;
-			max-height: 640px !important;
+			min-height: 600px !important;
+			max-height: 600px !important;
+			overflow: hidden !important;
 		}
 
 		#popupRoot {
@@ -149,14 +151,14 @@
 
 						<input id="projectName" type="text"
 							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
-							placeholder="Enter your project name" style="margin-top: 0.3rem; margin-bottom: 0.8rem;">
+							data-i18n-placeholder="projectNamePlaceholder" style="margin-top: 0.3rem; margin-bottom: 0.8rem;">
 					</div>
 					<div>
 
 						<p id="usernameLabel" class="font-medium text-sm" data-i18n="usernameLabel">Your Username</p>
 						<input id="platformUsername" type="text"
 							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
-							placeholder="Required for fetching your contributions"
+							data-i18n-placeholder="githubUsernamePlaceholder"
 							style="margin-top: 0.3rem; margin-bottom: 0.8rem;">
 					</div>
 
@@ -467,7 +469,7 @@
 									<i class="fa fa-question-circle question-icon"></i>
 									<span class="tooltip-bubble" data-i18n="gitlabTokenTooltip">
 										<b>Why add a GitLab token?</b><br>
-										Works without a token for public projects, but a personal access token enables
+										Scrum Helper works without a token for public projects, but a personal access token enables
 										private repos and better rate limits. Your token stays local and is only used to
 										fetch your GitLab data.<br><br>
 										<b>How to get one:</b><br>
