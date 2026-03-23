@@ -522,6 +522,11 @@ document.addEventListener('DOMContentLoaded', () => {
 				const copyBtn = document.getElementById('copyReport');
 				if (copyBtn) copyBtn.disabled = isDisabled;
 				checkTokenForShowCommits();
+
+				const generateBtn = document.getElementById('generateReport');
+				bootstrapScrumReportOnPopupLoad(generateBtn).catch((err) => {
+					console.error('[POPUP] bootstrapScrumReportOnPopupLoad failed', err);
+				});
 			},
 		);
 
@@ -537,7 +542,6 @@ document.addEventListener('DOMContentLoaded', () => {
 			if (copyBtn) copyBtn.disabled = !hasUsername;
 		};
 
-		// Disable by default when username is empty.
 		syncGenerateButtonState();
 
 		if (insertBtn) {
@@ -823,10 +827,6 @@ document.addEventListener('DOMContentLoaded', () => {
 			});
 
 			syncGenerateButtonState();
-		});
-		// Bootstrap report on popup open (restore cache / auto-generate / expired-cache toast)
-		bootstrapScrumReportOnPopupLoad(generateBtn).catch((err) => {
-			console.error('[POPUP] bootstrapScrumReportOnPopupLoad failed', err);
 		});
 	}
 
