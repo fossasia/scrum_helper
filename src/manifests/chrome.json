@@ -13,10 +13,9 @@
     "service_worker": "scripts/background.js"
   },
   "icons": {
-    "96": "icons/icon.png",
-    "48": "icons/icon.png"
+    "48": "icons/icon.png",
+    "96": "icons/icon.png"
   },
-  
   "content_scripts": [
     {
       "matches": [
@@ -61,10 +60,8 @@
     "*://*.outlook.live.com/*",
     "*://*.office.com/*",
     "*://*.yahoo.com/*",
-
     "https://api.github.com/*",
     "https://gitlab.com/*"
- ],
+  ],
   "default_locale": "en"
-
 }

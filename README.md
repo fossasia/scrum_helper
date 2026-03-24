@@ -37,26 +37,27 @@
     npm install
     ```
 
-3.  **Load the Extension in Your Browser**
+3.  **Build the Extension**
 
-    -   Go to `chrome://extensions` in your Chrome browser.
+    Because Chromium (Chrome, Edge, etc.) and Gecko (Firefox) browsers handle Manifest V3 differently, we use a build step to generate engine-specific distributions.
+
+    ```sh
+    npm run build
+    ```
+
+4.  **Load the Extension in Your Browser**
+
+    **For Chrome & Edge (Chromium):**
+    -   Go to `chrome://extensions` (or `edge://extensions`) in your browser.
     -   Enable "Developer Mode" (toggle in the top-right).
-    -   Click "Load unpacked" and select the `src` folder inside the cloned repository.
+    -   Click "Load unpacked" and select the `dist/chrome` folder inside the cloned repository.
 
-<!-- ### For Firefox:
-
-1. Clone this repository to your local machine.
-2. Open Firefox and navigate to `about:debugging`
-3. Click on "This Firefox" in the left sidebar
-4. Click "Load Temporary Add-on..."
-5. Navigate to the `src` folder inside the cloned repo and select the `manifest.json` file
-6. The extension will be loaded temporarily and will remain active only for the current browser session
-7. Click the Scrum Helper icon on your browser toolbar
-8. Fill in your settings in the popup (GitHub username, date range, etc.)
-
-**Note for Firefox users:** The extension will be automatically removed when you close Firefox. You'll need to reload it each time you start a new browser session by repeating steps 2-5.
-
-**Persistence Note:** If you need the extension to persist between sessions, use Firefox Developer Edition. You can enable persistence by setting `xpinstall.signatures.required` to `false` in the browser's configuration. -->
+    **For Firefox (Gecko):**
+    -   Navigate to `about:debugging` in Firefox.
+    -   Click on "This Firefox" in the left sidebar.
+    -   Click "Load Temporary Add-on...".
+    -   Select the `manifest.json` file inside the `dist/firefox` folder.
+    -   *Note: The extension will remain active only for the current browser session. If you need persistence, consider using Firefox Developer Edition.*
 
 ## Usage
 
@@ -137,12 +138,13 @@ $ npm install
 
 1. **Install the Extension**
 
-* For Chrome: Load it into your browser through [Chrome Extension Developer Mode](https://developer.chrome.com/docs/extensions/mv3/getstarted/).
-<!-- * For Firefox: Load it as a temporary add-on through `about:debugging` as described above. -->
+* For Chrome & Edge (Chromium): Load it into your browser through [Chrome Extension Developer Mode](https://developer.chrome.com/docs/extensions/mv3/getstarted/) using the `dist/chrome` folder.
+* For Firefox: Load it as a temporary add-on through `about:debugging` using the `dist/firefox` folder.
 
-2. **Build the Extension**
+2. **Rebuild the Extension**
+   After making changes to the source code, rebuild the extension running `npm run build`.
    * For Chrome: Rebuild or reload the extension in your browser (`chrome://extensions` → Refresh your extension).
-   <!-- * For Firefox: Reload the temporary add-on by going to `about:debugging` → "This Firefox" → Click "Reload" next to your extension. -->
+   * For Firefox: Reload the temporary add-on by going to `about:debugging` → "This Firefox" → Click "Reload" next to your extension.
    
 3. **How to Obtain a GitHub Personal Access Token**
 
