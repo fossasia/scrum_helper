@@ -63,12 +63,12 @@ a {
     gap: 8px;
 }
 
-.scrum-actions > button {
+.scrum-actions>button {
     flex: 1 1 0;
     min-width: 0;
 }
 
-.scrum-actions > button span {
+.scrum-actions>button span {
     white-space: nowrap;
 }
 
@@ -90,7 +90,8 @@ h4,
 p,
 label,
 hr,
-#scrumReport {
+#scrumReport,
+button {
     transition: all 0.3s ease-in-out;
 }
 
@@ -103,7 +104,6 @@ hr,
 .dark-mode .bg-white {
     background-color: #2d2d2d !important;
     border-color: #404040 !important;
-    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
 }
 
 .dark-mode input[type="date"]::-webkit-calendar-picker-indicator {
@@ -116,7 +116,6 @@ hr,
     background-color: #404040 !important;
     border-color: #505050 !important;
     color: #ffffff !important;
-    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
 }
 
 .dark-mode h3,
@@ -898,12 +897,14 @@ hr,
     color: #fff;
 }
 
-html.mode-sidepanel, body.mode-sidepanel {
+html.mode-sidepanel,
+body.mode-sidepanel {
     width: 100%;
     min-width: 360px;
 }
 
-html.mode-popup, body.mode-popup {
-    width: 360px; 
+html.mode-popup,
+body.mode-popup {
+    width: 360px;
     min-width: 360px;
 }
