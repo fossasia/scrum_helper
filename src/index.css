@@ -63,12 +63,12 @@ a {
     gap: 8px;
 }
 
-.scrum-actions>button {
+.scrum-actions > button {
     flex: 1 1 0;
     min-width: 0;
 }
 
-.scrum-actions>button span {
+.scrum-actions > button span {
     white-space: nowrap;
 }
 
@@ -90,8 +90,7 @@ h4,
 p,
 label,
 hr,
-#scrumReport,
-button {
+#scrumReport {
     transition: all 0.3s ease-in-out;
 }
 
@@ -722,7 +721,6 @@ button {
     background-color: #404040 !important;
     border-color: #505050 !important;
     color: #ffffff !important;
-    transition: background-color 0.3s ease-in-out, border-color 0.3s ease-in-out, color 0.3s ease-in-out;
 }
 
 .dark-mode #platformDropdownBtn:focus {
