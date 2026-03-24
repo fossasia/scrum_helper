@@ -9,8 +9,22 @@
   "side_panel": {
     "default_path": "popup.html"
   },
+  "sidebar_action": {
+    "default_panel": "popup.html?view=sidebar",
+    "default_title": "Scrum Helper"
+  },
   "background": {
-    "service_worker": "scripts/background.js"
+    "service_worker": "scripts/background.js",
+    "scripts": [
+      "scripts/browser-polyfill.min.js",
+      "scripts/background.js"
+    ]
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "scrum_helper@fossasia.org",
+      "strict_min_version": "109.0"
+    }
   },
   "icons": {
     "96": "icons/icon.png",
