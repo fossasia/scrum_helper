@@ -424,36 +424,42 @@ function allIncluded(outputTarget = 'email') {
 		log('Loading cache from storage');
 		return getCacheTTL().then((currentTTL) => {
 			return new Promise((resolve) => {
-				browser.storage.local.get('githubCache').then((result) => {
-					const cache = result.githubCache;
-					if (!cache) {
-						log('No cache found in storage');
+				browser.storage.local
+					.get('githubCache')
+					.then((result) => {
+						const cache = result.githubCache;
+						if (!cache) {
+							log('No cache found in storage');
+							resolve(false);
+							return;
+						}
+						const isCacheExpired = Date.now() - cache.timestamp > currentTTL;
+						if (isCacheExpired) {
+							log('Cached data is expired');
+							resolve(false);
+							return;
+						}
+						log('Found valid cache:', {
+							cacheKey: cache.cacheKey,
+							age: `${((Date.now() - cache.timestamp) / 1000 / 60).toFixed(1)} minutes`,
+						});
+
+						githubCache.data = cache.data;
+						githubCache.cacheKey = cache.cacheKey;
+						githubCache.timestamp = cache.timestamp;
+						githubCache.subject = cache.subject;
+						githubCache.usedToken = cache.usedToken || false;
+
+						if (cache.subject && scrumSubject) {
+							scrumSubject.value = cache.subject;
+							scrumSubject.dispatchEvent(new Event('input', { bubbles: true }));
+						}
+						resolve(true);
+					})
+					.catch((error) => {
+						logError('Storage load failed: ', error);
 						resolve(false);
-						return;
-					}
-					const isCacheExpired = Date.now() - cache.timestamp > currentTTL;
-					if (isCacheExpired) {
-						log('Cached data is expired');
-						resolve(false);
-						return;
-					}
-					log('Found valid cache:', {
-						cacheKey: cache.cacheKey,
-						age: `${((Date.now() - cache.timestamp) / 1000 / 60).toFixed(1)} minutes`,
 					});
-
-					githubCache.data = cache.data;
-					githubCache.cacheKey = cache.cacheKey;
-					githubCache.timestamp = cache.timestamp;
-					githubCache.subject = cache.subject;
-					githubCache.usedToken = cache.usedToken || false;
-
-					if (cache.subject && scrumSubject) {
-						scrumSubject.value = cache.subject;
-						scrumSubject.dispatchEvent(new Event('input', { bubbles: true }));
-					}
-					resolve(true);
-				});
 			});
 		});
 	}

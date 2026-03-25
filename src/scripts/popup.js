@@ -263,7 +263,10 @@ document.addEventListener('DOMContentLoaded', () => {
 	});
 
 	function storageLocalGet(keys) {
-		return new Promise((resolve) => browser.storage.local.get(keys).then(resolve));
+		return browser.storage.local.get(keys).catch((err) => {
+			console.error('Storage access failed:', err);
+			return {};
+		});
 	}
 
 	function parsePositiveInt(value) {

@@ -14,8 +14,14 @@ jobs:
                 ref: ${{ github.event.release.tag_name }}
                 fetch-depth: 0
             
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                node-version: '20.x'
+                cache: 'npm'
+                
             - name: Build Extension
-              run: npm install && npm run build
+              run: npm ci && npm run build
             
             - name: Create ZIP file
               run: |
