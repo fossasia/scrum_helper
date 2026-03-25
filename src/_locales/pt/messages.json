@@ -305,7 +305,7 @@
         "message": "Gerando relatório..."
     },
     "copyingReportNotification": {
-        "message": "Relatório copiado!"
+        "message": "Copiando relatório..."
     },
     "insertInEmailTooltip": {
         "message": "Ctrl+Shift+M"
