@@ -305,7 +305,7 @@
         "message": "रिपोर्ट तैयार हो रही है..."
     },
     "copyingReportNotification": {
-        "message": "रिपोर्ट कॉपी हो गई!"
+        "message": "रिपोर्ट कॉपी की जा रही है..."
     },
     "insertInEmailTooltip": {
         "message": "Ctrl+Shift+M"
