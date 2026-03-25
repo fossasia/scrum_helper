@@ -305,7 +305,7 @@
         "message": "מייצר דוח..."
     },
     "copyingReportNotification": {
-        "message": "הדוח הועתק!"
+        "message": "מעתיק דוח..."
     },
     "insertInEmailTooltip": {
         "message": "Ctrl+Shift+M"
