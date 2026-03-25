@@ -48,7 +48,7 @@ function sanitizeHtmlContent(content) {
 		doc.body.querySelectorAll('*').forEach((node) => {
 			const tag = node.tagName.toUpperCase();
 			if (!allowedTags.has(tag)) {
-				const txt = document.createTextNode(node.textContent || '');
+				const txt = doc.createTextNode(node.textContent || '');
 				node.parentNode && node.parentNode.replaceChild(txt, node);
 				return;
 			}
@@ -386,7 +386,7 @@ async function allIncluded(outputTarget = 'email') {
  									let processedScrumData = mappedData;
  									if (typeof processGithubData === 'function') {
  										try {
- 											processedScrumData = processGithubData(
+ 											processedScrumData = await processGithubData(
  												mappedData,
  												{
  													platformUsername: platformUsernameLocal || platformUsername,
@@ -837,8 +837,7 @@ async function allIncluded(outputTarget = 'email') {
 			const userCheckRes = await fetch(userUrl, { headers });
 
 			if (userCheckRes.status === 404) {
-				const errorMsg = `GitHub user "${platformUsernameLocal}" not found (404). Please check the username and try again.`;
-				logError(errorMsg);
+			const errorMsg = chrome?.i18n.getMessage('githubUserNotFoundError', [platformUsernameLocal]) || `GitHub user "${platformUsernameLocal}" not found (404). Please check the username and try again.`;
 				throw new Error(errorMsg);
 			}
 
@@ -849,8 +848,7 @@ async function allIncluded(outputTarget = 'email') {
 			}
 
 			if (!userCheckRes.ok) {
-				const errorMsg = `Error validating GitHub user: ${userCheckRes.status} ${userCheckRes.statusText}`;
-				logError(errorMsg);
+			const errorMsg = chrome?.i18n.getMessage('githubUserValidationError', [userCheckRes.status, userCheckRes.statusText]) || `Error validating GitHub user: ${userCheckRes.status} ${userCheckRes.statusText}`;
 				throw new Error(errorMsg);
 			}
 
@@ -867,24 +865,23 @@ async function allIncluded(outputTarget = 'email') {
 			}
 
 			if (issuesRes.status === 422 || prRes.status === 422) {
-				const errorMsg = `Invalid search query or date range. Please verify your date range format and try again.`;
-				logError(errorMsg);
+			const errorMsg = chrome?.i18n.getMessage('githubInvalidSearchError') || `Invalid search query or date range. Please verify your date range format and try again.`;
 				if (outputTarget === 'popup') {
 					Materialize.toast && Materialize.toast(errorMsg, 4000);
 				}
 				throw new Error(errorMsg);
 			}
 
-			if (!issuesRes.ok) {
-				const errorMsg = `Error fetching GitHub issues: ${issuesRes.status} ${issuesRes.statusText}`;
-				logError(errorMsg);
-				if (outputTarget === 'popup') {
-					Materialize.toast && Materialize.toast(errorMsg, 4000);
-				}
-				throw new Error(errorMsg);
+		if (!issuesRes.ok) {
+			const errorMsg = chrome?.i18n.getMessage('githubFetchIssuesError', [issuesRes.status, issuesRes.statusText]) || `Error fetching GitHub issues: ${issuesRes.status} ${issuesRes.statusText}`;
+			logError(errorMsg);
+			if (outputTarget === 'popup') {
+				Materialize.toast && Materialize.toast(errorMsg, 4000);
 			}
+			throw new Error(errorMsg);
+		}
 			if (!prRes.ok) {
-				const errorMsg = `Error fetching GitHub PR review data: ${prRes.status} ${prRes.statusText}`;
+				const errorMsg = chrome?.i18n.getMessage('githubFetchPRDataError', [prRes.status, prRes.statusText]) || `Error fetching GitHub PR review data: ${prRes.status} ${prRes.statusText}`;
 				logError(errorMsg);
 				if (outputTarget === 'popup') {
 					Materialize.toast && Materialize.toast(errorMsg, 4000);
@@ -892,7 +889,7 @@ async function allIncluded(outputTarget = 'email') {
 				throw new Error(errorMsg);
 			}
 			if (!userRes.ok) {
-				const errorMsg = `Error fetching GitHub user data: ${userRes.status} ${userRes.statusText}`;
+				const errorMsg = chrome?.i18n.getMessage('githubFetchUserDataError', [userRes.status, userRes.statusText]) || `Error fetching GitHub user data: ${userRes.status} ${userRes.statusText}`;
 				logError(errorMsg);
 				throw new Error(errorMsg);
 			}
@@ -1155,16 +1152,17 @@ async function allIncluded(outputTarget = 'email') {
 	function showInvalidTokenMessage() {
 		if (outputTarget === 'popup') {
 			const reportDiv = document.getElementById('scrumReport');
+			const errMsg = chrome?.i18n.getMessage('invalidTokenError') || 'Invalid or expired GitHub token. Please check your token in the settings and try again.';
 			if (reportDiv) {
 				reportDiv.innerHTML =
-					'<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">Invalid or expired GitHub token. Please check your token in the settings and try again.</div>';
+					`<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">${errMsg}</div>`;
 				const generateBtn = document.getElementById('generateReport');
 				if (generateBtn) {
 					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
 					generateBtn.disabled = false;
 				}
 			} else {
-				alert('Invalid or expired GitHub token. Please check your token in the extension popup and try again.');
+				alert(errMsg);
 			}
 		}
 	}

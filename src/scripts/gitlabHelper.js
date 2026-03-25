@@ -311,7 +311,8 @@ class GitLabHelper {
 	async fetchGitLabData(username, startDate, endDate, token, group = '', selectedProjects = []) {
  		const effectiveToken = (typeof token === 'undefined' ? this.token : token);
 		const tokenMarker = effectiveToken ? 'auth' : 'noauth';
-		const cacheKey = `${username}-${startDate}-${endDate}-${group}-${selectedProjects.join(',')}-${tokenMarker}`;
+		const normalizedProjects = Array.isArray(selectedProjects) ? [...selectedProjects].sort() : [];
+		const cacheKey = `${username}-${startDate}-${endDate}-${group}-${normalizedProjects.join(',')}-${tokenMarker}`;
 
 		if (this.cache.fetching || (this.cache.cacheKey === cacheKey && this.cache.data)) {
 			return this.cache.data;
