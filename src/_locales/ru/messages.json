@@ -305,10 +305,10 @@
         "message": "Создание отчёта..."
     },
     "copyingReportNotification": {
-        "message": "Отчёт скопирован!"
+        "message": "Копирование отчёта..."
     },
     "insertInEmailTooltip": {
-        "message": "Ctrl+Shift+M"
+        "message": "Ctrl+Shift+М"
     },
     "insertingInEmailNotification": {
         "message": "Вставка отчёта в письмо..."
