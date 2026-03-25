@@ -302,4 +302,79 @@ class EmailClientAdapter {
 
 // Create global instance
 window.emailClientAdapter = new EmailClientAdapter();
-console.log('Email client adapter initialized');
+console.log('[EmailClientAdapter] Email client adapter initialized');
+
+// Set up message listener for insert to email functionality
+console.log('[EmailClientAdapter] Registering message listener...');
+browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
+	console.log('[EmailClientAdapter] Received message from popup:', request.action);
+	
+	if (request.action === 'insertReportToEmail') {
+		console.log('[EmailClientAdapter] Processing insertReportToEmail request');
+		handleInsertReportToEmail(request.content, request.subject, sendResponse);
+		return true; // Indicate async response
+	}
+});
+console.log('[EmailClientAdapter] Message listener registered successfully');
+
+async function handleInsertReportToEmail(content, subject, sendResponse) {
+	try {
+		console.log('[EmailClientAdapter] Attempting to inject content into email');
+		
+		if (!window.emailClientAdapter) {
+			console.error('[EmailClientAdapter] Email client adapter not available');
+			sendResponse({ success: false, error: 'Email client adapter not available' });
+			return;
+		}
+
+		const tryInject = () => {
+			const elements = window.emailClientAdapter.getEditorElements?.();
+			console.log('[EmailClientAdapter] Editor elements found:', !!elements?.body);
+			
+			if (!elements?.body) return false;
+
+			// Inject subject if available
+			if (subject && elements.subject) {
+				console.log('[EmailClientAdapter] Injecting subject');
+				elements.subject.value = subject;
+				elements.subject.dispatchEvent(new Event(elements.eventTypes?.subjectChange || 'input', { bubbles: true }));
+			}
+			
+			// Inject content
+			console.log('[EmailClientAdapter] Injecting content');
+			window.emailClientAdapter.injectContent(elements.body, content, elements.eventTypes?.contentChange || 'input');
+			return true;
+		};
+
+		if (tryInject()) {
+			console.log('[EmailClientAdapter] Content injected successfully');
+			sendResponse({ success: true });
+			return;
+		}
+
+		// Wait up to 30 seconds for editor to become available
+		console.log('[EmailClientAdapter] Editor not ready, waiting for DOM...');
+		let done = false;
+		const observer = new MutationObserver(() => {
+			if (!done && tryInject()) {
+				done = true;
+				observer.disconnect();
+				console.log('[EmailClientAdapter] Content injected after waiting');
+				sendResponse({ success: true });
+			}
+		});
+		
+		observer.observe(document.body, { childList: true, subtree: true });
+		
+		setTimeout(() => {
+			if (!done) {
+				observer.disconnect();
+				console.warn('[EmailClientAdapter] Timeout waiting for editor');
+				sendResponse({ success: false, error: 'Email editor not found (timeout)' });
+			}
+		}, 30000);
+	} catch (error) {
+		console.error('[EmailClientAdapter] Error injecting content:', error);
+		sendResponse({ success: false, error: error?.message || String(error) });
+	}
+}

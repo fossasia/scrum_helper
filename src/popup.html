@@ -103,6 +103,15 @@
 			align-items: center;
 		}
 
+		/* Firefox Sidebar Fixes ONLY */
+		html.firefox-sidebar, 
+		body.firefox-sidebar {
+			background: transparent !important;
+			min-width: 100% !important;
+		}
+		body.firefox-sidebar #popupRoot {
+			min-width: 100% !important;
+		}
 	</style>
 </head>
 <body class="mode-sidepanel text-gray-800 bg-gray-50 flex flex-col font-sans">
@@ -636,6 +645,8 @@
 			</div>
 		</div>
 	</div>
+	<!-- WebExtensions Polyfill for Cross-Browser compatibility (Chrome, Firefox, Edge, etc.) -->
+	<script src="scripts/browser-polyfill.min.js"></script>
 	<script src="scripts/jquery-3.2.1.min.js"></script>
 	<script type="text/javascript" type="text/javascript" src="materialize/js/materialize.min.js"></script>
 	<script src="scripts/emailClientAdapter.js"></script>

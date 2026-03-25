@@ -25,13 +25,29 @@ This document provides guidelines for contributing to the project. Please feel f
     npm install
     ```
 
-3.  **Load the Extension in Your Browser**
+3.  **Build the Extension**
 
-    -   Go to `chrome://extensions` in your Chrome browser.
+    Because Chromium and Gecko browsers parse Manifest V3 slightly differently, the extension needs to be built to generate specific assets for each browser context.
+    
+    ```sh
+    npm run build
+    ```
+
+    *This process ensures appropriate manifest configurations are deployed to `dist/chrome` and `dist/firefox`.*
+
+4.  **Load the Extension in Your Browser**
+
+    **For Chrome & Edge (Chromium):**
+    -   Go to `chrome://extensions` (or `edge://extensions`) in your browser.
     -   Enable "Developer Mode" (toggle in the top-right).
-    -   Click "Load unpacked" and select the `src` folder inside the cloned repository.
+    -   Click "Load unpacked" and select the `dist/chrome` folder inside the cloned repository.
 
-4.  **Get a GitHub Personal Access Token (Recommended)**
+    **For Firefox (Gecko):**
+    -   Go to `about:debugging` in Firefox.
+    -   Click "This Firefox" in the left sidebar.
+    -   Click "Load Temporary Add-on..." and select the `manifest.json` inside the `dist/firefox` folder.
+
+5.  **Get a GitHub Personal Access Token (Recommended)**
 
     To use Scrum Helper with authenticated requests (for higher rate limits and private repositories), you need a GitHub personal access token.
 
