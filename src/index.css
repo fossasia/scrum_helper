@@ -962,7 +962,9 @@ body.mode-popup {
     border-color: #ffffff transparent transparent transparent;
 }
 
-.tooltip-container:hover .shortcut-tooltip {
+.tooltip-container:hover .shortcut-tooltip,
+.tooltip-container:focus-within .shortcut-tooltip,
+.tooltip-container:focus-visible .shortcut-tooltip {
     visibility: visible;
     opacity: 1;
 }
