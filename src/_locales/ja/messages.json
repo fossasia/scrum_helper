@@ -306,7 +306,7 @@
         "message": "レポートを生成中..."
     },
     "copyingReportNotification": {
-        "message": "レポートをコピーしました！"
+        "message": "レポートをコピー中..."
     },
     "insertInEmailTooltip": {
         "message": "Ctrl+Shift+M"
