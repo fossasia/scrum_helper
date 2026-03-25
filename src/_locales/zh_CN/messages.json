@@ -305,7 +305,7 @@
         "message": "正在生成报告..."
     },
     "copyingReportNotification": {
-        "message": "报告已复制！"
+        "message": "正在复制报告..."
     },
     "insertInEmailTooltip": {
         "message": "Ctrl+Shift+M"
