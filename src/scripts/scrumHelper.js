@@ -1766,7 +1766,7 @@ async function forceGithubDataRefresh() {
 			showCommits = result.showCommits;
 		}
 	} catch (e) {
-		console.error("Error getting showCommits:", e);
+		console.error('Error getting showCommits:', e);
 	}
 
 	if (typeof githubCache !== 'undefined') {
@@ -1781,7 +1781,7 @@ async function forceGithubDataRefresh() {
 	try {
 		await browser.storage.local.remove('githubCache');
 	} catch (e) {
-		console.error("Error removing githubCache:", e);
+		console.error('Error removing githubCache:', e);
 	}
 
 	browser.storage.local.set({ showCommits: showCommits });
@@ -1803,7 +1803,7 @@ async function forceGitlabDataRefresh() {
 	try {
 		await browser.storage.local.remove('gitlabCache');
 	} catch (e) {
-		console.error("Error removing gitlabCache:", e);
+		console.error('Error removing gitlabCache:', e);
 	}
 	hasInjectedContent = false;
 	// Re-instantiate gitlabHelper to ensure a fresh instance for next API call
@@ -1813,34 +1813,36 @@ async function forceGitlabDataRefresh() {
 	return { success: true };
 }
 
-
 window.generateScrumReport = () => {
 	allIncluded('popup');
 };
 
 browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
 	if (request.action === 'forceRefresh') {
-		browser.storage.local.get(['platform']).then(async (result) => {
-			const platform = result?.platform || 'github';
-			if (platform === 'gitlab') {
-				forceGitlabDataRefresh()
-					.then((result) => sendResponse(result))
-					.catch((err) => {
-						console.error('Force refresh failed:', err);
-						sendResponse({ success: false, error: err.message });
-					});
-			} else {
-				forceGithubDataRefresh()
-					.then((result) => sendResponse(result))
-					.catch((err) => {
-						console.error('Force refresh failed:', err);
-						sendResponse({ success: false, error: err.message });
-					});
-			}
-		}).catch((err) => {
-			console.error('Storage access failed:', err);
-			sendResponse({ success: false, error: err.message });
-		});
+		browser.storage.local
+			.get(['platform'])
+			.then(async (result) => {
+				const platform = result?.platform || 'github';
+				if (platform === 'gitlab') {
+					forceGitlabDataRefresh()
+						.then((result) => sendResponse(result))
+						.catch((err) => {
+							console.error('Force refresh failed:', err);
+							sendResponse({ success: false, error: err.message });
+						});
+				} else {
+					forceGithubDataRefresh()
+						.then((result) => sendResponse(result))
+						.catch((err) => {
+							console.error('Force refresh failed:', err);
+							sendResponse({ success: false, error: err.message });
+						});
+				}
+			})
+			.catch((err) => {
+				console.error('Storage access failed:', err);
+				sendResponse({ success: false, error: err.message });
+			});
 		return true;
 	}
 

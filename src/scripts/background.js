@@ -1,5 +1,3 @@
-
-
 if (typeof importScripts === 'function') {
 	try {
 		importScripts('browser-polyfill.min.js');

@@ -700,7 +700,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				document.documentElement.classList.add('firefox-sidebar');
 				document.body.classList.add('firefox-sidebar');
 			}
-			
+
 			const className = mode === 'popup' ? 'mode-popup' : 'mode-sidepanel';
 			if (!document.documentElement.classList.contains(className)) {
 				document.documentElement.classList.remove('mode-popup', 'mode-sidepanel');
@@ -840,7 +840,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			try {
 				const cacheData = await browser.storage.local.get(['repoCache']);
-				const items = await browser.storage.local.get(['platform', 'githubUsername', 'gitlabUsername', 'githubToken', 'orgName']);
+				const items = await browser.storage.local.get([
+					'platform',
+					'githubUsername',
+					'gitlabUsername',
+					'githubToken',
+					'orgName',
+				]);
 
 				const platform = items.platform || 'github';
 				const platformUsernameKey = `${platform}Username`;
@@ -944,7 +950,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
 					try {
 						const cacheData = await browser.storage.local.get(['repoCache']);
-						const items = await browser.storage.local.get(['platform', 'githubUsername', 'gitlabUsername', 'githubToken', 'orgName']);
+						const items = await browser.storage.local.get([
+							'platform',
+							'githubUsername',
+							'gitlabUsername',
+							'githubToken',
+							'orgName',
+						]);
 
 						const platform = items.platform || 'github';
 						const platformUsernameKey = `${platform}Username`;
@@ -1134,7 +1146,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			try {
 				const cacheData = await browser.storage.local.get(['repoCache']);
-				const storageItems = await browser.storage.local.get(['platform', 'githubUsername', 'gitlabUsername', 'githubToken', 'orgName']);
+				const storageItems = await browser.storage.local.get([
+					'platform',
+					'githubUsername',
+					'gitlabUsername',
+					'githubToken',
+					'orgName',
+				]);
 				const platform = storageItems.platform || 'github';
 				const platformUsernameKey = `${platform}Username`;
 				const username = storageItems[platformUsernameKey];
