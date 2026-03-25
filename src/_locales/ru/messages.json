@@ -308,7 +308,7 @@
         "message": "Копирование отчёта..."
     },
     "insertInEmailTooltip": {
-        "message": "Ctrl+Shift+М"
+        "message": "Ctrl+Shift+M"
     },
     "insertingInEmailNotification": {
         "message": "Вставка отчёта в письмо..."
