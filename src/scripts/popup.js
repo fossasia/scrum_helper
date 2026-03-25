@@ -458,7 +458,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				// prefer "Only Issues" and clear "Only PRs", then persist the corrected state.
 				if (onlyIssuesCheckbox.checked && onlyPRsCheckbox.checked) {
 					onlyPRsCheckbox.checked = false;
-					if (typeof chrome !== 'undefined' && browser.storage && browser.storage.sync) {
+					if (browser?.storage?.sync) {
 						browser.storage.sync.set({ onlyPRs: false });
 					}
 				}
@@ -822,9 +822,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			// --- PLATFORM CHECK: Only run for GitHub ---
 			let platform = 'github';
 			try {
-				const items = await new Promise((resolve) => {
-					browser.storage.local.get(['platform']).then(resolve);
-				});
+				const items = await browser.storage.local.get(['platform']);
 				platform = items.platform || 'github';
 			} catch {}
 			if (platform !== 'github') {
@@ -841,12 +839,8 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 
 			try {
-				const cacheData = await new Promise((resolve) => {
-					browser.storage.local.get(['repoCache']).then(resolve);
-				});
-				const items = await new Promise((resolve) => {
-					browser.storage.local.get().then(resolve);
-				});
+				const cacheData = await browser.storage.local.get(['repoCache']);
+				const items = await browser.storage.local.get(['platform', 'githubUsername', 'gitlabUsername', 'githubToken', 'orgName']);
 
 				const platform = items.platform || 'github';
 				const platformUsernameKey = `${platform}Username`;
@@ -908,12 +902,9 @@ document.addEventListener('DOMContentLoaded', () => {
 		useRepoFilter.addEventListener(
 			'change',
 			debounce(async () => {
-				// --- PLATFORM CHECK: Only run for GitHub ---
 				let platform = 'github';
 				try {
-					const items = await new Promise((resolve) => {
-						browser.storage.local.get(['platform']).then(resolve);
-					});
+					const items = await browser.storage.local.get(['platform']);
 					platform = items.platform || 'github';
 				} catch {}
 				if (platform !== 'github') {
@@ -928,7 +919,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 				if (enabled && !hasToken) {
 					useRepoFilter.checked = false;
-					repoFilterContainer.classList.add('hidden'); // Explicitly hide the container
+					repoFilterContainer.classList.add('hidden'); // hide the container
 					hideDropdown();
 					const tokenWarning = document.getElementById('tokenWarningForFilter');
 					if (tokenWarning) {
@@ -952,12 +943,8 @@ document.addEventListener('DOMContentLoaded', () => {
 					repoStatus.textContent = 'Loading repos automatically..';
 
 					try {
-						const cacheData = await new Promise((resolve) => {
-							browser.storage.local.get(['repoCache']).then(resolve);
-						});
-						const items = await new Promise((resolve) => {
-							browser.storage.local.get().then(resolve);
-						});
+						const cacheData = await browser.storage.local.get(['repoCache']);
+						const items = await browser.storage.local.get(['platform', 'githubUsername', 'gitlabUsername', 'githubToken', 'orgName']);
 
 						const platform = items.platform || 'github';
 						const platformUsernameKey = `${platform}Username`;
@@ -1093,9 +1080,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			// --- PLATFORM CHECK: Only run for GitHub ---
 			let platform = 'github';
 			try {
-				const items = await new Promise((resolve) => {
-					browser.storage.local.get(['platform']).then(resolve);
-				});
+				const items = await browser.storage.local.get(['platform']);
 				platform = items.platform || 'github';
 			} catch {}
 			if (platform !== 'github') {
@@ -1134,12 +1119,9 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 
 		async function performRepoFetch() {
-			// --- PLATFORM CHECK: Only run for GitHub ---
 			let platform = 'github';
 			try {
-				const items = await new Promise((resolve) => {
-					browser.storage.local.get(['platform']).then(resolve);
-				});
+				const items = await browser.storage.local.get(['platform']);
 				platform = items.platform || 'github';
 			} catch (e) {}
 			if (platform !== 'github') {
@@ -1151,12 +1133,8 @@ document.addEventListener('DOMContentLoaded', () => {
 			repoSearch.classList.add('repository-search-loading');
 
 			try {
-				const cacheData = await new Promise((resolve) => {
-					browser.storage.local.get(['repoCache']).then(resolve);
-				});
-				const storageItems = await new Promise((resolve) => {
-					browser.storage.local.get().then(resolve);
-				});
+				const cacheData = await browser.storage.local.get(['repoCache']);
+				const storageItems = await browser.storage.local.get(['platform', 'githubUsername', 'gitlabUsername', 'githubToken', 'orgName']);
 				const platform = storageItems.platform || 'github';
 				const platformUsernameKey = `${platform}Username`;
 				const username = storageItems[platformUsernameKey];
@@ -1691,17 +1669,13 @@ document.getElementById('refreshCache').addEventListener('click', async function
 		// Determine platform
 		let platform = 'github';
 		try {
-			const items = await new Promise((resolve) => {
-				browser.storage.local.get(['platform']).then(resolve);
-			});
+			const items = await browser.storage.local.get(['platform']);
 			platform = items.platform || 'github';
 		} catch (e) {}
 
 		// Clear all caches
 		const keysToRemove = ['githubCache', 'repoCache', 'gitlabCache'];
-		await new Promise((resolve) => {
-			browser.storage.local.remove(keysToRemove).then(resolve);
-		});
+		await browser.storage.local.remove(keysToRemove);
 
 		// Clear the scrum report
 		const scrumReport = document.getElementById('scrumReport');

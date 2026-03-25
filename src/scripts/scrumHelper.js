@@ -460,9 +460,7 @@ function allIncluded(outputTarget = 'email') {
 
 	async function fetchGithubData() {
 		// Always load latest repo filter settings from storage
-		const filterSettings = await new Promise((resolve) => {
-			browser.storage.local.get(['useRepoFilter', 'selectedRepos']).then(resolve);
-		});
+		const filterSettings = await browser.storage.local.get(['useRepoFilter', 'selectedRepos']);
 		useRepoFilter = filterSettings.useRepoFilter || false;
 		selectedRepos = Array.isArray(filterSettings.selectedRepos) ? filterSettings.selectedRepos : [];
 
@@ -924,9 +922,7 @@ function allIncluded(outputTarget = 'email') {
 			isFetching: githubCache.fetching,
 			queueLength: githubCache.queue.length,
 		});
-		const storageData = await new Promise((resolve) => {
-			browser.storage.local.get('githubCache').then(resolve);
-		});
+		const storageData = await browser.storage.local.get('githubCache');
 		log('Storage Status:', {
 			hasStoredData: !!storageData.githubCache,
 			storedCacheKey: storageData.githubCache?.cacheKey,
@@ -1764,15 +1760,14 @@ ${userReason}`;
 
 async function forceGithubDataRefresh() {
 	let showCommits = false;
-
-	await new Promise((resolve) => {
-		browser.storage.local.get('showCommits').then((result) => {
-			if (result.showCommits !== undefined) {
-				showCommits = result.showCommits;
-			}
-			resolve();
-		});
-	});
+	try {
+		const result = await browser.storage.local.get('showCommits');
+		if (result.showCommits !== undefined) {
+			showCommits = result.showCommits;
+		}
+	} catch (e) {
+		console.error("Error getting showCommits:", e);
+	}
 
 	if (typeof githubCache !== 'undefined') {
 		githubCache.data = null;
@@ -1783,9 +1778,11 @@ async function forceGithubDataRefresh() {
 		githubCache.queue = [];
 	}
 
-	await new Promise((resolve) => {
-		browser.storage.local.remove('githubCache').then(resolve);
-	});
+	try {
+		await browser.storage.local.remove('githubCache');
+	} catch (e) {
+		console.error("Error removing githubCache:", e);
+	}
 
 	browser.storage.local.set({ showCommits: showCommits });
 
@@ -1803,9 +1800,11 @@ async function forceGitlabDataRefresh() {
 		gitlabHelper.cache.fetching = false;
 		gitlabHelper.cache.queue = [];
 	}
-	await new Promise((resolve) => {
-		browser.storage.local.remove('gitlabCache').then(resolve);
-	});
+	try {
+		await browser.storage.local.remove('gitlabCache');
+	} catch (e) {
+		console.error("Error removing gitlabCache:", e);
+	}
 	hasInjectedContent = false;
 	// Re-instantiate gitlabHelper to ensure a fresh instance for next API call
 	if (window.GitLabHelper) {
@@ -1814,15 +1813,6 @@ async function forceGitlabDataRefresh() {
 	return { success: true };
 }
 
-// Auto inject report on email client load
-// if (window.location.protocol.startsWith('http')) {
-// 	allIncluded('email');
-// 	$('button>span:contains(New conversation)')
-// 		.parent('button')
-// 		.click(() => {
-// 			allIncluded();
-// 		});
-// }
 
 window.generateScrumReport = () => {
 	allIncluded('popup');
@@ -1831,7 +1821,7 @@ window.generateScrumReport = () => {
 browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
 	if (request.action === 'forceRefresh') {
 		browser.storage.local.get(['platform']).then(async (result) => {
-			const platform = result.platform || 'github';
+			const platform = result?.platform || 'github';
 			if (platform === 'gitlab') {
 				forceGitlabDataRefresh()
 					.then((result) => sendResponse(result))
@@ -1847,6 +1837,9 @@ browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
 						sendResponse({ success: false, error: err.message });
 					});
 			}
+		}).catch((err) => {
+			console.error('Storage access failed:', err);
+			sendResponse({ success: false, error: err.message });
 		});
 		return true;
 	}
@@ -1953,9 +1946,7 @@ async function fetchUserRepositories(username, token, org = '') {
 	try {
 		let dateRange = '';
 		try {
-			const storageData = await new Promise((resolve) => {
-				browser.storage.local.get(['startingDate', 'endingDate', 'yesterdayContribution']).then(resolve);
-			});
+			const storageData = await browser.storage.local.get(['startingDate', 'endingDate', 'yesterdayContribution']);
 
 			let startDate;
 			let endDate;

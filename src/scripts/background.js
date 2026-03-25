@@ -1,15 +1,11 @@
-/**
- * Cross-Browser Background Service Worker
- *
- * We use \rowser.*\ and the \webextension-polyfill\ for full compatibility
- * across Chrome, Firefox, Edge, and Safari.
- * Manifest V3 Promise-based APIs are used throughout.
- */
 
-try {
-	importScripts('browser-polyfill.min.js');
-} catch (e) {
-	console.error('Failed to import polyfill in background:', e);
+
+if (typeof importScripts === 'function') {
+	try {
+		importScripts('browser-polyfill.min.js');
+	} catch (e) {
+		console.error('Failed to import polyfill in background:', e);
+	}
 }
 
 const openByTabId = new Map();

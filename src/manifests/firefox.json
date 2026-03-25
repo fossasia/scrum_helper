@@ -7,7 +7,6 @@
     "default_title": "Scrum Helper"
   },
   "background": {
-    "service_worker": "scripts/background.js",
     "scripts": [
       "scripts/browser-polyfill.min.js",
       "scripts/background.js"

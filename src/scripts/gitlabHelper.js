@@ -13,39 +13,41 @@ class GitLabHelper {
 	}
 
 	async getCacheTTL() {
-		return new Promise((resolve) => {
-			browser.storage.local.get(['cacheInput']).then((items) => {
-				const ttl = items.cacheInput ? Number.parseInt(items.cacheInput, 10) * 60 * 1000 : 10 * 60 * 1000;
-				resolve(ttl);
-			});
-		});
+		try {
+			const items = await browser.storage.local.get(['cacheInput']);
+			const ttl = items.cacheInput ? Number.parseInt(items.cacheInput, 10) * 60 * 1000 : 10 * 60 * 1000;
+			return ttl;
+		} catch (error) {
+			console.error('Error getting cache TTL:', error);
+			return 10 * 60 * 1000;
+		}
 	}
 
 	async saveToStorage(data) {
-		return new Promise((resolve) => {
-			browser.storage.local
-				.set({
-					gitlabCache: {
-						data: data,
-						cacheKey: this.cache.cacheKey,
-						timestamp: this.cache.timestamp,
-					},
-				})
-				.then(resolve);
-		});
+		try {
+			await browser.storage.local.set({
+				gitlabCache: {
+					data: data,
+					cacheKey: this.cache.cacheKey,
+					timestamp: this.cache.timestamp,
+				},
+			});
+		} catch (error) {
+			console.error('Error saving to storage:', error);
+		}
 	}
 
 	async loadFromStorage() {
-		return new Promise((resolve) => {
-			browser.storage.local.get(['gitlabCache']).then((items) => {
-				if (items.gitlabCache) {
-					this.cache.data = items.gitlabCache.data;
-					this.cache.cacheKey = items.gitlabCache.cacheKey;
-					this.cache.timestamp = items.gitlabCache.timestamp;
-				}
-				resolve();
-			});
-		});
+		try {
+			const items = await browser.storage.local.get(['gitlabCache']);
+			if (items.gitlabCache) {
+				this.cache.data = items.gitlabCache.data;
+				this.cache.cacheKey = items.gitlabCache.cacheKey;
+				this.cache.timestamp = items.gitlabCache.timestamp;
+			}
+		} catch (error) {
+			console.error('Error loading from storage:', error);
+		}
 	}
 
 	async fetchGitLabData(username, startDate, endDate, token = null) {
