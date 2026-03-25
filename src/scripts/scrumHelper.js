@@ -1607,6 +1607,10 @@ ${blockerText}`;
 					continue;
 				}
 				if (isMR) {
+					if (typeof item.state === 'string' && item.state !== 'closed') {
+						log('[SCRUM-DEBUG] Skipping non-closed PR because onlyMergedPRs is checked:', item.number, 'state:', item.state);
+						continue;
+					}
 					const repoUrl = item.repository_url;
 					let prCacheKey = null;
 					if (repoUrl) {
