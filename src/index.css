@@ -60,15 +60,21 @@ a {
 
 .scrum-actions {
     display: flex;
-    gap: 8px;
+    gap: 4px;
 }
 
-.scrum-actions > button {
-    flex: 1 1 0;
+.scrum-actions>button,
+.scrum-actions>.tooltip-container {
+    flex: 1 1 auto;
     min-width: 0;
 }
 
-.scrum-actions > button span {
+.scrum-actions>.tooltip-container>button {
+    width: 100%;
+}
+
+.scrum-actions>button span,
+.scrum-actions>.tooltip-container>button span {
     white-space: nowrap;
 }
 
@@ -898,20 +904,21 @@ hr,
     color: #fff;
 }
 
-html.mode-sidepanel, body.mode-sidepanel {
+html.mode-sidepanel,
+body.mode-sidepanel {
     width: 100%;
     min-width: 360px;
 }
 
-html.mode-popup, body.mode-popup {
-    width: 360px; 
+html.mode-popup,
+body.mode-popup {
+    width: 360px;
     min-width: 360px;
 }
 
 /* Shortcut tooltip on button hover */
 .scrum-actions .tooltip-container {
     position: relative;
-    display: inline-block;
 }
 
 .shortcut-tooltip {
@@ -986,6 +993,7 @@ html.mode-popup, body.mode-popup {
         transform: translate(-50%, -10px);
         opacity: 0;
     }
+
     to {
         transform: translate(-50%, 0);
         opacity: 1;
@@ -997,6 +1005,7 @@ html.mode-popup, body.mode-popup {
         transform: translate(-50%, 0);
         opacity: 1;
     }
+
     to {
         transform: translate(-50%, -10px);
         opacity: 0;

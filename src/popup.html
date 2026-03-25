@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" class="mode-sidepanel">
+
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,8 +15,12 @@
 			margin: 0;
 			background: #eae4e4;
 			width: 100%;
+<<<<<<< HEAD
             height: 100%;
 			overflow: hidden;
+=======
+			height: 100%;
+>>>>>>> d083b0c (feat: short key for insert email)
 		}
 
 		body {
@@ -25,11 +30,11 @@
 		html.mode-sidepanel,
 		body.mode-sidepanel {
 			width: 100% !important;
-            height: 100% !important;
-            max-width: 100% !important;
-            max-height: 100% !important;
-            min-width: 360px;
-            min-height: 100% !important;
+			height: 100% !important;
+			max-width: 100% !important;
+			max-height: 100% !important;
+			min-width: 360px;
+			min-height: 100% !important;
 		}
 
 		html.mode-popup,
@@ -45,15 +50,16 @@
 
 		#popupRoot {
 			flex: 1;
-			min-width: 360px; 
+			min-width: 360px;
 			flex-shrink: 0;
 
 			height: 100%;
 			overflow-y: auto;
 			overflow-x: hidden;
 			scrollbar-width: auto;
-            -ms-overflow-style: auto;
+			-ms-overflow-style: auto;
 		}
+
 		#platformSelect option {
 			font-family: 'FontAwesome', 'Arial', sans-serif;
 		}
@@ -75,6 +81,7 @@
 		}
 	</style>
 </head>
+
 <body class="mode-sidepanel text-gray-800 bg-gray-50 flex flex-col font-sans">
 	<div id="popupRoot" class="pl-1 py-2 rounded-2xl">
 		<div class="bg-white px-4 py-4 mx-2 mb-2 rounded-3xl">
@@ -269,7 +276,8 @@
 						</div>
 						<div id="tokenWarningForShowCommits"
 							class="hidden text-xs text-red-600 p-2 bg-red-50 border border-red-200 rounded-xl mt-2">
-							<span data-i18n="tokenRequiredShowCommitsWarning">A GitHub token is required to show commits on open or draft PRs. Please add one in the settings.</span>
+							<span data-i18n="tokenRequiredShowCommitsWarning">A GitHub token is required to show commits
+								on open or draft PRs. Please add one in the settings.</span>
 						</div>
 					</div>
 
@@ -284,17 +292,22 @@
 						<div class="scrum-actions my-2">
 							<div class="tooltip-container">
 								<button id="generateReport"
-									class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-3 rounded">
+									class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded"
+									style="padding-left: 0.875rem; padding-right: 0.875rem;">
 									<i class="fa fa-refresh"></i> <span data-i18n="generateReportButton">Generate</span>
 								</button>
 								<span class="shortcut-tooltip" id="generateReportTooltipText">Ctrl+G</span>
 							</div>
 
-							<button id="insertInEmail"
-								class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
-								<i class="fa fa-envelope"></i> <span data-i18n="insertInEmailButton">Insert in
-									Email</span>
-							</button>
+							<div class="tooltip-container">
+								<button id="insertInEmail"
+									class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded"
+									style="padding-left: 0.875rem; padding-right: 0.875rem;">
+									<i class="fa fa-envelope"></i> <span data-i18n="insertInEmailButton">Insert in
+										Email</span>
+								</button>
+								<span class="shortcut-tooltip" id="insertInEmailTooltipText">Ctrl+Shift+M</span>
+							</div>
 
 							<div class="tooltip-container">
 								<button id="copyReport"
@@ -498,7 +511,8 @@
 							<option value="sidePanel">Side Panel</option>
 							<option value="popup">Popup</option>
 						</select>
-						<div id="displayModeNotice" class="hidden text-xs text-blue-700 bg-blue-50 border border-blue-200 rounded-xl p-2 mt-1 mb-2 flex items-center gap-2">
+						<div id="displayModeNotice"
+							class="hidden text-xs text-blue-700 bg-blue-50 border border-blue-200 rounded-xl p-2 mt-1 mb-2 flex items-center gap-2">
 							<i class="fa fa-info-circle"></i>
 							<span id="displayModeNoticeText"></span>
 						</div>

@@ -68,6 +68,11 @@ function setupButtonTooltips() {
 	if (copyTooltipEl) {
 		copyTooltipEl.textContent = mac ? 'Cmd+Shift+Y' : 'Ctrl+Shift+Y';
 	}
+
+	const insertEmailTooltipEl = document.getElementById('insertInEmailTooltipText');
+	if (insertEmailTooltipEl) {
+		insertEmailTooltipEl.textContent = mac ? 'Cmd+Shift+M' : 'Ctrl+Shift+M';
+	}
 }
 
 function getToday() {
@@ -908,7 +913,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					chrome?.storage.local.get(['platform'], resolve);
 				});
 				platform = items.platform || 'github';
-			} catch {}
+			} catch { }
 			if (platform !== 'github') {
 				// Do not run repo fetch for non-GitHub platforms
 				if (repoStatus) repoStatus.textContent = chrome?.i18n.getMessage('repoFilteringGithubOnly') || 'Repository filtering is only available for GitHub.';
@@ -997,7 +1002,7 @@ document.addEventListener('DOMContentLoaded', () => {
 						chrome?.storage.local.get(['platform'], resolve);
 					});
 					platform = items.platform || 'github';
-				} catch {}
+				} catch { }
 				if (platform !== 'github') {
 					repoFilterContainer.classList.add('hidden');
 					useRepoFilter.checked = false;
@@ -1178,7 +1183,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					chrome?.storage.local.get(['platform'], resolve);
 				});
 				platform = items.platform || 'github';
-			} catch {}
+			} catch { }
 			if (platform !== 'github') {
 				if (repoStatus) repoStatus.textContent = chrome?.i18n.getMessage('repoLoadingGithubOnly') || 'Repository loading is only available for GitHub.';
 				return;
@@ -1221,7 +1226,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					chrome?.storage.local.get(['platform'], resolve);
 				});
 				platform = items.platform || 'github';
-			} catch (e) {}
+			} catch (e) { }
 			if (platform !== 'github') {
 				if (repoStatus) repoStatus.textContent = chrome?.i18n.getMessage('repoFetchingGithubOnly') || 'Repository fetching is only available for GitHub.';
 				return;
@@ -1775,7 +1780,7 @@ document.getElementById('refreshCache').addEventListener('click', async function
 				chrome?.storage.local.get(['platform'], resolve);
 			});
 			platform = items.platform || 'github';
-		} catch (e) {}
+		} catch (e) { }
 
 		// Clear all caches
 		const keysToRemove = ['githubCache', 'repoCache', 'gitlabCache'];
@@ -1857,7 +1862,7 @@ async function triggerRepoFetchIfEnabled() {
 	}
 }
 
-// Keyboard shortcuts: Ctrl+G / Cmd+G to generate, Ctrl+Shift+Y / Cmd+Shift+Y to copy
+// Keyboard shortcuts: Ctrl+G / Cmd+G to generate, Ctrl+Shift+Y / Cmd+Shift+Y to copy, Ctrl+Shift+M / Cmd+Shift+M to insert in email
 document.addEventListener('keydown', (e) => {
 	if (!document.hasFocus()) {
 		return;
@@ -1878,6 +1883,7 @@ document.addEventListener('keydown', (e) => {
 
 	const generateBtn = document.getElementById('generateReport');
 	const copyBtn = document.getElementById('copyReport');
+	const insertEmailBtn = document.getElementById('insertInEmail');
 
 	if (modifier && !e.shiftKey && !e.altKey && key === 'g' && !e.repeat && generateBtn && !generateBtn.disabled) {
 		e.preventDefault();
@@ -1889,6 +1895,12 @@ document.addEventListener('keydown', (e) => {
 		e.preventDefault();
 		showShortcutNotification('copyingReportNotification');
 		copyBtn.click();
+	}
+
+	if (modifier && e.shiftKey && !e.altKey && key === 'm' && !e.repeat && insertEmailBtn && !insertEmailBtn.disabled) {
+		e.preventDefault();
+		showShortcutNotification('insertingInEmailNotification');
+		insertEmailBtn.click();
 	}
 });
 

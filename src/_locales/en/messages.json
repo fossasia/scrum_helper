@@ -404,5 +404,13 @@
   "copyingReportNotification": {
     "message": "Report copied!",
     "description": "Notification shown when report is copied via keyboard shortcut."
+  },
+  "insertInEmailTooltip": {
+    "message": "Ctrl+Shift+M",
+    "description": "Tooltip shortcut for the Insert in Email button. Dynamically replaced with Cmd+Shift+M on macOS."
+  },
+  "insertingInEmailNotification": {
+    "message": "Inserting report into email...",
+    "description": "Notification shown when report insertion into email is triggered via keyboard shortcut."
   }
 }
