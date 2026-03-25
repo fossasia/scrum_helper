@@ -305,7 +305,7 @@
         "message": "Bericht wird erstellt..."
     },
     "copyingReportNotification": {
-        "message": "Bericht kopiert!"
+        "message": "Bericht wird kopiert..."
     },
     "insertInEmailTooltip": {
         "message": "Ctrl+Shift+M"
