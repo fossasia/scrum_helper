@@ -587,27 +587,35 @@ document.addEventListener('DOMContentLoaded', () => {
 					return;
 				}
 
-				browser.tabs.query({ active: true, currentWindow: true }).then((tabs) => {
-					const tabId = tabs?.[0]?.id;
-					if (!tabId) {
-						insertBtn._triggeredByShortcut = false;
-						return;
-					}
-
-					browser.tabs.sendMessage(tabId, { action: 'insertReportToEmail', content, subject }, (response) => {
-						if (browser.runtime.lastError) {
-							console.warn('Insert to Email failed:', browser.runtime.lastError.message);
+				browser.tabs
+					.query({ active: true, currentWindow: true })
+					.then((tabs) => {
+						const tabId = tabs?.[0]?.id;
+						if (!tabId) {
 							insertBtn._triggeredByShortcut = false;
 							return;
 						}
-						if (response?.success && insertBtn._triggeredByShortcut) {
-							showShortcutNotification('insertedInEmailNotification');
-						} else if (!response?.success) {
-							console.warn('Insert to Email failed:', response?.error);
-						}
+
+						browser.tabs
+							.sendMessage(tabId, { action: 'insertReportToEmail', content, subject })
+							.then((response) => {
+								if (response?.success && insertBtn._triggeredByShortcut) {
+									showShortcutNotification('insertedInEmailNotification');
+								} else if (!response?.success) {
+									console.warn('Insert to Email failed:', response?.error);
+								}
+							})
+							.catch((error) => {
+								console.warn('Insert to Email failed:', error?.message || error);
+							})
+							.finally(() => {
+								insertBtn._triggeredByShortcut = false;
+							});
+					})
+					.catch((error) => {
+						console.warn('Unable to get active tab:', error?.message || error);
 						insertBtn._triggeredByShortcut = false;
 					});
-				});
 			});
 		}
 
