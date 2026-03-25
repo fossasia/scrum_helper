@@ -305,7 +305,7 @@
         "message": "Генерація звіту..."
     },
     "copyingReportNotification": {
-        "message": "Звіт скопійовано!"
+        "message": "Копіювання звіту..."
     },
     "insertInEmailTooltip": {
         "message": "Ctrl+Shift+M"
