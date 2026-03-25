@@ -6,17 +6,16 @@
   "action": {
     "default_title": "Scrum Helper"
   },
-  "side_panel": {
-    "default_path": "popup.html"
-  },
   "background": {
-    "service_worker": "scripts/background.js"
+    "scripts": [
+      "scripts/browser-polyfill.min.js",
+      "scripts/background.js"
+    ]
   },
   "icons": {
-    "96": "icons/icon.png",
-    "48": "icons/icon.png"
+    "48": "icons/icon.png",
+    "96": "icons/icon.png"
   },
-  
   "content_scripts": [
     {
       "matches": [
@@ -29,6 +28,7 @@
         "*://mail.yahoo.com/*"
       ],
       "js": [
+        "scripts/browser-polyfill.min.js",
         "scripts/jquery-3.2.1.min.js",
         "scripts/emailClientAdapter.js",
         "scripts/gitlabHelper.js",
@@ -52,18 +52,25 @@
   ],
   "permissions": [
     "storage",
-    "tabs",
-    "sidePanel"
+    "tabs"
   ],
   "host_permissions": [
     "*://*.google.com/*",
     "*://*.outlook.live.com/*",
     "*://*.office.com/*",
     "*://*.yahoo.com/*",
-
     "https://api.github.com/*",
     "https://gitlab.com/*"
- ],
-  "default_locale": "en"
-
+  ],
+  "default_locale": "en",
+  "sidebar_action": {
+    "default_panel": "popup.html?view=sidebar",
+    "default_title": "Scrum Helper"
+  },
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "scrum_helper@fossasia.org",
+      "strict_min_version": "109.0"
+    }
+  }
 }
