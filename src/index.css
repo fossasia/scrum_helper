@@ -71,6 +71,12 @@ a {
 
 .scrum-actions > button span {
     white-space: nowrap;
+    overflow: visible;
+    text-overflow: clip;
+}
+
+#insertInEmail {
+    flex: 1.25 1 0;
 }
 
 .btn,
