@@ -1,72 +1,16 @@
-## v2.1.5 - 2026-03-04
+## v2.1.5 - 2026-03-02
 
 ## What's Changed
 
-* Check box state handling when token not  present (#384) @Mateeb-Haider
-* fixed UI Bug (#425) @vedansh-5
-* feat: complete translations for all languages (100% coverage) (#360) @Mateeb-Haider
-* readme update and lint (#419) @vedansh-5
-* Resolve snap bug (#418) @vedansh-5
-* Fix typos in Scrum Helper user-facing strings (#410) @puneetnith28
+- readme update and lint (#419) @vedansh-5
+- Resolve snap bug (#418) @vedansh-5
+- Fix typos in Scrum Helper user-facing strings (#410) @puneetnith28
 
 ## Maintenance
 
-* chore(deps)(deps-dev): bump postcss from 8.5.6 to 8.5.8 (#421) @[dependabot[bot]](https://github.com/apps/dependabot)
-* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.4 to 2.4.5 (#416) @[dependabot[bot]](https://github.com/apps/dependabot)
-* chore(deps)(deps): bump @tailwindcss/cli from 4.1.18 to 4.2.1 (#395) @[dependabot[bot]](https://github.com/apps/dependabot)
-* version bump to 2.1.4 (#408) @vedansh-5
-
----
-
-## v2.1.5 - 2026-03-04
-
-## What's Changed
-
-* fixed UI Bug (#425) @vedansh-5
-* feat: complete translations for all languages (100% coverage) (#360) @Mateeb-Haider
-* readme update and lint (#419) @vedansh-5
-* Resolve snap bug (#418) @vedansh-5
-* Fix typos in Scrum Helper user-facing strings (#410) @puneetnith28
-
-## Maintenance
-
-* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.4 to 2.4.5 (#416) @[dependabot[bot]](https://github.com/apps/dependabot)
-* chore(deps)(deps): bump @tailwindcss/cli from 4.1.18 to 4.2.1 (#395) @[dependabot[bot]](https://github.com/apps/dependabot)
-* version bump to 2.1.4 (#408) @vedansh-5
-
----
-
-## v2.1.5 - 2026-03-04
-
-## What's Changed
-
-* feat: complete translations for all languages (100% coverage) (#360) @Mateeb-Haider
-* readme update and lint (#419) @vedansh-5
-* Resolve snap bug (#418) @vedansh-5
-* Fix typos in Scrum Helper user-facing strings (#410) @puneetnith28
-
-## Maintenance
-
-* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.4 to 2.4.5 (#416) @[dependabot[bot]](https://github.com/apps/dependabot)
-* chore(deps)(deps): bump @tailwindcss/cli from 4.1.18 to 4.2.1 (#395) @[dependabot[bot]](https://github.com/apps/dependabot)
-* version bump to 2.1.4 (#408) @vedansh-5
-
----
-
-## v2.1.5 - 2026-03-04
-
-## What's Changed
-
-* feat: complete translations for all languages (100% coverage) (#360) @Mateeb-Haider
-* readme update and lint (#419) @vedansh-5
-* Resolve snap bug (#418) @vedansh-5
-* Fix typos in Scrum Helper user-facing strings (#410) @puneetnith28
-
-## Maintenance
-
-* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.4 to 2.4.5 (#416) @[dependabot[bot]](https://github.com/apps/dependabot)
-* chore(deps)(deps): bump @tailwindcss/cli from 4.1.18 to 4.2.1 (#395) @[dependabot[bot]](https://github.com/apps/dependabot)
-* version bump to 2.1.4 (#408) @vedansh-5
+- chore(deps)(deps-dev): bump @biomejs/biome from 2.4.4 to 2.4.5 (#416) @[dependabot[bot]](https://github.com/apps/dependabot)
+- chore(deps)(deps): bump @tailwindcss/cli from 4.1.18 to 4.2.1 (#395) @[dependabot[bot]](https://github.com/apps/dependabot)
+- version bump to 2.1.4 (#408) @vedansh-5
 
 ---
 
@@ -74,15 +18,14 @@
 
 ## What's Changed
 
-* readme update and lint (#419) @vedansh-5
-* Resolve snap bug (#418) @vedansh-5
-* Fix typos in Scrum Helper user-facing strings (#410) @puneetnith28
+- readme update and lint (#419) @vedansh-5
+- Resolve snap bug (#418) @vedansh-5
+- Fix typos in Scrum Helper user-facing strings (#410) @puneetnith28
 
 ## Maintenance
 
-* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.4 to 2.4.5 (#416) @[dependabot[bot]](https://github.com/apps/dependabot)
-* chore(deps)(deps): bump @tailwindcss/cli from 4.1.18 to 4.2.1 (#395) @[dependabot[bot]](https://github.com/apps/dependabot)
-* version bump to 2.1.4 (#408) @vedansh-5
+- chore(deps)(deps): bump @tailwindcss/cli from 4.1.18 to 4.2.1 (#395) @[dependabot[bot]](https://github.com/apps/dependabot)
+- version bump to 2.1.4 (#408) @vedansh-5
 
 ---
 
@@ -90,14 +33,13 @@
 
 ## What's Changed
 
-* readme update and lint (#419) @vedansh-5
-* Resolve snap bug (#418) @vedansh-5
-* Fix typos in Scrum Helper user-facing strings (#410) @puneetnith28
+- Resolve snap bug (#418) @vedansh-5
+- Fix typos in Scrum Helper user-facing strings (#410) @puneetnith28
 
 ## Maintenance
 
-* chore(deps)(deps): bump @tailwindcss/cli from 4.1.18 to 4.2.1 (#395) @[dependabot[bot]](https://github.com/apps/dependabot)
-* version bump to 2.1.4 (#408) @vedansh-5
+- chore(deps)(deps): bump @tailwindcss/cli from 4.1.18 to 4.2.1 (#395) @[dependabot[bot]](https://github.com/apps/dependabot)
+- version bump to 2.1.4 (#408) @vedansh-5
 
 ---
 
@@ -105,26 +47,12 @@
 
 ## What's Changed
 
-* Resolve snap bug (#418) @vedansh-5
-* Fix typos in Scrum Helper user-facing strings (#410) @puneetnith28
+- Fix typos in Scrum Helper user-facing strings (#410) @puneetnith28
 
 ## Maintenance
 
-* chore(deps)(deps): bump @tailwindcss/cli from 4.1.18 to 4.2.1 (#395) @[dependabot[bot]](https://github.com/apps/dependabot)
-* version bump to 2.1.4 (#408) @vedansh-5
-
----
-
-## v2.1.5 - 2026-03-02
-
-## What's Changed
-
-* Fix typos in Scrum Helper user-facing strings (#410) @puneetnith28
-
-## Maintenance
-
-* chore(deps)(deps): bump @tailwindcss/cli from 4.1.18 to 4.2.1 (#395) @[dependabot[bot]](https://github.com/apps/dependabot)
-* version bump to 2.1.4 (#408) @vedansh-5
+- chore(deps)(deps): bump @tailwindcss/cli from 4.1.18 to 4.2.1 (#395) @[dependabot[bot]](https://github.com/apps/dependabot)
+- version bump to 2.1.4 (#408) @vedansh-5
 
 ---
 
@@ -134,7 +62,7 @@
 
 ## Maintenance
 
-* version bump to 2.1.4 (#408) @vedansh-5
+- version bump to 2.1.4 (#408) @vedansh-5
 
 ---
 
@@ -144,7 +72,7 @@
 
 ## Maintenance
 
-* version bump to 2.1.4 (#408) @vedansh-5
+- version bump to 2.1.4 (#408) @vedansh-5
 
 ---
 
@@ -152,21 +80,21 @@
 
 ## What's Changed
 
-* Removed on/off toggle and added insert to email button (#372) @vedansh-5
-* Add Burmese (my) locale support (#402) @kaungmyatshwe1397
-* Feature: Side panel extension window instead of popup window (#373) @vedansh-5
-* fix: remove toast for non-existed users (#381) @Mateeb-Haider
-* fix: repo-filtering \& input search visibility (#375) @Mateeb-Haider
-* Add Malayalam (ml) language support (#367) @SourishMerugu
+- Removed on/off toggle and added insert to email button (#372) @vedansh-5
+- Add Burmese (my) locale support (#402) @kaungmyatshwe1397
+- Feature: Side panel extension window instead of popup window (#373) @vedansh-5
+- fix: remove toast for non-existed users (#381) @Mateeb-Haider
+- fix: repo-filtering \& input search visibility (#375) @Mateeb-Haider
+- Add Malayalam (ml) language support (#367) @SourishMerugu
 
 ## Maintenance
 
-* chore(deps)(deps-dev): bump autoprefixer from 10.4.24 to 10.4.27 (#403) @[dependabot[bot]](https://github.com/apps/dependabot)
-* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.2 to 2.4.4 (#394) @[dependabot[bot]](https://github.com/apps/dependabot)
-* chore(deps)(deps-dev): bump tailwindcss from 4.1.18 to 4.2.1 (#396) @[dependabot[bot]](https://github.com/apps/dependabot)
-* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.14 to 2.4.2 (#378) @[dependabot[bot]](https://github.com/apps/dependabot)
-* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.13 to 2.3.14 (#368) @[dependabot[bot]](https://github.com/apps/dependabot)
-* versionbump (#365) @vedansh-5
+- chore(deps)(deps-dev): bump autoprefixer from 10.4.24 to 10.4.27 (#403) @[dependabot[bot]](https://github.com/apps/dependabot)
+- chore(deps)(deps-dev): bump @biomejs/biome from 2.4.2 to 2.4.4 (#394) @[dependabot[bot]](https://github.com/apps/dependabot)
+- chore(deps)(deps-dev): bump tailwindcss from 4.1.18 to 4.2.1 (#396) @[dependabot[bot]](https://github.com/apps/dependabot)
+- chore(deps)(deps-dev): bump @biomejs/biome from 2.3.14 to 2.4.2 (#378) @[dependabot[bot]](https://github.com/apps/dependabot)
+- chore(deps)(deps-dev): bump @biomejs/biome from 2.3.13 to 2.3.14 (#368) @[dependabot[bot]](https://github.com/apps/dependabot)
+- versionbump (#365) @vedansh-5
 
 ---
 
@@ -174,20 +102,20 @@
 
 ## What's Changed
 
-* Add Burmese (my) locale support (#402) @kaungmyatshwe1397
-* Feature: Side panel extension window instead of popup window (#373) @vedansh-5
-* fix: remove toast for non-existed users (#381) @Mateeb-Haider
-* fix: repo-filtering \& input search visibility (#375) @Mateeb-Haider
-* Add Malayalam (ml) language support (#367) @SourishMerugu
+- Add Burmese (my) locale support (#402) @kaungmyatshwe1397
+- Feature: Side panel extension window instead of popup window (#373) @vedansh-5
+- fix: remove toast for non-existed users (#381) @Mateeb-Haider
+- fix: repo-filtering \& input search visibility (#375) @Mateeb-Haider
+- Add Malayalam (ml) language support (#367) @SourishMerugu
 
 ## Maintenance
 
-* chore(deps)(deps-dev): bump autoprefixer from 10.4.24 to 10.4.27 (#403) @[dependabot[bot]](https://github.com/apps/dependabot)
-* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.2 to 2.4.4 (#394) @[dependabot[bot]](https://github.com/apps/dependabot)
-* chore(deps)(deps-dev): bump tailwindcss from 4.1.18 to 4.2.1 (#396) @[dependabot[bot]](https://github.com/apps/dependabot)
-* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.14 to 2.4.2 (#378) @[dependabot[bot]](https://github.com/apps/dependabot)
-* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.13 to 2.3.14 (#368) @[dependabot[bot]](https://github.com/apps/dependabot)
-* versionbump (#365) @vedansh-5
+- chore(deps)(deps-dev): bump autoprefixer from 10.4.24 to 10.4.27 (#403) @[dependabot[bot]](https://github.com/apps/dependabot)
+- chore(deps)(deps-dev): bump @biomejs/biome from 2.4.2 to 2.4.4 (#394) @[dependabot[bot]](https://github.com/apps/dependabot)
+- chore(deps)(deps-dev): bump tailwindcss from 4.1.18 to 4.2.1 (#396) @[dependabot[bot]](https://github.com/apps/dependabot)
+- chore(deps)(deps-dev): bump @biomejs/biome from 2.3.14 to 2.4.2 (#378) @[dependabot[bot]](https://github.com/apps/dependabot)
+- chore(deps)(deps-dev): bump @biomejs/biome from 2.3.13 to 2.3.14 (#368) @[dependabot[bot]](https://github.com/apps/dependabot)
+- versionbump (#365) @vedansh-5
 
 ---
 
@@ -195,19 +123,19 @@
 
 ## What's Changed
 
-* Add Burmese (my) locale support (#402) @kaungmyatshwe1397
-* Feature: Side panel extension window instead of popup window (#373) @vedansh-5
-* fix: remove toast for non-existed users (#381) @Mateeb-Haider
-* fix: repo-filtering \& input search visibility (#375) @Mateeb-Haider
-* Add Malayalam (ml) language support (#367) @SourishMerugu
+- Add Burmese (my) locale support (#402) @kaungmyatshwe1397
+- Feature: Side panel extension window instead of popup window (#373) @vedansh-5
+- fix: remove toast for non-existed users (#381) @Mateeb-Haider
+- fix: repo-filtering \& input search visibility (#375) @Mateeb-Haider
+- Add Malayalam (ml) language support (#367) @SourishMerugu
 
 ## Maintenance
 
-* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.2 to 2.4.4 (#394) @[dependabot[bot]](https://github.com/apps/dependabot)
-* chore(deps)(deps-dev): bump tailwindcss from 4.1.18 to 4.2.1 (#396) @[dependabot[bot]](https://github.com/apps/dependabot)
-* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.14 to 2.4.2 (#378) @[dependabot[bot]](https://github.com/apps/dependabot)
-* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.13 to 2.3.14 (#368) @[dependabot[bot]](https://github.com/apps/dependabot)
-* versionbump (#365) @vedansh-5
+- chore(deps)(deps-dev): bump @biomejs/biome from 2.4.2 to 2.4.4 (#394) @[dependabot[bot]](https://github.com/apps/dependabot)
+- chore(deps)(deps-dev): bump tailwindcss from 4.1.18 to 4.2.1 (#396) @[dependabot[bot]](https://github.com/apps/dependabot)
+- chore(deps)(deps-dev): bump @biomejs/biome from 2.3.14 to 2.4.2 (#378) @[dependabot[bot]](https://github.com/apps/dependabot)
+- chore(deps)(deps-dev): bump @biomejs/biome from 2.3.13 to 2.3.14 (#368) @[dependabot[bot]](https://github.com/apps/dependabot)
+- versionbump (#365) @vedansh-5
 
 ---
 
@@ -215,18 +143,18 @@
 
 ## What's Changed
 
-* Feature: Side panel extension window instead of popup window (#373) @vedansh-5
-* fix: remove toast for non-existed users (#381) @Mateeb-Haider
-* fix: repo-filtering \& input search visibility (#375) @Mateeb-Haider
-* Add Malayalam (ml) language support (#367) @SourishMerugu
+- Feature: Side panel extension window instead of popup window (#373) @vedansh-5
+- fix: remove toast for non-existed users (#381) @Mateeb-Haider
+- fix: repo-filtering \& input search visibility (#375) @Mateeb-Haider
+- Add Malayalam (ml) language support (#367) @SourishMerugu
 
 ## Maintenance
 
-* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.2 to 2.4.4 (#394) @[dependabot[bot]](https://github.com/apps/dependabot)
-* chore(deps)(deps-dev): bump tailwindcss from 4.1.18 to 4.2.1 (#396) @[dependabot[bot]](https://github.com/apps/dependabot)
-* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.14 to 2.4.2 (#378) @[dependabot[bot]](https://github.com/apps/dependabot)
-* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.13 to 2.3.14 (#368) @[dependabot[bot]](https://github.com/apps/dependabot)
-* versionbump (#365) @vedansh-5
+- chore(deps)(deps-dev): bump @biomejs/biome from 2.4.2 to 2.4.4 (#394) @[dependabot[bot]](https://github.com/apps/dependabot)
+- chore(deps)(deps-dev): bump tailwindcss from 4.1.18 to 4.2.1 (#396) @[dependabot[bot]](https://github.com/apps/dependabot)
+- chore(deps)(deps-dev): bump @biomejs/biome from 2.3.14 to 2.4.2 (#378) @[dependabot[bot]](https://github.com/apps/dependabot)
+- chore(deps)(deps-dev): bump @biomejs/biome from 2.3.13 to 2.3.14 (#368) @[dependabot[bot]](https://github.com/apps/dependabot)
+- versionbump (#365) @vedansh-5
 
 ---
 
@@ -234,16 +162,16 @@
 
 ## What's Changed
 
-* Feature: Side panel extension window instead of popup window (#373) @vedansh-5
-* fix: remove toast for non-existed users (#381) @Mateeb-Haider
-* fix: repo-filtering \& input search visibility (#375) @Mateeb-Haider
-* Add Malayalam (ml) language support (#367) @SourishMerugu
+- Feature: Side panel extension window instead of popup window (#373) @vedansh-5
+- fix: remove toast for non-existed users (#381) @Mateeb-Haider
+- fix: repo-filtering \& input search visibility (#375) @Mateeb-Haider
+- Add Malayalam (ml) language support (#367) @SourishMerugu
 
 ## Maintenance
 
-* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.14 to 2.4.2 (#378) @[dependabot[bot]](https://github.com/apps/dependabot)
-* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.13 to 2.3.14 (#368) @[dependabot[bot]](https://github.com/apps/dependabot)
-* versionbump (#365) @vedansh-5
+- chore(deps)(deps-dev): bump @biomejs/biome from 2.3.14 to 2.4.2 (#378) @[dependabot[bot]](https://github.com/apps/dependabot)
+- chore(deps)(deps-dev): bump @biomejs/biome from 2.3.13 to 2.3.14 (#368) @[dependabot[bot]](https://github.com/apps/dependabot)
+- versionbump (#365) @vedansh-5
 
 ---
 
@@ -251,15 +179,15 @@
 
 ## What's Changed
 
-* fix: remove toast for non-existed users (#381) @Mateeb-Haider
-* fix: repo-filtering \& input search visibility (#375) @Mateeb-Haider
-* Add Malayalam (ml) language support (#367) @SourishMerugu
+- fix: remove toast for non-existed users (#381) @Mateeb-Haider
+- fix: repo-filtering \& input search visibility (#375) @Mateeb-Haider
+- Add Malayalam (ml) language support (#367) @SourishMerugu
 
 ## Maintenance
 
-* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.14 to 2.4.2 (#378) @[dependabot[bot]](https://github.com/apps/dependabot)
-* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.13 to 2.3.14 (#368) @[dependabot[bot]](https://github.com/apps/dependabot)
-* versionbump (#365) @vedansh-5
+- chore(deps)(deps-dev): bump @biomejs/biome from 2.3.14 to 2.4.2 (#378) @[dependabot[bot]](https://github.com/apps/dependabot)
+- chore(deps)(deps-dev): bump @biomejs/biome from 2.3.13 to 2.3.14 (#368) @[dependabot[bot]](https://github.com/apps/dependabot)
+- versionbump (#365) @vedansh-5
 
 ---
 
@@ -267,15 +195,15 @@
 
 ## What's Changed
 
-* fix: remove toast for non-existed users (#381) @Mateeb-Haider
-* fix: repo-filtering \& input search visibility (#375) @Mateeb-Haider
-* Add Malayalam (ml) language support (#367) @SourishMerugu
+- fix: remove toast for non-existed users (#381) @Mateeb-Haider
+- fix: repo-filtering \& input search visibility (#375) @Mateeb-Haider
+- Add Malayalam (ml) language support (#367) @SourishMerugu
 
 ## Maintenance
 
-* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.14 to 2.4.2 (#378) @[dependabot[bot]](https://github.com/apps/dependabot)
-* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.13 to 2.3.14 (#368) @[dependabot[bot]](https://github.com/apps/dependabot)
-* versionbump (#365) @vedansh-5
+- chore(deps)(deps-dev): bump @biomejs/biome from 2.3.14 to 2.4.2 (#378) @[dependabot[bot]](https://github.com/apps/dependabot)
+- chore(deps)(deps-dev): bump @biomejs/biome from 2.3.13 to 2.3.14 (#368) @[dependabot[bot]](https://github.com/apps/dependabot)
+- versionbump (#365) @vedansh-5
 
 ---
 
@@ -283,14 +211,14 @@
 
 ## What's Changed
 
-* fix: repo-filtering \& input search visibility (#375) @Mateeb-Haider
-* Add Malayalam (ml) language support (#367) @SourishMerugu
+- fix: repo-filtering \& input search visibility (#375) @Mateeb-Haider
+- Add Malayalam (ml) language support (#367) @SourishMerugu
 
 ## Maintenance
 
-* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.14 to 2.4.2 (#378) @[dependabot[bot]](https://github.com/apps/dependabot)
-* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.13 to 2.3.14 (#368) @[dependabot[bot]](https://github.com/apps/dependabot)
-* versionbump (#365) @vedansh-5
+- chore(deps)(deps-dev): bump @biomejs/biome from 2.3.14 to 2.4.2 (#378) @[dependabot[bot]](https://github.com/apps/dependabot)
+- chore(deps)(deps-dev): bump @biomejs/biome from 2.3.13 to 2.3.14 (#368) @[dependabot[bot]](https://github.com/apps/dependabot)
+- versionbump (#365) @vedansh-5
 
 ---
 
@@ -298,13 +226,13 @@
 
 ## What's Changed
 
-* fix: repo-filtering \& input search visibility (#375) @Mateeb-Haider
-* Add Malayalam (ml) language support (#367) @SourishMerugu
+- fix: repo-filtering \& input search visibility (#375) @Mateeb-Haider
+- Add Malayalam (ml) language support (#367) @SourishMerugu
 
 ## Maintenance
 
-* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.13 to 2.3.14 (#368) @[dependabot[bot]](https://github.com/apps/dependabot)
-* versionbump (#365) @vedansh-5
+- chore(deps)(deps-dev): bump @biomejs/biome from 2.3.13 to 2.3.14 (#368) @[dependabot[bot]](https://github.com/apps/dependabot)
+- versionbump (#365) @vedansh-5
 
 ---
 
@@ -312,12 +240,12 @@
 
 ## What's Changed
 
-* Add Malayalam (ml) language support (#367) @SourishMerugu
+- Add Malayalam (ml) language support (#367) @SourishMerugu
 
 ## Maintenance
 
-* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.13 to 2.3.14 (#368) @[dependabot[bot]](https://github.com/apps/dependabot)
-* versionbump (#365) @vedansh-5
+- chore(deps)(deps-dev): bump @biomejs/biome from 2.3.13 to 2.3.14 (#368) @[dependabot[bot]](https://github.com/apps/dependabot)
+- versionbump (#365) @vedansh-5
 
 ---
 
@@ -327,8 +255,8 @@
 
 ## Maintenance
 
-* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.13 to 2.3.14 (#368) @[dependabot[bot]](https://github.com/apps/dependabot)
-* versionbump (#365) @vedansh-5
+- chore(deps)(deps-dev): bump @biomejs/biome from 2.3.13 to 2.3.14 (#368) @[dependabot[bot]](https://github.com/apps/dependabot)
+- versionbump (#365) @vedansh-5
 
 ---
 
@@ -338,7 +266,7 @@
 
 ## Maintenance
 
-* versionbump (#365) @vedansh-5
+- versionbump (#365) @vedansh-5
 
 ---
 
@@ -346,40 +274,40 @@
 
 ## What's Changed
 
-* Release drafter workflow fix (#364) @vedansh-5
-* Delete PR\_DESCRIPTION.md (#362) @vedansh-5
-* feat: add GitLab token support (#354) @Anshumancanrock
-* Translation for onlyReviewedPRs feature \& telugu translation (#346) @vedansh-5
-* Clearing codebase  (#345) @vedansh-5
-* Only reviewed prs filter (#338) @vedansh-5
-* Version2.0.2 version bump (#341) @vedansh-5
-* fix(logging): remove debug console.log statements (#325) @Nsanjayboruds
-* Fixed translation bug and changed the appname and madewithlove to english (#337) @vedansh-5
-* Revert Revert
-Added Translation : Telugu language (#335) @vedansh-5
-* Revert Added
-Translation
-:
-Telugu
-language (#334) @vedansh-5
-* Readme changes to encourage new users to use extension from chrome webstore, rather than setting it up locally (#315) @vedansh-5
-* Added Translation : Telugu language (#327) @MiriyalaJayanth-19
-* Improve date picker icon visibility in dark mode (#321) @abhivyakti2
-* Improve GitHub user validation and error handling (#283) @Mateeb-Haider
-* OnlyPRs filter (#308) @vedansh-5
-* Improve CONTRIBUTING.md and fix broken link (#312) @Salmaan-M
-* Bug fixed in isNewPr condition (#306) @vedansh-5
-* Fix popup crash on dark mode toggle due to missing tokenPreview (#300) @gurusatsangi
+- Release drafter workflow fix (#364) @vedansh-5
+- Delete PR_DESCRIPTION.md (#362) @vedansh-5
+- feat: add GitLab token support (#354) @Anshumancanrock
+- Translation for onlyReviewedPRs feature \& telugu translation (#346) @vedansh-5
+- Clearing codebase (#345) @vedansh-5
+- Only reviewed prs filter (#338) @vedansh-5
+- Version2.0.2 version bump (#341) @vedansh-5
+- fix(logging): remove debug console.log statements (#325) @Nsanjayboruds
+- Fixed translation bug and changed the appname and madewithlove to english (#337) @vedansh-5
+- Revert Revert
+  Added Translation : Telugu language (#335) @vedansh-5
+- Revert Added
+  Translation
+  :
+  Telugu
+  language (#334) @vedansh-5
+- Readme changes to encourage new users to use extension from chrome webstore, rather than setting it up locally (#315) @vedansh-5
+- Added Translation : Telugu language (#327) @MiriyalaJayanth-19
+- Improve date picker icon visibility in dark mode (#321) @abhivyakti2
+- Improve GitHub user validation and error handling (#283) @Mateeb-Haider
+- OnlyPRs filter (#308) @vedansh-5
+- Improve CONTRIBUTING.md and fix broken link (#312) @Salmaan-M
+- Bug fixed in isNewPr condition (#306) @vedansh-5
+- Fix popup crash on dark mode toggle due to missing tokenPreview (#300) @gurusatsangi
 
 ## Maintenance
 
-* chore(deps)(deps): bump @tailwindcss/cli from 4.1.10 to 4.1.18 (#358) @[dependabot[bot]](https://github.com/apps/dependabot)
-* chore(deps)(deps-dev): bump postcss from 8.5.4 to 8.5.6 (#357) @[dependabot[bot]](https://github.com/apps/dependabot)
-* chore(deps)(deps-dev): bump autoprefixer from 10.4.21 to 10.4.24 (#356) @[dependabot[bot]](https://github.com/apps/dependabot)
-* chore(deps)(deps-dev): bump tailwindcss from 4.1.10 to 4.1.18 (#359) @[dependabot[bot]](https://github.com/apps/dependabot)
-* Adding lint and formatting test (GH Actions) (#343) @vedansh-5
-* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.11 to 2.3.13 (#333) @[dependabot[bot]](https://github.com/apps/dependabot)
-* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.10 to 2.3.11 (#290) @[dependabot[bot]](https://github.com/apps/dependabot)
+- chore(deps)(deps): bump @tailwindcss/cli from 4.1.10 to 4.1.18 (#358) @[dependabot[bot]](https://github.com/apps/dependabot)
+- chore(deps)(deps-dev): bump postcss from 8.5.4 to 8.5.6 (#357) @[dependabot[bot]](https://github.com/apps/dependabot)
+- chore(deps)(deps-dev): bump autoprefixer from 10.4.21 to 10.4.24 (#356) @[dependabot[bot]](https://github.com/apps/dependabot)
+- chore(deps)(deps-dev): bump tailwindcss from 4.1.10 to 4.1.18 (#359) @[dependabot[bot]](https://github.com/apps/dependabot)
+- Adding lint and formatting test (GH Actions) (#343) @vedansh-5
+- chore(deps)(deps-dev): bump @biomejs/biome from 2.3.11 to 2.3.13 (#333) @[dependabot[bot]](https://github.com/apps/dependabot)
+- chore(deps)(deps-dev): bump @biomejs/biome from 2.3.10 to 2.3.11 (#290) @[dependabot[bot]](https://github.com/apps/dependabot)
 
 ---
 
@@ -387,15 +315,16 @@ language (#334) @vedansh-5
 
 ## What's Changed
 
-* Add translations for onlyReviewedPRs feature
-* Update Telugu translations
+- Add translations for onlyReviewedPRs feature
+- Update Telugu translations
+
 ---
 
 ## v0.1.3 - 2026-01-30
 
 ## What's Changed
 
-* No changes
+- No changes
 
 ---
 
@@ -403,7 +332,7 @@ language (#334) @vedansh-5
 
 ## What's Changed
 
-* No changes
+- No changes
 
 ---
 
@@ -411,27 +340,26 @@ language (#334) @vedansh-5
 
 ## What's Changed
 
-* No changes
-
+- No changes
 
 ## What's Changed
 
-* Update README documentation
+- Update README documentation
 
 ## v2.0.2 - 2026-01-21
 
 ## What's Changed
 
-* Improve GitHub user validation and error handling (#283) @Mateeb-Haider
-* OnlyPRs filter (#308) @vedansh-5
-* Improve CONTRIBUTING.md and fix broken link (#312) @Salmaan-M
-* Bug fixed in isNewPr condition (#306) @vedansh-5
-* Fix popup crash on dark mode toggle due to missing tokenPreview (#300) @gurusatsangi
-* fix(popup): remove invalid Tailwind runtime directives (#304) @skyforge-glitch
+- Improve GitHub user validation and error handling (#283) @Mateeb-Haider
+- OnlyPRs filter (#308) @vedansh-5
+- Improve CONTRIBUTING.md and fix broken link (#312) @Salmaan-M
+- Bug fixed in isNewPr condition (#306) @vedansh-5
+- Fix popup crash on dark mode toggle due to missing tokenPreview (#300) @gurusatsangi
+- fix(popup): remove invalid Tailwind runtime directives (#304) @skyforge-glitch
 
 ## Maintenance
 
-* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.10 to 2.3.11 (#290) @[dependabot[bot]](https://github.com/apps/dependabot)
+- chore(deps)(deps-dev): bump @biomejs/biome from 2.3.10 to 2.3.11 (#290) @[dependabot[bot]](https://github.com/apps/dependabot)
 
 ---
 
@@ -439,12 +367,12 @@ language (#334) @vedansh-5
 
 ## What's Changed
 
-* Improve GitHub user validation and error handling (#283) @Mateeb-Haider
-* OnlyPRs filter (#308) @vedansh-5
-* Improve CONTRIBUTING.md and fix broken link (#312) @Salmaan-M
-* Bug fixed in isNewPr condition (#306) @vedansh-5
-* Fix popup crash on dark mode toggle due to missing tokenPreview (#300) @gurusatsangi
-* fix(popup): remove invalid Tailwind runtime directives (#304) @skyforge-glitch
+- Improve GitHub user validation and error handling (#283) @Mateeb-Haider
+- OnlyPRs filter (#308) @vedansh-5
+- Improve CONTRIBUTING.md and fix broken link (#312) @Salmaan-M
+- Bug fixed in isNewPr condition (#306) @vedansh-5
+- Fix popup crash on dark mode toggle due to missing tokenPreview (#300) @gurusatsangi
+- fix(popup): remove invalid Tailwind runtime directives (#304) @skyforge-glitch
 
 ---
 
@@ -452,11 +380,11 @@ language (#334) @vedansh-5
 
 ## What's Changed
 
-* OnlyPRs filter (#308) @vedansh-5
-* Improve CONTRIBUTING.md and fix broken link (#312) @Salmaan-M
-* Bug fixed in isNewPr condition (#306) @vedansh-5
-* Fix popup crash on dark mode toggle due to missing tokenPreview (#300) @gurusatsangi
-* fix(popup): remove invalid Tailwind runtime directives (#304) @skyforge-glitch
+- OnlyPRs filter (#308) @vedansh-5
+- Improve CONTRIBUTING.md and fix broken link (#312) @Salmaan-M
+- Bug fixed in isNewPr condition (#306) @vedansh-5
+- Fix popup crash on dark mode toggle due to missing tokenPreview (#300) @gurusatsangi
+- fix(popup): remove invalid Tailwind runtime directives (#304) @skyforge-glitch
 
 ---
 
@@ -464,10 +392,10 @@ language (#334) @vedansh-5
 
 ## What's Changed
 
-* Improve CONTRIBUTING.md and fix broken link (#312) @Salmaan-M
-* Bug fixed in isNewPr condition (#306) @vedansh-5
-* Fix popup crash on dark mode toggle due to missing tokenPreview (#300) @gurusatsangi
-* fix(popup): remove invalid Tailwind runtime directives (#304) @skyforge-glitch
+- Improve CONTRIBUTING.md and fix broken link (#312) @Salmaan-M
+- Bug fixed in isNewPr condition (#306) @vedansh-5
+- Fix popup crash on dark mode toggle due to missing tokenPreview (#300) @gurusatsangi
+- fix(popup): remove invalid Tailwind runtime directives (#304) @skyforge-glitch
 
 ---
 
@@ -475,9 +403,9 @@ language (#334) @vedansh-5
 
 ## What's Changed
 
-* Bug fixed in isNewPr condition (#306) @vedansh-5
-* Fix popup crash on dark mode toggle due to missing tokenPreview (#300) @gurusatsangi
-* fix(popup): remove invalid Tailwind runtime directives (#304) @skyforge-glitch
+- Bug fixed in isNewPr condition (#306) @vedansh-5
+- Fix popup crash on dark mode toggle due to missing tokenPreview (#300) @gurusatsangi
+- fix(popup): remove invalid Tailwind runtime directives (#304) @skyforge-glitch
 
 ---
 
@@ -485,23 +413,22 @@ language (#334) @vedansh-5
 
 ## What's Changed
 
-* Fixed isNewPr condition (#306) @vedansh-5
+- Fixed isNewPr condition (#306) @vedansh-5
 
-* No changes
-
----
-
-## v2.0.2 - 2026-01-13
-
-## What's Changed
-
-* Fix popup crash on dark mode toggle due to missing tokenPreview (#300) @gurusatsangi
-* fix(popup): remove invalid Tailwind runtime directives (#304) @skyforge-glitch
+- No changes
 
 ---
 
 ## v2.0.2 - 2026-01-13
 
+## What's Changed
+
+- Fix popup crash on dark mode toggle due to missing tokenPreview (#300) @gurusatsangi
+- fix(popup): remove invalid Tailwind runtime directives (#304) @skyforge-glitch
+
+---
+
+## v2.0.2 - 2026-01-13
 
 ---
 
@@ -509,19 +436,19 @@ language (#334) @vedansh-5
 
 ## What's Changed
 
-* feat: Make PRs and PR numbers clickable with links to GitHub (#273) @Anshumancanrock
-* Fix/disable UI when extension of (#286) @diyasharma12
-* Minor: Added translation files for Hebrew, Norwegian Bokmål, Ukrainian and Italian (#292) @vedansh-5
-* Minor: Added a checkbox for filtering in issues only (#302) @vedansh-5
-* fix: zh\_Hans and zh\_CN conflict in weblate (#289) @vedansh-5
-* fix:  Empty Background Service Worker Declaration (#253) @Anshumancanrock
-* fix: Input text box color does not change along with rest of the interface (#249) @Anshumancanrock
+- feat: Make PRs and PR numbers clickable with links to GitHub (#273) @Anshumancanrock
+- Fix/disable UI when extension of (#286) @diyasharma12
+- Minor: Added translation files for Hebrew, Norwegian Bokmål, Ukrainian and Italian (#292) @vedansh-5
+- Minor: Added a checkbox for filtering in issues only (#302) @vedansh-5
+- fix: zh_Hans and zh_CN conflict in weblate (#289) @vedansh-5
+- fix: Empty Background Service Worker Declaration (#253) @Anshumancanrock
+- fix: Input text box color does not change along with rest of the interface (#249) @Anshumancanrock
 
 ## Maintenance
 
-* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.9 to 2.3.10 (#275) @[dependabot[bot]](https://github.com/apps/dependabot)
-* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.4 to 2.3.9 (#274) @[dependabot[bot]](https://github.com/apps/dependabot)
-* chore(deps)(deps-dev): bump @biomejs/biome from 1.9.4 to 2.3.4 (#264) @[dependabot[bot]](https://github.com/apps/dependabot)
+- chore(deps)(deps-dev): bump @biomejs/biome from 2.3.9 to 2.3.10 (#275) @[dependabot[bot]](https://github.com/apps/dependabot)
+- chore(deps)(deps-dev): bump @biomejs/biome from 2.3.4 to 2.3.9 (#274) @[dependabot[bot]](https://github.com/apps/dependabot)
+- chore(deps)(deps-dev): bump @biomejs/biome from 1.9.4 to 2.3.4 (#264) @[dependabot[bot]](https://github.com/apps/dependabot)
 
 ---
 
@@ -529,18 +456,18 @@ language (#334) @vedansh-5
 
 ## What's Changed
 
-* Fix/disable UI when extension of (#286) @diyasharma12
-* Minor: Added translation files for Hebrew, Norwegian Bokmål, Ukrainian and Italian (#292) @vedansh-5
-* Minor: Added a checkbox for filtering in issues only (#302) @vedansh-5
-* fix: zh\_Hans and zh\_CN conflict in weblate (#289) @vedansh-5
-* fix:  Empty Background Service Worker Declaration (#253) @Anshumancanrock
-* fix: Input text box color does not change along with rest of the interface (#249) @Anshumancanrock
+- Fix/disable UI when extension of (#286) @diyasharma12
+- Minor: Added translation files for Hebrew, Norwegian Bokmål, Ukrainian and Italian (#292) @vedansh-5
+- Minor: Added a checkbox for filtering in issues only (#302) @vedansh-5
+- fix: zh_Hans and zh_CN conflict in weblate (#289) @vedansh-5
+- fix: Empty Background Service Worker Declaration (#253) @Anshumancanrock
+- fix: Input text box color does not change along with rest of the interface (#249) @Anshumancanrock
 
 ## Maintenance
 
-* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.9 to 2.3.10 (#275) @[dependabot[bot]](https://github.com/apps/dependabot)
-* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.4 to 2.3.9 (#274) @[dependabot[bot]](https://github.com/apps/dependabot)
-* chore(deps)(deps-dev): bump @biomejs/biome from 1.9.4 to 2.3.4 (#264) @[dependabot[bot]](https://github.com/apps/dependabot)
+- chore(deps)(deps-dev): bump @biomejs/biome from 2.3.9 to 2.3.10 (#275) @[dependabot[bot]](https://github.com/apps/dependabot)
+- chore(deps)(deps-dev): bump @biomejs/biome from 2.3.4 to 2.3.9 (#274) @[dependabot[bot]](https://github.com/apps/dependabot)
+- chore(deps)(deps-dev): bump @biomejs/biome from 1.9.4 to 2.3.4 (#264) @[dependabot[bot]](https://github.com/apps/dependabot)
 
 ---
 
@@ -548,17 +475,17 @@ language (#334) @vedansh-5
 
 ## What's Changed
 
-* Minor: Added translation files for Hebrew, Norwegian Bokmål, Ukrainian and Italian (#292) @vedansh-5
-* Minor: Added a checkbox for filtering in issues only (#302) @vedansh-5
-* fix: zh\_Hans and zh\_CN conflict in weblate (#289) @vedansh-5
-* fix:  Empty Background Service Worker Declaration (#253) @Anshumancanrock
-* fix: Input text box color does not change along with rest of the interface (#249) @Anshumancanrock
+- Minor: Added translation files for Hebrew, Norwegian Bokmål, Ukrainian and Italian (#292) @vedansh-5
+- Minor: Added a checkbox for filtering in issues only (#302) @vedansh-5
+- fix: zh_Hans and zh_CN conflict in weblate (#289) @vedansh-5
+- fix: Empty Background Service Worker Declaration (#253) @Anshumancanrock
+- fix: Input text box color does not change along with rest of the interface (#249) @Anshumancanrock
 
 ## Maintenance
 
-* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.9 to 2.3.10 (#275) @[dependabot[bot]](https://github.com/apps/dependabot)
-* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.4 to 2.3.9 (#274) @[dependabot[bot]](https://github.com/apps/dependabot)
-* chore(deps)(deps-dev): bump @biomejs/biome from 1.9.4 to 2.3.4 (#264) @[dependabot[bot]](https://github.com/apps/dependabot)
+- chore(deps)(deps-dev): bump @biomejs/biome from 2.3.9 to 2.3.10 (#275) @[dependabot[bot]](https://github.com/apps/dependabot)
+- chore(deps)(deps-dev): bump @biomejs/biome from 2.3.4 to 2.3.9 (#274) @[dependabot[bot]](https://github.com/apps/dependabot)
+- chore(deps)(deps-dev): bump @biomejs/biome from 1.9.4 to 2.3.4 (#264) @[dependabot[bot]](https://github.com/apps/dependabot)
 
 ---
 
@@ -566,16 +493,16 @@ language (#334) @vedansh-5
 
 ## What's Changed
 
-* Minor: Added a checkbox for filtering in issues only (#302) @vedansh-5
-* fix: zh\_Hans and zh\_CN conflict in weblate (#289) @vedansh-5
-* fix:  Empty Background Service Worker Declaration (#253) @Anshumancanrock
-* fix: Input text box color does not change along with rest of the interface (#249) @Anshumancanrock
+- Minor: Added a checkbox for filtering in issues only (#302) @vedansh-5
+- fix: zh_Hans and zh_CN conflict in weblate (#289) @vedansh-5
+- fix: Empty Background Service Worker Declaration (#253) @Anshumancanrock
+- fix: Input text box color does not change along with rest of the interface (#249) @Anshumancanrock
 
 ## Maintenance
 
-* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.9 to 2.3.10 (#275) @[dependabot[bot]](https://github.com/apps/dependabot)
-* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.4 to 2.3.9 (#274) @[dependabot[bot]](https://github.com/apps/dependabot)
-* chore(deps)(deps-dev): bump @biomejs/biome from 1.9.4 to 2.3.4 (#264) @[dependabot[bot]](https://github.com/apps/dependabot)
+- chore(deps)(deps-dev): bump @biomejs/biome from 2.3.9 to 2.3.10 (#275) @[dependabot[bot]](https://github.com/apps/dependabot)
+- chore(deps)(deps-dev): bump @biomejs/biome from 2.3.4 to 2.3.9 (#274) @[dependabot[bot]](https://github.com/apps/dependabot)
+- chore(deps)(deps-dev): bump @biomejs/biome from 1.9.4 to 2.3.4 (#264) @[dependabot[bot]](https://github.com/apps/dependabot)
 
 ---
 
@@ -583,7 +510,7 @@ language (#334) @vedansh-5
 
 ## What's Changed
 
-* No changes
+- No changes
 
 ---
 
@@ -591,15 +518,15 @@ language (#334) @vedansh-5
 
 ## What's Changed
 
-* fix: zh\_Hans and zh\_CN conflict in weblate (#289) @vedansh-5
-* fix:  Empty Background Service Worker Declaration (#253) @Anshumancanrock
-* fix: Input text box color does not change along with rest of the interface (#249) @Anshumancanrock
+- fix: zh_Hans and zh_CN conflict in weblate (#289) @vedansh-5
+- fix: Empty Background Service Worker Declaration (#253) @Anshumancanrock
+- fix: Input text box color does not change along with rest of the interface (#249) @Anshumancanrock
 
 ## Maintenance
 
-* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.9 to 2.3.10 (#275) @[dependabot[bot]](https://github.com/apps/dependabot)
-* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.4 to 2.3.9 (#274) @[dependabot[bot]](https://github.com/apps/dependabot)
-* chore(deps)(deps-dev): bump @biomejs/biome from 1.9.4 to 2.3.4 (#264) @[dependabot[bot]](https://github.com/apps/dependabot)
+- chore(deps)(deps-dev): bump @biomejs/biome from 2.3.9 to 2.3.10 (#275) @[dependabot[bot]](https://github.com/apps/dependabot)
+- chore(deps)(deps-dev): bump @biomejs/biome from 2.3.4 to 2.3.9 (#274) @[dependabot[bot]](https://github.com/apps/dependabot)
+- chore(deps)(deps-dev): bump @biomejs/biome from 1.9.4 to 2.3.4 (#264) @[dependabot[bot]](https://github.com/apps/dependabot)
 
 ---
 
@@ -607,7 +534,7 @@ language (#334) @vedansh-5
 
 ## What's Changed
 
-* No changes
+- No changes
 
 ---
 
@@ -615,14 +542,14 @@ language (#334) @vedansh-5
 
 ## What's Changed
 
-* fix:  Empty Background Service Worker Declaration (#253) @Anshumancanrock
-* fix: Input text box color does not change along with rest of the interface (#249) @Anshumancanrock
+- fix: Empty Background Service Worker Declaration (#253) @Anshumancanrock
+- fix: Input text box color does not change along with rest of the interface (#249) @Anshumancanrock
 
 ## Maintenance
 
-* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.9 to 2.3.10 (#275) @[dependabot[bot]](https://github.com/apps/dependabot)
-* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.4 to 2.3.9 (#274) @[dependabot[bot]](https://github.com/apps/dependabot)
-* chore(deps)(deps-dev): bump @biomejs/biome from 1.9.4 to 2.3.4 (#264) @[dependabot[bot]](https://github.com/apps/dependabot)
+- chore(deps)(deps-dev): bump @biomejs/biome from 2.3.9 to 2.3.10 (#275) @[dependabot[bot]](https://github.com/apps/dependabot)
+- chore(deps)(deps-dev): bump @biomejs/biome from 2.3.4 to 2.3.9 (#274) @[dependabot[bot]](https://github.com/apps/dependabot)
+- chore(deps)(deps-dev): bump @biomejs/biome from 1.9.4 to 2.3.4 (#264) @[dependabot[bot]](https://github.com/apps/dependabot)
 
 ---
 
@@ -630,13 +557,13 @@ language (#334) @vedansh-5
 
 ## What's Changed
 
-* fix:  Empty Background Service Worker Declaration (#253) @Anshumancanrock
-* fix: Input text box color does not change along with rest of the interface (#249) @Anshumancanrock
+- fix: Empty Background Service Worker Declaration (#253) @Anshumancanrock
+- fix: Input text box color does not change along with rest of the interface (#249) @Anshumancanrock
 
 ## Maintenance
 
-* chore(deps)(deps-dev): bump @biomejs/biome from 2.3.4 to 2.3.9 (#274) @[dependabot[bot]](https://github.com/apps/dependabot)
-* chore(deps)(deps-dev): bump @biomejs/biome from 1.9.4 to 2.3.4 (#264) @[dependabot[bot]](https://github.com/apps/dependabot)
+- chore(deps)(deps-dev): bump @biomejs/biome from 2.3.4 to 2.3.9 (#274) @[dependabot[bot]](https://github.com/apps/dependabot)
+- chore(deps)(deps-dev): bump @biomejs/biome from 1.9.4 to 2.3.4 (#264) @[dependabot[bot]](https://github.com/apps/dependabot)
 
 ---
 
@@ -644,12 +571,12 @@ language (#334) @vedansh-5
 
 ## What's Changed
 
-* fix:  Empty Background Service Worker Declaration (#253) @Anshumancanrock
-* fix: Input text box color does not change along with rest of the interface (#249) @Anshumancanrock
+- fix: Empty Background Service Worker Declaration (#253) @Anshumancanrock
+- fix: Input text box color does not change along with rest of the interface (#249) @Anshumancanrock
 
 ## Maintenance
 
-* chore(deps)(deps-dev): bump @biomejs/biome from 1.9.4 to 2.3.4 (#264) @[dependabot[bot]](https://github.com/apps/dependabot)
+- chore(deps)(deps-dev): bump @biomejs/biome from 1.9.4 to 2.3.4 (#264) @[dependabot[bot]](https://github.com/apps/dependabot)
 
 ---
 
@@ -657,8 +584,8 @@ language (#334) @vedansh-5
 
 ## What's Changed
 
-* fix:  Empty Background Service Worker Declaration (#253) @Anshumancanrock
-* fix: Input text box color does not change along with rest of the interface (#249) @Anshumancanrock
+- fix: Empty Background Service Worker Declaration (#253) @Anshumancanrock
+- fix: Input text box color does not change along with rest of the interface (#249) @Anshumancanrock
 
 ---
 
@@ -666,7 +593,7 @@ language (#334) @vedansh-5
 
 ## What's Changed
 
-* fix: Input text box color does not change along with rest of the interface (#249) @Anshumancanrock
+- fix: Input text box color does not change along with rest of the interface (#249) @Anshumancanrock
 
 ---
 
@@ -674,7 +601,7 @@ language (#334) @vedansh-5
 
 ## What's Changed
 
-* Minor: Publish workflow to kebab-case (#255) @vedansh-5
+- Minor: Publish workflow to kebab-case (#255) @vedansh-5
 
 ---
 
@@ -682,11 +609,11 @@ language (#334) @vedansh-5
 
 ## What's Changed
 
-* [Minor]: Changed publish actions workflow from plasmo to mnao305 (#254) @vedansh-5
-* feat: Remove Set button from Organization Name field (#244) @Anshumancanrock
-* fix: resolve Weblate integration issues with translation key inconsistencies (#243) @Anshumancanrock
-* Publish workflow correction (#251) @vedansh-5
-* chore: update UI version number to v2.0.1 to match manifest.json (#242) @Mariam-Saeed
+- [Minor]: Changed publish actions workflow from plasmo to mnao305 (#254) @vedansh-5
+- feat: Remove Set button from Organization Name field (#244) @Anshumancanrock
+- fix: resolve Weblate integration issues with translation key inconsistencies (#243) @Anshumancanrock
+- Publish workflow correction (#251) @vedansh-5
+- chore: update UI version number to v2.0.1 to match manifest.json (#242) @Mariam-Saeed
 
 ---
 
@@ -694,10 +621,10 @@ language (#334) @vedansh-5
 
 ## What's Changed
 
-* feat: Remove Set button from Organization Name field (#244) @Anshumancanrock
-* fix: resolve Weblate integration issues with translation key inconsistencies (#243) @Anshumancanrock
-* Publish workflow correction (#251) @vedansh-5
-* chore: update UI version number to v2.0.1 to match manifest.json (#242) @Mariam-Saeed
+- feat: Remove Set button from Organization Name field (#244) @Anshumancanrock
+- fix: resolve Weblate integration issues with translation key inconsistencies (#243) @Anshumancanrock
+- Publish workflow correction (#251) @vedansh-5
+- chore: update UI version number to v2.0.1 to match manifest.json (#242) @Mariam-Saeed
 
 ---
 
@@ -705,11 +632,11 @@ language (#334) @vedansh-5
 
 ## What's Changed
 
-* fix: resolve Weblate integration issues with translation key inconsistencies (#243) @Anshumancanrock
-* Publish workflow correction (#251) @vedansh-5
-* chore: update UI version number to v2.0.1 to match manifest.json (#242) @Mariam-Saeed
-* Changed version number in manifest to upload the extension on chrome webstore (#239) @vedansh-5
-* [PATCH] Release and Chrome webstore workflow changes. (#237) @vedansh-5
+- fix: resolve Weblate integration issues with translation key inconsistencies (#243) @Anshumancanrock
+- Publish workflow correction (#251) @vedansh-5
+- chore: update UI version number to v2.0.1 to match manifest.json (#242) @Mariam-Saeed
+- Changed version number in manifest to upload the extension on chrome webstore (#239) @vedansh-5
+- [PATCH] Release and Chrome webstore workflow changes. (#237) @vedansh-5
 
 ---
 
@@ -717,10 +644,10 @@ language (#334) @vedansh-5
 
 ## What's Changed
 
-* Publish workflow correction (#251) @vedansh-5
-* chore: update UI version number to v2.0.1 to match manifest.json (#242) @Mariam-Saeed
-* Changed version number in manifest to upload the extension on chrome webstore (#239) @vedansh-5
-* [PATCH] Release and Chrome webstore workflow changes. (#237) @vedansh-5
+- Publish workflow correction (#251) @vedansh-5
+- chore: update UI version number to v2.0.1 to match manifest.json (#242) @Mariam-Saeed
+- Changed version number in manifest to upload the extension on chrome webstore (#239) @vedansh-5
+- [PATCH] Release and Chrome webstore workflow changes. (#237) @vedansh-5
 
 ---
 
@@ -728,7 +655,7 @@ language (#334) @vedansh-5
 
 ## What's Changed
 
-* No changes
+- No changes
 
 ---
 
@@ -736,9 +663,9 @@ language (#334) @vedansh-5
 
 ## What's Changed
 
-* chore: update UI version number to v2.0.1 to match manifest.json (#242) @Mariam-Saeed
-* Changed version number in manifest to upload the extension on chrome webstore (#239) @vedansh-5
-* [PATCH] Release and Chrome webstore workflow changes. (#237) @vedansh-5
+- chore: update UI version number to v2.0.1 to match manifest.json (#242) @Mariam-Saeed
+- Changed version number in manifest to upload the extension on chrome webstore (#239) @vedansh-5
+- [PATCH] Release and Chrome webstore workflow changes. (#237) @vedansh-5
 
 ---
 
@@ -746,8 +673,8 @@ language (#334) @vedansh-5
 
 ## What's Changed
 
-* Changed version number in manifest to upload the extension on chrome webstore (#239) @vedansh-5
-* [PATCH] Release and Chrome webstore workflow changes. (#237) @vedansh-5
+- Changed version number in manifest to upload the extension on chrome webstore (#239) @vedansh-5
+- [PATCH] Release and Chrome webstore workflow changes. (#237) @vedansh-5
 
 ---
 
@@ -755,7 +682,7 @@ language (#334) @vedansh-5
 
 ## What's Changed
 
-* No changes
+- No changes
 
 ---
 
@@ -763,7 +690,7 @@ language (#334) @vedansh-5
 
 ## What's Changed
 
-* No changes
+- No changes
 
 ---
 
@@ -771,8 +698,8 @@ language (#334) @vedansh-5
 
 ## What's Changed
 
-* [PATCH] Release and Chrome webstore workflow changes. (#237) @vedansh-5
-* [Patch]; drafts the releases instead of pubishing them (#234) @vedansh-5
+- [PATCH] Release and Chrome webstore workflow changes. (#237) @vedansh-5
+- [Patch]; drafts the releases instead of pubishing them (#234) @vedansh-5
 
 ---
 
@@ -780,7 +707,7 @@ language (#334) @vedansh-5
 
 ## What's Changed
 
-* No changes
+- No changes
 
 ---
 
@@ -788,17 +715,13 @@ language (#334) @vedansh-5
 
 ## What's Changed
 
-* No changes
-
-
+- No changes
 
 ## v1.0.4 (2025-08-29)
 
 ## What's Changed
 
-* [Patch]; drafts the releases instead of pubishing them (#234) @vedansh-5
-
-
+- [Patch]; drafts the releases instead of pubishing them (#234) @vedansh-5
 
 # Changelog
 
@@ -813,6 +736,7 @@ All notable changes to this project will be documented in this file. This projec
 This release marks a significant milestone with a full UI overhaul, Manifest V3 migration, GitHub workflow automation, and performance improvements across the board.
 
 #### Added
+
 - Migrated to Chrome Manifest V3 ensuring long-term browser compatibility and background service worker support (#59).
 - Introduced multi-client Google account support, improving reliability across user sessions (#62).
 - Added a one-click Scrum report generator UI (#76).
@@ -828,6 +752,7 @@ This release marks a significant milestone with a full UI overhaul, Manifest V3 
 - New icon for the extension (#130).
 
 #### Changed
+
 - Overhauled email subject injection for Yahoo/Outlook clients to fix inconsistencies (#86, #107, #138).
 - Refactored date selection UI to prevent bugs and align with new design standards (#152, #173).
 - Moved `showCommits` toggle to the report section for better discoverability (#192).
@@ -840,6 +765,7 @@ This release marks a significant milestone with a full UI overhaul, Manifest V3 
 - Replaced ESLint with Biome for code formatting and linting (#60).
 
 #### Fixed
+
 - UI feedback bugs on checkbox selection (#71).
 - Popup tabs rendering inconsistently fixed (#78).
 - Email subject no longer shows `"false"` when state is uninitialized (#116).
@@ -854,20 +780,24 @@ This release marks a significant milestone with a full UI overhaul, Manifest V3 
 - Corrected date interval logic in scrum helper (#40).
 
 #### Removed
+
 - "Blockers" UI section removed for redundancy (#195).
 - Reverted premature `showCommits` commit (re-added later correctly) (#131).
 
 #### Documentation
+
 - Developer guide improved: clearer onboarding, structure, contribution steps (#64).
 - Firefox setup guide added (#127).
 - Issue templates moved to `.github/ISSUE_TEMPLATE` (#113).
 - Updated README with new screenshots, instructions, and formatting (#92, #96, #146, #199).
 
 #### Breaking Changes
+
 - Chrome MV2 → MV3: major architectural changes; contributors must update environments (#59).
 - Internal settings & commit APIs were restructured. Older DOM-based customizations may break.
 
 #### Upgrade Notes
+
 - Remove older build before installing this.
 - Clear storage/cache after upgrade.
 
@@ -876,12 +806,14 @@ This release marks a significant milestone with a full UI overhaul, Manifest V3 
 ## [1.9.0] - 2025-06-15
 
 ### Features
+
 - GitHub org selector UI redesigned for clarity (#164).
 - Report filters now reflect selected repo state instantly (#143).
 - Added auto-label workflow using GitHub Actions (#101).
 - Added initial Home view layout for upcoming UI upgrade (#83).
 
 ### Fixes
+
 - Removed incorrect email content when replying instead of drafting (#109).
 - Addressed minor caching and selection persistence bugs (#150).
 
@@ -890,11 +822,13 @@ This release marks a significant milestone with a full UI overhaul, Manifest V3 
 ## [1.8.0] - 2025-06-01
 
 ### Features
+
 - Added email subject injection logic for Yahoo (#86).
 - Firefox support guide added for contributors (#127).
 - Enabled project tooltips to handle overflow and narrow UIs (#175).
 
 ### Fixes
+
 - Squashed UI bugs related to narrow screen layout shifts (#152).
 - Date picker issues fixed for manual selection (#173).
 
@@ -903,11 +837,13 @@ This release marks a significant milestone with a full UI overhaul, Manifest V3 
 ## [1.7.0] - 2025-05-10
 
 ### Improvements
+
 - Introduced `showCommits` toggle for scrum reports (#131).
 - Added UI state persistence across sessions via local storage (#116).
 - Fixed organization dropdown selection bug (#138).
 
 ### Refactoring
+
 - Cleaned up `manifest.json` to remove deprecated entries (#132).
 - Replaced verbose field names with concise identifiers internally.
 
@@ -916,10 +852,12 @@ This release marks a significant milestone with a full UI overhaul, Manifest V3 
 ## [1.6.0] - 2025-04-22
 
 ### Additions
+
 - GitHub REST API integration added for commit history (#108).
 - Extension popup layout redesigned for better readability (#92).
 
 ### Fixes
+
 - Scrum reports now generate for selected repositories only (#96).
 - Default org fallback behavior corrected (#99).
 
@@ -928,6 +866,7 @@ This release marks a significant milestone with a full UI overhaul, Manifest V3 
 ## [1.5.0] - 2025-04-01
 
 ### Enhancements
+
 - Introduced new sidebar layout prototype (experimental) (#83).
 - PR template created for better contributor formatting (#99).
 - GitHub Actions configured for PR sync workflow (initial draft) (#97).
@@ -937,6 +876,7 @@ This release marks a significant milestone with a full UI overhaul, Manifest V3 
 ## [1.4.0] - 2025-03-20
 
 ### Stability & Usability
+
 - Added repo dropdown filter logic fix (#78).
 - README restructured with updated use cases and images (#92).
 
@@ -945,6 +885,7 @@ This release marks a significant milestone with a full UI overhaul, Manifest V3 
 ## [1.3.0] - 2025-03-01
 
 ### Experimental
+
 - GraphQL prototype implemented for commit fetch (feature branch) (#147).
 - Added developer docs index structure (#64).
 
@@ -953,6 +894,7 @@ This release marks a significant milestone with a full UI overhaul, Manifest V3 
 ## [1.2.0] - 2025-02-15
 
 ### UI Changes
+
 - Button spacing & style normalized across popup and settings (#76).
 - Scroll behavior stabilized inside the dropdowns and settings (#71).
 
@@ -961,6 +903,7 @@ This release marks a significant milestone with a full UI overhaul, Manifest V3 
 ## [1.1.0] - 2019-01-25
 
 ### Features
+
 - Scrum message generation integrated with Gmail draft composer (#62).
 - Initial GitHub integration for authenticated org repo listing.
 
@@ -969,6 +912,7 @@ This release marks a significant milestone with a full UI overhaul, Manifest V3 
 ## [1.0.0] - 2018-12-01
 
 Initial release of Scrum Helper Chrome Extension with:
+
 - Scrum report generation from GitHub issues/PRs.
 - Gmail injection for weekly updates.
 - Basic organization and repo selection.
