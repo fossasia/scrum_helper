@@ -425,29 +425,35 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	function showPopupMessage(message) {
 		if (!message) return;
-
-		// Materialize toast if available
-		if (window.Materialize && typeof window.Materialize.toast === 'function') {
-			window.Materialize.toast(message, 4000);
-			return;
-		}
+		const isDarkMode = document.body?.classList.contains('dark-mode');
 
 		const old = document.getElementById('scrum-cache-toast');
 		if (old) old.remove();
 
 		const toast = document.createElement('div');
 		toast.id = 'scrum-cache-toast';
-		toast.className = 'toast';
-		toast.style.background = '#2563eb';
-		toast.style.color = '#fff';
+		toast.className = 'scrum-cache-toast-custom';
+		toast.style.background = isDarkMode ? '#2d2d2d' : '#ffffff';
+		toast.style.color = isDarkMode ? '#ffffff' : '#111827';
+		toast.style.border = isDarkMode ? '1px solid #505050' : '1px solid #e5e7eb';
 		toast.style.fontWeight = 'bold';
-		toast.style.padding = '12px 24px';
+		toast.style.padding = '12px 16px';
 		toast.style.borderRadius = '8px';
 		toast.style.position = 'fixed';
-		toast.style.top = '24px';
+		toast.style.top = '12px';
 		toast.style.left = '50%';
 		toast.style.transform = 'translateX(-50%)';
-		toast.style.zIndex = '9999';
+		toast.style.zIndex = '2147483647';
+		toast.style.width = 'calc(82% - 16px)';
+		toast.style.maxWidth = '340px';
+		toast.style.lineHeight = '1.4';
+		toast.style.textAlign = 'left';
+		toast.style.boxSizing = 'border-box';
+		toast.style.wordBreak = 'break-word';
+		toast.style.opacity = '1';
+		toast.style.boxShadow = isDarkMode
+			? '0 6px 20px rgba(0, 0, 0, 0.5)'
+			: '0 6px 20px rgba(63, 81, 181, 0.35)';
 		toast.textContent = message;
 
 		document.body.appendChild(toast);
@@ -672,13 +678,25 @@ document.addEventListener('DOMContentLoaded', () => {
 					return;
 				}
 
-				browser.tabs
-					.query({ active: true, currentWindow: true })
-					.then((tabs) => {
-						const tabId = tabs?.[0]?.id;
-						if (!tabId) {
-							insertBtn._triggeredByShortcut = false;
+				browser.tabs.query({ active: true, currentWindow: true }).then((tabs) => {
+					const tabId = tabs?.[0]?.id;
+					if (!tabId) return;
+
+					chrome.tabs.sendMessage(tabId, { action: 'insertReportToEmail', content, subject }, (response) => {
+						if (chrome.runtime.lastError) {
+							console.warn('Insert to Email failed:', chrome.runtime.lastError.message);
+							const failureMessage =
+								chrome?.i18n.getMessage('insertToEmailFailedError') ||
+								'open an email tab to insert report';
+							showPopupMessage(failureMessage);
 							return;
+						}
+						if (!response?.success) {
+							console.warn('Insert to Email failed:', response?.error);
+							const failureMessage =
+								chrome?.i18n.getMessage('insertToEmailFailedError') ||
+								'open an email ab to insert repor';
+							showPopupMessage(failureMessage);
 						}
 
 						browser.tabs

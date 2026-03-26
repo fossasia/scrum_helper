@@ -78,6 +78,10 @@
     "message": "Insert to Email",
     "description": "Text for the 'Insert to Email' button."
   },
+  "insertToEmailFailedError": {
+    "message": "open an email tab to insert report",
+    "description": "Error message shown when no active email tab can receive insert action."
+  },
   "settingsOrgNameLabel": {
     "message": "Organization Name",
     "description": "Label for the organization name input in settings."
