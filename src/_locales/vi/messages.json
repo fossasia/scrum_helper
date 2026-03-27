@@ -234,6 +234,6 @@
     },
     "clearAllReposButton": {
     "message": "Xóa tất cả",
-    "description": "Text for the button to clear all selected repositories."
+    "description": "Văn bản cho nút để xóa tất cả các kho lưu trữ đã chọn."
   }
 }

@@ -235,6 +235,6 @@
     },
     "clearAllReposButton": {
     "message": "すべてクリア",
-    "description": "Text for the button to clear all selected repositories."
+    "description": "選択したすべてのリポジトリをクリアするボタンのテキスト。"
   }
 }

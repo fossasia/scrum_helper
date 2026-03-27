@@ -234,6 +234,6 @@
     },
     "clearAllReposButton": {
     "message": "清除全部",
-    "description": "Text for the button to clear all selected repositories."
+    "description": "用于清除所有选定存储库的按钮的文本。"
   }
 }

@@ -234,6 +234,6 @@
     },
     "clearAllReposButton": {
     "message": "सभी हटाएं",
-    "description": "Text for the button to clear all selected repositories."
+    "description": "सभी चयनित रिपॉजिटरी को साफ़ करने के लिए बटन का टेक्स्ट।"
   }
 }

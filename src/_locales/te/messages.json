@@ -233,6 +233,6 @@
     },
     "clearAllReposButton": {
     "message": "అన్నీ తొలగించు",
-    "description": "Text for the button to clear all selected repositories."
+    "description": "ఎంచుకున్న అన్ని రిపోజిటరీలను క్లియర్ చేయడానికి బటన్ కోసం వచనం."
   }
 }

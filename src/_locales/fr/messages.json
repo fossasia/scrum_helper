@@ -234,6 +234,6 @@
     },
     "clearAllReposButton": {
     "message": "Tout effacer",
-    "description": "Text for the button to clear all selected repositories."
+    "description": "Texte du bouton pour effacer tous les référentiels sélectionnés."
   }
 }

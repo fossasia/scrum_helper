@@ -234,6 +234,6 @@
     },
     "clearAllReposButton": {
     "message": "Limpar tudo",
-    "description": "Text for the button to clear all selected repositories."
+    "description": "Texto para o botão de limpar todos os repositórios selecionados."
   }
 }

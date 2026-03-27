@@ -234,6 +234,6 @@
     },
     "clearAllReposButton": {
     "message": "എല്ലാം മായ്ക്കുക",
-    "description": "Text for the button to clear all selected repositories."
+    "description": "തിരഞ്ഞെടുത്ത എല്ലാ റിപോസിറ്ററികളും മായ്‌ക്കുന്നതിനുള്ള ബട്ടണിനായുള്ള വാചകം."
   }
 }

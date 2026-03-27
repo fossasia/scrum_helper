@@ -234,6 +234,6 @@
     },
     "clearAllReposButton": {
     "message": "အားလုံးဖျက်မည်",
-    "description": "Text for the button to clear all selected repositories."
+    "description": "ရွေးချယ်ထားသော repository များအားလုံးကို ရှင်းလင်းရန် ခလုတ်အတွက် စာသား။"
   }
 }

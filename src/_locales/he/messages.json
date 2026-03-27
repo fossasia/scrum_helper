@@ -234,6 +234,6 @@
     },
     "clearAllReposButton": {
     "message": "נקה הכל",
-    "description": "Text for the button to clear all selected repositories."
+    "description": "טקסט עבור הלחצן לניקוי כל המאגרים שנבחרו."
   }
 }

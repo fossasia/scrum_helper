@@ -234,6 +234,6 @@
     },
     "clearAllReposButton": {
     "message": "Fjern alle",
-    "description": "Text for the button to clear all selected repositories."
+    "description": "Tekst for knappen for å tømme alle valgte repositorier."
   }
 }
