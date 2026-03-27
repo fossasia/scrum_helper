@@ -278,12 +278,9 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (!generateBtn) return;
 		if (!isLoading) return;
 
-<<<<<<< HEAD
 		generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>';
-=======
 		const msg = browser.i18n.getMessage('generatingButton') || 'Generating...';
 		generateBtn.innerHTML = `<i class="fa fa-spinner fa-spin"></i> ${msg}`;
->>>>>>> c577e0b (feat: Add cross-browser support for Gecko and Chromium via new build pipeline (#481))
 		generateBtn.disabled = true;
 		generateBtn.setAttribute('aria-busy', 'true');
 		generateBtn.title = chrome?.i18n.getMessage('generatingButton') || 'Generating...';
