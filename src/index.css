@@ -63,9 +63,52 @@ a {
     gap: 8px;
 }
 
+.scrum-run-control,
 .scrum-actions > button {
     flex: 1 1 0;
     min-width: 0;
+}
+
+.scrum-run-control {
+    display: flex;
+    gap: 8px;
+}
+
+.scrum-run-control > button {
+    flex: 1 1 0;
+    width: 100%;
+    min-width: 0;
+}
+
+.scrum-run-control > button#generateReport {
+    background-color: #2563eb;
+    color: #fff;
+}
+
+.scrum-run-control > button#generateReport:hover {
+    background-color: #1d4ed8;
+}
+
+.scrum-run-control > button#stopReport {
+    display: inline-block;
+    min-width: 80px;
+    padding: 8px 12px;
+    background-color: #dc2626;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    width: auto;
+    height: auto;
+    opacity: 1;
+    visibility: visible;
+    overflow: visible;
+    line-height: 1.2;
+    text-align: center;
+}
+
+.scrum-run-control > button#stopReport:hover {
+    background-color: #b91c1c;
 }
 
 .scrum-actions > button span {

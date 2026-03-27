@@ -276,11 +276,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	function setGenerateButtonLoading(generateBtn, isLoading) {
 		if (!generateBtn) return;
-		if (!isLoading) return;
+		const stopBtn = document.getElementById('stopReport');
+		const generateMsg = browser.i18n.getMessage('generateReportButton') || 'Generate';
+		const stopMsg = browser.i18n.getMessage('stopReportButton') || 'Stop';
+		generateBtn.innerHTML = `<i class="fa fa-refresh"></i> ${generateMsg}`;
+		if (!isLoading) {
+			generateBtn.disabled = false;
+			generateBtn.style.display = 'flex';
+			if (stopBtn) {
+				stopBtn.innerHTML = `<i class="fa fa-stop"></i> ${stopMsg}`;
+				stopBtn.style.display = 'none';
+				stopBtn.disabled = true;
+			}
+			return;
+		}
 
-		const msg = browser.i18n.getMessage('generatingButton') || 'Generating...';
-		generateBtn.innerHTML = `<i class="fa fa-spinner fa-spin"></i> ${msg}`;
 		generateBtn.disabled = true;
+		generateBtn.style.display = 'flex';
+		if (stopBtn) {
+			stopBtn.innerHTML = `<i class="fa fa-stop"></i> ${stopMsg}`;
+			stopBtn.style.display = 'flex';
+			stopBtn.disabled = false;
+		}
 	}
 
 	function showPopupMessage(message) {
@@ -500,6 +517,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		// Button setup
 		const generateBtn = document.getElementById('generateReport');
+		const stopBtn = document.getElementById('stopReport');
 		const copyBtn = document.getElementById('copyReport');
 		const insertBtn = document.getElementById('insertInEmail');
 
@@ -539,13 +557,23 @@ document.addEventListener('DOMContentLoaded', () => {
 						browser.storage.local.get(['platform']).then((res) => {
 							platformSelect.value = res.platform || 'github';
 							updatePlatformUI(platformSelect.value);
-							generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
-							generateBtn.disabled = true;
+							setGenerateButtonLoading(generateBtn, true);
 							window.generateScrumReport && window.generateScrumReport();
 						});
 					});
 			});
 		});
+
+		if (stopBtn) {
+			stopBtn.addEventListener('click', () => {
+				stopBtn.disabled = true;
+				if (typeof window.stopScrumReport === 'function') {
+					window.stopScrumReport();
+				} else {
+					setGenerateButtonLoading(generateBtn, false);
+				}
+			});
+		}
 
 		copyBtn.addEventListener('click', function () {
 			const scrumReport = document.getElementById('scrumReport');

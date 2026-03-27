@@ -1,4 +1,33 @@
 // GitLab API Helper for Scrum Helper Extension
+function createGitLabAbortError() {
+	return Object.assign(new Error('Scrum report generation aborted.'), { name: 'AbortError' });
+}
+
+function abortableGitLabDelay(ms, signal) {
+	return new Promise((resolve, reject) => {
+		if (signal?.aborted) {
+			reject(createGitLabAbortError());
+			return;
+		}
+
+		const timeoutId = setTimeout(() => {
+			if (signal) {
+				signal.removeEventListener('abort', onAbort);
+			}
+			resolve();
+		}, ms);
+
+		function onAbort() {
+			clearTimeout(timeoutId);
+			reject(createGitLabAbortError());
+		}
+
+		if (signal) {
+			signal.addEventListener('abort', onAbort, { once: true });
+		}
+	});
+}
+
 class GitLabHelper {
 	constructor() {
 		this.baseUrl = 'https://gitlab.com/api/v4';
@@ -50,7 +79,7 @@ class GitLabHelper {
 		}
 	}
 
-	async fetchGitLabData(username, startDate, endDate, token = null) {
+	async fetchGitLabData(username, startDate, endDate, token = null, signal = null) {
 		// Include token state in cache key to invalidate when auth changes
 		const tokenMarker = token ? 'auth' : 'noauth';
 		const cacheKey = `${username}-${startDate}-${endDate}-${tokenMarker}`;
@@ -96,11 +125,11 @@ class GitLabHelper {
 
 		try {
 			// Throttling 500ms to avoid burst
-			await new Promise((res) => setTimeout(res, 500));
+			await abortableGitLabDelay(500, signal);
 
 			// Get user info first
 			const userUrl = `${this.baseUrl}/users?username=${username}`;
-			const userRes = await fetch(userUrl, { headers });
+			const userRes = await fetch(userUrl, { headers, signal });
 			if (!userRes.ok) {
 				throw new Error(chrome?.i18n.getMessage('gitlabUserFetchError', [userRes.status, userRes.statusText]) || `Error fetching GitLab user: ${userRes.status} ${userRes.statusText}`);
 			}
@@ -112,7 +141,7 @@ class GitLabHelper {
 
 			// Fetch all projects the user is a member of (including group projects)
 			const membershipProjectsUrl = `${this.baseUrl}/users/${userId}/projects?membership=true&per_page=100&order_by=updated_at&sort=desc`;
-			const membershipProjectsRes = await fetch(membershipProjectsUrl, { headers });
+			const membershipProjectsRes = await fetch(membershipProjectsUrl, { headers, signal });
 			if (!membershipProjectsRes.ok) {
 				throw new Error(chrome?.i18n.getMessage('gitlabMembershipError', [membershipProjectsRes.status, membershipProjectsRes.statusText]) || `Error fetching GitLab membership projects: ${membershipProjectsRes.status} ${membershipProjectsRes.statusText}`);
 			}
@@ -120,7 +149,7 @@ class GitLabHelper {
 
 			// Fetch all projects the user has contributed to (public, group, etc.)
 			const contributedProjectsUrl = `${this.baseUrl}/users/${userId}/contributed_projects?per_page=100&order_by=updated_at&sort=desc`;
-			const contributedProjectsRes = await fetch(contributedProjectsUrl, { headers });
+			const contributedProjectsRes = await fetch(contributedProjectsUrl, { headers, signal });
 			if (!contributedProjectsRes.ok) {
 				throw new Error(
 					chrome?.i18n.getMessage('gitlabContributedError', [contributedProjectsRes.status, contributedProjectsRes.statusText]) || `Error fetching GitLab contributed projects: ${contributedProjectsRes.status} ${contributedProjectsRes.statusText}`,
@@ -140,14 +169,17 @@ class GitLabHelper {
 			for (const project of allProjects) {
 				try {
 					const projectMRsUrl = `${this.baseUrl}/projects/${project.id}/merge_requests?author_id=${userId}&created_after=${startDate}T00:00:00Z&created_before=${endDate}T23:59:59Z&per_page=100&order_by=updated_at&sort=desc`;
-					const projectMRsRes = await fetch(projectMRsUrl, { headers });
+					const projectMRsRes = await fetch(projectMRsUrl, { headers, signal });
 					if (projectMRsRes.ok) {
 						const projectMRs = await projectMRsRes.json();
 						allMergeRequests = allMergeRequests.concat(projectMRs);
 					}
 					// Add small delay to avoid rate limiting
-					await new Promise((resolve) => setTimeout(resolve, 100));
+					await abortableGitLabDelay(100, signal);
 				} catch (error) {
+					if (error?.name === 'AbortError') {
+						throw error;
+					}
 					console.error(`Error fetching MRs for project ${project.name}:`, error);
 					// Continue with other projects
 				}
@@ -158,14 +190,17 @@ class GitLabHelper {
 			for (const project of allProjects) {
 				try {
 					const projectIssuesUrl = `${this.baseUrl}/projects/${project.id}/issues?author_id=${userId}&created_after=${startDate}T00:00:00Z&created_before=${endDate}T23:59:59Z&per_page=100&order_by=updated_at&sort=desc`;
-					const projectIssuesRes = await fetch(projectIssuesUrl, { headers });
+					const projectIssuesRes = await fetch(projectIssuesUrl, { headers, signal });
 					if (projectIssuesRes.ok) {
 						const projectIssues = await projectIssuesRes.json();
 						allIssues = allIssues.concat(projectIssues);
 					}
 					// Add small delay to avoid rate limiting
-					await new Promise((resolve) => setTimeout(resolve, 100));
+					await abortableGitLabDelay(100, signal);
 				} catch (error) {
+					if (error?.name === 'AbortError') {
+						throw error;
+					}
 					console.error(`Error fetching issues for project ${project.name}:`, error);
 					// Continue with other projects
 				}

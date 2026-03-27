@@ -292,10 +292,18 @@
 						</div>
 
 						<div class="scrum-actions my-2">
-							<button id="generateReport"
-								class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-3 rounded">
-								<i class="fa fa-refresh"></i> <span data-i18n="generateReportButton">Generate</span>
-							</button>
+							<div class="scrum-run-control">
+								<button id="generateReport"
+									class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-3 rounded">
+									<i class="fa fa-refresh"></i> <span data-i18n="generateReportButton">Generate</span>
+								</button>
+
+								<button id="stopReport" type="button"
+									class="popup-stop-button flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-3 rounded"
+									style="display: none;">
+									<i class="fa fa-stop"></i> <span data-i18n="stopReportButton">Stop</span>
+								</button>
+							</div>
 
 							<button id="insertInEmail"
 								class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">

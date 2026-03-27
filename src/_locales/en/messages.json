@@ -70,6 +70,10 @@
     "message": "Generate",
     "description": "Text for the 'Generate' button."
   },
+  "stopReportButton": {
+    "message": "Stop",
+    "description": "Text for the button that aborts report generation."
+  },
   "copyReportButton": {
     "message": "Copy",
     "description": "Text for the 'Copy' button."
