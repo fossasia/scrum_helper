@@ -682,43 +682,24 @@ document.addEventListener('DOMContentLoaded', () => {
 					const tabId = tabs?.[0]?.id;
 					if (!tabId) return;
 
-					chrome.tabs.sendMessage(tabId, { action: 'insertReportToEmail', content, subject }, (response) => {
-						if (chrome.runtime.lastError) {
-							console.warn('Insert to Email failed:', chrome.runtime.lastError.message);
+					browser.tabs.sendMessage(tabId, { action: 'insertReportToEmail', content, subject })
+						.then((response) => {
+							if (!response?.success) {
+								console.warn('Insert to Email failed:', response?.error);
+								const failureMessage =
+									browser.i18n.getMessage('insertToEmailFailedError') ||
+									'open an email tab to insert report';
+								showPopupMessage(failureMessage);
+							}
+						})
+						.catch((error) => {
+							console.warn('Insert to Email failed:', error.message);
 							const failureMessage =
-								chrome?.i18n.getMessage('insertToEmailFailedError') ||
+								browser.i18n.getMessage('insertToEmailFailedError') ||
 								'open an email tab to insert report';
 							showPopupMessage(failureMessage);
-							return;
-						}
-						if (!response?.success) {
-							console.warn('Insert to Email failed:', response?.error);
-							const failureMessage =
-								chrome?.i18n.getMessage('insertToEmailFailedError') ||
-								'open an email ab to insert repor';
-							showPopupMessage(failureMessage);
-						}
-
-						browser.tabs
-							.sendMessage(tabId, { action: 'insertReportToEmail', content, subject })
-							.then((response) => {
-								if (response?.success && insertBtn._triggeredByShortcut) {
-									showShortcutNotification('insertedInEmailNotification');
-								} else if (!response?.success) {
-									console.warn('Insert to Email failed:', response?.error);
-								}
-							})
-							.catch((error) => {
-								console.warn('Insert to Email failed:', error?.message || error);
-							})
-							.finally(() => {
-								insertBtn._triggeredByShortcut = false;
-							});
-					})
-					.catch((error) => {
-						console.warn('Unable to get active tab:', error?.message || error);
-						insertBtn._triggeredByShortcut = false;
-					});
+						});
+				});
 			});
 		}
 
