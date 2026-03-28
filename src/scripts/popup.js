@@ -678,6 +678,15 @@ document.addEventListener('DOMContentLoaded', () => {
 					return;
 				}
 
+				// Helper to handle insert-to-email failures consistently
+				const handleInsertFailure = (errorMsg) => {
+					console.warn('Insert to Email failed:', errorMsg);
+					const failureMessage =
+						browser.i18n.getMessage('insertToEmailFailedError') ||
+						'open an email tab to insert report';
+					showPopupMessage(failureMessage);
+				};
+
 				browser.tabs.query({ active: true, currentWindow: true }).then((tabs) => {
 					const tabId = tabs?.[0]?.id;
 					if (!tabId) return;
@@ -685,19 +694,11 @@ document.addEventListener('DOMContentLoaded', () => {
 					browser.tabs.sendMessage(tabId, { action: 'insertReportToEmail', content, subject })
 						.then((response) => {
 							if (!response?.success) {
-								console.warn('Insert to Email failed:', response?.error);
-								const failureMessage =
-									browser.i18n.getMessage('insertToEmailFailedError') ||
-									'open an email tab to insert report';
-								showPopupMessage(failureMessage);
+								handleInsertFailure(response?.error);
 							}
 						})
 						.catch((error) => {
-							console.warn('Insert to Email failed:', error.message);
-							const failureMessage =
-								browser.i18n.getMessage('insertToEmailFailedError') ||
-								'open an email tab to insert report';
-							showPopupMessage(failureMessage);
+							handleInsertFailure(error.message);
 						});
 				});
 			});
