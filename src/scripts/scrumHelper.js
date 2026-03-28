@@ -26,7 +26,7 @@ function renderErrorMessage(container, key, fallback, args = []) {
 	errorDiv.style.color = '#dc2626';
 	errorDiv.style.fontWeight = 'bold';
 	errorDiv.style.padding = '10px';
-	errorDiv.textContent = message; 
+	errorDiv.textContent = message;
 	container.innerHTML = '';
 	container.appendChild(errorDiv);
 }
@@ -195,7 +195,11 @@ function allIncluded(outputTarget = 'email') {
 							const scrumReport = document.getElementById('scrumReport');
 							const generateBtn = document.getElementById('generateReport');
 							if (scrumReport) {
-								renderErrorMessage(scrumReport, 'usernameRequiredError', 'Please enter your username to generate a report.');
+								renderErrorMessage(
+									scrumReport,
+									'usernameRequiredError',
+									'Please enter your username to generate a report.',
+								);
 							}
 							if (generateBtn) {
 								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
@@ -284,7 +288,9 @@ function allIncluded(outputTarget = 'email') {
 											if (err && typeof err.message === 'string' && err.message.trim().length > 0) {
 												errMsg = err.message;
 											} else {
-												errMsg = chrome?.i18n.getMessage('gitlabFetchingError') || 'An error occurred while fetching GitLab data.';
+												errMsg =
+													chrome?.i18n.getMessage('gitlabFetchingError') ||
+													'An error occurred while fetching GitLab data.';
 											}
 											renderErrorMessage(scrumReport, '', errMsg);
 										}
@@ -338,7 +344,9 @@ function allIncluded(outputTarget = 'email') {
 											if (err && typeof err.message === 'string' && err.message.trim().length > 0) {
 												errMsg = err.message;
 											} else {
-												errMsg = chrome?.i18n.getMessage('gitlabFetchingError') || 'An error occurred while fetching GitLab data.';
+												errMsg =
+													chrome?.i18n.getMessage('gitlabFetchingError') ||
+													'An error occurred while fetching GitLab data.';
 											}
 											renderErrorMessage(scrumReport, '', errMsg);
 										}
@@ -352,7 +360,11 @@ function allIncluded(outputTarget = 'email') {
 							const scrumReport = document.getElementById('scrumReport');
 							const generateBtn = document.getElementById('generateReport');
 							if (scrumReport) {
-								renderErrorMessage(scrumReport, 'usernameRequiredError', 'Please enter your username to generate a report.');
+								renderErrorMessage(
+									scrumReport,
+									'usernameRequiredError',
+									'Please enter your username to generate a report.',
+								);
 							}
 							if (generateBtn) {
 								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
@@ -658,7 +670,9 @@ function allIncluded(outputTarget = 'email') {
 			const userCheckRes = await fetch(userUrl, { headers });
 
 			if (userCheckRes.status === 404) {
-				const errorMsg = chrome?.i18n.getMessage('githubUserNotFoundError', [platformUsernameLocal]) || `GitHub user "${platformUsernameLocal}" not found (404). Please check the username and try again.`;
+				const errorMsg =
+					chrome?.i18n.getMessage('githubUserNotFoundError', [platformUsernameLocal]) ||
+					`GitHub user "${platformUsernameLocal}" not found (404). Please check the username and try again.`;
 				logError(errorMsg);
 				throw new Error(errorMsg);
 			}
@@ -670,7 +684,9 @@ function allIncluded(outputTarget = 'email') {
 			}
 
 			if (!userCheckRes.ok) {
-				const errorMsg = chrome?.i18n.getMessage('githubUserValidationError', [userCheckRes.status, userCheckRes.statusText]) || `Error validating GitHub user: ${userCheckRes.status} ${userCheckRes.statusText}`;
+				const errorMsg =
+					chrome?.i18n.getMessage('githubUserValidationError', [userCheckRes.status, userCheckRes.statusText]) ||
+					`Error validating GitHub user: ${userCheckRes.status} ${userCheckRes.statusText}`;
 				logError(errorMsg);
 				throw new Error(errorMsg);
 			}
@@ -688,7 +704,9 @@ function allIncluded(outputTarget = 'email') {
 			}
 
 			if (issuesRes.status === 422 || prRes.status === 422) {
-				const errorMsg = chrome?.i18n.getMessage('invalidSearchQueryError') || `Invalid search query or date range. Please verify your date range format and try again.`;
+				const errorMsg =
+					chrome?.i18n.getMessage('invalidSearchQueryError') ||
+					`Invalid search query or date range. Please verify your date range format and try again.`;
 				logError(errorMsg);
 				if (outputTarget === 'popup') {
 					Materialize.toast && Materialize.toast(errorMsg, 4000);
@@ -697,7 +715,9 @@ function allIncluded(outputTarget = 'email') {
 			}
 
 			if (!issuesRes.ok) {
-				const errorMsg = chrome?.i18n.getMessage('githubIssuesFetchError', [issuesRes.status, issuesRes.statusText]) || `Error fetching GitHub issues: ${issuesRes.status} ${issuesRes.statusText}`;
+				const errorMsg =
+					chrome?.i18n.getMessage('githubIssuesFetchError', [issuesRes.status, issuesRes.statusText]) ||
+					`Error fetching GitHub issues: ${issuesRes.status} ${issuesRes.statusText}`;
 				logError(errorMsg);
 				if (outputTarget === 'popup') {
 					Materialize.toast && Materialize.toast(errorMsg, 4000);
@@ -705,7 +725,9 @@ function allIncluded(outputTarget = 'email') {
 				throw new Error(errorMsg);
 			}
 			if (!prRes.ok) {
-				const errorMsg = chrome?.i18n.getMessage('githubPRReviewFetchError', [prRes.status, prRes.statusText]) || `Error fetching GitHub PR review data: ${prRes.status} ${prRes.statusText}`;
+				const errorMsg =
+					chrome?.i18n.getMessage('githubPRReviewFetchError', [prRes.status, prRes.statusText]) ||
+					`Error fetching GitHub PR review data: ${prRes.status} ${prRes.statusText}`;
 				logError(errorMsg);
 				if (outputTarget === 'popup') {
 					Materialize.toast && Materialize.toast(errorMsg, 4000);
@@ -713,7 +735,9 @@ function allIncluded(outputTarget = 'email') {
 				throw new Error(errorMsg);
 			}
 			if (!userRes.ok) {
-				const errorMsg = chrome?.i18n.getMessage('githubUserFetchError', [userRes.status, userRes.statusText]) || `Error fetching GitHub user data: ${userRes.status} ${userRes.statusText}`;
+				const errorMsg =
+					chrome?.i18n.getMessage('githubUserFetchError', [userRes.status, userRes.statusText]) ||
+					`Error fetching GitHub user data: ${userRes.status} ${userRes.statusText}`;
 				logError(errorMsg);
 				throw new Error(errorMsg);
 			}
@@ -789,7 +813,8 @@ function allIncluded(outputTarget = 'email') {
 			if (outputTarget === 'popup') {
 				const generateBtn = document.getElementById('generateReport');
 				if (scrumReport) {
-					let errorMsg = chrome?.i18n.getMessage('reportGenerationError') || 'An error occurred while generating the report.';
+					let errorMsg =
+						chrome?.i18n.getMessage('reportGenerationError') || 'An error occurred while generating the report.';
 					if (err) {
 						if (typeof err === 'string') errorMsg = err;
 						else if (err.message) errorMsg = err.message;
@@ -890,7 +915,8 @@ function allIncluded(outputTarget = 'email') {
 			log('Repo fiter disabled, skipping fetch');
 			return [];
 		}
-		const repoCacheKey = `repos-${platformUsernameLocal}-${orgName}-${startDateForCache}-${endDateForCache}`;
+		const tokenMarker = githubToken ? 'auth' : 'noauth';
+		const repoCacheKey = `repos-${platformUsernameLocal}-${orgName}-${startDateForCache}-${endDateForCache}-${tokenMarker}`;
 
 		const now = Date.now();
 		const isRepoCacheFresh = now - githubCache.repoTimeStamp < githubCache.ttl;
@@ -968,7 +994,9 @@ function allIncluded(outputTarget = 'email') {
 	verifyCacheStatus();
 
 	function showInvalidTokenMessage() {
-		const errMsg = chrome?.i18n.getMessage('invalidTokenError') || 'Invalid or expired GitHub token. Please check your token in the Scrum Helper settings and try again.';
+		const errMsg =
+			chrome?.i18n.getMessage('invalidTokenError') ||
+			'Invalid or expired GitHub token. Please check your token in the Scrum Helper settings and try again.';
 		if (outputTarget === 'popup') {
 			const reportDiv = document.getElementById('scrumReport');
 			if (reportDiv) {

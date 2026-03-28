@@ -358,7 +358,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				lastScrumReportUsername,
 				githubUsername,
 				gitlabUsername,
-				platformUsername
+				platformUsername,
 			} = await storageLocalGet([
 				'lastScrumReportHtml',
 				'lastScrumReportPlatform',
@@ -366,15 +366,14 @@ document.addEventListener('DOMContentLoaded', () => {
 				'lastScrumReportUsername',
 				'githubUsername',
 				'gitlabUsername',
-				'platformUsername'
+				'platformUsername',
 			]);
 
-			const expectedUsername = activePlatform === 'gitlab'
-				? (gitlabUsername || platformUsername)
-				: (githubUsername || platformUsername);
-			const isUsernameMatch = lastScrumReportUsername 
+			const expectedUsername =
+				activePlatform === 'gitlab' ? gitlabUsername || platformUsername : githubUsername || platformUsername;
+			const isUsernameMatch = lastScrumReportUsername
 				? lastScrumReportUsername === expectedUsername
-				: (lastScrumReportCacheKey && expectedUsername && lastScrumReportCacheKey.startsWith(expectedUsername + '-'));
+				: lastScrumReportCacheKey && expectedUsername && lastScrumReportCacheKey.startsWith(expectedUsername + '-');
 
 			if (age < ttlMs) {
 				const cacheKey = cache?.cacheKey ?? null;
@@ -435,6 +434,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		const startingDateInput = document.getElementById('startingDate');
 		const endingDateInput = document.getElementById('endingDate');
 		const platformUsername = document.getElementById('platformUsername');
+		let previousGithubTokenMarker = 'noauth';
 
 		browser.storage.local
 			.get([
@@ -486,6 +486,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					}
 				}
 				if (result.githubToken) githubTokenInput.value = result.githubToken;
+				previousGithubTokenMarker = githubTokenInput.value.trim() ? 'auth' : 'noauth';
 				if (result.cacheInput) cacheInput.value = result.cacheInput;
 				if (typeof result.yesterdayContribution !== 'undefined') yesterdayRadio.checked = result.yesterdayContribution;
 				if (result.startingDate) startingDateInput.value = result.startingDate;
@@ -708,7 +709,15 @@ document.addEventListener('DOMContentLoaded', () => {
 			});
 		});
 		githubTokenInput.addEventListener('input', () => {
-			browser.storage.local.set({ githubToken: githubTokenInput.value });
+			const nextTokenMarker = githubTokenInput.value.trim() ? 'auth' : 'noauth';
+			const shouldInvalidateRepoCache = previousGithubTokenMarker !== nextTokenMarker;
+			previousGithubTokenMarker = nextTokenMarker;
+
+			const payload = { githubToken: githubTokenInput.value };
+			if (shouldInvalidateRepoCache) {
+				payload.repoCache = null;
+			}
+			browser.storage.local.set(payload);
 		});
 		cacheInput.addEventListener('input', () => {
 			browser.storage.local.set({ cacheInput: cacheInput.value });
@@ -750,7 +759,9 @@ document.addEventListener('DOMContentLoaded', () => {
 				// Show notice instead of applying immediately
 				const modeLabel = mode === 'popup' ? 'Popup' : 'Side Panel';
 				if (displayModeNotice && displayModeNoticeText) {
-					displayModeNoticeText.textContent = chrome?.i18n.getMessage('displayModeNotice', [modeLabel]) || `The extension will open in ${modeLabel} mode on the next launch.`;
+					displayModeNoticeText.textContent =
+						chrome?.i18n.getMessage('displayModeNotice', [modeLabel]) ||
+						`The extension will open in ${modeLabel} mode on the next launch.`;
 					displayModeNotice.classList.remove('hidden');
 				}
 			});
@@ -841,6 +852,11 @@ document.addEventListener('DOMContentLoaded', () => {
 		let selectedRepos = [];
 		let highlightedIndex = -1;
 
+		function getRepoCacheKey(username, orgName, token) {
+			const tokenMarker = token && token.trim() ? 'auth' : 'noauth';
+			return `repos-${username}-${orgName || ''}-${tokenMarker}`;
+		}
+
 		async function triggerRepoFetchIfEnabled() {
 			// --- PLATFORM CHECK: Only run for GitHub ---
 			let platform = 'github';
@@ -850,7 +866,9 @@ document.addEventListener('DOMContentLoaded', () => {
 			} catch {}
 			if (platform !== 'github') {
 				// Do not run repo fetch for non-GitHub platforms
-				if (repoStatus) repoStatus.textContent = chrome?.i18n.getMessage('repoFilteringGithubOnly') || 'Repository filtering is only available for GitHub.';
+				if (repoStatus)
+					repoStatus.textContent =
+						chrome?.i18n.getMessage('repoFilteringGithubOnly') || 'Repository filtering is only available for GitHub.';
 				return;
 			}
 			if (!useRepoFilter.checked) {
@@ -891,7 +909,7 @@ document.addEventListener('DOMContentLoaded', () => {
 						repoStatus.textContent = browser.i18n.getMessage('repoLoaded', [repos.length]);
 					}
 
-					const repoCacheKey = `repos-${username}-${items.orgName || ''}`;
+					const repoCacheKey = getRepoCacheKey(username, items.orgName, items.githubToken);
 					browser.storage.local.set({
 						repoCache: {
 							data: repos,
@@ -939,7 +957,10 @@ document.addEventListener('DOMContentLoaded', () => {
 				if (platform !== 'github') {
 					repoFilterContainer.classList.add('hidden');
 					useRepoFilter.checked = false;
-					if (repoStatus) repoStatus.textContent = chrome?.i18n.getMessage('repoFilteringGithubOnly') || 'Repository filtering is only available for GitHub.';
+					if (repoStatus)
+						repoStatus.textContent =
+							chrome?.i18n.getMessage('repoFilteringGithubOnly') ||
+							'Repository filtering is only available for GitHub.';
 					return;
 				}
 				const enabled = useRepoFilter.checked;
@@ -969,7 +990,8 @@ document.addEventListener('DOMContentLoaded', () => {
 				});
 				checkTokenForFilter();
 				if (enabled) {
-					repoStatus.textContent = chrome?.i18n.getMessage('loadingReposAutomatically') || 'Loading repos automatically...';
+					repoStatus.textContent =
+						chrome?.i18n.getMessage('loadingReposAutomatically') || 'Loading repos automatically...';
 
 					try {
 						const cacheData = await browser.storage.local.get(['repoCache']);
@@ -990,7 +1012,7 @@ document.addEventListener('DOMContentLoaded', () => {
 							return;
 						}
 
-						const repoCacheKey = `repos-${username}-${items.orgName || ''}`;
+						const repoCacheKey = getRepoCacheKey(username, items.orgName, items.githubToken);
 
 						const now = Date.now();
 						const cacheAge = cacheData.repoCache?.timestamp
@@ -1118,7 +1140,9 @@ document.addEventListener('DOMContentLoaded', () => {
 				platform = items.platform || 'github';
 			} catch {}
 			if (platform !== 'github') {
-				if (repoStatus) repoStatus.textContent = chrome?.i18n.getMessage('repoLoadingGithubOnly') || 'Repository loading is only available for GitHub.';
+				if (repoStatus)
+					repoStatus.textContent =
+						chrome?.i18n.getMessage('repoLoadingGithubOnly') || 'Repository loading is only available for GitHub.';
 				return;
 			}
 			console.log('window.fetchUserRepositories exists:', !!window.fetchUserRepositories);
@@ -1158,7 +1182,9 @@ document.addEventListener('DOMContentLoaded', () => {
 				platform = items.platform || 'github';
 			} catch (e) {}
 			if (platform !== 'github') {
-				if (repoStatus) repoStatus.textContent = chrome?.i18n.getMessage('repoFetchingGithubOnly') || 'Repository fetching is only available for GitHub.';
+				if (repoStatus)
+					repoStatus.textContent =
+						chrome?.i18n.getMessage('repoFetchingGithubOnly') || 'Repository fetching is only available for GitHub.';
 				return;
 			}
 			console.log('[POPUP-DEBUG] performRepoFetch called.');
@@ -1177,7 +1203,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				const platform = storageItems.platform || 'github';
 				const platformUsernameKey = `${platform}Username`;
 				const username = storageItems[platformUsernameKey];
-				const repoCacheKey = `repos-${username}-${storageItems.orgName || ''}`;
+				const repoCacheKey = getRepoCacheKey(username, storageItems.orgName, storageItems.githubToken);
 				const now = Date.now();
 				const cacheAge = cacheData.repoCache?.timestamp
 					? now - cacheData.repoCache.timestamp
