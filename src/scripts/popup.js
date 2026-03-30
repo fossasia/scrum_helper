@@ -799,7 +799,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		copyBtn.addEventListener('click', function () {
 			const scrumReport = document.getElementById('scrumReport');
-			if (!scrumReport || !scrumReport.innerText.trim()) {
+						if (!scrumReport || !scrumReport.textContent.trim()) {
 				return;
 			  }
 			const tempDiv = document.createElement('div');
