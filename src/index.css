@@ -60,16 +60,13 @@ a {
 
 .scrum-actions {
     display: flex;
+    flex-wrap: wrap;
     gap: 8px;
 }
 
 .scrum-actions > button {
-    flex: 1 1 0;
+    flex: 1 1 auto;
     min-width: 0;
-}
-
-.scrum-actions > button span {
-    white-space: nowrap;
 }
 
 .btn,
