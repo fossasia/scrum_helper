@@ -63,6 +63,7 @@ function allIncluded(outputTarget = 'email') {
 	let nextWeekArray = [];
 	let reviewedPrsArray = [];
 	let githubIssuesData = null;
+	let githubCommitsData = null;
 	let yesterdayContribution = false;
 	let githubPrsReviewData = null;
 	let githubUserData = null;
@@ -274,12 +275,24 @@ function allIncluded(outputTarget = 'email') {
 									const mappedMRs = (data.mergeRequests || data.mrs || []).map((mr) =>
 										mapGitLabItem(mr, data.projects, 'mr'),
 									);
+									// Map commits to standard format for report generation
+									const mappedCommits = (data.commits || []).map((commit) => ({
+										...commit,
+										message: commit.message || commit.title,
+										html_url: commit.web_url || (commit.project_url ? `${commit.project_url}/-/commit/${commit.id}` : ''),
+										sha: commit.id,
+										project: commit.project_name,
+										author_name: commit.author_name,
+										author_email: commit.author_email,
+									}));
 									const mappedData = {
 										githubIssuesData: { items: mappedIssues },
 										githubPrsReviewData: { items: mappedMRs },
+										gitlabCommits: mappedCommits,
 										githubUserData: data.user || {},
 									};
 									githubUserData = mappedData.githubUserData;
+									githubCommitsData = mappedCommits;
 
 									const name =
 										githubUserData?.name || githubUserData?.username || platformUsernameLocal || platformUsername;
@@ -342,9 +355,20 @@ function allIncluded(outputTarget = 'email') {
 									const mappedMRs = (data.mergeRequests || data.mrs || []).map((mr) =>
 										mapGitLabItem(mr, data.projects, 'mr'),
 									);
+									// Map commits to standard format for report generation
+									const mappedCommits = (data.commits || []).map((commit) => ({
+										...commit,
+										message: commit.message || commit.title,
+										html_url: commit.web_url || (commit.project_url ? `${commit.project_url}/-/commit/${commit.id}` : ''),
+										sha: commit.id,
+										project: commit.project_name,
+										author_name: commit.author_name,
+										author_email: commit.author_email,
+									}));
 									const mappedData = {
 										githubIssuesData: { items: mappedIssues },
 										githubPrsReviewData: { items: mappedMRs },
+										gitlabCommits: mappedCommits,
 										githubUserData: data.user || {},
 									};
 									processGithubData(mappedData);
@@ -1045,6 +1069,10 @@ function allIncluded(outputTarget = 'email') {
 		} else if (platform === 'gitlab') {
 			await writeGithubIssuesPrs(githubIssuesData?.items || []);
 			await writeGithubIssuesPrs(githubPrsReviewData?.items || []);
+			// Add commits to the report for GitLab
+			if (githubCommitsData && githubCommitsData.length > 0) {
+				await writeGithubIssuesPrs(githubCommitsData);
+			}
 		}
 		await writeGithubPrsReviews();
 		log('[DEBUG] Both data processing functions completed, generating scrum body');
