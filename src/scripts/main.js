@@ -137,11 +137,11 @@ function getYesterday() {
 	const today = new Date();
 	const yesterday = new Date(today);
 	yesterday.setDate(today.getDate() - 1);
-	return yesterday.toISOString().split('T')[0];
+	return window.DateUtils.formatLocalDate(yesterday);
 }
 function getToday() {
 	const today = new Date();
-	return today.toISOString().split('T')[0];
+	return window.DateUtils.formatLocalDate(today);
 }
 
 function handlePlatformUsernameChange() {

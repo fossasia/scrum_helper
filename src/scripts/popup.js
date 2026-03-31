@@ -8,14 +8,14 @@ function debounce(func, wait) {
 
 function getToday() {
 	const today = new Date();
-	return today.toISOString().split('T')[0];
+	return window.DateUtils.formatLocalDate(today);
 }
 
 function getYesterday() {
 	const today = new Date();
 	const yesterday = new Date(today);
 	yesterday.setDate(today.getDate() - 1);
-	return yesterday.toISOString().split('T')[0];
+	return window.DateUtils.formatLocalDate(yesterday);
 }
 
 function applyI18n() {
@@ -300,6 +300,16 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	}
 
+	function ensureScrumReportVisible() {
+		const scrumReport = document.getElementById('scrumReport');
+		if (!scrumReport) return;
+		scrumReport.style.display = 'block';
+		scrumReport.style.visibility = 'visible';
+		scrumReport.style.opacity = '1';
+		scrumReport.style.color = document.body.classList.contains('dark-mode') ? '#ffffff' : '#1f2937';
+		scrumReport.style.backgroundColor = document.body.classList.contains('dark-mode') ? '#404040' : '#f3f4f6';
+	}
+
 	function showPopupMessage(message) {
 		if (!message) return;
 
@@ -343,6 +353,9 @@ document.addEventListener('DOMContentLoaded', () => {
 			return;
 		}
 
+		ensureScrumReportVisible();
+		setGenerateButtonLoading(generateBtn, false);
+
 		const { platform, cacheInput, githubCache, gitlabCache } = await storageLocalGet([
 			'platform',
 			'cacheInput',
@@ -358,12 +371,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		const hasCacheData = !!cache?.data;
 		const timestamp = typeof cache?.timestamp === 'number' ? cache.timestamp : 0;
-
-		if (!hasCacheData) {
-			setGenerateButtonLoading(generateBtn, true);
-			window.generateScrumReport();
-			return;
-		}
 
 		if (timestamp > 0) {
 			const age = Date.now() - timestamp;
@@ -404,26 +411,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
 				if (reportEmpty && lastScrumReportHtml && matches) {
 					scrumReport.innerHTML = lastScrumReportHtml;
-					if (generateBtn) generateBtn.disabled = false;
+					ensureScrumReportVisible();
 					return;
 				}
-
-				setGenerateButtonLoading(generateBtn, true);
-				window.generateScrumReport();
 				return;
 			}
 
 			// If cache is expired, still only show the old HTML if it was for the current username
 			if ((!scrumReport.innerHTML || !scrumReport.innerHTML.trim()) && lastScrumReportHtml && isUsernameMatch) {
 				scrumReport.innerHTML = lastScrumReportHtml;
+				ensureScrumReportVisible();
 			}
 
-			if (generateBtn) generateBtn.disabled = false;
 			return;
 		}
-
-		setGenerateButtonLoading(generateBtn, true);
-		window.generateScrumReport();
 	}
 
 	function initializePopup() {
@@ -521,6 +522,12 @@ document.addEventListener('DOMContentLoaded', () => {
 		const copyBtn = document.getElementById('copyReport');
 		const insertBtn = document.getElementById('insertInEmail');
 
+		if (typeof window.resetScrumReportUIState === 'function') {
+			window.resetScrumReportUIState();
+		}
+		setGenerateButtonLoading(generateBtn, false);
+		ensureScrumReportVisible();
+
 		if (insertBtn) {
 			insertBtn.addEventListener('click', () => {
 				const scrumReport = document.getElementById('scrumReport');
@@ -558,7 +565,9 @@ document.addEventListener('DOMContentLoaded', () => {
 							platformSelect.value = res.platform || 'github';
 							updatePlatformUI(platformSelect.value);
 							setGenerateButtonLoading(generateBtn, true);
-							window.generateScrumReport && window.generateScrumReport();
+							if (window.generateScrumReport && window.generateScrumReport() === false) {
+								setGenerateButtonLoading(generateBtn, false);
+							}
 						});
 					});
 			});

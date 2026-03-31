@@ -31,10 +31,32 @@ function renderErrorMessage(container, key, fallback, args = []) {
 	container.appendChild(errorDiv);
 }
 
+function renderPopupScrumReport(content) {
+	const scrumReport = document.getElementById('scrumReport');
+	if (!scrumReport) {
+		return false;
+	}
+
+	const html =
+		typeof content === 'string' && content.trim()
+			? content
+			: '<p style="color:#374151;padding:8px 0;">No activity to report for the selected time period.</p>';
+
+	scrumReport.style.display = 'block';
+	scrumReport.style.visibility = 'visible';
+	scrumReport.style.opacity = '1';
+	scrumReport.style.color = document.body.classList.contains('dark-mode') ? '#ffffff' : '#1f2937';
+	scrumReport.style.backgroundColor = document.body.classList.contains('dark-mode') ? '#404040' : '#f3f4f6';
+	scrumReport.innerHTML = html;
+	lastRenderedScrumReportHtml = html;
+	return true;
+}
+
 let refreshButton_Placed = false;
 let hasInjectedContent = false;
 let controller = null;
 let isRunning = false;
+let lastRenderedScrumReportHtml = '';
 
 let orgName = '';
 let platform = 'github';
@@ -71,6 +93,14 @@ function updatePopupGenerationControls(isRunning) {
 	}
 }
 
+function resetScrumGenerationState(outputTarget = 'popup') {
+	controller = null;
+	isRunning = false;
+	if (outputTarget === 'popup') {
+		updatePopupGenerationControls(false);
+	}
+}
+
 function startScrumRequest(outputTarget) {
 	const request = {
 		outputTarget,
@@ -92,11 +122,7 @@ function finalizeScrumRequest(request) {
 	if (!isActiveRequest(request)) {
 		return;
 	}
-	controller = null;
-	isRunning = false;
-	if (request.outputTarget === 'popup') {
-		updatePopupGenerationControls(false);
-	}
+	resetScrumGenerationState(request.outputTarget);
 }
 
 function throwIfRequestAborted(request) {
@@ -135,8 +161,11 @@ function allIncluded(outputTarget = 'email') {
 	if (platform === 'gitlab' || (typeof platform === 'undefined' && window.GitLabHelper)) {
 		gitlabHelper = new window.GitLabHelper();
 	}
+	if (isRunning && controller?.signal?.aborted) {
+		resetScrumGenerationState(outputTarget);
+	}
 	if (isRunning) {
-		return;
+		return false;
 	}
 	const request = startScrumRequest(outputTarget);
 	const abortSignal = request.controller.signal;
@@ -450,8 +479,6 @@ function allIncluded(outputTarget = 'email') {
 				}
 			});
 	}
-	getChromeData();
-
 	function handleYesterdayContributionChange() {
 		endingDate = getToday();
 		startingDate = getYesterday();
@@ -461,11 +488,11 @@ function allIncluded(outputTarget = 'email') {
 		const today = new Date();
 		const yesterday = new Date(today);
 		yesterday.setDate(today.getDate() - 1);
-		return yesterday.toISOString().split('T')[0];
+		return window.DateUtils.formatLocalDate(yesterday);
 	}
 	function getToday() {
 		const today = new Date();
-		return today.toISOString().split('T')[0];
+		return window.DateUtils.formatLocalDate(today);
 	}
 
 	// Global cache object
@@ -582,8 +609,8 @@ function allIncluded(outputTarget = 'email') {
 		if (yesterdayContribution) {
 			const today = new Date();
 			const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
-			startDateForCache = yesterday.toISOString().split('T')[0];
-			endDateForCache = today.toISOString().split('T')[0]; // Use yesterday for start and today for end
+			startDateForCache = window.DateUtils.formatLocalDate(yesterday);
+			endDateForCache = window.DateUtils.formatLocalDate(today); // Use yesterday for start and today for end
 		} else if (startingDate && endingDate) {
 			startDateForCache = startingDate;
 			endDateForCache = endingDate;
@@ -591,16 +618,11 @@ function allIncluded(outputTarget = 'email') {
 			// Default to last 7 days if no date range is set
 			const today = new Date();
 			const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
-			startDateForCache = lastWeek.toISOString().split('T')[0];
-			endDateForCache = today.toISOString().split('T')[0];
+			startDateForCache = window.DateUtils.formatLocalDate(lastWeek);
+			endDateForCache = window.DateUtils.formatLocalDate(today);
 		}
 
 		const cacheKey = `${platformUsernameLocal}-${startDateForCache}-${endDateForCache}-${orgName || 'all'}`;
-
-		if (githubCache.fetching || (githubCache.cacheKey === cacheKey && githubCache.data)) {
-			log('Fetch already in progress or data already fetched. Skipping fetch.');
-			return;
-		}
 
 		log('Fetching Github data:', {
 			username: platformUsernameLocal,
@@ -822,8 +844,8 @@ function allIncluded(outputTarget = 'email') {
 					if (yesterdayContribution) {
 						const today = new Date();
 						const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
-						startDateForCommits = yesterday.toISOString().split('T')[0];
-						endDateForCommits = today.toISOString().split('T')[0]; // Use yesterday for start and today for end
+						startDateForCommits = window.DateUtils.formatLocalDate(yesterday);
+						endDateForCommits = window.DateUtils.formatLocalDate(today); // Use yesterday for start and today for end
 					} else if (startingDate && endingDate) {
 						startDateForCommits = startingDate;
 						endDateForCommits = endingDate;
@@ -831,8 +853,8 @@ function allIncluded(outputTarget = 'email') {
 						// Default to last 7 days if no date range is set
 						const today = new Date();
 						const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
-						startDateForCommits = lastWeek.toISOString().split('T')[0];
-						endDateForCommits = today.toISOString().split('T')[0];
+						startDateForCommits = window.DateUtils.formatLocalDate(lastWeek);
+						endDateForCommits = window.DateUtils.formatLocalDate(today);
 					}
 
 					const commitMap = await fetchCommitsForOpenPRs(openPRs, githubToken, startDateForCommits, endDateForCommits);
@@ -910,8 +932,8 @@ function allIncluded(outputTarget = 'email') {
 			endDate,
 		);
 		if (!prs.length) return {};
-		const since = new Date(startDate + 'T00:00:00Z').toISOString();
-		const until = new Date(endDate + 'T23:59:59Z').toISOString();
+		const since = window.DateUtils.startOfLocalDay(startDate).toISOString();
+		const until = window.DateUtils.endOfLocalDay(endDate).toISOString();
 		const queries = prs
 			.map((pr, idx) => {
 				const repoParts = pr.repository_url.split('/');
@@ -1111,7 +1133,7 @@ function allIncluded(outputTarget = 'email') {
 		await writeGithubPrsReviews();
 		throwIfRequestAborted(request);
 		log('[DEBUG] Both data processing functions completed, generating scrum body');
-		if (subjectForEmail) {
+		if (outputTarget === 'email' && subjectForEmail) {
 			// Synchronized subject and body injection for email
 			const lastWeekUl = buildActivityListHtml();
 			const nextWeekUl = buildNextWeekListHtml();
@@ -1225,16 +1247,14 @@ ${blockerText}`;
 		}
 
 		if (outputTarget === 'popup') {
-			const scrumReport = document.getElementById('scrumReport');
-			if (scrumReport) {
+			if (renderPopupScrumReport(content)) {
 				log('Found popup div, updating content');
-				scrumReport.innerHTML = content;
 				try {
 					const cacheKey =
 						platform === 'gitlab' ? (gitlabHelper?.cache?.cacheKey ?? null) : (githubCache?.cacheKey ?? null);
 
 					browser.storage.local.set({
-						lastScrumReportHtml: content,
+						lastScrumReportHtml: lastRenderedScrumReportHtml,
 						lastScrumReportPlatform: platform,
 						lastScrumReportCacheKey: cacheKey,
 						lastScrumReportUsername: platformUsername,
@@ -1348,8 +1368,8 @@ ${blockerText}`;
 		if (yesterdayContribution) {
 			const today = new Date();
 			const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
-			startDate = yesterday.toISOString().split('T')[0];
-			endDate = today.toISOString().split('T')[0]; // Use yesterday for start and today for end
+			startDate = window.DateUtils.formatLocalDate(yesterday);
+			endDate = window.DateUtils.formatLocalDate(today); // Use yesterday for start and today for end
 		} else if (startingDate && endingDate) {
 			startDate = startingDate;
 			endDate = endingDate;
@@ -1357,12 +1377,12 @@ ${blockerText}`;
 			// Default to last 7 days if no date range is set
 			const today = new Date();
 			const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
-			startDate = lastWeek.toISOString().split('T')[0];
-			endDate = today.toISOString().split('T')[0];
+			startDate = window.DateUtils.formatLocalDate(lastWeek);
+			endDate = window.DateUtils.formatLocalDate(today);
 		}
 
-		const startDateTime = new Date(startDate + 'T00:00:00Z');
-		const endDateTime = new Date(endDate + 'T23:59:59Z');
+		const startDateTime = window.DateUtils.startOfLocalDay(startDate);
+		const endDateTime = window.DateUtils.endOfLocalDay(endDate);
 
 		log('Filtering PR reviews by date range:', { startDate, endDate, startDateTime, endDateTime });
 
@@ -1434,8 +1454,8 @@ ${blockerText}`;
 				// For yesterday filter, only include PRs that were either:
 				// 1. Created yesterday, OR
 				// 2. Updated yesterday AND the user actually commented yesterday
-				const yesterday = new Date(startDate + 'T00:00:00Z');
-				const today = new Date(endDate + 'T23:59:59Z');
+				const yesterday = window.DateUtils.startOfLocalDay(startDate);
+				const today = window.DateUtils.endOfLocalDay(endDate);
 
 				const wasCreatedYesterday = createdDate >= yesterday && createdDate <= today;
 				const wasUpdatedYesterday = itemDate >= yesterday && itemDate <= today;
@@ -1578,8 +1598,8 @@ ${blockerText}`;
 		if (yesterdayContribution) {
 			const today = new Date();
 			const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
-			startDateForRange = yesterday.toISOString().split('T')[0];
-			endDateForRange = today.toISOString().split('T')[0]; // Use yesterday for start and today for end
+			startDateForRange = window.DateUtils.formatLocalDate(yesterday);
+			endDateForRange = window.DateUtils.formatLocalDate(today); // Use yesterday for start and today for end
 		} else if (startingDate && endingDate) {
 			startDateForRange = startingDate;
 			endDateForRange = endingDate;
@@ -1587,8 +1607,8 @@ ${blockerText}`;
 			// Default to last 7 days if no date range is set
 			const today = new Date();
 			const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
-			startDateForRange = lastWeek.toISOString().split('T')[0];
-			endDateForRange = today.toISOString().split('T')[0];
+			startDateForRange = window.DateUtils.formatLocalDate(lastWeek);
+			endDateForRange = window.DateUtils.formatLocalDate(today);
 		}
 
 		const daysRange = getDaysBetween(startDateForRange, endDateForRange);
@@ -1687,17 +1707,17 @@ ${blockerText}`;
 				if (yesterdayContribution) {
 					const today = new Date();
 					const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
-					startDateFilter = new Date(yesterday.toISOString().split('T')[0] + 'T00:00:00Z');
-					endDateFilter = new Date(today.toISOString().split('T')[0] + 'T23:59:59Z'); // Use yesterday for start and today for end
+					startDateFilter = window.DateUtils.startOfLocalDay(window.DateUtils.formatLocalDate(yesterday));
+					endDateFilter = window.DateUtils.endOfLocalDay(window.DateUtils.formatLocalDate(today)); // Use yesterday for start and today for end
 				} else if (startingDate && endingDate) {
-					startDateFilter = new Date(startingDate + 'T00:00:00Z');
-					endDateFilter = new Date(endingDate + 'T23:59:59Z');
+					startDateFilter = window.DateUtils.startOfLocalDay(startingDate);
+					endDateFilter = window.DateUtils.endOfLocalDay(endingDate);
 				} else {
 					// Default to last 7 days if no date range is set
 					const today = new Date();
 					const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
-					startDateFilter = new Date(lastWeek.toISOString().split('T')[0] + 'T00:00:00Z');
-					endDateFilter = new Date(today.toISOString().split('T')[0] + 'T23:59:59Z');
+					startDateFilter = window.DateUtils.startOfLocalDay(window.DateUtils.formatLocalDate(lastWeek));
+					endDateFilter = window.DateUtils.endOfLocalDay(window.DateUtils.formatLocalDate(today));
 				}
 
 				const today = new Date();
@@ -1914,6 +1934,9 @@ ${blockerText}`;
 		hasInjectedContent = false; // Reset the flag before refresh
 		allIncluded();
 	}
+
+	getChromeData();
+	return true;
 }
 
 async function forceGithubDataRefresh() {
@@ -1972,7 +1995,11 @@ async function forceGitlabDataRefresh() {
 }
 
 window.generateScrumReport = () => {
-	allIncluded('popup');
+	return allIncluded('popup');
+};
+
+window.resetScrumReportUIState = () => {
+	resetScrumGenerationState('popup');
 };
 
 window.stopScrumReport = () => {
@@ -1982,9 +2009,7 @@ window.stopScrumReport = () => {
 	}
 
 	controller.abort();
-	controller = null;
-	isRunning = false;
-	updatePopupGenerationControls(false);
+	resetScrumGenerationState('popup');
 	return true;
 };
 
@@ -2126,16 +2151,16 @@ async function fetchUserRepositories(username, token, org = '') {
 			if (storageData.yesterdayContribution) {
 				const today = new Date();
 				const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
-				startDate = yesterday.toISOString().split('T')[0];
-				endDate = today.toISOString().split('T')[0];
+				startDate = window.DateUtils.formatLocalDate(yesterday);
+				endDate = window.DateUtils.formatLocalDate(today);
 			} else if (storageData.startingDate && storageData.endingDate) {
 				startDate = storageData.startingDate;
 				endDate = storageData.endingDate;
 			} else {
 				const today = new Date();
 				const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
-				startDate = lastWeek.toISOString().split('T')[0];
-				endDate = today.toISOString().split('T')[0];
+				startDate = window.DateUtils.formatLocalDate(lastWeek);
+				endDate = window.DateUtils.formatLocalDate(today);
 			}
 
 			dateRange = `+created:${startDate}..${endDate}`;
@@ -2144,8 +2169,8 @@ async function fetchUserRepositories(username, token, org = '') {
 			console.warn('Could not determine date range, using last 30 days:', err);
 			const today = new Date();
 			const thirtyDaysAgo = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 30);
-			const startDate = thirtyDaysAgo.toISOString().split('T')[0];
-			const endDate = today.toISOString().split('T')[0];
+			const startDate = window.DateUtils.formatLocalDate(thirtyDaysAgo);
+			const endDate = window.DateUtils.formatLocalDate(today);
 		}
 		const orgPart = org && org !== 'all' ? `+org:${org}` : '';
 		const issuesUrl = `https://api.github.com/search/issues?q=author:${username}${orgPart}${dateRange}&per_page=100`;

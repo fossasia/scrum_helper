@@ -30,6 +30,7 @@
       "js": [
         "scripts/browser-polyfill.min.js",
         "scripts/jquery-3.2.1.min.js",
+        "scripts/utils/date.js",
         "scripts/emailClientAdapter.js",
         "scripts/gitlabHelper.js",
         "scripts/scrumHelper.js"

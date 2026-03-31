@@ -168,7 +168,9 @@ class GitLabHelper {
 			let allMergeRequests = [];
 			for (const project of allProjects) {
 				try {
-					const projectMRsUrl = `${this.baseUrl}/projects/${project.id}/merge_requests?author_id=${userId}&created_after=${startDate}T00:00:00Z&created_before=${endDate}T23:59:59Z&per_page=100&order_by=updated_at&sort=desc`;
+					const createdAfter = encodeURIComponent(window.DateUtils.startOfLocalDay(startDate).toISOString());
+					const createdBefore = encodeURIComponent(window.DateUtils.endOfLocalDay(endDate).toISOString());
+					const projectMRsUrl = `${this.baseUrl}/projects/${project.id}/merge_requests?author_id=${userId}&created_after=${createdAfter}&created_before=${createdBefore}&per_page=100&order_by=updated_at&sort=desc`;
 					const projectMRsRes = await fetch(projectMRsUrl, { headers, signal });
 					if (projectMRsRes.ok) {
 						const projectMRs = await projectMRsRes.json();
@@ -189,7 +191,9 @@ class GitLabHelper {
 			let allIssues = [];
 			for (const project of allProjects) {
 				try {
-					const projectIssuesUrl = `${this.baseUrl}/projects/${project.id}/issues?author_id=${userId}&created_after=${startDate}T00:00:00Z&created_before=${endDate}T23:59:59Z&per_page=100&order_by=updated_at&sort=desc`;
+					const createdAfter = encodeURIComponent(window.DateUtils.startOfLocalDay(startDate).toISOString());
+					const createdBefore = encodeURIComponent(window.DateUtils.endOfLocalDay(endDate).toISOString());
+					const projectIssuesUrl = `${this.baseUrl}/projects/${project.id}/issues?author_id=${userId}&created_after=${createdAfter}&created_before=${createdBefore}&per_page=100&order_by=updated_at&sort=desc`;
 					const projectIssuesRes = await fetch(projectIssuesUrl, { headers, signal });
 					if (projectIssuesRes.ok) {
 						const projectIssues = await projectIssuesRes.json();

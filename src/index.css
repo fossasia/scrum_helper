@@ -176,29 +176,43 @@ hr,
 }
 
 #scrumReport {
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
     font-size: 13px !important;
     line-height: 1.5 !important;
+    color: #1f2937 !important;
+    background-color: #f3f4f6 !important;
 }
 
 #scrumReport b {
     font-size: 13px !important;
+    color: #111827 !important;
 }
 
 #scrumReport li {
     font-size: 13px !important;
     margin-bottom: 4px !important;
+    color: #374151 !important;
 }
 
 .dark-mode #scrumReport {
     font-size: 13px !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    color: #ffffff !important;
+    background-color: #404040 !important;
 }
 
 .dark-mode #scrumReport b {
     font-size: 13px !important;
+    color: #ffffff !important;
 }
 
 .dark-mode #scrumReport li {
     font-size: 13px !important;
+    color: #e5e7eb !important;
 }
 
 .dark-mode a {
