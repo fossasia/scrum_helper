@@ -232,7 +232,13 @@
     "onlyRevPRsTooltip": {
         "message": "Wenn diese Option aktiviert ist, enthält der Bericht nur PRs, die von Ihnen überprüft wurden."
     },
-    "usernameRequiredError": {
+    "generateReportTooltip": {
+        "message": "Ctrl+G"
+    },
+    "copyReportTooltip": {
+        "message": "Ctrl+Shift+Y"
+   },
+        "usernameRequiredError": {
         "message": "Bitte geben Sie Ihren Benutzernamen ein, um einen Bericht zu erstellen."
     },
     "unknownPlatformError": {
@@ -294,5 +300,20 @@
     },
     "usernameMissingError": {
         "message": "Benutzername erforderlich."
+    },
+    "generatingReportNotification": {
+        "message": "Bericht wird erstellt..."
+    },
+    "copyingReportNotification": {
+        "message": "Bericht wird kopiert..."
+    },
+    "insertInEmailTooltip": {
+        "message": "Ctrl+Shift+M"
+    },
+    "insertingInEmailNotification": {
+        "message": "Bericht wird in E-Mail eingefügt..."
+    },
+    "insertedInEmailNotification": {
+        "message": "Bericht in E-Mail eingefügt!"
     }
 }

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en" class="mode-sidepanel">
+
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,7 +15,7 @@
 			margin: 0;
 			background: #eae4e4;
 			width: 100%;
-            height: 100%;
+			height: 100%;
 			overflow: hidden;
 		}
 
@@ -25,11 +26,11 @@
 		html.mode-sidepanel,
 		body.mode-sidepanel {
 			width: 100% !important;
-            height: 100% !important;
-            max-width: 100% !important;
-            max-height: 100% !important;
-            min-width: 360px;
-            min-height: 100% !important;
+			height: 100% !important;
+			max-width: 100% !important;
+			max-height: 100% !important;
+			min-width: 360px;
+			min-height: 100% !important;
 		}
 
 		html.mode-popup,
@@ -45,15 +46,16 @@
 
 		#popupRoot {
 			flex: 1;
-			min-width: 360px; 
+			min-width: 360px;
 			flex-shrink: 0;
 
 			height: 100%;
 			overflow-y: auto;
 			overflow-x: hidden;
 			scrollbar-width: auto;
-            -ms-overflow-style: auto;
+			-ms-overflow-style: auto;
 		}
+
 		#platformSelect option {
 			font-family: 'FontAwesome', 'Arial', sans-serif;
 		}
@@ -73,8 +75,19 @@
 		#platformDropdownBtn:focus {
 			outline: 2px solid #2563eb;
 		}
+
+		/* Firefox Sidebar Fixes ONLY */
+		html.firefox-sidebar, 
+		body.firefox-sidebar {
+			background: transparent !important;
+			min-width: 100% !important;
+		}
+		body.firefox-sidebar #popupRoot {
+			min-width: 100% !important;
+		}
 	</style>
 </head>
+
 <body class="mode-sidepanel text-gray-800 bg-gray-50 flex flex-col font-sans">
 	<div id="popupRoot" class="pl-1 py-2 rounded-2xl">
 		<div class="bg-white px-4 py-4 mx-2 mb-2 rounded-3xl">
@@ -264,6 +277,26 @@
 								</div>
 							</div>
 
+					<div class="my-4 githubOnlySection">
+						<div class="flex items-center">
+							<input type="checkbox" id="onlyMergedPRs" class="form-checkbox text-blue-600">
+							<label for="onlyMergedPRs" class="font-medium text-sm flex items-center"
+								style="margin-left: 4px;" data-i18n="onlyMergedPRsLabel">
+								Include only Merged PRs in the report
+							</label>
+							<span class="tooltip-container shrink-0 ml-2">
+								<i class="fa fa-question-circle question-icon"></i>
+								<span class="tooltip-bubble" data-i18n="onlyMergedPRsTooltip">
+									If checked, the report will only include merged PRs. A GitHub token is required.
+								</span>
+							</span>
+						</div>
+						<div id="tokenWarningForMergedPRs"
+							class="hidden text-xs text-red-600 p-2 bg-red-50 border border-red-200 rounded-xl mt-2">
+							<span data-i18n="tokenRequiredMergedPRsWarning">A GitHub token is required to filter by merged PRs. Please add one in the settings.</span>
+						</div>
+					</div>
+
 							<div class="my-4 githubOnlySection">
 								<div class="flex items-start w-full">
 									<input type="checkbox" id="showCommits" checked class="form-checkbox text-blue-600 ">
@@ -301,21 +334,32 @@
 						</div>
 
 						<div class="scrum-actions my-2">
-							<button id="generateReport"
-								class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-3 rounded">
-								<i class="fa fa-refresh"></i> <span data-i18n="generateReportButton">Generate</span>
-							</button>
+							<div class="tooltip-container">
+								<button id="generateReport"
+									class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded"
+									style="padding-left: 0.875rem; padding-right: 0.875rem;">
+									<i class="fa fa-refresh"></i> <span data-i18n="generateReportButton">Generate</span>
+								</button>
+								<span class="shortcut-tooltip" id="generateReportTooltipText">Ctrl+G</span>
+							</div>
 
-							<button id="insertInEmail"
-								class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
-								<i class="fa fa-envelope"></i> <span data-i18n="insertInEmailButton">Insert in
-									Email</span>
-							</button>
+							<div class="tooltip-container">
+								<button id="insertInEmail"
+									class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded"
+									style="padding-left: 0.875rem; padding-right: 0.875rem;">
+									<i class="fa fa-envelope"></i> <span data-i18n="insertInEmailButton">Insert in
+										Email</span>
+								</button>
+								<span class="shortcut-tooltip" id="insertInEmailTooltipText">Ctrl+Shift+M</span>
+							</div>
 
-							<button id="copyReport"
-								class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-2 rounded">
-								<i class="fa fa-copy"></i> <span data-i18n="copyReportButton">Copy</span>
-							</button>
+							<div class="tooltip-container">
+								<button id="copyReport"
+									class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
+									<i class="fa fa-copy"></i> <span data-i18n="copyReportButton">Copy</span>
+								</button>
+								<span class="shortcut-tooltip" id="copyReportTooltipText">Ctrl+Shift+Y</span>
+							</div>
 						</div>
 
 
@@ -511,7 +555,8 @@
 							<option value="sidePanel">Side Panel</option>
 							<option value="popup">Popup</option>
 						</select>
-						<div id="displayModeNotice" class="hidden text-xs text-blue-700 bg-blue-50 border border-blue-200 rounded-xl p-2 mt-1 mb-2 flex items-center gap-2">
+						<div id="displayModeNotice"
+							class="hidden text-xs text-blue-700 bg-blue-50 border border-blue-200 rounded-xl p-2 mt-1 mb-2 flex items-center gap-2">
 							<i class="fa fa-info-circle"></i>
 							<span id="displayModeNoticeText"></span>
 						</div>
@@ -577,6 +622,8 @@
 			</div>
 		</div>
 	</div>
+	<!-- WebExtensions Polyfill for Cross-Browser compatibility (Chrome, Firefox, Edge, etc.) -->
+	<script src="scripts/browser-polyfill.min.js"></script>
 	<script src="scripts/jquery-3.2.1.min.js"></script>
 	<script type="text/javascript" type="text/javascript" src="materialize/js/materialize.min.js"></script>
 	<script src="scripts/emailClientAdapter.js"></script>

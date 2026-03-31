@@ -294,5 +294,26 @@
 	},
 	"usernameMissingError": {
 		"message": "Nome utente richiesto."
-	}
+	},
+    "generateReportTooltip": {
+        "message": "Ctrl+G"
+    },
+    "copyReportTooltip": {
+        "message": "Ctrl+Shift+Y"
+    },
+    "generatingReportNotification": {
+        "message": "Generazione del report..."
+    },
+    "copyingReportNotification": {
+        "message": "Copia del report..."
+    },
+    "insertInEmailTooltip": {
+        "message": "Ctrl+Shift+M"
+    },
+    "insertingInEmailNotification": {
+        "message": "Inserimento del report nell'email..."
+    },
+    "insertedInEmailNotification": {
+        "message": "Report inserito nell'email!"
+    }
 }

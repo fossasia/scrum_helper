@@ -295,5 +295,26 @@
 	},
 	"usernameMissingError": {
 		"message": "ユーザー名が必要です。"
-	}
+	},
+    "generateReportTooltip": {
+        "message": "Ctrl+G"
+    },
+    "copyReportTooltip": {
+        "message": "Ctrl+Shift+Y"
+    },
+    "generatingReportNotification": {
+        "message": "レポートを生成中..."
+    },
+    "copyingReportNotification": {
+        "message": "レポートをコピー中..."
+    },
+    "insertInEmailTooltip": {
+        "message": "Ctrl+Shift+M"
+    },
+    "insertingInEmailNotification": {
+        "message": "レポートをメールに挿入中..."
+    },
+    "insertedInEmailNotification": {
+        "message": "レポートをメールに挿入しました！"
+    }
 }
