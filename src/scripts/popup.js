@@ -1683,11 +1683,49 @@ function updatePlatformUI(platform) {
 			el.classList.remove('hidden');
 		}
 	});
+
+	// Update platform badge indicator
+	updatePlatformBadge(platform);
+}
+
+// Function to update platform badge in header
+function updatePlatformBadge(platform) {
+	let badgeEl = document.getElementById('platformBadge');
+
+	// Create badge if it doesn't exist
+	if (!badgeEl) {
+		const heading = document.getElementById('scrumHelperHeading');
+		if (heading && heading.parentElement) {
+			badgeEl = document.createElement('div');
+			badgeEl.id = 'platformBadge';
+			badgeEl.className = 'platform-badge flex items-center gap-1 px-3 py-1 rounded-full text-sm font-medium';
+			badgeEl.style.cssText = 'background-color: #f0f9ff; border: 2px solid #3b82f6; color: #1f2937;';
+			heading.parentElement.insertBefore(badgeEl, heading.nextSibling);
+		}
+	}
+
+	if (badgeEl) {
+		// Update badge content based on platform
+		if (platform === 'gitlab') {
+			badgeEl.innerHTML = '<i class="fab fa-gitlab" style="font-size: 14px; margin-right: 6px;"></i><span>GitLab</span>';
+			badgeEl.style.borderColor = '#fc6d26';
+			badgeEl.style.backgroundColor = '#fff6f0';
+		} else {
+			badgeEl.innerHTML = '<i class="fab fa-github" style="font-size: 14px; margin-right: 6px;"></i><span>GitHub</span>';
+			badgeEl.style.borderColor = '#3b82f6';
+			badgeEl.style.backgroundColor = '#f0f9ff';
+		}
+	}
 }
 
 platformSelect.addEventListener('change', () => {
 	const platform = platformSelect.value;
-	browser.storage.local.set({ platform });
+	const now = new Date();
+	// Save platform and timestamp for "last used" feature
+	browser.storage.local.set({
+		platform,
+		lastPlatformSwitchTime: now.toISOString(),
+	});
 	const platformUsername = document.getElementById('platformUsername');
 	if (platformUsername) {
 		const currentPlatform = platformSelect.value === 'github' ? 'gitlab' : 'github'; // Get the platform we're switching from
@@ -2058,6 +2096,30 @@ document.addEventListener('keydown', (e) => {
 		showShortcutNotification('insertingInEmailNotification');
 		insertEmailBtn._triggeredByShortcut = true;
 		insertEmailBtn.click();
+	}
+
+	// Ctrl+K (or Cmd+K on Mac) to quickly switch platforms
+	if (modifier && !e.shiftKey && !e.altKey && key === 'k' && !e.repeat) {
+		e.preventDefault();
+		const currentPlatform = platformSelectHidden.value || 'github';
+		const newPlatform = currentPlatform === 'github' ? 'gitlab' : 'github';
+		platformSelectHidden.value = newPlatform;
+		platformSelect.value = newPlatform;
+		platformSelect.dispatchEvent(new Event('change'));
+		const badgeName = newPlatform === 'github' ? 'GitHub' : 'GitLab';
+		showShortcutNotification = () => {
+			if (typeof chrome !== 'undefined' && chrome.i18n) {
+				const notification = document.createElement('div');
+				notification.className = 'shortcut-notification';
+				notification.textContent = `Switched to ${badgeName}`;
+				document.body.appendChild(notification);
+				setTimeout(() => {
+					notification.style.animation = 'slideOut 0.3s ease-out';
+					setTimeout(() => notification.remove(), 300);
+				}, 1500);
+			}
+		};
+		showShortcutNotification();
 	}
 });
 
