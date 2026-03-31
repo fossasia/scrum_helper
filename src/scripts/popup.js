@@ -1,9 +1,81 @@
+/* global chrome */
+
 function debounce(func, wait) {
 	let timeout;
 	return function (...args) {
 		clearTimeout(timeout);
 		timeout = setTimeout(() => func.apply(this, args), wait);
 	};
+}
+
+// Utility: Detect if the current OS is macOS
+function isMacOS() {
+	if (typeof navigator === 'undefined') {
+		return false;
+	}
+
+	if (navigator.userAgentData && typeof navigator.userAgentData.platform === 'string') {
+		return navigator.userAgentData.platform.toLowerCase().includes('mac');
+	}
+
+	const platform = navigator.platform || '';
+	if (navigator.maxTouchPoints && navigator.maxTouchPoints > 2 && /MacIntel/.test(platform)) {
+		return true;
+	}
+
+	return /Mac/.test(platform);
+}
+
+function showShortcutNotification(messageKey) {
+	if (typeof chrome === 'undefined' || !chrome.i18n) {
+		return;
+	}
+
+	const existingNotification = document.querySelector('.shortcut-notification');
+	if (existingNotification) {
+		existingNotification.remove();
+	}
+
+	const message = chrome.i18n.getMessage(messageKey);
+	if (!message) {
+		return;
+	}
+
+	const notification = document.createElement('div');
+	notification.className = 'shortcut-notification';
+	notification.textContent = message;
+	document.body.appendChild(notification);
+
+	setTimeout(() => {
+		notification.style.animation = 'slideOut 0.3s ease-out';
+		setTimeout(() => {
+			if (notification.parentNode) {
+				notification.parentNode.removeChild(notification);
+			}
+		}, 300);
+	}, 2000);
+}
+
+function setupButtonTooltips() {
+	const mac = isMacOS();
+
+	const generateTooltipEl = document.getElementById('generateReportTooltipText');
+	if (generateTooltipEl) {
+		const text = chrome?.i18n.getMessage('generateReportTooltip') || 'Ctrl+G';
+		generateTooltipEl.textContent = mac ? text.replace('Ctrl', 'Cmd') : text;
+	}
+
+	const copyTooltipEl = document.getElementById('copyReportTooltipText');
+	if (copyTooltipEl) {
+		const text = chrome?.i18n.getMessage('copyReportTooltip') || 'Ctrl+Shift+Y';
+		copyTooltipEl.textContent = mac ? text.replace('Ctrl', 'Cmd') : text;
+	}
+
+	const insertEmailTooltipEl = document.getElementById('insertInEmailTooltipText');
+	if (insertEmailTooltipEl) {
+		const text = chrome?.i18n.getMessage('insertInEmailTooltip') || 'Ctrl+Shift+M';
+		insertEmailTooltipEl.textContent = mac ? text.replace('Ctrl', 'Cmd') : text;
+	}
 }
 
 function getToday() {
@@ -52,6 +124,7 @@ function applyI18n() {
 document.addEventListener('DOMContentLoaded', () => {
 	// Apply translations as soon as the DOM is ready
 	applyI18n();
+	setupButtonTooltips();
 
 	// Dark mode setup
 	const darkModeToggle = document.querySelector('img[alt="Night Mode"]');
@@ -509,18 +582,40 @@ document.addEventListener('DOMContentLoaded', () => {
 				const content = scrumReport ? scrumReport.innerHTML : '';
 				const subject = buildScrumSubjectFromPopup();
 
-				if (!content) return;
+				if (!content) {
+					insertBtn._triggeredByShortcut = false;
+					return;
+				}
 
-				browser.tabs.query({ active: true, currentWindow: true }).then((tabs) => {
-					const tabId = tabs?.[0]?.id;
-					if (!tabId) return;
-
-					browser.tabs.sendMessage(tabId, { action: 'insertReportToEmail', content, subject }).then((response) => {
-						if (!response?.success) {
-							console.warn('Insert to Email failed:', response?.error);
+				browser.tabs
+					.query({ active: true, currentWindow: true })
+					.then((tabs) => {
+						const tabId = tabs?.[0]?.id;
+						if (!tabId) {
+							insertBtn._triggeredByShortcut = false;
+							return;
 						}
+
+						browser.tabs
+							.sendMessage(tabId, { action: 'insertReportToEmail', content, subject })
+							.then((response) => {
+								if (response?.success && insertBtn._triggeredByShortcut) {
+									showShortcutNotification('insertedInEmailNotification');
+								} else if (!response?.success) {
+									console.warn('Insert to Email failed:', response?.error);
+								}
+							})
+							.catch((error) => {
+								console.warn('Insert to Email failed:', error?.message || error);
+							})
+							.finally(() => {
+								insertBtn._triggeredByShortcut = false;
+							});
+					})
+					.catch((error) => {
+						console.warn('Unable to get active tab:', error?.message || error);
+						insertBtn._triggeredByShortcut = false;
 					});
-				});
 			});
 		}
 
@@ -563,13 +658,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			try {
 				document.execCommand('copy');
-				this.innerHTML = `<i class="fa fa-check"></i> ${browser.i18n.getMessage('copiedButton')}`;
+				if (this._triggeredByShortcut) {
+					const notificationKey =
+						browser?.i18n && browser.i18n.getMessage('copiedReportNotification')
+							? 'copiedReportNotification'
+							: 'copiedButton';
+					showShortcutNotification(notificationKey);
+				}
+				this.innerHTML = `<i class="fa fa-check"></i> ${browser?.i18n.getMessage('copiedButton')}`;
 				setTimeout(() => {
 					this.innerHTML = `<i class="fa fa-copy"></i> ${browser.i18n.getMessage('copyReportButton')}`;
 				}, 2000);
 			} catch (err) {
 				console.error('Failed to copy: ', err);
 			} finally {
+				this._triggeredByShortcut = false;
 				selection.removeAllRanges();
 				document.body.removeChild(tempDiv);
 			}
@@ -1788,6 +1891,50 @@ async function triggerRepoFetchIfEnabled() {
 		await window.triggerRepoFetchIfEnabled();
 	}
 }
+
+// Keyboard shortcuts: Ctrl+G / Cmd+G to generate, Ctrl+Shift+Y / Cmd+Shift+Y to copy, Ctrl+Shift+M / Cmd+Shift+M to insert in email
+document.addEventListener('keydown', (e) => {
+	if (!document.hasFocus()) {
+		return;
+	}
+
+	const target = e.target;
+	const tagName = target?.tagName;
+	const editableAncestor = typeof target?.closest === 'function' ? target.closest('[contenteditable="true"]') : null;
+	const isFormField = tagName === 'INPUT' || tagName === 'TEXTAREA' || tagName === 'SELECT';
+	const isContentEditable = !!(editableAncestor || (target && target.isContentEditable));
+
+	if (isFormField || isContentEditable) {
+		return;
+	}
+
+	const key = (e.key || '').toLowerCase();
+	const modifier = isMacOS() ? e.metaKey : e.ctrlKey;
+
+	const generateBtn = document.getElementById('generateReport');
+	const copyBtn = document.getElementById('copyReport');
+	const insertEmailBtn = document.getElementById('insertInEmail');
+
+	if (modifier && !e.shiftKey && !e.altKey && key === 'g' && !e.repeat && generateBtn && !generateBtn.disabled) {
+		e.preventDefault();
+		showShortcutNotification('generatingReportNotification');
+		generateBtn.click();
+	}
+
+	if (modifier && e.shiftKey && !e.altKey && key === 'y' && !e.repeat && copyBtn && !copyBtn.disabled) {
+		e.preventDefault();
+		showShortcutNotification('copyingReportNotification');
+		copyBtn._triggeredByShortcut = true;
+		copyBtn.click();
+	}
+
+	if (modifier && e.shiftKey && !e.altKey && key === 'm' && !e.repeat && insertEmailBtn && !insertEmailBtn.disabled) {
+		e.preventDefault();
+		showShortcutNotification('insertingInEmailNotification');
+		insertEmailBtn._triggeredByShortcut = true;
+		insertEmailBtn.click();
+	}
+});
 
 // Validate organization only when user is done typing (on blur)
 function validateOrgOnBlur(org) {

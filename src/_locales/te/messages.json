@@ -233,5 +233,26 @@
     },
     "usernameMissingError": {
         "message": "యూజర్‌నేమ్ అవసరం."
+    },
+    "generateReportTooltip": {
+        "message": "Ctrl+G"
+    },
+    "copyReportTooltip": {
+        "message": "Ctrl+Shift+Y"
+    },
+    "generatingReportNotification": {
+        "message": "నివేదిక తయారవుతోంది..."
+    },
+    "copyingReportNotification": {
+        "message": "నివేదిక కాపీ చేయబడింది!"
+    },
+    "insertInEmailTooltip": {
+        "message": "Ctrl+Shift+M"
+    },
+    "insertingInEmailNotification": {
+        "message": "నివేదిక ఇమెయిల్‌లో చేర్చబడుతోంది..."
+    },
+    "insertedInEmailNotification": {
+        "message": "నివేదిక ఇమెయిల్‌లో చేర్చబడింది!"
     }
 }
