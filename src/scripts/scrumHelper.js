@@ -63,6 +63,7 @@ function allIncluded(outputTarget = 'email') {
 	let nextWeekArray = [];
 	let reviewedPrsArray = [];
 	let githubIssuesData = null;
+	let githubCommitsData = null;
 	let yesterdayContribution = false;
 	let githubPrsReviewData = null;
 	let githubUserData = null;
@@ -291,6 +292,7 @@ function allIncluded(outputTarget = 'email') {
 										githubUserData: data.user || {},
 									};
 									githubUserData = mappedData.githubUserData;
+									githubCommitsData = mappedCommits;
 
 									const name =
 										githubUserData?.name || githubUserData?.username || platformUsernameLocal || platformUsername;
@@ -1067,6 +1069,10 @@ function allIncluded(outputTarget = 'email') {
 		} else if (platform === 'gitlab') {
 			await writeGithubIssuesPrs(githubIssuesData?.items || []);
 			await writeGithubIssuesPrs(githubPrsReviewData?.items || []);
+			// Add commits to the report for GitLab
+			if (githubCommitsData && githubCommitsData.length > 0) {
+				await writeGithubIssuesPrs(githubCommitsData);
+			}
 		}
 		await writeGithubPrsReviews();
 		log('[DEBUG] Both data processing functions completed, generating scrum body');
