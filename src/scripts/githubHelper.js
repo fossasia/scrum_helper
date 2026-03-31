@@ -9,7 +9,19 @@
  * Currently extracted: fetchUserRepositories
  * Planned: fetchData (issues, PRs, user), fetchCommitsForOpenPRs, cache management
  */
+
+// Maximum number of repositories to resolve via GraphQL in a single query
+const MAX_REPOS = 50;
+
 class GitHubHelper {
+	/**
+	 * @param {object} storage - Storage backend (defaults to browser.storage.local).
+	 *   Injected to avoid tight coupling and enable testing without a real browser env.
+	 */
+	constructor(storage = browser.storage.local) {
+		this.storage = storage;
+	}
+
 	/**
 	 * Fetch repositories the user has contributed to within a date range.
 	 * Uses GitHub Search API + GraphQL to resolve full repo metadata.
@@ -39,7 +51,7 @@ class GitHubHelper {
 			let endDate;
 
 			try {
-				const storageData = await browser.storage.local.get([
+				const storageData = await this.storage.get([
 					'startingDate',
 					'endingDate',
 					'yesterdayContribution',
@@ -125,7 +137,7 @@ class GitHubHelper {
 			`;
 
 			const repoQueries = repoNames
-				.slice(0, 50)
+				.slice(0, MAX_REPOS)
 				.map((repoFullName, i) => {
 					const parts = repoFullName.split('/');
 					if (parts.length !== 2) return '';
@@ -181,14 +193,14 @@ class GitHubHelper {
 	}
 }
 
-// Export for use in other scripts
+// NOTE: Dual export for browser extension + Node.js (test) compatibility
 if (typeof module !== 'undefined' && module.exports) {
 	module.exports = GitHubHelper;
 } else {
 	window.GitHubHelper = GitHubHelper;
-	// Expose a shared instance so popup.js and scrumHelper.js use the same object
+	// Shared instance used by popup.js and scrumHelper.js
 	window.gitHubHelper = new GitHubHelper();
-	// Backward-compat shim: keep window.fetchUserRepositories pointing to the instance method
+	// Backward-compat shim so existing window.fetchUserRepositories calls keep working
 	window.fetchUserRepositories = (username, token, org) =>
 		window.gitHubHelper.fetchUserRepositories(username, token, org);
 }
