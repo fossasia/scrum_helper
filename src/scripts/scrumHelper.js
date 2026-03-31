@@ -274,9 +274,20 @@ function allIncluded(outputTarget = 'email') {
 									const mappedMRs = (data.mergeRequests || data.mrs || []).map((mr) =>
 										mapGitLabItem(mr, data.projects, 'mr'),
 									);
+									// Map commits to standard format for report generation
+									const mappedCommits = (data.commits || []).map((commit) => ({
+										...commit,
+										message: commit.message || commit.title,
+										html_url: commit.web_url || (commit.project_url ? `${commit.project_url}/-/commit/${commit.id}` : ''),
+										sha: commit.id,
+										project: commit.project_name,
+										author_name: commit.author_name,
+										author_email: commit.author_email,
+									}));
 									const mappedData = {
 										githubIssuesData: { items: mappedIssues },
 										githubPrsReviewData: { items: mappedMRs },
+										gitlabCommits: mappedCommits,
 										githubUserData: data.user || {},
 									};
 									githubUserData = mappedData.githubUserData;
@@ -342,9 +353,20 @@ function allIncluded(outputTarget = 'email') {
 									const mappedMRs = (data.mergeRequests || data.mrs || []).map((mr) =>
 										mapGitLabItem(mr, data.projects, 'mr'),
 									);
+									// Map commits to standard format for report generation
+									const mappedCommits = (data.commits || []).map((commit) => ({
+										...commit,
+										message: commit.message || commit.title,
+										html_url: commit.web_url || (commit.project_url ? `${commit.project_url}/-/commit/${commit.id}` : ''),
+										sha: commit.id,
+										project: commit.project_name,
+										author_name: commit.author_name,
+										author_email: commit.author_email,
+									}));
 									const mappedData = {
 										githubIssuesData: { items: mappedIssues },
 										githubPrsReviewData: { items: mappedMRs },
+										gitlabCommits: mappedCommits,
 										githubUserData: data.user || {},
 									};
 									processGithubData(mappedData);
