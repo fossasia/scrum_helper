@@ -303,7 +303,19 @@
   },
   "onlyRevPRsTooltip": {
     "message": "If checked, the report will only include PRs reviewed by you.",
-    "description": "Tooltip for the checkbox to include only reviewed PRs."
+    "description": "Tooltip for the reviewed PRs filter checkbox."
+  },
+  "onlyMergedPRsLabel": {
+    "message": "Include only merged PRs in the report",
+    "description": "Label for the checkbox to include only merged PRs."
+  },
+  "onlyMergedPRsTooltip": {
+    "message": "If checked, the report will only include PRs that have been merged. A GitHub token is required.",
+    "description": "Tooltip for the merged PRs filter checkbox."
+  },
+  "tokenRequiredMergedPRsWarning": {
+    "message": "A GitHub token is required to filter by merged PRs. Please add one in the settings.",
+    "description": "Warning shown when merged PRs filter is enabled without a GitHub token."
   },
   "usernameRequiredError": {
     "message": "Please enter your username to generate a report.",
