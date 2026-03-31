@@ -52,6 +52,18 @@ function applyI18n() {
 document.addEventListener('DOMContentLoaded', () => {
 	// Apply translations as soon as the DOM is ready
 	applyI18n();
+	
+	// ===== Advanced Filters Accordion =====
+	const toggleBtn = document.getElementById("toggleAdvancedFilters");
+	const content = document.getElementById("advancedFiltersContent");
+	const arrow = document.getElementById("advancedFiltersArrow");
+
+	if (toggleBtn && content && arrow) {
+		toggleBtn.addEventListener("click", () => {
+			content.classList.toggle("open");
+			arrow.classList.toggle("rotate-arrow");
+		});
+	}
 
 	// Dark mode setup
 	const darkModeToggle = document.querySelector('img[alt="Night Mode"]');
@@ -1384,17 +1396,6 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		});
 	}
-	    // Advanced Filters Toggle
-		const toggleBtn = document.getElementById("toggleAdvancedFilters");
-		const content = document.getElementById("advancedFiltersContent");
-		const arrow = document.getElementById("advancedFiltersArrow");
-
-		if (toggleBtn && content && arrow) {
-		toggleBtn.addEventListener("click", function () {
-			content.classList.toggle("open");   
-			arrow.classList.toggle("rotate-180"); 
-			});
-		}
 });
 
 const cacheInput = document.getElementById('cacheInput');
