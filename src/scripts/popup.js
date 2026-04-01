@@ -682,11 +682,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		/**
 		 * Get the host permissions match pattern for a self-hosted GitLab URL.
-		 * Returns a pattern like 'https://gitlab.example.com/*' for requesting permissions.
+		 * Returns a pattern like 'https://gitlab.example.com/api/v4/*' for requesting permissions.
 		 */
 		function getGitLabPermissionPattern(canonicalOrigin) {
 			if (!canonicalOrigin) return null;
-			return `${canonicalOrigin}/*`;
+			return `${canonicalOrigin}/api/v4/*`;
 		}
 
 		/**
