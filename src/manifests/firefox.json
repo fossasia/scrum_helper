@@ -62,6 +62,9 @@
     "https://api.github.com/*",
     "https://gitlab.com/*"
   ],
+  "optional_host_permissions": [
+    "https://*/api/v4/*"
+  ],
   "default_locale": "en",
   "sidebar_action": {
     "default_panel": "popup.html?view=sidebar",
