@@ -1,3 +1,72 @@
+/**
+ * Sanitize email content to prevent XSS attacks while preserving formatting
+ * @param {string} html - The HTML content to sanitize
+ * @returns {string} Sanitized HTML safe for injection
+ */
+function sanitizeEmailContent(html) {
+	const parser = new DOMParser();
+	const doc = parser.parseFromString(String(html), 'text/html');
+	// Allow more tags for email content formatting
+	const allowedTags = new Set([
+		'B', 'STRONG', 'I', 'EM', 'CODE', 'A', 'BR', 'SPAN', 'P', 'U',
+		'DIV', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'UL', 'OL', 'LI',
+		'TABLE', 'TR', 'TD', 'TH', 'THEAD', 'TBODY', 'TFOOT',
+		'BLOCKQUOTE', 'SMALL', 'PRE', 'HR'
+	]);
+
+	function cleanNode(node) {
+		const children = Array.from(node.childNodes);
+		children.forEach((child) => {
+			if (child.nodeType === Node.ELEMENT_NODE) {
+				const tag = child.nodeName.toUpperCase();
+				if (!allowedTags.has(tag)) {
+					// Replace disallowed element with its text content
+					const text = document.createTextNode(child.textContent || '');
+					node.replaceChild(text, child);
+				} else {
+					// Remove inline event handlers and unsafe attributes
+					Array.from(child.attributes).forEach((attr) => {
+						const name = attr.name.toLowerCase();
+						const value = attr.value || '';
+						// Remove all event handlers
+						if (name.startsWith('on')) {
+							child.removeAttribute(attr.name);
+						}
+						// Validate href/src attributes
+						else if (name === 'href' || name === 'src') {
+							if (!/^(https?:|mailto:|tel:|\/|#)/i.test(value)) {
+								child.removeAttribute(attr.name);
+							}
+						}
+						// Only allow safe attributes
+						else if (!['class', 'title', 'rel', 'target', 'aria-label', 'href', 'src', 'colspan', 'rowspan'].includes(name)) {
+							child.removeAttribute(attr.name);
+						}
+					});
+
+					// Set safe defaults for links
+					if (child.nodeName.toUpperCase() === 'A') {
+						child.setAttribute('rel', 'noopener noreferrer');
+						if (!child.getAttribute('target')) child.setAttribute('target', '_blank');
+					}
+
+					// Recurse into allowed children
+					cleanNode(child);
+				}
+			} else if (child.nodeType === Node.TEXT_NODE) {
+				// text nodes are safe
+			} else {
+				// remove comments, processing instructions, etc.
+				node.removeChild(child);
+			}
+		});
+	}
+
+	cleanNode(doc.body);
+	// Return serialized HTML string instead of DocumentFragment
+	return doc.body.innerHTML;
+}
+
 class EmailClientAdapter {
 	isNewConversation() {
 		const clientType = this.detectClient();
@@ -249,13 +318,13 @@ class EmailClientAdapter {
 				case 'focusAndPaste':
 					// Special handling for Outlook
 					element.focus();
-					element.innerHTML = content;
+					element.innerHTML = sanitizeEmailContent(content);
 					this.dispatchElementEvents(element, ['input', 'change'], true);
 					break;
 
 				case 'setContent': {
 					// Special handling for Yahoo
-					element.innerHTML = content;
+					element.innerHTML = sanitizeEmailContent(content);
 					element.focus();
 					// Force Yahoo's editor to recognize the change
 					const selection = window.getSelection();
@@ -269,7 +338,7 @@ class EmailClientAdapter {
 
 				default:
 					// Default handling for Google clients
-					element.innerHTML = content;
+					element.innerHTML = sanitizeEmailContent(content);
 					element.dispatchEvent(new Event(eventType, { bubbles: true }));
 			}
 			return true;

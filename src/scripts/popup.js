@@ -1,5 +1,8 @@
 /* global chrome */
 
+
+const injectedTabs = new Set();
+
 function sanitizeTooltipHtml(html) {
 	const parser = new DOMParser();
 	const doc = parser.parseFromString(String(html), 'text/html');
@@ -184,7 +187,7 @@ function applyI18n() {
 
 	document.querySelectorAll('[data-i18n-aria]').forEach((el) => {
 		const key = el.getAttribute('data-i18n-aria');
-		const message = browser.i18n.getMessage(key);
+		const message = chrome?.i18n.getMessage(key);
 		if (message) {
 			el.setAttribute('aria-label', message);
 		}
@@ -541,7 +544,10 @@ document.addEventListener('DOMContentLoaded', () => {
 	});
 
 	function storageLocalGet(keys) {
-		return browser.storage.local.get(keys);
+		return browser.storage.local.get(keys).catch((error) => {
+			console.error('Error reading from browser.storage.local:', error);
+			return {};
+		});
 	}
 
 	function parsePositiveInt(value) {
@@ -876,21 +882,29 @@ document.addEventListener('DOMContentLoaded', () => {
 								console.error('[Insert] Message sending error:', errMsg);
 								
 								if (!retry && (errMsg.includes('Receiving end does not exist') || errMsg.includes('Could not establish connection'))) {
-									console.log('[Insert] Content scripts not found. Injecting scripts...');
+									console.log('[Insert] Content scripts not found. Injecting minimal scripts...');
+
+									if (injectedTabs.has(tabId)) {
+										console.log('[Insert] Scripts already injected for tab', tabId, '. Skipping reinjection.');
+										alert('Cannot connect to email client: ' + errMsg);
+										insertBtn.innerHTML = '<i class="fa fa-envelope"></i> Insert in Email';
+										insertBtn.disabled = false;
+										return;
+									}
 									
 									try {
-										// Inject all required scripts
+										
 										await browser.scripting.executeScript({
 											target: { tabId },
 											files: [
 												'scripts/browser-polyfill.min.js',
 												'scripts/jquery-3.2.1.min.js',
 												'scripts/emailClientAdapter.js',
-												'scripts/gitlabHelper.js',
-												'scripts/scrumHelper.js',
 											],
 										});
-										console.log('[Insert] Scripts injected successfully. Waiting before retry...');
+										
+										injectedTabs.add(tabId);
+										console.log('[Insert] Minimal scripts injected successfully. Waiting before retry...');
 										// Wait for scripts to initialize
 										await new Promise(resolve => setTimeout(resolve, 1000));
 										console.log('[Insert] Retrying insert after script injection...');
@@ -908,30 +922,31 @@ document.addEventListener('DOMContentLoaded', () => {
 										return;
 									}
 								} else if (!retry) {
-									// Some other error
-									console.log('[Insert] Unknown error, trying script injection anyway...');
-									try {
-										await browser.scripting.executeScript({
-											target: { tabId },
-											files: [
-												'scripts/browser-polyfill.min.js',
-												'scripts/jquery-3.2.1.min.js',
-												'scripts/emailClientAdapter.js',
-												'scripts/gitlabHelper.js',
-												'scripts/scrumHelper.js',
-											],
-										});
-										await new Promise(resolve => setTimeout(resolve, 1000));
-										await sendInsert(true);
-										return;
-									} catch (e) {
-										console.error('[Insert] Fallback injection also failed:', e.message);
+									
+									if (!injectedTabs.has(tabId)) {
+										console.log('[Insert] Unknown error, trying script injection anyway...');
+										try {
+											await browser.scripting.executeScript({
+												target: { tabId },
+												files: [
+													'scripts/browser-polyfill.min.js',
+													'scripts/jquery-3.2.1.min.js',
+													'scripts/emailClientAdapter.js',
+												],
+											});
+											injectedTabs.add(tabId);
+											await new Promise(resolve => setTimeout(resolve, 1000));
+											await sendInsert(true);
+											return;
+										} catch (e) {
+											console.error('[Insert] Fallback injection also failed:', e.message);
+										}
 									}
+									
+									alert('Cannot connect to email client: ' + errMsg);
+									insertBtn.innerHTML = '<i class="fa fa-envelope"></i> Insert in Email';
+									insertBtn.disabled = false;
 								}
-								
-								alert('Cannot connect to email client: ' + errMsg);
-								insertBtn.innerHTML = '<i class="fa fa-envelope"></i> Insert in Email';
-								insertBtn.disabled = false;
 							}
 						} catch (error) {
 							console.error('[Insert] Unexpected error in sendInsert:', error);
@@ -939,7 +954,7 @@ document.addEventListener('DOMContentLoaded', () => {
 							insertBtn.innerHTML = '<i class="fa fa-envelope"></i> Insert in Email';
 							insertBtn.disabled = false;
 						}
-					};
+						};
 
 					await sendInsert();
 				} catch (error) {
@@ -2470,9 +2485,9 @@ document.addEventListener('DOMContentLoaded', () => {
 				const key = usernameLabel.getAttribute('data-i18n');
 				let message = key;
 				if (typeof chrome !== 'undefined' &&
-					browser.i18n &&
-					typeof browser.i18n.getMessage === 'function') {
-					const resolved = browser.i18n.getMessage(key);
+					chrome.i18n &&
+					typeof chrome.i18n.getMessage === 'function') {
+					const resolved = chrome.i18n.getMessage(key);
 					if (resolved) {
 						message = resolved;
 					}

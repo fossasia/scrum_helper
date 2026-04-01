@@ -536,5 +536,21 @@
   "insertedInEmailNotification": {
     "message": "Report inserted into email!",
     "description": "Notification shown when report is successfully inserted into email."
+  },
+  "githubInvalidSearchError": {
+    "message": "Invalid search query or date range. Please verify your date range format and try again.",
+    "description": "Error when the search query or date range is invalid."
+  },
+  "githubFetchIssuesError": {
+    "message": "Error fetching GitHub issues: $1 $2",
+    "description": "Error when fetching GitHub issues fails. $1=status, $2=statusText"
+  },
+  "githubFetchPRDataError": {
+    "message": "Error fetching GitHub PR review data: $1 $2",
+    "description": "Error when fetching GitHub PR review data fails. $1=status, $2=statusText"
+  },
+  "githubFetchUserDataError": {
+    "message": "Error fetching GitHub user data: $1 $2",
+    "description": "Error when fetching GitHub user data fails. $1=status, $2=statusText"
   }
 }

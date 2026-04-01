@@ -370,6 +370,16 @@
         "message": "रिपोर्ट ईमेल में डाली जा रही है..."
     },
     "insertedInEmailNotification": {
-        "message": "रिपोर्ट ईमेल में डाल दी गई!"
-    }
+        "message": "रिपोर्ट ईमेल में डाल दी गई!"    },
+    "githubInvalidSearchError": {
+        "message": "Invalid search query or date range. Please verify your date range format and try again."
+    },
+    "githubFetchIssuesError": {
+        "message": "Error fetching GitHub issues: $1 $2"
+    },
+    "githubFetchPRDataError": {
+        "message": "Error fetching GitHub PR review data: $1 $2"
+    },
+    "githubFetchUserDataError": {
+        "message": "Error fetching GitHub user data: $1 $2"    }
 }

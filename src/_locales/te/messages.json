@@ -296,8 +296,9 @@
         "description": "Placeholder text when no GitLab projects are selected for filtering."
     },
     "usernameRequiredError": {
-        "message": "\u0c30ి\u092a\u094b\u0930\u094d\u091f\u0c41 \u0c1c\u0c28\u0c30\u0c47\u0c1f\u0c30\u0c41\u0c2e\u0c3e\u0c2f\u0c3f క\u0c47\u0c2a\u0c07 \u0c15\u0c3e\u0c2a\u0c41 \u0c2a\u0c48\u0c24\u0c41 \u0c1a\u0c47\u0c2f\u0c3f \u0c09\u0c1c\u0c3f\u0c30\u0c3e\u0c32",
-        "description": "Error message shown when the user tries to generate a report without entering a username.",
+        "message": "నివేదిక జనరేట చేయడానికి దయచేసి యూజర్‌నేమ్ నమోదు చేయండి.",
+        "description": "Error message shown when the user tries to generate a report without entering a username."
+    },
     "usernameMissingError": {
         "message": "యూజర్‌నేమ్ అవసరం."
     },
@@ -321,5 +322,17 @@
     },
     "insertedInEmailNotification": {
         "message": "నివేదిక ఇమెయిల్‌లో చేర్చబడింది!"
+    },
+    "githubInvalidSearchError": {
+        "message": "Invalid search query or date range. Please verify your date range format and try again."
+    },
+    "githubFetchIssuesError": {
+        "message": "Error fetching GitHub issues: $1 $2"
+    },
+    "githubFetchPRDataError": {
+        "message": "Error fetching GitHub PR review data: $1 $2"
+    },
+    "githubFetchUserDataError": {
+        "message": "Error fetching GitHub user data: $1 $2"
     }
-}}
+}

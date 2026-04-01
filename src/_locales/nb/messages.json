@@ -316,8 +316,19 @@
     },
     "insertedInEmailNotification": {
         "message": "Rapport satt inn i e-post!"
-    }
-,
+    },
+    "githubInvalidSearchError": {
+        "message": "Invalid search query or date range. Please verify your date range format and try again."
+    },
+    "githubFetchIssuesError": {
+        "message": "Error fetching GitHub issues: $1 $2"
+    },
+    "githubFetchPRDataError": {
+        "message": "Error fetching GitHub PR review data: $1 $2"
+    },
+    "githubFetchUserDataError": {
+        "message": "Error fetching GitHub user data: $1 $2"
+    },
   "gitlabTokenLabel": {
     "message": "Your GitLab Token",
     "description": "Label for the GitLab token input."
