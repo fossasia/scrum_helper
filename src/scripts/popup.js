@@ -652,7 +652,11 @@ document.addEventListener('DOMContentLoaded', () => {
 			chrome?.storage.local.set({ projectName: projectNameInput.value });
 		});
 
-		function getGitLabOriginPattern(rawUrl) {
+		/**
+		 * Normalize a GitLab URL to a canonical origin (no path, no trailing slash).
+		 * Returns the origin (e.g. 'https://gitlab.example.com') or null if invalid.
+		 */
+		function normalizeGitLabUrl(rawUrl) {
 			if (!rawUrl) return null;
 
 			const withScheme = /^https?:\/\//i.test(rawUrl) ? rawUrl : `https://${rawUrl}`;
@@ -669,35 +673,93 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			const hostname = parsedUrl.hostname.toLowerCase();
 			if (!hostname || hostname === 'gitlab.com') {
-				return null;
+				return null; // Don't store for public gitlab.com
 			}
 
-			// Return just the origin for host permission requests
-			return `https://${hostname}`;
+			// Return canonical origin: https://host:port (no path)
+			return parsedUrl.origin;
+		}
+
+		/**
+		 * Get the host permissions match pattern for a self-hosted GitLab URL.
+		 * Returns a pattern like 'https://gitlab.example.com/*' for requesting permissions.
+		 */
+		function getGitLabPermissionPattern(canonicalOrigin) {
+			if (!canonicalOrigin) return null;
+			return `${canonicalOrigin}/*`;
+		}
+
+		/**
+		 * Request host permissions for a self-hosted GitLab instance.
+		 * Returns true if permission is granted or already had, false if denied.
+		 */
+		async function requestGitLabHostPermission(canonicalOrigin) {
+			if (!canonicalOrigin) return false;
+
+			const pattern = getGitLabPermissionPattern(canonicalOrigin);
+			if (!pattern) return false;
+
+			try {
+				const hasPermission = await new Promise((resolve) => {
+					chrome?.permissions?.contains({ origins: [pattern] }, resolve);
+				});
+
+				if (hasPermission) return true;
+
+				// Request the permission
+				const granted = await new Promise((resolve) => {
+					chrome?.permissions?.request({ origins: [pattern] }, resolve);
+				});
+
+				return granted ?? false;
+			} catch (error) {
+				console.error('Error requesting GitLab host permission:', error);
+				return false;
+			}
 		}
 
 		gitlabSelfHostedUrl.addEventListener('input', () => {
+			// Don't save on input, only validate format
 			const url = gitlabSelfHostedUrl.value.trim();
-			chrome?.storage.local.set({ gitlabSelfHostedUrl: url });
-			gitlabSelfHostedUrl.setCustomValidity('');
+			const normalized = normalizeGitLabUrl(url);
+			if (url && !normalized) {
+				gitlabSelfHostedUrl.setCustomValidity('Enter a valid self-hosted GitLab URL over HTTPS.');
+			} else {
+				gitlabSelfHostedUrl.setCustomValidity('');
+			}
 		});
 
-		gitlabSelfHostedUrl.addEventListener('blur', () => {
+		gitlabSelfHostedUrl.addEventListener('blur', async () => {
 			const url = gitlabSelfHostedUrl.value.trim();
-			chrome?.storage.local.set({ gitlabSelfHostedUrl: url });
 
 			if (!url) {
+				// Clear storage if empty
+				await new Promise((resolve) => {
+					chrome?.storage.local.set({ gitlabSelfHostedUrl: '' }, resolve);
+				});
 				gitlabSelfHostedUrl.setCustomValidity('');
 				return;
 			}
 
-			const originPattern = getGitLabOriginPattern(url);
-			if (!originPattern) {
+			const normalizedUrl = normalizeGitLabUrl(url);
+			if (!normalizedUrl) {
 				gitlabSelfHostedUrl.setCustomValidity('Enter a valid self-hosted GitLab URL or hostname over HTTPS.');
 				return;
 			}
 
+			// Save the normalized URL
+			await new Promise((resolve) => {
+				chrome?.storage.local.set({ gitlabSelfHostedUrl: normalizedUrl }, resolve);
+			});
+			gitlabSelfHostedUrl.value = normalizedUrl;
 			gitlabSelfHostedUrl.setCustomValidity('');
+
+			// Request host permissions
+			const granted = await requestGitLabHostPermission(normalizedUrl);
+			if (!granted) {
+				console.warn('User denied or permission request failed for:', normalizedUrl);
+				// Show a gentle warning but don't block saving
+			}
 		});
 
 		// Save to storage and validate ONLY when user clicks out (blur event)

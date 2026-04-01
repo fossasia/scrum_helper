@@ -165,9 +165,9 @@ function allIncluded(outputTarget = 'email') {
 
 				// Instantiate gitlabHelper after loading all config from storage
 				if (platform === 'gitlab') {
-					const targetBaseUrl = `https://${gitlabSelfHostedUrl || 'gitlab.com'}/api/v4`;
-					if (!gitlabHelper || gitlabHelper.baseUrl !== targetBaseUrl) {
-						gitlabHelper = new window.GitLabHelper(gitlabSelfHostedUrl || null);
+					const newHelper = new window.GitLabHelper(gitlabSelfHostedUrl || null);
+					if (!gitlabHelper || gitlabHelper.baseUrl !== newHelper.baseUrl) {
+						gitlabHelper = newHelper;
 					}
 				}
 				yesterdayContribution = items.yesterdayContribution;
