@@ -229,23 +229,10 @@
     "onlyRevPRsLabel": {
         "message": "Incluir solo PRs revisados en el informe"
     },
-    "onlyRevPRsTooltip": {
-        "message": "Si está marcado, el informe solo incluirá PRs revisados por usted."
-    }
-,
-  "gitlabTokenLabel": {
-    "message": "Your GitLab Token",
-    "description": "Label for the GitLab token input."
-  },
-  "gitlabTokenPlaceholder": {
-    "message": "Paste your GitLab Personal Access Token",
-    "description": "Placeholder for the GitLab token input."
-  },
-  "gitlabTokenTooltip": {
-    "message": "<b>Why is it recommended to add a GitLab token?</b><br>Scrum Helper works without a GitLab token, but adding a personal access token is recommended for a better experience. It raises your API limits, allows access to private repos (if permitted), and improves accuracy and speed. Tokens are stored locally and never sent to us and used only to fetch your git data.<br><br><b>How to obtain:</b><br>1. Go to <a href='https://gitlab.com/-/profile/personal_access_tokens' target='_blank' style='color:#2563eb;text-decoration:underline;'>GitLab Token Settings</a>.<br>2. Click 'Add new token'<br>3. Select scopes: <code>read_api</code> and <code>read_repository</code><br>4. Generate and paste it here.<br><i>Keep your token secret!</i>",
-    "description": "Tooltip explaining how to get a GitLab token."
-  },
-  "testTokenButton": {
+"onlyRevPRsTooltip": {
+    "message": "Si está marcado, el informe solo incluirá PRs revisados por usted."
+},
+"testTokenButton": {
     "message": "Test Token",
     "description": "Button text to test/validate a GitLab token."
   },
@@ -313,5 +300,86 @@
     "usernameRequiredError": {
         "message": "Ingrese su nombre de usuario para generar un informe.",
         "description": "Error message shown when the user tries to generate a report without entering a username."
-    }
+    },
+	"unknownPlatformError": {
+		"message": "Plataforma desconocida seleccionada."
+	},
+	"gitlabFetchingError": {
+		"message": "Se produjo un error al obtener los datos de GitLab."
+	},
+	"reportGenerationError": {
+		"message": "Se produjo un error al generar el informe."
+	},
+	"githubUserNotFoundError": {
+		"message": "Usuario de GitHub \"$1\" no encontrado (404). Por favor, verifique el nombre de usuario e inténtelo de nuevo."
+	},
+	"githubUserValidationError": {
+		"message": "Error al validar el usuario de GitHub: $1 $2"
+	},
+	"invalidSearchQueryError": {
+		"message": "Consulta de búsqueda o rango de fechas no válido. Por favor, verifique el formato de su rango de fechas e inténtelo de nuevo."
+	},
+	"githubIssuesFetchError": {
+		"message": "Error al obtener los issues de GitHub: $1 $2"
+	},
+	"githubPRReviewFetchError": {
+		"message": "Error al obtener los datos de revisión de PR de GitHub: $1 $2"
+	},
+	"githubUserFetchError": {
+		"message": "Error al obtener los datos del usuario de GitHub: $1 $2"
+	},
+	"invalidTokenError": {
+		"message": "Token de GitHub no válido o caducado. Por favor, verifique su token en la configuración de Scrum Helper e inténtelo de nuevo."
+	},
+	"displayModeNotice": {
+		"message": "La extensión se abrirá en modo $1 en el próximo inicio."
+	},
+	"repoFilteringGithubOnly": {
+		"message": "El filtrado de repositorios solo está disponible para GitHub."
+	},
+	"repoLoadingGithubOnly": {
+		"message": "La carga de repositorios solo está disponible para GitHub."
+	},
+	"repoFetchingGithubOnly": {
+		"message": "La obtención de repositorios solo está disponible para GitHub."
+	},
+	"loadingReposAutomatically": {
+		"message": "Cargando repositorios automáticamente.."
+	},
+	"gitlabUserFetchError": {
+		"message": "Error al obtener el usuario de GitLab: $1 $2"
+	},
+	"gitlabUserNotFoundError": {
+		"message": "Usuario de GitLab '$1' no encontrado"
+	},
+	"gitlabMembershipError": {
+		"message": "Error al obtener los proyectos de membresía de GitLab: $1 $2"
+	},
+	"gitlabContributedError": {
+		"message": "Error al obtener los proyectos a los que contribuyó en GitLab: $1 $2"
+	},
+	"usernameMissingError": {
+		"message": "Nombre de usuario requerido."
+	},
+    "generateReportTooltip": {
+        "message": "Ctrl+G"
+    },
+    "copyReportTooltip": {
+        "message": "Ctrl+Shift+Y"
+   },
+    "generatingReportNotification": {
+        "message": "Generando informe..."
+   },
+    "copyingReportNotification": {
+        "message": "Copiando informe..."
+   },
+    "insertInEmailTooltip": {
+        "message": "Ctrl+Shift+M"
+    },
+    "insertingInEmailNotification": {
+        "message": "Insertando informe en el correo..."
+    },
+    "insertedInEmailNotification": {
+        "message": "¡Informe insertado en el correo!"
+   }
 }

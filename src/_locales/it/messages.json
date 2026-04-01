@@ -230,72 +230,91 @@
     "onlyRevPRsLabel": {
         "message": "Includi solo le PR revisionate nel report"
     },
-    "onlyRevPRsTooltip": {
-        "message": "Se selezionato, il report includerà solo le PR revisionate da te."
+"onlyRevPRsTooltip": {
+    "message": "Se selezionato, il report includerà solo le PR revisionate da te."
+},
+"usernameRequiredError": {
+    "message": "Inserisci il tuo nome utente per generare un report."
+},
+	"unknownPlatformError": {
+		"message": "Piattaforma selezionata sconosciuta."
+	},
+	"gitlabFetchingError": {
+		"message": "Si è verificato un errore durante il recupero dei dati di GitLab."
+	},
+	"reportGenerationError": {
+		"message": "Si è verificato un errore durante la generazione del report."
+	},
+	"githubUserNotFoundError": {
+		"message": "Utente GitHub \"$1\" non trovato (404). Verifica il nome utente e riprova."
+	},
+	"githubUserValidationError": {
+		"message": "Errore durante la convalida dell'utente GitHub: $1 $2"
+	},
+	"invalidSearchQueryError": {
+		"message": "Query di ricerca o intervallo di date non valido. Verifica il formato dell'intervallo di date e riprova."
+	},
+	"githubIssuesFetchError": {
+		"message": "Errore durante il recupero delle issue di GitHub: $1 $2"
+	},
+	"githubPRReviewFetchError": {
+		"message": "Errore durante il recupero dei dati di revisione PR di GitHub: $1 $2"
+	},
+	"githubUserFetchError": {
+		"message": "Errore durante il recupero dei dati dell'utente GitHub: $1 $2"
+	},
+	"invalidTokenError": {
+		"message": "Token GitHub non valido o scaduto. Verifica il tuo token nelle impostazioni di Scrum Helper e riprova."
+	},
+	"displayModeNotice": {
+		"message": "L'estensione si aprirà in modalità $1 al prossimo avvio."
+	},
+	"repoFilteringGithubOnly": {
+		"message": "Il filtro dei repository è disponibile solo per GitHub."
+	},
+	"repoLoadingGithubOnly": {
+		"message": "Il caricamento dei repository è disponibile solo per GitHub."
+	},
+	"repoFetchingGithubOnly": {
+		"message": "Il recupero dei repository è disponibile solo per GitHub."
+	},
+	"loadingReposAutomatically": {
+		"message": "Caricamento automatico dei repository.."
+	},
+	"gitlabUserFetchError": {
+		"message": "Errore durante il recupero dell'utente GitLab: $1 $2"
+	},
+	"gitlabUserNotFoundError": {
+		"message": "Utente GitLab '$1' non trovato"
+	},
+	"gitlabMembershipError": {
+		"message": "Errore durante il recupero dei progetti di appartenenza GitLab: $1 $2"
+	},
+	"gitlabContributedError": {
+		"message": "Errore durante il recupero dei progetti a cui l'utente ha contribuito su GitLab: $1 $2"
+	},
+	"usernameMissingError": {
+		"message": "Nome utente richiesto."
+	},
+    "generateReportTooltip": {
+        "message": "Ctrl+G"
+    },
+    "copyReportTooltip": {
+        "message": "Ctrl+Shift+Y"
+    },
+    "generatingReportNotification": {
+        "message": "Generazione del report..."
+    },
+    "copyingReportNotification": {
+        "message": "Copia del report..."
+    },
+    "insertInEmailTooltip": {
+        "message": "Ctrl+Shift+M"
+    },
+    "insertingInEmailNotification": {
+        "message": "Inserimento del report nell'email..."
+    },
+    "insertedInEmailNotification": {
+        "message": "Report inserito nell'email!"
     }
-,
-  "gitlabTokenLabel": {
-    "message": "Your GitLab Token",
-    "description": "Label for the GitLab token input."
-  },
-  "gitlabTokenPlaceholder": {
-    "message": "Paste your GitLab Personal Access Token",
-    "description": "Placeholder for the GitLab token input."
-  },
-  "gitlabTokenTooltip": {
-    "message": "<b>Why is it recommended to add a GitLab token?</b><br>Scrum Helper works without a GitLab token, but adding a personal access token is recommended for a better experience. It raises your API limits, allows access to private repos (if permitted), and improves accuracy and speed. Tokens are stored locally and never sent to us and used only to fetch your git data.<br><br><b>How to obtain:</b><br>1. Go to <a href='https://gitlab.com/-/profile/personal_access_tokens' target='_blank' style='color:#2563eb;text-decoration:underline;'>GitLab Token Settings</a>.<br>2. Click 'Add new token'<br>3. Select scopes: <code>read_api</code> and <code>read_repository</code><br>4. Generate and paste it here.<br><i>Keep your token secret!</i>",
-    "description": "Tooltip explaining how to get a GitLab token."
-  },
-  "testTokenButton": {
-    "message": "Test Token",
-    "description": "Button text to test/validate a GitLab token."
-  },
-  "clearTokenButton": {
-    "message": "Clear Token",
-    "description": "Button text to clear the stored token."
-  },
-  "confirmClearToken": {
-    "message": "Are you sure you want to clear the GitLab token?",
-    "description": "Confirmation message before clearing the token."
-  },
-  "testingTokenButton": {
-    "message": "Testing...",
-    "description": "Button text while token validation is in progress."
-  },
-  "tokenValidButton": {
-    "message": "Valid!",
-    "description": "Button text when token is validated successfully."
-  },
-  "tokenInvalidButton": {
-    "message": "Invalid",
-    "description": "Button text when token validation fails."
-  },
-  "gitlabGroupLabel": {
-    "message": "Il tuo gruppo GitLab",
-    "description": "Label for the GitLab group input."
-  },
-  "gitlabGroupPlaceholder": {
-    "message": "Inserisci il nome del gruppo GitLab",
-    "description": "Placeholder for the GitLab group input."
-  },
-  "gitlabGroupTooltip": {
-    "message": "<b>Attività di quale gruppo GitLab?</b><br>Inserisci il nome del gruppo GitLab per recuperare le attività. Lascia vuoto per recuperare tutte le tue attività GitLab in tutti i gruppi. Il nome del gruppo non è sensibile alle maiuscole.",
-    "description": "Tooltip explaining GitLab group filtering."
-  },
-  "gitlabProjectFilterLabel": {
-    "message": "Filtra per progetti",
-    "description": "Label for GitLab project filter."
-  },
-  "gitlabProjectFilterTooltip": {
-    "message": "Token GitLab richiesto.<br>Per forzare un aggiornamento dell'elenco dei progetti, <br>fai clic sul pulsante Aggiorna dati.",
-    "description": "Tooltip for GitLab project filter."
-  },
-  "gitlabTokenRequiredWarning": {
-    "message": "È necessario un token GitLab per filtrare i progetti. Aggiungine uno nelle impostazioni.",
-    "description": "Warning message when GitLab token is missing for project filtering."
-  },
-  "usernameRequiredError": {
-    "message": "Immettere il nome utente per generare un rapporto.",
-    "description": "Error message shown when the user tries to generate a report without entering a username."
-  }
 }

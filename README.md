@@ -27,8 +27,8 @@
 1.  **Fork & Clone the Repository**
 
     ```sh
-    git clone https://github.com/YOUR_USERNAME/scrum-helper.git
-    cd scrum-helper
+    git clone https://github.com/YOUR_USERNAME/scrum_helper.git
+    cd scrum_helper
     ```
 
 2.  **Install Dependencies**
@@ -194,7 +194,7 @@ This part runs every time a pull request is merged into the `master` branch.
 2.  **Drafting Workflow**: The "Release Drafter" workflow is triggered.
 3.  **Versioning**: The workflow inspects the `release:*` label or PR title to determine the next semantic version.
 4.  **Changelog Update**: The `CHANGELOG.md` file is automatically updated with the titles of the merged PRs.
-5.  **Draft Creation**: A new draft release is created or updated in the [Releases](https://github.com/fossasia/scrum-helper/releases) section. This draft includes the new version tag and the updated changelog notes.
+5.  **Draft Creation**: A new draft release is created or updated in the [Releases](https://github.com/fossasia/scrum_helper/releases) section. This draft includes the new version tag and the updated changelog notes.
 
 ### 2. Manual Release Publishing
 

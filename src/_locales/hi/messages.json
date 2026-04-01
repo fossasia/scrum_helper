@@ -287,8 +287,89 @@
         "message": "No projects selected (all will be included)",
         "description": "Placeholder text when no GitLab projects are selected for filtering."
     },
-    "usernameRequiredError": {
-        "message": "कृपया रिपोर्ट जेनरेट करने के लिए अपना उपयोगकर्ता नाम दर्ज करें।",
-        "description": "Error message shown when the user tries to generate a report without entering a username."
+"usernameRequiredError": {
+    "message": "कृपया रिपोर्ट जेनरेट करने के लिए अपना उपयोगकर्ता नाम दर्ज करें।",
+    "description": "Error message shown when the user tries to generate a report without entering a username."
+},
+"unknownPlatformError": {
+    "message": "अज्ञात प्लेटफ़ॉर्म चुना गया है।"
+},
+	"gitlabFetchingError": {
+		"message": "GitLab डेटा प्राप्त करते समय एक त्रुटि हुई।"
+	},
+	"reportGenerationError": {
+		"message": "रिपोर्ट तैयार करते समय एक त्रुटि हुई।"
+	},
+	"githubUserNotFoundError": {
+		"message": "GitHub उपयोगकर्ता \"$1\" नहीं मिला (404)। कृपया उपयोगकर्ता नाम जांचें और पुनः प्रयास करें।"
+	},
+	"githubUserValidationError": {
+		"message": "GitHub उपयोगकर्ता सत्यापित करते समय त्रुटि: $1 $2"
+	},
+	"invalidSearchQueryError": {
+		"message": "अमान्य खोज क्वेरी या दिनांक सीमा। कृपया अपनी दिनांक सीमा का प्रारूप जांचें और पुनः प्रयास करें।"
+	},
+	"githubIssuesFetchError": {
+		"message": "GitHub issues प्राप्त करते समय त्रुटि: $1 $2"
+	},
+	"githubPRReviewFetchError": {
+		"message": "GitHub PR समीक्षा डेटा प्राप्त करते समय त्रुटि: $1 $2"
+	},
+	"githubUserFetchError": {
+		"message": "GitHub उपयोगकर्ता डेटा प्राप्त करते समय त्रुटि: $1 $2"
+	},
+	"invalidTokenError": {
+		"message": "अमान्य या समाप्त हो चुका GitHub टोकन। कृपया Scrum Helper सेटिंग्स में अपना टोकन जांचें और पुनः प्रयास करें।"
+	},
+	"displayModeNotice": {
+		"message": "एक्सटेंशन अगली बार शुरू होने पर $1 मोड में खुलेगा।"
+	},
+	"repoFilteringGithubOnly": {
+		"message": "रिपॉज़िटरी फ़िल्टरिंग केवल GitHub के लिए उपलब्ध है।"
+	},
+	"repoLoadingGithubOnly": {
+		"message": "रिपॉज़िटरी लोडिंग केवल GitHub के लिए उपलब्ध है।"
+	},
+	"repoFetchingGithubOnly": {
+		"message": "रिपॉज़िटरी प्राप्त करना केवल GitHub के लिए उपलब्ध है।"
+	},
+	"loadingReposAutomatically": {
+		"message": "रिपॉज़िटरी स्वचालित रूप से लोड हो रही हैं.."
+	},
+	"gitlabUserFetchError": {
+		"message": "GitLab उपयोगकर्ता प्राप्त करते समय त्रुटि: $1 $2"
+	},
+	"gitlabUserNotFoundError": {
+		"message": "GitLab उपयोगकर्ता '$1' नहीं मिला"
+	},
+	"gitlabMembershipError": {
+		"message": "GitLab सदस्यता प्रोजेक्ट्स प्राप्त करते समय त्रुटि: $1 $2"
+	},
+	"gitlabContributedError": {
+		"message": "GitLab योगदान किए गए प्रोजेक्ट्स प्राप्त करते समय त्रुटि: $1 $2"
+	},
+	"usernameMissingError": {
+		"message": "उपयोगकर्ता नाम आवश्यक है।"
+	},
+    "generateReportTooltip": {
+        "message": "Ctrl+G"
+    },
+    "copyReportTooltip": {
+        "message": "Ctrl+Shift+Y"
+    },
+    "generatingReportNotification": {
+        "message": "रिपोर्ट तैयार हो रही है..."
+    },
+    "copyingReportNotification": {
+        "message": "रिपोर्ट कॉपी की जा रही है..."
+    },
+    "insertInEmailTooltip": {
+        "message": "Ctrl+Shift+M"
+    },
+    "insertingInEmailNotification": {
+        "message": "रिपोर्ट ईमेल में डाली जा रही है..."
+    },
+    "insertedInEmailNotification": {
+        "message": "रिपोर्ट ईमेल में डाल दी गई!"
     }
 }

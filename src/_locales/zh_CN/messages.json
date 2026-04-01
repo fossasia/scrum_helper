@@ -342,5 +342,26 @@
     },
     "usernameMissingError": {
         "message": "需要用户名。"
+    },
+    "generateReportTooltip": {
+        "message": "Ctrl+G"
+    },
+    "copyReportTooltip": {
+        "message": "Ctrl+Shift+Y"
+    },
+    "generatingReportNotification": {
+        "message": "正在生成报告..."
+    },
+    "copyingReportNotification": {
+        "message": "正在复制报告..."
+    },
+    "insertInEmailTooltip": {
+        "message": "Ctrl+Shift+M"
+    },
+    "insertingInEmailNotification": {
+        "message": "正在将报告插入邮件..."
+    },
+    "insertedInEmailNotification": {
+        "message": "报告已插入邮件！"
     }
 }

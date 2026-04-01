@@ -62,6 +62,76 @@ function debounce(func, wait) {
 	};
 }
 
+// Utility: Detect if the current OS is macOS
+function isMacOS() {
+	if (typeof navigator === 'undefined') {
+		return false;
+	}
+
+	if (navigator.userAgentData && typeof navigator.userAgentData.platform === 'string') {
+		return navigator.userAgentData.platform.toLowerCase().includes('mac');
+	}
+
+	const platform = navigator.platform || '';
+	if (navigator.maxTouchPoints && navigator.maxTouchPoints > 2 && /MacIntel/.test(platform)) {
+		return true;
+	}
+
+	return /Mac/.test(platform);
+}
+
+function showShortcutNotification(messageKey) {
+	if (typeof chrome === 'undefined' || !chrome.i18n) {
+		return;
+	}
+
+	const existingNotification = document.querySelector('.shortcut-notification');
+	if (existingNotification) {
+		existingNotification.remove();
+	}
+
+	const message = chrome.i18n.getMessage(messageKey);
+	if (!message) {
+		return;
+	}
+
+	const notification = document.createElement('div');
+	notification.className = 'shortcut-notification';
+	notification.textContent = message;
+	document.body.appendChild(notification);
+
+	setTimeout(() => {
+		notification.style.animation = 'slideOut 0.3s ease-out';
+		setTimeout(() => {
+			if (notification.parentNode) {
+				notification.parentNode.removeChild(notification);
+			}
+		}, 300);
+	}, 2000);
+}
+
+function setupButtonTooltips() {
+	const mac = isMacOS();
+
+	const generateTooltipEl = document.getElementById('generateReportTooltipText');
+	if (generateTooltipEl) {
+		const text = chrome?.i18n.getMessage('generateReportTooltip') || 'Ctrl+G';
+		generateTooltipEl.textContent = mac ? text.replace('Ctrl', 'Cmd') : text;
+	}
+
+	const copyTooltipEl = document.getElementById('copyReportTooltipText');
+	if (copyTooltipEl) {
+		const text = chrome?.i18n.getMessage('copyReportTooltip') || 'Ctrl+Shift+Y';
+		copyTooltipEl.textContent = mac ? text.replace('Ctrl', 'Cmd') : text;
+	}
+
+	const insertEmailTooltipEl = document.getElementById('insertInEmailTooltipText');
+	if (insertEmailTooltipEl) {
+		const text = chrome?.i18n.getMessage('insertInEmailTooltip') || 'Ctrl+Shift+M';
+		insertEmailTooltipEl.textContent = mac ? text.replace('Ctrl', 'Cmd') : text;
+	}
+}
+
 function getToday() {
 	const today = new Date();
 	return today.toISOString().split('T')[0];
@@ -124,6 +194,7 @@ function applyI18n() {
 document.addEventListener('DOMContentLoaded', () => {
 	// Apply translations as soon as the DOM is ready
 	applyI18n();
+	setupButtonTooltips();
 
 	// Dark mode setup
 	const darkModeToggle = document.querySelector('img[alt="Night Mode"]');
@@ -154,6 +225,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	const usernameLabel = document.getElementById('usernameLabel');
 	const platformUsername = document.getElementById('platformUsername');
 	let showCommitsWarningTimeout;
+	let mergedPRsWarningTimeout;
 
 	function checkTokenForFilter() {
 		const useRepoFilter = document.getElementById('useRepoFilter');
@@ -209,6 +281,67 @@ document.addEventListener('DOMContentLoaded', () => {
 		setTimeout(() => {
 			gitlabTokenWarning.classList.add('hidden');
 		}, 4000);
+	}
+
+	function showTokenWarningForMergedPRs({ animate = false, durationMs = 4000 } = {}) {
+		const tokenWarning = document.getElementById('tokenWarningForMergedPRs');
+		if (!tokenWarning) {
+			return;
+		}
+
+		tokenWarning.classList.remove('hidden');
+		if (animate) {
+			tokenWarning.classList.add('shake-animation');
+			setTimeout(() => tokenWarning.classList.remove('shake-animation'), 620);
+		}
+
+		if (mergedPRsWarningTimeout) {
+			clearTimeout(mergedPRsWarningTimeout);
+		}
+		mergedPRsWarningTimeout = setTimeout(() => {
+			tokenWarning.classList.add('hidden');
+		}, durationMs);
+	}
+
+	function checkTokenForMergedPRs({
+		showWarning = false,
+		animateWarning = false,
+		warningDurationMs = 4000,
+		persistState = false,
+	} = {}) {
+		const mergedPRsCheckbox = document.getElementById('onlyMergedPRs');
+		const githubTokenInput = document.getElementById('githubToken');
+
+		if (!mergedPRsCheckbox || !githubTokenInput) {
+			return;
+		}
+
+		const isMergedPRsEnabled = mergedPRsCheckbox.checked;
+		const hasToken = githubTokenInput.value.trim() !== '';
+
+		if (isMergedPRsEnabled && !hasToken) {
+			mergedPRsCheckbox.checked = false;
+			if (showWarning) {
+				showTokenWarningForMergedPRs({
+					animate: animateWarning,
+					durationMs: warningDurationMs,
+				});
+			}
+			chrome?.storage.local.set({ onlyMergedPRs: false });
+			return;
+		}
+
+		const tokenWarning = document.getElementById('tokenWarningForMergedPRs');
+		if (tokenWarning) {
+			if (mergedPRsWarningTimeout) {
+				clearTimeout(mergedPRsWarningTimeout);
+				mergedPRsWarningTimeout = null;
+			}
+			tokenWarning.classList.add('hidden');
+		}
+		if (persistState) {
+			chrome?.storage.local.set({ onlyMergedPRs: mergedPRsCheckbox.checked });
+		}
 	}
 
 	function showTokenWarningForShowCommits({ animate = false, durationMs = 4000 } = {}) {
@@ -347,6 +480,9 @@ document.addEventListener('DOMContentLoaded', () => {
 	githubTokenInput.addEventListener('input', checkTokenForFilter);
 	githubTokenInput.addEventListener('input', () =>
 		checkTokenForShowCommits({ persistState: false }),
+	);
+	githubTokenInput.addEventListener('input', () =>
+		checkTokenForMergedPRs({ persistState: false }),
 	);
 
 	darkModeToggle.addEventListener('click', function () {
@@ -567,6 +703,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		const onlyIssuesCheckbox = document.getElementById('onlyIssues');
 		const onlyPRsCheckbox = document.getElementById('onlyPRs');
 		const onlyRevPRsCheckbox = document.getElementById('onlyRevPRs');
+		const onlyMergedPRsCheckbox = document.getElementById('onlyMergedPRs');
 
 		const githubTokenInput = document.getElementById('githubToken');
 		const cacheInput = document.getElementById('cacheInput');
@@ -588,6 +725,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				'onlyIssues',
 				'onlyPRs',
 				'onlyRevPRs',
+				'onlyMergedPRs',
 				'yesterdayContribution',
 				'startingDate',
 				'endingDate',
@@ -615,15 +753,29 @@ document.addEventListener('DOMContentLoaded', () => {
 				if (typeof result.onlyRevPRs !== 'undefined') {
 					onlyRevPRsCheckbox.checked = result.onlyRevPRs;
 				}
+				if (typeof result.onlyMergedPRs !== 'undefined') {
+					onlyMergedPRsCheckbox.checked = result.onlyMergedPRs;
+				}
 
 				// Reconcile mutually exclusive "Only Issues" and "Only PRs" flags on initialization.
 				// If both are somehow true in storage (e.g., from an older version or manual edits),
 				// prefer "Only Issues" and clear "Only PRs", then persist the corrected state.
 				if (onlyIssuesCheckbox.checked && onlyPRsCheckbox.checked) {
 					onlyPRsCheckbox.checked = false;
-					if (typeof chrome !== 'undefined' && chrome?.storage && chrome?.storage.local) {
- 						browser.storage.local.set({ onlyPRs: false });
-					}
+					browser?.storage.local.set({ onlyPRs: false });
+				}
+				if (onlyMergedPRsCheckbox.checked && onlyRevPRsCheckbox.checked) {
+					onlyRevPRsCheckbox.checked = false;
+					browser?.storage.local.set({ onlyRevPRs: false });
+				}
+				// onlyMergedPRs overrides onlyIssues and onlyPRs
+				if (onlyMergedPRsCheckbox.checked && onlyIssuesCheckbox.checked) {
+					onlyIssuesCheckbox.checked = false;
+					browser?.storage.local.set({ onlyIssues: false });
+				}
+				if (onlyMergedPRsCheckbox.checked && onlyPRsCheckbox.checked) {
+					onlyPRsCheckbox.checked = false;
+					browser?.storage.local.set({ onlyPRs: false });
 				}
 				if (result.githubToken) githubTokenInput.value = result.githubToken;
 				if (result.gitlabToken && gitlabTokenInput) gitlabTokenInput.value = result.gitlabToken;
@@ -637,6 +789,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				const platformUsernameKey = `${platform}Username`;
 				platformUsername.value = result[platformUsernameKey] || '';
 				checkTokenForShowCommits();
+			checkTokenForMergedPRs();
 		});
 
 		// Build the email subject from the most recently generated report,
@@ -658,8 +811,6 @@ document.addEventListener('DOMContentLoaded', () => {
 				return `[Scrum]${project ? ' - ' + project : ''} - ${dateCode}`;
 			});
 		}
-
-		// Button setup
 		const generateBtn = document.getElementById('generateReport');
 		const copyBtn = document.getElementById('copyReport');
 		const insertBtn = document.getElementById('insertInEmail');
@@ -703,10 +854,10 @@ document.addEventListener('DOMContentLoaded', () => {
 							console.log('[Insert] Sending message to tab', tabId, { action: 'insertReportToEmail', contentLength: content.length, subject });
 							
 							try {
-							const response = await browser.tabs.sendMessage(tabId, { action: 'insertReportToEmail', content, subject });
-							
-							if (response?.success) {
-								console.log('[Insert] Report inserted successfully');
+								const response = await browser.tabs.sendMessage(tabId, { action: 'insertReportToEmail', content, subject });
+								
+								if (response?.success) {
+									console.log('[Insert] Report inserted successfully');
 									alert('Report inserted into email successfully!');
 									insertBtn.innerHTML = '<i class="fa fa-check"></i> Inserted!';
 									setTimeout(() => {
@@ -799,7 +950,6 @@ document.addEventListener('DOMContentLoaded', () => {
 				}
 			});
 		}
-
 		generateBtn.addEventListener('click', () => {
 			browser.storage.local.get(['platform']).then((result) => {
 				const platform = result.platform || 'github';
@@ -839,6 +989,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			try {
 				document.execCommand('copy');
+				if (this._triggeredByShortcut) {
+					const notificationKey =
+						browser?.i18n && browser.i18n.getMessage('copiedReportNotification')
+							? 'copiedReportNotification'
+							: 'copiedButton';
+					showShortcutNotification(notificationKey);
+				}
 				this.innerHTML = `<i class="fa fa-check"></i> ${chrome?.i18n.getMessage('copiedButton')}`;
 				setTimeout(() => {
 					this.innerHTML = `<i class="fa fa-copy"></i> ${chrome?.i18n.getMessage('copyReportButton')}`;
@@ -846,6 +1003,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			} catch (err) {
 				console.error('Failed to copy: ', err);
 			} finally {
+				this._triggeredByShortcut = false;
 				selection.removeAllRanges();
 				document.body.removeChild(tempDiv);
 			}
@@ -939,29 +1097,69 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (onlyIssuesCheckbox && onlyPRsCheckbox) {
 			onlyIssuesCheckbox.addEventListener('change', () => {
 				const checked = onlyIssuesCheckbox.checked;
-				browser.storage.local.set({ onlyIssues: checked }).then(() => {
-					if (checked && onlyPRsCheckbox.checked) {
-						// Uncheck the previously selected "Only PRs"
-						onlyPRsCheckbox.checked = false;
-						browser.storage.local.set({ onlyPRs: false });
+				browser?.storage.local.set({ onlyIssues: checked }, () => {
+					if (checked) {
+						if (onlyPRsCheckbox.checked) {
+							onlyPRsCheckbox.checked = false;
+							browser?.storage.local.set({ onlyPRs: false });
+						}
+						if (onlyMergedPRsCheckbox && onlyMergedPRsCheckbox.checked) {
+							onlyMergedPRsCheckbox.checked = false;
+							browser?.storage.local.set({ onlyMergedPRs: false });
+						}
 					}
 				});
 			});
 
 			onlyPRsCheckbox.addEventListener('change', () => {
 				const checked = onlyPRsCheckbox.checked;
-				browser.storage.local.set({ onlyPRs: checked }).then(() => {
-					if (checked && onlyIssuesCheckbox.checked) {
-						// Uncheck the previously selected "Only Issues"
-						onlyIssuesCheckbox.checked = false;
-						browser.storage.local.set({ onlyIssues: false });
+				browser?.storage.local.set({ onlyPRs: checked }, () => {
+					if (checked) {
+						if (onlyIssuesCheckbox.checked) {
+							onlyIssuesCheckbox.checked = false;
+							browser?.storage.local.set({ onlyIssues: false });
+						}
+						if (onlyMergedPRsCheckbox && onlyMergedPRsCheckbox.checked) {
+							onlyMergedPRsCheckbox.checked = false;
+							browser?.storage.local.set({ onlyMergedPRs: false });
+						}
 					}
 				});
 			});
 
 			if (onlyRevPRsCheckbox) {
 				onlyRevPRsCheckbox.addEventListener('change', () => {
-					chrome?.storage.local.set({ onlyRevPRs: onlyRevPRsCheckbox.checked });
+					const checked = onlyRevPRsCheckbox.checked;
+					browser?.storage.local.set({ onlyRevPRs: checked }, () => {
+						if (checked && onlyMergedPRsCheckbox && onlyMergedPRsCheckbox.checked) {
+							onlyMergedPRsCheckbox.checked = false;
+							browser?.storage.local.set({ onlyMergedPRs: false });
+						}
+					});
+				});
+			}
+			if (onlyMergedPRsCheckbox) {
+				onlyMergedPRsCheckbox.addEventListener('change', () => {
+					if (onlyMergedPRsCheckbox.checked) {
+						if (onlyRevPRsCheckbox && onlyRevPRsCheckbox.checked) {
+							onlyRevPRsCheckbox.checked = false;
+							browser?.storage.local.set({ onlyRevPRs: false });
+						}
+						if (onlyIssuesCheckbox && onlyIssuesCheckbox.checked) {
+							onlyIssuesCheckbox.checked = false;
+							browser?.storage.local.set({ onlyIssues: false });
+						}
+						if (onlyPRsCheckbox && onlyPRsCheckbox.checked) {
+							onlyPRsCheckbox.checked = false;
+							browser?.storage.local.set({ onlyPRs: false });
+						}
+					}
+					checkTokenForMergedPRs({
+						showWarning: true,
+						animateWarning: true,
+						warningDurationMs: 3000,
+						persistState: true,
+					});
 				});
 			}
 		}
@@ -2706,3 +2904,201 @@ document.addEventListener('DOMContentLoaded', () => {
 	});
 
 
+// refresh cache button
+
+document.getElementById('refreshCache').addEventListener('click', async function () {
+	const originalText = this.innerHTML;
+
+	this.classList.add('loading');
+	this.innerHTML = `<i class="fa fa-refresh fa-spin"></i><span>${browser.i18n.getMessage('refreshingButton')}</span>`;
+	this.disabled = true;
+
+	try {
+		// Determine platform
+		let platform = 'github';
+		try {
+			const items = await browser.storage.local.get(['platform']);
+			platform = items.platform || 'github';
+		} catch (e) {}
+
+		// Clear all caches
+		const keysToRemove = ['githubCache', 'repoCache', 'gitlabCache'];
+		await browser.storage.local.remove(keysToRemove);
+
+		// Clear the scrum report
+		const scrumReport = document.getElementById('scrumReport');
+		if (scrumReport) {
+			scrumReport.innerHTML = `<p style="text-align: center; color: #666; padding: 20px;">${browser.i18n.getMessage('cacheClearedMessage')}</p>`;
+		}
+
+		if (typeof availableRepos !== 'undefined') {
+			availableRepos = [];
+		}
+
+		const repoStatus = document.getElementById('repoStatus');
+		if (repoStatus) {
+			repoStatus.textContent = '';
+		}
+
+		this.innerHTML = `<i class="fa fa-check"></i><span>${browser.i18n.getMessage('cacheClearedButton')}</span>`;
+		this.classList.remove('loading');
+
+		// Do NOT trigger report generation automatically
+
+		setTimeout(() => {
+			this.innerHTML = originalText;
+			this.disabled = false;
+		}, 2000);
+	} catch (error) {
+		console.error('Cache clear failed:', error);
+		this.innerHTML = `<i class="fa fa-exclamation-triangle"></i><span>${browser.i18n.getMessage('cacheClearFailed')}</span>`;
+		this.classList.remove('loading');
+
+		setTimeout(() => {
+			this.innerHTML = originalText;
+			this.disabled = false;
+		}, 3000);
+	}
+});
+
+function toggleRadio(radio) {
+	const startDateInput = document.getElementById('startingDate');
+	const endDateInput = document.getElementById('endingDate');
+
+	console.log('Toggling radio:', radio.id);
+
+	if (radio.id === 'yesterdayContribution') {
+		startDateInput.value = getYesterday();
+		endDateInput.value = getToday();
+	}
+
+	startDateInput.readOnly = endDateInput.readOnly = true;
+
+	browser.storage.local
+		.set({
+			startingDate: startDateInput.value,
+			endingDate: endDateInput.value,
+			yesterdayContribution: radio.id === 'yesterdayContribution',
+			selectedTimeframe: radio.id,
+			githubCache: null, // Clear cache to force new fetch
+		})
+		.then(() => {
+			console.log('State saved, dates:', {
+				start: startDateInput.value,
+				end: endDateInput.value,
+			});
+
+			triggerRepoFetchIfEnabled();
+		});
+}
+
+async function triggerRepoFetchIfEnabled() {
+	if (window.triggerRepoFetchIfEnabled) {
+		await window.triggerRepoFetchIfEnabled();
+	}
+}
+
+// Keyboard shortcuts: Ctrl+G / Cmd+G to generate, Ctrl+Shift+Y / Cmd+Shift+Y to copy, Ctrl+Shift+M / Cmd+Shift+M to insert in email
+document.addEventListener('keydown', (e) => {
+	if (!document.hasFocus()) {
+		return;
+	}
+
+	const target = e.target;
+	const tagName = target?.tagName;
+	const editableAncestor = typeof target?.closest === 'function' ? target.closest('[contenteditable="true"]') : null;
+	const isFormField = tagName === 'INPUT' || tagName === 'TEXTAREA' || tagName === 'SELECT';
+	const isContentEditable = !!(editableAncestor || (target && target.isContentEditable));
+
+	if (isFormField || isContentEditable) {
+		return;
+	}
+
+	const key = (e.key || '').toLowerCase();
+	const modifier = isMacOS() ? e.metaKey : e.ctrlKey;
+
+	const generateBtn = document.getElementById('generateReport');
+	const copyBtn = document.getElementById('copyReport');
+	const insertEmailBtn = document.getElementById('insertInEmail');
+
+	if (modifier && !e.shiftKey && !e.altKey && key === 'g' && !e.repeat && generateBtn && !generateBtn.disabled) {
+		e.preventDefault();
+		showShortcutNotification('generatingReportNotification');
+		generateBtn.click();
+	}
+
+	if (modifier && e.shiftKey && !e.altKey && key === 'y' && !e.repeat && copyBtn && !copyBtn.disabled) {
+		e.preventDefault();
+		showShortcutNotification('copyingReportNotification');
+		copyBtn._triggeredByShortcut = true;
+		copyBtn.click();
+	}
+
+	if (modifier && e.shiftKey && !e.altKey && key === 'm' && !e.repeat && insertEmailBtn && !insertEmailBtn.disabled) {
+		e.preventDefault();
+		showShortcutNotification('insertingInEmailNotification');
+		insertEmailBtn._triggeredByShortcut = true;
+		insertEmailBtn.click();
+	}
+});
+
+// Validate organization only when user is done typing (on blur)
+function validateOrgOnBlur(org) {
+	console.log('[Org Check] Checking organization on blur:', org);
+	fetch(`https://api.github.com/orgs/${org}`)
+		.then((res) => {
+			console.log('[Org Check] Response status for', org, ':', res.status);
+			if (res.status === 404) {
+				console.log('[Org Check] Organization not found on GitHub:', org);
+				const oldToast = document.getElementById('invalid-org-toast');
+				if (oldToast) oldToast.parentNode.removeChild(oldToast);
+				const toastDiv = document.createElement('div');
+				toastDiv.id = 'invalid-org-toast';
+				toastDiv.className = 'toast';
+				toastDiv.style.background = '#dc2626';
+				toastDiv.style.color = '#fff';
+				toastDiv.style.fontWeight = 'bold';
+				toastDiv.style.padding = '12px 24px';
+				toastDiv.style.borderRadius = '8px';
+				toastDiv.style.position = 'fixed';
+				toastDiv.style.top = '24px';
+				toastDiv.style.left = '50%';
+				toastDiv.style.transform = 'translateX(-50%)';
+				toastDiv.style.zIndex = '9999';
+				toastDiv.innerText = browser.i18n.getMessage('orgNotFoundMessage');
+				document.body.appendChild(toastDiv);
+				setTimeout(() => {
+					if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
+				}, 3000);
+				return;
+			}
+			const oldToast = document.getElementById('invalid-org-toast');
+			if (oldToast) oldToast.parentNode.removeChild(oldToast);
+			console.log('[Org Check] Organisation exists on GitHub:', org);
+			browser.storage.local.remove(['githubCache', 'repoCache']);
+			triggerRepoFetchIfEnabled();
+		})
+		.catch((err) => {
+			console.log('[Org Check] Error validating organisation:', org, err);
+			const oldToast = document.getElementById('invalid-org-toast');
+			if (oldToast) oldToast.parentNode.removeChild(oldToast);
+			const toastDiv = document.createElement('div');
+			toastDiv.id = 'invalid-org-toast';
+			toastDiv.className = 'toast';
+			toastDiv.style.background = '#dc2626';
+			toastDiv.style.color = '#fff';
+			toastDiv.style.fontWeight = 'bold';
+			toastDiv.style.padding = '12px 24px';
+			toastDiv.style.borderRadius = '8px';
+			toastDiv.style.position = 'fixed';
+			toastDiv.style.top = '24px';
+			toastDiv.style.left = '50%';
+			toastDiv.style.transform = 'translateX(-50%)';
+			toastDiv.style.zIndex = '9999';
+			toastDiv.innerText = browser.i18n.getMessage('orgValidationErrorMessage');
+			document.body.appendChild(toastDiv);
+			setTimeout(() => {
+				if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
+			}, 3000);
+		});
+}

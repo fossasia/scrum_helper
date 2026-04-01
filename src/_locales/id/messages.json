@@ -287,8 +287,89 @@
         "message": "No projects selected (all will be included)",
         "description": "Placeholder text when no GitLab projects are selected for filtering."
     },
-    "usernameRequiredError": {
-        "message": "Silakan masukkan nama pengguna Anda untuk membuat laporan.",
-        "description": "Error message shown when the user tries to generate a report without entering a username."
+"usernameRequiredError": {
+    "message": "Silakan masukkan nama pengguna Anda untuk membuat laporan.",
+    "description": "Error message shown when the user tries to generate a report without entering a username."
+},
+	"unknownPlatformError": {
+		"message": "Platform yang dipilih tidak dikenal."
+	},
+	"gitlabFetchingError": {
+		"message": "Terjadi kesalahan saat mengambil data GitLab."
+	},
+	"reportGenerationError": {
+		"message": "Terjadi kesalahan saat membuat laporan."
+	},
+	"githubUserNotFoundError": {
+		"message": "Pengguna GitHub \"$1\" tidak ditemukan (404). Silakan periksa nama pengguna dan coba lagi."
+	},
+	"githubUserValidationError": {
+		"message": "Kesalahan saat memvalidasi pengguna GitHub: $1 $2"
+	},
+	"invalidSearchQueryError": {
+		"message": "Kueri pencarian atau rentang tanggal tidak valid. Silakan periksa format rentang tanggal Anda dan coba lagi."
+	},
+	"githubIssuesFetchError": {
+		"message": "Kesalahan saat mengambil issue GitHub: $1 $2"
+	},
+	"githubPRReviewFetchError": {
+		"message": "Kesalahan saat mengambil data ulasan PR GitHub: $1 $2"
+	},
+	"githubUserFetchError": {
+		"message": "Kesalahan saat mengambil data pengguna GitHub: $1 $2"
+	},
+	"invalidTokenError": {
+		"message": "Token GitHub tidak valid atau telah kedaluwarsa. Silakan periksa token Anda di pengaturan Scrum Helper dan coba lagi."
+	},
+	"displayModeNotice": {
+		"message": "Ekstensi akan terbuka dalam mode $1 pada peluncuran berikutnya."
+	},
+	"repoFilteringGithubOnly": {
+		"message": "Pemfilteran repositori hanya tersedia untuk GitHub."
+	},
+	"repoLoadingGithubOnly": {
+		"message": "Pemuatan repositori hanya tersedia untuk GitHub."
+	},
+	"repoFetchingGithubOnly": {
+		"message": "Pengambilan repositori hanya tersedia untuk GitHub."
+	},
+	"loadingReposAutomatically": {
+		"message": "Memuat repositori secara otomatis.."
+	},
+	"gitlabUserFetchError": {
+		"message": "Kesalahan saat mengambil pengguna GitLab: $1 $2"
+	},
+	"gitlabUserNotFoundError": {
+		"message": "Pengguna GitLab '$1' tidak ditemukan"
+	},
+	"gitlabMembershipError": {
+		"message": "Kesalahan saat mengambil proyek keanggotaan GitLab: $1 $2"
+	},
+	"gitlabContributedError": {
+		"message": "Kesalahan saat mengambil proyek kontribusi GitLab: $1 $2"
+	},
+	"usernameMissingError": {
+		"message": "Nama pengguna diperlukan."
+	},
+    "generateReportTooltip": {
+        "message": "Ctrl+G"
+    },
+    "copyReportTooltip": {
+        "message": "Ctrl+Shift+Y"
+    },
+    "generatingReportNotification": {
+        "message": "Membuat laporan..."
+    },
+    "copyingReportNotification": {
+        "message": "Menyalin laporan..."
+    },
+    "insertInEmailTooltip": {
+        "message": "Ctrl+Shift+M"
+    },
+    "insertingInEmailNotification": {
+        "message": "Menyisipkan laporan ke email..."
+    },
+    "insertedInEmailNotification": {
+        "message": "Laporan disisipkan ke email!"
     }
 }

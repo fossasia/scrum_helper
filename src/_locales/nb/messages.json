@@ -295,6 +295,27 @@
     },
     "usernameMissingError": {
         "message": "Brukernavn påkrevd."
+    },
+    "generateReportTooltip": {
+        "message": "Ctrl+G"
+    },
+    "copyReportTooltip": {
+        "message": "Ctrl+Shift+Y"
+    },
+    "generatingReportNotification": {
+        "message": "Genererer rapport..."
+    },
+    "copyingReportNotification": {
+        "message": "Kopierer rapport..."
+    },
+    "insertInEmailTooltip": {
+        "message": "Ctrl+Shift+M"
+    },
+    "insertingInEmailNotification": {
+        "message": "Setter inn rapport i e-post..."
+    },
+    "insertedInEmailNotification": {
+        "message": "Rapport satt inn i e-post!"
     }
 ,
   "gitlabTokenLabel": {

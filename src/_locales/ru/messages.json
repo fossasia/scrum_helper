@@ -155,18 +155,6 @@
         "message": "0 projects selected",
         "description": "Text showing the count of selected GitLab projects when it's zero."
     },
-    "gitlabProjectCount": {
-        "message": "$1 projects selected",
-        "description": "Text showing the count of selected GitLab projects. $1 is a placeholder for the number."
-    },
-    "gitlabProjectSearchPlaceholder": {
-        "message": "Search projects",
-        "description": "Placeholder/title for the GitLab project search input."
-    },
-    "gitlabProjectPlaceholder": {
-        "message": "No projects selected (all will be included)",
-        "description": "Placeholder text when no GitLab projects are selected for filtering."
-    },
     "repoLoading": {
         "message": "Загрузка репозиториев..."
     },
@@ -287,10 +275,6 @@
         "message": "Для фильтрации проектов требуется токен GitLab. Пожалуйста, добавьте его в настройках.",
         "description": "Warning message when GitLab token is missing for project filtering."
     },
-    "gitlabProjectCountNone": {
-        "message": "0 projects selected",
-        "description": "Text showing the count of selected GitLab projects when it's zero."
-    },
     "gitlabProjectCount": {
         "message": "$1 projects selected",
         "description": "Text showing the count of selected GitLab projects. $1 is a placeholder for the number."
@@ -299,12 +283,89 @@
         "message": "Search projects",
         "description": "Placeholder/title for the GitLab project search input."
     },
-    "gitlabProjectPlaceholder": {
-        "message": "No projects selected (all will be included)",
-        "description": "Placeholder text when no GitLab projects are selected for filtering."
-    },
     "usernameRequiredError": {
         "message": "Пожалуйста, введите ваше имя пользователя для создания отчета.",
         "description": "Error message shown when the user tries to generate a report without entering a username."
+    },
+    "unknownPlatformError": {
+        "message": "Выбрана неизвестная платформа."
+    },
+    "gitlabFetchingError": {
+        "message": "Произошла ошибка при получении данных GitLab."
+    },
+    "reportGenerationError": {
+        "message": "Произошла ошибка при создании отчета."
+    },
+    "githubUserNotFoundError": {
+        "message": "Пользователь GitHub \"$1\" не найден (404). Проверьте имя пользователя и попробуйте снова."
+    },
+    "githubUserValidationError": {
+        "message": "Ошибка при проверке пользователя GitHub: $1 $2"
+    },
+    "invalidSearchQueryError": {
+        "message": "Недопустимый поисковый запрос или диапазон дат. Проверьте формат и попробуйте снова."
+    },
+    "githubIssuesFetchError": {
+        "message": "Ошибка при получении задач GitHub: $1 $2"
+    },
+    "githubPRReviewFetchError": {
+        "message": "Ошибка при получении данных проверки PR GitHub: $1 $2"
+    },
+    "githubUserFetchError": {
+        "message": "Ошибка при получении данных пользователя GitHub: $1 $2"
+    },
+    "invalidTokenError": {
+        "message": "Недействительный или истекший токен GitHub. Проверьте токен в настройках Scrum Helper и попробуйте снова."
+    },
+    "displayModeNotice": {
+        "message": "Расширение откроется в режиме $1 при следующем запуске."
+    },
+    "repoFilteringGithubOnly": {
+        "message": "Фильтрация репозиториев доступна только для GitHub."
+    },
+    "repoLoadingGithubOnly": {
+        "message": "Загрузка репозиториев доступна только для GitHub."
+    },
+    "repoFetchingGithubOnly": {
+        "message": "Получение репозиториев доступно только для GitHub."
+    },
+    "loadingReposAutomatically": {
+        "message": "Репозитории загружаются автоматически..."
+    },
+    "gitlabUserFetchError": {
+        "message": "Ошибка при получении пользователя GitLab: $1 $2"
+    },
+    "gitlabUserNotFoundError": {
+        "message": "Пользователь GitLab '$1' не найден"
+    },
+    "gitlabMembershipError": {
+        "message": "Ошибка при получении проектов членства GitLab: $1 $2"
+    },
+    "gitlabContributedError": {
+        "message": "Ошибка при получении проектов с вкладом GitLab: $1 $2"
+    },
+    "usernameMissingError": {
+        "message": "Требуется имя пользователя."
+    },
+    "generateReportTooltip": {
+        "message": "Ctrl+G"
+    },
+    "copyReportTooltip": {
+        "message": "Ctrl+Shift+Y"
+    },
+    "generatingReportNotification": {
+        "message": "Создание отчёта..."
+    },
+    "copyingReportNotification": {
+        "message": "Копирование отчёта..."
+    },
+    "insertInEmailTooltip": {
+        "message": "Ctrl+Shift+M"
+    },
+    "insertingInEmailNotification": {
+        "message": "Вставка отчёта в письмо..."
+    },
+    "insertedInEmailNotification": {
+        "message": "Отчёт вставлен в письмо!"
     }
 }
