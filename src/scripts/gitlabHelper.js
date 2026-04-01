@@ -1,7 +1,16 @@
 // GitLab API Helper for Scrum Helper Extension
 class GitLabHelper {
-	constructor(domain = null) {
-		this.baseUrl = `https://${domain ? domain : 'gitlab.com'}/api/v4`;
+	constructor(domainOrUrl = null) {
+		// Handle both cases: domain string ('gitlab.example.com') or full origin ('https://gitlab.example.com')
+		let baseUrl;
+		if (!domainOrUrl || domainOrUrl === 'gitlab.com') {
+			baseUrl = 'https://gitlab.com/api/v4';
+		} else if (domainOrUrl.startsWith('http')) {
+			baseUrl = `${domainOrUrl}/api/v4`;
+		} else {
+			baseUrl = `https://${domainOrUrl}/api/v4`;
+		}
+		this.baseUrl = baseUrl;
 		this.cache = {
 			data: null,
 			cacheKey: null,
