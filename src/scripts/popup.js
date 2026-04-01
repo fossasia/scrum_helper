@@ -420,6 +420,9 @@ document.addEventListener('DOMContentLoaded', () => {
 		const candidate = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
 		try {
 			const parsed = new URL(candidate);
+			if (parsed.protocol !== 'https:') {
+				return '';
+			}
 			return parsed.origin.replace(/\/+$/, '');
 		} catch (error) {
 			return '';
@@ -480,7 +483,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		const normalized = normalizeGitLabInstanceUrl(rawValue);
 		if (!normalized) {
-			setGitLabInstanceStatus(browser?.i18n.getMessage('gitlabInstanceInvalid') || 'Enter a valid GitLab instance URL.', true);
+			setGitLabInstanceStatus(browser?.i18n.getMessage('gitlabInstanceInvalid') || 'Enter a valid HTTPS GitLab instance URL.', true);
 			return false;
 		}
 
@@ -804,7 +807,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		if (gitlabSelfHostedUrlInput) {
 			gitlabSelfHostedUrlInput.addEventListener('blur', () => {
-				persistGitLabInstanceUrl({ requestPermission: platformSelect.value === 'gitlab' }).catch((error) => {
+				persistGitLabInstanceUrl({ requestPermission: false }).catch((error) => {
 					console.warn('Failed to save GitLab instance URL:', error?.message || error);
 				});
 			});

@@ -42,15 +42,8 @@ let gitlabToken = '';
 let gitlabSelfHostedUrl = '';
 let gitlabHelper = null;
 
-function createGitLabHelper() {
-	return new window.GitLabHelper(gitlabSelfHostedUrl || null);
-}
 
 function allIncluded(outputTarget = 'email') {
-	// Always re-instantiate gitlabHelper for gitlab platform to ensure fresh cache after refresh
-	if (platform === 'gitlab' || (typeof platform === 'undefined' && window.GitLabHelper)) {
-		gitlabHelper = createGitLabHelper();
-	}
 	if (scrumGenerationInProgress) {
 		return;
 	}
@@ -169,6 +162,9 @@ function allIncluded(outputTarget = 'email') {
 				gitlabToken = items.gitlabToken || '';
 				gitlabSelfHostedUrl = items.gitlabSelfHostedUrl || '';
 				yesterdayContribution = items.yesterdayContribution;
+				if (platform === 'gitlab' && window.GitLabHelper) {
+					gitlabHelper = new window.GitLabHelper(gitlabSelfHostedUrl || null);
+				}
 
 				onlyIssues = items.onlyIssues === true;
 				onlyPRs = items.onlyPRs === true;
@@ -242,7 +238,10 @@ function allIncluded(outputTarget = 'email') {
 						return;
 					}
 				} else if (platform === 'gitlab') {
-					if (!gitlabHelper) gitlabHelper = createGitLabHelper();
+					// Always recreate helper from the latest stored URL to avoid stale instance reuse.
+					if (window.GitLabHelper) {
+						gitlabHelper = new window.GitLabHelper(gitlabSelfHostedUrl || null);
+					}
 					if (platformUsernameLocal) {
 						const generateBtn = document.getElementById('generateReport');
 						if (generateBtn && outputTarget === 'popup') {
@@ -1973,7 +1972,7 @@ async function forceGitlabDataRefresh() {
 	hasInjectedContent = false;
 	// Re-instantiate gitlabHelper to ensure a fresh instance for next API call
 	if (window.GitLabHelper) {
-		gitlabHelper = createGitLabHelper();
+		gitlabHelper = new window.GitLabHelper(gitlabSelfHostedUrl || null);
 	}
 	return { success: true };
 }

@@ -9,6 +9,9 @@ class GitLabHelper {
 		const candidate = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
 		try {
 			const parsed = new URL(candidate);
+			if (parsed.protocol !== 'https:') {
+				return null;
+			}
 			return parsed.origin.replace(/\/+$/, '');
 		} catch (error) {
 			return null;
@@ -35,22 +38,22 @@ class GitLabHelper {
 		}
 
 		const invalidMessage =
-			chrome?.i18n.getMessage('gitlabInstanceInvalidError') || 'A valid GitLab instance URL is required.';
-		const permissionDeniedMessage =
-			chrome?.i18n.getMessage('gitlabInstancePermissionDenied') || 'GitLab permission was not granted for this instance.';
+			chrome?.i18n.getMessage('gitlabInstanceInvalidError') || 'A valid HTTPS GitLab instance URL is required.';
 
 		try {
 			const res = await fetch(`${this.baseUrl}/projects?per_page=1`, { headers });
 
 			// Treat 404/405 from the API probe as an invalid or misconfigured instance.
-			// 401/403 usually means the instance is reachable but the caller does not have
-			// enough access to the GitLab API path yet.
+			// Authentication/authorization failures should be surfaced by the actual
+			// data fetches rather than being misreported as an instance/permission error.
 			if (!res.ok && (res.status === 404 || res.status === 405)) {
 				throw new Error(invalidMessage);
 			}
 
+			// 401/403 means the instance is reachable but access is unauthorized.
+			// Let subsequent API calls surface token/auth specific errors.
 			if (!res.ok && (res.status === 401 || res.status === 403)) {
-				throw new Error(permissionDeniedMessage);
+				return true;
 			}
 
 			if (!res.ok) {
@@ -62,7 +65,7 @@ class GitLabHelper {
 			console.error('GitLab reachability check failed:', error);
 			if (
 				error instanceof Error &&
-				(error.message === invalidMessage || error.message === permissionDeniedMessage)
+				error.message === invalidMessage
 			) {
 				throw error;
 			}
