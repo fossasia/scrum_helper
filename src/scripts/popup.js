@@ -433,9 +433,9 @@ document.addEventListener('DOMContentLoaded', () => {
 		const toast = document.createElement('div');
 		toast.id = 'scrum-cache-toast';
 		toast.className = 'scrum-cache-toast-custom';
-		toast.style.background = isDarkMode ? '#2d2d2d' : '#ffffff';
-		toast.style.color = isDarkMode ? '#ffffff' : '#111827';
-		toast.style.border = isDarkMode ? '1px solid #505050' : '1px solid #e5e7eb';
+		toast.style.background = isDarkMode ? '#ffffff' : '#1f2937';
+		toast.style.color = isDarkMode ? '#1f2937' : '#fff';
+		toast.style.border = 'none';
 		toast.style.fontWeight = 'bold';
 		toast.style.padding = '12px 16px';
 		toast.style.borderRadius = '8px';
@@ -451,9 +451,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		toast.style.boxSizing = 'border-box';
 		toast.style.wordBreak = 'break-word';
 		toast.style.opacity = '1';
-		toast.style.boxShadow = isDarkMode
-			? '0 6px 20px rgba(0, 0, 0, 0.5)'
-			: '0 6px 20px rgba(63, 81, 181, 0.35)';
+		toast.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
 		toast.textContent = message;
 
 		document.body.appendChild(toast);
