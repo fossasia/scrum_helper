@@ -12,6 +12,45 @@ const userReasonElement = null;
 
 const showCommitsElement = document.getElementById('showCommits');
 
+if (!window.scrumDateRangeUtils) {
+	window.scrumDateRangeUtils = {
+		normalizeAndSync(startDateInput, endDateInput) {
+			const today = new Date().toISOString().split('T')[0];
+			const originalStartDate = startDateInput.value;
+			const originalEndDate = endDateInput.value;
+
+			let normalizedStartDate = originalStartDate;
+			let normalizedEndDate = originalEndDate;
+
+			if (normalizedStartDate && normalizedStartDate > today) {
+				normalizedStartDate = today;
+			}
+			if (normalizedEndDate && normalizedEndDate > today) {
+				normalizedEndDate = today;
+			}
+			if (normalizedStartDate && normalizedEndDate && normalizedStartDate > normalizedEndDate) {
+				normalizedEndDate = normalizedStartDate;
+			}
+
+			const didChange =
+				normalizedStartDate !== originalStartDate || normalizedEndDate !== originalEndDate;
+
+			if (didChange) {
+				startDateInput.value = normalizedStartDate;
+				endDateInput.value = normalizedEndDate;
+			}
+
+			const startDate = startDateInput.value;
+			const endDate = endDateInput.value;
+			startDateInput.max = endDate && endDate < today ? endDate : today;
+			endDateInput.min = startDate || '';
+			endDateInput.max = today;
+
+			return didChange;
+		},
+	};
+}
+
 function handleBodyOnLoad() {
 	// Migration: Handle existing users with old platformUsername storage
 	browser.storage.local.get(['platform', 'platformUsername']).then((result) => {
@@ -67,14 +106,11 @@ function handleBodyOnLoad() {
 			if (items.startingDate) {
 				startingDateElement.value = items.startingDate;
 			}
-			if (
-				startingDateElement.value &&
-				endingDateElement.value &&
-				startingDateElement.value > endingDateElement.value
-			) {
-				endingDateElement.value = startingDateElement.value;
-			}
+			const wasNormalizedOnLoad = normalizeDateRangeValues();
 			syncDateRangeConstraints();
+			if (wasNormalizedOnLoad) {
+				persistDateRange();
+			}
 			if (items.showOpenLabel) {
 				showOpenLabelElement.checked = items.showOpenLabel;
 			} else if (items.showOpenLabel !== false) {
@@ -111,42 +147,36 @@ document.getElementById('refreshCache').addEventListener('click', async (e) => {
 });
 
 function handleStartingDateChange() {
-	if (startingDateElement.value && endingDateElement.value && startingDateElement.value > endingDateElement.value) {
-		endingDateElement.value = startingDateElement.value;
-	}
+	normalizeDateRangeValues();
 	syncDateRangeConstraints();
+	persistDateRange();
+}
+function handleEndingDateChange() {
+	normalizeDateRangeValues();
+	syncDateRangeConstraints();
+	persistDateRange();
+}
+
+function persistDateRange() {
 	browser.storage.local.set({
 		startingDate: startingDateElement.value,
 		endingDate: endingDateElement.value,
 	});
 }
-function handleEndingDateChange() {
-	if (startingDateElement.value && endingDateElement.value && endingDateElement.value < startingDateElement.value) {
-		endingDateElement.value = startingDateElement.value;
-	}
-	syncDateRangeConstraints();
-	browser.storage.local.set({
-		startingDate: startingDateElement.value,
-		endingDate: endingDateElement.value,
-	});
+
+function normalizeDateRangeValues() {
+	const originalStartDate = startingDateElement.value;
+	const originalEndDate = endingDateElement.value;
+
+	window.scrumDateRangeUtils.normalizeAndSync(startingDateElement, endingDateElement);
+
+	return (
+		startingDateElement.value !== originalStartDate || endingDateElement.value !== originalEndDate
+	);
 }
 
 function syncDateRangeConstraints() {
-	const today = getToday();
-
-	if (endingDateElement.value && endingDateElement.value > today) {
-		endingDateElement.value = today;
-	}
-	if (startingDateElement.value && startingDateElement.value > today) {
-		startingDateElement.value = today;
-	}
-
-	const startDate = startingDateElement.value;
-	const endDate = endingDateElement.value;
-
-	startingDateElement.max = endDate && endDate < today ? endDate : today;
-	endingDateElement.min = startDate || '';
-	endingDateElement.max = today;
+	window.scrumDateRangeUtils.normalizeAndSync(startingDateElement, endingDateElement);
 }
 
 function handleYesterdayContributionChange() {
@@ -158,9 +188,9 @@ function handleYesterdayContributionChange() {
 		endingDateElement.readOnly = true;
 		endingDateElement.value = getToday();
 		startingDateElement.value = getYesterday();
+		normalizeDateRangeValues();
 		syncDateRangeConstraints();
-		handleEndingDateChange();
-		handleStartingDateChange();
+		persistDateRange();
 		labelElement.classList.add('selectedLabel');
 		labelElement.classList.remove('unselectedLabel');
 	} else {

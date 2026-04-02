@@ -577,6 +577,34 @@ document.addEventListener('DOMContentLoaded', () => {
 		const endingDateInput = document.getElementById('endingDate');
 		const platformUsername = document.getElementById('platformUsername');
 
+		function normalizeDateRangeValues() {
+			const originalStartDate = startingDateInput.value;
+			const originalEndDate = endingDateInput.value;
+
+			window.scrumDateRangeUtils.normalizeAndSync(startingDateInput, endingDateInput);
+
+			return (
+				startingDateInput.value !== originalStartDate || endingDateInput.value !== originalEndDate
+			);
+		}
+
+		function syncDateRangeConstraints() {
+			window.scrumDateRangeUtils.normalizeAndSync(startingDateInput, endingDateInput);
+		}
+
+		function persistDateRange() {
+			browser.storage.local.set({
+				startingDate: startingDateInput.value,
+				endingDate: endingDateInput.value,
+			});
+		}
+
+		function normalizeSyncAndPersistDateRange() {
+			normalizeDateRangeValues();
+			syncDateRangeConstraints();
+			persistDateRange();
+		}
+
 		browser.storage.local
 			.get([
 				'projectName',
@@ -646,6 +674,11 @@ document.addEventListener('DOMContentLoaded', () => {
 				if (typeof result.yesterdayContribution !== 'undefined') yesterdayRadio.checked = result.yesterdayContribution;
 				if (result.startingDate) startingDateInput.value = result.startingDate;
 				if (result.endingDate) endingDateInput.value = result.endingDate;
+				const wasNormalizedOnLoad = normalizeDateRangeValues();
+				syncDateRangeConstraints();
+				if (wasNormalizedOnLoad) {
+					persistDateRange();
+				}
 
 				// Load platform-specific username
 				const platform = result.platform || 'github';
@@ -988,10 +1021,10 @@ document.addEventListener('DOMContentLoaded', () => {
 			browser.storage.local.set({ yesterdayContribution: yesterdayRadio.checked });
 		});
 		startingDateInput.addEventListener('input', () => {
-			browser.storage.local.set({ startingDate: startingDateInput.value });
+			normalizeSyncAndPersistDateRange();
 		});
 		endingDateInput.addEventListener('input', () => {
-			browser.storage.local.set({ endingDate: endingDateInput.value });
+			normalizeSyncAndPersistDateRange();
 		});
 
 		// Save username to storage on input
