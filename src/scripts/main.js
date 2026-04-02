@@ -67,6 +67,14 @@ function handleBodyOnLoad() {
 			if (items.startingDate) {
 				startingDateElement.value = items.startingDate;
 			}
+			if (
+				startingDateElement.value &&
+				endingDateElement.value &&
+				startingDateElement.value > endingDateElement.value
+			) {
+				endingDateElement.value = startingDateElement.value;
+			}
+			syncDateRangeConstraints();
 			if (items.showOpenLabel) {
 				showOpenLabelElement.checked = items.showOpenLabel;
 			} else if (items.showOpenLabel !== false) {
@@ -103,12 +111,42 @@ document.getElementById('refreshCache').addEventListener('click', async (e) => {
 });
 
 function handleStartingDateChange() {
-	const value = startingDateElement.value;
-	browser.storage.local.set({ startingDate: value });
+	if (startingDateElement.value && endingDateElement.value && startingDateElement.value > endingDateElement.value) {
+		endingDateElement.value = startingDateElement.value;
+	}
+	syncDateRangeConstraints();
+	browser.storage.local.set({
+		startingDate: startingDateElement.value,
+		endingDate: endingDateElement.value,
+	});
 }
 function handleEndingDateChange() {
-	const value = endingDateElement.value;
-	browser.storage.local.set({ endingDate: value });
+	if (startingDateElement.value && endingDateElement.value && endingDateElement.value < startingDateElement.value) {
+		endingDateElement.value = startingDateElement.value;
+	}
+	syncDateRangeConstraints();
+	browser.storage.local.set({
+		startingDate: startingDateElement.value,
+		endingDate: endingDateElement.value,
+	});
+}
+
+function syncDateRangeConstraints() {
+	const today = getToday();
+
+	if (endingDateElement.value && endingDateElement.value > today) {
+		endingDateElement.value = today;
+	}
+	if (startingDateElement.value && startingDateElement.value > today) {
+		startingDateElement.value = today;
+	}
+
+	const startDate = startingDateElement.value;
+	const endDate = endingDateElement.value;
+
+	startingDateElement.max = endDate && endDate < today ? endDate : today;
+	endingDateElement.min = startDate || '';
+	endingDateElement.max = today;
 }
 
 function handleYesterdayContributionChange() {
@@ -120,6 +158,7 @@ function handleYesterdayContributionChange() {
 		endingDateElement.readOnly = true;
 		endingDateElement.value = getToday();
 		startingDateElement.value = getYesterday();
+		syncDateRangeConstraints();
 		handleEndingDateChange();
 		handleStartingDateChange();
 		labelElement.classList.add('selectedLabel');
@@ -127,6 +166,7 @@ function handleYesterdayContributionChange() {
 	} else {
 		startingDateElement.readOnly = false;
 		endingDateElement.readOnly = false;
+		syncDateRangeConstraints();
 		labelElement.classList.add('unselectedLabel');
 		labelElement.classList.remove('selectedLabel');
 	}
