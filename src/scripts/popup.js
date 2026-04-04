@@ -426,11 +426,45 @@ document.addEventListener('DOMContentLoaded', () => {
 	function updateGenerateButtonState() {
 		const generateBtn = document.getElementById('generateReport');
 		const platformUsername = document.getElementById('platformUsername');
-		if (generateBtn && platformUsername) {
-			const hasUsername = platformUsername.value.trim();
-			generateBtn.disabled = !hasUsername;
-			generateBtn.style.cursor = hasUsername ? 'pointer' : 'not-allowed';
+		if (!generateBtn || !platformUsername) {
+			return;
 		}
+
+		const applyGenerateButtonState = () => {
+			const hasUsername = Boolean(platformUsername.value.trim());
+			const shouldDisable = !hasUsername;
+
+			generateBtn.dataset.usernameRequiredDisabled = shouldDisable ? 'true' : 'false';
+			if (generateBtn.disabled !== shouldDisable) {
+				generateBtn.disabled = shouldDisable;
+			}
+			generateBtn.style.cursor = hasUsername ? 'pointer' : 'not-allowed';
+		};
+
+		if (!platformUsername.dataset.generateButtonStateBound) {
+			platformUsername.addEventListener('input', applyGenerateButtonState);
+			platformUsername.addEventListener('change', applyGenerateButtonState);
+			platformUsername.dataset.generateButtonStateBound = 'true';
+		}
+
+		if (!generateBtn.dataset.generateButtonStateObserved && typeof MutationObserver !== 'undefined') {
+			const observer = new MutationObserver(() => {
+				const shouldDisable = !platformUsername.value.trim();
+				if (shouldDisable && generateBtn.disabled === false) {
+					generateBtn.disabled = true;
+					generateBtn.style.cursor = 'not-allowed';
+				}
+			});
+
+			observer.observe(generateBtn, {
+				attributes: true,
+				attributeFilter: ['disabled']
+			});
+
+			generateBtn.dataset.generateButtonStateObserved = 'true';
+		}
+
+		applyGenerateButtonState();
 	}
 
 	function showPopupMessage(message) {
