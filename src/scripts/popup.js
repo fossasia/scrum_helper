@@ -1692,7 +1692,16 @@ function updatePlatformUI(platform) {
 
 platformSelect.addEventListener('change', () => {
 	const platform = platformSelect.value;
-	browser.storage.local.set({ platform });
+	browser.storage.local.set({ platform }).then(() => {
+		const scrumReport = document.getElementById('scrumReport');
+		if(scrumReport){
+			scrumReport.innerHTML = '';
+		}
+		const generateBtn = document.getElementById('generateReport');
+		if(typeof bootstrapScrumReportOnPopupLoad === 'function'){
+			bootstrapScrumReportOnPopupLoad(generateBtn);
+		}
+	});
 	const platformUsername = document.getElementById('platformUsername');
 	if (platformUsername) {
 		const currentPlatform = platformSelect.value === 'github' ? 'gitlab' : 'github'; // Get the platform we're switching from
@@ -1743,7 +1752,15 @@ function setPlatformDropdown(value) {
 	}
 
 	platformSelectHidden.value = value;
-	browser.storage.local.set({ platform: value });
+	browser.storage.local.set({ platform: value }).then(() => {
+		const scrumReport = document.getElementById('scrumReport');
+		if(scrumReport) scrumReport.innerHTML = '';
+
+		const generateBtn = document.getElementById('generateReport');
+		if(typeof bootstrapScrumReportOnPopupLoad === 'function'){
+			bootstrapScrumReportOnPopupLoad(generateBtn);
+		}
+	});
 
 	browser.storage.local.get([`${value}Username`]).then((result) => {
 		if (platformUsername) {
