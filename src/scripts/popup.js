@@ -491,15 +491,10 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (timestamp > 0) {
 			const age = Date.now() - timestamp;
 
-			const {
-				lastScrumReportHtml,
-				lastScrumReportPlatform,
-				lastScrumReportCacheKey,
-				lastScrumReportUsername,
-				githubUsername,
-				gitlabUsername,
-				platformUsername
-			} = await storageLocalGet([
+			const storageValues = await storageLocalGet([
+				`${activePlatform}LastScrumReportHtml`,
+				`${activePlatform}LastScrumReportCacheKey`,
+				`${activePlatform}LastScrumReportUsername`,
 				'lastScrumReportHtml',
 				'lastScrumReportPlatform',
 				'lastScrumReportCacheKey',
@@ -509,9 +504,20 @@ document.addEventListener('DOMContentLoaded', () => {
 				'platformUsername'
 			]);
 
+			let lastScrumReportHtml = storageValues[`${activePlatform}LastScrumReportHtml`];
+			let lastScrumReportCacheKey = storageValues[`${activePlatform}LastScrumReportCacheKey`];
+			let lastScrumReportUsername = storageValues[`${activePlatform}LastScrumReportUsername`];
+
+			if (storageValues.lastScrumReportHtml && (!storageValues.lastScrumReportPlatform || storageValues.lastScrumReportPlatform === activePlatform) && !lastScrumReportHtml) {
+				lastScrumReportHtml = storageValues.lastScrumReportHtml;
+				lastScrumReportCacheKey = storageValues.lastScrumReportCacheKey;
+				lastScrumReportUsername = storageValues.lastScrumReportUsername;
+			}
+
 			const expectedUsername = activePlatform === 'gitlab'
-				? (gitlabUsername || platformUsername)
-				: (githubUsername || platformUsername);
+				? (storageValues.gitlabUsername || storageValues.platformUsername)
+				: (storageValues.githubUsername || storageValues.platformUsername);
+
 			const isUsernameMatch = lastScrumReportUsername 
 				? lastScrumReportUsername === expectedUsername
 				: (lastScrumReportCacheKey && expectedUsername && lastScrumReportCacheKey.startsWith(expectedUsername + '-'));
@@ -521,7 +527,6 @@ document.addEventListener('DOMContentLoaded', () => {
 				const reportEmpty = !scrumReport.innerHTML || !scrumReport.innerHTML.trim();
 
 				const matches =
-					(!lastScrumReportPlatform || lastScrumReportPlatform === activePlatform) &&
 					(!lastScrumReportCacheKey || lastScrumReportCacheKey === cacheKey) &&
 					isUsernameMatch;
 
