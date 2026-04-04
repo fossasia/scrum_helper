@@ -132,10 +132,30 @@ document.addEventListener('DOMContentLoaded', () => {
 	const arrow = document.getElementById("advancedFiltersArrow");
 
 	if (toggleBtn && content && arrow) {
-		toggleBtn.addEventListener("click", () => {
-			content.classList.toggle("open");
-			arrow.classList.toggle("rotate-arrow");
-		});
+		const toggleAdvancedFilters = () => {
+			const isOpen = content.classList.toggle("open");
+			arrow.classList.toggle("rotate-arrow", isOpen);
+			toggleBtn.setAttribute("aria-expanded", String(isOpen));
+		};
+
+		toggleBtn.setAttribute("aria-expanded", String(content.classList.contains("open")));
+		toggleBtn.addEventListener("click", toggleAdvancedFilters);
+
+		if (toggleBtn.tagName !== "BUTTON") {
+			if (!toggleBtn.hasAttribute("role")) {
+				toggleBtn.setAttribute("role", "button");
+			}
+			if (!toggleBtn.hasAttribute("tabindex")) {
+				toggleBtn.setAttribute("tabindex", "0");
+			}
+
+			toggleBtn.addEventListener("keydown", (event) => {
+				if (event.key === "Enter" || event.key === " ") {
+					event.preventDefault();
+					toggleAdvancedFilters();
+				}
+			});
+		}
 	}
 
 	// Dark mode setup
