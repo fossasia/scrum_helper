@@ -434,7 +434,6 @@ document.addEventListener('DOMContentLoaded', () => {
 			const hasUsername = Boolean(platformUsername.value.trim());
 			const shouldDisable = !hasUsername;
 
-			generateBtn.dataset.usernameRequiredDisabled = shouldDisable ? 'true' : 'false';
 			if (generateBtn.disabled !== shouldDisable) {
 				generateBtn.disabled = shouldDisable;
 			}
