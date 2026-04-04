@@ -1168,10 +1168,9 @@ ${blockerText}`;
 						platform === 'gitlab' ? (gitlabHelper?.cache?.cacheKey ?? null) : (githubCache?.cacheKey ?? null);
 
 					browser.storage.local.set({
-						lastScrumReportHtml: content,
-						lastScrumReportPlatform: platform,
-						lastScrumReportCacheKey: cacheKey,
-						lastScrumReportUsername: platformUsername,
+						[`${platform}LastScrumReportHtml`]: content,
+						[`${platform}LastScrumReportCacheKey`]: cacheKey,
+						[`${platform}LastScrumReportUsername`]: platformUsername,
 					});
 				} catch (e) {
 					// ignore
