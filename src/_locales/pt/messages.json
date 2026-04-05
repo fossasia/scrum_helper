@@ -231,5 +231,89 @@
     },
     "onlyRevPRsTooltip": {
         "message": "Se marcado, o relatório incluirá apenas PRs revisadas por você."
+    },
+    "usernameRequiredError": {
+        "message": "Por favor, digite seu nome de usuário para gerar o relatório."
+    },
+    "unknownPlatformError": {
+        "message": "Plataforma desconhecida selecionada."
+    },
+    "gitlabFetchingError": {
+        "message": "Ocorreu um erro ao buscar os dados do GitLab."
+    },
+    "reportGenerationError": {
+        "message": "Ocorreu um erro ao gerar o relatório."
+    },
+    "githubUserNotFoundError": {
+        "message": "Usuário do GitHub \"$1\" não encontrado (404). Verifique o nome de usuário e tente novamente."
+    },
+    "githubUserValidationError": {
+        "message": "Erro ao validar o usuário do GitHub: $1 $2"
+    },
+    "invalidSearchQueryError": {
+        "message": "Consulta de busca ou intervalo de datas inválido. Verifique o formato e tente novamente."
+    },
+    "githubIssuesFetchError": {
+        "message": "Erro ao buscar issues do GitHub: $1 $2"
+    },
+    "githubPRReviewFetchError": {
+        "message": "Erro ao buscar dados de revisão de PR do GitHub: $1 $2"
+    },
+    "githubUserFetchError": {
+        "message": "Erro ao buscar dados do usuário do GitHub: $1 $2"
+    },
+    "invalidTokenError": {
+        "message": "Token do GitHub inválido ou expirado. Verifique seu token nas configurações do Scrum Helper e tente novamente."
+    },
+    "displayModeNotice": {
+        "message": "A extensão será aberta no modo $1 no próximo lançamento."
+    },
+    "repoFilteringGithubOnly": {
+        "message": "Filtragem de repositórios disponível apenas para o GitHub."
+    },
+    "repoLoadingGithubOnly": {
+        "message": "Carregamento de repositórios disponível apenas para o GitHub."
+    },
+    "repoFetchingGithubOnly": {
+        "message": "Busca de repositórios disponível apenas para o GitHub."
+    },
+    "loadingReposAutomatically": {
+        "message": "Carregando repositórios automaticamente..."
+    },
+    "gitlabUserFetchError": {
+        "message": "Erro ao buscar usuário do GitLab: $1 $2"
+    },
+    "gitlabUserNotFoundError": {
+        "message": "Usuário do GitLab '$1' não encontrado"
+    },
+    "gitlabMembershipError": {
+        "message": "Erro ao buscar projetos de associação do GitLab: $1 $2"
+    },
+    "gitlabContributedError": {
+        "message": "Erro ao buscar projetos contribuídos do GitLab: $1 $2"
+    },
+    "usernameMissingError": {
+        "message": "Nome de usuário obrigatório."
+    },
+    "generateReportTooltip": {
+        "message": "Ctrl+G"
+    },
+    "copyReportTooltip": {
+        "message": "Ctrl+Shift+Y"
+    },
+    "generatingReportNotification": {
+        "message": "Gerando relatório..."
+    },
+    "copyingReportNotification": {
+        "message": "Copiando relatório..."
+    },
+    "insertInEmailTooltip": {
+        "message": "Ctrl+Shift+M"
+    },
+    "insertingInEmailNotification": {
+        "message": "Inserindo relatório no e-mail..."
+    },
+    "insertedInEmailNotification": {
+        "message": "Relatório inserido no e-mail!"
     }
 }

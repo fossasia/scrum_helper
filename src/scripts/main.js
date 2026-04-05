@@ -14,19 +14,19 @@ const showCommitsElement = document.getElementById('showCommits');
 
 function handleBodyOnLoad() {
 	// Migration: Handle existing users with old platformUsername storage
-	chrome.storage.local.get(['platform', 'platformUsername'], (result) => {
+	browser.storage.local.get(['platform', 'platformUsername']).then((result) => {
 		if (result.platformUsername && result.platform) {
 			// Migrate old platformUsername to platform-specific storage
 			const platformUsernameKey = `${result.platform}Username`;
-			chrome.storage.local.set({ [platformUsernameKey]: result.platformUsername });
+			browser.storage.local.set({ [platformUsernameKey]: result.platformUsername });
 			// Remove the old key
-			chrome.storage.local.remove(['platformUsername']);
+			browser.storage.local.remove(['platformUsername']);
 			console.log(`[MIGRATION] Migrated platformUsername to ${platformUsernameKey}`);
 		}
 	});
 
-	chrome.storage.local.get(
-		[
+	browser.storage.local
+		.get([
 			'platform',
 			'githubUsername',
 			'gitlabUsername',
@@ -40,8 +40,8 @@ function handleBodyOnLoad() {
 			'githubToken',
 			'gitlabToken',
 			'showCommits',
-		],
-		(items) => {
+		])
+		.then((items) => {
 			// Load platform-specific username
 			const platform = items.platform || 'github';
 			const platformUsernameKey = `${platform}Username`;
@@ -88,8 +88,7 @@ function handleBodyOnLoad() {
 				showCommitsElement.checked = false;
 				handleShowCommitsChange();
 			}
-		},
-	);
+		});
 }
 
 document.getElementById('refreshCache').addEventListener('click', async (e) => {
@@ -105,11 +104,11 @@ document.getElementById('refreshCache').addEventListener('click', async (e) => {
 
 function handleStartingDateChange() {
 	const value = startingDateElement.value;
-	chrome.storage.local.set({ startingDate: value });
+	browser.storage.local.set({ startingDate: value });
 }
 function handleEndingDateChange() {
 	const value = endingDateElement.value;
-	chrome.storage.local.set({ endingDate: value });
+	browser.storage.local.set({ endingDate: value });
 }
 
 function handleYesterdayContributionChange() {
@@ -131,7 +130,7 @@ function handleYesterdayContributionChange() {
 		labelElement.classList.add('unselectedLabel');
 		labelElement.classList.remove('selectedLabel');
 	}
-	chrome.storage.local.set({ yesterdayContribution: value });
+	browser.storage.local.set({ yesterdayContribution: value });
 }
 
 function getYesterday() {
@@ -147,27 +146,27 @@ function getToday() {
 
 function handlePlatformUsernameChange() {
 	const value = platformUsernameElement.value;
-	chrome.storage.local.get(['platform'], (result) => {
+	browser.storage.local.get(['platform']).then((result) => {
 		const platform = result.platform || 'github';
 		const platformUsernameKey = `${platform}Username`;
-		chrome.storage.local.set({ [platformUsernameKey]: value });
+		browser.storage.local.set({ [platformUsernameKey]: value });
 	});
 }
 function handleGithubTokenChange() {
 	const value = githubTokenElement.value;
-	chrome.storage.local.set({ githubToken: value });
+	browser.storage.local.set({ githubToken: value });
 }
 function handleGitlabTokenChange() {
 	const value = gitlabTokenElement.value;
-	chrome.storage.local.set({ gitlabToken: value });
+	browser.storage.local.set({ gitlabToken: value });
 }
 function handleProjectNameChange() {
 	const value = projectNameElement.value;
-	chrome.storage.local.set({ projectName: value });
+	browser.storage.local.set({ projectName: value });
 }
 function handleCacheInputChange() {
 	const value = cacheInputElement.value;
-	chrome.storage.local.set({ cacheInput: value });
+	browser.storage.local.set({ cacheInput: value });
 }
 function handleOpenLabelChange() {
 	const value = showOpenLabelElement.checked;
@@ -181,12 +180,12 @@ function handleOpenLabelChange() {
 		labelElement.classList.remove('selectedLabel');
 	}
 
-	chrome.storage.local.set({ showOpenLabel: value });
+	browser.storage.local.set({ showOpenLabel: value });
 }
 
 function handleShowCommitsChange() {
 	const value = showCommitsElement.checked;
-	chrome.storage.local.set({ showCommits: value });
+	browser.storage.local.set({ showCommits: value });
 }
 
 platformUsernameElement.addEventListener('keyup', handlePlatformUsernameChange);

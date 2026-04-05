@@ -64,13 +64,20 @@ a {
     gap: 8px;
 }
 
-.scrum-actions > button {
-    flex: 1 1 0;
+.scrum-actions>button,
+.scrum-actions>.tooltip-container {
+    flex: 1 1 auto;
     min-width: 0;
 }
 
-.scrum-actions > button span {
+.scrum-actions>.tooltip-container>button {
+    width: 100%;
+}
+
+.scrum-actions>button span,
+.scrum-actions>.tooltip-container>button span {
     text-align: center;
+    white-space: normal;
 }
 
 .btn,
@@ -899,12 +906,113 @@ hr,
     color: #fff;
 }
 
-html.mode-sidepanel, body.mode-sidepanel {
+html.mode-sidepanel,
+body.mode-sidepanel {
     width: 100%;
     min-width: 360px;
 }
 
-html.mode-popup, body.mode-popup {
-    width: 360px; 
+html.mode-popup,
+body.mode-popup {
+    width: 360px;
     min-width: 360px;
+}
+
+/* Shortcut tooltip on button hover */
+.scrum-actions .tooltip-container {
+    position: relative;
+    margin-left: 0;
+}
+
+.shortcut-tooltip {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 6px;
+    padding: 6px 12px;
+    background: #1f2937;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: 6px;
+    white-space: nowrap;
+    pointer-events: none;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+    z-index: 10000;
+}
+
+.shortcut-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 5px;
+    border-style: solid;
+    border-color: #1f2937 transparent transparent transparent;
+}
+
+.dark-mode .shortcut-tooltip {
+    background: #ffffff;
+    color: #1f2937;
+}
+
+.dark-mode .shortcut-tooltip::after {
+    border-color: #ffffff transparent transparent transparent;
+}
+
+.tooltip-container:hover .shortcut-tooltip,
+.tooltip-container:focus-within .shortcut-tooltip,
+.tooltip-container:focus-visible .shortcut-tooltip {
+    visibility: visible;
+    opacity: 1;
+}
+
+/* Shortcut notification toast */
+.shortcut-notification {
+    position: fixed;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 8px 18px;
+    background: #1f2937;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 10000;
+    animation: slideIn 0.3s ease-out;
+}
+
+.dark-mode .shortcut-notification {
+    background: #ffffff;
+    color: #1f2937;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translate(-50%, -10px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translate(-50%, 0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translate(-50%, 0);
+        opacity: 1;
+    }
+
+    to {
+        transform: translate(-50%, -10px);
+        opacity: 0;
+    }
 }

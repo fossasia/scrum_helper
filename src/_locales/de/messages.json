@@ -231,5 +231,89 @@
     },
     "onlyRevPRsTooltip": {
         "message": "Wenn diese Option aktiviert ist, enthält der Bericht nur PRs, die von Ihnen überprüft wurden."
+    },
+    "generateReportTooltip": {
+        "message": "Ctrl+G"
+    },
+    "copyReportTooltip": {
+        "message": "Ctrl+Shift+Y"
+   },
+        "usernameRequiredError": {
+        "message": "Bitte geben Sie Ihren Benutzernamen ein, um einen Bericht zu erstellen."
+    },
+    "unknownPlatformError": {
+        "message": "Unbekannte Plattform ausgewählt."
+    },
+    "gitlabFetchingError": {
+        "message": "Beim Abrufen der GitLab-Daten ist ein Fehler aufgetreten."
+    },
+    "reportGenerationError": {
+        "message": "Beim Erstellen des Berichts ist ein Fehler aufgetreten."
+    },
+    "githubUserNotFoundError": {
+        "message": "GitHub-Benutzer \"$1\" nicht gefunden (404). Bitte überprüfen Sie den Benutzernamen und versuchen Sie es erneut."
+    },
+    "githubUserValidationError": {
+        "message": "Fehler bei der Validierung des GitHub-Benutzers: $1 $2"
+    },
+    "invalidSearchQueryError": {
+        "message": "Ungültige Suchanfrage oder Datumsbereich. Bitte überprüfen Sie das Format Ihres Datumsbereichs und versuchen Sie es erneut."
+    },
+    "githubIssuesFetchError": {
+        "message": "Fehler beim Abrufen von GitHub-Issues: $1 $2"
+    },
+    "githubPRReviewFetchError": {
+        "message": "Fehler beim Abrufen der GitHub-PR-Review-Daten: $1 $2"
+    },
+    "githubUserFetchError": {
+        "message": "Fehler beim Abrufen der GitHub-Benutzerdaten: $1 $2"
+    },
+    "invalidTokenError": {
+        "message": "Ungültiges oder abgelaufenes GitHub-Token. Bitte überprüfen Sie Ihr Token in den Scrum Helper-Einstellungen und versuchen Sie es erneut."
+    },
+    "displayModeNotice": {
+        "message": "Die Erweiterung wird beim nächsten Start im $1-Modus geöffnet."
+    },
+    "repoFilteringGithubOnly": {
+        "message": "Repository-Filterung ist nur für GitHub verfügbar."
+    },
+    "repoLoadingGithubOnly": {
+        "message": "Repository-Laden ist nur für GitHub verfügbar."
+    },
+    "repoFetchingGithubOnly": {
+        "message": "Repository-Abruf ist nur für GitHub verfügbar."
+    },
+    "loadingReposAutomatically": {
+        "message": "Lade Repositories automatisch..."
+    },
+    "gitlabUserFetchError": {
+        "message": "Fehler beim Abrufen des GitLab-Benutzers: $1 $2"
+    },
+    "gitlabUserNotFoundError": {
+        "message": "GitLab-Benutzer '$1' nicht gefunden"
+    },
+    "gitlabMembershipError": {
+        "message": "Fehler beim Abrufen der GitLab-Mitgliedschaftsprojekte: $1 $2"
+    },
+    "gitlabContributedError": {
+        "message": "Fehler beim Abrufen der GitLab-Beitragsprojekte: $1 $2"
+    },
+    "usernameMissingError": {
+        "message": "Benutzername erforderlich."
+    },
+    "generatingReportNotification": {
+        "message": "Bericht wird erstellt..."
+    },
+    "copyingReportNotification": {
+        "message": "Bericht wird kopiert..."
+    },
+    "insertInEmailTooltip": {
+        "message": "Ctrl+Shift+M"
+    },
+    "insertingInEmailNotification": {
+        "message": "Bericht wird in E-Mail eingefügt..."
+    },
+    "insertedInEmailNotification": {
+        "message": "Bericht in E-Mail eingefügt!"
     }
 }
