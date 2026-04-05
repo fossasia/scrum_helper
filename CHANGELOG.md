@@ -488,6 +488,11 @@ language (#334) @vedansh-5
 * Adding lint and formatting test (GH Actions) (#343) @vedansh-5
 * chore(deps)(deps-dev): bump @biomejs/biome from 2.3.11 to 2.3.13 (#333) @[dependabot[bot]](https://github.com/apps/dependabot)
 * chore(deps)(deps-dev): bump @biomejs/biome from 2.3.10 to 2.3.11 (#290) @[dependabot[bot]](https://github.com/apps/dependabot)
+## v0.1.0 - 2026-02-01
+
+## What's Changed
+
+* No changes
 
 ---
 
