@@ -388,5 +388,8 @@
   "usernameMissingError": {
     "message": "Username required.",
     "description": "Error shown when username is missing."
+  },
+  "clearAllReposBtn": {
+    "message": "Clear All"
   }
 }

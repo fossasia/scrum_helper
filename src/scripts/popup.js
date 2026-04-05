@@ -1311,9 +1311,11 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 
 		function updateRepoDisplay() {
+			const clearAllBtn = document.getElementById('clearAllReposBtn');
 			if (selectedRepos.length === 0) {
 				repoTags.innerHTML = `<span class="text-xs text-gray-500 select-none" id="repoPlaceholder">${browser.i18n.getMessage('repoPlaceholder')}</span>`;
 				repoCount.textContent = browser.i18n.getMessage('repoCountNone');
+				if (clearAllBtn) clearAllBtn.classList.add('hidden');
 			} else {
 				repoTags.innerHTML = selectedRepos
 					.map((repoFullName) => {
@@ -1336,6 +1338,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					});
 				});
 				repoCount.textContent = browser.i18n.getMessage('repoCount', [selectedRepos.length]);
+				if (clearAllBtn) clearAllBtn.classList.remove('hidden');
 			}
 		}
 
@@ -1344,6 +1347,19 @@ document.addEventListener('DOMContentLoaded', () => {
 			browser.storage.local.set({
 				selectedRepos: cleanedRepos,
 				githubCache: null,
+			});
+		}
+
+		const clearAllReposBtn = document.getElementById('clearAllReposBtn');
+		if (clearAllReposBtn) {
+			clearAllReposBtn.addEventListener('click', () => {
+				selectedRepos = [];
+				updateRepoDisplay();
+				saveRepoSelection();
+
+				if (repoSearch && repoSearch.value) {
+					filterAndDisplayRepos(repoSearch.value.toLowerCase());
+				}
 			});
 		}
 

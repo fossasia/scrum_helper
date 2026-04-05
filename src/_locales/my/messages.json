@@ -289,5 +289,8 @@
   },
   "insertInEmailButton": {
     "message": "အီးမေးလ်သို့ ထည့်ပါ"
+  },
+  "clearAllReposBtn": {
+    "message": "အားလုံးဖျက်မည်"
   }
 }
