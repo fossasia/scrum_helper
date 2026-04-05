@@ -405,33 +405,25 @@ async function allIncluded(outputTarget = 'email') {
 										githubUserData: data.user || {},
 									};
 									githubUserData = mappedData.githubUserData;
-                  // Feed the mapped GitLab data into the same report-generation
- 									// pipeline used for GitHub data so that the email body is updated,
- 									// not just the subject.
- 									let processedScrumData = mappedData;
- 									if (typeof processGithubData === 'function') {
- 										try {
- 											processedScrumData = await processGithubData(
- 												mappedData,
- 												{
- 													platformUsername: platformUsernameLocal || platformUsername,
- 													startingDate,
- 													endingDate,
- 													source: 'gitlab',
- 												},
- 											);
- 										} catch (e) {
- 											logError('Failed to process GitLab-mapped data via processGithubData:', e);
- 											processedScrumData = mappedData;
- 										}
- 									}
- 									if (typeof writeScrumBody === 'function') {
- 										try {
- 											writeScrumBody(processedScrumData, outputTarget);
- 										} catch (e) {
- 											logError('Failed to write scrum body for GitLab data:', e);
- 										}
- 									}
+									// Feed the mapped GitLab data into the same report-generation
+									// pipeline used for GitHub data so that the email body is updated,
+									// not just the subject.
+									let processedScrumData = mappedData;
+									if (typeof processGithubData === 'function') {
+										try {
+											processedScrumData = await processGithubData(mappedData);
+										} catch (e) {
+											logError('Failed to process GitLab-mapped data via processGithubData:', e);
+											processedScrumData = mappedData;
+										}
+									}
+									if (typeof writeScrumBody === 'function') {
+										try {
+											writeScrumBody(processedScrumData, outputTarget);
+										} catch (e) {
+											logError('Failed to write scrum body for GitLab data:', e);
+										}
+									}
 									const name =
 										githubUserData?.name || githubUserData?.username || platformUsernameLocal || platformUsername;
 									const project = projectName;
