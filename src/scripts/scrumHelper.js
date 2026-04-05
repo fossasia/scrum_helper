@@ -277,6 +277,7 @@ async function allIncluded(outputTarget = 'email') {
 
 					// apply projectName from DOM immediately in popup mode
 					items.projectName = projectFromDOM || items.projectName;
+					projectName = items.projectName;
 
 					// Save platform-specific token (use gitlabToken input when platform is gitlab)
 					if (platform === 'gitlab') {
@@ -293,8 +294,7 @@ async function allIncluded(outputTarget = 'email') {
 					});
 				}
 
-				userReason = items.userReason || 'No Blocker at the moment';
-				githubToken = items.githubToken;
+				projectName = items.projectName || '';
 				gitlabToken = items.gitlabToken || '';
 				yesterdayContribution = items.yesterdayContribution;
 
@@ -434,6 +434,21 @@ async function allIncluded(outputTarget = 'email') {
 									// Feed the mapped GitLab data into the same report-generation
 									// pipeline used for GitHub data so that the email body is updated,
 									// not just the subject.
+
+									const name =
+										githubUserData?.name || githubUserData?.username || platformUsernameLocal || platformUsername;
+									const project = projectName;
+									const curDate = new Date();
+									const year = curDate.getFullYear().toString();
+									let date = curDate.getDate();
+									let month = curDate.getMonth() + 1;
+									if (month < 10) month = '0' + month;
+									if (date < 10) date = '0' + date;
+									const dateCode = year.toString() + month.toString() + date.toString();
+									const subject = `[Scrum]${project ? ' - ' + project : ''} - ${dateCode}`;
+									subjectForEmail = subject;
+									window.scrumSubjectForEmail = subject;
+
 									let processedScrumData = mappedData;
 									if (typeof processGithubData === 'function') {
 										try {
@@ -455,19 +470,6 @@ async function allIncluded(outputTarget = 'email') {
 											logError('Failed to write scrum body for GitLab data:', e);
 										}
 									}
-									const name =
-										githubUserData?.name || githubUserData?.username || platformUsernameLocal || platformUsername;
-									const project = projectName;
-									const curDate = new Date();
-									const year = curDate.getFullYear().toString();
-									let date = curDate.getDate();
-									let month = curDate.getMonth() + 1;
-									if (month < 10) month = '0' + month;
-									if (date < 10) date = '0' + date;
-									const dateCode = year.toString() + month.toString() + date.toString();
-									const subject = `[Scrum]${project ? ' - ' + project : ''} - ${dateCode}`;
-									subjectForEmail = subject;
-									window.scrumSubjectForEmail = subject;
 									scrumGenerationInProgress = false;
 								} catch (err) {
 									console.error('GitLab fetch failed:', err);
@@ -1218,7 +1220,14 @@ async function allIncluded(outputTarget = 'email') {
 				chrome?.i18n.getMessage('invalidTokenError') ||
 				'Invalid or expired GitHub token. Please check your token in the settings and try again.';
 			if (reportDiv) {
-				reportDiv.innerHTML = `<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">${errMsg}</div>`;
+				reportDiv.textContent = '';
+				const errorMessage = document.createElement('div');
+				errorMessage.className = 'error-message';
+				errorMessage.style.color = '#dc2626';
+				errorMessage.style.fontWeight = 'bold';
+				errorMessage.style.padding = '10px';
+				errorMessage.textContent = errMsg;
+				reportDiv.appendChild(errorMessage);
 				const generateBtn = document.getElementById('generateReport');
 				if (generateBtn) {
 					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
@@ -1365,7 +1374,7 @@ ${escapeHtml(userReason)}`;
 						platform === 'gitlab' ? (gitlabHelper?.cache?.cacheKey ?? null) : (githubCache?.cacheKey ?? null);
 
 					// Generate the subject to persist for use in popup
-					const projectName = document.getElementById('projectName')?.value?.trim() || '';
+					const popupProjectName = document.getElementById('projectName')?.value?.trim() || projectName || '';
 					const curDate = new Date();
 					const year = curDate.getFullYear();
 					let month = curDate.getMonth() + 1;
@@ -1373,7 +1382,7 @@ ${escapeHtml(userReason)}`;
 					if (month < 10) month = '0' + month;
 					if (date < 10) date = '0' + date;
 					const dateCode = year.toString() + month.toString() + date.toString();
-					const subject = `[Scrum]${projectName ? ' - ' + projectName : ''} - ${dateCode}`;
+					const subject = `[Scrum]${popupProjectName ? ' - ' + popupProjectName : ''} - ${dateCode}`;
 
 					browser.storage.local.set({
 						[`${platform}LastScrumReportHtml`]: sanitizedHtml,
