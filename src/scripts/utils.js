@@ -25,22 +25,42 @@
 		return `[Scrum]${projectPart} - ${getScrumDateCode(now)}`;
 	}
 
-	function mapGitLabItem(item, projects = [], type) {
+	function normalizeGitLabState(state, type) {
+		if (type === 'issue') {
+			return state === 'opened' ? 'open' : state;
+		}
+
+		if (type === 'mr') {
+			if (state === 'opened') {
+				return 'open';
+			}
+			if (state === 'merged' || state === 'closed') {
+				return 'closed';
+			}
+		}
+
+		return state;
+	}
+
+	function mapGitLabItem(item, projects = [], type, apiBaseUrl = 'https://gitlab.com/api/v4') {
 		const project = projects.find((projectItem) => projectItem.id === item.project_id);
 		const repoName = project ? project.name : 'unknown';
+		const normalizedApiBase = apiBaseUrl.replace(/\/+$/, '');
+		const normalizedState = normalizeGitLabState(item.state, type);
+		const pullRequestData = type === 'mr' ? { merged_at: item.merged_at || null } : false;
 
 		return {
 			...item,
-			repository_url: `https://gitlab.com/api/v4/projects/${item.project_id}`,
+			repository_url: `${normalizedApiBase}/projects/${item.project_id}`,
 			html_url:
 				type === 'issue'
 					? item.web_url || (project ? `${project.web_url}/-/issues/${item.iid}` : '')
 					: item.web_url || (project ? `${project.web_url}/-/merge_requests/${item.iid}` : ''),
 			number: item.iid,
 			title: item.title,
-			state: type === 'issue' && item.state === 'opened' ? 'open' : item.state,
+			state: normalizedState,
 			project: repoName,
-			pull_request: type === 'mr',
+			pull_request: pullRequestData,
 		};
 	}
 

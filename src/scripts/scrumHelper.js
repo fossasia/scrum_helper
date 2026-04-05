@@ -255,12 +255,13 @@ function allIncluded(outputTarget = 'email') {
 										endingDate,
 										gitlabToken,
 									);
+									const gitlabApiBase = gitlabHelper?.baseUrl;
 
 									const mappedIssues = (data.issues || []).map((issue) =>
-										window.scrumUtils.mapGitLabItem(issue, data.projects, 'issue'),
+										window.scrumUtils.mapGitLabItem(issue, data.projects, 'issue', gitlabApiBase),
 									);
 									const mappedMRs = (data.mergeRequests || data.mrs || []).map((mr) =>
-										window.scrumUtils.mapGitLabItem(mr, data.projects, 'mr'),
+										window.scrumUtils.mapGitLabItem(mr, data.projects, 'mr', gitlabApiBase),
 									);
 									const mappedData = {
 										githubIssuesData: { items: mappedIssues },
@@ -301,11 +302,12 @@ function allIncluded(outputTarget = 'email') {
 							gitlabHelper
 								.fetchGitLabData(platformUsernameLocal, startingDate, endingDate, gitlabToken)
 								.then((data) => {
+									const gitlabApiBase = gitlabHelper?.baseUrl;
 									const mappedIssues = (data.issues || []).map((issue) =>
-										window.scrumUtils.mapGitLabItem(issue, data.projects, 'issue'),
+										window.scrumUtils.mapGitLabItem(issue, data.projects, 'issue', gitlabApiBase),
 									);
 									const mappedMRs = (data.mergeRequests || data.mrs || []).map((mr) =>
-										window.scrumUtils.mapGitLabItem(mr, data.projects, 'mr'),
+										window.scrumUtils.mapGitLabItem(mr, data.projects, 'mr', gitlabApiBase),
 									);
 									const mappedData = {
 										githubIssuesData: { items: mappedIssues },
