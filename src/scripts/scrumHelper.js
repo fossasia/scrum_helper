@@ -1334,11 +1334,9 @@ ${escapeHtml(userReason)}`;
 					const subject = `[Scrum]${projectName ? ' - ' + projectName : ''} - ${dateCode}`;
 
 					browser.storage.local.set({
-						lastScrumReportHtml: scrumReport.innerHTML,
-						lastScrumReportPlatform: platform,
-						lastScrumReportCacheKey: cacheKey,
-						lastScrumReportUsername: platformUsername,
-						lastScrumSubject: subject,
+						[`${platform}LastScrumReportHtml`]: content,
+						[`${platform}LastScrumReportCacheKey`]: cacheKey,
+						[`${platform}LastScrumReportUsername`]: platformUsername,
 					});
 				} catch (err) {
 					logError('Failed to save report to storage:', err);
