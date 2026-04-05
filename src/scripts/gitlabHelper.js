@@ -24,7 +24,7 @@ class GitLabHelper {
 	//  - otherwise -> use the provided override token (may be empty string)
 	getHeaders(overrideToken = undefined) {
 		const headers = {
-			'Content-Type': 'application/json',
+			Accept: 'application/json',
 		};
 
 		let tokenToUse;

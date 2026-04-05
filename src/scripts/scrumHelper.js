@@ -1376,7 +1376,7 @@ ${escapeHtml(userReason)}`;
 					const subject = `[Scrum]${projectName ? ' - ' + projectName : ''} - ${dateCode}`;
 
 					browser.storage.local.set({
-						[`${platform}LastScrumReportHtml`]: content,
+						[`${platform}LastScrumReportHtml`]: sanitizedHtml,
 						[`${platform}LastScrumReportCacheKey`]: cacheKey,
 						[`${platform}LastScrumReportUsername`]: platformUsername,
 						[`${platform}LastScrumReportSubject`]: subject,

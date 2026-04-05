@@ -70,7 +70,7 @@
         "message": "Definir"
     },
     "githubTokenLabel": {
-        "message": "Seu Token do GitHub"
+        "message": "Seu Token do Github"
     },
     "githubTokenPlaceholder": {
         "message": "Necessário para fazer solicitações autenticadas"
@@ -85,7 +85,7 @@
         "message": "Mostrar commits em PRs abertos/ rascunhos de PRs"
     },
     "showCommitsTooltip": {
-        "message": "Token do GitHub necessário, adicione-o nas configurações."
+        "message": "Token do Github necessário, adicione-o nas configurações."
     },
     "onlyIssuesLabel": {
         "message": "Incluir apenas problemas no relatório"
