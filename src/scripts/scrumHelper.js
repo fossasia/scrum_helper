@@ -252,27 +252,11 @@ function allIncluded(outputTarget = 'email') {
 										gitlabToken,
 									);
 
-									function mapGitLabItem(item, projects, type) {
-										const project = projects.find((p) => p.id === item.project_id);
-										const repoName = project ? project.name : 'unknown';
-
-										return {
-											...item,
-											repository_url: `https://gitlab.com/api/v4/projects/${item.project_id}`,
-											html_url:
-												type === 'issue'
-													? item.web_url || (project ? `${project.web_url}/-/issues/${item.iid}` : '')
-													: item.web_url || (project ? `${project.web_url}/-/merge_requests/${item.iid}` : ''),
-											number: item.iid,
-											title: item.title,
-											state: type === 'issue' && item.state === 'opened' ? 'open' : item.state,
-											project: repoName,
-											pull_request: type === 'mr',
-										};
-									}
-									const mappedIssues = (data.issues || []).map((issue) => mapGitLabItem(issue, data.projects, 'issue'));
+									const mappedIssues = (data.issues || []).map((issue) =>
+										window.scrumUtils.mapGitLabItem(issue, data.projects, 'issue'),
+									);
 									const mappedMRs = (data.mergeRequests || data.mrs || []).map((mr) =>
-										mapGitLabItem(mr, data.projects, 'mr'),
+										window.scrumUtils.mapGitLabItem(mr, data.projects, 'mr'),
 									);
 									const mappedData = {
 										githubIssuesData: { items: mappedIssues },
@@ -281,18 +265,8 @@ function allIncluded(outputTarget = 'email') {
 									};
 									githubUserData = mappedData.githubUserData;
 
-									const name =
-										githubUserData?.name || githubUserData?.username || platformUsernameLocal || platformUsername;
 									const project = projectName;
-									const curDate = new Date();
-									const year = curDate.getFullYear().toString();
-									let date = curDate.getDate();
-									let month = curDate.getMonth() + 1;
-									if (month < 10) month = '0' + month;
-									if (date < 10) date = '0' + date;
-									const dateCode = year.toString() + month.toString() + date.toString();
-									const subject = `[Scrum]${project ? ' - ' + project : ''} - ${dateCode}`;
-									subjectForEmail = subject;
+									subjectForEmail = window.scrumUtils.buildScrumSubject(project);
 
 									await processGithubData(mappedData, true, subjectForEmail);
 									scrumGenerationInProgress = false;
@@ -321,26 +295,11 @@ function allIncluded(outputTarget = 'email') {
 							gitlabHelper
 								.fetchGitLabData(platformUsernameLocal, startingDate, endingDate, gitlabToken)
 								.then((data) => {
-									function mapGitLabItem(item, projects, type) {
-										const project = projects.find((p) => p.id === item.project_id);
-										const repoName = project ? project.name : 'unknown';
-										return {
-											...item,
-											repository_url: `https://gitlab.com/api/v4/projects/${item.project_id}`,
-											html_url:
-												type === 'issue'
-													? item.web_url || (project ? `${project.web_url}/-/issues/${item.iid}` : '')
-													: item.web_url || (project ? `${project.web_url}/-/merge_requests/${item.iid}` : ''),
-											number: item.iid,
-											title: item.title,
-											state: type === 'issue' && item.state === 'opened' ? 'open' : item.state,
-											project: repoName,
-											pull_request: type === 'mr',
-										};
-									}
-									const mappedIssues = (data.issues || []).map((issue) => mapGitLabItem(issue, data.projects, 'issue'));
+									const mappedIssues = (data.issues || []).map((issue) =>
+										window.scrumUtils.mapGitLabItem(issue, data.projects, 'issue'),
+									);
 									const mappedMRs = (data.mergeRequests || data.mrs || []).map((mr) =>
-										mapGitLabItem(mr, data.projects, 'mr'),
+										window.scrumUtils.mapGitLabItem(mr, data.projects, 'mr'),
 									);
 									const mappedData = {
 										githubIssuesData: { items: mappedIssues },
@@ -401,19 +360,8 @@ function allIncluded(outputTarget = 'email') {
 	getChromeData();
 
 	function handleYesterdayContributionChange() {
-		endingDate = getToday();
-		startingDate = getYesterday();
-	}
-
-	function getYesterday() {
-		const today = new Date();
-		const yesterday = new Date(today);
-		yesterday.setDate(today.getDate() - 1);
-		return yesterday.toISOString().split('T')[0];
-	}
-	function getToday() {
-		const today = new Date();
-		return today.toISOString().split('T')[0];
+		endingDate = window.scrumUtils.getTodayDateString();
+		startingDate = window.scrumUtils.getYesterdayDateString();
 	}
 
 	// Global cache object
@@ -1231,18 +1179,8 @@ ${blockerText}`;
 				return;
 			}
 			setTimeout(() => {
-				const name = githubUserData?.name || githubUserData?.username || platformUsernameLocal || platformUsername;
 				const project = projectName;
-				const curDate = new Date();
-				const year = curDate.getFullYear().toString();
-				let date = curDate.getDate();
-				let month = curDate.getMonth();
-				month++;
-				if (month < 10) month = '0' + month;
-				if (date < 10) date = '0' + date;
-				const dateCode = year.toString() + month.toString() + date.toString();
-
-				const subject = `[Scrum]${project ? ' - ' + project : ''} - ${dateCode}`;
+				const subject = window.scrumUtils.buildScrumSubject(project);
 				log('Generated subject:', subject);
 				githubCache.subject = subject;
 				saveToStorage(githubCache.data, subject);

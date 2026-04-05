@@ -118,8 +118,8 @@ function handleYesterdayContributionChange() {
 	if (value) {
 		startingDateElement.readOnly = true;
 		endingDateElement.readOnly = true;
-		endingDateElement.value = getToday();
-		startingDateElement.value = getYesterday();
+		endingDateElement.value = window.scrumUtils.getTodayDateString();
+		startingDateElement.value = window.scrumUtils.getYesterdayDateString();
 		handleEndingDateChange();
 		handleStartingDateChange();
 		labelElement.classList.add('selectedLabel');
@@ -132,18 +132,6 @@ function handleYesterdayContributionChange() {
 	}
 	browser.storage.local.set({ yesterdayContribution: value });
 }
-
-function getYesterday() {
-	const today = new Date();
-	const yesterday = new Date(today);
-	yesterday.setDate(today.getDate() - 1);
-	return yesterday.toISOString().split('T')[0];
-}
-function getToday() {
-	const today = new Date();
-	return today.toISOString().split('T')[0];
-}
-
 function handlePlatformUsernameChange() {
 	const value = platformUsernameElement.value;
 	browser.storage.local.get(['platform']).then((result) => {

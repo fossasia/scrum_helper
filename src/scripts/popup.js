@@ -78,18 +78,6 @@ function setupButtonTooltips() {
 	}
 }
 
-function getToday() {
-	const today = new Date();
-	return today.toISOString().split('T')[0];
-}
-
-function getYesterday() {
-	const today = new Date();
-	const yesterday = new Date(today);
-	yesterday.setDate(today.getDate() - 1);
-	return yesterday.toISOString().split('T')[0];
-}
-
 function applyI18n() {
 	document.querySelectorAll('[data-i18n]').forEach((el) => {
 		const key = el.getAttribute('data-i18n');
@@ -822,8 +810,8 @@ document.addEventListener('DOMContentLoaded', () => {
 					const endDateInput = document.getElementById('endingDate');
 
 					if (items.selectedTimeframe === 'yesterdayContribution') {
-						startDateInput.value = getYesterday();
-						endDateInput.value = getToday();
+						startDateInput.value = window.scrumUtils.getYesterdayDateString();
+						endDateInput.value = window.scrumUtils.getTodayDateString();
 					}
 					startDateInput.readOnly = endDateInput.readOnly = true;
 
@@ -1728,11 +1716,7 @@ const platformSelectHidden = document.getElementById('platformSelect');
 
 function buildScrumSubjectFromPopup() {
 	const projectName = document.getElementById('projectName')?.value?.trim() || '';
-	const now = new Date();
-	const dateCode =
-		String(now.getFullYear()) + String(now.getMonth() + 1).padStart(2, '0') + String(now.getDate()).padStart(2, '0');
-
-	return `[Scrum]${projectName ? ' - ' + projectName : ''} - ${dateCode}`;
+	return window.scrumUtils.buildScrumSubject(projectName);
 }
 
 function setPlatformDropdown(value) {
@@ -2009,8 +1993,8 @@ function toggleRadio(radio) {
 	console.log('Toggling radio:', radio.id);
 
 	if (radio.id === 'yesterdayContribution') {
-		startDateInput.value = getYesterday();
-		endDateInput.value = getToday();
+		startDateInput.value = window.scrumUtils.getYesterdayDateString();
+		endDateInput.value = window.scrumUtils.getTodayDateString();
 	}
 
 	startDateInput.readOnly = endDateInput.readOnly = true;
