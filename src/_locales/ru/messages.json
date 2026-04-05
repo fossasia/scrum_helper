@@ -150,6 +150,9 @@
     "repoCount": {
         "message": "$1 репозиториев выбрано"
     },
+    "clearAllBtn": {
+        "message": "Очистить всё"
+    },
     "repoLoading": {
         "message": "Загрузка репозиториев..."
     },

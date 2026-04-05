@@ -150,6 +150,9 @@
     "repoCount": {
         "message": "$1 repositórios selecionados"
     },
+    "clearAllBtn": {
+        "message": "Limpar tudo"
+    },
     "repoLoading": {
         "message": "Carregando repositórios..."
     },

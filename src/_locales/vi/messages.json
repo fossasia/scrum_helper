@@ -150,6 +150,9 @@
     "repoCount": {
         "message": "$1 kho lưu trữ đã chọn"
     },
+    "clearAllBtn": {
+        "message": "Xóa tất cả"
+    },
     "repoLoading": {
         "message": "Đang tải kho lưu trữ..."
     },

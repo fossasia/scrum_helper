@@ -150,6 +150,9 @@
     "repoCount": {
         "message": "$1 dépôts sélectionnés"
     },
+    "clearAllBtn": {
+        "message": "Tout effacer"
+    },
     "repoLoading": {
         "message": "Chargement des dépôts..."
     },

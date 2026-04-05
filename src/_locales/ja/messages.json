@@ -151,6 +151,9 @@
     "repoCount": {
         "message": "$1件のリポジトリが選択されています"
     },
+    "clearAllBtn": {
+        "message": "すべてクリア"
+    },
     "repoLoading": {
         "message": "リポジトリを読み込み中..."
     },

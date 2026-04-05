@@ -150,6 +150,9 @@
     "repoCount": {
         "message": "已选择 $1 个仓库"
     },
+    "clearAllBtn": {
+        "message": "全部清除"
+    },
     "repoLoading": {
         "message": "正在加载仓库..."
     },

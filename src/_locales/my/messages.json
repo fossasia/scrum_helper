@@ -146,6 +146,9 @@
   "repoCount": {
     "message": "ရွေးချယ်ထားသော repositoryအရေအတွက်သည် $1 ဖြစ်သည်။"
   },
+  "clearAllBtn": {
+    "message": "အားလုံးရှင်းပါ"
+  },
   "repoLoading": {
     "message": "repositoryကို ဖွင့်နေသည်....."
   },

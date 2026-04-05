@@ -150,6 +150,9 @@
     "repoCount": {
         "message": "$1 रिपॉजिटरी चयनित"
     },
+    "clearAllBtn": {
+        "message": "सभी हटाएं"
+    },
     "repoLoading": {
         "message": "रिपॉजिटरी लोड हो रही हैं..."
     },

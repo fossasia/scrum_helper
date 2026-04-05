@@ -1054,6 +1054,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	const repoPlaceholder = document.getElementById('repoPlaceholder');
 	const repoCount = document.getElementById('repoCount');
 	const repoStatus = document.getElementById('repoStatus');
+	const clearAllReposBtn = document.getElementById('clearAllReposBtn');
 	const useRepoFilter = document.getElementById('useRepoFilter');
 	const repoFilterContainer = document.getElementById('repoFilterContainer');
 
@@ -1547,6 +1548,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			if (selectedRepos.length === 0) {
 				repoTags.innerHTML = `<span class="text-xs text-gray-500 select-none" id="repoPlaceholder">${browser.i18n.getMessage('repoPlaceholder')}</span>`;
 				repoCount.textContent = browser.i18n.getMessage('repoCountNone');
+				if (clearAllReposBtn) clearAllReposBtn.classList.add('hidden');
 			} else {
 				repoTags.innerHTML = selectedRepos
 					.map((repoFullName) => {
@@ -1569,7 +1571,16 @@ document.addEventListener('DOMContentLoaded', () => {
 					});
 				});
 				repoCount.textContent = browser.i18n.getMessage('repoCount', [selectedRepos.length]);
+				if (clearAllReposBtn) clearAllReposBtn.classList.remove('hidden');
 			}
+		}
+
+		if (clearAllReposBtn) {
+			clearAllReposBtn.addEventListener('click', () => {
+				selectedRepos = [];
+				updateRepoDisplay();
+				saveRepoSelection();
+			});
 		}
 
 		function saveRepoSelection() {

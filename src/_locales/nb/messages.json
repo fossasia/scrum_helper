@@ -150,6 +150,9 @@
     "repoCount": {
         "message": "$1 repositorier valgt"
     },
+    "clearAllBtn": {
+        "message": "Fjern alle"
+    },
     "repoLoading": {
         "message": "Laster repositorier..."
     },
