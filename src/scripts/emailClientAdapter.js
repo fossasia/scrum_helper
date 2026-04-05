@@ -8,10 +8,37 @@ function sanitizeEmailContent(html) {
 	const doc = parser.parseFromString(String(html), 'text/html');
 	// Allow more tags for email content formatting
 	const allowedTags = new Set([
-		'B', 'STRONG', 'I', 'EM', 'CODE', 'A', 'BR', 'SPAN', 'P', 'U',
-		'DIV', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'UL', 'OL', 'LI',
-		'TABLE', 'TR', 'TD', 'TH', 'THEAD', 'TBODY', 'TFOOT',
-		'BLOCKQUOTE', 'SMALL', 'PRE', 'HR'
+		'B',
+		'STRONG',
+		'I',
+		'EM',
+		'CODE',
+		'A',
+		'BR',
+		'SPAN',
+		'P',
+		'U',
+		'DIV',
+		'H1',
+		'H2',
+		'H3',
+		'H4',
+		'H5',
+		'H6',
+		'UL',
+		'OL',
+		'LI',
+		'TABLE',
+		'TR',
+		'TD',
+		'TH',
+		'THEAD',
+		'TBODY',
+		'TFOOT',
+		'BLOCKQUOTE',
+		'SMALL',
+		'PRE',
+		'HR',
 	]);
 
 	function cleanNode(node) {
@@ -39,7 +66,9 @@ function sanitizeEmailContent(html) {
 							}
 						}
 						// Only allow safe attributes
-						else if (!['class', 'title', 'rel', 'target', 'aria-label', 'href', 'src', 'colspan', 'rowspan'].includes(name)) {
+						else if (
+							!['class', 'title', 'rel', 'target', 'aria-label', 'href', 'src', 'colspan', 'rowspan'].includes(name)
+						) {
 							child.removeAttribute(attr.name);
 						}
 					});
@@ -68,6 +97,8 @@ function sanitizeEmailContent(html) {
 }
 
 class EmailClientAdapter {
+	static debug = false;
+
 	isNewConversation() {
 		const clientType = this.detectClient();
 		if (!clientType) return false;
@@ -307,7 +338,7 @@ class EmailClientAdapter {
 
 	injectContent(element, content, eventType) {
 		if (!element) {
-			console.log('No element found for injection');
+			if (EmailClientAdapter.debug) console.log('[EmailClientAdapter] No element found for injection');
 			return false;
 		}
 		const clientType = this.detectClient();
@@ -343,7 +374,7 @@ class EmailClientAdapter {
 			}
 			return true;
 		} catch (error) {
-			console.error('Content injection failed:', error);
+			console.error('[EmailClientAdapter] Content injection failed:', error);
 			return false;
 		}
 	}
@@ -353,8 +384,8 @@ class EmailClientAdapter {
 		return new Promise((resolve, reject) => {
 			const tryInject = () => {
 				if (attempts >= maxRetries) {
-					console.error('Max retry attempts reached');
-					reject(new Error('Max retry attempts reached'));
+					console.error('[EmailClientAdapter] Max retry attempts reached');
+					reject(new Error('[EmailClientAdapter] Max retry attempts reached'));
 					return;
 				}
 				attempts++;
@@ -371,25 +402,25 @@ class EmailClientAdapter {
 
 // Create global instance
 window.emailClientAdapter = new EmailClientAdapter();
-console.log('[EmailClientAdapter] Email client adapter initialized');
+if (EmailClientAdapter.debug) console.log('[EmailClientAdapter] Email client adapter initialized');
 
 // Set up message listener for insert to email functionality
-console.log('[EmailClientAdapter] Registering message listener...');
+if (EmailClientAdapter.debug) console.log('[EmailClientAdapter] Registering message listener...');
 browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
-	console.log('[EmailClientAdapter] Received message from popup:', request.action);
-	
+	if (EmailClientAdapter.debug) console.log('[EmailClientAdapter] Received message from popup:', request.action);
+
 	if (request.action === 'insertReportToEmail') {
-		console.log('[EmailClientAdapter] Processing insertReportToEmail request');
+		if (EmailClientAdapter.debug) console.log('[EmailClientAdapter] Processing insertReportToEmail request');
 		handleInsertReportToEmail(request.content, request.subject, sendResponse);
 		return true; // Indicate async response
 	}
 });
-console.log('[EmailClientAdapter] Message listener registered successfully');
+if (EmailClientAdapter.debug) console.log('[EmailClientAdapter] Message listener registered successfully');
 
 async function handleInsertReportToEmail(content, subject, sendResponse) {
 	try {
-		console.log('[EmailClientAdapter] Attempting to inject content into email');
-		
+		if (EmailClientAdapter.debug) console.log('[EmailClientAdapter] Attempting to inject content into email');
+
 		if (!window.emailClientAdapter) {
 			console.error('[EmailClientAdapter] Email client adapter not available');
 			sendResponse({ success: false, error: 'Email client adapter not available' });
@@ -398,43 +429,43 @@ async function handleInsertReportToEmail(content, subject, sendResponse) {
 
 		const tryInject = () => {
 			const elements = window.emailClientAdapter.getEditorElements?.();
-			console.log('[EmailClientAdapter] Editor elements found:', !!elements?.body);
-			
+			if (EmailClientAdapter.debug) console.log('[EmailClientAdapter] Editor elements found:', !!elements?.body);
+
 			if (!elements?.body) return false;
 
 			// Inject subject if available
 			if (subject && elements.subject) {
-				console.log('[EmailClientAdapter] Injecting subject');
+				if (EmailClientAdapter.debug) console.log('[EmailClientAdapter] Injecting subject');
 				elements.subject.value = subject;
 				elements.subject.dispatchEvent(new Event(elements.eventTypes?.subjectChange || 'input', { bubbles: true }));
 			}
-			
+
 			// Inject content
-			console.log('[EmailClientAdapter] Injecting content');
+			if (EmailClientAdapter.debug) console.log('[EmailClientAdapter] Injecting content');
 			window.emailClientAdapter.injectContent(elements.body, content, elements.eventTypes?.contentChange || 'input');
 			return true;
 		};
 
 		if (tryInject()) {
-			console.log('[EmailClientAdapter] Content injected successfully');
+			if (EmailClientAdapter.debug) console.log('[EmailClientAdapter] Content injected successfully');
 			sendResponse({ success: true });
 			return;
 		}
 
 		// Wait up to 30 seconds for editor to become available
-		console.log('[EmailClientAdapter] Editor not ready, waiting for DOM...');
+		if (EmailClientAdapter.debug) console.log('[EmailClientAdapter] Editor not ready, waiting for DOM...');
 		let done = false;
 		const observer = new MutationObserver(() => {
 			if (!done && tryInject()) {
 				done = true;
 				observer.disconnect();
-				console.log('[EmailClientAdapter] Content injected after waiting');
+				if (EmailClientAdapter.debug) console.log('[EmailClientAdapter] Content injected after waiting');
 				sendResponse({ success: true });
 			}
 		});
-		
+
 		observer.observe(document.body, { childList: true, subtree: true });
-		
+
 		setTimeout(() => {
 			if (!done) {
 				observer.disconnect();

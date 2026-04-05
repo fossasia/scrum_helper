@@ -171,7 +171,7 @@ class GitLabHelper {
 			const userUrl = `${this.baseUrl}/users?username=${encodeURIComponent(username)}`;
 			const userRes = await this.fetchWithTimeout(userUrl, { headers: this.getHeaders() }, 10000);
 			const users = await this.handleApiResponse(userRes, 'fetching user for projects');
-			
+
 			if (users.length === 0) {
 				throw new Error(`GitLab user '${username}' not found`);
 			}
@@ -190,9 +190,8 @@ class GitLabHelper {
 						allProjects.push(...pageProjects);
 					}
 					// GitLab provides X-Next-Page header; if empty, there are no more pages
-					const nextPageHeader = res.headers && typeof res.headers.get === 'function'
-						? res.headers.get('x-next-page')
-						: null;
+					const nextPageHeader =
+						res.headers && typeof res.headers.get === 'function' ? res.headers.get('x-next-page') : null;
 					if (nextPageHeader) {
 						const nextPageNumber = parseInt(nextPageHeader, 10);
 						if (!isNaN(nextPageNumber) && nextPageNumber > page) {
@@ -209,16 +208,10 @@ class GitLabHelper {
 			};
 			// Fetch user's projects (all pages)
 			const membershipProjectsUrl = `${this.baseUrl}/users/${userId}/projects?membership=true&per_page=100&order_by=updated_at&sort=desc`;
-			const membershipProjects = await fetchAllProjectsForUrl(
-				membershipProjectsUrl,
-				'fetching user projects'
-			);
+			const membershipProjects = await fetchAllProjectsForUrl(membershipProjectsUrl, 'fetching user projects');
 			// Fetch contributed projects (all pages)
 			const contributedProjectsUrl = `${this.baseUrl}/users/${userId}/contributed_projects?per_page=100&order_by=updated_at&sort=desc`;
-			const contributedProjects = await fetchAllProjectsForUrl(
-				contributedProjectsUrl,
-				'fetching contributed projects'
-			);
+			const contributedProjects = await fetchAllProjectsForUrl(contributedProjectsUrl, 'fetching contributed projects');
 			// Merge and deduplicate
 			const allProjectsMap = new Map();
 			for (const p of [...membershipProjects, ...contributedProjects]) {
@@ -228,18 +221,13 @@ class GitLabHelper {
 
 			if (GitLabHelper.debug) console.log(`[GITLAB] Fetched ${projects.length} projects for user ${username}`);
 
-
 			const projectsForLang = projects.slice(0, 30);
 			const langResults = await Promise.allSettled(
 				projectsForLang.map((p) =>
-					this.fetchWithTimeout(
-						`${this.baseUrl}/projects/${p.id}/languages`,
-						{ headers: this.getHeaders() },
-						5000
-					)
+					this.fetchWithTimeout(`${this.baseUrl}/projects/${p.id}/languages`, { headers: this.getHeaders() }, 5000)
 						.then((r) => (r.ok ? r.json() : {}))
-						.catch(() => ({}))
-				)
+						.catch(() => ({})),
+				),
 			);
 			const languageMap = {};
 			projectsForLang.forEach((p, i) => {
@@ -252,7 +240,7 @@ class GitLabHelper {
 				}
 			});
 
-			return projects.map(p => ({
+			return projects.map((p) => ({
 				id: p.id,
 				name: p.name,
 				// Keep both `path` (used by UI) and `path_with_namespace` (matches GitLab API shape)
@@ -309,7 +297,7 @@ class GitLabHelper {
 	}
 
 	async fetchGitLabData(username, startDate, endDate, token, group = '', selectedProjects = []) {
- 		const effectiveToken = (typeof token === 'undefined' ? this.token : token);
+		const effectiveToken = typeof token === 'undefined' ? this.token : token;
 		const tokenMarker = effectiveToken ? 'auth' : 'noauth';
 		const normalizedProjects = Array.isArray(selectedProjects) ? [...selectedProjects].sort() : [];
 		const cacheKey = `${username}-${startDate}-${endDate}-${group}-${normalizedProjects.join(',')}-${tokenMarker}`;
@@ -347,7 +335,6 @@ class GitLabHelper {
 		this.cache.fetching = true;
 		this.cache.cacheKey = cacheKey;
 
-
 		try {
 			// Throttling 500ms to avoid burst
 			await new Promise((res) => setTimeout(res, 500));
@@ -368,7 +355,9 @@ class GitLabHelper {
 				let pageIterations = 0;
 				while (true) {
 					if (++pageIterations > MAX_PAGE_ITERATIONS) {
-						console.warn(`fetchAllPages: reached max iterations (${MAX_PAGE_ITERATIONS}), aborting to avoid infinite loop.`);
+						console.warn(
+							`fetchAllPages: reached max iterations (${MAX_PAGE_ITERATIONS}), aborting to avoid infinite loop.`,
+						);
 						break;
 					}
 					const urlWithPage = `${baseUrl}&page=${page}`;
@@ -377,9 +366,8 @@ class GitLabHelper {
 					if (Array.isArray(pageItems) && pageItems.length > 0) {
 						all.push(...pageItems);
 					}
-					const nextPageHeader = res.headers && typeof res.headers.get === 'function'
-						? res.headers.get('x-next-page')
-						: null;
+					const nextPageHeader =
+						res.headers && typeof res.headers.get === 'function' ? res.headers.get('x-next-page') : null;
 					if (nextPageHeader) {
 						const nextPageNumber = parseInt(nextPageHeader, 10);
 						if (!isNaN(nextPageNumber)) {
@@ -412,7 +400,7 @@ class GitLabHelper {
 			// Apply group filter if specified
 			if (group && group.trim()) {
 				const groupLower = group.trim().toLowerCase();
-				allProjects = allProjects.filter(p => {
+				allProjects = allProjects.filter((p) => {
 					// Check if project belongs to a group/namespace matching the filter
 					if (!p.namespace) {
 						return false;
@@ -420,18 +408,20 @@ class GitLabHelper {
 					const namespacePath = (p.namespace.path ?? '').toLowerCase();
 					const namespaceFullPath = (p.namespace.full_path ?? '').toLowerCase();
 					const namespaceName = (p.namespace.name ?? '').toLowerCase();
-					return namespacePath.includes(groupLower) ||
-					       namespaceFullPath.includes(groupLower) ||
-					       namespaceName.includes(groupLower);
+					return (
+						namespacePath.includes(groupLower) ||
+						namespaceFullPath.includes(groupLower) ||
+						namespaceName.includes(groupLower)
+					);
 				});
 				if (GitLabHelper.debug) console.log(`[GITLAB] Filtered ${allProjects.length} projects by group: ${group}`);
 			}
 
 			// Apply project filter if specified
 			if (selectedProjects && selectedProjects.length > 0) {
-				const selectedProjectIds = selectedProjects.map(id => parseInt(id, 10));
-				allProjects = allProjects.filter(p => selectedProjectIds.includes(p.id));
-				
+				const selectedProjectIds = selectedProjects.map((id) => parseInt(id, 10));
+				allProjects = allProjects.filter((p) => selectedProjectIds.includes(p.id));
+
 				if (GitLabHelper.debug) console.log(`[GITLAB] Filtered to ${allProjects.length} selected projects`);
 			}
 
@@ -441,7 +431,11 @@ class GitLabHelper {
 			for (const project of allProjects) {
 				try {
 					const projectMRsUrl = `${this.baseUrl}/projects/${project.id}/merge_requests?author_id=${userId}&created_after=${startDate}T00:00:00Z&created_before=${endDate}T23:59:59Z&per_page=100&order_by=updated_at&sort=desc`;
-					const projectMRsRes = await this.fetchWithTimeout(projectMRsUrl, { headers: this.getHeaders(effectiveToken) }, 15000);
+					const projectMRsRes = await this.fetchWithTimeout(
+						projectMRsUrl,
+						{ headers: this.getHeaders(effectiveToken) },
+						15000,
+					);
 					if (projectMRsRes.ok) {
 						const projectMRs = await projectMRsRes.json();
 						allMergeRequests = allMergeRequests.concat(projectMRs);
@@ -471,7 +465,11 @@ class GitLabHelper {
 			for (const project of allProjects) {
 				try {
 					const projectIssuesUrl = `${this.baseUrl}/projects/${project.id}/issues?author_id=${userId}&created_after=${startDate}T00:00:00Z&created_before=${endDate}T23:59:59Z&per_page=100&order_by=updated_at&sort=desc`;
-					const projectIssuesRes = await this.fetchWithTimeout(projectIssuesUrl, { headers: this.getHeaders(effectiveToken) }, 15000);
+					const projectIssuesRes = await this.fetchWithTimeout(
+						projectIssuesUrl,
+						{ headers: this.getHeaders(effectiveToken) },
+						15000,
+					);
 					if (projectIssuesRes.ok) {
 						const projectIssues = await projectIssuesRes.json();
 						allIssues = allIssues.concat(projectIssues);

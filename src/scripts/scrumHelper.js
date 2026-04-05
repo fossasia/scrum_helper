@@ -14,19 +14,43 @@ function logError(...args) {
 	}
 }
 
-
 function sanitizeHtmlContent(content) {
 	try {
 		const parser = new DOMParser();
 		const doc = parser.parseFromString(content, 'text/html');
 
-
 		const allowedTags = new Set([
-			'A','B','STRONG','I','EM','CODE','BR','P','UL','OL','LI','SPAN','DIV',
-			'PRE','BLOCKQUOTE','H1','H2','H3','H4','H5','H6','IMG','TABLE','THEAD','TBODY','TR','TD','TH'
+			'A',
+			'B',
+			'STRONG',
+			'I',
+			'EM',
+			'CODE',
+			'BR',
+			'P',
+			'UL',
+			'OL',
+			'LI',
+			'SPAN',
+			'DIV',
+			'PRE',
+			'BLOCKQUOTE',
+			'H1',
+			'H2',
+			'H3',
+			'H4',
+			'H5',
+			'H6',
+			'IMG',
+			'TABLE',
+			'THEAD',
+			'TBODY',
+			'TR',
+			'TD',
+			'TH',
 		]);
 
-		const globalAllowedAttrs = new Set(['class','id','title','role','aria-label']);
+		const globalAllowedAttrs = new Set(['class', 'id', 'title', 'role', 'aria-label']);
 
 		function isSafeUrl(u) {
 			if (!u) return false;
@@ -42,8 +66,9 @@ function sanitizeHtmlContent(content) {
 			);
 		}
 
-
-		doc.querySelectorAll('script,style,iframe,object,embed,link,meta,svg,math,form,input,button,textarea,select').forEach(n => n.remove());
+		doc
+			.querySelectorAll('script,style,iframe,object,embed,link,meta,svg,math,form,input,button,textarea,select')
+			.forEach((n) => n.remove());
 
 		doc.body.querySelectorAll('*').forEach((node) => {
 			const tag = node.tagName.toUpperCase();
@@ -62,13 +87,13 @@ function sanitizeHtmlContent(content) {
 					return;
 				}
 
-				if (['srcdoc','formaction','xlink:href','xmlns'].includes(name)) {
+				if (['srcdoc', 'formaction', 'xlink:href', 'xmlns'].includes(name)) {
 					node.removeAttribute(attr.name);
 					return;
 				}
 
 				if (tag === 'IMG') {
-					if (['src','alt','title','width','height','class','id'].includes(name)) {
+					if (['src', 'alt', 'title', 'width', 'height', 'class', 'id'].includes(name)) {
 						if (name === 'src') {
 							if (!isSafeUrl(val)) node.removeAttribute(attr.name);
 						}
@@ -79,7 +104,7 @@ function sanitizeHtmlContent(content) {
 				}
 
 				if (tag === 'A') {
-					if (['href','title','rel','target','class','id','aria-label'].includes(name)) {
+					if (['href', 'title', 'rel', 'target', 'class', 'id', 'aria-label'].includes(name)) {
 						if (name === 'href') {
 							if (!isSafeUrl(val)) node.removeAttribute(attr.name);
 						}
@@ -223,7 +248,7 @@ async function allIncluded(outputTarget = 'email') {
 				'onlyIssues',
 				'onlyPRs',
 				'onlyRevPRs',
-        'onlyMergedPRs',
+				'onlyMergedPRs',
 			])
 			.then((items) => {
 				console.log('[DEBUG] Storage items received:', items);
@@ -232,7 +257,7 @@ async function allIncluded(outputTarget = 'email') {
 				// Load platform-specific username
 				const platformUsernameKey = `${platform}Username`;
 				platformUsername = items[platformUsernameKey] || '';
-				
+
 				platformUsernameLocal = platformUsername;
 				console.log(`[DEBUG] platform: ${platform}, platformUsername: ${platformUsername}`);
 
@@ -337,7 +362,9 @@ async function allIncluded(outputTarget = 'email') {
 								errDiv.style.color = '#dc2626';
 								errDiv.style.fontWeight = 'bold';
 								errDiv.style.padding = '10px';
-								errDiv.textContent = chrome?.i18n?.getMessage('usernameRequiredError') || 'Please enter your username to generate a report.';
+								errDiv.textContent =
+									chrome?.i18n?.getMessage('usernameRequiredError') ||
+									'Please enter your username to generate a report.';
 								scrumReport.appendChild(errDiv);
 							}
 							if (generateBtn) {
@@ -363,10 +390,9 @@ async function allIncluded(outputTarget = 'email') {
 						if (outputTarget === 'email') {
 							(async () => {
 								try {
-
 									const gitlabGroup = items.gitlabGroup || '';
 									const useGitlabProjectFilter = items.useGitlabProjectFilter || false;
-									const selectedGitlabProjects = useGitlabProjectFilter ? (items.selectedGitlabProjects || []) : [];
+									const selectedGitlabProjects = useGitlabProjectFilter ? items.selectedGitlabProjects || [] : [];
 
 									const data = await gitlabHelper.fetchGitLabData(
 										platformUsernameLocal,
@@ -374,7 +400,7 @@ async function allIncluded(outputTarget = 'email') {
 										endingDate,
 										items.gitlabToken || null,
 										gitlabGroup,
-										selectedGitlabProjects
+										selectedGitlabProjects,
 									);
 
 									function mapGitLabItem(item, projects, type) {
@@ -405,33 +431,30 @@ async function allIncluded(outputTarget = 'email') {
 										githubUserData: data.user || {},
 									};
 									githubUserData = mappedData.githubUserData;
-                  // Feed the mapped GitLab data into the same report-generation
- 									// pipeline used for GitHub data so that the email body is updated,
- 									// not just the subject.
- 									let processedScrumData = mappedData;
- 									if (typeof processGithubData === 'function') {
- 										try {
- 											processedScrumData = await processGithubData(
- 												mappedData,
- 												{
- 													platformUsername: platformUsernameLocal || platformUsername,
- 													startingDate,
- 													endingDate,
- 													source: 'gitlab',
- 												},
- 											);
- 										} catch (e) {
- 											logError('Failed to process GitLab-mapped data via processGithubData:', e);
- 											processedScrumData = mappedData;
- 										}
- 									}
- 									if (typeof writeScrumBody === 'function') {
- 										try {
- 											writeScrumBody(processedScrumData, outputTarget);
- 										} catch (e) {
- 											logError('Failed to write scrum body for GitLab data:', e);
- 										}
- 									}
+									// Feed the mapped GitLab data into the same report-generation
+									// pipeline used for GitHub data so that the email body is updated,
+									// not just the subject.
+									let processedScrumData = mappedData;
+									if (typeof processGithubData === 'function') {
+										try {
+											processedScrumData = await processGithubData(mappedData, {
+												platformUsername: platformUsernameLocal || platformUsername,
+												startingDate,
+												endingDate,
+												source: 'gitlab',
+											});
+										} catch (e) {
+											logError('Failed to process GitLab-mapped data via processGithubData:', e);
+											processedScrumData = mappedData;
+										}
+									}
+									if (typeof writeScrumBody === 'function') {
+										try {
+											writeScrumBody(processedScrumData, outputTarget);
+										} catch (e) {
+											logError('Failed to write scrum body for GitLab data:', e);
+										}
+									}
 									const name =
 										githubUserData?.name || githubUserData?.username || platformUsernameLocal || platformUsername;
 									const project = projectName;
@@ -444,7 +467,7 @@ async function allIncluded(outputTarget = 'email') {
 									const dateCode = year.toString() + month.toString() + date.toString();
 									const subject = `[Scrum]${project ? ' - ' + project : ''} - ${dateCode}`;
 									subjectForEmail = subject;
-								  window.scrumSubjectForEmail = subject;
+									window.scrumSubjectForEmail = subject;
 									scrumGenerationInProgress = false;
 								} catch (err) {
 									console.error('GitLab fetch failed:', err);
@@ -455,14 +478,14 @@ async function allIncluded(outputTarget = 'email') {
 										}
 										const scrumReport = document.getElementById('scrumReport');
 										if (scrumReport) {
-												scrumReport.textContent = '';
-												const errDiv = document.createElement('div');
-												errDiv.className = 'error-message';
-												errDiv.style.color = '#dc2626';
-												errDiv.style.fontWeight = 'bold';
-												errDiv.style.padding = '10px';
-												errDiv.textContent = err.message || 'An error occurred while fetching GitLab data.';
-												scrumReport.appendChild(errDiv);
+											scrumReport.textContent = '';
+											const errDiv = document.createElement('div');
+											errDiv.className = 'error-message';
+											errDiv.style.color = '#dc2626';
+											errDiv.style.fontWeight = 'bold';
+											errDiv.style.padding = '10px';
+											errDiv.textContent = err.message || 'An error occurred while fetching GitLab data.';
+											scrumReport.appendChild(errDiv);
 										}
 									}
 									scrumGenerationInProgress = false;
@@ -471,7 +494,7 @@ async function allIncluded(outputTarget = 'email') {
 						} else {
 							const gitlabGroup = items.gitlabGroup || '';
 							const useGitlabProjectFilter = items.useGitlabProjectFilter || false;
-							const selectedGitlabProjects = useGitlabProjectFilter ? (items.selectedGitlabProjects || []) : [];
+							const selectedGitlabProjects = useGitlabProjectFilter ? items.selectedGitlabProjects || [] : [];
 
 							gitlabHelper
 								.fetchGitLabData(
@@ -521,14 +544,14 @@ async function allIncluded(outputTarget = 'email') {
 										}
 										const scrumReport = document.getElementById('scrumReport');
 										if (scrumReport) {
-												scrumReport.textContent = '';
-												const errDiv2 = document.createElement('div');
-												errDiv2.className = 'error-message';
-												errDiv2.style.color = '#dc2626';
-												errDiv2.style.fontWeight = 'bold';
-												errDiv2.style.padding = '10px';
-												errDiv2.textContent = err.message || 'An error occurred while fetching GitLab data.';
-												scrumReport.appendChild(errDiv2);
+											scrumReport.textContent = '';
+											const errDiv2 = document.createElement('div');
+											errDiv2.className = 'error-message';
+											errDiv2.style.color = '#dc2626';
+											errDiv2.style.fontWeight = 'bold';
+											errDiv2.style.padding = '10px';
+											errDiv2.textContent = err.message || 'An error occurred while fetching GitLab data.';
+											scrumReport.appendChild(errDiv2);
 										}
 									}
 									scrumGenerationInProgress = false;
@@ -546,7 +569,9 @@ async function allIncluded(outputTarget = 'email') {
 								errDiv.style.color = '#dc2626';
 								errDiv.style.fontWeight = 'bold';
 								errDiv.style.padding = '10px';
-								errDiv.textContent = chrome?.i18n?.getMessage('usernameRequiredError') || 'Please enter your username to generate a report.';
+								errDiv.textContent =
+									chrome?.i18n?.getMessage('usernameRequiredError') ||
+									'Please enter your username to generate a report.';
 								scrumReport.appendChild(errDiv);
 							}
 							if (generateBtn) {
@@ -862,7 +887,9 @@ async function allIncluded(outputTarget = 'email') {
 			const userCheckRes = await fetch(userUrl, { headers });
 
 			if (userCheckRes.status === 404) {
-			const errorMsg = chrome?.i18n.getMessage('githubUserNotFoundError', [platformUsernameLocal]) || `GitHub user "${platformUsernameLocal}" not found (404). Please check the username and try again.`;
+				const errorMsg =
+					chrome?.i18n.getMessage('githubUserNotFoundError', [platformUsernameLocal]) ||
+					`GitHub user "${platformUsernameLocal}" not found (404). Please check the username and try again.`;
 				throw new Error(errorMsg);
 			}
 
@@ -873,7 +900,9 @@ async function allIncluded(outputTarget = 'email') {
 			}
 
 			if (!userCheckRes.ok) {
-			const errorMsg = chrome?.i18n.getMessage('githubUserValidationError', [userCheckRes.status, userCheckRes.statusText]) || `Error validating GitHub user: ${userCheckRes.status} ${userCheckRes.statusText}`;
+				const errorMsg =
+					chrome?.i18n.getMessage('githubUserValidationError', [userCheckRes.status, userCheckRes.statusText]) ||
+					`Error validating GitHub user: ${userCheckRes.status} ${userCheckRes.statusText}`;
 				throw new Error(errorMsg);
 			}
 
@@ -890,23 +919,29 @@ async function allIncluded(outputTarget = 'email') {
 			}
 
 			if (issuesRes.status === 422 || prRes.status === 422) {
-			const errorMsg = chrome?.i18n.getMessage('githubInvalidSearchError') || `Invalid search query or date range. Please verify your date range format and try again.`;
+				const errorMsg =
+					chrome?.i18n.getMessage('githubInvalidSearchError') ||
+					`Invalid search query or date range. Please verify your date range format and try again.`;
 				if (outputTarget === 'popup') {
 					Materialize.toast && Materialize.toast(errorMsg, 4000);
 				}
 				throw new Error(errorMsg);
 			}
 
-		if (!issuesRes.ok) {
-			const errorMsg = chrome?.i18n.getMessage('githubFetchIssuesError', [issuesRes.status, issuesRes.statusText]) || `Error fetching GitHub issues: ${issuesRes.status} ${issuesRes.statusText}`;
-			logError(errorMsg);
-			if (outputTarget === 'popup') {
-				Materialize.toast && Materialize.toast(errorMsg, 4000);
+			if (!issuesRes.ok) {
+				const errorMsg =
+					chrome?.i18n.getMessage('githubFetchIssuesError', [issuesRes.status, issuesRes.statusText]) ||
+					`Error fetching GitHub issues: ${issuesRes.status} ${issuesRes.statusText}`;
+				logError(errorMsg);
+				if (outputTarget === 'popup') {
+					Materialize.toast && Materialize.toast(errorMsg, 4000);
+				}
+				throw new Error(errorMsg);
 			}
-			throw new Error(errorMsg);
-		}
 			if (!prRes.ok) {
-				const errorMsg = chrome?.i18n.getMessage('githubFetchPRDataError', [prRes.status, prRes.statusText]) || `Error fetching GitHub PR review data: ${prRes.status} ${prRes.statusText}`;
+				const errorMsg =
+					chrome?.i18n.getMessage('githubFetchPRDataError', [prRes.status, prRes.statusText]) ||
+					`Error fetching GitHub PR review data: ${prRes.status} ${prRes.statusText}`;
 				logError(errorMsg);
 				if (outputTarget === 'popup') {
 					Materialize.toast && Materialize.toast(errorMsg, 4000);
@@ -914,7 +949,9 @@ async function allIncluded(outputTarget = 'email') {
 				throw new Error(errorMsg);
 			}
 			if (!userRes.ok) {
-				const errorMsg = chrome?.i18n.getMessage('githubFetchUserDataError', [userRes.status, userRes.statusText]) || `Error fetching GitHub user data: ${userRes.status} ${userRes.statusText}`;
+				const errorMsg =
+					chrome?.i18n.getMessage('githubFetchUserDataError', [userRes.status, userRes.statusText]) ||
+					`Error fetching GitHub user data: ${userRes.status} ${userRes.statusText}`;
 				logError(errorMsg);
 				throw new Error(errorMsg);
 			}
@@ -997,14 +1034,14 @@ async function allIncluded(outputTarget = 'email') {
 						else if (err.message) errorMsg = err.message;
 						else errorMsg = JSON.stringify(err);
 					}
-								scrumReport.textContent = '';
-								const genErrDiv = document.createElement('div');
-								genErrDiv.className = 'error-message';
-								genErrDiv.style.color = '#dc2626';
-								genErrDiv.style.fontWeight = 'bold';
-								genErrDiv.style.padding = '10px';
-								genErrDiv.textContent = errorMsg || err.message || 'An error occurred while generating the report.';
-								scrumReport.appendChild(genErrDiv);
+					scrumReport.textContent = '';
+					const genErrDiv = document.createElement('div');
+					genErrDiv.className = 'error-message';
+					genErrDiv.style.color = '#dc2626';
+					genErrDiv.style.fontWeight = 'bold';
+					genErrDiv.style.padding = '10px';
+					genErrDiv.textContent = errorMsg || err.message || 'An error occurred while generating the report.';
+					scrumReport.appendChild(genErrDiv);
 				}
 				if (generateBtn) {
 					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
@@ -1177,10 +1214,11 @@ async function allIncluded(outputTarget = 'email') {
 	function showInvalidTokenMessage() {
 		if (outputTarget === 'popup') {
 			const reportDiv = document.getElementById('scrumReport');
-			const errMsg = chrome?.i18n.getMessage('invalidTokenError') || 'Invalid or expired GitHub token. Please check your token in the settings and try again.';
+			const errMsg =
+				chrome?.i18n.getMessage('invalidTokenError') ||
+				'Invalid or expired GitHub token. Please check your token in the settings and try again.';
 			if (reportDiv) {
-				reportDiv.innerHTML =
-					`<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">${errMsg}</div>`;
+				reportDiv.innerHTML = `<div class="error-message" style="color: #dc2626; font-weight: bold; padding: 10px;">${errMsg}</div>`;
 				const generateBtn = document.getElementById('generateReport');
 				if (generateBtn) {
 					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
@@ -1275,14 +1313,18 @@ async function allIncluded(outputTarget = 'email') {
 	}
 
 	function writeScrumBody() {
-		let lastWeekUl = '<ul>';
-		for (let i = 0; i < lastWeekArray.length; i++) lastWeekUl += lastWeekArray[i];
-		for (let i = 0; i < reviewedPrsArray.length; i++) lastWeekUl += reviewedPrsArray[i];
-		lastWeekUl += '</ul>';
+		let lastWeekItems = '';
+		for (let i = 0; i < lastWeekArray.length; i++) lastWeekItems += lastWeekArray[i];
+		for (let i = 0; i < reviewedPrsArray.length; i++) lastWeekItems += reviewedPrsArray[i];
 
-		let nextWeekUl = '<ul>';
-		for (let i = 0; i < nextWeekArray.length; i++) nextWeekUl += nextWeekArray[i];
-		nextWeekUl += '</ul>';
+		const lastWeekUl =
+			lastWeekItems.length > 0 ? `<ul>${lastWeekItems}</ul>` : '<li>No activity during this period.</li>';
+
+		let nextWeekItems = '';
+		for (let i = 0; i < nextWeekArray.length; i++) nextWeekItems += nextWeekArray[i];
+
+		const nextWeekUl =
+			nextWeekItems.length > 0 ? `<ul>${nextWeekItems}</ul>` : '<li>No plans for the next period.</li>';
 
 		const weekOrDay = yesterdayContribution ? 'yesterday' : 'the period';
 		const weekOrDay2 = 'today';
@@ -1337,6 +1379,7 @@ ${escapeHtml(userReason)}`;
 						[`${platform}LastScrumReportHtml`]: content,
 						[`${platform}LastScrumReportCacheKey`]: cacheKey,
 						[`${platform}LastScrumReportUsername`]: platformUsername,
+						[`${platform}LastScrumReportSubject`]: subject,
 					});
 				} catch (err) {
 					logError('Failed to save report to storage:', err);
@@ -1355,7 +1398,6 @@ ${escapeHtml(userReason)}`;
 				scrumGenerationInProgress = false;
 				return;
 			}
-
 
 			const sanitizedContent = sanitizeHtmlContent(content);
 
@@ -1778,7 +1820,12 @@ ${escapeHtml(userReason)}`;
 				}
 				if (isMR) {
 					if (typeof item.state === 'string' && item.state !== 'closed') {
-						log('[SCRUM-DEBUG] Skipping non-closed PR because onlyMergedPRs is checked:', item.number, 'state:', item.state);
+						log(
+							'[SCRUM-DEBUG] Skipping non-closed PR because onlyMergedPRs is checked:',
+							item.number,
+							'state:',
+							item.state,
+						);
 						continue;
 					}
 					const repoUrl = item.repository_url;
@@ -1790,10 +1837,19 @@ ${escapeHtml(userReason)}`;
 						if (prOwner && prRepo) {
 							prCacheKey = `${prOwner}/${prRepo}#${item.number}`;
 						} else {
-							logError('[SCRUM-HELPER] Unable to derive PR cache key from repository_url:', repoUrl, 'for item:', item.number);
+							logError(
+								'[SCRUM-HELPER] Unable to derive PR cache key from repository_url:',
+								repoUrl,
+								'for item:',
+								item.number,
+							);
 						}
 					} else {
-						logError('[SCRUM-HELPER] Missing repository_url for PR item when onlyMergedPRs is enabled.', 'Item number:', item.number);
+						logError(
+							'[SCRUM-HELPER] Missing repository_url for PR item when onlyMergedPRs is enabled.',
+							'Item number:',
+							item.number,
+						);
 					}
 					// Determine merge status. If we cannot determine it reliably, do NOT
 					// treat the PR as "not merged" – instead, skip the onlyMergedPRs filter
