@@ -76,6 +76,7 @@ a {
 
 .scrum-actions>button span,
 .scrum-actions>.tooltip-container>button span {
+    display: block;
     text-align: center;
     white-space: normal;
 }
