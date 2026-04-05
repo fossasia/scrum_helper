@@ -74,6 +74,13 @@ a {
     width: 100%;
 }
 
+.scrum-actions>button,
+.scrum-actions>.tooltip-container>button {
+    text-align: center;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
 .scrum-actions>button span,
 .scrum-actions>.tooltip-container>button span {
     display: block;
