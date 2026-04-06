@@ -128,6 +128,10 @@ You can add a new language to Scrum Helper for your own use or contribute it to 
 
 ### Contributing Your Translation
 
+## AI Usage Guidelines
+
+For guidelines on using AI tools in contributions, please refer to the **AI Contribution Guidelines** section in the README.md.
+
 If you want to share your translation with others:
 - Make a pull request with your new locale folder and `messages.json` file.
 - We recommend double-checking your translations for accuracy and clarity.

@@ -211,5 +211,15 @@ This part is performed manually by maintainers when it's time to publish a new v
 - Use AI tools responsibly and ethically.
 - Always review and verify AI-generated code before submitting.
 - Do not copy content without understanding it.
-- Ensure contributions follow project coding standards.
-- Avoid submitting low-quality or irrelevant AI-generated content.
+- Follow project coding standards and best practices.
+
+### What is considered low-quality or irrelevant AI-generated content?
+
+Examples include:
+- Code that does not work or is not tested.
+- Large blocks of code added without explanation.
+- Irrelevant suggestions that do not solve the issue.
+- Copy-pasted content without understanding or modification.
+- Code that does not follow the project's structure or style.
+
+Contributors are expected to review, test, and adapt AI-generated outputs before submitting them.
