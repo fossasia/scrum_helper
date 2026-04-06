@@ -205,3 +205,11 @@ This part is performed manually by maintainers when it's time to publish a new v
 3.  **Chrome Web Store Deployment**: Publishing the release triggers the "Publish to Chrome Web Store" workflow, which automatically packages the extension and uploads it for review.
 
 ### If you encounter any bugs, please report them at the [Issues page](https://github.com/fossasia/scrum_helper/issues).
+
+## AI Contribution Guidelines
+
+- Use AI tools responsibly and ethically.
+- Always review and verify AI-generated code before submitting.
+- Do not copy content without understanding it.
+- Ensure contributions follow project coding standards.
+- Avoid submitting low-quality or irrelevant AI-generated content.
