@@ -1,11 +1,11 @@
 /* global chrome */
 
 function debounce(func, wait) {
-  let timeout;
-  return function (...args) {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => func.apply(this, args), wait);
-  };
+	let timeout;
+	return function (...args) {
+		clearTimeout(timeout);
+		timeout = setTimeout(() => func.apply(this, args), wait);
+	};
 }
 
 // Utility: Detect if the current OS is macOS
@@ -78,16 +78,94 @@ function setupButtonTooltips() {
 	}
 }
 
+// Render token setup UI when rate limit is hit and user has no token
+window.renderTokenSetupUI = function (error) {
+	const tokenSetupContainer = document.getElementById('tokenSetupContainer');
+	if (!tokenSetupContainer) {
+		console.log("Render token container not exist or failed to fetch",tokenSetupContainer);
+		return;
+	}
+
+	const isGithub = error.platform === 'github';
+	const tokenInput = document.getElementById(isGithub ? 'githubToken' : 'gitlabToken');
+	const hasToken = tokenInput && tokenInput.value.trim().length > 0;
+
+	// If user has token, hide the setup UI and show only rate limit warning
+	if (hasToken) {
+		tokenSetupContainer.classList.add('hidden');
+		if (typeof showRateLimitWarning === 'function') {
+			showRateLimitWarning(error);
+		}
+		return;
+	}
+
+	// Update titles and descriptions based on platform
+	const platformName = isGithub ? 'GitHub' : 'GitLab';
+	const titleElement = document.getElementById('tokenSetupTitle');
+	const descriptionElement = document.getElementById('tokenSetupDescription');
+	
+	if (titleElement) {
+		titleElement.textContent = chrome?.i18n.getMessage('tokenSetupTitle') || `Add ${platformName} Token`;
+	}
+	if (descriptionElement) {
+		descriptionElement.textContent = chrome?.i18n.getMessage('tokenSetupDescription') || `Enable advanced features by adding your ${platformName} token`;
+	}
+
+	// Show the container
+	tokenSetupContainer.classList.remove('hidden');
+
+	// Set up event listeners (remove old ones first to prevent duplicates)
+	const addBtn = document.getElementById('tokenSetupAddBtn');
+	const learnBtn = document.getElementById('tokenSetupLearnBtn');
+
+	// Clone buttons to remove old event listeners
+	if (addBtn && addBtn.parentNode) {
+		const newAddBtn = addBtn.cloneNode(true);
+		addBtn.parentNode.replaceChild(newAddBtn, addBtn);
+
+		newAddBtn.addEventListener('click', () => {
+			showSettingsView();
+			const tokenInputElement = document.getElementById(isGithub ? 'githubToken' : 'gitlabToken');
+			if (tokenInputElement) {
+				setTimeout(() => {
+					tokenInputElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+					tokenInputElement.focus();
+					const borderColor = isGithub ? '#3b82f6' : '#f97316';
+					const shadowColor = isGithub ? 'rgba(59, 130, 246, 0.3)' : 'rgba(249, 115, 22, 0.3)';
+					tokenInputElement.style.borderColor = borderColor;
+					tokenInputElement.style.boxShadow = `0 0 0 3px ${shadowColor}`;
+					setTimeout(() => {
+						tokenInputElement.style.borderColor = '';
+						tokenInputElement.style.boxShadow = '';
+					}, 3000);
+				}, 100);
+			}
+		});
+	}
+
+	if (learnBtn && learnBtn.parentNode) {
+		const newLearnBtn = learnBtn.cloneNode(true);
+		learnBtn.parentNode.replaceChild(newLearnBtn, learnBtn);
+
+		newLearnBtn.addEventListener('click', () => {
+			const url = isGithub
+				? 'https://github.com/settings/tokens'
+				: 'https://gitlab.com/-/user_settings/personal_access_tokens';
+			chrome.tabs && chrome.tabs.create && chrome.tabs.create({ url });
+		});
+	}
+};
+
 function getToday() {
-  const today = new Date();
-  return today.toISOString().split("T")[0];
+	const today = new Date();
+	return today.toISOString().split('T')[0];
 }
 
 function getYesterday() {
-  const today = new Date();
-  const yesterday = new Date(today);
-  yesterday.setDate(today.getDate() - 1);
-  return yesterday.toISOString().split("T")[0];
+	const today = new Date();
+	const yesterday = new Date(today);
+	yesterday.setDate(today.getDate() - 1);
+	return yesterday.toISOString().split('T')[0];
 }
 
 function applyI18n() {
@@ -126,32 +204,30 @@ document.addEventListener('DOMContentLoaded', () => {
 	applyI18n();
 	setupButtonTooltips();
 
-  // Dark mode setup
-  const darkModeToggle = document.querySelector('img[alt="Night Mode"]');
-  const settingsIcon = document.getElementById("settingsIcon");
-  const body = document.body;
-  const homeButton = document.getElementById("homeButton");
-  const scrumHelperHeading = document.getElementById("scrumHelperHeading");
-  const settingsToggle = document.getElementById("settingsToggle");
-  const reportSection = document.getElementById("reportSection");
-  const settingsSection = document.getElementById("settingsSection");
+	// Dark mode setup
+	const darkModeToggle = document.querySelector('img[alt="Night Mode"]');
+	const settingsIcon = document.getElementById('settingsIcon');
+	const body = document.body;
+	const homeButton = document.getElementById('homeButton');
+	const scrumHelperHeading = document.getElementById('scrumHelperHeading');
+	const settingsToggle = document.getElementById('settingsToggle');
+	const reportSection = document.getElementById('reportSection');
+	const settingsSection = document.getElementById('settingsSection');
 
-  let isSettingsVisible = false;
-  const githubTokenInput = document.getElementById("githubToken");
-  const toggleTokenBtn = document.getElementById("toggleTokenVisibility");
-  const tokenEyeIcon = document.getElementById("tokenEyeIcon");
-  const tokenPreview = document.getElementById("tokenPreview");
-  let tokenVisible = false;
+	let isSettingsVisible = false;
+	const githubTokenInput = document.getElementById('githubToken');
+	const toggleTokenBtn = document.getElementById('toggleTokenVisibility');
+	const tokenEyeIcon = document.getElementById('tokenEyeIcon');
+	const tokenPreview = document.getElementById('tokenPreview');
+	let tokenVisible = false;
 
-  // GitLab token elements
-  const gitlabTokenInput = document.getElementById("gitlabToken");
-  const toggleGitlabTokenBtn = document.getElementById(
-    "toggleGitlabTokenVisibility",
-  );
-  const gitlabTokenEyeIcon = document.getElementById("gitlabTokenEyeIcon");
-  let gitlabTokenVisible = false;
+	// GitLab token elements
+	const gitlabTokenInput = document.getElementById('gitlabToken');
+	const toggleGitlabTokenBtn = document.getElementById('toggleGitlabTokenVisibility');
+	const gitlabTokenEyeIcon = document.getElementById('gitlabTokenEyeIcon');
+	let gitlabTokenVisible = false;
 
-  const orgInput = document.getElementById("orgInput");
+	const orgInput = document.getElementById('orgInput');
 
 	const platformSelect = document.getElementById('platformSelect');
 	const usernameLabel = document.getElementById('usernameLabel');
@@ -159,22 +235,17 @@ document.addEventListener('DOMContentLoaded', () => {
 	let showCommitsWarningTimeout;
 	let mergedPRsWarningTimeout;
 
-  function checkTokenForFilter() {
-    const useRepoFilter = document.getElementById("useRepoFilter");
-    const githubTokenInput = document.getElementById("githubToken");
-    const tokenWarning = document.getElementById("tokenWarningForFilter");
-    const repoFilterContainer = document.getElementById("repoFilterContainer");
+	function checkTokenForFilter() {
+		const useRepoFilter = document.getElementById('useRepoFilter');
+		const githubTokenInput = document.getElementById('githubToken');
+		const tokenWarning = document.getElementById('tokenWarningForFilter');
+		const repoFilterContainer = document.getElementById('repoFilterContainer');
 
-    if (
-      !useRepoFilter ||
-      !githubTokenInput ||
-      !tokenWarning ||
-      !repoFilterContainer
-    ) {
-      return;
-    }
-    const isFilterEnabled = useRepoFilter.checked;
-    const hasToken = githubTokenInput.value.trim() !== "";
+		if (!useRepoFilter || !githubTokenInput || !tokenWarning || !repoFilterContainer) {
+			return;
+		}
+		const isFilterEnabled = useRepoFilter.checked;
+		const hasToken = githubTokenInput.value.trim() !== '';
 
 		if (isFilterEnabled && !hasToken) {
 			useRepoFilter.checked = false;
@@ -323,42 +394,32 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	});
 
-  toggleTokenBtn.addEventListener("click", () => {
-    tokenVisible = !tokenVisible;
-    githubTokenInput.type = tokenVisible ? "text" : "password";
+	toggleTokenBtn.addEventListener('click', () => {
+		tokenVisible = !tokenVisible;
+		githubTokenInput.type = tokenVisible ? 'text' : 'password';
 
-    tokenEyeIcon.classList.add("eye-animating");
-    setTimeout(() => tokenEyeIcon.classList.remove("eye-animating"), 400);
-    tokenEyeIcon.className = tokenVisible
-      ? "fa fa-eye-slash text-gray-600"
-      : "fa fa-eye text-gray-600";
+		tokenEyeIcon.classList.add('eye-animating');
+		setTimeout(() => tokenEyeIcon.classList.remove('eye-animating'), 400);
+		tokenEyeIcon.className = tokenVisible ? 'fa fa-eye-slash text-gray-600' : 'fa fa-eye text-gray-600';
 
-    githubTokenInput.classList.add("token-animating");
-    setTimeout(() => githubTokenInput.classList.remove("token-animating"), 300);
-  });
+		githubTokenInput.classList.add('token-animating');
+		setTimeout(() => githubTokenInput.classList.remove('token-animating'), 300);
+	});
 
-  // GitLab token visibility toggle
-  if (toggleGitlabTokenBtn && gitlabTokenInput) {
-    toggleGitlabTokenBtn.addEventListener("click", () => {
-      gitlabTokenVisible = !gitlabTokenVisible;
-      gitlabTokenInput.type = gitlabTokenVisible ? "text" : "password";
+	// GitLab token visibility toggle
+	if (toggleGitlabTokenBtn && gitlabTokenInput) {
+		toggleGitlabTokenBtn.addEventListener('click', () => {
+			gitlabTokenVisible = !gitlabTokenVisible;
+			gitlabTokenInput.type = gitlabTokenVisible ? 'text' : 'password';
 
-      gitlabTokenEyeIcon.classList.add("eye-animating");
-      setTimeout(
-        () => gitlabTokenEyeIcon.classList.remove("eye-animating"),
-        400,
-      );
-      gitlabTokenEyeIcon.className = gitlabTokenVisible
-        ? "fa fa-eye-slash text-gray-600"
-        : "fa fa-eye text-gray-600";
+			gitlabTokenEyeIcon.classList.add('eye-animating');
+			setTimeout(() => gitlabTokenEyeIcon.classList.remove('eye-animating'), 400);
+			gitlabTokenEyeIcon.className = gitlabTokenVisible ? 'fa fa-eye-slash text-gray-600' : 'fa fa-eye text-gray-600';
 
-      gitlabTokenInput.classList.add("token-animating");
-      setTimeout(
-        () => gitlabTokenInput.classList.remove("token-animating"),
-        300,
-      );
-    });
-  }
+			gitlabTokenInput.classList.add('token-animating');
+			setTimeout(() => gitlabTokenInput.classList.remove('token-animating'), 300);
+		});
+	}
 
 	githubTokenInput.addEventListener('input', checkTokenForFilter);
 	githubTokenInput.addEventListener('input', () =>
@@ -380,25 +441,25 @@ document.addEventListener('DOMContentLoaded', () => {
 		renderTokenPreview();
 	});
 
-  function renderTokenPreview() {
-    if (!tokenPreview || !githubTokenInput) return;
-    tokenPreview.innerHTML = "";
-    const value = githubTokenInput.value;
-    const isDark = document.body.classList.contains("dark-mode");
-    for (let i = 0; i < value.length; i++) {
-      const charBox = document.createElement("span");
-      charBox.className = "token-preview-char" + (isDark ? " dark-mode" : "");
-      if (tokenVisible) {
-        charBox.textContent = value[i];
-      } else {
-        const dot = document.createElement("span");
-        dot.className = "token-preview-dot" + (isDark ? " dark-mode" : "");
-        charBox.appendChild(dot);
-      }
-      tokenPreview.appendChild(charBox);
-      setTimeout(() => charBox.classList.add("flip"), 10 + i * 30);
-    }
-  }
+	function renderTokenPreview() {
+		if (!tokenPreview || !githubTokenInput) return;
+		tokenPreview.innerHTML = '';
+		const value = githubTokenInput.value;
+		const isDark = document.body.classList.contains('dark-mode');
+		for (let i = 0; i < value.length; i++) {
+			const charBox = document.createElement('span');
+			charBox.className = 'token-preview-char' + (isDark ? ' dark-mode' : '');
+			if (tokenVisible) {
+				charBox.textContent = value[i];
+			} else {
+				const dot = document.createElement('span');
+				dot.className = 'token-preview-dot' + (isDark ? ' dark-mode' : '');
+				charBox.appendChild(dot);
+			}
+			tokenPreview.appendChild(charBox);
+			setTimeout(() => charBox.classList.add('flip'), 10 + i * 30);
+		}
+	}
 
 	browser.storage.local.remove(['enableToggle']).then(() => {
 		initializePopup();
@@ -426,89 +487,87 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 	}
 
-  function parsePositiveInt(value) {
-    const n = Number.parseInt(value, 10);
-    return Number.isFinite(n) && n > 0 ? n : null;
-  }
+	function parsePositiveInt(value) {
+		const n = Number.parseInt(value, 10);
+		return Number.isFinite(n) && n > 0 ? n : null;
+	}
 
-  function setGenerateButtonLoading(generateBtn, isLoading) {
-    if (!generateBtn) return;
-    if (!isLoading) return;
+	function setGenerateButtonLoading(generateBtn, isLoading) {
+		if (!generateBtn) return;
+		if (!isLoading) return;
 
 		const msg = browser.i18n.getMessage('generatingButton') || 'Generating...';
 		generateBtn.innerHTML = `<i class="fa fa-spinner fa-spin"></i> ${msg}`;
 		generateBtn.disabled = true;
 	}
 
-  function showPopupMessage(message) {
-    if (!message) return;
+	function showPopupMessage(message) {
+		if (!message) return;
 
-    // Materialize toast if available
-    if (window.Materialize && typeof window.Materialize.toast === "function") {
-      window.Materialize.toast(message, 4000);
-      return;
-    }
+		// Materialize toast if available
+		if (window.Materialize && typeof window.Materialize.toast === 'function') {
+			window.Materialize.toast(message, 4000);
+			return;
+		}
 
-    const old = document.getElementById("scrum-cache-toast");
-    if (old) old.remove();
+		const old = document.getElementById('scrum-cache-toast');
+		if (old) old.remove();
 
-    const toast = document.createElement("div");
-    toast.id = "scrum-cache-toast";
-    toast.className = "toast";
-    toast.style.background = "#2563eb";
-    toast.style.color = "#fff";
-    toast.style.fontWeight = "bold";
-    toast.style.padding = "12px 24px";
-    toast.style.borderRadius = "8px";
-    toast.style.position = "fixed";
-    toast.style.top = "24px";
-    toast.style.left = "50%";
-    toast.style.transform = "translateX(-50%)";
-    toast.style.zIndex = "9999";
-    toast.textContent = message;
+		const toast = document.createElement('div');
+		toast.id = 'scrum-cache-toast';
+		toast.className = 'toast';
+		toast.style.background = '#2563eb';
+		toast.style.color = '#fff';
+		toast.style.fontWeight = 'bold';
+		toast.style.padding = '12px 24px';
+		toast.style.borderRadius = '8px';
+		toast.style.position = 'fixed';
+		toast.style.top = '24px';
+		toast.style.left = '50%';
+		toast.style.transform = 'translateX(-50%)';
+		toast.style.zIndex = '9999';
+		toast.textContent = message;
 
-    document.body.appendChild(toast);
-    setTimeout(() => toast.remove(), 4000);
-  }
+		document.body.appendChild(toast);
+		setTimeout(() => toast.remove(), 4000);
+	}
 
-  async function bootstrapScrumReportOnPopupLoad(generateBtn) {
-    console.log("[BOOTSTRAP] bootstrapScrumReportOnPopupLoad called");
+	async function bootstrapScrumReportOnPopupLoad(generateBtn) {
+		console.log('[BOOTSTRAP] bootstrapScrumReportOnPopupLoad called');
 
-    if (typeof window.generateScrumReport !== "function") {
-      return;
-    }
+		if (typeof window.generateScrumReport !== 'function') {
+			return;
+		}
 
-    const scrumReport = document.getElementById("scrumReport");
-    if (!scrumReport) {
-      return;
-    }
+		const scrumReport = document.getElementById('scrumReport');
+		if (!scrumReport) {
+			return;
+		}
 
-    const { platform, cacheInput, githubCache, gitlabCache } =
-      await storageLocalGet([
-        "platform",
-        "cacheInput",
-        "githubCache",
-        "gitlabCache",
-      ]);
+		const { platform, cacheInput, githubCache, gitlabCache } = await storageLocalGet([
+			'platform',
+			'cacheInput',
+			'githubCache',
+			'gitlabCache',
+		]);
 
-    const ttlMinutes = parsePositiveInt(cacheInput) ?? 10;
-    const ttlMs = ttlMinutes * 60 * 1000;
+		const ttlMinutes = parsePositiveInt(cacheInput) ?? 10;
+		const ttlMs = ttlMinutes * 60 * 1000;
 
-    const activePlatform = platform || "github";
-    const cache = activePlatform === "gitlab" ? gitlabCache : githubCache;
+		const activePlatform = platform || 'github';
+		const cache = activePlatform === 'gitlab' ? gitlabCache : githubCache;
 
-    const hasCacheData = !!cache?.data;
-    const timestamp =
-      typeof cache?.timestamp === "number" ? cache.timestamp : 0;
+		const hasCacheData = !!cache?.data;
+		const timestamp = typeof cache?.timestamp === 'number' ? cache.timestamp : 0;
 
-    if (!hasCacheData) {
-      setGenerateButtonLoading(generateBtn, true);
-      window.generateScrumReport();
-      return;
-    }
+		if (!hasCacheData) {
+			setGenerateButtonLoading(generateBtn, true);
+			window.generateScrumReport();
+			return;
+		}
 
-    if (timestamp > 0) {
-      const age = Date.now() - timestamp;
+		if (timestamp > 0) {
+			const age = Date.now() - timestamp;
 
 			const storageValues = await storageLocalGet([
 				`${activePlatform}LastScrumReportHtml`,
@@ -520,7 +579,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				'lastScrumReportUsername',
 				'githubUsername',
 				'gitlabUsername',
-				'platformUsername'
+				'platformUsername',
 			]);
 
 			let lastScrumReportHtml = storageValues[`${activePlatform}LastScrumReportHtml`];
@@ -539,7 +598,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			const isUsernameMatch = lastScrumReportUsername 
 				? lastScrumReportUsername === expectedUsername
-				: (lastScrumReportCacheKey && expectedUsername && lastScrumReportCacheKey.startsWith(expectedUsername + '-'));
+				: lastScrumReportCacheKey && expectedUsername && lastScrumReportCacheKey.startsWith(expectedUsername + '-');
 
 			if (age < ttlMs) {
 				const cacheKey = cache?.cacheKey ?? null;
@@ -549,39 +608,32 @@ document.addEventListener('DOMContentLoaded', () => {
 					(!lastScrumReportCacheKey || lastScrumReportCacheKey === cacheKey) &&
 					isUsernameMatch;
 
-        if (reportEmpty && lastScrumReportHtml && matches) {
-          scrumReport.innerHTML = lastScrumReportHtml;
-          if (generateBtn) generateBtn.disabled = false;
-          return;
-        }
+				if (reportEmpty && lastScrumReportHtml && matches) {
+					scrumReport.innerHTML = lastScrumReportHtml;
+					if (generateBtn) generateBtn.disabled = false;
+					return;
+				}
 
-        setGenerateButtonLoading(generateBtn, true);
-        window.generateScrumReport();
-        return;
-      }
+				setGenerateButtonLoading(generateBtn, true);
+				window.generateScrumReport();
+				return;
+			}
 
-      const { lastScrumReportHtml } = await storageLocalGet([
-        "lastScrumReportHtml",
-      ]);
-      if (
-        (!scrumReport.innerHTML || !scrumReport.innerHTML.trim()) &&
-        lastScrumReportHtml
-      ) {
-        scrumReport.innerHTML = lastScrumReportHtml;
-      }
+			if ((!scrumReport.innerHTML || !scrumReport.innerHTML.trim()) && lastScrumReportHtml) {
+				scrumReport.innerHTML = lastScrumReportHtml;
+			}
 
-      showPopupMessage(
-        chrome?.i18n.getMessage("cacheExpiredMessage") ||
-          'Cache expired. Click "Generate" to fetch fresh data.',
-      );
+			showPopupMessage(
+				chrome?.i18n.getMessage('cacheExpiredMessage') || 'Cache expired. Click "Generate" to fetch fresh data.',
+			);
 
-      if (generateBtn) generateBtn.disabled = false;
-      return;
-    }
+			if (generateBtn) generateBtn.disabled = false;
+			return;
+		}
 
-    setGenerateButtonLoading(generateBtn, true);
-    window.generateScrumReport();
-  }
+		setGenerateButtonLoading(generateBtn, true);
+		window.generateScrumReport();
+	}
 
 	function initializePopup() {
 		browser.storage.local.get(['platform', 'platformUsername']).then((result) => {
@@ -604,12 +656,12 @@ document.addEventListener('DOMContentLoaded', () => {
 		const onlyRevPRsCheckbox = document.getElementById('onlyRevPRs');
 		const onlyMergedPRsCheckbox = document.getElementById('onlyMergedPRs');
 
-    const githubTokenInput = document.getElementById("githubToken");
-    const cacheInput = document.getElementById("cacheInput");
-    const yesterdayRadio = document.getElementById("yesterdayContribution");
-    const startingDateInput = document.getElementById("startingDate");
-    const endingDateInput = document.getElementById("endingDate");
-    const platformUsername = document.getElementById("platformUsername");
+		const githubTokenInput = document.getElementById('githubToken');
+		const cacheInput = document.getElementById('cacheInput');
+		const yesterdayRadio = document.getElementById('yesterdayContribution');
+		const startingDateInput = document.getElementById('startingDate');
+		const endingDateInput = document.getElementById('endingDate');
+		const platformUsername = document.getElementById('platformUsername');
 
 		browser.storage.local
 			.get([
@@ -690,16 +742,16 @@ document.addEventListener('DOMContentLoaded', () => {
 			},
 		);
 
-    // Button setup
-    const generateBtn = document.getElementById("generateReport");
-    const copyBtn = document.getElementById("copyReport");
-    const insertBtn = document.getElementById("insertInEmail");
+		// Button setup
+		const generateBtn = document.getElementById('generateReport');
+		const copyBtn = document.getElementById('copyReport');
+		const insertBtn = document.getElementById('insertInEmail');
 
-    if (insertBtn) {
-      insertBtn.addEventListener("click", () => {
-        const scrumReport = document.getElementById("scrumReport");
-        const content = scrumReport ? scrumReport.innerHTML : "";
-        const subject = buildScrumSubjectFromPopup();
+		if (insertBtn) {
+			insertBtn.addEventListener('click', () => {
+				const scrumReport = document.getElementById('scrumReport');
+				const content = scrumReport ? scrumReport.innerHTML : '';
+				const subject = buildScrumSubjectFromPopup();
 
 				if (!content) {
 					insertBtn._triggeredByShortcut = false;
@@ -761,19 +813,19 @@ document.addEventListener('DOMContentLoaded', () => {
 			});
 		});
 
-    copyBtn.addEventListener("click", function () {
-      const scrumReport = document.getElementById("scrumReport");
-      const tempDiv = document.createElement("div");
-      tempDiv.innerHTML = scrumReport.innerHTML;
-      document.body.appendChild(tempDiv);
-      tempDiv.style.position = "absolute";
-      tempDiv.style.left = "-9999px";
+		copyBtn.addEventListener('click', function () {
+			const scrumReport = document.getElementById('scrumReport');
+			const tempDiv = document.createElement('div');
+			tempDiv.innerHTML = scrumReport.innerHTML;
+			document.body.appendChild(tempDiv);
+			tempDiv.style.position = 'absolute';
+			tempDiv.style.left = '-9999px';
 
-      const range = document.createRange();
-      range.selectNode(tempDiv);
-      const selection = window.getSelection();
-      selection.removeAllRanges();
-      selection.addRange(range);
+			const range = document.createRange();
+			range.selectNode(tempDiv);
+			const selection = window.getSelection();
+			selection.removeAllRanges();
+			selection.addRange(range);
 
 			try {
 				document.execCommand('copy');
@@ -797,21 +849,17 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		});
 
-    // Custom date container click handler
-    document
-      .getElementById("customDateContainer")
-      .addEventListener("click", () => {
-        document
-          .querySelectorAll('input[name="timeframe"]')
-          .forEach((radio) => {
-            radio.checked = false;
-            radio.dataset.wasChecked = "false";
-          });
+		// Custom date container click handler
+		document.getElementById('customDateContainer').addEventListener('click', () => {
+			document.querySelectorAll('input[name="timeframe"]').forEach((radio) => {
+				radio.checked = false;
+				radio.dataset.wasChecked = 'false';
+			});
 
-        const startDateInput = document.getElementById("startingDate");
-        const endDateInput = document.getElementById("endingDate");
-        startDateInput.readOnly = false;
-        endDateInput.readOnly = false;
+			const startDateInput = document.getElementById('startingDate');
+			const endDateInput = document.getElementById('endingDate');
+			startDateInput.readOnly = false;
+			endDateInput.readOnly = false;
 
 			browser.storage.local.set({
 				yesterdayContribution: false,
@@ -1046,174 +1094,159 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 	}
 
-  function showReportView() {
-    isSettingsVisible = false;
-    reportSection.classList.remove("hidden");
-    settingsSection.classList.add("hidden");
-    settingsToggle.classList.remove("active");
-  }
+	function showReportView() {
+		isSettingsVisible = false;
+		reportSection.classList.remove('hidden');
+		settingsSection.classList.add('hidden');
+		settingsToggle.classList.remove('active');
+	}
 
-  function showSettingsView() {
-    isSettingsVisible = true;
-    reportSection.classList.add("hidden");
-    settingsSection.classList.remove("hidden");
-    settingsToggle.classList.add("active");
-  }
+	function showSettingsView() {
+		isSettingsVisible = true;
+		reportSection.classList.add('hidden');
+		settingsSection.classList.remove('hidden');
+		settingsToggle.classList.add('active');
+	}
 
-  if (settingsToggle) {
-    settingsToggle.addEventListener("click", () => {
-      if (isSettingsVisible) {
-        showReportView();
-      } else {
-        showSettingsView();
-      }
-    });
-  }
+	if (settingsToggle) {
+		settingsToggle.addEventListener('click', () => {
+			if (isSettingsVisible) {
+				showReportView();
+			} else {
+				showSettingsView();
+			}
+		});
+	}
 
-  if (homeButton) {
-    homeButton.addEventListener("click", showReportView);
-  }
-  if (scrumHelperHeading) {
-    scrumHelperHeading.addEventListener("click", showReportView);
-  }
+	if (homeButton) {
+		homeButton.addEventListener('click', showReportView);
+	}
+	if (scrumHelperHeading) {
+		scrumHelperHeading.addEventListener('click', showReportView);
+	}
 
-  // ── Rate Limit Warning Banner Handlers ──
+	// ── Rate Limit Warning Banner Handlers ──
 
-  /**
-   * Show the rate-limit warning banner.
-   * Called from scrumHelper.js / gitlabHelper.js when a RateLimitError is caught.
-   * Exposed globally so other scripts can call it.
-   * @param {Error} error — must have .name === "RateLimitError", .platform, .resetAt, .retryAfter
-   */
-  window.showRateLimitWarning = function (error) {
-    const isGithub = error.platform === "github";
-    const warningEl = document.getElementById(
-      isGithub ? "rateLimitWarning" : "rateLimitWarningGitlab",
-    );
-    const messageEl = document.getElementById(
-      isGithub ? "rateLimitMessage" : "rateLimitMessageGitlab",
-    );
-    const retryInfoEl = document.getElementById(
-      isGithub ? "rateLimitRetryInfo" : "rateLimitRetryInfoGitlab",
-    );
+	/**
+	 * Show the rate-limit warning banner.
+	 * Called from scrumHelper.js / gitlabHelper.js when a RateLimitError is caught.
+	 * Exposed globally so other scripts can call it.
+	 * @param {Error} error — must have .name === "RateLimitError", .platform, .resetAt, .retryAfter
+	 */
+	window.showRateLimitWarning = function (error) {
+		const isGithub = error.platform === 'github';
+		const warningEl = document.getElementById(isGithub ? 'rateLimitWarning' : 'rateLimitWarningGitlab');
+		const messageEl = document.getElementById(isGithub ? 'rateLimitMessage' : 'rateLimitMessageGitlab');
+		const retryInfoEl = document.getElementById(isGithub ? 'rateLimitRetryInfo' : 'rateLimitRetryInfoGitlab');
 
-    if (!warningEl) return;
+		if (!warningEl) return;
 
-    // Check whether the user already has a token set
-    const tokenInput = document.getElementById(
-      isGithub ? "githubToken" : "gitlabToken",
-    );
-    const hasToken = tokenInput && tokenInput.value.trim().length > 0;
+		// Check whether the user already has a token set
+		const tokenInput = document.getElementById(isGithub ? 'githubToken' : 'gitlabToken');
+		const hasToken = tokenInput && tokenInput.value.trim().length > 0;
 
-    if (hasToken) {
-      messageEl.textContent =
-        `You've exceeded the ${isGithub ? "GitHub" : "GitLab"} API rate limit even with a token. ` +
-        "Please wait for the limit to reset and try again.";
-    } else {
-      messageEl.textContent =
-        `You've hit the ${isGithub ? "GitHub" : "GitLab"} API rate limit for unauthenticated requests. ` +
-        "Adding a Personal Access Token increases your limit significantly and enables access to private repositories.";
-    }
+		if (hasToken) {
+			messageEl.textContent =
+				`You've exceeded the ${isGithub ? 'GitHub' : 'GitLab'} API rate limit even with a token. ` +
+				'Please wait for the limit to reset and try again.';
+		} else {
+			messageEl.textContent =
+				`You've hit the ${isGithub ? 'GitHub' : 'GitLab'} API rate limit for unauthenticated requests. ` +
+				'Adding a Personal Access Token increases your limit significantly and enables access to private repositories.';
+		}
 
-    // Show reset countdown
-    if (error.resetAt) {
-      const resetDate = new Date(error.resetAt);
-      const minutes = Math.max(
-        1,
-        Math.ceil((error.resetAt - Date.now()) / 60000),
-      );
-      retryInfoEl.textContent = `Rate limit resets at ${resetDate.toLocaleTimeString()} (~${minutes} min).`;
-    } else {
-      retryInfoEl.textContent = `Try again in about ${error.retryAfter || 60} seconds.`;
-    }
+		// Show reset countdown
+		if (error.resetAt) {
+			const resetDate = new Date(error.resetAt);
+			const minutes = Math.max(1, Math.ceil((error.resetAt - Date.now()) / 60000));
+			retryInfoEl.textContent = `Rate limit resets at ${resetDate.toLocaleTimeString()} (~${minutes} min).`;
+		} else {
+			retryInfoEl.textContent = `Try again in about ${error.retryAfter || 60} seconds.`;
+		}
 
-    warningEl.classList.remove("hidden");
-    warningEl.scrollIntoView({ behavior: "smooth", block: "center" });
+		warningEl.classList.remove('hidden');
+		warningEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-    // Reset the Generate button so the user can try again later
-    const generateBtn = document.getElementById("generateReport");
-    if (generateBtn) {
-      const iconEl = generateBtn.querySelector("i");
-      if (iconEl) {
-        iconEl.className = "fa fa-refresh";
-      }
-      const labelEl = generateBtn.querySelector('[data-i18n="generateReportButton"]');
-      if (labelEl && typeof chrome !== "undefined" && chrome.i18n && chrome.i18n.getMessage) {
-        labelEl.textContent = chrome.i18n.getMessage("generateReportButton");
-      }
-      generateBtn.disabled = false;
-    }
-  };
+		// Reset the Generate button so the user can try again later
+		const generateBtn = document.getElementById('generateReport');
+		if (generateBtn) {
+			const iconEl = generateBtn.querySelector('i');
+			if (iconEl) {
+				iconEl.className = 'fa fa-refresh';
+			}
+			const labelEl = generateBtn.querySelector('[data-i18n="generateReportButton"]');
+			if (labelEl && typeof chrome !== 'undefined' && chrome.i18n && chrome.i18n.getMessage) {
+				labelEl.textContent = chrome.i18n.getMessage('generateReportButton');
+			}
+			generateBtn.disabled = false;
+		}
+	};
 
-  // GitHub — "Add GitHub Token" → navigate to settings, focus token input
-  const rateLimitAddTokenBtn = document.getElementById("rateLimitAddToken");
-  if (rateLimitAddTokenBtn) {
-    rateLimitAddTokenBtn.addEventListener("click", () => {
-      showSettingsView();
-      const tokenInput = document.getElementById("githubToken");
-      if (tokenInput) {
-        setTimeout(() => {
-          tokenInput.scrollIntoView({ behavior: "smooth", block: "center" });
-          tokenInput.focus();
-          tokenInput.style.borderColor = "#ca8a04";
-          tokenInput.style.boxShadow = "0 0 0 2px #fde047";
-          setTimeout(() => {
-            tokenInput.style.borderColor = "";
-            tokenInput.style.boxShadow = "";
-          }, 3000);
-        }, 100);
-      }
-    });
-  }
+	// GitHub — "Add GitHub Token" → navigate to settings, focus token input
+	const rateLimitAddTokenBtn = document.getElementById('rateLimitAddToken');
+	if (rateLimitAddTokenBtn) {
+		rateLimitAddTokenBtn.addEventListener('click', () => {
+			showSettingsView();
+			const tokenInput = document.getElementById('githubToken');
+			if (tokenInput) {
+				setTimeout(() => {
+					tokenInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+					tokenInput.focus();
+					tokenInput.style.borderColor = '#ca8a04';
+					tokenInput.style.boxShadow = '0 0 0 2px #fde047';
+					setTimeout(() => {
+						tokenInput.style.borderColor = '';
+						tokenInput.style.boxShadow = '';
+					}, 3000);
+				}, 100);
+			}
+		});
+	}
 
-  // Dismiss buttons — hide their closest rate-limit banner
-  document
-    .querySelectorAll("#rateLimitDismiss, #rateLimitDismissGitlab")
-    .forEach((btn) => {
-      btn.addEventListener("click", () => {
-        btn.closest(".rate-limit-banner").classList.add("hidden");
-      });
-    });
+	// Dismiss buttons — hide their closest rate-limit banner
+	document.querySelectorAll('#rateLimitDismiss, #rateLimitDismissGitlab').forEach((btn) => {
+		btn.addEventListener('click', () => {
+			btn.closest('.rate-limit-banner').classList.add('hidden');
+		});
+	});
 
-  // GitLab — "Add GitLab Token" → navigate to settings, focus token input
-  const rateLimitAddTokenGitlabBtn = document.getElementById(
-    "rateLimitAddTokenGitlab",
-  );
-  if (rateLimitAddTokenGitlabBtn) {
-    rateLimitAddTokenGitlabBtn.addEventListener("click", () => {
-      showSettingsView();
-      // Ensure the GitLab section is visible
-      const gitlabSection = document.querySelector(".gitlabOnlySection");
-      if (gitlabSection) gitlabSection.classList.remove("hidden");
+	// GitLab — "Add GitLab Token" → navigate to settings, focus token input
+	const rateLimitAddTokenGitlabBtn = document.getElementById('rateLimitAddTokenGitlab');
+	if (rateLimitAddTokenGitlabBtn) {
+		rateLimitAddTokenGitlabBtn.addEventListener('click', () => {
+			showSettingsView();
+			// Ensure the GitLab section is visible
+			const gitlabSection = document.querySelector('.gitlabOnlySection');
+			if (gitlabSection) gitlabSection.classList.remove('hidden');
 
-      const tokenInput = document.getElementById("gitlabToken");
-      if (tokenInput) {
-        setTimeout(() => {
-          tokenInput.scrollIntoView({ behavior: "smooth", block: "center" });
-          tokenInput.focus();
-          tokenInput.style.borderColor = "#ea580c";
-          tokenInput.style.boxShadow = "0 0 0 2px #fdba74";
-          setTimeout(() => {
-            tokenInput.style.borderColor = "";
-            tokenInput.style.boxShadow = "";
-          }, 3000);
-        }, 100);
-      }
-    });
-  }
+			const tokenInput = document.getElementById('gitlabToken');
+			if (tokenInput) {
+				setTimeout(() => {
+					tokenInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+					tokenInput.focus();
+					tokenInput.style.borderColor = '#ea580c';
+					tokenInput.style.boxShadow = '0 0 0 2px #fdba74';
+					setTimeout(() => {
+						tokenInput.style.borderColor = '';
+						tokenInput.style.boxShadow = '';
+					}, 3000);
+				}, 100);
+			}
+		});
+	}
 
-  showReportView();
+	showReportView();
 
-  //report filter
-  const repoSearch = document.getElementById("repoSearch");
-  const repoDropdown = document.getElementById("repoDropdown");
-  const selectedReposDiv = document.getElementById("selectedRepos");
-  const repoTags = document.getElementById("repoTags");
-  const repoPlaceholder = document.getElementById("repoPlaceholder");
-  const repoCount = document.getElementById("repoCount");
-  const repoStatus = document.getElementById("repoStatus");
-  const useRepoFilter = document.getElementById("useRepoFilter");
-  const repoFilterContainer = document.getElementById("repoFilterContainer");
+	//report filter
+	const repoSearch = document.getElementById('repoSearch');
+	const repoDropdown = document.getElementById('repoDropdown');
+	const selectedReposDiv = document.getElementById('selectedRepos');
+	const repoTags = document.getElementById('repoTags');
+	const repoPlaceholder = document.getElementById('repoPlaceholder');
+	const repoCount = document.getElementById('repoCount');
+	const repoStatus = document.getElementById('repoStatus');
+	const useRepoFilter = document.getElementById('useRepoFilter');
+	const repoFilterContainer = document.getElementById('repoFilterContainer');
 
 	if (repoSearch && useRepoFilter && repoFilterContainer) {
 		repoSearch.addEventListener('click', () => {
@@ -1225,12 +1258,12 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 	}
 
-  if (!repoSearch || !useRepoFilter) {
-    console.log("Repository, filter elements not found in DOM");
-  } else {
-    let availableRepos = [];
-    let selectedRepos = [];
-    let highlightedIndex = -1;
+	if (!repoSearch || !useRepoFilter) {
+		console.log('Repository, filter elements not found in DOM');
+	} else {
+		let availableRepos = [];
+		let selectedRepos = [];
+		let highlightedIndex = -1;
 
 		async function triggerRepoFetchIfEnabled() {
 			// --- PLATFORM CHECK: Only run for GitHub ---
@@ -1241,7 +1274,9 @@ document.addEventListener('DOMContentLoaded', () => {
 			} catch {}
 			if (platform !== 'github') {
 				// Do not run repo fetch for non-GitHub platforms
-				if (repoStatus) repoStatus.textContent = chrome?.i18n.getMessage('repoFilteringGithubOnly') || 'Repository filtering is only available for GitHub.';
+				if (repoStatus)
+					repoStatus.textContent =
+						chrome?.i18n.getMessage('repoFilteringGithubOnly') || 'Repository filtering is only available for GitHub.';
 				return;
 			}
 			if (!useRepoFilter.checked) {
@@ -1262,9 +1297,9 @@ document.addEventListener('DOMContentLoaded', () => {
 					'orgName',
 				]);
 
-        const platform = items.platform || "github";
-        const platformUsernameKey = `${platform}Username`;
-        const username = items[platformUsernameKey];
+				const platform = items.platform || 'github';
+				const platformUsernameKey = `${platform}Username`;
+				const username = items[platformUsernameKey];
 
 				if (!username) {
 					if (repoStatus) {
@@ -1273,14 +1308,10 @@ document.addEventListener('DOMContentLoaded', () => {
 					return;
 				}
 
-        if (window.fetchUserRepositories) {
-          const repos = await window.fetchUserRepositories(
-            username,
-            items.githubToken,
-            items.orgName || "",
-          );
+				if (window.fetchUserRepositories) {
+					const repos = await window.fetchUserRepositories(username, items.githubToken, items.orgName || '');
 
-          availableRepos = repos;
+					availableRepos = repos;
 
 					if (repoStatus) {
 						repoStatus.textContent = browser.i18n.getMessage('repoLoaded', [repos.length]);
@@ -1310,7 +1341,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		}
 
-    window.triggerRepoFetchIfEnabled = triggerRepoFetchIfEnabled;
+		window.triggerRepoFetchIfEnabled = triggerRepoFetchIfEnabled;
 
 		browser.storage.local.get(['selectedRepos', 'useRepoFilter']).then((items) => {
 			if (items.selectedRepos) {
@@ -1334,7 +1365,10 @@ document.addEventListener('DOMContentLoaded', () => {
 				if (platform !== 'github') {
 					repoFilterContainer.classList.add('hidden');
 					useRepoFilter.checked = false;
-					if (repoStatus) repoStatus.textContent = chrome?.i18n.getMessage('repoFilteringGithubOnly') || 'Repository filtering is only available for GitHub.';
+					if (repoStatus)
+						repoStatus.textContent =
+							chrome?.i18n.getMessage('repoFilteringGithubOnly') ||
+							'Repository filtering is only available for GitHub.';
 					return;
 				}
 				const enabled = useRepoFilter.checked;
@@ -1364,7 +1398,8 @@ document.addEventListener('DOMContentLoaded', () => {
 				});
 				checkTokenForFilter();
 				if (enabled) {
-					repoStatus.textContent = chrome?.i18n.getMessage('loadingReposAutomatically') || 'Loading repos automatically...';
+					repoStatus.textContent =
+						chrome?.i18n.getMessage('loadingReposAutomatically') || 'Loading repos automatically...';
 
 					try {
 						const cacheData = await browser.storage.local.get(['repoCache']);
@@ -1376,37 +1411,37 @@ document.addEventListener('DOMContentLoaded', () => {
 							'orgName',
 						]);
 
-            const platform = items.platform || "github";
-            const platformUsernameKey = `${platform}Username`;
-            const username = items[platformUsernameKey];
+						const platform = items.platform || 'github';
+						const platformUsernameKey = `${platform}Username`;
+						const username = items[platformUsernameKey];
 
 						if (!username) {
 							repoStatus.textContent = chrome?.i18n.getMessage('usernameMissingError') || 'Username required';
 							return;
 						}
 
-            const repoCacheKey = `repos-${username}-${items.orgName || ""}`;
+						const repoCacheKey = `repos-${username}-${items.orgName || ''}`;
 
-            const now = Date.now();
-            const cacheAge = cacheData.repoCache?.timestamp
-              ? now - cacheData.repoCache.timestamp
-              : Number.POSITIVE_INFINITY;
-            const cacheTTL = 10 * 60 * 1000; // 10 minutes
+						const now = Date.now();
+						const cacheAge = cacheData.repoCache?.timestamp
+							? now - cacheData.repoCache.timestamp
+							: Number.POSITIVE_INFINITY;
+						const cacheTTL = 10 * 60 * 1000; // 10 minutes
 
 						if (cacheData.repoCache && cacheData.repoCache.cacheKey === repoCacheKey && cacheAge < cacheTTL) {
 							console.log('Using cached repositories');
 							availableRepos = cacheData.repoCache.data;
 							repoStatus.textContent = browser.i18n.getMessage('repoLoaded', [availableRepos.length]);
 
-              if (document.activeElement === repoSearch) {
-                filterAndDisplayRepos(repoSearch.value.toLowerCase());
-              }
-              return;
-            }
+							if (document.activeElement === repoSearch) {
+								filterAndDisplayRepos(repoSearch.value.toLowerCase());
+							}
+							return;
+						}
 
-            if (window.fetchUserRepositories) {
-              const repos = await window.fetchUserRepositories(
-                username,
+						if (window.fetchUserRepositories) {
+							const repos = await window.fetchUserRepositories(
+								username,
 
 								items.githubToken,
 								items.orgName || '',
@@ -1422,12 +1457,12 @@ document.addEventListener('DOMContentLoaded', () => {
 								},
 							});
 
-              if (document.activeElement === repoSearch) {
-                filterAndDisplayRepos(repoSearch.value.toLowerCase());
-              }
-            }
-          } catch (err) {
-            console.error("Auto load repos failed", err);
+							if (document.activeElement === repoSearch) {
+								filterAndDisplayRepos(repoSearch.value.toLowerCase());
+							}
+						}
+					} catch (err) {
+						console.error('Auto load repos failed', err);
 
 						if (err.message?.includes('401')) {
 							repoStatus.textContent = browser.i18n.getMessage('repoTokenPrivate');
@@ -1446,54 +1481,51 @@ document.addEventListener('DOMContentLoaded', () => {
 			}, 300),
 		);
 
-    repoSearch.addEventListener("keydown", (e) => {
-      const items = repoDropdown.querySelectorAll(".repository-dropdown-item");
+		repoSearch.addEventListener('keydown', (e) => {
+			const items = repoDropdown.querySelectorAll('.repository-dropdown-item');
 
-      switch (e.key) {
-        case "ArrowDown":
-          e.preventDefault();
-          highlightedIndex = Math.min(highlightedIndex + 1, items.length - 1);
-          updateHighlight(items);
-          break;
-        case "ArrowUp":
-          e.preventDefault();
-          highlightedIndex = Math.max(highlightedIndex - 1, 0);
-          updateHighlight(items);
-          break;
-        case "Enter":
-          e.preventDefault();
-          if (highlightedIndex >= 0 && items[highlightedIndex]) {
-            fnSelectedRepos(items[highlightedIndex].dataset.repoName);
-          }
-          break;
-        case "Escape":
-          hideDropdown();
-          break;
-      }
-    });
+			switch (e.key) {
+				case 'ArrowDown':
+					e.preventDefault();
+					highlightedIndex = Math.min(highlightedIndex + 1, items.length - 1);
+					updateHighlight(items);
+					break;
+				case 'ArrowUp':
+					e.preventDefault();
+					highlightedIndex = Math.max(highlightedIndex - 1, 0);
+					updateHighlight(items);
+					break;
+				case 'Enter':
+					e.preventDefault();
+					if (highlightedIndex >= 0 && items[highlightedIndex]) {
+						fnSelectedRepos(items[highlightedIndex].dataset.repoName);
+					}
+					break;
+				case 'Escape':
+					hideDropdown();
+					break;
+			}
+		});
 
-    repoSearch.addEventListener("input", (e) => {
-      const query = e.target.value.toLowerCase();
-      filterAndDisplayRepos(query);
-    });
-    let programmaticFocus = false;
-    repoSearch.addEventListener("focus", () => {
-      if (programmaticFocus) {
-        programmaticFocus = false;
-        return;
-      }
-      const searchTerm = repoSearch.value.toLowerCase();
-      filterAndDisplayRepos(searchTerm);
-    });
+		repoSearch.addEventListener('input', (e) => {
+			const query = e.target.value.toLowerCase();
+			filterAndDisplayRepos(query);
+		});
+		let programmaticFocus = false;
+		repoSearch.addEventListener('focus', () => {
+			if (programmaticFocus) {
+				programmaticFocus = false;
+				return;
+			}
+			const searchTerm = repoSearch.value.toLowerCase();
+			filterAndDisplayRepos(searchTerm);
+		});
 
-    document.addEventListener("click", (e) => {
-      if (
-        !e.target.closest("#repoSearch") &&
-        !e.target.closest("#repoDropdown")
-      ) {
-        hideDropdown();
-      }
-    });
+		document.addEventListener('click', (e) => {
+			if (!e.target.closest('#repoSearch') && !e.target.closest('#repoDropdown')) {
+				hideDropdown();
+			}
+		});
 
 		function debugRepoFetch() {
 			browser.storage.local.get(['platform', 'githubUsername', 'githubToken', 'orgName']).then((items) => {
@@ -1516,7 +1548,9 @@ document.addEventListener('DOMContentLoaded', () => {
 				platform = items.platform || 'github';
 			} catch {}
 			if (platform !== 'github') {
-				if (repoStatus) repoStatus.textContent = chrome?.i18n.getMessage('repoLoadingGithubOnly') || 'Repository loading is only available for GitHub.';
+				if (repoStatus)
+					repoStatus.textContent =
+						chrome?.i18n.getMessage('repoLoadingGithubOnly') || 'Repository loading is only available for GitHub.';
 				return;
 			}
 			console.log('window.fetchUserRepositories exists:', !!window.fetchUserRepositories);
@@ -1525,10 +1559,10 @@ document.addEventListener('DOMContentLoaded', () => {
 				Object.keys(window).filter((key) => key.includes('fetch')),
 			);
 
-      if (!window.fetchUserRepositories) {
-        repoStatus.textContent = "Repository fetching not available";
-        return;
-      }
+			if (!window.fetchUserRepositories) {
+				repoStatus.textContent = 'Repository fetching not available';
+				return;
+			}
 
 			browser.storage.local.get(['platform', 'githubUsername', 'githubToken']).then((items) => {
 				const platform = items.platform || 'github';
@@ -1545,10 +1579,9 @@ document.addEventListener('DOMContentLoaded', () => {
 					return;
 				}
 
-          performRepoFetch();
-        },
-      );
-    }
+				performRepoFetch();
+			});
+		}
 
 		async function performRepoFetch() {
 			let platform = 'github';
@@ -1557,7 +1590,9 @@ document.addEventListener('DOMContentLoaded', () => {
 				platform = items.platform || 'github';
 			} catch (e) {}
 			if (platform !== 'github') {
-				if (repoStatus) repoStatus.textContent = chrome?.i18n.getMessage('repoFetchingGithubOnly') || 'Repository fetching is only available for GitHub.';
+				if (repoStatus)
+					repoStatus.textContent =
+						chrome?.i18n.getMessage('repoFetchingGithubOnly') || 'Repository fetching is only available for GitHub.';
 				return;
 			}
 			console.log('[POPUP-DEBUG] performRepoFetch called.');
@@ -1583,27 +1618,27 @@ document.addEventListener('DOMContentLoaded', () => {
 					: Number.POSITIVE_INFINITY;
 				const cacheTTL = 10 * 60 * 1000; // 10 minutes
 
-        console.log("[POPUP-DEBUG] Repo cache check:", {
-          key: repoCacheKey,
-          cacheKeyInCache: cacheData.repoCache?.cacheKey,
-          isMatch: cacheData.repoCache?.cacheKey === repoCacheKey,
-          age: cacheAge,
-          isFresh: cacheAge < cacheTTL,
-        });
+				console.log('[POPUP-DEBUG] Repo cache check:', {
+					key: repoCacheKey,
+					cacheKeyInCache: cacheData.repoCache?.cacheKey,
+					isMatch: cacheData.repoCache?.cacheKey === repoCacheKey,
+					age: cacheAge,
+					isFresh: cacheAge < cacheTTL,
+				});
 
 				if (cacheData.repoCache && cacheData.repoCache.cacheKey === repoCacheKey && cacheAge < cacheTTL) {
 					console.log('[POPUP-DEBUG] Using cached repositories in manual fetch');
 					availableRepos = cacheData.repoCache.data;
 					repoStatus.textContent = browser.i18n.getMessage('repoLoaded', [availableRepos.length]);
 
-          if (document.activeElement === repoSearch) {
-            filterAndDisplayRepos(repoSearch.value.toLowerCase());
-          }
-          return;
-        }
-        console.log("[POPUP-DEBUG] No valid cache. Fetching from network.");
-        availableRepos = await window.fetchUserRepositories(
-          username,
+					if (document.activeElement === repoSearch) {
+						filterAndDisplayRepos(repoSearch.value.toLowerCase());
+					}
+					return;
+				}
+				console.log('[POPUP-DEBUG] No valid cache. Fetching from network.');
+				availableRepos = await window.fetchUserRepositories(
+					username,
 
 					storageItems.githubToken,
 					storageItems.orgName || '',
@@ -1619,11 +1654,11 @@ document.addEventListener('DOMContentLoaded', () => {
 					},
 				});
 
-        if (document.activeElement === repoSearch) {
-          filterAndDisplayRepos(repoSearch.value.toLowerCase());
-        }
-      } catch (err) {
-        console.error(`Failed to load repos:`, err);
+				if (document.activeElement === repoSearch) {
+					filterAndDisplayRepos(repoSearch.value.toLowerCase());
+				}
+			} catch (err) {
+				console.error(`Failed to load repos:`, err);
 
 				if (err.message && err.message.includes('401')) {
 					repoStatus.textContent = browser.i18n.getMessage('repoTokenPrivate');
@@ -1644,18 +1679,15 @@ document.addEventListener('DOMContentLoaded', () => {
 				return;
 			}
 
-      const filtered = availableRepos.filter((repo) => {
-        if (selectedRepos.includes(repo.fullName)) {
-          return false;
-        }
-        if (!query) {
-          return true;
-        }
-        return (
-          repo.name.toLowerCase().includes(query) ||
-          repo.description?.toLowerCase().includes(query)
-        );
-      });
+			const filtered = availableRepos.filter((repo) => {
+				if (selectedRepos.includes(repo.fullName)) {
+					return false;
+				}
+				if (!query) {
+					return true;
+				}
+				return repo.name.toLowerCase().includes(query) || repo.description?.toLowerCase().includes(query);
+			});
 
 			if (filtered.length === 0) {
 				repoDropdown.innerHTML = `<div class="p-3 text-center text-gray-500 text-sm" style="padding-left: 10px; ">${browser.i18n.getMessage('repoNotFound')}</div>`;
@@ -1667,52 +1699,50 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="repository-dropdown-item" data-repo-name="${repo.fullName}">
                         <div class="repo-name">
                             <span>${repo.name}</span>
-                            ${repo.language ? `<span class="repo-language">${repo.language}</span>` : ""}
-                            ${repo.stars ? `<span class="repo-stars"><i class="fa fa-star"></i> ${repo.stars}</span>` : ""}
+                            ${repo.language ? `<span class="repo-language">${repo.language}</span>` : ''}
+                            ${repo.stars ? `<span class="repo-stars"><i class="fa fa-star"></i> ${repo.stars}</span>` : ''}
                         </div>
                         <div class="repo-info">
-                            ${repo.description ? `<span class="repo-desc">${repo.description.substring(0, 50)}${repo.description.length > 50 ? "..." : ""}</span>` : ""}
+                            ${repo.description ? `<span class="repo-desc">${repo.description.substring(0, 50)}${repo.description.length > 50 ? '...' : ''}</span>` : ''}
                         </div>
                     </div>
                 `,
-          )
-          .join("");
+					)
+					.join('');
 
-        repoDropdown
-          .querySelectorAll(".repository-dropdown-item")
-          .forEach((item) => {
-            item.addEventListener("click", (e) => {
-              e.stopPropagation();
-              fnSelectedRepos(item.dataset.repoName);
-            });
-          });
-      }
-      highlightedIndex = -1;
-      showDropdown();
-    }
+				repoDropdown.querySelectorAll('.repository-dropdown-item').forEach((item) => {
+					item.addEventListener('click', (e) => {
+						e.stopPropagation();
+						fnSelectedRepos(item.dataset.repoName);
+					});
+				});
+			}
+			highlightedIndex = -1;
+			showDropdown();
+		}
 
-    function fnSelectedRepos(repoFullName) {
-      if (!selectedRepos.includes(repoFullName)) {
-        selectedRepos.push(repoFullName);
-        updateRepoDisplay();
-        saveRepoSelection();
-      }
+		function fnSelectedRepos(repoFullName) {
+			if (!selectedRepos.includes(repoFullName)) {
+				selectedRepos.push(repoFullName);
+				updateRepoDisplay();
+				saveRepoSelection();
+			}
 
-      repoSearch.value = "";
-      filterAndDisplayRepos("");
-      programmaticFocus = true;
-      repoSearch.focus();
-    }
+			repoSearch.value = '';
+			filterAndDisplayRepos('');
+			programmaticFocus = true;
+			repoSearch.focus();
+		}
 
-    function removeRepo(repoFullName) {
-      selectedRepos = selectedRepos.filter((name) => name !== repoFullName);
-      updateRepoDisplay();
-      saveRepoSelection();
+		function removeRepo(repoFullName) {
+			selectedRepos = selectedRepos.filter((name) => name !== repoFullName);
+			updateRepoDisplay();
+			saveRepoSelection();
 
-      if (repoSearch.value) {
-        filterAndDisplayRepos(repoSearch.value.toLowerCase());
-      }
-    }
+			if (repoSearch.value) {
+				filterAndDisplayRepos(repoSearch.value.toLowerCase());
+			}
+		}
 
 		function updateRepoDisplay() {
 			if (selectedRepos.length === 0) {
@@ -1751,26 +1781,26 @@ document.addEventListener('DOMContentLoaded', () => {
 			});
 		}
 
-    function showDropdown() {
-      repoDropdown.classList.remove("hidden");
-    }
+		function showDropdown() {
+			repoDropdown.classList.remove('hidden');
+		}
 
-    function hideDropdown() {
-      repoDropdown.classList.add("hidden");
-      highlightedIndex = -1;
-    }
+		function hideDropdown() {
+			repoDropdown.classList.add('hidden');
+			highlightedIndex = -1;
+		}
 
-    function updateHighlight(items) {
-      items.forEach((item, index) => {
-        item.classList.toggle("highlighted", index === highlightedIndex);
-      });
+		function updateHighlight(items) {
+			items.forEach((item, index) => {
+				item.classList.toggle('highlighted', index === highlightedIndex);
+			});
 
-      if (highlightedIndex >= 0 && items[highlightedIndex]) {
-        items[highlightedIndex].scrollIntoView({ block: "nearest" });
-      }
-    }
+			if (highlightedIndex >= 0 && items[highlightedIndex]) {
+				items[highlightedIndex].scrollIntoView({ block: 'nearest' });
+			}
+		}
 
-    window.removeRepo = removeRepo;
+		window.removeRepo = removeRepo;
 
 		browser.storage.local.get(['platform', 'githubUsername']).then((items) => {
 			const platform = items.platform || 'github';
@@ -1783,7 +1813,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 });
 
-const cacheInput = document.getElementById("cacheInput");
+const cacheInput = document.getElementById('cacheInput');
 if (cacheInput) {
 	browser.storage.local.get(['cacheInput']).then((result) => {
 		if (result.cacheInput) {
@@ -1793,19 +1823,19 @@ if (cacheInput) {
 		}
 	});
 
-  cacheInput.addEventListener("blur", function () {
-    let ttlValue = Number.parseInt(this.value, 10);
-    if (Number.isNaN(ttlValue) || ttlValue <= 0 || this.value.trim() === "") {
-      ttlValue = 10;
-      this.value = ttlValue;
-      this.style.borderColor = "#ef4444";
-    } else if (ttlValue > 1440) {
-      ttlValue = 1440;
-      this.value = ttlValue;
-      this.style.borderColor = "#f59e0b";
-    } else {
-      this.style.borderColor = "#10b981";
-    }
+	cacheInput.addEventListener('blur', function () {
+		let ttlValue = Number.parseInt(this.value, 10);
+		if (Number.isNaN(ttlValue) || ttlValue <= 0 || this.value.trim() === '') {
+			ttlValue = 10;
+			this.value = ttlValue;
+			this.style.borderColor = '#ef4444';
+		} else if (ttlValue > 1440) {
+			ttlValue = 1440;
+			this.value = ttlValue;
+			this.style.borderColor = '#f59e0b';
+		} else {
+			this.style.borderColor = '#10b981';
+		}
 
 		browser.storage.local.set({ cacheInput: ttlValue }).then(() => {
 			console.log('Cache TTL saved:', ttlValue, 'minutes');
@@ -1835,30 +1865,30 @@ function updatePlatformUI(platform) {
 		}
 	}
 
-  const orgSection = document.querySelector(".orgSection");
-  if (orgSection) {
-    if (platform === "gitlab") {
-      orgSection.classList.add("hidden");
-    } else {
-      orgSection.classList.remove("hidden");
-    }
-  }
-  const githubOnlySections = document.querySelectorAll(".githubOnlySection");
-  githubOnlySections.forEach((el) => {
-    if (platform === "gitlab") {
-      el.classList.add("hidden");
-    } else {
-      el.classList.remove("hidden");
-    }
-  });
-  const gitlabOnlySections = document.querySelectorAll(".gitlabOnlySection");
-  gitlabOnlySections.forEach((el) => {
-    if (platform === "github") {
-      el.classList.add("hidden");
-    } else {
-      el.classList.remove("hidden");
-    }
-  });
+	const orgSection = document.querySelector('.orgSection');
+	if (orgSection) {
+		if (platform === 'gitlab') {
+			orgSection.classList.add('hidden');
+		} else {
+			orgSection.classList.remove('hidden');
+		}
+	}
+	const githubOnlySections = document.querySelectorAll('.githubOnlySection');
+	githubOnlySections.forEach((el) => {
+		if (platform === 'gitlab') {
+			el.classList.add('hidden');
+		} else {
+			el.classList.remove('hidden');
+		}
+	});
+	const gitlabOnlySections = document.querySelectorAll('.gitlabOnlySection');
+	gitlabOnlySections.forEach((el) => {
+		if (platform === 'github') {
+			el.classList.add('hidden');
+		} else {
+			el.classList.remove('hidden');
+		}
+	});
 }
 
 platformSelect.addEventListener('change', () => {
@@ -1888,33 +1918,30 @@ platformSelect.addEventListener('change', () => {
 		}
 	});
 
-  updatePlatformUI(platform);
+	updatePlatformUI(platform);
 });
 
-const customDropdown = document.getElementById("customPlatformDropdown");
-const dropdownBtn = document.getElementById("platformDropdownBtn");
-const dropdownList = document.getElementById("platformDropdownList");
-const dropdownSelected = document.getElementById("platformDropdownSelected");
-const platformSelectHidden = document.getElementById("platformSelect");
+const customDropdown = document.getElementById('customPlatformDropdown');
+const dropdownBtn = document.getElementById('platformDropdownBtn');
+const dropdownList = document.getElementById('platformDropdownList');
+const dropdownSelected = document.getElementById('platformDropdownSelected');
+const platformSelectHidden = document.getElementById('platformSelect');
 
 function buildScrumSubjectFromPopup() {
-  const projectName =
-    document.getElementById("projectName")?.value?.trim() || "";
-  const now = new Date();
-  const dateCode =
-    String(now.getFullYear()) +
-    String(now.getMonth() + 1).padStart(2, "0") +
-    String(now.getDate()).padStart(2, "0");
+	const projectName = document.getElementById('projectName')?.value?.trim() || '';
+	const now = new Date();
+	const dateCode =
+		String(now.getFullYear()) + String(now.getMonth() + 1).padStart(2, '0') + String(now.getDate()).padStart(2, '0');
 
-  return `[Scrum]${projectName ? " - " + projectName : ""} - ${dateCode}`;
+	return `[Scrum]${projectName ? ' - ' + projectName : ''} - ${dateCode}`;
 }
 
 function setPlatformDropdown(value) {
-  if (value === "gitlab") {
-    dropdownSelected.innerHTML = '<i class="fab fa-gitlab mr-2"></i> GitLab';
-  } else {
-    dropdownSelected.innerHTML = '<i class="fab fa-github mr-2"></i> GitHub';
-  }
+	if (value === 'gitlab') {
+		dropdownSelected.innerHTML = '<i class="fab fa-gitlab mr-2"></i> GitLab';
+	} else {
+		dropdownSelected.innerHTML = '<i class="fab fa-github mr-2"></i> GitHub';
+	}
 
 	const platformUsername = document.getElementById('platformUsername');
 	if (platformUsername) {
@@ -1942,19 +1969,19 @@ function setPlatformDropdown(value) {
 		}
 	});
 
-  updatePlatformUI(value);
+	updatePlatformUI(value);
 }
 
-dropdownBtn.addEventListener("click", (e) => {
-  e.stopPropagation();
-  customDropdown.classList.toggle("open");
-  dropdownList.classList.toggle("hidden");
+dropdownBtn.addEventListener('click', (e) => {
+	e.stopPropagation();
+	customDropdown.classList.toggle('open');
+	dropdownList.classList.toggle('hidden');
 });
 
-dropdownList.querySelectorAll("li").forEach((item) => {
-  item.addEventListener("click", function (e) {
-    const newPlatform = this.getAttribute("data-value");
-    const currentPlatform = platformSelectHidden.value;
+dropdownList.querySelectorAll('li').forEach((item) => {
+	item.addEventListener('click', function (e) {
+		const newPlatform = this.getAttribute('data-value');
+		const currentPlatform = platformSelectHidden.value;
 
 		if (newPlatform !== currentPlatform) {
 			const platformUsername = document.getElementById('platformUsername');
@@ -1966,41 +1993,41 @@ dropdownList.querySelectorAll("li").forEach((item) => {
 			}
 		}
 
-    setPlatformDropdown(newPlatform);
-    customDropdown.classList.remove("open");
-    dropdownList.classList.add("hidden");
-  });
+		setPlatformDropdown(newPlatform);
+		customDropdown.classList.remove('open');
+		dropdownList.classList.add('hidden');
+	});
 });
 
-document.addEventListener("click", (e) => {
-  if (!customDropdown.contains(e.target)) {
-    customDropdown.classList.remove("open");
-    dropdownList.classList.add("hidden");
-  }
+document.addEventListener('click', (e) => {
+	if (!customDropdown.contains(e.target)) {
+		customDropdown.classList.remove('open');
+		dropdownList.classList.add('hidden');
+	}
 });
 
 // Keyboard navigation
-platformDropdownBtn.addEventListener("keydown", (e) => {
-  if (e.key === "ArrowDown" || e.key === "Enter" || e.key === " ") {
-    e.preventDefault();
-    customDropdown.classList.add("open");
-    dropdownList.classList.remove("hidden");
-    dropdownList.querySelector("li").focus();
-  }
+platformDropdownBtn.addEventListener('keydown', (e) => {
+	if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
+		e.preventDefault();
+		customDropdown.classList.add('open');
+		dropdownList.classList.remove('hidden');
+		dropdownList.querySelector('li').focus();
+	}
 });
-dropdownList.querySelectorAll("li").forEach((item, idx, arr) => {
-  item.setAttribute("tabindex", "0");
-  item.addEventListener("keydown", function (e) {
-    if (e.key === "ArrowDown") {
-      e.preventDefault();
-      (arr[idx + 1] || arr[0]).focus();
-    } else if (e.key === "ArrowUp") {
-      e.preventDefault();
-      (arr[idx - 1] || arr[arr.length - 1]).focus();
-    } else if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      const newPlatform = this.getAttribute("data-value");
-      const currentPlatform = platformSelectHidden.value;
+dropdownList.querySelectorAll('li').forEach((item, idx, arr) => {
+	item.setAttribute('tabindex', '0');
+	item.addEventListener('keydown', function (e) {
+		if (e.key === 'ArrowDown') {
+			e.preventDefault();
+			(arr[idx + 1] || arr[0]).focus();
+		} else if (e.key === 'ArrowUp') {
+			e.preventDefault();
+			(arr[idx - 1] || arr[arr.length - 1]).focus();
+		} else if (e.key === 'Enter' || e.key === ' ') {
+			e.preventDefault();
+			const newPlatform = this.getAttribute('data-value');
+			const currentPlatform = platformSelectHidden.value;
 
 			// Save current username for current platform before switching
 			if (newPlatform !== currentPlatform) {
@@ -2013,12 +2040,12 @@ dropdownList.querySelectorAll("li").forEach((item, idx, arr) => {
 				}
 			}
 
-      setPlatformDropdown(newPlatform);
-      customDropdown.classList.remove("open");
-      dropdownList.classList.add("hidden");
-      dropdownBtn.focus();
-    }
-  });
+			setPlatformDropdown(newPlatform);
+			customDropdown.classList.remove('open');
+			dropdownList.classList.add('hidden');
+			dropdownBtn.focus();
+		}
+	});
 });
 
 // On load, restore platform from storage
@@ -2035,56 +2062,56 @@ browser.storage.local.get(['platform']).then((result) => {
 });
 
 // Tooltip bubble
-document.querySelectorAll(".tooltip-container").forEach((container) => {
-  const bubble = container.querySelector(".tooltip-bubble");
-  if (!bubble) return;
+document.querySelectorAll('.tooltip-container').forEach((container) => {
+	const bubble = container.querySelector('.tooltip-bubble');
+	if (!bubble) return;
 
-  function positionTooltip() {
-    const icon = container.querySelector(".question-icon") || container;
-    const rect = icon.getBoundingClientRect();
-    const bubbleRect = bubble.getBoundingClientRect();
-    const padding = 8;
+	function positionTooltip() {
+		const icon = container.querySelector('.question-icon') || container;
+		const rect = icon.getBoundingClientRect();
+		const bubbleRect = bubble.getBoundingClientRect();
+		const padding = 8;
 
-    let top = rect.top + window.scrollY;
-    let left = rect.right + padding + window.scrollX;
+		let top = rect.top + window.scrollY;
+		let left = rect.right + padding + window.scrollX;
 
-    if (left + bubbleRect.width > window.innerWidth - 10) {
-      left = rect.left - bubbleRect.width - padding + window.scrollX;
-    }
-    if (left < 8) left = 8;
-    if (top + bubbleRect.height > window.innerHeight - 10) {
-      top = rect.top - bubbleRect.height - padding + window.scrollY;
-    }
-    if (top < 8) top = 8;
+		if (left + bubbleRect.width > window.innerWidth - 10) {
+			left = rect.left - bubbleRect.width - padding + window.scrollX;
+		}
+		if (left < 8) left = 8;
+		if (top + bubbleRect.height > window.innerHeight - 10) {
+			top = rect.top - bubbleRect.height - padding + window.scrollY;
+		}
+		if (top < 8) top = 8;
 
-    bubble.style.left = left + "px";
-    bubble.style.top = top + "px";
-  }
+		bubble.style.left = left + 'px';
+		bubble.style.top = top + 'px';
+	}
 
-  container.addEventListener("mouseenter", positionTooltip);
-  container.addEventListener("focusin", positionTooltip);
-  container.addEventListener("mousemove", positionTooltip);
-  container.addEventListener("mouseleave", () => {
-    bubble.style.left = "";
-    bubble.style.top = "";
-  });
-  container.addEventListener("focusout", () => {
-    bubble.style.left = "";
-    bubble.style.top = "";
-  });
+	container.addEventListener('mouseenter', positionTooltip);
+	container.addEventListener('focusin', positionTooltip);
+	container.addEventListener('mousemove', positionTooltip);
+	container.addEventListener('mouseleave', () => {
+		bubble.style.left = '';
+		bubble.style.top = '';
+	});
+	container.addEventListener('focusout', () => {
+		bubble.style.left = '';
+		bubble.style.top = '';
+	});
 });
 
 // Radio button click handlers with toggle functionality
 document.querySelectorAll('input[name="timeframe"]').forEach((radio) => {
-  radio.addEventListener("click", function () {
-    if (this.dataset.wasChecked === "true") {
-      this.checked = false;
-      this.dataset.wasChecked = "false";
+	radio.addEventListener('click', function () {
+		if (this.dataset.wasChecked === 'true') {
+			this.checked = false;
+			this.dataset.wasChecked = 'false';
 
-      const startDateInput = document.getElementById("startingDate");
-      const endDateInput = document.getElementById("endingDate");
-      startDateInput.readOnly = false;
-      endDateInput.readOnly = false;
+			const startDateInput = document.getElementById('startingDate');
+			const endDateInput = document.getElementById('endingDate');
+			startDateInput.readOnly = false;
+			endDateInput.readOnly = false;
 
 			browser.storage.local.set({
 				yesterdayContribution: false,
@@ -2121,10 +2148,8 @@ document.querySelectorAll('input[name="timeframe"]').forEach((radio) => {
 
 // refresh cache button
 
-document
-  .getElementById("refreshCache")
-  .addEventListener("click", async function () {
-    const originalText = this.innerHTML;
+document.getElementById('refreshCache').addEventListener('click', async function () {
+	const originalText = this.innerHTML;
 
 	this.classList.add('loading');
 	this.innerHTML = `<i class="fa fa-refresh fa-spin"></i><span>${browser.i18n.getMessage('refreshingButton')}</span>`;
@@ -2148,19 +2173,19 @@ document
 			scrumReport.innerHTML = `<p style="text-align: center; color: #666; padding: 20px;">${browser.i18n.getMessage('cacheClearedMessage')}</p>`;
 		}
 
-      if (typeof availableRepos !== "undefined") {
-        availableRepos = [];
-      }
+		if (typeof availableRepos !== 'undefined') {
+			availableRepos = [];
+		}
 
-      const repoStatus = document.getElementById("repoStatus");
-      if (repoStatus) {
-        repoStatus.textContent = "";
-      }
+		const repoStatus = document.getElementById('repoStatus');
+		if (repoStatus) {
+			repoStatus.textContent = '';
+		}
 
 		this.innerHTML = `<i class="fa fa-check"></i><span>${browser.i18n.getMessage('cacheClearedButton')}</span>`;
 		this.classList.remove('loading');
 
-      // Do NOT trigger report generation automatically
+		// Do NOT trigger report generation automatically
 
 		setTimeout(() => {
 			this.innerHTML = originalText;
@@ -2171,25 +2196,25 @@ document
 		this.innerHTML = `<i class="fa fa-exclamation-triangle"></i><span>${browser.i18n.getMessage('cacheClearFailed')}</span>`;
 		this.classList.remove('loading');
 
-      setTimeout(() => {
-        this.innerHTML = originalText;
-        this.disabled = false;
-      }, 3000);
-    }
-  });
+		setTimeout(() => {
+			this.innerHTML = originalText;
+			this.disabled = false;
+		}, 3000);
+	}
+});
 
 function toggleRadio(radio) {
-  const startDateInput = document.getElementById("startingDate");
-  const endDateInput = document.getElementById("endingDate");
+	const startDateInput = document.getElementById('startingDate');
+	const endDateInput = document.getElementById('endingDate');
 
-  console.log("Toggling radio:", radio.id);
+	console.log('Toggling radio:', radio.id);
 
-  if (radio.id === "yesterdayContribution") {
-    startDateInput.value = getYesterday();
-    endDateInput.value = getToday();
-  }
+	if (radio.id === 'yesterdayContribution') {
+		startDateInput.value = getYesterday();
+		endDateInput.value = getToday();
+	}
 
-  startDateInput.readOnly = endDateInput.readOnly = true;
+	startDateInput.readOnly = endDateInput.readOnly = true;
 
 	browser.storage.local
 		.set({
@@ -2210,9 +2235,9 @@ function toggleRadio(radio) {
 }
 
 async function triggerRepoFetchIfEnabled() {
-  if (window.triggerRepoFetchIfEnabled) {
-    await window.triggerRepoFetchIfEnabled();
-  }
+	if (window.triggerRepoFetchIfEnabled) {
+		await window.triggerRepoFetchIfEnabled();
+	}
 }
 
 // Keyboard shortcuts: Ctrl+G / Cmd+G to generate, Ctrl+Shift+Y / Cmd+Shift+Y to copy, Ctrl+Shift+M / Cmd+Shift+M to insert in email
