@@ -78,6 +78,84 @@ function setupButtonTooltips() {
 	}
 }
 
+// Render token setup UI when rate limit is hit and user has no token
+window.renderTokenSetupUI = function (error) {
+	const tokenSetupContainer = document.getElementById('tokenSetupContainer');
+	if (!tokenSetupContainer) {
+		console.log("Render token container not exist or failed to fetch",tokenSetupContainer);
+		return;
+	}
+
+	const isGithub = error.platform === 'github';
+	const tokenInput = document.getElementById(isGithub ? 'githubToken' : 'gitlabToken');
+	const hasToken = tokenInput && tokenInput.value.trim().length > 0;
+
+	// If user has token, hide the setup UI and show only rate limit warning
+	if (hasToken) {
+		tokenSetupContainer.classList.add('hidden');
+		if (typeof showRateLimitWarning === 'function') {
+			showRateLimitWarning(error);
+		}
+		return;
+	}
+
+	// Update titles and descriptions based on platform
+	const platformName = isGithub ? 'GitHub' : 'GitLab';
+	const titleElement = document.getElementById('tokenSetupTitle');
+	const descriptionElement = document.getElementById('tokenSetupDescription');
+	
+	if (titleElement) {
+		titleElement.textContent = chrome?.i18n.getMessage('tokenSetupTitle') || `Add ${platformName} Token`;
+	}
+	if (descriptionElement) {
+		descriptionElement.textContent = chrome?.i18n.getMessage('tokenSetupDescription') || `Enable advanced features by adding your ${platformName} token`;
+	}
+
+	// Show the container
+	tokenSetupContainer.classList.remove('hidden');
+
+	// Set up event listeners (remove old ones first to prevent duplicates)
+	const addBtn = document.getElementById('tokenSetupAddBtn');
+	const learnBtn = document.getElementById('tokenSetupLearnBtn');
+
+	// Clone buttons to remove old event listeners
+	if (addBtn && addBtn.parentNode) {
+		const newAddBtn = addBtn.cloneNode(true);
+		addBtn.parentNode.replaceChild(newAddBtn, addBtn);
+
+		newAddBtn.addEventListener('click', () => {
+			showSettingsView();
+			const tokenInputElement = document.getElementById(isGithub ? 'githubToken' : 'gitlabToken');
+			if (tokenInputElement) {
+				setTimeout(() => {
+					tokenInputElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+					tokenInputElement.focus();
+					const borderColor = isGithub ? '#3b82f6' : '#f97316';
+					const shadowColor = isGithub ? 'rgba(59, 130, 246, 0.3)' : 'rgba(249, 115, 22, 0.3)';
+					tokenInputElement.style.borderColor = borderColor;
+					tokenInputElement.style.boxShadow = `0 0 0 3px ${shadowColor}`;
+					setTimeout(() => {
+						tokenInputElement.style.borderColor = '';
+						tokenInputElement.style.boxShadow = '';
+					}, 3000);
+				}, 100);
+			}
+		});
+	}
+
+	if (learnBtn && learnBtn.parentNode) {
+		const newLearnBtn = learnBtn.cloneNode(true);
+		learnBtn.parentNode.replaceChild(newLearnBtn, learnBtn);
+
+		newLearnBtn.addEventListener('click', () => {
+			const url = isGithub
+				? 'https://github.com/settings/tokens'
+				: 'https://gitlab.com/-/user_settings/personal_access_tokens';
+			chrome.tabs && chrome.tabs.create && chrome.tabs.create({ url });
+		});
+	}
+};
+
 function getToday() {
 	const today = new Date();
 	return today.toISOString().split('T')[0];
@@ -501,7 +579,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				'lastScrumReportUsername',
 				'githubUsername',
 				'gitlabUsername',
-				'platformUsername'
+				'platformUsername',
 			]);
 
 			let lastScrumReportHtml = storageValues[`${activePlatform}LastScrumReportHtml`];
@@ -520,7 +598,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			const isUsernameMatch = lastScrumReportUsername 
 				? lastScrumReportUsername === expectedUsername
-				: (lastScrumReportCacheKey && expectedUsername && lastScrumReportCacheKey.startsWith(expectedUsername + '-'));
+				: lastScrumReportCacheKey && expectedUsername && lastScrumReportCacheKey.startsWith(expectedUsername + '-');
 
 			if (age < ttlMs) {
 				const cacheKey = cache?.cacheKey ?? null;
@@ -541,10 +619,13 @@ document.addEventListener('DOMContentLoaded', () => {
 				return;
 			}
 
-			// If cache is expired, still only show the old HTML if it was for the current username
-			if ((!scrumReport.innerHTML || !scrumReport.innerHTML.trim()) && lastScrumReportHtml && isUsernameMatch) {
+			if ((!scrumReport.innerHTML || !scrumReport.innerHTML.trim()) && lastScrumReportHtml) {
 				scrumReport.innerHTML = lastScrumReportHtml;
 			}
+
+			showPopupMessage(
+				chrome?.i18n.getMessage('cacheExpiredMessage') || 'Cache expired. Click "Generate" to fetch fresh data.',
+			);
 
 			if (generateBtn) generateBtn.disabled = false;
 			return;
@@ -1044,6 +1125,116 @@ document.addEventListener('DOMContentLoaded', () => {
 		scrumHelperHeading.addEventListener('click', showReportView);
 	}
 
+	// ── Rate Limit Warning Banner Handlers ──
+
+	/**
+	 * Show the rate-limit warning banner.
+	 * Called from scrumHelper.js / gitlabHelper.js when a RateLimitError is caught.
+	 * Exposed globally so other scripts can call it.
+	 * @param {Error} error — must have .name === "RateLimitError", .platform, .resetAt, .retryAfter
+	 */
+	window.showRateLimitWarning = function (error) {
+		const isGithub = error.platform === 'github';
+		const warningEl = document.getElementById(isGithub ? 'rateLimitWarning' : 'rateLimitWarningGitlab');
+		const messageEl = document.getElementById(isGithub ? 'rateLimitMessage' : 'rateLimitMessageGitlab');
+		const retryInfoEl = document.getElementById(isGithub ? 'rateLimitRetryInfo' : 'rateLimitRetryInfoGitlab');
+
+		if (!warningEl) return;
+
+		// Check whether the user already has a token set
+		const tokenInput = document.getElementById(isGithub ? 'githubToken' : 'gitlabToken');
+		const hasToken = tokenInput && tokenInput.value.trim().length > 0;
+
+		if (hasToken) {
+			messageEl.textContent =
+				`You've exceeded the ${isGithub ? 'GitHub' : 'GitLab'} API rate limit even with a token. ` +
+				'Please wait for the limit to reset and try again.';
+		} else {
+			messageEl.textContent =
+				`You've hit the ${isGithub ? 'GitHub' : 'GitLab'} API rate limit for unauthenticated requests. ` +
+				'Adding a Personal Access Token increases your limit significantly and enables access to private repositories.';
+		}
+
+		// Show reset countdown
+		if (error.resetAt) {
+			const resetDate = new Date(error.resetAt);
+			const minutes = Math.max(1, Math.ceil((error.resetAt - Date.now()) / 60000));
+			retryInfoEl.textContent = `Rate limit resets at ${resetDate.toLocaleTimeString()} (~${minutes} min).`;
+		} else {
+			retryInfoEl.textContent = `Try again in about ${error.retryAfter || 60} seconds.`;
+		}
+
+		warningEl.classList.remove('hidden');
+		warningEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+		// Reset the Generate button so the user can try again later
+		const generateBtn = document.getElementById('generateReport');
+		if (generateBtn) {
+			const iconEl = generateBtn.querySelector('i');
+			if (iconEl) {
+				iconEl.className = 'fa fa-refresh';
+			}
+			const labelEl = generateBtn.querySelector('[data-i18n="generateReportButton"]');
+			if (labelEl && typeof chrome !== 'undefined' && chrome.i18n && chrome.i18n.getMessage) {
+				labelEl.textContent = chrome.i18n.getMessage('generateReportButton');
+			}
+			generateBtn.disabled = false;
+		}
+	};
+
+	// GitHub — "Add GitHub Token" → navigate to settings, focus token input
+	const rateLimitAddTokenBtn = document.getElementById('rateLimitAddToken');
+	if (rateLimitAddTokenBtn) {
+		rateLimitAddTokenBtn.addEventListener('click', () => {
+			showSettingsView();
+			const tokenInput = document.getElementById('githubToken');
+			if (tokenInput) {
+				setTimeout(() => {
+					tokenInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+					tokenInput.focus();
+					tokenInput.style.borderColor = '#ca8a04';
+					tokenInput.style.boxShadow = '0 0 0 2px #fde047';
+					setTimeout(() => {
+						tokenInput.style.borderColor = '';
+						tokenInput.style.boxShadow = '';
+					}, 3000);
+				}, 100);
+			}
+		});
+	}
+
+	// Dismiss buttons — hide their closest rate-limit banner
+	document.querySelectorAll('#rateLimitDismiss, #rateLimitDismissGitlab').forEach((btn) => {
+		btn.addEventListener('click', () => {
+			btn.closest('.rate-limit-banner').classList.add('hidden');
+		});
+	});
+
+	// GitLab — "Add GitLab Token" → navigate to settings, focus token input
+	const rateLimitAddTokenGitlabBtn = document.getElementById('rateLimitAddTokenGitlab');
+	if (rateLimitAddTokenGitlabBtn) {
+		rateLimitAddTokenGitlabBtn.addEventListener('click', () => {
+			showSettingsView();
+			// Ensure the GitLab section is visible
+			const gitlabSection = document.querySelector('.gitlabOnlySection');
+			if (gitlabSection) gitlabSection.classList.remove('hidden');
+
+			const tokenInput = document.getElementById('gitlabToken');
+			if (tokenInput) {
+				setTimeout(() => {
+					tokenInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+					tokenInput.focus();
+					tokenInput.style.borderColor = '#ea580c';
+					tokenInput.style.boxShadow = '0 0 0 2px #fdba74';
+					setTimeout(() => {
+						tokenInput.style.borderColor = '';
+						tokenInput.style.boxShadow = '';
+					}, 3000);
+				}, 100);
+			}
+		});
+	}
+
 	showReportView();
 
 	//report filter
@@ -1083,7 +1274,9 @@ document.addEventListener('DOMContentLoaded', () => {
 			} catch {}
 			if (platform !== 'github') {
 				// Do not run repo fetch for non-GitHub platforms
-				if (repoStatus) repoStatus.textContent = chrome?.i18n.getMessage('repoFilteringGithubOnly') || 'Repository filtering is only available for GitHub.';
+				if (repoStatus)
+					repoStatus.textContent =
+						chrome?.i18n.getMessage('repoFilteringGithubOnly') || 'Repository filtering is only available for GitHub.';
 				return;
 			}
 			if (!useRepoFilter.checked) {
@@ -1172,7 +1365,10 @@ document.addEventListener('DOMContentLoaded', () => {
 				if (platform !== 'github') {
 					repoFilterContainer.classList.add('hidden');
 					useRepoFilter.checked = false;
-					if (repoStatus) repoStatus.textContent = chrome?.i18n.getMessage('repoFilteringGithubOnly') || 'Repository filtering is only available for GitHub.';
+					if (repoStatus)
+						repoStatus.textContent =
+							chrome?.i18n.getMessage('repoFilteringGithubOnly') ||
+							'Repository filtering is only available for GitHub.';
 					return;
 				}
 				const enabled = useRepoFilter.checked;
@@ -1202,7 +1398,8 @@ document.addEventListener('DOMContentLoaded', () => {
 				});
 				checkTokenForFilter();
 				if (enabled) {
-					repoStatus.textContent = chrome?.i18n.getMessage('loadingReposAutomatically') || 'Loading repos automatically...';
+					repoStatus.textContent =
+						chrome?.i18n.getMessage('loadingReposAutomatically') || 'Loading repos automatically...';
 
 					try {
 						const cacheData = await browser.storage.local.get(['repoCache']);
@@ -1351,7 +1548,9 @@ document.addEventListener('DOMContentLoaded', () => {
 				platform = items.platform || 'github';
 			} catch {}
 			if (platform !== 'github') {
-				if (repoStatus) repoStatus.textContent = chrome?.i18n.getMessage('repoLoadingGithubOnly') || 'Repository loading is only available for GitHub.';
+				if (repoStatus)
+					repoStatus.textContent =
+						chrome?.i18n.getMessage('repoLoadingGithubOnly') || 'Repository loading is only available for GitHub.';
 				return;
 			}
 			console.log('window.fetchUserRepositories exists:', !!window.fetchUserRepositories);
@@ -1391,7 +1590,9 @@ document.addEventListener('DOMContentLoaded', () => {
 				platform = items.platform || 'github';
 			} catch (e) {}
 			if (platform !== 'github') {
-				if (repoStatus) repoStatus.textContent = chrome?.i18n.getMessage('repoFetchingGithubOnly') || 'Repository fetching is only available for GitHub.';
+				if (repoStatus)
+					repoStatus.textContent =
+						chrome?.i18n.getMessage('repoFetchingGithubOnly') || 'Repository fetching is only available for GitHub.';
 				return;
 			}
 			console.log('[POPUP-DEBUG] performRepoFetch called.');

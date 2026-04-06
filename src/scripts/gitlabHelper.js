@@ -100,30 +100,43 @@ class GitLabHelper {
 
 			// Get user info first
 			const userUrl = `${this.baseUrl}/users?username=${username}`;
-			const userRes = await fetch(userUrl, { headers });
+			const userRes = await gitlabApiRequest(userUrl, headers);
 			if (!userRes.ok) {
-				throw new Error(chrome?.i18n.getMessage('gitlabUserFetchError', [userRes.status, userRes.statusText]) || `Error fetching GitLab user: ${userRes.status} ${userRes.statusText}`);
+				throw new Error(
+					chrome?.i18n.getMessage('gitlabUserFetchError', [userRes.status, userRes.statusText]) ||
+						`Error fetching GitLab user: ${userRes.status} ${userRes.statusText}`,
+				);
 			}
 			const users = await userRes.json();
 			if (users.length === 0) {
-				throw new Error(chrome?.i18n.getMessage('gitlabUserNotFoundError', [username]) || `GitLab user '${username}' not found`);
+				throw new Error(`GitLab user '${username}' not found`);
 			}
 			const userId = users[0].id;
 
 			// Fetch all projects the user is a member of (including group projects)
 			const membershipProjectsUrl = `${this.baseUrl}/users/${userId}/projects?membership=true&per_page=100&order_by=updated_at&sort=desc`;
-			const membershipProjectsRes = await fetch(membershipProjectsUrl, { headers });
+			const membershipProjectsRes = await gitlabApiRequest(membershipProjectsUrl, headers);
 			if (!membershipProjectsRes.ok) {
-				throw new Error(chrome?.i18n.getMessage('gitlabMembershipError', [membershipProjectsRes.status, membershipProjectsRes.statusText]) || `Error fetching GitLab membership projects: ${membershipProjectsRes.status} ${membershipProjectsRes.statusText}`);
+				throw new Error(
+					rome?.i18n.getMessage('gitlabMembershipError', [
+						membershipProjectsRes.status,
+						membershipProjectsRes.statusText,
+					]) ||
+						`Error fetching GitLab membership projects: ${membershipProjectsRes.status} ${membershipProjectsRes.statusText}`,
+				);
 			}
 			const membershipProjects = await membershipProjectsRes.json();
 
 			// Fetch all projects the user has contributed to (public, group, etc.)
 			const contributedProjectsUrl = `${this.baseUrl}/users/${userId}/contributed_projects?per_page=100&order_by=updated_at&sort=desc`;
-			const contributedProjectsRes = await fetch(contributedProjectsUrl, { headers });
+			const contributedProjectsRes = await gitlabApiRequest(contributedProjectsUrl, headers);
 			if (!contributedProjectsRes.ok) {
 				throw new Error(
-					chrome?.i18n.getMessage('gitlabContributedError', [contributedProjectsRes.status, contributedProjectsRes.statusText]) || `Error fetching GitLab contributed projects: ${contributedProjectsRes.status} ${contributedProjectsRes.statusText}`,
+					chrome?.i18n.getMessage('gitlabContributedError', [
+						contributedProjectsRes.status,
+						contributedProjectsRes.statusText,
+					]) ||
+						`Error fetching GitLab contributed projects: ${contributedProjectsRes.status} ${contributedProjectsRes.statusText}`,
 				);
 			}
 			const contributedProjects = await contributedProjectsRes.json();
@@ -140,7 +153,7 @@ class GitLabHelper {
 			for (const project of allProjects) {
 				try {
 					const projectMRsUrl = `${this.baseUrl}/projects/${project.id}/merge_requests?author_id=${userId}&created_after=${startDate}T00:00:00Z&created_before=${endDate}T23:59:59Z&per_page=100&order_by=updated_at&sort=desc`;
-					const projectMRsRes = await fetch(projectMRsUrl, { headers });
+					const projectMRsRes = await gitlabApiRequest(projectMRsUrl, headers);
 					if (projectMRsRes.ok) {
 						const projectMRs = await projectMRsRes.json();
 						allMergeRequests = allMergeRequests.concat(projectMRs);
@@ -148,6 +161,7 @@ class GitLabHelper {
 					// Add small delay to avoid rate limiting
 					await new Promise((resolve) => setTimeout(resolve, 100));
 				} catch (error) {
+					if (error.name === 'RateLimitError') throw error; // Surface rate limit to caller
 					console.error(`Error fetching MRs for project ${project.name}:`, error);
 					// Continue with other projects
 				}
@@ -158,7 +172,7 @@ class GitLabHelper {
 			for (const project of allProjects) {
 				try {
 					const projectIssuesUrl = `${this.baseUrl}/projects/${project.id}/issues?author_id=${userId}&created_after=${startDate}T00:00:00Z&created_before=${endDate}T23:59:59Z&per_page=100&order_by=updated_at&sort=desc`;
-					const projectIssuesRes = await fetch(projectIssuesUrl, { headers });
+					const projectIssuesRes = await gitlabApiRequest(projectIssuesUrl, headers);
 					if (projectIssuesRes.ok) {
 						const projectIssues = await projectIssuesRes.json();
 						allIssues = allIssues.concat(projectIssues);
@@ -166,6 +180,7 @@ class GitLabHelper {
 					// Add small delay to avoid rate limiting
 					await new Promise((resolve) => setTimeout(resolve, 100));
 				} catch (error) {
+					if (error.name === 'RateLimitError') throw error; // Surface rate limit to caller
 					console.error(`Error fetching issues for project ${project.name}:`, error);
 					// Continue with other projects
 				}
@@ -193,6 +208,12 @@ class GitLabHelper {
 			return gitlabData;
 		} catch (err) {
 			console.error('GitLab Fetch Failed:', err);
+
+			// Handle rate limit errors by showing the banner
+			if (err.name === 'RateLimitError') {
+				if (typeof showRateLimitWarning === 'function') showRateLimitWarning(err);
+			}
+
 			// Reject queued calls on error
 			this.cache.queue.forEach(({ reject }) => {
 				reject(err);
@@ -213,7 +234,7 @@ class GitLabHelper {
 		for (const mr of mergeRequests) {
 			try {
 				const url = `${this.baseUrl}/projects/${mr.project_id}/merge_requests/${mr.iid}`;
-				const res = await fetch(url, { headers });
+				const res = await gitlabApiRequest(url, headers);
 				if (res.ok) {
 					const detailedMr = await res.json();
 					detailed.push(detailedMr);
@@ -221,6 +242,10 @@ class GitLabHelper {
 				// Add small delay to avoid rate limiting
 				await new Promise((resolve) => setTimeout(resolve, 100));
 			} catch (error) {
+				if (error.name === 'RateLimitError') {
+					if (typeof showRateLimitWarning === 'function') showRateLimitWarning(error);
+					break; // Stop fetching more details
+				}
 				console.error(`[GITLAB-DEBUG] Error fetching detailed MR ${mr.iid}:`, error);
 				detailed.push(mr); // Use basic data if detailed fetch fails
 			}
@@ -237,7 +262,7 @@ class GitLabHelper {
 		for (const issue of issues) {
 			try {
 				const url = `${this.baseUrl}/projects/${issue.project_id}/issues/${issue.iid}`;
-				const res = await fetch(url, { headers });
+				const res = await gitlabApiRequest(url, headers);
 				if (res.ok) {
 					const detailedIssue = await res.json();
 					detailed.push(detailedIssue);
@@ -245,6 +270,10 @@ class GitLabHelper {
 				// Add small delay to avoid rate limiting
 				await new Promise((resolve) => setTimeout(resolve, 100));
 			} catch (error) {
+				if (error.name === 'RateLimitError') {
+					if (typeof showRateLimitWarning === 'function') showRateLimitWarning(error);
+					break; // Stop fetching more details
+				}
 				console.error(`[GITLAB-DEBUG] Error fetching detailed issue ${issue.iid}:`, error);
 				detailed.push(issue); // Use basic data if detailed fetch fails
 			}
