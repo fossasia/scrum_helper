@@ -431,7 +431,12 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (!isLoading) return;
 
 		const msg = chrome?.i18n.getMessage('generatingButton') || 'Generating...';
-		generateBtn.innerHTML = `<i class="fa fa-spinner fa-spin"></i> ${msg}`;
+		generateBtn.textContent = msg;
+
+		const icon = document.createElement("i");
+		icon.className = "fa fa-spinner fa-spin";
+
+		generateBtn.prepend(icon);
 		generateBtn.disabled = true;
 	}
 
@@ -549,7 +554,12 @@ document.addEventListener('DOMContentLoaded', () => {
 				return;
 			}
 
-			if ((!scrumReport.innerHTML || !scrumReport.innerHTML.trim()) && lastScrumReportHtml) {
+			if ( (!scrumReport.innerHTML || !scrumReport.innerHTML.trim()) &&
+				lastScrumReportHtml &&
+				isUsernameMatch &&
+				platform === cachedPlatform &&
+				cacheKey === cachedKey
+			) {
 				scrumReport.textContent = "";
 				scrumReport.insertAdjacentHTML("beforeend", lastScrumReportHtml);
 			}
