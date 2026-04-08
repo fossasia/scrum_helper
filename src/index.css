@@ -1026,17 +1026,20 @@ body.mode-popup {
 /* ===== FINAL STABLE ACCORDION ===== */
 
 .advanced-filters-content {
-    max-height: 0;
+    display: grid;
+    grid-template-rows: 0fr;
     overflow: hidden;
-    transition: max-height 0.35s ease;
+    transition: grid-template-rows 0.35s ease;
 }
 
 .advanced-filters-content.open {
-    max-height: 1000px;
+    grid-template-rows: 1fr;
 }
 
 /* INNER WRAPPER FIX (IMPORTANT) */
 .advanced-filters-inner {
+    min-height: 0;
+    overflow: hidden;
     padding: 12px;
     padding-left: 10px;
 }
