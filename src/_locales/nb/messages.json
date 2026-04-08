@@ -231,5 +231,89 @@
     },
     "onlyRevPRsTooltip": {
         "message": "Hvis valgt, vil rapporten kun inkludere PR-er gjennomgått av deg."
+    },
+    "usernameRequiredError": {
+        "message": "Vennligst skriv inn brukernavn for å generere rapport."
+    },
+    "unknownPlatformError": {
+        "message": "Ukjent plattform valgt."
+    },
+    "gitlabFetchingError": {
+        "message": "En feil oppstod under henting av GitLab-data."
+    },
+    "reportGenerationError": {
+        "message": "En feil oppstod under generering av rapporten."
+    },
+    "githubUserNotFoundError": {
+        "message": "GitHub-bruker \"$1\" ikke funnet (404). Sjekk brukernavnet og prøv igjen."
+    },
+    "githubUserValidationError": {
+        "message": "Feil ved validering av GitHub-bruker: $1 $2"
+    },
+    "invalidSearchQueryError": {
+        "message": "Ugyldig søkespørring eller datoperiode. Sjekk formatet og prøv igjen."
+    },
+    "githubIssuesFetchError": {
+        "message": "Feil ved henting av GitHub-issues: $1 $2"
+    },
+    "githubPRReviewFetchError": {
+        "message": "Feil ved henting av GitHub PR-review-data: $1 $2"
+    },
+    "githubUserFetchError": {
+        "message": "Feil ved henting av GitHub-brukerdata: $1 $2"
+    },
+    "invalidTokenError": {
+        "message": "Ugyldig eller utløpt GitHub-token. Sjekk tokenet i Scrum Helper-innstillingene og prøv igjen."
+    },
+    "displayModeNotice": {
+        "message": "Utvidelsen åpnes i $1-modus ved neste oppstart."
+    },
+    "repoFilteringGithubOnly": {
+        "message": "Repositoriefiltrering er kun tilgjengelig for GitHub."
+    },
+    "repoLoadingGithubOnly": {
+        "message": "Repositorielasting er kun tilgjengelig for GitHub."
+    },
+    "repoFetchingGithubOnly": {
+        "message": "Repositoriehenting er kun tilgjengelig for GitHub."
+    },
+    "loadingReposAutomatically": {
+        "message": "Laster repositorier automatisk..."
+    },
+    "gitlabUserFetchError": {
+        "message": "Feil ved henting av GitLab-bruker: $1 $2"
+    },
+    "gitlabUserNotFoundError": {
+        "message": "GitLab-bruker '$1' ikke funnet"
+    },
+    "gitlabMembershipError": {
+        "message": "Feil ved henting av GitLab-medlemskapsprosjekter: $1 $2"
+    },
+    "gitlabContributedError": {
+        "message": "Feil ved henting av GitLab-bidragsprosjekter: $1 $2"
+    },
+    "usernameMissingError": {
+        "message": "Brukernavn påkrevd."
+    },
+    "generateReportTooltip": {
+        "message": "Ctrl+G"
+    },
+    "copyReportTooltip": {
+        "message": "Ctrl+Shift+Y"
+    },
+    "generatingReportNotification": {
+        "message": "Genererer rapport..."
+    },
+    "copyingReportNotification": {
+        "message": "Kopierer rapport..."
+    },
+    "insertInEmailTooltip": {
+        "message": "Ctrl+Shift+M"
+    },
+    "insertingInEmailNotification": {
+        "message": "Setter inn rapport i e-post..."
+    },
+    "insertedInEmailNotification": {
+        "message": "Rapport satt inn i e-post!"
     }
 }

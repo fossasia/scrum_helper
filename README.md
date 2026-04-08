@@ -27,8 +27,8 @@
 1.  **Fork & Clone the Repository**
 
     ```sh
-    git clone https://github.com/YOUR_USERNAME/scrum-helper.git
-    cd scrum-helper
+    git clone https://github.com/YOUR_USERNAME/scrum_helper.git
+    cd scrum_helper
     ```
 
 2.  **Install Dependencies**
@@ -37,26 +37,27 @@
     npm install
     ```
 
-3.  **Load the Extension in Your Browser**
+3.  **Build the Extension**
 
-    -   Go to `chrome://extensions` in your Chrome browser.
+    Because Chromium (Chrome, Edge, etc.) and Gecko (Firefox) browsers handle Manifest V3 differently, we use a build step to generate engine-specific distributions.
+
+    ```sh
+    npm run build
+    ```
+
+4.  **Load the Extension in Your Browser**
+
+    **For Chrome & Edge (Chromium):**
+    -   Go to `chrome://extensions` (or `edge://extensions`) in your browser.
     -   Enable "Developer Mode" (toggle in the top-right).
-    -   Click "Load unpacked" and select the `src` folder inside the cloned repository.
+    -   Click "Load unpacked" and select the `dist/chrome` folder inside the cloned repository.
 
-<!-- ### For Firefox:
-
-1. Clone this repository to your local machine.
-2. Open Firefox and navigate to `about:debugging`
-3. Click on "This Firefox" in the left sidebar
-4. Click "Load Temporary Add-on..."
-5. Navigate to the `src` folder inside the cloned repo and select the `manifest.json` file
-6. The extension will be loaded temporarily and will remain active only for the current browser session
-7. Click the Scrum Helper icon on your browser toolbar
-8. Fill in your settings in the popup (GitHub username, date range, etc.)
-
-**Note for Firefox users:** The extension will be automatically removed when you close Firefox. You'll need to reload it each time you start a new browser session by repeating steps 2-5.
-
-**Persistence Note:** If you need the extension to persist between sessions, use Firefox Developer Edition. You can enable persistence by setting `xpinstall.signatures.required` to `false` in the browser's configuration. -->
+    **For Firefox (Gecko):**
+    -   Navigate to `about:debugging` in Firefox.
+    -   Click on "This Firefox" in the left sidebar.
+    -   Click "Load Temporary Add-on...".
+    -   Select the `manifest.json` file inside the `dist/firefox` folder.
+    -   *Note: The extension will remain active only for the current browser session. If you need persistence, consider using Firefox Developer Edition.*
 
 ## Usage
 
@@ -137,12 +138,13 @@ $ npm install
 
 1. **Install the Extension**
 
-* For Chrome: Load it into your browser through [Chrome Extension Developer Mode](https://developer.chrome.com/docs/extensions/mv3/getstarted/).
-<!-- * For Firefox: Load it as a temporary add-on through `about:debugging` as described above. -->
+* For Chrome & Edge (Chromium): Load it into your browser through [Chrome Extension Developer Mode](https://developer.chrome.com/docs/extensions/mv3/getstarted/) using the `dist/chrome` folder.
+* For Firefox: Load it as a temporary add-on through `about:debugging` using the `dist/firefox` folder.
 
-2. **Build the Extension**
+2. **Rebuild the Extension**
+   After making changes to the source code, rebuild the extension running `npm run build`.
    * For Chrome: Rebuild or reload the extension in your browser (`chrome://extensions` → Refresh your extension).
-   <!-- * For Firefox: Reload the temporary add-on by going to `about:debugging` → "This Firefox" → Click "Reload" next to your extension. -->
+   * For Firefox: Reload the temporary add-on by going to `about:debugging` → "This Firefox" → Click "Reload" next to your extension.
    
 3. **How to Obtain a GitHub Personal Access Token**
 
@@ -192,7 +194,7 @@ This part runs every time a pull request is merged into the `master` branch.
 2.  **Drafting Workflow**: The "Release Drafter" workflow is triggered.
 3.  **Versioning**: The workflow inspects the `release:*` label or PR title to determine the next semantic version.
 4.  **Changelog Update**: The `CHANGELOG.md` file is automatically updated with the titles of the merged PRs.
-5.  **Draft Creation**: A new draft release is created or updated in the [Releases](https://github.com/fossasia/scrum-helper/releases) section. This draft includes the new version tag and the updated changelog notes.
+5.  **Draft Creation**: A new draft release is created or updated in the [Releases](https://github.com/fossasia/scrum_helper/releases) section. This draft includes the new version tag and the updated changelog notes.
 
 ### 2. Manual Release Publishing
 
@@ -203,3 +205,52 @@ This part is performed manually by maintainers when it's time to publish a new v
 3.  **Chrome Web Store Deployment**: Publishing the release triggers the "Publish to Chrome Web Store" workflow, which automatically packages the extension and uploads it for review.
 
 ### If you encounter any bugs, please report them at the [Issues page](https://github.com/fossasia/scrum_helper/issues).
+
+## AI-Assisted Contributions Guidelines
+
+This project is receiving an increasing number of AI-assisted contributions. While we welcome the productivity AI tools bring, we require all contributions to maintain our standards for quality, intentionality, and maintainability. To ensure a high signal-to-noise ratio in our repository, please adhere to the following guidelines.
+
+### Expectations from Contributors
+
+* **You must understand your code:** We expect human judgment to be the final filter. You take full responsibility for every line you submit.
+* **You must be able to explain:** If asked by a maintainer, you should be able to explicitly explain what your change does, why it is necessary, and how it integrates with the rest of the codebase.
+* **Code must be:** 
+  * Thoroughly tested
+  * Manually validated in a real browser environment
+  * Aligned with our existing architecture and codebase patterns
+
+### What We Do NOT Accept
+
+* PRs submitted without a clear use case or a linked, pre-approved issue.
+* AI-generated code pasted blindly without deep comprehension.
+* Duplicate PRs or attempts at solving issues that are already being handled.
+* Surface-level "fixes" (e.g., unprompted refactoring, nitpicks) without solid reasoning.
+* Features or abstractions that increase overall complexity without delivering tangible user value.
+
+### PR Requirements
+
+* **Linked Issue:** Every PR (unless it is a trivial typo fix) must be linked to an existing issue.
+* **Clear Description:** Provide a well-reasoned description detailing the problem and your solution. Do not paste AI-generated summaries of file diffs.
+* **Existing Patterns:** Follow the established project conventions implicitly. 
+* **Avoid Complexity:** Keep changes as minimal and focused as possible.
+
+### AI Best Practices Table
+
+| Area | Good Contribution | Poor Contribution |
+| :--- | :--- | :--- |
+| **Problem selection** | Solving a verified, pre-existing issue that you understand and ideally have encountered. | Submitting unrequested "improvements" or claiming random issues without a real-world use case. |
+| **Understanding** | Using AI to learn the codebase or brainstorm approaches, then writing/refining the final logic yourself. | Over-delegating to AI; submitting logic that you cannot confidently explain or debug. |
+| **Code quality** | Focused, minimal changes that address the exact problem efficiently. | Bloated PRs that introduce unnecessary code churn or rewrite entire blocks out of context. |
+| **Architecture** | Conforming strictly to the established design patterns and utilities of the project. | Hallucinating new dependencies or forcing foreign paradigms into the codebase. |
+| **Validation** | Manually compiling and verifying the extension works, and writing reliable tests. | Submitting code that has never been tested locally or fails basic linting. |
+| **Maintainability** | The implemented solution is simpler for us to maintain than the problem it solves. | Adding excessive "clever" complexity that increases the maintainer's review burden. |
+| **PR description** | Writing a clear, human-authored explanation of the *why* behind your changes. Including screenshots of your changes.| Pasting a generic, AI-generated summary of the modified files without context. |
+| **AI usage** | Disclosing your use of generative tools and verifying that the output makes sense. | Failing to review AI output, resulting in regressions or confidently incorrect logic. |
+
+### Maintainer Policy
+
+* We reserve the right to close low-quality or fully automated PRs that fail to meet these guidelines without extensive review.
+* PRs containing features not aligned with our current priorities or roadmap may be closed.
+* Contributors are strongly encouraged to pick well-defined, triaged issues to ensure their time and effort result in a successful merge.
+
+
