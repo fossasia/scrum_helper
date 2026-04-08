@@ -800,9 +800,9 @@ document.addEventListener('DOMContentLoaded', () => {
 							: 'copiedButton';
 					showShortcutNotification(notificationKey);
 				}
-				this.innerHTML = `<i class="fa fa-check"></i> ${browser?.i18n.getMessage('copiedButton')}`;
+				this.innerContent = `<i class="fa fa-check"></i> ${browser?.i18n.getMessage('copiedButton')}`;
 				setTimeout(() => {
-					this.innerHTML = `<i class="fa fa-copy"></i> ${browser.i18n.getMessage('copyReportButton')}`;
+					this.innerContent = `<i class="fa fa-copy"></i> ${browser.i18n.getMessage('copyReportButton')}`;
 				}, 2000);
 			} catch (err) {
 				console.error('Failed to copy: ', err);
@@ -1518,7 +1518,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		function filterAndDisplayRepos(query) {
 			if (availableRepos.length === 0) {
-				repoDropdown.innerHTML = `<div class="p-3 text-center text-gray-500 text-sm">${browser.i18n.getMessage('repoLoading')}</div>`;
+				repoDropdown.innerContent = `<div class="p-3 text-center text-gray-500 text-sm">${browser.i18n.getMessage('repoLoading')}</div>`;
 				showDropdown();
 				return;
 			}
@@ -1534,7 +1534,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			});
 
 			if (filtered.length === 0) {
-				repoDropdown.innerHTML = `<div class="p-3 text-center text-gray-500 text-sm" style="padding-left: 10px; ">${browser.i18n.getMessage('repoNotFound')}</div>`;
+				repoDropdown.innerContent = `<div class="p-3 text-center text-gray-500 text-sm" style="padding-left: 10px; ">${browser.i18n.getMessage('repoNotFound')}</div>`;
 			} else {
 				repoDropdown.innerHTML = filtered
 					.slice(0, 10)
@@ -1590,7 +1590,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		function updateRepoDisplay() {
 			if (selectedRepos.length === 0) {
-				repoTags.innerHTML = `<span class="text-xs text-gray-500 select-none" id="repoPlaceholder">${browser.i18n.getMessage('repoPlaceholder')}</span>`;
+				repoTags.innerContent = `<span class="text-xs text-gray-500 select-none" id="repoPlaceholder">${browser.i18n.getMessage('repoPlaceholder')}</span>`;
 				repoCount.textContent = browser.i18n.getMessage('repoCountNone');
 			} else {
 				repoTags.innerHTML = selectedRepos
@@ -1979,7 +1979,7 @@ document.getElementById('refreshCache').addEventListener('click', async function
 	const originalText = this.innerHTML;
 
 	this.classList.add('loading');
-	this.innerHTML = `<i class="fa fa-refresh fa-spin"></i><span>${browser.i18n.getMessage('refreshingButton')}</span>`;
+	this.innerContent = `<i class="fa fa-refresh fa-spin"></i><span>${browser.i18n.getMessage('refreshingButton')}</span>`;
 	this.disabled = true;
 
 	try {
@@ -1997,7 +1997,7 @@ document.getElementById('refreshCache').addEventListener('click', async function
 		// Clear the scrum report
 		const scrumReport = document.getElementById('scrumReport');
 		if (scrumReport) {
-			scrumReport.innerHTML = `<p style="text-align: center; color: #666; padding: 20px;">${browser.i18n.getMessage('cacheClearedMessage')}</p>`;
+			scrumReport.innerContent = `<p style="text-align: center; color: #666; padding: 20px;">${browser.i18n.getMessage('cacheClearedMessage')}</p>`;
 		}
 
 		if (typeof availableRepos !== 'undefined') {
@@ -2009,7 +2009,7 @@ document.getElementById('refreshCache').addEventListener('click', async function
 			repoStatus.textContent = '';
 		}
 
-		this.innerHTML = `<i class="fa fa-check"></i><span>${browser.i18n.getMessage('cacheClearedButton')}</span>`;
+		this.innerContent = `<i class="fa fa-check"></i><span>${browser.i18n.getMessage('cacheClearedButton')}</span>`;
 		this.classList.remove('loading');
 
 		// Do NOT trigger report generation automatically
@@ -2020,7 +2020,7 @@ document.getElementById('refreshCache').addEventListener('click', async function
 		}, 2000);
 	} catch (error) {
 		console.error('Cache clear failed:', error);
-		this.innerHTML = `<i class="fa fa-exclamation-triangle"></i><span>${browser.i18n.getMessage('cacheClearFailed')}</span>`;
+		this.innerContent = `<i class="fa fa-exclamation-triangle"></i><span>${browser.i18n.getMessage('cacheClearFailed')}</span>`;
 		this.classList.remove('loading');
 
 		setTimeout(() => {
