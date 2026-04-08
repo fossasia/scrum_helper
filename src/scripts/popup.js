@@ -1,5 +1,3 @@
-/* global chrome */
-
 function debounce(func, wait) {
 	let timeout;
 	return function (...args) {
@@ -90,6 +88,29 @@ function getYesterday() {
 	return yesterday.toISOString().split('T')[0];
 }
 
+function clearElementChildren(element) {
+	if (element) {
+		element.replaceChildren();
+	}
+}
+
+function setButtonIconAndText(button, iconClasses, text) {
+	if (!button) return;
+	const icon = document.createElement('i');
+	icon.className = iconClasses;
+	const label = document.createTextNode(` ${text || ''}`);
+	button.replaceChildren(icon, label);
+}
+
+function setButtonIconWithSpanText(button, iconClasses, text) {
+	if (!button) return;
+	const icon = document.createElement('i');
+	icon.className = iconClasses;
+	const span = document.createElement('span');
+	span.textContent = text || '';
+	button.replaceChildren(icon, span);
+}
+
 function applyI18n() {
 	document.querySelectorAll('[data-i18n]').forEach((el) => {
 		const key = el.getAttribute('data-i18n');
@@ -124,7 +145,12 @@ function applyI18n() {
 document.addEventListener('DOMContentLoaded', () => {
 	// Apply translations as soon as the DOM is ready
 	applyI18n();
-	setupButtonTooltips();
+
+	// Initialize versioned reportConfig storage once (non-destructive).
+	// Keeps existing legacy keys as the source of truth for now, but creates/syncs reportConfig for later PRs.
+	void window.ReportConfigStorage?.migrateLegacyIfNeeded?.().catch((e) => {
+			console.warn('[reportConfig] migration skipped/failed:', e);
+	});
 
 	// Dark mode setup
 	const darkModeToggle = document.querySelector('img[alt="Night Mode"]');
@@ -724,7 +750,7 @@ document.addEventListener('DOMContentLoaded', () => {
 						browser.storage.local.get(['platform']).then((res) => {
 							platformSelect.value = res.platform || 'github';
 							updatePlatformUI(platformSelect.value);
-							generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
+							setButtonIconAndText(generateBtn, 'fa fa-spinner fa-spin', 'Generating...');
 							generateBtn.disabled = true;
 							window.generateScrumReport && window.generateScrumReport();
 						});
@@ -755,9 +781,9 @@ document.addEventListener('DOMContentLoaded', () => {
 							: 'copiedButton';
 					showShortcutNotification(notificationKey);
 				}
-				this.innerHTML = `<i class="fa fa-check"></i> ${browser?.i18n.getMessage('copiedButton')}`;
+				setButtonIconAndText(this, 'fa fa-check', browser?.i18n.getMessage('copiedButton'));
 				setTimeout(() => {
-					this.innerHTML = `<i class="fa fa-copy"></i> ${browser.i18n.getMessage('copyReportButton')}`;
+					setButtonIconAndText(this, 'fa fa-copy', browser.i18n.getMessage('copyReportButton'));
 				}, 2000);
 			} catch (err) {
 				console.error('Failed to copy: ', err);
@@ -1472,8 +1498,12 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 
 		function filterAndDisplayRepos(query) {
+			clearElementChildren(repoDropdown);
 			if (availableRepos.length === 0) {
-				repoDropdown.innerHTML = `<div class="p-3 text-center text-gray-500 text-sm">${browser.i18n.getMessage('repoLoading')}</div>`;
+				const emptyState = document.createElement('div');
+				emptyState.className = 'p-3 text-center text-gray-500 text-sm';
+				emptyState.textContent = browser.i18n.getMessage('repoLoading');
+				repoDropdown.appendChild(emptyState);
 				showDropdown();
 				return;
 			}
@@ -1489,31 +1519,60 @@ document.addEventListener('DOMContentLoaded', () => {
 			});
 
 			if (filtered.length === 0) {
-				repoDropdown.innerHTML = `<div class="p-3 text-center text-gray-500 text-sm" style="padding-left: 10px; ">${browser.i18n.getMessage('repoNotFound')}</div>`;
+				const noResults = document.createElement('div');
+				noResults.className = 'p-3 text-center text-gray-500 text-sm';
+				noResults.style.paddingLeft = '10px';
+				noResults.textContent = browser.i18n.getMessage('repoNotFound');
+				repoDropdown.appendChild(noResults);
 			} else {
-				repoDropdown.innerHTML = filtered
-					.slice(0, 10)
-					.map(
-						(repo) => `
-                    <div class="repository-dropdown-item" data-repo-name="${repo.fullName}">
-                        <div class="repo-name">
-                            <span>${repo.name}</span>
-                            ${repo.language ? `<span class="repo-language">${repo.language}</span>` : ''}
-                            ${repo.stars ? `<span class="repo-stars"><i class="fa fa-star"></i> ${repo.stars}</span>` : ''}
-                        </div>
-                        <div class="repo-info">
-                            ${repo.description ? `<span class="repo-desc">${repo.description.substring(0, 50)}${repo.description.length > 50 ? '...' : ''}</span>` : ''}
-                        </div>
-                    </div>
-                `,
-					)
-					.join('');
+				filtered.slice(0, 10).forEach((repo) => {
+					const item = document.createElement('div');
+					item.className = 'repository-dropdown-item';
+					item.dataset.repoName = repo.fullName;
 
-				repoDropdown.querySelectorAll('.repository-dropdown-item').forEach((item) => {
+					const nameRow = document.createElement('div');
+					nameRow.className = 'repo-name';
+
+					const repoName = document.createElement('span');
+					repoName.textContent = repo.name || '';
+					nameRow.appendChild(repoName);
+
+					if (repo.language) {
+						const language = document.createElement('span');
+						language.className = 'repo-language';
+						language.textContent = repo.language;
+						nameRow.appendChild(language);
+					}
+
+					if (repo.stars) {
+						const stars = document.createElement('span');
+						stars.className = 'repo-stars';
+						const starIcon = document.createElement('i');
+						starIcon.className = 'fa fa-star';
+						stars.appendChild(starIcon);
+						stars.appendChild(document.createTextNode(` ${repo.stars}`));
+						nameRow.appendChild(stars);
+					}
+
+					item.appendChild(nameRow);
+
+					const infoRow = document.createElement('div');
+					infoRow.className = 'repo-info';
+					if (repo.description) {
+						const desc = document.createElement('span');
+						desc.className = 'repo-desc';
+						const shortDesc =
+							repo.description.length > 50 ? `${repo.description.substring(0, 50)}...` : repo.description;
+						desc.textContent = shortDesc;
+						infoRow.appendChild(desc);
+					}
+					item.appendChild(infoRow);
+
 					item.addEventListener('click', (e) => {
 						e.stopPropagation();
 						fnSelectedRepos(item.dataset.repoName);
 					});
+					repoDropdown.appendChild(item);
 				});
 			}
 			highlightedIndex = -1;
@@ -1544,23 +1603,35 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 
 		function updateRepoDisplay() {
+			clearElementChildren(repoTags);
 			if (selectedRepos.length === 0) {
-				repoTags.innerHTML = `<span class="text-xs text-gray-500 select-none" id="repoPlaceholder">${browser.i18n.getMessage('repoPlaceholder')}</span>`;
+				const placeholder = document.createElement('span');
+				placeholder.className = 'text-xs text-gray-500 select-none';
+				placeholder.id = 'repoPlaceholder';
+				placeholder.textContent = browser.i18n.getMessage('repoPlaceholder');
+				repoTags.appendChild(placeholder);
 				repoCount.textContent = browser.i18n.getMessage('repoCountNone');
 			} else {
-				repoTags.innerHTML = selectedRepos
-					.map((repoFullName) => {
-						const repoName = repoFullName.split('/')[1] || repoFullName;
-						return `
-                        <span class="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full" style="margin:5px;">
-                            ${repoName}
-                            <button type="button" class="ml-1 text-blue-600 hover:text-blue-800 remove-repo-btn cursor-pointer" data-repo-name="${repoFullName}">
-                                <i class="fa fa-times"></i>
-                            </button>
-                        </span>
-                    `;
-					})
-					.join(' ');
+				selectedRepos.forEach((repoFullName) => {
+					const repoName = repoFullName.split('/')[1] || repoFullName;
+					const tag = document.createElement('span');
+					tag.className =
+						'inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full';
+					tag.style.margin = '5px';
+					tag.appendChild(document.createTextNode(repoName));
+
+					const removeBtn = document.createElement('button');
+					removeBtn.type = 'button';
+					removeBtn.className =
+						'ml-1 text-blue-600 hover:text-blue-800 remove-repo-btn cursor-pointer';
+					removeBtn.dataset.repoName = repoFullName;
+
+					const icon = document.createElement('i');
+					icon.className = 'fa fa-times';
+					removeBtn.appendChild(icon);
+					tag.appendChild(removeBtn);
+					repoTags.appendChild(tag);
+				});
 				repoTags.querySelectorAll('.remove-repo-btn').forEach((btn) => {
 					btn.addEventListener('click', (e) => {
 						e.stopPropagation();
@@ -1737,9 +1808,9 @@ function buildScrumSubjectFromPopup() {
 
 function setPlatformDropdown(value) {
 	if (value === 'gitlab') {
-		dropdownSelected.innerHTML = '<i class="fab fa-gitlab mr-2"></i> GitLab';
+		setButtonIconAndText(dropdownSelected, 'fab fa-gitlab mr-2', 'GitLab');
 	} else {
-		dropdownSelected.innerHTML = '<i class="fab fa-github mr-2"></i> GitHub';
+		setButtonIconAndText(dropdownSelected, 'fab fa-github mr-2', 'GitHub');
 	}
 
 	const platformUsername = document.getElementById('platformUsername');
@@ -1852,9 +1923,9 @@ browser.storage.local.get(['platform']).then((result) => {
 	const platform = result.platform || 'github';
 	// Just update the UI without clearing username when restoring from storage
 	if (platform === 'gitlab') {
-		dropdownSelected.innerHTML = '<i class="fab fa-gitlab mr-2"></i> GitLab';
+		setButtonIconAndText(dropdownSelected, 'fab fa-gitlab mr-2', 'GitLab');
 	} else {
-		dropdownSelected.innerHTML = '<i class="fab fa-github mr-2"></i> GitHub';
+		setButtonIconAndText(dropdownSelected, 'fab fa-github mr-2', 'GitHub');
 	}
 	platformSelectHidden.value = platform;
 	updatePlatformUI(platform);
@@ -1948,10 +2019,10 @@ document.querySelectorAll('input[name="timeframe"]').forEach((radio) => {
 // refresh cache button
 
 document.getElementById('refreshCache').addEventListener('click', async function () {
-	const originalText = this.innerHTML;
+	const originalChildren = Array.from(this.childNodes).map((node) => node.cloneNode(true));
 
 	this.classList.add('loading');
-	this.innerHTML = `<i class="fa fa-refresh fa-spin"></i><span>${browser.i18n.getMessage('refreshingButton')}</span>`;
+	setButtonIconWithSpanText(this, 'fa fa-refresh fa-spin', browser.i18n.getMessage('refreshingButton'));
 	this.disabled = true;
 
 	try {
@@ -1969,7 +2040,12 @@ document.getElementById('refreshCache').addEventListener('click', async function
 		// Clear the scrum report
 		const scrumReport = document.getElementById('scrumReport');
 		if (scrumReport) {
-			scrumReport.innerHTML = `<p style="text-align: center; color: #666; padding: 20px;">${browser.i18n.getMessage('cacheClearedMessage')}</p>`;
+			const message = document.createElement('p');
+			message.style.textAlign = 'center';
+			message.style.color = '#666';
+			message.style.padding = '20px';
+			message.textContent = browser.i18n.getMessage('cacheClearedMessage');
+			scrumReport.replaceChildren(message);
 		}
 
 		if (typeof availableRepos !== 'undefined') {
@@ -1981,22 +2057,22 @@ document.getElementById('refreshCache').addEventListener('click', async function
 			repoStatus.textContent = '';
 		}
 
-		this.innerHTML = `<i class="fa fa-check"></i><span>${browser.i18n.getMessage('cacheClearedButton')}</span>`;
+		setButtonIconWithSpanText(this, 'fa fa-check', browser.i18n.getMessage('cacheClearedButton'));
 		this.classList.remove('loading');
 
 		// Do NOT trigger report generation automatically
 
 		setTimeout(() => {
-			this.innerHTML = originalText;
+			this.replaceChildren(...originalChildren.map((node) => node.cloneNode(true)));
 			this.disabled = false;
 		}, 2000);
 	} catch (error) {
 		console.error('Cache clear failed:', error);
-		this.innerHTML = `<i class="fa fa-exclamation-triangle"></i><span>${browser.i18n.getMessage('cacheClearFailed')}</span>`;
+		setButtonIconWithSpanText(this, 'fa fa-exclamation-triangle', browser.i18n.getMessage('cacheClearFailed'));
 		this.classList.remove('loading');
 
 		setTimeout(() => {
-			this.innerHTML = originalText;
+			this.replaceChildren(...originalChildren.map((node) => node.cloneNode(true)));
 			this.disabled = false;
 		}, 3000);
 	}
