@@ -224,20 +224,20 @@
 						<div class="advanced-filters-inner">
 
 							<div class="my-4 flex items-center">
-								<input type="checkbox" id="showOpenLabel" class="form-checkbox text-blue-600">
-								<label for="showOpenLabel" class="font-medium text-sm ml-2"
+								<input type="checkbox" id="showOpenLabel" class="form-checkbox text-blue-600 mr-2">
+								<label for="showOpenLabel" class="font-medium text-sm"
 									data-i18n="showOpenClosedLabel">
 									Show PRs Labels
 								</label>
 							</div>
 							<div class="my-4">
-								<div class="flex items-start w-full">
-									<input type="checkbox" id="onlyIssues" class="form-checkbox text-blue-600">
-									<label for="onlyIssues" class="font-medium text-sm ml-2"
+								<div class="flex items-center">
+									<input type="checkbox" id="onlyIssues" class="form-checkbox text-blue-600 mr-2">
+									<label for="onlyIssues" class="font-medium text-sm"
 										style="margin-left: 4px;" data-i18n="onlyIssuesLabel">
 										Include only issues in the report
 									</label>
-									<span class="tooltip-container shrink-0 ml-2">
+									<span class="tooltip-container">
 										<i class="fa fa-question-circle question-icon"></i>
 										<span class="tooltip-bubble" data-i18n="onlyIssuesTooltip">
 											If checked, the report will only include issues created or assigned to the user.
@@ -247,13 +247,13 @@
 							</div>
 
 							<div class="my-4">
-								<div class="flex items-start w-full">
-									<input type="checkbox" id="onlyPRs" class="form-checkbox text-blue-600">
-									<label for="onlyPRs" class="font-medium text-sm ml-2" style="margin-left: 4px;"
+								<div class="flex items-center">
+									<input type="checkbox" id="onlyPRs" class="form-checkbox text-blue-600 mr-2">
+									<label for="onlyPRs" class="font-medium text-sm" style="margin-left: 4px;"
 										data-i18n="onlyPRsLabel">
 										Include only PRs in the report
 									</label>
-									<span class="tooltip-container shrink-0 ml-2">
+									<span class="tooltip-container">
 										<i class="fa fa-question-circle question-icon"></i>
 										<span class="tooltip-bubble" data-i18n="onlyPRsTooltip">
 											If checked, the report will only include PRs created by you.
@@ -263,13 +263,13 @@
 							</div>
 
 							<div class="my-4">
-								<div class="flex items-start w-full">
-									<input type="checkbox" id="onlyRevPRs" class="form-checkbox text-blue-600">
-									<label for="onlyRevPRs" class="font-medium text-sm ml-2"
+								<div class="flex items-center">
+									<input type="checkbox" id="onlyRevPRs" class="form-checkbox text-blue-600 mr-2">
+									<label for="onlyRevPRs" class="font-medium text-sm"
 										style="margin-left: 4px;" data-i18n="onlyRevPRsLabel">
 										Include only Reviewed PRs in the report
 									</label>
-									<span class="tooltip-container shrink-0 ml-2">
+									<span class="tooltip-container">
 										<i class="fa fa-question-circle question-icon"></i>
 										<span class="tooltip-bubble" data-i18n="onlyRevPRsTooltip">
 											If checked, the report will only include PRs reviewed by you.
@@ -280,12 +280,12 @@
 
 					<div class="my-4 githubOnlySection">
 						<div class="flex items-center">
-							<input type="checkbox" id="onlyMergedPRs" class="form-checkbox text-blue-600">
+							<input type="checkbox" id="onlyMergedPRs" class="form-checkbox text-blue-600 mr-2">
 							<label for="onlyMergedPRs" class="font-medium text-sm flex items-center"
 								style="margin-left: 4px;" data-i18n="onlyMergedPRsLabel">
 								Include only Merged PRs in the report
 							</label>
-							<span class="tooltip-container shrink-0 ml-2">
+							<span class="tooltip-container">
 								<i class="fa fa-question-circle question-icon"></i>
 								<span class="tooltip-bubble" data-i18n="onlyMergedPRsTooltip">
 									If checked, the report will only include merged PRs. A GitHub token is required.
@@ -299,15 +299,15 @@
 					</div>
 
 							<div class="my-4 githubOnlySection">
-								<div class="flex items-start w-full">
-									<input type="checkbox" id="showCommits" checked class="form-checkbox text-blue-600 ">
+								<div class="flex items-center">
+									<input type="checkbox" id="showCommits" checked class="form-checkbox text-blue-600 mr-2">
 
 									<label id="showCommitsLabel" for="showCommits"
 										class="font-medium text-sm flex items-center  ml-4" style="margin-left: 4px;"
 										data-i18n="showCommitsLabel">Show commits on open PRs/draft PRs
 									</label>
 									<span
-										class="tooltip-container shrink-0 ml-2">
+										class="tooltip-container">
 										<i class="fa fa-question-circle question-icon"></i>
 										<span class="tooltip-bubble" data-i18n="showCommitsTooltip">
 											Github Token required, add it in the settings.
@@ -384,7 +384,7 @@
 							<div class="flex items-center justify-between">
 								<div class="flex">
 									<p class="text-sm font-medium" data-i18n="githubTokenLabel">Your GitHub Token</p>
-									<span class="tooltip-container shrink-0 ml-2">
+									<span class="tooltip-container">
 										<i class="fa fa-question-circle question-icon"></i>
 										<span class="tooltip-bubble" data-i18n="githubTokenTooltip">
 											<b>Why is it recommended to add a GitHub token?</b><br>
@@ -422,7 +422,7 @@
 							<div class="flex items-center mt-4">
 								<p class="text-sm font-semibold" data-i18n="settingsOrgNameLabel">Your Organization Name
 								</p>
-								<span class="tooltip-container shrink-0 ml-2">
+								<span class="tooltip-container">
 									<i class="fa fa-question-circle question-icon"></i>
 									<span class="tooltip-bubble" data-i18n="orgNameTooltip">
 										<b>Which organization's GitHub activity?</b><br>
@@ -458,7 +458,7 @@
 										</span>
 									</span>
 								</p>
-								<div class="flex items-start w-full">
+								<div class="flex items-center">
 
 									<input type="checkbox" id="useRepoFilter" class="mr-2" style="margin-right: 4px;">
 									<label for="useRepoFilter" class="text-xs text-gray-600"><span
@@ -509,7 +509,7 @@
 						<div class="flex items-center justify-between">
 							<div class="flex">
 								<p class="text-sm font-medium" data-i18n="gitlabTokenLabel">Your GitLab Token</p>
-								<span class="tooltip-container shrink-0 ml-2">
+								<span class="tooltip-container">
 									<i class="fa fa-question-circle question-icon"></i>
 									<span class="tooltip-bubble" data-i18n="gitlabTokenTooltip">
 										<b>Why add a GitLab token?</b><br>
@@ -539,7 +539,7 @@
 
 					<div class="cacheSection mt-3">
 						<div class="flex items-center justify-between mb-2">
-							<div class="flex items-start w-full">
+							<div class="flex items-center">
 								<p class="text-sm font-medium" data-i18n="displayModeLabel">Display Mode</p>
 								<span class="tooltip-container ml-2">
 									<i class="fa fa-question-circle question-icon"></i>
@@ -567,7 +567,7 @@
 						<p class="text-sm font-medium"><span data-i18n="cacheTTLLabel">Enter cache TTL</span> <span
 								class="text-sm font-normal" data-i18n="cacheTTLUnit">(in
 								minutes)</span>
-							<span class="tooltip-container shrink-0 ml-2">
+							<span class="tooltip-container">
 								<i class="fa fa-question-circle question-icon"></i>
 								<span class="tooltip-bubble" data-i18n="cacheTTLTooltip">
 									We are caching the data to avoid redundant calls. By default the cache expires after
