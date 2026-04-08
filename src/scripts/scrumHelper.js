@@ -552,7 +552,14 @@ async function allIncluded(outputTarget = 'email') {
 											errDiv2.style.color = '#dc2626';
 											errDiv2.style.fontWeight = 'bold';
 											errDiv2.style.padding = '10px';
-											errDiv2.textContent = err.message || 'An error occurred while fetching GitLab data.';
+											const localizedGitlabError =
+												chrome?.i18n?.getMessage('gitlabFetchingError') ||
+												'An error occurred while fetching GitLab data.';
+											const errorDetail = typeof err?.message === 'string' ? err.message.trim() : '';
+											errDiv2.textContent =
+												errorDetail && errorDetail !== localizedGitlabError
+													? `${localizedGitlabError} ${errorDetail}`
+													: localizedGitlabError;
 											scrumReport.appendChild(errDiv2);
 										}
 									}
@@ -594,7 +601,7 @@ async function allIncluded(outputTarget = 'email') {
 							errDiv.style.color = '#dc2626';
 							errDiv.style.fontWeight = 'bold';
 							errDiv.style.padding = '10px';
-							errDiv.textContent = 'Unknown platform selected.';
+							errDiv.textContent = chrome?.i18n?.getMessage('unknownPlatformError') || 'Unknown platform selected.';
 							scrumReport.appendChild(errDiv);
 						}
 					}
@@ -1304,11 +1311,15 @@ async function allIncluded(outputTarget = 'email') {
 					elements.subject.dispatchEvent(new Event('input', { bubbles: true }));
 					window.emailClientAdapter.injectContent(elements.body, content, elements.eventTypes.contentChange);
 					injected = true;
+					scrumGenerationInProgress = false;
 					clearInterval(interval);
 				}
 			}, 200);
 			setTimeout(() => {
-				if (!injected) clearInterval(interval);
+				if (!injected) {
+					clearInterval(interval);
+					scrumGenerationInProgress = false;
+				}
 			}, 30000);
 		} else {
 			writeScrumBody();
@@ -1327,13 +1338,13 @@ async function allIncluded(outputTarget = 'email') {
 		for (let i = 0; i < reviewedPrsArray.length; i++) lastWeekItems += reviewedPrsArray[i];
 
 		const lastWeekUl =
-			lastWeekItems.length > 0 ? `<ul>${lastWeekItems}</ul>` : '<li>No activity during this period.</li>';
+			lastWeekItems.length > 0 ? `<ul>${lastWeekItems}</ul>` : '<ul><li>No activity during this period.</li></ul>';
 
 		let nextWeekItems = '';
 		for (let i = 0; i < nextWeekArray.length; i++) nextWeekItems += nextWeekArray[i];
 
 		const nextWeekUl =
-			nextWeekItems.length > 0 ? `<ul>${nextWeekItems}</ul>` : '<li>No plans for the next period.</li>';
+			nextWeekItems.length > 0 ? `<ul>${nextWeekItems}</ul>` : '<ul><li>No plans for the next period.</li></ul>';
 
 		const weekOrDay = yesterdayContribution ? 'yesterday' : 'the period';
 		const weekOrDay2 = 'today';

@@ -391,6 +391,8 @@ class GitLabHelper {
 			// Fetch all projects the user has contributed to (public, group, etc.)
 			const contributedProjectsUrl = `${this.baseUrl}/users/${userId}/contributed_projects?per_page=100&order_by=updated_at&sort=desc`;
 			const contributedProjects = await fetchAllPages(contributedProjectsUrl, 'fetching contributed projects');
+
+			// Merge and deduplicate projects by project id
 			const allProjectsMap = new Map();
 			for (const p of [...membershipProjects, ...contributedProjects]) {
 				allProjectsMap.set(p.id, p);
