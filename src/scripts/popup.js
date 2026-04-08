@@ -132,13 +132,20 @@ document.addEventListener('DOMContentLoaded', () => {
 	const arrow = document.getElementById("advancedFiltersArrow");
 
 	if (toggleBtn && content && arrow) {
-		const toggleAdvancedFilters = () => {
-			const isOpen = content.classList.toggle("open");
+		const setAdvancedFiltersState = (isOpen) => {
+			content.classList.toggle("open", isOpen);
+			content.hidden = !isOpen;
+			content.setAttribute("aria-hidden", String(!isOpen));
 			arrow.classList.toggle("rotate-arrow", isOpen);
 			toggleBtn.setAttribute("aria-expanded", String(isOpen));
 		};
 
-		toggleBtn.setAttribute("aria-expanded", String(content.classList.contains("open")));
+		const toggleAdvancedFilters = () => {
+			setAdvancedFiltersState(!content.classList.contains("open"));
+		};
+
+		toggleBtn.setAttribute("aria-controls", content.id);
+		setAdvancedFiltersState(content.classList.contains("open"));
 		toggleBtn.addEventListener("click", toggleAdvancedFilters);
 
 		if (toggleBtn.tagName !== "BUTTON") {
