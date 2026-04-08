@@ -305,8 +305,8 @@
     "message": "If checked, the report will only include PRs reviewed by you."
   },
   "advanced_filters": {
-  "message": "Advanced Filters",
-    "description": "If checked, the report will only include PRs reviewed by you."
+    "message": "Advanced Filters",
+    "description": "Label for the collapsible advanced filters section."
   },
   "onlyMergedPRsLabel": {
     "message": "Include only merged PRs in the report",
