@@ -148,7 +148,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	// Initialize versioned reportConfig storage once (non-destructive).
 	// Keeps existing legacy keys as the source of truth for now, but creates/syncs reportConfig for later PRs.
-	void window.ReportConfigStorage?.migrateLegacyIfNeeded?.().catch((e) => {
+	void window.ReportConfigStorage?.migrateLegacyIfNeeded?.()?.catch((e) => {
 			console.warn('[reportConfig] migration skipped/failed:', e);
 	});
 
