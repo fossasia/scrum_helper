@@ -98,7 +98,7 @@ function setButtonIconAndText(button, iconClasses, text) {
 	if (!button) return;
 	const icon = document.createElement('i');
 	icon.className = iconClasses;
-	const label = document.createTextNode(` ${text || ''}`);
+	const label = document.createTextNode(` ${text ?? ''}`);
 	button.replaceChildren(icon, label);
 }
 
@@ -111,14 +111,56 @@ function setButtonIconWithSpanText(button, iconClasses, text) {
 	button.replaceChildren(icon, span);
 }
 
+function renderAllowedInlineMarkup(container, message) {
+	container.replaceChildren();
+	if (!message) return;
+
+	const frag = document.createDocumentFragment();
+	let parent = frag;
+	const stack = [];
+
+	const tagRegex = /<(\/?)(b|strong|br)\s*\/?>/gi;
+	let lastIdx = 0;
+	let match;
+
+	const appendText = (text) => {
+		if (!text) return;
+		parent.appendChild(document.createTextNode(text));
+	};
+
+	while ((match = tagRegex.exec(message)) !== null) {
+		appendText(message.slice(lastIdx, match.index));
+
+		const isClosing = match[1] === '/';
+		const tag = match[2].toLowerCase();
+
+		if (tag === 'br' && !isClosing) {
+			parent.appendChild(document.createElement('br'));
+		} else if ((tag === 'b' || tag === 'strong') && !isClosing) {
+			const strong = document.createElement('strong');
+			parent.appendChild(strong);
+			stack.push(parent);
+			parent = strong;
+		} else if ((tag === 'b' || tag === 'strong') && isClosing) {
+			parent = stack.pop() || frag;
+		} else {
+			appendText(match[0]);
+		}
+
+		lastIdx = tagRegex.lastIndex;
+	}
+
+	appendText(message.slice(lastIdx));
+	container.appendChild(frag);
+}
+
 function applyI18n() {
 	document.querySelectorAll('[data-i18n]').forEach((el) => {
 		const key = el.getAttribute('data-i18n');
 		const message = browser.i18n.getMessage(key);
 		if (message) {
-			// Use innerHTML to support simple formatting like <b> in tooltips
 			if (el.classList.contains('tooltip-bubble') || el.classList.contains('cache-info')) {
-				el.innerHTML = message;
+				renderAllowedInlineMarkup(el, message);
 			} else {
 				el.textContent = message;
 			}
@@ -145,6 +187,7 @@ function applyI18n() {
 document.addEventListener('DOMContentLoaded', () => {
 	// Apply translations as soon as the DOM is ready
 	applyI18n();
+	setupButtonTooltips();
 
 	// Initialize versioned reportConfig storage once (non-destructive).
 	// Keeps existing legacy keys as the source of truth for now, but creates/syncs reportConfig for later PRs.
@@ -758,22 +801,12 @@ document.addEventListener('DOMContentLoaded', () => {
 			});
 		});
 
-		copyBtn.addEventListener('click', function () {
+		copyBtn.addEventListener('click', async function () {
 			const scrumReport = document.getElementById('scrumReport');
-			const tempDiv = document.createElement('div');
-			tempDiv.innerHTML = scrumReport.innerHTML;
-			document.body.appendChild(tempDiv);
-			tempDiv.style.position = 'absolute';
-			tempDiv.style.left = '-9999px';
+			const plainText = (scrumReport?.textContent || '').trim();
+			if (!plainText) return;
 
-			const range = document.createRange();
-			range.selectNode(tempDiv);
-			const selection = window.getSelection();
-			selection.removeAllRanges();
-			selection.addRange(range);
-
-			try {
-				document.execCommand('copy');
+			const notifyCopied = () => {
 				if (this._triggeredByShortcut) {
 					const notificationKey =
 						browser?.i18n && browser.i18n.getMessage('copiedReportNotification')
@@ -785,12 +818,27 @@ document.addEventListener('DOMContentLoaded', () => {
 				setTimeout(() => {
 					setButtonIconAndText(this, 'fa fa-copy', browser.i18n.getMessage('copyReportButton'));
 				}, 2000);
+			};
+
+			try {
+				if (navigator?.clipboard?.writeText) {
+					await navigator.clipboard.writeText(plainText);
+				} else {
+					const textarea = document.createElement('textarea');
+					textarea.value = plainText;
+					textarea.setAttribute('readonly', '');
+					textarea.style.position = 'absolute';
+					textarea.style.left = '-9999px';
+					document.body.appendChild(textarea);
+					textarea.select();
+					document.execCommand('copy');
+					document.body.removeChild(textarea);
+				}
+				notifyCopied();
 			} catch (err) {
 				console.error('Failed to copy: ', err);
 			} finally {
 				this._triggeredByShortcut = false;
-				selection.removeAllRanges();
-				document.body.removeChild(tempDiv);
 			}
 		});
 
@@ -2019,7 +2067,7 @@ document.querySelectorAll('input[name="timeframe"]').forEach((radio) => {
 // refresh cache button
 
 document.getElementById('refreshCache').addEventListener('click', async function () {
-	const originalChildren = Array.from(this.childNodes).map((node) => node.cloneNode(true));
+	const originalChildren = Array.from(this.childNodes);
 
 	this.classList.add('loading');
 	setButtonIconWithSpanText(this, 'fa fa-refresh fa-spin', browser.i18n.getMessage('refreshingButton'));
@@ -2063,7 +2111,7 @@ document.getElementById('refreshCache').addEventListener('click', async function
 		// Do NOT trigger report generation automatically
 
 		setTimeout(() => {
-			this.replaceChildren(...originalChildren.map((node) => node.cloneNode(true)));
+			this.replaceChildren(...originalChildren);
 			this.disabled = false;
 		}, 2000);
 	} catch (error) {
@@ -2072,7 +2120,7 @@ document.getElementById('refreshCache').addEventListener('click', async function
 		this.classList.remove('loading');
 
 		setTimeout(() => {
-			this.replaceChildren(...originalChildren.map((node) => node.cloneNode(true)));
+			this.replaceChildren(...originalChildren);
 			this.disabled = false;
 		}, 3000);
 	}
