@@ -31,6 +31,21 @@ function renderErrorMessage(container, key, fallback, args = []) {
 	container.appendChild(errorDiv);
 }
 
+function getGithubTokenFingerprint(token) {
+	const normalizedToken = token?.trim();
+	if (!normalizedToken) {
+		return 'noauth';
+	}
+
+	let hash = 0x811c9dc5;
+	for (let i = 0; i < normalizedToken.length; i += 1) {
+		hash ^= normalizedToken.charCodeAt(i);
+		hash = Math.imul(hash, 0x01000193);
+	}
+
+	return `tok-${(hash >>> 0).toString(16)}`;
+}
+
 let refreshButton_Placed = false;
 let hasInjectedContent = false;
 let scrumGenerationInProgress = false;
@@ -619,9 +634,10 @@ function allIncluded(outputTarget = 'email') {
 			Accept: 'application/vnd.github.v3+json',
 		};
 
-		if (githubToken) {
+		const normalizedGithubToken = githubToken?.trim();
+		if (normalizedGithubToken) {
 			log('Making authenticated requests.');
-			headers.Authorization = `token ${githubToken}`;
+			headers.Authorization = `token ${normalizedGithubToken}`;
 		} else {
 			log('Making public requests');
 		}
@@ -940,8 +956,7 @@ function allIncluded(outputTarget = 'email') {
 			log('Repo fiter disabled, skipping fetch');
 			return [];
 		}
-		const tokenMarker = githubToken ? 'auth' : 'noauth';
-		const repoCacheKey = `repos-${platformUsernameLocal}-${orgName}-${startDateForCache}-${endDateForCache}-${tokenMarker}`;
+		const repoCacheKey = `repos-${platformUsernameLocal}-${orgName}-${startDateForCache}-${endDateForCache}-${getGithubTokenFingerprint(githubToken)}`;
 
 		const now = Date.now();
 		const isRepoCacheFresh = now - githubCache.repoTimeStamp < githubCache.ttl;

@@ -414,6 +414,21 @@ document.addEventListener('DOMContentLoaded', () => {
 		return Number.isFinite(n) && n > 0 ? n : null;
 	}
 
+	function getGithubTokenFingerprint(token) {
+		const normalizedToken = token?.trim();
+		if (!normalizedToken) {
+			return 'noauth';
+		}
+
+		let hash = 0x811c9dc5;
+		for (let i = 0; i < normalizedToken.length; i += 1) {
+			hash ^= normalizedToken.charCodeAt(i);
+			hash = Math.imul(hash, 0x01000193);
+		}
+
+		return `tok-${(hash >>> 0).toString(16)}`;
+	}
+
 	function setGenerateButtonLoading(generateBtn, isLoading) {
 		if (!generateBtn) return;
 		if (!isLoading) return;
@@ -660,7 +675,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					browser?.storage.local.set({ onlyPRs: false });
 				}
 				if (result.githubToken) githubTokenInput.value = result.githubToken;
-				previousGithubTokenMarker = githubTokenInput.value.trim() ? 'auth' : 'noauth';
+				previousGithubTokenMarker = getGithubTokenFingerprint(githubTokenInput.value);
 				if (result.cacheInput) cacheInput.value = result.cacheInput;
 				if (typeof result.yesterdayContribution !== 'undefined') yesterdayRadio.checked = result.yesterdayContribution;
 				if (result.startingDate) startingDateInput.value = result.startingDate;
@@ -955,7 +970,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			});
 		});
 		githubTokenInput.addEventListener('input', () => {
-			const nextTokenMarker = githubTokenInput.value.trim() ? 'auth' : 'noauth';
+			const nextTokenMarker = getGithubTokenFingerprint(githubTokenInput.value);
 			const shouldInvalidateRepoCache = previousGithubTokenMarker !== nextTokenMarker;
 			previousGithubTokenMarker = nextTokenMarker;
 
@@ -1099,8 +1114,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		let highlightedIndex = -1;
 
 		function getRepoCacheKey(username, orgName, token) {
-			const tokenMarker = token && token.trim() ? 'auth' : 'noauth';
-			return `repos-${username}-${orgName || ''}-${tokenMarker}`;
+			return `repos-${username}-${orgName || ''}-${getGithubTokenFingerprint(token)}`;
 		}
 
 		async function triggerRepoFetchIfEnabled() {
