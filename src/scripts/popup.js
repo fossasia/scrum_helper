@@ -1552,13 +1552,16 @@ document.addEventListener('DOMContentLoaded', () => {
 					.map((repoFullName) => {
 						const repoName = repoFullName.split('/')[1] || repoFullName;
 						return `
-                        <span class="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full" style="margin:5px;">
-                            ${repoName}
-                            <button type="button" class="ml-1 text-blue-600 hover:text-blue-800 remove-repo-btn cursor-pointer" data-repo-name="${repoFullName}">
-                                <i class="fa fa-times"></i>
-                            </button>
-                        </span>
-                    `;
+            <span class="flex items-center max-w-[120px] px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full m-1">
+              <span class="truncate">${repoName}</span>
+              <button 
+                type="button" 
+                class="ml-1 text-blue-600 hover:text-blue-800 remove-repo-btn flex-shrink-0 cursor-pointer" 
+                data-repo-name="${repoFullName}">
+                  <i class="fa fa-times"></i>
+              </button>
+            </span>
+          `;
 					})
 					.join(' ');
 				repoTags.querySelectorAll('.remove-repo-btn').forEach((btn) => {
