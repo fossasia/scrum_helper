@@ -31,19 +31,20 @@ function renderErrorMessage(container, key, fallback, args = []) {
 	container.appendChild(errorDiv);
 }
 
-function getGithubTokenFingerprint(token) {
+async function getGithubTokenFingerprint(token) {
 	const normalizedToken = token?.trim();
 	if (!normalizedToken) {
 		return 'noauth';
 	}
 
-	let hash = 0x811c9dc5;
-	for (let i = 0; i < normalizedToken.length; i += 1) {
-		hash ^= normalizedToken.charCodeAt(i);
-		hash = Math.imul(hash, 0x01000193);
-	}
+	const inputBytes = new TextEncoder().encode(normalizedToken);
+	const digest = await crypto.subtle.digest('SHA-256', inputBytes);
+	const bytes = new Uint8Array(digest).slice(0, 12);
+	const hex = Array.from(bytes)
+		.map((byte) => byte.toString(16).padStart(2, '0'))
+		.join('');
 
-	return `tok-${(hash >>> 0).toString(16)}`;
+	return `tok-${hex}`;
 }
 
 let refreshButton_Placed = false;
@@ -917,11 +918,12 @@ function allIncluded(outputTarget = 'email') {
 			.join('\n');
 		const query = `query { ${queries} }`;
 		log('GraphQL query for commits:', query);
+		const normalizedGithubToken = githubToken?.trim();
 		const res = await fetch('https://api.github.com/graphql', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				...(githubToken ? { Authorization: `bearer ${githubToken}` } : {}),
+				...(normalizedGithubToken ? { Authorization: `bearer ${normalizedGithubToken}` } : {}),
 			},
 			body: JSON.stringify({ query }),
 		});
@@ -956,7 +958,8 @@ function allIncluded(outputTarget = 'email') {
 			log('Repo fiter disabled, skipping fetch');
 			return [];
 		}
-		const repoCacheKey = `repos-${platformUsernameLocal}-${orgName}-${startDateForCache}-${endDateForCache}-${getGithubTokenFingerprint(githubToken)}`;
+		const tokenFingerprint = await getGithubTokenFingerprint(githubToken);
+		const repoCacheKey = `repos-${platformUsernameLocal}-${orgName}-${startDateForCache}-${endDateForCache}-${tokenFingerprint}`;
 
 		const now = Date.now();
 		const isRepoCacheFresh = now - githubCache.repoTimeStamp < githubCache.ttl;

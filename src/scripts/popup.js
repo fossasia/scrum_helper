@@ -410,19 +410,20 @@ document.addEventListener('DOMContentLoaded', () => {
 		return Number.isFinite(n) && n > 0 ? n : null;
 	}
 
-	function getGithubTokenFingerprint(token) {
+	async function getGithubTokenFingerprint(token) {
 		const normalizedToken = token?.trim();
 		if (!normalizedToken) {
 			return 'noauth';
 		}
 
-		let hash = 0x811c9dc5;
-		for (let i = 0; i < normalizedToken.length; i += 1) {
-			hash ^= normalizedToken.charCodeAt(i);
-			hash = Math.imul(hash, 0x01000193);
-		}
+		const inputBytes = new TextEncoder().encode(normalizedToken);
+		const digest = await crypto.subtle.digest('SHA-256', inputBytes);
+		const bytes = new Uint8Array(digest).slice(0, 12);
+		const hex = Array.from(bytes)
+			.map((byte) => byte.toString(16).padStart(2, '0'))
+			.join('');
 
-		return `tok-${(hash >>> 0).toString(16)}`;
+		return `tok-${hex}`;
 	}
 
 	function setGenerateButtonLoading(generateBtn, isLoading) {
@@ -595,7 +596,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		const startingDateInput = document.getElementById('startingDate');
 		const endingDateInput = document.getElementById('endingDate');
 		const platformUsername = document.getElementById('platformUsername');
-		let previousGithubTokenMarker = 'noauth';
+		let previousGithubTokenNormalized = '';
 
 		browser.storage.local
 			.get([
@@ -662,7 +663,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					browser?.storage.local.set({ onlyPRs: false });
 				}
 				if (result.githubToken) githubTokenInput.value = result.githubToken;
-				previousGithubTokenMarker = getGithubTokenFingerprint(githubTokenInput.value);
+				previousGithubTokenNormalized = githubTokenInput.value.trim();
 				if (result.cacheInput) cacheInput.value = result.cacheInput;
 				if (typeof result.yesterdayContribution !== 'undefined') yesterdayRadio.checked = result.yesterdayContribution;
 				if (result.startingDate) startingDateInput.value = result.startingDate;
@@ -956,9 +957,9 @@ document.addEventListener('DOMContentLoaded', () => {
 			});
 		});
 		githubTokenInput.addEventListener('input', () => {
-			const nextTokenMarker = getGithubTokenFingerprint(githubTokenInput.value);
-			const shouldInvalidateRepoCache = previousGithubTokenMarker !== nextTokenMarker;
-			previousGithubTokenMarker = nextTokenMarker;
+			const nextTokenNormalized = githubTokenInput.value.trim();
+			const shouldInvalidateRepoCache = previousGithubTokenNormalized !== nextTokenNormalized;
+			previousGithubTokenNormalized = nextTokenNormalized;
 
 			const payload = { githubToken: githubTokenInput.value };
 			if (shouldInvalidateRepoCache) {
@@ -1099,8 +1100,9 @@ document.addEventListener('DOMContentLoaded', () => {
 		let selectedRepos = [];
 		let highlightedIndex = -1;
 
-		function getRepoCacheKey(username, orgName, token) {
-			return `repos-${username}-${orgName || ''}-${getGithubTokenFingerprint(token)}`;
+		async function getRepoCacheKey(username, orgName, token) {
+			const tokenFingerprint = await getGithubTokenFingerprint(token);
+			return `repos-${username}-${orgName || ''}-${tokenFingerprint}`;
 		}
 
 		async function triggerRepoFetchIfEnabled() {
@@ -1155,7 +1157,7 @@ document.addEventListener('DOMContentLoaded', () => {
 						repoStatus.textContent = browser.i18n.getMessage('repoLoaded', [repos.length]);
 					}
 
-					const repoCacheKey = getRepoCacheKey(username, items.orgName, items.githubToken);
+					const repoCacheKey = await getRepoCacheKey(username, items.orgName, items.githubToken);
 					browser.storage.local.set({
 						repoCache: {
 							data: repos,
@@ -1258,7 +1260,7 @@ document.addEventListener('DOMContentLoaded', () => {
 							return;
 						}
 
-						const repoCacheKey = getRepoCacheKey(username, items.orgName, items.githubToken);
+						const repoCacheKey = await getRepoCacheKey(username, items.orgName, items.githubToken);
 
 						const now = Date.now();
 						const cacheAge = cacheData.repoCache?.timestamp
@@ -1449,7 +1451,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				const platform = storageItems.platform || 'github';
 				const platformUsernameKey = `${platform}Username`;
 				const username = storageItems[platformUsernameKey];
-				const repoCacheKey = getRepoCacheKey(username, storageItems.orgName, storageItems.githubToken);
+				const repoCacheKey = await getRepoCacheKey(username, storageItems.orgName, storageItems.githubToken);
 				const now = Date.now();
 				const cacheAge = cacheData.repoCache?.timestamp
 					? now - cacheData.repoCache.timestamp
