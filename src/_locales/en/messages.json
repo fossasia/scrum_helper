@@ -303,7 +303,19 @@
   },
   "onlyRevPRsTooltip": {
     "message": "If checked, the report will only include PRs reviewed by you.",
-    "description": "Tooltip for the checkbox to include only reviewed PRs."
+    "description": "Tooltip for the reviewed PRs filter checkbox."
+  },
+  "onlyMergedPRsLabel": {
+    "message": "Include only merged PRs in the report",
+    "description": "Label for the checkbox to include only merged PRs."
+  },
+  "onlyMergedPRsTooltip": {
+    "message": "If checked, the report will only include PRs that have been merged. A GitHub token is required.",
+    "description": "Tooltip for the merged PRs filter checkbox."
+  },
+  "tokenRequiredMergedPRsWarning": {
+    "message": "A GitHub token is required to filter by merged PRs. Please add one in the settings.",
+    "description": "Warning shown when merged PRs filter is enabled without a GitHub token."
   },
   "usernameRequiredError": {
     "message": "Please enter your username to generate a report.",
@@ -388,5 +400,37 @@
   "usernameMissingError": {
     "message": "Username required.",
     "description": "Error shown when username is missing."
+   },
+  "generateReportTooltip": {
+    "message": "Ctrl+G",
+    "description": "Tooltip shortcut for the Generate button. Dynamically replaced with Cmd+G on macOS."
+  },
+  "copyReportTooltip": {
+    "message": "Ctrl+Shift+Y",
+    "description": "Tooltip shortcut for the Copy button. Dynamically replaced with Cmd+Shift+Y on macOS."
+  },
+  "generatingReportNotification": {
+    "message": "Generating report...",
+    "description": "Notification shown when report generation is triggered via keyboard shortcut."
+  },
+  "copyingReportNotification": {
+    "message": "Copying report...",
+    "description": "Notification shown when report copy is triggered via keyboard shortcut."
+  },
+  "copiedReportNotification": {
+    "message": "Report copied!",
+    "description": "Notification shown when report is successfully copied via keyboard shortcut."
+  },
+  "insertInEmailTooltip": {
+    "message": "Ctrl+Shift+M",
+    "description": "Tooltip shortcut for the Insert in Email button. Dynamically replaced with Cmd+Shift+M on macOS."
+  },
+  "insertingInEmailNotification": {
+    "message": "Inserting report into email...",
+    "description": "Notification shown when report insertion into email is triggered via keyboard shortcut."
+  },
+  "insertedInEmailNotification": {
+    "message": "Report inserted into email!",
+    "description": "Notification shown when report is successfully inserted into email."
   }
 }

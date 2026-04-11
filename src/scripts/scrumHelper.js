@@ -76,6 +76,7 @@ function allIncluded(outputTarget = 'email') {
 	let onlyIssues = false;
 	let onlyPRs = false;
 	let onlyRevPRs = false;
+	let onlyMergedPRs = false;
 
 	const pr_open_button =
 		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
@@ -119,6 +120,7 @@ function allIncluded(outputTarget = 'email') {
 				'onlyIssues',
 				'onlyPRs',
 				'onlyRevPRs',
+				'onlyMergedPRs',
 			])
 			.then((items) => {
 				console.log('[DEBUG] Storage items received:', items);
@@ -163,11 +165,34 @@ function allIncluded(outputTarget = 'email') {
 				onlyIssues = items.onlyIssues === true;
 				onlyPRs = items.onlyPRs === true;
 				onlyRevPRs = items.onlyRevPRs === true;
-				console.log('[SCRUM-DEBUG] loaded flags:', { onlyIssues, onlyPRs, onlyRevPRs });
+				onlyMergedPRs = items.onlyMergedPRs === true;
 				// Enforce mutual exclusivity between onlyIssues and onlyPRs to avoid filtering out everything
 				if (onlyIssues && onlyPRs) {
 					console.warn('[SCRUM-HELPER]: Detected both onlyIssues and onlyPRs enabled; normalizing to onlyIssues.');
 					onlyPRs = false;
+					chrome.storage.local.set({ onlyPRs: false });
+				}
+				// Enforce mutual exclusivity: onlyMergedPRs overrides onlyRevPRs, onlyIssues, and onlyPRs
+				if (onlyMergedPRs) {
+					const corrections = {};
+					if (onlyRevPRs) {
+						console.warn('[SCRUM-HELPER]: onlyMergedPRs and onlyRevPRs both enabled; disabling onlyRevPRs.');
+						onlyRevPRs = false;
+						corrections.onlyRevPRs = false;
+					}
+					if (onlyIssues) {
+						console.warn('[SCRUM-HELPER]: onlyMergedPRs and onlyIssues both enabled; disabling onlyIssues.');
+						onlyIssues = false;
+						corrections.onlyIssues = false;
+					}
+					if (onlyPRs) {
+						console.warn('[SCRUM-HELPER]: onlyMergedPRs and onlyPRs both enabled; disabling onlyPRs.');
+						onlyPRs = false;
+						corrections.onlyPRs = false;
+					}
+					if (Object.keys(corrections).length > 0) {
+						chrome.storage.local.set(corrections);
+					}
 				}
 				showCommits = items.showCommits || false;
 				showOpenLabel = items.showOpenLabel !== false; // Default to true if not explicitly set to false
@@ -1171,10 +1196,9 @@ ${blockerText}`;
 						platform === 'gitlab' ? (gitlabHelper?.cache?.cacheKey ?? null) : (githubCache?.cacheKey ?? null);
 
 					browser.storage.local.set({
-						lastScrumReportHtml: content,
-						lastScrumReportPlatform: platform,
-						lastScrumReportCacheKey: cacheKey,
-						lastScrumReportUsername: platformUsername,
+						[`${platform}LastScrumReportHtml`]: content,
+						[`${platform}LastScrumReportCacheKey`]: cacheKey,
+						[`${platform}LastScrumReportUsername`]: platformUsername,
 					});
 				} catch (e) {
 					// ignore
@@ -1265,6 +1289,14 @@ ${blockerText}`;
 		const isAnyFilterActive = onlyIssues || onlyPRs || onlyRevPRs;
 		if (isAnyFilterActive && !onlyRevPRs) {
 			log('Filters active but onlyRevPRs not checked, skipping PR reviews.');
+			reviewedPrsArray = [];
+			prsReviewDataProcessed = true;
+			return;
+		}
+
+		// onlyMergedPRs and onlyRevPRs are mutually exclusive; skip reviewed PRs when merged filter is active
+		if (onlyMergedPRs) {
+			log('onlyMergedPRs filter active, skipping PR reviews section.');
 			reviewedPrsArray = [];
 			prsReviewDataProcessed = true;
 			return;
@@ -1598,6 +1630,70 @@ ${blockerText}`;
 				}
 			}
 
+			if (onlyMergedPRs) {
+				if (!isMR) {
+					log('[SCRUM-DEBUG] Skipping non-PR item because onlyMergedPRs is checked:', item.number);
+					continue;
+				}
+				if (isMR) {
+					if (typeof item.state === 'string' && item.state !== 'closed') {
+						log(
+							'[SCRUM-DEBUG] Skipping non-closed PR because onlyMergedPRs is checked:',
+							item.number,
+							'state:',
+							item.state,
+						);
+						continue;
+					}
+					const repoUrl = item.repository_url;
+					let prCacheKey = null;
+					if (repoUrl) {
+						const repoParts = repoUrl.split('/');
+						const prOwner = repoParts[repoParts.length - 2];
+						const prRepo = repoParts[repoParts.length - 1];
+						if (prOwner && prRepo) {
+							prCacheKey = `${prOwner}/${prRepo}#${item.number}`;
+						} else {
+							logError(
+								'[SCRUM-HELPER] Unable to derive PR cache key from repository_url:',
+								repoUrl,
+								'for item:',
+								item.number,
+							);
+						}
+					} else {
+						logError(
+							'[SCRUM-HELPER] Missing repository_url for PR item when onlyMergedPRs is enabled.',
+							'Item number:',
+							item.number,
+						);
+					}
+					// Determine merge status. If we cannot determine it reliably, do NOT
+					// treat the PR as "not merged" – instead, skip the onlyMergedPRs filter
+					// for this item to avoid silently dropping all results when merge status
+					// cannot be fetched (e.g., missing token or incomplete cache).
+					let hasMergeInfo = false;
+					let isMerged = false;
+					if (prCacheKey && prCacheKey in mergedStatusResults) {
+						hasMergeInfo = true;
+						isMerged = !!mergedStatusResults[prCacheKey];
+					} else if (item.pull_request && Object.prototype.hasOwnProperty.call(item.pull_request, 'merged_at')) {
+						hasMergeInfo = true;
+						isMerged = !!item.pull_request.merged_at;
+					}
+					if (!hasMergeInfo) {
+						logError(
+							'[SCRUM-HELPER] onlyMergedPRs is enabled but merge status could not be determined for item:',
+							item.number,
+							'- skipping onlyMergedPRs filter for this item.',
+						);
+					} else if (!isMerged) {
+						log('[SCRUM-DEBUG] Skipping non-merged PR:', item.number);
+						continue;
+					}
+				}
+			}
+
 			log('[SCRUM-DEBUG] isMR:', isMR, 'platform:', platform, 'item:', item);
 			const html_url = item.html_url;
 			const repository_url = item.repository_url;
@@ -1657,7 +1753,7 @@ ${blockerText}`;
 
 				if (platform === 'github') {
 					// For existing PRs (not new), they must be open AND have commits in the date range
-					if (!isNewPR) {
+					if (!isNewPR && !onlyMergedPRs) {
 						if (item.state !== 'open') {
 							log(`[PR DEBUG] Skipping PR #${number} - existing PR but not open`);
 							continue;
@@ -1996,10 +2092,17 @@ async function injectIntoEmailEditor(content, subject) {
 async function fetchPrsMergedStatusBatch(prs, headers) {
 	const results = {};
 	if (prs.length === 0) return results;
+
+	// GitHub's GraphQL API requires "bearer" auth, not "token"
+	const graphqlHeaders = { ...headers, 'Content-Type': 'application/json' };
+	if (graphqlHeaders.Authorization && graphqlHeaders.Authorization.startsWith('token ')) {
+		graphqlHeaders.Authorization = graphqlHeaders.Authorization.replace('token ', 'bearer ');
+	}
+
 	const query = `query {
 ${prs
 	.map(
-		(pr, i) => `	repo${i}: repository(owner: "${pr.owner}\", name: "${pr.repo}\") {
+		(pr, i) => `	repo${i}: repository(owner: "${pr.owner}", name: "${pr.repo}") {
 		pr${i}: pullRequest(number: ${pr.number}) { merged }
 	}`,
 	)
@@ -2009,10 +2112,7 @@ ${prs
 	try {
 		const res = await fetch('https://api.github.com/graphql', {
 			method: 'POST',
-			headers: {
-				...headers,
-				'Content-Type': 'application/json',
-			},
+			headers: graphqlHeaders,
 			body: JSON.stringify({ query }),
 		});
 		if (!res.ok) return results;
