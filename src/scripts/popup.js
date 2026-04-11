@@ -1576,10 +1576,14 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 
 		if (clearAllReposBtn) {
-			clearAllReposBtn.addEventListener('click', () => {
+			clearAllReposBtn.addEventListener('click', (e) => {
+				e.stopPropagation();
 				selectedRepos = [];
 				updateRepoDisplay();
 				saveRepoSelection();
+				filterAndDisplayRepos(
+					repoSearch.value.toLowerCase()
+				);
 			});
 		}
 
