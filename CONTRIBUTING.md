@@ -15,8 +15,8 @@ This document provides guidelines for contributing to the project. Please feel f
 1.  **Fork & Clone the Repository**
 
     ```sh
-    git clone https://github.com/YOUR_USERNAME/scrum-helper.git
-    cd scrum-helper
+    git clone https://github.com/YOUR_USERNAME/scrum_helper.git
+    cd scrum_helper
     ```
 
 2.  **Install Dependencies**
