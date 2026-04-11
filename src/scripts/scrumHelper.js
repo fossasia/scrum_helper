@@ -42,7 +42,6 @@ let gitlabToken = '';
 let gitlabSelfHostedUrl = '';
 let gitlabHelper = null;
 
-
 function allIncluded(outputTarget = 'email') {
 	if (scrumGenerationInProgress) {
 		return;
@@ -162,9 +161,6 @@ function allIncluded(outputTarget = 'email') {
 				gitlabToken = items.gitlabToken || '';
 				gitlabSelfHostedUrl = items.gitlabSelfHostedUrl || '';
 				yesterdayContribution = items.yesterdayContribution;
-				if (platform === 'gitlab' && window.GitLabHelper) {
-					gitlabHelper = new window.GitLabHelper(gitlabSelfHostedUrl || null);
-				}
 
 				onlyIssues = items.onlyIssues === true;
 				onlyPRs = items.onlyPRs === true;
@@ -262,7 +258,10 @@ function allIncluded(outputTarget = 'email') {
 										endingDate,
 										gitlabToken,
 									);
-									const apiBaseUrl = (data.apiBaseUrl || gitlabHelper.baseUrl || 'https://gitlab.com/api/v4').replace(/\/+$/, '');
+									const apiBaseUrl = (data.apiBaseUrl || gitlabHelper.baseUrl || 'https://gitlab.com/api/v4').replace(
+										/\/+$/,
+										'',
+									);
 
 									function mapGitLabItem(item, projects, type) {
 										const project = projects.find((p) => p.id === item.project_id);
@@ -335,7 +334,10 @@ function allIncluded(outputTarget = 'email') {
 							gitlabHelper
 								.fetchGitLabData(platformUsernameLocal, startingDate, endingDate, gitlabToken)
 								.then((data) => {
-									const apiBaseUrl = (data.apiBaseUrl || gitlabHelper.baseUrl || 'https://gitlab.com/api/v4').replace(/\/+$/, '');
+									const apiBaseUrl = (data.apiBaseUrl || gitlabHelper.baseUrl || 'https://gitlab.com/api/v4').replace(
+										/\/+$/,
+										'',
+									);
 									function mapGitLabItem(item, projects, type) {
 										const project = projects.find((p) => p.id === item.project_id);
 										const repoName = project ? project.name : 'unknown';

@@ -63,10 +63,7 @@ class GitLabHelper {
 			return true;
 		} catch (error) {
 			console.error('GitLab reachability check failed:', error);
-			if (
-				error instanceof Error &&
-				error.message === invalidMessage
-			) {
+			if (error instanceof Error && error.message === invalidMessage) {
 				throw error;
 			}
 			throw new Error(invalidMessage);
@@ -113,7 +110,9 @@ class GitLabHelper {
 
 	async fetchGitLabData(username, startDate, endDate, token = null) {
 		if (!this.baseUrl) {
-			throw new Error(chrome?.i18n.getMessage('gitlabInstanceInvalidError') || 'A valid GitLab instance URL is required.');
+			throw new Error(
+				chrome?.i18n.getMessage('gitlabInstanceInvalidError') || 'A valid GitLab instance URL is required.',
+			);
 		}
 
 		// Include token state in cache key to invalidate when auth changes

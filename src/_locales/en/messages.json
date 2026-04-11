@@ -139,7 +139,7 @@
     "description": "Tooltip for GitLab token explaining why it's needed."
   },
   "showCommitsLabel": {
-    "message": "Enter a valid HTTPS GitLab instance URL.",
+    "message": "Show commits on open PRs/ draft PRs",
     "description": "Label for the checkbox to show commits in open PRs."
   },
   "showCommitsTooltip": {
@@ -147,7 +147,7 @@
   },
   "onlyIssuesLabel": {
     "message": "Include only issues in the report"
-    "message": "A valid HTTPS GitLab instance URL is required.",
+  },
   "onlyIssuesTooltip": {
     "message": "If checked, the report will only include issues created or assigned to the user."
   },
