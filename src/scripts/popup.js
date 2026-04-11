@@ -1545,28 +1545,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		function updateRepoDisplay() {
 			if (selectedRepos.length === 0) {
-				repoTags.innerHTML = `<span class="text-xs text-gray-500 select-none" id="repoPlaceholder">${browser.i18n.getMessage('repoPlaceholder')}</span>`;
+				repoTags.innerHTML = '';
+				const placeholder = document.createElement('span');
+				placeholder.className = 'text-xs text-gray-500 select-none';
+				placeholder.id = 'repoPlaceholder';
+				placeholder.textContent = browser.i18n.getMessage('repoPlaceholder');
+				repoTags.appendChild(placeholder);
 				repoCount.textContent = browser.i18n.getMessage('repoCountNone');
 			} else {
-				repoTags.innerHTML = selectedRepos
-					.map((repoFullName) => {
-						const repoName = repoFullName.split('/')[1] || repoFullName;
-						return `
-                        <span class="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full" style="margin:5px;">
-                            ${repoName}
-                            <button type="button" class="ml-1 text-blue-600 hover:text-blue-800 remove-repo-btn cursor-pointer" data-repo-name="${repoFullName}">
-                                <i class="fa fa-times"></i>
-                            </button>
-                        </span>
-                    `;
-					})
-					.join(' ');
-				repoTags.querySelectorAll('.remove-repo-btn').forEach((btn) => {
-					btn.addEventListener('click', (e) => {
+				repoTags.innerHTML = '';
+				selectedRepos.forEach((repoFullName) => {
+					const repoName = repoFullName.split('/')[1] || repoFullName;
+
+					const chip = document.createElement('span');
+					chip.className = 'repo-tag-chip';
+					chip.title = repoFullName;
+
+					const nameSpan = document.createElement('span');
+					nameSpan.className = 'repo-tag-name';
+					nameSpan.textContent = repoName;
+
+					const removeBtn = document.createElement('button');
+					removeBtn.type = 'button';
+					removeBtn.className = 'remove-repo-btn';
+					removeBtn.dataset.repoName = repoFullName;
+					removeBtn.addEventListener('click', (e) => {
 						e.stopPropagation();
-						const repoFullName = btn.dataset.repoName;
 						removeRepo(repoFullName);
 					});
+
+					const removeIcon = document.createElement('i');
+					removeIcon.className = 'fa fa-times';
+					removeBtn.appendChild(removeIcon);
+
+					chip.appendChild(nameSpan);
+					chip.appendChild(removeBtn);
+					repoTags.appendChild(chip);
 				});
 				repoCount.textContent = browser.i18n.getMessage('repoCount', [selectedRepos.length]);
 			}

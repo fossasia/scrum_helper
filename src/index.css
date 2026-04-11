@@ -512,6 +512,109 @@ hr,
     color: #fef2f2;
 }
 
+/* Selected Repos Container - scrollable when many repos */
+#selectedRepos {
+    max-height: 120px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 transparent;
+    transition: border-color 0.2s ease;
+}
+
+#selectedRepos::-webkit-scrollbar {
+    width: 4px;
+}
+
+#selectedRepos::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+#selectedRepos::-webkit-scrollbar-thumb {
+    background-color: #cbd5e1;
+    border-radius: 4px;
+}
+
+/* Repo Tag Chips - truncated with responsive width */
+.repo-tag-chip {
+    display: inline-flex;
+    align-items: center;
+    max-width: calc(50% - 8px);
+    padding: 3px 8px;
+    background: #dbeafe;
+    color: #1e40af;
+    font-size: 12px;
+    font-weight: 500;
+    border-radius: 9999px;
+    margin: 3px;
+    animation: tagSlideIn 0.2s ease-out;
+    cursor: default;
+    border: 1px solid #bfdbfe;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.repo-tag-chip:hover {
+    background: #bfdbfe;
+    border-color: #93c5fd;
+}
+
+.repo-tag-chip .repo-tag-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+    flex: 1;
+}
+
+.repo-tag-chip .remove-repo-btn {
+    flex-shrink: 0;
+    margin-left: 4px;
+    cursor: pointer;
+    color: #3b82f6;
+    background: none;
+    border: none;
+    padding: 0 2px;
+    font-size: 11px;
+    line-height: 1;
+    transition: color 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+}
+
+.repo-tag-chip .remove-repo-btn:hover {
+    color: #1d4ed8;
+}
+
+/* Dark mode - selected repos container */
+.dark-mode #selectedRepos {
+    background-color: #374151 !important;
+    border-color: #4b5563 !important;
+    scrollbar-color: #4b5563 transparent;
+}
+
+.dark-mode #selectedRepos::-webkit-scrollbar-thumb {
+    background-color: #4b5563;
+}
+
+/* Dark mode - repo tag chips */
+.dark-mode .repo-tag-chip {
+    background: #1e3a5f;
+    color: #93c5fd;
+    border-color: #2563eb;
+}
+
+.dark-mode .repo-tag-chip:hover {
+    background: #1e40af;
+    border-color: #3b82f6;
+}
+
+.dark-mode .repo-tag-chip .remove-repo-btn {
+    color: #60a5fa;
+}
+
+.dark-mode .repo-tag-chip .remove-repo-btn:hover {
+    color: #93c5fd;
+}
+
 .repository-dropdown-item {
     padding: 8px 12px;
     cursor: pointer;
