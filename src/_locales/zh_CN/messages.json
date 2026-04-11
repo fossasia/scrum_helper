@@ -231,5 +231,89 @@
     },
     "onlyRevPRsTooltip": {
         "message": "如果选中，报告将仅包含由您审核的 PR。"
+    },
+    "usernameRequiredError": {
+        "message": "请填写用户名以生成报告。"
+    },
+    "unknownPlatformError": {
+        "message": "选择了未知的平台。"
+    },
+    "gitlabFetchingError": {
+        "message": "获取 GitLab 数据时发生错误。"
+    },
+    "reportGenerationError": {
+        "message": "生成报告时发生错误。"
+    },
+    "githubUserNotFoundError": {
+        "message": "未找到 GitHub 用户 \"$1\"（404）。请检查用户名后重试。"
+    },
+    "githubUserValidationError": {
+        "message": "验证 GitHub 用户时出错：$1 $2"
+    },
+    "invalidSearchQueryError": {
+        "message": "无效的搜索查询或日期范围。请检查格式后重试。"
+    },
+    "githubIssuesFetchError": {
+        "message": "获取 GitHub 问题时出错：$1 $2"
+    },
+    "githubPRReviewFetchError": {
+        "message": "获取 GitHub PR 审查数据时出错：$1 $2"
+    },
+    "githubUserFetchError": {
+        "message": "获取 GitHub 用户数据时出错：$1 $2"
+    },
+    "invalidTokenError": {
+        "message": "GitHub 令牌无效或已过期。请在 Scrum Helper 设置中检查您的令牌并重试。"
+    },
+    "displayModeNotice": {
+        "message": "扩展将在下次启动时以 $1 模式打开。"
+    },
+    "repoFilteringGithubOnly": {
+        "message": "仓库筛选仅适用于 GitHub。"
+    },
+    "repoLoadingGithubOnly": {
+        "message": "仓库加载仅适用于 GitHub。"
+    },
+    "repoFetchingGithubOnly": {
+        "message": "仓库获取仅适用于 GitHub。"
+    },
+    "loadingReposAutomatically": {
+        "message": "正在自动加载仓库..."
+    },
+    "gitlabUserFetchError": {
+        "message": "获取 GitLab 用户时出错：$1 $2"
+    },
+    "gitlabUserNotFoundError": {
+        "message": "未找到 GitLab 用户 '$1'"
+    },
+    "gitlabMembershipError": {
+        "message": "获取 GitLab 成员项目时出错：$1 $2"
+    },
+    "gitlabContributedError": {
+        "message": "获取 GitLab 贡献项目时出错：$1 $2"
+    },
+    "usernameMissingError": {
+        "message": "需要用户名。"
+    },
+    "generateReportTooltip": {
+        "message": "Ctrl+G"
+    },
+    "copyReportTooltip": {
+        "message": "Ctrl+Shift+Y"
+    },
+    "generatingReportNotification": {
+        "message": "正在生成报告..."
+    },
+    "copyingReportNotification": {
+        "message": "正在复制报告..."
+    },
+    "insertInEmailTooltip": {
+        "message": "Ctrl+Shift+M"
+    },
+    "insertingInEmailNotification": {
+        "message": "正在将报告插入邮件..."
+    },
+    "insertedInEmailNotification": {
+        "message": "报告已插入邮件！"
     }
 }

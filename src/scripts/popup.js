@@ -1,9 +1,81 @@
+/* global chrome */
+
 function debounce(func, wait) {
 	let timeout;
 	return function (...args) {
 		clearTimeout(timeout);
 		timeout = setTimeout(() => func.apply(this, args), wait);
 	};
+}
+
+// Utility: Detect if the current OS is macOS
+function isMacOS() {
+	if (typeof navigator === 'undefined') {
+		return false;
+	}
+
+	if (navigator.userAgentData && typeof navigator.userAgentData.platform === 'string') {
+		return navigator.userAgentData.platform.toLowerCase().includes('mac');
+	}
+
+	const platform = navigator.platform || '';
+	if (navigator.maxTouchPoints && navigator.maxTouchPoints > 2 && /MacIntel/.test(platform)) {
+		return true;
+	}
+
+	return /Mac/.test(platform);
+}
+
+function showShortcutNotification(messageKey) {
+	if (typeof chrome === 'undefined' || !chrome.i18n) {
+		return;
+	}
+
+	const existingNotification = document.querySelector('.shortcut-notification');
+	if (existingNotification) {
+		existingNotification.remove();
+	}
+
+	const message = chrome.i18n.getMessage(messageKey);
+	if (!message) {
+		return;
+	}
+
+	const notification = document.createElement('div');
+	notification.className = 'shortcut-notification';
+	notification.textContent = message;
+	document.body.appendChild(notification);
+
+	setTimeout(() => {
+		notification.style.animation = 'slideOut 0.3s ease-out';
+		setTimeout(() => {
+			if (notification.parentNode) {
+				notification.parentNode.removeChild(notification);
+			}
+		}, 300);
+	}, 2000);
+}
+
+function setupButtonTooltips() {
+	const mac = isMacOS();
+
+	const generateTooltipEl = document.getElementById('generateReportTooltipText');
+	if (generateTooltipEl) {
+		const text = chrome?.i18n.getMessage('generateReportTooltip') || 'Ctrl+G';
+		generateTooltipEl.textContent = mac ? text.replace('Ctrl', 'Cmd') : text;
+	}
+
+	const copyTooltipEl = document.getElementById('copyReportTooltipText');
+	if (copyTooltipEl) {
+		const text = chrome?.i18n.getMessage('copyReportTooltip') || 'Ctrl+Shift+Y';
+		copyTooltipEl.textContent = mac ? text.replace('Ctrl', 'Cmd') : text;
+	}
+
+	const insertEmailTooltipEl = document.getElementById('insertInEmailTooltipText');
+	if (insertEmailTooltipEl) {
+		const text = chrome?.i18n.getMessage('insertInEmailTooltip') || 'Ctrl+Shift+M';
+		insertEmailTooltipEl.textContent = mac ? text.replace('Ctrl', 'Cmd') : text;
+	}
 }
 
 function getToday() {
@@ -52,6 +124,7 @@ function applyI18n() {
 document.addEventListener('DOMContentLoaded', () => {
 	// Apply translations as soon as the DOM is ready
 	applyI18n();
+	setupButtonTooltips();
 
 	// Initialize versioned reportConfig storage once (non-destructive).
 	// Keeps existing legacy keys as the source of truth for now, but creates/syncs reportConfig for later PRs.
@@ -88,6 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	const usernameLabel = document.getElementById('usernameLabel');
 	const platformUsername = document.getElementById('platformUsername');
 	let showCommitsWarningTimeout;
+	let mergedPRsWarningTimeout;
 
 	function checkTokenForFilter() {
 		const useRepoFilter = document.getElementById('useRepoFilter');
@@ -113,6 +187,67 @@ document.addEventListener('DOMContentLoaded', () => {
 		setTimeout(() => {
 			tokenWarning.classList.add('hidden');
 		}, 4000);
+	}
+
+	function showTokenWarningForMergedPRs({ animate = false, durationMs = 4000 } = {}) {
+		const tokenWarning = document.getElementById('tokenWarningForMergedPRs');
+		if (!tokenWarning) {
+			return;
+		}
+
+		tokenWarning.classList.remove('hidden');
+		if (animate) {
+			tokenWarning.classList.add('shake-animation');
+			setTimeout(() => tokenWarning.classList.remove('shake-animation'), 620);
+		}
+
+		if (mergedPRsWarningTimeout) {
+			clearTimeout(mergedPRsWarningTimeout);
+		}
+		mergedPRsWarningTimeout = setTimeout(() => {
+			tokenWarning.classList.add('hidden');
+		}, durationMs);
+	}
+
+	function checkTokenForMergedPRs({
+		showWarning = false,
+		animateWarning = false,
+		warningDurationMs = 4000,
+		persistState = false,
+	} = {}) {
+		const mergedPRsCheckbox = document.getElementById('onlyMergedPRs');
+		const githubTokenInput = document.getElementById('githubToken');
+
+		if (!mergedPRsCheckbox || !githubTokenInput) {
+			return;
+		}
+
+		const isMergedPRsEnabled = mergedPRsCheckbox.checked;
+		const hasToken = githubTokenInput.value.trim() !== '';
+
+		if (isMergedPRsEnabled && !hasToken) {
+			mergedPRsCheckbox.checked = false;
+			if (showWarning) {
+				showTokenWarningForMergedPRs({
+					animate: animateWarning,
+					durationMs: warningDurationMs,
+				});
+			}
+			chrome?.storage.local.set({ onlyMergedPRs: false });
+			return;
+		}
+
+		const tokenWarning = document.getElementById('tokenWarningForMergedPRs');
+		if (tokenWarning) {
+			if (mergedPRsWarningTimeout) {
+				clearTimeout(mergedPRsWarningTimeout);
+				mergedPRsWarningTimeout = null;
+			}
+			tokenWarning.classList.add('hidden');
+		}
+		if (persistState) {
+			chrome?.storage.local.set({ onlyMergedPRs: mergedPRsCheckbox.checked });
+		}
 	}
 
 	function showTokenWarningForShowCommits({ animate = false, durationMs = 4000 } = {}) {
@@ -216,6 +351,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	githubTokenInput.addEventListener('input', checkTokenForFilter);
 	githubTokenInput.addEventListener('input', () => checkTokenForShowCommits({ persistState: false }));
+	githubTokenInput.addEventListener('input', () =>
+		checkTokenForShowCommits({ persistState: false }),
+	);
+	githubTokenInput.addEventListener('input', () =>
+		checkTokenForMergedPRs({ persistState: false }),
+	);
 
 	darkModeToggle.addEventListener('click', function () {
 		body.classList.toggle('dark-mode');
@@ -285,6 +426,8 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (!isLoading) return;
 
 		generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>';
+		const msg = browser.i18n.getMessage('generatingButton') || 'Generating...';
+		generateBtn.innerHTML = `<i class="fa fa-spinner fa-spin"></i> ${msg}`;
 		generateBtn.disabled = true;
 		generateBtn.setAttribute('aria-busy', 'true');
 		generateBtn.title = chrome?.i18n.getMessage('generatingButton') || 'Generating...';
@@ -435,6 +578,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		const onlyIssuesCheckbox = document.getElementById('onlyIssues');
 		const onlyPRsCheckbox = document.getElementById('onlyPRs');
 		const onlyRevPRsCheckbox = document.getElementById('onlyRevPRs');
+		const onlyMergedPRsCheckbox = document.getElementById('onlyMergedPRs');
 
 		const githubTokenInput = document.getElementById('githubToken');
 		const cacheInput = document.getElementById('cacheInput');
@@ -455,6 +599,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				'onlyIssues',
 				'onlyPRs',
 				'onlyRevPRs',
+				'onlyMergedPRs',
 				'yesterdayContribution',
 				'startingDate',
 				'endingDate',
@@ -481,6 +626,9 @@ document.addEventListener('DOMContentLoaded', () => {
 				}
 				if (typeof result.onlyRevPRs !== 'undefined') {
 					onlyRevPRsCheckbox.checked = result.onlyRevPRs;
+				}
+				if (typeof result.onlyMergedPRs !== 'undefined') {
+					onlyMergedPRsCheckbox.checked = result.onlyMergedPRs;
 				}
 
 				// Reconcile mutually exclusive "Only Issues" and "Only PRs" flags on initialization.
@@ -527,7 +675,6 @@ document.addEventListener('DOMContentLoaded', () => {
 							console.warn('Insert to Email failed:', response?.error);
 						}
 					});
-				});
 			});
 		}
 
@@ -579,6 +726,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			} catch (err) {
 				console.error('Failed to copy: ', err);
 			} finally {
+				this._triggeredByShortcut = false;
 				selection.removeAllRanges();
 				document.body.removeChild(tempDiv);
 			}
@@ -1797,6 +1945,50 @@ async function triggerRepoFetchIfEnabled() {
 		await window.triggerRepoFetchIfEnabled();
 	}
 }
+
+// Keyboard shortcuts: Ctrl+G / Cmd+G to generate, Ctrl+Shift+Y / Cmd+Shift+Y to copy, Ctrl+Shift+M / Cmd+Shift+M to insert in email
+document.addEventListener('keydown', (e) => {
+	if (!document.hasFocus()) {
+		return;
+	}
+
+	const target = e.target;
+	const tagName = target?.tagName;
+	const editableAncestor = typeof target?.closest === 'function' ? target.closest('[contenteditable="true"]') : null;
+	const isFormField = tagName === 'INPUT' || tagName === 'TEXTAREA' || tagName === 'SELECT';
+	const isContentEditable = !!(editableAncestor || (target && target.isContentEditable));
+
+	if (isFormField || isContentEditable) {
+		return;
+	}
+
+	const key = (e.key || '').toLowerCase();
+	const modifier = isMacOS() ? e.metaKey : e.ctrlKey;
+
+	const generateBtn = document.getElementById('generateReport');
+	const copyBtn = document.getElementById('copyReport');
+	const insertEmailBtn = document.getElementById('insertInEmail');
+
+	if (modifier && !e.shiftKey && !e.altKey && key === 'g' && !e.repeat && generateBtn && !generateBtn.disabled) {
+		e.preventDefault();
+		showShortcutNotification('generatingReportNotification');
+		generateBtn.click();
+	}
+
+	if (modifier && e.shiftKey && !e.altKey && key === 'y' && !e.repeat && copyBtn && !copyBtn.disabled) {
+		e.preventDefault();
+		showShortcutNotification('copyingReportNotification');
+		copyBtn._triggeredByShortcut = true;
+		copyBtn.click();
+	}
+
+	if (modifier && e.shiftKey && !e.altKey && key === 'm' && !e.repeat && insertEmailBtn && !insertEmailBtn.disabled) {
+		e.preventDefault();
+		showShortcutNotification('insertingInEmailNotification');
+		insertEmailBtn._triggeredByShortcut = true;
+		insertEmailBtn.click();
+	}
+});
 
 // Validate organization only when user is done typing (on blur)
 function validateOrgOnBlur(org) {

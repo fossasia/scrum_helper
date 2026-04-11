@@ -11,7 +11,8 @@
     "format": "biome format --write .",
     "check": "biome check .",
     "fix": "biome lint --write .",
-    "check:write": "biome check --write ."
+    "check:write": "biome check --write .",
+    "build": "node build.js"
   },
   "keywords": [
     "scrum",
@@ -25,12 +26,12 @@
   },
   "homepage": "https://github.com/fossasia/scrum_helper",
   "devDependencies": {
-    "@biomejs/biome": "2.4.5",
+    "@biomejs/biome": "2.4.11",
     "autoprefixer": "^10.4.27",
-    "postcss": "^8.5.8",
-    "tailwindcss": "^4.2.1"
+    "postcss": "^8.5.9",
+    "tailwindcss": "^4.2.2"
   },
   "dependencies": {
-    "@tailwindcss/cli": "^4.2.1"
+    "@tailwindcss/cli": "^4.2.2"
   }
 }
