@@ -1,10 +1,8 @@
 /**
  * GitHubHelper
  *
- * A reusable service module for GitHub-specific API logic.
- * This is the first step toward a generic SCM service layer — mirroring the
- * existing GitLabHelper pattern so scrumHelper.js can eventually call either
- * platform through a unified interface.
+ * This extracts GitHub-specific behavior into a helper class and, in the
+ * browser context, exposes a shared instance plus a backward-compatibility shim.
  *
  * Currently extracted: fetchUserRepositories
  * Planned: fetchData (issues, PRs, user), fetchCommitsForOpenPRs, cache management
@@ -18,7 +16,7 @@ class GitHubHelper {
 	 * @param {object} storage - Storage backend (defaults to browser.storage.local).
 	 *   Injected to avoid tight coupling and enable testing without a real browser env.
 	 */
-	constructor(storage = browser.storage.local) {
+	constructor(storage = globalThis.browser?.storage?.local) {
 		this.storage = storage;
 	}
 
