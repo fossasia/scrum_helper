@@ -410,22 +410,6 @@ document.addEventListener('DOMContentLoaded', () => {
 		return Number.isFinite(n) && n > 0 ? n : null;
 	}
 
-	async function getGithubTokenFingerprint(token) {
-		const normalizedToken = token?.trim();
-		if (!normalizedToken) {
-			return 'noauth';
-		}
-
-		const inputBytes = new TextEncoder().encode(normalizedToken);
-		const digest = await crypto.subtle.digest('SHA-256', inputBytes);
-		const bytes = new Uint8Array(digest).slice(0, 12);
-		const hex = Array.from(bytes)
-			.map((byte) => byte.toString(16).padStart(2, '0'))
-			.join('');
-
-		return `tok-${hex}`;
-	}
-
 	function getRepoDateRange(startingDate, endingDate, yesterdayContribution) {
 		if (yesterdayContribution) {
 			const today = new Date();
@@ -987,7 +971,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			const shouldInvalidateRepoCache = previousGithubTokenNormalized !== nextTokenNormalized;
 			previousGithubTokenNormalized = nextTokenNormalized;
 
-			const payload = { githubToken: githubTokenInput.value };
+			const payload = { githubToken: nextTokenNormalized };
 			if (shouldInvalidateRepoCache) {
 				payload.repoCache = null;
 			}
