@@ -675,13 +675,6 @@ document.addEventListener('DOMContentLoaded', () => {
 				if (result.startingDate) startingDateInput.value = result.startingDate;
 				if (result.endingDate) endingDateInput.value = result.endingDate;
 				const wasNormalizedOnLoad = normalizeDateRangeValues();
-				if (
-					typeof window !== 'undefined' &&
-					window.scrumDateRangeUtils &&
-					typeof window.scrumDateRangeUtils.normalizeAndSync === 'function'
-				) {
-					window.scrumDateRangeUtils.normalizeAndSync(startingDateInput, endingDateInput);
-				}
 				if (wasNormalizedOnLoad) {
 					persistDateRange();
 				}
