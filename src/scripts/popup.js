@@ -426,6 +426,32 @@ document.addEventListener('DOMContentLoaded', () => {
 		return `tok-${hex}`;
 	}
 
+	function getRepoDateRange(startingDate, endingDate, yesterdayContribution) {
+		if (yesterdayContribution) {
+			const today = new Date();
+			const yesterday = new Date(today);
+			yesterday.setDate(today.getDate() - 1);
+			return {
+				startDate: yesterday.toISOString().split('T')[0],
+				endDate: today.toISOString().split('T')[0],
+			};
+		}
+
+		if (startingDate && endingDate) {
+			return {
+				startDate: startingDate,
+				endDate: endingDate,
+			};
+		}
+
+		const today = new Date();
+		const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
+		return {
+			startDate: lastWeek.toISOString().split('T')[0],
+			endDate: today.toISOString().split('T')[0],
+		};
+	}
+
 	function setGenerateButtonLoading(generateBtn, isLoading) {
 		if (!generateBtn) return;
 		if (!isLoading) return;
@@ -1100,9 +1126,10 @@ document.addEventListener('DOMContentLoaded', () => {
 		let selectedRepos = [];
 		let highlightedIndex = -1;
 
-		async function getRepoCacheKey(username, orgName, token) {
+		async function getRepoCacheKey(username, orgName, token, startingDate, endingDate, yesterdayContribution) {
+			const { startDate, endDate } = getRepoDateRange(startingDate, endingDate, yesterdayContribution);
 			const tokenFingerprint = await getGithubTokenFingerprint(token);
-			return `repos-${username}-${orgName || ''}-${tokenFingerprint}`;
+			return `repos-${username}-${orgName || ''}-${startDate}-${endDate}-${tokenFingerprint}`;
 		}
 
 		async function triggerRepoFetchIfEnabled() {
@@ -1135,6 +1162,9 @@ document.addEventListener('DOMContentLoaded', () => {
 					'gitlabUsername',
 					'githubToken',
 					'orgName',
+					'startingDate',
+					'endingDate',
+					'yesterdayContribution',
 				]);
 
 				const platform = items.platform || 'github';
@@ -1157,7 +1187,14 @@ document.addEventListener('DOMContentLoaded', () => {
 						repoStatus.textContent = browser.i18n.getMessage('repoLoaded', [repos.length]);
 					}
 
-					const repoCacheKey = await getRepoCacheKey(username, items.orgName, items.githubToken);
+					const repoCacheKey = await getRepoCacheKey(
+						username,
+						items.orgName,
+						items.githubToken,
+						items.startingDate,
+						items.endingDate,
+						items.yesterdayContribution,
+					);
 					browser.storage.local.set({
 						repoCache: {
 							data: repos,
@@ -1249,6 +1286,9 @@ document.addEventListener('DOMContentLoaded', () => {
 							'gitlabUsername',
 							'githubToken',
 							'orgName',
+							'startingDate',
+							'endingDate',
+							'yesterdayContribution',
 						]);
 
 						const platform = items.platform || 'github';
@@ -1260,7 +1300,14 @@ document.addEventListener('DOMContentLoaded', () => {
 							return;
 						}
 
-						const repoCacheKey = await getRepoCacheKey(username, items.orgName, items.githubToken);
+						const repoCacheKey = await getRepoCacheKey(
+							username,
+							items.orgName,
+							items.githubToken,
+							items.startingDate,
+							items.endingDate,
+							items.yesterdayContribution,
+						);
 
 						const now = Date.now();
 						const cacheAge = cacheData.repoCache?.timestamp
@@ -1404,23 +1451,33 @@ document.addEventListener('DOMContentLoaded', () => {
 				return;
 			}
 
-			browser.storage.local.get(['platform', 'githubUsername', 'githubToken']).then((items) => {
-				const platform = items.platform || 'github';
-				const platformUsernameKey = `${platform}Username`;
-				const username = items[platformUsernameKey];
-				console.log('Storage data for repo fetch:', {
-					hasUsername: !!username,
-					hasToken: !!items.githubToken,
-					username: username,
+			browser.storage.local
+				.get([
+					'platform',
+					'githubUsername',
+					'githubToken',
+					'orgName',
+					'startingDate',
+					'endingDate',
+					'yesterdayContribution',
+				])
+				.then((items) => {
+					const platform = items.platform || 'github';
+					const platformUsernameKey = `${platform}Username`;
+					const username = items[platformUsernameKey];
+					console.log('Storage data for repo fetch:', {
+						hasUsername: !!username,
+						hasToken: !!items.githubToken,
+						username: username,
+					});
+
+					if (!username) {
+						repoStatus.textContent = chrome?.i18n.getMessage('usernameMissingError') || 'Username required';
+						return;
+					}
+
+					performRepoFetch();
 				});
-
-				if (!username) {
-					repoStatus.textContent = chrome?.i18n.getMessage('usernameMissingError') || 'Username required';
-					return;
-				}
-
-				performRepoFetch();
-			});
 		}
 
 		async function performRepoFetch() {
@@ -1447,11 +1504,21 @@ document.addEventListener('DOMContentLoaded', () => {
 					'gitlabUsername',
 					'githubToken',
 					'orgName',
+					'startingDate',
+					'endingDate',
+					'yesterdayContribution',
 				]);
 				const platform = storageItems.platform || 'github';
 				const platformUsernameKey = `${platform}Username`;
 				const username = storageItems[platformUsernameKey];
-				const repoCacheKey = await getRepoCacheKey(username, storageItems.orgName, storageItems.githubToken);
+				const repoCacheKey = await getRepoCacheKey(
+					username,
+					storageItems.orgName,
+					storageItems.githubToken,
+					storageItems.startingDate,
+					storageItems.endingDate,
+					storageItems.yesterdayContribution,
+				);
 				const now = Date.now();
 				const cacheAge = cacheData.repoCache?.timestamp
 					? now - cacheData.repoCache.timestamp
