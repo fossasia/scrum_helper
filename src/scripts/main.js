@@ -176,7 +176,8 @@ function normalizeDateRangeValues() {
 }
 
 function syncDateRangeConstraints() {
-	window.scrumDateRangeUtils.normalizeAndSync(startingDateElement, endingDateElement);
+	endingDateElement.min = startingDateElement.value || '';
+	startingDateElement.max = endingDateElement.value || '';
 }
 
 function handleYesterdayContributionChange() {
