@@ -593,10 +593,6 @@ document.addEventListener('DOMContentLoaded', () => {
 			);
 		}
 
-		function syncDateRangeConstraints() {
-			window.scrumDateRangeUtils.normalizeAndSync(startingDateInput, endingDateInput);
-		}
-
 		function persistDateRange() {
 			browser.storage.local.set({
 				startingDate: startingDateInput.value,
@@ -606,7 +602,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		function normalizeSyncAndPersistDateRange() {
 			normalizeDateRangeValues();
-			syncDateRangeConstraints();
 			persistDateRange();
 		}
 
