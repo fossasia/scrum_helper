@@ -166,14 +166,19 @@ async function allIncluded(outputTarget = 'email') {
 	}
 	scrumGenerationInProgress = true;
 
-	// Always re-instantiate gitlabHelper for gitlab platform to ensure fresh cache after refresh
-	if (platform === 'gitlab' || (typeof platform === 'undefined' && window.GitLabHelper)) {
-		const result = await browser.storage.local.get(['gitlabToken']).catch((error) => {
-			console.warn('Error loading GitLab token:', error);
-			return {};
-		});
-		const gitlabToken = result.gitlabToken || null;
-		gitlabHelper = new window.GitLabHelper(gitlabToken);
+	try {
+		// Always re-instantiate gitlabHelper for gitlab platform to ensure fresh cache after refresh
+		if (platform === 'gitlab' || (typeof platform === 'undefined' && window.GitLabHelper)) {
+			const result = await browser.storage.local.get(['gitlabToken']).catch((error) => {
+				console.warn('Error loading GitLab token:', error);
+				return {};
+			});
+			const gitlabToken = result.gitlabToken || null;
+			gitlabHelper = new window.GitLabHelper(gitlabToken);
+		}
+	} catch (error) {
+		scrumGenerationInProgress = false;
+		throw error;
 	}
 	console.log('allIncluded called with outputTarget:', outputTarget);
 
@@ -1287,13 +1292,19 @@ async function allIncluded(outputTarget = 'email') {
 		log('[DEBUG] Both data processing functions completed, generating scrum body');
 		if (subjectForEmail) {
 			// Synchronized subject and body injection for email
-			let lastWeekUl = '<ul>';
-			for (let i = 0; i < lastWeekArray.length; i++) lastWeekUl += lastWeekArray[i];
-			for (let i = 0; i < reviewedPrsArray.length; i++) lastWeekUl += reviewedPrsArray[i];
-			lastWeekUl += '</ul>';
-			let nextWeekUl = '<ul>';
-			for (let i = 0; i < nextWeekArray.length; i++) nextWeekUl += nextWeekArray[i];
-			nextWeekUl += '</ul>';
+			let lastWeekUl = 'No activity to report.';
+			if (lastWeekArray.length || reviewedPrsArray.length) {
+				lastWeekUl = '<ul>';
+				for (let i = 0; i < lastWeekArray.length; i++) lastWeekUl += lastWeekArray[i];
+				for (let i = 0; i < reviewedPrsArray.length; i++) lastWeekUl += reviewedPrsArray[i];
+				lastWeekUl += '</ul>';
+			}
+			let nextWeekUl = 'No plans to report.';
+			if (nextWeekArray.length) {
+				nextWeekUl = '<ul>';
+				for (let i = 0; i < nextWeekArray.length; i++) nextWeekUl += nextWeekArray[i];
+				nextWeekUl += '</ul>';
+			}
 			const weekOrDay = yesterdayContribution ? 'yesterday' : 'the period';
 			const weekOrDay2 = 'today';
 			let content;
