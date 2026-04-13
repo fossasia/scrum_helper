@@ -1905,7 +1905,7 @@ ${blockerText}`;
 	// check for github safe writing
 	const intervalWriteGithubIssues = setInterval(() => {
 		if (outputTarget === 'popup') {
-			return;
+			clearInterval(intervalWriteGithubIssues); clearInterval(intervalWriteGithubPrs); return;
 		}
 		const username = platform === 'gitlab' ? platformUsername : platformUsernameLocal;
 		if (scrumBody && username && githubIssuesData && githubPrsReviewData) {
