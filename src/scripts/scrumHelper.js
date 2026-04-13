@@ -156,8 +156,9 @@ function allIncluded(outputTarget = 'email') {
 				}
 				projectName = items.projectName;
 
-				userReason = 'No Blocker at the moment';
-				browser.storage.local.remove(['userReason']);
+				// Keep user's blocking reason across Generate btn clicks
+				const storedUserReason = typeof items.userReason === 'string' ? items.userReason.trim() : '';
+				userReason = storedUserReason || 'No Blocker at the moment';
 				githubToken = items.githubToken;
 				gitlabToken = items.gitlabToken || '';
 				yesterdayContribution = items.yesterdayContribution;
