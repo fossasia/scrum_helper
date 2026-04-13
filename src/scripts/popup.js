@@ -582,29 +582,6 @@ document.addEventListener('DOMContentLoaded', () => {
 		const endingDateInput = document.getElementById('endingDate');
 		const platformUsername = document.getElementById('platformUsername');
 
-		function normalizeDateRangeValues() {
-			const originalStartDate = startingDateInput.value;
-			const originalEndDate = endingDateInput.value;
-
-			window.scrumDateRangeUtils.normalizeAndSync(startingDateInput, endingDateInput);
-
-			return (
-				startingDateInput.value !== originalStartDate || endingDateInput.value !== originalEndDate
-			);
-		}
-
-		function persistDateRange() {
-			browser.storage.local.set({
-				startingDate: startingDateInput.value,
-				endingDate: endingDateInput.value,
-			});
-		}
-
-		function normalizeSyncAndPersistDateRange() {
-			normalizeDateRangeValues();
-			persistDateRange();
-		}
-
 		browser.storage.local
 			.get([
 				'projectName',
@@ -674,9 +651,12 @@ document.addEventListener('DOMContentLoaded', () => {
 				if (typeof result.yesterdayContribution !== 'undefined') yesterdayRadio.checked = result.yesterdayContribution;
 				if (result.startingDate) startingDateInput.value = result.startingDate;
 				if (result.endingDate) endingDateInput.value = result.endingDate;
-				const wasNormalizedOnLoad = normalizeDateRangeValues();
+				const wasNormalizedOnLoad = window.scrumDateRangeUtils.normalizeDateRangeValues(
+					startingDateInput,
+					endingDateInput,
+				);
 				if (wasNormalizedOnLoad) {
-					persistDateRange();
+					window.scrumDateRangeUtils.persistDateRange(startingDateInput, endingDateInput);
 				}
 
 				// Load platform-specific username
@@ -1020,10 +1000,16 @@ document.addEventListener('DOMContentLoaded', () => {
 			browser.storage.local.set({ yesterdayContribution: yesterdayRadio.checked });
 		});
 		startingDateInput.addEventListener('input', () => {
-			normalizeSyncAndPersistDateRange();
+			window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(
+				startingDateInput,
+				endingDateInput,
+			);
 		});
 		endingDateInput.addEventListener('input', () => {
-			normalizeSyncAndPersistDateRange();
+			window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(
+				startingDateInput,
+				endingDateInput,
+			);
 		});
 
 		// Save username to storage on input

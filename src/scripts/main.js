@@ -48,6 +48,24 @@ if (!window.scrumDateRangeUtils) {
 
 			return didChange;
 		},
+		normalizeDateRangeValues(startDateInput, endDateInput) {
+			const originalStartDate = startDateInput.value;
+			const originalEndDate = endDateInput.value;
+
+			this.normalizeAndSync(startDateInput, endDateInput);
+
+			return startDateInput.value !== originalStartDate || endDateInput.value !== originalEndDate;
+		},
+		persistDateRange(startDateInput, endDateInput) {
+			browser.storage.local.set({
+				startingDate: startDateInput.value,
+				endingDate: endDateInput.value,
+			});
+		},
+		normalizeSyncAndPersistDateRange(startDateInput, endDateInput) {
+			this.normalizeDateRangeValues(startDateInput, endDateInput);
+			this.persistDateRange(startDateInput, endDateInput);
+		},
 	};
 }
 
@@ -106,10 +124,12 @@ function handleBodyOnLoad() {
 			if (items.startingDate) {
 				startingDateElement.value = items.startingDate;
 			}
-			const wasNormalizedOnLoad = normalizeDateRangeValues();
-			syncDateRangeConstraints();
+			const wasNormalizedOnLoad = window.scrumDateRangeUtils.normalizeDateRangeValues(
+				startingDateElement,
+				endingDateElement,
+			);
 			if (wasNormalizedOnLoad) {
-				persistDateRange();
+				window.scrumDateRangeUtils.persistDateRange(startingDateElement, endingDateElement);
 			}
 			if (items.showOpenLabel) {
 				showOpenLabelElement.checked = items.showOpenLabel;
@@ -147,37 +167,16 @@ document.getElementById('refreshCache').addEventListener('click', async (e) => {
 });
 
 function handleStartingDateChange() {
-	normalizeDateRangeValues();
-	syncDateRangeConstraints();
-	persistDateRange();
-}
-function handleEndingDateChange() {
-	normalizeDateRangeValues();
-	syncDateRangeConstraints();
-	persistDateRange();
-}
-
-function persistDateRange() {
-	browser.storage.local.set({
-		startingDate: startingDateElement.value,
-		endingDate: endingDateElement.value,
-	});
-}
-
-function normalizeDateRangeValues() {
-	const originalStartDate = startingDateElement.value;
-	const originalEndDate = endingDateElement.value;
-
-	window.scrumDateRangeUtils.normalizeAndSync(startingDateElement, endingDateElement);
-
-	return (
-		startingDateElement.value !== originalStartDate || endingDateElement.value !== originalEndDate
+	window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(
+		startingDateElement,
+		endingDateElement,
 	);
 }
-
-function syncDateRangeConstraints() {
-	endingDateElement.min = startingDateElement.value || '';
-	startingDateElement.max = endingDateElement.value || '';
+function handleEndingDateChange() {
+	window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(
+		startingDateElement,
+		endingDateElement,
+	);
 }
 
 function handleYesterdayContributionChange() {
@@ -189,15 +188,16 @@ function handleYesterdayContributionChange() {
 		endingDateElement.readOnly = true;
 		endingDateElement.value = getToday();
 		startingDateElement.value = getYesterday();
-		normalizeDateRangeValues();
-		syncDateRangeConstraints();
-		persistDateRange();
+		window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(
+			startingDateElement,
+			endingDateElement,
+		);
 		labelElement.classList.add('selectedLabel');
 		labelElement.classList.remove('unselectedLabel');
 	} else {
 		startingDateElement.readOnly = false;
 		endingDateElement.readOnly = false;
-		syncDateRangeConstraints();
+		window.scrumDateRangeUtils.normalizeDateRangeValues(startingDateElement, endingDateElement);
 		labelElement.classList.add('unselectedLabel');
 		labelElement.classList.remove('selectedLabel');
 	}
