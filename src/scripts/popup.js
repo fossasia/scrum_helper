@@ -698,10 +698,15 @@ document.addEventListener('DOMContentLoaded', () => {
 						.then((response) => {
 							if (!response?.success) {
 								handleInsertFailure(response?.error);
+							} else if (insertBtn._triggeredByShortcut) {
+								showShortcutNotification('insertedInEmailNotification');
 							}
 						})
 						.catch((error) => {
 							handleInsertFailure(error.message);
+						})
+						.finally(() => {
+							insertBtn._triggeredByShortcut = false;
 						});
 				});
 			});
