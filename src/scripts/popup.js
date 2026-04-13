@@ -690,25 +690,32 @@ document.addEventListener('DOMContentLoaded', () => {
 					showPopupMessage(failureMessage);
 				};
 
-				browser.tabs.query({ active: true, currentWindow: true }).then((tabs) => {
-					const tabId = tabs?.[0]?.id;
-					if (!tabId) return;
+				browser.tabs.query({ active: true, currentWindow: true })
+					.then((tabs) => {
+						const tabId = tabs?.[0]?.id;
+						if (!tabId) {
+							handleInsertFailure('No active tab found');
+							return;
+						}
 
-					browser.tabs.sendMessage(tabId, { action: 'insertReportToEmail', content, subject })
-						.then((response) => {
-							if (!response?.success) {
-								handleInsertFailure(response?.error);
-							} else if (insertBtn._triggeredByShortcut) {
-								showShortcutNotification('insertedInEmailNotification');
-							}
-						})
-						.catch((error) => {
-							handleInsertFailure(error.message);
-						})
-						.finally(() => {
-							insertBtn._triggeredByShortcut = false;
-						});
-				});
+						browser.tabs.sendMessage(tabId, { action: 'insertReportToEmail', content, subject })
+							.then((response) => {
+								if (!response?.success) {
+									handleInsertFailure(response?.error);
+								} else if (insertBtn._triggeredByShortcut) {
+									showShortcutNotification('insertedInEmailNotification');
+								}
+							})
+							.catch((error) => {
+								handleInsertFailure(error.message);
+							});
+					})
+					.catch((error) => {
+						handleInsertFailure('Failed to query tabs: ' + error.message);
+					})
+					.finally(() => {
+						insertBtn._triggeredByShortcut = false;
+					});
 			});
 		}
 
