@@ -1871,6 +1871,8 @@ ${blockerText}`;
 		issuesDataProcessed = true;
 	}
 
+		const POLL_INTERVAL_TIMEOUT = 30000;
+
 	const intervalBody = setInterval(() => {
 		if (!window.emailClientAdapter) return;
 
@@ -1880,6 +1882,7 @@ ${blockerText}`;
 		clearInterval(intervalBody);
 		scrumBody = elements.body;
 	}, 500);
+	setTimeout(() => clearInterval(intervalBody), POLL_INTERVAL_TIMEOUT);
 
 	const intervalSubject = setInterval(() => {
 		const userData = platform === 'gitlab' ? githubUserData || platformUsername : githubUserData;
@@ -1901,6 +1904,7 @@ ${blockerText}`;
 			scrumSubjectLoaded();
 		}, 500);
 	}, 500);
+	setTimeout(() => clearInterval(intervalSubject), POLL_INTERVAL_TIMEOUT);
 
 	// check for github safe writing
 	const intervalWriteGithubIssues = setInterval(() => {
@@ -1914,6 +1918,7 @@ ${blockerText}`;
 			writeGithubIssuesPrs();
 		}
 	}, 500);
+	setTimeout(() => clearInterval(intervalWriteGithubIssues), POLL_INTERVAL_TIMEOUT);
 	const intervalWriteGithubPrs = setInterval(() => {
 		if (outputTarget === 'popup') {
 			return;
@@ -1926,6 +1931,7 @@ ${blockerText}`;
 			writeGithubPrsReviews();
 		}
 	}, 500);
+	setTimeout(() => clearInterval(intervalWriteGithubPrs), POLL_INTERVAL_TIMEOUT);
 
 	if (!refreshButton_Placed) {
 		const intervalWriteButton = setInterval(() => {
@@ -1945,6 +1951,7 @@ ${blockerText}`;
 				document.getElementById('refreshButton').addEventListener('click', handleRefresh);
 			}
 		}, 1000);
+		setTimeout(() => clearInterval(intervalWriteButton), POLL_INTERVAL_TIMEOUT);
 	}
 
 	function handleRefresh() {
