@@ -36,6 +36,12 @@ browser.storage.onChanged.addListener((changes, area) => {
 
 browser.action.onClicked.addListener((tab) => {
 	try {
+		// Firefox uses sidebarAction API; sidePanel is Chrome-only
+		if (typeof browser.sidebarAction?.toggle === 'function') {
+			browser.sidebarAction.toggle();
+			return;
+		}
+
 		if (!browser.sidePanel?.open) {
 			console.warn('Side panel API not available.');
 			return;
