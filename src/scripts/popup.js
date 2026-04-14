@@ -1337,6 +1337,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
 						if (err.message?.includes('401')) {
 							repoStatus.textContent = browser.i18n.getMessage('repoTokenPrivate');
+						} else if (err.message?.includes('429') || /rate limit/i.test(err.message || '')) {
+							repoStatus.textContent =
+								chrome?.i18n.getMessage('repoRateLimitError') ||
+								'GitHub rate limit reached. Please wait and try again.';
 						} else if (err.message?.includes('username')) {
 							repoStatus.textContent = browser.i18n.getMessage('githubUsernamePlaceholder');
 						} else {
@@ -1553,6 +1557,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 				if (err.message && err.message.includes('401')) {
 					repoStatus.textContent = browser.i18n.getMessage('repoTokenPrivate');
+				} else if (err.message?.includes('429') || /rate limit/i.test(err.message || '')) {
+					repoStatus.textContent =
+						chrome?.i18n.getMessage('repoRateLimitError') || 'GitHub rate limit reached. Please wait and try again.';
 				} else if (err.message && err.message.includes('username')) {
 					repoStatus.textContent = browser.i18n.getMessage('githubUsernamePlaceholder');
 				} else {

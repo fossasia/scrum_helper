@@ -12,6 +12,79 @@ function logError(...args) {
 	}
 }
 
+function delayMs(ms) {
+	return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function isRateLimitedResponse(response, responseText = '') {
+	if (!response) {
+		return false;
+	}
+	if (response.status === 429) {
+		return true;
+	}
+	if (response.status !== 403) {
+		return false;
+	}
+
+	const remaining = response.headers?.get('x-ratelimit-remaining');
+	if (remaining === '0') {
+		return true;
+	}
+
+	return /rate limit|secondary rate limit/i.test(responseText);
+}
+
+function getRateLimitResetTime(response) {
+	const resetHeader = response?.headers?.get('x-ratelimit-reset');
+	if (!resetHeader) {
+		return null;
+	}
+	const resetUnixSeconds = Number.parseInt(resetHeader, 10);
+	if (!Number.isFinite(resetUnixSeconds)) {
+		return null;
+	}
+	return new Date(resetUnixSeconds * 1000);
+}
+
+async function fetchWithGithubRateLimitRetry(url, options = {}, retryOptions = {}) {
+	const maxRetries = retryOptions.maxRetries ?? 2;
+
+	for (let attempt = 0; attempt <= maxRetries; attempt++) {
+		const response = await fetch(url, options);
+
+		if (response.status === 429 || response.status === 403) {
+			let responseText = '';
+			try {
+				responseText = await response.clone().text();
+			} catch {}
+
+			if (isRateLimitedResponse(response, responseText)) {
+				const resetAt = getRateLimitResetTime(response);
+				if (attempt >= maxRetries) {
+					const resetHint = resetAt
+						? ` Retry after ${resetAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}.`
+						: '';
+					throw new Error(
+						`GitHub API rate limit reached (status ${response.status}). Please wait and try again.${resetHint}`,
+					);
+				}
+
+				const backoffMs = Math.min(20000, 5000 * 2 ** attempt);
+				const resetWaitMs = resetAt ? Math.max(1000, resetAt.getTime() - Date.now()) : null;
+				const waitMs = resetWaitMs ? Math.min(resetWaitMs, 60000) : backoffMs;
+				log(`GitHub rate limit detected (attempt ${attempt + 1}/${maxRetries + 1}). Retrying in ${waitMs}ms.`);
+				await delayMs(waitMs);
+				continue;
+			}
+		}
+
+		return response;
+	}
+
+	throw new Error('GitHub fetch failed after retries.');
+}
+
 function renderErrorMessage(container, key, fallback, args = []) {
 	// add message (or fallback) into HTML container in a protected manner
 	let message = fallback;
@@ -95,6 +168,16 @@ function allIncluded(outputTarget = 'email') {
 		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #6f42c1;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--purple">closed</div>';
 	const issue_closed_notplanned_button =
 		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #808080;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--gray">closed</div>';
+
+	function rejectPendingGithubFetchQueue(error) {
+		if (!githubCache.queue.length) {
+			return;
+		}
+		githubCache.queue.forEach(({ reject }) => {
+			reject(error);
+		});
+		githubCache.queue = [];
+	}
 
 	function getChromeData() {
 		console.log('[DEBUG] getChromeData called for outputTarget:', outputTarget);
@@ -693,7 +776,7 @@ function allIncluded(outputTarget = 'email') {
 			await new Promise((res) => setTimeout(res, 500));
 
 			log('Validating GitHub user existence for:', platformUsernameLocal);
-			const userCheckRes = await fetch(userUrl, { headers });
+			const userCheckRes = await fetchWithGithubRateLimitRetry(userUrl, { headers });
 
 			if (userCheckRes.status === 404) {
 				const errorMsg =
@@ -705,6 +788,7 @@ function allIncluded(outputTarget = 'email') {
 
 			if (userCheckRes.status === 401 || userCheckRes.status === 403) {
 				showInvalidTokenMessage();
+				rejectPendingGithubFetchQueue(new Error('GitHub authentication failed while validating user.'));
 				githubCache.fetching = false;
 				return;
 			}
@@ -718,13 +802,14 @@ function allIncluded(outputTarget = 'email') {
 			}
 
 			const [issuesRes, prRes, userRes] = await Promise.all([
-				fetch(issueUrl, { headers }),
-				fetch(prUrl, { headers }),
+				fetchWithGithubRateLimitRetry(issueUrl, { headers }),
+				fetchWithGithubRateLimitRetry(prUrl, { headers }),
 				userCheckRes, // Reuse the already validated user response
 			]);
 
 			if (issuesRes.status === 401 || prRes.status === 401 || issuesRes.status === 403 || prRes.status === 403) {
 				showInvalidTokenMessage();
+				rejectPendingGithubFetchQueue(new Error('GitHub authentication failed while fetching issues/PRs.'));
 				githubCache.fetching = false;
 				return;
 			}
@@ -903,14 +988,21 @@ function allIncluded(outputTarget = 'email') {
 		const query = `query { ${queries} }`;
 		log('GraphQL query for commits:', query);
 		const normalizedGithubToken = githubToken?.trim();
-		const res = await fetch('https://api.github.com/graphql', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				...(normalizedGithubToken ? { Authorization: `bearer ${normalizedGithubToken}` } : {}),
+		const res = await fetchWithGithubRateLimitRetry(
+			'https://api.github.com/graphql',
+			{
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					...(normalizedGithubToken ? { Authorization: `bearer ${normalizedGithubToken}` } : {}),
+				},
+				body: JSON.stringify({ query }),
 			},
-			body: JSON.stringify({ query }),
-		});
+			{ maxRetries: 1 },
+		);
+		if (!res.ok) {
+			throw new Error(`GitHub GraphQL commit fetch failed: ${res.status} ${res.statusText}`);
+		}
 		log('fetchCommitsForOpenPRs response status:', res.status);
 		const data = await res.json();
 		log('fetchCommitsForOpenPRs response data:', data);
@@ -2137,8 +2229,9 @@ async function fetchUserRepositories(username, token, org = '') {
 		Accept: 'application/vnd.github.v3+json',
 	};
 
-	if (token) {
-		headers.Authorization = `token ${token}`;
+	const normalizedToken = token?.trim();
+	if (normalizedToken) {
+		headers.Authorization = `token ${normalizedToken}`;
 	}
 
 	if (!username) {
@@ -2185,9 +2278,17 @@ async function fetchUserRepositories(username, token, org = '') {
 		console.log('Search URLs:', { issuesUrl, commentsUrl });
 
 		const [issuesRes, commentsRes] = await Promise.all([
-			fetch(issuesUrl, { headers }).catch(() => ({ ok: false, json: () => ({ items: [] }) })),
-			fetch(commentsUrl, { headers }).catch(() => ({ ok: false, json: () => ({ items: [] }) })),
+			fetchWithGithubRateLimitRetry(issuesUrl, { headers }),
+			fetchWithGithubRateLimitRetry(commentsUrl, { headers }),
 		]);
+
+		if (!issuesRes.ok) {
+			throw new Error(`GitHub repo discovery issues request failed: ${issuesRes.status} ${issuesRes.statusText}`);
+		}
+
+		if (!commentsRes.ok) {
+			throw new Error(`GitHub repo discovery comments request failed: ${commentsRes.status} ${commentsRes.statusText}`);
+		}
 
 		const repoSet = new Set();
 
@@ -2253,14 +2354,18 @@ async function fetchUserRepositories(username, token, org = '') {
 		const query = `query { ${repoQueries} }`;
 
 		try {
-			const res = await fetch('https://api.github.com/graphql', {
-				method: 'POST',
-				headers: {
-					...headers,
-					'Content-Type': 'application/json',
+			const res = await fetchWithGithubRateLimitRetry(
+				'https://api.github.com/graphql',
+				{
+					method: 'POST',
+					headers: {
+						...headers,
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify({ query }),
 				},
-				body: JSON.stringify({ query }),
-			});
+				{ maxRetries: 1 },
+			);
 
 			if (!res.ok) {
 				throw new Error(`GraphQL request for repos failed: ${res.status}`);
@@ -2285,8 +2390,14 @@ async function fetchUserRepositories(username, token, org = '') {
 				}));
 
 			return repos.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-		} catch (err) {}
-	} catch (err) {}
+		} catch (err) {
+			logError('Repo metadata GraphQL fetch failed:', err);
+			throw err;
+		}
+	} catch (err) {
+		logError('Repository fetch failed:', err);
+		throw err;
+	}
 }
 
 function filterDataByRepos(data, selectedRepos) {
