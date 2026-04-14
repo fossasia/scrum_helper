@@ -78,6 +78,22 @@ a {
     white-space: nowrap;
 }
 
+.scrum-actions button:disabled {
+    background-color: #f0f0f0; 
+    color: #a0a0a0;            
+    border: 1px solid #d1d5db; 
+    cursor: not-allowed;        
+    opacity: 1;                  
+    box-shadow: none;           
+}
+
+
+.dark-mode .scrum-actions button:disabled {
+    background-color: #4b5563;  
+    color: #9ca3af;            
+    border: 1px solid #6b7280;  
+}
+
 .btn,
 .btn-large {
     background-color: #3f51b5;

@@ -438,7 +438,6 @@ document.addEventListener('DOMContentLoaded', () => {
 			if (generateBtn.disabled !== shouldDisable) {
 				generateBtn.disabled = shouldDisable;
 			}
-			generateBtn.style.cursor = hasUsername ? 'pointer' : 'not-allowed';
 		};
 
 		if (!platformUsername.dataset.generateButtonStateBound) {
@@ -452,7 +451,6 @@ document.addEventListener('DOMContentLoaded', () => {
 				const shouldDisable = !platformUsername.value.trim();
 				if (shouldDisable && generateBtn.disabled === false) {
 					generateBtn.disabled = true;
-					generateBtn.style.cursor = 'not-allowed';
 				}
 			});
 
@@ -466,6 +464,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		applyGenerateButtonState();
 	}
+
+	window.updateGenerateButtonState = updateGenerateButtonState;
 
 	function showPopupMessage(message) {
 		if (!message) return;
@@ -695,7 +695,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				const platform = result.platform || 'github';
 				const platformUsernameKey = `${platform}Username`;
 				platformUsername.value = result[platformUsernameKey] || '';
-				updateGenerateButtonState();
+				window.updateGenerateButtonState && window.updateGenerateButtonState();
 				checkTokenForShowCommits();
 				checkTokenForMergedPRs();
 			},
@@ -1046,7 +1046,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				const platformUsernameKey = `${platform}Username`;
 				browser.storage.local.set({ [platformUsernameKey]: platformUsername.value });
 			});
-			updateGenerateButtonState();
+				window.updateGenerateButtonState && window.updateGenerateButtonState();
 		});
 		// Bootstrap report on popup open (restore cache / auto-generate / expired-cache toast)
 		bootstrapScrumReportOnPopupLoad(generateBtn).catch((err) => {
@@ -1746,6 +1746,7 @@ platformSelect.addEventListener('change', () => {
 	browser.storage.local.get([`${platform}Username`]).then((result) => {
 		if (platformUsername) {
 			platformUsername.value = result[`${platform}Username`] || '';
+			window.updateGenerateButtonState && window.updateGenerateButtonState();
 		}
 	});
 
@@ -1789,6 +1790,7 @@ function setPlatformDropdown(value) {
 	browser.storage.local.get([`${value}Username`]).then((result) => {
 		if (platformUsername) {
 			platformUsername.value = result[`${value}Username`] || '';
+			window.updateGenerateButtonState && window.updateGenerateButtonState();
 		}
 	});
 
