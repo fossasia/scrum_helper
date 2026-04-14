@@ -1160,42 +1160,66 @@ function allIncluded(outputTarget = 'email') {
 		return wrapCompactText(userReason);
 	}
 
+	// Heading Texts
+	function buildScrumSectionHeadings() {
+		const weekOrDay = yesterdayContribution ? 'yesterday' : 'the period';
+		const weekOrDay2 = 'today';
+
+		if (yesterdayContribution) {
+			return {
+				heading1: `1. What did I do ${weekOrDay}?`,
+				heading2: `2. What do I plan to do ${weekOrDay2}?`,
+				heading3: '3. What is blocking me from making progress?',
+			};
+		}
+
+		return {
+			heading1: `1. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?`,
+			heading2: `2. What do I plan to do ${weekOrDay2}?`,
+			heading3: '3. What is blocking me from making progress?',
+		};
+	}
+
 	function writeScrumBody() {
 		const lastWeekUl = buildActivityListHtml();
 		const nextWeekUl = buildNextWeekListHtml();
 		const blockerText = buildBlockerTextHtml();
+		const { heading1, heading2, heading3 } = buildScrumSectionHeadings();
 
-		const weekOrDay = yesterdayContribution ? 'yesterday' : 'the period';
-		const weekOrDay2 = 'today';
+		// sturcture sections with locked headings and editable bodies
+		const popupContent = `<div data-scrum-report="true">
+<div data-scrum-section="1">
+<div data-scrum-heading="1" contenteditable="false"><b>${heading1}</b></div>
+<div data-scrum-body="1" contenteditable="true">${lastWeekUl}</div>
+</div>
+<div data-scrum-section="2">
+<div data-scrum-heading="2" contenteditable="false"><b>${heading2}</b></div>
+<div data-scrum-body="2" contenteditable="true">${nextWeekUl}</div>
+</div>
+<div data-scrum-section="3">
+<div data-scrum-heading="3" contenteditable="false"><b>${heading3}</b></div>
+<div data-scrum-body="3" contenteditable="true">${blockerText}</div>
+</div>
+</div>`;
 
-		let content;
-		if (yesterdayContribution) {
-			content = `<b>1. What did I do ${weekOrDay}?</b><br>
+		const emailContent = `<b>${heading1}</b><br>
 ${lastWeekUl}<br>
-<b>2. What do I plan to do ${weekOrDay2}?</b><br>
+<b>${heading2}</b><br>
 ${nextWeekUl}<br>
-<b>3. What is blocking me from making progress?</b><br>
+<b>${heading3}</b><br>
 ${blockerText}`;
-		} else {
-			content = `<b>1. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?</b><br>
-${lastWeekUl}<br>
-<b>2. What do I plan to do ${weekOrDay2}?</b><br>
-${nextWeekUl}<br>
-<b>3. What is blocking me from making progress?</b><br>
-${blockerText}`;
-		}
 
 		if (outputTarget === 'popup') {
 			const scrumReport = document.getElementById('scrumReport');
 			if (scrumReport) {
 				log('Found popup div, updating content');
-				scrumReport.innerHTML = content;
+				scrumReport.innerHTML = popupContent;
 				try {
 					const cacheKey =
 						platform === 'gitlab' ? (gitlabHelper?.cache?.cacheKey ?? null) : (githubCache?.cacheKey ?? null);
 
 					browser.storage.local.set({
-						[`${platform}LastScrumReportHtml`]: content,
+						[`${platform}LastScrumReportHtml`]: popupContent,
 						[`${platform}LastScrumReportCacheKey`]: cacheKey,
 						[`${platform}LastScrumReportUsername`]: platformUsername,
 					});
@@ -1228,7 +1252,7 @@ ${blockerText}`;
 					if (elements && elements.body) {
 						obs.disconnect();
 						log('MutationObserver found the editor body. Injecting scrum content.');
-						window.emailClientAdapter.injectContent(elements.body, content, elements.eventTypes.contentChange);
+						window.emailClientAdapter.injectContent(elements.body, emailContent, elements.eventTypes.contentChange);
 						hasInjectedContent = true;
 						scrumGenerationInProgress = false;
 					}
