@@ -15,8 +15,8 @@ function logError(...args) {
 function renderErrorMessage(container, key, fallback, args = []) {
 	// add message (or fallback) into HTML container in a protected manner
 	let message = fallback;
-	if (key && chrome?.i18n) {
-		const localized = chrome.i18n.getMessage(key, args);
+	if (key && browser?.i18n) {
+		const localized = browser.i18n.getMessage(key, args);
 		if (localized) {
 			message = localized;
 		}
@@ -170,7 +170,7 @@ function allIncluded(outputTarget = 'email') {
 				if (onlyIssues && onlyPRs) {
 					console.warn('[SCRUM-HELPER]: Detected both onlyIssues and onlyPRs enabled; normalizing to onlyIssues.');
 					onlyPRs = false;
-					chrome.storage.local.set({ onlyPRs: false });
+					browser.storage.local.set({ onlyPRs: false });
 				}
 				// Enforce mutual exclusivity: onlyMergedPRs overrides onlyRevPRs, onlyIssues, and onlyPRs
 				if (onlyMergedPRs) {
@@ -191,7 +191,7 @@ function allIncluded(outputTarget = 'email') {
 						corrections.onlyPRs = false;
 					}
 					if (Object.keys(corrections).length > 0) {
-						chrome.storage.local.set(corrections);
+						browser.storage.local.set(corrections);
 					}
 				}
 				showCommits = items.showCommits || false;
