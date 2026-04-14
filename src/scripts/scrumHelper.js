@@ -295,7 +295,11 @@ function allIncluded(outputTarget = 'email') {
 											generateBtn.disabled = false;
 										}
 										const ErrMessage = `${err.message || 'Error fetching GitLab data.'}`;
-										showReportMessage(ErrMessage);
+										if (err.message.includes("not found")) {
+											handleUsernameValidationError(ErrMessage);
+										} else {
+											showReportMessage(ErrMessage);
+										}
 									}
 									scrumGenerationInProgress = false;
 								}
@@ -341,7 +345,11 @@ function allIncluded(outputTarget = 'email') {
 											generateBtn.disabled = false;
 										}
 										const ErrMessage = `${err.message || 'Error fetching GitLab data.'}`;
-										showReportMessage(ErrMessage);
+										if (err.message.includes("not found")) {
+											handleUsernameValidationError(ErrMessage);
+										} else {
+											showReportMessage(ErrMessage);
+										}
 									}
 									scrumGenerationInProgress = false;
 								});
@@ -362,7 +370,7 @@ function allIncluded(outputTarget = 'email') {
 				} else {
 					// Unknown platform
 					if (outputTarget === 'popup') {
-						const ErrMessage = 'Unknown platform selected.';
+						const ErrMessage = chrome.i18n.getMessage('unknownPlatformError') || 'Unknown platform selected.';
 						showReportMessage(ErrMessage);
 					}
 					scrumGenerationInProgress = false;
@@ -652,7 +660,7 @@ function allIncluded(outputTarget = 'email') {
 			if (userCheckRes.status === 404) {
 				const errorMsg =
 					chrome?.i18n.getMessage('githubUserNotFoundError', [platformUsernameLocal]) ||
-					`GitHub user "${platformUsernameLocal}" not found (404). Please check the username and try again.`;
+					`GitHub user "${platformUsernameLocal}" not found.`;
 				logError(errorMsg);
 				throw new Error(errorMsg);
 			}
@@ -801,7 +809,11 @@ function allIncluded(outputTarget = 'email') {
 						else errorMsg = JSON.stringify(err);
 					}
 					const ErrMessage = `${errorMsg || 'An error occurred while generating the report.'}`;
-					showReportMessage(ErrMessage);
+					if(ErrMessage.includes("not found")){
+						handleUsernameValidationError(ErrMessage);
+					}else{
+						showReportMessage(ErrMessage);
+					}
 				}
 				if (generateBtn) {
 					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
