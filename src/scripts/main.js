@@ -14,11 +14,21 @@ const showCommitsElement = document.getElementById('showCommits');
 
 if (!window.scrumDateRangeUtils) {
 	window.scrumDateRangeUtils = {
-		getLocalTodayString() {
-			const now = new Date();
-			const localDate = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+		formatLocalDate(date) {
+			const year = date.getFullYear();
+			const month = String(date.getMonth() + 1).padStart(2, '0');
+			const day = String(date.getDate()).padStart(2, '0');
 
-			return localDate.toISOString().split('T')[0];
+			return `${year}-${month}-${day}`;
+		},
+		getLocalTodayString() {
+			return this.formatLocalDate(new Date());
+		},
+		getLocalYesterdayString() {
+			const yesterday = new Date();
+			yesterday.setDate(yesterday.getDate() - 1);
+
+			return this.formatLocalDate(yesterday);
 		},
 		normalizeAndSync(startDateInput, endDateInput) {
 			const today = this.getLocalTodayString();
@@ -210,14 +220,10 @@ function handleYesterdayContributionChange() {
 }
 
 function getYesterday() {
-	const today = new Date();
-	const yesterday = new Date(today);
-	yesterday.setDate(today.getDate() - 1);
-	return yesterday.toISOString().split('T')[0];
+	return window.scrumDateRangeUtils.getLocalYesterdayString();
 }
 function getToday() {
-	const today = new Date();
-	return today.toISOString().split('T')[0];
+	return window.scrumDateRangeUtils.getLocalTodayString();
 }
 
 function handlePlatformUsernameChange() {
