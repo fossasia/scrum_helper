@@ -62,7 +62,7 @@
      ```
    - Navigate to `about:config` in Firefox and set xpinstall.signatures.required = false.
    - go to extensions & themes from right hand side hamburger menu
-   - Click on settings under manage your extenisions
+   - Click on settings under manage your extensions
    - Click "Load Temporary Add-on...".
    - Select the `extension.xpi` file inside the `dist/firefox` folder.
 
