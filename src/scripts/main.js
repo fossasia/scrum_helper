@@ -14,8 +14,14 @@ const showCommitsElement = document.getElementById('showCommits');
 
 if (!window.scrumDateRangeUtils) {
 	window.scrumDateRangeUtils = {
+		getLocalTodayString() {
+			const now = new Date();
+			const localDate = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+
+			return localDate.toISOString().split('T')[0];
+		},
 		normalizeAndSync(startDateInput, endDateInput) {
-			const today = new Date().toISOString().split('T')[0];
+			const today = this.getLocalTodayString();
 			const originalStartDate = startDateInput.value;
 			const originalEndDate = endDateInput.value;
 
