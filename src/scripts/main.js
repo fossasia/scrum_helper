@@ -29,7 +29,7 @@ if (!window.scrumDateRangeUtils) {
 				normalizedEndDate = today;
 			}
 			if (normalizedStartDate && normalizedEndDate && normalizedStartDate > normalizedEndDate) {
-				normalizedEndDate = normalizedStartDate;
+				normalizedEndDate = '';
 			}
 
 			const didChange =
@@ -41,8 +41,7 @@ if (!window.scrumDateRangeUtils) {
 			}
 
 			const startDate = startDateInput.value;
-			const endDate = endDateInput.value;
-			startDateInput.max = endDate && endDate < today ? endDate : today;
+			startDateInput.max = today;
 			endDateInput.min = startDate || '';
 			endDateInput.max = today;
 
