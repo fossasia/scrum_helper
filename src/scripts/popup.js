@@ -423,6 +423,17 @@ document.addEventListener('DOMContentLoaded', () => {
 		generateBtn.disabled = true;
 	}
 
+	function isStructuredScrumReportHtml(html) {
+		return typeof html === 'string' && html.includes('data-scrum-report="true"');
+	}
+
+	function syncScrumReportEditMode(scrumReport) {
+		if (!scrumReport) return;
+
+		const hasStructuredSections = !!scrumReport.querySelector('[data-scrum-report="true"]');
+		scrumReport.setAttribute('contenteditable', hasStructuredSections ? 'false' : 'true');
+	}
+
 	function showPopupMessage(message) {
 		if (!message) return;
 
@@ -465,6 +476,8 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (!scrumReport) {
 			return;
 		}
+
+		syncScrumReportEditMode(scrumReport);
 
 		const { platform, cacheInput, githubCache, gitlabCache } = await storageLocalGet([
 			'platform',
@@ -531,7 +544,14 @@ document.addEventListener('DOMContentLoaded', () => {
 					isUsernameMatch;
 
 				if (reportEmpty && lastScrumReportHtml && matches) {
+					if (!isStructuredScrumReportHtml(lastScrumReportHtml)) {
+						setGenerateButtonLoading(generateBtn, true);
+						window.generateScrumReport();
+						return;
+					}
+
 					scrumReport.innerHTML = lastScrumReportHtml;
+					syncScrumReportEditMode(scrumReport);
 					if (generateBtn) generateBtn.disabled = false;
 					return;
 				}
@@ -544,6 +564,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			// If cache is expired, still only show the old HTML if it was for the current username
 			if ((!scrumReport.innerHTML || !scrumReport.innerHTML.trim()) && lastScrumReportHtml && isUsernameMatch) {
 				scrumReport.innerHTML = lastScrumReportHtml;
+				syncScrumReportEditMode(scrumReport);
 			}
 
 			if (generateBtn) generateBtn.disabled = false;
@@ -665,6 +686,17 @@ document.addEventListener('DOMContentLoaded', () => {
 		const generateBtn = document.getElementById('generateReport');
 		const copyBtn = document.getElementById('copyReport');
 		const insertBtn = document.getElementById('insertInEmail');
+		const scrumReport = document.getElementById('scrumReport');
+
+		if (scrumReport) {
+			syncScrumReportEditMode(scrumReport);
+
+			const reportObserver = new MutationObserver(() => {
+				syncScrumReportEditMode(scrumReport);
+			});
+
+			reportObserver.observe(scrumReport, { childList: true, subtree: true });
+		}
 
 		if (insertBtn) {
 			insertBtn.addEventListener('click', () => {
