@@ -434,18 +434,70 @@ document.addEventListener('DOMContentLoaded', () => {
 		scrumReport.setAttribute('contenteditable', hasStructuredSections ? 'false' : 'true');
 	}
 
+		function escapeHtmlForExport(value) {
+		return String(value || '')
+			.replace(/&/g, '&amp;')
+			.replace(/</g, '&lt;')
+			.replace(/>/g, '&gt;')
+			.replace(/"/g, '&quot;')
+			.replace(/'/g, '&#39;');
+	}
+
+	function stripEditAttributes(root) {
+		if (!root) return;
+
+		if (root.removeAttribute) {
+			root.removeAttribute('contenteditable');
+			root.removeAttribute('data-scrum-report');
+			root.removeAttribute('data-scrum-section');
+			root.removeAttribute('data-scrum-heading');
+			root.removeAttribute('data-scrum-body');
+		}
+
+		if (root.querySelectorAll) {
+			root.querySelectorAll('[contenteditable],[data-scrum-report],[data-scrum-section],[data-scrum-heading],[data-scrum-body]').forEach((el) => {
+				el.removeAttribute('contenteditable');
+				el.removeAttribute('data-scrum-report');
+				el.removeAttribute('data-scrum-section');
+				el.removeAttribute('data-scrum-heading');
+				el.removeAttribute('data-scrum-body');
+			});
+		}
+	}
+
+	function normalizeLegacyReportHtml(html) {
+		if (!html || typeof html !== 'string') return '';
+
+		const wrapper = document.createElement('div');
+		wrapper.innerHTML = html;
+		stripEditAttributes(wrapper);
+		return wrapper.innerHTML;
+	}
+
+	function normalizeSectionBodyHtml(bodyEl) {
+		if (!bodyEl) return '';
+
+		const clone = bodyEl.cloneNode(true);
+		stripEditAttributes(clone);
+
+		// Prevent duplicated heading blocks from leaking into section body exports.
+		clone.querySelectorAll('b[data-scrum-heading], [data-scrum-heading]').forEach((el) => el.remove());
+
+		return clone.innerHTML || '';
+	}
+
 	// Change clean html from structure scrumReport before sending email
 	function buildExportableScrumHtml(scrumReport) {
 		if (!scrumReport) return '';
 
 		const reportRoot = scrumReport.querySelector('[data-scrum-report="true"]');
 		if (!reportRoot) {
-			return scrumReport.innerHTML || '';
+			return normalizeLegacyReportHtml(scrumReport.innerHTML || '');
 		}
 
 		const sections = Array.from(reportRoot.querySelectorAll('[data-scrum-section]'));
 		if (!sections.length) {
-			return scrumReport.innerHTML || '';
+			return normalizeLegacyReportHtml(scrumReport.innerHTML || '');
 		}
 
 		const parts = [];
@@ -456,8 +508,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			const headingText = headingEl.textContent ? headingEl.textContent.trim() : '';
 			if (!headingText) return;
+			const safeHeading = escapeHtmlForExport(headingText);
+			const safeBodyHtml=normalizeSectionBodyHtml(bodyEl);
 
-			parts.push(`<b>${headingText}</b><br>${bodyEl.innerHTML || ''}`);
+			parts.push(`<b>${safeHeading}</b><br>${safeBodyHtml}`);
 		});
 
 		return parts.join('<br>');
