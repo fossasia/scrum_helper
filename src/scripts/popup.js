@@ -434,6 +434,35 @@ document.addEventListener('DOMContentLoaded', () => {
 		scrumReport.setAttribute('contenteditable', hasStructuredSections ? 'false' : 'true');
 	}
 
+	// Change clean html from structure scrumReport before sending email
+	function buildExportableScrumHtml(scrumReport) {
+		if (!scrumReport) return '';
+
+		const reportRoot = scrumReport.querySelector('[data-scrum-report="true"]');
+		if (!reportRoot) {
+			return scrumReport.innerHTML || '';
+		}
+
+		const sections = Array.from(reportRoot.querySelectorAll('[data-scrum-section]'));
+		if (!sections.length) {
+			return scrumReport.innerHTML || '';
+		}
+
+		const parts = [];
+		sections.forEach((section) => {
+			const headingEl = section.querySelector('[data-scrum-heading]');
+			const bodyEl = section.querySelector('[data-scrum-body]');
+			if (!headingEl || !bodyEl) return;
+
+			const headingText = headingEl.textContent ? headingEl.textContent.trim() : '';
+			if (!headingText) return;
+
+			parts.push(`<b>${headingText}</b><br>${bodyEl.innerHTML || ''}`);
+		});
+
+		return parts.join('<br>');
+	}
+
 	function showPopupMessage(message) {
 		if (!message) return;
 
@@ -701,7 +730,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (insertBtn) {
 			insertBtn.addEventListener('click', () => {
 				const scrumReport = document.getElementById('scrumReport');
-				const content = scrumReport ? scrumReport.innerHTML : '';
+				const content = buildExportableScrumHtml(scrumReport);
 				const subject = buildScrumSubjectFromPopup();
 
 				if (!content) {
@@ -767,7 +796,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		copyBtn.addEventListener('click', function () {
 			const scrumReport = document.getElementById('scrumReport');
 			const tempDiv = document.createElement('div');
-			tempDiv.innerHTML = scrumReport.innerHTML;
+			tempDiv.innerHTML = buildExportableScrumHtml(scrumReport);
 			document.body.appendChild(tempDiv);
 			tempDiv.style.position = 'absolute';
 			tempDiv.style.left = '-9999px';
