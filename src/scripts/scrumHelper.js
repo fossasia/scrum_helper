@@ -1162,12 +1162,11 @@ function allIncluded(outputTarget = 'email') {
 
 	// Heading Texts
 	function buildScrumSectionHeadings() {
-		const weekOrDay = yesterdayContribution ? 'yesterday' : 'the period';
 		const weekOrDay2 = 'today';
 
 		if (yesterdayContribution) {
 			return {
-				heading1: `1. What did I do ${weekOrDay}?`,
+				heading1: '1. What did I do yesterday?',
 				heading2: `2. What do I plan to do ${weekOrDay2}?`,
 				heading3: '3. What is blocking me from making progress?',
 			};
@@ -1186,7 +1185,7 @@ function allIncluded(outputTarget = 'email') {
 		const blockerText = buildBlockerTextHtml();
 		const { heading1, heading2, heading3 } = buildScrumSectionHeadings();
 
-		// sturcture sections with locked headings and editable bodies
+		// Structure sections with locked headings and editable bodies
 		const popupContent = `<div data-scrum-report="true">
 <div data-scrum-section="1">
 <div data-scrum-heading="1" contenteditable="false"><b>${heading1}</b></div>

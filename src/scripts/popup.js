@@ -420,7 +420,11 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	function isStructuredScrumReportHtml(html) {
-		return typeof html === 'string' && html.includes('data-scrum-report="true"');
+		if (typeof html !== 'string' || !html.trim()) return false;
+
+		const wrapper = document.createElement('div');
+		wrapper.innerHTML = html;
+		return !!wrapper.querySelector('[data-scrum-report="true"]');
 	}
 
 	function syncScrumReportEditMode(scrumReport) {
@@ -486,7 +490,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		return clone.innerHTML || '';
 	}
 
-	// Change clean html from structure scrumReport before sending email
+	// Build clean HTML from structured scrum report content before sending email.
 	function buildExportableScrumHtml(scrumReport) {
 		if (!scrumReport) return '';
 
