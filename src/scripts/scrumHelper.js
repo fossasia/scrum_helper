@@ -2282,8 +2282,14 @@ async function fetchUserRepositories(username, token, org = '') {
 				}));
 
 			return repos.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-		} catch (err) {}
-	} catch (err) {}
+		} catch (err) {
+			console.error('GraphQL request for repositories failed:', err);
+			return [];
+		}
+	} catch (err) {
+		console.error('Failed to fetch user repositories:', err);
+		return [];
+	}
 }
 
 function filterDataByRepos(data, selectedRepos) {
