@@ -47,6 +47,25 @@ function getRateLimitResetTime(response) {
 	return new Date(resetUnixSeconds * 1000);
 }
 
+function getRetryAfterWaitMs(response) {
+	const retryAfter = response?.headers?.get('retry-after');
+	if (!retryAfter) {
+		return null;
+	}
+
+	const seconds = Number.parseInt(retryAfter, 10);
+	if (Number.isFinite(seconds) && seconds >= 0) {
+		return seconds * 1000;
+	}
+
+	const retryAfterDateMs = Date.parse(retryAfter);
+	if (Number.isNaN(retryAfterDateMs)) {
+		return null;
+	}
+
+	return Math.max(0, retryAfterDateMs - Date.now());
+}
+
 async function fetchWithGithubRateLimitRetry(url, options = {}, retryOptions = {}) {
 	const maxRetries = retryOptions.maxRetries ?? 2;
 	const backoffBaseMs = retryOptions.backoffBaseMs ?? 5000;
@@ -75,6 +94,7 @@ async function fetchWithGithubRateLimitRetry(url, options = {}, retryOptions = {
 
 			if (isRateLimitedResponse(response, responseText)) {
 				const resetAt = getRateLimitResetTime(response);
+				const retryAfterMs = getRetryAfterWaitMs(response);
 				if (attempt >= maxRetries) {
 					const resetHint = resetAt
 						? ` Retry after ${resetAt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}.`
@@ -86,7 +106,7 @@ async function fetchWithGithubRateLimitRetry(url, options = {}, retryOptions = {
 
 				const backoffMs = Math.min(backoffMaxMs, backoffBaseMs * 2 ** attempt);
 				const resetWaitMs = resetAt ? Math.max(1000, resetAt.getTime() - Date.now()) : null;
-				const waitMs = resetWaitMs ? Math.min(resetWaitMs, 60000) : backoffMs;
+				const waitMs = Math.min(60000, retryAfterMs ?? (resetWaitMs ? Math.max(backoffMs, resetWaitMs) : backoffMs));
 				log(`GitHub rate limit detected (attempt ${attempt + 1}/${maxRetries + 1}). Retrying in ${waitMs}ms.`);
 				await delayMs(waitMs);
 				continue;
@@ -1048,8 +1068,25 @@ function allIncluded(outputTarget = 'email') {
 			log('Repo fiter disabled, skipping fetch');
 			return [];
 		}
+
+		let startDateForRepoCache;
+		let endDateForRepoCache;
+		if (yesterdayContribution) {
+			const today = new Date();
+			const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+			startDateForRepoCache = yesterday.toISOString().split('T')[0];
+			endDateForRepoCache = today.toISOString().split('T')[0];
+		} else if (startingDate && endingDate) {
+			startDateForRepoCache = startingDate;
+			endDateForRepoCache = endingDate;
+		} else {
+			const today = new Date();
+			const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
+			startDateForRepoCache = lastWeek.toISOString().split('T')[0];
+			endDateForRepoCache = today.toISOString().split('T')[0];
+		}
 		const tokenFingerprint = await getGithubTokenFingerprint(githubToken);
-		const repoCacheKey = `repos-${platformUsernameLocal}-${orgName}-${startDateForCache}-${endDateForCache}-${tokenFingerprint}`;
+		const repoCacheKey = `repos-${platformUsernameLocal}-${orgName}-${startDateForRepoCache}-${endDateForRepoCache}-${tokenFingerprint}`;
 
 		const now = Date.now();
 		const isRepoCacheFresh = now - githubCache.repoTimeStamp < githubCache.ttl;
@@ -1130,6 +1167,7 @@ function allIncluded(outputTarget = 'email') {
 		const errMsg =
 			chrome?.i18n.getMessage('invalidTokenError') ||
 			'Invalid or expired GitHub token. Please check your token in the Scrum Helper settings and try again.';
+		scrumGenerationInProgress = false;
 		if (outputTarget === 'popup') {
 			const reportDiv = document.getElementById('scrumReport');
 			if (reportDiv) {
