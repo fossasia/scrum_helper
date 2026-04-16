@@ -657,7 +657,8 @@ function allIncluded(outputTarget = 'email') {
 		let endDateForCache;
 		if (yesterdayContribution) {
 			const today = new Date();
-			const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+			const yesterday = new Date(today);
+			yesterday.setDate(today.getDate() - 1);
 			startDateForCache = yesterday.toISOString().split('T')[0];
 			endDateForCache = today.toISOString().split('T')[0]; // Use yesterday for start and today for end
 		} else if (startingDate && endingDate) {
@@ -905,7 +906,8 @@ function allIncluded(outputTarget = 'email') {
 					let endDateForCommits;
 					if (yesterdayContribution) {
 						const today = new Date();
-						const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+						const yesterday = new Date(today);
+						yesterday.setDate(today.getDate() - 1);
 						startDateForCommits = yesterday.toISOString().split('T')[0];
 						endDateForCommits = today.toISOString().split('T')[0]; // Use yesterday for start and today for end
 					} else if (startingDate && endingDate) {
@@ -1073,7 +1075,8 @@ function allIncluded(outputTarget = 'email') {
 		let endDateForRepoCache;
 		if (yesterdayContribution) {
 			const today = new Date();
-			const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+			const yesterday = new Date(today);
+			yesterday.setDate(today.getDate() - 1);
 			startDateForRepoCache = yesterday.toISOString().split('T')[0];
 			endDateForRepoCache = today.toISOString().split('T')[0];
 		} else if (startingDate && endingDate) {
@@ -1467,7 +1470,8 @@ ${blockerText}`;
 		let endDate;
 		if (yesterdayContribution) {
 			const today = new Date();
-			const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+			const yesterday = new Date(today);
+			yesterday.setDate(today.getDate() - 1);
 			startDate = yesterday.toISOString().split('T')[0];
 			endDate = today.toISOString().split('T')[0]; // Use yesterday for start and today for end
 		} else if (startingDate && endingDate) {
@@ -1697,7 +1701,8 @@ ${blockerText}`;
 		let endDateForRange;
 		if (yesterdayContribution) {
 			const today = new Date();
-			const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+			const yesterday = new Date(today);
+			yesterday.setDate(today.getDate() - 1);
 			startDateForRange = yesterday.toISOString().split('T')[0];
 			endDateForRange = today.toISOString().split('T')[0]; // Use yesterday for start and today for end
 		} else if (startingDate && endingDate) {
@@ -1870,7 +1875,8 @@ ${blockerText}`;
 				let endDateFilter;
 				if (yesterdayContribution) {
 					const today = new Date();
-					const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+					const yesterday = new Date(today);
+					yesterday.setDate(today.getDate() - 1);
 					startDateFilter = new Date(yesterday.toISOString().split('T')[0] + 'T00:00:00Z');
 					endDateFilter = new Date(today.toISOString().split('T')[0] + 'T23:59:59Z'); // Use yesterday for start and today for end
 				} else if (startingDate && endingDate) {
@@ -2301,7 +2307,8 @@ async function fetchUserRepositories(username, token, org = '') {
 			let endDate;
 			if (storageData.yesterdayContribution) {
 				const today = new Date();
-				const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+				const yesterday = new Date(today);
+				yesterday.setDate(today.getDate() - 1);
 				startDate = yesterday.toISOString().split('T')[0];
 				endDate = today.toISOString().split('T')[0];
 			} else if (storageData.startingDate && storageData.endingDate) {
