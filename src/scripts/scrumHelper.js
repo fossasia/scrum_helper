@@ -49,9 +49,23 @@ function getRateLimitResetTime(response) {
 
 async function fetchWithGithubRateLimitRetry(url, options = {}, retryOptions = {}) {
 	const maxRetries = retryOptions.maxRetries ?? 2;
+	const backoffBaseMs = retryOptions.backoffBaseMs ?? 5000;
+	const backoffMaxMs = retryOptions.backoffMaxMs ?? 20000;
 
 	for (let attempt = 0; attempt <= maxRetries; attempt++) {
-		const response = await fetch(url, options);
+		let response;
+		try {
+			response = await fetch(url, options);
+		} catch (error) {
+			if (attempt >= maxRetries) {
+				throw error;
+			}
+
+			const backoffMs = Math.min(backoffMaxMs, backoffBaseMs * 2 ** attempt);
+			log(`GitHub fetch network error (attempt ${attempt + 1}/${maxRetries + 1}). Retrying in ${backoffMs}ms.`, error);
+			await delayMs(backoffMs);
+			continue;
+		}
 
 		if (response.status === 429 || response.status === 403) {
 			let responseText = '';
@@ -70,7 +84,7 @@ async function fetchWithGithubRateLimitRetry(url, options = {}, retryOptions = {
 					);
 				}
 
-				const backoffMs = Math.min(20000, 5000 * 2 ** attempt);
+				const backoffMs = Math.min(backoffMaxMs, backoffBaseMs * 2 ** attempt);
 				const resetWaitMs = resetAt ? Math.max(1000, resetAt.getTime() - Date.now()) : null;
 				const waitMs = resetWaitMs ? Math.min(resetWaitMs, 60000) : backoffMs;
 				log(`GitHub rate limit detected (attempt ${attempt + 1}/${maxRetries + 1}). Retrying in ${waitMs}ms.`);
@@ -2277,18 +2291,32 @@ async function fetchUserRepositories(username, token, org = '') {
 
 		console.log('Search URLs:', { issuesUrl, commentsUrl });
 
-		const [issuesRes, commentsRes] = await Promise.all([
-			fetchWithGithubRateLimitRetry(issuesUrl, { headers }),
-			fetchWithGithubRateLimitRetry(commentsUrl, { headers }),
+		const fetchSearchItems = async (url, label) => {
+			try {
+				const response = await fetchWithGithubRateLimitRetry(url, { headers });
+				if (!response.ok) {
+					logError(
+						`GitHub repo discovery ${label} request failed with status ${response.status} ${response.statusText}; continuing with partial data.`,
+					);
+					return [];
+				}
+
+				const payload = await response.json();
+				return Array.isArray(payload?.items) ? payload.items : [];
+			} catch (error) {
+				if (/rate limit/i.test(error?.message || '')) {
+					throw error;
+				}
+
+				logError(`GitHub repo discovery ${label} request failed; continuing with partial data.`, error);
+				return [];
+			}
+		};
+
+		const [issueItems, commentItems] = await Promise.all([
+			fetchSearchItems(issuesUrl, 'issues'),
+			fetchSearchItems(commentsUrl, 'comments'),
 		]);
-
-		if (!issuesRes.ok) {
-			throw new Error(`GitHub repo discovery issues request failed: ${issuesRes.status} ${issuesRes.statusText}`);
-		}
-
-		if (!commentsRes.ok) {
-			throw new Error(`GitHub repo discovery comments request failed: ${commentsRes.status} ${commentsRes.statusText}`);
-		}
 
 		const repoSet = new Set();
 
@@ -2303,17 +2331,11 @@ async function fetchUserRepositories(username, token, org = '') {
 			});
 		};
 
-		if (issuesRes.ok) {
-			const issuesData = await issuesRes.json();
-			processRepoItems(issuesData.items);
-			console.log(`Found ${issuesData.items?.length || 0} issues/PRs authored by user in date range`);
-		}
+		processRepoItems(issueItems);
+		console.log(`Found ${issueItems.length || 0} issues/PRs authored by user in date range`);
 
-		if (commentsRes.ok) {
-			const commentsData = await commentsRes.json();
-			processRepoItems(commentsData.items);
-			console.log(`Found ${commentsData.items?.length || 0} issues/PRs with user comments in date range`);
-		}
+		processRepoItems(commentItems);
+		console.log(`Found ${commentItems.length || 0} issues/PRs with user comments in date range`);
 
 		const repoNames = Array.from(repoSet);
 		console.log(`Found ${repoNames.length} unique repositories with contributions in the selected date range`);
