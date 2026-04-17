@@ -36,6 +36,14 @@ browser.storage.onChanged.addListener((changes, area) => {
 
 browser.action.onClicked.addListener((tab) => {
 	try {
+		// Firefox support: use sidebarAction if available
+		if (browser.sidebarAction?.toggle) {
+			browser.sidebarAction.toggle().catch((error) => {
+				console.error('Failed to toggle sidebar (Firefox):', error);
+			});
+			return;
+		}
+
 		if (!browser.sidePanel?.open) {
 			console.warn('Side panel API not available.');
 			return;
