@@ -1873,6 +1873,7 @@ ${blockerText}`;
 
 	const POLL_INTERVAL_TIMEOUT = 30000;
 
+	let intervalBodyTimeoutId;
 	const intervalBody = setInterval(() => {
 		if (!window.emailClientAdapter) return;
 
@@ -1880,10 +1881,12 @@ ${blockerText}`;
 		if (!elements || !elements.body) return;
 
 		clearInterval(intervalBody);
+		clearTimeout(intervalBodyTimeoutId);
 		scrumBody = elements.body;
 	}, 500);
-	setTimeout(() => clearInterval(intervalBody), POLL_INTERVAL_TIMEOUT);
+	intervalBodyTimeoutId = setTimeout(() => clearInterval(intervalBody), POLL_INTERVAL_TIMEOUT);
 
+	let intervalSubjectTimeoutId;
 	const intervalSubject = setInterval(() => {
 		const userData = platform === 'gitlab' ? githubUserData || platformUsername : githubUserData;
 		if (!userData || !window.emailClientAdapter) return;
@@ -1894,44 +1897,57 @@ ${blockerText}`;
 		if (outputTarget === 'email' && !window.emailClientAdapter.isNewConversation()) {
 			console.log('Not a new conversation, skipping subject interval');
 			clearInterval(intervalSubject);
+			clearTimeout(intervalSubjectTimeoutId);
 			return;
 		}
 
 		clearInterval(intervalSubject);
+		clearTimeout(intervalSubjectTimeoutId);
 		scrumSubject = elements.subject;
 
 		setTimeout(() => {
 			scrumSubjectLoaded();
 		}, 500);
 	}, 500);
-	setTimeout(() => clearInterval(intervalSubject), POLL_INTERVAL_TIMEOUT);
+	intervalSubjectTimeoutId = setTimeout(() => clearInterval(intervalSubject), POLL_INTERVAL_TIMEOUT);
 
 	// check for github safe writing
 	let intervalWriteGithubIssues;
 	let intervalWriteGithubPrs;
+	let intervalWriteGithubIssuesTimeoutId;
+	let intervalWriteGithubPrsTimeoutId;
 	intervalWriteGithubIssues = setInterval(() => {
 		if (outputTarget === 'popup') {
 			clearInterval(intervalWriteGithubIssues);
+			clearTimeout(intervalWriteGithubIssuesTimeoutId);
 			if (intervalWriteGithubPrs) {
 				clearInterval(intervalWriteGithubPrs);
+				clearTimeout(intervalWriteGithubPrsTimeoutId);
 			}
 			return;
 		}
 		const username = platform === 'gitlab' ? platformUsername : platformUsernameLocal;
 		if (scrumBody && username && githubIssuesData && githubPrsReviewData) {
 			clearInterval(intervalWriteGithubIssues);
+			clearTimeout(intervalWriteGithubIssuesTimeoutId);
 			if (intervalWriteGithubPrs) {
 				clearInterval(intervalWriteGithubPrs);
+				clearTimeout(intervalWriteGithubPrsTimeoutId);
 			}
-			writeGithubIssuesPrs();
+			writeGithubIssuesPrs(githubIssuesData?.items || []);
 		}
 	}, 500);
-	setTimeout(() => clearInterval(intervalWriteGithubIssues), POLL_INTERVAL_TIMEOUT);
+	intervalWriteGithubIssuesTimeoutId = setTimeout(
+		() => clearInterval(intervalWriteGithubIssues),
+		POLL_INTERVAL_TIMEOUT,
+	);
 	intervalWriteGithubPrs = setInterval(() => {
 		if (outputTarget === 'popup') {
 			clearInterval(intervalWriteGithubPrs);
+			clearTimeout(intervalWriteGithubPrsTimeoutId);
 			if (intervalWriteGithubIssues) {
 				clearInterval(intervalWriteGithubIssues);
+				clearTimeout(intervalWriteGithubIssuesTimeoutId);
 			}
 			return;
 		}
@@ -1939,19 +1955,23 @@ ${blockerText}`;
 		const username = platform === 'gitlab' ? platformUsername : platformUsernameLocal;
 		if (scrumBody && username && githubPrsReviewData && githubIssuesData) {
 			clearInterval(intervalWriteGithubPrs);
+			clearTimeout(intervalWriteGithubPrsTimeoutId);
 			if (intervalWriteGithubIssues) {
 				clearInterval(intervalWriteGithubIssues);
+				clearTimeout(intervalWriteGithubIssuesTimeoutId);
 			}
 			writeGithubPrsReviews();
 		}
 	}, 500);
-	setTimeout(() => clearInterval(intervalWriteGithubPrs), POLL_INTERVAL_TIMEOUT);
+	intervalWriteGithubPrsTimeoutId = setTimeout(() => clearInterval(intervalWriteGithubPrs), POLL_INTERVAL_TIMEOUT);
 
 	if (!refreshButton_Placed) {
+		let intervalWriteButtonTimeoutId;
 		const intervalWriteButton = setInterval(() => {
 			if (document.getElementsByClassName('F0XO1GC-x-b').length === 3 && scrumBody) {
 				refreshButton_Placed = true;
 				clearInterval(intervalWriteButton);
+				clearTimeout(intervalWriteButtonTimeoutId);
 				const td = document.createElement('td');
 				const button = document.createElement('button');
 				button.style = 'background-image:none;background-color:#3F51B5;';
@@ -1965,7 +1985,7 @@ ${blockerText}`;
 				document.getElementById('refreshButton').addEventListener('click', handleRefresh);
 			}
 		}, 1000);
-		setTimeout(() => clearInterval(intervalWriteButton), POLL_INTERVAL_TIMEOUT);
+		intervalWriteButtonTimeoutId = setTimeout(() => clearInterval(intervalWriteButton), POLL_INTERVAL_TIMEOUT);
 	}
 
 	function handleRefresh() {
