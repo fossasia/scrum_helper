@@ -1871,7 +1871,7 @@ ${blockerText}`;
 		issuesDataProcessed = true;
 	}
 
-		const POLL_INTERVAL_TIMEOUT = 30000;
+	const POLL_INTERVAL_TIMEOUT = 30000;
 
 	const intervalBody = setInterval(() => {
 		if (!window.emailClientAdapter) return;
@@ -1909,7 +1909,9 @@ ${blockerText}`;
 	// check for github safe writing
 	const intervalWriteGithubIssues = setInterval(() => {
 		if (outputTarget === 'popup') {
-			clearInterval(intervalWriteGithubIssues); clearInterval(intervalWriteGithubPrs); return;
+			clearInterval(intervalWriteGithubIssues);
+			clearInterval(intervalWriteGithubPrs);
+			return;
 		}
 		const username = platform === 'gitlab' ? platformUsername : platformUsernameLocal;
 		if (scrumBody && username && githubIssuesData && githubPrsReviewData) {
