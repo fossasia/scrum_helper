@@ -1907,29 +1907,41 @@ ${blockerText}`;
 	setTimeout(() => clearInterval(intervalSubject), POLL_INTERVAL_TIMEOUT);
 
 	// check for github safe writing
-	const intervalWriteGithubIssues = setInterval(() => {
+	let intervalWriteGithubIssues;
+	let intervalWriteGithubPrs;
+	intervalWriteGithubIssues = setInterval(() => {
 		if (outputTarget === 'popup') {
 			clearInterval(intervalWriteGithubIssues);
-			clearInterval(intervalWriteGithubPrs);
+			if (intervalWriteGithubPrs) {
+				clearInterval(intervalWriteGithubPrs);
+			}
 			return;
 		}
 		const username = platform === 'gitlab' ? platformUsername : platformUsernameLocal;
 		if (scrumBody && username && githubIssuesData && githubPrsReviewData) {
 			clearInterval(intervalWriteGithubIssues);
-			clearInterval(intervalWriteGithubPrs);
+			if (intervalWriteGithubPrs) {
+				clearInterval(intervalWriteGithubPrs);
+			}
 			writeGithubIssuesPrs();
 		}
 	}, 500);
 	setTimeout(() => clearInterval(intervalWriteGithubIssues), POLL_INTERVAL_TIMEOUT);
-	const intervalWriteGithubPrs = setInterval(() => {
+	intervalWriteGithubPrs = setInterval(() => {
 		if (outputTarget === 'popup') {
+			clearInterval(intervalWriteGithubPrs);
+			if (intervalWriteGithubIssues) {
+				clearInterval(intervalWriteGithubIssues);
+			}
 			return;
 		}
 
 		const username = platform === 'gitlab' ? platformUsername : platformUsernameLocal;
 		if (scrumBody && username && githubPrsReviewData && githubIssuesData) {
 			clearInterval(intervalWriteGithubPrs);
-			clearInterval(intervalWriteGithubIssues);
+			if (intervalWriteGithubIssues) {
+				clearInterval(intervalWriteGithubIssues);
+			}
 			writeGithubPrsReviews();
 		}
 	}, 500);
