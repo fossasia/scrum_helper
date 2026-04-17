@@ -861,6 +861,8 @@ function allIncluded(outputTarget = 'email') {
 		}
 	}
 
+	// working on unified toast notification system for extention
+
 	async function fetchCommitsForOpenPRs(prs, githubToken, startDate, endDate) {
 		log(
 			'fetchCommitsForOpenPRs called with PRs:',
