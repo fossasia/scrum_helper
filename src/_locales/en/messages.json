@@ -432,5 +432,9 @@
   "insertedInEmailNotification": {
     "message": "Report inserted into email!",
     "description": "Notification shown when report is successfully inserted into email."
+  },
+  "invalidDateRangeError": {
+    "message": "Please enter a valid date range. Start date cannot be after end date.",
+    "description": "Error shown when the selected start date is after the end date."
   }
 }
