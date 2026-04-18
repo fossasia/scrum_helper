@@ -212,22 +212,26 @@ function allIncluded(outputTarget = 'email') {
 				}
 
 				// Validate date range: start date must not be after end date
-				if (startingDate && endingDate && new Date(startingDate) > new Date(endingDate)) {
-					const scrumReport = document.getElementById('scrumReport');
-					const generateBtn = document.getElementById('generateReport');
-					if (scrumReport) {
-						renderErrorMessage(
-							scrumReport,
-							'invalidDateRangeError',
-							'Please enter a valid date range. Start date cannot be after end date.',
-						);
+				if (startingDate && endingDate) {
+					const parsedStart = new Date(startingDate);
+					const parsedEnd = new Date(endingDate);
+					if (isNaN(parsedStart) || isNaN(parsedEnd) || parsedStart > parsedEnd) {
+						const scrumReport = document.getElementById('scrumReport');
+						const generateBtn = document.getElementById('generateReport');
+						if (scrumReport) {
+							renderErrorMessage(
+								scrumReport,
+								'invalidDateRangeError',
+								'Please enter a valid date range. Start date cannot be after end date.',
+							);
+						}
+						if (generateBtn) {
+							generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+							generateBtn.disabled = false;
+						}
+						scrumGenerationInProgress = false;
+						return;
 					}
-					if (generateBtn) {
-						generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
-						generateBtn.disabled = false;
-					}
-					scrumGenerationInProgress = false;
-					return;
 				}
 
 				if (platform === 'github') {
@@ -2301,8 +2305,12 @@ async function fetchUserRepositories(username, token, org = '') {
 				}));
 
 			return repos.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-		} catch (err) { }
-	} catch (err) { }
+		} catch (err) {
+			logError('GraphQL request for repositories failed:', err);
+		}
+	} catch (err) {
+		logError('Failed to fetch user repositories:', err);
+	}
 }
 
 function filterDataByRepos(data, selectedRepos) {
