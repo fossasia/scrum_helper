@@ -1,0 +1,236 @@
+{
+    "appName": {
+        "message": "Scrum Helper"
+    },
+    "appDescription": {
+        "message": "தேர்ந்தெடுக்கப்பட்ட காலப்பகுதிக்கான உங்கள் Git செயல்பாட்டைத் தானாகவே பெற்று, உங்கள் மேம்பாட்டு முன்னேற்றத்தைப் புகாரளியுங்கள்."
+    },
+    "disableLabel": {
+        "message": "முடக்கு"
+    },
+    "enableLabel": {
+        "message": "இயக்கு"
+    },
+    "projectNameLabel": {
+        "message": "திட்டப் பெயர் (மின்னஞ்சல் தலைப்பில் பயன்படுத்தப்படும்)"
+    },
+    "projectNamePlaceholder": {
+        "message": "உங்கள் திட்டப் பெயரை உள்ளிடவும்"
+    },
+    "githubUsernameLabel": {
+        "message": "உங்கள் GitHub பயனர்பெயர்"
+    },
+    "gitlabUsernameLabel": {
+        "message": "உங்கள் GitLab பயனர்பெயர்"
+    },
+    "githubUsernamePlaceholder": {
+        "message": "உங்கள் பங்களிப்புகளை பெற தேவையானது"
+    },
+    "contributionsLabel": {
+        "message": "பங்களிப்புகளை பெற காலகட்டம்:"
+    },
+    "last1DayLabel": {
+        "message": "முந்தைய நாள்"
+    },
+    "startDateLabel": {
+        "message": "தொடக்கம்:"
+    },
+    "endDateLabel": {
+        "message": "முடிவு:"
+    },
+    "showOpenClosedLabel": {
+        "message": "PR லேபல்களைக் காட்டு"
+    },
+    "blockersLabel": {
+        "message": "உங்கள் முன்னேற்றத்தை தடுப்பது என்ன?"
+    },
+    "blockersPlaceholder": {
+        "message": "உங்கள் காரணத்தை உள்ளிடவும்"
+    },
+    "scrumReportLabel": {
+        "message": "Scrum அறிக்கை"
+    },
+    "generateReportButton": {
+        "message": "உருவாக்கு"
+    },
+    "copyReportButton": {
+        "message": "நகலெடு"
+    },
+    "insertInEmailButton": {
+        "message": "மின்னஞ்சலில் செருகு"
+    },
+    "settingsOrgNameLabel": {
+        "message": "நிறுவன பெயர்"
+    },
+    "settingsOrgNamePlaceholder": {
+        "message": "நிறுவன பெயரை உள்ளிடவும்"
+    },
+    "setButton": {
+        "message": "அமை"
+    },
+    "githubTokenLabel": {
+        "message": "உங்கள் GitHub டோக்கன்"
+    },
+    "githubTokenPlaceholder": {
+        "message": "அங்கீகரிக்கப்பட்ட கோரிக்கைகளுக்கு தேவையானது"
+    },
+    "githubTokenTooltip": {
+        "message": "GitHub டோக்கன் சேர்க்க ஏன் பரிந்துரைக்கப்படுகிறது? Scrum Helper GitHub டோக்கன் இல்லாமலும் செயல்படும், ஆனால் சிறந்த அனுபவத்திற்காக தனிப்பட்ட அணுகல் டோக்கன் சேர்க்க பரிந்துரைக்கப்படுகிறது."
+    },
+    "gitlabTokenLabel": {
+        "message": "உங்கள் GitLab டோக்கன்"
+    },
+    "gitlabTokenPlaceholder": {
+        "message": "தனிப்பட்ட திட்டங்களை அணுக தேவையானது"
+    },
+    "gitlabTokenTooltip": {
+        "message": "GitLab டோக்கன் சேர்க்க ஏன் பரிந்துரைக்கப்படுகிறது? Scrum Helper பொது திட்டங்களுக்கு GitLab டோக்கன் இல்லாமலும் செயல்படும், ஆனால் சிறந்த அனுபவத்திற்காக தனிப்பட்ட அணுகல் டோக்கன் சேர்க்க பரிந்துரைக்கப்படுகிறது."
+    },
+    "showCommitsLabel": {
+        "message": "திறந்த PR / வரைவு PR களில் commits காட்டு"
+    },
+    "showCommitsTooltip": {
+        "message": "GitHub டோக்கன் தேவை, அமைப்புகளில் சேர்க்கவும்."
+    },
+    "onlyIssuesLabel": {
+        "message": "அறிக்கையில் சிக்கல்களை மட்டும் சேர்"
+    },
+    "onlyIssuesTooltip": {
+        "message": "தேர்ந்தெடுக்கப்பட்டால், அறிக்கையில் பயனரால் உருவாக்கப்பட்ட அல்லது ஒதுக்கப்பட்ட சிக்கல்கள் மட்டுமே இருக்கும்."
+    },
+    "onlyPRsLabel": {
+        "message": "அறிக்கையில் PR களை மட்டும் சேர்"
+    },
+    "onlyPRsTooltip": {
+        "message": "தேர்ந்தெடுக்கப்பட்டால், அறிக்கையில் பயனரால் உருவாக்கப்பட்ட PR கள் மட்டுமே இருக்கும். மதிப்பாய்வு செய்யப்பட்ட PR கள் விலக்கப்படும்."
+    },
+    "cacheTTLLabel": {
+        "message": "தற்காலிக சேமிப்பு TTL ஐ உள்ளிடவும்"
+    },
+    "cacheTTLUnit": {
+        "message": "(நிமிடங்களில்)"
+    },
+    "cacheTTLPlaceholder": {
+        "message": "தற்காலிக சேமிப்பு TTL ஐ நிமிடங்களில் உள்ளிடவும் (இயல்புநிலை: 10 நிமிடங்கள்)"
+    },
+    "refreshDataButton": {
+        "message": "தரவை புதுப்பி (தற்காலிக சேமிப்பை புறக்கணி)"
+    },
+    "refreshDataInfo": {
+        "message": "புதிய தரவை உடனடியாக பெற இந்த பொத்தானை பயன்படுத்தவும்."
+    },
+    "noteTitle": {
+        "message": "குறிப்பு:"
+    },
+    "viewCodeButton": {
+        "message": "குறியீட்டைக் காண்"
+    },
+    "reportIssueButton": {
+        "message": "சிக்கலை அறிவி"
+    },
+    "repoFilterLabel": {
+        "message": "களஞ்சியங்களால் வடிகட்டு"
+    },
+    "enableFilteringLabel": {
+        "message": "வடிகட்டலை இயக்கு"
+    },
+    "tokenRequiredWarning": {
+        "message": "களஞ்சியங்களை வடிகட்ட GitHub டோக்கன் தேவை. அமைப்புகளில் ஒன்றை சேர்க்கவும்."
+    },
+    "tokenRequiredShowCommitsWarning": {
+        "message": "திறந்த அல்லது வரைவு PR களில் commits காட்ட GitHub டோக்கன் தேவை. அமைப்புகளில் ஒன்றை சேர்க்கவும்."
+    },
+    "repoSearchPlaceholder": {
+        "message": "சேர்க்க களஞ்சியத்தை தேடவும்..."
+    },
+    "repoPlaceholder": {
+        "message": "களஞ்சியங்கள் தேர்ந்தெடுக்கப்படவில்லை (அனைத்தும் சேர்க்கப்படும்)"
+    },
+    "repoCountNone": {
+        "message": "0 களஞ்சியங்கள் தேர்ந்தெடுக்கப்பட்டன"
+    },
+    "repoCount": {
+        "message": "$1 களஞ்சியங்கள் தேர்ந்தெடுக்கப்பட்டன"
+    },
+    "repoLoading": {
+        "message": "களஞ்சியங்கள் ஏற்றப்படுகின்றன..."
+    },
+    "repoLoaded": {
+        "message": "$1 களஞ்சியங்கள் ஏற்றப்பட்டன."
+    },
+    "repoNotFound": {
+        "message": "களஞ்சியங்கள் எதுவும் கிடைக்கவில்லை"
+    },
+    "repoRefetching": {
+        "message": "களஞ்சியங்கள் மீண்டும் பெறப்படுகின்றன..."
+    },
+    "repoLoadFailed": {
+        "message": "களஞ்சியங்களை ஏற்றுவதில் தோல்வி."
+    },
+    "repoTokenPrivate": {
+        "message": "டோக்கன் தவறானது அல்லது தனிப்பட்ட களஞ்சியங்களுக்கான உரிமைகள் இல்லை."
+    },
+    "repoRefetchFailed": {
+        "message": "களஞ்சியங்களை மீண்டும் பெறுவதில் தோல்வி."
+    },
+    "orgSetMessage": {
+        "message": "நிறுவனம் வெற்றிகரமாக அமைக்கப்பட்டது."
+    },
+    "orgClearedMessage": {
+        "message": "நிறுவனம் அழிக்கப்பட்டது. அனைத்து செயல்பாடுகளையும் பெற 'உருவாக்கு' என்பதை கிளிக் செய்யவும்."
+    },
+    "orgNotFoundMessage": {
+        "message": "GitHub இல் நிறுவனம் கிடைக்கவில்லை."
+    },
+    "orgValidationErrorMessage": {
+        "message": "நிறுவனத்தை சரிபார்க்கும்போது பிழை."
+    },
+    "refreshingButton": {
+        "message": "புதுப்பிக்கிறது..."
+    },
+    "cacheClearFailed": {
+        "message": "தற்காலிக சேமிப்பை அழிப்பதில் தோல்வி."
+    },
+    "madeWithLoveBy": {
+        "message": "❤️ உடன் உருவாக்கியவர்"
+    },
+    "generatingButton": {
+        "message": "உருவாக்குகிறது..."
+    },
+    "copiedButton": {
+        "message": "நகலெடுக்கப்பட்டது!"
+    },
+    "orgChangedMessage": {
+        "message": "நிறுவனம் மாற்றப்பட்டது. GitHub செயல்பாடுகளை பெற 'உருவாக்கு' பொத்தானை கிளிக் செய்யவும்."
+    },
+    "cacheClearedMessage": {
+        "message": "தற்காலிக சேமிப்பு வெற்றிகரமாக அழிக்கப்பட்டது. புதிய தரவை பெற «உருவாக்கு» என்பதை கிளிக் செய்யவும்."
+    },
+    "cacheExpiredMessage": {
+        "message": "தற்காலிக சேமிப்பு காலாவதியானது. புதிய தரவை பெற «உருவாக்கு» என்பதை கிளிக் செய்யவும்."
+    },
+    "cacheClearedButton": {
+        "message": "தற்காலிக சேமிப்பு அழிக்கப்பட்டது!"
+    },
+    "extensionDisabledMessage": {
+        "message": "நீட்டிப்பு முடக்கப்பட்டுள்ளது. Scrum அறிக்கைகளை உருவாக்க விருப்பங்களில் இருந்து இயக்கவும்."
+    },
+    "notePoint1": {
+        "message": "Pull requests உங்களது மட்டுமல்ல, எந்தவொரு பங்களிப்பாளரின் சமீபத்திய மதிப்பாய்வு செயல்பாட்டின் அடிப்படையில் பெறப்படுகின்றன. பகிர்வதற்கு முன்பு உங்கள் பணியை துல்லியமாக பிரதிபலிக்கிறதா என்பதை உறுதிப்படுத்த உருவாக்கப்பட்ட SCRUM அறிக்கையை மதிப்பாய்வு செய்து சரிசெய்யவும்."
+    },
+    "noteSeeIssue": {
+        "message": "இந்த சிக்கலைப் பாருங்கள்"
+    },
+    "platformLabel": {
+        "message": "தளம்"
+    },
+    "usernameLabel": {
+        "message": "உங்கள் பயனர்பெயர்"
+    },
+    "onlyRevPRsLabel": {
+        "message": "அறிக்கையில் மதிப்பாய்வு செய்யப்பட்ட PR களை மட்டும் சேர்"
+    },
+    "onlyRevPRsTooltip": {
+        "message": "தேர்ந்தெடுக்கப்பட்டால், அறிக்கையில் நீங்கள் மதிப்பாய்வு செய்த PR கள் மட்டுமே இருக்கும்."
+    }
+}

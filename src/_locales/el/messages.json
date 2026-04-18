@@ -1,0 +1,236 @@
+{
+    "appName": {
+        "message": "Scrum Helper"
+    },
+    "appDescription": {
+        "message": "Αναφέρετε την πρόοδο της ανάπτυξής σας ανακτώντας αυτόματα τη δραστηριότητα Git για μια επιλεγμένη περίοδο"
+    },
+    "disableLabel": {
+        "message": "Απενεργοποίηση"
+    },
+    "enableLabel": {
+        "message": "Ενεργοποίηση"
+    },
+    "projectNameLabel": {
+        "message": "Όνομα Έργου (χρησιμοποιείται στο θέμα του email)"
+    },
+    "projectNamePlaceholder": {
+        "message": "Εισαγάγετε το όνομα του έργου σας"
+    },
+    "githubUsernameLabel": {
+        "message": "Το όνομα χρήστη σας στο GitHub"
+    },
+    "gitlabUsernameLabel": {
+        "message": "Το όνομα χρήστη σας στο GitLab"
+    },
+    "githubUsernamePlaceholder": {
+        "message": "Απαιτείται για την ανάκτηση των συνεισφορών σας"
+    },
+    "contributionsLabel": {
+        "message": "Ανακτήστε τις συνεισφορές σας μεταξύ:"
+    },
+    "last1DayLabel": {
+        "message": "Προηγούμενη ημέρα"
+    },
+    "startDateLabel": {
+        "message": "Από:"
+    },
+    "endDateLabel": {
+        "message": "Έως:"
+    },
+    "showOpenClosedLabel": {
+        "message": "Εμφάνιση ετικετών PR"
+    },
+    "blockersLabel": {
+        "message": "Τι σας εμποδίζει να προχωρήσετε;"
+    },
+    "blockersPlaceholder": {
+        "message": "Εισαγάγετε τον λόγο σας"
+    },
+    "scrumReportLabel": {
+        "message": "Αναφορά Scrum"
+    },
+    "generateReportButton": {
+        "message": "Δημιουργία"
+    },
+    "copyReportButton": {
+        "message": "Αντιγραφή"
+    },
+    "insertInEmailButton": {
+        "message": "Εισαγωγή σε email"
+    },
+    "settingsOrgNameLabel": {
+        "message": "Όνομα οργανισμού"
+    },
+    "settingsOrgNamePlaceholder": {
+        "message": "Εισαγάγετε το όνομα του οργανισμού"
+    },
+    "setButton": {
+        "message": "Ορισμός"
+    },
+    "githubTokenLabel": {
+        "message": "Το GitHub token σας"
+    },
+    "githubTokenPlaceholder": {
+        "message": "Απαιτείται για την υποβολή αιτημάτων με έλεγχο ταυτότητας"
+    },
+    "githubTokenTooltip": {
+        "message": "Γιατί συνιστάται η προσθήκη GitHub token; Το Scrum Helper λειτουργεί χωρίς GitHub token, αλλά η προσθήκη ενός προσωπικού token πρόσβασης συνιστάται για καλύτερη εμπειρία."
+    },
+    "gitlabTokenLabel": {
+        "message": "Το GitLab token σας"
+    },
+    "gitlabTokenPlaceholder": {
+        "message": "Απαιτείται για πρόσβαση σε ιδιωτικά έργα"
+    },
+    "gitlabTokenTooltip": {
+        "message": "Γιατί συνιστάται η προσθήκη GitLab token; Το Scrum Helper λειτουργεί χωρίς GitLab token για δημόσια έργα, αλλά η προσθήκη ενός προσωπικού token πρόσβασης συνιστάται για καλύτερη εμπειρία."
+    },
+    "showCommitsLabel": {
+        "message": "Εμφάνιση commits σε ανοιχτά PR / πρόχειρα PR"
+    },
+    "showCommitsTooltip": {
+        "message": "Απαιτείται GitHub token, προσθέστε το στις ρυθμίσεις."
+    },
+    "onlyIssuesLabel": {
+        "message": "Συμπερίληψη μόνο ζητημάτων στην αναφορά"
+    },
+    "onlyIssuesTooltip": {
+        "message": "Εάν επιλεγεί, η αναφορά θα περιλαμβάνει μόνο ζητήματα που δημιουργήθηκαν ή ανατέθηκαν στον χρήστη."
+    },
+    "onlyPRsLabel": {
+        "message": "Συμπερίληψη μόνο PR στην αναφορά"
+    },
+    "onlyPRsTooltip": {
+        "message": "Εάν επιλεγεί, η αναφορά θα περιλαμβάνει μόνο PR που δημιουργήθηκαν από τον χρήστη. Τα αναθεωρημένα PR θα εξαιρεθούν."
+    },
+    "cacheTTLLabel": {
+        "message": "Εισαγάγετε TTL cache"
+    },
+    "cacheTTLUnit": {
+        "message": "(σε λεπτά)"
+    },
+    "cacheTTLPlaceholder": {
+        "message": "Εισαγάγετε TTL cache σε λεπτά (Προεπιλογή: 10 λεπτά)"
+    },
+    "refreshDataButton": {
+        "message": "Ανανέωση δεδομένων (παράκαμψη cache)"
+    },
+    "refreshDataInfo": {
+        "message": "Χρησιμοποιήστε αυτό το κουμπί για άμεση ανάκτηση νέων δεδομένων."
+    },
+    "noteTitle": {
+        "message": "Σημείωση:"
+    },
+    "viewCodeButton": {
+        "message": "Προβολή κώδικα"
+    },
+    "reportIssueButton": {
+        "message": "Αναφορά προβλήματος"
+    },
+    "repoFilterLabel": {
+        "message": "Φιλτράρισμα κατά αποθετήρια"
+    },
+    "enableFilteringLabel": {
+        "message": "Ενεργοποίηση φιλτραρίσματος"
+    },
+    "tokenRequiredWarning": {
+        "message": "Απαιτείται GitHub token για φιλτράρισμα αποθετηρίων. Παρακαλώ προσθέστε ένα στις ρυθμίσεις."
+    },
+    "tokenRequiredShowCommitsWarning": {
+        "message": "Απαιτείται GitHub token για εμφάνιση commits σε ανοιχτά ή πρόχειρα PR. Παρακαλώ προσθέστε ένα στις ρυθμίσεις."
+    },
+    "repoSearchPlaceholder": {
+        "message": "Αναζητήστε ένα αποθετήριο για προσθήκη..."
+    },
+    "repoPlaceholder": {
+        "message": "Δεν επιλέχθηκαν αποθετήρια (θα συμπεριληφθούν όλα)"
+    },
+    "repoCountNone": {
+        "message": "0 αποθετήρια επιλεγμένα"
+    },
+    "repoCount": {
+        "message": "$1 αποθετήρια επιλεγμένα"
+    },
+    "repoLoading": {
+        "message": "Φόρτωση αποθετηρίων..."
+    },
+    "repoLoaded": {
+        "message": "Φορτώθηκαν $1 αποθετήρια."
+    },
+    "repoNotFound": {
+        "message": "Δεν βρέθηκαν αποθετήρια"
+    },
+    "repoRefetching": {
+        "message": "Επαναφόρτωση αποθετηρίων..."
+    },
+    "repoLoadFailed": {
+        "message": "Αποτυχία φόρτωσης αποθετηρίων."
+    },
+    "repoTokenPrivate": {
+        "message": "Το token είναι άκυρο ή δεν έχει δικαιώματα για ιδιωτικά αποθετήρια."
+    },
+    "repoRefetchFailed": {
+        "message": "Αποτυχία επαναφόρτωσης αποθετηρίων."
+    },
+    "orgSetMessage": {
+        "message": "Ο οργανισμός ορίστηκε επιτυχώς."
+    },
+    "orgClearedMessage": {
+        "message": "Ο οργανισμός διαγράφηκε. Κάντε κλικ στο 'Δημιουργία' για ανάκτηση όλων των δραστηριοτήτων."
+    },
+    "orgNotFoundMessage": {
+        "message": "Ο οργανισμός δεν βρέθηκε στο GitHub."
+    },
+    "orgValidationErrorMessage": {
+        "message": "Σφάλμα κατά την επαλήθευση του οργανισμού."
+    },
+    "refreshingButton": {
+        "message": "Ανανέωση..."
+    },
+    "cacheClearFailed": {
+        "message": "Αποτυχία εκκαθάρισης cache."
+    },
+    "madeWithLoveBy": {
+        "message": "Φτιαγμένο με ❤️ από"
+    },
+    "generatingButton": {
+        "message": "Δημιουργία..."
+    },
+    "copiedButton": {
+        "message": "Αντιγράφηκε!"
+    },
+    "orgChangedMessage": {
+        "message": "Ο οργανισμός άλλαξε. Κάντε κλικ στο κουμπί 'Δημιουργία' για ανάκτηση δραστηριοτήτων GitHub."
+    },
+    "cacheClearedMessage": {
+        "message": "Το cache εκκαθαρίστηκε επιτυχώς. Κάντε κλικ στο «Δημιουργία» για ανάκτηση νέων δεδομένων."
+    },
+    "cacheExpiredMessage": {
+        "message": "Το cache έληξε. Κάντε κλικ στο «Δημιουργία» για ανάκτηση νέων δεδομένων."
+    },
+    "cacheClearedButton": {
+        "message": "Το cache εκκαθαρίστηκε!"
+    },
+    "extensionDisabledMessage": {
+        "message": "Η επέκταση είναι απενεργοποιημένη. Ενεργοποιήστε τη από τις επιλογές για δημιουργία αναφορών Scrum."
+    },
+    "notePoint1": {
+        "message": "Τα pull requests ανακτώνται βάσει της πιο πρόσφατης δραστηριότητας αναθεώρησης από οποιονδήποτε συντελεστή, όχι μόνο τη δική σας. Παρακαλώ ελέγξτε και προσαρμόστε την παραγόμενη αναφορά SCRUM για να διασφαλίσετε ότι αντικατοπτρίζει με ακρίβεια την εργασία σας πριν την κοινοποίηση."
+    },
+    "noteSeeIssue": {
+        "message": "Δείτε αυτό το ζήτημα"
+    },
+    "platformLabel": {
+        "message": "Πλατφόρμα"
+    },
+    "usernameLabel": {
+        "message": "Το όνομα χρήστη σας"
+    },
+    "onlyRevPRsLabel": {
+        "message": "Συμπερίληψη μόνο αναθεωρημένων PR στην αναφορά"
+    },
+    "onlyRevPRsTooltip": {
+        "message": "Εάν επιλεγεί, η αναφορά θα περιλαμβάνει μόνο PR που έχετε αναθεωρήσει εσείς."
+    }
+}
