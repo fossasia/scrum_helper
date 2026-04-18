@@ -1,9 +1,18 @@
 const CLIENT_PATTERNS = [
-	{id: 'google-groups', match:(hostname) => hostname === 'groups.google.com'},
-	{id: 'gmail', match:(hostname) => hostname === 'mail.google.com'},
-	{id: 'outlook', match:(hostname) => hostname === 'outlook.com' || hostname.endsWith('.outlook.com') || hostname.endsWith('.office.com') || hostname.endsWith('.office365.com') || hostname.endsWith('outlook.live.com') || hostname.endsWith('outlook.cloud.microsoft') },
-	{id: 'yahoo', match:(hostname) => hostname === 'mail.yahoo.com'},
-]
+	{ id: 'google-groups', match: (hostname) => hostname === 'groups.google.com' },
+	{ id: 'gmail', match: (hostname) => hostname === 'mail.google.com' },
+	{
+		id: 'outlook',
+		match: (hostname) =>
+			hostname === 'outlook.com' ||
+			hostname.endsWith('.outlook.com') ||
+			hostname.endsWith('.office.com') ||
+			hostname.endsWith('.office365.com') ||
+			hostname.endsWith('outlook.live.com') ||
+			hostname.endsWith('outlook.cloud.microsoft'),
+	},
+	{ id: 'yahoo', match: (hostname) => hostname === 'mail.yahoo.com' },
+];
 class EmailClientAdapter {
 	isNewConversation() {
 		const clientType = this.detectClient();
@@ -106,11 +115,10 @@ class EmailClientAdapter {
 			},
 		};
 	}
-	
 
 	detectClient() {
 		const hostname = window.location.hostname;
-		return CLIENT_PATTERNS.find(pattern => pattern.match(hostname))?.id || null;
+		return CLIENT_PATTERNS.find((pattern) => pattern.match(hostname))?.id || null;
 	}
 
 	getEditorElements() {
