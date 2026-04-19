@@ -12,6 +12,78 @@ const userReasonElement = null;
 
 const showCommitsElement = document.getElementById('showCommits');
 
+if (!window.scrumDateRangeUtils) {
+	window.scrumDateRangeUtils = {
+		formatLocalDate(date) {
+			const year = date.getFullYear();
+			const month = String(date.getMonth() + 1).padStart(2, '0');
+			const day = String(date.getDate()).padStart(2, '0');
+
+			return `${year}-${month}-${day}`;
+		},
+		getLocalTodayString() {
+			return this.formatLocalDate(new Date());
+		},
+		getLocalYesterdayString() {
+			const yesterday = new Date();
+			yesterday.setDate(yesterday.getDate() - 1);
+
+			return this.formatLocalDate(yesterday);
+		},
+		normalizeAndSync(startDateInput, endDateInput) {
+			const today = this.getLocalTodayString();
+			const originalStartDate = startDateInput.value;
+			const originalEndDate = endDateInput.value;
+
+			let normalizedStartDate = originalStartDate;
+			let normalizedEndDate = originalEndDate;
+
+			if (normalizedStartDate && normalizedStartDate > today) {
+				normalizedStartDate = today;
+			}
+			if (normalizedEndDate && normalizedEndDate > today) {
+				normalizedEndDate = today;
+			}
+			if (normalizedStartDate && normalizedEndDate && normalizedStartDate > normalizedEndDate) {
+				normalizedEndDate = '';
+			}
+
+			const didChange =
+				normalizedStartDate !== originalStartDate || normalizedEndDate !== originalEndDate;
+
+			if (didChange) {
+				startDateInput.value = normalizedStartDate;
+				endDateInput.value = normalizedEndDate;
+			}
+
+			const startDate = startDateInput.value;
+			startDateInput.max = today;
+			endDateInput.min = startDate || '';
+			endDateInput.max = today;
+
+			return didChange;
+		},
+		normalizeDateRangeValues(startDateInput, endDateInput) {
+			const originalStartDate = startDateInput.value;
+			const originalEndDate = endDateInput.value;
+
+			this.normalizeAndSync(startDateInput, endDateInput);
+
+			return startDateInput.value !== originalStartDate || endDateInput.value !== originalEndDate;
+		},
+		persistDateRange(startDateInput, endDateInput) {
+			browser.storage.local.set({
+				startingDate: startDateInput.value,
+				endingDate: endDateInput.value,
+			});
+		},
+		normalizeSyncAndPersistDateRange(startDateInput, endDateInput) {
+			this.normalizeDateRangeValues(startDateInput, endDateInput);
+			this.persistDateRange(startDateInput, endDateInput);
+		},
+	};
+}
+
 function handleBodyOnLoad() {
 	// Migration: Handle existing users with old platformUsername storage
 	browser.storage.local.get(['platform', 'platformUsername']).then((result) => {
@@ -75,6 +147,19 @@ function handleBodyOnLoad() {
 					showOpenLabelElement.checked = true;
 					handleOpenLabelChange();
 				}
+			const wasNormalizedOnLoad = window.scrumDateRangeUtils.normalizeDateRangeValues(
+				startingDateElement,
+				endingDateElement,
+			);
+			if (wasNormalizedOnLoad) {
+				window.scrumDateRangeUtils.persistDateRange(startingDateElement, endingDateElement);
+			}
+			if (items.showOpenLabel) {
+				showOpenLabelElement.checked = items.showOpenLabel;
+			} else if (items.showOpenLabel !== false) {
+				// undefined
+				showOpenLabelElement.checked = true;
+				handleOpenLabelChange();
 			}
 
 			if (yesterdayContributionElement) {
@@ -117,6 +202,16 @@ function handleEndingDateChange() {
 	if (!endingDateElement) return;
 	const value = endingDateElement.value;
 	browser.storage.local.set({ endingDate: value });
+	window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(
+		startingDateElement,
+		endingDateElement,
+	);
+}
+function handleEndingDateChange() {
+	window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(
+		startingDateElement,
+		endingDateElement,
+	);
 }
 
 function handleYesterdayContributionChange() {
@@ -129,13 +224,16 @@ function handleYesterdayContributionChange() {
 		if (endingDateElement) endingDateElement.readOnly = true;
 		endingDateElement.value = getToday();
 		startingDateElement.value = getYesterday();
-		handleEndingDateChange();
-		handleStartingDateChange();
+		window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(
+			startingDateElement,
+			endingDateElement,
+		);
 		labelElement.classList.add('selectedLabel');
 		labelElement.classList.remove('unselectedLabel');
 	} else {
 		startingDateElement.readOnly = false;
 		endingDateElement.readOnly = false;
+		window.scrumDateRangeUtils.normalizeDateRangeValues(startingDateElement, endingDateElement);
 		labelElement.classList.add('unselectedLabel');
 		labelElement.classList.remove('selectedLabel');
 	}
@@ -143,14 +241,10 @@ function handleYesterdayContributionChange() {
 }
 
 function getYesterday() {
-	const today = new Date();
-	const yesterday = new Date(today);
-	yesterday.setDate(today.getDate() - 1);
-	return yesterday.toISOString().split('T')[0];
+	return window.scrumDateRangeUtils.getLocalYesterdayString();
 }
 function getToday() {
-	const today = new Date();
-	return today.toISOString().split('T')[0];
+	return window.scrumDateRangeUtils.getLocalTodayString();
 }
 
 function handlePlatformUsernameChange() {
