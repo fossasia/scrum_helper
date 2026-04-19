@@ -673,6 +673,15 @@ document.addEventListener('DOMContentLoaded', () => {
 		const copyBtn = document.getElementById('copyReport');
 		const insertBtn = document.getElementById('insertInEmail');
 
+		function dismissShortcutTooltipFocus(el) {
+			// Shortcut tooltips are shown via CSS on `:focus-within`. After clicking a button,
+			// focus can remain on it, keeping the tooltip visible until the popup loses focus.
+			// Blurring fixes the "stuck tooltip" while keeping hover/focus behavior intact.
+			try {
+				el?.blur?.();
+			} catch {}
+		}
+
 		if (insertBtn) {
 			insertBtn.addEventListener('click', () => {
 				const scrumReport = document.getElementById('scrumReport');
@@ -707,11 +716,13 @@ document.addEventListener('DOMContentLoaded', () => {
 							})
 							.finally(() => {
 								insertBtn._triggeredByShortcut = false;
+								dismissShortcutTooltipFocus(insertBtn);
 							});
 					})
 					.catch((error) => {
 						console.warn('Unable to get active tab:', error?.message || error);
 						insertBtn._triggeredByShortcut = false;
+						dismissShortcutTooltipFocus(insertBtn);
 					});
 			});
 		}
@@ -734,6 +745,7 @@ document.addEventListener('DOMContentLoaded', () => {
 							generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
 							generateBtn.disabled = true;
 							window.generateScrumReport && window.generateScrumReport();
+							dismissShortcutTooltipFocus(generateBtn);
 						});
 					});
 			});
@@ -770,6 +782,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				console.error('Failed to copy: ', err);
 			} finally {
 				this._triggeredByShortcut = false;
+				dismissShortcutTooltipFocus(this);
 				selection.removeAllRanges();
 				document.body.removeChild(tempDiv);
 			}
