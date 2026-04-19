@@ -54,14 +54,21 @@
 
    **For Firefox (Gecko):**
 
-   - after you have built the extension run the following:
+   - after you have built the extension, run the following:
+   - on Linux/Mac OS
      ```
      cd dist/firefox
      zip -r extension.zip *
      mv extension.zip extension.xpi
      ```
+   - Windows (PowerShell):
+     ```
+     cd dist/firefox
+     Compress-Archive -Path * -DestinationPath extension.zip -Force
+     Rename-Item extension.zip extension.xpi -Force
+     ```
    - Navigate to `about:config` in Firefox and set xpinstall.signatures.required = false.
-   - go to extensions & themes from right hand side hamburger menu
+   - go to extensions & themes from the right-hand side hamburger menu
    - Click on settings under manage your extensions
    - Click "Load Temporary Add-on...".
    - Select the `extension.xpi` file inside the `dist/firefox` folder.
