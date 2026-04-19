@@ -45,7 +45,7 @@ function handleBodyOnLoad() {
 			// Load platform-specific username
 			const platform = items.platform || 'github';
 			const platformUsernameKey = `${platform}Username`;
-			if (items[platformUsernameKey]) {
+			if (platformUsernameElement && items[platformUsernameKey]) {
 				platformUsernameElement.value = items[platformUsernameKey];
 			}
 
@@ -55,38 +55,44 @@ function handleBodyOnLoad() {
 			if (items.gitlabToken && gitlabTokenElement) {
 				gitlabTokenElement.value = items.gitlabToken;
 			}
-			if (items.projectName) {
+			if (items.projectName && projectNameElement) {
 				projectNameElement.value = items.projectName;
 			}
-			if (items.cacheInput) {
+			if (items.cacheInput && cacheInputElement) {
 				cacheInputElement.value = items.cacheInput;
 			}
-			if (items.endingDate) {
+			if (items.endingDate && endingDateElement) {
 				endingDateElement.value = items.endingDate;
 			}
-			if (items.startingDate) {
+			if (items.startingDate && startingDateElement) {
 				startingDateElement.value = items.startingDate;
 			}
-			if (items.showOpenLabel) {
-				showOpenLabelElement.checked = items.showOpenLabel;
-			} else if (items.showOpenLabel !== false) {
-				// undefined
-				showOpenLabelElement.checked = true;
-				handleOpenLabelChange();
+			if (showOpenLabelElement) {
+				if (items.showOpenLabel) {
+					showOpenLabelElement.checked = items.showOpenLabel;
+				} else if (items.showOpenLabel !== false) {
+					// undefined
+					showOpenLabelElement.checked = true;
+					handleOpenLabelChange();
+				}
 			}
 
-			if (items.yesterdayContribution) {
-				yesterdayContributionElement.checked = items.yesterdayContribution;
-				handleYesterdayContributionChange();
-			} else if (items.yesterdayContribution !== false) {
-				yesterdayContributionElement.checked = true;
-				handleYesterdayContributionChange();
+			if (yesterdayContributionElement) {
+				if (items.yesterdayContribution) {
+					yesterdayContributionElement.checked = items.yesterdayContribution;
+					handleYesterdayContributionChange();
+				} else if (items.yesterdayContribution !== false) {
+					yesterdayContributionElement.checked = true;
+					handleYesterdayContributionChange();
+				}
 			}
-			if (items.showCommits) {
-				showCommitsElement.checked = items.showCommits;
-			} else {
-				showCommitsElement.checked = false;
-				handleShowCommitsChange();
+			if (showCommitsElement) {
+				if (items.showCommits) {
+					showCommitsElement.checked = items.showCommits;
+				} else {
+					showCommitsElement.checked = false;
+					handleShowCommitsChange();
+				}
 			}
 		});
 }
@@ -103,21 +109,24 @@ document.getElementById('refreshCache').addEventListener('click', async (e) => {
 });
 
 function handleStartingDateChange() {
+	if (!startingDateElement) return;
 	const value = startingDateElement.value;
 	browser.storage.local.set({ startingDate: value });
 }
 function handleEndingDateChange() {
+	if (!endingDateElement) return;
 	const value = endingDateElement.value;
 	browser.storage.local.set({ endingDate: value });
 }
 
 function handleYesterdayContributionChange() {
+	if (!yesterdayContributionElement) return;
 	const value = yesterdayContributionElement.checked;
 	const labelElement = document.querySelector("label[for='yesterdayContribution']");
 
 	if (value) {
-		startingDateElement.readOnly = true;
-		endingDateElement.readOnly = true;
+		if (startingDateElement) startingDateElement.readOnly = true;
+		if (endingDateElement) endingDateElement.readOnly = true;
 		endingDateElement.value = getToday();
 		startingDateElement.value = getYesterday();
 		handleEndingDateChange();
@@ -145,6 +154,7 @@ function getToday() {
 }
 
 function handlePlatformUsernameChange() {
+	if (!platformUsernameElement) return;
 	const value = platformUsernameElement.value;
 	browser.storage.local.get(['platform']).then((result) => {
 		const platform = result.platform || 'github';
@@ -153,54 +163,78 @@ function handlePlatformUsernameChange() {
 	});
 }
 function handleGithubTokenChange() {
+	if (!githubTokenElement) return;
 	const value = githubTokenElement.value;
 	browser.storage.local.set({ githubToken: value });
 }
 function handleGitlabTokenChange() {
+	if (!gitlabTokenElement) return;
 	const value = gitlabTokenElement.value;
 	browser.storage.local.set({ gitlabToken: value });
 }
 function handleProjectNameChange() {
+	if (!projectNameElement) return;
 	const value = projectNameElement.value;
 	browser.storage.local.set({ projectName: value });
 }
 function handleCacheInputChange() {
+	if (!cacheInputElement) return;
 	const value = cacheInputElement.value;
 	browser.storage.local.set({ cacheInput: value });
 }
 function handleOpenLabelChange() {
+	if (!showOpenLabelElement) return;
 	const value = showOpenLabelElement.checked;
 	const labelElement = document.querySelector("label[for='showOpenLabel']");
 
-	if (value) {
-		labelElement.classList.add('selectedLabel');
-		labelElement.classList.remove('unselectedLabel');
-	} else {
-		labelElement.classList.add('unselectedLabel');
-		labelElement.classList.remove('selectedLabel');
+	if (labelElement) {
+		if (value) {
+			labelElement.classList.add('selectedLabel');
+			labelElement.classList.remove('unselectedLabel');
+		} else {
+			labelElement.classList.add('unselectedLabel');
+			labelElement.classList.remove('selectedLabel');
+		}
 	}
 
 	browser.storage.local.set({ showOpenLabel: value });
 }
 
 function handleShowCommitsChange() {
+	if (!showCommitsElement) return;
 	const value = showCommitsElement.checked;
 	browser.storage.local.set({ showCommits: value });
 }
 
-platformUsernameElement.addEventListener('keyup', handlePlatformUsernameChange);
+if (platformUsernameElement) {
+	platformUsernameElement.addEventListener('keyup', handlePlatformUsernameChange);
+}
 if (githubTokenElement) {
 	githubTokenElement.addEventListener('keyup', handleGithubTokenChange);
 }
 if (gitlabTokenElement) {
 	gitlabTokenElement.addEventListener('keyup', handleGitlabTokenChange);
 }
-cacheInputElement.addEventListener('keyup', handleCacheInputChange);
-projectNameElement.addEventListener('keyup', handleProjectNameChange);
-startingDateElement.addEventListener('change', handleStartingDateChange);
-showCommitsElement.addEventListener('change', handleShowCommitsChange);
-endingDateElement.addEventListener('change', handleEndingDateChange);
-yesterdayContributionElement.addEventListener('change', handleYesterdayContributionChange);
-showOpenLabelElement.addEventListener('change', handleOpenLabelChange);
+if (cacheInputElement) {
+	cacheInputElement.addEventListener('keyup', handleCacheInputChange);
+}
+if (projectNameElement) {
+	projectNameElement.addEventListener('keyup', handleProjectNameChange);
+}
+if (startingDateElement) {
+	startingDateElement.addEventListener('change', handleStartingDateChange);
+}
+if (showCommitsElement) {
+	showCommitsElement.addEventListener('change', handleShowCommitsChange);
+}
+if (endingDateElement) {
+	endingDateElement.addEventListener('change', handleEndingDateChange);
+}
+if (yesterdayContributionElement) {
+	yesterdayContributionElement.addEventListener('change', handleYesterdayContributionChange);
+}
+if (showOpenLabelElement) {
+	showOpenLabelElement.addEventListener('change', handleOpenLabelChange);
+}
 
 document.addEventListener('DOMContentLoaded', handleBodyOnLoad);
