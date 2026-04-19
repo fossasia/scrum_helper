@@ -48,8 +48,7 @@ if (!window.scrumDateRangeUtils) {
 				normalizedEndDate = '';
 			}
 
-			const didChange =
-				normalizedStartDate !== originalStartDate || normalizedEndDate !== originalEndDate;
+			const didChange = normalizedStartDate !== originalStartDate || normalizedEndDate !== originalEndDate;
 
 			if (didChange) {
 				startDateInput.value = normalizedStartDate;
@@ -147,19 +146,16 @@ function handleBodyOnLoad() {
 					showOpenLabelElement.checked = true;
 					handleOpenLabelChange();
 				}
-			const wasNormalizedOnLoad = window.scrumDateRangeUtils.normalizeDateRangeValues(
-				startingDateElement,
-				endingDateElement,
-			);
-			if (wasNormalizedOnLoad) {
-				window.scrumDateRangeUtils.persistDateRange(startingDateElement, endingDateElement);
 			}
-			if (items.showOpenLabel) {
-				showOpenLabelElement.checked = items.showOpenLabel;
-			} else if (items.showOpenLabel !== false) {
-				// undefined
-				showOpenLabelElement.checked = true;
-				handleOpenLabelChange();
+
+			if (startingDateElement && endingDateElement) {
+				const wasNormalizedOnLoad = window.scrumDateRangeUtils.normalizeDateRangeValues(
+					startingDateElement,
+					endingDateElement,
+				);
+				if (wasNormalizedOnLoad) {
+					window.scrumDateRangeUtils.persistDateRange(startingDateElement, endingDateElement);
+				}
 			}
 
 			if (yesterdayContributionElement) {
@@ -182,16 +178,19 @@ function handleBodyOnLoad() {
 		});
 }
 
-document.getElementById('refreshCache').addEventListener('click', async (e) => {
-	const button = e.currentTarget;
-	button.classList.add('loading');
-	button.disabled = true;
+const refreshCacheButton = document.getElementById('refreshCache');
+if (refreshCacheButton) {
+	refreshCacheButton.addEventListener('click', (e) => {
+		const button = e.currentTarget;
+		button.classList.add('loading');
+		button.disabled = true;
 
-	setTimeout(() => {
-		button.classList.remove('loading');
-		button.disabled = false;
-	}, 500);
-});
+		setTimeout(() => {
+			button.classList.remove('loading');
+			button.disabled = false;
+		}, 500);
+	});
+}
 
 function handleStartingDateChange() {
 	if (!startingDateElement) return;
@@ -200,18 +199,8 @@ function handleStartingDateChange() {
 }
 function handleEndingDateChange() {
 	if (!endingDateElement) return;
-	const value = endingDateElement.value;
-	browser.storage.local.set({ endingDate: value });
-	window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(
-		startingDateElement,
-		endingDateElement,
-	);
-}
-function handleEndingDateChange() {
-	window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(
-		startingDateElement,
-		endingDateElement,
-	);
+	if (!startingDateElement) return;
+	window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(startingDateElement, endingDateElement);
 }
 
 function handleYesterdayContributionChange() {
@@ -222,20 +211,21 @@ function handleYesterdayContributionChange() {
 	if (value) {
 		if (startingDateElement) startingDateElement.readOnly = true;
 		if (endingDateElement) endingDateElement.readOnly = true;
-		endingDateElement.value = getToday();
-		startingDateElement.value = getYesterday();
-		window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(
-			startingDateElement,
-			endingDateElement,
-		);
-		labelElement.classList.add('selectedLabel');
-		labelElement.classList.remove('unselectedLabel');
+		if (endingDateElement) endingDateElement.value = getToday();
+		if (startingDateElement) startingDateElement.value = getYesterday();
+		window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(startingDateElement, endingDateElement);
+		if (labelElement) {
+			labelElement.classList.add('selectedLabel');
+			labelElement.classList.remove('unselectedLabel');
+		}
 	} else {
-		startingDateElement.readOnly = false;
-		endingDateElement.readOnly = false;
+		if (startingDateElement) startingDateElement.readOnly = false;
+		if (endingDateElement) endingDateElement.readOnly = false;
 		window.scrumDateRangeUtils.normalizeDateRangeValues(startingDateElement, endingDateElement);
-		labelElement.classList.add('unselectedLabel');
-		labelElement.classList.remove('selectedLabel');
+		if (labelElement) {
+			labelElement.classList.add('unselectedLabel');
+			labelElement.classList.remove('selectedLabel');
+		}
 	}
 	browser.storage.local.set({ yesterdayContribution: value });
 }

@@ -1036,16 +1036,10 @@ document.addEventListener('DOMContentLoaded', () => {
 			browser.storage.local.set({ yesterdayContribution: yesterdayRadio.checked });
 		});
 		startingDateInput.addEventListener('input', () => {
-			window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(
-				startingDateInput,
-				endingDateInput,
-			);
+			window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(startingDateInput, endingDateInput);
 		});
 		endingDateInput.addEventListener('input', () => {
-			window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(
-				startingDateInput,
-				endingDateInput,
-			);
+			window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(startingDateInput, endingDateInput);
 		});
 
 		// Save username to storage on input
