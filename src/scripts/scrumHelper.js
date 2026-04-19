@@ -330,7 +330,9 @@ function allIncluded(outputTarget = 'email') {
 
 				if (platform === 'github') {
 					if (platformUsernameLocal) {
-						fetchGithubData();
+						fetchGithubData().catch((err) => {
+							logError('Unhandled GitHub fetch failure:', err);
+						});
 					} else {
 						if (outputTarget === 'popup') {
 							console.log('[DEBUG] No username found - popup context');
@@ -963,9 +965,16 @@ function allIncluded(outputTarget = 'email') {
 					let errorMsg =
 						chrome?.i18n.getMessage('reportGenerationError') || 'An error occurred while generating the report.';
 					if (err) {
-						if (typeof err === 'string') errorMsg = err;
-						else if (err.message) errorMsg = err.message;
-						else errorMsg = JSON.stringify(err);
+						if (typeof err === 'string') {
+							errorMsg = err;
+						} else if (err.message) {
+							if (/failed to fetch|networkerror|network changed|err_network_changed/i.test(err.message)) {
+								errorMsg =
+									'Network connection changed while contacting GitHub. Please check your internet and try again.';
+							} else {
+								errorMsg = err.message;
+							}
+						} else errorMsg = JSON.stringify(err);
 					}
 					renderErrorMessage(scrumReport, '', errorMsg);
 					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
