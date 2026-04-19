@@ -678,6 +678,13 @@ document.addEventListener('DOMContentLoaded', () => {
 				if (typeof result.yesterdayContribution !== 'undefined') yesterdayRadio.checked = result.yesterdayContribution;
 				if (result.startingDate) startingDateInput.value = result.startingDate;
 				if (result.endingDate) endingDateInput.value = result.endingDate;
+				const wasNormalizedOnLoad = window.scrumDateRangeUtils.normalizeDateRangeValues(
+					startingDateInput,
+					endingDateInput,
+				);
+				if (wasNormalizedOnLoad) {
+					window.scrumDateRangeUtils.persistDateRange(startingDateInput, endingDateInput);
+				}
 
 				// Load platform-specific username
 				const platform = result.platform || 'github';
@@ -1029,10 +1036,16 @@ document.addEventListener('DOMContentLoaded', () => {
 			browser.storage.local.set({ yesterdayContribution: yesterdayRadio.checked });
 		});
 		startingDateInput.addEventListener('input', () => {
-			browser.storage.local.set({ startingDate: startingDateInput.value });
+			window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(
+				startingDateInput,
+				endingDateInput,
+			);
 		});
 		endingDateInput.addEventListener('input', () => {
-			browser.storage.local.set({ endingDate: endingDateInput.value });
+			window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(
+				startingDateInput,
+				endingDateInput,
+			);
 		});
 
 		// Save username to storage on input
