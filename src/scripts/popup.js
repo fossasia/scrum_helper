@@ -90,6 +90,14 @@ function getYesterday() {
 	return yesterday.toISOString().split('T')[0];
 }
 
+function hasScrumReportContent(scrumReportEl = document.getElementById('scrumReport')) {
+	if (!scrumReportEl) {
+		return false;
+	}
+
+	return Boolean(scrumReportEl.textContent?.trim() || scrumReportEl.innerHTML?.trim());
+}
+
 function applyI18n() {
 	document.querySelectorAll('[data-i18n]').forEach((el) => {
 		const key = el.getAttribute('data-i18n');
@@ -679,7 +687,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				const content = scrumReport ? scrumReport.innerHTML : '';
 				const subject = buildScrumSubjectFromPopup();
 
-				if (!content) {
+				if (!hasScrumReportContent(scrumReport)) {
 					insertBtn._triggeredByShortcut = false;
 					return;
 				}
@@ -741,6 +749,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		copyBtn.addEventListener('click', function () {
 			const scrumReport = document.getElementById('scrumReport');
+			if (!hasScrumReportContent(scrumReport)) {
+				this._triggeredByShortcut = false;
+				return;
+			}
+
 			const tempDiv = document.createElement('div');
 			tempDiv.innerHTML = scrumReport.innerHTML;
 			document.body.appendChild(tempDiv);
@@ -2081,14 +2094,32 @@ document.addEventListener('keydown', (e) => {
 		generateBtn.click();
 	}
 
-	if (modifier && e.shiftKey && !e.altKey && key === 'y' && !e.repeat && copyBtn && !copyBtn.disabled) {
+	if (
+		modifier &&
+		e.shiftKey &&
+		!e.altKey &&
+		key === 'y' &&
+		!e.repeat &&
+		copyBtn &&
+		!copyBtn.disabled &&
+		hasScrumReportContent()
+	) {
 		e.preventDefault();
 		showShortcutNotification('copyingReportNotification');
 		copyBtn._triggeredByShortcut = true;
 		copyBtn.click();
 	}
 
-	if (modifier && e.shiftKey && !e.altKey && key === 'm' && !e.repeat && insertEmailBtn && !insertEmailBtn.disabled) {
+	if (
+		modifier &&
+		e.shiftKey &&
+		!e.altKey &&
+		key === 'm' &&
+		!e.repeat &&
+		insertEmailBtn &&
+		!insertEmailBtn.disabled &&
+		hasScrumReportContent()
+	) {
 		e.preventDefault();
 		showShortcutNotification('insertingInEmailNotification');
 		insertEmailBtn._triggeredByShortcut = true;
