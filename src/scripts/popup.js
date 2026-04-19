@@ -126,6 +126,12 @@ document.addEventListener('DOMContentLoaded', () => {
 	applyI18n();
 	setupButtonTooltips();
 
+	// Initialize versioned reportConfig storage once (non-destructive).
+	// Keeps existing legacy keys as the source of truth for now, but creates/syncs reportConfig for later PRs.
+	void window.ReportConfigStorage?.migrateLegacyIfNeeded?.().catch((e) => {
+			console.warn('[reportConfig] migration skipped/failed:', e);
+	});
+
 	// Dark mode setup
 	const darkModeToggle = document.querySelector('img[alt="Night Mode"]');
 	const settingsIcon = document.getElementById('settingsIcon');
@@ -344,6 +350,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	githubTokenInput.addEventListener('input', checkTokenForFilter);
+	githubTokenInput.addEventListener('input', () => checkTokenForShowCommits({ persistState: false }));
 	githubTokenInput.addEventListener('input', () =>
 		checkTokenForShowCommits({ persistState: false }),
 	);
@@ -418,9 +425,12 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (!generateBtn) return;
 		if (!isLoading) return;
 
+		generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>';
 		const msg = browser.i18n.getMessage('generatingButton') || 'Generating...';
 		generateBtn.innerHTML = `<i class="fa fa-spinner fa-spin"></i> ${msg}`;
 		generateBtn.disabled = true;
+		generateBtn.setAttribute('aria-busy', 'true');
+		generateBtn.title = chrome?.i18n.getMessage('generatingButton') || 'Generating...';
 	}
 
 	function showPopupMessage(message) {
@@ -491,10 +501,15 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (timestamp > 0) {
 			const age = Date.now() - timestamp;
 
-			const storageValues = await storageLocalGet([
-				`${activePlatform}LastScrumReportHtml`,
-				`${activePlatform}LastScrumReportCacheKey`,
-				`${activePlatform}LastScrumReportUsername`,
+			const {
+				lastScrumReportHtml,
+				lastScrumReportPlatform,
+				lastScrumReportCacheKey,
+				lastScrumReportUsername,
+				githubUsername,
+				gitlabUsername,
+				platformUsername
+			} = await storageLocalGet([
 				'lastScrumReportHtml',
 				'lastScrumReportPlatform',
 				'lastScrumReportCacheKey',
@@ -504,20 +519,9 @@ document.addEventListener('DOMContentLoaded', () => {
 				'platformUsername'
 			]);
 
-			let lastScrumReportHtml = storageValues[`${activePlatform}LastScrumReportHtml`];
-			let lastScrumReportCacheKey = storageValues[`${activePlatform}LastScrumReportCacheKey`];
-			let lastScrumReportUsername = storageValues[`${activePlatform}LastScrumReportUsername`];
-
-			if (storageValues.lastScrumReportHtml && (!storageValues.lastScrumReportPlatform || storageValues.lastScrumReportPlatform === activePlatform) && !lastScrumReportHtml) {
-				lastScrumReportHtml = storageValues.lastScrumReportHtml;
-				lastScrumReportCacheKey = storageValues.lastScrumReportCacheKey;
-				lastScrumReportUsername = storageValues.lastScrumReportUsername;
-			}
-
 			const expectedUsername = activePlatform === 'gitlab'
-				? (storageValues.gitlabUsername || storageValues.platformUsername)
-				: (storageValues.githubUsername || storageValues.platformUsername);
-
+				? (gitlabUsername || platformUsername)
+				: (githubUsername || platformUsername);
 			const isUsernameMatch = lastScrumReportUsername 
 				? lastScrumReportUsername === expectedUsername
 				: (lastScrumReportCacheKey && expectedUsername && lastScrumReportCacheKey.startsWith(expectedUsername + '-'));
@@ -527,6 +531,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				const reportEmpty = !scrumReport.innerHTML || !scrumReport.innerHTML.trim();
 
 				const matches =
+					(!lastScrumReportPlatform || lastScrumReportPlatform === activePlatform) &&
 					(!lastScrumReportCacheKey || lastScrumReportCacheKey === cacheKey) &&
 					isUsernameMatch;
 
@@ -631,20 +636,9 @@ document.addEventListener('DOMContentLoaded', () => {
 				// prefer "Only Issues" and clear "Only PRs", then persist the corrected state.
 				if (onlyIssuesCheckbox.checked && onlyPRsCheckbox.checked) {
 					onlyPRsCheckbox.checked = false;
-					browser?.storage.local.set({ onlyPRs: false });
-				}
-				if (onlyMergedPRsCheckbox.checked && onlyRevPRsCheckbox.checked) {
-					onlyRevPRsCheckbox.checked = false;
-					browser?.storage.local.set({ onlyRevPRs: false });
-				}
-				// onlyMergedPRs overrides onlyIssues and onlyPRs
-				if (onlyMergedPRsCheckbox.checked && onlyIssuesCheckbox.checked) {
-					onlyIssuesCheckbox.checked = false;
-					browser?.storage.local.set({ onlyIssues: false });
-				}
-				if (onlyMergedPRsCheckbox.checked && onlyPRsCheckbox.checked) {
-					onlyPRsCheckbox.checked = false;
-					browser?.storage.local.set({ onlyPRs: false });
+					if (browser?.storage?.sync) {
+						browser.storage.sync.set({ onlyPRs: false });
+					}
 				}
 				if (result.githubToken) githubTokenInput.value = result.githubToken;
 				if (result.cacheInput) cacheInput.value = result.cacheInput;
@@ -664,9 +658,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				const platformUsernameKey = `${platform}Username`;
 				platformUsername.value = result[platformUsernameKey] || '';
 				checkTokenForShowCommits();
-				checkTokenForMergedPRs();
-			},
-		);
+			});
 
 		// Button setup
 		const generateBtn = document.getElementById('generateReport');
@@ -679,39 +671,16 @@ document.addEventListener('DOMContentLoaded', () => {
 				const content = scrumReport ? scrumReport.innerHTML : '';
 				const subject = buildScrumSubjectFromPopup();
 
-				if (!content) {
-					insertBtn._triggeredByShortcut = false;
-					return;
-				}
+				if (!content) return;
 
-				browser.tabs
-					.query({ active: true, currentWindow: true })
-					.then((tabs) => {
-						const tabId = tabs?.[0]?.id;
-						if (!tabId) {
-							insertBtn._triggeredByShortcut = false;
-							return;
+				browser.tabs.query({ active: true, currentWindow: true }).then((tabs) => {
+					const tabId = tabs?.[0]?.id;
+					if (!tabId) return;
+
+					browser.tabs.sendMessage(tabId, { action: 'insertReportToEmail', content, subject }).then((response) => {
+						if (!response?.success) {
+							console.warn('Insert to Email failed:', response?.error);
 						}
-
-						browser.tabs
-							.sendMessage(tabId, { action: 'insertReportToEmail', content, subject })
-							.then((response) => {
-								if (response?.success && insertBtn._triggeredByShortcut) {
-									showShortcutNotification('insertedInEmailNotification');
-								} else if (!response?.success) {
-									console.warn('Insert to Email failed:', response?.error);
-								}
-							})
-							.catch((error) => {
-								console.warn('Insert to Email failed:', error?.message || error);
-							})
-							.finally(() => {
-								insertBtn._triggeredByShortcut = false;
-							});
-					})
-					.catch((error) => {
-						console.warn('Unable to get active tab:', error?.message || error);
-						insertBtn._triggeredByShortcut = false;
 					});
 			});
 		}
@@ -731,8 +700,10 @@ document.addEventListener('DOMContentLoaded', () => {
 						browser.storage.local.get(['platform']).then((res) => {
 							platformSelect.value = res.platform || 'github';
 							updatePlatformUI(platformSelect.value);
-							generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
+							generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin" aria-hidden="true"></i>';
 							generateBtn.disabled = true;
+							generateBtn.setAttribute('aria-busy', 'true');
+							generateBtn.title = chrome?.i18n.getMessage('generatingButton') || 'Generating...';
 							window.generateScrumReport && window.generateScrumReport();
 						});
 					});
@@ -755,14 +726,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			try {
 				document.execCommand('copy');
-				if (this._triggeredByShortcut) {
-					const notificationKey =
-						browser?.i18n && browser.i18n.getMessage('copiedReportNotification')
-							? 'copiedReportNotification'
-							: 'copiedButton';
-					showShortcutNotification(notificationKey);
-				}
-				this.innerHTML = `<i class="fa fa-check"></i> ${browser?.i18n.getMessage('copiedButton')}`;
+				this.innerHTML = `<i class="fa fa-check"></i> ${browser.i18n.getMessage('copiedButton')}`;
 				setTimeout(() => {
 					this.innerHTML = `<i class="fa fa-copy"></i> ${browser.i18n.getMessage('copyReportButton')}`;
 				}, 2000);
@@ -873,69 +837,29 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (onlyIssuesCheckbox && onlyPRsCheckbox) {
 			onlyIssuesCheckbox.addEventListener('change', () => {
 				const checked = onlyIssuesCheckbox.checked;
-				browser?.storage.local.set({ onlyIssues: checked }, () => {
-					if (checked) {
-						if (onlyPRsCheckbox.checked) {
-							onlyPRsCheckbox.checked = false;
-							browser?.storage.local.set({ onlyPRs: false });
-						}
-						if (onlyMergedPRsCheckbox && onlyMergedPRsCheckbox.checked) {
-							onlyMergedPRsCheckbox.checked = false;
-							browser?.storage.local.set({ onlyMergedPRs: false });
-						}
+				browser.storage.local.set({ onlyIssues: checked }).then(() => {
+					if (checked && onlyPRsCheckbox.checked) {
+						// Uncheck the previously selected "Only PRs"
+						onlyPRsCheckbox.checked = false;
+						browser.storage.local.set({ onlyPRs: false });
 					}
 				});
 			});
 
 			onlyPRsCheckbox.addEventListener('change', () => {
 				const checked = onlyPRsCheckbox.checked;
-				browser?.storage.local.set({ onlyPRs: checked }, () => {
-					if (checked) {
-						if (onlyIssuesCheckbox.checked) {
-							onlyIssuesCheckbox.checked = false;
-							browser?.storage.local.set({ onlyIssues: false });
-						}
-						if (onlyMergedPRsCheckbox && onlyMergedPRsCheckbox.checked) {
-							onlyMergedPRsCheckbox.checked = false;
-							browser?.storage.local.set({ onlyMergedPRs: false });
-						}
+				browser.storage.local.set({ onlyPRs: checked }).then(() => {
+					if (checked && onlyIssuesCheckbox.checked) {
+						// Uncheck the previously selected "Only Issues"
+						onlyIssuesCheckbox.checked = false;
+						browser.storage.local.set({ onlyIssues: false });
 					}
 				});
 			});
 
 			if (onlyRevPRsCheckbox) {
 				onlyRevPRsCheckbox.addEventListener('change', () => {
-					const checked = onlyRevPRsCheckbox.checked;
-					browser?.storage.local.set({ onlyRevPRs: checked }, () => {
-						if (checked && onlyMergedPRsCheckbox && onlyMergedPRsCheckbox.checked) {
-							onlyMergedPRsCheckbox.checked = false;
-							browser?.storage.local.set({ onlyMergedPRs: false });
-						}
-					});
-				});
-			}
-			if (onlyMergedPRsCheckbox) {
-				onlyMergedPRsCheckbox.addEventListener('change', () => {
-					if (onlyMergedPRsCheckbox.checked) {
-						if (onlyRevPRsCheckbox && onlyRevPRsCheckbox.checked) {
-							onlyRevPRsCheckbox.checked = false;
-							browser?.storage.local.set({ onlyRevPRs: false });
-						}
-						if (onlyIssuesCheckbox && onlyIssuesCheckbox.checked) {
-							onlyIssuesCheckbox.checked = false;
-							browser?.storage.local.set({ onlyIssues: false });
-						}
-						if (onlyPRsCheckbox && onlyPRsCheckbox.checked) {
-							onlyPRsCheckbox.checked = false;
-							browser?.storage.local.set({ onlyPRs: false });
-						}
-					}
-					checkTokenForMergedPRs({
-						showWarning: true,
-						animateWarning: true,
-						warningDurationMs: 3000,
-						persistState: true,
-					});
+					browser.storage.local.set({ onlyRevPRs: onlyRevPRsCheckbox.checked });
 				});
 			}
 		}
@@ -1705,16 +1629,7 @@ function updatePlatformUI(platform) {
 
 platformSelect.addEventListener('change', () => {
 	const platform = platformSelect.value;
-	browser.storage.local.set({ platform }).then(() => {
-		const scrumReport = document.getElementById('scrumReport');
-		if(scrumReport){
-			scrumReport.innerHTML = '';
-		}
-		const generateBtn = document.getElementById('generateReport');
-		if(typeof bootstrapScrumReportOnPopupLoad === 'function'){
-			bootstrapScrumReportOnPopupLoad(generateBtn);
-		}
-	});
+	browser.storage.local.set({ platform });
 	const platformUsername = document.getElementById('platformUsername');
 	if (platformUsername) {
 		const currentPlatform = platformSelect.value === 'github' ? 'gitlab' : 'github'; // Get the platform we're switching from
@@ -1765,15 +1680,7 @@ function setPlatformDropdown(value) {
 	}
 
 	platformSelectHidden.value = value;
-	browser.storage.local.set({ platform: value }).then(() => {
-		const scrumReport = document.getElementById('scrumReport');
-		if(scrumReport) scrumReport.innerHTML = '';
-
-		const generateBtn = document.getElementById('generateReport');
-		if(typeof bootstrapScrumReportOnPopupLoad === 'function'){
-			bootstrapScrumReportOnPopupLoad(generateBtn);
-		}
-	});
+	browser.storage.local.set({ platform: value });
 
 	browser.storage.local.get([`${value}Username`]).then((result) => {
 		if (platformUsername) {
