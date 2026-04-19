@@ -31,22 +31,6 @@ function renderErrorMessage(container, key, fallback, args = []) {
 	container.appendChild(errorDiv);
 }
 
-async function getGithubTokenFingerprint(token) {
-	const normalizedToken = token?.trim();
-	if (!normalizedToken) {
-		return 'noauth';
-	}
-
-	const inputBytes = new TextEncoder().encode(normalizedToken);
-	const digest = await crypto.subtle.digest('SHA-256', inputBytes);
-	const bytes = new Uint8Array(digest).slice(0, 12);
-	const hex = Array.from(bytes)
-		.map((byte) => byte.toString(16).padStart(2, '0'))
-		.join('');
-
-	return `tok-${hex}`;
-}
-
 let refreshButton_Placed = false;
 let hasInjectedContent = false;
 let scrumGenerationInProgress = false;
