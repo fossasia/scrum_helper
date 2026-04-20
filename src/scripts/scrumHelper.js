@@ -204,7 +204,7 @@ function allIncluded(outputTarget = 'email') {
 				onlyMergedPRs = normalized.onlyMergedPRs;
 				showCommits = normalized.showCommits;
 				if (Object.keys(corrections).length > 0) {
-					chrome.storage.local.set(corrections);
+					browser.storage.local.set(corrections);
 				}
 				showOpenLabel = items.showOpenLabel !== false; // Default to true if not explicitly set to false
 				orgName = items.orgName || '';
