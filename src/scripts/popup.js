@@ -90,6 +90,34 @@ function getYesterday() {
 	return yesterday.toISOString().split('T')[0];
 }
 
+// Validate that start date is not after end date
+function validateDateRange(startDate, endDate) {
+	if (!startDate || !endDate) {
+		return true; // Allow empty dates (will be handled by other validation)
+	}
+	
+	const start = new Date(startDate);
+	const end = new Date(endDate);
+	
+	// Check for invalid dates
+	if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+		return true; // Allow invalid dates to be handled by other validation
+	}
+	
+	return start <= end;
+}
+
+// Show date validation error message
+function showDateValidationError(message) {
+	// Use Materialize toast if available
+	if (typeof Materialize !== 'undefined' && Materialize.toast) {
+		Materialize.toast(message, 4000, 'red');
+	} else {
+		// Fallback to alert if Materialize is not available
+		alert(message);
+	}
+}
+
 function applyI18n() {
 	document.querySelectorAll('[data-i18n]').forEach((el) => {
 		const key = el.getAttribute('data-i18n');
@@ -705,6 +733,24 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 
 		generateBtn.addEventListener('click', () => {
+			// Validate date range before generating report
+			const startDateInput = document.getElementById('startingDate');
+			const endDateInput = document.getElementById('endingDate');
+			const yesterdayRadio = document.getElementById('yesterdayContribution');
+			
+			// Only validate if using custom date range (not yesterday preset)
+			if (!yesterdayRadio.checked && startDateInput && endDateInput) {
+				const startDate = startDateInput.value;
+				const endDate = endDateInput.value;
+				
+				if (!validateDateRange(startDate, endDate)) {
+					const errorMessage = chrome?.i18n.getMessage('invalidDateRangeError') || 
+						'Invalid date range. Please select a valid date range.';
+					showDateValidationError(errorMessage);
+					return; // Stop report generation
+				}
+			}
+			
 			browser.storage.local.get(['platform']).then((result) => {
 				const platform = result.platform || 'github';
 				const platformUsernameKey = `${platform}Username`;
@@ -989,9 +1035,35 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 		startingDateInput.addEventListener('input', () => {
 			browser.storage.local.set({ startingDate: startingDateInput.value });
+			
+			// Real-time validation for custom date ranges
+			const yesterdayRadio = document.getElementById('yesterdayContribution');
+			if (!yesterdayRadio.checked) {
+				const startDate = startingDateInput.value;
+				const endDate = endingDateInput.value;
+				
+				if (startDate && endDate && !validateDateRange(startDate, endDate)) {
+					const errorMessage = chrome?.i18n.getMessage('invalidDateRangeError') || 
+						'Invalid date range. Please select a valid date range.';
+					showDateValidationError(errorMessage);
+				}
+			}
 		});
 		endingDateInput.addEventListener('input', () => {
 			browser.storage.local.set({ endingDate: endingDateInput.value });
+			
+			// Real-time validation for custom date ranges
+			const yesterdayRadio = document.getElementById('yesterdayContribution');
+			if (!yesterdayRadio.checked) {
+				const startDate = startingDateInput.value;
+				const endDate = endingDateInput.value;
+				
+				if (startDate && endDate && !validateDateRange(startDate, endDate)) {
+					const errorMessage = chrome?.i18n.getMessage('invalidDateRangeError') || 
+						'Invalid date range. Please select a valid date range.';
+					showDateValidationError(errorMessage);
+				}
+			}
 		});
 
 		// Save username to storage on input
