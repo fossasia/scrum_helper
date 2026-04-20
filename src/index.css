@@ -401,7 +401,7 @@ hr,
     }
 }
 .invalid-org {
-	border: 1px solid #ef4444 !important;
+	border-color: #ef4444;
 }
 @keyframes shake {
 
