@@ -20,6 +20,9 @@ jobs:
             const UPSTREAM_OWNER = 'fossasia';
             const UPSTREAM_REPO = 'scrum_helper';
 
+            const MAX_FORKS = 100; // limit processing
+            const ACTIVE_DAYS = 30; // only forks updated in last 30 days
+
             let syncedCount = 0;
             let skippedCount = 0;
             let errorCount = 0;
@@ -47,9 +50,9 @@ jobs:
 
               const upstreamBranch = upstreamRepo.default_branch;
 
-              console.log(`🔍 Fetching all forks of ${UPSTREAM_OWNER}/${UPSTREAM_REPO}...`);
+              console.log(`🔍 Fetching forks...`);
 
-              const forks = await github.paginate(
+              let forks = await github.paginate(
                 github.rest.repos.listForks,
                 {
                   owner: UPSTREAM_OWNER,
@@ -59,6 +62,23 @@ jobs:
               );
 
               console.log(`📦 Total forks found: ${forks.length}`);
+
+              //Filter active forks
+              const now = Date.now();
+              forks = forks.filter(fork => {
+                const updatedRecently =
+                  new Date(fork.updated_at).getTime() >
+                  (now - ACTIVE_DAYS * 24 * 60 * 60 * 1000);
+
+                return !fork.archived && updatedRecently;
+              });
+
+              console.log(`⚡ Active forks (last ${ACTIVE_DAYS} days): ${forks.length}`);
+
+              //Limit number of forks
+              forks = forks.slice(0, MAX_FORKS);
+
+              console.log(`🚀 Processing first ${forks.length} forks`);
 
               for (const fork of forks) {
                 try {
