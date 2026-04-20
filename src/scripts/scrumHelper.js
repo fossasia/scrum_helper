@@ -733,9 +733,6 @@ function allIncluded(outputTarget = 'email') {
 					chrome?.i18n.getMessage('invalidSearchQueryError') ||
 					`Invalid search query or date range. Please verify your date range format and try again.`;
 				logError(errorMsg);
-				if (outputTarget === 'popup') {
-					Materialize.toast && Materialize.toast(errorMsg, 4000);
-				}
 				throw new Error(errorMsg);
 			}
 
