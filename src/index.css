@@ -60,7 +60,8 @@ a {
 
 .scrum-actions {
     display: flex;
-    gap: 4px;
+    flex-wrap: wrap;
+    gap: 8px;
 }
 
 .scrum-actions>button,
@@ -73,9 +74,18 @@ a {
     width: 100%;
 }
 
+.scrum-actions>button,
+.scrum-actions>.tooltip-container>button {
+    text-align: center;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
 .scrum-actions>button span,
 .scrum-actions>.tooltip-container>button span {
-    white-space: nowrap;
+    display: block;
+    text-align: center;
+    white-space: normal;
 }
 
 .btn,
