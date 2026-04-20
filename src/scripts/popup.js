@@ -156,6 +156,66 @@ document.addEventListener('DOMContentLoaded', () => {
 	const platformUsername = document.getElementById('platformUsername');
 	let showCommitsWarningTimeout;
 	let mergedPRsWarningTimeout;
+	const advancedFilterCheckboxes = {
+		onlyIssues: document.getElementById('onlyIssues'),
+		onlyPRs: document.getElementById('onlyPRs'),
+		onlyRevPRs: document.getElementById('onlyRevPRs'),
+		onlyMergedPRs: document.getElementById('onlyMergedPRs'),
+		showCommits: document.getElementById('showCommits'),
+	};
+	const advancedFilterConflicts = {
+		onlyIssues: ['onlyPRs', 'onlyRevPRs', 'onlyMergedPRs', 'showCommits'],
+		onlyPRs: ['onlyIssues', 'onlyRevPRs', 'onlyMergedPRs'],
+		onlyRevPRs: ['onlyIssues', 'onlyPRs', 'onlyMergedPRs', 'showCommits'],
+		onlyMergedPRs: ['onlyIssues', 'onlyPRs', 'onlyRevPRs', 'showCommits'],
+		showCommits: ['onlyIssues', 'onlyRevPRs', 'onlyMergedPRs'],
+	};
+
+	function normalizeAdvancedFilters({ selectedKey = null, persist = false } = {}) {
+		const changes = {};
+		const setCheckboxValue = (key, checked) => {
+			const checkbox = advancedFilterCheckboxes[key];
+			if (!checkbox || checkbox.checked === checked) {
+				return;
+			}
+			checkbox.checked = checked;
+			changes[key] = checked;
+		};
+
+		if (selectedKey && advancedFilterCheckboxes[selectedKey]?.checked) {
+			changes[selectedKey] = true;
+			for (const conflictKey of advancedFilterConflicts[selectedKey] || []) {
+				setCheckboxValue(conflictKey, false);
+			}
+		} else {
+			const priorityOrder = ['onlyIssues', 'onlyPRs', 'onlyRevPRs', 'onlyMergedPRs'];
+			let activePrimary = null;
+			for (const key of priorityOrder) {
+				const checkbox = advancedFilterCheckboxes[key];
+				if (!checkbox?.checked) {
+					continue;
+				}
+				if (!activePrimary) {
+					activePrimary = key;
+					continue;
+				}
+				setCheckboxValue(key, false);
+			}
+
+			if (advancedFilterCheckboxes.showCommits?.checked && activePrimary) {
+				const showCommitsConflicts = advancedFilterConflicts.showCommits || [];
+				if (showCommitsConflicts.includes(activePrimary)) {
+					setCheckboxValue('showCommits', false);
+				}
+			}
+		}
+
+		if (persist && Object.keys(changes).length) {
+			browser.storage.local.set(changes);
+		}
+
+		return changes;
+	}
 
 	function checkTokenForFilter() {
 		const useRepoFilter = document.getElementById('useRepoFilter');
@@ -344,12 +404,8 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	githubTokenInput.addEventListener('input', checkTokenForFilter);
-	githubTokenInput.addEventListener('input', () =>
-		checkTokenForShowCommits({ persistState: false }),
-	);
-	githubTokenInput.addEventListener('input', () =>
-		checkTokenForMergedPRs({ persistState: false }),
-	);
+	githubTokenInput.addEventListener('input', () => checkTokenForShowCommits({ persistState: false }));
+	githubTokenInput.addEventListener('input', () => checkTokenForMergedPRs({ persistState: false }));
 
 	darkModeToggle.addEventListener('click', function () {
 		body.classList.toggle('dark-mode');
@@ -501,34 +557,37 @@ document.addEventListener('DOMContentLoaded', () => {
 				'lastScrumReportUsername',
 				'githubUsername',
 				'gitlabUsername',
-				'platformUsername'
+				'platformUsername',
 			]);
 
 			let lastScrumReportHtml = storageValues[`${activePlatform}LastScrumReportHtml`];
 			let lastScrumReportCacheKey = storageValues[`${activePlatform}LastScrumReportCacheKey`];
 			let lastScrumReportUsername = storageValues[`${activePlatform}LastScrumReportUsername`];
 
-			if (storageValues.lastScrumReportHtml && (!storageValues.lastScrumReportPlatform || storageValues.lastScrumReportPlatform === activePlatform) && !lastScrumReportHtml) {
+			if (
+				storageValues.lastScrumReportHtml &&
+				(!storageValues.lastScrumReportPlatform || storageValues.lastScrumReportPlatform === activePlatform) &&
+				!lastScrumReportHtml
+			) {
 				lastScrumReportHtml = storageValues.lastScrumReportHtml;
 				lastScrumReportCacheKey = storageValues.lastScrumReportCacheKey;
 				lastScrumReportUsername = storageValues.lastScrumReportUsername;
 			}
 
-			const expectedUsername = activePlatform === 'gitlab'
-				? (storageValues.gitlabUsername || storageValues.platformUsername)
-				: (storageValues.githubUsername || storageValues.platformUsername);
+			const expectedUsername =
+				activePlatform === 'gitlab'
+					? storageValues.gitlabUsername || storageValues.platformUsername
+					: storageValues.githubUsername || storageValues.platformUsername;
 
-			const isUsernameMatch = lastScrumReportUsername 
+			const isUsernameMatch = lastScrumReportUsername
 				? lastScrumReportUsername === expectedUsername
-				: (lastScrumReportCacheKey && expectedUsername && lastScrumReportCacheKey.startsWith(expectedUsername + '-'));
+				: lastScrumReportCacheKey && expectedUsername && lastScrumReportCacheKey.startsWith(expectedUsername + '-');
 
 			if (age < ttlMs) {
 				const cacheKey = cache?.cacheKey ?? null;
 				const reportEmpty = !scrumReport.innerHTML || !scrumReport.innerHTML.trim();
 
-				const matches =
-					(!lastScrumReportCacheKey || lastScrumReportCacheKey === cacheKey) &&
-					isUsernameMatch;
+				const matches = (!lastScrumReportCacheKey || lastScrumReportCacheKey === cacheKey) && isUsernameMatch;
 
 				if (reportEmpty && lastScrumReportHtml && matches) {
 					scrumReport.innerHTML = lastScrumReportHtml;
@@ -625,27 +684,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				if (typeof result.onlyMergedPRs !== 'undefined') {
 					onlyMergedPRsCheckbox.checked = result.onlyMergedPRs;
 				}
-
-				// Reconcile mutually exclusive "Only Issues" and "Only PRs" flags on initialization.
-				// If both are somehow true in storage (e.g., from an older version or manual edits),
-				// prefer "Only Issues" and clear "Only PRs", then persist the corrected state.
-				if (onlyIssuesCheckbox.checked && onlyPRsCheckbox.checked) {
-					onlyPRsCheckbox.checked = false;
-					browser?.storage.local.set({ onlyPRs: false });
-				}
-				if (onlyMergedPRsCheckbox.checked && onlyRevPRsCheckbox.checked) {
-					onlyRevPRsCheckbox.checked = false;
-					browser?.storage.local.set({ onlyRevPRs: false });
-				}
-				// onlyMergedPRs overrides onlyIssues and onlyPRs
-				if (onlyMergedPRsCheckbox.checked && onlyIssuesCheckbox.checked) {
-					onlyIssuesCheckbox.checked = false;
-					browser?.storage.local.set({ onlyIssues: false });
-				}
-				if (onlyMergedPRsCheckbox.checked && onlyPRsCheckbox.checked) {
-					onlyPRsCheckbox.checked = false;
-					browser?.storage.local.set({ onlyPRs: false });
-				}
+				normalizeAdvancedFilters({ persist: true });
 				if (result.githubToken) githubTokenInput.value = result.githubToken;
 				if (result.cacheInput) cacheInput.value = result.cacheInput;
 				if (typeof result.yesterdayContribution !== 'undefined') yesterdayRadio.checked = result.yesterdayContribution;
@@ -658,8 +697,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				platformUsername.value = result[platformUsernameKey] || '';
 				checkTokenForShowCommits();
 				checkTokenForMergedPRs();
-			},
-		);
+			});
 
 		// Button setup
 		const generateBtn = document.getElementById('generateReport');
@@ -866,62 +904,36 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (onlyIssuesCheckbox && onlyPRsCheckbox) {
 			onlyIssuesCheckbox.addEventListener('change', () => {
 				const checked = onlyIssuesCheckbox.checked;
-				browser?.storage.local.set({ onlyIssues: checked }, () => {
-					if (checked) {
-						if (onlyPRsCheckbox.checked) {
-							onlyPRsCheckbox.checked = false;
-							browser?.storage.local.set({ onlyPRs: false });
-						}
-						if (onlyMergedPRsCheckbox && onlyMergedPRsCheckbox.checked) {
-							onlyMergedPRsCheckbox.checked = false;
-							browser?.storage.local.set({ onlyMergedPRs: false });
-						}
-					}
-				});
+				if (checked) {
+					normalizeAdvancedFilters({ selectedKey: 'onlyIssues', persist: true });
+					return;
+				}
+				browser?.storage.local.set({ onlyIssues: false });
 			});
 
 			onlyPRsCheckbox.addEventListener('change', () => {
 				const checked = onlyPRsCheckbox.checked;
-				browser?.storage.local.set({ onlyPRs: checked }, () => {
-					if (checked) {
-						if (onlyIssuesCheckbox.checked) {
-							onlyIssuesCheckbox.checked = false;
-							browser?.storage.local.set({ onlyIssues: false });
-						}
-						if (onlyMergedPRsCheckbox && onlyMergedPRsCheckbox.checked) {
-							onlyMergedPRsCheckbox.checked = false;
-							browser?.storage.local.set({ onlyMergedPRs: false });
-						}
-					}
-				});
+				if (checked) {
+					normalizeAdvancedFilters({ selectedKey: 'onlyPRs', persist: true });
+					return;
+				}
+				browser?.storage.local.set({ onlyPRs: false });
 			});
 
 			if (onlyRevPRsCheckbox) {
 				onlyRevPRsCheckbox.addEventListener('change', () => {
 					const checked = onlyRevPRsCheckbox.checked;
-					browser?.storage.local.set({ onlyRevPRs: checked }, () => {
-						if (checked && onlyMergedPRsCheckbox && onlyMergedPRsCheckbox.checked) {
-							onlyMergedPRsCheckbox.checked = false;
-							browser?.storage.local.set({ onlyMergedPRs: false });
-						}
-					});
+					if (checked) {
+						normalizeAdvancedFilters({ selectedKey: 'onlyRevPRs', persist: true });
+						return;
+					}
+					browser?.storage.local.set({ onlyRevPRs: false });
 				});
 			}
 			if (onlyMergedPRsCheckbox) {
 				onlyMergedPRsCheckbox.addEventListener('change', () => {
 					if (onlyMergedPRsCheckbox.checked) {
-						if (onlyRevPRsCheckbox && onlyRevPRsCheckbox.checked) {
-							onlyRevPRsCheckbox.checked = false;
-							browser?.storage.local.set({ onlyRevPRs: false });
-						}
-						if (onlyIssuesCheckbox && onlyIssuesCheckbox.checked) {
-							onlyIssuesCheckbox.checked = false;
-							browser?.storage.local.set({ onlyIssues: false });
-						}
-						if (onlyPRsCheckbox && onlyPRsCheckbox.checked) {
-							onlyPRsCheckbox.checked = false;
-							browser?.storage.local.set({ onlyPRs: false });
-						}
+						normalizeAdvancedFilters({ selectedKey: 'onlyMergedPRs', persist: true });
 					}
 					checkTokenForMergedPRs({
 						showWarning: true,
@@ -933,6 +945,9 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		}
 		showCommitsCheckbox.addEventListener('change', () => {
+			if (showCommitsCheckbox.checked) {
+				normalizeAdvancedFilters({ selectedKey: 'showCommits', persist: true });
+			}
 			checkTokenForShowCommits({
 				showWarning: true,
 				animateWarning: true,
@@ -983,7 +998,9 @@ document.addEventListener('DOMContentLoaded', () => {
 				// Show notice instead of applying immediately
 				const modeLabel = mode === 'popup' ? 'Popup' : 'Side Panel';
 				if (displayModeNotice && displayModeNoticeText) {
-					displayModeNoticeText.textContent = chrome?.i18n.getMessage('displayModeNotice', [modeLabel]) || `The extension will open in ${modeLabel} mode on the next launch.`;
+					displayModeNoticeText.textContent =
+						chrome?.i18n.getMessage('displayModeNotice', [modeLabel]) ||
+						`The extension will open in ${modeLabel} mode on the next launch.`;
 					displayModeNotice.classList.remove('hidden');
 				}
 			});
@@ -1083,7 +1100,9 @@ document.addEventListener('DOMContentLoaded', () => {
 			} catch {}
 			if (platform !== 'github') {
 				// Do not run repo fetch for non-GitHub platforms
-				if (repoStatus) repoStatus.textContent = chrome?.i18n.getMessage('repoFilteringGithubOnly') || 'Repository filtering is only available for GitHub.';
+				if (repoStatus)
+					repoStatus.textContent =
+						chrome?.i18n.getMessage('repoFilteringGithubOnly') || 'Repository filtering is only available for GitHub.';
 				return;
 			}
 			if (!useRepoFilter.checked) {
@@ -1172,7 +1191,10 @@ document.addEventListener('DOMContentLoaded', () => {
 				if (platform !== 'github') {
 					repoFilterContainer.classList.add('hidden');
 					useRepoFilter.checked = false;
-					if (repoStatus) repoStatus.textContent = chrome?.i18n.getMessage('repoFilteringGithubOnly') || 'Repository filtering is only available for GitHub.';
+					if (repoStatus)
+						repoStatus.textContent =
+							chrome?.i18n.getMessage('repoFilteringGithubOnly') ||
+							'Repository filtering is only available for GitHub.';
 					return;
 				}
 				const enabled = useRepoFilter.checked;
@@ -1202,7 +1224,8 @@ document.addEventListener('DOMContentLoaded', () => {
 				});
 				checkTokenForFilter();
 				if (enabled) {
-					repoStatus.textContent = chrome?.i18n.getMessage('loadingReposAutomatically') || 'Loading repos automatically...';
+					repoStatus.textContent =
+						chrome?.i18n.getMessage('loadingReposAutomatically') || 'Loading repos automatically...';
 
 					try {
 						const cacheData = await browser.storage.local.get(['repoCache']);
@@ -1351,7 +1374,9 @@ document.addEventListener('DOMContentLoaded', () => {
 				platform = items.platform || 'github';
 			} catch {}
 			if (platform !== 'github') {
-				if (repoStatus) repoStatus.textContent = chrome?.i18n.getMessage('repoLoadingGithubOnly') || 'Repository loading is only available for GitHub.';
+				if (repoStatus)
+					repoStatus.textContent =
+						chrome?.i18n.getMessage('repoLoadingGithubOnly') || 'Repository loading is only available for GitHub.';
 				return;
 			}
 			console.log('window.fetchUserRepositories exists:', !!window.fetchUserRepositories);
@@ -1391,7 +1416,9 @@ document.addEventListener('DOMContentLoaded', () => {
 				platform = items.platform || 'github';
 			} catch (e) {}
 			if (platform !== 'github') {
-				if (repoStatus) repoStatus.textContent = chrome?.i18n.getMessage('repoFetchingGithubOnly') || 'Repository fetching is only available for GitHub.';
+				if (repoStatus)
+					repoStatus.textContent =
+						chrome?.i18n.getMessage('repoFetchingGithubOnly') || 'Repository fetching is only available for GitHub.';
 				return;
 			}
 			console.log('[POPUP-DEBUG] performRepoFetch called.');
@@ -1694,11 +1721,11 @@ platformSelect.addEventListener('change', () => {
 	const platform = platformSelect.value;
 	browser.storage.local.set({ platform }).then(() => {
 		const scrumReport = document.getElementById('scrumReport');
-		if(scrumReport){
+		if (scrumReport) {
 			scrumReport.innerHTML = '';
 		}
 		const generateBtn = document.getElementById('generateReport');
-		if(typeof bootstrapScrumReportOnPopupLoad === 'function'){
+		if (typeof bootstrapScrumReportOnPopupLoad === 'function') {
 			bootstrapScrumReportOnPopupLoad(generateBtn);
 		}
 	});
@@ -1754,10 +1781,10 @@ function setPlatformDropdown(value) {
 	platformSelectHidden.value = value;
 	browser.storage.local.set({ platform: value }).then(() => {
 		const scrumReport = document.getElementById('scrumReport');
-		if(scrumReport) scrumReport.innerHTML = '';
+		if (scrumReport) scrumReport.innerHTML = '';
 
 		const generateBtn = document.getElementById('generateReport');
-		if(typeof bootstrapScrumReportOnPopupLoad === 'function'){
+		if (typeof bootstrapScrumReportOnPopupLoad === 'function') {
 			bootstrapScrumReportOnPopupLoad(generateBtn);
 		}
 	});

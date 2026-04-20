@@ -78,6 +78,42 @@ function allIncluded(outputTarget = 'email') {
 	let onlyRevPRs = false;
 	let onlyMergedPRs = false;
 
+	function normalizeAdvancedFilterState(filters) {
+		const normalized = {
+			onlyIssues: filters.onlyIssues === true,
+			onlyPRs: filters.onlyPRs === true,
+			onlyRevPRs: filters.onlyRevPRs === true,
+			onlyMergedPRs: filters.onlyMergedPRs === true,
+			showCommits: filters.showCommits === true,
+		};
+		const corrections = {};
+		const priorityOrder = ['onlyIssues', 'onlyPRs', 'onlyRevPRs', 'onlyMergedPRs'];
+		let activePrimary = null;
+
+		for (const key of priorityOrder) {
+			if (!normalized[key]) {
+				continue;
+			}
+			if (!activePrimary) {
+				activePrimary = key;
+				continue;
+			}
+			normalized[key] = false;
+			corrections[key] = false;
+		}
+
+		if (
+			normalized.showCommits &&
+			activePrimary &&
+			['onlyIssues', 'onlyRevPRs', 'onlyMergedPRs'].includes(activePrimary)
+		) {
+			normalized.showCommits = false;
+			corrections.showCommits = false;
+		}
+
+		return { normalized, corrections };
+	}
+
 	const pr_open_button =
 		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
 	const pr_closed_button =
@@ -161,40 +197,15 @@ function allIncluded(outputTarget = 'email') {
 				githubToken = items.githubToken;
 				gitlabToken = items.gitlabToken || '';
 				yesterdayContribution = items.yesterdayContribution;
-
-				onlyIssues = items.onlyIssues === true;
-				onlyPRs = items.onlyPRs === true;
-				onlyRevPRs = items.onlyRevPRs === true;
-				onlyMergedPRs = items.onlyMergedPRs === true;
-				// Enforce mutual exclusivity between onlyIssues and onlyPRs to avoid filtering out everything
-				if (onlyIssues && onlyPRs) {
-					console.warn('[SCRUM-HELPER]: Detected both onlyIssues and onlyPRs enabled; normalizing to onlyIssues.');
-					onlyPRs = false;
-					chrome.storage.local.set({ onlyPRs: false });
+				const { normalized, corrections } = normalizeAdvancedFilterState(items);
+				onlyIssues = normalized.onlyIssues;
+				onlyPRs = normalized.onlyPRs;
+				onlyRevPRs = normalized.onlyRevPRs;
+				onlyMergedPRs = normalized.onlyMergedPRs;
+				showCommits = normalized.showCommits;
+				if (Object.keys(corrections).length > 0) {
+					chrome.storage.local.set(corrections);
 				}
-				// Enforce mutual exclusivity: onlyMergedPRs overrides onlyRevPRs, onlyIssues, and onlyPRs
-				if (onlyMergedPRs) {
-					const corrections = {};
-					if (onlyRevPRs) {
-						console.warn('[SCRUM-HELPER]: onlyMergedPRs and onlyRevPRs both enabled; disabling onlyRevPRs.');
-						onlyRevPRs = false;
-						corrections.onlyRevPRs = false;
-					}
-					if (onlyIssues) {
-						console.warn('[SCRUM-HELPER]: onlyMergedPRs and onlyIssues both enabled; disabling onlyIssues.');
-						onlyIssues = false;
-						corrections.onlyIssues = false;
-					}
-					if (onlyPRs) {
-						console.warn('[SCRUM-HELPER]: onlyMergedPRs and onlyPRs both enabled; disabling onlyPRs.');
-						onlyPRs = false;
-						corrections.onlyPRs = false;
-					}
-					if (Object.keys(corrections).length > 0) {
-						chrome.storage.local.set(corrections);
-					}
-				}
-				showCommits = items.showCommits || false;
 				showOpenLabel = items.showOpenLabel !== false; // Default to true if not explicitly set to false
 				orgName = items.orgName || '';
 
