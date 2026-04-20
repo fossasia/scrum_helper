@@ -872,7 +872,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		}
 
-		// 🔹 Typing → underline (debounce 500ms)
+		
 		const debouncedValidateOrg = debounce((org) => {
 			if (!org) {
 				orgInput.classList.remove('invalid-org');
@@ -890,20 +890,24 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		}, 500);
 
-		// 🔹 INPUT (typing + backspace both covered)
+		
+		const debouncedSaveOrg = debounce((org) => {
+			browser.storage.local.set({ orgName: org });
+		}, 500);
+
+		
 		orgInput.addEventListener('input', () => {
 			const org = orgInput.value.trim().toLowerCase();
 
-			browser.storage.local.set({ orgName: org });
-
-			debouncedValidateOrg(org);
+			debouncedSaveOrg(org);     
+			debouncedValidateOrg(org);  
 		});
 
-		// 🔹 ENTER → border + toast (same as blur)
+	
 		orgInput.addEventListener('keydown', (e) => {
 			if (e.key === 'Enter') {
 				e.preventDefault();
-				orgInput.blur(); // 🔥 reuse blur → SAME toast + SAME border
+				orgInput.blur(); 
 			}
 		});
 		if (userReasonInput) {
