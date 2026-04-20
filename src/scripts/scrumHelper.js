@@ -27,14 +27,16 @@ const scrumReportEl = document.getElementById('scrumReport');
 const platformUsernameInp = document.getElementById('platformUsername');
 const usernameError = document.getElementById('usernameError');
 
-if (!usernameValidationListenerAttached) {
-	platformUsernameInp.addEventListener("input", function () {
-		platformUsernameInp.classList.remove("input-error");
-		usernameError.textContent = "";
-		usernameError.classList.remove("errorMessage");
-	});
-	usernameValidationListenerAttached = true;
-}
+document.addEventListener("DOMContentLoaded", () => {
+	if (!usernameValidationListenerAttached && platformUsernameInp && usernameError) {
+		platformUsernameInp.addEventListener("input", function () {
+			platformUsernameInp.classList.remove("input-error");
+			usernameError.textContent = "";
+			usernameError.classList.remove("errorMessage");
+		});
+		usernameValidationListenerAttached = true;
+	}
+});
 
 function showReportMessage(message) {
 	if (!scrumReportEl) return;
@@ -295,7 +297,7 @@ function allIncluded(outputTarget = 'email') {
 											generateBtn.disabled = false;
 										}
 										const ErrMessage = `${err.message || 'Error fetching GitLab data.'}`;
-										if (err.message.includes("not found")) {
+										if (typeof ErrMessage === "string" && ErrMessage.toLowerCase().includes("not found")){
 											handleUsernameValidationError(ErrMessage);
 										} else {
 											showReportMessage(ErrMessage);
@@ -345,7 +347,7 @@ function allIncluded(outputTarget = 'email') {
 											generateBtn.disabled = false;
 										}
 										const ErrMessage = `${err.message || 'Error fetching GitLab data.'}`;
-										if (err.message.includes("not found")) {
+										if(typeof ErrMessage === "string" && ErrMessage.toLowerCase().includes("not found")){
 											handleUsernameValidationError(ErrMessage);
 										} else {
 											showReportMessage(ErrMessage);
@@ -809,7 +811,7 @@ function allIncluded(outputTarget = 'email') {
 						else errorMsg = JSON.stringify(err);
 					}
 					const ErrMessage = `${errorMsg || 'An error occurred while generating the report.'}`;
-					if(ErrMessage.includes("not found")){
+					if(typeof ErrMessage === "string" && ErrMessage.toLowerCase().includes("not found")){
 						handleUsernameValidationError(ErrMessage);
 					}else{
 						showReportMessage(ErrMessage);
