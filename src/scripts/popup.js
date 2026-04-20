@@ -860,6 +860,48 @@ document.addEventListener('DOMContentLoaded', () => {
 				// Clear any existing toast if org is empty
 				const oldToast = document.getElementById('invalid-org-toast');
 				if (oldToast) oldToast.parentNode.removeChild(oldToast);
+				orgInput.classList.remove('invalid-org');
+			}
+		});
+		async function validateOrganization(org) {
+			try {
+				const res = await fetch(`https://api.github.com/orgs/${org}`);
+				return res.status === 200;
+			} catch {
+				return false;
+			}
+		}
+
+		// 🔹 Typing → underline (debounce 500ms)
+		const debouncedValidateOrg = debounce((org) => {
+			if (!org) {
+				orgInput.classList.remove('invalid-org');
+				return;
+			}
+
+			const isValidFormat = /^[a-z0-9-]{1,39}$/.test(org);
+
+			if (!isValidFormat) {
+				orgInput.classList.add('invalid-org'); // 🔴 underline
+			} else {
+				orgInput.classList.remove('invalid-org');
+			}
+		}, 500);
+
+		// 🔹 INPUT (typing + backspace both covered)
+		orgInput.addEventListener('input', () => {
+			const org = orgInput.value.trim().toLowerCase();
+
+			browser.storage.local.set({ orgName: org });
+
+			debouncedValidateOrg(org);
+		});
+
+		// 🔹 ENTER → border + toast (same as blur)
+		orgInput.addEventListener('keydown', (e) => {
+			if (e.key === 'Enter') {
+				e.preventDefault();
+				orgInput.blur(); // 🔥 reuse blur → SAME toast + SAME border
 			}
 		});
 		if (userReasonInput) {
@@ -2121,6 +2163,7 @@ function validateOrgOnBlur(org) {
 				toastDiv.style.zIndex = '9999';
 				toastDiv.innerText = browser.i18n.getMessage('orgNotFoundMessage');
 				document.body.appendChild(toastDiv);
+				orgInput.classList.add('invalid-org');
 				setTimeout(() => {
 					if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
 				}, 3000);
@@ -2128,6 +2171,7 @@ function validateOrgOnBlur(org) {
 			}
 			const oldToast = document.getElementById('invalid-org-toast');
 			if (oldToast) oldToast.parentNode.removeChild(oldToast);
+			orgInput.classList.remove('invalid-org');
 			console.log('[Org Check] Organisation exists on GitHub:', org);
 			browser.storage.local.remove(['githubCache', 'repoCache']);
 			triggerRepoFetchIfEnabled();
@@ -2151,6 +2195,7 @@ function validateOrgOnBlur(org) {
 			toastDiv.style.zIndex = '9999';
 			toastDiv.innerText = browser.i18n.getMessage('orgValidationErrorMessage');
 			document.body.appendChild(toastDiv);
+			orgInput.classList.add('invalid-org');
 			setTimeout(() => {
 				if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
 			}, 3000);

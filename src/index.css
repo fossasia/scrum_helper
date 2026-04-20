@@ -400,7 +400,9 @@ hr,
         transform: rotate(180deg);
     }
 }
-
+.invalid-org {
+	border: 1px solid #ef4444 !important;
+}
 @keyframes shake {
 
     10%,
