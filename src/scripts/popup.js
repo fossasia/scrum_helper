@@ -879,7 +879,9 @@ document.addEventListener('DOMContentLoaded', () => {
 				return;
 			}
 
-			const isValidFormat = /^[a-z0-9-]{1,39}$/.test(org);
+			// GitHub org rules: 1–39 chars, lowercase letters/digits/hyphens,
+			// no leading/trailing hyphen, no consecutive hyphens
+			const isValidFormat = /^(?!.*--)[a-z0-9](?:[a-z0-9-]{0,37}[a-z0-9])?$/.test(org);
 
 			if (!isValidFormat) {
 				orgInput.classList.add('invalid-org'); // 🔴 underline
