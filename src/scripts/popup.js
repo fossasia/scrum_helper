@@ -519,15 +519,10 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (timestamp > 0) {
 			const age = Date.now() - timestamp;
 
-			const {
-				lastScrumReportHtml,
-				lastScrumReportPlatform,
-				lastScrumReportCacheKey,
-				lastScrumReportUsername,
-				githubUsername,
-				gitlabUsername,
-				platformUsername
-			} = await storageLocalGet([
+			const storageValues = await storageLocalGet([
+				`${activePlatform}LastScrumReportHtml`,
+				`${activePlatform}LastScrumReportCacheKey`,
+				`${activePlatform}LastScrumReportUsername`,
 				'lastScrumReportHtml',
 				'lastScrumReportPlatform',
 				'lastScrumReportCacheKey',
@@ -537,9 +532,20 @@ document.addEventListener('DOMContentLoaded', () => {
 				'platformUsername'
 			]);
 
+			let lastScrumReportHtml = storageValues[`${activePlatform}LastScrumReportHtml`];
+			let lastScrumReportCacheKey = storageValues[`${activePlatform}LastScrumReportCacheKey`];
+			let lastScrumReportUsername = storageValues[`${activePlatform}LastScrumReportUsername`];
+
+			if (storageValues.lastScrumReportHtml && (!storageValues.lastScrumReportPlatform || storageValues.lastScrumReportPlatform === activePlatform) && !lastScrumReportHtml) {
+				lastScrumReportHtml = storageValues.lastScrumReportHtml;
+				lastScrumReportCacheKey = storageValues.lastScrumReportCacheKey;
+				lastScrumReportUsername = storageValues.lastScrumReportUsername;
+			}
+
 			const expectedUsername = activePlatform === 'gitlab'
-				? (gitlabUsername || platformUsername)
-				: (githubUsername || platformUsername);
+				? (storageValues.gitlabUsername || storageValues.platformUsername)
+				: (storageValues.githubUsername || storageValues.platformUsername);
+
 			const isUsernameMatch = lastScrumReportUsername 
 				? lastScrumReportUsername === expectedUsername
 				: (lastScrumReportCacheKey && expectedUsername && lastScrumReportCacheKey.startsWith(expectedUsername + '-'));
@@ -549,7 +555,6 @@ document.addEventListener('DOMContentLoaded', () => {
 				const reportEmpty = !scrumReport.innerHTML || !scrumReport.innerHTML.trim();
 
 				const matches =
-					(!lastScrumReportPlatform || lastScrumReportPlatform === activePlatform) &&
 					(!lastScrumReportCacheKey || lastScrumReportCacheKey === cacheKey) &&
 					isUsernameMatch;
 
@@ -674,6 +679,13 @@ document.addEventListener('DOMContentLoaded', () => {
 				if (typeof result.yesterdayContribution !== 'undefined') yesterdayRadio.checked = result.yesterdayContribution;
 				if (result.startingDate) startingDateInput.value = result.startingDate;
 				if (result.endingDate) endingDateInput.value = result.endingDate;
+				const wasNormalizedOnLoad = window.scrumDateRangeUtils.normalizeDateRangeValues(
+					startingDateInput,
+					endingDateInput,
+				);
+				if (wasNormalizedOnLoad) {
+					window.scrumDateRangeUtils.persistDateRange(startingDateInput, endingDateInput);
+				}
 
 				// Load platform-specific username
 				const platform = result.platform || 'github';
@@ -1064,6 +1076,16 @@ document.addEventListener('DOMContentLoaded', () => {
 					showDateValidationError(errorMessage);
 				}
 			}
+			window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(
+				startingDateInput,
+				endingDateInput,
+			);
+		});
+		endingDateInput.addEventListener('input', () => {
+			window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(
+				startingDateInput,
+				endingDateInput,
+			);
 		});
 
 		// Save username to storage on input
@@ -1759,7 +1781,16 @@ function updatePlatformUI(platform) {
 
 platformSelect.addEventListener('change', () => {
 	const platform = platformSelect.value;
-	browser.storage.local.set({ platform });
+	browser.storage.local.set({ platform }).then(() => {
+		const scrumReport = document.getElementById('scrumReport');
+		if(scrumReport){
+			scrumReport.innerHTML = '';
+		}
+		const generateBtn = document.getElementById('generateReport');
+		if(typeof bootstrapScrumReportOnPopupLoad === 'function'){
+			bootstrapScrumReportOnPopupLoad(generateBtn);
+		}
+	});
 	const platformUsername = document.getElementById('platformUsername');
 	if (platformUsername) {
 		const currentPlatform = platformSelect.value === 'github' ? 'gitlab' : 'github'; // Get the platform we're switching from
@@ -1810,7 +1841,15 @@ function setPlatformDropdown(value) {
 	}
 
 	platformSelectHidden.value = value;
-	browser.storage.local.set({ platform: value });
+	browser.storage.local.set({ platform: value }).then(() => {
+		const scrumReport = document.getElementById('scrumReport');
+		if(scrumReport) scrumReport.innerHTML = '';
+
+		const generateBtn = document.getElementById('generateReport');
+		if(typeof bootstrapScrumReportOnPopupLoad === 'function'){
+			bootstrapScrumReportOnPopupLoad(generateBtn);
+		}
+	});
 
 	browser.storage.local.get([`${value}Username`]).then((result) => {
 		if (platformUsername) {
