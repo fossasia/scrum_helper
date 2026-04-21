@@ -300,6 +300,7 @@ async function allIncluded(outputTarget = 'email') {
 				}
 
 				projectName = items.projectName || '';
+				githubToken = items.githubToken || '';
 				gitlabToken = items.gitlabToken || '';
 				yesterdayContribution = items.yesterdayContribution;
 
