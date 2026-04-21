@@ -999,20 +999,39 @@ document.addEventListener('DOMContentLoaded', () => {
 		yesterdayRadio.addEventListener('change', () => {
 			browser.storage.local.set({ yesterdayContribution: yesterdayRadio.checked });
 		});
-		startingDateInput.addEventListener('input', () => {
-			window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(
-				startingDateInput,
-				endingDateInput,
-			);
-		});
-		endingDateInput.addEventListener('input', () => {
-			window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(
-				startingDateInput,
-				endingDateInput,
-			);
+		
+		startingDateInput.addEventListener('change', () => {
+		window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(
+			startingDateInput,
+			endingDateInput
+		);
 		});
 
-		// Save username to storage on input
+		endingDateInput.addEventListener('change', () => {
+		window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(
+			startingDateInput,
+			endingDateInput
+		);
+		});
+
+		
+		startingDateInput.addEventListener('click', () => {
+		if (startingDateInput.showPicker) {
+			startingDateInput.showPicker();
+		}
+		});
+
+		endingDateInput.addEventListener('click', () => {
+		if (endingDateInput.showPicker) {
+			endingDateInput.showPicker();
+		}
+		});
+		
+		const today = new Date().toISOString().split('T')[0];
+		startingDateInput.max = today;
+		endingDateInput.max = today;
+
+		
 		platformUsername.addEventListener('input', () => {
 			browser.storage.local.get(['platform']).then((result) => {
 				const platform = result.platform || 'github';
