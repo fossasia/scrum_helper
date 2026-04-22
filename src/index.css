@@ -94,6 +94,13 @@ a {
     white-space: nowrap;
 }
 
+.scrum-actions button:disabled {
+    background-color: #2564ebc5;
+    cursor: not-allowed;
+    opacity: 1;
+    box-shadow: none;
+}
+
 .btn,
 .btn-large {
     background-color: #3f51b5;
