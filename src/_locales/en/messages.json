@@ -338,7 +338,7 @@
     "description": "Error when report generation fails."
   },
   "githubUserNotFoundError": {
-    "message": "GitHub user \"$1\" not found (404). Please check the username and try again.",
+    "message": "GitHub user \"$1\" not found.",
     "description": "Error when GitHub user is not found."
   },
   "githubUserValidationError": {
@@ -390,7 +390,7 @@
     "description": "Error when fetching GitLab user fails. $1=status, $2=statusText"
   },
   "gitlabUserNotFoundError": {
-    "message": "GitLab user '$1' not found",
+    "message": "GitLab user '$1' not found.",
     "description": "Error when GitLab user is not found. $1=username"
   },
   "gitlabMembershipError": {

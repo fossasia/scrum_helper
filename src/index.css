@@ -58,6 +58,22 @@ a {
     -webkit-user-modify: read-only;
 }
 
+.input-error {
+    outline: 2px solid red;
+    outline-offset: 1px;
+}
+
+.errorMessage {
+    color: red;
+    font-size: 12px;
+}
+
+.error-message {
+    color: #dc2626;
+    font-weight: bold;
+    padding: 10px;
+}
+
 .scrum-actions {
     display: flex;
     gap: 4px;
