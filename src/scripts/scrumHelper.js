@@ -12,7 +12,7 @@ function logError(...args) {
 	}
 }
 
-function renderErrorMessage(container, key, fallback, args = []) {
+function renderErrorMessage(container, key, fallback, args = [], showToast = false) {
 	// add message (or fallback) into HTML container in a protected manner
 	let message = fallback;
 	if (key && chrome?.i18n) {
@@ -29,6 +29,9 @@ function renderErrorMessage(container, key, fallback, args = []) {
 	errorDiv.textContent = message;
 	container.innerHTML = '';
 	container.appendChild(errorDiv);
+	if (showToast && window.ScrumHelperNotifications?.showError) {
+		window.ScrumHelperNotifications.showError(message);
+	}
 }
 
 let refreshButton_Placed = false;
@@ -95,6 +98,12 @@ function allIncluded(outputTarget = 'email') {
 		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #6f42c1;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--purple">closed</div>';
 	const issue_closed_notplanned_button =
 		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #808080;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--gray">closed</div>';
+
+	const toastNotifications = window.ScrumHelperNotifications || {
+		showSuccess() {},
+		showError() {},
+		showInfo() {},
+	};
 
 	function getChromeData() {
 		console.log('[DEBUG] getChromeData called for outputTarget:', outputTarget);
@@ -224,6 +233,8 @@ function allIncluded(outputTarget = 'email') {
 									scrumReport,
 									'usernameRequiredError',
 									'Please enter your username to generate a report.',
+									[],
+									true,
 								);
 							}
 							if (generateBtn) {
@@ -389,6 +400,8 @@ function allIncluded(outputTarget = 'email') {
 									scrumReport,
 									'usernameRequiredError',
 									'Please enter your username to generate a report.',
+									[],
+									true,
 								);
 							}
 							if (generateBtn) {
@@ -403,7 +416,7 @@ function allIncluded(outputTarget = 'email') {
 					if (outputTarget === 'popup') {
 						const scrumReport = document.getElementById('scrumReport');
 						if (scrumReport) {
-							renderErrorMessage(scrumReport, 'unknownPlatformError', 'Unknown platform selected.');
+							renderErrorMessage(scrumReport, 'unknownPlatformError', 'Unknown platform selected.', [], true);
 						}
 					}
 					scrumGenerationInProgress = false;
@@ -734,7 +747,7 @@ function allIncluded(outputTarget = 'email') {
 					`Invalid search query or date range. Please verify your date range format and try again.`;
 				logError(errorMsg);
 				if (outputTarget === 'popup') {
-					Materialize.toast && Materialize.toast(errorMsg, 4000);
+					toastNotifications.showError(errorMsg);
 				}
 				throw new Error(errorMsg);
 			}
@@ -745,7 +758,7 @@ function allIncluded(outputTarget = 'email') {
 					`Error fetching GitHub issues: ${issuesRes.status} ${issuesRes.statusText}`;
 				logError(errorMsg);
 				if (outputTarget === 'popup') {
-					Materialize.toast && Materialize.toast(errorMsg, 4000);
+					toastNotifications.showError(errorMsg);
 				}
 				throw new Error(errorMsg);
 			}
@@ -755,7 +768,7 @@ function allIncluded(outputTarget = 'email') {
 					`Error fetching GitHub PR review data: ${prRes.status} ${prRes.statusText}`;
 				logError(errorMsg);
 				if (outputTarget === 'popup') {
-					Materialize.toast && Materialize.toast(errorMsg, 4000);
+					toastNotifications.showError(errorMsg);
 				}
 				throw new Error(errorMsg);
 			}
@@ -1021,6 +1034,7 @@ function allIncluded(outputTarget = 'email') {
 		const errMsg =
 			chrome?.i18n.getMessage('invalidTokenError') ||
 			'Invalid or expired GitHub token. Please check your token in the Scrum Helper settings and try again.';
+		toastNotifications.showError(errMsg);
 		if (outputTarget === 'popup') {
 			const reportDiv = document.getElementById('scrumReport');
 			if (reportDiv) {
@@ -1030,8 +1044,6 @@ function allIncluded(outputTarget = 'email') {
 					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
 					generateBtn.disabled = false;
 				}
-			} else {
-				alert(errMsg);
 			}
 		}
 	}
@@ -1597,12 +1609,9 @@ ${blockerText}`;
 		} else if (useMergedStatus) {
 			if (prsToCheck.length > 30) {
 				fallbackToSimple = true;
-				if (typeof Materialize !== 'undefined' && Materialize.toast) {
-					Materialize.toast(
-						'API limit exceeded. Please use a GitHub token for full status. Showing only open/closed PRs.',
-						5000,
-					);
-				}
+				toastNotifications.showInfo(
+					'API limit exceeded. Please use a GitHub token for full status. Showing only open/closed PRs.',
+				);
 			} else {
 				// Use REST API for each PR, cache results
 				for (const pr of prsToCheck) {
