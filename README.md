@@ -7,9 +7,19 @@
 ## Features
 
 - Automatically fetches your Git activity, including commits, pull requests, issues, and code reviews.
-- Currently supports GitHub, with plans to expand to other platforms
+- **Multi-Platform Support**: GitHub, GitLab (NEW), with Gitea coming soon
 - Generates editable scrum updates based on your selected date range
 - Integrates directly with compose windows in Google Groups, Gmail, Yahoo Mail, and Outlook
+- Platform selector for seamless switching between GitHub and GitLab
+
+## Roadmap
+
+### Upcoming Features 🚀
+- ✅ **GitLab Support** - Full GitLab project and merge request integration
+- 🔜 **Gitea Support** - Add Gitea instance compatibility
+- 📊 **Multi-SCM Analytics** - Unified dashboard for cross-platform activity
+- 🔗 **Unified API Layer** - Abstract provider implementation for easier extensions
+- 📈 **Advanced Analytics** - Commit trends, contribution graphs, team metrics
 
 ## How to install
 

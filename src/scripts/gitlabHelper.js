@@ -186,11 +186,37 @@ class GitLabHelper {
 				}
 			}
 
+			// Fetch commits from each project
+			let allCommits = [];
+			for (const project of allProjects) {
+				try {
+					const projectCommitsUrl = `${this.baseUrl}/projects/${project.id}/repository/commits?author_name=${username}&since=${startDate}T00:00:00Z&until=${endDate}T23:59:59Z&per_page=100&order_by=committed_date&sort=desc`;
+					const projectCommitsRes = await fetch(projectCommitsUrl, { headers });
+					if (projectCommitsRes.ok) {
+						const projectCommits = await projectCommitsRes.json();
+						allCommits = allCommits.concat(
+							projectCommits.map((commit) => ({
+								...commit,
+								project_id: project.id,
+								project_name: project.name,
+								project_url: project.web_url,
+							})),
+						);
+					}
+					// Add small delay to avoid rate limiting
+					await new Promise((resolve) => setTimeout(resolve, 100));
+				} catch (error) {
+					console.error(`Error fetching commits for project ${project.name}:`, error);
+					// Continue with other projects
+				}
+			}
+
 			const gitlabData = {
 				user: users[0],
 				projects: allProjects,
 				mergeRequests: allMergeRequests, // use project-by-project response
 				issues: allIssues, // use project-by-project response
+				commits: allCommits, // commits from all projects
 				comments: [], // Empty array since we're not fetching comments
 			};
 			// Cache the data
@@ -277,6 +303,7 @@ class GitLabHelper {
 		const processed = {
 			mergeRequests: data.mergeRequests || [],
 			issues: data.issues || [],
+			commits: data.commits || [],
 			comments: data.comments || [],
 			user: data.user,
 		};
