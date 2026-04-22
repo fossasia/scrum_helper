@@ -858,7 +858,7 @@ function allIncluded(outputTarget = 'email') {
 						else if (err.message) errorMsg = err.message;
 						else errorMsg = JSON.stringify(err);
 					}
-						renderErrorMessage(scrumReport, '', errorMsg);
+					renderErrorMessage(scrumReport, '', errorMsg);
 					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
 					generateBtn.disabled = false;
 				}
