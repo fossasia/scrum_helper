@@ -28,8 +28,6 @@
 			container.style.transform = 'translateX(-50%)';
 			container.style.zIndex = '2147483647';
 			container.style.pointerEvents = 'none';
-			container.setAttribute('aria-live', 'polite');
-			container.setAttribute('aria-atomic', 'true');
 			document.body.appendChild(container);
 		}
 
@@ -58,6 +56,10 @@
 
 		const toast = document.createElement('div');
 		toast.id = TOAST_ID;
+		const isError = variant === 'error';
+		toast.setAttribute('role', isError ? 'alert' : 'status');
+		toast.setAttribute('aria-live', isError ? 'assertive' : 'polite');
+		toast.setAttribute('aria-atomic', 'true');
 		toast.style.pointerEvents = 'auto';
 		toast.style.padding = '10px 16px';
 		toast.style.borderRadius = '8px';
