@@ -95,6 +95,7 @@ function applyI18n() {
 		const key = el.getAttribute('data-i18n');
 		const message = browser.i18n.getMessage(key);
 		if (message) {
+			// Fix DOM manipulation patterns
 			// Use innerHTML to support simple formatting like <b> in tooltips
 			if (el.classList.contains('tooltip-bubble') || el.classList.contains('cache-info')) {
 				el.innerHTML = message;
