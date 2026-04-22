@@ -47,6 +47,8 @@
 			return;
 		}
 
+		const isDarkMode = !!document.body?.classList?.contains('dark-mode');
+
 		const container = ensureContainer();
 		if (!container) {
 			return;
@@ -76,7 +78,8 @@
 		} else if (variant === 'error') {
 			toast.style.background = '#dc2626';
 		} else {
-			toast.style.background = '#334155';
+			toast.style.background = isDarkMode ? '#ffffff' : '#2d2d2d';
+			toast.style.color = isDarkMode ? '#1f2937' : '#ffffff';
 		}
 
 		toast.textContent = String(message);
