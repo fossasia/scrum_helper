@@ -423,6 +423,49 @@ document.addEventListener('DOMContentLoaded', () => {
 		generateBtn.disabled = true;
 	}
 
+	function updateGenerateButtonState() {
+		const generateBtn = document.getElementById('generateReport');
+		const platformUsername = document.getElementById('platformUsername');
+		if (!generateBtn || !platformUsername) {
+			return;
+		}
+
+		const applyGenerateButtonState = () => {
+			const hasUsername = Boolean(platformUsername.value.trim());
+			const shouldDisable = !hasUsername;
+
+			if (generateBtn.disabled !== shouldDisable) {
+				generateBtn.disabled = shouldDisable;
+			}
+		};
+
+		if (!platformUsername.dataset.generateButtonStateBound) {
+			platformUsername.addEventListener('input', applyGenerateButtonState);
+			platformUsername.addEventListener('change', applyGenerateButtonState);
+			platformUsername.dataset.generateButtonStateBound = 'true';
+		}
+
+		if (!generateBtn.dataset.generateButtonStateObserved && typeof MutationObserver !== 'undefined') {
+			const observer = new MutationObserver(() => {
+				const shouldDisable = !platformUsername.value.trim();
+				if (shouldDisable && generateBtn.disabled === false) {
+					generateBtn.disabled = true;
+				}
+			});
+
+			observer.observe(generateBtn, {
+				attributes: true,
+				attributeFilter: ['disabled']
+			});
+
+			generateBtn.dataset.generateButtonStateObserved = 'true';
+		}
+
+		applyGenerateButtonState();
+	}
+
+	window.updateGenerateButtonState = updateGenerateButtonState;
+
 	function showPopupMessage(message) {
 		if (!message) return;
 
@@ -663,6 +706,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				const platform = result.platform || 'github';
 				const platformUsernameKey = `${platform}Username`;
 				platformUsername.value = result[platformUsernameKey] || '';
+				window.updateGenerateButtonState && window.updateGenerateButtonState();
 				checkTokenForShowCommits();
 				checkTokenForMergedPRs();
 			},
@@ -1012,13 +1056,14 @@ document.addEventListener('DOMContentLoaded', () => {
 			);
 		});
 
-		// Save username to storage on input
+		// Save username to storage on input and update button state
 		platformUsername.addEventListener('input', () => {
 			browser.storage.local.get(['platform']).then((result) => {
 				const platform = result.platform || 'github';
 				const platformUsernameKey = `${platform}Username`;
 				browser.storage.local.set({ [platformUsernameKey]: platformUsername.value });
 			});
+				window.updateGenerateButtonState && window.updateGenerateButtonState();
 		});
 		// Bootstrap report on popup open (restore cache / auto-generate / expired-cache toast)
 		bootstrapScrumReportOnPopupLoad(generateBtn).catch((err) => {
@@ -1727,6 +1772,7 @@ platformSelect.addEventListener('change', () => {
 	browser.storage.local.get([`${platform}Username`]).then((result) => {
 		if (platformUsername) {
 			platformUsername.value = result[`${platform}Username`] || '';
+			window.updateGenerateButtonState && window.updateGenerateButtonState();
 		}
 	});
 
@@ -1778,6 +1824,7 @@ function setPlatformDropdown(value) {
 	browser.storage.local.get([`${value}Username`]).then((result) => {
 		if (platformUsername) {
 			platformUsername.value = result[`${value}Username`] || '';
+			window.updateGenerateButtonState && window.updateGenerateButtonState();
 		}
 	});
 
