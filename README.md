@@ -52,12 +52,26 @@
     -   Enable "Developer Mode" (toggle in the top-right).
     -   Click "Load unpacked" and select the `dist/chrome` folder inside the cloned repository.
 
-    **For Firefox (Gecko):**
-    -   Navigate to `about:debugging` in Firefox.
-    -   Click on "This Firefox" in the left sidebar.
-    -   Click "Load Temporary Add-on...".
-    -   Select the `manifest.json` file inside the `dist/firefox` folder.
-    -   *Note: The extension will remain active only for the current browser session. If you need persistence, consider using Firefox Developer Edition.*
+   **For Firefox (Gecko):**
+
+   - after you have built the extension, run the following:
+   - on Linux/Mac OS
+     ```
+     cd dist/firefox
+     zip -r extension.zip *
+     mv extension.zip extension.xpi
+     ```
+   - Windows (PowerShell):
+     ```
+     cd dist/firefox
+     Compress-Archive -Path * -DestinationPath extension.zip -Force
+     Rename-Item extension.zip extension.xpi -Force
+     ```
+   - Navigate to `about:config` in Firefox and set xpinstall.signatures.required = false.
+   - go to extensions & themes from the right-hand side hamburger menu
+   - Click on settings under manage your extensions
+   - Click "Load Temporary Add-on...".
+   - Select the `extension.xpi` file inside the `dist/firefox` folder.
 
 ## Usage
 
