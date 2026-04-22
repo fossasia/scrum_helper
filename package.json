@@ -26,7 +26,7 @@
   },
   "homepage": "https://github.com/fossasia/scrum_helper",
   "devDependencies": {
-    "@biomejs/biome": "2.4.11",
+    "@biomejs/biome": "2.4.12",
     "autoprefixer": "^10.4.27",
     "postcss": "^8.5.9",
     "tailwindcss": "^4.2.2"
