@@ -80,14 +80,18 @@ function setupButtonTooltips() {
 
 function getToday() {
 	const today = new Date();
-	return today.toISOString().split('T')[0];
+	const month = today.getMonth() + 1;
+	const day = today.getDate();
+	return `${today.getFullYear()}-${month < 10 ? '0' + month : month}-${day < 10 ? '0' + day : day}`;
 }
 
 function getYesterday() {
 	const today = new Date();
 	const yesterday = new Date(today);
 	yesterday.setDate(today.getDate() - 1);
-	return yesterday.toISOString().split('T')[0];
+	const month = yesterday.getMonth() + 1;
+	const day = yesterday.getDate();
+	return `${yesterday.getFullYear()}-${month < 10 ? '0' + month : month}-${day < 10 ? '0' + day : day}`;
 }
 
 function applyI18n() {
@@ -1027,7 +1031,10 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 		});
 		
-		const today = new Date().toISOString().split('T')[0];
+		const todayDate = new Date();
+		const month = todayDate.getMonth() + 1;
+		const day = todayDate.getDate();
+		const today = `${todayDate.getFullYear()}-${month < 10 ? '0' + month : month}-${day < 10 ? '0' + day : day}`;
 		startingDateInput.max = today;
 		endingDateInput.max = today;
 
