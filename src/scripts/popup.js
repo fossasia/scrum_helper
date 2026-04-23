@@ -722,6 +722,37 @@ document.addEventListener('DOMContentLoaded', () => {
 		const copyBtn = document.getElementById('copyReport');
 		const insertBtn = document.getElementById('insertInEmail');
 
+		function setCopyButtonEnabled(enabled) {
+			if (!copyBtn) {
+				return;
+			}
+
+			copyBtn.disabled = !enabled;
+
+			if (enabled) {
+				copyBtn.style.backgroundColor = '';
+				copyBtn.style.cursor = '';
+				copyBtn.style.opacity = '';
+				copyBtn.classList.add('bg-blue-600');
+				copyBtn.classList.add('hover:bg-blue-700');
+				return;
+			}
+
+			copyBtn.style.backgroundColor = '#2564ebc5';
+			copyBtn.style.cursor = 'not-allowed';
+			copyBtn.style.opacity = '0.8';
+			copyBtn.classList.remove('hover:bg-blue-700');
+		}
+
+		const scrumReportEl = document.getElementById('scrumReport');
+		if (scrumReportEl && copyBtn && typeof MutationObserver !== 'undefined') {
+			const updateCopyState = () => setCopyButtonEnabled(!!scrumReportEl.textContent.trim());
+			updateCopyState();
+
+			const observer = new MutationObserver(updateCopyState);
+			observer.observe(scrumReportEl, { childList: true, subtree: true, characterData: true });
+		}
+
 		if (insertBtn) {
 			insertBtn.addEventListener('click', () => {
 				const scrumReport = document.getElementById('scrumReport');
@@ -797,22 +828,28 @@ document.addEventListener('DOMContentLoaded', () => {
 			});
 		});
 
-		copyBtn.addEventListener('click', function () {
+		copyBtn.addEventListener('click', async function () {
 			const scrumReport = document.getElementById('scrumReport');
-			const tempDiv = document.createElement('div');
-			tempDiv.innerHTML = scrumReport.innerHTML;
-			document.body.appendChild(tempDiv);
-			tempDiv.style.position = 'absolute';
-			tempDiv.style.left = '-9999px';
-
-			const range = document.createRange();
-			range.selectNode(tempDiv);
-			const selection = window.getSelection();
-			selection.removeAllRanges();
-			selection.addRange(range);
+			const reportText = scrumReport?.textContent?.trim();
+			if (!reportText) {
+				this._triggeredByShortcut = false;
+				return;
+			}
 
 			try {
-				document.execCommand('copy');
+				if (navigator?.clipboard?.writeText) {
+					await navigator.clipboard.writeText(reportText);
+				} else {
+					const textarea = document.createElement('textarea');
+					textarea.value = reportText;
+					textarea.style.position = 'absolute';
+					textarea.style.left = '-9999px';
+					document.body.appendChild(textarea);
+					textarea.select();
+					document.execCommand('copy');
+					document.body.removeChild(textarea);
+				}
+
 				if (this._triggeredByShortcut) {
 					const notificationKey =
 						browser?.i18n && browser.i18n.getMessage('copiedReportNotification')
@@ -820,16 +857,20 @@ document.addEventListener('DOMContentLoaded', () => {
 							: 'copiedButton';
 					showShortcutNotification(notificationKey);
 				}
-				this.innerHTML = `<i class="fa fa-check"></i> ${browser?.i18n.getMessage('copiedButton')}`;
+
+				const icon = this.querySelector('i');
+				const label = this.querySelector('span');
+				if (icon) icon.className = 'fa fa-check';
+				if (label) label.textContent = browser?.i18n.getMessage('copiedButton') || 'Copied!';
+
 				setTimeout(() => {
-					this.innerHTML = `<i class="fa fa-copy"></i> ${browser.i18n.getMessage('copyReportButton')}`;
+					if (icon) icon.className = 'fa fa-copy';
+					if (label) label.textContent = browser?.i18n.getMessage('copyReportButton') || 'Copy';
 				}, 2000);
 			} catch (err) {
 				console.error('Failed to copy: ', err);
 			} finally {
 				this._triggeredByShortcut = false;
-				selection.removeAllRanges();
-				document.body.removeChild(tempDiv);
 			}
 		});
 
