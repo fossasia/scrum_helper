@@ -48,8 +48,7 @@ if (!window.scrumDateRangeUtils) {
 				normalizedEndDate = '';
 			}
 
-			const didChange =
-				normalizedStartDate !== originalStartDate || normalizedEndDate !== originalEndDate;
+			const didChange = normalizedStartDate !== originalStartDate || normalizedEndDate !== originalEndDate;
 
 			if (didChange) {
 				startDateInput.value = normalizedStartDate;
@@ -117,7 +116,7 @@ function handleBodyOnLoad() {
 			// Load platform-specific username
 			const platform = items.platform || 'github';
 			const platformUsernameKey = `${platform}Username`;
-			if (items[platformUsernameKey]) {
+			if (platformUsernameElement && items[platformUsernameKey]) {
 				platformUsernameElement.value = items[platformUsernameKey];
 			}
 
@@ -127,94 +126,106 @@ function handleBodyOnLoad() {
 			if (items.gitlabToken && gitlabTokenElement) {
 				gitlabTokenElement.value = items.gitlabToken;
 			}
-			if (items.projectName) {
+			if (items.projectName && projectNameElement) {
 				projectNameElement.value = items.projectName;
 			}
-			if (items.cacheInput) {
+			if (items.cacheInput && cacheInputElement) {
 				cacheInputElement.value = items.cacheInput;
 			}
-			if (items.endingDate) {
+			if (items.endingDate && endingDateElement) {
 				endingDateElement.value = items.endingDate;
 			}
-			if (items.startingDate) {
+			if (items.startingDate && startingDateElement) {
 				startingDateElement.value = items.startingDate;
 			}
-			const wasNormalizedOnLoad = window.scrumDateRangeUtils.normalizeDateRangeValues(
-				startingDateElement,
-				endingDateElement,
-			);
-			if (wasNormalizedOnLoad) {
-				window.scrumDateRangeUtils.persistDateRange(startingDateElement, endingDateElement);
-			}
-			if (items.showOpenLabel) {
-				showOpenLabelElement.checked = items.showOpenLabel;
-			} else if (items.showOpenLabel !== false) {
-				// undefined
-				showOpenLabelElement.checked = true;
-				handleOpenLabelChange();
+			if (showOpenLabelElement) {
+				if (items.showOpenLabel) {
+					showOpenLabelElement.checked = items.showOpenLabel;
+				} else if (items.showOpenLabel !== false) {
+					// undefined
+					showOpenLabelElement.checked = true;
+					handleOpenLabelChange();
+				}
 			}
 
-			if (items.yesterdayContribution) {
-				yesterdayContributionElement.checked = items.yesterdayContribution;
-				handleYesterdayContributionChange();
-			} else if (items.yesterdayContribution !== false) {
-				yesterdayContributionElement.checked = true;
-				handleYesterdayContributionChange();
+			if (startingDateElement && endingDateElement) {
+				const wasNormalizedOnLoad = window.scrumDateRangeUtils.normalizeDateRangeValues(
+					startingDateElement,
+					endingDateElement,
+				);
+				if (wasNormalizedOnLoad) {
+					window.scrumDateRangeUtils.persistDateRange(startingDateElement, endingDateElement);
+				}
 			}
-			if (items.showCommits) {
-				showCommitsElement.checked = items.showCommits;
-			} else {
-				showCommitsElement.checked = false;
-				handleShowCommitsChange();
+
+			if (yesterdayContributionElement) {
+				if (items.yesterdayContribution) {
+					yesterdayContributionElement.checked = items.yesterdayContribution;
+					handleYesterdayContributionChange();
+				} else if (items.yesterdayContribution !== false) {
+					yesterdayContributionElement.checked = true;
+					handleYesterdayContributionChange();
+				}
+			}
+			if (showCommitsElement) {
+				if (items.showCommits) {
+					showCommitsElement.checked = items.showCommits;
+				} else {
+					showCommitsElement.checked = false;
+					handleShowCommitsChange();
+				}
 			}
 		});
 }
 
-document.getElementById('refreshCache').addEventListener('click', async (e) => {
-	const button = e.currentTarget;
-	button.classList.add('loading');
-	button.disabled = true;
+const refreshCacheButton = document.getElementById('refreshCache');
+if (refreshCacheButton) {
+	refreshCacheButton.addEventListener('click', (e) => {
+		const button = e.currentTarget;
+		button.classList.add('loading');
+		button.disabled = true;
 
-	setTimeout(() => {
-		button.classList.remove('loading');
-		button.disabled = false;
-	}, 500);
-});
+		setTimeout(() => {
+			button.classList.remove('loading');
+			button.disabled = false;
+		}, 500);
+	});
+}
 
 function handleStartingDateChange() {
-	window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(
-		startingDateElement,
-		endingDateElement,
-	);
+	if (!startingDateElement) return;
+	const value = startingDateElement.value;
+	browser.storage.local.set({ startingDate: value });
 }
 function handleEndingDateChange() {
-	window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(
-		startingDateElement,
-		endingDateElement,
-	);
+	if (!endingDateElement) return;
+	if (!startingDateElement) return;
+	window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(startingDateElement, endingDateElement);
 }
 
 function handleYesterdayContributionChange() {
+	if (!yesterdayContributionElement) return;
 	const value = yesterdayContributionElement.checked;
 	const labelElement = document.querySelector("label[for='yesterdayContribution']");
 
 	if (value) {
-		startingDateElement.readOnly = true;
-		endingDateElement.readOnly = true;
-		endingDateElement.value = getToday();
-		startingDateElement.value = getYesterday();
-		window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(
-			startingDateElement,
-			endingDateElement,
-		);
-		labelElement.classList.add('selectedLabel');
-		labelElement.classList.remove('unselectedLabel');
+		if (startingDateElement) startingDateElement.readOnly = true;
+		if (endingDateElement) endingDateElement.readOnly = true;
+		if (endingDateElement) endingDateElement.value = getToday();
+		if (startingDateElement) startingDateElement.value = getYesterday();
+		window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(startingDateElement, endingDateElement);
+		if (labelElement) {
+			labelElement.classList.add('selectedLabel');
+			labelElement.classList.remove('unselectedLabel');
+		}
 	} else {
-		startingDateElement.readOnly = false;
-		endingDateElement.readOnly = false;
+		if (startingDateElement) startingDateElement.readOnly = false;
+		if (endingDateElement) endingDateElement.readOnly = false;
 		window.scrumDateRangeUtils.normalizeDateRangeValues(startingDateElement, endingDateElement);
-		labelElement.classList.add('unselectedLabel');
-		labelElement.classList.remove('selectedLabel');
+		if (labelElement) {
+			labelElement.classList.add('unselectedLabel');
+			labelElement.classList.remove('selectedLabel');
+		}
 	}
 	browser.storage.local.set({ yesterdayContribution: value });
 }
@@ -227,6 +238,7 @@ function getToday() {
 }
 
 function handlePlatformUsernameChange() {
+	if (!platformUsernameElement) return;
 	const value = platformUsernameElement.value;
 	browser.storage.local.get(['platform']).then((result) => {
 		const platform = result.platform || 'github';
@@ -235,54 +247,78 @@ function handlePlatformUsernameChange() {
 	});
 }
 function handleGithubTokenChange() {
+	if (!githubTokenElement) return;
 	const value = githubTokenElement.value;
 	browser.storage.local.set({ githubToken: value });
 }
 function handleGitlabTokenChange() {
+	if (!gitlabTokenElement) return;
 	const value = gitlabTokenElement.value;
 	browser.storage.local.set({ gitlabToken: value });
 }
 function handleProjectNameChange() {
+	if (!projectNameElement) return;
 	const value = projectNameElement.value;
 	browser.storage.local.set({ projectName: value });
 }
 function handleCacheInputChange() {
+	if (!cacheInputElement) return;
 	const value = cacheInputElement.value;
 	browser.storage.local.set({ cacheInput: value });
 }
 function handleOpenLabelChange() {
+	if (!showOpenLabelElement) return;
 	const value = showOpenLabelElement.checked;
 	const labelElement = document.querySelector("label[for='showOpenLabel']");
 
-	if (value) {
-		labelElement.classList.add('selectedLabel');
-		labelElement.classList.remove('unselectedLabel');
-	} else {
-		labelElement.classList.add('unselectedLabel');
-		labelElement.classList.remove('selectedLabel');
+	if (labelElement) {
+		if (value) {
+			labelElement.classList.add('selectedLabel');
+			labelElement.classList.remove('unselectedLabel');
+		} else {
+			labelElement.classList.add('unselectedLabel');
+			labelElement.classList.remove('selectedLabel');
+		}
 	}
 
 	browser.storage.local.set({ showOpenLabel: value });
 }
 
 function handleShowCommitsChange() {
+	if (!showCommitsElement) return;
 	const value = showCommitsElement.checked;
 	browser.storage.local.set({ showCommits: value });
 }
 
-platformUsernameElement.addEventListener('keyup', handlePlatformUsernameChange);
+if (platformUsernameElement) {
+	platformUsernameElement.addEventListener('keyup', handlePlatformUsernameChange);
+}
 if (githubTokenElement) {
 	githubTokenElement.addEventListener('keyup', handleGithubTokenChange);
 }
 if (gitlabTokenElement) {
 	gitlabTokenElement.addEventListener('keyup', handleGitlabTokenChange);
 }
-cacheInputElement.addEventListener('keyup', handleCacheInputChange);
-projectNameElement.addEventListener('keyup', handleProjectNameChange);
-startingDateElement.addEventListener('change', handleStartingDateChange);
-showCommitsElement.addEventListener('change', handleShowCommitsChange);
-endingDateElement.addEventListener('change', handleEndingDateChange);
-yesterdayContributionElement.addEventListener('change', handleYesterdayContributionChange);
-showOpenLabelElement.addEventListener('change', handleOpenLabelChange);
+if (cacheInputElement) {
+	cacheInputElement.addEventListener('keyup', handleCacheInputChange);
+}
+if (projectNameElement) {
+	projectNameElement.addEventListener('keyup', handleProjectNameChange);
+}
+if (startingDateElement) {
+	startingDateElement.addEventListener('change', handleStartingDateChange);
+}
+if (showCommitsElement) {
+	showCommitsElement.addEventListener('change', handleShowCommitsChange);
+}
+if (endingDateElement) {
+	endingDateElement.addEventListener('change', handleEndingDateChange);
+}
+if (yesterdayContributionElement) {
+	yesterdayContributionElement.addEventListener('change', handleYesterdayContributionChange);
+}
+if (showOpenLabelElement) {
+	showOpenLabelElement.addEventListener('change', handleOpenLabelChange);
+}
 
 document.addEventListener('DOMContentLoaded', handleBodyOnLoad);
