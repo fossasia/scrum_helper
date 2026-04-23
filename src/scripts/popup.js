@@ -770,27 +770,28 @@ document.addEventListener('DOMContentLoaded', () => {
 			});
 		});
 
-		copyBtn.addEventListener('click', function () {
+		copyBtn.addEventListener('click', async function () {
 			const scrumReport = document.getElementById('scrumReport');
-			const reportContent = scrumReport?.innerHTML;
-			if (!scrumReport || !scrumReport.textContent.trim() || !reportContent || !reportContent.trim()) {
+			const reportText = scrumReport?.textContent?.trim();
+			if (!reportText) {
 				this._triggeredByShortcut = false;
 				return;
 			}
-			const tempDiv = document.createElement('div');
-			tempDiv.innerHTML = reportContent;
-			document.body.appendChild(tempDiv);
-			tempDiv.style.position = 'absolute';
-			tempDiv.style.left = '-9999px';
-
-			const range = document.createRange();
-			range.selectNode(tempDiv);
-			const selection = window.getSelection();
-			selection.removeAllRanges();
-			selection.addRange(range);
 
 			try {
-				document.execCommand('copy');
+				if (navigator?.clipboard?.writeText) {
+					await navigator.clipboard.writeText(reportText);
+				} else {
+					const textarea = document.createElement('textarea');
+					textarea.value = reportText;
+					textarea.style.position = 'absolute';
+					textarea.style.left = '-9999px';
+					document.body.appendChild(textarea);
+					textarea.select();
+					document.execCommand('copy');
+					document.body.removeChild(textarea);
+				}
+
 				if (this._triggeredByShortcut) {
 					const notificationKey =
 						browser?.i18n && browser.i18n.getMessage('copiedReportNotification')
@@ -798,16 +799,20 @@ document.addEventListener('DOMContentLoaded', () => {
 							: 'copiedButton';
 					showShortcutNotification(notificationKey);
 				}
-				this.innerHTML = `<i class="fa fa-check"></i> ${browser?.i18n.getMessage('copiedButton')}`;
+
+				const icon = this.querySelector('i');
+				const label = this.querySelector('span');
+				if (icon) icon.className = 'fa fa-check';
+				if (label) label.textContent = browser?.i18n.getMessage('copiedButton') || 'Copied!';
+
 				setTimeout(() => {
-					this.innerHTML = `<i class="fa fa-copy"></i> ${browser.i18n.getMessage('copyReportButton')}`;
+					if (icon) icon.className = 'fa fa-copy';
+					if (label) label.textContent = browser?.i18n.getMessage('copyReportButton') || 'Copy';
 				}, 2000);
 			} catch (err) {
 				console.error('Failed to copy: ', err);
 			} finally {
 				this._triggeredByShortcut = false;
-				selection.removeAllRanges();
-				document.body.removeChild(tempDiv);
 			}
 		});
 
