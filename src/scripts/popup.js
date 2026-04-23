@@ -918,6 +918,54 @@ document.addEventListener('DOMContentLoaded', () => {
 				// Clear any existing toast if org is empty
 				const oldToast = document.getElementById('invalid-org-toast');
 				if (oldToast) oldToast.parentNode.removeChild(oldToast);
+				orgInput.classList.remove('invalid-org');
+			}
+		});
+		async function validateOrganization(org) {
+			try {
+				const res = await fetch(`https://api.github.com/orgs/${org}`);
+				return res.status === 200;
+			} catch {
+				return false;
+			}
+		}
+
+		
+		const debouncedValidateOrg = debounce((org) => {
+			if (!org) {
+				orgInput.classList.remove('invalid-org');
+				return;
+			}
+
+			// GitHub org rules: 1–39 chars, lowercase letters/digits/hyphens,
+			// no leading/trailing hyphen, no consecutive hyphens
+			const isValidFormat = /^(?!.*--)[a-z0-9](?:[a-z0-9-]{0,37}[a-z0-9])?$/.test(org);
+
+			if (!isValidFormat) {
+				orgInput.classList.add('invalid-org'); // 🔴 underline
+			} else {
+				orgInput.classList.remove('invalid-org');
+			}
+		}, 500);
+
+		
+		const debouncedSaveOrg = debounce((org) => {
+			browser.storage.local.set({ orgName: org });
+		}, 500);
+
+		
+		orgInput.addEventListener('input', () => {
+			const org = orgInput.value.trim().toLowerCase();
+
+			debouncedSaveOrg(org);     
+			debouncedValidateOrg(org);  
+		});
+
+	
+		orgInput.addEventListener('keydown', (e) => {
+			if (e.key === 'Enter') {
+				e.preventDefault();
+				orgInput.blur(); 
 			}
 		});
 		if (userReasonInput) {
@@ -2187,6 +2235,7 @@ function validateOrgOnBlur(org) {
 				toastDiv.style.zIndex = '9999';
 				toastDiv.innerText = browser.i18n.getMessage('orgNotFoundMessage');
 				document.body.appendChild(toastDiv);
+				orgInput.classList.add('invalid-org');
 				setTimeout(() => {
 					if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
 				}, 3000);
@@ -2194,6 +2243,7 @@ function validateOrgOnBlur(org) {
 			}
 			const oldToast = document.getElementById('invalid-org-toast');
 			if (oldToast) oldToast.parentNode.removeChild(oldToast);
+			orgInput.classList.remove('invalid-org');
 			console.log('[Org Check] Organisation exists on GitHub:', org);
 			browser.storage.local.remove(['githubCache', 'repoCache']);
 			triggerRepoFetchIfEnabled();
@@ -2217,6 +2267,7 @@ function validateOrgOnBlur(org) {
 			toastDiv.style.zIndex = '9999';
 			toastDiv.innerText = browser.i18n.getMessage('orgValidationErrorMessage');
 			document.body.appendChild(toastDiv);
+			orgInput.classList.add('invalid-org');
 			setTimeout(() => {
 				if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
 			}, 3000);

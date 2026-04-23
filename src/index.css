@@ -423,7 +423,9 @@ hr,
         transform: rotate(180deg);
     }
 }
-
+.invalid-org {
+	border-color: #ef4444;
+}
 @keyframes shake {
 
     10%,
