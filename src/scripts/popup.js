@@ -673,6 +673,37 @@ document.addEventListener('DOMContentLoaded', () => {
 		const copyBtn = document.getElementById('copyReport');
 		const insertBtn = document.getElementById('insertInEmail');
 
+		function setCopyButtonEnabled(enabled) {
+			if (!copyBtn) {
+				return;
+			}
+
+			copyBtn.disabled = !enabled;
+
+			if (enabled) {
+				copyBtn.style.backgroundColor = '';
+				copyBtn.style.cursor = '';
+				copyBtn.style.opacity = '';
+				copyBtn.classList.add('bg-blue-600');
+				copyBtn.classList.add('hover:bg-blue-700');
+				return;
+			}
+
+			copyBtn.style.backgroundColor = '#2564ebc5';
+			copyBtn.style.cursor = 'not-allowed';
+			copyBtn.style.opacity = '0.8';
+			copyBtn.classList.remove('hover:bg-blue-700');
+		}
+
+		const scrumReportEl = document.getElementById('scrumReport');
+		if (scrumReportEl && copyBtn && typeof MutationObserver !== 'undefined') {
+			const updateCopyState = () => setCopyButtonEnabled(!!scrumReportEl.textContent.trim());
+			updateCopyState();
+
+			const observer = new MutationObserver(updateCopyState);
+			observer.observe(scrumReportEl, { childList: true, subtree: true, characterData: true });
+		}
+
 		if (insertBtn) {
 			insertBtn.addEventListener('click', () => {
 				const scrumReport = document.getElementById('scrumReport');
@@ -741,11 +772,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		copyBtn.addEventListener('click', function () {
 			const scrumReport = document.getElementById('scrumReport');
-			if (!scrumReport || !scrumReport.textContent.trim()) {
+			const reportContent = scrumReport?.innerHTML;
+			if (!scrumReport || !scrumReport.textContent.trim() || !reportContent || !reportContent.trim()) {
+				this._triggeredByShortcut = false;
 				return;
 			}
 			const tempDiv = document.createElement('div');
-			tempDiv.innerHTML = scrumReport.innerHTML;
+			tempDiv.innerHTML = reportContent;
 			document.body.appendChild(tempDiv);
 			tempDiv.style.position = 'absolute';
 			tempDiv.style.left = '-9999px';
