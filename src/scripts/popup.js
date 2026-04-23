@@ -477,7 +477,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			observer.observe(generateBtn, {
 				attributes: true,
-				attributeFilter: ['disabled']
+				attributeFilter: ['disabled'],
 			});
 
 			generateBtn.dataset.generateButtonStateObserved = 'true';
@@ -654,7 +654,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		const endingDateInput = document.getElementById('endingDate');
 		const platformUsername = document.getElementById('platformUsername');
 		let previousGithubTokenNormalized = '';
-		const usernameError = document.getElementById("usernameError");
+		const usernameError = document.getElementById('usernameError');
 
 		browser.storage.local
 			.get([
@@ -763,12 +763,12 @@ document.addEventListener('DOMContentLoaded', () => {
 				const handleInsertFailure = (errorMsg) => {
 					console.warn('Insert to Email failed:', errorMsg);
 					const failureMessage =
-						browser.i18n.getMessage('insertToEmailFailedError') ||
-						'open an email tab to insert report';
+						browser.i18n.getMessage('insertToEmailFailedError') || 'open an email tab to insert report';
 					showPopupMessage(failureMessage);
 				};
 
-				browser.tabs.query({ active: true, currentWindow: true })
+				browser.tabs
+					.query({ active: true, currentWindow: true })
 					.then((tabs) => {
 						const tabId = tabs?.[0]?.id;
 						if (!tabId) {
@@ -776,7 +776,8 @@ document.addEventListener('DOMContentLoaded', () => {
 							return;
 						}
 
-						browser.tabs.sendMessage(tabId, { action: 'insertReportToEmail', content, subject })
+						browser.tabs
+							.sendMessage(tabId, { action: 'insertReportToEmail', content, subject })
 							.then((response) => {
 								if (!response?.success) {
 									handleInsertFailure(response?.error);
@@ -799,9 +800,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		generateBtn.addEventListener('click', () => {
 			browser.storage.local.get(['platform']).then((result) => {
-				platformUsername.classList.remove("input-error");
-				usernameError.classList.remove("errorMessage");
-				usernameError.textContent = "";
+				platformUsername.classList.remove('input-error');
+				usernameError.classList.remove('errorMessage');
+				usernameError.textContent = '';
 				const platform = result.platform || 'github';
 				const platformUsernameKey = `${platform}Username`;
 
@@ -1107,7 +1108,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				const platformUsernameKey = `${platform}Username`;
 				browser.storage.local.set({ [platformUsernameKey]: platformUsername.value });
 			});
-				window.updateGenerateButtonState && window.updateGenerateButtonState();
+			window.updateGenerateButtonState && window.updateGenerateButtonState();
 		});
 		// Bootstrap report on popup open (restore cache / auto-generate / expired-cache toast)
 		bootstrapScrumReportOnPopupLoad(generateBtn).catch((err) => {
@@ -1188,7 +1189,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			try {
 				const items = await browser.storage.local.get(['platform']);
 				platform = items.platform || 'github';
-			} catch { }
+			} catch {}
 			if (platform !== 'github') {
 				// Do not run repo fetch for non-GitHub platforms
 				if (repoStatus)
@@ -1288,7 +1289,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				try {
 					const items = await browser.storage.local.get(['platform']);
 					platform = items.platform || 'github';
-				} catch { }
+				} catch {}
 				if (platform !== 'github') {
 					repoFilterContainer.classList.add('hidden');
 					useRepoFilter.checked = false;
@@ -1487,7 +1488,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			try {
 				const items = await browser.storage.local.get(['platform']);
 				platform = items.platform || 'github';
-			} catch { }
+			} catch {}
 			if (platform !== 'github') {
 				if (repoStatus)
 					repoStatus.textContent =
@@ -1539,7 +1540,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			try {
 				const items = await browser.storage.local.get(['platform']);
 				platform = items.platform || 'github';
-			} catch (e) { }
+			} catch (e) {}
 			if (platform !== 'github') {
 				if (repoStatus)
 					repoStatus.textContent =
@@ -1949,10 +1950,10 @@ dropdownList.querySelectorAll('li').forEach((item) => {
 		const newPlatform = this.getAttribute('data-value');
 		const currentPlatform = platformSelectHidden.value;
 		const platformUsername = document.getElementById('platformUsername');
-		const usernameError = document.getElementById("usernameError");
-		platformUsername.classList.remove("input-error");
-		usernameError.classList.remove("errorMessage");
-		usernameError.textContent = "";
+		const usernameError = document.getElementById('usernameError');
+		platformUsername.classList.remove('input-error');
+		usernameError.classList.remove('errorMessage');
+		usernameError.textContent = '';
 
 		if (newPlatform !== currentPlatform) {
 			const platformUsername = document.getElementById('platformUsername');
@@ -2132,7 +2133,7 @@ document.getElementById('refreshCache').addEventListener('click', async function
 		try {
 			const items = await browser.storage.local.get(['platform']);
 			platform = items.platform || 'github';
-		} catch (e) { }
+		} catch (e) {}
 
 		// Clear all caches
 		const keysToRemove = ['githubCache', 'repoCache', 'gitlabCache'];
