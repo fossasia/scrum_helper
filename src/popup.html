@@ -150,8 +150,8 @@
 					<div>
 						<div class="flex">
 
-							<p class=" font-medium text-sm" data-i18n="projectNameLabel">Project Name (used in email
-								subject)</p><span class="tooltip-container ml-2">
+						<label for="projectName" class=" font-medium text-sm" data-i18n="projectNameLabel">Project Name (used in email
+							subject)</label><span class="tooltip-container ml-2">
 								<i class="fa fa-question-circle question-icon"></i>
 								<span class="tooltip-bubble" data-i18n="projectNameTooltip">
 									This project name will appear in the subject line of your email as part of:
@@ -168,7 +168,7 @@
 					</div>
 					<div>
 
-						<p id="usernameLabel" class="font-medium text-sm" data-i18n="usernameLabel">Your Username</p>
+						<label id="usernameLabel" for="platformUsername" class="font-medium text-sm" data-i18n="usernameLabel">Your Username</label>
 						<input id="platformUsername" type="text" aria-describedby="usernameError"
 							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
 							data-i18n-placeholder="githubUsernamePlaceholder"
@@ -372,7 +372,7 @@
 						<div>
 							<div class="flex items-center justify-between">
 								<div class="flex">
-									<p class="text-sm font-medium" data-i18n="githubTokenLabel">Your GitHub Token</p>
+									<label for="githubToken" class="text-sm font-medium" data-i18n="githubTokenLabel">Your GitHub Token</label>
 									<span class="tooltip-container">
 										<i class="fa fa-question-circle question-icon"></i>
 										<span class="tooltip-bubble" data-i18n="githubTokenTooltip">
@@ -409,8 +409,8 @@
 						</div>
 						<div class="githubOnlySection">
 							<div class="flex items-center mt-4">
-								<p class="text-sm font-semibold" data-i18n="settingsOrgNameLabel">Your Organization Name
-								</p>
+								<label for="orgInput" class="text-sm font-semibold" data-i18n="settingsOrgNameLabel">Your Organization Name
+								</label>
 								<span class="tooltip-container ml-2">
 									<i class="fa fa-question-circle question-icon"></i>
 									<span class="tooltip-bubble" data-i18n="orgNameTooltip">
@@ -462,6 +462,7 @@
 							</div>
 
 							<div id="repoFilterContainer" class="hidden">
+								<label for="repoSearch" class="sr-only" data-i18n="repoSearchPlaceholder">Search repositories</label>
 								<input id="repoSearch" type="text" data-i18n-placeholder="repoSearchPlaceholder"
 									class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 pr-10"
 									autocomplete="off">
@@ -497,7 +498,7 @@
 					<div class="gitlabOnlySection hidden mt-3">
 						<div class="flex items-center justify-between">
 							<div class="flex">
-								<p class="text-sm font-medium" data-i18n="gitlabTokenLabel">Your GitLab Token</p>
+								<label for="gitlabToken" class="text-sm font-medium" data-i18n="gitlabTokenLabel">Your GitLab Token</label>
 								<span class="tooltip-container">
 									<i class="fa fa-question-circle question-icon"></i>
 									<span class="tooltip-bubble" data-i18n="gitlabTokenTooltip">
@@ -529,7 +530,7 @@
 					<div class="cacheSection mt-3">
 						<div class="flex items-center justify-between mb-2">
 							<div class="flex items-center">
-								<p class="text-sm font-medium" data-i18n="displayModeLabel">Display Mode</p>
+								<label for="displayModeSelect" class="text-sm font-medium" data-i18n="displayModeLabel">Display Mode</label>
 								<span class="tooltip-container ml-2">
 									<i class="fa fa-question-circle question-icon"></i>
 									<span class="tooltip-bubble" data-i18n="displayModeTooltip">
@@ -553,7 +554,7 @@
 					</div>
 
 					<div class="cacheSection mt-3">
-						<p class="text-sm font-medium"><span data-i18n="cacheTTLLabel">Enter cache TTL</span> <span
+						<label for="cacheInput" class="text-sm font-medium"><span data-i18n="cacheTTLLabel">Enter cache TTL</span> <span
 								class="text-sm font-normal" data-i18n="cacheTTLUnit">(in
 								minutes)</span>
 							<span class="tooltip-container">
@@ -566,7 +567,7 @@
 									fetch fresh data right now.
 								</span>
 							</span>
-						</p>
+						</label>
 						<input type="text" id="cacheInput"
 							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800  p-2 my-2"
 							data-i18n-placeholder="cacheTTLPlaceholder">
