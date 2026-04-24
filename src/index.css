@@ -748,6 +748,14 @@ hr,
     transition: background-color 0.3s ease-in-out, border-color 0.3s ease-in-out, color 0.3s ease-in-out;
 }
 
+input:focus-visible,
+select:focus-visible,
+button:focus-visible,
+textarea:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 2px;
+}
+
 .dark-mode #platformDropdownBtn {
     background-color: #404040 !important;
     border-color: #505050 !important;
