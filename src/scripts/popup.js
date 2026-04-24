@@ -1,81 +1,9 @@
-/* global chrome */
-
 function debounce(func, wait) {
 	let timeout;
 	return function (...args) {
 		clearTimeout(timeout);
 		timeout = setTimeout(() => func.apply(this, args), wait);
 	};
-}
-
-// Utility: Detect if the current OS is macOS
-function isMacOS() {
-	if (typeof navigator === 'undefined') {
-		return false;
-	}
-
-	if (navigator.userAgentData && typeof navigator.userAgentData.platform === 'string') {
-		return navigator.userAgentData.platform.toLowerCase().includes('mac');
-	}
-
-	const platform = navigator.platform || '';
-	if (navigator.maxTouchPoints && navigator.maxTouchPoints > 2 && /MacIntel/.test(platform)) {
-		return true;
-	}
-
-	return /Mac/.test(platform);
-}
-
-function showShortcutNotification(messageKey) {
-	if (typeof chrome === 'undefined' || !chrome.i18n) {
-		return;
-	}
-
-	const existingNotification = document.querySelector('.shortcut-notification');
-	if (existingNotification) {
-		existingNotification.remove();
-	}
-
-	const message = chrome.i18n.getMessage(messageKey);
-	if (!message) {
-		return;
-	}
-
-	const notification = document.createElement('div');
-	notification.className = 'shortcut-notification';
-	notification.textContent = message;
-	document.body.appendChild(notification);
-
-	setTimeout(() => {
-		notification.style.animation = 'slideOut 0.3s ease-out';
-		setTimeout(() => {
-			if (notification.parentNode) {
-				notification.parentNode.removeChild(notification);
-			}
-		}, 300);
-	}, 2000);
-}
-
-function setupButtonTooltips() {
-	const mac = isMacOS();
-
-	const generateTooltipEl = document.getElementById('generateReportTooltipText');
-	if (generateTooltipEl) {
-		const text = chrome?.i18n.getMessage('generateReportTooltip') || 'Ctrl+G';
-		generateTooltipEl.textContent = mac ? text.replace('Ctrl', 'Cmd') : text;
-	}
-
-	const copyTooltipEl = document.getElementById('copyReportTooltipText');
-	if (copyTooltipEl) {
-		const text = chrome?.i18n.getMessage('copyReportTooltip') || 'Ctrl+Shift+Y';
-		copyTooltipEl.textContent = mac ? text.replace('Ctrl', 'Cmd') : text;
-	}
-
-	const insertEmailTooltipEl = document.getElementById('insertInEmailTooltipText');
-	if (insertEmailTooltipEl) {
-		const text = chrome?.i18n.getMessage('insertInEmailTooltip') || 'Ctrl+Shift+M';
-		insertEmailTooltipEl.textContent = mac ? text.replace('Ctrl', 'Cmd') : text;
-	}
 }
 
 function getToday() {
@@ -124,7 +52,6 @@ function applyI18n() {
 document.addEventListener('DOMContentLoaded', () => {
 	// Apply translations as soon as the DOM is ready
 	applyI18n();
-	setupButtonTooltips();
 
 	// Dark mode setup
 	const darkModeToggle = document.querySelector('img[alt="Night Mode"]');
@@ -155,7 +82,6 @@ document.addEventListener('DOMContentLoaded', () => {
 	const usernameLabel = document.getElementById('usernameLabel');
 	const platformUsername = document.getElementById('platformUsername');
 	let showCommitsWarningTimeout;
-	let mergedPRsWarningTimeout;
 
 	function checkTokenForFilter() {
 		const useRepoFilter = document.getElementById('useRepoFilter');
@@ -181,67 +107,6 @@ document.addEventListener('DOMContentLoaded', () => {
 		setTimeout(() => {
 			tokenWarning.classList.add('hidden');
 		}, 4000);
-	}
-
-	function showTokenWarningForMergedPRs({ animate = false, durationMs = 4000 } = {}) {
-		const tokenWarning = document.getElementById('tokenWarningForMergedPRs');
-		if (!tokenWarning) {
-			return;
-		}
-
-		tokenWarning.classList.remove('hidden');
-		if (animate) {
-			tokenWarning.classList.add('shake-animation');
-			setTimeout(() => tokenWarning.classList.remove('shake-animation'), 620);
-		}
-
-		if (mergedPRsWarningTimeout) {
-			clearTimeout(mergedPRsWarningTimeout);
-		}
-		mergedPRsWarningTimeout = setTimeout(() => {
-			tokenWarning.classList.add('hidden');
-		}, durationMs);
-	}
-
-	function checkTokenForMergedPRs({
-		showWarning = false,
-		animateWarning = false,
-		warningDurationMs = 4000,
-		persistState = false,
-	} = {}) {
-		const mergedPRsCheckbox = document.getElementById('onlyMergedPRs');
-		const githubTokenInput = document.getElementById('githubToken');
-
-		if (!mergedPRsCheckbox || !githubTokenInput) {
-			return;
-		}
-
-		const isMergedPRsEnabled = mergedPRsCheckbox.checked;
-		const hasToken = githubTokenInput.value.trim() !== '';
-
-		if (isMergedPRsEnabled && !hasToken) {
-			mergedPRsCheckbox.checked = false;
-			if (showWarning) {
-				showTokenWarningForMergedPRs({
-					animate: animateWarning,
-					durationMs: warningDurationMs,
-				});
-			}
-			chrome?.storage.local.set({ onlyMergedPRs: false });
-			return;
-		}
-
-		const tokenWarning = document.getElementById('tokenWarningForMergedPRs');
-		if (tokenWarning) {
-			if (mergedPRsWarningTimeout) {
-				clearTimeout(mergedPRsWarningTimeout);
-				mergedPRsWarningTimeout = null;
-			}
-			tokenWarning.classList.add('hidden');
-		}
-		if (persistState) {
-			chrome?.storage.local.set({ onlyMergedPRs: mergedPRsCheckbox.checked });
-		}
 	}
 
 	function showTokenWarningForShowCommits({ animate = false, durationMs = 4000 } = {}) {
@@ -344,12 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	githubTokenInput.addEventListener('input', checkTokenForFilter);
-	githubTokenInput.addEventListener('input', () =>
-		checkTokenForShowCommits({ persistState: false }),
-	);
-	githubTokenInput.addEventListener('input', () =>
-		checkTokenForMergedPRs({ persistState: false }),
-	);
+	githubTokenInput.addEventListener('input', () => checkTokenForShowCommits({ persistState: false }));
 
 	darkModeToggle.addEventListener('click', function () {
 		body.classList.toggle('dark-mode');
@@ -538,10 +398,15 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (timestamp > 0) {
 			const age = Date.now() - timestamp;
 
-			const storageValues = await storageLocalGet([
-				`${activePlatform}LastScrumReportHtml`,
-				`${activePlatform}LastScrumReportCacheKey`,
-				`${activePlatform}LastScrumReportUsername`,
+			const {
+				lastScrumReportHtml,
+				lastScrumReportPlatform,
+				lastScrumReportCacheKey,
+				lastScrumReportUsername,
+				githubUsername,
+				gitlabUsername,
+				platformUsername
+			} = await storageLocalGet([
 				'lastScrumReportHtml',
 				'lastScrumReportPlatform',
 				'lastScrumReportCacheKey',
@@ -551,20 +416,9 @@ document.addEventListener('DOMContentLoaded', () => {
 				'platformUsername'
 			]);
 
-			let lastScrumReportHtml = storageValues[`${activePlatform}LastScrumReportHtml`];
-			let lastScrumReportCacheKey = storageValues[`${activePlatform}LastScrumReportCacheKey`];
-			let lastScrumReportUsername = storageValues[`${activePlatform}LastScrumReportUsername`];
-
-			if (storageValues.lastScrumReportHtml && (!storageValues.lastScrumReportPlatform || storageValues.lastScrumReportPlatform === activePlatform) && !lastScrumReportHtml) {
-				lastScrumReportHtml = storageValues.lastScrumReportHtml;
-				lastScrumReportCacheKey = storageValues.lastScrumReportCacheKey;
-				lastScrumReportUsername = storageValues.lastScrumReportUsername;
-			}
-
 			const expectedUsername = activePlatform === 'gitlab'
-				? (storageValues.gitlabUsername || storageValues.platformUsername)
-				: (storageValues.githubUsername || storageValues.platformUsername);
-
+				? (gitlabUsername || platformUsername)
+				: (githubUsername || platformUsername);
 			const isUsernameMatch = lastScrumReportUsername 
 				? lastScrumReportUsername === expectedUsername
 				: (lastScrumReportCacheKey && expectedUsername && lastScrumReportCacheKey.startsWith(expectedUsername + '-'));
@@ -574,6 +428,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				const reportEmpty = !scrumReport.innerHTML || !scrumReport.innerHTML.trim();
 
 				const matches =
+					(!lastScrumReportPlatform || lastScrumReportPlatform === activePlatform) &&
 					(!lastScrumReportCacheKey || lastScrumReportCacheKey === cacheKey) &&
 					isUsernameMatch;
 
@@ -620,7 +475,6 @@ document.addEventListener('DOMContentLoaded', () => {
 		const onlyIssuesCheckbox = document.getElementById('onlyIssues');
 		const onlyPRsCheckbox = document.getElementById('onlyPRs');
 		const onlyRevPRsCheckbox = document.getElementById('onlyRevPRs');
-		const onlyMergedPRsCheckbox = document.getElementById('onlyMergedPRs');
 
 		const githubTokenInput = document.getElementById('githubToken');
 		const cacheInput = document.getElementById('cacheInput');
@@ -642,7 +496,6 @@ document.addEventListener('DOMContentLoaded', () => {
 				'onlyIssues',
 				'onlyPRs',
 				'onlyRevPRs',
-				'onlyMergedPRs',
 				'yesterdayContribution',
 				'startingDate',
 				'endingDate',
@@ -670,42 +523,21 @@ document.addEventListener('DOMContentLoaded', () => {
 				if (typeof result.onlyRevPRs !== 'undefined') {
 					onlyRevPRsCheckbox.checked = result.onlyRevPRs;
 				}
-				if (typeof result.onlyMergedPRs !== 'undefined') {
-					onlyMergedPRsCheckbox.checked = result.onlyMergedPRs;
-				}
 
 				// Reconcile mutually exclusive "Only Issues" and "Only PRs" flags on initialization.
 				// If both are somehow true in storage (e.g., from an older version or manual edits),
 				// prefer "Only Issues" and clear "Only PRs", then persist the corrected state.
 				if (onlyIssuesCheckbox.checked && onlyPRsCheckbox.checked) {
 					onlyPRsCheckbox.checked = false;
-					browser?.storage.local.set({ onlyPRs: false });
-				}
-				if (onlyMergedPRsCheckbox.checked && onlyRevPRsCheckbox.checked) {
-					onlyRevPRsCheckbox.checked = false;
-					browser?.storage.local.set({ onlyRevPRs: false });
-				}
-				// onlyMergedPRs overrides onlyIssues and onlyPRs
-				if (onlyMergedPRsCheckbox.checked && onlyIssuesCheckbox.checked) {
-					onlyIssuesCheckbox.checked = false;
-					browser?.storage.local.set({ onlyIssues: false });
-				}
-				if (onlyMergedPRsCheckbox.checked && onlyPRsCheckbox.checked) {
-					onlyPRsCheckbox.checked = false;
-					browser?.storage.local.set({ onlyPRs: false });
+					if (browser?.storage?.sync) {
+						browser.storage.sync.set({ onlyPRs: false });
+					}
 				}
 				if (result.githubToken) githubTokenInput.value = result.githubToken;
 				if (result.cacheInput) cacheInput.value = result.cacheInput;
 				if (typeof result.yesterdayContribution !== 'undefined') yesterdayRadio.checked = result.yesterdayContribution;
 				if (result.startingDate) startingDateInput.value = result.startingDate;
 				if (result.endingDate) endingDateInput.value = result.endingDate;
-				const wasNormalizedOnLoad = window.scrumDateRangeUtils.normalizeDateRangeValues(
-					startingDateInput,
-					endingDateInput,
-				);
-				if (wasNormalizedOnLoad) {
-					window.scrumDateRangeUtils.persistDateRange(startingDateInput, endingDateInput);
-				}
 
 				// Load platform-specific username
 				const platform = result.platform || 'github';
@@ -713,13 +545,21 @@ document.addEventListener('DOMContentLoaded', () => {
 				platformUsername.value = result[platformUsernameKey] || '';
 				window.updateGenerateButtonState && window.updateGenerateButtonState();
 				checkTokenForShowCommits();
-				checkTokenForMergedPRs();
-			},
-		);
+			});
 
 		// Button setup
 		const generateBtn = document.getElementById('generateReport');
 		const copyBtn = document.getElementById('copyReport');
+		const scrumReport = document.getElementById('scrumReport');
+		
+		function updateCopyButtonState() {
+			const isEmpty = !scrumReport || !scrumReport.textContent.trim();
+			copyBtn.disabled = isEmpty;
+			copyBtn.style.backgroundColor = isEmpty ? '#2564ebc5' : '';
+			copyBtn.style.cursor = isEmpty ? 'not-allowed' : 'pointer';
+			copyBtn.style.opacity = isEmpty ? '0.6' : '1';
+		}
+		updateCopyButtonState();
 		const insertBtn = document.getElementById('insertInEmail');
 
 		if (insertBtn) {
@@ -728,11 +568,9 @@ document.addEventListener('DOMContentLoaded', () => {
 				const content = scrumReport ? scrumReport.innerHTML : '';
 				const subject = buildScrumSubjectFromPopup();
 
-				if (!content) {
-					insertBtn._triggeredByShortcut = false;
-					return;
-				}
+				if (!content) return;
 
+<<<<<<< HEAD
 				// Helper to handle insert-to-email failures consistently
 				const handleInsertFailure = (errorMsg) => {
 					console.warn('Insert to Email failed:', errorMsg);
@@ -767,7 +605,18 @@ document.addEventListener('DOMContentLoaded', () => {
 					})
 					.finally(() => {
 						insertBtn._triggeredByShortcut = false;
+
+				browser.tabs.query({ active: true, currentWindow: true }).then((tabs) => {
+					const tabId = tabs?.[0]?.id;
+					if (!tabId) return;
+
+					browser.tabs.sendMessage(tabId, { action: 'insertReportToEmail', content, subject }).then((response) => {
+						if (!response?.success) {
+							console.warn('Insert to Email failed:', response?.error);
+						}
+
 					});
+				});
 			});
 		}
 
@@ -796,44 +645,23 @@ document.addEventListener('DOMContentLoaded', () => {
 					});
 			});
 		});
+		updateCopyButtonState();
 
 		copyBtn.addEventListener('click', function () {
 			const scrumReport = document.getElementById('scrumReport');
-			if (!scrumReport || !scrumReport.textContent.trim()) {
+						if (!scrumReport || !scrumReport.textContent.trim()) {
 				return;
-			}
-			const tempDiv = document.createElement('div');
-			tempDiv.innerHTML = scrumReport.innerHTML;
-			document.body.appendChild(tempDiv);
-			tempDiv.style.position = 'absolute';
-			tempDiv.style.left = '-9999px';
-
-			const range = document.createRange();
-			range.selectNode(tempDiv);
-			const selection = window.getSelection();
-			selection.removeAllRanges();
-			selection.addRange(range);
-
-			try {
-				document.execCommand('copy');
-				if (this._triggeredByShortcut) {
-					const notificationKey =
-						browser?.i18n && browser.i18n.getMessage('copiedReportNotification')
-							? 'copiedReportNotification'
-							: 'copiedButton';
-					showShortcutNotification(notificationKey);
-				}
-				this.innerHTML = `<i class="fa fa-check"></i> ${browser?.i18n.getMessage('copiedButton')}`;
+			  }
+			  navigator.clipboard.writeText(scrumReport.textContent.trim()).then(() => {
+				this.innerHTML = `<i class="fa fa-check"></i> ${browser.i18n.getMessage('copiedButton')}`;
 				setTimeout(() => {
 					this.innerHTML = `<i class="fa fa-copy"></i> ${browser.i18n.getMessage('copyReportButton')}`;
+					updateCopyButtonState();
 				}, 2000);
-			} catch (err) {
+			}).catch((err) => {
 				console.error('Failed to copy: ', err);
-			} finally {
-				this._triggeredByShortcut = false;
-				selection.removeAllRanges();
-				document.body.removeChild(tempDiv);
-			}
+			});
+		
 		});
 
 		// Custom date container click handler
@@ -934,69 +762,29 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (onlyIssuesCheckbox && onlyPRsCheckbox) {
 			onlyIssuesCheckbox.addEventListener('change', () => {
 				const checked = onlyIssuesCheckbox.checked;
-				browser?.storage.local.set({ onlyIssues: checked }, () => {
-					if (checked) {
-						if (onlyPRsCheckbox.checked) {
-							onlyPRsCheckbox.checked = false;
-							browser?.storage.local.set({ onlyPRs: false });
-						}
-						if (onlyMergedPRsCheckbox && onlyMergedPRsCheckbox.checked) {
-							onlyMergedPRsCheckbox.checked = false;
-							browser?.storage.local.set({ onlyMergedPRs: false });
-						}
+				browser.storage.local.set({ onlyIssues: checked }).then(() => {
+					if (checked && onlyPRsCheckbox.checked) {
+						// Uncheck the previously selected "Only PRs"
+						onlyPRsCheckbox.checked = false;
+						browser.storage.local.set({ onlyPRs: false });
 					}
 				});
 			});
 
 			onlyPRsCheckbox.addEventListener('change', () => {
 				const checked = onlyPRsCheckbox.checked;
-				browser?.storage.local.set({ onlyPRs: checked }, () => {
-					if (checked) {
-						if (onlyIssuesCheckbox.checked) {
-							onlyIssuesCheckbox.checked = false;
-							browser?.storage.local.set({ onlyIssues: false });
-						}
-						if (onlyMergedPRsCheckbox && onlyMergedPRsCheckbox.checked) {
-							onlyMergedPRsCheckbox.checked = false;
-							browser?.storage.local.set({ onlyMergedPRs: false });
-						}
+				browser.storage.local.set({ onlyPRs: checked }).then(() => {
+					if (checked && onlyIssuesCheckbox.checked) {
+						// Uncheck the previously selected "Only Issues"
+						onlyIssuesCheckbox.checked = false;
+						browser.storage.local.set({ onlyIssues: false });
 					}
 				});
 			});
 
 			if (onlyRevPRsCheckbox) {
 				onlyRevPRsCheckbox.addEventListener('change', () => {
-					const checked = onlyRevPRsCheckbox.checked;
-					browser?.storage.local.set({ onlyRevPRs: checked }, () => {
-						if (checked && onlyMergedPRsCheckbox && onlyMergedPRsCheckbox.checked) {
-							onlyMergedPRsCheckbox.checked = false;
-							browser?.storage.local.set({ onlyMergedPRs: false });
-						}
-					});
-				});
-			}
-			if (onlyMergedPRsCheckbox) {
-				onlyMergedPRsCheckbox.addEventListener('change', () => {
-					if (onlyMergedPRsCheckbox.checked) {
-						if (onlyRevPRsCheckbox && onlyRevPRsCheckbox.checked) {
-							onlyRevPRsCheckbox.checked = false;
-							browser?.storage.local.set({ onlyRevPRs: false });
-						}
-						if (onlyIssuesCheckbox && onlyIssuesCheckbox.checked) {
-							onlyIssuesCheckbox.checked = false;
-							browser?.storage.local.set({ onlyIssues: false });
-						}
-						if (onlyPRsCheckbox && onlyPRsCheckbox.checked) {
-							onlyPRsCheckbox.checked = false;
-							browser?.storage.local.set({ onlyPRs: false });
-						}
-					}
-					checkTokenForMergedPRs({
-						showWarning: true,
-						animateWarning: true,
-						warningDurationMs: 3000,
-						persistState: true,
-					});
+					browser.storage.local.set({ onlyRevPRs: onlyRevPRsCheckbox.checked });
 				});
 			}
 		}
@@ -1061,16 +849,10 @@ document.addEventListener('DOMContentLoaded', () => {
 			browser.storage.local.set({ yesterdayContribution: yesterdayRadio.checked });
 		});
 		startingDateInput.addEventListener('input', () => {
-			window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(
-				startingDateInput,
-				endingDateInput,
-			);
+			browser.storage.local.set({ startingDate: startingDateInput.value });
 		});
 		endingDateInput.addEventListener('input', () => {
-			window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(
-				startingDateInput,
-				endingDateInput,
-			);
+			browser.storage.local.set({ endingDate: endingDateInput.value });
 		});
 
 		// Save username to storage on input and update button state
@@ -1767,16 +1549,7 @@ function updatePlatformUI(platform) {
 
 platformSelect.addEventListener('change', () => {
 	const platform = platformSelect.value;
-	browser.storage.local.set({ platform }).then(() => {
-		const scrumReport = document.getElementById('scrumReport');
-		if(scrumReport){
-			scrumReport.innerHTML = '';
-		}
-		const generateBtn = document.getElementById('generateReport');
-		if(typeof bootstrapScrumReportOnPopupLoad === 'function'){
-			bootstrapScrumReportOnPopupLoad(generateBtn);
-		}
-	});
+	browser.storage.local.set({ platform });
 	const platformUsername = document.getElementById('platformUsername');
 	if (platformUsername) {
 		const currentPlatform = platformSelect.value === 'github' ? 'gitlab' : 'github'; // Get the platform we're switching from
@@ -1828,15 +1601,7 @@ function setPlatformDropdown(value) {
 	}
 
 	platformSelectHidden.value = value;
-	browser.storage.local.set({ platform: value }).then(() => {
-		const scrumReport = document.getElementById('scrumReport');
-		if(scrumReport) scrumReport.innerHTML = '';
-
-		const generateBtn = document.getElementById('generateReport');
-		if(typeof bootstrapScrumReportOnPopupLoad === 'function'){
-			bootstrapScrumReportOnPopupLoad(generateBtn);
-		}
-	});
+	browser.storage.local.set({ platform: value });
 
 	browser.storage.local.get([`${value}Username`]).then((result) => {
 		if (platformUsername) {
@@ -2120,50 +1885,6 @@ async function triggerRepoFetchIfEnabled() {
 		await window.triggerRepoFetchIfEnabled();
 	}
 }
-
-// Keyboard shortcuts: Ctrl+G / Cmd+G to generate, Ctrl+Shift+Y / Cmd+Shift+Y to copy, Ctrl+Shift+M / Cmd+Shift+M to insert in email
-document.addEventListener('keydown', (e) => {
-	if (!document.hasFocus()) {
-		return;
-	}
-
-	const target = e.target;
-	const tagName = target?.tagName;
-	const editableAncestor = typeof target?.closest === 'function' ? target.closest('[contenteditable="true"]') : null;
-	const isFormField = tagName === 'INPUT' || tagName === 'TEXTAREA' || tagName === 'SELECT';
-	const isContentEditable = !!(editableAncestor || (target && target.isContentEditable));
-
-	if (isFormField || isContentEditable) {
-		return;
-	}
-
-	const key = (e.key || '').toLowerCase();
-	const modifier = isMacOS() ? e.metaKey : e.ctrlKey;
-
-	const generateBtn = document.getElementById('generateReport');
-	const copyBtn = document.getElementById('copyReport');
-	const insertEmailBtn = document.getElementById('insertInEmail');
-
-	if (modifier && !e.shiftKey && !e.altKey && key === 'g' && !e.repeat && generateBtn && !generateBtn.disabled) {
-		e.preventDefault();
-		showShortcutNotification('generatingReportNotification');
-		generateBtn.click();
-	}
-
-	if (modifier && e.shiftKey && !e.altKey && key === 'y' && !e.repeat && copyBtn && !copyBtn.disabled) {
-		e.preventDefault();
-		showShortcutNotification('copyingReportNotification');
-		copyBtn._triggeredByShortcut = true;
-		copyBtn.click();
-	}
-
-	if (modifier && e.shiftKey && !e.altKey && key === 'm' && !e.repeat && insertEmailBtn && !insertEmailBtn.disabled) {
-		e.preventDefault();
-		showShortcutNotification('insertingInEmailNotification');
-		insertEmailBtn._triggeredByShortcut = true;
-		insertEmailBtn.click();
-	}
-});
 
 // Validate organization only when user is done typing (on blur)
 function validateOrgOnBlur(org) {
