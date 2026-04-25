@@ -231,6 +231,74 @@
     "onlyRevPRsTooltip": {
         "message": "ఎంచుకుంటే, నివేదికలో మీరు సమీక్షించిన PRలు మాత్రమే చూపబడతాయి."
     },
+    "testTokenButton": {
+        "message": "Test Token",
+        "description": "Button text to test/validate a GitLab token."
+    },
+    "clearTokenButton": {
+        "message": "Clear Token",
+        "description": "Button text to clear the stored token."
+    },
+    "confirmClearToken": {
+        "message": "Are you sure you want to clear the GitLab token?",
+        "description": "Confirmation message before clearing the token."
+    },
+    "testingTokenButton": {
+        "message": "Testing...",
+        "description": "Button text while token validation is in progress."
+    },
+    "tokenValidButton": {
+        "message": "Valid!",
+        "description": "Button text when token is validated successfully."
+    },
+    "tokenInvalidButton": {
+        "message": "Invalid",
+        "description": "Button text when token validation fails."
+    },
+    "gitlabGroupLabel": {
+        "message": "మీ GitLab గ్రూప్",
+        "description": "Label for the GitLab group input."
+    },
+    "gitlabGroupPlaceholder": {
+        "message": "GitLab గ్రూప్ పేరు నమోదు చేయండి",
+        "description": "Placeholder for the GitLab group input."
+    },
+    "gitlabGroupTooltip": {
+        "message": "<b>ఏ GitLab గ్రూప్ క్రియాశీలత?</b><br>క్రియాశీలతను తెచ్చుకోవడానికి GitLab గ్రూప్ పేరు నమోదు చేయండి. అన్ని గ్రూప్‌లలో మీ అన్ని GitLab క్రియాశీలతను తెచ్చుకోవడానికి ఖాలీగా వ్రాయండి. గ్రూప్ పేరు కేస్-సెన్సిటివ్ కాదు.",
+        "description": "Tooltip explaining GitLab group filtering."
+    },
+    "gitlabProjectFilterLabel": {
+        "message": "ప్రాజెక్ట్‌ల ద్వారా ఫిల్టర్ చేయండి",
+        "description": "Label for GitLab project filter."
+    },
+    "gitlabProjectFilterTooltip": {
+        "message": "GitLab టోకెన్ అవసరం.<br>ప్రాజెక్ట్ జాబితా అప్‌డేట్‌ను బలవంతం చేయాలంటే, <br>డేటా రిఫ్రెష్ బటన్ క్లిక్ చేయండి.",
+        "description": "Tooltip for GitLab project filter."
+    },
+    "gitlabTokenRequiredWarning": {
+        "message": "ప్రాజెక్ట్ ఫిల్టరింగ్ కోసం GitLab టోకెన్ అవసరం. దయచేసి సెట్టింగ్‌లలో ఒకదాన్ని జోడించండి.",
+        "description": "Warning message when GitLab token is missing for project filtering."
+    },
+    "gitlabProjectCountNone": {
+        "message": "0 projects selected",
+        "description": "Text showing the count of selected GitLab projects when it's zero."
+    },
+    "gitlabProjectCount": {
+        "message": "$1 projects selected",
+        "description": "Text showing the count of selected GitLab projects. $1 is a placeholder for the number."
+    },
+    "gitlabProjectSearchPlaceholder": {
+        "message": "Search projects",
+        "description": "Placeholder/title for the GitLab project search input."
+    },
+    "gitlabProjectPlaceholder": {
+        "message": "No projects selected (all will be included)",
+        "description": "Placeholder text when no GitLab projects are selected for filtering."
+    },
+    "usernameRequiredError": {
+        "message": "నివేదిక జనరేట చేయడానికి దయచేసి యూజర్‌నేమ్ నమోదు చేయండి.",
+        "description": "Error message shown when the user tries to generate a report without entering a username."
+    },
     "usernameMissingError": {
         "message": "యూజర్‌నేమ్ అవసరం."
     },
@@ -254,5 +322,17 @@
     },
     "insertedInEmailNotification": {
         "message": "నివేదిక ఇమెయిల్‌లో చేర్చబడింది!"
+    },
+    "githubInvalidSearchError": {
+        "message": "Invalid search query or date range. Please verify your date range format and try again."
+    },
+    "githubFetchIssuesError": {
+        "message": "Error fetching GitHub issues: $1 $2"
+    },
+    "githubFetchPRDataError": {
+        "message": "Error fetching GitHub PR review data: $1 $2"
+    },
+    "githubFetchUserDataError": {
+        "message": "Error fetching GitHub user data: $1 $2"
     }
 }

@@ -8,6 +8,15 @@ body {
     box-sizing: border-box;
 }
 
+/* Platform-specific section visibility */
+.githubOnlySection {
+    display: block;
+}
+
+.gitlabOnlySection {
+    display: none;
+}
+
 .datepicker {
     margin-bottom: 5px !important;
 }
@@ -89,6 +98,7 @@ a {
     width: 100%;
 }
 
+.scrum-actions button,
 .scrum-actions>button span,
 .scrum-actions>.tooltip-container>button span {
     white-space: nowrap;
@@ -141,11 +151,17 @@ hr,
 
 .dark-mode input[type="text"],
 .dark-mode input[type="date"],
+.dark-mode select,
 .dark-mode #scrumReport {
     background-color: #404040 !important;
     border-color: #505050 !important;
     color: #ffffff !important;
     transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+}
+
+.dark-mode select option {
+    background-color: #404040;
+    color: #ffffff;
 }
 
 .dark-mode h3,
@@ -174,6 +190,24 @@ hr,
     font-size: 13px !important;
     margin-bottom: 4px !important;
 }
+
+.State {
+    vertical-align: middle;
+    display: inline-block;
+    padding: 0 4px;
+    font-size: 9px;
+    font-weight: 600;
+    color: #fff !important;
+    text-align: center;
+    border-radius: 3px;
+    line-height: 12px;
+    margin-bottom: 2px;
+}
+
+.State--green  { background-color: #2cbe4e; }
+.State--red    { background-color: #d73a49; }
+.State--purple { background-color: #6f42c1; }
+.State--gray   { background-color: #808080; }
 
 .dark-mode #scrumReport {
     font-size: 13px !important;
@@ -675,6 +709,20 @@ hr,
 }
 
 .dark-mode #repositoryPlaceholder {
+    color: #9ca3af !important;
+}
+
+.dark-mode #gitlabProjectDropdown {
+    background-color: #2d2d2d !important;
+    border-color: #4b5563 !important;
+}
+
+.dark-mode #selectedGitlabProjects {
+    background-color: #374151 !important;
+    border-color: #4b5563 !important;
+}
+
+.dark-mode #gitlabProjectPlaceholder {
     color: #9ca3af !important;
 }
 

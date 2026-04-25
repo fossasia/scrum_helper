@@ -229,12 +229,53 @@
     "onlyRevPRsLabel": {
         "message": "Inclure uniquement les PRs revues dans le rapport"
     },
-    "onlyRevPRsTooltip": {
-        "message": "Si coché, le rapport n'inclura que les PRs que vous avez revues."
+"onlyRevPRsTooltip": {
+    "message": "Si coché, le rapport n'inclura que les PRs que vous avez revues."
+},
+"gitlabGroupLabel": {
+    "message": "Votre groupe GitLab",
+    "description": "Label for the GitLab group input."
+},
+"gitlabGroupPlaceholder": {
+    "message": "Entrez le nom du groupe GitLab",
+    "description": "Placeholder for the GitLab group input."
+},
+"gitlabGroupTooltip": {
+    "message": "<b>Quelle activité de groupe GitLab?</b><br>Entrez le nom du groupe GitLab pour récupérer les activités. Laissez vide pour récupérer toutes vos activités GitLab dans tous les groupes. Le nom du groupe n'est pas sensible à la casse.",
+    "description": "Tooltip explaining GitLab group filtering."
+},
+"gitlabProjectFilterLabel": {
+    "message": "Filtrer par projets",
+    "description": "Label for GitLab project filter."
+},
+"gitlabProjectFilterTooltip": {
+    "message": "Jeton GitLab requis.<br>Pour forcer une mise à jour de la liste des projets, <br>cliquez sur le bouton Actualiser les données.",
+    "description": "Tooltip for GitLab project filter."
+},
+"gitlabTokenRequiredWarning": {
+    "message": "Un jeton GitLab est requis pour le filtrage des projets. Veuillez en ajouter un dans les paramètres.",
+    "description": "Warning message when GitLab token is missing for project filtering."
+},
+    "gitlabProjectCountNone": {
+        "message": "0 projets sélectionnés",
+        "description": "Text showing the count of selected GitLab projects when it's zero."
     },
-    	"usernameRequiredError": {
-		"message": "Veuillez saisir votre nom d'utilisateur pour générer un rapport."
-	},
+    "gitlabProjectCount": {
+        "message": "$1 projets sélectionnés",
+        "description": "Text showing the count of selected GitLab projects. $1 is a placeholder for the number."
+    },
+    "gitlabProjectSearchPlaceholder": {
+        "message": "Rechercher des projets",
+        "description": "Placeholder/title for the GitLab project search input."
+    },
+    "gitlabProjectPlaceholder": {
+        "message": "Aucun projet sélectionné (tous seront inclus)",
+        "description": "Placeholder text when no GitLab projects are selected for filtering."
+    },
+    "usernameRequiredError": {
+        "message": "Veuillez entrer votre nom d'utilisateur pour générer un rapport.",
+        "description": "Error message shown when the user tries to generate a report without entering a username."
+    },
 	"unknownPlatformError": {
 		"message": "Plateforme inconnue sélectionnée."
 	},
@@ -315,5 +356,17 @@
     },
     "insertedInEmailNotification": {
         "message": "Rapport inséré dans l'e-mail !"
-   }
+    },
+    "githubInvalidSearchError": {
+        "message": "Invalid search query or date range. Please verify your date range format and try again."
+    },
+    "githubFetchIssuesError": {
+        "message": "Error fetching GitHub issues: $1 $2"
+    },
+    "githubFetchPRDataError": {
+        "message": "Error fetching GitHub PR review data: $1 $2"
+    },
+    "githubFetchUserDataError": {
+        "message": "Error fetching GitHub user data: $1 $2"
+    }
 }

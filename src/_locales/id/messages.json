@@ -74,17 +74,11 @@
     "githubTokenPlaceholder": {
         "message": "Diperlukan untuk permintaan terotentikasi"
     },
-    "githubTokenTooltip": {
-        "message": "Mengapa disarankan untuk menambahkan token GitHub? Scrum Helper berfungsi tanpa token GitHub, tetapi menambahkan token akses pribadi disarankan untuk pengalaman yang lebih baik."
-    },
     "gitlabTokenLabel": {
         "message": "Token GitLab Anda"
     },
     "gitlabTokenPlaceholder": {
         "message": "Diperlukan untuk repo pribadi"
-    },
-    "gitlabTokenTooltip": {
-        "message": "Mengapa disarankan untuk menambahkan token GitLab? Scrum Helper berfungsi tanpa token GitLab untuk proyek publik, tetapi menambahkan token akses pribadi disarankan untuk pengalaman yang lebih baik."
     },
     "showCommitsLabel": {
         "message": "Tampilkan commit pada PR terbuka/ draf PR"
@@ -104,6 +98,13 @@
     "onlyPRsTooltip": {
         "message": "Jika dicentang, laporan hanya akan menyertakan PR yang dibuat oleh pengguna; PR yang telah ditinjau akan dikecualikan."
     },
+    "onlyRevPRsLabel": {
+        "message": "Hanya sertakan PR yang ditinjau dalam laporan"
+    },
+    "onlyRevPRsTooltip": {
+        "message": "Jika dicentang, laporan hanya akan menyertakan PR yang ditinjau oleh Anda."
+    },
+
     "cacheTTLLabel": {
         "message": "Masukkan TTL cache",
         "description": "Label untuk masukan time-to-live cache."
@@ -204,10 +205,6 @@
     "cacheClearedMessage": {
         "message": "Cache berhasil dihapus. Klik 'Buat Laporan' untuk mengambil data baru."
     },
-    "cacheExpiredMessage": {
-        "message": "Cache telah kedaluwarsa. Klik \"Buat\" untuk mengambil data baru.",
-        "description": "Message shown when the cached data has expired and user needs to regenerate."
-    },
     "cacheClearedButton": {
         "message": "Cache Dihapus!"
     },
@@ -226,15 +223,74 @@
     "usernameLabel": {
         "message": "Nama pengguna Anda"
     },
-    "onlyRevPRsLabel": {
-        "message": "Hanya sertakan PR yang ditinjau dalam laporan"
+    "testTokenButton": {
+        "message": "Test Token",
+        "description": "Button text to test/validate a GitLab token."
     },
-    "onlyRevPRsTooltip": {
-        "message": "Jika dicentang, laporan hanya akan menyertakan PR yang ditinjau oleh Anda."
+    "clearTokenButton": {
+        "message": "Clear Token",
+        "description": "Button text to clear the stored token."
     },
-    	"usernameRequiredError": {
-		"message": "Silakan masukkan nama pengguna Anda untuk membuat laporan."
-	},
+    "confirmClearToken": {
+        "message": "Are you sure you want to clear the GitLab token?",
+        "description": "Confirmation message before clearing the token."
+    },
+    "testingTokenButton": {
+        "message": "Testing...",
+        "description": "Button text while token validation is in progress."
+    },
+    "tokenValidButton": {
+        "message": "Valid!",
+        "description": "Button text when token is validated successfully."
+    },
+    "tokenInvalidButton": {
+        "message": "Invalid",
+        "description": "Button text when token validation fails."
+    },
+    "gitlabGroupLabel": {
+        "message": "Grup GitLab Anda",
+        "description": "Label for the GitLab group input."
+    },
+    "gitlabGroupPlaceholder": {
+        "message": "Masukkan nama grup GitLab",
+        "description": "Placeholder for the GitLab group input."
+    },
+    "gitlabGroupTooltip": {
+        "message": "<b>Aktivitas grup GitLab mana?</b><br>Masukkan nama grup GitLab untuk mengambil aktivitas. Biarkan kosong untuk mengambil semua aktivitas GitLab Anda di semua grup. Nama grup tidak peka huruf besar/kecil.",
+        "description": "Tooltip explaining GitLab group filtering."
+    },
+    "gitlabProjectFilterLabel": {
+        "message": "Filter berdasarkan proyek",
+        "description": "Label for GitLab project filter."
+    },
+    "gitlabProjectFilterTooltip": {
+        "message": "Token GitLab diperlukan.<br>Untuk memaksa pembaruan daftar proyek, <br>klik tombol Segarkan Data.",
+        "description": "Tooltip for GitLab project filter."
+    },
+    "gitlabTokenRequiredWarning": {
+        "message": "Token GitLab diperlukan untuk penyaringan proyek. Silakan tambahkan satu di pengaturan.",
+        "description": "Warning message when GitLab token is missing for project filtering."
+    },
+    "gitlabProjectCountNone": {
+        "message": "0 projects selected",
+        "description": "Text showing the count of selected GitLab projects when it's zero."
+    },
+    "gitlabProjectCount": {
+        "message": "$1 projects selected",
+        "description": "Text showing the count of selected GitLab projects. $1 is a placeholder for the number."
+    },
+    "gitlabProjectSearchPlaceholder": {
+        "message": "Search projects",
+        "description": "Placeholder/title for the GitLab project search input."
+    },
+    "gitlabProjectPlaceholder": {
+        "message": "No projects selected (all will be included)",
+        "description": "Placeholder text when no GitLab projects are selected for filtering."
+    },
+"usernameRequiredError": {
+    "message": "Silakan masukkan nama pengguna Anda untuk membuat laporan.",
+    "description": "Error message shown when the user tries to generate a report without entering a username."
+},
 	"unknownPlatformError": {
 		"message": "Platform yang dipilih tidak dikenal."
 	},
@@ -314,6 +370,16 @@
         "message": "Menyisipkan laporan ke email..."
     },
     "insertedInEmailNotification": {
-        "message": "Laporan disisipkan ke email!"
-    }
+        "message": "Laporan disisipkan ke email!"    },
+    "githubInvalidSearchError": {
+        "message": "Invalid search query or date range. Please verify your date range format and try again."
+    },
+    "githubFetchIssuesError": {
+        "message": "Error fetching GitHub issues: $1 $2"
+    },
+    "githubFetchPRDataError": {
+        "message": "Error fetching GitHub PR review data: $1 $2"
+    },
+    "githubFetchUserDataError": {
+        "message": "Error fetching GitHub user data: $1 $2"    }
 }

@@ -229,12 +229,78 @@
     "onlyRevPRsLabel": {
         "message": "Incluir solo PRs revisados en el informe"
     },
-    "onlyRevPRsTooltip": {
-        "message": "Si está marcado, el informe solo incluirá PRs revisados por usted."
+"onlyRevPRsTooltip": {
+    "message": "Si está marcado, el informe solo incluirá PRs revisados por usted."
+},
+"testTokenButton": {
+    "message": "Test Token",
+    "description": "Button text to test/validate a GitLab token."
+  },
+  "clearTokenButton": {
+    "message": "Clear Token",
+    "description": "Button text to clear the stored token."
+  },
+  "confirmClearToken": {
+    "message": "Are you sure you want to clear the GitLab token?",
+    "description": "Confirmation message before clearing the token."
+  },
+  "testingTokenButton": {
+    "message": "Testing...",
+    "description": "Button text while token validation is in progress."
+  },
+  "tokenValidButton": {
+    "message": "Valid!",
+    "description": "Button text when token is validated successfully."
+  },
+  "tokenInvalidButton": {
+    "message": "Invalid",
+    "description": "Button text when token validation fails."
+  },
+  "gitlabGroupLabel": {
+    "message": "Su grupo de GitLab",
+    "description": "Label for the GitLab group input."
+  },
+  "gitlabGroupPlaceholder": {
+    "message": "Ingrese el nombre del grupo de GitLab",
+    "description": "Placeholder for the GitLab group input."
+  },
+  "gitlabGroupTooltip": {
+    "message": "<b>¿Qué actividad del grupo de GitLab?</b><br>Ingrese el nombre del grupo de GitLab para obtener actividades. Déjelo vacío para obtener todas sus actividades de GitLab en todos los grupos. El nombre del grupo no distingue entre mayúsculas y minúsculas.",
+    "description": "Tooltip explaining GitLab group filtering."
+  },
+  "gitlabProjectFilterLabel": {
+    "message": "Filtrar por proyectos",
+    "description": "Label for GitLab project filter."
+  },
+  "gitlabProjectFilterTooltip": {
+    "message": "Token de GitLab requerido.<br>Para forzar una actualización de la lista de proyectos, <br>haga clic en el botón Actualizar datos.",
+    "description": "Tooltip for GitLab project filter."
+  },
+  "gitlabTokenRequiredWarning": {
+    "message": "Se requiere un token de GitLab para filtrar proyectos. Por favor, agregue uno en la configuración.",
+    "description": "Warning message when GitLab token is missing for project filtering."
+  }
+    ,
+    "gitlabProjectCountNone": {
+        "message": "0 proyectos seleccionados",
+        "description": "Text showing the count of selected GitLab projects when it's zero."
     },
-	"usernameRequiredError": {
-		"message": "Por favor, introduzca su nombre de usuario para generar un informe."
-	},
+    "gitlabProjectCount": {
+        "message": "$1 proyectos seleccionados",
+        "description": "Text showing the count of selected GitLab projects. $1 is a placeholder for the number."
+    },
+    "gitlabProjectSearchPlaceholder": {
+        "message": "Buscar proyectos",
+        "description": "Placeholder/title for the GitLab project search input."
+    },
+    "gitlabProjectPlaceholder": {
+        "message": "No se seleccionaron proyectos (se incluirán todos)",
+        "description": "Placeholder text when no GitLab projects are selected for filtering."
+    },
+    "usernameRequiredError": {
+        "message": "Ingrese su nombre de usuario para generar un informe.",
+        "description": "Error message shown when the user tries to generate a report without entering a username."
+    },
 	"unknownPlatformError": {
 		"message": "Plataforma desconocida seleccionada."
 	},
@@ -315,5 +381,17 @@
     },
     "insertedInEmailNotification": {
         "message": "¡Informe insertado en el correo!"
-   }
+    },
+    "githubInvalidSearchError": {
+        "message": "Invalid search query or date range. Please verify your date range format and try again."
+    },
+    "githubFetchIssuesError": {
+        "message": "Error fetching GitHub issues: $1 $2"
+    },
+    "githubFetchPRDataError": {
+        "message": "Error fetching GitHub PR review data: $1 $2"
+    },
+    "githubFetchUserDataError": {
+        "message": "Error fetching GitHub user data: $1 $2"
+    }
 }

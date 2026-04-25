@@ -197,6 +197,22 @@
     "message": "0 repositories selected",
     "description": "Text showing the count of selected repositories when it's zero."
   },
+  "gitlabProjectCountNone": {
+    "message": "0 projects selected",
+    "description": "Text showing the count of selected GitLab projects when it's zero."
+  },
+  "gitlabProjectPlaceholder": {
+    "message": "No projects selected (all will be included)",
+    "description": "Placeholder text when no GitLab projects are selected for filtering."
+  },
+  "gitlabProjectCount": {
+    "message": "$1 projects selected",
+    "description": "Text showing the count of selected GitLab projects. $1 is a placeholder for the number."
+  },
+  "gitlabProjectSearchPlaceholder": {
+    "message": "Search projects",
+    "description": "Placeholder/title for the GitLab project search input."
+  },
   "repoCount": {
     "message": "$1 repositories selected",
     "description": "Text showing the count of selected repositories. $1 is a placeholder for the number."
@@ -301,6 +317,54 @@
     "message": "Your Username",
     "description": "Label for the username input header."
   },
+  "testTokenButton": {
+    "message": "Test Token",
+    "description": "Button text to test/validate a GitLab token."
+  },
+  "clearTokenButton": {
+    "message": "Clear Token",
+    "description": "Button text to clear the stored token."
+  },
+  "confirmClearToken": {
+    "message": "Are you sure you want to clear the GitLab token?",
+    "description": "Confirmation message before clearing the token."
+  },
+  "testingTokenButton": {
+    "message": "Testing...",
+    "description": "Button text while token validation is in progress."
+  },
+  "tokenValidButton": {
+    "message": "Valid!",
+    "description": "Button text when token is validated successfully."
+  },
+  "tokenInvalidButton": {
+    "message": "Invalid",
+    "description": "Button text when token validation fails."
+  },
+  "gitlabGroupLabel": {
+    "message": "Your GitLab Group",
+    "description": "Label for the GitLab group input."
+  },
+  "gitlabGroupPlaceholder": {
+    "message": "Enter GitLab group name",
+    "description": "Placeholder for the GitLab group input."
+  },
+  "gitlabGroupTooltip": {
+    "message": "<b>Which GitLab group's activity?</b><br>Enter the GitLab group name to fetch activities for. Leave empty to fetch all your GitLab activities across all groups. Group name is not case-sensitive.",
+    "description": "Tooltip explaining GitLab group filtering."
+  },
+  "gitlabProjectFilterLabel": {
+    "message": "Filter by projects",
+    "description": "Label for GitLab project filter."
+  },
+  "gitlabProjectFilterTooltip": {
+    "message": "GitLab Token required.<br>To force a project list update, <br>click the Refresh Data button.",
+    "description": "Tooltip for GitLab project filter."
+  },
+  "gitlabTokenRequiredWarning": {
+    "message": "A GitLab token is required for project filtering. Please add one in the settings.",
+    "description": "Warning message when GitLab token is missing for project filtering."
+  },
   "onlyRevPRsLabel": {
     "message": "Include only reviewed PRs in the report",
     "description": "Label for the checkbox to include only reviewed PRs."
@@ -308,6 +372,46 @@
   "onlyRevPRsTooltip": {
     "message": "If checked, the report will only include PRs reviewed by you.",
     "description": "Tooltip for the reviewed PRs filter checkbox."
+  },
+  "gitlabProjectOnlyGitLab": {
+    "message": "Project filtering is only available for GitLab.",
+    "description": "Status message when GitLab project filter is used on a non-GitLab platform."
+  },
+  "gitlabProjectFetching": {
+    "message": "Fetching projects...",
+    "description": "Status message when GitLab projects are being fetched."
+  },
+  "gitlabProjectUsernameRequired": {
+    "message": "Username required",
+    "description": "Status message when GitLab username is missing for project filtering."
+  },
+  "gitlabProjectLoaded": {
+    "message": "$1 projects loaded",
+    "description": "Status message after GitLab projects have been loaded. $1 is the number."
+  },
+  "gitlabProjectTokenRequired": {
+    "message": "Token required for private projects",
+    "description": "Error message when GitLab token is required for accessing private projects."
+  },
+  "gitlabProjectLoading": {
+    "message": "Loading projects...",
+    "description": "Status message while GitLab projects are loading."
+  },
+  "gitlabProjectFetchNotAvailable": {
+    "message": "Project fetching not available",
+    "description": "Status message when GitLab project fetching functionality is unavailable."
+  },
+  "gitlabProjectNoneAvailable": {
+    "message": "No projects available. Click to load.",
+    "description": "Message shown in the dropdown when no GitLab projects have been loaded yet."
+  },
+  "gitlabProjectNoMatch": {
+    "message": "No matching projects found.",
+    "description": "Message shown in the dropdown when a GitLab project search yields no results."
+  },
+  "gitlabProjectLoadFailed": {
+    "message": "Failed to load projects",
+    "description": "Fallback error message when GitLab project loading fails without a specific error."
   },
   "onlyMergedPRsLabel": {
     "message": "Include only merged PRs in the report",
@@ -404,7 +508,7 @@
   "usernameMissingError": {
     "message": "Username required.",
     "description": "Error shown when username is missing."
-   },
+  },
   "generateReportTooltip": {
     "message": "Ctrl+G",
     "description": "Tooltip shortcut for the Generate button. Dynamically replaced with Cmd+G on macOS."
@@ -436,5 +540,29 @@
   "insertedInEmailNotification": {
     "message": "Report inserted into email!",
     "description": "Notification shown when report is successfully inserted into email."
+  },
+  "insertingButton": {
+    "message": "Inserting...",
+    "description": "Short text for button while inserting."
+  },
+  "insertedButton": {
+    "message": "Inserted!",
+    "description": "Short text for button after insertion."
+  },
+  "githubInvalidSearchError": {
+    "message": "Invalid search query or date range. Please verify your date range format and try again.",
+    "description": "Error when the search query or date range is invalid."
+  },
+  "githubFetchIssuesError": {
+    "message": "Error fetching GitHub issues: $1 $2",
+    "description": "Error when fetching GitHub issues fails. $1=status, $2=statusText"
+  },
+  "githubFetchPRDataError": {
+    "message": "Error fetching GitHub PR review data: $1 $2",
+    "description": "Error when fetching GitHub PR review data fails. $1=status, $2=statusText"
+  },
+  "githubFetchUserDataError": {
+    "message": "Error fetching GitHub user data: $1 $2",
+    "description": "Error when fetching GitHub user data fails. $1=status, $2=statusText"
   }
 }

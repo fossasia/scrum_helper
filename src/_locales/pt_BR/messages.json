@@ -1,4 +1,5 @@
 {
+
     "appName": {
         "message": "Scrum Helper"
     },
@@ -74,17 +75,11 @@
     "githubTokenPlaceholder": {
         "message": "Necessário para solicitações autenticadas"
     },
-    "githubTokenTooltip": {
-        "message": "Por que é recomendado adicionar um token do GitHub? O Scrum Helper funciona sem um token do GitHub, mas é recomendado adicionar um token de acesso pessoal para uma melhor experiência."
-    },
     "gitlabTokenLabel": {
         "message": "Seu Token GitLab"
     },
     "gitlabTokenPlaceholder": {
         "message": "Necessário para repos privados"
-    },
-    "gitlabTokenTooltip": {
-        "message": "Por que é recomendado adicionar um token do GitLab? O Scrum Helper funciona sem um token do GitLab para projetos públicos, mas é recomendado adicionar um token de acesso pessoal para uma melhor experiência."
     },
     "showCommitsLabel": {
         "message": "Mostrar commits em PRs abertos/ rascunhos de PRs"
@@ -104,6 +99,13 @@
     "onlyPRsTooltip": {
         "message": "Se marcado, o relatório incluirá apenas PRs criadas pelo usuário; as PRs revisadas serão excluídas."
     },
+    "onlyRevPRsLabel": {
+        "message": "Incluir apenas PRs revisadas no relatório"
+    },
+    "onlyRevPRsTooltip": {
+        "message": "Se marcado, o relatório incluirá apenas PRs revisadas por você."
+    },
+
     "cacheTTLLabel": {
         "message": "Digite o TTL do cache",
         "description": "Rótulo para a entrada de tempo de vida do cache."
@@ -204,10 +206,6 @@
     "cacheClearedMessage": {
         "message": "Cache limpo com sucesso. Clique em 'Gerar Relatório' para buscar dados novos."
     },
-    "cacheExpiredMessage": {
-        "message": "O cache expirou. Clique em \"Gerar\" para buscar dados novos.",
-        "description": "Message shown when the cached data has expired and user needs to regenerate."
-    },
     "cacheClearedButton": {
         "message": "Cache Limpo!"
     },
@@ -226,14 +224,74 @@
     "usernameLabel": {
         "message": "Seu nome de usuário"
     },
-    "onlyRevPRsLabel": {
-        "message": "Incluir apenas PRs revisadas no relatório"
+    "testTokenButton": {
+        "message": "Test Token",
+        "description": "Button text to test/validate a GitLab token."
     },
-    "onlyRevPRsTooltip": {
-        "message": "Se marcado, o relatório incluirá apenas PRs revisadas por você."
+    "clearTokenButton": {
+        "message": "Clear Token",
+        "description": "Button text to clear the stored token."
+    },
+    "confirmClearToken": {
+        "message": "Are you sure you want to clear the GitLab token?",
+        "description": "Confirmation message before clearing the token."
+    },
+    "testingTokenButton": {
+        "message": "Testing...",
+        "description": "Button text while token validation is in progress."
+    },
+    "tokenValidButton": {
+        "message": "Valid!",
+        "description": "Button text when token is validated successfully."
+    },
+    "tokenInvalidButton": {
+        "message": "Invalid",
+        "description": "Button text when token validation fails."
+    },
+    "gitlabGroupLabel": {
+        "message": "Seu grupo GitLab",
+        "description": "Label for the GitLab group input."
+    },
+    "gitlabGroupPlaceholder": {
+        "message": "Digite o nome do grupo GitLab",
+        "description": "Placeholder for the GitLab group input."
+    },
+    "gitlabGroupTooltip": {
+        "message": "<b>Atividade de qual grupo GitLab?</b><br>Digite o nome do grupo GitLab para buscar atividades. Deixe vazio para buscar todas as suas atividades GitLab em todos os grupos. O nome do grupo não diferencia maiúsculas de minúsculas.",
+        "description": "Tooltip explaining GitLab group filtering."
+    },
+    "gitlabProjectFilterLabel": {
+        "message": "Filtrar por projetos",
+        "description": "Label for GitLab project filter."
+    },
+    "gitlabProjectFilterTooltip": {
+        "message": "Token GitLab necessário.<br>Para forçar uma atualização da lista de projetos, <br>clique no botão Atualizar dados.",
+        "description": "Tooltip for GitLab project filter."
+    },
+    "gitlabTokenRequiredWarning": {
+        "message": "É necessário um token do GitLab para filtragem de projetos. Por favor, adicione um nas configurações.",
+        "description": "Warning message when GitLab token is missing for project filtering."
+    },
+    "gitlabProjectCountNone": {
+        "message": "0 projetos selecionados",
+        "description": "Text showing the count of selected GitLab projects when it's zero."
+    },
+    "gitlabProjectCount": {
+        "message": "$1 projetos selecionados",
+        "description": "Text showing the count of selected GitLab projects. $1 is a placeholder for the number."
+    },
+    "gitlabProjectSearchPlaceholder": {
+        "message": "Procurar projetos",
+        "description": "Placeholder/title for the GitLab project search input."
+    },
+    "gitlabProjectPlaceholder": {
+        "message": "Nenhum projeto selecionado (todos serão incluídos)",
+        "description": "Placeholder text when no GitLab projects are selected for filtering."
+
     },
     "usernameRequiredError": {
-        "message": "Por favor, digite seu nome de usuário para gerar o relatório."
+        "message": "Digite seu nome de usuário para gerar um relatório.",
+        "description": "Error message shown when the user tries to generate a report without entering a username."
     },
     "unknownPlatformError": {
         "message": "Plataforma desconhecida selecionada."
@@ -315,5 +373,17 @@
     },
     "insertedInEmailNotification": {
         "message": "Relatório inserido no e-mail!"
+    },
+    "githubInvalidSearchError": {
+        "message": "Invalid search query or date range. Please verify your date range format and try again."
+    },
+    "githubFetchIssuesError": {
+        "message": "Error fetching GitHub issues: $1 $2"
+    },
+    "githubFetchPRDataError": {
+        "message": "Error fetching GitHub PR review data: $1 $2"
+    },
+    "githubFetchUserDataError": {
+        "message": "Error fetching GitHub user data: $1 $2"
     }
 }

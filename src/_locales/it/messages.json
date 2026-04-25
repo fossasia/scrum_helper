@@ -98,6 +98,7 @@
     },
     "onlyIssuesTooltip": {
         "message": "Se selezionato, il report includerà solo i problemi creati o assegnati all'utente."
+
     },
     "onlyPRsLabel": {
         "message": "Includi solo le PR nel report"
@@ -229,12 +230,12 @@
     "onlyRevPRsLabel": {
         "message": "Includi solo le PR revisionate nel report"
     },
-    "onlyRevPRsTooltip": {
-        "message": "Se selezionato, il report includerà solo le PR revisionate da te."
-    },
-    	"usernameRequiredError": {
-		"message": "Inserisci il tuo nome utente per generare un report."
-	},
+"onlyRevPRsTooltip": {
+    "message": "Se selezionato, il report includerà solo le PR revisionate da te."
+},
+"usernameRequiredError": {
+    "message": "Inserisci il tuo nome utente per generare un report."
+},
 	"unknownPlatformError": {
 		"message": "Piattaforma selezionata sconosciuta."
 	},
@@ -314,6 +315,16 @@
         "message": "Inserimento del report nell'email..."
     },
     "insertedInEmailNotification": {
-        "message": "Report inserito nell'email!"
-    }
+        "message": "Report inserito nell'email!"    },
+    "githubInvalidSearchError": {
+        "message": "Invalid search query or date range. Please verify your date range format and try again."
+    },
+    "githubFetchIssuesError": {
+        "message": "Error fetching GitHub issues: $1 $2"
+    },
+    "githubFetchPRDataError": {
+        "message": "Error fetching GitHub PR review data: $1 $2"
+    },
+    "githubFetchUserDataError": {
+        "message": "Error fetching GitHub user data: $1 $2"    }
 }

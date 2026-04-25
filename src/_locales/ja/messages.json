@@ -51,14 +51,13 @@
         "message": "スクラムレポート"
     },
     "generateReportButton": {
-        "message": "レポートを生成"
+        "message": "生成"
     },
     "copyReportButton": {
-        "message": "レポートをコピー"
+        "message": "コピー"
     },
     "insertInEmailButton": {
-        "message": "メールに挿入",
-        "description": "Text for the 'Insert to Email' button."
+        "message": "メールに挿入"
     },
     "settingsOrgNameLabel": {
         "message": "組織名"
@@ -75,17 +74,11 @@
     "githubTokenPlaceholder": {
         "message": "認証済みリクエストに必要です"
     },
-    "githubTokenTooltip": {
-        "message": "GitHubトークンを追加することをお勧めするのはなぜですか？Scrum HelperはGitHubトークンなしで機能しますが、より良いエクスペリエンスのためにパーソナルアクセストークンを追加することをお勧めします。"
-    },
     "gitlabTokenLabel": {
         "message": "GitLabトークン"
     },
     "gitlabTokenPlaceholder": {
-        "message": "プライベートプロジェクトへのアクセスに必要です"
-    },
-    "gitlabTokenTooltip": {
-        "message": "GitLabトークンを追加することをお勧めするのはなぜですか？Scrum HelperはパブリックプロジェクトのGitLabトークンなしで機能しますが、より良いエクスペリエンスのためにパーソナルアクセストークンを追加することをお勧めします。"
+        "message": "プライベートリポジトリに必要"
     },
     "showCommitsLabel": {
         "message": "オープンなPR/ドラフトPRのコミットを表示"
@@ -205,10 +198,6 @@
     "cacheClearedMessage": {
         "message": "キャッシュが正常にクリアされました。「レポートを生成」をクリックして新しいデータを取得してください。"
     },
-    "cacheExpiredMessage": {
-        "message": "キャッシュの有効期限が切れました。「生成」をクリックして最新のデータを取得してください。",
-        "description": "Message shown when the cached data has expired and user needs to regenerate."
-    },
     "cacheClearedButton": {
         "message": "キャッシュクリア！"
     },
@@ -227,18 +216,83 @@
     "usernameLabel": {
         "message": "あなたのユーザー名"
     },
+    "testTokenButton": {
+        "message": "Test Token",
+        "description": "Button text to test/validate a GitLab token."
+    },
+    "clearTokenButton": {
+        "message": "Clear Token",
+        "description": "Button text to clear the stored token."
+    },
+    "confirmClearToken": {
+        "message": "Are you sure you want to clear the GitLab token?",
+        "description": "Confirmation message before clearing the token."
+    },
+    "testingTokenButton": {
+        "message": "Testing...",
+        "description": "Button text while token validation is in progress."
+    },
+    "tokenValidButton": {
+        "message": "Valid!",
+        "description": "Button text when token is validated successfully."
+    },
+    "tokenInvalidButton": {
+        "message": "Invalid",
+        "description": "Button text when token validation fails."
+    },
+    "gitlabGroupLabel": {
+        "message": "GitLab グループ",
+        "description": "Label for the GitLab group input."
+    },
+    "gitlabGroupPlaceholder": {
+        "message": "GitLab グループ名を入力",
+        "description": "Placeholder for the GitLab group input."
+    },
+    "gitlabGroupTooltip": {
+        "message": "<b>どのGitLabグループのアクティビティ？</b><br>GitLabグループ名を入力してアクティビティを取得します。すべてのグループのすべてのGitLabアクティビティを取得するには空のままにします。グループ名は大文字と小文字を区別しません。",
+        "description": "Tooltip explaining GitLab group filtering."
+    },
+    "gitlabProjectFilterLabel": {
+        "message": "プロジェクトでフィルタリング",
+        "description": "Label for GitLab project filter."
+    },
+    "gitlabProjectFilterTooltip": {
+        "message": "GitLabトークンが必要です。<br>プロジェクトリストの更新を強制するには、<br>データ更新ボタンをクリックしてください。",
+        "description": "Tooltip for GitLab project filter."
+    },
+    "gitlabTokenRequiredWarning": {
+        "message": "プロジェクトフィルタリングにはGitLabトークンが必要です。設定で追加してください。",
+        "description": "Warning message when GitLab token is missing for project filtering."
+    },
+    "gitlabProjectCountNone": {
+        "message": "0 件のプロジェクトが選択されました",
+        "description": "Text showing the count of selected GitLab projects when it's zero."
+    },
+    "gitlabProjectCount": {
+        "message": "$1 件のプロジェクトが選択されました",
+        "description": "Text showing the count of selected GitLab projects. $1 is a placeholder for the number."
+    },
+    "gitlabProjectSearchPlaceholder": {
+        "message": "プロジェクトを検索",
+        "description": "Placeholder/title for the GitLab project search input."
+    },
+    "gitlabProjectPlaceholder": {
+        "message": "プロジェクトが選択されていません（すべて含まれます）",
+        "description": "Placeholder text when no GitLab projects are selected for filtering."
+    },
     "onlyRevPRsLabel": {
         "message": "レポートにレビュー済みのPRのみを含める"
     },
-    "onlyRevPRsTooltip": {
-        "message": "チェックした場合、レポートにはあなたがレビューしたPRのみが含まれます。"
-    },
-    "usernameRequiredError": {
-		"message": "レポートを生成するには、ユーザー名を入力してください。"
-	},
-	"unknownPlatformError": {
-		"message": "不明なプラットフォームが選択されました。"
-	},
+"onlyRevPRsTooltip": {
+    "message": "チェックした場合、レポートにはあなたがレビューしたPRのみが含まれます。"
+},
+"usernameRequiredError": {
+    "message": "レポートを生成するには、ユーザー名を入力してください。",
+    "description": "Error message shown when the user tries to generate a report without entering a username."
+},
+"unknownPlatformError": {
+    "message": "不明なプラットフォームが選択されました。"
+},
 	"gitlabFetchingError": {
 		"message": "GitLabデータの取得中にエラーが発生しました。"
 	},
@@ -315,6 +369,16 @@
         "message": "レポートをメールに挿入中..."
     },
     "insertedInEmailNotification": {
-        "message": "レポートをメールに挿入しました！"
-    }
+        "message": "レポートをメールに挿入しました！"    },
+    "githubInvalidSearchError": {
+        "message": "Invalid search query or date range. Please verify your date range format and try again."
+    },
+    "githubFetchIssuesError": {
+        "message": "Error fetching GitHub issues: $1 $2"
+    },
+    "githubFetchPRDataError": {
+        "message": "Error fetching GitHub PR review data: $1 $2"
+    },
+    "githubFetchUserDataError": {
+        "message": "Error fetching GitHub user data: $1 $2"    }
 }

@@ -1,4 +1,4 @@
-{
+﻿{
   "appName": {
     "message": "Scrum Helper"
   },
@@ -289,5 +289,21 @@
   },
   "insertInEmailButton": {
     "message": "အီးမေးလ်သို့ ထည့်ပါ"
-  }
+  },
+  "insertedInEmailNotification": {
+        "message": "အီမေးလ်ထဲသို့ အစီရင်ခံစာထည့်သွင်းလိုက်ပါပြီ!"
+    },
+    "githubInvalidSearchError": {
+        "message": "Invalid search query or date range. Please verify your date range format and try again."
+    },
+    "githubFetchIssuesError": {
+        "message": "Error fetching GitHub issues: $1 $2"
+    },
+    "githubFetchPRDataError": {
+        "message": "Error fetching GitHub PR review data: $1 $2"
+    },
+    "githubFetchUserDataError": {
+        "message": "Error fetching GitHub user data: $1 $2"
+    }
 }
+

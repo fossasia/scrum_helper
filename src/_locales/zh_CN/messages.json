@@ -226,6 +226,54 @@
     "usernameLabel": {
         "message": "您的用户名"
     },
+    "testTokenButton": {
+        "message": "Test Token",
+        "description": "Button text to test/validate a GitLab token."
+    },
+    "clearTokenButton": {
+        "message": "Clear Token",
+        "description": "Button text to clear the stored token."
+    },
+    "confirmClearToken": {
+        "message": "Are you sure you want to clear the GitLab token?",
+        "description": "Confirmation message before clearing the token."
+    },
+    "testingTokenButton": {
+        "message": "Testing...",
+        "description": "Button text while token validation is in progress."
+    },
+    "tokenValidButton": {
+        "message": "Valid!",
+        "description": "Button text when token is validated successfully."
+    },
+    "tokenInvalidButton": {
+        "message": "Invalid",
+        "description": "Button text when token validation fails."
+    },
+    "gitlabGroupLabel": {
+        "message": "您的 GitLab 组",
+        "description": "Label for the GitLab group input."
+    },
+    "gitlabGroupPlaceholder": {
+        "message": "输入 GitLab 组名称",
+        "description": "Placeholder for the GitLab group input."
+    },
+    "gitlabGroupTooltip": {
+        "message": "<b>哪个 GitLab 组的活动？</b><br>输入 GitLab 组名称以获取活动。留空以获取所有组中的所有 GitLab 活动。组名不区分大小写。",
+        "description": "Tooltip explaining GitLab group filtering."
+    },
+    "gitlabProjectFilterLabel": {
+        "message": "按项目筛选",
+        "description": "Label for GitLab project filter."
+    },
+    "gitlabProjectFilterTooltip": {
+        "message": "需要 GitLab 令牌。<br>要强制更新项目列表，<br>请单击刷新数据按钮。",
+        "description": "Tooltip for GitLab project filter."
+    },
+    "gitlabTokenRequiredWarning": {
+        "message": "项目筛选需要 GitLab 令牌。请在设置中添加一个。",
+        "description": "Warning message when GitLab token is missing for project filtering."
+    },
     "onlyRevPRsLabel": {
         "message": "报告中仅包含已审核的 PR"
     },
@@ -314,6 +362,16 @@
         "message": "正在将报告插入邮件..."
     },
     "insertedInEmailNotification": {
-        "message": "报告已插入邮件！"
-    }
+        "message": "报告已插入邮件！"    },
+    "githubInvalidSearchError": {
+        "message": "Invalid search query or date range. Please verify your date range format and try again."
+    },
+    "githubFetchIssuesError": {
+        "message": "Error fetching GitHub issues: $1 $2"
+    },
+    "githubFetchPRDataError": {
+        "message": "Error fetching GitHub PR review data: $1 $2"
+    },
+    "githubFetchUserDataError": {
+        "message": "Error fetching GitHub user data: $1 $2"    }
 }

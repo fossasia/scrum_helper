@@ -74,17 +74,11 @@
     "githubTokenPlaceholder": {
         "message": "Требуется для аутентифицированных запросов"
     },
-    "githubTokenTooltip": {
-        "message": "Зачем рекомендуется добавлять токен GitHub? Scrum Helper работает без токена GitHub, но для лучшего опыта рекомендуется добавить токен личного доступа."
-    },
     "gitlabTokenLabel": {
         "message": "Ваш токен GitLab"
     },
     "gitlabTokenPlaceholder": {
         "message": "Требуется для приватных репо"
-    },
-    "gitlabTokenTooltip": {
-        "message": "Зачем рекомендуется добавлять токен GitLab? Scrum Helper работает без токена GitLab для публичных проектов, но для лучшего опыта рекомендуется добавить токен личного доступа."
     },
     "showCommitsLabel": {
         "message": "Показывать коммиты в открытых PR/ черновиках PR"
@@ -104,6 +98,13 @@
     "onlyPRsTooltip": {
         "message": "Если отмечено, отчёт будет включать только pull request'ы, созданные пользователем; проверенные PR будут исключены."
     },
+    "onlyRevPRsLabel": {
+        "message": "Включить в отчет только проверенные PR"
+    },
+    "onlyRevPRsTooltip": {
+        "message": "Если отмечено, отчёт будет включать только PR, проверенные вами."
+    },
+
     "cacheTTLLabel": {
         "message": "Введите TTL кеша",
         "description": "Метка для ввода времени жизни кеша."
@@ -149,6 +150,10 @@
     },
     "repoCount": {
         "message": "$1 репозиториев выбрано"
+    },
+    "gitlabProjectCountNone": {
+        "message": "0 projects selected",
+        "description": "Text showing the count of selected GitLab projects when it's zero."
     },
     "repoLoading": {
         "message": "Загрузка репозиториев..."
@@ -204,10 +209,6 @@
     "cacheClearedMessage": {
         "message": "Кэш успешно очищен. Нажмите 'Создать отчет', чтобы получить свежие данные."
     },
-    "cacheExpiredMessage": {
-        "message": "Кэш истёк. Нажмите \"Создать\", чтобы получить новые данные.",
-        "description": "Message shown when the cached data has expired and user needs to regenerate."
-    },
     "cacheClearedButton": {
         "message": "Кэш очищен!"
     },
@@ -226,8 +227,65 @@
     "usernameLabel": {
         "message": "Ваше имя пользователя"
     },
+    "testTokenButton": {
+        "message": "Test Token",
+        "description": "Button text to test/validate a GitLab token."
+    },
+    "clearTokenButton": {
+        "message": "Clear Token",
+        "description": "Button text to clear the stored token."
+    },
+    "confirmClearToken": {
+        "message": "Are you sure you want to clear the GitLab token?",
+        "description": "Confirmation message before clearing the token."
+    },
+    "testingTokenButton": {
+        "message": "Testing...",
+        "description": "Button text while token validation is in progress."
+    },
+    "tokenValidButton": {
+        "message": "Valid!",
+        "description": "Button text when token is validated successfully."
+    },
+    "tokenInvalidButton": {
+        "message": "Invalid",
+        "description": "Button text when token validation fails."
+    },
+    "gitlabGroupLabel": {
+        "message": "Ваша группа GitLab",
+        "description": "Label for the GitLab group input."
+    },
+    "gitlabGroupPlaceholder": {
+        "message": "Введите имя группы GitLab",
+        "description": "Placeholder for the GitLab group input."
+    },
+    "gitlabGroupTooltip": {
+        "message": "<b>Активность какой группы GitLab?</b><br>Введите имя группы GitLab для получения активности. Оставьте пустым, чтобы получить всю вашу активность GitLab во всех группах. Имя группы не чувствительно к регистру.",
+        "description": "Tooltip explaining GitLab group filtering."
+    },
+    "gitlabProjectFilterLabel": {
+        "message": "Фильтровать по проектам",
+        "description": "Label for GitLab project filter."
+    },
+    "gitlabProjectFilterTooltip": {
+        "message": "Требуется токен GitLab.<br>Чтобы принудительно обновить список проектов, <br>нажмите кнопку Обновить данные.",
+        "description": "Tooltip for GitLab project filter."
+    },
+    "gitlabTokenRequiredWarning": {
+        "message": "Для фильтрации проектов требуется токен GitLab. Пожалуйста, добавьте его в настройках.",
+        "description": "Warning message when GitLab token is missing for project filtering."
+    },
+    "gitlabProjectCount": {
+        "message": "$1 projects selected",
+        "description": "Text showing the count of selected GitLab projects. $1 is a placeholder for the number."
+    },
+    "gitlabProjectSearchPlaceholder": {
+        "message": "Search projects",
+        "description": "Placeholder/title for the GitLab project search input."
+    },
     "usernameRequiredError": {
-        "message": "Пожалуйста, введите имя пользователя для создания отчета."
+        "message": "Пожалуйста, введите ваше имя пользователя для создания отчета.",
+        "description": "Error message shown when the user tries to generate a report without entering a username."
     },
     "unknownPlatformError": {
         "message": "Выбрана неизвестная платформа."
@@ -286,12 +344,6 @@
     "gitlabContributedError": {
         "message": "Ошибка при получении проектов с вкладом GitLab: $1 $2"
     },
-    "onlyRevPRsLabel": {
-        "message": "Включить в отчет только проверенные PR"
-    },
-    "onlyRevPRsTooltip": {
-        "message": "Если отмечено, отчёт будет включать только PR, проверенные вами."
-    },
     "usernameMissingError": {
         "message": "Требуется имя пользователя."
     },
@@ -314,6 +366,16 @@
         "message": "Вставка отчёта в письмо..."
     },
     "insertedInEmailNotification": {
-        "message": "Отчёт вставлен в письмо!"
-    }
+        "message": "Отчёт вставлен в письмо!"    },
+    "githubInvalidSearchError": {
+        "message": "Invalid search query or date range. Please verify your date range format and try again."
+    },
+    "githubFetchIssuesError": {
+        "message": "Error fetching GitHub issues: $1 $2"
+    },
+    "githubFetchPRDataError": {
+        "message": "Error fetching GitHub PR review data: $1 $2"
+    },
+    "githubFetchUserDataError": {
+        "message": "Error fetching GitHub user data: $1 $2"    }
 }

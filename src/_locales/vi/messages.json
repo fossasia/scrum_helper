@@ -74,17 +74,11 @@
     "githubTokenPlaceholder": {
         "message": "Bắt buộc cho các yêu cầu đã xác thực"
     },
-    "githubTokenTooltip": {
-        "message": "Tại sao nên thêm mã token GitHub? Scrum Helper hoạt động mà không cần mã token GitHub, nhưng việc thêm mã thông báo truy cập cá nhân được khuyến nghị để có trải nghiệm tốt hơn."
-    },
     "gitlabTokenLabel": {
         "message": "Mã token GitLab"
     },
     "gitlabTokenPlaceholder": {
         "message": "Bắt buộc cho repo riêng tư"
-    },
-    "gitlabTokenTooltip": {
-        "message": "Tại sao nên thêm mã token GitLab? Scrum Helper hoạt động mà không cần mã token GitLab cho các dự án công khai, nhưng việc thêm mã thông báo truy cập cá nhân được khuyến nghị để có trải nghiệm tốt hơn."
     },
     "showCommitsLabel": {
         "message": "Hiển thị các commit trên PR đang mở/ PR nháp"
@@ -104,6 +98,13 @@
     "onlyPRsTooltip": {
         "message": "Nếu được chọn, báo cáo chỉ bao gồm các pull request do người dùng tạo; các PR đã được xem xét sẽ bị loại trừ."
     },
+    "onlyRevPRsLabel": {
+        "message": "Chỉ bao gồm các PR bạn đã xem xét trong báo cáo"
+    },
+    "onlyRevPRsTooltip": {
+        "message": "Nếu được chọn, báo cáo sẽ chỉ bao gồm các PR bạn đã xem xét."
+    },
+
     "cacheTTLLabel": {
         "message": "Nhập TTL bộ nhớ cache",
         "description": "Nhãn cho đầu vào thời gian tồn tại của bộ nhớ cache."
@@ -204,10 +205,6 @@
     "cacheClearedMessage": {
         "message": "Bộ nhớ đệm đã được xóa thành công. Nhấp vào 'Tạo báo cáo' để lấy dữ liệu mới."
     },
-    "cacheExpiredMessage": {
-        "message": "Bộ nhớ đệm đã hết hạn. Nhấp vào \"Tạo\" để lấy dữ liệu mới.",
-        "description": "Message shown when the cached data has expired and user needs to regenerate."
-    },
     "cacheClearedButton": {
         "message": "Đã xóa bộ nhớ đệm!"
     },
@@ -226,8 +223,73 @@
     "usernameLabel": {
         "message": "Tên người dùng của bạn"
     },
+    "testTokenButton": {
+        "message": "Test Token",
+        "description": "Button text to test/validate a GitLab token."
+    },
+    "clearTokenButton": {
+        "message": "Clear Token",
+        "description": "Button text to clear the stored token."
+    },
+    "confirmClearToken": {
+        "message": "Are you sure you want to clear the GitLab token?",
+        "description": "Confirmation message before clearing the token."
+    },
+    "testingTokenButton": {
+        "message": "Testing...",
+        "description": "Button text while token validation is in progress."
+    },
+    "tokenValidButton": {
+        "message": "Valid!",
+        "description": "Button text when token is validated successfully."
+    },
+    "tokenInvalidButton": {
+        "message": "Invalid",
+        "description": "Button text when token validation fails."
+    },
+    "gitlabGroupLabel": {
+        "message": "Nhóm GitLab của bạn",
+        "description": "Label for the GitLab group input."
+    },
+    "gitlabGroupPlaceholder": {
+        "message": "Nhập tên nhóm GitLab",
+        "description": "Placeholder for the GitLab group input."
+    },
+    "gitlabGroupTooltip": {
+        "message": "<b>Hoạt động của nhóm GitLab nào?</b><br>Nhập tên nhóm GitLab để lấy hoạt động. Để trống để lấy tất cả hoạt động GitLab của bạn trong tất cả các nhóm. Tên nhóm không phân biệt chữ hoa chữ thường.",
+        "description": "Tooltip explaining GitLab group filtering."
+    },
+    "gitlabProjectFilterLabel": {
+        "message": "Lọc theo dự án",
+        "description": "Label for GitLab project filter."
+    },
+    "gitlabProjectFilterTooltip": {
+        "message": "Cần mã thông báo GitLab.<br>Để buộc cập nhật danh sách dự án, <br>nhấp vào nút Làm mới dữ liệu.",
+        "description": "Tooltip for GitLab project filter."
+    },
+    "gitlabTokenRequiredWarning": {
+        "message": "Cần mã thông báo GitLab để lọc dự án. Vui lòng thêm một mã trong cài đặt.",
+        "description": "Warning message when GitLab token is missing for project filtering."
+    },
+    "gitlabProjectCountNone": {
+        "message": "0 projects selected",
+        "description": "Text showing the count of selected GitLab projects when it's zero."
+    },
+    "gitlabProjectCount": {
+        "message": "$1 projects selected",
+        "description": "Text showing the count of selected GitLab projects. $1 is a placeholder for the number."
+    },
+    "gitlabProjectSearchPlaceholder": {
+        "message": "Search projects",
+        "description": "Placeholder/title for the GitLab project search input."
+    },
+    "gitlabProjectPlaceholder": {
+        "message": "No projects selected (all will be included)",
+        "description": "Placeholder text when no GitLab projects are selected for filtering."
+    },
     "usernameRequiredError": {
-        "message": "Vui lòng nhập tên người dùng để tạo báo cáo."
+        "message": "Vui lòng nhập tên người dùng của bạn để tạo báo cáo.",
+        "description": "Error message shown when the user tries to generate a report without entering a username."
     },
     "unknownPlatformError": {
         "message": "Đã chọn nền tảng không xác định."
@@ -286,12 +348,6 @@
     "gitlabContributedError": {
         "message": "Lỗi khi lấy dự án đóng góp GitLab: $1 $2"
     },
-    "onlyRevPRsLabel": {
-        "message": "Chỉ bao gồm các PR bạn đã xem xét trong báo cáo"
-    },
-    "onlyRevPRsTooltip": {
-        "message": "Nếu được chọn, báo cáo sẽ chỉ bao gồm các PR bạn đã xem xét."
-    },
     "usernameMissingError": {
         "message": "Yêu cầu tên người dùng."
     },
@@ -315,5 +371,17 @@
     },
     "insertedInEmailNotification": {
         "message": "Đã chèn báo cáo vào email!"
+    },
+    "githubInvalidSearchError": {
+        "message": "Invalid search query or date range. Please verify your date range format and try again."
+    },
+    "githubFetchIssuesError": {
+        "message": "Error fetching GitHub issues: $1 $2"
+    },
+    "githubFetchPRDataError": {
+        "message": "Error fetching GitHub PR review data: $1 $2"
+    },
+    "githubFetchUserDataError": {
+        "message": "Error fetching GitHub user data: $1 $2"
     }
 }

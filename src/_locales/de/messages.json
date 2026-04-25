@@ -232,14 +232,79 @@
     "onlyRevPRsTooltip": {
         "message": "Wenn diese Option aktiviert ist, enthält der Bericht nur PRs, die von Ihnen überprüft wurden."
     },
+    "testTokenButton": {
+        "message": "Test Token",
+        "description": "Button text to test/validate a GitLab token."
+    },
+    "clearTokenButton": {
+        "message": "Clear Token",
+        "description": "Button text to clear the stored token."
+    },
+    "confirmClearToken": {
+        "message": "Are you sure you want to clear the GitLab token?",
+        "description": "Confirmation message before clearing the token."
+    },
+    "testingTokenButton": {
+        "message": "Testing...",
+        "description": "Button text while token validation is in progress."
+    },
+    "tokenValidButton": {
+        "message": "Valid!",
+        "description": "Button text when token is validated successfully."
+    },
+    "tokenInvalidButton": {
+        "message": "Invalid",
+        "description": "Button text when token validation fails."
+    },
+    "gitlabGroupLabel": {
+        "message": "Ihre GitLab-Gruppe",
+        "description": "Label for the GitLab group input."
+    },
+    "gitlabGroupPlaceholder": {
+        "message": "GitLab-Gruppennamen eingeben",
+        "description": "Placeholder for the GitLab group input."
+    },
+    "gitlabGroupTooltip": {
+        "message": "<b>Welche GitLab-Gruppenaktivität?</b><br>Geben Sie den GitLab-Gruppennamen ein, um Aktivitäten abzurufen. Leer lassen, um alle Ihre GitLab-Aktivitäten über alle Gruppen hinweg abzurufen. Gruppenname ist nicht case-sensitiv.",
+        "description": "Tooltip explaining GitLab group filtering."
+    },
+    "gitlabProjectFilterLabel": {
+        "message": "Nach Projekten filtern",
+        "description": "Label for GitLab project filter."
+    },
+    "gitlabProjectFilterTooltip": {
+        "message": "GitLab-Token erforderlich.<br>Um eine Projektliste zu aktualisieren, <br>klicken Sie auf die Schaltfläche Daten aktualisieren.",
+        "description": "Tooltip for GitLab project filter."
+    },
+    "gitlabTokenRequiredWarning": {
+        "message": "Ein GitLab-Token ist erforderlich für die Projektfilterung. Bitte fügen Sie einen in den Einstellungen hinzu.",
+        "description": "Warning message when GitLab token is missing for project filtering."
+    },
+    "gitlabProjectCountNone": {
+        "message": "0 Projekte ausgewählt",
+        "description": "Text showing the count of selected GitLab projects when it's zero."
+    },
+    "gitlabProjectCount": {
+        "message": "$1 Projekte ausgewählt",
+        "description": "Text showing the count of selected GitLab projects. $1 is a placeholder for the number."
+    },
+    "gitlabProjectSearchPlaceholder": {
+        "message": "Projekte suchen",
+        "description": "Placeholder/title for the GitLab project search input."
+    },
+    "gitlabProjectPlaceholder": {
+        "message": "Keine Projekte ausgewählt (alle werden einbezogen)",
+        "description": "Placeholder text when no GitLab projects are selected for filtering."
+    },
+    "usernameRequiredError": {
+        "message": "Bitte geben Sie Ihren Benutzernamen ein, um einen Bericht zu erstellen.",
+        "description": "Error message shown when the user tries to generate a report without entering a username."
+    },
     "generateReportTooltip": {
         "message": "Ctrl+G"
     },
     "copyReportTooltip": {
         "message": "Ctrl+Shift+Y"
-   },
-        "usernameRequiredError": {
-        "message": "Bitte geben Sie Ihren Benutzernamen ein, um einen Bericht zu erstellen."
     },
     "unknownPlatformError": {
         "message": "Unbekannte Plattform ausgewählt."
@@ -315,5 +380,17 @@
     },
     "insertedInEmailNotification": {
         "message": "Bericht in E-Mail eingefügt!"
+    },
+    "githubInvalidSearchError": {
+        "message": "Invalid search query or date range. Please verify your date range format and try again."
+    },
+    "githubFetchIssuesError": {
+        "message": "Error fetching GitHub issues: $1 $2"
+    },
+    "githubFetchPRDataError": {
+        "message": "Error fetching GitHub PR review data: $1 $2"
+    },
+    "githubFetchUserDataError": {
+        "message": "Error fetching GitHub user data: $1 $2"
     }
 }
