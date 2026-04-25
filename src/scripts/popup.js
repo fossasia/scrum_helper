@@ -120,52 +120,58 @@ function applyI18n() {
 	});
 }
 
-function setSanitizedHtml(element, unsafeHtml) {
-	if (!element) return;
-	element.replaceChildren();
+const popupDomUtils = window.scrumHelperDomUtils || (window.scrumHelperDomUtils = {});
 
-	if (typeof unsafeHtml !== 'string' || unsafeHtml.trim() === '') {
-		return;
-	}
+if (typeof popupDomUtils.setSanitizedHtml !== 'function') {
+	popupDomUtils.setSanitizedHtml = function (element, unsafeHtml) {
+		if (!element) return;
+		element.replaceChildren();
 
-	const parser = new DOMParser();
-	const parsed = parser.parseFromString(`<div>${unsafeHtml}</div>`, 'text/html');
-	const wrapper = parsed.body.firstElementChild;
-	if (!wrapper) return;
+		if (typeof unsafeHtml !== 'string' || unsafeHtml.trim() === '') {
+			return;
+		}
 
-	wrapper.querySelectorAll('script,style,iframe,object,embed,link,meta').forEach((node) => node.remove());
-	wrapper.querySelectorAll('*').forEach((node) => {
-		Array.from(node.attributes).forEach((attr) => {
-			const attrName = attr.name.toLowerCase();
-			const attrValue = attr.value.trim().toLowerCase();
-			const isEventHandler = attrName.startsWith('on');
-			const isJsUrl = (attrName === 'href' || attrName === 'src') && attrValue.startsWith('javascript:');
-			if (isEventHandler || isJsUrl) {
-				node.removeAttribute(attr.name);
-			}
+		const parser = new DOMParser();
+		const parsed = parser.parseFromString(`<div>${unsafeHtml}</div>`, 'text/html');
+		const wrapper = parsed.body.firstElementChild;
+		if (!wrapper) return;
+
+		wrapper.querySelectorAll('script,style,iframe,object,embed,link,meta').forEach((node) => node.remove());
+		wrapper.querySelectorAll('*').forEach((node) => {
+			Array.from(node.attributes).forEach((attr) => {
+				const attrName = attr.name.toLowerCase();
+				const attrValue = attr.value.trim().toLowerCase();
+				const isEventHandler = attrName.startsWith('on');
+				const isJsUrl = (attrName === 'href' || attrName === 'src') && attrValue.startsWith('javascript:');
+				if (isEventHandler || isJsUrl) {
+					node.removeAttribute(attr.name);
+				}
+			});
 		});
-	});
 
-	element.append(...Array.from(wrapper.childNodes).map((node) => document.importNode(node, true)));
+		element.append(...Array.from(wrapper.childNodes).map((node) => document.importNode(node, true)));
+	};
 }
 
-function setElementIconAndText(element, iconClasses, text, iconStyle = null) {
-	if (!element) return;
-	element.replaceChildren();
+if (typeof popupDomUtils.setElementIconAndText !== 'function') {
+	popupDomUtils.setElementIconAndText = function (element, iconClasses, text, iconStyle = null) {
+		if (!element) return;
+		element.replaceChildren();
 
-	const icon = document.createElement('i');
-	icon.className = iconClasses;
-	if (iconStyle) {
-		icon.style.cssText = iconStyle;
-	}
-	element.appendChild(icon);
+		const icon = document.createElement('i');
+		icon.className = iconClasses;
+		if (iconStyle) {
+			icon.style.cssText = iconStyle;
+		}
+		element.appendChild(icon);
 
-	if (typeof text === 'string' && text.length > 0) {
-		element.appendChild(document.createTextNode(' '));
-		const label = document.createElement('span');
-		label.textContent = text;
-		element.appendChild(label);
-	}
+		if (typeof text === 'string' && text.length > 0) {
+			element.appendChild(document.createTextNode(' '));
+			const label = document.createElement('span');
+			label.textContent = text;
+			element.appendChild(label);
+		}
+	};
 }
 
 function hasNonEmptyTextContent(element) {
