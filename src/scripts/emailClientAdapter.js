@@ -236,6 +236,35 @@ class EmailClientAdapter {
 		});
 	}
 
+	setSanitizedContent(element, unsafeHtml) {
+		if (!element) return;
+		element.replaceChildren();
+
+		if (typeof unsafeHtml !== 'string' || unsafeHtml.trim() === '') {
+			return;
+		}
+
+		const parser = new DOMParser();
+		const parsed = parser.parseFromString(`<div>${unsafeHtml}</div>`, 'text/html');
+		const wrapper = parsed.body.firstElementChild;
+		if (!wrapper) return;
+
+		wrapper.querySelectorAll('script,style,iframe,object,embed,link,meta').forEach((node) => node.remove());
+		wrapper.querySelectorAll('*').forEach((node) => {
+			Array.from(node.attributes).forEach((attr) => {
+				const attrName = attr.name.toLowerCase();
+				const attrValue = attr.value.trim().toLowerCase();
+				const isEventHandler = attrName.startsWith('on');
+				const isJsUrl = (attrName === 'href' || attrName === 'src') && attrValue.startsWith('javascript:');
+				if (isEventHandler || isJsUrl) {
+					node.removeAttribute(attr.name);
+				}
+			});
+		});
+
+		element.append(...Array.from(wrapper.childNodes).map((node) => document.importNode(node, true)));
+	}
+
 	injectContent(element, content, eventType) {
 		if (!element) {
 			console.log('No element found for injection');
@@ -249,13 +278,13 @@ class EmailClientAdapter {
 				case 'focusAndPaste':
 					// Special handling for Outlook
 					element.focus();
-					element.innerHTML = content;
+					this.setSanitizedContent(element, content);
 					this.dispatchElementEvents(element, ['input', 'change'], true);
 					break;
 
 				case 'setContent': {
 					// Special handling for Yahoo
-					element.innerHTML = content;
+					this.setSanitizedContent(element, content);
 					element.focus();
 					// Force Yahoo's editor to recognize the change
 					const selection = window.getSelection();
@@ -269,7 +298,7 @@ class EmailClientAdapter {
 
 				default:
 					// Default handling for Google clients
-					element.innerHTML = content;
+					this.setSanitizedContent(element, content);
 					element.dispatchEvent(new Event(eventType, { bubbles: true }));
 			}
 			return true;
