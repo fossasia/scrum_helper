@@ -79,15 +79,15 @@ function setupButtonTooltips() {
 }
 
 function getToday() {
-	const today = new Date();
-	return today.toISOString().split('T')[0];
+	const now = new Date();
+	return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 }
 
 function getYesterday() {
 	const today = new Date();
 	const yesterday = new Date(today);
 	yesterday.setDate(today.getDate() - 1);
-	return yesterday.toISOString().split('T')[0];
+	return `${yesterday.getFullYear()}-${String(yesterday.getMonth() + 1).padStart(2, '0')}-${String(yesterday.getDate()).padStart(2, '0')}`;
 }
 
 function applyI18n() {
@@ -1016,18 +1016,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		
 		startingDateInput.addEventListener('click', () => {
-		if (startingDateInput.showPicker) {
+		if (typeof startingDateInput.showPicker === 'function') {
 			startingDateInput.showPicker();
 		}
 		});
 
 		endingDateInput.addEventListener('click', () => {
-		if (endingDateInput.showPicker) {
+		if (typeof endingDateInput.showPicker === 'function') {
 			endingDateInput.showPicker();
 		}
 		});
 		
-		const today = new Date().toISOString().split('T')[0];
+		const now = new Date();
+		const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 		startingDateInput.max = today;
 		endingDateInput.max = today;
 
