@@ -244,25 +244,29 @@ class EmailClientAdapter {
 			return;
 		}
 
-		const parser = new DOMParser();
-		const parsed = parser.parseFromString(`<div>${unsafeHtml}</div>`, 'text/html');
-		const wrapper = parsed.body.firstElementChild;
-		if (!wrapper) return;
+		if (!window.DOMPurify || typeof window.DOMPurify.sanitize !== 'function') {
+			console.error('DOMPurify is required to sanitize email content safely');
+			element.textContent = unsafeHtml;
+			return;
+		}
 
-		wrapper.querySelectorAll('script,style,iframe,object,embed,link,meta').forEach((node) => node.remove());
-		wrapper.querySelectorAll('*').forEach((node) => {
-			Array.from(node.attributes).forEach((attr) => {
-				const attrName = attr.name.toLowerCase();
-				const attrValue = attr.value.trim().toLowerCase();
-				const isEventHandler = attrName.startsWith('on');
-				const isJsUrl = (attrName === 'href' || attrName === 'src') && attrValue.startsWith('javascript:');
-				if (isEventHandler || isJsUrl) {
-					node.removeAttribute(attr.name);
-				}
-			});
+		const sanitizedHtml = window.DOMPurify.sanitize(unsafeHtml, {
+			ALLOWED_TAGS: [
+				'a', 'b', 'blockquote', 'br', 'code', 'div', 'em', 'i', 'li', 'ol',
+				'p', 'pre', 'span', 'strong', 'table', 'tbody', 'td', 'th', 'thead',
+				'tr', 'u', 'ul'
+			],
+			ALLOWED_ATTR: [
+				'align', 'alt', 'aria-label', 'aria-labelledby', 'border', 'cellpadding',
+				'cellspacing', 'class', 'colspan', 'dir', 'height', 'href', 'rel',
+				'rowspan', 'scope', 'style', 'target', 'title', 'width'
+			],
+			FORBID_TAGS: ['embed', 'form', 'iframe', 'input', 'link', 'meta', 'object', 'script', 'style', 'svg', 'textarea'],
+			FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover', 'onfocus', 'onmouseenter', 'onmouseleave'],
+			ALLOW_UNKNOWN_PROTOCOLS: false
 		});
 
-		element.append(...Array.from(wrapper.childNodes).map((node) => document.importNode(node, true)));
+		element.insertAdjacentHTML('beforeend', sanitizedHtml);
 	}
 
 	injectContent(element, content, eventType) {
