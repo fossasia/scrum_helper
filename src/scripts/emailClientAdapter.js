@@ -237,8 +237,8 @@ class EmailClientAdapter {
 	}
 
 	injectContent(element, content, eventType) {
-		if (!element) {
-			console.log('No element found for injection');
+		if (!element || element.offsetParent === null) {
+			console.log('Compose not open');
 			return false;
 		}
 		const clientType = this.detectClient();

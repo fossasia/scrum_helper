@@ -31,11 +31,6 @@ function showShortcutNotification(messageKey) {
 		return;
 	}
 
-	const existingNotification = document.querySelector('.shortcut-notification');
-	if (existingNotification) {
-		existingNotification.remove();
-	}
-
 	const message = chrome.i18n.getMessage(messageKey);
 	if (!message) {
 		return;
@@ -44,6 +39,17 @@ function showShortcutNotification(messageKey) {
 	const notification = document.createElement('div');
 	notification.className = 'shortcut-notification';
 	notification.textContent = message;
+	let bgColor = '#2563eb'; // default blue
+
+	if (messageKey === 'insertingInEmailNotification') {
+		bgColor = '#f59e0b'; // 🟡 yellow
+	}
+	else if (messageKey === 'insertedInEmailNotification') {
+		bgColor = '#22c55e'; // 🟢 green
+	}
+	notification.style.animation = 'none';
+	notification.style.background = bgColor;
+	notification.style.color = '#fff';
 	document.body.appendChild(notification);
 
 	setTimeout(() => {
@@ -476,7 +482,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		const toast = document.createElement('div');
 		toast.id = 'scrum-cache-toast';
 		toast.className = 'scrum-cache-toast-custom';
-		toast.style.background = isDarkMode ? '#ffffff' : '#1f2937';
+		toast.style.background = '#ef4444'; // 🔴 red
 		toast.style.color = isDarkMode ? '#1f2937' : '#fff';
 		toast.style.border = 'none';
 		toast.style.fontWeight = 'bold';
@@ -498,7 +504,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		toast.textContent = message;
 
 		document.body.appendChild(toast);
-		setTimeout(() => toast.remove(), 4000);
+		setTimeout(() => toast.remove(), 2000);
 	}
 
 	async function bootstrapScrumReportOnPopupLoad(generateBtn) {
@@ -744,26 +750,54 @@ document.addEventListener('DOMContentLoaded', () => {
 
 				browser.tabs.query({ active: true, currentWindow: true })
 					.then((tabs) => {
-						const tabId = tabs?.[0]?.id;
-						if (!tabId) {
-							handleInsertFailure('No active tab found');
+						const tab = tabs?.[0];
+						const tabId = tab?.id;
+
+						// 🔥 CHECK: Gmail open है या नहीं
+						const isGmail = tab?.url && tab.url.includes("mail.google.com");
+
+						if (!isGmail) {
+							showPopupMessage("Please open Gmail to insert email");
 							return;
 						}
 
-						browser.tabs.sendMessage(tabId, { action: 'insertReportToEmail', content, subject })
+						const isComposeOpen = tab.url.includes("?compose=");
+
+						if (!isComposeOpen) {
+							showPopupMessage("Open compose window in Gmail");
+							return;
+						}
+						
+						
+						if (isGmail) {
+							showShortcutNotification('insertingInEmailNotification');
+						}
+
+						if (!tabId) {
+							showPopupMessage("No active tab found");
+							return;
+						}
+
+						browser.tabs.sendMessage(tabId, {
+							action: 'insertReportToEmail',
+							content,
+							subject,
+						})
 							.then((response) => {
 								if (!response?.success) {
-									handleInsertFailure(response?.error);
-								} else if (insertBtn._triggeredByShortcut) {
-									showShortcutNotification('insertedInEmailNotification');
+									showPopupMessage("Open compose window in Gmail");
+								} else {
+									setTimeout(() => {
+										showShortcutNotification('insertedInEmailNotification');
+									}, 500); 
 								}
 							})
-							.catch((error) => {
-								handleInsertFailure(error.message);
+							.catch(() => {
+								showPopupMessage("Open compose window in Gmail");
 							});
 					})
 					.catch((error) => {
-						handleInsertFailure('Failed to query tabs: ' + error.message);
+						showPopupMessage("Error: " + error.message);
 					})
 					.finally(() => {
 						insertBtn._triggeredByShortcut = false;
@@ -2156,7 +2190,7 @@ document.addEventListener('keydown', (e) => {
 
 	if (modifier && e.shiftKey && !e.altKey && key === 'm' && !e.repeat && insertEmailBtn && !insertEmailBtn.disabled) {
 		e.preventDefault();
-		showShortcutNotification('insertingInEmailNotification');
+		
 		insertEmailBtn._triggeredByShortcut = true;
 		insertEmailBtn.click();
 	}
