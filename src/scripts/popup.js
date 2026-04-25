@@ -423,31 +423,78 @@ document.addEventListener('DOMContentLoaded', () => {
 		generateBtn.disabled = true;
 	}
 
-	function showPopupMessage(message) {
-		if (!message) return;
-
-		// Materialize toast if available
-		if (window.Materialize && typeof window.Materialize.toast === 'function') {
-			window.Materialize.toast(message, 4000);
+	function updateGenerateButtonState() {
+		const generateBtn = document.getElementById('generateReport');
+		const platformUsername = document.getElementById('platformUsername');
+		if (!generateBtn || !platformUsername) {
 			return;
 		}
+
+		const applyGenerateButtonState = () => {
+			const hasUsername = Boolean(platformUsername.value.trim());
+			const shouldDisable = !hasUsername;
+
+			if (generateBtn.disabled !== shouldDisable) {
+				generateBtn.disabled = shouldDisable;
+			}
+		};
+
+		if (!platformUsername.dataset.generateButtonStateBound) {
+			platformUsername.addEventListener('input', applyGenerateButtonState);
+			platformUsername.addEventListener('change', applyGenerateButtonState);
+			platformUsername.dataset.generateButtonStateBound = 'true';
+		}
+
+		if (!generateBtn.dataset.generateButtonStateObserved && typeof MutationObserver !== 'undefined') {
+			const observer = new MutationObserver(() => {
+				const shouldDisable = !platformUsername.value.trim();
+				if (shouldDisable && generateBtn.disabled === false) {
+					generateBtn.disabled = true;
+				}
+			});
+
+			observer.observe(generateBtn, {
+				attributes: true,
+				attributeFilter: ['disabled']
+			});
+
+			generateBtn.dataset.generateButtonStateObserved = 'true';
+		}
+
+		applyGenerateButtonState();
+	}
+
+	window.updateGenerateButtonState = updateGenerateButtonState;
+
+	function showPopupMessage(message) {
+		if (!message) return;
+		const isDarkMode = document.body?.classList.contains('dark-mode');
 
 		const old = document.getElementById('scrum-cache-toast');
 		if (old) old.remove();
 
 		const toast = document.createElement('div');
 		toast.id = 'scrum-cache-toast';
-		toast.className = 'toast';
-		toast.style.background = '#2563eb';
-		toast.style.color = '#fff';
+		toast.className = 'scrum-cache-toast-custom';
+		toast.style.background = isDarkMode ? '#ffffff' : '#1f2937';
+		toast.style.color = isDarkMode ? '#1f2937' : '#fff';
+		toast.style.border = 'none';
 		toast.style.fontWeight = 'bold';
-		toast.style.padding = '12px 24px';
+		toast.style.padding = '12px 16px';
 		toast.style.borderRadius = '8px';
 		toast.style.position = 'fixed';
-		toast.style.top = '24px';
+		toast.style.top = '12px';
 		toast.style.left = '50%';
 		toast.style.transform = 'translateX(-50%)';
-		toast.style.zIndex = '9999';
+		toast.style.zIndex = '2147483647';
+		toast.style.width = 'calc(82% - 16px)';
+		toast.style.maxWidth = '340px';
+		toast.style.lineHeight = '1.4';
+		toast.style.textAlign = 'start';
+		toast.style.boxSizing = 'border-box';
+		toast.style.wordBreak = 'break-word';
+		toast.style.opacity = '1';
+		toast.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
 		toast.textContent = message;
 
 		document.body.appendChild(toast);
@@ -581,6 +628,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		const startingDateInput = document.getElementById('startingDate');
 		const endingDateInput = document.getElementById('endingDate');
 		const platformUsername = document.getElementById('platformUsername');
+		const usernameError = document.getElementById("usernameError");
 
 		browser.storage.local
 			.get([
@@ -663,6 +711,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				const platform = result.platform || 'github';
 				const platformUsernameKey = `${platform}Username`;
 				platformUsername.value = result[platformUsernameKey] || '';
+				window.updateGenerateButtonState && window.updateGenerateButtonState();
 				checkTokenForShowCommits();
 				checkTokenForMergedPRs();
 			},
@@ -684,33 +733,39 @@ document.addEventListener('DOMContentLoaded', () => {
 					return;
 				}
 
-				browser.tabs
-					.query({ active: true, currentWindow: true })
+				// Helper to handle insert-to-email failures consistently
+				const handleInsertFailure = (errorMsg) => {
+					console.warn('Insert to Email failed:', errorMsg);
+					const failureMessage =
+						browser.i18n.getMessage('insertToEmailFailedError') ||
+						'open an email tab to insert report';
+					showPopupMessage(failureMessage);
+				};
+
+				browser.tabs.query({ active: true, currentWindow: true })
 					.then((tabs) => {
 						const tabId = tabs?.[0]?.id;
 						if (!tabId) {
-							insertBtn._triggeredByShortcut = false;
+							handleInsertFailure('No active tab found');
 							return;
 						}
 
-						browser.tabs
-							.sendMessage(tabId, { action: 'insertReportToEmail', content, subject })
+						browser.tabs.sendMessage(tabId, { action: 'insertReportToEmail', content, subject })
 							.then((response) => {
-								if (response?.success && insertBtn._triggeredByShortcut) {
+								if (!response?.success) {
+									handleInsertFailure(response?.error);
+								} else if (insertBtn._triggeredByShortcut) {
 									showShortcutNotification('insertedInEmailNotification');
-								} else if (!response?.success) {
-									console.warn('Insert to Email failed:', response?.error);
 								}
 							})
 							.catch((error) => {
-								console.warn('Insert to Email failed:', error?.message || error);
-							})
-							.finally(() => {
-								insertBtn._triggeredByShortcut = false;
+								handleInsertFailure(error.message);
 							});
 					})
 					.catch((error) => {
-						console.warn('Unable to get active tab:', error?.message || error);
+						handleInsertFailure('Failed to query tabs: ' + error.message);
+					})
+					.finally(() => {
 						insertBtn._triggeredByShortcut = false;
 					});
 			});
@@ -718,6 +773,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		generateBtn.addEventListener('click', () => {
 			browser.storage.local.get(['platform']).then((result) => {
+				platformUsername.classList.remove("input-error");
+				usernameError.classList.remove("errorMessage");
+				usernameError.textContent = "";
 				const platform = result.platform || 'github';
 				const platformUsernameKey = `${platform}Username`;
 
@@ -1032,13 +1090,14 @@ document.addEventListener('DOMContentLoaded', () => {
 		startingDateInput.max = today;
 		endingDateInput.max = today;
 
-		
+		// Save username to storage on input and update button state
 		platformUsername.addEventListener('input', () => {
 			browser.storage.local.get(['platform']).then((result) => {
 				const platform = result.platform || 'github';
 				const platformUsernameKey = `${platform}Username`;
 				browser.storage.local.set({ [platformUsernameKey]: platformUsername.value });
 			});
+				window.updateGenerateButtonState && window.updateGenerateButtonState();
 		});
 		// Bootstrap report on popup open (restore cache / auto-generate / expired-cache toast)
 		bootstrapScrumReportOnPopupLoad(generateBtn).catch((err) => {
@@ -1113,7 +1172,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			try {
 				const items = await browser.storage.local.get(['platform']);
 				platform = items.platform || 'github';
-			} catch {}
+			} catch { }
 			if (platform !== 'github') {
 				// Do not run repo fetch for non-GitHub platforms
 				if (repoStatus) repoStatus.textContent = chrome?.i18n.getMessage('repoFilteringGithubOnly') || 'Repository filtering is only available for GitHub.';
@@ -1201,7 +1260,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				try {
 					const items = await browser.storage.local.get(['platform']);
 					platform = items.platform || 'github';
-				} catch {}
+				} catch { }
 				if (platform !== 'github') {
 					repoFilterContainer.classList.add('hidden');
 					useRepoFilter.checked = false;
@@ -1382,7 +1441,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			try {
 				const items = await browser.storage.local.get(['platform']);
 				platform = items.platform || 'github';
-			} catch {}
+			} catch { }
 			if (platform !== 'github') {
 				if (repoStatus) repoStatus.textContent = chrome?.i18n.getMessage('repoLoadingGithubOnly') || 'Repository loading is only available for GitHub.';
 				return;
@@ -1422,7 +1481,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			try {
 				const items = await browser.storage.local.get(['platform']);
 				platform = items.platform || 'github';
-			} catch (e) {}
+			} catch (e) { }
 			if (platform !== 'github') {
 				if (repoStatus) repoStatus.textContent = chrome?.i18n.getMessage('repoFetchingGithubOnly') || 'Repository fetching is only available for GitHub.';
 				return;
@@ -1747,6 +1806,7 @@ platformSelect.addEventListener('change', () => {
 	browser.storage.local.get([`${platform}Username`]).then((result) => {
 		if (platformUsername) {
 			platformUsername.value = result[`${platform}Username`] || '';
+			window.updateGenerateButtonState && window.updateGenerateButtonState();
 		}
 	});
 
@@ -1798,6 +1858,7 @@ function setPlatformDropdown(value) {
 	browser.storage.local.get([`${value}Username`]).then((result) => {
 		if (platformUsername) {
 			platformUsername.value = result[`${value}Username`] || '';
+			window.updateGenerateButtonState && window.updateGenerateButtonState();
 		}
 	});
 
@@ -1814,6 +1875,11 @@ dropdownList.querySelectorAll('li').forEach((item) => {
 	item.addEventListener('click', function (e) {
 		const newPlatform = this.getAttribute('data-value');
 		const currentPlatform = platformSelectHidden.value;
+		const platformUsername = document.getElementById('platformUsername');
+		const usernameError = document.getElementById("usernameError");
+		platformUsername.classList.remove("input-error");
+		usernameError.classList.remove("errorMessage");
+		usernameError.textContent = "";
 
 		if (newPlatform !== currentPlatform) {
 			const platformUsername = document.getElementById('platformUsername');
@@ -1993,7 +2059,7 @@ document.getElementById('refreshCache').addEventListener('click', async function
 		try {
 			const items = await browser.storage.local.get(['platform']);
 			platform = items.platform || 'github';
-		} catch (e) {}
+		} catch (e) { }
 
 		// Clear all caches
 		const keysToRemove = ['githubCache', 'repoCache', 'gitlabCache'];

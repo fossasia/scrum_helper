@@ -169,14 +169,16 @@
 					<div>
 
 						<p id="usernameLabel" class="font-medium text-sm" data-i18n="usernameLabel">Your Username</p>
-						<input id="platformUsername" type="text"
+						<input id="platformUsername" type="text" aria-describedby="usernameError"
 							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
 							data-i18n-placeholder="githubUsernamePlaceholder"
-							style="margin-top: 0.3rem; margin-bottom: 0.8rem;">
+							style="margin-top: 0.3rem; margin-bottom: 0.2rem;">
+						<span id="usernameError" class="" role="alert" aria-live="polite"></span>
+
 					</div>
 
 					<div>
-						<p class="text-lg mb-1 font-medium text-sm" data-i18n="contributionsLabel">Fetch your
+						<p class="text-lg mb-1 font-medium text-sm" data-i18n="contributionsLabel" style="margin-top: 0.6rem;">Fetch your
 							contributions between:</p>
 
 
@@ -323,7 +325,7 @@
 
 						<div class="scrum-actions my-2">
 							<div class="tooltip-container">
-								<button id="generateReport"
+								<button id="generateReport" disabled
 									class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded"
 									style="padding-left: 0.875rem; padding-right: 0.875rem;">
 									<i class="fa fa-refresh"></i> <span data-i18n="generateReportButton">Generate</span>
