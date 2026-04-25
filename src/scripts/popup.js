@@ -753,18 +753,20 @@ document.addEventListener('DOMContentLoaded', () => {
 						const tab = tabs?.[0];
 						const tabId = tab?.id;
 
-						// 🔥 CHECK: Gmail open है या नहीं
+						
 						const isGmail = tab?.url && tab.url.includes("mail.google.com");
 
 						if (!isGmail) {
-							showPopupMessage("Please open Gmail to insert email");
+							showPopupMessage(
+							browser.i18n.getMessage('insertToEmailFailedError')
+							);
 							return;
 						}
 
 						const isComposeOpen = tab.url.includes("?compose=");
 
 						if (!isComposeOpen) {
-							showPopupMessage("Open compose window in Gmail");
+							showPopupMessage(browser.i18n.getMessage('openComposeError'));
 							return;
 						}
 						
@@ -774,7 +776,7 @@ document.addEventListener('DOMContentLoaded', () => {
 						}
 
 						if (!tabId) {
-							showPopupMessage("No active tab found");
+							showPopupMessage(browser.i18n.getMessage('noActiveTabError'));
 							return;
 						}
 
@@ -785,7 +787,7 @@ document.addEventListener('DOMContentLoaded', () => {
 						})
 							.then((response) => {
 								if (!response?.success) {
-									showPopupMessage("Open compose window in Gmail");
+									showPopupMessage(browser.i18n.getMessage('openComposeError'));
 								} else {
 									setTimeout(() => {
 										showShortcutNotification('insertedInEmailNotification');
@@ -793,7 +795,7 @@ document.addEventListener('DOMContentLoaded', () => {
 								}
 							})
 							.catch(() => {
-								showPopupMessage("Open compose window in Gmail");
+								showPopupMessage(browser.i18n.getMessage('openComposeError'));
 							});
 					})
 					.catch((error) => {

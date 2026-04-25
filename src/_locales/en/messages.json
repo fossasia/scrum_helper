@@ -82,6 +82,12 @@
     "message": "Open an email tab to insert report",
     "description": "Error message shown when no active email tab can receive insert action."
   },
+  "openComposeError": {
+  "message": "Open compose window in Gmail"
+  },
+  "noActiveTabError": {
+    "message": "No active tab found"
+  },
   "settingsOrgNameLabel": {
     "message": "Organization Name",
     "description": "Label for the organization name input in settings."
