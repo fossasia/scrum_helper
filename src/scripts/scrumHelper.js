@@ -27,12 +27,12 @@ const scrumReportEl = document.getElementById('scrumReport');
 const platformUsernameInp = document.getElementById('platformUsername');
 const usernameError = document.getElementById('usernameError');
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener('DOMContentLoaded', () => {
 	if (!usernameValidationListenerAttached && platformUsernameInp && usernameError) {
-		platformUsernameInp.addEventListener("input", function () {
-			platformUsernameInp.classList.remove("input-error");
-			usernameError.textContent = "";
-			usernameError.classList.remove("errorMessage");
+		platformUsernameInp.addEventListener('input', function () {
+			platformUsernameInp.classList.remove('input-error');
+			usernameError.textContent = '';
+			usernameError.classList.remove('errorMessage');
 		});
 		usernameValidationListenerAttached = true;
 	}
@@ -40,10 +40,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function showReportMessage(message) {
 	if (!scrumReportEl) return;
-	scrumReportEl.innerHTML = "";
+	scrumReportEl.replaceChildren();
 
-	const errorDiv = document.createElement("div");
-	errorDiv.classList.add("error-message");
+	const errorDiv = document.createElement('div');
+	errorDiv.classList.add('error-message');
 	errorDiv.textContent = message;
 	scrumReportEl.appendChild(errorDiv);
 }
@@ -51,13 +51,56 @@ function showReportMessage(message) {
 function handleUsernameValidationError(errMessage) {
 	if (!platformUsernameInp || !usernameError) return;
 
-	platformUsernameInp.classList.add("input-error");
-	usernameError.classList.add("errorMessage");
+	platformUsernameInp.classList.add('input-error');
+	usernameError.classList.add('errorMessage');
 	usernameError.textContent = errMessage;
 
 	if (scrumReportEl) {
-		scrumReportEl.innerHTML = "";
+		scrumReportEl.replaceChildren();
 	}
+}
+
+function setElementIconAndText(element, iconClasses, text) {
+	if (!element) return;
+	element.replaceChildren();
+
+	const icon = document.createElement('i');
+	icon.className = iconClasses;
+	element.appendChild(icon);
+	element.appendChild(document.createTextNode(' '));
+
+	const label = document.createElement('span');
+	label.textContent = text;
+	element.appendChild(label);
+}
+
+function setSanitizedHtml(element, unsafeHtml) {
+	if (!element) return;
+	element.replaceChildren();
+
+	if (typeof unsafeHtml !== 'string' || unsafeHtml.trim() === '') {
+		return;
+	}
+
+	const parser = new DOMParser();
+	const parsed = parser.parseFromString(`<div>${unsafeHtml}</div>`, 'text/html');
+	const wrapper = parsed.body.firstElementChild;
+	if (!wrapper) return;
+
+	wrapper.querySelectorAll('script,style,iframe,object,embed,link,meta').forEach((node) => node.remove());
+	wrapper.querySelectorAll('*').forEach((node) => {
+		Array.from(node.attributes).forEach((attr) => {
+			const attrName = attr.name.toLowerCase();
+			const attrValue = attr.value.trim().toLowerCase();
+			const isEventHandler = attrName.startsWith('on');
+			const isJsUrl = (attrName === 'href' || attrName === 'src') && attrValue.startsWith('javascript:');
+			if (isEventHandler || isJsUrl) {
+				node.removeAttribute(attr.name);
+			}
+		});
+	});
+
+	element.append(...Array.from(wrapper.childNodes).map((node) => document.importNode(node, true)));
 }
 
 function allIncluded(outputTarget = 'email') {
@@ -117,8 +160,8 @@ function allIncluded(outputTarget = 'email') {
 
 	function getChromeData() {
 		console.log('[DEBUG] getChromeData called for outputTarget:', outputTarget);
-		chrome.storage.local.get(
-			[
+		chrome.storage.local
+			.get([
 				'platform',
 				'githubUsername',
 				'gitlabUsername',
@@ -214,10 +257,11 @@ function allIncluded(outputTarget = 'email') {
 						if (outputTarget === 'popup') {
 							console.log('[DEBUG] No username found - popup context');
 							const generateBtn = document.getElementById('generateReport');
-							const ErrMessage = chrome.i18n.getMessage('usernameRequiredError') || 'Please enter your username to generate a report.';
+							const ErrMessage =
+								chrome.i18n.getMessage('usernameRequiredError') || 'Please enter your username to generate a report.';
 							handleUsernameValidationError(ErrMessage);
 							if (generateBtn) {
-								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+								setElementIconAndText(generateBtn, 'fa fa-refresh', 'Generate');
 								generateBtn.disabled = false;
 							}
 							scrumGenerationInProgress = false;
@@ -232,7 +276,7 @@ function allIncluded(outputTarget = 'email') {
 					if (platformUsernameLocal) {
 						const generateBtn = document.getElementById('generateReport');
 						if (generateBtn && outputTarget === 'popup') {
-							generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
+							setElementIconAndText(generateBtn, 'fa fa-spinner fa-spin', 'Generating...');
 							generateBtn.disabled = true;
 						}
 
@@ -294,11 +338,11 @@ function allIncluded(outputTarget = 'email') {
 									console.error('GitLab fetch failed:', err);
 									if (outputTarget === 'popup') {
 										if (generateBtn) {
-											generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+											setElementIconAndText(generateBtn, 'fa fa-refresh', 'Generate');
 											generateBtn.disabled = false;
 										}
 										const ErrMessage = `${err.message || 'Error fetching GitLab data.'}`;
-										if (typeof ErrMessage === "string" && ErrMessage.toLowerCase().includes("not found")){
+										if (typeof ErrMessage === 'string' && ErrMessage.toLowerCase().includes('not found')) {
 											handleUsernameValidationError(ErrMessage);
 										} else {
 											showReportMessage(ErrMessage);
@@ -344,11 +388,11 @@ function allIncluded(outputTarget = 'email') {
 									console.error('GitLab fetch failed:', err);
 									if (outputTarget === 'popup') {
 										if (generateBtn) {
-											generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+											setElementIconAndText(generateBtn, 'fa fa-refresh', 'Generate');
 											generateBtn.disabled = false;
 										}
 										const ErrMessage = `${err.message || 'Error fetching GitLab data.'}`;
-										if(typeof ErrMessage === "string" && ErrMessage.toLowerCase().includes("not found")){
+										if (typeof ErrMessage === 'string' && ErrMessage.toLowerCase().includes('not found')) {
 											handleUsernameValidationError(ErrMessage);
 										} else {
 											showReportMessage(ErrMessage);
@@ -361,10 +405,11 @@ function allIncluded(outputTarget = 'email') {
 					} else {
 						if (outputTarget === 'popup') {
 							const generateBtn = document.getElementById('generateReport');
-							const ErrMessage = chrome.i18n.getMessage('usernameRequiredError') || 'Please enter your username to generate a report.';
+							const ErrMessage =
+								chrome.i18n.getMessage('usernameRequiredError') || 'Please enter your username to generate a report.';
 							handleUsernameValidationError(ErrMessage);
 							if (generateBtn) {
-								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+								setElementIconAndText(generateBtn, 'fa fa-refresh', 'Generate');
 								generateBtn.disabled = false;
 							}
 						}
@@ -378,8 +423,7 @@ function allIncluded(outputTarget = 'email') {
 					}
 					scrumGenerationInProgress = false;
 				}
-			},
-		);
+			});
 	}
 	getChromeData();
 
@@ -812,14 +856,14 @@ function allIncluded(outputTarget = 'email') {
 						else errorMsg = JSON.stringify(err);
 					}
 					const ErrMessage = `${errorMsg || 'An error occurred while generating the report.'}`;
-					if(typeof ErrMessage === "string" && ErrMessage.toLowerCase().includes("not found")){
+					if (typeof ErrMessage === 'string' && ErrMessage.toLowerCase().includes('not found')) {
 						handleUsernameValidationError(ErrMessage);
-					}else{
+					} else {
 						showReportMessage(ErrMessage);
 					}
 				}
 				if (generateBtn) {
-					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+					setElementIconAndText(generateBtn, 'fa fa-refresh', 'Generate');
 					generateBtn.disabled = false;
 				}
 			}
@@ -997,7 +1041,7 @@ function allIncluded(outputTarget = 'email') {
 				showReportMessage(errMsg);
 				const generateBtn = document.getElementById('generateReport');
 				if (generateBtn) {
-					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+					setElementIconAndText(generateBtn, 'fa fa-refresh', 'Generate');
 					generateBtn.disabled = false;
 				}
 			} else {
@@ -1159,7 +1203,7 @@ ${blockerText}`;
 			const scrumReport = document.getElementById('scrumReport');
 			if (scrumReport) {
 				log('Found popup div, updating content');
-				scrumReport.innerHTML = content;
+				setSanitizedHtml(scrumReport, content);
 				try {
 					const cacheKey =
 						platform === 'gitlab' ? (gitlabHelper?.cache?.cacheKey ?? null) : (githubCache?.cacheKey ?? null);
@@ -1176,7 +1220,7 @@ ${blockerText}`;
 
 				const generateBtn = document.getElementById('generateReport');
 				if (generateBtn) {
-					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+					setElementIconAndText(generateBtn, 'fa fa-refresh', 'Generate');
 					generateBtn.disabled = false;
 				}
 			} else {
@@ -2057,12 +2101,12 @@ async function fetchPrsMergedStatusBatch(prs, headers) {
 	if (prs.length === 0) return results;
 	const query = `query {
 ${prs
-			.map(
-				(pr, i) => `	repo${i}: repository(owner: "${pr.owner}\", name: "${pr.repo}\") {
+	.map(
+		(pr, i) => `	repo${i}: repository(owner: "${pr.owner}\", name: "${pr.repo}\") {
 		pr${i}: pullRequest(number: ${pr.number}) { merged }
 	}`,
-			)
-			.join('\n')}
+	)
+	.join('\n')}
 }`;
 
 	try {
@@ -2244,8 +2288,8 @@ async function fetchUserRepositories(username, token, org = '') {
 				}));
 
 			return repos.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-		} catch (err) { }
-	} catch (err) { }
+		} catch (err) {}
+	} catch (err) {}
 }
 
 function filterDataByRepos(data, selectedRepos) {

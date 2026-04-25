@@ -236,6 +236,39 @@ class EmailClientAdapter {
 		});
 	}
 
+	setSanitizedContent(element, unsafeHtml) {
+		if (!element) return;
+		element.replaceChildren();
+
+		if (typeof unsafeHtml !== 'string' || unsafeHtml.trim() === '') {
+			return;
+		}
+
+		if (!window.DOMPurify || typeof window.DOMPurify.sanitize !== 'function') {
+			console.error('DOMPurify is required to sanitize email content safely');
+			element.textContent = unsafeHtml;
+			return;
+		}
+
+		const sanitizedHtml = window.DOMPurify.sanitize(unsafeHtml, {
+			ALLOWED_TAGS: [
+				'a', 'b', 'blockquote', 'br', 'code', 'div', 'em', 'i', 'li', 'ol',
+				'p', 'pre', 'span', 'strong', 'table', 'tbody', 'td', 'th', 'thead',
+				'tr', 'u', 'ul'
+			],
+			ALLOWED_ATTR: [
+				'align', 'alt', 'aria-label', 'aria-labelledby', 'border', 'cellpadding',
+				'cellspacing', 'class', 'colspan', 'dir', 'height', 'href', 'rel',
+				'rowspan', 'scope', 'style', 'target', 'title', 'width'
+			],
+			FORBID_TAGS: ['embed', 'form', 'iframe', 'input', 'link', 'meta', 'object', 'script', 'style', 'svg', 'textarea'],
+			FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover', 'onfocus', 'onmouseenter', 'onmouseleave'],
+			ALLOW_UNKNOWN_PROTOCOLS: false
+		});
+
+		element.insertAdjacentHTML('beforeend', sanitizedHtml);
+	}
+
 	injectContent(element, content, eventType) {
 		if (!element) {
 			console.log('No element found for injection');
@@ -249,13 +282,13 @@ class EmailClientAdapter {
 				case 'focusAndPaste':
 					// Special handling for Outlook
 					element.focus();
-					element.innerHTML = content;
+					this.setSanitizedContent(element, content);
 					this.dispatchElementEvents(element, ['input', 'change'], true);
 					break;
 
 				case 'setContent': {
 					// Special handling for Yahoo
-					element.innerHTML = content;
+					this.setSanitizedContent(element, content);
 					element.focus();
 					// Force Yahoo's editor to recognize the change
 					const selection = window.getSelection();
@@ -269,7 +302,7 @@ class EmailClientAdapter {
 
 				default:
 					// Default handling for Google clients
-					element.innerHTML = content;
+					this.setSanitizedContent(element, content);
 					element.dispatchEvent(new Event(eventType, { bubbles: true }));
 			}
 			return true;

@@ -7,9 +7,9 @@
     "url": "git+https://github.com/fossasia/scrum_helper.git"
   },
   "scripts": {
-    "lint": "biome lint .",
+    "lint": "node scripts/check-unsafe-dom.js && biome lint .",
     "format": "biome format --write .",
-    "check": "biome check .",
+    "check": "node scripts/check-unsafe-dom.js && biome check .",
     "fix": "biome lint --write .",
     "check:write": "biome check --write .",
     "build": "node build.js"
