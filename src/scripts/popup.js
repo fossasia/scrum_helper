@@ -1231,6 +1231,15 @@ document.addEventListener('DOMContentLoaded', () => {
 				useRepoFilter.checked = items.useRepoFilter;
 				repoFilterContainer.classList.toggle('hidden', !items.useRepoFilter);
 			}
+			const disabledMsg = document.getElementById('filterDisabledMessage');
+
+			if (disabledMsg) {
+			if (!items.useRepoFilter) {
+				disabledMsg.classList.remove('hidden');
+			} else {
+				disabledMsg.classList.add('hidden');
+			}
+			}
 		});
 
 		useRepoFilter.addEventListener(
@@ -1250,6 +1259,13 @@ document.addEventListener('DOMContentLoaded', () => {
 				const enabled = useRepoFilter.checked;
 				const hasToken = githubTokenInput.value.trim() !== '';
 				repoFilterContainer.classList.toggle('hidden', !enabled);
+				const disabledMsg = document.getElementById('filterDisabledMessage');
+
+				if (!enabled) {
+				disabledMsg.classList.remove('hidden');
+				} else {
+				disabledMsg.classList.add('hidden');
+				}
 
 				if (enabled && !hasToken) {
 					useRepoFilter.checked = false;
