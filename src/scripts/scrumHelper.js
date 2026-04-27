@@ -12,6 +12,61 @@ function logError(...args) {
 	}
 }
 
+function escapeHtml(str) {
+	if (str == null) {
+		return '';
+	}
+	return String(str)
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/"/g, '&quot;')
+		.replace(/'/g, '&#39;');
+}
+
+function safeHttpUrlForHref(url) {
+	const s = String(url ?? '').trim();
+	if (!s || !/^https?:\/\//i.test(s)) {
+		return '#';
+	}
+	return escapeHtml(s);
+}
+
+function setHtmlFromString(container, htmlString) {
+	if (!container) return;
+	if (htmlString == null || !String(htmlString).trim()) {
+		container.replaceChildren();
+		return;
+	}
+	const doc = new DOMParser().parseFromString(String(htmlString), 'text/html');
+	container.replaceChildren(...doc.body.childNodes);
+}
+
+function setButtonIconAndText(button, iconClasses, text) {
+	if (!button) return;
+	const icon = document.createElement('i');
+	icon.className = iconClasses;
+	button.replaceChildren(icon, document.createTextNode(` ${text ?? ''}`));
+}
+
+function renderErrorMessage(container, key, fallback, args = []) {
+	// add message (or fallback) into HTML container in a protected manner
+	let message = fallback;
+	if (key && chrome?.i18n) {
+		const localized = chrome.i18n.getMessage(key, args);
+		if (localized) {
+			message = localized;
+		}
+	}
+	const errorDiv = document.createElement('div');
+	errorDiv.className = 'error-message';
+	errorDiv.style.color = '#dc2626';
+	errorDiv.style.fontWeight = 'bold';
+	errorDiv.style.padding = '10px';
+	errorDiv.textContent = message;
+	container.replaceChildren(errorDiv);
+}
+
 let refreshButton_Placed = false;
 let hasInjectedContent = false;
 let scrumGenerationInProgress = false;
@@ -95,7 +150,6 @@ function allIncluded(outputTarget = 'email') {
 	let onlyIssues = false;
 	let onlyPRs = false;
 	let onlyRevPRs = false;
-	let onlyMergedPRs = false;
 
 	const pr_open_button =
 		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
@@ -139,7 +193,6 @@ function allIncluded(outputTarget = 'email') {
 				'onlyIssues',
 				'onlyPRs',
 				'onlyRevPRs',
-				'onlyMergedPRs',
 			])
 			.then((items) => {
 				console.log('[DEBUG] Storage items received:', items);
@@ -217,7 +270,7 @@ function allIncluded(outputTarget = 'email') {
 							const ErrMessage = chrome.i18n.getMessage('usernameRequiredError') || 'Please enter your username to generate a report.';
 							handleUsernameValidationError(ErrMessage);
 							if (generateBtn) {
-								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+								setButtonIconAndText(generateBtn, 'fa fa-refresh', 'Generate');
 								generateBtn.disabled = false;
 							}
 							scrumGenerationInProgress = false;
@@ -232,7 +285,7 @@ function allIncluded(outputTarget = 'email') {
 					if (platformUsernameLocal) {
 						const generateBtn = document.getElementById('generateReport');
 						if (generateBtn && outputTarget === 'popup') {
-							generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
+							setButtonIconAndText(generateBtn, 'fa fa-spinner fa-spin', 'Generating');
 							generateBtn.disabled = true;
 						}
 
@@ -294,7 +347,7 @@ function allIncluded(outputTarget = 'email') {
 									console.error('GitLab fetch failed:', err);
 									if (outputTarget === 'popup') {
 										if (generateBtn) {
-											generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+											setButtonIconAndText(generateBtn, 'fa fa-refresh', 'Generate');
 											generateBtn.disabled = false;
 										}
 										const ErrMessage = `${err.message || 'Error fetching GitLab data.'}`;
@@ -344,7 +397,7 @@ function allIncluded(outputTarget = 'email') {
 									console.error('GitLab fetch failed:', err);
 									if (outputTarget === 'popup') {
 										if (generateBtn) {
-											generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+											setButtonIconAndText(generateBtn, 'fa fa-refresh', 'Generate');
 											generateBtn.disabled = false;
 										}
 										const ErrMessage = `${err.message || 'Error fetching GitLab data.'}`;
@@ -364,7 +417,7 @@ function allIncluded(outputTarget = 'email') {
 							const ErrMessage = chrome.i18n.getMessage('usernameRequiredError') || 'Please enter your username to generate a report.';
 							handleUsernameValidationError(ErrMessage);
 							if (generateBtn) {
-								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+								setButtonIconAndText(generateBtn, 'fa fa-refresh', 'Generate');
 								generateBtn.disabled = false;
 							}
 						}
@@ -802,7 +855,9 @@ function allIncluded(outputTarget = 'email') {
 			githubCache.fetching = false;
 
 			if (outputTarget === 'popup') {
+				const reportEl = document.getElementById('scrumReport');
 				const generateBtn = document.getElementById('generateReport');
+				if (reportEl) {
 				if (scrumReportEl) {
 					let errorMsg =
 						chrome?.i18n.getMessage('reportGenerationError') || 'An error occurred while generating the report.';
@@ -811,6 +866,7 @@ function allIncluded(outputTarget = 'email') {
 						else if (err.message) errorMsg = err.message;
 						else errorMsg = JSON.stringify(err);
 					}
+					renderErrorMessage(reportEl, '', errorMsg);
 					const ErrMessage = `${errorMsg || 'An error occurred while generating the report.'}`;
 					if(typeof ErrMessage === "string" && ErrMessage.toLowerCase().includes("not found")){
 						handleUsernameValidationError(ErrMessage);
@@ -819,7 +875,7 @@ function allIncluded(outputTarget = 'email') {
 					}
 				}
 				if (generateBtn) {
-					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+					setButtonIconAndText(generateBtn, 'fa fa-refresh', 'Generate');
 					generateBtn.disabled = false;
 				}
 			}
@@ -997,7 +1053,7 @@ function allIncluded(outputTarget = 'email') {
 				showReportMessage(errMsg);
 				const generateBtn = document.getElementById('generateReport');
 				if (generateBtn) {
-					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+					setButtonIconAndText(generateBtn, 'fa fa-refresh', 'Generate');
 					generateBtn.disabled = false;
 				}
 			} else {
@@ -1086,18 +1142,6 @@ function allIncluded(outputTarget = 'email') {
 
 	const compactTextStyle = 'display: inline-block; padding: 0 8px; margin: 0; line-height: 1.2;';
 
-	function escapeHtml(str) {
-		if (str == null) {
-			return '';
-		}
-		return String(str)
-			.replace(/&/g, '&amp;')
-			.replace(/</g, '&lt;')
-			.replace(/>/g, '&gt;')
-			.replace(/"/g, '&quot;')
-			.replace(/'/g, '&#39;');
-	}
-
 	function wrapCompactText(content) {
 		const safeContent = escapeHtml(content);
 		return `<span style="${compactTextStyle}">${safeContent}</span>`;
@@ -1159,11 +1203,12 @@ ${blockerText}`;
 			const scrumReport = document.getElementById('scrumReport');
 			if (scrumReport) {
 				log('Found popup div, updating content');
-				scrumReport.innerHTML = content;
+				setHtmlFromString(scrumReport, content);
 				try {
 					const cacheKey =
 						platform === 'gitlab' ? (gitlabHelper?.cache?.cacheKey ?? null) : (githubCache?.cacheKey ?? null);
 
+					browser.storage.local.set({
 					chrome.storage.local.set({
 						lastScrumReportHtml: content,
 						lastScrumReportPlatform: platform,
@@ -1176,7 +1221,7 @@ ${blockerText}`;
 
 				const generateBtn = document.getElementById('generateReport');
 				if (generateBtn) {
-					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+					setButtonIconAndText(generateBtn, 'fa fa-refresh', 'Generate');
 					generateBtn.disabled = false;
 				}
 			} else {
@@ -1414,7 +1459,8 @@ ${blockerText}`;
 			githubPrsReviewDataProcessed[project].push(obj);
 		}
 		for (const repo in githubPrsReviewDataProcessed) {
-			let repoLi = '<li> <i>(' + repo + ')</i> - Reviewed ';
+			const safeRepo = escapeHtml(repo);
+			let repoLi = '<li> <i>(' + safeRepo + ')</i> - Reviewed ';
 			if (githubPrsReviewDataProcessed[repo].length > 1) repoLi += 'PRs - ';
 			else {
 				repoLi += 'PR - ';
@@ -1422,14 +1468,16 @@ ${blockerText}`;
 			if (githubPrsReviewDataProcessed[repo].length <= 1) {
 				for (const pr in githubPrsReviewDataProcessed[repo]) {
 					const pr_arr = githubPrsReviewDataProcessed[repo][pr];
+					const prHref = safeHttpUrlForHref(pr_arr.html_url);
+					const prTitle = escapeHtml(pr_arr.title);
 					let prText = '';
 					prText +=
 						"<a href='" +
-						pr_arr.html_url +
+						prHref +
 						"' target='_blank' rel='noopener noreferrer'>#" +
 						pr_arr.number +
 						'</a> (' +
-						pr_arr.title +
+						prTitle +
 						') ';
 					if (showOpenLabel && pr_arr.state === 'open') prText += issue_opened_button;
 					// Do not show closed label for reviewed PRs
@@ -1440,14 +1488,16 @@ ${blockerText}`;
 				repoLi += '<ul>';
 				for (const pr1 in githubPrsReviewDataProcessed[repo]) {
 					const pr_arr1 = githubPrsReviewDataProcessed[repo][pr1];
+					const prHref1 = safeHttpUrlForHref(pr_arr1.html_url);
+					const prTitle1 = escapeHtml(pr_arr1.title);
 					let prText1 = '';
 					prText1 +=
 						"<li><a href='" +
-						pr_arr1.html_url +
+						prHref1 +
 						"' target='_blank' rel='noopener noreferrer'>#" +
 						pr_arr1.number +
 						'</a> (' +
-						pr_arr1.title +
+						prTitle1 +
 						') ';
 					if (showOpenLabel && pr_arr1.state === 'open') prText1 += issue_opened_button;
 					// Do not show closed label for reviewed PRs
@@ -1592,70 +1642,6 @@ ${blockerText}`;
 				}
 			}
 
-			if (onlyMergedPRs) {
-				if (!isMR) {
-					log('[SCRUM-DEBUG] Skipping non-PR item because onlyMergedPRs is checked:', item.number);
-					continue;
-				}
-				if (isMR) {
-					if (typeof item.state === 'string' && item.state !== 'closed') {
-						log(
-							'[SCRUM-DEBUG] Skipping non-closed PR because onlyMergedPRs is checked:',
-							item.number,
-							'state:',
-							item.state,
-						);
-						continue;
-					}
-					const repoUrl = item.repository_url;
-					let prCacheKey = null;
-					if (repoUrl) {
-						const repoParts = repoUrl.split('/');
-						const prOwner = repoParts[repoParts.length - 2];
-						const prRepo = repoParts[repoParts.length - 1];
-						if (prOwner && prRepo) {
-							prCacheKey = `${prOwner}/${prRepo}#${item.number}`;
-						} else {
-							logError(
-								'[SCRUM-HELPER] Unable to derive PR cache key from repository_url:',
-								repoUrl,
-								'for item:',
-								item.number,
-							);
-						}
-					} else {
-						logError(
-							'[SCRUM-HELPER] Missing repository_url for PR item when onlyMergedPRs is enabled.',
-							'Item number:',
-							item.number,
-						);
-					}
-					// Determine merge status. If we cannot determine it reliably, do NOT
-					// treat the PR as "not merged" – instead, skip the onlyMergedPRs filter
-					// for this item to avoid silently dropping all results when merge status
-					// cannot be fetched (e.g., missing token or incomplete cache).
-					let hasMergeInfo = false;
-					let isMerged = false;
-					if (prCacheKey && prCacheKey in mergedStatusResults) {
-						hasMergeInfo = true;
-						isMerged = !!mergedStatusResults[prCacheKey];
-					} else if (item.pull_request && Object.prototype.hasOwnProperty.call(item.pull_request, 'merged_at')) {
-						hasMergeInfo = true;
-						isMerged = !!item.pull_request.merged_at;
-					}
-					if (!hasMergeInfo) {
-						logError(
-							'[SCRUM-HELPER] onlyMergedPRs is enabled but merge status could not be determined for item:',
-							item.number,
-							'- skipping onlyMergedPRs filter for this item.',
-						);
-					} else if (!isMerged) {
-						log('[SCRUM-DEBUG] Skipping non-merged PR:', item.number);
-						continue;
-					}
-				}
-			}
-
 			log('[SCRUM-DEBUG] isMR:', isMR, 'platform:', platform, 'item:', item);
 			const html_url = item.html_url;
 			const repository_url = item.repository_url;
@@ -1669,6 +1655,10 @@ ${blockerText}`;
 			const title = item.title;
 			const number = item.number;
 			let li = '';
+
+			const safeTitle = escapeHtml(title);
+			const safeProject = escapeHtml(project);
+			const safeUrl = safeHttpUrlForHref(html_url);
 
 			let isDraft = false;
 			if (isMR && typeof item.draft !== 'undefined') {
@@ -1743,31 +1733,31 @@ ${blockerText}`;
 				}
 
 				if (isDraft) {
-					li = `<li><i>(${project})</i> - Made PR <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_draft_button : ''}`;
+					li = `<li><i>(${safeProject})</i> - Made PR <a href='${safeUrl}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${safeUrl}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${safeTitle}</a>${showOpenLabel ? ' ' + pr_draft_button : ''}`;
 					if (showCommits && item._allCommits && item._allCommits.length && !isNewPR) {
 						log(`[PR DEBUG] Rendering commits for existing draft PR #${number}:`, item._allCommits);
 						li += '<ul>';
 						item._allCommits.forEach((commit) => {
-							li += `<li style=\"list-style: disc; color: #666;\"><span style=\"color:#2563eb;\">${commit.messageHeadline}</span><span style=\"color:#666; font-size: 11px;\"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
+							li += `<li style=\"list-style: disc; color: #666;\"><span style=\"color:#2563eb;\">${escapeHtml(commit.messageHeadline)}</span><span style=\"color:#666; font-size: 11px;\"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
 						});
 						li += '</ul>';
 					}
 					li += `</li>`;
 				} else if (item.state === 'open' || item.state === 'opened') {
-					li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_open_button : ''}`;
+					li = `<li><i>(${safeProject})</i> - ${prAction} <a href='${safeUrl}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${safeUrl}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${safeTitle}</a>${showOpenLabel ? ' ' + pr_open_button : ''}`;
 
 					if (showCommits && item._allCommits && item._allCommits.length && !isNewPR) {
 						log(`[PR DEBUG] Rendering commits for existing PR #${number}:`, item._allCommits);
 						li += '<ul>';
 						item._allCommits.forEach((commit) => {
 							li += `<li style="list-style: disc; color: #666;">
-<span style="color:#2563eb;">${commit.messageHeadline}</span><span style="color:#666; font-size: 11px;"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
+<span style="color:#2563eb;">${escapeHtml(commit.messageHeadline)}</span><span style="color:#666; font-size: 11px;"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
 						});
 						li += '</ul>';
 					}
 					li += `</li>`;
 				} else if (platform === 'gitlab' && item.state === 'closed') {
-					li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_closed_button : ''}</li>`;
+					li = `<li><i>(${safeProject})</i> - ${prAction} <a href='${safeUrl}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${safeUrl}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${safeTitle}</a>${showOpenLabel ? ' ' + pr_closed_button : ''}</li>`;
 				} else {
 					let merged = null;
 					if ((githubToken || (useMergedStatus && !fallbackToSimple)) && mergedStatusResults) {
@@ -1777,10 +1767,10 @@ ${blockerText}`;
 						merged = mergedStatusResults[`${owner}/${repo}#${number}`];
 					}
 					if (merged === true) {
-						li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_merged_button : ''}</li>`;
+						li = `<li><i>(${safeProject})</i> - ${prAction} <a href='${safeUrl}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${safeUrl}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${safeTitle}</a>${showOpenLabel ? ' ' + pr_merged_button : ''}</li>`;
 					} else {
 						// Always show closed label for merged === false or merged === null/undefined
-						li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_closed_button : ''}</li>`;
+						li = `<li><i>(${safeProject})</i> - ${prAction} <a href='${safeUrl}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${safeUrl}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${safeTitle}</a>${showOpenLabel ? ' ' + pr_closed_button : ''}</li>`;
 					}
 				}
 				log('[SCRUM-DEBUG] Added PR/MR to lastWeekArray:', li, item);
@@ -1791,13 +1781,13 @@ ${blockerText}`;
 				if (item.state === 'open' && item.body?.toUpperCase().indexOf('YES') > 0) {
 					const li2 =
 						'<li><i>(' +
-						project +
+						safeProject +
 						')</i> - Work on Issue(#' +
 						number +
 						") - <a href='" +
-						html_url +
+						safeUrl +
 						"' target='_blank' rel='noopener noreferrer'>" +
-						title +
+						safeTitle +
 						'</a>' +
 						(showOpenLabel ? ' ' + issue_opened_button : '') +
 						'&nbsp;&nbsp;</li>';
@@ -1811,19 +1801,19 @@ ${blockerText}`;
 				const isCreatedToday = today.getTime() === itemCreatedDate.getTime();
 				const issueActionText = isCreatedToday ? 'Opened Issue' : 'Updated Issue';
 				if (item.state === 'open') {
-					li = `<li><i>(${project})</i> - ${issueActionText}(#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + issue_opened_button : ''}</li>`;
+					li = `<li><i>(${safeProject})</i> - ${issueActionText}(#${number}) - <a href='${safeUrl}'>${safeTitle}</a>${showOpenLabel ? ' ' + issue_opened_button : ''}</li>`;
 				} else if (item.state === 'closed') {
 					// Use state_reason to distinguish closure reason
 					if (item.state_reason === 'completed') {
-						li = `<li><i>(${project})</i> - ${issueActionText}(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_completed_button}</li>`;
+						li = `<li><i>(${safeProject})</i> - ${issueActionText}(#${number}) - <a href='${safeUrl}'>${safeTitle}</a> ${issue_closed_completed_button}</li>`;
 					} else if (item.state_reason === 'not_planned') {
-						li = `<li><i>(${project})</i> - ${issueActionText}(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_notplanned_button}</li>`;
+						li = `<li><i>(${safeProject})</i> - ${issueActionText}(#${number}) - <a href='${safeUrl}'>${safeTitle}</a> ${issue_closed_notplanned_button}</li>`;
 					} else {
-						li = `<li><i>(${project})</i> - ${issueActionText}(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_button}</li>`;
+						li = `<li><i>(${safeProject})</i> - ${issueActionText}(#${number}) - <a href='${safeUrl}'>${safeTitle}</a> ${issue_closed_button}</li>`;
 					}
 				} else {
 					// Fallback for unexpected state
-					li = `<li><i>(${project})</i> - ${issueActionText}(#${number}) - <a href='${html_url}'>${title}</a></li>`;
+					li = `<li><i>(${safeProject})</i> - ${issueActionText}(#${number}) - <a href='${safeUrl}'>${safeTitle}</a></li>`;
 				}
 
 				log('[SCRUM-DEBUG] Added issue to lastWeekArray:', li, item);
@@ -2057,6 +2047,8 @@ async function fetchPrsMergedStatusBatch(prs, headers) {
 	if (prs.length === 0) return results;
 	const query = `query {
 ${prs
+	.map(
+		(pr, i) => `	repo${i}: repository(owner: "${pr.owner}\", name: "${pr.repo}\") {
 			.map(
 				(pr, i) => `	repo${i}: repository(owner: "${pr.owner}\", name: "${pr.repo}\") {
 		pr${i}: pullRequest(number: ${pr.number}) { merged }
