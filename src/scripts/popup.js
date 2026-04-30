@@ -804,9 +804,8 @@ document.addEventListener('DOMContentLoaded', () => {
 			tempDiv.innerHTML = scrumReport.innerHTML;
 
 			//remove background styles
-			tempDiv.style.background = 'transparent';
-			tempDiv.querySelectorAll('*').forEach(el => {
-				el.style.background = 'transparent';
+			[tempDiv, ...tempDiv.querySelectorAll('*')].forEach(el => {
+				el.style.backgroundColor = 'transparent';
 			});
 
 			document.body.appendChild(tempDiv);
