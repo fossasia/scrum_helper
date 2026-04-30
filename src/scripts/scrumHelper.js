@@ -1804,12 +1804,36 @@ ${blockerText}`;
 					nextWeekArray.push(li2);
 				}
 
-				const today = new Date();
-				today.setHours(0, 0, 0, 0);
-				const itemCreatedDate = new Date(item.created_at);
-				itemCreatedDate.setHours(0, 0, 0, 0);
-				const isCreatedToday = today.getTime() === itemCreatedDate.getTime();
-				const issueActionText = isCreatedToday ? 'Opened Issue' : 'Updated Issue';
+				// Compute date range for filtering (same pattern as PR path above)
+				let issueStartDateFilter;
+				let issueEndDateFilter;
+				if (yesterdayContribution) {
+					const todayDate = new Date();
+					const yesterdayDate = new Date(todayDate.getTime() - 24 * 60 * 60 * 1000);
+					issueStartDateFilter = new Date(yesterdayDate.toISOString().split('T')[0] + 'T00:00:00Z');
+					issueEndDateFilter = new Date(todayDate.toISOString().split('T')[0] + 'T23:59:59Z');
+				} else if (startingDate && endingDate) {
+					issueStartDateFilter = new Date(startingDate + 'T00:00:00Z');
+					issueEndDateFilter = new Date(endingDate + 'T23:59:59Z');
+				} else {
+					const todayDate = new Date();
+					const lastWeek = new Date(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate() - 7);
+					issueStartDateFilter = new Date(lastWeek.toISOString().split('T')[0] + 'T00:00:00Z');
+					issueEndDateFilter = new Date(todayDate.toISOString().split('T')[0] + 'T23:59:59Z');
+				}
+
+				const issueCreatedDate = new Date(item.created_at);
+				const issueUpdatedDate = new Date(item.updated_at);
+				const isNewIssue = issueCreatedDate >= issueStartDateFilter && issueCreatedDate <= issueEndDateFilter;
+				const isUpdatedInRange = issueUpdatedDate >= issueStartDateFilter && issueUpdatedDate <= issueEndDateFilter;
+
+				// Skip issues that were neither created nor updated within the selected date range
+				if (!isNewIssue && !isUpdatedInRange) {
+					log(`[ISSUE DEBUG] Skipping Issue #${number} - not created or updated in date range`);
+					continue;
+				}
+
+				const issueActionText = isNewIssue ? 'Opened Issue' : 'Updated Issue';
 				if (item.state === 'open') {
 					li = `<li><i>(${project})</i> - ${issueActionText}(#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + issue_opened_button : ''}</li>`;
 				} else if (item.state === 'closed') {
