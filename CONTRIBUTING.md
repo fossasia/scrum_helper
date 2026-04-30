@@ -80,7 +80,7 @@ This document provides guidelines for contributing to the project. Please feel f
 4.  **Copilot-Assisted Self-Review:** Before requesting a review from maintainers, contributors are encouraged (but not required) to perform a quick self-review using GitHub Copilot, if available. This can help catch simple issues early, improve code quality, and speed up the review process.
 
     This repository has automatic Copilot PR reviews enabled. These are triggered only if the contributor has GitHub Copilot enabled with an active license. If you already have access (e.g., via educational programs or developer benefits), enabling it can help reduce manual review effort.
-    
+
     Contributions without Copilot are absolutely welcome and will be reviewed as usual.
 
 5.  **Commit and Push:** Commit your changes with a clear message and push them to your fork.
