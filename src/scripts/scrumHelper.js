@@ -1277,6 +1277,10 @@ function allIncluded(outputTarget = 'email') {
 			.replace(/'/g, '&#39;');
 	}
 
+	function escapeAttr(str) {
+		return escapeHtml(str);
+	}
+
 	function wrapCompactText(content) {
 		const safeContent = escapeHtml(content);
 		return `<span style="${compactTextStyle}">${safeContent}</span>`;
@@ -1594,7 +1598,7 @@ ${blockerText}`;
 			githubPrsReviewDataProcessed[project].push(obj);
 		}
 		for (const repo in githubPrsReviewDataProcessed) {
-			let repoLi = '<li> <i>(' + repo + ')</i> - Reviewed ';
+			let repoLi = '<li> <i>(' + escapeHtml(repo) + ')</i> - Reviewed ';
 			if (githubPrsReviewDataProcessed[repo].length > 1) repoLi += 'PRs - ';
 			else {
 				repoLi += 'PR - ';
@@ -1605,11 +1609,11 @@ ${blockerText}`;
 					let prText = '';
 					prText +=
 						"<a href='" +
-						pr_arr.html_url +
+						escapeAttr(pr_arr.html_url) +
 						"' target='_blank' rel='noopener noreferrer'>#" +
 						pr_arr.number +
 						'</a> (' +
-						pr_arr.title +
+						escapeHtml(pr_arr.title) +
 						') ';
 					if (showOpenLabel && pr_arr.state === 'open') prText += issue_opened_button;
 					// Do not show closed label for reviewed PRs
@@ -1623,11 +1627,11 @@ ${blockerText}`;
 					let prText1 = '';
 					prText1 +=
 						"<li><a href='" +
-						pr_arr1.html_url +
+						escapeAttr(pr_arr1.html_url) +
 						"' target='_blank' rel='noopener noreferrer'>#" +
 						pr_arr1.number +
 						'</a> (' +
-						pr_arr1.title +
+						escapeHtml(pr_arr1.title) +
 						') ';
 					if (showOpenLabel && pr_arr1.state === 'open') prText1 += issue_opened_button;
 					// Do not show closed label for reviewed PRs
@@ -1847,7 +1851,7 @@ ${blockerText}`;
 					: repository_url
 						? repository_url.substr(repository_url.lastIndexOf('/') + 1)
 						: '';
-			const title = item.title;
+			const title = escapeHtml(item.title);
 			const number = item.number;
 			let li = '';
 
@@ -1925,31 +1929,31 @@ ${blockerText}`;
 				}
 
 				if (isDraft) {
-					li = `<li><i>(${project})</i> - Made PR <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_draft_button : ''}`;
+					li = `<li><i>(${escapeHtml(project)})</i> - Made PR <a href='${escapeAttr(html_url)}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${escapeAttr(html_url)}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_draft_button : ''}`;
 					if (showCommits && item._allCommits && item._allCommits.length && !isNewPR) {
 						log(`[PR DEBUG] Rendering commits for existing draft PR #${number}:`, item._allCommits);
 						li += '<ul>';
 						item._allCommits.forEach((commit) => {
-							li += `<li style=\"list-style: disc; color: #666;\"><span style=\"color:#2563eb;\">${commit.messageHeadline}</span><span style=\"color:#666; font-size: 11px;\"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
+							li += `<li style="list-style: disc; color: #666;"><span style="color:#2563eb;">${escapeHtml(commit.messageHeadline)}</span><span style="color:#666; font-size: 11px;"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
 						});
 						li += '</ul>';
 					}
 					li += `</li>`;
 				} else if (item.state === 'open' || item.state === 'opened') {
-					li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_open_button : ''}`;
+					li = `<li><i>(${escapeHtml(project)})</i> - ${prAction} <a href='${escapeAttr(html_url)}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${escapeAttr(html_url)}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_open_button : ''}`;
 
 					if (showCommits && item._allCommits && item._allCommits.length && !isNewPR) {
 						log(`[PR DEBUG] Rendering commits for existing PR #${number}:`, item._allCommits);
 						li += '<ul>';
 						item._allCommits.forEach((commit) => {
 							li += `<li style="list-style: disc; color: #666;">
-<span style="color:#2563eb;">${commit.messageHeadline}</span><span style="color:#666; font-size: 11px;"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
+<span style="color:#2563eb;">${escapeHtml(commit.messageHeadline)}</span><span style="color:#666; font-size: 11px;"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
 						});
 						li += '</ul>';
 					}
 					li += `</li>`;
 				} else if (platform === 'gitlab' && item.state === 'closed') {
-					li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_closed_button : ''}</li>`;
+					li = `<li><i>(${escapeHtml(project)})</i> - ${prAction} <a href='${escapeAttr(html_url)}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${escapeAttr(html_url)}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_closed_button : ''}</li>`;
 				} else {
 					let merged = null;
 					if ((githubToken || (useMergedStatus && !fallbackToSimple)) && mergedStatusResults) {
@@ -1959,10 +1963,10 @@ ${blockerText}`;
 						merged = mergedStatusResults[`${owner}/${repo}#${number}`];
 					}
 					if (merged === true) {
-						li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_merged_button : ''}</li>`;
+						li = `<li><i>(${escapeHtml(project)})</i> - ${prAction} <a href='${escapeAttr(html_url)}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${escapeAttr(html_url)}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_merged_button : ''}</li>`;
 					} else {
 						// Always show closed label for merged === false or merged === null/undefined
-						li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_closed_button : ''}</li>`;
+						li = `<li><i>(${escapeHtml(project)})</i> - ${prAction} <a href='${escapeAttr(html_url)}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${escapeAttr(html_url)}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_closed_button : ''}</li>`;
 					}
 				}
 				log('[SCRUM-DEBUG] Added PR/MR to lastWeekArray:', li, item);
@@ -1973,11 +1977,11 @@ ${blockerText}`;
 				if (item.state === 'open' && item.body?.toUpperCase().indexOf('YES') > 0) {
 					const li2 =
 						'<li><i>(' +
-						project +
+						escapeHtml(project) +
 						')</i> - Work on Issue(#' +
 						number +
 						") - <a href='" +
-						html_url +
+						escapeAttr(html_url) +
 						"' target='_blank' rel='noopener noreferrer'>" +
 						title +
 						'</a>' +
@@ -1993,19 +1997,19 @@ ${blockerText}`;
 				const isCreatedToday = today.getTime() === itemCreatedDate.getTime();
 				const issueActionText = isCreatedToday ? 'Opened Issue' : 'Updated Issue';
 				if (item.state === 'open') {
-					li = `<li><i>(${project})</i> - ${issueActionText}(#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + issue_opened_button : ''}</li>`;
+					li = `<li><i>(${escapeHtml(project)})</i> - ${issueActionText}(#${number}) - <a href='${escapeAttr(html_url)}'>${title}</a>${showOpenLabel ? ' ' + issue_opened_button : ''}</li>`;
 				} else if (item.state === 'closed') {
 					// Use state_reason to distinguish closure reason
 					if (item.state_reason === 'completed') {
-						li = `<li><i>(${project})</i> - ${issueActionText}(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_completed_button}</li>`;
+						li = `<li><i>(${escapeHtml(project)})</i> - ${issueActionText}(#${number}) - <a href='${escapeAttr(html_url)}'>${title}</a> ${issue_closed_completed_button}</li>`;
 					} else if (item.state_reason === 'not_planned') {
-						li = `<li><i>(${project})</i> - ${issueActionText}(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_notplanned_button}</li>`;
+						li = `<li><i>(${escapeHtml(project)})</i> - ${issueActionText}(#${number}) - <a href='${escapeAttr(html_url)}'>${title}</a> ${issue_closed_notplanned_button}</li>`;
 					} else {
-						li = `<li><i>(${project})</i> - ${issueActionText}(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_button}</li>`;
+						li = `<li><i>(${escapeHtml(project)})</i> - ${issueActionText}(#${number}) - <a href='${escapeAttr(html_url)}'>${title}</a> ${issue_closed_button}</li>`;
 					}
 				} else {
 					// Fallback for unexpected state
-					li = `<li><i>(${project})</i> - ${issueActionText}(#${number}) - <a href='${html_url}'>${title}</a></li>`;
+					li = `<li><i>(${escapeHtml(project)})</i> - ${issueActionText}(#${number}) - <a href='${escapeAttr(html_url)}'>${title}</a></li>`;
 				}
 
 				log('[SCRUM-DEBUG] Added issue to lastWeekArray:', li, item);
