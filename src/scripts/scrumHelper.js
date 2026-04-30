@@ -185,11 +185,15 @@ function allIncluded(outputTarget = 'email') {
 				onlyPRs = items.onlyPRs === true;
 				onlyRevPRs = items.onlyRevPRs === true;
 				onlyMergedPRs = items.onlyMergedPRs === true;
-				console.log('[SCRUM-DEBUG] loaded flags:', { onlyIssues, onlyPRs, onlyRevPRs });
+				if (onlyMergedPRs) {
+					onlyPRs = true;
+				}
+				console.log('[SCRUM-DEBUG] loaded flags:', { onlyIssues, onlyPRs, onlyRevPRs, onlyMergedPRs });
 				// Enforce mutual exclusivity between onlyIssues and onlyPRs to avoid filtering out everything
 				if (onlyIssues && onlyPRs) {
 					console.warn('[SCRUM-HELPER]: Detected both onlyIssues and onlyPRs enabled; normalizing to onlyIssues.');
 					onlyPRs = false;
+					onlyMergedPRs = false;
 				}
 				showCommits = items.showCommits || false;
 				showOpenLabel = items.showOpenLabel !== false; // Default to true if not explicitly set to false
