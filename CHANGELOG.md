@@ -1,3 +1,360 @@
+## v2.1.5 - 2026-04-22
+
+## What's Changed
+
+* fix(validation): move GitHub/GitLab username validation to input field (#417) (#450) @imanojz
+* fix: ux enhance for report insertion (#460) @Mateeb-Haider
+* fix: disable generate report button until required inputs are empty (#455) @Mateeb-Haider
+* fix: advence filter lable color (#560) @Mateeb-Haider
+* Added AGENTS.md (#513) @diyasharma12
+* fix: prevent start date from exceeding end date (#500) @Mateeb-Haider
+* feature: add Tamil and Greek translations (#468) @utkarshgupta2804
+*  Add AI-Assisted Contributions Guidelines to README (#510) @vedansh-5
+* feat: add collapsible Advanced Filters section (#522) @vedansh-5
+* fix: correct report generation and UI reset on platform switch (#516) @vedansh-5
+* Fix repository name in setup instructions (#499) @BhanuprakashMarati
+* Fix broken link in contributing.md under Fork
+and
+Clone
+repository section (#456) @Salmaan-M
+* feat: merged PRs filtering (#426) @Mateeb-Haider
+* feat: add short keys for report generation \& copying (#361) @Mateeb-Haider
+* Translation enhancements (#423) @Bekka592
+* Fix: Show message when user have no report for selected days (#390) @Mateeb-Haider
+*  Fix multi-user cache contamination  (#454) @vedansh-5
+* Fix double scrollbar in popup mode (#452) @vedansh-5
+* Revert Fix
+double
+scrollbar
+appearing
+in
+popup
+window (#435) @vedansh-5
+* Fix double scrollbar appearing in popup window (#434) @gurusatsangi
+* Check box state handling when token not  present (#384) @Mateeb-Haider
+* fixed UI Bug (#425) @vedansh-5
+* feat: complete translations for all languages (100% coverage) (#360) @Mateeb-Haider
+* readme update and lint (#419) @vedansh-5
+* Resolve snap bug (#418) @vedansh-5
+* Fix typos in Scrum Helper user-facing strings (#410) @puneetnith28
+
+## Maintenance
+
+* chore(deps)(deps-dev): bump autoprefixer from 10.4.27 to 10.5.0 (#548) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump postcss from 8.5.9 to 8.5.10 (#555) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps): bump @tailwindcss/cli from 4.2.2 to 4.2.4 (#589) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.10 to 2.4.11 (#527) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump postcss from 8.5.8 to 8.5.9 (#523) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.9 to 2.4.10 (#501) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.8 to 2.4.9 (#487) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps): bump picomatch from 2.3.1 to 2.3.2 (#489) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps): bump @tailwindcss/cli from 4.2.1 to 4.2.2 (#464) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.7 to 2.4.8 (#462) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump tailwindcss from 4.2.1 to 4.2.2 (#465) @[dependabot[bot]](https://github.com/apps/dependabot)
+* feat: Add cross-browser support for Gecko and Chromium via new build pipeline (#481) @vedansh-5
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.5 to 2.4.7 (#457) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump postcss from 8.5.6 to 8.5.8 (#421) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.4 to 2.4.5 (#416) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps): bump @tailwindcss/cli from 4.1.18 to 4.2.1 (#395) @[dependabot[bot]](https://github.com/apps/dependabot)
+* version bump to 2.1.4 (#408) @vedansh-5
+
+---
+
+## v2.1.5 - 2026-04-22
+
+## What's Changed
+
+* fix: ux enhance for report insertion (#460) @Mateeb-Haider
+* fix: disable generate report button until required inputs are empty (#455) @Mateeb-Haider
+* fix: advence filter lable color (#560) @Mateeb-Haider
+* Added AGENTS.md (#513) @diyasharma12
+* fix: prevent start date from exceeding end date (#500) @Mateeb-Haider
+* feature: add Tamil and Greek translations (#468) @utkarshgupta2804
+*  Add AI-Assisted Contributions Guidelines to README (#510) @vedansh-5
+* feat: add collapsible Advanced Filters section (#522) @vedansh-5
+* fix: correct report generation and UI reset on platform switch (#516) @vedansh-5
+* Fix repository name in setup instructions (#499) @BhanuprakashMarati
+* Fix broken link in contributing.md under Fork
+and
+Clone
+repository section (#456) @Salmaan-M
+* feat: merged PRs filtering (#426) @Mateeb-Haider
+* feat: add short keys for report generation \& copying (#361) @Mateeb-Haider
+* Translation enhancements (#423) @Bekka592
+* Fix: Show message when user have no report for selected days (#390) @Mateeb-Haider
+*  Fix multi-user cache contamination  (#454) @vedansh-5
+* Fix double scrollbar in popup mode (#452) @vedansh-5
+* Revert Fix
+double
+scrollbar
+appearing
+in
+popup
+window (#435) @vedansh-5
+* Fix double scrollbar appearing in popup window (#434) @gurusatsangi
+* Check box state handling when token not  present (#384) @Mateeb-Haider
+* fixed UI Bug (#425) @vedansh-5
+* feat: complete translations for all languages (100% coverage) (#360) @Mateeb-Haider
+* readme update and lint (#419) @vedansh-5
+* Resolve snap bug (#418) @vedansh-5
+* Fix typos in Scrum Helper user-facing strings (#410) @puneetnith28
+
+## Maintenance
+
+* chore(deps)(deps-dev): bump autoprefixer from 10.4.27 to 10.5.0 (#548) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump postcss from 8.5.9 to 8.5.10 (#555) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps): bump @tailwindcss/cli from 4.2.2 to 4.2.4 (#589) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.10 to 2.4.11 (#527) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump postcss from 8.5.8 to 8.5.9 (#523) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.9 to 2.4.10 (#501) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.8 to 2.4.9 (#487) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps): bump picomatch from 2.3.1 to 2.3.2 (#489) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps): bump @tailwindcss/cli from 4.2.1 to 4.2.2 (#464) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.7 to 2.4.8 (#462) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump tailwindcss from 4.2.1 to 4.2.2 (#465) @[dependabot[bot]](https://github.com/apps/dependabot)
+* feat: Add cross-browser support for Gecko and Chromium via new build pipeline (#481) @vedansh-5
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.5 to 2.4.7 (#457) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump postcss from 8.5.6 to 8.5.8 (#421) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.4 to 2.4.5 (#416) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps): bump @tailwindcss/cli from 4.1.18 to 4.2.1 (#395) @[dependabot[bot]](https://github.com/apps/dependabot)
+* version bump to 2.1.4 (#408) @vedansh-5
+
+---
+
+## v2.1.5 - 2026-04-22
+
+## What's Changed
+
+* fix: disable generate report button until required inputs are empty (#455) @Mateeb-Haider
+* fix: advence filter lable color (#560) @Mateeb-Haider
+* Added AGENTS.md (#513) @diyasharma12
+* fix: prevent start date from exceeding end date (#500) @Mateeb-Haider
+* feature: add Tamil and Greek translations (#468) @utkarshgupta2804
+*  Add AI-Assisted Contributions Guidelines to README (#510) @vedansh-5
+* feat: add collapsible Advanced Filters section (#522) @vedansh-5
+* fix: correct report generation and UI reset on platform switch (#516) @vedansh-5
+* Fix repository name in setup instructions (#499) @BhanuprakashMarati
+* Fix broken link in contributing.md under Fork
+and
+Clone
+repository section (#456) @Salmaan-M
+* feat: merged PRs filtering (#426) @Mateeb-Haider
+* feat: add short keys for report generation \& copying (#361) @Mateeb-Haider
+* Translation enhancements (#423) @Bekka592
+* Fix: Show message when user have no report for selected days (#390) @Mateeb-Haider
+*  Fix multi-user cache contamination  (#454) @vedansh-5
+* Fix double scrollbar in popup mode (#452) @vedansh-5
+* Revert Fix
+double
+scrollbar
+appearing
+in
+popup
+window (#435) @vedansh-5
+* Fix double scrollbar appearing in popup window (#434) @gurusatsangi
+* Check box state handling when token not  present (#384) @Mateeb-Haider
+* fixed UI Bug (#425) @vedansh-5
+* feat: complete translations for all languages (100% coverage) (#360) @Mateeb-Haider
+* readme update and lint (#419) @vedansh-5
+* Resolve snap bug (#418) @vedansh-5
+* Fix typos in Scrum Helper user-facing strings (#410) @puneetnith28
+
+## Maintenance
+
+* chore(deps)(deps-dev): bump autoprefixer from 10.4.27 to 10.5.0 (#548) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump postcss from 8.5.9 to 8.5.10 (#555) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps): bump @tailwindcss/cli from 4.2.2 to 4.2.4 (#589) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.10 to 2.4.11 (#527) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump postcss from 8.5.8 to 8.5.9 (#523) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.9 to 2.4.10 (#501) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.8 to 2.4.9 (#487) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps): bump picomatch from 2.3.1 to 2.3.2 (#489) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps): bump @tailwindcss/cli from 4.2.1 to 4.2.2 (#464) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.7 to 2.4.8 (#462) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump tailwindcss from 4.2.1 to 4.2.2 (#465) @[dependabot[bot]](https://github.com/apps/dependabot)
+* feat: Add cross-browser support for Gecko and Chromium via new build pipeline (#481) @vedansh-5
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.5 to 2.4.7 (#457) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump postcss from 8.5.6 to 8.5.8 (#421) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.4 to 2.4.5 (#416) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps): bump @tailwindcss/cli from 4.1.18 to 4.2.1 (#395) @[dependabot[bot]](https://github.com/apps/dependabot)
+* version bump to 2.1.4 (#408) @vedansh-5
+
+---
+
+## v2.1.5 - 2026-04-22
+
+## What's Changed
+
+* fix: disable generate report button until required inputs are empty (#455) @Mateeb-Haider
+* fix: advence filter lable color (#560) @Mateeb-Haider
+* Added AGENTS.md (#513) @diyasharma12
+* fix: prevent start date from exceeding end date (#500) @Mateeb-Haider
+* feature: add Tamil and Greek translations (#468) @utkarshgupta2804
+*  Add AI-Assisted Contributions Guidelines to README (#510) @vedansh-5
+* feat: add collapsible Advanced Filters section (#522) @vedansh-5
+* fix: correct report generation and UI reset on platform switch (#516) @vedansh-5
+* Fix repository name in setup instructions (#499) @BhanuprakashMarati
+* Fix broken link in contributing.md under Fork
+and
+Clone
+repository section (#456) @Salmaan-M
+* feat: merged PRs filtering (#426) @Mateeb-Haider
+* feat: add short keys for report generation \& copying (#361) @Mateeb-Haider
+* Translation enhancements (#423) @Bekka592
+* Fix: Show message when user have no report for selected days (#390) @Mateeb-Haider
+*  Fix multi-user cache contamination  (#454) @vedansh-5
+* Fix double scrollbar in popup mode (#452) @vedansh-5
+* Revert Fix
+double
+scrollbar
+appearing
+in
+popup
+window (#435) @vedansh-5
+* Fix double scrollbar appearing in popup window (#434) @gurusatsangi
+* Check box state handling when token not  present (#384) @Mateeb-Haider
+* fixed UI Bug (#425) @vedansh-5
+* feat: complete translations for all languages (100% coverage) (#360) @Mateeb-Haider
+* readme update and lint (#419) @vedansh-5
+* Resolve snap bug (#418) @vedansh-5
+* Fix typos in Scrum Helper user-facing strings (#410) @puneetnith28
+
+## Maintenance
+
+* chore(deps)(deps-dev): bump postcss from 8.5.9 to 8.5.10 (#555) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps): bump @tailwindcss/cli from 4.2.2 to 4.2.4 (#589) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.10 to 2.4.11 (#527) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump postcss from 8.5.8 to 8.5.9 (#523) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.9 to 2.4.10 (#501) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.8 to 2.4.9 (#487) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps): bump picomatch from 2.3.1 to 2.3.2 (#489) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps): bump @tailwindcss/cli from 4.2.1 to 4.2.2 (#464) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.7 to 2.4.8 (#462) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump tailwindcss from 4.2.1 to 4.2.2 (#465) @[dependabot[bot]](https://github.com/apps/dependabot)
+* feat: Add cross-browser support for Gecko and Chromium via new build pipeline (#481) @vedansh-5
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.5 to 2.4.7 (#457) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump postcss from 8.5.6 to 8.5.8 (#421) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.4 to 2.4.5 (#416) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps): bump @tailwindcss/cli from 4.1.18 to 4.2.1 (#395) @[dependabot[bot]](https://github.com/apps/dependabot)
+* version bump to 2.1.4 (#408) @vedansh-5
+
+---
+
+## v2.1.5 - 2026-04-22
+
+## What's Changed
+
+* fix: advence filter lable color (#560) @Mateeb-Haider
+* Added AGENTS.md (#513) @diyasharma12
+* fix: prevent start date from exceeding end date (#500) @Mateeb-Haider
+* feature: add Tamil and Greek translations (#468) @utkarshgupta2804
+*  Add AI-Assisted Contributions Guidelines to README (#510) @vedansh-5
+* feat: add collapsible Advanced Filters section (#522) @vedansh-5
+* fix: correct report generation and UI reset on platform switch (#516) @vedansh-5
+* Fix repository name in setup instructions (#499) @BhanuprakashMarati
+* Fix broken link in contributing.md under Fork
+and
+Clone
+repository section (#456) @Salmaan-M
+* feat: merged PRs filtering (#426) @Mateeb-Haider
+* feat: add short keys for report generation \& copying (#361) @Mateeb-Haider
+* Translation enhancements (#423) @Bekka592
+* Fix: Show message when user have no report for selected days (#390) @Mateeb-Haider
+*  Fix multi-user cache contamination  (#454) @vedansh-5
+* Fix double scrollbar in popup mode (#452) @vedansh-5
+* Revert Fix
+double
+scrollbar
+appearing
+in
+popup
+window (#435) @vedansh-5
+* Fix double scrollbar appearing in popup window (#434) @gurusatsangi
+* Check box state handling when token not  present (#384) @Mateeb-Haider
+* fixed UI Bug (#425) @vedansh-5
+* feat: complete translations for all languages (100% coverage) (#360) @Mateeb-Haider
+* readme update and lint (#419) @vedansh-5
+* Resolve snap bug (#418) @vedansh-5
+* Fix typos in Scrum Helper user-facing strings (#410) @puneetnith28
+
+## Maintenance
+
+* chore(deps)(deps-dev): bump postcss from 8.5.9 to 8.5.10 (#555) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps): bump @tailwindcss/cli from 4.2.2 to 4.2.4 (#589) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.10 to 2.4.11 (#527) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump postcss from 8.5.8 to 8.5.9 (#523) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.9 to 2.4.10 (#501) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.8 to 2.4.9 (#487) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps): bump picomatch from 2.3.1 to 2.3.2 (#489) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps): bump @tailwindcss/cli from 4.2.1 to 4.2.2 (#464) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.7 to 2.4.8 (#462) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump tailwindcss from 4.2.1 to 4.2.2 (#465) @[dependabot[bot]](https://github.com/apps/dependabot)
+* feat: Add cross-browser support for Gecko and Chromium via new build pipeline (#481) @vedansh-5
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.5 to 2.4.7 (#457) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump postcss from 8.5.6 to 8.5.8 (#421) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.4 to 2.4.5 (#416) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps): bump @tailwindcss/cli from 4.1.18 to 4.2.1 (#395) @[dependabot[bot]](https://github.com/apps/dependabot)
+* version bump to 2.1.4 (#408) @vedansh-5
+
+---
+
+## v2.1.5 - 2026-04-22
+
+## What's Changed
+
+* fix: advence filter lable color (#560) @Mateeb-Haider
+* Added AGENTS.md (#513) @diyasharma12
+* fix: prevent start date from exceeding end date (#500) @Mateeb-Haider
+* feature: add Tamil and Greek translations (#468) @utkarshgupta2804
+*  Add AI-Assisted Contributions Guidelines to README (#510) @vedansh-5
+* feat: add collapsible Advanced Filters section (#522) @vedansh-5
+* fix: correct report generation and UI reset on platform switch (#516) @vedansh-5
+* Fix repository name in setup instructions (#499) @BhanuprakashMarati
+* Fix broken link in contributing.md under Fork
+and
+Clone
+repository section (#456) @Salmaan-M
+* feat: merged PRs filtering (#426) @Mateeb-Haider
+* feat: add short keys for report generation \& copying (#361) @Mateeb-Haider
+* Translation enhancements (#423) @Bekka592
+* Fix: Show message when user have no report for selected days (#390) @Mateeb-Haider
+*  Fix multi-user cache contamination  (#454) @vedansh-5
+* Fix double scrollbar in popup mode (#452) @vedansh-5
+* Revert Fix
+double
+scrollbar
+appearing
+in
+popup
+window (#435) @vedansh-5
+* Fix double scrollbar appearing in popup window (#434) @gurusatsangi
+* Check box state handling when token not  present (#384) @Mateeb-Haider
+* fixed UI Bug (#425) @vedansh-5
+* feat: complete translations for all languages (100% coverage) (#360) @Mateeb-Haider
+* readme update and lint (#419) @vedansh-5
+* Resolve snap bug (#418) @vedansh-5
+* Fix typos in Scrum Helper user-facing strings (#410) @puneetnith28
+
+## Maintenance
+
+* chore(deps)(deps): bump @tailwindcss/cli from 4.2.2 to 4.2.4 (#589) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.10 to 2.4.11 (#527) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump postcss from 8.5.8 to 8.5.9 (#523) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.9 to 2.4.10 (#501) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.8 to 2.4.9 (#487) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps): bump picomatch from 2.3.1 to 2.3.2 (#489) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps): bump @tailwindcss/cli from 4.2.1 to 4.2.2 (#464) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.7 to 2.4.8 (#462) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump tailwindcss from 4.2.1 to 4.2.2 (#465) @[dependabot[bot]](https://github.com/apps/dependabot)
+* feat: Add cross-browser support for Gecko and Chromium via new build pipeline (#481) @vedansh-5
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.5 to 2.4.7 (#457) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump postcss from 8.5.6 to 8.5.8 (#421) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.4 to 2.4.5 (#416) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps): bump @tailwindcss/cli from 4.1.18 to 4.2.1 (#395) @[dependabot[bot]](https://github.com/apps/dependabot)
+* version bump to 2.1.4 (#408) @vedansh-5
+
+---
+
 ## v2.1.5 - 2026-04-19
 
 ## What's Changed
