@@ -77,7 +77,7 @@ This document provides guidelines for contributing to the project. Please feel f
     npm run fix
     ```
 
-4.  **Copilot-Assisted Self Review:** Before Require review from maintainors, contributors are encouraged (but not required) to perform a quick self-review using GitHub Copilot, if available. This can help catch simple issues early, improve code quality, and speed up the review process.
+4.  **Copilot-Assisted Self-Review:** Before requesting a review from maintainers, contributors are encouraged (but not required) to perform a quick self-review using GitHub Copilot, if available. This can help catch simple issues early, improve code quality, and speed up the review process.
 
     This repository has automatic Copilot PR reviews enabled. These are triggered only if the contributor has GitHub Copilot enabled with an active license. If you already have access (e.g., via educational programs or developer benefits), enabling it can help reduce manual review effort.
     
