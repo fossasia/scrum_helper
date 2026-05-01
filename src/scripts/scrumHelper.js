@@ -2089,6 +2089,10 @@ ${prs
 let selectedRepos = [];
 let useRepoFilter = false;
 
+feat/github-helper-module
+// fetchUserRepositories has been moved to GitHubHelper (githubHelper.js).
+// window.fetchUserRepositories is set there as a backward-compat shim.
+
 async function fetchUserRepositories(username, token, org = '') {
 	const headers = {
 		Accept: 'application/vnd.github.v3+json',
@@ -2247,6 +2251,7 @@ async function fetchUserRepositories(username, token, org = '') {
 		} catch (err) { }
 	} catch (err) { }
 }
+main
 
 function filterDataByRepos(data, selectedRepos) {
 	if (!selectedRepos || selectedRepos.length === 0) {
@@ -2276,4 +2281,3 @@ function filterDataByRepos(data, selectedRepos) {
 	};
 	return filteredData;
 }
-window.fetchUserRepositories = fetchUserRepositories;
