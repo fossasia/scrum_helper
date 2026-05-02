@@ -804,10 +804,17 @@ document.addEventListener('DOMContentLoaded', () => {
 			tempDiv.innerHTML = scrumReport.innerHTML;
 
 			//remove background styles
-			[tempDiv, ...tempDiv.querySelectorAll('*')].forEach(el => {
-				el.style.backgroundColor = 'transparent';
-			});
+			tempDiv.querySelectorAll('*').forEach(el => {
+				const text = el.textContent?.trim().toLowerCase();
 
+				
+				if (text === 'open' || text === 'closed') {
+					return;
+				}
+
+				el.style.backgroundColor = 'transparent';
+				el.style.background = 'transparent';
+			});
 			document.body.appendChild(tempDiv);
 			tempDiv.style.position = 'absolute';
 			tempDiv.style.left = '-9999px';
