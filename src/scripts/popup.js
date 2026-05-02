@@ -799,37 +799,69 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		copyBtn.addEventListener('click', function () {
 			const scrumReport = document.getElementById('scrumReport');
+			const self = this;
+
 			const tempDiv = document.createElement('div');
 			tempDiv.innerHTML = scrumReport.innerHTML;
-			document.body.appendChild(tempDiv);
-			tempDiv.style.position = 'absolute';
-			tempDiv.style.left = '-9999px';
 
-			const range = document.createRange();
-			range.selectNode(tempDiv);
-			const selection = window.getSelection();
-			selection.removeAllRanges();
-			selection.addRange(range);
+			// Strip background and background-color from all elements so the
+			// copied content pastes without the report container's background.
+			tempDiv.style.background = 'none';
+			tempDiv.style.backgroundColor = 'transparent';
+			tempDiv.querySelectorAll('*').forEach((el) => {
+				el.style.background = 'none';
+				el.style.backgroundColor = 'transparent';
+			});
 
-			try {
-				document.execCommand('copy');
-				if (this._triggeredByShortcut) {
+			const onCopySuccess = () => {
+				if (self._triggeredByShortcut) {
 					const notificationKey =
 						browser?.i18n && browser.i18n.getMessage('copiedReportNotification')
 							? 'copiedReportNotification'
 							: 'copiedButton';
 					showShortcutNotification(notificationKey);
 				}
-				this.innerHTML = `<i class="fa fa-check"></i> ${browser?.i18n.getMessage('copiedButton')}`;
+				self.innerHTML = `<i class="fa fa-check"></i> ${browser?.i18n.getMessage('copiedButton')}`;
 				setTimeout(() => {
-					this.innerHTML = `<i class="fa fa-copy"></i> ${browser.i18n.getMessage('copyReportButton')}`;
+					self.innerHTML = `<i class="fa fa-copy"></i> ${browser.i18n.getMessage('copyReportButton')}`;
 				}, 2000);
-			} catch (err) {
+				self._triggeredByShortcut = false;
+			};
+
+			const onCopyError = (err) => {
 				console.error('Failed to copy: ', err);
-			} finally {
-				this._triggeredByShortcut = false;
+				self._triggeredByShortcut = false;
+			};
+
+			if (navigator.clipboard && window.ClipboardItem) {
+				// Use the modern Clipboard API to write clean HTML and plain text.
+				const htmlBlob = new Blob([tempDiv.outerHTML], { type: 'text/html' });
+				const textBlob = new Blob([tempDiv.innerText], { type: 'text/plain' });
+				navigator.clipboard
+					.write([new ClipboardItem({ 'text/html': htmlBlob, 'text/plain': textBlob })])
+					.then(onCopySuccess)
+					.catch(onCopyError);
+			} else {
+				// Fallback for browsers without Clipboard API support.
+				document.body.appendChild(tempDiv);
+				tempDiv.style.position = 'absolute';
+				tempDiv.style.left = '-9999px';
+
+				const range = document.createRange();
+				range.selectNode(tempDiv);
+				const selection = window.getSelection();
 				selection.removeAllRanges();
-				document.body.removeChild(tempDiv);
+				selection.addRange(range);
+
+				try {
+					document.execCommand('copy');
+					onCopySuccess();
+				} catch (err) {
+					onCopyError(err);
+				} finally {
+					selection.removeAllRanges();
+					document.body.removeChild(tempDiv);
+				}
 			}
 		});
 
