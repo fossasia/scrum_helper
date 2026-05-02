@@ -1867,7 +1867,7 @@ ${blockerText}`;
 						li += '</ul>';
 					}
 					li += `</li>`;
-				} else if ((platform === 'gitlab' || platform === 'bitbucket') && item.state === 'closed') {
+				} else if ((platform === 'gitlab' && item.state === 'closed') || (platform === 'bitbucket' && (item.state === 'merged' || item.state === 'declined'))) {
 					li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_closed_button : ''}</li>`;
 				} else {
 					let merged = null;

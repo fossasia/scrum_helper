@@ -75,8 +75,8 @@ class BitbucketHelper {
 	}
 
 	async fetchBitbucketData(username, startDate, endDate, token = null) {
-		const tokenMarker = token ? 'auth' : 'noauth';
-		const cacheKey = `${username}-${startDate}-${endDate}-${tokenMarker}`;
+		const tokenId = token ? token.slice(-8) : 'noauth';
+		const cacheKey = `${username}-${startDate}-${endDate}-${tokenId}`;
 
 		if (!this.cache.data && !this.cache.fetching) {
 			await this.loadFromStorage();
@@ -197,11 +197,6 @@ class BitbucketHelper {
 		}
 	}
 
-	formatDate(dateString) {
-		const date = new Date(dateString);
-		const options = { day: '2-digit', month: 'short', year: 'numeric' };
-		return date.toLocaleDateString('en-US', options);
-	}
 }
 
 if (typeof module !== 'undefined' && module.exports) {
