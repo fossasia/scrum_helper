@@ -144,6 +144,10 @@
 									class="hover:bg-gray-100" data-value="gitlab">
 									<i class="fab fa-gitlab" style="margin-right: 12px; font-size: 18px;"></i> GitLab
 								</li>
+								<li style="padding-left: 8px; padding-right: 16px; padding-top: 8px; padding-bottom: 8px; display: flex; align-items: center; cursor: pointer;"
+									class="hover:bg-gray-100" data-value="bitbucket">
+									<i class="fab fa-bitbucket" style="margin-right: 12px; font-size: 18px;"></i> Bitbucket
+								</li>
 							</ul>
 						</div>
 					</div>
@@ -526,6 +530,36 @@
 							data-i18n-placeholder="gitlabTokenPlaceholder">
 					</div>
 
+					<div class="bitbucketOnlySection hidden mt-3">
+						<div class="flex items-center justify-between">
+							<div class="flex">
+								<p class="text-sm font-medium" data-i18n="bitbucketTokenLabel">Your Bitbucket App Password</p>
+								<span class="tooltip-container">
+									<i class="fa fa-question-circle question-icon"></i>
+									<span class="tooltip-bubble" data-i18n="bitbucketTokenTooltip">
+										<b>Why add a Bitbucket app password?</b><br>
+										Required to access your pull requests and issues. Use format
+										<b>username:app_password</b>.<br><br>
+										<b>How to get one:</b><br>
+										1. Go to <a href="https://bitbucket.org/account/settings/app-passwords/"
+											target="_blank" rel="noopener noreferrer"
+											style="color:#2563eb;text-decoration:underline;">Bitbucket App Passwords</a><br>
+										2. Click "Create app password"<br>
+										3. Select "Repositories: Read" and "Issues: Read" scopes<br>
+										4. Enter here as <b>username:app_password</b><br>
+										<i>Keep it secret!</i>
+									</span>
+								</span>
+							</div>
+							<button id="toggleBitbucketTokenVisibility" type="button" class="focus:outline-none">
+								<i id="bitbucketTokenEyeIcon" class="fa fa-eye text-gray-600"></i>
+							</button>
+						</div>
+						<input id="bitbucketToken" type="password"
+							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2 pr-10"
+							data-i18n-placeholder="bitbucketTokenPlaceholder">
+					</div>
+
 					<div class="cacheSection mt-3">
 						<div class="flex items-center justify-between mb-2">
 							<div class="flex items-center">
@@ -619,6 +653,7 @@
 	<script src="scripts/emailClientAdapter.js"></script>
 	<script src="scripts/main.js"></script>
 	<script src="scripts/gitlabHelper.js"></script>
+	<script src="scripts/bitbucketHelper.js"></script>
 	<script src="scripts/scrumHelper.js"></script>
 	<script src="scripts/popup.js"></script>
 </body>

@@ -1,238 +1,238 @@
 {
-    "appName": {
-        "message": "Scrum Helper"
-    },
-    "appDescription": {
-        "message": "Rendez compte de votre progression en récupérant automatiquement votre activité Git pour une période sélectionnée."
-    },
-    "disableLabel": {
-        "message": "Désactiver"
-    },
-    "enableLabel": {
-        "message": "Activer"
-    },
-    "projectNameLabel": {
-        "message": "Nom du projet (utilisé dans l'objet de l'e-mail)"
-    },
-    "projectNamePlaceholder": {
-        "message": "Entrez le nom de votre projet"
-    },
-    "githubUsernameLabel": {
-        "message": "Votre nom d'utilisateur GitHub"
-    },
-    "gitlabUsernameLabel": {
-        "message": "Votre nom d'utilisateur GitLab"
-    },
-    "githubUsernamePlaceholder": {
-        "message": "Requis pour récupérer vos contributions"
-    },
-    "contributionsLabel": {
-        "message": "Récupérer vos contributions de :"
-    },
-    "last1DayLabel": {
-        "message": "Jour précédent"
-    },
-    "startDateLabel": {
-        "message": "De :"
-    },
-    "endDateLabel": {
-        "message": "À :"
-    },
-    "showOpenClosedLabel": {
-        "message": "Afficher le statut Ouvert/Fermé"
-    },
-    "blockersLabel": {
-        "message": "Qu'est-ce qui vous empêche de progresser ?"
-    },
-    "blockersPlaceholder": {
-        "message": "Entrez votre raison"
-    },
-    "scrumReportLabel": {
-        "message": "Rapport Scrum"
-    },
-    "generateReportButton": {
-        "message": "Générer"
-    },
-    "copyReportButton": {
-        "message": "Copier"
-    },
-    "insertInEmailButton": {
-        "message": "Insérer dans l’e-mail"
-    },
-    "settingsOrgNameLabel": {
-        "message": "Nom de l'organisation"
-    },
-    "settingsOrgNamePlaceholder": {
-        "message": "Entrez le nom de l'organisation"
-    },
-    "setButton": {
-        "message": "Définir"
-    },
-    "githubTokenLabel": {
-        "message": "Votre jeton GitHub"
-    },
-    "githubTokenPlaceholder": {
-        "message": "Requis pour les requêtes authentifiées"
-    },
-    "githubTokenTooltip": {
-        "message": "Pourquoi est-il recommandé d'ajouter un jeton GitHub ? Scrum Helper fonctionne sans jeton GitHub, mais l'ajout d'un jeton d'accès personnel est recommandé pour une meilleure expérience."
-    },
-    "gitlabTokenLabel": {
-        "message": "Votre jeton GitLab"
-    },
-    "gitlabTokenPlaceholder": {
-        "message": "Requis pour les dépôts privés"
-    },
-    "gitlabTokenTooltip": {
-        "message": "Pourquoi est-il recommandé d'ajouter un jeton GitLab ? Scrum Helper fonctionne sans jeton GitLab pour les projets publics, mais l'ajout d'un jeton d'accès personnel est recommandé pour une meilleure expérience."
-    },
-    "showCommitsLabel": {
-        "message": "Afficher les commits sur les PRs ouverts/ brouillons de PRs"
-    },
-    "showCommitsTooltip": {
-        "message": "Jeton Github requis, ajoutez-le dans les paramètres."
-    },
-    "onlyIssuesLabel": {
-        "message": "Inclure uniquement les problèmes dans le rapport"
-    },
-    "onlyIssuesTooltip": {
-        "message": "Si cette case est cochée, le rapport n'inclura que les problèmes créés par l'utilisateur ou qui lui sont assignés."
-    },
-    "onlyPRsLabel": {
-        "message": "Inclure uniquement les PRs dans le rapport"
-    },
-    "onlyPRsTooltip": {
-        "message": "Si coché, le rapport n'inclura que les pull requests créées par l'utilisateur ; les pull requests revues seront exclues."
-    },
-    "cacheTTLLabel": {
-        "message": "Entrez le TTL du cache",
-        "description": "Étiquette pour le champ de saisie de la durée de vie du cache."
-    },
-    "cacheTTLUnit": {
-        "message": "(en minutes)"
-    },
-    "cacheTTLPlaceholder": {
-        "message": "Entrez le TTL du cache en minutes (Défaut : 10)"
-    },
-    "refreshDataButton": {
-        "message": "Actualiser les données (ignorer le cache)"
-    },
-    "refreshDataInfo": {
-        "message": "Utilisez ce bouton pour récupérer des données fraîches immédiatement."
-    },
-    "noteTitle": {
-        "message": "Note :"
-    },
-    "viewCodeButton": {
-        "message": "Voir le code"
-    },
-    "reportIssueButton": {
-        "message": "Signaler un problème"
-    },
-    "repoFilterLabel": {
-        "message": "Filtrer par dépôts"
-    },
-    "enableFilteringLabel": {
-        "message": "Activer le filtrage"
-    },
-    "tokenRequiredWarning": {
-        "message": "Un jeton GitHub est requis pour filtrer les dépôts. Veuillez en ajouter un dans les paramètres."
-    },
-    "repoSearchPlaceholder": {
-        "message": "Rechercher un dépôt à ajouter..."
-    },
-    "repoPlaceholder": {
-        "message": "Aucun dépôt sélectionné (tous seront inclus)"
-    },
-    "repoCountNone": {
-        "message": "0 dépôts sélectionnés"
-    },
-    "repoCount": {
-        "message": "$1 dépôts sélectionnés"
-    },
-    "repoLoading": {
-        "message": "Chargement des dépôts..."
-    },
-    "repoLoaded": {
-        "message": "$1 dépôts chargés."
-    },
-    "repoNotFound": {
-        "message": "Aucun dépôt trouvé"
-    },
-    "repoRefetching": {
-        "message": "Rechargement des dépôts..."
-    },
-    "repoLoadFailed": {
-        "message": "Échec du chargement des dépôts."
-    },
-    "repoTokenPrivate": {
-        "message": "Le jeton est invalide ou n'a pas les droits pour les dépôts privés."
-    },
-    "repoRefetchFailed": {
-        "message": "Échec du rechargement des dépôts."
-    },
-    "orgSetMessage": {
-        "message": "Organisation définie avec succès."
-    },
-    "orgClearedMessage": {
-        "message": "Organisation effacée. Cliquez sur 'Générer le rapport' pour récupérer toutes les activités."
-    },
-    "orgNotFoundMessage": {
-        "message": "Organisation non trouvée sur GitHub."
-    },
-    "orgValidationErrorMessage": {
-        "message": "Erreur lors de la validation de l'organisation."
-    },
-    "refreshingButton": {
-        "message": "Actualisation..."
-    },
-    "cacheClearFailed": {
-        "message": "Échec de la suppression du cache."
-    },
-    "madeWithLoveBy": {
-        "message": "Made with ❤️ by"
-    },
-    "generatingButton": {
-        "message": "Génération..."
-    },
-    "copiedButton": {
-        "message": "Copié !"
-    },
-    "orgChangedMessage": {
-        "message": "Organisation modifiée. Cliquez sur 'Générer le rapport' pour récupérer les activités GitHub."
-    },
-    "cacheClearedMessage": {
-        "message": "Cache vidé avec succès. Cliquez sur 'Générer le rapport' pour récupérer des données fraîches."
-    },
-    "cacheExpiredMessage": {
-        "message": "Le cache a expiré. Cliquez sur \"Générer\" pour récupérer des données fraîches.",
-        "description": "Message shown when the cached data has expired and user needs to regenerate."
-    },
-    "cacheClearedButton": {
-        "message": "Cache vidé !"
-    },
-    "extensionDisabledMessage": {
-        "message": "L'extension est désactivée. Activez-la depuis les paramètres pour générer des rapports Scrum."
-    },
-    "notePoint1": {
-        "message": "Les pull requests sont récupérées en fonction de l'activité de revue la plus récente de n'importe quel contributeur, pas seulement la vôtre. Veuillez examiner et ajuster le rapport SCRUM généré pour vous assurer qu'il reflète fidèlement votre travail avant de le partager."
-    },
-    "noteSeeIssue": {
-        "message": "Voir ce ticket"
-    },
-    "platformLabel": {
-        "message": "Plateforme"
-    },
-    "usernameLabel": {
-        "message": "Votre nom d'utilisateur"
-    },
-    "onlyRevPRsLabel": {
-        "message": "Inclure uniquement les PRs revues dans le rapport"
-    },
-    "onlyRevPRsTooltip": {
-        "message": "Si coché, le rapport n'inclura que les PRs que vous avez revues."
-    },
-    	"usernameRequiredError": {
+	"appName": {
+		"message": "Scrum Helper"
+	},
+	"appDescription": {
+		"message": "Rendez compte de votre progression en récupérant automatiquement votre activité Git pour une période sélectionnée."
+	},
+	"disableLabel": {
+		"message": "Désactiver"
+	},
+	"enableLabel": {
+		"message": "Activer"
+	},
+	"projectNameLabel": {
+		"message": "Nom du projet (utilisé dans l'objet de l'e-mail)"
+	},
+	"projectNamePlaceholder": {
+		"message": "Entrez le nom de votre projet"
+	},
+	"githubUsernameLabel": {
+		"message": "Votre nom d'utilisateur GitHub"
+	},
+	"gitlabUsernameLabel": {
+		"message": "Votre nom d'utilisateur GitLab"
+	},
+	"githubUsernamePlaceholder": {
+		"message": "Requis pour récupérer vos contributions"
+	},
+	"contributionsLabel": {
+		"message": "Récupérer vos contributions de :"
+	},
+	"last1DayLabel": {
+		"message": "Jour précédent"
+	},
+	"startDateLabel": {
+		"message": "De :"
+	},
+	"endDateLabel": {
+		"message": "À :"
+	},
+	"showOpenClosedLabel": {
+		"message": "Afficher le statut Ouvert/Fermé"
+	},
+	"blockersLabel": {
+		"message": "Qu'est-ce qui vous empêche de progresser ?"
+	},
+	"blockersPlaceholder": {
+		"message": "Entrez votre raison"
+	},
+	"scrumReportLabel": {
+		"message": "Rapport Scrum"
+	},
+	"generateReportButton": {
+		"message": "Générer"
+	},
+	"copyReportButton": {
+		"message": "Copier"
+	},
+	"insertInEmailButton": {
+		"message": "Insérer dans l’e-mail"
+	},
+	"settingsOrgNameLabel": {
+		"message": "Nom de l'organisation"
+	},
+	"settingsOrgNamePlaceholder": {
+		"message": "Entrez le nom de l'organisation"
+	},
+	"setButton": {
+		"message": "Définir"
+	},
+	"githubTokenLabel": {
+		"message": "Votre jeton GitHub"
+	},
+	"githubTokenPlaceholder": {
+		"message": "Requis pour les requêtes authentifiées"
+	},
+	"githubTokenTooltip": {
+		"message": "Pourquoi est-il recommandé d'ajouter un jeton GitHub ? Scrum Helper fonctionne sans jeton GitHub, mais l'ajout d'un jeton d'accès personnel est recommandé pour une meilleure expérience."
+	},
+	"gitlabTokenLabel": {
+		"message": "Votre jeton GitLab"
+	},
+	"gitlabTokenPlaceholder": {
+		"message": "Requis pour les dépôts privés"
+	},
+	"gitlabTokenTooltip": {
+		"message": "Pourquoi est-il recommandé d'ajouter un jeton GitLab ? Scrum Helper fonctionne sans jeton GitLab pour les projets publics, mais l'ajout d'un jeton d'accès personnel est recommandé pour une meilleure expérience."
+	},
+	"showCommitsLabel": {
+		"message": "Afficher les commits sur les PRs ouverts/ brouillons de PRs"
+	},
+	"showCommitsTooltip": {
+		"message": "Jeton Github requis, ajoutez-le dans les paramètres."
+	},
+	"onlyIssuesLabel": {
+		"message": "Inclure uniquement les problèmes dans le rapport"
+	},
+	"onlyIssuesTooltip": {
+		"message": "Si cette case est cochée, le rapport n'inclura que les problèmes créés par l'utilisateur ou qui lui sont assignés."
+	},
+	"onlyPRsLabel": {
+		"message": "Inclure uniquement les PRs dans le rapport"
+	},
+	"onlyPRsTooltip": {
+		"message": "Si coché, le rapport n'inclura que les pull requests créées par l'utilisateur ; les pull requests revues seront exclues."
+	},
+	"cacheTTLLabel": {
+		"message": "Entrez le TTL du cache",
+		"description": "Étiquette pour le champ de saisie de la durée de vie du cache."
+	},
+	"cacheTTLUnit": {
+		"message": "(en minutes)"
+	},
+	"cacheTTLPlaceholder": {
+		"message": "Entrez le TTL du cache en minutes (Défaut : 10)"
+	},
+	"refreshDataButton": {
+		"message": "Actualiser les données (ignorer le cache)"
+	},
+	"refreshDataInfo": {
+		"message": "Utilisez ce bouton pour récupérer des données fraîches immédiatement."
+	},
+	"noteTitle": {
+		"message": "Note :"
+	},
+	"viewCodeButton": {
+		"message": "Voir le code"
+	},
+	"reportIssueButton": {
+		"message": "Signaler un problème"
+	},
+	"repoFilterLabel": {
+		"message": "Filtrer par dépôts"
+	},
+	"enableFilteringLabel": {
+		"message": "Activer le filtrage"
+	},
+	"tokenRequiredWarning": {
+		"message": "Un jeton GitHub est requis pour filtrer les dépôts. Veuillez en ajouter un dans les paramètres."
+	},
+	"repoSearchPlaceholder": {
+		"message": "Rechercher un dépôt à ajouter..."
+	},
+	"repoPlaceholder": {
+		"message": "Aucun dépôt sélectionné (tous seront inclus)"
+	},
+	"repoCountNone": {
+		"message": "0 dépôts sélectionnés"
+	},
+	"repoCount": {
+		"message": "$1 dépôts sélectionnés"
+	},
+	"repoLoading": {
+		"message": "Chargement des dépôts..."
+	},
+	"repoLoaded": {
+		"message": "$1 dépôts chargés."
+	},
+	"repoNotFound": {
+		"message": "Aucun dépôt trouvé"
+	},
+	"repoRefetching": {
+		"message": "Rechargement des dépôts..."
+	},
+	"repoLoadFailed": {
+		"message": "Échec du chargement des dépôts."
+	},
+	"repoTokenPrivate": {
+		"message": "Le jeton est invalide ou n'a pas les droits pour les dépôts privés."
+	},
+	"repoRefetchFailed": {
+		"message": "Échec du rechargement des dépôts."
+	},
+	"orgSetMessage": {
+		"message": "Organisation définie avec succès."
+	},
+	"orgClearedMessage": {
+		"message": "Organisation effacée. Cliquez sur 'Générer le rapport' pour récupérer toutes les activités."
+	},
+	"orgNotFoundMessage": {
+		"message": "Organisation non trouvée sur GitHub."
+	},
+	"orgValidationErrorMessage": {
+		"message": "Erreur lors de la validation de l'organisation."
+	},
+	"refreshingButton": {
+		"message": "Actualisation..."
+	},
+	"cacheClearFailed": {
+		"message": "Échec de la suppression du cache."
+	},
+	"madeWithLoveBy": {
+		"message": "Made with ❤️ by"
+	},
+	"generatingButton": {
+		"message": "Génération..."
+	},
+	"copiedButton": {
+		"message": "Copié !"
+	},
+	"orgChangedMessage": {
+		"message": "Organisation modifiée. Cliquez sur 'Générer le rapport' pour récupérer les activités GitHub."
+	},
+	"cacheClearedMessage": {
+		"message": "Cache vidé avec succès. Cliquez sur 'Générer le rapport' pour récupérer des données fraîches."
+	},
+	"cacheExpiredMessage": {
+		"message": "Le cache a expiré. Cliquez sur \"Générer\" pour récupérer des données fraîches.",
+		"description": "Message shown when the cached data has expired and user needs to regenerate."
+	},
+	"cacheClearedButton": {
+		"message": "Cache vidé !"
+	},
+	"extensionDisabledMessage": {
+		"message": "L'extension est désactivée. Activez-la depuis les paramètres pour générer des rapports Scrum."
+	},
+	"notePoint1": {
+		"message": "Les pull requests sont récupérées en fonction de l'activité de revue la plus récente de n'importe quel contributeur, pas seulement la vôtre. Veuillez examiner et ajuster le rapport SCRUM généré pour vous assurer qu'il reflète fidèlement votre travail avant de le partager."
+	},
+	"noteSeeIssue": {
+		"message": "Voir ce ticket"
+	},
+	"platformLabel": {
+		"message": "Plateforme"
+	},
+	"usernameLabel": {
+		"message": "Votre nom d'utilisateur"
+	},
+	"onlyRevPRsLabel": {
+		"message": "Inclure uniquement les PRs revues dans le rapport"
+	},
+	"onlyRevPRsTooltip": {
+		"message": "Si coché, le rapport n'inclura que les PRs que vous avez revues."
+	},
+	"usernameRequiredError": {
 		"message": "Veuillez saisir votre nom d'utilisateur pour générer un rapport."
 	},
 	"unknownPlatformError": {
@@ -295,25 +295,49 @@
 	"usernameMissingError": {
 		"message": "Nom d'utilisateur requis."
 	},
-    "generateReportTooltip": {
-        "message": "Ctrl+G"
-    },
-    "copyReportTooltip": {
-        "message": "Ctrl+Shift+Y"
-    },
-    "generatingReportNotification": {
-        "message": "Génération du rapport..."
-    },
-    "copyingReportNotification": {
-        "message": "Copie du rapport..."
-    },
-    "insertInEmailTooltip": {
-        "message": "Ctrl+Shift+M"
-    },
-    "insertingInEmailNotification": {
-        "message": "Insertion du rapport dans l'e-mail..."
-    },
-    "insertedInEmailNotification": {
-        "message": "Rapport inséré dans l'e-mail !"
-   }
+	"generateReportTooltip": {
+		"message": "Ctrl+G"
+	},
+	"copyReportTooltip": {
+		"message": "Ctrl+Shift+Y"
+	},
+	"generatingReportNotification": {
+		"message": "Génération du rapport..."
+	},
+	"copyingReportNotification": {
+		"message": "Copie du rapport..."
+	},
+	"insertInEmailTooltip": {
+		"message": "Ctrl+Shift+M"
+	},
+	"insertingInEmailNotification": {
+		"message": "Insertion du rapport dans l'e-mail..."
+	},
+	"insertedInEmailNotification": {
+		"message": "Rapport inséré dans l'e-mail !"
+	},
+	"bitbucketTokenLabel": {
+		"message": "Your Bitbucket App Password",
+		"description": "Label for the Bitbucket app password input field."
+	},
+	"bitbucketTokenPlaceholder": {
+		"message": "username:app_password",
+		"description": "Placeholder for the Bitbucket app password input."
+	},
+	"bitbucketTokenTooltip": {
+		"message": "Required to access your pull requests and issues. Enter as username:app_password.",
+		"description": "Tooltip for Bitbucket app password."
+	},
+	"bitbucketUserFetchError": {
+		"message": "Error fetching Bitbucket user: $1 $2",
+		"description": "Error when fetching Bitbucket user fails. $1=status, $2=statusText"
+	},
+	"bitbucketUserNotFoundError": {
+		"message": "Bitbucket user '$1' not found.",
+		"description": "Error when Bitbucket user is not found. $1=username"
+	},
+	"bitbucketFetchingError": {
+		"message": "An error occurred while fetching Bitbucket data.",
+		"description": "Error shown when Bitbucket data fetch fails."
+	}
 }

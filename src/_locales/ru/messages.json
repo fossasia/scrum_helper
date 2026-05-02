@@ -1,319 +1,343 @@
 {
-    "appName": {
-        "message": "Scrum Helper"
-    },
-    "appDescription": {
-        "message": "Сообщайте о своем прогрессе в разработке, автоматически получая данные о вашей активности в Git за выбранный период."
-    },
-    "disableLabel": {
-        "message": "Отключить"
-    },
-    "enableLabel": {
-        "message": "Включить"
-    },
-    "projectNameLabel": {
-        "message": "Название проекта (используется в теме письма)"
-    },
-    "projectNamePlaceholder": {
-        "message": "Введите название вашего проекта"
-    },
-    "githubUsernameLabel": {
-        "message": "Ваше имя пользователя GitHub"
-    },
-    "gitlabUsernameLabel": {
-        "message": "Ваше имя пользователя GitLab"
-    },
-    "githubUsernamePlaceholder": {
-        "message": "Требуется для получения ваших вкладов"
-    },
-    "contributionsLabel": {
-        "message": "Получить ваши вклады за:"
-    },
-    "last1DayLabel": {
-        "message": "Предыдущий день"
-    },
-    "startDateLabel": {
-        "message": "С:"
-    },
-    "endDateLabel": {
-        "message": "До:"
-    },
-    "showOpenClosedLabel": {
-        "message": "Показывать статус Открыто/Закрыто"
-    },
-    "blockersLabel": {
-        "message": "Что мешает вашему прогрессу?"
-    },
-    "blockersPlaceholder": {
-        "message": "Введите причину"
-    },
-    "scrumReportLabel": {
-        "message": "Scrum-отчет"
-    },
-    "generateReportButton": {
-        "message": "Создать"
-    },
-    "copyReportButton": {
-        "message": "Копировать"
-    },
-    "insertInEmailButton": {
-        "message": "Вставить в письмо"
-    },
-    "settingsOrgNameLabel": {
-        "message": "Название организации"
-    },
-    "settingsOrgNamePlaceholder": {
-        "message": "Введите название организации"
-    },
-    "setButton": {
-        "message": "Установить"
-    },
-    "githubTokenLabel": {
-        "message": "Ваш токен GitHub"
-    },
-    "githubTokenPlaceholder": {
-        "message": "Требуется для аутентифицированных запросов"
-    },
-    "githubTokenTooltip": {
-        "message": "Зачем рекомендуется добавлять токен GitHub? Scrum Helper работает без токена GitHub, но для лучшего опыта рекомендуется добавить токен личного доступа."
-    },
-    "gitlabTokenLabel": {
-        "message": "Ваш токен GitLab"
-    },
-    "gitlabTokenPlaceholder": {
-        "message": "Требуется для приватных репо"
-    },
-    "gitlabTokenTooltip": {
-        "message": "Зачем рекомендуется добавлять токен GitLab? Scrum Helper работает без токена GitLab для публичных проектов, но для лучшего опыта рекомендуется добавить токен личного доступа."
-    },
-    "showCommitsLabel": {
-        "message": "Показывать коммиты в открытых PR/ черновиках PR"
-    },
-    "showCommitsTooltip": {
-        "message": "Требуется токен Github, добавьте его в настройках."
-    },
-    "onlyIssuesLabel": {
-        "message": "Включить в отчет только задачи"
-    },
-    "onlyIssuesTooltip": {
-        "message": "Если флажок установлен, в отчет будут включены только задачи, созданные пользователем или назначенные ему."
-    },
-    "onlyPRsLabel": {
-        "message": "Включать в отчёт только PR"
-    },
-    "onlyPRsTooltip": {
-        "message": "Если отмечено, отчёт будет включать только pull request'ы, созданные пользователем; проверенные PR будут исключены."
-    },
-    "cacheTTLLabel": {
-        "message": "Введите TTL кеша",
-        "description": "Метка для ввода времени жизни кеша."
-    },
-    "cacheTTLUnit": {
-        "message": "(в минутах)"
-    },
-    "cacheTTLPlaceholder": {
-        "message": "Укажите TTL кэша в минутах (по умолчанию: 10)"
-    },
-    "refreshDataButton": {
-        "message": "Обновить данные (в обход кэша)"
-    },
-    "refreshDataInfo": {
-        "message": "Используйте эту кнопку для немедленного получения свежих данных."
-    },
-    "noteTitle": {
-        "message": "Примечание:"
-    },
-    "viewCodeButton": {
-        "message": "Посмотреть код"
-    },
-    "reportIssueButton": {
-        "message": "Сообщить о проблеме"
-    },
-    "repoFilterLabel": {
-        "message": "Фильтровать по репозиториям"
-    },
-    "enableFilteringLabel": {
-        "message": "Включить фильтрацию"
-    },
-    "tokenRequiredWarning": {
-        "message": "Для фильтрации репозиториев требуется токен GitHub. Пожалуйста, добавьте его в настройках."
-    },
-    "repoSearchPlaceholder": {
-        "message": "Найти репозиторий для добавления..."
-    },
-    "repoPlaceholder": {
-        "message": "Репозитории не выбраны (будут включены все)"
-    },
-    "repoCountNone": {
-        "message": "0 репозиториев выбрано"
-    },
-    "repoCount": {
-        "message": "$1 репозиториев выбрано"
-    },
-    "repoLoading": {
-        "message": "Загрузка репозиториев..."
-    },
-    "repoLoaded": {
-        "message": "Загружено $1 репозиториев."
-    },
-    "repoNotFound": {
-        "message": "Репозитории не найдены"
-    },
-    "repoRefetching": {
-        "message": "Перезагрузка репозиториев..."
-    },
-    "repoLoadFailed": {
-        "message": "Не удалось загрузить репозитории."
-    },
-    "repoTokenPrivate": {
-        "message": "Токен недействителен или не имеет прав для частных репозиториев."
-    },
-    "repoRefetchFailed": {
-        "message": "Не удалось перезагрузить репозитории."
-    },
-    "orgSetMessage": {
-        "message": "Организация успешно установлена."
-    },
-    "orgClearedMessage": {
-        "message": "Организация удалена. Нажмите 'Создать отчет', чтобы получить все действия."
-    },
-    "orgNotFoundMessage": {
-        "message": "Организация не найдена на GitHub."
-    },
-    "orgValidationErrorMessage": {
-        "message": "Ошибка при проверке организации."
-    },
-    "refreshingButton": {
-        "message": "Обновление..."
-    },
-    "cacheClearFailed": {
-        "message": "Не удалось очистить кэш."
-    },
-    "madeWithLoveBy": {
-        "message": "Made with ❤️ by"
-    },
-    "generatingButton": {
-        "message": "Создание..."
-    },
-    "copiedButton": {
-        "message": "Скопировано!"
-    },
-    "orgChangedMessage": {
-        "message": "Организация изменена. Нажмите 'Создать отчет', чтобы получить данные о действиях в GitHub."
-    },
-    "cacheClearedMessage": {
-        "message": "Кэш успешно очищен. Нажмите 'Создать отчет', чтобы получить свежие данные."
-    },
-    "cacheExpiredMessage": {
-        "message": "Кэш истёк. Нажмите \"Создать\", чтобы получить новые данные.",
-        "description": "Message shown when the cached data has expired and user needs to regenerate."
-    },
-    "cacheClearedButton": {
-        "message": "Кэш очищен!"
-    },
-    "extensionDisabledMessage": {
-        "message": "Расширение отключено. Включите его в настройках, чтобы создавать scrum-отчеты."
-    },
-    "notePoint1": {
-        "message": "Pull-реквесты извлекаются на основе последней активности по проверке любого участника, а не только вашей. Пожалуйста, просмотрите и скорректируйте сгенерированный отчет SCRUM, чтобы убедиться, что он точно отражает вашу работу, прежде чем делиться им."
-    },
-    "noteSeeIssue": {
-        "message": "Смотрите эту проблему"
-    },
-    "platformLabel": {
-        "message": "Платформа"
-    },
-    "usernameLabel": {
-        "message": "Ваше имя пользователя"
-    },
-    "usernameRequiredError": {
-        "message": "Пожалуйста, введите имя пользователя для создания отчета."
-    },
-    "unknownPlatformError": {
-        "message": "Выбрана неизвестная платформа."
-    },
-    "gitlabFetchingError": {
-        "message": "Произошла ошибка при получении данных GitLab."
-    },
-    "reportGenerationError": {
-        "message": "Произошла ошибка при создании отчета."
-    },
-    "githubUserNotFoundError": {
-        "message": "Пользователь GitHub \"$1\" не найден (404). Проверьте имя пользователя и попробуйте снова."
-    },
-    "githubUserValidationError": {
-        "message": "Ошибка при проверке пользователя GitHub: $1 $2"
-    },
-    "invalidSearchQueryError": {
-        "message": "Недопустимый поисковый запрос или диапазон дат. Проверьте формат и попробуйте снова."
-    },
-    "githubIssuesFetchError": {
-        "message": "Ошибка при получении задач GitHub: $1 $2"
-    },
-    "githubPRReviewFetchError": {
-        "message": "Ошибка при получении данных проверки PR GitHub: $1 $2"
-    },
-    "githubUserFetchError": {
-        "message": "Ошибка при получении данных пользователя GitHub: $1 $2"
-    },
-    "invalidTokenError": {
-        "message": "Недействительный или истекший токен GitHub. Проверьте токен в настройках Scrum Helper и попробуйте снова."
-    },
-    "displayModeNotice": {
-        "message": "Расширение откроется в режиме $1 при следующем запуске."
-    },
-    "repoFilteringGithubOnly": {
-        "message": "Фильтрация репозиториев доступна только для GitHub."
-    },
-    "repoLoadingGithubOnly": {
-        "message": "Загрузка репозиториев доступна только для GitHub."
-    },
-    "repoFetchingGithubOnly": {
-        "message": "Получение репозиториев доступно только для GitHub."
-    },
-    "loadingReposAutomatically": {
-        "message": "Репозитории загружаются автоматически..."
-    },
-    "gitlabUserFetchError": {
-        "message": "Ошибка при получении пользователя GitLab: $1 $2"
-    },
-    "gitlabUserNotFoundError": {
-        "message": "Пользователь GitLab '$1' не найден"
-    },
-    "gitlabMembershipError": {
-        "message": "Ошибка при получении проектов членства GitLab: $1 $2"
-    },
-    "gitlabContributedError": {
-        "message": "Ошибка при получении проектов с вкладом GitLab: $1 $2"
-    },
-    "onlyRevPRsLabel": {
-        "message": "Включить в отчет только проверенные PR"
-    },
-    "onlyRevPRsTooltip": {
-        "message": "Если отмечено, отчёт будет включать только PR, проверенные вами."
-    },
-    "usernameMissingError": {
-        "message": "Требуется имя пользователя."
-    },
-    "generateReportTooltip": {
-        "message": "Ctrl+G"
-    },
-    "copyReportTooltip": {
-        "message": "Ctrl+Shift+Y"
-    },
-    "generatingReportNotification": {
-        "message": "Создание отчёта..."
-    },
-    "copyingReportNotification": {
-        "message": "Копирование отчёта..."
-    },
-    "insertInEmailTooltip": {
-        "message": "Ctrl+Shift+M"
-    },
-    "insertingInEmailNotification": {
-        "message": "Вставка отчёта в письмо..."
-    },
-    "insertedInEmailNotification": {
-        "message": "Отчёт вставлен в письмо!"
-    }
+	"appName": {
+		"message": "Scrum Helper"
+	},
+	"appDescription": {
+		"message": "Сообщайте о своем прогрессе в разработке, автоматически получая данные о вашей активности в Git за выбранный период."
+	},
+	"disableLabel": {
+		"message": "Отключить"
+	},
+	"enableLabel": {
+		"message": "Включить"
+	},
+	"projectNameLabel": {
+		"message": "Название проекта (используется в теме письма)"
+	},
+	"projectNamePlaceholder": {
+		"message": "Введите название вашего проекта"
+	},
+	"githubUsernameLabel": {
+		"message": "Ваше имя пользователя GitHub"
+	},
+	"gitlabUsernameLabel": {
+		"message": "Ваше имя пользователя GitLab"
+	},
+	"githubUsernamePlaceholder": {
+		"message": "Требуется для получения ваших вкладов"
+	},
+	"contributionsLabel": {
+		"message": "Получить ваши вклады за:"
+	},
+	"last1DayLabel": {
+		"message": "Предыдущий день"
+	},
+	"startDateLabel": {
+		"message": "С:"
+	},
+	"endDateLabel": {
+		"message": "До:"
+	},
+	"showOpenClosedLabel": {
+		"message": "Показывать статус Открыто/Закрыто"
+	},
+	"blockersLabel": {
+		"message": "Что мешает вашему прогрессу?"
+	},
+	"blockersPlaceholder": {
+		"message": "Введите причину"
+	},
+	"scrumReportLabel": {
+		"message": "Scrum-отчет"
+	},
+	"generateReportButton": {
+		"message": "Создать"
+	},
+	"copyReportButton": {
+		"message": "Копировать"
+	},
+	"insertInEmailButton": {
+		"message": "Вставить в письмо"
+	},
+	"settingsOrgNameLabel": {
+		"message": "Название организации"
+	},
+	"settingsOrgNamePlaceholder": {
+		"message": "Введите название организации"
+	},
+	"setButton": {
+		"message": "Установить"
+	},
+	"githubTokenLabel": {
+		"message": "Ваш токен GitHub"
+	},
+	"githubTokenPlaceholder": {
+		"message": "Требуется для аутентифицированных запросов"
+	},
+	"githubTokenTooltip": {
+		"message": "Зачем рекомендуется добавлять токен GitHub? Scrum Helper работает без токена GitHub, но для лучшего опыта рекомендуется добавить токен личного доступа."
+	},
+	"gitlabTokenLabel": {
+		"message": "Ваш токен GitLab"
+	},
+	"gitlabTokenPlaceholder": {
+		"message": "Требуется для приватных репо"
+	},
+	"gitlabTokenTooltip": {
+		"message": "Зачем рекомендуется добавлять токен GitLab? Scrum Helper работает без токена GitLab для публичных проектов, но для лучшего опыта рекомендуется добавить токен личного доступа."
+	},
+	"showCommitsLabel": {
+		"message": "Показывать коммиты в открытых PR/ черновиках PR"
+	},
+	"showCommitsTooltip": {
+		"message": "Требуется токен Github, добавьте его в настройках."
+	},
+	"onlyIssuesLabel": {
+		"message": "Включить в отчет только задачи"
+	},
+	"onlyIssuesTooltip": {
+		"message": "Если флажок установлен, в отчет будут включены только задачи, созданные пользователем или назначенные ему."
+	},
+	"onlyPRsLabel": {
+		"message": "Включать в отчёт только PR"
+	},
+	"onlyPRsTooltip": {
+		"message": "Если отмечено, отчёт будет включать только pull request'ы, созданные пользователем; проверенные PR будут исключены."
+	},
+	"cacheTTLLabel": {
+		"message": "Введите TTL кеша",
+		"description": "Метка для ввода времени жизни кеша."
+	},
+	"cacheTTLUnit": {
+		"message": "(в минутах)"
+	},
+	"cacheTTLPlaceholder": {
+		"message": "Укажите TTL кэша в минутах (по умолчанию: 10)"
+	},
+	"refreshDataButton": {
+		"message": "Обновить данные (в обход кэша)"
+	},
+	"refreshDataInfo": {
+		"message": "Используйте эту кнопку для немедленного получения свежих данных."
+	},
+	"noteTitle": {
+		"message": "Примечание:"
+	},
+	"viewCodeButton": {
+		"message": "Посмотреть код"
+	},
+	"reportIssueButton": {
+		"message": "Сообщить о проблеме"
+	},
+	"repoFilterLabel": {
+		"message": "Фильтровать по репозиториям"
+	},
+	"enableFilteringLabel": {
+		"message": "Включить фильтрацию"
+	},
+	"tokenRequiredWarning": {
+		"message": "Для фильтрации репозиториев требуется токен GitHub. Пожалуйста, добавьте его в настройках."
+	},
+	"repoSearchPlaceholder": {
+		"message": "Найти репозиторий для добавления..."
+	},
+	"repoPlaceholder": {
+		"message": "Репозитории не выбраны (будут включены все)"
+	},
+	"repoCountNone": {
+		"message": "0 репозиториев выбрано"
+	},
+	"repoCount": {
+		"message": "$1 репозиториев выбрано"
+	},
+	"repoLoading": {
+		"message": "Загрузка репозиториев..."
+	},
+	"repoLoaded": {
+		"message": "Загружено $1 репозиториев."
+	},
+	"repoNotFound": {
+		"message": "Репозитории не найдены"
+	},
+	"repoRefetching": {
+		"message": "Перезагрузка репозиториев..."
+	},
+	"repoLoadFailed": {
+		"message": "Не удалось загрузить репозитории."
+	},
+	"repoTokenPrivate": {
+		"message": "Токен недействителен или не имеет прав для частных репозиториев."
+	},
+	"repoRefetchFailed": {
+		"message": "Не удалось перезагрузить репозитории."
+	},
+	"orgSetMessage": {
+		"message": "Организация успешно установлена."
+	},
+	"orgClearedMessage": {
+		"message": "Организация удалена. Нажмите 'Создать отчет', чтобы получить все действия."
+	},
+	"orgNotFoundMessage": {
+		"message": "Организация не найдена на GitHub."
+	},
+	"orgValidationErrorMessage": {
+		"message": "Ошибка при проверке организации."
+	},
+	"refreshingButton": {
+		"message": "Обновление..."
+	},
+	"cacheClearFailed": {
+		"message": "Не удалось очистить кэш."
+	},
+	"madeWithLoveBy": {
+		"message": "Made with ❤️ by"
+	},
+	"generatingButton": {
+		"message": "Создание..."
+	},
+	"copiedButton": {
+		"message": "Скопировано!"
+	},
+	"orgChangedMessage": {
+		"message": "Организация изменена. Нажмите 'Создать отчет', чтобы получить данные о действиях в GitHub."
+	},
+	"cacheClearedMessage": {
+		"message": "Кэш успешно очищен. Нажмите 'Создать отчет', чтобы получить свежие данные."
+	},
+	"cacheExpiredMessage": {
+		"message": "Кэш истёк. Нажмите \"Создать\", чтобы получить новые данные.",
+		"description": "Message shown when the cached data has expired and user needs to regenerate."
+	},
+	"cacheClearedButton": {
+		"message": "Кэш очищен!"
+	},
+	"extensionDisabledMessage": {
+		"message": "Расширение отключено. Включите его в настройках, чтобы создавать scrum-отчеты."
+	},
+	"notePoint1": {
+		"message": "Pull-реквесты извлекаются на основе последней активности по проверке любого участника, а не только вашей. Пожалуйста, просмотрите и скорректируйте сгенерированный отчет SCRUM, чтобы убедиться, что он точно отражает вашу работу, прежде чем делиться им."
+	},
+	"noteSeeIssue": {
+		"message": "Смотрите эту проблему"
+	},
+	"platformLabel": {
+		"message": "Платформа"
+	},
+	"usernameLabel": {
+		"message": "Ваше имя пользователя"
+	},
+	"usernameRequiredError": {
+		"message": "Пожалуйста, введите имя пользователя для создания отчета."
+	},
+	"unknownPlatformError": {
+		"message": "Выбрана неизвестная платформа."
+	},
+	"gitlabFetchingError": {
+		"message": "Произошла ошибка при получении данных GitLab."
+	},
+	"reportGenerationError": {
+		"message": "Произошла ошибка при создании отчета."
+	},
+	"githubUserNotFoundError": {
+		"message": "Пользователь GitHub \"$1\" не найден (404). Проверьте имя пользователя и попробуйте снова."
+	},
+	"githubUserValidationError": {
+		"message": "Ошибка при проверке пользователя GitHub: $1 $2"
+	},
+	"invalidSearchQueryError": {
+		"message": "Недопустимый поисковый запрос или диапазон дат. Проверьте формат и попробуйте снова."
+	},
+	"githubIssuesFetchError": {
+		"message": "Ошибка при получении задач GitHub: $1 $2"
+	},
+	"githubPRReviewFetchError": {
+		"message": "Ошибка при получении данных проверки PR GitHub: $1 $2"
+	},
+	"githubUserFetchError": {
+		"message": "Ошибка при получении данных пользователя GitHub: $1 $2"
+	},
+	"invalidTokenError": {
+		"message": "Недействительный или истекший токен GitHub. Проверьте токен в настройках Scrum Helper и попробуйте снова."
+	},
+	"displayModeNotice": {
+		"message": "Расширение откроется в режиме $1 при следующем запуске."
+	},
+	"repoFilteringGithubOnly": {
+		"message": "Фильтрация репозиториев доступна только для GitHub."
+	},
+	"repoLoadingGithubOnly": {
+		"message": "Загрузка репозиториев доступна только для GitHub."
+	},
+	"repoFetchingGithubOnly": {
+		"message": "Получение репозиториев доступно только для GitHub."
+	},
+	"loadingReposAutomatically": {
+		"message": "Репозитории загружаются автоматически..."
+	},
+	"gitlabUserFetchError": {
+		"message": "Ошибка при получении пользователя GitLab: $1 $2"
+	},
+	"gitlabUserNotFoundError": {
+		"message": "Пользователь GitLab '$1' не найден"
+	},
+	"gitlabMembershipError": {
+		"message": "Ошибка при получении проектов членства GitLab: $1 $2"
+	},
+	"gitlabContributedError": {
+		"message": "Ошибка при получении проектов с вкладом GitLab: $1 $2"
+	},
+	"onlyRevPRsLabel": {
+		"message": "Включить в отчет только проверенные PR"
+	},
+	"onlyRevPRsTooltip": {
+		"message": "Если отмечено, отчёт будет включать только PR, проверенные вами."
+	},
+	"usernameMissingError": {
+		"message": "Требуется имя пользователя."
+	},
+	"generateReportTooltip": {
+		"message": "Ctrl+G"
+	},
+	"copyReportTooltip": {
+		"message": "Ctrl+Shift+Y"
+	},
+	"generatingReportNotification": {
+		"message": "Создание отчёта..."
+	},
+	"copyingReportNotification": {
+		"message": "Копирование отчёта..."
+	},
+	"insertInEmailTooltip": {
+		"message": "Ctrl+Shift+M"
+	},
+	"insertingInEmailNotification": {
+		"message": "Вставка отчёта в письмо..."
+	},
+	"insertedInEmailNotification": {
+		"message": "Отчёт вставлен в письмо!"
+	},
+	"bitbucketTokenLabel": {
+		"message": "Your Bitbucket App Password",
+		"description": "Label for the Bitbucket app password input field."
+	},
+	"bitbucketTokenPlaceholder": {
+		"message": "username:app_password",
+		"description": "Placeholder for the Bitbucket app password input."
+	},
+	"bitbucketTokenTooltip": {
+		"message": "Required to access your pull requests and issues. Enter as username:app_password.",
+		"description": "Tooltip for Bitbucket app password."
+	},
+	"bitbucketUserFetchError": {
+		"message": "Error fetching Bitbucket user: $1 $2",
+		"description": "Error when fetching Bitbucket user fails. $1=status, $2=statusText"
+	},
+	"bitbucketUserNotFoundError": {
+		"message": "Bitbucket user '$1' not found.",
+		"description": "Error when Bitbucket user is not found. $1=username"
+	},
+	"bitbucketFetchingError": {
+		"message": "An error occurred while fetching Bitbucket data.",
+		"description": "Error shown when Bitbucket data fetch fails."
+	}
 }
