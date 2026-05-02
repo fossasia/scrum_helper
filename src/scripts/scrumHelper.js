@@ -1675,30 +1675,28 @@ ${blockerText}`;
 				isDraft = item.draft;
 			}
 
+			let startDateFilter;
+			let endDateFilter;
+			if (yesterdayContribution) {
+				const today = new Date();
+				const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+				startDateFilter = new Date(yesterday.toISOString().split('T')[0] + 'T00:00:00Z');
+				endDateFilter = new Date(today.toISOString().split('T')[0] + 'T23:59:59Z');
+			} else if (startingDate && endingDate) {
+				startDateFilter = new Date(startingDate + 'T00:00:00Z');
+				endDateFilter = new Date(endingDate + 'T23:59:59Z');
+			} else {
+				const today = new Date();
+				const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
+				startDateFilter = new Date(lastWeek.toISOString().split('T')[0] + 'T00:00:00Z');
+				endDateFilter = new Date(today.toISOString().split('T')[0] + 'T23:59:59Z');
+			}
+
 			if (isMR) {
 				// Platform-specific label
 				let prAction = '';
 
 				const prCreatedDate = new Date(item.created_at);
-
-				// Get the correct date range for filtering
-				let startDateFilter;
-				let endDateFilter;
-				if (yesterdayContribution) {
-					const today = new Date();
-					const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
-					startDateFilter = new Date(yesterday.toISOString().split('T')[0] + 'T00:00:00Z');
-					endDateFilter = new Date(today.toISOString().split('T')[0] + 'T23:59:59Z'); // Use yesterday for start and today for end
-				} else if (startingDate && endingDate) {
-					startDateFilter = new Date(startingDate + 'T00:00:00Z');
-					endDateFilter = new Date(endingDate + 'T23:59:59Z');
-				} else {
-					// Default to last 7 days if no date range is set
-					const today = new Date();
-					const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
-					startDateFilter = new Date(lastWeek.toISOString().split('T')[0] + 'T00:00:00Z');
-					endDateFilter = new Date(today.toISOString().split('T')[0] + 'T23:59:59Z');
-				}
 
 				const today = new Date();
 				today.setHours(0, 0, 0, 0);
@@ -1802,6 +1800,11 @@ ${blockerText}`;
 						(showOpenLabel ? ' ' + issue_opened_button : '') +
 						'&nbsp;&nbsp;</li>';
 					nextWeekArray.push(li2);
+				}
+
+				const issueUpdatedDate = new Date(item.updated_at);
+				if (issueUpdatedDate < startDateFilter || issueUpdatedDate > endDateFilter) {
+					continue;
 				}
 
 				const today = new Date();
