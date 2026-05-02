@@ -804,14 +804,19 @@ document.addEventListener('DOMContentLoaded', () => {
 			const tempDiv = document.createElement('div');
 			tempDiv.innerHTML = scrumReport.innerHTML;
 
-			// Strip background and background-color from all elements so the
-			// copied content pastes without the report container's background.
 			tempDiv.style.background = 'none';
 			tempDiv.style.backgroundColor = 'transparent';
 			tempDiv.querySelectorAll('*').forEach((el) => {
 				el.style.background = 'none';
 				el.style.backgroundColor = 'transparent';
 			});
+
+			const setButtonLabel = (iconClass, labelKey) => {
+				const icon = document.createElement('i');
+				icon.className = iconClass;
+				const label = document.createTextNode(` ${browser?.i18n.getMessage(labelKey)}`);
+				self.replaceChildren(icon, label);
+			};
 
 			const onCopySuccess = () => {
 				if (self._triggeredByShortcut) {
@@ -821,9 +826,9 @@ document.addEventListener('DOMContentLoaded', () => {
 							: 'copiedButton';
 					showShortcutNotification(notificationKey);
 				}
-				self.innerHTML = `<i class="fa fa-check"></i> ${browser?.i18n.getMessage('copiedButton')}`;
+				setButtonLabel('fa fa-check', 'copiedButton');
 				setTimeout(() => {
-					self.innerHTML = `<i class="fa fa-copy"></i> ${browser.i18n.getMessage('copyReportButton')}`;
+					setButtonLabel('fa fa-copy', 'copyReportButton');
 				}, 2000);
 				self._triggeredByShortcut = false;
 			};
@@ -834,15 +839,13 @@ document.addEventListener('DOMContentLoaded', () => {
 			};
 
 			if (navigator.clipboard && window.ClipboardItem) {
-				// Use the modern Clipboard API to write clean HTML and plain text.
 				const htmlBlob = new Blob([tempDiv.outerHTML], { type: 'text/html' });
-				const textBlob = new Blob([tempDiv.innerText], { type: 'text/plain' });
+				const textBlob = new Blob([tempDiv.textContent], { type: 'text/plain' });
 				navigator.clipboard
 					.write([new ClipboardItem({ 'text/html': htmlBlob, 'text/plain': textBlob })])
 					.then(onCopySuccess)
 					.catch(onCopyError);
 			} else {
-				// Fallback for browsers without Clipboard API support.
 				document.body.appendChild(tempDiv);
 				tempDiv.style.position = 'absolute';
 				tempDiv.style.left = '-9999px';
