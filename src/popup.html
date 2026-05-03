@@ -477,11 +477,14 @@
 
 								<!-- Selected Tags Container -->
 								<div id="selectedRepos"
-									class="mt-3 min-h-[32px] p-2 border-2 border-gray-200 bg-gray-50 rounded-xl">
-									<div class="flex flex-wrap gap-1" id="repoTags">
+									class="mt-3 min-h-[32px] overflow-y-auto p-2 border-2 border-gray-200 bg-gray-50 rounded-xl"
+									style="max-height: 120px;">
+
+									<div class="flex flex-wrap gap-2" id="repoTags">
 										<span class="text-xs text-gray-500 select-none" id="repoPlaceholder"
-											data-i18n="repoPlaceholder">No
-											repositories selected (all will be included)</span>
+											data-i18n="repoPlaceholder">
+											No repositories selected (all will be included)
+										</span>
 									</div>
 								</div>
 

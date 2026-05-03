@@ -1560,33 +1560,73 @@ document.addEventListener('DOMContentLoaded', () => {
 				return repo.name.toLowerCase().includes(query) || repo.description?.toLowerCase().includes(query);
 			});
 
-			if (filtered.length === 0) {
-				repoDropdown.innerHTML = `<div class="p-3 text-center text-gray-500 text-sm" style="padding-left: 10px; ">${browser.i18n.getMessage('repoNotFound')}</div>`;
-			} else {
-				repoDropdown.innerHTML = filtered
-					.slice(0, 10)
-					.map(
-						(repo) => `
-                    <div class="repository-dropdown-item" data-repo-name="${repo.fullName}">
-                        <div class="repo-name">
-                            <span>${repo.name}</span>
-                            ${repo.language ? `<span class="repo-language">${repo.language}</span>` : ''}
-                            ${repo.stars ? `<span class="repo-stars"><i class="fa fa-star"></i> ${repo.stars}</span>` : ''}
-                        </div>
-                        <div class="repo-info">
-                            ${repo.description ? `<span class="repo-desc">${repo.description.substring(0, 50)}${repo.description.length > 50 ? '...' : ''}</span>` : ''}
-                        </div>
-                    </div>
-                `,
-					)
-					.join('');
+			repoDropdown.innerHTML = '';
 
-				repoDropdown.querySelectorAll('.repository-dropdown-item').forEach((item) => {
+			if (filtered.length === 0) {
+				const notFound = document.createElement('div');
+				notFound.className = 'p-3 text-center text-gray-500 text-sm';
+				notFound.style.paddingLeft = '10px';
+				notFound.textContent = browser.i18n.getMessage('repoNotFound');
+				repoDropdown.appendChild(notFound);
+			} else {
+				const fragment = document.createDocumentFragment();
+				filtered.slice(0, 10).forEach((repo) => {
+					const item = document.createElement('div');
+					item.className = 'repository-dropdown-item';
+					item.dataset.repoName = repo.fullName;
+
+					// Repo Name Row
+					const nameRow = document.createElement('div');
+					nameRow.className = 'repo-name';
+					
+					const nameSpan = document.createElement('span');
+					nameSpan.textContent = repo.name;
+					nameRow.appendChild(nameSpan);
+
+					if (repo.language) {
+						const langSpan = document.createElement('span');
+						langSpan.className = 'repo-language';
+						langSpan.textContent = repo.language;
+						nameRow.appendChild(langSpan);
+					}
+
+					if (repo.stars) {
+						const starsSpan = document.createElement('span');
+						starsSpan.className = 'repo-stars';
+						
+						const starIcon = document.createElement('i');
+						starIcon.className = 'fa fa-star';
+						starsSpan.appendChild(starIcon);
+						starsSpan.appendChild(document.createTextNode(` ${repo.stars}`));
+						
+						nameRow.appendChild(starsSpan);
+					}
+
+					// Repo Info Row (Description)
+					const infoRow = document.createElement('div');
+					infoRow.className = 'repo-info';
+					
+					if (repo.description) {
+						const descSpan = document.createElement('span');
+						descSpan.className = 'repo-desc';
+						const desc = repo.description.length > 50 
+							? repo.description.substring(0, 50) + '...' 
+							: repo.description;
+						descSpan.textContent = desc;
+						infoRow.appendChild(descSpan);
+					}
+
+					item.appendChild(nameRow);
+					item.appendChild(infoRow);
+					
 					item.addEventListener('click', (e) => {
 						e.stopPropagation();
-						fnSelectedRepos(item.dataset.repoName);
+						fnSelectedRepos(repo.fullName);
 					});
+
+					fragment.appendChild(item);
 				});
+				repoDropdown.appendChild(fragment);
 			}
 			highlightedIndex = -1;
 			showDropdown();
@@ -1616,31 +1656,62 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 
 		function updateRepoDisplay() {
+			if (!repoTags) return;
+
+			// Clear container
+			repoTags.innerHTML = '';
+
 			if (selectedRepos.length === 0) {
-				repoTags.innerHTML = `<span class="text-xs text-gray-500 select-none" id="repoPlaceholder">${browser.i18n.getMessage('repoPlaceholder')}</span>`;
-				repoCount.textContent = browser.i18n.getMessage('repoCountNone');
+				const placeholder = document.createElement('span');
+				placeholder.className = 'text-xs text-gray-500 select-none';
+				placeholder.id = 'repoPlaceholder';
+				placeholder.textContent = browser.i18n.getMessage('repoPlaceholder');
+				repoTags.appendChild(placeholder);
+				
+				if (repoCount) {
+					repoCount.textContent = browser.i18n.getMessage('repoCountNone');
+				}
 			} else {
-				repoTags.innerHTML = selectedRepos
-					.map((repoFullName) => {
-						const repoName = repoFullName.split('/')[1] || repoFullName;
-						return `
-                        <span class="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full" style="margin:5px;">
-                            ${repoName}
-                            <button type="button" class="ml-1 text-blue-600 hover:text-blue-800 remove-repo-btn cursor-pointer" data-repo-name="${repoFullName}">
-                                <i class="fa fa-times"></i>
-                            </button>
-                        </span>
-                    `;
-					})
-					.join(' ');
-				repoTags.querySelectorAll('.remove-repo-btn').forEach((btn) => {
-					btn.addEventListener('click', (e) => {
+				const fragment = document.createDocumentFragment();
+
+				selectedRepos.forEach((repoFullName) => {
+					// Extract repo name from owner/repo
+					const repoName = repoFullName.includes('/') ? repoFullName.split('/')[1] : repoFullName;
+					
+					// Use existing .repository-tag class from index.css for consistency
+					const tag = document.createElement('span');
+					tag.className = 'repository-tag'; 
+					
+					// Text container with truncation handled by .repo-name css
+					const nameSpan = document.createElement('span');
+					nameSpan.className = 'repo-name';
+					nameSpan.textContent = repoName; // XSS Safe
+					nameSpan.title = repoFullName; // Accessibility: show full name on hover
+					
+					// Remove button using existing .remove-tag css
+					const removeBtn = document.createElement('button');
+					removeBtn.type = 'button';
+					removeBtn.className = 'remove-tag remove-repo-btn';
+					
+					const removeIcon = document.createElement('i');
+					removeIcon.className = 'fa fa-times';
+					removeBtn.appendChild(removeIcon);
+					
+					removeBtn.addEventListener('click', (e) => {
 						e.stopPropagation();
-						const repoFullName = btn.dataset.repoName;
 						removeRepo(repoFullName);
 					});
+					
+					tag.appendChild(nameSpan);
+					tag.appendChild(removeBtn);
+					fragment.appendChild(tag);
 				});
-				repoCount.textContent = browser.i18n.getMessage('repoCount', [selectedRepos.length]);
+
+				repoTags.appendChild(fragment);
+
+				if (repoCount) {
+					repoCount.textContent = browser.i18n.getMessage('repoCount', [selectedRepos.length]);
+				}
 			}
 		}
 
