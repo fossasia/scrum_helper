@@ -436,5 +436,29 @@
   "insertedInEmailNotification": {
     "message": "Report inserted into email!",
     "description": "Notification shown when report is successfully inserted into email."
+  },
+  "quickSelectionLabel": {
+    "message": "Quick Selection",
+    "description": "Label for the timeline quick selection feature."
+  },
+  "presetToday": {
+    "message": "Today",
+    "description": "Text for the 'Today' preset button."
+  },
+  "presetYesterday": {
+    "message": "Yesterday",
+    "description": "Text for the 'Yesterday' preset button."
+  },
+  "preset7d": {
+    "message": "7D",
+    "description": "Text for the 'Last 7 Days' preset button."
+  },
+  "preset14d": {
+    "message": "14D",
+    "description": "Text for the 'Last 14 Days' preset button."
+  },
+  "presetThisWeek": {
+    "message": "This Week",
+    "description": "Text for the 'This Week' preset button."
   }
 }
