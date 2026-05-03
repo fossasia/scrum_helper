@@ -208,6 +208,61 @@
 									data-i18n="last1DayLabel">Previous Day</label>
 							</div>
 						</div>
+
+						<!-- Exact UI Implementation from Reference Image -->
+						<!-- Premium Timeline Range Selector -->
+<div id="timelineContainer" class="timeline-wrapper">
+    <div class="timeline-header">
+        <h3 class="timeline-title">Timeline</h3>
+        <p class="timeline-subtitle">
+            Drag the handles to select your date range (up to 14 days)
+        </p>
+    </div>
+
+    <div class="timeline-stage">
+
+        <!-- top labels -->
+        <div id="timelineTopLabels" class="timeline-top-labels"></div>
+
+        <!-- track -->
+        <div id="timelineTrack" class="timeline-track">
+
+            <div id="timelineInactiveTrack" class="timeline-track-base"></div>
+
+            <div id="timelineHighlight" class="timeline-track-active"></div>
+
+            <div id="timelineDots" class="timeline-dots"></div>
+
+            <button
+                id="handleStart"
+                class="timeline-handle"
+                aria-label="Start date"
+            ></button>
+
+            <button
+                id="handleEnd"
+                class="timeline-handle"
+                aria-label="End date"
+            ></button>
+
+            <div id="timelineInteractionOverlay" class="timeline-overlay"></div>
+        </div>
+
+        <!-- bottom labels -->
+        <div class="timeline-bottom-labels">
+            <span>14d ago</span>
+            <span>Today</span>
+        </div>
+    </div>
+
+    <div class="timeline-range-wrapper">
+        <div id="timelineRangeCard" class="timeline-range-card">
+            <i class="fa fa-calendar"></i>
+
+            <span id="timelineRangeValue"></span>
+        </div>
+    </div>
+</div>
 					</div>
 
 					<details class="group mb-4" style="margin-top: 1rem;">
@@ -620,6 +675,7 @@
 	<script src="scripts/main.js"></script>
 	<script src="scripts/gitlabHelper.js"></script>
 	<script src="scripts/scrumHelper.js"></script>
+	<script src="scripts/timeline.js"></script>
 	<script src="scripts/popup.js"></script>
 </body>
 
