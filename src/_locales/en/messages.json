@@ -201,6 +201,10 @@
     "message": "$1 repositories selected",
     "description": "Text showing the count of selected repositories. $1 is a placeholder for the number."
   },
+  "clearAllBtn": {
+    "message": "Clear All",
+    "description": "Clear all selected repositories."
+  },
   "repoLoading": {
     "message": "Loading repositories...",
     "description": "Status message when repositories are being loaded."

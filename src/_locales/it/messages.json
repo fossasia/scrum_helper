@@ -150,6 +150,9 @@
     "repoCount": {
         "message": "$1 repository selezionati"
     },
+    "clearAllBtn": {
+        "message": "Cancella tutto"
+    },
     "repoLoading": {
         "message": "Caricamento repository..."
     },
