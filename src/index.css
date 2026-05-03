@@ -566,7 +566,7 @@ hr,
 }
 
 .repository-dropdown-item {
-    padding: 10px 16px;
+    padding: 10px 26px;
     cursor: pointer;
     border-bottom: 1px solid #e5e7eb;
     transition: all 0.15s ease;
@@ -651,6 +651,7 @@ hr,
     color: #6b7280;
     line-height: 1.4;
     margin-top: 1px;
+    margin-left: 20px;
 }
 
 @keyframes tagSlideIn {
