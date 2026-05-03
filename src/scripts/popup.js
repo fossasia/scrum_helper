@@ -1497,6 +1497,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				notFound.textContent = browser.i18n.getMessage('repoNotFound');
 				repoDropdown.appendChild(notFound);
 			} else {
+				const fragment = document.createDocumentFragment();
 				filtered.slice(0, 10).forEach((repo) => {
 					const item = document.createElement('div');
 					item.className = 'repository-dropdown-item';
@@ -1520,7 +1521,12 @@ document.addEventListener('DOMContentLoaded', () => {
 					if (repo.stars) {
 						const starsSpan = document.createElement('span');
 						starsSpan.className = 'repo-stars';
-						starsSpan.innerHTML = `<i class="fa fa-star"></i> ${repo.stars}`; // Stars is a number, icon is static
+						
+						const starIcon = document.createElement('i');
+						starIcon.className = 'fa fa-star';
+						starsSpan.appendChild(starIcon);
+						starsSpan.appendChild(document.createTextNode(` ${repo.stars}`));
+						
 						nameRow.appendChild(starsSpan);
 					}
 
@@ -1546,8 +1552,9 @@ document.addEventListener('DOMContentLoaded', () => {
 						fnSelectedRepos(repo.fullName);
 					});
 
-					repoDropdown.appendChild(item);
+					fragment.appendChild(item);
 				});
+				repoDropdown.appendChild(fragment);
 			}
 			highlightedIndex = -1;
 			showDropdown();
@@ -1593,6 +1600,8 @@ document.addEventListener('DOMContentLoaded', () => {
 					repoCount.textContent = browser.i18n.getMessage('repoCountNone');
 				}
 			} else {
+				const fragment = document.createDocumentFragment();
+
 				selectedRepos.forEach((repoFullName) => {
 					// Extract repo name from owner/repo
 					const repoName = repoFullName.includes('/') ? repoFullName.split('/')[1] : repoFullName;
@@ -1605,12 +1614,16 @@ document.addEventListener('DOMContentLoaded', () => {
 					const nameSpan = document.createElement('span');
 					nameSpan.className = 'repo-name';
 					nameSpan.textContent = repoName; // XSS Safe
+					nameSpan.title = repoFullName; // Accessibility: show full name on hover
 					
 					// Remove button using existing .remove-tag css
 					const removeBtn = document.createElement('button');
 					removeBtn.type = 'button';
 					removeBtn.className = 'remove-tag remove-repo-btn';
-					removeBtn.innerHTML = '<i class="fa fa-times"></i>';
+					
+					const removeIcon = document.createElement('i');
+					removeIcon.className = 'fa fa-times';
+					removeBtn.appendChild(removeIcon);
 					
 					removeBtn.addEventListener('click', (e) => {
 						e.stopPropagation();
@@ -1619,8 +1632,10 @@ document.addEventListener('DOMContentLoaded', () => {
 					
 					tag.appendChild(nameSpan);
 					tag.appendChild(removeBtn);
-					repoTags.appendChild(tag);
+					fragment.appendChild(tag);
 				});
+
+				repoTags.appendChild(fragment);
 
 				if (repoCount) {
 					repoCount.textContent = browser.i18n.getMessage('repoCount', [selectedRepos.length]);

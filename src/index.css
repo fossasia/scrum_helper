@@ -489,7 +489,7 @@ hr,
     font-size: 11px;
     margin: 2px;
     animation: tagSlideIn 0.2s ease-out;
-    max-width: 200px;
+    max-width: 100%;
 }
 
 .repository-tag .repo-name {
@@ -937,7 +937,7 @@ body.mode-popup {
     font-weight: 500;
     border-radius: 6px;
     white-space: nowrap;
-    pointer-events: none;
+
     transition: opacity 0.2s ease, visibility 0.2s ease;
     z-index: 10000;
 }
