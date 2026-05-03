@@ -198,7 +198,8 @@
     "description": "Text showing the count of selected repositories. $1 is a placeholder for the number."
   },
   "clearAllBtn": {
-    "message": "Clear All"
+    "message": "Clear All",
+    "description": "Clear all selected repositories."
   },
   "repoLoading": {
     "message": "Loading repositories...",
