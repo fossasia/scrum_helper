@@ -1545,48 +1545,114 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		function filterAndDisplayRepos(query) {
 			if (availableRepos.length === 0) {
-				repoDropdown.innerHTML = `<div class="p-3 text-center text-gray-500 text-sm">${browser.i18n.getMessage('repoLoading')}</div>`;
+				const loadingMsg = document.createElement('div');
+				loadingMsg.className = 'p-3 text-center text-gray-500 text-sm';
+				loadingMsg.textContent = browser.i18n.getMessage('repoLoading');
+				repoDropdown.replaceChildren(loadingMsg);
 				showDropdown();
 				return;
 			}
 
+			// Requirement: Include selected repositories in the list, but they must be unique.
+			// Requirement: Sort alphabetically.
 			const filtered = availableRepos.filter((repo) => {
-				if (selectedRepos.includes(repo.fullName)) {
-					return false;
-				}
-				if (!query) {
-					return true;
-				}
-				return repo.name.toLowerCase().includes(query) || repo.description?.toLowerCase().includes(query);
+				if (!query) return true;
+				const lowerQuery = query.toLowerCase();
+				return (
+					repo.name.toLowerCase().includes(lowerQuery) ||
+					repo.description?.toLowerCase().includes(lowerQuery) ||
+					repo.fullName.toLowerCase().includes(lowerQuery)
+				);
 			});
 
 			if (filtered.length === 0) {
-				repoDropdown.innerHTML = `<div class="p-3 text-center text-gray-500 text-sm" style="padding-left: 10px; ">${browser.i18n.getMessage('repoNotFound')}</div>`;
+				const noMatch = document.createElement('div');
+				noMatch.className = 'p-3 text-center text-gray-500 text-sm';
+				noMatch.textContent = browser.i18n.getMessage('repoNotFound');
+				repoDropdown.replaceChildren(noMatch);
 			} else {
-				repoDropdown.innerHTML = filtered
-					.slice(0, 10)
-					.map(
-						(repo) => `
-                    <div class="repository-dropdown-item" data-repo-name="${repo.fullName}">
-                        <div class="repo-name">
-                            <span>${repo.name}</span>
-                            ${repo.language ? `<span class="repo-language">${repo.language}</span>` : ''}
-                            ${repo.stars ? `<span class="repo-stars"><i class="fa fa-star"></i> ${repo.stars}</span>` : ''}
-                        </div>
-                        <div class="repo-info">
-                            ${repo.description ? `<span class="repo-desc">${repo.description.substring(0, 50)}${repo.description.length > 50 ? '...' : ''}</span>` : ''}
-                        </div>
-                    </div>
-                `,
-					)
-					.join('');
+				// Requirement 1: Group by owner/organization
+				const groups = {};
+				// Requirement 10: Result limiting (let's say 25 for better scalability but keeping it reasonable)
+				const limit = 25;
+				const displayList = filtered.slice(0, limit);
 
-				repoDropdown.querySelectorAll('.repository-dropdown-item').forEach((item) => {
-					item.addEventListener('click', (e) => {
-						e.stopPropagation();
-						fnSelectedRepos(item.dataset.repoName);
+				displayList.forEach((repo) => {
+					const [owner] = repo.fullName.split('/');
+					if (!groups[owner]) groups[owner] = [];
+					groups[owner].push(repo);
+				});
+
+				// Sort owners alphabetically
+				const sortedOwners = Object.keys(groups).sort((a, b) => a.localeCompare(b));
+
+				const fragment = document.createDocumentFragment();
+
+				sortedOwners.forEach((owner) => {
+					// Group Header
+					const header = document.createElement('div');
+					header.className = 'repository-group-header';
+					header.textContent = owner + '/';
+					fragment.appendChild(header);
+
+					// Sort repos in group alphabetically
+					const sortedRepos = groups[owner].sort((a, b) => a.name.localeCompare(b.name));
+
+					sortedRepos.forEach((repo) => {
+						const isSelected = selectedRepos.includes(repo.fullName);
+						const item = document.createElement('div');
+						item.className = 'repository-dropdown-item';
+						if (isSelected) item.classList.add('selected');
+						item.dataset.repoName = repo.fullName;
+
+						// Accessibility
+						item.title = repo.fullName;
+
+						const repoHeader = document.createElement('div');
+						repoHeader.className = 'repo-header';
+
+						const repoMain = document.createElement('div');
+						repoMain.className = 'repo-main';
+
+						// Selected Checkmark (Requirement 3 & 4)
+						const checkIcon = document.createElement('i');
+						checkIcon.className = 'fa fa-check selected-check';
+						repoMain.appendChild(checkIcon);
+
+						const nameText = document.createElement('span');
+						nameText.className = 'repo-name-text';
+						nameText.textContent = repo.name;
+						repoMain.appendChild(nameText);
+
+						// Language Badge
+						if (repo.language) {
+							const badge = document.createElement('span');
+							badge.className = 'repo-language';
+							badge.textContent = repo.language;
+							repoMain.appendChild(badge);
+						}
+
+						repoHeader.appendChild(repoMain);
+						item.appendChild(repoHeader);
+
+						// Description (Requirement 6)
+						if (repo.description) {
+							const desc = document.createElement('div');
+							desc.className = 'repo-desc line-clamp-2';
+							desc.textContent = repo.description;
+							item.appendChild(desc);
+						}
+
+						item.addEventListener('click', (e) => {
+							e.stopPropagation();
+							fnSelectedRepos(repo.fullName);
+						});
+
+						fragment.appendChild(item);
 					});
 				});
+
+				repoDropdown.replaceChildren(fragment);
 			}
 			highlightedIndex = -1;
 			showDropdown();
@@ -1597,10 +1663,17 @@ document.addEventListener('DOMContentLoaded', () => {
 				selectedRepos.push(repoFullName);
 				updateRepoDisplay();
 				saveRepoSelection();
+			} else {
+				// If already selected, maybe we toggle or just keep it. 
+				// Requirement says "duplicate selection must be prevented safely"
+				// and "clicking selected repos should not duplicate entries".
+				// Usually in a multi-select it toggles, but here we have remove buttons in tags.
+				// Let's make it toggle for better UX if they click again in the dropdown.
+				removeRepo(repoFullName);
 			}
 
-			repoSearch.value = '';
-			filterAndDisplayRepos('');
+			// Keep dropdown open and update UI
+			filterAndDisplayRepos(repoSearch.value);
 			programmaticFocus = true;
 			repoSearch.focus();
 		}
@@ -1610,36 +1683,52 @@ document.addEventListener('DOMContentLoaded', () => {
 			updateRepoDisplay();
 			saveRepoSelection();
 
-			if (repoSearch.value) {
-				filterAndDisplayRepos(repoSearch.value.toLowerCase());
+			// Update dropdown state if it's open
+			if (!repoDropdown.classList.contains('hidden')) {
+				filterAndDisplayRepos(repoSearch.value);
 			}
 		}
 
 		function updateRepoDisplay() {
+			repoTags.replaceChildren();
+
 			if (selectedRepos.length === 0) {
-				repoTags.innerHTML = `<span class="text-xs text-gray-500 select-none" id="repoPlaceholder">${browser.i18n.getMessage('repoPlaceholder')}</span>`;
+				const placeholder = document.createElement('span');
+				placeholder.className = 'text-xs text-gray-500 select-none';
+				placeholder.id = 'repoPlaceholder';
+				placeholder.textContent = browser.i18n.getMessage('repoPlaceholder');
+				repoTags.appendChild(placeholder);
 				repoCount.textContent = browser.i18n.getMessage('repoCountNone');
 			} else {
-				repoTags.innerHTML = selectedRepos
-					.map((repoFullName) => {
-						const repoName = repoFullName.split('/')[1] || repoFullName;
-						return `
-                        <span class="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full" style="margin:5px;">
-                            ${repoName}
-                            <button type="button" class="ml-1 text-blue-600 hover:text-blue-800 remove-repo-btn cursor-pointer" data-repo-name="${repoFullName}">
-                                <i class="fa fa-times"></i>
-                            </button>
-                        </span>
-                    `;
-					})
-					.join(' ');
-				repoTags.querySelectorAll('.remove-repo-btn').forEach((btn) => {
-					btn.addEventListener('click', (e) => {
+				const fragment = document.createDocumentFragment();
+
+				selectedRepos.forEach((repoFullName) => {
+					const repoName = repoFullName.split('/')[1] || repoFullName;
+					
+					const tag = document.createElement('span');
+					tag.className = 'inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full';
+					tag.style.margin = '5px';
+					tag.textContent = repoName;
+
+					const removeBtn = document.createElement('button');
+					removeBtn.type = 'button';
+					removeBtn.className = 'ml-1 text-blue-600 hover:text-blue-800 remove-repo-btn cursor-pointer';
+					removeBtn.dataset.repoName = repoFullName;
+					
+					const crossIcon = document.createElement('i');
+					crossIcon.className = 'fa fa-times';
+					removeBtn.appendChild(crossIcon);
+
+					removeBtn.addEventListener('click', (e) => {
 						e.stopPropagation();
-						const repoFullName = btn.dataset.repoName;
 						removeRepo(repoFullName);
 					});
+
+					tag.appendChild(removeBtn);
+					fragment.appendChild(tag);
 				});
+
+				repoTags.appendChild(fragment);
 				repoCount.textContent = browser.i18n.getMessage('repoCount', [selectedRepos.length]);
 			}
 		}

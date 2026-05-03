@@ -448,6 +448,29 @@ hr,
     }
 }
 
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.repository-group-header {
+    padding: 14px 16px 6px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #2563eb;
+    background-color: transparent;
+    pointer-events: none;
+    border-bottom: none;
+}
+
+.dark-mode .repository-group-header {
+    background-color: transparent;
+    color: #60a5fa;
+}
+
 .shake-animation {
     animation: shake 0.82s cubic-bezier(.36, .07, .19, .97) both;
 }
@@ -535,55 +558,99 @@ hr,
     color: #fef2f2;
 }
 
+#repoDropdown {
+    z-index: 1000 !important;
+    max-height: 320px !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain !important;
+}
+
 .repository-dropdown-item {
-    padding: 8px 12px;
+    padding: 10px 16px;
     cursor: pointer;
-    border-bottom: 1px solid #f3f4f6;
-    transition: background-color 0.15s ease;
+    border-bottom: 1px solid #e5e7eb;
+    transition: all 0.15s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.repository-dropdown-item .repo-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.repository-dropdown-item .repo-main {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
+}
+
+.repository-dropdown-item .repo-name-text {
+    font-weight: 600;
+    color: #111827;
+    font-size: 13.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dark-mode .repository-dropdown-item .repo-name-text {
+    color: #f3f4f6;
+}
+
+.repository-dropdown-item .selected-check {
+    color: #111827;
+    font-size: 13px;
+    opacity: 0;
+    transition: all 0.2s ease;
+    transform: scale(0.5);
+}
+
+.repository-dropdown-item.selected .selected-check {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.dark-mode .repository-dropdown-item .selected-check {
+    color: #f3f4f6;
 }
 
 .repository-dropdown-item:hover,
 .repository-dropdown-item.highlighted {
-    background-color: #f3f4f6;
+    background-color: #f9fafb;
 }
 
-.repository-dropdown-item:last-child {
-    border-bottom: none;
+.dark-mode .repository-dropdown-item:hover,
+.dark-mode .repository-dropdown-item.highlighted {
+    background-color: #262626;
 }
 
-.repository-dropdown-item .repo-name {
-    font-weight: 500;
-    color: #1f2937;
-    font-size: 13px;
+.repository-dropdown-item.selected {
+    background-color: transparent;
 }
 
-.repository-dropdown-item .repo-info {
-    font-size: 11px;
+.repository-dropdown-item.selected:hover {
+    background-color: #f9fafb;
+}
+
+.dark-mode .repository-dropdown-item.selected {
+    background-color: transparent;
+}
+
+.dark-mode .repository-dropdown-item.selected:hover {
+    background-color: #262626;
+}
+
+.repository-dropdown-item .repo-desc {
+    font-size: 11.5px;
     color: #6b7280;
-    margin-top: 2px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.repository-dropdown-item .repo-language {
-    display: inline-block;
-    background: #e5e7eb;
-    color: #374151;
-    padding: 1px 6px;
-    border-radius: 8px;
-    font-size: 10px;
-}
-
-.repository-dropdown-item .repo-stars {
-    display: flex;
-    align-items: center;
-    gap: 2px;
-    font-size: 10px;
-}
-
-#repoDropdown {
-    z-index: 1000 !important;
+    line-height: 1.4;
+    margin-top: 1px;
 }
 
 @keyframes tagSlideIn {
@@ -646,11 +713,27 @@ hr,
     font-weight: 500;
 }
 
-.repo-language,
+.repo-language {
+    display: inline-flex;
+    align-items: center;
+    font-size: 10px;
+    color: #4b5563;
+    background-color: #e5e7eb;
+    padding: 2px 8px;
+    border-radius: 9999px;
+    margin-left: 4px;
+    font-weight: 500;
+}
+
+.dark-mode .repo-language {
+    background-color: #4b5563;
+    color: #e5e7eb;
+}
+
 .repo-stars {
     display: inline-flex;
     align-items: center;
-    font-size: 0.75rem;
+    font-size: 11px;
     color: #666;
     margin-left: 5px;
 }
