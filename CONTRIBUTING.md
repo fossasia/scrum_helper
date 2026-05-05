@@ -139,3 +139,8 @@ If you want to share your translation with others:
 - We recommend double-checking your translations for accuracy and clarity.
 
 For more details, see the [Chrome i18n documentation](https://developer.chrome.com/docs/extensions/reference/i18n/)
+
+## Avoiding Duplicate Issues and Pull Requests
+
+- **Issues:** We encourage you to open new issues, but before doing so please search existing open and closed issues and pull requests to avoid duplication. If an existing issue already describes the problem, add any new details or a comment (or a +1 reaction) and, if you plan to work on it, mention that in the thread.
+- **Pull Requests:** Before opening a pull request, check open PRs for the same change. If a PR already exists addressing the same issue, comment on or collaborate in that PR instead of creating a duplicate. If you accidentally open a duplicate PR, please close it and reference the original PR with a brief note.
