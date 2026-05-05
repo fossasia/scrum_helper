@@ -585,9 +585,10 @@ function allIncluded(outputTarget = 'email') {
 			Accept: 'application/vnd.github.v3+json',
 		};
 
-		if (githubToken) {
+		const normalizedGithubToken = githubToken?.trim();
+		if (normalizedGithubToken) {
 			log('Making authenticated requests.');
-			headers.Authorization = `token ${githubToken}`;
+			headers.Authorization = `token ${normalizedGithubToken}`;
 		} else {
 			log('Making public requests');
 		}
@@ -870,11 +871,12 @@ function allIncluded(outputTarget = 'email') {
 			.join('\n');
 		const query = `query { ${queries} }`;
 		log('GraphQL query for commits:', query);
+		const normalizedGithubToken = githubToken?.trim();
 		const res = await fetch('https://api.github.com/graphql', {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				...(githubToken ? { Authorization: `bearer ${githubToken}` } : {}),
+				...(normalizedGithubToken ? { Authorization: `bearer ${normalizedGithubToken}` } : {}),
 			},
 			body: JSON.stringify({ query }),
 		});
@@ -909,7 +911,8 @@ function allIncluded(outputTarget = 'email') {
 			log('Repo fiter disabled, skipping fetch');
 			return [];
 		}
-		const repoCacheKey = `repos-${platformUsernameLocal}-${orgName}-${startDateForCache}-${endDateForCache}`;
+		const tokenFingerprint = await getGithubTokenFingerprint(githubToken);
+		const repoCacheKey = `repos-${platformUsernameLocal}-${orgName}-${startDateForCache}-${endDateForCache}-${tokenFingerprint}`;
 
 		const now = Date.now();
 		const isRepoCacheFresh = now - githubCache.repoTimeStamp < githubCache.ttl;
