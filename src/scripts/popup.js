@@ -1033,12 +1033,13 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 		githubTokenInput.addEventListener('input', () => {
 			const nextTokenNormalized = githubTokenInput.value.trim();
-			const shouldInvalidateRepoCache = previousGithubTokenNormalized !== nextTokenNormalized;
+			const shouldInvalidateCaches = previousGithubTokenNormalized !== nextTokenNormalized;
 			previousGithubTokenNormalized = nextTokenNormalized;
 
 			const payload = { githubToken: nextTokenNormalized };
-			if (shouldInvalidateRepoCache) {
+			if (shouldInvalidateCaches) {
 				payload.repoCache = null;
+				payload.githubCache = null;
 			}
 			browser.storage.local.set(payload);
 		});
