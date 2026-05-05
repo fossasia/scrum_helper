@@ -25,6 +25,8 @@ This document provides guidelines for contributing to the project. Please feel f
     npm install
     ```
 
+    This also installs the project's Husky Git hooks for your local clone. The hooks run `npm run format` before commits and `npm run format:check` before pushes.
+
 3.  **Build the Extension**
 
     Because Chromium and Gecko browsers parse Manifest V3 slightly differently, the extension needs to be built to generate specific assets for each browser context.
@@ -69,6 +71,9 @@ This document provides guidelines for contributing to the project. Please feel f
 
     # Auto-format your code
     npm run format
+
+    # Check code formatting without writing changes
+    npm run format:check
 
     # Check for any linting or formatting issues
     npm run check

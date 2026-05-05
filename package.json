@@ -7,8 +7,10 @@
     "url": "git+https://github.com/fossasia/scrum_helper.git"
   },
   "scripts": {
+    "prepare": "husky",
     "lint": "biome lint .",
     "format": "biome format --write .",
+    "format:check": "biome format .",
     "check": "biome check .",
     "fix": "biome lint --write .",
     "check:write": "biome check --write .",
@@ -28,6 +30,7 @@
   "devDependencies": {
     "@biomejs/biome": "2.4.11",
     "autoprefixer": "^10.5.0",
+    "husky": "^9.1.7",
     "postcss": "^8.5.10",
     "tailwindcss": "^4.2.2"
   },

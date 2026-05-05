@@ -1,0 +1,6 @@
+npm run format
+
+if ! git diff --quiet; then
+	echo "Biome formatted files. Review and stage the updates, then commit again."
+	exit 1
+fi
