@@ -1729,14 +1729,14 @@ ${blockerText}`;
 					prAction = isNewPR ? 'Made PR' : 'Updated PR';
 					log(`[PR DEBUG] Including PR #${number} as ${prAction}`);
 
-					if (isCreatedToday && item.State === 'open') {
+					if (isCreatedToday && item.state === 'open') {
 						prAction = 'Made PR';
 					} else {
 						prAction = 'Updated PR';
 					}
 				} else if (platform === 'gitlab') {
 					prAction = isNewPR ? 'Made Merge Request' : 'Updated Merge Request';
-					if (isCreatedToday && item.State === 'open') {
+					if (isCreatedToday && item.state === 'opened') {
 						prAction = 'Made Merge Request';
 					} else {
 						prAction = 'Updated Merge Request';
