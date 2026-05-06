@@ -799,19 +799,35 @@ document.addEventListener('DOMContentLoaded', () => {
 		copyBtn.addEventListener('click', function () {
 			const scrumReport = document.getElementById('scrumReport');
 			const tempDiv = document.createElement('div');
+
 			tempDiv.innerHTML = scrumReport.innerHTML;
+
+			//remove background styles
+			tempDiv.querySelectorAll('*').forEach(el => {
+				const text = el.textContent?.trim().toLowerCase();
+
+				
+				if (text === 'open' || text === 'closed') {
+					return;
+				}
+
+				el.style.backgroundColor = 'transparent';
+				el.style.background = 'transparent';
+			});
 			document.body.appendChild(tempDiv);
 			tempDiv.style.position = 'absolute';
 			tempDiv.style.left = '-9999px';
 
 			const range = document.createRange();
 			range.selectNode(tempDiv);
+
 			const selection = window.getSelection();
 			selection.removeAllRanges();
 			selection.addRange(range);
 
 			try {
 				document.execCommand('copy');
+
 				if (this._triggeredByShortcut) {
 					const notificationKey =
 						browser?.i18n && browser.i18n.getMessage('copiedReportNotification')
@@ -819,10 +835,12 @@ document.addEventListener('DOMContentLoaded', () => {
 							: 'copiedButton';
 					showShortcutNotification(notificationKey);
 				}
+
 				this.innerHTML = `<i class="fa fa-check"></i> ${browser?.i18n.getMessage('copiedButton')}`;
 				setTimeout(() => {
 					this.innerHTML = `<i class="fa fa-copy"></i> ${browser.i18n.getMessage('copyReportButton')}`;
 				}, 2000);
+
 			} catch (err) {
 				console.error('Failed to copy: ', err);
 			} finally {
@@ -831,7 +849,6 @@ document.addEventListener('DOMContentLoaded', () => {
 				document.body.removeChild(tempDiv);
 			}
 		});
-
 		// Custom date container click handler
 		document.getElementById('customDateContainer').addEventListener('click', () => {
 			document.querySelectorAll('input[name="timeframe"]').forEach((radio) => {
