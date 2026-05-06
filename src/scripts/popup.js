@@ -90,6 +90,72 @@ function getYesterday() {
 	return yesterday.toISOString().split('T')[0];
 }
 
+// Set blocker message for default and empty string state
+const DEFAULT_BLOCKER_REASON = 'No Blocker at the moment';
+
+function normalizeBlockerReason(value) {
+	const normalized = typeof value === 'string' ? value.trim() : '';
+	return normalized || DEFAULT_BLOCKER_REASON;
+}
+
+// Use last bold heading as the anchor to read or write only that part
+function getBlockerHeading(reportEl) {
+	if (!reportEl) {
+		return null;
+	}
+
+	const headings = reportEl.querySelectorAll('b');
+	return headings.length > 0 ? headings[headings.length - 1] : null;
+}
+
+function extractBlockerReasonFromReport(reportEl) {
+	const blockerHeading = getBlockerHeading(reportEl);
+	if (!blockerHeading) {
+		return null;
+	}
+
+	const parts = [];
+	let currentNode = blockerHeading.nextSibling;
+
+	while (currentNode) {
+		if (currentNode.nodeType === Node.TEXT_NODE) {
+			const text = currentNode.textContent.trim();
+			if (text) {
+				parts.push(text);
+			}
+		} else if (currentNode.nodeName !== 'BR') {
+			const text = currentNode.textContent.trim();
+			if (text) {
+				parts.push(text);
+			}
+		}
+
+		currentNode = currentNode.nextSibling;
+	}
+
+	return parts.join('\n').trim();
+}
+
+function applyBlockerReasonToReport(reportEl, blockerReason) {
+	const blockerHeading = getBlockerHeading(reportEl);
+	if (!blockerHeading) {
+		return false;
+	}
+
+	let currentNode = blockerHeading.nextSibling;
+	while (currentNode) {
+		const nextNode = currentNode.nextSibling;
+		currentNode.remove();
+		currentNode = nextNode;
+	}
+
+	reportEl.appendChild(document.createElement('br'));
+	const blockerSpan = document.createElement('span');
+	blockerSpan.textContent = normalizeBlockerReason(blockerReason);
+	reportEl.appendChild(blockerSpan);
+	return true;
+}
+
 function applyI18n() {
 	document.querySelectorAll('[data-i18n]').forEach((el) => {
 		const key = el.getAttribute('data-i18n');
@@ -538,6 +604,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				`${activePlatform}LastScrumReportHtml`,
 				`${activePlatform}LastScrumReportCacheKey`,
 				`${activePlatform}LastScrumReportUsername`,
+				'userReason',
 				'lastScrumReportHtml',
 				'lastScrumReportPlatform',
 				'lastScrumReportCacheKey',
@@ -578,6 +645,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 				if (reportEmpty && lastScrumReportHtml && matches) {
 					scrumReport.innerHTML = lastScrumReportHtml;
+					applyBlockerReasonToReport(scrumReport, storageValues.userReason);
 					if (generateBtn) generateBtn.disabled = false;
 					return;
 				}
@@ -590,6 +658,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			// If cache is expired, still only show the old HTML if it was for the current username
 			if ((!scrumReport.innerHTML || !scrumReport.innerHTML.trim()) && lastScrumReportHtml && isUsernameMatch) {
 				scrumReport.innerHTML = lastScrumReportHtml;
+				applyBlockerReasonToReport(scrumReport, storageValues.userReason);
 			}
 
 			if (generateBtn) generateBtn.disabled = false;
@@ -653,7 +722,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			.then((result) => {
 				if (result.projectName) projectNameInput.value = result.projectName;
 				if (result.orgName) orgInput.value = result.orgName;
-				if (result.userReason) userReasonInput.value = result.userReason;
+				if (userReasonInput && result.userReason) userReasonInput.value = result.userReason;
 				if (typeof result.showOpenLabel !== 'undefined') {
 					showOpenLabelCheckbox.checked = result.showOpenLabel;
 				} else {
@@ -719,6 +788,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		const generateBtn = document.getElementById('generateReport');
 		const copyBtn = document.getElementById('copyReport');
 		const insertBtn = document.getElementById('insertInEmail');
+		const scrumReport = document.getElementById('scrumReport');
 
 		if (insertBtn) {
 			insertBtn.addEventListener('click', () => {
@@ -768,6 +838,22 @@ document.addEventListener('DOMContentLoaded', () => {
 						insertBtn._triggeredByShortcut = false;
 					});
 			});
+		}
+
+		if (scrumReport) {
+			const persistBlockerReason = debounce(async () => {
+				const blockerReason = extractBlockerReasonFromReport(scrumReport);
+				if (blockerReason === null) {
+					return;
+				}
+
+				await browser.storage.local.set({
+					userReason: normalizeBlockerReason(blockerReason),
+				});
+			}, 200);
+
+			scrumReport.addEventListener('input', persistBlockerReason);
+			scrumReport.addEventListener('focusout', persistBlockerReason);
 		}
 
 		generateBtn.addEventListener('click', () => {
@@ -2047,7 +2133,22 @@ document.getElementById('refreshCache').addEventListener('click', async function
 		} catch (e) {}
 
 		// Clear all caches
-		const keysToRemove = ['githubCache', 'repoCache', 'gitlabCache'];
+		const keysToRemove = [
+			'githubCache',
+			'repoCache',
+			'gitlabCache',
+			'userReason',
+			'githubLastScrumReportHtml',
+			'githubLastScrumReportCacheKey',
+			'githubLastScrumReportUsername',
+			'gitlabLastScrumReportHtml',
+			'gitlabLastScrumReportCacheKey',
+			'gitlabLastScrumReportUsername',
+			'lastScrumReportHtml',
+			'lastScrumReportPlatform',
+			'lastScrumReportCacheKey',
+			'lastScrumReportUsername',
+		];
 		await browser.storage.local.remove(keysToRemove);
 
 		// Clear the scrum report
