@@ -2,12 +2,8 @@ name: Sync Forks with Upstream
 
 on:
   schedule:
-    # Run daily at 2:00 AM UTC
-
     - cron: '0 2 * * *'
-
   workflow_dispatch:
-    # Allow manual triggering
 
 jobs:
   sync-forks:
@@ -15,89 +11,129 @@ jobs:
     permissions:
       contents: write
 
-    
-
     steps:
       - name: Sync forks with upstream
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const { Octokit } = require('@octokit/rest');
-
-            
-            const octokit = new Octokit({
-              auth: process.env.GITHUB_TOKEN
-            });
-            
             const UPSTREAM_OWNER = 'fossasia';
             const UPSTREAM_REPO = 'scrum_helper';
-            
+
+            const MAX_FORKS = 100; // limit processing
+            const ACTIVE_DAYS = 30; // only forks updated in last 30 days
+
             let syncedCount = 0;
             let skippedCount = 0;
             let errorCount = 0;
+            let permissionErrors = 0;
+
+            const delay = ms => new Promise(res => setTimeout(res, ms));
+
+            async function retry(fn, retries = 2) {
+              for (let i = 0; i <= retries; i++) {
+                try {
+                  return await fn();
+                } catch (err) {
+                  if (i === retries) throw err;
+                  console.log(`Retrying... (${i + 1})`);
+                  await delay(1000);
+                }
+              }
+            }
 
             try {
-              // Get all forks
-              console.log(`Getting forks of ${UPSTREAM_OWNER}/${UPSTREAM_REPO}...`);
-              const { data: forks } = await octokit.rest.repos.listForks({
+              const { data: upstreamRepo } = await github.rest.repos.get({
                 owner: UPSTREAM_OWNER,
-                repo: UPSTREAM_REPO,
-                per_page: 100
+                repo: UPSTREAM_REPO
               });
-              
-              console.log(`Found ${forks.length} forks`);
-              
+
+              const upstreamBranch = upstreamRepo.default_branch;
+
+              console.log(`🔍 Fetching forks...`);
+
+              let forks = await github.paginate(
+                github.rest.repos.listForks,
+                {
+                  owner: UPSTREAM_OWNER,
+                  repo: UPSTREAM_REPO,
+                  per_page: 100
+                }
+              );
+
+              console.log(`📦 Total forks found: ${forks.length}`);
+
+              //Filter active forks
+              const now = Date.now();
+              forks = forks.filter(fork => {
+                const updatedRecently =
+                  new Date(fork.updated_at).getTime() >
+                  (now - ACTIVE_DAYS * 24 * 60 * 60 * 1000);
+
+                return !fork.archived && updatedRecently;
+              });
+
+              console.log(`⚡ Active forks (last ${ACTIVE_DAYS} days): ${forks.length}`);
+
+              //Limit number of forks
+              forks = forks.slice(0, MAX_FORKS);
+
+              console.log(`🚀 Processing first ${forks.length} forks`);
+
               for (const fork of forks) {
                 try {
-                  console.log(`\Processing: ${fork.full_name}`);
-                  
-                  // Check if fork is behind upstream
-                  const { data: comparison } = await octokit.rest.repos.compareCommits({
-                    owner: fork.owner.login,
-                    repo: fork.name,
-                    base: fork.default_branch,
-                    head: `${UPSTREAM_OWNER}:master`
-                  });
-                  
-                  if (comparison.behind_by === 0) {
-                    console.log(`${fork.full_name} is up to date`);
+                  console.log(`\n➡️ Processing: ${fork.full_name}`);
+
+                  const comparison = await retry(() =>
+                    github.rest.repos.compareCommitsWithBasehead({
+                      owner: fork.owner.login,
+                      repo: fork.name,
+                      basehead: `${fork.default_branch}...${UPSTREAM_OWNER}:${upstreamBranch}`
+                    })
+                  );
+
+                  if (comparison.data.behind_by === 0) {
+                    console.log(`✅ Up to date`);
                     continue;
                   }
-                  
-                  if (comparison.ahead_by > 0) {
-                    console.log(`${fork.full_name} is ahead by ${comparison.ahead_by} commits - skipping`);
+
+                  if (comparison.data.ahead_by > 0) {
+                    console.log(`⏭ Skipped (ahead by ${comparison.data.ahead_by} commits)`);
                     skippedCount++;
                     continue;
                   }
-                  
-                  // Fork is only behind - safe to sync
-                  await octokit.rest.repos.mergeUpstream({
-                    owner: fork.owner.login,
-                    repo: fork.name,
-                    branch: fork.default_branch
-                  });
-                  
-                  console.log(`Successfully synced ${fork.full_name}`);
+
+                  await retry(() =>
+                    github.rest.repos.mergeUpstream({
+                      owner: fork.owner.login,
+                      repo: fork.name,
+                      branch: fork.default_branch
+                    })
+                  );
+
+                  console.log(`🔄 Synced successfully`);
                   syncedCount++;
-                  
-                  // Small delay to avoid rate limits
-                  await new Promise(resolve => setTimeout(resolve, 1000));
-                  
+
+                  await delay(1000);
+
                 } catch (error) {
+                  if (error.message.includes('Resource not accessible')) {
+                    permissionErrors++;
+                    console.log(`🔒 Permission denied`);
+                  } else {
+                    console.log(`❌ Error: ${error.message}`);
+                  }
                   errorCount++;
                 }
               }
-              
-              // Summary
-              console.log(`\n Summary:`);
-              console.log(`Synced: ${syncedCount}`);
-              console.log(`Skipped: ${skippedCount}`);
-              console.log(`Errors: ${errorCount}`);
-              
+
+              console.log(`\n📊 ===== Summary =====`);
+              console.log(`✅ Synced: ${syncedCount}`);
+              console.log(`⏭ Skipped (ahead): ${skippedCount}`);
+              console.log(`🔒 Permission issues: ${permissionErrors}`);
+              console.log(`❌ Errors: ${errorCount}`);
+
             } catch (error) {
-              console.error('Workflow failed:', error.message);
+              console.error(`🚨 Workflow failed: ${error.message}`);
               throw error;
-
             }
-
