@@ -27,7 +27,7 @@ function isMacOS() {
 }
 
 function showShortcutNotification(messageKey) {
-	if (typeof chrome === 'undefined' || !chrome.i18n) {
+	if (typeof browser === 'undefined' || !browser.i18n) {
 		return;
 	}
 
@@ -36,7 +36,7 @@ function showShortcutNotification(messageKey) {
 		existingNotification.remove();
 	}
 
-	const message = chrome.i18n.getMessage(messageKey);
+	const message = browser.i18n.getMessage(messageKey);
 	if (!message) {
 		return;
 	}
