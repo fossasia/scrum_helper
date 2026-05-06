@@ -27,12 +27,12 @@ const scrumReportEl = document.getElementById('scrumReport');
 const platformUsernameInp = document.getElementById('platformUsername');
 const usernameError = document.getElementById('usernameError');
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener('DOMContentLoaded', () => {
 	if (!usernameValidationListenerAttached && platformUsernameInp && usernameError) {
-		platformUsernameInp.addEventListener("input", function () {
-			platformUsernameInp.classList.remove("input-error");
-			usernameError.textContent = "";
-			usernameError.classList.remove("errorMessage");
+		platformUsernameInp.addEventListener('input', function () {
+			platformUsernameInp.classList.remove('input-error');
+			usernameError.textContent = '';
+			usernameError.classList.remove('errorMessage');
 		});
 		usernameValidationListenerAttached = true;
 	}
@@ -40,10 +40,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function showReportMessage(message) {
 	if (!scrumReportEl) return;
-	scrumReportEl.innerHTML = "";
+	scrumReportEl.innerHTML = '';
 
-	const errorDiv = document.createElement("div");
-	errorDiv.classList.add("error-message");
+	const errorDiv = document.createElement('div');
+	errorDiv.classList.add('error-message');
 	errorDiv.textContent = message;
 	scrumReportEl.appendChild(errorDiv);
 }
@@ -51,12 +51,12 @@ function showReportMessage(message) {
 function handleUsernameValidationError(errMessage) {
 	if (!platformUsernameInp || !usernameError) return;
 
-	platformUsernameInp.classList.add("input-error");
-	usernameError.classList.add("errorMessage");
+	platformUsernameInp.classList.add('input-error');
+	usernameError.classList.add('errorMessage');
 	usernameError.textContent = errMessage;
 
 	if (scrumReportEl) {
-		scrumReportEl.innerHTML = "";
+		scrumReportEl.innerHTML = '';
 	}
 }
 
@@ -117,8 +117,8 @@ function allIncluded(outputTarget = 'email') {
 
 	function getChromeData() {
 		console.log('[DEBUG] getChromeData called for outputTarget:', outputTarget);
-		chrome.storage.local.get(
-			[
+		chrome.storage.local
+			.get([
 				'platform',
 				'githubUsername',
 				'gitlabUsername',
@@ -214,7 +214,8 @@ function allIncluded(outputTarget = 'email') {
 						if (outputTarget === 'popup') {
 							console.log('[DEBUG] No username found - popup context');
 							const generateBtn = document.getElementById('generateReport');
-							const ErrMessage = chrome.i18n.getMessage('usernameRequiredError') || 'Please enter your username to generate a report.';
+							const ErrMessage =
+								chrome.i18n.getMessage('usernameRequiredError') || 'Please enter your username to generate a report.';
 							handleUsernameValidationError(ErrMessage);
 							if (generateBtn) {
 								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
@@ -298,7 +299,7 @@ function allIncluded(outputTarget = 'email') {
 											generateBtn.disabled = false;
 										}
 										const ErrMessage = `${err.message || 'Error fetching GitLab data.'}`;
-										if (typeof ErrMessage === "string" && ErrMessage.toLowerCase().includes("not found")){
+										if (typeof ErrMessage === 'string' && ErrMessage.toLowerCase().includes('not found')) {
 											handleUsernameValidationError(ErrMessage);
 										} else {
 											showReportMessage(ErrMessage);
@@ -348,7 +349,7 @@ function allIncluded(outputTarget = 'email') {
 											generateBtn.disabled = false;
 										}
 										const ErrMessage = `${err.message || 'Error fetching GitLab data.'}`;
-										if(typeof ErrMessage === "string" && ErrMessage.toLowerCase().includes("not found")){
+										if (typeof ErrMessage === 'string' && ErrMessage.toLowerCase().includes('not found')) {
 											handleUsernameValidationError(ErrMessage);
 										} else {
 											showReportMessage(ErrMessage);
@@ -361,7 +362,8 @@ function allIncluded(outputTarget = 'email') {
 					} else {
 						if (outputTarget === 'popup') {
 							const generateBtn = document.getElementById('generateReport');
-							const ErrMessage = chrome.i18n.getMessage('usernameRequiredError') || 'Please enter your username to generate a report.';
+							const ErrMessage =
+								chrome.i18n.getMessage('usernameRequiredError') || 'Please enter your username to generate a report.';
 							handleUsernameValidationError(ErrMessage);
 							if (generateBtn) {
 								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
@@ -378,8 +380,7 @@ function allIncluded(outputTarget = 'email') {
 					}
 					scrumGenerationInProgress = false;
 				}
-			},
-		);
+			});
 	}
 	getChromeData();
 
@@ -812,9 +813,9 @@ function allIncluded(outputTarget = 'email') {
 						else errorMsg = JSON.stringify(err);
 					}
 					const ErrMessage = `${errorMsg || 'An error occurred while generating the report.'}`;
-					if(typeof ErrMessage === "string" && ErrMessage.toLowerCase().includes("not found")){
+					if (typeof ErrMessage === 'string' && ErrMessage.toLowerCase().includes('not found')) {
 						handleUsernameValidationError(ErrMessage);
-					}else{
+					} else {
 						showReportMessage(ErrMessage);
 					}
 				}
@@ -2060,12 +2061,12 @@ async function fetchPrsMergedStatusBatch(prs, headers) {
 	if (prs.length === 0) return results;
 	const query = `query {
 ${prs
-			.map(
-				(pr, i) => `	repo${i}: repository(owner: "${pr.owner}\", name: "${pr.repo}\") {
+	.map(
+		(pr, i) => `	repo${i}: repository(owner: "${pr.owner}\", name: "${pr.repo}\") {
 		pr${i}: pullRequest(number: ${pr.number}) { merged }
 	}`,
-			)
-			.join('\n')}
+	)
+	.join('\n')}
 }`;
 
 	try {
@@ -2247,8 +2248,8 @@ async function fetchUserRepositories(username, token, org = '') {
 				}));
 
 			return repos.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-		} catch (err) { }
-	} catch (err) { }
+		} catch (err) {}
+	} catch (err) {}
 }
 
 function filterDataByRepos(data, selectedRepos) {
