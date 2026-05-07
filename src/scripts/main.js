@@ -48,8 +48,7 @@ if (!window.scrumDateRangeUtils) {
 				normalizedEndDate = '';
 			}
 
-			const didChange =
-				normalizedStartDate !== originalStartDate || normalizedEndDate !== originalEndDate;
+			const didChange = normalizedStartDate !== originalStartDate || normalizedEndDate !== originalEndDate;
 
 			if (didChange) {
 				startDateInput.value = normalizedStartDate;
@@ -182,16 +181,10 @@ document.getElementById('refreshCache').addEventListener('click', async (e) => {
 });
 
 function handleStartingDateChange() {
-	window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(
-		startingDateElement,
-		endingDateElement,
-	);
+	window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(startingDateElement, endingDateElement);
 }
 function handleEndingDateChange() {
-	window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(
-		startingDateElement,
-		endingDateElement,
-	);
+	window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(startingDateElement, endingDateElement);
 }
 
 function handleYesterdayContributionChange() {
@@ -203,10 +196,7 @@ function handleYesterdayContributionChange() {
 		endingDateElement.readOnly = true;
 		endingDateElement.value = getToday();
 		startingDateElement.value = getYesterday();
-		window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(
-			startingDateElement,
-			endingDateElement,
-		);
+		window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(startingDateElement, endingDateElement);
 		labelElement.classList.add('selectedLabel');
 		labelElement.classList.remove('unselectedLabel');
 	} else {
