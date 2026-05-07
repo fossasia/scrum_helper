@@ -20,6 +20,7 @@ let orgName = '';
 let platform = 'github';
 let platformUsername = '';
 let gitlabToken = '';
+let gitlabSelfHostedUrl = '';
 let gitlabHelper = null;
 let usernameValidationListenerAttached = false;
 
@@ -61,10 +62,6 @@ function handleUsernameValidationError(errMessage) {
 }
 
 function allIncluded(outputTarget = 'email') {
-	// Always re-instantiate gitlabHelper for gitlab platform to ensure fresh cache after refresh
-	if (platform === 'gitlab' || (typeof platform === 'undefined' && window.GitLabHelper)) {
-		gitlabHelper = new window.GitLabHelper();
-	}
 	if (scrumGenerationInProgress) {
 		return;
 	}
@@ -124,6 +121,7 @@ function allIncluded(outputTarget = 'email') {
 				'gitlabUsername',
 				'githubToken',
 				'gitlabToken',
+				'gitlabSelfHostedUrl',
 				'projectName',
 				'startingDate',
 				'endingDate',
@@ -171,6 +169,7 @@ function allIncluded(outputTarget = 'email') {
 						projectName: items.projectName,
 						githubToken: items.githubToken,
 						gitlabToken: items.gitlabToken,
+						gitlabSelfHostedUrl: items.gitlabSelfHostedUrl,
 					});
 				}
 				projectName = items.projectName;
@@ -179,6 +178,7 @@ function allIncluded(outputTarget = 'email') {
 				chrome.storage.local.remove(['userReason']);
 				githubToken = items.githubToken;
 				gitlabToken = items.gitlabToken || '';
+				gitlabSelfHostedUrl = items.gitlabSelfHostedUrl || '';
 				yesterdayContribution = items.yesterdayContribution;
 
 				onlyIssues = items.onlyIssues === true;
@@ -229,7 +229,10 @@ function allIncluded(outputTarget = 'email') {
 						return;
 					}
 				} else if (platform === 'gitlab') {
-					if (!gitlabHelper) gitlabHelper = new window.GitLabHelper();
+					// Always recreate helper from the latest stored URL to avoid stale instance reuse.
+					if (window.GitLabHelper) {
+						gitlabHelper = new window.GitLabHelper(gitlabSelfHostedUrl || null);
+					}
 					if (platformUsernameLocal) {
 						const generateBtn = document.getElementById('generateReport');
 						if (generateBtn && outputTarget === 'popup') {
@@ -246,6 +249,10 @@ function allIncluded(outputTarget = 'email') {
 										endingDate,
 										gitlabToken,
 									);
+									const apiBaseUrl = (data.apiBaseUrl || gitlabHelper.baseUrl || 'https://gitlab.com/api/v4').replace(
+										/\/+$/,
+										'',
+									);
 
 									function mapGitLabItem(item, projects, type) {
 										const project = projects.find((p) => p.id === item.project_id);
@@ -253,7 +260,7 @@ function allIncluded(outputTarget = 'email') {
 
 										return {
 											...item,
-											repository_url: `https://gitlab.com/api/v4/projects/${item.project_id}`,
+											repository_url: `${apiBaseUrl}/projects/${item.project_id}`,
 											html_url:
 												type === 'issue'
 													? item.web_url || (project ? `${project.web_url}/-/issues/${item.iid}` : '')
@@ -312,12 +319,16 @@ function allIncluded(outputTarget = 'email') {
 							gitlabHelper
 								.fetchGitLabData(platformUsernameLocal, startingDate, endingDate, gitlabToken)
 								.then((data) => {
+									const apiBaseUrl = (data.apiBaseUrl || gitlabHelper.baseUrl || 'https://gitlab.com/api/v4').replace(
+										/\/+$/,
+										'',
+									);
 									function mapGitLabItem(item, projects, type) {
 										const project = projects.find((p) => p.id === item.project_id);
 										const repoName = project ? project.name : 'unknown';
 										return {
 											...item,
-											repository_url: `https://gitlab.com/api/v4/projects/${item.project_id}`,
+											repository_url: `${apiBaseUrl}/projects/${item.project_id}`,
 											html_url:
 												type === 'issue'
 													? item.web_url || (project ? `${project.web_url}/-/issues/${item.iid}` : '')
@@ -1964,7 +1975,7 @@ async function forceGitlabDataRefresh() {
 	hasInjectedContent = false;
 	// Re-instantiate gitlabHelper to ensure a fresh instance for next API call
 	if (window.GitLabHelper) {
-		gitlabHelper = new window.GitLabHelper();
+		gitlabHelper = new window.GitLabHelper(gitlabSelfHostedUrl || null);
 	}
 	return { success: true };
 }

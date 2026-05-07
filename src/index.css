@@ -140,6 +140,7 @@ hr,
 }
 
 .dark-mode input[type="text"],
+.dark-mode input[type="url"],
 .dark-mode input[type="date"],
 .dark-mode #scrumReport {
     background-color: #404040 !important;
@@ -464,6 +465,7 @@ hr,
 }
 
 .dark-mode #githubToken,
+.dark-mode #gitlabSelfHostedUrl,
 .dark-mode #gitlabToken,
 .dark-mode .token-preview-char {
     background: #404040 !important;
