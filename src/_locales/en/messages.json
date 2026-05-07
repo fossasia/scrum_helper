@@ -126,16 +126,16 @@
     "message": "Github Token required, add it in the settings."
   },
   "onlyIssuesLabel": {
-    "message": "Include only issues in the report"
+    "message": "Include issues in the report"
   },
   "onlyIssuesTooltip": {
-    "message": "If checked, the report will only include issues created or assigned to the user."
+    "message": "If checked, the report will include issues created or assigned to the user."
   },
   "onlyPRsLabel": {
-    "message": "Include only PRs in the report"
+    "message": "Include PRs in the report"
   },
   "onlyPRsTooltip": {
-    "message": "If checked, the report will only include PRs created by the user. Reviewed PRs will be excluded."
+    "message": "If checked, the report will include PRs created by the user. Reviewed PRs will be excluded."
   },
   "cacheTTLLabel": {
     "message": "Enter cache TTL",
@@ -302,19 +302,19 @@
     "description": "Label for the username input header."
   },
   "onlyRevPRsLabel": {
-    "message": "Include only reviewed PRs in the report",
+    "message": "Include reviewed PRs in the report",
     "description": "Label for the checkbox to include only reviewed PRs."
   },
   "onlyRevPRsTooltip": {
-    "message": "If checked, the report will only include PRs reviewed by you.",
+    "message": "If checked, the report will include PRs reviewed by you.",
     "description": "Tooltip for the reviewed PRs filter checkbox."
   },
   "onlyMergedPRsLabel": {
-    "message": "Include only merged PRs in the report",
+    "message": "Include merged PRs in the report",
     "description": "Label for the checkbox to include only merged PRs."
   },
   "onlyMergedPRsTooltip": {
-    "message": "If checked, the report will only include PRs that have been merged. A GitHub token is required.",
+    "message": "If checked, the report will include PRs that have been merged. A GitHub token is required.",
     "description": "Tooltip for the merged PRs filter checkbox."
   },
   "tokenRequiredMergedPRsWarning": {
