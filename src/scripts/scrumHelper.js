@@ -2229,8 +2229,17 @@ async function fetchUserRepositories(username, token, org = '') {
 			const graphQLData = await res.json();
 
 			if (graphQLData.errors) {
-				logError('GraphQL errors fetching repos:', graphQLData.errors);
-				return [];
+				const graphQLError = new Error(
+					`GraphQL errors fetching repositories for username "${username}" and org "${org || 'all'}"`,
+				);
+				graphQLError.graphQLErrors = graphQLData.errors;
+				graphQLError.repoFetchErrorLogged = true;
+				console.error('GraphQL errors fetching repositories:', {
+					username,
+					org,
+					errors: graphQLData.errors,
+				});
+				throw graphQLError;
 			}
 
 			const repos = Object.values(graphQLData.data)
@@ -2245,8 +2254,19 @@ async function fetchUserRepositories(username, token, org = '') {
 				}));
 
 			return repos.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-		} catch (err) {}
-	} catch (err) {}
+		} catch (err) {
+			if (!err.repoFetchErrorLogged) {
+				err.repoFetchErrorLogged = true;
+				console.error('GraphQL request for repositories failed:', { username, org, err });
+			}
+			throw err;
+		}
+	} catch (err) {
+		if (!err.repoFetchErrorLogged) {
+			console.error('Failed to fetch user repositories:', { username, org, err });
+		}
+		throw err;
+	}
 }
 
 function filterDataByRepos(data, selectedRepos) {
