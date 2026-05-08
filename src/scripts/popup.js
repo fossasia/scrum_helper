@@ -841,7 +841,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 
 		if (scrumReport) {
-			const persistBlockerReason = debounce(async () => {
+			const persistBlockerReason = async () => {
 				const blockerReason = extractBlockerReasonFromReport(scrumReport);
 				if (blockerReason === null) {
 					return;
@@ -850,13 +850,22 @@ document.addEventListener('DOMContentLoaded', () => {
 				await browser.storage.local.set({
 					userReason: normalizeBlockerReason(blockerReason),
 				});
-			}, 200);
+			};
 
 			scrumReport.addEventListener('input', persistBlockerReason);
 			scrumReport.addEventListener('focusout', persistBlockerReason);
 		}
 
 		generateBtn.addEventListener('click', () => {
+			// Make Report is uneditable during generating
+			if(scrumReport){
+				scrumReport.setAttribute('contenteditable','false');
+			};
+			setTimeout(() => {
+				if(scrumReport){
+					scrumReport.setAttribute('contenteditable','true');
+				}
+			}, 3000);
 			browser.storage.local.get(['platform']).then((result) => {
 				platformUsername.classList.remove('input-error');
 				usernameError.classList.remove('errorMessage');
