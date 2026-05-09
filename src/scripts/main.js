@@ -84,6 +84,8 @@ if (!window.scrumDateRangeUtils) {
 }
 
 if (!window.scrumHelperToast) {
+	
+	window.SCRUM_TOAST_ANIM_MS = window.SCRUM_TOAST_ANIM_MS || 200;
 	window.scrumHelperToast = function scrumHelperToast(message, options = {}) {
 		if (!message || typeof document === 'undefined') return null;
 
@@ -98,6 +100,16 @@ if (!window.scrumHelperToast) {
 		toast.className = `scrum-toast scrum-toast--${variant}`;
 		toast.textContent = message;
 
+		// Accessibility: announce via screen readers
+		if (variant === 'error') {
+			toast.setAttribute('role', 'alert');
+			toast.setAttribute('aria-live', 'assertive');
+		} else {
+			toast.setAttribute('role', 'status');
+			toast.setAttribute('aria-live', 'polite');
+		}
+		toast.setAttribute('aria-atomic', 'true');
+
 		const container = document.getElementById('scrumHelperToastContainer') || document.body;
 		container.appendChild(toast);
 
@@ -109,7 +121,7 @@ if (!window.scrumHelperToast) {
 			toast.classList.remove('scrum-toast--visible');
 			window.setTimeout(() => {
 				if (toast.parentNode) toast.parentNode.removeChild(toast);
-			}, 180);
+			}, window.SCRUM_TOAST_ANIM_MS);
 		}, duration);
 
 		return toast;
@@ -120,17 +132,13 @@ if (!window.clearScrumHelperToast) {
 	window.clearScrumHelperToast = function clearScrumHelperToast() {
 		const toast = document.getElementById('scrum-helper-toast');
 		if (toast) toast.remove();
-		// Remove Materialize generated toasts that include our class
-		document
-			.querySelectorAll('.toast.scrum-toast--error, .toast.scrum-toast--info, .toast.scrum-toast--success')
-			.forEach((t) => t.remove());
-
 		const container = document.getElementById('scrumHelperToastContainer');
 		if (container) {
 			container.querySelectorAll('.scrum-toast').forEach((t) => t.remove());
 		}
 	};
 }
+
 
 // Backwards-compatible wrapper used across the codebase
 if (!window.showPopupMessage) {

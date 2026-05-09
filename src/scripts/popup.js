@@ -445,11 +445,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	window.updateGenerateButtonState = updateGenerateButtonState;
 
-	function showPopupMessage(message) {
-		if (!message) return;
-		window.scrumHelperToast?.(message, { duration: 4000, variant: 'info' });
-	}
-
 	async function bootstrapScrumReportOnPopupLoad(generateBtn) {
 		console.log('[BOOTSTRAP] bootstrapScrumReportOnPopupLoad called');
 
