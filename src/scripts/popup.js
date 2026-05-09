@@ -447,7 +447,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	function showPopupMessage(message) {
 		if (!message) return;
-		window.scrumHelperToast?.(message, { duration: 4000, variant: 'error' });
+		window.scrumHelperToast?.(message, { duration: 4000, variant: 'info' });
 	}
 
 	async function bootstrapScrumReportOnPopupLoad(generateBtn) {
