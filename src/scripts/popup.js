@@ -31,29 +31,12 @@ function showShortcutNotification(messageKey) {
 		return;
 	}
 
-	const existingNotification = document.querySelector('.shortcut-notification');
-	if (existingNotification) {
-		existingNotification.remove();
-	}
-
 	const message = chrome.i18n.getMessage(messageKey);
 	if (!message) {
 		return;
 	}
 
-	const notification = document.createElement('div');
-	notification.className = 'shortcut-notification';
-	notification.textContent = message;
-	document.body.appendChild(notification);
-
-	setTimeout(() => {
-		notification.style.animation = 'slideOut 0.3s ease-out';
-		setTimeout(() => {
-			if (notification.parentNode) {
-				notification.parentNode.removeChild(notification);
-			}
-		}, 300);
-	}, 2000);
+	window.scrumHelperToast?.(message, { duration: 2200, variant: 'info' });
 }
 
 function setupButtonTooltips() {
@@ -344,12 +327,8 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	githubTokenInput.addEventListener('input', checkTokenForFilter);
-	githubTokenInput.addEventListener('input', () =>
-		checkTokenForShowCommits({ persistState: false }),
-	);
-	githubTokenInput.addEventListener('input', () =>
-		checkTokenForMergedPRs({ persistState: false }),
-	);
+	githubTokenInput.addEventListener('input', () => checkTokenForShowCommits({ persistState: false }));
+	githubTokenInput.addEventListener('input', () => checkTokenForMergedPRs({ persistState: false }));
 
 	darkModeToggle.addEventListener('click', function () {
 		body.classList.toggle('dark-mode');
@@ -455,7 +434,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			observer.observe(generateBtn, {
 				attributes: true,
-				attributeFilter: ['disabled']
+				attributeFilter: ['disabled'],
 			});
 
 			generateBtn.dataset.generateButtonStateObserved = 'true';
@@ -468,37 +447,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	function showPopupMessage(message) {
 		if (!message) return;
-		const isDarkMode = document.body?.classList.contains('dark-mode');
-
-		const old = document.getElementById('scrum-cache-toast');
-		if (old) old.remove();
-
-		const toast = document.createElement('div');
-		toast.id = 'scrum-cache-toast';
-		toast.className = 'scrum-cache-toast-custom';
-		toast.style.background = isDarkMode ? '#ffffff' : '#1f2937';
-		toast.style.color = isDarkMode ? '#1f2937' : '#fff';
-		toast.style.border = 'none';
-		toast.style.fontWeight = 'bold';
-		toast.style.padding = '12px 16px';
-		toast.style.borderRadius = '8px';
-		toast.style.position = 'fixed';
-		toast.style.top = '12px';
-		toast.style.left = '50%';
-		toast.style.transform = 'translateX(-50%)';
-		toast.style.zIndex = '2147483647';
-		toast.style.width = 'calc(82% - 16px)';
-		toast.style.maxWidth = '340px';
-		toast.style.lineHeight = '1.4';
-		toast.style.textAlign = 'start';
-		toast.style.boxSizing = 'border-box';
-		toast.style.wordBreak = 'break-word';
-		toast.style.opacity = '1';
-		toast.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
-		toast.textContent = message;
-
-		document.body.appendChild(toast);
-		setTimeout(() => toast.remove(), 4000);
+		window.scrumHelperToast?.(message, { duration: 4000, variant: 'error' });
 	}
 
 	async function bootstrapScrumReportOnPopupLoad(generateBtn) {
@@ -548,34 +497,37 @@ document.addEventListener('DOMContentLoaded', () => {
 				'lastScrumReportUsername',
 				'githubUsername',
 				'gitlabUsername',
-				'platformUsername'
+				'platformUsername',
 			]);
 
 			let lastScrumReportHtml = storageValues[`${activePlatform}LastScrumReportHtml`];
 			let lastScrumReportCacheKey = storageValues[`${activePlatform}LastScrumReportCacheKey`];
 			let lastScrumReportUsername = storageValues[`${activePlatform}LastScrumReportUsername`];
 
-			if (storageValues.lastScrumReportHtml && (!storageValues.lastScrumReportPlatform || storageValues.lastScrumReportPlatform === activePlatform) && !lastScrumReportHtml) {
+			if (
+				storageValues.lastScrumReportHtml &&
+				(!storageValues.lastScrumReportPlatform || storageValues.lastScrumReportPlatform === activePlatform) &&
+				!lastScrumReportHtml
+			) {
 				lastScrumReportHtml = storageValues.lastScrumReportHtml;
 				lastScrumReportCacheKey = storageValues.lastScrumReportCacheKey;
 				lastScrumReportUsername = storageValues.lastScrumReportUsername;
 			}
 
-			const expectedUsername = activePlatform === 'gitlab'
-				? (storageValues.gitlabUsername || storageValues.platformUsername)
-				: (storageValues.githubUsername || storageValues.platformUsername);
+			const expectedUsername =
+				activePlatform === 'gitlab'
+					? storageValues.gitlabUsername || storageValues.platformUsername
+					: storageValues.githubUsername || storageValues.platformUsername;
 
-			const isUsernameMatch = lastScrumReportUsername 
+			const isUsernameMatch = lastScrumReportUsername
 				? lastScrumReportUsername === expectedUsername
-				: (lastScrumReportCacheKey && expectedUsername && lastScrumReportCacheKey.startsWith(expectedUsername + '-'));
+				: lastScrumReportCacheKey && expectedUsername && lastScrumReportCacheKey.startsWith(expectedUsername + '-');
 
 			if (age < ttlMs) {
 				const cacheKey = cache?.cacheKey ?? null;
 				const reportEmpty = !scrumReport.innerHTML || !scrumReport.innerHTML.trim();
 
-				const matches =
-					(!lastScrumReportCacheKey || lastScrumReportCacheKey === cacheKey) &&
-					isUsernameMatch;
+				const matches = (!lastScrumReportCacheKey || lastScrumReportCacheKey === cacheKey) && isUsernameMatch;
 
 				if (reportEmpty && lastScrumReportHtml && matches) {
 					scrumReport.innerHTML = lastScrumReportHtml;
@@ -628,7 +580,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		const startingDateInput = document.getElementById('startingDate');
 		const endingDateInput = document.getElementById('endingDate');
 		const platformUsername = document.getElementById('platformUsername');
-		const usernameError = document.getElementById("usernameError");
+		const usernameError = document.getElementById('usernameError');
 
 		browser.storage.local
 			.get([
@@ -714,8 +666,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				window.updateGenerateButtonState && window.updateGenerateButtonState();
 				checkTokenForShowCommits();
 				checkTokenForMergedPRs();
-			},
-		);
+			});
 
 		// Button setup
 		const generateBtn = document.getElementById('generateReport');
@@ -737,12 +688,12 @@ document.addEventListener('DOMContentLoaded', () => {
 				const handleInsertFailure = (errorMsg) => {
 					console.warn('Insert to Email failed:', errorMsg);
 					const failureMessage =
-						browser.i18n.getMessage('insertToEmailFailedError') ||
-						'open an email tab to insert report';
+						browser.i18n.getMessage('insertToEmailFailedError') || 'open an email tab to insert report';
 					showPopupMessage(failureMessage);
 				};
 
-				browser.tabs.query({ active: true, currentWindow: true })
+				browser.tabs
+					.query({ active: true, currentWindow: true })
 					.then((tabs) => {
 						const tabId = tabs?.[0]?.id;
 						if (!tabId) {
@@ -750,7 +701,8 @@ document.addEventListener('DOMContentLoaded', () => {
 							return;
 						}
 
-						browser.tabs.sendMessage(tabId, { action: 'insertReportToEmail', content, subject })
+						browser.tabs
+							.sendMessage(tabId, { action: 'insertReportToEmail', content, subject })
 							.then((response) => {
 								if (!response?.success) {
 									handleInsertFailure(response?.error);
@@ -773,9 +725,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		generateBtn.addEventListener('click', () => {
 			browser.storage.local.get(['platform']).then((result) => {
-				platformUsername.classList.remove("input-error");
-				usernameError.classList.remove("errorMessage");
-				usernameError.textContent = "";
+				platformUsername.classList.remove('input-error');
+				usernameError.classList.remove('errorMessage');
+				usernameError.textContent = '';
 				const platform = result.platform || 'github';
 				const platformUsernameKey = `${platform}Username`;
 
@@ -915,9 +867,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			if (org) {
 				validateOrgOnBlur(org);
 			} else {
-				// Clear any existing toast if org is empty
-				const oldToast = document.getElementById('invalid-org-toast');
-				if (oldToast) oldToast.parentNode.removeChild(oldToast);
+				window.clearScrumHelperToast?.();
 			}
 		});
 		if (userReasonInput) {
@@ -1048,7 +998,9 @@ document.addEventListener('DOMContentLoaded', () => {
 				// Show notice instead of applying immediately
 				const modeLabel = mode === 'popup' ? 'Popup' : 'Side Panel';
 				if (displayModeNotice && displayModeNoticeText) {
-					displayModeNoticeText.textContent = chrome?.i18n.getMessage('displayModeNotice', [modeLabel]) || `The extension will open in ${modeLabel} mode on the next launch.`;
+					displayModeNoticeText.textContent =
+						chrome?.i18n.getMessage('displayModeNotice', [modeLabel]) ||
+						`The extension will open in ${modeLabel} mode on the next launch.`;
 					displayModeNotice.classList.remove('hidden');
 				}
 			});
@@ -1058,16 +1010,10 @@ document.addEventListener('DOMContentLoaded', () => {
 			browser.storage.local.set({ yesterdayContribution: yesterdayRadio.checked });
 		});
 		startingDateInput.addEventListener('input', () => {
-			window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(
-				startingDateInput,
-				endingDateInput,
-			);
+			window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(startingDateInput, endingDateInput);
 		});
 		endingDateInput.addEventListener('input', () => {
-			window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(
-				startingDateInput,
-				endingDateInput,
-			);
+			window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(startingDateInput, endingDateInput);
 		});
 
 		// Save username to storage on input and update button state
@@ -1077,7 +1023,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				const platformUsernameKey = `${platform}Username`;
 				browser.storage.local.set({ [platformUsernameKey]: platformUsername.value });
 			});
-				window.updateGenerateButtonState && window.updateGenerateButtonState();
+			window.updateGenerateButtonState && window.updateGenerateButtonState();
 		});
 		// Bootstrap report on popup open (restore cache / auto-generate / expired-cache toast)
 		bootstrapScrumReportOnPopupLoad(generateBtn).catch((err) => {
@@ -1152,10 +1098,12 @@ document.addEventListener('DOMContentLoaded', () => {
 			try {
 				const items = await browser.storage.local.get(['platform']);
 				platform = items.platform || 'github';
-			} catch { }
+			} catch {}
 			if (platform !== 'github') {
 				// Do not run repo fetch for non-GitHub platforms
-				if (repoStatus) repoStatus.textContent = chrome?.i18n.getMessage('repoFilteringGithubOnly') || 'Repository filtering is only available for GitHub.';
+				if (repoStatus)
+					repoStatus.textContent =
+						chrome?.i18n.getMessage('repoFilteringGithubOnly') || 'Repository filtering is only available for GitHub.';
 				return;
 			}
 			if (!useRepoFilter.checked) {
@@ -1240,11 +1188,14 @@ document.addEventListener('DOMContentLoaded', () => {
 				try {
 					const items = await browser.storage.local.get(['platform']);
 					platform = items.platform || 'github';
-				} catch { }
+				} catch {}
 				if (platform !== 'github') {
 					repoFilterContainer.classList.add('hidden');
 					useRepoFilter.checked = false;
-					if (repoStatus) repoStatus.textContent = chrome?.i18n.getMessage('repoFilteringGithubOnly') || 'Repository filtering is only available for GitHub.';
+					if (repoStatus)
+						repoStatus.textContent =
+							chrome?.i18n.getMessage('repoFilteringGithubOnly') ||
+							'Repository filtering is only available for GitHub.';
 					return;
 				}
 				const enabled = useRepoFilter.checked;
@@ -1274,7 +1225,8 @@ document.addEventListener('DOMContentLoaded', () => {
 				});
 				checkTokenForFilter();
 				if (enabled) {
-					repoStatus.textContent = chrome?.i18n.getMessage('loadingReposAutomatically') || 'Loading repos automatically...';
+					repoStatus.textContent =
+						chrome?.i18n.getMessage('loadingReposAutomatically') || 'Loading repos automatically...';
 
 					try {
 						const cacheData = await browser.storage.local.get(['repoCache']);
@@ -1421,9 +1373,11 @@ document.addEventListener('DOMContentLoaded', () => {
 			try {
 				const items = await browser.storage.local.get(['platform']);
 				platform = items.platform || 'github';
-			} catch { }
+			} catch {}
 			if (platform !== 'github') {
-				if (repoStatus) repoStatus.textContent = chrome?.i18n.getMessage('repoLoadingGithubOnly') || 'Repository loading is only available for GitHub.';
+				if (repoStatus)
+					repoStatus.textContent =
+						chrome?.i18n.getMessage('repoLoadingGithubOnly') || 'Repository loading is only available for GitHub.';
 				return;
 			}
 			console.log('window.fetchUserRepositories exists:', !!window.fetchUserRepositories);
@@ -1461,9 +1415,11 @@ document.addEventListener('DOMContentLoaded', () => {
 			try {
 				const items = await browser.storage.local.get(['platform']);
 				platform = items.platform || 'github';
-			} catch (e) { }
+			} catch (e) {}
 			if (platform !== 'github') {
-				if (repoStatus) repoStatus.textContent = chrome?.i18n.getMessage('repoFetchingGithubOnly') || 'Repository fetching is only available for GitHub.';
+				if (repoStatus)
+					repoStatus.textContent =
+						chrome?.i18n.getMessage('repoFetchingGithubOnly') || 'Repository fetching is only available for GitHub.';
 				return;
 			}
 			console.log('[POPUP-DEBUG] performRepoFetch called.');
@@ -1766,11 +1722,11 @@ platformSelect.addEventListener('change', () => {
 	const platform = platformSelect.value;
 	browser.storage.local.set({ platform }).then(() => {
 		const scrumReport = document.getElementById('scrumReport');
-		if(scrumReport){
+		if (scrumReport) {
 			scrumReport.innerHTML = '';
 		}
 		const generateBtn = document.getElementById('generateReport');
-		if(typeof bootstrapScrumReportOnPopupLoad === 'function'){
+		if (typeof bootstrapScrumReportOnPopupLoad === 'function') {
 			bootstrapScrumReportOnPopupLoad(generateBtn);
 		}
 	});
@@ -1827,10 +1783,10 @@ function setPlatformDropdown(value) {
 	platformSelectHidden.value = value;
 	browser.storage.local.set({ platform: value }).then(() => {
 		const scrumReport = document.getElementById('scrumReport');
-		if(scrumReport) scrumReport.innerHTML = '';
+		if (scrumReport) scrumReport.innerHTML = '';
 
 		const generateBtn = document.getElementById('generateReport');
-		if(typeof bootstrapScrumReportOnPopupLoad === 'function'){
+		if (typeof bootstrapScrumReportOnPopupLoad === 'function') {
 			bootstrapScrumReportOnPopupLoad(generateBtn);
 		}
 	});
@@ -1856,10 +1812,10 @@ dropdownList.querySelectorAll('li').forEach((item) => {
 		const newPlatform = this.getAttribute('data-value');
 		const currentPlatform = platformSelectHidden.value;
 		const platformUsername = document.getElementById('platformUsername');
-		const usernameError = document.getElementById("usernameError");
-		platformUsername.classList.remove("input-error");
-		usernameError.classList.remove("errorMessage");
-		usernameError.textContent = "";
+		const usernameError = document.getElementById('usernameError');
+		platformUsername.classList.remove('input-error');
+		usernameError.classList.remove('errorMessage');
+		usernameError.textContent = '';
 
 		if (newPlatform !== currentPlatform) {
 			const platformUsername = document.getElementById('platformUsername');
@@ -2039,7 +1995,7 @@ document.getElementById('refreshCache').addEventListener('click', async function
 		try {
 			const items = await browser.storage.local.get(['platform']);
 			platform = items.platform || 'github';
-		} catch (e) { }
+		} catch (e) {}
 
 		// Clear all caches
 		const keysToRemove = ['githubCache', 'repoCache', 'gitlabCache'];
@@ -2170,55 +2126,16 @@ function validateOrgOnBlur(org) {
 			console.log('[Org Check] Response status for', org, ':', res.status);
 			if (res.status === 404) {
 				console.log('[Org Check] Organization not found on GitHub:', org);
-				const oldToast = document.getElementById('invalid-org-toast');
-				if (oldToast) oldToast.parentNode.removeChild(oldToast);
-				const toastDiv = document.createElement('div');
-				toastDiv.id = 'invalid-org-toast';
-				toastDiv.className = 'toast';
-				toastDiv.style.background = '#dc2626';
-				toastDiv.style.color = '#fff';
-				toastDiv.style.fontWeight = 'bold';
-				toastDiv.style.padding = '12px 24px';
-				toastDiv.style.borderRadius = '8px';
-				toastDiv.style.position = 'fixed';
-				toastDiv.style.top = '24px';
-				toastDiv.style.left = '50%';
-				toastDiv.style.transform = 'translateX(-50%)';
-				toastDiv.style.zIndex = '9999';
-				toastDiv.innerText = browser.i18n.getMessage('orgNotFoundMessage');
-				document.body.appendChild(toastDiv);
-				setTimeout(() => {
-					if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
-				}, 3000);
+				showPopupMessage(browser.i18n.getMessage('orgNotFoundMessage'));
 				return;
 			}
-			const oldToast = document.getElementById('invalid-org-toast');
-			if (oldToast) oldToast.parentNode.removeChild(oldToast);
+			window.clearScrumHelperToast?.();
 			console.log('[Org Check] Organisation exists on GitHub:', org);
 			browser.storage.local.remove(['githubCache', 'repoCache']);
 			triggerRepoFetchIfEnabled();
 		})
 		.catch((err) => {
 			console.log('[Org Check] Error validating organisation:', org, err);
-			const oldToast = document.getElementById('invalid-org-toast');
-			if (oldToast) oldToast.parentNode.removeChild(oldToast);
-			const toastDiv = document.createElement('div');
-			toastDiv.id = 'invalid-org-toast';
-			toastDiv.className = 'toast';
-			toastDiv.style.background = '#dc2626';
-			toastDiv.style.color = '#fff';
-			toastDiv.style.fontWeight = 'bold';
-			toastDiv.style.padding = '12px 24px';
-			toastDiv.style.borderRadius = '8px';
-			toastDiv.style.position = 'fixed';
-			toastDiv.style.top = '24px';
-			toastDiv.style.left = '50%';
-			toastDiv.style.transform = 'translateX(-50%)';
-			toastDiv.style.zIndex = '9999';
-			toastDiv.innerText = browser.i18n.getMessage('orgValidationErrorMessage');
-			document.body.appendChild(toastDiv);
-			setTimeout(() => {
-				if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
-			}, 3000);
+			showPopupMessage(browser.i18n.getMessage('orgValidationErrorMessage'));
 		});
 }
