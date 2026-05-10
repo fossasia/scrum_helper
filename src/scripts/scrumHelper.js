@@ -67,7 +67,7 @@ function mapGitLabReportItem(item, projects, type) {
 
 	return {
 		...item,
-		repository_url: `https://gitlab.com/api/v4/projects/${item.project_id}`,
+		repository_url: `${gitlabHelper.baseUrl}/projects/${item.project_id}`,
 		html_url:
 			type === 'issue'
 				? item.web_url || (project ? `${project.web_url}/-/issues/${item.iid}` : '')
