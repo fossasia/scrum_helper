@@ -856,12 +856,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		generateBtn.addEventListener('click', () => {
 			// Make Report is uneditable during generating
-			if(scrumReport){
-				scrumReport.setAttribute('contenteditable','false');
-			};
+			if (scrumReport) {
+				scrumReport.setAttribute('contenteditable', 'false');
+			}
 			setTimeout(() => {
-				if(scrumReport){
-					scrumReport.setAttribute('contenteditable','true');
+				if (scrumReport) {
+					scrumReport.setAttribute('contenteditable', 'true');
 				}
 			}, 3000);
 			browser.storage.local.get(['platform']).then((result) => {
