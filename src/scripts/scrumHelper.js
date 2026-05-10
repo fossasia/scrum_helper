@@ -1670,6 +1670,8 @@ ${blockerText}`;
 			const title = item.title;
 			const number = item.number;
 			let li = '';
+			const safeProject = escapeHtml(project);
+			const safeTitle = escapeHtml(title);
 
 			let isDraft = false;
 			if (isMR && typeof item.draft !== 'undefined') {
@@ -1743,9 +1745,6 @@ ${blockerText}`;
 					}
 				}
 
-				const safeProject = escapeHtml(project);
-				const safeTitle = escapeHtml(title);
-
 				if (isDraft) {
 					li = `<li><i>(${safeProject})</i> - Made PR <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${safeTitle}</a>${showOpenLabel ? ' ' + pr_draft_button : ''}`;
 					if (showCommits && item._allCommits && item._allCommits.length && !isNewPR) {
@@ -1795,13 +1794,13 @@ ${blockerText}`;
 				if (item.state === 'open' && item.body?.toUpperCase().indexOf('YES') > 0) {
 					const li2 =
 						'<li><i>(' +
-						escapeHtml(project) +
+						safeProject +
 						')</i> - Work on Issue(#' +
 						number +
 						") - <a href='" +
 						html_url +
 						"' target='_blank' rel='noopener noreferrer'>" +
-						escapeHtml(title) +
+						safeTitle +
 						'</a>' +
 						(showOpenLabel ? ' ' + issue_opened_button : '') +
 						'&nbsp;&nbsp;</li>';
@@ -1815,19 +1814,19 @@ ${blockerText}`;
 				const isCreatedToday = today.getTime() === itemCreatedDate.getTime();
 				const issueActionText = isCreatedToday ? 'Opened Issue' : 'Updated Issue';
 				if (item.state === 'open') {
-					li = `<li><i>(${escapeHtml(project)})</i> - ${issueActionText}(#${number}) - <a href='${html_url}'>${escapeHtml(title)}</a>${showOpenLabel ? ' ' + issue_opened_button : ''}</li>`;
+					li = `<li><i>(${safeProject})</i> - ${issueActionText}(#${number}) - <a href='${html_url}'>${safeTitle}</a>${showOpenLabel ? ' ' + issue_opened_button : ''}</li>`;
 				} else if (item.state === 'closed') {
 					// Use state_reason to distinguish closure reason
 					if (item.state_reason === 'completed') {
-						li = `<li><i>(${escapeHtml(project)})</i> - ${issueActionText}(#${number}) - <a href='${html_url}'>${escapeHtml(title)}</a> ${issue_closed_completed_button}</li>`;
+						li = `<li><i>(${safeProject})</i> - ${issueActionText}(#${number}) - <a href='${html_url}'>${safeTitle}</a> ${issue_closed_completed_button}</li>`;
 					} else if (item.state_reason === 'not_planned') {
-						li = `<li><i>(${escapeHtml(project)})</i> - ${issueActionText}(#${number}) - <a href='${html_url}'>${escapeHtml(title)}</a> ${issue_closed_notplanned_button}</li>`;
+						li = `<li><i>(${safeProject})</i> - ${issueActionText}(#${number}) - <a href='${html_url}'>${safeTitle}</a> ${issue_closed_notplanned_button}</li>`;
 					} else {
-						li = `<li><i>(${escapeHtml(project)})</i> - ${issueActionText}(#${number}) - <a href='${html_url}'>${escapeHtml(title)}</a> ${issue_closed_button}</li>`;
+						li = `<li><i>(${safeProject})</i> - ${issueActionText}(#${number}) - <a href='${html_url}'>${safeTitle}</a> ${issue_closed_button}</li>`;
 					}
 				} else {
 					// Fallback for unexpected state
-					li = `<li><i>(${escapeHtml(project)})</i> - ${issueActionText}(#${number}) - <a href='${html_url}'>${escapeHtml(title)}</a></li>`;
+					li = `<li><i>(${safeProject})</i> - ${issueActionText}(#${number}) - <a href='${html_url}'>${safeTitle}</a></li>`;
 				}
 
 				log('[SCRUM-DEBUG] Added issue to lastWeekArray:', li, item);
