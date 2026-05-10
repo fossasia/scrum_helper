@@ -55,7 +55,7 @@ class GitLabHelper {
 	async fetchGitLabData(username, startDate, endDate, token = null) {
 		// Include token state in cache key to invalidate when auth changes
 		const tokenMarker = token ? 'auth' : 'noauth';
-		const cacheKey = `${username}-${startDate}-${endDate}-${tokenMarker}`;
+		const cacheKey = `${this.baseUrl}-${username}-${startDate}-${endDate}-${tokenMarker}`;
 
 		if (this.cache.fetching || (this.cache.cacheKey === cacheKey && this.cache.data)) {
 			return this.cache.data;
