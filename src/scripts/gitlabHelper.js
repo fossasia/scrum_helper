@@ -1,7 +1,9 @@
 // GitLab API Helper for Scrum Helper Extension
+const DEFAULT_GITLAB_API_BASE_URL = 'https://gitlab.com/api/v4';
+
 class GitLabHelper {
-	constructor() {
-		this.baseUrl = 'https://gitlab.com/api/v4';
+	constructor(apiBaseUrl = DEFAULT_GITLAB_API_BASE_URL) {
+		this.baseUrl = (apiBaseUrl || DEFAULT_GITLAB_API_BASE_URL).replace(/\/+$/, '');
 		this.cache = {
 			data: null,
 			cacheKey: null,
