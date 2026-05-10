@@ -61,13 +61,13 @@ function handleUsernameValidationError(errMessage) {
 	}
 }
 
-function mapGitLabReportItem(item, projects, type) {
+function mapGitLabReportItem(item, projects, type, gitlabApiBaseUrl) {
 	const project = projects.find((p) => p.id === item.project_id);
 	const repoName = project ? project.name : 'unknown';
 
 	return {
 		...item,
-		repository_url: `${gitlabHelper.baseUrl}/projects/${item.project_id}`,
+		repository_url: `${gitlabApiBaseUrl}/projects/${item.project_id}`,
 		html_url:
 			type === 'issue'
 				? item.web_url || (project ? `${project.web_url}/-/issues/${item.iid}` : '')
@@ -80,9 +80,13 @@ function mapGitLabReportItem(item, projects, type) {
 	};
 }
 
-function mapGitLabReportData(data) {
-	const mappedIssues = (data.issues || []).map((issue) => mapGitLabReportItem(issue, data.projects, 'issue'));
-	const mappedMRs = (data.mergeRequests || data.mrs || []).map((mr) => mapGitLabReportItem(mr, data.projects, 'mr'));
+function mapGitLabReportData(data, gitlabApiBaseUrl) {
+	const mappedIssues = (data.issues || []).map((issue) =>
+		mapGitLabReportItem(issue, data.projects, 'issue', gitlabApiBaseUrl),
+	);
+	const mappedMRs = (data.mergeRequests || data.mrs || []).map((mr) =>
+		mapGitLabReportItem(mr, data.projects, 'mr', gitlabApiBaseUrl),
+	);
 
 	return {
 		githubIssuesData: { items: mappedIssues },
@@ -283,7 +287,7 @@ function allIncluded(outputTarget = 'email') {
 										gitlabToken,
 									);
 
-									const mappedData = mapGitLabReportData(data);
+									const mappedData = mapGitLabReportData(data, gitlabHelper.baseUrl);
 									githubUserData = mappedData.githubUserData;
 
 									const name =
@@ -322,7 +326,7 @@ function allIncluded(outputTarget = 'email') {
 							gitlabHelper
 								.fetchGitLabData(platformUsernameLocal, startingDate, endingDate, gitlabToken)
 								.then((data) => {
-									const mappedData = mapGitLabReportData(data);
+									const mappedData = mapGitLabReportData(data, gitlabHelper.baseUrl);
 									processGithubData(mappedData);
 									scrumGenerationInProgress = false;
 								})
