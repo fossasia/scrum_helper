@@ -20,6 +20,7 @@ let orgName = '';
 let platform = 'github';
 let platformUsername = '';
 let gitlabToken = '';
+let gitlabBaseUrl = '';
 let gitlabHelper = null;
 let usernameValidationListenerAttached = false;
 
@@ -93,7 +94,7 @@ function mapGitLabReportData(data) {
 function allIncluded(outputTarget = 'email') {
 	// Always re-instantiate gitlabHelper for gitlab platform to ensure fresh cache after refresh
 	if (platform === 'gitlab' || (typeof platform === 'undefined' && window.GitLabHelper)) {
-		gitlabHelper = new window.GitLabHelper();
+		gitlabHelper = new window.GitLabHelper(gitlabBaseUrl);
 	}
 	if (scrumGenerationInProgress) {
 		return;
@@ -154,6 +155,7 @@ function allIncluded(outputTarget = 'email') {
 				'gitlabUsername',
 				'githubToken',
 				'gitlabToken',
+				'gitlabBaseUrl',
 				'projectName',
 				'startingDate',
 				'endingDate',
@@ -209,6 +211,10 @@ function allIncluded(outputTarget = 'email') {
 				chrome.storage.local.remove(['userReason']);
 				githubToken = items.githubToken;
 				gitlabToken = items.gitlabToken || '';
+				gitlabBaseUrl = items.gitlabBaseUrl || '';
+				if (platform === 'gitlab' && window.GitLabHelper) {
+					gitlabHelper = new window.GitLabHelper(gitlabBaseUrl);
+				}
 				yesterdayContribution = items.yesterdayContribution;
 
 				onlyIssues = items.onlyIssues === true;
@@ -259,7 +265,7 @@ function allIncluded(outputTarget = 'email') {
 						return;
 					}
 				} else if (platform === 'gitlab') {
-					if (!gitlabHelper) gitlabHelper = new window.GitLabHelper();
+					if (!gitlabHelper) gitlabHelper = new window.GitLabHelper(gitlabBaseUrl);
 					if (platformUsernameLocal) {
 						const generateBtn = document.getElementById('generateReport');
 						if (generateBtn && outputTarget === 'popup') {
@@ -1943,7 +1949,7 @@ async function forceGitlabDataRefresh() {
 	hasInjectedContent = false;
 	// Re-instantiate gitlabHelper to ensure a fresh instance for next API call
 	if (window.GitLabHelper) {
-		gitlabHelper = new window.GitLabHelper();
+		gitlabHelper = new window.GitLabHelper(gitlabBaseUrl);
 	}
 	return { success: true };
 }
