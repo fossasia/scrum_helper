@@ -60,6 +60,36 @@ function handleUsernameValidationError(errMessage) {
 	}
 }
 
+function mapGitLabReportItem(item, projects, type) {
+	const project = projects.find((p) => p.id === item.project_id);
+	const repoName = project ? project.name : 'unknown';
+
+	return {
+		...item,
+		repository_url: `https://gitlab.com/api/v4/projects/${item.project_id}`,
+		html_url:
+			type === 'issue'
+				? item.web_url || (project ? `${project.web_url}/-/issues/${item.iid}` : '')
+				: item.web_url || (project ? `${project.web_url}/-/merge_requests/${item.iid}` : ''),
+		number: item.iid,
+		title: item.title,
+		state: type === 'issue' && item.state === 'opened' ? 'open' : item.state,
+		project: repoName,
+		pull_request: type === 'mr',
+	};
+}
+
+function mapGitLabReportData(data) {
+	const mappedIssues = (data.issues || []).map((issue) => mapGitLabReportItem(issue, data.projects, 'issue'));
+	const mappedMRs = (data.mergeRequests || data.mrs || []).map((mr) => mapGitLabReportItem(mr, data.projects, 'mr'));
+
+	return {
+		githubIssuesData: { items: mappedIssues },
+		githubPrsReviewData: { items: mappedMRs },
+		githubUserData: data.user || {},
+	};
+}
+
 function allIncluded(outputTarget = 'email') {
 	// Always re-instantiate gitlabHelper for gitlab platform to ensure fresh cache after refresh
 	if (platform === 'gitlab' || (typeof platform === 'undefined' && window.GitLabHelper)) {
@@ -247,33 +277,7 @@ function allIncluded(outputTarget = 'email') {
 										gitlabToken,
 									);
 
-									function mapGitLabItem(item, projects, type) {
-										const project = projects.find((p) => p.id === item.project_id);
-										const repoName = project ? project.name : 'unknown';
-
-										return {
-											...item,
-											repository_url: `https://gitlab.com/api/v4/projects/${item.project_id}`,
-											html_url:
-												type === 'issue'
-													? item.web_url || (project ? `${project.web_url}/-/issues/${item.iid}` : '')
-													: item.web_url || (project ? `${project.web_url}/-/merge_requests/${item.iid}` : ''),
-											number: item.iid,
-											title: item.title,
-											state: type === 'issue' && item.state === 'opened' ? 'open' : item.state,
-											project: repoName,
-											pull_request: type === 'mr',
-										};
-									}
-									const mappedIssues = (data.issues || []).map((issue) => mapGitLabItem(issue, data.projects, 'issue'));
-									const mappedMRs = (data.mergeRequests || data.mrs || []).map((mr) =>
-										mapGitLabItem(mr, data.projects, 'mr'),
-									);
-									const mappedData = {
-										githubIssuesData: { items: mappedIssues },
-										githubPrsReviewData: { items: mappedMRs },
-										githubUserData: data.user || {},
-									};
+									const mappedData = mapGitLabReportData(data);
 									githubUserData = mappedData.githubUserData;
 
 									const name =
@@ -312,32 +316,7 @@ function allIncluded(outputTarget = 'email') {
 							gitlabHelper
 								.fetchGitLabData(platformUsernameLocal, startingDate, endingDate, gitlabToken)
 								.then((data) => {
-									function mapGitLabItem(item, projects, type) {
-										const project = projects.find((p) => p.id === item.project_id);
-										const repoName = project ? project.name : 'unknown';
-										return {
-											...item,
-											repository_url: `https://gitlab.com/api/v4/projects/${item.project_id}`,
-											html_url:
-												type === 'issue'
-													? item.web_url || (project ? `${project.web_url}/-/issues/${item.iid}` : '')
-													: item.web_url || (project ? `${project.web_url}/-/merge_requests/${item.iid}` : ''),
-											number: item.iid,
-											title: item.title,
-											state: type === 'issue' && item.state === 'opened' ? 'open' : item.state,
-											project: repoName,
-											pull_request: type === 'mr',
-										};
-									}
-									const mappedIssues = (data.issues || []).map((issue) => mapGitLabItem(issue, data.projects, 'issue'));
-									const mappedMRs = (data.mergeRequests || data.mrs || []).map((mr) =>
-										mapGitLabItem(mr, data.projects, 'mr'),
-									);
-									const mappedData = {
-										githubIssuesData: { items: mappedIssues },
-										githubPrsReviewData: { items: mappedMRs },
-										githubUserData: data.user || {},
-									};
+									const mappedData = mapGitLabReportData(data);
 									processGithubData(mappedData);
 									scrumGenerationInProgress = false;
 								})
