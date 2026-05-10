@@ -103,9 +103,7 @@ function getBlockerHeading(reportEl) {
 	if (!reportEl) {
 		return null;
 	}
-
-	const headings = reportEl.querySelectorAll('b');
-	return headings.length > 0 ? headings[headings.length - 1] : null;
+	return reportEl ? reportEl.querySelector('b#blockerSectionHeading') : null;
 }
 
 function extractBlockerReasonFromReport(reportEl) {
