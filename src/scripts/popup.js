@@ -1813,13 +1813,13 @@ function buildScrumSubjectFromPopup() {
 	return `[Scrum]${projectName ? ' - ' + projectName : ''} - ${dateCode}`;
 }
 
-function setPlatformDropdown(value) {
-	if (value === 'gitlab') {
-		dropdownSelected.innerHTML = '<i class="fab fa-gitlab mr-2"></i> GitLab';
-	} else {
-		dropdownSelected.innerHTML = '<i class="fab fa-github mr-2"></i> GitHub';
-	}
+function renderSelectedPlatform(value) {
+	const provider = window.getScmProvider(value);
+	dropdownSelected.innerHTML = `<i class="${provider.iconClass} mr-2"></i> ${provider.displayName}`;
+}
 
+function setPlatformDropdown(value) {
+	renderSelectedPlatform(value);
 	const platformUsername = document.getElementById('platformUsername');
 	if (platformUsername) {
 		const currentPlatform = platformSelectHidden.value;
@@ -1935,11 +1935,7 @@ dropdownList.querySelectorAll('li').forEach((item, idx, arr) => {
 browser.storage.local.get(['platform']).then((result) => {
 	const platform = result.platform || 'github';
 	// Just update the UI without clearing username when restoring from storage
-	if (platform === 'gitlab') {
-		dropdownSelected.innerHTML = '<i class="fab fa-gitlab mr-2"></i> GitLab';
-	} else {
-		dropdownSelected.innerHTML = '<i class="fab fa-github mr-2"></i> GitHub';
-	}
+	renderSelectedPlatform(platform);
 	platformSelectHidden.value = platform;
 	updatePlatformUI(platform);
 });
