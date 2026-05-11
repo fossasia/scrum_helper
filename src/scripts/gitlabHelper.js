@@ -1,9 +1,14 @@
 // GitLab API Helper for Scrum Helper Extension
 const DEFAULT_GITLAB_API_BASE_URL = 'https://gitlab.com/api/v4';
 
+function normalizeGitLabApiBaseUrl(apiBaseUrl) {
+	const value = typeof apiBaseUrl === 'string' && apiBaseUrl.trim() ? apiBaseUrl.trim() : DEFAULT_GITLAB_API_BASE_URL;
+	return value.replace(/\/+$/, '');
+}
+
 class GitLabHelper {
 	constructor(apiBaseUrl = DEFAULT_GITLAB_API_BASE_URL) {
-		this.baseUrl = (apiBaseUrl || DEFAULT_GITLAB_API_BASE_URL).replace(/\/+$/, '');
+		this.baseUrl = normalizeGitLabApiBaseUrl(apiBaseUrl);
 		this.cache = {
 			data: null,
 			cacheKey: null,
@@ -56,10 +61,6 @@ class GitLabHelper {
 		// Include token state in cache key to invalidate when auth changes
 		const tokenMarker = token ? 'auth' : 'noauth';
 		const cacheKey = `${this.baseUrl}-${username}-${startDate}-${endDate}-${tokenMarker}`;
-
-		if (this.cache.fetching || (this.cache.cacheKey === cacheKey && this.cache.data)) {
-			return this.cache.data;
-		}
 
 		// Check if we need to load from storage
 		if (!this.cache.data && !this.cache.fetching) {

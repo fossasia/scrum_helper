@@ -61,8 +61,8 @@ function handleUsernameValidationError(errMessage) {
 	}
 }
 
-function mapGitLabReportItem(item, projects, type, gitlabApiBaseUrl) {
-	const project = projects.find((p) => p.id === item.project_id);
+function mapGitLabReportItem(item, projectById, type, gitlabApiBaseUrl) {
+	const project = projectById.get(item.project_id);
 	const repoName = project ? project.name : 'unknown';
 
 	return {
@@ -81,11 +81,13 @@ function mapGitLabReportItem(item, projects, type, gitlabApiBaseUrl) {
 }
 
 function mapGitLabReportData(data, gitlabApiBaseUrl) {
+	const projects = Array.isArray(data.projects) ? data.projects : [];
+	const projectById = new Map(projects.map((project) => [project.id, project]));
 	const mappedIssues = (data.issues || []).map((issue) =>
-		mapGitLabReportItem(issue, data.projects, 'issue', gitlabApiBaseUrl),
+		mapGitLabReportItem(issue, projectById, 'issue', gitlabApiBaseUrl),
 	);
 	const mappedMRs = (data.mergeRequests || data.mrs || []).map((mr) =>
-		mapGitLabReportItem(mr, data.projects, 'mr', gitlabApiBaseUrl),
+		mapGitLabReportItem(mr, projectById, 'mr', gitlabApiBaseUrl),
 	);
 
 	return {
