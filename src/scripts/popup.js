@@ -1818,6 +1818,44 @@ function renderSelectedPlatform(value) {
 	dropdownSelected.innerHTML = `<i class="${provider.iconClass} mr-2"></i> ${provider.displayName}`;
 }
 
+function selectPlatformOption(newPlatform) {
+	const currentPlatform = platformSelectHidden.value;
+	const platformUsername = document.getElementById('platformUsername');
+	const usernameError = document.getElementById('usernameError');
+	platformUsername.classList.remove('input-error');
+	usernameError.classList.remove('errorMessage');
+	usernameError.textContent = '';
+
+	if (newPlatform !== currentPlatform) {
+		const platformUsername = document.getElementById('platformUsername');
+		if (platformUsername) {
+			const currentUsername = platformUsername.value;
+			if (currentUsername.trim()) {
+				browser.storage.local.set({ [`${currentPlatform}Username`]: currentUsername });
+			}
+		}
+	}
+
+	setPlatformDropdown(newPlatform);
+	customDropdown.classList.remove('open');
+	dropdownList.classList.add('hidden');
+}
+
+function renderPlatformDropdownOptions() {
+	dropdownList.innerHTML = '';
+	window.SCM_PROVIDER_IDS.forEach((providerId) => {
+		const provider = window.getScmProvider(providerId);
+		const item = document.createElement('li');
+		item.className = 'hover:bg-gray-100';
+		item.dataset.value = provider.platformId;
+		item.setAttribute('tabindex', '0');
+		item.style.cssText =
+			'padding-left: 8px; padding-right: 16px; padding-top: 8px; padding-bottom: 8px; display: flex; align-items: center; cursor: pointer;';
+		item.innerHTML = `<i class="${provider.iconClass}" style="margin-right: 12px; font-size: 18px;"></i> ${provider.displayName}`;
+		dropdownList.appendChild(item);
+	});
+}
+
 function setPlatformDropdown(value) {
 	renderSelectedPlatform(value);
 	const platformUsername = document.getElementById('platformUsername');
@@ -1850,6 +1888,8 @@ function setPlatformDropdown(value) {
 	updatePlatformUI(value);
 }
 
+renderPlatformDropdownOptions();
+
 dropdownBtn.addEventListener('click', (e) => {
 	e.stopPropagation();
 	customDropdown.classList.toggle('open');
@@ -1859,26 +1899,7 @@ dropdownBtn.addEventListener('click', (e) => {
 dropdownList.querySelectorAll('li').forEach((item) => {
 	item.addEventListener('click', function (e) {
 		const newPlatform = this.getAttribute('data-value');
-		const currentPlatform = platformSelectHidden.value;
-		const platformUsername = document.getElementById('platformUsername');
-		const usernameError = document.getElementById('usernameError');
-		platformUsername.classList.remove('input-error');
-		usernameError.classList.remove('errorMessage');
-		usernameError.textContent = '';
-
-		if (newPlatform !== currentPlatform) {
-			const platformUsername = document.getElementById('platformUsername');
-			if (platformUsername) {
-				const currentUsername = platformUsername.value;
-				if (currentUsername.trim()) {
-					browser.storage.local.set({ [`${currentPlatform}Username`]: currentUsername });
-				}
-			}
-		}
-
-		setPlatformDropdown(newPlatform);
-		customDropdown.classList.remove('open');
-		dropdownList.classList.add('hidden');
+		selectPlatformOption(newPlatform);
 	});
 });
 
@@ -1910,22 +1931,7 @@ dropdownList.querySelectorAll('li').forEach((item, idx, arr) => {
 		} else if (e.key === 'Enter' || e.key === ' ') {
 			e.preventDefault();
 			const newPlatform = this.getAttribute('data-value');
-			const currentPlatform = platformSelectHidden.value;
-
-			// Save current username for current platform before switching
-			if (newPlatform !== currentPlatform) {
-				const platformUsername = document.getElementById('platformUsername');
-				if (platformUsername) {
-					const currentUsername = platformUsername.value;
-					if (currentUsername.trim()) {
-						browser.storage.local.set({ [`${currentPlatform}Username`]: currentUsername });
-					}
-				}
-			}
-
-			setPlatformDropdown(newPlatform);
-			customDropdown.classList.remove('open');
-			dropdownList.classList.add('hidden');
+			selectPlatformOption(newPlatform);
 			dropdownBtn.focus();
 		}
 	});
