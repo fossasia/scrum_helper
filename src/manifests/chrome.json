@@ -29,6 +29,7 @@
       ],
       "js": [
         "scripts/browser-polyfill.min.js",
+        "scripts/config.js",
         "scripts/jquery-3.2.1.min.js",
         "scripts/emailClientAdapter.js",
         "scripts/gitlabHelper.js",

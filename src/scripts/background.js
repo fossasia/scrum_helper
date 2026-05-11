@@ -1,6 +1,6 @@
 if (typeof importScripts === 'function') {
 	try {
-		importScripts('browser-polyfill.min.js');
+		importScripts('browser-polyfill.min.js', 'config.js');
 	} catch (e) {
 		console.error('Failed to import polyfill in background:', e);
 	}
@@ -23,7 +23,7 @@ function applyDisplayMode(mode) {
 }
 
 // Initialize display mode on startup
-browser.storage.local.get({ displayMode: 'sidePanel' }).then((result) => {
+browser.storage.local.get({ displayMode: SCRUM_HELPER_CONFIG?.DEFAULT_DISPLAY_MODE }).then((result) => {
 	applyDisplayMode(result.displayMode);
 });
 

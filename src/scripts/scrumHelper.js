@@ -17,7 +17,7 @@ let hasInjectedContent = false;
 let scrumGenerationInProgress = false;
 
 let orgName = '';
-let platform = 'github';
+let platform = SCRUM_HELPER_CONFIG?.DEFAULT_PLATFORM;
 let platformUsername = '';
 let gitlabToken = '';
 let gitlabHelper = null;
