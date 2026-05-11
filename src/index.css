@@ -161,6 +161,7 @@ hr,
 }
 
 .dark-mode input[type="text"],
+.dark-mode input[type="url"],
 .dark-mode input[type="date"],
 .dark-mode #scrumReport {
     background-color: #404040 !important;

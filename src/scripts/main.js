@@ -143,7 +143,6 @@ if (!window.clearScrumHelperToast) {
 	};
 }
 
-
 // Backwards-compatible wrapper used across the codebase
 if (!window.showPopupMessage) {
 	window.showPopupMessage = function showPopupMessage(message, options = {}) {
