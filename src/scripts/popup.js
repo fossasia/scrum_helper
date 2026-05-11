@@ -2131,6 +2131,6 @@ function validateOrgOnBlur(org) {
 		})
 		.catch((err) => {
 			console.log('[Org Check] Error validating organisation:', org, err);
-			showPopupMessage(browser.i18n.getMessage('orgValidationErrorMessage'));
+			showPopupMessage(browser.i18n.getMessage('orgValidationErrorMessage'), { variant: 'error' });
 		});
 }
