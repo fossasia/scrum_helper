@@ -1,6 +1,7 @@
 const platformUsernameElement = document.getElementById('platformUsername');
 const githubTokenElement = document.getElementById('githubToken');
 const gitlabTokenElement = document.getElementById('gitlabToken');
+const gitlabBaseUrlElement = document.getElementById('gitlabBaseUrl');
 const cacheInputElement = document.getElementById('cacheInput');
 const projectNameElement = document.getElementById('projectName');
 const yesterdayContributionElement = document.getElementById('yesterdayContribution');
@@ -174,6 +175,7 @@ function handleBodyOnLoad() {
 			'cacheInput',
 			'githubToken',
 			'gitlabToken',
+			'gitlabBaseUrl',
 			'showCommits',
 		])
 		.then((items) => {
@@ -189,6 +191,9 @@ function handleBodyOnLoad() {
 			}
 			if (items.gitlabToken && gitlabTokenElement) {
 				gitlabTokenElement.value = items.gitlabToken;
+			}
+			if (items.gitlabBaseUrl && gitlabBaseUrlElement) {
+				gitlabBaseUrlElement.value = items.gitlabBaseUrl;
 			}
 			if (items.projectName) {
 				projectNameElement.value = items.projectName;
@@ -296,6 +301,10 @@ function handleGitlabTokenChange() {
 	const value = gitlabTokenElement.value;
 	browser.storage.local.set({ gitlabToken: value });
 }
+function handleGitlabBaseUrlChange() {
+	const value = gitlabBaseUrlElement.value.trim();
+	browser.storage.local.set({ gitlabBaseUrl: value });
+}
 function handleProjectNameChange() {
 	const value = projectNameElement.value;
 	browser.storage.local.set({ projectName: value });
@@ -330,6 +339,9 @@ if (githubTokenElement) {
 }
 if (gitlabTokenElement) {
 	gitlabTokenElement.addEventListener('keyup', handleGitlabTokenChange);
+}
+if (gitlabBaseUrlElement) {
+	gitlabBaseUrlElement.addEventListener('input', handleGitlabBaseUrlChange);
 }
 cacheInputElement.addEventListener('keyup', handleCacheInputChange);
 projectNameElement.addEventListener('keyup', handleProjectNameChange);

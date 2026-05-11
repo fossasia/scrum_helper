@@ -497,6 +497,19 @@
 					</div>
 
 					<div class="gitlabOnlySection hidden mt-3">
+						<div class="flex items-center">
+							<p class="text-sm font-medium" data-i18n="gitlabBaseUrlLabel">GitLab API Base URL</p>
+							<span class="tooltip-container ml-2">
+								<i class="fa fa-question-circle question-icon"></i>
+								<span class="tooltip-bubble" data-i18n="gitlabBaseUrlTooltip">
+									Leave blank to use GitLab.com. For self-managed GitLab, enter the API v4 base URL.
+								</span>
+							</span>
+						</div>
+						<input id="gitlabBaseUrl" type="url"
+							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
+							data-i18n-placeholder="gitlabBaseUrlPlaceholder">
+
 						<div class="flex items-center justify-between">
 							<div class="flex">
 								<p class="text-sm font-medium" data-i18n="gitlabTokenLabel">Your GitLab Token</p>

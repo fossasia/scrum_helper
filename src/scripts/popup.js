@@ -128,6 +128,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	// GitLab token elements
 	const gitlabTokenInput = document.getElementById('gitlabToken');
+	const gitlabBaseUrlInput = document.getElementById('gitlabBaseUrl');
 	const toggleGitlabTokenBtn = document.getElementById('toggleGitlabTokenVisibility');
 	const gitlabTokenEyeIcon = document.getElementById('gitlabTokenEyeIcon');
 	let gitlabTokenVisible = false;
@@ -585,6 +586,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				'showOpenLabel',
 				'showCommits',
 				'githubToken',
+				'gitlabBaseUrl',
 				'cacheInput',
 				'onlyIssues',
 				'onlyPRs',
@@ -642,6 +644,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					browser?.storage.local.set({ onlyPRs: false });
 				}
 				if (result.githubToken) githubTokenInput.value = result.githubToken;
+				if (result.gitlabBaseUrl && gitlabBaseUrlInput) gitlabBaseUrlInput.value = result.gitlabBaseUrl;
 				if (result.cacheInput) cacheInput.value = result.cacheInput;
 				if (typeof result.yesterdayContribution !== 'undefined') yesterdayRadio.checked = result.yesterdayContribution;
 				if (result.startingDate) startingDateInput.value = result.startingDate;
@@ -953,6 +956,11 @@ document.addEventListener('DOMContentLoaded', () => {
 		githubTokenInput.addEventListener('input', () => {
 			browser.storage.local.set({ githubToken: githubTokenInput.value });
 		});
+		if (gitlabBaseUrlInput) {
+			gitlabBaseUrlInput.addEventListener('input', () => {
+				browser.storage.local.set({ gitlabBaseUrl: gitlabBaseUrlInput.value.trim() });
+			});
+		}
 		cacheInput.addEventListener('input', () => {
 			browser.storage.local.set({ cacheInput: cacheInput.value });
 		});
