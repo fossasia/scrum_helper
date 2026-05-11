@@ -1727,14 +1727,11 @@ browser.storage.local.get(['platform']).then((result) => {
 
 // Update UI for platform
 function updatePlatformUI(platform) {
+	const provider = window.getScmProvider(platform);
 	const usernameLabel = document.getElementById('usernameLabel');
 	if (usernameLabel) {
-		if (platform === 'gitlab') {
-			usernameLabel.setAttribute('data-i18n', 'gitlabUsernameLabel');
-		} else {
-			usernameLabel.setAttribute('data-i18n', 'githubUsernameLabel');
-		}
-		const key = usernameLabel.getAttribute('data-i18n');
+		const key = provider.usernameLabelI18nKey;
+		usernameLabel.setAttribute('data-i18n', key);
 		const message = browser.i18n.getMessage(key);
 		if (message) {
 			usernameLabel.textContent = message;
