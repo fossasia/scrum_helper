@@ -550,6 +550,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			let lastScrumReportHtml = storageValues[`${activePlatform}LastScrumReportHtml`];
 			let lastScrumReportCacheKey = storageValues[`${activePlatform}LastScrumReportCacheKey`];
 			let lastScrumReportUsername = storageValues[`${activePlatform}LastScrumReportUsername`];
+			const activePlatformUsernameKey = window.getScmUsernameStorageKey(activePlatform);
 
 			if (
 				storageValues.lastScrumReportHtml &&
@@ -561,10 +562,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				lastScrumReportUsername = storageValues.lastScrumReportUsername;
 			}
 
-			const expectedUsername =
-				activePlatform === 'gitlab'
-					? storageValues.gitlabUsername || storageValues.platformUsername
-					: storageValues.githubUsername || storageValues.platformUsername;
+			const expectedUsername = storageValues[activePlatformUsernameKey] || storageValues.platformUsername;
 
 			const isUsernameMatch = lastScrumReportUsername
 				? lastScrumReportUsername === expectedUsername
@@ -603,7 +601,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	function initializePopup() {
 		browser.storage.local.get(['platform', 'platformUsername']).then((result) => {
 			if (result.platformUsername && result.platform) {
-				const platformUsernameKey = `${result.platform}Username`;
+				const platformUsernameKey = window.getScmUsernameStorageKey(result.platform);
 				browser.storage.local.set({ [platformUsernameKey]: result.platformUsername });
 				browser.storage.local.remove(['platformUsername']);
 				console.log(`[MIGRATION] Migrated platformUsername to ${platformUsernameKey}`);
@@ -708,7 +706,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 				// Load platform-specific username
 				const platform = result.platform || 'github';
-				const platformUsernameKey = `${platform}Username`;
+				const platformUsernameKey = window.getScmUsernameStorageKey(platform);
 				platformUsername.value = result[platformUsernameKey] || '';
 				window.updateGenerateButtonState && window.updateGenerateButtonState();
 				checkTokenForShowCommits();
@@ -776,7 +774,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				usernameError.classList.remove('errorMessage');
 				usernameError.textContent = '';
 				const platform = result.platform || 'github';
-				const platformUsernameKey = `${platform}Username`;
+				const platformUsernameKey = window.getScmUsernameStorageKey(platform);
 
 				browser.storage.local
 					.set({
@@ -1069,7 +1067,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		platformUsername.addEventListener('input', () => {
 			browser.storage.local.get(['platform']).then((result) => {
 				const platform = result.platform || 'github';
-				const platformUsernameKey = `${platform}Username`;
+				const platformUsernameKey = window.getScmUsernameStorageKey(platform);
 				browser.storage.local.set({ [platformUsernameKey]: platformUsername.value });
 			});
 			window.updateGenerateButtonState && window.updateGenerateButtonState();
@@ -1174,7 +1172,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				]);
 
 				const platform = items.platform || 'github';
-				const platformUsernameKey = `${platform}Username`;
+				const platformUsernameKey = window.getScmUsernameStorageKey(platform);
 				const username = items[platformUsernameKey];
 
 				if (!username) {
@@ -1288,7 +1286,7 @@ document.addEventListener('DOMContentLoaded', () => {
 						]);
 
 						const platform = items.platform || 'github';
-						const platformUsernameKey = `${platform}Username`;
+						const platformUsernameKey = window.getScmUsernameStorageKey(platform);
 						const username = items[platformUsernameKey];
 
 						if (!username) {
@@ -1406,7 +1404,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		function debugRepoFetch() {
 			browser.storage.local.get(['platform', 'githubUsername', 'githubToken', 'orgName']).then((items) => {
 				const platform = items.platform || 'github';
-				const platformUsernameKey = `${platform}Username`;
+				const platformUsernameKey = window.getScmUsernameStorageKey(platform);
 				const username = items[platformUsernameKey];
 				console.log('Current settings:', {
 					username: username,
@@ -1442,7 +1440,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			browser.storage.local.get(['platform', 'githubUsername', 'githubToken']).then((items) => {
 				const platform = items.platform || 'github';
-				const platformUsernameKey = `${platform}Username`;
+				const platformUsernameKey = window.getScmUsernameStorageKey(platform);
 				const username = items[platformUsernameKey];
 				console.log('Storage data for repo fetch:', {
 					hasUsername: !!username,
@@ -1485,7 +1483,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					'orgName',
 				]);
 				const platform = storageItems.platform || 'github';
-				const platformUsernameKey = `${platform}Username`;
+				const platformUsernameKey = window.getScmUsernameStorageKey(platform);
 				const username = storageItems[platformUsernameKey];
 				const repoCacheKey = `repos-${username}-${storageItems.orgName || ''}`;
 				const now = Date.now();
@@ -1680,7 +1678,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		browser.storage.local.get(['platform', 'githubUsername']).then((items) => {
 			const platform = items.platform || 'github';
-			const platformUsernameKey = `${platform}Username`;
+			const platformUsernameKey = window.getScmUsernameStorageKey(platform);
 			const username = items[platformUsernameKey];
 			if (username && useRepoFilter.checked && availableRepos.length === 0) {
 				setTimeout(() => loadRepos(), 1000);
@@ -1770,13 +1768,15 @@ platformSelect.addEventListener('change', () => {
 		const currentPlatform = platformSelect.value === 'github' ? 'gitlab' : 'github'; // Get the platform we're switching from
 		const currentUsername = platformUsername.value;
 		if (currentUsername.trim()) {
-			browser.storage.local.set({ [`${currentPlatform}Username`]: currentUsername });
+			const currentPlatformUsernameKey = window.getScmUsernameStorageKey(currentPlatform);
+			browser.storage.local.set({ [currentPlatformUsernameKey]: currentUsername });
 		}
 	}
 
-	browser.storage.local.get([`${platform}Username`]).then((result) => {
+	const platformUsernameKey = window.getScmUsernameStorageKey(platform);
+	browser.storage.local.get([platformUsernameKey]).then((result) => {
 		if (platformUsername) {
-			platformUsername.value = result[`${platform}Username`] || '';
+			platformUsername.value = result[platformUsernameKey] || '';
 			window.updateGenerateButtonState && window.updateGenerateButtonState();
 		}
 	});
@@ -1817,7 +1817,8 @@ function selectPlatformOption(newPlatform) {
 		if (platformUsername) {
 			const currentUsername = platformUsername.value;
 			if (currentUsername.trim()) {
-				browser.storage.local.set({ [`${currentPlatform}Username`]: currentUsername });
+				const currentPlatformUsernameKey = window.getScmUsernameStorageKey(currentPlatform);
+				browser.storage.local.set({ [currentPlatformUsernameKey]: currentUsername });
 			}
 		}
 	}
@@ -1849,7 +1850,8 @@ function setPlatformDropdown(value) {
 		const currentPlatform = platformSelectHidden.value;
 		const currentUsername = platformUsername.value;
 		if (currentUsername.trim()) {
-			browser.storage.local.set({ [`${currentPlatform}Username`]: currentUsername });
+			const currentPlatformUsernameKey = window.getScmUsernameStorageKey(currentPlatform);
+			browser.storage.local.set({ [currentPlatformUsernameKey]: currentUsername });
 		}
 	}
 
@@ -1864,9 +1866,10 @@ function setPlatformDropdown(value) {
 		}
 	});
 
-	browser.storage.local.get([`${value}Username`]).then((result) => {
+	const platformUsernameKey = window.getScmUsernameStorageKey(value);
+	browser.storage.local.get([platformUsernameKey]).then((result) => {
 		if (platformUsername) {
-			platformUsername.value = result[`${value}Username`] || '';
+			platformUsername.value = result[platformUsernameKey] || '';
 			window.updateGenerateButtonState && window.updateGenerateButtonState();
 		}
 	});

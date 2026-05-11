@@ -26,9 +26,14 @@ function getScmProvider(platformId) {
 	return SCM_PROVIDER_REGISTRY[platformId] || SCM_PROVIDER_REGISTRY[SCM_PLATFORMS.GITHUB];
 }
 
+function getScmUsernameStorageKey(platformId) {
+	return `${getScmProvider(platformId).platformId}Username`;
+}
+
 if (typeof window !== 'undefined') {
 	window.SCM_PLATFORMS = SCM_PLATFORMS;
 	window.SCM_PROVIDER_REGISTRY = SCM_PROVIDER_REGISTRY;
 	window.SCM_PROVIDER_IDS = SCM_PROVIDER_IDS;
 	window.getScmProvider = getScmProvider;
+	window.getScmUsernameStorageKey = getScmUsernameStorageKey;
 }

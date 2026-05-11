@@ -146,7 +146,7 @@ function allIncluded(outputTarget = 'email') {
 				platform = items.platform || 'github';
 
 				// Load platform-specific username
-				const platformUsernameKey = `${platform}Username`;
+				const platformUsernameKey = window.getScmUsernameStorageKey(platform);
 				platformUsername = items[platformUsernameKey] || '';
 				platformUsernameLocal = platformUsername;
 				console.log(`[DEBUG] platform: ${platform}, platformUsername: ${platformUsername}`);
