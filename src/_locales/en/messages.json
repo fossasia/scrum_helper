@@ -130,6 +130,22 @@
     "message": "Leave blank to use GitLab.com. For self-managed GitLab, enter the API v4 base URL.",
     "description": "Tooltip for the GitLab API base URL input."
   },
+  "gitlabBaseUrlInvalid": {
+    "message": "Enter a valid GitLab API v4 base URL, for example https://gitlab.example.com/api/v4.",
+    "description": "Validation message shown when the GitLab API base URL is invalid."
+  },
+  "gitlabHostPermissionGranted": {
+    "message": "GitLab host access granted.",
+    "description": "Toast shown when custom GitLab host permission is granted."
+  },
+  "gitlabHostPermissionDenied": {
+    "message": "GitLab host access was not granted.",
+    "description": "Toast shown when custom GitLab host permission is denied."
+  },
+  "gitlabHostPermissionFailed": {
+    "message": "Could not request GitLab host access.",
+    "description": "Toast shown when requesting custom GitLab host permission fails."
+  },
   "showCommitsLabel": {
     "message": "Show commits on open PRs/ draft PRs",
     "description": "Label for the checkbox to show commits in open PRs."

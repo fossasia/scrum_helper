@@ -67,5 +67,8 @@
     "https://api.github.com/*",
     "https://gitlab.com/*"
   ],
+  "optional_host_permissions": [
+    "*://*/*"
+  ],
   "default_locale": "en"
 }

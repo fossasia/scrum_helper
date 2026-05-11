@@ -13,6 +13,10 @@ const userReasonElement = null;
 
 const showCommitsElement = document.getElementById('showCommits');
 
+function normalizeGitLabBaseUrl(baseUrl) {
+	return baseUrl.trim().replace(/\/+$/, '');
+}
+
 if (!window.scrumDateRangeUtils) {
 	window.scrumDateRangeUtils = {
 		formatLocalDate(date) {
@@ -302,7 +306,7 @@ function handleGitlabTokenChange() {
 	browser.storage.local.set({ gitlabToken: value });
 }
 function handleGitlabBaseUrlChange() {
-	const value = gitlabBaseUrlElement.value.trim();
+	const value = normalizeGitLabBaseUrl(gitlabBaseUrlElement.value);
 	browser.storage.local.set({ gitlabBaseUrl: value });
 }
 function handleProjectNameChange() {

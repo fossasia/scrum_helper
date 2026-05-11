@@ -446,6 +446,58 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	window.updateGenerateButtonState = updateGenerateButtonState;
 
+	function normalizeGitLabBaseUrl(baseUrl) {
+		return baseUrl.trim().replace(/\/+$/, '');
+	}
+
+	function isValidGitLabApiBaseUrl(baseUrl) {
+		if (!baseUrl) return true;
+
+		try {
+			const url = new URL(baseUrl);
+			return (
+				(url.protocol === 'http:' || url.protocol === 'https:') &&
+				url.pathname === '/api/v4' &&
+				url.search === '' &&
+				url.hash === ''
+			);
+		} catch (_error) {
+			return false;
+		}
+	}
+
+	function getGitLabHostPermissionOrigin(baseUrl) {
+		if (!baseUrl) return null;
+
+		const url = new URL(baseUrl);
+		if (url.origin === 'https://gitlab.com') return null;
+
+		return `${url.protocol}//${url.host}/*`;
+	}
+
+	async function requestGitLabHostPermission(baseUrl) {
+		const origin = getGitLabHostPermissionOrigin(baseUrl);
+		if (!origin || !browser.permissions?.request) return true;
+
+		try {
+			const hasPermission = await browser.permissions.contains({ origins: [origin] });
+			if (hasPermission) return true;
+
+			const granted = await browser.permissions.request({ origins: [origin] });
+			if (granted) {
+				window.showPopupMessage?.(browser.i18n.getMessage('gitlabHostPermissionGranted'));
+				return true;
+			}
+
+			window.showPopupMessage?.(browser.i18n.getMessage('gitlabHostPermissionDenied'));
+		} catch (error) {
+			console.error('GitLab host permission request failed:', error);
+			window.showPopupMessage?.(browser.i18n.getMessage('gitlabHostPermissionFailed'));
+		}
+
+		return false;
+	}
+
 	async function bootstrapScrumReportOnPopupLoad(generateBtn) {
 		console.log('[BOOTSTRAP] bootstrapScrumReportOnPopupLoad called');
 
@@ -722,17 +774,32 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 
 		generateBtn.addEventListener('click', () => {
-			browser.storage.local.get(['platform']).then((result) => {
+			browser.storage.local.get(['platform']).then(async (result) => {
 				platformUsername.classList.remove('input-error');
 				usernameError.classList.remove('errorMessage');
 				usernameError.textContent = '';
 				const platform = result.platform || 'github';
 				const platformUsernameKey = `${platform}Username`;
+				const gitlabBaseUrl = normalizeGitLabBaseUrl(gitlabBaseUrlInput?.value || '');
+				if (gitlabBaseUrlInput) {
+					gitlabBaseUrlInput.value = gitlabBaseUrl;
+				}
+
+				if (platformSelect.value === 'gitlab' && !isValidGitLabApiBaseUrl(gitlabBaseUrl)) {
+					window.showPopupMessage?.(browser.i18n.getMessage('gitlabBaseUrlInvalid'));
+					return;
+				}
+
+				if (platformSelect.value === 'gitlab') {
+					const hasGitLabHostPermission = await requestGitLabHostPermission(gitlabBaseUrl);
+					if (!hasGitLabHostPermission) return;
+				}
 
 				browser.storage.local
 					.set({
 						platform: platformSelect.value,
 						[platformUsernameKey]: platformUsername.value,
+						gitlabBaseUrl: gitlabBaseUrl,
 					})
 					.then(() => {
 						// Reload platform from storage before generating report
@@ -958,7 +1025,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 		if (gitlabBaseUrlInput) {
 			gitlabBaseUrlInput.addEventListener('input', () => {
-				browser.storage.local.set({ gitlabBaseUrl: gitlabBaseUrlInput.value.trim() });
+				browser.storage.local.set({ gitlabBaseUrl: normalizeGitLabBaseUrl(gitlabBaseUrlInput.value) });
 			});
 		}
 		cacheInput.addEventListener('input', () => {
