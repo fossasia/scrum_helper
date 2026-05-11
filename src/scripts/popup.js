@@ -1738,29 +1738,18 @@ function updatePlatformUI(platform) {
 		}
 	}
 
+	const visibleSettingsSection = provider.visibleSettingsSection;
 	const orgSection = document.querySelector('.orgSection');
 	if (orgSection) {
-		if (platform === 'gitlab') {
-			orgSection.classList.add('hidden');
-		} else {
-			orgSection.classList.remove('hidden');
-		}
+		orgSection.classList.toggle('hidden', visibleSettingsSection !== 'github');
 	}
 	const githubOnlySections = document.querySelectorAll('.githubOnlySection');
 	githubOnlySections.forEach((el) => {
-		if (platform === 'gitlab') {
-			el.classList.add('hidden');
-		} else {
-			el.classList.remove('hidden');
-		}
+		el.classList.toggle('hidden', visibleSettingsSection !== 'github');
 	});
 	const gitlabOnlySections = document.querySelectorAll('.gitlabOnlySection');
 	gitlabOnlySections.forEach((el) => {
-		if (platform === 'github') {
-			el.classList.add('hidden');
-		} else {
-			el.classList.remove('hidden');
-		}
+		el.classList.toggle('hidden', visibleSettingsSection !== 'gitlab');
 	});
 }
 
