@@ -20,10 +20,16 @@ const SCM_PROVIDER_REGISTRY = Object.freeze({
 	}),
 });
 
-const SCM_PROVIDER_IDS = Object.freeze([SCM_PLATFORMS.GITHUB, SCM_PLATFORMS.GITLAB]);
+const SCM_PROVIDER_IDS = Object.freeze(Object.keys(SCM_PROVIDER_REGISTRY));
 
 function getScmProvider(platformId) {
-	return SCM_PROVIDER_REGISTRY[platformId] || SCM_PROVIDER_REGISTRY[SCM_PLATFORMS.GITHUB];
+	const provider = SCM_PROVIDER_REGISTRY[platformId];
+	if (provider) {
+		return provider;
+	}
+
+	console.warn(`Unknown SCM platform "${platformId}", falling back to GitHub.`);
+	return SCM_PROVIDER_REGISTRY[SCM_PLATFORMS.GITHUB];
 }
 
 function getScmUsernameStorageKey(platformId) {
@@ -31,9 +37,11 @@ function getScmUsernameStorageKey(platformId) {
 }
 
 if (typeof window !== 'undefined') {
-	window.SCM_PLATFORMS = SCM_PLATFORMS;
-	window.SCM_PROVIDER_REGISTRY = SCM_PROVIDER_REGISTRY;
-	window.SCM_PROVIDER_IDS = SCM_PROVIDER_IDS;
-	window.getScmProvider = getScmProvider;
-	window.getScmUsernameStorageKey = getScmUsernameStorageKey;
+	window.scmProviders = Object.freeze({
+		platforms: SCM_PLATFORMS,
+		registry: SCM_PROVIDER_REGISTRY,
+		providerIds: SCM_PROVIDER_IDS,
+		getProvider: getScmProvider,
+		getUsernameStorageKey: getScmUsernameStorageKey,
+	});
 }

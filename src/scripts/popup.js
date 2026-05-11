@@ -550,7 +550,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			let lastScrumReportHtml = storageValues[`${activePlatform}LastScrumReportHtml`];
 			let lastScrumReportCacheKey = storageValues[`${activePlatform}LastScrumReportCacheKey`];
 			let lastScrumReportUsername = storageValues[`${activePlatform}LastScrumReportUsername`];
-			const activePlatformUsernameKey = window.getScmUsernameStorageKey(activePlatform);
+			const activePlatformUsernameKey = window.scmProviders.getUsernameStorageKey(activePlatform);
 
 			if (
 				storageValues.lastScrumReportHtml &&
@@ -601,7 +601,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	function initializePopup() {
 		browser.storage.local.get(['platform', 'platformUsername']).then((result) => {
 			if (result.platformUsername && result.platform) {
-				const platformUsernameKey = window.getScmUsernameStorageKey(result.platform);
+				const platformUsernameKey = window.scmProviders.getUsernameStorageKey(result.platform);
 				browser.storage.local.set({ [platformUsernameKey]: result.platformUsername });
 				browser.storage.local.remove(['platformUsername']);
 				console.log(`[MIGRATION] Migrated platformUsername to ${platformUsernameKey}`);
@@ -706,7 +706,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 				// Load platform-specific username
 				const platform = result.platform || 'github';
-				const platformUsernameKey = window.getScmUsernameStorageKey(platform);
+				const platformUsernameKey = window.scmProviders.getUsernameStorageKey(platform);
 				platformUsername.value = result[platformUsernameKey] || '';
 				window.updateGenerateButtonState && window.updateGenerateButtonState();
 				checkTokenForShowCommits();
@@ -774,7 +774,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				usernameError.classList.remove('errorMessage');
 				usernameError.textContent = '';
 				const platform = result.platform || 'github';
-				const platformUsernameKey = window.getScmUsernameStorageKey(platform);
+				const platformUsernameKey = window.scmProviders.getUsernameStorageKey(platform);
 
 				browser.storage.local
 					.set({
@@ -1067,7 +1067,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		platformUsername.addEventListener('input', () => {
 			browser.storage.local.get(['platform']).then((result) => {
 				const platform = result.platform || 'github';
-				const platformUsernameKey = window.getScmUsernameStorageKey(platform);
+				const platformUsernameKey = window.scmProviders.getUsernameStorageKey(platform);
 				browser.storage.local.set({ [platformUsernameKey]: platformUsername.value });
 			});
 			window.updateGenerateButtonState && window.updateGenerateButtonState();
@@ -1172,7 +1172,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				]);
 
 				const platform = items.platform || 'github';
-				const platformUsernameKey = window.getScmUsernameStorageKey(platform);
+				const platformUsernameKey = window.scmProviders.getUsernameStorageKey(platform);
 				const username = items[platformUsernameKey];
 
 				if (!username) {
@@ -1286,7 +1286,7 @@ document.addEventListener('DOMContentLoaded', () => {
 						]);
 
 						const platform = items.platform || 'github';
-						const platformUsernameKey = window.getScmUsernameStorageKey(platform);
+						const platformUsernameKey = window.scmProviders.getUsernameStorageKey(platform);
 						const username = items[platformUsernameKey];
 
 						if (!username) {
@@ -1404,7 +1404,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		function debugRepoFetch() {
 			browser.storage.local.get(['platform', 'githubUsername', 'githubToken', 'orgName']).then((items) => {
 				const platform = items.platform || 'github';
-				const platformUsernameKey = window.getScmUsernameStorageKey(platform);
+				const platformUsernameKey = window.scmProviders.getUsernameStorageKey(platform);
 				const username = items[platformUsernameKey];
 				console.log('Current settings:', {
 					username: username,
@@ -1440,7 +1440,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			browser.storage.local.get(['platform', 'githubUsername', 'githubToken']).then((items) => {
 				const platform = items.platform || 'github';
-				const platformUsernameKey = window.getScmUsernameStorageKey(platform);
+				const platformUsernameKey = window.scmProviders.getUsernameStorageKey(platform);
 				const username = items[platformUsernameKey];
 				console.log('Storage data for repo fetch:', {
 					hasUsername: !!username,
@@ -1483,7 +1483,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					'orgName',
 				]);
 				const platform = storageItems.platform || 'github';
-				const platformUsernameKey = window.getScmUsernameStorageKey(platform);
+				const platformUsernameKey = window.scmProviders.getUsernameStorageKey(platform);
 				const username = storageItems[platformUsernameKey];
 				const repoCacheKey = `repos-${username}-${storageItems.orgName || ''}`;
 				const now = Date.now();
@@ -1678,7 +1678,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		browser.storage.local.get(['platform', 'githubUsername']).then((items) => {
 			const platform = items.platform || 'github';
-			const platformUsernameKey = window.getScmUsernameStorageKey(platform);
+			const platformUsernameKey = window.scmProviders.getUsernameStorageKey(platform);
 			const username = items[platformUsernameKey];
 			if (username && useRepoFilter.checked && availableRepos.length === 0) {
 				setTimeout(() => loadRepos(), 1000);
@@ -1725,7 +1725,7 @@ browser.storage.local.get(['platform']).then((result) => {
 
 // Update UI for platform
 function updatePlatformUI(platform) {
-	const provider = window.getScmProvider(platform);
+	const provider = window.scmProviders.getProvider(platform);
 	const usernameLabel = document.getElementById('usernameLabel');
 	if (usernameLabel) {
 		const key = provider.usernameLabelI18nKey;
@@ -1766,14 +1766,10 @@ platformSelect.addEventListener('change', () => {
 	const platformUsername = document.getElementById('platformUsername');
 	if (platformUsername) {
 		const currentPlatform = platformSelect.value === 'github' ? 'gitlab' : 'github'; // Get the platform we're switching from
-		const currentUsername = platformUsername.value;
-		if (currentUsername.trim()) {
-			const currentPlatformUsernameKey = window.getScmUsernameStorageKey(currentPlatform);
-			browser.storage.local.set({ [currentPlatformUsernameKey]: currentUsername });
-		}
+		savePlatformUsername(currentPlatform, platformUsername);
 	}
 
-	const platformUsernameKey = window.getScmUsernameStorageKey(platform);
+	const platformUsernameKey = window.scmProviders.getUsernameStorageKey(platform);
 	browser.storage.local.get([platformUsernameKey]).then((result) => {
 		if (platformUsername) {
 			platformUsername.value = result[platformUsernameKey] || '';
@@ -1799,28 +1795,46 @@ function buildScrumSubjectFromPopup() {
 	return `[Scrum]${projectName ? ' - ' + projectName : ''} - ${dateCode}`;
 }
 
+function createPlatformIcon(provider, className = '') {
+	const icon = document.createElement('i');
+	icon.className = className ? `${provider.iconClass} ${className}` : provider.iconClass;
+	return icon;
+}
+
 function renderSelectedPlatform(value) {
-	const provider = window.getScmProvider(value);
-	dropdownSelected.innerHTML = `<i class="${provider.iconClass} mr-2"></i> ${provider.displayName}`;
+	const provider = window.scmProviders.getProvider(value);
+	dropdownSelected.replaceChildren(createPlatformIcon(provider, 'mr-2'), document.createTextNode(provider.displayName));
+}
+
+function savePlatformUsername(platform, usernameInput) {
+	if (!usernameInput) {
+		return;
+	}
+
+	const currentUsername = usernameInput.value.trim();
+	if (!currentUsername) {
+		return;
+	}
+
+	const platformUsernameKey = window.scmProviders.getUsernameStorageKey(platform);
+	browser.storage.local.set({ [platformUsernameKey]: currentUsername });
 }
 
 function selectPlatformOption(newPlatform) {
 	const currentPlatform = platformSelectHidden.value;
 	const platformUsername = document.getElementById('platformUsername');
 	const usernameError = document.getElementById('usernameError');
-	platformUsername.classList.remove('input-error');
-	usernameError.classList.remove('errorMessage');
-	usernameError.textContent = '';
+
+	if (platformUsername) {
+		platformUsername.classList.remove('input-error');
+	}
+	if (usernameError) {
+		usernameError.classList.remove('errorMessage');
+		usernameError.textContent = '';
+	}
 
 	if (newPlatform !== currentPlatform) {
-		const platformUsername = document.getElementById('platformUsername');
-		if (platformUsername) {
-			const currentUsername = platformUsername.value;
-			if (currentUsername.trim()) {
-				const currentPlatformUsernameKey = window.getScmUsernameStorageKey(currentPlatform);
-				browser.storage.local.set({ [currentPlatformUsernameKey]: currentUsername });
-			}
-		}
+		savePlatformUsername(currentPlatform, platformUsername);
 	}
 
 	setPlatformDropdown(newPlatform);
@@ -1829,16 +1843,19 @@ function selectPlatformOption(newPlatform) {
 }
 
 function renderPlatformDropdownOptions() {
-	dropdownList.innerHTML = '';
-	window.SCM_PROVIDER_IDS.forEach((providerId) => {
-		const provider = window.getScmProvider(providerId);
+	dropdownList.replaceChildren();
+	window.scmProviders.providerIds.forEach((providerId) => {
+		const provider = window.scmProviders.getProvider(providerId);
 		const item = document.createElement('li');
 		item.className = 'hover:bg-gray-100';
 		item.dataset.value = provider.platformId;
 		item.setAttribute('tabindex', '0');
 		item.style.cssText =
 			'padding-left: 8px; padding-right: 16px; padding-top: 8px; padding-bottom: 8px; display: flex; align-items: center; cursor: pointer;';
-		item.innerHTML = `<i class="${provider.iconClass}" style="margin-right: 12px; font-size: 18px;"></i> ${provider.displayName}`;
+		const icon = createPlatformIcon(provider);
+		icon.style.marginRight = '12px';
+		icon.style.fontSize = '18px';
+		item.replaceChildren(icon, document.createTextNode(provider.displayName));
 		dropdownList.appendChild(item);
 	});
 }
@@ -1848,11 +1865,7 @@ function setPlatformDropdown(value) {
 	const platformUsername = document.getElementById('platformUsername');
 	if (platformUsername) {
 		const currentPlatform = platformSelectHidden.value;
-		const currentUsername = platformUsername.value;
-		if (currentUsername.trim()) {
-			const currentPlatformUsernameKey = window.getScmUsernameStorageKey(currentPlatform);
-			browser.storage.local.set({ [currentPlatformUsernameKey]: currentUsername });
-		}
+		savePlatformUsername(currentPlatform, platformUsername);
 	}
 
 	platformSelectHidden.value = value;
@@ -1866,7 +1879,7 @@ function setPlatformDropdown(value) {
 		}
 	});
 
-	const platformUsernameKey = window.getScmUsernameStorageKey(value);
+	const platformUsernameKey = window.scmProviders.getUsernameStorageKey(value);
 	browser.storage.local.get([platformUsernameKey]).then((result) => {
 		if (platformUsername) {
 			platformUsername.value = result[platformUsernameKey] || '';
@@ -1885,11 +1898,13 @@ dropdownBtn.addEventListener('click', (e) => {
 	dropdownList.classList.toggle('hidden');
 });
 
-dropdownList.querySelectorAll('li').forEach((item) => {
-	item.addEventListener('click', function (e) {
-		const newPlatform = this.getAttribute('data-value');
-		selectPlatformOption(newPlatform);
-	});
+dropdownList.addEventListener('click', (e) => {
+	const item = e.target.closest('li[data-value]');
+	if (!item || !dropdownList.contains(item)) {
+		return;
+	}
+
+	selectPlatformOption(item.getAttribute('data-value'));
 });
 
 document.addEventListener('click', (e) => {
@@ -1899,31 +1914,38 @@ document.addEventListener('click', (e) => {
 	}
 });
 
+function getPlatformDropdownItems() {
+	return Array.from(dropdownList.querySelectorAll('li[data-value]'));
+}
+
 // Keyboard navigation
 platformDropdownBtn.addEventListener('keydown', (e) => {
 	if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
 		e.preventDefault();
 		customDropdown.classList.add('open');
 		dropdownList.classList.remove('hidden');
-		dropdownList.querySelector('li').focus();
+		dropdownList.querySelector('li[data-value]')?.focus();
 	}
 });
-dropdownList.querySelectorAll('li').forEach((item, idx, arr) => {
-	item.setAttribute('tabindex', '0');
-	item.addEventListener('keydown', function (e) {
-		if (e.key === 'ArrowDown') {
-			e.preventDefault();
-			(arr[idx + 1] || arr[0]).focus();
-		} else if (e.key === 'ArrowUp') {
-			e.preventDefault();
-			(arr[idx - 1] || arr[arr.length - 1]).focus();
-		} else if (e.key === 'Enter' || e.key === ' ') {
-			e.preventDefault();
-			const newPlatform = this.getAttribute('data-value');
-			selectPlatformOption(newPlatform);
-			dropdownBtn.focus();
-		}
-	});
+dropdownList.addEventListener('keydown', (e) => {
+	const item = e.target.closest('li[data-value]');
+	if (!item || !dropdownList.contains(item)) {
+		return;
+	}
+
+	const items = getPlatformDropdownItems();
+	const idx = items.indexOf(item);
+	if (e.key === 'ArrowDown') {
+		e.preventDefault();
+		(items[idx + 1] || items[0])?.focus();
+	} else if (e.key === 'ArrowUp') {
+		e.preventDefault();
+		(items[idx - 1] || items[items.length - 1])?.focus();
+	} else if (e.key === 'Enter' || e.key === ' ') {
+		e.preventDefault();
+		selectPlatformOption(item.getAttribute('data-value'));
+		dropdownBtn.focus();
+	}
 });
 
 // On load, restore platform from storage
