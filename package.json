@@ -29,7 +29,7 @@
     "@biomejs/biome": "2.4.11",
     "autoprefixer": "^10.5.0",
     "postcss": "^8.5.10",
-    "tailwindcss": "^4.2.2"
+    "tailwindcss": "^4.3.0"
   },
   "dependencies": {
     "@tailwindcss/cli": "^4.2.4"
