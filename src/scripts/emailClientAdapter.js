@@ -1,3 +1,18 @@
+const CLIENT_PATTERNS = [
+	{ id: 'google-groups', match: (hostname) => hostname === 'groups.google.com' },
+	{ id: 'gmail', match: (hostname) => hostname === 'mail.google.com' },
+	{
+		id: 'outlook',
+		match: (hostname) =>
+			hostname === 'outlook.com' ||
+			hostname.endsWith('.outlook.com') ||
+			hostname.endsWith('.office.com') ||
+			hostname.endsWith('.office365.com') ||
+			hostname.endsWith('outlook.live.com') ||
+			hostname.endsWith('outlook.cloud.microsoft'),
+	},
+	{ id: 'yahoo', match: (hostname) => hostname === 'mail.yahoo.com' },
+];
 class EmailClientAdapter {
 	isNewConversation() {
 		const clientType = this.detectClient();
@@ -103,18 +118,7 @@ class EmailClientAdapter {
 
 	detectClient() {
 		const hostname = window.location.hostname;
-		if (hostname === 'groups.google.com') return 'google-groups';
-		if (hostname === 'mail.google.com') return 'gmail';
-		if (
-			hostname.endsWith('.outlook.com') ||
-			hostname.endsWith('.office.com') ||
-			hostname.endsWith('.office365.com') ||
-			hostname.endsWith('outlook.live.com') ||
-			hostname.includes('.outlook.')
-		)
-			return 'outlook';
-		if (hostname === 'mail.yahoo.com') return 'yahoo';
-		return null;
+		return CLIENT_PATTERNS.find((pattern) => pattern.match(hostname))?.id || null;
 	}
 
 	getEditorElements() {
@@ -132,7 +136,7 @@ class EmailClientAdapter {
 			if (el.closest('[aria-hidden="true"]')) return false;
 
 			const style = window.getComputedStyle(el);
-			if (style.display === 'none' || style.visibility === 'hidden') return false;
+			if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') return false;
 
 			const rect = el.getBoundingClientRect();
 			return rect.width > 0 && rect.height > 0;
@@ -283,6 +287,12 @@ class EmailClientAdapter {
 		let attempts = 0;
 		return new Promise((resolve, reject) => {
 			const tryInject = () => {
+				// Check if element is still in the DOM before anything else
+				if (!document.contains(element)) {
+					console.error('Element is no longer in the DOM');
+					reject(new Error('Element is no longer in the DOM'));
+					return;
+				}
 				if (attempts >= maxRetries) {
 					console.error('Max retry attempts reached');
 					reject(new Error('Max retry attempts reached'));
