@@ -31,29 +31,12 @@ function showShortcutNotification(messageKey) {
 		return;
 	}
 
-	const existingNotification = document.querySelector('.shortcut-notification');
-	if (existingNotification) {
-		existingNotification.remove();
-	}
-
 	const message = chrome.i18n.getMessage(messageKey);
 	if (!message) {
 		return;
 	}
 
-	const notification = document.createElement('div');
-	notification.className = 'shortcut-notification';
-	notification.textContent = message;
-	document.body.appendChild(notification);
-
-	setTimeout(() => {
-		notification.style.animation = 'slideOut 0.3s ease-out';
-		setTimeout(() => {
-			if (notification.parentNode) {
-				notification.parentNode.removeChild(notification);
-			}
-		}, 300);
-	}, 2000);
+	window.scrumHelperToast?.(message, { duration: 2200, variant: 'info' });
 }
 
 function setupButtonTooltips() {
@@ -461,41 +444,6 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	window.updateGenerateButtonState = updateGenerateButtonState;
-
-	function showPopupMessage(message) {
-		if (!message) return;
-		const isDarkMode = document.body?.classList.contains('dark-mode');
-
-		const old = document.getElementById('scrum-cache-toast');
-		if (old) old.remove();
-
-		const toast = document.createElement('div');
-		toast.id = 'scrum-cache-toast';
-		toast.className = 'scrum-cache-toast-custom';
-		toast.style.background = isDarkMode ? '#ffffff' : '#1f2937';
-		toast.style.color = isDarkMode ? '#1f2937' : '#fff';
-		toast.style.border = 'none';
-		toast.style.fontWeight = 'bold';
-		toast.style.padding = '12px 16px';
-		toast.style.borderRadius = '8px';
-		toast.style.position = 'fixed';
-		toast.style.top = '12px';
-		toast.style.left = '50%';
-		toast.style.transform = 'translateX(-50%)';
-		toast.style.zIndex = '2147483647';
-		toast.style.width = 'calc(82% - 16px)';
-		toast.style.maxWidth = '340px';
-		toast.style.lineHeight = '1.4';
-		toast.style.textAlign = 'start';
-		toast.style.boxSizing = 'border-box';
-		toast.style.wordBreak = 'break-word';
-		toast.style.opacity = '1';
-		toast.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
-		toast.textContent = message;
-
-		document.body.appendChild(toast);
-		setTimeout(() => toast.remove(), 4000);
-	}
 
 	async function bootstrapScrumReportOnPopupLoad(generateBtn) {
 		console.log('[BOOTSTRAP] bootstrapScrumReportOnPopupLoad called');
@@ -914,9 +862,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			if (org) {
 				validateOrgOnBlur(org);
 			} else {
-				// Clear any existing toast if org is empty
-				const oldToast = document.getElementById('invalid-org-toast');
-				if (oldToast) oldToast.parentNode.removeChild(oldToast);
+				window.clearScrumHelperToast?.();
 			}
 		});
 		if (userReasonInput) {
@@ -2179,55 +2125,16 @@ function validateOrgOnBlur(org) {
 			console.log('[Org Check] Response status for', org, ':', res.status);
 			if (res.status === 404) {
 				console.log('[Org Check] Organization not found on GitHub:', org);
-				const oldToast = document.getElementById('invalid-org-toast');
-				if (oldToast) oldToast.parentNode.removeChild(oldToast);
-				const toastDiv = document.createElement('div');
-				toastDiv.id = 'invalid-org-toast';
-				toastDiv.className = 'toast';
-				toastDiv.style.background = '#dc2626';
-				toastDiv.style.color = '#fff';
-				toastDiv.style.fontWeight = 'bold';
-				toastDiv.style.padding = '12px 24px';
-				toastDiv.style.borderRadius = '8px';
-				toastDiv.style.position = 'fixed';
-				toastDiv.style.top = '24px';
-				toastDiv.style.left = '50%';
-				toastDiv.style.transform = 'translateX(-50%)';
-				toastDiv.style.zIndex = '9999';
-				toastDiv.innerText = browser.i18n.getMessage('orgNotFoundMessage');
-				document.body.appendChild(toastDiv);
-				setTimeout(() => {
-					if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
-				}, 3000);
+				showPopupMessage(browser.i18n.getMessage('orgNotFoundMessage'));
 				return;
 			}
-			const oldToast = document.getElementById('invalid-org-toast');
-			if (oldToast) oldToast.parentNode.removeChild(oldToast);
+			window.clearScrumHelperToast?.();
 			console.log('[Org Check] Organisation exists on GitHub:', org);
 			browser.storage.local.remove(['githubCache', 'repoCache']);
 			triggerRepoFetchIfEnabled();
 		})
 		.catch((err) => {
 			console.log('[Org Check] Error validating organisation:', org, err);
-			const oldToast = document.getElementById('invalid-org-toast');
-			if (oldToast) oldToast.parentNode.removeChild(oldToast);
-			const toastDiv = document.createElement('div');
-			toastDiv.id = 'invalid-org-toast';
-			toastDiv.className = 'toast';
-			toastDiv.style.background = '#dc2626';
-			toastDiv.style.color = '#fff';
-			toastDiv.style.fontWeight = 'bold';
-			toastDiv.style.padding = '12px 24px';
-			toastDiv.style.borderRadius = '8px';
-			toastDiv.style.position = 'fixed';
-			toastDiv.style.top = '24px';
-			toastDiv.style.left = '50%';
-			toastDiv.style.transform = 'translateX(-50%)';
-			toastDiv.style.zIndex = '9999';
-			toastDiv.innerText = browser.i18n.getMessage('orgValidationErrorMessage');
-			document.body.appendChild(toastDiv);
-			setTimeout(() => {
-				if (toastDiv.parentNode) toastDiv.parentNode.removeChild(toastDiv);
-			}, 3000);
+			showPopupMessage(browser.i18n.getMessage('orgValidationErrorMessage'), { variant: 'error' });
 		});
 }
