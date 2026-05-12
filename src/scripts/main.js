@@ -88,7 +88,7 @@ function handleBodyOnLoad() {
 	browser.storage.local.get(['platform', 'platformUsername']).then((result) => {
 		if (result.platformUsername && result.platform) {
 			// Migrate old platformUsername to platform-specific storage
-			const platformUsernameKey = window.scmProviders.getUsernameStorageKey(result.platform);
+			const platformUsernameKey = window.scmStorageKeys.getStorageKey(result.platform, 'username');
 			browser.storage.local.set({ [platformUsernameKey]: result.platformUsername });
 			// Remove the old key
 			browser.storage.local.remove(['platformUsername']);
@@ -115,7 +115,7 @@ function handleBodyOnLoad() {
 		.then((items) => {
 			// Load platform-specific username
 			const platform = items.platform || 'github';
-			const platformUsernameKey = window.scmProviders.getUsernameStorageKey(platform);
+			const platformUsernameKey = window.scmStorageKeys.getStorageKey(platform, 'username');
 			if (items[platformUsernameKey]) {
 				platformUsernameElement.value = items[platformUsernameKey];
 			}
@@ -220,7 +220,7 @@ function handlePlatformUsernameChange() {
 	const value = platformUsernameElement.value;
 	browser.storage.local.get(['platform']).then((result) => {
 		const platform = result.platform || 'github';
-		const platformUsernameKey = window.scmProviders.getUsernameStorageKey(platform);
+		const platformUsernameKey = window.scmStorageKeys.getStorageKey(platform, 'username');
 		browser.storage.local.set({ [platformUsernameKey]: value });
 	});
 }

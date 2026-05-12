@@ -550,7 +550,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			let lastScrumReportHtml = storageValues[`${activePlatform}LastScrumReportHtml`];
 			let lastScrumReportCacheKey = storageValues[`${activePlatform}LastScrumReportCacheKey`];
 			let lastScrumReportUsername = storageValues[`${activePlatform}LastScrumReportUsername`];
-			const activePlatformUsernameKey = window.scmProviders.getUsernameStorageKey(activePlatform);
+			const activePlatformUsernameKey = window.scmStorageKeys.getStorageKey(activePlatform, 'username');
 
 			if (
 				storageValues.lastScrumReportHtml &&
@@ -601,7 +601,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	function initializePopup() {
 		browser.storage.local.get(['platform', 'platformUsername']).then((result) => {
 			if (result.platformUsername && result.platform) {
-				const platformUsernameKey = window.scmProviders.getUsernameStorageKey(result.platform);
+				const platformUsernameKey = window.scmStorageKeys.getStorageKey(result.platform, 'username');
 				browser.storage.local.set({ [platformUsernameKey]: result.platformUsername });
 				browser.storage.local.remove(['platformUsername']);
 				console.log(`[MIGRATION] Migrated platformUsername to ${platformUsernameKey}`);
@@ -706,7 +706,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 				// Load platform-specific username
 				const platform = result.platform || 'github';
-				const platformUsernameKey = window.scmProviders.getUsernameStorageKey(platform);
+				const platformUsernameKey = window.scmStorageKeys.getStorageKey(platform, 'username');
 				platformUsername.value = result[platformUsernameKey] || '';
 				window.updateGenerateButtonState && window.updateGenerateButtonState();
 				checkTokenForShowCommits();
@@ -774,7 +774,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				usernameError.classList.remove('errorMessage');
 				usernameError.textContent = '';
 				const platform = result.platform || 'github';
-				const platformUsernameKey = window.scmProviders.getUsernameStorageKey(platform);
+				const platformUsernameKey = window.scmStorageKeys.getStorageKey(platform, 'username');
 
 				browser.storage.local
 					.set({
@@ -1067,7 +1067,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		platformUsername.addEventListener('input', () => {
 			browser.storage.local.get(['platform']).then((result) => {
 				const platform = result.platform || 'github';
-				const platformUsernameKey = window.scmProviders.getUsernameStorageKey(platform);
+				const platformUsernameKey = window.scmStorageKeys.getStorageKey(platform, 'username');
 				browser.storage.local.set({ [platformUsernameKey]: platformUsername.value });
 			});
 			window.updateGenerateButtonState && window.updateGenerateButtonState();
@@ -1172,7 +1172,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				]);
 
 				const platform = items.platform || 'github';
-				const platformUsernameKey = window.scmProviders.getUsernameStorageKey(platform);
+				const platformUsernameKey = window.scmStorageKeys.getStorageKey(platform, 'username');
 				const username = items[platformUsernameKey];
 
 				if (!username) {
@@ -1286,7 +1286,7 @@ document.addEventListener('DOMContentLoaded', () => {
 						]);
 
 						const platform = items.platform || 'github';
-						const platformUsernameKey = window.scmProviders.getUsernameStorageKey(platform);
+						const platformUsernameKey = window.scmStorageKeys.getStorageKey(platform, 'username');
 						const username = items[platformUsernameKey];
 
 						if (!username) {
@@ -1404,7 +1404,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		function debugRepoFetch() {
 			browser.storage.local.get(['platform', 'githubUsername', 'githubToken', 'orgName']).then((items) => {
 				const platform = items.platform || 'github';
-				const platformUsernameKey = window.scmProviders.getUsernameStorageKey(platform);
+				const platformUsernameKey = window.scmStorageKeys.getStorageKey(platform, 'username');
 				const username = items[platformUsernameKey];
 				console.log('Current settings:', {
 					username: username,
@@ -1440,7 +1440,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			browser.storage.local.get(['platform', 'githubUsername', 'githubToken']).then((items) => {
 				const platform = items.platform || 'github';
-				const platformUsernameKey = window.scmProviders.getUsernameStorageKey(platform);
+				const platformUsernameKey = window.scmStorageKeys.getStorageKey(platform, 'username');
 				const username = items[platformUsernameKey];
 				console.log('Storage data for repo fetch:', {
 					hasUsername: !!username,
@@ -1483,7 +1483,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					'orgName',
 				]);
 				const platform = storageItems.platform || 'github';
-				const platformUsernameKey = window.scmProviders.getUsernameStorageKey(platform);
+				const platformUsernameKey = window.scmStorageKeys.getStorageKey(platform, 'username');
 				const username = storageItems[platformUsernameKey];
 				const repoCacheKey = `repos-${username}-${storageItems.orgName || ''}`;
 				const now = Date.now();
@@ -1678,7 +1678,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		browser.storage.local.get(['platform', 'githubUsername']).then((items) => {
 			const platform = items.platform || 'github';
-			const platformUsernameKey = window.scmProviders.getUsernameStorageKey(platform);
+			const platformUsernameKey = window.scmStorageKeys.getStorageKey(platform, 'username');
 			const username = items[platformUsernameKey];
 			if (username && useRepoFilter.checked && availableRepos.length === 0) {
 				setTimeout(() => loadRepos(), 1000);
@@ -1769,7 +1769,7 @@ platformSelect.addEventListener('change', () => {
 		savePlatformUsername(currentPlatform, platformUsername);
 	}
 
-	const platformUsernameKey = window.scmProviders.getUsernameStorageKey(platform);
+	const platformUsernameKey = window.scmStorageKeys.getStorageKey(platform, 'username');
 	browser.storage.local.get([platformUsernameKey]).then((result) => {
 		if (platformUsername) {
 			platformUsername.value = result[platformUsernameKey] || '';
@@ -1816,7 +1816,7 @@ function savePlatformUsername(platform, usernameInput) {
 		return;
 	}
 
-	const platformUsernameKey = window.scmProviders.getUsernameStorageKey(platform);
+	const platformUsernameKey = window.scmStorageKeys.getStorageKey(platform, 'username');
 	browser.storage.local.set({ [platformUsernameKey]: currentUsername });
 }
 
@@ -1848,7 +1848,7 @@ function renderPlatformDropdownOptions() {
 		const provider = window.scmProviders.getProvider(providerId);
 		const item = document.createElement('li');
 		item.className = 'hover:bg-gray-100';
-		item.dataset.value = provider.platformId;
+		item.dataset.value = provider.id;
 		item.setAttribute('tabindex', '0');
 		item.style.cssText =
 			'padding-left: 8px; padding-right: 16px; padding-top: 8px; padding-bottom: 8px; display: flex; align-items: center; cursor: pointer;';
@@ -1879,7 +1879,7 @@ function setPlatformDropdown(value) {
 		}
 	});
 
-	const platformUsernameKey = window.scmProviders.getUsernameStorageKey(value);
+	const platformUsernameKey = window.scmStorageKeys.getStorageKey(value, 'username');
 	browser.storage.local.get([platformUsernameKey]).then((result) => {
 		if (platformUsername) {
 			platformUsername.value = result[platformUsernameKey] || '';
