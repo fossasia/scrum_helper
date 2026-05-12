@@ -25,6 +25,7 @@
         "*://mail.google.com/*",
         "*://outlook.live.com/*",
         "*://outlook.office.com/*",
+        "*://outlook.cloud.microsoft/*",
         "*://mail.yahoo.com/*"
       ],
       "js": [
@@ -58,6 +59,7 @@
   "host_permissions": [
     "*://*.google.com/*",
     "*://*.outlook.live.com/*",
+    "*://outlook.cloud.microsoft/*",
     "*://*.office.com/*",
     "*://*.yahoo.com/*",
     "https://api.github.com/*",
