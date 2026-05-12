@@ -40,13 +40,11 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function showReportMessage(message) {
-	if (!scrumReportEl) return;
-	scrumReportEl.innerHTML = '';
-
-	const errorDiv = document.createElement('div');
-	errorDiv.classList.add('error-message');
-	errorDiv.textContent = message;
-	scrumReportEl.appendChild(errorDiv);
+	if (!message) return;
+	if (scrumReportEl) {
+		scrumReportEl.innerHTML = '';
+	}
+	window.scrumHelperToast?.(message, { duration: 4000, variant: 'error' });
 }
 
 function handleUsernameValidationError(errMessage) {
@@ -692,7 +690,7 @@ function allIncluded(outputTarget = 'email') {
 					`Invalid search query or date range. Please verify your date range format and try again.`;
 				logError(errorMsg);
 				if (outputTarget === 'popup') {
-					Materialize.toast && Materialize.toast(errorMsg, 4000);
+					showReportMessage(errorMsg);
 				}
 				throw new Error(errorMsg);
 			}
@@ -703,7 +701,7 @@ function allIncluded(outputTarget = 'email') {
 					`Error fetching GitHub issues: ${issuesRes.status} ${issuesRes.statusText}`;
 				logError(errorMsg);
 				if (outputTarget === 'popup') {
-					Materialize.toast && Materialize.toast(errorMsg, 4000);
+					showReportMessage(errorMsg);
 				}
 				throw new Error(errorMsg);
 			}
@@ -713,7 +711,7 @@ function allIncluded(outputTarget = 'email') {
 					`Error fetching GitHub PR review data: ${prRes.status} ${prRes.statusText}`;
 				logError(errorMsg);
 				if (outputTarget === 'popup') {
-					Materialize.toast && Materialize.toast(errorMsg, 4000);
+					showReportMessage(errorMsg);
 				}
 				throw new Error(errorMsg);
 			}
@@ -993,7 +991,7 @@ function allIncluded(outputTarget = 'email') {
 					generateBtn.disabled = false;
 				}
 			} else {
-				alert(errMsg);
+				window.scrumHelperToast?.(errMsg, { duration: 4000, variant: 'error' });
 			}
 		}
 	}
@@ -1552,12 +1550,10 @@ ${blockerText}`;
 		} else if (useMergedStatus) {
 			if (prsToCheck.length > 30) {
 				fallbackToSimple = true;
-				if (typeof Materialize !== 'undefined' && Materialize.toast) {
-					Materialize.toast(
-						'API limit exceeded. Please use a GitHub token for full status. Showing only open/closed PRs.',
-						5000,
-					);
-				}
+				window.scrumHelperToast?.(
+					'API limit exceeded. Please use a GitHub token for full status. Showing only open/closed PRs.',
+					{ duration: 5000, variant: 'error' },
+				);
 			} else {
 				// Use REST API for each PR, cache results
 				for (const pr of prsToCheck) {
