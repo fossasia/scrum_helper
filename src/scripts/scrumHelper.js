@@ -1160,7 +1160,7 @@ ${blockerText}`;
 			const scrumReport = document.getElementById('scrumReport');
 			if (scrumReport) {
 				log('Found popup div, updating content');
-				scrumReport.innerHTML = content;
+				scrumReport.innerHTML = sanitizeHtml(content);
 				try {
 					const cacheKey =
 						platform === 'gitlab' ? (gitlabHelper?.cache?.cacheKey ?? null) : (githubCache?.cacheKey ?? null);
