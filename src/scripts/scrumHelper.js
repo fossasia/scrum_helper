@@ -596,63 +596,42 @@ function allIncluded(outputTarget = 'email') {
 		console.log('[SCRUM-HELPER] orgName before API query:', orgName);
 		console.log('[SCRUM-HELPER] orgName type:', typeof orgName);
 		console.log('[SCRUM-HELPER] orgName length:', orgName ? orgName.length : 0);
-		const orgPart = orgName && orgName.trim() ? `+org%3A${orgName}` : '';
-		console.log('[SCRUM-HELPER] orgPart for API:', orgPart);
-		console.log('[SCRUM-HELPER] orgPart length:', orgPart.length);
 
-		let issueUrl;
-		let prUrl;
-		let userUrl;
+		const githubProvider = window.platformRegistry?.getProvider('github');
+		if(!githubProvider){
+			throw new Error ('GitHub provider is not available');
+		}
+		if(useRepoFilter && selectedRepos && selectedRepos.length > 0 ){
+			log('Using repo filter for api calls', selectedRepos);
+		
+		try{
+			await fetchReposIfNeeded();
+		} catch(err){
+			logError('Failed to fetch repo data for filtering',err);
+		} 
+	    }else{
+			log ('Using org wide search');
+		}
 
-		if (useRepoFilter && selectedRepos && selectedRepos.length > 0) {
-			log('Using repo filter for api calls:', selectedRepos);
+		const activityUrls = githubProvider.buildActivityUrls({
+			username:platformUsernameLocal,
+			orgName: orgName,
+			startDate: startDateForCache,
+			endDate: endDateForCache,
+			useRepoFilter: useRepoFilter && selectedRepos && selectedRepos.length > 0,
+			selectedRepos:selectedRepos,
+			repoData: githubCache.repoData,
+		});
 
-			try {
-				await fetchReposIfNeeded();
-			} catch (err) {
-				logError('Failed to fetch repo data for filtering:', err);
-			}
-
-			const repoQueries = selectedRepos
-				.filter((repo) => repo !== null)
-				.map((repo) => {
-					if (typeof repo === 'object' && repo.fullName) {
-						const cleanName = repo.fullName.startsWith('/') ? repo.fullName.substring(1) : repo.fullName;
-						return `repo:${cleanName}`;
-					}
-
-					if (repo.includes('/')) {
-						const cleanName = repo.startsWith('/') ? repo.substring(1) : repo;
-						return `repo:${cleanName}`;
-					}
-
-					const fullRepoInfo = githubCache.repoData?.find((r) => r.name === repo);
-					if (fullRepoInfo && fullRepoInfo.fullName) {
-						return `repo:${fullRepoInfo.fullName}`;
-					}
-					logError(`Missing owner for repo ${repo} - search may fail`);
-					return `repo:${repo}`;
-				})
-				.join('+');
-
-			const orgQuery = orgPart ? `+${orgPart}` : '';
-			if (!repoQueries) {
-				loadFromStorage('Repo filter empty, using org wide search');
-				issueUrl = `https://api.github.com/search/issues?q=author%3A${platformUsernameLocal}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}&per_page=100`;
-				prUrl = `https://api.github.com/search/issues?q=commenter%3A${platformUsernameLocal}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}&per_page=100`;
-				userUrl = `https://api.github.com/users/${platformUsernameLocal}`;
-			} else {
-				issueUrl = `https://api.github.com/search/issues?q=author%3A${platformUsernameLocal}+${repoQueries}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}&per_page=100`;
-				prUrl = `https://api.github.com/search/issues?q=commenter%3A${platformUsernameLocal}+${repoQueries}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}&per_page=100`;
-				userUrl = `https://api.github.com/users/${platformUsernameLocal}`;
-				log('Repository-filtered URLs:', { issueUrl, prUrl });
-			}
-		} else {
-			loadFromStorage('Using org wide search');
-			const orgQuery = orgPart ? `+${orgPart}` : '';
-			issueUrl = `https://api.github.com/search/issues?q=author%3A${platformUsernameLocal}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}&per_page=100`;
-			prUrl = `https://api.github.com/search/issues?q=commenter%3A${platformUsernameLocal}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}&per_page=100`;
-			userUrl = `https://api.github.com/users/${platformUsernameLocal}`;
+		const issueUrl = activityUrls.issueUrl;
+		const prUrl = activityUrls.prUrl;
+		const userUrl=activityUrls.userUrl;
+		
+		if(useRepoFilter && selectedRepos && selectedRepos.length > 0 && !activityUrls.repoQueries){
+			log('Repo filter empty, using org wide search');
+		}
+		if(activityUrls.repoQueries){
+			log('Repository-filtered URLs:',{issueUrl,prUrl})
 		}
 
 		try {

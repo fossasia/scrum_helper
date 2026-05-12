@@ -26,12 +26,13 @@ class GitHubProvider {
         return `${this.baseUrl}/users/${username}`;
     }
 
-    buidlSearchUrl(query){
+    buildSearchUrl(query){
         return `${this.baseUrl}/search/issues?q=${query}&per_page=100`;
     }
 
     buildOrgQuery(orgName){
-        return orgName && orgName !== 'all' ? `+org:${orgName}` : '';
+       return orgName && orgName.trim() ? `+org%3A${orgName}` : '';
+      
     }
 
     buildRepoQuery(repo){
@@ -44,10 +45,40 @@ class GitHubProvider {
 
         return `repo:${repo}`;
     }
+    buildRepoQueries(selectedRepos, repoData){
+        return selectedRepos.filter((repo)=> repo!== null).map((repo)=>{
+            if(typeof repo === 'object' && repo.fullName){
+                return this.buildRepoQuery(repo);
+            }
+            if(repo.includes('/')){
+                return this.buildRepoQuery(repo);
+            }
+            const fullRepoInfo = repoData?.find((r)=>r.name === repo);
+            if(fullRepoInfo && fullRepoInfo.fullName) {
+                return `repo:${fullRepoInfo.fullName}`;
+            }
+
+            return this.buildRepoQuery(repo);
+        }).join('+');
+    }
+
+    buildActivityUrls(options){
+        const orgQuery = this.buildOrgQuery(options.orgName);
+        const repoQueries= options.useRepoFilter ? this.buildRepoQueries(options.selectedRepos || [] , options.repoData) : '';
+        const repoQuery= repoQueries ? `+${repoQueries}` : '';
+        const dataQuery= `updated%3A${options.startDate}..${options.endDate}`;
+
+        return{
+            issueUrl:this.buildSearchUrl(`author%3A${options.username}${repoQuery}${orgQuery}+${dataQuery}`),
+            prUrl:this.buildSearchUrl(`commenter%3A${options.username}${repoQuery}${orgQuery}+${dataQuery}`),
+            userUrl:this.buildUserUrl(options.username),
+            repoQueries
+        }
+    }
 
     
 }
-if(typeof module !== undefined && module.exports){
+if(typeof module !== 'undefined' && module.exports){
     module.exports = GitHubProvider;
 }else {
     window.GitHubProvider = GitHubProvider;
