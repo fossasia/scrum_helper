@@ -84,7 +84,6 @@ if (!window.scrumDateRangeUtils) {
 }
 
 if (!window.scrumHelperToast) {
-	
 	window.SCRUM_TOAST_ANIM_MS = window.SCRUM_TOAST_ANIM_MS || 200;
 	window.scrumHelperToast = function scrumHelperToast(message, options = {}) {
 		if (!message || typeof document === 'undefined') return null;
