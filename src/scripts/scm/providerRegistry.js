@@ -1,4 +1,4 @@
-const scmProviderRegistry = {};
+const scmProviderRegistry = Object.create(null);
 
 function registerScmProvider(provider) {
 	if (!provider || !provider.id) {
@@ -9,9 +9,8 @@ function registerScmProvider(provider) {
 }
 
 function getScmProvider(platformId) {
-	const provider = scmProviderRegistry[platformId];
-	if (provider) {
-		return provider;
+	if (Object.hasOwn(scmProviderRegistry, platformId)) {
+		return scmProviderRegistry[platformId];
 	}
 
 	console.warn(`Unknown SCM platform "${platformId}", falling back to GitHub.`);
