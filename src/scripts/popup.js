@@ -80,7 +80,7 @@ function applyI18n() {
 		if (message) {
 			// Use innerHTML to support simple formatting like <b> in tooltips
 			if (el.classList.contains('tooltip-bubble') || el.classList.contains('cache-info')) {
-				el.innerHTML = message;
+				el.innerHTML = sanitizeHtml(message);
 			} else {
 				el.textContent = message;
 			}
@@ -525,7 +525,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				const matches = (!lastScrumReportCacheKey || lastScrumReportCacheKey === cacheKey) && isUsernameMatch;
 
 				if (reportEmpty && lastScrumReportHtml && matches) {
-					scrumReport.innerHTML = lastScrumReportHtml;
+					scrumReport.innerHTML = sanitizeHtml(lastScrumReportHtml);
 					if (generateBtn) generateBtn.disabled = false;
 					return;
 				}
@@ -537,7 +537,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			// If cache is expired, still only show the old HTML if it was for the current username
 			if ((!scrumReport.innerHTML || !scrumReport.innerHTML.trim()) && lastScrumReportHtml && isUsernameMatch) {
-				scrumReport.innerHTML = lastScrumReportHtml;
+				scrumReport.innerHTML = sanitizeHtml(lastScrumReportHtml);
 			}
 
 			if (generateBtn) generateBtn.disabled = false;
@@ -671,7 +671,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (insertBtn) {
 			insertBtn.addEventListener('click', () => {
 				const scrumReport = document.getElementById('scrumReport');
-				const content = scrumReport ? scrumReport.innerHTML : '';
+				const content = scrumReport ? sanitizeHtml(scrumReport.innerHTML) : '';
 				const subject = buildScrumSubjectFromPopup();
 
 				if (!content) {
@@ -747,7 +747,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		copyBtn.addEventListener('click', function () {
 			const scrumReport = document.getElementById('scrumReport');
 			const tempDiv = document.createElement('div');
-			tempDiv.innerHTML = scrumReport.innerHTML;
+			tempDiv.innerHTML = sanitizeHtml(scrumReport.innerHTML);
 			document.body.appendChild(tempDiv);
 			tempDiv.style.position = 'absolute';
 			tempDiv.style.left = '-9999px';
@@ -1514,10 +1514,11 @@ document.addEventListener('DOMContentLoaded', () => {
 			if (filtered.length === 0) {
 				repoDropdown.innerHTML = `<div class="p-3 text-center text-gray-500 text-sm" style="padding-left: 10px; ">${browser.i18n.getMessage('repoNotFound')}</div>`;
 			} else {
-				repoDropdown.innerHTML = filtered
-					.slice(0, 10)
-					.map(
-						(repo) => `
+				repoDropdown.innerHTML = sanitizeHtml(
+					filtered
+						.slice(0, 10)
+						.map(
+							(repo) => `
                     <div class="repository-dropdown-item" data-repo-name="${repo.fullName}">
                         <div class="repo-name">
                             <span>${repo.name}</span>
@@ -1529,8 +1530,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                 `,
-					)
-					.join('');
+						)
+						.join(''),
+				);
 
 				repoDropdown.querySelectorAll('.repository-dropdown-item').forEach((item) => {
 					item.addEventListener('click', (e) => {
@@ -1571,10 +1573,11 @@ document.addEventListener('DOMContentLoaded', () => {
 				repoTags.innerHTML = `<span class="text-xs text-gray-500 select-none" id="repoPlaceholder">${browser.i18n.getMessage('repoPlaceholder')}</span>`;
 				repoCount.textContent = browser.i18n.getMessage('repoCountNone');
 			} else {
-				repoTags.innerHTML = selectedRepos
-					.map((repoFullName) => {
-						const repoName = repoFullName.split('/')[1] || repoFullName;
-						return `
+				repoTags.innerHTML = sanitizeHtml(
+					selectedRepos
+						.map((repoFullName) => {
+							const repoName = repoFullName.split('/')[1] || repoFullName;
+							return `
                         <span class="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full" style="margin:5px;">
                             ${repoName}
                             <button type="button" class="ml-1 text-blue-600 hover:text-blue-800 remove-repo-btn cursor-pointer" data-repo-name="${repoFullName}">
@@ -1582,8 +1585,9 @@ document.addEventListener('DOMContentLoaded', () => {
                             </button>
                         </span>
                     `;
-					})
-					.join(' ');
+						})
+						.join(' '),
+				);
 				repoTags.querySelectorAll('.remove-repo-btn').forEach((btn) => {
 					btn.addEventListener('click', (e) => {
 						e.stopPropagation();
