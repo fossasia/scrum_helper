@@ -253,13 +253,13 @@ class EmailClientAdapter {
 				case 'focusAndPaste':
 					// Special handling for Outlook
 					element.focus();
-					element.innerHTML = content;
+					element.innerHTML = sanitizeHtml(content);
 					this.dispatchElementEvents(element, ['input', 'change'], true);
 					break;
 
 				case 'setContent': {
 					// Special handling for Yahoo
-					element.innerHTML = content;
+					element.innerHTML = sanitizeHtml(content);
 					element.focus();
 					// Force Yahoo's editor to recognize the change
 					const selection = window.getSelection();
@@ -273,7 +273,7 @@ class EmailClientAdapter {
 
 				default:
 					// Default handling for Google clients
-					element.innerHTML = content;
+					element.innerHTML = sanitizeHtml(content);
 					element.dispatchEvent(new Event(eventType, { bubbles: true }));
 			}
 			return true;

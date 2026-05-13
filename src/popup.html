@@ -88,6 +88,9 @@
 </head>
 
 <body class="mode-sidepanel text-gray-800 bg-gray-50 flex flex-col font-sans">
+
+	<div id="scrumHelperToastContainer" class="scrum-toast-container"></div>
+	
 	<div id="popupRoot" class="pl-1 py-2 rounded-2xl">
 		<div class="bg-white px-4 py-4 mx-2 mb-2 rounded-3xl">
 			<div class="flex justify-between py-2">
@@ -604,6 +607,8 @@
 		</div>
 	</div>
 	<!-- WebExtensions Polyfill for Cross-Browser compatibility (Chrome, Firefox, Edge, etc.) -->
+	 <script src="libs/purify.min.js"></script>
+	 <script src="scripts/domSanitizer.js"></script>
 	<script src="scripts/browser-polyfill.min.js"></script>
 	<script src="scripts/jquery-3.2.1.min.js"></script>
 	<script type="text/javascript" src="materialize/js/materialize.min.js"></script>
