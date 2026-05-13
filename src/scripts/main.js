@@ -83,6 +83,70 @@ if (!window.scrumDateRangeUtils) {
 	};
 }
 
+if (!window.scrumHelperToast) {
+	window.SCRUM_TOAST_ANIM_MS = window.SCRUM_TOAST_ANIM_MS || 200;
+	window.scrumHelperToast = function scrumHelperToast(message, options = {}) {
+		if (!message || typeof document === 'undefined') return null;
+
+		const { duration = 4000, variant = 'info' } = options;
+
+		const toastId = 'scrum-helper-toast';
+		const existingToast = document.getElementById(toastId);
+		if (existingToast) existingToast.remove();
+
+		const toast = document.createElement('div');
+		toast.id = toastId;
+		toast.className = `scrum-toast scrum-toast--${variant}`;
+		toast.textContent = message;
+
+		// Accessibility: announce via screen readers
+		if (variant === 'error') {
+			toast.setAttribute('role', 'alert');
+			toast.setAttribute('aria-live', 'assertive');
+		} else {
+			toast.setAttribute('role', 'status');
+			toast.setAttribute('aria-live', 'polite');
+		}
+		toast.setAttribute('aria-atomic', 'true');
+
+		const container = document.getElementById('scrumHelperToastContainer') || document.body;
+		container.appendChild(toast);
+
+		requestAnimationFrame(() => {
+			toast.classList.add('scrum-toast--visible');
+		});
+
+		window.setTimeout(() => {
+			toast.classList.remove('scrum-toast--visible');
+			window.setTimeout(() => {
+				if (toast.parentNode) toast.parentNode.removeChild(toast);
+			}, window.SCRUM_TOAST_ANIM_MS);
+		}, duration);
+
+		return toast;
+	};
+}
+
+if (!window.clearScrumHelperToast) {
+	window.clearScrumHelperToast = function clearScrumHelperToast() {
+		const toast = document.getElementById('scrum-helper-toast');
+		if (toast) toast.remove();
+		const container = document.getElementById('scrumHelperToastContainer');
+		if (container) {
+			container.querySelectorAll('.scrum-toast').forEach((t) => t.remove());
+		}
+	};
+}
+
+
+// Backwards-compatible wrapper used across the codebase
+if (!window.showPopupMessage) {
+	window.showPopupMessage = function showPopupMessage(message, options = {}) {
+		const opts = Object.assign({ duration: 4000, variant: 'info' }, options || {});
+		return window.scrumHelperToast?.(message, opts);
+	};
+}
+
 function handleBodyOnLoad() {
 	// Migration: Handle existing users with old platformUsername storage
 	browser.storage.local.get(['platform', 'platformUsername']).then((result) => {
