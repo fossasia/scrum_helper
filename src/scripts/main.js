@@ -306,6 +306,7 @@ function handleGitlabTokenChange() {
 }
 function handleGitlabBaseUrlChange() {
 	const value = normalizeGitLabBaseUrl(gitlabBaseUrlElement.value);
+	gitlabBaseUrlElement.value = value;
 	browser.storage.local.set({ gitlabBaseUrl: value });
 }
 function handleProjectNameChange() {
@@ -344,7 +345,7 @@ if (gitlabTokenElement) {
 	gitlabTokenElement.addEventListener('keyup', handleGitlabTokenChange);
 }
 if (gitlabBaseUrlElement) {
-	gitlabBaseUrlElement.addEventListener('input', handleGitlabBaseUrlChange);
+	gitlabBaseUrlElement.addEventListener('change', handleGitlabBaseUrlChange);
 }
 cacheInputElement.addEventListener('keyup', handleCacheInputChange);
 projectNameElement.addEventListener('keyup', handleProjectNameChange);

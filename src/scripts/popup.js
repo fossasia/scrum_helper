@@ -457,7 +457,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			const url = new URL(baseUrl);
 			return (
 				(url.protocol === 'http:' || url.protocol === 'https:') &&
-				url.pathname === '/api/v4' &&
+				url.pathname.endsWith('/api/v4') &&
 				url.search === '' &&
 				url.hash === ''
 			);
@@ -1018,11 +1018,6 @@ document.addEventListener('DOMContentLoaded', () => {
 		githubTokenInput.addEventListener('input', () => {
 			browser.storage.local.set({ githubToken: githubTokenInput.value });
 		});
-		if (gitlabBaseUrlInput) {
-			gitlabBaseUrlInput.addEventListener('input', () => {
-				browser.storage.local.set({ gitlabBaseUrl: normalizeGitLabBaseUrl(gitlabBaseUrlInput.value) });
-			});
-		}
 		cacheInput.addEventListener('input', () => {
 			browser.storage.local.set({ cacheInput: cacheInput.value });
 		});

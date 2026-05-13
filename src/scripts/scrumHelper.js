@@ -60,7 +60,7 @@ function handleUsernameValidationError(errMessage) {
 }
 
 function mapGitLabReportItem(item, projectById, type, gitlabApiBaseUrl) {
-	const project = projectById.get(item.project_id);
+	const project = projectById?.get(item.project_id);
 	const repoName = project ? project.name : 'unknown';
 
 	return {
@@ -1951,6 +1951,8 @@ async function forceGitlabDataRefresh() {
 	hasInjectedContent = false;
 	// Re-instantiate gitlabHelper to ensure a fresh instance for next API call
 	if (window.GitLabHelper) {
+		const items = await chrome.storage.local.get(['gitlabBaseUrl']);
+		gitlabBaseUrl = items.gitlabBaseUrl || '';
 		gitlabHelper = new window.GitLabHelper(gitlabBaseUrl);
 	}
 	return { success: true };
