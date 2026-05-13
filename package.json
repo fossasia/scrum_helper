@@ -35,10 +35,10 @@
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
     "postcss": "^8.5.10",
-    "tailwindcss": "^4.2.2"
+    "tailwindcss": "^4.3.0"
   },
   "dependencies": {
-    "@tailwindcss/cli": "^4.2.4"
+    "@tailwindcss/cli": "^4.3.0"
   },
   "lint-staged": {
     "src/**/*.js": "biome format --write"
