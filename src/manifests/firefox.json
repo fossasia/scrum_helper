@@ -29,6 +29,8 @@
         "*://mail.yahoo.com/*"
       ],
       "js": [
+        "libs/purify.min.js",
+        "scripts/domSanitizer.js",
         "scripts/browser-polyfill.min.js",
         "scripts/jquery-3.2.1.min.js",
         "scripts/emailClientAdapter.js",

@@ -2,6 +2,27 @@ body {
     margin: 0;
     padding: 0;
     background-color: rgba(251, 251, 251, 0.6);
+    position: relative;
+}
+
+#popupRoot {
+    position: relative;
+}
+
+.scrum-toast-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 2147483640;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 12px;
+    flex-shrink: 0;
+    box-sizing: border-box;
 }
 
 * {
@@ -992,48 +1013,69 @@ body.mode-popup {
     opacity: 1;
 }
 
-/* Shortcut notification toast */
+/* Shared notification toast */
+.scrum-toast,
 .shortcut-notification {
-    position: fixed;
-    top: 12px;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 8px 18px;
+    position: relative;
+    top: 0;
+    left: 0;
+    transform: translateY(-8px);
+    padding: 10px 16px;
     background: #1f2937;
     color: #fff;
     font-size: 13px;
-    font-weight: 500;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    z-index: 10000;
-    animation: slideIn 0.3s ease-out;
+    font-weight: 600;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+    width: auto;
+    max-width: 340px;
+    min-width: 120px;
+    line-height: 1.4;
+    text-align: start;
+    box-sizing: border-box;
+    word-break: break-word;
+    opacity: 0;
+    pointer-events: auto;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    white-space: normal;
+    margin: 0;
+    flex-shrink: 0;
 }
 
+.scrum-toast--visible,
+.shortcut-notification.scrum-toast--visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.scrum-toast--info,
+.shortcut-notification {
+    background: #1f2937;
+    color: #fff;
+}
+
+.scrum-toast--success {
+    background: #166534;
+    color: #fff;
+}
+
+.scrum-toast--error {
+    background: #dc2626;
+    color: #fff;
+}
+
+.dark-mode .scrum-toast--info,
 .dark-mode .shortcut-notification {
     background: #ffffff;
     color: #1f2937;
 }
 
-@keyframes slideIn {
-    from {
-        transform: translate(-50%, -10px);
-        opacity: 0;
-    }
-
-    to {
-        transform: translate(-50%, 0);
-        opacity: 1;
-    }
+.dark-mode .scrum-toast--success {
+    background: #dcfce7;
+    color: #14532d;
 }
 
-@keyframes slideOut {
-    from {
-        transform: translate(-50%, 0);
-        opacity: 1;
-    }
-
-    to {
-        transform: translate(-50%, -10px);
-        opacity: 0;
-    }
+.dark-mode .scrum-toast--error {
+    background: #fee2e2;
+    color: #991b1b;
 }
