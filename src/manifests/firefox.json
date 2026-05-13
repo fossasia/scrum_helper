@@ -67,7 +67,8 @@
     "https://gitlab.com/*"
   ],
   "optional_host_permissions": [
-    "*://*/*"
+    "http://*/*",
+    "https://*/*"
   ],
   "default_locale": "en",
   "sidebar_action": {

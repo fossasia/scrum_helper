@@ -480,9 +480,6 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (!origin || !browser.permissions?.request) return true;
 
 		try {
-			const hasPermission = await browser.permissions.contains({ origins: [origin] });
-			if (hasPermission) return true;
-
 			const granted = await browser.permissions.request({ origins: [origin] });
 			if (granted) {
 				window.showPopupMessage?.(browser.i18n.getMessage('gitlabHostPermissionGranted'));
@@ -773,45 +770,43 @@ document.addEventListener('DOMContentLoaded', () => {
 			});
 		}
 
-		generateBtn.addEventListener('click', () => {
-			browser.storage.local.get(['platform']).then(async (result) => {
-				platformUsername.classList.remove('input-error');
-				usernameError.classList.remove('errorMessage');
-				usernameError.textContent = '';
-				const platform = result.platform || 'github';
-				const platformUsernameKey = `${platform}Username`;
-				const gitlabBaseUrl = normalizeGitLabBaseUrl(gitlabBaseUrlInput?.value || '');
-				if (gitlabBaseUrlInput) {
-					gitlabBaseUrlInput.value = gitlabBaseUrl;
-				}
+		generateBtn.addEventListener('click', async () => {
+			platformUsername.classList.remove('input-error');
+			usernameError.classList.remove('errorMessage');
+			usernameError.textContent = '';
+			const platform = platformSelect.value || 'github';
+			const platformUsernameKey = `${platform}Username`;
+			const gitlabBaseUrl = normalizeGitLabBaseUrl(gitlabBaseUrlInput?.value || '');
+			if (gitlabBaseUrlInput) {
+				gitlabBaseUrlInput.value = gitlabBaseUrl;
+			}
 
-				if (platformSelect.value === 'gitlab' && !isValidGitLabApiBaseUrl(gitlabBaseUrl)) {
-					window.showPopupMessage?.(browser.i18n.getMessage('gitlabBaseUrlInvalid'));
-					return;
-				}
+			if (platform === 'gitlab' && !isValidGitLabApiBaseUrl(gitlabBaseUrl)) {
+				window.showPopupMessage?.(browser.i18n.getMessage('gitlabBaseUrlInvalid'));
+				return;
+			}
 
-				if (platformSelect.value === 'gitlab') {
-					const hasGitLabHostPermission = await requestGitLabHostPermission(gitlabBaseUrl);
-					if (!hasGitLabHostPermission) return;
-				}
+			if (platform === 'gitlab') {
+				const hasGitLabHostPermission = await requestGitLabHostPermission(gitlabBaseUrl);
+				if (!hasGitLabHostPermission) return;
+			}
 
-				browser.storage.local
-					.set({
-						platform: platformSelect.value,
-						[platformUsernameKey]: platformUsername.value,
-						gitlabBaseUrl: gitlabBaseUrl,
-					})
-					.then(() => {
-						// Reload platform from storage before generating report
-						browser.storage.local.get(['platform']).then((res) => {
-							platformSelect.value = res.platform || 'github';
-							updatePlatformUI(platformSelect.value);
-							generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
-							generateBtn.disabled = true;
-							window.generateScrumReport && window.generateScrumReport();
-						});
+			browser.storage.local
+				.set({
+					platform: platform,
+					[platformUsernameKey]: platformUsername.value,
+					gitlabBaseUrl: gitlabBaseUrl,
+				})
+				.then(() => {
+					// Reload platform from storage before generating report
+					browser.storage.local.get(['platform']).then((res) => {
+						platformSelect.value = res.platform || 'github';
+						updatePlatformUI(platformSelect.value);
+						generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
+						generateBtn.disabled = true;
+						window.generateScrumReport && window.generateScrumReport();
 					});
-			});
+				});
 		});
 
 		copyBtn.addEventListener('click', function () {
