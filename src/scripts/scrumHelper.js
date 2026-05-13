@@ -39,6 +39,17 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 });
 
+function logRedaction(items) {
+	const spreadItems = { ...items };
+	const sensitiveKeys = ['githubToken', 'gitlabToken'];
+	sensitiveKeys.forEach((key) => {
+		if (key in spreadItems) {
+			spreadItems[key] = '[REDACTED]';
+		}
+	});
+	return spreadItems;
+}
+
 function showReportMessage(message) {
 	if (!message) return;
 	if (scrumReportEl) {
@@ -178,7 +189,7 @@ function allIncluded(outputTarget = 'email') {
 				'onlyMergedPRs',
 			])
 			.then((items) => {
-				console.log('[DEBUG] Storage items received:', items);
+				console.log('[DEBUG] Storage items received:', logRedaction(items));
 				platform = items.platform || 'github';
 
 				// Load platform-specific username
