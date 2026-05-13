@@ -34,6 +34,12 @@
 				"useTemplate": "off",
 				"noUnusedTemplateLiteral": "off",
 				"noUselessElse": "off"
+			},
+			"security": {
+				"noGlobalEval": "error"
+			},
+			"suspicious": {
+				"noDocumentCookie": "error"
 			}
 		}
 	},
