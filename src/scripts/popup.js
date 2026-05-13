@@ -482,14 +482,14 @@ document.addEventListener('DOMContentLoaded', () => {
 		try {
 			const granted = await browser.permissions.request({ origins: [origin] });
 			if (granted) {
-				window.showPopupMessage?.(browser.i18n.getMessage('gitlabHostPermissionGranted'));
+				window.scrumHelperToast?.(browser.i18n.getMessage('gitlabHostPermissionGranted'));
 				return true;
 			}
 
-			window.showPopupMessage?.(browser.i18n.getMessage('gitlabHostPermissionDenied'));
+			window.scrumHelperToast?.(browser.i18n.getMessage('gitlabHostPermissionDenied'), { variant: 'error' });
 		} catch (error) {
 			console.error('GitLab host permission request failed:', error);
-			window.showPopupMessage?.(browser.i18n.getMessage('gitlabHostPermissionFailed'));
+			window.scrumHelperToast?.(browser.i18n.getMessage('gitlabHostPermissionFailed'), { variant: 'error' });
 		}
 
 		return false;
@@ -782,7 +782,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 
 			if (platform === 'gitlab' && !isValidGitLabApiBaseUrl(gitlabBaseUrl)) {
-				window.showPopupMessage?.(browser.i18n.getMessage('gitlabBaseUrlInvalid'));
+				window.scrumHelperToast?.(browser.i18n.getMessage('gitlabBaseUrlInvalid'), { variant: 'error' });
 				return;
 			}
 
