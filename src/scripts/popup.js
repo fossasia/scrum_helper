@@ -749,10 +749,12 @@ document.addEventListener('DOMContentLoaded', () => {
 			const tempDiv = document.createElement('div');
 
 			tempDiv.innerHTML = sanitizeHtml(scrumReport.innerHTML);
+			
 
 			//remove background styles
 			tempDiv.querySelectorAll('*').forEach(el => {
 				const text = el.textContent?.trim().toLowerCase();
+				const darkMode = document.body.classList.contains('dark-mode')
 
 				
 				if (text === 'open' || text === 'closed') {
@@ -761,6 +763,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
 				el.style.backgroundColor = 'transparent';
 				el.style.background = 'transparent';
+			     if(darkMode ){
+					const  computedStyle = window.getComputedStyle(el);
+					const currentColor = computedStyle.color;
+					
+					if(currentColor === '#fff' || el.tagName !=='A' ){
+						el.style.color = '#000';
+					}
+				 }
+
 			});
 			document.body.appendChild(tempDiv);
 			tempDiv.style.position = 'absolute';
