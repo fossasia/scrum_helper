@@ -763,14 +763,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
 				el.style.backgroundColor = 'transparent';
 				el.style.background = 'transparent';
-			     if(darkMode ){
-					const  computedStyle = window.getComputedStyle(el);
-					const currentColor = computedStyle.color;
+			     
+				
+					const commitMessage = el.classList.contains('commitMessageHeadline');
+					const isLink = el.tagName === 'A';
+					const color = window.getComputedStyle(el).color;
+					const isWhite = color === 'rgb(255,255,255)' || 'rgba(255,255,255,1)'
 					
-					if(currentColor === '#fff' || el.tagName !=='A' ){
-						el.style.color = '#000';
+					// Change color only if it is darkmode and not commit message and not PR link and this el is white
+					if(darkMode && !commitMessage &&  !isLink && isWhite){
+						el.style.color = '#000';	
 					}
-				 }
+				 
 
 			});
 			document.body.appendChild(tempDiv);

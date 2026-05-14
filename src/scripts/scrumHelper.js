@@ -1736,7 +1736,7 @@ ${blockerText}`;
 						log(`[PR DEBUG] Rendering commits for existing draft PR #${number}:`, item._allCommits);
 						li += '<ul>';
 						item._allCommits.forEach((commit) => {
-							li += `<li style=\"list-style: disc; color: #666;\"><span style=\"color:#2563eb;\">${commit.messageHeadline}</span><span style=\"color:#666; font-size: 11px;\"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
+							li += `<li style=\"list-style: disc; color: #666;\"><span class="commitMessageHeadline" style=\"color:#2563eb;\">${commit.messageHeadline}</span><span style=\"color:#666; font-size: 11px;\"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
 						});
 						li += '</ul>';
 					}
@@ -1749,7 +1749,7 @@ ${blockerText}`;
 						li += '<ul>';
 						item._allCommits.forEach((commit) => {
 							li += `<li style="list-style: disc; color: #666;">
-<span style="color:#2563eb;">${commit.messageHeadline}</span><span style="color:#666; font-size: 11px;"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
+<span class="commitMessageHeadline" style="color:#2563eb;">${commit.messageHeadline}</span><span style="color:#666; font-size: 11px;"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
 						});
 						li += '</ul>';
 					}
