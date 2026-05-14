@@ -749,18 +749,17 @@ document.addEventListener('DOMContentLoaded', () => {
 			const tempDiv = document.createElement('div');
 
 			tempDiv.innerHTML = sanitizeHtml(scrumReport.innerHTML);
+			const darkMode = document.body.classList.contains('dark-mode');
 
 			//remove background styles
 			tempDiv.querySelectorAll('*').forEach((el) => {
 				const text = el.textContent?.trim().toLowerCase();
-				const darkMode = document.body.classList.contains('dark-mode');
 
 				if (text === 'open' || text === 'closed') {
 					return;
 				}
 
-				// el.style.backgroundColor = 'transparent';
-				el.style.background = 'transparent';
+				el.style.backgroundColor = 'transparent';
 
 				const commitMessage = el.classList.contains('commitMessageHeadline');
 				const isLink = el.tagName === 'A';
