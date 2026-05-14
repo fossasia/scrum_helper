@@ -767,7 +767,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				
 					const commitMessage = el.classList.contains('commitMessageHeadline');
 					const isLink = el.tagName === 'A';
-					const color = window.getComputedStyle(el).color;
+					const color = el.style.color;
 					const isWhite = color === 'rgb(255,255,255)' || 'rgba(255,255,255,1)'
 					
 					// Change color only if it is darkmode and not commit message and not PR link and this el is white
