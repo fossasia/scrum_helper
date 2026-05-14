@@ -749,33 +749,28 @@ document.addEventListener('DOMContentLoaded', () => {
 			const tempDiv = document.createElement('div');
 
 			tempDiv.innerHTML = sanitizeHtml(scrumReport.innerHTML);
-			
 
 			//remove background styles
-			tempDiv.querySelectorAll('*').forEach(el => {
+			tempDiv.querySelectorAll('*').forEach((el) => {
 				const text = el.textContent?.trim().toLowerCase();
-				const darkMode = document.body.classList.contains('dark-mode')
+				const darkMode = document.body.classList.contains('dark-mode');
 
-				
 				if (text === 'open' || text === 'closed') {
 					return;
 				}
 
 				el.style.backgroundColor = 'transparent';
 				el.style.background = 'transparent';
-			     
-				
-					const commitMessage = el.classList.contains('commitMessageHeadline');
-					const isLink = el.tagName === 'A';
-					const color = el.style.color;
-					const isWhite = color === 'rgb(255,255,255)' || 'rgba(255,255,255,1)'
-					
-					// Change color only if it is darkmode and not commit message and not PR link and this el is white
-					if(darkMode && !commitMessage &&  !isLink && isWhite){
-						el.style.color = '#000';	
-					}
-				 
 
+				const commitMessage = el.classList.contains('commitMessageHeadline');
+				const isLink = el.tagName === 'A';
+				const color = el.style.color;
+				const isWhite = color === 'rgb(255,255,255)' || 'rgba(255,255,255,1)';
+
+				// Change color only if it is darkmode and not commit message and not PR link and this el is white
+				if (darkMode && !commitMessage && !isLink && isWhite) {
+					el.style.color = '#000';
+				}
 			});
 			document.body.appendChild(tempDiv);
 			tempDiv.style.position = 'absolute';
@@ -803,7 +798,6 @@ document.addEventListener('DOMContentLoaded', () => {
 				setTimeout(() => {
 					this.innerHTML = `<i class="fa fa-copy"></i> ${browser.i18n.getMessage('copyReportButton')}`;
 				}, 2000);
-
 			} catch (err) {
 				console.error('Failed to copy: ', err);
 			} finally {
