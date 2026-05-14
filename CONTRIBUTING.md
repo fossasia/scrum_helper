@@ -75,7 +75,7 @@ This document provides guidelines for contributing to the project. Please feel f
     # Check code formatting without writing changes
     npm run format:check
 
-    # Check formatting for files changed against main
+    # Check formatting for files changed against origin/main
     npm run format:changed
 
     # Auto-format staged files before committing
