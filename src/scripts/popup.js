@@ -445,6 +445,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	window.updateGenerateButtonState = updateGenerateButtonState;
 
+	function updateCopyButtonState() {
+		const copyBtn = document.getElementById('copyReport');
+		const scrumReport = document.getElementById('scrumReport');
+		if (!copyBtn || !scrumReport) {
+			return;
+		}
+
+		copyBtn.disabled = !scrumReport.textContent.trim();
+	}
+
 	async function bootstrapScrumReportOnPopupLoad(generateBtn) {
 		console.log('[BOOTSTRAP] bootstrapScrumReportOnPopupLoad called');
 
@@ -667,6 +677,15 @@ document.addEventListener('DOMContentLoaded', () => {
 		const generateBtn = document.getElementById('generateReport');
 		const copyBtn = document.getElementById('copyReport');
 		const insertBtn = document.getElementById('insertInEmail');
+
+		updateCopyButtonState();
+
+		const copyBtnObserver = new MutationObserver(updateCopyButtonState);
+		copyBtnObserver.observe(document.getElementById('scrumReport'), {
+			childList: true,
+			subtree: true,
+			characterData: true,
+		});
 
 		if (insertBtn) {
 			insertBtn.addEventListener('click', () => {
