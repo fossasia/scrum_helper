@@ -746,8 +746,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		copyBtn.addEventListener('click', function () {
 			const scrumReport = document.getElementById('scrumReport');
+			const reportHtml = scrumReport ? sanitizeHtml(scrumReport.innerHTML) : '';
 			const tempDiv = document.createElement('div');
-			tempDiv.innerHTML = sanitizeHtml(scrumReport.innerHTML);
+			tempDiv.innerHTML = reportHtml;
+
+			if (!tempDiv.textContent.trim()) {
+				this._triggeredByShortcut = false;
+				return;
+			}
+
 			document.body.appendChild(tempDiv);
 			tempDiv.style.position = 'absolute';
 			tempDiv.style.left = '-9999px';
