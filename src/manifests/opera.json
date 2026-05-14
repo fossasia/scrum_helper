@@ -7,9 +7,12 @@
     "default_title": "Scrum Helper"
   },
 "sidebar_action": {
-    "default_icon": "icons/icon.png",
+    "default_icon": {
+    "48": "icons/icon.png",
+    "96": "icons/icon.png"
+  },
     "default_title": "Scrum Helper",
-    "default_panel": "popup.html?view=sidebar" 
+    "default_panel": "popup.html" 
   },
   "background": {
     "service_worker": "scripts/background.js"

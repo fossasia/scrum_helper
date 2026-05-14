@@ -20,18 +20,11 @@ function applyDisplayMode(mode) {
 		// sidePanel mode: clear popup so onClicked fires
 		browser.action.setPopup({ popup: '' });
 	}
-	// Save the mode to storage so popup.js applies the correct CSS
-	browser.storage.local.set({ displayMode: mode });
 }
 
 // Initialize display mode on startup
 browser.storage.local.get({ displayMode: 'sidePanel' }).then((result) => {
-	// If sidePanel is not available, force popup mode
-	if (!browser.sidePanel?.open) {
-		applyDisplayMode('popup');
-	} else {
-		applyDisplayMode(result.displayMode);
-	}
+	applyDisplayMode(result.displayMode);
 });
 
 // Listen for changes to displayMode
@@ -43,6 +36,14 @@ browser.storage.onChanged.addListener((changes, area) => {
 
 browser.action.onClicked.addListener((tab) => {
 	try {
+		// Firefox support: use sidebarAction if available
+		if (browser.sidebarAction?.toggle) {
+			browser.sidebarAction.toggle().catch((error) => {
+				console.error('Failed to toggle sidebar (Firefox):', error);
+			});
+			return;
+		}
+
 		if (!browser.sidePanel?.open) {
 			console.warn('Side panel API not available.');
 			return;
