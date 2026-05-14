@@ -680,12 +680,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		updateCopyButtonState();
 
-		const copyBtnObserver = new MutationObserver(updateCopyButtonState);
-		copyBtnObserver.observe(document.getElementById('scrumReport'), {
-			childList: true,
-			subtree: true,
-			characterData: true,
-		});
+		const scrumReportEl = document.getElementById('scrumReport');
+		if (scrumReportEl) {
+			const copyBtnObserver = new MutationObserver(updateCopyButtonState);
+			copyBtnObserver.observe(scrumReportEl, {
+				childList: true,
+				subtree: true,
+				characterData: true,
+			});
+		}
 
 		if (insertBtn) {
 			insertBtn.addEventListener('click', () => {
