@@ -27,12 +27,16 @@ function isRateLimitedResponse(response, responseText = '') {
 		return false;
 	}
 
+	if (response.headers?.get('retry-after')) {
+		return true;
+	}
+
 	const remaining = response.headers?.get('x-ratelimit-remaining');
 	if (remaining === '0') {
 		return true;
 	}
 
-	return /rate limit|secondary rate limit/i.test(responseText);
+	return /rate limit|secondary rate limit|abuse detection mechanism/i.test(responseText);
 }
 
 function getRateLimitResetTime(response) {
@@ -1061,7 +1065,7 @@ function allIncluded(outputTarget = 'email') {
 
 	async function fetchReposIfNeeded() {
 		if (!useRepoFilter) {
-			log('Repo fiter disabled, skipping fetch');
+			log('Repo filter disabled, skipping fetch');
 			return [];
 		}
 
