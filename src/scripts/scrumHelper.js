@@ -1343,18 +1343,7 @@ ${blockerText}`;
 				}
 			}
 
-			// Additional conservative check: For PRs that were created before the date range,
-			// only include them if they were updated very recently (within the last day of the range)
 			const createdDate = new Date(item.created_at);
-			if (createdDate < startDateTime) {
-				// If PR was created before the date range, only include if it was updated in the last day
-				const lastDayOfRange = new Date(endDateTime);
-				lastDayOfRange.setDate(lastDayOfRange.getDate() - 1);
-				if (itemDate < lastDayOfRange) {
-					log(`Skipping PR #${item.number} - created before date range and not updated recently enough`);
-					continue;
-				}
-			}
 
 			// Extra conservative check: For "yesterday" filter, be very strict
 			if (yesterdayContribution) {
