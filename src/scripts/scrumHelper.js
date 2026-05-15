@@ -1791,7 +1791,7 @@ ${blockerText}`;
 						'&nbsp;&nbsp;</li>';
 					nextWeekArray.push(li2);
 				}
-                // Compute date range for filtering
+				// Compute date range for filtering
 				let issueStartDateFilter;
 				let issueEndDateFilter;
 				if (yesterdayContribution) {
@@ -1821,7 +1821,7 @@ ${blockerText}`;
 				}
 
 				const issueActionText = isNewIssue ? 'Opened Issue' : 'Updated Issue';
-			
+
 				if (item.state === 'open') {
 					li = `<li><i>(${project})</i> - ${issueActionText}(#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + issue_opened_button : ''}</li>`;
 				} else if (item.state === 'closed') {
