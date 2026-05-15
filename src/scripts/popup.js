@@ -81,7 +81,7 @@ function normalizeBlockerReason(value) {
 	return normalized || DEFAULT_BLOCKER_REASON;
 }
 
-// Use last bold heading as the anchor to read or write only that part
+// Use explicit blocker-heading id to select blocker section
 function getBlockerHeading(reportEl) {
 	if (!reportEl) {
 		return null;
