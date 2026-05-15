@@ -404,7 +404,7 @@
   "usernameMissingError": {
     "message": "Username required.",
     "description": "Error shown when username is missing."
-   },
+  },
   "generateReportTooltip": {
     "message": "Ctrl+G",
     "description": "Tooltip shortcut for the Generate button. Dynamically replaced with Cmd+G on macOS."
@@ -436,5 +436,9 @@
   "insertedInEmailNotification": {
     "message": "Report inserted into email!",
     "description": "Notification shown when report is successfully inserted into email."
+  },
+  "repoRateLimitError": {
+    "message": "GitHub rate limit reached. Please wait and try again.",
+    "description": "Error message when GitHub rate limit is reached."
   }
 }

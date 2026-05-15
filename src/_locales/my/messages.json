@@ -289,5 +289,9 @@
   },
   "insertInEmailButton": {
     "message": "အီးမေးလ်သို့ ထည့်ပါ"
+  },
+  "repoRateLimitError": {
+    "message": "GitHub အဆင့် ကန့်သတ်မှု ရောက်ခဲ့သည်။ ကျေးဇူးပြု၍ စောင့်ဆိုင်းပြီး ထပ်မံကြိုးစားပါ။",
+    "description": "Error message when GitHub rate limit is reached."
   }
 }
