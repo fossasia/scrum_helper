@@ -1,5 +1,6 @@
 {
 	"$schema": "https://biomejs.dev/schemas/2.4.9/schema.json",
+	"$schema": "https://biomejs.dev/schemas/2.4.11/schema.json",
 	"vcs": {
 		"enabled": true,
 		"clientKind": "git",
@@ -34,6 +35,12 @@
 				"useTemplate": "off",
 				"noUnusedTemplateLiteral": "off",
 				"noUselessElse": "off"
+			},
+			"security": {
+				"noGlobalEval": "error"
+			},
+			"suspicious": {
+				"noDocumentCookie": "error"
 			}
 		}
 	},
