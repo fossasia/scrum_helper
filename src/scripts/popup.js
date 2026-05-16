@@ -452,7 +452,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			return;
 		}
 
-		copyBtn.disabled = !scrumReport.textContent.trim();
+		copyBtn.disabled = scrumReport.dataset.copyPlaceholder === 'true' || !scrumReport.textContent.trim();
 	}
 
 	async function bootstrapScrumReportOnPopupLoad(generateBtn) {
@@ -536,6 +536,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 				if (reportEmpty && lastScrumReportHtml && matches) {
 					scrumReport.innerHTML = sanitizeHtml(lastScrumReportHtml);
+					delete scrumReport.dataset.copyPlaceholder;
 					if (generateBtn) generateBtn.disabled = false;
 					return;
 				}
@@ -548,6 +549,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			// If cache is expired, still only show the old HTML if it was for the current username
 			if ((!scrumReport.innerHTML || !scrumReport.innerHTML.trim()) && lastScrumReportHtml && isUsernameMatch) {
 				scrumReport.innerHTML = sanitizeHtml(lastScrumReportHtml);
+				delete scrumReport.dataset.copyPlaceholder;
 			}
 
 			if (generateBtn) generateBtn.disabled = false;
@@ -682,6 +684,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		const scrumReportEl = document.getElementById('scrumReport');
 		if (scrumReportEl) {
+			scrumReportEl.addEventListener('input', () => {
+				if (scrumReportEl.dataset.copyPlaceholder === 'true') {
+					delete scrumReportEl.dataset.copyPlaceholder;
+				}
+				updateCopyButtonState();
+			});
+
 			const copyBtnObserver = new MutationObserver(updateCopyButtonState);
 			copyBtnObserver.observe(scrumReportEl, {
 				childList: true,
@@ -768,6 +777,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		copyBtn.addEventListener('click', function () {
 			const scrumReport = document.getElementById('scrumReport');
+			if (scrumReport?.dataset.copyPlaceholder === 'true') {
+				this._triggeredByShortcut = false;
+				return;
+			}
+
 			const reportHtml = scrumReport ? sanitizeHtml(scrumReport.innerHTML) : '';
 			const tempDiv = document.createElement('div');
 			tempDiv.innerHTML = reportHtml;
@@ -2032,6 +2046,7 @@ document.getElementById('refreshCache').addEventListener('click', async function
 		// Clear the scrum report
 		const scrumReport = document.getElementById('scrumReport');
 		if (scrumReport) {
+			scrumReport.dataset.copyPlaceholder = 'true';
 			scrumReport.innerHTML = `<p style="text-align: center; color: #666; padding: 20px;">${browser.i18n.getMessage('cacheClearedMessage')}</p>`;
 		}
 
