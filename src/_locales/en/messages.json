@@ -404,7 +404,7 @@
   "usernameMissingError": {
     "message": "Username required.",
     "description": "Error shown when username is missing."
-   },
+  },
   "generateReportTooltip": {
     "message": "Ctrl+G",
     "description": "Tooltip shortcut for the Generate button. Dynamically replaced with Cmd+G on macOS."
@@ -436,5 +436,47 @@
   "insertedInEmailNotification": {
     "message": "Report inserted into email!",
     "description": "Notification shown when report is successfully inserted into email."
+  },
+  "cacheStatusNoCache": {
+    "message": "No cache",
+    "description": "Badge text when no cached report exists yet."
+  },
+  "cacheStatusFresh": {
+    "message": "Cached · $1",
+    "description": "Badge text when the cached report is still within the TTL. $1 is the age string e.g. '3 min ago'.",
+    "placeholders": {
+      "1": {
+        "content": "$1",
+        "example": "3 min ago"
+      }
+    }
+  },
+  "cacheStatusStale": {
+    "message": "Stale · $1",
+    "description": "Badge text when the cached report has exceeded the TTL. $1 is the age string e.g. '12 min ago'.",
+    "placeholders": {
+      "1": {
+        "content": "$1",
+        "example": "12 min ago"
+      }
+    }
+  },
+  "cacheStatusTooltip": {
+    "message": "Report cached $1. Refreshes after $2 min.",
+    "description": "Tooltip on the cache badge. $1 is the age string, $2 is the TTL in minutes.",
+    "placeholders": {
+      "1": {
+        "content": "$1",
+        "example": "5 min ago"
+      },
+      "2": {
+        "content": "$2",
+        "example": "10"
+      }
+    }
+  },
+  "cacheStaleWarning": {
+    "message": "Data may be outdated. Click Generate to refresh.",
+    "description": "Warning shown below the badge when the cache is stale."
   }
 }
