@@ -50,11 +50,38 @@ function showShortcutNotification(messageKey) {
 
 let _cacheAgeTicker = null;
 
+function getUILocale() {
+  if (
+    typeof browser !== "undefined" &&
+    browser.i18n &&
+    typeof browser.i18n.getUILanguage === "function"
+  ) {
+    return browser.i18n.getUILanguage();
+  }
+
+  if (
+    typeof chrome !== "undefined" &&
+    chrome.i18n &&
+    typeof chrome.i18n.getUILanguage === "function"
+  ) {
+    return chrome.i18n.getUILanguage();
+  }
+
+  return undefined;
+}
+
 function formatCacheAge(ms) {
-  const totalSeconds = Math.floor(ms / 1000);
-  if (totalSeconds < 60) return `${totalSeconds}s ago`;
+  const safeMs = Math.max(0, ms);
+  const totalSeconds = Math.floor(safeMs / 1000);
+  const rtf = new Intl.RelativeTimeFormat(getUILocale(), {
+    numeric: "auto",
+    style: "short",
+  });
+
+  if (totalSeconds < 60) return rtf.format(-totalSeconds, "second");
+
   const minutes = Math.floor(totalSeconds / 60);
-  return `${minutes} min ago`;
+  return rtf.format(-minutes, "minute");
 }
 
 function updateCacheStatusBadge(timestamp, ttlMs) {
