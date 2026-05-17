@@ -760,6 +760,8 @@ document.addEventListener('DOMContentLoaded', () => {
 				}
 
 				el.style.backgroundColor = 'transparent';
+				el.style.background = 'transparent';
+				el.style.backgroundImage = 'none';
 
 				const inlineColor = (el.style.color || '').replace(/\s+/g, '').toLowerCase();
 				const isCommitHeadline =
