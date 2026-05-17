@@ -761,11 +761,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
 				el.style.backgroundColor = 'transparent';
 
-				const commitMessage = el.classList.contains('commitMessageHeadline');
+				const inlineColor = (el.style.color || '').replace(/\s+/g, '').toLowerCase();
+				const isCommitHeadline =
+					el.classList.contains('commitMessageHeadline') ||
+					inlineColor === '#2563eb' ||
+					inlineColor === 'rgb(37,99,235)';
 				const isLink = el.tagName === 'A';
 
-				// Change color only if it is darkmode and not commit message and not PR link and this el is white
-				if (darkMode && !commitMessage && !isLink) {
+				// Change color only if it is darkmode and not a commit headline and not a PR link
+				if (darkMode && !isCommitHeadline && !isLink) {
 					el.style.color = '#000';
 				}
 			});
