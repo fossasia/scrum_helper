@@ -748,6 +748,27 @@ document.addEventListener('DOMContentLoaded', () => {
 			const scrumReport = document.getElementById('scrumReport');
 			const tempDiv = document.createElement('div');
 			tempDiv.innerHTML = sanitizeHtml(scrumReport.innerHTML);
+
+			const darkMode = document.body.classList.contains('dark-mode');
+
+			//remove background styles
+			tempDiv.querySelectorAll('*').forEach((el) => {
+				const text = el.textContent?.trim().toLowerCase();
+
+				if (text === 'open' || text === 'closed' || text === 'merged') {
+					return;
+				}
+
+				el.style.backgroundColor = 'transparent';
+
+				const commitMessage = el.classList.contains('commitMessageHeadline');
+				const isLink = el.tagName === 'A';
+
+				// Change color only if it is darkmode and not commit message and not PR link and this el is white
+				if (darkMode && !commitMessage && !isLink) {
+					el.style.color = '#000';
+				}
+			});
 			document.body.appendChild(tempDiv);
 			tempDiv.style.position = 'absolute';
 			tempDiv.style.left = '-9999px';
