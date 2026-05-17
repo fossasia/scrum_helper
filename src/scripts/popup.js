@@ -379,6 +379,11 @@ document.addEventListener('DOMContentLoaded', () => {
 				window.triggerRepoFetchIfEnabled();
 			}
 		}
+		if (changes.githubCache || changes.gitlabCache || changes.cacheInput) {
+			if (typeof updateCacheStatusDisplay === 'function') {
+				updateCacheStatusDisplay();
+			}
+		}
 	});
 
 	function storageLocalGet(keys) {
@@ -445,6 +450,58 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	window.updateGenerateButtonState = updateGenerateButtonState;
 
+	async function updateCacheStatusDisplay() {
+		console.log("afnan here")
+		const container = document.getElementById('cacheStatusContainer');
+		const badge = document.getElementById('cacheStatusBadge');
+		const prompt = document.getElementById('cacheStatusPrompt');
+		const tooltip = document.getElementById('cacheStatusTooltip');
+
+		if (!container || !badge || !prompt || !tooltip) return;
+
+		const { platform, cacheInput, githubCache, gitlabCache } = await storageLocalGet([
+			'platform',
+			'cacheInput',
+			'githubCache',
+			'gitlabCache',
+		]);
+
+		const activePlatform = platform || 'github';
+		const cache = activePlatform === 'gitlab' ? gitlabCache : githubCache;
+		const ttlMinutes = parsePositiveInt(cacheInput) ?? 10;
+		const ttlMs = ttlMinutes * 60 * 1000;
+
+		const hasCacheData = !!cache?.data;
+		const timestamp = typeof cache?.timestamp === 'number' ? cache.timestamp : 0;
+
+		if (!hasCacheData) {
+			container.classList.remove('hidden');
+			badge.className = 'px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800';
+			badge.textContent = browser.i18n.getMessage('cacheStatusNoCache') || 'No cache';
+			prompt.textContent = '';
+			tooltip.textContent = browser.i18n.getMessage('cacheStatusTooltip', ['0', ttlMinutes.toString()]) || `Cache refreshes automatically after ${ttlMinutes} minutes.`;
+			return;
+		}
+
+		const ageMs = Date.now() - timestamp;
+		const ageMinutes = Math.floor(ageMs / 60000);
+		const ageText = ageMinutes === 0 ? 'just now' : `${ageMinutes} min ago`;
+
+		container.classList.remove('hidden');
+
+		if (ageMs < ttlMs) {
+			badge.className = 'px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800';
+			badge.textContent = `✓ ${browser.i18n.getMessage('cacheStatusFresh', [ageText]) || `Fresh (${ageText})`}`;
+			prompt.textContent = '';
+		} else {
+			badge.className = 'px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800';
+			badge.textContent = `⚠ ${browser.i18n.getMessage('cacheStatusStale', [ageText]) || `Stale (${ageText})`}`;
+			prompt.textContent = browser.i18n.getMessage('cacheStatusPrompt') || 'Data may be outdated. Click Generate to refresh.';
+		}
+
+		tooltip.textContent = browser.i18n.getMessage('cacheStatusTooltip', [ageText, ttlMinutes.toString()]) || `This report was generated ${ageText}. Cache refreshes automatically after ${ttlMinutes} minutes.`;
+	}
+
 	async function bootstrapScrumReportOnPopupLoad(generateBtn) {
 		console.log('[BOOTSTRAP] bootstrapScrumReportOnPopupLoad called');
 
@@ -456,6 +513,8 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (!scrumReport) {
 			return;
 		}
+
+		updateCacheStatusDisplay();
 
 		const { platform, cacheInput, githubCache, gitlabCache } = await storageLocalGet([
 			'platform',
@@ -1093,7 +1152,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			try {
 				const items = await browser.storage.local.get(['platform']);
 				platform = items.platform || 'github';
-			} catch {}
+			} catch { }
 			if (platform !== 'github') {
 				// Do not run repo fetch for non-GitHub platforms
 				if (repoStatus)
@@ -1183,7 +1242,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				try {
 					const items = await browser.storage.local.get(['platform']);
 					platform = items.platform || 'github';
-				} catch {}
+				} catch { }
 				if (platform !== 'github') {
 					repoFilterContainer.classList.add('hidden');
 					useRepoFilter.checked = false;
@@ -1368,7 +1427,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			try {
 				const items = await browser.storage.local.get(['platform']);
 				platform = items.platform || 'github';
-			} catch {}
+			} catch { }
 			if (platform !== 'github') {
 				if (repoStatus)
 					repoStatus.textContent =
@@ -1410,7 +1469,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			try {
 				const items = await browser.storage.local.get(['platform']);
 				platform = items.platform || 'github';
-			} catch (e) {}
+			} catch (e) { }
 			if (platform !== 'github') {
 				if (repoStatus)
 					repoStatus.textContent =
@@ -1994,7 +2053,7 @@ document.getElementById('refreshCache').addEventListener('click', async function
 		try {
 			const items = await browser.storage.local.get(['platform']);
 			platform = items.platform || 'github';
-		} catch (e) {}
+		} catch (e) { }
 
 		// Clear all caches
 		const keysToRemove = ['githubCache', 'repoCache', 'gitlabCache'];

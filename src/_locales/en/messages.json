@@ -404,7 +404,7 @@
   "usernameMissingError": {
     "message": "Username required.",
     "description": "Error shown when username is missing."
-   },
+  },
   "generateReportTooltip": {
     "message": "Ctrl+G",
     "description": "Tooltip shortcut for the Generate button. Dynamically replaced with Cmd+G on macOS."
@@ -436,5 +436,25 @@
   "insertedInEmailNotification": {
     "message": "Report inserted into email!",
     "description": "Notification shown when report is successfully inserted into email."
+  },
+  "cacheStatusFresh": {
+    "message": "Fresh ($1 ago)",
+    "description": "Status badge text for fresh cache."
+  },
+  "cacheStatusStale": {
+    "message": "Stale ($1 ago)",
+    "description": "Status badge text for stale cache."
+  },
+  "cacheStatusNoCache": {
+    "message": "No cache",
+    "description": "Status badge text for no cache."
+  },
+  "cacheStatusTooltip": {
+    "message": "This report was generated $1 ago. Cache refreshes automatically after $2 minutes.",
+    "description": "Tooltip text for cache status."
+  },
+  "cacheStatusPrompt": {
+    "message": "Data may be outdated. Click Generate to refresh.",
+    "description": "Prompt message when cache is stale."
   }
 }
