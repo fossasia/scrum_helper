@@ -755,7 +755,8 @@ document.addEventListener('DOMContentLoaded', () => {
 			tempDiv.querySelectorAll('*').forEach((el) => {
 				const text = el.textContent?.trim().toLowerCase();
 
-				if (text === 'open' || text === 'closed' || text === 'merged') {
+				const isStatusBadge = el.classList.contains('State') || el.classList.contains('state');
+				if (isStatusBadge || text === 'open' || text === 'closed' || text === 'merged' || text === 'draft') {
 					return;
 				}
 
