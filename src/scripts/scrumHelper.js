@@ -1,4 +1,4 @@
-﻿/* global chrome */
+/* global chrome */
 
 const DEBUG = false;
 
@@ -166,6 +166,7 @@ let orgName = '';
 let platform = 'github';
 let platformUsername = '';
 let gitlabToken = '';
+let gitlabBaseUrl = '';
 let gitlabHelper = null;
 let usernameValidationListenerAttached = false;
 
@@ -173,37 +174,71 @@ const scrumReportEl = document.getElementById('scrumReport');
 const platformUsernameInp = document.getElementById('platformUsername');
 const usernameError = document.getElementById('usernameError');
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener('DOMContentLoaded', () => {
 	if (!usernameValidationListenerAttached && platformUsernameInp && usernameError) {
-		platformUsernameInp.addEventListener("input", function () {
-			platformUsernameInp.classList.remove("input-error");
-			usernameError.textContent = "";
-			usernameError.classList.remove("errorMessage");
+		platformUsernameInp.addEventListener('input', function () {
+			platformUsernameInp.classList.remove('input-error');
+			usernameError.textContent = '';
+			usernameError.classList.remove('errorMessage');
 		});
 		usernameValidationListenerAttached = true;
 	}
 });
 
 function showReportMessage(message) {
-	if (!scrumReportEl) return;
-	scrumReportEl.innerHTML = "";
-
-	const errorDiv = document.createElement("div");
-	errorDiv.classList.add("error-message");
-	errorDiv.textContent = message;
-	scrumReportEl.appendChild(errorDiv);
+	if (!message) return;
+	if (scrumReportEl) {
+		scrumReportEl.innerHTML = '';
+	}
+	window.scrumHelperToast?.(message, { duration: 4000, variant: 'error' });
 }
 
 function handleUsernameValidationError(errMessage) {
 	if (!platformUsernameInp || !usernameError) return;
 
-	platformUsernameInp.classList.add("input-error");
-	usernameError.classList.add("errorMessage");
+	platformUsernameInp.classList.add('input-error');
+	usernameError.classList.add('errorMessage');
 	usernameError.textContent = errMessage;
 
 	if (scrumReportEl) {
-		scrumReportEl.innerHTML = "";
+		scrumReportEl.innerHTML = '';
 	}
+}
+
+function mapGitLabReportItem(item, projectById, type, gitlabApiBaseUrl) {
+	const project = projectById.get(item.project_id);
+	const repoName = project ? project.name : 'unknown';
+
+	return {
+		...item,
+		repository_url: `${gitlabApiBaseUrl}/projects/${item.project_id}`,
+		html_url:
+			type === 'issue'
+				? item.web_url || (project ? `${project.web_url}/-/issues/${item.iid}` : '')
+				: item.web_url || (project ? `${project.web_url}/-/merge_requests/${item.iid}` : ''),
+		number: item.iid,
+		title: item.title,
+		state: type === 'issue' && item.state === 'opened' ? 'open' : item.state,
+		project: repoName,
+		pull_request: type === 'mr',
+	};
+}
+
+function mapGitLabReportData(data, gitlabApiBaseUrl) {
+	const projects = Array.isArray(data.projects) ? data.projects : [];
+	const projectById = new Map(projects.map((project) => [project.id, project]));
+	const mappedIssues = (data.issues || []).map((issue) =>
+		mapGitLabReportItem(issue, projectById, 'issue', gitlabApiBaseUrl),
+	);
+	const mappedMRs = (data.mergeRequests || data.mrs || []).map((mr) =>
+		mapGitLabReportItem(mr, projectById, 'mr', gitlabApiBaseUrl),
+	);
+
+	return {
+		githubIssuesData: { items: mappedIssues },
+		githubPrsReviewData: { items: mappedMRs },
+		githubUserData: data.user || {},
+	};
 }
 
 async function allIncluded(outputTarget = 'email') {
@@ -216,12 +251,13 @@ async function allIncluded(outputTarget = 'email') {
 	try {
 		// Always re-instantiate gitlabHelper for gitlab platform to ensure fresh cache after refresh
 		if (platform === 'gitlab' || (typeof platform === 'undefined' && window.GitLabHelper)) {
-			const result = await browser.storage.local.get(['gitlabToken']).catch((error) => {
-				console.warn('Error loading GitLab token:', error);
+			const result = await browser.storage.local.get(['gitlabToken', 'gitlabBaseUrl']).catch((error) => {
+				console.warn('Error loading GitLab config:', error);
 				return {};
 			});
 			const gitlabToken = result.gitlabToken || null;
-			gitlabHelper = new window.GitLabHelper(gitlabToken);
+			const gitlabBaseUrl = result.gitlabBaseUrl || undefined;
+			gitlabHelper = new window.GitLabHelper(gitlabToken, gitlabBaseUrl);
 		}
 	} catch (error) {
 		scrumGenerationInProgress = false;
@@ -275,8 +311,8 @@ async function allIncluded(outputTarget = 'email') {
 
 	function getChromeData() {
 		console.log('[DEBUG] getChromeData called for outputTarget:', outputTarget);
-		chrome.storage.local.get(
-			[
+		chrome.storage.local
+			.get([
 				'platform',
 				'githubUsername',
 				'gitlabUsername',
@@ -285,6 +321,7 @@ async function allIncluded(outputTarget = 'email') {
 				'gitlabGroup',
 				'useGitlabProjectFilter',
 				'selectedGitlabProjects',
+				'gitlabBaseUrl',
 				'projectName',
 				'startingDate',
 				'endingDate',
@@ -351,12 +388,17 @@ async function allIncluded(outputTarget = 'email') {
 				userReason = 'No Blocker at the moment';
 				browser.storage.local.remove(['userReason']);
 				gitlabToken = items.gitlabToken || '';
+				gitlabBaseUrl = items.gitlabBaseUrl || '';
+				if (platform === 'gitlab' && window.GitLabHelper) {
+					gitlabHelper = new window.GitLabHelper(gitlabToken || null, gitlabBaseUrl);
+				}
 				yesterdayContribution = items.yesterdayContribution;
 
 				onlyIssues = items.onlyIssues === true;
 				onlyPRs = items.onlyPRs === true;
 				onlyRevPRs = items.onlyRevPRs === true;
-				console.log('[SCRUM-DEBUG] loaded flags:', { onlyIssues, onlyPRs, onlyRevPRs });
+				onlyMergedPRs = items.onlyMergedPRs === true;
+				console.log('[SCRUM-DEBUG] loaded flags:', { onlyIssues, onlyPRs, onlyRevPRs, onlyMergedPRs });
 				// Enforce mutual exclusivity between onlyIssues and onlyPRs to avoid filtering out everything
 				if (onlyIssues && onlyPRs) {
 					console.warn('[SCRUM-HELPER]: Detected both onlyIssues and onlyPRs enabled; normalizing to onlyIssues.');
@@ -386,7 +428,8 @@ async function allIncluded(outputTarget = 'email') {
 						if (outputTarget === 'popup') {
 							console.log('[DEBUG] No username found - popup context');
 							const generateBtn = document.getElementById('generateReport');
-							const ErrMessage = chrome.i18n.getMessage('usernameRequiredError') || 'Please enter your username to generate a report.';
+							const ErrMessage =
+								chrome.i18n.getMessage('usernameRequiredError') || 'Please enter your username to generate a report.';
 							handleUsernameValidationError(ErrMessage);
 							if (generateBtn) {
 								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
@@ -400,7 +443,7 @@ async function allIncluded(outputTarget = 'email') {
 						return;
 					}
 				} else if (platform === 'gitlab') {
-					if (!gitlabHelper) gitlabHelper = new window.GitLabHelper(items.gitlabToken || null);
+					if (!gitlabHelper) gitlabHelper = new window.GitLabHelper(items.gitlabToken || null, gitlabBaseUrl);
 					if (platformUsernameLocal) {
 						const generateBtn = document.getElementById('generateReport');
 						if (generateBtn && outputTarget === 'popup') {
@@ -424,33 +467,7 @@ async function allIncluded(outputTarget = 'email') {
 										selectedGitlabProjects,
 									);
 
-									function mapGitLabItem(item, projects, type) {
-										const project = projects.find((p) => p.id === item.project_id);
-										const repoName = project ? project.name : 'unknown';
-
-										return {
-											...item,
-											repository_url: `https://gitlab.com/api/v4/projects/${item.project_id}`,
-											html_url:
-												type === 'issue'
-													? item.web_url || (project ? `${project.web_url}/-/issues/${item.iid}` : '')
-													: item.web_url || (project ? `${project.web_url}/-/merge_requests/${item.iid}` : ''),
-											number: item.iid,
-											title: item.title,
-											state: type === 'issue' && item.state === 'opened' ? 'open' : item.state,
-											project: repoName,
-											pull_request: type === 'mr',
-										};
-									}
-									const mappedIssues = (data.issues || []).map((issue) => mapGitLabItem(issue, data.projects, 'issue'));
-									const mappedMRs = (data.mergeRequests || data.mrs || []).map((mr) =>
-										mapGitLabItem(mr, data.projects, 'mr'),
-									);
-									const mappedData = {
-										githubIssuesData: { items: mappedIssues },
-										githubPrsReviewData: { items: mappedMRs },
-										githubUserData: data.user || {},
-									};
+									const mappedData = mapGitLabReportData(data, gitlabHelper.baseUrl);
 									githubUserData = mappedData.githubUserData;
 									// Feed the mapped GitLab data into the same report-generation
 									// pipeline used for GitHub data so that the email body is updated,
@@ -500,7 +517,7 @@ async function allIncluded(outputTarget = 'email') {
 											generateBtn.disabled = false;
 										}
 										const ErrMessage = `${err.message || 'Error fetching GitLab data.'}`;
-										if (typeof ErrMessage === "string" && ErrMessage.toLowerCase().includes("not found")){
+										if (typeof ErrMessage === 'string' && ErrMessage.toLowerCase().includes('not found')) {
 											handleUsernameValidationError(ErrMessage);
 										} else {
 											showReportMessage(ErrMessage);
@@ -524,32 +541,7 @@ async function allIncluded(outputTarget = 'email') {
 									selectedGitlabProjects,
 								)
 								.then((data) => {
-									function mapGitLabItem(item, projects, type) {
-										const project = projects.find((p) => p.id === item.project_id);
-										const repoName = project ? project.name : 'unknown';
-										return {
-											...item,
-											repository_url: `https://gitlab.com/api/v4/projects/${item.project_id}`,
-											html_url:
-												type === 'issue'
-													? item.web_url || (project ? `${project.web_url}/-/issues/${item.iid}` : '')
-													: item.web_url || (project ? `${project.web_url}/-/merge_requests/${item.iid}` : ''),
-											number: item.iid,
-											title: item.title,
-											state: type === 'issue' && item.state === 'opened' ? 'open' : item.state,
-											project: repoName,
-											pull_request: type === 'mr',
-										};
-									}
-									const mappedIssues = (data.issues || []).map((issue) => mapGitLabItem(issue, data.projects, 'issue'));
-									const mappedMRs = (data.mergeRequests || data.mrs || []).map((mr) =>
-										mapGitLabItem(mr, data.projects, 'mr'),
-									);
-									const mappedData = {
-										githubIssuesData: { items: mappedIssues },
-										githubPrsReviewData: { items: mappedMRs },
-										githubUserData: data.user || {},
-									};
+									const mappedData = mapGitLabReportData(data, gitlabHelper.baseUrl);
 									processGithubData(mappedData);
 									scrumGenerationInProgress = false;
 								})
@@ -561,7 +553,7 @@ async function allIncluded(outputTarget = 'email') {
 											generateBtn.disabled = false;
 										}
 										const ErrMessage = `${err.message || 'Error fetching GitLab data.'}`;
-										if(typeof ErrMessage === "string" && ErrMessage.toLowerCase().includes("not found")){
+										if (typeof ErrMessage === 'string' && ErrMessage.toLowerCase().includes('not found')) {
 											handleUsernameValidationError(ErrMessage);
 										} else {
 											showReportMessage(ErrMessage);
@@ -573,7 +565,8 @@ async function allIncluded(outputTarget = 'email') {
 					} else {
 						if (outputTarget === 'popup') {
 							const generateBtn = document.getElementById('generateReport');
-							const ErrMessage = chrome.i18n.getMessage('usernameRequiredError') || 'Please enter your username to generate a report.';
+							const ErrMessage =
+								chrome.i18n.getMessage('usernameRequiredError') || 'Please enter your username to generate a report.';
 							handleUsernameValidationError(ErrMessage);
 							if (generateBtn) {
 								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
@@ -590,8 +583,7 @@ async function allIncluded(outputTarget = 'email') {
 					}
 					scrumGenerationInProgress = false;
 				}
-			},
-		);
+			});
 	}
 	getChromeData();
 
@@ -911,7 +903,10 @@ async function allIncluded(outputTarget = 'email') {
 				const errorMsg =
 					chrome?.i18n.getMessage('githubInvalidSearchError') ||
 					`Invalid search query or date range. Please verify your date range format and try again.`;
-				showNotification(errorMsg);
+				logError(errorMsg);
+				if (outputTarget === 'popup') {
+					showReportMessage(errorMsg);
+				}
 				throw new Error(errorMsg);
 			}
 
@@ -921,7 +916,7 @@ async function allIncluded(outputTarget = 'email') {
 					`Error fetching GitHub issues: ${issuesRes.status} ${issuesRes.statusText}`;
 				logError(errorMsg);
 				if (outputTarget === 'popup') {
-					showNotification(errorMsg);
+					showReportMessage(errorMsg);
 				}
 				throw new Error(errorMsg);
 			}
@@ -931,7 +926,7 @@ async function allIncluded(outputTarget = 'email') {
 					`Error fetching GitHub PR review data: ${prRes.status} ${prRes.statusText}`;
 				logError(errorMsg);
 				if (outputTarget === 'popup') {
-					showNotification(errorMsg);
+					showReportMessage(errorMsg);
 				}
 				throw new Error(errorMsg);
 			}
@@ -1022,9 +1017,9 @@ async function allIncluded(outputTarget = 'email') {
 						else errorMsg = JSON.stringify(err);
 					}
 					const ErrMessage = `${errorMsg || 'An error occurred while generating the report.'}`;
-					if(typeof ErrMessage === "string" && ErrMessage.toLowerCase().includes("not found")){
+					if (typeof ErrMessage === 'string' && ErrMessage.toLowerCase().includes('not found')) {
 						handleUsernameValidationError(ErrMessage);
-					}else{
+					} else {
 						showReportMessage(ErrMessage);
 					}
 				}
@@ -1211,7 +1206,7 @@ async function allIncluded(outputTarget = 'email') {
 					generateBtn.disabled = false;
 				}
 			} else {
-				alert(errMsg);
+				window.scrumHelperToast?.(errMsg, { duration: 4000, variant: 'error' });
 			}
 		}
 	}
@@ -1346,15 +1341,14 @@ ${escapeHtml(userReason)}`;
 			const scrumReport = document.getElementById('scrumReport');
 			if (scrumReport) {
 				log('Found popup div, updating content');
-				scrumReport.textContent = '';
-
-				const sanitizedHtml = sanitizeHtmlContent(content);
+				let sanitizedHtml = '';
 				try {
+					sanitizedHtml = sanitizeHtml(content);
 					scrumReport.innerHTML = sanitizedHtml;
 				} catch (err) {
 					logError('Failed to insert sanitized content:', err);
-					const fallback = typeof content === 'string' ? content.replace(/<[^>]+>/g, '') : 'Unable to generate report.';
-					scrumReport.textContent = fallback;
+					sanitizedHtml = typeof content === 'string' ? content.replace(/<[^>]+>/g, '') : 'Unable to generate report.';
+					scrumReport.textContent = sanitizedHtml;
 				}
 				try {
 					const cacheKey =
@@ -1465,7 +1459,7 @@ ${escapeHtml(userReason)}`;
 	}
 
 	function writeGithubPrsReviews() {
-		const isAnyFilterActive = onlyIssues || onlyPRs || onlyRevPRs;
+		const isAnyFilterActive = onlyIssues || onlyPRs || onlyRevPRs || onlyMergedPRs;
 		if (isAnyFilterActive && !onlyRevPRs) {
 			log('Filters active but onlyRevPRs not checked, skipping PR reviews.');
 			reviewedPrsArray = [];
@@ -1769,9 +1763,9 @@ ${escapeHtml(userReason)}`;
 		} else if (useMergedStatus) {
 			if (prsToCheck.length > 30) {
 				fallbackToSimple = true;
-				showNotification(
-					browser.i18n.getMessage('gitlabErrorReportGeneration') ||
-						'Error generating GitLab report. Please check your token and username.',
+				window.scrumHelperToast?.(
+					'API limit exceeded. Please use a GitHub token for full status. Showing only open/closed PRs.',
+					{ duration: 5000, variant: 'error' },
 				);
 			} else {
 				// Use REST API for each PR, cache results
@@ -2170,12 +2164,13 @@ async function forceGitlabDataRefresh() {
 	hasInjectedContent = false;
 	// Re-instantiate gitlabHelper to ensure a fresh instance for next API call
 	if (window.GitLabHelper) {
-		const result = await browser.storage.local.get(['gitlabToken']).catch((error) => {
+		const result = await browser.storage.local.get(['gitlabToken', 'gitlabBaseUrl']).catch((error) => {
 			console.warn('Error loading GitLab token for validation:', error);
 			return {};
 		});
 		const gitlabToken = result.gitlabToken || null;
-		gitlabHelper = new window.GitLabHelper(gitlabToken);
+		const gitlabBaseUrl = result.gitlabBaseUrl || undefined;
+		gitlabHelper = new window.GitLabHelper(gitlabToken, gitlabBaseUrl);
 	}
 	return { success: true };
 }
@@ -2224,12 +2219,12 @@ async function fetchPrsMergedStatusBatch(prs, headers) {
 	if (prs.length === 0) return results;
 	const query = `query {
 ${prs
-			.map(
-				(pr, i) => `	repo${i}: repository(owner: "${pr.owner}\", name: "${pr.repo}\") {
+	.map(
+		(pr, i) => `	repo${i}: repository(owner: "${pr.owner}\", name: "${pr.repo}\") {
 		pr${i}: pullRequest(number: ${pr.number}) { merged }
 	}`,
-			)
-			.join('\n')}
+	)
+	.join('\n')}
 }`;
 
 	try {
@@ -2411,8 +2406,8 @@ async function fetchUserRepositories(username, token, org = '') {
 				}));
 
 			return repos.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-		} catch (err) { }
-	} catch (err) { }
+		} catch (err) {}
+	} catch (err) {}
 }
 
 function filterDataByRepos(data, selectedRepos) {

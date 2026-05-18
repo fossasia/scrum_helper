@@ -1,10 +1,16 @@
 /* global chrome */
 // GitLab API Helper for Scrum Helper Extension
+const DEFAULT_GITLAB_API_BASE_URL = 'https://gitlab.com/api/v4';
+
+function normalizeGitLabApiBaseUrl(apiBaseUrl) {
+	const value = typeof apiBaseUrl === 'string' && apiBaseUrl.trim() ? apiBaseUrl.trim() : DEFAULT_GITLAB_API_BASE_URL;
+	return value.replace(/\/+$/, '');
+}
+
 class GitLabHelper {
-	// Set to `true` during development to enable verbose logging from this helper
 	static debug = false;
-	constructor(token = null) {
-		this.baseUrl = 'https://gitlab.com/api/v4';
+	constructor(token = null, apiBaseUrl = DEFAULT_GITLAB_API_BASE_URL) {
+		this.baseUrl = normalizeGitLabApiBaseUrl(apiBaseUrl);
 		this.token = token;
 		this.cache = {
 			data: null,
@@ -300,7 +306,7 @@ class GitLabHelper {
 		const effectiveToken = typeof token === 'undefined' ? this.token : token;
 		const tokenMarker = effectiveToken ? 'auth' : 'noauth';
 		const normalizedProjects = Array.isArray(selectedProjects) ? [...selectedProjects].sort() : [];
-		const cacheKey = `${username}-${startDate}-${endDate}-${group}-${normalizedProjects.join(',')}-${tokenMarker}`;
+		const cacheKey = `${this.baseUrl}-${username}-${startDate}-${endDate}-${group}-${normalizedProjects.join(',')}-${tokenMarker}`;
 
 		if (this.cache.fetching || (this.cache.cacheKey === cacheKey && this.cache.data)) {
 			return this.cache.data;
