@@ -2321,8 +2321,14 @@ document
       this.innerHTML = `<i class="fa fa-check"></i><span>${browser.i18n.getMessage("cacheClearedButton")}</span>`;
       this.classList.remove("loading");
 
-      // Reset badge to "no cache" since storage was just wiped
-      updateCacheStatusBadge(null, 10 * 60 * 1000);
+      // Reset badge to "no cache" since storage was just wiped, using the configured TTL when available
+      const cacheInput = document.getElementById("cacheInput");
+      const cacheInputMinutes = cacheInput ? Number.parseInt(cacheInput.value, 10) : NaN;
+      const cacheTtlMs =
+        Number.isFinite(cacheInputMinutes) && cacheInputMinutes > 0
+          ? cacheInputMinutes * 60 * 1000
+          : 10 * 60 * 1000;
+      updateCacheStatusBadge(null, cacheTtlMs);
       stopCacheAgeTicker();
 
       // Do NOT trigger report generation automatically
