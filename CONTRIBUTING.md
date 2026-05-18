@@ -77,8 +77,14 @@ This document provides guidelines for contributing to the project. Please feel f
     npm run fix
     ```
 
-4.  **Commit and Push:** Commit your changes with a clear message and push them to your fork.
-5.  **Open a Pull Request:** Go to the original repository and open a pull request. Please use the provided pull request template.
+4.  **Copilot-Assisted Self-Review:** Before requesting a review from maintainers, contributors are encouraged (but not required) to perform a quick self-review using GitHub Copilot, if available. This can help catch simple issues early, improve code quality, and speed up the review process.
+
+    This repository has automatic Copilot PR reviews enabled. These are triggered only if the contributor has GitHub Copilot enabled with an active license. If you already have access (e.g., via educational programs or developer benefits), enabling it can help reduce manual review effort.
+
+    Contributions without Copilot are absolutely welcome and will be reviewed as usual.
+
+5.  **Commit and Push:** Commit your changes with a clear message and push them to your fork.
+6.  **Open a Pull Request:** Go to the original repository and open a pull request. Please use the provided pull request template.
 
 ### Writing Meaningful Pull Requests
 
@@ -133,3 +139,8 @@ If you want to share your translation with others:
 - We recommend double-checking your translations for accuracy and clarity.
 
 For more details, see the [Chrome i18n documentation](https://developer.chrome.com/docs/extensions/reference/i18n/)
+
+## Avoiding Duplicate Issues and Pull Requests
+
+- **Issues:** We encourage you to open new issues, but before doing so please search existing open and closed issues and pull requests to avoid duplication. If an existing issue already describes the problem, add any new details or a comment (or a +1 reaction) and, if you plan to work on it, mention that in the thread.
+- **Pull Requests:** Before opening a pull request, check open PRs for the same change. If a PR already exists addressing the same issue, comment on or collaborate in that PR instead of creating a duplicate. If you accidentally open a duplicate PR, please close it and reference the original PR with a brief note.
