@@ -20,7 +20,11 @@ function showNotification(message, type = 'error') {
 	} else {
 		console.warn(`[ScrumHelper] ${type.toUpperCase()}: ${message}`);
 		if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.sendMessage) {
-			chrome.runtime.sendMessage({ action: 'showPopupMessage', message, type }).catch(() => {});
+			chrome.runtime.sendMessage({ action: 'showPopupMessage', message, type }, () => {
+ 				if (chrome.runtime.lastError) {
+ 					logError('Failed to send popup message:', chrome.runtime.lastError);
+ 				}
+ 			});
 		}
 	}
 }
@@ -2102,7 +2106,7 @@ ${escapeHtml(userReason)}`;
 				button.setAttribute('class', 'F0XO1GC-n-a F0XO1GC-G-a');
 				button.title = 'Rewrite your SCRUM using updated settings!';
 				button.id = 'refreshButton';
-				const elemText = document.createTextNode('â†» Rewrite SCRUM!');
+				const elemText = document.createTextNode('↻ Rewrite SCRUM!');
 				button.appendChild(elemText);
 				td.appendChild(button);
 				document.getElementsByClassName('F0XO1GC-x-b')[0].children[0].children[0].appendChild(td);
