@@ -457,18 +457,19 @@ document.addEventListener('DOMContentLoaded', () => {
 			return;
 		}
 
-		const { platform, cacheInput, githubCache, gitlabCache } = await storageLocalGet([
+		const { platform, cacheInput, githubCache, gitlabCache, giteaCache } = await storageLocalGet([
 			'platform',
 			'cacheInput',
 			'githubCache',
 			'gitlabCache',
+			'giteaCache',
 		]);
 
 		const ttlMinutes = parsePositiveInt(cacheInput) ?? 10;
 		const ttlMs = ttlMinutes * 60 * 1000;
 
 		const activePlatform = platform || 'github';
-		const cache = activePlatform === 'gitlab' ? gitlabCache : githubCache;
+		const cache = activePlatform === 'gitlab' ? gitlabCache : activePlatform === 'gitea' ? giteaCache : githubCache;
 
 		const hasCacheData = !!cache?.data;
 		const timestamp = typeof cache?.timestamp === 'number' ? cache.timestamp : 0;
@@ -492,6 +493,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				'lastScrumReportUsername',
 				'githubUsername',
 				'gitlabUsername',
+				'giteaUsername',
 				'platformUsername',
 			]);
 
@@ -512,7 +514,9 @@ document.addEventListener('DOMContentLoaded', () => {
 			const expectedUsername =
 				activePlatform === 'gitlab'
 					? storageValues.gitlabUsername || storageValues.platformUsername
-					: storageValues.githubUsername || storageValues.platformUsername;
+					: activePlatform === 'gitea'
+						? storageValues.giteaUsername || storageValues.platformUsername
+						: storageValues.githubUsername || storageValues.platformUsername;
 
 			const isUsernameMatch = lastScrumReportUsername
 				? lastScrumReportUsername === expectedUsername
@@ -1121,7 +1125,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			try {
 				const items = await browser.storage.local.get(['platform']);
 				platform = items.platform || 'github';
-			} catch {}
+			} catch { }
 			if (platform !== 'github') {
 				// Do not run repo fetch for non-GitHub platforms
 				if (repoStatus)
@@ -1211,7 +1215,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				try {
 					const items = await browser.storage.local.get(['platform']);
 					platform = items.platform || 'github';
-				} catch {}
+				} catch { }
 				if (platform !== 'github') {
 					repoFilterContainer.classList.add('hidden');
 					useRepoFilter.checked = false;
@@ -1396,7 +1400,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			try {
 				const items = await browser.storage.local.get(['platform']);
 				platform = items.platform || 'github';
-			} catch {}
+			} catch { }
 			if (platform !== 'github') {
 				if (repoStatus)
 					repoStatus.textContent =
@@ -1438,7 +1442,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			try {
 				const items = await browser.storage.local.get(['platform']);
 				platform = items.platform || 'github';
-			} catch (e) {}
+			} catch (e) { }
 			if (platform !== 'github') {
 				if (repoStatus)
 					repoStatus.textContent =
@@ -1709,6 +1713,8 @@ function updatePlatformUI(platform) {
 	if (usernameLabel) {
 		if (platform === 'gitlab') {
 			usernameLabel.setAttribute('data-i18n', 'gitlabUsernameLabel');
+		} else if (platform === 'gitea') {
+			usernameLabel.setAttribute('data-i18n', 'giteaUsernameLabel');
 		} else {
 			usernameLabel.setAttribute('data-i18n', 'githubUsernameLabel');
 		}
@@ -1721,7 +1727,7 @@ function updatePlatformUI(platform) {
 
 	const orgSection = document.querySelector('.orgSection');
 	if (orgSection) {
-		if (platform === 'gitlab') {
+		if (platform === 'gitlab' || platform === 'gitea') {
 			orgSection.classList.add('hidden');
 		} else {
 			orgSection.classList.remove('hidden');
@@ -1729,7 +1735,7 @@ function updatePlatformUI(platform) {
 	}
 	const githubOnlySections = document.querySelectorAll('.githubOnlySection');
 	githubOnlySections.forEach((el) => {
-		if (platform === 'gitlab') {
+		if (platform === 'gitlab' || platform === 'gitea') {
 			el.classList.add('hidden');
 		} else {
 			el.classList.remove('hidden');
@@ -1737,10 +1743,10 @@ function updatePlatformUI(platform) {
 	});
 	const gitlabOnlySections = document.querySelectorAll('.gitlabOnlySection');
 	gitlabOnlySections.forEach((el) => {
-		if (platform === 'github') {
-			el.classList.add('hidden');
-		} else {
+		if (platform === 'gitlab') {
 			el.classList.remove('hidden');
+		} else {
+			el.classList.add('hidden');
 		}
 	});
 }
@@ -1759,7 +1765,7 @@ platformSelect.addEventListener('change', () => {
 	});
 	const platformUsername = document.getElementById('platformUsername');
 	if (platformUsername) {
-		const currentPlatform = platformSelect.value === 'github' ? 'gitlab' : 'github'; // Get the platform we're switching from
+		const currentPlatform = platformSelectHidden.value; // Get the platform we're switching from
 		const currentUsername = platformUsername.value;
 		if (currentUsername.trim()) {
 			browser.storage.local.set({ [`${currentPlatform}Username`]: currentUsername });
@@ -1794,6 +1800,8 @@ function buildScrumSubjectFromPopup() {
 function setPlatformDropdown(value) {
 	if (value === 'gitlab') {
 		dropdownSelected.innerHTML = '<i class="fab fa-gitlab mr-2"></i> GitLab';
+	} else if (value === 'gitea') {
+		dropdownSelected.innerHTML = '<i class="fa fa-code mr-2"></i> Gitea';
 	} else {
 		dropdownSelected.innerHTML = '<i class="fab fa-github mr-2"></i> GitHub';
 	}
@@ -1915,6 +1923,8 @@ browser.storage.local.get(['platform']).then((result) => {
 	// Just update the UI without clearing username when restoring from storage
 	if (platform === 'gitlab') {
 		dropdownSelected.innerHTML = '<i class="fab fa-gitlab mr-2"></i> GitLab';
+	} else if (platform === 'gitea') {
+		dropdownSelected.innerHTML = '<i class="fa fa-code mr-2"></i> Gitea';
 	} else {
 		dropdownSelected.innerHTML = '<i class="fab fa-github mr-2"></i> GitHub';
 	}
@@ -2022,10 +2032,10 @@ document.getElementById('refreshCache').addEventListener('click', async function
 		try {
 			const items = await browser.storage.local.get(['platform']);
 			platform = items.platform || 'github';
-		} catch (e) {}
+		} catch (e) { }
 
 		// Clear all caches
-		const keysToRemove = ['githubCache', 'repoCache', 'gitlabCache'];
+		const keysToRemove = ['githubCache', 'repoCache', 'gitlabCache', 'giteaCache'];
 		await browser.storage.local.remove(keysToRemove);
 
 		// Clear the scrum report

@@ -77,10 +77,11 @@
 		}
 
 		/* Firefox Sidebar Fixes ONLY */
-		html.firefox-sidebar, 
+		html.firefox-sidebar,
 		body.firefox-sidebar {
 			min-width: 100% !important;
 		}
+
 		body.firefox-sidebar #popupRoot {
 			min-width: 100% !important;
 		}
@@ -90,7 +91,7 @@
 <body class="mode-sidepanel text-gray-800 bg-gray-50 flex flex-col font-sans">
 
 	<div id="scrumHelperToastContainer" class="scrum-toast-container"></div>
-	
+
 	<div id="popupRoot" class="pl-1 py-2 rounded-2xl">
 		<div class="bg-white px-4 py-4 mx-2 mb-2 rounded-3xl">
 			<div class="flex justify-between py-2">
@@ -146,6 +147,10 @@
 									class="hover:bg-gray-100" data-value="gitlab">
 									<i class="fab fa-gitlab" style="margin-right: 12px; font-size: 18px;"></i> GitLab
 								</li>
+								<li style="padding-left: 8px; padding-right: 16px; padding-top: 8px; padding-bottom: 8px; display: flex; align-items: center; cursor: pointer;"
+									class="hover:bg-gray-100" data-value="gitea">
+									<i class="fa fa-code" style="margin-right: 12px; font-size: 18px;"></i> Gitea
+								</li>
 							</ul>
 						</div>
 					</div>
@@ -166,7 +171,8 @@
 
 						<input id="projectName" type="text"
 							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
-							data-i18n-placeholder="projectNamePlaceholder" style="margin-top: 0.3rem; margin-bottom: 0.8rem;">
+							data-i18n-placeholder="projectNamePlaceholder"
+							style="margin-top: 0.3rem; margin-bottom: 0.8rem;">
 					</div>
 					<div>
 
@@ -180,7 +186,8 @@
 					</div>
 
 					<div>
-						<p class="text-lg mb-1 font-medium text-sm" data-i18n="contributionsLabel" style="margin-top: 0.6rem;">Fetch your
+						<p class="text-lg mb-1 font-medium text-sm" data-i18n="contributionsLabel"
+							style="margin-top: 0.6rem;">Fetch your
 							contributions between:</p>
 
 
@@ -213,9 +220,11 @@
 					</div>
 
 					<details class="group mb-4" style="margin-top: 1rem;">
-						<summary class="flex items-center justify-between cursor-pointer list-none font-medium text-sm outline-none select-none pr-1">
+						<summary
+							class="flex items-center justify-between cursor-pointer list-none font-medium text-sm outline-none select-none pr-1">
 							<span data-i18n="advancedFiltersLabel">Advanced Filters</span>
-							<i class="fa fa-chevron-down text-gray-500 w-4 text-center transition-transform duration-200 group-open:-rotate-180"></i>
+							<i
+								class="fa fa-chevron-down text-gray-500 w-4 text-center transition-transform duration-200 group-open:-rotate-180"></i>
 						</summary>
 						<div class="mt-4 border-l-2 border-gray-200" style="margin-left: 0.25rem; padding-left: 1rem;">
 							<div class="my-2 flex items-center">
@@ -235,7 +244,8 @@
 									<span class="tooltip-container">
 										<i class="fa fa-question-circle question-icon"></i>
 										<span class="tooltip-bubble" data-i18n="onlyIssuesTooltip">
-											If checked, the report will only include issues created or assigned to the user.
+											If checked, the report will only include issues created or assigned to the
+											user.
 										</span>
 									</span>
 								</div>
@@ -244,8 +254,8 @@
 							<div class="my-4">
 								<div class="flex items-center">
 									<input type="checkbox" id="onlyPRs" class="form-checkbox text-blue-600">
-									<label for="onlyPRs" class="font-medium text-sm flex items-center" style="margin-left: 4px;"
-										data-i18n="onlyPRsLabel">
+									<label for="onlyPRs" class="font-medium text-sm flex items-center"
+										style="margin-left: 4px;" data-i18n="onlyPRsLabel">
 										Include only PRs in the report
 									</label>
 									<span class="tooltip-container">
@@ -283,24 +293,27 @@
 									<span class="tooltip-container">
 										<i class="fa fa-question-circle question-icon"></i>
 										<span class="tooltip-bubble" data-i18n="onlyMergedPRsTooltip">
-											If checked, the report will only include merged PRs. A GitHub token is required.
+											If checked, the report will only include merged PRs. A GitHub token is
+											required.
 										</span>
 									</span>
 								</div>
 								<div id="tokenWarningForMergedPRs"
 									class="hidden text-xs text-red-600 p-2 bg-red-50 border border-red-200 rounded-xl mt-2">
-									<span data-i18n="tokenRequiredMergedPRsWarning">A GitHub token is required to filter by merged PRs. Please add one in the settings.</span>
+									<span data-i18n="tokenRequiredMergedPRsWarning">A GitHub token is required to filter
+										by merged PRs. Please add one in the settings.</span>
 								</div>
 							</div>
 
 							<div class="my-4 githubOnlySection">
 								<div class="flex items-center">
-									<input type="checkbox" id="showCommits" checked class="form-checkbox text-blue-600 ">
+									<input type="checkbox" id="showCommits" checked
+										class="form-checkbox text-blue-600 ">
 
 									<label id="showCommitsLabel" for="showCommits"
-										class="font-medium text-sm flex items-center pl-5 ml-4" style="margin-left: 4px;"
-										data-i18n="showCommitsLabel">Show commits on open PRs/ draft PRs</label><span
-										class="tooltip-container">
+										class="font-medium text-sm flex items-center pl-5 ml-4"
+										style="margin-left: 4px;" data-i18n="showCommitsLabel">Show commits on open PRs/
+										draft PRs</label><span class="tooltip-container">
 										<i class="fa fa-question-circle question-icon"></i>
 										<span class="tooltip-bubble" data-i18n="showCommitsTooltip">
 											Github Token required, add it in the settings.
@@ -310,7 +323,8 @@
 								</div>
 								<div id="tokenWarningForShowCommits"
 									class="hidden text-xs text-red-600 p-2 bg-red-50 border border-red-200 rounded-xl mt-2">
-									<span data-i18n="tokenRequiredShowCommitsWarning">A GitHub token is required to show commits
+									<span data-i18n="tokenRequiredShowCommitsWarning">A GitHub token is required to show
+										commits
 										on open or draft PRs. Please add one in the settings.</span>
 								</div>
 							</div>
@@ -504,7 +518,8 @@
 									<i class="fa fa-question-circle question-icon"></i>
 									<span class="tooltip-bubble" data-i18n="gitlabTokenTooltip">
 										<b>Why add a GitLab token?</b><br>
-										Scrum Helper works without a token for public projects, but a personal access token enables
+										Scrum Helper works without a token for public projects, but a personal access
+										token enables
 										private repos and better rate limits. Your token stays local and is only used to
 										fetch your GitLab data.<br><br>
 										<b>How to get one:</b><br>
@@ -526,6 +541,17 @@
 						<input id="gitlabToken" type="password"
 							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2 pr-10"
 							data-i18n-placeholder="gitlabTokenPlaceholder">
+					</div>
+
+					<div class="giteaOnlySection hidden mt-3">
+						<div class="flex items-center justify-between">
+							<div class="flex">
+								<p class="text-sm font-medium" data-i18n="giteaBaseUrlLabel">Gitea Base URL</p>
+							</div>
+						</div>
+						<input id="giteaBaseUrl" type="text"
+							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
+							data-i18n-placeholder="giteaBaseUrlPlaceholder" value="https://gitea.com">
 					</div>
 
 					<div class="cacheSection mt-3">
@@ -615,14 +641,15 @@
 		</div>
 	</div>
 	<!-- WebExtensions Polyfill for Cross-Browser compatibility (Chrome, Firefox, Edge, etc.) -->
-	 <script src="libs/purify.min.js"></script>
-	 <script src="scripts/domSanitizer.js"></script>
+	<script src="libs/purify.min.js"></script>
+	<script src="scripts/domSanitizer.js"></script>
 	<script src="scripts/browser-polyfill.min.js"></script>
 	<script src="scripts/jquery-3.2.1.min.js"></script>
 	<script type="text/javascript" src="materialize/js/materialize.min.js"></script>
 	<script src="scripts/emailClientAdapter.js"></script>
 	<script src="scripts/main.js"></script>
 	<script src="scripts/gitlabHelper.js"></script>
+	<script src="scripts/giteaHelper.js"></script>
 	<script src="scripts/scrumHelper.js"></script>
 	<script src="scripts/popup.js"></script>
 </body>

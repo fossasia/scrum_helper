@@ -22,6 +22,7 @@ let platformUsername = '';
 let gitlabToken = '';
 let gitlabBaseUrl = '';
 let gitlabHelper = null;
+let giteaHelper = null;
 let usernameValidationListenerAttached = false;
 
 const scrumReportEl = document.getElementById('scrumReport');
@@ -95,10 +96,54 @@ function mapGitLabReportData(data, gitlabApiBaseUrl) {
 	};
 }
 
+function mapGiteaReportItem(item, type, giteaApiBaseUrl) {
+	let repoName = 'unknown';
+	let repoUrl = '';
+	if (item.repository) {
+		repoName = item.repository.name;
+		repoUrl = item.repository.html_url || item.repository.url;
+	} else if (item.html_url) {
+		const parts = item.html_url.split('/');
+		if (parts.length >= 5) {
+			repoName = parts[4];
+			repoUrl = parts.slice(0, 5).join('/');
+		}
+	}
+
+	return {
+		...item,
+		repository_url: repoUrl,
+		html_url: item.html_url,
+		number: item.number,
+		title: item.title,
+		state: type === 'issue' && item.state === 'open' ? 'open' : item.state,
+		project: repoName,
+		pull_request: typeof item.pull_request === 'object' && item.pull_request !== null ? item.pull_request : (type === 'pr' || type === 'mr' ? { merged_at: item.merged_at || null } : false),
+	};
+}
+
+function mapGiteaReportData(data, giteaApiBaseUrl) {
+	const mappedIssues = (data.issues || []).map((issue) =>
+		mapGiteaReportItem(issue, 'issue', giteaApiBaseUrl),
+	);
+	const mappedPRs = (data.pullRequests || []).map((pr) =>
+		mapGiteaReportItem(pr, 'pr', giteaApiBaseUrl),
+	);
+
+	return {
+		githubIssuesData: { items: mappedIssues },
+		githubPrsReviewData: { items: mappedPRs },
+		githubUserData: data.user || {},
+	};
+}
+
 function allIncluded(outputTarget = 'email') {
 	// Always re-instantiate gitlabHelper for gitlab platform to ensure fresh cache after refresh
 	if (platform === 'gitlab' || (typeof platform === 'undefined' && window.GitLabHelper)) {
 		gitlabHelper = new window.GitLabHelper(gitlabBaseUrl);
+	}
+	if (platform === 'gitea' || (typeof platform === 'undefined' && window.GiteaHelper)) {
+		giteaHelper = new window.GiteaHelper();
 	}
 	if (scrumGenerationInProgress) {
 		return;
@@ -349,6 +394,97 @@ function allIncluded(outputTarget = 'email') {
 								});
 						}
 						// --- FIX END ---
+					} else {
+						if (outputTarget === 'popup') {
+							const generateBtn = document.getElementById('generateReport');
+							const ErrMessage =
+								chrome.i18n.getMessage('usernameRequiredError') || 'Please enter your username to generate a report.';
+							handleUsernameValidationError(ErrMessage);
+							if (generateBtn) {
+								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+								generateBtn.disabled = false;
+							}
+						}
+						scrumGenerationInProgress = false;
+					}
+				} else if (platform === 'gitea') {
+					if (!giteaHelper) giteaHelper = new window.GiteaHelper();
+					if (platformUsernameLocal) {
+						const generateBtn = document.getElementById('generateReport');
+						if (generateBtn && outputTarget === 'popup') {
+							generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
+							generateBtn.disabled = true;
+						}
+
+						if (outputTarget === 'email') {
+							(async () => {
+								try {
+									const data = await giteaHelper.fetchGiteaData(
+										platformUsernameLocal,
+										startingDate,
+										endingDate
+									);
+
+									const mappedData = mapGiteaReportData(data, giteaHelper.baseUrl);
+									githubUserData = mappedData.githubUserData;
+
+									const name =
+										githubUserData?.name || githubUserData?.username || platformUsernameLocal || platformUsername;
+									const project = projectName;
+									const curDate = new Date();
+									const year = curDate.getFullYear().toString();
+									let date = curDate.getDate();
+									let month = curDate.getMonth() + 1;
+									if (month < 10) month = '0' + month;
+									if (date < 10) date = '0' + date;
+									const dateCode = year.toString() + month.toString() + date.toString();
+									const subject = `[Scrum]${project ? ' - ' + project : ''} - ${dateCode}`;
+									subjectForEmail = subject;
+
+									await processGithubData(mappedData, true, subjectForEmail);
+									scrumGenerationInProgress = false;
+								} catch (err) {
+									console.error('Gitea fetch failed:', err);
+									if (outputTarget === 'popup') {
+										if (generateBtn) {
+											generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+											generateBtn.disabled = false;
+										}
+										const ErrMessage = `${err.message || 'Error fetching Gitea data.'}`;
+										if (typeof ErrMessage === 'string' && ErrMessage.toLowerCase().includes('not found')) {
+											handleUsernameValidationError(ErrMessage);
+										} else {
+											showReportMessage(ErrMessage);
+										}
+									}
+									scrumGenerationInProgress = false;
+								}
+							})();
+						} else {
+							giteaHelper
+								.fetchGiteaData(platformUsernameLocal, startingDate, endingDate)
+								.then((data) => {
+									const mappedData = mapGiteaReportData(data, giteaHelper.baseUrl);
+									processGithubData(mappedData);
+									scrumGenerationInProgress = false;
+								})
+								.catch((err) => {
+									console.error('Gitea fetch failed:', err);
+									if (outputTarget === 'popup') {
+										if (generateBtn) {
+											generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+											generateBtn.disabled = false;
+										}
+										const ErrMessage = `${err.message || 'Error fetching Gitea data.'}`;
+										if (typeof ErrMessage === 'string' && ErrMessage.toLowerCase().includes('not found')) {
+											handleUsernameValidationError(ErrMessage);
+										} else {
+											showReportMessage(ErrMessage);
+										}
+									}
+									scrumGenerationInProgress = false;
+								});
+						}
 					} else {
 						if (outputTarget === 'popup') {
 							const generateBtn = document.getElementById('generateReport');
@@ -1030,7 +1166,7 @@ function allIncluded(outputTarget = 'email') {
 		log('[SCRUM-DEBUG] Processing issues for main activity:', githubIssuesData?.items);
 		if (platform === 'github') {
 			await writeGithubIssuesPrs(githubIssuesData?.items || []);
-		} else if (platform === 'gitlab') {
+		} else if (platform === 'gitlab' || platform === 'gitea') {
 			await writeGithubIssuesPrs(githubIssuesData?.items || []);
 			await writeGithubIssuesPrs(githubPrsReviewData?.items || []);
 		}
@@ -1650,7 +1786,7 @@ ${blockerText}`;
 			const repository_url = item.repository_url;
 			// Use project name for GitLab, repo extraction for GitHub
 			const project =
-				platform === 'gitlab' && item.project
+				(platform === 'gitlab' || platform === 'gitea') && item.project && item.project !== 'unknown'
 					? item.project
 					: repository_url
 						? repository_url.substr(repository_url.lastIndexOf('/') + 1)
@@ -1702,7 +1838,7 @@ ${blockerText}`;
 				// Check if PR has commits in the date range
 				const hasCommitsInRange = item._allCommits && item._allCommits.length > 0;
 
-				if (platform === 'github') {
+				if (platform === 'github' || platform === 'gitea') {
 					// For existing PRs (not new), they must be open AND have commits in the date range
 					if (!isNewPR) {
 						if (item.state !== 'open') {
@@ -1728,6 +1864,13 @@ ${blockerText}`;
 						prAction = 'Made Merge Request';
 					} else {
 						prAction = 'Updated Merge Request';
+					}
+				} else if (platform === 'gitea') {
+					prAction = isNewPR ? 'Made PR' : 'Updated PR';
+					if (isCreatedToday && item.state === 'open') {
+						prAction = 'Made PR';
+					} else {
+						prAction = 'Updated PR';
 					}
 				}
 
@@ -1764,6 +1907,9 @@ ${blockerText}`;
 						const owner = repoParts[repoParts.length - 2];
 						const repo = repoParts[repoParts.length - 1];
 						merged = mergedStatusResults[`${owner}/${repo}#${number}`];
+					}
+					if (platform === 'gitea' && item.pull_request && item.pull_request.merged_at) {
+						merged = true;
 					}
 					if (merged === true) {
 						li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_merged_button : ''}</li>`;
@@ -1981,6 +2127,24 @@ async function forceGitlabDataRefresh() {
 	return { success: true };
 }
 
+async function forceGiteaDataRefresh() {
+	if (window.GiteaHelper && giteaHelper instanceof window.GiteaHelper) {
+		giteaHelper.cache.data = null;
+		giteaHelper.cache.cacheKey = null;
+		giteaHelper.cache.timestamp = 0;
+		giteaHelper.cache.fetching = false;
+		giteaHelper.cache.queue = [];
+	}
+	await new Promise((resolve) => {
+		chrome.storage.local.remove('giteaCache', resolve);
+	});
+	hasInjectedContent = false;
+	if (window.GiteaHelper) {
+		giteaHelper = new window.GiteaHelper();
+	}
+	return { success: true };
+}
+
 // Auto inject report on email client load
 // if (window.location.protocol.startsWith('http')) {
 // 	allIncluded('email');
@@ -2001,6 +2165,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 			const platform = result.platform || 'github';
 			if (platform === 'gitlab') {
 				forceGitlabDataRefresh()
+					.then((result) => sendResponse(result))
+					.catch((err) => {
+						console.error('Force refresh failed:', err);
+						sendResponse({ success: false, error: err.message });
+					});
+			} else if (platform === 'gitea') {
+				forceGiteaDataRefresh()
 					.then((result) => sendResponse(result))
 					.catch((err) => {
 						console.error('Force refresh failed:', err);
@@ -2070,12 +2241,12 @@ async function fetchPrsMergedStatusBatch(prs, headers) {
 	if (prs.length === 0) return results;
 	const query = `query {
 ${prs
-	.map(
-		(pr, i) => `	repo${i}: repository(owner: "${pr.owner}\", name: "${pr.repo}\") {
+			.map(
+				(pr, i) => `	repo${i}: repository(owner: "${pr.owner}\", name: "${pr.repo}\") {
 		pr${i}: pullRequest(number: ${pr.number}) { merged }
 	}`,
-	)
-	.join('\n')}
+			)
+			.join('\n')}
 }`;
 
 	try {
@@ -2257,8 +2428,8 @@ async function fetchUserRepositories(username, token, org = '') {
 				}));
 
 			return repos.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-		} catch (err) {}
-	} catch (err) {}
+		} catch (err) { }
+	} catch (err) { }
 }
 
 function filterDataByRepos(data, selectedRepos) {

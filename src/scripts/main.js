@@ -164,6 +164,7 @@ function handleBodyOnLoad() {
 			'platform',
 			'githubUsername',
 			'gitlabUsername',
+			'giteaUsername',
 			'projectName',
 			'startingDate',
 			'endingDate',
