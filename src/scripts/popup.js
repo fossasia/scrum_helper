@@ -530,8 +530,8 @@ document.addEventListener('DOMContentLoaded', () => {
 					return;
 				}
 
-				setGenerateButtonLoading(generateBtn, true);
-				window.generateScrumReport();
+				if (generateBtn) setGenerateButtonLoading(generateBtn, true);
+				if (typeof window.generateScrumReport === 'function') window.generateScrumReport();
 				return;
 			}
 
@@ -540,13 +540,13 @@ document.addEventListener('DOMContentLoaded', () => {
 				scrumReport.innerHTML = sanitizeHtml(lastScrumReportHtml);
 			}
 
-			setGenerateButtonLoading(generateBtn, true);
-			window.generateScrumReport();
+			if (generateBtn) setGenerateButtonLoading(generateBtn, true);
+			if (typeof window.generateScrumReport === 'function') window.generateScrumReport();
 			return;
 		}
 
-		setGenerateButtonLoading(generateBtn, true);
-		window.generateScrumReport();
+		if (generateBtn) setGenerateButtonLoading(generateBtn, true);
+		if (typeof window.generateScrumReport === 'function') window.generateScrumReport();
 	}
 
 	function initializePopup() {
