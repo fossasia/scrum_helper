@@ -540,7 +540,8 @@ document.addEventListener('DOMContentLoaded', () => {
 				scrumReport.innerHTML = sanitizeHtml(lastScrumReportHtml);
 			}
 
-			if (generateBtn) generateBtn.disabled = false;
+			setGenerateButtonLoading(generateBtn, true);
+			window.generateScrumReport();
 			return;
 		}
 
