@@ -56,8 +56,8 @@
 
 4.  **Load the Extension in Your Browser**
 
-    **For Chrome & Edge (Chromium):**
-    -   Go to `chrome://extensions` (or `edge://extensions`) in your browser.
+    **For Chrome, Edge & Brave (Chromium):**
+    -   Go to `chrome://extensions` (or `edge://extensions` / `brave://extensions`) in your browser.
     -   Enable "Developer Mode" (toggle in the top-right).
     -   Click "Load unpacked" and select the `dist/chrome` folder inside the cloned repository.
 
@@ -152,13 +152,13 @@ $ npm install
 
 1. **Install the Extension**
 
-* For Chrome & Edge (Chromium): Load it into your browser through [Chrome Extension Developer Mode](https://developer.chrome.com/docs/extensions/mv3/getstarted/) using the `dist/chrome` folder.
+* For Chrome, Edge & Brave (Chromium): Load it into your browser through [Chrome Extension Developer Mode](https://developer.chrome.com/docs/extensions/mv3/getstarted/) using the `dist/chrome` folder.
 * For Firefox: Load it as a temporary add-on through `about:debugging` using the `dist/firefox` folder.
 * For Opera: Load it through Developer mode at `opera://extensions` using the `dist/opera` folder.
 
 2. **Rebuild the Extension**
    After making changes to the source code, rebuild the extension running `npm run build`.
-   * For Chrome: Rebuild or reload the extension in your browser (`chrome://extensions` → Refresh your extension).
+    * For Chrome, Edge & Brave: Rebuild or reload the extension in your browser (`chrome://extensions` → Refresh your extension).
    * For Firefox: Reload the temporary add-on by going to `about:debugging` → "This Firefox" → Click "Reload" next to your extension.
    * For Opera: Reload the extension in your browser (`opera://extensions` → Click the reload/refresh icon next to the extension).
    
