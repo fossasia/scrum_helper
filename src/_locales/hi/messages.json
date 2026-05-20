@@ -60,7 +60,7 @@
         "message": "ईमेल में डालें"
     },
     "insertToEmailFailedError": {
-        "message": "ईमेल डालने के लिए एक ईमेल टैब खोलें"
+        "message": "रिपोर्ट को ईमेल में डालने के लिए एक ईमेल टैब खोलें"
     },
     "settingsOrgNameLabel": {
         "message": "संगठन का नाम"
@@ -235,6 +235,9 @@
     "onlyRevPRsLabel": {
         "message": "रिपोर्ट में केवल समीक्षित PRs शामिल करें"
     },
+    "onlyRevPRsTooltip": {
+        "message": "यदि चेक किया गया है, तो रिपोर्ट में केवल आपके द्वारा समीक्षित PRs शामिल होंगे।"
+    },
     "onlyMergedPRsLabel": {
         "message": "रिपोर्ट में केवल merged PRs शामिल करें"
     },
@@ -242,10 +245,7 @@
         "message": "यदि चेक किया गया है, तो रिपोर्ट में केवल merged PRs शामिल होंगे। एक GitHub टोकन आवश्यक है।"
     },
     "tokenRequiredMergedPRsWarning": {
-        "message": "Merged PRs द्वारा फ़िल्टर करने के लिए एक GitHub टोकन आवश्यक है। कृपया सेटिंग्स में एक जोड़ें।"
-    },
-    "onlyRevPRsTooltip": {
-        "message": "यदि चेक किया गया है, तो रिपोर्ट में केवल आपके द्वारा समीक्षित PRs शामिल होंगे।"
+        "message": "merged PRs द्वारा फ़िल्टर करने के लिए एक GitHub टोकन आवश्यक है। कृपया सेटिंग्स में एक जोड़ें।"
     },
     "usernameRequiredError": {
 		"message": "रिपोर्ट बनाने के लिए कृपया अपना उपयोगकर्ता नाम दर्ज करें।"
@@ -313,9 +313,6 @@
     "generateReportTooltip": {
         "message": "Ctrl+G"
     },
-    "copiedReportNotification": {
-        "message": "रिपोर्ट कॉपी हो गई!"
-    },
     "copyReportTooltip": {
         "message": "Ctrl+Shift+Y"
     },
@@ -324,6 +321,9 @@
     },
     "copyingReportNotification": {
         "message": "रिपोर्ट कॉपी की जा रही है..."
+    },
+    "copiedReportNotification": {
+        "message": "रिपोर्ट कॉपी हो गई!"
     },
     "insertInEmailTooltip": {
         "message": "Ctrl+Shift+M"
