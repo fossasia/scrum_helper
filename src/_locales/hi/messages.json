@@ -59,7 +59,7 @@
     "insertInEmailButton": {
         "message": "ईमेल में डालें"
     },
-    "insertInEmailFailedError": {
+    "insertToEmailFailedError": {
         "message": "ईमेल डालने के लिए एक ईमेल टैब खोलें"
     },
     "settingsOrgNameLabel": {
