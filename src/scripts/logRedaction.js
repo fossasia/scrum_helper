@@ -5,6 +5,9 @@
  * @returns {Object} Safe copy with sensitive values redacted
  */
 function logRedaction(items) {
+	if (items == null || typeof items !== 'object') {
+		return items;
+	}
 	const spreadItems = { ...items };
 	const sensitiveKeys = ['githubToken', 'gitlabToken'];
 	sensitiveKeys.forEach((key) => {
