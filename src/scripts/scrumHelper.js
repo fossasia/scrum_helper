@@ -39,17 +39,6 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 });
 
-function logRedaction(items) {
-	const spreadItems = { ...items };
-	const sensitiveKeys = ['githubToken', 'gitlabToken'];
-	sensitiveKeys.forEach((key) => {
-		if (key in spreadItems) {
-			spreadItems[key] = '[REDACTED]';
-		}
-	});
-	return spreadItems;
-}
-
 function showReportMessage(message) {
 	if (!message) return;
 	if (scrumReportEl) {
