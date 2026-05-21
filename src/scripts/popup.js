@@ -369,7 +369,11 @@ document.addEventListener('DOMContentLoaded', () => {
 	});
 
 	browser.storage.onChanged.addListener((changes, namespace) => {
-		console.log('[DEBUG] Storage changed:', changes, namespace);
+		console.log(
+			'[DEBUG] Storage changed:',
+			typeof logRedaction === 'function' ? logRedaction(changes) : changes,
+			namespace,
+		);
 		if (changes.startingDate || changes.endingDate) {
 			console.log('[POPUP-DEBUG] Date changed in storage, triggering repo fetch.', {
 				startingDate: changes.startingDate?.newValue,
@@ -829,7 +833,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		browser.storage.local
 			.get(['selectedTimeframe', 'yesterdayContribution', 'startingDate', 'endingDate'])
 			.then((items) => {
-				console.log('Restoring state:', items);
+				console.log('Restoring state:', typeof logRedaction === 'function' ? logRedaction(items) : items);
 
 				if (items.startingDate && items.endingDate && !items.yesterdayContribution) {
 					const startDateInput = document.getElementById('startingDate');
@@ -1418,11 +1422,21 @@ document.addEventListener('DOMContentLoaded', () => {
 				const platform = items.platform || 'github';
 				const platformUsernameKey = `${platform}Username`;
 				const username = items[platformUsernameKey];
-				console.log('Storage data for repo fetch:', {
-					hasUsername: !!username,
-					hasToken: !!items.githubToken,
-					username: username,
-				});
+				console.log(
+					'Storage data for repo fetch:',
+					typeof logRedaction === 'function'
+						? logRedaction({
+								hasUsername: !!username,
+								hasToken: !!items.githubToken,
+								username: username,
+								githubToken: items.githubToken,
+							})
+						: {
+								hasUsername: !!username,
+								hasToken: !!items.githubToken,
+								username: username,
+							},
+				);
 
 				if (!username) {
 					repoStatus.textContent = chrome?.i18n.getMessage('usernameMissingError') || 'Username required';
