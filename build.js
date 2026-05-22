@@ -6,6 +6,7 @@ const srcDir = path.join(__dirname, 'src');
 const distDir = path.join(__dirname, 'dist');
 const chromeDir = path.join(distDir, 'chrome');
 const firefoxDir = path.join(distDir, 'firefox');
+const operaDir = path.join(distDir, 'opera');
 
 // Helper: copy directory recursively (ignore manifests folder)
 function copyDir(src, dest) {
@@ -30,11 +31,13 @@ console.log('Building cross-browser extensions...');
 if (fs.existsSync(distDir)) fs.rmSync(distDir, { recursive: true, force: true });
 fs.mkdirSync(chromeDir, { recursive: true });
 fs.mkdirSync(firefoxDir, { recursive: true });
+fs.mkdirSync(operaDir, { recursive: true });
 
-// 2. Copy source code to both targets
+// 2. Copy source code to all targets
 console.log('Copying source files...');
 copyDir(srcDir, chromeDir);
 copyDir(srcDir, firefoxDir);
+copyDir(srcDir, operaDir);
 
 // 3. Inject the specific manifests into the roots of the dist folders
 console.log('Injecting browser-specific manifests...');
@@ -46,7 +49,12 @@ fs.copyFileSync(
     path.join(srcDir, 'manifests', 'firefox.json'), 
     path.join(firefoxDir, 'manifest.json')
 );
+fs.copyFileSync(
+    path.join(srcDir, 'manifests', 'opera.json'), 
+    path.join(operaDir, 'manifest.json')
+);
 
 console.log('Build complete!');
 console.log('=> Chrome version ready in : dist/chrome');
 console.log('=> Firefox version ready in: dist/firefox');
+console.log('=> Opera version ready in   : dist/opera');
