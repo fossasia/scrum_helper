@@ -308,7 +308,7 @@ class GitLabHelper {
 		const normalizedProjects = Array.isArray(selectedProjects) ? [...selectedProjects].sort() : [];
 		const cacheKey = `${this.baseUrl}-${username}-${startDate}-${endDate}-${group}-${normalizedProjects.join(',')}-${tokenMarker}`;
 
-	    if (this.cache.cacheKey === cacheKey && this.cache.data) {
+		if (this.cache.cacheKey === cacheKey && this.cache.data) {
 			return this.cache.data;
 		}
 
