@@ -445,6 +445,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	window.updateGenerateButtonState = updateGenerateButtonState;
 
+	function updateCopyButtonState() {
+		const copyBtn = document.getElementById('copyReport');
+		const scrumReport = document.getElementById('scrumReport');
+		if (!copyBtn || !scrumReport) {
+			return;
+		}
+
+		copyBtn.disabled = scrumReport.dataset.copyPlaceholder === 'true' || !scrumReport.textContent.trim();
+	}
+
 	async function bootstrapScrumReportOnPopupLoad(generateBtn) {
 		console.log('[BOOTSTRAP] bootstrapScrumReportOnPopupLoad called');
 
@@ -526,6 +536,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 				if (reportEmpty && lastScrumReportHtml && matches) {
 					scrumReport.innerHTML = sanitizeHtml(lastScrumReportHtml);
+					delete scrumReport.dataset.copyPlaceholder;
 					if (generateBtn) generateBtn.disabled = false;
 					return;
 				}
@@ -538,6 +549,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			// If cache is expired, still only show the old HTML if it was for the current username
 			if ((!scrumReport.innerHTML || !scrumReport.innerHTML.trim()) && lastScrumReportHtml && isUsernameMatch) {
 				scrumReport.innerHTML = sanitizeHtml(lastScrumReportHtml);
+				delete scrumReport.dataset.copyPlaceholder;
 			}
 
 			if (generateBtn) generateBtn.disabled = false;
@@ -668,6 +680,25 @@ document.addEventListener('DOMContentLoaded', () => {
 		const copyBtn = document.getElementById('copyReport');
 		const insertBtn = document.getElementById('insertInEmail');
 
+		updateCopyButtonState();
+
+		const scrumReportEl = document.getElementById('scrumReport');
+		if (scrumReportEl) {
+			scrumReportEl.addEventListener('input', () => {
+				if (scrumReportEl.dataset.copyPlaceholder === 'true') {
+					delete scrumReportEl.dataset.copyPlaceholder;
+				}
+				updateCopyButtonState();
+			});
+
+			const copyBtnObserver = new MutationObserver(updateCopyButtonState);
+			copyBtnObserver.observe(scrumReportEl, {
+				childList: true,
+				subtree: true,
+				characterData: true,
+			});
+		}
+
 		if (insertBtn) {
 			insertBtn.addEventListener('click', () => {
 				const scrumReport = document.getElementById('scrumReport');
@@ -746,8 +777,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		copyBtn.addEventListener('click', function () {
 			const scrumReport = document.getElementById('scrumReport');
+			if (scrumReport?.dataset.copyPlaceholder === 'true') {
+				this._triggeredByShortcut = false;
+				return;
+			}
+			const reportHtml = scrumReport ? sanitizeHtml(scrumReport.innerHTML) : '';
 			const tempDiv = document.createElement('div');
 			tempDiv.innerHTML = sanitizeHtml(scrumReport.innerHTML);
+			if (!tempDiv.textContent.trim()) {
+				this._triggeredByShortcut = false;
+				return;
+			}
 
 			const darkMode = document.body.classList.contains('dark-mode');
 
@@ -2031,6 +2071,7 @@ document.getElementById('refreshCache').addEventListener('click', async function
 		// Clear the scrum report
 		const scrumReport = document.getElementById('scrumReport');
 		if (scrumReport) {
+			scrumReport.dataset.copyPlaceholder = 'true';
 			scrumReport.innerHTML = `<p style="text-align: center; color: #666; padding: 20px;">${browser.i18n.getMessage('cacheClearedMessage')}</p>`;
 		}
 

@@ -1151,6 +1151,7 @@ ${blockerText}`;
 			if (scrumReport) {
 				log('Found popup div, updating content');
 				scrumReport.innerHTML = sanitizeHtml(content);
+				delete scrumReport.dataset.copyPlaceholder;
 				try {
 					const cacheKey =
 						platform === 'gitlab' ? (gitlabHelper?.cache?.cacheKey ?? null) : (githubCache?.cacheKey ?? null);
