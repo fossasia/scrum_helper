@@ -651,12 +651,26 @@ function allIncluded(outputTarget = 'email') {
 			log('Validating GitHub user existence for:', platformUsernameLocal);
 			const userCheckRes = await fetch(userUrl, { headers });
 
+			console.log('[SCRUM-HELPER] GitHub API Rate Limit:', userCheckRes.headers.get('x-ratelimit-limit'));
+			console.log('[SCRUM-HELPER] GitHub API Rate Limit Remaining:', userCheckRes.headers.get('x-ratelimit-remaining'));
+			const resetTime = userCheckRes.headers.get('x-ratelimit-reset');
+			if (resetTime) {
+				const resetDate = new Date(resetTime * 1000);
+				console.log('[SCRUM-HELPER] GitHub API Rate Limit Resets at:', resetDate.toLocaleString());
+			}
+
 			if (userCheckRes.status === 404) {
 				const errorMsg =
 					chrome?.i18n.getMessage('githubUserNotFoundError', [platformUsernameLocal]) ||
 					`GitHub user "${platformUsernameLocal}" not found.`;
 				logError(errorMsg);
 				throw new Error(errorMsg);
+			}
+
+			if (userCheckRes.status === 403 && userCheckRes.headers.get('x-ratelimit-remaining') === '0') {
+				showRateLimitMessage();
+				githubCache.fetching = false;
+				return;
 			}
 
 			if (userCheckRes.status === 401 || userCheckRes.status === 403) {
@@ -678,6 +692,14 @@ function allIncluded(outputTarget = 'email') {
 				fetch(prUrl, { headers }),
 				userCheckRes, // Reuse the already validated user response
 			]);
+
+			const isRateLimited = (res) => res.status === 403 && res.headers.get('x-ratelimit-remaining') === '0';
+
+			if (isRateLimited(issuesRes) || isRateLimited(prRes)) {
+				showRateLimitMessage();
+				githubCache.fetching = false;
+				return;
+			}
 
 			if (issuesRes.status === 401 || prRes.status === 401 || issuesRes.status === 403 || prRes.status === 403) {
 				showInvalidTokenMessage();
@@ -995,6 +1017,40 @@ function allIncluded(outputTarget = 'email') {
 				window.scrumHelperToast?.(errMsg, { duration: 4000, variant: 'error' });
 			}
 		}
+		scrumGenerationInProgress = false;
+	}
+
+	function showRateLimitMessage() {
+		const errMsg =
+			chrome?.i18n.getMessage('rateLimitExceededError') ||
+			'API rate limit exceeded. Please add a GitHub token in the Scrum Helper settings to increase your limit.';
+		if (outputTarget === 'popup') {
+			if (scrumReportEl) {
+				showReportMessage(errMsg);
+				const generateBtn = document.getElementById('generateReport');
+				if (generateBtn) {
+					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+					generateBtn.disabled = false;
+				}
+
+				// Automatically open settings so user can add token
+				const settingsToggle = document.getElementById('settingsToggle');
+				const settingsSection = document.getElementById('settingsSection');
+				if (settingsToggle && settingsSection && settingsSection.classList.contains('hidden')) {
+					settingsToggle.click();
+				}
+				const githubTokenInput = document.getElementById('githubToken');
+				if (githubTokenInput) {
+					setTimeout(() => {
+						githubTokenInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+						githubTokenInput.focus();
+					}, 100);
+				}
+			} else {
+				window.scrumHelperToast?.(errMsg, { duration: 4000, variant: 'error' });
+			}
+		}
+		scrumGenerationInProgress = false;
 	}
 
 	async function processGithubData(data) {
