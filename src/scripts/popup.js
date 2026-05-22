@@ -602,7 +602,6 @@ document.addEventListener('DOMContentLoaded', () => {
 		const endingDateInput = document.getElementById('endingDate');
 		const platformUsername = document.getElementById('platformUsername');
 		let previousGithubTokenNormalized = '';
-		const usernameError = document.getElementById("usernameError");
 		const usernameError = document.getElementById('usernameError');
 
 		browser.storage.local
