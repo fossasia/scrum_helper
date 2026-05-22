@@ -690,6 +690,33 @@ hr,
     border-color: #4b5563 !important;
 }
 
+/* Dark mode styles for selected repos container */
+.dark-mode #selectedRepos {
+    background-color: #3a3f47 !important;
+    border-color: #4b5563 !important;
+    scrollbar-color: #6b7280 #374151; /* Firefox */
+    scrollbar-width: thin; /* Firefox */
+}
+
+/* Dark mode scrollbar for selected repos container */
+.dark-mode #selectedRepos::-webkit-scrollbar {
+    width: 6px;
+}
+
+.dark-mode #selectedRepos::-webkit-scrollbar-track {
+    background: #374151;
+    border-radius: 3px;
+}
+
+.dark-mode #selectedRepos::-webkit-scrollbar-thumb {
+    background: #6b7280;
+    border-radius: 3px;
+}
+
+.dark-mode #selectedRepos::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}
+
 .dark-mode #repositoryDropdown {
     background-color: #2d2d2d !important;
     border-color: #4b5563 !important;
