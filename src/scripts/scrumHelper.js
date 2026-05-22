@@ -20,6 +20,7 @@ let orgName = '';
 let platform = 'github';
 let platformUsername = '';
 let gitlabToken = '';
+let gitlabBaseUrl = '';
 let gitlabHelper = null;
 let usernameValidationListenerAttached = false;
 
@@ -27,43 +28,77 @@ const scrumReportEl = document.getElementById('scrumReport');
 const platformUsernameInp = document.getElementById('platformUsername');
 const usernameError = document.getElementById('usernameError');
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener('DOMContentLoaded', () => {
 	if (!usernameValidationListenerAttached && platformUsernameInp && usernameError) {
-		platformUsernameInp.addEventListener("input", function () {
-			platformUsernameInp.classList.remove("input-error");
-			usernameError.textContent = "";
-			usernameError.classList.remove("errorMessage");
+		platformUsernameInp.addEventListener('input', function () {
+			platformUsernameInp.classList.remove('input-error');
+			usernameError.textContent = '';
+			usernameError.classList.remove('errorMessage');
 		});
 		usernameValidationListenerAttached = true;
 	}
 });
 
 function showReportMessage(message) {
-	if (!scrumReportEl) return;
-	scrumReportEl.innerHTML = "";
-
-	const errorDiv = document.createElement("div");
-	errorDiv.classList.add("error-message");
-	errorDiv.textContent = message;
-	scrumReportEl.appendChild(errorDiv);
+	if (!message) return;
+	if (scrumReportEl) {
+		scrumReportEl.innerHTML = '';
+	}
+	window.scrumHelperToast?.(message, { duration: 4000, variant: 'error' });
 }
 
 function handleUsernameValidationError(errMessage) {
 	if (!platformUsernameInp || !usernameError) return;
 
-	platformUsernameInp.classList.add("input-error");
-	usernameError.classList.add("errorMessage");
+	platformUsernameInp.classList.add('input-error');
+	usernameError.classList.add('errorMessage');
 	usernameError.textContent = errMessage;
 
 	if (scrumReportEl) {
-		scrumReportEl.innerHTML = "";
+		scrumReportEl.innerHTML = '';
 	}
+}
+
+function mapGitLabReportItem(item, projectById, type, gitlabApiBaseUrl) {
+	const project = projectById.get(item.project_id);
+	const repoName = project ? project.name : 'unknown';
+
+	return {
+		...item,
+		repository_url: `${gitlabApiBaseUrl}/projects/${item.project_id}`,
+		html_url:
+			type === 'issue'
+				? item.web_url || (project ? `${project.web_url}/-/issues/${item.iid}` : '')
+				: item.web_url || (project ? `${project.web_url}/-/merge_requests/${item.iid}` : ''),
+		number: item.iid,
+		title: item.title,
+		state: type === 'issue' && item.state === 'opened' ? 'open' : item.state,
+		project: repoName,
+		pull_request: type === 'mr',
+	};
+}
+
+function mapGitLabReportData(data, gitlabApiBaseUrl) {
+	const projects = Array.isArray(data.projects) ? data.projects : [];
+	const projectById = new Map(projects.map((project) => [project.id, project]));
+	const mappedIssues = (data.issues || []).map((issue) =>
+		mapGitLabReportItem(issue, projectById, 'issue', gitlabApiBaseUrl),
+	);
+	const mappedMRs = (data.mergeRequests || data.mrs || []).map((mr) =>
+		mapGitLabReportItem(mr, projectById, 'mr', gitlabApiBaseUrl),
+	);
+
+	return {
+		githubIssuesData: { items: mappedIssues },
+		githubPrsReviewData: { items: mappedMRs },
+		githubUserData: data.user || {},
+	};
 }
 
 function allIncluded(outputTarget = 'email') {
 	// Always re-instantiate gitlabHelper for gitlab platform to ensure fresh cache after refresh
 	if (platform === 'gitlab' || (typeof platform === 'undefined' && window.GitLabHelper)) {
-		gitlabHelper = new window.GitLabHelper();
+		gitlabHelper = new window.GitLabHelper(gitlabBaseUrl);
 	}
 	if (scrumGenerationInProgress) {
 		return;
@@ -117,13 +152,14 @@ function allIncluded(outputTarget = 'email') {
 
 	function getChromeData() {
 		console.log('[DEBUG] getChromeData called for outputTarget:', outputTarget);
-		chrome.storage.local.get(
-			[
+		chrome.storage.local
+			.get([
 				'platform',
 				'githubUsername',
 				'gitlabUsername',
 				'githubToken',
 				'gitlabToken',
+				'gitlabBaseUrl',
 				'projectName',
 				'startingDate',
 				'endingDate',
@@ -179,12 +215,17 @@ function allIncluded(outputTarget = 'email') {
 				chrome.storage.local.remove(['userReason']);
 				githubToken = items.githubToken;
 				gitlabToken = items.gitlabToken || '';
+				gitlabBaseUrl = items.gitlabBaseUrl || '';
+				if (platform === 'gitlab' && window.GitLabHelper) {
+					gitlabHelper = new window.GitLabHelper(gitlabBaseUrl);
+				}
 				yesterdayContribution = items.yesterdayContribution;
 
 				onlyIssues = items.onlyIssues === true;
 				onlyPRs = items.onlyPRs === true;
 				onlyRevPRs = items.onlyRevPRs === true;
-				console.log('[SCRUM-DEBUG] loaded flags:', { onlyIssues, onlyPRs, onlyRevPRs });
+				onlyMergedPRs = items.onlyMergedPRs === true;
+				console.log('[SCRUM-DEBUG] loaded flags:', { onlyIssues, onlyPRs, onlyRevPRs, onlyMergedPRs });
 				// Enforce mutual exclusivity between onlyIssues and onlyPRs to avoid filtering out everything
 				if (onlyIssues && onlyPRs) {
 					console.warn('[SCRUM-HELPER]: Detected both onlyIssues and onlyPRs enabled; normalizing to onlyIssues.');
@@ -214,7 +255,8 @@ function allIncluded(outputTarget = 'email') {
 						if (outputTarget === 'popup') {
 							console.log('[DEBUG] No username found - popup context');
 							const generateBtn = document.getElementById('generateReport');
-							const ErrMessage = chrome.i18n.getMessage('usernameRequiredError') || 'Please enter your username to generate a report.';
+							const ErrMessage =
+								chrome.i18n.getMessage('usernameRequiredError') || 'Please enter your username to generate a report.';
 							handleUsernameValidationError(ErrMessage);
 							if (generateBtn) {
 								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
@@ -228,7 +270,7 @@ function allIncluded(outputTarget = 'email') {
 						return;
 					}
 				} else if (platform === 'gitlab') {
-					if (!gitlabHelper) gitlabHelper = new window.GitLabHelper();
+					if (!gitlabHelper) gitlabHelper = new window.GitLabHelper(gitlabBaseUrl);
 					if (platformUsernameLocal) {
 						const generateBtn = document.getElementById('generateReport');
 						if (generateBtn && outputTarget === 'popup') {
@@ -246,33 +288,7 @@ function allIncluded(outputTarget = 'email') {
 										gitlabToken,
 									);
 
-									function mapGitLabItem(item, projects, type) {
-										const project = projects.find((p) => p.id === item.project_id);
-										const repoName = project ? project.name : 'unknown';
-
-										return {
-											...item,
-											repository_url: `https://gitlab.com/api/v4/projects/${item.project_id}`,
-											html_url:
-												type === 'issue'
-													? item.web_url || (project ? `${project.web_url}/-/issues/${item.iid}` : '')
-													: item.web_url || (project ? `${project.web_url}/-/merge_requests/${item.iid}` : ''),
-											number: item.iid,
-											title: item.title,
-											state: type === 'issue' && item.state === 'opened' ? 'open' : item.state,
-											project: repoName,
-											pull_request: type === 'mr',
-										};
-									}
-									const mappedIssues = (data.issues || []).map((issue) => mapGitLabItem(issue, data.projects, 'issue'));
-									const mappedMRs = (data.mergeRequests || data.mrs || []).map((mr) =>
-										mapGitLabItem(mr, data.projects, 'mr'),
-									);
-									const mappedData = {
-										githubIssuesData: { items: mappedIssues },
-										githubPrsReviewData: { items: mappedMRs },
-										githubUserData: data.user || {},
-									};
+									const mappedData = mapGitLabReportData(data, gitlabHelper.baseUrl);
 									githubUserData = mappedData.githubUserData;
 
 									const name =
@@ -298,7 +314,7 @@ function allIncluded(outputTarget = 'email') {
 											generateBtn.disabled = false;
 										}
 										const ErrMessage = `${err.message || 'Error fetching GitLab data.'}`;
-										if (typeof ErrMessage === "string" && ErrMessage.toLowerCase().includes("not found")){
+										if (typeof ErrMessage === 'string' && ErrMessage.toLowerCase().includes('not found')) {
 											handleUsernameValidationError(ErrMessage);
 										} else {
 											showReportMessage(ErrMessage);
@@ -311,32 +327,7 @@ function allIncluded(outputTarget = 'email') {
 							gitlabHelper
 								.fetchGitLabData(platformUsernameLocal, startingDate, endingDate, gitlabToken)
 								.then((data) => {
-									function mapGitLabItem(item, projects, type) {
-										const project = projects.find((p) => p.id === item.project_id);
-										const repoName = project ? project.name : 'unknown';
-										return {
-											...item,
-											repository_url: `https://gitlab.com/api/v4/projects/${item.project_id}`,
-											html_url:
-												type === 'issue'
-													? item.web_url || (project ? `${project.web_url}/-/issues/${item.iid}` : '')
-													: item.web_url || (project ? `${project.web_url}/-/merge_requests/${item.iid}` : ''),
-											number: item.iid,
-											title: item.title,
-											state: type === 'issue' && item.state === 'opened' ? 'open' : item.state,
-											project: repoName,
-											pull_request: type === 'mr',
-										};
-									}
-									const mappedIssues = (data.issues || []).map((issue) => mapGitLabItem(issue, data.projects, 'issue'));
-									const mappedMRs = (data.mergeRequests || data.mrs || []).map((mr) =>
-										mapGitLabItem(mr, data.projects, 'mr'),
-									);
-									const mappedData = {
-										githubIssuesData: { items: mappedIssues },
-										githubPrsReviewData: { items: mappedMRs },
-										githubUserData: data.user || {},
-									};
+									const mappedData = mapGitLabReportData(data, gitlabHelper.baseUrl);
 									processGithubData(mappedData);
 									scrumGenerationInProgress = false;
 								})
@@ -348,7 +339,7 @@ function allIncluded(outputTarget = 'email') {
 											generateBtn.disabled = false;
 										}
 										const ErrMessage = `${err.message || 'Error fetching GitLab data.'}`;
-										if(typeof ErrMessage === "string" && ErrMessage.toLowerCase().includes("not found")){
+										if (typeof ErrMessage === 'string' && ErrMessage.toLowerCase().includes('not found')) {
 											handleUsernameValidationError(ErrMessage);
 										} else {
 											showReportMessage(ErrMessage);
@@ -361,7 +352,8 @@ function allIncluded(outputTarget = 'email') {
 					} else {
 						if (outputTarget === 'popup') {
 							const generateBtn = document.getElementById('generateReport');
-							const ErrMessage = chrome.i18n.getMessage('usernameRequiredError') || 'Please enter your username to generate a report.';
+							const ErrMessage =
+								chrome.i18n.getMessage('usernameRequiredError') || 'Please enter your username to generate a report.';
 							handleUsernameValidationError(ErrMessage);
 							if (generateBtn) {
 								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
@@ -378,8 +370,7 @@ function allIncluded(outputTarget = 'email') {
 					}
 					scrumGenerationInProgress = false;
 				}
-			},
-		);
+			});
 	}
 	getChromeData();
 
@@ -700,7 +691,7 @@ function allIncluded(outputTarget = 'email') {
 					`Invalid search query or date range. Please verify your date range format and try again.`;
 				logError(errorMsg);
 				if (outputTarget === 'popup') {
-					Materialize.toast && Materialize.toast(errorMsg, 4000);
+					showReportMessage(errorMsg);
 				}
 				throw new Error(errorMsg);
 			}
@@ -711,7 +702,7 @@ function allIncluded(outputTarget = 'email') {
 					`Error fetching GitHub issues: ${issuesRes.status} ${issuesRes.statusText}`;
 				logError(errorMsg);
 				if (outputTarget === 'popup') {
-					Materialize.toast && Materialize.toast(errorMsg, 4000);
+					showReportMessage(errorMsg);
 				}
 				throw new Error(errorMsg);
 			}
@@ -721,7 +712,7 @@ function allIncluded(outputTarget = 'email') {
 					`Error fetching GitHub PR review data: ${prRes.status} ${prRes.statusText}`;
 				logError(errorMsg);
 				if (outputTarget === 'popup') {
-					Materialize.toast && Materialize.toast(errorMsg, 4000);
+					showReportMessage(errorMsg);
 				}
 				throw new Error(errorMsg);
 			}
@@ -812,9 +803,9 @@ function allIncluded(outputTarget = 'email') {
 						else errorMsg = JSON.stringify(err);
 					}
 					const ErrMessage = `${errorMsg || 'An error occurred while generating the report.'}`;
-					if(typeof ErrMessage === "string" && ErrMessage.toLowerCase().includes("not found")){
+					if (typeof ErrMessage === 'string' && ErrMessage.toLowerCase().includes('not found')) {
 						handleUsernameValidationError(ErrMessage);
-					}else{
+					} else {
 						showReportMessage(ErrMessage);
 					}
 				}
@@ -1001,7 +992,7 @@ function allIncluded(outputTarget = 'email') {
 					generateBtn.disabled = false;
 				}
 			} else {
-				alert(errMsg);
+				window.scrumHelperToast?.(errMsg, { duration: 4000, variant: 'error' });
 			}
 		}
 	}
@@ -1159,7 +1150,7 @@ ${blockerText}`;
 			const scrumReport = document.getElementById('scrumReport');
 			if (scrumReport) {
 				log('Found popup div, updating content');
-				scrumReport.innerHTML = content;
+				scrumReport.innerHTML = sanitizeHtml(content);
 				try {
 					const cacheKey =
 						platform === 'gitlab' ? (gitlabHelper?.cache?.cacheKey ?? null) : (githubCache?.cacheKey ?? null);
@@ -1256,7 +1247,7 @@ ${blockerText}`;
 	}
 
 	function writeGithubPrsReviews() {
-		const isAnyFilterActive = onlyIssues || onlyPRs || onlyRevPRs;
+		const isAnyFilterActive = onlyIssues || onlyPRs || onlyRevPRs || onlyMergedPRs;
 		if (isAnyFilterActive && !onlyRevPRs) {
 			log('Filters active but onlyRevPRs not checked, skipping PR reviews.');
 			reviewedPrsArray = [];
@@ -1352,18 +1343,7 @@ ${blockerText}`;
 				}
 			}
 
-			// Additional conservative check: For PRs that were created before the date range,
-			// only include them if they were updated very recently (within the last day of the range)
 			const createdDate = new Date(item.created_at);
-			if (createdDate < startDateTime) {
-				// If PR was created before the date range, only include if it was updated in the last day
-				const lastDayOfRange = new Date(endDateTime);
-				lastDayOfRange.setDate(lastDayOfRange.getDate() - 1);
-				if (itemDate < lastDayOfRange) {
-					log(`Skipping PR #${item.number} - created before date range and not updated recently enough`);
-					continue;
-				}
-			}
 
 			// Extra conservative check: For "yesterday" filter, be very strict
 			if (yesterdayContribution) {
@@ -1560,12 +1540,10 @@ ${blockerText}`;
 		} else if (useMergedStatus) {
 			if (prsToCheck.length > 30) {
 				fallbackToSimple = true;
-				if (typeof Materialize !== 'undefined' && Materialize.toast) {
-					Materialize.toast(
-						'API limit exceeded. Please use a GitHub token for full status. Showing only open/closed PRs.',
-						5000,
-					);
-				}
+				window.scrumHelperToast?.(
+					'API limit exceeded. Please use a GitHub token for full status. Showing only open/closed PRs.',
+					{ duration: 5000, variant: 'error' },
+				);
 			} else {
 				// Use REST API for each PR, cache results
 				for (const pr of prsToCheck) {
@@ -1728,14 +1706,14 @@ ${blockerText}`;
 					prAction = isNewPR ? 'Made PR' : 'Updated PR';
 					log(`[PR DEBUG] Including PR #${number} as ${prAction}`);
 
-					if (isCreatedToday && item.State === 'open') {
+					if (isCreatedToday && item.state === 'open') {
 						prAction = 'Made PR';
 					} else {
 						prAction = 'Updated PR';
 					}
 				} else if (platform === 'gitlab') {
 					prAction = isNewPR ? 'Made Merge Request' : 'Updated Merge Request';
-					if (isCreatedToday && item.State === 'open') {
+					if (isCreatedToday && item.state === 'opened') {
 						prAction = 'Made Merge Request';
 					} else {
 						prAction = 'Updated Merge Request';
@@ -1803,13 +1781,37 @@ ${blockerText}`;
 						'&nbsp;&nbsp;</li>';
 					nextWeekArray.push(li2);
 				}
+				// Compute date range for filtering
+				let issueStartDateFilter;
+				let issueEndDateFilter;
+				if (yesterdayContribution) {
+					const todayDate = new Date();
+					const yesterdayDate = new Date(todayDate.getTime() - 24 * 60 * 60 * 1000);
+					issueStartDateFilter = new Date(yesterdayDate.toISOString().split('T')[0] + 'T00:00:00Z');
+					issueEndDateFilter = new Date(yesterdayDate.toISOString().split('T')[0] + 'T23:59:59Z');
+				} else if (startingDate && endingDate) {
+					issueStartDateFilter = new Date(startingDate + 'T00:00:00Z');
+					issueEndDateFilter = new Date(endingDate + 'T23:59:59Z');
+				} else {
+					const todayDate = new Date();
+					const lastWeek = new Date(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate() - 7);
+					issueStartDateFilter = new Date(lastWeek.toISOString().split('T')[0] + 'T00:00:00Z');
+					issueEndDateFilter = new Date(todayDate.toISOString().split('T')[0] + 'T23:59:59Z');
+				}
 
-				const today = new Date();
-				today.setHours(0, 0, 0, 0);
-				const itemCreatedDate = new Date(item.created_at);
-				itemCreatedDate.setHours(0, 0, 0, 0);
-				const isCreatedToday = today.getTime() === itemCreatedDate.getTime();
-				const issueActionText = isCreatedToday ? 'Opened Issue' : 'Updated Issue';
+				const issueCreatedDate = new Date(item.created_at);
+				const issueUpdatedDate = new Date(item.updated_at);
+				const isNewIssue = issueCreatedDate >= issueStartDateFilter && issueCreatedDate <= issueEndDateFilter;
+				const isUpdatedInRange = issueUpdatedDate >= issueStartDateFilter && issueUpdatedDate <= issueEndDateFilter;
+
+				// Skip issues that were neither created nor updated within the selected date range
+				if (!isNewIssue && !isUpdatedInRange) {
+					log(`[ISSUE DEBUG] Skipping Issue #${number} - not created or updated in date range`);
+					continue;
+				}
+
+				const issueActionText = isNewIssue ? 'Opened Issue' : 'Updated Issue';
+
 				if (item.state === 'open') {
 					li = `<li><i>(${project})</i> - ${issueActionText}(#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + issue_opened_button : ''}</li>`;
 				} else if (item.state === 'closed') {
@@ -1963,7 +1965,7 @@ async function forceGitlabDataRefresh() {
 	hasInjectedContent = false;
 	// Re-instantiate gitlabHelper to ensure a fresh instance for next API call
 	if (window.GitLabHelper) {
-		gitlabHelper = new window.GitLabHelper();
+		gitlabHelper = new window.GitLabHelper(gitlabBaseUrl);
 	}
 	return { success: true };
 }
@@ -2057,12 +2059,12 @@ async function fetchPrsMergedStatusBatch(prs, headers) {
 	if (prs.length === 0) return results;
 	const query = `query {
 ${prs
-			.map(
-				(pr, i) => `	repo${i}: repository(owner: "${pr.owner}\", name: "${pr.repo}\") {
+	.map(
+		(pr, i) => `	repo${i}: repository(owner: "${pr.owner}\", name: "${pr.repo}\") {
 		pr${i}: pullRequest(number: ${pr.number}) { merged }
 	}`,
-			)
-			.join('\n')}
+	)
+	.join('\n')}
 }`;
 
 	try {
@@ -2244,8 +2246,8 @@ async function fetchUserRepositories(username, token, org = '') {
 				}));
 
 			return repos.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-		} catch (err) { }
-	} catch (err) { }
+		} catch (err) {}
+	} catch (err) {}
 }
 
 function filterDataByRepos(data, selectedRepos) {
