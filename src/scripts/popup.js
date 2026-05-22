@@ -1,6 +1,13 @@
-/* global chrome */
-
 const injectedTabs = new Set();
+
+if (typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.onUpdated) {
+	chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
+		if (changeInfo.status === 'loading') {
+			console.log(`[Insert] Tab ${tabId} reloaded or navigated. Clearing injectedTabs state.`);
+			injectedTabs.delete(tabId);
+		}
+	});
+}
 
 function sanitizeTooltipHtml(html) {
 	const parser = new DOMParser();
@@ -184,6 +191,14 @@ document.addEventListener('DOMContentLoaded', () => {
 	const settingsSection = document.getElementById('settingsSection');
 
 	document.addEventListener('keydown', (e) => {
+		const activeEl = document.activeElement;
+		if (activeEl) {
+			const tagName = activeEl.tagName.toUpperCase();
+			if (tagName === 'INPUT' || tagName === 'TEXTAREA' || tagName === 'SELECT' || activeEl.isContentEditable) {
+				return;
+			}
+		}
+
 		if (e.ctrlKey && e.shiftKey) {
 			const key = e.key.toLowerCase();
 			if (key === 'y') {
@@ -977,7 +992,11 @@ document.addEventListener('DOMContentLoaded', () => {
 					const content = scrumReport ? sanitizeHtml(scrumReport.innerHTML) : '';
 
 					if (!content) {
-						alert('No scrum report to insert. Please generate a report first.');
+						const msg =
+							browser.i18n.getMessage('noScrumReportToInsertError') ||
+							'No scrum report to insert. Please generate a report first.';
+						showPopupMessage(msg);
+						if (generateBtn) generateBtn.focus();
 						console.warn('[Insert] No scrum report to insert');
 						return;
 					}
@@ -1054,7 +1073,10 @@ document.addEventListener('DOMContentLoaded', () => {
 									!retry &&
 									(errMsg.includes('Receiving end does not exist') || errMsg.includes('Could not establish connection'))
 								) {
-									console.log('[Insert] Content scripts not found. Injecting minimal scripts...');
+									console.log(
+										'[Insert] Content scripts not found. Clearing injected state and injecting minimal scripts...',
+									);
+									injectedTabs.delete(tabId);
 
 									if (injectedTabs.has(tabId)) {
 										console.log('[Insert] Scripts already injected for tab', tabId, '. Skipping reinjection.');

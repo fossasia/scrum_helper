@@ -317,17 +317,23 @@ window.emailClientAdapter = new EmailClientAdapter();
 if (EmailClientAdapter.debug) console.log('[EmailClientAdapter] Email client adapter initialized');
 
 // Set up message listener for insert to email functionality
+const runtimeApi =
+	(typeof browser !== 'undefined' && browser.runtime) || (typeof chrome !== 'undefined' && chrome.runtime);
 if (EmailClientAdapter.debug) console.log('[EmailClientAdapter] Registering message listener...');
-browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
-	if (EmailClientAdapter.debug) console.log('[EmailClientAdapter] Received message from popup:', request.action);
+if (runtimeApi?.onMessage?.addListener) {
+	runtimeApi.onMessage.addListener((request, sender, sendResponse) => {
+		if (EmailClientAdapter.debug) console.log('[EmailClientAdapter] Received message from popup:', request.action);
 
-	if (request.action === 'insertReportToEmail') {
-		if (EmailClientAdapter.debug) console.log('[EmailClientAdapter] Processing insertReportToEmail request');
-		handleInsertReportToEmail(request.content, request.subject, sendResponse);
-		return true; // Indicate async response
-	}
-});
-if (EmailClientAdapter.debug) console.log('[EmailClientAdapter] Message listener registered successfully');
+		if (request.action === 'insertReportToEmail') {
+			if (EmailClientAdapter.debug) console.log('[EmailClientAdapter] Processing insertReportToEmail request');
+			handleInsertReportToEmail(request.content, request.subject, sendResponse);
+			return true; // Indicate async response
+		}
+	});
+	if (EmailClientAdapter.debug) console.log('[EmailClientAdapter] Message listener registered successfully');
+} else {
+	console.warn('[EmailClientAdapter] Runtime messaging API not available; message listener not registered');
+}
 
 async function handleInsertReportToEmail(content, subject, sendResponse) {
 	try {

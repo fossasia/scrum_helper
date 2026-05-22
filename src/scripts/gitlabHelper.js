@@ -439,26 +439,22 @@ class GitLabHelper {
 			for (const project of allProjects) {
 				try {
 					const projectMRsUrl = `${this.baseUrl}/projects/${project.id}/merge_requests?author_id=${userId}&created_after=${startDate}T00:00:00Z&created_before=${endDate}T23:59:59Z&per_page=100&order_by=updated_at&sort=desc`;
-					const projectMRsRes = await this.fetchWithTimeout(
-						projectMRsUrl,
-						{ headers: this.getHeaders(effectiveToken) },
-						15000,
-					);
-					if (projectMRsRes.ok) {
-						const projectMRs = await projectMRsRes.json();
-						allMergeRequests = allMergeRequests.concat(projectMRs);
-					} else if (projectMRsRes.status === 403 || projectMRsRes.status === 401) {
-						// Log but continue - might be a private project user doesn't have access to
-						console.warn(`Access denied for project ${project.name} MRs - skipping`);
-						mrErrors++;
-					} else {
-						console.error(`Error fetching MRs for project ${project.name}: ${projectMRsRes.status}`);
-						mrErrors++;
-					}
+					const projectMRs = await fetchAllPages(projectMRsUrl, `fetching MRs for project ${project.name}`);
+					allMergeRequests = allMergeRequests.concat(projectMRs);
 					// Add small delay to avoid rate limiting
 					await new Promise((resolve) => setTimeout(resolve, 100));
 				} catch (error) {
-					console.error(`Error fetching MRs for project ${project.name}:`, error.message);
+					const msg = error.message;
+					if (
+						msg.includes('Access forbidden') ||
+						msg.includes('Authentication failed') ||
+						msg.includes('403') ||
+						msg.includes('401')
+					) {
+						console.warn(`Access denied for project ${project.name} MRs - skipping`);
+					} else {
+						console.error(`Error fetching MRs for project ${project.name}:`, msg);
+					}
 					mrErrors++;
 					// Continue with other projects - graceful degradation
 				}
@@ -473,25 +469,22 @@ class GitLabHelper {
 			for (const project of allProjects) {
 				try {
 					const projectIssuesUrl = `${this.baseUrl}/projects/${project.id}/issues?author_id=${userId}&created_after=${startDate}T00:00:00Z&created_before=${endDate}T23:59:59Z&per_page=100&order_by=updated_at&sort=desc`;
-					const projectIssuesRes = await this.fetchWithTimeout(
-						projectIssuesUrl,
-						{ headers: this.getHeaders(effectiveToken) },
-						15000,
-					);
-					if (projectIssuesRes.ok) {
-						const projectIssues = await projectIssuesRes.json();
-						allIssues = allIssues.concat(projectIssues);
-					} else if (projectIssuesRes.status === 403 || projectIssuesRes.status === 401) {
-						console.warn(`Access denied for project ${project.name} issues - skipping`);
-						issueErrors++;
-					} else {
-						console.error(`Error fetching issues for project ${project.name}: ${projectIssuesRes.status}`);
-						issueErrors++;
-					}
+					const projectIssues = await fetchAllPages(projectIssuesUrl, `fetching issues for project ${project.name}`);
+					allIssues = allIssues.concat(projectIssues);
 					// Add small delay to avoid rate limiting
 					await new Promise((resolve) => setTimeout(resolve, 100));
 				} catch (error) {
-					console.error(`Error fetching issues for project ${project.name}:`, error.message);
+					const msg = error.message;
+					if (
+						msg.includes('Access forbidden') ||
+						msg.includes('Authentication failed') ||
+						msg.includes('403') ||
+						msg.includes('401')
+					) {
+						console.warn(`Access denied for project ${project.name} issues - skipping`);
+					} else {
+						console.error(`Error fetching issues for project ${project.name}:`, msg);
+					}
 					issueErrors++;
 					// Continue with other projects
 				}
