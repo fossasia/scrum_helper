@@ -776,6 +776,34 @@ document.addEventListener('DOMContentLoaded', () => {
 			const scrumReport = document.getElementById('scrumReport');
 			const tempDiv = document.createElement('div');
 			tempDiv.innerHTML = sanitizeHtml(scrumReport.innerHTML);
+
+			const darkMode = document.body.classList.contains('dark-mode');
+
+			//remove background styles
+			tempDiv.querySelectorAll('*').forEach((el) => {
+				const text = el.textContent?.trim().toLowerCase();
+
+				const isStatusBadge = el.classList.contains('State') || el.classList.contains('state');
+				if (isStatusBadge || text === 'open' || text === 'closed' || text === 'merged' || text === 'draft') {
+					return;
+				}
+
+				el.style.backgroundColor = 'transparent';
+				el.style.background = 'transparent';
+				el.style.backgroundImage = 'none';
+
+				const inlineColor = (el.style.color || '').replace(/\s+/g, '').toLowerCase();
+				const isCommitHeadline =
+					el.classList.contains('commitMessageHeadline') ||
+					inlineColor === '#2563eb' ||
+					inlineColor === 'rgb(37,99,235)';
+				const isLink = el.tagName === 'A';
+
+				// Change color only if it is darkmode and not a commit headline and not a PR link
+				if (darkMode && !isCommitHeadline && !isLink) {
+					el.style.color = '#000';
+				}
+			});
 			document.body.appendChild(tempDiv);
 			tempDiv.style.position = 'absolute';
 			tempDiv.style.left = '-9999px';
