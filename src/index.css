@@ -691,6 +691,13 @@ hr,
     color: #d1d5db;
 }
 
+/* Selected repos container - light mode */
+#selectedRepos {
+    background-color: #f3f4f6 !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 14px;
+}
+
 /* Dark mode styles for selected repos container */
 .dark-mode #selectedRepos {
     background-color: #404040 !important;
