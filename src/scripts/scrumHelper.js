@@ -513,8 +513,8 @@ function allIncluded(outputTarget = 'email') {
 
 		const cacheKey = `${platformUsernameLocal}-${startDateForCache}-${endDateForCache}-${orgName || 'all'}`;
 
-		if (githubCache.fetching || (githubCache.cacheKey === cacheKey && githubCache.data)) {
-			log('Fetch already in progress or data already fetched. Skipping fetch.');
+		if (githubCache.fetching) {
+			log('Fetch already in progress. Skipping fetch.');
 			return;
 		}
 
