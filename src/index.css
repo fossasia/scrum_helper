@@ -639,8 +639,14 @@ hr,
 
 /* Dark mode styles */
 .dark-mode .repository-tag {
-    background: #1e40af;
-    color: #f3f4f6;
+    background: #2563eb;
+    color: #f9fafb;
+    border: 1px solid #3b82f6;
+    transition: background-color 0.2s ease;
+}
+
+.dark-mode .repository-tag:hover {
+    background-color: #1d4ed8;
 }
 
 .dark-mode .repository-dropdown-item {
@@ -685,15 +691,10 @@ hr,
     color: #d1d5db;
 }
 
-.dark-mode #selectedRepositories {
-    background-color: #374151 !important;
-    border-color: #4b5563 !important;
-}
-
 /* Dark mode styles for selected repos container */
 .dark-mode #selectedRepos {
-    background-color: #3a3f47 !important;
-    border-color: #4b5563 !important;
+    background-color: #404040 !important;
+    border-color: #505050 !important;
     scrollbar-color: #6b7280 #374151; /* Firefox */
     scrollbar-width: thin; /* Firefox */
 }
