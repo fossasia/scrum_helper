@@ -452,6 +452,16 @@ document.addEventListener('DOMContentLoaded', () => {
 			return;
 		}
 
+		const textContent = scrumReport.textContent;
+		const cacheClearedText =
+			(typeof browser !== 'undefined' && browser.i18n ? browser.i18n.getMessage('cacheClearedMessage') : null) ||
+			(typeof chrome !== 'undefined' && chrome.i18n ? chrome.i18n.getMessage('cacheClearedMessage') : null) ||
+			'Cache cleared successfully. Click "Generate" to fetch fresh data.';
+
+		if (textContent === cacheClearedText) {
+			scrumReport.dataset.copyPlaceholder = 'true';
+		}
+
 		copyBtn.disabled = scrumReport.dataset.copyPlaceholder === 'true' || !scrumReport.textContent.trim();
 	}
 
