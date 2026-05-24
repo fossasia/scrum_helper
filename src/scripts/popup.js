@@ -663,6 +663,12 @@ document.addEventListener('DOMContentLoaded', () => {
 				checkTokenForMergedPRs();
 			});
 
+			function dismissShortcutTooltipFocus(el) {
+			try {
+				el?.blur?.();
+			} catch {}
+		}
+
 		// Button setup
 		const generateBtn = document.getElementById('generateReport');
 		const copyBtn = document.getElementById('copyReport');
@@ -714,6 +720,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					})
 					.finally(() => {
 						insertBtn._triggeredByShortcut = false;
+						dismissShortcutTooltipFocus(insertBtn);
 					});
 			});
 		}
@@ -739,6 +746,7 @@ document.addEventListener('DOMContentLoaded', () => {
 							generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
 							generateBtn.disabled = true;
 							window.generateScrumReport && window.generateScrumReport();
+							dismissShortcutTooltipFocus(generateBtn);
 						});
 					});
 			});
@@ -803,6 +811,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				console.error('Failed to copy: ', err);
 			} finally {
 				this._triggeredByShortcut = false;
+				dismissShortcutTooltipFocus(this);
 				selection.removeAllRanges();
 				document.body.removeChild(tempDiv);
 			}
