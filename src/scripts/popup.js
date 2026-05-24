@@ -664,9 +664,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			});
 
 		function dismissShortcutTooltipFocus(el) {
-			try {
-				el?.blur?.();
-			} catch {}
+			el?.blur?.();
 		}
 
 		// Button setup
