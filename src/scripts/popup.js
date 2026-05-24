@@ -663,7 +663,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				checkTokenForMergedPRs();
 			});
 
-			function dismissShortcutTooltipFocus(el) {
+		function dismissShortcutTooltipFocus(el) {
 			try {
 				el?.blur?.();
 			} catch {}
