@@ -784,8 +784,27 @@ document.addEventListener('DOMContentLoaded', () => {
 			return;
 		}
 
-		const { platform } = await storageLocalGet(['platform']);
+		const { platform, cacheInput, githubCache, gitlabCache } = await storageLocalGet([
+			'platform',
+			'cacheInput',
+			'githubCache',
+			'gitlabCache',
+		]);
+
+		const ttlMinutes = parsePositiveInt(cacheInput) ?? 10;
+		const ttlMs = ttlMinutes * 60 * 1000;
+
 		const activePlatform = platform || 'github';
+		const cache = activePlatform === 'gitlab' ? gitlabCache : githubCache;
+
+		const hasCacheData = !!cache?.data;
+		const timestamp = typeof cache?.timestamp === 'number' ? cache.timestamp : 0;
+
+		if (!hasCacheData) {
+			if (generateBtn) setGenerateButtonLoading(generateBtn, true);
+			window.generateScrumReport();
+			return;
+		}
 
 		const storageValues = await storageLocalGet([
 			`${activePlatform}LastScrumReportHtml`,
@@ -825,15 +844,38 @@ document.addEventListener('DOMContentLoaded', () => {
 			? lastScrumReportUsername === expectedUsername
 			: lastScrumReportCacheKey && expectedUsername && lastScrumReportCacheKey.startsWith(expectedUsername + '-');
 
-		// Only show the old HTML if it was for the current username
-		if ((!scrumReport.innerHTML || !scrumReport.innerHTML.trim()) && lastScrumReportHtml && isUsernameMatch) {
-			scrumReport.innerHTML = sanitizeHtml(lastScrumReportHtml);
+		if (timestamp > 0) {
+			const age = Date.now() - timestamp;
+
+			if (age < ttlMs) {
+				const cacheKey = cache?.cacheKey ?? null;
+				const reportEmpty = !scrumReport.innerHTML || !scrumReport.innerHTML.trim();
+
+				const matches = (!lastScrumReportCacheKey || lastScrumReportCacheKey === cacheKey) && isUsernameMatch;
+
+				if (reportEmpty && lastScrumReportHtml && matches) {
+					scrumReport.innerHTML = sanitizeHtml(lastScrumReportHtml);
+					if (generateBtn) generateBtn.disabled = false;
+					return;
+				}
+
+				if (generateBtn) setGenerateButtonLoading(generateBtn, true);
+				if (typeof window.generateScrumReport === 'function') window.generateScrumReport();
+				return;
+			}
+
+			// If cache is expired, still show the old report only if the username matches
+			if ((!scrumReport.innerHTML || !scrumReport.innerHTML.trim()) && lastScrumReportHtml && isUsernameMatch) {
+				scrumReport.innerHTML = sanitizeHtml(lastScrumReportHtml);
+			}
+
+			if (generateBtn) setGenerateButtonLoading(generateBtn, true);
+			if (typeof window.generateScrumReport === 'function') window.generateScrumReport();
+			return;
 		}
 
-		if (generateBtn) {
-			generateBtn.disabled = false;
-			generateBtn.innerHTML = `<i class="fa fa-refresh"></i> ${browser.i18n.getMessage('generateReportButton') || 'Generate'}`;
-		}
+		if (generateBtn) setGenerateButtonLoading(generateBtn, true);
+		if (typeof window.generateScrumReport === 'function') window.generateScrumReport();
 	}
 
 	function initializePopup() {
@@ -2003,15 +2045,15 @@ document.addEventListener('DOMContentLoaded', () => {
 				return repo.name.toLowerCase().includes(query) || repo.description?.toLowerCase().includes(query);
 			});
 
+			repoDropdown.textContent = '';
+
 			if (filtered.length === 0) {
-				repoDropdown.textContent = '';
 				const notFoundDiv = document.createElement('div');
 				notFoundDiv.className = 'p-3 text-center text-gray-500 text-sm';
 				notFoundDiv.style.paddingLeft = '10px';
 				notFoundDiv.textContent = browser.i18n.getMessage('repoNotFound');
 				repoDropdown.appendChild(notFoundDiv);
 			} else {
-				repoDropdown.textContent = '';
 				const fragment = document.createDocumentFragment();
 
 				filtered.slice(0, 10).forEach((repo) => {
@@ -2019,55 +2061,56 @@ document.addEventListener('DOMContentLoaded', () => {
 					item.className = 'repository-dropdown-item';
 					item.dataset.repoName = repo.fullName || '';
 
-					const repoNameDiv = document.createElement('div');
-					repoNameDiv.className = 'repo-name';
+					// Repo Name Row
+					const nameRow = document.createElement('div');
+					nameRow.className = 'repo-name';
 
 					const nameSpan = document.createElement('span');
 					nameSpan.textContent = repo.name || '';
-					repoNameDiv.appendChild(nameSpan);
+					nameRow.appendChild(nameSpan);
 
 					if (repo.language) {
 						const langSpan = document.createElement('span');
 						langSpan.className = 'repo-language';
 						langSpan.textContent = repo.language;
-						repoNameDiv.appendChild(langSpan);
+						nameRow.appendChild(langSpan);
 					}
 
 					if (repo.stars || repo.stars === 0) {
 						const starsSpan = document.createElement('span');
 						starsSpan.className = 'repo-stars';
+
 						const starIcon = document.createElement('i');
 						starIcon.className = 'fa fa-star';
 						starsSpan.appendChild(starIcon);
 						starsSpan.appendChild(document.createTextNode(' ' + (repo.stars || 0)));
-						repoNameDiv.appendChild(starsSpan);
+
+						nameRow.appendChild(starsSpan);
 					}
 
-					item.appendChild(repoNameDiv);
+					// Repo Info Row (Description)
+					const infoRow = document.createElement('div');
+					infoRow.className = 'repo-info';
 
-					const repoInfoDiv = document.createElement('div');
-					repoInfoDiv.className = 'repo-info';
 					if (repo.description) {
 						const descSpan = document.createElement('span');
 						descSpan.className = 'repo-desc';
-						let desc = String(repo.description).substring(0, 50);
-						if (repo.description.length > 50) desc += '...';
+						const desc = repo.description.length > 50 ? repo.description.substring(0, 50) + '...' : repo.description;
 						descSpan.textContent = desc;
-						repoInfoDiv.appendChild(descSpan);
+						infoRow.appendChild(descSpan);
 					}
 
-					item.appendChild(repoInfoDiv);
-					fragment.appendChild(item);
-				});
+					item.appendChild(nameRow);
+					item.appendChild(infoRow);
 
-				repoDropdown.appendChild(fragment);
-
-				repoDropdown.querySelectorAll('.repository-dropdown-item').forEach((item) => {
 					item.addEventListener('click', (e) => {
 						e.stopPropagation();
-						fnSelectedRepos(item.dataset.repoName);
+						fnSelectedRepos(repo.fullName);
 					});
+
+					fragment.appendChild(item);
 				});
+				repoDropdown.appendChild(fragment);
 			}
 			highlightedIndex = -1;
 			showDropdown();
@@ -2097,48 +2140,61 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 
 		function updateRepoDisplay() {
+			if (!repoTags) return;
+
 			repoTags.textContent = '';
+
 			if (selectedRepos.length === 0) {
 				const placeholder = document.createElement('span');
 				placeholder.className = 'text-xs text-gray-500 select-none';
 				placeholder.id = 'repoPlaceholder';
 				placeholder.textContent = browser.i18n.getMessage('repoPlaceholder');
 				repoTags.appendChild(placeholder);
-				repoCount.textContent = browser.i18n.getMessage('repoCountNone');
+
+				if (repoCount) {
+					repoCount.textContent = browser.i18n.getMessage('repoCountNone');
+				}
 			} else {
 				const fragment = document.createDocumentFragment();
+
 				selectedRepos.forEach((repoFullName) => {
-					const repoName = repoFullName.split('/')[1] || repoFullName;
+					// Extract repo name from owner/repo
+					const repoName = repoFullName.includes('/') ? repoFullName.split('/')[1] : repoFullName;
 
+					// Use existing .repository-tag class from index.css for consistency
 					const tag = document.createElement('span');
-					tag.className =
-						'inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full';
-					tag.style.margin = '5px';
+					tag.className = 'repository-tag';
 
-					const nameNode = document.createTextNode(repoName);
-					tag.appendChild(nameNode);
+					// Text container with truncation handled by .repo-name css
+					const nameSpan = document.createElement('span');
+					nameSpan.className = 'repo-name';
+					nameSpan.textContent = repoName; // XSS Safe
+					nameSpan.title = repoFullName; // Accessibility: show full name on hover
 
+					// Remove button using existing .remove-tag css
 					const removeBtn = document.createElement('button');
 					removeBtn.type = 'button';
-					removeBtn.className = 'ml-1 text-blue-600 hover:text-blue-800 remove-repo-btn cursor-pointer';
-					removeBtn.dataset.repoName = repoFullName;
+					removeBtn.className = 'remove-tag remove-repo-btn';
 
-					const icon = document.createElement('i');
-					icon.className = 'fa fa-times';
-					removeBtn.appendChild(icon);
+					const removeIcon = document.createElement('i');
+					removeIcon.className = 'fa fa-times';
+					removeBtn.appendChild(removeIcon);
 
 					removeBtn.addEventListener('click', (e) => {
 						e.stopPropagation();
-						const repoFullName = removeBtn.dataset.repoName;
 						removeRepo(repoFullName);
 					});
 
+					tag.appendChild(nameSpan);
 					tag.appendChild(removeBtn);
 					fragment.appendChild(tag);
 				});
 
 				repoTags.appendChild(fragment);
-				repoCount.textContent = browser.i18n.getMessage('repoCount', [selectedRepos.length]);
+
+				if (repoCount) {
+					repoCount.textContent = browser.i18n.getMessage('repoCount', [selectedRepos.length]);
+				}
 			}
 		}
 

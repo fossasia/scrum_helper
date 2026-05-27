@@ -59,6 +59,9 @@
     "insertInEmailButton": {
         "message": "Chèn vào email"
     },
+    "insertToEmailFailedError": {
+        "message": "Mở một tab email để chèn báo cáo"
+    },
     "settingsOrgNameLabel": {
         "message": "Tên tổ chức"
     },
@@ -74,11 +77,17 @@
     "githubTokenPlaceholder": {
         "message": "Bắt buộc cho các yêu cầu đã xác thực"
     },
+    "githubTokenTooltip": {
+        "message": "Tại sao nên thêm mã token GitHub? Scrum Helper hoạt động mà không cần mã token GitHub, nhưng việc thêm mã thông báo truy cập cá nhân được khuyến nghị để có trải nghiệm tốt hơn."
+    },
     "gitlabTokenLabel": {
         "message": "Mã token GitLab"
     },
     "gitlabTokenPlaceholder": {
         "message": "Bắt buộc cho repo riêng tư"
+    },
+    "gitlabTokenTooltip": {
+        "message": "Tại sao nên thêm mã token GitLab? Scrum Helper hoạt động mà không cần mã token GitLab cho các dự án công khai, nhưng việc thêm mã thông báo truy cập cá nhân được khuyến nghị để có trải nghiệm tốt hơn."
     },
     "showCommitsLabel": {
         "message": "Hiển thị các commit trên PR đang mở/ PR nháp"
@@ -98,13 +107,6 @@
     "onlyPRsTooltip": {
         "message": "Nếu được chọn, báo cáo chỉ bao gồm các pull request do người dùng tạo; các PR đã được xem xét sẽ bị loại trừ."
     },
-    "onlyRevPRsLabel": {
-        "message": "Chỉ bao gồm các PR bạn đã xem xét trong báo cáo"
-    },
-    "onlyRevPRsTooltip": {
-        "message": "Nếu được chọn, báo cáo sẽ chỉ bao gồm các PR bạn đã xem xét."
-    },
-
     "cacheTTLLabel": {
         "message": "Nhập TTL bộ nhớ cache",
         "description": "Nhãn cho đầu vào thời gian tồn tại của bộ nhớ cache."
@@ -139,6 +141,9 @@
     "tokenRequiredWarning": {
         "message": "Cần có mã token GitHub để lọc kho lưu trữ. Vui lòng thêm một mã trong cài đặt."
     },
+    "tokenRequiredShowCommitsWarning": {
+        "message": "Cần có mã thông báo GitHub để hiển thị các commit trên các PR đang mở hoặc bản nháp. Vui lòng thêm một mã trong cài đặt."
+    },
     "repoSearchPlaceholder": {
         "message": "Tìm kiếm kho lưu trữ để thêm..."
     },
@@ -147,6 +152,22 @@
     },
     "repoCountNone": {
         "message": "0 kho lưu trữ đã chọn"
+    },
+    "gitlabProjectCountNone": {
+        "message": "0 projects selected",
+        "description": "Text showing the count of selected GitLab projects when it's zero."
+    },
+    "gitlabProjectPlaceholder": {
+        "message": "No projects selected (all will be included)",
+        "description": "Placeholder text when no GitLab projects are selected for filtering."
+    },
+    "gitlabProjectCount": {
+        "message": "$1 projects selected",
+        "description": "Text showing the count of selected GitLab projects. $1 is a placeholder for the number."
+    },
+    "gitlabProjectSearchPlaceholder": {
+        "message": "Search projects",
+        "description": "Placeholder/title for the GitLab project search input."
     },
     "repoCount": {
         "message": "$1 kho lưu trữ đã chọn"
@@ -204,6 +225,9 @@
     },
     "cacheClearedMessage": {
         "message": "Bộ nhớ đệm đã được xóa thành công. Nhấp vào 'Tạo báo cáo' để lấy dữ liệu mới."
+    },
+    "cacheExpiredMessage": {
+        "message": "Bộ nhớ đệm đã hết hạn. Nhấp vào \"Tạo\" để lấy dữ liệu mới."
     },
     "cacheClearedButton": {
         "message": "Đã xóa bộ nhớ đệm!"
@@ -271,21 +295,20 @@
         "message": "Cần mã thông báo GitLab để lọc dự án. Vui lòng thêm một mã trong cài đặt.",
         "description": "Warning message when GitLab token is missing for project filtering."
     },
-    "gitlabProjectCountNone": {
-        "message": "0 projects selected",
-        "description": "Text showing the count of selected GitLab projects when it's zero."
+    "onlyRevPRsLabel": {
+        "message": "Chỉ bao gồm các PR bạn đã xem xét trong báo cáo"
     },
-    "gitlabProjectCount": {
-        "message": "$1 projects selected",
-        "description": "Text showing the count of selected GitLab projects. $1 is a placeholder for the number."
+    "onlyRevPRsTooltip": {
+        "message": "Nếu được chọn, báo cáo sẽ chỉ bao gồm các PR bạn đã xem xét."
     },
-    "gitlabProjectSearchPlaceholder": {
-        "message": "Search projects",
-        "description": "Placeholder/title for the GitLab project search input."
+    "onlyMergedPRsLabel": {
+        "message": "Chỉ bao gồm các PR đã hợp nhất (merged) trong báo cáo"
     },
-    "gitlabProjectPlaceholder": {
-        "message": "No projects selected (all will be included)",
-        "description": "Placeholder text when no GitLab projects are selected for filtering."
+    "onlyMergedPRsTooltip": {
+        "message": "Nếu được chọn, báo cáo sẽ chỉ bao gồm các PR đã được hợp nhất. Cần có mã thông báo GitHub."
+    },
+    "tokenRequiredMergedPRsWarning": {
+        "message": "Cần có mã thông báo GitHub để lọc theo các PR đã hợp nhất. Vui lòng thêm một mã trong cài đặt."
     },
     "usernameRequiredError": {
         "message": "Vui lòng nhập tên người dùng của bạn để tạo báo cáo.",
@@ -362,6 +385,9 @@
     },
     "copyingReportNotification": {
         "message": "Đang sao chép báo cáo..."
+    },
+    "copiedReportNotification": {
+        "message": "Đã sao chép báo cáo!"
     },
     "insertInEmailTooltip": {
         "message": "Ctrl+Shift+M"

@@ -59,6 +59,9 @@
     "insertInEmailButton": {
         "message": "ఇమెయిల్‌లో చేర్చు"
     },
+    "insertToEmailFailedError": {
+        "message": "నివేదికను చొప్పించడానికి ఒక ఇమెయిల్ ట్యాబ్‌ను తెరవండి"
+    },
     "settingsOrgNameLabel": {
         "message": "సంస్థ పేరు"
     },
@@ -137,6 +140,9 @@
     "tokenRequiredWarning": {
         "message": "రిపోజిటరీ ఫిల్టరింగ్ కోసం GitHub టోకెన్ అవసరం. దయచేసి సెట్టింగ్‌లలో ఒకదాన్ని జోడించండి."
     },
+    "tokenRequiredShowCommitsWarning": {
+        "message": "ఓపెన్ లేదా డ్రాఫ్ట్ పిఆర్‌లలో కమిట్‌లను చూపించడానికి గిట్‌హబ్ టోకెన్ అవసరం. దయచేసి సెట్టింగ్‌లలో ఒకదాన్ని జోడించండి."
+    },
     "repoSearchPlaceholder": {
         "message": "రిపోజిటరీల కోసం శోధించండి..."
     },
@@ -145,6 +151,22 @@
     },
     "repoCountNone": {
         "message": "0 రిపోజిటరీలు ఎంచుకోబడ్డాయి"
+    },
+    "gitlabProjectCountNone": {
+        "message": "0 projects selected",
+        "description": "Text showing the count of selected GitLab projects when it's zero."
+    },
+    "gitlabProjectPlaceholder": {
+        "message": "No projects selected (all will be included)",
+        "description": "Placeholder text when no GitLab projects are selected for filtering."
+    },
+    "gitlabProjectCount": {
+        "message": "$1 projects selected",
+        "description": "Text showing the count of selected GitLab projects. $1 is a placeholder for the number."
+    },
+    "gitlabProjectSearchPlaceholder": {
+        "message": "Search projects",
+        "description": "Placeholder/title for the GitLab project search input."
     },
     "repoCount": {
         "message": "$1 రిపోజిటరీలు ఎంపిక చేయబడ్డాయి"
@@ -225,12 +247,6 @@
     "usernameLabel": {
         "message": "మీ యూజర్‌నేమ్"
     },
-    "onlyRevPRsLabel": {
-        "message": "నివేదికలో మీరు సమీక్షించిన PRలను మాత్రమే చేర్చు"
-    },
-    "onlyRevPRsTooltip": {
-        "message": "ఎంచుకుంటే, నివేదికలో మీరు సమీక్షించిన PRలు మాత్రమే చూపబడతాయి."
-    },
     "testTokenButton": {
         "message": "Test Token",
         "description": "Button text to test/validate a GitLab token."
@@ -279,25 +295,81 @@
         "message": "ప్రాజెక్ట్ ఫిల్టరింగ్ కోసం GitLab టోకెన్ అవసరం. దయచేసి సెట్టింగ్‌లలో ఒకదాన్ని జోడించండి.",
         "description": "Warning message when GitLab token is missing for project filtering."
     },
-    "gitlabProjectCountNone": {
-        "message": "0 projects selected",
-        "description": "Text showing the count of selected GitLab projects when it's zero."
+    "onlyRevPRsLabel": {
+        "message": "నివేదికలో మీరు సమీక్షించిన PRలను మాత్రమే చేర్చు"
     },
-    "gitlabProjectCount": {
-        "message": "$1 projects selected",
-        "description": "Text showing the count of selected GitLab projects. $1 is a placeholder for the number."
+    "onlyRevPRsTooltip": {
+        "message": "ఎంచుకుంటే, నివేదికలో మీరు సమీక్షించిన PRలు మాత్రమే చూపబడతాయి."
     },
-    "gitlabProjectSearchPlaceholder": {
-        "message": "Search projects",
-        "description": "Placeholder/title for the GitLab project search input."
+    "onlyMergedPRsLabel": {
+        "message": "విలీనం చేయబడిన పిఆర్‌లను మాత్రమే నివేదికలో చేర్చండి"
     },
-    "gitlabProjectPlaceholder": {
-        "message": "No projects selected (all will be included)",
-        "description": "Placeholder text when no GitLab projects are selected for filtering."
+    "onlyMergedPRsTooltip": {
+        "message": "ఎంపిక చేస్తే, నివేదిక విలీనం చేయబడిన పిఆర్‌లను మాత్రమే కలిగి ఉంటుంది. గిట్‌హబ్ టోకెన్ అవసరం."
+    },
+    "tokenRequiredMergedPRsWarning": {
+        "message": "విలీనం చేయబడిన పిఆర్‌ల ద్వారా వడపోయడానికి గిట్‌హబ్ టోకెన్ అవసరం. సెట్టింగ్‌లలో ఒకదాన్ని జోడించండి."
     },
     "usernameRequiredError": {
         "message": "నివేదిక జనరేట చేయడానికి దయచేసి యూజర్‌నేమ్ నమోదు చేయండి.",
         "description": "Error message shown when the user tries to generate a report without entering a username."
+    },
+    "unknownPlatformError": {
+        "message": "తెలియని ప్లాట్‌ఫారమ్ ఎంపిక చేయబడింది."
+    },
+    "gitlabFetchingError": {
+        "message": "GitLab డేటాను పొందేటప్పుడు ఒక లోపం సంభవించింది."
+    },
+    "reportGenerationError": {
+        "message": "నివేదికను రూపొందించేటప్పుడు ఒక లోపం సంభవించింది."
+    },
+    "githubUserNotFoundError": {
+        "message": "గిట్‌హబ్ వినియోగదారు \"$1\" కనుగొనబడలేదు."
+    },
+    "githubUserValidationError": {
+        "message": "గిట్‌హబ్ వినియోగదారుని ధృవీకరించడంలో లోపం: $1 $2"
+    },
+    "invalidSearchQueryError": {
+        "message": "చెల్లని శోధన ప్రశ్న లేదా తేదీ పరిధి. దయచేసి ఆకృతిని ధృవీకరించి, మళ్లీ ప్రయత్నించండి."
+    },
+    "githubIssuesFetchError": {
+        "message": "గిట్‌హబ్ ఇష్యూలను పొందడంలో లోపం: $1 $2"
+    },
+    "githubPRReviewFetchError": {
+        "message": "గిట్‌హబ్ పిఆర్ సమీక్ష డేటాను పొందడంలో లోపం: $1 $2"
+    },
+    "githubUserFetchError": {
+        "message": "గిట్‌హబ్ వినియోగదారు డేటాను పొందడంలో లోపం: $1 $2"
+    },
+    "invalidTokenError": {
+        "message": "చెల్లని లేదా గడువు ముగిసిన గిట్‌హబ్ టోకెన్. దయచేసి స్క్రమ్ హెల్పర్ సెట్టింగ్‌లలో మీ టోకెన్‌ను తనిఖీ చేసి, మళ్లీ ప్రయత్నించండి."
+    },
+    "displayModeNotice": {
+        "message": "తదుపరిసారి ప్రారంభించినప్పుడు పొడిగింపు $1 మోడ్‌లో తెరవబడుతుంది."
+    },
+    "repoFilteringGithubOnly": {
+        "message": "రిపోజిటరీ వడపోత గిట్‌హబ్‌కు మాత్రమే అందుబాటులో ఉంది."
+    },
+    "repoLoadingGithubOnly": {
+        "message": "రిపోజిటరీ లోడింగ్ గిట్‌హబ్‌కు మాత్రమే అందుబాటులో ఉంది."
+    },
+    "repoFetchingGithubOnly": {
+        "message": "రిపోజిటరీ పొందడం గిట్‌హబ్‌కు మాత్రమే అందుబాటులో ఉంది."
+    },
+    "loadingReposAutomatically": {
+        "message": "రిపోజిటరీలను స్వయంచాలకంగా లోడ్ చేస్తోంది..."
+    },
+    "gitlabUserFetchError": {
+        "message": "GitLab వినియోగదారుని పొందడంలో లోపం: $1 $2"
+    },
+    "gitlabUserNotFoundError": {
+        "message": "GitLab వినియోగదారు '$1' కనుగొనబడలేదు."
+    },
+    "gitlabMembershipError": {
+        "message": "GitLab సభ్యత్వ ప్రాజెక్ట్‌లను పొందడంలో లోపం: $1 $2"
+    },
+    "gitlabContributedError": {
+        "message": "GitLab సహకార ప్రాజెక్ట్‌లను పొందడంలో లోపం: $1 $2"
     },
     "usernameMissingError": {
         "message": "యూజర్‌నేమ్ అవసరం."
@@ -312,6 +384,9 @@
         "message": "నివేదిక తయారవుతోంది..."
     },
     "copyingReportNotification": {
+        "message": "నివేదిక కాపీ చేయబడింది!"
+    },
+    "copiedReportNotification": {
         "message": "నివేదిక కాపీ చేయబడింది!"
     },
     "insertInEmailTooltip": {

@@ -59,6 +59,9 @@
     "insertInEmailButton": {
         "message": "Вставить в письмо"
     },
+    "insertToEmailFailedError": {
+        "message": "Откройте вкладку электронной почты, чтобы вставить отчет"
+    },
     "settingsOrgNameLabel": {
         "message": "Название организации"
     },
@@ -74,11 +77,17 @@
     "githubTokenPlaceholder": {
         "message": "Требуется для аутентифицированных запросов"
     },
+    "githubTokenTooltip": {
+        "message": "Зачем рекомендуется добавлять токен GitHub? Scrum Helper работает без токена GitHub, но для лучшего опыта рекомендуется добавить токен личного доступа."
+    },
     "gitlabTokenLabel": {
         "message": "Ваш токен GitLab"
     },
     "gitlabTokenPlaceholder": {
         "message": "Требуется для приватных репо"
+    },
+    "gitlabTokenTooltip": {
+        "message": "Зачем рекомендуется добавлять токен GitLab? Scrum Helper работает без токена GitLab для публичных проектов, но для лучшего опыта рекомендуется добавить токен личного доступа."
     },
     "showCommitsLabel": {
         "message": "Показывать коммиты в открытых PR/ черновиках PR"
@@ -98,13 +107,6 @@
     "onlyPRsTooltip": {
         "message": "Если отмечено, отчёт будет включать только pull request'ы, созданные пользователем; проверенные PR будут исключены."
     },
-    "onlyRevPRsLabel": {
-        "message": "Включить в отчет только проверенные PR"
-    },
-    "onlyRevPRsTooltip": {
-        "message": "Если отмечено, отчёт будет включать только PR, проверенные вами."
-    },
-
     "cacheTTLLabel": {
         "message": "Введите TTL кеша",
         "description": "Метка для ввода времени жизни кеша."
@@ -139,6 +141,9 @@
     "tokenRequiredWarning": {
         "message": "Для фильтрации репозиториев требуется токен GitHub. Пожалуйста, добавьте его в настройках."
     },
+    "tokenRequiredShowCommitsWarning": {
+        "message": "Для показа коммитов в открытых или черновиках PR требуется токен GitHub. Добавьте его в настройках."
+    },
     "repoSearchPlaceholder": {
         "message": "Найти репозиторий для добавления..."
     },
@@ -148,12 +153,20 @@
     "repoCountNone": {
         "message": "0 репозиториев выбрано"
     },
-    "repoCount": {
-        "message": "$1 репозиториев выбрано"
-    },
     "gitlabProjectCountNone": {
         "message": "0 projects selected",
         "description": "Text showing the count of selected GitLab projects when it's zero."
+    },
+    "gitlabProjectCount": {
+        "message": "$1 projects selected",
+        "description": "Text showing the count of selected GitLab projects. $1 is a placeholder for the number."
+    },
+    "gitlabProjectSearchPlaceholder": {
+        "message": "Search projects",
+        "description": "Placeholder/title for the GitLab project search input."
+    },
+    "repoCount": {
+        "message": "$1 репозиториев выбрано"
     },
     "repoLoading": {
         "message": "Загрузка репозиториев..."
@@ -208,6 +221,9 @@
     },
     "cacheClearedMessage": {
         "message": "Кэш успешно очищен. Нажмите 'Создать отчет', чтобы получить свежие данные."
+    },
+    "cacheExpiredMessage": {
+        "message": "Кэш истёк. Нажмите \"Создать\", чтобы получить новые данные."
     },
     "cacheClearedButton": {
         "message": "Кэш очищен!"
@@ -275,13 +291,20 @@
         "message": "Для фильтрации проектов требуется токен GitLab. Пожалуйста, добавьте его в настройках.",
         "description": "Warning message when GitLab token is missing for project filtering."
     },
-    "gitlabProjectCount": {
-        "message": "$1 projects selected",
-        "description": "Text showing the count of selected GitLab projects. $1 is a placeholder for the number."
+    "onlyRevPRsLabel": {
+        "message": "Включить в отчет только проверенные PR"
     },
-    "gitlabProjectSearchPlaceholder": {
-        "message": "Search projects",
-        "description": "Placeholder/title for the GitLab project search input."
+    "onlyRevPRsTooltip": {
+        "message": "Если отмечено, отчёт будет включать только PR, проверенные вами."
+    },
+    "onlyMergedPRsLabel": {
+        "message": "Включать в отчет только объединенные (merged) PR"
+    },
+    "onlyMergedPRsTooltip": {
+        "message": "Если отмечено, отчет будет включать только объединенные PR. Требуется токен GitHub."
+    },
+    "tokenRequiredMergedPRsWarning": {
+        "message": "Для фильтрации по объединенным PR требуется токен GitHub. Добавьте его в настройках."
     },
     "usernameRequiredError": {
         "message": "Пожалуйста, введите ваше имя пользователя для создания отчета.",
@@ -359,6 +382,9 @@
     "copyingReportNotification": {
         "message": "Копирование отчёта..."
     },
+    "copiedReportNotification": {
+        "message": "Отчет скопирован!"
+    },
     "insertInEmailTooltip": {
         "message": "Ctrl+Shift+M"
     },
@@ -366,7 +392,8 @@
         "message": "Вставка отчёта в письмо..."
     },
     "insertedInEmailNotification": {
-        "message": "Отчёт вставлен в письмо!"    },
+        "message": "Отчёт вставлен в письмо!"
+    },
     "githubInvalidSearchError": {
         "message": "Invalid search query or date range. Please verify your date range format and try again."
     },
@@ -377,5 +404,6 @@
         "message": "Error fetching GitHub PR review data: $1 $2"
     },
     "githubFetchUserDataError": {
-        "message": "Error fetching GitHub user data: $1 $2"    }
+        "message": "Error fetching GitHub user data: $1 $2"
+    }
 }

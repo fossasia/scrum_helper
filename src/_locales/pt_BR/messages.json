@@ -1,5 +1,4 @@
 {
-
     "appName": {
         "message": "Scrum Helper"
     },
@@ -60,6 +59,9 @@
     "insertInEmailButton": {
         "message": "Inserir no e-mail"
     },
+    "insertToEmailFailedError": {
+        "message": "Abra uma aba de e-mail para inserir o relatório"
+    },
     "settingsOrgNameLabel": {
         "message": "Nome da Organização"
     },
@@ -99,16 +101,8 @@
     "onlyPRsTooltip": {
         "message": "Se marcado, o relatório incluirá apenas PRs criadas pelo usuário; as PRs revisadas serão excluídas."
     },
-    "onlyRevPRsLabel": {
-        "message": "Incluir apenas PRs revisadas no relatório"
-    },
-    "onlyRevPRsTooltip": {
-        "message": "Se marcado, o relatório incluirá apenas PRs revisadas por você."
-    },
-
     "cacheTTLLabel": {
-        "message": "Digite o TTL do cache",
-        "description": "Rótulo para a entrada de tempo de vida do cache."
+        "message": "Digite o TTL do cache"
     },
     "cacheTTLUnit": {
         "message": "(em minutos)"
@@ -140,6 +134,9 @@
     "tokenRequiredWarning": {
         "message": "Um token do GitHub é necessário para filtrar repositórios. Adicione um nas configurações."
     },
+    "tokenRequiredShowCommitsWarning": {
+        "message": "É necessário um token do GitHub para mostrar commits em PRs abertos ou em rascunho. Adicione um nas configurações."
+    },
     "repoSearchPlaceholder": {
         "message": "Buscar um repositório para adicionar..."
     },
@@ -148,6 +145,22 @@
     },
     "repoCountNone": {
         "message": "0 repositórios selecionados"
+    },
+    "gitlabProjectCountNone": {
+        "message": "0 projetos selecionados",
+        "description": "Text showing the count of selected GitLab projects when it's zero."
+    },
+    "gitlabProjectPlaceholder": {
+        "message": "Nenhum projeto selecionado (todos serão incluídos)",
+        "description": "Placeholder text when no GitLab projects are selected for filtering."
+    },
+    "gitlabProjectCount": {
+        "message": "$1 projetos selecionados",
+        "description": "Text showing the count of selected GitLab projects. $1 is a placeholder for the number."
+    },
+    "gitlabProjectSearchPlaceholder": {
+        "message": "Procurar projetos",
+        "description": "Placeholder/title for the GitLab project search input."
     },
     "repoCount": {
         "message": "$1 repositórios selecionados"
@@ -205,6 +218,9 @@
     },
     "cacheClearedMessage": {
         "message": "Cache limpo com sucesso. Clique em 'Gerar Relatório' para buscar dados novos."
+    },
+    "cacheExpiredMessage": {
+        "message": "O cache expirou. Clique em \"Gerar\" para buscar dados novos."
     },
     "cacheClearedButton": {
         "message": "Cache Limpo!"
@@ -272,22 +288,20 @@
         "message": "É necessário um token do GitLab para filtragem de projetos. Por favor, adicione um nas configurações.",
         "description": "Warning message when GitLab token is missing for project filtering."
     },
-    "gitlabProjectCountNone": {
-        "message": "0 projetos selecionados",
-        "description": "Text showing the count of selected GitLab projects when it's zero."
+    "onlyRevPRsLabel": {
+        "message": "Incluir apenas PRs revisadas no relatório"
     },
-    "gitlabProjectCount": {
-        "message": "$1 projetos selecionados",
-        "description": "Text showing the count of selected GitLab projects. $1 is a placeholder for the number."
+    "onlyRevPRsTooltip": {
+        "message": "Se marcado, o relatório incluirá apenas PRs revisadas por você."
     },
-    "gitlabProjectSearchPlaceholder": {
-        "message": "Procurar projetos",
-        "description": "Placeholder/title for the GitLab project search input."
+    "onlyMergedPRsLabel": {
+        "message": "Incluir apenas PRs mesclados no relatório"
     },
-    "gitlabProjectPlaceholder": {
-        "message": "Nenhum projeto selecionado (todos serão incluídos)",
-        "description": "Placeholder text when no GitLab projects are selected for filtering."
-
+    "onlyMergedPRsTooltip": {
+        "message": "Se marcado, o relatório incluirá apenas PRs que foram mesclados. É necessário um token do GitHub."
+    },
+    "tokenRequiredMergedPRsWarning": {
+        "message": "É necessário um token do GitHub para filtrar por PRs mesclados. Adicione um nas configurações."
     },
     "usernameRequiredError": {
         "message": "Digite seu nome de usuário para gerar um relatório.",
@@ -364,6 +378,9 @@
     },
     "copyingReportNotification": {
         "message": "Copiando relatório..."
+    },
+    "copiedReportNotification": {
+        "message": "Relatório copiado!"
     },
     "insertInEmailTooltip": {
         "message": "Ctrl+Shift+M"

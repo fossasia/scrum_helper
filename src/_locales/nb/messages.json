@@ -57,8 +57,10 @@
         "message": "Kopier rapport"
     },
     "insertInEmailButton": {
-        "message": "Sett inn i e-post",
-        "description": "Text for the 'Insert to Email' button."
+        "message": "Sett inn i e-post"
+    },
+    "insertToEmailFailedError": {
+        "message": "Åpne en e-postfane for å sette inn rapporten"
     },
     "settingsOrgNameLabel": {
         "message": "Organisasjonsnavn"
@@ -139,6 +141,9 @@
     "tokenRequiredWarning": {
         "message": "Et GitHub-token er påkrevd for repositoriefiltrering. Vennligst legg til ett i innstillingene."
     },
+    "tokenRequiredShowCommitsWarning": {
+        "message": "En GitHub-token kreves for å vise commits på åpne eller utkast-PRer. Vennligst legg til en i innstillingene."
+    },
     "repoSearchPlaceholder": {
         "message": "Søk etter et repositorium for å legge til..."
     },
@@ -206,8 +211,7 @@
         "message": "Cache tømt. Klikk 'Generer rapport' for å hente ferske data."
     },
     "cacheExpiredMessage": {
-        "message": "Hurtigbufferen har utløpt. Klikk \"Generer\" for å hente nye data.",
-        "description": "Message shown when the cached data has expired and user needs to regenerate."
+        "message": "Hurtigbufferen har utløpt. Klikk \"Generer\" for å hente nye data."
     },
     "cacheClearedButton": {
         "message": "Cache tømt!"
@@ -232,6 +236,15 @@
     },
     "onlyRevPRsTooltip": {
         "message": "Hvis valgt, vil rapporten kun inkludere PR-er gjennomgått av deg."
+    },
+    "onlyMergedPRsLabel": {
+        "message": "Inkluder bare sammenslåtte (merged) PRer i rapporten"
+    },
+    "onlyMergedPRsTooltip": {
+        "message": "Hvis valgt, vil rapporten bare inkludere PRer som har blitt sammenslått. En GitHub-token kreves."
+    },
+    "tokenRequiredMergedPRsWarning": {
+        "message": "En GitHub-token kreves for å filtrere etter sammenslåtte PRer. Vennligst legg til en i innstillingene."
     },
     "usernameRequiredError": {
         "message": "Vennligst skriv inn brukernavn for å generere rapport."
@@ -307,6 +320,9 @@
     },
     "copyingReportNotification": {
         "message": "Kopierer rapport..."
+    },
+    "copiedReportNotification": {
+        "message": "Rapport kopiert!"
     },
     "insertInEmailTooltip": {
         "message": "Ctrl+Shift+M"

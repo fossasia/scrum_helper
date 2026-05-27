@@ -1,5 +1,4 @@
 {
-
     "appName": {
         "message": "Scrum Helper"
     },
@@ -60,6 +59,9 @@
     "insertInEmailButton": {
         "message": "Inserir no email"
     },
+    "insertToEmailFailedError": {
+        "message": "Abra uma guia de e-mail para inserir o relatório"
+    },
     "settingsOrgNameLabel": {
         "message": "Nome da Organização"
     },
@@ -81,6 +83,10 @@
     "gitlabTokenPlaceholder": {
         "message": "Necessário para repos privados"
     },
+    "gitlabTokenTooltip": {
+        "message": "<b>Why is it recommended to add a GitLab token?</b><br>Scrum Helper works without a GitLab token, but adding a personal access token is recommended for a better experience. It raises your API limits, allows access to private repos (if permitted), and improves accuracy and speed. Tokens are stored locally and never sent to us and used only to fetch your git data.<br><br><b>How to obtain:</b><br>1. Go to <a href='https://gitlab.com/-/profile/personal_access_tokens' target='_blank' style='color:#2563eb;text-decoration:underline;'>GitLab Token Settings</a>.<br>2. Click 'Add new token'<br>3. Select scopes: <code>read_api</code> and <code>read_repository</code><br>4. Generate and paste it here.<br><i>Keep your token secret!</i>",
+        "description": "Tooltip explaining how to get a GitLab token."
+    },
     "showCommitsLabel": {
         "message": "Mostrar commits em PRs abertos/ rascunhos de PRs"
     },
@@ -99,16 +105,8 @@
     "onlyPRsTooltip": {
         "message": "Se marcado, o relatório incluirá apenas PRs criadas pelo usuário; as PRs revisadas serão excluídas."
     },
-    "onlyRevPRsLabel": {
-        "message": "Incluir apenas PRs revisadas no relatório"
-    },
-    "onlyRevPRsTooltip": {
-        "message": "Se marcado, o relatório incluirá apenas PRs revisadas por você."
-    },
-
     "cacheTTLLabel": {
-        "message": "Digite o TTL do cache",
-        "description": "Rótulo para a entrada de tempo de vida do cache."
+        "message": "Digite o TTL do cache"
     },
     "cacheTTLUnit": {
         "message": "(em minutos)"
@@ -131,6 +129,85 @@
     "reportIssueButton": {
         "message": "Relatar Problema"
     },
+    "repoFilterLabel": {
+        "message": "Filtrar por repositórios"
+    },
+    "enableFilteringLabel": {
+        "message": "Ativar filtragem"
+    },
+    "tokenRequiredWarning": {
+        "message": "Um token do GitHub é necessário para filtragem de repositórios. Por favor, adicione um nas configurações."
+    },
+    "tokenRequiredShowCommitsWarning": {
+        "message": "É necessário um token do GitHub para mostrar commits em PRs abertos ou em rascunho. Adicione um nas configurações."
+    },
+    "repoSearchPlaceholder": {
+        "message": "Pesquisar um repositório para adicionar..."
+    },
+    "repoPlaceholder": {
+        "message": "Nenhum repositório selecionado (todos serão incluídos)"
+    },
+    "repoCountNone": {
+        "message": "0 repositórios selecionados"
+    },
+    "gitlabProjectCountNone": {
+        "message": "0 projetos selecionados",
+        "description": "Text showing the count of selected GitLab projects when it's zero."
+    },
+    "gitlabProjectPlaceholder": {
+        "message": "Nenhum projeto selecionado (todos serão incluídos)",
+        "description": "Placeholder text when no GitLab projects are selected for filtering."
+    },
+    "gitlabProjectCount": {
+        "message": "$1 projetos selecionados",
+        "description": "Text showing the count of selected GitLab projects. $1 is a placeholder for the number."
+    },
+    "gitlabProjectSearchPlaceholder": {
+        "message": "Procurar projetos",
+        "description": "Placeholder/title for the GitLab project search input."
+    },
+    "repoCount": {
+        "message": "$1 repositórios selecionados"
+    },
+    "repoLoading": {
+        "message": "Carregando repositórios..."
+    },
+    "repoLoaded": {
+        "message": "Carregados $1 repositórios."
+    },
+    "repoNotFound": {
+        "message": "Nenhum repositório encontrado"
+    },
+    "repoRefetching": {
+        "message": "Recarregando repositórios..."
+    },
+    "repoLoadFailed": {
+        "message": "Falha ao carregar repositórios."
+    },
+    "repoTokenPrivate": {
+        "message": "Token é inválido ou não tem direitos para repositórios privados."
+    },
+    "repoRefetchFailed": {
+        "message": "Falha ao recarregar repositórios."
+    },
+    "orgSetMessage": {
+        "message": "Organização configurada com sucesso."
+    },
+    "orgClearedMessage": {
+        "message": "Organização removida. Clique em 'Gerar Relatório' para buscar todas as atividades."
+    },
+    "orgNotFoundMessage": {
+        "message": "Organização não encontrada no GitHub."
+    },
+    "orgValidationErrorMessage": {
+        "message": "Erro ao validar a organização."
+    },
+    "refreshingButton": {
+        "message": "Atualizando..."
+    },
+    "cacheClearFailed": {
+        "message": "Falha ao limpar o cache."
+    },
     "madeWithLoveBy": {
         "message": "Feito com ❤️ por"
     },
@@ -145,6 +222,9 @@
     },
     "cacheClearedMessage": {
         "message": "Cache limpo com sucesso. Clique em \"Gerar Relatório\" para buscar dados novos."
+    },
+    "cacheExpiredMessage": {
+        "message": "O cache expirou. Clique em \"Gerar\" para buscar dados novos."
     },
     "cacheClearedButton": {
         "message": "Cache Limpo!"
@@ -163,10 +243,6 @@
     },
     "usernameLabel": {
         "message": "Seu nome de usuário"
-    },
-    "gitlabTokenTooltip": {
-        "message": "<b>Why is it recommended to add a GitLab token?</b><br>Scrum Helper works without a GitLab token, but adding a personal access token is recommended for a better experience. It raises your API limits, allows access to private repos (if permitted), and improves accuracy and speed. Tokens are stored locally and never sent to us and used only to fetch your git data.<br><br><b>How to obtain:</b><br>1. Go to <a href='https://gitlab.com/-/profile/personal_access_tokens' target='_blank' style='color:#2563eb;text-decoration:underline;'>GitLab Token Settings</a>.<br>2. Click 'Add new token'<br>3. Select scopes: <code>read_api</code> and <code>read_repository</code><br>4. Generate and paste it here.<br><i>Keep your token secret!</i>",
-        "description": "Tooltip explaining how to get a GitLab token."
     },
     "testTokenButton": {
         "message": "Test Token",
@@ -216,22 +292,20 @@
         "message": "É necessário um token do GitLab para filtrar projetos. Por favor, adicione um nas configurações.",
         "description": "Warning message when GitLab token is missing for project filtering."
     },
-    "gitlabProjectCountNone": {
-        "message": "0 projetos selecionados",
-        "description": "Text showing the count of selected GitLab projects when it's zero."
+    "onlyRevPRsLabel": {
+        "message": "Incluir apenas PRs revisadas no relatório"
     },
-    "gitlabProjectCount": {
-        "message": "$1 projetos selecionados",
-        "description": "Text showing the count of selected GitLab projects. $1 is a placeholder for the number."
+    "onlyRevPRsTooltip": {
+        "message": "Se marcado, o relatório incluirá apenas PRs revisadas por você."
     },
-    "gitlabProjectSearchPlaceholder": {
-        "message": "Procurar projetos",
-        "description": "Placeholder/title for the GitLab project search input."
+    "onlyMergedPRsLabel": {
+        "message": "Incluir apenas PRs mesclados no relatório"
     },
-    "gitlabProjectPlaceholder": {
-        "message": "Nenhum projeto selecionado (todos serão incluídos)",
-        "description": "Placeholder text when no GitLab projects are selected for filtering."
-
+    "onlyMergedPRsTooltip": {
+        "message": "Se marcado, o relatório incluirá apenas PRs que foram mesclados. É necessário um token do GitHub."
+    },
+    "tokenRequiredMergedPRsWarning": {
+        "message": "É necessário um token do GitHub para filtrar por PRs mesclados. Adicione um nas configurações."
     },
     "usernameRequiredError": {
         "message": "Digite seu nome de usuário para gerar um relatório.",
@@ -309,6 +383,9 @@
     "copyingReportNotification": {
         "message": "Copiando relatório..."
     },
+    "copiedReportNotification": {
+        "message": "Relatório copiado!"
+    },
     "insertInEmailTooltip": {
         "message": "Ctrl+Shift+M"
     },
@@ -316,7 +393,8 @@
         "message": "Inserindo relatório no e-mail..."
     },
     "insertedInEmailNotification": {
-        "message": "Relatório inserido no e-mail!"    },
+        "message": "Relatório inserido no e-mail!"
+    },
     "githubInvalidSearchError": {
         "message": "Invalid search query or date range. Please verify your date range format and try again."
     },
@@ -327,5 +405,6 @@
         "message": "Error fetching GitHub PR review data: $1 $2"
     },
     "githubFetchUserDataError": {
-        "message": "Error fetching GitHub user data: $1 $2"    }
+        "message": "Error fetching GitHub user data: $1 $2"
+    }
 }

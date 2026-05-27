@@ -57,8 +57,10 @@
         "message": "העתק דוח"
     },
     "insertInEmailButton": {
-        "message": "הוסף לאימייל",
-        "description": "Text for the 'Insert to Email' button."
+        "message": "הוסף לאימייל"
+    },
+    "insertToEmailFailedError": {
+        "message": "פתח כרטיסיית אימייל כדי להכניס את הדוח"
     },
     "settingsOrgNameLabel": {
         "message": "שם הארגון"
@@ -104,7 +106,6 @@
     },
     "onlyPRsTooltip": {
         "message": "אם מסומן, הדוח יכיל רק pull requests שנוצרו על ידי המשתמש; PR שנסקרו יוחרגו."
-
     },
     "cacheTTLLabel": {
         "message": "הזן TTL למטמון"
@@ -139,6 +140,9 @@
     "tokenRequiredWarning": {
         "message": "נדרש אסימון GitHub לסינון מאגרים. אנא הוסף אחד בהגדרות."
     },
+    "tokenRequiredShowCommitsWarning": {
+        "message": "נדרש אסימון GitHub כדי להציג קומיטים ב-PR פתוחים או טיוטות. אנא הוסף אחד בהגדרות."
+    },
     "repoSearchPlaceholder": {
         "message": "חפש מאגר להוספה..."
     },
@@ -147,6 +151,22 @@
     },
     "repoCountNone": {
         "message": "נבחרו 0 מאגרים"
+    },
+    "gitlabProjectCountNone": {
+        "message": "0 פרויקטים נבחרו",
+        "description": "Text showing the count of selected GitLab projects when it's zero."
+    },
+    "gitlabProjectPlaceholder": {
+        "message": "לא נבחרו פרויקטים (כולם יכללו)",
+        "description": "Placeholder text when no GitLab projects are selected for filtering."
+    },
+    "gitlabProjectCount": {
+        "message": "$1 פרויקטים נבחרו",
+        "description": "Text showing the count of selected GitLab projects. $1 is a placeholder for the number."
+    },
+    "gitlabProjectSearchPlaceholder": {
+        "message": "חפש פרויקטים",
+        "description": "Placeholder/title for the GitLab project search input."
     },
     "repoCount": {
         "message": "נבחרו $1 מאגרים"
@@ -206,8 +226,7 @@
         "message": "המטמון נוקה בהצלחה. לחץ על 'צור דוח' כדי להביא נתונים טריים."
     },
     "cacheExpiredMessage": {
-        "message": "המטמון פג תוקף. לחץ על \"צור\" כדי להביא נתונים חדשים.",
-        "description": "Message shown when the cached data has expired and user needs to regenerate."
+        "message": "המטמון פג תוקף. לחץ על \"צור\" כדי להביא נתונים חדשים."
     },
     "cacheClearedButton": {
         "message": "המטמון נוקה!"
@@ -261,25 +280,75 @@
     "onlyRevPRsTooltip": {
         "message": "אם מסומן, הדוח יכלול רק PR שנבדקו על ידך."
     },
-    "gitlabProjectCountNone": {
-        "message": "0 פרויקטים נבחרו",
-        "description": "Text showing the count of selected GitLab projects when it's zero."
+    "onlyMergedPRsLabel": {
+        "message": "כלול רק PRs ממוזגים בדוח"
     },
-    "gitlabProjectCount": {
-        "message": "$1 פרויקטים נבחרו",
-        "description": "Text showing the count of selected GitLab projects. $1 is a placeholder for the number."
+    "onlyMergedPRsTooltip": {
+        "message": "אם מסומן, הדוח יכלול רק PRs שמוזגו. נדרש אסימון GitHub."
     },
-    "gitlabProjectSearchPlaceholder": {
-        "message": "חפש פרויקטים",
-        "description": "Placeholder/title for the GitLab project search input."
-    },
-    "gitlabProjectPlaceholder": {
-        "message": "לא נבחרו פרויקטים (כולם יכללו)",
-        "description": "Placeholder text when no GitLab projects are selected for filtering."
+    "tokenRequiredMergedPRsWarning": {
+        "message": "נדרש אסימון GitHub כדי לסנן לפי PRs ממוזגים. אנא הוסף אחד בהגדרות."
     },
     "usernameRequiredError": {
         "message": "אנא הזן את שם המשתמש שלך כדי ליצור דוח.",
         "description": "Error message shown when the user tries to generate a report without entering a username."
+    },
+    "unknownPlatformError": {
+        "message": "נבחרה פלטפורמה לא מוכרת."
+    },
+    "gitlabFetchingError": {
+        "message": "אירעה שגיאה בעת אחזור נתוני GitLab."
+    },
+    "reportGenerationError": {
+        "message": "אירעה שגיאה בעת יצירת הדוח."
+    },
+    "githubUserNotFoundError": {
+        "message": "משתמש GitHub \"$1\" לא נמצא (404). אנא בדוק את שם המשתמש ונסה שוב."
+    },
+    "githubUserValidationError": {
+        "message": "שגיאה באימות משתמש GitHub: $1 $2"
+    },
+    "invalidSearchQueryError": {
+        "message": "שאילתת חיפוש או טווח תאריכים לא תקינים. אנא בדוק את פורמט טווח התאריכים ונסה שוב."
+    },
+    "githubIssuesFetchError": {
+        "message": "שגיאה באחזור Issues מ-GitHub: $1 $2"
+    },
+    "githubPRReviewFetchError": {
+        "message": "שגיאה באחזור נתוני סקירת PR מ-GitHub: $1 $2"
+    },
+    "githubUserFetchError": {
+        "message": "שגיאה באחזור נתוני משתמש GitHub: $1 $2"
+    },
+    "invalidTokenError": {
+        "message": "טוקן GitHub לא תקין או שפג תוקפו. אנא בדוק את הטוקן שלך בהגדרות Scrum Helper ונסה שוב."
+    },
+    "displayModeNotice": {
+        "message": "ההרחבה תיפתח במצב $1 בהפעלה הבאה."
+    },
+    "repoFilteringGithubOnly": {
+        "message": "סינון מאגרים זמין רק עבור GitHub."
+    },
+    "repoLoadingGithubOnly": {
+        "message": "טעינת מאגרים זמינה רק עבור GitHub."
+    },
+    "repoFetchingGithubOnly": {
+        "message": "אחזור מאגרים זמין רק עבור GitHub."
+    },
+    "loadingReposAutomatically": {
+        "message": "טוען מאגרים באופן אוטומטי.."
+    },
+    "gitlabUserFetchError": {
+        "message": "שגיאה באחזור משתמש GitLab: $1 $2"
+    },
+    "gitlabUserNotFoundError": {
+        "message": "משתמש GitLab '$1' לא נמצא"
+    },
+    "gitlabMembershipError": {
+        "message": "שגיאה באחזור פרויקטי חברות ב-GitLab: $1 $2"
+    },
+    "gitlabContributedError": {
+        "message": "שגיאה באחזור פרויקטים שאליהם המשתמש תרם ב-GitLab: $1 $2"
     },
     "usernameMissingError": {
         "message": "שם משתמש נדרש."
@@ -296,6 +365,9 @@
     "copyingReportNotification": {
         "message": "מעתיק דוח..."
     },
+    "copiedReportNotification": {
+        "message": "הדוח הועתק!"
+    },
     "insertInEmailTooltip": {
         "message": "Ctrl+Shift+M"
     },
@@ -303,7 +375,7 @@
         "message": "מוסיף דוח לאימייל..."
     },
     "insertedInEmailNotification": {
-        "message": "דוח הוכנס לדואר!" 
+        "message": "דוח הוכנס לדואר!"
     },
     "githubInvalidSearchError": {
         "message": "Invalid search query or date range. Please verify your date range format and try again."

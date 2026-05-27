@@ -12,8 +12,7 @@
         "message": "Aktivieren"
     },
     "projectNameLabel": {
-        "message": "Projektname (wird im E-Mail-Betreff verwendet)",
-        "description": "Label für das Betreff-Feld der E-Mail."
+        "message": "Projektname (wird im E-Mail-Betreff verwendet)"
     },
     "projectNamePlaceholder": {
         "message": "Geben Sie Ihren Projektnamen ein"
@@ -59,6 +58,9 @@
     },
     "insertInEmailButton": {
         "message": "In E-Mail einfügen"
+    },
+    "insertToEmailFailedError": {
+        "message": "Öffnen Sie einen E-Mail-Tab, um den Bericht einzufügen"
     },
     "settingsOrgNameLabel": {
         "message": "Name der Organisation"
@@ -138,6 +140,9 @@
     "tokenRequiredWarning": {
         "message": "Für die Repository-Filterung ist ein GitHub-Token erforderlich. Bitte fügen Sie einen in den Einstellungen hinzu."
     },
+    "tokenRequiredShowCommitsWarning": {
+        "message": "Ein GitHub-Token ist erforderlich, um Commits in offenen oder Entwurfs-PRs anzuzeigen. Bitte fügen Sie eines in den Einstellungen hinzu."
+    },
     "repoSearchPlaceholder": {
         "message": "Repository zum Hinzufügen suchen..."
     },
@@ -146,6 +151,22 @@
     },
     "repoCountNone": {
         "message": "0 Repositories ausgewählt"
+    },
+    "gitlabProjectCountNone": {
+        "message": "0 Projekte ausgewählt",
+        "description": "Text showing the count of selected GitLab projects when it's zero."
+    },
+    "gitlabProjectPlaceholder": {
+        "message": "Keine Projekte ausgewählt (alle werden einbezogen)",
+        "description": "Placeholder text when no GitLab projects are selected for filtering."
+    },
+    "gitlabProjectCount": {
+        "message": "$1 Projekte ausgewählt",
+        "description": "Text showing the count of selected GitLab projects. $1 is a placeholder for the number."
+    },
+    "gitlabProjectSearchPlaceholder": {
+        "message": "Projekte suchen",
+        "description": "Placeholder/title for the GitLab project search input."
     },
     "repoCount": {
         "message": "$1 Repositories ausgewählt"
@@ -205,8 +226,7 @@
         "message": "Cache erfolgreich geleert. Klicken Sie auf 'Bericht erstellen', um neue Daten abzurufen."
     },
     "cacheExpiredMessage": {
-        "message": "Cache abgelaufen. Klicken Sie auf \"Erstellen\", um neue Daten abzurufen.",
-        "description": "Message shown when the cached data has expired and user needs to regenerate."
+        "message": "Cache abgelaufen. Klicken Sie auf \"Erstellen\", um neue Daten abzurufen."
     },
     "cacheClearedButton": {
         "message": "Cache geleert!"
@@ -225,12 +245,6 @@
     },
     "usernameLabel": {
         "message": "Ihr Benutzername"
-    },
-    "onlyRevPRsLabel": {
-        "message": "Nur überprüfte PRs in den Bericht aufnehmen"
-    },
-    "onlyRevPRsTooltip": {
-        "message": "Wenn diese Option aktiviert ist, enthält der Bericht nur PRs, die von Ihnen überprüft wurden."
     },
     "testTokenButton": {
         "message": "Test Token",
@@ -280,31 +294,24 @@
         "message": "Ein GitLab-Token ist erforderlich für die Projektfilterung. Bitte fügen Sie einen in den Einstellungen hinzu.",
         "description": "Warning message when GitLab token is missing for project filtering."
     },
-    "gitlabProjectCountNone": {
-        "message": "0 Projekte ausgewählt",
-        "description": "Text showing the count of selected GitLab projects when it's zero."
+    "onlyRevPRsLabel": {
+        "message": "Nur überprüfte PRs in den Bericht aufnehmen"
     },
-    "gitlabProjectCount": {
-        "message": "$1 Projekte ausgewählt",
-        "description": "Text showing the count of selected GitLab projects. $1 is a placeholder for the number."
+    "onlyRevPRsTooltip": {
+        "message": "Wenn diese Option aktiviert ist, enthält der Bericht nur PRs, die von Ihnen überprüft wurden."
     },
-    "gitlabProjectSearchPlaceholder": {
-        "message": "Projekte suchen",
-        "description": "Placeholder/title for the GitLab project search input."
+    "onlyMergedPRsLabel": {
+        "message": "Nur zusammengeführte (merged) PRs in den Bericht aufnehmen"
     },
-    "gitlabProjectPlaceholder": {
-        "message": "Keine Projekte ausgewählt (alle werden einbezogen)",
-        "description": "Placeholder text when no GitLab projects are selected for filtering."
+    "onlyMergedPRsTooltip": {
+        "message": "Wenn aktiviert, enthält der Bericht nur zusammengeführte PRs. Ein GitHub-Token ist erforderlich."
+    },
+    "tokenRequiredMergedPRsWarning": {
+        "message": "Ein GitHub-Token ist erforderlich, um nach zusammengeführten PRs zu filtern. Bitte fügen Sie eines in den Einstellungen hinzu."
     },
     "usernameRequiredError": {
         "message": "Bitte geben Sie Ihren Benutzernamen ein, um einen Bericht zu erstellen.",
         "description": "Error message shown when the user tries to generate a report without entering a username."
-    },
-    "generateReportTooltip": {
-        "message": "Ctrl+G"
-    },
-    "copyReportTooltip": {
-        "message": "Ctrl+Shift+Y"
     },
     "unknownPlatformError": {
         "message": "Unbekannte Plattform ausgewählt."
@@ -366,11 +373,20 @@
     "usernameMissingError": {
         "message": "Benutzername erforderlich."
     },
+    "generateReportTooltip": {
+        "message": "Ctrl+G"
+    },
+    "copyReportTooltip": {
+        "message": "Ctrl+Shift+Y"
+    },
     "generatingReportNotification": {
         "message": "Bericht wird erstellt..."
     },
     "copyingReportNotification": {
         "message": "Bericht wird kopiert..."
+    },
+    "copiedReportNotification": {
+        "message": "Bericht kopiert!"
     },
     "insertInEmailTooltip": {
         "message": "Ctrl+Shift+M"
