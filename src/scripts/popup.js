@@ -484,7 +484,9 @@ document.addEventListener('DOMContentLoaded', () => {
 			gitlabTokenInput.classList.add('token-animating');
 			setTimeout(() => gitlabTokenInput.classList.remove('token-animating'), 300);
 		});
+	}
 
+	if (gitlabTokenInput) {
 		gitlabTokenInput.addEventListener('input', function () {
 			checkGitLabTokenForFilter();
 			browser.storage.local.set({ gitlabToken: gitlabTokenInput.value });
@@ -498,30 +500,30 @@ document.addEventListener('DOMContentLoaded', () => {
 				window.triggerGitLabProjectFetchIfEnabled();
 			}
 		});
+	}
 
-		// GitLab group input persistence
-		const gitlabGroupInput = document.getElementById('gitlabGroupInput');
-		if (gitlabGroupInput) {
-			browser.storage.local
-				.get(['gitlabGroup'])
-				.then((res) => {
-					if (res.gitlabGroup) gitlabGroupInput.value = res.gitlabGroup;
-				})
-				.catch((error) => {
-					console.warn('Error loading GitLab group:', error);
-				});
-
-			gitlabGroupInput.addEventListener(
-				'input',
-				debounce(function () {
-					browser.storage.local.set({ gitlabGroup: gitlabGroupInput.value });
-				}, 300),
-			);
-
-			gitlabGroupInput.addEventListener('blur', function () {
-				browser.storage.local.set({ gitlabGroup: gitlabGroupInput.value });
+	// GitLab group input persistence
+	const gitlabGroupInput = document.getElementById('gitlabGroupInput');
+	if (gitlabGroupInput) {
+		browser.storage.local
+			.get(['gitlabGroup'])
+			.then((res) => {
+				if (res.gitlabGroup) gitlabGroupInput.value = res.gitlabGroup;
+			})
+			.catch((error) => {
+				console.warn('Error loading GitLab group:', error);
 			});
-		}
+
+		gitlabGroupInput.addEventListener(
+			'input',
+			debounce(function () {
+				browser.storage.local.set({ gitlabGroup: gitlabGroupInput.value });
+			}, 300),
+		);
+
+		gitlabGroupInput.addEventListener('blur', function () {
+			browser.storage.local.set({ gitlabGroup: gitlabGroupInput.value });
+		});
 	}
 
 	githubTokenInput.addEventListener('input', () => {
@@ -2241,6 +2243,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	const dropdownBtn = document.getElementById('platformDropdownBtn');
 	const dropdownList = document.getElementById('platformDropdownList');
 	const dropdownSelected = document.getElementById('platformDropdownSelected');
+	const hasPlatformDropdownElements = !!(dropdownBtn && customDropdown && dropdownList && dropdownSelected);
 
 	if (platformSelect) {
 		platformSelect.addEventListener('change', () => {
@@ -2315,46 +2318,15 @@ document.addEventListener('DOMContentLoaded', () => {
 		currentStoredPlatform = value;
 	}
 
-	dropdownBtn.addEventListener('click', (e) => {
-		e.stopPropagation();
-		customDropdown.classList.toggle('open');
-		dropdownList.classList.toggle('hidden');
-	});
-
-	dropdownList.querySelectorAll('li').forEach((item) => {
-		item.addEventListener('click', function () {
-			const newPlatform = this.getAttribute('data-value');
-
-			if (newPlatform !== currentStoredPlatform) {
-				setPlatformDropdown(newPlatform);
-			}
-
-			customDropdown.classList.remove('open');
-			dropdownList.classList.add('hidden');
-			dropdownBtn.focus();
+	if (dropdownBtn && customDropdown && dropdownList && dropdownSelected) {
+		dropdownBtn.addEventListener('click', (e) => {
+			e.stopPropagation();
+			customDropdown.classList.toggle('open');
+			dropdownList.classList.toggle('hidden');
 		});
-	});
 
-	dropdownBtn.addEventListener('keydown', (e) => {
-		if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
-			e.preventDefault();
-			customDropdown.classList.add('open');
-			dropdownList.classList.remove('hidden');
-			dropdownList.querySelector('li').focus();
-		}
-	});
-
-	dropdownList.querySelectorAll('li').forEach((item, idx, arr) => {
-		item.setAttribute('tabindex', '0');
-		item.addEventListener('keydown', function (e) {
-			if (e.key === 'ArrowDown') {
-				e.preventDefault();
-				(arr[idx + 1] || arr[0]).focus();
-			} else if (e.key === 'ArrowUp') {
-				e.preventDefault();
-				(arr[idx - 1] || arr[arr.length - 1]).focus();
-			} else if (e.key === 'Enter' || e.key === ' ') {
-				e.preventDefault();
+		dropdownList.querySelectorAll('li').forEach((item) => {
+			item.addEventListener('click', function () {
 				const newPlatform = this.getAttribute('data-value');
 
 				if (newPlatform !== currentStoredPlatform) {
@@ -2364,9 +2336,42 @@ document.addEventListener('DOMContentLoaded', () => {
 				customDropdown.classList.remove('open');
 				dropdownList.classList.add('hidden');
 				dropdownBtn.focus();
+			});
+		});
+
+		dropdownBtn.addEventListener('keydown', (e) => {
+			if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
+				e.preventDefault();
+				customDropdown.classList.add('open');
+				dropdownList.classList.remove('hidden');
+				dropdownList.querySelector('li').focus();
 			}
 		});
-	});
+
+		dropdownList.querySelectorAll('li').forEach((item, idx, arr) => {
+			item.setAttribute('tabindex', '0');
+			item.addEventListener('keydown', function (e) {
+				if (e.key === 'ArrowDown') {
+					e.preventDefault();
+					(arr[idx + 1] || arr[0]).focus();
+				} else if (e.key === 'ArrowUp') {
+					e.preventDefault();
+					(arr[idx - 1] || arr[arr.length - 1]).focus();
+				} else if (e.key === 'Enter' || e.key === ' ') {
+					e.preventDefault();
+					const newPlatform = this.getAttribute('data-value');
+
+					if (newPlatform !== currentStoredPlatform) {
+						setPlatformDropdown(newPlatform);
+					}
+
+					customDropdown.classList.remove('open');
+					dropdownList.classList.add('hidden');
+					dropdownBtn.focus();
+				}
+			});
+		});
+	}
 
 	if (!gitlabProjectSearch || !useGitlabProjectFilter) {
 		console.log('GitLab project filter elements not found in DOM');

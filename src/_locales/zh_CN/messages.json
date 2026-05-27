@@ -378,7 +378,8 @@
         "message": "正在将报告插入邮件..."
     },
     "insertedInEmailNotification": {
-        "message": "报告已插入邮件！"    },
+        "message": "报告已插入邮件！"
+    },
     "githubInvalidSearchError": {
         "message": "Invalid search query or date range. Please verify your date range format and try again."
     },
@@ -389,5 +390,6 @@
         "message": "Error fetching GitHub PR review data: $1 $2"
     },
     "githubFetchUserDataError": {
-        "message": "Error fetching GitHub user data: $1 $2"    }
+        "message": "Error fetching GitHub user data: $1 $2"
+    }
 }

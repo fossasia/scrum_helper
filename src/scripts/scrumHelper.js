@@ -265,7 +265,12 @@ async function allIncluded(outputTarget = 'email') {
 		}
 	} catch (error) {
 		scrumGenerationInProgress = false;
-		throw error;
+		logError('Failed to initialize scrum report generation:', error);
+		const reportElement = document.getElementById('report');
+		if (reportElement) {
+			reportElement.innerHTML = '<p>Unable to generate scrum report right now. Please try again.</p>';
+		}
+		return;
 	}
 	console.log('allIncluded called with outputTarget:', outputTarget);
 
@@ -506,12 +511,7 @@ async function allIncluded(outputTarget = 'email') {
 										let processedScrumData = mappedData;
 										if (typeof processGithubData === 'function') {
 											try {
-												processedScrumData = await processGithubData(mappedData, {
-													platformUsername: platformUsernameLocal || platformUsername,
-													startingDate,
-													endingDate,
-													source: 'gitlab',
-												});
+												processedScrumData = await processGithubData(mappedData, true, subjectForEmail);
 											} catch (e) {
 												logError('Failed to process GitLab-mapped data via processGithubData:', e);
 												processedScrumData = mappedData;
@@ -2468,8 +2468,8 @@ async function fetchUserRepositories(username, token, org = '') {
 				}));
 
 			return repos.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-		} catch (err) { }
-	} catch (err) { }
+		} catch (err) {}
+	} catch (err) {}
 }
 
 function filterDataByRepos(data, selectedRepos) {

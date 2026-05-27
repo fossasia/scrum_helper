@@ -381,8 +381,7 @@ class GitLabHelper {
 								page = nextPageNumber;
 								continue;
 							}
-							page += 1;
-							continue;
+							break;
 						}
 					}
 					break;
