@@ -59,6 +59,9 @@
     "insertInEmailButton": {
         "message": "Chèn vào email"
     },
+    "insertToEmailFailedError": {
+        "message": "Mở một tab email để chèn báo cáo"
+    },
     "settingsOrgNameLabel": {
         "message": "Tên tổ chức"
     },
@@ -105,8 +108,7 @@
         "message": "Nếu được chọn, báo cáo chỉ bao gồm các pull request do người dùng tạo; các PR đã được xem xét sẽ bị loại trừ."
     },
     "cacheTTLLabel": {
-        "message": "Nhập TTL bộ nhớ cache",
-        "description": "Nhãn cho đầu vào thời gian tồn tại của bộ nhớ cache."
+        "message": "Nhập TTL bộ nhớ cache"
     },
     "cacheTTLUnit": {
         "message": "(tính bằng phút)"
@@ -137,6 +139,9 @@
     },
     "tokenRequiredWarning": {
         "message": "Cần có mã token GitHub để lọc kho lưu trữ. Vui lòng thêm một mã trong cài đặt."
+    },
+    "tokenRequiredShowCommitsWarning": {
+        "message": "Cần có mã thông báo GitHub để hiển thị các commit trên các PR đang mở hoặc bản nháp. Vui lòng thêm một mã trong cài đặt."
     },
     "repoSearchPlaceholder": {
         "message": "Tìm kiếm kho lưu trữ để thêm..."
@@ -205,8 +210,7 @@
         "message": "Bộ nhớ đệm đã được xóa thành công. Nhấp vào 'Tạo báo cáo' để lấy dữ liệu mới."
     },
     "cacheExpiredMessage": {
-        "message": "Bộ nhớ đệm đã hết hạn. Nhấp vào \"Tạo\" để lấy dữ liệu mới.",
-        "description": "Message shown when the cached data has expired and user needs to regenerate."
+        "message": "Bộ nhớ đệm đã hết hạn. Nhấp vào \"Tạo\" để lấy dữ liệu mới."
     },
     "cacheClearedButton": {
         "message": "Đã xóa bộ nhớ đệm!"
@@ -225,6 +229,21 @@
     },
     "usernameLabel": {
         "message": "Tên người dùng của bạn"
+    },
+    "onlyRevPRsLabel": {
+        "message": "Chỉ bao gồm các PR bạn đã xem xét trong báo cáo"
+    },
+    "onlyRevPRsTooltip": {
+        "message": "Nếu được chọn, báo cáo sẽ chỉ bao gồm các PR bạn đã xem xét."
+    },
+    "onlyMergedPRsLabel": {
+        "message": "Chỉ bao gồm các PR đã hợp nhất (merged) trong báo cáo"
+    },
+    "onlyMergedPRsTooltip": {
+        "message": "Nếu được chọn, báo cáo sẽ chỉ bao gồm các PR đã được hợp nhất. Cần có mã thông báo GitHub."
+    },
+    "tokenRequiredMergedPRsWarning": {
+        "message": "Cần có mã thông báo GitHub để lọc theo các PR đã hợp nhất. Vui lòng thêm một mã trong cài đặt."
     },
     "usernameRequiredError": {
         "message": "Vui lòng nhập tên người dùng để tạo báo cáo."
@@ -286,12 +305,6 @@
     "gitlabContributedError": {
         "message": "Lỗi khi lấy dự án đóng góp GitLab: $1 $2"
     },
-    "onlyRevPRsLabel": {
-        "message": "Chỉ bao gồm các PR bạn đã xem xét trong báo cáo"
-    },
-    "onlyRevPRsTooltip": {
-        "message": "Nếu được chọn, báo cáo sẽ chỉ bao gồm các PR bạn đã xem xét."
-    },
     "usernameMissingError": {
         "message": "Yêu cầu tên người dùng."
     },
@@ -306,6 +319,9 @@
     },
     "copyingReportNotification": {
         "message": "Đang sao chép báo cáo..."
+    },
+    "copiedReportNotification": {
+        "message": "Đã sao chép báo cáo!"
     },
     "insertInEmailTooltip": {
         "message": "Ctrl+Shift+M"
