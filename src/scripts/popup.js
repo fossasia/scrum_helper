@@ -745,7 +745,7 @@ document.addEventListener('DOMContentLoaded', () => {
 							updatePlatformUI(platformSelect.value);
 							generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
 							generateBtn.disabled = true;
-							window.generateScrumReport && window.generateScrumReport();
+							return window.generateScrumReport && window.generateScrumReport();
 						});
 					});
 			}).finally(() => {
