@@ -751,6 +751,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			}).finally(() => {
 				if (generateBtn._triggeredByShortcut) {
 					dismissShortcutTooltipFocus(generateBtn);
+					generateBtn._triggeredByShortcut = false;
 				}
 			});
 		});
