@@ -12,8 +12,7 @@
         "message": "Aktivieren"
     },
     "projectNameLabel": {
-        "message": "Projektname (wird im E-Mail-Betreff verwendet)",
-        "description": "Label für das Betreff-Feld der E-Mail."
+        "message": "Projektname (wird im E-Mail-Betreff verwendet)"
     },
     "projectNamePlaceholder": {
         "message": "Geben Sie Ihren Projektnamen ein"
@@ -59,6 +58,9 @@
     },
     "insertInEmailButton": {
         "message": "In E-Mail einfügen"
+    },
+    "insertToEmailFailedError": {
+        "message": "Öffnen Sie einen E-Mail-Tab, um den Bericht einzufügen"
     },
     "settingsOrgNameLabel": {
         "message": "Name der Organisation"
@@ -138,6 +140,9 @@
     "tokenRequiredWarning": {
         "message": "Für die Repository-Filterung ist ein GitHub-Token erforderlich. Bitte fügen Sie einen in den Einstellungen hinzu."
     },
+    "tokenRequiredShowCommitsWarning": {
+        "message": "Ein GitHub-Token ist erforderlich, um Commits in offenen oder Entwurfs-PRs anzuzeigen. Bitte fügen Sie eines in den Einstellungen hinzu."
+    },
     "repoSearchPlaceholder": {
         "message": "Repository zum Hinzufügen suchen..."
     },
@@ -205,8 +210,7 @@
         "message": "Cache erfolgreich geleert. Klicken Sie auf 'Bericht erstellen', um neue Daten abzurufen."
     },
     "cacheExpiredMessage": {
-        "message": "Cache abgelaufen. Klicken Sie auf \"Erstellen\", um neue Daten abzurufen.",
-        "description": "Message shown when the cached data has expired and user needs to regenerate."
+        "message": "Cache abgelaufen. Klicken Sie auf \"Erstellen\", um neue Daten abzurufen."
     },
     "cacheClearedButton": {
         "message": "Cache geleert!"
@@ -232,13 +236,16 @@
     "onlyRevPRsTooltip": {
         "message": "Wenn diese Option aktiviert ist, enthält der Bericht nur PRs, die von Ihnen überprüft wurden."
     },
-    "generateReportTooltip": {
-        "message": "Ctrl+G"
+    "onlyMergedPRsLabel": {
+        "message": "Nur zusammengeführte (merged) PRs in den Bericht aufnehmen"
     },
-    "copyReportTooltip": {
-        "message": "Ctrl+Shift+Y"
-   },
-        "usernameRequiredError": {
+    "onlyMergedPRsTooltip": {
+        "message": "Wenn aktiviert, enthält der Bericht nur zusammengeführte PRs. Ein GitHub-Token ist erforderlich."
+    },
+    "tokenRequiredMergedPRsWarning": {
+        "message": "Ein GitHub-Token ist erforderlich, um nach zusammengeführten PRs zu filtern. Bitte fügen Sie eines in den Einstellungen hinzu."
+    },
+    "usernameRequiredError": {
         "message": "Bitte geben Sie Ihren Benutzernamen ein, um einen Bericht zu erstellen."
     },
     "unknownPlatformError": {
@@ -301,11 +308,20 @@
     "usernameMissingError": {
         "message": "Benutzername erforderlich."
     },
+    "generateReportTooltip": {
+        "message": "Ctrl+G"
+    },
+    "copyReportTooltip": {
+        "message": "Ctrl+Shift+Y"
+    },
     "generatingReportNotification": {
         "message": "Bericht wird erstellt..."
     },
     "copyingReportNotification": {
         "message": "Bericht wird kopiert..."
+    },
+    "copiedReportNotification": {
+        "message": "Bericht kopiert!"
     },
     "insertInEmailTooltip": {
         "message": "Ctrl+Shift+M"

@@ -59,6 +59,9 @@
     "insertInEmailButton": {
         "message": "Inserir no e-mail"
     },
+    "insertToEmailFailedError": {
+        "message": "Abra uma aba de e-mail para inserir o relatório"
+    },
     "settingsOrgNameLabel": {
         "message": "Nome da Organização"
     },
@@ -105,8 +108,7 @@
         "message": "Se marcado, o relatório incluirá apenas PRs criadas pelo usuário; as PRs revisadas serão excluídas."
     },
     "cacheTTLLabel": {
-        "message": "Digite o TTL do cache",
-        "description": "Rótulo para a entrada de tempo de vida do cache."
+        "message": "Digite o TTL do cache"
     },
     "cacheTTLUnit": {
         "message": "(em minutos)"
@@ -137,6 +139,9 @@
     },
     "tokenRequiredWarning": {
         "message": "Um token do GitHub é necessário para filtrar repositórios. Adicione um nas configurações."
+    },
+    "tokenRequiredShowCommitsWarning": {
+        "message": "É necessário um token do GitHub para mostrar commits em PRs abertos ou em rascunho. Adicione um nas configurações."
     },
     "repoSearchPlaceholder": {
         "message": "Buscar um repositório para adicionar..."
@@ -205,8 +210,7 @@
         "message": "Cache limpo com sucesso. Clique em 'Gerar Relatório' para buscar dados novos."
     },
     "cacheExpiredMessage": {
-        "message": "O cache expirou. Clique em \"Gerar\" para buscar dados novos.",
-        "description": "Message shown when the cached data has expired and user needs to regenerate."
+        "message": "O cache expirou. Clique em \"Gerar\" para buscar dados novos."
     },
     "cacheClearedButton": {
         "message": "Cache Limpo!"
@@ -231,6 +235,15 @@
     },
     "onlyRevPRsTooltip": {
         "message": "Se marcado, o relatório incluirá apenas PRs revisadas por você."
+    },
+    "onlyMergedPRsLabel": {
+        "message": "Incluir apenas PRs mesclados no relatório"
+    },
+    "onlyMergedPRsTooltip": {
+        "message": "Se marcado, o relatório incluirá apenas PRs que foram mesclados. É necessário um token do GitHub."
+    },
+    "tokenRequiredMergedPRsWarning": {
+        "message": "É necessário um token do GitHub para filtrar por PRs mesclados. Adicione um nas configurações."
     },
     "usernameRequiredError": {
         "message": "Por favor, digite seu nome de usuário para gerar o relatório."
@@ -306,6 +319,9 @@
     },
     "copyingReportNotification": {
         "message": "Copiando relatório..."
+    },
+    "copiedReportNotification": {
+        "message": "Relatório copiado!"
     },
     "insertInEmailTooltip": {
         "message": "Ctrl+Shift+M"
