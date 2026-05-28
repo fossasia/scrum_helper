@@ -681,6 +681,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 				if (!content) {
 					insertBtn._triggeredByShortcut = false;
+					dismissShortcutTooltipFocus(insertBtn);
 					return;
 				}
 
@@ -732,22 +733,23 @@ document.addEventListener('DOMContentLoaded', () => {
 				const platform = result.platform || 'github';
 				const platformUsernameKey = `${platform}Username`;
 
-				browser.storage.local
+				return browser.storage.local
 					.set({
 						platform: platformSelect.value,
 						[platformUsernameKey]: platformUsername.value,
 					})
 					.then(() => {
 						// Reload platform from storage before generating report
-						browser.storage.local.get(['platform']).then((res) => {
+						return browser.storage.local.get(['platform']).then((res) => {
 							platformSelect.value = res.platform || 'github';
 							updatePlatformUI(platformSelect.value);
 							generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
 							generateBtn.disabled = true;
 							window.generateScrumReport && window.generateScrumReport();
-							dismissShortcutTooltipFocus(generateBtn);
 						});
 					});
+			}).finally(() => {
+				dismissShortcutTooltipFocus(generateBtn);
 			});
 		});
 
