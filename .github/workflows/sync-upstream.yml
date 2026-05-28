@@ -22,7 +22,10 @@ jobs:
 
             let syncedCount = 0;
             let skippedCount = 0;
+            let upToDateCount = 0;
             let errorCount = 0;
+
+            const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
             try {
               const { data: upstreamRepo } = await github.rest.repos.get({
@@ -60,6 +63,7 @@ jobs:
 
                   if (status === 'identical') {
                     console.log(`Up to date`);
+                    upToDateCount++;
                     continue;
                   }
 
@@ -80,14 +84,20 @@ jobs:
                     syncedCount++;
                   }
 
+                  // Small delay to reduce rate-limit risk
+                  await delay(500);
+
                 } catch (error) {
-                  console.log(`Error processing ${fork.full_name}: ${String(error?.message || error)}`);
+                  console.log(
+                    `Error processing ${fork.full_name}: ${String(error?.message || error)}`
+                  );
                   errorCount++;
                 }
               }
 
               console.log(`Summary:`);
               console.log(`Synced: ${syncedCount}`);
+              console.log(`Up to date: ${upToDateCount}`);
               console.log(`Skipped: ${skippedCount}`);
               console.log(`Errors: ${errorCount}`);
 
@@ -95,3 +105,4 @@ jobs:
               console.error(`Workflow failed: ${String(error?.message || error)}`);
               throw error;
             }
+            
