@@ -787,14 +787,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		copyBtn.addEventListener('click', function () {
 			const scrumReport = document.getElementById('scrumReport');
-			if (scrumReport?.dataset.copyPlaceholder === 'true') {
+			if (!scrumReport) {
 				this._triggeredByShortcut = false;
 				return;
 			}
-			const reportHtml = scrumReport ? sanitizeHtml(scrumReport.innerHTML) : '';
+			if (scrumReport.dataset.copyPlaceholder === 'true') {
+				this._triggeredByShortcut = false;
+				return;
+			}
+			const reportHtml = sanitizeHtml(scrumReport.innerHTML);
 			const tempDiv = document.createElement('div');
-			tempDiv.innerHTML = sanitizeHtml(scrumReport.innerHTML);
-			if (!tempDiv.textContent.trim()) {
+			tempDiv.innerHTML = reportHtml;
+			if (!(tempDiv.textContent || '').trim()) {
 				this._triggeredByShortcut = false;
 				return;
 			}
