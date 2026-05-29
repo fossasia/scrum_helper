@@ -444,6 +444,27 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	window.updateGenerateButtonState = updateGenerateButtonState;
+	window.updateCopyButtonState = updateCopyButtonState;
+
+	function updateCopyButtonState() {
+		const copyBtn = document.getElementById('copyReport');
+		const scrumReport = document.getElementById('scrumReport');
+		if (!copyBtn || !scrumReport) {
+			return;
+		}
+
+		const textContent = scrumReport.textContent;
+		const cacheClearedText =
+			(typeof browser !== 'undefined' && browser.i18n ? browser.i18n.getMessage('cacheClearedMessage') : null) ||
+			(typeof chrome !== 'undefined' && chrome.i18n ? chrome.i18n.getMessage('cacheClearedMessage') : null) ||
+			'Cache cleared successfully. Click "Generate" to fetch fresh data.';
+
+		if (textContent === cacheClearedText) {
+			scrumReport.dataset.copyPlaceholder = 'true';
+		}
+
+		copyBtn.disabled = scrumReport.dataset.copyPlaceholder === 'true' || !scrumReport.textContent.trim();
+	}
 
 	async function bootstrapScrumReportOnPopupLoad(generateBtn) {
 		console.log('[BOOTSTRAP] bootstrapScrumReportOnPopupLoad called');
@@ -526,6 +547,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 				if (reportEmpty && lastScrumReportHtml && matches) {
 					scrumReport.innerHTML = sanitizeHtml(lastScrumReportHtml);
+					delete scrumReport.dataset.copyPlaceholder;
+					updateCopyButtonState();
 					if (generateBtn) generateBtn.disabled = false;
 					return;
 				}
@@ -538,6 +561,8 @@ document.addEventListener('DOMContentLoaded', () => {
 			// If cache is expired, still only show the old HTML if it was for the current username
 			if ((!scrumReport.innerHTML || !scrumReport.innerHTML.trim()) && lastScrumReportHtml && isUsernameMatch) {
 				scrumReport.innerHTML = sanitizeHtml(lastScrumReportHtml);
+				delete scrumReport.dataset.copyPlaceholder;
+				updateCopyButtonState();
 			}
 
 			if (generateBtn) setGenerateButtonLoading(generateBtn, true);
@@ -669,6 +694,18 @@ document.addEventListener('DOMContentLoaded', () => {
 		const copyBtn = document.getElementById('copyReport');
 		const insertBtn = document.getElementById('insertInEmail');
 
+		updateCopyButtonState();
+
+		const scrumReportEl = document.getElementById('scrumReport');
+		if (scrumReportEl) {
+			scrumReportEl.addEventListener('input', () => {
+				if (scrumReportEl.dataset.copyPlaceholder === 'true') {
+					delete scrumReportEl.dataset.copyPlaceholder;
+				}
+				updateCopyButtonState();
+			});
+		}
+
 		if (insertBtn) {
 			insertBtn.addEventListener('click', () => {
 				const scrumReport = document.getElementById('scrumReport');
@@ -747,8 +784,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		copyBtn.addEventListener('click', function () {
 			const scrumReport = document.getElementById('scrumReport');
+			if (!scrumReport) {
+				this._triggeredByShortcut = false;
+				return;
+			}
+			if (scrumReport.dataset.copyPlaceholder === 'true') {
+				this._triggeredByShortcut = false;
+				return;
+			}
+			const reportHtml = sanitizeHtml(scrumReport.innerHTML);
 			const tempDiv = document.createElement('div');
-			tempDiv.innerHTML = sanitizeHtml(scrumReport.innerHTML);
+			tempDiv.innerHTML = reportHtml;
+			if (!(tempDiv.textContent || '').trim()) {
+				this._triggeredByShortcut = false;
+				return;
+			}
 
 			const darkMode = document.body.classList.contains('dark-mode');
 
@@ -1817,6 +1867,7 @@ platformSelect.addEventListener('change', () => {
 		const scrumReport = document.getElementById('scrumReport');
 		if (scrumReport) {
 			scrumReport.innerHTML = '';
+			window.updateCopyButtonState?.();
 		}
 		const generateBtn = document.getElementById('generateReport');
 		if (typeof bootstrapScrumReportOnPopupLoad === 'function') {
@@ -1877,6 +1928,7 @@ function setPlatformDropdown(value) {
 	browser.storage.local.set({ platform: value }).then(() => {
 		const scrumReport = document.getElementById('scrumReport');
 		if (scrumReport) scrumReport.innerHTML = '';
+		window.updateCopyButtonState?.();
 
 		const generateBtn = document.getElementById('generateReport');
 		if (typeof bootstrapScrumReportOnPopupLoad === 'function') {
@@ -2097,7 +2149,9 @@ document.getElementById('refreshCache').addEventListener('click', async function
 		// Clear the scrum report
 		const scrumReport = document.getElementById('scrumReport');
 		if (scrumReport) {
+			scrumReport.dataset.copyPlaceholder = 'true';
 			scrumReport.innerHTML = `<p style="text-align: center; color: #666; padding: 20px;">${browser.i18n.getMessage('cacheClearedMessage')}</p>`;
+			window.updateCopyButtonState?.();
 		}
 
 		if (typeof availableRepos !== 'undefined') {
