@@ -553,10 +553,13 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 	}
 
-	githubTokenInput.addEventListener('input', () => {
-		const token = githubTokenInput.value;
-		browser.storage.local.set({ githubToken: token });
-	});
+	githubTokenInput.addEventListener(
+		'input',
+		debounce(() => {
+			const token = githubTokenInput.value;
+			browser.storage.local.set({ githubToken: token });
+		}, 500),
+	);
 	githubTokenInput.addEventListener('input', checkTokenForFilter);
 	githubTokenInput.addEventListener('input', () => checkTokenForShowCommits({ persistState: false }));
 	githubTokenInput.addEventListener('input', () => checkTokenForMergedPRs({ persistState: false }));
@@ -1215,10 +1218,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 				return browser.storage.local
 					.set({
-						platform: platform,
+						platform: platformSelect.value,
 						[platformUsernameKey]: platformUsername.value,
 					})
 					.then(() => {
+						updatePlatformUI(platformSelect.value);
 						generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
 						generateBtn.disabled = true;
 						window.generateScrumReport && window.generateScrumReport();
@@ -1879,11 +1883,11 @@ document.addEventListener('DOMContentLoaded', () => {
 			// --- PLATFORM CHECK: Only run for GitHub ---
 			let platform = 'github';
 			try {
-				const items = await new Promise((resolve) => {
-					browser?.storage.local.get(['platform'], resolve);
-				});
+				const items = await browser.storage.local.get(['platform']);
 				platform = items.platform || 'github';
-			} catch {}
+			} catch (err) {
+				console.warn('Error loading platform from storage:', err);
+			}
 			if (platform !== 'github') {
 				if (repoStatus)
 					repoStatus.textContent =
@@ -2838,7 +2842,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		window.removeGitLabProject = removeGitLabProject;
 
 		// Load saved projects on init
-		browser.storage.local.get([]).then((items) => {
+		browser.storage.local.get(['gitlabUsername', 'selectedGitlabProjects', 'useGitlabProjectFilter']).then((items) => {
 			const username = items.gitlabUsername;
 
 			if (items.selectedGitlabProjects) {
@@ -2859,7 +2863,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	const cacheInput = document.getElementById('cacheInput');
 	if (cacheInput) {
-		browser.storage.local.get([]).then((result) => {
+		browser.storage.local.get(['cacheInput']).then((result) => {
 			if (result.cacheInput) {
 				cacheInput.value = result.cacheInput;
 			} else {
@@ -3091,7 +3095,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	// Validate organization only when user is done typing (on blur)
 	function validateOrgOnBlur(org) {
 		console.log('[Org Check] Checking organization on blur:', org);
-		fetch(`https://api.github.com/orgs/${org}`)
+		fetch(`https://api.github.com/orgs/${encodeURIComponent(org)}`)
 			.then((res) => {
 				console.log('[Org Check] Response status for', org, ':', res.status);
 				if (res.status === 404) {

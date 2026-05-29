@@ -410,9 +410,6 @@ async function allIncluded(outputTarget = 'email') {
 					browser.storage.local.remove(['userReason']);
 					gitlabToken = items.gitlabToken || '';
 					gitlabBaseUrl = items.gitlabBaseUrl || '';
-					if (platform === 'gitlab' && window.GitLabHelper) {
-						gitlabHelper = new window.GitLabHelper(gitlabToken || null, gitlabBaseUrl);
-					}
 					yesterdayContribution = items.yesterdayContribution;
 
 					onlyIssues = items.onlyIssues === true;

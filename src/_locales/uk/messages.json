@@ -1,395 +1,335 @@
 {
-    "appName": {
-        "message": "Scrum Helper"
-    },
-    "appDescription": {
-        "message": "Звітуйте про свій прогрес у розробці, автоматично отримуючи вашу активність у Git за вибраний період."
-    },
-    "disableLabel": {
-        "message": "Вимкнути"
-    },
-    "enableLabel": {
-        "message": "Увімкнути"
-    },
-    "projectNameLabel": {
-        "message": "Назва проекту (використовується в темі електронного листа)"
-    },
-    "projectNamePlaceholder": {
-        "message": "Введіть назву вашого проекту"
-    },
-    "githubUsernameLabel": {
-        "message": "Ваше ім'я користувача GitHub"
-    },
-    "gitlabUsernameLabel": {
-        "message": "Ваше ім'я користувача GitLab"
-    },
-    "githubUsernamePlaceholder": {
-        "message": "Потрібно для отримання ваших внесків"
-    },
-    "contributionsLabel": {
-        "message": "Отримати ваші внески за:"
-    },
-    "last1DayLabel": {
-        "message": "Попередній день"
-    },
-    "startDateLabel": {
-        "message": "З:"
-    },
-    "endDateLabel": {
-        "message": "По:"
-    },
-    "showOpenClosedLabel": {
-        "message": "Показувати статус Відкрито/Закрито"
-    },
-    "blockersLabel": {
-        "message": "Що заважає вашому прогресу?"
-    },
-    "blockersPlaceholder": {
-        "message": "Введіть вашу причину"
-    },
-    "scrumReportLabel": {
-        "message": "Звіт Scrum"
-    },
-    "generateReportButton": {
-        "message": "Створити звіт"
-    },
-    "copyReportButton": {
-        "message": "Копіювати звіт"
-    },
-    "insertInEmailButton": {
-        "message": "Вставити в електронний лист"
-    },
-    "insertToEmailFailedError": {
-        "message": "Відкрийте вкладку електронної пошти, щоб вставити звіт"
-    },
-    "settingsOrgNameLabel": {
-        "message": "Назва організації"
-    },
-    "settingsOrgNamePlaceholder": {
-        "message": "Введіть назву організації"
-    },
-    "setButton": {
-        "message": "Встановити"
-    },
-    "githubTokenLabel": {
-        "message": "Ваш токен GitHub"
-    },
-    "githubTokenPlaceholder": {
-        "message": "Потрібно для автентифікованих запитів"
-    },
-    "githubTokenTooltip": {
-        "message": "Чому рекомендується додати токен GitHub? Scrum Helper працює без токена GitHub, але додавання особистого токена доступу рекомендується для кращого досвіду."
-    },
-    "gitlabTokenLabel": {
-        "message": "Your GitLab Token"
-    },
-    "gitlabTokenPlaceholder": {
-        "message": "Paste your GitLab Personal Access Token"
-    },
-    "gitlabTokenTooltip": {
-        "message": "<b>Why is it recommended to add a GitLab token?</b><br>Scrum Helper works without a GitLab token, but adding a personal access token is recommended for a better experience. It raises your API limits, allows access to private repos (if permitted), and improves accuracy and speed. Tokens are stored locally and never sent to us and used only to fetch your git data.<br><br><b>How to obtain:</b><br>1. Go to <a href='https://gitlab.com/-/profile/personal_access_tokens' target='_blank' style='color:#2563eb;text-decoration:underline;'>GitLab Token Settings</a>.<br>2. Click 'Add new token'<br>3. Select scopes: <code>read_api</code> and <code>read_repository</code><br>4. Generate and paste it here.<br><i>Keep your token secret!</i>"
-    },
-    "showCommitsLabel": {
-        "message": "Показувати коміти у відкритих PR/ чернетках PR"
-    },
-    "showCommitsTooltip": {
-        "message": "Потрібен токен GitHub, додайте його в налаштуваннях."
-    },
-    "onlyIssuesLabel": {
-        "message": "Включати до звіту лише проблеми"
-    },
-    "onlyIssuesTooltip": {
-        "message": "Якщо позначено, звіт включатиме лише проблеми, створені користувачем або призначені йому."
-    },
-    "onlyPRsLabel": {
-        "message": "Включати до звіту лише PR"
-    },
-    "onlyPRsTooltip": {
-        "message": "Якщо позначено, звіт включатиме лише pull requests, створені користувачем; переглянуті PR будуть виключені."
-    },
-    "cacheTTLLabel": {
-        "message": "Введіть TTL кешу"
-    },
-    "cacheTTLUnit": {
-        "message": "(у хвилинах)"
-    },
-    "cacheTTLPlaceholder": {
-        "message": "Введіть TTL кешу в хвилинах (За замовчуванням: 10)"
-    },
-    "refreshDataButton": {
-        "message": "Оновити дані (обійти кеш)"
-    },
-    "refreshDataInfo": {
-        "message": "Використовуйте цю кнопку, щоб негайно отримати свіжі дані."
-    },
-    "noteTitle": {
-        "message": "Примітка:"
-    },
-    "viewCodeButton": {
-        "message": "Переглянути код"
-    },
-    "reportIssueButton": {
-        "message": "Повідомити про проблему"
-    },
-    "repoFilterLabel": {
-        "message": "Фільтрувати за репозиторіями"
-    },
-    "enableFilteringLabel": {
-        "message": "Увімкнути фільтрацію"
-    },
-    "tokenRequiredWarning": {
-        "message": "Для фільтрації репозиторіїв потрібен токен GitHub. Будь ласка, додайте його в налаштуваннях."
-    },
-    "tokenRequiredShowCommitsWarning": {
-        "message": "Для відображення комітів у відкритих або чернеткових PR потрібен токен GitHub. Додайте його в налаштуваннях."
-    },
-    "repoSearchPlaceholder": {
-        "message": "Шукати репозиторій для додавання..."
-    },
-    "repoPlaceholder": {
-        "message": "Репозиторії не вибрано (будуть включені всі)"
-    },
-    "repoCountNone": {
-        "message": "Вибрано 0 репозиторіїв"
-    },
-    "repoCount": {
-        "message": "Вибрано $1 репозиторіїв"
-    },
-    "repoLoading": {
-        "message": "Завантаження репозиторіїв..."
-    },
-    "repoLoaded": {
-        "message": "Завантажено $1 репозиторіїв."
-    },
-    "gitlabProjectCountNone": {
-        "message": "0 projects selected"
-    },
-    "gitlabProjectCount": {
-        "message": "$1 projects selected"
-    },
-    "gitlabProjectSearchPlaceholder": {
-        "message": "Search projects"
-    },
-    "gitlabProjectPlaceholder": {
-        "message": "No projects selected (all will be included)"
-    },
-    "repoNotFound": {
-        "message": "Репозиторіїв не знайдено"
-    },
-    "repoRefetching": {
-        "message": "Повторне завантаження репозиторіїв..."
-    },
-    "repoLoadFailed": {
-        "message": "Не вдалося завантажити репозиторії."
-    },
-    "repoTokenPrivate": {
-        "message": "Токен недійсний або не має прав для приватних репозиторіїв."
-    },
-    "repoRefetchFailed": {
-        "message": "Не вдалося повторно завантажити репозиторії."
-    },
-    "orgSetMessage": {
-        "message": "Організацію встановлено успішно."
-    },
-    "orgClearedMessage": {
-        "message": "Організацію очищено. Натисніть 'Створити звіт', щоб отримати всі активності."
-    },
-    "orgNotFoundMessage": {
-        "message": "Організацію не знайдено на GitHub."
-    },
-    "orgValidationErrorMessage": {
-        "message": "Помилка під час перевірки організації."
-    },
-    "refreshingButton": {
-        "message": "Оновлення..."
-    },
-    "cacheClearFailed": {
-        "message": "Не вдалося очистити кеш."
-    },
-    "madeWithLoveBy": {
-        "message": "Made with ❤️ by"
-    },
-    "generatingButton": {
-        "message": "Створення..."
-    },
-    "copiedButton": {
-        "message": "Скопійовано!"
-    },
-    "orgChangedMessage": {
-        "message": "Організацію змінено. Натисніть 'Створити звіт', щоб отримати активності GitHub."
-    },
-    "cacheClearedMessage": {
-        "message": "Кеш успішно очищено. Натисніть 'Створити звіт', щоб отримати свіжі дані."
-    },
-    "cacheExpiredMessage": {
-        "message": "Кеш закінчився. Натисніть \"Створити\", щоб отримати нові дані."
-    },
-    "cacheClearedButton": {
-        "message": "Кеш очищено!"
-    },
-    "extensionDisabledMessage": {
-        "message": "Розширення вимкнено. Увімкніть його в налаштуваннях, щоб створювати звіти scrum."
-    },
-    "notePoint1": {
-        "message": "Pull-запити отримуються на основі останньої активності рецензування будь-якого учасника, а не лише вашої. Будь ласка, перегляньте та відкоригуйте згенерований звіт SCRUM, щоб переконатися, що він точно відображає вашу роботу, перш ніж ділитися ним."
-    },
-    "noteSeeIssue": {
-        "message": "Дивіться цю проблему"
-    },
-    "platformLabel": {
-        "message": "Платформа"
-    },
-    "usernameLabel": {
-        "message": "Ваше ім'я користувача"
-    },
-    "onlyRevPRsLabel": {
-        "message": "Включати до звіту лише переглянуті PR"
-    },
-    "onlyRevPRsTooltip": {
-        "message": "Якщо позначено, звіт включатиме лише PR, переглянуті вами."
-    },
-    "onlyMergedPRsLabel": {
-        "message": "Включати у звіт тільки об'єднані (merged) PR"
-    },
-    "onlyMergedPRsTooltip": {
-        "message": "Якщо позначено, звіт буде включати тільки об'єднані PR. Потрібен токен GitHub."
-    },
-    "tokenRequiredMergedPRsWarning": {
-        "message": "Для фільтрації за об'єднаними PR потрібен токен GitHub. Додайте його в налаштуваннях."
-    },
-    "usernameRequiredError": {
-        "message": "Будь ласка, введіть ім'я користувача для створення звіту."
-    },
-    "unknownPlatformError": {
-        "message": "Вибрано невідому платформу."
-    },
-    "gitlabFetchingError": {
-        "message": "Сталася помилка під час отримання даних GitLab."
-    },
-    "reportGenerationError": {
-        "message": "Сталася помилка під час створення звіту."
-    },
-    "githubUserNotFoundError": {
-        "message": "Користувача GitHub \"$1\" не знайдено (404). Перевірте ім'я користувача і спробуйте ще раз."
-    },
-    "githubUserValidationError": {
-        "message": "Помилка під час перевірки користувача GitHub: $1 $2"
-    },
-    "invalidSearchQueryError": {
-        "message": "Недійсний пошуковий запит або діапазон дат. Перевірте формат і спробуйте ще раз."
-    },
-    "githubIssuesFetchError": {
-        "message": "Помилка під час отримання задач GitHub: $1 $2"
-    },
-    "githubPRReviewFetchError": {
-        "message": "Помилка під час отримання даних перевірки PR GitHub: $1 $2"
-    },
-    "githubUserFetchError": {
-        "message": "Помилка під час отримання даних користувача GitHub: $1 $2"
-    },
-    "invalidTokenError": {
-        "message": "Недійсний або прострочений токен GitHub. Перевірте токен у налаштуваннях Scrum Helper і спробуйте ще раз."
-    },
-    "displayModeNotice": {
-        "message": "Розширення відкриється в режимі $1 при наступному запуску."
-    },
-    "repoFilteringGithubOnly": {
-        "message": "Фільтрація репозиторіїв доступна лише для GitHub."
-    },
-    "repoLoadingGithubOnly": {
-        "message": "Завантаження репозиторіїв доступне лише для GitHub."
-    },
-    "repoFetchingGithubOnly": {
-        "message": "Отримання репозиторіїв доступне лише для GitHub."
-    },
-    "loadingReposAutomatically": {
-        "message": "Репозиторії завантажуються автоматично..."
-    },
-    "gitlabUserFetchError": {
-        "message": "Помилка під час отримання користувача GitLab: $1 $2"
-    },
-    "gitlabUserNotFoundError": {
-        "message": "Користувача GitLab '$1' не знайдено"
-    },
-    "gitlabMembershipError": {
-        "message": "Помилка під час отримання проектів членства GitLab: $1 $2"
-    },
-    "gitlabContributedError": {
-        "message": "Помилка під час отримання проектів з внеском GitLab: $1 $2"
-    },
-    "usernameMissingError": {
-        "message": "Потрібне ім'я користувача."
-    },
-    "generateReportTooltip": {
-        "message": "Ctrl+G"
-    },
-    "copyReportTooltip": {
-        "message": "Ctrl+Shift+Y"
-    },
-    "generatingReportNotification": {
-        "message": "Генерація звіту..."
-    },
-    "copyingReportNotification": {
-        "message": "Копіювання звіту..."
-    },
-    "copiedReportNotification": {
-        "message": "Звіт скопійовано!"
-    },
-    "insertInEmailTooltip": {
-        "message": "Ctrl+Shift+M"
-    },
-    "insertingInEmailNotification": {
-        "message": "Вставка звіту в лист..."
-    },
-    "insertedInEmailNotification": {
-        "message": "Звіт вставлено в лист!"
-    },
-    "githubInvalidSearchError": {
-        "message": "Invalid search query or date range. Please verify your date range format and try again."
-    },
-    "githubFetchIssuesError": {
-        "message": "Error fetching GitHub issues: $1 $2"
-    },
-    "githubFetchPRDataError": {
-        "message": "Error fetching GitHub PR review data: $1 $2"
-    },
-    "githubFetchUserDataError": {
-        "message": "Error fetching GitHub user data: $1 $2"
-    },
-    "testTokenButton": {
-        "message": "Test Token"
-    },
-    "clearTokenButton": {
-        "message": "Clear Token"
-    },
-    "confirmClearToken": {
-        "message": "Are you sure you want to clear the GitLab token?"
-    },
-    "testingTokenButton": {
-        "message": "Testing..."
-    },
-    "tokenValidButton": {
-        "message": "Valid!"
-    },
-    "tokenInvalidButton": {
-        "message": "Invalid"
-    },
-    "gitlabGroupLabel": {
-        "message": "Ваша група GitLab"
-    },
-    "gitlabGroupPlaceholder": {
-        "message": "Введіть назву групи GitLab"
-    },
-    "gitlabGroupTooltip": {
-        "message": "<b>Активність якої групи GitLab?</b><br>Введіть назву групи GitLab для отримання активності. Залиште порожнім, щоб отримати всю вашу активність GitLab у всіх групах. Назва групи не чутлива до регістру."
-    },
-    "gitlabProjectFilterLabel": {
-        "message": "Фільтрувати за проектами"
-    },
-    "gitlabProjectFilterTooltip": {
-        "message": "Потрібен токен GitLab.<br>Щоб примусово оновити список проектів, <br>натисніть кнопку Оновити дані."
-    },
-    "gitlabTokenRequiredWarning": {
-        "message": "Для фільтрації проектів потрібен токен GitLab. Будь ласка, додайте його в налаштуваннях."
-    }
+  "appDescription": {
+    "message": "Звітуйте про свій прогрес у розробці, автоматично отримуючи вашу активність у Git за вибраний період."
+  },
+  "disableLabel": {
+    "message": "Вимкнути"
+  },
+  "enableLabel": {
+    "message": "Увімкнути"
+  },
+  "projectNameLabel": {
+    "message": "Назва проекту (використовується в темі електронного листа)"
+  },
+  "projectNamePlaceholder": {
+    "message": "Введіть назву вашого проекту"
+  },
+  "githubUsernameLabel": {
+    "message": "Ваше ім'я користувача GitHub"
+  },
+  "gitlabUsernameLabel": {
+    "message": "Ваше ім'я користувача GitLab"
+  },
+  "githubUsernamePlaceholder": {
+    "message": "Потрібно для отримання ваших внесків"
+  },
+  "contributionsLabel": {
+    "message": "Отримати ваші внески за:"
+  },
+  "last1DayLabel": {
+    "message": "Попередній день"
+  },
+  "startDateLabel": {
+    "message": "З:"
+  },
+  "endDateLabel": {
+    "message": "По:"
+  },
+  "showOpenClosedLabel": {
+    "message": "Показувати статус Відкрито/Закрито"
+  },
+  "blockersLabel": {
+    "message": "Що заважає вашому прогресу?"
+  },
+  "blockersPlaceholder": {
+    "message": "Введіть вашу причину"
+  },
+  "scrumReportLabel": {
+    "message": "Звіт Scrum"
+  },
+  "generateReportButton": {
+    "message": "Створити звіт"
+  },
+  "copyReportButton": {
+    "message": "Копіювати звіт"
+  },
+  "insertInEmailButton": {
+    "message": "Вставити в електронний лист"
+  },
+  "insertToEmailFailedError": {
+    "message": "Відкрийте вкладку електронної пошти, щоб вставити звіт"
+  },
+  "settingsOrgNameLabel": {
+    "message": "Назва організації"
+  },
+  "settingsOrgNamePlaceholder": {
+    "message": "Введіть назву організації"
+  },
+  "setButton": {
+    "message": "Встановити"
+  },
+  "githubTokenLabel": {
+    "message": "Ваш токен GitHub"
+  },
+  "githubTokenPlaceholder": {
+    "message": "Потрібно для автентифікованих запитів"
+  },
+  "githubTokenTooltip": {
+    "message": "Чому рекомендується додати токен GitHub? Scrum Helper працює без токена GitHub, але додавання особистого токена доступу рекомендується для кращого досвіду."
+  },
+  "gitlabTokenPlaceholder": {
+    "message": "Paste your GitLab Personal Access Token"
+  },
+  "gitlabTokenTooltip": {
+    "message": "<b>Why is it recommended to add a GitLab token?</b><br>Scrum Helper works without a GitLab token, but adding a personal access token is recommended for a better experience. It raises your API limits, allows access to private repos (if permitted), and improves accuracy and speed. Tokens are stored locally and never sent to us and used only to fetch your git data.<br><br><b>How to obtain:</b><br>1. Go to <a href='https://gitlab.com/-/profile/personal_access_tokens' target='_blank' style='color:#2563eb;text-decoration:underline;'>GitLab Token Settings</a>.<br>2. Click 'Add new token'<br>3. Select scopes: <code>read_api</code> and <code>read_repository</code><br>4. Generate and paste it here.<br><i>Keep your token secret!</i>"
+  },
+  "showCommitsLabel": {
+    "message": "Показувати коміти у відкритих PR/ чернетках PR"
+  },
+  "showCommitsTooltip": {
+    "message": "Потрібен токен GitHub, додайте його в налаштуваннях."
+  },
+  "onlyIssuesLabel": {
+    "message": "Включати до звіту лише проблеми"
+  },
+  "onlyIssuesTooltip": {
+    "message": "Якщо позначено, звіт включатиме лише проблеми, створені користувачем або призначені йому."
+  },
+  "onlyPRsLabel": {
+    "message": "Включати до звіту лише PR"
+  },
+  "onlyPRsTooltip": {
+    "message": "Якщо позначено, звіт включатиме лише pull requests, створені користувачем; переглянуті PR будуть виключені."
+  },
+  "cacheTTLLabel": {
+    "message": "Введіть TTL кешу"
+  },
+  "cacheTTLUnit": {
+    "message": "(у хвилинах)"
+  },
+  "cacheTTLPlaceholder": {
+    "message": "Введіть TTL кешу в хвилинах (За замовчуванням: 10)"
+  },
+  "refreshDataButton": {
+    "message": "Оновити дані (обійти кеш)"
+  },
+  "refreshDataInfo": {
+    "message": "Використовуйте цю кнопку, щоб негайно отримати свіжі дані."
+  },
+  "noteTitle": {
+    "message": "Примітка:"
+  },
+  "viewCodeButton": {
+    "message": "Переглянути код"
+  },
+  "reportIssueButton": {
+    "message": "Повідомити про проблему"
+  },
+  "repoFilterLabel": {
+    "message": "Фільтрувати за репозиторіями"
+  },
+  "enableFilteringLabel": {
+    "message": "Увімкнути фільтрацію"
+  },
+  "tokenRequiredWarning": {
+    "message": "Для фільтрації репозиторіїв потрібен токен GitHub. Будь ласка, додайте його в налаштуваннях."
+  },
+  "tokenRequiredShowCommitsWarning": {
+    "message": "Для відображення комітів у відкритих або чернеткових PR потрібен токен GitHub. Додайте його в налаштуваннях."
+  },
+  "repoSearchPlaceholder": {
+    "message": "Шукати репозиторій для додавання..."
+  },
+  "repoPlaceholder": {
+    "message": "Репозиторії не вибрано (будуть включені всі)"
+  },
+  "repoCountNone": {
+    "message": "Вибрано 0 репозиторіїв"
+  },
+  "repoCount": {
+    "message": "Вибрано $1 репозиторіїв"
+  },
+  "repoLoading": {
+    "message": "Завантаження репозиторіїв..."
+  },
+  "repoLoaded": {
+    "message": "Завантажено $1 репозиторіїв."
+  },
+  "repoNotFound": {
+    "message": "Репозиторіїв не знайдено"
+  },
+  "repoRefetching": {
+    "message": "Повторне завантаження репозиторіїв..."
+  },
+  "repoLoadFailed": {
+    "message": "Не вдалося завантажити репозиторії."
+  },
+  "repoTokenPrivate": {
+    "message": "Токен недійсний або не має прав для приватних репозиторіїв."
+  },
+  "repoRefetchFailed": {
+    "message": "Не вдалося повторно завантажити репозиторії."
+  },
+  "orgSetMessage": {
+    "message": "Організацію встановлено успішно."
+  },
+  "orgClearedMessage": {
+    "message": "Організацію очищено. Натисніть 'Створити звіт', щоб отримати всі активності."
+  },
+  "orgNotFoundMessage": {
+    "message": "Організацію не знайдено на GitHub."
+  },
+  "orgValidationErrorMessage": {
+    "message": "Помилка під час перевірки організації."
+  },
+  "refreshingButton": {
+    "message": "Оновлення..."
+  },
+  "cacheClearFailed": {
+    "message": "Не вдалося очистити кеш."
+  },
+  "generatingButton": {
+    "message": "Створення..."
+  },
+  "copiedButton": {
+    "message": "Скопійовано!"
+  },
+  "orgChangedMessage": {
+    "message": "Організацію змінено. Натисніть 'Створити звіт', щоб отримати активності GitHub."
+  },
+  "cacheClearedMessage": {
+    "message": "Кеш успішно очищено. Натисніть 'Створити звіт', щоб отримати свіжі дані."
+  },
+  "cacheExpiredMessage": {
+    "message": "Кеш закінчився. Натисніть \"Створити\", щоб отримати нові дані."
+  },
+  "cacheClearedButton": {
+    "message": "Кеш очищено!"
+  },
+  "extensionDisabledMessage": {
+    "message": "Розширення вимкнено. Увімкніть його в налаштуваннях, щоб створювати звіти scrum."
+  },
+  "notePoint1": {
+    "message": "Pull-запити отримуються на основі останньої активності рецензування будь-якого учасника, а не лише вашої. Будь ласка, перегляньте та відкоригуйте згенерований звіт SCRUM, щоб переконатися, що він точно відображає вашу роботу, перш ніж ділитися ним."
+  },
+  "noteSeeIssue": {
+    "message": "Дивіться цю проблему"
+  },
+  "platformLabel": {
+    "message": "Платформа"
+  },
+  "usernameLabel": {
+    "message": "Ваше ім'я користувача"
+  },
+  "onlyRevPRsLabel": {
+    "message": "Включати до звіту лише переглянуті PR"
+  },
+  "onlyRevPRsTooltip": {
+    "message": "Якщо позначено, звіт включатиме лише PR, переглянуті вами."
+  },
+  "onlyMergedPRsLabel": {
+    "message": "Включати у звіт тільки об'єднані (merged) PR"
+  },
+  "onlyMergedPRsTooltip": {
+    "message": "Якщо позначено, звіт буде включати тільки об'єднані PR. Потрібен токен GitHub."
+  },
+  "tokenRequiredMergedPRsWarning": {
+    "message": "Для фільтрації за об'єднаними PR потрібен токен GitHub. Додайте його в налаштуваннях."
+  },
+  "usernameRequiredError": {
+    "message": "Будь ласка, введіть ім'я користувача для створення звіту."
+  },
+  "unknownPlatformError": {
+    "message": "Вибрано невідому платформу."
+  },
+  "gitlabFetchingError": {
+    "message": "Сталася помилка під час отримання даних GitLab."
+  },
+  "reportGenerationError": {
+    "message": "Сталася помилка під час створення звіту."
+  },
+  "githubUserNotFoundError": {
+    "message": "Користувача GitHub \"$1\" не знайдено (404). Перевірте ім'я користувача і спробуйте ще раз."
+  },
+  "githubUserValidationError": {
+    "message": "Помилка під час перевірки користувача GitHub: $1 $2"
+  },
+  "invalidSearchQueryError": {
+    "message": "Недійсний пошуковий запит або діапазон дат. Перевірте формат і спробуйте ще раз."
+  },
+  "githubIssuesFetchError": {
+    "message": "Помилка під час отримання задач GitHub: $1 $2"
+  },
+  "githubPRReviewFetchError": {
+    "message": "Помилка під час отримання даних перевірки PR GitHub: $1 $2"
+  },
+  "githubUserFetchError": {
+    "message": "Помилка під час отримання даних користувача GitHub: $1 $2"
+  },
+  "invalidTokenError": {
+    "message": "Недійсний або прострочений токен GitHub. Перевірте токен у налаштуваннях Scrum Helper і спробуйте ще раз."
+  },
+  "displayModeNotice": {
+    "message": "Розширення відкриється в режимі $1 при наступному запуску."
+  },
+  "repoFilteringGithubOnly": {
+    "message": "Фільтрація репозиторіїв доступна лише для GitHub."
+  },
+  "repoLoadingGithubOnly": {
+    "message": "Завантаження репозиторіїв доступне лише для GitHub."
+  },
+  "repoFetchingGithubOnly": {
+    "message": "Отримання репозиторіїв доступне лише для GitHub."
+  },
+  "loadingReposAutomatically": {
+    "message": "Репозиторії завантажуються автоматично..."
+  },
+  "gitlabUserFetchError": {
+    "message": "Помилка під час отримання користувача GitLab: $1 $2"
+  },
+  "gitlabUserNotFoundError": {
+    "message": "Користувача GitLab '$1' не знайдено"
+  },
+  "gitlabMembershipError": {
+    "message": "Помилка під час отримання проектів членства GitLab: $1 $2"
+  },
+  "gitlabContributedError": {
+    "message": "Помилка під час отримання проектів з внеском GitLab: $1 $2"
+  },
+  "usernameMissingError": {
+    "message": "Потрібне ім'я користувача."
+  },
+  "generatingReportNotification": {
+    "message": "Генерація звіту..."
+  },
+  "copyingReportNotification": {
+    "message": "Копіювання звіту..."
+  },
+  "copiedReportNotification": {
+    "message": "Звіт скопійовано!"
+  },
+  "insertingInEmailNotification": {
+    "message": "Вставка звіту в лист..."
+  },
+  "insertedInEmailNotification": {
+    "message": "Звіт вставлено в лист!"
+  },
+  "gitlabGroupLabel": {
+    "message": "Ваша група GitLab"
+  },
+  "gitlabGroupPlaceholder": {
+    "message": "Введіть назву групи GitLab"
+  },
+  "gitlabGroupTooltip": {
+    "message": "<b>Активність якої групи GitLab?</b><br>Введіть назву групи GitLab для отримання активності. Залиште порожнім, щоб отримати всю вашу активність GitLab у всіх групах. Назва групи не чутлива до регістру."
+  },
+  "gitlabProjectFilterLabel": {
+    "message": "Фільтрувати за проектами"
+  },
+  "gitlabProjectFilterTooltip": {
+    "message": "Потрібен токен GitLab.<br>Щоб примусово оновити список проектів, <br>натисніть кнопку Оновити дані."
+  },
+  "gitlabTokenRequiredWarning": {
+    "message": "Для фільтрації проектів потрібен токен GitLab. Будь ласка, додайте його в налаштуваннях."
+  }
 }

@@ -297,7 +297,7 @@ class EmailClientAdapter {
 				}
 				if (attempts >= maxRetries) {
 					console.error('[EmailClientAdapter] Max retry attempts reached');
-					reject(new Error('[EmailClientAdapter] Max retry attempts reached'));
+					reject(new Error('Max retry attempts reached'));
 					return;
 				}
 				attempts++;
