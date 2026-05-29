@@ -6,11 +6,16 @@
   "action": {
     "default_title": "Scrum Helper"
   },
+"sidebar_action": {
+    "default_icon": {
+    "48": "icons/icon.png",
+    "96": "icons/icon.png"
+  },
+    "default_title": "Scrum Helper",
+    "default_panel": "popup.html" 
+  },
   "background": {
-    "scripts": [
-      "scripts/browser-polyfill.min.js",
-      "scripts/background.js"
-    ]
+    "service_worker": "scripts/background.js"
   },
   "icons": {
     "48": "icons/icon.png",
@@ -29,13 +34,10 @@
         "*://mail.yahoo.com/*"
       ],
       "js": [
-        "libs/purify.min.js",
-        "scripts/domSanitizer.js",
         "scripts/browser-polyfill.min.js",
         "scripts/jquery-3.2.1.min.js",
         "scripts/emailClientAdapter.js",
         "scripts/gitlabHelper.js",
-        "scripts/githubTokenFingerprint.js",
         "scripts/scrumHelper.js"
       ]
     }
@@ -67,15 +69,5 @@
     "https://api.github.com/*",
     "https://gitlab.com/*"
   ],
-  "default_locale": "en",
-  "sidebar_action": {
-    "default_panel": "popup.html?view=sidebar",
-    "default_title": "Scrum Helper"
-  },
-  "browser_specific_settings": {
-    "gecko": {
-      "id": "scrum_helper@fossasia.org",
-      "strict_min_version": "109.0"
-    }
-  }
+  "default_locale": "en"
 }

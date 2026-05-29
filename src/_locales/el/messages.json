@@ -59,6 +59,9 @@
     "insertInEmailButton": {
         "message": "Εισαγωγή σε email"
     },
+    "insertToEmailFailedError": {
+        "message": "Ανοίξτε μια καρτέλα email για να εισαγάγετε την αναφορά"
+    },
     "settingsOrgNameLabel": {
         "message": "Όνομα οργανισμού"
     },
@@ -232,5 +235,101 @@
     },
     "onlyRevPRsTooltip": {
         "message": "Εάν επιλεγεί, η αναφορά θα περιλαμβάνει μόνο PR που έχετε αναθεωρήσει εσείς."
+    },
+    "onlyMergedPRsLabel": {
+        "message": "Να συμπεριλαμβάνονται μόνο συγχωνευμένα PR στην αναφορά"
+    },
+    "onlyMergedPRsTooltip": {
+        "message": "Εάν επιλεγεί, η αναφορά θα περιλαμβάνει μόνο PR που έχουν συγχωνευθεί. Απαιτείται διακριτικό GitHub."
+    },
+    "tokenRequiredMergedPRsWarning": {
+        "message": "Απαιτείται διακριτικό GitHub για το φιλτράρισμα βάσει συγχωνευμένων PR. Προσθέστε ένα στις ρυθμίσεις."
+    },
+    "usernameRequiredError": {
+        "message": "Παρακαλώ εισάγετε το όνομα χρήστη σας για να δημιουργήσετε μια αναφορά."
+    },
+    "unknownPlatformError": {
+        "message": "Επιλέχθηκε άγνωστη πλατφόρμα."
+    },
+    "gitlabFetchingError": {
+        "message": "Παρουσιάστηκε σφάλμα κατά την ανάκτηση των δεδομένων GitLab."
+    },
+    "reportGenerationError": {
+        "message": "Παρουσιάστηκε σφάλμα κατά τη δημιουργία της αναφοράς."
+    },
+    "githubUserNotFoundError": {
+        "message": "Ο χρήστης GitHub \"$1\" δεν βρέθηκε."
+    },
+    "githubUserValidationError": {
+        "message": "Σφάλμα κατά την επαλήθευση του χρήστη GitHub: $1 $2"
+    },
+    "invalidSearchQueryError": {
+        "message": "Μη έγκυρο ερώτημα αναζήτησης ή εύρος ημερομηνιών. Επαληθεύστε τη μορφή και δοκιμάστε ξανά."
+    },
+    "githubIssuesFetchError": {
+        "message": "Σφάλμα κατά την ανάκτηση των θεμάτων (issues) GitHub: $1 $2"
+    },
+    "githubPRReviewFetchError": {
+        "message": "Σφάλμα κατά την ανάκτηση των δεδομένων αξιολόγησης PR από το GitHub: $1 $2"
+    },
+    "githubUserFetchError": {
+        "message": "Σφάλμα κατά την ανάκτηση των δεδομένων χρήστη GitHub: $1 $2"
+    },
+    "invalidTokenError": {
+        "message": "Μη έγκυρο ή ληγμένο διακριτικό GitHub. Ελέγξτε το διακριτικό σας στις ρυθμίσεις του Scrum Helper και δοκιμάστε ξανά."
+    },
+    "displayModeNotice": {
+        "message": "Η επέκταση θα ανοίξει σε λειτουργία $1 στην επόμενη εκκίνηση."
+    },
+    "repoFilteringGithubOnly": {
+        "message": "Το φιλτράρισμα αποθετηρίων είναι διαθέσιμο μόνο για το GitHub."
+    },
+    "repoLoadingGithubOnly": {
+        "message": "Η φόρτωση αποθετηρίων είναι διαθέσιμη μόνο για το GitHub."
+    },
+    "repoFetchingGithubOnly": {
+        "message": "Η ανάκτηση αποθετηρίων είναι διαθέσιμη μόνο για το GitHub."
+    },
+    "loadingReposAutomatically": {
+        "message": "Αυτόματη φόρτωση αποθετηρίων..."
+    },
+    "gitlabUserFetchError": {
+        "message": "Σφάλμα κατά την ανάκτηση του χρήστη GitLab: $1 $2"
+    },
+    "gitlabUserNotFoundError": {
+        "message": "Ο χρήστης GitLab \"$1\" δεν βρέθηκε."
+    },
+    "gitlabMembershipError": {
+        "message": "Σφάλμα κατά την ανάκτηση των έργων συμμετοχής GitLab: $1 $2"
+    },
+    "gitlabContributedError": {
+        "message": "Σφάλμα κατά την ανάκτηση των έργων συνεισφοράς GitLab: $1 $2"
+    },
+    "usernameMissingError": {
+        "message": "Απαιτείται όνομα χρήστη."
+    },
+    "generateReportTooltip": {
+        "message": "Ctrl+G"
+    },
+    "copyReportTooltip": {
+        "message": "Ctrl+Shift+Y"
+    },
+    "generatingReportNotification": {
+        "message": "Δημιουργία αναφοράς..."
+    },
+    "copyingReportNotification": {
+        "message": "Αντιγραφή αναφοράς..."
+    },
+    "copiedReportNotification": {
+        "message": "Η αναφορά αντιγράφηκε!"
+    },
+    "insertInEmailTooltip": {
+        "message": "Ctrl+Shift+M"
+    },
+    "insertingInEmailNotification": {
+        "message": "Εισαγωγή αναφοράς στο email..."
+    },
+    "insertedInEmailNotification": {
+        "message": "Η αναφορά εισήχθη στο email!"
     }
 }
