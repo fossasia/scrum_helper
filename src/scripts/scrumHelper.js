@@ -1,4 +1,15 @@
-/* global chrome */
+globalThis.browser = globalThis.browser ||
+	globalThis.chrome || {
+		storage: {
+			local: {
+				get: () => Promise.resolve({}),
+				set: () => Promise.resolve(),
+				remove: () => Promise.resolve(),
+			},
+		},
+		i18n: { getMessage: (key) => key },
+		runtime: { sendMessage: () => {}, lastError: null },
+	};
 
 const DEBUG = false;
 
@@ -19,10 +30,10 @@ function showNotification(message, type = 'error') {
 		Materialize.toast(message, 4000);
 	} else {
 		console.warn(`[ScrumHelper] ${type.toUpperCase()}: ${message}`);
-		if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.sendMessage) {
-			chrome.runtime.sendMessage({ action: 'showPopupMessage', message, type }, () => {
-				if (chrome.runtime.lastError) {
-					logError('Failed to send popup message:', chrome.runtime.lastError);
+		if (typeof browser !== 'undefined' && browser.runtime && browser.runtime.sendMessage) {
+			browser.runtime.sendMessage({ action: 'showPopupMessage', message, type }, () => {
+				if (browser.runtime.lastError) {
+					logError('Failed to send popup message:', browser.runtime.lastError);
 				}
 			});
 		}
@@ -320,7 +331,7 @@ async function allIncluded(outputTarget = 'email') {
 
 	function getChromeData() {
 		console.log('[DEBUG] getChromeData called for outputTarget:', outputTarget);
-		chrome.storage.local
+		browser.storage.local
 			.get([
 				'platform',
 				'githubUsername',
@@ -427,7 +438,7 @@ async function allIncluded(outputTarget = 'email') {
 						handleYesterdayContributionChange();
 
 						if (outputTarget === 'popup') {
-							chrome.storage.local.set({ yesterdayContribution: true });
+							browser.storage.local.set({ yesterdayContribution: true });
 						}
 					}
 
@@ -450,7 +461,8 @@ async function allIncluded(outputTarget = 'email') {
 								console.log('[DEBUG] No username found - popup context');
 								const generateBtn = document.getElementById('generateReport');
 								const ErrMessage =
-									chrome.i18n.getMessage('usernameRequiredError') || 'Please enter your username to generate a report.';
+									browser.i18n.getMessage('usernameRequiredError') ||
+									'Please enter your username to generate a report.';
 								handleUsernameValidationError(ErrMessage);
 								if (generateBtn) {
 									generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
@@ -591,7 +603,8 @@ async function allIncluded(outputTarget = 'email') {
 							if (outputTarget === 'popup') {
 								const generateBtn = document.getElementById('generateReport');
 								const ErrMessage =
-									chrome.i18n.getMessage('usernameRequiredError') || 'Please enter your username to generate a report.';
+									browser.i18n.getMessage('usernameRequiredError') ||
+									'Please enter your username to generate a report.';
 								handleUsernameValidationError(ErrMessage);
 								if (generateBtn) {
 									generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
@@ -603,7 +616,7 @@ async function allIncluded(outputTarget = 'email') {
 					} else {
 						// Unknown platform
 						if (outputTarget === 'popup') {
-							const ErrMessage = chrome.i18n.getMessage('unknownPlatformError') || 'Unknown platform selected.';
+							const ErrMessage = browser.i18n.getMessage('unknownPlatformError') || 'Unknown platform selected.';
 							showReportMessage(ErrMessage);
 						}
 						scrumGenerationInProgress = false;
@@ -696,9 +709,9 @@ async function allIncluded(outputTarget = 'email') {
 		});
 
 		return new Promise((resolve) => {
-			chrome.storage.local.set({ githubCache: cacheData }, () => {
-				if (chrome.runtime.lastError) {
-					logError('Storage save failed: ', chrome.runtime.lastError);
+			browser.storage.local.set({ githubCache: cacheData }, () => {
+				if (browser.runtime.lastError) {
+					logError('Storage save failed: ', browser.runtime.lastError);
 					resolve(false);
 				} else {
 					log('Cache saved successfully');
@@ -714,7 +727,7 @@ async function allIncluded(outputTarget = 'email') {
 		log('Loading cache from storage');
 		return getCacheTTL().then((currentTTL) => {
 			return new Promise((resolve) => {
-				chrome.storage.local.get('githubCache', (result) => {
+				browser.storage.local.get('githubCache', (result) => {
 					const cache = result.githubCache;
 					if (!cache) {
 						log('No cache found in storage');
@@ -751,7 +764,7 @@ async function allIncluded(outputTarget = 'email') {
 	async function fetchGithubData() {
 		// Always load latest repo filter settings from storage
 		const filterSettings = await new Promise((resolve) => {
-			chrome.storage.local.get(['useRepoFilter', 'selectedRepos'], resolve);
+			browser.storage.local.get(['useRepoFilter', 'selectedRepos'], resolve);
 		});
 		useRepoFilter = filterSettings.useRepoFilter || false;
 		selectedRepos = Array.isArray(filterSettings.selectedRepos) ? filterSettings.selectedRepos : [];
@@ -917,7 +930,7 @@ async function allIncluded(outputTarget = 'email') {
 
 			if (userCheckRes.status === 404) {
 				const errorMsg =
-					chrome?.i18n.getMessage('githubUserNotFoundError', [platformUsernameLocal]) ||
+					browser?.i18n.getMessage('githubUserNotFoundError', [platformUsernameLocal]) ||
 					`GitHub user "${platformUsernameLocal}" not found (404). Please check the username and try again.`;
 				logError(errorMsg);
 				throw new Error(errorMsg);
@@ -931,7 +944,7 @@ async function allIncluded(outputTarget = 'email') {
 
 			if (!userCheckRes.ok) {
 				const errorMsg =
-					chrome?.i18n.getMessage('githubUserValidationError', [userCheckRes.status, userCheckRes.statusText]) ||
+					browser?.i18n.getMessage('githubUserValidationError', [userCheckRes.status, userCheckRes.statusText]) ||
 					`Error validating GitHub user: ${userCheckRes.status} ${userCheckRes.statusText}`;
 				throw new Error(errorMsg);
 			}
@@ -950,7 +963,7 @@ async function allIncluded(outputTarget = 'email') {
 
 			if (issuesRes.status === 422 || prRes.status === 422) {
 				const errorMsg =
-					chrome?.i18n.getMessage('githubInvalidSearchError') ||
+					browser?.i18n.getMessage('githubInvalidSearchError') ||
 					`Invalid search query or date range. Please verify your date range format and try again.`;
 				logError(errorMsg);
 				if (outputTarget === 'popup') {
@@ -961,7 +974,7 @@ async function allIncluded(outputTarget = 'email') {
 
 			if (!issuesRes.ok) {
 				const errorMsg =
-					chrome?.i18n.getMessage('githubFetchIssuesError', [issuesRes.status, issuesRes.statusText]) ||
+					browser?.i18n.getMessage('githubFetchIssuesError', [issuesRes.status, issuesRes.statusText]) ||
 					`Error fetching GitHub issues: ${issuesRes.status} ${issuesRes.statusText}`;
 				logError(errorMsg);
 				if (outputTarget === 'popup') {
@@ -971,7 +984,7 @@ async function allIncluded(outputTarget = 'email') {
 			}
 			if (!prRes.ok) {
 				const errorMsg =
-					chrome?.i18n.getMessage('githubFetchPRDataError', [prRes.status, prRes.statusText]) ||
+					browser?.i18n.getMessage('githubFetchPRDataError', [prRes.status, prRes.statusText]) ||
 					`Error fetching GitHub PR review data: ${prRes.status} ${prRes.statusText}`;
 				logError(errorMsg);
 				if (outputTarget === 'popup') {
@@ -981,7 +994,7 @@ async function allIncluded(outputTarget = 'email') {
 			}
 			if (!userRes.ok) {
 				const errorMsg =
-					chrome?.i18n.getMessage('githubFetchUserDataError', [userRes.status, userRes.statusText]) ||
+					browser?.i18n.getMessage('githubFetchUserDataError', [userRes.status, userRes.statusText]) ||
 					`Error fetching GitHub user data: ${userRes.status} ${userRes.statusText}`;
 				logError(errorMsg);
 				throw new Error(errorMsg);
@@ -1059,7 +1072,7 @@ async function allIncluded(outputTarget = 'email') {
 				const generateBtn = document.getElementById('generateReport');
 				if (scrumReportEl) {
 					let errorMsg =
-						chrome?.i18n.getMessage('reportGenerationError') || 'An error occurred while generating the report.';
+						browser?.i18n.getMessage('reportGenerationError') || 'An error occurred while generating the report.';
 					if (err) {
 						if (typeof err === 'string') errorMsg = err;
 						else if (err.message) errorMsg = err.message;
@@ -1128,13 +1141,16 @@ async function allIncluded(outputTarget = 'email') {
 			method: 'POST',
 			headers: {
 				'Content-Type': 'application/json',
-				...(githubToken ? { Authorization: `bearer ${githubToken}` } : {}),
+				...(githubToken ? { Authorization: `Bearer ${githubToken}` } : {}),
 			},
 			body: JSON.stringify({ query }),
 		});
 		log('fetchCommitsForOpenPRs response status:', res.status);
 		const data = await res.json();
 		log('fetchCommitsForOpenPRs response data:', data);
+		if (data.errors) {
+			console.error('[GraphQL Error] fetchCommitsForOpenPRs returned errors:', data.errors);
+		}
 		const commitMap = {};
 		prs.forEach((pr, idx) => {
 			const prData = data.data && data.data[`pr${idx}`] && data.data[`pr${idx}`].pullRequest;
@@ -1191,7 +1207,7 @@ async function allIncluded(outputTarget = 'email') {
 			githubCache.repoData = repos;
 			githubCache.repoTimeStamp = now;
 
-			chrome.storage.local.set({
+			browser.storage.local.set({
 				repoCache: {
 					data: repos,
 					cacheKey: repoCacheKey,
@@ -1230,7 +1246,7 @@ async function allIncluded(outputTarget = 'email') {
 			queueLength: githubCache.queue.length,
 		});
 		const storageData = await new Promise((resolve) => {
-			chrome.storage.local.get('githubCache', resolve);
+			browser.storage.local.get('githubCache', resolve);
 		});
 		log('Storage Status:', {
 			hasStoredData: !!storageData.githubCache,
@@ -1245,7 +1261,7 @@ async function allIncluded(outputTarget = 'email') {
 	function showInvalidTokenMessage() {
 		if (outputTarget === 'popup') {
 			const errMsg =
-				chrome?.i18n.getMessage('invalidTokenError') ||
+				browser?.i18n.getMessage('invalidTokenError') ||
 				'Invalid or expired GitHub token. Please check your token in the settings and try again.';
 			if (scrumReportEl) {
 				showReportMessage(errMsg);
@@ -2183,7 +2199,7 @@ async function forceGithubDataRefresh() {
 	let showCommits = false;
 
 	await new Promise((resolve) => {
-		chrome.storage.local.get('showCommits', (result) => {
+		browser.storage.local.get('showCommits', (result) => {
 			if (result.showCommits !== undefined) {
 				showCommits = result.showCommits;
 			}
@@ -2201,10 +2217,10 @@ async function forceGithubDataRefresh() {
 	}
 
 	await new Promise((resolve) => {
-		chrome.storage.local.remove('githubCache', resolve);
+		browser.storage.local.remove('githubCache', resolve);
 	});
 
-	chrome.storage.local.set({ showCommits: showCommits });
+	browser.storage.local.set({ showCommits: showCommits });
 
 	hasInjectedContent = false;
 
@@ -2221,7 +2237,7 @@ async function forceGitlabDataRefresh() {
 		gitlabHelper.cache.queue = [];
 	}
 	await new Promise((resolve) => {
-		chrome.storage.local.remove('gitlabCache', resolve);
+		browser.storage.local.remove('gitlabCache', resolve);
 	});
 	hasInjectedContent = false;
 	// Re-instantiate gitlabHelper to ensure a fresh instance for next API call
@@ -2251,9 +2267,9 @@ window.generateScrumReport = () => {
 	allIncluded('popup');
 };
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
 	if (request.action === 'forceRefresh') {
-		chrome.storage.local.get(['platform'], async (result) => {
+		browser.storage.local.get(['platform'], async (result) => {
 			const platform = result.platform || 'github';
 			if (platform === 'gitlab') {
 				forceGitlabDataRefresh()
@@ -2332,7 +2348,7 @@ async function fetchUserRepositories(username, token, org = '') {
 		let dateRange = '';
 		try {
 			const storageData = await new Promise((resolve) => {
-				chrome.storage.local.get(['startingDate', 'endingDate', 'yesterdayContribution'], resolve);
+				browser.storage.local.get(['startingDate', 'endingDate', 'yesterdayContribution'], resolve);
 			});
 
 			let startDate;

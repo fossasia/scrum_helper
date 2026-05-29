@@ -153,20 +153,16 @@
         "message": "0 dépôts sélectionnés"
     },
     "gitlabProjectCountNone": {
-        "message": "0 projets sélectionnés",
-        "description": "Text showing the count of selected GitLab projects when it's zero."
+        "message": "0 projets sélectionnés"
     },
     "gitlabProjectPlaceholder": {
-        "message": "Aucun projet sélectionné (tous seront inclus)",
-        "description": "Placeholder text when no GitLab projects are selected for filtering."
+        "message": "Aucun projet sélectionné (tous seront inclus)"
     },
     "gitlabProjectCount": {
-        "message": "$1 projets sélectionnés",
-        "description": "Text showing the count of selected GitLab projects. $1 is a placeholder for the number."
+        "message": "$1 projets sélectionnés"
     },
     "gitlabProjectSearchPlaceholder": {
-        "message": "Rechercher des projets",
-        "description": "Placeholder/title for the GitLab project search input."
+        "message": "Rechercher des projets"
     },
     "repoCount": {
         "message": "$1 dépôts sélectionnés"
@@ -247,28 +243,22 @@
         "message": "Votre nom d'utilisateur"
     },
     "gitlabGroupLabel": {
-        "message": "Votre groupe GitLab",
-        "description": "Label for the GitLab group input."
+        "message": "Votre groupe GitLab"
     },
     "gitlabGroupPlaceholder": {
-        "message": "Entrez le nom du groupe GitLab",
-        "description": "Placeholder for the GitLab group input."
+        "message": "Entrez le nom du groupe GitLab"
     },
     "gitlabGroupTooltip": {
-        "message": "<b>Quelle activité de groupe GitLab?</b><br>Entrez le nom du groupe GitLab pour récupérer les activités. Laissez vide pour récupérer toutes vos activités GitLab dans tous les groupes. Le nom du groupe n'est pas sensible à la casse.",
-        "description": "Tooltip explaining GitLab group filtering."
+        "message": "<b>Quelle activité de groupe GitLab?</b><br>Entrez le nom du groupe GitLab pour récupérer les activités. Laissez vide pour récupérer toutes vos activités GitLab dans tous les groupes. Le nom du groupe n'est pas sensible à la casse."
     },
     "gitlabProjectFilterLabel": {
-        "message": "Filtrer par projets",
-        "description": "Label for GitLab project filter."
+        "message": "Filtrer par projets"
     },
     "gitlabProjectFilterTooltip": {
-        "message": "Jeton GitLab requis.<br>Pour forcer une mise à jour de la liste des projets, <br>cliquez sur le bouton Actualiser les données.",
-        "description": "Tooltip for GitLab project filter."
+        "message": "Jeton GitLab requis.<br>Pour forcer une mise à jour de la liste des projets, <br>cliquez sur le bouton Actualiser les données."
     },
     "gitlabTokenRequiredWarning": {
-        "message": "Un jeton GitLab est requis pour le filtrage des projets. Veuillez en ajouter un dans les paramètres.",
-        "description": "Warning message when GitLab token is missing for project filtering."
+        "message": "Un jeton GitLab est requis pour le filtrage des projets. Veuillez en ajouter un dans les paramètres."
     },
     "onlyRevPRsLabel": {
         "message": "Inclure uniquement les PRs revues dans le rapport"
@@ -286,8 +276,7 @@
         "message": "Un jeton GitHub est requis pour filtrer par PR fusionnées. Veuillez en ajouter un dans les paramètres."
     },
     "usernameRequiredError": {
-        "message": "Veuillez entrer votre nom d'utilisateur pour générer un rapport.",
-        "description": "Error message shown when the user tries to generate a report without entering a username."
+        "message": "Veuillez entrer votre nom d'utilisateur pour générer un rapport."
     },
     "unknownPlatformError": {
         "message": "Plateforme inconnue sélectionnée."

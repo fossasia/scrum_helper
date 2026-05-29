@@ -108,8 +108,7 @@
         "message": "Если отмечено, отчёт будет включать только pull request'ы, созданные пользователем; проверенные PR будут исключены."
     },
     "cacheTTLLabel": {
-        "message": "Введите TTL кеша",
-        "description": "Метка для ввода времени жизни кеша."
+        "message": "Введите TTL кеша"
     },
     "cacheTTLUnit": {
         "message": "(в минутах)"
@@ -154,16 +153,13 @@
         "message": "0 репозиториев выбрано"
     },
     "gitlabProjectCountNone": {
-        "message": "0 projects selected",
-        "description": "Text showing the count of selected GitLab projects when it's zero."
+        "message": "0 projects selected"
     },
     "gitlabProjectCount": {
-        "message": "$1 projects selected",
-        "description": "Text showing the count of selected GitLab projects. $1 is a placeholder for the number."
+        "message": "$1 projects selected"
     },
     "gitlabProjectSearchPlaceholder": {
-        "message": "Search projects",
-        "description": "Placeholder/title for the GitLab project search input."
+        "message": "Search projects"
     },
     "repoCount": {
         "message": "$1 репозиториев выбрано"
@@ -244,52 +240,40 @@
         "message": "Ваше имя пользователя"
     },
     "testTokenButton": {
-        "message": "Test Token",
-        "description": "Button text to test/validate a GitLab token."
+        "message": "Test Token"
     },
     "clearTokenButton": {
-        "message": "Clear Token",
-        "description": "Button text to clear the stored token."
+        "message": "Clear Token"
     },
     "confirmClearToken": {
-        "message": "Are you sure you want to clear the GitLab token?",
-        "description": "Confirmation message before clearing the token."
+        "message": "Are you sure you want to clear the GitLab token?"
     },
     "testingTokenButton": {
-        "message": "Testing...",
-        "description": "Button text while token validation is in progress."
+        "message": "Testing..."
     },
     "tokenValidButton": {
-        "message": "Valid!",
-        "description": "Button text when token is validated successfully."
+        "message": "Valid!"
     },
     "tokenInvalidButton": {
-        "message": "Invalid",
-        "description": "Button text when token validation fails."
+        "message": "Invalid"
     },
     "gitlabGroupLabel": {
-        "message": "Ваша группа GitLab",
-        "description": "Label for the GitLab group input."
+        "message": "Ваша группа GitLab"
     },
     "gitlabGroupPlaceholder": {
-        "message": "Введите имя группы GitLab",
-        "description": "Placeholder for the GitLab group input."
+        "message": "Введите имя группы GitLab"
     },
     "gitlabGroupTooltip": {
-        "message": "<b>Активность какой группы GitLab?</b><br>Введите имя группы GitLab для получения активности. Оставьте пустым, чтобы получить всю вашу активность GitLab во всех группах. Имя группы не чувствительно к регистру.",
-        "description": "Tooltip explaining GitLab group filtering."
+        "message": "<b>Активность какой группы GitLab?</b><br>Введите имя группы GitLab для получения активности. Оставьте пустым, чтобы получить всю вашу активность GitLab во всех группах. Имя группы не чувствительно к регистру."
     },
     "gitlabProjectFilterLabel": {
-        "message": "Фильтровать по проектам",
-        "description": "Label for GitLab project filter."
+        "message": "Фильтровать по проектам"
     },
     "gitlabProjectFilterTooltip": {
-        "message": "Требуется токен GitLab.<br>Чтобы принудительно обновить список проектов, <br>нажмите кнопку Обновить данные.",
-        "description": "Tooltip for GitLab project filter."
+        "message": "Требуется токен GitLab.<br>Чтобы принудительно обновить список проектов, <br>нажмите кнопку Обновить данные."
     },
     "gitlabTokenRequiredWarning": {
-        "message": "Для фильтрации проектов требуется токен GitLab. Пожалуйста, добавьте его в настройках.",
-        "description": "Warning message when GitLab token is missing for project filtering."
+        "message": "Для фильтрации проектов требуется токен GitLab. Пожалуйста, добавьте его в настройках."
     },
     "onlyRevPRsLabel": {
         "message": "Включить в отчет только проверенные PR"
@@ -307,8 +291,7 @@
         "message": "Для фильтрации по объединенным PR требуется токен GitHub. Добавьте его в настройках."
     },
     "usernameRequiredError": {
-        "message": "Пожалуйста, введите ваше имя пользователя для создания отчета.",
-        "description": "Error message shown when the user tries to generate a report without entering a username."
+        "message": "Пожалуйста, введите ваше имя пользователя для создания отчета."
     },
     "unknownPlatformError": {
         "message": "Выбрана неизвестная платформа."

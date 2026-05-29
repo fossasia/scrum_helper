@@ -108,8 +108,7 @@
         "message": "Jika dicentang, laporan hanya akan menyertakan PR yang dibuat oleh pengguna; PR yang telah ditinjau akan dikecualikan."
     },
     "cacheTTLLabel": {
-        "message": "Masukkan TTL cache",
-        "description": "Label untuk masukan time-to-live cache."
+        "message": "Masukkan TTL cache"
     },
     "cacheTTLUnit": {
         "message": "(dalam menit)"
@@ -154,20 +153,16 @@
         "message": "0 repositori dipilih"
     },
     "gitlabProjectCountNone": {
-        "message": "0 projects selected",
-        "description": "Text showing the count of selected GitLab projects when it's zero."
+        "message": "0 projects selected"
     },
     "gitlabProjectPlaceholder": {
-        "message": "No projects selected (all will be included)",
-        "description": "Placeholder text when no GitLab projects are selected for filtering."
+        "message": "No projects selected (all will be included)"
     },
     "gitlabProjectCount": {
-        "message": "$1 projects selected",
-        "description": "Text showing the count of selected GitLab projects. $1 is a placeholder for the number."
+        "message": "$1 projects selected"
     },
     "gitlabProjectSearchPlaceholder": {
-        "message": "Search projects",
-        "description": "Placeholder/title for the GitLab project search input."
+        "message": "Search projects"
     },
     "repoCount": {
         "message": "$1 repositori dipilih"
@@ -248,52 +243,40 @@
         "message": "Nama pengguna Anda"
     },
     "testTokenButton": {
-        "message": "Test Token",
-        "description": "Button text to test/validate a GitLab token."
+        "message": "Test Token"
     },
     "clearTokenButton": {
-        "message": "Clear Token",
-        "description": "Button text to clear the stored token."
+        "message": "Clear Token"
     },
     "confirmClearToken": {
-        "message": "Are you sure you want to clear the GitLab token?",
-        "description": "Confirmation message before clearing the token."
+        "message": "Are you sure you want to clear the GitLab token?"
     },
     "testingTokenButton": {
-        "message": "Testing...",
-        "description": "Button text while token validation is in progress."
+        "message": "Testing..."
     },
     "tokenValidButton": {
-        "message": "Valid!",
-        "description": "Button text when token is validated successfully."
+        "message": "Valid!"
     },
     "tokenInvalidButton": {
-        "message": "Invalid",
-        "description": "Button text when token validation fails."
+        "message": "Invalid"
     },
     "gitlabGroupLabel": {
-        "message": "Grup GitLab Anda",
-        "description": "Label for the GitLab group input."
+        "message": "Grup GitLab Anda"
     },
     "gitlabGroupPlaceholder": {
-        "message": "Masukkan nama grup GitLab",
-        "description": "Placeholder for the GitLab group input."
+        "message": "Masukkan nama grup GitLab"
     },
     "gitlabGroupTooltip": {
-        "message": "<b>Aktivitas grup GitLab mana?</b><br>Masukkan nama grup GitLab untuk mengambil aktivitas. Biarkan kosong untuk mengambil semua aktivitas GitLab Anda di semua grup. Nama grup tidak peka huruf besar/kecil.",
-        "description": "Tooltip explaining GitLab group filtering."
+        "message": "<b>Aktivitas grup GitLab mana?</b><br>Masukkan nama grup GitLab untuk mengambil aktivitas. Biarkan kosong untuk mengambil semua aktivitas GitLab Anda di semua grup. Nama grup tidak peka huruf besar/kecil."
     },
     "gitlabProjectFilterLabel": {
-        "message": "Filter berdasarkan proyek",
-        "description": "Label for GitLab project filter."
+        "message": "Filter berdasarkan proyek"
     },
     "gitlabProjectFilterTooltip": {
-        "message": "Token GitLab diperlukan.<br>Untuk memaksa pembaruan daftar proyek, <br>klik tombol Segarkan Data.",
-        "description": "Tooltip for GitLab project filter."
+        "message": "Token GitLab diperlukan.<br>Untuk memaksa pembaruan daftar proyek, <br>klik tombol Segarkan Data."
     },
     "gitlabTokenRequiredWarning": {
-        "message": "Token GitLab diperlukan untuk penyaringan proyek. Silakan tambahkan satu di pengaturan.",
-        "description": "Warning message when GitLab token is missing for project filtering."
+        "message": "Token GitLab diperlukan untuk penyaringan proyek. Silakan tambahkan satu di pengaturan."
     },
     "onlyRevPRsLabel": {
         "message": "Hanya sertakan PR yang ditinjau dalam laporan"
@@ -311,8 +294,7 @@
         "message": "Token GitHub diperlukan untuk memfilter berdasarkan PR yang telah digabungkan. Silakan tambahkan di pengaturan."
     },
     "usernameRequiredError": {
-        "message": "Silakan masukkan nama pengguna Anda untuk membuat laporan.",
-        "description": "Error message shown when the user tries to generate a report without entering a username."
+        "message": "Silakan masukkan nama pengguna Anda untuk membuat laporan."
     },
     "unknownPlatformError": {
         "message": "Platform yang dipilih tidak dikenal."

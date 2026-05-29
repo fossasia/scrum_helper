@@ -64,7 +64,8 @@
     "description": "Placeholder text for the blockers input field."
   },
   "scrumReportLabel": {
-    "message": "Scrum Report"
+    "message": "Scrum Report",
+    "description": "Label/Header for the generated Scrum Report output section."
   },
   "generateReportButton": {
     "message": "Generate",
@@ -123,19 +124,24 @@
     "description": "Label for the checkbox to show commits in open PRs."
   },
   "showCommitsTooltip": {
-    "message": "Github Token required, add it in the settings."
+    "message": "Github Token required, add it in the settings.",
+    "description": "Tooltip text explaining that a GitHub token is required to show commits."
   },
   "onlyIssuesLabel": {
-    "message": "Include only issues in the report"
+    "message": "Include only issues in the report",
+    "description": "Label for the advanced filter checkbox to include only issues in the report."
   },
   "onlyIssuesTooltip": {
-    "message": "If checked, the report will only include issues created or assigned to the user."
+    "message": "If checked, the report will only include issues created or assigned to the user.",
+    "description": "Tooltip text explaining the onlyIssues advanced filter option."
   },
   "onlyPRsLabel": {
-    "message": "Include only PRs in the report"
+    "message": "Include only PRs in the report",
+    "description": "Label for the advanced filter checkbox to include only Pull Requests in the report."
   },
   "onlyPRsTooltip": {
-    "message": "If checked, the report will only include PRs created by the user. Reviewed PRs will be excluded."
+    "message": "If checked, the report will only include PRs created by the user. Reviewed PRs will be excluded.",
+    "description": "Tooltip text explaining the onlyPRs advanced filter option."
   },
   "cacheTTLLabel": {
     "message": "Enter cache TTL",

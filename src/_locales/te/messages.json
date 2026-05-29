@@ -153,20 +153,16 @@
         "message": "0 రిపోజిటరీలు ఎంచుకోబడ్డాయి"
     },
     "gitlabProjectCountNone": {
-        "message": "0 projects selected",
-        "description": "Text showing the count of selected GitLab projects when it's zero."
+        "message": "0 projects selected"
     },
     "gitlabProjectPlaceholder": {
-        "message": "No projects selected (all will be included)",
-        "description": "Placeholder text when no GitLab projects are selected for filtering."
+        "message": "No projects selected (all will be included)"
     },
     "gitlabProjectCount": {
-        "message": "$1 projects selected",
-        "description": "Text showing the count of selected GitLab projects. $1 is a placeholder for the number."
+        "message": "$1 projects selected"
     },
     "gitlabProjectSearchPlaceholder": {
-        "message": "Search projects",
-        "description": "Placeholder/title for the GitLab project search input."
+        "message": "Search projects"
     },
     "repoCount": {
         "message": "$1 రిపోజిటరీలు ఎంపిక చేయబడ్డాయి"
@@ -226,8 +222,7 @@
         "message": "క్యాష్ విజయవంతంగా క్లియర్ చేయబడింది. తాజా డేటా కోసం \"నివేదికను రూపొందించు\" పై క్లిక్ చేయండి."
     },
     "cacheExpiredMessage": {
-        "message": "క్యాష్ గడువు ముగిసింది. తాజా డేటా పొందడానికి \"నివేదికను రూపొందించు\" పై క్లిక్ చేయండి.",
-        "description": "Message shown when the cached data has expired and user needs to regenerate."
+        "message": "క్యాష్ గడువు ముగిసింది. తాజా డేటా పొందడానికి \"నివేదికను రూపొందించు\" పై క్లిక్ చేయండి."
     },
     "cacheClearedButton": {
         "message": "కాష్ తొలగించబడింది!"
@@ -248,52 +243,40 @@
         "message": "మీ యూజర్‌నేమ్"
     },
     "testTokenButton": {
-        "message": "Test Token",
-        "description": "Button text to test/validate a GitLab token."
+        "message": "Test Token"
     },
     "clearTokenButton": {
-        "message": "Clear Token",
-        "description": "Button text to clear the stored token."
+        "message": "Clear Token"
     },
     "confirmClearToken": {
-        "message": "Are you sure you want to clear the GitLab token?",
-        "description": "Confirmation message before clearing the token."
+        "message": "Are you sure you want to clear the GitLab token?"
     },
     "testingTokenButton": {
-        "message": "Testing...",
-        "description": "Button text while token validation is in progress."
+        "message": "Testing..."
     },
     "tokenValidButton": {
-        "message": "Valid!",
-        "description": "Button text when token is validated successfully."
+        "message": "Valid!"
     },
     "tokenInvalidButton": {
-        "message": "Invalid",
-        "description": "Button text when token validation fails."
+        "message": "Invalid"
     },
     "gitlabGroupLabel": {
-        "message": "మీ GitLab గ్రూప్",
-        "description": "Label for the GitLab group input."
+        "message": "మీ GitLab గ్రూప్"
     },
     "gitlabGroupPlaceholder": {
-        "message": "GitLab గ్రూప్ పేరు నమోదు చేయండి",
-        "description": "Placeholder for the GitLab group input."
+        "message": "GitLab గ్రూప్ పేరు నమోదు చేయండి"
     },
     "gitlabGroupTooltip": {
-        "message": "<b>ఏ GitLab గ్రూప్ క్రియాశీలత?</b><br>క్రియాశీలతను తెచ్చుకోవడానికి GitLab గ్రూప్ పేరు నమోదు చేయండి. అన్ని గ్రూప్‌లలో మీ అన్ని GitLab క్రియాశీలతను తెచ్చుకోవడానికి ఖాలీగా వ్రాయండి. గ్రూప్ పేరు కేస్-సెన్సిటివ్ కాదు.",
-        "description": "Tooltip explaining GitLab group filtering."
+        "message": "<b>ఏ GitLab గ్రూప్ క్రియాశీలత?</b><br>క్రియాశీలతను తెచ్చుకోవడానికి GitLab గ్రూప్ పేరు నమోదు చేయండి. అన్ని గ్రూప్‌లలో మీ అన్ని GitLab క్రియాశీలతను తెచ్చుకోవడానికి ఖాలీగా వ్రాయండి. గ్రూప్ పేరు కేస్-సెన్సిటివ్ కాదు."
     },
     "gitlabProjectFilterLabel": {
-        "message": "ప్రాజెక్ట్‌ల ద్వారా ఫిల్టర్ చేయండి",
-        "description": "Label for GitLab project filter."
+        "message": "ప్రాజెక్ట్‌ల ద్వారా ఫిల్టర్ చేయండి"
     },
     "gitlabProjectFilterTooltip": {
-        "message": "GitLab టోకెన్ అవసరం.<br>ప్రాజెక్ట్ జాబితా అప్‌డేట్‌ను బలవంతం చేయాలంటే, <br>డేటా రిఫ్రెష్ బటన్ క్లిక్ చేయండి.",
-        "description": "Tooltip for GitLab project filter."
+        "message": "GitLab టోకెన్ అవసరం.<br>ప్రాజెక్ట్ జాబితా అప్‌డేట్‌ను బలవంతం చేయాలంటే, <br>డేటా రిఫ్రెష్ బటన్ క్లిక్ చేయండి."
     },
     "gitlabTokenRequiredWarning": {
-        "message": "ప్రాజెక్ట్ ఫిల్టరింగ్ కోసం GitLab టోకెన్ అవసరం. దయచేసి సెట్టింగ్‌లలో ఒకదాన్ని జోడించండి.",
-        "description": "Warning message when GitLab token is missing for project filtering."
+        "message": "ప్రాజెక్ట్ ఫిల్టరింగ్ కోసం GitLab టోకెన్ అవసరం. దయచేసి సెట్టింగ్‌లలో ఒకదాన్ని జోడించండి."
     },
     "onlyRevPRsLabel": {
         "message": "నివేదికలో మీరు సమీక్షించిన PRలను మాత్రమే చేర్చు"
@@ -311,8 +294,7 @@
         "message": "విలీనం చేయబడిన పిఆర్‌ల ద్వారా వడపోయడానికి గిట్‌హబ్ టోకెన్ అవసరం. సెట్టింగ్‌లలో ఒకదాన్ని జోడించండి."
     },
     "usernameRequiredError": {
-        "message": "నివేదిక జనరేట చేయడానికి దయచేసి యూజర్‌నేమ్ నమోదు చేయండి.",
-        "description": "Error message shown when the user tries to generate a report without entering a username."
+        "message": "నివేదిక జనరేట చేయడానికి దయచేసి యూజర్‌నేమ్ నమోదు చేయండి."
     },
     "unknownPlatformError": {
         "message": "తెలియని ప్లాట్‌ఫారమ్ ఎంపిక చేయబడింది."

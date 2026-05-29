@@ -108,8 +108,7 @@
         "message": "चेक करने पर रिपोर्ट में केवल उपयोगकर्ता द्वारा बनाई गई PRs शामिल होंगी; समीक्षित PRs बाहर रखी जाएँगी."
     },
     "cacheTTLLabel": {
-        "message": "कैश टीटीएल दर्ज करें",
-        "description": "कैश टाइम-टू-लाइव इनपुट के लिए लेबल।"
+        "message": "कैश टीटीएल दर्ज करें"
     },
     "cacheTTLUnit": {
         "message": "(मिनटों में)"
@@ -154,20 +153,16 @@
         "message": "0 रिपॉजिटरी चयनित"
     },
     "gitlabProjectCountNone": {
-        "message": "0 projects selected",
-        "description": "Text showing the count of selected GitLab projects when it's zero."
+        "message": "0 projects selected"
     },
     "gitlabProjectPlaceholder": {
-        "message": "No projects selected (all will be included)",
-        "description": "Placeholder text when no GitLab projects are selected for filtering."
+        "message": "No projects selected (all will be included)"
     },
     "gitlabProjectCount": {
-        "message": "$1 projects selected",
-        "description": "Text showing the count of selected GitLab projects. $1 is a placeholder for the number."
+        "message": "$1 projects selected"
     },
     "gitlabProjectSearchPlaceholder": {
-        "message": "Search projects",
-        "description": "Placeholder/title for the GitLab project search input."
+        "message": "Search projects"
     },
     "repoCount": {
         "message": "$1 रिपॉजिटरी चयनित"
@@ -248,52 +243,40 @@
         "message": "आपका उपयोगकर्ता नाम"
     },
     "testTokenButton": {
-        "message": "Test Token",
-        "description": "Button text to test/validate a GitLab token."
+        "message": "Test Token"
     },
     "clearTokenButton": {
-        "message": "Clear Token",
-        "description": "Button text to clear the stored token."
+        "message": "Clear Token"
     },
     "confirmClearToken": {
-        "message": "Are you sure you want to clear the GitLab token?",
-        "description": "Confirmation message before clearing the token."
+        "message": "Are you sure you want to clear the GitLab token?"
     },
     "testingTokenButton": {
-        "message": "Testing...",
-        "description": "Button text while token validation is in progress."
+        "message": "Testing..."
     },
     "tokenValidButton": {
-        "message": "Valid!",
-        "description": "Button text when token is validated successfully."
+        "message": "Valid!"
     },
     "tokenInvalidButton": {
-        "message": "Invalid",
-        "description": "Button text when token validation fails."
+        "message": "Invalid"
     },
     "gitlabGroupLabel": {
-        "message": "आपका GitLab समूह",
-        "description": "Label for the GitLab group input."
+        "message": "आपका GitLab समूह"
     },
     "gitlabGroupPlaceholder": {
-        "message": "GitLab समूह का नाम दर्ज करें",
-        "description": "Placeholder for the GitLab group input."
+        "message": "GitLab समूह का नाम दर्ज करें"
     },
     "gitlabGroupTooltip": {
-        "message": "<b>कौन सी GitLab समूह गतिविधि?</b><br>गतिविधियां प्राप्त करने के लिए GitLab समूह का नाम दर्ज करें। सभी समूहों में अपनी सभी GitLab गतिविधियां प्राप्त करने के लिए खाली छोड़ दें। समूह का नाम केस-सेंसिटिव नहीं है।",
-        "description": "Tooltip explaining GitLab group filtering."
+        "message": "<b>कौन सी GitLab समूह गतिविधि?</b><br>गतिविधियां प्राप्त करने के लिए GitLab समूह का नाम दर्ज करें। सभी समूहों में अपनी सभी GitLab गतिविधियां प्राप्त करने के लिए खाली छोड़ दें। समूह का नाम केस-सेंसिटिव नहीं है।"
     },
     "gitlabProjectFilterLabel": {
-        "message": "परियोजनाओं द्वारा फ़िल्टर करें",
-        "description": "Label for GitLab project filter."
+        "message": "परियोजनाओं द्वारा फ़िल्टर करें"
     },
     "gitlabProjectFilterTooltip": {
-        "message": "GitLab टोकन आवश्यक।<br>परियोजना सूची अपडेट करने के लिए, <br>डेटा रीफ्रेश बटन पर क्लिक करें।",
-        "description": "Tooltip for GitLab project filter."
+        "message": "GitLab टोकन आवश्यक।<br>परियोजना सूची अपडेट करने के लिए, <br>डेटा रीफ्रेश बटन पर क्लिक करें।"
     },
     "gitlabTokenRequiredWarning": {
-        "message": "परियोजना फ़िल्टरिंग के लिए GitLab टोकन आवश्यक है। कृपया सेटिंग्स में एक जोड़ें।",
-        "description": "Warning message when GitLab token is missing for project filtering."
+        "message": "परियोजना फ़िल्टरिंग के लिए GitLab टोकन आवश्यक है। कृपया सेटिंग्स में एक जोड़ें।"
     },
     "onlyRevPRsLabel": {
         "message": "रिपोर्ट में केवल समीक्षित PRs शामिल करें"
@@ -311,8 +294,7 @@
         "message": "merged PRs द्वारा फ़िल्टर करने के लिए एक GitHub टोकन आवश्यक है। कृपया सेटिंग्स में एक जोड़ें।"
     },
     "usernameRequiredError": {
-        "message": "रिपोर्ट बनाने के लिए कृपया अपना उपयोगकर्ता नाम दर्ज करें।",
-        "description": "Error message shown when the user tries to generate a report without entering a username."
+        "message": "रिपोर्ट बनाने के लिए कृपया अपना उपयोगकर्ता नाम दर्ज करें।"
     },
     "unknownPlatformError": {
         "message": "अज्ञात प्लेटफ़ॉर्म चुना गया है।"

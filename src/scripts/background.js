@@ -6,6 +6,20 @@ if (typeof importScripts === 'function') {
 	}
 }
 
+globalThis.browser = globalThis.browser ||
+	globalThis.chrome || {
+		storage: {
+			local: {
+				get: () => Promise.resolve({}),
+				set: () => Promise.resolve(),
+				remove: () => Promise.resolve(),
+			},
+			onChanged: { addListener: () => {} },
+		},
+		tabs: { onRemoved: { addListener: () => {} } },
+		action: { setPopup: () => Promise.resolve() },
+	};
+
 const openByTabId = new Map();
 
 browser.tabs?.onRemoved?.addListener((tabId) => {

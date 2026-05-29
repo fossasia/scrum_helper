@@ -1,7 +1,34 @@
+globalThis.browser = globalThis.browser ||
+	globalThis.chrome || {
+		storage: {
+			local: {
+				get: () => Promise.resolve({}),
+				set: () => Promise.resolve(),
+				remove: () => Promise.resolve(),
+			},
+		},
+		i18n: { getMessage: (key) => key },
+		tabs: {
+			query: () => Promise.resolve([]),
+			sendMessage: () => Promise.resolve(),
+			onUpdated: { addListener: () => {} },
+		},
+		scripting: { executeScript: () => Promise.resolve() },
+	};
+
+function getTranslation(key, placeholders = []) {
+	try {
+		return browser.i18n?.getMessage(key, placeholders) || '';
+	} catch (e) {
+		console.warn(`[I18N] Failed to translate key: ${key}`, e);
+		return '';
+	}
+}
+
 const injectedTabs = new Set();
 
-if (typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.onUpdated) {
-	chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
+if (browser.tabs && browser.tabs.onUpdated) {
+	browser.tabs.onUpdated.addListener((tabId, changeInfo) => {
 		if (changeInfo.status === 'loading') {
 			console.log(`[Insert] Tab ${tabId} reloaded or navigated. Clearing injectedTabs state.`);
 			injectedTabs.delete(tabId);
@@ -90,11 +117,11 @@ function isMacOS() {
 }
 
 function showShortcutNotification(messageKey) {
-	if (typeof chrome === 'undefined' || !chrome.i18n) {
+	if (typeof browser === 'undefined' || !browser.i18n) {
 		return;
 	}
 
-	const message = chrome.i18n.getMessage(messageKey);
+	const message = browser.i18n.getMessage(messageKey);
 	if (!message) {
 		return;
 	}
@@ -107,19 +134,19 @@ function setupButtonTooltips() {
 
 	const generateTooltipEl = document.getElementById('generateReportTooltipText');
 	if (generateTooltipEl) {
-		const text = chrome?.i18n.getMessage('generateReportTooltip') || 'Ctrl+G';
+		const text = browser?.i18n.getMessage('generateReportTooltip') || 'Ctrl+G';
 		generateTooltipEl.textContent = mac ? text.replace('Ctrl', 'Cmd') : text;
 	}
 
 	const copyTooltipEl = document.getElementById('copyReportTooltipText');
 	if (copyTooltipEl) {
-		const text = chrome?.i18n.getMessage('copyReportTooltip') || 'Ctrl+Shift+Y';
+		const text = browser?.i18n.getMessage('copyReportTooltip') || 'Ctrl+Shift+Y';
 		copyTooltipEl.textContent = mac ? text.replace('Ctrl', 'Cmd') : text;
 	}
 
 	const insertEmailTooltipEl = document.getElementById('insertInEmailTooltipText');
 	if (insertEmailTooltipEl) {
-		const text = chrome?.i18n.getMessage('insertInEmailTooltip') || 'Ctrl+Shift+M';
+		const text = browser?.i18n.getMessage('insertInEmailTooltip') || 'Ctrl+Shift+M';
 		insertEmailTooltipEl.textContent = mac ? text.replace('Ctrl', 'Cmd') : text;
 	}
 }
@@ -139,7 +166,7 @@ function getYesterday() {
 function applyI18n() {
 	document.querySelectorAll('[data-i18n]').forEach((el) => {
 		const key = el.getAttribute('data-i18n');
-		const message = chrome?.i18n.getMessage(key);
+		const message = browser?.i18n.getMessage(key);
 		if (message) {
 			// For tooltip-like elements allow a small set of safe inline formatting.
 			if (el.classList.contains('tooltip-bubble') || el.classList.contains('cache-info')) {
@@ -152,7 +179,7 @@ function applyI18n() {
 
 	document.querySelectorAll('[data-i18n-placeholder]').forEach((el) => {
 		const key = el.getAttribute('data-i18n-placeholder');
-		const message = chrome?.i18n.getMessage(key);
+		const message = browser?.i18n.getMessage(key);
 		if (message) {
 			el.placeholder = message;
 		}
@@ -160,7 +187,7 @@ function applyI18n() {
 
 	document.querySelectorAll('[data-i18n-title]').forEach((el) => {
 		const key = el.getAttribute('data-i18n-title');
-		const message = chrome?.i18n.getMessage(key);
+		const message = browser?.i18n.getMessage(key);
 		if (message) {
 			el.title = message;
 		}
@@ -168,7 +195,7 @@ function applyI18n() {
 
 	document.querySelectorAll('[data-i18n-aria]').forEach((el) => {
 		const key = el.getAttribute('data-i18n-aria');
-		const message = chrome?.i18n.getMessage(key);
+		const message = browser?.i18n.getMessage(key);
 		if (message) {
 			el.setAttribute('aria-label', message);
 		}
@@ -285,7 +312,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			if (typeof hideDropdown === 'function') {
 				hideDropdown();
 			}
-			chrome?.storage.local.set({ useRepoFilter: false });
+			browser?.storage.local.set({ useRepoFilter: false });
 		}
 		tokenWarning.classList.toggle('hidden', !isFilterEnabled || hasToken);
 		setTimeout(() => {
@@ -365,7 +392,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					durationMs: warningDurationMs,
 				});
 			}
-			chrome?.storage.local.set({ onlyMergedPRs: false });
+			browser?.storage.local.set({ onlyMergedPRs: false });
 			return;
 		}
 
@@ -378,7 +405,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			tokenWarning.classList.add('hidden');
 		}
 		if (persistState) {
-			chrome?.storage.local.set({ onlyMergedPRs: mergedPRsCheckbox.checked });
+			browser?.storage.local.set({ onlyMergedPRs: mergedPRsCheckbox.checked });
 		}
 	}
 
@@ -427,7 +454,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				});
 			}
 			// Always persist correction of invalid state
-			chrome?.storage.local.set({ showCommits: false });
+			browser?.storage.local.set({ showCommits: false });
 			return;
 		}
 
@@ -440,7 +467,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			tokenWarning.classList.add('hidden');
 		}
 		if (persistState) {
-			chrome?.storage.local.set({ showCommits: showCommits.checked });
+			browser?.storage.local.set({ showCommits: showCommits.checked });
 		}
 	}
 
@@ -537,7 +564,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	darkModeToggle.addEventListener('click', function () {
 		body.classList.toggle('dark-mode');
 		const isDarkMode = body.classList.contains('dark-mode');
-		chrome?.storage.local.set({ darkMode: isDarkMode });
+		browser?.storage.local.set({ darkMode: isDarkMode });
 		this.src = isDarkMode ? 'icons/light-mode.png' : 'icons/night-mode.png';
 		const settingsIcon = document.getElementById('settingsIcon');
 		if (settingsIcon) {
@@ -605,7 +632,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (!generateBtn) return;
 		if (!isLoading) return;
 
-		const msg = chrome?.i18n.getMessage('generatingButton') || 'Generating...';
+		const msg = browser?.i18n.getMessage('generatingButton') || 'Generating...';
 		generateBtn.innerHTML = `<i class="fa fa-spinner fa-spin"></i> ${msg}`;
 		generateBtn.disabled = true;
 	}
@@ -653,41 +680,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	window.updateGenerateButtonState = updateGenerateButtonState;
 
-	function showPopupMessage(message) {
-		if (!message) return;
-		const isDarkMode = document.body?.classList.contains('dark-mode');
-
-		const old = document.getElementById('scrum-cache-toast');
-		if (old) old.remove();
-
-		const toast = document.createElement('div');
-		toast.id = 'scrum-cache-toast';
-		toast.className = 'scrum-cache-toast-custom';
-		toast.style.background = isDarkMode ? '#ffffff' : '#1f2937';
-		toast.style.color = isDarkMode ? '#1f2937' : '#fff';
-		toast.style.border = 'none';
-		toast.style.fontWeight = 'bold';
-		toast.style.padding = '12px 16px';
-		toast.style.borderRadius = '8px';
-		toast.style.position = 'fixed';
-		toast.style.top = '12px';
-		toast.style.left = '50%';
-		toast.style.transform = 'translateX(-50%)';
-		toast.style.zIndex = '2147483647';
-		toast.style.width = 'calc(82% - 16px)';
-		toast.style.maxWidth = '340px';
-		toast.style.lineHeight = '1.4';
-		toast.style.textAlign = 'start';
-		toast.style.boxSizing = 'border-box';
-		toast.style.wordBreak = 'break-word';
-		toast.style.opacity = '1';
-		toast.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.1)';
-		toast.textContent = message;
-
-		document.body.appendChild(toast);
-		setTimeout(() => toast.remove(), 4000);
-	}
-
 	function hideGitLabProjectDropdown() {
 		const gitlabProjectDropdown = document.getElementById('gitlabProjectDropdown');
 		if (gitlabProjectDropdown) {
@@ -727,8 +719,8 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 			const key = usernameLabel.getAttribute('data-i18n');
 			let message = key;
-			if (typeof chrome !== 'undefined' && chrome.i18n && typeof chrome.i18n.getMessage === 'function') {
-				const resolved = chrome.i18n.getMessage(key);
+			if (typeof browser !== 'undefined' && browser.i18n && typeof browser.i18n.getMessage === 'function') {
+				const resolved = browser.i18n.getMessage(key);
 				if (resolved) {
 					message = resolved;
 				}
@@ -1039,7 +1031,7 @@ document.addEventListener('DOMContentLoaded', () => {
 						const msg =
 							browser.i18n.getMessage('noScrumReportToInsertError') ||
 							'No scrum report to insert. Please generate a report first.';
-						showPopupMessage(msg);
+						showPopupMessage(msg, { variant: 'error' });
 						if (generateBtn) generateBtn.focus();
 						console.warn('[Insert] No scrum report to insert');
 						return;
@@ -1058,7 +1050,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 					if (!tabId) {
 						const msg = browser.i18n.getMessage('insertToEmailFailedError') || 'open an email tab to insert report';
-						showPopupMessage(msg);
+						showPopupMessage(msg, { variant: 'error' });
 						console.warn('[Insert] No active tab found');
 						insertBtn.innerHTML = `<i class="fa fa-envelope"></i> ${browser.i18n.getMessage('insertInEmailButton') || 'Insert to Email'}`;
 						insertBtn.disabled = false;
@@ -1089,6 +1081,7 @@ document.addEventListener('DOMContentLoaded', () => {
 									} else {
 										showPopupMessage(
 											browser.i18n.getMessage('reportInsertedSuccess') || 'Report inserted successfully!',
+											{ variant: 'success' },
 										);
 									}
 									insertBtn.innerHTML = `<i class="fa fa-check"></i> ${browser.i18n.getMessage('insertedButton') || 'Inserted!'}`;
@@ -1099,7 +1092,7 @@ document.addEventListener('DOMContentLoaded', () => {
 								} else {
 									const msg = 'Insert Failed: ' + (response?.error || 'Unknown error');
 									console.warn('[Insert]', msg);
-									showPopupMessage(msg);
+									showPopupMessage(msg, { variant: 'error' });
 									insertBtn.innerHTML = `<i class="fa fa-envelope"></i> ${browser.i18n.getMessage('insertInEmailButton') || 'Insert to Email'}`;
 									insertBtn.disabled = false;
 								}
@@ -1124,7 +1117,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 									if (injectedTabs.has(tabId)) {
 										console.log('[Insert] Scripts already injected for tab', tabId, '. Skipping reinjection.');
-										showPopupMessage('Cannot connect to email client: ' + errMsg);
+										showPopupMessage('Cannot connect to email client: ' + errMsg, { variant: 'error' });
 										insertBtn.innerHTML = `<i class="fa fa-envelope"></i> ${browser.i18n.getMessage('insertInEmailButton') || 'Insert to Email'}`;
 										insertBtn.disabled = false;
 										return;
@@ -1158,7 +1151,7 @@ document.addEventListener('DOMContentLoaded', () => {
 											msg =
 												'This page does not support email insertion.\n\nPlease use on:\n- Gmail (mail.google.com)\n- Outlook (outlook.office.com)\n- Yahoo Mail (mail.yahoo.com)';
 										}
-										showPopupMessage(msg);
+										showPopupMessage(msg, { variant: 'error' });
 										insertBtn.innerHTML = '<i class="fa fa-envelope"></i> Insert in Email';
 										insertBtn.disabled = false;
 										return;
@@ -1188,14 +1181,14 @@ document.addEventListener('DOMContentLoaded', () => {
 										}
 									}
 
-									showPopupMessage('Cannot connect to email client: ' + errMsg);
+									showPopupMessage('Cannot connect to email client: ' + errMsg, { variant: 'error' });
 									insertBtn.innerHTML = '<i class="fa fa-envelope"></i> Insert in Email';
 									insertBtn.disabled = false;
 								}
 							}
 						} catch (error) {
 							console.error('[Insert] Unexpected error in sendInsert:', error);
-							showPopupMessage('Unexpected error: ' + error.message);
+							showPopupMessage('Unexpected error: ' + error.message, { variant: 'error' });
 							insertBtn.innerHTML = '<i class="fa fa-envelope"></i> Insert in Email';
 							insertBtn.disabled = false;
 						}
@@ -1204,7 +1197,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					await sendInsert();
 				} catch (error) {
 					console.error('[Insert] Error in insert click handler:', error);
-					showPopupMessage('Error: ' + error.message);
+					showPopupMessage('Error: ' + error.message, { variant: 'error' });
 					insertBtn.innerHTML = '<i class="fa fa-envelope"></i> Insert in Email';
 					insertBtn.disabled = false;
 				} finally {
@@ -1284,9 +1277,9 @@ document.addEventListener('DOMContentLoaded', () => {
 							: 'copiedButton';
 					showShortcutNotification(notificationKey);
 				}
-				this.innerHTML = `<i class="fa fa-check"></i> ${chrome?.i18n.getMessage('copiedButton')}`;
+				this.innerHTML = `<i class="fa fa-check"></i> ${browser?.i18n.getMessage('copiedButton')}`;
 				setTimeout(() => {
-					this.innerHTML = `<i class="fa fa-copy"></i> ${chrome?.i18n.getMessage('copyReportButton')}`;
+					this.innerHTML = `<i class="fa fa-copy"></i> ${browser?.i18n.getMessage('copyReportButton')}`;
 				}, 2000);
 			} catch (err) {
 				console.error('Failed to copy: ', err);
@@ -1309,7 +1302,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			startDateInput.readOnly = false;
 			endDateInput.readOnly = false;
 
-			chrome?.storage.local.set({
+			browser?.storage.local.set({
 				yesterdayContribution: false,
 				selectedTimeframe: null,
 			});
@@ -1365,7 +1358,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				}
 
 				const org = orgInput.value.trim().toLowerCase();
-				chrome?.storage.local.set({ orgName: org });
+				browser?.storage.local.set({ orgName: org });
 
 				// Only validate if org name is not empty
 				if (org) {
@@ -1395,7 +1388,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 		if (userReasonInput) {
 			userReasonInput.addEventListener('input', () => {
-				chrome?.storage.local.set({ userReason: userReasonInput.value });
+				browser?.storage.local.set({ userReason: userReasonInput.value });
 			});
 		}
 		showOpenLabelCheckbox.addEventListener('change', () => {
@@ -1479,7 +1472,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			});
 		});
 		cacheInput.addEventListener('input', () => {
-			chrome?.storage.local.set({ cacheInput: cacheInput.value });
+			browser?.storage.local.set({ cacheInput: cacheInput.value });
 		});
 
 		// Display mode (popup / sidepanel)
@@ -1512,12 +1505,12 @@ document.addEventListener('DOMContentLoaded', () => {
 			});
 			displayModeSelect.addEventListener('change', () => {
 				const mode = displayModeSelect.value;
-				chrome?.storage.local.set({ displayMode: mode });
+				browser?.storage.local.set({ displayMode: mode });
 				// Show notice instead of applying immediately
 				const modeLabel = mode === 'popup' ? 'Popup' : 'Side Panel';
 				if (displayModeNotice && displayModeNoticeText) {
 					displayModeNoticeText.textContent =
-						chrome?.i18n.getMessage('displayModeNotice', [modeLabel]) ||
+						browser?.i18n.getMessage('displayModeNotice', [modeLabel]) ||
 						`The extension will open in ${modeLabel} mode on the next launch.`;
 					displayModeNotice.classList.remove('hidden');
 				}
@@ -1525,7 +1518,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 
 		yesterdayRadio.addEventListener('change', () => {
-			chrome?.storage.local.set({ yesterdayContribution: yesterdayRadio.checked });
+			browser?.storage.local.set({ yesterdayContribution: yesterdayRadio.checked });
 		});
 		startingDateInput.addEventListener('input', () => {
 			window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(startingDateInput, endingDateInput);
@@ -1603,7 +1596,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			if (!useRepoFilter.checked) {
 				useRepoFilter.checked = true;
 				repoFilterContainer.classList.remove('hidden');
-				chrome?.storage.local.set({ useRepoFilter: true });
+				browser?.storage.local.set({ useRepoFilter: true });
 			}
 		});
 	}
@@ -1620,9 +1613,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			// --- PLATFORM CHECK: Only run for GitHub ---
 			let platform = 'github';
 			try {
-				const items = await new Promise((resolve) => {
-					chrome?.storage.local.get(['platform'], resolve);
-				});
+				const items = await browser.storage.local.get(['platform']);
 				platform = items.platform || 'github';
 			} catch (e) {
 				console.error(
@@ -1634,7 +1625,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				// Do not run repo fetch for non-GitHub platforms
 				if (repoStatus)
 					repoStatus.textContent =
-						chrome?.i18n.getMessage('repoFilteringGithubOnly') || 'Repository filtering is only available for GitHub.';
+						browser?.i18n.getMessage('repoFilteringGithubOnly') || 'Repository filtering is only available for GitHub.';
 				return;
 			}
 			if (!useRepoFilter.checked) {
@@ -1642,16 +1633,12 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 
 			if (repoStatus) {
-				repoStatus.textContent = chrome?.i18n.getMessage('repoRefetching');
+				repoStatus.textContent = browser?.i18n.getMessage('repoRefetching');
 			}
 
 			try {
-				const cacheData = await new Promise((resolve) => {
-					chrome?.storage.local.get(['repoCache'], resolve);
-				});
-				const items = await new Promise((resolve) => {
-					chrome?.storage.local.get(['platform', 'githubUsername', 'githubToken', 'orgName'], resolve);
-				});
+				const cacheData = await browser.storage.local.get(['repoCache']);
+				const items = await browser.storage.local.get(['platform', 'githubUsername', 'githubToken', 'orgName']);
 
 				const platform = items.platform || 'github';
 				const platformUsernameKey = `${platform}Username`;
@@ -1659,7 +1646,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 				if (!username) {
 					if (repoStatus) {
-						repoStatus.textContent = chrome?.i18n.getMessage('usernameMissingError') || 'Username required';
+						repoStatus.textContent = browser?.i18n.getMessage('usernameMissingError') || 'Username required';
 					}
 					return;
 				}
@@ -1670,11 +1657,11 @@ document.addEventListener('DOMContentLoaded', () => {
 					availableRepos = repos;
 
 					if (repoStatus) {
-						repoStatus.textContent = chrome?.i18n.getMessage('repoLoaded', [repos.length]);
+						repoStatus.textContent = browser?.i18n.getMessage('repoLoaded', [repos.length]);
 					}
 
 					const repoCacheKey = `repos-${username}-${items.orgName || ''}`;
-					chrome?.storage.local.set({
+					browser?.storage.local.set({
 						repoCache: {
 							data: repos,
 							cacheKey: repoCacheKey,
@@ -1692,7 +1679,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				}
 			} catch (err) {
 				if (repoStatus) {
-					repoStatus.textContent = `${chrome?.i18n.getMessage('errorLabel')}: ${err.message || chrome?.i18n.getMessage('repoRefetchFailed')}`;
+					repoStatus.textContent = `${browser?.i18n.getMessage('errorLabel')}: ${err.message || browser?.i18n.getMessage('repoRefetchFailed')}`;
 				}
 			}
 		}
@@ -1724,9 +1711,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				// --- PLATFORM CHECK: Only run for GitHub ---
 				let platform = 'github';
 				try {
-					const items = await new Promise((resolve) => {
-						chrome?.storage.local.get(['platform'], resolve);
-					});
+					const items = await browser.storage.local.get(['platform']);
 					platform = items.platform || 'github';
 				} catch {}
 				if (platform !== 'github') {
@@ -1734,7 +1719,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					useRepoFilter.checked = false;
 					if (repoStatus)
 						repoStatus.textContent =
-							chrome?.i18n.getMessage('repoFilteringGithubOnly') ||
+							browser?.i18n.getMessage('repoFilteringGithubOnly') ||
 							'Repository filtering is only available for GitHub.';
 					return;
 				}
@@ -1759,29 +1744,25 @@ document.addEventListener('DOMContentLoaded', () => {
 				}
 				repoFilterContainer.classList.toggle('hidden', !enabled);
 
-				chrome?.storage.local.set({
+				browser?.storage.local.set({
 					useRepoFilter: enabled,
 					githubCache: null, //forces refresh
 				});
 				checkTokenForFilter();
 				if (enabled) {
 					repoStatus.textContent =
-						chrome?.i18n.getMessage('loadingReposAutomatically') || 'Loading repos automatically...';
+						browser?.i18n.getMessage('loadingReposAutomatically') || 'Loading repos automatically...';
 
 					try {
-						const cacheData = await new Promise((resolve) => {
-							chrome?.storage.local.get(['repoCache'], resolve);
-						});
-						const items = await new Promise((resolve) => {
-							chrome?.storage.local.get(['platform', 'githubUsername', 'githubToken', 'orgName'], resolve);
-						});
+						const cacheData = await browser.storage.local.get(['repoCache']);
+						const items = await browser.storage.local.get(['platform', 'githubUsername', 'githubToken', 'orgName']);
 
 						const platform = items.platform || 'github';
 						const platformUsernameKey = `${platform}Username`;
 						const username = items[platformUsernameKey];
 
 						if (!username) {
-							repoStatus.textContent = chrome?.i18n.getMessage('usernameMissingError') || 'Username required';
+							repoStatus.textContent = browser?.i18n.getMessage('usernameMissingError') || 'Username required';
 							return;
 						}
 
@@ -1796,7 +1777,7 @@ document.addEventListener('DOMContentLoaded', () => {
 						if (cacheData.repoCache && cacheData.repoCache.cacheKey === repoCacheKey && cacheAge < cacheTTL) {
 							console.log('Using cached repositories');
 							availableRepos = cacheData.repoCache.data;
-							repoStatus.textContent = chrome?.i18n.getMessage('repoLoaded', [availableRepos.length]);
+							repoStatus.textContent = browser?.i18n.getMessage('repoLoaded', [availableRepos.length]);
 
 							if (document.activeElement === repoSearch) {
 								filterAndDisplayRepos(repoSearch.value.toLowerCase());
@@ -1807,9 +1788,9 @@ document.addEventListener('DOMContentLoaded', () => {
 						if (window.fetchUserRepositories) {
 							const repos = await window.fetchUserRepositories(username, items.githubToken, items.orgName || '');
 							availableRepos = repos;
-							repoStatus.textContent = chrome?.i18n.getMessage('repoLoaded', [repos.length]);
+							repoStatus.textContent = browser?.i18n.getMessage('repoLoaded', [repos.length]);
 
-							chrome?.storage.local.set({
+							browser?.storage.local.set({
 								repoCache: {
 									data: repos,
 									cacheKey: repoCacheKey,
@@ -1825,17 +1806,17 @@ document.addEventListener('DOMContentLoaded', () => {
 						console.error('Auto load repos failed', err);
 
 						if (err.message?.includes('401')) {
-							repoStatus.textContent = chrome?.i18n.getMessage('repoTokenPrivate');
+							repoStatus.textContent = browser?.i18n.getMessage('repoTokenPrivate');
 						} else if (err.message?.includes('username')) {
-							repoStatus.textContent = chrome?.i18n.getMessage('githubUsernamePlaceholder');
+							repoStatus.textContent = browser?.i18n.getMessage('githubUsernamePlaceholder');
 						} else {
-							repoStatus.textContent = `${chrome?.i18n.getMessage('errorLabel')}: ${err.message || chrome?.i18n.getMessage('repoLoadFailed')}`;
+							repoStatus.textContent = `${browser?.i18n.getMessage('errorLabel')}: ${err.message || browser?.i18n.getMessage('repoLoadFailed')}`;
 						}
 					}
 				} else {
 					selectedRepos = [];
 					updateRepoDisplay();
-					chrome?.storage.local.set({ selectedRepos: [] });
+					browser?.storage.local.set({ selectedRepos: [] });
 					repoStatus.textContent = '';
 				}
 			}, 300),
@@ -1899,14 +1880,14 @@ document.addEventListener('DOMContentLoaded', () => {
 			let platform = 'github';
 			try {
 				const items = await new Promise((resolve) => {
-					chrome?.storage.local.get(['platform'], resolve);
+					browser?.storage.local.get(['platform'], resolve);
 				});
 				platform = items.platform || 'github';
 			} catch {}
 			if (platform !== 'github') {
 				if (repoStatus)
 					repoStatus.textContent =
-						chrome?.i18n.getMessage('repoLoadingGithubOnly') || 'Repository loading is only available for GitHub.';
+						browser?.i18n.getMessage('repoLoadingGithubOnly') || 'Repository loading is only available for GitHub.';
 				return;
 			}
 			console.log('window.fetchUserRepositories exists:', !!window.fetchUserRepositories);
@@ -1931,7 +1912,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				});
 
 				if (!username) {
-					repoStatus.textContent = chrome?.i18n.getMessage('usernameMissingError') || 'Username required';
+					repoStatus.textContent = browser?.i18n.getMessage('usernameMissingError') || 'Username required';
 					return;
 				}
 
@@ -1949,19 +1930,19 @@ document.addEventListener('DOMContentLoaded', () => {
 			if (platform !== 'github') {
 				if (repoStatus)
 					repoStatus.textContent =
-						chrome?.i18n.getMessage('repoFetchingGithubOnly') || 'Repository fetching is only available for GitHub.';
+						browser?.i18n.getMessage('repoFetchingGithubOnly') || 'Repository fetching is only available for GitHub.';
 				return;
 			}
 			console.log('[POPUP-DEBUG] performRepoFetch called.');
-			repoStatus.textContent = chrome?.i18n.getMessage('repoLoading');
+			repoStatus.textContent = browser?.i18n.getMessage('repoLoading');
 			repoSearch.classList.add('repository-search-loading');
 
 			try {
 				const cacheData = await new Promise((resolve) => {
-					chrome?.storage.local.get(['repoCache'], resolve);
+					browser?.storage.local.get(['repoCache'], resolve);
 				});
 				const storageItems = await new Promise((resolve) => {
-					chrome?.storage.local.get(['platform', 'githubUsername', 'githubToken', 'orgName'], resolve);
+					browser?.storage.local.get(['platform', 'githubUsername', 'githubToken', 'orgName'], resolve);
 				});
 				const platform = storageItems.platform || 'github';
 				const platformUsernameKey = `${platform}Username`;
@@ -1984,7 +1965,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				if (cacheData.repoCache && cacheData.repoCache.cacheKey === repoCacheKey && cacheAge < cacheTTL) {
 					console.log('[POPUP-DEBUG] Using cached repositories in manual fetch');
 					availableRepos = cacheData.repoCache.data;
-					repoStatus.textContent = chrome?.i18n.getMessage('repoLoaded', [availableRepos.length]);
+					repoStatus.textContent = browser?.i18n.getMessage('repoLoaded', [availableRepos.length]);
 
 					if (document.activeElement === repoSearch) {
 						filterAndDisplayRepos(repoSearch.value.toLowerCase());
@@ -1997,10 +1978,10 @@ document.addEventListener('DOMContentLoaded', () => {
 					storageItems.githubToken,
 					storageItems.orgName || '',
 				);
-				repoStatus.textContent = chrome?.i18n.getMessage('repoLoaded', [availableRepos.length]);
+				repoStatus.textContent = browser?.i18n.getMessage('repoLoaded', [availableRepos.length]);
 				console.log(`[POPUP-DEBUG] Fetched and loaded ${availableRepos.length} repos.`);
 
-				chrome?.storage.local.set({
+				browser?.storage.local.set({
 					repoCache: {
 						data: availableRepos,
 						cacheKey: repoCacheKey,
@@ -2015,11 +1996,11 @@ document.addEventListener('DOMContentLoaded', () => {
 				console.error(`Failed to load repos:`, err);
 
 				if (err.message && err.message.includes('401')) {
-					repoStatus.textContent = chrome?.i18n.getMessage('repoTokenPrivate');
+					repoStatus.textContent = browser?.i18n.getMessage('repoTokenPrivate');
 				} else if (err.message && err.message.includes('username')) {
-					repoStatus.textContent = chrome?.i18n.getMessage('githubUsernamePlaceholder');
+					repoStatus.textContent = browser?.i18n.getMessage('githubUsernamePlaceholder');
 				} else {
-					repoStatus.textContent = `${chrome?.i18n.getMessage('errorLabel')}: ${err.message || chrome?.i18n.getMessage('repoLoadFailed')}`;
+					repoStatus.textContent = `${browser?.i18n.getMessage('errorLabel')}: ${err.message || browser?.i18n.getMessage('repoLoadFailed')}`;
 				}
 			} finally {
 				repoSearch.classList.remove('repository-search-loading');
@@ -2202,7 +2183,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		function saveRepoSelection() {
 			const cleanedRepos = selectedRepos.filter((repo) => repo !== null);
-			chrome?.storage.local.set({
+			browser?.storage.local.set({
 				selectedRepos: cleanedRepos,
 				githubCache: null,
 			});
@@ -2407,7 +2388,8 @@ document.addEventListener('DOMContentLoaded', () => {
 				}
 
 				if (platform !== 'gitlab') {
-					if (gitlabProjectStatus) gitlabProjectStatus.textContent = chrome?.i18n.getMessage('gitlabProjectOnlyGitLab');
+					if (gitlabProjectStatus)
+						gitlabProjectStatus.textContent = browser?.i18n.getMessage('gitlabProjectOnlyGitLab');
 					return;
 				}
 
@@ -2417,7 +2399,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				}
 
 				if (gitlabProjectStatus) {
-					gitlabProjectStatus.textContent = chrome?.i18n.getMessage('gitlabProjectFetching');
+					gitlabProjectStatus.textContent = browser?.i18n.getMessage('gitlabProjectFetching');
 				}
 
 				try {
@@ -2427,7 +2409,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 					if (!username) {
 						if (gitlabProjectStatus) {
-							gitlabProjectStatus.textContent = chrome?.i18n.getMessage('gitlabProjectUsernameRequired');
+							gitlabProjectStatus.textContent = browser?.i18n.getMessage('gitlabProjectUsernameRequired');
 						}
 						return;
 					}
@@ -2437,7 +2419,7 @@ document.addEventListener('DOMContentLoaded', () => {
 						availableGitlabProjects = projects || [];
 
 						if (gitlabProjectStatus) {
-							gitlabProjectStatus.textContent = chrome?.i18n.getMessage('gitlabProjectLoaded', [
+							gitlabProjectStatus.textContent = browser?.i18n.getMessage('gitlabProjectLoaded', [
 								String(availableGitlabProjects.length),
 							]);
 						}
@@ -2446,11 +2428,11 @@ document.addEventListener('DOMContentLoaded', () => {
 					console.error('Auto load GitLab projects failed', err);
 					if (gitlabProjectStatus) {
 						if (err && err.message && err.message.includes('401')) {
-							gitlabProjectStatus.textContent = chrome?.i18n.getMessage('gitlabProjectTokenRequired');
+							gitlabProjectStatus.textContent = browser?.i18n.getMessage('gitlabProjectTokenRequired');
 						} else if (err && err.message && err.message.includes('username')) {
-							gitlabProjectStatus.textContent = chrome?.i18n.getMessage('gitlabProjectUsernameRequired');
+							gitlabProjectStatus.textContent = browser?.i18n.getMessage('gitlabProjectUsernameRequired');
 						} else {
-							gitlabProjectStatus.textContent = `Error: ${err && err.message ? err.message : chrome?.i18n.getMessage('gitlabProjectLoadFailed')}`;
+							gitlabProjectStatus.textContent = `Error: ${err && err.message ? err.message : browser?.i18n.getMessage('gitlabProjectLoadFailed')}`;
 						}
 					}
 				}
@@ -2458,7 +2440,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				// Catch any unexpected errors in the outer function scope
 				console.error('triggerGitLabProjectFetchIfEnabled failed', outerErr);
 				if (gitlabProjectStatus) {
-					gitlabProjectStatus.textContent = `Error: ${outerErr && outerErr.message ? outerErr.message : chrome?.i18n.getMessage('gitlabProjectLoadFailed')}`;
+					gitlabProjectStatus.textContent = `Error: ${outerErr && outerErr.message ? outerErr.message : browser?.i18n.getMessage('gitlabProjectLoadFailed')}`;
 				}
 			}
 		}
@@ -2560,12 +2542,12 @@ document.addEventListener('DOMContentLoaded', () => {
 				console.error('Failed to retrieve platform from browser.storage.local, defaulting to "github".', e);
 			}
 			if (platform !== 'gitlab') {
-				if (gitlabProjectStatus) gitlabProjectStatus.textContent = chrome?.i18n.getMessage('gitlabProjectOnlyGitLab');
+				if (gitlabProjectStatus) gitlabProjectStatus.textContent = browser?.i18n.getMessage('gitlabProjectOnlyGitLab');
 				return;
 			}
 
 			if (!window.fetchUserProjects) {
-				gitlabProjectStatus.textContent = chrome?.i18n.getMessage('gitlabProjectFetchNotAvailable');
+				gitlabProjectStatus.textContent = browser?.i18n.getMessage('gitlabProjectFetchNotAvailable');
 				return;
 			}
 
@@ -2574,14 +2556,14 @@ document.addEventListener('DOMContentLoaded', () => {
 				const username = items.gitlabUsername;
 
 				if (!username) {
-					gitlabProjectStatus.textContent = chrome?.i18n.getMessage('gitlabProjectUsernameRequired');
+					gitlabProjectStatus.textContent = browser?.i18n.getMessage('gitlabProjectUsernameRequired');
 					return;
 				}
 
 				await performGitLabProjectFetch();
 			} catch (e) {
 				console.error('[GitLab Projects] Error loading from storage:', e);
-				gitlabProjectStatus.textContent = chrome?.i18n.getMessage('gitlabProjectFetchError');
+				gitlabProjectStatus.textContent = browser?.i18n.getMessage('gitlabProjectFetchError');
 			}
 		}
 
@@ -2594,11 +2576,11 @@ document.addEventListener('DOMContentLoaded', () => {
 				console.error('Failed to retrieve platform from browser.storage.local, defaulting to "github".', e);
 			}
 			if (platform !== 'gitlab') {
-				if (gitlabProjectStatus) gitlabProjectStatus.textContent = chrome?.i18n.getMessage('gitlabProjectOnlyGitLab');
+				if (gitlabProjectStatus) gitlabProjectStatus.textContent = browser?.i18n.getMessage('gitlabProjectOnlyGitLab');
 				return;
 			}
 
-			gitlabProjectStatus.textContent = chrome?.i18n.getMessage('gitlabProjectLoading');
+			gitlabProjectStatus.textContent = browser?.i18n.getMessage('gitlabProjectLoading');
 			gitlabProjectSearch.classList.add('repository-search-loading');
 
 			try {
@@ -2606,7 +2588,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				const username = storageItems.gitlabUsername;
 
 				if (!username) {
-					gitlabProjectStatus.textContent = chrome?.i18n.getMessage('gitlabProjectUsernameRequired');
+					gitlabProjectStatus.textContent = browser?.i18n.getMessage('gitlabProjectUsernameRequired');
 					gitlabProjectSearch.classList.remove('repository-search-loading');
 					return;
 				}
@@ -2614,7 +2596,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				if (window.fetchUserProjects) {
 					const projects = await window.fetchUserProjects(username, storageItems.gitlabToken);
 					availableGitlabProjects = projects;
-					gitlabProjectStatus.textContent = chrome?.i18n.getMessage('gitlabProjectLoaded', [String(projects.length)]);
+					gitlabProjectStatus.textContent = browser?.i18n.getMessage('gitlabProjectLoaded', [String(projects.length)]);
 					gitlabProjectSearch.classList.remove('repository-search-loading');
 
 					if (document.activeElement === gitlabProjectSearch) {
@@ -2626,11 +2608,11 @@ document.addEventListener('DOMContentLoaded', () => {
 				gitlabProjectSearch.classList.remove('repository-search-loading');
 
 				if (err.message && err.message.includes('401')) {
-					gitlabProjectStatus.textContent = chrome?.i18n.getMessage('gitlabProjectTokenRequired');
+					gitlabProjectStatus.textContent = browser?.i18n.getMessage('gitlabProjectTokenRequired');
 				} else if (err.message && err.message.includes('username')) {
-					gitlabProjectStatus.textContent = chrome?.i18n.getMessage('gitlabProjectUsernameRequired');
+					gitlabProjectStatus.textContent = browser?.i18n.getMessage('gitlabProjectUsernameRequired');
 				} else {
-					gitlabProjectStatus.textContent = `Error: ${err && err.message ? err.message : chrome?.i18n.getMessage('gitlabProjectLoadFailed')}`;
+					gitlabProjectStatus.textContent = `Error: ${err && err.message ? err.message : browser?.i18n.getMessage('gitlabProjectLoadFailed')}`;
 				}
 			}
 		}
@@ -2640,7 +2622,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				gitlabProjectDropdown.textContent = '';
 				const noProjDiv = document.createElement('div');
 				noProjDiv.className = 'p-3 text-gray-500 text-sm';
-				noProjDiv.textContent = chrome?.i18n.getMessage('gitlabProjectNoneAvailable');
+				noProjDiv.textContent = browser?.i18n.getMessage('gitlabProjectNoneAvailable');
 				gitlabProjectDropdown.appendChild(noProjDiv);
 				showGitLabProjectDropdown();
 				if (!gitlabProjectClickListenerAttached) {
@@ -2674,7 +2656,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				gitlabProjectDropdown.textContent = '';
 				const noMatchDiv = document.createElement('div');
 				noMatchDiv.className = 'p-3 text-gray-500 text-sm';
-				noMatchDiv.textContent = chrome?.i18n.getMessage('gitlabProjectNoMatch');
+				noMatchDiv.textContent = browser?.i18n.getMessage('gitlabProjectNoMatch');
 				gitlabProjectDropdown.appendChild(noMatchDiv);
 				showGitLabProjectDropdown();
 				return;

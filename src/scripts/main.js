@@ -1,3 +1,19 @@
+globalThis.browser = globalThis.browser ||
+	globalThis.chrome || {
+		storage: {
+			local: {
+				get: () => Promise.resolve({}),
+				set: () => Promise.resolve(),
+				remove: () => Promise.resolve(),
+			},
+		},
+		i18n: { getMessage: (key) => key },
+		tabs: {
+			query: () => Promise.resolve([]),
+			sendMessage: () => Promise.resolve(),
+		},
+	};
+
 const platformUsernameElement = document.getElementById('platformUsername');
 const githubTokenElement = document.getElementById('githubToken');
 const gitlabTokenElement = document.getElementById('gitlabToken');

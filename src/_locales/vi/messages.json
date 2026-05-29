@@ -108,8 +108,7 @@
         "message": "Nếu được chọn, báo cáo chỉ bao gồm các pull request do người dùng tạo; các PR đã được xem xét sẽ bị loại trừ."
     },
     "cacheTTLLabel": {
-        "message": "Nhập TTL bộ nhớ cache",
-        "description": "Nhãn cho đầu vào thời gian tồn tại của bộ nhớ cache."
+        "message": "Nhập TTL bộ nhớ cache"
     },
     "cacheTTLUnit": {
         "message": "(tính bằng phút)"
@@ -154,20 +153,16 @@
         "message": "0 kho lưu trữ đã chọn"
     },
     "gitlabProjectCountNone": {
-        "message": "0 projects selected",
-        "description": "Text showing the count of selected GitLab projects when it's zero."
+        "message": "0 projects selected"
     },
     "gitlabProjectPlaceholder": {
-        "message": "No projects selected (all will be included)",
-        "description": "Placeholder text when no GitLab projects are selected for filtering."
+        "message": "No projects selected (all will be included)"
     },
     "gitlabProjectCount": {
-        "message": "$1 projects selected",
-        "description": "Text showing the count of selected GitLab projects. $1 is a placeholder for the number."
+        "message": "$1 projects selected"
     },
     "gitlabProjectSearchPlaceholder": {
-        "message": "Search projects",
-        "description": "Placeholder/title for the GitLab project search input."
+        "message": "Search projects"
     },
     "repoCount": {
         "message": "$1 kho lưu trữ đã chọn"
@@ -248,52 +243,40 @@
         "message": "Tên người dùng của bạn"
     },
     "testTokenButton": {
-        "message": "Test Token",
-        "description": "Button text to test/validate a GitLab token."
+        "message": "Test Token"
     },
     "clearTokenButton": {
-        "message": "Clear Token",
-        "description": "Button text to clear the stored token."
+        "message": "Clear Token"
     },
     "confirmClearToken": {
-        "message": "Are you sure you want to clear the GitLab token?",
-        "description": "Confirmation message before clearing the token."
+        "message": "Are you sure you want to clear the GitLab token?"
     },
     "testingTokenButton": {
-        "message": "Testing...",
-        "description": "Button text while token validation is in progress."
+        "message": "Testing..."
     },
     "tokenValidButton": {
-        "message": "Valid!",
-        "description": "Button text when token is validated successfully."
+        "message": "Valid!"
     },
     "tokenInvalidButton": {
-        "message": "Invalid",
-        "description": "Button text when token validation fails."
+        "message": "Invalid"
     },
     "gitlabGroupLabel": {
-        "message": "Nhóm GitLab của bạn",
-        "description": "Label for the GitLab group input."
+        "message": "Nhóm GitLab của bạn"
     },
     "gitlabGroupPlaceholder": {
-        "message": "Nhập tên nhóm GitLab",
-        "description": "Placeholder for the GitLab group input."
+        "message": "Nhập tên nhóm GitLab"
     },
     "gitlabGroupTooltip": {
-        "message": "<b>Hoạt động của nhóm GitLab nào?</b><br>Nhập tên nhóm GitLab để lấy hoạt động. Để trống để lấy tất cả hoạt động GitLab của bạn trong tất cả các nhóm. Tên nhóm không phân biệt chữ hoa chữ thường.",
-        "description": "Tooltip explaining GitLab group filtering."
+        "message": "<b>Hoạt động của nhóm GitLab nào?</b><br>Nhập tên nhóm GitLab để lấy hoạt động. Để trống để lấy tất cả hoạt động GitLab của bạn trong tất cả các nhóm. Tên nhóm không phân biệt chữ hoa chữ thường."
     },
     "gitlabProjectFilterLabel": {
-        "message": "Lọc theo dự án",
-        "description": "Label for GitLab project filter."
+        "message": "Lọc theo dự án"
     },
     "gitlabProjectFilterTooltip": {
-        "message": "Cần mã thông báo GitLab.<br>Để buộc cập nhật danh sách dự án, <br>nhấp vào nút Làm mới dữ liệu.",
-        "description": "Tooltip for GitLab project filter."
+        "message": "Cần mã thông báo GitLab.<br>Để buộc cập nhật danh sách dự án, <br>nhấp vào nút Làm mới dữ liệu."
     },
     "gitlabTokenRequiredWarning": {
-        "message": "Cần mã thông báo GitLab để lọc dự án. Vui lòng thêm một mã trong cài đặt.",
-        "description": "Warning message when GitLab token is missing for project filtering."
+        "message": "Cần mã thông báo GitLab để lọc dự án. Vui lòng thêm một mã trong cài đặt."
     },
     "onlyRevPRsLabel": {
         "message": "Chỉ bao gồm các PR bạn đã xem xét trong báo cáo"
@@ -311,8 +294,7 @@
         "message": "Cần có mã thông báo GitHub để lọc theo các PR đã hợp nhất. Vui lòng thêm một mã trong cài đặt."
     },
     "usernameRequiredError": {
-        "message": "Vui lòng nhập tên người dùng của bạn để tạo báo cáo.",
-        "description": "Error message shown when the user tries to generate a report without entering a username."
+        "message": "Vui lòng nhập tên người dùng của bạn để tạo báo cáo."
     },
     "unknownPlatformError": {
         "message": "Đã chọn nền tảng không xác định."
