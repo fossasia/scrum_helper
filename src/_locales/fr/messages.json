@@ -59,6 +59,9 @@
     "insertInEmailButton": {
         "message": "Insérer dans l’e-mail"
     },
+    "insertToEmailFailedError": {
+        "message": "Ouvrez un onglet de messagerie pour insérer le rapport"
+    },
     "settingsOrgNameLabel": {
         "message": "Nom de l'organisation"
     },
@@ -105,8 +108,7 @@
         "message": "Si coché, le rapport n'inclura que les pull requests créées par l'utilisateur ; les pull requests revues seront exclues."
     },
     "cacheTTLLabel": {
-        "message": "Entrez le TTL du cache",
-        "description": "Étiquette pour le champ de saisie de la durée de vie du cache."
+        "message": "Entrez le TTL du cache"
     },
     "cacheTTLUnit": {
         "message": "(en minutes)"
@@ -137,6 +139,9 @@
     },
     "tokenRequiredWarning": {
         "message": "Un jeton GitHub est requis pour filtrer les dépôts. Veuillez en ajouter un dans les paramètres."
+    },
+    "tokenRequiredShowCommitsWarning": {
+        "message": "Un jeton GitHub est requis pour afficher les commits sur les PR ouvertes ou brouillons. Veuillez en ajouter un dans les paramètres."
     },
     "repoSearchPlaceholder": {
         "message": "Rechercher un dépôt à ajouter..."
@@ -208,8 +213,7 @@
         "message": "Cache vidé avec succès. Cliquez sur 'Générer le rapport' pour récupérer des données fraîches."
     },
     "cacheExpiredMessage": {
-        "message": "Le cache a expiré. Cliquez sur \"Générer\" pour récupérer des données fraîches.",
-        "description": "Message shown when the cached data has expired and user needs to regenerate."
+        "message": "Le cache a expiré. Cliquez sur \"Générer\" pour récupérer des données fraîches."
     },
     "cacheClearedButton": {
         "message": "Cache vidé !"
@@ -235,69 +239,78 @@
     "onlyRevPRsTooltip": {
         "message": "Si coché, le rapport n'inclura que les PRs que vous avez revues."
     },
-    	"usernameRequiredError": {
-		"message": "Veuillez saisir votre nom d'utilisateur pour générer un rapport."
-	},
-	"unknownPlatformError": {
-		"message": "Plateforme inconnue sélectionnée."
-	},
-	"gitlabFetchingError": {
-		"message": "Une erreur s'est produite lors de la récupération des données GitLab."
-	},
-	"reportGenerationError": {
-		"message": "Une erreur s'est produite lors de la génération du rapport."
-	},
-	"githubUserNotFoundError": {
-		"message": "Utilisateur GitHub \"$1\" introuvable (404). Veuillez vérifier le nom d'utilisateur et réessayer."
-	},
-	"githubUserValidationError": {
-		"message": "Erreur lors de la validation de l'utilisateur GitHub : $1 $2"
-	},
-	"invalidSearchQueryError": {
-		"message": "Requête de recherche ou plage de dates invalide. Veuillez vérifier le format de votre plage de dates et réessayer."
-	},
-	"githubIssuesFetchError": {
-		"message": "Erreur lors de la récupération des issues GitHub : $1 $2"
-	},
-	"githubPRReviewFetchError": {
-		"message": "Erreur lors de la récupération des données de révision de PR GitHub : $1 $2"
-	},
-	"githubUserFetchError": {
-		"message": "Erreur lors de la récupération des données utilisateur GitHub : $1 $2"
-	},
-	"invalidTokenError": {
-		"message": "Jeton GitHub invalide ou expiré. Veuillez vérifier votre jeton dans les paramètres de Scrum Helper et réessayer."
-	},
-	"displayModeNotice": {
-		"message": "L'extension s'ouvrira en mode $1 au prochain lancement."
-	},
-	"repoFilteringGithubOnly": {
-		"message": "Le filtrage des dépôts est uniquement disponible pour GitHub."
-	},
-	"repoLoadingGithubOnly": {
-		"message": "Le chargement des dépôts est uniquement disponible pour GitHub."
-	},
-	"repoFetchingGithubOnly": {
-		"message": "La récupération des dépôts est uniquement disponible pour GitHub."
-	},
-	"loadingReposAutomatically": {
-		"message": "Chargement automatique des dépôts.."
-	},
-	"gitlabUserFetchError": {
-		"message": "Erreur lors de la récupération de l'utilisateur GitLab : $1 $2"
-	},
-	"gitlabUserNotFoundError": {
-		"message": "Utilisateur GitLab '$1' introuvable"
-	},
-	"gitlabMembershipError": {
-		"message": "Erreur lors de la récupération des projets d'adhésion GitLab : $1 $2"
-	},
-	"gitlabContributedError": {
-		"message": "Erreur lors de la récupération des projets auxquels l'utilisateur a contribué sur GitLab : $1 $2"
-	},
-	"usernameMissingError": {
-		"message": "Nom d'utilisateur requis."
-	},
+    "onlyMergedPRsLabel": {
+        "message": "Inclure uniquement les PR fusionnées dans le rapport"
+    },
+    "onlyMergedPRsTooltip": {
+        "message": "Si coché, le rapport n'inclura que les PR fusionnées. Un jeton GitHub est requis."
+    },
+    "tokenRequiredMergedPRsWarning": {
+        "message": "Un jeton GitHub est requis pour filtrer par PR fusionnées. Veuillez en ajouter un dans les paramètres."
+    },
+    "usernameRequiredError": {
+        "message": "Veuillez saisir votre nom d'utilisateur pour générer un rapport."
+    },
+    "unknownPlatformError": {
+        "message": "Plateforme inconnue sélectionnée."
+    },
+    "gitlabFetchingError": {
+        "message": "Une erreur s'est produite lors de la récupération des données GitLab."
+    },
+    "reportGenerationError": {
+        "message": "Une erreur s'est produite lors de la génération du rapport."
+    },
+    "githubUserNotFoundError": {
+        "message": "Utilisateur GitHub \"$1\" introuvable (404). Veuillez vérifier le nom d'utilisateur et réessayer."
+    },
+    "githubUserValidationError": {
+        "message": "Erreur lors de la validation de l'utilisateur GitHub : $1 $2"
+    },
+    "invalidSearchQueryError": {
+        "message": "Requête de recherche ou plage de dates invalide. Veuillez vérifier le format de votre plage de dates et réessayer."
+    },
+    "githubIssuesFetchError": {
+        "message": "Erreur lors de la récupération des issues GitHub : $1 $2"
+    },
+    "githubPRReviewFetchError": {
+        "message": "Erreur lors de la récupération des données de révision de PR GitHub : $1 $2"
+    },
+    "githubUserFetchError": {
+        "message": "Erreur lors de la récupération des données utilisateur GitHub : $1 $2"
+    },
+    "invalidTokenError": {
+        "message": "Jeton GitHub invalide ou expiré. Veuillez vérifier votre jeton dans les paramètres de Scrum Helper et réessayer."
+    },
+    "displayModeNotice": {
+        "message": "L'extension s'ouvrira en mode $1 au prochain lancement."
+    },
+    "repoFilteringGithubOnly": {
+        "message": "Le filtrage des dépôts est uniquement disponible pour GitHub."
+    },
+    "repoLoadingGithubOnly": {
+        "message": "Le chargement des dépôts est uniquement disponible pour GitHub."
+    },
+    "repoFetchingGithubOnly": {
+        "message": "La récupération des dépôts est uniquement disponible pour GitHub."
+    },
+    "loadingReposAutomatically": {
+        "message": "Chargement automatique des dépôts.."
+    },
+    "gitlabUserFetchError": {
+        "message": "Erreur lors de la récupération de l'utilisateur GitLab : $1 $2"
+    },
+    "gitlabUserNotFoundError": {
+        "message": "Utilisateur GitLab '$1' introuvable"
+    },
+    "gitlabMembershipError": {
+        "message": "Erreur lors de la récupération des projets d'adhésion GitLab : $1 $2"
+    },
+    "gitlabContributedError": {
+        "message": "Erreur lors de la récupération des projets auxquels l'utilisateur a contribué sur GitLab : $1 $2"
+    },
+    "usernameMissingError": {
+        "message": "Nom d'utilisateur requis."
+    },
     "generateReportTooltip": {
         "message": "Ctrl+G"
     },
@@ -310,6 +323,9 @@
     "copyingReportNotification": {
         "message": "Copie du rapport..."
     },
+    "copiedReportNotification": {
+        "message": "Rapport copié !"
+    },
     "insertInEmailTooltip": {
         "message": "Ctrl+Shift+M"
     },
@@ -318,5 +334,5 @@
     },
     "insertedInEmailNotification": {
         "message": "Rapport inséré dans l'e-mail !"
-   }
+    }
 }
