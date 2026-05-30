@@ -57,8 +57,10 @@
         "message": "Копіювати звіт"
     },
     "insertInEmailButton": {
-        "message": "Вставити в електронний лист",
-        "description": "Text for the 'Insert to Email' button."
+        "message": "Вставити в електронний лист"
+    },
+    "insertToEmailFailedError": {
+        "message": "Відкрийте вкладку електронної пошти, щоб вставити звіт"
     },
     "settingsOrgNameLabel": {
         "message": "Назва організації"
@@ -138,6 +140,9 @@
     "tokenRequiredWarning": {
         "message": "Для фільтрації репозиторіїв потрібен токен GitHub. Будь ласка, додайте його в налаштуваннях."
     },
+    "tokenRequiredShowCommitsWarning": {
+        "message": "Для відображення комітів у відкритих або чернеткових PR потрібен токен GitHub. Додайте його в налаштуваннях."
+    },
     "repoSearchPlaceholder": {
         "message": "Шукати репозиторій для додавання..."
     },
@@ -205,8 +210,7 @@
         "message": "Кеш успішно очищено. Натисніть 'Створити звіт', щоб отримати свіжі дані."
     },
     "cacheExpiredMessage": {
-        "message": "Кеш закінчився. Натисніть \"Створити\", щоб отримати нові дані.",
-        "description": "Message shown when the cached data has expired and user needs to regenerate."
+        "message": "Кеш закінчився. Натисніть \"Створити\", щоб отримати нові дані."
     },
     "cacheClearedButton": {
         "message": "Кеш очищено!"
@@ -225,6 +229,21 @@
     },
     "usernameLabel": {
         "message": "Ваше ім'я користувача"
+    },
+    "onlyRevPRsLabel": {
+        "message": "Включати до звіту лише переглянуті PR"
+    },
+    "onlyRevPRsTooltip": {
+        "message": "Якщо позначено, звіт включатиме лише PR, переглянуті вами."
+    },
+    "onlyMergedPRsLabel": {
+        "message": "Включати у звіт тільки об'єднані (merged) PR"
+    },
+    "onlyMergedPRsTooltip": {
+        "message": "Якщо позначено, звіт буде включати тільки об'єднані PR. Потрібен токен GitHub."
+    },
+    "tokenRequiredMergedPRsWarning": {
+        "message": "Для фільтрації за об'єднаними PR потрібен токен GitHub. Додайте його в налаштуваннях."
     },
     "usernameRequiredError": {
         "message": "Будь ласка, введіть ім'я користувача для створення звіту."
@@ -286,12 +305,6 @@
     "gitlabContributedError": {
         "message": "Помилка під час отримання проектів з внеском GitLab: $1 $2"
     },
-    "onlyRevPRsLabel": {
-        "message": "Включати до звіту лише переглянуті PR"
-    },
-    "onlyRevPRsTooltip": {
-        "message": "Якщо позначено, звіт включатиме лише PR, переглянуті вами."
-    },
     "usernameMissingError": {
         "message": "Потрібне ім'я користувача."
     },
@@ -306,6 +319,9 @@
     },
     "copyingReportNotification": {
         "message": "Копіювання звіту..."
+    },
+    "copiedReportNotification": {
+        "message": "Звіт скопійовано!"
     },
     "insertInEmailTooltip": {
         "message": "Ctrl+Shift+M"

@@ -444,6 +444,27 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	window.updateGenerateButtonState = updateGenerateButtonState;
+	window.updateCopyButtonState = updateCopyButtonState;
+
+	function updateCopyButtonState() {
+		const copyBtn = document.getElementById('copyReport');
+		const scrumReport = document.getElementById('scrumReport');
+		if (!copyBtn || !scrumReport) {
+			return;
+		}
+
+		const textContent = scrumReport.textContent;
+		const cacheClearedText =
+			(typeof browser !== 'undefined' && browser.i18n ? browser.i18n.getMessage('cacheClearedMessage') : null) ||
+			(typeof chrome !== 'undefined' && chrome.i18n ? chrome.i18n.getMessage('cacheClearedMessage') : null) ||
+			'Cache cleared successfully. Click "Generate" to fetch fresh data.';
+
+		if (textContent === cacheClearedText) {
+			scrumReport.dataset.copyPlaceholder = 'true';
+		}
+
+		copyBtn.disabled = scrumReport.dataset.copyPlaceholder === 'true' || !scrumReport.textContent.trim();
+	}
 
 	async function bootstrapScrumReportOnPopupLoad(generateBtn) {
 		console.log('[BOOTSTRAP] bootstrapScrumReportOnPopupLoad called');
@@ -526,26 +547,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
 				if (reportEmpty && lastScrumReportHtml && matches) {
 					scrumReport.innerHTML = sanitizeHtml(lastScrumReportHtml);
+					delete scrumReport.dataset.copyPlaceholder;
+					updateCopyButtonState();
 					if (generateBtn) generateBtn.disabled = false;
 					return;
 				}
 
-				setGenerateButtonLoading(generateBtn, true);
-				window.generateScrumReport();
+				if (generateBtn) setGenerateButtonLoading(generateBtn, true);
+				if (typeof window.generateScrumReport === 'function') window.generateScrumReport();
 				return;
 			}
 
 			// If cache is expired, still only show the old HTML if it was for the current username
 			if ((!scrumReport.innerHTML || !scrumReport.innerHTML.trim()) && lastScrumReportHtml && isUsernameMatch) {
 				scrumReport.innerHTML = sanitizeHtml(lastScrumReportHtml);
+				delete scrumReport.dataset.copyPlaceholder;
+				updateCopyButtonState();
 			}
 
-			if (generateBtn) generateBtn.disabled = false;
+			if (generateBtn) setGenerateButtonLoading(generateBtn, true);
+			if (typeof window.generateScrumReport === 'function') window.generateScrumReport();
 			return;
 		}
 
-		setGenerateButtonLoading(generateBtn, true);
-		window.generateScrumReport();
+		if (generateBtn) setGenerateButtonLoading(generateBtn, true);
+		if (typeof window.generateScrumReport === 'function') window.generateScrumReport();
 	}
 
 	function initializePopup() {
@@ -668,6 +694,18 @@ document.addEventListener('DOMContentLoaded', () => {
 		const copyBtn = document.getElementById('copyReport');
 		const insertBtn = document.getElementById('insertInEmail');
 
+		updateCopyButtonState();
+
+		const scrumReportEl = document.getElementById('scrumReport');
+		if (scrumReportEl) {
+			scrumReportEl.addEventListener('input', () => {
+				if (scrumReportEl.dataset.copyPlaceholder === 'true') {
+					delete scrumReportEl.dataset.copyPlaceholder;
+				}
+				updateCopyButtonState();
+			});
+		}
+
 		if (insertBtn) {
 			insertBtn.addEventListener('click', () => {
 				const scrumReport = document.getElementById('scrumReport');
@@ -746,8 +784,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		copyBtn.addEventListener('click', function () {
 			const scrumReport = document.getElementById('scrumReport');
+			if (!scrumReport) {
+				this._triggeredByShortcut = false;
+				return;
+			}
+			if (scrumReport.dataset.copyPlaceholder === 'true') {
+				this._triggeredByShortcut = false;
+				return;
+			}
+			const reportHtml = sanitizeHtml(scrumReport.innerHTML);
 			const tempDiv = document.createElement('div');
-			tempDiv.innerHTML = sanitizeHtml(scrumReport.innerHTML);
+			tempDiv.innerHTML = reportHtml;
+			if (!(tempDiv.textContent || '').trim()) {
+				this._triggeredByShortcut = false;
+				return;
+			}
 
 			const darkMode = document.body.classList.contains('dark-mode');
 
@@ -1539,35 +1590,71 @@ document.addEventListener('DOMContentLoaded', () => {
 				return repo.name.toLowerCase().includes(query) || repo.description?.toLowerCase().includes(query);
 			});
 
-			if (filtered.length === 0) {
-				repoDropdown.innerHTML = `<div class="p-3 text-center text-gray-500 text-sm" style="padding-left: 10px; ">${browser.i18n.getMessage('repoNotFound')}</div>`;
-			} else {
-				repoDropdown.innerHTML = sanitizeHtml(
-					filtered
-						.slice(0, 10)
-						.map(
-							(repo) => `
-                    <div class="repository-dropdown-item" data-repo-name="${repo.fullName}">
-                        <div class="repo-name">
-                            <span>${repo.name}</span>
-                            ${repo.language ? `<span class="repo-language">${repo.language}</span>` : ''}
-                            ${repo.stars ? `<span class="repo-stars"><i class="fa fa-star"></i> ${repo.stars}</span>` : ''}
-                        </div>
-                        <div class="repo-info">
-                            ${repo.description ? `<span class="repo-desc">${repo.description.substring(0, 50)}${repo.description.length > 50 ? '...' : ''}</span>` : ''}
-                        </div>
-                    </div>
-                `,
-						)
-						.join(''),
-				);
+			repoDropdown.innerHTML = '';
 
-				repoDropdown.querySelectorAll('.repository-dropdown-item').forEach((item) => {
+			if (filtered.length === 0) {
+				const notFound = document.createElement('div');
+				notFound.className = 'p-3 text-center text-gray-500 text-sm';
+				notFound.style.paddingLeft = '10px';
+				notFound.textContent = browser.i18n.getMessage('repoNotFound');
+				repoDropdown.appendChild(notFound);
+			} else {
+				const fragment = document.createDocumentFragment();
+				filtered.slice(0, 10).forEach((repo) => {
+					const item = document.createElement('div');
+					item.className = 'repository-dropdown-item';
+					item.dataset.repoName = repo.fullName;
+
+					// Repo Name Row
+					const nameRow = document.createElement('div');
+					nameRow.className = 'repo-name';
+
+					const nameSpan = document.createElement('span');
+					nameSpan.textContent = repo.name;
+					nameRow.appendChild(nameSpan);
+
+					if (repo.language) {
+						const langSpan = document.createElement('span');
+						langSpan.className = 'repo-language';
+						langSpan.textContent = repo.language;
+						nameRow.appendChild(langSpan);
+					}
+
+					if (repo.stars) {
+						const starsSpan = document.createElement('span');
+						starsSpan.className = 'repo-stars';
+
+						const starIcon = document.createElement('i');
+						starIcon.className = 'fa fa-star';
+						starsSpan.appendChild(starIcon);
+						starsSpan.appendChild(document.createTextNode(` ${repo.stars}`));
+
+						nameRow.appendChild(starsSpan);
+					}
+
+					// Repo Info Row (Description)
+					const infoRow = document.createElement('div');
+					infoRow.className = 'repo-info';
+
+					if (repo.description) {
+						const descSpan = document.createElement('span');
+						descSpan.className = 'repo-desc';
+						const desc = repo.description.length > 50 ? repo.description.substring(0, 50) + '...' : repo.description;
+						descSpan.textContent = desc;
+						infoRow.appendChild(descSpan);
+					}
+
+					item.appendChild(nameRow);
+					item.appendChild(infoRow);
+
 					item.addEventListener('click', (e) => {
 						e.stopPropagation();
-						fnSelectedRepos(item.dataset.repoName);
+						fnSelectedRepos(repo.fullName);
 					});
+
+					fragment.appendChild(item);
 				});
+				repoDropdown.appendChild(fragment);
 			}
 			highlightedIndex = -1;
 			showDropdown();
@@ -1597,33 +1684,62 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 
 		function updateRepoDisplay() {
+			if (!repoTags) return;
+
+			// Clear container
+			repoTags.innerHTML = '';
+
 			if (selectedRepos.length === 0) {
-				repoTags.innerHTML = `<span class="text-xs text-gray-500 select-none" id="repoPlaceholder">${browser.i18n.getMessage('repoPlaceholder')}</span>`;
-				repoCount.textContent = browser.i18n.getMessage('repoCountNone');
+				const placeholder = document.createElement('span');
+				placeholder.className = 'text-xs text-gray-500 select-none';
+				placeholder.id = 'repoPlaceholder';
+				placeholder.textContent = browser.i18n.getMessage('repoPlaceholder');
+				repoTags.appendChild(placeholder);
+
+				if (repoCount) {
+					repoCount.textContent = browser.i18n.getMessage('repoCountNone');
+				}
 			} else {
-				repoTags.innerHTML = sanitizeHtml(
-					selectedRepos
-						.map((repoFullName) => {
-							const repoName = repoFullName.split('/')[1] || repoFullName;
-							return `
-                        <span class="inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full" style="margin:5px;">
-                            ${repoName}
-                            <button type="button" class="ml-1 text-blue-600 hover:text-blue-800 remove-repo-btn cursor-pointer" data-repo-name="${repoFullName}">
-                                <i class="fa fa-times"></i>
-                            </button>
-                        </span>
-                    `;
-						})
-						.join(' '),
-				);
-				repoTags.querySelectorAll('.remove-repo-btn').forEach((btn) => {
-					btn.addEventListener('click', (e) => {
+				const fragment = document.createDocumentFragment();
+
+				selectedRepos.forEach((repoFullName) => {
+					// Extract repo name from owner/repo
+					const repoName = repoFullName.includes('/') ? repoFullName.split('/')[1] : repoFullName;
+
+					// Use existing .repository-tag class from index.css for consistency
+					const tag = document.createElement('span');
+					tag.className = 'repository-tag';
+
+					// Text container with truncation handled by .repo-name css
+					const nameSpan = document.createElement('span');
+					nameSpan.className = 'repo-name';
+					nameSpan.textContent = repoName; // XSS Safe
+					nameSpan.title = repoFullName; // Accessibility: show full name on hover
+
+					// Remove button using existing .remove-tag css
+					const removeBtn = document.createElement('button');
+					removeBtn.type = 'button';
+					removeBtn.className = 'remove-tag remove-repo-btn';
+
+					const removeIcon = document.createElement('i');
+					removeIcon.className = 'fa fa-times';
+					removeBtn.appendChild(removeIcon);
+
+					removeBtn.addEventListener('click', (e) => {
 						e.stopPropagation();
-						const repoFullName = btn.dataset.repoName;
 						removeRepo(repoFullName);
 					});
+
+					tag.appendChild(nameSpan);
+					tag.appendChild(removeBtn);
+					fragment.appendChild(tag);
 				});
-				repoCount.textContent = browser.i18n.getMessage('repoCount', [selectedRepos.length]);
+
+				repoTags.appendChild(fragment);
+
+				if (repoCount) {
+					repoCount.textContent = browser.i18n.getMessage('repoCount', [selectedRepos.length]);
+				}
 			}
 		}
 
@@ -1751,6 +1867,7 @@ platformSelect.addEventListener('change', () => {
 		const scrumReport = document.getElementById('scrumReport');
 		if (scrumReport) {
 			scrumReport.innerHTML = '';
+			window.updateCopyButtonState?.();
 		}
 		const generateBtn = document.getElementById('generateReport');
 		if (typeof bootstrapScrumReportOnPopupLoad === 'function') {
@@ -1811,6 +1928,7 @@ function setPlatformDropdown(value) {
 	browser.storage.local.set({ platform: value }).then(() => {
 		const scrumReport = document.getElementById('scrumReport');
 		if (scrumReport) scrumReport.innerHTML = '';
+		window.updateCopyButtonState?.();
 
 		const generateBtn = document.getElementById('generateReport');
 		if (typeof bootstrapScrumReportOnPopupLoad === 'function') {
@@ -2031,7 +2149,9 @@ document.getElementById('refreshCache').addEventListener('click', async function
 		// Clear the scrum report
 		const scrumReport = document.getElementById('scrumReport');
 		if (scrumReport) {
+			scrumReport.dataset.copyPlaceholder = 'true';
 			scrumReport.innerHTML = `<p style="text-align: center; color: #666; padding: 20px;">${browser.i18n.getMessage('cacheClearedMessage')}</p>`;
+			window.updateCopyButtonState?.();
 		}
 
 		if (typeof availableRepos !== 'undefined') {

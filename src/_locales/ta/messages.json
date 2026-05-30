@@ -59,6 +59,9 @@
     "insertInEmailButton": {
         "message": "மின்னஞ்சலில் செருகு"
     },
+    "insertToEmailFailedError": {
+        "message": "அறிக்கையைச் செருக மின்னஞ்சல் தாவலைத் திறக்கவும்"
+    },
     "settingsOrgNameLabel": {
         "message": "நிறுவன பெயர்"
     },
@@ -232,5 +235,101 @@
     },
     "onlyRevPRsTooltip": {
         "message": "தேர்ந்தெடுக்கப்பட்டால், அறிக்கையில் நீங்கள் மதிப்பாய்வு செய்த PR கள் மட்டுமே இருக்கும்."
+    },
+    "onlyMergedPRsLabel": {
+        "message": "இணைக்கப்பட்ட பிஆர்களை மட்டும் அறிக்கையில் சேர்க்கவும்"
+    },
+    "onlyMergedPRsTooltip": {
+        "message": "தேர்ந்தெடுக்கப்பட்டால், அறிக்கை இணைக்கப்பட்ட பிஆர்களை மட்டுமே உள்ளடக்கும். ஒரு GitHub டோக்கன் தேவை."
+    },
+    "tokenRequiredMergedPRsWarning": {
+        "message": "இணைக்கப்பட்ட பிஆர்கள் மூலம் வடிகட்ட ஒரு GitHub டோக்கன் தேவை. அமைப்புகளில் ஒன்றைச் சேர்க்கவும்."
+    },
+    "usernameRequiredError": {
+        "message": "அறிக்கையை உருவாக்க உங்கள் பயனர்பெயரை உள்ளிடவும்."
+    },
+    "unknownPlatformError": {
+        "message": "அறியப்படாத தளம் தேர்ந்தெடுக்கப்பட்டது."
+    },
+    "gitlabFetchingError": {
+        "message": "GitLab தரவை எடுக்கும்போது பிழை ஏற்பட்டது."
+    },
+    "reportGenerationError": {
+        "message": "அறிக்கையை உருவாக்கும்போது பிழை ஏற்பட்டது."
+    },
+    "githubUserNotFoundError": {
+        "message": "GitHub பயனர் \"$1\" கண்டறியப்படவில்லை."
+    },
+    "githubUserValidationError": {
+        "message": "GitHub பயனரைச் சரிபார்ப்பதில் பிழை: $1 $2"
+    },
+    "invalidSearchQueryError": {
+        "message": "தவறான தேடல் அல்லது தேதி வரம்பு. வடிவத்தை சரிபார்த்து மீண்டும் முயற்சிக்கவும்."
+    },
+    "githubIssuesFetchError": {
+        "message": "GitHub சிக்கல்களை எடுப்பதில் பிழை: $1 $2"
+    },
+    "githubPRReviewFetchError": {
+        "message": "GitHub PR மதிப்பாய்வு தரவை எடுப்பதில் பிழை: $1 $2"
+    },
+    "githubUserFetchError": {
+        "message": "GitHub பயனர் தரவை எடுப்பதில் பிழை: $1 $2"
+    },
+    "invalidTokenError": {
+        "message": "தவறான அல்லது காலாவதியான GitHub டோக்கன். Scrum Helper அமைப்புகளில் உங்கள் டோக்கனைச் சரிபார்த்து மீண்டும் முயற்சிக்கவும்."
+    },
+    "displayModeNotice": {
+        "message": "அடுத்த துவக்கத்தில் நீட்டிப்பு $1 பயன்முறையில் திறக்கும்."
+    },
+    "repoFilteringGithubOnly": {
+        "message": "தொகுப்பு வடிகட்டுதல் GitHubக்கு மட்டுமே கிடைக்கும்."
+    },
+    "repoLoadingGithubOnly": {
+        "message": "தொகுப்பு ஏற்றுதல் GitHubக்கு மட்டுமே கிடைக்கும்."
+    },
+    "repoFetchingGithubOnly": {
+        "message": "தொகுப்பு மீட்டெடுப்பு GitHubக்கு மட்டுமே கிடைக்கும்."
+    },
+    "loadingReposAutomatically": {
+        "message": "தொகுப்புகள் தானாகவே ஏற்றப்படுகின்றன..."
+    },
+    "gitlabUserFetchError": {
+        "message": "GitLab பயனரை எடுப்பதில் பிழை: $1 $2"
+    },
+    "gitlabUserNotFoundError": {
+        "message": "GitLab பயனர் '$1' கண்டறியப்படவில்லை."
+    },
+    "gitlabMembershipError": {
+        "message": "GitLab உறுப்பினர் திட்டங்களை எடுப்பதில் பிழை: $1 $2"
+    },
+    "gitlabContributedError": {
+        "message": "GitLab பங்களிப்பு திட்டங்களை எடுப்பதில் பிழை: $1 $2"
+    },
+    "usernameMissingError": {
+        "message": "பயனர்பெயர் தேவை."
+    },
+    "generateReportTooltip": {
+        "message": "Ctrl+G"
+    },
+    "copyReportTooltip": {
+        "message": "Ctrl+Shift+Y"
+    },
+    "generatingReportNotification": {
+        "message": "அறிக்கை உருவாக்கப்படுகிறது..."
+    },
+    "copyingReportNotification": {
+        "message": "அறிக்கை நகலெடுக்கப்படுகிறது..."
+    },
+    "copiedReportNotification": {
+        "message": "அறிக்கை நகலெடுக்கப்பட்டது!"
+    },
+    "insertInEmailTooltip": {
+        "message": "Ctrl+Shift+M"
+    },
+    "insertingInEmailNotification": {
+        "message": "அறிக்கையை மின்னஞ்சலில் செருகுகிறது..."
+    },
+    "insertedInEmailNotification": {
+        "message": "அறிக்கை மின்னஞ்சலில் செருகப்பட்டது!"
     }
 }
