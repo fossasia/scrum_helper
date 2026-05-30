@@ -1697,6 +1697,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				}
 			});
 
+
 			repoDropdown.replaceChildren();
 
 			if (merged.length === 0) {
