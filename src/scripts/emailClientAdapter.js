@@ -240,6 +240,68 @@ class EmailClientAdapter {
 		});
 	}
 
+	insertHtmlAtCursorOrPrepend(element, content) {
+		const sanitizedContent = sanitizeHtml(content);
+
+		try {
+			// Try to insert at the active cursor/selection if it is within the target element
+			const selection = window.getSelection();
+			if (selection && selection.rangeCount > 0) {
+				const range = selection.getRangeAt(0);
+				// Verify that the selection is inside the correct editor body element
+				if (element.contains(range.startContainer)) {
+					// Delete any highlighted text in the selection range
+					range.deleteContents();
+
+					// Create a temporary element to parse the HTML string to elements
+					const tempDiv = document.createElement('div');
+					tempDiv.innerHTML = sanitizedContent;
+
+					// Create a document fragment to insert all parsed nodes
+					const fragment = document.createDocumentFragment();
+					let lastNode = null;
+					while (tempDiv.firstChild) {
+						lastNode = tempDiv.firstChild;
+						fragment.appendChild(lastNode);
+					}
+
+					// Insert the fragment at the current cursor/range position
+					range.insertNode(fragment);
+
+					// Reposition the cursor right after the newly inserted elements
+					if (lastNode) {
+						const newRange = document.createRange();
+						newRange.setStartAfter(lastNode);
+						newRange.collapse(true);
+						selection.removeAllRanges();
+						selection.addRange(newRange);
+					}
+					return true;
+				}
+			}
+		} catch (selectionError) {
+			console.warn('Failed selection-based injection, falling back to prepend:', selectionError);
+		}
+
+		// Fallback: If no cursor is active inside the editor body, we prepend the content.
+		// Prepending preserves any existing signature and reply threads that are below.
+		const tempDiv = document.createElement('div');
+		tempDiv.innerHTML = sanitizedContent;
+
+		// Add line breaks after the scrum content to ensure spacing before signature/reply
+		const br1 = document.createElement('br');
+		const br2 = document.createElement('br');
+		tempDiv.appendChild(br1);
+		tempDiv.appendChild(br2);
+
+		// Prepend all child elements from the tempDiv to the beginning of the editor body
+		while (tempDiv.lastChild) {
+			element.insertBefore(tempDiv.lastChild, element.firstChild);
+		}
+
+		return true;
+	}
+
 	injectContent(element, content, eventType) {
 		if (!element) {
 			console.log('No element found for injection');
@@ -253,13 +315,13 @@ class EmailClientAdapter {
 				case 'focusAndPaste':
 					// Special handling for Outlook
 					element.focus();
-					element.innerHTML = sanitizeHtml(content);
+					this.insertHtmlAtCursorOrPrepend(element, content);
 					this.dispatchElementEvents(element, ['input', 'change'], true);
 					break;
 
 				case 'setContent': {
 					// Special handling for Yahoo
-					element.innerHTML = sanitizeHtml(content);
+					this.insertHtmlAtCursorOrPrepend(element, content);
 					element.focus();
 					// Force Yahoo's editor to recognize the change
 					const selection = window.getSelection();
@@ -273,7 +335,7 @@ class EmailClientAdapter {
 
 				default:
 					// Default handling for Google clients
-					element.innerHTML = sanitizeHtml(content);
+					this.insertHtmlAtCursorOrPrepend(element, content);
 					element.dispatchEvent(new Event(eventType, { bubbles: true }));
 			}
 			return true;
