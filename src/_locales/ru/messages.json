@@ -59,6 +59,9 @@
     "insertInEmailButton": {
         "message": "Вставить в письмо"
     },
+    "insertToEmailFailedError": {
+        "message": "Откройте вкладку электронной почты, чтобы вставить отчет"
+    },
     "settingsOrgNameLabel": {
         "message": "Название организации"
     },
@@ -105,8 +108,7 @@
         "message": "Если отмечено, отчёт будет включать только pull request'ы, созданные пользователем; проверенные PR будут исключены."
     },
     "cacheTTLLabel": {
-        "message": "Введите TTL кеша",
-        "description": "Метка для ввода времени жизни кеша."
+        "message": "Введите TTL кеша"
     },
     "cacheTTLUnit": {
         "message": "(в минутах)"
@@ -137,6 +139,9 @@
     },
     "tokenRequiredWarning": {
         "message": "Для фильтрации репозиториев требуется токен GitHub. Пожалуйста, добавьте его в настройках."
+    },
+    "tokenRequiredShowCommitsWarning": {
+        "message": "Для показа коммитов в открытых или черновиках PR требуется токен GitHub. Добавьте его в настройках."
     },
     "repoSearchPlaceholder": {
         "message": "Найти репозиторий для добавления..."
@@ -205,8 +210,7 @@
         "message": "Кэш успешно очищен. Нажмите 'Создать отчет', чтобы получить свежие данные."
     },
     "cacheExpiredMessage": {
-        "message": "Кэш истёк. Нажмите \"Создать\", чтобы получить новые данные.",
-        "description": "Message shown when the cached data has expired and user needs to regenerate."
+        "message": "Кэш истёк. Нажмите \"Создать\", чтобы получить новые данные."
     },
     "cacheClearedButton": {
         "message": "Кэш очищен!"
@@ -225,6 +229,21 @@
     },
     "usernameLabel": {
         "message": "Ваше имя пользователя"
+    },
+    "onlyRevPRsLabel": {
+        "message": "Включить в отчет только проверенные PR"
+    },
+    "onlyRevPRsTooltip": {
+        "message": "Если отмечено, отчёт будет включать только PR, проверенные вами."
+    },
+    "onlyMergedPRsLabel": {
+        "message": "Включать в отчет только объединенные (merged) PR"
+    },
+    "onlyMergedPRsTooltip": {
+        "message": "Если отмечено, отчет будет включать только объединенные PR. Требуется токен GitHub."
+    },
+    "tokenRequiredMergedPRsWarning": {
+        "message": "Для фильтрации по объединенным PR требуется токен GitHub. Добавьте его в настройках."
     },
     "usernameRequiredError": {
         "message": "Пожалуйста, введите имя пользователя для создания отчета."
@@ -286,12 +305,6 @@
     "gitlabContributedError": {
         "message": "Ошибка при получении проектов с вкладом GitLab: $1 $2"
     },
-    "onlyRevPRsLabel": {
-        "message": "Включить в отчет только проверенные PR"
-    },
-    "onlyRevPRsTooltip": {
-        "message": "Если отмечено, отчёт будет включать только PR, проверенные вами."
-    },
     "usernameMissingError": {
         "message": "Требуется имя пользователя."
     },
@@ -306,6 +319,9 @@
     },
     "copyingReportNotification": {
         "message": "Копирование отчёта..."
+    },
+    "copiedReportNotification": {
+        "message": "Отчет скопирован!"
     },
     "insertInEmailTooltip": {
         "message": "Ctrl+Shift+M"

@@ -444,6 +444,27 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	window.updateGenerateButtonState = updateGenerateButtonState;
+	window.updateCopyButtonState = updateCopyButtonState;
+
+	function updateCopyButtonState() {
+		const copyBtn = document.getElementById('copyReport');
+		const scrumReport = document.getElementById('scrumReport');
+		if (!copyBtn || !scrumReport) {
+			return;
+		}
+
+		const textContent = scrumReport.textContent;
+		const cacheClearedText =
+			(typeof browser !== 'undefined' && browser.i18n ? browser.i18n.getMessage('cacheClearedMessage') : null) ||
+			(typeof chrome !== 'undefined' && chrome.i18n ? chrome.i18n.getMessage('cacheClearedMessage') : null) ||
+			'Cache cleared successfully. Click "Generate" to fetch fresh data.';
+
+		if (textContent === cacheClearedText) {
+			scrumReport.dataset.copyPlaceholder = 'true';
+		}
+
+		copyBtn.disabled = scrumReport.dataset.copyPlaceholder === 'true' || !scrumReport.textContent.trim();
+	}
 
 	async function bootstrapScrumReportOnPopupLoad(generateBtn) {
 		console.log('[BOOTSTRAP] bootstrapScrumReportOnPopupLoad called');
@@ -526,26 +547,31 @@ document.addEventListener('DOMContentLoaded', () => {
 
 				if (reportEmpty && lastScrumReportHtml && matches) {
 					scrumReport.innerHTML = sanitizeHtml(lastScrumReportHtml);
+					delete scrumReport.dataset.copyPlaceholder;
+					updateCopyButtonState();
 					if (generateBtn) generateBtn.disabled = false;
 					return;
 				}
 
-				setGenerateButtonLoading(generateBtn, true);
-				window.generateScrumReport();
+				if (generateBtn) setGenerateButtonLoading(generateBtn, true);
+				if (typeof window.generateScrumReport === 'function') window.generateScrumReport();
 				return;
 			}
 
 			// If cache is expired, still only show the old HTML if it was for the current username
 			if ((!scrumReport.innerHTML || !scrumReport.innerHTML.trim()) && lastScrumReportHtml && isUsernameMatch) {
 				scrumReport.innerHTML = sanitizeHtml(lastScrumReportHtml);
+				delete scrumReport.dataset.copyPlaceholder;
+				updateCopyButtonState();
 			}
 
-			if (generateBtn) generateBtn.disabled = false;
+			if (generateBtn) setGenerateButtonLoading(generateBtn, true);
+			if (typeof window.generateScrumReport === 'function') window.generateScrumReport();
 			return;
 		}
 
-		setGenerateButtonLoading(generateBtn, true);
-		window.generateScrumReport();
+		if (generateBtn) setGenerateButtonLoading(generateBtn, true);
+		if (typeof window.generateScrumReport === 'function') window.generateScrumReport();
 	}
 
 	function initializePopup() {
@@ -668,6 +694,18 @@ document.addEventListener('DOMContentLoaded', () => {
 		const copyBtn = document.getElementById('copyReport');
 		const insertBtn = document.getElementById('insertInEmail');
 
+		updateCopyButtonState();
+
+		const scrumReportEl = document.getElementById('scrumReport');
+		if (scrumReportEl) {
+			scrumReportEl.addEventListener('input', () => {
+				if (scrumReportEl.dataset.copyPlaceholder === 'true') {
+					delete scrumReportEl.dataset.copyPlaceholder;
+				}
+				updateCopyButtonState();
+			});
+		}
+
 		if (insertBtn) {
 			insertBtn.addEventListener('click', () => {
 				const scrumReport = document.getElementById('scrumReport');
@@ -746,8 +784,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		copyBtn.addEventListener('click', function () {
 			const scrumReport = document.getElementById('scrumReport');
+			if (!scrumReport) {
+				this._triggeredByShortcut = false;
+				return;
+			}
+			if (scrumReport.dataset.copyPlaceholder === 'true') {
+				this._triggeredByShortcut = false;
+				return;
+			}
+			const reportHtml = sanitizeHtml(scrumReport.innerHTML);
 			const tempDiv = document.createElement('div');
-			tempDiv.innerHTML = sanitizeHtml(scrumReport.innerHTML);
+			tempDiv.innerHTML = reportHtml;
+			if (!(tempDiv.textContent || '').trim()) {
+				this._triggeredByShortcut = false;
+				return;
+			}
 
 			const darkMode = document.body.classList.contains('dark-mode');
 
@@ -1522,6 +1573,96 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		}
 
+		function groupReposByOwner(repos) {
+			const groups = new Map();
+
+			repos.forEach((repo) => {
+				const owner =
+					repo.fullName && repo.fullName.includes('/')
+						? repo.fullName.split('/')[0]
+						: 'Unknown';
+
+				if (!groups.has(owner)) {
+					groups.set(owner, []);
+				}
+				groups.get(owner).push(repo);
+			});
+
+			return [...groups.keys()]
+				.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }))
+				.map((owner) => ({
+					owner,
+					repos: groups
+						.get(owner)
+						.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })),
+				}));
+		}
+
+		function createRepoDropdownItem(repo) {
+			const isSelected = selectedRepos.includes(repo.fullName);
+
+			const item = document.createElement('div');
+			item.className = `repository-dropdown-item${isSelected ? ' selected' : ''}`;
+			item.dataset.repoName = repo.fullName;
+
+			const header = document.createElement('div');
+			header.className = 'repo-header';
+
+			const main = document.createElement('div');
+			main.className = 'repo-main';
+
+			const check = document.createElement('i');
+			check.className = 'selected-check fa fa-check';
+			check.setAttribute('aria-hidden', 'true');
+			main.appendChild(check);
+
+			const nameSpan = document.createElement('span');
+			nameSpan.className = 'repo-name-text';
+			nameSpan.textContent = repo.name;
+			main.appendChild(nameSpan);
+
+			if (repo.language) {
+				const langSpan = document.createElement('span');
+				langSpan.className = 'repo-language';
+				langSpan.textContent = repo.language;
+				main.appendChild(langSpan);
+			}
+
+			if (repo.stars) {
+				const starsSpan = document.createElement('span');
+				starsSpan.className = 'repo-stars';
+
+				const starIcon = document.createElement('i');
+				starIcon.className = 'fa fa-star';
+				starsSpan.appendChild(starIcon);
+				starsSpan.appendChild(document.createTextNode(` ${repo.stars}`));
+
+				main.appendChild(starsSpan);
+			}
+
+			header.appendChild(main);
+			item.appendChild(header);
+
+			if (repo.description) {
+				const infoRow = document.createElement('div');
+				infoRow.className = 'repo-info';
+
+				const descSpan = document.createElement('span');
+				descSpan.className = 'repo-desc line-clamp-2';
+				descSpan.textContent = repo.description;
+
+				infoRow.appendChild(descSpan);
+				item.appendChild(infoRow);
+			}
+
+			item.addEventListener('click', (e) => {
+				e.stopPropagation();
+				fnSelectedRepos(repo.fullName);
+			});
+
+			return item;
+		}
+
 		function filterAndDisplayRepos(query) {
 			if (availableRepos.length === 0) {
 				const loadingMsg = document.createElement('div');
@@ -1544,115 +1685,63 @@ document.addEventListener('DOMContentLoaded', () => {
 				);
 			});
 
-			if (filtered.length === 0) {
-				const noMatch = document.createElement('div');
-				noMatch.className = 'p-3 text-center text-gray-500 text-sm';
-				noMatch.textContent = browser.i18n.getMessage('repoNotFound');
-				repoDropdown.replaceChildren(noMatch);
+			const selectedExtras = selectedRepos
+				.filter((fullName) => !filtered.some((r) => r.fullName === fullName))
+				.map((fullName) => availableRepos.find((r) => r.fullName === fullName))
+				.filter(Boolean);
+
+			const merged = [...filtered];
+			selectedExtras.forEach((repo) => {
+				if (!merged.some((r) => r.fullName === repo.fullName)) {
+					merged.push(repo);
+				}
+			});
+
+			repoDropdown.replaceChildren();
+
+			if (merged.length === 0) {
+				const notFound = document.createElement('div');
+				notFound.className = 'p-3 text-center text-gray-500 text-sm';
+				notFound.style.paddingLeft = '10px';
+				notFound.textContent = browser.i18n.getMessage('repoNotFound');
+				repoDropdown.appendChild(notFound);
 			} else {
-				// Requirement 1: Group by owner/organization
-				const groups = {};
-				// Requirement 10: Result limiting (let's say 25 for better scalability but keeping it reasonable)
-				const limit = 25;
-				const displayList = filtered.slice(0, limit);
-
-				displayList.forEach((repo) => {
-					const [owner] = repo.fullName.split('/');
-					if (!groups[owner]) groups[owner] = [];
-					groups[owner].push(repo);
-				});
-
-				// Sort owners alphabetically
-				const sortedOwners = Object.keys(groups).sort((a, b) => a.localeCompare(b));
-
 				const fragment = document.createDocumentFragment();
+				const grouped = groupReposByOwner(merged);
+				const REPO_DISPLAY_LIMIT = 25;
+				let renderedCount = 0;
 
-				sortedOwners.forEach((owner) => {
-					// Group Header
-					const header = document.createElement('div');
-					header.className = 'repository-group-header';
-					header.textContent = owner + '/';
-					fragment.appendChild(header);
+				for (const { owner, repos } of grouped) {
+					if (renderedCount >= REPO_DISPLAY_LIMIT) break;
 
-					// Sort repos in group alphabetically
-					const sortedRepos = groups[owner].sort((a, b) => a.name.localeCompare(b.name));
+					const ownerHeader = document.createElement('div');
+					ownerHeader.className = 'repository-group-header';
+					ownerHeader.textContent = owner;
+					fragment.appendChild(ownerHeader);
 
-					sortedRepos.forEach((repo) => {
-						const isSelected = selectedRepos.includes(repo.fullName);
-						const item = document.createElement('div');
-						item.className = 'repository-dropdown-item';
-						if (isSelected) item.classList.add('selected');
-						item.dataset.repoName = repo.fullName;
+					for (const repo of repos) {
+						if (renderedCount >= REPO_DISPLAY_LIMIT) break;
+						fragment.appendChild(createRepoDropdownItem(repo));
+						renderedCount++;
+					}
+				}
 
-						// Accessibility
-						item.title = repo.fullName;
-
-						const repoHeader = document.createElement('div');
-						repoHeader.className = 'repo-header';
-
-						const repoMain = document.createElement('div');
-						repoMain.className = 'repo-main';
-
-						// Selected Checkmark (Requirement 3 & 4)
-						const checkIcon = document.createElement('i');
-						checkIcon.className = 'fa fa-check selected-check';
-						repoMain.appendChild(checkIcon);
-
-						const nameText = document.createElement('span');
-						nameText.className = 'repo-name-text';
-						nameText.textContent = repo.name;
-						repoMain.appendChild(nameText);
-
-						// Language Badge
-						if (repo.language) {
-							const badge = document.createElement('span');
-							badge.className = 'repo-language';
-							badge.textContent = repo.language;
-							repoMain.appendChild(badge);
-						}
-
-						repoHeader.appendChild(repoMain);
-						item.appendChild(repoHeader);
-
-						// Description (Requirement 6)
-						if (repo.description) {
-							const desc = document.createElement('div');
-							desc.className = 'repo-desc line-clamp-2';
-							desc.textContent = repo.description;
-							item.appendChild(desc);
-						}
-
-						item.addEventListener('click', (e) => {
-							e.stopPropagation();
-							fnSelectedRepos(repo.fullName);
-						});
-
-						fragment.appendChild(item);
-					});
-				});
-
-				repoDropdown.replaceChildren(fragment);
+				repoDropdown.appendChild(fragment);
 			}
 			highlightedIndex = -1;
 			showDropdown();
 		}
 
 		function fnSelectedRepos(repoFullName) {
-			if (!selectedRepos.includes(repoFullName)) {
-				selectedRepos.push(repoFullName);
-				updateRepoDisplay();
-				saveRepoSelection();
-			} else {
-				// If already selected, maybe we toggle or just keep it. 
-				// Requirement says "duplicate selection must be prevented safely"
-				// and "clicking selected repos should not duplicate entries".
-				// Usually in a multi-select it toggles, but here we have remove buttons in tags.
-				// Let's make it toggle for better UX if they click again in the dropdown.
-				removeRepo(repoFullName);
+			if (selectedRepos.includes(repoFullName)) {
+				return;
 			}
 
-			// Keep dropdown open and update UI
-			filterAndDisplayRepos(repoSearch.value);
+			selectedRepos.push(repoFullName);
+			updateRepoDisplay();
+			saveRepoSelection();
+
+			filterAndDisplayRepos(repoSearch.value.toLowerCase());
 			programmaticFocus = true;
 			repoSearch.focus();
 		}
@@ -1664,11 +1753,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			// Update dropdown state if it's open
 			if (!repoDropdown.classList.contains('hidden')) {
-				filterAndDisplayRepos(repoSearch.value);
+				filterAndDisplayRepos(repoSearch.value.toLowerCase());
 			}
 		}
 
 		function updateRepoDisplay() {
+			if (!repoTags) return;
+
+			// Clear container
 			repoTags.replaceChildren();
 
 			if (selectedRepos.length === 0) {
@@ -1677,38 +1769,51 @@ document.addEventListener('DOMContentLoaded', () => {
 				placeholder.id = 'repoPlaceholder';
 				placeholder.textContent = browser.i18n.getMessage('repoPlaceholder');
 				repoTags.appendChild(placeholder);
-				repoCount.textContent = browser.i18n.getMessage('repoCountNone');
+
+				if (repoCount) {
+					repoCount.textContent = browser.i18n.getMessage('repoCountNone');
+				}
 			} else {
 				const fragment = document.createDocumentFragment();
 
 				selectedRepos.forEach((repoFullName) => {
-					const repoName = repoFullName.split('/')[1] || repoFullName;
-					
-					const tag = document.createElement('span');
-					tag.className = 'inline-flex items-center px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full';
-					tag.style.margin = '5px';
-					tag.textContent = repoName;
+					// Extract repo name from owner/repo
+					const repoName = repoFullName.includes('/') ? repoFullName.split('/')[1] : repoFullName;
 
+					// Use existing .repository-tag class from index.css for consistency
+					const tag = document.createElement('span');
+					tag.className = 'repository-tag';
+
+					// Text container with truncation handled by .repo-name css
+					const nameSpan = document.createElement('span');
+					nameSpan.className = 'repo-name';
+					nameSpan.textContent = repoName; // XSS Safe
+					nameSpan.title = repoFullName; // Accessibility: show full name on hover
+
+					// Remove button using existing .remove-tag css
 					const removeBtn = document.createElement('button');
 					removeBtn.type = 'button';
-					removeBtn.className = 'ml-1 text-blue-600 hover:text-blue-800 remove-repo-btn cursor-pointer';
-					removeBtn.dataset.repoName = repoFullName;
-					
-					const crossIcon = document.createElement('i');
-					crossIcon.className = 'fa fa-times';
-					removeBtn.appendChild(crossIcon);
+					removeBtn.className = 'remove-tag remove-repo-btn';
+
+					const removeIcon = document.createElement('i');
+					removeIcon.className = 'fa fa-times';
+					removeBtn.appendChild(removeIcon);
 
 					removeBtn.addEventListener('click', (e) => {
 						e.stopPropagation();
 						removeRepo(repoFullName);
 					});
 
+					tag.appendChild(nameSpan);
 					tag.appendChild(removeBtn);
 					fragment.appendChild(tag);
 				});
 
 				repoTags.appendChild(fragment);
-				repoCount.textContent = browser.i18n.getMessage('repoCount', [selectedRepos.length]);
+
+				if (repoCount) {
+					repoCount.textContent = browser.i18n.getMessage('repoCount', [selectedRepos.length]);
+				}
 			}
 		}
 
@@ -1836,6 +1941,7 @@ platformSelect.addEventListener('change', () => {
 		const scrumReport = document.getElementById('scrumReport');
 		if (scrumReport) {
 			scrumReport.innerHTML = '';
+			window.updateCopyButtonState?.();
 		}
 		const generateBtn = document.getElementById('generateReport');
 		if (typeof bootstrapScrumReportOnPopupLoad === 'function') {
@@ -1896,6 +2002,7 @@ function setPlatformDropdown(value) {
 	browser.storage.local.set({ platform: value }).then(() => {
 		const scrumReport = document.getElementById('scrumReport');
 		if (scrumReport) scrumReport.innerHTML = '';
+		window.updateCopyButtonState?.();
 
 		const generateBtn = document.getElementById('generateReport');
 		if (typeof bootstrapScrumReportOnPopupLoad === 'function') {
@@ -2116,7 +2223,9 @@ document.getElementById('refreshCache').addEventListener('click', async function
 		// Clear the scrum report
 		const scrumReport = document.getElementById('scrumReport');
 		if (scrumReport) {
+			scrumReport.dataset.copyPlaceholder = 'true';
 			scrumReport.innerHTML = `<p style="text-align: center; color: #666; padding: 20px;">${browser.i18n.getMessage('cacheClearedMessage')}</p>`;
+			window.updateCopyButtonState?.();
 		}
 
 		if (typeof availableRepos !== 'undefined') {
