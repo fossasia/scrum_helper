@@ -1574,8 +1574,19 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 
 		function filterAndDisplayRepos(query) {
+			const usernameVal = document.getElementById('platformUsername')?.value?.trim();
+			if (!usernameVal) {
+				repoDropdown.innerHTML = `<div class="p-3 text-center text-red-500 text-sm font-medium">${chrome?.i18n.getMessage('usernameMissingError') || 'Username required. Please configure it on the home screen.'}</div>`;
+				showDropdown();
+				return;
+			}
+
 			if (availableRepos.length === 0) {
-				repoDropdown.innerHTML = `<div class="p-3 text-center text-gray-500 text-sm">${browser.i18n.getMessage('repoLoading')}</div>`;
+				if (repoSearch.classList.contains('repository-search-loading')) {
+					repoDropdown.innerHTML = `<div class="p-3 text-center text-gray-500 text-sm">${browser.i18n.getMessage('repoLoading')}</div>`;
+				} else {
+					repoDropdown.innerHTML = `<div class="p-3 text-center text-gray-500 text-sm">${browser.i18n.getMessage('repoNotFound') || 'No repositories found.'}</div>`;
+				}
 				showDropdown();
 				return;
 			}

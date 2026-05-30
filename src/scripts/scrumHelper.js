@@ -2113,44 +2113,35 @@ async function fetchUserRepositories(username, token, org = '') {
 	try {
 		let dateRange = '';
 		try {
-			const storageData = await new Promise((resolve) => {
-				chrome.storage.local.get(['startingDate', 'endingDate', 'yesterdayContribution'], resolve);
-			});
-
-			let startDate;
-			let endDate;
-			if (storageData.yesterdayContribution) {
-				const today = new Date();
-				const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
-				startDate = yesterday.toISOString().split('T')[0];
-				endDate = today.toISOString().split('T')[0];
-			} else if (storageData.startingDate && storageData.endingDate) {
-				startDate = storageData.startingDate;
-				endDate = storageData.endingDate;
-			} else {
-				const today = new Date();
-				const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
-				startDate = lastWeek.toISOString().split('T')[0];
-				endDate = today.toISOString().split('T')[0];
-			}
-
-			dateRange = `+created:${startDate}..${endDate}`;
-			console.log(`Using date range for repo search: ${startDate} to ${endDate}`);
-		} catch (err) {
-			console.warn('Could not determine date range, using last 30 days:', err);
+			// Decouple repository discovery from the report's active date range.
+			// Use a generous 90-day window to ensure active repositories are discovered and populated.
 			const today = new Date();
-			const thirtyDaysAgo = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 30);
-			const startDate = thirtyDaysAgo.toISOString().split('T')[0];
+			const ninetyDaysAgo = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 90);
+			const startDate = ninetyDaysAgo.toISOString().split('T')[0];
 			const endDate = today.toISOString().split('T')[0];
+			dateRange = `+created:${startDate}..${endDate}`;
+			console.log(`Using generous 90-day date range for repository discovery: ${startDate} to ${endDate}`);
+		} catch (err) {
+			console.warn('Could not determine date range, using last 90 days:', err);
+			const today = new Date();
+			const ninetyDaysAgo = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 90);
+			const startDate = ninetyDaysAgo.toISOString().split('T')[0];
+			const endDate = today.toISOString().split('T')[0];
+			dateRange = `+created:${startDate}..${endDate}`;
 		}
 		const orgPart = org && org !== 'all' ? `+org:${org}` : '';
-		const issuesUrl = `https://api.github.com/search/issues?q=author:${username}${orgPart}${dateRange}&per_page=100`;
-		const commentsUrl = `https://api.github.com/search/issues?q=commenter:${username}${orgPart}${dateRange.replace('created:', 'updated:')}&per_page=100`;
 
-		console.log('Search URLs:', { issuesUrl, commentsUrl });
+		// GitHub's Search API strictly requires including either 'is:issue' or 'is:pull-request' in queries.
+		// Missing this filter causes a 422 Unprocessable Entity response.
+		const issuesUrl = `https://api.github.com/search/issues?q=author:${username}${orgPart}${dateRange}+is:issue&per_page=100`;
+		const prsUrl = `https://api.github.com/search/issues?q=author:${username}${orgPart}${dateRange}+is:pull-request&per_page=100`;
+		const commentsUrl = `https://api.github.com/search/issues?q=commenter:${username}${orgPart}${dateRange.replace('created:', 'updated:')}+is:issue&per_page=100`;
 
-		const [issuesRes, commentsRes] = await Promise.all([
+		console.log('Search URLs:', { issuesUrl, prsUrl, commentsUrl });
+
+		const [issuesRes, prsRes, commentsRes] = await Promise.all([
 			fetch(issuesUrl, { headers }).catch(() => ({ ok: false, json: () => ({ items: [] }) })),
+			fetch(prsUrl, { headers }).catch(() => ({ ok: false, json: () => ({ items: [] }) })),
 			fetch(commentsUrl, { headers }).catch(() => ({ ok: false, json: () => ({ items: [] }) })),
 		]);
 
@@ -2170,13 +2161,19 @@ async function fetchUserRepositories(username, token, org = '') {
 		if (issuesRes.ok) {
 			const issuesData = await issuesRes.json();
 			processRepoItems(issuesData.items);
-			console.log(`Found ${issuesData.items?.length || 0} issues/PRs authored by user in date range`);
+			console.log(`Found ${issuesData.items?.length || 0} issues authored by user in date range`);
+		}
+
+		if (prsRes.ok) {
+			const prsData = await prsRes.json();
+			processRepoItems(prsData.items);
+			console.log(`Found ${prsData.items?.length || 0} PRs authored by user in date range`);
 		}
 
 		if (commentsRes.ok) {
 			const commentsData = await commentsRes.json();
 			processRepoItems(commentsData.items);
-			console.log(`Found ${commentsData.items?.length || 0} issues/PRs with user comments in date range`);
+			console.log(`Found ${commentsData.items?.length || 0} items with user comments in date range`);
 		}
 
 		const repoNames = Array.from(repoSet);
@@ -2218,12 +2215,17 @@ async function fetchUserRepositories(username, token, org = '') {
 		const query = `query { ${repoQueries} }`;
 
 		try {
+			// Construct GraphQL-specific headers using 'bearer' authentication
+			const graphqlHeaders = {
+				'Content-Type': 'application/json',
+			};
+			if (token) {
+				graphqlHeaders.Authorization = `bearer ${token}`;
+			}
+
 			const res = await fetch('https://api.github.com/graphql', {
 				method: 'POST',
-				headers: {
-					...headers,
-					'Content-Type': 'application/json',
-				},
+				headers: graphqlHeaders,
 				body: JSON.stringify({ query }),
 			});
 
@@ -2235,6 +2237,10 @@ async function fetchUserRepositories(username, token, org = '') {
 
 			if (graphQLData.errors) {
 				logError('GraphQL errors fetching repos:', graphQLData.errors);
+				// Do not crash or return [] if we still have partial repository data available
+			}
+
+			if (!graphQLData.data) {
 				return [];
 			}
 
@@ -2250,8 +2256,14 @@ async function fetchUserRepositories(username, token, org = '') {
 				}));
 
 			return repos.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-		} catch (err) {}
-	} catch (err) {}
+		} catch (err) {
+			logError('Error inside fetchUserRepositories GraphQL request:', err);
+			return [];
+		}
+	} catch (err) {
+		logError('Outer error in fetchUserRepositories:', err);
+		return [];
+	}
 }
 
 function filterDataByRepos(data, selectedRepos) {
