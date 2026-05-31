@@ -204,6 +204,7 @@ function showReportMessage(message) {
 	if (!message) return;
 	if (scrumReportEl) {
 		scrumReportEl.innerHTML = '';
+		window.updateCopyButtonState?.();
 	}
 	window.scrumHelperToast?.(message, { duration: 4000, variant: 'error' });
 }
@@ -217,6 +218,7 @@ function handleUsernameValidationError(errMessage) {
 
 	if (scrumReportEl) {
 		scrumReportEl.innerHTML = '';
+		window.updateCopyButtonState?.();
 	}
 }
 
@@ -1412,6 +1414,8 @@ ${escapeHtml(userReason)}`;
 					sanitizedHtml = typeof content === 'string' ? content.replace(/<[^>]+>/g, '') : 'Unable to generate report.';
 					scrumReport.textContent = sanitizedHtml;
 				}
+				window.updateCopyButtonState?.();
+				delete scrumReport.dataset.copyPlaceholder;
 				try {
 					const cacheKey =
 						platform === 'gitlab' ? (gitlabHelper?.cache?.cacheKey ?? null) : (githubCache?.cacheKey ?? null);

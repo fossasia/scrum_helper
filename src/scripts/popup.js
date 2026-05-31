@@ -682,6 +682,27 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	window.updateGenerateButtonState = updateGenerateButtonState;
+	window.updateCopyButtonState = updateCopyButtonState;
+
+	function updateCopyButtonState() {
+		const copyBtn = document.getElementById('copyReport');
+		const scrumReport = document.getElementById('scrumReport');
+		if (!copyBtn || !scrumReport) {
+			return;
+		}
+
+		const textContent = scrumReport.textContent;
+		const cacheClearedText =
+			(typeof browser !== 'undefined' && browser.i18n ? browser.i18n.getMessage('cacheClearedMessage') : null) ||
+			(typeof chrome !== 'undefined' && chrome.i18n ? chrome.i18n.getMessage('cacheClearedMessage') : null) ||
+			'Cache cleared successfully. Click "Generate" to fetch fresh data.';
+
+		if (textContent === cacheClearedText) {
+			scrumReport.dataset.copyPlaceholder = 'true';
+		}
+
+		copyBtn.disabled = scrumReport.dataset.copyPlaceholder === 'true' || !scrumReport.textContent.trim();
+	}
 
 	function hideGitLabProjectDropdown() {
 		const gitlabProjectDropdown = document.getElementById('gitlabProjectDropdown');
@@ -852,6 +873,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 				if (reportEmpty && lastScrumReportHtml && matches) {
 					scrumReport.innerHTML = sanitizeHtml(lastScrumReportHtml);
+					delete scrumReport.dataset.copyPlaceholder;
+					updateCopyButtonState();
 					if (generateBtn) generateBtn.disabled = false;
 					return;
 				}
@@ -864,6 +887,8 @@ document.addEventListener('DOMContentLoaded', () => {
 			// If cache is expired, still show the old report only if the username matches
 			if ((!scrumReport.innerHTML || !scrumReport.innerHTML.trim()) && lastScrumReportHtml && isUsernameMatch) {
 				scrumReport.innerHTML = sanitizeHtml(lastScrumReportHtml);
+				delete scrumReport.dataset.copyPlaceholder;
+				updateCopyButtonState();
 			}
 
 			if (generateBtn) setGenerateButtonLoading(generateBtn, true);
@@ -1023,6 +1048,18 @@ document.addEventListener('DOMContentLoaded', () => {
 		const generateBtn = document.getElementById('generateReport');
 		const copyBtn = document.getElementById('copyReport');
 		const insertBtn = document.getElementById('insertInEmail');
+
+		updateCopyButtonState();
+
+		const scrumReportEl = document.getElementById('scrumReport');
+		if (scrumReportEl) {
+			scrumReportEl.addEventListener('input', () => {
+				if (scrumReportEl.dataset.copyPlaceholder === 'true') {
+					delete scrumReportEl.dataset.copyPlaceholder;
+				}
+				updateCopyButtonState();
+			});
+		}
 
 		if (insertBtn) {
 			insertBtn.addEventListener('click', async () => {
@@ -1232,8 +1269,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		copyBtn.addEventListener('click', function () {
 			const scrumReport = document.getElementById('scrumReport');
+			if (!scrumReport) {
+				this._triggeredByShortcut = false;
+				return;
+			}
+			if (scrumReport.dataset.copyPlaceholder === 'true') {
+				this._triggeredByShortcut = false;
+				return;
+			}
+			const reportHtml = sanitizeHtml(scrumReport.innerHTML);
 			const tempDiv = document.createElement('div');
-			tempDiv.innerHTML = sanitizeHtml(scrumReport.innerHTML);
+			tempDiv.innerHTML = reportHtml;
+			if (!(tempDiv.textContent || '').trim()) {
+				this._triggeredByShortcut = false;
+				return;
+			}
 
 			const darkMode = document.body.classList.contains('dark-mode');
 
@@ -2230,6 +2280,15 @@ document.addEventListener('DOMContentLoaded', () => {
 	const dropdownSelected = document.getElementById('platformDropdownSelected');
 	const hasPlatformDropdownElements = !!(dropdownBtn && customDropdown && dropdownList && dropdownSelected);
 
+	function buildScrumSubjectFromPopup() {
+		const projectName = document.getElementById('projectName')?.value?.trim() || '';
+		const now = new Date();
+		const dateCode =
+			String(now.getFullYear()) + String(now.getMonth() + 1).padStart(2, '0') + String(now.getDate()).padStart(2, '0');
+
+		return `[Scrum]${projectName ? ' - ' + projectName : ''} - ${dateCode}`;
+	}
+
 	if (platformSelect) {
 		platformSelect.addEventListener('change', () => {
 			const platform = platformSelect.value;
@@ -2237,6 +2296,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				const scrumReport = document.getElementById('scrumReport');
 				if (scrumReport) {
 					scrumReport.innerHTML = '';
+					window.updateCopyButtonState?.();
 				}
 				const generateBtn = document.getElementById('generateReport');
 				if (typeof bootstrapScrumReportOnPopupLoad === 'function') {
@@ -2284,7 +2344,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		browser.storage.local.set({ platform: value }).then(() => {
 			const scrumReport = document.getElementById('scrumReport');
-			if (scrumReport) scrumReport.innerHTML = '';
+			if (scrumReport) {
+				scrumReport.innerHTML = '';
+				window.updateCopyButtonState?.();
+			}
 
 			const generateBtn = document.getElementById('generateReport');
 			if (typeof bootstrapScrumReportOnPopupLoad === 'function') {
@@ -2313,6 +2376,13 @@ document.addEventListener('DOMContentLoaded', () => {
 		dropdownList.querySelectorAll('li').forEach((item) => {
 			item.addEventListener('click', function () {
 				const newPlatform = this.getAttribute('data-value');
+				const platformUsername = document.getElementById('platformUsername');
+				const usernameError = document.getElementById('usernameError');
+				if (platformUsername) platformUsername.classList.remove('input-error');
+				if (usernameError) {
+					usernameError.classList.remove('errorMessage');
+					usernameError.textContent = '';
+				}
 
 				if (newPlatform !== currentStoredPlatform) {
 					setPlatformDropdown(newPlatform);
@@ -3015,6 +3085,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			// Clear the scrum report
 			const scrumReport = document.getElementById('scrumReport');
 			if (scrumReport) {
+				scrumReport.dataset.copyPlaceholder = 'true';
 				scrumReport.textContent = '';
 				const messageElement = document.createElement('p');
 				messageElement.style.textAlign = 'center';
@@ -3022,6 +3093,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				messageElement.style.padding = '20px';
 				messageElement.textContent = browser.i18n.getMessage('cacheClearedMessage');
 				scrumReport.appendChild(messageElement);
+				window.updateCopyButtonState?.();
 			}
 
 			if (typeof availableRepos !== 'undefined') {
