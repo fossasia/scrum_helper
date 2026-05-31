@@ -376,24 +376,24 @@ async function handleInsertReportToEmail(content, subject, sendResponse) {
 		// Wait up to 30 seconds for editor to become available
 		if (EmailClientAdapter.debug) console.log('[EmailClientAdapter] Editor not ready, waiting for DOM...');
 		let done = false;
-		const observer = new MutationObserver(() => {
-			if (!done && tryInject()) {
-				done = true;
-				observer.disconnect();
-				if (EmailClientAdapter.debug) console.log('[EmailClientAdapter] Content injected after waiting');
-				sendResponse({ success: true });
-			}
-		});
-
-		observer.observe(document.body, { childList: true, subtree: true });
-
-		setTimeout(() => {
+		const timeoutId = setTimeout(() => {
 			if (!done) {
-				observer.disconnect();
+				done = true;
+				clearInterval(intervalId);
 				console.warn('[EmailClientAdapter] Timeout waiting for editor');
 				sendResponse({ success: false, error: 'Email editor not found (timeout)' });
 			}
 		}, 30000);
+
+		const intervalId = setInterval(() => {
+			if (!done && tryInject()) {
+				done = true;
+				clearTimeout(timeoutId);
+				clearInterval(intervalId);
+				if (EmailClientAdapter.debug) console.log('[EmailClientAdapter] Content injected after waiting');
+				sendResponse({ success: true });
+			}
+		}, 500);
 	} catch (error) {
 		console.error('[EmailClientAdapter] Error injecting content:', error);
 		sendResponse({ success: false, error: error?.message || String(error) });

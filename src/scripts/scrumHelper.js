@@ -973,7 +973,7 @@ async function allIncluded(outputTarget = 'email') {
 
 			if (!issuesRes.ok) {
 				const errorMsg =
-					browser?.i18n.getMessage('githubFetchIssuesError', [issuesRes.status, issuesRes.statusText]) ||
+					browser?.i18n.getMessage('githubIssuesFetchError', [issuesRes.status, issuesRes.statusText]) ||
 					`Error fetching GitHub issues: ${issuesRes.status} ${issuesRes.statusText}`;
 				logError(errorMsg);
 				if (outputTarget === 'popup') {
@@ -983,7 +983,7 @@ async function allIncluded(outputTarget = 'email') {
 			}
 			if (!prRes.ok) {
 				const errorMsg =
-					browser?.i18n.getMessage('githubFetchPRDataError', [prRes.status, prRes.statusText]) ||
+					browser?.i18n.getMessage('githubPRReviewFetchError', [prRes.status, prRes.statusText]) ||
 					`Error fetching GitHub PR review data: ${prRes.status} ${prRes.statusText}`;
 				logError(errorMsg);
 				if (outputTarget === 'popup') {
@@ -993,7 +993,7 @@ async function allIncluded(outputTarget = 'email') {
 			}
 			if (!userRes.ok) {
 				const errorMsg =
-					browser?.i18n.getMessage('githubFetchUserDataError', [userRes.status, userRes.statusText]) ||
+					browser?.i18n.getMessage('githubUserFetchError', [userRes.status, userRes.statusText]) ||
 					`Error fetching GitHub user data: ${userRes.status} ${userRes.statusText}`;
 				logError(errorMsg);
 				throw new Error(errorMsg);

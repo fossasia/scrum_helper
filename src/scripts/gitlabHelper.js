@@ -301,17 +301,11 @@ class GitLabHelper {
 		}
 	}
 
-	async fetchGitLabData(username, startDate, endDate, token, group = '', selectedProjects = []) {
+	async fetchGitLabData(username, startDate, endDate, token = undefined, group = '', selectedProjects = []) {
 		const effectiveToken = typeof token === 'undefined' ? this.token : token;
 		const tokenMarker = effectiveToken ? 'auth' : 'noauth';
-		const normalizedProjects = Array.isArray(selectedProjects) ? [...selectedProjects].sort() : [];
-		const cacheKey = `${this.baseUrl}-${username}-${startDate}-${endDate}-${group}-${normalizedProjects.join(',')}-${tokenMarker}`;
+		const cacheKey = `${this.baseUrl}-${username}-${startDate}-${endDate}-${tokenMarker}`;
 
-		if (this.cache.cacheKey === cacheKey && this.cache.data) {
-			return this.cache.data;
-		}
-
-		// Check if we need to load from storage
 		if (!this.cache.data && !this.cache.fetching) {
 			await this.loadFromStorage();
 		}
@@ -324,7 +318,7 @@ class GitLabHelper {
 		const isCacheKeyMatch = this.cache.cacheKey === cacheKey;
 
 		if (this.cache.data && isCacheFresh && isCacheKeyMatch) {
-			return this.cache.data;
+			return this.applyFilters(this.cache.data, group, selectedProjects);
 		}
 
 		if (!isCacheKeyMatch) {
@@ -332,9 +326,10 @@ class GitLabHelper {
 		}
 
 		if (this.cache.fetching) {
-			return new Promise((resolve, reject) => {
+			const rawData = await new Promise((resolve, reject) => {
 				this.cache.queue.push({ resolve, reject });
 			});
+			return this.applyFilters(rawData, group, selectedProjects);
 		}
 
 		this.cache.fetching = true;
@@ -396,42 +391,12 @@ class GitLabHelper {
 			const contributedProjectsUrl = `${this.baseUrl}/users/${userId}/contributed_projects?per_page=100&order_by=updated_at&sort=desc`;
 			const contributedProjects = await fetchAllPages(contributedProjectsUrl, 'fetching contributed projects');
 
-			// Merge and deduplicate projects by project id
 			const allProjectsMap = new Map();
 			for (const p of [...membershipProjects, ...contributedProjects]) {
 				allProjectsMap.set(p.id, p);
 			}
-			let allProjects = Array.from(allProjectsMap.values());
+			const allProjects = Array.from(allProjectsMap.values());
 
-			// Apply group filter if specified
-			if (group && group.trim()) {
-				const groupLower = group.trim().toLowerCase();
-				allProjects = allProjects.filter((p) => {
-					// Check if project belongs to a group/namespace matching the filter
-					if (!p.namespace) {
-						return false;
-					}
-					const namespacePath = (p.namespace.path ?? '').toLowerCase();
-					const namespaceFullPath = (p.namespace.full_path ?? '').toLowerCase();
-					const namespaceName = (p.namespace.name ?? '').toLowerCase();
-					return (
-						namespacePath.includes(groupLower) ||
-						namespaceFullPath.includes(groupLower) ||
-						namespaceName.includes(groupLower)
-					);
-				});
-				if (GitLabHelper.debug) console.log(`[GITLAB] Filtered ${allProjects.length} projects by group: ${group}`);
-			}
-
-			// Apply project filter if specified
-			if (selectedProjects && selectedProjects.length > 0) {
-				const selectedProjectIds = selectedProjects.map((id) => parseInt(id, 10));
-				allProjects = allProjects.filter((p) => selectedProjectIds.includes(p.id));
-
-				if (GitLabHelper.debug) console.log(`[GITLAB] Filtered to ${allProjects.length} selected projects`);
-			}
-
-			// Fetch merge requests from each project (works without auth for public projects)
 			let allMergeRequests = [];
 			let mrErrors = 0;
 			for (const project of allProjects) {
@@ -439,7 +404,6 @@ class GitLabHelper {
 					const projectMRsUrl = `${this.baseUrl}/projects/${project.id}/merge_requests?author_id=${userId}&created_after=${startDate}T00:00:00Z&created_before=${endDate}T23:59:59Z&per_page=100&order_by=updated_at&sort=desc`;
 					const projectMRs = await fetchAllPages(projectMRsUrl, `fetching MRs for project ${project.name}`);
 					allMergeRequests = allMergeRequests.concat(projectMRs);
-					// Add small delay to avoid rate limiting
 					await new Promise((resolve) => setTimeout(resolve, 100));
 				} catch (error) {
 					const msg = error.message;
@@ -454,14 +418,12 @@ class GitLabHelper {
 						console.error(`Error fetching MRs for project ${project.name}:`, msg);
 					}
 					mrErrors++;
-					// Continue with other projects - graceful degradation
 				}
 			}
 			if (mrErrors > 0) {
 				console.warn(`Failed to fetch merge requests from ${mrErrors} project(s). Continuing with available data.`);
 			}
 
-			// Fetch issues from each project (works without auth for public projects)
 			let allIssues = [];
 			let issueErrors = 0;
 			for (const project of allProjects) {
@@ -469,7 +431,6 @@ class GitLabHelper {
 					const projectIssuesUrl = `${this.baseUrl}/projects/${project.id}/issues?author_id=${userId}&created_after=${startDate}T00:00:00Z&created_before=${endDate}T23:59:59Z&per_page=100&order_by=updated_at&sort=desc`;
 					const projectIssues = await fetchAllPages(projectIssuesUrl, `fetching issues for project ${project.name}`);
 					allIssues = allIssues.concat(projectIssues);
-					// Add small delay to avoid rate limiting
 					await new Promise((resolve) => setTimeout(resolve, 100));
 				} catch (error) {
 					const msg = error.message;
@@ -484,7 +445,6 @@ class GitLabHelper {
 						console.error(`Error fetching issues for project ${project.name}:`, msg);
 					}
 					issueErrors++;
-					// Continue with other projects
 				}
 			}
 			if (issueErrors > 0) {
@@ -494,26 +454,23 @@ class GitLabHelper {
 			const gitlabData = {
 				user: users[0],
 				projects: allProjects,
-				mergeRequests: allMergeRequests, // use project-by-project response
-				issues: allIssues, // use project-by-project response
-				comments: [], // Empty array since we're not fetching comments
+				mergeRequests: allMergeRequests,
+				issues: allIssues,
+				comments: [],
 			};
-			// Cache the data
 			this.cache.data = gitlabData;
 			this.cache.timestamp = Date.now();
 
 			await this.saveToStorage(gitlabData);
 
-			// Resolve queued calls
 			this.cache.queue.forEach(({ resolve }) => {
 				resolve(gitlabData);
 			});
 			this.cache.queue = [];
 
-			return gitlabData;
+			return this.applyFilters(gitlabData, group, selectedProjects);
 		} catch (err) {
 			console.error('GitLab Fetch Failed:', err);
-			// Reject queued calls on error
 			this.cache.queue.forEach(({ reject }) => {
 				reject(err);
 			});
@@ -522,6 +479,51 @@ class GitLabHelper {
 		} finally {
 			this.cache.fetching = false;
 		}
+	}
+
+	applyFilters(data, group, selectedProjects) {
+		if (!data) {
+			return null;
+		}
+
+		let filteredProjects = data.projects || [];
+		if (group && group.trim()) {
+			const groupLower = group.trim().toLowerCase();
+			filteredProjects = filteredProjects.filter((p) => {
+				if (!p.namespace) {
+					return false;
+				}
+				const namespacePath = (p.namespace.path ?? '').toLowerCase();
+				const namespaceFullPath = (p.namespace.full_path ?? '').toLowerCase();
+				const namespaceName = (p.namespace.name ?? '').toLowerCase();
+				return (
+					namespacePath.includes(groupLower) ||
+					namespaceFullPath.includes(groupLower) ||
+					namespaceName.includes(groupLower)
+				);
+			});
+		}
+
+		if (selectedProjects && selectedProjects.length > 0) {
+			const selectedProjectIds = selectedProjects
+				.map((id) => Number.parseInt(id, 10))
+				.filter((id) => !Number.isNaN(id));
+			filteredProjects = filteredProjects.filter((p) => selectedProjectIds.includes(p.id));
+		}
+
+		const filteredProjectIds = new Set(filteredProjects.map((p) => p.id));
+
+		const filteredMergeRequests = (data.mergeRequests || []).filter((mr) => filteredProjectIds.has(mr.project_id));
+
+		const filteredIssues = (data.issues || []).filter((issue) => filteredProjectIds.has(issue.project_id));
+
+		return {
+			user: data.user,
+			projects: filteredProjects,
+			mergeRequests: filteredMergeRequests,
+			issues: filteredIssues,
+			comments: data.comments || [],
+		};
 	}
 
 	async getDetailedMergeRequests(mergeRequests, token = null) {
