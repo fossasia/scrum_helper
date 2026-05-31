@@ -1700,9 +1700,9 @@ document.addEventListener('DOMContentLoaded', () => {
 				if (repoCount) {
 					repoCount.textContent = browser.i18n.getMessage('repoCountNone');
 				}
-        if (clearAllReposBtn) {
-          clearAllReposBtn.classList.add('hidden');
-        }
+				if (clearAllReposBtn) {
+					clearAllReposBtn.classList.add('hidden');
+				}
 			} else {
 				const fragment = document.createDocumentFragment();
 
@@ -1740,16 +1740,13 @@ document.addEventListener('DOMContentLoaded', () => {
 				});
 				repoTags.appendChild(fragment);
 
-        if (repoCount) {
-           repoCount.textContent = browser.i18n.getMessage(
-              'repoCount',
-              [selectedRepos.length]
-           );
-        }
+				if (repoCount) {
+					repoCount.textContent = browser.i18n.getMessage('repoCount', [selectedRepos.length]);
+				}
 
-        if (clearAllReposBtn) {
-           clearAllReposBtn.classList.remove('hidden');
-        }
+				if (clearAllReposBtn) {
+					clearAllReposBtn.classList.remove('hidden');
+				}
 			}
 		}
 
@@ -1759,9 +1756,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				selectedRepos = [];
 				updateRepoDisplay();
 				saveRepoSelection();
-				filterAndDisplayRepos(
-					repoSearch.value.toLowerCase()
-				);
+				filterAndDisplayRepos(repoSearch.value.toLowerCase());
 			});
 		}
 
