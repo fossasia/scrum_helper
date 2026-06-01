@@ -1,4 +1,7 @@
 {
+  "appName": {
+    "message": "Scrum Helper"
+  },
   "appDescription": {
     "message": "एक चयनित अवधि के लिए अपनी Git गतिविधि को स्वतः प्राप्त करके अपनी विकास प्रगति की रिपोर्ट करें।"
   },
@@ -191,6 +194,9 @@
   "cacheClearFailed": {
     "message": "कैश साफ़ करने में विफल।"
   },
+  "madeWithLoveBy": {
+    "message": "Made with ❤️ by"
+  },
   "generatingButton": {
     "message": "बनाया जा रहा है..."
   },
@@ -334,5 +340,41 @@
   },
   "insertedInEmailNotification": {
     "message": "रिपोर्ट ईमेल में डाल दी गई!"
+  },
+  "projectNameTooltip": {
+    "message": "यह प्रोजेक्ट नाम आपके ईमेल की विषय पंक्ति में इस प्रकार दिखाई देगा:\n\"[Scrum] प्रोजेक्ट नाम - दिनांक\"। छोड़ने के लिए खाली छोड़ दें।"
+  },
+  "advancedFiltersLabel": {
+    "message": "उन्नत फ़िल्टर"
+  },
+  "orgNameTooltip": {
+    "message": "<b>किस संगठन की GitHub गतिविधि?</b><br>गतिविधियों को लाने के लिए GitHub संगठन का नाम दर्ज करें। सभी संगठनों में अपनी सभी GitHub गतिविधियों को लाने के लिए खाली छोड़ दें। संगठन का नाम केस-संवेदी नहीं है।"
+  },
+  "repoFilterTooltip": {
+    "message": "GitHub टोकन आवश्यक है।<br>रेपो सूची को जबरन अपडेट करने के लिए,<br>'डेटा रीफ्रेश करें' बटन पर क्लिक करें।"
+  },
+  "displayModeLabel": {
+    "message": "डिस्प्ले मोड"
+  },
+  "displayModeTooltip": {
+    "message": "चुनें कि जब आप इसके आइकन पर क्लिक करते हैं तो Scrum Helper कैसे खुलता है। साइड पैनल इसे आपके पेज के साथ डॉक रखता है। पॉपअप एक फ्लोटिंग विंडो खोलता है।"
+  },
+  "cacheTTLTooltip": {
+    "message": "हम फालतू कॉल से बचने के लिए डेटा को कैश कर रहे हैं। डिफ़ॉल्ट रूप से कैश 10 मिनट के बाद समाप्त हो जाता है, आप इसे यहां अपने इच्छित समय में बदल सकते हैं। यदि आप अभी नया डेटा प्राप्त करना चाहते हैं तो हमने कैश रीफ्रेश करने का बटन दिया है।"
+  },
+  "cacheInputLabel": {
+    "message": "कैश टीटीएल (मिनटों में)"
+  },
+  "noScrumReportToInsertError": {
+    "message": "डालने के लिए कोई Scrum रिपोर्ट नहीं मिली।"
+  },
+  "reportInsertedSuccess": {
+    "message": "रिपोर्ट सफलतापूर्वक डाली गई!"
+  },
+  "errorLabel": {
+    "message": "त्रुटि"
+  },
+  "gitlabProjectFetchError": {
+    "message": "GitLab प्रोजेक्ट लाने में त्रुटि।"
   }
 }

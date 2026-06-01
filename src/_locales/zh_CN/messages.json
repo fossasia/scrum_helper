@@ -1,4 +1,7 @@
 {
+  "appName": {
+    "message": "Scrum Helper"
+  },
   "appDescription": {
     "message": "通过自动获取选定时间段内的 Git 活动来报告您的开发进度。"
   },
@@ -191,6 +194,9 @@
   "cacheClearFailed": {
     "message": "清除缓存失败。"
   },
+  "madeWithLoveBy": {
+    "message": "Made with ❤️ by"
+  },
   "generatingButton": {
     "message": "正在生成..."
   },
@@ -334,5 +340,41 @@
   },
   "insertedInEmailNotification": {
     "message": "报告已插入邮件！"
+  },
+  "projectNameTooltip": {
+    "message": "此项目名称将作为以下部分显示在您的电子邮件主题行中：\n\"[Scrum] 项目名称 - 日期\"。留空以跳过。"
+  },
+  "advancedFiltersLabel": {
+    "message": "高级过滤器"
+  },
+  "orgNameTooltip": {
+    "message": "<b>哪个组织的的 GitHub 活动？</b><br>输入要获取活动的 GitHub 组织名称。留空以获取您在所有组织中的所有 GitHub 活动。组织名称不区分大小写。"
+  },
+  "repoFilterTooltip": {
+    "message": "需要 GitHub 令牌。<br>要强制更新存储库列表，<br>请单击“刷新数据”按钮。"
+  },
+  "displayModeLabel": {
+    "message": "显示模式"
+  },
+  "displayModeTooltip": {
+    "message": "选择点击图标时如何打开 Scrum Helper。边栏保持其停靠在页面旁边。弹出窗口打开一个悬浮窗口。"
+  },
+  "cacheTTLTooltip": {
+    "message": "我们正在缓存数据以避免冗余调用。默认情况下，缓存将在 10 分钟后过期，您可以在此处将其更改为您想要的时间。我们提供了一个刷新缓存按钮，以防您现在想获取最新数据。"
+  },
+  "cacheInputLabel": {
+    "message": "缓存有效时间（分钟）"
+  },
+  "noScrumReportToInsertError": {
+    "message": "未找到要插入的 Scrum 报告。"
+  },
+  "reportInsertedSuccess": {
+    "message": "报告已成功插入！"
+  },
+  "errorLabel": {
+    "message": "错误"
+  },
+  "gitlabProjectFetchError": {
+    "message": "获取 GitLab 项目时出错。"
   }
 }

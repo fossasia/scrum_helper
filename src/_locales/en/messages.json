@@ -558,5 +558,53 @@
   "githubInvalidSearchError": {
     "message": "Invalid search query or date range. Please verify your date range format and try again.",
     "description": "Error when the search query or date range is invalid."
+  },
+  "projectNameTooltip": {
+    "message": "This project name will appear in the subject line of your email as part of:\n\"[Scrum] Project Name - Date\". Leave blank to skip.",
+    "description": "Tooltip explaining how the project name is used."
+  },
+  "advancedFiltersLabel": {
+    "message": "Advanced Filters",
+    "description": "Label for the advanced filters collapsible section."
+  },
+  "orgNameTooltip": {
+    "message": "<b>Which organization's GitHub activity?</b><br>Enter the GitHub organization name to fetch activities for. Leave empty to fetch all your GitHub activities across all organizations. Organization name is not case-sensitive.",
+    "description": "Tooltip explaining organization name input."
+  },
+  "repoFilterTooltip": {
+    "message": "GitHub Token required.<br>To force a repo list update,<br>click the Refresh Data button.",
+    "description": "Tooltip explaining repository filtering requirements."
+  },
+  "displayModeLabel": {
+    "message": "Display Mode",
+    "description": "Label for the display mode selection in settings."
+  },
+  "displayModeTooltip": {
+    "message": "Choose how Scrum Helper opens when you click its icon. Side Panel keeps it docked alongside your page. Popup opens a floating window.",
+    "description": "Tooltip explaining display mode options."
+  },
+  "cacheTTLTooltip": {
+    "message": "We are caching the data to avoid redundant calls. By default the cache expires after 10 minutes, you can change it here to your desired time. We have given a refresh cache button in case you want to fetch fresh data right now.",
+    "description": "Tooltip explaining cache TTL and refresh."
+  },
+  "cacheInputLabel": {
+    "message": "Cache TTL (in minutes)",
+    "description": "Accessibility label for cache TTL input."
+  },
+  "noScrumReportToInsertError": {
+    "message": "No Scrum report found to insert.",
+    "description": "Error message shown when attempting to insert an empty or non-existent report."
+  },
+  "reportInsertedSuccess": {
+    "message": "Report inserted successfully!",
+    "description": "Success message shown after successfully inserting report into active email."
+  },
+  "errorLabel": {
+    "message": "Error",
+    "description": "Generic error label prepended to error messages."
+  },
+  "gitlabProjectFetchError": {
+    "message": "Error fetching GitLab projects.",
+    "description": "Error message shown when GitLab projects fail to fetch."
   }
 }

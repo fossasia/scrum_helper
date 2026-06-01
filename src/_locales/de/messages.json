@@ -1,4 +1,7 @@
 {
+  "appName": {
+    "message": "Scrum Helper"
+  },
   "appDescription": {
     "message": "Berichten Sie über Ihren Entwicklungsfortschritt, indem Sie Ihre Git-Aktivität für einen ausgewählten Zeitraum automatisch abrufen"
   },
@@ -203,6 +206,9 @@
   "cacheClearFailed": {
     "message": "Cache-Löschung fehlgeschlagen."
   },
+  "madeWithLoveBy": {
+    "message": "Made with ❤️ by"
+  },
   "generatingButton": {
     "message": "Wird generiert..."
   },
@@ -346,5 +352,41 @@
   },
   "insertedInEmailNotification": {
     "message": "Bericht in E-Mail eingefügt!"
+  },
+  "projectNameTooltip": {
+    "message": "Dieser Projektname wird in der Betreffzeile Ihrer E-Mail als Teil von:\n\"[Scrum] Projektname - Datum\" angezeigt. Leer lassen zum Überspringen."
+  },
+  "advancedFiltersLabel": {
+    "message": "Erweiterte Filter"
+  },
+  "orgNameTooltip": {
+    "message": "<b>Aktivitäten welcher GitHub-Organisation abrufen?</b><br>Geben Sie den Namen der GitHub-Organisation ein. Leer lassen, um alle Ihre GitHub-Aktivitäten über alle Organisationen hinweg abzurufen. Der Name der Organisation unterscheidet nicht zwischen Groß- und Kleinschreibung."
+  },
+  "repoFilterTooltip": {
+    "message": "GitHub-Token erforderlich.<br>Um ein Update der Repository-Liste zu erzwingen,<br>klicken Sie auf die Schaltfläche 'Daten aktualisieren'."
+  },
+  "displayModeLabel": {
+    "message": "Anzeigemodus"
+  },
+  "displayModeTooltip": {
+    "message": "Wählen Sie, wie sich Scrum Helper öffnet, wenn Sie auf das Symbol klicken. Die Seitenleiste hält es neben Ihrer Seite angedockt. Popup öffnet ein schwebendes Fenster."
+  },
+  "cacheTTLTooltip": {
+    "message": "Wir speichern die Daten zwischen, um redundante Aufrufe zu vermeiden. Standardmäßig läuft der Cache nach 10 Minuten ab. Sie können dies hier auf Ihre gewünschte Zeit ändern. Wir haben eine Schaltfläche zum Aktualisieren des Caches bereitgestellt, falls Sie jetzt frische Daten abrufen möchten."
+  },
+  "cacheInputLabel": {
+    "message": "Cache-TTL (in Minuten)"
+  },
+  "noScrumReportToInsertError": {
+    "message": "Kein Scrum-Bericht zum Einfügen gefunden."
+  },
+  "reportInsertedSuccess": {
+    "message": "Bericht erfolgreich eingefügt!"
+  },
+  "errorLabel": {
+    "message": "Fehler"
+  },
+  "gitlabProjectFetchError": {
+    "message": "Fehler beim Abrufen der GitLab-Projekte."
   }
 }

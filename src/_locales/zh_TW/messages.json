@@ -1,4 +1,7 @@
 {
+  "appName": {
+    "message": "Scrum Helper"
+  },
   "appDescription": {
     "message": "透過自動擷取選定時間段內的 Git 活動來報告您的開發進度。"
   },
@@ -158,6 +161,9 @@
   "cacheClearFailed": {
     "message": "清除快取失敗。"
   },
+  "madeWithLoveBy": {
+    "message": "Made with ❤️ by"
+  },
   "generatingButton": {
     "message": "正在產生..."
   },
@@ -283,5 +289,41 @@
   },
   "insertedInEmailNotification": {
     "message": "報告已插入電子郵件!"
+  },
+  "projectNameTooltip": {
+    "message": "此專案名稱將作為以下部分顯示在您的電子郵件主題行中：\n\"[Scrum] 專案名稱 - 日期\"。留空以跳過。"
+  },
+  "advancedFiltersLabel": {
+    "message": "進階篩選器"
+  },
+  "orgNameTooltip": {
+    "message": "<b>哪個組織的 GitHub 活動？</b><br>輸入要獲取活動的 GitHub 組織名稱。留空以獲取您在所有組織中的所有 GitHub 活動。組織名稱不區分大小寫。"
+  },
+  "repoFilterTooltip": {
+    "message": "需要 GitHub 權杖。<br>要強制更新儲存庫清單，<br>請按一下「重新整理資料」按鈕。"
+  },
+  "displayModeLabel": {
+    "message": "顯示模式"
+  },
+  "displayModeTooltip": {
+    "message": "選擇按一下圖示時如何開啟 Scrum Helper。「側邊欄」保持其停靠在頁面旁邊。「彈出視窗」開啟一個懸浮視窗。"
+  },
+  "cacheTTLTooltip": {
+    "message": "我們正在快取資料以避免重複呼叫。預設情況下，快取將在 10 分鐘後過期，您可以在此處將其變更為您想要的時間。我們提供了一個重新整理快取按鈕，以防您現在想獲取最新資料。"
+  },
+  "cacheInputLabel": {
+    "message": "快取有效時間（分鐘）"
+  },
+  "noScrumReportToInsertError": {
+    "message": "未找到要插入的 Scrum 報告。"
+  },
+  "reportInsertedSuccess": {
+    "message": "報告已成功插入！"
+  },
+  "errorLabel": {
+    "message": "錯誤"
+  },
+  "gitlabProjectFetchError": {
+    "message": "獲取 GitLab 專案時出錯。"
   }
 }

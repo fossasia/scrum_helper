@@ -1,4 +1,7 @@
 {
+  "appName": {
+    "message": "Scrum Helper"
+  },
   "appDescription": {
     "message": "Laporkan kemajuan pengembangan Anda dengan mengambil aktivitas Git Anda secara otomatis untuk periode yang dipilih."
   },
@@ -191,6 +194,9 @@
   "cacheClearFailed": {
     "message": "Gagal membersihkan cache."
   },
+  "madeWithLoveBy": {
+    "message": "Made with ❤️ by"
+  },
   "generatingButton": {
     "message": "Membuat..."
   },
@@ -331,5 +337,41 @@
   },
   "insertedInEmailNotification": {
     "message": "Laporan disisipkan ke email!"
+  },
+  "projectNameTooltip": {
+    "message": "Nama proyek ini akan muncul di baris subjek email Anda sebagai bagian dari:\n\"[Scrum] Nama Proyek - Tanggal\". Biarkan kosong untuk melewati."
+  },
+  "advancedFiltersLabel": {
+    "message": "Filter Lanjutan"
+  },
+  "orgNameTooltip": {
+    "message": "<b>Aktivitas organisasi GitHub yang mana?</b><br>Masukkan nama organisasi GitHub untuk mengambil aktivitas. Biarkan kosong untuk mengambil semua aktivitas GitHub Anda di semua organisasi. Nama organisasi tidak sensitif terhadap huruf besar/kecil."
+  },
+  "repoFilterTooltip": {
+    "message": "Token GitHub diperlukan.<br>Untuk memaksa pembaruan daftar repo,<br>klik tombol Segarkan Data."
+  },
+  "displayModeLabel": {
+    "message": "Mode Tampilan"
+  },
+  "displayModeTooltip": {
+    "message": "Pilih cara Scrum Helper terbuka saat Anda mengklik ikonnya. Panel Samping membuatnya tetap terpasang di samping halaman Anda. Popup membuka jendela melayang."
+  },
+  "cacheTTLTooltip": {
+    "message": "Kami menyimpan data dalam cache untuk menghindari panggilan redundan. Secara default, cache kedaluwarsa setelah 10 menit, Anda dapat mengubahnya di sini ke waktu yang diinginkan. Kami menyediakan tombol segarkan cache jika Anda ingin mengambil data baru sekarang."
+  },
+  "cacheInputLabel": {
+    "message": "TTL Cache (dalam menit)"
+  },
+  "noScrumReportToInsertError": {
+    "message": "Tidak ada laporan Scrum yang ditemukan untuk dimasukkan."
+  },
+  "reportInsertedSuccess": {
+    "message": "Laporan berhasil dimasukkan!"
+  },
+  "errorLabel": {
+    "message": "Kesalahan"
+  },
+  "gitlabProjectFetchError": {
+    "message": "Kesalahan saat mengambil proyek GitLab."
   }
 }

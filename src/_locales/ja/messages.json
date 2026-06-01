@@ -1,4 +1,7 @@
 {
+  "appName": {
+    "message": "Scrum Helper"
+  },
   "appDescription": {
     "message": "選択した期間のGitアクティビティを自動的に取得して、開発の進捗を報告します。"
   },
@@ -197,6 +200,9 @@
   "cacheClearFailed": {
     "message": "キャッシュのクリアに失敗しました。"
   },
+  "madeWithLoveBy": {
+    "message": "Made with ❤️ by"
+  },
   "generatingButton": {
     "message": "生成中..."
   },
@@ -340,5 +346,41 @@
   },
   "insertedInEmailNotification": {
     "message": "レポートをメールに挿入しました！"
+  },
+  "projectNameTooltip": {
+    "message": "このプロジェクト名は、メールの件名の一部として「[Scrum] プロジェクト名 - 日付」のように表示されます。省略する場合は空白のままにしてください。"
+  },
+  "advancedFiltersLabel": {
+    "message": "高度なフィルター"
+  },
+  "orgNameTooltip": {
+    "message": "<b>どの組織の GitHub アクティビティですか？</b><br>アクティビティを取得する GitHub 組織名を入力してください。空のままにすると、すべての組織にわたるすべての GitHub アクティビティを取得します。組織名の大文字と小文字は区別されません。"
+  },
+  "repoFilterTooltip": {
+    "message": "GitHub トークンが必要です。<br>リポジトリリストを強制的に更新するには、<br>「データを更新」ボタンをクリックしてください。"
+  },
+  "displayModeLabel": {
+    "message": "表示モード"
+  },
+  "displayModeTooltip": {
+    "message": "アイコンをクリックしたときに Scrum Helper をどのように開くかを選択します。「サイドパネル」はページ横にドック表示します。「ポップアップ」はフローティングウィンドウを開きます。"
+  },
+  "cacheTTLTooltip": {
+    "message": "重複した呼び出しを避けるためにデータをキャッシュしています。デフォルトではキャッシュは10分後に期限切れになりますが、ここで希望の時間に変更できます。今すぐ最新のデータを取得したい場合のために、キャッシュ更新ボタンを用意しています。"
+  },
+  "cacheInputLabel": {
+    "message": "キャッシュの有効期限 (分単位)"
+  },
+  "noScrumReportToInsertError": {
+    "message": "挿入する Scrum レポートが見つかりません。"
+  },
+  "reportInsertedSuccess": {
+    "message": "レポートが正常に挿入されました！"
+  },
+  "errorLabel": {
+    "message": "エラー"
+  },
+  "gitlabProjectFetchError": {
+    "message": "GitLab プロジェクトの取得中にエラーが発生しました。"
   }
 }

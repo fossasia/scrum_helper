@@ -1,4 +1,7 @@
 {
+  "appName": {
+    "message": "Scrum Helper"
+  },
   "appDescription": {
     "message": "Rapporter utviklingsfremgangen din ved å automatisk hente Git-aktiviteten din for en valgt periode."
   },
@@ -188,6 +191,9 @@
   "cacheClearFailed": {
     "message": "Tømming av cache mislyktes."
   },
+  "madeWithLoveBy": {
+    "message": "Made with ❤️ by"
+  },
   "generatingButton": {
     "message": "Genererer..."
   },
@@ -343,5 +349,41 @@
   },
   "gitlabProjectPlaceholder": {
     "message": "Ingen prosjekter valgt (alle vil bli inkludert)"
+  },
+  "projectNameTooltip": {
+    "message": "Dette prosjektnavnet vil vises i emnefeltet på e-posten din som en del av:\n\"[Scrum] Prosjektnavn - Dato\". La stå tomt for å hoppe over."
+  },
+  "advancedFiltersLabel": {
+    "message": "Avanserte filtre"
+  },
+  "orgNameTooltip": {
+    "message": "<b>Aktivitet fra hvilken GitHub-organisasjon?</b><br>Skriv inn GitHub-organisasjonsnavnet for å hente aktiviteter. La stå tomt for å hente alle dine GitHub-aktiviteter på tvers av alle organisasjoner. Organisasjonsnavnet skiller ikke mellom store og små bokstaver."
+  },
+  "repoFilterTooltip": {
+    "message": "GitHub-token kreves.<br>For å tvinge en oppdatering av repositorielisten,<br>klikk på 'Oppdater data'-knappen."
+  },
+  "displayModeLabel": {
+    "message": "Visningsmodus"
+  },
+  "displayModeTooltip": {
+    "message": "Velg hvordan Scrum Helper åpnes når du klikker på ikonet. Sidepanel holder den dokket ved siden av siden din. Popup åpner et flytende vindu."
+  },
+  "cacheTTLTooltip": {
+    "message": "Vi mellomlagrer dataene for å unngå overflødige kall. Som standard utløper hurtigbufferen etter 10 minutter, men du kan endre det her til ønsket tid. Vi har lagt til en knapp for å oppdatere hurtigbufferen i tilfelle du vil hente ferske data akkurat nå."
+  },
+  "cacheInputLabel": {
+    "message": "Mellomlager-TTL (i minutter)"
+  },
+  "noScrumReportToInsertError": {
+    "message": "Ingen Scrum-rapport funnet å sette inn."
+  },
+  "reportInsertedSuccess": {
+    "message": "Rapport satt inn uten feil!"
+  },
+  "errorLabel": {
+    "message": "Feil"
+  },
+  "gitlabProjectFetchError": {
+    "message": "Feil ved henting av GitLab-prosjekter."
   }
 }

@@ -1,4 +1,7 @@
 {
+  "appName": {
+    "message": "Scrum Helper"
+  },
   "appDescription": {
     "message": "Báo cáo tiến độ phát triển của bạn bằng cách tự động lấy hoạt động Git trong một khoảng thời gian đã chọn."
   },
@@ -191,6 +194,9 @@
   "cacheClearFailed": {
     "message": "Xóa bộ nhớ đệm thất bại."
   },
+  "madeWithLoveBy": {
+    "message": "Made with ❤️ by"
+  },
   "generatingButton": {
     "message": "Đang tạo..."
   },
@@ -334,5 +340,41 @@
   },
   "insertedInEmailNotification": {
     "message": "Đã chèn báo cáo vào email!"
+  },
+  "projectNameTooltip": {
+    "message": "Tên dự án này sẽ xuất hiện trong dòng tiêu đề email của bạn như một phần của:\n\"[Scrum] Tên dự án - Ngày\". Để trống để bỏ qua."
+  },
+  "advancedFiltersLabel": {
+    "message": "Bộ lọc nâng cao"
+  },
+  "orgNameTooltip": {
+    "message": "<b>Hoạt động của tổ chức GitHub nào?</b><br>Nhập tên tổ chức GitHub để tìm nạp các hoạt động. Để trống để tìm nạp tất cả các hoạt động GitHub của bạn trên tất cả các tổ chức. Tên tổ chức không phân biệt chữ hoa chữ thường."
+  },
+  "repoFilterTooltip": {
+    "message": "Cần có mã thông báo GitHub.<br>Để buộc cập nhật danh sách kho lưu trữ,<br>hãy nhấp vào nút Làm mới dữ liệu."
+  },
+  "displayModeLabel": {
+    "message": "Chế độ hiển thị"
+  },
+  "displayModeTooltip": {
+    "message": "Chọn cách Scrum Helper mở ra khi bạn nhấp vào biểuêu tượng của nó. Bảng bên hông giữ nó được ghim bên cạnh trang của bạn. Cửa sổ bật lên sẽ mở ra một cửa sổ nổi."
+  },
+  "cacheTTLTooltip": {
+    "message": "Chúng tôi đang lưu trữ dữ liệu vào bộ nhớ đệm để tránh các cuộc gọi dư thừa. Theo mặc định, bộ nhớ đệm sẽ hết hạn sau 10 phút, bạn có thể thay đổi thời gian mong muốn tại đây. Chúng tôi đã cung cấp nút làm mới bộ nhớ đệm trong trường hợp bạn muốn lấy dữ liệu mới ngay bây giờ."
+  },
+  "cacheInputLabel": {
+    "message": "Thời gian lưu bộ nhớ đệm (tính bằng phút)"
+  },
+  "noScrumReportToInsertError": {
+    "message": "Không tìm thấy báo cáo Scrum nào để chèn."
+  },
+  "reportInsertedSuccess": {
+    "message": "Đã chèn báo cáo thành công!"
+  },
+  "errorLabel": {
+    "message": "Lỗi"
+  },
+  "gitlabProjectFetchError": {
+    "message": "Lỗi khi tìm nạp các dự án GitLab."
   }
 }

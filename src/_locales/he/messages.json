@@ -1,4 +1,7 @@
 {
+  "appName": {
+    "message": "Scrum Helper"
+  },
   "appDescription": {
     "message": "דווח על התקדמות הפיתוח שלך על ידי שליפה אוטומטית של פעילות ה-Git שלך לתקופה נבחרת."
   },
@@ -203,6 +206,9 @@
   "cacheClearFailed": {
     "message": "ניקוי המטמון נכשל."
   },
+  "madeWithLoveBy": {
+    "message": "Made with ❤️ by"
+  },
   "generatingButton": {
     "message": "יוצר..."
   },
@@ -331,5 +337,41 @@
   },
   "insertedInEmailNotification": {
     "message": "דוח הוכנס לדואר!"
+  },
+  "projectNameTooltip": {
+    "message": "שם פרויקט זה יופיע בשורת הנושא של האימייל שלך כחלק מ:\n\"[Scrum] שם פרויקט - תאריך\". השאר ריק כדי לדלג."
+  },
+  "advancedFiltersLabel": {
+    "message": "מסננים מתקדמים"
+  },
+  "orgNameTooltip": {
+    "message": "<b>פעילות של איזה ארגון ב-GitHub?</b><br>הזן את שם הארגון ב-GitHub כדי לאחזר פעילויות. השאר ריק כדי לאחזר את כל פעילויות ה-GitHub שלך בכל הארגונים. שם הארגון אינו רגיש לאותיות רישיות."
+  },
+  "repoFilterTooltip": {
+    "message": "נדרש אסימון GitHub.<br>כדי לכפות עדכון של רשימת המאגרים,<br>לחץ על כפתור רענון הנתונים."
+  },
+  "displayModeLabel": {
+    "message": "מצב תצוגה"
+  },
+  "displayModeTooltip": {
+    "message": "בחר כיצד Scrum Helper נפתח כאשר אתה לוחץ על הסמל שלו. חלון צדדי שומר אותו מעוגן לצด העמוד שלך. חלון קופץ פותח חלון צף."
+  },
+  "cacheTTLTooltip": {
+    "message": "אנו שומרים את הנתונים במטמון כדי למנוע קריאות מיותרות. כברירת מחדל, תוקף המטמון פג לאחר 10 דקות, תוכל לשנות זאת כאן לזמן הרצוי לך. סיפקנו כפתור לרענון המטמון למקרה שתרצה לאחזר נתונים טריים ברגע זה."
+  },
+  "cacheInputLabel": {
+    "message": "זמן חיים של המטמון (בדקות)"
+  },
+  "noScrumReportToInsertError": {
+    "message": "לא נמצא דוח Scrum להוספה."
+  },
+  "reportInsertedSuccess": {
+    "message": "הדוח הוכנס בהצלחה!"
+  },
+  "errorLabel": {
+    "message": "שגיאה"
+  },
+  "gitlabProjectFetchError": {
+    "message": "שגיאה באחזור פרויקטים מ-GitLab."
   }
 }

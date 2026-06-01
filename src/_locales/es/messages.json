@@ -1,4 +1,7 @@
 {
+  "appName": {
+    "message": "Scrum Helper"
+  },
   "appDescription": {
     "message": "Informe sobre su progreso de desarrollo obteniendo automáticamente su actividad de Git para un período seleccionado."
   },
@@ -203,6 +206,9 @@
   "cacheClearFailed": {
     "message": "Error al borrar el caché."
   },
+  "madeWithLoveBy": {
+    "message": "Made with ❤️ by"
+  },
   "generatingButton": {
     "message": "Generando..."
   },
@@ -346,5 +352,41 @@
   },
   "insertedInEmailNotification": {
     "message": "¡Informe insertado en el correo!"
+  },
+  "projectNameTooltip": {
+    "message": "Este nombre de proyecto aparecerá en la línea de asunto de su correo electrónico como parte de:\n\"[Scrum] Nombre del proyecto - Fecha\". Dejar en blanco para omitir."
+  },
+  "advancedFiltersLabel": {
+    "message": "Filtros avanzados"
+  },
+  "orgNameTooltip": {
+    "message": "<b>¿Actividad de qué organización de GitHub?</b><br>Ingrese el nombre de la organización de GitHub para obtener las actividades. Deje vacío para obtener todas sus actividades de GitHub en todas las organizaciones. El nombre de la organización no distingue entre mayúsculas y minúsculas."
+  },
+  "repoFilterTooltip": {
+    "message": "Se requiere token de GitHub.<br>Para forzar una actualización de la lista de repositorios,<br>haga clic en el botón 'Actualizar datos'."
+  },
+  "displayModeLabel": {
+    "message": "Modo de visualización"
+  },
+  "displayModeTooltip": {
+    "message": "Elija cómo se abre Scrum Helper al hacer clic en su icono. Panel lateral lo mantiene acoplado junto a su página. Ventana emergente abre una ventana flotante."
+  },
+  "cacheTTLTooltip": {
+    "message": "Almacenamos los datos en caché para evitar llamadas redundantes. Por defecto, la caché expira después de 10 minutos, puede cambiarla aquí a su gusto. Hemos proporcionado un botón de actualización de caché por si desea obtener datos frescos ahora mismo."
+  },
+  "cacheInputLabel": {
+    "message": "TTL de caché (en minutos)"
+  },
+  "noScrumReportToInsertError": {
+    "message": "No se encontró ningún informe de Scrum para insertar."
+  },
+  "reportInsertedSuccess": {
+    "message": "¡Informe insertado con éxito!"
+  },
+  "errorLabel": {
+    "message": "Error"
+  },
+  "gitlabProjectFetchError": {
+    "message": "Error al obtener los proyectos de GitLab."
   }
 }

@@ -1,4 +1,7 @@
 {
+  "appName": {
+    "message": "Scrum Helper"
+  },
   "appDescription": {
     "message": "Relate seu progresso de desenvolvimento buscando automaticamente sua atividade no Git para um período selecionado."
   },
@@ -197,6 +200,9 @@
   "cacheClearFailed": {
     "message": "Falha ao limpar o cache."
   },
+  "madeWithLoveBy": {
+    "message": "Made with ❤️ by"
+  },
   "generatingButton": {
     "message": "Gerando..."
   },
@@ -340,5 +346,41 @@
   },
   "insertedInEmailNotification": {
     "message": "Relatório inserido no e-mail!"
+  },
+  "projectNameTooltip": {
+    "message": "Este nome de projeto aparecerá na linha de assunto do seu e-mail como parte de:\n\"[Scrum] Nome do Projeto - Data\". Deixe em branco para ignorar."
+  },
+  "advancedFiltersLabel": {
+    "message": "Filtros avançados"
+  },
+  "orgNameTooltip": {
+    "message": "<b>Atividade de qual organização do GitHub?</b><br>Insira o nome da organização do GitHub para buscar as atividades. Deixe em branco para buscar todas as suas atividades do GitHub em todas as organizações. O nome da organização não diferencia maiúsculas de minúsculas."
+  },
+  "repoFilterTooltip": {
+    "message": "Token do GitHub necessário.<br>Para forçar uma atualização na lista de repositórios,<br>clique no botão 'Atualizar dados'."
+  },
+  "displayModeLabel": {
+    "message": "Modo de exibição"
+  },
+  "displayModeTooltip": {
+    "message": "Escolha como o Scrum Helper se abre ao clicar no ícone. Painel lateral mantém a janela acoplada ao lado da sua página. Janela popup abre uma janela flutuante."
+  },
+  "cacheTTLTooltip": {
+    "message": "Nós armazenamos os dados em cache para evitar chamadas redundantes. Por padrão, o cache expira após 10 minutos, mas você pode alterar este tempo aqui. Fornecemos um botão de atualização para caso você queira buscar os dados mais recentes agora mesmo."
+  },
+  "cacheInputLabel": {
+    "message": "TTL do cache (em minutos)"
+  },
+  "noScrumReportToInsertError": {
+    "message": "Nenhum relatório Scrum encontrado para inserir."
+  },
+  "reportInsertedSuccess": {
+    "message": "Relatório inserido com sucesso!"
+  },
+  "errorLabel": {
+    "message": "Erro"
+  },
+  "gitlabProjectFetchError": {
+    "message": "Erro ao buscar os projetos do GitLab."
   }
 }
