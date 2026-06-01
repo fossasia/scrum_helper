@@ -50,6 +50,7 @@ const SCRUM_SANITIZER_CONFIG = {
 	],
 	FORBID_TAGS: ['script', 'iframe', 'object', 'embed'],
 	FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover'],
+	ALLOWED_URI_REGEXP: /^(?:(?:https?|mailto|tel):|[^&:\/?#]*(?:[\/?#]|$))/i,
 };
 
 function sanitizeHtml(html) {

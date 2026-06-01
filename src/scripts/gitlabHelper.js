@@ -9,8 +9,14 @@ function normalizeGitLabApiBaseUrl(apiBaseUrl) {
 class GitLabHelper {
 	static debug = false;
 	constructor(token = null, apiBaseUrl = DEFAULT_GITLAB_API_BASE_URL) {
-		this.baseUrl = normalizeGitLabApiBaseUrl(apiBaseUrl);
-		this.token = token;
+		let finalToken = token;
+		let finalBaseUrl = apiBaseUrl;
+		if (typeof token === 'string' && (token.startsWith('http:') || token.startsWith('https:') || token.includes('/'))) {
+			finalBaseUrl = token;
+			finalToken = null;
+		}
+		this.baseUrl = normalizeGitLabApiBaseUrl(finalBaseUrl);
+		this.token = finalToken;
 		this.cache = {
 			data: null,
 			cacheKey: null,
@@ -526,7 +532,7 @@ class GitLabHelper {
 		};
 	}
 
-	async getDetailedMergeRequests(mergeRequests, token = null) {
+	async getDetailedMergeRequests(mergeRequests, token = undefined) {
 		const effectiveToken = typeof token === 'undefined' ? this.token : token;
 		const detailed = [];
 		for (const mr of mergeRequests) {
@@ -547,7 +553,7 @@ class GitLabHelper {
 		return detailed;
 	}
 
-	async getDetailedIssues(issues, token = null) {
+	async getDetailedIssues(issues, token = undefined) {
 		const effectiveToken = typeof token === 'undefined' ? this.token : token;
 		const detailed = [];
 		for (const issue of issues) {
