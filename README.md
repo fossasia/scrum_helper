@@ -13,7 +13,33 @@
 
 ## How to install
 
-### For Chrome:
+
+### Quick Installation (Recommended for End Users)
+
+We now provide pre-built installer files for all browsers in the [`/installers`](installers) folder.
+
+#### Firefox / Zen Browser
+1. Download [`scrum-helper-firefox.xpi`](installers/scrum-helper-firefox.xpi)
+2. Open Firefox or Zen Browser
+3. Drag and drop the downloaded `.xpi` file onto the browser window
+4. Click "Add" when prompted
+
+ **No developer mode or special settings required** – this extension is officially signed by Mozilla.
+
+#### Chrome / Edge / Brave (Chromium)
+1. Download [`scrum-helper-chromium.crx`](installers/scrum-helper-chromium.crx)
+2. Open Chrome and go to `chrome://extensions/`
+3. Enable **"Developer mode"** (toggle in top-right corner)
+4. Drag and drop the downloaded `.crx` file onto the extensions page
+5. Click "Add extension"
+
+>  **Note:** Chromium browsers require Developer Mode to be enabled for manual `.crx` installation.
+
+
+
+### For Developers (Load Unpacked)
+
+### Chrome / Edge / Brave (Chromium):
 
 1. Open the Chrome Web Store and search for [“Scrum Helper”](https://chromewebstore.google.com/detail/Scrum%20Helper/begjldpiiihpnaflcbdbbophiifphokg) by FOSSASIA.
 2. Click “Add to Chrome”.
