@@ -40,126 +40,6 @@ function showNotification(message, type = 'error') {
 	}
 }
 
-function sanitizeHtmlContent(content) {
-	try {
-		const parser = new DOMParser();
-		const doc = parser.parseFromString(content, 'text/html');
-
-		const allowedTags = new Set([
-			'A',
-			'B',
-			'STRONG',
-			'I',
-			'EM',
-			'CODE',
-			'BR',
-			'P',
-			'UL',
-			'OL',
-			'LI',
-			'SPAN',
-			'DIV',
-			'PRE',
-			'BLOCKQUOTE',
-			'H1',
-			'H2',
-			'H3',
-			'H4',
-			'H5',
-			'H6',
-			'IMG',
-			'TABLE',
-			'THEAD',
-			'TBODY',
-			'TR',
-			'TD',
-			'TH',
-		]);
-
-		const globalAllowedAttrs = new Set(['class', 'id', 'title', 'role', 'aria-label']);
-
-		function isSafeUrl(u) {
-			if (!u) return false;
-			const s = u.trim().toLowerCase();
-			return (
-				s.startsWith('http:') ||
-				s.startsWith('https:') ||
-				s.startsWith('mailto:') ||
-				s.startsWith('tel:') ||
-				s.startsWith('/') ||
-				s.startsWith('#') ||
-				s.startsWith('//')
-			);
-		}
-
-		doc
-			.querySelectorAll('script,style,iframe,object,embed,link,meta,svg,math,form,input,button,textarea,select')
-			.forEach((n) => n.remove());
-
-		doc.body.querySelectorAll('*').forEach((node) => {
-			const tag = node.tagName.toUpperCase();
-			if (!allowedTags.has(tag)) {
-				const txt = doc.createTextNode(node.textContent || '');
-				node.parentNode && node.parentNode.replaceChild(txt, node);
-				return;
-			}
-
-			[...node.attributes].forEach((attr) => {
-				const name = attr.name.toLowerCase();
-				const val = attr.value;
-
-				if (name.startsWith('on') || name === 'style') {
-					node.removeAttribute(attr.name);
-					return;
-				}
-
-				if (['srcdoc', 'formaction', 'xlink:href', 'xmlns'].includes(name)) {
-					node.removeAttribute(attr.name);
-					return;
-				}
-
-				if (tag === 'IMG') {
-					if (['src', 'alt', 'title', 'width', 'height', 'class', 'id'].includes(name)) {
-						if (name === 'src') {
-							if (!isSafeUrl(val)) node.removeAttribute(attr.name);
-						}
-					} else {
-						node.removeAttribute(attr.name);
-					}
-					return;
-				}
-
-				if (tag === 'A') {
-					if (['href', 'title', 'rel', 'target', 'class', 'id', 'aria-label'].includes(name)) {
-						if (name === 'href') {
-							if (!isSafeUrl(val)) node.removeAttribute(attr.name);
-						}
-					} else {
-						node.removeAttribute(attr.name);
-					}
-					return;
-				}
-
-				if (!globalAllowedAttrs.has(name)) {
-					node.removeAttribute(attr.name);
-				}
-			});
-
-			if (tag === 'A') {
-				if (!node.getAttribute('rel')) node.setAttribute('rel', 'noopener noreferrer');
-				if (!node.getAttribute('target')) node.setAttribute('target', '_blank');
-			}
-		});
-
-		return doc.body.innerHTML;
-	} catch (err) {
-		logError('Failed to sanitize HTML content:', err);
-		const div = document.createElement('div');
-		div.textContent = content;
-		return div.innerHTML;
-	}
-}
-
 function escapeHtml(text) {
 	if (!text || typeof text !== 'string') {
 		return '';
@@ -1455,7 +1335,7 @@ ${escapeHtml(userReason)}`;
 				return;
 			}
 
-			const sanitizedContent = sanitizeHtmlContent(content);
+			const sanitizedContent = sanitizeHtml(content);
 
 			const observer = new MutationObserver((mutations, obs) => {
 				if (!window.emailClientAdapter) {

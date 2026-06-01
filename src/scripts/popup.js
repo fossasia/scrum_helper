@@ -2497,6 +2497,7 @@ document.addEventListener('DOMContentLoaded', () => {
 								String(availableGitlabProjects.length),
 							]);
 						}
+						updateGitLabProjectDisplay();
 					}
 				} catch (err) {
 					console.error('Auto load GitLab projects failed', err);
@@ -2672,6 +2673,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					availableGitlabProjects = projects;
 					gitlabProjectStatus.textContent = browser?.i18n.getMessage('gitlabProjectLoaded', [String(projects.length)]);
 					gitlabProjectSearch.classList.remove('repository-search-loading');
+					updateGitLabProjectDisplay();
 
 					if (document.activeElement === gitlabProjectSearch) {
 						filterAndDisplayGitLabProjects(gitlabProjectSearch.value.toLowerCase());
