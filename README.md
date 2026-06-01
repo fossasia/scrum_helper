@@ -37,8 +37,6 @@ We now provide pre-built installer files for all browsers in the [`/installers`]
 
 
 
-### For Developers (Load Unpacked)
-
 ### Chrome / Edge / Brave (Chromium):
 
 1. Open the Chrome Web Store and search for [“Scrum Helper”](https://chromewebstore.google.com/detail/Scrum%20Helper/begjldpiiihpnaflcbdbbophiifphokg) by FOSSASIA.
@@ -79,6 +77,7 @@ We now provide pre-built installer files for all browsers in the [`/installers`]
     ```sh
     npm run build
     ```
+### For Developers (Load Unpacked)
 
 4.  **Load the Extension in Your Browser**
 
