@@ -1218,7 +1218,8 @@ document.addEventListener('DOMContentLoaded', () => {
 						repoStatus.textContent = browser.i18n.getMessage('repoLoaded', [repos.length]);
 					}
 
-					const repoCacheKey = `repos-${username}-${items.orgName || ''}`;
+					const tokenFlag = items.githubToken ? 'withtoken' : 'notoken';
+					const repoCacheKey = `repos-${username}-${items.orgName || ''}-${tokenFlag}`;
 					browser.storage.local.set({
 						repoCache: {
 							data: repos,
@@ -1321,7 +1322,8 @@ document.addEventListener('DOMContentLoaded', () => {
 							return;
 						}
 
-						const repoCacheKey = `repos-${username}-${items.orgName || ''}`;
+						const tokenFlag = items.githubToken ? 'withtoken' : 'notoken';
+						const repoCacheKey = `repos-${username}-${items.orgName || ''}-${tokenFlag}`;
 
 						const now = Date.now();
 						const cacheAge = cacheData.repoCache?.timestamp
@@ -1512,7 +1514,8 @@ document.addEventListener('DOMContentLoaded', () => {
 				const platform = storageItems.platform || 'github';
 				const platformUsernameKey = `${platform}Username`;
 				const username = storageItems[platformUsernameKey];
-				const repoCacheKey = `repos-${username}-${storageItems.orgName || ''}`;
+				const tokenFlag = storageItems.githubToken ? 'withtoken' : 'notoken';
+				const repoCacheKey = `repos-${username}-${storageItems.orgName || ''}-${tokenFlag}`;
 				const now = Date.now();
 				const cacheAge = cacheData.repoCache?.timestamp
 					? now - cacheData.repoCache.timestamp
