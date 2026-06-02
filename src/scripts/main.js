@@ -1,3 +1,51 @@
+globalThis.browser =
+	globalThis.browser ||
+	(() => {
+		if (globalThis.chrome) {
+			const promisify = (fn, context) => {
+				return (...args) => {
+					return new Promise((resolve, reject) => {
+						fn.call(context, ...args, (result) => {
+							const err = globalThis.chrome.runtime?.lastError;
+							if (err) reject(new Error(err.message));
+							else resolve(result);
+						});
+					});
+				};
+			};
+			return {
+				storage: {
+					local: {
+						get: promisify(chrome.storage.local.get, chrome.storage.local),
+						set: promisify(chrome.storage.local.set, chrome.storage.local),
+						remove: promisify(chrome.storage.local.remove, chrome.storage.local),
+					},
+				},
+				i18n: {
+					getMessage: (key, substitutions) => chrome.i18n.getMessage(key, substitutions) || key,
+				},
+				tabs: {
+					query: promisify(chrome.tabs.query, chrome.tabs),
+					sendMessage: promisify(chrome.tabs.sendMessage, chrome.tabs),
+				},
+			};
+		}
+		return {
+			storage: {
+				local: {
+					get: () => Promise.resolve({}),
+					set: () => Promise.resolve(),
+					remove: () => Promise.resolve(),
+				},
+			},
+			i18n: { getMessage: (key) => key },
+			tabs: {
+				query: () => Promise.resolve([]),
+				sendMessage: () => Promise.resolve(),
+			},
+		};
+	})();
+
 const platformUsernameElement = document.getElementById('platformUsername');
 const githubTokenElement = document.getElementById('githubToken');
 const gitlabTokenElement = document.getElementById('gitlabToken');

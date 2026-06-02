@@ -6,6 +6,80 @@ if (typeof importScripts === 'function') {
 	}
 }
 
+globalThis.browser =
+	globalThis.browser ||
+	(() => {
+		if (globalThis.chrome) {
+			const promisify = (fn, context) => {
+				if (typeof fn !== 'function') return fn;
+				return (...args) => {
+					return new Promise((resolve, reject) => {
+						fn.call(context, ...args, (result) => {
+							const err = globalThis.chrome.runtime?.lastError;
+							if (err) reject(new Error(err.message));
+							else resolve(result);
+						});
+					});
+				};
+			};
+
+			const shim = {
+				storage: {
+					local: {
+						get: promisify(chrome.storage?.local?.get, chrome.storage?.local),
+						set: promisify(chrome.storage?.local?.set, chrome.storage?.local),
+						remove: promisify(chrome.storage?.local?.remove, chrome.storage?.local),
+					},
+				},
+				tabs: chrome.tabs,
+				action: chrome.action
+					? {
+							...chrome.action,
+							setPopup: promisify(chrome.action?.setPopup, chrome.action),
+						}
+					: undefined,
+			};
+
+			if (chrome.storage?.onChanged) {
+				shim.storage.onChanged = chrome.storage.onChanged;
+			}
+
+			if (chrome.sidePanel) {
+				shim.sidePanel = {
+					...chrome.sidePanel,
+					open: promisify(chrome.sidePanel.open, chrome.sidePanel),
+					close: promisify(chrome.sidePanel.close, chrome.sidePanel),
+					setOptions: promisify(chrome.sidePanel.setOptions, chrome.sidePanel),
+				};
+			}
+
+			if (chrome.sidebarAction) {
+				shim.sidebarAction = {
+					...chrome.sidebarAction,
+					toggle: promisify(chrome.sidebarAction.toggle, chrome.sidebarAction),
+				};
+			}
+
+			return shim;
+		}
+
+		return {
+			storage: {
+				local: {
+					get: () => Promise.resolve({}),
+					set: () => Promise.resolve(),
+					remove: () => Promise.resolve(),
+				},
+				onChanged: { addListener: () => {} },
+			},
+			tabs: { onRemoved: { addListener: () => {} } },
+			action: {
+				setPopup: () => Promise.resolve(),
+				onClicked: { addListener: () => {} },
+			},
+		};
+	})();
+
 const openByTabId = new Map();
 
 browser.tabs?.onRemoved?.addListener((tabId) => {

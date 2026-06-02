@@ -24,7 +24,7 @@
     "description": "Placeholder text for the project name input."
   },
   "githubUsernameLabel": {
-    "message": "Your Github Username",
+    "message": "Your GitHub Username",
     "description": "Label for the GitHub username input field."
   },
   "gitlabUsernameLabel": {
@@ -64,7 +64,8 @@
     "description": "Placeholder text for the blockers input field."
   },
   "scrumReportLabel": {
-    "message": "Scrum Report"
+    "message": "Scrum Report",
+    "description": "Label/Header for the generated Scrum Report output section."
   },
   "generateReportButton": {
     "message": "Generate",
@@ -95,7 +96,7 @@
     "description": "Text for the 'Set' button for the organization."
   },
   "githubTokenLabel": {
-    "message": "Your Github Token",
+    "message": "Your GitHub Token",
     "description": "Label for the GitHub token input."
   },
   "githubTokenPlaceholder": {
@@ -123,19 +124,24 @@
     "description": "Label for the checkbox to show commits in open PRs."
   },
   "showCommitsTooltip": {
-    "message": "Github Token required, add it in the settings."
+    "message": "GitHub Token required, add it in the settings.",
+    "description": "Tooltip text explaining that a GitHub token is required to show commits."
   },
   "onlyIssuesLabel": {
-    "message": "Include only issues in the report"
+    "message": "Include only issues in the report",
+    "description": "Label for the advanced filter checkbox to include only issues in the report."
   },
   "onlyIssuesTooltip": {
-    "message": "If checked, the report will only include issues created or assigned to the user."
+    "message": "If checked, the report will only include issues created or assigned to the user.",
+    "description": "Tooltip text explaining the onlyIssues advanced filter option."
   },
   "onlyPRsLabel": {
-    "message": "Include only PRs in the report"
+    "message": "Include only PRs in the report",
+    "description": "Label for the advanced filter checkbox to include only Pull Requests in the report."
   },
   "onlyPRsTooltip": {
-    "message": "If checked, the report will only include PRs created by the user. Reviewed PRs will be excluded."
+    "message": "If checked, the report will only include PRs created by the user. Reviewed PRs will be excluded.",
+    "description": "Tooltip text explaining the onlyPRs advanced filter option."
   },
   "cacheTTLLabel": {
     "message": "Enter cache TTL",
@@ -196,6 +202,22 @@
   "repoCountNone": {
     "message": "0 repositories selected",
     "description": "Text showing the count of selected repositories when it's zero."
+  },
+  "gitlabProjectCountNone": {
+    "message": "0 projects selected",
+    "description": "Text showing the count of selected GitLab projects when it's zero."
+  },
+  "gitlabProjectPlaceholder": {
+    "message": "No projects selected (all will be included)",
+    "description": "Placeholder text when no GitLab projects are selected for filtering."
+  },
+  "gitlabProjectCount": {
+    "message": "$1 projects selected",
+    "description": "Text showing the count of selected GitLab projects. $1 is a placeholder for the number."
+  },
+  "gitlabProjectSearchPlaceholder": {
+    "message": "Search projects",
+    "description": "Placeholder/title for the GitLab project search input."
   },
   "repoCount": {
     "message": "$1 repositories selected",
@@ -301,6 +323,54 @@
     "message": "Your Username",
     "description": "Label for the username input header."
   },
+  "testTokenButton": {
+    "message": "Test Token",
+    "description": "Button text to test/validate a GitLab token."
+  },
+  "clearTokenButton": {
+    "message": "Clear Token",
+    "description": "Button text to clear the stored token."
+  },
+  "confirmClearToken": {
+    "message": "Are you sure you want to clear the GitLab token?",
+    "description": "Confirmation message before clearing the token."
+  },
+  "testingTokenButton": {
+    "message": "Testing...",
+    "description": "Button text while token validation is in progress."
+  },
+  "tokenValidButton": {
+    "message": "Valid!",
+    "description": "Button text when token is validated successfully."
+  },
+  "tokenInvalidButton": {
+    "message": "Invalid",
+    "description": "Button text when token validation fails."
+  },
+  "gitlabGroupLabel": {
+    "message": "Your GitLab Group",
+    "description": "Label for the GitLab group input."
+  },
+  "gitlabGroupPlaceholder": {
+    "message": "Enter GitLab group name",
+    "description": "Placeholder for the GitLab group input."
+  },
+  "gitlabGroupTooltip": {
+    "message": "<b>Which GitLab group's activity?</b><br>Enter the GitLab group name to fetch activities for. Leave empty to fetch all your GitLab activities across all groups. Group name is not case-sensitive.",
+    "description": "Tooltip explaining GitLab group filtering."
+  },
+  "gitlabProjectFilterLabel": {
+    "message": "Filter by projects",
+    "description": "Label for GitLab project filter."
+  },
+  "gitlabProjectFilterTooltip": {
+    "message": "GitLab Token required.<br>To force a project list update, <br>click the Refresh Data button.",
+    "description": "Tooltip for GitLab project filter."
+  },
+  "gitlabTokenRequiredWarning": {
+    "message": "A GitLab token is required for project filtering. Please add one in the settings.",
+    "description": "Warning message when GitLab token is missing for project filtering."
+  },
   "onlyRevPRsLabel": {
     "message": "Include only reviewed PRs in the report",
     "description": "Label for the checkbox to include only reviewed PRs."
@@ -308,6 +378,46 @@
   "onlyRevPRsTooltip": {
     "message": "If checked, the report will only include PRs reviewed by you.",
     "description": "Tooltip for the reviewed PRs filter checkbox."
+  },
+  "gitlabProjectOnlyGitLab": {
+    "message": "Project filtering is only available for GitLab.",
+    "description": "Status message when GitLab project filter is used on a non-GitLab platform."
+  },
+  "gitlabProjectFetching": {
+    "message": "Fetching projects...",
+    "description": "Status message when GitLab projects are being fetched."
+  },
+  "gitlabProjectUsernameRequired": {
+    "message": "Username required",
+    "description": "Status message when GitLab username is missing for project filtering."
+  },
+  "gitlabProjectLoaded": {
+    "message": "$1 projects loaded",
+    "description": "Status message after GitLab projects have been loaded. $1 is the number."
+  },
+  "gitlabProjectTokenRequired": {
+    "message": "Token required for private projects",
+    "description": "Error message when GitLab token is required for accessing private projects."
+  },
+  "gitlabProjectLoading": {
+    "message": "Loading projects...",
+    "description": "Status message while GitLab projects are loading."
+  },
+  "gitlabProjectFetchNotAvailable": {
+    "message": "Project fetching not available",
+    "description": "Status message when GitLab project fetching functionality is unavailable."
+  },
+  "gitlabProjectNoneAvailable": {
+    "message": "No projects available. Click to load.",
+    "description": "Message shown in the dropdown when no GitLab projects have been loaded yet."
+  },
+  "gitlabProjectNoMatch": {
+    "message": "No matching projects found.",
+    "description": "Message shown in the dropdown when a GitLab project search yields no results."
+  },
+  "gitlabProjectLoadFailed": {
+    "message": "Failed to load projects",
+    "description": "Fallback error message when GitLab project loading fails without a specific error."
   },
   "onlyMergedPRsLabel": {
     "message": "Include only merged PRs in the report",
@@ -404,7 +514,7 @@
   "usernameMissingError": {
     "message": "Username required.",
     "description": "Error shown when username is missing."
-   },
+  },
   "generateReportTooltip": {
     "message": "Ctrl+G",
     "description": "Tooltip shortcut for the Generate button. Dynamically replaced with Cmd+G on macOS."
@@ -436,5 +546,65 @@
   "insertedInEmailNotification": {
     "message": "Report inserted into email!",
     "description": "Notification shown when report is successfully inserted into email."
+  },
+  "insertingButton": {
+    "message": "Inserting...",
+    "description": "Short text for button while inserting."
+  },
+  "insertedButton": {
+    "message": "Inserted!",
+    "description": "Short text for button after insertion."
+  },
+  "githubInvalidSearchError": {
+    "message": "Invalid search query or date range. Please verify your date range format and try again.",
+    "description": "Error when the search query or date range is invalid."
+  },
+  "projectNameTooltip": {
+    "message": "This project name will appear in the subject line of your email as part of:\n\"[Scrum] Project Name - Date\". Leave blank to skip.",
+    "description": "Tooltip explaining how the project name is used."
+  },
+  "advancedFiltersLabel": {
+    "message": "Advanced Filters",
+    "description": "Label for the advanced filters collapsible section."
+  },
+  "orgNameTooltip": {
+    "message": "<b>Which organization's GitHub activity?</b><br>Enter the GitHub organization name to fetch activities for. Leave empty to fetch all your GitHub activities across all organizations. Organization name is not case-sensitive.",
+    "description": "Tooltip explaining organization name input."
+  },
+  "repoFilterTooltip": {
+    "message": "GitHub Token required.<br>To force a repo list update,<br>click the Refresh Data button.",
+    "description": "Tooltip explaining repository filtering requirements."
+  },
+  "displayModeLabel": {
+    "message": "Display Mode",
+    "description": "Label for the display mode selection in settings."
+  },
+  "displayModeTooltip": {
+    "message": "Choose how Scrum Helper opens when you click its icon. Side Panel keeps it docked alongside your page. Popup opens a floating window.",
+    "description": "Tooltip explaining display mode options."
+  },
+  "cacheTTLTooltip": {
+    "message": "We are caching the data to avoid redundant calls. By default the cache expires after 10 minutes, you can change it here to your desired time. We have given a refresh cache button in case you want to fetch fresh data right now.",
+    "description": "Tooltip explaining cache TTL and refresh."
+  },
+  "cacheInputLabel": {
+    "message": "Cache TTL (in minutes)",
+    "description": "Accessibility label for cache TTL input."
+  },
+  "noScrumReportToInsertError": {
+    "message": "No Scrum report found to insert.",
+    "description": "Error message shown when attempting to insert an empty or non-existent report."
+  },
+  "reportInsertedSuccess": {
+    "message": "Report inserted successfully!",
+    "description": "Success message shown after successfully inserting report into active email."
+  },
+  "errorLabel": {
+    "message": "Error",
+    "description": "Generic error label prepended to error messages."
+  },
+  "gitlabProjectFetchError": {
+    "message": "Error fetching GitLab projects.",
+    "description": "Error message shown when GitLab projects fail to fetch."
   }
 }
