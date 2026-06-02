@@ -226,8 +226,6 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	}
 
-
-
 	browser.storage.local.get(['darkMode']).then((result) => {
 		if (result.darkMode) {
 			body.classList.add('dark-mode');
