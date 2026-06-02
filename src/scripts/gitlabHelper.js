@@ -11,10 +11,19 @@ class GitLabHelper {
 	constructor(token = null, apiBaseUrl = DEFAULT_GITLAB_API_BASE_URL) {
 		let finalToken = token;
 		let finalBaseUrl = apiBaseUrl;
-		if (typeof token === 'string' && (token.startsWith('http:') || token.startsWith('https:') || token.includes('/'))) {
-			finalBaseUrl = token;
-			finalToken = null;
+
+		if (typeof token === 'string' && token.trim()) {
+			try {
+				const parsedUrl = new URL(token.trim());
+				if (parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:') {
+					finalBaseUrl = token;
+					finalToken = null;
+				}
+			} catch (_) {
+				// Not a valid URL, so treat as a token
+			}
 		}
+
 		this.baseUrl = normalizeGitLabApiBaseUrl(finalBaseUrl);
 		this.token = finalToken;
 		this.cache = {
@@ -31,8 +40,8 @@ class GitLabHelper {
 	// for a specific token without mutating `this.token`.
 	// Semantics:
 	//  - `overrideToken === undefined` -> use the instance token (`this.token`)
-	//  - `overrideToken === null` -> force no token (unauthenticated request)
-	//  - otherwise -> use the provided override token (may be empty string)
+	//  - `overrideToken === null` or empty/whitespace string -> force no token (unauthenticated request)
+	//  - otherwise -> use the provided override token
 	getHeaders(overrideToken = undefined) {
 		const headers = {
 			Accept: 'application/json',
@@ -46,9 +55,9 @@ class GitLabHelper {
 			tokenToUse = overrideToken;
 		}
 
-		if (tokenToUse) {
+		if (typeof tokenToUse === 'string' && tokenToUse.trim()) {
 			// GitLab Personal Access Token authentication
-			headers['PRIVATE-TOKEN'] = tokenToUse;
+			headers['PRIVATE-TOKEN'] = tokenToUse.trim();
 			if (GitLabHelper.debug) console.log('[GITLAB] Using authenticated requests with token');
 		} else {
 			if (GitLabHelper.debug) console.log('[GITLAB] Using unauthenticated requests');
@@ -70,7 +79,7 @@ class GitLabHelper {
 		} catch (error) {
 			clearTimeout(id);
 			if (error.name === 'AbortError') {
-				throw new Error('Request timeout - GitLab API is taking too long to respond');
+				throw new Error(`Request timeout - GitLab API is taking too long to respond for URL: ${url}`);
 			}
 			throw error;
 		}

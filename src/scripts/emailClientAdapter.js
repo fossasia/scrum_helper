@@ -322,6 +322,8 @@ const runtimeApi =
 if (EmailClientAdapter.debug) console.log('[EmailClientAdapter] Registering message listener...');
 if (runtimeApi?.onMessage?.addListener) {
 	runtimeApi.onMessage.addListener((request, sender, sendResponse) => {
+		if (!request || typeof request !== 'object') return;
+
 		if (EmailClientAdapter.debug) console.log('[EmailClientAdapter] Received message from popup:', request.action);
 
 		if (request.action === 'insertReportToEmail') {
