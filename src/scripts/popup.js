@@ -1166,6 +1166,15 @@ document.addEventListener('DOMContentLoaded', () => {
 		let selectedRepos = [];
 		let highlightedIndex = -1;
 
+		function makeRepoCacheKey(username, orgName, platform, storageItems) {
+			const org = orgName || '';
+			if (platform === 'github') {
+				const tokenFlag = storageItems?.githubToken ? 'withtoken' : 'notoken';
+				return `repos-${username}-${org}-${tokenFlag}`;
+			}
+			return `repos-${username}-${org}`;
+		}
+
 		async function triggerRepoFetchIfEnabled() {
 			// --- PLATFORM CHECK: Only run for GitHub ---
 			let platform = 'github';
@@ -1218,8 +1227,7 @@ document.addEventListener('DOMContentLoaded', () => {
 						repoStatus.textContent = browser.i18n.getMessage('repoLoaded', [repos.length]);
 					}
 
-					const tokenFlag = items.githubToken ? 'withtoken' : 'notoken';
-					const repoCacheKey = `repos-${username}-${items.orgName || ''}-${tokenFlag}`;
+					const repoCacheKey = makeRepoCacheKey(username, items.orgName || '', platform, items);
 					browser.storage.local.set({
 						repoCache: {
 							data: repos,
@@ -1322,8 +1330,7 @@ document.addEventListener('DOMContentLoaded', () => {
 							return;
 						}
 
-						const tokenFlag = items.githubToken ? 'withtoken' : 'notoken';
-						const repoCacheKey = `repos-${username}-${items.orgName || ''}-${tokenFlag}`;
+						const repoCacheKey = makeRepoCacheKey(username, items.orgName || '', platform, items);
 
 						const now = Date.now();
 						const cacheAge = cacheData.repoCache?.timestamp
@@ -1514,8 +1521,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				const platform = storageItems.platform || 'github';
 				const platformUsernameKey = `${platform}Username`;
 				const username = storageItems[platformUsernameKey];
-				const tokenFlag = storageItems.githubToken ? 'withtoken' : 'notoken';
-				const repoCacheKey = `repos-${username}-${storageItems.orgName || ''}-${tokenFlag}`;
+				const repoCacheKey = makeRepoCacheKey(username, storageItems.orgName || '', platform, storageItems);
 				const now = Date.now();
 				const cacheAge = cacheData.repoCache?.timestamp
 					? now - cacheData.repoCache.timestamp
