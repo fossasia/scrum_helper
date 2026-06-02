@@ -103,7 +103,7 @@
     "description": "Placeholder for the GitHub token input."
   },
   "githubTokenTooltip": {
-    "message": "Why is it recommended to add a GitHub token? Scrum Helper works without a GitHub token, but adding a personal access token is recommended for a better experience.",
+    "message": "Why is it recommended to add a GitHub token? Scrum Helper works without a GitHub token, but adding a personal access token (classic) is recommended for a better experience.",
     "description": "Tooltip for GitHub token explaining why it's needed."
   },
   "gitlabTokenLabel": {
