@@ -1015,83 +1015,17 @@ document.addEventListener('DOMContentLoaded', () => {
 		let selectedRepos = [];
 		let highlightedIndex = -1;
 
-		async function triggerRepoFetchIfEnabled() {
-			// --- PLATFORM CHECK: Only run for GitHub ---
-			let platform = 'github';
-			try {
-				const items = await browser.storage.local.get(['platform']);
-				platform = items.platform || 'github';
-			} catch {}
-			if (platform !== 'github') {
-				// Do not run repo fetch for non-GitHub platforms
-				if (repoStatus)
-					repoStatus.textContent =
-						chrome?.i18n.getMessage('repoFilteringGithubOnly') || 'Repository filtering is only available for GitHub.';
-				return;
-			}
-			if (!useRepoFilter.checked) {
-				return;
-			}
-
-			if (repoStatus) {
-				repoStatus.textContent = browser.i18n.getMessage('repoRefetching');
-			}
-
-			try {
-				const cacheData = await browser.storage.local.get(['repoCache']);
-				const items = await browser.storage.local.get([
-					'platform',
-					'githubUsername',
-					'gitlabUsername',
-					'githubToken',
-					'orgName',
-				]);
-
-				const platform = items.platform || 'github';
-				const platformUsernameKey = `${platform}Username`;
-				const username = items[platformUsernameKey];
-
-				if (!username) {
-					if (repoStatus) {
-						repoStatus.textContent = chrome?.i18n.getMessage('usernameMissingError') || 'Username required';
-					}
-					return;
-				}
-
-				if (window.fetchUserRepositories) {
-					const repos = await window.fetchUserRepositories(username, items.githubToken, items.orgName || '');
-
-					availableRepos = repos;
-
-					if (repoStatus) {
-						repoStatus.textContent = browser.i18n.getMessage('repoLoaded', [repos.length]);
-					}
-
-					const repoCacheKey = `repos-${username}-${items.orgName || ''}`;
-					browser.storage.local.set({
-						repoCache: {
-							data: repos,
-							cacheKey: repoCacheKey,
-							timestamp: Date.now(),
-						},
-					});
-
-					if (document.activeElement === repoSearch) {
-						filterAndDisplayRepos(repoSearch.value.toLowerCase());
-					} else if (repoSearch.value) {
-						filterAndDisplayRepos(repoSearch.value.toLowerCase());
-					} else {
-						filterAndDisplayRepos('');
-					}
-				}
-			} catch (err) {
-				if (repoStatus) {
-					repoStatus.textContent = `${browser.i18n.getMessage('errorLabel')}: ${err.message || browser.i18n.getMessage('repoRefetchFailed')}`;
-				}
-			}
-		}
-
-		window.triggerRepoFetchIfEnabled = triggerRepoFetchIfEnabled;
+		window.githubRepoFilterContext = {
+			useRepoFilter,
+			repoStatus,
+			repoSearch,
+			filterAndDisplayRepos: (query) => filterAndDisplayRepos(query),
+			hideDropdown: () => hideDropdown(),
+			setAvailableRepos: (repos) => {
+				availableRepos = repos;
+			},
+			getAvailableRepos: () => availableRepos,
+		};
 
 		browser.storage.local.get(['selectedRepos', 'useRepoFilter']).then((items) => {
 			if (items.selectedRepos) {
@@ -1277,148 +1211,13 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		});
 
-		function debugRepoFetch() {
-			browser.storage.local.get(['platform', 'githubUsername', 'githubToken', 'orgName']).then((items) => {
-				const platform = items.platform || 'github';
-				const platformUsernameKey = `${platform}Username`;
-				const username = items[platformUsernameKey];
-				console.log('Current settings:', {
-					username: username,
-					hasToken: !!items.githubToken,
-					org: items.orgName || '',
-				});
-			});
+		if (window.githubHelperDebugRepoFetch) {
+			window.githubHelperDebugRepoFetch();
 		}
-		debugRepoFetch();
+
 		async function loadRepos() {
-			// --- PLATFORM CHECK: Only run for GitHub ---
-			let platform = 'github';
-			try {
-				const items = await browser.storage.local.get(['platform']);
-				platform = items.platform || 'github';
-			} catch {}
-			if (platform !== 'github') {
-				if (repoStatus)
-					repoStatus.textContent =
-						chrome?.i18n.getMessage('repoLoadingGithubOnly') || 'Repository loading is only available for GitHub.';
-				return;
-			}
-			console.log('window.fetchUserRepositories exists:', !!window.fetchUserRepositories);
-			console.log(
-				'Available functions:',
-				Object.keys(window).filter((key) => key.includes('fetch')),
-			);
-
-			if (!window.fetchUserRepositories) {
-				repoStatus.textContent = 'Repository fetching not available';
-				return;
-			}
-
-			browser.storage.local.get(['platform', 'githubUsername', 'githubToken']).then((items) => {
-				const platform = items.platform || 'github';
-				const platformUsernameKey = `${platform}Username`;
-				const username = items[platformUsernameKey];
-				console.log('Storage data for repo fetch:', {
-					hasUsername: !!username,
-					hasToken: !!items.githubToken,
-					username: username,
-				});
-
-				if (!username) {
-					repoStatus.textContent = chrome?.i18n.getMessage('usernameMissingError') || 'Username required';
-					return;
-				}
-
-				performRepoFetch();
-			});
-		}
-
-		async function performRepoFetch() {
-			let platform = 'github';
-			try {
-				const items = await browser.storage.local.get(['platform']);
-				platform = items.platform || 'github';
-			} catch (e) {}
-			if (platform !== 'github') {
-				if (repoStatus)
-					repoStatus.textContent =
-						chrome?.i18n.getMessage('repoFetchingGithubOnly') || 'Repository fetching is only available for GitHub.';
-				return;
-			}
-			console.log('[POPUP-DEBUG] performRepoFetch called.');
-			repoStatus.textContent = browser.i18n.getMessage('repoLoading');
-			repoSearch.classList.add('repository-search-loading');
-
-			try {
-				const cacheData = await browser.storage.local.get(['repoCache']);
-				const storageItems = await browser.storage.local.get([
-					'platform',
-					'githubUsername',
-					'gitlabUsername',
-					'githubToken',
-					'orgName',
-				]);
-				const platform = storageItems.platform || 'github';
-				const platformUsernameKey = `${platform}Username`;
-				const username = storageItems[platformUsernameKey];
-				const repoCacheKey = `repos-${username}-${storageItems.orgName || ''}`;
-				const now = Date.now();
-				const cacheAge = cacheData.repoCache?.timestamp
-					? now - cacheData.repoCache.timestamp
-					: Number.POSITIVE_INFINITY;
-				const cacheTTL = 10 * 60 * 1000; // 10 minutes
-
-				console.log('[POPUP-DEBUG] Repo cache check:', {
-					key: repoCacheKey,
-					cacheKeyInCache: cacheData.repoCache?.cacheKey,
-					isMatch: cacheData.repoCache?.cacheKey === repoCacheKey,
-					age: cacheAge,
-					isFresh: cacheAge < cacheTTL,
-				});
-
-				if (cacheData.repoCache && cacheData.repoCache.cacheKey === repoCacheKey && cacheAge < cacheTTL) {
-					console.log('[POPUP-DEBUG] Using cached repositories in manual fetch');
-					availableRepos = cacheData.repoCache.data;
-					repoStatus.textContent = browser.i18n.getMessage('repoLoaded', [availableRepos.length]);
-
-					if (document.activeElement === repoSearch) {
-						filterAndDisplayRepos(repoSearch.value.toLowerCase());
-					}
-					return;
-				}
-				console.log('[POPUP-DEBUG] No valid cache. Fetching from network.');
-				availableRepos = await window.fetchUserRepositories(
-					username,
-
-					storageItems.githubToken,
-					storageItems.orgName || '',
-				);
-				repoStatus.textContent = browser.i18n.getMessage('repoLoaded', [availableRepos.length]);
-				console.log(`[POPUP-DEBUG] Fetched and loaded ${availableRepos.length} repos.`);
-
-				browser.storage.local.set({
-					repoCache: {
-						data: availableRepos,
-						cacheKey: repoCacheKey,
-						timestamp: now,
-					},
-				});
-
-				if (document.activeElement === repoSearch) {
-					filterAndDisplayRepos(repoSearch.value.toLowerCase());
-				}
-			} catch (err) {
-				console.error(`Failed to load repos:`, err);
-
-				if (err.message && err.message.includes('401')) {
-					repoStatus.textContent = browser.i18n.getMessage('repoTokenPrivate');
-				} else if (err.message && err.message.includes('username')) {
-					repoStatus.textContent = browser.i18n.getMessage('githubUsernamePlaceholder');
-				} else {
-					repoStatus.textContent = `${browser.i18n.getMessage('errorLabel')}: ${err.message || browser.i18n.getMessage('repoLoadFailed')}`;
-				}
-			} finally {
-				repoSearch.classList.remove('repository-search-loading');
+			if (window.githubHelperLoadRepos) {
+				await window.githubHelperLoadRepos();
 			}
 		}
 
@@ -2065,8 +1864,8 @@ function toggleRadio(radio) {
 }
 
 async function triggerRepoFetchIfEnabled() {
-	if (window.triggerRepoFetchIfEnabled) {
-		await window.triggerRepoFetchIfEnabled();
+	if (window.githubHelperTriggerRepoFetchIfEnabled) {
+		await window.githubHelperTriggerRepoFetchIfEnabled();
 	}
 }
 
