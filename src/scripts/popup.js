@@ -138,32 +138,6 @@ document.addEventListener('DOMContentLoaded', () => {
 	const usernameLabel = document.getElementById('usernameLabel');
 	const platformUsername = document.getElementById('platformUsername');
 
-	function checkTokenForFilter() {
-		const useRepoFilter = document.getElementById('useRepoFilter');
-		const githubTokenInput = document.getElementById('githubToken');
-		const tokenWarning = document.getElementById('tokenWarningForFilter');
-		const repoFilterContainer = document.getElementById('repoFilterContainer');
-
-		if (!useRepoFilter || !githubTokenInput || !tokenWarning || !repoFilterContainer) {
-			return;
-		}
-		const isFilterEnabled = useRepoFilter.checked;
-		const hasToken = githubTokenInput.value.trim() !== '';
-
-		if (isFilterEnabled && !hasToken) {
-			useRepoFilter.checked = false;
-			repoFilterContainer.classList.add('hidden');
-			if (typeof hideDropdown === 'function') {
-				hideDropdown();
-			}
-			browser.storage.local.set({ useRepoFilter: false });
-		}
-		tokenWarning.classList.toggle('hidden', !isFilterEnabled || hasToken);
-		setTimeout(() => {
-			tokenWarning.classList.add('hidden');
-		}, 4000);
-	}
-
 	browser.storage.local.get(['darkMode']).then((result) => {
 		if (result.darkMode) {
 			body.classList.add('dark-mode');
@@ -201,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 	}
 
-	githubTokenInput.addEventListener('input', checkTokenForFilter);
+	githubTokenInput.addEventListener('input', () => checkTokenForFilter());
 	githubTokenInput.addEventListener('input', () => checkTokenForShowCommits({ persistState: false }));
 	githubTokenInput.addEventListener('input', () => checkTokenForMergedPRs({ persistState: false }));
 

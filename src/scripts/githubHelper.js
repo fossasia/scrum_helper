@@ -128,3 +128,31 @@ function checkTokenForMergedPRs({
 		chrome?.storage.local.set({ onlyMergedPRs: mergedPRsCheckbox.checked });
 	}
 }
+
+//  Validates GitHub token for enabling the repo filter and shows a short warning
+
+function checkTokenForFilter() {
+	const useRepoFilter = document.getElementById('useRepoFilter');
+	const githubTokenInput = document.getElementById('githubToken');
+	const tokenWarning = document.getElementById('tokenWarningForFilter');
+	const repoFilterContainer = document.getElementById('repoFilterContainer');
+
+	if (!useRepoFilter || !githubTokenInput || !tokenWarning || !repoFilterContainer) {
+		return;
+	}
+	const isFilterEnabled = useRepoFilter.checked;
+	const hasToken = githubTokenInput.value.trim() !== '';
+
+	if (isFilterEnabled && !hasToken) {
+		useRepoFilter.checked = false;
+		repoFilterContainer.classList.add('hidden');
+		if (typeof hideDropdown === 'function') {
+			hideDropdown();
+		}
+		browser.storage.local.set({ useRepoFilter: false });
+	}
+	tokenWarning.classList.toggle('hidden', !isFilterEnabled || hasToken);
+	setTimeout(() => {
+		tokenWarning.classList.add('hidden');
+	}, 4000);
+}
