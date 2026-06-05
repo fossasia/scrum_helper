@@ -708,6 +708,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		if (insertBtn) {
 			insertBtn.addEventListener('click', () => {
+				if (!insertBtn._triggeredByShortcut) {
+					showPopupMessage(browser.i18n.getMessage('insertingInEmailNotification'));
+				}
 				const scrumReport = document.getElementById('scrumReport');
 				const content = scrumReport ? sanitizeHtml(scrumReport.innerHTML) : '';
 				const subject = buildScrumSubjectFromPopup();
@@ -722,7 +725,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					console.warn('Insert to Email failed:', errorMsg);
 					const failureMessage =
 						browser.i18n.getMessage('insertToEmailFailedError') || 'open an email tab to insert report';
-					showPopupMessage(failureMessage);
+					showPopupMessage(failureMessage, { variant: 'error' });
 				};
 
 				browser.tabs
@@ -739,8 +742,12 @@ document.addEventListener('DOMContentLoaded', () => {
 							.then((response) => {
 								if (!response?.success) {
 									handleInsertFailure(response?.error);
-								} else if (insertBtn._triggeredByShortcut) {
-									showShortcutNotification('insertedInEmailNotification');
+								} else {
+									if (insertBtn._triggeredByShortcut) {
+										showShortcutNotification('insertedInEmailNotification');
+									} else {
+										showPopupMessage(browser.i18n.getMessage('insertedInEmailNotification'), { variant: 'success' });
+									}
 								}
 							})
 							.catch((error) => {
@@ -757,6 +764,9 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 
 		generateBtn.addEventListener('click', () => {
+			if (!generateBtn._triggeredByShortcut) {
+				showPopupMessage(browser.i18n.getMessage('generatingReportNotification'));
+			}
 			browser.storage.local.get(['platform']).then((result) => {
 				platformUsername.classList.remove('input-error');
 				usernameError.classList.remove('errorMessage');
@@ -777,12 +787,17 @@ document.addEventListener('DOMContentLoaded', () => {
 							generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
 							generateBtn.disabled = true;
 							window.generateScrumReport && window.generateScrumReport();
+
+							generateBtn._triggeredByShortcut = false;
 						});
 					});
 			});
 		});
 
 		copyBtn.addEventListener('click', function () {
+			if (!this._triggeredByShortcut) {
+				showPopupMessage(browser.i18n.getMessage('copyingReportNotification'));
+			}
 			const scrumReport = document.getElementById('scrumReport');
 			if (!scrumReport) {
 				this._triggeredByShortcut = false;
@@ -845,6 +860,8 @@ document.addEventListener('DOMContentLoaded', () => {
 							? 'copiedReportNotification'
 							: 'copiedButton';
 					showShortcutNotification(notificationKey);
+				} else {
+					showPopupMessage(browser.i18n.getMessage('copiedReportNotification'), { variant: 'success' });
 				}
 				this.innerHTML = `<i class="fa fa-check"></i> ${browser?.i18n.getMessage('copiedButton')}`;
 				setTimeout(() => {
@@ -2247,6 +2264,7 @@ document.addEventListener('keydown', (e) => {
 	if (modifier && !e.shiftKey && !e.altKey && key === 'g' && !e.repeat && generateBtn && !generateBtn.disabled) {
 		e.preventDefault();
 		showShortcutNotification('generatingReportNotification');
+		generateBtn._triggeredByShortcut = true;
 		generateBtn.click();
 	}
 
