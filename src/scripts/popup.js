@@ -26,7 +26,7 @@ function isMacOS() {
 	return /Mac/.test(platform);
 }
 
-function showShortcutNotification(messageKey) {
+function showShortcutNotification(messageKey, variant = 'info') {
 	if (typeof chrome === 'undefined' || !chrome.i18n) {
 		return;
 	}
@@ -36,7 +36,7 @@ function showShortcutNotification(messageKey) {
 		return;
 	}
 
-	window.scrumHelperToast?.(message, { duration: 2200, variant: 'info' });
+	window.scrumHelperToast?.(message, { duration: 2200, variant });
 }
 
 function setupButtonTooltips() {
@@ -859,7 +859,7 @@ document.addEventListener('DOMContentLoaded', () => {
 						browser?.i18n && browser.i18n.getMessage('copiedReportNotification')
 							? 'copiedReportNotification'
 							: 'copiedButton';
-					showShortcutNotification(notificationKey);
+					showShortcutNotification(notificationKey, 'success');
 				} else {
 					showPopupMessage(browser.i18n.getMessage('copiedReportNotification'), { variant: 'success' });
 				}
