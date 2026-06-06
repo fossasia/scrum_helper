@@ -155,6 +155,9 @@
     "repoCount": {
         "message": "נבחרו $1 מאגרים"
     },
+    "clearAllBtn": {
+        "message": "נקה הכל"
+    },
     "repoLoading": {
         "message": "טוען מאגרים..."
     },
