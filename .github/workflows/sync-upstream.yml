@@ -62,13 +62,13 @@ jobs:
                   const status = comparison.data.status;
 
                   if (status === 'identical') {
-                    console.log(`Up to date`);
+                    console.log(`${fork.full_name} is up to date`);
                     upToDateCount++;
                     continue;
                   }
 
                   if (status === 'ahead' || status === 'diverged') {
-                    console.log(`Skipped (${status})`);
+                    console.log(`${fork.full_name} skipped (${status})`);
                     skippedCount++;
                     continue;
                   }
