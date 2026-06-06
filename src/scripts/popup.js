@@ -1032,6 +1032,11 @@ document.addEventListener('DOMContentLoaded', () => {
 		githubTokenInput.addEventListener('input', () => {
 			browser.storage.local.set({ githubToken: githubTokenInput.value });
 		});
+		githubTokenInput.addEventListener('change', () => {
+			browser.storage.local.set({ githubToken: githubTokenInput.value }).then(() => {
+				triggerRepoFetchIfEnabled();
+			});
+		});
 		cacheInput.addEventListener('input', () => {
 			browser.storage.local.set({ cacheInput: cacheInput.value });
 		});
@@ -1169,8 +1174,18 @@ document.addEventListener('DOMContentLoaded', () => {
 		function makeRepoCacheKey(username, orgName, platform, storageItems) {
 			const org = orgName || '';
 			if (platform === 'github') {
-				const tokenFlag = storageItems?.githubToken ? 'withtoken' : 'notoken';
-				return `repos-${username}-${org}-${tokenFlag}`;
+				const token = (storageItems?.githubToken || '').trim();
+				if (!token) {
+					return `repos-${username}-${org}-notoken`;
+				}
+				let hash = 0;
+				for (let i = 0; i < token.length; i++) {
+					const char = token.charCodeAt(i);
+					hash = (hash << 5) - hash + char;
+					hash |= 0; // Convert to 32bit integer
+				}
+				const fingerprint = (hash >>> 0).toString(36);
+				return `repos-${username}-${org}-token-${fingerprint}`;
 			}
 			return `repos-${username}-${org}`;
 		}
