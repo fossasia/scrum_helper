@@ -306,5 +306,11 @@ if (window.PlatformRegistry) {
 		loadRepos() {},
 		performRepoFetch() {},
 		validateOrgOnBlur() {},
+		fetchUserRepositories() {
+			return Promise.resolve([]);
+		},
+		fetchPrsMergedStatusBatch() {
+			return Promise.resolve({});
+		},
 	});
 }
