@@ -37,7 +37,7 @@ function isMacOS() {
 	return /Mac/.test(platform);
 }
 
-function showShortcutNotification(messageKey) {
+function showShortcutNotification(messageKey, variant = 'info') {
 	if (typeof chrome === 'undefined' || !chrome.i18n) {
 		return;
 	}
@@ -47,7 +47,7 @@ function showShortcutNotification(messageKey) {
 		return;
 	}
 
-	window.scrumHelperToast?.(message, { duration: 2200, variant: 'info' });
+	window.scrumHelperToast?.(message, { duration: 2200, variant });
 }
 
 function setupButtonTooltips() {
@@ -255,7 +255,11 @@ document.addEventListener('DOMContentLoaded', () => {
 	});
 
 	browser.storage.onChanged.addListener((changes, namespace) => {
-		console.log('[DEBUG] Storage changed:', changes, namespace);
+		console.log(
+			'[DEBUG] Storage changed:',
+			typeof logRedaction === 'function' ? logRedaction(changes) : changes,
+			namespace,
+		);
 		if (changes.startingDate || changes.endingDate) {
 			console.log('[POPUP-DEBUG] Date changed in storage, triggering repo fetch.', {
 				startingDate: changes.startingDate?.newValue,
@@ -575,6 +579,10 @@ document.addEventListener('DOMContentLoaded', () => {
 				checkTokenForMergedPRs();
 			});
 
+		function dismissShortcutTooltipFocus(el) {
+			el?.blur?.();
+		}
+
 		// Button setup
 		const generateBtn = document.getElementById('generateReport');
 		const copyBtn = document.getElementById('copyReport');
@@ -594,12 +602,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		if (insertBtn) {
 			insertBtn.addEventListener('click', () => {
+				if (!insertBtn._triggeredByShortcut) {
+					showPopupMessage(browser.i18n.getMessage('insertingInEmailNotification'));
+				}
 				const scrumReport = document.getElementById('scrumReport');
 				const content = scrumReport ? sanitizeHtml(scrumReport.innerHTML) : '';
 				const subject = buildScrumSubjectFromPopup();
 
 				if (!content) {
 					insertBtn._triggeredByShortcut = false;
+					dismissShortcutTooltipFocus(insertBtn);
 					return;
 				}
 
@@ -608,7 +620,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					console.warn('Insert to Email failed:', errorMsg);
 					const failureMessage =
 						browser.i18n.getMessage('insertToEmailFailedError') || 'open an email tab to insert report';
-					showPopupMessage(failureMessage);
+					showPopupMessage(failureMessage, { variant: 'error' });
 				};
 
 				browser.tabs
@@ -625,8 +637,12 @@ document.addEventListener('DOMContentLoaded', () => {
 							.then((response) => {
 								if (!response?.success) {
 									handleInsertFailure(response?.error);
-								} else if (insertBtn._triggeredByShortcut) {
-									showShortcutNotification('insertedInEmailNotification');
+								} else {
+									if (insertBtn._triggeredByShortcut) {
+										showShortcutNotification('insertedInEmailNotification');
+									} else {
+										showPopupMessage(browser.i18n.getMessage('insertedInEmailNotification'), { variant: 'success' });
+									}
 								}
 							})
 							.catch((error) => {
@@ -638,11 +654,15 @@ document.addEventListener('DOMContentLoaded', () => {
 					})
 					.finally(() => {
 						insertBtn._triggeredByShortcut = false;
+						dismissShortcutTooltipFocus(insertBtn);
 					});
 			});
 		}
 
 		generateBtn.addEventListener('click', () => {
+			if (!generateBtn._triggeredByShortcut) {
+				showPopupMessage(browser.i18n.getMessage('generatingReportNotification'));
+			}
 			browser.storage.local.get(['platform']).then((result) => {
 				platformUsername.classList.remove('input-error');
 				usernameError.classList.remove('errorMessage');
@@ -650,25 +670,36 @@ document.addEventListener('DOMContentLoaded', () => {
 				const platform = result.platform || 'github';
 				const platformUsernameKey = `${platform}Username`;
 
-				browser.storage.local
+				return browser.storage.local
 					.set({
 						platform: platformSelect.value,
 						[platformUsernameKey]: platformUsername.value,
 					})
 					.then(() => {
 						// Reload platform from storage before generating report
-						browser.storage.local.get(['platform']).then((res) => {
+						return browser.storage.local.get(['platform']).then((res) => {
 							platformSelect.value = res.platform || 'github';
 							updatePlatformUI(platformSelect.value);
 							generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
 							generateBtn.disabled = true;
 							window.generateScrumReport && window.generateScrumReport();
+							generateBtn._triggeredByShortcut = false;
+
+
 						});
 					});
+			}).finally(() => {
+				if (generateBtn._triggeredByShortcut) {
+					dismissShortcutTooltipFocus(generateBtn);
+					generateBtn._triggeredByShortcut = false;
+				}
 			});
 		});
 
 		copyBtn.addEventListener('click', function () {
+			if (!this._triggeredByShortcut) {
+				showPopupMessage(browser.i18n.getMessage('copyingReportNotification'));
+			}
 			const scrumReport = document.getElementById('scrumReport');
 			if (!scrumReport) {
 				this._triggeredByShortcut = false;
@@ -730,7 +761,9 @@ document.addEventListener('DOMContentLoaded', () => {
 						browser?.i18n && browser.i18n.getMessage('copiedReportNotification')
 							? 'copiedReportNotification'
 							: 'copiedButton';
-					showShortcutNotification(notificationKey);
+					showShortcutNotification(notificationKey, 'success');
+				} else {
+					showPopupMessage(browser.i18n.getMessage('copiedReportNotification'), { variant: 'success' });
 				}
 				this.innerHTML = `<i class="fa fa-check"></i> ${browser?.i18n.getMessage('copiedButton')}`;
 				setTimeout(() => {
@@ -740,6 +773,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				console.error('Failed to copy: ', err);
 			} finally {
 				this._triggeredByShortcut = false;
+				dismissShortcutTooltipFocus(this);
 				selection.removeAllRanges();
 				document.body.removeChild(tempDiv);
 			}
@@ -766,7 +800,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		browser.storage.local
 			.get(['selectedTimeframe', 'yesterdayContribution', 'startingDate', 'endingDate'])
 			.then((items) => {
-				console.log('Restoring state:', items);
+				console.log('Restoring state:', typeof logRedaction === 'function' ? logRedaction(items) : items);
 
 				if (items.startingDate && items.endingDate && !items.yesterdayContribution) {
 					const startDateInput = document.getElementById('startingDate');
@@ -1032,6 +1066,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	const repoPlaceholder = document.getElementById('repoPlaceholder');
 	const repoCount = document.getElementById('repoCount');
 	const repoStatus = document.getElementById('repoStatus');
+	const clearAllReposBtn = document.getElementById('clearAllReposBtn');
 	const useRepoFilter = document.getElementById('useRepoFilter');
 	const repoFilterContainer = document.getElementById('repoFilterContainer');
 
@@ -1386,6 +1421,9 @@ document.addEventListener('DOMContentLoaded', () => {
 				if (repoCount) {
 					repoCount.textContent = browser.i18n.getMessage('repoCountNone');
 				}
+				if (clearAllReposBtn) {
+					clearAllReposBtn.classList.add('hidden');
+				}
 			} else {
 				const fragment = document.createDocumentFragment();
 
@@ -1421,13 +1459,26 @@ document.addEventListener('DOMContentLoaded', () => {
 					tag.appendChild(removeBtn);
 					fragment.appendChild(tag);
 				});
-
 				repoTags.appendChild(fragment);
 
 				if (repoCount) {
 					repoCount.textContent = browser.i18n.getMessage('repoCount', [selectedRepos.length]);
 				}
+
+				if (clearAllReposBtn) {
+					clearAllReposBtn.classList.remove('hidden');
+				}
 			}
+		}
+
+		if (clearAllReposBtn) {
+			clearAllReposBtn.addEventListener('click', (e) => {
+				e.stopPropagation();
+				selectedRepos = [];
+				updateRepoDisplay();
+				saveRepoSelection();
+				filterAndDisplayRepos(repoSearch.value.toLowerCase());
+			});
 		}
 
 		function saveRepoSelection() {
@@ -1937,6 +1988,7 @@ document.addEventListener('keydown', (e) => {
 	if (modifier && !e.shiftKey && !e.altKey && key === 'g' && !e.repeat && generateBtn && !generateBtn.disabled) {
 		e.preventDefault();
 		showShortcutNotification('generatingReportNotification');
+		generateBtn._triggeredByShortcut = true;
 		generateBtn.click();
 	}
 
