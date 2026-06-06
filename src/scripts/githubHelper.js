@@ -515,6 +515,7 @@ async function fetchUserRepositories(username, token, org = '') {
 			const thirtyDaysAgo = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 30);
 			const startDate = thirtyDaysAgo.toISOString().split('T')[0];
 			const endDate = today.toISOString().split('T')[0];
+			dateRange = `+created:${startDate}..${endDate}`;
 		}
 		const orgPart = org && org !== 'all' ? `+org:${org}` : '';
 		const issuesUrl = `https://api.github.com/search/issues?q=author:${username}${orgPart}${dateRange}&per_page=100`;
