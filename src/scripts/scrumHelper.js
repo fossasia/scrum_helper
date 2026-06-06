@@ -63,8 +63,9 @@ function showReportMessage(message) {
 	if (!message) return;
 	if (scrumReportEl) {
 		scrumReportEl.innerHTML = '';
+		window.updateCopyButtonState?.();
 	}
-	window.scrumHelperToast?.(message, { duration: 4000, variant: 'error' });
+	window.scrumHelperToast?.(message, { duration: 2000, variant: 'error' });
 }
 
 function handleUsernameValidationError(errMessage) {
@@ -76,6 +77,7 @@ function handleUsernameValidationError(errMessage) {
 
 	if (scrumReportEl) {
 		scrumReportEl.innerHTML = '';
+		window.updateCopyButtonState?.();
 	}
 }
 
@@ -1012,7 +1014,7 @@ function allIncluded(outputTarget = 'email') {
 					generateBtn.disabled = false;
 				}
 			} else {
-				window.scrumHelperToast?.(errMsg, { duration: 4000, variant: 'error' });
+				window.scrumHelperToast?.(errMsg, { duration: 2000, variant: 'error' });
 			}
 		}
 	}
@@ -1171,6 +1173,8 @@ ${blockerText}`;
 			if (scrumReport) {
 				log('Found popup div, updating content');
 				scrumReport.innerHTML = sanitizeHtml(content);
+				window.updateCopyButtonState?.();
+				delete scrumReport.dataset.copyPlaceholder;
 				try {
 					const cacheKey =
 						platform === 'gitlab' ? (gitlabHelper?.cache?.cacheKey ?? null) : (githubCache?.cacheKey ?? null);
