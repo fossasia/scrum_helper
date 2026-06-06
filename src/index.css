@@ -478,10 +478,10 @@ hr,
 }
 
 .repository-group-header {
-    padding: 14px 16px 6px;
-    font-size: 13px;
+    padding: 8px 16px 4px;
+    font-size: 12px;
     font-weight: 500;
-    color: #2563eb;
+    color: #3b82f6;
     background-color: transparent;
     pointer-events: none;
     border-bottom: none;
@@ -608,13 +608,13 @@ hr,
 
 
 .repository-dropdown-item {
-    padding: 10px 26px;
+    padding: 6px 26px 6px 28px;
     cursor: pointer;
     border-bottom: 1px solid #e5e7eb;
     transition: all 0.15s ease;
     display: flex;
     flex-direction: column;
-    gap: 4px;
+    gap: 2px;
 }
 
 .repository-dropdown-item .repo-header {
@@ -633,9 +633,9 @@ hr,
 }
 
 .repository-dropdown-item .repo-name-text {
-    font-weight: 600;
-    color: #111827;
-    font-size: 13.5px;
+    font-weight: 500;
+    color: #1f2937;
+    font-size: 13px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -645,22 +645,7 @@ hr,
     color: #f3f4f6;
 }
 
-.repository-dropdown-item .selected-check {
-    color: #111827;
-    font-size: 13px;
-    opacity: 0;
-    transition: all 0.2s ease;
-    transform: scale(0.5);
-}
 
-.repository-dropdown-item.selected .selected-check {
-    opacity: 1;
-    transform: scale(1);
-}
-
-.dark-mode .repository-dropdown-item .selected-check {
-    color: #f3f4f6;
-}
 
 .repository-dropdown-item:hover,
 .repository-dropdown-item.highlighted {
@@ -672,28 +657,17 @@ hr,
     background-color: #262626;
 }
 
-.repository-dropdown-item.selected {
-    background-color: transparent;
-}
 
-.repository-dropdown-item.selected:hover {
-    background-color: #f9fafb;
-}
-
-.dark-mode .repository-dropdown-item.selected {
-    background-color: transparent;
-}
-
-.dark-mode .repository-dropdown-item.selected:hover {
-    background-color: #262626;
-}
 
 .repository-dropdown-item .repo-desc {
     font-size: 11.5px;
     color: #6b7280;
     line-height: 1.4;
     margin-top: 1px;
-    margin-left: 20px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
 }
 
 @keyframes tagSlideIn {
@@ -769,10 +743,11 @@ hr,
     font-size: 10px;
     color: #4b5563;
     background-color: #e5e7eb;
-    padding: 2px 8px;
+    padding: 1px 6px;
     border-radius: 9999px;
     margin-left: 4px;
     font-weight: 500;
+    line-height: 1.2;
 }
 
 .dark-mode .repo-language {
@@ -783,8 +758,8 @@ hr,
 .repo-stars {
     display: inline-flex;
     align-items: center;
-    font-size: 11px;
-    color: #666;
+    font-size: 10px;
+    color: #6b7280;
     margin-left: 5px;
 }
 
@@ -808,8 +783,10 @@ hr,
 .dark-mode #selectedRepos {
     background-color: #404040 !important;
     border-color: #505050 !important;
-    scrollbar-color: #6b7280 #374151; /* Firefox */
-    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: #6b7280 #374151;
+    /* Firefox */
+    scrollbar-width: thin;
+    /* Firefox */
 }
 
 /* Dark mode scrollbar for selected repos container */

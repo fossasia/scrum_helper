@@ -1599,10 +1599,8 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 
 		function createRepoDropdownItem(repo) {
-			const isSelected = selectedRepos.includes(repo.fullName);
-
 			const item = document.createElement('div');
-			item.className = `repository-dropdown-item${isSelected ? ' selected' : ''}`;
+			item.className = 'repository-dropdown-item';
 			item.dataset.repoName = repo.fullName;
 
 			const header = document.createElement('div');
@@ -1610,11 +1608,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			const main = document.createElement('div');
 			main.className = 'repo-main';
-
-			const check = document.createElement('i');
-			check.className = 'selected-check fa fa-check';
-			check.setAttribute('aria-hidden', 'true');
-			main.appendChild(check);
 
 			const nameSpan = document.createElement('span');
 			nameSpan.className = 'repo-name-text';
@@ -1648,7 +1641,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				infoRow.className = 'repo-info';
 
 				const descSpan = document.createElement('span');
-				descSpan.className = 'repo-desc line-clamp-2';
+				descSpan.className = 'repo-desc';
 				descSpan.textContent = repo.description;
 
 				infoRow.appendChild(descSpan);
@@ -1673,9 +1666,10 @@ document.addEventListener('DOMContentLoaded', () => {
 				return;
 			}
 
-			// Requirement: Include selected repositories in the list, but they must be unique.
-			// Requirement: Sort alphabetically.
+			// Exclude already selected repositories
 			const filtered = availableRepos.filter((repo) => {
+				if (selectedRepos.includes(repo.fullName)) return false;
+
 				if (!query) return true;
 				const lowerQuery = query.toLowerCase();
 				return (
@@ -1685,22 +1679,9 @@ document.addEventListener('DOMContentLoaded', () => {
 				);
 			});
 
-			const selectedExtras = selectedRepos
-				.filter((fullName) => !filtered.some((r) => r.fullName === fullName))
-				.map((fullName) => availableRepos.find((r) => r.fullName === fullName))
-				.filter(Boolean);
-
-			const merged = [...filtered];
-			selectedExtras.forEach((repo) => {
-				if (!merged.some((r) => r.fullName === repo.fullName)) {
-					merged.push(repo);
-				}
-			});
-
-
 			repoDropdown.replaceChildren();
 
-			if (merged.length === 0) {
+			if (filtered.length === 0) {
 				const notFound = document.createElement('div');
 				notFound.className = 'p-3 text-center text-gray-500 text-sm';
 				notFound.style.paddingLeft = '10px';
@@ -1708,7 +1689,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				repoDropdown.appendChild(notFound);
 			} else {
 				const fragment = document.createDocumentFragment();
-				const grouped = groupReposByOwner(merged);
+				const grouped = groupReposByOwner(filtered);
 				const REPO_DISPLAY_LIMIT = 25;
 				let renderedCount = 0;
 
