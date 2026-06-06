@@ -689,6 +689,10 @@ document.addEventListener('DOMContentLoaded', () => {
 				checkTokenForMergedPRs();
 			});
 
+		function dismissShortcutTooltipFocus(el) {
+			el?.blur?.();
+		}
+
 		// Button setup
 		const generateBtn = document.getElementById('generateReport');
 		const copyBtn = document.getElementById('copyReport');
@@ -714,6 +718,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 				if (!content) {
 					insertBtn._triggeredByShortcut = false;
+					dismissShortcutTooltipFocus(insertBtn);
 					return;
 				}
 
@@ -752,6 +757,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					})
 					.finally(() => {
 						insertBtn._triggeredByShortcut = false;
+						dismissShortcutTooltipFocus(insertBtn);
 					});
 			});
 		}
@@ -764,21 +770,26 @@ document.addEventListener('DOMContentLoaded', () => {
 				const platform = result.platform || 'github';
 				const platformUsernameKey = `${platform}Username`;
 
-				browser.storage.local
+				return browser.storage.local
 					.set({
 						platform: platformSelect.value,
 						[platformUsernameKey]: platformUsername.value,
 					})
 					.then(() => {
 						// Reload platform from storage before generating report
-						browser.storage.local.get(['platform']).then((res) => {
+						return browser.storage.local.get(['platform']).then((res) => {
 							platformSelect.value = res.platform || 'github';
 							updatePlatformUI(platformSelect.value);
 							generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
 							generateBtn.disabled = true;
-							window.generateScrumReport && window.generateScrumReport();
+							return window.generateScrumReport && window.generateScrumReport();
 						});
 					});
+			}).finally(() => {
+				if (generateBtn._triggeredByShortcut) {
+					dismissShortcutTooltipFocus(generateBtn);
+					generateBtn._triggeredByShortcut = false;
+				}
 			});
 		});
 
@@ -854,6 +865,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				console.error('Failed to copy: ', err);
 			} finally {
 				this._triggeredByShortcut = false;
+				dismissShortcutTooltipFocus(this);
 				selection.removeAllRanges();
 				document.body.removeChild(tempDiv);
 			}
