@@ -21,16 +21,6 @@
 4. Open the extension popup from your browser toolbar.
 5. Set your GitHub username, date range, and preferences in the popup.
 6. Start composing your reports in Gmail, Yahoo Mail, Outlook, or Google Groups using the extension.
-### For Opera:
-
-1. Go to `opera://extensions` in your Opera browser.
-2. Enable "Developer mode" (toggle in the top-right corner).
-3. Click "Load unpacked".
-4. Navigate to your cloned repository and select the `dist/opera` folder.
-5. Pin the extension to your sidebar (optional).
-6. Open the extension popup from your browser sidebar.
-7. Set your GitHub username, date range, and preferences in the popup.
-8. Start composing your reports in Gmail, Yahoo Mail, Outlook, or Google Groups using the extension.
 ## Setting Up Your Development Environment
 
 1.  **Fork & Clone the Repository**
@@ -68,10 +58,11 @@
     -   Select the `manifest.json` file inside the `dist/firefox` folder.
     -   *Note: The extension will remain active only for the current browser session. If you need persistence, consider using Firefox Developer Edition.*
 
-    **For Opera:**
+    **For Opera (Chromium):**
     -   Go to `opera://extensions` in Opera.
     -   Enable "Developer mode" (toggle in the top-right).
-    -   Click "Load unpacked" and select the `dist/opera` folder inside the cloned repository.
+    -   Click "Load unpacked" and select the `dist/chrome` folder inside the cloned repository.
+    -   *Note: Opera is Chromium-based and uses the Chrome (`dist/chrome`) build. Scrum Helper is not published on the Opera add-ons store, so Opera is supported for development only.*
 
 ## Usage
 
@@ -154,7 +145,7 @@ $ npm install
 
 * For Chrome, Edge & Brave (Chromium): Load it into your browser through [Chrome Extension Developer Mode](https://developer.chrome.com/docs/extensions/mv3/getstarted/) using the `dist/chrome` folder.
 * For Firefox: Load it as a temporary add-on through `about:debugging` using the `dist/firefox` folder.
-* For Opera: Load it through Developer mode at `opera://extensions` using the `dist/opera` folder.
+* For Opera (Chromium): Load it through Developer mode at `opera://extensions` using the `dist/chrome` folder.
 
 2. **Rebuild the Extension**
    After making changes to the source code, rebuild the extension running `npm run build`.
