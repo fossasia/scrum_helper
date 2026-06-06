@@ -630,6 +630,40 @@ async function fetchUserRepositories(username, token, org = '') {
 window.fetchUserRepositories = fetchUserRepositories;
 window.fetchPrsMergedStatusBatch = fetchPrsMergedStatusBatch;
 
+async function forceGithubDataRefresh() {
+	let showCommits = false;
+
+	await new Promise((resolve) => {
+		chrome.storage.local.get('showCommits', (result) => {
+			if (result.showCommits !== undefined) {
+				showCommits = result.showCommits;
+			}
+			resolve();
+		});
+	});
+
+	if (typeof githubCache !== 'undefined') {
+		githubCache.data = null;
+		githubCache.cacheKey = null;
+		githubCache.timestamp = 0;
+		githubCache.subject = null;
+		githubCache.fetching = false;
+		githubCache.queue = [];
+	}
+
+	await new Promise((resolve) => {
+		chrome.storage.local.remove('githubCache', resolve);
+	});
+
+	chrome.storage.local.set({ showCommits: showCommits });
+
+	window.hasInjectedContent = false;
+
+	return { success: true };
+}
+
+window['forceGithubDataRefresh'] = forceGithubDataRefresh;
+
 if (window.PlatformRegistry) {
 	window.PlatformRegistry.register('github', {
 		hasRepoFilter: true,
@@ -643,5 +677,6 @@ if (window.PlatformRegistry) {
 		validateOrgOnBlur,
 		fetchUserRepositories,
 		fetchPrsMergedStatusBatch,
+		forceDataRefresh: forceGithubDataRefresh,
 	});
 }

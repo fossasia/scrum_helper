@@ -13,15 +13,15 @@ function logError(...args) {
 }
 
 let refreshButton_Placed = false;
-let hasInjectedContent = false;
+window.hasInjectedContent = false;
 let scrumGenerationInProgress = false;
 
 let orgName = '';
 let platform = 'github';
 let platformUsername = '';
 let gitlabToken = '';
-let gitlabBaseUrl = '';
-let gitlabHelper = null;
+window.gitlabBaseUrl = '';
+window.gitlabHelper = null;
 let usernameValidationListenerAttached = false;
 
 const scrumReportEl = document.getElementById('scrumReport');
@@ -100,7 +100,7 @@ function mapGitLabReportData(data, gitlabApiBaseUrl) {
 function allIncluded(outputTarget = 'email') {
 	// Always re-instantiate gitlabHelper for gitlab platform to ensure fresh cache after refresh
 	if (platform === 'gitlab' || (typeof platform === 'undefined' && window.GitLabHelper)) {
-		gitlabHelper = new window.GitLabHelper(gitlabBaseUrl);
+		window.gitlabHelper = new window.GitLabHelper(window.gitlabBaseUrl);
 	}
 	if (scrumGenerationInProgress) {
 		return;
@@ -217,9 +217,9 @@ function allIncluded(outputTarget = 'email') {
 				chrome.storage.local.remove(['userReason']);
 				githubToken = items.githubToken;
 				gitlabToken = items.gitlabToken || '';
-				gitlabBaseUrl = items.gitlabBaseUrl || '';
+				window.gitlabBaseUrl = items.gitlabBaseUrl || '';
 				if (platform === 'gitlab' && window.GitLabHelper) {
-					gitlabHelper = new window.GitLabHelper(gitlabBaseUrl);
+					window.gitlabHelper = new window.GitLabHelper(window.gitlabBaseUrl);
 				}
 				yesterdayContribution = items.yesterdayContribution;
 
@@ -272,7 +272,7 @@ function allIncluded(outputTarget = 'email') {
 						return;
 					}
 				} else if (platform === 'gitlab') {
-					if (!gitlabHelper) gitlabHelper = new window.GitLabHelper(gitlabBaseUrl);
+					if (!window.gitlabHelper) window.gitlabHelper = new window.GitLabHelper(window.gitlabBaseUrl);
 					if (platformUsernameLocal) {
 						const generateBtn = document.getElementById('generateReport');
 						if (generateBtn && outputTarget === 'popup') {
@@ -283,14 +283,14 @@ function allIncluded(outputTarget = 'email') {
 						if (outputTarget === 'email') {
 							(async () => {
 								try {
-									const data = await gitlabHelper.fetchGitLabData(
+									const data = await window.gitlabHelper.fetchGitLabData(
 										platformUsernameLocal,
 										startingDate,
 										endingDate,
 										gitlabToken,
 									);
 
-									const mappedData = mapGitLabReportData(data, gitlabHelper.baseUrl);
+									const mappedData = mapGitLabReportData(data, window.gitlabHelper.baseUrl);
 									githubUserData = mappedData.githubUserData;
 
 									const name =
@@ -326,10 +326,10 @@ function allIncluded(outputTarget = 'email') {
 								}
 							})();
 						} else {
-							gitlabHelper
+							window.gitlabHelper
 								.fetchGitLabData(platformUsernameLocal, startingDate, endingDate, gitlabToken)
 								.then((data) => {
-									const mappedData = mapGitLabReportData(data, gitlabHelper.baseUrl);
+									const mappedData = mapGitLabReportData(data, window.gitlabHelper.baseUrl);
 									processGithubData(mappedData);
 									scrumGenerationInProgress = false;
 								})
@@ -1157,7 +1157,7 @@ ${blockerText}`;
 				delete scrumReport.dataset.copyPlaceholder;
 				try {
 					const cacheKey =
-						platform === 'gitlab' ? (gitlabHelper?.cache?.cacheKey ?? null) : (githubCache?.cacheKey ?? null);
+						platform === 'gitlab' ? (window.gitlabHelper?.cache?.cacheKey ?? null) : (githubCache?.cacheKey ?? null);
 
 					chrome.storage.local.set({
 						lastScrumReportHtml: content,
@@ -1179,7 +1179,7 @@ ${blockerText}`;
 			}
 			scrumGenerationInProgress = false;
 		} else if (outputTarget === 'email') {
-			if (hasInjectedContent) {
+			if (window.hasInjectedContent) {
 				scrumGenerationInProgress = false;
 				return;
 			}
@@ -1195,7 +1195,7 @@ ${blockerText}`;
 						obs.disconnect();
 						log('MutationObserver found the editor body. Injecting scrum content.');
 						window.emailClientAdapter.injectContent(elements.body, content, elements.eventTypes.contentChange);
-						hasInjectedContent = true;
+						window.hasInjectedContent = true;
 						scrumGenerationInProgress = false;
 					}
 				}
@@ -1208,7 +1208,7 @@ ${blockerText}`;
 
 			setTimeout(() => {
 				observer.disconnect();
-				if (!hasInjectedContent && scrumGenerationInProgress) {
+				if (!window.hasInjectedContent && scrumGenerationInProgress) {
 					logError('Injection timed out after 30 seconds. The compose window might not have loaded.');
 					scrumGenerationInProgress = false;
 				}
@@ -1917,61 +1917,9 @@ ${blockerText}`;
 	}
 
 	function handleRefresh() {
-		hasInjectedContent = false; // Reset the flag before refresh
+		window.hasInjectedContent = false; // Reset the flag before refresh
 		allIncluded();
 	}
-}
-
-async function forceGithubDataRefresh() {
-	let showCommits = false;
-
-	await new Promise((resolve) => {
-		chrome.storage.local.get('showCommits', (result) => {
-			if (result.showCommits !== undefined) {
-				showCommits = result.showCommits;
-			}
-			resolve();
-		});
-	});
-
-	if (typeof githubCache !== 'undefined') {
-		githubCache.data = null;
-		githubCache.cacheKey = null;
-		githubCache.timestamp = 0;
-		githubCache.subject = null;
-		githubCache.fetching = false;
-		githubCache.queue = [];
-	}
-
-	await new Promise((resolve) => {
-		chrome.storage.local.remove('githubCache', resolve);
-	});
-
-	chrome.storage.local.set({ showCommits: showCommits });
-
-	hasInjectedContent = false;
-
-	return { success: true };
-}
-
-async function forceGitlabDataRefresh() {
-	// Clear in-memory cache if gitlabHelper is loaded
-	if (window.GitLabHelper && gitlabHelper instanceof window.GitLabHelper) {
-		gitlabHelper.cache.data = null;
-		gitlabHelper.cache.cacheKey = null;
-		gitlabHelper.cache.timestamp = 0;
-		gitlabHelper.cache.fetching = false;
-		gitlabHelper.cache.queue = [];
-	}
-	await new Promise((resolve) => {
-		chrome.storage.local.remove('gitlabCache', resolve);
-	});
-	hasInjectedContent = false;
-	// Re-instantiate gitlabHelper to ensure a fresh instance for next API call
-	if (window.GitLabHelper) {
-		gitlabHelper = new window.GitLabHelper(gitlabBaseUrl);
-	}
-	return { success: true };
 }
 
 // Auto inject report on email client load
@@ -1992,20 +1940,27 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 	if (request.action === 'forceRefresh') {
 		chrome.storage.local.get(['platform'], async (result) => {
 			const platform = result.platform || 'github';
-			if (platform === 'gitlab') {
-				forceGitlabDataRefresh()
+			const helper = window.PlatformRegistry?.get(platform);
+			if (helper && typeof helper.forceDataRefresh === 'function') {
+				helper
+					.forceDataRefresh()
 					.then((result) => sendResponse(result))
 					.catch((err) => {
 						console.error('Force refresh failed:', err);
 						sendResponse({ success: false, error: err.message });
 					});
 			} else {
-				forceGithubDataRefresh()
-					.then((result) => sendResponse(result))
-					.catch((err) => {
-						console.error('Force refresh failed:', err);
-						sendResponse({ success: false, error: err.message });
-					});
+				const fallbackFn = platform === 'gitlab' ? window['forceGitlabDataRefresh'] : window['forceGithubDataRefresh'];
+				if (typeof fallbackFn === 'function') {
+					fallbackFn()
+						.then((result) => sendResponse(result))
+						.catch((err) => {
+							console.error('Force refresh failed:', err);
+							sendResponse({ success: false, error: err.message });
+						});
+				} else {
+					sendResponse({ success: false, error: `No refresh handler registered for platform: ${platform}` });
+				}
 			}
 		});
 		return true;

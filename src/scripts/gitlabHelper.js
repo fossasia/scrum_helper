@@ -295,6 +295,28 @@ if (typeof module !== 'undefined' && module.exports) {
 	window.GitLabHelper = GitLabHelper;
 }
 
+async function forceGitlabDataRefresh() {
+	// Clear in-memory cache if gitlabHelper is loaded
+	if (window.GitLabHelper && window.gitlabHelper instanceof window.GitLabHelper) {
+		window.gitlabHelper.cache.data = null;
+		window.gitlabHelper.cache.cacheKey = null;
+		window.gitlabHelper.cache.timestamp = 0;
+		window.gitlabHelper.cache.fetching = false;
+		window.gitlabHelper.cache.queue = [];
+	}
+	await new Promise((resolve) => {
+		chrome.storage.local.remove('gitlabCache', resolve);
+	});
+	window.hasInjectedContent = false;
+	// Re-instantiate gitlabHelper to ensure a fresh instance for next API call
+	if (window.GitLabHelper) {
+		window.gitlabHelper = new window.GitLabHelper(window.gitlabBaseUrl);
+	}
+	return { success: true };
+}
+
+window['forceGitlabDataRefresh'] = forceGitlabDataRefresh;
+
 if (window.PlatformRegistry) {
 	window.PlatformRegistry.register('gitlab', {
 		hasRepoFilter: false,
@@ -312,5 +334,6 @@ if (window.PlatformRegistry) {
 		fetchPrsMergedStatusBatch() {
 			return Promise.resolve({});
 		},
+		forceDataRefresh: forceGitlabDataRefresh,
 	});
 }
