@@ -58,11 +58,10 @@
     -   Select the `manifest.json` file inside the `dist/firefox` folder.
     -   *Note: The extension will remain active only for the current browser session. If you need persistence, consider using Firefox Developer Edition.*
 
-    **For Opera (Chromium):**
+    **For Opera:**
     -   Go to `opera://extensions` in Opera.
     -   Enable "Developer mode" (toggle in the top-right).
-    -   Click "Load unpacked" and select the `dist/chrome` folder inside the cloned repository.
-    -   *Note: Opera is Chromium-based and uses the Chrome (`dist/chrome`) build. Scrum Helper is not published on the Opera add-ons store, so Opera is supported for development only.*
+    -   Click "Load unpacked" and select the `dist/opera` folder inside the cloned repository.
 
 ## Usage
 
@@ -145,7 +144,7 @@ $ npm install
 
 * For Chrome, Edge & Brave (Chromium): Load it into your browser through [Chrome Extension Developer Mode](https://developer.chrome.com/docs/extensions/mv3/getstarted/) using the `dist/chrome` folder.
 * For Firefox: Load it as a temporary add-on through `about:debugging` using the `dist/firefox` folder.
-* For Opera (Chromium): Load it through Developer mode at `opera://extensions` using the `dist/chrome` folder.
+* For Opera: Load it through Developer mode at `opera://extensions` using the `dist/opera` folder.
 
 2. **Rebuild the Extension**
    After making changes to the source code, rebuild the extension running `npm run build`.
