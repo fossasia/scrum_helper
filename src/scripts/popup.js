@@ -1176,6 +1176,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	const repoPlaceholder = document.getElementById('repoPlaceholder');
 	const repoCount = document.getElementById('repoCount');
 	const repoStatus = document.getElementById('repoStatus');
+	const clearAllReposBtn = document.getElementById('clearAllReposBtn');
 	const useRepoFilter = document.getElementById('useRepoFilter');
 	const repoFilterContainer = document.getElementById('repoFilterContainer');
 
@@ -1729,6 +1730,9 @@ document.addEventListener('DOMContentLoaded', () => {
 				if (repoCount) {
 					repoCount.textContent = browser.i18n.getMessage('repoCountNone');
 				}
+				if (clearAllReposBtn) {
+					clearAllReposBtn.classList.add('hidden');
+				}
 			} else {
 				const fragment = document.createDocumentFragment();
 
@@ -1764,13 +1768,26 @@ document.addEventListener('DOMContentLoaded', () => {
 					tag.appendChild(removeBtn);
 					fragment.appendChild(tag);
 				});
-
 				repoTags.appendChild(fragment);
 
 				if (repoCount) {
 					repoCount.textContent = browser.i18n.getMessage('repoCount', [selectedRepos.length]);
 				}
+
+				if (clearAllReposBtn) {
+					clearAllReposBtn.classList.remove('hidden');
+				}
 			}
+		}
+
+		if (clearAllReposBtn) {
+			clearAllReposBtn.addEventListener('click', (e) => {
+				e.stopPropagation();
+				selectedRepos = [];
+				updateRepoDisplay();
+				saveRepoSelection();
+				filterAndDisplayRepos(repoSearch.value.toLowerCase());
+			});
 		}
 
 		function saveRepoSelection() {
