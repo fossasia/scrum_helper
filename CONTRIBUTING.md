@@ -49,7 +49,7 @@ This document provides guidelines for contributing to the project. Please feel f
 
 5.  **Get a GitHub Personal Access Token (Recommended)**
 
-    To use Scrum Helper with authenticated requests (for higher rate limits and private repositories), you need a GitHub personal access token.
+    To use Scrum Helper with authenticated requests (for higher rate limits and private repositories), you need a GitHub personal access token (classic).
 
     -   **Go to GitHub Developer Settings:** Visit [https://github.com/settings/tokens](https://github.com/settings/tokens).
     -   **Choose Token Type:** Select "Personal access tokens (classic)".
