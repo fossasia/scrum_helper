@@ -88,7 +88,7 @@ if (!window.scrumHelperToast) {
 	window.scrumHelperToast = function scrumHelperToast(message, options = {}) {
 		if (!message || typeof document === 'undefined') return null;
 
-		const { duration = 4000, variant = 'info' } = options;
+		const { duration = 2000, variant = 'info' } = options;
 
 		const toastId = 'scrum-helper-toast';
 		const existingToast = document.getElementById(toastId);
@@ -141,7 +141,7 @@ if (!window.clearScrumHelperToast) {
 // Backwards-compatible wrapper used across the codebase
 if (!window.showPopupMessage) {
 	window.showPopupMessage = function showPopupMessage(message, options = {}) {
-		const opts = Object.assign({ duration: 4000, variant: 'info' }, options || {});
+		const opts = Object.assign({ duration: 2000, variant: 'info' }, options || {});
 		return window.scrumHelperToast?.(message, opts);
 	};
 }
