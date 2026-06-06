@@ -294,3 +294,17 @@ if (typeof module !== 'undefined' && module.exports) {
 } else {
 	window.GitLabHelper = GitLabHelper;
 }
+
+if (window.PlatformRegistry) {
+	window.PlatformRegistry.register('gitlab', {
+		hasRepoFilter: false,
+		checkTokenForFilter() {},
+		checkTokenForShowCommits() {},
+		checkTokenForMergedPRs() {},
+		triggerRepoFetchIfEnabled() {},
+		debugRepoFetch() {},
+		loadRepos() {},
+		performRepoFetch() {},
+		validateOrgOnBlur() {},
+	});
+}

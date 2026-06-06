@@ -404,7 +404,46 @@ async function performRepoFetch() {
 	}
 }
 
-window.githubHelperTriggerRepoFetchIfEnabled = triggerRepoFetchIfEnabled;
-window.githubHelperDebugRepoFetch = debugRepoFetch;
-window.githubHelperLoadRepos = loadRepos;
-window.githubHelperPerformRepoFetch = performRepoFetch;
+// Validate organization only when user is done typing (on blur)
+function validateOrgOnBlur(org) {
+	console.log('[Org Check] Checking organization on blur:', org);
+	fetch(`https://api.github.com/orgs/${org}`)
+		.then((res) => {
+			console.log('[Org Check] Response status for', org, ':', res.status);
+			if (res.status === 404) {
+				console.log('[Org Check] Organization not found on GitHub:', org);
+				if (typeof showPopupMessage === 'function') {
+					showPopupMessage(browser.i18n.getMessage('orgNotFoundMessage'));
+				} else if (window.showPopupMessage) {
+					window.showPopupMessage(browser.i18n.getMessage('orgNotFoundMessage'));
+				}
+				return;
+			}
+			window.clearScrumHelperToast?.();
+			console.log('[Org Check] Organisation exists on GitHub:', org);
+			browser.storage.local.remove(['githubCache', 'repoCache']);
+			triggerRepoFetchIfEnabled();
+		})
+		.catch((err) => {
+			console.log('[Org Check] Error validating organisation:', org, err);
+			if (typeof showPopupMessage === 'function') {
+				showPopupMessage(browser.i18n.getMessage('orgValidationErrorMessage'), { variant: 'error' });
+			} else if (window.showPopupMessage) {
+				window.showPopupMessage(browser.i18n.getMessage('orgValidationErrorMessage'), { variant: 'error' });
+			}
+		});
+}
+
+if (window.PlatformRegistry) {
+	window.PlatformRegistry.register('github', {
+		hasRepoFilter: true,
+		checkTokenForFilter,
+		checkTokenForShowCommits,
+		checkTokenForMergedPRs,
+		triggerRepoFetchIfEnabled,
+		debugRepoFetch,
+		loadRepos,
+		performRepoFetch,
+		validateOrgOnBlur,
+	});
+}

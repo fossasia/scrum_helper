@@ -1,4 +1,15 @@
-/* global chrome */
+/* global chrome, browser */
+
+// Platform Registry to support dynamic pluggable platforms (GitHub, GitLab, ........)
+window.PlatformRegistry = {
+	platforms: {},
+	register(id, helper) {
+		this.platforms[id] = helper;
+	},
+	get(id) {
+		return this.platforms[id] || null;
+	},
+};
 
 function debounce(func, wait) {
 	let timeout;
@@ -137,6 +148,32 @@ document.addEventListener('DOMContentLoaded', () => {
 	const platformSelect = document.getElementById('platformSelect');
 	const usernameLabel = document.getElementById('usernameLabel');
 	const platformUsername = document.getElementById('platformUsername');
+
+	function getActivePlatformHelper() {
+		const platform = platformSelect?.value || 'github';
+		return window.PlatformRegistry.get(platform);
+	}
+
+	function checkTokenForFilter() {
+		const helper = getActivePlatformHelper();
+		if (helper && helper.checkTokenForFilter) {
+			helper.checkTokenForFilter();
+		}
+	}
+
+	function checkTokenForShowCommits(options) {
+		const helper = getActivePlatformHelper();
+		if (helper && helper.checkTokenForShowCommits) {
+			helper.checkTokenForShowCommits(options);
+		}
+	}
+
+	function checkTokenForMergedPRs(options) {
+		const helper = getActivePlatformHelper();
+		if (helper && helper.checkTokenForMergedPRs) {
+			helper.checkTokenForMergedPRs(options);
+		}
+	}
 
 	browser.storage.local.get(['darkMode']).then((result) => {
 		if (result.darkMode) {
@@ -1211,13 +1248,15 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		});
 
-		if (window.githubHelperDebugRepoFetch) {
-			window.githubHelperDebugRepoFetch();
+		const helper = getActivePlatformHelper();
+		if (helper && helper.debugRepoFetch) {
+			helper.debugRepoFetch();
 		}
 
 		async function loadRepos() {
-			if (window.githubHelperLoadRepos) {
-				await window.githubHelperLoadRepos();
+			const helper = getActivePlatformHelper();
+			if (helper && helper.loadRepos) {
+				await helper.loadRepos();
 			}
 		}
 
@@ -1864,8 +1903,11 @@ function toggleRadio(radio) {
 }
 
 async function triggerRepoFetchIfEnabled() {
-	if (window.githubHelperTriggerRepoFetchIfEnabled) {
-		await window.githubHelperTriggerRepoFetchIfEnabled();
+	const platformSelect = document.getElementById('platformSelect');
+	const platform = platformSelect?.value || 'github';
+	const helper = window.PlatformRegistry.get(platform);
+	if (helper && helper.triggerRepoFetchIfEnabled) {
+		await helper.triggerRepoFetchIfEnabled();
 	}
 }
 
@@ -1915,22 +1957,10 @@ document.addEventListener('keydown', (e) => {
 
 // Validate organization only when user is done typing (on blur)
 function validateOrgOnBlur(org) {
-	console.log('[Org Check] Checking organization on blur:', org);
-	fetch(`https://api.github.com/orgs/${org}`)
-		.then((res) => {
-			console.log('[Org Check] Response status for', org, ':', res.status);
-			if (res.status === 404) {
-				console.log('[Org Check] Organization not found on GitHub:', org);
-				showPopupMessage(browser.i18n.getMessage('orgNotFoundMessage'));
-				return;
-			}
-			window.clearScrumHelperToast?.();
-			console.log('[Org Check] Organisation exists on GitHub:', org);
-			browser.storage.local.remove(['githubCache', 'repoCache']);
-			triggerRepoFetchIfEnabled();
-		})
-		.catch((err) => {
-			console.log('[Org Check] Error validating organisation:', org, err);
-			showPopupMessage(browser.i18n.getMessage('orgValidationErrorMessage'), { variant: 'error' });
-		});
+	const platformSelect = document.getElementById('platformSelect');
+	const platform = platformSelect?.value || 'github';
+	const helper = window.PlatformRegistry.get(platform);
+	if (helper && helper.validateOrgOnBlur) {
+		helper.validateOrgOnBlur(org);
+	}
 }
