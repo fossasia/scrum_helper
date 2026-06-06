@@ -26,7 +26,7 @@ function isMacOS() {
 	return /Mac/.test(platform);
 }
 
-function showShortcutNotification(messageKey) {
+function showShortcutNotification(messageKey, variant = 'info') {
 	if (typeof chrome === 'undefined' || !chrome.i18n) {
 		return;
 	}
@@ -36,7 +36,7 @@ function showShortcutNotification(messageKey) {
 		return;
 	}
 
-	window.scrumHelperToast?.(message, { duration: 2200, variant: 'info' });
+	window.scrumHelperToast?.(message, { duration: 2200, variant });
 }
 
 function setupButtonTooltips() {
@@ -712,6 +712,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		if (insertBtn) {
 			insertBtn.addEventListener('click', () => {
+				if (!insertBtn._triggeredByShortcut) {
+					showPopupMessage(browser.i18n.getMessage('insertingInEmailNotification'));
+				}
 				const scrumReport = document.getElementById('scrumReport');
 				const content = scrumReport ? sanitizeHtml(scrumReport.innerHTML) : '';
 				const subject = buildScrumSubjectFromPopup();
@@ -727,7 +730,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					console.warn('Insert to Email failed:', errorMsg);
 					const failureMessage =
 						browser.i18n.getMessage('insertToEmailFailedError') || 'open an email tab to insert report';
-					showPopupMessage(failureMessage);
+					showPopupMessage(failureMessage, { variant: 'error' });
 				};
 
 				browser.tabs
@@ -744,8 +747,12 @@ document.addEventListener('DOMContentLoaded', () => {
 							.then((response) => {
 								if (!response?.success) {
 									handleInsertFailure(response?.error);
-								} else if (insertBtn._triggeredByShortcut) {
-									showShortcutNotification('insertedInEmailNotification');
+								} else {
+									if (insertBtn._triggeredByShortcut) {
+										showShortcutNotification('insertedInEmailNotification');
+									} else {
+										showPopupMessage(browser.i18n.getMessage('insertedInEmailNotification'), { variant: 'success' });
+									}
 								}
 							})
 							.catch((error) => {
@@ -763,6 +770,9 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 
 		generateBtn.addEventListener('click', () => {
+			if (!generateBtn._triggeredByShortcut) {
+				showPopupMessage(browser.i18n.getMessage('generatingReportNotification'));
+			}
 			browser.storage.local.get(['platform']).then((result) => {
 				platformUsername.classList.remove('input-error');
 				usernameError.classList.remove('errorMessage');
@@ -782,7 +792,10 @@ document.addEventListener('DOMContentLoaded', () => {
 							updatePlatformUI(platformSelect.value);
 							generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
 							generateBtn.disabled = true;
-							return window.generateScrumReport && window.generateScrumReport();
+							window.generateScrumReport && window.generateScrumReport();
+							generateBtn._triggeredByShortcut = false;
+
+
 						});
 					});
 			}).finally(() => {
@@ -794,6 +807,9 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 
 		copyBtn.addEventListener('click', function () {
+			if (!this._triggeredByShortcut) {
+				showPopupMessage(browser.i18n.getMessage('copyingReportNotification'));
+			}
 			const scrumReport = document.getElementById('scrumReport');
 			if (!scrumReport) {
 				this._triggeredByShortcut = false;
@@ -855,7 +871,9 @@ document.addEventListener('DOMContentLoaded', () => {
 						browser?.i18n && browser.i18n.getMessage('copiedReportNotification')
 							? 'copiedReportNotification'
 							: 'copiedButton';
-					showShortcutNotification(notificationKey);
+					showShortcutNotification(notificationKey, 'success');
+				} else {
+					showPopupMessage(browser.i18n.getMessage('copiedReportNotification'), { variant: 'success' });
 				}
 				this.innerHTML = `<i class="fa fa-check"></i> ${browser?.i18n.getMessage('copiedButton')}`;
 				setTimeout(() => {
@@ -2259,6 +2277,7 @@ document.addEventListener('keydown', (e) => {
 	if (modifier && !e.shiftKey && !e.altKey && key === 'g' && !e.repeat && generateBtn && !generateBtn.disabled) {
 		e.preventDefault();
 		showShortcutNotification('generatingReportNotification');
+		generateBtn._triggeredByShortcut = true;
 		generateBtn.click();
 	}
 
