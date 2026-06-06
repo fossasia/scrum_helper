@@ -45,7 +45,7 @@ function showReportMessage(message) {
 		scrumReportEl.innerHTML = '';
 		window.updateCopyButtonState?.();
 	}
-	window.scrumHelperToast?.(message, { duration: 4000, variant: 'error' });
+	window.scrumHelperToast?.(message, { duration: 2000, variant: 'error' });
 }
 
 function handleUsernameValidationError(errMessage) {
@@ -994,7 +994,7 @@ function allIncluded(outputTarget = 'email') {
 					generateBtn.disabled = false;
 				}
 			} else {
-				window.scrumHelperToast?.(errMsg, { duration: 4000, variant: 'error' });
+				window.scrumHelperToast?.(errMsg, { duration: 2000, variant: 'error' });
 			}
 		}
 	}
