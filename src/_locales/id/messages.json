@@ -155,6 +155,9 @@
     "repoCount": {
         "message": "$1 repositori dipilih"
     },
+    "clearAllBtn": {
+        "message": "Hapus Semua"
+    },
     "repoLoading": {
         "message": "Memuat repositori..."
     },
