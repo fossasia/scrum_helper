@@ -27,19 +27,25 @@ jobs:
       - name: Build extension
         run: npm run build
 
-      - name: Package Chrome (.crx)
+      - name: Install web-ext
+        run: npm install -g web-ext
+
+      - name: Package Chrome (.zip)
         run: |
           mkdir -p installers
-          cd dist/chrome && zip -r ../../installers/scrum-helper-chrome.crx . && cd ../..
+          cd dist/chrome && zip -r ../../installers/scrum-helper-chrome.zip . && cd ../..
 
-      - name: Package Firefox (.xpi)
+      - name: Package Firefox (.xpi) using web-ext
         run: |
-          cd dist/firefox && zip -r ../../installers/scrum-helper-firefox.xpi . && cd ../..
+          cd dist/firefox
+          web-ext build --overwrite-dest --artifacts-dir ../../installers
+          cd ../..
+          mv installers/*.zip installers/scrum-helper-firefox.xpi
 
       - name: Commit updated files
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add installers/
-          git diff --staged --quiet || git commit -m "chore: auto-update .crx and .xpi builds [skip ci]"
+          git diff --staged --quiet || git commit -m "chore: auto-update extension builds [skip ci]"
           git push
