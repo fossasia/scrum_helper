@@ -38,9 +38,7 @@ jobs:
       - name: Package Firefox (.xpi) using web-ext
         run: |
           mkdir -p installers
-          cd dist/firefox
-          web-ext build --overwrite-dest --artifacts-dir ../../installers
-          cd ../..
+          web-ext build --source-dir dist/firefox --overwrite-dest --artifacts-dir installers
           mv installers/scrum_helper-*.zip installers/scrum-helper-firefox.xpi
       - name: Commit updated files
         run: |
