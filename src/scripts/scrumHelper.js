@@ -1,7 +1,12 @@
 let rateLimitWarningShown = false;
 const originalFetch = window.fetch;
 window.fetch = async function (...args) {
-	const res = await originalFetch(...args);
+	let res;
+	try {
+		res = await originalFetch(...args);
+	} catch (err) {
+		throw err;
+	}
 	const url = typeof args[0] === 'string' ? args[0] : args[0]?.url || '';
 	if (url.includes('api.github.com')) {
 		const remaining = res.headers.get('x-ratelimit-remaining');
