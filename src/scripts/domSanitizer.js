@@ -10,7 +10,7 @@ function sanitizeHtml(html) {
 		return DOMPurify.sanitize(html, SCRUM_SANITIZER_CONFIG);
 	}
 	console.warn('[scrum_helper] DOMPurify unavailable, falling back to Text');
-	const div = document.createElement('div');
-	div.innerHTML = html;
-	return div.textContent || div.innerText || '';
+	const parser = new DOMParser();
+	const parsedDoc = parser.parseFromString(html, 'text/html');
+	return parsedDoc.body.textContent || '';
 }
