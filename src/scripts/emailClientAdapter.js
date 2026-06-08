@@ -253,15 +253,16 @@ class EmailClientAdapter {
 					// Delete any highlighted text in the selection range
 					range.deleteContents();
 
-					// Create a temporary element to parse the HTML string to elements
-					const tempDiv = document.createElement('div');
-					tempDiv.innerHTML = sanitizedContent;
+					// Parse the HTML string to elements using DOMParser to avoid innerHTML XSS warnings
+					const parser = new DOMParser();
+					const parsedDoc = parser.parseFromString(sanitizedContent, 'text/html');
+					const body = parsedDoc.body;
 
 					// Create a document fragment to insert all parsed nodes
 					const fragment = document.createDocumentFragment();
 					let lastNode = null;
-					while (tempDiv.firstChild) {
-						lastNode = tempDiv.firstChild;
+					while (body.firstChild) {
+						lastNode = body.firstChild;
 						fragment.appendChild(lastNode);
 					}
 
@@ -285,18 +286,19 @@ class EmailClientAdapter {
 
 		// Fallback: If no cursor is active inside the editor body, we prepend the content.
 		// Prepending preserves any existing signature and reply threads that are below.
-		const tempDiv = document.createElement('div');
-		tempDiv.innerHTML = sanitizedContent;
+		const parser = new DOMParser();
+		const parsedDoc = parser.parseFromString(sanitizedContent, 'text/html');
+		const body = parsedDoc.body;
 
 		// Add line breaks after the scrum content to ensure spacing before signature/reply
 		const br1 = document.createElement('br');
 		const br2 = document.createElement('br');
-		tempDiv.appendChild(br1);
-		tempDiv.appendChild(br2);
+		body.appendChild(br1);
+		body.appendChild(br2);
 
-		// Prepend all child elements from the tempDiv to the beginning of the editor body
-		while (tempDiv.lastChild) {
-			element.insertBefore(tempDiv.lastChild, element.firstChild);
+		// Prepend all child elements from the parsed body to the beginning of the editor body
+		while (body.lastChild) {
+			element.insertBefore(body.lastChild, element.firstChild);
 		}
 
 		return true;
