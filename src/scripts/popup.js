@@ -369,7 +369,11 @@ document.addEventListener('DOMContentLoaded', () => {
 	});
 
 	browser.storage.onChanged.addListener((changes, namespace) => {
-		console.log('[DEBUG] Storage changed:', changes, namespace);
+		console.log(
+			'[DEBUG] Storage changed:',
+			typeof logRedaction === 'function' ? logRedaction(changes) : changes,
+			namespace,
+		);
 		if (changes.startingDate || changes.endingDate) {
 			console.log('[POPUP-DEBUG] Date changed in storage, triggering repo fetch.', {
 				startingDate: changes.startingDate?.newValue,
@@ -910,7 +914,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		browser.storage.local
 			.get(['selectedTimeframe', 'yesterdayContribution', 'startingDate', 'endingDate'])
 			.then((items) => {
-				console.log('Restoring state:', items);
+				console.log('Restoring state:', typeof logRedaction === 'function' ? logRedaction(items) : items);
 
 				if (items.startingDate && items.endingDate && !items.yesterdayContribution) {
 					const startDateInput = document.getElementById('startingDate');
@@ -1176,6 +1180,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	const repoPlaceholder = document.getElementById('repoPlaceholder');
 	const repoCount = document.getElementById('repoCount');
 	const repoStatus = document.getElementById('repoStatus');
+	const clearAllReposBtn = document.getElementById('clearAllReposBtn');
 	const useRepoFilter = document.getElementById('useRepoFilter');
 	const repoFilterContainer = document.getElementById('repoFilterContainer');
 
@@ -1499,11 +1504,21 @@ document.addEventListener('DOMContentLoaded', () => {
 				const platform = items.platform || 'github';
 				const platformUsernameKey = `${platform}Username`;
 				const username = items[platformUsernameKey];
-				console.log('Storage data for repo fetch:', {
-					hasUsername: !!username,
-					hasToken: !!items.githubToken,
-					username: username,
-				});
+				console.log(
+					'Storage data for repo fetch:',
+					typeof logRedaction === 'function'
+						? logRedaction({
+								hasUsername: !!username,
+								hasToken: !!items.githubToken,
+								username: username,
+								githubToken: items.githubToken,
+							})
+						: {
+								hasUsername: !!username,
+								hasToken: !!items.githubToken,
+								username: username,
+							},
+				);
 
 				if (!username) {
 					repoStatus.textContent = chrome?.i18n.getMessage('usernameMissingError') || 'Username required';
@@ -1729,6 +1744,9 @@ document.addEventListener('DOMContentLoaded', () => {
 				if (repoCount) {
 					repoCount.textContent = browser.i18n.getMessage('repoCountNone');
 				}
+				if (clearAllReposBtn) {
+					clearAllReposBtn.classList.add('hidden');
+				}
 			} else {
 				const fragment = document.createDocumentFragment();
 
@@ -1764,13 +1782,26 @@ document.addEventListener('DOMContentLoaded', () => {
 					tag.appendChild(removeBtn);
 					fragment.appendChild(tag);
 				});
-
 				repoTags.appendChild(fragment);
 
 				if (repoCount) {
 					repoCount.textContent = browser.i18n.getMessage('repoCount', [selectedRepos.length]);
 				}
+
+				if (clearAllReposBtn) {
+					clearAllReposBtn.classList.remove('hidden');
+				}
 			}
+		}
+
+		if (clearAllReposBtn) {
+			clearAllReposBtn.addEventListener('click', (e) => {
+				e.stopPropagation();
+				selectedRepos = [];
+				updateRepoDisplay();
+				saveRepoSelection();
+				filterAndDisplayRepos(repoSearch.value.toLowerCase());
+			});
 		}
 
 		function saveRepoSelection() {
