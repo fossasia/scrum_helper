@@ -608,7 +608,7 @@ function allIncluded(outputTarget = 'email') {
 		console.log('[SCRUM-HELPER] orgName before API query:', orgName);
 		console.log('[SCRUM-HELPER] orgName type:', typeof orgName);
 		console.log('[SCRUM-HELPER] orgName length:', orgName ? orgName.length : 0);
-		const orgPart = orgName && orgName.trim() ? `+org%3A${orgName}` : '';
+		const orgPart = orgName && orgName.trim() ? `org%3A${orgName}` : '';
 		console.log('[SCRUM-HELPER] orgPart for API:', orgPart);
 		console.log('[SCRUM-HELPER] orgPart length:', orgPart.length);
 
