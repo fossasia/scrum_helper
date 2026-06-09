@@ -162,9 +162,9 @@ $ npm install
    * For Firefox: Reload the temporary add-on by going to `about:debugging` → "This Firefox" → Click "Reload" next to your extension.
    * For Opera: Reload the extension in your browser (`opera://extensions` → Click the reload/refresh icon next to the extension).
    
-3. **How to Obtain a GitHub Personal Access Token**
+3. **How to Obtain a GitHub Personal Access Token (Classic)**
 
-- To use Scrum Helper with authenticated requests (for higher rate limits and private repositories), you need a GitHub personal access token.
+- To use Scrum Helper with authenticated requests (for higher rate limits and private repositories), you need a GitHub personal access token (classic).
 
   #### Steps to Generate a Token
 

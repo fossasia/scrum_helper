@@ -12,6 +12,26 @@ function logError(...args) {
 	}
 }
 
+/**
+ * Redact sensitive storage data for safe logging
+ * Prevents exposure of authentication tokens and credentials in console logs
+ * @param {Object} items - Storage data that may contain sensitive keys
+ * @returns {Object} Safe copy with sensitive values redacted
+ */
+function logRedaction(items) {
+	if (items == null || typeof items !== 'object') {
+		return items;
+	}
+	const spreadItems = { ...items };
+	const sensitiveKeys = ['githubToken', 'gitlabToken'];
+	sensitiveKeys.forEach((key) => {
+		if (key in spreadItems) {
+			spreadItems[key] = '[REDACTED]';
+		}
+	});
+	return spreadItems;
+}
+
 let refreshButton_Placed = false;
 let hasInjectedContent = false;
 let scrumGenerationInProgress = false;
@@ -45,7 +65,7 @@ function showReportMessage(message) {
 		scrumReportEl.innerHTML = '';
 		window.updateCopyButtonState?.();
 	}
-	window.scrumHelperToast?.(message, { duration: 4000, variant: 'error' });
+	window.scrumHelperToast?.(message, { duration: 2000, variant: 'error' });
 }
 
 function handleUsernameValidationError(errMessage) {
@@ -180,7 +200,7 @@ function allIncluded(outputTarget = 'email') {
 				'onlyMergedPRs',
 			])
 			.then((items) => {
-				console.log('[DEBUG] Storage items received:', items);
+				console.log('[DEBUG] Storage items received:', logRedaction(items));
 				platform = items.platform || 'github';
 
 				// Load platform-specific username
@@ -588,7 +608,7 @@ function allIncluded(outputTarget = 'email') {
 		console.log('[SCRUM-HELPER] orgName before API query:', orgName);
 		console.log('[SCRUM-HELPER] orgName type:', typeof orgName);
 		console.log('[SCRUM-HELPER] orgName length:', orgName ? orgName.length : 0);
-		const orgPart = orgName && orgName.trim() ? `+org%3A${orgName}` : '';
+		const orgPart = orgName && orgName.trim() ? `org%3A${orgName}` : '';
 		console.log('[SCRUM-HELPER] orgPart for API:', orgPart);
 		console.log('[SCRUM-HELPER] orgPart length:', orgPart.length);
 
@@ -994,7 +1014,7 @@ function allIncluded(outputTarget = 'email') {
 					generateBtn.disabled = false;
 				}
 			} else {
-				window.scrumHelperToast?.(errMsg, { duration: 4000, variant: 'error' });
+				window.scrumHelperToast?.(errMsg, { duration: 2000, variant: 'error' });
 			}
 		}
 	}
