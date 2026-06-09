@@ -1619,24 +1619,113 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		}
 
+		function groupReposByOwner(repos) {
+			const groups = new Map();
+
+			repos.forEach((repo) => {
+				const owner =
+					repo.fullName && repo.fullName.includes('/')
+						? repo.fullName.split('/')[0]
+						: 'Unknown';
+
+				if (!groups.has(owner)) {
+					groups.set(owner, []);
+				}
+				groups.get(owner).push(repo);
+			});
+
+			return [...groups.keys()]
+				.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }))
+				.map((owner) => ({
+					owner,
+					repos: groups
+						.get(owner)
+						.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })),
+				}));
+		}
+
+		function createRepoDropdownItem(repo) {
+			const item = document.createElement('div');
+			item.className = 'repository-dropdown-item';
+			item.dataset.repoName = repo.fullName;
+
+			const header = document.createElement('div');
+			header.className = 'repo-header';
+
+			const main = document.createElement('div');
+			main.className = 'repo-main';
+
+			const nameSpan = document.createElement('span');
+			nameSpan.className = 'repo-name-text';
+			nameSpan.textContent = repo.name;
+			main.appendChild(nameSpan);
+
+			if (repo.language) {
+				const langSpan = document.createElement('span');
+				langSpan.className = 'repo-language';
+				langSpan.textContent = repo.language;
+				main.appendChild(langSpan);
+			}
+
+			if (repo.stars) {
+				const starsSpan = document.createElement('span');
+				starsSpan.className = 'repo-stars';
+
+				const starIcon = document.createElement('i');
+				starIcon.className = 'fa fa-star';
+				starsSpan.appendChild(starIcon);
+				starsSpan.appendChild(document.createTextNode(` ${repo.stars}`));
+
+				main.appendChild(starsSpan);
+			}
+
+			header.appendChild(main);
+			item.appendChild(header);
+
+			if (repo.description) {
+				const infoRow = document.createElement('div');
+				infoRow.className = 'repo-info';
+
+				const descSpan = document.createElement('span');
+				descSpan.className = 'repo-desc';
+				descSpan.textContent = repo.description;
+
+				infoRow.appendChild(descSpan);
+				item.appendChild(infoRow);
+			}
+
+			item.addEventListener('click', (e) => {
+				e.stopPropagation();
+				fnSelectedRepos(repo.fullName);
+			});
+
+			return item;
+		}
+
 		function filterAndDisplayRepos(query) {
 			if (availableRepos.length === 0) {
-				repoDropdown.innerHTML = `<div class="p-3 text-center text-gray-500 text-sm">${browser.i18n.getMessage('repoLoading')}</div>`;
+				const loadingMsg = document.createElement('div');
+				loadingMsg.className = 'p-3 text-center text-gray-500 text-sm';
+				loadingMsg.textContent = browser.i18n.getMessage('repoLoading');
+				repoDropdown.replaceChildren(loadingMsg);
 				showDropdown();
 				return;
 			}
 
+			// Exclude already selected repositories
 			const filtered = availableRepos.filter((repo) => {
-				if (selectedRepos.includes(repo.fullName)) {
-					return false;
-				}
-				if (!query) {
-					return true;
-				}
-				return repo.name.toLowerCase().includes(query) || repo.description?.toLowerCase().includes(query);
+				if (selectedRepos.includes(repo.fullName)) return false;
+
+				if (!query) return true;
+				const lowerQuery = query.toLowerCase();
+				return (
+					repo.name.toLowerCase().includes(lowerQuery) ||
+					repo.description?.toLowerCase().includes(lowerQuery) ||
+					repo.fullName.toLowerCase().includes(lowerQuery)
+				);
 			});
 
-			repoDropdown.innerHTML = '';
+			repoDropdown.replaceChildren();
 
 			if (filtered.length === 0) {
 				const notFound = document.createElement('div');
@@ -1646,60 +1735,25 @@ document.addEventListener('DOMContentLoaded', () => {
 				repoDropdown.appendChild(notFound);
 			} else {
 				const fragment = document.createDocumentFragment();
-				filtered.slice(0, 10).forEach((repo) => {
-					const item = document.createElement('div');
-					item.className = 'repository-dropdown-item';
-					item.dataset.repoName = repo.fullName;
+				const grouped = groupReposByOwner(filtered);
+				const REPO_DISPLAY_LIMIT = 25;
+				let renderedCount = 0;
 
-					// Repo Name Row
-					const nameRow = document.createElement('div');
-					nameRow.className = 'repo-name';
+				for (const { owner, repos } of grouped) {
+					if (renderedCount >= REPO_DISPLAY_LIMIT) break;
 
-					const nameSpan = document.createElement('span');
-					nameSpan.textContent = repo.name;
-					nameRow.appendChild(nameSpan);
+					const ownerHeader = document.createElement('div');
+					ownerHeader.className = 'repository-group-header';
+					ownerHeader.textContent = owner;
+					fragment.appendChild(ownerHeader);
 
-					if (repo.language) {
-						const langSpan = document.createElement('span');
-						langSpan.className = 'repo-language';
-						langSpan.textContent = repo.language;
-						nameRow.appendChild(langSpan);
+					for (const repo of repos) {
+						if (renderedCount >= REPO_DISPLAY_LIMIT) break;
+						fragment.appendChild(createRepoDropdownItem(repo));
+						renderedCount++;
 					}
+				}
 
-					if (repo.stars) {
-						const starsSpan = document.createElement('span');
-						starsSpan.className = 'repo-stars';
-
-						const starIcon = document.createElement('i');
-						starIcon.className = 'fa fa-star';
-						starsSpan.appendChild(starIcon);
-						starsSpan.appendChild(document.createTextNode(` ${repo.stars}`));
-
-						nameRow.appendChild(starsSpan);
-					}
-
-					// Repo Info Row (Description)
-					const infoRow = document.createElement('div');
-					infoRow.className = 'repo-info';
-
-					if (repo.description) {
-						const descSpan = document.createElement('span');
-						descSpan.className = 'repo-desc';
-						const desc = repo.description.length > 50 ? repo.description.substring(0, 50) + '...' : repo.description;
-						descSpan.textContent = desc;
-						infoRow.appendChild(descSpan);
-					}
-
-					item.appendChild(nameRow);
-					item.appendChild(infoRow);
-
-					item.addEventListener('click', (e) => {
-						e.stopPropagation();
-						fnSelectedRepos(repo.fullName);
-					});
-
-					fragment.appendChild(item);
-				});
 				repoDropdown.appendChild(fragment);
 			}
 			highlightedIndex = -1;
@@ -1707,14 +1761,15 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 
 		function fnSelectedRepos(repoFullName) {
-			if (!selectedRepos.includes(repoFullName)) {
-				selectedRepos.push(repoFullName);
-				updateRepoDisplay();
-				saveRepoSelection();
+			if (selectedRepos.includes(repoFullName)) {
+				return;
 			}
 
-			repoSearch.value = '';
-			filterAndDisplayRepos('');
+			selectedRepos.push(repoFullName);
+			updateRepoDisplay();
+			saveRepoSelection();
+
+			filterAndDisplayRepos(repoSearch.value.toLowerCase());
 			programmaticFocus = true;
 			repoSearch.focus();
 		}
@@ -1724,7 +1779,8 @@ document.addEventListener('DOMContentLoaded', () => {
 			updateRepoDisplay();
 			saveRepoSelection();
 
-			if (repoSearch.value) {
+			// Update dropdown state if it's open
+			if (!repoDropdown.classList.contains('hidden')) {
 				filterAndDisplayRepos(repoSearch.value.toLowerCase());
 			}
 		}
@@ -1733,7 +1789,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			if (!repoTags) return;
 
 			// Clear container
-			repoTags.innerHTML = '';
+			repoTags.replaceChildren();
 
 			if (selectedRepos.length === 0) {
 				const placeholder = document.createElement('span');
