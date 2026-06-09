@@ -21,7 +21,16 @@
 4. Open the extension popup from your browser toolbar.
 5. Set your GitHub username, date range, and preferences in the popup.
 6. Start composing your reports in Gmail, Yahoo Mail, Outlook, or Google Groups using the extension.
+### For Opera:
 
+1. Go to `opera://extensions` in your Opera browser.
+2. Enable "Developer mode" (toggle in the top-right corner).
+3. Click "Load unpacked".
+4. Navigate to your cloned repository and select the `dist/opera` folder.
+5. Pin the extension to your sidebar (optional).
+6. Open the extension popup from your browser sidebar.
+7. Set your GitHub username, date range, and preferences in the popup.
+8. Start composing your reports in Gmail, Yahoo Mail, Outlook, or Google Groups using the extension.
 ## Setting Up Your Development Environment
 
 1.  **Fork & Clone the Repository**
@@ -47,8 +56,8 @@
 
 4.  **Load the Extension in Your Browser**
 
-    **For Chrome & Edge (Chromium):**
-    -   Go to `chrome://extensions` (or `edge://extensions`) in your browser.
+    **For Chrome, Edge & Brave (Chromium):**
+    -   Go to `chrome://extensions` (or `edge://extensions` / `brave://extensions`) in your browser.
     -   Enable "Developer Mode" (toggle in the top-right).
     -   Click "Load unpacked" and select the `dist/chrome` folder inside the cloned repository.
 
@@ -58,6 +67,11 @@
     -   Click "Load Temporary Add-on...".
     -   Select the `manifest.json` file inside the `dist/firefox` folder.
     -   *Note: The extension will remain active only for the current browser session. If you need persistence, consider using Firefox Developer Edition.*
+
+    **For Opera:**
+    -   Go to `opera://extensions` in Opera.
+    -   Enable "Developer mode" (toggle in the top-right).
+    -   Click "Load unpacked" and select the `dist/opera` folder inside the cloned repository.
 
 ## Usage
 
@@ -138,17 +152,19 @@ $ npm install
 
 1. **Install the Extension**
 
-* For Chrome & Edge (Chromium): Load it into your browser through [Chrome Extension Developer Mode](https://developer.chrome.com/docs/extensions/mv3/getstarted/) using the `dist/chrome` folder.
+* For Chrome, Edge & Brave (Chromium): Load it into your browser through [Chrome Extension Developer Mode](https://developer.chrome.com/docs/extensions/mv3/getstarted/) using the `dist/chrome` folder.
 * For Firefox: Load it as a temporary add-on through `about:debugging` using the `dist/firefox` folder.
+* For Opera: Load it through Developer mode at `opera://extensions` using the `dist/opera` folder.
 
 2. **Rebuild the Extension**
    After making changes to the source code, rebuild the extension running `npm run build`.
-   * For Chrome: Rebuild or reload the extension in your browser (`chrome://extensions` → Refresh your extension).
+    * For Chrome, Edge & Brave: Rebuild or reload the extension in your browser (`chrome://extensions` → Refresh your extension).
    * For Firefox: Reload the temporary add-on by going to `about:debugging` → "This Firefox" → Click "Reload" next to your extension.
+   * For Opera: Reload the extension in your browser (`opera://extensions` → Click the reload/refresh icon next to the extension).
    
-3. **How to Obtain a GitHub Personal Access Token**
+3. **How to Obtain a GitHub Personal Access Token (Classic)**
 
-- To use Scrum Helper with authenticated requests (for higher rate limits and private repositories), you need a GitHub personal access token.
+- To use Scrum Helper with authenticated requests (for higher rate limits and private repositories), you need a GitHub personal access token (classic).
 
   #### Steps to Generate a Token
 

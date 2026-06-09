@@ -79,7 +79,6 @@
 		/* Firefox Sidebar Fixes ONLY */
 		html.firefox-sidebar, 
 		body.firefox-sidebar {
-			background: transparent !important;
 			min-width: 100% !important;
 		}
 		body.firefox-sidebar #popupRoot {
@@ -89,6 +88,9 @@
 </head>
 
 <body class="mode-sidepanel text-gray-800 bg-gray-50 flex flex-col font-sans">
+
+	<div id="scrumHelperToastContainer" class="scrum-toast-container"></div>
+	
 	<div id="popupRoot" class="pl-1 py-2 rounded-2xl">
 		<div class="bg-white px-4 py-4 mx-2 mb-2 rounded-3xl">
 			<div class="flex justify-between py-2">
@@ -228,12 +230,12 @@
 									<input type="checkbox" id="onlyIssues" class="form-checkbox text-blue-600">
 									<label for="onlyIssues" class="font-medium text-sm flex items-center"
 										style="margin-left: 4px;" data-i18n="onlyIssuesLabel">
-										Include only issues in the report
+										Include issues in the report
 									</label>
 									<span class="tooltip-container">
 										<i class="fa fa-question-circle question-icon"></i>
 										<span class="tooltip-bubble" data-i18n="onlyIssuesTooltip">
-											If checked, the report will only include issues created or assigned to the user.
+											If checked, the report will include issues created or assigned to the user.
 										</span>
 									</span>
 								</div>
@@ -244,12 +246,12 @@
 									<input type="checkbox" id="onlyPRs" class="form-checkbox text-blue-600">
 									<label for="onlyPRs" class="font-medium text-sm flex items-center" style="margin-left: 4px;"
 										data-i18n="onlyPRsLabel">
-										Include only PRs in the report
+										Include PRs in the report
 									</label>
 									<span class="tooltip-container">
 										<i class="fa fa-question-circle question-icon"></i>
 										<span class="tooltip-bubble" data-i18n="onlyPRsTooltip">
-											If checked, the report will only include PRs created by you.
+											If checked, the report will include PRs created by you.
 										</span>
 									</span>
 								</div>
@@ -260,12 +262,12 @@
 									<input type="checkbox" id="onlyRevPRs" class="form-checkbox text-blue-600">
 									<label for="onlyRevPRs" class="font-medium text-sm flex items-center"
 										style="margin-left: 4px;" data-i18n="onlyRevPRsLabel">
-										Include only Reviewed PRs in the report
+										Include Reviewed PRs in the report
 									</label>
 									<span class="tooltip-container">
 										<i class="fa fa-question-circle question-icon"></i>
 										<span class="tooltip-bubble" data-i18n="onlyPRsTooltip">
-											If checked, the report will only include PRs reviewed by you.
+											If checked, the report will include PRs reviewed by you.
 										</span>
 									</span>
 								</div>
@@ -276,12 +278,12 @@
 									<input type="checkbox" id="onlyMergedPRs" class="form-checkbox text-blue-600">
 									<label for="onlyMergedPRs" class="font-medium text-sm flex items-center"
 										style="margin-left: 4px;" data-i18n="onlyMergedPRsLabel">
-										Include only Merged PRs in the report
+										Include Merged PRs in the report
 									</label>
 									<span class="tooltip-container">
 										<i class="fa fa-question-circle question-icon"></i>
 										<span class="tooltip-bubble" data-i18n="onlyMergedPRsTooltip">
-											If checked, the report will only include merged PRs. A GitHub token is required.
+											If checked, the report will include merged PRs. A GitHub token is required.
 										</span>
 									</span>
 								</div>
@@ -344,7 +346,7 @@
 							</div>
 
 							<div class="tooltip-container">
-								<button id="copyReport"
+								<button id="copyReport" disabled
 									class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
 									<i class="fa fa-copy"></i> <span data-i18n="copyReportButton">Copy</span>
 								</button>
@@ -357,12 +359,11 @@
 					<div class="border-gray-100 border-2 bg-white rounded-3xl px-4 py-2 mx-2 my-2">
 						<div>
 							<h4 class="font-semibold text-xl" data-i18n="noteTitle">Note:</h4>
-							<ul class="text-xs list-disc list-inside">
-								<p data-i18n="notePoint1">Pull requests are fetched based on the most recent review
-									activity by any contributor, not just your own. Please review and adjust the
-									generated SCRUM report to ensure it accurately reflects your work before sharing.
-								</p>
-							</ul>
+							<p data-i18n="notePoint1" class="text-xs">
+								Pull requests are fetched based on the most recent review
+								activity by any contributor, not just your own. Please review and adjust the
+								generated SCRUM report to ensure it accurately reflects your work before sharing.
+							</p>
 						</div>
 					</div>
 				</div>
@@ -378,7 +379,7 @@
 										<span class="tooltip-bubble" data-i18n="githubTokenTooltip">
 											<b>Why is it recommended to add a GitHub token?</b><br>
 											Scrum Helper works without a GitHub token, but adding a personal access
-											token is recommended for a
+											token (classic) is recommended for a
 											better experience. It raises your API limits, allows access to private
 											repos
 											(if permitted), and
@@ -477,18 +478,24 @@
 
 								<!-- Selected Tags Container -->
 								<div id="selectedRepos"
-									class="mt-3 min-h-[32px] p-2 border-2 border-gray-200 bg-gray-50 rounded-xl">
-									<div class="flex flex-wrap gap-1" id="repoTags">
+									class="mt-3 min-h-[32px] overflow-y-auto p-2 border-2 border-gray-200 bg-gray-50 rounded-xl"
+									style="max-height: 120px;">
+
+									<div class="flex flex-wrap gap-2" id="repoTags">
 										<span class="text-xs text-gray-500 select-none" id="repoPlaceholder"
-											data-i18n="repoPlaceholder">No
-											repositories selected (all will be included)</span>
+											data-i18n="repoPlaceholder">
+											No repositories selected (all will be included)
+										</span>
 									</div>
 								</div>
 
 								<!-- Status/Info -->
 								<div class="mt-2 text-xs text-gray-600 flex justify-between">
 									<span id="repoCount" data-i18n="repoCountNone">0 repositories selected</span>
-									<span id="repoStatus" class="text-blue-600"></span>
+									<div class="flex items-center gap-2">
+										<button id="clearAllReposBtn" class="font-semibold cursor-pointer hidden hover:underline" data-i18n="clearAllBtn">Clear All</button>
+										<span id="repoStatus" class="text-blue-600"></span>
+									</div>
 								</div>
 							</div>
 						</div>
@@ -613,9 +620,11 @@
 		</div>
 	</div>
 	<!-- WebExtensions Polyfill for Cross-Browser compatibility (Chrome, Firefox, Edge, etc.) -->
+	 <script src="libs/purify.min.js"></script>
+	 <script src="scripts/domSanitizer.js"></script>
 	<script src="scripts/browser-polyfill.min.js"></script>
 	<script src="scripts/jquery-3.2.1.min.js"></script>
-	<script type="text/javascript" type="text/javascript" src="materialize/js/materialize.min.js"></script>
+	<script type="text/javascript" src="materialize/js/materialize.min.js"></script>
 	<script src="scripts/emailClientAdapter.js"></script>
 	<script src="scripts/main.js"></script>
 	<script src="scripts/gitlabHelper.js"></script>
