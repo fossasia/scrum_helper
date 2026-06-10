@@ -777,37 +777,38 @@ document.addEventListener('DOMContentLoaded', () => {
 			if (!generateBtn._triggeredByShortcut) {
 				showPopupMessage(browser.i18n.getMessage('generatingReportNotification'));
 			}
-			browser.storage.local.get(['platform']).then((result) => {
-				platformUsername.classList.remove('input-error');
-				usernameError.classList.remove('errorMessage');
-				usernameError.textContent = '';
-				const platform = result.platform || 'github';
-				const platformUsernameKey = `${platform}Username`;
+			browser.storage.local
+				.get(['platform'])
+				.then((result) => {
+					platformUsername.classList.remove('input-error');
+					usernameError.classList.remove('errorMessage');
+					usernameError.textContent = '';
+					const platform = result.platform || 'github';
+					const platformUsernameKey = `${platform}Username`;
 
-				return browser.storage.local
-					.set({
-						platform: platformSelect.value,
-						[platformUsernameKey]: platformUsername.value,
-					})
-					.then(() => {
-						// Reload platform from storage before generating report
-						return browser.storage.local.get(['platform']).then((res) => {
-							platformSelect.value = res.platform || 'github';
-							updatePlatformUI(platformSelect.value);
-							generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
-							generateBtn.disabled = true;
-							window.generateScrumReport && window.generateScrumReport();
-							generateBtn._triggeredByShortcut = false;
-
-
+					return browser.storage.local
+						.set({
+							platform: platformSelect.value,
+							[platformUsernameKey]: platformUsername.value,
+						})
+						.then(() => {
+							// Reload platform from storage before generating report
+							return browser.storage.local.get(['platform']).then((res) => {
+								platformSelect.value = res.platform || 'github';
+								updatePlatformUI(platformSelect.value);
+								generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
+								generateBtn.disabled = true;
+								window.generateScrumReport && window.generateScrumReport();
+								generateBtn._triggeredByShortcut = false;
+							});
 						});
-					});
-			}).finally(() => {
-				if (generateBtn._triggeredByShortcut) {
-					dismissShortcutTooltipFocus(generateBtn);
-					generateBtn._triggeredByShortcut = false;
-				}
-			});
+				})
+				.finally(() => {
+					if (generateBtn._triggeredByShortcut) {
+						dismissShortcutTooltipFocus(generateBtn);
+						generateBtn._triggeredByShortcut = false;
+					}
+				});
 		});
 
 		copyBtn.addEventListener('click', function () {
@@ -1064,12 +1065,28 @@ document.addEventListener('DOMContentLoaded', () => {
 			});
 		});
 		githubTokenInput.addEventListener('input', () => {
-			browser.storage.local.set({ githubToken: githubTokenInput.value });
+			const trimmed = githubTokenInput.value.trim();
+			browser.storage.local.get(['githubToken']).then((items) => {
+				const oldToken = (items.githubToken || '').trim();
+				if (trimmed !== oldToken) {
+					browser.storage.local.set({ githubToken: trimmed });
+				}
+			});
 		});
 		githubTokenInput.addEventListener('change', () => {
-			browser.storage.local.set({ githubToken: githubTokenInput.value }).then(() => {
-				triggerRepoFetchIfEnabled();
+			const trimmed = githubTokenInput.value.trim();
+			githubTokenInput.value = trimmed;
+			browser.storage.local.get(['githubToken']).then((items) => {
+				const oldToken = (items.githubToken || '').trim();
+				if (trimmed !== oldToken) {
+					browser.storage.local.set({ githubToken: trimmed }).then(() => {
+						triggerRepoFetchIfEnabled();
+					});
+				}
 			});
+		});
+		githubTokenInput.addEventListener('blur', () => {
+			githubTokenInput.value = githubTokenInput.value.trim();
 		});
 		cacheInput.addEventListener('input', () => {
 			browser.storage.local.set({ cacheInput: cacheInput.value });
