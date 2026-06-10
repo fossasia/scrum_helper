@@ -1067,8 +1067,8 @@ document.addEventListener('DOMContentLoaded', () => {
 		githubTokenInput.addEventListener('input', () => {
 			const trimmed = githubTokenInput.value.trim();
 			browser.storage.local.get(['githubToken']).then((items) => {
-				const oldToken = (items.githubToken || '').trim();
-				if (trimmed !== oldToken) {
+				const currentStored = items.githubToken || '';
+				if (trimmed !== currentStored) {
 					browser.storage.local.set({ githubToken: trimmed });
 				}
 			});
@@ -1077,8 +1077,8 @@ document.addEventListener('DOMContentLoaded', () => {
 			const trimmed = githubTokenInput.value.trim();
 			githubTokenInput.value = trimmed;
 			browser.storage.local.get(['githubToken']).then((items) => {
-				const oldToken = (items.githubToken || '').trim();
-				if (trimmed !== oldToken) {
+				const currentStored = items.githubToken || '';
+				if (trimmed !== currentStored) {
 					browser.storage.local.set({ githubToken: trimmed }).then(() => {
 						triggerRepoFetchIfEnabled();
 					});
@@ -1663,10 +1663,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			const groups = new Map();
 
 			repos.forEach((repo) => {
-				const owner =
-					repo.fullName && repo.fullName.includes('/')
-						? repo.fullName.split('/')[0]
-						: 'Unknown';
+				const owner = repo.fullName && repo.fullName.includes('/') ? repo.fullName.split('/')[0] : 'Unknown';
 
 				if (!groups.has(owner)) {
 					groups.set(owner, []);
@@ -1678,9 +1675,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }))
 				.map((owner) => ({
 					owner,
-					repos: groups
-						.get(owner)
-						.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })),
+					repos: groups.get(owner).sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })),
 				}));
 		}
 
