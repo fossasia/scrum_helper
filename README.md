@@ -45,16 +45,6 @@ We now provide pre-built installer files for all browsers in the [`/installers`]
 4. Open the extension popup from your browser toolbar.
 5. Set your GitHub username, date range, and preferences in the popup.
 6. Start composing your reports in Gmail, Yahoo Mail, Outlook, or Google Groups using the extension.
-### For Opera:
-
-1. Go to `opera://extensions` in your Opera browser.
-2. Enable "Developer mode" (toggle in the top-right corner).
-3. Click "Load unpacked".
-4. Navigate to your cloned repository and select the `dist/opera` folder.
-5. Pin the extension to your sidebar (optional).
-6. Open the extension popup from your browser sidebar.
-7. Set your GitHub username, date range, and preferences in the popup.
-8. Start composing your reports in Gmail, Yahoo Mail, Outlook, or Google Groups using the extension.
 ## Setting Up Your Development Environment
 
 1.  **Fork & Clone the Repository**
