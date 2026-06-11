@@ -777,37 +777,38 @@ document.addEventListener('DOMContentLoaded', () => {
 			if (!generateBtn._triggeredByShortcut) {
 				showPopupMessage(browser.i18n.getMessage('generatingReportNotification'));
 			}
-			browser.storage.local.get(['platform']).then((result) => {
-				platformUsername.classList.remove('input-error');
-				usernameError.classList.remove('errorMessage');
-				usernameError.textContent = '';
-				const platform = result.platform || 'github';
-				const platformUsernameKey = `${platform}Username`;
+			browser.storage.local
+				.get(['platform'])
+				.then((result) => {
+					platformUsername.classList.remove('input-error');
+					usernameError.classList.remove('errorMessage');
+					usernameError.textContent = '';
+					const platform = result.platform || 'github';
+					const platformUsernameKey = `${platform}Username`;
 
-				return browser.storage.local
-					.set({
-						platform: platformSelect.value,
-						[platformUsernameKey]: platformUsername.value,
-					})
-					.then(() => {
-						// Reload platform from storage before generating report
-						return browser.storage.local.get(['platform']).then((res) => {
-							platformSelect.value = res.platform || 'github';
-							updatePlatformUI(platformSelect.value);
-							generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
-							generateBtn.disabled = true;
-							window.generateScrumReport && window.generateScrumReport();
-							generateBtn._triggeredByShortcut = false;
-
-
+					return browser.storage.local
+						.set({
+							platform: platformSelect.value,
+							[platformUsernameKey]: platformUsername.value,
+						})
+						.then(() => {
+							// Reload platform from storage before generating report
+							return browser.storage.local.get(['platform']).then((res) => {
+								platformSelect.value = res.platform || 'github';
+								updatePlatformUI(platformSelect.value);
+								generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
+								generateBtn.disabled = true;
+								window.generateScrumReport && window.generateScrumReport();
+								generateBtn._triggeredByShortcut = false;
+							});
 						});
-					});
-			}).finally(() => {
-				if (generateBtn._triggeredByShortcut) {
-					dismissShortcutTooltipFocus(generateBtn);
-					generateBtn._triggeredByShortcut = false;
-				}
-			});
+				})
+				.finally(() => {
+					if (generateBtn._triggeredByShortcut) {
+						dismissShortcutTooltipFocus(generateBtn);
+						generateBtn._triggeredByShortcut = false;
+					}
+				});
 		});
 
 		copyBtn.addEventListener('click', function () {
@@ -962,30 +963,36 @@ document.addEventListener('DOMContentLoaded', () => {
 			});
 
 		// Save all fields to storage on input/change
-		projectNameInput.addEventListener('input', () => {
-			browser.storage.local.set({ projectName: projectNameInput.value });
-		});
+		if (projectNameInput) {
+			projectNameInput.addEventListener('input', () => {
+				browser.storage.local.set({ projectName: projectNameInput.value });
+			});
+		}
 
 		// Save to storage and validate ONLY when user clicks out (blur event)
-		orgInput.addEventListener('blur', () => {
-			const org = orgInput.value.trim().toLowerCase();
-			browser.storage.local.set({ orgName: org });
+		if (orgInput) {
+			orgInput.addEventListener('blur', () => {
+				const org = orgInput.value.trim().toLowerCase();
+				browser.storage.local.set({ orgName: org });
 
-			// Only validate if org name is not empty
-			if (org) {
-				validateOrgOnBlur(org);
-			} else {
-				window.clearScrumHelperToast?.();
-			}
-		});
+				// Only validate if org name is not empty
+				if (org) {
+					validateOrgOnBlur(org);
+				} else {
+					window.clearScrumHelperToast?.();
+				}
+			});
+		}
 		if (userReasonInput) {
 			userReasonInput.addEventListener('input', () => {
 				browser.storage.local.set({ userReason: userReasonInput.value });
 			});
 		}
-		showOpenLabelCheckbox.addEventListener('change', () => {
-			browser.storage.local.set({ showOpenLabel: showOpenLabelCheckbox.checked });
-		});
+		if (showOpenLabelCheckbox) {
+			showOpenLabelCheckbox.addEventListener('change', () => {
+				browser.storage.local.set({ showOpenLabel: showOpenLabelCheckbox.checked });
+			});
+		}
 		if (onlyIssuesCheckbox && onlyPRsCheckbox) {
 			onlyIssuesCheckbox.addEventListener('change', () => {
 				const checked = onlyIssuesCheckbox.checked;
@@ -1055,20 +1062,26 @@ document.addEventListener('DOMContentLoaded', () => {
 				});
 			}
 		}
-		showCommitsCheckbox.addEventListener('change', () => {
-			checkTokenForShowCommits({
-				showWarning: true,
-				animateWarning: true,
-				warningDurationMs: 3000,
-				persistState: true,
+		if (showCommitsCheckbox) {
+			showCommitsCheckbox.addEventListener('change', () => {
+				checkTokenForShowCommits({
+					showWarning: true,
+					animateWarning: true,
+					warningDurationMs: 3000,
+					persistState: true,
+				});
 			});
-		});
-		githubTokenInput.addEventListener('input', () => {
-			browser.storage.local.set({ githubToken: githubTokenInput.value });
-		});
-		cacheInput.addEventListener('input', () => {
-			browser.storage.local.set({ cacheInput: cacheInput.value });
-		});
+		}
+		if (githubTokenInput) {
+			githubTokenInput.addEventListener('input', () => {
+				browser.storage.local.set({ githubToken: githubTokenInput.value });
+			});
+		}
+		if (cacheInput) {
+			cacheInput.addEventListener('input', () => {
+				browser.storage.local.set({ cacheInput: cacheInput.value });
+			});
+		}
 
 		// Display mode (popup / sidepanel)
 		// Apply the stored display mode class on next launch
@@ -1622,10 +1635,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			const groups = new Map();
 
 			repos.forEach((repo) => {
-				const owner =
-					repo.fullName && repo.fullName.includes('/')
-						? repo.fullName.split('/')[0]
-						: 'Unknown';
+				const owner = repo.fullName && repo.fullName.includes('/') ? repo.fullName.split('/')[0] : 'Unknown';
 
 				if (!groups.has(owner)) {
 					groups.set(owner, []);
@@ -1637,9 +1647,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }))
 				.map((owner) => ({
 					owner,
-					repos: groups
-						.get(owner)
-						.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })),
+					repos: groups.get(owner).sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })),
 				}));
 		}
 
@@ -1932,7 +1940,10 @@ if (cacheInput) {
 
 browser.storage.local.get(['platform']).then((result) => {
 	const platform = result.platform || 'github';
-	platformSelect.value = platform;
+	const platformSelect = document.getElementById('platformSelect');
+	if (platformSelect) {
+		platformSelect.value = platform;
+	}
 	updatePlatformUI(platform);
 });
 
@@ -1978,37 +1989,41 @@ function updatePlatformUI(platform) {
 	});
 }
 
-platformSelect.addEventListener('change', () => {
-	const platform = platformSelect.value;
-	browser.storage.local.set({ platform }).then(() => {
-		const scrumReport = document.getElementById('scrumReport');
-		if (scrumReport) {
-			scrumReport.innerHTML = '';
-			window.updateCopyButtonState?.();
-		}
-		const generateBtn = document.getElementById('generateReport');
-		if (typeof bootstrapScrumReportOnPopupLoad === 'function') {
-			bootstrapScrumReportOnPopupLoad(generateBtn);
-		}
-	});
-	const platformUsername = document.getElementById('platformUsername');
-	if (platformUsername) {
-		const currentPlatform = platformSelect.value === 'github' ? 'gitlab' : 'github'; // Get the platform we're switching from
-		const currentUsername = platformUsername.value;
-		if (currentUsername.trim()) {
-			browser.storage.local.set({ [`${currentPlatform}Username`]: currentUsername });
-		}
-	}
-
-	browser.storage.local.get([`${platform}Username`]).then((result) => {
+const platformSelectEl = document.getElementById('platformSelect');
+if (platformSelectEl) {
+	platformSelectEl.addEventListener('change', () => {
+		const platform = platformSelectEl.value;
+		browser.storage.local.set({ platform }).then(() => {
+			const scrumReport = document.getElementById('scrumReport');
+			if (scrumReport) {
+				scrumReport.innerHTML = '';
+				window.updateCopyButtonState?.();
+			}
+			const generateBtn = document.getElementById('generateReport');
+			if (typeof bootstrapScrumReportOnPopupLoad === 'function') {
+				bootstrapScrumReportOnPopupLoad(generateBtn);
+			}
+		});
+		const platformUsername = document.getElementById('platformUsername');
 		if (platformUsername) {
-			platformUsername.value = result[`${platform}Username`] || '';
-			window.updateGenerateButtonState && window.updateGenerateButtonState();
+			const currentPlatform = platformSelectEl.value === 'github' ? 'gitlab' : 'github'; // Get the platform we're switching from
+			const currentUsername = platformUsername.value;
+			if (currentUsername.trim()) {
+				browser.storage.local.set({ [`${currentPlatform}Username`]: currentUsername });
+			}
 		}
-	});
 
-	updatePlatformUI(platform);
-});
+		browser.storage.local.get([`${platform}Username`]).then((result) => {
+			const platformUsername = document.getElementById('platformUsername');
+			if (platformUsername) {
+				platformUsername.value = result[`${platform}Username`] || '';
+				window.updateGenerateButtonState && window.updateGenerateButtonState();
+			}
+		});
+
+		updatePlatformUI(platform);
+	});
+}
 
 const customDropdown = document.getElementById('customPlatformDropdown');
 const dropdownBtn = document.getElementById('platformDropdownBtn');
@@ -2026,14 +2041,16 @@ function buildScrumSubjectFromPopup() {
 }
 
 function setPlatformDropdown(value) {
-	if (value === 'gitlab') {
-		dropdownSelected.innerHTML = '<i class="fab fa-gitlab mr-2"></i> GitLab';
-	} else {
-		dropdownSelected.innerHTML = '<i class="fab fa-github mr-2"></i> GitHub';
+	if (dropdownSelected) {
+		if (value === 'gitlab') {
+			dropdownSelected.innerHTML = '<i class="fab fa-gitlab mr-2"></i> GitLab';
+		} else {
+			dropdownSelected.innerHTML = '<i class="fab fa-github mr-2"></i> GitHub';
+		}
 	}
 
 	const platformUsername = document.getElementById('platformUsername');
-	if (platformUsername) {
+	if (platformUsername && platformSelectHidden) {
 		const currentPlatform = platformSelectHidden.value;
 		const currentUsername = platformUsername.value;
 		if (currentUsername.trim()) {
@@ -2041,7 +2058,9 @@ function setPlatformDropdown(value) {
 		}
 	}
 
-	platformSelectHidden.value = value;
+	if (platformSelectHidden) {
+		platformSelectHidden.value = value;
+	}
 	browser.storage.local.set({ platform: value }).then(() => {
 		const scrumReport = document.getElementById('scrumReport');
 		if (scrumReport) scrumReport.innerHTML = '';
@@ -2063,69 +2082,27 @@ function setPlatformDropdown(value) {
 	updatePlatformUI(value);
 }
 
-dropdownBtn.addEventListener('click', (e) => {
-	e.stopPropagation();
-	customDropdown.classList.toggle('open');
-	dropdownList.classList.toggle('hidden');
-});
-
-dropdownList.querySelectorAll('li').forEach((item) => {
-	item.addEventListener('click', function (e) {
-		const newPlatform = this.getAttribute('data-value');
-		const currentPlatform = platformSelectHidden.value;
-		const platformUsername = document.getElementById('platformUsername');
-		const usernameError = document.getElementById('usernameError');
-		platformUsername.classList.remove('input-error');
-		usernameError.classList.remove('errorMessage');
-		usernameError.textContent = '';
-
-		if (newPlatform !== currentPlatform) {
-			const platformUsername = document.getElementById('platformUsername');
-			if (platformUsername) {
-				const currentUsername = platformUsername.value;
-				if (currentUsername.trim()) {
-					browser.storage.local.set({ [`${currentPlatform}Username`]: currentUsername });
-				}
-			}
-		}
-
-		setPlatformDropdown(newPlatform);
-		customDropdown.classList.remove('open');
-		dropdownList.classList.add('hidden');
+if (dropdownBtn && customDropdown && dropdownList) {
+	dropdownBtn.addEventListener('click', (e) => {
+		e.stopPropagation();
+		customDropdown.classList.toggle('open');
+		dropdownList.classList.toggle('hidden');
 	});
-});
+}
 
-document.addEventListener('click', (e) => {
-	if (!customDropdown.contains(e.target)) {
-		customDropdown.classList.remove('open');
-		dropdownList.classList.add('hidden');
-	}
-});
-
-// Keyboard navigation
-platformDropdownBtn.addEventListener('keydown', (e) => {
-	if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
-		e.preventDefault();
-		customDropdown.classList.add('open');
-		dropdownList.classList.remove('hidden');
-		dropdownList.querySelector('li').focus();
-	}
-});
-dropdownList.querySelectorAll('li').forEach((item, idx, arr) => {
-	item.setAttribute('tabindex', '0');
-	item.addEventListener('keydown', function (e) {
-		if (e.key === 'ArrowDown') {
-			e.preventDefault();
-			(arr[idx + 1] || arr[0]).focus();
-		} else if (e.key === 'ArrowUp') {
-			e.preventDefault();
-			(arr[idx - 1] || arr[arr.length - 1]).focus();
-		} else if (e.key === 'Enter' || e.key === ' ') {
-			e.preventDefault();
+if (dropdownList) {
+	dropdownList.querySelectorAll('li').forEach((item) => {
+		item.addEventListener('click', function (e) {
 			const newPlatform = this.getAttribute('data-value');
-			const currentPlatform = platformSelectHidden.value;
+			const currentPlatform = platformSelectHidden ? platformSelectHidden.value : 'github';
+			const platformUsername = document.getElementById('platformUsername');
+			const usernameError = document.getElementById('usernameError');
+			if (platformUsername) platformUsername.classList.remove('input-error');
+			if (usernameError) {
+				usernameError.classList.remove('errorMessage');
+				usernameError.textContent = '';
+			}
 
-			// Save current username for current platform before switching
 			if (newPlatform !== currentPlatform) {
 				const platformUsername = document.getElementById('platformUsername');
 				if (platformUsername) {
@@ -2137,23 +2114,81 @@ dropdownList.querySelectorAll('li').forEach((item, idx, arr) => {
 			}
 
 			setPlatformDropdown(newPlatform);
-			customDropdown.classList.remove('open');
+			if (customDropdown) customDropdown.classList.remove('open');
 			dropdownList.classList.add('hidden');
-			dropdownBtn.focus();
+		});
+	});
+}
+
+document.addEventListener('click', (e) => {
+	if (customDropdown && dropdownList && !customDropdown.contains(e.target)) {
+		customDropdown.classList.remove('open');
+		dropdownList.classList.add('hidden');
+	}
+});
+
+// Keyboard navigation
+const platformDropdownBtn = document.getElementById('platformDropdownBtn');
+if (platformDropdownBtn && customDropdown && dropdownList) {
+	platformDropdownBtn.addEventListener('keydown', (e) => {
+		if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
+			e.preventDefault();
+			customDropdown.classList.add('open');
+			dropdownList.classList.remove('hidden');
+			const firstLi = dropdownList.querySelector('li');
+			if (firstLi) firstLi.focus();
 		}
 	});
-});
+}
+if (dropdownList && customDropdown && dropdownBtn) {
+	dropdownList.querySelectorAll('li').forEach((item, idx, arr) => {
+		item.setAttribute('tabindex', '0');
+		item.addEventListener('keydown', function (e) {
+			if (e.key === 'ArrowDown') {
+				e.preventDefault();
+				(arr[idx + 1] || arr[0]).focus();
+			} else if (e.key === 'ArrowUp') {
+				e.preventDefault();
+				(arr[idx - 1] || arr[arr.length - 1]).focus();
+			} else if (e.key === 'Enter' || e.key === ' ') {
+				e.preventDefault();
+				const newPlatform = this.getAttribute('data-value');
+				const currentPlatform = platformSelectHidden ? platformSelectHidden.value : 'github';
+
+				// Save current username for current platform before switching
+				if (newPlatform !== currentPlatform) {
+					const platformUsername = document.getElementById('platformUsername');
+					if (platformUsername) {
+						const currentUsername = platformUsername.value;
+						if (currentUsername.trim()) {
+							browser.storage.local.set({ [`${currentPlatform}Username`]: currentUsername });
+						}
+					}
+				}
+
+				setPlatformDropdown(newPlatform);
+				customDropdown.classList.remove('open');
+				dropdownList.classList.add('hidden');
+				dropdownBtn.focus();
+			}
+		});
+	});
+}
 
 // On load, restore platform from storage
 browser.storage.local.get(['platform']).then((result) => {
 	const platform = result.platform || 'github';
 	// Just update the UI without clearing username when restoring from storage
-	if (platform === 'gitlab') {
-		dropdownSelected.innerHTML = '<i class="fab fa-gitlab mr-2"></i> GitLab';
-	} else {
-		dropdownSelected.innerHTML = '<i class="fab fa-github mr-2"></i> GitHub';
+	if (dropdownSelected) {
+		if (platform === 'gitlab') {
+			dropdownSelected.innerHTML = '<i class="fab fa-gitlab mr-2"></i> GitLab';
+		} else {
+			dropdownSelected.innerHTML = '<i class="fab fa-github mr-2"></i> GitHub';
+		}
 	}
-	platformSelectHidden.value = platform;
+	if (platformSelectHidden) {
+		platformSelectHidden.value = platform;
+	}
 	updatePlatformUI(platform);
 });
 
@@ -2206,8 +2241,8 @@ document.querySelectorAll('input[name="timeframe"]').forEach((radio) => {
 
 			const startDateInput = document.getElementById('startingDate');
 			const endDateInput = document.getElementById('endingDate');
-			startDateInput.readOnly = false;
-			endDateInput.readOnly = false;
+			if (startDateInput) startDateInput.readOnly = false;
+			if (endDateInput) endDateInput.readOnly = false;
 
 			browser.storage.local.set({
 				yesterdayContribution: false,
@@ -2244,62 +2279,67 @@ document.querySelectorAll('input[name="timeframe"]').forEach((radio) => {
 
 // refresh cache button
 
-document.getElementById('refreshCache').addEventListener('click', async function () {
-	const originalText = this.innerHTML;
+{
+	const localRefreshCacheBtn = document.getElementById('refreshCache');
+	if (localRefreshCacheBtn) {
+		localRefreshCacheBtn.addEventListener('click', async function () {
+			const originalText = this.innerHTML;
 
-	this.classList.add('loading');
-	this.innerHTML = `<i class="fa fa-refresh fa-spin"></i><span>${browser.i18n.getMessage('refreshingButton')}</span>`;
-	this.disabled = true;
+			this.classList.add('loading');
+			this.innerHTML = `<i class="fa fa-refresh fa-spin"></i><span>${browser.i18n.getMessage('refreshingButton')}</span>`;
+			this.disabled = true;
 
-	try {
-		// Determine platform
-		let platform = 'github';
-		try {
-			const items = await browser.storage.local.get(['platform']);
-			platform = items.platform || 'github';
-		} catch (e) {}
+			try {
+				// Determine platform
+				let platform = 'github';
+				try {
+					const items = await browser.storage.local.get(['platform']);
+					platform = items.platform || 'github';
+				} catch (e) {}
 
-		// Clear all caches
-		const keysToRemove = ['githubCache', 'repoCache', 'gitlabCache'];
-		await browser.storage.local.remove(keysToRemove);
+				// Clear all caches
+				const keysToRemove = ['githubCache', 'repoCache', 'gitlabCache'];
+				await browser.storage.local.remove(keysToRemove);
 
-		// Clear the scrum report
-		const scrumReport = document.getElementById('scrumReport');
-		if (scrumReport) {
-			scrumReport.dataset.copyPlaceholder = 'true';
-			scrumReport.innerHTML = `<p style="text-align: center; color: #666; padding: 20px;">${browser.i18n.getMessage('cacheClearedMessage')}</p>`;
-			window.updateCopyButtonState?.();
-		}
+				// Clear the scrum report
+				const scrumReport = document.getElementById('scrumReport');
+				if (scrumReport) {
+					scrumReport.dataset.copyPlaceholder = 'true';
+					scrumReport.innerHTML = `<p style="text-align: center; color: #666; padding: 20px;">${browser.i18n.getMessage('cacheClearedMessage')}</p>`;
+					window.updateCopyButtonState?.();
+				}
 
-		if (typeof availableRepos !== 'undefined') {
-			availableRepos = [];
-		}
+				if (typeof availableRepos !== 'undefined') {
+					availableRepos = [];
+				}
 
-		const repoStatus = document.getElementById('repoStatus');
-		if (repoStatus) {
-			repoStatus.textContent = '';
-		}
+				const repoStatus = document.getElementById('repoStatus');
+				if (repoStatus) {
+					repoStatus.textContent = '';
+				}
 
-		this.innerHTML = `<i class="fa fa-check"></i><span>${browser.i18n.getMessage('cacheClearedButton')}</span>`;
-		this.classList.remove('loading');
+				this.innerHTML = `<i class="fa fa-check"></i><span>${browser.i18n.getMessage('cacheClearedButton')}</span>`;
+				this.classList.remove('loading');
 
-		// Do NOT trigger report generation automatically
+				// Do NOT trigger report generation automatically
 
-		setTimeout(() => {
-			this.innerHTML = originalText;
-			this.disabled = false;
-		}, 2000);
-	} catch (error) {
-		console.error('Cache clear failed:', error);
-		this.innerHTML = `<i class="fa fa-exclamation-triangle"></i><span>${browser.i18n.getMessage('cacheClearFailed')}</span>`;
-		this.classList.remove('loading');
+				setTimeout(() => {
+					this.innerHTML = originalText;
+					this.disabled = false;
+				}, 2000);
+			} catch (error) {
+				console.error('Cache clear failed:', error);
+				this.innerHTML = `<i class="fa fa-exclamation-triangle"></i><span>${browser.i18n.getMessage('cacheClearFailed')}</span>`;
+				this.classList.remove('loading');
 
-		setTimeout(() => {
-			this.innerHTML = originalText;
-			this.disabled = false;
-		}, 3000);
+				setTimeout(() => {
+					this.innerHTML = originalText;
+					this.disabled = false;
+				}, 3000);
+			}
+		});
 	}
-});
+}
 
 function toggleRadio(radio) {
 	const startDateInput = document.getElementById('startingDate');
@@ -2308,28 +2348,41 @@ function toggleRadio(radio) {
 	console.log('Toggling radio:', radio.id);
 
 	if (radio.id === 'yesterdayContribution') {
-		startDateInput.value = getYesterday();
-		endDateInput.value = getToday();
+		if (startDateInput) startDateInput.value = getYesterday();
+		if (endDateInput) endDateInput.value = getToday();
 	}
 
-	startDateInput.readOnly = endDateInput.readOnly = true;
+	if (startDateInput) startDateInput.readOnly = true;
+	if (endDateInput) endDateInput.readOnly = true;
 
-	browser.storage.local
-		.set({
-			startingDate: startDateInput.value,
-			endingDate: endDateInput.value,
-			yesterdayContribution: radio.id === 'yesterdayContribution',
-			selectedTimeframe: radio.id,
-			githubCache: null, // Clear cache to force new fetch
-		})
-		.then(() => {
-			console.log('State saved, dates:', {
-				start: startDateInput.value,
-				end: endDateInput.value,
+	if (startDateInput && endDateInput) {
+		browser.storage.local
+			.set({
+				startingDate: startDateInput.value,
+				endingDate: endDateInput.value,
+				yesterdayContribution: radio.id === 'yesterdayContribution',
+				selectedTimeframe: radio.id,
+				githubCache: null, // Clear cache to force new fetch
+			})
+			.then(() => {
+				console.log('State saved, dates:', {
+					start: startDateInput.value,
+					end: endDateInput.value,
+				});
+
+				triggerRepoFetchIfEnabled();
 			});
-
-			triggerRepoFetchIfEnabled();
-		});
+	} else {
+		browser.storage.local
+			.set({
+				yesterdayContribution: radio.id === 'yesterdayContribution',
+				selectedTimeframe: radio.id,
+				githubCache: null,
+			})
+			.then(() => {
+				triggerRepoFetchIfEnabled();
+			});
+	}
 }
 
 async function triggerRepoFetchIfEnabled() {
