@@ -1995,6 +1995,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 });
 
 async function injectIntoEmailEditor(content, subject) {
+	if (window.hasInjectedContent) {
+		return { success: true, alreadyInserted: true };
+	}
+
 	if (!window.emailClientAdapter) {
 		return { success: false, error: 'emailClientAdapter not available' };
 	}
@@ -2010,6 +2014,7 @@ async function injectIntoEmailEditor(content, subject) {
 
 		//for body
 		window.emailClientAdapter.injectContent(elements.body, content, elements.eventTypes?.contentChange || 'input');
+		window.hasInjectedContent = true;
 		return true;
 	};
 

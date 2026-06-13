@@ -638,10 +638,16 @@ document.addEventListener('DOMContentLoaded', () => {
 								if (!response?.success) {
 									handleInsertFailure(response?.error);
 								} else {
-									if (insertBtn._triggeredByShortcut) {
-										showShortcutNotification('insertedInEmailNotification');
+									if (response?.alreadyInserted) {
+										showPopupMessage(browser.i18n.getMessage('reportAlreadyInserted') || 'Report already inserted!', {
+											variant: 'info',
+										});
 									} else {
-										showPopupMessage(browser.i18n.getMessage('insertedInEmailNotification'), { variant: 'success' });
+										if (insertBtn._triggeredByShortcut) {
+											showShortcutNotification('insertedInEmailNotification');
+										} else {
+											showPopupMessage(browser.i18n.getMessage('insertedInEmailNotification'), { variant: 'success' });
+										}
 									}
 								}
 							})
@@ -663,37 +669,38 @@ document.addEventListener('DOMContentLoaded', () => {
 			if (!generateBtn._triggeredByShortcut) {
 				showPopupMessage(browser.i18n.getMessage('generatingReportNotification'));
 			}
-			browser.storage.local.get(['platform']).then((result) => {
-				platformUsername.classList.remove('input-error');
-				usernameError.classList.remove('errorMessage');
-				usernameError.textContent = '';
-				const platform = result.platform || 'github';
-				const platformUsernameKey = `${platform}Username`;
+			browser.storage.local
+				.get(['platform'])
+				.then((result) => {
+					platformUsername.classList.remove('input-error');
+					usernameError.classList.remove('errorMessage');
+					usernameError.textContent = '';
+					const platform = result.platform || 'github';
+					const platformUsernameKey = `${platform}Username`;
 
-				return browser.storage.local
-					.set({
-						platform: platformSelect.value,
-						[platformUsernameKey]: platformUsername.value,
-					})
-					.then(() => {
-						// Reload platform from storage before generating report
-						return browser.storage.local.get(['platform']).then((res) => {
-							platformSelect.value = res.platform || 'github';
-							updatePlatformUI(platformSelect.value);
-							generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
-							generateBtn.disabled = true;
-							window.generateScrumReport && window.generateScrumReport();
-							generateBtn._triggeredByShortcut = false;
-
-
+					return browser.storage.local
+						.set({
+							platform: platformSelect.value,
+							[platformUsernameKey]: platformUsername.value,
+						})
+						.then(() => {
+							// Reload platform from storage before generating report
+							return browser.storage.local.get(['platform']).then((res) => {
+								platformSelect.value = res.platform || 'github';
+								updatePlatformUI(platformSelect.value);
+								generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
+								generateBtn.disabled = true;
+								window.generateScrumReport && window.generateScrumReport();
+								generateBtn._triggeredByShortcut = false;
+							});
 						});
-					});
-			}).finally(() => {
-				if (generateBtn._triggeredByShortcut) {
-					dismissShortcutTooltipFocus(generateBtn);
-					generateBtn._triggeredByShortcut = false;
-				}
-			});
+				})
+				.finally(() => {
+					if (generateBtn._triggeredByShortcut) {
+						dismissShortcutTooltipFocus(generateBtn);
+						generateBtn._triggeredByShortcut = false;
+					}
+				});
 		});
 
 		copyBtn.addEventListener('click', function () {
@@ -1299,10 +1306,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			const groups = new Map();
 
 			repos.forEach((repo) => {
-				const owner =
-					repo.fullName && repo.fullName.includes('/')
-						? repo.fullName.split('/')[0]
-						: 'Unknown';
+				const owner = repo.fullName && repo.fullName.includes('/') ? repo.fullName.split('/')[0] : 'Unknown';
 
 				if (!groups.has(owner)) {
 					groups.set(owner, []);
@@ -1314,9 +1318,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }))
 				.map((owner) => ({
 					owner,
-					repos: groups
-						.get(owner)
-						.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })),
+					repos: groups.get(owner).sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })),
 				}));
 		}
 
