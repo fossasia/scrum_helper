@@ -12,6 +12,18 @@ function logError(...args) {
 	}
 }
 
+
+function getLocalISOString(dateStr, time) {
+	const offsetMinutes = new Date().getTimezoneOffset();
+	const absOffset = Math.abs(offsetMinutes);
+	const hours = Math.floor(absOffset / 60);
+	const minutes = absOffset % 60;
+	const sign = offsetMinutes <= 0 ? '+' : '-';
+	const pad = (num) => String(num).padStart(2, '0');
+	const offsetStr = `${sign}${pad(hours)}:${pad(minutes)}`;
+	return `${dateStr}T${time}${offsetStr}`;
+}
+
 function formatLocalDate(date) {
 	const year = date.getFullYear();
 	const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -860,8 +872,8 @@ function allIncluded(outputTarget = 'email') {
 			endDate,
 		);
 		if (!prs.length) return {};
-		const since = new Date(startDate + 'T00:00:00Z').toISOString();
-		const until = new Date(endDate + 'T23:59:59Z').toISOString();
+	const since = getLocalISOString(startDate, '00:00:00');
+	const until = getLocalISOString(endDate, '23:59:59');
 		const queries = prs
 			.map((pr, idx) => {
 				const repoParts = pr.repository_url.split('/');
