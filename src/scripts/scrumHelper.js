@@ -18,13 +18,10 @@ window.fetch = async function (...args) {
 					window.githubRateLimitExceeded = true;
 					if (!rateLimitWarningShown) {
 						rateLimitWarningShown = true;
-						const msg =
-							chrome?.i18n.getMessage('rateLimitError') ||
-							'Some data may be missing due to GitHub rate limit. Please add or check your GitHub token in settings.';
-						window.scrumHelperToast?.(msg, { duration: 5000, variant: 'error' });
+						window.showRateLimitWarning?.();
 						setTimeout(() => {
 							rateLimitWarningShown = false;
-						}, 5000);
+						}, 6000);
 					}
 				}
 			} catch (e) {
@@ -1238,10 +1235,6 @@ ${lastWeekUl}<br>
 ${nextWeekUl}<br>
 <b>3. What is blocking me from making progress?</b><br>
 ${blockerText}`;
-		}
-
-		if (window.githubRateLimitExceeded) {
-			content += `<br><br><span style="color: #d32f2f; font-weight: bold;">⚠️ Note: Some data may be missing from this report due to GitHub API rate limits. Please check your GitHub token in the settings.</span>`;
 		}
 
 		if (outputTarget === 'popup') {

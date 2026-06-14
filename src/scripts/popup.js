@@ -1300,10 +1300,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			const groups = new Map();
 
 			repos.forEach((repo) => {
-				const owner =
-					repo.fullName && repo.fullName.includes('/')
-						? repo.fullName.split('/')[0]
-						: 'Unknown';
+				const owner = repo.fullName && repo.fullName.includes('/') ? repo.fullName.split('/')[0] : 'Unknown';
 
 				if (!groups.has(owner)) {
 					groups.set(owner, []);
@@ -1315,9 +1312,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }))
 				.map((owner) => ({
 					owner,
-					repos: groups
-						.get(owner)
-						.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })),
+					repos: groups.get(owner).sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })),
 				}));
 		}
 
@@ -2073,3 +2068,32 @@ function validateOrgOnBlur(org) {
 		helper.validateOrgOnBlur(org);
 	}
 }
+
+// Rate Limit Warning banner management
+(function () {
+	let rateLimitTimeout;
+	const rateLimitWarning = document.getElementById('rateLimitWarning');
+	const closeRateLimitWarning = document.getElementById('closeRateLimitWarning');
+
+	if (rateLimitWarning && closeRateLimitWarning) {
+		closeRateLimitWarning.addEventListener('click', () => {
+			rateLimitWarning.classList.add('hidden');
+			if (rateLimitTimeout) {
+				clearTimeout(rateLimitTimeout);
+			}
+		});
+	}
+
+	window.showRateLimitWarning = function () {
+		const banner = document.getElementById('rateLimitWarning');
+		if (banner) {
+			banner.classList.remove('hidden');
+			if (rateLimitTimeout) {
+				clearTimeout(rateLimitTimeout);
+			}
+			rateLimitTimeout = setTimeout(() => {
+				banner.classList.add('hidden');
+			}, 6000); // 6 seconds
+		}
+	};
+})();
