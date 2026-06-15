@@ -81,42 +81,6 @@ function handleUsernameValidationError(errMessage) {
 	}
 }
 
-function mapGitLabReportItem(item, projectById, type, gitlabApiBaseUrl) {
-	const project = projectById.get(item.project_id);
-	const repoName = project ? project.name : 'unknown';
-
-	return {
-		...item,
-		repository_url: `${gitlabApiBaseUrl}/projects/${item.project_id}`,
-		html_url:
-			type === 'issue'
-				? item.web_url || (project ? `${project.web_url}/-/issues/${item.iid}` : '')
-				: item.web_url || (project ? `${project.web_url}/-/merge_requests/${item.iid}` : ''),
-		number: item.iid,
-		title: item.title,
-		state: type === 'issue' && item.state === 'opened' ? 'open' : item.state,
-		project: repoName,
-		pull_request: type === 'mr',
-	};
-}
-
-function mapGitLabReportData(data, gitlabApiBaseUrl) {
-	const projects = Array.isArray(data.projects) ? data.projects : [];
-	const projectById = new Map(projects.map((project) => [project.id, project]));
-	const mappedIssues = (data.issues || []).map((issue) =>
-		mapGitLabReportItem(issue, projectById, 'issue', gitlabApiBaseUrl),
-	);
-	const mappedMRs = (data.mergeRequests || data.mrs || []).map((mr) =>
-		mapGitLabReportItem(mr, projectById, 'mr', gitlabApiBaseUrl),
-	);
-
-	return {
-		githubIssuesData: { items: mappedIssues },
-		githubPrsReviewData: { items: mappedMRs },
-		githubUserData: data.user || {},
-	};
-}
-
 function allIncluded(outputTarget = 'email') {
 	// Always re-instantiate gitlabHelper for gitlab platform to ensure fresh cache after refresh
 	if (platform === 'gitlab' || (typeof platform === 'undefined' && window.GitLabHelper)) {
@@ -310,7 +274,7 @@ function allIncluded(outputTarget = 'email') {
 										gitlabToken,
 									);
 
-									const mappedData = mapGitLabReportData(data, window.gitlabHelper.baseUrl);
+									const mappedData = window.gitlabHelper.mapGitLabReportData(data);
 									githubUserData = mappedData.githubUserData;
 
 									const name =
@@ -349,7 +313,7 @@ function allIncluded(outputTarget = 'email') {
 							window.gitlabHelper
 								.fetchGitLabData(platformUsernameLocal, startingDate, endingDate, gitlabToken)
 								.then((data) => {
-									const mappedData = mapGitLabReportData(data, window.gitlabHelper.baseUrl);
+									const mappedData = window.gitlabHelper.mapGitLabReportData(data);
 									processGithubData(mappedData);
 									scrumGenerationInProgress = false;
 								})
