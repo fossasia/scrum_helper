@@ -223,8 +223,8 @@ function allIncluded(outputTarget = 'email') {
 					}
 
 					items.projectName = projectFromDOM || items.projectName;
-					items.githubToken = tokenFromDOM || items.githubToken;
-					items.gitlabToken = gitlabTokenFromDOM || items.gitlabToken;
+					items.githubToken = (tokenFromDOM || items.githubToken || '').trim();
+					items.gitlabToken = (gitlabTokenFromDOM || items.gitlabToken || '').trim();
 					chrome.storage.local.set({
 						projectName: items.projectName,
 						githubToken: items.githubToken,

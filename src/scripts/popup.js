@@ -518,7 +518,6 @@ document.addEventListener('DOMContentLoaded', () => {
 		const endingDateInput = document.getElementById('endingDate');
 		const platformUsername = document.getElementById('platformUsername');
 		let previousGithubTokenNormalized = '';
-		const usernameError = document.getElementById("usernameError");
 		const usernameError = document.getElementById('usernameError');
 
 		browser.storage.local
@@ -692,37 +691,38 @@ document.addEventListener('DOMContentLoaded', () => {
 			if (!generateBtn._triggeredByShortcut) {
 				showPopupMessage(browser.i18n.getMessage('generatingReportNotification'));
 			}
-			browser.storage.local.get(['platform']).then((result) => {
-				platformUsername.classList.remove('input-error');
-				usernameError.classList.remove('errorMessage');
-				usernameError.textContent = '';
-				const platform = result.platform || 'github';
-				const platformUsernameKey = `${platform}Username`;
+			browser.storage.local
+				.get(['platform'])
+				.then((result) => {
+					platformUsername.classList.remove('input-error');
+					usernameError.classList.remove('errorMessage');
+					usernameError.textContent = '';
+					const platform = result.platform || 'github';
+					const platformUsernameKey = `${platform}Username`;
 
-				return browser.storage.local
-					.set({
-						platform: platformSelect.value,
-						[platformUsernameKey]: platformUsername.value,
-					})
-					.then(() => {
-						// Reload platform from storage before generating report
-						return browser.storage.local.get(['platform']).then((res) => {
-							platformSelect.value = res.platform || 'github';
-							updatePlatformUI(platformSelect.value);
-							generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
-							generateBtn.disabled = true;
-							window.generateScrumReport && window.generateScrumReport();
-							generateBtn._triggeredByShortcut = false;
-
-
+					return browser.storage.local
+						.set({
+							platform: platformSelect.value,
+							[platformUsernameKey]: platformUsername.value,
+						})
+						.then(() => {
+							// Reload platform from storage before generating report
+							return browser.storage.local.get(['platform']).then((res) => {
+								platformSelect.value = res.platform || 'github';
+								updatePlatformUI(platformSelect.value);
+								generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
+								generateBtn.disabled = true;
+								window.generateScrumReport && window.generateScrumReport();
+								generateBtn._triggeredByShortcut = false;
+							});
 						});
-					});
-			}).finally(() => {
-				if (generateBtn._triggeredByShortcut) {
-					dismissShortcutTooltipFocus(generateBtn);
-					generateBtn._triggeredByShortcut = false;
-				}
-			});
+				})
+				.finally(() => {
+					if (generateBtn._triggeredByShortcut) {
+						dismissShortcutTooltipFocus(generateBtn);
+						generateBtn._triggeredByShortcut = false;
+					}
+				});
 		});
 
 		copyBtn.addEventListener('click', function () {
@@ -1125,6 +1125,16 @@ document.addEventListener('DOMContentLoaded', () => {
 		let selectedRepos = [];
 		let highlightedIndex = -1;
 
+		browser.storage.onChanged.addListener((changes) => {
+			if (changes.githubToken && changes.githubToken.oldValue !== changes.githubToken.newValue) {
+				availableRepos = [];
+				selectedRepos = [];
+				if (typeof updateRepoDisplay === 'function') updateRepoDisplay();
+				if (typeof saveRepoSelection === 'function') saveRepoSelection();
+				if (repoStatus) repoStatus.textContent = '';
+			}
+		});
+
 		async function getRepoCacheKey(username, orgName, token, startingDate, endingDate, yesterdayContribution) {
 			const { startDate, endDate } = getRepoDateRange(startingDate, endingDate, yesterdayContribution);
 			const tokenFingerprint = await getGithubTokenFingerprint(token);
@@ -1436,41 +1446,11 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		}
 
-				.get([
-					'platform',
-					'githubUsername',
-					'githubToken',
-					'orgName',
-					'startingDate',
-					'endingDate',
-					'yesterdayContribution',
-				])
-				.then((items) => {
-					const platform = items.platform || 'github';
-					const platformUsernameKey = `${platform}Username`;
-					const username = items[platformUsernameKey];
-					console.log('Storage data for repo fetch:', {
-						hasUsername: !!username,
-						hasToken: !!items.githubToken,
-						username: username,
-					});
-
-					if (!username) {
-						repoStatus.textContent = chrome?.i18n.getMessage('usernameMissingError') || 'Username required';
-						return;
-					}
-
-					performRepoFetch();
-				});
-		}
 		function groupReposByOwner(repos) {
 			const groups = new Map();
 
 			repos.forEach((repo) => {
-				const owner =
-					repo.fullName && repo.fullName.includes('/')
-						? repo.fullName.split('/')[0]
-						: 'Unknown';
+				const owner = repo.fullName && repo.fullName.includes('/') ? repo.fullName.split('/')[0] : 'Unknown';
 
 				if (!groups.has(owner)) {
 					groups.set(owner, []);
@@ -1482,9 +1462,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }))
 				.map((owner) => ({
 					owner,
-					repos: groups
-						.get(owner)
-						.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })),
+					repos: groups.get(owner).sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })),
 				}));
 		}
 
@@ -1511,42 +1489,6 @@ document.addEventListener('DOMContentLoaded', () => {
 				main.appendChild(langSpan);
 			}
 
-			try {
-				const cacheData = await browser.storage.local.get(['repoCache']);
-				const storageItems = await browser.storage.local.get([
-					'platform',
-					'githubUsername',
-					'gitlabUsername',
-					'githubToken',
-					'orgName',
-					'startingDate',
-					'endingDate',
-					'yesterdayContribution',
-				]);
-				const platform = storageItems.platform || 'github';
-				const platformUsernameKey = `${platform}Username`;
-				const username = storageItems[platformUsernameKey];
-				const repoCacheKey = await getRepoCacheKey(
-					username,
-					storageItems.orgName,
-					storageItems.githubToken,
-					storageItems.startingDate,
-					storageItems.endingDate,
-					storageItems.yesterdayContribution,
-				);
-				const now = Date.now();
-				const cacheAge = cacheData.repoCache?.timestamp
-					? now - cacheData.repoCache.timestamp
-					: Number.POSITIVE_INFINITY;
-				const cacheTTL = 10 * 60 * 1000; // 10 minutes
-
-				console.log('[POPUP-DEBUG] Repo cache check:', {
-					key: repoCacheKey,
-					cacheKeyInCache: cacheData.repoCache?.cacheKey,
-					isMatch: cacheData.repoCache?.cacheKey === repoCacheKey,
-					age: cacheAge,
-					isFresh: cacheAge < cacheTTL,
-				});
 			if (repo.stars) {
 				const starsSpan = document.createElement('span');
 				starsSpan.className = 'repo-stars';
