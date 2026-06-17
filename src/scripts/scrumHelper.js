@@ -402,14 +402,10 @@ function allIncluded(outputTarget = 'email') {
 	}
 
 	function getYesterday() {
-		const today = new Date();
-		const yesterday = new Date(today);
-		yesterday.setDate(today.getDate() - 1);
-		return yesterday.toISOString().split('T')[0];
+		return window.scrumDateRangeUtils.getLocalYesterdayString();
 	}
 	function getToday() {
-		const today = new Date();
-		return today.toISOString().split('T')[0];
+		return window.scrumDateRangeUtils.getLocalTodayString();
 	}
 
 	// Global cache object
@@ -924,8 +920,7 @@ function allIncluded(outputTarget = 'email') {
 			log('Repo fiter disabled, skipping fetch');
 			return [];
 		}
-		const tokenFingerprint = await getGithubTokenFingerprint(githubToken);
-		const repoCacheKey = `repos-${platformUsernameLocal}-${orgName}-${startDateForCache}-${endDateForCache}-${tokenFingerprint}`;
+		const repoCacheKey = await window.buildRepoCacheKey(platformUsernameLocal, orgName, githubToken, startDateForCache, endDateForCache);
 
 		const now = Date.now();
 		const isRepoCacheFresh = now - githubCache.repoTimeStamp < githubCache.ttl;

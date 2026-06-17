@@ -284,13 +284,15 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	function getRepoDateRange(startingDate, endingDate, yesterdayContribution) {
+		const formatLocal = (date) => window.scrumDateRangeUtils.formatLocalDate(date);
+
 		if (yesterdayContribution) {
 			const today = new Date();
 			const yesterday = new Date(today);
 			yesterday.setDate(today.getDate() - 1);
 			return {
-				startDate: yesterday.toISOString().split('T')[0],
-				endDate: today.toISOString().split('T')[0],
+				startDate: formatLocal(yesterday),
+				endDate: formatLocal(today),
 			};
 		}
 
@@ -304,8 +306,8 @@ document.addEventListener('DOMContentLoaded', () => {
 		const today = new Date();
 		const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
 		return {
-			startDate: lastWeek.toISOString().split('T')[0],
-			endDate: today.toISOString().split('T')[0],
+			startDate: formatLocal(lastWeek),
+			endDate: formatLocal(today),
 		};
 	}
 
@@ -979,11 +981,12 @@ document.addEventListener('DOMContentLoaded', () => {
 			});
 		});
 		githubTokenInput.addEventListener('input', () => {
-			const nextTokenNormalized = githubTokenInput.value.trim();
+			const rawToken = githubTokenInput.value;
+			const nextTokenNormalized = rawToken.trim();
 			const shouldInvalidateCaches = previousGithubTokenNormalized !== nextTokenNormalized;
 			previousGithubTokenNormalized = nextTokenNormalized;
 
-			const payload = { githubToken: nextTokenNormalized };
+			const payload = { githubToken: rawToken };
 			if (shouldInvalidateCaches) {
 				payload.repoCache = null;
 				payload.githubCache = null;
@@ -1137,8 +1140,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		async function getRepoCacheKey(username, orgName, token, startingDate, endingDate, yesterdayContribution) {
 			const { startDate, endDate } = getRepoDateRange(startingDate, endingDate, yesterdayContribution);
-			const tokenFingerprint = await getGithubTokenFingerprint(token);
-			return `repos-${username}-${orgName || ''}-${startDate}-${endDate}-${tokenFingerprint}`;
+			return await window.buildRepoCacheKey(username, orgName, token, startDate, endDate);
 		}
 
 		async function triggerRepoFetchIfEnabled() {

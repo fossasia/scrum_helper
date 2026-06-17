@@ -22,8 +22,13 @@ async function getGithubTokenFingerprint(token) {
 }
 
 // Export for both module and global contexts
+if (typeof window !== 'undefined') {
+	window.getGithubTokenFingerprint = getGithubTokenFingerprint;
+	window.buildRepoCacheKey = async function(username, orgName, token, startDate, endDate) {
+		const fingerprint = await getGithubTokenFingerprint(token);
+		return `repos-${username}-${orgName || ''}-${startDate}-${endDate}-${fingerprint}`;
+	};
+}
 if (typeof module !== 'undefined' && module.exports) {
 	module.exports = { getGithubTokenFingerprint };
-} else {
-	window.getGithubTokenFingerprint = getGithubTokenFingerprint;
 }
