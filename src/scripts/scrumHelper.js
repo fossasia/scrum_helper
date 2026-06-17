@@ -1200,6 +1200,9 @@ ${blockerText}`;
 			scrumGenerationInProgress = false;
 		} else if (outputTarget === 'email') {
 			const elements = window.emailClientAdapter?.getEditorElements?.();
+			if (elements?.body && !isReportAlreadyInserted(elements.body)) {
+				window.hasInjectedContent = false;
+			}
 			if (window.hasInjectedContent || (elements?.body && isReportAlreadyInserted(elements.body))) {
 				scrumGenerationInProgress = false;
 				return;
@@ -2004,12 +2007,22 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 
 function isReportAlreadyInserted(el) {
 	if (!el) return false;
-	if (
-		el.querySelector &&
-		(el.querySelector('.scrum-helper-report-wrapper') || el.querySelector('#scrum-helper-report-wrapper'))
-	) {
-		return true;
+
+	// If the entire editor has no text, the report is not inserted
+	const totalText = (el.textContent || el.value || '').trim();
+	if (!totalText) {
+		return false;
 	}
+
+	if (el.querySelector) {
+		const wrapper =
+			el.querySelector('.scrum-helper-report-wrapper') || el.querySelector('#scrum-helper-report-wrapper');
+		if (wrapper) {
+			// If wrapper exists, it must contain text content to be considered inserted
+			return !!(wrapper.textContent && wrapper.textContent.trim());
+		}
+	}
+
 	if (el.innerHTML && el.innerHTML.includes('scrum-helper-report-wrapper')) {
 		return true;
 	}
@@ -2025,6 +2038,9 @@ async function injectIntoEmailEditor(content, subject) {
 	}
 
 	const elements = window.emailClientAdapter.getEditorElements?.();
+	if (elements?.body && !isReportAlreadyInserted(elements.body)) {
+		window.hasInjectedContent = false;
+	}
 	if (window.hasInjectedContent || (elements?.body && isReportAlreadyInserted(elements.body))) {
 		return { success: true, alreadyInserted: true };
 	}
