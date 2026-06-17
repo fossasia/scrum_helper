@@ -36,6 +36,7 @@
         "scripts/emailClientAdapter.js",
         "scripts/gitlabHelper.js",
         "scripts/githubTokenFingerprint.js",
+        "scripts/githubHelper.js",
         "scripts/scrumHelper.js"
       ]
     }

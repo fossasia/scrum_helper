@@ -1,4 +1,15 @@
-/* global chrome */
+/* global chrome, browser */
+
+// Platform Registry to support dynamic pluggable platforms (GitHub, GitLab, ........)
+window.PlatformRegistry = {
+	platforms: {},
+	register(id, helper) {
+		this.platforms[id] = helper;
+	},
+	get(id) {
+		return this.platforms[id] || null;
+	},
+};
 
 function debounce(func, wait) {
 	let timeout;
@@ -26,7 +37,7 @@ function isMacOS() {
 	return /Mac/.test(platform);
 }
 
-function showShortcutNotification(messageKey) {
+function showShortcutNotification(messageKey, variant = 'info') {
 	if (typeof chrome === 'undefined' || !chrome.i18n) {
 		return;
 	}
@@ -36,7 +47,7 @@ function showShortcutNotification(messageKey) {
 		return;
 	}
 
-	window.scrumHelperToast?.(message, { duration: 2200, variant: 'info' });
+	window.scrumHelperToast?.(message, { duration: 2200, variant });
 }
 
 function setupButtonTooltips() {
@@ -137,155 +148,30 @@ document.addEventListener('DOMContentLoaded', () => {
 	const platformSelect = document.getElementById('platformSelect');
 	const usernameLabel = document.getElementById('usernameLabel');
 	const platformUsername = document.getElementById('platformUsername');
-	let showCommitsWarningTimeout;
-	let mergedPRsWarningTimeout;
+
+	function getActivePlatformHelper() {
+		const platform = platformSelect?.value || 'github';
+		return window.PlatformRegistry.get(platform);
+	}
 
 	function checkTokenForFilter() {
-		const useRepoFilter = document.getElementById('useRepoFilter');
-		const githubTokenInput = document.getElementById('githubToken');
-		const tokenWarning = document.getElementById('tokenWarningForFilter');
-		const repoFilterContainer = document.getElementById('repoFilterContainer');
-
-		if (!useRepoFilter || !githubTokenInput || !tokenWarning || !repoFilterContainer) {
-			return;
-		}
-		const isFilterEnabled = useRepoFilter.checked;
-		const hasToken = githubTokenInput.value.trim() !== '';
-
-		if (isFilterEnabled && !hasToken) {
-			useRepoFilter.checked = false;
-			repoFilterContainer.classList.add('hidden');
-			if (typeof hideDropdown === 'function') {
-				hideDropdown();
-			}
-			browser.storage.local.set({ useRepoFilter: false });
-		}
-		tokenWarning.classList.toggle('hidden', !isFilterEnabled || hasToken);
-		setTimeout(() => {
-			tokenWarning.classList.add('hidden');
-		}, 4000);
-	}
-
-	function showTokenWarningForMergedPRs({ animate = false, durationMs = 4000 } = {}) {
-		const tokenWarning = document.getElementById('tokenWarningForMergedPRs');
-		if (!tokenWarning) {
-			return;
-		}
-
-		tokenWarning.classList.remove('hidden');
-		if (animate) {
-			tokenWarning.classList.add('shake-animation');
-			setTimeout(() => tokenWarning.classList.remove('shake-animation'), 620);
-		}
-
-		if (mergedPRsWarningTimeout) {
-			clearTimeout(mergedPRsWarningTimeout);
-		}
-		mergedPRsWarningTimeout = setTimeout(() => {
-			tokenWarning.classList.add('hidden');
-		}, durationMs);
-	}
-
-	function checkTokenForMergedPRs({
-		showWarning = false,
-		animateWarning = false,
-		warningDurationMs = 4000,
-		persistState = false,
-	} = {}) {
-		const mergedPRsCheckbox = document.getElementById('onlyMergedPRs');
-		const githubTokenInput = document.getElementById('githubToken');
-
-		if (!mergedPRsCheckbox || !githubTokenInput) {
-			return;
-		}
-
-		const isMergedPRsEnabled = mergedPRsCheckbox.checked;
-		const hasToken = githubTokenInput.value.trim() !== '';
-
-		if (isMergedPRsEnabled && !hasToken) {
-			mergedPRsCheckbox.checked = false;
-			if (showWarning) {
-				showTokenWarningForMergedPRs({
-					animate: animateWarning,
-					durationMs: warningDurationMs,
-				});
-			}
-			chrome?.storage.local.set({ onlyMergedPRs: false });
-			return;
-		}
-
-		const tokenWarning = document.getElementById('tokenWarningForMergedPRs');
-		if (tokenWarning) {
-			if (mergedPRsWarningTimeout) {
-				clearTimeout(mergedPRsWarningTimeout);
-				mergedPRsWarningTimeout = null;
-			}
-			tokenWarning.classList.add('hidden');
-		}
-		if (persistState) {
-			chrome?.storage.local.set({ onlyMergedPRs: mergedPRsCheckbox.checked });
+		const helper = getActivePlatformHelper();
+		if (helper && helper.checkTokenForFilter) {
+			helper.checkTokenForFilter();
 		}
 	}
 
-	function showTokenWarningForShowCommits({ animate = false, durationMs = 4000 } = {}) {
-		const tokenWarning = document.getElementById('tokenWarningForShowCommits');
-		if (!tokenWarning) {
-			return;
+	function checkTokenForShowCommits(options) {
+		const helper = getActivePlatformHelper();
+		if (helper && helper.checkTokenForShowCommits) {
+			helper.checkTokenForShowCommits(options);
 		}
-
-		tokenWarning.classList.remove('hidden');
-		if (animate) {
-			tokenWarning.classList.add('shake-animation');
-			setTimeout(() => tokenWarning.classList.remove('shake-animation'), 620);
-		}
-
-		if (showCommitsWarningTimeout) {
-			clearTimeout(showCommitsWarningTimeout);
-		}
-		showCommitsWarningTimeout = setTimeout(() => {
-			tokenWarning.classList.add('hidden');
-		}, durationMs);
 	}
 
-	function checkTokenForShowCommits({
-		showWarning = false,
-		animateWarning = false,
-		warningDurationMs = 4000,
-		persistState = false,
-	} = {}) {
-		const showCommits = document.getElementById('showCommits');
-		const githubTokenInput = document.getElementById('githubToken');
-
-		if (!showCommits || !githubTokenInput) {
-			return;
-		}
-
-		const isShowCommitsEnabled = showCommits.checked;
-		const hasToken = githubTokenInput.value.trim() !== '';
-
-		if (isShowCommitsEnabled && !hasToken) {
-			showCommits.checked = false;
-			if (showWarning) {
-				showTokenWarningForShowCommits({
-					animate: animateWarning,
-					durationMs: warningDurationMs,
-				});
-			}
-			// Always persist correction of invalid state
-			browser.storage.local.set({ showCommits: false });
-			return;
-		}
-
-		const tokenWarning = document.getElementById('tokenWarningForShowCommits');
-		if (tokenWarning) {
-			if (showCommitsWarningTimeout) {
-				clearTimeout(showCommitsWarningTimeout);
-				showCommitsWarningTimeout = null;
-			}
-			tokenWarning.classList.add('hidden');
-		}
-		if (persistState) {
-			browser.storage.local.set({ showCommits: showCommits.checked });
+	function checkTokenForMergedPRs(options) {
+		const helper = getActivePlatformHelper();
+		if (helper && helper.checkTokenForMergedPRs) {
+			helper.checkTokenForMergedPRs(options);
 		}
 	}
 
@@ -326,7 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 	}
 
-	githubTokenInput.addEventListener('input', checkTokenForFilter);
+	githubTokenInput.addEventListener('input', () => checkTokenForFilter());
 	githubTokenInput.addEventListener('input', () => checkTokenForShowCommits({ persistState: false }));
 	githubTokenInput.addEventListener('input', () => checkTokenForMergedPRs({ persistState: false }));
 
@@ -369,7 +255,11 @@ document.addEventListener('DOMContentLoaded', () => {
 	});
 
 	browser.storage.onChanged.addListener((changes, namespace) => {
-		console.log('[DEBUG] Storage changed:', changes, namespace);
+		console.log(
+			'[DEBUG] Storage changed:',
+			typeof logRedaction === 'function' ? logRedaction(changes) : changes,
+			namespace,
+		);
 		if (changes.startingDate || changes.endingDate) {
 			console.log('[POPUP-DEBUG] Date changed in storage, triggering repo fetch.', {
 				startingDate: changes.startingDate?.newValue,
@@ -718,6 +608,10 @@ document.addEventListener('DOMContentLoaded', () => {
 				checkTokenForMergedPRs();
 			});
 
+		function dismissShortcutTooltipFocus(el) {
+			el?.blur?.();
+		}
+
 		// Button setup
 		const generateBtn = document.getElementById('generateReport');
 		const copyBtn = document.getElementById('copyReport');
@@ -737,12 +631,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		if (insertBtn) {
 			insertBtn.addEventListener('click', () => {
+				if (!insertBtn._triggeredByShortcut) {
+					showPopupMessage(browser.i18n.getMessage('insertingInEmailNotification'));
+				}
 				const scrumReport = document.getElementById('scrumReport');
 				const content = scrumReport ? sanitizeHtml(scrumReport.innerHTML) : '';
 				const subject = buildScrumSubjectFromPopup();
 
 				if (!content) {
 					insertBtn._triggeredByShortcut = false;
+					dismissShortcutTooltipFocus(insertBtn);
 					return;
 				}
 
@@ -751,7 +649,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					console.warn('Insert to Email failed:', errorMsg);
 					const failureMessage =
 						browser.i18n.getMessage('insertToEmailFailedError') || 'open an email tab to insert report';
-					showPopupMessage(failureMessage);
+					showPopupMessage(failureMessage, { variant: 'error' });
 				};
 
 				browser.tabs
@@ -768,8 +666,12 @@ document.addEventListener('DOMContentLoaded', () => {
 							.then((response) => {
 								if (!response?.success) {
 									handleInsertFailure(response?.error);
-								} else if (insertBtn._triggeredByShortcut) {
-									showShortcutNotification('insertedInEmailNotification');
+								} else {
+									if (insertBtn._triggeredByShortcut) {
+										showShortcutNotification('insertedInEmailNotification');
+									} else {
+										showPopupMessage(browser.i18n.getMessage('insertedInEmailNotification'), { variant: 'success' });
+									}
 								}
 							})
 							.catch((error) => {
@@ -781,11 +683,15 @@ document.addEventListener('DOMContentLoaded', () => {
 					})
 					.finally(() => {
 						insertBtn._triggeredByShortcut = false;
+						dismissShortcutTooltipFocus(insertBtn);
 					});
 			});
 		}
 
 		generateBtn.addEventListener('click', () => {
+			if (!generateBtn._triggeredByShortcut) {
+				showPopupMessage(browser.i18n.getMessage('generatingReportNotification'));
+			}
 			browser.storage.local.get(['platform']).then((result) => {
 				platformUsername.classList.remove('input-error');
 				usernameError.classList.remove('errorMessage');
@@ -793,25 +699,36 @@ document.addEventListener('DOMContentLoaded', () => {
 				const platform = result.platform || 'github';
 				const platformUsernameKey = `${platform}Username`;
 
-				browser.storage.local
+				return browser.storage.local
 					.set({
 						platform: platformSelect.value,
 						[platformUsernameKey]: platformUsername.value,
 					})
 					.then(() => {
 						// Reload platform from storage before generating report
-						browser.storage.local.get(['platform']).then((res) => {
+						return browser.storage.local.get(['platform']).then((res) => {
 							platformSelect.value = res.platform || 'github';
 							updatePlatformUI(platformSelect.value);
 							generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
 							generateBtn.disabled = true;
 							window.generateScrumReport && window.generateScrumReport();
+							generateBtn._triggeredByShortcut = false;
+
+
 						});
 					});
+			}).finally(() => {
+				if (generateBtn._triggeredByShortcut) {
+					dismissShortcutTooltipFocus(generateBtn);
+					generateBtn._triggeredByShortcut = false;
+				}
 			});
 		});
 
 		copyBtn.addEventListener('click', function () {
+			if (!this._triggeredByShortcut) {
+				showPopupMessage(browser.i18n.getMessage('copyingReportNotification'));
+			}
 			const scrumReport = document.getElementById('scrumReport');
 			if (!scrumReport) {
 				this._triggeredByShortcut = false;
@@ -873,7 +790,9 @@ document.addEventListener('DOMContentLoaded', () => {
 						browser?.i18n && browser.i18n.getMessage('copiedReportNotification')
 							? 'copiedReportNotification'
 							: 'copiedButton';
-					showShortcutNotification(notificationKey);
+					showShortcutNotification(notificationKey, 'success');
+				} else {
+					showPopupMessage(browser.i18n.getMessage('copiedReportNotification'), { variant: 'success' });
 				}
 				this.innerHTML = `<i class="fa fa-check"></i> ${browser?.i18n.getMessage('copiedButton')}`;
 				setTimeout(() => {
@@ -883,6 +802,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				console.error('Failed to copy: ', err);
 			} finally {
 				this._triggeredByShortcut = false;
+				dismissShortcutTooltipFocus(this);
 				selection.removeAllRanges();
 				document.body.removeChild(tempDiv);
 			}
@@ -909,7 +829,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		browser.storage.local
 			.get(['selectedTimeframe', 'yesterdayContribution', 'startingDate', 'endingDate'])
 			.then((items) => {
-				console.log('Restoring state:', items);
+				console.log('Restoring state:', typeof logRedaction === 'function' ? logRedaction(items) : items);
 
 				if (items.startingDate && items.endingDate && !items.yesterdayContribution) {
 					const startDateInput = document.getElementById('startingDate');
@@ -1184,6 +1104,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	const repoPlaceholder = document.getElementById('repoPlaceholder');
 	const repoCount = document.getElementById('repoCount');
 	const repoStatus = document.getElementById('repoStatus');
+	const clearAllReposBtn = document.getElementById('clearAllReposBtn');
 	const useRepoFilter = document.getElementById('useRepoFilter');
 	const repoFilterContainer = document.getElementById('repoFilterContainer');
 
@@ -1297,6 +1218,17 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 
 		window.triggerRepoFetchIfEnabled = triggerRepoFetchIfEnabled;
+		window.githubRepoFilterContext = {
+			useRepoFilter,
+			repoStatus,
+			repoSearch,
+			filterAndDisplayRepos: (query) => filterAndDisplayRepos(query),
+			hideDropdown: () => hideDropdown(),
+			setAvailableRepos: (repos) => {
+				availableRepos = repos;
+			},
+			getAvailableRepos: () => availableRepos,
+		};
 
 		browser.storage.local.get(['selectedRepos', 'useRepoFilter']).then((items) => {
 			if (items.selectedRepos) {
@@ -1492,44 +1424,18 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		});
 
-		function debugRepoFetch() {
-			browser.storage.local.get(['platform', 'githubUsername', 'githubToken', 'orgName']).then((items) => {
-				const platform = items.platform || 'github';
-				const platformUsernameKey = `${platform}Username`;
-				const username = items[platformUsernameKey];
-				console.log('Current settings:', {
-					username: username,
-					hasToken: !!items.githubToken,
-					org: items.orgName || '',
-				});
-			});
+		const helper = getActivePlatformHelper();
+		if (helper && helper.debugRepoFetch) {
+			helper.debugRepoFetch();
 		}
-		debugRepoFetch();
+
 		async function loadRepos() {
-			// --- PLATFORM CHECK: Only run for GitHub ---
-			let platform = 'github';
-			try {
-				const items = await browser.storage.local.get(['platform']);
-				platform = items.platform || 'github';
-			} catch {}
-			if (platform !== 'github') {
-				if (repoStatus)
-					repoStatus.textContent =
-						chrome?.i18n.getMessage('repoLoadingGithubOnly') || 'Repository loading is only available for GitHub.';
-				return;
+			const helper = getActivePlatformHelper();
+			if (helper && helper.loadRepos) {
+				await helper.loadRepos();
 			}
-			console.log('window.fetchUserRepositories exists:', !!window.fetchUserRepositories);
-			console.log(
-				'Available functions:',
-				Object.keys(window).filter((key) => key.includes('fetch')),
-			);
+		}
 
-			if (!window.fetchUserRepositories) {
-				repoStatus.textContent = 'Repository fetching not available';
-				return;
-			}
-
-			browser.storage.local
 				.get([
 					'platform',
 					'githubUsername',
@@ -1557,22 +1463,53 @@ document.addEventListener('DOMContentLoaded', () => {
 					performRepoFetch();
 				});
 		}
+		function groupReposByOwner(repos) {
+			const groups = new Map();
 
-		async function performRepoFetch() {
-			let platform = 'github';
-			try {
-				const items = await browser.storage.local.get(['platform']);
-				platform = items.platform || 'github';
-			} catch (e) {}
-			if (platform !== 'github') {
-				if (repoStatus)
-					repoStatus.textContent =
-						chrome?.i18n.getMessage('repoFetchingGithubOnly') || 'Repository fetching is only available for GitHub.';
-				return;
+			repos.forEach((repo) => {
+				const owner =
+					repo.fullName && repo.fullName.includes('/')
+						? repo.fullName.split('/')[0]
+						: 'Unknown';
+
+				if (!groups.has(owner)) {
+					groups.set(owner, []);
+				}
+				groups.get(owner).push(repo);
+			});
+
+			return [...groups.keys()]
+				.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }))
+				.map((owner) => ({
+					owner,
+					repos: groups
+						.get(owner)
+						.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })),
+				}));
+		}
+
+		function createRepoDropdownItem(repo) {
+			const item = document.createElement('div');
+			item.className = 'repository-dropdown-item';
+			item.dataset.repoName = repo.fullName;
+
+			const header = document.createElement('div');
+			header.className = 'repo-header';
+
+			const main = document.createElement('div');
+			main.className = 'repo-main';
+
+			const nameSpan = document.createElement('span');
+			nameSpan.className = 'repo-name-text';
+			nameSpan.textContent = repo.name;
+			main.appendChild(nameSpan);
+
+			if (repo.language) {
+				const langSpan = document.createElement('span');
+				langSpan.className = 'repo-language';
+				langSpan.textContent = repo.language;
+				main.appendChild(langSpan);
 			}
-			console.log('[POPUP-DEBUG] performRepoFetch called.');
-			repoStatus.textContent = browser.i18n.getMessage('repoLoading');
-			repoSearch.classList.add('repository-search-loading');
 
 			try {
 				const cacheData = await browser.storage.local.get(['repoCache']);
@@ -1610,71 +1547,65 @@ document.addEventListener('DOMContentLoaded', () => {
 					age: cacheAge,
 					isFresh: cacheAge < cacheTTL,
 				});
+			if (repo.stars) {
+				const starsSpan = document.createElement('span');
+				starsSpan.className = 'repo-stars';
 
-				if (cacheData.repoCache && cacheData.repoCache.cacheKey === repoCacheKey && cacheAge < cacheTTL) {
-					console.log('[POPUP-DEBUG] Using cached repositories in manual fetch');
-					availableRepos = cacheData.repoCache.data;
-					repoStatus.textContent = browser.i18n.getMessage('repoLoaded', [availableRepos.length]);
+				const starIcon = document.createElement('i');
+				starIcon.className = 'fa fa-star';
+				starsSpan.appendChild(starIcon);
+				starsSpan.appendChild(document.createTextNode(` ${repo.stars}`));
 
-					if (document.activeElement === repoSearch) {
-						filterAndDisplayRepos(repoSearch.value.toLowerCase());
-					}
-					return;
-				}
-				console.log('[POPUP-DEBUG] No valid cache. Fetching from network.');
-				availableRepos = await window.fetchUserRepositories(
-					username,
-
-					storageItems.githubToken,
-					storageItems.orgName || '',
-				);
-				repoStatus.textContent = browser.i18n.getMessage('repoLoaded', [availableRepos.length]);
-				console.log(`[POPUP-DEBUG] Fetched and loaded ${availableRepos.length} repos.`);
-
-				browser.storage.local.set({
-					repoCache: {
-						data: availableRepos,
-						cacheKey: repoCacheKey,
-						timestamp: now,
-					},
-				});
-
-				if (document.activeElement === repoSearch) {
-					filterAndDisplayRepos(repoSearch.value.toLowerCase());
-				}
-			} catch (err) {
-				console.error(`Failed to load repos:`, err);
-
-				if (err.message && err.message.includes('401')) {
-					repoStatus.textContent = browser.i18n.getMessage('repoTokenPrivate');
-				} else if (err.message && err.message.includes('username')) {
-					repoStatus.textContent = browser.i18n.getMessage('githubUsernamePlaceholder');
-				} else {
-					repoStatus.textContent = `${browser.i18n.getMessage('errorLabel')}: ${err.message || browser.i18n.getMessage('repoLoadFailed')}`;
-				}
-			} finally {
-				repoSearch.classList.remove('repository-search-loading');
+				main.appendChild(starsSpan);
 			}
+
+			header.appendChild(main);
+			item.appendChild(header);
+
+			if (repo.description) {
+				const infoRow = document.createElement('div');
+				infoRow.className = 'repo-info';
+
+				const descSpan = document.createElement('span');
+				descSpan.className = 'repo-desc';
+				descSpan.textContent = repo.description;
+
+				infoRow.appendChild(descSpan);
+				item.appendChild(infoRow);
+			}
+
+			item.addEventListener('click', (e) => {
+				e.stopPropagation();
+				fnSelectedRepos(repo.fullName);
+			});
+
+			return item;
 		}
 
 		function filterAndDisplayRepos(query) {
 			if (availableRepos.length === 0) {
-				repoDropdown.innerHTML = `<div class="p-3 text-center text-gray-500 text-sm">${browser.i18n.getMessage('repoLoading')}</div>`;
+				const loadingMsg = document.createElement('div');
+				loadingMsg.className = 'p-3 text-center text-gray-500 text-sm';
+				loadingMsg.textContent = browser.i18n.getMessage('repoLoading');
+				repoDropdown.replaceChildren(loadingMsg);
 				showDropdown();
 				return;
 			}
 
+			// Exclude already selected repositories
 			const filtered = availableRepos.filter((repo) => {
-				if (selectedRepos.includes(repo.fullName)) {
-					return false;
-				}
-				if (!query) {
-					return true;
-				}
-				return repo.name.toLowerCase().includes(query) || repo.description?.toLowerCase().includes(query);
+				if (selectedRepos.includes(repo.fullName)) return false;
+
+				if (!query) return true;
+				const lowerQuery = query.toLowerCase();
+				return (
+					repo.name.toLowerCase().includes(lowerQuery) ||
+					repo.description?.toLowerCase().includes(lowerQuery) ||
+					repo.fullName.toLowerCase().includes(lowerQuery)
+				);
 			});
 
-			repoDropdown.innerHTML = '';
+			repoDropdown.replaceChildren();
 
 			if (filtered.length === 0) {
 				const notFound = document.createElement('div');
@@ -1684,60 +1615,25 @@ document.addEventListener('DOMContentLoaded', () => {
 				repoDropdown.appendChild(notFound);
 			} else {
 				const fragment = document.createDocumentFragment();
-				filtered.slice(0, 10).forEach((repo) => {
-					const item = document.createElement('div');
-					item.className = 'repository-dropdown-item';
-					item.dataset.repoName = repo.fullName;
+				const grouped = groupReposByOwner(filtered);
+				const REPO_DISPLAY_LIMIT = 25;
+				let renderedCount = 0;
 
-					// Repo Name Row
-					const nameRow = document.createElement('div');
-					nameRow.className = 'repo-name';
+				for (const { owner, repos } of grouped) {
+					if (renderedCount >= REPO_DISPLAY_LIMIT) break;
 
-					const nameSpan = document.createElement('span');
-					nameSpan.textContent = repo.name;
-					nameRow.appendChild(nameSpan);
+					const ownerHeader = document.createElement('div');
+					ownerHeader.className = 'repository-group-header';
+					ownerHeader.textContent = owner;
+					fragment.appendChild(ownerHeader);
 
-					if (repo.language) {
-						const langSpan = document.createElement('span');
-						langSpan.className = 'repo-language';
-						langSpan.textContent = repo.language;
-						nameRow.appendChild(langSpan);
+					for (const repo of repos) {
+						if (renderedCount >= REPO_DISPLAY_LIMIT) break;
+						fragment.appendChild(createRepoDropdownItem(repo));
+						renderedCount++;
 					}
+				}
 
-					if (repo.stars) {
-						const starsSpan = document.createElement('span');
-						starsSpan.className = 'repo-stars';
-
-						const starIcon = document.createElement('i');
-						starIcon.className = 'fa fa-star';
-						starsSpan.appendChild(starIcon);
-						starsSpan.appendChild(document.createTextNode(` ${repo.stars}`));
-
-						nameRow.appendChild(starsSpan);
-					}
-
-					// Repo Info Row (Description)
-					const infoRow = document.createElement('div');
-					infoRow.className = 'repo-info';
-
-					if (repo.description) {
-						const descSpan = document.createElement('span');
-						descSpan.className = 'repo-desc';
-						const desc = repo.description.length > 50 ? repo.description.substring(0, 50) + '...' : repo.description;
-						descSpan.textContent = desc;
-						infoRow.appendChild(descSpan);
-					}
-
-					item.appendChild(nameRow);
-					item.appendChild(infoRow);
-
-					item.addEventListener('click', (e) => {
-						e.stopPropagation();
-						fnSelectedRepos(repo.fullName);
-					});
-
-					fragment.appendChild(item);
-				});
 				repoDropdown.appendChild(fragment);
 			}
 			highlightedIndex = -1;
@@ -1745,14 +1641,15 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 
 		function fnSelectedRepos(repoFullName) {
-			if (!selectedRepos.includes(repoFullName)) {
-				selectedRepos.push(repoFullName);
-				updateRepoDisplay();
-				saveRepoSelection();
+			if (selectedRepos.includes(repoFullName)) {
+				return;
 			}
 
-			repoSearch.value = '';
-			filterAndDisplayRepos('');
+			selectedRepos.push(repoFullName);
+			updateRepoDisplay();
+			saveRepoSelection();
+
+			filterAndDisplayRepos(repoSearch.value.toLowerCase());
 			programmaticFocus = true;
 			repoSearch.focus();
 		}
@@ -1762,7 +1659,8 @@ document.addEventListener('DOMContentLoaded', () => {
 			updateRepoDisplay();
 			saveRepoSelection();
 
-			if (repoSearch.value) {
+			// Update dropdown state if it's open
+			if (!repoDropdown.classList.contains('hidden')) {
 				filterAndDisplayRepos(repoSearch.value.toLowerCase());
 			}
 		}
@@ -1771,7 +1669,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			if (!repoTags) return;
 
 			// Clear container
-			repoTags.innerHTML = '';
+			repoTags.replaceChildren();
 
 			if (selectedRepos.length === 0) {
 				const placeholder = document.createElement('span');
@@ -1782,6 +1680,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 				if (repoCount) {
 					repoCount.textContent = browser.i18n.getMessage('repoCountNone');
+				}
+				if (clearAllReposBtn) {
+					clearAllReposBtn.classList.add('hidden');
 				}
 			} else {
 				const fragment = document.createDocumentFragment();
@@ -1818,13 +1719,26 @@ document.addEventListener('DOMContentLoaded', () => {
 					tag.appendChild(removeBtn);
 					fragment.appendChild(tag);
 				});
-
 				repoTags.appendChild(fragment);
 
 				if (repoCount) {
 					repoCount.textContent = browser.i18n.getMessage('repoCount', [selectedRepos.length]);
 				}
+
+				if (clearAllReposBtn) {
+					clearAllReposBtn.classList.remove('hidden');
+				}
 			}
+		}
+
+		if (clearAllReposBtn) {
+			clearAllReposBtn.addEventListener('click', (e) => {
+				e.stopPropagation();
+				selectedRepos = [];
+				updateRepoDisplay();
+				saveRepoSelection();
+				filterAndDisplayRepos(repoSearch.value.toLowerCase());
+			});
 		}
 
 		function saveRepoSelection() {
@@ -2300,8 +2214,11 @@ function toggleRadio(radio) {
 }
 
 async function triggerRepoFetchIfEnabled() {
-	if (window.triggerRepoFetchIfEnabled) {
-		await window.triggerRepoFetchIfEnabled();
+	const platformSelect = document.getElementById('platformSelect');
+	const platform = platformSelect?.value || 'github';
+	const helper = window.PlatformRegistry.get(platform);
+	if (helper && helper.triggerRepoFetchIfEnabled) {
+		await helper.triggerRepoFetchIfEnabled();
 	}
 }
 
@@ -2331,6 +2248,7 @@ document.addEventListener('keydown', (e) => {
 	if (modifier && !e.shiftKey && !e.altKey && key === 'g' && !e.repeat && generateBtn && !generateBtn.disabled) {
 		e.preventDefault();
 		showShortcutNotification('generatingReportNotification');
+		generateBtn._triggeredByShortcut = true;
 		generateBtn.click();
 	}
 
@@ -2351,22 +2269,10 @@ document.addEventListener('keydown', (e) => {
 
 // Validate organization only when user is done typing (on blur)
 function validateOrgOnBlur(org) {
-	console.log('[Org Check] Checking organization on blur:', org);
-	fetch(`https://api.github.com/orgs/${org}`)
-		.then((res) => {
-			console.log('[Org Check] Response status for', org, ':', res.status);
-			if (res.status === 404) {
-				console.log('[Org Check] Organization not found on GitHub:', org);
-				showPopupMessage(browser.i18n.getMessage('orgNotFoundMessage'));
-				return;
-			}
-			window.clearScrumHelperToast?.();
-			console.log('[Org Check] Organisation exists on GitHub:', org);
-			browser.storage.local.remove(['githubCache', 'repoCache']);
-			triggerRepoFetchIfEnabled();
-		})
-		.catch((err) => {
-			console.log('[Org Check] Error validating organisation:', org, err);
-			showPopupMessage(browser.i18n.getMessage('orgValidationErrorMessage'), { variant: 'error' });
-		});
+	const platformSelect = document.getElementById('platformSelect');
+	const platform = platformSelect?.value || 'github';
+	const helper = window.PlatformRegistry.get(platform);
+	if (helper && helper.validateOrgOnBlur) {
+		helper.validateOrgOnBlur(org);
+	}
 }
