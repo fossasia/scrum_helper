@@ -332,9 +332,9 @@ if (gitlabTokenElement) {
 }
 cacheInputElement.addEventListener('keyup', handleCacheInputChange);
 projectNameElement.addEventListener('keyup', handleProjectNameChange);
-startingDateElement.addEventListener('change', handleStartingDateChange);
+startingDateElement.addEventListener('blur', handleStartingDateChange);
 showCommitsElement.addEventListener('change', handleShowCommitsChange);
-endingDateElement.addEventListener('change', handleEndingDateChange);
+endingDateElement.addEventListener('blur', handleEndingDateChange);
 yesterdayContributionElement.addEventListener('change', handleYesterdayContributionChange);
 showOpenLabelElement.addEventListener('change', handleOpenLabelChange);
 
