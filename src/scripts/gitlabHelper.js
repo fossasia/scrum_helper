@@ -286,6 +286,40 @@ class GitLabHelper {
 
 		return processed;
 	}
+
+	mapGitLabReportItem(item, projectById, type) {
+		const project = projectById.get(item.project_id);
+		const repoName = project ? project.name : 'unknown';
+
+		return {
+			...item,
+			repository_url: `${this.baseUrl}/projects/${item.project_id}`,
+			html_url:
+				type === 'issue'
+					? item.web_url || (project ? `${project.web_url}/-/issues/${item.iid}` : '')
+					: item.web_url || (project ? `${project.web_url}/-/merge_requests/${item.iid}` : ''),
+			number: item.iid,
+			title: item.title,
+			state: type === 'issue' && item.state === 'opened' ? 'open' : item.state,
+			project: repoName,
+			pull_request: type === 'mr',
+		};
+	}
+
+	mapGitLabReportData(data) {
+		const projects = Array.isArray(data.projects) ? data.projects : [];
+		const projectById = new Map(projects.map((project) => [project.id, project]));
+		const mappedIssues = (data.issues || []).map((issue) => this.mapGitLabReportItem(issue, projectById, 'issue'));
+		const mappedMRs = (data.mergeRequests || data.mrs || []).map((mr) =>
+			this.mapGitLabReportItem(mr, projectById, 'mr'),
+		);
+
+		return {
+			githubIssuesData: { items: mappedIssues },
+			githubPrsReviewData: { items: mappedMRs },
+			githubUserData: data.user || {},
+		};
+	}
 }
 
 // Export for use in other scripts
