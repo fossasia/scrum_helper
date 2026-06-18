@@ -397,7 +397,7 @@ function allIncluded(outputTarget = 'email') {
 	getChromeData();
 
 	function handleYesterdayContributionChange() {
-		endingDate = getToday();
+		endingDate = getYesterday();
 		startingDate = getYesterday();
 	}
 
@@ -521,7 +521,7 @@ function allIncluded(outputTarget = 'email') {
 			const today = new Date();
 			const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
 			startDateForCache = yesterday.toISOString().split('T')[0];
-			endDateForCache = today.toISOString().split('T')[0]; // Use yesterday for start and today for end
+			endDateForCache = yesterday.toISOString().split('T')[0];
 		} else if (startingDate && endingDate) {
 			startDateForCache = startingDate;
 			endDateForCache = endingDate;
@@ -766,7 +766,7 @@ function allIncluded(outputTarget = 'email') {
 						const today = new Date();
 						const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
 						startDateForCommits = yesterday.toISOString().split('T')[0];
-						endDateForCommits = today.toISOString().split('T')[0]; // Use yesterday for start and today for end
+						endDateForCommits = yesterday.toISOString().split('T')[0];
 					} else if (startingDate && endingDate) {
 						startDateForCommits = startingDate;
 						endDateForCommits = endingDate;
@@ -1300,7 +1300,7 @@ ${blockerText}`;
 			const today = new Date();
 			const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
 			startDate = yesterday.toISOString().split('T')[0];
-			endDate = today.toISOString().split('T')[0]; // Use yesterday for start and today for end
+			endDate = yesterday.toISOString().split('T')[0];
 		} else if (startingDate && endingDate) {
 			startDate = startingDate;
 			endDate = endingDate;
@@ -1519,7 +1519,7 @@ ${blockerText}`;
 			const today = new Date();
 			const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
 			startDateForRange = yesterday.toISOString().split('T')[0];
-			endDateForRange = today.toISOString().split('T')[0]; // Use yesterday for start and today for end
+			endDateForRange = yesterday.toISOString().split('T')[0];
 		} else if (startingDate && endingDate) {
 			startDateForRange = startingDate;
 			endDateForRange = endingDate;
@@ -1690,7 +1690,7 @@ ${blockerText}`;
 					const today = new Date();
 					const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
 					startDateFilter = new Date(yesterday.toISOString().split('T')[0] + 'T00:00:00Z');
-					endDateFilter = new Date(today.toISOString().split('T')[0] + 'T23:59:59Z'); // Use yesterday for start and today for end
+					endDateFilter = new Date(yesterday.toISOString().split('T')[0] + 'T23:59:59Z');
 				} else if (startingDate && endingDate) {
 					startDateFilter = new Date(startingDate + 'T00:00:00Z');
 					endDateFilter = new Date(endingDate + 'T23:59:59Z');

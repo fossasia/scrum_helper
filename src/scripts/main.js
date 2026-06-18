@@ -257,7 +257,7 @@ function handleYesterdayContributionChange() {
 	if (value) {
 		startingDateElement.readOnly = true;
 		endingDateElement.readOnly = true;
-		endingDateElement.value = getToday();
+		endingDateElement.value = getYesterday();
 		startingDateElement.value = getYesterday();
 		window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(startingDateElement, endingDateElement);
 		labelElement.classList.add('selectedLabel');

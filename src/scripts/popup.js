@@ -834,7 +834,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 					if (items.selectedTimeframe === 'yesterdayContribution') {
 						startDateInput.value = getYesterday();
-						endDateInput.value = getToday();
+						endDateInput.value = getYesterday();
 					}
 					startDateInput.readOnly = endDateInput.readOnly = true;
 
