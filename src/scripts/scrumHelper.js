@@ -1936,3 +1936,41 @@ function filterDataByRepos(data, selectedRepos) {
 	};
 	return filteredData;
 }
+
+async function createGitLabDraftMergeRequest(
+	gitlabBaseUrl,
+	projectId,
+	token,
+	{ sourceBranch, targetBranch, title, description = '' },
+) {
+	const baseUrl = gitlabBaseUrl.trim().replace(/\/+$/, '');
+	const draftTitle = title.trim().startsWith('Draft:') ? title.trim() : `Draft: ${title.trim()}`;
+	const url = `${baseUrl}/projects/${encodeURIComponent(projectId)}/merge_requests`;
+
+	const response = await fetch(url, {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			'PRIVATE-TOKEN': token,
+		},
+		body: JSON.stringify({
+			source_branch: sourceBranch,
+			target_branch: targetBranch,
+			title: draftTitle,
+			description: description,
+		}),
+	});
+
+	if (!response.ok) {
+		const errorData = await response.json().catch(() => ({}));
+		throw new Error(
+			errorData.error ||
+				errorData.message ||
+				`GitLab API responded with status ${response.status}: ${response.statusText}`,
+		);
+	}
+
+	return await response.json();
+}
+
+window.createGitLabDraftMergeRequest = createGitLabDraftMergeRequest;
