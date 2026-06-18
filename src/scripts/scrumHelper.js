@@ -81,42 +81,6 @@ function handleUsernameValidationError(errMessage) {
 	}
 }
 
-function mapGitLabReportItem(item, projectById, type, gitlabApiBaseUrl) {
-	const project = projectById.get(item.project_id);
-	const repoName = project ? project.name : 'unknown';
-
-	return {
-		...item,
-		repository_url: `${gitlabApiBaseUrl}/projects/${item.project_id}`,
-		html_url:
-			type === 'issue'
-				? item.web_url || (project ? `${project.web_url}/-/issues/${item.iid}` : '')
-				: item.web_url || (project ? `${project.web_url}/-/merge_requests/${item.iid}` : ''),
-		number: item.iid,
-		title: item.title,
-		state: type === 'issue' && item.state === 'opened' ? 'open' : item.state,
-		project: repoName,
-		pull_request: type === 'mr',
-	};
-}
-
-function mapGitLabReportData(data, gitlabApiBaseUrl) {
-	const projects = Array.isArray(data.projects) ? data.projects : [];
-	const projectById = new Map(projects.map((project) => [project.id, project]));
-	const mappedIssues = (data.issues || []).map((issue) =>
-		mapGitLabReportItem(issue, projectById, 'issue', gitlabApiBaseUrl),
-	);
-	const mappedMRs = (data.mergeRequests || data.mrs || []).map((mr) =>
-		mapGitLabReportItem(mr, projectById, 'mr', gitlabApiBaseUrl),
-	);
-
-	return {
-		githubIssuesData: { items: mappedIssues },
-		githubPrsReviewData: { items: mappedMRs },
-		githubUserData: data.user || {},
-	};
-}
-
 function allIncluded(outputTarget = 'email') {
 	// Always re-instantiate gitlabHelper for gitlab platform to ensure fresh cache after refresh
 	if (platform === 'gitlab' || (typeof platform === 'undefined' && window.GitLabHelper)) {
@@ -310,7 +274,7 @@ function allIncluded(outputTarget = 'email') {
 										gitlabToken,
 									);
 
-									const mappedData = mapGitLabReportData(data, window.gitlabHelper.baseUrl);
+									const mappedData = window.gitlabHelper.mapGitLabReportData(data);
 									githubUserData = mappedData.githubUserData;
 
 									const name =
@@ -349,7 +313,7 @@ function allIncluded(outputTarget = 'email') {
 							window.gitlabHelper
 								.fetchGitLabData(platformUsernameLocal, startingDate, endingDate, gitlabToken)
 								.then((data) => {
-									const mappedData = mapGitLabReportData(data, window.gitlabHelper.baseUrl);
+									const mappedData = window.gitlabHelper.mapGitLabReportData(data);
 									processGithubData(mappedData);
 									scrumGenerationInProgress = false;
 								})
@@ -609,9 +573,7 @@ function allIncluded(outputTarget = 'email') {
 		console.log('[SCRUM-HELPER] orgPart for API:', orgPart);
 		console.log('[SCRUM-HELPER] orgPart length:', orgPart.length);
 
-		let issueUrl;
-		let prUrl;
-		let userUrl;
+		let repoQueries = '';
 
 		if (useRepoFilter && selectedRepos && selectedRepos.length > 0) {
 			log('Using repo filter for api calls:', selectedRepos);
@@ -622,7 +584,7 @@ function allIncluded(outputTarget = 'email') {
 				logError('Failed to fetch repo data for filtering:', err);
 			}
 
-			const repoQueries = selectedRepos
+			repoQueries = selectedRepos
 				.filter((repo) => repo !== null)
 				.map((repo) => {
 					if (typeof repo === 'object' && repo.fullName) {
@@ -644,31 +606,20 @@ function allIncluded(outputTarget = 'email') {
 				})
 				.join('+');
 
-			const orgQuery = orgPart ? `+${orgPart}` : '';
 			if (!repoQueries) {
 				loadFromStorage('Repo filter empty, using org wide search');
-				issueUrl = `https://api.github.com/search/issues?q=author%3A${platformUsernameLocal}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}&per_page=100`;
-				prUrl = `https://api.github.com/search/issues?q=commenter%3A${platformUsernameLocal}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}&per_page=100`;
-				userUrl = `https://api.github.com/users/${platformUsernameLocal}`;
 			} else {
-				issueUrl = `https://api.github.com/search/issues?q=author%3A${platformUsernameLocal}+${repoQueries}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}&per_page=100`;
-				prUrl = `https://api.github.com/search/issues?q=commenter%3A${platformUsernameLocal}+${repoQueries}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}&per_page=100`;
-				userUrl = `https://api.github.com/users/${platformUsernameLocal}`;
-				log('Repository-filtered URLs:', { issueUrl, prUrl });
+				loadFromStorage('Using repository filter');
 			}
 		} else {
 			loadFromStorage('Using org wide search');
-			const orgQuery = orgPart ? `+${orgPart}` : '';
-			issueUrl = `https://api.github.com/search/issues?q=author%3A${platformUsernameLocal}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}&per_page=100`;
-			prUrl = `https://api.github.com/search/issues?q=commenter%3A${platformUsernameLocal}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}&per_page=100`;
-			userUrl = `https://api.github.com/users/${platformUsernameLocal}`;
 		}
 
 		try {
 			await new Promise((res) => setTimeout(res, 500));
 
 			log('Validating GitHub user existence for:', platformUsernameLocal);
-			const userCheckRes = await fetch(userUrl, { headers });
+			const userCheckRes = await githubFetchUser(platformUsernameLocal, githubToken);
 
 			if (userCheckRes.status === 404) {
 				const errorMsg =
@@ -693,8 +644,15 @@ function allIncluded(outputTarget = 'email') {
 			}
 
 			const [issuesRes, prRes, userRes] = await Promise.all([
-				fetch(issueUrl, { headers }),
-				fetch(prUrl, { headers }),
+				githubFetchIssues(platformUsernameLocal, githubToken, startDateForCache, endDateForCache, orgName, repoQueries),
+				githubFetchReviews(
+					platformUsernameLocal,
+					githubToken,
+					startDateForCache,
+					endDateForCache,
+					orgName,
+					repoQueries,
+				),
 				userCheckRes, // Reuse the already validated user response
 			]);
 
@@ -913,6 +871,7 @@ function allIncluded(outputTarget = 'email') {
 			}
 		});
 		return commitMap;
+		return githubFetchCommits(prs, githubToken, startDate, endDate);
 	}
 
 	async function fetchReposIfNeeded() {
@@ -1477,24 +1436,8 @@ ${blockerText}`;
 		return Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24));
 	}
 
-	const sessionMergedStatusCache = {};
-
 	async function fetchPrMergedStatusREST(owner, repo, number, headers) {
-		const cacheKey = `${owner}/${repo}#${number}`;
-		if (sessionMergedStatusCache[cacheKey] !== undefined) {
-			return sessionMergedStatusCache[cacheKey];
-		}
-		const url = `https://api.github.com/repos/${owner}/${repo}/pulls/${number}`;
-		try {
-			const res = await fetch(url, { headers });
-			if (!res.ok) return null;
-			const data = await res.json();
-			const merged = !!data.merged_at;
-			sessionMergedStatusCache[cacheKey] = merged;
-			return merged;
-		} catch (e) {
-			return null;
-		}
+		return githubFetchPrMergedStatusREST(owner, repo, number, githubToken);
 	}
 
 	async function writeGithubIssuesPrs(items) {
