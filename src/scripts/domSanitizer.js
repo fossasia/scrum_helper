@@ -9,8 +9,7 @@ function sanitizeHtml(html) {
 	if (typeof DOMPurify !== 'undefined') {
 		return DOMPurify.sanitize(html, SCRUM_SANITIZER_CONFIG);
 	}
-	console.warn('[scrum_helper] DOMPurify unavailable, falling back to Text');
-	const div = document.createElement('div');
-	div.innerHTML = html;
-	return div.textContent || div.innerText || '';
+	console.warn('[scrum_helper] DOMPurify unavailable, falling back to basic text extraction');
+	// Safely strip HTML tags without touching the DOM to completely bypass Trusted Types crashes
+	return typeof html === 'string' ? html.replace(/<[^>]*>?/gm, '') : '';
 }
