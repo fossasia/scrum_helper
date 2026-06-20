@@ -21,7 +21,6 @@
 4. Open the extension popup from your browser toolbar.
 5. Set your GitHub username, date range, and preferences in the popup.
 6. Start composing your reports in Gmail, Yahoo Mail, Outlook, or Google Groups using the extension.
-
 ## Setting Up Your Development Environment
 
 1.  **Fork & Clone the Repository**
@@ -47,8 +46,8 @@
 
 4.  **Load the Extension in Your Browser**
 
-    **For Chrome & Edge (Chromium):**
-    -   Go to `chrome://extensions` (or `edge://extensions`) in your browser.
+    **For Chrome, Edge & Brave (Chromium):**
+    -   Go to `chrome://extensions` (or `edge://extensions` / `brave://extensions`) in your browser.
     -   Enable "Developer Mode" (toggle in the top-right).
     -   Click "Load unpacked" and select the `dist/chrome` folder inside the cloned repository.
 
@@ -58,6 +57,11 @@
     -   Click "Load Temporary Add-on...".
     -   Select the `manifest.json` file inside the `dist/firefox` folder.
     -   *Note: The extension will remain active only for the current browser session. If you need persistence, consider using Firefox Developer Edition.*
+
+    **For Opera:**
+    -   Go to `opera://extensions` in Opera.
+    -   Enable "Developer mode" (toggle in the top-right).
+    -   Click "Load unpacked" and select the `dist/opera` folder inside the cloned repository.
 
 ## Usage
 
@@ -138,17 +142,19 @@ $ npm install
 
 1. **Install the Extension**
 
-* For Chrome & Edge (Chromium): Load it into your browser through [Chrome Extension Developer Mode](https://developer.chrome.com/docs/extensions/mv3/getstarted/) using the `dist/chrome` folder.
+* For Chrome, Edge & Brave (Chromium): Load it into your browser through [Chrome Extension Developer Mode](https://developer.chrome.com/docs/extensions/mv3/getstarted/) using the `dist/chrome` folder.
 * For Firefox: Load it as a temporary add-on through `about:debugging` using the `dist/firefox` folder.
+* For Opera: Load it through Developer mode at `opera://extensions` using the `dist/opera` folder.
 
 2. **Rebuild the Extension**
    After making changes to the source code, rebuild the extension running `npm run build`.
-   * For Chrome: Rebuild or reload the extension in your browser (`chrome://extensions` → Refresh your extension).
+    * For Chrome, Edge & Brave: Rebuild or reload the extension in your browser (`chrome://extensions` → Refresh your extension).
    * For Firefox: Reload the temporary add-on by going to `about:debugging` → "This Firefox" → Click "Reload" next to your extension.
+   * For Opera: Reload the extension in your browser (`opera://extensions` → Click the reload/refresh icon next to the extension).
    
-3. **How to Obtain a GitHub Personal Access Token**
+3. **How to Obtain a GitHub Personal Access Token (Classic)**
 
-- To use Scrum Helper with authenticated requests (for higher rate limits and private repositories), you need a GitHub personal access token.
+- To use Scrum Helper with authenticated requests (for higher rate limits and private repositories), you need a GitHub personal access token (classic).
 
   #### Steps to Generate a Token
 
@@ -205,3 +211,52 @@ This part is performed manually by maintainers when it's time to publish a new v
 3.  **Chrome Web Store Deployment**: Publishing the release triggers the "Publish to Chrome Web Store" workflow, which automatically packages the extension and uploads it for review.
 
 ### If you encounter any bugs, please report them at the [Issues page](https://github.com/fossasia/scrum_helper/issues).
+
+## AI-Assisted Contributions Guidelines
+
+This project is receiving an increasing number of AI-assisted contributions. While we welcome the productivity AI tools bring, we require all contributions to maintain our standards for quality, intentionality, and maintainability. To ensure a high signal-to-noise ratio in our repository, please adhere to the following guidelines.
+
+### Expectations from Contributors
+
+* **You must understand your code:** We expect human judgment to be the final filter. You take full responsibility for every line you submit.
+* **You must be able to explain:** If asked by a maintainer, you should be able to explicitly explain what your change does, why it is necessary, and how it integrates with the rest of the codebase.
+* **Code must be:** 
+  * Thoroughly tested
+  * Manually validated in a real browser environment
+  * Aligned with our existing architecture and codebase patterns
+
+### What We Do NOT Accept
+
+* PRs submitted without a clear use case or a linked, pre-approved issue.
+* AI-generated code pasted blindly without deep comprehension.
+* Duplicate PRs or attempts at solving issues that are already being handled.
+* Surface-level "fixes" (e.g., unprompted refactoring, nitpicks) without solid reasoning.
+* Features or abstractions that increase overall complexity without delivering tangible user value.
+
+### PR Requirements
+
+* **Linked Issue:** Every PR (unless it is a trivial typo fix) must be linked to an existing issue.
+* **Clear Description:** Provide a well-reasoned description detailing the problem and your solution. Do not paste AI-generated summaries of file diffs.
+* **Existing Patterns:** Follow the established project conventions implicitly. 
+* **Avoid Complexity:** Keep changes as minimal and focused as possible.
+
+### AI Best Practices Table
+
+| Area | Good Contribution | Poor Contribution |
+| :--- | :--- | :--- |
+| **Problem selection** | Solving a verified, pre-existing issue that you understand and ideally have encountered. | Submitting unrequested "improvements" or claiming random issues without a real-world use case. |
+| **Understanding** | Using AI to learn the codebase or brainstorm approaches, then writing/refining the final logic yourself. | Over-delegating to AI; submitting logic that you cannot confidently explain or debug. |
+| **Code quality** | Focused, minimal changes that address the exact problem efficiently. | Bloated PRs that introduce unnecessary code churn or rewrite entire blocks out of context. |
+| **Architecture** | Conforming strictly to the established design patterns and utilities of the project. | Hallucinating new dependencies or forcing foreign paradigms into the codebase. |
+| **Validation** | Manually compiling and verifying the extension works, and writing reliable tests. | Submitting code that has never been tested locally or fails basic linting. |
+| **Maintainability** | The implemented solution is simpler for us to maintain than the problem it solves. | Adding excessive "clever" complexity that increases the maintainer's review burden. |
+| **PR description** | Writing a clear, human-authored explanation of the *why* behind your changes. Including screenshots of your changes.| Pasting a generic, AI-generated summary of the modified files without context. |
+| **AI usage** | Disclosing your use of generative tools and verifying that the output makes sense. | Failing to review AI output, resulting in regressions or confidently incorrect logic. |
+
+### Maintainer Policy
+
+* We reserve the right to close low-quality or fully automated PRs that fail to meet these guidelines without extensive review.
+* PRs containing features not aligned with our current priorities or roadmap may be closed.
+* Contributors are strongly encouraged to pick well-defined, triaged issues to ensure their time and effort result in a successful merge.
+
+

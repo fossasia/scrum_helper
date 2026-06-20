@@ -12,6 +12,140 @@ const userReasonElement = null;
 
 const showCommitsElement = document.getElementById('showCommits');
 
+if (!window.scrumDateRangeUtils) {
+	window.scrumDateRangeUtils = {
+		formatLocalDate(date) {
+			const year = date.getFullYear();
+			const month = String(date.getMonth() + 1).padStart(2, '0');
+			const day = String(date.getDate()).padStart(2, '0');
+
+			return `${year}-${month}-${day}`;
+		},
+		getLocalTodayString() {
+			return this.formatLocalDate(new Date());
+		},
+		getLocalYesterdayString() {
+			const yesterday = new Date();
+			yesterday.setDate(yesterday.getDate() - 1);
+
+			return this.formatLocalDate(yesterday);
+		},
+		normalizeAndSync(startDateInput, endDateInput) {
+			const today = this.getLocalTodayString();
+			const originalStartDate = startDateInput.value;
+			const originalEndDate = endDateInput.value;
+
+			let normalizedStartDate = originalStartDate;
+			let normalizedEndDate = originalEndDate;
+
+			if (normalizedStartDate && normalizedStartDate > today) {
+				normalizedStartDate = today;
+			}
+			if (normalizedEndDate && normalizedEndDate > today) {
+				normalizedEndDate = today;
+			}
+			if (normalizedStartDate && normalizedEndDate && normalizedStartDate > normalizedEndDate) {
+				normalizedEndDate = '';
+			}
+
+			const didChange = normalizedStartDate !== originalStartDate || normalizedEndDate !== originalEndDate;
+
+			if (didChange) {
+				startDateInput.value = normalizedStartDate;
+				endDateInput.value = normalizedEndDate;
+			}
+
+			const startDate = startDateInput.value;
+			startDateInput.max = today;
+			endDateInput.min = startDate || '';
+			endDateInput.max = today;
+
+			return didChange;
+		},
+		normalizeDateRangeValues(startDateInput, endDateInput) {
+			const originalStartDate = startDateInput.value;
+			const originalEndDate = endDateInput.value;
+
+			this.normalizeAndSync(startDateInput, endDateInput);
+
+			return startDateInput.value !== originalStartDate || endDateInput.value !== originalEndDate;
+		},
+		persistDateRange(startDateInput, endDateInput) {
+			browser.storage.local.set({
+				startingDate: startDateInput.value,
+				endingDate: endDateInput.value,
+			});
+		},
+		normalizeSyncAndPersistDateRange(startDateInput, endDateInput) {
+			this.normalizeDateRangeValues(startDateInput, endDateInput);
+			this.persistDateRange(startDateInput, endDateInput);
+		},
+	};
+}
+
+if (!window.scrumHelperToast) {
+	window.SCRUM_TOAST_ANIM_MS = window.SCRUM_TOAST_ANIM_MS || 200;
+	window.scrumHelperToast = function scrumHelperToast(message, options = {}) {
+		if (!message || typeof document === 'undefined') return null;
+
+		const { duration = 2000, variant = 'info' } = options;
+
+		const toastId = 'scrum-helper-toast';
+		const existingToast = document.getElementById(toastId);
+		if (existingToast) existingToast.remove();
+
+		const toast = document.createElement('div');
+		toast.id = toastId;
+		toast.className = `scrum-toast scrum-toast--${variant}`;
+		toast.textContent = message;
+
+		// Accessibility: announce via screen readers
+		if (variant === 'error') {
+			toast.setAttribute('role', 'alert');
+			toast.setAttribute('aria-live', 'assertive');
+		} else {
+			toast.setAttribute('role', 'status');
+			toast.setAttribute('aria-live', 'polite');
+		}
+		toast.setAttribute('aria-atomic', 'true');
+
+		const container = document.getElementById('scrumHelperToastContainer') || document.body;
+		container.appendChild(toast);
+
+		requestAnimationFrame(() => {
+			toast.classList.add('scrum-toast--visible');
+		});
+
+		window.setTimeout(() => {
+			toast.classList.remove('scrum-toast--visible');
+			window.setTimeout(() => {
+				if (toast.parentNode) toast.parentNode.removeChild(toast);
+			}, window.SCRUM_TOAST_ANIM_MS);
+		}, duration);
+
+		return toast;
+	};
+}
+
+if (!window.clearScrumHelperToast) {
+	window.clearScrumHelperToast = function clearScrumHelperToast() {
+		const toast = document.getElementById('scrum-helper-toast');
+		if (toast) toast.remove();
+		const container = document.getElementById('scrumHelperToastContainer');
+		if (container) {
+			container.querySelectorAll('.scrum-toast').forEach((t) => t.remove());
+		}
+	};
+}
+
+// Backwards-compatible wrapper used across the codebase
+if (!window.showPopupMessage) {
+	window.showPopupMessage = function showPopupMessage(message, options = {}) {
+		const opts = Object.assign({ duration: 2000, variant: 'info' }, options || {});
+		return window.scrumHelperToast?.(message, opts);
+	};
+}
+
 function handleBodyOnLoad() {
 	// Migration: Handle existing users with old platformUsername storage
 	browser.storage.local.get(['platform', 'platformUsername']).then((result) => {
@@ -67,6 +201,13 @@ function handleBodyOnLoad() {
 			if (items.startingDate) {
 				startingDateElement.value = items.startingDate;
 			}
+			const wasNormalizedOnLoad = window.scrumDateRangeUtils.normalizeDateRangeValues(
+				startingDateElement,
+				endingDateElement,
+			);
+			if (wasNormalizedOnLoad) {
+				window.scrumDateRangeUtils.persistDateRange(startingDateElement, endingDateElement);
+			}
 			if (items.showOpenLabel) {
 				showOpenLabelElement.checked = items.showOpenLabel;
 			} else if (items.showOpenLabel !== false) {
@@ -103,12 +244,10 @@ document.getElementById('refreshCache').addEventListener('click', async (e) => {
 });
 
 function handleStartingDateChange() {
-	const value = startingDateElement.value;
-	browser.storage.local.set({ startingDate: value });
+	window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(startingDateElement, endingDateElement);
 }
 function handleEndingDateChange() {
-	const value = endingDateElement.value;
-	browser.storage.local.set({ endingDate: value });
+	window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(startingDateElement, endingDateElement);
 }
 
 function handleYesterdayContributionChange() {
@@ -120,13 +259,13 @@ function handleYesterdayContributionChange() {
 		endingDateElement.readOnly = true;
 		endingDateElement.value = getToday();
 		startingDateElement.value = getYesterday();
-		handleEndingDateChange();
-		handleStartingDateChange();
+		window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(startingDateElement, endingDateElement);
 		labelElement.classList.add('selectedLabel');
 		labelElement.classList.remove('unselectedLabel');
 	} else {
 		startingDateElement.readOnly = false;
 		endingDateElement.readOnly = false;
+		window.scrumDateRangeUtils.normalizeDateRangeValues(startingDateElement, endingDateElement);
 		labelElement.classList.add('unselectedLabel');
 		labelElement.classList.remove('selectedLabel');
 	}
@@ -134,14 +273,10 @@ function handleYesterdayContributionChange() {
 }
 
 function getYesterday() {
-	const today = new Date();
-	const yesterday = new Date(today);
-	yesterday.setDate(today.getDate() - 1);
-	return yesterday.toISOString().split('T')[0];
+	return window.scrumDateRangeUtils.getLocalYesterdayString();
 }
 function getToday() {
-	const today = new Date();
-	return today.toISOString().split('T')[0];
+	return window.scrumDateRangeUtils.getLocalTodayString();
 }
 
 function handlePlatformUsernameChange() {

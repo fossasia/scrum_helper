@@ -1,4 +1,11 @@
 // GitLab API Helper for Scrum Helper Extension
+const DEFAULT_GITLAB_API_BASE_URL = 'https://gitlab.com/api/v4';
+
+function normalizeGitLabApiBaseUrl(apiBaseUrl) {
+	const value = typeof apiBaseUrl === 'string' && apiBaseUrl.trim() ? apiBaseUrl.trim() : DEFAULT_GITLAB_API_BASE_URL;
+	return value.replace(/\/+$/, '');
+}
+
 class GitLabHelper {
 	static normalizeGitLabOrigin(domain) {
 		const raw = typeof domain === 'string' ? domain.trim().replace(/\/+$/, '') : '';
@@ -63,10 +70,7 @@ class GitLabHelper {
 			return true;
 		} catch (error) {
 			console.error('GitLab reachability check failed:', error);
-			if (
-				error instanceof Error &&
-				error.message === invalidMessage
-			) {
+			if (error instanceof Error && error.message === invalidMessage) {
 				throw error;
 			}
 			throw new Error(invalidMessage);
@@ -113,13 +117,14 @@ class GitLabHelper {
 
 	async fetchGitLabData(username, startDate, endDate, token = null) {
 		if (!this.baseUrl) {
-			throw new Error(chrome?.i18n.getMessage('gitlabInstanceInvalidError') || 'A valid GitLab instance URL is required.');
+			throw new Error(
+				chrome?.i18n.getMessage('gitlabInstanceInvalidError') || 'A valid GitLab instance URL is required.',
+			);
 		}
 
 		// Include token state in cache key to invalidate when auth changes
 		const tokenMarker = token ? 'auth' : 'noauth';
 		const cacheKey = `${this.baseUrl}-${username}-${startDate}-${endDate}-${tokenMarker}`;
-
 		if (this.cache.fetching || (this.cache.cacheKey === cacheKey && this.cache.data)) {
 			return this.cache.data;
 		}
@@ -169,11 +174,16 @@ class GitLabHelper {
 			const userUrl = `${this.baseUrl}/users?username=${username}`;
 			const userRes = await fetch(userUrl, { headers });
 			if (!userRes.ok) {
-				throw new Error(chrome?.i18n.getMessage('gitlabUserFetchError', [userRes.status, userRes.statusText]) || `Error fetching GitLab user: ${userRes.status} ${userRes.statusText}`);
+				throw new Error(
+					chrome?.i18n.getMessage('gitlabUserFetchError', [userRes.status, userRes.statusText]) ||
+						`Error fetching GitLab user: ${userRes.status} ${userRes.statusText}`,
+				);
 			}
 			const users = await userRes.json();
 			if (users.length === 0) {
-				throw new Error(chrome?.i18n.getMessage('gitlabUserNotFoundError', [username]) || `GitLab user '${username}' not found`);
+				throw new Error(
+					chrome?.i18n.getMessage('gitlabUserNotFoundError', [username]) || `GitLab user '${username}' not found`,
+				);
 			}
 			const userId = users[0].id;
 
@@ -181,7 +191,13 @@ class GitLabHelper {
 			const membershipProjectsUrl = `${this.baseUrl}/users/${userId}/projects?membership=true&per_page=100&order_by=updated_at&sort=desc`;
 			const membershipProjectsRes = await fetch(membershipProjectsUrl, { headers });
 			if (!membershipProjectsRes.ok) {
-				throw new Error(chrome?.i18n.getMessage('gitlabMembershipError', [membershipProjectsRes.status, membershipProjectsRes.statusText]) || `Error fetching GitLab membership projects: ${membershipProjectsRes.status} ${membershipProjectsRes.statusText}`);
+				throw new Error(
+					chrome?.i18n.getMessage('gitlabMembershipError', [
+						membershipProjectsRes.status,
+						membershipProjectsRes.statusText,
+					]) ||
+						`Error fetching GitLab membership projects: ${membershipProjectsRes.status} ${membershipProjectsRes.statusText}`,
+				);
 			}
 			const membershipProjects = await membershipProjectsRes.json();
 
@@ -190,7 +206,11 @@ class GitLabHelper {
 			const contributedProjectsRes = await fetch(contributedProjectsUrl, { headers });
 			if (!contributedProjectsRes.ok) {
 				throw new Error(
-					chrome?.i18n.getMessage('gitlabContributedError', [contributedProjectsRes.status, contributedProjectsRes.statusText]) || `Error fetching GitLab contributed projects: ${contributedProjectsRes.status} ${contributedProjectsRes.statusText}`,
+					chrome?.i18n.getMessage('gitlabContributedError', [
+						contributedProjectsRes.status,
+						contributedProjectsRes.statusText,
+					]) ||
+						`Error fetching GitLab contributed projects: ${contributedProjectsRes.status} ${contributedProjectsRes.statusText}`,
 				);
 			}
 			const contributedProjects = await contributedProjectsRes.json();
@@ -337,6 +357,40 @@ class GitLabHelper {
 
 		return processed;
 	}
+
+	mapGitLabReportItem(item, projectById, type) {
+		const project = projectById.get(item.project_id);
+		const repoName = project ? project.name : 'unknown';
+
+		return {
+			...item,
+			repository_url: `${this.baseUrl}/projects/${item.project_id}`,
+			html_url:
+				type === 'issue'
+					? item.web_url || (project ? `${project.web_url}/-/issues/${item.iid}` : '')
+					: item.web_url || (project ? `${project.web_url}/-/merge_requests/${item.iid}` : ''),
+			number: item.iid,
+			title: item.title,
+			state: type === 'issue' && item.state === 'opened' ? 'open' : item.state,
+			project: repoName,
+			pull_request: type === 'mr',
+		};
+	}
+
+	mapGitLabReportData(data) {
+		const projects = Array.isArray(data.projects) ? data.projects : [];
+		const projectById = new Map(projects.map((project) => [project.id, project]));
+		const mappedIssues = (data.issues || []).map((issue) => this.mapGitLabReportItem(issue, projectById, 'issue'));
+		const mappedMRs = (data.mergeRequests || data.mrs || []).map((mr) =>
+			this.mapGitLabReportItem(mr, projectById, 'mr'),
+		);
+
+		return {
+			githubIssuesData: { items: mappedIssues },
+			githubPrsReviewData: { items: mappedMRs },
+			githubUserData: data.user || {},
+		};
+	}
 }
 
 // Export for use in other scripts
@@ -344,4 +398,47 @@ if (typeof module !== 'undefined' && module.exports) {
 	module.exports = GitLabHelper;
 } else {
 	window.GitLabHelper = GitLabHelper;
+}
+
+async function forceGitlabDataRefresh() {
+	// Clear in-memory cache if gitlabHelper is loaded
+	if (window.GitLabHelper && window.gitlabHelper instanceof window.GitLabHelper) {
+		window.gitlabHelper.cache.data = null;
+		window.gitlabHelper.cache.cacheKey = null;
+		window.gitlabHelper.cache.timestamp = 0;
+		window.gitlabHelper.cache.fetching = false;
+		window.gitlabHelper.cache.queue = [];
+	}
+	await new Promise((resolve) => {
+		chrome.storage.local.remove('gitlabCache', resolve);
+	});
+	window.hasInjectedContent = false;
+	// Re-instantiate gitlabHelper to ensure a fresh instance for next API call
+	if (window.GitLabHelper) {
+		window.gitlabHelper = new window.GitLabHelper(window.gitlabBaseUrl);
+	}
+	return { success: true };
+}
+
+window['forceGitlabDataRefresh'] = forceGitlabDataRefresh;
+
+if (window.PlatformRegistry) {
+	window.PlatformRegistry.register('gitlab', {
+		hasRepoFilter: false,
+		checkTokenForFilter() {},
+		checkTokenForShowCommits() {},
+		checkTokenForMergedPRs() {},
+		triggerRepoFetchIfEnabled() {},
+		debugRepoFetch() {},
+		loadRepos() {},
+		performRepoFetch() {},
+		validateOrgOnBlur() {},
+		fetchUserRepositories() {
+			return Promise.resolve([]);
+		},
+		fetchPrsMergedStatusBatch() {
+			return Promise.resolve({});
+		},
+		forceDataRefresh: forceGitlabDataRefresh,
+	});
 }

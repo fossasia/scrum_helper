@@ -25,13 +25,17 @@
         "*://mail.google.com/*",
         "*://outlook.live.com/*",
         "*://outlook.office.com/*",
+        "*://outlook.cloud.microsoft/*",
         "*://mail.yahoo.com/*"
       ],
       "js": [
+        "libs/purify.min.js",
+        "scripts/domSanitizer.js",
         "scripts/browser-polyfill.min.js",
         "scripts/jquery-3.2.1.min.js",
         "scripts/emailClientAdapter.js",
         "scripts/gitlabHelper.js",
+        "scripts/githubHelper.js",
         "scripts/scrumHelper.js"
       ]
     }
@@ -57,6 +61,7 @@
   "host_permissions": [
     "*://*.google.com/*",
     "*://*.outlook.live.com/*",
+    "*://outlook.cloud.microsoft/*",
     "*://*.office.com/*",
     "*://*.yahoo.com/*",
     "https://api.github.com/*",

@@ -59,6 +59,9 @@
     "insertInEmailButton": {
         "message": "插入到邮件"
     },
+    "insertToEmailFailedError": {
+        "message": "打开电子邮件标签页以插入报告"
+    },
     "settingsOrgNameLabel": {
         "message": "组织名称"
     },
@@ -105,8 +108,7 @@
         "message": "勾选后，报告将只包含用户创建的拉取请求；已审核的PR将被排除。"
     },
     "cacheTTLLabel": {
-        "message": "输入缓存 TTL",
-        "description": "缓存生存时间输入的标签。"
+        "message": "输入缓存 TTL"
     },
     "cacheTTLUnit": {
         "message": "（分钟）"
@@ -138,6 +140,9 @@
     "tokenRequiredWarning": {
         "message": "仓库筛选需要GitHub令牌。请在设置中添加一个。"
     },
+    "tokenRequiredShowCommitsWarning": {
+        "message": "在打开或草稿 PR 中显示提交需要 GitHub 令牌。请在设置中添加一个。"
+    },
     "repoSearchPlaceholder": {
         "message": "搜索要添加的仓库..."
     },
@@ -149,6 +154,9 @@
     },
     "repoCount": {
         "message": "已选择 $1 个仓库"
+    },
+    "clearAllBtn": {
+        "message": "全部清除"
     },
     "repoLoading": {
         "message": "正在加载仓库..."
@@ -205,8 +213,7 @@
         "message": "缓存已成功清除。单击“生成报告”以获取新数据。"
     },
     "cacheExpiredMessage": {
-        "message": "缓存已过期。点击\"生成\"以获取最新数据。",
-        "description": "Message shown when the cached data has expired and user needs to regenerate."
+        "message": "缓存已过期。点击\"生成\"以获取最新数据。"
     },
     "cacheClearedButton": {
         "message": "缓存已清除！"
@@ -231,6 +238,15 @@
     },
     "onlyRevPRsTooltip": {
         "message": "如果选中，报告将仅包含由您审核的 PR。"
+    },
+    "onlyMergedPRsLabel": {
+        "message": "报告中仅包含已合并的 PR"
+    },
+    "onlyMergedPRsTooltip": {
+        "message": "如果选中，报告将仅包含已合并的 PR。需要 GitHub 令牌。"
+    },
+    "tokenRequiredMergedPRsWarning": {
+        "message": "按已合并 PR 过滤需要 GitHub 令牌。请在设置中添加一个。"
     },
     "usernameRequiredError": {
         "message": "请填写用户名以生成报告。"
@@ -306,6 +322,9 @@
     },
     "copyingReportNotification": {
         "message": "正在复制报告..."
+    },
+    "copiedReportNotification": {
+        "message": "报告已复制！"
     },
     "insertInEmailTooltip": {
         "message": "Ctrl+Shift+M"

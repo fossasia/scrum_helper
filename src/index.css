@@ -2,6 +2,27 @@ body {
     margin: 0;
     padding: 0;
     background-color: rgba(251, 251, 251, 0.6);
+    position: relative;
+}
+
+#popupRoot {
+    position: relative;
+}
+
+.scrum-toast-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 2147483640;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding-top: 12px;
+    flex-shrink: 0;
+    box-sizing: border-box;
 }
 
 * {
@@ -58,6 +79,22 @@ a {
     -webkit-user-modify: read-only;
 }
 
+.input-error {
+    outline: 2px solid red;
+    outline-offset: 1px;
+}
+
+.errorMessage {
+    color: red;
+    font-size: 12px;
+}
+
+.error-message {
+    color: #dc2626;
+    font-weight: bold;
+    padding: 10px;
+}
+
 .scrum-actions {
     display: flex;
     gap: 4px;
@@ -76,6 +113,13 @@ a {
 .scrum-actions>button span,
 .scrum-actions>.tooltip-container>button span {
     white-space: nowrap;
+}
+
+.scrum-actions button:disabled {
+    background-color: #2564ebc5;
+    cursor: not-allowed;
+    opacity: 1;
+    box-shadow: none;
 }
 
 .btn,
@@ -426,6 +470,29 @@ hr,
     }
 }
 
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.repository-group-header {
+    padding: 8px 16px 4px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #3b82f6;
+    background-color: transparent;
+    pointer-events: none;
+    border-bottom: none;
+}
+
+.dark-mode .repository-group-header {
+    background-color: transparent;
+    color: #60a5fa;
+}
+
 .shake-animation {
     animation: shake 0.82s cubic-bezier(.36, .07, .19, .97) both;
 }
@@ -491,7 +558,7 @@ hr,
     font-size: 11px;
     margin: 2px;
     animation: tagSlideIn 0.2s ease-out;
-    max-width: 200px;
+    max-width: 100%;
 }
 
 .repository-tag .repo-name {
@@ -514,55 +581,95 @@ hr,
     color: #fef2f2;
 }
 
+#repoDropdown {
+    z-index: 1000 !important;
+    max-height: 320px !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain !important;
+}
+
+/* Dark mode scrollbar styling */
+.dark-mode #repoDropdown::-webkit-scrollbar {
+    width: 10px;
+}
+
+.dark-mode #repoDropdown::-webkit-scrollbar-track {
+    background: #2d2d2d;
+    border-radius: 10px;
+}
+
+.dark-mode #repoDropdown::-webkit-scrollbar-thumb {
+    background: #6b7280;
+    border-radius: 10px;
+    border: 2px solid #2d2d2d;
+}
+
+.dark-mode #repoDropdown::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}
+
+
 .repository-dropdown-item {
-    padding: 8px 12px;
+    padding: 6px 26px 6px 28px;
     cursor: pointer;
-    border-bottom: 1px solid #f3f4f6;
-    transition: background-color 0.15s ease;
+    border-bottom: 1px solid #e5e7eb;
+    transition: all 0.15s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
 }
 
-.repository-dropdown-item:hover,
-.repository-dropdown-item.highlighted {
-    background-color: #f3f4f6;
+.repository-dropdown-item .repo-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
 }
 
-.repository-dropdown-item:last-child {
-    border-bottom: none;
-}
-
-.repository-dropdown-item .repo-name {
-    font-weight: 500;
-    color: #1f2937;
-    font-size: 13px;
-}
-
-.repository-dropdown-item .repo-info {
-    font-size: 11px;
-    color: #6b7280;
-    margin-top: 2px;
+.repository-dropdown-item .repo-main {
     display: flex;
     align-items: center;
     gap: 8px;
+    flex: 1;
+    min-width: 0;
 }
 
-.repository-dropdown-item .repo-language {
-    display: inline-block;
-    background: #e5e7eb;
-    color: #374151;
-    padding: 1px 6px;
-    border-radius: 8px;
-    font-size: 10px;
+.repository-dropdown-item .repo-name-text {
+    font-weight: 500;
+    color: #1f2937;
+    font-size: 13px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.repository-dropdown-item .repo-stars {
-    display: flex;
-    align-items: center;
-    gap: 2px;
-    font-size: 10px;
+.dark-mode .repository-dropdown-item .repo-name-text {
+    color: #f3f4f6;
 }
 
-#repoDropdown {
-    z-index: 1000 !important;
+
+
+.repository-dropdown-item:hover,
+.repository-dropdown-item.highlighted {
+    background-color: #f9fafb;
+}
+
+.dark-mode .repository-dropdown-item:hover,
+.dark-mode .repository-dropdown-item.highlighted {
+    background-color: #262626;
+}
+
+
+
+.repository-dropdown-item .repo-desc {
+    font-size: 11.5px;
+    color: #6b7280;
+    line-height: 1.4;
+    margin-top: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
 }
 
 @keyframes tagSlideIn {
@@ -597,18 +704,25 @@ hr,
 
 /* Dark mode styles */
 .dark-mode .repository-tag {
-    background: #1e40af;
-    color: #f3f4f6;
+    background: #2563eb;
+    color: #f9fafb;
+    border: 1px solid #3b82f6;
+    transition: background-color 0.2s ease;
+}
+
+.dark-mode .repository-tag:hover {
+    background-color: #1d4ed8;
 }
 
 .dark-mode .repository-dropdown-item {
-    border-color: #374151;
+    background-color: #404040;
+    border-bottom: 1px solid #5b6472;
     color: #f3f4f6;
 }
 
 .dark-mode .repository-dropdown-item:hover,
 .dark-mode .repository-dropdown-item.highlighted {
-    background-color: #374151;
+    background-color: #4b5563;
 }
 
 .dark-mode .repository-dropdown-item .repo-name {
@@ -625,12 +739,29 @@ hr,
     font-weight: 500;
 }
 
-.repo-language,
+.repo-language {
+    display: inline-flex;
+    align-items: center;
+    font-size: 10px;
+    color: #4b5563;
+    background-color: #e5e7eb;
+    padding: 1px 6px;
+    border-radius: 9999px;
+    margin-left: 4px;
+    font-weight: 500;
+    line-height: 1.2;
+}
+
+.dark-mode .repo-language {
+    background-color: #4b5563;
+    color: #e5e7eb;
+}
+
 .repo-stars {
     display: inline-flex;
     align-items: center;
-    font-size: 0.75rem;
-    color: #666;
+    font-size: 10px;
+    color: #6b7280;
     margin-left: 5px;
 }
 
@@ -643,14 +774,50 @@ hr,
     color: #d1d5db;
 }
 
-.dark-mode #selectedRepositories {
-    background-color: #374151 !important;
-    border-color: #4b5563 !important;
+/* Selected repos container - light mode */
+#selectedRepos {
+    background-color: #f3f4f6 !important;
+    border: 1px solid #d1d5db !important;
+    border-radius: 14px;
 }
 
-.dark-mode #repositoryDropdown {
-    background-color: #2d2d2d !important;
-    border-color: #4b5563 !important;
+/* Dark mode styles for selected repos container */
+.dark-mode #selectedRepos {
+    background-color: #404040 !important;
+    border-color: #505050 !important;
+    scrollbar-color: #6b7280 #374151;
+    /* Firefox */
+    scrollbar-width: thin;
+    /* Firefox */
+}
+
+/* Dark mode scrollbar for selected repos container */
+.dark-mode #selectedRepos::-webkit-scrollbar {
+    width: 6px;
+}
+
+.dark-mode #selectedRepos::-webkit-scrollbar-track {
+    background: #374151;
+    border-radius: 3px;
+}
+
+.dark-mode #selectedRepos::-webkit-scrollbar-thumb {
+    background: #6b7280;
+    border-radius: 3px;
+}
+
+.dark-mode #selectedRepos::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}
+
+.dark-mode #repoDropdown {
+    background-color: #404040 !important;
+    border: 1px solid #505050 !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+.dark-mode .repository-dropdown-item {
+    background-color: #404040;
 }
 
 .dark-mode #repositoryPlaceholder {
@@ -939,7 +1106,7 @@ body.mode-popup {
     font-weight: 500;
     border-radius: 6px;
     white-space: nowrap;
-    pointer-events: none;
+
     transition: opacity 0.2s ease, visibility 0.2s ease;
     z-index: 10000;
 }
@@ -971,48 +1138,69 @@ body.mode-popup {
     opacity: 1;
 }
 
-/* Shortcut notification toast */
+/* Shared notification toast */
+.scrum-toast,
 .shortcut-notification {
-    position: fixed;
-    top: 12px;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 8px 18px;
+    position: relative;
+    top: 0;
+    left: 0;
+    transform: translateY(-8px);
+    padding: 10px 16px;
     background: #1f2937;
     color: #fff;
     font-size: 13px;
-    font-weight: 500;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    z-index: 10000;
-    animation: slideIn 0.3s ease-out;
+    font-weight: 600;
+    border-radius: 10px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
+    width: auto;
+    max-width: 340px;
+    min-width: 120px;
+    line-height: 1.4;
+    text-align: start;
+    box-sizing: border-box;
+    word-break: break-word;
+    opacity: 0;
+    pointer-events: auto;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    white-space: normal;
+    margin: 0;
+    flex-shrink: 0;
 }
 
+.scrum-toast--visible,
+.shortcut-notification.scrum-toast--visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.scrum-toast--info,
+.shortcut-notification {
+    background: #1f2937;
+    color: #fff;
+}
+
+.scrum-toast--success {
+    background: #166534;
+    color: #fff;
+}
+
+.scrum-toast--error {
+    background: #dc2626;
+    color: #fff;
+}
+
+.dark-mode .scrum-toast--info,
 .dark-mode .shortcut-notification {
     background: #ffffff;
     color: #1f2937;
 }
 
-@keyframes slideIn {
-    from {
-        transform: translate(-50%, -10px);
-        opacity: 0;
-    }
-
-    to {
-        transform: translate(-50%, 0);
-        opacity: 1;
-    }
+.dark-mode .scrum-toast--success {
+    background: #dcfce7;
+    color: #14532d;
 }
 
-@keyframes slideOut {
-    from {
-        transform: translate(-50%, 0);
-        opacity: 1;
-    }
-
-    to {
-        transform: translate(-50%, -10px);
-        opacity: 0;
-    }
+.dark-mode .scrum-toast--error {
+    background: #fee2e2;
+    color: #991b1b;
 }
