@@ -1608,6 +1608,17 @@ ${blockerText}`;
 						prAction = 'Updated PR';
 					}
 				} else if (platform === 'gitlab') {
+					// For existing MRs (not new), they must be open AND have commits in the date range (if showCommits is enabled)
+					if (!isNewPR) {
+						if (item.state !== 'opened') {
+							log(`[PR DEBUG] Skipping GitLab MR #${number} - existing MR but not open`);
+							continue;
+						}
+						if (showCommits && !hasCommitsInRange) {
+							log(`[PR DEBUG] Skipping GitLab MR #${number} - existing MR but no commits in date range`);
+							continue;
+						}
+					}
 					prAction = isNewPR ? 'Made Merge Request' : 'Updated Merge Request';
 					if (isCreatedToday && item.state === 'opened') {
 						prAction = 'Made Merge Request';
@@ -1617,9 +1628,10 @@ ${blockerText}`;
 				}
 
 				if (isDraft) {
-					li = `<li><i>(${project})</i> - Made PR <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_draft_button : ''}`;
-					if (showCommits && item._allCommits && item._allCommits.length && !isNewPR) {
-						log(`[PR DEBUG] Rendering commits for existing draft PR #${number}:`, item._allCommits);
+					const draftLabel = platform === 'gitlab' ? 'Made Merge Request' : 'Made PR';
+					li = `<li><i>(${project})</i> - ${draftLabel} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_draft_button : ''}`;
+					if (showCommits && item._allCommits && item._allCommits.length) {
+						log(`[PR DEBUG] Rendering commits for draft PR #${number}:`, item._allCommits);
 						li += '<ul>';
 						item._allCommits.forEach((commit) => {
 							li += `<li style=\"list-style: disc; color: #666;\"><span style=\"color:#2563eb;\">${commit.messageHeadline}</span><span style=\"color:#666; font-size: 11px;\"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
@@ -1630,8 +1642,8 @@ ${blockerText}`;
 				} else if (item.state === 'open' || item.state === 'opened') {
 					li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_open_button : ''}`;
 
-					if (showCommits && item._allCommits && item._allCommits.length && !isNewPR) {
-						log(`[PR DEBUG] Rendering commits for existing PR #${number}:`, item._allCommits);
+					if (showCommits && item._allCommits && item._allCommits.length) {
+						log(`[PR DEBUG] Rendering commits for PR #${number}:`, item._allCommits);
 						li += '<ul>';
 						item._allCommits.forEach((commit) => {
 							li += `<li style="list-style: disc; color: #666;">
@@ -1936,41 +1948,3 @@ function filterDataByRepos(data, selectedRepos) {
 	};
 	return filteredData;
 }
-
-async function createGitLabDraftMergeRequest(
-	gitlabBaseUrl,
-	projectId,
-	token,
-	{ sourceBranch, targetBranch, title, description = '' },
-) {
-	const baseUrl = gitlabBaseUrl.trim().replace(/\/+$/, '');
-	const draftTitle = title.trim().startsWith('Draft:') ? title.trim() : `Draft: ${title.trim()}`;
-	const url = `${baseUrl}/projects/${encodeURIComponent(projectId)}/merge_requests`;
-
-	const response = await fetch(url, {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-			'PRIVATE-TOKEN': token,
-		},
-		body: JSON.stringify({
-			source_branch: sourceBranch,
-			target_branch: targetBranch,
-			title: draftTitle,
-			description: description,
-		}),
-	});
-
-	if (!response.ok) {
-		const errorData = await response.json().catch(() => ({}));
-		throw new Error(
-			errorData.error ||
-				errorData.message ||
-				`GitLab API responded with status ${response.status}: ${response.statusText}`,
-		);
-	}
-
-	return await response.json();
-}
-
-window.createGitLabDraftMergeRequest = createGitLabDraftMergeRequest;
