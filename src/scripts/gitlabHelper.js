@@ -286,6 +286,40 @@ class GitLabHelper {
 
 		return processed;
 	}
+
+	mapGitLabReportItem(item, projectById, type) {
+		const project = projectById.get(item.project_id);
+		const repoName = project ? project.name : 'unknown';
+
+		return {
+			...item,
+			repository_url: `${this.baseUrl}/projects/${item.project_id}`,
+			html_url:
+				type === 'issue'
+					? item.web_url || (project ? `${project.web_url}/-/issues/${item.iid}` : '')
+					: item.web_url || (project ? `${project.web_url}/-/merge_requests/${item.iid}` : ''),
+			number: item.iid,
+			title: item.title,
+			state: type === 'issue' && item.state === 'opened' ? 'open' : item.state,
+			project: repoName,
+			pull_request: type === 'mr',
+		};
+	}
+
+	mapGitLabReportData(data) {
+		const projects = Array.isArray(data.projects) ? data.projects : [];
+		const projectById = new Map(projects.map((project) => [project.id, project]));
+		const mappedIssues = (data.issues || []).map((issue) => this.mapGitLabReportItem(issue, projectById, 'issue'));
+		const mappedMRs = (data.mergeRequests || data.mrs || []).map((mr) =>
+			this.mapGitLabReportItem(mr, projectById, 'mr'),
+		);
+
+		return {
+			githubIssuesData: { items: mappedIssues },
+			githubPrsReviewData: { items: mappedMRs },
+			githubUserData: data.user || {},
+		};
+	}
 }
 
 // Export for use in other scripts
@@ -293,4 +327,47 @@ if (typeof module !== 'undefined' && module.exports) {
 	module.exports = GitLabHelper;
 } else {
 	window.GitLabHelper = GitLabHelper;
+}
+
+async function forceGitlabDataRefresh() {
+	// Clear in-memory cache if gitlabHelper is loaded
+	if (window.GitLabHelper && window.gitlabHelper instanceof window.GitLabHelper) {
+		window.gitlabHelper.cache.data = null;
+		window.gitlabHelper.cache.cacheKey = null;
+		window.gitlabHelper.cache.timestamp = 0;
+		window.gitlabHelper.cache.fetching = false;
+		window.gitlabHelper.cache.queue = [];
+	}
+	await new Promise((resolve) => {
+		chrome.storage.local.remove('gitlabCache', resolve);
+	});
+	window.hasInjectedContent = false;
+	// Re-instantiate gitlabHelper to ensure a fresh instance for next API call
+	if (window.GitLabHelper) {
+		window.gitlabHelper = new window.GitLabHelper(window.gitlabBaseUrl);
+	}
+	return { success: true };
+}
+
+window['forceGitlabDataRefresh'] = forceGitlabDataRefresh;
+
+if (window.PlatformRegistry) {
+	window.PlatformRegistry.register('gitlab', {
+		hasRepoFilter: false,
+		checkTokenForFilter() {},
+		checkTokenForShowCommits() {},
+		checkTokenForMergedPRs() {},
+		triggerRepoFetchIfEnabled() {},
+		debugRepoFetch() {},
+		loadRepos() {},
+		performRepoFetch() {},
+		validateOrgOnBlur() {},
+		fetchUserRepositories() {
+			return Promise.resolve([]);
+		},
+		fetchPrsMergedStatusBatch() {
+			return Promise.resolve({});
+		},
+		forceDataRefresh: forceGitlabDataRefresh,
+	});
 }
