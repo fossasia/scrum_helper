@@ -540,6 +540,54 @@
 							data-i18n-placeholder="gitlabTokenPlaceholder">
 					</div>
 
+					<div class="codebergOnlySection hidden mt-3">
+						<div class="mb-4">
+							<p class="text-sm font-medium" data-i18n="codebergUsernameLabel">Your Codeberg Username</p>
+							<input id="codebergUsername" type="text"
+								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
+								data-i18n-placeholder="codebergUsernamePlaceholder">
+						</div>
+
+						<div class="mb-4">
+							<div class="flex items-center justify-between">
+								<div class="flex">
+									<p class="text-sm font-medium" data-i18n="codebergTokenLabel">Your Codeberg Token</p>
+									<span class="tooltip-container">
+										<i class="fa fa-question-circle question-icon"></i>
+										<span class="tooltip-bubble" data-i18n="codebergTokenTooltip">
+											<b>Why add a Codeberg token?</b><br>
+											Scrum Helper works without a token for public projects, but a personal access token enables
+											private repos and better rate limits. Your token stays local and is only used to
+											fetch your Codeberg data.<br><br>
+											<b>How to get one:</b><br>
+											1. Go to <a href="https://codeberg.org/user/settings/applications"
+												target="_blank" rel="noopener noreferrer"
+												style="color:#2563eb;text-decoration:underline;">Codeberg Applications
+												Settings</a><br>
+											2. Click "Generate new token"<br>
+											3. Copy and paste it here<br>
+											<i>Keep it secret!</i>
+										</span>
+									</span>
+								</div>
+								<button id="toggleCodebergTokenVisibility" type="button" class="focus:outline-none">
+									<i id="codebergTokenEyeIcon" class="fa fa-eye text-gray-600"></i>
+								</button>
+							</div>
+							<input id="codebergToken" type="password"
+								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2 pr-10"
+								data-i18n-placeholder="codebergTokenPlaceholder">
+						</div>
+
+						<div class="mb-4">
+							<p class="text-sm font-medium" data-i18n="codebergApiBaseUrlLabel">Codeberg API Base URL</p>
+							<input id="codebergApiBaseUrl" type="text"
+								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
+								data-i18n-placeholder="codebergApiBaseUrlPlaceholder"
+								placeholder="https://codeberg.org/api/v1">
+						</div>
+					</div>
+
 					<div class="cacheSection mt-3">
 						<div class="flex items-center justify-between mb-2">
 							<div class="flex items-center">

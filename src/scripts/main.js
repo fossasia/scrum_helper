@@ -11,6 +11,9 @@ const showOpenLabelElement = document.getElementById('showOpenLabel');
 const userReasonElement = null;
 
 const showCommitsElement = document.getElementById('showCommits');
+const codebergUsernameElement = document.getElementById('codebergUsername');
+const codebergTokenElement = document.getElementById('codebergToken');
+const codebergApiBaseUrlElement = document.getElementById('codebergApiBaseUrl');
 
 if (!window.scrumDateRangeUtils) {
 	window.scrumDateRangeUtils = {
@@ -173,6 +176,9 @@ function handleBodyOnLoad() {
 			'cacheInput',
 			'githubToken',
 			'gitlabToken',
+			'codebergUsername',
+			'codebergToken',
+			'codebergApiBaseUrl',
 			'showCommits',
 		])
 		.then((items) => {
@@ -188,6 +194,15 @@ function handleBodyOnLoad() {
 			}
 			if (items.gitlabToken && gitlabTokenElement) {
 				gitlabTokenElement.value = items.gitlabToken;
+			}
+			if (codebergUsernameElement && items.codebergUsername) {
+				codebergUsernameElement.value = items.codebergUsername;
+			}
+			if (codebergTokenElement && items.codebergToken) {
+				codebergTokenElement.value = items.codebergToken;
+			}
+			if (codebergApiBaseUrlElement) {
+				codebergApiBaseUrlElement.value = items.codebergApiBaseUrl || 'https://codeberg.org/api/v1';
 			}
 			if (items.projectName) {
 				projectNameElement.value = items.projectName;
@@ -295,6 +310,18 @@ function handleGitlabTokenChange() {
 	const value = gitlabTokenElement.value;
 	browser.storage.local.set({ gitlabToken: value });
 }
+function handleCodebergUsernameChange() {
+	const value = codebergUsernameElement.value;
+	browser.storage.local.set({ codebergUsername: value });
+}
+function handleCodebergTokenChange() {
+	const value = codebergTokenElement.value;
+	browser.storage.local.set({ codebergToken: value });
+}
+function handleCodebergApiBaseUrlChange() {
+	const value = codebergApiBaseUrlElement.value.trim() || 'https://codeberg.org/api/v1';
+	browser.storage.local.set({ codebergApiBaseUrl: value });
+}
 function handleProjectNameChange() {
 	const value = projectNameElement.value;
 	browser.storage.local.set({ projectName: value });
@@ -329,6 +356,15 @@ if (githubTokenElement) {
 }
 if (gitlabTokenElement) {
 	gitlabTokenElement.addEventListener('keyup', handleGitlabTokenChange);
+}
+if (codebergUsernameElement) {
+	codebergUsernameElement.addEventListener('keyup', handleCodebergUsernameChange);
+}
+if (codebergTokenElement) {
+	codebergTokenElement.addEventListener('keyup', handleCodebergTokenChange);
+}
+if (codebergApiBaseUrlElement) {
+	codebergApiBaseUrlElement.addEventListener('keyup', handleCodebergApiBaseUrlChange);
 }
 cacheInputElement.addEventListener('keyup', handleCacheInputChange);
 projectNameElement.addEventListener('keyup', handleProjectNameChange);
