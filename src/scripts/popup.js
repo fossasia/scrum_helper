@@ -1032,10 +1032,10 @@ document.addEventListener('DOMContentLoaded', () => {
 		yesterdayRadio.addEventListener('change', () => {
 			browser.storage.local.set({ yesterdayContribution: yesterdayRadio.checked });
 		});
-		startingDateInput.addEventListener('input', () => {
+		startingDateInput.addEventListener('blur', () => {
 			window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(startingDateInput, endingDateInput);
 		});
-		endingDateInput.addEventListener('input', () => {
+		endingDateInput.addEventListener('blur', () => {
 			window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(startingDateInput, endingDateInput);
 		});
 
