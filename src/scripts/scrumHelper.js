@@ -82,10 +82,6 @@ function handleUsernameValidationError(errMessage) {
 }
 
 function allIncluded(outputTarget = 'email') {
-	// Always re-instantiate gitlabHelper for gitlab platform to ensure fresh cache after refresh
-	if (platform === 'gitlab' || (typeof platform === 'undefined' && window.GitLabHelper)) {
-		window.gitlabHelper = new window.GitLabHelper(gitlabSelfHostedUrl || null);
-	}
 	if (scrumGenerationInProgress) {
 		return;
 	}
@@ -1822,60 +1818,6 @@ ${blockerText}`;
 	}
 }
 
-async function forceGithubDataRefresh() {
-	let showCommits = false;
-	try {
-		const result = await browser.storage.local.get('showCommits');
-		if (result.showCommits !== undefined) {
-			showCommits = result.showCommits;
-		}
-	} catch (e) {
-		console.error('Error getting showCommits:', e);
-	}
-
-	if (typeof githubCache !== 'undefined') {
-		githubCache.data = null;
-		githubCache.cacheKey = null;
-		githubCache.timestamp = 0;
-		githubCache.subject = null;
-		githubCache.fetching = false;
-		githubCache.queue = [];
-	}
-
-	try {
-		await browser.storage.local.remove('githubCache');
-	} catch (e) {
-		console.error('Error removing githubCache:', e);
-	}
-
-	browser.storage.local.set({ showCommits: showCommits });
-
-	hasInjectedContent = false;
-
-	return { success: true };
-}
-
-async function forceGitlabDataRefresh() {
-	// Clear in-memory cache if gitlabHelper is loaded
-	if (window.GitLabHelper && window.gitlabHelper instanceof window.GitLabHelper) {
-		window.gitlabHelper.cache.data = null;
-		window.gitlabHelper.cache.cacheKey = null;
-		window.gitlabHelper.cache.timestamp = 0;
-		window.gitlabHelper.cache.fetching = false;
-		window.gitlabHelper.cache.queue = [];
-	}
-	try {
-		await browser.storage.local.remove('gitlabCache');
-	} catch (e) {
-		console.error('Error removing gitlabCache:', e);
-	}
-	hasInjectedContent = false;
-	// Re-instantiate gitlabHelper to ensure a fresh instance for next API call
-	if (window.GitLabHelper) {
-		window.gitlabHelper = new window.GitLabHelper(gitlabSelfHostedUrl || null);
-	}
-	return { success: true };
-}
 
 window.generateScrumReport = () => {
 	allIncluded('popup');
@@ -1895,17 +1837,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 						sendResponse({ success: false, error: err.message });
 					});
 			} else {
-				const fallbackFn = platform === 'gitlab' ? window['forceGitlabDataRefresh'] : window['forceGithubDataRefresh'];
-				if (typeof fallbackFn === 'function') {
-					fallbackFn()
-						.then((result) => sendResponse(result))
-						.catch((err) => {
-							console.error('Force refresh failed:', err);
-							sendResponse({ success: false, error: err.message });
-						});
-				} else {
-					sendResponse({ success: false, error: `No refresh handler registered for platform: ${platform}` });
-				}
+				sendResponse({ success: false, error: `No refresh handler registered for platform: ${platform}` });
 			}
 		});
 		return true;

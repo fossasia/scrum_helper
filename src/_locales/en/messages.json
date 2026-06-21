@@ -143,7 +143,7 @@
     "description": "Tooltip for GitLab token explaining why it's needed."
   },
   "showCommitsLabel": {
-    "message": "Enter a valid HTTPS GitLab instance URL.",
+    "message": "Show commits on open PRs/ draft PRs",
     "description": "Label for the checkbox to show commits in open PRs."
   },
   "showCommitsTooltip": {
