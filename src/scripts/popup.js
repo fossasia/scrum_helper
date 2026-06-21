@@ -958,7 +958,28 @@ document.addEventListener('DOMContentLoaded', () => {
 			});
 		});
 		githubTokenInput.addEventListener('input', () => {
-			browser.storage.local.set({ githubToken: githubTokenInput.value });
+			const trimmed = githubTokenInput.value.trim();
+			browser.storage.local.get(['githubToken']).then((items) => {
+				const currentStored = items.githubToken || '';
+				if (trimmed !== currentStored) {
+					browser.storage.local.set({ githubToken: trimmed });
+				}
+			});
+		});
+		githubTokenInput.addEventListener('change', () => {
+			const trimmed = githubTokenInput.value.trim();
+			githubTokenInput.value = trimmed;
+			browser.storage.local.get(['githubToken']).then((items) => {
+				const currentStored = items.githubToken || '';
+				if (trimmed !== currentStored) {
+					browser.storage.local.set({ githubToken: trimmed }).then(() => {
+						triggerRepoFetchIfEnabled();
+					});
+				}
+			});
+		});
+		githubTokenInput.addEventListener('blur', () => {
+			githubTokenInput.value = githubTokenInput.value.trim();
 		});
 		cacheInput.addEventListener('input', () => {
 			browser.storage.local.set({ cacheInput: cacheInput.value });
@@ -1184,7 +1205,7 @@ document.addEventListener('DOMContentLoaded', () => {
 							return;
 						}
 
-						const repoCacheKey = `repos-${username}-${items.orgName || ''}`;
+						const repoCacheKey = makeRepoCacheKey(username, items.orgName || '', platform, items);
 
 						const now = Date.now();
 						const cacheAge = cacheData.repoCache?.timestamp
