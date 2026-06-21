@@ -273,7 +273,7 @@
 									</label>
 									<span class="tooltip-container">
 										<i class="fa fa-question-circle question-icon"></i>
-										<span class="tooltip-bubble" data-i18n="onlyPRsTooltip">
+										<span class="tooltip-bubble" data-i18n="onlyRevPRsTooltip">
 											If checked, the report will include PRs reviewed by you.
 										</span>
 									</span>
@@ -361,7 +361,10 @@
 							</div>
 						</div>
 
-
+						<div id="rateLimitWarning" class="hidden text-xs text-yellow-800 p-2 bg-yellow-50 border border-yellow-200 rounded-xl mt-2 flex items-center justify-between">
+							<span id="rateLimitWarningText" data-i18n="rateLimitWarningMessage">Some data may be missing due to GitHub rate limit. Please add or check your GitHub token in settings.</span>
+							<button id="closeRateLimitWarning" class="text-yellow-800 hover:text-yellow-900 font-bold ml-2" style="background: none; border: none; cursor: pointer; font-size: 14px;">&times;</button>
+						</div>
 					</div>
 					<div class="border-gray-100 border-2 bg-white rounded-3xl px-4 py-2 mx-2 my-2">
 						<div>
