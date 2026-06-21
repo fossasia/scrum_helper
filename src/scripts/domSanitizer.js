@@ -10,12 +10,12 @@ function sanitizeHtml(html) {
 		return DOMPurify.sanitize(html, SCRUM_SANITIZER_CONFIG);
 	}
 	console.warn('[scrum_helper] DOMPurify unavailable, falling back to basic text extraction');
-	
+
 	if (typeof html !== 'string') return '';
-	
+
 	//Step 1: Strip tags so the user doesn't see raw HTML on the screen
 	const stripped = html.replace(/<[^>]*>?/gm, '');
-	
+
 	//Step 2: Escape any remaining characters to guarantee safety in .innerHTML
 	return stripped
 		.replace(/&/g, '&amp;')
