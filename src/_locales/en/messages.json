@@ -440,5 +440,13 @@
   "insertedInEmailNotification": {
     "message": "Report inserted into email!",
     "description": "Notification shown when report is successfully inserted into email."
+  },
+  "rateLimitError": {
+    "message": "GitHub API rate limit exceeded. Please try again later or add/check your GitHub token in the Scrum Helper settings.",
+    "description": "Error shown when GitHub API rate limit is exceeded."
+  },
+  "rateLimitWarningMessage": {
+    "message": "Some data may be missing due to GitHub rate limit. Please add or check your GitHub token in settings.",
+    "description": "Warning message shown below buttons when rate limit is exceeded."
   }
 }
