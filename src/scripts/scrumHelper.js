@@ -1818,7 +1818,6 @@ ${blockerText}`;
 	}
 }
 
-
 window.generateScrumReport = () => {
 	allIncluded('popup');
 };
