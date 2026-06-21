@@ -1,3 +1,37 @@
+let rateLimitWarningShown = false;
+const originalFetch = window.fetch;
+window.fetch = async function (...args) {
+	let res;
+	try {
+		res = await originalFetch(...args);
+	} catch (err) {
+		throw err;
+	}
+	const url = typeof args[0] === 'string' ? args[0] : args[0]?.url || '';
+	if (url.includes('api.github.com')) {
+		const remaining = res.headers.get('x-ratelimit-remaining');
+		if (res.status === 403 || res.status === 429 || remaining === '0') {
+			try {
+				const clone = res.clone();
+				const data = await clone.json();
+				if (data && data.message && data.message.toLowerCase().includes('rate limit exceeded')) {
+					window.githubRateLimitExceeded = true;
+					if (!rateLimitWarningShown) {
+						rateLimitWarningShown = true;
+						window.showRateLimitWarning?.();
+						setTimeout(() => {
+							rateLimitWarningShown = false;
+						}, 6000);
+					}
+				}
+			} catch (e) {
+				// Ignore clone/json parsing issues
+			}
+		}
+	}
+	return res;
+};
+
 const DEBUG = false;
 
 function log(...args) {
@@ -90,6 +124,7 @@ function allIncluded(outputTarget = 'email') {
 		return;
 	}
 	scrumGenerationInProgress = true;
+	window.githubRateLimitExceeded = false;
 	console.log('allIncluded called with outputTarget:', outputTarget);
 
 	let scrumBody = null;
@@ -633,17 +668,21 @@ function allIncluded(outputTarget = 'email') {
 			}
 
 			if (userCheckRes.status === 401 || userCheckRes.status === 403) {
-				showInvalidTokenMessage();
-				githubCache.fetching = false;
-				return;
+				if (!window.githubRateLimitExceeded) {
+					showInvalidTokenMessage();
+					githubCache.fetching = false;
+					return;
+				}
 			}
 
 			if (!userCheckRes.ok) {
-				const errorMsg =
-					chrome?.i18n.getMessage('githubUserValidationError', [userCheckRes.status, userCheckRes.statusText]) ||
-					`Error validating GitHub user: ${userCheckRes.status} ${userCheckRes.statusText}`;
-				logError(errorMsg);
-				throw new Error(errorMsg);
+				if (!window.githubRateLimitExceeded) {
+					const errorMsg =
+						chrome?.i18n.getMessage('githubUserValidationError', [userCheckRes.status, userCheckRes.statusText]) ||
+						`Error validating GitHub user: ${userCheckRes.status} ${userCheckRes.statusText}`;
+					logError(errorMsg);
+					throw new Error(errorMsg);
+				}
 			}
 
 			const [issuesRes, prRes, userRes] = await Promise.all([
@@ -660,9 +699,11 @@ function allIncluded(outputTarget = 'email') {
 			]);
 
 			if (issuesRes.status === 401 || prRes.status === 401 || issuesRes.status === 403 || prRes.status === 403) {
-				showInvalidTokenMessage();
-				githubCache.fetching = false;
-				return;
+				if (!window.githubRateLimitExceeded) {
+					showInvalidTokenMessage();
+					githubCache.fetching = false;
+					return;
+				}
 			}
 
 			if (issuesRes.status === 422 || prRes.status === 422) {
@@ -676,7 +717,7 @@ function allIncluded(outputTarget = 'email') {
 				throw new Error(errorMsg);
 			}
 
-			if (!issuesRes.ok) {
+			if (!issuesRes.ok && !window.githubRateLimitExceeded) {
 				const errorMsg =
 					chrome?.i18n.getMessage('githubIssuesFetchError', [issuesRes.status, issuesRes.statusText]) ||
 					`Error fetching GitHub issues: ${issuesRes.status} ${issuesRes.statusText}`;
@@ -686,7 +727,7 @@ function allIncluded(outputTarget = 'email') {
 				}
 				throw new Error(errorMsg);
 			}
-			if (!prRes.ok) {
+			if (!prRes.ok && !window.githubRateLimitExceeded) {
 				const errorMsg =
 					chrome?.i18n.getMessage('githubPRReviewFetchError', [prRes.status, prRes.statusText]) ||
 					`Error fetching GitHub PR review data: ${prRes.status} ${prRes.statusText}`;
@@ -696,7 +737,7 @@ function allIncluded(outputTarget = 'email') {
 				}
 				throw new Error(errorMsg);
 			}
-			if (!userRes.ok) {
+			if (!userRes.ok && !window.githubRateLimitExceeded) {
 				const errorMsg =
 					chrome?.i18n.getMessage('githubUserFetchError', [userRes.status, userRes.statusText]) ||
 					`Error fetching GitHub user data: ${userRes.status} ${userRes.statusText}`;
@@ -704,9 +745,21 @@ function allIncluded(outputTarget = 'email') {
 				throw new Error(errorMsg);
 			}
 
-			githubIssuesData = await issuesRes.json();
-			githubPrsReviewData = await prRes.json();
-			githubUserData = await userRes.json();
+			try {
+				githubIssuesData = issuesRes.ok ? await issuesRes.json() : { items: [] };
+			} catch (e) {
+				githubIssuesData = { items: [] };
+			}
+			try {
+				githubPrsReviewData = prRes.ok ? await prRes.json() : { items: [] };
+			} catch (e) {
+				githubPrsReviewData = { items: [] };
+			}
+			try {
+				githubUserData = userRes.ok ? await userRes.json() : {};
+			} catch (e) {
+				githubUserData = {};
+			}
 
 			if (githubIssuesData && githubIssuesData.items) {
 				log('Fetched githubIssuesData:', githubIssuesData.items.length, 'items');
@@ -903,6 +956,22 @@ function allIncluded(outputTarget = 'email') {
 				}
 			} else {
 				window.scrumHelperToast?.(errMsg, { duration: 2000, variant: 'error' });
+			}
+		}
+	}
+
+	function showRateLimitMessage() {
+		const errMsg =
+			chrome?.i18n.getMessage('rateLimitError') ||
+			'GitHub API rate limit exceeded. Please try again later or add/check your GitHub token in the Scrum Helper settings.';
+		if (outputTarget === 'popup') {
+			if (scrumReportEl) {
+				showReportMessage(errMsg);
+				const generateBtn = document.getElementById('generateReport');
+				if (generateBtn) {
+					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+					generateBtn.disabled = false;
+				}
 			}
 		}
 	}
