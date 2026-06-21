@@ -960,36 +960,35 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 		if (githubTokenInput) {
 			githubTokenInput.addEventListener('input', () => {
-				browser.storage.local.set({ githubToken: githubTokenInput.value });
+				const trimmed = githubTokenInput.value.trim();
+				browser.storage.local.get(['githubToken']).then((items) => {
+					const currentStored = items.githubToken || '';
+					if (trimmed !== currentStored) {
+						browser.storage.local.set({ githubToken: trimmed });
+					}
+				});
 			});
-		});
-		githubTokenInput.addEventListener('input', () => {
-			const trimmed = githubTokenInput.value.trim();
-			browser.storage.local.get(['githubToken']).then((items) => {
-				const currentStored = items.githubToken || '';
-				if (trimmed !== currentStored) {
-					browser.storage.local.set({ githubToken: trimmed });
-				}
+			githubTokenInput.addEventListener('change', () => {
+				const trimmed = githubTokenInput.value.trim();
+				githubTokenInput.value = trimmed;
+				browser.storage.local.get(['githubToken']).then((items) => {
+					const currentStored = items.githubToken || '';
+					if (trimmed !== currentStored) {
+						browser.storage.local.set({ githubToken: trimmed }).then(() => {
+							triggerRepoFetchIfEnabled();
+						});
+					}
+				});
 			});
-		});
-		githubTokenInput.addEventListener('change', () => {
-			const trimmed = githubTokenInput.value.trim();
-			githubTokenInput.value = trimmed;
-			browser.storage.local.get(['githubToken']).then((items) => {
-				const currentStored = items.githubToken || '';
-				if (trimmed !== currentStored) {
-					browser.storage.local.set({ githubToken: trimmed }).then(() => {
-						triggerRepoFetchIfEnabled();
-					});
-				}
+			githubTokenInput.addEventListener('blur', () => {
+				githubTokenInput.value = githubTokenInput.value.trim();
 			});
-		});
-		githubTokenInput.addEventListener('blur', () => {
-			githubTokenInput.value = githubTokenInput.value.trim();
-		});
-		cacheInput.addEventListener('input', () => {
-			browser.storage.local.set({ cacheInput: cacheInput.value });
-		});
+		}
+		if (cacheInput) {
+			cacheInput.addEventListener('input', () => {
+				browser.storage.local.set({ cacheInput: cacheInput.value });
+			});
+		}
 
 		// Display mode (popup / sidepanel)
 		// Apply the stored display mode class on next launch
