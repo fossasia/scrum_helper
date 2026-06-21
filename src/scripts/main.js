@@ -317,14 +317,22 @@ function handlePlatformUsernameChange() {
 	});
 }
 function handleGithubTokenChange() {
-	if (!githubTokenElement) return;
-	const value = githubTokenElement.value;
-	browser.storage.local.set({ githubToken: value });
+	const trimmed = githubTokenElement.value.trim();
+	browser.storage.local.get(['githubToken']).then((items) => {
+		const currentStored = items.githubToken || '';
+		if (trimmed !== currentStored) {
+			browser.storage.local.set({ githubToken: trimmed });
+		}
+	});
 }
 function handleGitlabTokenChange() {
-	if (!gitlabTokenElement) return;
-	const value = gitlabTokenElement.value;
-	browser.storage.local.set({ gitlabToken: value });
+	const trimmed = gitlabTokenElement.value.trim();
+	browser.storage.local.get(['gitlabToken']).then((items) => {
+		const currentStored = items.gitlabToken || '';
+		if (trimmed !== currentStored) {
+			browser.storage.local.set({ gitlabToken: trimmed });
+		}
+	});
 }
 function handleProjectNameChange() {
 	if (!projectNameElement) return;
@@ -365,9 +373,21 @@ if (platformUsernameElement) {
 }
 if (githubTokenElement) {
 	githubTokenElement.addEventListener('keyup', handleGithubTokenChange);
+	githubTokenElement.addEventListener('change', () => {
+		githubTokenElement.value = githubTokenElement.value.trim();
+	});
+	githubTokenElement.addEventListener('blur', () => {
+		githubTokenElement.value = githubTokenElement.value.trim();
+	});
 }
 if (gitlabTokenElement) {
 	gitlabTokenElement.addEventListener('keyup', handleGitlabTokenChange);
+	gitlabTokenElement.addEventListener('change', () => {
+		gitlabTokenElement.value = gitlabTokenElement.value.trim();
+	});
+	gitlabTokenElement.addEventListener('blur', () => {
+		gitlabTokenElement.value = gitlabTokenElement.value.trim();
+	});
 }
 if (cacheInputElement) {
 	cacheInputElement.addEventListener('keyup', handleCacheInputChange);
