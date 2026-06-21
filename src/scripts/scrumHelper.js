@@ -1,3 +1,37 @@
+let rateLimitWarningShown = false;
+const originalFetch = window.fetch;
+window.fetch = async function (...args) {
+	let res;
+	try {
+		res = await originalFetch(...args);
+	} catch (err) {
+		throw err;
+	}
+	const url = typeof args[0] === 'string' ? args[0] : args[0]?.url || '';
+	if (url.includes('api.github.com')) {
+		const remaining = res.headers.get('x-ratelimit-remaining');
+		if (res.status === 403 || res.status === 429 || remaining === '0') {
+			try {
+				const clone = res.clone();
+				const data = await clone.json();
+				if (data && data.message && data.message.toLowerCase().includes('rate limit exceeded')) {
+					window.githubRateLimitExceeded = true;
+					if (!rateLimitWarningShown) {
+						rateLimitWarningShown = true;
+						window.showRateLimitWarning?.();
+						setTimeout(() => {
+							rateLimitWarningShown = false;
+						}, 6000);
+					}
+				}
+			} catch (e) {
+				// Ignore clone/json parsing issues
+			}
+		}
+	}
+	return res;
+};
+
 const DEBUG = false;
 
 function log(...args) {
@@ -81,42 +115,6 @@ function handleUsernameValidationError(errMessage) {
 	}
 }
 
-function mapGitLabReportItem(item, projectById, type, gitlabApiBaseUrl) {
-	const project = projectById.get(item.project_id);
-	const repoName = project ? project.name : 'unknown';
-
-	return {
-		...item,
-		repository_url: `${gitlabApiBaseUrl}/projects/${item.project_id}`,
-		html_url:
-			type === 'issue'
-				? item.web_url || (project ? `${project.web_url}/-/issues/${item.iid}` : '')
-				: item.web_url || (project ? `${project.web_url}/-/merge_requests/${item.iid}` : ''),
-		number: item.iid,
-		title: item.title,
-		state: type === 'issue' && item.state === 'opened' ? 'open' : item.state,
-		project: repoName,
-		pull_request: type === 'mr',
-	};
-}
-
-function mapGitLabReportData(data, gitlabApiBaseUrl) {
-	const projects = Array.isArray(data.projects) ? data.projects : [];
-	const projectById = new Map(projects.map((project) => [project.id, project]));
-	const mappedIssues = (data.issues || []).map((issue) =>
-		mapGitLabReportItem(issue, projectById, 'issue', gitlabApiBaseUrl),
-	);
-	const mappedMRs = (data.mergeRequests || data.mrs || []).map((mr) =>
-		mapGitLabReportItem(mr, projectById, 'mr', gitlabApiBaseUrl),
-	);
-
-	return {
-		githubIssuesData: { items: mappedIssues },
-		githubPrsReviewData: { items: mappedMRs },
-		githubUserData: data.user || {},
-	};
-}
-
 function allIncluded(outputTarget = 'email') {
 	// Always re-instantiate gitlabHelper for gitlab platform to ensure fresh cache after refresh
 	if (platform === 'gitlab' || (typeof platform === 'undefined' && window.GitLabHelper)) {
@@ -126,6 +124,7 @@ function allIncluded(outputTarget = 'email') {
 		return;
 	}
 	scrumGenerationInProgress = true;
+	window.githubRateLimitExceeded = false;
 	console.log('allIncluded called with outputTarget:', outputTarget);
 
 	let scrumBody = null;
@@ -310,7 +309,7 @@ function allIncluded(outputTarget = 'email') {
 										gitlabToken,
 									);
 
-									const mappedData = mapGitLabReportData(data, window.gitlabHelper.baseUrl);
+									const mappedData = window.gitlabHelper.mapGitLabReportData(data);
 									githubUserData = mappedData.githubUserData;
 
 									const name =
@@ -349,7 +348,7 @@ function allIncluded(outputTarget = 'email') {
 							window.gitlabHelper
 								.fetchGitLabData(platformUsernameLocal, startingDate, endingDate, gitlabToken)
 								.then((data) => {
-									const mappedData = mapGitLabReportData(data, window.gitlabHelper.baseUrl);
+									const mappedData = window.gitlabHelper.mapGitLabReportData(data);
 									processGithubData(mappedData);
 									scrumGenerationInProgress = false;
 								})
@@ -612,9 +611,7 @@ function allIncluded(outputTarget = 'email') {
 		console.log('[SCRUM-HELPER] orgPart for API:', orgPart);
 		console.log('[SCRUM-HELPER] orgPart length:', orgPart.length);
 
-		let issueUrl;
-		let prUrl;
-		let userUrl;
+		let repoQueries = '';
 
 		if (useRepoFilter && selectedRepos && selectedRepos.length > 0) {
 			log('Using repo filter for api calls:', selectedRepos);
@@ -625,7 +622,7 @@ function allIncluded(outputTarget = 'email') {
 				logError('Failed to fetch repo data for filtering:', err);
 			}
 
-			const repoQueries = selectedRepos
+			repoQueries = selectedRepos
 				.filter((repo) => repo !== null)
 				.map((repo) => {
 					if (typeof repo === 'object' && repo.fullName) {
@@ -647,31 +644,20 @@ function allIncluded(outputTarget = 'email') {
 				})
 				.join('+');
 
-			const orgQuery = orgPart ? `+${orgPart}` : '';
 			if (!repoQueries) {
 				loadFromStorage('Repo filter empty, using org wide search');
-				issueUrl = `https://api.github.com/search/issues?q=author%3A${platformUsernameLocal}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}&per_page=100`;
-				prUrl = `https://api.github.com/search/issues?q=commenter%3A${platformUsernameLocal}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}&per_page=100`;
-				userUrl = `https://api.github.com/users/${platformUsernameLocal}`;
 			} else {
-				issueUrl = `https://api.github.com/search/issues?q=author%3A${platformUsernameLocal}+${repoQueries}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}&per_page=100`;
-				prUrl = `https://api.github.com/search/issues?q=commenter%3A${platformUsernameLocal}+${repoQueries}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}&per_page=100`;
-				userUrl = `https://api.github.com/users/${platformUsernameLocal}`;
-				log('Repository-filtered URLs:', { issueUrl, prUrl });
+				loadFromStorage('Using repository filter');
 			}
 		} else {
 			loadFromStorage('Using org wide search');
-			const orgQuery = orgPart ? `+${orgPart}` : '';
-			issueUrl = `https://api.github.com/search/issues?q=author%3A${platformUsernameLocal}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}&per_page=100`;
-			prUrl = `https://api.github.com/search/issues?q=commenter%3A${platformUsernameLocal}${orgQuery}+updated%3A${startDateForCache}..${endDateForCache}&per_page=100`;
-			userUrl = `https://api.github.com/users/${platformUsernameLocal}`;
 		}
 
 		try {
 			await new Promise((res) => setTimeout(res, 500));
 
 			log('Validating GitHub user existence for:', platformUsernameLocal);
-			const userCheckRes = await fetch(userUrl, { headers });
+			const userCheckRes = await githubFetchUser(platformUsernameLocal, githubToken);
 
 			if (userCheckRes.status === 404) {
 				const errorMsg =
@@ -682,29 +668,42 @@ function allIncluded(outputTarget = 'email') {
 			}
 
 			if (userCheckRes.status === 401 || userCheckRes.status === 403) {
-				showInvalidTokenMessage();
-				githubCache.fetching = false;
-				return;
+				if (!window.githubRateLimitExceeded) {
+					showInvalidTokenMessage();
+					githubCache.fetching = false;
+					return;
+				}
 			}
 
 			if (!userCheckRes.ok) {
-				const errorMsg =
-					chrome?.i18n.getMessage('githubUserValidationError', [userCheckRes.status, userCheckRes.statusText]) ||
-					`Error validating GitHub user: ${userCheckRes.status} ${userCheckRes.statusText}`;
-				logError(errorMsg);
-				throw new Error(errorMsg);
+				if (!window.githubRateLimitExceeded) {
+					const errorMsg =
+						chrome?.i18n.getMessage('githubUserValidationError', [userCheckRes.status, userCheckRes.statusText]) ||
+						`Error validating GitHub user: ${userCheckRes.status} ${userCheckRes.statusText}`;
+					logError(errorMsg);
+					throw new Error(errorMsg);
+				}
 			}
 
 			const [issuesRes, prRes, userRes] = await Promise.all([
-				fetch(issueUrl, { headers }),
-				fetch(prUrl, { headers }),
+				githubFetchIssues(platformUsernameLocal, githubToken, startDateForCache, endDateForCache, orgName, repoQueries),
+				githubFetchReviews(
+					platformUsernameLocal,
+					githubToken,
+					startDateForCache,
+					endDateForCache,
+					orgName,
+					repoQueries,
+				),
 				userCheckRes, // Reuse the already validated user response
 			]);
 
 			if (issuesRes.status === 401 || prRes.status === 401 || issuesRes.status === 403 || prRes.status === 403) {
-				showInvalidTokenMessage();
-				githubCache.fetching = false;
-				return;
+				if (!window.githubRateLimitExceeded) {
+					showInvalidTokenMessage();
+					githubCache.fetching = false;
+					return;
+				}
 			}
 
 			if (issuesRes.status === 422 || prRes.status === 422) {
@@ -718,7 +717,7 @@ function allIncluded(outputTarget = 'email') {
 				throw new Error(errorMsg);
 			}
 
-			if (!issuesRes.ok) {
+			if (!issuesRes.ok && !window.githubRateLimitExceeded) {
 				const errorMsg =
 					chrome?.i18n.getMessage('githubIssuesFetchError', [issuesRes.status, issuesRes.statusText]) ||
 					`Error fetching GitHub issues: ${issuesRes.status} ${issuesRes.statusText}`;
@@ -728,7 +727,7 @@ function allIncluded(outputTarget = 'email') {
 				}
 				throw new Error(errorMsg);
 			}
-			if (!prRes.ok) {
+			if (!prRes.ok && !window.githubRateLimitExceeded) {
 				const errorMsg =
 					chrome?.i18n.getMessage('githubPRReviewFetchError', [prRes.status, prRes.statusText]) ||
 					`Error fetching GitHub PR review data: ${prRes.status} ${prRes.statusText}`;
@@ -738,7 +737,7 @@ function allIncluded(outputTarget = 'email') {
 				}
 				throw new Error(errorMsg);
 			}
-			if (!userRes.ok) {
+			if (!userRes.ok && !window.githubRateLimitExceeded) {
 				const errorMsg =
 					chrome?.i18n.getMessage('githubUserFetchError', [userRes.status, userRes.statusText]) ||
 					`Error fetching GitHub user data: ${userRes.status} ${userRes.statusText}`;
@@ -746,9 +745,21 @@ function allIncluded(outputTarget = 'email') {
 				throw new Error(errorMsg);
 			}
 
-			githubIssuesData = await issuesRes.json();
-			githubPrsReviewData = await prRes.json();
-			githubUserData = await userRes.json();
+			try {
+				githubIssuesData = issuesRes.ok ? await issuesRes.json() : { items: [] };
+			} catch (e) {
+				githubIssuesData = { items: [] };
+			}
+			try {
+				githubPrsReviewData = prRes.ok ? await prRes.json() : { items: [] };
+			} catch (e) {
+				githubPrsReviewData = { items: [] };
+			}
+			try {
+				githubUserData = userRes.ok ? await userRes.json() : {};
+			} catch (e) {
+				githubUserData = {};
+			}
 
 			if (githubIssuesData && githubIssuesData.items) {
 				log('Fetched githubIssuesData:', githubIssuesData.items.length, 'items');
@@ -844,77 +855,7 @@ function allIncluded(outputTarget = 'email') {
 	}
 
 	async function fetchCommitsForOpenPRs(prs, githubToken, startDate, endDate) {
-		log(
-			'fetchCommitsForOpenPRs called with PRs:',
-			prs.map((pr) => pr.number),
-			'startDate:',
-			startDate,
-			'endDate:',
-			endDate,
-		);
-		if (!prs.length) return {};
-		const since = new Date(startDate + 'T00:00:00Z').toISOString();
-		const until = new Date(endDate + 'T23:59:59Z').toISOString();
-		const queries = prs
-			.map((pr, idx) => {
-				const repoParts = pr.repository_url.split('/');
-				const owner = repoParts[repoParts.length - 2];
-				const repo = repoParts[repoParts.length - 1];
-				return `
-			pr${idx}: repository(owner: "${owner}", name: "${repo}") {
-				pullRequest(number: ${pr.number}) {
-					commits(first: 100) {
-						nodes {
-							commit {
-								messageHeadline
-								committedDate
-								url
-								author {
-									name
-									user { login }
-								}
-							}
-						}
-					}
-				}
-
-			}`;
-			})
-			.join('\n');
-		const query = `query { ${queries} }`;
-		log('GraphQL query for commits:', query);
-		const res = await fetch('https://api.github.com/graphql', {
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				...(githubToken ? { Authorization: `bearer ${githubToken}` } : {}),
-			},
-			body: JSON.stringify({ query }),
-		});
-		log('fetchCommitsForOpenPRs response status:', res.status);
-		const data = await res.json();
-		log('fetchCommitsForOpenPRs response data:', data);
-		const commitMap = {};
-		prs.forEach((pr, idx) => {
-			const prData = data.data && data.data[`pr${idx}`] && data.data[`pr${idx}`].pullRequest;
-			if (prData && prData.commits && prData.commits.nodes) {
-				const allCommits = prData.commits.nodes.map((n) => n.commit);
-				log(`PR #${pr.number} allCommits:`, allCommits);
-				const filteredCommits = allCommits.filter((commit) => {
-					const commitDate = new Date(commit.committedDate);
-					const sinceDate = new Date(since);
-					const untilDate = new Date(until);
-					const isInRange = commitDate >= sinceDate && commitDate <= untilDate;
-					log(`PR #${pr.number} commit "${commit.messageHeadline}" (${commit.committedDate}) - in range: ${isInRange}`);
-					return isInRange;
-				});
-				log(`PR #${pr.number} filteredCommits:`, filteredCommits);
-				commitMap[pr.number] = filteredCommits;
-			} else {
-				log(`No commits found for PR #${pr.number}`);
-			}
-		});
-		return commitMap;
+		return githubFetchCommits(prs, githubToken, startDate, endDate);
 	}
 
 	async function fetchReposIfNeeded() {
@@ -1015,6 +956,22 @@ function allIncluded(outputTarget = 'email') {
 				}
 			} else {
 				window.scrumHelperToast?.(errMsg, { duration: 2000, variant: 'error' });
+			}
+		}
+	}
+
+	function showRateLimitMessage() {
+		const errMsg =
+			chrome?.i18n.getMessage('rateLimitError') ||
+			'GitHub API rate limit exceeded. Please try again later or add/check your GitHub token in the Scrum Helper settings.';
+		if (outputTarget === 'popup') {
+			if (scrumReportEl) {
+				showReportMessage(errMsg);
+				const generateBtn = document.getElementById('generateReport');
+				if (generateBtn) {
+					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+					generateBtn.disabled = false;
+				}
 			}
 		}
 	}
@@ -1479,24 +1436,8 @@ ${blockerText}`;
 		return Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24));
 	}
 
-	const sessionMergedStatusCache = {};
-
 	async function fetchPrMergedStatusREST(owner, repo, number, headers) {
-		const cacheKey = `${owner}/${repo}#${number}`;
-		if (sessionMergedStatusCache[cacheKey] !== undefined) {
-			return sessionMergedStatusCache[cacheKey];
-		}
-		const url = `https://api.github.com/repos/${owner}/${repo}/pulls/${number}`;
-		try {
-			const res = await fetch(url, { headers });
-			if (!res.ok) return null;
-			const data = await res.json();
-			const merged = !!data.merged_at;
-			sessionMergedStatusCache[cacheKey] = merged;
-			return merged;
-		} catch (e) {
-			return null;
-		}
+		return githubFetchPrMergedStatusREST(owner, repo, number, githubToken);
 	}
 
 	async function writeGithubIssuesPrs(items) {
