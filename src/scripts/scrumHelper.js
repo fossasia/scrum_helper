@@ -258,7 +258,7 @@ function allIncluded(outputTarget = 'email') {
 
 				onlyIssues = items.onlyIssues === true;
 				onlyPRs = items.onlyPRs === true;
-				onlyRevPRs = items.onlyRevPRs === true;
+				onlyRevPRs = items.onlyRevPRs === true && platform !== 'codeberg';
 				onlyMergedPRs = items.onlyMergedPRs === true;
 				console.log('[SCRUM-DEBUG] loaded flags:', { onlyIssues, onlyPRs, onlyRevPRs, onlyMergedPRs });
 				// Enforce mutual exclusivity between onlyIssues and onlyPRs to avoid filtering out everything
@@ -1343,6 +1343,11 @@ ${blockerText}`;
 	}
 
 	function writeGithubPrsReviews() {
+		if (platform === 'codeberg') {
+			reviewedPrsArray = [];
+			prsReviewDataProcessed = true;
+			return;
+		}
 		const isAnyFilterActive = onlyIssues || onlyPRs || onlyRevPRs || onlyMergedPRs;
 		if (isAnyFilterActive && !onlyRevPRs) {
 			log('Filters active but onlyRevPRs not checked, skipping PR reviews.');

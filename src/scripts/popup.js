@@ -1733,6 +1733,15 @@ function updatePlatformUI(platform) {
 		}
 	});
 
+	const githubGitlabOnlySections = document.querySelectorAll('.githubGitlabOnlySection');
+	githubGitlabOnlySections.forEach((el) => {
+		if (platform === 'github' || platform === 'gitlab') {
+			el.classList.remove('hidden');
+		} else {
+			el.classList.add('hidden');
+		}
+	});
+
 }
 
 platformSelect.addEventListener('change', () => {
