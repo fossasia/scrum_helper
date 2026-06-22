@@ -860,7 +860,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			// Only validate if org name is not empty
 			if (org) {
-				validateOrgOnBlur(org);
+				handleOrgInputBlurValidation(org);
 			} else {
 				window.clearScrumHelperToast?.();
 			}
@@ -1648,10 +1648,10 @@ function updatePlatformUI(platform) {
 
 	const orgSection = document.querySelector('.orgSection');
 	if (orgSection) {
-		if (platform === 'gitlab') {
-			orgSection.classList.add('hidden');
-		} else {
+		if (platform === 'github' || platform === 'gitlab') {
 			orgSection.classList.remove('hidden');
+		} else {
+			orgSection.classList.add('hidden');
 		}
 	}
 	const githubOnlySections = document.querySelectorAll('.githubOnlySection');
@@ -2081,7 +2081,7 @@ document.addEventListener('keydown', (e) => {
 });
 
 // Validate organization only when user is done typing (on blur)
-function validateOrgOnBlur(org) {
+function handleOrgInputBlurValidation(org) {
 	const platformSelect = document.getElementById('platformSelect');
 	const platform = platformSelect?.value || 'github';
 	const helper = window.PlatformRegistry.get(platform);
