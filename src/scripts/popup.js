@@ -1017,6 +1017,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (codebergTokenInput) {
 			codebergTokenInput.addEventListener('input', () => {
 				browser.storage.local.set({ codebergToken: codebergTokenInput.value });
+				checkTokenForShowCommits({ persistState: false });
 			});
 		}
 		if (codebergApiBaseUrlInput) {
@@ -1731,6 +1732,48 @@ function updatePlatformUI(platform) {
 			el.classList.add('hidden');
 		}
 	});
+
+	const githubCodebergSections = document.querySelectorAll('.githubCodebergSection');
+	githubCodebergSections.forEach((el) => {
+		if (platform === 'github' || platform === 'codeberg') {
+			el.classList.remove('hidden');
+		} else {
+			el.classList.add('hidden');
+		}
+	});
+
+	const tokenWarningForShowCommits = document.getElementById('tokenWarningForShowCommits');
+	if (tokenWarningForShowCommits) {
+		const span = tokenWarningForShowCommits.querySelector('span');
+		if (span) {
+			if (platform === 'codeberg') {
+				span.setAttribute('data-i18n', 'tokenRequiredShowCommitsWarningCodeberg');
+			} else {
+				span.setAttribute('data-i18n', 'tokenRequiredShowCommitsWarning');
+			}
+			const key = span.getAttribute('data-i18n');
+			const message = browser.i18n.getMessage(key);
+			if (message) {
+				span.textContent = message;
+			}
+		}
+	}
+
+	const showCommitsTooltip = document.querySelector(
+		'[data-i18n="showCommitsTooltip"], [data-i18n="showCommitsTooltipCodeberg"]',
+	);
+	if (showCommitsTooltip) {
+		if (platform === 'codeberg') {
+			showCommitsTooltip.setAttribute('data-i18n', 'showCommitsTooltipCodeberg');
+		} else {
+			showCommitsTooltip.setAttribute('data-i18n', 'showCommitsTooltip');
+		}
+		const key = showCommitsTooltip.getAttribute('data-i18n');
+		const message = browser.i18n.getMessage(key);
+		if (message) {
+			showCommitsTooltip.textContent = message;
+		}
+	}
 }
 
 platformSelect.addEventListener('change', () => {
@@ -2030,8 +2073,24 @@ document.getElementById('refreshCache').addEventListener('click', async function
 		} catch (e) {}
 
 		// Clear all caches
-		const keysToRemove = ['githubCache', 'repoCache', 'gitlabCache'];
+		const keysToRemove = ['githubCache', 'repoCache', 'gitlabCache', 'codebergCache'];
 		await browser.storage.local.remove(keysToRemove);
+
+		// Clear in-memory cache for the active platform
+		const helper = window.PlatformRegistry?.get(platform);
+		if (helper && typeof helper.forceDataRefresh === 'function') {
+			await helper.forceDataRefresh();
+		} else {
+			const fallbackFn =
+				platform === 'gitlab'
+					? window.forceGitlabDataRefresh
+					: platform === 'codeberg'
+						? window.forceCodebergDataRefresh
+						: window.forceGithubDataRefresh;
+			if (typeof fallbackFn === 'function') {
+				await fallbackFn();
+			}
+		}
 
 		// Clear the scrum report
 		const scrumReport = document.getElementById('scrumReport');

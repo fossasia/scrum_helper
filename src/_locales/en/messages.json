@@ -153,6 +153,9 @@
   "showCommitsTooltip": {
     "message": "Github Token required, add it in the settings."
   },
+  "showCommitsTooltipCodeberg": {
+    "message": "Codeberg Token required, add it in the settings."
+  },
   "onlyIssuesLabel": {
     "message": "Include issues in the report"
   },
@@ -212,6 +215,10 @@
   "tokenRequiredShowCommitsWarning": {
     "message": "A GitHub token is required to show commits on open or draft PRs. Please add one in the settings.",
     "description": "Warning message shown when show commits is enabled without a token."
+  },
+  "tokenRequiredShowCommitsWarningCodeberg": {
+    "message": "A Codeberg token is required to show commits on open or draft PRs. Please add one in the settings.",
+    "description": "Warning message shown when show commits is enabled without a Codeberg token."
   },
   "repoSearchPlaceholder": {
     "message": "Search for a repository to add...",
