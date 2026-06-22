@@ -113,8 +113,8 @@ class GitLabHelper {
 					throw new Error(`Error fetching GitLab group: ${groupRes.status} ${groupRes.statusText}`);
 				}
 
-				// Fetch group projects for project mapping
-				const groupProjectsUrl = `${this.baseUrl}/groups/${encodeURIComponent(orgName)}/projects?per_page=100`;
+				// Fetch group projects for project mapping (including subgroups)
+				const groupProjectsUrl = `${this.baseUrl}/groups/${encodeURIComponent(orgName)}/projects?per_page=100&include_subgroups=true`;
 				const groupProjectsRes = await fetch(groupProjectsUrl, { headers });
 				const allProjects = groupProjectsRes.ok ? await groupProjectsRes.json() : [];
 
@@ -348,7 +348,24 @@ class GitLabHelper {
 
 	mapGitLabReportItem(item, projectById, type) {
 		const project = projectById.get(item.project_id);
-		const repoName = project ? project.name : 'unknown';
+		let repoName = project ? project.name : 'unknown';
+
+		if (repoName === 'unknown' && item.web_url) {
+			try {
+				let projectPath = item.web_url.split('/-/')[0];
+				if (projectPath.includes('/issues/')) {
+					projectPath = projectPath.split('/issues/')[0];
+				} else if (projectPath.includes('/merge_requests/')) {
+					projectPath = projectPath.split('/merge_requests/')[0];
+				}
+				const pathParts = projectPath.split('/');
+				if (pathParts.length > 0) {
+					repoName = pathParts[pathParts.length - 1];
+				}
+			} catch (e) {
+				console.error('Error parsing project name from web_url:', e);
+			}
+		}
 
 		return {
 			...item,
