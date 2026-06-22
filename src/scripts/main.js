@@ -288,12 +288,22 @@ function handlePlatformUsernameChange() {
 	});
 }
 function handleGithubTokenChange() {
-	const value = githubTokenElement.value;
-	browser.storage.local.set({ githubToken: value });
+	const trimmed = githubTokenElement.value.trim();
+	browser.storage.local.get(['githubToken']).then((items) => {
+		const currentStored = items.githubToken || '';
+		if (trimmed !== currentStored) {
+			browser.storage.local.set({ githubToken: trimmed });
+		}
+	});
 }
 function handleGitlabTokenChange() {
-	const value = gitlabTokenElement.value;
-	browser.storage.local.set({ gitlabToken: value });
+	const trimmed = gitlabTokenElement.value.trim();
+	browser.storage.local.get(['gitlabToken']).then((items) => {
+		const currentStored = items.gitlabToken || '';
+		if (trimmed !== currentStored) {
+			browser.storage.local.set({ gitlabToken: trimmed });
+		}
+	});
 }
 function handleProjectNameChange() {
 	const value = projectNameElement.value;
@@ -326,15 +336,27 @@ function handleShowCommitsChange() {
 platformUsernameElement.addEventListener('keyup', handlePlatformUsernameChange);
 if (githubTokenElement) {
 	githubTokenElement.addEventListener('keyup', handleGithubTokenChange);
+	githubTokenElement.addEventListener('change', () => {
+		githubTokenElement.value = githubTokenElement.value.trim();
+	});
+	githubTokenElement.addEventListener('blur', () => {
+		githubTokenElement.value = githubTokenElement.value.trim();
+	});
 }
 if (gitlabTokenElement) {
 	gitlabTokenElement.addEventListener('keyup', handleGitlabTokenChange);
+	gitlabTokenElement.addEventListener('change', () => {
+		gitlabTokenElement.value = gitlabTokenElement.value.trim();
+	});
+	gitlabTokenElement.addEventListener('blur', () => {
+		gitlabTokenElement.value = gitlabTokenElement.value.trim();
+	});
 }
 cacheInputElement.addEventListener('keyup', handleCacheInputChange);
 projectNameElement.addEventListener('keyup', handleProjectNameChange);
-startingDateElement.addEventListener('change', handleStartingDateChange);
+startingDateElement.addEventListener('blur', handleStartingDateChange);
 showCommitsElement.addEventListener('change', handleShowCommitsChange);
-endingDateElement.addEventListener('change', handleEndingDateChange);
+endingDateElement.addEventListener('blur', handleEndingDateChange);
 yesterdayContributionElement.addEventListener('change', handleYesterdayContributionChange);
 showOpenLabelElement.addEventListener('change', handleOpenLabelChange);
 

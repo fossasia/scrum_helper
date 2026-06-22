@@ -992,6 +992,28 @@ document.addEventListener('DOMContentLoaded', () => {
 				payload.githubCache = null;
 			}
 			browser.storage.local.set(payload);
+			const trimmed = githubTokenInput.value.trim();
+			browser.storage.local.get(['githubToken']).then((items) => {
+				const currentStored = items.githubToken || '';
+				if (trimmed !== currentStored) {
+					browser.storage.local.set({ githubToken: trimmed });
+				}
+			});
+		});
+		githubTokenInput.addEventListener('change', () => {
+			const trimmed = githubTokenInput.value.trim();
+			githubTokenInput.value = trimmed;
+			browser.storage.local.get(['githubToken']).then((items) => {
+				const currentStored = items.githubToken || '';
+				if (trimmed !== currentStored) {
+					browser.storage.local.set({ githubToken: trimmed }).then(() => {
+						triggerRepoFetchIfEnabled();
+					});
+				}
+			});
+		});
+		githubTokenInput.addEventListener('blur', () => {
+			githubTokenInput.value = githubTokenInput.value.trim();
 		});
 		cacheInput.addEventListener('input', () => {
 			browser.storage.local.set({ cacheInput: cacheInput.value });
@@ -1044,10 +1066,10 @@ document.addEventListener('DOMContentLoaded', () => {
 		yesterdayRadio.addEventListener('change', () => {
 			browser.storage.local.set({ yesterdayContribution: yesterdayRadio.checked });
 		});
-		startingDateInput.addEventListener('input', () => {
+		startingDateInput.addEventListener('blur', () => {
 			window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(startingDateInput, endingDateInput);
 		});
-		endingDateInput.addEventListener('input', () => {
+		endingDateInput.addEventListener('blur', () => {
 			window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(startingDateInput, endingDateInput);
 		});
 
@@ -1330,6 +1352,7 @@ document.addEventListener('DOMContentLoaded', () => {
 							items.endingDate,
 							items.yesterdayContribution,
 						);
+						const repoCacheKey = makeRepoCacheKey(username, items.orgName || '', platform, items);
 
 						const now = Date.now();
 						const cacheAge = cacheData.repoCache?.timestamp
@@ -2220,3 +2243,32 @@ function validateOrgOnBlur(org) {
 		helper.validateOrgOnBlur(org);
 	}
 }
+
+// Rate Limit Warning banner management
+(function () {
+	let rateLimitTimeout;
+	const rateLimitWarning = document.getElementById('rateLimitWarning');
+	const closeRateLimitWarning = document.getElementById('closeRateLimitWarning');
+
+	if (rateLimitWarning && closeRateLimitWarning) {
+		closeRateLimitWarning.addEventListener('click', () => {
+			rateLimitWarning.classList.add('hidden');
+			if (rateLimitTimeout) {
+				clearTimeout(rateLimitTimeout);
+			}
+		});
+	}
+
+	window.showRateLimitWarning = function () {
+		const banner = document.getElementById('rateLimitWarning');
+		if (banner) {
+			banner.classList.remove('hidden');
+			if (rateLimitTimeout) {
+				clearTimeout(rateLimitTimeout);
+			}
+			rateLimitTimeout = setTimeout(() => {
+				banner.classList.add('hidden');
+			}, 6000); // 6 seconds
+		}
+	};
+})();
