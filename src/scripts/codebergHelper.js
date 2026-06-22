@@ -14,8 +14,18 @@ function parseRepoAndOwner(url) {
 	const apiMatch = url.match(/\/api\/v1\/repos\/([^\/]+)\/([^\/]+)/);
 	if (apiMatch) return { owner: apiMatch[1], repo: apiMatch[2] };
 
-	const webMatch = url.match(/codeberg\.org\/([^\/]+)\/([^\/]+)/);
-	if (webMatch) return { owner: webMatch[1], repo: webMatch[2] };
+	const webPathMatch = url.match(/\/([^\/]+)\/([^\/]+)\/(issues|pulls|pull|commit)\/\d+/i);
+	if (webPathMatch) return { owner: webPathMatch[1], repo: webPathMatch[2] };
+
+	try {
+		const parsed = new URL(url);
+		const parts = parsed.pathname.split('/').filter(Boolean);
+		if (parts.length >= 2) {
+			return { owner: parts[0], repo: parts[1] };
+		}
+	} catch (e) {
+		// ignore
+	}
 
 	return { owner: '', repo: '' };
 }
@@ -52,23 +62,26 @@ class CodebergHelper {
 			await browser.storage.local.set({
 				codebergCache: {
 					data,
-					cacheKey: this.cache.cacheKey,
 					timestamp: this.cache.timestamp,
+					cacheKey: this.cache.cacheKey,
 				},
 			});
 		} catch (e) {
-			console.error(e);
+			console.error('[Codeberg] Save storage error:', e);
 		}
 	}
 
 	async loadFromStorage() {
 		try {
-			const items = await browser.storage.local.get(['codebergCache']);
-			if (items.codebergCache) {
-				Object.assign(this.cache, items.codebergCache);
+			const res = await browser.storage.local.get('codebergCache');
+			if (res && res.codebergCache) {
+				const cached = res.codebergCache;
+				this.cache.data = cached.data;
+				this.cache.timestamp = cached.timestamp;
+				this.cache.cacheKey = cached.cacheKey;
 			}
 		} catch (e) {
-			console.error(e);
+			console.error('[Codeberg] Load storage error:', e);
 		}
 	}
 
@@ -90,6 +103,37 @@ class CodebergHelper {
 			if (!Array.isArray(data) || data.length === 0) break;
 
 			results.push(...data);
+
+			if (data.length < limit) break;
+			page++;
+		}
+
+		return results;
+	}
+
+	async fetchAllPaginatedWithDateLimit(url, headers, startDateLimit) {
+		let page = 1;
+		const limit = 50;
+		const results = [];
+		const limitDate = startDateLimit ? new Date(startDateLimit + 'T00:00:00Z') : new Date(0);
+
+		while (true) {
+			const sep = url.includes('?') ? '&' : '?';
+			const paged = `${url}${sep}limit=${limit}&page=${page}&sort=updated&order=desc`;
+
+			const res = await fetch(paged, { headers });
+			if (!res.ok) break;
+
+			const data = await res.json();
+			if (!Array.isArray(data) || data.length === 0) break;
+
+			results.push(...data);
+
+			const lastItem = data[data.length - 1];
+			const lastUpdated = new Date(lastItem.updated_at || lastItem.created_at);
+			if (lastUpdated < limitDate) {
+				break;
+			}
 
 			if (data.length < limit) break;
 			page++;
@@ -134,55 +178,117 @@ class CodebergHelper {
 			if (!userRes.ok) throw new Error('User not found');
 			const user = await userRes.json();
 
-			/* REPOS */
-			const reposRes = await fetch(`${this.baseUrl}/users/${username}/repos`, { headers });
-			const repos = reposRes.ok ? await reposRes.json() : [];
-			if (!Array.isArray(repos)) {
-				throw new Error('Repositories list is not an array');
-			}
-
 			const start = new Date(startDate + 'T00:00:00Z');
 			const end = new Date(endDate + 'T23:59:59Z');
 
 			const issues = [];
 			const mergeRequests = [];
 
-			/* PER REPO FETCH */
-			await Promise.all(
-				repos.map(async (repo) => {
-					const base = `${this.baseUrl}/repos/${repo.owner.login}/${repo.name}`;
+			if (token) {
+				/* FETCH ISSUES/PRS VIA GLOBAL SEARCH */
+				const issueUrls = [
+					`${this.baseUrl}/repos/issues/search?state=all&created=true`,
+					`${this.baseUrl}/repos/issues/search?state=all&assigned=true`,
+					`${this.baseUrl}/repos/issues/search?state=all&mentioned=true`,
+				];
+				const mrUrls = [];
+				const isCodeberg = this.baseUrl.includes('codeberg.org');
+				if (!isCodeberg) {
+					mrUrls.push(
+						`${this.baseUrl}/repos/issues/search?state=all&review_requested=true`,
+						`${this.baseUrl}/repos/issues/search?state=all&reviewed=true`
+					);
+				}
 
-					// ISSUES
-					const repoIssues = await this.fetchAllPaginated(`${base}/issues?state=all`, headers);
+				const fetchQuery = async (url) => {
+					try {
+						return await this.fetchAllPaginatedWithDateLimit(url, headers, startDate);
+					} catch (e) {
+						console.warn(`Failed to fetch from ${url}:`, e);
+						return [];
+					}
+				};
 
-					for (const issue of repoIssues) {
-						const created = new Date(issue.created_at);
-						const issueUser = issue.user?.username || issue.user?.login;
-						const isAssignee =
-							issue.assignees?.some((a) => (a.username || a.login) === username) ||
-							(issue.assignee?.username || issue.assignee?.login) === username;
+				const [issueResultsArray, mrResultsArray] = await Promise.all([
+					Promise.all(issueUrls.map((url) => fetchQuery(url))),
+					Promise.all(mrUrls.map((url) => fetchQuery(url))),
+				]);
 
-						if ((issueUser === username || isAssignee) && created >= start && created <= end) {
-							issues.push(issue);
+				// De-duplicate issues
+				const allMatchedIssues = [];
+				const seenIssueIds = new Set();
+				for (const list of issueResultsArray) {
+					for (const item of list) {
+						if (!seenIssueIds.has(item.id)) {
+							seenIssueIds.add(item.id);
+							allMatchedIssues.push(item);
 						}
 					}
+				}
 
-					// PRs
-					const repoPRs = await this.fetchAllPaginated(`${base}/pulls?state=all`, headers);
-
-					for (const pr of repoPRs) {
-						const created = new Date(pr.created_at);
-						const prUser = pr.user?.username || pr.user?.login;
-						const isPrAssignee =
-							pr.assignees?.some((a) => (a.username || a.login) === username) ||
-							(pr.assignee?.username || pr.assignee?.login) === username;
-
-						if ((prUser === username || isPrAssignee) && created >= start && created <= end) {
-							mergeRequests.push(pr);
+				// De-duplicate merge requests
+				const allMatchedMRs = [];
+				const seenMRIds = new Set();
+				for (const list of mrResultsArray) {
+					for (const item of list) {
+						if (!seenMRIds.has(item.id)) {
+							seenMRIds.add(item.id);
+							allMatchedMRs.push(item);
 						}
 					}
-				}),
-			);
+				}
+
+				for (const item of allMatchedIssues) {
+					const updated = new Date(item.updated_at || item.created_at);
+					if (updated >= start && updated <= end) {
+						issues.push(item);
+					}
+				}
+
+				for (const item of allMatchedMRs) {
+					const updated = new Date(item.updated_at || item.created_at);
+					if (updated >= start && updated <= end) {
+						if (item.pull_request) {
+							mergeRequests.push(item);
+						}
+					}
+				}
+			} else {
+				/* FALLBACK FOR UNAUTHENTICATED USERS: REPO-BASED FETCHING */
+				const reposRes = await fetch(`${this.baseUrl}/users/${username}/repos`, { headers });
+				const repos = reposRes.ok ? await reposRes.json() : [];
+				if (!Array.isArray(repos)) {
+					throw new Error('Repositories list is not an array');
+				}
+
+				await Promise.all(
+					repos.map(async (repo) => {
+						try {
+							const base = `${this.baseUrl}/repos/${repo.owner.login}/${repo.name}`;
+							const repoIssues = await this.fetchAllPaginated(`${base}/issues?state=all`, headers);
+
+							for (const issue of repoIssues) {
+								const updated = new Date(issue.updated_at || issue.created_at);
+								if (updated >= start && updated <= end) {
+									const issueUser = issue.user?.username || issue.user?.login;
+									const isAssignee =
+										issue.assignees?.some((a) => (a.username || a.login) === username) ||
+										(issue.assignee?.username || issue.assignee?.login) === username;
+
+									if (issueUser === username || isAssignee) {
+										issues.push(issue);
+										if (issue.pull_request) {
+											mergeRequests.push(issue);
+										}
+									}
+								}
+							}
+						} catch (e) {
+							console.warn(`Failed to fetch issues for repo ${repo.name}:`, e);
+						}
+					})
+				);
+			}
 
 			const result = {
 				user,
@@ -335,52 +441,7 @@ if (window.PlatformRegistry) {
 	window.PlatformRegistry.register('codeberg', {
 		hasRepoFilter: false,
 		checkTokenForFilter() {},
-		checkTokenForShowCommits(options = {}) {
-			const { showWarning = false, animateWarning = false, warningDurationMs = 4000, persistState = false } = options;
-			const showCommits = document.getElementById('showCommits');
-			const codebergTokenInput = document.getElementById('codebergToken');
-
-			if (!showCommits || !codebergTokenInput) {
-				return;
-			}
-
-			const isShowCommitsEnabled = showCommits.checked;
-			const hasToken = codebergTokenInput.value.trim() !== '';
-
-			if (isShowCommitsEnabled && !hasToken) {
-				showCommits.checked = false;
-				if (showWarning) {
-					const tokenWarning = document.getElementById('tokenWarningForShowCommits');
-					if (tokenWarning) {
-						tokenWarning.classList.remove('hidden');
-						if (animateWarning) {
-							tokenWarning.classList.add('shake-animation');
-							setTimeout(() => tokenWarning.classList.remove('shake-animation'), 620);
-						}
-						if (window.codebergShowCommitsWarningTimeout) {
-							clearTimeout(window.codebergShowCommitsWarningTimeout);
-						}
-						window.codebergShowCommitsWarningTimeout = setTimeout(() => {
-							tokenWarning.classList.add('hidden');
-						}, warningDurationMs);
-					}
-				}
-				browser.storage.local.set({ showCommits: false });
-				return;
-			}
-
-			const tokenWarning = document.getElementById('tokenWarningForShowCommits');
-			if (tokenWarning) {
-				if (window.codebergShowCommitsWarningTimeout) {
-					clearTimeout(window.codebergShowCommitsWarningTimeout);
-					window.codebergShowCommitsWarningTimeout = null;
-				}
-				tokenWarning.classList.add('hidden');
-			}
-			if (persistState) {
-				browser.storage.local.set({ showCommits: showCommits.checked });
-			}
-		},
+		checkTokenForShowCommits() {},
 		checkTokenForMergedPRs() {},
 		triggerRepoFetchIfEnabled() {},
 		debugRepoFetch() {},

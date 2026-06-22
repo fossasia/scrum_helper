@@ -878,7 +878,7 @@ function allIncluded(outputTarget = 'email') {
 				);
 				// Fetch commits for open PRs (batch) if showCommits is enabled
 				const activeToken = platform === 'codeberg' ? codebergToken : githubToken;
-				if (openPRs.length && showCommits) {
+				if (openPRs.length && showCommits && platform !== 'codeberg') {
 					let startDateForCommits;
 					let endDateForCommits;
 					if (yesterdayContribution) {
@@ -965,8 +965,6 @@ function allIncluded(outputTarget = 'email') {
 	async function fetchCommitsForOpenPRs(prs, token, startDate, endDate) {
 		if (platform === 'github') {
 			return githubFetchCommits(prs, token, startDate, endDate);
-		} else if (platform === 'codeberg' && window.codebergHelper) {
-			return window.codebergHelper.fetchCommitsForOpenPRs(prs, token, startDate, endDate);
 		}
 		return {};
 	}
@@ -1404,7 +1402,7 @@ ${blockerText}`;
 			} else if (platform === 'gitlab') {
 				isAuthoredByUser = item.author && item.author.username === platformUsername;
 			} else if (platform === 'codeberg') {
-				isAuthoredByUser = item.user && item.user.login === platformUsernameLocal;
+				isAuthoredByUser = item.user && (item.user.login === platformUsernameLocal || item.user.username === platformUsernameLocal);
 			}
 
 			if (isAuthoredByUser || !item.pull_request) continue;

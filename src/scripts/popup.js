@@ -1733,47 +1733,6 @@ function updatePlatformUI(platform) {
 		}
 	});
 
-	const githubCodebergSections = document.querySelectorAll('.githubCodebergSection');
-	githubCodebergSections.forEach((el) => {
-		if (platform === 'github' || platform === 'codeberg') {
-			el.classList.remove('hidden');
-		} else {
-			el.classList.add('hidden');
-		}
-	});
-
-	const tokenWarningForShowCommits = document.getElementById('tokenWarningForShowCommits');
-	if (tokenWarningForShowCommits) {
-		const span = tokenWarningForShowCommits.querySelector('span');
-		if (span) {
-			if (platform === 'codeberg') {
-				span.setAttribute('data-i18n', 'tokenRequiredShowCommitsWarningCodeberg');
-			} else {
-				span.setAttribute('data-i18n', 'tokenRequiredShowCommitsWarning');
-			}
-			const key = span.getAttribute('data-i18n');
-			const message = browser.i18n.getMessage(key);
-			if (message) {
-				span.textContent = message;
-			}
-		}
-	}
-
-	const showCommitsTooltip = document.querySelector(
-		'[data-i18n="showCommitsTooltip"], [data-i18n="showCommitsTooltipCodeberg"]',
-	);
-	if (showCommitsTooltip) {
-		if (platform === 'codeberg') {
-			showCommitsTooltip.setAttribute('data-i18n', 'showCommitsTooltipCodeberg');
-		} else {
-			showCommitsTooltip.setAttribute('data-i18n', 'showCommitsTooltip');
-		}
-		const key = showCommitsTooltip.getAttribute('data-i18n');
-		const message = browser.i18n.getMessage(key);
-		if (message) {
-			showCommitsTooltip.textContent = message;
-		}
-	}
 }
 
 platformSelect.addEventListener('change', () => {
