@@ -110,6 +110,30 @@
     "message": "Your GitLab Token",
     "description": "Label for the GitLab token input."
   },
+  "gitlabInstanceLabel": {
+    "message": "GitLab Instance URL",
+    "description": "Label for the GitLab instance URL input."
+  },
+  "gitlabInstancePlaceholder": {
+    "message": "https://gitlab.example.com",
+    "description": "Placeholder for the GitLab instance URL input."
+  },
+  "gitlabInstanceTooltip": {
+    "message": "Optional for self-hosted GitLab instances. Leave this blank to use gitlab.com.",
+    "description": "Tooltip for the GitLab instance URL input."
+  },
+  "gitlabInstanceInvalid": {
+    "message": "Enter a valid GitLab instance URL.",
+    "description": "Error message shown when the GitLab instance URL is invalid."
+  },
+  "gitlabInstancePermissionDenied": {
+    "message": "GitLab permission was not granted for this instance.",
+    "description": "Error message shown when optional host permission is denied."
+  },
+  "gitlabInstanceInvalidError": {
+    "message": "A valid GitLab instance URL is required.",
+    "description": "Error message shown when the GitLab instance URL is missing or invalid."
+  },
   "gitlabTokenPlaceholder": {
     "message": "Required for accessing private projects",
     "description": "Placeholder for the GitLab token input."

@@ -7,8 +7,27 @@ function normalizeGitLabApiBaseUrl(apiBaseUrl) {
 }
 
 class GitLabHelper {
-	constructor(apiBaseUrl = DEFAULT_GITLAB_API_BASE_URL) {
-		this.baseUrl = normalizeGitLabApiBaseUrl(apiBaseUrl);
+	static normalizeGitLabOrigin(domain) {
+		const raw = typeof domain === 'string' ? domain.trim().replace(/\/+$/, '') : '';
+		if (!raw) {
+			return 'https://gitlab.com';
+		}
+
+		const candidate = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+		try {
+			const parsed = new URL(candidate);
+			if (parsed.protocol !== 'https:') {
+				return null;
+			}
+			return parsed.origin.replace(/\/+$/, '');
+		} catch (error) {
+			return null;
+		}
+	}
+
+	constructor(domain = null) {
+		this.gitlabOrigin = GitLabHelper.normalizeGitLabOrigin(domain);
+		this.baseUrl = this.gitlabOrigin ? `${this.gitlabOrigin.replace(/\/+$/, '')}/api/v4` : null;
 		this.cache = {
 			data: null,
 			cacheKey: null,
@@ -17,6 +36,45 @@ class GitLabHelper {
 			fetching: false,
 			queue: [],
 		};
+	}
+
+	async ensureGitLabInstanceReachable(token = null) {
+		const headers = {};
+		if (token) {
+			headers['PRIVATE-TOKEN'] = token;
+		}
+
+		const invalidMessage =
+			chrome?.i18n.getMessage('gitlabInstanceInvalidError') || 'A valid HTTPS GitLab instance URL is required.';
+
+		try {
+			const res = await fetch(`${this.baseUrl}/projects?per_page=1`, { headers });
+
+			// Treat 404/405 from the API probe as an invalid or misconfigured instance.
+			// Authentication/authorization failures should be surfaced by the actual
+			// data fetches rather than being misreported as an instance/permission error.
+			if (!res.ok && (res.status === 404 || res.status === 405)) {
+				throw new Error(invalidMessage);
+			}
+
+			// 401/403 means the instance is reachable but access is unauthorized.
+			// Let subsequent API calls surface token/auth specific errors.
+			if (!res.ok && (res.status === 401 || res.status === 403)) {
+				return true;
+			}
+
+			if (!res.ok) {
+				throw new Error(invalidMessage);
+			}
+
+			return true;
+		} catch (error) {
+			console.error('GitLab reachability check failed:', error);
+			if (error instanceof Error && error.message === invalidMessage) {
+				throw error;
+			}
+			throw new Error(invalidMessage);
+		}
 	}
 
 	async getCacheTTL() {
@@ -58,9 +116,18 @@ class GitLabHelper {
 	}
 
 	async fetchGitLabData(username, startDate, endDate, token = null) {
+		if (!this.baseUrl) {
+			throw new Error(
+				chrome?.i18n.getMessage('gitlabInstanceInvalidError') || 'A valid GitLab instance URL is required.',
+			);
+		}
+
 		// Include token state in cache key to invalidate when auth changes
 		const tokenMarker = token ? 'auth' : 'noauth';
 		const cacheKey = `${this.baseUrl}-${username}-${startDate}-${endDate}-${tokenMarker}`;
+		if (this.cache.fetching || (this.cache.cacheKey === cacheKey && this.cache.data)) {
+			return this.cache.data;
+		}
 
 		// Check if we need to load from storage
 		if (!this.cache.data && !this.cache.fetching) {
@@ -87,6 +154,8 @@ class GitLabHelper {
 				this.cache.queue.push({ resolve, reject });
 			});
 		}
+
+		await this.ensureGitLabInstanceReachable(token);
 
 		this.cache.fetching = true;
 		this.cache.cacheKey = cacheKey;
@@ -190,6 +259,7 @@ class GitLabHelper {
 			}
 
 			const gitlabData = {
+				apiBaseUrl: this.baseUrl ? this.baseUrl.replace(/\/+$/, '') : null,
 				user: users[0],
 				projects: allProjects,
 				mergeRequests: allMergeRequests, // use project-by-project response
@@ -278,6 +348,7 @@ class GitLabHelper {
 
 	processGitLabData(data) {
 		const processed = {
+			apiBaseUrl: (data.apiBaseUrl || this.baseUrl || 'https://gitlab.com/api/v4').replace(/\/+$/, ''),
 			mergeRequests: data.mergeRequests || [],
 			issues: data.issues || [],
 			comments: data.comments || [],
