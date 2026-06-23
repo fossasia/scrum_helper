@@ -46,6 +46,24 @@ function logError(...args) {
 	}
 }
 
+function getLocalISOString(dateStr, time) {
+	const offsetMinutes = new Date().getTimezoneOffset();
+	const absOffset = Math.abs(offsetMinutes);
+	const hours = Math.floor(absOffset / 60);
+	const minutes = absOffset % 60;
+	const sign = offsetMinutes <= 0 ? '+' : '-';
+	const pad = (num) => String(num).padStart(2, '0');
+	const offsetStr = `${sign}${pad(hours)}:${pad(minutes)}`;
+	return `${dateStr}T${time}${offsetStr}`;
+}
+
+function formatLocalDate(date) {
+	const year = date.getFullYear();
+	const month = String(date.getMonth() + 1).padStart(2, '0');
+	const day = String(date.getDate()).padStart(2, '0');
+	return `${year}-${month}-${day}`;
+}
+
 /**
  * Redact sensitive storage data for safe logging
  * Prevents exposure of authentication tokens and credentials in console logs
@@ -404,11 +422,11 @@ function allIncluded(outputTarget = 'email') {
 		const today = new Date();
 		const yesterday = new Date(today);
 		yesterday.setDate(today.getDate() - 1);
-		return yesterday.toISOString().split('T')[0];
+		return formatLocalDate(yesterday);
 	}
 	function getToday() {
 		const today = new Date();
-		return today.toISOString().split('T')[0];
+		return formatLocalDate(today);
 	}
 
 	// Global cache object
@@ -519,8 +537,8 @@ function allIncluded(outputTarget = 'email') {
 		if (yesterdayContribution) {
 			const today = new Date();
 			const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
-			startDateForCache = yesterday.toISOString().split('T')[0];
-			endDateForCache = today.toISOString().split('T')[0]; // Use yesterday for start and today for end
+			startDateForCache = formatLocalDate(yesterday);
+			endDateForCache = formatLocalDate(today); // Use yesterday for start and today for end
 		} else if (startingDate && endingDate) {
 			startDateForCache = startingDate;
 			endDateForCache = endingDate;
@@ -528,8 +546,8 @@ function allIncluded(outputTarget = 'email') {
 			// Default to last 7 days if no date range is set
 			const today = new Date();
 			const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
-			startDateForCache = lastWeek.toISOString().split('T')[0];
-			endDateForCache = today.toISOString().split('T')[0];
+			startDateForCache = formatLocalDate(lastWeek);
+			endDateForCache = formatLocalDate(today);
 		}
 
 		const cacheKey = `${platformUsernameLocal}-${startDateForCache}-${endDateForCache}-${orgName || 'all'}`;
@@ -776,8 +794,8 @@ function allIncluded(outputTarget = 'email') {
 					if (yesterdayContribution) {
 						const today = new Date();
 						const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
-						startDateForCommits = yesterday.toISOString().split('T')[0];
-						endDateForCommits = today.toISOString().split('T')[0]; // Use yesterday for start and today for end
+						startDateForCommits = formatLocalDate(yesterday);
+						endDateForCommits = formatLocalDate(today); // Use yesterday for start and today for end
 					} else if (startingDate && endingDate) {
 						startDateForCommits = startingDate;
 						endDateForCommits = endingDate;
@@ -785,8 +803,8 @@ function allIncluded(outputTarget = 'email') {
 						// Default to last 7 days if no date range is set
 						const today = new Date();
 						const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
-						startDateForCommits = lastWeek.toISOString().split('T')[0];
-						endDateForCommits = today.toISOString().split('T')[0];
+						startDateForCommits = formatLocalDate(lastWeek);
+						endDateForCommits = formatLocalDate(today);
 					}
 
 					const commitMap = await fetchCommitsForOpenPRs(openPRs, githubToken, startDateForCommits, endDateForCommits);
@@ -1267,8 +1285,8 @@ ${blockerText}`;
 		if (yesterdayContribution) {
 			const today = new Date();
 			const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
-			startDate = yesterday.toISOString().split('T')[0];
-			endDate = today.toISOString().split('T')[0]; // Use yesterday for start and today for end
+			startDate = formatLocalDate(yesterday);
+			endDate = formatLocalDate(today); // Use yesterday for start and today for end
 		} else if (startingDate && endingDate) {
 			startDate = startingDate;
 			endDate = endingDate;
@@ -1276,8 +1294,8 @@ ${blockerText}`;
 			// Default to last 7 days if no date range is set
 			const today = new Date();
 			const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
-			startDate = lastWeek.toISOString().split('T')[0];
-			endDate = today.toISOString().split('T')[0];
+			startDate = formatLocalDate(lastWeek);
+			endDate = formatLocalDate(today);
 		}
 
 		const startDateTime = new Date(startDate + 'T00:00:00Z');
@@ -1470,8 +1488,8 @@ ${blockerText}`;
 		if (yesterdayContribution) {
 			const today = new Date();
 			const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
-			startDateForRange = yesterday.toISOString().split('T')[0];
-			endDateForRange = today.toISOString().split('T')[0]; // Use yesterday for start and today for end
+			startDateForRange = formatLocalDate(yesterday);
+			endDateForRange = formatLocalDate(today); // Use yesterday for start and today for end
 		} else if (startingDate && endingDate) {
 			startDateForRange = startingDate;
 			endDateForRange = endingDate;
@@ -1479,8 +1497,8 @@ ${blockerText}`;
 			// Default to last 7 days if no date range is set
 			const today = new Date();
 			const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
-			startDateForRange = lastWeek.toISOString().split('T')[0];
-			endDateForRange = today.toISOString().split('T')[0];
+			startDateForRange = formatLocalDate(lastWeek);
+			endDateForRange = formatLocalDate(today);
 		}
 
 		const daysRange = getDaysBetween(startDateForRange, endDateForRange);
@@ -1641,8 +1659,8 @@ ${blockerText}`;
 				if (yesterdayContribution) {
 					const today = new Date();
 					const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
-					startDateFilter = new Date(yesterday.toISOString().split('T')[0] + 'T00:00:00Z');
-					endDateFilter = new Date(today.toISOString().split('T')[0] + 'T23:59:59Z'); // Use yesterday for start and today for end
+					startDateFilter = new Date(formatLocalDate(yesterday) + 'T00:00:00Z');
+					endDateFilter = new Date(formatLocalDate(today) + 'T23:59:59Z'); // Use yesterday for start and today for end
 				} else if (startingDate && endingDate) {
 					startDateFilter = new Date(startingDate + 'T00:00:00Z');
 					endDateFilter = new Date(endingDate + 'T23:59:59Z');
@@ -1650,8 +1668,8 @@ ${blockerText}`;
 					// Default to last 7 days if no date range is set
 					const today = new Date();
 					const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
-					startDateFilter = new Date(lastWeek.toISOString().split('T')[0] + 'T00:00:00Z');
-					endDateFilter = new Date(today.toISOString().split('T')[0] + 'T23:59:59Z');
+					startDateFilter = new Date(formatLocalDate(lastWeek) + 'T00:00:00Z');
+					endDateFilter = new Date(formatLocalDate(today) + 'T23:59:59Z');
 				}
 
 				const today = new Date();
@@ -1763,16 +1781,16 @@ ${blockerText}`;
 				if (yesterdayContribution) {
 					const todayDate = new Date();
 					const yesterdayDate = new Date(todayDate.getTime() - 24 * 60 * 60 * 1000);
-					issueStartDateFilter = new Date(yesterdayDate.toISOString().split('T')[0] + 'T00:00:00Z');
-					issueEndDateFilter = new Date(yesterdayDate.toISOString().split('T')[0] + 'T23:59:59Z');
+					issueStartDateFilter = new Date(formatLocalDate(yesterdayDate) + 'T00:00:00Z');
+					issueEndDateFilter = new Date(formatLocalDate(yesterdayDate) + 'T23:59:59Z');
 				} else if (startingDate && endingDate) {
 					issueStartDateFilter = new Date(startingDate + 'T00:00:00Z');
 					issueEndDateFilter = new Date(endingDate + 'T23:59:59Z');
 				} else {
 					const todayDate = new Date();
 					const lastWeek = new Date(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate() - 7);
-					issueStartDateFilter = new Date(lastWeek.toISOString().split('T')[0] + 'T00:00:00Z');
-					issueEndDateFilter = new Date(todayDate.toISOString().split('T')[0] + 'T23:59:59Z');
+					issueStartDateFilter = new Date(formatLocalDate(lastWeek) + 'T00:00:00Z');
+					issueEndDateFilter = new Date(formatLocalDate(todayDate) + 'T23:59:59Z');
 				}
 
 				const issueCreatedDate = new Date(item.created_at);
