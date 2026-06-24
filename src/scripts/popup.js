@@ -994,36 +994,23 @@ document.addEventListener('DOMContentLoaded', () => {
 					persistState: true,
 				});
 			});
-		});
-		githubTokenInput.addEventListener('input', () => {
-			const rawToken = githubTokenInput.value;
-			const nextTokenNormalized = rawToken.trim();
-			const shouldInvalidateCaches = previousGithubTokenNormalized !== nextTokenNormalized;
-			previousGithubTokenNormalized = nextTokenNormalized;
-
-			const payload = { githubToken: rawToken };
-			if (shouldInvalidateCaches) {
-				payload.repoCache = null;
-				payload.githubCache = null;
-			}
-			browser.storage.local.set(payload);
-			const trimmed = githubTokenInput.value.trim();
-			browser.storage.local.get(['githubToken']).then((items) => {
-				const currentStored = items.githubToken || '';
-				if (trimmed !== currentStored) {
-					browser.storage.local.set({ githubToken: trimmed });
-				}
 		}
+
 		if (githubTokenInput) {
 			githubTokenInput.addEventListener('input', () => {
-				const trimmed = githubTokenInput.value.trim();
-				browser.storage.local.get(['githubToken']).then((items) => {
-					const currentStored = items.githubToken || '';
-					if (trimmed !== currentStored) {
-						browser.storage.local.set({ githubToken: trimmed });
-					}
-				});
+				const rawToken = githubTokenInput.value;
+				const nextTokenNormalized = rawToken.trim();
+				const shouldInvalidateCaches = previousGithubTokenNormalized !== nextTokenNormalized;
+				previousGithubTokenNormalized = nextTokenNormalized;
+
+				const payload = { githubToken: rawToken };
+				if (shouldInvalidateCaches) {
+					payload.repoCache = null;
+					payload.githubCache = null;
+				}
+				browser.storage.local.set(payload);
 			});
+
 			githubTokenInput.addEventListener('change', () => {
 				const trimmed = githubTokenInput.value.trim();
 				githubTokenInput.value = trimmed;
@@ -1036,6 +1023,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					}
 				});
 			});
+
 			githubTokenInput.addEventListener('blur', () => {
 				githubTokenInput.value = githubTokenInput.value.trim();
 			});
