@@ -46,7 +46,6 @@ function logError(...args) {
 	}
 }
 
-
 function getLocalISOString(dateStr, time) {
 	const offsetMinutes = new Date().getTimezoneOffset();
 	const absOffset = Math.abs(offsetMinutes);
@@ -241,8 +240,8 @@ function allIncluded(outputTarget = 'email') {
 					}
 
 					items.projectName = projectFromDOM || items.projectName;
-					items.githubToken = tokenFromDOM || items.githubToken;
-					items.gitlabToken = gitlabTokenFromDOM || items.gitlabToken;
+					items.githubToken = (tokenFromDOM || items.githubToken || '').trim();
+					items.gitlabToken = (gitlabTokenFromDOM || items.gitlabToken || '').trim();
 					chrome.storage.local.set({
 						projectName: items.projectName,
 						githubToken: items.githubToken,
@@ -420,6 +419,10 @@ function allIncluded(outputTarget = 'email') {
 	}
 
 	function getYesterday() {
+		return window.scrumDateRangeUtils.getLocalYesterdayString();
+	}
+	function getToday() {
+		return window.scrumDateRangeUtils.getLocalTodayString();
 		const today = new Date();
 		const yesterday = new Date(today);
 		yesterday.setDate(today.getDate() - 1);
@@ -616,9 +619,10 @@ function allIncluded(outputTarget = 'email') {
 			Accept: 'application/vnd.github.v3+json',
 		};
 
-		if (githubToken) {
+		const normalizedGithubToken = githubToken?.trim();
+		if (normalizedGithubToken) {
 			log('Making authenticated requests.');
-			headers.Authorization = `token ${githubToken}`;
+			headers.Authorization = `token ${normalizedGithubToken}`;
 		} else {
 			log('Making public requests');
 		}
@@ -874,6 +878,78 @@ function allIncluded(outputTarget = 'email') {
 	}
 
 	async function fetchCommitsForOpenPRs(prs, githubToken, startDate, endDate) {
+		log(
+			'fetchCommitsForOpenPRs called with PRs:',
+			prs.map((pr) => pr.number),
+			'startDate:',
+			startDate,
+			'endDate:',
+			endDate,
+		);
+		if (!prs.length) return {};
+		const since = new Date(startDate + 'T00:00:00Z').toISOString();
+		const until = new Date(endDate + 'T23:59:59Z').toISOString();
+		const queries = prs
+			.map((pr, idx) => {
+				const repoParts = pr.repository_url.split('/');
+				const owner = repoParts[repoParts.length - 2];
+				const repo = repoParts[repoParts.length - 1];
+				return `
+			pr${idx}: repository(owner: "${owner}", name: "${repo}") {
+				pullRequest(number: ${pr.number}) {
+					commits(first: 100) {
+						nodes {
+							commit {
+								messageHeadline
+								committedDate
+								url
+								author {
+									name
+									user { login }
+								}
+							}
+						}
+					}
+				}
+
+			}`;
+			})
+			.join('\n');
+		const query = `query { ${queries} }`;
+		log('GraphQL query for commits:', query);
+		const normalizedGithubToken = githubToken?.trim();
+		const res = await fetch('https://api.github.com/graphql', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json',
+				...(normalizedGithubToken ? { Authorization: `bearer ${normalizedGithubToken}` } : {}),
+			},
+			body: JSON.stringify({ query }),
+		});
+		log('fetchCommitsForOpenPRs response status:', res.status);
+		const data = await res.json();
+		log('fetchCommitsForOpenPRs response data:', data);
+		const commitMap = {};
+		prs.forEach((pr, idx) => {
+			const prData = data.data && data.data[`pr${idx}`] && data.data[`pr${idx}`].pullRequest;
+			if (prData && prData.commits && prData.commits.nodes) {
+				const allCommits = prData.commits.nodes.map((n) => n.commit);
+				log(`PR #${pr.number} allCommits:`, allCommits);
+				const filteredCommits = allCommits.filter((commit) => {
+					const commitDate = new Date(commit.committedDate);
+					const sinceDate = new Date(since);
+					const untilDate = new Date(until);
+					const isInRange = commitDate >= sinceDate && commitDate <= untilDate;
+					log(`PR #${pr.number} commit "${commit.messageHeadline}" (${commit.committedDate}) - in range: ${isInRange}`);
+					return isInRange;
+				});
+				log(`PR #${pr.number} filteredCommits:`, filteredCommits);
+				commitMap[pr.number] = filteredCommits;
+			} else {
+				log(`No commits found for PR #${pr.number}`);
+			}
+		});
+		return commitMap;
 		return githubFetchCommits(prs, githubToken, startDate, endDate);
 	}
 
@@ -882,7 +958,13 @@ function allIncluded(outputTarget = 'email') {
 			log('Repo fiter disabled, skipping fetch');
 			return [];
 		}
-		const repoCacheKey = `repos-${platformUsernameLocal}-${orgName}-${startDateForCache}-${endDateForCache}`;
+		const repoCacheKey = await window.buildRepoCacheKey(
+			platformUsernameLocal,
+			orgName,
+			githubToken,
+			startDateForCache,
+			endDateForCache,
+		);
 
 		const now = Date.now();
 		const isRepoCacheFresh = now - githubCache.repoTimeStamp < githubCache.ttl;
