@@ -1,6 +1,69 @@
 // GitLab API Helper for Scrum Helper Extension
 const DEFAULT_GITLAB_API_BASE_URL = 'https://gitlab.com/api/v4';
 
+let gitlabShowCommitsWarningTimeout;
+
+function gitlabShowTokenWarningForShowCommits({ animate = false, durationMs = 4000 } = {}) {
+	const tokenWarning = document.getElementById('tokenWarningForShowCommits');
+	if (!tokenWarning) {
+		return;
+	}
+
+	tokenWarning.classList.remove('hidden');
+	if (animate) {
+		tokenWarning.classList.add('shake-animation');
+		setTimeout(() => tokenWarning.classList.remove('shake-animation'), 620);
+	}
+
+	if (gitlabShowCommitsWarningTimeout) {
+		clearTimeout(gitlabShowCommitsWarningTimeout);
+	}
+	gitlabShowCommitsWarningTimeout = setTimeout(() => {
+		tokenWarning.classList.add('hidden');
+	}, durationMs);
+}
+
+function gitlabCheckTokenForShowCommits({
+	showWarning = false,
+	animateWarning = false,
+	warningDurationMs = 4000,
+	persistState = false,
+} = {}) {
+	const showCommits = document.getElementById('showCommits');
+	const gitlabTokenInput = document.getElementById('gitlabToken');
+
+	if (!showCommits || !gitlabTokenInput) {
+		return;
+	}
+
+	const isShowCommitsEnabled = showCommits.checked;
+	const hasToken = gitlabTokenInput.value.trim() !== '';
+
+	if (isShowCommitsEnabled && !hasToken) {
+		showCommits.checked = false;
+		if (showWarning) {
+			gitlabShowTokenWarningForShowCommits({
+				animate: animateWarning,
+				durationMs: warningDurationMs,
+			});
+		}
+		browser.storage.local.set({ showCommits: false });
+		return;
+	}
+
+	const tokenWarning = document.getElementById('tokenWarningForShowCommits');
+	if (tokenWarning) {
+		if (gitlabShowCommitsWarningTimeout) {
+			clearTimeout(gitlabShowCommitsWarningTimeout);
+			gitlabShowCommitsWarningTimeout = null;
+		}
+		tokenWarning.classList.add('hidden');
+	}
+	if (persistState) {
+		browser.storage.local.set({ showCommits: showCommits.checked });
+	}
+}
+
 function normalizeGitLabApiBaseUrl(apiBaseUrl) {
 	const value = typeof apiBaseUrl === 'string' && apiBaseUrl.trim() ? apiBaseUrl.trim() : DEFAULT_GITLAB_API_BASE_URL;
 	return value.replace(/\/+$/, '');
@@ -189,6 +252,47 @@ class GitLabHelper {
 				}
 			}
 
+			// Fetch commits for open/draft Merge Requests if enabled
+			const itemsLocal = await browser.storage.local.get(['showCommits']);
+			const showCommits = itemsLocal.showCommits || false;
+
+			if (showCommits && allMergeRequests.length > 0) {
+				const openMRs = allMergeRequests.filter(
+					(mr) =>
+						mr.state === 'opened' ||
+						mr.draft === true ||
+						(mr.title && (mr.title.startsWith('Draft:') || mr.title.startsWith('WIP:'))),
+				);
+
+				const sinceDate = new Date(startDate + 'T00:00:00Z');
+				const untilDate = new Date(endDate + 'T23:59:59Z');
+
+				for (const mr of openMRs) {
+					try {
+						const commitsUrl = `${this.baseUrl}/projects/${mr.project_id}/merge_requests/${mr.iid}/commits?per_page=100`;
+						const commitsRes = await fetch(commitsUrl, { headers });
+						if (commitsRes.ok) {
+							const commits = await commitsRes.json();
+							mr._allCommits = commits
+								.filter((commit) => {
+									const commitDateStr = commit.committed_date || commit.created_at || commit.authored_date;
+									if (!commitDateStr) return false;
+									const commitDate = new Date(commitDateStr);
+									return commitDate >= sinceDate && commitDate <= untilDate;
+								})
+								.map((commit) => ({
+									messageHeadline: commit.title || commit.message,
+									committedDate: commit.committed_date || commit.created_at || commit.authored_date,
+								}));
+						}
+						// Add small delay to avoid rate limiting
+						await new Promise((resolve) => setTimeout(resolve, 100));
+					} catch (error) {
+						console.error(`Error fetching commits for GitLab MR ${mr.iid}:`, error);
+					}
+				}
+			}
+
 			const gitlabData = {
 				user: users[0],
 				projects: allProjects,
@@ -303,6 +407,7 @@ class GitLabHelper {
 			state: type === 'issue' && item.state === 'opened' ? 'open' : item.state,
 			project: repoName,
 			pull_request: type === 'mr',
+			_allCommits: item._allCommits || [],
 		};
 	}
 
@@ -355,7 +460,7 @@ if (window.PlatformRegistry) {
 	window.PlatformRegistry.register('gitlab', {
 		hasRepoFilter: false,
 		checkTokenForFilter() {},
-		checkTokenForShowCommits() {},
+		checkTokenForShowCommits: gitlabCheckTokenForShowCommits,
 		checkTokenForMergedPRs() {},
 		triggerRepoFetchIfEnabled() {},
 		debugRepoFetch() {},
