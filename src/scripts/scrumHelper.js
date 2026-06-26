@@ -46,7 +46,6 @@ function logError(...args) {
 	}
 }
 
-
 function getLocalISOString(dateStr, time) {
 	const offsetMinutes = new Date().getTimezoneOffset();
 	const absOffset = Math.abs(offsetMinutes);
