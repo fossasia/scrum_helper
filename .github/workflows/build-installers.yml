@@ -1,0 +1,49 @@
+name: Build and Commit Extension Files
+
+on:
+  schedule:
+    - cron: '0 0 */5 * *'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build extension
+        run: npm run build
+
+      - name: Install web-ext
+        run: npm install -g web-ext
+
+      - name: Package Chrome (.zip)
+        run: |
+          mkdir -p installers
+          cd dist/chrome && zip -r ../../installers/scrum-helper-chrome.zip . && cd ../..
+
+      - name: Package Firefox (.xpi) using web-ext
+        run: |
+          mkdir -p installers
+          web-ext build --source-dir dist/firefox --overwrite-dest --artifacts-dir installers
+          mv installers/scrum_helper-*.zip installers/scrum-helper-firefox.xpi
+      - name: Commit updated files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add installers/
+          git diff --staged --quiet || git commit -m "chore: auto-update extension builds"
+          git push
