@@ -290,6 +290,34 @@ document.addEventListener('DOMContentLoaded', () => {
 		return Number.isFinite(n) && n > 0 ? n : null;
 	}
 
+	function getRepoDateRange(startingDate, endingDate, yesterdayContribution) {
+		const formatLocal = (date) => window.scrumDateRangeUtils.formatLocalDate(date);
+
+		if (yesterdayContribution) {
+			const today = new Date();
+			const yesterday = new Date(today);
+			yesterday.setDate(today.getDate() - 1);
+			return {
+				startDate: formatLocal(yesterday),
+				endDate: formatLocal(today),
+			};
+		}
+
+		if (startingDate && endingDate) {
+			return {
+				startDate: startingDate,
+				endDate: endingDate,
+			};
+		}
+
+		const today = new Date();
+		const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
+		return {
+			startDate: formatLocal(lastWeek),
+			endDate: formatLocal(today),
+		};
+	}
+
 	function setGenerateButtonLoading(generateBtn, isLoading) {
 		if (!generateBtn) return;
 		if (!isLoading) return;
@@ -498,6 +526,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		const startingDateInput = document.getElementById('startingDate');
 		const endingDateInput = document.getElementById('endingDate');
 		const platformUsername = document.getElementById('platformUsername');
+		let previousGithubTokenNormalized = '';
 		const usernameError = document.getElementById('usernameError');
 
 		browser.storage.local
@@ -565,6 +594,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					browser?.storage.local.set({ onlyPRs: false });
 				}
 				if (result.githubToken) githubTokenInput.value = result.githubToken;
+				previousGithubTokenNormalized = githubTokenInput.value.trim();
 				if (result.cacheInput) cacheInput.value = result.cacheInput;
 				if (typeof result.yesterdayContribution !== 'undefined') yesterdayRadio.checked = result.yesterdayContribution;
 				if (result.startingDate) startingDateInput.value = result.startingDate;
@@ -965,16 +995,22 @@ document.addEventListener('DOMContentLoaded', () => {
 				});
 			});
 		}
+
 		if (githubTokenInput) {
 			githubTokenInput.addEventListener('input', () => {
-				const trimmed = githubTokenInput.value.trim();
-				browser.storage.local.get(['githubToken']).then((items) => {
-					const currentStored = items.githubToken || '';
-					if (trimmed !== currentStored) {
-						browser.storage.local.set({ githubToken: trimmed });
-					}
-				});
+				const rawToken = githubTokenInput.value;
+				const nextTokenNormalized = rawToken.trim();
+				const shouldInvalidateCaches = previousGithubTokenNormalized !== nextTokenNormalized;
+				previousGithubTokenNormalized = nextTokenNormalized;
+
+				const payload = { githubToken: rawToken };
+				if (shouldInvalidateCaches) {
+					payload.repoCache = null;
+					payload.githubCache = null;
+				}
+				browser.storage.local.set(payload);
 			});
+
 			githubTokenInput.addEventListener('change', () => {
 				const trimmed = githubTokenInput.value.trim();
 				githubTokenInput.value = trimmed;
@@ -987,6 +1023,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					}
 				});
 			});
+
 			githubTokenInput.addEventListener('blur', () => {
 				githubTokenInput.value = githubTokenInput.value.trim();
 			});
@@ -1128,6 +1165,103 @@ document.addEventListener('DOMContentLoaded', () => {
 		let selectedRepos = [];
 		let highlightedIndex = -1;
 
+		browser.storage.onChanged.addListener((changes) => {
+			if (changes.githubToken && changes.githubToken.oldValue !== changes.githubToken.newValue) {
+				availableRepos = [];
+				selectedRepos = [];
+				if (typeof updateRepoDisplay === 'function') updateRepoDisplay();
+				if (typeof saveRepoSelection === 'function') saveRepoSelection();
+				if (repoStatus) repoStatus.textContent = '';
+			}
+		});
+
+		async function triggerRepoFetchIfEnabled() {
+			// --- PLATFORM CHECK: Only run for GitHub ---
+			let platform = 'github';
+			try {
+				const items = await browser.storage.local.get(['platform']);
+				platform = items.platform || 'github';
+			} catch {}
+			if (platform !== 'github') {
+				// Do not run repo fetch for non-GitHub platforms
+				if (repoStatus)
+					repoStatus.textContent =
+						chrome?.i18n.getMessage('repoFilteringGithubOnly') || 'Repository filtering is only available for GitHub.';
+				return;
+			}
+			if (!useRepoFilter.checked) {
+				return;
+			}
+
+			if (repoStatus) {
+				repoStatus.textContent = browser.i18n.getMessage('repoRefetching');
+			}
+
+			try {
+				const cacheData = await browser.storage.local.get(['repoCache']);
+				const items = await browser.storage.local.get([
+					'platform',
+					'githubUsername',
+					'gitlabUsername',
+					'githubToken',
+					'orgName',
+					'startingDate',
+					'endingDate',
+					'yesterdayContribution',
+				]);
+
+				const platform = items.platform || 'github';
+				const platformUsernameKey = `${platform}Username`;
+				const username = items[platformUsernameKey];
+
+				if (!username) {
+					if (repoStatus) {
+						repoStatus.textContent = chrome?.i18n.getMessage('usernameMissingError') || 'Username required';
+					}
+					return;
+				}
+
+				if (window.fetchUserRepositories) {
+					const repos = await window.fetchUserRepositories(username, items.githubToken, items.orgName || '');
+
+					availableRepos = repos;
+
+					if (repoStatus) {
+						repoStatus.textContent = browser.i18n.getMessage('repoLoaded', [repos.length]);
+					}
+
+					const repoCacheKey = await getRepoCacheKey(
+						username,
+						items.orgName,
+						items.githubToken,
+						items.startingDate,
+						items.endingDate,
+						items.yesterdayContribution,
+					);
+					browser.storage.local.set({
+						repoCache: {
+							data: repos,
+							cacheKey: repoCacheKey,
+							timestamp: Date.now(),
+						},
+					});
+
+					if (document.activeElement === repoSearch) {
+						filterAndDisplayRepos(repoSearch.value.toLowerCase());
+					} else if (repoSearch.value) {
+						filterAndDisplayRepos(repoSearch.value.toLowerCase());
+					} else {
+						filterAndDisplayRepos('');
+					}
+				}
+			} catch (err) {
+				if (repoStatus) {
+					repoStatus.textContent = `${browser.i18n.getMessage('errorLabel')}: ${err.message || browser.i18n.getMessage('repoRefetchFailed')}`;
+				}
+			}
+		}
+
+		window.triggerRepoFetchIfEnabled = triggerRepoFetchIfEnabled;
 		window.githubRepoFilterContext = {
 			useRepoFilter,
 			repoStatus,
@@ -1206,6 +1340,9 @@ document.addEventListener('DOMContentLoaded', () => {
 							'gitlabUsername',
 							'githubToken',
 							'orgName',
+							'startingDate',
+							'endingDate',
+							'yesterdayContribution',
 						]);
 
 						const platform = items.platform || 'github';
@@ -1217,7 +1354,7 @@ document.addEventListener('DOMContentLoaded', () => {
 							return;
 						}
 
-						const repoCacheKey = makeRepoCacheKey(username, items.orgName || '', platform, items);
+						const repoCacheKey = await makeRepoCacheKey(username, items.orgName || '', platform, items);
 
 						const now = Date.now();
 						const cacheAge = cacheData.repoCache?.timestamp

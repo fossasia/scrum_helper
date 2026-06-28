@@ -162,23 +162,60 @@ function checkTokenForFilter() {
 	}, 4000);
 }
 
-function makeRepoCacheKey(username, orgName, platform, storageItems) {
+async function makeRepoCacheKey(username, orgName, platform, storageItems) {
 	const org = orgName || '';
+
+	let startDate = '';
+	let endDate = '';
+	if (window.scrumDateRangeUtils) {
+		if (storageItems?.yesterdayContribution) {
+			startDate = window.scrumDateRangeUtils.getLocalYesterdayString();
+			endDate = window.scrumDateRangeUtils.getLocalTodayString();
+		} else if (storageItems?.startingDate && storageItems?.endingDate) {
+			startDate = storageItems.startingDate;
+			endDate = storageItems.endingDate;
+		} else {
+			const today = new Date();
+			const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
+			startDate = window.scrumDateRangeUtils.formatLocalDate(lastWeek);
+			endDate = window.scrumDateRangeUtils.formatLocalDate(today);
+		}
+	} else {
+		// Fallback
+		if (storageItems?.yesterdayContribution) {
+			const today = new Date();
+			const yesterday = new Date(today);
+			yesterday.setDate(today.getDate() - 1);
+			startDate = yesterday.toISOString().split('T')[0];
+			endDate = today.toISOString().split('T')[0];
+		} else if (storageItems?.startingDate && storageItems?.endingDate) {
+			startDate = storageItems.startingDate;
+			endDate = storageItems.endingDate;
+		} else {
+			const today = new Date();
+			const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
+			startDate = lastWeek.toISOString().split('T')[0];
+			endDate = today.toISOString().split('T')[0];
+		}
+	}
+
 	if (platform === 'github') {
 		const token = (storageItems?.githubToken || '').trim();
 		if (!token) {
-			return `repos-${username}-${org}-notoken`;
+			return `repos-${username}-${org}-${startDate}-${endDate}-notoken`;
 		}
-		let hash = 0;
-		for (let i = 0; i < token.length; i++) {
-			const char = token.charCodeAt(i);
-			hash = (hash << 5) - hash + char;
-			hash |= 0; // Convert to 32bit integer
-		}
-		const fingerprint = (hash >>> 0).toString(36);
-		return `repos-${username}-${org}-token-${fingerprint}`;
+
+		const inputBytes = new TextEncoder().encode(token);
+		const digest = await crypto.subtle.digest('SHA-256', inputBytes);
+		const bytes = new Uint8Array(digest).slice(0, 12);
+		const hex = Array.from(bytes)
+			.map((byte) => byte.toString(16).padStart(2, '0'))
+			.join('');
+		const fingerprint = `tok-${hex}`;
+
+		return `repos-${username}-${org}-${startDate}-${endDate}-${fingerprint}`;
 	}
-	return `repos-${username}-${org}`;
+	return `repos-${username}-${org}-${startDate}-${endDate}`;
 }
 
 // Trigger repo fetch when repo filtering is enabled (moved from popup.js)
@@ -219,6 +256,9 @@ async function triggerRepoFetchIfEnabled() {
 			'gitlabUsername',
 			'githubToken',
 			'orgName',
+			'startingDate',
+			'endingDate',
+			'yesterdayContribution',
 		]);
 
 		const platform2 = items.platform || 'github';
@@ -240,7 +280,7 @@ async function triggerRepoFetchIfEnabled() {
 				repoStatus.textContent = browser.i18n.getMessage('repoLoaded', [repos.length]);
 			}
 
-			const repoCacheKey = makeRepoCacheKey(username, items.orgName || '', 'github', items);
+			const repoCacheKey = await makeRepoCacheKey(username, items.orgName || '', 'github', items);
 			browser.storage.local.set({
 				repoCache: {
 					data: repos,
@@ -358,11 +398,14 @@ async function performRepoFetch() {
 			'gitlabUsername',
 			'githubToken',
 			'orgName',
+			'startingDate',
+			'endingDate',
+			'yesterdayContribution',
 		]);
 		const platform = storageItems.platform || 'github';
 		const platformUsernameKey = `${platform}Username`;
 		const username = storageItems[platformUsernameKey];
-		const repoCacheKey = makeRepoCacheKey(username, storageItems.orgName || '', 'github', storageItems);
+		const repoCacheKey = await makeRepoCacheKey(username, storageItems.orgName || '', 'github', storageItems);
 		const now = Date.now();
 		const cacheAge = cacheData.repoCache?.timestamp ? now - cacheData.repoCache.timestamp : Number.POSITIVE_INFINITY;
 		const cacheTTL = 10 * 60 * 1000; // 10 minutes
@@ -683,6 +726,7 @@ async function forceGithubDataRefresh() {
 }
 
 window['forceGithubDataRefresh'] = forceGithubDataRefresh;
+window.makeRepoCacheKey = makeRepoCacheKey;
 
 // Global fetch helpers
 const GITHUB_DEBUG = false;
