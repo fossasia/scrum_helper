@@ -1175,11 +1175,6 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		});
 
-		async function getRepoCacheKey(username, orgName, token, startingDate, endingDate, yesterdayContribution) {
-			const { startDate, endDate } = getRepoDateRange(startingDate, endingDate, yesterdayContribution);
-			return await window.buildRepoCacheKey(username, orgName, token, startDate, endDate);
-		}
-
 		async function triggerRepoFetchIfEnabled() {
 			// --- PLATFORM CHECK: Only run for GitHub ---
 			let platform = 'github';
@@ -1359,15 +1354,7 @@ document.addEventListener('DOMContentLoaded', () => {
 							return;
 						}
 
-						const repoCacheKey = await getRepoCacheKey(
-							username,
-							items.orgName,
-							items.githubToken,
-							items.startingDate,
-							items.endingDate,
-							items.yesterdayContribution,
-						);
-						const repoCacheKey = makeRepoCacheKey(username, items.orgName || '', platform, items);
+						const repoCacheKey = await makeRepoCacheKey(username, items.orgName || '', platform, items);
 
 						const now = Date.now();
 						const cacheAge = cacheData.repoCache?.timestamp

@@ -958,13 +958,11 @@ function allIncluded(outputTarget = 'email') {
 			log('Repo fiter disabled, skipping fetch');
 			return [];
 		}
-		const repoCacheKey = await window.buildRepoCacheKey(
-			platformUsernameLocal,
-			orgName,
+		const repoCacheKey = await window.makeRepoCacheKey(platformUsernameLocal, orgName, 'github', {
 			githubToken,
-			startDateForCache,
-			endDateForCache,
-		);
+			startingDate: startDateForCache,
+			endingDate: endDateForCache,
+		});
 
 		const now = Date.now();
 		const isRepoCacheFresh = now - githubCache.repoTimeStamp < githubCache.ttl;
