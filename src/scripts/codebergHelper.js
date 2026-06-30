@@ -196,7 +196,7 @@ class CodebergHelper {
 				if (!isCodeberg) {
 					mrUrls.push(
 						`${this.baseUrl}/repos/issues/search?state=all&review_requested=true`,
-						`${this.baseUrl}/repos/issues/search?state=all&reviewed=true`
+						`${this.baseUrl}/repos/issues/search?state=all&reviewed=true`,
 					);
 				}
 
@@ -286,7 +286,7 @@ class CodebergHelper {
 						} catch (e) {
 							console.warn(`Failed to fetch issues for repo ${repo.name}:`, e);
 						}
-					})
+					}),
 				);
 			}
 
