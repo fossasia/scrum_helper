@@ -46,7 +46,6 @@ function logError(...args) {
 	}
 }
 
-
 function getLocalISOString(dateStr, time) {
 	const offsetMinutes = new Date().getTimezoneOffset();
 	const absOffset = Math.abs(offsetMinutes);
@@ -76,7 +75,7 @@ function logRedaction(items) {
 		return items;
 	}
 	const spreadItems = { ...items };
-	const sensitiveKeys = ['githubToken', 'gitlabToken'];
+	const sensitiveKeys = ['githubToken', 'gitlabToken', 'bitbucketToken'];
 	sensitiveKeys.forEach((key) => {
 		if (key in spreadItems) {
 			spreadItems[key] = '[REDACTED]';
@@ -93,8 +92,10 @@ let orgName = '';
 let platform = 'github';
 let platformUsername = '';
 let gitlabToken = '';
+let bitbucketToken = '';
 window.gitlabBaseUrl = '';
 window.gitlabHelper = null;
+window.bitbucketHelper = null;
 let usernameValidationListenerAttached = false;
 
 const scrumReportEl = document.getElementById('scrumReport');
@@ -138,6 +139,9 @@ function allIncluded(outputTarget = 'email') {
 	// Always re-instantiate gitlabHelper for gitlab platform to ensure fresh cache after refresh
 	if (platform === 'gitlab' || (typeof platform === 'undefined' && window.GitLabHelper)) {
 		window.gitlabHelper = new window.GitLabHelper(window.gitlabBaseUrl);
+	}
+	if (platform === 'bitbucket' || (typeof platform === 'undefined' && window.BitbucketHelper)) {
+		window.bitbucketHelper = new window.BitbucketHelper();
 	}
 	if (scrumGenerationInProgress) {
 		return;
@@ -197,8 +201,10 @@ function allIncluded(outputTarget = 'email') {
 				'platform',
 				'githubUsername',
 				'gitlabUsername',
+				'bitbucketUsername',
 				'githubToken',
 				'gitlabToken',
+				'bitbucketToken',
 				'gitlabBaseUrl',
 				'projectName',
 				'startingDate',
@@ -232,6 +238,7 @@ function allIncluded(outputTarget = 'email') {
 					const projectFromDOM = document.getElementById('projectName')?.value;
 					const tokenFromDOM = document.getElementById('githubToken')?.value;
 					const gitlabTokenFromDOM = document.getElementById('gitlabToken')?.value;
+					const bitbucketTokenFromDOM = document.getElementById('bitbucketToken')?.value;
 
 					// Save to platform-specific storage
 					if (usernameFromDOM) {
@@ -243,10 +250,12 @@ function allIncluded(outputTarget = 'email') {
 					items.projectName = projectFromDOM || items.projectName;
 					items.githubToken = tokenFromDOM || items.githubToken;
 					items.gitlabToken = gitlabTokenFromDOM || items.gitlabToken;
+					items.bitbucketToken = bitbucketTokenFromDOM || items.bitbucketToken;
 					chrome.storage.local.set({
 						projectName: items.projectName,
 						githubToken: items.githubToken,
 						gitlabToken: items.gitlabToken,
+						bitbucketToken: items.bitbucketToken,
 					});
 				}
 				projectName = items.projectName;
@@ -255,9 +264,13 @@ function allIncluded(outputTarget = 'email') {
 				chrome.storage.local.remove(['userReason']);
 				githubToken = items.githubToken;
 				gitlabToken = items.gitlabToken || '';
+				bitbucketToken = items.bitbucketToken || '';
 				window.gitlabBaseUrl = items.gitlabBaseUrl || '';
 				if (platform === 'gitlab' && window.GitLabHelper) {
 					window.gitlabHelper = new window.GitLabHelper(window.gitlabBaseUrl);
+				}
+				if (platform === 'bitbucket' && window.BitbucketHelper) {
+					window.bitbucketHelper = new window.BitbucketHelper();
 				}
 				yesterdayContribution = items.yesterdayContribution;
 
@@ -401,6 +414,102 @@ function allIncluded(outputTarget = 'email') {
 							}
 						}
 						scrumGenerationInProgress = false;
+					}
+				} else if (platform === 'bitbucket') {
+					if (!window.bitbucketHelper) window.bitbucketHelper = new window.BitbucketHelper();
+					if (platformUsernameLocal) {
+						const generateBtn = document.getElementById('generateReport');
+						if (generateBtn && outputTarget === 'popup') {
+							generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
+							generateBtn.disabled = true;
+						}
+
+						if (outputTarget === 'email') {
+							(async () => {
+								try {
+									const data = await window.bitbucketHelper.fetchBitbucketData(
+										platformUsernameLocal,
+										startingDate,
+										endingDate,
+										bitbucketToken,
+									);
+
+									const mappedData = window.bitbucketHelper.mapBitbucketReportData(data);
+									githubUserData = mappedData.githubUserData;
+
+									const name =
+										githubUserData?.name || githubUserData?.username || platformUsernameLocal || platformUsername;
+									const project = projectName;
+									const curDate = new Date();
+									const year = curDate.getFullYear().toString();
+									let date = curDate.getDate();
+									let month = curDate.getMonth() + 1;
+									if (month < 10) month = '0' + month;
+									if (date < 10) date = '0' + date;
+									const dateCode = year.toString() + month.toString() + date.toString();
+									const subject = `[Scrum]${project ? ' - ' + project : ''} - ${dateCode}`;
+									subjectForEmail = subject;
+
+									await processGithubData(mappedData, true, subjectForEmail);
+									scrumGenerationInProgress = false;
+								} catch (err) {
+									console.error('Bitbucket fetch failed:', err);
+									if (outputTarget === 'popup') {
+										if (generateBtn) {
+											generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+											generateBtn.disabled = false;
+										}
+										const ErrMessage = `${err.message || 'Error fetching Bitbucket data.'}`;
+										if (typeof ErrMessage === 'string' && ErrMessage.toLowerCase().includes('not found')) {
+											handleUsernameValidationError(ErrMessage);
+										} else {
+											showReportMessage(ErrMessage);
+										}
+									}
+									scrumGenerationInProgress = false;
+								}
+							})();
+						} else {
+							window.bitbucketHelper
+								.fetchBitbucketData(platformUsernameLocal, startingDate, endingDate, bitbucketToken)
+								.then((data) => {
+									const mappedData = window.bitbucketHelper.mapBitbucketReportData(data);
+									processGithubData(mappedData);
+									scrumGenerationInProgress = false;
+								})
+								.catch((err) => {
+									console.error('Bitbucket fetch failed:', err);
+									if (outputTarget === 'popup') {
+										if (generateBtn) {
+											generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+											generateBtn.disabled = false;
+										}
+										const ErrMessage = `${err.message || 'Error fetching Bitbucket data.'}`;
+										if (typeof ErrMessage === 'string' && ErrMessage.toLowerCase().includes('not found')) {
+											handleUsernameValidationError(ErrMessage);
+										} else {
+											showReportMessage(ErrMessage);
+										}
+									}
+									scrumGenerationInProgress = false;
+								});
+						}
+					} else {
+						if (outputTarget === 'popup') {
+							const generateBtn = document.getElementById('generateReport');
+							const ErrMessage =
+								chrome.i18n.getMessage('usernameRequiredError') || 'Please enter your username to generate a report.';
+							handleUsernameValidationError(ErrMessage);
+							if (generateBtn) {
+								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+								generateBtn.disabled = false;
+							}
+							scrumGenerationInProgress = false;
+						} else {
+							console.warn('[DEBUG] No username found in storage');
+							scrumGenerationInProgress = false;
+						}
+						return;
 					}
 				} else {
 					// Unknown platform
@@ -1028,7 +1137,7 @@ function allIncluded(outputTarget = 'email') {
 		log('[SCRUM-DEBUG] Processing issues for main activity:', githubIssuesData?.items);
 		if (platform === 'github') {
 			await writeGithubIssuesPrs(githubIssuesData?.items || []);
-		} else if (platform === 'gitlab') {
+		} else if (platform === 'gitlab' || platform === 'bitbucket') {
 			await writeGithubIssuesPrs(githubIssuesData?.items || []);
 			await writeGithubIssuesPrs(githubPrsReviewData?.items || []);
 		}
@@ -1153,7 +1262,11 @@ ${blockerText}`;
 				delete scrumReport.dataset.copyPlaceholder;
 				try {
 					const cacheKey =
-						platform === 'gitlab' ? (window.gitlabHelper?.cache?.cacheKey ?? null) : (githubCache?.cacheKey ?? null);
+						platform === 'gitlab'
+							? (window.gitlabHelper?.cache?.cacheKey ?? null)
+							: platform === 'bitbucket'
+								? (window.bitbucketHelper?.cache?.cacheKey ?? null)
+								: (githubCache?.cacheKey ?? null);
 
 					chrome.storage.local.set({
 						lastScrumReportHtml: content,
@@ -1305,6 +1418,9 @@ ${blockerText}`;
 				isAuthoredByUser = item.user && item.user.login === platformUsernameLocal;
 			} else if (platform === 'gitlab') {
 				isAuthoredByUser = item.author && item.author.username === platformUsername;
+			} else if (platform === 'bitbucket') {
+				isAuthoredByUser =
+					item.author && (item.author.username === platformUsername || item.author.nickname === platformUsername);
 			}
 
 			if (isAuthoredByUser || !item.pull_request) continue;
@@ -1623,7 +1739,7 @@ ${blockerText}`;
 			const repository_url = item.repository_url;
 			// Use project name for GitLab, repo extraction for GitHub
 			const project =
-				platform === 'gitlab' && item.project
+				(platform === 'gitlab' || platform === 'bitbucket') && item.project
 					? item.project
 					: repository_url
 						? repository_url.substr(repository_url.lastIndexOf('/') + 1)
@@ -1702,6 +1818,13 @@ ${blockerText}`;
 					} else {
 						prAction = 'Updated Merge Request';
 					}
+				} else if (platform === 'bitbucket') {
+					prAction = isNewPR ? 'Made PR' : 'Updated PR';
+					if (isCreatedToday && item.state === 'open') {
+						prAction = 'Made PR';
+					} else {
+						prAction = 'Updated PR';
+					}
 				}
 
 				if (isDraft) {
@@ -1728,8 +1851,10 @@ ${blockerText}`;
 						li += '</ul>';
 					}
 					li += `</li>`;
-				} else if (platform === 'gitlab' && item.state === 'closed') {
-					li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_closed_button : ''}</li>`;
+				} else if ((platform === 'gitlab' || platform === 'bitbucket') && item.state === 'closed') {
+					const isMerged = item.pull_request?.merged === true;
+					const btn = isMerged ? pr_merged_button : pr_closed_button;
+					li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + btn : ''}</li>`;
 				} else {
 					let merged = null;
 					if ((githubToken || (useMergedStatus && !fallbackToSimple)) && mergedStatusResults) {

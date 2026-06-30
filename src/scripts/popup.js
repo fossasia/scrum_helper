@@ -150,6 +150,12 @@ document.addEventListener('DOMContentLoaded', () => {
 	const gitlabTokenEyeIcon = document.getElementById('gitlabTokenEyeIcon');
 	let gitlabTokenVisible = false;
 
+	// Bitbucket token elements
+	const bitbucketTokenInput = document.getElementById('bitbucketToken');
+	const toggleBitbucketTokenBtn = document.getElementById('toggleBitbucketTokenVisibility');
+	const bitbucketTokenEyeIcon = document.getElementById('bitbucketTokenEyeIcon');
+	let bitbucketTokenVisible = false;
+
 	const orgInput = document.getElementById('orgInput');
 
 	const platformSelect = document.getElementById('platformSelect');
@@ -216,6 +222,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			gitlabTokenInput.classList.add('token-animating');
 			setTimeout(() => gitlabTokenInput.classList.remove('token-animating'), 300);
+		});
+	}
+
+	// Bitbucket token visibility toggle
+	if (toggleBitbucketTokenBtn && bitbucketTokenInput) {
+		toggleBitbucketTokenBtn.addEventListener('click', () => {
+			bitbucketTokenVisible = !bitbucketTokenVisible;
+			bitbucketTokenInput.type = bitbucketTokenVisible ? 'text' : 'password';
+
+			bitbucketTokenEyeIcon.classList.add('eye-animating');
+			setTimeout(() => bitbucketTokenEyeIcon.classList.remove('eye-animating'), 400);
+			bitbucketTokenEyeIcon.className = bitbucketTokenVisible
+				? 'fa fa-eye-slash text-gray-600'
+				: 'fa fa-eye text-gray-600';
+
+			bitbucketTokenInput.classList.add('token-animating');
+			setTimeout(() => bitbucketTokenInput.classList.remove('token-animating'), 300);
 		});
 	}
 
@@ -508,6 +531,8 @@ document.addEventListener('DOMContentLoaded', () => {
 				'showOpenLabel',
 				'showCommits',
 				'githubToken',
+				'gitlabToken',
+				'bitbucketToken',
 				'cacheInput',
 				'onlyIssues',
 				'onlyPRs',
@@ -520,6 +545,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				'platform',
 				'githubUsername',
 				'gitlabUsername',
+				'bitbucketUsername',
 			])
 			.then((result) => {
 				if (result.projectName) projectNameInput.value = result.projectName;
@@ -565,6 +591,8 @@ document.addEventListener('DOMContentLoaded', () => {
 					browser?.storage.local.set({ onlyPRs: false });
 				}
 				if (result.githubToken) githubTokenInput.value = result.githubToken;
+				if (result.gitlabToken) gitlabTokenInput.value = result.gitlabToken;
+				if (result.bitbucketToken) bitbucketTokenInput.value = result.bitbucketToken;
 				if (result.cacheInput) cacheInput.value = result.cacheInput;
 				if (typeof result.yesterdayContribution !== 'undefined') yesterdayRadio.checked = result.yesterdayContribution;
 				if (result.startingDate) startingDateInput.value = result.startingDate;
@@ -989,6 +1017,54 @@ document.addEventListener('DOMContentLoaded', () => {
 			});
 			githubTokenInput.addEventListener('blur', () => {
 				githubTokenInput.value = githubTokenInput.value.trim();
+			});
+		}
+		if (gitlabTokenInput) {
+			gitlabTokenInput.addEventListener('input', () => {
+				const trimmed = gitlabTokenInput.value.trim();
+				browser.storage.local.get(['gitlabToken']).then((items) => {
+					const currentStored = items.gitlabToken || '';
+					if (trimmed !== currentStored) {
+						browser.storage.local.set({ gitlabToken: trimmed });
+					}
+				});
+			});
+			gitlabTokenInput.addEventListener('change', () => {
+				const trimmed = gitlabTokenInput.value.trim();
+				gitlabTokenInput.value = trimmed;
+				browser.storage.local.get(['gitlabToken']).then((items) => {
+					const currentStored = items.gitlabToken || '';
+					if (trimmed !== currentStored) {
+						browser.storage.local.set({ gitlabToken: trimmed });
+					}
+				});
+			});
+			gitlabTokenInput.addEventListener('blur', () => {
+				gitlabTokenInput.value = gitlabTokenInput.value.trim();
+			});
+		}
+		if (bitbucketTokenInput) {
+			bitbucketTokenInput.addEventListener('input', () => {
+				const trimmed = bitbucketTokenInput.value.trim();
+				browser.storage.local.get(['bitbucketToken']).then((items) => {
+					const currentStored = items.bitbucketToken || '';
+					if (trimmed !== currentStored) {
+						browser.storage.local.set({ bitbucketToken: trimmed });
+					}
+				});
+			});
+			bitbucketTokenInput.addEventListener('change', () => {
+				const trimmed = bitbucketTokenInput.value.trim();
+				bitbucketTokenInput.value = trimmed;
+				browser.storage.local.get(['bitbucketToken']).then((items) => {
+					const currentStored = items.bitbucketToken || '';
+					if (trimmed !== currentStored) {
+						browser.storage.local.set({ bitbucketToken: trimmed });
+					}
+				});
+			});
+			bitbucketTokenInput.addEventListener('blur', () => {
+				bitbucketTokenInput.value = bitbucketTokenInput.value.trim();
 			});
 		}
 		if (cacheInput) {
@@ -1658,6 +1734,8 @@ function updatePlatformUI(platform) {
 	if (usernameLabel) {
 		if (platform === 'gitlab') {
 			usernameLabel.setAttribute('data-i18n', 'gitlabUsernameLabel');
+		} else if (platform === 'bitbucket') {
+			usernameLabel.setAttribute('data-i18n', 'bitbucketUsernameLabel');
 		} else {
 			usernameLabel.setAttribute('data-i18n', 'githubUsernameLabel');
 		}
@@ -1670,7 +1748,7 @@ function updatePlatformUI(platform) {
 
 	const orgSection = document.querySelector('.orgSection');
 	if (orgSection) {
-		if (platform === 'gitlab') {
+		if (platform === 'gitlab' || platform === 'bitbucket') {
 			orgSection.classList.add('hidden');
 		} else {
 			orgSection.classList.remove('hidden');
@@ -1678,7 +1756,7 @@ function updatePlatformUI(platform) {
 	}
 	const githubOnlySections = document.querySelectorAll('.githubOnlySection');
 	githubOnlySections.forEach((el) => {
-		if (platform === 'gitlab') {
+		if (platform === 'gitlab' || platform === 'bitbucket') {
 			el.classList.add('hidden');
 		} else {
 			el.classList.remove('hidden');
@@ -1686,10 +1764,18 @@ function updatePlatformUI(platform) {
 	});
 	const gitlabOnlySections = document.querySelectorAll('.gitlabOnlySection');
 	gitlabOnlySections.forEach((el) => {
-		if (platform === 'github') {
-			el.classList.add('hidden');
-		} else {
+		if (platform === 'gitlab') {
 			el.classList.remove('hidden');
+		} else {
+			el.classList.add('hidden');
+		}
+	});
+	const bitbucketOnlySections = document.querySelectorAll('.bitbucketOnlySection');
+	bitbucketOnlySections.forEach((el) => {
+		if (platform === 'bitbucket') {
+			el.classList.remove('hidden');
+		} else {
+			el.classList.add('hidden');
 		}
 	});
 }
@@ -1749,6 +1835,8 @@ function setPlatformDropdown(value) {
 	if (dropdownSelected) {
 		if (value === 'gitlab') {
 			dropdownSelected.innerHTML = '<i class="fab fa-gitlab mr-2"></i> GitLab';
+		} else if (value === 'bitbucket') {
+			dropdownSelected.innerHTML = '<i class="fab fa-bitbucket mr-2"></i> Bitbucket';
 		} else {
 			dropdownSelected.innerHTML = '<i class="fab fa-github mr-2"></i> GitHub';
 		}
@@ -1887,6 +1975,8 @@ browser.storage.local.get(['platform']).then((result) => {
 	if (dropdownSelected) {
 		if (platform === 'gitlab') {
 			dropdownSelected.innerHTML = '<i class="fab fa-gitlab mr-2"></i> GitLab';
+		} else if (platform === 'bitbucket') {
+			dropdownSelected.innerHTML = '<i class="fab fa-bitbucket mr-2"></i> Bitbucket';
 		} else {
 			dropdownSelected.innerHTML = '<i class="fab fa-github mr-2"></i> GitHub';
 		}

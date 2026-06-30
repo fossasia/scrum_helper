@@ -31,6 +31,10 @@
     "message": "Your GitLab Username",
     "description": "Label for the GitLab username input field."
   },
+  "bitbucketUsernameLabel": {
+    "message": "Your Bitbucket Username",
+    "description": "Label for the Bitbucket username input field."
+  },
   "githubUsernamePlaceholder": {
     "message": "Required for fetching your contributions",
     "description": "Placeholder text for the GitHub username input."
@@ -117,6 +121,18 @@
   "gitlabTokenTooltip": {
     "message": "Why is it recommended to add a GitLab token? Scrum Helper works without a GitLab token for public projects, but adding a personal access token is recommended for a better experience.",
     "description": "Tooltip for GitLab token explaining why it's needed."
+  },
+  "bitbucketTokenLabel": {
+    "message": "Your Bitbucket Token",
+    "description": "Label for the Bitbucket token input."
+  },
+  "bitbucketTokenPlaceholder": {
+    "message": "Required for accessing private repositories",
+    "description": "Placeholder for the Bitbucket token input."
+  },
+  "bitbucketTokenTooltip": {
+    "message": "Why add a Bitbucket token? Scrum Helper works without a token for public repositories, but a personal access token or app password enables access to private repositories and avoids rate limits. Your token stays local.",
+    "description": "Tooltip for Bitbucket token explaining why it's needed."
   },
   "showCommitsLabel": {
     "message": "Show commits on open PRs/ draft PRs",
