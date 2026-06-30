@@ -146,6 +146,13 @@
 									class="hover:bg-gray-100" data-value="gitlab">
 									<i class="fab fa-gitlab" style="margin-right: 12px; font-size: 18px;"></i> GitLab
 								</li>
+								<li style="padding-left: 8px; padding-right: 16px; padding-top: 8px; padding-bottom: 8px; display: flex; align-items: center; cursor: pointer;"
+									class="hover:bg-gray-100" data-value="codeberg">
+									<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width: 18px; height: 18px; margin-right: 12px; fill: currentColor;">
+										<title>Codeberg</title>
+										<path d="M11.999.747A11.974 11.974 0 0 0 0 12.75c0 2.254.635 4.465 1.833 6.376L11.837 6.19c.072-.092.251-.092.323 0l4.178 5.402h-2.992l.065.239h3.113l.882 1.138h-3.674l.103.374h3.86l.777 1.003h-4.358l.135.483h4.593l.695.894h-5.038l.165.589h5.326l.609.785h-5.717l.182.65h6.038l.562.727h-6.397l.183.65h6.717A12.003 12.003 0 0 0 24 12.75 11.977 11.977 0 0 0 11.999.747zm3.654 19.104.182.65h5.326c.173-.204.353-.433.513-.65zm.385 1.377.18.65h3.563c.233-.198.485-.428.712-.65zm.383 1.377.182.648h1.203c.356-.204.685-.412 1.042-.648z"/>
+									</svg> Codeberg
+								</li>
 							</ul>
 						</div>
 					</div>
@@ -257,7 +264,7 @@
 								</div>
 							</div>
 
-							<div class="my-4">
+							<div class="my-4 githubGitlabOnlySection">
 								<div class="flex items-center">
 									<input type="checkbox" id="onlyRevPRs" class="form-checkbox text-blue-600">
 									<label for="onlyRevPRs" class="font-medium text-sm flex items-center"
@@ -536,6 +543,54 @@
 							data-i18n-placeholder="gitlabTokenPlaceholder">
 					</div>
 
+					<div class="codebergOnlySection hidden mt-3">
+						<div class="mb-4">
+							<p class="text-sm font-medium" data-i18n="codebergUsernameLabel">Your Codeberg Username</p>
+							<input id="codebergUsername" type="text"
+								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
+								data-i18n-placeholder="codebergUsernamePlaceholder">
+						</div>
+
+						<div class="mb-4">
+							<div class="flex items-center justify-between">
+								<div class="flex">
+									<p class="text-sm font-medium" data-i18n="codebergTokenLabel">Your Codeberg Token</p>
+									<span class="tooltip-container">
+										<i class="fa fa-question-circle question-icon"></i>
+										<span class="tooltip-bubble" data-i18n="codebergTokenTooltip">
+											<b>Why add a Codeberg token?</b><br>
+											Scrum Helper works without a token for public projects, but a personal access token enables
+											private repos and better rate limits. Your token stays local and is only used to
+											fetch your Codeberg data.<br><br>
+											<b>How to get one:</b><br>
+											1. Go to <a href="https://codeberg.org/user/settings/applications"
+												target="_blank" rel="noopener noreferrer"
+												style="color:#2563eb;text-decoration:underline;">Codeberg Applications
+												Settings</a><br>
+											2. Click "Generate new token"<br>
+											3. Copy and paste it here<br>
+											<i>Keep it secret!</i>
+										</span>
+									</span>
+								</div>
+								<button id="toggleCodebergTokenVisibility" type="button" class="focus:outline-none">
+									<i id="codebergTokenEyeIcon" class="fa fa-eye text-gray-600"></i>
+								</button>
+							</div>
+							<input id="codebergToken" type="password"
+								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2 pr-10"
+								data-i18n-placeholder="codebergTokenPlaceholder">
+						</div>
+
+						<div class="mb-4">
+							<p class="text-sm font-medium" data-i18n="codebergApiBaseUrlLabel">Codeberg API Base URL</p>
+							<input id="codebergApiBaseUrl" type="text"
+								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
+								data-i18n-placeholder="codebergApiBaseUrlPlaceholder"
+								placeholder="https://codeberg.org/api/v1">
+						</div>
+					</div>
+
 					<div class="cacheSection mt-3">
 						<div class="flex items-center justify-between mb-2">
 							<div class="flex items-center">
@@ -633,6 +688,7 @@
 	<script src="scripts/popup.js"></script>
 	<script src="scripts/githubHelper.js"></script>
 	<script src="scripts/gitlabHelper.js"></script>
+	<script src="scripts/codebergHelper.js"></script>
 	<script src="scripts/scrumHelper.js"></script>
 	
 

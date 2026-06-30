@@ -150,6 +150,15 @@ document.addEventListener('DOMContentLoaded', () => {
 	const gitlabTokenEyeIcon = document.getElementById('gitlabTokenEyeIcon');
 	let gitlabTokenVisible = false;
 
+	// Codeberg elements
+	let lastPlatform = 'github';
+	const codebergUsernameInput = document.getElementById('codebergUsername');
+	const codebergTokenInput = document.getElementById('codebergToken');
+	const codebergApiBaseUrlInput = document.getElementById('codebergApiBaseUrl');
+	const toggleCodebergTokenBtn = document.getElementById('toggleCodebergTokenVisibility');
+	const codebergTokenEyeIcon = document.getElementById('codebergTokenEyeIcon');
+	let codebergTokenVisible = false;
+
 	const orgInput = document.getElementById('orgInput');
 
 	const platformSelect = document.getElementById('platformSelect');
@@ -216,6 +225,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			gitlabTokenInput.classList.add('token-animating');
 			setTimeout(() => gitlabTokenInput.classList.remove('token-animating'), 300);
+		});
+	}
+
+	// Codeberg token visibility toggle
+	if (toggleCodebergTokenBtn && codebergTokenInput) {
+		toggleCodebergTokenBtn.addEventListener('click', () => {
+			codebergTokenVisible = !codebergTokenVisible;
+			codebergTokenInput.type = codebergTokenVisible ? 'text' : 'password';
+
+			codebergTokenEyeIcon.classList.add('eye-animating');
+			setTimeout(() => codebergTokenEyeIcon.classList.remove('eye-animating'), 400);
+			codebergTokenEyeIcon.className = codebergTokenVisible
+				? 'fa fa-eye-slash text-gray-600'
+				: 'fa fa-eye text-gray-600';
+
+			codebergTokenInput.classList.add('token-animating');
+			setTimeout(() => codebergTokenInput.classList.remove('token-animating'), 300);
 		});
 	}
 
@@ -520,6 +546,9 @@ document.addEventListener('DOMContentLoaded', () => {
 				'platform',
 				'githubUsername',
 				'gitlabUsername',
+				'codebergUsername',
+				'codebergToken',
+				'codebergApiBaseUrl',
 			])
 			.then((result) => {
 				if (result.projectName) projectNameInput.value = result.projectName;
@@ -577,8 +606,14 @@ document.addEventListener('DOMContentLoaded', () => {
 					window.scrumDateRangeUtils.persistDateRange(startingDateInput, endingDateInput);
 				}
 
+				if (codebergUsernameInput && result.codebergUsername) codebergUsernameInput.value = result.codebergUsername;
+				if (codebergTokenInput && result.codebergToken) codebergTokenInput.value = result.codebergToken;
+				if (codebergApiBaseUrlInput)
+					codebergApiBaseUrlInput.value = result.codebergApiBaseUrl || 'https://codeberg.org/api/v1';
+
 				// Load platform-specific username
 				const platform = result.platform || 'github';
+				lastPlatform = platform;
 				const platformUsernameKey = `${platform}Username`;
 				platformUsername.value = result[platformUsernameKey] || '';
 				window.updateGenerateButtonState && window.updateGenerateButtonState();
@@ -989,6 +1024,23 @@ document.addEventListener('DOMContentLoaded', () => {
 			});
 			githubTokenInput.addEventListener('blur', () => {
 				githubTokenInput.value = githubTokenInput.value.trim();
+			});
+		}
+		if (codebergUsernameInput) {
+			codebergUsernameInput.addEventListener('input', () => {
+				browser.storage.local.set({ codebergUsername: codebergUsernameInput.value });
+			});
+		}
+		if (codebergTokenInput) {
+			codebergTokenInput.addEventListener('input', () => {
+				browser.storage.local.set({ codebergToken: codebergTokenInput.value });
+				checkTokenForShowCommits({ persistState: false });
+			});
+		}
+		if (codebergApiBaseUrlInput) {
+			codebergApiBaseUrlInput.addEventListener('input', () => {
+				const val = codebergApiBaseUrlInput.value.trim() || 'https://codeberg.org/api/v1';
+				browser.storage.local.set({ codebergApiBaseUrl: val });
 			});
 		}
 		if (cacheInput) {
@@ -1658,6 +1710,8 @@ function updatePlatformUI(platform) {
 	if (usernameLabel) {
 		if (platform === 'gitlab') {
 			usernameLabel.setAttribute('data-i18n', 'gitlabUsernameLabel');
+		} else if (platform === 'codeberg') {
+			usernameLabel.setAttribute('data-i18n', 'codebergUsernameLabel');
 		} else {
 			usernameLabel.setAttribute('data-i18n', 'githubUsernameLabel');
 		}
@@ -1670,26 +1724,43 @@ function updatePlatformUI(platform) {
 
 	const orgSection = document.querySelector('.orgSection');
 	if (orgSection) {
-		if (platform === 'gitlab') {
-			orgSection.classList.add('hidden');
-		} else {
+		if (platform === 'github') {
 			orgSection.classList.remove('hidden');
+		} else {
+			orgSection.classList.add('hidden');
 		}
 	}
 	const githubOnlySections = document.querySelectorAll('.githubOnlySection');
 	githubOnlySections.forEach((el) => {
-		if (platform === 'gitlab') {
-			el.classList.add('hidden');
-		} else {
+		if (platform === 'github') {
 			el.classList.remove('hidden');
+		} else {
+			el.classList.add('hidden');
 		}
 	});
 	const gitlabOnlySections = document.querySelectorAll('.gitlabOnlySection');
 	gitlabOnlySections.forEach((el) => {
-		if (platform === 'github') {
-			el.classList.add('hidden');
-		} else {
+		if (platform === 'gitlab') {
 			el.classList.remove('hidden');
+		} else {
+			el.classList.add('hidden');
+		}
+	});
+	const codebergOnlySections = document.querySelectorAll('.codebergOnlySection');
+	codebergOnlySections.forEach((el) => {
+		if (platform === 'codeberg') {
+			el.classList.remove('hidden');
+		} else {
+			el.classList.add('hidden');
+		}
+	});
+
+	const githubGitlabOnlySections = document.querySelectorAll('.githubGitlabOnlySection');
+	githubGitlabOnlySections.forEach((el) => {
+		if (platform === 'github' || platform === 'gitlab') {
+			el.classList.remove('hidden');
+		} else {
+			el.classList.add('hidden');
 		}
 	});
 }
@@ -1709,9 +1780,10 @@ if (platformSelectEl) {
 				bootstrapScrumReportOnPopupLoad(generateBtn);
 			}
 		});
+
 		const platformUsername = document.getElementById('platformUsername');
 		if (platformUsername) {
-			const currentPlatform = platformSelectEl.value === 'github' ? 'gitlab' : 'github'; // Get the platform we're switching from
+			const currentPlatform = lastPlatform; // Get the platform we're switching from
 			const currentUsername = platformUsername.value;
 			if (currentUsername.trim()) {
 				browser.storage.local.set({ [`${currentPlatform}Username`]: currentUsername });
@@ -1726,6 +1798,7 @@ if (platformSelectEl) {
 			}
 		});
 
+		lastPlatform = platform;
 		updatePlatformUI(platform);
 	});
 }
@@ -1744,11 +1817,16 @@ function buildScrumSubjectFromPopup() {
 
 	return `[Scrum]${projectName ? ' - ' + projectName : ''} - ${dateCode}`;
 }
-
 function setPlatformDropdown(value) {
 	if (dropdownSelected) {
 		if (value === 'gitlab') {
 			dropdownSelected.innerHTML = '<i class="fab fa-gitlab mr-2"></i> GitLab';
+		} else if (value === 'codeberg') {
+			dropdownSelected.innerHTML = `
+				<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width: 18px; height: 18px; display: inline-block; vertical-align: middle; margin-right: 8px; fill: currentColor;">
+					<title>Codeberg</title>
+					<path d="M11.999.747A11.974 11.974 0 0 0 0 12.75c0 2.254.635 4.465 1.833 6.376L11.837 6.19c.072-.092.251-.092.323 0l4.178 5.402h-2.992l.065.239h3.113l.882 1.138h-3.674l.103.374h3.86l.777 1.003h-4.358l.135.483h4.593l.695.894h-5.038l.165.589h5.326l.609.785h-5.717l.182.65h6.038l.562.727h-6.397l.183.65h6.717A12.003 12.003 0 0 0 24 12.75 11.977 11.977 0 0 0 11.999.747zm3.654 19.104.182.65h5.326c.173-.204.353-.433.513-.65zm.385 1.377.18.65h3.563c.233-.198.485-.428.712-.65zm.383 1.377.182.648h1.203c.356-.204.685-.412 1.042-.648z"/>
+				</svg> Codeberg`;
 		} else {
 			dropdownSelected.innerHTML = '<i class="fab fa-github mr-2"></i> GitHub';
 		}
@@ -1766,6 +1844,7 @@ function setPlatformDropdown(value) {
 	if (platformSelectHidden) {
 		platformSelectHidden.value = value;
 	}
+	lastPlatform = value;
 	browser.storage.local.set({ platform: value }).then(() => {
 		const scrumReport = document.getElementById('scrumReport');
 		if (scrumReport) scrumReport.innerHTML = '';
@@ -1887,6 +1966,12 @@ browser.storage.local.get(['platform']).then((result) => {
 	if (dropdownSelected) {
 		if (platform === 'gitlab') {
 			dropdownSelected.innerHTML = '<i class="fab fa-gitlab mr-2"></i> GitLab';
+		} else if (platform === 'codeberg') {
+			dropdownSelected.innerHTML = `
+				<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width: 18px; height: 18px; display: inline-block; vertical-align: middle; margin-right: 8px; fill: currentColor;">
+					<title>Codeberg</title>
+					<path d="M11.999.747A11.974 11.974 0 0 0 0 12.75c0 2.254.635 4.465 1.833 6.376L11.837 6.19c.072-.092.251-.092.323 0l4.178 5.402h-2.992l.065.239h3.113l.882 1.138h-3.674l.103.374h3.86l.777 1.003h-4.358l.135.483h4.593l.695.894h-5.038l.165.589h5.326l.609.785h-5.717l.182.65h6.038l.562.727h-6.397l.183.65h6.717A12.003 12.003 0 0 0 24 12.75 11.977 11.977 0 0 0 11.999.747zm3.654 19.104.182.65h5.326c.173-.204.353-.433.513-.65zm.385 1.377.18.65h3.563c.233-.198.485-.428.712-.65zm.383 1.377.182.648h1.203c.356-.204.685-.412 1.042-.648z"/>
+				</svg> Codeberg`;
 		} else {
 			dropdownSelected.innerHTML = '<i class="fab fa-github mr-2"></i> GitHub';
 		}
@@ -1894,6 +1979,7 @@ browser.storage.local.get(['platform']).then((result) => {
 	if (platformSelectHidden) {
 		platformSelectHidden.value = platform;
 	}
+	lastPlatform = platform;
 	updatePlatformUI(platform);
 });
 
@@ -2003,8 +2089,24 @@ document.querySelectorAll('input[name="timeframe"]').forEach((radio) => {
 				} catch (e) {}
 
 				// Clear all caches
-				const keysToRemove = ['githubCache', 'repoCache', 'gitlabCache'];
+				const keysToRemove = ['githubCache', 'repoCache', 'gitlabCache', 'codebergCache'];
 				await browser.storage.local.remove(keysToRemove);
+
+				// Clear in-memory cache for the active platform
+				const helper = window.PlatformRegistry?.get(platform);
+				if (helper && typeof helper.forceDataRefresh === 'function') {
+					await helper.forceDataRefresh();
+				} else {
+					const fallbackFn =
+						platform === 'gitlab'
+							? window.forceGitlabDataRefresh
+							: platform === 'codeberg'
+								? window.forceCodebergDataRefresh
+								: window.forceGithubDataRefresh;
+					if (typeof fallbackFn === 'function') {
+						await fallbackFn();
+					}
+				}
 
 				// Clear the scrum report
 				const scrumReport = document.getElementById('scrumReport');

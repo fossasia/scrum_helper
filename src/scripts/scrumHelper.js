@@ -46,7 +46,6 @@ function logError(...args) {
 	}
 }
 
-
 function getLocalISOString(dateStr, time) {
 	const offsetMinutes = new Date().getTimezoneOffset();
 	const absOffset = Math.abs(offsetMinutes);
@@ -76,7 +75,7 @@ function logRedaction(items) {
 		return items;
 	}
 	const spreadItems = { ...items };
-	const sensitiveKeys = ['githubToken', 'gitlabToken'];
+	const sensitiveKeys = ['githubToken', 'gitlabToken', 'codebergToken'];
 	sensitiveKeys.forEach((key) => {
 		if (key in spreadItems) {
 			spreadItems[key] = '[REDACTED]';
@@ -95,6 +94,9 @@ let platformUsername = '';
 let gitlabToken = '';
 window.gitlabBaseUrl = '';
 window.gitlabHelper = null;
+let codebergToken = '';
+window.codebergApiBaseUrl = '';
+window.codebergHelper = null;
 let usernameValidationListenerAttached = false;
 
 const scrumReportEl = document.getElementById('scrumReport');
@@ -197,9 +199,12 @@ function allIncluded(outputTarget = 'email') {
 				'platform',
 				'githubUsername',
 				'gitlabUsername',
+				'codebergUsername',
 				'githubToken',
 				'gitlabToken',
+				'codebergToken',
 				'gitlabBaseUrl',
+				'codebergApiBaseUrl',
 				'projectName',
 				'startingDate',
 				'endingDate',
@@ -232,6 +237,7 @@ function allIncluded(outputTarget = 'email') {
 					const projectFromDOM = document.getElementById('projectName')?.value;
 					const tokenFromDOM = document.getElementById('githubToken')?.value;
 					const gitlabTokenFromDOM = document.getElementById('gitlabToken')?.value;
+					const codebergTokenFromDOM = document.getElementById('codebergToken')?.value;
 
 					// Save to platform-specific storage
 					if (usernameFromDOM) {
@@ -243,10 +249,12 @@ function allIncluded(outputTarget = 'email') {
 					items.projectName = projectFromDOM || items.projectName;
 					items.githubToken = tokenFromDOM || items.githubToken;
 					items.gitlabToken = gitlabTokenFromDOM || items.gitlabToken;
+					items.codebergToken = codebergTokenFromDOM || items.codebergToken;
 					chrome.storage.local.set({
 						projectName: items.projectName,
 						githubToken: items.githubToken,
 						gitlabToken: items.gitlabToken,
+						codebergToken: items.codebergToken,
 					});
 				}
 				projectName = items.projectName;
@@ -259,11 +267,16 @@ function allIncluded(outputTarget = 'email') {
 				if (platform === 'gitlab' && window.GitLabHelper) {
 					window.gitlabHelper = new window.GitLabHelper(window.gitlabBaseUrl);
 				}
+				codebergToken = items.codebergToken || '';
+				window.codebergApiBaseUrl = items.codebergApiBaseUrl || 'https://codeberg.org/api/v1';
+				if (platform === 'codeberg' && window.CodebergHelper) {
+					window.codebergHelper = new window.CodebergHelper(window.codebergApiBaseUrl);
+				}
 				yesterdayContribution = items.yesterdayContribution;
 
 				onlyIssues = items.onlyIssues === true;
 				onlyPRs = items.onlyPRs === true;
-				onlyRevPRs = items.onlyRevPRs === true;
+				onlyRevPRs = items.onlyRevPRs === true && platform !== 'codeberg';
 				onlyMergedPRs = items.onlyMergedPRs === true;
 				console.log('[SCRUM-DEBUG] loaded flags:', { onlyIssues, onlyPRs, onlyRevPRs, onlyMergedPRs });
 				// Enforce mutual exclusivity between onlyIssues and onlyPRs to avoid filtering out everything
@@ -389,6 +402,99 @@ function allIncluded(outputTarget = 'email') {
 								});
 						}
 						// --- FIX END ---
+					} else {
+						if (outputTarget === 'popup') {
+							const generateBtn = document.getElementById('generateReport');
+							const ErrMessage =
+								chrome.i18n.getMessage('usernameRequiredError') || 'Please enter your username to generate a report.';
+							handleUsernameValidationError(ErrMessage);
+							if (generateBtn) {
+								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+								generateBtn.disabled = false;
+							}
+						}
+						scrumGenerationInProgress = false;
+					}
+				} else if (platform === 'codeberg') {
+					if (!window.codebergHelper) window.codebergHelper = new window.CodebergHelper(window.codebergApiBaseUrl);
+					if (platformUsernameLocal) {
+						const generateBtn = document.getElementById('generateReport');
+						if (generateBtn && outputTarget === 'popup') {
+							generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
+							generateBtn.disabled = true;
+						}
+
+						if (outputTarget === 'email') {
+							(async () => {
+								try {
+									const data = await window.codebergHelper.fetchCodebergData(
+										platformUsernameLocal,
+										startingDate,
+										endingDate,
+										items.codebergToken,
+										showCommits,
+									);
+
+									const mappedData = window.codebergHelper.mapCodebergReportData(data);
+									githubUserData = mappedData.githubUserData;
+
+									const name =
+										githubUserData?.name || githubUserData?.username || platformUsernameLocal || platformUsername;
+									const project = projectName;
+									const curDate = new Date();
+									const year = curDate.getFullYear().toString();
+									let date = curDate.getDate();
+									let month = curDate.getMonth() + 1;
+									if (month < 10) month = '0' + month;
+									if (date < 10) date = '0' + date;
+									const dateCode = year.toString() + month.toString() + date.toString();
+									const subject = `[Scrum]${project ? ' - ' + project : ''} - ${dateCode}`;
+									subjectForEmail = subject;
+
+									await processGithubData(mappedData, true, subjectForEmail);
+									scrumGenerationInProgress = false;
+								} catch (err) {
+									console.error('Codeberg fetch failed:', err);
+									if (outputTarget === 'popup') {
+										if (generateBtn) {
+											generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+											generateBtn.disabled = false;
+										}
+										const ErrMessage = `${err.message || 'Error fetching Codeberg data.'}`;
+										if (typeof ErrMessage === 'string' && ErrMessage.toLowerCase().includes('not found')) {
+											handleUsernameValidationError(ErrMessage);
+										} else {
+											showReportMessage(ErrMessage);
+										}
+									}
+									scrumGenerationInProgress = false;
+								}
+							})();
+						} else {
+							window.codebergHelper
+								.fetchCodebergData(platformUsernameLocal, startingDate, endingDate, items.codebergToken, showCommits)
+								.then((data) => {
+									const mappedData = window.codebergHelper.mapCodebergReportData(data);
+									processGithubData(mappedData);
+									scrumGenerationInProgress = false;
+								})
+								.catch((err) => {
+									console.error('Codeberg fetch failed:', err);
+									if (outputTarget === 'popup') {
+										if (generateBtn) {
+											generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+											generateBtn.disabled = false;
+										}
+										const ErrMessage = `${err.message || 'Error fetching Codeberg data.'}`;
+										if (typeof ErrMessage === 'string' && ErrMessage.toLowerCase().includes('not found')) {
+											handleUsernameValidationError(ErrMessage);
+										} else {
+											showReportMessage(ErrMessage);
+										}
+									}
+									scrumGenerationInProgress = false;
+								});
+						}
 					} else {
 						if (outputTarget === 'popup') {
 							const generateBtn = document.getElementById('generateReport');
@@ -789,7 +895,8 @@ function allIncluded(outputTarget = 'email') {
 					openPRs.map((pr) => pr.number),
 				);
 				// Fetch commits for open PRs (batch) if showCommits is enabled
-				if (openPRs.length && githubToken && showCommits) {
+				const activeToken = platform === 'codeberg' ? codebergToken : githubToken;
+				if (openPRs.length && showCommits && platform !== 'codeberg') {
 					let startDateForCommits;
 					let endDateForCommits;
 					if (yesterdayContribution) {
@@ -808,7 +915,7 @@ function allIncluded(outputTarget = 'email') {
 						endDateForCommits = formatLocalDate(today);
 					}
 
-					const commitMap = await fetchCommitsForOpenPRs(openPRs, githubToken, startDateForCommits, endDateForCommits);
+					const commitMap = await fetchCommitsForOpenPRs(openPRs, activeToken, startDateForCommits, endDateForCommits);
 					log('Commit map returned from fetchCommitsForOpenPRs:', commitMap);
 					// Attach commits to PR objects
 					openPRs.forEach((pr) => {
@@ -873,8 +980,11 @@ function allIncluded(outputTarget = 'email') {
 		}
 	}
 
-	async function fetchCommitsForOpenPRs(prs, githubToken, startDate, endDate) {
-		return githubFetchCommits(prs, githubToken, startDate, endDate);
+	async function fetchCommitsForOpenPRs(prs, token, startDate, endDate) {
+		if (platform === 'github') {
+			return githubFetchCommits(prs, token, startDate, endDate);
+		}
+		return {};
 	}
 
 	async function fetchReposIfNeeded() {
@@ -1028,7 +1138,7 @@ function allIncluded(outputTarget = 'email') {
 		log('[SCRUM-DEBUG] Processing issues for main activity:', githubIssuesData?.items);
 		if (platform === 'github') {
 			await writeGithubIssuesPrs(githubIssuesData?.items || []);
-		} else if (platform === 'gitlab') {
+		} else if (platform === 'gitlab' || platform === 'codeberg') {
 			await writeGithubIssuesPrs(githubIssuesData?.items || []);
 			await writeGithubIssuesPrs(githubPrsReviewData?.items || []);
 		}
@@ -1153,7 +1263,11 @@ ${blockerText}`;
 				delete scrumReport.dataset.copyPlaceholder;
 				try {
 					const cacheKey =
-						platform === 'gitlab' ? (window.gitlabHelper?.cache?.cacheKey ?? null) : (githubCache?.cacheKey ?? null);
+						platform === 'gitlab'
+							? (window.gitlabHelper?.cache?.cacheKey ?? null)
+							: platform === 'codeberg'
+								? (window.codebergHelper?.cache?.cacheKey ?? null)
+								: (githubCache?.cacheKey ?? null);
 
 					chrome.storage.local.set({
 						lastScrumReportHtml: content,
@@ -1247,6 +1361,11 @@ ${blockerText}`;
 	}
 
 	function writeGithubPrsReviews() {
+		if (platform === 'codeberg') {
+			reviewedPrsArray = [];
+			prsReviewDataProcessed = true;
+			return;
+		}
 		const isAnyFilterActive = onlyIssues || onlyPRs || onlyRevPRs || onlyMergedPRs;
 		if (isAnyFilterActive && !onlyRevPRs) {
 			log('Filters active but onlyRevPRs not checked, skipping PR reviews.');
@@ -1305,6 +1424,9 @@ ${blockerText}`;
 				isAuthoredByUser = item.user && item.user.login === platformUsernameLocal;
 			} else if (platform === 'gitlab') {
 				isAuthoredByUser = item.author && item.author.username === platformUsername;
+			} else if (platform === 'codeberg') {
+				isAuthoredByUser =
+					item.user && (item.user.login === platformUsernameLocal || item.user.username === platformUsernameLocal);
 			}
 
 			if (isAuthoredByUser || !item.pull_request) continue;
@@ -1623,7 +1745,7 @@ ${blockerText}`;
 			const repository_url = item.repository_url;
 			// Use project name for GitLab, repo extraction for GitHub
 			const project =
-				platform === 'gitlab' && item.project
+				(platform === 'gitlab' || platform === 'codeberg') && item.project
 					? item.project
 					: repository_url
 						? repository_url.substr(repository_url.lastIndexOf('/') + 1)
@@ -1702,6 +1824,25 @@ ${blockerText}`;
 					} else {
 						prAction = 'Updated Merge Request';
 					}
+				} else if (platform === 'codeberg') {
+					if (showCommits && !isNewPR) {
+						if (item.state !== 'open') {
+							log(`[PR DEBUG] Skipping PR #${number} - existing PR but not open`);
+							continue;
+						}
+						if (!hasCommitsInRange) {
+							log(`[PR DEBUG] Skipping PR #${number} - existing PR but no commits in date range`);
+							continue;
+						}
+					}
+					prAction = isNewPR ? 'Made PR' : 'Updated PR';
+					log(`[PR DEBUG] Including PR #${number} as ${prAction}`);
+
+					if (isCreatedToday && item.state === 'open') {
+						prAction = 'Made PR';
+					} else {
+						prAction = 'Updated PR';
+					}
 				}
 
 				if (isDraft) {
@@ -1730,6 +1871,13 @@ ${blockerText}`;
 					li += `</li>`;
 				} else if (platform === 'gitlab' && item.state === 'closed') {
 					li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_closed_button : ''}</li>`;
+				} else if (platform === 'codeberg' && item.state === 'closed') {
+					const isMerged = item.pull_request && item.pull_request.merged;
+					if (isMerged) {
+						li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_merged_button : ''}</li>`;
+					} else {
+						li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_closed_button : ''}</li>`;
+					}
 				} else {
 					let merged = null;
 					if ((githubToken || (useMergedStatus && !fallbackToSimple)) && mergedStatusResults) {
