@@ -11,6 +11,8 @@ const showOpenLabelElement = document.getElementById('showOpenLabel');
 const userReasonElement = null;
 
 const showCommitsElement = document.getElementById('showCommits');
+const includeBlockersElement = document.getElementById('includeBlockers');
+const includeNextPlansElement = document.getElementById('includeNextPlans');
 
 if (!window.scrumDateRangeUtils) {
 	window.scrumDateRangeUtils = {
@@ -178,6 +180,8 @@ function handleBodyOnLoad() {
 			'githubToken',
 			'gitlabToken',
 			'showCommits',
+			'includeBlockers',
+			'includeNextPlans',
 		])
 		.then((items) => {
 			// Load platform-specific username
@@ -239,6 +243,20 @@ function handleBodyOnLoad() {
 				} else {
 					showCommitsElement.checked = false;
 					handleShowCommitsChange();
+				}
+			}
+			if (includeBlockersElement) {
+				if (items.includeBlockers !== false) {
+					includeBlockersElement.checked = true;
+				} else {
+					includeBlockersElement.checked = false;
+				}
+			}
+			if (includeNextPlansElement) {
+				if (items.includeNextPlans !== false) {
+					includeNextPlansElement.checked = true;
+				} else {
+					includeNextPlansElement.checked = false;
 				}
 			}
 		});
@@ -368,6 +386,18 @@ function handleShowCommitsChange() {
 	browser.storage.local.set({ showCommits: value });
 }
 
+function handleIncludeBlockersChange() {
+	if (!includeBlockersElement) return;
+	const value = includeBlockersElement.checked;
+	browser.storage.local.set({ includeBlockers: value });
+}
+
+function handleIncludeNextPlansChange() {
+	if (!includeNextPlansElement) return;
+	const value = includeNextPlansElement.checked;
+	browser.storage.local.set({ includeNextPlans: value });
+}
+
 if (platformUsernameElement) {
 	platformUsernameElement.addEventListener('keyup', handlePlatformUsernameChange);
 }
@@ -400,6 +430,12 @@ if (startingDateElement) {
 }
 if (showCommitsElement) {
 	showCommitsElement.addEventListener('change', handleShowCommitsChange);
+}
+if (includeBlockersElement) {
+	includeBlockersElement.addEventListener('change', handleIncludeBlockersChange);
+}
+if (includeNextPlansElement) {
+	includeNextPlansElement.addEventListener('change', handleIncludeNextPlansChange);
 }
 if (endingDateElement) {
 	endingDateElement.addEventListener('change', handleEndingDateChange);
