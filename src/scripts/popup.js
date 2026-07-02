@@ -1778,6 +1778,20 @@ function updatePlatformUI(platform) {
 			el.classList.add('hidden');
 		}
 	});
+
+	const reviewedPrsContainer = document.getElementById('reviewedPrsContainer');
+	if (reviewedPrsContainer) {
+		if (platform === 'bitbucket') {
+			reviewedPrsContainer.classList.add('hidden');
+			const onlyRevPRsCheckbox = document.getElementById('onlyRevPRs');
+			if (onlyRevPRsCheckbox && onlyRevPRsCheckbox.checked) {
+				onlyRevPRsCheckbox.checked = false;
+				browser?.storage.local.set({ onlyRevPRs: false });
+			}
+		} else {
+			reviewedPrsContainer.classList.remove('hidden');
+		}
+	}
 }
 
 const platformSelectEl = document.getElementById('platformSelect');
