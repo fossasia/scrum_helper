@@ -243,22 +243,7 @@ class BitbucketHelper {
 										matchNames(prAuthorDisplayName, userDisplayName) ||
 										matchNames(prAuthorDisplayName, username);
 
-									const isReviewer =
-										Array.isArray(pr.reviewers) &&
-										pr.reviewers.some((r) => {
-											const revNickname = r.nickname || r.username || '';
-											const revDisplayName = r.display_name || '';
-											return (
-												(userAccountId && r.account_id === userAccountId) ||
-												(userUuid && r.uuid === userUuid) ||
-												matchNames(revNickname, userNickname) ||
-												matchNames(revNickname, username) ||
-												matchNames(revDisplayName, userDisplayName) ||
-												matchNames(revDisplayName, username)
-											);
-										});
-
-									if (isAuthor || isReviewer) {
+									if (isAuthor) {
 										pullRequests.push({
 											...pr,
 											_repo: repo,
