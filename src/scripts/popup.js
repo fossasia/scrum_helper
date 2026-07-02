@@ -2093,7 +2093,7 @@ document.querySelectorAll('input[name="timeframe"]').forEach((radio) => {
 				} catch (e) {}
 
 				// Clear all caches
-				const keysToRemove = ['githubCache', 'repoCache', 'gitlabCache'];
+				const keysToRemove = ['githubCache', 'repoCache', 'gitlabCache', 'bitbucketCache'];
 				await browser.storage.local.remove(keysToRemove);
 
 				// Clear the scrum report

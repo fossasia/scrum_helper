@@ -171,6 +171,8 @@ class BitbucketHelper {
 			let user = { username: username };
 			let userAccountId = null;
 			let userUuid = null;
+			let userNickname = username;
+			let userDisplayName = null;
 
 			if (token) {
 				try {
@@ -178,12 +180,14 @@ class BitbucketHelper {
 					if (userRes.ok) {
 						const userData = await userRes.json();
 						user = {
-							username: userData.username || username,
+							username: userData.nickname || userData.username || username,
 							name: userData.display_name || userData.username || username,
 							avatar_url: userData.links?.avatar?.href || '',
 						};
 						userAccountId = userData.account_id;
 						userUuid = userData.uuid;
+						userNickname = userData.nickname || userData.username || username;
+						userDisplayName = userData.display_name;
 					}
 				} catch (e) {
 					console.warn('[Bitbucket] Failed to fetch auth user profile details:', e);
@@ -195,6 +199,12 @@ class BitbucketHelper {
 
 			const issues = [];
 			const pullRequests = [];
+
+			const matchNames = (n1, n2) => {
+				if (!n1 || !n2) return false;
+				const clean = (s) => s.toLowerCase().replace(/[\s\-_]+/g, '');
+				return clean(n1) === clean(n2);
+			};
 
 			const startLimitDate = new Date(`${startDate}T00:00:00Z`);
 			const endLimitDate = new Date(`${endDate}T23:59:59Z`);
@@ -209,7 +219,7 @@ class BitbucketHelper {
 					/* FETCH PULL REQUESTS */
 					try {
 						// Bitbucket API queries require updated_on comparison
-						const prQuery = `updated_on >= ${startDate}T00:00:00Z AND updated_on <= ${endDate}T23:59:59Z`;
+						const prQuery = `updated_on >= "${startDate}T00:00:00Z" AND updated_on <= "${endDate}T23:59:59Z"`;
 						const prUrl = `${this.baseUrl}/repositories/${workspace}/${repoSlug}/pullrequests?q=${encodeURIComponent(
 							prQuery,
 						)}&state=OPEN&state=MERGED&state=DECLINED&state=SUPERSEDED&sort=-updated_on`;
@@ -220,23 +230,31 @@ class BitbucketHelper {
 							if (data && Array.isArray(data.values)) {
 								for (const pr of data.values) {
 									// Filter client-side by author or reviewer to guarantee matching
-									const prAuthor = pr.author?.username || pr.author?.nickname;
+									const prAuthorNickname = pr.author?.nickname || pr.author?.username || '';
+									const prAuthorDisplayName = pr.author?.display_name || '';
 									const prAuthorAccountId = pr.author?.account_id;
 									const prAuthorUuid = pr.author?.uuid;
 
 									const isAuthor =
-										prAuthor === username ||
 										(userAccountId && prAuthorAccountId === userAccountId) ||
-										(userUuid && prAuthorUuid === userUuid);
+										(userUuid && prAuthorUuid === userUuid) ||
+										matchNames(prAuthorNickname, userNickname) ||
+										matchNames(prAuthorNickname, username) ||
+										matchNames(prAuthorDisplayName, userDisplayName) ||
+										matchNames(prAuthorDisplayName, username);
 
 									const isReviewer =
 										Array.isArray(pr.reviewers) &&
 										pr.reviewers.some((r) => {
-											const revUsername = r.username || r.nickname;
+											const revNickname = r.nickname || r.username || '';
+											const revDisplayName = r.display_name || '';
 											return (
-												revUsername === username ||
 												(userAccountId && r.account_id === userAccountId) ||
-												(userUuid && r.uuid === userUuid)
+												(userUuid && r.uuid === userUuid) ||
+												matchNames(revNickname, userNickname) ||
+												matchNames(revNickname, username) ||
+												matchNames(revDisplayName, userDisplayName) ||
+												matchNames(revDisplayName, username)
 											);
 										});
 
@@ -256,7 +274,7 @@ class BitbucketHelper {
 					/* FETCH ISSUES */
 					if (repo.has_issues) {
 						try {
-							const issueQuery = `updated_on >= ${startDate}T00:00:00Z AND updated_on <= ${endDate}T23:59:59Z`;
+							const issueQuery = `updated_on >= "${startDate}T00:00:00Z" AND updated_on <= "${endDate}T23:59:59Z"`;
 							const issueUrl = `${this.baseUrl}/repositories/${workspace}/${repoSlug}/issues?q=${encodeURIComponent(
 								issueQuery,
 							)}&sort=-updated_on`;
@@ -266,23 +284,31 @@ class BitbucketHelper {
 								const data = await res.json();
 								if (data && Array.isArray(data.values)) {
 									for (const issue of data.values) {
-										const reporter = issue.reporter?.username || issue.reporter?.nickname;
+										const reporterNickname = issue.reporter?.nickname || issue.reporter?.username || '';
+										const reporterDisplayName = issue.reporter?.display_name || '';
 										const reporterAccountId = issue.reporter?.account_id;
 										const reporterUuid = issue.reporter?.uuid;
 
-										const assignee = issue.assignee?.username || issue.assignee?.nickname;
+										const assigneeNickname = issue.assignee?.nickname || issue.assignee?.username || '';
+										const assigneeDisplayName = issue.assignee?.display_name || '';
 										const assigneeAccountId = issue.assignee?.account_id;
 										const assigneeUuid = issue.assignee?.uuid;
 
 										const isReporter =
-											reporter === username ||
 											(userAccountId && reporterAccountId === userAccountId) ||
-											(userUuid && reporterUuid === userUuid);
+											(userUuid && reporterUuid === userUuid) ||
+											matchNames(reporterNickname, userNickname) ||
+											matchNames(reporterNickname, username) ||
+											matchNames(reporterDisplayName, userDisplayName) ||
+											matchNames(reporterDisplayName, username);
 
 										const isAssignee =
-											assignee === username ||
 											(userAccountId && assigneeAccountId === userAccountId) ||
-											(userUuid && assigneeUuid === userUuid);
+											(userUuid && assigneeUuid === userUuid) ||
+											matchNames(assigneeNickname, userNickname) ||
+											matchNames(assigneeNickname, username) ||
+											matchNames(assigneeDisplayName, userDisplayName) ||
+											matchNames(assigneeDisplayName, username);
 
 										if (isReporter || isAssignee) {
 											issues.push({

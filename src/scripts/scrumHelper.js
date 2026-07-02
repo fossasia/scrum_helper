@@ -1419,8 +1419,12 @@ ${blockerText}`;
 			} else if (platform === 'gitlab') {
 				isAuthoredByUser = item.author && item.author.username === platformUsername;
 			} else if (platform === 'bitbucket') {
+				const clean = (s) => (s || '').toLowerCase().replace(/[\s\-_]+/g, '');
 				isAuthoredByUser =
-					item.author && (item.author.username === platformUsername || item.author.nickname === platformUsername);
+					item.author &&
+					(clean(item.author.username) === clean(platformUsername) ||
+						clean(item.author.nickname) === clean(platformUsername) ||
+						clean(item.author.display_name) === clean(platformUsername));
 			}
 
 			if (isAuthoredByUser || !item.pull_request) continue;
@@ -2055,7 +2059,12 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 						sendResponse({ success: false, error: err.message });
 					});
 			} else {
-				const fallbackFn = platform === 'gitlab' ? window['forceGitlabDataRefresh'] : window['forceGithubDataRefresh'];
+				const fallbackFn =
+					platform === 'gitlab'
+						? window['forceGitlabDataRefresh']
+						: platform === 'bitbucket'
+							? window['forceBitbucketDataRefresh']
+							: window['forceGithubDataRefresh'];
 				if (typeof fallbackFn === 'function') {
 					fallbackFn()
 						.then((result) => sendResponse(result))
