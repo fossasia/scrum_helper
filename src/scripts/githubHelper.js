@@ -726,9 +726,9 @@ async function githubFetchReviews(username, token, startDate, endDate, orgName, 
 	const orgQuery = orgPart ? `+${orgPart}` : '';
 	let url;
 	if (repoQueries) {
-		url = `https://api.github.com/search/issues?q=commenter%3A${username}+${repoQueries}${orgQuery}+updated%3A${startDate}..${endDate}&per_page=100`;
+		url = `https://api.github.com/search/issues?q=reviewed-by%3A${username}+${repoQueries}${orgQuery}+updated%3A${startDate}..${endDate}&per_page=100`;
 	} else {
-		url = `https://api.github.com/search/issues?q=commenter%3A${username}${orgQuery}+updated%3A${startDate}..${endDate}&per_page=100`;
+		url = `https://api.github.com/search/issues?q=reviewed-by%3A${username}${orgQuery}+updated%3A${startDate}..${endDate}&per_page=100`;
 	}
 	return fetch(url, { headers });
 }
