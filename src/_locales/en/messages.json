@@ -43,6 +43,10 @@
     "message": "Previous day",
     "description": "Radio button option for the last 1 day."
   },
+  "lastWeekLabel": {
+    "message": "Previous week",
+    "description": "Radio button option for the last 7 days."
+  },
   "startDateLabel": {
     "message": "From:",
     "description": "Label for the start date picker."
