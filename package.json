@@ -28,10 +28,10 @@
   "devDependencies": {
     "@biomejs/biome": "2.4.11",
     "autoprefixer": "^10.5.0",
-    "postcss": "^8.5.15",
     "tailwindcss": "^4.3.1"
+    "postcss": "^8.5.16",
   },
   "dependencies": {
-    "@tailwindcss/cli": "^4.3.0"
+    "@tailwindcss/cli": "^4.3.1"
   }
 }

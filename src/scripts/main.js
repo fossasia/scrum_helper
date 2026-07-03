@@ -4,6 +4,7 @@ const gitlabTokenElement = document.getElementById('gitlabToken');
 const cacheInputElement = document.getElementById('cacheInput');
 const projectNameElement = document.getElementById('projectName');
 const yesterdayContributionElement = document.getElementById('yesterdayContribution');
+const weeklyContributionElement = document.getElementById('weeklyContribution');
 const startingDateElement = document.getElementById('startingDate');
 const endingDateElement = document.getElementById('endingDate');
 const showOpenLabelElement = document.getElementById('showOpenLabel');
@@ -30,7 +31,14 @@ if (!window.scrumDateRangeUtils) {
 
 			return this.formatLocalDate(yesterday);
 		},
+		getLocalWeekAgoString() {
+			const weekAgo = new Date();
+			weekAgo.setDate(weekAgo.getDate() - 7);
+
+			return this.formatLocalDate(weekAgo);
+		},
 		normalizeAndSync(startDateInput, endDateInput) {
+			if (!startDateInput || !endDateInput) return false;
 			const today = this.getLocalTodayString();
 			const originalStartDate = startDateInput.value;
 			const originalEndDate = endDateInput.value;
@@ -63,6 +71,7 @@ if (!window.scrumDateRangeUtils) {
 			return didChange;
 		},
 		normalizeDateRangeValues(startDateInput, endDateInput) {
+			if (!startDateInput || !endDateInput) return false;
 			const originalStartDate = startDateInput.value;
 			const originalEndDate = endDateInput.value;
 
@@ -71,12 +80,14 @@ if (!window.scrumDateRangeUtils) {
 			return startDateInput.value !== originalStartDate || endDateInput.value !== originalEndDate;
 		},
 		persistDateRange(startDateInput, endDateInput) {
+			if (!startDateInput || !endDateInput) return;
 			browser.storage.local.set({
 				startingDate: startDateInput.value,
 				endingDate: endDateInput.value,
 			});
 		},
 		normalizeSyncAndPersistDateRange(startDateInput, endDateInput) {
+			if (!startDateInput || !endDateInput) return;
 			this.normalizeDateRangeValues(startDateInput, endDateInput);
 			this.persistDateRange(startDateInput, endDateInput);
 		},
@@ -170,6 +181,8 @@ function handleBodyOnLoad() {
 			'showOpenLabel',
 			'userReason',
 			'yesterdayContribution',
+			'weeklyContribution',
+			'selectedTimeframe',
 			'cacheInput',
 			'githubToken',
 			'gitlabToken',
@@ -179,7 +192,7 @@ function handleBodyOnLoad() {
 			// Load platform-specific username
 			const platform = items.platform || 'github';
 			const platformUsernameKey = `${platform}Username`;
-			if (items[platformUsernameKey]) {
+			if (items[platformUsernameKey] && platformUsernameElement) {
 				platformUsernameElement.value = items[platformUsernameKey];
 			}
 
@@ -189,97 +202,206 @@ function handleBodyOnLoad() {
 			if (items.gitlabToken && gitlabTokenElement) {
 				gitlabTokenElement.value = items.gitlabToken;
 			}
-			if (items.projectName) {
+			if (items.projectName && projectNameElement) {
 				projectNameElement.value = items.projectName;
 			}
-			if (items.cacheInput) {
+			if (items.cacheInput && cacheInputElement) {
 				cacheInputElement.value = items.cacheInput;
 			}
-			if (items.endingDate) {
+			if (items.endingDate && endingDateElement) {
 				endingDateElement.value = items.endingDate;
 			}
-			if (items.startingDate) {
+			if (items.startingDate && startingDateElement) {
 				startingDateElement.value = items.startingDate;
 			}
-			const wasNormalizedOnLoad = window.scrumDateRangeUtils.normalizeDateRangeValues(
-				startingDateElement,
-				endingDateElement,
-			);
-			if (wasNormalizedOnLoad) {
-				window.scrumDateRangeUtils.persistDateRange(startingDateElement, endingDateElement);
+			if (startingDateElement && endingDateElement) {
+				const wasNormalizedOnLoad = window.scrumDateRangeUtils.normalizeDateRangeValues(
+					startingDateElement,
+					endingDateElement,
+				);
+				if (wasNormalizedOnLoad) {
+					window.scrumDateRangeUtils.persistDateRange(startingDateElement, endingDateElement);
+				}
 			}
-			if (items.showOpenLabel) {
-				showOpenLabelElement.checked = items.showOpenLabel;
-			} else if (items.showOpenLabel !== false) {
-				// undefined
-				showOpenLabelElement.checked = true;
-				handleOpenLabelChange();
+			if (showOpenLabelElement) {
+				if (items.showOpenLabel) {
+					showOpenLabelElement.checked = items.showOpenLabel;
+				} else if (items.showOpenLabel !== false) {
+					// undefined
+					showOpenLabelElement.checked = true;
+					handleOpenLabelChange();
+				}
 			}
 
-			if (items.yesterdayContribution) {
-				yesterdayContributionElement.checked = items.yesterdayContribution;
-				handleYesterdayContributionChange();
-			} else if (items.yesterdayContribution !== false) {
-				yesterdayContributionElement.checked = true;
-				handleYesterdayContributionChange();
+			let selectedTimeframe = items.selectedTimeframe;
+			if (!selectedTimeframe) {
+				if (items.yesterdayContribution) {
+					selectedTimeframe = 'yesterdayContribution';
+				} else if (items.weeklyContribution) {
+					selectedTimeframe = 'weeklyContribution';
+				} else if (items.yesterdayContribution !== false) {
+					selectedTimeframe = 'yesterdayContribution';
+				}
 			}
-			if (items.showCommits) {
-				showCommitsElement.checked = items.showCommits;
-			} else {
-				showCommitsElement.checked = false;
-				handleShowCommitsChange();
+
+			if (yesterdayContributionElement && weeklyContributionElement) {
+				if (selectedTimeframe === 'yesterdayContribution') {
+					yesterdayContributionElement.checked = true;
+					weeklyContributionElement.checked = false;
+					handleYesterdayContributionChange();
+				} else if (selectedTimeframe === 'weeklyContribution') {
+					weeklyContributionElement.checked = true;
+					yesterdayContributionElement.checked = false;
+					handleWeeklyContributionChange();
+				} else {
+					yesterdayContributionElement.checked = false;
+					weeklyContributionElement.checked = false;
+					handleYesterdayContributionChange();
+					handleWeeklyContributionChange();
+				}
+			} else if (yesterdayContributionElement) {
+				if (items.yesterdayContribution) {
+					yesterdayContributionElement.checked = items.yesterdayContribution;
+					handleYesterdayContributionChange();
+				} else if (items.yesterdayContribution !== false) {
+					yesterdayContributionElement.checked = true;
+					handleYesterdayContributionChange();
+				}
+			}
+			if (showCommitsElement) {
+				if (items.showCommits) {
+					showCommitsElement.checked = items.showCommits;
+				} else {
+					showCommitsElement.checked = false;
+					handleShowCommitsChange();
+				}
 			}
 		});
 }
 
-document.getElementById('refreshCache').addEventListener('click', async (e) => {
-	const button = e.currentTarget;
-	button.classList.add('loading');
-	button.disabled = true;
+const refreshCacheBtn = document.getElementById('refreshCache');
+if (refreshCacheBtn) {
+	refreshCacheBtn.addEventListener('click', async (e) => {
+		const button = e.currentTarget;
+		button.classList.add('loading');
+		button.disabled = true;
 
-	setTimeout(() => {
-		button.classList.remove('loading');
-		button.disabled = false;
-	}, 500);
-});
+		setTimeout(() => {
+			button.classList.remove('loading');
+			button.disabled = false;
+		}, 500);
+	});
+}
 
 function handleStartingDateChange() {
-	window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(startingDateElement, endingDateElement);
+	if (startingDateElement && endingDateElement) {
+		window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(startingDateElement, endingDateElement);
+	}
 }
 function handleEndingDateChange() {
-	window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(startingDateElement, endingDateElement);
+	if (startingDateElement && endingDateElement) {
+		window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(startingDateElement, endingDateElement);
+	}
 }
 
 function handleYesterdayContributionChange() {
+	if (!yesterdayContributionElement) return;
 	const value = yesterdayContributionElement.checked;
 	const labelElement = document.querySelector("label[for='yesterdayContribution']");
+	const weeklyLabelElement = document.querySelector("label[for='weeklyContribution']");
 
 	if (value) {
-		startingDateElement.readOnly = true;
-		endingDateElement.readOnly = true;
-		endingDateElement.value = getToday();
-		startingDateElement.value = getYesterday();
-		window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(startingDateElement, endingDateElement);
-		labelElement.classList.add('selectedLabel');
-		labelElement.classList.remove('unselectedLabel');
+		if (startingDateElement) startingDateElement.readOnly = true;
+		if (endingDateElement) endingDateElement.readOnly = true;
+		if (endingDateElement) endingDateElement.value = getToday();
+		if (startingDateElement) startingDateElement.value = getYesterday();
+		if (startingDateElement && endingDateElement) {
+			window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(startingDateElement, endingDateElement);
+		}
+		if (labelElement) {
+			labelElement.classList.add('selectedLabel');
+			labelElement.classList.remove('unselectedLabel');
+		}
+		if (weeklyLabelElement) {
+			weeklyLabelElement.classList.remove('selectedLabel');
+			weeklyLabelElement.classList.add('unselectedLabel');
+		}
+		browser.storage.local.set({
+			yesterdayContribution: true,
+			weeklyContribution: false,
+			selectedTimeframe: 'yesterdayContribution',
+		});
 	} else {
-		startingDateElement.readOnly = false;
-		endingDateElement.readOnly = false;
-		window.scrumDateRangeUtils.normalizeDateRangeValues(startingDateElement, endingDateElement);
-		labelElement.classList.add('unselectedLabel');
-		labelElement.classList.remove('selectedLabel');
+		const weeklyChecked = weeklyContributionElement ? weeklyContributionElement.checked : false;
+		if (!weeklyChecked) {
+			if (startingDateElement) startingDateElement.readOnly = false;
+			if (endingDateElement) endingDateElement.readOnly = false;
+			if (startingDateElement && endingDateElement) {
+				window.scrumDateRangeUtils.normalizeDateRangeValues(startingDateElement, endingDateElement);
+			}
+		}
+		if (labelElement) {
+			labelElement.classList.add('unselectedLabel');
+			labelElement.classList.remove('selectedLabel');
+		}
 	}
-	browser.storage.local.set({ yesterdayContribution: value });
+}
+
+function handleWeeklyContributionChange() {
+	if (!weeklyContributionElement) return;
+	const value = weeklyContributionElement.checked;
+	const labelElement = document.querySelector("label[for='weeklyContribution']");
+	const yesterdayLabelElement = document.querySelector("label[for='yesterdayContribution']");
+
+	if (value) {
+		if (startingDateElement) startingDateElement.readOnly = true;
+		if (endingDateElement) endingDateElement.readOnly = true;
+		if (endingDateElement) endingDateElement.value = getToday();
+		if (startingDateElement) startingDateElement.value = getWeekAgo();
+		if (startingDateElement && endingDateElement) {
+			window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(startingDateElement, endingDateElement);
+		}
+		if (labelElement) {
+			labelElement.classList.add('selectedLabel');
+			labelElement.classList.remove('unselectedLabel');
+		}
+		if (yesterdayLabelElement) {
+			yesterdayLabelElement.classList.remove('selectedLabel');
+			yesterdayLabelElement.classList.add('unselectedLabel');
+		}
+		browser.storage.local.set({
+			yesterdayContribution: false,
+			weeklyContribution: true,
+			selectedTimeframe: 'weeklyContribution',
+		});
+	} else {
+		const yesterdayChecked = yesterdayContributionElement ? yesterdayContributionElement.checked : false;
+		if (!yesterdayChecked) {
+			if (startingDateElement) startingDateElement.readOnly = false;
+			if (endingDateElement) endingDateElement.readOnly = false;
+			if (startingDateElement && endingDateElement) {
+				window.scrumDateRangeUtils.normalizeDateRangeValues(startingDateElement, endingDateElement);
+			}
+		}
+		if (labelElement) {
+			labelElement.classList.add('unselectedLabel');
+			labelElement.classList.remove('selectedLabel');
+		}
+	}
 }
 
 function getYesterday() {
 	return window.scrumDateRangeUtils.getLocalYesterdayString();
+}
+function getWeekAgo() {
+	return window.scrumDateRangeUtils.getLocalWeekAgoString();
 }
 function getToday() {
 	return window.scrumDateRangeUtils.getLocalTodayString();
 }
 
 function handlePlatformUsernameChange() {
+	if (!platformUsernameElement) return;
 	const value = platformUsernameElement.value;
 	browser.storage.local.get(['platform']).then((result) => {
 		const platform = result.platform || 'github';
@@ -306,34 +428,42 @@ function handleGitlabTokenChange() {
 	});
 }
 function handleProjectNameChange() {
+	if (!projectNameElement) return;
 	const value = projectNameElement.value;
 	browser.storage.local.set({ projectName: value });
 }
 function handleCacheInputChange() {
+	if (!cacheInputElement) return;
 	const value = cacheInputElement.value;
 	browser.storage.local.set({ cacheInput: value });
 }
 function handleOpenLabelChange() {
+	if (!showOpenLabelElement) return;
 	const value = showOpenLabelElement.checked;
 	const labelElement = document.querySelector("label[for='showOpenLabel']");
 
-	if (value) {
-		labelElement.classList.add('selectedLabel');
-		labelElement.classList.remove('unselectedLabel');
-	} else {
-		labelElement.classList.add('unselectedLabel');
-		labelElement.classList.remove('selectedLabel');
+	if (labelElement) {
+		if (value) {
+			labelElement.classList.add('selectedLabel');
+			labelElement.classList.remove('unselectedLabel');
+		} else {
+			labelElement.classList.add('unselectedLabel');
+			labelElement.classList.remove('selectedLabel');
+		}
 	}
 
 	browser.storage.local.set({ showOpenLabel: value });
 }
 
 function handleShowCommitsChange() {
+	if (!showCommitsElement) return;
 	const value = showCommitsElement.checked;
 	browser.storage.local.set({ showCommits: value });
 }
 
-platformUsernameElement.addEventListener('keyup', handlePlatformUsernameChange);
+if (platformUsernameElement) {
+	platformUsernameElement.addEventListener('keyup', handlePlatformUsernameChange);
+}
 if (githubTokenElement) {
 	githubTokenElement.addEventListener('keyup', handleGithubTokenChange);
 	githubTokenElement.addEventListener('change', () => {
@@ -352,12 +482,29 @@ if (gitlabTokenElement) {
 		gitlabTokenElement.value = gitlabTokenElement.value.trim();
 	});
 }
-cacheInputElement.addEventListener('keyup', handleCacheInputChange);
-projectNameElement.addEventListener('keyup', handleProjectNameChange);
-startingDateElement.addEventListener('change', handleStartingDateChange);
-showCommitsElement.addEventListener('change', handleShowCommitsChange);
-endingDateElement.addEventListener('change', handleEndingDateChange);
-yesterdayContributionElement.addEventListener('change', handleYesterdayContributionChange);
-showOpenLabelElement.addEventListener('change', handleOpenLabelChange);
+if (cacheInputElement) {
+	cacheInputElement.addEventListener('keyup', handleCacheInputChange);
+}
+if (projectNameElement) {
+	projectNameElement.addEventListener('keyup', handleProjectNameChange);
+}
+if (startingDateElement) {
+	startingDateElement.addEventListener('change', handleStartingDateChange);
+}
+if (showCommitsElement) {
+	showCommitsElement.addEventListener('change', handleShowCommitsChange);
+}
+if (endingDateElement) {
+	endingDateElement.addEventListener('change', handleEndingDateChange);
+}
+if (yesterdayContributionElement) {
+	yesterdayContributionElement.addEventListener('change', handleYesterdayContributionChange);
+}
+if (weeklyContributionElement) {
+	weeklyContributionElement.addEventListener('change', handleWeeklyContributionChange);
+}
+if (showOpenLabelElement) {
+	showOpenLabelElement.addEventListener('change', handleOpenLabelChange);
+}
 
 document.addEventListener('DOMContentLoaded', handleBodyOnLoad);
