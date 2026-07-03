@@ -726,15 +726,28 @@ async function githubFetchReviews(username, token, startDate, endDate, orgName, 
 	const orgQuery = orgPart ? `+${orgPart}` : '';
 	let url;
 	if (repoQueries) {
-		url = `https://api.github.com/search/issues?q=commenter%3A${username}+${repoQueries}${orgQuery}+updated%3A${startDate}..${endDate}&per_page=100`;
+		url = `https://api.github.com/search/issues?q=reviewed-by%3A${username}+${repoQueries}${orgQuery}+updated%3A${startDate}..${endDate}&per_page=100`;
 	} else {
-		url = `https://api.github.com/search/issues?q=commenter%3A${username}${orgQuery}+updated%3A${startDate}..${endDate}&per_page=100`;
+		url = `https://api.github.com/search/issues?q=reviewed-by%3A${username}${orgQuery}+updated%3A${startDate}..${endDate}&per_page=100`;
 	}
 	return fetch(url, { headers });
 }
 
 async function githubFetchPullRequests(username, token, startDate, endDate, orgName, repoQueries) {
 	return githubFetchReviews(username, token, startDate, endDate, orgName, repoQueries);
+}
+
+async function githubFetchPrReviews(owner, repo, prNumber, token) {
+	const headers = { Accept: 'application/vnd.github.v3+json' };
+	if (token) {
+		headers.Authorization = `token ${token}`;
+	}
+	const url = `https://api.github.com/repos/${owner}/${repo}/pulls/${prNumber}/reviews`;
+	const res = await fetch(url, { headers });
+	if (!res.ok) {
+		throw new Error(`Failed to fetch reviews for ${owner}/${repo}#${prNumber}: ${res.status} ${res.statusText}`);
+	}
+	return res.json();
 }
 
 async function githubFetchCommits(prs, githubToken, startDate, endDate) {
@@ -836,6 +849,7 @@ async function githubFetchPrMergedStatusREST(owner, repo, number, token) {
 window.githubFetchUser = githubFetchUser;
 window.githubFetchIssues = githubFetchIssues;
 window.githubFetchReviews = githubFetchReviews;
+window.githubFetchPrReviews = githubFetchPrReviews;
 window.githubFetchPullRequests = githubFetchPullRequests;
 window.githubFetchCommits = githubFetchCommits;
 window.githubFetchPrMergedStatusREST = githubFetchPrMergedStatusREST;
