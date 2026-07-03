@@ -4,6 +4,7 @@ const gitlabTokenElement = document.getElementById('gitlabToken');
 const cacheInputElement = document.getElementById('cacheInput');
 const projectNameElement = document.getElementById('projectName');
 const yesterdayContributionElement = document.getElementById('yesterdayContribution');
+const weeklyContributionElement = document.getElementById('weeklyContribution');
 const startingDateElement = document.getElementById('startingDate');
 const endingDateElement = document.getElementById('endingDate');
 const showOpenLabelElement = document.getElementById('showOpenLabel');
@@ -29,6 +30,12 @@ if (!window.scrumDateRangeUtils) {
 			yesterday.setDate(yesterday.getDate() - 1);
 
 			return this.formatLocalDate(yesterday);
+		},
+		getLocalWeekAgoString() {
+			const weekAgo = new Date();
+			weekAgo.setDate(weekAgo.getDate() - 7);
+
+			return this.formatLocalDate(weekAgo);
 		},
 		normalizeAndSync(startDateInput, endDateInput) {
 			if (!startDateInput || !endDateInput) return false;
@@ -174,6 +181,8 @@ function handleBodyOnLoad() {
 			'showOpenLabel',
 			'userReason',
 			'yesterdayContribution',
+			'weeklyContribution',
+			'selectedTimeframe',
 			'cacheInput',
 			'githubToken',
 			'gitlabToken',
@@ -224,7 +233,33 @@ function handleBodyOnLoad() {
 				}
 			}
 
-			if (yesterdayContributionElement) {
+			let selectedTimeframe = items.selectedTimeframe;
+			if (!selectedTimeframe) {
+				if (items.yesterdayContribution) {
+					selectedTimeframe = 'yesterdayContribution';
+				} else if (items.weeklyContribution) {
+					selectedTimeframe = 'weeklyContribution';
+				} else if (items.yesterdayContribution !== false) {
+					selectedTimeframe = 'yesterdayContribution';
+				}
+			}
+
+			if (yesterdayContributionElement && weeklyContributionElement) {
+				if (selectedTimeframe === 'yesterdayContribution') {
+					yesterdayContributionElement.checked = true;
+					weeklyContributionElement.checked = false;
+					handleYesterdayContributionChange();
+				} else if (selectedTimeframe === 'weeklyContribution') {
+					weeklyContributionElement.checked = true;
+					yesterdayContributionElement.checked = false;
+					handleWeeklyContributionChange();
+				} else {
+					yesterdayContributionElement.checked = false;
+					weeklyContributionElement.checked = false;
+					handleYesterdayContributionChange();
+					handleWeeklyContributionChange();
+				}
+			} else if (yesterdayContributionElement) {
 				if (items.yesterdayContribution) {
 					yesterdayContributionElement.checked = items.yesterdayContribution;
 					handleYesterdayContributionChange();
@@ -273,6 +308,7 @@ function handleYesterdayContributionChange() {
 	if (!yesterdayContributionElement) return;
 	const value = yesterdayContributionElement.checked;
 	const labelElement = document.querySelector("label[for='yesterdayContribution']");
+	const weeklyLabelElement = document.querySelector("label[for='weeklyContribution']");
 
 	if (value) {
 		if (startingDateElement) startingDateElement.readOnly = true;
@@ -286,22 +322,79 @@ function handleYesterdayContributionChange() {
 			labelElement.classList.add('selectedLabel');
 			labelElement.classList.remove('unselectedLabel');
 		}
+		if (weeklyLabelElement) {
+			weeklyLabelElement.classList.remove('selectedLabel');
+			weeklyLabelElement.classList.add('unselectedLabel');
+		}
+		browser.storage.local.set({
+			yesterdayContribution: true,
+			weeklyContribution: false,
+			selectedTimeframe: 'yesterdayContribution',
+		});
 	} else {
-		if (startingDateElement) startingDateElement.readOnly = false;
-		if (endingDateElement) endingDateElement.readOnly = false;
-		if (startingDateElement && endingDateElement) {
-			window.scrumDateRangeUtils.normalizeDateRangeValues(startingDateElement, endingDateElement);
+		const weeklyChecked = weeklyContributionElement ? weeklyContributionElement.checked : false;
+		if (!weeklyChecked) {
+			if (startingDateElement) startingDateElement.readOnly = false;
+			if (endingDateElement) endingDateElement.readOnly = false;
+			if (startingDateElement && endingDateElement) {
+				window.scrumDateRangeUtils.normalizeDateRangeValues(startingDateElement, endingDateElement);
+			}
 		}
 		if (labelElement) {
 			labelElement.classList.add('unselectedLabel');
 			labelElement.classList.remove('selectedLabel');
 		}
 	}
-	browser.storage.local.set({ yesterdayContribution: value });
+}
+
+function handleWeeklyContributionChange() {
+	if (!weeklyContributionElement) return;
+	const value = weeklyContributionElement.checked;
+	const labelElement = document.querySelector("label[for='weeklyContribution']");
+	const yesterdayLabelElement = document.querySelector("label[for='yesterdayContribution']");
+
+	if (value) {
+		if (startingDateElement) startingDateElement.readOnly = true;
+		if (endingDateElement) endingDateElement.readOnly = true;
+		if (endingDateElement) endingDateElement.value = getToday();
+		if (startingDateElement) startingDateElement.value = getWeekAgo();
+		if (startingDateElement && endingDateElement) {
+			window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(startingDateElement, endingDateElement);
+		}
+		if (labelElement) {
+			labelElement.classList.add('selectedLabel');
+			labelElement.classList.remove('unselectedLabel');
+		}
+		if (yesterdayLabelElement) {
+			yesterdayLabelElement.classList.remove('selectedLabel');
+			yesterdayLabelElement.classList.add('unselectedLabel');
+		}
+		browser.storage.local.set({
+			yesterdayContribution: false,
+			weeklyContribution: true,
+			selectedTimeframe: 'weeklyContribution',
+		});
+	} else {
+		const yesterdayChecked = yesterdayContributionElement ? yesterdayContributionElement.checked : false;
+		if (!yesterdayChecked) {
+			if (startingDateElement) startingDateElement.readOnly = false;
+			if (endingDateElement) endingDateElement.readOnly = false;
+			if (startingDateElement && endingDateElement) {
+				window.scrumDateRangeUtils.normalizeDateRangeValues(startingDateElement, endingDateElement);
+			}
+		}
+		if (labelElement) {
+			labelElement.classList.add('unselectedLabel');
+			labelElement.classList.remove('selectedLabel');
+		}
+	}
 }
 
 function getYesterday() {
 	return window.scrumDateRangeUtils.getLocalYesterdayString();
+}
+function getWeekAgo() {
+	return window.scrumDateRangeUtils.getLocalWeekAgoString();
 }
 function getToday() {
 	return window.scrumDateRangeUtils.getLocalTodayString();
@@ -406,6 +499,9 @@ if (endingDateElement) {
 }
 if (yesterdayContributionElement) {
 	yesterdayContributionElement.addEventListener('change', handleYesterdayContributionChange);
+}
+if (weeklyContributionElement) {
+	weeklyContributionElement.addEventListener('change', handleWeeklyContributionChange);
 }
 if (showOpenLabelElement) {
 	showOpenLabelElement.addEventListener('change', handleOpenLabelChange);

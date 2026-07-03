@@ -46,7 +46,6 @@ function logError(...args) {
 	}
 }
 
-
 function getLocalISOString(dateStr, time) {
 	const offsetMinutes = new Date().getTimezoneOffset();
 	const absOffset = Math.abs(offsetMinutes);
@@ -158,6 +157,7 @@ function allIncluded(outputTarget = 'email') {
 	let reviewedPrsArray = [];
 	let githubIssuesData = null;
 	let yesterdayContribution = false;
+	let weeklyContribution = false;
 	let githubPrsReviewData = null;
 	let githubUserData = null;
 	let githubPrsReviewDataProcessed = {};
@@ -205,6 +205,8 @@ function allIncluded(outputTarget = 'email') {
 				'endingDate',
 				'showOpenLabel',
 				'yesterdayContribution',
+				'weeklyContribution',
+				'selectedTimeframe',
 				'userReason',
 				'githubCache',
 				'cacheInput',
@@ -260,6 +262,7 @@ function allIncluded(outputTarget = 'email') {
 					window.gitlabHelper = new window.GitLabHelper(window.gitlabBaseUrl);
 				}
 				yesterdayContribution = items.yesterdayContribution;
+				weeklyContribution = items.weeklyContribution;
 
 				onlyIssues = items.onlyIssues === true;
 				onlyPRs = items.onlyPRs === true;
@@ -275,16 +278,41 @@ function allIncluded(outputTarget = 'email') {
 				showOpenLabel = items.showOpenLabel !== false; // Default to true if not explicitly set to false
 				orgName = items.orgName || '';
 
-				if (items.yesterdayContribution) {
+				let selectedTimeframe = items.selectedTimeframe;
+				if (!selectedTimeframe) {
+					if (items.yesterdayContribution) {
+						selectedTimeframe = 'yesterdayContribution';
+					} else if (items.weeklyContribution) {
+						selectedTimeframe = 'weeklyContribution';
+					} else if (items.yesterdayContribution !== false) {
+						selectedTimeframe = 'yesterdayContribution';
+					}
+				}
+
+				if (selectedTimeframe === 'yesterdayContribution') {
+					yesterdayContribution = true;
+					weeklyContribution = false;
 					handleYesterdayContributionChange();
+				} else if (selectedTimeframe === 'weeklyContribution') {
+					yesterdayContribution = false;
+					weeklyContribution = true;
+					handleWeeklyContributionChange();
 				} else if (items.startingDate && items.endingDate) {
+					yesterdayContribution = false;
+					weeklyContribution = false;
 					startingDate = items.startingDate;
 					endingDate = items.endingDate;
 				} else {
+					yesterdayContribution = true;
+					weeklyContribution = false;
 					handleYesterdayContributionChange();
 
 					if (outputTarget === 'popup') {
-						chrome.storage.local.set({ yesterdayContribution: true });
+						chrome.storage.local.set({
+							yesterdayContribution: true,
+							weeklyContribution: false,
+							selectedTimeframe: 'yesterdayContribution',
+						});
 					}
 				}
 
@@ -419,11 +447,22 @@ function allIncluded(outputTarget = 'email') {
 		startingDate = getYesterday();
 	}
 
+	function handleWeeklyContributionChange() {
+		endingDate = getToday();
+		startingDate = getWeekAgo();
+	}
+
 	function getYesterday() {
 		const today = new Date();
 		const yesterday = new Date(today);
 		yesterday.setDate(today.getDate() - 1);
 		return formatLocalDate(yesterday);
+	}
+	function getWeekAgo() {
+		const today = new Date();
+		const weekAgo = new Date(today);
+		weekAgo.setDate(today.getDate() - 7);
+		return formatLocalDate(weekAgo);
 	}
 	function getToday() {
 		const today = new Date();
@@ -540,6 +579,11 @@ function allIncluded(outputTarget = 'email') {
 			const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
 			startDateForCache = formatLocalDate(yesterday);
 			endDateForCache = formatLocalDate(today); // Use yesterday for start and today for end
+		} else if (weeklyContribution) {
+			const today = new Date();
+			const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+			startDateForCache = formatLocalDate(weekAgo);
+			endDateForCache = formatLocalDate(today);
 		} else if (startingDate && endingDate) {
 			startDateForCache = startingDate;
 			endDateForCache = endingDate;
@@ -797,6 +841,11 @@ function allIncluded(outputTarget = 'email') {
 						const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
 						startDateForCommits = formatLocalDate(yesterday);
 						endDateForCommits = formatLocalDate(today); // Use yesterday for start and today for end
+					} else if (weeklyContribution) {
+						const today = new Date();
+						const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+						startDateForCommits = formatLocalDate(weekAgo);
+						endDateForCommits = formatLocalDate(today);
 					} else if (startingDate && endingDate) {
 						startDateForCommits = startingDate;
 						endDateForCommits = endingDate;
@@ -1039,10 +1088,18 @@ function allIncluded(outputTarget = 'email') {
 			const lastWeekUl = buildActivityListHtml();
 			const nextWeekUl = buildNextWeekListHtml();
 			const blockerText = buildBlockerTextHtml();
-			const weekOrDay = yesterdayContribution ? 'yesterday' : 'the period';
-			const weekOrDay2 = 'today';
-			let content;
+			let weekOrDay = 'the period';
+			let weekOrDay2 = 'today';
 			if (yesterdayContribution) {
+				weekOrDay = 'yesterday';
+				weekOrDay2 = 'today';
+			} else if (weeklyContribution) {
+				weekOrDay = 'last week';
+				weekOrDay2 = 'this week';
+			}
+
+			let content;
+			if (yesterdayContribution || weeklyContribution) {
 				content = `<b>1. What did I do ${weekOrDay}?</b><br>${lastWeekUl}<br><b>2. What do I plan to do ${weekOrDay2}?</b><br>${nextWeekUl}<br><b>3. What is blocking me from making progress?</b><br>${blockerText}`;
 			} else {
 				content = `<b>1. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?</b><br>${lastWeekUl}<br><b>2. What do I plan to do ${weekOrDay2}?</b><br>${nextWeekUl}<br><b>3. What is blocking me from making progress?</b><br>${blockerText}`;
@@ -1124,11 +1181,18 @@ function allIncluded(outputTarget = 'email') {
 		const nextWeekUl = buildNextWeekListHtml();
 		const blockerText = buildBlockerTextHtml();
 
-		const weekOrDay = yesterdayContribution ? 'yesterday' : 'the period';
-		const weekOrDay2 = 'today';
+		let weekOrDay = 'the period';
+		let weekOrDay2 = 'today';
+		if (yesterdayContribution) {
+			weekOrDay = 'yesterday';
+			weekOrDay2 = 'today';
+		} else if (weeklyContribution) {
+			weekOrDay = 'last week';
+			weekOrDay2 = 'this week';
+		}
 
 		let content;
-		if (yesterdayContribution) {
+		if (yesterdayContribution || weeklyContribution) {
 			content = `<b>1. What did I do ${weekOrDay}?</b><br>
 ${lastWeekUl}<br>
 <b>2. What do I plan to do ${weekOrDay2}?</b><br>
@@ -1277,6 +1341,11 @@ ${blockerText}`;
 			const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
 			startDate = formatLocalDate(yesterday);
 			endDate = formatLocalDate(today); // Use yesterday for start and today for end
+		} else if (weeklyContribution) {
+			const today = new Date();
+			const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+			startDate = formatLocalDate(weekAgo);
+			endDate = formatLocalDate(today);
 		} else if (startingDate && endingDate) {
 			startDate = startingDate;
 			endDate = endingDate;
@@ -1480,6 +1549,11 @@ ${blockerText}`;
 			const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
 			startDateForRange = formatLocalDate(yesterday);
 			endDateForRange = formatLocalDate(today); // Use yesterday for start and today for end
+		} else if (weeklyContribution) {
+			const today = new Date();
+			const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+			startDateForRange = formatLocalDate(weekAgo);
+			endDateForRange = formatLocalDate(today);
 		} else if (startingDate && endingDate) {
 			startDateForRange = startingDate;
 			endDateForRange = endingDate;
@@ -1651,6 +1725,11 @@ ${blockerText}`;
 					const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
 					startDateFilter = new Date(formatLocalDate(yesterday) + 'T00:00:00Z');
 					endDateFilter = new Date(formatLocalDate(today) + 'T23:59:59Z'); // Use yesterday for start and today for end
+				} else if (weeklyContribution) {
+					const today = new Date();
+					const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
+					startDateFilter = new Date(formatLocalDate(weekAgo) + 'T00:00:00Z');
+					endDateFilter = new Date(formatLocalDate(today) + 'T23:59:59Z');
 				} else if (startingDate && endingDate) {
 					startDateFilter = new Date(startingDate + 'T00:00:00Z');
 					endDateFilter = new Date(endingDate + 'T23:59:59Z');
@@ -1773,6 +1852,11 @@ ${blockerText}`;
 					const yesterdayDate = new Date(todayDate.getTime() - 24 * 60 * 60 * 1000);
 					issueStartDateFilter = new Date(formatLocalDate(yesterdayDate) + 'T00:00:00Z');
 					issueEndDateFilter = new Date(formatLocalDate(yesterdayDate) + 'T23:59:59Z');
+				} else if (weeklyContribution) {
+					const todayDate = new Date();
+					const weekAgo = new Date(todayDate.getTime() - 7 * 24 * 60 * 60 * 1000);
+					issueStartDateFilter = new Date(formatLocalDate(weekAgo) + 'T00:00:00Z');
+					issueEndDateFilter = new Date(formatLocalDate(todayDate) + 'T23:59:59Z');
 				} else if (startingDate && endingDate) {
 					issueStartDateFilter = new Date(startingDate + 'T00:00:00Z');
 					issueEndDateFilter = new Date(endingDate + 'T23:59:59Z');
