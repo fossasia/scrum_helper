@@ -91,6 +91,13 @@ function getYesterday() {
 	return formatLocalDate(yesterday);
 }
 
+function getWeekAgo() {
+	const today = new Date();
+	const weekAgo = new Date(today);
+	weekAgo.setDate(today.getDate() - 7);
+	return formatLocalDate(weekAgo);
+}
+
 function applyI18n() {
 	document.querySelectorAll('[data-i18n]').forEach((el) => {
 		const key = el.getAttribute('data-i18n');
@@ -521,6 +528,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		const githubTokenInput = document.getElementById('githubToken');
 		const cacheInput = document.getElementById('cacheInput');
 		const yesterdayRadio = document.getElementById('yesterdayContribution');
+		const weeklyRadio = document.getElementById('weeklyContribution');
 		const startingDateInput = document.getElementById('startingDate');
 		const endingDateInput = document.getElementById('endingDate');
 		const platformUsername = document.getElementById('platformUsername');
@@ -540,6 +548,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				'onlyRevPRs',
 				'onlyMergedPRs',
 				'yesterdayContribution',
+				'weeklyContribution',
 				'startingDate',
 				'endingDate',
 				'selectedTimeframe',
@@ -596,6 +605,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				if (result.githubToken) githubTokenInput.value = result.githubToken;
 				if (result.cacheInput) cacheInput.value = result.cacheInput;
 				if (typeof result.yesterdayContribution !== 'undefined') yesterdayRadio.checked = result.yesterdayContribution;
+				if (typeof result.weeklyContribution !== 'undefined') weeklyRadio.checked = result.weeklyContribution;
 				if (result.startingDate) startingDateInput.value = result.startingDate;
 				if (result.endingDate) endingDateInput.value = result.endingDate;
 				const wasNormalizedOnLoad = window.scrumDateRangeUtils.normalizeDateRangeValues(
@@ -836,16 +846,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			browser.storage.local.set({
 				yesterdayContribution: false,
+				weeklyContribution: false,
 				selectedTimeframe: null,
 			});
 		});
 
 		browser.storage.local
-			.get(['selectedTimeframe', 'yesterdayContribution', 'startingDate', 'endingDate'])
+			.get(['selectedTimeframe', 'yesterdayContribution', 'weeklyContribution', 'startingDate', 'endingDate'])
 			.then((items) => {
 				console.log('Restoring state:', typeof logRedaction === 'function' ? logRedaction(items) : items);
 
-				if (items.startingDate && items.endingDate && !items.yesterdayContribution) {
+				if (items.startingDate && items.endingDate && !items.yesterdayContribution && !items.weeklyContribution) {
 					const startDateInput = document.getElementById('startingDate');
 					const endDateInput = document.getElementById('endingDate');
 
@@ -878,6 +889,9 @@ document.addEventListener('DOMContentLoaded', () => {
 					if (items.selectedTimeframe === 'yesterdayContribution') {
 						startDateInput.value = getYesterday();
 						endDateInput.value = getToday();
+					} else if (items.selectedTimeframe === 'weeklyContribution') {
+						startDateInput.value = getWeekAgo();
+						endDateInput.value = getToday();
 					}
 					startDateInput.readOnly = endDateInput.readOnly = true;
 
@@ -885,6 +899,7 @@ document.addEventListener('DOMContentLoaded', () => {
 						startingDate: startDateInput.value,
 						endingDate: endDateInput.value,
 						yesterdayContribution: items.selectedTimeframe === 'yesterdayContribution',
+						weeklyContribution: items.selectedTimeframe === 'weeklyContribution',
 						selectedTimeframe: items.selectedTimeframe,
 					});
 				}
@@ -1095,6 +1110,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		yesterdayRadio.addEventListener('change', () => {
 			browser.storage.local.set({ yesterdayContribution: yesterdayRadio.checked });
+		});
+		weeklyRadio.addEventListener('change', () => {
+			browser.storage.local.set({ weeklyContribution: weeklyRadio.checked });
 		});
 		startingDateInput.addEventListener('blur', () => {
 			window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(startingDateInput, endingDateInput);
@@ -2037,6 +2055,7 @@ document.querySelectorAll('input[name="timeframe"]').forEach((radio) => {
 
 			browser.storage.local.set({
 				yesterdayContribution: false,
+				weeklyContribution: false,
 				selectedTimeframe: null,
 			});
 		} else {
@@ -2157,6 +2176,9 @@ function toggleRadio(radio) {
 	if (radio.id === 'yesterdayContribution') {
 		if (startDateInput) startDateInput.value = getYesterday();
 		if (endDateInput) endDateInput.value = getToday();
+	} else if (radio.id === 'weeklyContribution') {
+		if (startDateInput) startDateInput.value = getWeekAgo();
+		if (endDateInput) endDateInput.value = getToday();
 	}
 
 	if (startDateInput) startDateInput.readOnly = true;
@@ -2168,6 +2190,7 @@ function toggleRadio(radio) {
 				startingDate: startDateInput.value,
 				endingDate: endDateInput.value,
 				yesterdayContribution: radio.id === 'yesterdayContribution',
+				weeklyContribution: radio.id === 'weeklyContribution',
 				selectedTimeframe: radio.id,
 				githubCache: null, // Clear cache to force new fetch
 			})
@@ -2183,6 +2206,7 @@ function toggleRadio(radio) {
 		browser.storage.local
 			.set({
 				yesterdayContribution: radio.id === 'yesterdayContribution',
+				weeklyContribution: radio.id === 'weeklyContribution',
 				selectedTimeframe: radio.id,
 				githubCache: null,
 			})

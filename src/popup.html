@@ -191,7 +191,7 @@
 							contributions between:</p>
 
 
-						<div class="flex gap-[3px] justify-between items-center mt-2" style="gap: 8px">
+						<div class="timeframe-container mt-2">
 
 							<div id="customDateContainer" class="flex gap-2">
 
@@ -210,11 +210,19 @@
 										style="width: 96px;">
 								</div>
 							</div>
-							<div class="flex items-center gap-1">
-								<input type="radio" id="yesterdayContribution" name="timeframe" class="form-radio"
-									style="margin-right: 4px;">
-								<label for="yesterdayContribution" class="font-medium text-xs"
-									data-i18n="last1DayLabel">Previous Day</label>
+							<div class="timeframe-presets">
+								<div class="flex items-center gap-1">
+									<input type="radio" id="yesterdayContribution" name="timeframe" class="form-radio"
+										style="margin-right: 4px;">
+									<label for="yesterdayContribution" class="font-medium text-xs"
+										data-i18n="last1DayLabel">Previous Day</label>
+								</div>
+								<div class="flex items-center gap-1">
+									<input type="radio" id="weeklyContribution" name="timeframe" class="form-radio"
+										style="margin-right: 4px;">
+									<label for="weeklyContribution" class="font-medium text-xs"
+										data-i18n="lastWeekLabel">Previous Week</label>
+								</div>
 							</div>
 						</div>
 					</div>
