@@ -69,6 +69,10 @@
     "https://gitlab.com/*",
     "https://codeberg.org/*"
   ],
+  "optional_host_permissions": [
+    "https://*/*",
+    "http://*/*"
+  ],
   "default_locale": "en",
   "sidebar_action": {
     "default_panel": "popup.html?view=sidebar",

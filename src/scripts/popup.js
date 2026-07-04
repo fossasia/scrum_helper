@@ -716,30 +716,70 @@ document.addEventListener('DOMContentLoaded', () => {
 				showPopupMessage(browser.i18n.getMessage('generatingReportNotification'));
 			}
 			browser.storage.local
-				.get(['platform'])
+				.get(['platform', 'codebergApiBaseUrl'])
 				.then((result) => {
-					platformUsername.classList.remove('input-error');
-					usernameError.classList.remove('errorMessage');
-					usernameError.textContent = '';
 					const platform = result.platform || 'github';
-					const platformUsernameKey = `${platform}Username`;
+					const codebergApiBaseUrl = result.codebergApiBaseUrl || 'https://codeberg.org/api/v1';
 
-					return browser.storage.local
-						.set({
-							platform: platformSelect.value,
-							[platformUsernameKey]: platformUsername.value,
-						})
-						.then(() => {
-							// Reload platform from storage before generating report
-							return browser.storage.local.get(['platform']).then((res) => {
-								platformSelect.value = res.platform || 'github';
-								updatePlatformUI(platformSelect.value);
-								generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
-								generateBtn.disabled = true;
-								window.generateScrumReport && window.generateScrumReport();
-								generateBtn._triggeredByShortcut = false;
+					const proceedWithReport = () => {
+						platformUsername.classList.remove('input-error');
+						usernameError.classList.remove('errorMessage');
+						usernameError.textContent = '';
+						const platformUsernameKey = `${platform}Username`;
+
+						return browser.storage.local
+							.set({
+								platform: platformSelect.value,
+								[platformUsernameKey]: platformUsername.value,
+							})
+							.then(() => {
+								// Reload platform from storage before generating report
+								return browser.storage.local.get(['platform']).then((res) => {
+									platformSelect.value = res.platform || 'github';
+									updatePlatformUI(platformSelect.value);
+									generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
+									generateBtn.disabled = true;
+									window.generateScrumReport && window.generateScrumReport();
+									generateBtn._triggeredByShortcut = false;
+								});
 							});
-						});
+					};
+
+					if (platformSelect.value === 'codeberg' && !codebergApiBaseUrl.includes('codeberg.org')) {
+						try {
+							const parsedUrl = new URL(codebergApiBaseUrl);
+							const originPattern = `${parsedUrl.protocol}//${parsedUrl.host}/*`;
+							return browser.permissions
+								.contains({
+									origins: [originPattern],
+								})
+								.then((hasPerm) => {
+									if (!hasPerm) {
+										return browser.permissions
+											.request({
+												origins: [originPattern],
+											})
+											.then((granted) => {
+												if (granted) {
+													return proceedWithReport();
+												} else {
+													showPopupMessage(
+														'Host permission is required to fetch data from self-hosted instance ' + parsedUrl.host,
+														'error',
+													);
+												}
+											});
+									} else {
+										return proceedWithReport();
+									}
+								});
+						} catch (e) {
+							console.error('Invalid Codeberg API URL:', e);
+							return proceedWithReport();
+						}
+					} else {
+						return proceedWithReport();
+					}
 				})
 				.finally(() => {
 					if (generateBtn._triggeredByShortcut) {

@@ -72,5 +72,9 @@
     "https://gitlab.com/*",
     "https://codeberg.org/*"
   ],
+  "optional_host_permissions": [
+    "https://*/*",
+    "http://*/*"
+  ],
   "default_locale": "en"
 }
