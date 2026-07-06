@@ -1618,7 +1618,7 @@ ${blockerText}`;
 			const isMR = !!item.pull_request; // works for both GitHub and mapped GitLab data
 
 			if (isAnyFilterActive) {
-				if (isMR && !onlyPRs) {
+				if (isMR && !onlyPRs && !onlyMergedPRs) {
 					log('[SCRUM-DEBUG] Filters active, skipping PR because onlyPRs is not checked:', item.number);
 					continue;
 				}
