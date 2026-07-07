@@ -468,5 +468,21 @@
   "includeNextPlansTooltip": {
     "message": "If checked, the report will include the next plans section.",
     "description": "Tooltip text explaining the include next plans option."
+  },
+  "fetchingIssuesSpinner": {
+    "message": "Fetching your assigned issues...",
+    "description": "Loading message shown when fetching assigned issues."
+  },
+  "noIssuesFound": {
+    "message": "No assigned open issues found",
+    "description": "Empty state message for assigned issues."
+  },
+  "githubTokenRequiredNextPlans": {
+    "message": "A GitHub token is required to fetch assigned issues. Please add one in settings.",
+    "description": "Error message when no token is present."
+  },
+  "failedToFetchIssues": {
+    "message": "Failed to fetch assigned issues.",
+    "description": "Error message when fetching fails."
   }
 }
