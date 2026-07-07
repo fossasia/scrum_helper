@@ -1223,6 +1223,7 @@ document.addEventListener('DOMContentLoaded', () => {
 							'githubUsername',
 							'gitlabUsername',
 							'githubToken',
+							'gitlabToken',
 							'orgName',
 						]);
 
@@ -1254,13 +1255,11 @@ document.addEventListener('DOMContentLoaded', () => {
 							return;
 						}
 
-						if (window.fetchUserRepositories) {
-							const repos = await window.fetchUserRepositories(
-								username,
-
-								items.githubToken,
-								items.orgName || '',
-							);
+						const fetchFunc =
+							platform === 'gitlab' ? window.fetchGitlabUserRepositories : window.fetchGithubUserRepositories;
+						if (fetchFunc) {
+							const tokenToUse = platform === 'gitlab' ? items.gitlabToken : items.githubToken;
+							const repos = await fetchFunc(username, tokenToUse, items.orgName || '');
 							availableRepos = repos;
 							repoStatus.textContent = browser.i18n.getMessage('repoLoaded', [repos.length]);
 
@@ -1686,14 +1685,6 @@ function updatePlatformUI(platform) {
 		}
 	}
 
-	const orgSection = document.querySelector('.orgSection');
-	if (orgSection) {
-		if (platform === 'gitlab') {
-			orgSection.classList.add('hidden');
-		} else {
-			orgSection.classList.remove('hidden');
-		}
-	}
 	const githubOnlySections = document.querySelectorAll('.githubOnlySection');
 	githubOnlySections.forEach((el) => {
 		if (platform === 'gitlab') {
@@ -1710,6 +1701,17 @@ function updatePlatformUI(platform) {
 			el.classList.remove('hidden');
 		}
 	});
+
+	const repoFilterTooltip = document.querySelector('[data-i18n="repoFilterTooltip"]');
+	if (repoFilterTooltip) {
+		if (platform === 'gitlab') {
+			repoFilterTooltip.innerHTML =
+				'GitLab Token required.<br>To force a repo list update, <br>click the Refresh Data button.';
+		} else {
+			repoFilterTooltip.innerHTML =
+				'Github Token required.<br>To force a repo list update, <br>click the Refresh Data button.';
+		}
+	}
 }
 
 const platformSelectEl = document.getElementById('platformSelect');
