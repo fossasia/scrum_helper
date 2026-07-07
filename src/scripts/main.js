@@ -12,7 +12,6 @@ const showOpenLabelElement = document.getElementById('showOpenLabel');
 const userReasonElement = null;
 
 const showCommitsElement = document.getElementById('showCommits');
-const includeBlockersElement = document.getElementById('includeBlockers');
 const includeNextPlansElement = document.getElementById('includeNextPlans');
 
 if (!window.scrumDateRangeUtils) {
@@ -189,7 +188,6 @@ function handleBodyOnLoad() {
 			'githubToken',
 			'gitlabToken',
 			'showCommits',
-			'includeBlockers',
 			'includeNextPlans',
 		])
 		.then((items) => {
@@ -278,13 +276,6 @@ function handleBodyOnLoad() {
 				} else {
 					showCommitsElement.checked = false;
 					handleShowCommitsChange();
-				}
-			}
-			if (includeBlockersElement) {
-				if (items.includeBlockers !== false) {
-					includeBlockersElement.checked = true;
-				} else {
-					includeBlockersElement.checked = false;
 				}
 			}
 			if (includeNextPlansElement) {
@@ -479,12 +470,6 @@ function handleShowCommitsChange() {
 	browser.storage.local.set({ showCommits: value });
 }
 
-function handleIncludeBlockersChange() {
-	if (!includeBlockersElement) return;
-	const value = includeBlockersElement.checked;
-	browser.storage.local.set({ includeBlockers: value });
-}
-
 function handleIncludeNextPlansChange() {
 	if (!includeNextPlansElement) return;
 	const value = includeNextPlansElement.checked;
@@ -523,9 +508,6 @@ if (startingDateElement) {
 }
 if (showCommitsElement) {
 	showCommitsElement.addEventListener('change', handleShowCommitsChange);
-}
-if (includeBlockersElement) {
-	includeBlockersElement.addEventListener('change', handleIncludeBlockersChange);
 }
 if (includeNextPlansElement) {
 	includeNextPlansElement.addEventListener('change', handleIncludeNextPlansChange);
