@@ -498,6 +498,8 @@ document.addEventListener('DOMContentLoaded', () => {
 		const onlyPRsCheckbox = document.getElementById('onlyPRs');
 		const onlyRevPRsCheckbox = document.getElementById('onlyRevPRs');
 		const onlyMergedPRsCheckbox = document.getElementById('onlyMergedPRs');
+		const includeBlockersCheckbox = document.getElementById('includeBlockers');
+		const includeNextPlansCheckbox = document.getElementById('includeNextPlans');
 
 		const githubTokenInput = document.getElementById('githubToken');
 		const cacheInput = document.getElementById('cacheInput');
@@ -521,6 +523,8 @@ document.addEventListener('DOMContentLoaded', () => {
 				'onlyPRs',
 				'onlyRevPRs',
 				'onlyMergedPRs',
+				'includeBlockers',
+				'includeNextPlans',
 				'yesterdayContribution',
 				'weeklyContribution',
 				'startingDate',
@@ -551,6 +555,16 @@ document.addEventListener('DOMContentLoaded', () => {
 				}
 				if (typeof result.onlyMergedPRs !== 'undefined') {
 					onlyMergedPRsCheckbox.checked = result.onlyMergedPRs;
+				}
+				if (typeof result.includeBlockers !== 'undefined') {
+					includeBlockersCheckbox.checked = result.includeBlockers;
+				} else {
+					includeBlockersCheckbox.checked = true;
+				}
+				if (typeof result.includeNextPlans !== 'undefined') {
+					includeNextPlansCheckbox.checked = result.includeNextPlans;
+				} else {
+					includeNextPlansCheckbox.checked = true;
 				}
 
 				// Reconcile mutually exclusive "Only Issues" and "Only PRs" flags on initialization.
@@ -899,6 +913,16 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (showOpenLabelCheckbox) {
 			showOpenLabelCheckbox.addEventListener('change', () => {
 				browser.storage.local.set({ showOpenLabel: showOpenLabelCheckbox.checked });
+			});
+		}
+		if (includeBlockersCheckbox) {
+			includeBlockersCheckbox.addEventListener('change', () => {
+				browser.storage.local.set({ includeBlockers: includeBlockersCheckbox.checked });
+			});
+		}
+		if (includeNextPlansCheckbox) {
+			includeNextPlansCheckbox.addEventListener('change', () => {
+				browser.storage.local.set({ includeNextPlans: includeNextPlansCheckbox.checked });
 			});
 		}
 		if (onlyIssuesCheckbox && onlyPRsCheckbox) {

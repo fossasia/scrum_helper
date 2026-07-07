@@ -171,6 +171,8 @@ function allIncluded(outputTarget = 'email') {
 	let onlyPRs = false;
 	let onlyRevPRs = false;
 	let onlyMergedPRs = false;
+	let includeBlockers = true;
+	let includeNextPlans = true;
 
 	const pr_open_button =
 		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
@@ -218,6 +220,8 @@ function allIncluded(outputTarget = 'email') {
 				'onlyPRs',
 				'onlyRevPRs',
 				'onlyMergedPRs',
+				'includeBlockers',
+				'includeNextPlans',
 			])
 			.then((items) => {
 				console.log('[DEBUG] Storage items received:', logRedaction(items));
@@ -268,7 +272,16 @@ function allIncluded(outputTarget = 'email') {
 				onlyPRs = items.onlyPRs === true;
 				onlyRevPRs = items.onlyRevPRs === true;
 				onlyMergedPRs = items.onlyMergedPRs === true;
-				console.log('[SCRUM-DEBUG] loaded flags:', { onlyIssues, onlyPRs, onlyRevPRs, onlyMergedPRs });
+				includeBlockers = items.includeBlockers !== false;
+				includeNextPlans = items.includeNextPlans !== false;
+				console.log('[SCRUM-DEBUG] loaded flags:', {
+					onlyIssues,
+					onlyPRs,
+					onlyRevPRs,
+					onlyMergedPRs,
+					includeBlockers,
+					includeNextPlans,
+				});
 				// Enforce mutual exclusivity between onlyIssues and onlyPRs to avoid filtering out everything
 				if (onlyIssues && onlyPRs) {
 					console.warn('[SCRUM-HELPER]: Detected both onlyIssues and onlyPRs enabled; normalizing to onlyIssues.');
@@ -1088,22 +1101,34 @@ function allIncluded(outputTarget = 'email') {
 			const lastWeekUl = buildActivityListHtml();
 			const nextWeekUl = buildNextWeekListHtml();
 			const blockerText = buildBlockerTextHtml();
-			let weekOrDay = 'the period';
-			let weekOrDay2 = 'today';
-			if (yesterdayContribution) {
-				weekOrDay = 'yesterday';
-				weekOrDay2 = 'today';
-			} else if (weeklyContribution) {
-				weekOrDay = 'last week';
-				weekOrDay2 = 'this week';
+			const weekOrDay = yesterdayContribution
+				? 'yesterday'
+				: weeklyContribution
+					? 'last week'
+					: 'the period';
+			const weekOrDay2 = weeklyContribution ? 'this week' : 'today';
+			let sectionNum = 1;
+			const contentParts = [];
+			if (yesterdayContribution || weeklyContribution) {
+				contentParts.push(`<b>${sectionNum}. What did I do ${weekOrDay}?</b><br>${lastWeekUl}`);
+			} else {
+				contentParts.push(
+					`<b>${sectionNum}. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?</b><br>${lastWeekUl}`,
+				);
+			}
+			sectionNum++;
+
+			if (includeNextPlans) {
+				contentParts.push(`<b>${sectionNum}. What do I plan to do ${weekOrDay2}?</b><br>${nextWeekUl}`);
+				sectionNum++;
 			}
 
-			let content;
-			if (yesterdayContribution || weeklyContribution) {
-				content = `<b>1. What did I do ${weekOrDay}?</b><br>${lastWeekUl}<br><b>2. What do I plan to do ${weekOrDay2}?</b><br>${nextWeekUl}<br><b>3. What is blocking me from making progress?</b><br>${blockerText}`;
-			} else {
-				content = `<b>1. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?</b><br>${lastWeekUl}<br><b>2. What do I plan to do ${weekOrDay2}?</b><br>${nextWeekUl}<br><b>3. What is blocking me from making progress?</b><br>${blockerText}`;
+			if (includeBlockers) {
+				contentParts.push(`<b>${sectionNum}. What is blocking me from making progress?</b><br>${blockerText}`);
+				sectionNum++;
 			}
+
+			const content = contentParts.join('<br>');
 			// Wait for both subject and body to be available, then inject both
 			let injected = false;
 			const interval = setInterval(() => {
@@ -1191,22 +1216,28 @@ function allIncluded(outputTarget = 'email') {
 			weekOrDay2 = 'this week';
 		}
 
-		let content;
+		let sectionNum = 1;
+		const contentParts = [];
 		if (yesterdayContribution || weeklyContribution) {
-			content = `<b>1. What did I do ${weekOrDay}?</b><br>
-${lastWeekUl}<br>
-<b>2. What do I plan to do ${weekOrDay2}?</b><br>
-${nextWeekUl}<br>
-<b>3. What is blocking me from making progress?</b><br>
-${blockerText}`;
+			contentParts.push(`<b>${sectionNum}. What did I do ${weekOrDay}?</b><br>\n${lastWeekUl}`);
 		} else {
-			content = `<b>1. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?</b><br>
-${lastWeekUl}<br>
-<b>2. What do I plan to do ${weekOrDay2}?</b><br>
-${nextWeekUl}<br>
-<b>3. What is blocking me from making progress?</b><br>
-${blockerText}`;
+			contentParts.push(
+				`<b>${sectionNum}. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?</b><br>\n${lastWeekUl}`,
+			);
 		}
+		sectionNum++;
+
+		if (includeNextPlans) {
+			contentParts.push(`<b>${sectionNum}. What do I plan to do ${weekOrDay2}?</b><br>\n${nextWeekUl}`);
+			sectionNum++;
+		}
+
+		if (includeBlockers) {
+			contentParts.push(`<b>${sectionNum}. What is blocking me from making progress?</b><br>\n${blockerText}`);
+			sectionNum++;
+		}
+
+		const content = contentParts.join('<br>\n');
 
 		if (outputTarget === 'popup') {
 			const scrumReport = document.getElementById('scrumReport');

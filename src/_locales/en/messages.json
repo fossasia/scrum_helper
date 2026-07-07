@@ -452,5 +452,21 @@
   "rateLimitWarningMessage": {
     "message": "Some data may be missing due to GitHub rate limit. Please add or check your GitHub token in settings.",
     "description": "Warning message shown below buttons when rate limit is exceeded."
+  },
+  "includeBlockersLabel": {
+    "message": "Include blockers in the report",
+    "description": "Label for checkbox to include blockers in the scrum report."
+  },
+  "includeBlockersTooltip": {
+    "message": "If checked, the report will include the blockers section.",
+    "description": "Tooltip text explaining the include blockers option."
+  },
+  "includeNextPlansLabel": {
+    "message": "Include next plans in the report",
+    "description": "Label for checkbox to include next plans in the scrum report."
+  },
+  "includeNextPlansTooltip": {
+    "message": "If checked, the report will include the next plans section.",
+    "description": "Tooltip text explaining the include next plans option."
   }
 }
