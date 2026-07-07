@@ -220,7 +220,6 @@ function allIncluded(outputTarget = 'email') {
 				'onlyPRs',
 				'onlyRevPRs',
 				'onlyMergedPRs',
-				'includeBlockers',
 				'includeNextPlans',
 			])
 			.then((items) => {
@@ -272,7 +271,7 @@ function allIncluded(outputTarget = 'email') {
 				onlyPRs = items.onlyPRs === true;
 				onlyRevPRs = items.onlyRevPRs === true;
 				onlyMergedPRs = items.onlyMergedPRs === true;
-				includeBlockers = items.includeBlockers !== false;
+				includeBlockers = true;
 				includeNextPlans = items.includeNextPlans !== false;
 				console.log('[SCRUM-DEBUG] loaded flags:', {
 					onlyIssues,
@@ -1095,17 +1094,31 @@ function allIncluded(outputTarget = 'email') {
 			await writeGithubIssuesPrs(githubPrsReviewData?.items || []);
 		}
 		await writeGithubPrsReviews();
+		if (includeNextPlans) {
+			if (window.getNextPlansForReport) {
+				try {
+					const selectedPlans = await window.getNextPlansForReport();
+					if (selectedPlans && selectedPlans.length > 0) {
+						selectedPlans.forEach((issue) => {
+							const hasLi = nextWeekArray.some((li) => li.includes(`Work on Issue(#${issue.number})`));
+							if (!hasLi) {
+								const li = `<li><i>(${issue.repository})</i> - Work on Issue(#${issue.number}) - <a href='${issue.html_url}' target='_blank' rel='noopener noreferrer'>${issue.title}</a>${showOpenLabel ? ' ' + issue_opened_button : ''}&nbsp;&nbsp;</li>`;
+								nextWeekArray.push(li);
+							}
+						});
+					}
+				} catch (err) {
+					console.error('Failed to append selected next plans:', err);
+				}
+			}
+		}
 		log('[DEBUG] Both data processing functions completed, generating scrum body');
 		if (subjectForEmail) {
 			// Synchronized subject and body injection for email
 			const lastWeekUl = buildActivityListHtml();
 			const nextWeekUl = buildNextWeekListHtml();
 			const blockerText = buildBlockerTextHtml();
-			const weekOrDay = yesterdayContribution
-				? 'yesterday'
-				: weeklyContribution
-					? 'last week'
-					: 'the period';
+			const weekOrDay = yesterdayContribution ? 'yesterday' : weeklyContribution ? 'last week' : 'the period';
 			const weekOrDay2 = weeklyContribution ? 'this week' : 'today';
 			let sectionNum = 1;
 			const contentParts = [];
@@ -1118,10 +1131,8 @@ function allIncluded(outputTarget = 'email') {
 			}
 			sectionNum++;
 
-			if (includeNextPlans) {
-				contentParts.push(`<b>${sectionNum}. What do I plan to do ${weekOrDay2}?</b><br>${nextWeekUl}`);
-				sectionNum++;
-			}
+			contentParts.push(`<b>${sectionNum}. What do I plan to do ${weekOrDay2}?</b><br>${nextWeekUl}`);
+			sectionNum++;
 
 			if (includeBlockers) {
 				contentParts.push(`<b>${sectionNum}. What is blocking me from making progress?</b><br>${blockerText}`);
@@ -1227,10 +1238,8 @@ function allIncluded(outputTarget = 'email') {
 		}
 		sectionNum++;
 
-		if (includeNextPlans) {
-			contentParts.push(`<b>${sectionNum}. What do I plan to do ${weekOrDay2}?</b><br>\n${nextWeekUl}`);
-			sectionNum++;
-		}
+		contentParts.push(`<b>${sectionNum}. What do I plan to do ${weekOrDay2}?</b><br>\n${nextWeekUl}`);
+		sectionNum++;
 
 		if (includeBlockers) {
 			contentParts.push(`<b>${sectionNum}. What is blocking me from making progress?</b><br>\n${blockerText}`);

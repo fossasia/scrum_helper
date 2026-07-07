@@ -266,6 +266,9 @@ document.addEventListener('DOMContentLoaded', () => {
 		initializePopup();
 		checkTokenForFilter();
 		checkTokenForShowCommits();
+		if (window.loadAssignedIssues) {
+			window.loadAssignedIssues();
+		}
 	});
 
 	browser.storage.onChanged.addListener((changes, namespace) => {
@@ -281,6 +284,17 @@ document.addEventListener('DOMContentLoaded', () => {
 			});
 			if (window.triggerRepoFetchIfEnabled) {
 				window.triggerRepoFetchIfEnabled();
+			}
+		}
+		if (
+			changes.useRepoFilter ||
+			changes.selectedRepos ||
+			changes.githubToken ||
+			changes.githubUsername ||
+			changes.platformUsername
+		) {
+			if (window.loadAssignedIssues) {
+				window.loadAssignedIssues();
 			}
 		}
 	});
@@ -498,7 +512,6 @@ document.addEventListener('DOMContentLoaded', () => {
 		const onlyPRsCheckbox = document.getElementById('onlyPRs');
 		const onlyRevPRsCheckbox = document.getElementById('onlyRevPRs');
 		const onlyMergedPRsCheckbox = document.getElementById('onlyMergedPRs');
-		const includeBlockersCheckbox = document.getElementById('includeBlockers');
 		const includeNextPlansCheckbox = document.getElementById('includeNextPlans');
 
 		const githubTokenInput = document.getElementById('githubToken');
@@ -523,7 +536,6 @@ document.addEventListener('DOMContentLoaded', () => {
 				'onlyPRs',
 				'onlyRevPRs',
 				'onlyMergedPRs',
-				'includeBlockers',
 				'includeNextPlans',
 				'yesterdayContribution',
 				'weeklyContribution',
@@ -555,11 +567,6 @@ document.addEventListener('DOMContentLoaded', () => {
 				}
 				if (typeof result.onlyMergedPRs !== 'undefined') {
 					onlyMergedPRsCheckbox.checked = result.onlyMergedPRs;
-				}
-				if (typeof result.includeBlockers !== 'undefined') {
-					includeBlockersCheckbox.checked = result.includeBlockers;
-				} else {
-					includeBlockersCheckbox.checked = true;
 				}
 				if (typeof result.includeNextPlans !== 'undefined') {
 					includeNextPlansCheckbox.checked = result.includeNextPlans;
@@ -608,6 +615,9 @@ document.addEventListener('DOMContentLoaded', () => {
 				window.updateGenerateButtonState && window.updateGenerateButtonState();
 				checkTokenForShowCommits();
 				checkTokenForMergedPRs();
+				if (includeNextPlansCheckbox && includeNextPlansCheckbox.checked && window.loadAssignedIssues) {
+					window.loadAssignedIssues();
+				}
 			});
 
 		function dismissShortcutTooltipFocus(el) {
@@ -915,14 +925,21 @@ document.addEventListener('DOMContentLoaded', () => {
 				browser.storage.local.set({ showOpenLabel: showOpenLabelCheckbox.checked });
 			});
 		}
-		if (includeBlockersCheckbox) {
-			includeBlockersCheckbox.addEventListener('change', () => {
-				browser.storage.local.set({ includeBlockers: includeBlockersCheckbox.checked });
-			});
-		}
 		if (includeNextPlansCheckbox) {
 			includeNextPlansCheckbox.addEventListener('change', () => {
-				browser.storage.local.set({ includeNextPlans: includeNextPlansCheckbox.checked });
+				const checked = includeNextPlansCheckbox.checked;
+				browser.storage.local.set({ includeNextPlans: checked });
+				if (checked) {
+					if (window.loadAssignedIssues) {
+						window.loadAssignedIssues();
+					}
+				} else {
+					const container = document.getElementById('assignedIssuesSelector');
+					if (container) {
+						container.style.display = 'none';
+						container.classList.add('hidden');
+					}
+				}
 			});
 		}
 		if (onlyIssuesCheckbox && onlyPRsCheckbox) {
