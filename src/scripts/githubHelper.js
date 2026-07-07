@@ -155,8 +155,18 @@ function checkTokenForFilter() {
 			context.hideDropdown();
 		}
 		browser.storage.local.set({ useRepoFilter: false });
+		const spanElement = tokenWarning.querySelector('span');
+		if (spanElement) {
+			spanElement.textContent =
+				chrome?.i18n.getMessage('tokenRequiredWarning') ||
+				'A GitHub token is required for repository filtering. Please add one in the settings.';
+		}
 	}
 	tokenWarning.classList.toggle('hidden', !isFilterEnabled || hasToken);
+	if (isFilterEnabled && !hasToken) {
+		tokenWarning.classList.add('shake-animation');
+		setTimeout(() => tokenWarning.classList.remove('shake-animation'), 620);
+	}
 	setTimeout(() => {
 		tokenWarning.classList.add('hidden');
 	}, 4000);
@@ -232,8 +242,8 @@ async function triggerRepoFetchIfEnabled() {
 			return;
 		}
 
-		if (window.fetchUserRepositories) {
-			const repos = await window.fetchUserRepositories(username, items.githubToken, items.orgName || '');
+		if (window.fetchGithubUserRepositories) {
+			const repos = await window.fetchGithubUserRepositories(username, items.githubToken, items.orgName || '');
 			setAvailableRepos?.(repos);
 
 			if (repoStatus) {
@@ -297,13 +307,13 @@ async function loadRepos() {
 				chrome?.i18n.getMessage('repoLoadingGithubOnly') || 'Repository loading is only available for GitHub.';
 		return;
 	}
-	console.log('window.fetchUserRepositories exists:', !!window.fetchUserRepositories);
+	console.log('window.fetchGithubUserRepositories exists:', !!window.fetchGithubUserRepositories);
 	console.log(
 		'Available functions:',
 		Object.keys(window).filter((key) => key.includes('fetch')),
 	);
 
-	if (!window.fetchUserRepositories) {
+	if (!window.fetchGithubUserRepositories) {
 		repoStatus.textContent = 'Repository fetching not available';
 		return;
 	}
@@ -323,17 +333,14 @@ async function loadRepos() {
 			return;
 		}
 
-		performRepoFetch();
+		performRepoFetch(context);
 	});
 }
 
-async function performRepoFetch() {
-	const context = getGithubRepoFilterContext();
-	if (!context) {
-		return;
-	}
-
-	const { repoStatus, repoSearch, filterAndDisplayRepos, setAvailableRepos, getAvailableRepos } = context;
+async function performRepoFetch(context) {
+	if (!context) return;
+	const { repoStatus, repoSearch, filterAndDisplayRepos, setAvailableRepos, getAvailableRepos, setIsFetchingRepos } =
+		context;
 
 	let platform = 'github';
 	try {
@@ -347,6 +354,7 @@ async function performRepoFetch() {
 		return;
 	}
 	console.log('[POPUP-DEBUG] performRepoFetch called.');
+	if (setIsFetchingRepos) setIsFetchingRepos(true);
 	repoStatus.textContent = browser.i18n.getMessage('repoLoading');
 	repoSearch.classList.add('repository-search-loading');
 
@@ -359,9 +367,7 @@ async function performRepoFetch() {
 			'githubToken',
 			'orgName',
 		]);
-		const platform = storageItems.platform || 'github';
-		const platformUsernameKey = `${platform}Username`;
-		const username = storageItems[platformUsernameKey];
+		const username = storageItems[`${platform}Username`];
 		const repoCacheKey = makeRepoCacheKey(username, storageItems.orgName || '', 'github', storageItems);
 		const now = Date.now();
 		const cacheAge = cacheData.repoCache?.timestamp ? now - cacheData.repoCache.timestamp : Number.POSITIVE_INFINITY;
@@ -380,6 +386,7 @@ async function performRepoFetch() {
 			setAvailableRepos(cacheData.repoCache.data);
 			const availableRepos = getAvailableRepos();
 			repoStatus.textContent = browser.i18n.getMessage('repoLoaded', [availableRepos.length]);
+			if (setIsFetchingRepos) setIsFetchingRepos(false);
 
 			if (document.activeElement === repoSearch) {
 				filterAndDisplayRepos(repoSearch.value.toLowerCase());
@@ -387,7 +394,7 @@ async function performRepoFetch() {
 			return;
 		}
 		console.log('[POPUP-DEBUG] No valid cache. Fetching from network.');
-		const fetchedRepos = await window.fetchUserRepositories(
+		const fetchedRepos = await window.fetchGithubUserRepositories(
 			username,
 			storageItems.githubToken,
 			storageItems.orgName || '',
@@ -405,6 +412,7 @@ async function performRepoFetch() {
 			},
 		});
 
+		if (setIsFetchingRepos) setIsFetchingRepos(false);
 		if (document.activeElement === repoSearch) {
 			filterAndDisplayRepos(repoSearch.value.toLowerCase());
 		}
@@ -419,6 +427,7 @@ async function performRepoFetch() {
 			repoStatus.textContent = `${browser.i18n.getMessage('errorLabel')}: ${err.message || browser.i18n.getMessage('repoLoadFailed')}`;
 		}
 	} finally {
+		if (setIsFetchingRepos) setIsFetchingRepos(false);
 		repoSearch.classList.remove('repository-search-loading');
 	}
 }
@@ -487,7 +496,7 @@ ${prs
 	}
 }
 
-async function fetchUserRepositories(username, token, org = '') {
+async function fetchGithubUserRepositories(username, token, org = '') {
 	const headers = {
 		Accept: 'application/vnd.github.v3+json',
 	};
@@ -647,7 +656,7 @@ async function fetchUserRepositories(username, token, org = '') {
 	} catch (err) {}
 }
 
-window.fetchUserRepositories = fetchUserRepositories;
+window.fetchGithubUserRepositories = fetchGithubUserRepositories;
 window.fetchPrsMergedStatusBatch = fetchPrsMergedStatusBatch;
 
 async function forceGithubDataRefresh() {
@@ -851,7 +860,7 @@ if (window.PlatformRegistry) {
 		loadRepos,
 		performRepoFetch,
 		validateOrgOnBlur,
-		fetchUserRepositories,
+		fetchGithubUserRepositories,
 		fetchPrsMergedStatusBatch,
 		forceDataRefresh: forceGithubDataRefresh,
 	});

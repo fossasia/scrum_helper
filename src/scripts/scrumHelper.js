@@ -277,6 +277,8 @@ function allIncluded(outputTarget = 'email') {
 				showCommits = items.showCommits || false;
 				showOpenLabel = items.showOpenLabel !== false; // Default to true if not explicitly set to false
 				orgName = items.orgName || '';
+				useRepoFilter = items.useRepoFilter || false;
+				selectedRepos = Array.isArray(items.selectedRepos) ? items.selectedRepos : [];
 
 				let selectedTimeframe = items.selectedTimeframe;
 				if (!selectedTimeframe) {
@@ -356,6 +358,13 @@ function allIncluded(outputTarget = 'email') {
 										gitlabToken,
 									);
 
+									// Re-read filter settings from storage to match current popup state
+									const filterSettings = await new Promise((resolve) => {
+										chrome.storage.local.get(['useRepoFilter', 'selectedRepos'], resolve);
+									});
+									useRepoFilter = filterSettings.useRepoFilter || false;
+									selectedRepos = Array.isArray(filterSettings.selectedRepos) ? filterSettings.selectedRepos : [];
+
 									const mappedData = window.gitlabHelper.mapGitLabReportData(data);
 									githubUserData = mappedData.githubUserData;
 
@@ -394,7 +403,14 @@ function allIncluded(outputTarget = 'email') {
 						} else {
 							window.gitlabHelper
 								.fetchGitLabData(platformUsernameLocal, startingDate, endingDate, gitlabToken)
-								.then((data) => {
+								.then(async (data) => {
+									// Re-read filter settings from storage to match current popup state
+									const filterSettings = await new Promise((resolve) => {
+										chrome.storage.local.get(['useRepoFilter', 'selectedRepos'], resolve);
+									});
+									useRepoFilter = filterSettings.useRepoFilter || false;
+									selectedRepos = Array.isArray(filterSettings.selectedRepos) ? filterSettings.selectedRepos : [];
+
 									const mappedData = window.gitlabHelper.mapGitLabReportData(data);
 									processGithubData(mappedData);
 									scrumGenerationInProgress = false;
@@ -954,7 +970,7 @@ function allIncluded(outputTarget = 'email') {
 
 		try {
 			log('Fetching repos automatically');
-			const repos = await fetchUserRepositories(platformUsernameLocal, githubToken, orgName);
+			const repos = await fetchGithubUserRepositories(platformUsernameLocal, githubToken, orgName);
 
 			githubCache.repoData = repos;
 			githubCache.repoTimeStamp = now;
@@ -2091,18 +2107,20 @@ function filterDataByRepos(data, selectedRepos) {
 			...data.githubIssuesData,
 			items:
 				data.githubIssuesData?.items?.filter((item) => {
-					const urlParts = item.repository_url?.split('/');
-					const fullName = urlParts ? `${urlParts[urlParts.length - 2]}/${urlParts[urlParts.length - 1]}` : '';
-					return selectedRepos.includes(fullName);
+					if (!item.repository_url) return false;
+					return selectedRepos.some(
+						(repo) => item.repository_url.endsWith('/' + repo) || item.repository_url.endsWith(repo),
+					);
 				}) || [],
 		},
 		githubPrsReviewData: {
 			...data.githubPrsReviewData,
 			items:
 				data.githubPrsReviewData?.items?.filter((item) => {
-					const urlParts = item.repository_url?.split('/');
-					const fullName = urlParts ? `${urlParts[urlParts.length - 2]}/${urlParts[urlParts.length - 1]}` : '';
-					return selectedRepos.includes(fullName);
+					if (!item.repository_url) return false;
+					return selectedRepos.some(
+						(repo) => item.repository_url.endsWith('/' + repo) || item.repository_url.endsWith(repo),
+					);
 				}) || [],
 		},
 	};

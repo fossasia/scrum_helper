@@ -229,6 +229,9 @@ document.addEventListener('DOMContentLoaded', () => {
 	githubTokenInput.addEventListener('input', () => checkTokenForFilter());
 	githubTokenInput.addEventListener('input', () => checkTokenForShowCommits({ persistState: false }));
 	githubTokenInput.addEventListener('input', () => checkTokenForMergedPRs({ persistState: false }));
+	if (gitlabTokenInput) {
+		gitlabTokenInput.addEventListener('input', () => checkTokenForFilter());
+	}
 
 	darkModeToggle.addEventListener('click', function () {
 		body.classList.toggle('dark-mode');
@@ -1145,6 +1148,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		let availableRepos = [];
 		let selectedRepos = [];
 		let highlightedIndex = -1;
+		let isFetchingRepos = false;
 
 		window.githubRepoFilterContext = {
 			useRepoFilter,
@@ -1156,6 +1160,10 @@ document.addEventListener('DOMContentLoaded', () => {
 				availableRepos = repos;
 			},
 			getAvailableRepos: () => availableRepos,
+			setIsFetchingRepos: (fetching) => {
+				isFetchingRepos = fetching;
+			},
+			getIsFetchingRepos: () => isFetchingRepos,
 		};
 
 		browser.storage.local.get(['selectedRepos', 'useRepoFilter']).then((items) => {
@@ -1177,17 +1185,28 @@ document.addEventListener('DOMContentLoaded', () => {
 					const items = await browser.storage.local.get(['platform']);
 					platform = items.platform || 'github';
 				} catch {}
-				if (platform !== 'github') {
+
+				const enabled = useRepoFilter.checked;
+				let hasToken = false;
+				let warningMessage = '';
+
+				if (platform === 'github') {
+					hasToken = githubTokenInput.value.trim() !== '';
+					warningMessage =
+						chrome?.i18n.getMessage('tokenRequiredWarning') ||
+						'A GitHub token is required for repository filtering. Please add one in the settings.';
+				} else if (platform === 'gitlab') {
+					const gitlabTokenInput = document.getElementById('gitlabToken');
+					hasToken = gitlabTokenInput && gitlabTokenInput.value.trim() !== '';
+					warningMessage =
+						chrome?.i18n.getMessage('gitlabTokenRequiredWarning') ||
+						'A GitLab token is required for repository filtering. Please add one in the settings.';
+				} else {
 					repoFilterContainer.classList.add('hidden');
 					useRepoFilter.checked = false;
-					if (repoStatus)
-						repoStatus.textContent =
-							chrome?.i18n.getMessage('repoFilteringGithubOnly') ||
-							'Repository filtering is only available for GitHub.';
 					return;
 				}
-				const enabled = useRepoFilter.checked;
-				const hasToken = githubTokenInput.value.trim() !== '';
+
 				repoFilterContainer.classList.toggle('hidden', !enabled);
 
 				if (enabled && !hasToken) {
@@ -1196,6 +1215,10 @@ document.addEventListener('DOMContentLoaded', () => {
 					hideDropdown();
 					const tokenWarning = document.getElementById('tokenWarningForFilter');
 					if (tokenWarning) {
+						const spanElement = tokenWarning.querySelector('span');
+						if (spanElement) {
+							spanElement.textContent = warningMessage;
+						}
 						tokenWarning.classList.remove('hidden');
 						tokenWarning.classList.add('shake-animation');
 						setTimeout(() => tokenWarning.classList.remove('shake-animation'), 620);
@@ -1207,22 +1230,33 @@ document.addEventListener('DOMContentLoaded', () => {
 				}
 				repoFilterContainer.classList.toggle('hidden', !enabled);
 
-				browser.storage.local.set({
+				const saveItems = {
 					useRepoFilter: enabled,
 					githubCache: null, //forces refresh
-				});
+				};
+
+				if (platform === 'github' && hasToken) {
+					saveItems.githubToken = githubTokenInput.value.trim();
+				} else if (platform === 'gitlab' && hasToken) {
+					const gitlabTokenInput = document.getElementById('gitlabToken');
+					saveItems.gitlabToken = gitlabTokenInput.value.trim();
+				}
+
+				browser.storage.local.set(saveItems);
 				checkTokenForFilter();
 				if (enabled) {
 					repoStatus.textContent =
 						chrome?.i18n.getMessage('loadingReposAutomatically') || 'Loading repos automatically...';
 
 					try {
+						isFetchingRepos = true;
 						const cacheData = await browser.storage.local.get(['repoCache']);
 						const items = await browser.storage.local.get([
 							'platform',
 							'githubUsername',
 							'gitlabUsername',
 							'githubToken',
+							'gitlabToken',
 							'orgName',
 						]);
 
@@ -1232,6 +1266,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 						if (!username) {
 							repoStatus.textContent = chrome?.i18n.getMessage('usernameMissingError') || 'Username required';
+							isFetchingRepos = false;
 							return;
 						}
 
@@ -1247,6 +1282,7 @@ document.addEventListener('DOMContentLoaded', () => {
 							console.log('Using cached repositories');
 							availableRepos = cacheData.repoCache.data;
 							repoStatus.textContent = browser.i18n.getMessage('repoLoaded', [availableRepos.length]);
+							isFetchingRepos = false;
 
 							if (document.activeElement === repoSearch) {
 								filterAndDisplayRepos(repoSearch.value.toLowerCase());
@@ -1254,13 +1290,11 @@ document.addEventListener('DOMContentLoaded', () => {
 							return;
 						}
 
-						if (window.fetchUserRepositories) {
-							const repos = await window.fetchUserRepositories(
-								username,
-
-								items.githubToken,
-								items.orgName || '',
-							);
+						const fetchFunc =
+							platform === 'gitlab' ? window.fetchGitlabUserRepositories : window.fetchGithubUserRepositories;
+						if (fetchFunc) {
+							const tokenToUse = platform === 'gitlab' ? items.gitlabToken : items.githubToken;
+							const repos = await fetchFunc(username, tokenToUse, items.orgName || '');
 							availableRepos = repos;
 							repoStatus.textContent = browser.i18n.getMessage('repoLoaded', [repos.length]);
 
@@ -1272,11 +1306,13 @@ document.addEventListener('DOMContentLoaded', () => {
 								},
 							});
 
+							isFetchingRepos = false;
 							if (document.activeElement === repoSearch) {
 								filterAndDisplayRepos(repoSearch.value.toLowerCase());
 							}
 						}
 					} catch (err) {
+						isFetchingRepos = false;
 						console.error('Auto load repos failed', err);
 
 						if (err.message?.includes('401')) {
@@ -1285,6 +1321,10 @@ document.addEventListener('DOMContentLoaded', () => {
 							repoStatus.textContent = browser.i18n.getMessage('githubUsernamePlaceholder');
 						} else {
 							repoStatus.textContent = `${browser.i18n.getMessage('errorLabel')}: ${err.message || browser.i18n.getMessage('repoLoadFailed')}`;
+						}
+						// re-display empty state if input is focused
+						if (document.activeElement === repoSearch) {
+							filterAndDisplayRepos(repoSearch.value.toLowerCase());
 						}
 					}
 				} else {
@@ -1434,11 +1474,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		function filterAndDisplayRepos(query) {
 			if (availableRepos.length === 0) {
-				const loadingMsg = document.createElement('div');
-				loadingMsg.className = 'p-3 text-center text-gray-500 text-sm';
-				loadingMsg.textContent = browser.i18n.getMessage('repoLoading');
-				repoDropdown.replaceChildren(loadingMsg);
-				showDropdown();
+				if (isFetchingRepos) {
+					const loadingMsg = document.createElement('div');
+					loadingMsg.className = 'p-3 text-center text-gray-500 text-sm';
+					loadingMsg.textContent = browser.i18n.getMessage('repoLoading');
+					repoDropdown.replaceChildren(loadingMsg);
+					showDropdown();
+				} else {
+					const notFound = document.createElement('div');
+					notFound.className = 'p-3 text-center text-gray-500 text-sm';
+					notFound.style.paddingLeft = '10px';
+					notFound.textContent = browser.i18n.getMessage('repoNotFound') || 'No repositories found';
+					repoDropdown.replaceChildren(notFound);
+					showDropdown();
+				}
 				return;
 			}
 
@@ -1710,6 +1759,17 @@ function updatePlatformUI(platform) {
 			el.classList.remove('hidden');
 		}
 	});
+
+	const repoFilterTooltip = document.querySelector('[data-i18n="repoFilterTooltip"]');
+	if (repoFilterTooltip) {
+		if (platform === 'gitlab') {
+			repoFilterTooltip.innerHTML =
+				'GitLab Token required.<br>To force a repo list update, <br>click the Refresh Data button.';
+		} else {
+			repoFilterTooltip.innerHTML =
+				'Github Token required.<br>To force a repo list update, <br>click the Refresh Data button.';
+		}
+	}
 }
 
 const platformSelectEl = document.getElementById('platformSelect');
