@@ -192,6 +192,9 @@
     "message": "A GitHub token is required to show commits on open or draft PRs. Please add one in the settings.",
     "description": "Warning message shown when show commits is enabled without a token."
   },
+  "onlyPrsRequiredShowCommitsWarning": {
+    "message": "Please check the 'Include open/draft PRs in the report' filter to show commits."
+  },
   "repoSearchPlaceholder": {
     "message": "Search for a repository to add...",
     "description": "Placeholder for the repository search input."

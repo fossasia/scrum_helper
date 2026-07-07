@@ -175,6 +175,54 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	}
 
+	let onlyPrsWarningTimeout = null;
+	function showOnlyPrsWarningForShowCommits({ animate = false, durationMs = 4000 } = {}) {
+		const warningEl = document.getElementById('onlyPrsRequiredWarningForShowCommits');
+		if (!warningEl) return;
+
+		warningEl.classList.remove('hidden');
+		if (animate) {
+			warningEl.classList.add('shake-animation');
+			setTimeout(() => warningEl.classList.remove('shake-animation'), 620);
+		}
+
+		if (onlyPrsWarningTimeout) {
+			clearTimeout(onlyPrsWarningTimeout);
+		}
+		onlyPrsWarningTimeout = setTimeout(() => {
+			warningEl.classList.add('hidden');
+		}, durationMs);
+	}
+
+	function checkOnlyPrsForShowCommits({ showWarning = false, animateWarning = false, warningDurationMs = 4000 } = {}) {
+		const showCommits = document.getElementById('showCommits');
+		const onlyPRs = document.getElementById('onlyPRs');
+		if (!showCommits || !onlyPRs) return false;
+
+		if (showCommits.checked && !onlyPRs.checked) {
+			showCommits.checked = false;
+			browser?.storage.local.set({ showCommits: false });
+			if (showWarning) {
+				showOnlyPrsWarningForShowCommits({
+					animate: animateWarning,
+					durationMs: warningDurationMs,
+				});
+			}
+			return false;
+		}
+
+		// Hide the warning if conditions are met
+		const warningEl = document.getElementById('onlyPrsRequiredWarningForShowCommits');
+		if (warningEl) {
+			if (onlyPrsWarningTimeout) {
+				clearTimeout(onlyPrsWarningTimeout);
+				onlyPrsWarningTimeout = null;
+			}
+			warningEl.classList.add('hidden');
+		}
+		return true;
+	}
+
 	function checkTokenForShowCommits(options) {
 		const helper = getActivePlatformHelper();
 		if (helper && helper.checkTokenForShowCommits) {
@@ -265,6 +313,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	browser.storage.local.remove(['enableToggle']).then(() => {
 		initializePopup();
 		checkTokenForFilter();
+		checkOnlyPrsForShowCommits({ showWarning: false });
 		checkTokenForShowCommits();
 	});
 
@@ -579,6 +628,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				const platformUsernameKey = `${platform}Username`;
 				platformUsername.value = result[platformUsernameKey] || '';
 				window.updateGenerateButtonState && window.updateGenerateButtonState();
+				checkOnlyPrsForShowCommits({ showWarning: false });
 				checkTokenForShowCommits();
 				checkTokenForMergedPRs();
 			});
@@ -895,7 +945,9 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 		if (onlyPRsCheckbox) {
 			onlyPRsCheckbox.addEventListener('change', () => {
-				browser?.storage.local.set({ onlyPRs: onlyPRsCheckbox.checked });
+				browser?.storage.local.set({ onlyPRs: onlyPRsCheckbox.checked }, () => {
+					checkOnlyPrsForShowCommits({ showWarning: false });
+				});
 			});
 		}
 		if (onlyRevPRsCheckbox) {
@@ -916,6 +968,14 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 		if (showCommitsCheckbox) {
 			showCommitsCheckbox.addEventListener('change', () => {
+				const isOnlyPrsOk = checkOnlyPrsForShowCommits({
+					showWarning: true,
+					animateWarning: true,
+					warningDurationMs: 4000,
+				});
+				if (!isOnlyPrsOk) {
+					return;
+				}
 				checkTokenForShowCommits({
 					showWarning: true,
 					animateWarning: true,
