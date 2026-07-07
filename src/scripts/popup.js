@@ -542,32 +542,23 @@ document.addEventListener('DOMContentLoaded', () => {
 				if (typeof result.showCommits !== 'undefined') showCommitsCheckbox.checked = result.showCommits;
 				if (typeof result.onlyIssues !== 'undefined') {
 					onlyIssuesCheckbox.checked = result.onlyIssues;
+				} else {
+					onlyIssuesCheckbox.checked = true;
 				}
 				if (typeof result.onlyPRs !== 'undefined') {
 					onlyPRsCheckbox.checked = result.onlyPRs;
+				} else {
+					onlyPRsCheckbox.checked = true;
 				}
 				if (typeof result.onlyRevPRs !== 'undefined') {
 					onlyRevPRsCheckbox.checked = result.onlyRevPRs;
+				} else {
+					onlyRevPRsCheckbox.checked = true;
 				}
 				if (typeof result.onlyMergedPRs !== 'undefined') {
 					onlyMergedPRsCheckbox.checked = result.onlyMergedPRs;
-				}
-
-				// Reconcile mutually exclusive "Only Issues" and "Only PRs" flags on initialization.
-				// If both are somehow true in storage (e.g., from an older version or manual edits),
-				// prefer "Only Issues" and clear "Only PRs", then persist the corrected state.
-				if (onlyIssuesCheckbox.checked && onlyPRsCheckbox.checked) {
-					onlyPRsCheckbox.checked = false;
-					browser?.storage.local.set({ onlyPRs: false });
-				}
-				// onlyMergedPRs overrides onlyIssues and onlyPRs
-				if (onlyMergedPRsCheckbox.checked && onlyIssuesCheckbox.checked) {
-					onlyIssuesCheckbox.checked = false;
-					browser?.storage.local.set({ onlyIssues: false });
-				}
-				if (onlyMergedPRsCheckbox.checked && onlyPRsCheckbox.checked) {
-					onlyPRsCheckbox.checked = false;
-					browser?.storage.local.set({ onlyPRs: false });
+				} else {
+					onlyMergedPRsCheckbox.checked = true;
 				}
 				if (result.githubToken) githubTokenInput.value = result.githubToken;
 				if (result.cacheInput) cacheInput.value = result.cacheInput;
@@ -897,65 +888,31 @@ document.addEventListener('DOMContentLoaded', () => {
 				browser.storage.local.set({ showOpenLabel: showOpenLabelCheckbox.checked });
 			});
 		}
-		if (onlyIssuesCheckbox && onlyPRsCheckbox) {
+		if (onlyIssuesCheckbox) {
 			onlyIssuesCheckbox.addEventListener('change', () => {
-				const checked = onlyIssuesCheckbox.checked;
-				browser?.storage.local.set({ onlyIssues: checked }, () => {
-					if (checked) {
-						if (onlyPRsCheckbox.checked) {
-							onlyPRsCheckbox.checked = false;
-							browser?.storage.local.set({ onlyPRs: false });
-						}
-						if (onlyMergedPRsCheckbox && onlyMergedPRsCheckbox.checked) {
-							onlyMergedPRsCheckbox.checked = false;
-							browser?.storage.local.set({ onlyMergedPRs: false });
-						}
-					}
-				});
+				browser?.storage.local.set({ onlyIssues: onlyIssuesCheckbox.checked });
 			});
-
+		}
+		if (onlyPRsCheckbox) {
 			onlyPRsCheckbox.addEventListener('change', () => {
-				const checked = onlyPRsCheckbox.checked;
-				browser?.storage.local.set({ onlyPRs: checked }, () => {
-					if (checked) {
-						if (onlyIssuesCheckbox.checked) {
-							onlyIssuesCheckbox.checked = false;
-							browser?.storage.local.set({ onlyIssues: false });
-						}
-						if (onlyMergedPRsCheckbox && onlyMergedPRsCheckbox.checked) {
-							onlyMergedPRsCheckbox.checked = false;
-							browser?.storage.local.set({ onlyMergedPRs: false });
-						}
-					}
+				browser?.storage.local.set({ onlyPRs: onlyPRsCheckbox.checked });
+			});
+		}
+		if (onlyRevPRsCheckbox) {
+			onlyRevPRsCheckbox.addEventListener('change', () => {
+				browser?.storage.local.set({ onlyRevPRs: onlyRevPRsCheckbox.checked });
+			});
+		}
+		if (onlyMergedPRsCheckbox) {
+			onlyMergedPRsCheckbox.addEventListener('change', () => {
+				browser?.storage.local.set({ onlyMergedPRs: onlyMergedPRsCheckbox.checked });
+				checkTokenForMergedPRs({
+					showWarning: true,
+					animateWarning: true,
+					warningDurationMs: 3000,
+					persistState: true,
 				});
 			});
-
-			if (onlyRevPRsCheckbox) {
-				onlyRevPRsCheckbox.addEventListener('change', () => {
-					const checked = onlyRevPRsCheckbox.checked;
-					browser?.storage.local.set({ onlyRevPRs: checked });
-				});
-			}
-			if (onlyMergedPRsCheckbox) {
-				onlyMergedPRsCheckbox.addEventListener('change', () => {
-					if (onlyMergedPRsCheckbox.checked) {
-						if (onlyIssuesCheckbox && onlyIssuesCheckbox.checked) {
-							onlyIssuesCheckbox.checked = false;
-							browser?.storage.local.set({ onlyIssues: false });
-						}
-						if (onlyPRsCheckbox && onlyPRsCheckbox.checked) {
-							onlyPRsCheckbox.checked = false;
-							browser?.storage.local.set({ onlyPRs: false });
-						}
-					}
-					checkTokenForMergedPRs({
-						showWarning: true,
-						animateWarning: true,
-						warningDurationMs: 3000,
-						persistState: true,
-					});
-				});
-			}
 		}
 		if (showCommitsCheckbox) {
 			showCommitsCheckbox.addEventListener('change', () => {
