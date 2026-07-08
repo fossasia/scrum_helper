@@ -1425,13 +1425,13 @@ ${blockerText}`;
 		}
 	}
 
-	function writeGithubPrsReviews() {
+	async function writeGithubPrsReviews() {
 		if (platform === 'codeberg') {
 			reviewedPrsArray = [];
 			prsReviewDataProcessed = true;
 			return;
 		}
-		const isAnyFilterActive = onlyIssues || onlyPRs || onlyRevPRs || onlyMergedPRs;
+	  const isAnyFilterActive = onlyIssues || onlyPRs || onlyRevPRs || onlyMergedPRs;
 		if (isAnyFilterActive && !onlyRevPRs) {
 			log('Filters active but onlyRevPRs not checked, skipping PR reviews.');
 			reviewedPrsArray = [];
@@ -1482,8 +1482,44 @@ ${blockerText}`;
 
 		log('Filtering PR reviews by date range:', { startDate, endDate, startDateTime, endDateTime });
 
-		for (i = 0; i < items.length; i++) {
-			const item = items[i];
+		let filteredItems = items;
+		if (platform === 'github') {
+			if (githubToken && items.length <= 50) {
+				const prReviewsResults = await Promise.all(
+					items.map(async (item) => {
+						try {
+							const repoParts = item.repository_url.split('/');
+							const owner = repoParts[repoParts.length - 2];
+							const repo = repoParts[repoParts.length - 1];
+
+							const reviews = await window.githubFetchPrReviews(owner, repo, item.number, githubToken).catch(() => []);
+
+							const hasValidReview = reviews.some((review) => {
+								if (!review.user || review.user.login.toLowerCase() !== platformUsernameLocal.toLowerCase())
+									return false;
+								if (!review.submitted_at) return false;
+								const submittedDate = new Date(review.submitted_at);
+								return submittedDate >= startDateTime && submittedDate <= endDateTime;
+							});
+
+							return { item, keep: hasValidReview };
+						} catch (err) {
+							logError(`Failed to fetch reviews for PR #${item.number}:`, err);
+							return { item, keep: true };
+						}
+					}),
+				);
+				filteredItems = prReviewsResults.filter((r) => r.keep).map((r) => r.item);
+			} else if (githubToken && items.length > 50) {
+				window.scrumHelperToast?.('Showing approximate results due to high PR volume', {
+					duration: 5000,
+					variant: 'info',
+				});
+			}
+		}
+
+		for (i = 0; i < filteredItems.length; i++) {
+			const item = filteredItems[i];
 			log(
 				`Processing PR #${item.number} - state: ${item.state}, updated_at: ${item.updated_at}, created_at: ${item.created_at}, merged_at: ${item.pull_request?.merged_at}`,
 			);
@@ -1491,7 +1527,7 @@ ${blockerText}`;
 			// For GitHub: item.user.login, for GitLab: item.author?.username
 			let isAuthoredByUser = false;
 			if (platform === 'github') {
-				isAuthoredByUser = item.user && item.user.login === platformUsernameLocal;
+				isAuthoredByUser = item.user && item.user.login.toLowerCase() === platformUsernameLocal.toLowerCase();
 			} else if (platform === 'gitlab') {
 				isAuthoredByUser = item.author && item.author.username === platformUsername;
 			} else if (platform === 'codeberg') {
@@ -2096,7 +2132,7 @@ ${blockerText}`;
 			writeGithubIssuesPrs();
 		}
 	}, 500);
-	const intervalWriteGithubPrs = setInterval(() => {
+	const intervalWriteGithubPrs = setInterval(async () => {
 		if (outputTarget === 'popup') {
 			return;
 		}
@@ -2105,7 +2141,7 @@ ${blockerText}`;
 		if (scrumBody && username && githubPrsReviewData && githubIssuesData) {
 			clearInterval(intervalWriteGithubPrs);
 			clearInterval(intervalWriteGithubIssues);
-			writeGithubPrsReviews();
+			await writeGithubPrsReviews();
 		}
 	}, 500);
 
