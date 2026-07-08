@@ -351,6 +351,10 @@ async function forceGitlabDataRefresh() {
 
 window['forceGitlabDataRefresh'] = forceGitlabDataRefresh;
 
+async function fetchIssuesFromGitLab() {
+	return [];
+}
+
 if (window.PlatformRegistry) {
 	window.PlatformRegistry.register('gitlab', {
 		hasRepoFilter: false,
@@ -370,5 +374,6 @@ if (window.PlatformRegistry) {
 			return Promise.resolve({});
 		},
 		forceDataRefresh: forceGitlabDataRefresh,
+		fetchAssignedIssues: fetchIssuesFromGitLab,
 	});
 }

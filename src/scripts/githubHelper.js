@@ -918,6 +918,79 @@ async function githubFetchPrMergedStatusREST(owner, repo, number, token) {
 	}
 }
 
+async function fetchIssuesFromGitHub(scope) {
+	const storage = await browser.storage.local.get(['platform', 'githubUsername', 'githubToken', 'platformUsername']);
+	const platform = storage.platform || 'github';
+	const username = storage.githubUsername || (platform === 'github' ? storage.platformUsername : '');
+	const token = storage.githubToken;
+
+	if (!username) {
+		throw new Error('GitHub username is required. Please set it in settings.');
+	}
+	if (!token) {
+		throw new Error('GitHub token is required. Please set it in settings.');
+	}
+
+	let query = `assignee:${username}+state:open+type:issue`;
+
+	if (scope.type === 'selected' && scope.repos.length > 0) {
+		const repoQueries = scope.repos.map((repo) => `repo:${repo}`).join('+');
+		query += `+${repoQueries}`;
+	}
+
+	let page = 1;
+	let allIssues = [];
+	let hasMore = true;
+
+	const headers = {
+		Accept: 'application/vnd.github.v3+json',
+		Authorization: `token ${token}`,
+	};
+
+	while (hasMore && page <= 10) {
+		const url = `https://api.github.com/search/issues?q=${query}&per_page=100&page=${page}`;
+		console.log(`[NextPlans] Fetching page ${page}: ${url}`);
+		const response = await fetch(url, { headers });
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({}));
+			const message = errorData.message || response.statusText;
+			throw new Error(`GitHub API error: ${message}`);
+		}
+
+		const data = await response.json();
+		const items = data.items || [];
+		allIssues = allIssues.concat(items);
+
+		if (items.length < 100) {
+			hasMore = false;
+		} else {
+			page++;
+		}
+	}
+
+	return allIssues
+		.map((issue) => {
+			const repoUrl = issue.repository_url || '';
+			const repoParts = repoUrl.split('/');
+			const repoName = repoParts.slice(-2).join('/'); // owner/repo
+
+			const safeTitle = typeof sanitizeHtml === 'function' ? sanitizeHtml(issue.title) : issue.title;
+			const safeUrl = typeof sanitizeHtml === 'function' ? sanitizeHtml(issue.html_url) : issue.html_url;
+
+			return {
+				id: issue.id,
+				number: Number.parseInt(issue.number, 10),
+				title: safeTitle,
+				html_url: safeUrl,
+				repository: repoName,
+				state: issue.state,
+			};
+		})
+		.filter(
+			(issue) => !Number.isNaN(issue.number) && issue.html_url && issue.html_url.startsWith('https://github.com/'),
+		);
+}
+
 window.githubFetchUser = githubFetchUser;
 window.githubFetchIssues = githubFetchIssues;
 window.githubFetchReviews = githubFetchReviews;
@@ -941,5 +1014,6 @@ if (window.PlatformRegistry) {
 		fetchUserRepositories,
 		fetchPrsMergedStatusBatch,
 		forceDataRefresh: forceGithubDataRefresh,
+		fetchAssignedIssues: fetchIssuesFromGitHub,
 	});
 }
