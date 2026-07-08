@@ -1902,10 +1902,10 @@ function allIncluded(outputTarget = 'email') {
 				}
 				log('[SCRUM-DEBUG] Added PR/MR to lastWeekArray:', li, item);
 				lastWeekArray.push(li);
-				continue; // Prevent issue logic from overwriting PR li
+				continue; // Prevent PR/MR logic from reaching issue logic
 			} else {
 				// Only process as issue if not a PR
-				if (item.state === 'open' && item.body?.toUpperCase().indexOf('YES') > 0) {
+				if (!includeNextPlans && item.state === 'open' && item.body?.toUpperCase().indexOf('YES') > 0) {
 					const li2 =
 						'<li><i>(' +
 						project +
