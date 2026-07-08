@@ -466,7 +466,7 @@
     "description": "Label for checkbox to include next plans in second question of report."
   },
   "includeNextPlansTooltip": {
-    "message": "If checked, the report will include the next plans section.",
+    "message": "select and add them to question 2 in the email.",
     "description": "Tooltip text explaining the include next plans option."
   },
   "fetchingIssuesSpinner": {
