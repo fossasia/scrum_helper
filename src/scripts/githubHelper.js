@@ -65,6 +65,78 @@ function checkTokenForShowCommits({
 	}
 }
 
+// Token validation and warning timeouts for Next Plans (assigned issues)
+let nextPlansWarningTimeout;
+
+function showTokenWarningForNextPlans({ animate = false, durationMs = 4000 } = {}) {
+	const tokenWarning = document.getElementById('tokenWarningForNextPlans');
+	if (!tokenWarning) {
+		return;
+	}
+
+	tokenWarning.classList.remove('hidden');
+	if (animate) {
+		tokenWarning.classList.add('shake-animation');
+		setTimeout(() => tokenWarning.classList.remove('shake-animation'), 620);
+	}
+
+	if (nextPlansWarningTimeout) {
+		clearTimeout(nextPlansWarningTimeout);
+	}
+	nextPlansWarningTimeout = setTimeout(() => {
+		tokenWarning.classList.add('hidden');
+	}, durationMs);
+}
+
+function checkTokenForNextPlans({
+	showWarning = false,
+	animateWarning = false,
+	warningDurationMs = 4000,
+	persistState = false,
+} = {}) {
+	const includeNextPlans = document.getElementById('includeNextPlans');
+	const githubTokenInput = document.getElementById('githubToken');
+
+	if (!includeNextPlans || !githubTokenInput) {
+		return;
+	}
+
+	const isNextPlansEnabled = includeNextPlans.checked;
+	const hasToken = githubTokenInput.value.trim() !== '';
+
+	if (isNextPlansEnabled && !hasToken) {
+		includeNextPlans.checked = false;
+		if (showWarning) {
+			showTokenWarningForNextPlans({
+				animate: animateWarning,
+				durationMs: warningDurationMs,
+			});
+		}
+		// Always persist correction of invalid state
+		browser.storage.local.set({ includeNextPlans: false });
+
+		// Hide the selector as next plans is disabled
+		const container = document.getElementById('assignedIssuesSelector');
+		if (container) {
+			container.style.display = 'none';
+			container.classList.add('hidden');
+		}
+		return;
+	}
+
+	const tokenWarning = document.getElementById('tokenWarningForNextPlans');
+	if (tokenWarning) {
+		if (nextPlansWarningTimeout) {
+			clearTimeout(nextPlansWarningTimeout);
+			nextPlansWarningTimeout = null;
+		}
+		tokenWarning.classList.add('hidden');
+	}
+	if (persistState) {
+		browser.storage.local.set({ includeNextPlans: includeNextPlans.checked });
+	}
+}
+
 // Token validation and warning timeouts for merged PRs
 let mergedPRsWarningTimeout;
 
@@ -860,6 +932,7 @@ if (window.PlatformRegistry) {
 		checkTokenForFilter,
 		checkTokenForShowCommits,
 		checkTokenForMergedPRs,
+		checkTokenForNextPlans,
 		triggerRepoFetchIfEnabled,
 		debugRepoFetch,
 		loadRepos,

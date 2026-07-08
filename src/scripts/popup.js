@@ -189,6 +189,13 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	}
 
+	function checkTokenForNextPlans(options) {
+		const helper = getActivePlatformHelper();
+		if (helper && helper.checkTokenForNextPlans) {
+			helper.checkTokenForNextPlans(options);
+		}
+	}
+
 	browser.storage.local.get(['darkMode']).then((result) => {
 		if (result.darkMode) {
 			body.classList.add('dark-mode');
@@ -229,6 +236,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	githubTokenInput.addEventListener('input', () => checkTokenForFilter());
 	githubTokenInput.addEventListener('input', () => checkTokenForShowCommits({ persistState: false }));
 	githubTokenInput.addEventListener('input', () => checkTokenForMergedPRs({ persistState: false }));
+	githubTokenInput.addEventListener('input', () => checkTokenForNextPlans({ persistState: false }));
 
 	darkModeToggle.addEventListener('click', function () {
 		body.classList.toggle('dark-mode');
@@ -615,6 +623,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				window.updateGenerateButtonState && window.updateGenerateButtonState();
 				checkTokenForShowCommits();
 				checkTokenForMergedPRs();
+				checkTokenForNextPlans();
 				if (includeNextPlansCheckbox && includeNextPlansCheckbox.checked && window.loadAssignedIssues) {
 					window.loadAssignedIssues();
 				}
@@ -927,9 +936,13 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 		if (includeNextPlansCheckbox) {
 			includeNextPlansCheckbox.addEventListener('change', () => {
-				const checked = includeNextPlansCheckbox.checked;
-				browser.storage.local.set({ includeNextPlans: checked });
-				if (checked) {
+				checkTokenForNextPlans({
+					showWarning: true,
+					animateWarning: true,
+					warningDurationMs: 3000,
+					persistState: true,
+				});
+				if (includeNextPlansCheckbox.checked) {
 					if (window.loadAssignedIssues) {
 						window.loadAssignedIssues();
 					}

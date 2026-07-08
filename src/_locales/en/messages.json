@@ -189,6 +189,10 @@
     "message": "A GitHub token is required to show commits on open or draft PRs. Please add one in the settings.",
     "description": "Warning message shown when show commits is enabled without a token."
   },
+  "tokenRequiredNextPlansWarning": {
+    "message": "A GitHub token is required to fetch assigned issues. Please add one in the settings.",
+    "description": "Warning message shown when next plans is enabled without a token."
+  },
   "repoSearchPlaceholder": {
     "message": "Search for a repository to add...",
     "description": "Placeholder for the repository search input."
@@ -466,7 +470,7 @@
     "description": "Label for checkbox to include next plans in second question of report."
   },
   "includeNextPlansTooltip": {
-    "message": "select and add them to question 2 in the email.",
+    "message": "Select and add them to question 2 in the email. A GitHub token is required.",
     "description": "Tooltip text explaining the include next plans option."
   },
   "fetchingIssuesSpinner": {

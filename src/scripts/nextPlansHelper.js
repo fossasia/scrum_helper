@@ -292,14 +292,16 @@
 			displayIssuesUI(issues, scope);
 		} catch (error) {
 			console.error('[NextPlans] Failed to load issues:', error);
-			let userMsg = chrome.i18n.getMessage('failedToFetchIssues') || 'Failed to fetch assigned issues.';
 			if (error.message.includes('username is required') || error.message.includes('token is required')) {
-				userMsg =
-					chrome.i18n.getMessage('githubTokenRequiredNextPlans') ||
-					'A GitHub token is required to fetch assigned open issues. Please add one in settings.';
-			} else {
-				userMsg += ` (${error.message})`;
+				const container = document.getElementById('assignedIssuesSelector');
+				if (container) {
+					container.style.display = 'none';
+					container.classList.add('hidden');
+				}
+				return;
 			}
+			let userMsg = chrome.i18n.getMessage('failedToFetchIssues') || 'Failed to fetch assigned issues.';
+			userMsg += ` (${error.message})`;
 			showErrorMessage(userMsg);
 		}
 	}

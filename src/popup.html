@@ -333,9 +333,13 @@
 									<span class="tooltip-container">
 										<i class="fa fa-question-circle question-icon"></i>
 										<span class="tooltip-bubble" data-i18n="includeNextPlansTooltip">
-											If checked, the report will include the next plans section.
+											Select and add them to question 2 in the email. A GitHub token is required.
 										</span>
 									</span>
+								</div>
+								<div id="tokenWarningForNextPlans"
+									class="hidden text-xs text-red-600 p-2 bg-red-50 border border-red-200 rounded-xl mt-2">
+									<span data-i18n="tokenRequiredNextPlansWarning">A GitHub token is required to fetch assigned issues. Please add one in the settings.</span>
 								</div>
 								<div id="assignedIssuesSelector" class="hidden"></div>
 							</div>

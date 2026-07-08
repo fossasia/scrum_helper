@@ -357,6 +357,7 @@ if (window.PlatformRegistry) {
 		checkTokenForFilter() {},
 		checkTokenForShowCommits() {},
 		checkTokenForMergedPRs() {},
+		checkTokenForNextPlans() {},
 		triggerRepoFetchIfEnabled() {},
 		debugRepoFetch() {},
 		loadRepos() {},
