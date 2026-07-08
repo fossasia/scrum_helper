@@ -323,7 +323,7 @@
     "description": "Label for the checkbox to include only reviewed PRs."
   },
   "onlyRevPRsTooltip": {
-    "message": "If checked, the report will include PRs reviewed by you.",
+    "message": "If checked, the report will include PRs reviewed by you. A GitHub token is required to verify actual review activity within the selected date range.",
     "description": "Tooltip for the reviewed PRs filter checkbox."
   },
   "onlyMergedPRsLabel": {
