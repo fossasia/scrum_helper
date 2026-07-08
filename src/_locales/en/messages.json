@@ -462,8 +462,8 @@
     "description": "Tooltip text explaining the include blockers option."
   },
   "includeNextPlansLabel": {
-    "message": "Include next plans in the report",
-    "description": "Label for checkbox to include next plans in the scrum report."
+    "message": "Include assigned open issues",
+    "description": "Label for checkbox to include next plans in second question of report."
   },
   "includeNextPlansTooltip": {
     "message": "If checked, the report will include the next plans section.",
