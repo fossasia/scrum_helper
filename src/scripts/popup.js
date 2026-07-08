@@ -237,6 +237,25 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	}
 
+	window.showRegenerateNotice = function () {
+		const scrumReport = document.getElementById('scrumReport');
+		const notice = document.getElementById('regenerateNotice');
+		if (!scrumReport || !notice) return;
+
+		// Check if a report is currently displayed (not empty and not a placeholder/cache cleared message)
+		const hasReport = scrumReport.textContent.trim().length > 0 && scrumReport.dataset.copyPlaceholder !== 'true';
+		if (hasReport) {
+			notice.classList.remove('hidden');
+		}
+	};
+
+	window.hideRegenerateNotice = function () {
+		const notice = document.getElementById('regenerateNotice');
+		if (notice) {
+			notice.classList.add('hidden');
+		}
+	};
+
 	browser.storage.local.get(['darkMode']).then((result) => {
 		if (result.darkMode) {
 			body.classList.add('dark-mode');
@@ -714,6 +733,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 
 		generateBtn.addEventListener('click', () => {
+			window.hideRegenerateNotice();
 			if (!generateBtn._triggeredByShortcut) {
 				showPopupMessage(browser.i18n.getMessage('generatingReportNotification'));
 			}
@@ -933,56 +953,50 @@ document.addEventListener('DOMContentLoaded', () => {
 				browser.storage.local.set({ userReason: userReasonInput.value });
 			});
 		}
-		if (showOpenLabelCheckbox) {
-			showOpenLabelCheckbox.addEventListener('change', () => {
-				browser.storage.local.set({ showOpenLabel: showOpenLabelCheckbox.checked });
-			});
-		}
-		if (onlyIssuesCheckbox) {
-			onlyIssuesCheckbox.addEventListener('change', () => {
-				browser?.storage.local.set({ onlyIssues: onlyIssuesCheckbox.checked });
-			});
-		}
-		if (onlyPRsCheckbox) {
-			onlyPRsCheckbox.addEventListener('change', () => {
-				browser?.storage.local.set({ onlyPRs: onlyPRsCheckbox.checked }, () => {
-					checkOnlyPrsForShowCommits({ showWarning: false });
+		const advancedCheckboxes = [
+			{ el: showOpenLabelCheckbox, key: 'showOpenLabel' },
+			{ el: onlyIssuesCheckbox, key: 'onlyIssues' },
+			{ el: onlyPRsCheckbox, key: 'onlyPRs', callback: () => checkOnlyPrsForShowCommits({ showWarning: false }) },
+			{ el: onlyRevPRsCheckbox, key: 'onlyRevPRs' },
+			{
+				el: onlyMergedPRsCheckbox,
+				key: 'onlyMergedPRs',
+				callback: () =>
+					checkTokenForMergedPRs({
+						showWarning: true,
+						animateWarning: true,
+						warningDurationMs: 3000,
+						persistState: true,
+					}),
+			},
+			{
+				el: showCommitsCheckbox,
+				key: 'showCommits',
+				beforeSave: () =>
+					checkOnlyPrsForShowCommits({ showWarning: true, animateWarning: true, warningDurationMs: 4000 }),
+				callback: () =>
+					checkTokenForShowCommits({
+						showWarning: true,
+						animateWarning: true,
+						warningDurationMs: 3000,
+						persistState: true,
+					}),
+			},
+		];
+
+		for (const { el, key, beforeSave, callback } of advancedCheckboxes) {
+			if (el) {
+				el.addEventListener('change', () => {
+					if (beforeSave && !beforeSave()) {
+						showRegenerateNotice();
+						return;
+					}
+					browser.storage.local.set({ [key]: el.checked }, () => {
+						if (callback) callback();
+						showRegenerateNotice();
+					});
 				});
-			});
-		}
-		if (onlyRevPRsCheckbox) {
-			onlyRevPRsCheckbox.addEventListener('change', () => {
-				browser?.storage.local.set({ onlyRevPRs: onlyRevPRsCheckbox.checked });
-			});
-		}
-		if (onlyMergedPRsCheckbox) {
-			onlyMergedPRsCheckbox.addEventListener('change', () => {
-				browser?.storage.local.set({ onlyMergedPRs: onlyMergedPRsCheckbox.checked });
-				checkTokenForMergedPRs({
-					showWarning: true,
-					animateWarning: true,
-					warningDurationMs: 3000,
-					persistState: true,
-				});
-			});
-		}
-		if (showCommitsCheckbox) {
-			showCommitsCheckbox.addEventListener('change', () => {
-				const isOnlyPrsOk = checkOnlyPrsForShowCommits({
-					showWarning: true,
-					animateWarning: true,
-					warningDurationMs: 4000,
-				});
-				if (!isOnlyPrsOk) {
-					return;
-				}
-				checkTokenForShowCommits({
-					showWarning: true,
-					animateWarning: true,
-					warningDurationMs: 3000,
-					persistState: true,
-				});
-			});
+			}
 		}
 		if (githubTokenInput) {
 			githubTokenInput.addEventListener('input', () => {

@@ -195,6 +195,9 @@
   "onlyPrsRequiredShowCommitsWarning": {
     "message": "Please check the 'Include open/draft PRs in the report' filter to show commits."
   },
+  "regenerateNoticeText": {
+    "message": "Option changed. Please regenerate the report to apply the changes."
+  },
   "repoSearchPlaceholder": {
     "message": "Search for a repository to add...",
     "description": "Placeholder for the repository search input."
