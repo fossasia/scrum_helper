@@ -1904,22 +1904,6 @@ function allIncluded(outputTarget = 'email') {
 				lastWeekArray.push(li);
 				continue; // Prevent PR/MR logic from reaching issue logic
 			} else {
-				// Only process as issue if not a PR
-				if (!includeNextPlans && item.state === 'open' && item.body?.toUpperCase().indexOf('YES') > 0) {
-					const li2 =
-						'<li><i>(' +
-						project +
-						')</i> - Work on Issue(#' +
-						number +
-						") - <a href='" +
-						html_url +
-						"' target='_blank' rel='noopener noreferrer'>" +
-						title +
-						'</a>' +
-						(showOpenLabel ? ' ' + issue_opened_button : '') +
-						'&nbsp;&nbsp;</li>';
-					nextWeekArray.push(li2);
-				}
 				// Compute date range for filtering
 				let issueStartDateFilter;
 				let issueEndDateFilter;
