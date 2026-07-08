@@ -987,13 +987,20 @@ document.addEventListener('DOMContentLoaded', () => {
 		for (const { el, key, beforeSave, callback } of advancedCheckboxes) {
 			if (el) {
 				el.addEventListener('change', () => {
+					const originalValue = !el.checked;
+
 					if (beforeSave && !beforeSave()) {
-						showRegenerateNotice();
+						if (el.checked !== originalValue) {
+							window.showRegenerateNotice();
+						}
 						return;
 					}
+
 					browser.storage.local.set({ [key]: el.checked }, () => {
 						if (callback) callback();
-						showRegenerateNotice();
+						if (el.checked !== originalValue) {
+							window.showRegenerateNotice();
+						}
 					});
 				});
 			}
