@@ -427,6 +427,295 @@ async function forceGitlabDataRefresh() {
 
 window['forceGitlabDataRefresh'] = forceGitlabDataRefresh;
 
+function checkTokenForFilter() {
+	const gitlabTokenInput = document.getElementById('gitlabToken');
+
+	const tokenWarningForFilter = document.getElementById('tokenWarningForFilter');
+
+	const useRepoFilter = document.getElementById('useRepoFilter');
+
+	if (gitlabTokenInput && tokenWarningForFilter && useRepoFilter) {
+		const hasToken = gitlabTokenInput.value.trim() !== '';
+
+		if (!hasToken && useRepoFilter.checked) {
+			useRepoFilter.checked = false;
+
+			const repoFilterContainer = document.getElementById('repoFilterContainer');
+
+			if (repoFilterContainer) {
+				repoFilterContainer.classList.add('hidden');
+			}
+
+			tokenWarningForFilter.classList.remove('hidden');
+
+			const spanElement = tokenWarningForFilter.querySelector('span');
+
+			if (spanElement) {
+				spanElement.textContent =
+					chrome?.i18n.getMessage('gitlabTokenRequiredWarning') ||
+					'GitLab token is required for repository filtering. Please add one in the settings.';
+			}
+
+			tokenWarningForFilter.classList.add('shake-animation');
+
+			setTimeout(() => tokenWarningForFilter.classList.remove('shake-animation'), 620);
+
+			setTimeout(() => {
+				tokenWarningForFilter.classList.add('hidden');
+			}, 4000);
+		} else if (hasToken) {
+			tokenWarningForFilter.classList.add('hidden');
+		}
+	}
+}
+
+async function triggerRepoFetchIfEnabled() {
+	const context = getGitlabRepoFilterContext();
+
+	if (!context) return;
+
+	const { useRepoFilter, repoStatus } = context;
+
+	let platform = 'gitlab';
+
+	try {
+		const items = await browser.storage.local.get(['platform']);
+
+		platform = items.platform || 'gitlab';
+	} catch {}
+
+	if (platform !== 'gitlab') return;
+
+	if (!useRepoFilter.checked) return;
+
+	if (repoStatus) repoStatus.textContent = browser.i18n.getMessage('repoRefetching');
+
+	browser.storage.local.get(['gitlabUsername']).then((items) => {
+		const username = items.gitlabUsername;
+
+		if (!username) {
+			if (repoStatus) repoStatus.textContent = chrome?.i18n.getMessage('usernameMissingError') || 'Username required';
+
+			return;
+		}
+
+		performRepoFetch();
+	});
+}
+
+async function loadRepos() {
+	const context = getGitlabRepoFilterContext();
+
+	if (!context) return;
+
+	let platform = 'gitlab';
+
+	try {
+		const items = await browser.storage.local.get(['platform']);
+
+		platform = items.platform || 'gitlab';
+	} catch {}
+
+	if (platform !== 'gitlab') return;
+
+	browser.storage.local.get(['gitlabUsername', 'gitlabToken']).then((items) => {
+		if (!items.gitlabUsername) {
+			context.repoStatus.textContent = chrome?.i18n.getMessage('usernameMissingError') || 'Username required';
+
+			return;
+		}
+
+		performRepoFetch();
+	});
+}
+
+async function performRepoFetch() {
+	const context = getGitlabRepoFilterContext();
+
+	if (!context) return;
+
+	const { repoStatus, repoSearch, filterAndDisplayRepos, setAvailableRepos, getAvailableRepos, setIsFetchingRepos } =
+		context;
+
+	if (setIsFetchingRepos) setIsFetchingRepos(true);
+
+	repoStatus.textContent = browser.i18n.getMessage('repoLoading');
+
+	repoSearch.classList.add('repository-search-loading');
+
+	try {
+		const cacheData = await browser.storage.local.get(['repoCache']);
+
+		const storageItems = await browser.storage.local.get(['gitlabUsername', 'gitlabToken', 'orgName']);
+
+		const username = storageItems.gitlabUsername;
+
+		const repoCacheKey = makeRepoCacheKey(username, storageItems.orgName || '', 'gitlab', storageItems);
+
+		const now = Date.now();
+
+		const cacheAge = cacheData.repoCache?.timestamp ? now - cacheData.repoCache.timestamp : Number.POSITIVE_INFINITY;
+
+		const cacheTTL = 10 * 60 * 1000;
+
+		if (cacheData.repoCache && cacheData.repoCache.cacheKey === repoCacheKey && cacheAge < cacheTTL) {
+			setAvailableRepos(cacheData.repoCache.data);
+
+			repoStatus.textContent = browser.i18n.getMessage('repoLoaded', [getAvailableRepos().length]);
+
+			if (setIsFetchingRepos) setIsFetchingRepos(false);
+
+			if (document.activeElement === repoSearch) filterAndDisplayRepos(repoSearch.value.toLowerCase());
+
+			return;
+		}
+
+		const fetchedRepos = await window.fetchGitlabUserRepositories(username, storageItems.gitlabToken);
+
+		setAvailableRepos(fetchedRepos);
+
+		repoStatus.textContent = browser.i18n.getMessage('repoLoaded', [getAvailableRepos().length]);
+
+		browser.storage.local.set({
+			repoCache: {
+				data: fetchedRepos,
+
+				cacheKey: repoCacheKey,
+
+				timestamp: now,
+			},
+		});
+
+		if (setIsFetchingRepos) setIsFetchingRepos(false);
+
+		if (document.activeElement === repoSearch) {
+			filterAndDisplayRepos(repoSearch.value.toLowerCase());
+		}
+	} catch (err) {
+		if (err.message?.includes('401')) {
+			repoStatus.textContent =
+				browser.i18n.getMessage('repoTokenPrivate') ||
+				'A token is required for repository filtering. Please add one in the settings.';
+		} else if (err.message?.includes('username')) {
+			repoStatus.textContent = browser.i18n.getMessage('usernameMissingError') || 'Username required';
+		} else {
+			const errorLabel = browser.i18n.getMessage('errorLabel') || 'Error';
+
+			repoStatus.textContent = `${errorLabel}: ${err.message || browser.i18n.getMessage('repoLoadFailed')}`;
+		}
+	} finally {
+		if (setIsFetchingRepos) setIsFetchingRepos(false);
+
+		repoSearch.classList.remove('repository-search-loading');
+	}
+}
+
+async function fetchGitlabUserRepositories(username, token) {
+	if (!token) {
+		throw new Error('GitLab token is required for repository filtering');
+	}
+
+	const headers = {
+		'PRIVATE-TOKEN': token,
+	};
+
+	const baseUrl = window.gitlabBaseUrl || 'https://gitlab.com';
+
+	let startDate;
+
+	let endDate;
+
+	try {
+		const storageData = await new Promise((resolve) => {
+			chrome.storage.local.get(['startingDate', 'endingDate', 'yesterdayContribution'], resolve);
+		});
+
+		if (storageData.yesterdayContribution) {
+			const today = new Date();
+
+			const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+
+			startDate = yesterday.toISOString().split('T')[0];
+
+			endDate = today.toISOString().split('T')[0];
+		} else if (storageData.startingDate && storageData.endingDate) {
+			startDate = storageData.startingDate;
+
+			endDate = storageData.endingDate;
+		} else {
+			const today = new Date();
+
+			const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
+
+			startDate = lastWeek.toISOString().split('T')[0];
+
+			endDate = today.toISOString().split('T')[0];
+		}
+	} catch (err) {
+		console.warn('Could not determine date range for GitLab, using last 30 days:', err);
+
+		const today = new Date();
+
+		const thirtyDaysAgo = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 30);
+
+		startDate = thirtyDaysAgo.toISOString().split('T')[0];
+
+		endDate = today.toISOString().split('T')[0];
+	}
+
+	const eventsUrl = `${baseUrl}/api/v4/events?action=pushed&created_after=${startDate}&created_before=${endDate}&per_page=100`;
+
+	const res = await fetch(eventsUrl, { headers });
+
+	if (!res.ok) {
+		if (res.status === 401) throw new Error('401');
+
+		throw new Error(`Failed to fetch GitLab events: ${res.status}`);
+	}
+
+	const events = await res.json();
+
+	const projectIds = [...new Set(events.map((e) => e.project_id).filter((id) => id))];
+
+	if (projectIds.length === 0) {
+		return [];
+	}
+
+	const projects = [];
+
+	await Promise.all(
+		projectIds.map(async (projectId) => {
+			try {
+				const projectUrl = `${baseUrl}/api/v4/projects/${projectId}`;
+
+				const projectRes = await fetch(projectUrl, { headers });
+
+				if (projectRes.ok) {
+					projects.push(await projectRes.json());
+				}
+			} catch (err) {
+				console.error(`Failed to fetch project ${projectId}:`, err);
+			}
+		}),
+	);
+
+	return projects.map((project) => ({
+		name: project.name,
+
+		fullName: project.path_with_namespace,
+
+		description: project.description,
+
+		language: null,
+
+		updatedAt: project.last_activity_at,
+
+		private: project.visibility !== 'public',
+	}));
+}
+
+window['forceGitlabDataRefresh'] = forceGitlabDataRefresh;
+
 if (window.PlatformRegistry) {
 	window.PlatformRegistry.register('gitlab', {
 		hasRepoFilter: false,
