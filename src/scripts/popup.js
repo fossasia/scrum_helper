@@ -1209,7 +1209,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 				browser.storage.local.set({
 					useRepoFilter: enabled,
-					githubCache: null, //forces refresh
+					repoCache: null, // forces refresh
 				});
 				checkTokenForFilter();
 				if (enabled) {
