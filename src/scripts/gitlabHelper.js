@@ -369,7 +369,10 @@ class GitLabHelper {
 
 		return {
 			...item,
-			repository_url: `${this.baseUrl}/projects/${item.project_id}`,
+			repository_url:
+				project && project.path_with_namespace
+					? project.path_with_namespace
+					: `${this.baseUrl}/projects/${item.project_id}`,
 			html_url:
 				type === 'issue'
 					? item.web_url || (project ? `${project.web_url}/-/issues/${item.iid}` : '')

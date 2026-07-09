@@ -393,29 +393,33 @@ function allIncluded(outputTarget = 'email') {
 								}
 							})();
 						} else {
-							window.gitlabHelper
-								.fetchGitLabData(platformUsernameLocal, startingDate, endingDate, gitlabToken, orgName)
-								.then((data) => {
-									const mappedData = window.gitlabHelper.mapGitLabReportData(data);
-									processGithubData(mappedData);
-									scrumGenerationInProgress = false;
-								})
-								.catch((err) => {
-									console.error('GitLab fetch failed:', err);
-									if (outputTarget === 'popup') {
-										if (generateBtn) {
-											generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
-											generateBtn.disabled = false;
+							chrome.storage.local.get(['useRepoFilter', 'selectedRepos'], (filterSettings) => {
+								useRepoFilter = filterSettings.useRepoFilter || false;
+								selectedRepos = Array.isArray(filterSettings.selectedRepos) ? filterSettings.selectedRepos : [];
+								window.gitlabHelper
+									.fetchGitLabData(platformUsernameLocal, startingDate, endingDate, gitlabToken, orgName)
+									.then((data) => {
+										const mappedData = window.gitlabHelper.mapGitLabReportData(data);
+										processGithubData(mappedData);
+										scrumGenerationInProgress = false;
+									})
+									.catch((err) => {
+										console.error('GitLab fetch failed:', err);
+										if (outputTarget === 'popup') {
+											if (generateBtn) {
+												generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+												generateBtn.disabled = false;
+											}
+											const ErrMessage = `${err.message || 'Error fetching GitLab data.'}`;
+											if (typeof ErrMessage === 'string' && ErrMessage.toLowerCase().includes('not found')) {
+												handleUsernameValidationError(ErrMessage);
+											} else {
+												showReportMessage(ErrMessage);
+											}
 										}
-										const ErrMessage = `${err.message || 'Error fetching GitLab data.'}`;
-										if (typeof ErrMessage === 'string' && ErrMessage.toLowerCase().includes('not found')) {
-											handleUsernameValidationError(ErrMessage);
-										} else {
-											showReportMessage(ErrMessage);
-										}
-									}
-									scrumGenerationInProgress = false;
-								});
+										scrumGenerationInProgress = false;
+									});
+							});
 						}
 						// --- FIX END ---
 					} else {
