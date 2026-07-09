@@ -384,7 +384,7 @@
 				</div>
 
 				<div id="settingsSection" class="tab-content hidden">
-					<div class="orgSection">
+					<div class="githubOnlySection">
 						<div>
 							<div class="flex items-center justify-between">
 								<div class="flex">
@@ -423,33 +423,36 @@
 								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2 pr-10"
 								data-i18n-placeholder="githubTokenPlaceholder">
 						</div>
-						<div class="githubOnlySection">
-							<div class="flex items-center mt-4">
-								<p class="text-sm font-semibold" data-i18n="settingsOrgNameLabel">Your Organization Name
-								</p>
-								<span class="tooltip-container ml-2">
-									<i class="fa fa-question-circle question-icon"></i>
-									<span class="tooltip-bubble" data-i18n="orgNameTooltip">
-										<b>Which organization's GitHub activity?</b><br>
-										Enter the GitHub organization name to fetch activities for. Leave empty to fetch
-										all
-										your GitHub
-										activities across all organizations.
-										Organization name is not case-sensitive.
-									</span>
+					</div>
+
+					<div class="orgSection">
+						<div class="flex items-center mt-4">
+							<p class="text-sm font-semibold" data-i18n="settingsOrgNameLabel">Your Organization Name
+							</p>
+							<span class="tooltip-container ml-2">
+								<i class="fa fa-question-circle question-icon"></i>
+								<span class="tooltip-bubble" data-i18n="orgNameTooltip">
+									<b>Which organization's GitHub activity?</b><br>
+									Enter the GitHub organization name to fetch activities for. Leave empty to fetch
+									all
+									your GitHub
+									activities across all organizations.
+									Organization name is not case-sensitive.
 								</span>
-							</div>
-							<input id="orgInput" type="text"
-								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
-								data-i18n-placeholder="settingsOrgNamePlaceholder"
-								style="margin-top: 0.3rem; margin-bottom: 0.8rem;">
-
-							<!-- Organization validation feedback -->
-							<div id="orgValidationMessage" class="hidden text-xs mt-1 mb-2 px-3 py-2 rounded-lg">
-								<span id="orgValidationText"></span>
-							</div>
+							</span>
 						</div>
+						<input id="orgInput" type="text"
+							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
+							data-i18n-placeholder="settingsOrgNamePlaceholder"
+							style="margin-top: 0.3rem; margin-bottom: 0.8rem;">
 
+						<!-- Organization validation feedback -->
+						<div id="orgValidationMessage" class="hidden text-xs mt-1 mb-2 px-3 py-2 rounded-lg">
+							<span id="orgValidationText"></span>
+						</div>
+					</div>
+
+					<div class="githubOnlySection">
 						<div class="mb-4">
 							<div class="flex items-center justify-between mb-2">
 								<p class="text-sm font-medium">
