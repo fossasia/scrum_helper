@@ -1207,7 +1207,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				}
 				repoFilterContainer.classList.toggle('hidden', !enabled);
 
-				browser.storage.local.set({
+				await browser.storage.local.set({
 					useRepoFilter: enabled,
 					repoCache: null, // forces refresh
 				});
