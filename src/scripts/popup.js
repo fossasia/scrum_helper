@@ -1177,17 +1177,12 @@ document.addEventListener('DOMContentLoaded', () => {
 					const items = await browser.storage.local.get(['platform']);
 					platform = items.platform || 'github';
 				} catch {}
-				if (platform !== 'github') {
-					repoFilterContainer.classList.add('hidden');
-					useRepoFilter.checked = false;
-					if (repoStatus)
-						repoStatus.textContent =
-							chrome?.i18n.getMessage('repoFilteringGithubOnly') ||
-							'Repository filtering is only available for GitHub.';
-					return;
-				}
+
 				const enabled = useRepoFilter.checked;
-				const hasToken = githubTokenInput.value.trim() !== '';
+				const hasToken =
+					platform === 'gitlab'
+						? gitlabTokenInput && gitlabTokenInput.value.trim() !== ''
+						: githubTokenInput && githubTokenInput.value.trim() !== '';
 				repoFilterContainer.classList.toggle('hidden', !enabled);
 
 				if (enabled && !hasToken) {

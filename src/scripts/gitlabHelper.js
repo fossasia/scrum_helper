@@ -501,7 +501,16 @@ async function performRepoFetch() {
 			filterAndDisplayRepos(repoSearch.value.toLowerCase());
 		}
 	} catch (err) {
-		repoStatus.textContent = `${browser.i18n.getMessage('errorLabel')}: ${err.message}`;
+		if (err.message?.includes('401')) {
+			repoStatus.textContent =
+				browser.i18n.getMessage('repoTokenPrivate') ||
+				'A token is required for repository filtering. Please add one in the settings.';
+		} else if (err.message?.includes('username')) {
+			repoStatus.textContent = browser.i18n.getMessage('usernameMissingError') || 'Username required';
+		} else {
+			const errorLabel = browser.i18n.getMessage('errorLabel') || 'Error';
+			repoStatus.textContent = `${errorLabel}: ${err.message || browser.i18n.getMessage('repoLoadFailed')}`;
+		}
 	} finally {
 		if (setIsFetchingRepos) setIsFetchingRepos(false);
 		repoSearch.classList.remove('repository-search-loading');
@@ -563,24 +572,26 @@ async function fetchGitlabUserRepositories(username, token) {
 	}
 
 	const projects = [];
-	for (const projectId of projectIds) {
-		try {
-			const projectUrl = `${baseUrl}/api/v4/projects/${projectId}`;
-			const projectRes = await fetch(projectUrl, { headers });
-			if (projectRes.ok) {
-				projects.push(await projectRes.json());
+	await Promise.all(
+		projectIds.map(async (projectId) => {
+			try {
+				const projectUrl = `${baseUrl}/api/v4/projects/${projectId}`;
+				const projectRes = await fetch(projectUrl, { headers });
+				if (projectRes.ok) {
+					projects.push(await projectRes.json());
+				}
+			} catch (err) {
+				console.error(`Failed to fetch project ${projectId}:`, err);
 			}
-		} catch (err) {
-			console.error(`Failed to fetch project ${projectId}:`, err);
-		}
-	}
+		}),
+	);
 
 	return projects.map((project) => ({
 		name: project.name,
 		fullName: project.path_with_namespace,
 		description: project.description,
 		language: null,
-		updated_at: project.last_activity_at,
+		updatedAt: project.last_activity_at,
 		private: project.visibility !== 'public',
 	}));
 }
