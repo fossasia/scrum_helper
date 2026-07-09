@@ -466,7 +466,7 @@
     "description": "Tooltip text explaining the include blockers option."
   },
   "includeNextPlansLabel": {
-    "message": "Include assigned open issues",
+    "message": "Include assigned open issues to email question 2",
     "description": "Label for checkbox to include next plans in second question of report."
   },
   "includeNextPlansTooltip": {
