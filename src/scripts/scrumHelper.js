@@ -354,6 +354,7 @@ function allIncluded(outputTarget = 'email') {
 										startingDate,
 										endingDate,
 										gitlabToken,
+										orgName,
 									);
 
 									const mappedData = window.gitlabHelper.mapGitLabReportData(data);
@@ -392,34 +393,29 @@ function allIncluded(outputTarget = 'email') {
 								}
 							})();
 						} else {
-							chrome.storage.local.get(['useRepoFilter', 'selectedRepos']).then((filterSettings) => {
-								useRepoFilter = filterSettings.useRepoFilter || false;
-								selectedRepos = Array.isArray(filterSettings.selectedRepos) ? filterSettings.selectedRepos : [];
-
-								window.gitlabHelper
-									.fetchGitLabData(platformUsernameLocal, startingDate, endingDate, gitlabToken)
-									.then((data) => {
-										const mappedData = window.gitlabHelper.mapGitLabReportData(data);
-										processGithubData(mappedData);
-										scrumGenerationInProgress = false;
-									})
-									.catch((err) => {
-										console.error('GitLab fetch failed:', err);
-										if (outputTarget === 'popup') {
-											if (generateBtn) {
-												generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
-												generateBtn.disabled = false;
-											}
-											const ErrMessage = `${err.message || 'Error fetching GitLab data.'}`;
-											if (typeof ErrMessage === 'string' && ErrMessage.toLowerCase().includes('not found')) {
-												handleUsernameValidationError(ErrMessage);
-											} else {
-												showReportMessage(ErrMessage);
-											}
+							window.gitlabHelper
+								.fetchGitLabData(platformUsernameLocal, startingDate, endingDate, gitlabToken, orgName)
+								.then((data) => {
+									const mappedData = window.gitlabHelper.mapGitLabReportData(data);
+									processGithubData(mappedData);
+									scrumGenerationInProgress = false;
+								})
+								.catch((err) => {
+									console.error('GitLab fetch failed:', err);
+									if (outputTarget === 'popup') {
+										if (generateBtn) {
+											generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+											generateBtn.disabled = false;
 										}
-										scrumGenerationInProgress = false;
-									});
-							});
+										const ErrMessage = `${err.message || 'Error fetching GitLab data.'}`;
+										if (typeof ErrMessage === 'string' && ErrMessage.toLowerCase().includes('not found')) {
+											handleUsernameValidationError(ErrMessage);
+										} else {
+											showReportMessage(ErrMessage);
+										}
+									}
+									scrumGenerationInProgress = false;
+								});
 						}
 						// --- FIX END ---
 					} else {
@@ -1218,8 +1214,8 @@ ${blockerText}`;
 			if (scrumReport) {
 				log('Found popup div, updating content');
 				scrumReport.innerHTML = sanitizeHtml(content);
-				window.updateCopyButtonState?.();
 				delete scrumReport.dataset.copyPlaceholder;
+				window.updateCopyButtonState?.();
 				try {
 					const cacheKey =
 						platform === 'gitlab' ? (window.gitlabHelper?.cache?.cacheKey ?? null) : (githubCache?.cacheKey ?? null);
@@ -1315,7 +1311,7 @@ ${blockerText}`;
 		}
 	}
 
-	function writeGithubPrsReviews() {
+	async function writeGithubPrsReviews() {
 		const isAnyFilterActive = onlyIssues || onlyPRs || onlyRevPRs || onlyMergedPRs;
 		if (isAnyFilterActive && !onlyRevPRs) {
 			log('Filters active but onlyRevPRs not checked, skipping PR reviews.');
@@ -1367,8 +1363,44 @@ ${blockerText}`;
 
 		log('Filtering PR reviews by date range:', { startDate, endDate, startDateTime, endDateTime });
 
-		for (i = 0; i < items.length; i++) {
-			const item = items[i];
+		let filteredItems = items;
+		if (platform === 'github') {
+			if (githubToken && items.length <= 50) {
+				const prReviewsResults = await Promise.all(
+					items.map(async (item) => {
+						try {
+							const repoParts = item.repository_url.split('/');
+							const owner = repoParts[repoParts.length - 2];
+							const repo = repoParts[repoParts.length - 1];
+
+							const reviews = await window.githubFetchPrReviews(owner, repo, item.number, githubToken).catch(() => []);
+
+							const hasValidReview = reviews.some((review) => {
+								if (!review.user || review.user.login.toLowerCase() !== platformUsernameLocal.toLowerCase())
+									return false;
+								if (!review.submitted_at) return false;
+								const submittedDate = new Date(review.submitted_at);
+								return submittedDate >= startDateTime && submittedDate <= endDateTime;
+							});
+
+							return { item, keep: hasValidReview };
+						} catch (err) {
+							logError(`Failed to fetch reviews for PR #${item.number}:`, err);
+							return { item, keep: true };
+						}
+					}),
+				);
+				filteredItems = prReviewsResults.filter((r) => r.keep).map((r) => r.item);
+			} else if (githubToken && items.length > 50) {
+				window.scrumHelperToast?.('Showing approximate results due to high PR volume', {
+					duration: 5000,
+					variant: 'info',
+				});
+			}
+		}
+
+		for (i = 0; i < filteredItems.length; i++) {
+			const item = filteredItems[i];
 			log(
 				`Processing PR #${item.number} - state: ${item.state}, updated_at: ${item.updated_at}, created_at: ${item.created_at}, merged_at: ${item.pull_request?.merged_at}`,
 			);
@@ -1376,7 +1408,7 @@ ${blockerText}`;
 			// For GitHub: item.user.login, for GitLab: item.author?.username
 			let isAuthoredByUser = false;
 			if (platform === 'github') {
-				isAuthoredByUser = item.user && item.user.login === platformUsernameLocal;
+				isAuthoredByUser = item.user && item.user.login.toLowerCase() === platformUsernameLocal.toLowerCase();
 			} else if (platform === 'gitlab') {
 				isAuthoredByUser = item.author && item.author.username === platformUsername;
 			}
@@ -1391,27 +1423,16 @@ ${blockerText}`;
 				continue;
 			}
 
-			// Additional check: Skip PRs that were merged before the date range
-			if (item.state === 'closed' && item.pull_request && item.pull_request.merged_at) {
-				const mergedDate = new Date(item.pull_request.merged_at);
-				if (mergedDate < startDateTime) {
-					log(
-						`Skipping merged PR #${item.number} - merged at ${mergedDate} before date range ${startDate} to ${endDate}`,
-					);
-					continue;
-				}
-			}
-
-			// For closed PRs, ensure they were merged within the date range
+			// For closed PRs, ensure they were merged or closed within the date range
 			if (item.state === 'closed' && item.pull_request) {
-				if (!item.pull_request.merged_at) {
-					log(`Skipping closed PR #${item.number} - not merged`);
-					continue;
-				}
-				const mergedDate = new Date(item.pull_request.merged_at);
-				if (mergedDate < startDateTime || mergedDate > endDateTime) {
+				const dateToCheck = item.pull_request.merged_at
+					? new Date(item.pull_request.merged_at)
+					: item.closed_at
+						? new Date(item.closed_at)
+						: new Date(item.updated_at || item.created_at);
+				if (dateToCheck < startDateTime || dateToCheck > endDateTime) {
 					log(
-						`Skipping closed PR #${item.number} - merged at ${mergedDate} outside date range ${startDate} to ${endDate}`,
+						`Skipping closed/merged PR #${item.number} - date ${dateToCheck} outside date range ${startDate} to ${endDate}`,
 					);
 					continue;
 				}
@@ -1435,12 +1456,16 @@ ${blockerText}`;
 					continue;
 				}
 
-				// For yesterday filter, be extra strict about merged PRs
-				if (item.state === 'closed' && item.pull_request && item.pull_request.merged_at) {
-					const mergedDate = new Date(item.pull_request.merged_at);
-					const wasMergedYesterday = mergedDate >= yesterday && mergedDate <= today;
-					if (!wasMergedYesterday) {
-						log(`Skipping merged PR #${item.number} - not merged yesterday`);
+				// For yesterday filter, be extra strict about merged/closed PRs
+				if (item.state === 'closed' && item.pull_request) {
+					const dateToCheck = item.pull_request.merged_at
+						? new Date(item.pull_request.merged_at)
+						: item.closed_at
+							? new Date(item.closed_at)
+							: new Date(item.updated_at || item.created_at);
+					const wasActiveYesterday = dateToCheck >= yesterday && dateToCheck <= today;
+					if (!wasActiveYesterday) {
+						log(`Skipping closed/merged PR #${item.number} - not active yesterday`);
 						continue;
 					}
 				}
@@ -1463,7 +1488,7 @@ ${blockerText}`;
 				number: number,
 				html_url: html_url,
 				title: title,
-				state: item.state,
+				state: item.state === 'closed' && item.pull_request?.merged_at ? 'merged' : item.state,
 			};
 			githubPrsReviewDataProcessed[project].push(obj);
 		}
@@ -1485,8 +1510,11 @@ ${blockerText}`;
 						'</a> (' +
 						pr_arr.title +
 						') ';
-					if (showOpenLabel && pr_arr.state === 'open') prText += issue_opened_button;
-					// Do not show closed label for reviewed PRs
+					if (showOpenLabel) {
+						if (pr_arr.state === 'open') prText += pr_open_button;
+						else if (pr_arr.state === 'merged') prText += pr_merged_button;
+						else if (pr_arr.state === 'closed') prText += pr_closed_button;
+					}
 					prText += '&nbsp;&nbsp;';
 					repoLi += prText;
 				}
@@ -1503,8 +1531,11 @@ ${blockerText}`;
 						'</a> (' +
 						pr_arr1.title +
 						') ';
-					if (showOpenLabel && pr_arr1.state === 'open') prText1 += issue_opened_button;
-					// Do not show closed label for reviewed PRs
+					if (showOpenLabel) {
+						if (pr_arr1.state === 'open') prText1 += pr_open_button;
+						else if (pr_arr1.state === 'merged') prText1 += pr_merged_button;
+						else if (pr_arr1.state === 'closed') prText1 += pr_closed_button;
+					}
 					prText1 += '&nbsp;&nbsp;</li>';
 					repoLi += prText1;
 				}
@@ -1952,7 +1983,7 @@ ${blockerText}`;
 			writeGithubIssuesPrs();
 		}
 	}, 500);
-	const intervalWriteGithubPrs = setInterval(() => {
+	const intervalWriteGithubPrs = setInterval(async () => {
 		if (outputTarget === 'popup') {
 			return;
 		}
@@ -1961,7 +1992,7 @@ ${blockerText}`;
 		if (scrumBody && username && githubPrsReviewData && githubIssuesData) {
 			clearInterval(intervalWriteGithubPrs);
 			clearInterval(intervalWriteGithubIssues);
-			writeGithubPrsReviews();
+			await writeGithubPrsReviews();
 		}
 	}, 500);
 

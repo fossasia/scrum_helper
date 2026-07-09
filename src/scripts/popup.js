@@ -878,19 +878,17 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 
 		// Save to storage and validate ONLY when user clicks out (blur event)
-		if (orgInput) {
-			orgInput.addEventListener('blur', () => {
-				const org = orgInput.value.trim().toLowerCase();
-				browser.storage.local.set({ orgName: org });
+		orgInput.addEventListener('blur', () => {
+			const org = orgInput.value.trim().toLowerCase();
+			browser.storage.local.set({ orgName: org });
 
-				// Only validate if org name is not empty
-				if (org) {
-					validateOrgOnBlur(org);
-				} else {
-					window.clearScrumHelperToast?.();
-				}
-			});
-		}
+			// Only validate if org name is not empty
+			if (org) {
+				handleOrgInputBlurValidation(org);
+			} else {
+				window.clearScrumHelperToast?.();
+			}
+		});
 		if (userReasonInput) {
 			userReasonInput.addEventListener('input', () => {
 				browser.storage.local.set({ userReason: userReasonInput.value });
@@ -1177,7 +1175,6 @@ document.addEventListener('DOMContentLoaded', () => {
 					const items = await browser.storage.local.get(['platform']);
 					platform = items.platform || 'github';
 				} catch {}
-
 				const enabled = useRepoFilter.checked;
 				const hasToken =
 					platform === 'gitlab'
@@ -1680,6 +1677,14 @@ function updatePlatformUI(platform) {
 		}
 	}
 
+	const orgSection = document.querySelector('.orgSection');
+	if (orgSection) {
+		if (platform === 'github' || platform === 'gitlab') {
+			orgSection.classList.remove('hidden');
+		} else {
+			orgSection.classList.add('hidden');
+		}
+	}
 	const githubOnlySections = document.querySelectorAll('.githubOnlySection');
 	githubOnlySections.forEach((el) => {
 		if (platform === 'gitlab') {
@@ -1696,7 +1701,6 @@ function updatePlatformUI(platform) {
 			el.classList.remove('hidden');
 		}
 	});
-
 	const repoFilterTooltip = document.querySelector('[data-i18n="repoFilterTooltip"]');
 	if (repoFilterTooltip) {
 		if (platform === 'gitlab') {
@@ -2166,7 +2170,7 @@ document.addEventListener('keydown', (e) => {
 });
 
 // Validate organization only when user is done typing (on blur)
-function validateOrgOnBlur(org) {
+function handleOrgInputBlurValidation(org) {
 	const platformSelect = document.getElementById('platformSelect');
 	const platform = platformSelect?.value || 'github';
 	const helper = window.PlatformRegistry.get(platform);
