@@ -354,6 +354,7 @@ function allIncluded(outputTarget = 'email') {
 										startingDate,
 										endingDate,
 										gitlabToken,
+										orgName,
 									);
 
 									const mappedData = window.gitlabHelper.mapGitLabReportData(data);
@@ -393,7 +394,7 @@ function allIncluded(outputTarget = 'email') {
 							})();
 						} else {
 							window.gitlabHelper
-								.fetchGitLabData(platformUsernameLocal, startingDate, endingDate, gitlabToken)
+								.fetchGitLabData(platformUsernameLocal, startingDate, endingDate, gitlabToken, orgName)
 								.then((data) => {
 									const mappedData = window.gitlabHelper.mapGitLabReportData(data);
 									processGithubData(mappedData);
