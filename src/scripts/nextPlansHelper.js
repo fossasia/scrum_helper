@@ -103,13 +103,20 @@
 		container.style.display = 'block';
 		container.classList.remove('hidden');
 
-		const loadingText = chrome.i18n.getMessage('fetchingIssuesSpinner') || 'Fetching your assigned issues...';
-		container.innerHTML = `
-			<div class="loading-issues">
-				<div class="spinner"></div>
-				<span>${loadingText}</span>
-			</div>
-		`;
+		container.textContent = '';
+
+		const wrapper = document.createElement('div');
+		wrapper.classList.add('loading-issues');
+
+		const spinner = document.createElement('div');
+		spinner.classList.add('spinner');
+
+		const span = document.createElement('span');
+		span.textContent = chrome.i18n.getMessage('fetchingIssuesSpinner') || 'Fetching your assigned issues...';
+
+		wrapper.appendChild(spinner);
+		wrapper.appendChild(span);
+		container.appendChild(wrapper);
 	}
 
 	function showErrorMessage(message) {
@@ -119,11 +126,14 @@
 		container.style.display = 'block';
 		container.classList.remove('hidden');
 
-		container.innerHTML = `
-			<div class="empty-message" style="color: #d32f2f;">
-				${message}
-			</div>
-		`;
+		container.textContent = '';
+
+		const wrapper = document.createElement('div');
+		wrapper.classList.add('empty-message');
+		wrapper.style.color = '#d32f2f';
+		wrapper.textContent = message;
+
+		container.appendChild(wrapper);
 	}
 
 	function displayIssuesUI(issues, scope) {
@@ -133,30 +143,49 @@
 		container.style.display = 'block';
 		container.classList.remove('hidden');
 
+		container.textContent = '';
+
 		const selectedIds = getSavedIssueSelections(scope);
 
-		let html = '';
-		html += `<div class="scope-info">${scope.displayText}</div>`;
+		const scopeDiv = document.createElement('div');
+		scopeDiv.classList.add('scope-info');
+		scopeDiv.textContent = scope.displayText;
+		container.appendChild(scopeDiv);
 
 		if (!issues || issues.length === 0) {
-			html += `<div class="empty-message">${
-				chrome.i18n.getMessage('noIssuesFound') || 'No assigned open issues found'
-			}</div>`;
-			container.innerHTML = html;
+			const emptyDiv = document.createElement('div');
+			emptyDiv.classList.add('empty-message');
+			emptyDiv.textContent = chrome.i18n.getMessage('noIssuesFound') || 'No assigned open issues found';
+			container.appendChild(emptyDiv);
 			return;
 		}
 
 		issues.forEach((issue) => {
-			const isChecked = selectedIds.includes(issue.id) ? 'checked' : '';
-			html += `
-				<label class="issue-checkbox-label">
-					<input type="checkbox" class="issue-item-checkbox" data-issue-id="${issue.id}" ${isChecked} />
-					<span>#${issue.number} - ${issue.title} <span style="font-size:10px; color:#888;">(${issue.repository})</span></span>
-				</label>
-			`;
-		});
+			const label = document.createElement('label');
+			label.classList.add('issue-checkbox-label');
 
-		container.innerHTML = html;
+			const checkbox = document.createElement('input');
+			checkbox.type = 'checkbox';
+			checkbox.classList.add('issue-item-checkbox');
+			checkbox.dataset.issueId = issue.id;
+			if (selectedIds.includes(issue.id)) {
+				checkbox.checked = true;
+			}
+
+			const span = document.createElement('span');
+			span.textContent = `#${issue.number} - ${issue.title} `;
+
+			const repoSpan = document.createElement('span');
+			repoSpan.style.fontSize = '10px';
+			repoSpan.style.color = '#888';
+			repoSpan.textContent = `(${issue.repository})`;
+
+			span.appendChild(repoSpan);
+
+			label.appendChild(checkbox);
+			label.appendChild(span);
+			container.appendChild(label);
+		});
 
 		// Add event listeners to checkboxes
 		const checkboxes = container.querySelectorAll('.issue-item-checkbox');
