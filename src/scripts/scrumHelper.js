@@ -65,6 +65,54 @@ function formatLocalDate(date) {
 }
 
 /**
+ * Resolves the project name from the report item.
+ * For GitLab, it prioritizes the pre-mapped human-readable name.
+ * For GitHub and fallbacks, it extracts it from the repository URL.
+ * @param {Object} item - The report item
+ * @param {string} platform - The SCM platform ('github', 'gitlab', etc.)
+ * @returns {string} The resolved project name or empty string if not found
+ */
+function getProjectName(item, platform) {
+	if (platform === 'gitlab' && item.project) {
+		return item.project;
+	}
+	const repository_url = item.repository_url;
+	if (repository_url) {
+		return repository_url.substr(repository_url.lastIndexOf('/') + 1);
+	}
+	return '';
+}
+
+/**
+ * Normalizes the SCM state of a pull/merge request.
+ * Normalizes platform-specific states (e.g., GitLab 'opened'/'reopened') into standard 'open', 'closed', or 'merged'.
+ * @param {Object} item - The report item
+ * @param {string} platform - The SCM platform ('github', 'gitlab', etc.)
+ * @returns {string} Normalized state ('open', 'merged', or 'closed')
+ */
+function normalizePrState(item, platform) {
+	if (platform === 'gitlab') {
+		const state = item.state;
+		if (state === 'opened' || state === 'reopened') {
+			return 'open';
+		}
+		if (state === 'closed' || state === 'locked') {
+			return 'closed';
+		}
+		if (state === 'merged') {
+			return 'merged';
+		}
+		return state;
+	}
+
+	// GitHub mapping
+	if (item.state === 'closed' && item.pull_request?.merged_at) {
+		return 'merged';
+	}
+	return item.state;
+}
+
+/**
  * Redact sensitive storage data for safe logging
  * Prevents exposure of authentication tokens and credentials in console logs
  * @param {Object} items - Storage data that may contain sensitive keys
@@ -1471,13 +1519,7 @@ ${blockerText}`;
 				}
 			}
 
-			const repository_url = item.repository_url;
-			const project =
-				platform === 'gitlab' && item.project
-					? item.project
-					: repository_url
-						? repository_url.substr(repository_url.lastIndexOf('/') + 1)
-						: '';
+			const project = getProjectName(item, platform);
 			if (!project) {
 				logError('Project name could not be determined for item:', item);
 				continue;
@@ -1493,14 +1535,7 @@ ${blockerText}`;
 				number: number,
 				html_url: html_url,
 				title: title,
-				state:
-					platform === 'gitlab'
-						? item.state === 'opened'
-							? 'open'
-							: item.state
-						: item.state === 'closed' && item.pull_request?.merged_at
-							? 'merged'
-							: item.state,
+				state: normalizePrState(item, platform),
 			};
 			githubPrsReviewDataProcessed[project].push(obj);
 		}
@@ -1743,13 +1778,7 @@ ${blockerText}`;
 			log('[SCRUM-DEBUG] isMR:', isMR, 'platform:', platform, 'item:', item);
 			const html_url = item.html_url;
 			const repository_url = item.repository_url;
-			// Use project name for GitLab, repo extraction for GitHub
-			const project =
-				platform === 'gitlab' && item.project
-					? item.project
-					: repository_url
-						? repository_url.substr(repository_url.lastIndexOf('/') + 1)
-						: '';
+			const project = getProjectName(item, platform);
 			const title = item.title;
 			const number = item.number;
 			let li = '';
