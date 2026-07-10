@@ -331,11 +331,11 @@
     "description": "Label for the checkbox to include only merged PRs."
   },
   "onlyMergedPRsTooltip": {
-    "message": "If checked, the report will include PRs that have been merged. A GitHub token is required.",
+    "message": "If checked, the report will include PRs that have been merged. Adding a GitHub token in settings is recommended to fetch accurate and all merged PR status.",
     "description": "Tooltip for the merged PRs filter checkbox."
   },
   "tokenRequiredMergedPRsWarning": {
-    "message": "A GitHub token is required to filter by merged PRs. Please add one in the settings.",
+    "message": "A GitHub token is recommended to fetch accurate merged PRs. Please add one in settings.",
     "description": "Warning shown when merged PRs filter is enabled without a GitHub token."
   },
   "usernameRequiredError": {

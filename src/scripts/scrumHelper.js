@@ -1596,11 +1596,7 @@ ${blockerText}`;
 
 		const daysRange = getDaysBetween(startDateForRange, endDateForRange);
 
-		if (githubToken) {
-			useMergedStatus = true;
-		} else if (daysRange <= 7) {
-			useMergedStatus = true;
-		}
+		useMergedStatus = true;
 
 		const prsToCheck = [];
 		for (let i = 0; i < items.length; i++) {
