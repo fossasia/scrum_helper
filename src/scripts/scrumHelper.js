@@ -1472,11 +1472,16 @@ ${blockerText}`;
 			}
 
 			const repository_url = item.repository_url;
-			if (!repository_url) {
-				logError('repository_url is undefined for item:', item);
+			const project =
+				platform === 'gitlab' && item.project
+					? item.project
+					: repository_url
+						? repository_url.substr(repository_url.lastIndexOf('/') + 1)
+						: '';
+			if (!project) {
+				logError('Project name could not be determined for item:', item);
 				continue;
 			}
-			const project = repository_url.substr(repository_url.lastIndexOf('/') + 1);
 			const title = item.title;
 			const number = item.number;
 			const html_url = item.html_url;
@@ -1488,7 +1493,14 @@ ${blockerText}`;
 				number: number,
 				html_url: html_url,
 				title: title,
-				state: item.state === 'closed' && item.pull_request?.merged_at ? 'merged' : item.state,
+				state:
+					platform === 'gitlab'
+						? item.state === 'opened'
+							? 'open'
+							: item.state
+						: item.state === 'closed' && item.pull_request?.merged_at
+							? 'merged'
+							: item.state,
 			};
 			githubPrsReviewDataProcessed[project].push(obj);
 		}
