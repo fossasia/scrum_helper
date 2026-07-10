@@ -931,12 +931,8 @@ async function fetchIssuesFromGitHub(scope) {
 		throw new Error('GitHub token is required. Please set it in settings.');
 	}
 
-	let query = `assignee:${username}+state:open+type:issue`;
-
-	if (scope.type === 'selected' && scope.repos.length > 0) {
-		const repoQueries = scope.repos.map((repo) => `repo:${repo}`).join('+');
-		query += `+${repoQueries}`;
-	}
+	// Fetch open issues assigned to the user, sorted by last updated, to avoid slow queries with many repo: qualifiers
+	const query = `assignee:${username}+state:open+type:issue`;
 
 	let page = 1;
 	let allIssues = [];
@@ -947,8 +943,9 @@ async function fetchIssuesFromGitHub(scope) {
 		Authorization: `token ${token}`,
 	};
 
-	while (hasMore && page <= 10) {
-		const url = `https://api.github.com/search/issues?q=${query}&per_page=100&page=${page}`;
+	// Limit to 2 pages (200 issues) to keep response times fast
+	while (hasMore && page <= 2) {
+		const url = `https://api.github.com/search/issues?q=${query}&per_page=100&page=${page}&sort=updated&order=desc`;
 		console.log(`[NextPlans] Fetching page ${page}: ${url}`);
 		const response = await fetch(url, { headers });
 		if (!response.ok) {
@@ -968,6 +965,8 @@ async function fetchIssuesFromGitHub(scope) {
 		}
 	}
 
+	const repoSet = scope.type === 'selected' ? new Set(scope.repos) : null;
+
 	return allIssues
 		.map((issue) => {
 			const repoUrl = issue.repository_url || '';
@@ -986,9 +985,15 @@ async function fetchIssuesFromGitHub(scope) {
 				state: issue.state,
 			};
 		})
-		.filter(
-			(issue) => !Number.isNaN(issue.number) && issue.html_url && issue.html_url.startsWith('https://github.com/'),
-		);
+		.filter((issue) => {
+			if (Number.isNaN(issue.number) || !issue.html_url || !issue.html_url.startsWith('https://github.com/')) {
+				return false;
+			}
+			if (repoSet && !repoSet.has(issue.repository)) {
+				return false;
+			}
+			return true;
+		});
 }
 
 window.githubFetchUser = githubFetchUser;

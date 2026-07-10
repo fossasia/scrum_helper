@@ -2077,6 +2077,12 @@ document.querySelectorAll('input[name="timeframe"]').forEach((radio) => {
 				const keysToRemove = ['githubCache', 'repoCache', 'gitlabCache'];
 				await browser.storage.local.remove(keysToRemove);
 
+				// Clear Next Plans cache and fetch them again
+				localStorage.removeItem('nextPlansCache');
+				if (window.loadAssignedIssues) {
+					window.loadAssignedIssues();
+				}
+
 				// Clear the scrum report
 				const scrumReport = document.getElementById('scrumReport');
 				if (scrumReport) {
