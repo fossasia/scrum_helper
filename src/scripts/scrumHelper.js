@@ -349,6 +349,7 @@ function allIncluded(outputTarget = 'email') {
 										startingDate,
 										endingDate,
 										gitlabToken,
+										orgName,
 									);
 
 									const mappedData = window.gitlabHelper.mapGitLabReportData(data);
@@ -388,7 +389,7 @@ function allIncluded(outputTarget = 'email') {
 							})();
 						} else {
 							window.gitlabHelper
-								.fetchGitLabData(platformUsernameLocal, startingDate, endingDate, gitlabToken)
+								.fetchGitLabData(platformUsernameLocal, startingDate, endingDate, gitlabToken, orgName)
 								.then((data) => {
 									const mappedData = window.gitlabHelper.mapGitLabReportData(data);
 									processGithubData(mappedData);
@@ -1208,8 +1209,8 @@ ${blockerText}`;
 			if (scrumReport) {
 				log('Found popup div, updating content');
 				scrumReport.innerHTML = sanitizeHtml(content);
-				window.updateCopyButtonState?.();
 				delete scrumReport.dataset.copyPlaceholder;
+				window.updateCopyButtonState?.();
 				try {
 					const cacheKey =
 						platform === 'gitlab' ? (window.gitlabHelper?.cache?.cacheKey ?? null) : (githubCache?.cacheKey ?? null);
@@ -1416,27 +1417,16 @@ ${blockerText}`;
 				continue;
 			}
 
-			// Additional check: Skip PRs that were merged before the date range
-			if (item.state === 'closed' && item.pull_request && item.pull_request.merged_at) {
-				const mergedDate = new Date(item.pull_request.merged_at);
-				if (mergedDate < startDateTime) {
-					log(
-						`Skipping merged PR #${item.number} - merged at ${mergedDate} before date range ${startDate} to ${endDate}`,
-					);
-					continue;
-				}
-			}
-
-			// For closed PRs, ensure they were merged within the date range
+			// For closed PRs, ensure they were merged or closed within the date range
 			if (item.state === 'closed' && item.pull_request) {
-				if (!item.pull_request.merged_at) {
-					log(`Skipping closed PR #${item.number} - not merged`);
-					continue;
-				}
-				const mergedDate = new Date(item.pull_request.merged_at);
-				if (mergedDate < startDateTime || mergedDate > endDateTime) {
+				const dateToCheck = item.pull_request.merged_at
+					? new Date(item.pull_request.merged_at)
+					: item.closed_at
+						? new Date(item.closed_at)
+						: new Date(item.updated_at || item.created_at);
+				if (dateToCheck < startDateTime || dateToCheck > endDateTime) {
 					log(
-						`Skipping closed PR #${item.number} - merged at ${mergedDate} outside date range ${startDate} to ${endDate}`,
+						`Skipping closed/merged PR #${item.number} - date ${dateToCheck} outside date range ${startDate} to ${endDate}`,
 					);
 					continue;
 				}
@@ -1460,12 +1450,16 @@ ${blockerText}`;
 					continue;
 				}
 
-				// For yesterday filter, be extra strict about merged PRs
-				if (item.state === 'closed' && item.pull_request && item.pull_request.merged_at) {
-					const mergedDate = new Date(item.pull_request.merged_at);
-					const wasMergedYesterday = mergedDate >= yesterday && mergedDate <= today;
-					if (!wasMergedYesterday) {
-						log(`Skipping merged PR #${item.number} - not merged yesterday`);
+				// For yesterday filter, be extra strict about merged/closed PRs
+				if (item.state === 'closed' && item.pull_request) {
+					const dateToCheck = item.pull_request.merged_at
+						? new Date(item.pull_request.merged_at)
+						: item.closed_at
+							? new Date(item.closed_at)
+							: new Date(item.updated_at || item.created_at);
+					const wasActiveYesterday = dateToCheck >= yesterday && dateToCheck <= today;
+					if (!wasActiveYesterday) {
+						log(`Skipping closed/merged PR #${item.number} - not active yesterday`);
 						continue;
 					}
 				}
@@ -1488,7 +1482,7 @@ ${blockerText}`;
 				number: number,
 				html_url: html_url,
 				title: title,
-				state: item.state,
+				state: item.state === 'closed' && item.pull_request?.merged_at ? 'merged' : item.state,
 			};
 			githubPrsReviewDataProcessed[project].push(obj);
 		}
@@ -1510,8 +1504,11 @@ ${blockerText}`;
 						'</a> (' +
 						pr_arr.title +
 						') ';
-					if (showOpenLabel && pr_arr.state === 'open') prText += issue_opened_button;
-					// Do not show closed label for reviewed PRs
+					if (showOpenLabel) {
+						if (pr_arr.state === 'open') prText += pr_open_button;
+						else if (pr_arr.state === 'merged') prText += pr_merged_button;
+						else if (pr_arr.state === 'closed') prText += pr_closed_button;
+					}
 					prText += '&nbsp;&nbsp;';
 					repoLi += prText;
 				}
@@ -1528,8 +1525,11 @@ ${blockerText}`;
 						'</a> (' +
 						pr_arr1.title +
 						') ';
-					if (showOpenLabel && pr_arr1.state === 'open') prText1 += issue_opened_button;
-					// Do not show closed label for reviewed PRs
+					if (showOpenLabel) {
+						if (pr_arr1.state === 'open') prText1 += pr_open_button;
+						else if (pr_arr1.state === 'merged') prText1 += pr_merged_button;
+						else if (pr_arr1.state === 'closed') prText1 += pr_closed_button;
+					}
 					prText1 += '&nbsp;&nbsp;</li>';
 					repoLi += prText1;
 				}
