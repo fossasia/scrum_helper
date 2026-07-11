@@ -88,8 +88,17 @@ if (!window.scrumDateRangeUtils) {
 		},
 		normalizeSyncAndPersistDateRange(startDateInput, endDateInput) {
 			if (!startDateInput || !endDateInput) return;
-			this.normalizeDateRangeValues(startDateInput, endDateInput);
+			const wasChanged = this.normalizeDateRangeValues(startDateInput, endDateInput);
 			this.persistDateRange(startDateInput, endDateInput);
+			// Show user feedback if dates were corrected
+			if (wasChanged) {
+				const message = startDateInput.value && !endDateInput.value 
+					? 'End date cleared: start date was after end date' 
+					: 'Dates adjusted to valid range';
+				if (typeof window.scrumHelperToast === 'function') {
+					window.scrumHelperToast(message, { variant: 'info', duration: 3000 });
+				}
+			}
 		},
 	};
 }

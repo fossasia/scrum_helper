@@ -298,10 +298,23 @@ function allIncluded(outputTarget = 'email') {
 					weeklyContribution = true;
 					handleWeeklyContributionChange();
 				} else if (items.startingDate && items.endingDate) {
-					yesterdayContribution = false;
-					weeklyContribution = false;
-					startingDate = items.startingDate;
-					endingDate = items.endingDate;
+					// Validate date range: startingDate must not be after endingDate
+					if (items.startingDate > items.endingDate) {
+						console.warn('[SCRUM-HELPER] Invalid date range detected: startingDate > endingDate. Falling back to yesterday contribution.');
+						if (outputTarget === 'popup' && typeof window.scrumHelperToast === 'function') {
+							window.scrumHelperToast('Invalid date range: start date must be before or equal to end date. Using yesterday instead.', { variant: 'error', duration: 5000 });
+						}
+						yesterdayContribution = true;
+						weeklyContribution = false;
+						startingDate = '';
+						endingDate = '';
+						handleYesterdayContributionChange();
+					} else {
+						yesterdayContribution = false;
+						weeklyContribution = false;
+						startingDate = items.startingDate;
+						endingDate = items.endingDate;
+					}
 				} else {
 					yesterdayContribution = true;
 					weeklyContribution = false;
