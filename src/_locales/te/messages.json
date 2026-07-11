@@ -32,6 +32,9 @@
     "last1DayLabel": {
         "message": "గత రోజు"
     },
+    "lastWeekLabel": {
+        "message": "గత వారం"
+    },
     "startDateLabel": {
         "message": "నుండి:"
     },
@@ -334,5 +337,11 @@
     },
     "insertedInEmailNotification": {
         "message": "నివేదిక ఇమెయిల్‌లో చేర్చబడింది!"
+    },
+    "rateLimitError": {
+        "message": "GitHub API రేట్ పరిమితి మించిపోయింది. దయచేసి తర్వాత మళ్లీ ప్రయత్నించండి లేదా Scrum Helper సెట్టింగ్‌లలో మీ GitHub టోకెన్‌ను జోడించండి/తనిఖీ చేయండి."
+    },
+    "rateLimitWarningMessage": {
+        "message": "GitHub రేట్ పరిమితి కారణంగా కొంత డేటా మిస్ కావచ్చు. దయచేసి సెట్టింగ్‌లలో మీ GitHub టోకెన్‌ను జోడించండి లేదా తనిఖీ చేయండి."
     }
 }

@@ -68,7 +68,8 @@
     "description": "Placeholder text for the blockers input field."
   },
   "scrumReportLabel": {
-    "message": "Scrum Report"
+    "message": "Scrum Report",
+    "description": "Heading for the Scrum Report section."
   },
   "generateReportButton": {
     "message": "Generate",
@@ -127,19 +128,24 @@
     "description": "Label for the checkbox to show commits in open PRs."
   },
   "showCommitsTooltip": {
-    "message": "Github Token required, add it in the settings."
+    "message": "Github Token required, add it in the settings.",
+    "description": "Tooltip explaining that GitHub Token is required to show commits."
   },
   "onlyIssuesLabel": {
-    "message": "Include issues in the report"
+    "message": "Include issues in the report",
+    "description": "Label for the checkbox to only include issues in the report."
   },
   "onlyIssuesTooltip": {
-    "message": "If checked, the report will include issues created or assigned to the user."
+    "message": "If checked, the report will include issues created or assigned to the user.",
+    "description": "Tooltip explaining what checking the only issues checkbox does."
   },
   "onlyPRsLabel": {
-    "message": "Include PRs in the report"
+    "message": "Include PRs in the report",
+    "description": "Label for the checkbox to only include PRs in the report."
   },
   "onlyPRsTooltip": {
-    "message": "If checked, the report will include PRs created by the user. Reviewed PRs will be excluded."
+    "message": "If checked, the report will include PRs created by the user. Reviewed PRs will be excluded.",
+    "description": "Tooltip explaining what checking the only PRs checkbox does."
   },
   "cacheTTLLabel": {
     "message": "Enter cache TTL",
