@@ -184,7 +184,7 @@
 							contributions between:</p>
 
 
-						<div class="flex gap-[3px] justify-between items-center mt-2" style="gap: 8px">
+						<div class="timeframe-container mt-2">
 
 							<div id="customDateContainer" class="flex gap-2">
 
@@ -203,11 +203,19 @@
 										style="width: 96px;">
 								</div>
 							</div>
-							<div class="flex items-center gap-1">
-								<input type="radio" id="yesterdayContribution" name="timeframe" class="form-radio"
-									style="margin-right: 4px;">
-								<label for="yesterdayContribution" class="font-medium text-xs"
-									data-i18n="last1DayLabel">Previous Day</label>
+							<div class="timeframe-presets">
+								<div class="flex items-center gap-1">
+									<input type="radio" id="yesterdayContribution" name="timeframe" class="form-radio"
+										style="margin-right: 4px;">
+									<label for="yesterdayContribution" class="font-medium text-xs"
+										data-i18n="last1DayLabel">Previous Day</label>
+								</div>
+								<div class="flex items-center gap-1">
+									<input type="radio" id="weeklyContribution" name="timeframe" class="form-radio"
+										style="margin-right: 4px;">
+									<label for="weeklyContribution" class="font-medium text-xs"
+										data-i18n="lastWeekLabel">Previous Week</label>
+								</div>
 							</div>
 						</div>
 					</div>
@@ -354,7 +362,10 @@
 							</div>
 						</div>
 
-
+						<div id="rateLimitWarning" class="hidden text-xs text-yellow-800 p-2 bg-yellow-50 border border-yellow-200 rounded-xl mt-2 flex items-center justify-between">
+							<span id="rateLimitWarningText" data-i18n="rateLimitWarningMessage">Some data may be missing due to GitHub rate limit. Please add or check your GitHub token in settings.</span>
+							<button id="closeRateLimitWarning" class="text-yellow-800 hover:text-yellow-900 font-bold ml-2" style="background: none; border: none; cursor: pointer; font-size: 14px;">&times;</button>
+						</div>
 					</div>
 					<div class="border-gray-100 border-2 bg-white rounded-3xl px-4 py-2 mx-2 my-2">
 						<div>
@@ -369,7 +380,7 @@
 				</div>
 
 				<div id="settingsSection" class="tab-content hidden">
-					<div class="orgSection">
+					<div class="githubOnlySection">
 						<div>
 							<div class="flex items-center justify-between">
 								<div class="flex">
@@ -408,33 +419,36 @@
 								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2 pr-10"
 								data-i18n-placeholder="githubTokenPlaceholder">
 						</div>
-						<div class="githubOnlySection">
-							<div class="flex items-center mt-4">
-								<p class="text-sm font-semibold" data-i18n="settingsOrgNameLabel">Your Organization Name
-								</p>
-								<span class="tooltip-container ml-2">
-									<i class="fa fa-question-circle question-icon"></i>
-									<span class="tooltip-bubble" data-i18n="orgNameTooltip">
-										<b>Which organization's GitHub activity?</b><br>
-										Enter the GitHub organization name to fetch activities for. Leave empty to fetch
-										all
-										your GitHub
-										activities across all organizations.
-										Organization name is not case-sensitive.
-									</span>
+					</div>
+
+					<div class="orgSection">
+						<div class="flex items-center mt-4">
+							<p class="text-sm font-semibold" data-i18n="settingsOrgNameLabel">Your Organization Name
+							</p>
+							<span class="tooltip-container ml-2">
+								<i class="fa fa-question-circle question-icon"></i>
+								<span class="tooltip-bubble" data-i18n="orgNameTooltip">
+									<b>Which organization's GitHub activity?</b><br>
+									Enter the GitHub organization name to fetch activities for. Leave empty to fetch
+									all
+									your GitHub
+									activities across all organizations.
+									Organization name is not case-sensitive.
 								</span>
-							</div>
-							<input id="orgInput" type="text"
-								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
-								data-i18n-placeholder="settingsOrgNamePlaceholder"
-								style="margin-top: 0.3rem; margin-bottom: 0.8rem;">
-
-							<!-- Organization validation feedback -->
-							<div id="orgValidationMessage" class="hidden text-xs mt-1 mb-2 px-3 py-2 rounded-lg">
-								<span id="orgValidationText"></span>
-							</div>
+							</span>
 						</div>
+						<input id="orgInput" type="text"
+							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
+							data-i18n-placeholder="settingsOrgNamePlaceholder"
+							style="margin-top: 0.3rem; margin-bottom: 0.8rem;">
 
+						<!-- Organization validation feedback -->
+						<div id="orgValidationMessage" class="hidden text-xs mt-1 mb-2 px-3 py-2 rounded-lg">
+							<span id="orgValidationText"></span>
+						</div>
+					</div>
+
+					<div class="githubOnlySection">
 						<div class="mb-4">
 							<div class="flex items-center justify-between mb-2">
 								<p class="text-sm font-medium">

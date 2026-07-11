@@ -162,6 +162,25 @@ function checkTokenForFilter() {
 	}, 4000);
 }
 
+function makeRepoCacheKey(username, orgName, platform, storageItems) {
+	const org = orgName || '';
+	if (platform === 'github') {
+		const token = (storageItems?.githubToken || '').trim();
+		if (!token) {
+			return `repos-${username}-${org}-notoken`;
+		}
+		let hash = 0;
+		for (let i = 0; i < token.length; i++) {
+			const char = token.charCodeAt(i);
+			hash = (hash << 5) - hash + char;
+			hash |= 0; // Convert to 32bit integer
+		}
+		const fingerprint = (hash >>> 0).toString(36);
+		return `repos-${username}-${org}-token-${fingerprint}`;
+	}
+	return `repos-${username}-${org}`;
+}
+
 // Trigger repo fetch when repo filtering is enabled (moved from popup.js)
 async function triggerRepoFetchIfEnabled() {
 	const context = getGithubRepoFilterContext();
@@ -221,7 +240,7 @@ async function triggerRepoFetchIfEnabled() {
 				repoStatus.textContent = browser.i18n.getMessage('repoLoaded', [repos.length]);
 			}
 
-			const repoCacheKey = `repos-${username}-${items.orgName || ''}`;
+			const repoCacheKey = makeRepoCacheKey(username, items.orgName || '', 'github', items);
 			browser.storage.local.set({
 				repoCache: {
 					data: repos,
@@ -343,7 +362,7 @@ async function performRepoFetch() {
 		const platform = storageItems.platform || 'github';
 		const platformUsernameKey = `${platform}Username`;
 		const username = storageItems[platformUsernameKey];
-		const repoCacheKey = `repos-${username}-${storageItems.orgName || ''}`;
+		const repoCacheKey = makeRepoCacheKey(username, storageItems.orgName || '', 'github', storageItems);
 		const now = Date.now();
 		const cacheAge = cacheData.repoCache?.timestamp ? now - cacheData.repoCache.timestamp : Number.POSITIVE_INFINITY;
 		const cacheTTL = 10 * 60 * 1000; // 10 minutes
@@ -707,15 +726,28 @@ async function githubFetchReviews(username, token, startDate, endDate, orgName, 
 	const orgQuery = orgPart ? `+${orgPart}` : '';
 	let url;
 	if (repoQueries) {
-		url = `https://api.github.com/search/issues?q=commenter%3A${username}+${repoQueries}${orgQuery}+updated%3A${startDate}..${endDate}&per_page=100`;
+		url = `https://api.github.com/search/issues?q=reviewed-by%3A${username}+${repoQueries}${orgQuery}+updated%3A${startDate}..${endDate}&per_page=100`;
 	} else {
-		url = `https://api.github.com/search/issues?q=commenter%3A${username}${orgQuery}+updated%3A${startDate}..${endDate}&per_page=100`;
+		url = `https://api.github.com/search/issues?q=reviewed-by%3A${username}${orgQuery}+updated%3A${startDate}..${endDate}&per_page=100`;
 	}
 	return fetch(url, { headers });
 }
 
 async function githubFetchPullRequests(username, token, startDate, endDate, orgName, repoQueries) {
 	return githubFetchReviews(username, token, startDate, endDate, orgName, repoQueries);
+}
+
+async function githubFetchPrReviews(owner, repo, prNumber, token) {
+	const headers = { Accept: 'application/vnd.github.v3+json' };
+	if (token) {
+		headers.Authorization = `token ${token}`;
+	}
+	const url = `https://api.github.com/repos/${owner}/${repo}/pulls/${prNumber}/reviews`;
+	const res = await fetch(url, { headers });
+	if (!res.ok) {
+		throw new Error(`Failed to fetch reviews for ${owner}/${repo}#${prNumber}: ${res.status} ${res.statusText}`);
+	}
+	return res.json();
 }
 
 async function githubFetchCommits(prs, githubToken, startDate, endDate) {
@@ -817,6 +849,7 @@ async function githubFetchPrMergedStatusREST(owner, repo, number, token) {
 window.githubFetchUser = githubFetchUser;
 window.githubFetchIssues = githubFetchIssues;
 window.githubFetchReviews = githubFetchReviews;
+window.githubFetchPrReviews = githubFetchPrReviews;
 window.githubFetchPullRequests = githubFetchPullRequests;
 window.githubFetchCommits = githubFetchCommits;
 window.githubFetchPrMergedStatusREST = githubFetchPrMergedStatusREST;
