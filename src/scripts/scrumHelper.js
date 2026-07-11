@@ -367,6 +367,7 @@ function allIncluded(outputTarget = 'email') {
 										startingDate,
 										endingDate,
 										gitlabToken,
+										orgName,
 									);
 
 									const mappedData = window.gitlabHelper.mapGitLabReportData(data);
@@ -406,7 +407,7 @@ function allIncluded(outputTarget = 'email') {
 							})();
 						} else {
 							window.gitlabHelper
-								.fetchGitLabData(platformUsernameLocal, startingDate, endingDate, gitlabToken)
+								.fetchGitLabData(platformUsernameLocal, startingDate, endingDate, gitlabToken, orgName)
 								.then((data) => {
 									const mappedData = window.gitlabHelper.mapGitLabReportData(data);
 									processGithubData(mappedData);
@@ -1226,8 +1227,8 @@ ${blockerText}`;
 			if (scrumReport) {
 				log('Found popup div, updating content');
 				scrumReport.innerHTML = sanitizeHtml(content);
-				window.updateCopyButtonState?.();
 				delete scrumReport.dataset.copyPlaceholder;
+				window.updateCopyButtonState?.();
 				try {
 					const cacheKey =
 						platform === 'gitlab' ? (window.gitlabHelper?.cache?.cacheKey ?? null) : (githubCache?.cacheKey ?? null);
