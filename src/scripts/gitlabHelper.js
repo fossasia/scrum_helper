@@ -6,6 +6,24 @@ function normalizeGitLabApiBaseUrl(apiBaseUrl) {
 	return value.replace(/\/+$/, '');
 }
 
+function getProjectPathFromWebUrl(webUrl) {
+	if (!webUrl) return '';
+	try {
+		const urlObj = new URL(webUrl);
+		let projectPath = urlObj.pathname;
+		if (projectPath.startsWith('/')) {
+			projectPath = projectPath.substring(1);
+		}
+		const delimiterIdx = projectPath.indexOf('/-/');
+		if (delimiterIdx !== -1) {
+			projectPath = projectPath.substring(0, delimiterIdx);
+		}
+		return projectPath;
+	} catch (e) {
+		return '';
+	}
+}
+
 class GitLabHelper {
 	constructor(apiBaseUrl = DEFAULT_GITLAB_API_BASE_URL) {
 		this.baseUrl = normalizeGitLabApiBaseUrl(apiBaseUrl);
@@ -121,12 +139,27 @@ class GitLabHelper {
 				// Fetch group merge requests
 				const groupMRsUrl = `${this.baseUrl}/groups/${encodeURIComponent(orgName)}/merge_requests?author_username=${encodeURIComponent(username)}&created_after=${startDate}T00:00:00Z&created_before=${endDate}T23:59:59Z&per_page=100&order_by=updated_at&sort=desc`;
 				const groupMRsRes = await fetch(groupMRsUrl, { headers });
-				const allMergeRequests = groupMRsRes.ok ? await groupMRsRes.json() : [];
+				let allMergeRequests = groupMRsRes.ok ? await groupMRsRes.json() : [];
 
 				// Fetch group issues
 				const groupIssuesUrl = `${this.baseUrl}/groups/${encodeURIComponent(orgName)}/issues?author_username=${encodeURIComponent(username)}&created_after=${startDate}T00:00:00Z&created_before=${endDate}T23:59:59Z&per_page=100&order_by=updated_at&sort=desc`;
 				const groupIssuesRes = await fetch(groupIssuesUrl, { headers });
-				const allIssues = groupIssuesRes.ok ? await groupIssuesRes.json() : [];
+				let allIssues = groupIssuesRes.ok ? await groupIssuesRes.json() : [];
+
+				const filterSettings = await chrome.storage.local.get(['useRepoFilter', 'selectedRepos']);
+				if (filterSettings.useRepoFilter && filterSettings.selectedRepos && filterSettings.selectedRepos.length > 0) {
+					const selectedNames = new Set(
+						filterSettings.selectedRepos.map((r) => (typeof r === 'object' ? r.fullName : r).toLowerCase()),
+					);
+					allMergeRequests = allMergeRequests.filter((mr) => {
+						const path = getProjectPathFromWebUrl(mr.web_url).toLowerCase();
+						return selectedNames.has(path);
+					});
+					allIssues = allIssues.filter((issue) => {
+						const path = getProjectPathFromWebUrl(issue.web_url).toLowerCase();
+						return selectedNames.has(path);
+					});
+				}
 
 				// Fetch user info for header mapping
 				const userUrl = `${this.baseUrl}/users?username=${encodeURIComponent(username)}`;
@@ -209,7 +242,15 @@ class GitLabHelper {
 				for (const p of [...membershipProjects, ...contributedProjects]) {
 					allProjectsMap.set(p.id, p);
 				}
-				const allProjects = Array.from(allProjectsMap.values());
+				let allProjects = Array.from(allProjectsMap.values());
+
+				const filterSettings = await chrome.storage.local.get(['useRepoFilter', 'selectedRepos']);
+				if (filterSettings.useRepoFilter && filterSettings.selectedRepos && filterSettings.selectedRepos.length > 0) {
+					const selectedNames = new Set(
+						filterSettings.selectedRepos.map((r) => (typeof r === 'object' ? r.fullName : r).toLowerCase()),
+					);
+					allProjects = allProjects.filter((p) => selectedNames.has(p.path_with_namespace.toLowerCase()));
+				}
 
 				// Fetch merge requests from each project (works without auth for public projects)
 				let allMergeRequests = [];
@@ -429,44 +470,237 @@ window['forceGitlabDataRefresh'] = forceGitlabDataRefresh;
 
 if (window.PlatformRegistry) {
 	window.PlatformRegistry.register('gitlab', {
-		hasRepoFilter: false,
-		checkTokenForFilter() {},
+		hasRepoFilter: true,
+		checkTokenForFilter() {
+			const useFilter = document.getElementById('useRepoFilter');
+			const token = document.getElementById('gitlabToken');
+			const warning = document.getElementById('tokenWarningForFilter');
+			const container = document.getElementById('repoFilterContainer');
+			if (useFilter?.checked && !token?.value.trim()) {
+				useFilter.checked = false;
+				container?.classList.add('hidden');
+				warning?.classList.remove('hidden');
+			} else {
+				warning?.classList.add('hidden');
+			}
+		},
 		checkTokenForShowCommits() {},
-		checkTokenForMergedPRs() {},
-		triggerRepoFetchIfEnabled() {},
+		checkTokenForMergedPRs({ persistState = false } = {}) {
+			const mergedPRsCheckbox = document.getElementById('onlyMergedPRs');
+			if (!mergedPRsCheckbox) return;
+			const warning = document.getElementById('tokenWarningForMergedPRs');
+			if (warning) warning.classList.add('hidden');
+			if (persistState) chrome?.storage.local.set({ onlyMergedPRs: mergedPRsCheckbox.checked });
+		},
+		async triggerRepoFetchIfEnabled() {
+			const context = window.githubRepoFilterContext;
+			if (!context || !context.useRepoFilter?.checked) return;
+			const { repoStatus, setAvailableRepos } = context;
+			if (repoStatus) repoStatus.textContent = browser.i18n.getMessage('repoRefetching');
+			try {
+				const items = await browser.storage.local.get(['gitlabUsername', 'gitlabToken', 'orgName']);
+				if (!items.gitlabUsername) {
+					if (repoStatus)
+						repoStatus.textContent = chrome?.i18n.getMessage('usernameMissingError') || 'Username required';
+					return;
+				}
+				const repos = await this.fetchUserRepositories(items.gitlabUsername, items.gitlabToken, items.orgName || '');
+				setAvailableRepos?.(repos);
+				if (repoStatus) repoStatus.textContent = browser.i18n.getMessage('repoLoaded', [repos.length]);
+				const key = makeRepoCacheKey(items.gitlabUsername, items.orgName || '', 'gitlab', items);
+				browser.storage.local.set({ repoCache: { data: repos, cacheKey: key, timestamp: Date.now() } });
+			} catch (err) {
+				if (repoStatus) repoStatus.textContent = `Error: ${err.message}`;
+			}
+		},
 		debugRepoFetch() {},
-		loadRepos() {},
-		performRepoFetch() {},
+		async loadRepos() {
+			const items = await browser.storage.local.get(['gitlabUsername']);
+			if (!items.gitlabUsername) {
+				const context = window.githubRepoFilterContext;
+				if (context?.repoStatus)
+					context.repoStatus.textContent = chrome?.i18n.getMessage('usernameMissingError') || 'Username required';
+				return;
+			}
+			this.performRepoFetch();
+		},
+		async performRepoFetch() {
+			const context = window.githubRepoFilterContext;
+			if (!context) return;
+			const { repoStatus, repoSearch, filterAndDisplayRepos, setAvailableRepos, getAvailableRepos } = context;
+			repoStatus.textContent = browser.i18n.getMessage('repoLoading');
+			repoSearch.classList.add('repository-search-loading');
+			try {
+				const cache = await browser.storage.local.get(['repoCache']);
+				const items = await browser.storage.local.get(['gitlabUsername', 'gitlabToken', 'orgName']);
+				const key = makeRepoCacheKey(items.gitlabUsername, items.orgName || '', 'gitlab', items);
+				if (cache.repoCache?.cacheKey === key && Date.now() - cache.repoCache.timestamp < 600000) {
+					setAvailableRepos(cache.repoCache.data);
+				} else {
+					const repos = await this.fetchUserRepositories(items.gitlabUsername, items.gitlabToken, items.orgName || '');
+					setAvailableRepos(repos);
+					browser.storage.local.set({ repoCache: { data: repos, cacheKey: key, timestamp: Date.now() } });
+				}
+				repoStatus.textContent = browser.i18n.getMessage('repoLoaded', [getAvailableRepos().length]);
+				if (document.activeElement === repoSearch) filterAndDisplayRepos(repoSearch.value.toLowerCase());
+			} catch (err) {
+				repoStatus.textContent = `Error: ${err.message}`;
+			} finally {
+				repoSearch.classList.remove('repository-search-loading');
+			}
+		},
 		validateOrgOnBlur(org) {
-			console.log('[Org Check] Checking GitLab group on blur:', org);
 			const baseUrl = window.gitlabBaseUrl || 'https://gitlab.com/api/v4';
 			chrome.storage.local.get(['gitlabToken']).then((result) => {
 				const headers = {};
-				if (result.gitlabToken) {
-					headers['PRIVATE-TOKEN'] = result.gitlabToken;
-				}
+				if (result.gitlabToken) headers['PRIVATE-TOKEN'] = result.gitlabToken;
 				fetch(`${baseUrl}/groups/${encodeURIComponent(org)}`, { headers })
 					.then((res) => {
-						console.log('[Org Check] GitLab response status:', res.status);
 						if (res.status === 404) {
-							if (window.showPopupMessage) {
-								window.showPopupMessage('Organization not found', { variant: 'error' });
-							}
+							if (window.showPopupMessage) window.showPopupMessage('Organization not found', { variant: 'error' });
 							return;
 						}
 						window.clearScrumHelperToast?.();
 						chrome.storage.local.remove(['gitlabCache']);
 					})
 					.catch((err) => {
-						console.error('[Org Check] GitLab validate error:', err);
-						if (window.showPopupMessage) {
-							window.showPopupMessage('Error validating organization', { variant: 'error' });
-						}
+						if (window.showPopupMessage) window.showPopupMessage('Error validating organization', { variant: 'error' });
 					});
 			});
 		},
-		fetchUserRepositories() {
-			return Promise.resolve([]);
+		async fetchUserRepositories(username, token, org = '') {
+			const baseUrl = window.gitlabBaseUrl || 'https://gitlab.com/api/v4';
+			const headers = {};
+			if (token) {
+				headers['PRIVATE-TOKEN'] = token;
+			}
+
+			console.log('[GitLab repo filter] Fetching GitLab user info for:', username);
+			const userRes = await fetch(`${baseUrl}/users?username=${encodeURIComponent(username)}`, { headers });
+			if (!userRes.ok) {
+				throw new Error(`GitLab user fetch failed: ${userRes.status}`);
+			}
+			const users = await userRes.json();
+			if (!users.length) {
+				throw new Error(`GitLab user not found: ${username}`);
+			}
+			const userId = users[0].id;
+
+			let startDate;
+			let endDate;
+			try {
+				const storageData = await new Promise((resolve) => {
+					chrome.storage.local.get(['startingDate', 'endingDate', 'yesterdayContribution'], resolve);
+				});
+
+				if (storageData.yesterdayContribution) {
+					const today = new Date();
+					const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+					startDate = yesterday.toISOString().split('T')[0];
+					endDate = today.toISOString().split('T')[0];
+				} else if (storageData.startingDate && storageData.endingDate) {
+					startDate = storageData.startingDate;
+					endDate = storageData.endingDate;
+				} else {
+					const today = new Date();
+					const lastWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
+					startDate = lastWeek.toISOString().split('T')[0];
+					endDate = today.toISOString().split('T')[0];
+				}
+			} catch (err) {
+				console.warn('[GitLab repo filter] Could not determine date range, using last 30 days:', err);
+				const today = new Date();
+				const thirtyDaysAgo = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 30);
+				startDate = thirtyDaysAgo.toISOString().split('T')[0];
+				endDate = today.toISOString().split('T')[0];
+			}
+
+			console.log(`[GitLab repo filter] Fetching events for userId: ${userId} between ${startDate} and ${endDate}`);
+
+			const eventsUrl = `${baseUrl}/users/${userId}/events?after=${startDate}&before=${endDate}&per_page=100`;
+			const eventsRes = await fetch(eventsUrl, { headers });
+			if (!eventsRes.ok) {
+				throw new Error(`GitLab events fetch failed: ${eventsRes.status}`);
+			}
+			const events = await eventsRes.json();
+
+			const projectIds = Array.from(new Set(events.map((e) => e.project_id).filter((id) => !!id)));
+			console.log(`[GitLab repo filter] Found ${projectIds.length} unique project IDs from push events`);
+
+			if (projectIds.length === 0) {
+				return [];
+			}
+
+			const repos = [];
+			const fetchPromises = projectIds.map(async (projectId) => {
+				try {
+					const projectRes = await fetch(`${baseUrl}/projects/${projectId}`, { headers });
+					if (projectRes.ok) {
+						const project = await projectRes.json();
+
+						// If this project is a fork, we ONLY include the original/upstream project.
+						// Otherwise, we include the project itself.
+						if (project.forked_from_project) {
+							const upstream = project.forked_from_project;
+							let includeUpstream = true;
+							if (org && org !== 'all') {
+								const upstreamPath = upstream.path_with_namespace?.toLowerCase() || '';
+								const orgLower = org.toLowerCase();
+
+								if (!upstreamPath.startsWith(orgLower + '/')) {
+									includeUpstream = false;
+								}
+							}
+
+							if (includeUpstream) {
+								repos.push({
+									name: upstream.name,
+									fullName: upstream.path_with_namespace,
+									description: upstream.description || '',
+									language: null,
+									updatedAt: project.last_activity_at, // Use the fork's activity timestamp as the user contribution date
+									stars: upstream.star_count || 0,
+								});
+							}
+						} else {
+							let includeProject = true;
+							if (org && org !== 'all') {
+								const namespacePath = project.namespace?.path?.toLowerCase() || '';
+								const pathWithNamespace = project.path_with_namespace?.toLowerCase() || '';
+								const orgLower = org.toLowerCase();
+
+								if (namespacePath !== orgLower && !pathWithNamespace.startsWith(orgLower + '/')) {
+									includeProject = false;
+								}
+							}
+
+							if (includeProject) {
+								repos.push({
+									name: project.name,
+									fullName: project.path_with_namespace,
+									description: project.description || '',
+									language: null,
+									updatedAt: project.last_activity_at,
+									stars: project.star_count || 0,
+								});
+							}
+						}
+					}
+				} catch (err) {
+					console.error(`[GitLab repo filter] Failed to fetch project ${projectId}:`, err);
+				}
+			});
+
+			await Promise.all(fetchPromises);
+
+			// Deduplicate repos by fullName
+			const uniqueReposMap = new Map();
+			for (const repo of repos) {
+				uniqueReposMap.set(repo.fullName.toLowerCase(), repo);
+			}
+			const uniqueRepos = Array.from(uniqueReposMap.values());
+
+			return uniqueRepos.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
 		},
 		fetchPrsMergedStatusBatch() {
 			return Promise.resolve({});
