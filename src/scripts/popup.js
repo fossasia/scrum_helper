@@ -953,19 +953,17 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 
 		// Save to storage and validate ONLY when user clicks out (blur event)
-		if (orgInput) {
-			orgInput.addEventListener('blur', () => {
-				const org = orgInput.value.trim().toLowerCase();
-				browser.storage.local.set({ orgName: org });
+		orgInput.addEventListener('blur', () => {
+			const org = orgInput.value.trim().toLowerCase();
+			browser.storage.local.set({ orgName: org });
 
-				// Only validate if org name is not empty
-				if (org) {
-					validateOrgOnBlur(org);
-				} else {
-					window.clearScrumHelperToast?.();
-				}
-			});
-		}
+			// Only validate if org name is not empty
+			if (org) {
+				handleOrgInputBlurValidation(org);
+			} else {
+				window.clearScrumHelperToast?.();
+			}
+		});
 		if (userReasonInput) {
 			userReasonInput.addEventListener('input', () => {
 				browser.storage.local.set({ userReason: userReasonInput.value });
@@ -1299,9 +1297,9 @@ document.addEventListener('DOMContentLoaded', () => {
 				}
 				repoFilterContainer.classList.toggle('hidden', !enabled);
 
-				browser.storage.local.set({
+				await browser.storage.local.set({
 					useRepoFilter: enabled,
-					githubCache: null, //forces refresh
+					repoCache: null, // forces refresh
 				});
 				checkTokenForFilter();
 				if (enabled) {
@@ -1782,7 +1780,7 @@ function updatePlatformUI(platform) {
 
 	const orgSection = document.querySelector('.orgSection');
 	if (orgSection) {
-		if (platform === 'github') {
+		if (platform === 'github' || platform === 'gitlab') {
 			orgSection.classList.remove('hidden');
 		} else {
 			orgSection.classList.add('hidden');
@@ -2311,7 +2309,7 @@ document.addEventListener('keydown', (e) => {
 });
 
 // Validate organization only when user is done typing (on blur)
-function validateOrgOnBlur(org) {
+function handleOrgInputBlurValidation(org) {
 	const platformSelect = document.getElementById('platformSelect');
 	const platform = platformSelect?.value || 'github';
 	const helper = window.PlatformRegistry.get(platform);
