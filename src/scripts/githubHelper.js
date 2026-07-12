@@ -164,8 +164,8 @@ function checkTokenForFilter() {
 
 function makeRepoCacheKey(username, orgName, platform, storageItems) {
 	const org = orgName || '';
-	if (platform === 'github') {
-		const token = (storageItems?.githubToken || '').trim();
+	if (platform === 'github' || platform === 'gitlab') {
+		const token = (platform === 'gitlab' ? storageItems?.gitlabToken || '' : storageItems?.githubToken || '').trim();
 		if (!token) {
 			return `repos-${username}-${org}-notoken`;
 		}
