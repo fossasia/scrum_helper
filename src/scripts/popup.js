@@ -1684,6 +1684,11 @@ function updatePlatformUI(platform) {
 		}
 	}
 
+	const orgInput = document.getElementById('orgInput');
+	if (orgInput) {
+		orgInput.placeholder = platform === 'gitlab' ? 'Enter group name' : 'Enter organization name';
+	}
+
 	const orgSection = document.querySelector('.orgSection');
 	if (orgSection) {
 		if (platform === 'github' || platform === 'gitlab') {
