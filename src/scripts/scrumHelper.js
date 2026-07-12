@@ -955,7 +955,16 @@ function allIncluded(outputTarget = 'email') {
 
 		try {
 			log('Fetching repos automatically');
-			const repos = await fetchUserRepositories(platformUsernameLocal, githubToken, orgName);
+			let repos;
+			const helper = window.PlatformRegistry?.get(platform);
+			if (helper && helper.fetchUserRepositories) {
+				const token = platform === 'gitlab' ? gitlabToken : githubToken;
+				repos = await helper.fetchUserRepositories(platformUsernameLocal, token, orgName);
+			} else if (window.fetchUserRepositories) {
+				repos = await window.fetchUserRepositories(platformUsernameLocal, githubToken, orgName);
+			} else {
+				repos = [];
+			}
 
 			githubCache.repoData = repos;
 			githubCache.repoTimeStamp = now;
