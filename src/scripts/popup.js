@@ -1281,9 +1281,9 @@ document.addEventListener('DOMContentLoaded', () => {
 				}
 				repoFilterContainer.classList.toggle('hidden', !enabled);
 
-				browser.storage.local.set({
+				await browser.storage.local.set({
 					useRepoFilter: enabled,
-					githubCache: null, //forces refresh
+					repoCache: null, // forces refresh
 				});
 				checkTokenForFilter();
 				if (enabled) {
