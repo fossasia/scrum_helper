@@ -249,17 +249,29 @@ class EmailClientAdapter {
 		const config = this.clientConfigs[clientType];
 
 		try {
+			const sanitizedContent = sanitizeHtml(content);
+			const containerClass = 'scrum-helper-report-container';
+
+			const performInjection = (el) => {
+				const container = el.querySelector(`.${containerClass}`);
+				if (container) {
+					container.innerHTML = sanitizedContent;
+				} else {
+					el.innerHTML = `<div class="${containerClass}">${sanitizedContent}</div><br><br>` + el.innerHTML;
+				}
+			};
+
 			switch (config?.injectMethod) {
 				case 'focusAndPaste':
 					// Special handling for Outlook
 					element.focus();
-					element.innerHTML = sanitizeHtml(content);
+					performInjection(element);
 					this.dispatchElementEvents(element, ['input', 'change'], true);
 					break;
 
 				case 'setContent': {
 					// Special handling for Yahoo
-					element.innerHTML = sanitizeHtml(content);
+					performInjection(element);
 					element.focus();
 					// Force Yahoo's editor to recognize the change
 					const selection = window.getSelection();
@@ -273,7 +285,7 @@ class EmailClientAdapter {
 
 				default:
 					// Default handling for Google clients
-					element.innerHTML = sanitizeHtml(content);
+					performInjection(element);
 					element.dispatchEvent(new Event(eventType, { bubbles: true }));
 			}
 			return true;
