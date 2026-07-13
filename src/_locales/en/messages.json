@@ -94,6 +94,10 @@
     "message": "Enter organization name",
     "description": "Placeholder for the organization name input."
   },
+  "gitlabOrgNamePlaceholder": {
+    "message": "Enter group name",
+    "description": "Placeholder for the GitLab group name input."
+  },
   "setButton": {
     "message": "Set",
     "description": "Text for the 'Set' button for the organization."

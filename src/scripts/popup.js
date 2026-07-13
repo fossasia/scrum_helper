@@ -1686,7 +1686,12 @@ function updatePlatformUI(platform) {
 
 	const orgInput = document.getElementById('orgInput');
 	if (orgInput) {
-		orgInput.placeholder = platform === 'gitlab' ? 'Enter group name' : 'Enter organization name';
+		const key = platform === 'gitlab' ? 'gitlabOrgNamePlaceholder' : 'settingsOrgNamePlaceholder';
+		orgInput.setAttribute('data-i18n-placeholder', key);
+		const message = browser.i18n.getMessage(key);
+		if (message) {
+			orgInput.placeholder = message;
+		}
 	}
 
 	const orgSection = document.querySelector('.orgSection');
