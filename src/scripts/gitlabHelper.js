@@ -430,7 +430,39 @@ async function forceGitlabDataRefresh() {
 
 window['forceGitlabDataRefresh'] = forceGitlabDataRefresh;
 
-function checkTokenForFilter() {
+function getGitlabRepoFilterContext() {
+	const repoFilterContainer = document.getElementById('repositoryFilterContainer');
+	const useRepoFilter = document.getElementById('useRepoFilter');
+	const repoSearch = document.getElementById('repoSearch');
+	const availableReposList = document.getElementById('availableReposList');
+	const repoStatus = document.getElementById('repoStatus');
+
+	if (!repoFilterContainer || !useRepoFilter || !repoSearch || !availableReposList || !repoStatus) {
+		return null;
+	}
+
+	return {
+		repoFilterContainer,
+		useRepoFilter,
+		repoSearch,
+		availableReposList,
+		repoStatus,
+		filterAndDisplayRepos: window.filterAndDisplayRepos,
+		setAvailableRepos: window.setAvailableRepos,
+		getAvailableRepos: window.getAvailableRepos,
+		setIsFetchingRepos: window.setIsFetchingRepos,
+	};
+}
+
+function gitlabMakeRepoCacheKey(username, org, platform, items) {
+	const platformToken = items[`${platform}Token`];
+	if (platformToken) {
+		return `${username}_${org}_${platform}_${platformToken.substring(0, 8)}`;
+	}
+	return `${username}_${org}_${platform}`;
+}
+
+function gitlabCheckTokenForFilter() {
 	const gitlabTokenInput = document.getElementById('gitlabToken');
 
 	const tokenWarningForFilter = document.getElementById('tokenWarningForFilter');
@@ -472,7 +504,7 @@ function checkTokenForFilter() {
 	}
 }
 
-async function triggerRepoFetchIfEnabled() {
+async function gitlabTriggerRepoFetchIfEnabled() {
 	const context = getGitlabRepoFilterContext();
 
 	if (!context) return;
@@ -502,11 +534,11 @@ async function triggerRepoFetchIfEnabled() {
 			return;
 		}
 
-		performRepoFetch();
+		gitlabPerformRepoFetch();
 	});
 }
 
-async function loadRepos() {
+async function gitlabLoadRepos() {
 	const context = getGitlabRepoFilterContext();
 
 	if (!context) return;
@@ -528,11 +560,11 @@ async function loadRepos() {
 			return;
 		}
 
-		performRepoFetch();
+		gitlabPerformRepoFetch();
 	});
 }
 
-async function performRepoFetch() {
+async function gitlabPerformRepoFetch() {
 	const context = getGitlabRepoFilterContext();
 
 	if (!context) return;
@@ -553,7 +585,7 @@ async function performRepoFetch() {
 
 		const username = storageItems.gitlabUsername;
 
-		const repoCacheKey = makeRepoCacheKey(username, storageItems.orgName || '', 'gitlab', storageItems);
+		const repoCacheKey = gitlabMakeRepoCacheKey(username, storageItems.orgName || '', 'gitlab', storageItems);
 
 		const now = Date.now();
 
