@@ -39,6 +39,7 @@
         "scripts/emailClientAdapter.js",
         "scripts/gitlabHelper.js",
         "scripts/githubHelper.js",
+        "scripts/bitbucketHelper.js",
         "scripts/scrumHelper.js"
       ]
     }

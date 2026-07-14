@@ -146,6 +146,10 @@
 									class="hover:bg-gray-100" data-value="gitlab">
 									<i class="fab fa-gitlab" style="margin-right: 12px; font-size: 18px;"></i> GitLab
 								</li>
+								<li style="padding-left: 8px; padding-right: 16px; padding-top: 8px; padding-bottom: 8px; display: flex; align-items: center; cursor: pointer;"
+									class="hover:bg-gray-100" data-value="bitbucket">
+									<i class="fab fa-bitbucket" style="margin-right: 12px; font-size: 18px;"></i> Bitbucket
+								</li>
 							</ul>
 						</div>
 					</div>
@@ -265,7 +269,7 @@
 								</div>
 							</div>
 
-							<div class="my-4">
+							<div class="my-4" id="reviewedPrsContainer">
 								<div class="flex items-center">
 									<input type="checkbox" id="onlyRevPRs" class="form-checkbox text-blue-600">
 									<label for="onlyRevPRs" class="font-medium text-sm flex items-center"
@@ -547,6 +551,33 @@
 							data-i18n-placeholder="gitlabTokenPlaceholder">
 					</div>
 
+					<div class="bitbucketOnlySection hidden mt-3">
+						<div class="flex items-center justify-between">
+							<div class="flex">
+								<p class="text-sm font-medium" data-i18n="bitbucketTokenLabel">Your Bitbucket Token</p>
+								<span class="tooltip-container">
+									<i class="fa fa-question-circle question-icon"></i>
+									<span class="tooltip-bubble" data-i18n="bitbucketTokenTooltip">
+										<b>Why add a Bitbucket token?</b><br>
+										Scrum Helper works without a token for public repositories, but a personal access token or app password enables access to private repositories and avoids rate limits. Your token stays local.<br><br>
+										<b>How to get one:</b><br>
+										1. Go to your Bitbucket settings.<br>
+										2. Click "App passwords" or "Personal access tokens".<br>
+										3. Create a token with read access to repositories, pull requests, and issues.<br>
+										4. Paste it here.<br>
+										<i>Keep it secret!</i>
+									</span>
+								</span>
+							</div>
+							<button id="toggleBitbucketTokenVisibility" type="button" class="focus:outline-none">
+								<i id="bitbucketTokenEyeIcon" class="fa fa-eye text-gray-600"></i>
+							</button>
+						</div>
+						<input id="bitbucketToken" type="password"
+							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2 pr-10"
+							data-i18n-placeholder="bitbucketTokenPlaceholder">
+					</div>
+
 					<div class="cacheSection mt-3">
 						<div class="flex items-center justify-between mb-2">
 							<div class="flex items-center">
@@ -644,6 +675,7 @@
 	<script src="scripts/popup.js"></script>
 	<script src="scripts/githubHelper.js"></script>
 	<script src="scripts/gitlabHelper.js"></script>
+	<script src="scripts/bitbucketHelper.js"></script>
 	<script src="scripts/scrumHelper.js"></script>
 	
 
