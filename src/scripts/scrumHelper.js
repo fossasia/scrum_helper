@@ -157,6 +157,8 @@ function allIncluded(outputTarget = 'email') {
 	let reviewedPrsArray = [];
 	let weeklyPrsList = [];
 	let weeklyIssuesList = [];
+	let seenPrNumbers = new Set();
+	let seenIssueNumbers = new Set();
 	let githubIssuesData = null;
 	let yesterdayContribution = false;
 	let weeklyContribution = false;
@@ -1073,6 +1075,8 @@ function allIncluded(outputTarget = 'email') {
 		reviewedPrsArray = [];
 		weeklyPrsList = [];
 		weeklyIssuesList = [];
+		seenPrNumbers.clear();
+		seenIssueNumbers.clear();
 		githubPrsReviewDataProcessed = {};
 		issuesDataProcessed = false;
 		prsReviewDataProcessed = false;
@@ -1103,14 +1107,7 @@ function allIncluded(outputTarget = 'email') {
 				weekOrDay2 = 'this week';
 			}
 
-			let content;
-			if (weeklyContribution) {
-				content = buildWeeklySummaryHtml();
-			} else if (yesterdayContribution) {
-				content = `<b>1. What did I do ${weekOrDay}?</b><br>${lastWeekUl}<br><b>2. What do I plan to do ${weekOrDay2}?</b><br>${nextWeekUl}<br><b>3. What is blocking me from making progress?</b><br>${blockerText}`;
-			} else {
-				content = `<b>1. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?</b><br>${lastWeekUl}<br><b>2. What do I plan to do ${weekOrDay2}?</b><br>${nextWeekUl}<br><b>3. What is blocking me from making progress?</b><br>${blockerText}`;
-			}
+			const content = getScrumContent(lastWeekUl, nextWeekUl, blockerText);
 			// Wait for both subject and body to be available, then inject both
 			let injected = false;
 			const interval = setInterval(() => {
@@ -1236,10 +1233,10 @@ function allIncluded(outputTarget = 'email') {
 		return html;
 	}
 
-	function writeScrumBody() {
-		const lastWeekUl = buildActivityListHtml();
-		const nextWeekUl = buildNextWeekListHtml();
-		const blockerText = buildBlockerTextHtml();
+	function getScrumContent(lastWeekUl, nextWeekUl, blockerText) {
+		if (weeklyContribution) {
+			return buildWeeklySummaryHtml();
+		}
 
 		let weekOrDay = 'the period';
 		let weekOrDay2 = 'today';
@@ -1251,24 +1248,18 @@ function allIncluded(outputTarget = 'email') {
 			weekOrDay2 = 'this week';
 		}
 
-		let content;
-		if (weeklyContribution) {
-			content = buildWeeklySummaryHtml();
-		} else if (yesterdayContribution) {
-			content = `<b>1. What did I do ${weekOrDay}?</b><br>
-${lastWeekUl}<br>
-<b>2. What do I plan to do ${weekOrDay2}?</b><br>
-${nextWeekUl}<br>
-<b>3. What is blocking me from making progress?</b><br>
-${blockerText}`;
-		} else {
-			content = `<b>1. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?</b><br>
-${lastWeekUl}<br>
-<b>2. What do I plan to do ${weekOrDay2}?</b><br>
-${nextWeekUl}<br>
-<b>3. What is blocking me from making progress?</b><br>
-${blockerText}`;
+		if (yesterdayContribution) {
+			return `<b>1. What did I do ${weekOrDay}?</b><br>${lastWeekUl}<br><b>2. What do I plan to do ${weekOrDay2}?</b><br>${nextWeekUl}<br><b>3. What is blocking me from making progress?</b><br>${blockerText}`;
 		}
+
+		return `<b>1. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?</b><br>${lastWeekUl}<br><b>2. What do I plan to do ${weekOrDay2}?</b><br>${nextWeekUl}<br><b>3. What is blocking me from making progress?</b><br>${blockerText}`;
+	}
+
+	function writeScrumBody() {
+		const lastWeekUl = buildActivityListHtml();
+		const nextWeekUl = buildNextWeekListHtml();
+		const blockerText = buildBlockerTextHtml();
+		const content = getScrumContent(lastWeekUl, nextWeekUl, blockerText);
 
 		if (outputTarget === 'popup') {
 			const scrumReport = document.getElementById('scrumReport');
@@ -1924,7 +1915,8 @@ ${blockerText}`;
 				log('[SCRUM-DEBUG] Added PR/MR to lastWeekArray:', li, item);
 				lastWeekArray.push(li);
 				if (weeklyContribution) {
-					if (!weeklyPrsList.some((pr) => pr.number === number)) {
+					if (!seenPrNumbers.has(number)) {
+						seenPrNumbers.add(number);
 						weeklyPrsList.push({ number, title, html_url });
 					}
 				}
@@ -2001,7 +1993,8 @@ ${blockerText}`;
 				log('[SCRUM-DEBUG] Added issue to lastWeekArray:', li, item);
 				lastWeekArray.push(li);
 				if (weeklyContribution && isNewIssue) {
-					if (!weeklyIssuesList.some((issue) => issue.number === number)) {
+					if (!seenIssueNumbers.has(number)) {
+						seenIssueNumbers.add(number);
 						weeklyIssuesList.push({ number, title, html_url });
 					}
 				}
