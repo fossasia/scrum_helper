@@ -1201,7 +1201,10 @@ document.addEventListener('DOMContentLoaded', () => {
 									'A GitLab token is required for repository filtering. Please add one in settings.'
 								: chrome?.i18n.getMessage('tokenRequiredWarning') ||
 									'A GitHub token is required for repository filtering. Please add one in the settings.';
-						tokenWarning.innerHTML = `<span>${warningMsg}</span>`;
+						tokenWarning.textContent = '';
+						const span = document.createElement('span');
+						span.textContent = warningMsg;
+						tokenWarning.appendChild(span);
 						tokenWarning.classList.remove('hidden');
 						tokenWarning.classList.add('shake-animation');
 						setTimeout(() => tokenWarning.classList.remove('shake-animation'), 620);
