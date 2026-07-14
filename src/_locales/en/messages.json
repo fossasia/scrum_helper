@@ -44,7 +44,7 @@
     "description": "Radio button option for the last 1 day."
   },
   "lastWeekLabel": {
-    "message": "Previous week",
+    "message": "Previous week summary",
     "description": "Radio button option for the last 7 days."
   },
   "startDateLabel": {
@@ -412,7 +412,7 @@
   "usernameMissingError": {
     "message": "Username required.",
     "description": "Error shown when username is missing."
-   },
+  },
   "generateReportTooltip": {
     "message": "Ctrl+G",
     "description": "Tooltip shortcut for the Generate button. Dynamically replaced with Cmd+G on macOS."

@@ -155,6 +155,8 @@ function allIncluded(outputTarget = 'email') {
 	let lastWeekArray = [];
 	let nextWeekArray = [];
 	let reviewedPrsArray = [];
+	let weeklyPrsList = [];
+	let weeklyIssuesList = [];
 	let githubIssuesData = null;
 	let yesterdayContribution = false;
 	let weeklyContribution = false;
@@ -1069,6 +1071,8 @@ function allIncluded(outputTarget = 'email') {
 		lastWeekArray = [];
 		nextWeekArray = [];
 		reviewedPrsArray = [];
+		weeklyPrsList = [];
+		weeklyIssuesList = [];
 		githubPrsReviewDataProcessed = {};
 		issuesDataProcessed = false;
 		prsReviewDataProcessed = false;
@@ -1100,7 +1104,9 @@ function allIncluded(outputTarget = 'email') {
 			}
 
 			let content;
-			if (yesterdayContribution || weeklyContribution) {
+			if (weeklyContribution) {
+				content = buildWeeklySummaryHtml();
+			} else if (yesterdayContribution) {
 				content = `<b>1. What did I do ${weekOrDay}?</b><br>${lastWeekUl}<br><b>2. What do I plan to do ${weekOrDay2}?</b><br>${nextWeekUl}<br><b>3. What is blocking me from making progress?</b><br>${blockerText}`;
 			} else {
 				content = `<b>1. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?</b><br>${lastWeekUl}<br><b>2. What do I plan to do ${weekOrDay2}?</b><br>${nextWeekUl}<br><b>3. What is blocking me from making progress?</b><br>${blockerText}`;
@@ -1177,6 +1183,59 @@ function allIncluded(outputTarget = 'email') {
 		return wrapCompactText(userReason);
 	}
 
+	function buildWeeklySummaryHtml() {
+		let html = '<b>Previous Week Summary</b><br><ul>';
+
+		// 1. Made or updated existing PR
+		html += '<li><b>Made or updated existing PR :</b>';
+		if (weeklyPrsList.length > 0) {
+			html += '<ul>';
+			for (const pr of weeklyPrsList) {
+				html += `<li><a href="${pr.html_url}" target="_blank" rel="noopener noreferrer">(#${pr.number})</a> - <a href="${pr.html_url}" target="_blank" rel="noopener noreferrer">${escapeHtml(pr.title)}</a></li>`;
+			}
+			html += '</ul>';
+		} else {
+			html += '<ul><li>None</li></ul>';
+		}
+		html += '</li>';
+
+		// 2. Opened issues
+		html += '<li><b>Opened issues :</b>';
+		if (weeklyIssuesList.length > 0) {
+			html += '<ul>';
+			for (const issue of weeklyIssuesList) {
+				html += `<li><a href="${issue.html_url}" target="_blank" rel="noopener noreferrer">${escapeHtml(issue.title)}</a></li>`;
+			}
+			html += '</ul>';
+		} else {
+			html += '<ul><li>None</li></ul>';
+		}
+		html += '</li>';
+
+		// 3. Reviewed PR
+		html += '<li><b>Reviewed PR :</b>';
+		const repos = Object.keys(githubPrsReviewDataProcessed);
+		if (repos.length > 0) {
+			html += '<ul>';
+			for (const repo of repos) {
+				html += `<li>${escapeHtml(repo)}<ul><li>`;
+				const prs = githubPrsReviewDataProcessed[repo];
+				const prLinks = prs.map(
+					(pr) => `<a href="${pr.html_url}" target="_blank" rel="noopener noreferrer">#${pr.number}</a>`,
+				);
+				html += prLinks.join(', ');
+				html += '</li></ul></li>';
+			}
+			html += '</ul>';
+		} else {
+			html += '<ul><li>None</li></ul>';
+		}
+		html += '</li>';
+
+		html += '</ul>';
+		return html;
+	}
+
 	function writeScrumBody() {
 		const lastWeekUl = buildActivityListHtml();
 		const nextWeekUl = buildNextWeekListHtml();
@@ -1193,7 +1252,9 @@ function allIncluded(outputTarget = 'email') {
 		}
 
 		let content;
-		if (yesterdayContribution || weeklyContribution) {
+		if (weeklyContribution) {
+			content = buildWeeklySummaryHtml();
+		} else if (yesterdayContribution) {
 			content = `<b>1. What did I do ${weekOrDay}?</b><br>
 ${lastWeekUl}<br>
 <b>2. What do I plan to do ${weekOrDay2}?</b><br>
@@ -1862,6 +1923,11 @@ ${blockerText}`;
 				}
 				log('[SCRUM-DEBUG] Added PR/MR to lastWeekArray:', li, item);
 				lastWeekArray.push(li);
+				if (weeklyContribution) {
+					if (!weeklyPrsList.some((pr) => pr.number === number)) {
+						weeklyPrsList.push({ number, title, html_url });
+					}
+				}
 				continue; // Prevent issue logic from overwriting PR li
 			} else {
 				// Only process as issue if not a PR
@@ -1934,6 +2000,11 @@ ${blockerText}`;
 
 				log('[SCRUM-DEBUG] Added issue to lastWeekArray:', li, item);
 				lastWeekArray.push(li);
+				if (weeklyContribution && isNewIssue) {
+					if (!weeklyIssuesList.some((issue) => issue.number === number)) {
+						weeklyIssuesList.push({ number, title, html_url });
+					}
+				}
 			}
 		}
 		log('[SCRUM-DEBUG] Final lastWeekArray:', lastWeekArray);
