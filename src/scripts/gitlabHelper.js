@@ -76,10 +76,25 @@ class GitLabHelper {
 	}
 
 	async fetchGitLabData(username, startDate, endDate, token = null, orgName = '') {
-		// Include token state and orgName in cache key to invalidate when auth or org changes
+		// Include token state, orgName, and repository filter state in cache key to invalidate when auth, org, or repo selection changes
 		const tokenMarker = token ? 'auth' : 'noauth';
 		const orgMarker = orgName ? `org-${orgName}` : 'noorg';
-		const cacheKey = `${this.baseUrl}-${username}-${startDate}-${endDate}-${tokenMarker}-${orgMarker}`;
+
+		let repoMarker = 'norepos';
+		try {
+			const filterSettings = await browser.storage.local.get(['useRepoFilter', 'selectedRepos']);
+			if (filterSettings.useRepoFilter && filterSettings.selectedRepos && filterSettings.selectedRepos.length > 0) {
+				const repoNames = filterSettings.selectedRepos
+					.map((r) => (typeof r === 'object' ? r.fullName : r).toLowerCase())
+					.sort()
+					.join(',');
+				repoMarker = `repos-${repoNames}`;
+			}
+		} catch (e) {
+			console.warn('[GitLab cache] Failed to get repo filter settings:', e);
+		}
+
+		const cacheKey = `${this.baseUrl}-${username}-${startDate}-${endDate}-${tokenMarker}-${orgMarker}-${repoMarker}`;
 
 		// Check if we need to load from storage
 		if (!this.cache.data && !this.cache.fetching) {
