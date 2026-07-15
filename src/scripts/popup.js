@@ -1054,7 +1054,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		}
 
-		browser.storage.local.get({ displayMode: 'popup' }).then((result) => {
+		browser.storage.local.get({ displayMode: 'sidePanel' }).then((result) => {
 			let mode = result.displayMode;
 			const hasSidePanelSupport = (typeof browser.sidePanel?.open === 'function') || (typeof browser.sidebarAction?.toggle === 'function');
 			if (mode === 'sidePanel' && !hasSidePanelSupport) {
@@ -1077,7 +1077,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				}
 			}
 
-			browser.storage.local.get({ displayMode: 'popup' }).then((result) => {
+			browser.storage.local.get({ displayMode: 'sidePanel' }).then((result) => {
 				let mode = result.displayMode;
 				if (mode === 'sidePanel' && !hasSidePanelSupport) {
 					mode = 'popup';
