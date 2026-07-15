@@ -984,27 +984,6 @@ document.addEventListener('DOMContentLoaded', () => {
 				browser.storage.local.set({ userReason: userReasonInput.value });
 			});
 		}
-		if (includeNextPlansCheckbox) {
-			includeNextPlansCheckbox.addEventListener('change', () => {
-				checkTokenForNextPlans({
-					showWarning: true,
-					animateWarning: true,
-					warningDurationMs: 3000,
-					persistState: true,
-				});
-				if (includeNextPlansCheckbox.checked) {
-					if (window.loadAssignedIssues) {
-						window.loadAssignedIssues();
-					}
-				} else {
-					const container = document.getElementById('assignedIssuesSelector');
-					if (container) {
-						container.style.display = 'none';
-						container.classList.add('hidden');
-					}
-				}
-			});
-		}
 		const advancedCheckboxes = [
 			{ el: showOpenLabelCheckbox, key: 'showOpenLabel' },
 			{ el: onlyIssuesCheckbox, key: 'onlyIssues' },
@@ -1033,6 +1012,29 @@ document.addEventListener('DOMContentLoaded', () => {
 						warningDurationMs: 3000,
 						persistState: true,
 					}),
+			},
+			{
+				el: includeNextPlansCheckbox,
+				key: 'includeNextPlans',
+				callback: () => {
+					checkTokenForNextPlans({
+						showWarning: true,
+						animateWarning: true,
+						warningDurationMs: 3000,
+						persistState: true,
+					});
+					if (includeNextPlansCheckbox.checked) {
+						if (window.loadAssignedIssues) {
+							window.loadAssignedIssues();
+						}
+					} else {
+						const container = document.getElementById('assignedIssuesSelector');
+						if (container) {
+							container.style.display = 'none';
+							container.classList.add('hidden');
+						}
+					}
+				},
 			},
 		];
 
