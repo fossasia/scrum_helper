@@ -56,8 +56,11 @@
     "description": "Label for the end date picker."
   },
   "showOpenClosedLabel": {
-    "message": "Show PRs Labels",
+    "message": "Show PRs labels",
     "description": "Label for the checkbox to show PR labels."
+  },
+  "showOpenClosedTooltip": {
+    "message": "If checked, the report will display status labels for PRs and issues (e.g., Open, Draft, Merged, Closed)."
   },
   "blockersLabel": {
     "message": "What is blocking you from making progress?",
@@ -131,7 +134,7 @@
     "description": "Label for the checkbox to show commits in open PRs."
   },
   "showCommitsTooltip": {
-    "message": "Github Token required, add it in the settings."
+    "message": "If checked, the report will show commits on open or draft PRs. A GitHub token is required."
   },
   "onlyIssuesLabel": {
     "message": "Include issues in the report"
@@ -140,10 +143,10 @@
     "message": "If checked, the report will include issues created or assigned to the user."
   },
   "onlyPRsLabel": {
-    "message": "Include PRs in the report"
+    "message": "Include open PRs/ draft PRs in the report"
   },
   "onlyPRsTooltip": {
-    "message": "If checked, the report will include PRs created by the user. Reviewed PRs will be excluded."
+    "message": "If checked, the report will include open or draft PRs created by you."
   },
   "cacheTTLLabel": {
     "message": "Enter cache TTL",
@@ -192,6 +195,12 @@
   "tokenRequiredShowCommitsWarning": {
     "message": "A GitHub token is required to show commits on open or draft PRs. Please add one in the settings.",
     "description": "Warning message shown when show commits is enabled without a token."
+  },
+  "onlyPrsRequiredShowCommitsWarning": {
+    "message": "Please check the 'Include open/draft PRs in the report' filter to show commits."
+  },
+  "regenerateNoticeText": {
+    "message": "Option changed. Please regenerate the report to apply the changes."
   },
   "repoSearchPlaceholder": {
     "message": "Search for a repository to add...",
@@ -318,7 +327,7 @@
     "description": "Label for the checkbox to include only reviewed PRs."
   },
   "onlyRevPRsTooltip": {
-    "message": "If checked, the report will include PRs reviewed by you.",
+    "message": "If checked, the report will include PRs reviewed by you. A GitHub token is required to verify actual review activity within the selected date range.",
     "description": "Tooltip for the reviewed PRs filter checkbox."
   },
   "onlyMergedPRsLabel": {
@@ -326,11 +335,11 @@
     "description": "Label for the checkbox to include only merged PRs."
   },
   "onlyMergedPRsTooltip": {
-    "message": "If checked, the report will include PRs that have been merged. A GitHub token is required.",
+    "message": "If checked, the report will include PRs that have been merged. Adding a GitHub token in settings is recommended to fetch accurate and all merged PR status.",
     "description": "Tooltip for the merged PRs filter checkbox."
   },
   "tokenRequiredMergedPRsWarning": {
-    "message": "A GitHub token is required to filter by merged PRs. Please add one in the settings.",
+    "message": "A GitHub token is recommended to fetch accurate merged PRs. Please add one in settings.",
     "description": "Warning shown when merged PRs filter is enabled without a GitHub token."
   },
   "usernameRequiredError": {
