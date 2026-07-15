@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function showReportMessage(message) {
 	if (!message) return;
 	if (scrumReportEl) {
-		scrumReportEl.innerHTML = '';
+		scrumReportEl.textContent = '';
 		window.updateCopyButtonState?.();
 	}
 	window.scrumHelperToast?.(message, { duration: 2000, variant: 'error' });
@@ -128,7 +128,7 @@ function handleUsernameValidationError(errMessage) {
 	usernameError.textContent = errMessage;
 
 	if (scrumReportEl) {
-		scrumReportEl.innerHTML = '';
+		scrumReportEl.textContent = '';
 		window.updateCopyButtonState?.();
 	}
 }
