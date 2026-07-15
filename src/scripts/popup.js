@@ -1703,12 +1703,11 @@ function updatePlatformUI(platform) {
 	});
 	const repoFilterTooltip = document.querySelector('[data-i18n="repoFilterTooltip"]');
 	if (repoFilterTooltip) {
+		repoFilterTooltip.style.whiteSpace = 'pre-line';
 		if (platform === 'gitlab') {
-			repoFilterTooltip.innerHTML =
-				'GitLab Token required.<br>To force a repo list update, <br>click the Refresh Data button.';
+			repoFilterTooltip.textContent = browser.i18n.getMessage('repoFilterTooltipGitLab');
 		} else {
-			repoFilterTooltip.innerHTML =
-				'Github Token required.<br>To force a repo list update, <br>click the Refresh Data button.';
+			repoFilterTooltip.textContent = browser.i18n.getMessage('repoFilterTooltipGitHub');
 		}
 	}
 }

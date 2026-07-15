@@ -452,5 +452,13 @@
   "rateLimitWarningMessage": {
     "message": "Some data may be missing due to GitHub rate limit. Please add or check your GitHub token in settings.",
     "description": "Warning message shown below buttons when rate limit is exceeded."
+  },
+  "repoFilterTooltipGitLab": {
+    "message": "GitLab Token required.\nTo force a repo list update, \nclick the Refresh Data button.",
+    "description": "Tooltip shown when GitLab platform is selected."
+  },
+  "repoFilterTooltipGitHub": {
+    "message": "GitHub Token required.\nTo force a repo list update, \nclick the Refresh Data button.",
+    "description": "Tooltip shown when GitHub platform is selected."
   }
 }
