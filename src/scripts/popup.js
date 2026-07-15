@@ -1054,16 +1054,35 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		}
 
-		browser.storage.local.get({ displayMode: 'sidePanel' }).then((result) => {
-			applyDisplayModeClass(result.displayMode);
+		browser.storage.local.get({ displayMode: 'popup' }).then((result) => {
+			let mode = result.displayMode;
+			const hasSidePanelSupport = (typeof browser.sidePanel?.open === 'function') || (typeof browser.sidebarAction?.toggle === 'function');
+			if (mode === 'sidePanel' && !hasSidePanelSupport) {
+				mode = 'popup';
+			}
+			applyDisplayModeClass(mode);
 		});
 
 		const displayModeSelect = document.getElementById('displayModeSelect');
 		const displayModeNotice = document.getElementById('displayModeNotice');
 		const displayModeNoticeText = document.getElementById('displayModeNoticeText');
 		if (displayModeSelect) {
-			browser.storage.local.get({ displayMode: 'sidePanel' }).then((result) => {
-				displayModeSelect.value = result.displayMode;
+			const hasSidePanelSupport = (typeof browser.sidePanel?.open === 'function') || (typeof browser.sidebarAction?.toggle === 'function');
+			if (!hasSidePanelSupport) {
+				const sidePanelOption = displayModeSelect.querySelector('option[value="sidePanel"]');
+				if (sidePanelOption) {
+					sidePanelOption.disabled = true;
+					const notSupportedText = chrome?.i18n?.getMessage('notSupported') || 'Not supported';
+					sidePanelOption.textContent += ` (${notSupportedText})`;
+				}
+			}
+
+			browser.storage.local.get({ displayMode: 'popup' }).then((result) => {
+				let mode = result.displayMode;
+				if (mode === 'sidePanel' && !hasSidePanelSupport) {
+					mode = 'popup';
+				}
+				displayModeSelect.value = mode;
 			});
 			displayModeSelect.addEventListener('change', () => {
 				const mode = displayModeSelect.value;

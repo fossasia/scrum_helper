@@ -14,6 +14,11 @@ browser.tabs?.onRemoved?.addListener((tabId) => {
 
 // Apply the display mode (popup vs sidePanel)
 function applyDisplayMode(mode) {
+	const hasSidePanel = (typeof browser.sidePanel?.open === 'function') || (typeof browser.sidebarAction?.toggle === 'function');
+	if (mode === 'sidePanel' && !hasSidePanel) {
+		mode = 'popup';
+	}
+
 	if (mode === 'popup') {
 		browser.action.setPopup({ popup: 'popup.html' });
 	} else {
@@ -23,7 +28,7 @@ function applyDisplayMode(mode) {
 }
 
 // Initialize display mode on startup
-browser.storage.local.get({ displayMode: 'sidePanel' }).then((result) => {
+browser.storage.local.get({ displayMode: 'popup' }).then((result) => {
 	applyDisplayMode(result.displayMode);
 });
 
