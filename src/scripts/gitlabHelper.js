@@ -1,6 +1,69 @@
 // GitLab API Helper for Scrum Helper Extension
 const DEFAULT_GITLAB_API_BASE_URL = 'https://gitlab.com/api/v4';
 
+let gitlabShowCommitsWarningTimeout;
+
+function gitlabShowTokenWarningForShowCommits({ animate = false, durationMs = 4000 } = {}) {
+	const tokenWarning = document.getElementById('tokenWarningForShowCommits');
+	if (!tokenWarning) {
+		return;
+	}
+
+	tokenWarning.classList.remove('hidden');
+	if (animate) {
+		tokenWarning.classList.add('shake-animation');
+		setTimeout(() => tokenWarning.classList.remove('shake-animation'), 620);
+	}
+
+	if (gitlabShowCommitsWarningTimeout) {
+		clearTimeout(gitlabShowCommitsWarningTimeout);
+	}
+	gitlabShowCommitsWarningTimeout = setTimeout(() => {
+		tokenWarning.classList.add('hidden');
+	}, durationMs);
+}
+
+function gitlabCheckTokenForShowCommits({
+	showWarning = false,
+	animateWarning = false,
+	warningDurationMs = 4000,
+	persistState = false,
+} = {}) {
+	const showCommits = document.getElementById('showCommits');
+	const gitlabTokenInput = document.getElementById('gitlabToken');
+
+	if (!showCommits || !gitlabTokenInput) {
+		return;
+	}
+
+	const isShowCommitsEnabled = showCommits.checked;
+	const hasToken = gitlabTokenInput.value.trim() !== '';
+
+	if (isShowCommitsEnabled && !hasToken) {
+		showCommits.checked = false;
+		if (showWarning) {
+			gitlabShowTokenWarningForShowCommits({
+				animate: animateWarning,
+				durationMs: warningDurationMs,
+			});
+		}
+		browser.storage.local.set({ showCommits: false });
+		return;
+	}
+
+	const tokenWarning = document.getElementById('tokenWarningForShowCommits');
+	if (tokenWarning) {
+		if (gitlabShowCommitsWarningTimeout) {
+			clearTimeout(gitlabShowCommitsWarningTimeout);
+			gitlabShowCommitsWarningTimeout = null;
+		}
+		tokenWarning.classList.add('hidden');
+	}
+	if (persistState) {
+		browser.storage.local.set({ showCommits: showCommits.checked });
+	}
+}
+
 function normalizeGitLabApiBaseUrl(apiBaseUrl) {
 	const value = typeof apiBaseUrl === 'string' && apiBaseUrl.trim() ? apiBaseUrl.trim() : DEFAULT_GITLAB_API_BASE_URL;
 	return value.replace(/\/+$/, '');
@@ -102,6 +165,11 @@ class GitLabHelper {
 			// Throttling 500ms to avoid burst
 			await new Promise((res) => setTimeout(res, 500));
 
+			let allProjects = [];
+			let allMergeRequests = [];
+			let allIssues = [];
+			let finalUser = null;
+
 			if (orgName) {
 				// Verify group existence
 				const groupUrl = `${this.baseUrl}/groups/${encodeURIComponent(orgName)}`;
@@ -116,48 +184,30 @@ class GitLabHelper {
 				// Fetch group projects for project mapping (including subgroups)
 				const groupProjectsUrl = `${this.baseUrl}/groups/${encodeURIComponent(orgName)}/projects?per_page=100&include_subgroups=true`;
 				const groupProjectsRes = await fetch(groupProjectsUrl, { headers });
-				const allProjects = groupProjectsRes.ok ? await groupProjectsRes.json() : [];
+				allProjects = groupProjectsRes.ok ? await groupProjectsRes.json() : [];
 
 				// Fetch group merge requests
 				const groupMRsUrl = `${this.baseUrl}/groups/${encodeURIComponent(orgName)}/merge_requests?author_username=${encodeURIComponent(username)}&created_after=${startDate}T00:00:00Z&created_before=${endDate}T23:59:59Z&per_page=100&order_by=updated_at&sort=desc`;
 				const groupMRsRes = await fetch(groupMRsUrl, { headers });
-				const allMergeRequests = groupMRsRes.ok ? await groupMRsRes.json() : [];
+				allMergeRequests = groupMRsRes.ok ? await groupMRsRes.json() : [];
 
 				// Fetch group issues
 				const groupIssuesUrl = `${this.baseUrl}/groups/${encodeURIComponent(orgName)}/issues?author_username=${encodeURIComponent(username)}&created_after=${startDate}T00:00:00Z&created_before=${endDate}T23:59:59Z&per_page=100&order_by=updated_at&sort=desc`;
 				const groupIssuesRes = await fetch(groupIssuesUrl, { headers });
-				const allIssues = groupIssuesRes.ok ? await groupIssuesRes.json() : [];
+				allIssues = groupIssuesRes.ok ? await groupIssuesRes.json() : [];
 
 				// Fetch user info for header mapping
 				const userUrl = `${this.baseUrl}/users?username=${encodeURIComponent(username)}`;
 				const userRes = await fetch(userUrl, { headers });
-				let user = null;
 				if (userRes.ok) {
 					const users = await userRes.json();
 					if (users.length > 0) {
-						user = users[0];
+						finalUser = users[0];
 					}
 				}
-
-				const gitlabData = {
-					user: user || { username },
-					projects: allProjects,
-					mergeRequests: allMergeRequests,
-					issues: allIssues,
-					comments: [],
-				};
-
-				this.cache.data = gitlabData;
-				this.cache.timestamp = Date.now();
-
-				await this.saveToStorage(gitlabData);
-
-				this.cache.queue.forEach(({ resolve }) => {
-					resolve(gitlabData);
-				});
-				this.cache.queue = [];
-
-				return gitlabData;
+				if (!finalUser) {
+					finalUser = { username };
+				}
 			} else {
 				// Get user info first
 				const userUrl = `${this.baseUrl}/users?username=${username}`;
@@ -174,7 +224,8 @@ class GitLabHelper {
 						chrome?.i18n.getMessage('gitlabUserNotFoundError', [username]) || `GitLab user '${username}' not found`,
 					);
 				}
-				const userId = users[0].id;
+				finalUser = users[0];
+				const userId = finalUser.id;
 
 				// Fetch all projects the user is a member of (including group projects)
 				const membershipProjectsUrl = `${this.baseUrl}/users/${userId}/projects?membership=true&per_page=100&order_by=updated_at&sort=desc`;
@@ -209,10 +260,9 @@ class GitLabHelper {
 				for (const p of [...membershipProjects, ...contributedProjects]) {
 					allProjectsMap.set(p.id, p);
 				}
-				const allProjects = Array.from(allProjectsMap.values());
+				allProjects = Array.from(allProjectsMap.values());
 
 				// Fetch merge requests from each project (works without auth for public projects)
-				let allMergeRequests = [];
 				for (const project of allProjects) {
 					try {
 						const projectMRsUrl = `${this.baseUrl}/projects/${project.id}/merge_requests?author_id=${userId}&created_after=${startDate}T00:00:00Z&created_before=${endDate}T23:59:59Z&per_page=100&order_by=updated_at&sort=desc`;
@@ -225,12 +275,10 @@ class GitLabHelper {
 						await new Promise((resolve) => setTimeout(resolve, 100));
 					} catch (error) {
 						console.error(`Error fetching MRs for project ${project.name}:`, error);
-						// Continue with other projects
 					}
 				}
 
 				// Fetch issues from each project (works without auth for public projects)
-				let allIssues = [];
 				for (const project of allProjects) {
 					try {
 						const projectIssuesUrl = `${this.baseUrl}/projects/${project.id}/issues?author_id=${userId}&created_after=${startDate}T00:00:00Z&created_before=${endDate}T23:59:59Z&per_page=100&order_by=updated_at&sort=desc`;
@@ -243,31 +291,71 @@ class GitLabHelper {
 						await new Promise((resolve) => setTimeout(resolve, 100));
 					} catch (error) {
 						console.error(`Error fetching issues for project ${project.name}:`, error);
-						// Continue with other projects
 					}
 				}
-
-				const gitlabData = {
-					user: users[0],
-					projects: allProjects,
-					mergeRequests: allMergeRequests, // use project-by-project response
-					issues: allIssues, // use project-by-project response
-					comments: [], // Empty array since we're not fetching comments
-				};
-				// Cache the data
-				this.cache.data = gitlabData;
-				this.cache.timestamp = Date.now();
-
-				await this.saveToStorage(gitlabData);
-
-				// Resolve queued calls
-				this.cache.queue.forEach(({ resolve }) => {
-					resolve(gitlabData);
-				});
-				this.cache.queue = [];
-
-				return gitlabData;
 			}
+
+			// Fetch commits for open/draft Merge Requests if enabled
+			const itemsLocal = await browser.storage.local.get(['showCommits']);
+			const showCommits = itemsLocal.showCommits || false;
+
+			if (showCommits && allMergeRequests.length > 0) {
+				const openMRs = allMergeRequests.filter(
+					(mr) =>
+						mr.state === 'opened' ||
+						mr.draft === true ||
+						(mr.title && (mr.title.startsWith('Draft:') || mr.title.startsWith('WIP:'))),
+				);
+
+				const sinceDate = new Date(startDate + 'T00:00:00Z');
+				const untilDate = new Date(endDate + 'T23:59:59Z');
+
+				for (const mr of openMRs) {
+					try {
+						const commitsUrl = `${this.baseUrl}/projects/${mr.project_id}/merge_requests/${mr.iid}/commits?per_page=100`;
+						const commitsRes = await fetch(commitsUrl, { headers });
+						if (commitsRes.ok) {
+							const commits = await commitsRes.json();
+							mr._allCommits = commits
+								.filter((commit) => {
+									const commitDateStr = commit.committed_date || commit.created_at || commit.authored_date;
+									if (!commitDateStr) return false;
+									const commitDate = new Date(commitDateStr);
+									return commitDate >= sinceDate && commitDate <= untilDate;
+								})
+								.map((commit) => ({
+									messageHeadline: commit.title || commit.message,
+									committedDate: commit.committed_date || commit.created_at || commit.authored_date,
+								}));
+						}
+						// Add small delay to avoid rate limiting
+						await new Promise((resolve) => setTimeout(resolve, 100));
+					} catch (error) {
+						console.error(`Error fetching commits for GitLab MR ${mr.iid}:`, error);
+					}
+				}
+			}
+
+			const gitlabData = {
+				user: finalUser,
+				projects: allProjects,
+				mergeRequests: allMergeRequests,
+				issues: allIssues,
+				comments: [],
+			};
+			// Cache the data
+			this.cache.data = gitlabData;
+			this.cache.timestamp = Date.now();
+
+			await this.saveToStorage(gitlabData);
+
+			// Resolve queued calls
+			this.cache.queue.forEach(({ resolve }) => {
+				resolve(gitlabData);
+			});
+			this.cache.queue = [];
+
+			return gitlabData;
 		} catch (err) {
 			console.error('GitLab Fetch Failed:', err);
 			// Reject queued calls on error
@@ -379,6 +467,7 @@ class GitLabHelper {
 			state: type === 'issue' && item.state === 'opened' ? 'open' : item.state,
 			project: repoName,
 			pull_request: type === 'mr',
+			_allCommits: item._allCommits || [],
 		};
 	}
 
@@ -431,7 +520,7 @@ if (window.PlatformRegistry) {
 	window.PlatformRegistry.register('gitlab', {
 		hasRepoFilter: false,
 		checkTokenForFilter() {},
-		checkTokenForShowCommits() {},
+		checkTokenForShowCommits: gitlabCheckTokenForShowCommits,
 		checkTokenForMergedPRs({ persistState = false } = {}) {
 			const mergedPRsCheckbox = document.getElementById('onlyMergedPRs');
 			if (!mergedPRsCheckbox) {
