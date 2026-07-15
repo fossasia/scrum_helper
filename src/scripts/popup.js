@@ -130,6 +130,21 @@ function applyI18n() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+	// Hide extension-only settings in Tauri
+	if (window.isTauri) {
+		const displayModeSec = document.getElementById('displayModeSectionContainer');
+		if (displayModeSec) {
+			displayModeSec.style.display = 'none';
+		}
+		const insertInEmailBtn = document.getElementById('insertInEmail');
+		if (insertInEmailBtn) {
+			const container = insertInEmailBtn.closest('.tooltip-container');
+			if (container) {
+				container.style.display = 'none';
+			}
+		}
+	}
+
 	// Apply translations as soon as the DOM is ready
 	applyI18n();
 	setupButtonTooltips();
