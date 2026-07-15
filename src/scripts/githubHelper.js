@@ -177,25 +177,23 @@ function checkTokenForMergedPRs({
 	const hasToken = githubTokenInput.value.trim() !== '';
 
 	if (isMergedPRsEnabled && !hasToken) {
-		mergedPRsCheckbox.checked = false;
 		if (showWarning) {
 			showTokenWarningForMergedPRs({
 				animate: animateWarning,
 				durationMs: warningDurationMs,
 			});
 		}
-		chrome?.storage.local.set({ onlyMergedPRs: false });
-		return;
+	} else {
+		const tokenWarning = document.getElementById('tokenWarningForMergedPRs');
+		if (tokenWarning) {
+			if (mergedPRsWarningTimeout) {
+				clearTimeout(mergedPRsWarningTimeout);
+				mergedPRsWarningTimeout = null;
+			}
+			tokenWarning.classList.add('hidden');
+		}
 	}
 
-	const tokenWarning = document.getElementById('tokenWarningForMergedPRs');
-	if (tokenWarning) {
-		if (mergedPRsWarningTimeout) {
-			clearTimeout(mergedPRsWarningTimeout);
-			mergedPRsWarningTimeout = null;
-		}
-		tokenWarning.classList.add('hidden');
-	}
 	if (persistState) {
 		chrome?.storage.local.set({ onlyMergedPRs: mergedPRsCheckbox.checked });
 	}
