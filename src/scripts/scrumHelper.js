@@ -1152,12 +1152,36 @@ function allIncluded(outputTarget = 'email') {
 			return wrapCompactText('No activity to report for the selected time period.');
 		}
 
-		let activityList = '<ul>';
-		for (let i = 0; i < lastWeekIssuesArray.length; i++) activityList += lastWeekIssuesArray[i];
-		for (let i = 0; i < lastWeekPrsArray.length; i++) activityList += lastWeekPrsArray[i];
-		for (let i = 0; i < reviewedPrsArray.length; i++) activityList += reviewedPrsArray[i];
-		activityList += '</ul>';
-		return activityList;
+		const sections = [];
+
+		if (lastWeekIssuesArray.length > 0) {
+			let issuesHtml = '<b>Issues:</b><ul>';
+			for (let i = 0; i < lastWeekIssuesArray.length; i++) {
+				issuesHtml += lastWeekIssuesArray[i];
+			}
+			issuesHtml += '</ul>';
+			sections.push(issuesHtml);
+		}
+
+		if (lastWeekPrsArray.length > 0) {
+			let prsHtml = '<b>Pull Requests:</b><ul>';
+			for (let i = 0; i < lastWeekPrsArray.length; i++) {
+				prsHtml += lastWeekPrsArray[i];
+			}
+			prsHtml += '</ul>';
+			sections.push(prsHtml);
+		}
+
+		if (reviewedPrsArray.length > 0) {
+			let reviewedHtml = '<b>Reviewed Pull Requests:</b><ul>';
+			for (let i = 0; i < reviewedPrsArray.length; i++) {
+				reviewedHtml += reviewedPrsArray[i];
+			}
+			reviewedHtml += '</ul>';
+			sections.push(reviewedHtml);
+		}
+
+		return sections.join('<br>');
 	}
 
 	function buildNextWeekListHtml() {
