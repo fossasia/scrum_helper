@@ -171,6 +171,8 @@ function allIncluded(outputTarget = 'email') {
 	let onlyPRs = false;
 	let onlyRevPRs = false;
 	let onlyMergedPRs = false;
+	let includeBlockers = true;
+	let includeNextPlans = true;
 
 	const pr_open_button =
 		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #2cbe4e;border-radius: 3px;line-height: 12px;margin-bottom: 2px;"  class="State State--green">open</div>';
@@ -218,6 +220,7 @@ function allIncluded(outputTarget = 'email') {
 				'onlyPRs',
 				'onlyRevPRs',
 				'onlyMergedPRs',
+				'includeNextPlans',
 			])
 			.then((items) => {
 				console.log('[DEBUG] Storage items received:', logRedaction(items));
@@ -268,7 +271,16 @@ function allIncluded(outputTarget = 'email') {
 				onlyPRs = items.onlyPRs !== false;
 				onlyRevPRs = items.onlyRevPRs !== false;
 				onlyMergedPRs = items.onlyMergedPRs !== false;
-				console.log('[SCRUM-DEBUG] loaded flags:', { onlyIssues, onlyPRs, onlyRevPRs, onlyMergedPRs });
+				includeBlockers = true;
+				includeNextPlans = items.includeNextPlans !== false;
+				console.log('[SCRUM-DEBUG] loaded flags:', {
+					onlyIssues,
+					onlyPRs,
+					onlyRevPRs,
+					onlyMergedPRs,
+					includeBlockers,
+					includeNextPlans,
+				});
 				showCommits = items.showCommits || false;
 				showOpenLabel = items.showOpenLabel !== false; // Default to true if not explicitly set to false
 				orgName = items.orgName || '';
@@ -1078,28 +1090,52 @@ function allIncluded(outputTarget = 'email') {
 			await writeGithubIssuesPrs(githubPrsReviewData?.items || []);
 		}
 		await writeGithubPrsReviews();
+		if (includeNextPlans) {
+			if (window.getNextPlansForReport) {
+				try {
+					const selectedPlans = await window.getNextPlansForReport();
+					if (selectedPlans && selectedPlans.length > 0) {
+						selectedPlans.forEach((issue) => {
+							const hasLi = nextWeekArray.some((li) => li.includes(`Work on Issue(#${issue.number})`));
+							if (!hasLi) {
+								const li = `<li><i>(${issue.repository})</i> - Work on Issue(#${issue.number}) - <a href='${issue.html_url}' target='_blank' rel='noopener noreferrer'>${issue.title}</a>${showOpenLabel ? ' ' + issue_opened_button : ''}&nbsp;&nbsp;</li>`;
+								nextWeekArray.push(li);
+							}
+						});
+					}
+				} catch (err) {
+					console.error('Failed to append selected next plans:', err);
+				}
+			}
+		}
 		log('[DEBUG] Both data processing functions completed, generating scrum body');
 		if (subjectForEmail) {
 			// Synchronized subject and body injection for email
 			const lastWeekUl = buildActivityListHtml();
 			const nextWeekUl = buildNextWeekListHtml();
 			const blockerText = buildBlockerTextHtml();
-			let weekOrDay = 'the period';
-			let weekOrDay2 = 'today';
-			if (yesterdayContribution) {
-				weekOrDay = 'yesterday';
-				weekOrDay2 = 'today';
-			} else if (weeklyContribution) {
-				weekOrDay = 'last week';
-				weekOrDay2 = 'this week';
+			const weekOrDay = yesterdayContribution ? 'yesterday' : weeklyContribution ? 'last week' : 'the period';
+			const weekOrDay2 = weeklyContribution ? 'this week' : 'today';
+			let sectionNum = 1;
+			const contentParts = [];
+			if (yesterdayContribution || weeklyContribution) {
+				contentParts.push(`<b>${sectionNum}. What did I do ${weekOrDay}?</b><br>${lastWeekUl}`);
+			} else {
+				contentParts.push(
+					`<b>${sectionNum}. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?</b><br>${lastWeekUl}`,
+				);
+			}
+			sectionNum++;
+
+			contentParts.push(`<b>${sectionNum}. What do I plan to do ${weekOrDay2}?</b><br>${nextWeekUl}`);
+			sectionNum++;
+
+			if (includeBlockers) {
+				contentParts.push(`<b>${sectionNum}. What is blocking me from making progress?</b><br>${blockerText}`);
+				sectionNum++;
 			}
 
-			let content;
-			if (yesterdayContribution || weeklyContribution) {
-				content = `<b>1. What did I do ${weekOrDay}?</b><br>${lastWeekUl}<br><b>2. What do I plan to do ${weekOrDay2}?</b><br>${nextWeekUl}<br><b>3. What is blocking me from making progress?</b><br>${blockerText}`;
-			} else {
-				content = `<b>1. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?</b><br>${lastWeekUl}<br><b>2. What do I plan to do ${weekOrDay2}?</b><br>${nextWeekUl}<br><b>3. What is blocking me from making progress?</b><br>${blockerText}`;
-			}
+			const content = contentParts.join('<br>');
 			// Wait for both subject and body to be available, then inject both
 			let injected = false;
 			const interval = setInterval(() => {
@@ -1187,22 +1223,26 @@ function allIncluded(outputTarget = 'email') {
 			weekOrDay2 = 'this week';
 		}
 
-		let content;
+		let sectionNum = 1;
+		const contentParts = [];
 		if (yesterdayContribution || weeklyContribution) {
-			content = `<b>1. What did I do ${weekOrDay}?</b><br>
-${lastWeekUl}<br>
-<b>2. What do I plan to do ${weekOrDay2}?</b><br>
-${nextWeekUl}<br>
-<b>3. What is blocking me from making progress?</b><br>
-${blockerText}`;
+			contentParts.push(`<b>${sectionNum}. What did I do ${weekOrDay}?</b><br>\n${lastWeekUl}`);
 		} else {
-			content = `<b>1. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?</b><br>
-${lastWeekUl}<br>
-<b>2. What do I plan to do ${weekOrDay2}?</b><br>
-${nextWeekUl}<br>
-<b>3. What is blocking me from making progress?</b><br>
-${blockerText}`;
+			contentParts.push(
+				`<b>${sectionNum}. What did I do from ${formatDate(startingDate)} to ${formatDate(endingDate)}?</b><br>\n${lastWeekUl}`,
+			);
 		}
+		sectionNum++;
+
+		contentParts.push(`<b>${sectionNum}. What do I plan to do ${weekOrDay2}?</b><br>\n${nextWeekUl}`);
+		sectionNum++;
+
+		if (includeBlockers) {
+			contentParts.push(`<b>${sectionNum}. What is blocking me from making progress?</b><br>\n${blockerText}`);
+			sectionNum++;
+		}
+
+		const content = contentParts.join('<br>\n');
 
 		if (outputTarget === 'popup') {
 			const scrumReport = document.getElementById('scrumReport');
@@ -1868,24 +1908,8 @@ ${blockerText}`;
 				}
 				log('[SCRUM-DEBUG] Added PR/MR to lastWeekArray:', li, item);
 				lastWeekArray.push(li);
-				continue; // Prevent issue logic from overwriting PR li
+				continue; // Prevent PR/MR logic from reaching issue logic
 			} else {
-				// Only process as issue if not a PR
-				if (item.state === 'open' && item.body?.toUpperCase().indexOf('YES') > 0) {
-					const li2 =
-						'<li><i>(' +
-						project +
-						')</i> - Work on Issue(#' +
-						number +
-						") - <a href='" +
-						html_url +
-						"' target='_blank' rel='noopener noreferrer'>" +
-						title +
-						'</a>' +
-						(showOpenLabel ? ' ' + issue_opened_button : '') +
-						'&nbsp;&nbsp;</li>';
-					nextWeekArray.push(li2);
-				}
 				// Compute date range for filtering
 				let issueStartDateFilter;
 				let issueEndDateFilter;
