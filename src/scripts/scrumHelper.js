@@ -264,16 +264,11 @@ function allIncluded(outputTarget = 'email') {
 				yesterdayContribution = items.yesterdayContribution;
 				weeklyContribution = items.weeklyContribution;
 
-				onlyIssues = items.onlyIssues === true;
-				onlyPRs = items.onlyPRs === true;
-				onlyRevPRs = items.onlyRevPRs === true;
-				onlyMergedPRs = items.onlyMergedPRs === true;
+				onlyIssues = items.onlyIssues !== false;
+				onlyPRs = items.onlyPRs !== false;
+				onlyRevPRs = items.onlyRevPRs !== false;
+				onlyMergedPRs = items.onlyMergedPRs !== false;
 				console.log('[SCRUM-DEBUG] loaded flags:', { onlyIssues, onlyPRs, onlyRevPRs, onlyMergedPRs });
-				// Enforce mutual exclusivity between onlyIssues and onlyPRs to avoid filtering out everything
-				if (onlyIssues && onlyPRs) {
-					console.warn('[SCRUM-HELPER]: Detected both onlyIssues and onlyPRs enabled; normalizing to onlyIssues.');
-					onlyPRs = false;
-				}
 				showCommits = items.showCommits || false;
 				showOpenLabel = items.showOpenLabel !== false; // Default to true if not explicitly set to false
 				orgName = items.orgName || '';
@@ -1312,9 +1307,8 @@ ${blockerText}`;
 	}
 
 	async function writeGithubPrsReviews() {
-		const isAnyFilterActive = onlyIssues || onlyPRs || onlyRevPRs || onlyMergedPRs;
-		if (isAnyFilterActive && !onlyRevPRs) {
-			log('Filters active but onlyRevPRs not checked, skipping PR reviews.');
+		if (!onlyRevPRs) {
+			log('onlyRevPRs is not checked, skipping PR reviews.');
 			reviewedPrsArray = [];
 			prsReviewDataProcessed = true;
 			return;
@@ -1565,7 +1559,6 @@ ${blockerText}`;
 	}
 
 	async function writeGithubIssuesPrs(items) {
-		const isAnyFilterActive = onlyIssues || onlyPRs || onlyRevPRs;
 		if (!items) {
 			return;
 		}
@@ -1603,11 +1596,7 @@ ${blockerText}`;
 
 		const daysRange = getDaysBetween(startDateForRange, endDateForRange);
 
-		if (githubToken) {
-			useMergedStatus = true;
-		} else if (daysRange <= 7) {
-			useMergedStatus = true;
-		}
+		useMergedStatus = true;
 
 		const prsToCheck = [];
 		for (let i = 0; i < items.length; i++) {
@@ -1653,32 +1642,29 @@ ${blockerText}`;
 			// For GitLab, treat all items in the MRs array as MRs
 			const isMR = !!item.pull_request; // works for both GitHub and mapped GitLab data
 
-			if (isAnyFilterActive) {
-				if (isMR && !onlyPRs) {
-					log('[SCRUM-DEBUG] Filters active, skipping PR because onlyPRs is not checked:', item.number);
-					continue;
-				}
-				if (!isMR && !onlyIssues) {
-					log('[SCRUM-DEBUG] Filters active, skipping Issue because onlyIssues is not checked:', item.number);
+			// 1. Issue handling
+			if (!isMR) {
+				if (!onlyIssues) {
+					log('[SCRUM-DEBUG] Skipping Issue because onlyIssues is unchecked:', item.number);
 					continue;
 				}
 			}
 
-			if (onlyMergedPRs) {
-				if (!isMR) {
-					log('[SCRUM-DEBUG] Skipping non-PR item because onlyMergedPRs is checked:', item.number);
-					continue;
-				}
-				if (isMR) {
-					if (typeof item.state === 'string' && item.state !== 'closed') {
-						log(
-							'[SCRUM-DEBUG] Skipping non-closed PR because onlyMergedPRs is checked:',
-							item.number,
-							'state:',
-							item.state,
-						);
+			// 2. PR handling
+			if (isMR) {
+				const isOpenOrDraft = item.state === 'open' || item.state === 'opened';
+				if (isOpenOrDraft) {
+					if (!onlyPRs) {
+						log('[SCRUM-DEBUG] Skipping open/draft PR because onlyPRs is unchecked:', item.number);
 						continue;
 					}
+				} else {
+					// Closed/merged PR
+					if (!onlyMergedPRs) {
+						log('[SCRUM-DEBUG] Skipping closed/merged PR because onlyMergedPRs is unchecked:', item.number);
+						continue;
+					}
+
 					const repoUrl = item.repository_url;
 					let prCacheKey = null;
 					if (repoUrl) {
@@ -1702,10 +1688,11 @@ ${blockerText}`;
 							item.number,
 						);
 					}
+
 					// Determine merge status. If we cannot determine it reliably, do NOT
-					// treat the PR as "not merged" – instead, skip the onlyMergedPRs filter
+					// treat the PR as "not merged" – instead, skip the onlyMergedPRs check
 					// for this item to avoid silently dropping all results when merge status
-					// cannot be fetched (e.g., missing token or incomplete cache).
+					// cannot be fetched.
 					let hasMergeInfo = false;
 					let isMerged = false;
 					if (prCacheKey && prCacheKey in mergedStatusResults) {
@@ -1715,11 +1702,12 @@ ${blockerText}`;
 						hasMergeInfo = true;
 						isMerged = !!item.pull_request.merged_at;
 					}
+
 					if (!hasMergeInfo) {
 						logError(
-							'[SCRUM-HELPER] onlyMergedPRs is enabled but merge status could not be determined for item:',
+							'[SCRUM-HELPER] Merge status could not be determined for item:',
 							item.number,
-							'- skipping onlyMergedPRs filter for this item.',
+							'- skipping merge validation for this item.',
 						);
 					} else if (!isMerged) {
 						log('[SCRUM-DEBUG] Skipping non-merged PR:', item.number);
@@ -1791,14 +1779,20 @@ ${blockerText}`;
 				const hasCommitsInRange = item._allCommits && item._allCommits.length > 0;
 
 				if (platform === 'github') {
-					// For existing PRs (not new), they must be open AND have commits in the date range
+					// For existing PRs (not new), include them if they are open/draft, closed/merged within the date range, or have commits in the date range
 					if (!isNewPR) {
-						if (item.state !== 'open') {
-							log(`[PR DEBUG] Skipping PR #${number} - existing PR but not open`);
-							continue;
-						}
-						if (!hasCommitsInRange) {
-							log(`[PR DEBUG] Skipping PR #${number} - existing PR but no commits in date range`);
+						const closedDate = item.closed_at ? new Date(item.closed_at) : null;
+						const isClosedInRange =
+							closedDate &&
+							!Number.isNaN(closedDate.getTime()) &&
+							closedDate >= startDateFilter &&
+							closedDate <= endDateFilter;
+						const isOpenOrDraftPR = item.state === 'open';
+
+						if (!isOpenOrDraftPR && !isClosedInRange && !hasCommitsInRange) {
+							log(
+								`[PR DEBUG] Skipping PR #${number} - existing PR but not open/draft, not closed in range, and no commits in date range`,
+							);
 							continue;
 						}
 					}
@@ -1811,6 +1805,17 @@ ${blockerText}`;
 						prAction = 'Updated PR';
 					}
 				} else if (platform === 'gitlab') {
+					// For existing MRs (not new), they must be open AND have commits in the date range (if showCommits is enabled)
+					if (!isNewPR) {
+						if (item.state !== 'opened') {
+							log(`[PR DEBUG] Skipping GitLab MR #${number} - existing MR but not open`);
+							continue;
+						}
+						if (showCommits && !hasCommitsInRange) {
+							log(`[PR DEBUG] Skipping GitLab MR #${number} - existing MR but no commits in date range`);
+							continue;
+						}
+					}
 					prAction = isNewPR ? 'Made Merge Request' : 'Updated Merge Request';
 					if (isCreatedToday && item.state === 'opened') {
 						prAction = 'Made Merge Request';
@@ -1820,9 +1825,10 @@ ${blockerText}`;
 				}
 
 				if (isDraft) {
-					li = `<li><i>(${project})</i> - Made PR <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_draft_button : ''}`;
-					if (showCommits && item._allCommits && item._allCommits.length && !isNewPR) {
-						log(`[PR DEBUG] Rendering commits for existing draft PR #${number}:`, item._allCommits);
+					const draftLabel = platform === 'gitlab' ? 'Made Merge Request' : 'Made PR';
+					li = `<li><i>(${project})</i> - ${draftLabel} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_draft_button : ''}`;
+					if (showCommits && item._allCommits && item._allCommits.length) {
+						log(`[PR DEBUG] Rendering commits for draft PR #${number}:`, item._allCommits);
 						li += '<ul>';
 						item._allCommits.forEach((commit) => {
 							li += `<li style=\"list-style: disc; color: #666;\"><span style=\"color:#2563eb;\">${commit.messageHeadline}</span><span style=\"color:#666; font-size: 11px;\"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
@@ -1833,8 +1839,8 @@ ${blockerText}`;
 				} else if (item.state === 'open' || item.state === 'opened') {
 					li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_open_button : ''}`;
 
-					if (showCommits && item._allCommits && item._allCommits.length && !isNewPR) {
-						log(`[PR DEBUG] Rendering commits for existing PR #${number}:`, item._allCommits);
+					if (showCommits && item._allCommits && item._allCommits.length) {
+						log(`[PR DEBUG] Rendering commits for PR #${number}:`, item._allCommits);
 						li += '<ul>';
 						item._allCommits.forEach((commit) => {
 							li += `<li style="list-style: disc; color: #666;">
@@ -1921,11 +1927,11 @@ ${blockerText}`;
 				} else if (item.state === 'closed') {
 					// Use state_reason to distinguish closure reason
 					if (item.state_reason === 'completed') {
-						li = `<li><i>(${project})</i> - ${issueActionText}(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_completed_button}</li>`;
+						li = `<li><i>(${project})</i> - ${issueActionText}(#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + issue_closed_completed_button : ''}</li>`;
 					} else if (item.state_reason === 'not_planned') {
-						li = `<li><i>(${project})</i> - ${issueActionText}(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_notplanned_button}</li>`;
+						li = `<li><i>(${project})</i> - ${issueActionText}(#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + issue_closed_notplanned_button : ''}</li>`;
 					} else {
-						li = `<li><i>(${project})</i> - ${issueActionText}(#${number}) - <a href='${html_url}'>${title}</a> ${issue_closed_button}</li>`;
+						li = `<li><i>(${project})</i> - ${issueActionText}(#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + issue_closed_button : ''}</li>`;
 					}
 				} else {
 					// Fallback for unexpected state
