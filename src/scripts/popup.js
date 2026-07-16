@@ -237,6 +237,13 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	}
 
+	function checkTokenForNextPlans(options) {
+		const helper = getActivePlatformHelper();
+		if (helper && helper.checkTokenForNextPlans) {
+			helper.checkTokenForNextPlans(options);
+		}
+	}
+
 	window.showRegenerateNotice = function () {
 		const scrumReport = document.getElementById('scrumReport');
 		const notice = document.getElementById('regenerateNotice');
@@ -296,6 +303,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	githubTokenInput.addEventListener('input', () => checkTokenForFilter());
 	githubTokenInput.addEventListener('input', () => checkTokenForShowCommits({ persistState: false }));
 	githubTokenInput.addEventListener('input', () => checkTokenForMergedPRs({ persistState: false }));
+	githubTokenInput.addEventListener('input', () => checkTokenForNextPlans({ persistState: false }));
 	if (gitlabTokenInput) {
 		gitlabTokenInput.addEventListener('input', () => checkTokenForShowCommits({ persistState: false }));
 	}
@@ -337,6 +345,9 @@ document.addEventListener('DOMContentLoaded', () => {
 		checkTokenForFilter();
 		checkOnlyPrsForShowCommits({ showWarning: false });
 		checkTokenForShowCommits();
+		if (window.loadAssignedIssues) {
+			window.loadAssignedIssues();
+		}
 	});
 
 	browser.storage.onChanged.addListener((changes, namespace) => {
@@ -352,6 +363,17 @@ document.addEventListener('DOMContentLoaded', () => {
 			});
 			if (window.triggerRepoFetchIfEnabled) {
 				window.triggerRepoFetchIfEnabled();
+			}
+		}
+		if (
+			changes.useRepoFilter ||
+			changes.selectedRepos ||
+			changes.githubToken ||
+			changes.githubUsername ||
+			changes.platformUsername
+		) {
+			if (window.loadAssignedIssues) {
+				window.loadAssignedIssues();
 			}
 		}
 	});
@@ -569,6 +591,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		const onlyPRsCheckbox = document.getElementById('onlyPRs');
 		const onlyRevPRsCheckbox = document.getElementById('onlyRevPRs');
 		const onlyMergedPRsCheckbox = document.getElementById('onlyMergedPRs');
+		const includeNextPlansCheckbox = document.getElementById('includeNextPlans');
 
 		const githubTokenInput = document.getElementById('githubToken');
 		const cacheInput = document.getElementById('cacheInput');
@@ -592,6 +615,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				'onlyPRs',
 				'onlyRevPRs',
 				'onlyMergedPRs',
+				'includeNextPlans',
 				'yesterdayContribution',
 				'weeklyContribution',
 				'startingDate',
@@ -631,6 +655,11 @@ document.addEventListener('DOMContentLoaded', () => {
 				} else {
 					onlyMergedPRsCheckbox.checked = true;
 				}
+				if (typeof result.includeNextPlans !== 'undefined') {
+					includeNextPlansCheckbox.checked = result.includeNextPlans;
+				} else {
+					includeNextPlansCheckbox.checked = true;
+				}
 				if (result.githubToken) githubTokenInput.value = result.githubToken;
 				if (result.cacheInput) cacheInput.value = result.cacheInput;
 				if (typeof result.yesterdayContribution !== 'undefined') yesterdayRadio.checked = result.yesterdayContribution;
@@ -653,6 +682,10 @@ document.addEventListener('DOMContentLoaded', () => {
 				checkOnlyPrsForShowCommits({ showWarning: false });
 				checkTokenForShowCommits();
 				checkTokenForMergedPRs();
+				checkTokenForNextPlans();
+				if (includeNextPlansCheckbox && includeNextPlansCheckbox.checked && window.loadAssignedIssues) {
+					window.loadAssignedIssues();
+				}
 			});
 
 		function dismissShortcutTooltipFocus(el) {
@@ -982,6 +1015,29 @@ document.addEventListener('DOMContentLoaded', () => {
 						warningDurationMs: 3000,
 						persistState: true,
 					}),
+			},
+			{
+				el: includeNextPlansCheckbox,
+				key: 'includeNextPlans',
+				callback: () => {
+					checkTokenForNextPlans({
+						showWarning: true,
+						animateWarning: true,
+						warningDurationMs: 3000,
+						persistState: true,
+					});
+					if (includeNextPlansCheckbox.checked) {
+						if (window.loadAssignedIssues) {
+							window.loadAssignedIssues();
+						}
+					} else {
+						const container = document.getElementById('assignedIssuesSelector');
+						if (container) {
+							container.style.display = 'none';
+							container.classList.add('hidden');
+						}
+					}
+				},
 			},
 		];
 
@@ -2107,6 +2163,12 @@ document.querySelectorAll('input[name="timeframe"]').forEach((radio) => {
 				// Clear all caches
 				const keysToRemove = ['githubCache', 'repoCache', 'gitlabCache'];
 				await browser.storage.local.remove(keysToRemove);
+
+				// Clear Next Plans cache and fetch them again
+				localStorage.removeItem('nextPlansCache');
+				if (window.loadAssignedIssues) {
+					window.loadAssignedIssues();
+				}
 
 				// Clear the scrum report
 				const scrumReport = document.getElementById('scrumReport');
