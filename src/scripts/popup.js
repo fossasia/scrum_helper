@@ -762,10 +762,16 @@ document.addEventListener('DOMContentLoaded', () => {
 								if (!response?.success) {
 									handleInsertFailure(response?.error);
 								} else {
-									if (insertBtn._triggeredByShortcut) {
-										showShortcutNotification('insertedInEmailNotification');
+									if (response?.alreadyInserted) {
+										showPopupMessage(browser.i18n.getMessage('reportAlreadyInserted') || 'Report already inserted!', {
+											variant: 'info',
+										});
 									} else {
-										showPopupMessage(browser.i18n.getMessage('insertedInEmailNotification'), { variant: 'success' });
+										if (insertBtn._triggeredByShortcut) {
+											showShortcutNotification('insertedInEmailNotification');
+										} else {
+											showPopupMessage(browser.i18n.getMessage('insertedInEmailNotification'), { variant: 'success' });
+										}
 									}
 								}
 							})
