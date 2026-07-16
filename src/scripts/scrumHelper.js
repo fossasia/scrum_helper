@@ -1275,7 +1275,11 @@ function allIncluded(outputTarget = 'email') {
 			}
 			scrumGenerationInProgress = false;
 		} else if (outputTarget === 'email') {
-			if (window.hasInjectedContent) {
+			const elements = window.emailClientAdapter?.getEditorElements?.();
+			if (elements?.body && !isReportAlreadyInserted(elements.body)) {
+				window.hasInjectedContent = false;
+			}
+			if (window.hasInjectedContent || (elements?.body && isReportAlreadyInserted(elements.body))) {
 				scrumGenerationInProgress = false;
 				return;
 			}
@@ -1288,9 +1292,16 @@ function allIncluded(outputTarget = 'email') {
 				if (window.emailClientAdapter.isNewConversation()) {
 					const elements = window.emailClientAdapter.getEditorElements();
 					if (elements && elements.body) {
+						if (isReportAlreadyInserted(elements.body)) {
+							obs.disconnect();
+							window.hasInjectedContent = true;
+							scrumGenerationInProgress = false;
+							return;
+						}
 						obs.disconnect();
 						log('MutationObserver found the editor body. Injecting scrum content.');
-						window.emailClientAdapter.injectContent(elements.body, content, elements.eventTypes.contentChange);
+						const wrappedContent = `<div class="scrum-helper-report-wrapper">${content}</div>`;
+						window.emailClientAdapter.injectContent(elements.body, wrappedContent, elements.eventTypes.contentChange);
 						window.hasInjectedContent = true;
 						scrumGenerationInProgress = false;
 					}
@@ -2104,22 +2115,70 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 	}
 });
 
+function isReportAlreadyInserted(el) {
+	if (!el) return false;
+
+	// If the entire editor has no text, the report is not inserted
+	const totalText = (el.textContent || el.value || '').trim();
+	if (!totalText) {
+		return false;
+	}
+
+	if (el.querySelector) {
+		const wrapper =
+			el.querySelector('.scrum-helper-report-wrapper') || el.querySelector('#scrum-helper-report-wrapper');
+		if (wrapper) {
+			// If wrapper exists, it must contain text content to be considered inserted
+			return !!(wrapper.textContent && wrapper.textContent.trim());
+		}
+	}
+
+	if (el.innerHTML && el.innerHTML.includes('scrum-helper-report-wrapper')) {
+		return true;
+	}
+	if (el.value && el.value.includes('scrum-helper-report-wrapper')) {
+		return true;
+	}
+	return false;
+}
+
 async function injectIntoEmailEditor(content, subject) {
 	if (!window.emailClientAdapter) {
 		return { success: false, error: 'emailClientAdapter not available' };
 	}
 
-	const tryInject = () => {
-		const elements = window.emailClientAdapter.getEditorElements?.();
-		if (!elements?.body) return false;
+	const elements = window.emailClientAdapter.getEditorElements?.();
+	if (elements?.body && !isReportAlreadyInserted(elements.body)) {
+		window.hasInjectedContent = false;
+	}
+	if (window.hasInjectedContent || (elements?.body && isReportAlreadyInserted(elements.body))) {
+		return { success: true, alreadyInserted: true };
+	}
 
-		if (subject && elements.subject) {
-			elements.subject.value = subject;
-			elements.subject.dispatchEvent(new Event(elements.eventTypes?.subjectChange || 'input', { bubbles: true }));
+	const tryInject = () => {
+		const currentElements = window.emailClientAdapter.getEditorElements?.();
+		if (!currentElements?.body) return false;
+
+		if (isReportAlreadyInserted(currentElements.body)) {
+			window.hasInjectedContent = true;
+			return true;
+		}
+
+		if (subject && currentElements.subject) {
+			currentElements.subject.value = subject;
+			currentElements.subject.dispatchEvent(
+				new Event(currentElements.eventTypes?.subjectChange || 'input', { bubbles: true }),
+			);
 		}
 
 		//for body
-		window.emailClientAdapter.injectContent(elements.body, content, elements.eventTypes?.contentChange || 'input');
+		const wrappedContent = `<div class="scrum-helper-report-wrapper">${content}</div>`;
+		window.emailClientAdapter.injectContent(
+			currentElements.body,
+			wrappedContent,
+			currentElements.eventTypes?.contentChange || 'input',
+		);
+		window.hasInjectedContent = true;
 		return true;
 	};
 
@@ -2128,10 +2187,22 @@ async function injectIntoEmailEditor(content, subject) {
 	return await new Promise((resolve) => {
 		let done = false;
 		const observer = new MutationObserver(() => {
-			if (!done && tryInject()) {
-				done = true;
-				observer.disconnect();
-				resolve({ success: true });
+			if (!done) {
+				const currentElements = window.emailClientAdapter.getEditorElements?.();
+				if (currentElements?.body) {
+					if (isReportAlreadyInserted(currentElements.body)) {
+						done = true;
+						observer.disconnect();
+						window.hasInjectedContent = true;
+						resolve({ success: true, alreadyInserted: true });
+						return;
+					}
+					if (tryInject()) {
+						done = true;
+						observer.disconnect();
+						resolve({ success: true });
+					}
+				}
 			}
 		});
 
