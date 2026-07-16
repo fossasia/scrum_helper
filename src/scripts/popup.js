@@ -322,7 +322,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	function renderTokenPreview() {
 		if (!tokenPreview || !githubTokenInput) return;
-		tokenPreview.innerHTML = '';
+		tokenPreview.textContent = '';
 		const value = githubTokenInput.value;
 		const isDark = document.body.classList.contains('dark-mode');
 		for (let i = 0; i < value.length; i++) {
@@ -1845,7 +1845,7 @@ if (platformSelectEl) {
 		browser.storage.local.set({ platform }).then(() => {
 			const scrumReport = document.getElementById('scrumReport');
 			if (scrumReport) {
-				scrumReport.innerHTML = '';
+				scrumReport.textContent = '';
 				window.updateCopyButtonState?.();
 			}
 			const generateBtn = document.getElementById('generateReport');
@@ -1912,7 +1912,7 @@ function setPlatformDropdown(value) {
 	}
 	browser.storage.local.set({ platform: value }).then(() => {
 		const scrumReport = document.getElementById('scrumReport');
-		if (scrumReport) scrumReport.innerHTML = '';
+		if (scrumReport) scrumReport.textContent = '';
 		window.updateCopyButtonState?.();
 
 		const generateBtn = document.getElementById('generateReport');
