@@ -465,5 +465,9 @@
   "notSupported": {
     "message": "Not supported",
     "description": "Label indicating a feature is not supported by the browser."
+  },
+  "sidePanelFallbackAlert": {
+    "message": "Side panel is not supported or failed to load. Falling back to Popup mode.",
+    "description": "Alert message shown when side panel falls back to popup mode."
   }
 }

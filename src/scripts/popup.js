@@ -1054,10 +1054,22 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		}
 
-		browser.storage.local.get({ displayMode: 'sidePanel' }).then((result) => {
+		browser.storage.local.get({ displayMode: 'sidePanel', fallbackAlert: false }).then((result) => {
 			let mode = result.displayMode;
-			const hasSidePanelSupport = (typeof browser.sidePanel?.open === 'function') || (typeof browser.sidebarAction?.toggle === 'function');
-			if (mode === 'sidePanel' && !hasSidePanelSupport) {
+			const hasSidePanelSupport =
+				typeof browser.sidePanel?.open === 'function' || typeof browser.sidebarAction?.toggle === 'function';
+			if (result.fallbackAlert) {
+				const alertMsg =
+					chrome?.i18n?.getMessage('sidePanelFallbackAlert') ||
+					'Side panel is not supported or failed to load. Falling back to Popup mode.';
+				alert(alertMsg);
+				browser.storage.local.remove(['fallbackAlert']);
+			} else if (mode === 'sidePanel' && !hasSidePanelSupport) {
+				const alertMsg =
+					chrome?.i18n?.getMessage('sidePanelFallbackAlert') ||
+					'Side panel is not supported or failed to load. Falling back to Popup mode.';
+				alert(alertMsg);
+				browser.storage.local.set({ displayMode: 'popup' });
 				mode = 'popup';
 			}
 			applyDisplayModeClass(mode);
@@ -1067,7 +1079,8 @@ document.addEventListener('DOMContentLoaded', () => {
 		const displayModeNotice = document.getElementById('displayModeNotice');
 		const displayModeNoticeText = document.getElementById('displayModeNoticeText');
 		if (displayModeSelect) {
-			const hasSidePanelSupport = (typeof browser.sidePanel?.open === 'function') || (typeof browser.sidebarAction?.toggle === 'function');
+			const hasSidePanelSupport =
+				typeof browser.sidePanel?.open === 'function' || typeof browser.sidebarAction?.toggle === 'function';
 			if (!hasSidePanelSupport) {
 				const sidePanelOption = displayModeSelect.querySelector('option[value="sidePanel"]');
 				if (sidePanelOption) {
