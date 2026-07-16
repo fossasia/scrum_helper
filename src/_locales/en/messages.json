@@ -132,6 +132,9 @@
   "showCommitsTooltip": {
     "message": "If checked, the report will show commits on open or draft PRs. A GitHub token is required."
   },
+  "showCommitsTooltipGitLab": {
+    "message": "GitLab Token required, add it in the settings."
+  },
   "onlyIssuesLabel": {
     "message": "Include issues in the report"
   },
@@ -201,6 +204,10 @@
   },
   "regenerateNoticeText": {
     "message": "Option changed. Please regenerate the report to apply the changes."
+  },
+  "tokenRequiredShowCommitsWarningGitLab": {
+    "message": "A GitLab token is required to show commits on open or draft MRs. Please add one in the settings.",
+    "description": "Warning message shown when show commits is enabled without a token."
   },
   "repoSearchPlaceholder": {
     "message": "Search for a repository to add...",

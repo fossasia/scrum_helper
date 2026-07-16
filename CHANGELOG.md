@@ -1,3 +1,128 @@
+## v2.1.5 - 2026-07-15
+
+## What's Changed
+
+* chore: gitlab commits filters enhancement (#693) @Mateeb-Haider
+* fix: improve clarity and labeling in advanced filters options (#721) @Mateeb-Haider
+* Fix:  repo cache invalidation (#732) @Nsanjayboruds
+* fix: enable Copy button on initial automatic report render (#730) @w3lld1
+* feat: add gitlab group filter (#696) @Mateeb-Haider
+* fix: labels issues and add merge and close label (#724) @Mateeb-Haider
+* chore: update scrum helper docs imgs (#716) @Mateeb-Haider
+* fix: Add accurate review-date filtering for reviewed PRs  (#714) @Mateeb-Haider
+* fix: Use reviewed-by instead of commenter for accurate PR review filtering (#713) @Mateeb-Haider
+* feat: quick previous week filter (#707) @Mateeb-Haider
+* fix: replace unsafe innerHTML in domSanitizer with regex text extraction (#695) @Sudarshan-prog
+* chore: add null check to prevent dom issues (#681) @Mateeb-Haider
+* fix: timezone issues by compute local time (#682) @Mateeb-Haider
+* fix: handle rate limiting errors properly (#678) @Mateeb-Haider
+* fix: date issue by add blur property (#688) @Mateeb-Haider
+* Fix sync upstream workflow (#561) @Salmaan-M
+* fix: cache issue when token updated (#673) @Mateeb-Haider
+* fix: review PRs tooltip (#689) @Mateeb-Haider
+* chore: saprate the report pipeline (#684) @Mateeb-Haider
+* chore: refector the code base (#671) @Mateeb-Haider
+* ui - upgrade the repos selection's dropdown (#532) @JaYRaNa213
+* docs: remove Opera from How
+to
+install section (#675) (#676) @cweitat
+* fix: double plus encoding issue (#679) @Mateeb-Haider
+* fix: github token console exposure (#650) @Mateeb-Haider
+* Clear All repos button implementation (#518) @JaYRaNa213
+* chore: UX enhancements for report notifications (#674) @Mateeb-Haider
+* fix: tooltip apearance issues after clicking copy \& insert btns (#662) @Mateeb-Haider
+* chore: token type define for github (#672) @Mateeb-Haider
+* feat:update filter caption and tool description (#668) @Mateeb-Haider
+* fix: keep copy button disabled for empty reports (#657) @Mateeb-Haider
+* fix: trigger fresh data fetch when cache is expired on popup load (#654) @afngh
+* chore: fill translation missing keys for all languages (#659) @Mateeb-Haider
+* ui fix for Selected repos (#529) @JaYRaNa213
+* fix: resolve invalid HTML by removing ul wrapping popup note (#553) @PhilixTheExplorer
+* fix: remove redundant date filter dropping pr reviews (#644) @areebahmeddd
+* chore: add missing entries in Hindi translation file (#656) @Mateeb-Haider
+* feat: add Opera browser compatibility support for extension (#636) @Mateeb-Haider
+* fix: correct item.State to item.state for PR action label detection (#536) @PhilixTheExplorer
+* fix: Issues without activity incorrectly shown as Updated
+Issue (#643) @Mateeb-Haider
+* fix: remove background color when we copy and paste report (#645) @Mateeb-Haider
+* chore: add docs to setup extension on Brave Browser (#647) @Mateeb-Haider
+* fix: merged PRs filter related problems (#640) @Mateeb-Haider
+* Refactor GitLab data normalization and API base URL handling (#628) @PhilixTheExplorer
+* fix: use sidebarAction to toggle side panel in Firefox (#567) @PhilixTheExplorer
+* feat: unified notification system  (#565) @Mateeb-Haider
+* Fix/replace unsafe DOM manipulaion (#594) @kaungmyatshwe1397
+* Refactor email client adapter (#571) @kaungmyatshwe1397
+* fix: remove duplicate type attribute on script tag (#550) @PhilixTheExplorer
+* chore: add small process note for new contributors (#612) @Mateeb-Haider
+* fix: background of extension for firefox sidepanel (#623) @Mateeb-Haider
+* style/biome formatting fixes (#620) @PhilixTheExplorer
+* fix(validation): move GitHub/GitLab username validation to input field (#417) (#450) @imanojz
+* fix: ux enhance for report insertion (#460) @Mateeb-Haider
+* fix: disable generate report button until required inputs are empty (#455) @Mateeb-Haider
+* fix: advence filter lable color (#560) @Mateeb-Haider
+* Added AGENTS.md (#513) @diyasharma12
+* fix: prevent start date from exceeding end date (#500) @Mateeb-Haider
+* feature: add Tamil and Greek translations (#468) @utkarshgupta2804
+*  Add AI-Assisted Contributions Guidelines to README (#510) @vedansh-5
+* feat: add collapsible Advanced Filters section (#522) @vedansh-5
+* fix: correct report generation and UI reset on platform switch (#516) @vedansh-5
+* Fix repository name in setup instructions (#499) @BhanuprakashMarati
+* Fix broken link in contributing.md under Fork
+and
+Clone
+repository section (#456) @Salmaan-M
+* feat: merged PRs filtering (#426) @Mateeb-Haider
+* feat: add short keys for report generation \& copying (#361) @Mateeb-Haider
+* Translation enhancements (#423) @Bekka592
+* Fix: Show message when user have no report for selected days (#390) @Mateeb-Haider
+*  Fix multi-user cache contamination  (#454) @vedansh-5
+* Fix double scrollbar in popup mode (#452) @vedansh-5
+* Revert Fix
+double
+scrollbar
+appearing
+in
+popup
+window (#435) @vedansh-5
+* Fix double scrollbar appearing in popup window (#434) @gurusatsangi
+* Check box state handling when token not  present (#384) @Mateeb-Haider
+* fixed UI Bug (#425) @vedansh-5
+* feat: complete translations for all languages (100% coverage) (#360) @Mateeb-Haider
+* readme update and lint (#419) @vedansh-5
+* Resolve snap bug (#418) @vedansh-5
+* Fix typos in Scrum Helper user-facing strings (#410) @puneetnith28
+
+## Maintenance
+
+* chore(deps)(deps-dev): bump postcss from 8.5.16 to 8.5.19 (#745) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.11 to 2.5.2 (#720) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump autoprefixer from 10.5.0 to 10.5.2 (#701) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps): bump @tailwindcss/cli from 4.3.1 to 4.3.2 (#703) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump postcss from 8.5.15 to 8.5.16 (#704) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps): bump @tailwindcss/cli from 4.3.0 to 4.3.1 (#686) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump postcss from 8.5.10 to 8.5.15 (#655) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps): bump @tailwindcss/cli from 4.2.4 to 4.3.0 (#633) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump tailwindcss from 4.2.4 to 4.3.0 (#634) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump autoprefixer from 10.4.27 to 10.5.0 (#548) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump postcss from 8.5.9 to 8.5.10 (#555) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps): bump @tailwindcss/cli from 4.2.2 to 4.2.4 (#589) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.10 to 2.4.11 (#527) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump postcss from 8.5.8 to 8.5.9 (#523) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.9 to 2.4.10 (#501) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.8 to 2.4.9 (#487) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps): bump picomatch from 2.3.1 to 2.3.2 (#489) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps): bump @tailwindcss/cli from 4.2.1 to 4.2.2 (#464) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.7 to 2.4.8 (#462) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump tailwindcss from 4.2.1 to 4.2.2 (#465) @[dependabot[bot]](https://github.com/apps/dependabot)
+* feat: Add cross-browser support for Gecko and Chromium via new build pipeline (#481) @vedansh-5
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.5 to 2.4.7 (#457) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump postcss from 8.5.6 to 8.5.8 (#421) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.4.4 to 2.4.5 (#416) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps): bump @tailwindcss/cli from 4.1.18 to 4.2.1 (#395) @[dependabot[bot]](https://github.com/apps/dependabot)
+* version bump to 2.1.4 (#408) @vedansh-5
+
+---
+
 ## v2.1.5 - 2026-07-14
 
 ## What's Changed

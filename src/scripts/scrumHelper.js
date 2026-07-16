@@ -1845,6 +1845,17 @@ function allIncluded(outputTarget = 'email') {
 						prAction = 'Updated PR';
 					}
 				} else if (platform === 'gitlab') {
+					// For existing MRs (not new), they must be open AND have commits in the date range (if showCommits is enabled)
+					if (!isNewPR) {
+						if (item.state !== 'opened') {
+							log(`[PR DEBUG] Skipping GitLab MR #${number} - existing MR but not open`);
+							continue;
+						}
+						if (showCommits && !hasCommitsInRange) {
+							log(`[PR DEBUG] Skipping GitLab MR #${number} - existing MR but no commits in date range`);
+							continue;
+						}
+					}
 					prAction = isNewPR ? 'Made Merge Request' : 'Updated Merge Request';
 					if (isCreatedToday && item.state === 'opened') {
 						prAction = 'Made Merge Request';
@@ -1854,9 +1865,10 @@ function allIncluded(outputTarget = 'email') {
 				}
 
 				if (isDraft) {
-					li = `<li><i>(${project})</i> - Made PR <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_draft_button : ''}`;
-					if (showCommits && item._allCommits && item._allCommits.length && !isNewPR) {
-						log(`[PR DEBUG] Rendering commits for existing draft PR #${number}:`, item._allCommits);
+					const draftLabel = platform === 'gitlab' ? 'Made Merge Request' : 'Made PR';
+					li = `<li><i>(${project})</i> - ${draftLabel} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_draft_button : ''}`;
+					if (showCommits && item._allCommits && item._allCommits.length) {
+						log(`[PR DEBUG] Rendering commits for draft PR #${number}:`, item._allCommits);
 						li += '<ul>';
 						item._allCommits.forEach((commit) => {
 							li += `<li style=\"list-style: disc; color: #666;\"><span style=\"color:#2563eb;\">${commit.messageHeadline}</span><span style=\"color:#666; font-size: 11px;\"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
@@ -1867,8 +1879,8 @@ function allIncluded(outputTarget = 'email') {
 				} else if (item.state === 'open' || item.state === 'opened') {
 					li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_open_button : ''}`;
 
-					if (showCommits && item._allCommits && item._allCommits.length && !isNewPR) {
-						log(`[PR DEBUG] Rendering commits for existing PR #${number}:`, item._allCommits);
+					if (showCommits && item._allCommits && item._allCommits.length) {
+						log(`[PR DEBUG] Rendering commits for PR #${number}:`, item._allCommits);
 						li += '<ul>';
 						item._allCommits.forEach((commit) => {
 							li += `<li style="list-style: disc; color: #666;">

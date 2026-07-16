@@ -304,6 +304,9 @@ document.addEventListener('DOMContentLoaded', () => {
 	githubTokenInput.addEventListener('input', () => checkTokenForShowCommits({ persistState: false }));
 	githubTokenInput.addEventListener('input', () => checkTokenForMergedPRs({ persistState: false }));
 	githubTokenInput.addEventListener('input', () => checkTokenForNextPlans({ persistState: false }));
+	if (gitlabTokenInput) {
+		gitlabTokenInput.addEventListener('input', () => checkTokenForShowCommits({ persistState: false }));
+	}
 
 	darkModeToggle.addEventListener('click', function () {
 		body.classList.toggle('dark-mode');
@@ -1085,6 +1088,11 @@ document.addEventListener('DOMContentLoaded', () => {
 				githubTokenInput.value = githubTokenInput.value.trim();
 			});
 		}
+		if (gitlabTokenInput) {
+			gitlabTokenInput.addEventListener('input', () => {
+				checkTokenForShowCommits({ persistState: false });
+			});
+		}
 		if (cacheInput) {
 			cacheInput.addEventListener('input', () => {
 				browser.storage.local.set({ cacheInput: cacheInput.value });
@@ -1789,6 +1797,39 @@ function updatePlatformUI(platform) {
 			el.classList.remove('hidden');
 		}
 	});
+
+	const tokenWarningShowCommits = document.getElementById('tokenWarningForShowCommits');
+	if (tokenWarningShowCommits) {
+		const span = tokenWarningShowCommits.querySelector('span');
+		if (span) {
+			if (platform === 'gitlab') {
+				span.setAttribute('data-i18n', 'tokenRequiredShowCommitsWarningGitLab');
+			} else {
+				span.setAttribute('data-i18n', 'tokenRequiredShowCommitsWarning');
+			}
+			const key = span.getAttribute('data-i18n');
+			const message = browser.i18n.getMessage(key);
+			if (message) {
+				span.textContent = message;
+			}
+		}
+	}
+
+	const showCommitsTooltip = document.querySelector(
+		'[data-i18n="showCommitsTooltip"], [data-i18n="showCommitsTooltipGitLab"]',
+	);
+	if (showCommitsTooltip) {
+		if (platform === 'gitlab') {
+			showCommitsTooltip.setAttribute('data-i18n', 'showCommitsTooltipGitLab');
+		} else {
+			showCommitsTooltip.setAttribute('data-i18n', 'showCommitsTooltip');
+		}
+		const key = showCommitsTooltip.getAttribute('data-i18n');
+		const message = browser.i18n.getMessage(key);
+		if (message) {
+			showCommitsTooltip.textContent = message;
+		}
+	}
 }
 
 const platformSelectEl = document.getElementById('platformSelect');
