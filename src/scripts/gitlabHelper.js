@@ -516,11 +516,16 @@ async function forceGitlabDataRefresh() {
 
 window['forceGitlabDataRefresh'] = forceGitlabDataRefresh;
 
+async function fetchIssuesFromGitLab() {
+	return [];
+}
+
 if (window.PlatformRegistry) {
 	window.PlatformRegistry.register('gitlab', {
 		hasRepoFilter: false,
 		checkTokenForFilter() {},
 		checkTokenForShowCommits: gitlabCheckTokenForShowCommits,
+    checkTokenForNextPlans() {},
 		checkTokenForMergedPRs({ persistState = false } = {}) {
 			const mergedPRsCheckbox = document.getElementById('onlyMergedPRs');
 			if (!mergedPRsCheckbox) {
@@ -573,5 +578,6 @@ if (window.PlatformRegistry) {
 			return Promise.resolve({});
 		},
 		forceDataRefresh: forceGitlabDataRefresh,
+		fetchAssignedIssues: fetchIssuesFromGitLab,
 	});
 }
