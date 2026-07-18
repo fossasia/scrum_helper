@@ -1836,6 +1836,22 @@ function updatePlatformUI(platform) {
 			showCommitsTooltip.textContent = message;
 		}
 	}
+
+	const repoFilterTooltip = document.querySelector(
+		'[data-i18n="repoFilterTooltip"], [data-i18n="repoFilterTooltipGitLab"]',
+	);
+	if (repoFilterTooltip) {
+		if (platform === 'gitlab') {
+			repoFilterTooltip.setAttribute('data-i18n', 'repoFilterTooltipGitLab');
+		} else {
+			repoFilterTooltip.setAttribute('data-i18n', 'repoFilterTooltip');
+		}
+		const key = repoFilterTooltip.getAttribute('data-i18n');
+		const message = browser.i18n.getMessage(key);
+		if (message) {
+			repoFilterTooltip.innerHTML = sanitizeHtml(message);
+		}
+	}
 }
 
 const platformSelectEl = document.getElementById('platformSelect');
