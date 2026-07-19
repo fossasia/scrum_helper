@@ -306,6 +306,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	githubTokenInput.addEventListener('input', () => checkTokenForNextPlans({ persistState: false }));
 	if (gitlabTokenInput) {
 		gitlabTokenInput.addEventListener('input', () => checkTokenForShowCommits({ persistState: false }));
+		gitlabTokenInput.addEventListener('input', () => checkTokenForNextPlans({ persistState: false }));
 	}
 
 	darkModeToggle.addEventListener('click', function () {
@@ -1763,6 +1764,21 @@ browser.storage.local.get(['platform']).then((result) => {
 	updatePlatformUI(platform);
 });
 
+function triggerNextPlansReload() {
+	const includeNextPlansCheckbox = document.getElementById('includeNextPlans');
+	if (includeNextPlansCheckbox) {
+		const container = document.getElementById('assignedIssuesSelector');
+		if (container) {
+			container.textContent = '';
+			container.style.display = 'none';
+			container.classList.add('hidden');
+		}
+		if (includeNextPlansCheckbox.checked && window.loadAssignedIssues) {
+			window.loadAssignedIssues();
+		}
+	}
+}
+
 // Update UI for platform
 function updatePlatformUI(platform) {
 	const usernameLabel = document.getElementById('usernameLabel');
@@ -1836,6 +1852,41 @@ function updatePlatformUI(platform) {
 			showCommitsTooltip.textContent = message;
 		}
 	}
+
+	const includeNextPlansTooltip = document.querySelector(
+		'[data-i18n="includeNextPlansTooltip"], [data-i18n="includeNextPlansTooltipGitLab"]',
+	);
+	if (includeNextPlansTooltip) {
+		if (platform === 'gitlab') {
+			includeNextPlansTooltip.setAttribute('data-i18n', 'includeNextPlansTooltipGitLab');
+		} else {
+			includeNextPlansTooltip.setAttribute('data-i18n', 'includeNextPlansTooltip');
+		}
+		const key = includeNextPlansTooltip.getAttribute('data-i18n');
+		const message = browser.i18n.getMessage(key);
+		if (message) {
+			includeNextPlansTooltip.textContent = message;
+		}
+	}
+
+	const tokenWarningForNextPlans = document.getElementById('tokenWarningForNextPlans');
+	if (tokenWarningForNextPlans) {
+		const span = tokenWarningForNextPlans.querySelector('span');
+		if (span) {
+			if (platform === 'gitlab') {
+				span.setAttribute('data-i18n', 'tokenRequiredNextPlansWarningGitLab');
+			} else {
+				span.setAttribute('data-i18n', 'tokenRequiredNextPlansWarning');
+			}
+			const key = span.getAttribute('data-i18n');
+			const message = browser.i18n.getMessage(key);
+			if (message) {
+				span.textContent = message;
+			}
+		}
+	}
+
+	triggerNextPlansReload();
 }
 
 const platformSelectEl = document.getElementById('platformSelect');
