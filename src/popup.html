@@ -339,6 +339,27 @@
 									<span data-i18n="onlyPrsRequiredShowCommitsWarning">Please check the 'Include open/draft PRs in the report' filter to show commits.</span>
 								</div>
 							</div>
+							<div class="my-4">
+								<div class="flex items-center">
+									<input type="checkbox" id="includeNextPlans" checked class="form-checkbox text-blue-600">
+									<label for="includeNextPlans" class="font-medium text-sm flex items-center"
+										style="margin-left: 4px;" data-i18n="includeNextPlansLabel">
+										Include assigned open issues to email question 2
+									</label>
+									<span class="tooltip-container">
+										<i class="fa fa-question-circle question-icon"></i>
+										<span class="tooltip-bubble" data-i18n="includeNextPlansTooltip">
+											Select and add them to question 2 in the email. A GitHub token is required.
+										</span>
+									</span>
+								</div>
+								<div id="tokenWarningForNextPlans"
+									class="hidden text-xs text-red-600 p-2 bg-red-50 border border-red-200 rounded-xl mt-2">
+									<span data-i18n="tokenRequiredNextPlansWarning">A GitHub token is required to fetch assigned issues. Please add one in the settings.</span>
+								</div>
+								<div id="assignedIssuesSelector" class="hidden"></div>
+							</div>
+						</div>
 					</details>
 
 					<div id="regenerateNotice" class="hidden text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-xl p-2 my-2 flex items-center gap-1.5">
@@ -710,6 +731,7 @@
 	<script type="text/javascript" src="materialize/js/materialize.min.js"></script>
 	<script src="scripts/emailClientAdapter.js"></script>
 	<script src="scripts/main.js"></script>
+	<script src="scripts/nextPlansHelper.js"></script>
 	<script src="scripts/popup.js"></script>
 	<script src="scripts/githubHelper.js"></script>
 	<script src="scripts/gitlabHelper.js"></script>
