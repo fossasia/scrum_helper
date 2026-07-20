@@ -14,12 +14,29 @@ browser.tabs?.onRemoved?.addListener((tabId) => {
 
 // Apply the display mode (popup vs sidePanel)
 function applyDisplayMode(mode) {
+	const hasSidePanel =
+		typeof browser.sidePanel?.open === 'function' || typeof browser.sidebarAction?.toggle === 'function';
+	if (mode === 'sidePanel' && !hasSidePanel) {
+		mode = 'popup';
+	}
+
 	if (mode === 'popup') {
 		browser.action.setPopup({ popup: 'popup.html' });
 	} else {
 		// sidePanel mode: clear popup so onClicked fires
 		browser.action.setPopup({ popup: '' });
 	}
+}
+
+function fallbackToPopup() {
+	browser.storage.local.set({ displayMode: 'popup', fallbackAlert: true }).then(() => {
+		browser.action.setPopup({ popup: 'popup.html' });
+		if (typeof browser.action.openPopup === 'function') {
+			browser.action.openPopup().catch((err) => {
+				console.error('Failed to open popup fallback:', err);
+			});
+		}
+	});
 }
 
 // Initialize display mode on startup
@@ -40,6 +57,7 @@ browser.action.onClicked.addListener((tab) => {
 		if (browser.sidebarAction?.toggle) {
 			browser.sidebarAction.toggle().catch((error) => {
 				console.error('Failed to toggle sidebar (Firefox):', error);
+				fallbackToPopup();
 			});
 			return;
 		}
@@ -84,8 +102,10 @@ browser.action.onClicked.addListener((tab) => {
 			.catch((error) => {
 				openByTabId.set(tabId, false);
 				console.error('Failed to open side panel:', error);
+				fallbackToPopup();
 			});
 	} catch (error) {
 		console.error('Failed to toggle side panel:', error);
+		fallbackToPopup();
 	}
 });

@@ -1124,16 +1124,48 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		}
 
-		browser.storage.local.get({ displayMode: 'sidePanel' }).then((result) => {
-			applyDisplayModeClass(result.displayMode);
+		browser.storage.local.get({ displayMode: 'sidePanel', fallbackAlert: false }).then((result) => {
+			let mode = result.displayMode;
+			const hasSidePanelSupport =
+				typeof browser.sidePanel?.open === 'function' || typeof browser.sidebarAction?.toggle === 'function';
+			if (result.fallbackAlert) {
+				const alertMsg =
+					chrome?.i18n?.getMessage('sidePanelFallbackAlert') ||
+					'Side panel is not supported or failed to load. Falling back to Popup mode.';
+				alert(alertMsg);
+				browser.storage.local.remove(['fallbackAlert']);
+			} else if (mode === 'sidePanel' && !hasSidePanelSupport) {
+				const alertMsg =
+					chrome?.i18n?.getMessage('sidePanelFallbackAlert') ||
+					'Side panel is not supported or failed to load. Falling back to Popup mode.';
+				alert(alertMsg);
+				browser.storage.local.set({ displayMode: 'popup' });
+				mode = 'popup';
+			}
+			applyDisplayModeClass(mode);
 		});
 
 		const displayModeSelect = document.getElementById('displayModeSelect');
 		const displayModeNotice = document.getElementById('displayModeNotice');
 		const displayModeNoticeText = document.getElementById('displayModeNoticeText');
 		if (displayModeSelect) {
+			const hasSidePanelSupport =
+				typeof browser.sidePanel?.open === 'function' || typeof browser.sidebarAction?.toggle === 'function';
+			if (!hasSidePanelSupport) {
+				const sidePanelOption = displayModeSelect.querySelector('option[value="sidePanel"]');
+				if (sidePanelOption) {
+					sidePanelOption.disabled = true;
+					const notSupportedText = chrome?.i18n?.getMessage('notSupported') || 'Not supported';
+					sidePanelOption.textContent += ` (${notSupportedText})`;
+				}
+			}
+
 			browser.storage.local.get({ displayMode: 'sidePanel' }).then((result) => {
-				displayModeSelect.value = result.displayMode;
+				let mode = result.displayMode;
+				if (mode === 'sidePanel' && !hasSidePanelSupport) {
+					mode = 'popup';
+				}
+				displayModeSelect.value = mode;
 			});
 			displayModeSelect.addEventListener('change', () => {
 				const mode = displayModeSelect.value;

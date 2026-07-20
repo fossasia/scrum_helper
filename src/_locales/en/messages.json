@@ -477,6 +477,14 @@
     "message": "Some data may be missing due to GitHub rate limit. Please add or check your GitHub token in settings.",
     "description": "Warning message shown below buttons when rate limit is exceeded."
   },
+  "notSupported": {
+    "message": "Not supported",
+    "description": "Label indicating a feature is not supported by the browser."
+  },
+  "sidePanelFallbackAlert": {
+    "message": "Side panel is not supported or failed to load. Falling back to Popup mode.",
+    "description": "Alert message shown when side panel falls back to popup mode."
+  },
   "includeBlockersLabel": {
     "message": "Include blockers in the report",
     "description": "Label for checkbox to include blockers in the scrum report."
