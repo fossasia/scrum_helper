@@ -156,6 +156,8 @@ document.addEventListener('DOMContentLoaded', () => {
 	const toggleGitlabTokenBtn = document.getElementById('toggleGitlabTokenVisibility');
 	const gitlabTokenEyeIcon = document.getElementById('gitlabTokenEyeIcon');
 	let gitlabTokenVisible = false;
+	const gitlabSelfHostedUrlInput = document.getElementById('gitlabSelfHostedUrl');
+	const gitlabInstanceStatus = document.getElementById('gitlabInstanceStatus');
 
 	const orgInput = document.getElementById('orgInput');
 
@@ -385,6 +387,105 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 	}
 
+	function normalizeGitLabInstanceUrl(value) {
+		const raw = typeof value === 'string' ? value.trim() : '';
+		if (!raw) {
+			return '';
+		}
+
+		const candidate = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+		try {
+			const parsed = new URL(candidate);
+			if (parsed.protocol !== 'https:') {
+				return '';
+			}
+			return parsed.origin.replace(/\/+$/, '');
+		} catch (error) {
+			return '';
+		}
+	}
+
+	function setGitLabInstanceStatus(message = '', isError = false) {
+		if (!gitlabInstanceStatus) {
+			return;
+		}
+
+		gitlabInstanceStatus.textContent = message || '';
+		gitlabInstanceStatus.classList.toggle('text-red-600', Boolean(message) && isError);
+		gitlabInstanceStatus.classList.toggle('text-green-600', Boolean(message) && !isError);
+		gitlabInstanceStatus.classList.toggle('text-gray-500', !message);
+	}
+
+	function getGitLabPermissionPattern(origin) {
+		if (!origin) {
+			return '';
+		}
+
+		return `${origin.replace(/\/+$/, '')}/api/v4/*`;
+	}
+
+	async function ensureGitLabInstancePermission(origin) {
+		if (!origin || origin === 'https://gitlab.com') {
+			return true;
+		}
+
+		if (!browser?.permissions?.contains || !browser?.permissions?.request) {
+			return true;
+		}
+
+		const permission = { origins: [getGitLabPermissionPattern(origin)] };
+		try {
+			if (await browser.permissions.contains(permission)) {
+				return true;
+			}
+			return await browser.permissions.request(permission);
+		} catch (error) {
+			console.error('GitLab permission request failed:', error);
+			return false;
+		}
+	}
+
+	async function persistGitLabInstanceUrl({ requestPermission = false } = {}) {
+		if (!gitlabSelfHostedUrlInput) {
+			return true;
+		}
+
+		const rawValue = gitlabSelfHostedUrlInput.value.trim();
+		if (!rawValue) {
+			await browser.storage.local.remove('gitlabSelfHostedUrl');
+			setGitLabInstanceStatus('');
+			return true;
+		}
+
+		const normalized = normalizeGitLabInstanceUrl(rawValue);
+		if (!normalized) {
+			setGitLabInstanceStatus(
+				browser?.i18n.getMessage('gitlabInstanceInvalid') || 'Enter a valid HTTPS GitLab instance URL.',
+				true,
+			);
+			return false;
+		}
+
+		gitlabSelfHostedUrlInput.value = normalized;
+		if (requestPermission) {
+			const granted = await ensureGitLabInstancePermission(normalized);
+			if (!granted) {
+				await browser.storage.local.remove('gitlabSelfHostedUrl');
+				gitlabSelfHostedUrlInput.value = '';
+				setGitLabInstanceStatus(
+					browser?.i18n.getMessage('gitlabInstancePermissionDenied') ||
+						'GitLab permission was not granted for this instance.',
+					true,
+				);
+				return false;
+			}
+		}
+
+		await browser.storage.local.set({ gitlabSelfHostedUrl: normalized });
+		setGitLabInstanceStatus('');
+		return true;
+	}
+
 	function parsePositiveInt(value) {
 		const n = Number.parseInt(value, 10);
 		return Number.isFinite(n) && n > 0 ? n : null;
@@ -610,6 +711,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				'showOpenLabel',
 				'showCommits',
 				'githubToken',
+				'gitlabSelfHostedUrl',
 				'cacheInput',
 				'onlyIssues',
 				'onlyPRs',
@@ -661,6 +763,9 @@ document.addEventListener('DOMContentLoaded', () => {
 					includeNextPlansCheckbox.checked = true;
 				}
 				if (result.githubToken) githubTokenInput.value = result.githubToken;
+				if (result.gitlabSelfHostedUrl && gitlabSelfHostedUrlInput) {
+					gitlabSelfHostedUrlInput.value = result.gitlabSelfHostedUrl;
+				}
 				if (result.cacheInput) cacheInput.value = result.cacheInput;
 				if (typeof result.yesterdayContribution !== 'undefined') yesterdayRadio.checked = result.yesterdayContribution;
 				if (typeof result.weeklyContribution !== 'undefined') weeklyRadio.checked = result.weeklyContribution;
@@ -774,10 +879,26 @@ document.addEventListener('DOMContentLoaded', () => {
 			});
 		}
 
-		generateBtn.addEventListener('click', () => {
+
+		if (gitlabSelfHostedUrlInput) {
+			gitlabSelfHostedUrlInput.addEventListener('blur', () => {
+				persistGitLabInstanceUrl({ requestPermission: false }).catch((error) => {
+					console.warn('Failed to save GitLab instance URL:', error?.message || error);
+				});
+			});
+			gitlabSelfHostedUrlInput.addEventListener('input', () => setGitLabInstanceStatus(''));
+		}
+
+		generateBtn.addEventListener('click', async () => {
 			window.hideRegenerateNotice();
 			if (!generateBtn._triggeredByShortcut) {
 				showPopupMessage(browser.i18n.getMessage('generatingReportNotification'));
+			}
+			if (platformSelect.value === 'gitlab') {
+				const saved = await persistGitLabInstanceUrl({ requestPermission: true });
+				if (!saved) {
+					return;
+				}
 			}
 			browser.storage.local
 				.get(['platform'])
