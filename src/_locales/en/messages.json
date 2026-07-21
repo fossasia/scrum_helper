@@ -131,7 +131,7 @@
     "description": "Label for the checkbox to show commits in open PRs."
   },
   "showCommitsTooltip": {
-    "message": "If checked, the report will show commits on open or draft PRs. A GitHub token is required."
+    "message": "If checked, the report will show commits on open or draft PRs. A GitHub token is required.",
     "description": "Tooltip explaining that GitHub Token is required to show commits."
 },
   "showCommitsTooltipGitLab": {
@@ -150,7 +150,7 @@
     "description": "Label for the checkbox to only include PRs in the report."
   },
   "onlyPRsTooltip": {
-    "message": "Include open PRs/ draft PRs in the report"
+    "message": "Include open PRs/ draft PRs in the report",
     "description": "Tooltip explaining what checking the only PRs checkbox does."
   },
   "cacheTTLLabel": {
