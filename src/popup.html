@@ -457,7 +457,7 @@
 					</div>
 
 					<div class="orgSection">
-						<div class="flex items-center mt-4">
+						<div class="flex items-center mt-4 githubOnlySection">
 							<p class="text-sm font-semibold" data-i18n="settingsOrgNameLabel">Your Organization Name
 							</p>
 							<span class="tooltip-container ml-2">
@@ -469,6 +469,21 @@
 									your GitHub
 									activities across all organizations.
 									Organization name is not case-sensitive.
+								</span>
+							</span>
+						</div>
+						<div class="flex items-center mt-4 gitlabOnlySection hidden">
+							<p class="text-sm font-semibold" data-i18n="settingsGroupNameLabel">Your Group Name
+							</p>
+							<span class="tooltip-container ml-2">
+								<i class="fa fa-question-circle question-icon"></i>
+								<span class="tooltip-bubble" data-i18n="gitlabOrgNameTooltip">
+									<b>Which group's GitLab activity?</b><br>
+									Enter the GitLab group name to fetch activities for. Leave empty to fetch
+									all
+									your GitLab
+									activities across all groups.
+									Group name is not case-sensitive.
 								</span>
 							</span>
 						</div>
