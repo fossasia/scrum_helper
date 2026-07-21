@@ -65,6 +65,54 @@ function formatLocalDate(date) {
 }
 
 /**
+ * Resolves the project name from the report item.
+ * For GitLab, it prioritizes the pre-mapped human-readable name.
+ * For GitHub and fallbacks, it extracts it from the repository URL.
+ * @param {Object} item - The report item
+ * @param {string} platform - The SCM platform ('github', 'gitlab', etc.)
+ * @returns {string} The resolved project name or empty string if not found
+ */
+function getProjectName(item, platform) {
+	if (platform === 'gitlab' && item.project) {
+		return item.project;
+	}
+	const repository_url = item.repository_url;
+	if (repository_url) {
+		return repository_url.substr(repository_url.lastIndexOf('/') + 1);
+	}
+	return '';
+}
+
+/**
+ * Normalizes the SCM state of a pull/merge request.
+ * Normalizes platform-specific states (e.g., GitLab 'opened'/'reopened') into standard 'open', 'closed', or 'merged'.
+ * @param {Object} item - The report item
+ * @param {string} platform - The SCM platform ('github', 'gitlab', etc.)
+ * @returns {string} Normalized state ('open', 'merged', or 'closed')
+ */
+function normalizePrState(item, platform) {
+	if (platform === 'gitlab') {
+		const state = item.state;
+		if (state === 'opened' || state === 'reopened') {
+			return 'open';
+		}
+		if (state === 'closed' || state === 'locked') {
+			return 'closed';
+		}
+		if (state === 'merged') {
+			return 'merged';
+		}
+		return state;
+	}
+
+	// GitHub mapping
+	if (item.state === 'closed' && item.pull_request?.merged_at) {
+		return 'merged';
+	}
+	return item.state;
+}
+
+/**
  * Redact sensitive storage data for safe logging
  * Prevents exposure of authentication tokens and credentials in console logs
  * @param {Object} items - Storage data that may contain sensitive keys
@@ -155,7 +203,8 @@ function allIncluded(outputTarget = 'email') {
 	let platformUsernameLocal = '';
 	let githubToken = '';
 	let projectName = '';
-	let lastWeekArray = [];
+	let lastWeekIssuesArray = [];
+	let lastWeekPrsArray = [];
 	let nextWeekArray = [];
 	let reviewedPrsArray = [];
 	let githubIssuesData = null;
@@ -1184,7 +1233,8 @@ function allIncluded(outputTarget = 'email') {
 			filtered: useRepoFilter,
 		});
 
-		lastWeekArray = [];
+		lastWeekIssuesArray = [];
+		lastWeekPrsArray = [];
 		nextWeekArray = [];
 		reviewedPrsArray = [];
 		githubPrsReviewDataProcessed = {};
@@ -1293,15 +1343,40 @@ function allIncluded(outputTarget = 'email') {
 	}
 
 	function buildActivityListHtml() {
-		if (lastWeekArray.length === 0 && reviewedPrsArray.length === 0) {
+		if (lastWeekIssuesArray.length === 0 && lastWeekPrsArray.length === 0 && reviewedPrsArray.length === 0) {
 			return wrapCompactText('No activity to report for the selected time period.');
 		}
 
-		let activityList = '<ul>';
-		for (let i = 0; i < lastWeekArray.length; i++) activityList += lastWeekArray[i];
-		for (let i = 0; i < reviewedPrsArray.length; i++) activityList += reviewedPrsArray[i];
-		activityList += '</ul>';
-		return activityList;
+		const sections = [];
+
+		if (lastWeekIssuesArray.length > 0) {
+			let issuesHtml = '<b>Issues:</b><ul>';
+			for (let i = 0; i < lastWeekIssuesArray.length; i++) {
+				issuesHtml += lastWeekIssuesArray[i];
+			}
+			issuesHtml += '</ul>';
+			sections.push(issuesHtml);
+		}
+
+		if (lastWeekPrsArray.length > 0) {
+			let prsHtml = '<b>Pull Requests:</b><ul>';
+			for (let i = 0; i < lastWeekPrsArray.length; i++) {
+				prsHtml += lastWeekPrsArray[i];
+			}
+			prsHtml += '</ul>';
+			sections.push(prsHtml);
+		}
+
+		if (reviewedPrsArray.length > 0) {
+			let reviewedHtml = '<b>Reviewed Pull Requests:</b><ul>';
+			for (let i = 0; i < reviewedPrsArray.length; i++) {
+				reviewedHtml += reviewedPrsArray[i];
+			}
+			reviewedHtml += '</ul>';
+			sections.push(reviewedHtml);
+		}
+
+		return sections.join('<br>');
 	}
 
 	function buildNextWeekListHtml() {
@@ -1639,12 +1714,11 @@ function allIncluded(outputTarget = 'email') {
 				}
 			}
 
-			const repository_url = item.repository_url;
-			if (!repository_url) {
-				logError('repository_url is undefined for item:', item);
+			const project = getProjectName(item, platform);
+			if (!project) {
+				logError('Project name could not be determined for item:', item);
 				continue;
 			}
-			const project = repository_url.substr(repository_url.lastIndexOf('/') + 1);
 			const title = item.title;
 			const number = item.number;
 			const html_url = item.html_url;
@@ -1656,7 +1730,7 @@ function allIncluded(outputTarget = 'email') {
 				number: number,
 				html_url: html_url,
 				title: title,
-				state: item.state === 'closed' && item.pull_request?.merged_at ? 'merged' : item.state,
+				state: normalizePrState(item, platform),
 			};
 			githubPrsReviewDataProcessed[project].push(obj);
 		}
@@ -1893,13 +1967,7 @@ function allIncluded(outputTarget = 'email') {
 			log('[SCRUM-DEBUG] isMR:', isMR, 'platform:', platform, 'item:', item);
 			const html_url = item.html_url;
 			const repository_url = item.repository_url;
-			// Use project name for GitLab, repo extraction for GitHub
-			const project =
-				(platform === 'gitlab' || platform === 'codeberg') && item.project
-					? item.project
-					: repository_url
-						? repository_url.substr(repository_url.lastIndexOf('/') + 1)
-						: '';
+			const project = getProjectName(item, platform);
 			const title = item.title;
 			const number = item.number;
 			let li = '';
@@ -2066,9 +2134,9 @@ function allIncluded(outputTarget = 'email') {
 						li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_closed_button : ''}</li>`;
 					}
 				}
-				log('[SCRUM-DEBUG] Added PR/MR to lastWeekArray:', li, item);
-				lastWeekArray.push(li);
-				continue; // Prevent PR/MR logic from reaching issue logic
+				log('[SCRUM-DEBUG] Added PR/MR to lastWeekPrsArray:', li, item);
+				lastWeekPrsArray.push(li);
+				continue; // Prevent issue logic from overwriting PR li
 			} else {
 				// Compute date range for filtering
 				let issueStartDateFilter;
@@ -2122,11 +2190,12 @@ function allIncluded(outputTarget = 'email') {
 					li = `<li><i>(${project})</i> - ${issueActionText}(#${number}) - <a href='${html_url}'>${title}</a></li>`;
 				}
 
-				log('[SCRUM-DEBUG] Added issue to lastWeekArray:', li, item);
-				lastWeekArray.push(li);
+				log('[SCRUM-DEBUG] Added issue to lastWeekIssuesArray:', li, item);
+				lastWeekIssuesArray.push(li);
 			}
 		}
-		log('[SCRUM-DEBUG] Final lastWeekArray:', lastWeekArray);
+		log('[SCRUM-DEBUG] Final lastWeekIssuesArray:', lastWeekIssuesArray);
+		log('[SCRUM-DEBUG] Final lastWeekPrsArray:', lastWeekPrsArray);
 		issuesDataProcessed = true;
 	}
 
