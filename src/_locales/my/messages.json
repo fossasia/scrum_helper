@@ -32,6 +32,9 @@
     "last1DayLabel": {
         "message": "အရင်နေ့"
     },
+    "lastWeekLabel": {
+        "message": "ပြီးခဲ့သည့်အပတ်"
+    },
     "startDateLabel": {
         "message": "မှ :"
     },
@@ -334,5 +337,11 @@
     },
     "insertedInEmailNotification": {
         "message": "အစီရင်ခံစာကို အီးမေးလ်ထဲသို့ ထည့်သွင်းပြီးပါပြီ။"
+    },
+    "rateLimitError": {
+        "message": "GitHub API နှုန်းကန့်သတ်ချက် ကျော်လွန်သွားပါပြီ။ ကျေးဇူးပြု၍ နောက်မှပြန်လည်ကြိုးစားပါ သို့မဟုတ် Scrum Helper ဆက်တင်များတွင် သင်၏ GitHub တိုကင်ကို ထည့်သွင်း/စစ်ဆေးပါ။"
+    },
+    "rateLimitWarningMessage": {
+        "message": "GitHub နှုန်းကန့်သတ်ချက်ကြောင့် အချို့သောအချက်အလက်များ လိုအပ်နေနိုင်ပါသည်။ ဆက်တင်များတွင် သင်၏ GitHub တိုကင်ကို ထည့်သွင်း သို့မဟုတ် စစ်ဆေးပါ။"
     }
 }
