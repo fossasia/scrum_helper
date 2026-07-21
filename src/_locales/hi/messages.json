@@ -32,6 +32,9 @@
     "last1DayLabel": {
         "message": "पिछला दिन"
     },
+    "lastWeekLabel": {
+        "message": "पिछला सप्ताह"
+    },
     "startDateLabel": {
         "message": "प्रारंभ तिथि:"
     },
@@ -334,5 +337,11 @@
     },
     "insertedInEmailNotification": {
         "message": "रिपोर्ट ईमेल में डाल दी गई!"
+    },
+    "rateLimitError": {
+        "message": "GitHub API दर सीमा समाप्त हो गई है। कृपया बाद में पुनः प्रयास करें या Scrum Helper सेटिंग्स में अपना GitHub टोकन जोड़ें/जांचें।,"
+    },
+    "rateLimitWarningMessage": {
+        "message": "GitHub दर सीमा के कारण कुछ डेटा गायब हो सकता है। कृपया सेटिंग्स में अपना GitHub टोकन जोड़ें या जांचें।"
     }
 }

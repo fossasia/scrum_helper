@@ -32,6 +32,9 @@
     "last1DayLabel": {
         "message": "Giorno precedente"
     },
+    "lastWeekLabel": {
+        "message": "Settimana precedente"
+    },
     "startDateLabel": {
         "message": "Da:"
     },
@@ -334,5 +337,11 @@
     },
     "insertedInEmailNotification": {
         "message": "Report inserito nell'email!"
+    },
+    "rateLimitError": {
+        "message": "Limite di frequenza delle API GitHub superato. Riprova più tardi o aggiungi/verifica il tuo token GitHub nelle impostazioni di Scrum Helper."
+    },
+    "rateLimitWarningMessage": {
+        "message": "Alcuni dati potrebbero mancare a causa del limite di frequenza di GitHub. Aggiungi o verifica il tuo token GitHub nelle impostazioni."
     }
 }
