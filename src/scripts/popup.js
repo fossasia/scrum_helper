@@ -1859,7 +1859,7 @@ function updatePlatformUI(platform) {
 		const key = repoFilterTooltip.getAttribute('data-i18n');
 		const message = browser.i18n.getMessage(key);
 		if (message) {
-			repoFilterTooltip.innerHTML = sanitizeHtml(message);
+			repoFilterTooltip.textContent = message;
 		}
 	}
 }
