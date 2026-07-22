@@ -1788,6 +1788,16 @@ function updatePlatformUI(platform) {
 		}
 	}
 
+	const orgInput = document.getElementById('orgInput');
+	if (orgInput) {
+		const key = platform === 'gitlab' ? 'gitlabOrgNamePlaceholder' : 'settingsOrgNamePlaceholder';
+		orgInput.setAttribute('data-i18n-placeholder', key);
+		const message = browser.i18n.getMessage(key);
+		if (message) {
+			orgInput.placeholder = message;
+		}
+	}
+
 	const orgSection = document.querySelector('.orgSection');
 	if (orgSection) {
 		if (platform === 'github' || platform === 'gitlab') {
