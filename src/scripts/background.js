@@ -23,7 +23,8 @@ function applyDisplayMode(mode) {
 }
 
 // Initialize display mode on startup
-browser.storage.local.get({ displayMode: 'sidePanel' }).then((result) => {
+const defaultDisplayMode = browser.sidePanel?.open ? 'sidePanel' : 'popup';
+browser.storage.local.get({ displayMode: defaultDisplayMode }).then((result) => {
 	applyDisplayMode(result.displayMode);
 });
 
