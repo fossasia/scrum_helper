@@ -1,6 +1,6 @@
 if (typeof importScripts === 'function') {
 	try {
-		importScripts('browser-polyfill.min.js');
+		importScripts('browser-polyfill.min.js', 'displayMode.js');
 	} catch (e) {
 		console.error('Failed to import polyfill in background:', e);
 	}
@@ -23,7 +23,7 @@ function applyDisplayMode(mode) {
 }
 
 // Initialize display mode on startup
-const defaultDisplayMode = browser.sidePanel?.open ? 'sidePanel' : 'popup';
+const defaultDisplayMode = getDefaultDisplayMode();
 browser.storage.local.get({ displayMode: defaultDisplayMode }).then((result) => {
 	applyDisplayMode(result.displayMode);
 });

@@ -9,6 +9,7 @@
   "background": {
     "scripts": [
       "scripts/browser-polyfill.min.js",
+      "scripts/displayMode.js",
       "scripts/background.js"
     ]
   },
