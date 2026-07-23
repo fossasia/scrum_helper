@@ -39,6 +39,7 @@
         "scripts/emailClientAdapter.js",
         "scripts/gitlabHelper.js",
         "scripts/githubHelper.js",
+        "scripts/codebergHelper.js",
         "scripts/scrumHelper.js"
       ]
     }
@@ -68,7 +69,12 @@
     "*://*.office.com/*",
     "*://*.yahoo.com/*",
     "https://api.github.com/*",
-    "https://gitlab.com/*"
+    "https://gitlab.com/*",
+    "https://codeberg.org/*"
+  ],
+  "optional_host_permissions": [
+    "https://*/*",
+    "http://*/*"
   ],
   "default_locale": "en"
 }
