@@ -209,6 +209,10 @@
     "message": "A GitHub token is required to fetch assigned issues. Please add one in the settings.",
     "description": "Warning message shown when next plans is enabled without a token."
   },
+  "tokenRequiredNextPlansWarningGitLab": {
+    "message": "A GitLab token is required to fetch assigned issues. Please add one in the settings.",
+    "description": "Warning message shown when next plans is enabled without a token on GitLab."
+  },
   "onlyPrsRequiredShowCommitsWarning": {
     "message": "Please check the 'Include open/draft PRs in the report' filter to show commits."
   },
@@ -503,6 +507,10 @@
     "message": "Select and add them to question 2 in the email. A GitHub token is required.",
     "description": "Tooltip text explaining the include next plans option."
   },
+  "includeNextPlansTooltipGitLab": {
+    "message": "Select and add them to question 2 in the email. A GitLab token is required.",
+    "description": "Tooltip text explaining the include next plans option on GitLab."
+  },
   "fetchingIssuesSpinner": {
     "message": "Fetching your assigned issues...",
     "description": "Loading message shown when fetching assigned issues."
@@ -514,6 +522,10 @@
   "githubTokenRequiredNextPlans": {
     "message": "A GitHub token is required to fetch assigned issues. Please add one in settings.",
     "description": "Error message when no token is present."
+  },
+  "gitlabTokenRequiredNextPlans": {
+    "message": "A GitLab token is required to fetch assigned issues. Please add one in settings.",
+    "description": "Error message when no token is present on GitLab."
   },
   "failedToFetchIssues": {
     "message": "Failed to fetch assigned issues.",

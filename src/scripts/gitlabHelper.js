@@ -1,67 +1,75 @@
 // GitLab API Helper for Scrum Helper Extension
 const DEFAULT_GITLAB_API_BASE_URL = 'https://gitlab.com/api/v4';
 
-let gitlabShowCommitsWarningTimeout;
+let gitlabWarningTimeout;
 
-function gitlabShowTokenWarningForShowCommits({ animate = false, durationMs = 4000 } = {}) {
-	const tokenWarning = document.getElementById('tokenWarningForShowCommits');
-	if (!tokenWarning) {
-		return;
-	}
-
+function gitlabShowTokenWarning(elementId, { animate = false, durationMs = 4000 } = {}) {
+	const tokenWarning = document.getElementById(elementId);
+	if (!tokenWarning) return;
 	tokenWarning.classList.remove('hidden');
 	if (animate) {
 		tokenWarning.classList.add('shake-animation');
 		setTimeout(() => tokenWarning.classList.remove('shake-animation'), 620);
 	}
-
-	if (gitlabShowCommitsWarningTimeout) {
-		clearTimeout(gitlabShowCommitsWarningTimeout);
-	}
-	gitlabShowCommitsWarningTimeout = setTimeout(() => {
-		tokenWarning.classList.add('hidden');
-	}, durationMs);
+	if (gitlabWarningTimeout) clearTimeout(gitlabWarningTimeout);
+	gitlabWarningTimeout = setTimeout(() => tokenWarning.classList.add('hidden'), durationMs);
 }
 
-function gitlabCheckTokenForShowCommits({
+function gitlabCheckToken({
+	checkboxId,
+	warningId,
+	storageKey,
 	showWarning = false,
 	animateWarning = false,
 	warningDurationMs = 4000,
 	persistState = false,
 } = {}) {
-	const showCommits = document.getElementById('showCommits');
+	const checkbox = document.getElementById(checkboxId);
 	const gitlabTokenInput = document.getElementById('gitlabToken');
+	if (!checkbox || !gitlabTokenInput) return;
 
-	if (!showCommits || !gitlabTokenInput) {
-		return;
-	}
-
-	const isShowCommitsEnabled = showCommits.checked;
+	const isEnabled = checkbox.checked;
 	const hasToken = gitlabTokenInput.value.trim() !== '';
 
-	if (isShowCommitsEnabled && !hasToken) {
-		showCommits.checked = false;
+	if (isEnabled && !hasToken) {
+		checkbox.checked = false;
 		if (showWarning) {
-			gitlabShowTokenWarningForShowCommits({
+			gitlabShowTokenWarning(warningId, {
 				animate: animateWarning,
 				durationMs: warningDurationMs,
 			});
 		}
-		browser.storage.local.set({ showCommits: false });
+		browser.storage.local.set({ [storageKey]: false });
+		if (checkboxId === 'includeNextPlans') {
+			const container = document.getElementById('assignedIssuesSelector');
+			if (container) {
+				container.style.display = 'none';
+				container.classList.add('hidden');
+			}
+		}
 		return;
 	}
 
-	const tokenWarning = document.getElementById('tokenWarningForShowCommits');
+	const tokenWarning = document.getElementById(warningId);
 	if (tokenWarning) {
-		if (gitlabShowCommitsWarningTimeout) {
-			clearTimeout(gitlabShowCommitsWarningTimeout);
-			gitlabShowCommitsWarningTimeout = null;
+		if (gitlabWarningTimeout) {
+			clearTimeout(gitlabWarningTimeout);
+			gitlabWarningTimeout = null;
 		}
 		tokenWarning.classList.add('hidden');
 	}
 	if (persistState) {
-		browser.storage.local.set({ showCommits: showCommits.checked });
+		browser.storage.local.set({ [storageKey]: checkbox.checked });
 	}
+}
+
+function gitlabCheckTokenForShowCommits(options = {}) {
+	gitlabCheckToken({
+		checkboxId: 'showCommits',
+		warningId: 'tokenWarningForShowCommits',
+		storageKey: 'showCommits',
+		...options,
+	});
 }
 
 function normalizeGitLabApiBaseUrl(apiBaseUrl) {
@@ -516,8 +524,94 @@ async function forceGitlabDataRefresh() {
 
 window['forceGitlabDataRefresh'] = forceGitlabDataRefresh;
 
-async function fetchIssuesFromGitLab() {
-	return [];
+function gitlabCheckTokenForNextPlans(options = {}) {
+	gitlabCheckToken({
+		checkboxId: 'includeNextPlans',
+		warningId: 'tokenWarningForNextPlans',
+		storageKey: 'includeNextPlans',
+		...options,
+	});
+}
+
+async function fetchIssuesFromGitLab(scope) {
+	const storage = await browser.storage.local.get([
+		'platform',
+		'gitlabUsername',
+		'gitlabToken',
+		'gitlabBaseUrl',
+		'platformUsername',
+	]);
+	const platform = storage.platform || 'github';
+	const username = storage.gitlabUsername || (platform === 'gitlab' ? storage.platformUsername : '');
+	const token = storage.gitlabToken;
+	const baseUrl = normalizeGitLabApiBaseUrl(storage.gitlabBaseUrl);
+
+	if (!username) {
+		throw new Error('GitLab username is required. Please set it in settings.');
+	}
+	if (!token) {
+		throw new Error('GitLab token is required. Please set it in settings.');
+	}
+
+	const headers = {
+		'PRIVATE-TOKEN': token,
+	};
+
+	let page = 1;
+	let allIssues = [];
+	let hasMore = true;
+
+	// Limit to 2 pages (200 issues) to keep response times fast
+	while (hasMore && page <= 2) {
+		const url = `${baseUrl}/issues?assignee_username=${encodeURIComponent(username)}&state=opened&scope=all&per_page=100&page=${page}&order_by=updated_at&sort=desc`;
+		console.log(`[NextPlans] Fetching page ${page} from GitLab: ${url}`);
+		const response = await fetch(url, { headers });
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({}));
+			const message = errorData.message || response.statusText;
+			throw new Error(`GitLab API error: ${message}`);
+		}
+
+		const items = await response.json();
+		allIssues = allIssues.concat(items);
+
+		if (items.length < 100) {
+			hasMore = false;
+		} else {
+			page++;
+		}
+	}
+
+	return allIssues.map((issue) => {
+		let repoName = '';
+		if (issue.web_url) {
+			try {
+				const u = new URL(issue.web_url);
+				const pathParts = u.pathname.split('/');
+				const dashIndex = pathParts.indexOf('-');
+				if (dashIndex !== -1) {
+					repoName = pathParts.slice(1, dashIndex).join('/');
+				} else {
+					repoName = pathParts.slice(1, -2).join('/');
+				}
+			} catch (e) {}
+		}
+		if (!repoName && issue.references && issue.references.full) {
+			repoName = issue.references.full.split('#')[0];
+		}
+
+		const safeTitle = typeof sanitizeHtml === 'function' ? sanitizeHtml(issue.title) : issue.title;
+		const safeUrl = typeof sanitizeHtml === 'function' ? sanitizeHtml(issue.web_url) : issue.web_url;
+
+		return {
+			id: issue.id,
+			number: Number.parseInt(issue.iid, 10),
+			title: safeTitle,
+			html_url: safeUrl,
+			repository: repoName,
+			state: issue.state,
+		};
+	});
 }
 
 if (window.PlatformRegistry) {
@@ -526,7 +620,7 @@ if (window.PlatformRegistry) {
 		checkTokenForFilter() {},
 		checkTokenForShowCommits: gitlabCheckTokenForShowCommits,
 		checkTokenForMergedPRs() {},
-		checkTokenForNextPlans() {},
+		checkTokenForNextPlans: gitlabCheckTokenForNextPlans,
 		triggerRepoFetchIfEnabled() {},
 		debugRepoFetch() {},
 		loadRepos() {},
