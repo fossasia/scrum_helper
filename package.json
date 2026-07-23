@@ -30,11 +30,11 @@
     "@biomejs/biome": "2.5.2",
     "@tauri-apps/api": "^2.11.1",
     "@tauri-apps/cli": "^2.11.4",
-    "autoprefixer": "^10.5.3",
+    "autoprefixer": "^10.5.4",
     "postcss": "^8.5.19",
     "tailwindcss": "^4.3.3"
   },
   "dependencies": {
-    "@tailwindcss/cli": "^4.3.2"
+    "@tailwindcss/cli": "^4.3.3"
   }
 }

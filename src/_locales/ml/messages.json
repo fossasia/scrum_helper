@@ -32,6 +32,9 @@
     "last1DayLabel": {
         "message": "മുൻ ദിവസം"
     },
+    "lastWeekLabel": {
+        "message": "കഴിഞ്ഞ ആഴ്ച"
+    },
     "startDateLabel": {
         "message": "മുതൽ:"
     },
@@ -334,5 +337,11 @@
     },
     "insertedInEmailNotification": {
         "message": "റിപ്പോർട്ട് ഇമെയിലിൽ ചേർത്തു!"
+    },
+    "rateLimitError": {
+        "message": "GitHub API നിരക്ക് പരിധി കവിഞ്ഞു. ദയവായി പിന്നീട് വീണ്ടും ശ്രമിക്കുക അല്ലെങ്കിൽ Scrum Helper ക്രമീകരണങ്ങളിൽ നിങ്ങളുടെ GitHub ടോക്കൺ ചേർക്കുക/പരിശോധിക്കുക."
+    },
+    "rateLimitWarningMessage": {
+        "message": "GitHub നിരക്ക് പരിധി കാരണം ചില വിവരങ്ങൾ നഷ്ടപ്പെട്ടിട്ടുണ്ടാകാം. ക്രമീകരണങ്ങളിൽ നിങ്ങളുടെ GitHub ടോക്കൺ ചേർക്കുകയോ പരിശോധിക്കുകയോ ചെയ്യുക."
     }
 }
