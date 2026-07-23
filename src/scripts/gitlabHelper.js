@@ -525,8 +525,20 @@ if (window.PlatformRegistry) {
 		hasRepoFilter: false,
 		checkTokenForFilter() {},
 		checkTokenForShowCommits: gitlabCheckTokenForShowCommits,
-		checkTokenForMergedPRs() {},
-		checkTokenForNextPlans() {},
+    checkTokenForNextPlans() {},
+		checkTokenForMergedPRs({ persistState = false } = {}) {
+			const mergedPRsCheckbox = document.getElementById('onlyMergedPRs');
+			if (!mergedPRsCheckbox) {
+				return;
+			}
+			const tokenWarning = document.getElementById('tokenWarningForMergedPRs');
+			if (tokenWarning) {
+				tokenWarning.classList.add('hidden');
+			}
+			if (persistState) {
+				chrome?.storage.local.set({ onlyMergedPRs: mergedPRsCheckbox.checked });
+			}
+		},
 		triggerRepoFetchIfEnabled() {},
 		debugRepoFetch() {},
 		loadRepos() {},
