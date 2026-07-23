@@ -157,6 +157,12 @@ document.addEventListener('DOMContentLoaded', () => {
 	const gitlabTokenEyeIcon = document.getElementById('gitlabTokenEyeIcon');
 	let gitlabTokenVisible = false;
 
+	// Gitee token elements
+	const giteeTokenInput = document.getElementById('giteeToken');
+	const toggleGiteeTokenBtn = document.getElementById('toggleGiteeTokenVisibility');
+	const giteeTokenEyeIcon = document.getElementById('giteeTokenEyeIcon');
+	let giteeTokenVisible = false;
+
 	const orgInput = document.getElementById('orgInput');
 
 	const platformSelect = document.getElementById('platformSelect');
@@ -297,6 +303,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			gitlabTokenInput.classList.add('token-animating');
 			setTimeout(() => gitlabTokenInput.classList.remove('token-animating'), 300);
+		});
+	}
+
+	// Gitee token visibility toggle
+	if (toggleGiteeTokenBtn && giteeTokenInput) {
+		toggleGiteeTokenBtn.addEventListener('click', () => {
+			giteeTokenVisible = !giteeTokenVisible;
+			giteeTokenInput.type = giteeTokenVisible ? 'text' : 'password';
+
+			giteeTokenEyeIcon.classList.add('eye-animating');
+			setTimeout(() => giteeTokenEyeIcon.classList.remove('eye-animating'), 400);
+			giteeTokenEyeIcon.className = giteeTokenVisible ? 'fa fa-eye-slash text-gray-600' : 'fa fa-eye text-gray-600';
+
+			giteeTokenInput.classList.add('token-animating');
+			setTimeout(() => giteeTokenInput.classList.remove('token-animating'), 300);
 		});
 	}
 
@@ -475,18 +496,24 @@ document.addEventListener('DOMContentLoaded', () => {
 			return;
 		}
 
-		const { platform, cacheInput, githubCache, gitlabCache } = await storageLocalGet([
+		const { platform, cacheInput, githubCache, gitlabCache, giteeCache } = await storageLocalGet([
 			'platform',
 			'cacheInput',
 			'githubCache',
 			'gitlabCache',
+			'giteeCache',
 		]);
 
 		const ttlMinutes = parsePositiveInt(cacheInput) ?? 10;
 		const ttlMs = ttlMinutes * 60 * 1000;
 
 		const activePlatform = platform || 'github';
-		const cache = activePlatform === 'gitlab' ? gitlabCache : githubCache;
+		let cache = githubCache;
+		if (activePlatform === 'gitlab') {
+			cache = gitlabCache;
+		} else if (activePlatform === 'gitee') {
+			cache = giteeCache;
+		}
 
 		const hasCacheData = !!cache?.data;
 		const timestamp = typeof cache?.timestamp === 'number' ? cache.timestamp : 0;
@@ -510,6 +537,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				'lastScrumReportUsername',
 				'githubUsername',
 				'gitlabUsername',
+				'giteeUsername',
 				'platformUsername',
 			]);
 
@@ -527,10 +555,12 @@ document.addEventListener('DOMContentLoaded', () => {
 				lastScrumReportUsername = storageValues.lastScrumReportUsername;
 			}
 
-			const expectedUsername =
-				activePlatform === 'gitlab'
-					? storageValues.gitlabUsername || storageValues.platformUsername
-					: storageValues.githubUsername || storageValues.platformUsername;
+			let expectedUsername = storageValues.githubUsername || storageValues.platformUsername;
+			if (activePlatform === 'gitlab') {
+				expectedUsername = storageValues.gitlabUsername || storageValues.platformUsername;
+			} else if (activePlatform === 'gitee') {
+				expectedUsername = storageValues.giteeUsername || storageValues.platformUsername;
+			}
 
 			const isUsernameMatch = lastScrumReportUsername
 				? lastScrumReportUsername === expectedUsername
@@ -624,6 +654,8 @@ document.addEventListener('DOMContentLoaded', () => {
 				'platform',
 				'githubUsername',
 				'gitlabUsername',
+				'giteeUsername',
+				'giteeToken',
 			])
 			.then((result) => {
 				if (result.projectName) projectNameInput.value = result.projectName;
@@ -661,6 +693,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					includeNextPlansCheckbox.checked = true;
 				}
 				if (result.githubToken) githubTokenInput.value = result.githubToken;
+				if (result.giteeToken && giteeTokenInput) giteeTokenInput.value = result.giteeToken;
 				if (result.cacheInput) cacheInput.value = result.cacheInput;
 				if (typeof result.yesterdayContribution !== 'undefined') yesterdayRadio.checked = result.yesterdayContribution;
 				if (typeof result.weeklyContribution !== 'undefined') weeklyRadio.checked = result.weeklyContribution;
@@ -1315,6 +1348,7 @@ document.addEventListener('DOMContentLoaded', () => {
 							'platform',
 							'githubUsername',
 							'gitlabUsername',
+							'giteeUsername',
 							'githubToken',
 							'orgName',
 						]);
@@ -1769,6 +1803,8 @@ function updatePlatformUI(platform) {
 	if (usernameLabel) {
 		if (platform === 'gitlab') {
 			usernameLabel.setAttribute('data-i18n', 'gitlabUsernameLabel');
+		} else if (platform === 'gitee') {
+			usernameLabel.setAttribute('data-i18n', 'giteeUsernameLabel');
 		} else {
 			usernameLabel.setAttribute('data-i18n', 'githubUsernameLabel');
 		}
@@ -1791,7 +1827,7 @@ function updatePlatformUI(platform) {
 
 	const orgSection = document.querySelector('.orgSection');
 	if (orgSection) {
-		if (platform === 'github' || platform === 'gitlab') {
+		if (platform === 'github' || platform === 'gitlab' || platform === 'gitee') {
 			orgSection.classList.remove('hidden');
 		} else {
 			orgSection.classList.add('hidden');
@@ -1799,7 +1835,7 @@ function updatePlatformUI(platform) {
 	}
 	const githubOnlySections = document.querySelectorAll('.githubOnlySection');
 	githubOnlySections.forEach((el) => {
-		if (platform === 'gitlab') {
+		if (platform === 'gitlab' || platform === 'gitee') {
 			el.classList.add('hidden');
 		} else {
 			el.classList.remove('hidden');
@@ -1807,7 +1843,23 @@ function updatePlatformUI(platform) {
 	});
 	const gitlabOnlySections = document.querySelectorAll('.gitlabOnlySection');
 	gitlabOnlySections.forEach((el) => {
-		if (platform === 'github') {
+		if (platform === 'gitlab') {
+			el.classList.remove('hidden');
+		} else {
+			el.classList.add('hidden');
+		}
+	});
+	const giteeOnlySections = document.querySelectorAll('.giteeOnlySection');
+	giteeOnlySections.forEach((el) => {
+		if (platform === 'gitee') {
+			el.classList.remove('hidden');
+		} else {
+			el.classList.add('hidden');
+		}
+	});
+	const githubOrGitlabOnlySections = document.querySelectorAll('.githubOrGitlabOnly');
+	githubOrGitlabOnlySections.forEach((el) => {
+		if (platform === 'gitee') {
 			el.classList.add('hidden');
 		} else {
 			el.classList.remove('hidden');
@@ -1865,11 +1917,13 @@ if (platformSelectEl) {
 		});
 		const platformUsername = document.getElementById('platformUsername');
 		if (platformUsername) {
-			const currentPlatform = platformSelectEl.value === 'github' ? 'gitlab' : 'github'; // Get the platform we're switching from
-			const currentUsername = platformUsername.value;
-			if (currentUsername.trim()) {
-				browser.storage.local.set({ [`${currentPlatform}Username`]: currentUsername });
-			}
+			browser.storage.local.get(['platform']).then((result) => {
+				const currentPlatform = result.platform || 'github';
+				const currentUsername = platformUsername.value;
+				if (currentUsername.trim()) {
+					browser.storage.local.set({ [`${currentPlatform}Username`]: currentUsername });
+				}
+			});
 		}
 
 		browser.storage.local.get([`${platform}Username`]).then((result) => {
@@ -1903,6 +1957,8 @@ function setPlatformDropdown(value) {
 	if (dropdownSelected) {
 		if (value === 'gitlab') {
 			dropdownSelected.innerHTML = '<i class="fab fa-gitlab mr-2"></i> GitLab';
+		} else if (value === 'gitee') {
+			dropdownSelected.innerHTML = '<i class="fa fa-git mr-2"></i> Gitee';
 		} else {
 			dropdownSelected.innerHTML = '<i class="fab fa-github mr-2"></i> GitHub';
 		}
@@ -2041,6 +2097,8 @@ browser.storage.local.get(['platform']).then((result) => {
 	if (dropdownSelected) {
 		if (platform === 'gitlab') {
 			dropdownSelected.innerHTML = '<i class="fab fa-gitlab mr-2"></i> GitLab';
+		} else if (platform === 'gitee') {
+			dropdownSelected.innerHTML = '<i class="fa fa-git mr-2"></i> Gitee';
 		} else {
 			dropdownSelected.innerHTML = '<i class="fab fa-github mr-2"></i> GitHub';
 		}
@@ -2158,7 +2216,7 @@ document.querySelectorAll('input[name="timeframe"]').forEach((radio) => {
 				} catch (e) {}
 
 				// Clear all caches
-				const keysToRemove = ['githubCache', 'repoCache', 'gitlabCache'];
+				const keysToRemove = ['githubCache', 'repoCache', 'gitlabCache', 'giteeCache'];
 				await browser.storage.local.remove(keysToRemove);
 
 				// Clear Next Plans cache and fetch them again
