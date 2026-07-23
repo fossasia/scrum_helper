@@ -518,5 +518,13 @@
   "failedToFetchIssues": {
     "message": "Failed to fetch assigned issues.",
     "description": "Error message when fetching fails."
+  },
+  "repoFilterTooltip": {
+    "message": "Github Token required.<br>To force a repo list update, <br>click the Refresh Data button.",
+    "description": "Tooltip message displayed for GitHub repository filter option."
+  },
+  "repoFilterTooltipGitLab": {
+    "message": "GitLab Token required.<br>To force a repo list update, <br>click the Refresh Data button.",
+    "description": "Tooltip message displayed for GitLab repository filter option."
   }
 }
