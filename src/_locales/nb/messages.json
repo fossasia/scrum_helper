@@ -32,6 +32,9 @@
     "last1DayLabel": {
         "message": "Forrige dag"
     },
+    "lastWeekLabel": {
+        "message": "Forrige uke"
+    },
     "startDateLabel": {
         "message": "Fra:"
     },
@@ -334,5 +337,11 @@
     },
     "insertedInEmailNotification": {
         "message": "Rapport satt inn i e-post!"
+    },
+    "rateLimitError": {
+        "message": "GitHub API-ratebegrensning overskredet. Prøv igjen senere eller legg til/sjekk GitHub-tokenet ditt i Scrum Helper-innstillingene."
+    },
+    "rateLimitWarningMessage": {
+        "message": "Noen data kan mangle på grunn av GitHub-ratebegrensningen. Vennligst legg til eller sjekk GitHub-tokenet ditt i innstillingene."
     }
 }
