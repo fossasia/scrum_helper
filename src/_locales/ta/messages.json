@@ -32,6 +32,9 @@
     "last1DayLabel": {
         "message": "முந்தைய நாள்"
     },
+    "lastWeekLabel": {
+        "message": "கடந்த வாரம்"
+    },
     "startDateLabel": {
         "message": "தொடக்கம்:"
     },
@@ -154,6 +157,9 @@
     },
     "repoCount": {
         "message": "$1 களஞ்சியங்கள் தேர்ந்தெடுக்கப்பட்டன"
+    },
+    "clearAllBtn": {
+        "message": "அனைத்தையும் அழி"
     },
     "repoLoading": {
         "message": "களஞ்சியங்கள் ஏற்றப்படுகின்றன..."
@@ -331,5 +337,11 @@
     },
     "insertedInEmailNotification": {
         "message": "அறிக்கை மின்னஞ்சலில் செருகப்பட்டது!"
+    },
+    "rateLimitError": {
+        "message": "GitHub API விகித வரம்பு மீறப்பட்டது. பின்னர் மீண்டும் முயற்சிக்கவும் அல்லது Scrum Helper அமைப்புகளில் உங்கள் GitHub டோக்கனை சேர்க்கவும்/சரிபார்க்கவும்."
+    },
+    "rateLimitWarningMessage": {
+        "message": "GitHub விகித வரம்பு காரணமாக சில தரவுகள் విடுபட்டிருக்கலாம். அமைப்புகளில் உங்கள் GitHub டோக்கனை சேர்க்கவும் அல்லது சரிபார்க்கவும்."
     }
 }

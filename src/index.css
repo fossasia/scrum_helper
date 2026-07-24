@@ -1232,3 +1232,91 @@ html.mode-popup .timeframe-presets {
     gap: 16px;
     margin-bottom: 0;
 }
+
+#assignedIssuesSelector {
+  margin-top: 10px;
+  padding: 10px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.dark-mode #assignedIssuesSelector {
+  background-color: #262626;
+  border-color: #404040;
+}
+
+.issue-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 4px;
+  cursor: pointer;
+  color: inherit;
+}
+
+.issue-checkbox-label:hover {
+  background-color: #f0f0f0;
+  border-radius: 3px;
+}
+
+.dark-mode .issue-checkbox-label:hover {
+  background-color: #333333;
+}
+
+.scope-info {
+  font-size: 11px;
+  color: #666;
+  margin-bottom: 8px;
+  font-style: italic;
+}
+
+.dark-mode .scope-info {
+  color: #999;
+}
+
+.empty-message {
+  color: #999;
+  font-style: italic;
+  padding: 15px 10px;
+  text-align: center;
+  font-size: 13px;
+}
+
+.dark-mode .empty-message {
+  color: #666;
+}
+
+.loading-issues {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 15px;
+  color: #666;
+  font-size: 13px;
+}
+
+.dark-mode .loading-issues {
+  color: #aaa;
+}
+
+.loading-issues .spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #ddd;
+  border-top-color: #3f51b5;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.dark-mode .loading-issues .spinner {
+  border-color: #444;
+  border-top-color: #5c6bc0;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
