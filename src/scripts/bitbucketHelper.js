@@ -82,7 +82,7 @@ class BitbucketHelper {
 	/* ---------- AUTH HEADER HELPER ---------- */
 
 	getAuthHeader(username, token) {
-		if (!token) return null;
+		if (!token || token === 'undefined' || token === 'null' || token.trim() === '') return null;
 		if (token.startsWith('Bearer ')) {
 			return token;
 		}
@@ -106,7 +106,8 @@ class BitbucketHelper {
 		if (auth) headers.Authorization = auth;
 
 		let url = `${this.baseUrl}/repositories?role=member`;
-		if (!token) {
+		const hasToken = token && token !== 'undefined' && token !== 'null' && token.trim() !== '';
+		if (!hasToken) {
 			url = `${this.baseUrl}/repositories/${username}`;
 		}
 
@@ -138,7 +139,8 @@ class BitbucketHelper {
 	/* ---------- MAIN DATA FETCH ---------- */
 
 	async fetchBitbucketData(username, startDate, endDate, token = null) {
-		const cacheKey = `${username}-${startDate}-${endDate}-${token ? 'auth' : 'noauth'}`;
+		const hasToken = token && token !== 'undefined' && token !== 'null' && token.trim() !== '';
+		const cacheKey = `${username}-${startDate}-${endDate}-${hasToken ? 'auth' : 'noauth'}`;
 
 		if (!this.cache.data) await this.loadFromStorage();
 
@@ -174,7 +176,7 @@ class BitbucketHelper {
 			let userNickname = username;
 			let userDisplayName = null;
 
-			if (token) {
+			if (hasToken) {
 				try {
 					const userRes = await fetch(`${this.baseUrl}/user`, { headers });
 					if (userRes.ok) {

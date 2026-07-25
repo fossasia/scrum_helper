@@ -296,16 +296,16 @@ function allIncluded(outputTarget = 'email') {
 					const bitbucketTokenFromDOM = document.getElementById('bitbucketToken')?.value;
 
 					// Save to platform-specific storage
-					if (usernameFromDOM) {
+					if (usernameFromDOM !== undefined) {
 						chrome.storage.local.set({ [platformUsernameKey]: usernameFromDOM });
 						platformUsername = usernameFromDOM;
 						platformUsernameLocal = usernameFromDOM;
 					}
 
-					items.projectName = projectFromDOM || items.projectName;
-					items.githubToken = tokenFromDOM || items.githubToken;
-					items.gitlabToken = gitlabTokenFromDOM || items.gitlabToken;
-					items.bitbucketToken = bitbucketTokenFromDOM || items.bitbucketToken;
+					items.projectName = projectFromDOM !== undefined ? projectFromDOM : items.projectName;
+					items.githubToken = tokenFromDOM !== undefined ? tokenFromDOM : items.githubToken;
+					items.gitlabToken = gitlabTokenFromDOM !== undefined ? gitlabTokenFromDOM : items.gitlabToken;
+					items.bitbucketToken = bitbucketTokenFromDOM !== undefined ? bitbucketTokenFromDOM : items.bitbucketToken;
 					chrome.storage.local.set({
 						projectName: items.projectName,
 						githubToken: items.githubToken,
@@ -1845,18 +1845,20 @@ function allIncluded(outputTarget = 'email') {
 		useMergedStatus = true;
 
 		const prsToCheck = [];
-		for (let i = 0; i < items.length; i++) {
-			const item = items[i];
-			if (item.pull_request && item.state === 'closed' && useMergedStatus && !fallbackToSimple) {
-				const repository_url = item.repository_url;
-				if (!repository_url) {
-					logError('repository_url is undefined for item:', item);
-					continue;
+		if (platform === 'github') {
+			for (let i = 0; i < items.length; i++) {
+				const item = items[i];
+				if (item.pull_request && item.state === 'closed' && useMergedStatus && !fallbackToSimple) {
+					const repository_url = item.repository_url;
+					if (!repository_url) {
+						logError('repository_url is undefined for item:', item);
+						continue;
+					}
+					const repoParts = repository_url.split('/');
+					const owner = repoParts[repoParts.length - 2];
+					const repo = repoParts[repoParts.length - 1];
+					prsToCheck.push({ owner, repo, number: item.number, idx: i });
 				}
-				const repoParts = repository_url.split('/');
-				const owner = repoParts[repoParts.length - 2];
-				const repo = repoParts[repoParts.length - 1];
-				prsToCheck.push({ owner, repo, number: item.number, idx: i });
 			}
 		}
 
@@ -1947,6 +1949,12 @@ function allIncluded(outputTarget = 'email') {
 					} else if (item.pull_request && Object.prototype.hasOwnProperty.call(item.pull_request, 'merged_at')) {
 						hasMergeInfo = true;
 						isMerged = !!item.pull_request.merged_at;
+					} else if (platform === 'gitlab') {
+						hasMergeInfo = true;
+						isMerged = item.state === 'merged';
+					} else if (platform === 'bitbucket') {
+						hasMergeInfo = true;
+						isMerged = item.pull_request?.merged === true;
 					}
 
 					if (!hasMergeInfo) {
