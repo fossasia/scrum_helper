@@ -5,7 +5,7 @@ const SCRUM_SANITIZER_CONFIG = {
 	FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover'],
 };
 
-function sanitizeHtml(html) {
+function _sanitizeHtml(html) {
 	if (typeof DOMPurify !== 'undefined') {
 		return DOMPurify.sanitize(html, SCRUM_SANITIZER_CONFIG);
 	}

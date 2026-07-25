@@ -157,11 +157,11 @@ document.addEventListener('DOMContentLoaded', () => {
 	const gitlabTokenEyeIcon = document.getElementById('gitlabTokenEyeIcon');
 	let gitlabTokenVisible = false;
 
-	const orgInput = document.getElementById('orgInput');
+	const _orgInput = document.getElementById('orgInput');
 
 	const platformSelect = document.getElementById('platformSelect');
-	const usernameLabel = document.getElementById('usernameLabel');
-	const platformUsername = document.getElementById('platformUsername');
+	const _usernameLabel = document.getElementById('usernameLabel');
+	const _platformUsername = document.getElementById('platformUsername');
 
 	function getActivePlatformHelper() {
 		const platform = platformSelect?.value || 'github';
@@ -244,7 +244,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	}
 
-	window.showRegenerateNotice = function () {
+	window.showRegenerateNotice = () => {
 		const scrumReport = document.getElementById('scrumReport');
 		const notice = document.getElementById('regenerateNotice');
 		if (!scrumReport || !notice) return;
@@ -256,7 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	};
 
-	window.hideRegenerateNotice = function () {
+	window.hideRegenerateNotice = () => {
 		const notice = document.getElementById('regenerateNotice');
 		if (notice) {
 			notice.classList.add('hidden');
@@ -1213,9 +1213,9 @@ document.addEventListener('DOMContentLoaded', () => {
 	//report filter
 	const repoSearch = document.getElementById('repoSearch');
 	const repoDropdown = document.getElementById('repoDropdown');
-	const selectedReposDiv = document.getElementById('selectedRepos');
+	const _selectedReposDiv = document.getElementById('selectedRepos');
 	const repoTags = document.getElementById('repoTags');
-	const repoPlaceholder = document.getElementById('repoPlaceholder');
+	const _repoPlaceholder = document.getElementById('repoPlaceholder');
 	const repoCount = document.getElementById('repoCount');
 	const repoStatus = document.getElementById('repoStatus');
 	const clearAllReposBtn = document.getElementById('clearAllReposBtn');
@@ -1951,7 +1951,7 @@ if (dropdownBtn && customDropdown && dropdownList) {
 
 if (dropdownList) {
 	dropdownList.querySelectorAll('li').forEach((item) => {
-		item.addEventListener('click', function (e) {
+		item.addEventListener('click', function (_e) {
 			const newPlatform = this.getAttribute('data-value');
 			const currentPlatform = platformSelectHidden ? platformSelectHidden.value : 'github';
 			const platformUsername = document.getElementById('platformUsername');
@@ -2151,11 +2151,11 @@ document.querySelectorAll('input[name="timeframe"]').forEach((radio) => {
 
 			try {
 				// Determine platform
-				let platform = 'github';
+				let _platform = 'github';
 				try {
 					const items = await browser.storage.local.get(['platform']);
-					platform = items.platform || 'github';
-				} catch (e) {}
+					_platform = items.platform || 'github';
+				} catch (_e) {}
 
 				// Clear all caches
 				const keysToRemove = ['githubCache', 'repoCache', 'gitlabCache'];
@@ -2321,7 +2321,7 @@ function handleOrgInputBlurValidation(org) {
 }
 
 // Rate Limit Warning banner management
-(function () {
+(() => {
 	let rateLimitTimeout;
 	const rateLimitWarning = document.getElementById('rateLimitWarning');
 	const closeRateLimitWarning = document.getElementById('closeRateLimitWarning');
@@ -2335,7 +2335,7 @@ function handleOrgInputBlurValidation(org) {
 		});
 	}
 
-	window.showRateLimitWarning = function () {
+	window.showRateLimitWarning = () => {
 		const banner = document.getElementById('rateLimitWarning');
 		if (banner) {
 			banner.classList.remove('hidden');
