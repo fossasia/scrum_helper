@@ -269,7 +269,11 @@ class GiteeHelper {
 										state: prState,
 										project: repo.name,
 										repository_url: `${this.baseUrl}/repos/${owner}/${repoName}`,
-										pull_request: true,
+										pull_request: {
+											url: pr.url,
+											html_url: pr.html_url,
+											merged_at: pr.merged_at || pr.closed_at || null,
+										},
 										number: pr.number,
 									};
 								});

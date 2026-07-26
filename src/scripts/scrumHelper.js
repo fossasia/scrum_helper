@@ -2009,7 +2009,15 @@ function allIncluded(outputTarget = 'email') {
 				if (platform === 'github' || platform === 'gitee') {
 					// For existing PRs (not new), include them if they are open/draft, closed/merged within the date range, or have commits in the date range
 					if (!isNewPR) {
-						const closedDate = item.closed_at ? new Date(item.closed_at) : null;
+						const closedDate = item.closed_at
+							? new Date(item.closed_at)
+							: item.merged_at
+								? new Date(item.merged_at)
+								: item.pull_request?.merged_at
+									? new Date(item.pull_request.merged_at)
+									: item.updated_at
+										? new Date(item.updated_at)
+										: null;
 						const isClosedInRange =
 							closedDate &&
 							!Number.isNaN(closedDate.getTime()) &&
