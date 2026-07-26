@@ -52,10 +52,11 @@ class GiteeHelper {
 		}
 	}
 
-	async fetchGiteeData(username, startDate, endDate, token = null, orgName = '') {
+	async fetchGiteeData(username, startDate, endDate, token = null, orgName = '', projectName = '') {
 		const tokenMarker = token ? 'auth' : 'noauth';
 		const orgMarker = orgName ? `org-${orgName}` : 'noorg';
-		const cacheKey = `${this.baseUrl}-${username}-${startDate}-${endDate}-${tokenMarker}-${orgMarker}`;
+		const projectMarker = projectName ? `proj-${projectName}` : 'noproj';
+		const cacheKey = `${this.baseUrl}-${username}-${startDate}-${endDate}-${tokenMarker}-${orgMarker}-${projectMarker}`;
 
 		// Check if we need to load from storage
 		if (!this.cache.data && !this.cache.fetching) {
@@ -100,11 +101,33 @@ class GiteeHelper {
 					params.set('access_token', token);
 				}
 				const url = `${this.baseUrl}${path}${params.toString() ? '?' + params.toString() : ''}`;
-				const res = await fetch(url);
-				if (!res.ok) {
-					throw new Error(`Gitee API error: ${res.status} ${res.statusText}`);
+				const controller = new AbortController();
+				const timeoutId = setTimeout(() => controller.abort(), 55000); // 25s timeout
+
+				console.log(`[Gitee Fetch] Starting request to: ${url}`);
+				const startTime = Date.now();
+				try {
+					const res = await fetch(url, { signal: controller.signal });
+					clearTimeout(timeoutId);
+					console.log(
+						`[Gitee Fetch] Received response from: ${path} (Status: ${res.status}, Time: ${Date.now() - startTime}ms)`,
+					);
+					if (!res.ok) {
+						const errorObj = new Error(`Gitee API error: ${res.status} ${res.statusText}`);
+						errorObj.status = res.status;
+						throw errorObj;
+					}
+					return await res.json();
+				} catch (err) {
+					clearTimeout(timeoutId);
+					console.error(`[Gitee Fetch] Request failed for: ${path} (Time: ${Date.now() - startTime}ms). Error:`, err);
+					if (err.name === 'AbortError') {
+						const timeoutErr = new Error(`Gitee API request timed out (25s) for path: ${path}`);
+						timeoutErr.status = 408;
+						throw timeoutErr;
+					}
+					throw err;
 				}
-				return res.json();
 			};
 
 			// 1. Fetch user info
@@ -127,7 +150,29 @@ class GiteeHelper {
 			}
 
 			// 2. Fetch Repositories
-			if (orgName) {
+			if (projectName) {
+				let targetOwner = orgName || username;
+				let targetRepo = '';
+				if (projectName.includes('/')) {
+					const parts = projectName.split('/');
+					targetOwner = parts[0];
+					targetRepo = parts[1];
+				} else {
+					targetRepo = projectName;
+				}
+				try {
+					const repoObj = await giteeFetch(
+						`/repos/${encodeURIComponent(targetOwner)}/${encodeURIComponent(targetRepo)}`,
+					);
+					repos = [repoObj];
+				} catch (err) {
+					console.error(`Error fetching Gitee repo ${targetOwner}/${targetRepo}:`, err);
+					if (err.message.includes('404')) {
+						throw new Error(`Repository '${targetOwner}/${targetRepo}' not found`);
+					}
+					throw err;
+				}
+			} else if (orgName) {
 				try {
 					repos = await giteeFetch(`/orgs/${encodeURIComponent(orgName)}/repos`, {
 						per_page: 100,
@@ -175,9 +220,12 @@ class GiteeHelper {
 			const startDateTime = new Date(startDate + 'T00:00:00Z');
 			const endDateTime = new Date(endDate + 'T23:59:59Z');
 
-			for (const repo of activeRepos) {
+			// Fetch all repositories' issues and PRs in parallel
+			const fetchPromises = activeRepos.map(async (repo) => {
 				const owner = repo.owner?.login || orgName || username;
 				const repoName = repo.path || repo.name;
+				let repoPulls = [];
+				let repoIssues = [];
 
 				if (fetchPRs) {
 					try {
@@ -190,7 +238,7 @@ class GiteeHelper {
 						);
 
 						if (Array.isArray(pulls)) {
-							const filteredPulls = pulls
+							repoPulls = pulls
 								.filter((pr) => {
 									const prUser = pr.user?.login || '';
 									if (prUser.toLowerCase() !== username.toLowerCase()) {
@@ -201,7 +249,6 @@ class GiteeHelper {
 								})
 								.map((pr) => {
 									let prState = pr.state || 'open';
-									// Map state
 									if (prState === 'merged' || pr.merged_at) {
 										prState = 'merged';
 									} else if (prState === 'closed') {
@@ -218,12 +265,12 @@ class GiteeHelper {
 										number: pr.number,
 									};
 								});
-							allPulls = allPulls.concat(filteredPulls);
 						}
-						// Add delay
-						await new Promise((r) => setTimeout(r, 100));
 					} catch (e) {
 						console.error(`Error fetching pulls for repo ${repoName}:`, e);
+						if (e.status === 401 || e.status === 403) {
+							throw e;
+						}
 					}
 				}
 
@@ -238,10 +285,9 @@ class GiteeHelper {
 						);
 
 						if (Array.isArray(issues)) {
-							const filteredIssues = issues
+							repoIssues = issues
 								.filter((issue) => {
 									const issueUser = issue.user?.login || '';
-									// Also check assignee
 									const isAssignee = Array.isArray(issue.assignees)
 										? issue.assignees.some((a) => a.login?.toLowerCase() === username.toLowerCase())
 										: issue.assignee?.login?.toLowerCase() === username.toLowerCase();
@@ -269,14 +315,22 @@ class GiteeHelper {
 										number: issue.number,
 									};
 								});
-							allIssues = allIssues.concat(filteredIssues);
 						}
-						// Add delay
-						await new Promise((r) => setTimeout(r, 100));
 					} catch (e) {
 						console.error(`Error fetching issues for repo ${repoName}:`, e);
+						if (e.status === 401 || e.status === 403) {
+							throw e;
+						}
 					}
 				}
+
+				return { repoPulls, repoIssues };
+			});
+
+			const results = await Promise.all(fetchPromises);
+			for (const res of results) {
+				allPulls = allPulls.concat(res.repoPulls);
+				allIssues = allIssues.concat(res.repoIssues);
 			}
 
 			const giteeData = {

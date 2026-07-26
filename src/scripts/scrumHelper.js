@@ -244,16 +244,16 @@ function allIncluded(outputTarget = 'email') {
 					const giteeTokenFromDOM = document.getElementById('giteeToken')?.value;
 
 					// Save to platform-specific storage
-					if (usernameFromDOM) {
+					if (usernameFromDOM !== undefined) {
 						chrome.storage.local.set({ [platformUsernameKey]: usernameFromDOM });
 						platformUsername = usernameFromDOM;
 						platformUsernameLocal = usernameFromDOM;
 					}
 
-					items.projectName = projectFromDOM || items.projectName;
-					items.githubToken = tokenFromDOM || items.githubToken;
-					items.gitlabToken = gitlabTokenFromDOM || items.gitlabToken;
-					items.giteeToken = giteeTokenFromDOM || items.giteeToken;
+					items.projectName = projectFromDOM !== undefined ? projectFromDOM : items.projectName;
+					items.githubToken = tokenFromDOM !== undefined ? tokenFromDOM : items.githubToken;
+					items.gitlabToken = gitlabTokenFromDOM !== undefined ? gitlabTokenFromDOM : items.gitlabToken;
+					items.giteeToken = giteeTokenFromDOM !== undefined ? giteeTokenFromDOM : items.giteeToken;
 					chrome.storage.local.set({
 						projectName: items.projectName,
 						githubToken: items.githubToken,
@@ -271,6 +271,9 @@ function allIncluded(outputTarget = 'email') {
 				window.gitlabBaseUrl = items.gitlabBaseUrl || '';
 				if (platform === 'gitlab' && window.GitLabHelper) {
 					window.gitlabHelper = new window.GitLabHelper(window.gitlabBaseUrl);
+				}
+				if (platform === 'gitee' && window.GiteeHelper) {
+					window.giteeHelper = new window.GiteeHelper();
 				}
 				yesterdayContribution = items.yesterdayContribution;
 				weeklyContribution = items.weeklyContribution;
@@ -463,6 +466,7 @@ function allIncluded(outputTarget = 'email') {
 										endingDate,
 										giteeToken,
 										orgName,
+										projectName,
 									);
 
 									const mappedData = window.giteeHelper.mapGiteeReportData(data);
@@ -502,7 +506,7 @@ function allIncluded(outputTarget = 'email') {
 							})();
 						} else {
 							window.giteeHelper
-								.fetchGiteeData(platformUsernameLocal, startingDate, endingDate, giteeToken, orgName)
+								.fetchGiteeData(platformUsernameLocal, startingDate, endingDate, giteeToken, orgName, projectName)
 								.then((data) => {
 									const mappedData = window.giteeHelper.mapGiteeReportData(data);
 									processGithubData(mappedData);
@@ -1185,7 +1189,7 @@ function allIncluded(outputTarget = 'email') {
 		log('[SCRUM-DEBUG] Processing issues for main activity:', githubIssuesData?.items);
 		if (platform === 'github') {
 			await writeGithubIssuesPrs(githubIssuesData?.items || []);
-		} else if (platform === 'gitlab') {
+		} else if (platform === 'gitlab' || platform === 'gitee') {
 			await writeGithubIssuesPrs(githubIssuesData?.items || []);
 			await writeGithubIssuesPrs(githubPrsReviewData?.items || []);
 		}
@@ -1750,18 +1754,20 @@ function allIncluded(outputTarget = 'email') {
 		useMergedStatus = true;
 
 		const prsToCheck = [];
-		for (let i = 0; i < items.length; i++) {
-			const item = items[i];
-			if (item.pull_request && item.state === 'closed' && useMergedStatus && !fallbackToSimple) {
-				const repository_url = item.repository_url;
-				if (!repository_url) {
-					logError('repository_url is undefined for item:', item);
-					continue;
+		if (platform === 'github') {
+			for (let i = 0; i < items.length; i++) {
+				const item = items[i];
+				if (item.pull_request && item.state === 'closed' && useMergedStatus && !fallbackToSimple) {
+					const repository_url = item.repository_url;
+					if (!repository_url) {
+						logError('repository_url is undefined for item:', item);
+						continue;
+					}
+					const repoParts = repository_url.split('/');
+					const owner = repoParts[repoParts.length - 2];
+					const repo = repoParts[repoParts.length - 1];
+					prsToCheck.push({ owner, repo, number: item.number, idx: i });
 				}
-				const repoParts = repository_url.split('/');
-				const owner = repoParts[repoParts.length - 2];
-				const repo = repoParts[repoParts.length - 1];
-				prsToCheck.push({ owner, repo, number: item.number, idx: i });
 			}
 		}
 
@@ -1852,6 +1858,9 @@ function allIncluded(outputTarget = 'email') {
 					} else if (item.pull_request && Object.prototype.hasOwnProperty.call(item.pull_request, 'merged_at')) {
 						hasMergeInfo = true;
 						isMerged = !!item.pull_request.merged_at;
+					} else if (platform === 'gitlab' || platform === 'gitee') {
+						hasMergeInfo = true;
+						isMerged = item.state === 'merged';
 					}
 
 					if (!hasMergeInfo) {
