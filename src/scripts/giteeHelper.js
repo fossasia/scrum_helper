@@ -241,7 +241,15 @@ class GiteeHelper {
 							repoPulls = pulls
 								.filter((pr) => {
 									const prUser = pr.user?.login || '';
-									if (prUser.toLowerCase() !== username.toLowerCase()) {
+									const isAuthor = prUser.toLowerCase() === username.toLowerCase();
+									const isAssignee = Array.isArray(pr.assignees)
+										? pr.assignees.some((a) => a.login?.toLowerCase() === username.toLowerCase())
+										: pr.assignee?.login?.toLowerCase() === username.toLowerCase();
+									const isTester = Array.isArray(pr.testers)
+										? pr.testers.some((t) => t.login?.toLowerCase() === username.toLowerCase())
+										: pr.tester?.login?.toLowerCase() === username.toLowerCase();
+
+									if (!isAuthor && !isAssignee && !isTester) {
 										return false;
 									}
 									const prDate = new Date(pr.updated_at || pr.created_at);

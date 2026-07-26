@@ -73,7 +73,7 @@ function formatLocalDate(date) {
  * @returns {string} The resolved project name or empty string if not found
  */
 function getProjectName(item, platform) {
-	if (platform === 'gitlab' && item.project) {
+	if ((platform === 'gitlab' || platform === 'gitee') && item.project) {
 		return item.project;
 	}
 	const repository_url = item.repository_url;
@@ -91,7 +91,7 @@ function getProjectName(item, platform) {
  * @returns {string} Normalized state ('open', 'merged', or 'closed')
  */
 function normalizePrState(item, platform) {
-	if (platform === 'gitlab') {
+	if (platform === 'gitlab' || platform === 'gitee') {
 		const state = item.state;
 		if (state === 'opened' || state === 'reopened') {
 			return 'open';
@@ -1631,7 +1631,7 @@ function allIncluded(outputTarget = 'email') {
 
 			// For GitHub: item.user.login, for GitLab: item.author?.username
 			let isAuthoredByUser = false;
-			if (platform === 'github') {
+			if (platform === 'github' || platform === 'gitee') {
 				isAuthoredByUser = item.user && item.user.login.toLowerCase() === platformUsernameLocal.toLowerCase();
 			} else if (platform === 'gitlab') {
 				isAuthoredByUser = item.author && item.author.username === platformUsername;
@@ -2006,7 +2006,7 @@ function allIncluded(outputTarget = 'email') {
 				// Check if PR has commits in the date range
 				const hasCommitsInRange = item._allCommits && item._allCommits.length > 0;
 
-				if (platform === 'github') {
+				if (platform === 'github' || platform === 'gitee') {
 					// For existing PRs (not new), include them if they are open/draft, closed/merged within the date range, or have commits in the date range
 					if (!isNewPR) {
 						const closedDate = item.closed_at ? new Date(item.closed_at) : null;
@@ -2077,7 +2077,7 @@ function allIncluded(outputTarget = 'email') {
 						li += '</ul>';
 					}
 					li += `</li>`;
-				} else if (platform === 'gitlab' && item.state === 'closed') {
+				} else if ((platform === 'gitlab' || platform === 'gitee') && item.state === 'closed') {
 					li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_closed_button : ''}</li>`;
 				} else {
 					let merged = null;
@@ -2087,7 +2087,7 @@ function allIncluded(outputTarget = 'email') {
 						const repo = repoParts[repoParts.length - 1];
 						merged = mergedStatusResults[`${owner}/${repo}#${number}`];
 					}
-					if (merged === true) {
+					if (merged === true || ((platform === 'gitlab' || platform === 'gitee') && item.state === 'merged')) {
 						li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_merged_button : ''}</li>`;
 					} else {
 						// Always show closed label for merged === false or merged === null/undefined
