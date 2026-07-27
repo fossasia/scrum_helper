@@ -221,8 +221,8 @@ class GiteeHelper {
 					if (Array.isArray(events)) {
 						const discoveredNames = new Set();
 						for (const event of events) {
-							if (event.repo && event.repo.name) {
-								const repoFullName = event.repo.name;
+							if (event.repo && (event.repo.full_name || event.repo.name)) {
+								const repoFullName = event.repo.full_name || event.repo.name;
 								if (repoFullName.includes('/')) {
 									const alreadyExists = repos.some(
 										(r) =>
