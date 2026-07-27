@@ -1827,7 +1827,7 @@ function updatePlatformUI(platform) {
 
 	const orgSection = document.querySelector('.orgSection');
 	if (orgSection) {
-		if (platform === 'github' || platform === 'gitlab' || platform === 'gitee') {
+		if (platform === 'github' || platform === 'gitlab') {
 			orgSection.classList.remove('hidden');
 		} else {
 			orgSection.classList.add('hidden');
