@@ -68,7 +68,8 @@
     "*://*.office.com/*",
     "*://*.yahoo.com/*",
     "https://api.github.com/*",
-    "https://gitlab.com/*"
+    "https://gitlab.com/*",
+    "https://gitee.com/*"
   ],
   "default_locale": "en"
 }

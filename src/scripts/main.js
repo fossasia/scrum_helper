@@ -1,6 +1,7 @@
 const platformUsernameElement = document.getElementById('platformUsername');
 const githubTokenElement = document.getElementById('githubToken');
 const gitlabTokenElement = document.getElementById('gitlabToken');
+const giteeTokenElement = document.getElementById('giteeToken');
 const cacheInputElement = document.getElementById('cacheInput');
 const projectNameElement = document.getElementById('projectName');
 const yesterdayContributionElement = document.getElementById('yesterdayContribution');
@@ -187,6 +188,7 @@ function handleBodyOnLoad() {
 			'cacheInput',
 			'githubToken',
 			'gitlabToken',
+			'giteeToken',
 			'showCommits',
 			'includeNextPlans',
 		])
@@ -203,6 +205,9 @@ function handleBodyOnLoad() {
 			}
 			if (items.gitlabToken && gitlabTokenElement) {
 				gitlabTokenElement.value = items.gitlabToken;
+			}
+			if (items.giteeToken && giteeTokenElement) {
+				giteeTokenElement.value = items.giteeToken;
 			}
 			if (items.projectName && projectNameElement) {
 				projectNameElement.value = items.projectName;
@@ -436,6 +441,16 @@ function handleGitlabTokenChange() {
 		}
 	});
 }
+function handleGiteeTokenChange() {
+	if (!giteeTokenElement) return;
+	const trimmed = giteeTokenElement.value.trim();
+	browser.storage.local.get(['giteeToken']).then((items) => {
+		const currentStored = items.giteeToken || '';
+		if (trimmed !== currentStored) {
+			browser.storage.local.set({ giteeToken: trimmed });
+		}
+	});
+}
 function handleProjectNameChange() {
 	if (!projectNameElement) return;
 	const value = projectNameElement.value;
@@ -495,6 +510,15 @@ if (gitlabTokenElement) {
 	});
 	gitlabTokenElement.addEventListener('blur', () => {
 		gitlabTokenElement.value = gitlabTokenElement.value.trim();
+	});
+}
+if (giteeTokenElement) {
+	giteeTokenElement.addEventListener('keyup', handleGiteeTokenChange);
+	giteeTokenElement.addEventListener('change', () => {
+		giteeTokenElement.value = giteeTokenElement.value.trim();
+	});
+	giteeTokenElement.addEventListener('blur', () => {
+		giteeTokenElement.value = giteeTokenElement.value.trim();
 	});
 }
 if (cacheInputElement) {
