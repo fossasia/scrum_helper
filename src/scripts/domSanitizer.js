@@ -5,7 +5,7 @@ const SCRUM_SANITIZER_CONFIG = {
 	FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover'],
 };
 
-function _sanitizeHtml(html) {
+function sanitizeHtml(html) {
 	if (typeof DOMPurify !== 'undefined') {
 		return DOMPurify.sanitize(html, SCRUM_SANITIZER_CONFIG);
 	}
@@ -24,3 +24,6 @@ function _sanitizeHtml(html) {
 		.replace(/"/g, '&quot;')
 		.replace(/'/g, '&#039;');
 }
+
+window.sanitizeHtml = sanitizeHtml;
+
