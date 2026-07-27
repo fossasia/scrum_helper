@@ -205,6 +205,55 @@ class GiteeHelper {
 					console.error('Error fetching Gitee user repos:', err);
 					throw err;
 				}
+
+				// Discover additional repos the user recently contributed to via their events
+				try {
+					let events = [];
+					if (token) {
+						events = await giteeFetch(`/users/${encodeURIComponent(username)}/events`, {
+							per_page: 100,
+						});
+					} else {
+						events = await giteeFetch(`/users/${encodeURIComponent(username)}/events/public`, {
+							per_page: 100,
+						});
+					}
+					if (Array.isArray(events)) {
+						const discoveredNames = new Set();
+						for (const event of events) {
+							if (event.repo && event.repo.name) {
+								const repoFullName = event.repo.name;
+								if (repoFullName.includes('/')) {
+									const alreadyExists = repos.some(
+										(r) =>
+											(r.full_name && r.full_name.toLowerCase() === repoFullName.toLowerCase()) ||
+											(r.path_with_namespace && r.path_with_namespace.toLowerCase() === repoFullName.toLowerCase()),
+									);
+									if (!alreadyExists) {
+										discoveredNames.add(repoFullName);
+									}
+								}
+							}
+						}
+						// Limit to top 10 unique discovered repos to prevent rate limits
+						const discoveredList = Array.from(discoveredNames).slice(0, 10);
+						for (const repoFullName of discoveredList) {
+							try {
+								const repoParts = repoFullName.split('/');
+								const repoDetail = await giteeFetch(
+									`/repos/${encodeURIComponent(repoParts[0])}/${encodeURIComponent(repoParts[1])}`,
+								);
+								if (repoDetail && repoDetail.name) {
+									repos.push(repoDetail);
+								}
+							} catch (e) {
+								console.warn(`[Gitee] Could not fetch details for event repo ${repoFullName}:`, e);
+							}
+						}
+					}
+				} catch (eventErr) {
+					console.error('Error fetching Gitee user events for repo discovery:', eventErr);
+				}
 			}
 
 			// Limit to top 15 updated repos to avoid rate limiting
@@ -213,12 +262,13 @@ class GiteeHelper {
 			let allIssues = [];
 			let allPulls = [];
 
-			const itemsStorage = await browser.storage.local.get(['onlyIssues', 'onlyPRs']);
-			const fetchIssues = itemsStorage.onlyIssues !== false;
-			const fetchPRs = itemsStorage.onlyPRs !== false;
+			const fetchIssues = true;
+			const fetchPRs = true;
 
 			const startDateTime = new Date(startDate + 'T00:00:00Z');
 			const endDateTime = new Date(endDate + 'T23:59:59Z');
+
+			const filterUsername = (username || finalUser?.login || '').trim().toLowerCase();
 
 			// Fetch all repositories' issues and PRs in parallel
 			const fetchPromises = activeRepos.map(async (repo) => {
@@ -241,13 +291,13 @@ class GiteeHelper {
 							repoPulls = pulls
 								.filter((pr) => {
 									const prUser = pr.user?.login || '';
-									const isAuthor = prUser.toLowerCase() === username.toLowerCase();
+									const isAuthor = prUser.toLowerCase() === filterUsername;
 									const isAssignee = Array.isArray(pr.assignees)
-										? pr.assignees.some((a) => a.login?.toLowerCase() === username.toLowerCase())
-										: pr.assignee?.login?.toLowerCase() === username.toLowerCase();
+										? pr.assignees.some((a) => a.login?.toLowerCase() === filterUsername)
+										: pr.assignee?.login?.toLowerCase() === filterUsername;
 									const isTester = Array.isArray(pr.testers)
-										? pr.testers.some((t) => t.login?.toLowerCase() === username.toLowerCase())
-										: pr.tester?.login?.toLowerCase() === username.toLowerCase();
+										? pr.testers.some((t) => t.login?.toLowerCase() === filterUsername)
+										: pr.tester?.login?.toLowerCase() === filterUsername;
 
 									if (!isAuthor && !isAssignee && !isTester) {
 										return false;
@@ -264,14 +314,22 @@ class GiteeHelper {
 									} else {
 										prState = 'open';
 									}
+									const isDraft =
+										pr.draft ||
+										(pr.title &&
+											(pr.title.trim().startsWith('[WIP]') ||
+												pr.title.trim().startsWith('WIP:') ||
+												pr.title.trim().startsWith('[Draft]') ||
+												pr.title.trim().startsWith('Draft:')));
 									return {
 										...pr,
 										state: prState,
+										draft: !!isDraft,
 										project: repo.name,
 										repository_url: `${this.baseUrl}/repos/${owner}/${repoName}`,
 										pull_request: {
 											url: pr.url,
-											html_url: pr.html_url,
+											html_url: pr.html_url || `https://gitee.com/${owner}/${repoName}/pulls/${pr.number}`,
 											merged_at: pr.merged_at || pr.closed_at || null,
 										},
 										number: pr.number,
@@ -301,10 +359,10 @@ class GiteeHelper {
 								.filter((issue) => {
 									const issueUser = issue.user?.login || '';
 									const isAssignee = Array.isArray(issue.assignees)
-										? issue.assignees.some((a) => a.login?.toLowerCase() === username.toLowerCase())
-										: issue.assignee?.login?.toLowerCase() === username.toLowerCase();
+										? issue.assignees.some((a) => a.login?.toLowerCase() === filterUsername)
+										: issue.assignee?.login?.toLowerCase() === filterUsername;
 
-									const isAuthor = issueUser.toLowerCase() === username.toLowerCase();
+									const isAuthor = issueUser.toLowerCase() === filterUsername;
 									if (!isAuthor && !isAssignee) {
 										return false;
 									}
@@ -323,6 +381,7 @@ class GiteeHelper {
 										state: issueState,
 										project: repo.name,
 										repository_url: `${this.baseUrl}/repos/${owner}/${repoName}`,
+										html_url: issue.html_url || `https://gitee.com/${owner}/${repoName}/issues/${issue.number}`,
 										pull_request: false,
 										number: issue.number,
 									};
