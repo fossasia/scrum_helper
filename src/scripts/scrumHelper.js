@@ -621,12 +621,13 @@ function allIncluded(outputTarget = 'email') {
 	}
 
 	async function fetchGithubData() {
-		// Always load latest repo filter settings from storage
-		const filterSettings = await new Promise((resolve) => {
-			chrome.storage.local.get(['useRepoFilter', 'selectedRepos'], resolve);
+		// Always load latest settings from storage
+		const settings = await new Promise((resolve) => {
+			chrome.storage.local.get(['useRepoFilter', 'selectedRepos', 'showCommits'], resolve);
 		});
-		useRepoFilter = filterSettings.useRepoFilter || false;
-		selectedRepos = Array.isArray(filterSettings.selectedRepos) ? filterSettings.selectedRepos : [];
+		useRepoFilter = settings.useRepoFilter || false;
+		selectedRepos = Array.isArray(settings.selectedRepos) ? settings.selectedRepos : [];
+		showCommits = settings.showCommits || false;
 
 		// Get the correct date range for cache key
 		let startDateForCache;
@@ -652,7 +653,15 @@ function allIncluded(outputTarget = 'email') {
 			endDateForCache = formatLocalDate(today);
 		}
 
-		const cacheKey = `${platformUsernameLocal}-${startDateForCache}-${endDateForCache}-${orgName || 'all'}`;
+		const repoMarker =
+			useRepoFilter && selectedRepos.length > 0
+				? selectedRepos
+						.map((r) => (typeof r === 'object' ? r.fullName || '' : r))
+						.sort()
+						.join(',')
+				: 'norepos';
+		const commitMarker = showCommits ? 'commits' : 'nocommits';
+		const cacheKey = `${platformUsernameLocal}-${startDateForCache}-${endDateForCache}-${orgName || 'all'}-${commitMarker}-${repoMarker}`;
 
 		if (githubCache.fetching || (githubCache.cacheKey === cacheKey && githubCache.data)) {
 			log('Fetch already in progress or data already fetched. Skipping fetch.');
