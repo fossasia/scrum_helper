@@ -383,7 +383,7 @@ function allIncluded(outputTarget = 'email') {
 								chrome.i18n.getMessage('usernameRequiredError') || 'Please enter your username to generate a report.';
 							handleUsernameValidationError(ErrMessage);
 							if (generateBtn) {
-								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+								generateBtn.innerHTML = `<i class="fa fa-refresh"></i> ${chrome?.i18n.getMessage('generateReportButton') || 'Generate'}`;
 								generateBtn.disabled = false;
 							}
 							scrumGenerationInProgress = false;
@@ -398,7 +398,7 @@ function allIncluded(outputTarget = 'email') {
 					if (platformUsernameLocal) {
 						const generateBtn = document.getElementById('generateReport');
 						if (generateBtn && outputTarget === 'popup') {
-							generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
+							generateBtn.innerHTML = `<i class="fa fa-spinner fa-spin"></i> ${chrome?.i18n.getMessage('generatingButton') || 'Generating...'}`;
 							generateBtn.disabled = true;
 						}
 
@@ -435,7 +435,7 @@ function allIncluded(outputTarget = 'email') {
 									console.error('GitLab fetch failed:', err);
 									if (outputTarget === 'popup') {
 										if (generateBtn) {
-											generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+											generateBtn.innerHTML = `<i class="fa fa-refresh"></i> ${chrome?.i18n.getMessage('generateReportButton') || 'Generate'}`;
 											generateBtn.disabled = false;
 										}
 										const ErrMessage = `${err.message || 'Error fetching GitLab data.'}`;
@@ -460,7 +460,7 @@ function allIncluded(outputTarget = 'email') {
 									console.error('GitLab fetch failed:', err);
 									if (outputTarget === 'popup') {
 										if (generateBtn) {
-											generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+											generateBtn.innerHTML = `<i class="fa fa-refresh"></i> ${chrome?.i18n.getMessage('generateReportButton') || 'Generate'}`;
 											generateBtn.disabled = false;
 										}
 										const ErrMessage = `${err.message || 'Error fetching GitLab data.'}`;
@@ -481,7 +481,7 @@ function allIncluded(outputTarget = 'email') {
 								chrome.i18n.getMessage('usernameRequiredError') || 'Please enter your username to generate a report.';
 							handleUsernameValidationError(ErrMessage);
 							if (generateBtn) {
-								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+								generateBtn.innerHTML = `<i class="fa fa-refresh"></i> ${chrome?.i18n.getMessage('generateReportButton') || 'Generate'}`;
 								generateBtn.disabled = false;
 							}
 						}
@@ -968,7 +968,7 @@ function allIncluded(outputTarget = 'email') {
 					}
 				}
 				if (generateBtn) {
-					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+					generateBtn.innerHTML = `<i class="fa fa-refresh"></i> ${chrome?.i18n.getMessage('generateReportButton') || 'Generate'}`;
 					generateBtn.disabled = false;
 				}
 			}
@@ -1076,7 +1076,7 @@ function allIncluded(outputTarget = 'email') {
 				showReportMessage(errMsg);
 				const generateBtn = document.getElementById('generateReport');
 				if (generateBtn) {
-					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+					generateBtn.innerHTML = `<i class="fa fa-refresh"></i> ${chrome?.i18n.getMessage('generateReportButton') || 'Generate'}`;
 					generateBtn.disabled = false;
 				}
 			} else {
@@ -1094,7 +1094,7 @@ function allIncluded(outputTarget = 'email') {
 				showReportMessage(errMsg);
 				const generateBtn = document.getElementById('generateReport');
 				if (generateBtn) {
-					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+					generateBtn.innerHTML = `<i class="fa fa-refresh"></i> ${chrome?.i18n.getMessage('generateReportButton') || 'Generate'}`;
 					generateBtn.disabled = false;
 				}
 			}
@@ -1342,7 +1342,7 @@ function allIncluded(outputTarget = 'email') {
 
 				const generateBtn = document.getElementById('generateReport');
 				if (generateBtn) {
-					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+					generateBtn.innerHTML = `<i class="fa fa-refresh"></i> ${chrome?.i18n.getMessage('generateReportButton') || 'Generate'}`;
 					generateBtn.disabled = false;
 				}
 			} else {

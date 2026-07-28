@@ -798,7 +798,7 @@ document.addEventListener('DOMContentLoaded', () => {
 							return browser.storage.local.get(['platform']).then((res) => {
 								platformSelect.value = res.platform || 'github';
 								updatePlatformUI(platformSelect.value);
-								generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
+								generateBtn.innerHTML = `<i class="fa fa-spinner fa-spin"></i> ${browser?.i18n.getMessage('generatingButton') || 'Generating...'}`;
 								generateBtn.disabled = true;
 								window.generateScrumReport && window.generateScrumReport();
 								generateBtn._triggeredByShortcut = false;
