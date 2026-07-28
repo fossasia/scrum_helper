@@ -390,13 +390,22 @@ document.addEventListener('DOMContentLoaded', () => {
 		return Number.isFinite(n) && n > 0 ? n : null;
 	}
 
-	function setGenerateButtonLoading(generateBtn, isLoading) {
+	function setGenerateButtonState(generateBtn, isLoading) {
 		if (!generateBtn) return;
-		if (!isLoading) return;
+		generateBtn.innerHTML = '';
+		const icon = document.createElement('i');
+		icon.className = isLoading ? 'fa fa-spinner fa-spin' : 'fa fa-refresh';
+		generateBtn.appendChild(icon);
+		const key = isLoading ? 'generatingButton' : 'generateReportButton';
+		const fallback = isLoading ? 'Generating...' : 'Generate';
+		const i18nAPI = (typeof browser !== 'undefined' && browser?.i18n) || (typeof chrome !== 'undefined' && chrome?.i18n);
+		const msg = i18nAPI?.getMessage?.(key) || fallback;
+		generateBtn.appendChild(document.createTextNode(' ' + msg));
+		generateBtn.disabled = isLoading;
+	}
 
-		const msg = browser.i18n.getMessage('generatingButton') || 'Generating...';
-		generateBtn.innerHTML = `<i class="fa fa-spinner fa-spin"></i> ${msg}`;
-		generateBtn.disabled = true;
+	function setGenerateButtonLoading(generateBtn, isLoading) {
+		setGenerateButtonState(generateBtn, isLoading);
 	}
 
 	function updateGenerateButtonState() {
@@ -798,8 +807,7 @@ document.addEventListener('DOMContentLoaded', () => {
 							return browser.storage.local.get(['platform']).then((res) => {
 								platformSelect.value = res.platform || 'github';
 								updatePlatformUI(platformSelect.value);
-								generateBtn.innerHTML = `<i class="fa fa-spinner fa-spin"></i> ${browser?.i18n.getMessage('generatingButton') || 'Generating...'}`;
-								generateBtn.disabled = true;
+								setGenerateButtonState(generateBtn, true);
 								window.generateScrumReport && window.generateScrumReport();
 								generateBtn._triggeredByShortcut = false;
 							});

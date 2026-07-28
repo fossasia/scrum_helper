@@ -46,6 +46,20 @@ function logError(...args) {
 	}
 }
 
+function setGenerateButtonState(generateBtn, isLoading) {
+	if (!generateBtn) return;
+	generateBtn.innerHTML = '';
+	const icon = document.createElement('i');
+	icon.className = isLoading ? 'fa fa-spinner fa-spin' : 'fa fa-refresh';
+	generateBtn.appendChild(icon);
+	const key = isLoading ? 'generatingButton' : 'generateReportButton';
+	const fallback = isLoading ? 'Generating...' : 'Generate';
+	const i18nAPI = (typeof browser !== 'undefined' && browser?.i18n) || (typeof chrome !== 'undefined' && chrome?.i18n);
+	const msg = i18nAPI?.getMessage?.(key) || fallback;
+	generateBtn.appendChild(document.createTextNode(' ' + msg));
+	generateBtn.disabled = isLoading;
+}
+
 function getLocalISOString(dateStr, time) {
 	const offsetMinutes = new Date().getTimezoneOffset();
 	const absOffset = Math.abs(offsetMinutes);
@@ -383,8 +397,7 @@ function allIncluded(outputTarget = 'email') {
 								chrome.i18n.getMessage('usernameRequiredError') || 'Please enter your username to generate a report.';
 							handleUsernameValidationError(ErrMessage);
 							if (generateBtn) {
-								generateBtn.innerHTML = `<i class="fa fa-refresh"></i> ${chrome?.i18n.getMessage('generateReportButton') || 'Generate'}`;
-								generateBtn.disabled = false;
+								setGenerateButtonState(generateBtn, false);
 							}
 							scrumGenerationInProgress = false;
 						} else {
@@ -398,8 +411,7 @@ function allIncluded(outputTarget = 'email') {
 					if (platformUsernameLocal) {
 						const generateBtn = document.getElementById('generateReport');
 						if (generateBtn && outputTarget === 'popup') {
-							generateBtn.innerHTML = `<i class="fa fa-spinner fa-spin"></i> ${chrome?.i18n.getMessage('generatingButton') || 'Generating...'}`;
-							generateBtn.disabled = true;
+							setGenerateButtonState(generateBtn, true);
 						}
 
 						if (outputTarget === 'email') {
@@ -435,8 +447,7 @@ function allIncluded(outputTarget = 'email') {
 									console.error('GitLab fetch failed:', err);
 									if (outputTarget === 'popup') {
 										if (generateBtn) {
-											generateBtn.innerHTML = `<i class="fa fa-refresh"></i> ${chrome?.i18n.getMessage('generateReportButton') || 'Generate'}`;
-											generateBtn.disabled = false;
+											setGenerateButtonState(generateBtn, false);
 										}
 										const ErrMessage = `${err.message || 'Error fetching GitLab data.'}`;
 										if (typeof ErrMessage === 'string' && ErrMessage.toLowerCase().includes('not found')) {
@@ -460,8 +471,7 @@ function allIncluded(outputTarget = 'email') {
 									console.error('GitLab fetch failed:', err);
 									if (outputTarget === 'popup') {
 										if (generateBtn) {
-											generateBtn.innerHTML = `<i class="fa fa-refresh"></i> ${chrome?.i18n.getMessage('generateReportButton') || 'Generate'}`;
-											generateBtn.disabled = false;
+											setGenerateButtonState(generateBtn, false);
 										}
 										const ErrMessage = `${err.message || 'Error fetching GitLab data.'}`;
 										if (typeof ErrMessage === 'string' && ErrMessage.toLowerCase().includes('not found')) {
@@ -481,8 +491,7 @@ function allIncluded(outputTarget = 'email') {
 								chrome.i18n.getMessage('usernameRequiredError') || 'Please enter your username to generate a report.';
 							handleUsernameValidationError(ErrMessage);
 							if (generateBtn) {
-								generateBtn.innerHTML = `<i class="fa fa-refresh"></i> ${chrome?.i18n.getMessage('generateReportButton') || 'Generate'}`;
-								generateBtn.disabled = false;
+								setGenerateButtonState(generateBtn, false);
 							}
 						}
 						scrumGenerationInProgress = false;
@@ -968,8 +977,7 @@ function allIncluded(outputTarget = 'email') {
 					}
 				}
 				if (generateBtn) {
-					generateBtn.innerHTML = `<i class="fa fa-refresh"></i> ${chrome?.i18n.getMessage('generateReportButton') || 'Generate'}`;
-					generateBtn.disabled = false;
+					setGenerateButtonState(generateBtn, false);
 				}
 			}
 			scrumGenerationInProgress = false;
@@ -1076,8 +1084,7 @@ function allIncluded(outputTarget = 'email') {
 				showReportMessage(errMsg);
 				const generateBtn = document.getElementById('generateReport');
 				if (generateBtn) {
-					generateBtn.innerHTML = `<i class="fa fa-refresh"></i> ${chrome?.i18n.getMessage('generateReportButton') || 'Generate'}`;
-					generateBtn.disabled = false;
+					setGenerateButtonState(generateBtn, false);
 				}
 			} else {
 				window.scrumHelperToast?.(errMsg, { duration: 2000, variant: 'error' });
@@ -1094,8 +1101,7 @@ function allIncluded(outputTarget = 'email') {
 				showReportMessage(errMsg);
 				const generateBtn = document.getElementById('generateReport');
 				if (generateBtn) {
-					generateBtn.innerHTML = `<i class="fa fa-refresh"></i> ${chrome?.i18n.getMessage('generateReportButton') || 'Generate'}`;
-					generateBtn.disabled = false;
+					setGenerateButtonState(generateBtn, false);
 				}
 			}
 		}
@@ -1342,8 +1348,7 @@ function allIncluded(outputTarget = 'email') {
 
 				const generateBtn = document.getElementById('generateReport');
 				if (generateBtn) {
-					generateBtn.innerHTML = `<i class="fa fa-refresh"></i> ${chrome?.i18n.getMessage('generateReportButton') || 'Generate'}`;
-					generateBtn.disabled = false;
+					setGenerateButtonState(generateBtn, false);
 				}
 			} else {
 				logError('Scrum report div not found in popup');
