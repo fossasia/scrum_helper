@@ -648,7 +648,27 @@ function allIncluded(outputTarget = 'email') {
 			endDateForCache = formatLocalDate(today);
 		}
 
-		const cacheKey = `${platformUsernameLocal}-${startDateForCache}-${endDateForCache}-${orgName || 'all'}`;
+		const advancedSettings = [
+			showCommits ? '1' : '0',
+			onlyIssues ? '1' : '0',
+			onlyPRs ? '1' : '0',
+			onlyRevPRs ? '1' : '0',
+			onlyMergedPRs ? '1' : '0',
+			useRepoFilter ? '1' : '0',
+			includeNextPlans ? '1' : '0'
+		].join('');
+		let selectedReposHash = '0';
+		if (useRepoFilter && selectedRepos && selectedRepos.length > 0) {
+			const repoNames = selectedRepos.map((r) => r.name || r).sort().join(',');
+			let hash = 0;
+			for (let i = 0; i < repoNames.length; i++) {
+				const char = repoNames.charCodeAt(i);
+				hash = ((hash << 5) - hash) + char;
+				hash = hash & hash;
+			}
+			selectedReposHash = (hash >>> 0).toString(36);
+		}
+		const cacheKey = `${platformUsernameLocal}-${startDateForCache}-${endDateForCache}-${orgName || 'all'}-${advancedSettings}-${selectedReposHash}`;
 
 		if (githubCache.fetching || (githubCache.cacheKey === cacheKey && githubCache.data)) {
 			log('Fetch already in progress or data already fetched. Skipping fetch.');
