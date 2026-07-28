@@ -656,7 +656,7 @@ function allIncluded(outputTarget = 'email') {
 		const repoMarker =
 			useRepoFilter && selectedRepos.length > 0
 				? selectedRepos
-						.map((r) => (typeof r === 'object' ? r.fullName || '' : r))
+						.map((r) => (r && typeof r === 'object' ? r.fullName || '' : r || ''))
 						.sort()
 						.join(',')
 				: 'norepos';
