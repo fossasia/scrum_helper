@@ -518,5 +518,65 @@
   "failedToFetchIssues": {
     "message": "Failed to fetch assigned issues.",
     "description": "Error message when fetching fails."
+  },
+  "smtpSenderEmailLabel": {
+    "message": "Sender Email"
+  },
+  "smtpSenderEmailPlaceholder": {
+    "message": "sender@example.com"
+  },
+  "smtpHostLabel": {
+    "message": "SMTP Host"
+  },
+  "smtpHostPlaceholder": {
+    "message": "smtp.example.com"
+  },
+  "smtpPortLabel": {
+    "message": "SMTP Port"
+  },
+  "smtpPortPlaceholder": {
+    "message": "587"
+  },
+  "smtpUsernameLabel": {
+    "message": "SMTP Username"
+  },
+  "smtpUsernamePlaceholder": {
+    "message": "username@example.com"
+  },
+  "smtpPasswordLabel": {
+    "message": "SMTP Password"
+  },
+  "smtpPasswordPlaceholder": {
+    "message": "Enter your SMTP password"
+  },
+  "smtpRecipientsLabel": {
+    "message": "Recipients"
+  },
+  "smtpRecipientsPlaceholder": {
+    "message": "recipient1@example.com, recipient2@example.com"
+  },
+  "smtpGmailHint": {
+    "message": "For Gmail, you must use an App Password, not your regular password."
+  },
+  "smtpMissingFieldsError": {
+    "message": "Please configure all Mail Settings first."
+  },
+  "smtpSendSuccess": {
+    "message": "Report sent successfully via email!"
+  },
+  "smtpSendFailed": {
+    "message": "Failed to send email: "
+  },
+  "smtpSendError": {
+    "message": "An error occurred: "
+  },
+  "sendingButton": {
+    "message": "Sending..."
+  },
+  "sendEmailButton": {
+    "message": "Send Email"
+  },
+  "mailSettingsTitle": {
+    "message": "Mail Settings"
   }
 }
