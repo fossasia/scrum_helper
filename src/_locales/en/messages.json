@@ -605,5 +605,11 @@
   },
   "smtpRecipientsTooltip": {
     "message": "A list of recipient email addresses separated by commas (e.g. recipient1@example.com, recipient2@example.com)."
+  },
+  "smtpPresetsLabel": {
+    "message": "Quick Presets"
+  },
+  "smtpPresetsTooltip": {
+    "message": "Select a preset to automatically configure the SMTP host and port settings for common email services."
   }
 }
