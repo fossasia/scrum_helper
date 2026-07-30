@@ -578,5 +578,8 @@
   },
   "mailSettingsTitle": {
     "message": "Mail Settings"
+  },
+  "sentButton": {
+    "message": "Sent"
   }
 }

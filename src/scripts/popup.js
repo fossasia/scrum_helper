@@ -143,6 +143,15 @@ document.addEventListener('DOMContentLoaded', () => {
 				container.style.display = 'none';
 			}
 		}
+		// Show Tauri-only SMTP features
+		const mailSettingsToggle = document.getElementById('mailSettingsToggle');
+		if (mailSettingsToggle) {
+			mailSettingsToggle.style.display = 'inline-block';
+		}
+		const sendReportEmailContainer = document.getElementById('sendReportEmailContainer');
+		if (sendReportEmailContainer) {
+			sendReportEmailContainer.style.display = 'inline-block';
+		}
 	}
 
 	// Apply translations as soon as the DOM is ready
@@ -160,6 +169,10 @@ document.addEventListener('DOMContentLoaded', () => {
 	const settingsSection = document.getElementById('settingsSection');
 
 	let isSettingsVisible = false;
+	let isMailSettingsVisible = false;
+	const mailSettingsSection = document.getElementById('mailSettingsSection');
+	const mailSettingsToggle = document.getElementById('mailSettingsToggle');
+	const mailSettingsBackBtn = document.getElementById('mailSettingsBackBtn');
 	const githubTokenInput = document.getElementById('githubToken');
 	const toggleTokenBtn = document.getElementById('toggleTokenVisibility');
 	const tokenEyeIcon = document.getElementById('tokenEyeIcon');
@@ -315,6 +328,56 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 	}
 
+	// SMTP password visibility toggle
+	const smtpPasswordInput = document.getElementById('smtpPassword');
+	const toggleSmtpPasswordBtn = document.getElementById('toggleSmtpPasswordVisibility');
+	const smtpPasswordEyeIcon = document.getElementById('smtpPasswordEyeIcon');
+	let smtpPasswordVisible = false;
+
+	if (toggleSmtpPasswordBtn && smtpPasswordInput) {
+		toggleSmtpPasswordBtn.addEventListener('click', () => {
+			smtpPasswordVisible = !smtpPasswordVisible;
+			smtpPasswordInput.type = smtpPasswordVisible ? 'text' : 'password';
+
+			smtpPasswordEyeIcon.classList.add('eye-animating');
+			setTimeout(() => smtpPasswordEyeIcon.classList.remove('eye-animating'), 400);
+			smtpPasswordEyeIcon.className = smtpPasswordVisible ? 'fa fa-eye-slash text-gray-600' : 'fa fa-eye text-gray-600';
+
+			smtpPasswordInput.classList.add('token-animating');
+			setTimeout(() => smtpPasswordInput.classList.remove('token-animating'), 300);
+		});
+	}
+
+	// SMTP Preset button event listeners
+	const presetGmailBtn = document.getElementById('presetGmail');
+	const presetOutlookBtn = document.getElementById('presetOutlook');
+	const presetYahooBtn = document.getElementById('presetYahoo');
+	const smtpServerInput = document.getElementById('smtpServer');
+	const smtpPortInput = document.getElementById('smtpPort');
+
+	function setSmtpPreset(host, port) {
+		if (smtpServerInput) {
+			smtpServerInput.value = host;
+		}
+		if (smtpPortInput) {
+			smtpPortInput.value = port;
+		}
+		browser.storage.local.set({
+			smtpServer: host,
+			smtpPort: String(port),
+		});
+	}
+
+	if (presetGmailBtn) {
+		presetGmailBtn.addEventListener('click', () => setSmtpPreset('smtp.gmail.com', 587));
+	}
+	if (presetOutlookBtn) {
+		presetOutlookBtn.addEventListener('click', () => setSmtpPreset('smtp.office365.com', 587));
+	}
+	if (presetYahooBtn) {
+		presetYahooBtn.addEventListener('click', () => setSmtpPreset('smtp.mail.yahoo.com', 587));
+	}
+
 	githubTokenInput.addEventListener('input', () => checkTokenForFilter());
 	githubTokenInput.addEventListener('input', () => checkTokenForShowCommits({ persistState: false }));
 	githubTokenInput.addEventListener('input', () => checkTokenForMergedPRs({ persistState: false }));
@@ -414,6 +477,31 @@ document.addEventListener('DOMContentLoaded', () => {
 		generateBtn.disabled = true;
 	}
 
+	function setSendEmailButtonLoading(btn, isLoading) {
+		if (!btn) return;
+		btn.replaceChildren();
+		if (isLoading) {
+			const icon = document.createElement('i');
+			icon.className = 'fa fa-spinner fa-spin';
+			btn.appendChild(icon);
+
+			const msg = browser.i18n.getMessage('sendingButton') || 'Sending...';
+			btn.appendChild(document.createTextNode(' ' + msg));
+			btn.disabled = true;
+		} else {
+			const icon = document.createElement('i');
+			icon.className = 'fa fa-paper-plane';
+			btn.appendChild(icon);
+
+			const msg = browser.i18n.getMessage('sendEmailButton') || 'Send Email';
+			const span = document.createElement('span');
+			span.textContent = msg;
+			btn.appendChild(document.createTextNode(' '));
+			btn.appendChild(span);
+			btn.disabled = false;
+		}
+	}
+
 	function updateGenerateButtonState() {
 		const generateBtn = document.getElementById('generateReport');
 		const platformUsername = document.getElementById('platformUsername');
@@ -475,7 +563,12 @@ document.addEventListener('DOMContentLoaded', () => {
 			scrumReport.dataset.copyPlaceholder = 'true';
 		}
 
-		copyBtn.disabled = scrumReport.dataset.copyPlaceholder === 'true' || !scrumReport.textContent.trim();
+		const isDisabled = scrumReport.dataset.copyPlaceholder === 'true' || !scrumReport.textContent.trim();
+		copyBtn.disabled = isDisabled;
+		const sendReportEmail = document.getElementById('sendReportEmail');
+		if (sendReportEmail) {
+			sendReportEmail.disabled = isDisabled;
+		}
 	}
 
 	async function bootstrapScrumReportOnPopupLoad(generateBtn) {
@@ -911,6 +1004,103 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		});
 
+		const sendReportEmailBtn = document.getElementById('sendReportEmail');
+		if (sendReportEmailBtn && window.isTauri) {
+			sendReportEmailBtn.addEventListener('click', async () => {
+				const scrumReport = document.getElementById('scrumReport');
+				if (!scrumReport) return;
+				const htmlBody = sanitizeHtml(scrumReport.innerHTML);
+				if (!htmlBody.trim() || scrumReport.dataset.copyPlaceholder === 'true') {
+					return;
+				}
+
+				// Show loading state
+				setSendEmailButtonLoading(sendReportEmailBtn, true);
+
+				// Retrieve settings from storage
+				try {
+					const settings = await browser.storage.local.get([
+						'smtpSenderEmail',
+						'smtpServer',
+						'smtpPort',
+						'smtpUsername',
+						'smtpPassword',
+						'smtpRecipients',
+					]);
+
+					const senderEmail = (settings.smtpSenderEmail || '').trim();
+					const host = (settings.smtpServer || '').trim();
+					const port = parseInt(settings.smtpPort, 10) || 587;
+					const username = (settings.smtpUsername || '').trim();
+					const password = (settings.smtpPassword || '').trim();
+					const recipientsRaw = (settings.smtpRecipients || '').trim();
+
+					if (!senderEmail || !host || !username || !password || !recipientsRaw) {
+						showPopupMessage(
+							browser.i18n.getMessage('smtpMissingSettingsError') ||
+								'Please configure all SMTP settings in Mail Settings first.',
+							{ variant: 'error' },
+						);
+						setSendEmailButtonLoading(sendReportEmailBtn, false);
+						return;
+					}
+
+					// Split recipients by comma
+					const recipients = recipientsRaw
+						.split(',')
+						.map((r) => r.trim())
+						.filter(Boolean);
+					if (recipients.length === 0) {
+						showPopupMessage(
+							browser.i18n.getMessage('smtpMissingSettingsError') || 'Please configure recipients first.',
+							{ variant: 'error' },
+						);
+						setSendEmailButtonLoading(sendReportEmailBtn, false);
+						return;
+					}
+
+					// Build subject
+					const subject = buildScrumSubjectFromPopup();
+
+					// Call Tauri command
+					const invoke = window.__TAURI__.core.invoke;
+					for (const toEmail of recipients) {
+						await invoke('send_smtp_email', {
+							host,
+							port,
+							username,
+							password,
+							fromEmail: senderEmail,
+							toEmail,
+							subject,
+							body: htmlBody,
+						});
+					}
+
+					showPopupMessage(browser.i18n.getMessage('smtpEmailSuccess') || 'Email sent successfully!', {
+						variant: 'success',
+					});
+					sendReportEmailBtn.replaceChildren();
+					const checkIcon = document.createElement('i');
+					checkIcon.className = 'fa fa-check';
+					sendReportEmailBtn.appendChild(checkIcon);
+					const sentMsg = browser.i18n.getMessage('sentButton') || 'Sent';
+					sendReportEmailBtn.appendChild(document.createTextNode(' ' + sentMsg));
+
+					setTimeout(() => {
+						setSendEmailButtonLoading(sendReportEmailBtn, false);
+					}, 2000);
+				} catch (err) {
+					console.error('[SMTP] Error sending email:', err);
+					const errMsg = typeof err === 'string' ? err : err.message || String(err);
+					showPopupMessage((browser.i18n.getMessage('smtpEmailError') || 'Failed to send email: ') + errMsg, {
+						variant: 'error',
+					});
+					setSendEmailButtonLoading(sendReportEmailBtn, false);
+				}
+			});
+		}
+
 		// Custom date container click handler
 		document.getElementById('customDateContainer').addEventListener('click', () => {
 			document.querySelectorAll('input[name="timeframe"]').forEach((radio) => {
@@ -1194,16 +1384,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	function showReportView() {
 		isSettingsVisible = false;
+		isMailSettingsVisible = false;
 		reportSection.classList.remove('hidden');
 		settingsSection.classList.add('hidden');
+		if (mailSettingsSection) mailSettingsSection.classList.add('hidden');
 		settingsToggle.classList.remove('active');
+		if (mailSettingsToggle) mailSettingsToggle.classList.remove('active');
 	}
 
 	function showSettingsView() {
 		isSettingsVisible = true;
+		isMailSettingsVisible = false;
 		reportSection.classList.add('hidden');
 		settingsSection.classList.remove('hidden');
+		if (mailSettingsSection) mailSettingsSection.classList.add('hidden');
 		settingsToggle.classList.add('active');
+		if (mailSettingsToggle) mailSettingsToggle.classList.remove('active');
+	}
+
+	function showMailSettingsView() {
+		isSettingsVisible = false;
+		isMailSettingsVisible = true;
+		reportSection.classList.add('hidden');
+		settingsSection.classList.add('hidden');
+		if (mailSettingsSection) mailSettingsSection.classList.remove('hidden');
+		settingsToggle.classList.remove('active');
+		if (mailSettingsToggle) mailSettingsToggle.classList.add('active');
 	}
 
 	if (settingsToggle) {
@@ -1214,6 +1420,20 @@ document.addEventListener('DOMContentLoaded', () => {
 				showSettingsView();
 			}
 		});
+	}
+
+	if (mailSettingsToggle) {
+		mailSettingsToggle.addEventListener('click', () => {
+			if (isMailSettingsVisible) {
+				showReportView();
+			} else {
+				showMailSettingsView();
+			}
+		});
+	}
+
+	if (mailSettingsBackBtn) {
+		mailSettingsBackBtn.addEventListener('click', showReportView);
 	}
 
 	if (homeButton) {
