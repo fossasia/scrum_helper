@@ -587,5 +587,23 @@
   },
   "settingsTitle": {
     "message": "Settings"
+  },
+  "smtpSenderEmailTooltip": {
+    "message": "The email address from which the report will be sent (e.g. your email address)."
+  },
+  "smtpHostTooltip": {
+    "message": "The address of your SMTP server (e.g. smtp.gmail.com or smtp.mail.yahoo.com)."
+  },
+  "smtpPortTooltip": {
+    "message": "The port number used by your SMTP server. Usually 465 (for SSL) or 587 (for TLS/STARTTLS)."
+  },
+  "smtpUsernameTooltip": {
+    "message": "The username or login email address for your SMTP server."
+  },
+  "smtpPasswordTooltip": {
+    "message": "The password or app-specific password used to authenticate with your SMTP server."
+  },
+  "smtpRecipientsTooltip": {
+    "message": "A list of recipient email addresses separated by commas (e.g. recipient1@example.com, recipient2@example.com)."
   }
 }

@@ -675,7 +675,15 @@
 				<div id="mailSettingsSection" class="tab-content hidden">
 					<div>
 						<div class="flex items-center justify-between">
-							<p class="text-sm font-medium" data-i18n="smtpSenderEmailLabel">Sender Email</p>
+							<div class="flex items-center">
+								<p class="text-sm font-medium" data-i18n="smtpSenderEmailLabel">Sender Email</p>
+								<span class="tooltip-container ml-2">
+									<i class="fa fa-question-circle question-icon"></i>
+									<span class="tooltip-bubble" data-i18n="smtpSenderEmailTooltip">
+										The email address from which the report will be sent (e.g. your email address).
+									</span>
+								</span>
+							</div>
 						</div>
 						<input id="smtpSenderEmail" type="email"
 							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
@@ -684,7 +692,15 @@
 
 					<div class="mt-3">
 						<div class="flex items-center justify-between">
-							<p class="text-sm font-medium" data-i18n="smtpHostLabel">SMTP Host</p>
+							<div class="flex items-center">
+								<p class="text-sm font-medium" data-i18n="smtpHostLabel">SMTP Host</p>
+								<span class="tooltip-container ml-2">
+									<i class="fa fa-question-circle question-icon"></i>
+									<span class="tooltip-bubble" data-i18n="smtpHostTooltip">
+										The address of your SMTP server (e.g. smtp.gmail.com or smtp.mail.yahoo.com).
+									</span>
+								</span>
+							</div>
 						</div>
 						<input id="smtpServer" type="text"
 							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
@@ -693,7 +709,15 @@
 
 					<div class="mt-3">
 						<div class="flex items-center justify-between">
-							<p class="text-sm font-medium" data-i18n="smtpPortLabel">SMTP Port</p>
+							<div class="flex items-center">
+								<p class="text-sm font-medium" data-i18n="smtpPortLabel">SMTP Port</p>
+								<span class="tooltip-container ml-2">
+									<i class="fa fa-question-circle question-icon"></i>
+									<span class="tooltip-bubble" data-i18n="smtpPortTooltip">
+										The port number used by your SMTP server. Usually 465 (for SSL) or 587 (for TLS/STARTTLS).
+									</span>
+								</span>
+							</div>
 						</div>
 						<input id="smtpPort" type="number"
 							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
@@ -708,7 +732,15 @@
 
 					<div class="mt-4">
 						<div class="flex items-center justify-between">
-							<p class="text-sm font-medium" data-i18n="smtpUsernameLabel">SMTP Username</p>
+							<div class="flex items-center">
+								<p class="text-sm font-medium" data-i18n="smtpUsernameLabel">SMTP Username</p>
+								<span class="tooltip-container ml-2">
+									<i class="fa fa-question-circle question-icon"></i>
+									<span class="tooltip-bubble" data-i18n="smtpUsernameTooltip">
+										The username or login email address for your SMTP server.
+									</span>
+								</span>
+							</div>
 						</div>
 						<input id="smtpUsername" type="text"
 							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
@@ -717,7 +749,15 @@
 
 					<div class="mt-3">
 						<div class="flex items-center justify-between">
-							<p class="text-sm font-medium" data-i18n="smtpPasswordLabel">SMTP Password</p>
+							<div class="flex items-center">
+								<p class="text-sm font-medium" data-i18n="smtpPasswordLabel">SMTP Password</p>
+								<span class="tooltip-container ml-2">
+									<i class="fa fa-question-circle question-icon"></i>
+									<span class="tooltip-bubble" data-i18n="smtpPasswordTooltip">
+										The password or app-specific password used to authenticate with your SMTP server.
+									</span>
+								</span>
+							</div>
 							<button id="toggleSmtpPasswordVisibility" type="button" class="focus:outline-none">
 								<i id="smtpPasswordEyeIcon" class="fa fa-eye text-gray-600"></i>
 							</button>
@@ -732,7 +772,15 @@
 
 					<div class="mt-4">
 						<div class="flex items-center justify-between">
-							<p class="text-sm font-medium" data-i18n="smtpRecipientsLabel">Recipients</p>
+							<div class="flex items-center">
+								<p class="text-sm font-medium" data-i18n="smtpRecipientsLabel">Recipients</p>
+								<span class="tooltip-container ml-2">
+									<i class="fa fa-question-circle question-icon"></i>
+									<span class="tooltip-bubble" data-i18n="smtpRecipientsTooltip">
+										A list of recipient email addresses separated by commas (e.g. recipient1@example.com, recipient2@example.com).
+									</span>
+								</span>
+							</div>
 						</div>
 						<input id="smtpRecipients" type="text"
 							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
