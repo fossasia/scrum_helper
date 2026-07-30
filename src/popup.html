@@ -107,16 +107,20 @@
 			<div class="center mt-2 flex justify-end">
 				<div class="flex">
 					<button id="homeButton"
-						class="ml-1 p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition">
+						class="ml-1 p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition flex items-center justify-center"
+						data-i18n-title="homeTitle">
 						<i class="fa fa-home text-2xl text-gray-600 dark:text-gray-300"></i>
 					</button>
-					<button id="mailSettingsToggle" style="display: none;"
-						class="ml-1 p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition">
-						<i class="fa fa-envelope text-2xl text-gray-600 dark:text-gray-300"></i>
-					</button>
-					<button id="settingsToggle">
+					<button id="settingsToggle"
+						class="ml-1 p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition flex items-center justify-center"
+						data-i18n-title="settingsTitle">
 						<img id="settingsIcon" src="icons/settings-light.png" alt="Settings"
-							class="w-6 h-6 mx-3 cursor-pointer">
+							class="w-6 h-6 cursor-pointer">
+					</button>
+					<button id="mailSettingsToggle" style="display: none;"
+						class="ml-1 p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition flex items-center justify-center"
+						data-i18n-title="mailSettingsTitle">
+						<i class="fa fa-envelope text-3xl text-gray-600 dark:text-gray-300"></i>
 					</button>
 				</div>
 			</div>

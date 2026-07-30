@@ -581,5 +581,11 @@
   },
   "sentButton": {
     "message": "Sent"
+  },
+  "homeTitle": {
+    "message": "Home"
+  },
+  "settingsTitle": {
+    "message": "Settings"
   }
 }
