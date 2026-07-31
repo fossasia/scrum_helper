@@ -24,3 +24,5 @@ function sanitizeHtml(html) {
 		.replace(/"/g, '&quot;')
 		.replace(/'/g, '&#039;');
 }
+
+window.sanitizeHtml = sanitizeHtml;
