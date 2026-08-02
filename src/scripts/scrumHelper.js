@@ -294,9 +294,17 @@ function allIncluded(outputTarget = 'email') {
 						platformUsernameLocal = usernameFromDOM;
 					}
 
-					items.projectName = projectFromDOM || items.projectName;
-					items.githubToken = tokenFromDOM || items.githubToken;
-					items.gitlabToken = gitlabTokenFromDOM || items.gitlabToken;
+					if (projectFromDOM !== undefined) {
+						items.projectName = projectFromDOM;
+					}
+
+					if (tokenFromDOM !== undefined) {
+						items.githubToken = tokenFromDOM;
+					}
+
+					if (gitlabTokenFromDOM !== undefined) {
+						items.gitlabToken = gitlabTokenFromDOM;
+					}
 					chrome.storage.local.set({
 						projectName: items.projectName,
 						githubToken: items.githubToken,
@@ -1330,8 +1338,10 @@ function allIncluded(outputTarget = 'email') {
 					const cacheKey =
 						platform === 'gitlab' ? (window.gitlabHelper?.cache?.cacheKey ?? null) : (githubCache?.cacheKey ?? null);
 
+					const reportCacheKey = `${platform}LastScrumReportHtml`;
+
 					chrome.storage.local.set({
-						lastScrumReportHtml: content,
+						[reportCacheKey]: content,
 						lastScrumReportPlatform: platform,
 						lastScrumReportCacheKey: cacheKey,
 						lastScrumReportUsername: platformUsername,

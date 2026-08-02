@@ -496,8 +496,14 @@ async function performRepoFetch() {
 // Validate organization only when user is done typing (on blur)
 function validateOrgOnBlur(org) {
 	console.log('[Org Check] Checking organization on blur:', org);
-	fetch(`https://api.github.com/orgs/${org}`)
-		.then((res) => {
+
+	browser.storage.local.get(['githubToken']).then((items) => {
+		const headers = items.githubToken
+			? { Authorization: `token ${items.githubToken}` }
+			: {};
+
+		fetch(`https://api.github.com/orgs/${org}`, { headers })
+			.then((res) => {
 			console.log('[Org Check] Response status for', org, ':', res.status);
 			if (res.status === 404) {
 				console.log('[Org Check] Organization not found on GitHub:', org);

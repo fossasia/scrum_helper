@@ -477,10 +477,10 @@ function handleIncludeNextPlansChange() {
 }
 
 if (platformUsernameElement) {
-	platformUsernameElement.addEventListener('keyup', handlePlatformUsernameChange);
+	platformUsernameElement.addEventListener('change', handlePlatformUsernameChange);
 }
 if (githubTokenElement) {
-	githubTokenElement.addEventListener('keyup', handleGithubTokenChange);
+	githubTokenElement.addEventListener('change', handleGithubTokenChange);
 	githubTokenElement.addEventListener('change', () => {
 		githubTokenElement.value = githubTokenElement.value.trim();
 	});
@@ -489,7 +489,7 @@ if (githubTokenElement) {
 	});
 }
 if (gitlabTokenElement) {
-	gitlabTokenElement.addEventListener('keyup', handleGitlabTokenChange);
+	gitlabTokenElement.addEventListener('change', handleGitlabTokenChange);
 	gitlabTokenElement.addEventListener('change', () => {
 		gitlabTokenElement.value = gitlabTokenElement.value.trim();
 	});
@@ -498,10 +498,10 @@ if (gitlabTokenElement) {
 	});
 }
 if (cacheInputElement) {
-	cacheInputElement.addEventListener('keyup', handleCacheInputChange);
+	cacheInputElement.addEventListener('change', handleCacheInputChange);
 }
 if (projectNameElement) {
-	projectNameElement.addEventListener('keyup', handleProjectNameChange);
+	projectNameElement.addEventListener('change', handleProjectNameChange);
 }
 if (startingDateElement) {
 	startingDateElement.addEventListener('change', handleStartingDateChange);
