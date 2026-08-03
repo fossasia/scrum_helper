@@ -1037,7 +1037,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 					if (!senderEmail || !host || !username || !password || !recipientsRaw) {
 						showPopupMessage(
-							browser.i18n.getMessage('smtpMissingSettingsError') ||
+							browser.i18n.getMessage('smtpMissingFieldsError') ||
 								'Please configure all SMTP settings in Mail Settings first.',
 							{ variant: 'error' },
 						);
@@ -1052,7 +1052,7 @@ document.addEventListener('DOMContentLoaded', () => {
 						.filter(Boolean);
 					if (recipients.length === 0) {
 						showPopupMessage(
-							browser.i18n.getMessage('smtpMissingSettingsError') || 'Please configure recipients first.',
+							browser.i18n.getMessage('smtpMissingFieldsError') || 'Please configure recipients first.',
 							{ variant: 'error' },
 						);
 						setSendEmailButtonLoading(sendReportEmailBtn, false);
