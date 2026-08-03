@@ -1,10 +1,10 @@
 [package]
 name = "app"
 version = "0.1.0"
-description = "A Tauri App"
-authors = ["you"]
-license = ""
-repository = ""
+description = "Scrum Helper Tauri app"
+authors = ["FOSSASIA"]
+license = "LGPL-2.1"
+repository = "https://github.com/fossasia/scrum_helper"
 edition = "2021"
 rust-version = "1.77.2"
 
