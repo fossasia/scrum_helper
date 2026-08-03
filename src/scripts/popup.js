@@ -301,17 +301,21 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	});
 
-	toggleTokenBtn.addEventListener('click', () => {
-		tokenVisible = !tokenVisible;
-		githubTokenInput.type = tokenVisible ? 'text' : 'password';
+	if (toggleTokenBtn && githubTokenInput) {
+		toggleTokenBtn.addEventListener('click', () => {
+			tokenVisible = !tokenVisible;
+			githubTokenInput.type = tokenVisible ? 'text' : 'password';
 
-		tokenEyeIcon.classList.add('eye-animating');
-		setTimeout(() => tokenEyeIcon.classList.remove('eye-animating'), 400);
-		tokenEyeIcon.className = tokenVisible ? 'fa fa-eye-slash text-gray-600' : 'fa fa-eye text-gray-600';
+			if (tokenEyeIcon) {
+				tokenEyeIcon.className = tokenVisible ? 'fa fa-eye-slash text-gray-600' : 'fa fa-eye text-gray-600';
+				tokenEyeIcon.classList.add('eye-animating');
+				setTimeout(() => tokenEyeIcon.classList.remove('eye-animating'), 400);
+			}
 
-		githubTokenInput.classList.add('token-animating');
-		setTimeout(() => githubTokenInput.classList.remove('token-animating'), 300);
-	});
+			githubTokenInput.classList.add('token-animating');
+			setTimeout(() => githubTokenInput.classList.remove('token-animating'), 300);
+		});
+	}
 
 	// GitLab token visibility toggle
 	if (toggleGitlabTokenBtn && gitlabTokenInput) {
@@ -319,9 +323,11 @@ document.addEventListener('DOMContentLoaded', () => {
 			gitlabTokenVisible = !gitlabTokenVisible;
 			gitlabTokenInput.type = gitlabTokenVisible ? 'text' : 'password';
 
-			gitlabTokenEyeIcon.classList.add('eye-animating');
-			setTimeout(() => gitlabTokenEyeIcon.classList.remove('eye-animating'), 400);
-			gitlabTokenEyeIcon.className = gitlabTokenVisible ? 'fa fa-eye-slash text-gray-600' : 'fa fa-eye text-gray-600';
+			if (gitlabTokenEyeIcon) {
+				gitlabTokenEyeIcon.className = gitlabTokenVisible ? 'fa fa-eye-slash text-gray-600' : 'fa fa-eye text-gray-600';
+				gitlabTokenEyeIcon.classList.add('eye-animating');
+				setTimeout(() => gitlabTokenEyeIcon.classList.remove('eye-animating'), 400);
+			}
 
 			gitlabTokenInput.classList.add('token-animating');
 			setTimeout(() => gitlabTokenInput.classList.remove('token-animating'), 300);
@@ -339,9 +345,13 @@ document.addEventListener('DOMContentLoaded', () => {
 			smtpPasswordVisible = !smtpPasswordVisible;
 			smtpPasswordInput.type = smtpPasswordVisible ? 'text' : 'password';
 
-			smtpPasswordEyeIcon.classList.add('eye-animating');
-			setTimeout(() => smtpPasswordEyeIcon.classList.remove('eye-animating'), 400);
-			smtpPasswordEyeIcon.className = smtpPasswordVisible ? 'fa fa-eye-slash text-gray-600' : 'fa fa-eye text-gray-600';
+			if (smtpPasswordEyeIcon) {
+				smtpPasswordEyeIcon.className = smtpPasswordVisible
+					? 'fa fa-eye-slash text-gray-600'
+					: 'fa fa-eye text-gray-600';
+				smtpPasswordEyeIcon.classList.add('eye-animating');
+				setTimeout(() => smtpPasswordEyeIcon.classList.remove('eye-animating'), 400);
+			}
 
 			smtpPasswordInput.classList.add('token-animating');
 			setTimeout(() => smtpPasswordInput.classList.remove('token-animating'), 300);
