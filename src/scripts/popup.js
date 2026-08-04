@@ -333,6 +333,9 @@ document.addEventListener('DOMContentLoaded', () => {
 	if (gitlabTokenInput) {
 		gitlabTokenInput.addEventListener('input', () => checkTokenForShowCommits({ persistState: false }));
 	}
+	if (codebergTokenInput) {
+		codebergTokenInput.addEventListener('input', () => checkTokenForNextPlans({ persistState: false }));
+	}
 
 	darkModeToggle.addEventListener('click', function () {
 		body.classList.toggle('dark-mode');
@@ -1955,6 +1958,38 @@ function updatePlatformUI(platform) {
 		const message = browser.i18n.getMessage(key);
 		if (message) {
 			showCommitsTooltip.textContent = message;
+		}
+	}
+	const tokenWarningForNextPlans = document.getElementById('tokenWarningForNextPlans');
+	if (tokenWarningForNextPlans) {
+		const span = tokenWarningForNextPlans.querySelector('span');
+		if (span) {
+			if (platform === 'codeberg') {
+				span.setAttribute('data-i18n', 'tokenRequiredNextPlansWarningCodeberg');
+			} else {
+				span.setAttribute('data-i18n', 'tokenRequiredNextPlansWarning');
+			}
+			const key = span.getAttribute('data-i18n');
+			const message = browser.i18n.getMessage(key);
+			if (message) {
+				span.textContent = message;
+			}
+		}
+	}
+
+	const nextPlansTooltip = document.querySelector(
+		'[data-i18n="includeNextPlansTooltip"], [data-i18n="includeNextPlansTooltipCodeberg"]',
+	);
+	if (nextPlansTooltip) {
+		if (platform === 'codeberg') {
+			nextPlansTooltip.setAttribute('data-i18n', 'includeNextPlansTooltipCodeberg');
+		} else {
+			nextPlansTooltip.setAttribute('data-i18n', 'includeNextPlansTooltip');
+		}
+		const key = nextPlansTooltip.getAttribute('data-i18n');
+		const message = browser.i18n.getMessage(key);
+		if (message) {
+			nextPlansTooltip.textContent = message;
 		}
 	}
 }
