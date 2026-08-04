@@ -19,6 +19,13 @@ function debounce(func, wait) {
 	};
 }
 
+function formatLocalDate(date) {
+	const year = date.getFullYear();
+	const month = String(date.getMonth() + 1).padStart(2, '0');
+	const day = String(date.getDate()).padStart(2, '0');
+	return `${year}-${month}-${day}`;
+}
+
 // Utility: Detect if the current OS is macOS
 function isMacOS() {
 	if (typeof navigator === 'undefined') {
@@ -74,14 +81,21 @@ function setupButtonTooltips() {
 
 function getToday() {
 	const today = new Date();
-	return today.toISOString().split('T')[0];
+	return formatLocalDate(today);
 }
 
 function getYesterday() {
 	const today = new Date();
 	const yesterday = new Date(today);
 	yesterday.setDate(today.getDate() - 1);
-	return yesterday.toISOString().split('T')[0];
+	return formatLocalDate(yesterday);
+}
+
+function getWeekAgo() {
+	const today = new Date();
+	const weekAgo = new Date(today);
+	weekAgo.setDate(today.getDate() - 7);
+	return formatLocalDate(weekAgo);
 }
 
 function applyI18n() {
@@ -116,6 +130,21 @@ function applyI18n() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+	// Hide extension-only settings in Tauri
+	if (window.isTauri) {
+		const displayModeSec = document.getElementById('displayModeSectionContainer');
+		if (displayModeSec) {
+			displayModeSec.style.display = 'none';
+		}
+		const insertInEmailBtn = document.getElementById('insertInEmail');
+		if (insertInEmailBtn) {
+			const container = insertInEmailBtn.closest('.tooltip-container');
+			if (container) {
+				container.style.display = 'none';
+			}
+		}
+	}
+
 	// Apply translations as soon as the DOM is ready
 	applyI18n();
 	setupButtonTooltips();
@@ -143,6 +172,15 @@ document.addEventListener('DOMContentLoaded', () => {
 	const gitlabTokenEyeIcon = document.getElementById('gitlabTokenEyeIcon');
 	let gitlabTokenVisible = false;
 
+	// Codeberg elements
+	let lastPlatform = 'github';
+	const codebergUsernameInput = document.getElementById('codebergUsername');
+	const codebergTokenInput = document.getElementById('codebergToken');
+	const codebergApiBaseUrlInput = document.getElementById('codebergApiBaseUrl');
+	const toggleCodebergTokenBtn = document.getElementById('toggleCodebergTokenVisibility');
+	const codebergTokenEyeIcon = document.getElementById('codebergTokenEyeIcon');
+	let codebergTokenVisible = false;
+
 	const orgInput = document.getElementById('orgInput');
 
 	const platformSelect = document.getElementById('platformSelect');
@@ -161,6 +199,54 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	}
 
+	let onlyPrsWarningTimeout = null;
+	function showOnlyPrsWarningForShowCommits({ animate = false, durationMs = 4000 } = {}) {
+		const warningEl = document.getElementById('onlyPrsRequiredWarningForShowCommits');
+		if (!warningEl) return;
+
+		warningEl.classList.remove('hidden');
+		if (animate) {
+			warningEl.classList.add('shake-animation');
+			setTimeout(() => warningEl.classList.remove('shake-animation'), 620);
+		}
+
+		if (onlyPrsWarningTimeout) {
+			clearTimeout(onlyPrsWarningTimeout);
+		}
+		onlyPrsWarningTimeout = setTimeout(() => {
+			warningEl.classList.add('hidden');
+		}, durationMs);
+	}
+
+	function checkOnlyPrsForShowCommits({ showWarning = false, animateWarning = false, warningDurationMs = 4000 } = {}) {
+		const showCommits = document.getElementById('showCommits');
+		const onlyPRs = document.getElementById('onlyPRs');
+		if (!showCommits || !onlyPRs) return false;
+
+		if (showCommits.checked && !onlyPRs.checked) {
+			showCommits.checked = false;
+			browser?.storage.local.set({ showCommits: false });
+			if (showWarning) {
+				showOnlyPrsWarningForShowCommits({
+					animate: animateWarning,
+					durationMs: warningDurationMs,
+				});
+			}
+			return false;
+		}
+
+		// Hide the warning if conditions are met
+		const warningEl = document.getElementById('onlyPrsRequiredWarningForShowCommits');
+		if (warningEl) {
+			if (onlyPrsWarningTimeout) {
+				clearTimeout(onlyPrsWarningTimeout);
+				onlyPrsWarningTimeout = null;
+			}
+			warningEl.classList.add('hidden');
+		}
+		return true;
+	}
+
 	function checkTokenForShowCommits(options) {
 		const helper = getActivePlatformHelper();
 		if (helper && helper.checkTokenForShowCommits) {
@@ -174,6 +260,32 @@ document.addEventListener('DOMContentLoaded', () => {
 			helper.checkTokenForMergedPRs(options);
 		}
 	}
+
+	function checkTokenForNextPlans(options) {
+		const helper = getActivePlatformHelper();
+		if (helper && helper.checkTokenForNextPlans) {
+			helper.checkTokenForNextPlans(options);
+		}
+	}
+
+	window.showRegenerateNotice = function () {
+		const scrumReport = document.getElementById('scrumReport');
+		const notice = document.getElementById('regenerateNotice');
+		if (!scrumReport || !notice) return;
+
+		// Check if a report is currently displayed (not empty and not a placeholder/cache cleared message)
+		const hasReport = scrumReport.textContent.trim().length > 0 && scrumReport.dataset.copyPlaceholder !== 'true';
+		if (hasReport) {
+			notice.classList.remove('hidden');
+		}
+	};
+
+	window.hideRegenerateNotice = function () {
+		const notice = document.getElementById('regenerateNotice');
+		if (notice) {
+			notice.classList.add('hidden');
+		}
+	};
 
 	browser.storage.local.get(['darkMode']).then((result) => {
 		if (result.darkMode) {
@@ -212,9 +324,30 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 	}
 
+	// Codeberg token visibility toggle
+	if (toggleCodebergTokenBtn && codebergTokenInput) {
+		toggleCodebergTokenBtn.addEventListener('click', () => {
+			codebergTokenVisible = !codebergTokenVisible;
+			codebergTokenInput.type = codebergTokenVisible ? 'text' : 'password';
+
+			codebergTokenEyeIcon.classList.add('eye-animating');
+			setTimeout(() => codebergTokenEyeIcon.classList.remove('eye-animating'), 400);
+			codebergTokenEyeIcon.className = codebergTokenVisible
+				? 'fa fa-eye-slash text-gray-600'
+				: 'fa fa-eye text-gray-600';
+
+			codebergTokenInput.classList.add('token-animating');
+			setTimeout(() => codebergTokenInput.classList.remove('token-animating'), 300);
+		});
+	}
+
 	githubTokenInput.addEventListener('input', () => checkTokenForFilter());
 	githubTokenInput.addEventListener('input', () => checkTokenForShowCommits({ persistState: false }));
 	githubTokenInput.addEventListener('input', () => checkTokenForMergedPRs({ persistState: false }));
+	githubTokenInput.addEventListener('input', () => checkTokenForNextPlans({ persistState: false }));
+	if (gitlabTokenInput) {
+		gitlabTokenInput.addEventListener('input', () => checkTokenForShowCommits({ persistState: false }));
+	}
 
 	darkModeToggle.addEventListener('click', function () {
 		body.classList.toggle('dark-mode');
@@ -230,7 +363,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	function renderTokenPreview() {
 		if (!tokenPreview || !githubTokenInput) return;
-		tokenPreview.innerHTML = '';
+		tokenPreview.textContent = '';
 		const value = githubTokenInput.value;
 		const isDark = document.body.classList.contains('dark-mode');
 		for (let i = 0; i < value.length; i++) {
@@ -251,7 +384,11 @@ document.addEventListener('DOMContentLoaded', () => {
 	browser.storage.local.remove(['enableToggle']).then(() => {
 		initializePopup();
 		checkTokenForFilter();
+		checkOnlyPrsForShowCommits({ showWarning: false });
 		checkTokenForShowCommits();
+		if (window.loadAssignedIssues) {
+			window.loadAssignedIssues();
+		}
 	});
 
 	browser.storage.onChanged.addListener((changes, namespace) => {
@@ -267,6 +404,17 @@ document.addEventListener('DOMContentLoaded', () => {
 			});
 			if (window.triggerRepoFetchIfEnabled) {
 				window.triggerRepoFetchIfEnabled();
+			}
+		}
+		if (
+			changes.useRepoFilter ||
+			changes.selectedRepos ||
+			changes.githubToken ||
+			changes.githubUsername ||
+			changes.platformUsername
+		) {
+			if (window.loadAssignedIssues) {
+				window.loadAssignedIssues();
 			}
 		}
 	});
@@ -484,10 +632,12 @@ document.addEventListener('DOMContentLoaded', () => {
 		const onlyPRsCheckbox = document.getElementById('onlyPRs');
 		const onlyRevPRsCheckbox = document.getElementById('onlyRevPRs');
 		const onlyMergedPRsCheckbox = document.getElementById('onlyMergedPRs');
+		const includeNextPlansCheckbox = document.getElementById('includeNextPlans');
 
 		const githubTokenInput = document.getElementById('githubToken');
 		const cacheInput = document.getElementById('cacheInput');
 		const yesterdayRadio = document.getElementById('yesterdayContribution');
+		const weeklyRadio = document.getElementById('weeklyContribution');
 		const startingDateInput = document.getElementById('startingDate');
 		const endingDateInput = document.getElementById('endingDate');
 		const platformUsername = document.getElementById('platformUsername');
@@ -506,13 +656,18 @@ document.addEventListener('DOMContentLoaded', () => {
 				'onlyPRs',
 				'onlyRevPRs',
 				'onlyMergedPRs',
+				'includeNextPlans',
 				'yesterdayContribution',
+				'weeklyContribution',
 				'startingDate',
 				'endingDate',
 				'selectedTimeframe',
 				'platform',
 				'githubUsername',
 				'gitlabUsername',
+				'codebergUsername',
+				'codebergToken',
+				'codebergApiBaseUrl',
 			])
 			.then((result) => {
 				if (result.projectName) projectNameInput.value = result.projectName;
@@ -526,40 +681,33 @@ document.addEventListener('DOMContentLoaded', () => {
 				if (typeof result.showCommits !== 'undefined') showCommitsCheckbox.checked = result.showCommits;
 				if (typeof result.onlyIssues !== 'undefined') {
 					onlyIssuesCheckbox.checked = result.onlyIssues;
+				} else {
+					onlyIssuesCheckbox.checked = true;
 				}
 				if (typeof result.onlyPRs !== 'undefined') {
 					onlyPRsCheckbox.checked = result.onlyPRs;
+				} else {
+					onlyPRsCheckbox.checked = true;
 				}
 				if (typeof result.onlyRevPRs !== 'undefined') {
 					onlyRevPRsCheckbox.checked = result.onlyRevPRs;
+				} else {
+					onlyRevPRsCheckbox.checked = true;
 				}
 				if (typeof result.onlyMergedPRs !== 'undefined') {
 					onlyMergedPRsCheckbox.checked = result.onlyMergedPRs;
+				} else {
+					onlyMergedPRsCheckbox.checked = true;
 				}
-
-				// Reconcile mutually exclusive "Only Issues" and "Only PRs" flags on initialization.
-				// If both are somehow true in storage (e.g., from an older version or manual edits),
-				// prefer "Only Issues" and clear "Only PRs", then persist the corrected state.
-				if (onlyIssuesCheckbox.checked && onlyPRsCheckbox.checked) {
-					onlyPRsCheckbox.checked = false;
-					browser?.storage.local.set({ onlyPRs: false });
-				}
-				if (onlyMergedPRsCheckbox.checked && onlyRevPRsCheckbox.checked) {
-					onlyRevPRsCheckbox.checked = false;
-					browser?.storage.local.set({ onlyRevPRs: false });
-				}
-				// onlyMergedPRs overrides onlyIssues and onlyPRs
-				if (onlyMergedPRsCheckbox.checked && onlyIssuesCheckbox.checked) {
-					onlyIssuesCheckbox.checked = false;
-					browser?.storage.local.set({ onlyIssues: false });
-				}
-				if (onlyMergedPRsCheckbox.checked && onlyPRsCheckbox.checked) {
-					onlyPRsCheckbox.checked = false;
-					browser?.storage.local.set({ onlyPRs: false });
+				if (typeof result.includeNextPlans !== 'undefined') {
+					includeNextPlansCheckbox.checked = result.includeNextPlans;
+				} else {
+					includeNextPlansCheckbox.checked = true;
 				}
 				if (result.githubToken) githubTokenInput.value = result.githubToken;
 				if (result.cacheInput) cacheInput.value = result.cacheInput;
 				if (typeof result.yesterdayContribution !== 'undefined') yesterdayRadio.checked = result.yesterdayContribution;
+				if (typeof result.weeklyContribution !== 'undefined') weeklyRadio.checked = result.weeklyContribution;
 				if (result.startingDate) startingDateInput.value = result.startingDate;
 				if (result.endingDate) endingDateInput.value = result.endingDate;
 				const wasNormalizedOnLoad = window.scrumDateRangeUtils.normalizeDateRangeValues(
@@ -570,13 +718,24 @@ document.addEventListener('DOMContentLoaded', () => {
 					window.scrumDateRangeUtils.persistDateRange(startingDateInput, endingDateInput);
 				}
 
+				if (codebergUsernameInput && result.codebergUsername) codebergUsernameInput.value = result.codebergUsername;
+				if (codebergTokenInput && result.codebergToken) codebergTokenInput.value = result.codebergToken;
+				if (codebergApiBaseUrlInput)
+					codebergApiBaseUrlInput.value = result.codebergApiBaseUrl || 'https://codeberg.org/api/v1';
+
 				// Load platform-specific username
 				const platform = result.platform || 'github';
+				lastPlatform = platform;
 				const platformUsernameKey = `${platform}Username`;
 				platformUsername.value = result[platformUsernameKey] || '';
 				window.updateGenerateButtonState && window.updateGenerateButtonState();
+				checkOnlyPrsForShowCommits({ showWarning: false });
 				checkTokenForShowCommits();
 				checkTokenForMergedPRs();
+				checkTokenForNextPlans();
+				if (includeNextPlansCheckbox && includeNextPlansCheckbox.checked && window.loadAssignedIssues) {
+					window.loadAssignedIssues();
+				}
 			});
 
 		function dismissShortcutTooltipFocus(el) {
@@ -638,10 +797,16 @@ document.addEventListener('DOMContentLoaded', () => {
 								if (!response?.success) {
 									handleInsertFailure(response?.error);
 								} else {
-									if (insertBtn._triggeredByShortcut) {
-										showShortcutNotification('insertedInEmailNotification');
+									if (response?.alreadyInserted) {
+										showPopupMessage(browser.i18n.getMessage('reportAlreadyInserted') || 'Report already inserted!', {
+											variant: 'info',
+										});
 									} else {
-										showPopupMessage(browser.i18n.getMessage('insertedInEmailNotification'), { variant: 'success' });
+										if (insertBtn._triggeredByShortcut) {
+											showShortcutNotification('insertedInEmailNotification');
+										} else {
+											showPopupMessage(browser.i18n.getMessage('insertedInEmailNotification'), { variant: 'success' });
+										}
 									}
 								}
 							})
@@ -660,40 +825,82 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 
 		generateBtn.addEventListener('click', () => {
+			window.hideRegenerateNotice();
 			if (!generateBtn._triggeredByShortcut) {
 				showPopupMessage(browser.i18n.getMessage('generatingReportNotification'));
 			}
-			browser.storage.local.get(['platform']).then((result) => {
-				platformUsername.classList.remove('input-error');
-				usernameError.classList.remove('errorMessage');
-				usernameError.textContent = '';
-				const platform = result.platform || 'github';
-				const platformUsernameKey = `${platform}Username`;
+			browser.storage.local
+				.get(['platform', 'codebergApiBaseUrl'])
+				.then((result) => {
+					const platform = result.platform || 'github';
+					const codebergApiBaseUrl = result.codebergApiBaseUrl || 'https://codeberg.org/api/v1';
 
-				return browser.storage.local
-					.set({
-						platform: platformSelect.value,
-						[platformUsernameKey]: platformUsername.value,
-					})
-					.then(() => {
-						// Reload platform from storage before generating report
-						return browser.storage.local.get(['platform']).then((res) => {
-							platformSelect.value = res.platform || 'github';
-							updatePlatformUI(platformSelect.value);
-							generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
-							generateBtn.disabled = true;
-							window.generateScrumReport && window.generateScrumReport();
-							generateBtn._triggeredByShortcut = false;
+					const proceedWithReport = () => {
+						platformUsername.classList.remove('input-error');
+						usernameError.classList.remove('errorMessage');
+						usernameError.textContent = '';
+						const platformUsernameKey = `${platform}Username`;
 
+						return browser.storage.local
+							.set({
+								platform: platformSelect.value,
+								[platformUsernameKey]: platformUsername.value,
+							})
+							.then(() => {
+								// Reload platform from storage before generating report
+								return browser.storage.local.get(['platform']).then((res) => {
+									platformSelect.value = res.platform || 'github';
+									updatePlatformUI(platformSelect.value);
+									generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
+									generateBtn.disabled = true;
+									window.generateScrumReport && window.generateScrumReport();
+									generateBtn._triggeredByShortcut = false;
+								});
+							});
+					};
 
-						});
-					});
-			}).finally(() => {
-				if (generateBtn._triggeredByShortcut) {
-					dismissShortcutTooltipFocus(generateBtn);
-					generateBtn._triggeredByShortcut = false;
-				}
-			});
+					if (platformSelect.value === 'codeberg' && !codebergApiBaseUrl.includes('codeberg.org')) {
+						try {
+							const parsedUrl = new URL(codebergApiBaseUrl);
+							const originPattern = `${parsedUrl.protocol}//${parsedUrl.host}/*`;
+							return browser.permissions
+								.contains({
+									origins: [originPattern],
+								})
+								.then((hasPerm) => {
+									if (!hasPerm) {
+										return browser.permissions
+											.request({
+												origins: [originPattern],
+											})
+											.then((granted) => {
+												if (granted) {
+													return proceedWithReport();
+												} else {
+													showPopupMessage(
+														'Host permission is required to fetch data from self-hosted instance ' + parsedUrl.host,
+														'error',
+													);
+												}
+											});
+									} else {
+										return proceedWithReport();
+									}
+								});
+						} catch (e) {
+							console.error('Invalid Codeberg API URL:', e);
+							return proceedWithReport();
+						}
+					} else {
+						return proceedWithReport();
+					}
+				})
+				.finally(() => {
+					if (generateBtn._triggeredByShortcut) {
+						dismissShortcutTooltipFocus(generateBtn);
+						generateBtn._triggeredByShortcut = false;
+					}
+				});
 		});
 
 		copyBtn.addEventListener('click', function () {
@@ -793,16 +1000,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			browser.storage.local.set({
 				yesterdayContribution: false,
+				weeklyContribution: false,
 				selectedTimeframe: null,
 			});
 		});
 
 		browser.storage.local
-			.get(['selectedTimeframe', 'yesterdayContribution', 'startingDate', 'endingDate'])
+			.get(['selectedTimeframe', 'yesterdayContribution', 'weeklyContribution', 'startingDate', 'endingDate'])
 			.then((items) => {
 				console.log('Restoring state:', typeof logRedaction === 'function' ? logRedaction(items) : items);
 
-				if (items.startingDate && items.endingDate && !items.yesterdayContribution) {
+				if (items.startingDate && items.endingDate && !items.yesterdayContribution && !items.weeklyContribution) {
 					const startDateInput = document.getElementById('startingDate');
 					const endDateInput = document.getElementById('endingDate');
 
@@ -835,6 +1043,9 @@ document.addEventListener('DOMContentLoaded', () => {
 					if (items.selectedTimeframe === 'yesterdayContribution') {
 						startDateInput.value = getYesterday();
 						endDateInput.value = getYesterday();
+					} else if (items.selectedTimeframe === 'weeklyContribution') {
+						startDateInput.value = getWeekAgo();
+						endDateInput.value = getToday();
 					}
 					startDateInput.readOnly = endDateInput.readOnly = true;
 
@@ -842,15 +1053,18 @@ document.addEventListener('DOMContentLoaded', () => {
 						startingDate: startDateInput.value,
 						endingDate: endDateInput.value,
 						yesterdayContribution: items.selectedTimeframe === 'yesterdayContribution',
+						weeklyContribution: items.selectedTimeframe === 'weeklyContribution',
 						selectedTimeframe: items.selectedTimeframe,
 					});
 				}
 			});
 
 		// Save all fields to storage on input/change
-		projectNameInput.addEventListener('input', () => {
-			browser.storage.local.set({ projectName: projectNameInput.value });
-		});
+		if (projectNameInput) {
+			projectNameInput.addEventListener('input', () => {
+				browser.storage.local.set({ projectName: projectNameInput.value });
+			});
+		}
 
 		// Save to storage and validate ONLY when user clicks out (blur event)
 		orgInput.addEventListener('blur', () => {
@@ -859,7 +1073,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			// Only validate if org name is not empty
 			if (org) {
-				validateOrgOnBlur(org);
+				handleOrgInputBlurValidation(org);
 			} else {
 				window.clearScrumHelperToast?.();
 			}
@@ -869,92 +1083,134 @@ document.addEventListener('DOMContentLoaded', () => {
 				browser.storage.local.set({ userReason: userReasonInput.value });
 			});
 		}
-		showOpenLabelCheckbox.addEventListener('change', () => {
-			browser.storage.local.set({ showOpenLabel: showOpenLabelCheckbox.checked });
-		});
-		if (onlyIssuesCheckbox && onlyPRsCheckbox) {
-			onlyIssuesCheckbox.addEventListener('change', () => {
-				const checked = onlyIssuesCheckbox.checked;
-				browser?.storage.local.set({ onlyIssues: checked }, () => {
-					if (checked) {
-						if (onlyPRsCheckbox.checked) {
-							onlyPRsCheckbox.checked = false;
-							browser?.storage.local.set({ onlyPRs: false });
-						}
-						if (onlyMergedPRsCheckbox && onlyMergedPRsCheckbox.checked) {
-							onlyMergedPRsCheckbox.checked = false;
-							browser?.storage.local.set({ onlyMergedPRs: false });
-						}
-					}
-				});
-			});
-
-			onlyPRsCheckbox.addEventListener('change', () => {
-				const checked = onlyPRsCheckbox.checked;
-				browser?.storage.local.set({ onlyPRs: checked }, () => {
-					if (checked) {
-						if (onlyIssuesCheckbox.checked) {
-							onlyIssuesCheckbox.checked = false;
-							browser?.storage.local.set({ onlyIssues: false });
-						}
-						if (onlyMergedPRsCheckbox && onlyMergedPRsCheckbox.checked) {
-							onlyMergedPRsCheckbox.checked = false;
-							browser?.storage.local.set({ onlyMergedPRs: false });
-						}
-					}
-				});
-			});
-
-			if (onlyRevPRsCheckbox) {
-				onlyRevPRsCheckbox.addEventListener('change', () => {
-					const checked = onlyRevPRsCheckbox.checked;
-					browser?.storage.local.set({ onlyRevPRs: checked }, () => {
-						if (checked && onlyMergedPRsCheckbox && onlyMergedPRsCheckbox.checked) {
-							onlyMergedPRsCheckbox.checked = false;
-							browser?.storage.local.set({ onlyMergedPRs: false });
-						}
-					});
-				});
-			}
-			if (onlyMergedPRsCheckbox) {
-				onlyMergedPRsCheckbox.addEventListener('change', () => {
-					if (onlyMergedPRsCheckbox.checked) {
-						if (onlyRevPRsCheckbox && onlyRevPRsCheckbox.checked) {
-							onlyRevPRsCheckbox.checked = false;
-							browser?.storage.local.set({ onlyRevPRs: false });
-						}
-						if (onlyIssuesCheckbox && onlyIssuesCheckbox.checked) {
-							onlyIssuesCheckbox.checked = false;
-							browser?.storage.local.set({ onlyIssues: false });
-						}
-						if (onlyPRsCheckbox && onlyPRsCheckbox.checked) {
-							onlyPRsCheckbox.checked = false;
-							browser?.storage.local.set({ onlyPRs: false });
-						}
-					}
+		const advancedCheckboxes = [
+			{ el: showOpenLabelCheckbox, key: 'showOpenLabel' },
+			{ el: onlyIssuesCheckbox, key: 'onlyIssues' },
+			{ el: onlyPRsCheckbox, key: 'onlyPRs', callback: () => checkOnlyPrsForShowCommits({ showWarning: false }) },
+			{ el: onlyRevPRsCheckbox, key: 'onlyRevPRs' },
+			{
+				el: onlyMergedPRsCheckbox,
+				key: 'onlyMergedPRs',
+				callback: () =>
 					checkTokenForMergedPRs({
 						showWarning: true,
 						animateWarning: true,
 						warningDurationMs: 3000,
 						persistState: true,
+					}),
+			},
+			{
+				el: showCommitsCheckbox,
+				key: 'showCommits',
+				beforeSave: () =>
+					checkOnlyPrsForShowCommits({ showWarning: true, animateWarning: true, warningDurationMs: 4000 }),
+				callback: () =>
+					checkTokenForShowCommits({
+						showWarning: true,
+						animateWarning: true,
+						warningDurationMs: 3000,
+						persistState: true,
+					}),
+			},
+			{
+				el: includeNextPlansCheckbox,
+				key: 'includeNextPlans',
+				callback: () => {
+					checkTokenForNextPlans({
+						showWarning: true,
+						animateWarning: true,
+						warningDurationMs: 3000,
+						persistState: true,
+					});
+					if (includeNextPlansCheckbox.checked) {
+						if (window.loadAssignedIssues) {
+							window.loadAssignedIssues();
+						}
+					} else {
+						const container = document.getElementById('assignedIssuesSelector');
+						if (container) {
+							container.style.display = 'none';
+							container.classList.add('hidden');
+						}
+					}
+				},
+			},
+		];
+
+		for (const { el, key, beforeSave, callback } of advancedCheckboxes) {
+			if (el) {
+				el.addEventListener('change', () => {
+					const originalValue = !el.checked;
+
+					if (beforeSave && !beforeSave()) {
+						if (el.checked !== originalValue) {
+							window.showRegenerateNotice();
+						}
+						return;
+					}
+
+					browser.storage.local.set({ [key]: el.checked }, () => {
+						if (callback) callback();
+						if (el.checked !== originalValue) {
+							window.showRegenerateNotice();
+						}
 					});
 				});
 			}
 		}
-		showCommitsCheckbox.addEventListener('change', () => {
-			checkTokenForShowCommits({
-				showWarning: true,
-				animateWarning: true,
-				warningDurationMs: 3000,
-				persistState: true,
+		if (githubTokenInput) {
+			githubTokenInput.addEventListener('input', () => {
+				const trimmed = githubTokenInput.value.trim();
+				browser.storage.local.get(['githubToken']).then((items) => {
+					const currentStored = items.githubToken || '';
+					if (trimmed !== currentStored) {
+						browser.storage.local.set({ githubToken: trimmed });
+					}
+				});
 			});
-		});
-		githubTokenInput.addEventListener('input', () => {
-			browser.storage.local.set({ githubToken: githubTokenInput.value });
-		});
-		cacheInput.addEventListener('input', () => {
-			browser.storage.local.set({ cacheInput: cacheInput.value });
-		});
+			githubTokenInput.addEventListener('change', () => {
+				const trimmed = githubTokenInput.value.trim();
+				githubTokenInput.value = trimmed;
+				browser.storage.local.get(['githubToken']).then((items) => {
+					const currentStored = items.githubToken || '';
+					if (trimmed !== currentStored) {
+						browser.storage.local.set({ githubToken: trimmed }).then(() => {
+							triggerRepoFetchIfEnabled();
+						});
+					}
+				});
+			});
+			githubTokenInput.addEventListener('blur', () => {
+				githubTokenInput.value = githubTokenInput.value.trim();
+			});
+		}
+		if (codebergUsernameInput) {
+			codebergUsernameInput.addEventListener('input', () => {
+				browser.storage.local.set({ codebergUsername: codebergUsernameInput.value });
+			});
+		}
+		if (codebergTokenInput) {
+			codebergTokenInput.addEventListener('input', () => {
+				browser.storage.local.set({ codebergToken: codebergTokenInput.value });
+				checkTokenForShowCommits({ persistState: false });
+			});
+		}
+		if (codebergApiBaseUrlInput) {
+			codebergApiBaseUrlInput.addEventListener('input', () => {
+				const val = codebergApiBaseUrlInput.value.trim() || 'https://codeberg.org/api/v1';
+				browser.storage.local.set({ codebergApiBaseUrl: val });
+			});
+		}
+		if (gitlabTokenInput) {
+			gitlabTokenInput.addEventListener('input', () => {
+				checkTokenForShowCommits({ persistState: false });
+			});
+		}
+		if (cacheInput) {
+			cacheInput.addEventListener('input', () => {
+				browser.storage.local.set({ cacheInput: cacheInput.value });
+			});
+		}
 
 		// Display mode (popup / sidepanel)
 		// Apply the stored display mode class on next launch
@@ -1003,10 +1259,13 @@ document.addEventListener('DOMContentLoaded', () => {
 		yesterdayRadio.addEventListener('change', () => {
 			browser.storage.local.set({ yesterdayContribution: yesterdayRadio.checked });
 		});
-		startingDateInput.addEventListener('input', () => {
+		weeklyRadio.addEventListener('change', () => {
+			browser.storage.local.set({ weeklyContribution: weeklyRadio.checked });
+		});
+		startingDateInput.addEventListener('blur', () => {
 			window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(startingDateInput, endingDateInput);
 		});
-		endingDateInput.addEventListener('input', () => {
+		endingDateInput.addEventListener('blur', () => {
 			window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(startingDateInput, endingDateInput);
 		});
 
@@ -1148,9 +1407,9 @@ document.addEventListener('DOMContentLoaded', () => {
 				}
 				repoFilterContainer.classList.toggle('hidden', !enabled);
 
-				browser.storage.local.set({
+				await browser.storage.local.set({
 					useRepoFilter: enabled,
-					githubCache: null, //forces refresh
+					repoCache: null, // forces refresh
 				});
 				checkTokenForFilter();
 				if (enabled) {
@@ -1176,7 +1435,7 @@ document.addEventListener('DOMContentLoaded', () => {
 							return;
 						}
 
-						const repoCacheKey = `repos-${username}-${items.orgName || ''}`;
+						const repoCacheKey = makeRepoCacheKey(username, items.orgName || '', platform, items);
 
 						const now = Date.now();
 						const cacheAge = cacheData.repoCache?.timestamp
@@ -1299,10 +1558,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			const groups = new Map();
 
 			repos.forEach((repo) => {
-				const owner =
-					repo.fullName && repo.fullName.includes('/')
-						? repo.fullName.split('/')[0]
-						: 'Unknown';
+				const owner = repo.fullName && repo.fullName.includes('/') ? repo.fullName.split('/')[0] : 'Unknown';
 
 				if (!groups.has(owner)) {
 					groups.set(owner, []);
@@ -1314,9 +1570,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }))
 				.map((owner) => ({
 					owner,
-					repos: groups
-						.get(owner)
-						.sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })),
+					repos: groups.get(owner).sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })),
 				}));
 		}
 
@@ -1609,7 +1863,10 @@ if (cacheInput) {
 
 browser.storage.local.get(['platform']).then((result) => {
 	const platform = result.platform || 'github';
-	platformSelect.value = platform;
+	const platformSelect = document.getElementById('platformSelect');
+	if (platformSelect) {
+		platformSelect.value = platform;
+	}
 	updatePlatformUI(platform);
 });
 
@@ -1619,6 +1876,8 @@ function updatePlatformUI(platform) {
 	if (usernameLabel) {
 		if (platform === 'gitlab') {
 			usernameLabel.setAttribute('data-i18n', 'gitlabUsernameLabel');
+		} else if (platform === 'codeberg') {
+			usernameLabel.setAttribute('data-i18n', 'codebergUsernameLabel');
 		} else {
 			usernameLabel.setAttribute('data-i18n', 'githubUsernameLabel');
 		}
@@ -1629,63 +1888,129 @@ function updatePlatformUI(platform) {
 		}
 	}
 
+	const orgInput = document.getElementById('orgInput');
+	if (orgInput) {
+		const key = platform === 'gitlab' ? 'gitlabOrgNamePlaceholder' : 'settingsOrgNamePlaceholder';
+		orgInput.setAttribute('data-i18n-placeholder', key);
+		const message = browser.i18n.getMessage(key);
+		if (message) {
+			orgInput.placeholder = message;
+		}
+	}
+
 	const orgSection = document.querySelector('.orgSection');
 	if (orgSection) {
-		if (platform === 'gitlab') {
-			orgSection.classList.add('hidden');
-		} else {
+		if (platform === 'github' || platform === 'gitlab') {
 			orgSection.classList.remove('hidden');
+		} else {
+			orgSection.classList.add('hidden');
 		}
 	}
 	const githubOnlySections = document.querySelectorAll('.githubOnlySection');
 	githubOnlySections.forEach((el) => {
-		if (platform === 'gitlab') {
-			el.classList.add('hidden');
-		} else {
+		if (platform === 'github') {
 			el.classList.remove('hidden');
+		} else {
+			el.classList.add('hidden');
 		}
 	});
 	const gitlabOnlySections = document.querySelectorAll('.gitlabOnlySection');
 	gitlabOnlySections.forEach((el) => {
-		if (platform === 'github') {
-			el.classList.add('hidden');
-		} else {
+		if (platform === 'gitlab') {
 			el.classList.remove('hidden');
+		} else {
+			el.classList.add('hidden');
 		}
 	});
-}
+	const codebergOnlySections = document.querySelectorAll('.codebergOnlySection');
+	codebergOnlySections.forEach((el) => {
+		if (platform === 'codeberg') {
+			el.classList.remove('hidden');
+		} else {
+			el.classList.add('hidden');
+		}
+	});
 
-platformSelect.addEventListener('change', () => {
-	const platform = platformSelect.value;
-	browser.storage.local.set({ platform }).then(() => {
-		const scrumReport = document.getElementById('scrumReport');
-		if (scrumReport) {
-			scrumReport.innerHTML = '';
-			window.updateCopyButtonState?.();
-		}
-		const generateBtn = document.getElementById('generateReport');
-		if (typeof bootstrapScrumReportOnPopupLoad === 'function') {
-			bootstrapScrumReportOnPopupLoad(generateBtn);
+	const githubGitlabOnlySections = document.querySelectorAll('.githubGitlabOnlySection');
+	githubGitlabOnlySections.forEach((el) => {
+		if (platform === 'github' || platform === 'gitlab') {
+			el.classList.remove('hidden');
+		} else {
+			el.classList.add('hidden');
 		}
 	});
-	const platformUsername = document.getElementById('platformUsername');
-	if (platformUsername) {
-		const currentPlatform = platformSelect.value === 'github' ? 'gitlab' : 'github'; // Get the platform we're switching from
-		const currentUsername = platformUsername.value;
-		if (currentUsername.trim()) {
-			browser.storage.local.set({ [`${currentPlatform}Username`]: currentUsername });
+
+	const tokenWarningShowCommits = document.getElementById('tokenWarningForShowCommits');
+	if (tokenWarningShowCommits) {
+		const span = tokenWarningShowCommits.querySelector('span');
+		if (span) {
+			if (platform === 'gitlab') {
+				span.setAttribute('data-i18n', 'tokenRequiredShowCommitsWarningGitLab');
+			} else {
+				span.setAttribute('data-i18n', 'tokenRequiredShowCommitsWarning');
+			}
+			const key = span.getAttribute('data-i18n');
+			const message = browser.i18n.getMessage(key);
+			if (message) {
+				span.textContent = message;
+			}
 		}
 	}
 
-	browser.storage.local.get([`${platform}Username`]).then((result) => {
-		if (platformUsername) {
-			platformUsername.value = result[`${platform}Username`] || '';
-			window.updateGenerateButtonState && window.updateGenerateButtonState();
+	const showCommitsTooltip = document.querySelector(
+		'[data-i18n="showCommitsTooltip"], [data-i18n="showCommitsTooltipGitLab"]',
+	);
+	if (showCommitsTooltip) {
+		if (platform === 'gitlab') {
+			showCommitsTooltip.setAttribute('data-i18n', 'showCommitsTooltipGitLab');
+		} else {
+			showCommitsTooltip.setAttribute('data-i18n', 'showCommitsTooltip');
 		}
-	});
+		const key = showCommitsTooltip.getAttribute('data-i18n');
+		const message = browser.i18n.getMessage(key);
+		if (message) {
+			showCommitsTooltip.textContent = message;
+		}
+	}
+}
 
-	updatePlatformUI(platform);
-});
+const platformSelectEl = document.getElementById('platformSelect');
+if (platformSelectEl) {
+	platformSelectEl.addEventListener('change', () => {
+		const platform = platformSelectEl.value;
+		browser.storage.local.set({ platform }).then(() => {
+			const scrumReport = document.getElementById('scrumReport');
+			if (scrumReport) {
+				scrumReport.textContent = '';
+				window.updateCopyButtonState?.();
+			}
+			const generateBtn = document.getElementById('generateReport');
+			if (typeof bootstrapScrumReportOnPopupLoad === 'function') {
+				bootstrapScrumReportOnPopupLoad(generateBtn);
+			}
+		});
+
+		const platformUsername = document.getElementById('platformUsername');
+		if (platformUsername) {
+			const currentPlatform = lastPlatform; // Get the platform we're switching from
+			const currentUsername = platformUsername.value;
+			if (currentUsername.trim()) {
+				browser.storage.local.set({ [`${currentPlatform}Username`]: currentUsername });
+			}
+		}
+
+		browser.storage.local.get([`${platform}Username`]).then((result) => {
+			const platformUsername = document.getElementById('platformUsername');
+			if (platformUsername) {
+				platformUsername.value = result[`${platform}Username`] || '';
+				window.updateGenerateButtonState && window.updateGenerateButtonState();
+			}
+		});
+
+		lastPlatform = platform;
+		updatePlatformUI(platform);
+	});
+}
 
 const customDropdown = document.getElementById('customPlatformDropdown');
 const dropdownBtn = document.getElementById('platformDropdownBtn');
@@ -1701,16 +2026,23 @@ function buildScrumSubjectFromPopup() {
 
 	return `[Scrum]${projectName ? ' - ' + projectName : ''} - ${dateCode}`;
 }
-
 function setPlatformDropdown(value) {
-	if (value === 'gitlab') {
-		dropdownSelected.innerHTML = '<i class="fab fa-gitlab mr-2"></i> GitLab';
-	} else {
-		dropdownSelected.innerHTML = '<i class="fab fa-github mr-2"></i> GitHub';
+	if (dropdownSelected) {
+		if (value === 'gitlab') {
+			dropdownSelected.innerHTML = '<i class="fab fa-gitlab mr-2"></i> GitLab';
+		} else if (value === 'codeberg') {
+			dropdownSelected.innerHTML = `
+				<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width: 18px; height: 18px; display: inline-block; vertical-align: middle; margin-right: 8px; fill: currentColor;">
+					<title>Codeberg</title>
+					<path d="M11.999.747A11.974 11.974 0 0 0 0 12.75c0 2.254.635 4.465 1.833 6.376L11.837 6.19c.072-.092.251-.092.323 0l4.178 5.402h-2.992l.065.239h3.113l.882 1.138h-3.674l.103.374h3.86l.777 1.003h-4.358l.135.483h4.593l.695.894h-5.038l.165.589h5.326l.609.785h-5.717l.182.65h6.038l.562.727h-6.397l.183.65h6.717A12.003 12.003 0 0 0 24 12.75 11.977 11.977 0 0 0 11.999.747zm3.654 19.104.182.65h5.326c.173-.204.353-.433.513-.65zm.385 1.377.18.65h3.563c.233-.198.485-.428.712-.65zm.383 1.377.182.648h1.203c.356-.204.685-.412 1.042-.648z"/>
+				</svg> Codeberg`;
+		} else {
+			dropdownSelected.innerHTML = '<i class="fab fa-github mr-2"></i> GitHub';
+		}
 	}
 
 	const platformUsername = document.getElementById('platformUsername');
-	if (platformUsername) {
+	if (platformUsername && platformSelectHidden) {
 		const currentPlatform = platformSelectHidden.value;
 		const currentUsername = platformUsername.value;
 		if (currentUsername.trim()) {
@@ -1718,10 +2050,13 @@ function setPlatformDropdown(value) {
 		}
 	}
 
-	platformSelectHidden.value = value;
+	if (platformSelectHidden) {
+		platformSelectHidden.value = value;
+	}
+	lastPlatform = value;
 	browser.storage.local.set({ platform: value }).then(() => {
 		const scrumReport = document.getElementById('scrumReport');
-		if (scrumReport) scrumReport.innerHTML = '';
+		if (scrumReport) scrumReport.textContent = '';
 		window.updateCopyButtonState?.();
 
 		const generateBtn = document.getElementById('generateReport');
@@ -1740,69 +2075,27 @@ function setPlatformDropdown(value) {
 	updatePlatformUI(value);
 }
 
-dropdownBtn.addEventListener('click', (e) => {
-	e.stopPropagation();
-	customDropdown.classList.toggle('open');
-	dropdownList.classList.toggle('hidden');
-});
-
-dropdownList.querySelectorAll('li').forEach((item) => {
-	item.addEventListener('click', function (e) {
-		const newPlatform = this.getAttribute('data-value');
-		const currentPlatform = platformSelectHidden.value;
-		const platformUsername = document.getElementById('platformUsername');
-		const usernameError = document.getElementById('usernameError');
-		platformUsername.classList.remove('input-error');
-		usernameError.classList.remove('errorMessage');
-		usernameError.textContent = '';
-
-		if (newPlatform !== currentPlatform) {
-			const platformUsername = document.getElementById('platformUsername');
-			if (platformUsername) {
-				const currentUsername = platformUsername.value;
-				if (currentUsername.trim()) {
-					browser.storage.local.set({ [`${currentPlatform}Username`]: currentUsername });
-				}
-			}
-		}
-
-		setPlatformDropdown(newPlatform);
-		customDropdown.classList.remove('open');
-		dropdownList.classList.add('hidden');
+if (dropdownBtn && customDropdown && dropdownList) {
+	dropdownBtn.addEventListener('click', (e) => {
+		e.stopPropagation();
+		customDropdown.classList.toggle('open');
+		dropdownList.classList.toggle('hidden');
 	});
-});
+}
 
-document.addEventListener('click', (e) => {
-	if (!customDropdown.contains(e.target)) {
-		customDropdown.classList.remove('open');
-		dropdownList.classList.add('hidden');
-	}
-});
-
-// Keyboard navigation
-platformDropdownBtn.addEventListener('keydown', (e) => {
-	if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
-		e.preventDefault();
-		customDropdown.classList.add('open');
-		dropdownList.classList.remove('hidden');
-		dropdownList.querySelector('li').focus();
-	}
-});
-dropdownList.querySelectorAll('li').forEach((item, idx, arr) => {
-	item.setAttribute('tabindex', '0');
-	item.addEventListener('keydown', function (e) {
-		if (e.key === 'ArrowDown') {
-			e.preventDefault();
-			(arr[idx + 1] || arr[0]).focus();
-		} else if (e.key === 'ArrowUp') {
-			e.preventDefault();
-			(arr[idx - 1] || arr[arr.length - 1]).focus();
-		} else if (e.key === 'Enter' || e.key === ' ') {
-			e.preventDefault();
+if (dropdownList) {
+	dropdownList.querySelectorAll('li').forEach((item) => {
+		item.addEventListener('click', function (e) {
 			const newPlatform = this.getAttribute('data-value');
-			const currentPlatform = platformSelectHidden.value;
+			const currentPlatform = platformSelectHidden ? platformSelectHidden.value : 'github';
+			const platformUsername = document.getElementById('platformUsername');
+			const usernameError = document.getElementById('usernameError');
+			if (platformUsername) platformUsername.classList.remove('input-error');
+			if (usernameError) {
+				usernameError.classList.remove('errorMessage');
+				usernameError.textContent = '';
+			}
 
-			// Save current username for current platform before switching
 			if (newPlatform !== currentPlatform) {
 				const platformUsername = document.getElementById('platformUsername');
 				if (platformUsername) {
@@ -1814,23 +2107,88 @@ dropdownList.querySelectorAll('li').forEach((item, idx, arr) => {
 			}
 
 			setPlatformDropdown(newPlatform);
-			customDropdown.classList.remove('open');
+			if (customDropdown) customDropdown.classList.remove('open');
 			dropdownList.classList.add('hidden');
-			dropdownBtn.focus();
+		});
+	});
+}
+
+document.addEventListener('click', (e) => {
+	if (customDropdown && dropdownList && !customDropdown.contains(e.target)) {
+		customDropdown.classList.remove('open');
+		dropdownList.classList.add('hidden');
+	}
+});
+
+// Keyboard navigation
+const platformDropdownBtn = document.getElementById('platformDropdownBtn');
+if (platformDropdownBtn && customDropdown && dropdownList) {
+	platformDropdownBtn.addEventListener('keydown', (e) => {
+		if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
+			e.preventDefault();
+			customDropdown.classList.add('open');
+			dropdownList.classList.remove('hidden');
+			const firstLi = dropdownList.querySelector('li');
+			if (firstLi) firstLi.focus();
 		}
 	});
-});
+}
+if (dropdownList && customDropdown && dropdownBtn) {
+	dropdownList.querySelectorAll('li').forEach((item, idx, arr) => {
+		item.setAttribute('tabindex', '0');
+		item.addEventListener('keydown', function (e) {
+			if (e.key === 'ArrowDown') {
+				e.preventDefault();
+				(arr[idx + 1] || arr[0]).focus();
+			} else if (e.key === 'ArrowUp') {
+				e.preventDefault();
+				(arr[idx - 1] || arr[arr.length - 1]).focus();
+			} else if (e.key === 'Enter' || e.key === ' ') {
+				e.preventDefault();
+				const newPlatform = this.getAttribute('data-value');
+				const currentPlatform = platformSelectHidden ? platformSelectHidden.value : 'github';
+
+				// Save current username for current platform before switching
+				if (newPlatform !== currentPlatform) {
+					const platformUsername = document.getElementById('platformUsername');
+					if (platformUsername) {
+						const currentUsername = platformUsername.value;
+						if (currentUsername.trim()) {
+							browser.storage.local.set({ [`${currentPlatform}Username`]: currentUsername });
+						}
+					}
+				}
+
+				setPlatformDropdown(newPlatform);
+				customDropdown.classList.remove('open');
+				dropdownList.classList.add('hidden');
+				dropdownBtn.focus();
+			}
+		});
+	});
+}
 
 // On load, restore platform from storage
 browser.storage.local.get(['platform']).then((result) => {
 	const platform = result.platform || 'github';
 	// Just update the UI without clearing username when restoring from storage
-	if (platform === 'gitlab') {
-		dropdownSelected.innerHTML = '<i class="fab fa-gitlab mr-2"></i> GitLab';
-	} else {
-		dropdownSelected.innerHTML = '<i class="fab fa-github mr-2"></i> GitHub';
+	if (dropdownSelected) {
+		if (platform === 'gitlab') {
+			dropdownSelected.innerHTML = '<i class="fab fa-gitlab mr-2"></i> GitLab';
+		} else if (platform === 'codeberg') {
+			dropdownSelected.innerHTML = `
+				<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width: 18px; height: 18px; display: inline-block; vertical-align: middle; margin-right: 8px; fill: currentColor;">
+					<title>Codeberg</title>
+					<path d="M11.999.747A11.974 11.974 0 0 0 0 12.75c0 2.254.635 4.465 1.833 6.376L11.837 6.19c.072-.092.251-.092.323 0l4.178 5.402h-2.992l.065.239h3.113l.882 1.138h-3.674l.103.374h3.86l.777 1.003h-4.358l.135.483h4.593l.695.894h-5.038l.165.589h5.326l.609.785h-5.717l.182.65h6.038l.562.727h-6.397l.183.65h6.717A12.003 12.003 0 0 0 24 12.75 11.977 11.977 0 0 0 11.999.747zm3.654 19.104.182.65h5.326c.173-.204.353-.433.513-.65zm.385 1.377.18.65h3.563c.233-.198.485-.428.712-.65zm.383 1.377.182.648h1.203c.356-.204.685-.412 1.042-.648z"/>
+				</svg> Codeberg`;
+		} else {
+			dropdownSelected.innerHTML = '<i class="fab fa-github mr-2"></i> GitHub';
+		}
 	}
-	platformSelectHidden.value = platform;
+	if (platformSelectHidden) {
+		platformSelectHidden.value = platform;
+	}
+	lastPlatform = platform;
 	updatePlatformUI(platform);
 });
 
@@ -1883,11 +2241,12 @@ document.querySelectorAll('input[name="timeframe"]').forEach((radio) => {
 
 			const startDateInput = document.getElementById('startingDate');
 			const endDateInput = document.getElementById('endingDate');
-			startDateInput.readOnly = false;
-			endDateInput.readOnly = false;
+			if (startDateInput) startDateInput.readOnly = false;
+			if (endDateInput) endDateInput.readOnly = false;
 
 			browser.storage.local.set({
 				yesterdayContribution: false,
+				weeklyContribution: false,
 				selectedTimeframe: null,
 			});
 		} else {
@@ -1921,62 +2280,89 @@ document.querySelectorAll('input[name="timeframe"]').forEach((radio) => {
 
 // refresh cache button
 
-document.getElementById('refreshCache').addEventListener('click', async function () {
-	const originalText = this.innerHTML;
+{
+	const localRefreshCacheBtn = document.getElementById('refreshCache');
+	if (localRefreshCacheBtn) {
+		localRefreshCacheBtn.addEventListener('click', async function () {
+			const originalText = this.innerHTML;
 
-	this.classList.add('loading');
-	this.innerHTML = `<i class="fa fa-refresh fa-spin"></i><span>${browser.i18n.getMessage('refreshingButton')}</span>`;
-	this.disabled = true;
+			this.classList.add('loading');
+			this.innerHTML = `<i class="fa fa-refresh fa-spin"></i><span>${browser.i18n.getMessage('refreshingButton')}</span>`;
+			this.disabled = true;
 
-	try {
-		// Determine platform
-		let platform = 'github';
-		try {
-			const items = await browser.storage.local.get(['platform']);
-			platform = items.platform || 'github';
-		} catch (e) {}
+			try {
+				// Determine platform
+				let platform = 'github';
+				try {
+					const items = await browser.storage.local.get(['platform']);
+					platform = items.platform || 'github';
+				} catch (e) {}
 
-		// Clear all caches
-		const keysToRemove = ['githubCache', 'repoCache', 'gitlabCache'];
-		await browser.storage.local.remove(keysToRemove);
+				// Clear all caches
+				const keysToRemove = ['githubCache', 'repoCache', 'gitlabCache', 'codebergCache'];
+				await browser.storage.local.remove(keysToRemove);
 
-		// Clear the scrum report
-		const scrumReport = document.getElementById('scrumReport');
-		if (scrumReport) {
-			scrumReport.dataset.copyPlaceholder = 'true';
-			scrumReport.innerHTML = `<p style="text-align: center; color: #666; padding: 20px;">${browser.i18n.getMessage('cacheClearedMessage')}</p>`;
-			window.updateCopyButtonState?.();
-		}
+				// Clear in-memory cache for the active platform
+				const helper = window.PlatformRegistry?.get(platform);
+				if (helper && typeof helper.forceDataRefresh === 'function') {
+					await helper.forceDataRefresh();
+				} else {
+					const fallbackFn =
+						platform === 'gitlab'
+							? window.forceGitlabDataRefresh
+							: platform === 'codeberg'
+								? window.forceCodebergDataRefresh
+								: window.forceGithubDataRefresh;
+					if (typeof fallbackFn === 'function') {
+						await fallbackFn();
+					}
+				}
 
-		if (typeof availableRepos !== 'undefined') {
-			availableRepos = [];
-		}
+				// Clear Next Plans cache and fetch them again
+				localStorage.removeItem('nextPlansCache');
+				if (window.loadAssignedIssues) {
+					window.loadAssignedIssues();
+				}
 
-		const repoStatus = document.getElementById('repoStatus');
-		if (repoStatus) {
-			repoStatus.textContent = '';
-		}
+				// Clear the scrum report
+				const scrumReport = document.getElementById('scrumReport');
+				if (scrumReport) {
+					scrumReport.dataset.copyPlaceholder = 'true';
+					scrumReport.innerHTML = `<p style="text-align: center; color: #666; padding: 20px;">${browser.i18n.getMessage('cacheClearedMessage')}</p>`;
+					window.updateCopyButtonState?.();
+				}
 
-		this.innerHTML = `<i class="fa fa-check"></i><span>${browser.i18n.getMessage('cacheClearedButton')}</span>`;
-		this.classList.remove('loading');
+				if (typeof availableRepos !== 'undefined') {
+					availableRepos = [];
+				}
 
-		// Do NOT trigger report generation automatically
+				const repoStatus = document.getElementById('repoStatus');
+				if (repoStatus) {
+					repoStatus.textContent = '';
+				}
 
-		setTimeout(() => {
-			this.innerHTML = originalText;
-			this.disabled = false;
-		}, 2000);
-	} catch (error) {
-		console.error('Cache clear failed:', error);
-		this.innerHTML = `<i class="fa fa-exclamation-triangle"></i><span>${browser.i18n.getMessage('cacheClearFailed')}</span>`;
-		this.classList.remove('loading');
+				this.innerHTML = `<i class="fa fa-check"></i><span>${browser.i18n.getMessage('cacheClearedButton')}</span>`;
+				this.classList.remove('loading');
 
-		setTimeout(() => {
-			this.innerHTML = originalText;
-			this.disabled = false;
-		}, 3000);
+				// Do NOT trigger report generation automatically
+
+				setTimeout(() => {
+					this.innerHTML = originalText;
+					this.disabled = false;
+				}, 2000);
+			} catch (error) {
+				console.error('Cache clear failed:', error);
+				this.innerHTML = `<i class="fa fa-exclamation-triangle"></i><span>${browser.i18n.getMessage('cacheClearFailed')}</span>`;
+				this.classList.remove('loading');
+
+				setTimeout(() => {
+					this.innerHTML = originalText;
+					this.disabled = false;
+				}, 3000);
+			}
+		});
 	}
-});
+}
 
 function toggleRadio(radio) {
 	const startDateInput = document.getElementById('startingDate');
@@ -1985,28 +2371,46 @@ function toggleRadio(radio) {
 	console.log('Toggling radio:', radio.id);
 
 	if (radio.id === 'yesterdayContribution') {
-		startDateInput.value = getYesterday();
-		endDateInput.value = getToday();
+		if (startDateInput) startDateInput.value = getYesterday();
+		if (endDateInput) endDateInput.value = getToday();
+	} else if (radio.id === 'weeklyContribution') {
+		if (startDateInput) startDateInput.value = getWeekAgo();
+		if (endDateInput) endDateInput.value = getToday();
 	}
 
-	startDateInput.readOnly = endDateInput.readOnly = true;
+	if (startDateInput) startDateInput.readOnly = true;
+	if (endDateInput) endDateInput.readOnly = true;
 
-	browser.storage.local
-		.set({
-			startingDate: startDateInput.value,
-			endingDate: endDateInput.value,
-			yesterdayContribution: radio.id === 'yesterdayContribution',
-			selectedTimeframe: radio.id,
-			githubCache: null, // Clear cache to force new fetch
-		})
-		.then(() => {
-			console.log('State saved, dates:', {
-				start: startDateInput.value,
-				end: endDateInput.value,
+	if (startDateInput && endDateInput) {
+		browser.storage.local
+			.set({
+				startingDate: startDateInput.value,
+				endingDate: endDateInput.value,
+				yesterdayContribution: radio.id === 'yesterdayContribution',
+				weeklyContribution: radio.id === 'weeklyContribution',
+				selectedTimeframe: radio.id,
+				githubCache: null, // Clear cache to force new fetch
+			})
+			.then(() => {
+				console.log('State saved, dates:', {
+					start: startDateInput.value,
+					end: endDateInput.value,
+				});
+
+				triggerRepoFetchIfEnabled();
 			});
-
-			triggerRepoFetchIfEnabled();
-		});
+	} else {
+		browser.storage.local
+			.set({
+				yesterdayContribution: radio.id === 'yesterdayContribution',
+				weeklyContribution: radio.id === 'weeklyContribution',
+				selectedTimeframe: radio.id,
+				githubCache: null,
+			})
+			.then(() => {
+				triggerRepoFetchIfEnabled();
+			});
+	}
 }
 
 async function triggerRepoFetchIfEnabled() {
@@ -2064,7 +2468,7 @@ document.addEventListener('keydown', (e) => {
 });
 
 // Validate organization only when user is done typing (on blur)
-function validateOrgOnBlur(org) {
+function handleOrgInputBlurValidation(org) {
 	const platformSelect = document.getElementById('platformSelect');
 	const platform = platformSelect?.value || 'github';
 	const helper = window.PlatformRegistry.get(platform);
@@ -2072,3 +2476,32 @@ function validateOrgOnBlur(org) {
 		helper.validateOrgOnBlur(org);
 	}
 }
+
+// Rate Limit Warning banner management
+(function () {
+	let rateLimitTimeout;
+	const rateLimitWarning = document.getElementById('rateLimitWarning');
+	const closeRateLimitWarning = document.getElementById('closeRateLimitWarning');
+
+	if (rateLimitWarning && closeRateLimitWarning) {
+		closeRateLimitWarning.addEventListener('click', () => {
+			rateLimitWarning.classList.add('hidden');
+			if (rateLimitTimeout) {
+				clearTimeout(rateLimitTimeout);
+			}
+		});
+	}
+
+	window.showRateLimitWarning = function () {
+		const banner = document.getElementById('rateLimitWarning');
+		if (banner) {
+			banner.classList.remove('hidden');
+			if (rateLimitTimeout) {
+				clearTimeout(rateLimitTimeout);
+			}
+			rateLimitTimeout = setTimeout(() => {
+				banner.classList.add('hidden');
+			}, 6000); // 6 seconds
+		}
+	};
+})();

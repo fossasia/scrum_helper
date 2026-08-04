@@ -146,6 +146,13 @@
 									class="hover:bg-gray-100" data-value="gitlab">
 									<i class="fab fa-gitlab" style="margin-right: 12px; font-size: 18px;"></i> GitLab
 								</li>
+								<li style="padding-left: 8px; padding-right: 16px; padding-top: 8px; padding-bottom: 8px; display: flex; align-items: center; cursor: pointer;"
+									class="hover:bg-gray-100" data-value="codeberg">
+									<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width: 18px; height: 18px; margin-right: 12px; fill: currentColor;">
+										<title>Codeberg</title>
+										<path d="M11.999.747A11.974 11.974 0 0 0 0 12.75c0 2.254.635 4.465 1.833 6.376L11.837 6.19c.072-.092.251-.092.323 0l4.178 5.402h-2.992l.065.239h3.113l.882 1.138h-3.674l.103.374h3.86l.777 1.003h-4.358l.135.483h4.593l.695.894h-5.038l.165.589h5.326l.609.785h-5.717l.182.65h6.038l.562.727h-6.397l.183.65h6.717A12.003 12.003 0 0 0 24 12.75 11.977 11.977 0 0 0 11.999.747zm3.654 19.104.182.65h5.326c.173-.204.353-.433.513-.65zm.385 1.377.18.65h3.563c.233-.198.485-.428.712-.65zm.383 1.377.182.648h1.203c.356-.204.685-.412 1.042-.648z"/>
+									</svg> Codeberg
+								</li>
 							</ul>
 						</div>
 					</div>
@@ -184,7 +191,7 @@
 							contributions between:</p>
 
 
-						<div class="flex gap-[3px] justify-between items-center mt-2" style="gap: 8px">
+						<div class="timeframe-container mt-2">
 
 							<div id="customDateContainer" class="flex gap-2">
 
@@ -203,31 +210,45 @@
 										style="width: 96px;">
 								</div>
 							</div>
-							<div class="flex items-center gap-1">
-								<input type="radio" id="yesterdayContribution" name="timeframe" class="form-radio"
-									style="margin-right: 4px;">
-								<label for="yesterdayContribution" class="font-medium text-xs"
-									data-i18n="last1DayLabel">Previous Day</label>
+							<div class="timeframe-presets">
+								<div class="flex items-center gap-1">
+									<input type="radio" id="yesterdayContribution" name="timeframe" class="form-radio"
+										style="margin-right: 4px;">
+									<label for="yesterdayContribution" class="font-medium text-xs"
+										data-i18n="last1DayLabel">Previous Day</label>
+								</div>
+								<div class="flex items-center gap-1">
+									<input type="radio" id="weeklyContribution" name="timeframe" class="form-radio"
+										style="margin-right: 4px;">
+									<label for="weeklyContribution" class="font-medium text-xs"
+										data-i18n="lastWeekLabel">Previous Week</label>
+								</div>
 							</div>
 						</div>
 					</div>
 
 					<details class="group mb-4" style="margin-top: 1rem;">
 						<summary class="flex items-center justify-between cursor-pointer list-none font-medium text-sm outline-none select-none pr-1">
-							<span data-i18n="advancedFiltersLabel">Advanced Filters</span>
+							<span data-i18n="advancedFiltersLabel">Advanced Options</span>
 							<i class="fa fa-chevron-down text-gray-500 w-4 text-center transition-transform duration-200 group-open:-rotate-180"></i>
 						</summary>
 						<div class="mt-4 border-l-2 border-gray-200" style="margin-left: 0.25rem; padding-left: 1rem;">
 							<div class="my-2 flex items-center">
-								<input type="checkbox" id="showOpenLabel" class="form-checkbox text-blue-600">
+								<input type="checkbox" id="showOpenLabel" checked class="form-checkbox text-blue-600">
 								<label id="checkboxLabel" for="showOpenLabel" class="font-medium text-sm"
 									style="margin-left: 4px;" data-i18n="showOpenClosedLabel">Show
 									PRs Labels</label>
+								<span class="tooltip-container">
+									<i class="fa fa-question-circle question-icon"></i>
+									<span class="tooltip-bubble" data-i18n="showOpenClosedTooltip">
+										If checked, the report will display status labels for PRs and issues (e.g., Open, Draft, Merged, Closed).
+									</span>
+								</span>
 							</div>
 
 							<div class="my-4">
 								<div class="flex items-center">
-									<input type="checkbox" id="onlyIssues" class="form-checkbox text-blue-600">
+									<input type="checkbox" id="onlyIssues" checked class="form-checkbox text-blue-600">
 									<label for="onlyIssues" class="font-medium text-sm flex items-center"
 										style="margin-left: 4px;" data-i18n="onlyIssuesLabel">
 										Include issues in the report
@@ -243,31 +264,31 @@
 
 							<div class="my-4">
 								<div class="flex items-center">
-									<input type="checkbox" id="onlyPRs" class="form-checkbox text-blue-600">
+									<input type="checkbox" id="onlyPRs" checked class="form-checkbox text-blue-600">
 									<label for="onlyPRs" class="font-medium text-sm flex items-center" style="margin-left: 4px;"
 										data-i18n="onlyPRsLabel">
-										Include PRs in the report
+										Include open PRs/ draft PRs in the report
 									</label>
 									<span class="tooltip-container">
 										<i class="fa fa-question-circle question-icon"></i>
 										<span class="tooltip-bubble" data-i18n="onlyPRsTooltip">
-											If checked, the report will include PRs created by you.
+											If checked, the report will include only open or draft PRs created by you.
 										</span>
 									</span>
 								</div>
 							</div>
 
-							<div class="my-4">
+							<div class="my-4 githubGitlabOnlySection">
 								<div class="flex items-center">
-									<input type="checkbox" id="onlyRevPRs" class="form-checkbox text-blue-600">
+									<input type="checkbox" id="onlyRevPRs" checked class="form-checkbox text-blue-600">
 									<label for="onlyRevPRs" class="font-medium text-sm flex items-center"
 										style="margin-left: 4px;" data-i18n="onlyRevPRsLabel">
 										Include Reviewed PRs in the report
 									</label>
 									<span class="tooltip-container">
 										<i class="fa fa-question-circle question-icon"></i>
-										<span class="tooltip-bubble" data-i18n="onlyPRsTooltip">
-											If checked, the report will include PRs reviewed by you.
+										<span class="tooltip-bubble" data-i18n="onlyRevPRsTooltip">
+											If checked, the report will include PRs reviewed by you. A GitHub token is required to verify actual review activity within the selected date range.
 										</span>
 									</span>
 								</div>
@@ -275,7 +296,7 @@
 
 							<div class="my-4 githubOnlySection">
 								<div class="flex items-center">
-									<input type="checkbox" id="onlyMergedPRs" class="form-checkbox text-blue-600">
+									<input type="checkbox" id="onlyMergedPRs" checked class="form-checkbox text-blue-600">
 									<label for="onlyMergedPRs" class="font-medium text-sm flex items-center"
 										style="margin-left: 4px;" data-i18n="onlyMergedPRsLabel">
 										Include Merged PRs in the report
@@ -283,27 +304,27 @@
 									<span class="tooltip-container">
 										<i class="fa fa-question-circle question-icon"></i>
 										<span class="tooltip-bubble" data-i18n="onlyMergedPRsTooltip">
-											If checked, the report will include merged PRs. A GitHub token is required.
+											If checked, the report will include merged PRs. Adding a GitHub token in settings is recommended to fetch accurate and all merged PR status.
 										</span>
 									</span>
 								</div>
 								<div id="tokenWarningForMergedPRs"
 									class="hidden text-xs text-red-600 p-2 bg-red-50 border border-red-200 rounded-xl mt-2">
-									<span data-i18n="tokenRequiredMergedPRsWarning">A GitHub token is required to filter by merged PRs. Please add one in the settings.</span>
+									<span data-i18n="tokenRequiredMergedPRsWarning">A GitHub token is recommended to fetch accurate merged PRs. Please add one in settings.</span>
 								</div>
 							</div>
 
-							<div class="my-4 githubOnlySection">
+							<div class="my-4 githubGitlabOnlySection">
 								<div class="flex items-center">
 									<input type="checkbox" id="showCommits" checked class="form-checkbox text-blue-600 ">
 
 									<label id="showCommitsLabel" for="showCommits"
-										class="font-medium text-sm flex items-center pl-5 ml-4" style="margin-left: 4px;"
+										class="font-medium text-sm flex items-center" style="margin-left: 4px;"
 										data-i18n="showCommitsLabel">Show commits on open PRs/ draft PRs</label><span
 										class="tooltip-container">
 										<i class="fa fa-question-circle question-icon"></i>
 										<span class="tooltip-bubble" data-i18n="showCommitsTooltip">
-											Github Token required, add it in the settings.
+											If checked, the report will show commits on open or draft PRs. A GitHub token is required.
 										</span>
 									</span>
 
@@ -313,9 +334,38 @@
 									<span data-i18n="tokenRequiredShowCommitsWarning">A GitHub token is required to show commits
 										on open or draft PRs. Please add one in the settings.</span>
 								</div>
+								<div id="onlyPrsRequiredWarningForShowCommits"
+									class="hidden text-xs text-red-600 p-2 bg-red-50 border border-red-200 rounded-xl mt-2">
+									<span data-i18n="onlyPrsRequiredShowCommitsWarning">Please check the 'Include open/draft PRs in the report' filter to show commits.</span>
+								</div>
+							</div>
+							<div class="my-4 githubGitlabOnlySection">
+								<div class="flex items-center">
+									<input type="checkbox" id="includeNextPlans" checked class="form-checkbox text-blue-600">
+									<label for="includeNextPlans" class="font-medium text-sm flex items-center"
+										style="margin-left: 4px;" data-i18n="includeNextPlansLabel">
+										Include assigned open issues to email question 2
+									</label>
+									<span class="tooltip-container">
+										<i class="fa fa-question-circle question-icon"></i>
+										<span class="tooltip-bubble" data-i18n="includeNextPlansTooltip">
+											Select and add them to question 2 in the email. A GitHub token is required.
+										</span>
+									</span>
+								</div>
+								<div id="tokenWarningForNextPlans"
+									class="hidden text-xs text-red-600 p-2 bg-red-50 border border-red-200 rounded-xl mt-2">
+									<span data-i18n="tokenRequiredNextPlansWarning">A GitHub token is required to fetch assigned issues. Please add one in the settings.</span>
+								</div>
+								<div id="assignedIssuesSelector" class="hidden"></div>
 							</div>
 						</div>
 					</details>
+
+					<div id="regenerateNotice" class="hidden text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-xl p-2 my-2 flex items-center gap-1.5">
+						<i class="fa fa-info-circle" style="margin-right: 6px;"></i>
+						<span data-i18n="regenerateNoticeText">Option changed. Please regenerate the report to apply the changes.</span>
+					</div>
 
 					<div>
 						<div>
@@ -354,7 +404,10 @@
 							</div>
 						</div>
 
-
+						<div id="rateLimitWarning" class="hidden text-xs text-yellow-800 p-2 bg-yellow-50 border border-yellow-200 rounded-xl mt-2 flex items-center justify-between">
+							<span id="rateLimitWarningText" data-i18n="rateLimitWarningMessage">Some data may be missing due to GitHub rate limit. Please add or check your GitHub token in settings.</span>
+							<button id="closeRateLimitWarning" class="text-yellow-800 hover:text-yellow-900 font-bold ml-2" style="background: none; border: none; cursor: pointer; font-size: 14px;">&times;</button>
+						</div>
 					</div>
 					<div class="border-gray-100 border-2 bg-white rounded-3xl px-4 py-2 mx-2 my-2">
 						<div>
@@ -369,7 +422,7 @@
 				</div>
 
 				<div id="settingsSection" class="tab-content hidden">
-					<div class="orgSection">
+					<div class="githubOnlySection">
 						<div>
 							<div class="flex items-center justify-between">
 								<div class="flex">
@@ -408,33 +461,51 @@
 								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2 pr-10"
 								data-i18n-placeholder="githubTokenPlaceholder">
 						</div>
-						<div class="githubOnlySection">
-							<div class="flex items-center mt-4">
-								<p class="text-sm font-semibold" data-i18n="settingsOrgNameLabel">Your Organization Name
-								</p>
-								<span class="tooltip-container ml-2">
-									<i class="fa fa-question-circle question-icon"></i>
-									<span class="tooltip-bubble" data-i18n="orgNameTooltip">
-										<b>Which organization's GitHub activity?</b><br>
-										Enter the GitHub organization name to fetch activities for. Leave empty to fetch
-										all
-										your GitHub
-										activities across all organizations.
-										Organization name is not case-sensitive.
-									</span>
+					</div>
+
+					<div class="orgSection">
+						<div class="flex items-center mt-4 githubOnlySection">
+							<p class="text-sm font-semibold" data-i18n="settingsOrgNameLabel">Your Organization Name
+							</p>
+							<span class="tooltip-container ml-2">
+								<i class="fa fa-question-circle question-icon"></i>
+								<span class="tooltip-bubble" data-i18n="orgNameTooltip">
+									<b>Which organization's GitHub activity?</b><br>
+									Enter the GitHub organization name to fetch activities for. Leave empty to fetch
+									all
+									your GitHub
+									activities across all organizations.
+									Organization name is not case-sensitive.
 								</span>
-							</div>
-							<input id="orgInput" type="text"
-								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
-								data-i18n-placeholder="settingsOrgNamePlaceholder"
-								style="margin-top: 0.3rem; margin-bottom: 0.8rem;">
-
-							<!-- Organization validation feedback -->
-							<div id="orgValidationMessage" class="hidden text-xs mt-1 mb-2 px-3 py-2 rounded-lg">
-								<span id="orgValidationText"></span>
-							</div>
+							</span>
 						</div>
+						<div class="flex items-center mt-4 gitlabOnlySection hidden">
+							<p class="text-sm font-semibold" data-i18n="settingsGroupNameLabel">Your Group Name
+							</p>
+							<span class="tooltip-container ml-2">
+								<i class="fa fa-question-circle question-icon"></i>
+								<span class="tooltip-bubble" data-i18n="gitlabOrgNameTooltip">
+									<b>Which group's GitLab activity?</b><br>
+									Enter the GitLab group name to fetch activities for. Leave empty to fetch
+									all
+									your GitLab
+									activities across all groups.
+									Group name is not case-sensitive.
+								</span>
+							</span>
+						</div>
+						<input id="orgInput" type="text"
+							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
+							data-i18n-placeholder="settingsOrgNamePlaceholder"
+							style="margin-top: 0.3rem; margin-bottom: 0.8rem;">
 
+						<!-- Organization validation feedback -->
+						<div id="orgValidationMessage" class="hidden text-xs mt-1 mb-2 px-3 py-2 rounded-lg">
+							<span id="orgValidationText"></span>
+						</div>
+					</div>
+
+					<div class="githubOnlySection">
 						<div class="mb-4">
 							<div class="flex items-center justify-between mb-2">
 								<p class="text-sm font-medium">
@@ -533,7 +604,55 @@
 							data-i18n-placeholder="gitlabTokenPlaceholder">
 					</div>
 
-					<div class="cacheSection mt-3">
+					<div class="codebergOnlySection hidden mt-3">
+						<div class="mb-4">
+							<p class="text-sm font-medium" data-i18n="codebergUsernameLabel">Your Codeberg Username</p>
+							<input id="codebergUsername" type="text"
+								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
+								data-i18n-placeholder="codebergUsernamePlaceholder">
+						</div>
+
+						<div class="mb-4">
+							<div class="flex items-center justify-between">
+								<div class="flex">
+									<p class="text-sm font-medium" data-i18n="codebergTokenLabel">Your Codeberg Token</p>
+									<span class="tooltip-container">
+										<i class="fa fa-question-circle question-icon"></i>
+										<span class="tooltip-bubble" data-i18n="codebergTokenTooltip">
+											<b>Why add a Codeberg token?</b><br>
+											Scrum Helper works without a token for public projects, but a personal access token enables
+											private repos and better rate limits. Your token stays local and is only used to
+											fetch your Codeberg data.<br><br>
+											<b>How to get one:</b><br>
+											1. Go to <a href="https://codeberg.org/user/settings/applications"
+												target="_blank" rel="noopener noreferrer"
+												style="color:#2563eb;text-decoration:underline;">Codeberg Applications
+												Settings</a><br>
+											2. Click "Generate new token"<br>
+											3. Copy and paste it here<br>
+											<i>Keep it secret!</i>
+										</span>
+									</span>
+								</div>
+								<button id="toggleCodebergTokenVisibility" type="button" class="focus:outline-none">
+									<i id="codebergTokenEyeIcon" class="fa fa-eye text-gray-600"></i>
+								</button>
+							</div>
+							<input id="codebergToken" type="password"
+								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2 pr-10"
+								data-i18n-placeholder="codebergTokenPlaceholder">
+						</div>
+
+						<div class="mb-4">
+							<p class="text-sm font-medium" data-i18n="codebergApiBaseUrlLabel">Codeberg API Base URL</p>
+							<input id="codebergApiBaseUrl" type="text"
+								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
+								data-i18n-placeholder="codebergApiBaseUrlPlaceholder"
+								placeholder="https://codeberg.org/api/v1">
+						</div>
+					</div>
+
+					<div id="displayModeSectionContainer" class="cacheSection mt-3">
 						<div class="flex items-center justify-between mb-2">
 							<div class="flex items-center">
 								<p class="text-sm font-medium" data-i18n="displayModeLabel">Display Mode</p>
@@ -622,14 +741,17 @@
 	<!-- WebExtensions Polyfill for Cross-Browser compatibility (Chrome, Firefox, Edge, etc.) -->
 	 <script src="libs/purify.min.js"></script>
 	 <script src="scripts/domSanitizer.js"></script>
+	<script src="scripts/platform.js"></script>
 	<script src="scripts/browser-polyfill.min.js"></script>
 	<script src="scripts/jquery-3.2.1.min.js"></script>
 	<script type="text/javascript" src="materialize/js/materialize.min.js"></script>
 	<script src="scripts/emailClientAdapter.js"></script>
 	<script src="scripts/main.js"></script>
+	<script src="scripts/nextPlansHelper.js"></script>
 	<script src="scripts/popup.js"></script>
 	<script src="scripts/githubHelper.js"></script>
 	<script src="scripts/gitlabHelper.js"></script>
+	<script src="scripts/codebergHelper.js"></script>
 	<script src="scripts/scrumHelper.js"></script>
 	
 

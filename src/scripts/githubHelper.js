@@ -65,6 +65,78 @@ function checkTokenForShowCommits({
 	}
 }
 
+// Token validation and warning timeouts for Next Plans (assigned issues)
+let nextPlansWarningTimeout;
+
+function showTokenWarningForNextPlans({ animate = false, durationMs = 4000 } = {}) {
+	const tokenWarning = document.getElementById('tokenWarningForNextPlans');
+	if (!tokenWarning) {
+		return;
+	}
+
+	tokenWarning.classList.remove('hidden');
+	if (animate) {
+		tokenWarning.classList.add('shake-animation');
+		setTimeout(() => tokenWarning.classList.remove('shake-animation'), 620);
+	}
+
+	if (nextPlansWarningTimeout) {
+		clearTimeout(nextPlansWarningTimeout);
+	}
+	nextPlansWarningTimeout = setTimeout(() => {
+		tokenWarning.classList.add('hidden');
+	}, durationMs);
+}
+
+function checkTokenForNextPlans({
+	showWarning = false,
+	animateWarning = false,
+	warningDurationMs = 4000,
+	persistState = false,
+} = {}) {
+	const includeNextPlans = document.getElementById('includeNextPlans');
+	const githubTokenInput = document.getElementById('githubToken');
+
+	if (!includeNextPlans || !githubTokenInput) {
+		return;
+	}
+
+	const isNextPlansEnabled = includeNextPlans.checked;
+	const hasToken = githubTokenInput.value.trim() !== '';
+
+	if (isNextPlansEnabled && !hasToken) {
+		includeNextPlans.checked = false;
+		if (showWarning) {
+			showTokenWarningForNextPlans({
+				animate: animateWarning,
+				durationMs: warningDurationMs,
+			});
+		}
+		// Always persist correction of invalid state
+		browser.storage.local.set({ includeNextPlans: false });
+
+		// Hide the selector as next plans is disabled
+		const container = document.getElementById('assignedIssuesSelector');
+		if (container) {
+			container.style.display = 'none';
+			container.classList.add('hidden');
+		}
+		return;
+	}
+
+	const tokenWarning = document.getElementById('tokenWarningForNextPlans');
+	if (tokenWarning) {
+		if (nextPlansWarningTimeout) {
+			clearTimeout(nextPlansWarningTimeout);
+			nextPlansWarningTimeout = null;
+		}
+		tokenWarning.classList.add('hidden');
+	}
+	if (persistState) {
+		browser.storage.local.set({ includeNextPlans: includeNextPlans.checked });
+	}
+}
+
 // Token validation and warning timeouts for merged PRs
 let mergedPRsWarningTimeout;
 
@@ -105,25 +177,23 @@ function checkTokenForMergedPRs({
 	const hasToken = githubTokenInput.value.trim() !== '';
 
 	if (isMergedPRsEnabled && !hasToken) {
-		mergedPRsCheckbox.checked = false;
 		if (showWarning) {
 			showTokenWarningForMergedPRs({
 				animate: animateWarning,
 				durationMs: warningDurationMs,
 			});
 		}
-		chrome?.storage.local.set({ onlyMergedPRs: false });
-		return;
+	} else {
+		const tokenWarning = document.getElementById('tokenWarningForMergedPRs');
+		if (tokenWarning) {
+			if (mergedPRsWarningTimeout) {
+				clearTimeout(mergedPRsWarningTimeout);
+				mergedPRsWarningTimeout = null;
+			}
+			tokenWarning.classList.add('hidden');
+		}
 	}
 
-	const tokenWarning = document.getElementById('tokenWarningForMergedPRs');
-	if (tokenWarning) {
-		if (mergedPRsWarningTimeout) {
-			clearTimeout(mergedPRsWarningTimeout);
-			mergedPRsWarningTimeout = null;
-		}
-		tokenWarning.classList.add('hidden');
-	}
 	if (persistState) {
 		chrome?.storage.local.set({ onlyMergedPRs: mergedPRsCheckbox.checked });
 	}
@@ -160,6 +230,25 @@ function checkTokenForFilter() {
 	setTimeout(() => {
 		tokenWarning.classList.add('hidden');
 	}, 4000);
+}
+
+function makeRepoCacheKey(username, orgName, platform, storageItems) {
+	const org = orgName || '';
+	if (platform === 'github') {
+		const token = (storageItems?.githubToken || '').trim();
+		if (!token) {
+			return `repos-${username}-${org}-notoken`;
+		}
+		let hash = 0;
+		for (let i = 0; i < token.length; i++) {
+			const char = token.charCodeAt(i);
+			hash = (hash << 5) - hash + char;
+			hash |= 0; // Convert to 32bit integer
+		}
+		const fingerprint = (hash >>> 0).toString(36);
+		return `repos-${username}-${org}-token-${fingerprint}`;
+	}
+	return `repos-${username}-${org}`;
 }
 
 // Trigger repo fetch when repo filtering is enabled (moved from popup.js)
@@ -221,7 +310,7 @@ async function triggerRepoFetchIfEnabled() {
 				repoStatus.textContent = browser.i18n.getMessage('repoLoaded', [repos.length]);
 			}
 
-			const repoCacheKey = `repos-${username}-${items.orgName || ''}`;
+			const repoCacheKey = makeRepoCacheKey(username, items.orgName || '', 'github', items);
 			browser.storage.local.set({
 				repoCache: {
 					data: repos,
@@ -343,7 +432,7 @@ async function performRepoFetch() {
 		const platform = storageItems.platform || 'github';
 		const platformUsernameKey = `${platform}Username`;
 		const username = storageItems[platformUsernameKey];
-		const repoCacheKey = `repos-${username}-${storageItems.orgName || ''}`;
+		const repoCacheKey = makeRepoCacheKey(username, storageItems.orgName || '', 'github', storageItems);
 		const now = Date.now();
 		const cacheAge = cacheData.repoCache?.timestamp ? now - cacheData.repoCache.timestamp : Number.POSITIVE_INFINITY;
 		const cacheTTL = 10 * 60 * 1000; // 10 minutes
@@ -665,12 +754,261 @@ async function forceGithubDataRefresh() {
 
 window['forceGithubDataRefresh'] = forceGithubDataRefresh;
 
+// Global fetch helpers
+const GITHUB_DEBUG = false;
+function log(...args) {
+	if (GITHUB_DEBUG) {
+		console.log(`[GITHUB-HELPER]:`, ...args);
+	}
+}
+
+async function githubFetchUser(username, token) {
+	const url = `https://api.github.com/users/${username}`;
+	const headers = { Accept: 'application/vnd.github.v3+json' };
+	if (token) {
+		headers.Authorization = `token ${token}`;
+	}
+	return fetch(url, { headers });
+}
+
+async function githubFetchIssues(username, token, startDate, endDate, orgName, repoQueries) {
+	const headers = { Accept: 'application/vnd.github.v3+json' };
+	if (token) {
+		headers.Authorization = `token ${token}`;
+	}
+	const orgPart = orgName ? `org:${orgName}` : '';
+	const orgQuery = orgPart ? `+${orgPart}` : '';
+	let url;
+	if (repoQueries) {
+		url = `https://api.github.com/search/issues?q=author%3A${username}+${repoQueries}${orgQuery}+updated%3A${startDate}..${endDate}&per_page=100`;
+	} else {
+		url = `https://api.github.com/search/issues?q=author%3A${username}${orgQuery}+updated%3A${startDate}..${endDate}&per_page=100`;
+	}
+	return fetch(url, { headers });
+}
+
+async function githubFetchReviews(username, token, startDate, endDate, orgName, repoQueries) {
+	const headers = { Accept: 'application/vnd.github.v3+json' };
+	if (token) {
+		headers.Authorization = `token ${token}`;
+	}
+	const orgPart = orgName ? `org:${orgName}` : '';
+	const orgQuery = orgPart ? `+${orgPart}` : '';
+	let url;
+	if (repoQueries) {
+		url = `https://api.github.com/search/issues?q=reviewed-by%3A${username}+${repoQueries}${orgQuery}+updated%3A${startDate}..${endDate}&per_page=100`;
+	} else {
+		url = `https://api.github.com/search/issues?q=reviewed-by%3A${username}${orgQuery}+updated%3A${startDate}..${endDate}&per_page=100`;
+	}
+	return fetch(url, { headers });
+}
+
+async function githubFetchPullRequests(username, token, startDate, endDate, orgName, repoQueries) {
+	return githubFetchReviews(username, token, startDate, endDate, orgName, repoQueries);
+}
+
+async function githubFetchPrReviews(owner, repo, prNumber, token) {
+	const headers = { Accept: 'application/vnd.github.v3+json' };
+	if (token) {
+		headers.Authorization = `token ${token}`;
+	}
+	const url = `https://api.github.com/repos/${owner}/${repo}/pulls/${prNumber}/reviews`;
+	const res = await fetch(url, { headers });
+	if (!res.ok) {
+		throw new Error(`Failed to fetch reviews for ${owner}/${repo}#${prNumber}: ${res.status} ${res.statusText}`);
+	}
+	return res.json();
+}
+
+async function githubFetchCommits(prs, githubToken, startDate, endDate) {
+	log(
+		'githubFetchCommits called with PRs:',
+		prs.map((pr) => pr.number),
+		'startDate:',
+		startDate,
+		'endDate:',
+		endDate,
+	);
+	if (!prs.length) return {};
+	const since = new Date(startDate + 'T00:00:00Z').toISOString();
+	const until = new Date(endDate + 'T23:59:59Z').toISOString();
+	const queries = prs
+		.map((pr, idx) => {
+			const repoParts = pr.repository_url.split('/');
+			const owner = repoParts[repoParts.length - 2];
+			const repo = repoParts[repoParts.length - 1];
+			return `
+		pr${idx}: repository(owner: "${owner}", name: "${repo}") {
+			pullRequest(number: ${pr.number}) {
+				commits(first: 100) {
+					nodes {
+						commit {
+							messageHeadline
+							committedDate
+							url
+							author {
+								name
+								user { login }
+							}
+						}
+					}
+				}
+			}
+		}`;
+		})
+		.join('\n');
+	const query = `query { ${queries} }`;
+	log('GraphQL query for commits:', query);
+	const res = await fetch('https://api.github.com/graphql', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+			...(githubToken ? { Authorization: `bearer ${githubToken}` } : {}),
+		},
+		body: JSON.stringify({ query }),
+	});
+	log('githubFetchCommits response status:', res.status);
+	const data = await res.json();
+	log('githubFetchCommits response data:', data);
+	const commitMap = {};
+	prs.forEach((pr, idx) => {
+		const prData = data.data && data.data[`pr${idx}`] && data.data[`pr${idx}`].pullRequest;
+		if (prData && prData.commits && prData.commits.nodes) {
+			const allCommits = prData.commits.nodes.map((n) => n.commit);
+			log(`PR #${pr.number} allCommits:`, allCommits);
+			const filteredCommits = allCommits.filter((commit) => {
+				const commitDate = new Date(commit.committedDate);
+				const sinceDate = new Date(since);
+				const untilDate = new Date(until);
+				const isInRange = commitDate >= sinceDate && commitDate <= untilDate;
+				log(`PR #${pr.number} commit "${commit.messageHeadline}" (${commit.committedDate}) - in range: ${isInRange}`);
+				return isInRange;
+			});
+			commitMap[pr.number] = filteredCommits;
+		} else {
+			commitMap[pr.number] = [];
+		}
+	});
+	return commitMap;
+}
+
+const sessionMergedStatusCache = {};
+
+async function githubFetchPrMergedStatusREST(owner, repo, number, token) {
+	const cacheKey = `${owner}/${repo}#${number}`;
+	if (sessionMergedStatusCache[cacheKey] !== undefined) {
+		return sessionMergedStatusCache[cacheKey];
+	}
+	const url = `https://api.github.com/repos/${owner}/${repo}/pulls/${number}`;
+	const headers = { Accept: 'application/vnd.github.v3+json' };
+	if (token) {
+		headers.Authorization = `token ${token}`;
+	}
+	try {
+		const res = await fetch(url, { headers });
+		if (!res.ok) return null;
+		const data = await res.json();
+		const merged = !!data.merged_at;
+		sessionMergedStatusCache[cacheKey] = merged;
+		return merged;
+	} catch (e) {
+		return null;
+	}
+}
+
+async function fetchIssuesFromGitHub(scope) {
+	const storage = await browser.storage.local.get(['platform', 'githubUsername', 'githubToken', 'platformUsername']);
+	const platform = storage.platform || 'github';
+	const username = storage.githubUsername || (platform === 'github' ? storage.platformUsername : '');
+	const token = storage.githubToken;
+
+	if (!username) {
+		throw new Error('GitHub username is required. Please set it in settings.');
+	}
+	if (!token) {
+		throw new Error('GitHub token is required. Please set it in settings.');
+	}
+
+	// Fetch open issues assigned to the user, sorted by last updated, to avoid slow queries with many repo: qualifiers
+	const query = `assignee:${username}+state:open+type:issue`;
+
+	let page = 1;
+	let allIssues = [];
+	let hasMore = true;
+
+	const headers = {
+		Accept: 'application/vnd.github.v3+json',
+		Authorization: `token ${token}`,
+	};
+
+	// Limit to 2 pages (200 issues) to keep response times fast
+	while (hasMore && page <= 2) {
+		const url = `https://api.github.com/search/issues?q=${query}&per_page=100&page=${page}&sort=updated&order=desc`;
+		console.log(`[NextPlans] Fetching page ${page}: ${url}`);
+		const response = await fetch(url, { headers });
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({}));
+			const message = errorData.message || response.statusText;
+			throw new Error(`GitHub API error: ${message}`);
+		}
+
+		const data = await response.json();
+		const items = data.items || [];
+		allIssues = allIssues.concat(items);
+
+		if (items.length < 100) {
+			hasMore = false;
+		} else {
+			page++;
+		}
+	}
+
+	const repoSet = scope.type === 'selected' ? new Set(scope.repos) : null;
+
+	return allIssues
+		.map((issue) => {
+			const repoUrl = issue.repository_url || '';
+			const repoParts = repoUrl.split('/');
+			const repoName = repoParts.slice(-2).join('/'); // owner/repo
+
+			const safeTitle = typeof sanitizeHtml === 'function' ? sanitizeHtml(issue.title) : issue.title;
+			const safeUrl = typeof sanitizeHtml === 'function' ? sanitizeHtml(issue.html_url) : issue.html_url;
+
+			return {
+				id: issue.id,
+				number: Number.parseInt(issue.number, 10),
+				title: safeTitle,
+				html_url: safeUrl,
+				repository: repoName,
+				state: issue.state,
+			};
+		})
+		.filter((issue) => {
+			if (Number.isNaN(issue.number) || !issue.html_url || !issue.html_url.startsWith('https://github.com/')) {
+				return false;
+			}
+			if (repoSet && !repoSet.has(issue.repository)) {
+				return false;
+			}
+			return true;
+		});
+}
+
+window.githubFetchUser = githubFetchUser;
+window.githubFetchIssues = githubFetchIssues;
+window.githubFetchReviews = githubFetchReviews;
+window.githubFetchPrReviews = githubFetchPrReviews;
+window.githubFetchPullRequests = githubFetchPullRequests;
+window.githubFetchCommits = githubFetchCommits;
+window.githubFetchPrMergedStatusREST = githubFetchPrMergedStatusREST;
+
 if (window.PlatformRegistry) {
 	window.PlatformRegistry.register('github', {
 		hasRepoFilter: true,
 		checkTokenForFilter,
 		checkTokenForShowCommits,
 		checkTokenForMergedPRs,
+		checkTokenForNextPlans,
 		triggerRepoFetchIfEnabled,
 		debugRepoFetch,
 		loadRepos,
@@ -679,5 +1017,6 @@ if (window.PlatformRegistry) {
 		fetchUserRepositories,
 		fetchPrsMergedStatusBatch,
 		forceDataRefresh: forceGithubDataRefresh,
+		fetchAssignedIssues: fetchIssuesFromGitHub,
 	});
 }

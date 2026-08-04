@@ -32,6 +32,9 @@
     "last1DayLabel": {
         "message": "Hari sebelumnya"
     },
+    "lastWeekLabel": {
+        "message": "Minggu sebelumnya"
+    },
     "startDateLabel": {
         "message": "Dari:"
     },
@@ -334,5 +337,11 @@
     },
     "insertedInEmailNotification": {
         "message": "Laporan disisipkan ke email!"
+    },
+    "rateLimitError": {
+        "message": "Batas tingkat API GitHub terlampaui. Silakan coba lagi nanti atau tambahkan/periksa token GitHub Anda di pengaturan Scrum Helper."
+    },
+    "rateLimitWarningMessage": {
+        "message": "Beberapa data mungkin hilang karena batas tingkat GitHub. Silakan tambahkan atau periksa token GitHub Anda di pengaturan."
     }
 }

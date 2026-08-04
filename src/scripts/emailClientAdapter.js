@@ -81,29 +81,25 @@ class EmailClientAdapter {
 					contentChange: 'input',
 					subjectChange: 'change',
 				},
-				injectMethod: 'focusAndPaste', // Custom injection method
+				injectMethod: 'focusAndPaste',
 			},
 			yahoo: {
 				selectors: {
 					body: [
-						// Desktop selectors
 						'#editor-container [contenteditable="true"][role="textbox"]',
 						'[aria-multiline="true"][aria-label="Message body"][contenteditable="true"][role="textbox"]',
 						'[aria-label="Message body"][contenteditable="true"]',
 						'[role="textbox"][contenteditable="true"]',
 						'[data-test-id*="compose"][contenteditable="true"]',
 						'.compose-editor [contenteditable="true"]',
-						// Mobile selectors
 						'#editor-container-mobile [contenteditable="true"][role="textbox"]',
 					].join(', '),
 					subject: [
-						// Desktop selectors
 						'#compose-subject-input, input[placeholder="Subject"][id="compose-subject-input"]',
 						'#compose-subject-input',
 						'input[placeholder="Subject"]',
 						'input[aria-label*="subject" i]',
 						'input[data-test-id*="subject" i]',
-						// Mobile selectors
 						'#compose-subject-input-mobile, input[placeholder="Subject"][id="compose-subject-input-mobile"]',
 					].join(', '),
 				},
@@ -111,7 +107,7 @@ class EmailClientAdapter {
 					contentChange: 'input',
 					subjectChange: 'change',
 				},
-				injectMethod: 'setContent', // Custom injection method
+				injectMethod: 'setContent',
 			},
 		};
 	}
@@ -155,7 +151,6 @@ class EmailClientAdapter {
 
 		const activeEl = document.activeElement;
 
-		// when multiple compose windows exists, we choose the focused one.
 		if (clientType === 'gmail') {
 			const bodiesAll = Array.from(document.querySelectorAll(bodySel));
 			const bodies = bodiesAll.filter(isVisible);
@@ -222,22 +217,73 @@ class EmailClientAdapter {
 		};
 	}
 
-	// Helper method to injectContent
 	dispatchElementEvents(element, events, includeKeyboard = false) {
 		if (!element || !events) return;
 
 		const eventsToDispatch = Array.isArray(events) ? events : [events];
 
 		eventsToDispatch.forEach((eventType) => {
-			// Dispatch standard events
 			element.dispatchEvent(new Event(eventType, { bubbles: true }));
 
-			// Dispatch keyboard events if needed
 			if (includeKeyboard) {
 				element.dispatchEvent(new KeyboardEvent('keydown', { bubbles: true }));
 				element.dispatchEvent(new KeyboardEvent('keyup', { bubbles: true }));
 			}
 		});
+	}
+
+	insertHtmlAtCursorOrPrepend(element, content) {
+		const sanitizedContent = sanitizeHtml(content);
+
+		try {
+			const selection = window.getSelection();
+			if (selection && selection.rangeCount > 0) {
+				const range = selection.getRangeAt(0);
+				if (element.contains(range.startContainer)) {
+					range.deleteContents();
+
+					const parser = new DOMParser();
+					const parsedDoc = parser.parseFromString(sanitizedContent, 'text/html');
+					const body = parsedDoc.body;
+
+					const fragment = document.createDocumentFragment();
+					let lastNode = null;
+					while (body.firstChild) {
+						lastNode = body.firstChild;
+						fragment.appendChild(lastNode);
+					}
+
+					range.insertNode(fragment);
+
+					if (lastNode) {
+						const newRange = document.createRange();
+						newRange.setStartAfter(lastNode);
+						newRange.collapse(true);
+						selection.removeAllRanges();
+						selection.addRange(newRange);
+					}
+					return true;
+				}
+			}
+		} catch (selectionError) {
+			console.warn('Failed selection-based injection, falling back to prepend:', selectionError);
+		}
+
+		// Fallback: prepend the content if no active cursor is inside the editor body
+		const parser = new DOMParser();
+		const parsedDoc = parser.parseFromString(sanitizedContent, 'text/html');
+		const body = parsedDoc.body;
+
+		const br1 = document.createElement('br');
+		const br2 = document.createElement('br');
+		body.appendChild(br1);
+		body.appendChild(br2);
+
+		while (body.lastChild) {
+			element.insertBefore(body.lastChild, element.firstChild);
+		}
+
+		return true;
 	}
 
 	injectContent(element, content, eventType) {
@@ -251,15 +297,13 @@ class EmailClientAdapter {
 		try {
 			switch (config?.injectMethod) {
 				case 'focusAndPaste':
-					// Special handling for Outlook
 					element.focus();
-					element.innerHTML = sanitizeHtml(content);
+					this.insertHtmlAtCursorOrPrepend(element, content);
 					this.dispatchElementEvents(element, ['input', 'change'], true);
 					break;
 
 				case 'setContent': {
-					// Special handling for Yahoo
-					element.innerHTML = sanitizeHtml(content);
+					this.insertHtmlAtCursorOrPrepend(element, content);
 					element.focus();
 					// Force Yahoo's editor to recognize the change
 					const selection = window.getSelection();
@@ -272,8 +316,7 @@ class EmailClientAdapter {
 				}
 
 				default:
-					// Default handling for Google clients
-					element.innerHTML = sanitizeHtml(content);
+					this.insertHtmlAtCursorOrPrepend(element, content);
 					element.dispatchEvent(new Event(eventType, { bubbles: true }));
 			}
 			return true;
@@ -287,7 +330,6 @@ class EmailClientAdapter {
 		let attempts = 0;
 		return new Promise((resolve, reject) => {
 			const tryInject = () => {
-				// Check if element is still in the DOM before anything else
 				if (!document.contains(element)) {
 					console.error('Element is no longer in the DOM');
 					reject(new Error('Element is no longer in the DOM'));
@@ -310,6 +352,5 @@ class EmailClientAdapter {
 	}
 }
 
-// Create global instance
 window.emailClientAdapter = new EmailClientAdapter();
 console.log('Email client adapter initialized');

@@ -32,6 +32,9 @@
     "last1DayLabel": {
         "message": "前一天"
     },
+    "lastWeekLabel": {
+        "message": "上周"
+    },
     "startDateLabel": {
         "message": "从:"
     },
@@ -334,5 +337,11 @@
     },
     "insertedInEmailNotification": {
         "message": "报告已插入邮件！"
+    },
+    "rateLimitError": {
+        "message": "超出 GitHub API 速率限制。请稍后再试，或在 Scrum Helper 设置中添加/检查您的 GitHub 令牌。"
+    },
+    "rateLimitWarningMessage": {
+        "message": "由于 GitHub 速率限制，部分数据可能缺失。请在设置中添加或检查您的 GitHub 令牌。"
     }
 }
