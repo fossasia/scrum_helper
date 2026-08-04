@@ -124,6 +124,25 @@ async function fetchIssuesFromCodeberg(scope) {
 	const repoSet = scope.type === 'selected' ? new Set(scope.repos) : null;
 
 	return allIssues
+		.filter((issue) => {
+			if (issue.pull_request) {
+				return false;
+			}
+			if (Number.isNaN(Number.parseInt(issue.number, 10)) || (!issue.html_url && !issue.url)) {
+				return false;
+			}
+			const repoName = issue.repository ? issue.repository.full_name || issue.repository.name || '' : '';
+			if (repoSet && !repoSet.has(repoName)) {
+				return false;
+			}
+
+			// Validate assignee client-side to handle different Gitea API versions
+			const isAssigned =
+				(issue.assignee && issue.assignee.login === username) ||
+				(Array.isArray(issue.assignees) && issue.assignees.some((u) => u.login === username));
+
+			return isAssigned;
+		})
 		.map((issue) => {
 			const repoName = issue.repository ? issue.repository.full_name || issue.repository.name || '' : '';
 
@@ -139,18 +158,6 @@ async function fetchIssuesFromCodeberg(scope) {
 				state: issue.state,
 				pull_request: issue.pull_request,
 			};
-		})
-		.filter((issue) => {
-			if (issue.pull_request) {
-				return false;
-			}
-			if (Number.isNaN(issue.number) || !issue.html_url) {
-				return false;
-			}
-			if (repoSet && !repoSet.has(issue.repository)) {
-				return false;
-			}
-			return true;
 		});
 }
 
