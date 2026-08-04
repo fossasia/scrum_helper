@@ -538,6 +538,10 @@
     "message": "Select and add them to question 2 in the email. A GitHub token is required.",
     "description": "Tooltip text explaining the include next plans option."
   },
+  "includeNextPlansTooltipCodeberg": {
+    "message": "Select and add them to question 2 in the email. A Codeberg token is required.",
+    "description": "Tooltip text explaining the include next plans option for Codeberg."
+  },
   "fetchingIssuesSpinner": {
     "message": "Fetching your assigned issues...",
     "description": "Loading message shown when fetching assigned issues."
