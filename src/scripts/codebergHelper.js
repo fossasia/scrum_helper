@@ -101,7 +101,7 @@ async function fetchIssuesFromCodeberg(scope) {
 	const baseUrl = window.codebergApiBaseUrl || DEFAULT_CODEBERG_API_BASE_URL;
 
 	while (hasMore && page <= 2) {
-		const url = `${baseUrl}/repos/issues/search?state=open&type=issues&assignee=${encodeURIComponent(username)}&page=${page}&limit=50`;
+		const url = `${baseUrl}/user/issues?state=open&type=assigned&page=${page}&limit=50`;
 		console.log(`[NextPlans] Fetching page ${page} from Codeberg: ${url}`);
 		const response = await fetch(url, { headers });
 		if (!response.ok) {
