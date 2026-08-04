@@ -333,6 +333,9 @@ document.addEventListener('DOMContentLoaded', () => {
 	if (gitlabTokenInput) {
 		gitlabTokenInput.addEventListener('input', () => checkTokenForShowCommits({ persistState: false }));
 	}
+	if (codebergTokenInput) {
+		codebergTokenInput.addEventListener('input', () => checkTokenForShowCommits({ persistState: false }));
+	}
 
 	darkModeToggle.addEventListener('click', function () {
 		body.classList.toggle('dark-mode');
@@ -1931,6 +1934,8 @@ function updatePlatformUI(platform) {
 		if (span) {
 			if (platform === 'gitlab') {
 				span.setAttribute('data-i18n', 'tokenRequiredShowCommitsWarningGitLab');
+			} else if (platform === 'codeberg') {
+				span.setAttribute('data-i18n', 'tokenRequiredShowCommitsWarningCodeberg');
 			} else {
 				span.setAttribute('data-i18n', 'tokenRequiredShowCommitsWarning');
 			}
@@ -1943,11 +1948,13 @@ function updatePlatformUI(platform) {
 	}
 
 	const showCommitsTooltip = document.querySelector(
-		'[data-i18n="showCommitsTooltip"], [data-i18n="showCommitsTooltipGitLab"]',
+		'[data-i18n="showCommitsTooltip"], [data-i18n="showCommitsTooltipGitLab"], [data-i18n="showCommitsTooltipCodeberg"]',
 	);
 	if (showCommitsTooltip) {
 		if (platform === 'gitlab') {
 			showCommitsTooltip.setAttribute('data-i18n', 'showCommitsTooltipGitLab');
+		} else if (platform === 'codeberg') {
+			showCommitsTooltip.setAttribute('data-i18n', 'showCommitsTooltipCodeberg');
 		} else {
 			showCommitsTooltip.setAttribute('data-i18n', 'showCommitsTooltip');
 		}

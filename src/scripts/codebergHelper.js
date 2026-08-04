@@ -2,6 +2,66 @@
 
 const DEFAULT_CODEBERG_API_BASE_URL = 'https://codeberg.org/api/v1';
 
+let codebergShowCommitsWarningTimeout;
+
+function codebergShowTokenWarningForShowCommits({ animate = false, durationMs = 4000 } = {}) {
+	const tokenWarning = document.getElementById('tokenWarningForShowCommits');
+	if (!tokenWarning) {
+		return;
+	}
+
+	tokenWarning.classList.remove('hidden');
+	if (animate) {
+		tokenWarning.classList.add('shake-animation');
+		setTimeout(() => tokenWarning.classList.remove('shake-animation'), 620);
+	}
+
+	if (codebergShowCommitsWarningTimeout) {
+		clearTimeout(codebergShowCommitsWarningTimeout);
+	}
+	codebergShowCommitsWarningTimeout = setTimeout(() => {
+		tokenWarning.classList.add('hidden');
+	}, durationMs);
+}
+
+function codebergCheckTokenForShowCommits({
+	showWarning = false,
+	animateWarning = false,
+	warningDurationMs = 4000,
+	persistState = false,
+} = {}) {
+	const showCommits = document.getElementById('showCommits');
+	const codebergTokenInput = document.getElementById('codebergToken');
+
+	if (!showCommits || !codebergTokenInput) {
+		return;
+	}
+
+	const isShowCommitsEnabled = showCommits.checked;
+	const hasToken = codebergTokenInput.value.trim() !== '';
+
+	if (isShowCommitsEnabled && !hasToken) {
+		showCommits.checked = false;
+		if (showWarning) {
+			codebergShowTokenWarningForShowCommits({
+				animate: animateWarning,
+				durationMs: warningDurationMs,
+			});
+		}
+		browser.storage.local.set({ showCommits: false });
+		return;
+	}
+
+	const tokenWarning = document.getElementById('tokenWarningForShowCommits');
+	if (tokenWarning) {
+		if (codebergShowCommitsWarningTimeout) {
+			clearTimeout(codebergShowCommitsWarningTimeout);
+			codebergShowCommitsWarningTimeout = null;
+		}
+		tokenWarning.classList.add('hidden');
+	}
+}
+
 /* ---------------- UTIL ---------------- */
 
 function normalizeCodebergApiBaseUrl(apiBaseUrl) {
@@ -144,8 +204,8 @@ class CodebergHelper {
 
 	/* ---------- MAIN FETCH (FIXED API) ---------- */
 
-	async fetchCodebergData(username, startDate, endDate, token = null) {
-		const cacheKey = `${username}-${startDate}-${endDate}-${token ? 'auth' : 'noauth'}`;
+	async fetchCodebergData(username, startDate, endDate, token = null, showCommits = false) {
+		const cacheKey = `${username}-${startDate}-${endDate}-${token ? 'auth' : 'noauth'}-${showCommits ? 'commits' : 'nocommits'}`;
 
 		if (!this.cache.data) await this.loadFromStorage();
 
@@ -290,6 +350,31 @@ class CodebergHelper {
 				);
 			}
 
+			if (showCommits) {
+				const openPRs = [];
+				for (const item of issues) {
+					if (item.pull_request && (item.state === 'open' || item.state === 'opened')) {
+						openPRs.push(item);
+					}
+				}
+				for (const item of mergeRequests) {
+					if (item.state === 'open' || item.state === 'opened') {
+						openPRs.push(item);
+					}
+				}
+				if (openPRs.length > 0) {
+					const commitMap = await this.fetchCommitsForOpenPRs(openPRs, token, startDate, endDate);
+					for (const item of issues) {
+						if (item.pull_request) {
+							item._allCommits = commitMap[item.number] || [];
+						}
+					}
+					for (const item of mergeRequests) {
+						item._allCommits = commitMap[item.number] || [];
+					}
+				}
+			}
+
 			const result = {
 				user,
 				issues,
@@ -314,6 +399,60 @@ class CodebergHelper {
 		} finally {
 			this.cache.fetching = false;
 		}
+	}
+
+	async fetchCommitsForOpenPRs(prs, token, startDate, endDate) {
+		const commitMap = {};
+		if (!prs || prs.length === 0) return commitMap;
+
+		const headers = { Accept: 'application/json' };
+		if (token) headers.Authorization = `token ${token}`;
+
+		const since = new Date(startDate + 'T00:00:00Z');
+		const until = new Date(endDate + 'T23:59:59Z');
+
+		await Promise.all(
+			prs.map(async (pr) => {
+				try {
+					const { owner, repo } = parseRepoAndOwner(pr.html_url || pr.url || pr.repository_url);
+					if (!owner || !repo) {
+						commitMap[pr.number] = [];
+						return;
+					}
+					const url = `${this.baseUrl}/repos/${owner}/${repo}/pulls/${pr.number}/commits`;
+					const res = await fetch(url, { headers });
+					if (res.ok) {
+						const commits = await res.json();
+						if (Array.isArray(commits)) {
+							const mapped = commits
+								.map((c) => {
+									const commitObj = c.commit || {};
+									const committer = commitObj.committer || {};
+									return {
+										messageHeadline: commitObj.message?.split('\n')[0] || '',
+										committedDate: committer.date || c.created || '',
+									};
+								})
+								.filter((c) => {
+									if (!c.committedDate) return false;
+									const d = new Date(c.committedDate);
+									return d >= since && d <= until;
+								});
+							commitMap[pr.number] = mapped;
+						} else {
+							commitMap[pr.number] = [];
+						}
+					} else {
+						commitMap[pr.number] = [];
+					}
+				} catch (e) {
+					console.error(`[Codeberg] Failed to fetch commits for PR #${pr.number}:`, e);
+					commitMap[pr.number] = [];
+				}
+			}),
+		);
+
+		return commitMap;
 	}
 
 	mapCodebergReportItem(item, type) {
@@ -390,7 +529,7 @@ if (window.PlatformRegistry) {
 	window.PlatformRegistry.register('codeberg', {
 		hasRepoFilter: false,
 		checkTokenForFilter() {},
-		checkTokenForShowCommits() {},
+		checkTokenForShowCommits: codebergCheckTokenForShowCommits,
 		checkTokenForMergedPRs() {},
 		triggerRepoFetchIfEnabled() {},
 		debugRepoFetch() {},
