@@ -100,8 +100,8 @@ async function fetchIssuesFromCodeberg(scope) {
 
 	const baseUrl = window.codebergApiBaseUrl || DEFAULT_CODEBERG_API_BASE_URL;
 
-	while (hasMore && page <= 2) {
-		const url = `${baseUrl}/user/issues?state=open&type=assigned&page=${page}&limit=50`;
+	while (hasMore && page <= 1) {
+		const url = `${baseUrl}/repos/issues/search?state=open&assigned=true&page=${page}&limit=50`;
 		console.log(`[NextPlans] Fetching page ${page} from Codeberg: ${url}`);
 		const response = await fetch(url, { headers });
 		if (!response.ok) {
@@ -139,7 +139,8 @@ async function fetchIssuesFromCodeberg(scope) {
 			// Validate assignee client-side to handle different Gitea API versions
 			const isAssigned =
 				(issue.assignee && issue.assignee.login === username) ||
-				(Array.isArray(issue.assignees) && issue.assignees.some((u) => u.login === username));
+				(Array.isArray(issue.assignees) && issue.assignees.some((u) => u.login === username)) ||
+				(!issue.assignee && !issue.assignees);
 
 			return isAssigned;
 		})
