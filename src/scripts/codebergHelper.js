@@ -316,57 +316,6 @@ class CodebergHelper {
 		}
 	}
 
-	async fetchCommitsForOpenPRs(prs, token, startDate, endDate) {
-		const commitMap = {};
-		if (!prs || prs.length === 0) return commitMap;
-
-		const promises = prs.map(async (pr) => {
-			try {
-				const { owner, repo: repoName } = parseRepoAndOwner(pr.repository_url || pr.html_url);
-
-				const url = `${this.baseUrl}/repos/${owner}/${repoName}/pulls/${pr.number}/commits`;
-				const headers = {
-					Accept: 'application/json',
-				};
-				if (token) {
-					headers.Authorization = `token ${token}`;
-				}
-				const res = await fetch(url, { headers });
-				if (!res.ok) {
-					commitMap[pr.number] = [];
-					return;
-				}
-				const commits = await res.json();
-
-				const since = new Date(startDate + 'T00:00:00Z');
-				const until = new Date(endDate + 'T23:59:59Z');
-
-				const filteredCommits = commits
-					.filter((c) => {
-						const commitDate = new Date(c.commit.author.date || c.commit.committer.date);
-						return commitDate >= since && commitDate <= until;
-					})
-					.map((c) => ({
-						messageHeadline: c.commit.message.split('\n')[0],
-						committedDate: c.commit.author.date || c.commit.committer.date,
-						url: c.html_url,
-						author: {
-							name: c.commit.author.name,
-							user: c.author ? { login: c.author.login } : null,
-						},
-					}));
-
-				commitMap[pr.number] = filteredCommits;
-			} catch (e) {
-				console.error(`Error fetching commits for PR #${pr.number}:`, e);
-				commitMap[pr.number] = [];
-			}
-		});
-
-		await Promise.all(promises);
-		return commitMap;
-	}
-
 	mapCodebergReportItem(item, type) {
 		const { owner, repo } = parseRepoAndOwner(item.html_url || item.url);
 
