@@ -240,6 +240,10 @@
     "message": "A GitHub token is required to fetch assigned issues. Please add one in the settings.",
     "description": "Warning message shown when next plans is enabled without a token."
   },
+  "tokenRequiredNextPlansWarningCodeberg": {
+    "message": "A Codeberg token is required to fetch assigned issues. Please add one in the settings.",
+    "description": "Warning message shown when next plans is enabled without a token on Codeberg."
+  },
   "onlyPrsRequiredShowCommitsWarning": {
     "message": "Please check the 'Include open/draft PRs in the report' filter to show commits."
   },
