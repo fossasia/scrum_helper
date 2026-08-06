@@ -2006,7 +2006,7 @@ function updatePlatformUI(platform) {
 			}
 		}
 	}
-
+	checkTokenForNextPlans({ showWarning: false, persistState: true });
 	triggerNextPlansReload();
 }
 
