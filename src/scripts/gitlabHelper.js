@@ -525,7 +525,7 @@ if (window.PlatformRegistry) {
 		hasRepoFilter: false,
 		checkTokenForFilter() {},
 		checkTokenForShowCommits: gitlabCheckTokenForShowCommits,
-    checkTokenForNextPlans() {},
+		checkTokenForNextPlans() {},
 		checkTokenForMergedPRs({ persistState = false } = {}) {
 			const mergedPRsCheckbox = document.getElementById('onlyMergedPRs');
 			if (!mergedPRsCheckbox) {
