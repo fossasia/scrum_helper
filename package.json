@@ -12,7 +12,8 @@
     "check": "biome check .",
     "fix": "biome lint --write .",
     "check:write": "biome check --write .",
-    "build": "node build.js"
+    "build": "node build.js",
+    "electron": "electron electron/main.js"
   },
   "keywords": [
     "scrum",
@@ -28,10 +29,13 @@
   "devDependencies": {
     "@biomejs/biome": "2.5.2",
     "autoprefixer": "^10.5.4",
+    "electron": "^43.3.0",
     "postcss": "^8.5.19",
     "tailwindcss": "^4.3.3"
   },
   "dependencies": {
-    "@tailwindcss/cli": "^4.3.3"
+    "@tailwindcss/cli": "^4.3.3",
+    "hammerjs": "^2.0.8",
+    "jquery": "^4.0.0"
   }
 }

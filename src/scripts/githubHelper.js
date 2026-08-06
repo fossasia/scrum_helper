@@ -527,6 +527,7 @@ function validateOrgOnBlur(org) {
 				window.showPopupMessage(browser.i18n.getMessage('orgValidationErrorMessage'), { variant: 'error' });
 			}
 		});
+	});
 }
 
 async function fetchPrsMergedStatusBatch(prs, headers) {
