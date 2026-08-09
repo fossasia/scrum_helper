@@ -589,6 +589,9 @@
   "smtpGmailHint": {
     "message": "For Gmail, you must use an App Password, not your regular password."
   },
+  "smtpSecurityWarning": {
+    "message": "Note: Your password is stored in unencrypted local storage. Ensure your device is secure."
+  },
   "smtpMissingFieldsError": {
     "message": "Please configure all Mail Settings first."
   },
@@ -632,7 +635,7 @@
     "message": "The username or login email address for your SMTP server."
   },
   "smtpPasswordTooltip": {
-    "message": "The password or app-specific password used to authenticate with your SMTP server."
+    "message": "The password or app-specific password used to authenticate with your SMTP server. WARNING: Stored in unencrypted local storage."
   },
   "smtpRecipientsTooltip": {
     "message": "A list of recipient email addresses separated by commas (e.g. recipient1@example.com, recipient2@example.com)."
