@@ -1144,6 +1144,28 @@ document.addEventListener('DOMContentLoaded', () => {
 						return;
 					}
 
+					// Validate email formats
+					const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+					if (!emailRegex.test(senderEmail)) {
+						showPopupMessage(
+							browser.i18n.getMessage('smtpInvalidEmailError', [senderEmail]) ||
+								`Invalid email address: ${senderEmail}`,
+							{ variant: 'error' },
+						);
+						setSendEmailButtonLoading(sendReportEmailBtn, false);
+						return;
+					}
+					for (const recipient of recipients) {
+						if (!emailRegex.test(recipient)) {
+							showPopupMessage(
+								browser.i18n.getMessage('smtpInvalidEmailError', [recipient]) || `Invalid email address: ${recipient}`,
+								{ variant: 'error' },
+							);
+							setSendEmailButtonLoading(sendReportEmailBtn, false);
+							return;
+						}
+					}
+
 					// Build subject
 					const subject = buildScrumSubjectFromPopup();
 

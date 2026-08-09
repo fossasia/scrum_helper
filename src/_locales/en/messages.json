@@ -595,6 +595,9 @@
   "smtpMissingFieldsError": {
     "message": "Please configure all Mail Settings first."
   },
+  "smtpInvalidEmailError": {
+    "message": "Invalid email address: $1"
+  },
   "smtpSendSuccess": {
     "message": "Report sent successfully via email!"
   },
