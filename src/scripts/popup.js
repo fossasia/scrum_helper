@@ -1117,7 +1117,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					const host = (settings.smtpServer || '').trim();
 					const port = parseInt(settings.smtpPort, 10) || 587;
 					const username = (settings.smtpUsername || '').trim();
-					const password = (settings.smtpPassword || '').trim();
+					const password = settings.smtpPassword || '';
 					const recipientsRaw = (settings.smtpRecipients || '').trim();
 
 					if (!senderEmail || !host || !username || !password || !recipientsRaw) {
