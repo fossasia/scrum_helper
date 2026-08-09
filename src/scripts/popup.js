@@ -1162,7 +1162,7 @@ document.addEventListener('DOMContentLoaded', () => {
 						});
 					}
 
-					showPopupMessage(browser.i18n.getMessage('smtpEmailSuccess') || 'Email sent successfully!', {
+					showPopupMessage(browser.i18n.getMessage('smtpSendSuccess') || 'Email sent successfully!', {
 						variant: 'success',
 					});
 					sendReportEmailBtn.replaceChildren();
@@ -1178,7 +1178,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				} catch (err) {
 					console.error('[SMTP] Error sending email:', err);
 					const errMsg = typeof err === 'string' ? err : err.message || String(err);
-					showPopupMessage((browser.i18n.getMessage('smtpEmailError') || 'Failed to send email: ') + errMsg, {
+					showPopupMessage((browser.i18n.getMessage('smtpSendFailed') || 'Failed to send email: ') + errMsg, {
 						variant: 'error',
 					});
 					setSendEmailButtonLoading(sendReportEmailBtn, false);
