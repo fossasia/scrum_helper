@@ -1149,34 +1149,62 @@ document.addEventListener('DOMContentLoaded', () => {
 
 					// Call Tauri command
 					const invoke = window.__TAURI__.core.invoke;
+					const sentRecipients = [];
+					const failedRecipients = [];
+					let lastError = null;
+
 					for (const toEmail of recipients) {
-						await invoke('send_smtp_email', {
-							host,
-							port,
-							username,
-							password,
-							fromEmail: senderEmail,
-							toEmail,
-							subject,
-							body: htmlBody,
-						});
+						try {
+							await invoke('send_smtp_email', {
+								host,
+								port,
+								username,
+								password,
+								fromEmail: senderEmail,
+								toEmail,
+								subject,
+								body: htmlBody,
+							});
+							sentRecipients.push(toEmail);
+						} catch (err) {
+							console.error(`[SMTP] Error sending email to ${toEmail}:`, err);
+							failedRecipients.push(toEmail);
+							lastError = err;
+						}
 					}
 
-					showPopupMessage(browser.i18n.getMessage('smtpSendSuccess') || 'Email sent successfully!', {
-						variant: 'success',
-					});
-					sendReportEmailBtn.replaceChildren();
-					const checkIcon = document.createElement('i');
-					checkIcon.className = 'fa fa-check';
-					sendReportEmailBtn.appendChild(checkIcon);
-					const sentMsg = browser.i18n.getMessage('sentButton') || 'Sent';
-					sendReportEmailBtn.appendChild(document.createTextNode(' ' + sentMsg));
+					if (failedRecipients.length === 0) {
+						showPopupMessage(browser.i18n.getMessage('smtpSendSuccess') || 'Report sent successfully via email!', {
+							variant: 'success',
+						});
+						sendReportEmailBtn.replaceChildren();
+						const checkIcon = document.createElement('i');
+						checkIcon.className = 'fa fa-check';
+						sendReportEmailBtn.appendChild(checkIcon);
+						const sentMsg = browser.i18n.getMessage('sentButton') || 'Sent';
+						sendReportEmailBtn.appendChild(document.createTextNode(' ' + sentMsg));
+					} else if (sentRecipients.length === 0) {
+						const errMsg = typeof lastError === 'string' ? lastError : lastError.message || String(lastError);
+						showPopupMessage((browser.i18n.getMessage('smtpSendFailed') || 'Failed to send email: ') + errMsg, {
+							variant: 'error',
+						});
+					} else {
+						const partialMsg =
+							browser.i18n.getMessage('smtpPartialSuccess', [
+								String(sentRecipients.length),
+								String(recipients.length),
+								failedRecipients.join(', '),
+							]) || `Sent to ${sentRecipients.length}/${recipients.length}; failed: ${failedRecipients.join(', ')}`;
+						showPopupMessage(partialMsg, {
+							variant: 'error',
+						});
+					}
 
 					setTimeout(() => {
 						setSendEmailButtonLoading(sendReportEmailBtn, false);
 					}, 2000);
 				} catch (err) {
-					console.error('[SMTP] Error sending email:', err);
+					console.error('[SMTP] Error in email send handler:', err);
 					const errMsg = typeof err === 'string' ? err : err.message || String(err);
 					showPopupMessage((browser.i18n.getMessage('smtpSendFailed') || 'Failed to send email: ') + errMsg, {
 						variant: 'error',

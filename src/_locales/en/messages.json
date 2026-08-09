@@ -598,6 +598,9 @@
   "smtpSendSuccess": {
     "message": "Report sent successfully via email!"
   },
+  "smtpPartialSuccess": {
+    "message": "Sent to $1/$2; failed: $3"
+  },
   "smtpSendFailed": {
     "message": "Failed to send email: "
   },
