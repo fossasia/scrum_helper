@@ -435,8 +435,10 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (!generateBtn) return;
 		if (!isLoading) return;
 
-		const msg = browser.i18n.getMessage('generatingButton') || 'Generating...';
-		generateBtn.innerHTML = `<i class="fa fa-spinner fa-spin"></i> ${msg}`;
+		const icon = generateBtn.querySelector('i');
+		const span = generateBtn.querySelector('span');
+		if (icon) icon.className = 'fa fa-spinner fa-spin';
+		if (span) span.textContent = browser.i18n.getMessage('generatingButton') || 'Generating...';
 		generateBtn.disabled = true;
 	}
 
@@ -851,8 +853,7 @@ document.addEventListener('DOMContentLoaded', () => {
 								return browser.storage.local.get(['platform']).then((res) => {
 									platformSelect.value = res.platform || 'github';
 									updatePlatformUI(platformSelect.value);
-									generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
-									generateBtn.disabled = true;
+									setGenerateButtonLoading(generateBtn, true);
 									window.generateScrumReport && window.generateScrumReport();
 									generateBtn._triggeredByShortcut = false;
 								});

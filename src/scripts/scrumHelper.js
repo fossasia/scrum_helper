@@ -48,12 +48,6 @@ function logError(...args) {
 
 /**
  * Cross-browser i18n message helper.
- * Tries chrome.i18n first (content script context), then browser.i18n (popup/polyfill context).
- * Returns the fallback if neither API is available or the key is not found.
- * @param {string} key - The i18n message key
- * @param {Array} [substitutions] - Optional substitution strings
- * @param {string} [fallback=''] - Fallback value if message is not found
- * @returns {string} The localized message or fallback
  */
 function getMessage(key, substitutions, fallback = '') {
 	try {
@@ -67,10 +61,7 @@ function getMessage(key, substitutions, fallback = '') {
 }
 
 /**
- * Sets the generate button to either "loading" or "idle" state using DOM APIs.
- * Avoids innerHTML to prevent XSS risks.
- * @param {HTMLElement|null} btn - The generate button element
- * @param {boolean} loading - true for "Generating..." state, false for "Generate" state
+ * Safely sets the generate button state without using innerHTML.
  */
 function setGenerateButtonState(btn, loading) {
 	if (!btn) return;
