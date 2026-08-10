@@ -35,6 +35,14 @@
     "message": "Your Bitbucket Username",
     "description": "Label for the Bitbucket username input field."
   },
+  "codebergUsernameLabel": {
+    "message": "Your Codeberg Username",
+    "description": "Label for the Codeberg username input field."
+  },
+  "codebergUsernamePlaceholder": {
+    "message": "Required for fetching your contributions",
+    "description": "Placeholder text for the Codeberg username input."
+  },
   "githubUsernamePlaceholder": {
     "message": "Required for fetching your contributions",
     "description": "Placeholder text for the GitHub username input."
@@ -146,6 +154,26 @@
     "message": "Why add a Bitbucket token? Scrum Helper works without a token for public repositories, but a personal access token or app password enables access to private repositories and avoids rate limits. Your token stays local.",
     "description": "Tooltip for Bitbucket token explaining why it's needed."
   },
+  "codebergTokenLabel": {
+    "message": "Your Codeberg Token",
+    "description": "Label for the Codeberg token input."
+  },
+  "codebergTokenPlaceholder": {
+    "message": "Required for accessing private projects",
+    "description": "Placeholder for the Codeberg token input."
+  },
+  "codebergTokenTooltip": {
+    "message": "Why is it recommended to add a Codeberg token? Scrum Helper works without a Codeberg token for public projects, but adding a personal access token is recommended for a better experience.",
+    "description": "Tooltip for Codeberg token explaining why it's needed."
+  },
+  "codebergApiBaseUrlLabel": {
+    "message": "Codeberg API Base URL",
+    "description": "Label for the Codeberg API Base URL input."
+  },
+  "codebergApiBaseUrlPlaceholder": {
+    "message": "https://codeberg.org/api/v1",
+    "description": "Placeholder for the Codeberg API Base URL input."
+  },
   "showCommitsLabel": {
     "message": "Show commits on open PRs/ draft PRs",
     "description": "Label for the checkbox to show commits in open PRs."
@@ -156,6 +184,9 @@
 },
   "showCommitsTooltipGitLab": {
     "message": "GitLab Token required, add it in the settings."
+  },
+  "showCommitsTooltipCodeberg": {
+    "message": "Codeberg Token required, add it in the settings."
   },
   "onlyIssuesLabel": {
     "message": "Include issues in the report",
