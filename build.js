@@ -7,6 +7,7 @@ const distDir = path.join(__dirname, 'dist');
 const chromeDir = path.join(distDir, 'chrome');
 const firefoxDir = path.join(distDir, 'firefox');
 const operaDir = path.join(distDir, 'opera');
+const tauriDir = path.join(distDir, 'tauri');
 
 // Helper: copy directory recursively (ignore manifests folder)
 function copyDir(src, dest) {
@@ -25,19 +26,21 @@ function copyDir(src, dest) {
     }
 }
 
-console.log('Building cross-browser extensions...');
+console.log('Building cross-browser extensions and Tauri web app...');
 
 // 1. Clean and prepare dist folders
 if (fs.existsSync(distDir)) fs.rmSync(distDir, { recursive: true, force: true });
 fs.mkdirSync(chromeDir, { recursive: true });
 fs.mkdirSync(firefoxDir, { recursive: true });
 fs.mkdirSync(operaDir, { recursive: true });
+fs.mkdirSync(tauriDir, { recursive: true });
 
 // 2. Copy source code to all targets
 console.log('Copying source files...');
 copyDir(srcDir, chromeDir);
 copyDir(srcDir, firefoxDir);
 copyDir(srcDir, operaDir);
+copyDir(srcDir, tauriDir);
 
 // 3. Inject the specific manifests into the roots of the dist folders
 console.log('Injecting browser-specific manifests...');
@@ -58,3 +61,4 @@ console.log('Build complete!');
 console.log('=> Chrome version ready in : dist/chrome');
 console.log('=> Firefox version ready in: dist/firefox');
 console.log('=> Opera version ready in   : dist/opera');
+console.log('=> Tauri version ready in   : dist/tauri');
