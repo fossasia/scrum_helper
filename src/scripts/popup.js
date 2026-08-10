@@ -343,6 +343,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			bitbucketTokenInput.classList.add('token-animating');
 			setTimeout(() => bitbucketTokenInput.classList.remove('token-animating'), 300);
+		});
+	}
+
 	// Codeberg token visibility toggle
 	if (toggleCodebergTokenBtn && codebergTokenInput) {
 		toggleCodebergTokenBtn.addEventListener('click', () => {
@@ -1982,7 +1985,7 @@ function updatePlatformUI(platform) {
 			el.classList.add('hidden');
 		} else {
 			el.classList.remove('hidden');
-		} 
+		}
 	});
 	const gitlabOnlySections = document.querySelectorAll('.gitlabOnlySection');
 	gitlabOnlySections.forEach((el) => {
@@ -2396,7 +2399,7 @@ document.querySelectorAll('input[name="timeframe"]').forEach((radio) => {
 				} catch (e) {}
 
 				// Clear all caches
-				const keysToRemove = ['githubCache', 'repoCache', 'gitlabCache', 'bitbucketCache','codebergCache'];
+				const keysToRemove = ['githubCache', 'repoCache', 'gitlabCache', 'bitbucketCache', 'codebergCache'];
 				await browser.storage.local.remove(keysToRemove);
 
 				// Clear in-memory cache for the active platform

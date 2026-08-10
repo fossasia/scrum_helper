@@ -338,6 +338,7 @@ function allIncluded(outputTarget = 'email') {
 				}
 				if (platform === 'bitbucket' && window.BitbucketHelper) {
 					window.bitbucketHelper = new window.BitbucketHelper();
+				}
 				codebergToken = items.codebergToken || '';
 				window.codebergApiBaseUrl = items.codebergApiBaseUrl || 'https://codeberg.org/api/v1';
 				if (platform === 'codeberg' && window.CodebergHelper) {
