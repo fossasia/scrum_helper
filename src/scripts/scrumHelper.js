@@ -46,6 +46,47 @@ function logError(...args) {
 	}
 }
 
+/**
+ * Cross-browser i18n message helper.
+ * Tries chrome.i18n first (content script context), then browser.i18n (popup/polyfill context).
+ * Returns the fallback if neither API is available or the key is not found.
+ * @param {string} key - The i18n message key
+ * @param {Array} [substitutions] - Optional substitution strings
+ * @param {string} [fallback=''] - Fallback value if message is not found
+ * @returns {string} The localized message or fallback
+ */
+function getMessage(key, substitutions, fallback = '') {
+	try {
+		const msg =
+			(typeof chrome !== 'undefined' && chrome?.i18n?.getMessage(key, substitutions)) ||
+			(typeof browser !== 'undefined' && browser?.i18n?.getMessage(key, substitutions));
+		return msg || fallback;
+	} catch (_) {
+		return fallback;
+	}
+}
+
+/**
+ * Sets the generate button to either "loading" or "idle" state using DOM APIs.
+ * Avoids innerHTML to prevent XSS risks.
+ * @param {HTMLElement|null} btn - The generate button element
+ * @param {boolean} loading - true for "Generating..." state, false for "Generate" state
+ */
+function setGenerateButtonState(btn, loading) {
+	if (!btn) return;
+	const icon = btn.querySelector('i');
+	const span = btn.querySelector('span');
+	if (loading) {
+		if (icon) icon.className = 'fa fa-spinner fa-spin';
+		if (span) span.textContent = getMessage('generatingButton', undefined, 'Generating...');
+		btn.disabled = true;
+	} else {
+		if (icon) icon.className = 'fa fa-refresh';
+		if (span) span.textContent = getMessage('generateReportButton', undefined, 'Generate');
+		btn.disabled = false;
+	}
+}
+
 function getLocalISOString(dateStr, time) {
 	const offsetMinutes = new Date().getTimezoneOffset();
 	const absOffset = Math.abs(offsetMinutes);
