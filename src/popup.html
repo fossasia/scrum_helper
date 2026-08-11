@@ -339,7 +339,7 @@
 									<span data-i18n="onlyPrsRequiredShowCommitsWarning">Please check the 'Include open/draft PRs in the report' filter to show commits.</span>
 								</div>
 							</div>
-							<div class="my-4">
+							<div class="my-4 githubGitlabOnlySection">
 								<div class="flex items-center">
 									<input type="checkbox" id="includeNextPlans" checked class="form-checkbox text-blue-600">
 									<label for="includeNextPlans" class="font-medium text-sm flex items-center"
@@ -652,7 +652,7 @@
 						</div>
 					</div>
 
-					<div class="cacheSection mt-3">
+					<div id="displayModeSectionContainer" class="cacheSection mt-3">
 						<div class="flex items-center justify-between mb-2">
 							<div class="flex items-center">
 								<p class="text-sm font-medium" data-i18n="displayModeLabel">Display Mode</p>
@@ -741,6 +741,7 @@
 	<!-- WebExtensions Polyfill for Cross-Browser compatibility (Chrome, Firefox, Edge, etc.) -->
 	 <script src="libs/purify.min.js"></script>
 	 <script src="scripts/domSanitizer.js"></script>
+	<script src="scripts/platform.js"></script>
 	<script src="scripts/browser-polyfill.min.js"></script>
 	<script src="scripts/jquery-3.2.1.min.js"></script>
 	<script type="text/javascript" src="materialize/js/materialize.min.js"></script>

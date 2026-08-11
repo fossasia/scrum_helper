@@ -1251,7 +1251,7 @@ function allIncluded(outputTarget = 'email') {
 			await writeGithubIssuesPrs(githubPrsReviewData?.items || []);
 		}
 		await writeGithubPrsReviews();
-		if (includeNextPlans) {
+		if (includeNextPlans && platform !== 'codeberg') {
 			if (window.getNextPlansForReport) {
 				try {
 					const selectedPlans = await window.getNextPlansForReport();
