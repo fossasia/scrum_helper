@@ -31,6 +31,14 @@
     "message": "Your GitLab Username",
     "description": "Label for the GitLab username input field."
   },
+  "codebergUsernameLabel": {
+    "message": "Your Codeberg Username",
+    "description": "Label for the Codeberg username input field."
+  },
+  "codebergUsernamePlaceholder": {
+    "message": "Required for fetching your contributions",
+    "description": "Placeholder text for the Codeberg username input."
+  },
   "githubUsernamePlaceholder": {
     "message": "Required for fetching your contributions",
     "description": "Placeholder text for the GitHub username input."
@@ -71,7 +79,8 @@
     "description": "Placeholder text for the blockers input field."
   },
   "scrumReportLabel": {
-    "message": "Scrum Report"
+    "message": "Scrum Report",
+    "description": "Heading for the Scrum Report section."
   },
   "generateReportButton": {
     "message": "Generate",
@@ -96,6 +105,10 @@
   "settingsOrgNamePlaceholder": {
     "message": "Enter organization name",
     "description": "Placeholder for the organization name input."
+  },
+  "gitlabOrgNamePlaceholder": {
+    "message": "Enter group name",
+    "description": "Placeholder for the GitLab group name input."
   },
   "setButton": {
     "message": "Set",
@@ -149,27 +162,55 @@
     "message": "Why is it recommended to add a GitLab token? Scrum Helper works without a GitLab token for public projects, but adding a personal access token is recommended for a better experience.",
     "description": "Tooltip for GitLab token explaining why it's needed."
   },
+  "codebergTokenLabel": {
+    "message": "Your Codeberg Token",
+    "description": "Label for the Codeberg token input."
+  },
+  "codebergTokenPlaceholder": {
+    "message": "Required for accessing private projects",
+    "description": "Placeholder for the Codeberg token input."
+  },
+  "codebergTokenTooltip": {
+    "message": "Why is it recommended to add a Codeberg token? Scrum Helper works without a Codeberg token for public projects, but adding a personal access token is recommended for a better experience.",
+    "description": "Tooltip for Codeberg token explaining why it's needed."
+  },
+  "codebergApiBaseUrlLabel": {
+    "message": "Codeberg API Base URL",
+    "description": "Label for the Codeberg API Base URL input."
+  },
+  "codebergApiBaseUrlPlaceholder": {
+    "message": "https://codeberg.org/api/v1",
+    "description": "Placeholder for the Codeberg API Base URL input."
+  },
   "showCommitsLabel": {
     "message": "Show commits on open PRs/ draft PRs",
     "description": "Label for the checkbox to show commits in open PRs."
   },
   "showCommitsTooltip": {
-    "message": "If checked, the report will show commits on open or draft PRs. A GitHub token is required."
-  },
+    "message": "If checked, the report will show commits on open or draft PRs. A GitHub token is required.",
+    "description": "Tooltip explaining that GitHub Token is required to show commits."
+},
   "showCommitsTooltipGitLab": {
     "message": "GitLab Token required, add it in the settings."
   },
+  "showCommitsTooltipCodeberg": {
+    "message": "Codeberg Token required, add it in the settings."
+  },
   "onlyIssuesLabel": {
-    "message": "Include issues in the report"
+    "message": "Include issues in the report",
+    "description": "Label for the checkbox to only include issues in the report."
   },
   "onlyIssuesTooltip": {
-    "message": "If checked, the report will include issues created or assigned to the user."
+    "message": "If checked, the report will include issues created or assigned to the user.",
+    "description": "Tooltip explaining what checking the only issues checkbox does."
   },
   "onlyPRsLabel": {
-    "message": "Include open PRs/ draft PRs in the report"
+    "message": "Include PRs in the report",
+    "description": "Label for the checkbox to only include PRs in the report."
   },
   "onlyPRsTooltip": {
-    "message": "If checked, the report will include open or draft PRs created by you."
+    "message": "Include open PRs/ draft PRs in the report",
+    "description": "Tooltip explaining what checking the only PRs checkbox does."
   },
   "cacheTTLLabel": {
     "message": "Enter cache TTL",
@@ -532,5 +573,107 @@
   "failedToFetchIssues": {
     "message": "Failed to fetch assigned issues.",
     "description": "Error message when fetching fails."
+  },
+  "smtpSenderEmailLabel": {
+    "message": "Sender Email"
+  },
+  "smtpSenderEmailPlaceholder": {
+    "message": "sender@example.com"
+  },
+  "smtpHostLabel": {
+    "message": "SMTP Host"
+  },
+  "smtpHostPlaceholder": {
+    "message": "smtp.example.com"
+  },
+  "smtpPortLabel": {
+    "message": "SMTP Port"
+  },
+  "smtpPortPlaceholder": {
+    "message": "587"
+  },
+  "smtpUsernameLabel": {
+    "message": "SMTP Username"
+  },
+  "smtpUsernamePlaceholder": {
+    "message": "username@example.com"
+  },
+  "smtpPasswordLabel": {
+    "message": "SMTP Password"
+  },
+  "smtpPasswordPlaceholder": {
+    "message": "Enter your SMTP password"
+  },
+  "smtpRecipientsLabel": {
+    "message": "Recipients"
+  },
+  "smtpRecipientsPlaceholder": {
+    "message": "recipient1@example.com, recipient2@example.com"
+  },
+  "smtpGmailHint": {
+    "message": "For Gmail, you must use an App Password, not your regular password."
+  },
+  "smtpSecurityWarning": {
+    "message": "Note: Your password is stored in unencrypted local storage. Ensure your device is secure."
+  },
+  "smtpMissingFieldsError": {
+    "message": "Please configure all Mail Settings first."
+  },
+  "smtpInvalidEmailError": {
+    "message": "Invalid email address: $1"
+  },
+  "smtpSendSuccess": {
+    "message": "Report sent successfully via email!"
+  },
+  "smtpPartialSuccess": {
+    "message": "Sent to $1/$2; failed: $3"
+  },
+  "smtpSendFailed": {
+    "message": "Failed to send email: "
+  },
+  "smtpSendError": {
+    "message": "An error occurred: "
+  },
+  "sendingButton": {
+    "message": "Sending..."
+  },
+  "sendEmailButton": {
+    "message": "Send Email"
+  },
+  "mailSettingsTitle": {
+    "message": "Mail Settings"
+  },
+  "sentButton": {
+    "message": "Sent"
+  },
+  "homeTitle": {
+    "message": "Home"
+  },
+  "settingsTitle": {
+    "message": "Settings"
+  },
+  "smtpSenderEmailTooltip": {
+    "message": "The email address from which the report will be sent (e.g. your email address)."
+  },
+  "smtpHostTooltip": {
+    "message": "The address of your SMTP server (e.g. smtp.gmail.com or smtp.mail.yahoo.com)."
+  },
+  "smtpPortTooltip": {
+    "message": "The port number used by your SMTP server. Usually 465 (for SSL) or 587 (for TLS/STARTTLS)."
+  },
+  "smtpUsernameTooltip": {
+    "message": "The username or login email address for your SMTP server."
+  },
+  "smtpPasswordTooltip": {
+    "message": "The password or app-specific password used to authenticate with your SMTP server. WARNING: Stored in unencrypted local storage."
+  },
+  "smtpRecipientsTooltip": {
+    "message": "A list of recipient email addresses separated by commas (e.g. recipient1@example.com, recipient2@example.com)."
+  },
+  "smtpPresetsLabel": {
+    "message": "Quick Presets"
+  },
+  "smtpPresetsTooltip": {
+    "message": "Select a preset to automatically configure the SMTP host and port settings for common email services."
   }
 }

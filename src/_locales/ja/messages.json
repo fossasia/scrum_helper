@@ -32,6 +32,9 @@
     "last1DayLabel": {
         "message": "前日"
     },
+    "lastWeekLabel": {
+        "message": "前週"
+    },
     "startDateLabel": {
         "message": "開始:"
     },
@@ -334,5 +337,11 @@
     },
     "insertedInEmailNotification": {
         "message": "レポートをメールに挿入しました！"
+    },
+    "rateLimitError": {
+        "message": "GitHub API のレート制限を超過しました。しばらく時間をおいてから再試行するか、Scrum Helper の設定で GitHub トークンを追加または確認してください。"
+    },
+    "rateLimitWarningMessage": {
+        "message": "GitHub のレート制限により、一部のデータが欠落している可能性があります。設定で GitHub トークンを追加または確認してください。"
     }
 }

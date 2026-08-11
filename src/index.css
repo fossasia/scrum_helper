@@ -163,6 +163,9 @@ hr,
 .dark-mode input[type="text"],
 .dark-mode input[type="url"],
 .dark-mode input[type="date"],
+.dark-mode input[type="email"],
+.dark-mode input[type="password"],
+.dark-mode input[type="number"],
 .dark-mode #scrumReport {
     background-color: #404040 !important;
     border-color: #505050 !important;

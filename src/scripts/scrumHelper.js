@@ -65,6 +65,54 @@ function formatLocalDate(date) {
 }
 
 /**
+ * Resolves the project name from the report item.
+ * For GitLab, it prioritizes the pre-mapped human-readable name.
+ * For GitHub and fallbacks, it extracts it from the repository URL.
+ * @param {Object} item - The report item
+ * @param {string} platform - The SCM platform ('github', 'gitlab', etc.)
+ * @returns {string} The resolved project name or empty string if not found
+ */
+function getProjectName(item, platform) {
+	if (platform === 'gitlab' && item.project) {
+		return item.project;
+	}
+	const repository_url = item.repository_url;
+	if (repository_url) {
+		return repository_url.substr(repository_url.lastIndexOf('/') + 1);
+	}
+	return '';
+}
+
+/**
+ * Normalizes the SCM state of a pull/merge request.
+ * Normalizes platform-specific states (e.g., GitLab 'opened'/'reopened') into standard 'open', 'closed', or 'merged'.
+ * @param {Object} item - The report item
+ * @param {string} platform - The SCM platform ('github', 'gitlab', etc.)
+ * @returns {string} Normalized state ('open', 'merged', or 'closed')
+ */
+function normalizePrState(item, platform) {
+	if (platform === 'gitlab') {
+		const state = item.state;
+		if (state === 'opened' || state === 'reopened') {
+			return 'open';
+		}
+		if (state === 'closed' || state === 'locked') {
+			return 'closed';
+		}
+		if (state === 'merged') {
+			return 'merged';
+		}
+		return state;
+	}
+
+	// GitHub mapping
+	if (item.state === 'closed' && item.pull_request?.merged_at) {
+		return 'merged';
+	}
+	return item.state;
+}
+
+/**
  * Redact sensitive storage data for safe logging
  * Prevents exposure of authentication tokens and credentials in console logs
  * @param {Object} items - Storage data that may contain sensitive keys
@@ -75,7 +123,7 @@ function logRedaction(items) {
 		return items;
 	}
 	const spreadItems = { ...items };
-	const sensitiveKeys = ['githubToken', 'gitlabToken'];
+	const sensitiveKeys = ['githubToken', 'gitlabToken', 'codebergToken'];
 	sensitiveKeys.forEach((key) => {
 		if (key in spreadItems) {
 			spreadItems[key] = '[REDACTED]';
@@ -94,6 +142,9 @@ let platformUsername = '';
 let gitlabToken = '';
 let gitlabSelfHostedUrl = '';
 window.gitlabHelper = null;
+let codebergToken = '';
+window.codebergApiBaseUrl = '';
+window.codebergHelper = null;
 let usernameValidationListenerAttached = false;
 
 const scrumReportEl = document.getElementById('scrumReport');
@@ -148,7 +199,8 @@ function allIncluded(outputTarget = 'email') {
 	let platformUsernameLocal = '';
 	let githubToken = '';
 	let projectName = '';
-	let lastWeekArray = [];
+	let lastWeekIssuesArray = [];
+	let lastWeekPrsArray = [];
 	let nextWeekArray = [];
 	let reviewedPrsArray = [];
 	let githubIssuesData = null;
@@ -195,9 +247,13 @@ function allIncluded(outputTarget = 'email') {
 				'platform',
 				'githubUsername',
 				'gitlabUsername',
+				'codebergUsername',
 				'githubToken',
 				'gitlabToken',
 				'gitlabSelfHostedUrl',
+				'codebergToken',
+				'gitlabBaseUrl',
+				'codebergApiBaseUrl',
 				'projectName',
 				'startingDate',
 				'endingDate',
@@ -233,6 +289,7 @@ function allIncluded(outputTarget = 'email') {
 					const projectFromDOM = document.getElementById('projectName')?.value;
 					const tokenFromDOM = document.getElementById('githubToken')?.value;
 					const gitlabTokenFromDOM = document.getElementById('gitlabToken')?.value;
+					const codebergTokenFromDOM = document.getElementById('codebergToken')?.value;
 
 					// Save to platform-specific storage
 					if (usernameFromDOM) {
@@ -244,11 +301,13 @@ function allIncluded(outputTarget = 'email') {
 					items.projectName = projectFromDOM || items.projectName;
 					items.githubToken = tokenFromDOM || items.githubToken;
 					items.gitlabToken = gitlabTokenFromDOM || items.gitlabToken;
+					items.codebergToken = codebergTokenFromDOM || items.codebergToken;
 					chrome.storage.local.set({
 						projectName: items.projectName,
 						githubToken: items.githubToken,
 						gitlabToken: items.gitlabToken,
 						gitlabSelfHostedUrl: items.gitlabSelfHostedUrl,
+						codebergToken: items.codebergToken,
 					});
 				}
 				projectName = items.projectName;
@@ -260,6 +319,11 @@ function allIncluded(outputTarget = 'email') {
 				gitlabSelfHostedUrl = items.gitlabSelfHostedUrl || '';
 				if (platform === 'gitlab' && window.GitLabHelper) {
 					window.gitlabHelper = new window.GitLabHelper(gitlabSelfHostedUrl || null);
+				}
+				codebergToken = items.codebergToken || '';
+				window.codebergApiBaseUrl = items.codebergApiBaseUrl || 'https://codeberg.org/api/v1';
+				if (platform === 'codeberg' && window.CodebergHelper) {
+					window.codebergHelper = new window.CodebergHelper(window.codebergApiBaseUrl);
 				}
 				yesterdayContribution = items.yesterdayContribution;
 				weeklyContribution = items.weeklyContribution;
@@ -439,6 +503,99 @@ function allIncluded(outputTarget = 'email') {
 						}
 						scrumGenerationInProgress = false;
 					}
+				} else if (platform === 'codeberg') {
+					if (!window.codebergHelper) window.codebergHelper = new window.CodebergHelper(window.codebergApiBaseUrl);
+					if (platformUsernameLocal) {
+						const generateBtn = document.getElementById('generateReport');
+						if (generateBtn && outputTarget === 'popup') {
+							generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
+							generateBtn.disabled = true;
+						}
+
+						if (outputTarget === 'email') {
+							(async () => {
+								try {
+									const data = await window.codebergHelper.fetchCodebergData(
+										platformUsernameLocal,
+										startingDate,
+										endingDate,
+										items.codebergToken,
+										showCommits,
+									);
+
+									const mappedData = window.codebergHelper.mapCodebergReportData(data);
+									githubUserData = mappedData.githubUserData;
+
+									const name =
+										githubUserData?.name || githubUserData?.username || platformUsernameLocal || platformUsername;
+									const project = projectName;
+									const curDate = new Date();
+									const year = curDate.getFullYear().toString();
+									let date = curDate.getDate();
+									let month = curDate.getMonth() + 1;
+									if (month < 10) month = '0' + month;
+									if (date < 10) date = '0' + date;
+									const dateCode = year.toString() + month.toString() + date.toString();
+									const subject = `[Scrum]${project ? ' - ' + project : ''} - ${dateCode}`;
+									subjectForEmail = subject;
+
+									await processGithubData(mappedData, true, subjectForEmail);
+									scrumGenerationInProgress = false;
+								} catch (err) {
+									console.error('Codeberg fetch failed:', err);
+									if (outputTarget === 'popup') {
+										if (generateBtn) {
+											generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+											generateBtn.disabled = false;
+										}
+										const ErrMessage = `${err.message || 'Error fetching Codeberg data.'}`;
+										if (typeof ErrMessage === 'string' && ErrMessage.toLowerCase().includes('not found')) {
+											handleUsernameValidationError(ErrMessage);
+										} else {
+											showReportMessage(ErrMessage);
+										}
+									}
+									scrumGenerationInProgress = false;
+								}
+							})();
+						} else {
+							window.codebergHelper
+								.fetchCodebergData(platformUsernameLocal, startingDate, endingDate, items.codebergToken, showCommits)
+								.then((data) => {
+									const mappedData = window.codebergHelper.mapCodebergReportData(data);
+									processGithubData(mappedData);
+									scrumGenerationInProgress = false;
+								})
+								.catch((err) => {
+									console.error('Codeberg fetch failed:', err);
+									if (outputTarget === 'popup') {
+										if (generateBtn) {
+											generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+											generateBtn.disabled = false;
+										}
+										const ErrMessage = `${err.message || 'Error fetching Codeberg data.'}`;
+										if (typeof ErrMessage === 'string' && ErrMessage.toLowerCase().includes('not found')) {
+											handleUsernameValidationError(ErrMessage);
+										} else {
+											showReportMessage(ErrMessage);
+										}
+									}
+									scrumGenerationInProgress = false;
+								});
+						}
+					} else {
+						if (outputTarget === 'popup') {
+							const generateBtn = document.getElementById('generateReport');
+							const ErrMessage =
+								chrome.i18n.getMessage('usernameRequiredError') || 'Please enter your username to generate a report.';
+							handleUsernameValidationError(ErrMessage);
+							if (generateBtn) {
+								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+								generateBtn.disabled = false;
+							}
+						}
+						scrumGenerationInProgress = false;
+					}
 				} else {
 					// Unknown platform
 					if (outputTarget === 'popup') {
@@ -452,7 +609,7 @@ function allIncluded(outputTarget = 'email') {
 	getChromeData();
 
 	function handleYesterdayContributionChange() {
-		endingDate = getToday();
+		endingDate = getYesterday();
 		startingDate = getYesterday();
 	}
 
@@ -587,7 +744,7 @@ function allIncluded(outputTarget = 'email') {
 			const today = new Date();
 			const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
 			startDateForCache = formatLocalDate(yesterday);
-			endDateForCache = formatLocalDate(today); // Use yesterday for start and today for end
+			endDateForCache = formatLocalDate(yesterday);
 		} else if (weeklyContribution) {
 			const today = new Date();
 			const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -842,14 +999,15 @@ function allIncluded(outputTarget = 'email') {
 					openPRs.map((pr) => pr.number),
 				);
 				// Fetch commits for open PRs (batch) if showCommits is enabled
-				if (openPRs.length && githubToken && showCommits) {
+				const activeToken = platform === 'codeberg' ? codebergToken : githubToken;
+				if (openPRs.length && showCommits && platform !== 'codeberg') {
 					let startDateForCommits;
 					let endDateForCommits;
 					if (yesterdayContribution) {
 						const today = new Date();
 						const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
 						startDateForCommits = formatLocalDate(yesterday);
-						endDateForCommits = formatLocalDate(today); // Use yesterday for start and today for end
+						endDateForCommits = formatLocalDate(yesterday);
 					} else if (weeklyContribution) {
 						const today = new Date();
 						const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -866,7 +1024,7 @@ function allIncluded(outputTarget = 'email') {
 						endDateForCommits = formatLocalDate(today);
 					}
 
-					const commitMap = await fetchCommitsForOpenPRs(openPRs, githubToken, startDateForCommits, endDateForCommits);
+					const commitMap = await fetchCommitsForOpenPRs(openPRs, activeToken, startDateForCommits, endDateForCommits);
 					log('Commit map returned from fetchCommitsForOpenPRs:', commitMap);
 					// Attach commits to PR objects
 					openPRs.forEach((pr) => {
@@ -931,8 +1089,11 @@ function allIncluded(outputTarget = 'email') {
 		}
 	}
 
-	async function fetchCommitsForOpenPRs(prs, githubToken, startDate, endDate) {
-		return githubFetchCommits(prs, githubToken, startDate, endDate);
+	async function fetchCommitsForOpenPRs(prs, token, startDate, endDate) {
+		if (platform === 'github') {
+			return githubFetchCommits(prs, token, startDate, endDate);
+		}
+		return {};
 	}
 
 	async function fetchReposIfNeeded() {
@@ -1074,7 +1235,8 @@ function allIncluded(outputTarget = 'email') {
 			filtered: useRepoFilter,
 		});
 
-		lastWeekArray = [];
+		lastWeekIssuesArray = [];
+		lastWeekPrsArray = [];
 		nextWeekArray = [];
 		reviewedPrsArray = [];
 		githubPrsReviewDataProcessed = {};
@@ -1086,12 +1248,12 @@ function allIncluded(outputTarget = 'email') {
 		log('[SCRUM-DEBUG] Processing issues for main activity:', githubIssuesData?.items);
 		if (platform === 'github') {
 			await writeGithubIssuesPrs(githubIssuesData?.items || []);
-		} else if (platform === 'gitlab') {
+		} else if (platform === 'gitlab' || platform === 'codeberg') {
 			await writeGithubIssuesPrs(githubIssuesData?.items || []);
 			await writeGithubIssuesPrs(githubPrsReviewData?.items || []);
 		}
 		await writeGithubPrsReviews();
-		if (includeNextPlans) {
+		if (includeNextPlans && platform !== 'codeberg') {
 			if (window.getNextPlansForReport) {
 				try {
 					const selectedPlans = await window.getNextPlansForReport();
@@ -1183,15 +1345,40 @@ function allIncluded(outputTarget = 'email') {
 	}
 
 	function buildActivityListHtml() {
-		if (lastWeekArray.length === 0 && reviewedPrsArray.length === 0) {
+		if (lastWeekIssuesArray.length === 0 && lastWeekPrsArray.length === 0 && reviewedPrsArray.length === 0) {
 			return wrapCompactText('No activity to report for the selected time period.');
 		}
 
-		let activityList = '<ul>';
-		for (let i = 0; i < lastWeekArray.length; i++) activityList += lastWeekArray[i];
-		for (let i = 0; i < reviewedPrsArray.length; i++) activityList += reviewedPrsArray[i];
-		activityList += '</ul>';
-		return activityList;
+		const sections = [];
+
+		if (lastWeekIssuesArray.length > 0) {
+			let issuesHtml = '<b>Issues:</b><ul>';
+			for (let i = 0; i < lastWeekIssuesArray.length; i++) {
+				issuesHtml += lastWeekIssuesArray[i];
+			}
+			issuesHtml += '</ul>';
+			sections.push(issuesHtml);
+		}
+
+		if (lastWeekPrsArray.length > 0) {
+			let prsHtml = '<b>Pull Requests:</b><ul>';
+			for (let i = 0; i < lastWeekPrsArray.length; i++) {
+				prsHtml += lastWeekPrsArray[i];
+			}
+			prsHtml += '</ul>';
+			sections.push(prsHtml);
+		}
+
+		if (reviewedPrsArray.length > 0) {
+			let reviewedHtml = '<b>Reviewed Pull Requests:</b><ul>';
+			for (let i = 0; i < reviewedPrsArray.length; i++) {
+				reviewedHtml += reviewedPrsArray[i];
+			}
+			reviewedHtml += '</ul>';
+			sections.push(reviewedHtml);
+		}
+
+		return sections.join('<br>');
 	}
 
 	function buildNextWeekListHtml() {
@@ -1254,7 +1441,11 @@ function allIncluded(outputTarget = 'email') {
 				window.updateCopyButtonState?.();
 				try {
 					const cacheKey =
-						platform === 'gitlab' ? (window.gitlabHelper?.cache?.cacheKey ?? null) : (githubCache?.cacheKey ?? null);
+						platform === 'gitlab'
+							? (window.gitlabHelper?.cache?.cacheKey ?? null)
+							: platform === 'codeberg'
+								? (window.codebergHelper?.cache?.cacheKey ?? null)
+								: (githubCache?.cacheKey ?? null);
 
 					chrome.storage.local.set({
 						lastScrumReportHtml: content,
@@ -1359,6 +1550,11 @@ function allIncluded(outputTarget = 'email') {
 	}
 
 	async function writeGithubPrsReviews() {
+		if (platform === 'codeberg') {
+			reviewedPrsArray = [];
+			prsReviewDataProcessed = true;
+			return;
+		}
 		if (!onlyRevPRs) {
 			log('onlyRevPRs is not checked, skipping PR reviews.');
 			reviewedPrsArray = [];
@@ -1387,7 +1583,7 @@ function allIncluded(outputTarget = 'email') {
 			const today = new Date();
 			const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
 			startDate = formatLocalDate(yesterday);
-			endDate = formatLocalDate(today); // Use yesterday for start and today for end
+			endDate = formatLocalDate(yesterday);
 		} else if (weeklyContribution) {
 			const today = new Date();
 			const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -1457,6 +1653,9 @@ function allIncluded(outputTarget = 'email') {
 				isAuthoredByUser = item.user && item.user.login.toLowerCase() === platformUsernameLocal.toLowerCase();
 			} else if (platform === 'gitlab') {
 				isAuthoredByUser = item.author && item.author.username === platformUsername;
+			} else if (platform === 'codeberg') {
+				isAuthoredByUser =
+					item.user && (item.user.login === platformUsernameLocal || item.user.username === platformUsernameLocal);
 			}
 
 			if (isAuthoredByUser || !item.pull_request) continue;
@@ -1517,12 +1716,11 @@ function allIncluded(outputTarget = 'email') {
 				}
 			}
 
-			const repository_url = item.repository_url;
-			if (!repository_url) {
-				logError('repository_url is undefined for item:', item);
+			const project = getProjectName(item, platform);
+			if (!project) {
+				logError('Project name could not be determined for item:', item);
 				continue;
 			}
-			const project = repository_url.substr(repository_url.lastIndexOf('/') + 1);
 			const title = item.title;
 			const number = item.number;
 			const html_url = item.html_url;
@@ -1534,7 +1732,7 @@ function allIncluded(outputTarget = 'email') {
 				number: number,
 				html_url: html_url,
 				title: title,
-				state: item.state === 'closed' && item.pull_request?.merged_at ? 'merged' : item.state,
+				state: normalizePrState(item, platform),
 			};
 			githubPrsReviewDataProcessed[project].push(obj);
 		}
@@ -1629,7 +1827,7 @@ function allIncluded(outputTarget = 'email') {
 			const today = new Date();
 			const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
 			startDateForRange = formatLocalDate(yesterday);
-			endDateForRange = formatLocalDate(today); // Use yesterday for start and today for end
+			endDateForRange = formatLocalDate(yesterday);
 		} else if (weeklyContribution) {
 			const today = new Date();
 			const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -1771,13 +1969,7 @@ function allIncluded(outputTarget = 'email') {
 			log('[SCRUM-DEBUG] isMR:', isMR, 'platform:', platform, 'item:', item);
 			const html_url = item.html_url;
 			const repository_url = item.repository_url;
-			// Use project name for GitLab, repo extraction for GitHub
-			const project =
-				platform === 'gitlab' && item.project
-					? item.project
-					: repository_url
-						? repository_url.substr(repository_url.lastIndexOf('/') + 1)
-						: '';
+			const project = getProjectName(item, platform);
 			const title = item.title;
 			const number = item.number;
 			let li = '';
@@ -1800,7 +1992,7 @@ function allIncluded(outputTarget = 'email') {
 					const today = new Date();
 					const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
 					startDateFilter = new Date(formatLocalDate(yesterday) + 'T00:00:00Z');
-					endDateFilter = new Date(formatLocalDate(today) + 'T23:59:59Z'); // Use yesterday for start and today for end
+					endDateFilter = new Date(formatLocalDate(yesterday) + 'T23:59:59Z');
 				} else if (weeklyContribution) {
 					const today = new Date();
 					const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -1874,6 +2066,25 @@ function allIncluded(outputTarget = 'email') {
 					} else {
 						prAction = 'Updated Merge Request';
 					}
+				} else if (platform === 'codeberg') {
+					if (showCommits && !isNewPR) {
+						if (item.state !== 'open') {
+							log(`[PR DEBUG] Skipping PR #${number} - existing PR but not open`);
+							continue;
+						}
+						if (!hasCommitsInRange) {
+							log(`[PR DEBUG] Skipping PR #${number} - existing PR but no commits in date range`);
+							continue;
+						}
+					}
+					prAction = isNewPR ? 'Made PR' : 'Updated PR';
+					log(`[PR DEBUG] Including PR #${number} as ${prAction}`);
+
+					if (isCreatedToday && item.state === 'open') {
+						prAction = 'Made PR';
+					} else {
+						prAction = 'Updated PR';
+					}
 				}
 
 				if (isDraft) {
@@ -1903,6 +2114,13 @@ function allIncluded(outputTarget = 'email') {
 					li += `</li>`;
 				} else if (platform === 'gitlab' && item.state === 'closed') {
 					li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_closed_button : ''}</li>`;
+				} else if (platform === 'codeberg' && item.state === 'closed') {
+					const isMerged = item.pull_request && item.pull_request.merged;
+					if (isMerged) {
+						li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_merged_button : ''}</li>`;
+					} else {
+						li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_closed_button : ''}</li>`;
+					}
 				} else {
 					let merged = null;
 					if ((githubToken || (useMergedStatus && !fallbackToSimple)) && mergedStatusResults) {
@@ -1918,9 +2136,9 @@ function allIncluded(outputTarget = 'email') {
 						li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_closed_button : ''}</li>`;
 					}
 				}
-				log('[SCRUM-DEBUG] Added PR/MR to lastWeekArray:', li, item);
-				lastWeekArray.push(li);
-				continue; // Prevent PR/MR logic from reaching issue logic
+				log('[SCRUM-DEBUG] Added PR/MR to lastWeekPrsArray:', li, item);
+				lastWeekPrsArray.push(li);
+				continue; // Prevent issue logic from overwriting PR li
 			} else {
 				// Compute date range for filtering
 				let issueStartDateFilter;
@@ -1974,11 +2192,12 @@ function allIncluded(outputTarget = 'email') {
 					li = `<li><i>(${project})</i> - ${issueActionText}(#${number}) - <a href='${html_url}'>${title}</a></li>`;
 				}
 
-				log('[SCRUM-DEBUG] Added issue to lastWeekArray:', li, item);
-				lastWeekArray.push(li);
+				log('[SCRUM-DEBUG] Added issue to lastWeekIssuesArray:', li, item);
+				lastWeekIssuesArray.push(li);
 			}
 		}
-		log('[SCRUM-DEBUG] Final lastWeekArray:', lastWeekArray);
+		log('[SCRUM-DEBUG] Final lastWeekIssuesArray:', lastWeekIssuesArray);
+		log('[SCRUM-DEBUG] Final lastWeekPrsArray:', lastWeekPrsArray);
 		issuesDataProcessed = true;
 	}
 

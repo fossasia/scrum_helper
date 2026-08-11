@@ -32,6 +32,9 @@
     "last1DayLabel": {
         "message": "Προηγούμενη ημέρα"
     },
+    "lastWeekLabel": {
+        "message": "Προηγούμενη εβδομάδα"
+    },
     "startDateLabel": {
         "message": "Από:"
     },
@@ -154,6 +157,9 @@
     },
     "repoCount": {
         "message": "$1 αποθετήρια επιλεγμένα"
+    },
+    "clearAllBtn": {
+        "message": "Καθαρισμός όλων"
     },
     "repoLoading": {
         "message": "Φόρτωση αποθετηρίων..."
@@ -331,5 +337,11 @@
     },
     "insertedInEmailNotification": {
         "message": "Η αναφορά εισήχθη στο email!"
+    },
+    "rateLimitError": {
+        "message": "Υπέρβαση του ορίου ρυθμού του API του GitHub. Παρακαλώ δοκιμάστε ξανά αργότερα ή προσθέστε/ελέγξτε το GitHub token σας στις ρυθμίσεις του Scrum Helper."
+    },
+    "rateLimitWarningMessage": {
+        "message": "Κάποια δεδομένα ενδέχεται να λείπουν λόγω του ορίου ρυθμού του GitHub. Παρακαλώ προσθέστε ή ελέγξτε το GitHub token σας στις ρυθμίσεις."
     }
 }

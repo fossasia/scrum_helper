@@ -32,6 +32,9 @@
     "last1DayLabel": {
         "message": "Ngày trước"
     },
+    "lastWeekLabel": {
+        "message": "Tuần trước"
+    },
     "startDateLabel": {
         "message": "Từ:"
     },
@@ -334,5 +337,11 @@
     },
     "insertedInEmailNotification": {
         "message": "Đã chèn báo cáo vào email!"
+    },
+    "rateLimitError": {
+        "message": "Đã vượt quá giới hạn tỷ lệ API GitHub. Vui lòng thử lại sau hoặc thêm/kiểm tra mã thông báo GitHub của bạn trong cài đặt Scrum Helper."
+    },
+    "rateLimitWarningMessage": {
+        "message": "Một số dữ liệu có thể bị thiếu do giới hạn tỷ lệ của GitHub. Vui lòng thêm hoặc kiểm tra mã thông báo GitHub của bạn trong phần cài đặt."
     }
 }
