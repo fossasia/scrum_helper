@@ -909,7 +909,6 @@ document.addEventListener('DOMContentLoaded', () => {
 			});
 		}
 
-
 		if (gitlabSelfHostedUrlInput) {
 			gitlabSelfHostedUrlInput.addEventListener('blur', () => {
 				persistGitLabInstanceUrl({ requestPermission: false }).catch((error) => {
