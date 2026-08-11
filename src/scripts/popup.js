@@ -1292,7 +1292,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 					if (items.selectedTimeframe === 'yesterdayContribution') {
 						startDateInput.value = getYesterday();
-						endDateInput.value = getToday();
+						endDateInput.value = getYesterday();
 					} else if (items.selectedTimeframe === 'weeklyContribution') {
 						startDateInput.value = getWeekAgo();
 						endDateInput.value = getToday();
