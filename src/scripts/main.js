@@ -337,7 +337,7 @@ function handleYesterdayContributionChange() {
 	if (value) {
 		if (startingDateElement) startingDateElement.readOnly = true;
 		if (endingDateElement) endingDateElement.readOnly = true;
-		if (endingDateElement) endingDateElement.value = getToday();
+		if (endingDateElement) endingDateElement.value = getYesterday();
 		if (startingDateElement) startingDateElement.value = getYesterday();
 		if (startingDateElement && endingDateElement) {
 			window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(startingDateElement, endingDateElement);
