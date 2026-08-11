@@ -204,8 +204,10 @@ class CodebergHelper {
 
 	/* ---------- MAIN FETCH (FIXED API) ---------- */
 
+
 	async fetchCodebergData(username, startDate, endDate, token = null, showCommits = false) {
-		const cacheKey = `${username}-${startDate}-${endDate}-${token ? 'auth' : 'noauth'}-${showCommits ? 'commits' : 'nocommits'}`;
+	const cacheKey = `${username}-${startDate}-${endDate}-${token ? 'auth' : 'noauth'}-${showCommits ? 'commits' : 'nocommits'}`;
+
 
 		if (!this.cache.data) await this.loadFromStorage();
 
