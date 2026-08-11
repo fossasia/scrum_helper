@@ -1,5 +1,4 @@
 // GitLab API Helper for Scrum Helper Extension
-const DEFAULT_GITLAB_API_BASE_URL = 'https://gitlab.com/api/v4';
 
 let gitlabShowCommitsWarningTimeout;
 
@@ -64,9 +63,33 @@ function gitlabCheckTokenForShowCommits({
 	}
 }
 
-function normalizeGitLabApiBaseUrl(apiBaseUrl) {
-	const value = typeof apiBaseUrl === 'string' && apiBaseUrl.trim() ? apiBaseUrl.trim() : DEFAULT_GITLAB_API_BASE_URL;
-	return value.replace(/\/+$/, '');
+/**
+ * Returns true if the hostname is a loopback, private RFC1918,
+ * link-local, or cloud-metadata address that must not receive tokens.
+ * Covers: localhost, 127.x, 10.x, 172.16-31.x, 192.168.x, 169.254.x (incl.
+ * AWS/GCP metadata 169.254.169.254), ::1, and IPv6 link-local (fe80::).
+ */
+function isPrivateHost(hostname) {
+	// Strip IPv6 brackets e.g. [::1] -> ::1
+	const h = hostname.replace(/^\[|\]$/g, '');
+	if (h === 'localhost') return true;
+
+	// IPv4 checks
+	const v4 = h.match(/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/);
+	if (v4) {
+		const [, a, b] = v4.map(Number);
+		if (a === 127) return true; // loopback
+		if (a === 10) return true; // RFC1918
+		if (a === 172 && b >= 16 && b <= 31) return true; // RFC1918
+		if (a === 192 && b === 168) return true; // RFC1918
+		if (a === 169 && b === 254) return true; // link-local / cloud metadata
+	}
+
+	// IPv6 loopback and link-local
+	if (h === '::1') return true;
+	if (/^fe80:/i.test(h)) return true;
+
+	return false;
 }
 
 class GitLabHelper {
@@ -80,6 +103,10 @@ class GitLabHelper {
 		try {
 			const parsed = new URL(candidate);
 			if (parsed.protocol !== 'https:') {
+				return null;
+			}
+			// SSRF guard: reject loopback, private, link-local, and metadata hosts
+			if (isPrivateHost(parsed.hostname)) {
 				return null;
 			}
 			return parsed.origin.replace(/\/+$/, '');
@@ -485,7 +512,6 @@ class GitLabHelper {
 
 	processGitLabData(data) {
 		const processed = {
-			apiBaseUrl: (data.apiBaseUrl || this.baseUrl || 'https://gitlab.com/api/v4').replace(/\/+$/, ''),
 			mergeRequests: data.mergeRequests || [],
 			issues: data.issues || [],
 			comments: data.comments || [],
@@ -568,9 +594,15 @@ async function forceGitlabDataRefresh() {
 		chrome.storage.local.remove('gitlabCache', resolve);
 	});
 	window.hasInjectedContent = false;
-	// Re-instantiate gitlabHelper to ensure a fresh instance for next API call
+	// Re-instantiate from the persisted URL — never from a transient window global
+	// which may not be set (e.g. after a page reload or in a different context).
 	if (window.GitLabHelper) {
-		window.gitlabHelper = new window.GitLabHelper(window.gitlabBaseUrl);
+		try {
+			const items = await browser.storage.local.get(['gitlabSelfHostedUrl']);
+			window.gitlabHelper = new window.GitLabHelper(items.gitlabSelfHostedUrl || null);
+		} catch (_) {
+			window.gitlabHelper = new window.GitLabHelper(null);
+		}
 	}
 	return { success: true };
 }

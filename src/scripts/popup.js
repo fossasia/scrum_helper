@@ -387,6 +387,31 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 	}
 
+	/**
+	 * Returns true if the hostname is a loopback, private RFC1918, link-local,
+	 * or cloud-metadata address (e.g. 169.254.169.254) that must not receive
+	 * the user's GitLab token.
+	 */
+	function isPrivateHostInPopup(hostname) {
+		const h = hostname.replace(/^\[|\]$/g, '');
+		if (h === 'localhost') return true;
+
+		const v4 = h.match(/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/);
+		if (v4) {
+			const [, a, b] = v4.map(Number);
+			if (a === 127) return true; // loopback
+			if (a === 10) return true; // RFC1918
+			if (a === 172 && b >= 16 && b <= 31) return true; // RFC1918
+			if (a === 192 && b === 168) return true; // RFC1918
+			if (a === 169 && b === 254) return true; // link-local / cloud metadata
+		}
+
+		if (h === '::1') return true;
+		if (/^fe80:/i.test(h)) return true;
+
+		return false;
+	}
+
 	function normalizeGitLabInstanceUrl(value) {
 		const raw = typeof value === 'string' ? value.trim() : '';
 		if (!raw) {
@@ -397,6 +422,11 @@ document.addEventListener('DOMContentLoaded', () => {
 		try {
 			const parsed = new URL(candidate);
 			if (parsed.protocol !== 'https:') {
+				return '';
+			}
+			// SSRF guard: reject loopback, private RFC1918, link-local, and
+			// cloud-metadata addresses so user tokens are never sent to them.
+			if (isPrivateHostInPopup(parsed.hostname)) {
 				return '';
 			}
 			return parsed.origin.replace(/\/+$/, '');
