@@ -363,10 +363,7 @@ function allIncluded(outputTarget = 'email') {
 										gitlabToken,
 										orgName,
 									);
-									const apiBaseUrl = (window.gitlabHelper.baseUrl || 'https://gitlab.com/api/v4').replace(
-										/\/+$/,
-										'',
-									);
+									const apiBaseUrl = (window.gitlabHelper.baseUrl || 'https://gitlab.com/api/v4').replace(/\/+$/, '');
 
 									const mappedData = window.gitlabHelper.mapGitLabReportData(data);
 									githubUserData = mappedData.githubUserData;
