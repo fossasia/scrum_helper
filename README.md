@@ -63,6 +63,46 @@
     -   Enable "Developer mode" (toggle in the top-right).
     -   Click "Load unpacked" and select the `dist/opera` folder inside the cloned repository.
 
+5.  **Set Up & Run the Tauri Desktop App (Standalone Application)**
+
+    If you are developing the desktop version of Scrum Helper:
+    -   **Step 5.1: Install System Dependencies**
+        Tauri requires system libraries to build the webview and Rust backend:
+
+        *On Ubuntu/Debian:*
+
+        ```sh
+        sudo apt update
+        sudo apt install -y libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
+        ```
+
+        *On Windows or macOS:*
+        Refer to the official [Tauri Prerequisites Guide](https://v2.tauri.app/start/prerequisites/) to install C++ build tools and platform-specific WebKit SDKs.
+
+    -   **Step 5.2: Install Rust**
+        Tauri requires Rust. Run the following toolchain installer:
+
+        ```sh
+        curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+        ```
+
+        *(Note: Restart your shell after installation for cargo to load into your PATH environment).*
+
+    -   **Step 5.3: Run in Development Mode**
+        To run a hot-reloading development window of the desktop application:
+
+        ```sh
+        npm run tauri dev
+        ```
+
+    -   **Step 5.4: Build Standalone Production Binaries**
+        To compile the final standalone installers (e.g. `.deb`, `.AppImage`, `.msi`, `.dmg`):
+        ```sh
+        npm run tauri build
+        ```
+        The compiled installers and binaries will be written to:
+        `src-tauri/target/release/bundle/`
+
 ## Usage
 
 ### For Google Groups:
@@ -140,17 +180,25 @@ $ cd scrum_helper
 $ npm install
 ```
 
-1. **Install the Extension**
+1. **Install the Extension / Run Desktop App**
 
 * For Chrome, Edge & Brave (Chromium): Load it into your browser through [Chrome Extension Developer Mode](https://developer.chrome.com/docs/extensions/mv3/getstarted/) using the `dist/chrome` folder.
 * For Firefox: Load it as a temporary add-on through `about:debugging` using the `dist/firefox` folder.
 * For Opera: Load it through Developer mode at `opera://extensions` using the `dist/opera` folder.
+* For Standalone Desktop App (Tauri):
+  * Install dependencies (Rust toolchain, build essential, webkit2gtk libraries - see Dev environment setup above).
+  * Run the application in developer mode:
+    ```sh
+    npm run tauri dev
+    ```
 
-2. **Rebuild the Extension**
-   After making changes to the source code, rebuild the extension running `npm run build`.
-    * For Chrome, Edge & Brave: Rebuild or reload the extension in your browser (`chrome://extensions` → Refresh your extension).
-   * For Firefox: Reload the temporary add-on by going to `about:debugging` → "This Firefox" → Click "Reload" next to your extension.
-   * For Opera: Reload the extension in your browser (`opera://extensions` → Click the reload/refresh icon next to the extension).
+2. **Rebuild / Re-run**
+   After making changes to the source code:
+   * For Browser Extensions: Rebuild the distributions running `npm run build`, and then refresh/reload the extension in your browser's Developer panel.
+   * For Standalone Desktop App (Tauri): The development server (`npm run tauri dev`) will hot-reload your code changes automatically in real-time. If you want to bundle a release installer, run:
+     ```sh
+     npm run tauri build
+     ```
    
 3. **How to Obtain a GitHub Personal Access Token (Classic)**
 
