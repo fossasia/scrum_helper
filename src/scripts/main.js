@@ -16,6 +16,13 @@ const codebergTokenElement = document.getElementById('codebergToken');
 const codebergApiBaseUrlElement = document.getElementById('codebergApiBaseUrl');
 const includeNextPlansElement = document.getElementById('includeNextPlans');
 
+const smtpSenderEmailElement = document.getElementById('smtpSenderEmail');
+const smtpServerElement = document.getElementById('smtpServer');
+const smtpPortElement = document.getElementById('smtpPort');
+const smtpUsernameElement = document.getElementById('smtpUsername');
+const smtpPasswordElement = document.getElementById('smtpPassword');
+const smtpRecipientsElement = document.getElementById('smtpRecipients');
+
 if (!window.scrumDateRangeUtils) {
 	window.scrumDateRangeUtils = {
 		formatLocalDate(date) {
@@ -194,6 +201,12 @@ function handleBodyOnLoad() {
 			'codebergApiBaseUrl',
 			'showCommits',
 			'includeNextPlans',
+			'smtpSenderEmail',
+			'smtpServer',
+			'smtpPort',
+			'smtpUsername',
+			'smtpPassword',
+			'smtpRecipients',
 		])
 		.then((items) => {
 			// Load platform-specific username
@@ -220,6 +233,24 @@ function handleBodyOnLoad() {
 			}
 			if (items.cacheInput && cacheInputElement) {
 				cacheInputElement.value = items.cacheInput;
+			}
+			if (items.smtpSenderEmail && smtpSenderEmailElement) {
+				smtpSenderEmailElement.value = items.smtpSenderEmail;
+			}
+			if (items.smtpServer && smtpServerElement) {
+				smtpServerElement.value = items.smtpServer;
+			}
+			if (items.smtpPort && smtpPortElement) {
+				smtpPortElement.value = items.smtpPort;
+			}
+			if (items.smtpUsername && smtpUsernameElement) {
+				smtpUsernameElement.value = items.smtpUsername;
+			}
+			if (items.smtpPassword && smtpPasswordElement) {
+				smtpPasswordElement.value = items.smtpPassword;
+			}
+			if (items.smtpRecipients && smtpRecipientsElement) {
+				smtpRecipientsElement.value = items.smtpRecipients;
 			}
 			if (items.endingDate && endingDateElement) {
 				endingDateElement.value = items.endingDate;
@@ -333,7 +364,7 @@ function handleYesterdayContributionChange() {
 	if (value) {
 		if (startingDateElement) startingDateElement.readOnly = true;
 		if (endingDateElement) endingDateElement.readOnly = true;
-		if (endingDateElement) endingDateElement.value = getToday();
+		if (endingDateElement) endingDateElement.value = getYesterday();
 		if (startingDateElement) startingDateElement.value = getYesterday();
 		if (startingDateElement && endingDateElement) {
 			window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(startingDateElement, endingDateElement);
@@ -548,6 +579,63 @@ if (weeklyContributionElement) {
 }
 if (showOpenLabelElement) {
 	showOpenLabelElement.addEventListener('change', handleOpenLabelChange);
+}
+
+function handleSmtpSenderEmailChange() {
+	if (!smtpSenderEmailElement) return;
+	browser.storage.local.set({ smtpSenderEmail: smtpSenderEmailElement.value.trim() });
+}
+
+function handleSmtpServerChange() {
+	if (!smtpServerElement) return;
+	browser.storage.local.set({ smtpServer: smtpServerElement.value.trim() });
+}
+
+function handleSmtpPortChange() {
+	if (!smtpPortElement) return;
+	browser.storage.local.set({ smtpPort: smtpPortElement.value.trim() });
+}
+
+function handleSmtpUsernameChange() {
+	if (!smtpUsernameElement) return;
+	browser.storage.local.set({ smtpUsername: smtpUsernameElement.value.trim() });
+}
+
+function handleSmtpPasswordChange() {
+	if (!smtpPasswordElement) return;
+	browser.storage.local.set({ smtpPassword: smtpPasswordElement.value.trim() });
+}
+
+function handleSmtpRecipientsChange() {
+	if (!smtpRecipientsElement) return;
+	browser.storage.local.set({ smtpRecipients: smtpRecipientsElement.value.trim() });
+}
+
+if (window.isTauri) {
+	if (smtpSenderEmailElement) {
+		smtpSenderEmailElement.addEventListener('keyup', handleSmtpSenderEmailChange);
+		smtpSenderEmailElement.addEventListener('change', handleSmtpSenderEmailChange);
+	}
+	if (smtpServerElement) {
+		smtpServerElement.addEventListener('keyup', handleSmtpServerChange);
+		smtpServerElement.addEventListener('change', handleSmtpServerChange);
+	}
+	if (smtpPortElement) {
+		smtpPortElement.addEventListener('keyup', handleSmtpPortChange);
+		smtpPortElement.addEventListener('change', handleSmtpPortChange);
+	}
+	if (smtpUsernameElement) {
+		smtpUsernameElement.addEventListener('keyup', handleSmtpUsernameChange);
+		smtpUsernameElement.addEventListener('change', handleSmtpUsernameChange);
+	}
+	if (smtpPasswordElement) {
+		smtpPasswordElement.addEventListener('keyup', handleSmtpPasswordChange);
+		smtpPasswordElement.addEventListener('change', handleSmtpPasswordChange);
+	}
+	if (smtpRecipientsElement) {
+		smtpRecipientsElement.addEventListener('keyup', handleSmtpRecipientsChange);
+		smtpRecipientsElement.addEventListener('change', handleSmtpRecipientsChange);
+	}
 }
 
 document.addEventListener('DOMContentLoaded', handleBodyOnLoad);
