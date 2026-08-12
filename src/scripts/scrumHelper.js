@@ -607,7 +607,7 @@ function allIncluded(outputTarget = 'email') {
 	getChromeData();
 
 	function handleYesterdayContributionChange() {
-		endingDate = getToday();
+		endingDate = getYesterday();
 		startingDate = getYesterday();
 	}
 
@@ -742,7 +742,7 @@ function allIncluded(outputTarget = 'email') {
 			const today = new Date();
 			const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
 			startDateForCache = formatLocalDate(yesterday);
-			endDateForCache = formatLocalDate(today); // Use yesterday for start and today for end
+			endDateForCache = formatLocalDate(yesterday);
 		} else if (weeklyContribution) {
 			const today = new Date();
 			const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -1005,7 +1005,7 @@ function allIncluded(outputTarget = 'email') {
 						const today = new Date();
 						const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
 						startDateForCommits = formatLocalDate(yesterday);
-						endDateForCommits = formatLocalDate(today); // Use yesterday for start and today for end
+						endDateForCommits = formatLocalDate(yesterday);
 					} else if (weeklyContribution) {
 						const today = new Date();
 						const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -1581,7 +1581,7 @@ function allIncluded(outputTarget = 'email') {
 			const today = new Date();
 			const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
 			startDate = formatLocalDate(yesterday);
-			endDate = formatLocalDate(today); // Use yesterday for start and today for end
+			endDate = formatLocalDate(yesterday);
 		} else if (weeklyContribution) {
 			const today = new Date();
 			const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -1825,7 +1825,7 @@ function allIncluded(outputTarget = 'email') {
 			const today = new Date();
 			const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
 			startDateForRange = formatLocalDate(yesterday);
-			endDateForRange = formatLocalDate(today); // Use yesterday for start and today for end
+			endDateForRange = formatLocalDate(yesterday);
 		} else if (weeklyContribution) {
 			const today = new Date();
 			const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -1993,7 +1993,7 @@ function allIncluded(outputTarget = 'email') {
 					const today = new Date();
 					const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
 					startDateFilter = new Date(formatLocalDate(yesterday) + 'T00:00:00Z');
-					endDateFilter = new Date(formatLocalDate(today) + 'T23:59:59Z'); // Use yesterday for start and today for end
+					endDateFilter = new Date(formatLocalDate(yesterday) + 'T23:59:59Z');
 				} else if (weeklyContribution) {
 					const today = new Date();
 					const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
