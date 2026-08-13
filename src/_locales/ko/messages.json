@@ -1,170 +1,129 @@
 {
   "appName": {
-    "message": "Scrum Helper",
-    "description": "The name of the extension."
+    "message": "Scrum Helper"
   },
   "appDescription": {
-    "message": "선택한 기간의 Git 활동을 자동으로 가져와 개발 진행 상황을 보고합니다",
-    "description": "A brief description of what the extension does."
+    "message": "선택한 기간의 Git 활동을 자동으로 가져와 개발 진행 상황을 보고합니다"
   },
   "disableLabel": {
-    "message": "비활성화",
-    "description": "Label for the toggle switch to disable the extension."
+    "message": "비활성화"
   },
   "enableLabel": {
-    "message": "활성화",
-    "description": "Label for the toggle switch to enable the extension."
+    "message": "활성화"
   },
   "projectNameLabel": {
-    "message": "프로젝트 이름 (이메일 제목에 사용)",
-    "description": "Label for the project name input field."
+    "message": "프로젝트 이름 (이메일 제목에 사용)"
   },
   "projectNamePlaceholder": {
-    "message": "프로젝트 이름을 입력하세요",
-    "description": "Placeholder text for the project name input."
+    "message": "프로젝트 이름을 입력하세요"
   },
   "githubUsernameLabel": {
-    "message": "GitHub 사용자 이름",
-    "description": "Label for the GitHub username input field."
+    "message": "GitHub 사용자 이름"
   },
   "gitlabUsernameLabel": {
-    "message": "GitLab 사용자 이름",
-    "description": "Label for the GitLab username input field."
+    "message": "GitLab 사용자 이름"
   },
   "codebergUsernameLabel": {
-    "message": "Codeberg 사용자 이름",
-    "description": "Label for the Codeberg username input field."
+    "message": "Codeberg 사용자 이름"
   },
   "codebergUsernamePlaceholder": {
-    "message": "기여 내역을 가져오려면 필요합니다",
-    "description": "Placeholder for the Codeberg username input."
+    "message": "기여 내역을 가져오려면 필요합니다"
   },
   "githubUsernamePlaceholder": {
-    "message": "기여 내역을 가져오려면 필요합니다",
-    "description": "Placeholder for the GitHub username input."
+    "message": "기여 내역을 가져오려면 필요합니다"
   },
   "contributionsLabel": {
-    "message": "다음 기간의 기여 내역 가져오기:",
-    "description": "Label for the date range selection."
+    "message": "다음 기간의 기여 내역 가져오기:"
   },
   "last1DayLabel": {
-    "message": "이전 날짜",
-    "description": "Radio button option for the last 1 day."
+    "message": "이전 날짜"
   },
   "lastWeekLabel": {
-    "message": "지난주",
-    "description": "Radio button option for the last 7 days."
+    "message": "지난주"
   },
   "startDateLabel": {
-    "message": "시작:",
-    "description": "Label for the start date picker."
+    "message": "시작:"
   },
   "endDateLabel": {
-    "message": "종료:",
-    "description": "Label for the end date picker."
+    "message": "종료:"
   },
   "showOpenClosedLabel": {
-    "message": "PR 상태 표시",
-    "description": "Label for the checkbox to show PR labels."
+    "message": "PR 상태 표시"
   },
   "showOpenClosedTooltip": {
     "message": "선택하면 보고서에 PR 및 이슈의 상태(예: Open, Draft, Merged, Closed)가 표시됩니다."
   },
   "blockersLabel": {
-    "message": "진행을 방해하는 요소는 무엇인가요?",
-    "description": "Label for the input field for blockers."
+    "message": "진행을 방해하는 요소는 무엇인가요?"
   },
   "blockersPlaceholder": {
-    "message": "이유를 입력하세요",
-    "description": "Placeholder text for the blockers input field."
+    "message": "이유를 입력하세요"
   },
   "scrumReportLabel": {
-    "message": "스크럼 보고서",
-    "description": "Heading for the Scrum Report section."
+    "message": "스크럼 보고서"
   },
   "generateReportButton": {
-    "message": "생성",
-    "description": "Text for the 'Generate' button."
+    "message": "생성"
   },
   "copyReportButton": {
-    "message": "복사",
-    "description": "Text for the 'Copy' button."
+    "message": "복사"
   },
   "insertInEmailButton": {
-    "message": "이메일에 삽입",
-    "description": "Text for the 'Insert to Email' button."
+    "message": "이메일에 삽입"
   },
   "insertToEmailFailedError": {
-    "message": "보고서를 삽입하려면 이메일 탭을 열거나 기존 이메일 탭을 새로고침하세요",
-    "description": "Error message shown when no active email tab can receive insert action or when the mail tab needs reload."
+    "message": "보고서를 삽입하려면 이메일 탭을 열거나 기존 이메일 탭을 새로고침하세요"
   },
   "settingsOrgNameLabel": {
-    "message": "조직 이름",
-    "description": "Label for the organization name input in settings."
+    "message": "조직 이름"
   },
   "settingsOrgNamePlaceholder": {
-    "message": "조직 이름을 입력하세요",
-    "description": "Placeholder for the organization name input."
+    "message": "조직 이름을 입력하세요"
   },
   "gitlabOrgNamePlaceholder": {
-    "message": "그룹 이름을 입력하세요",
-    "description": "Placeholder for the GitLab group name input."
+    "message": "그룹 이름을 입력하세요"
   },
   "setButton": {
-    "message": "설정",
-    "description": "Text for the 'Set' button for the organization."
+    "message": "설정"
   },
   "githubTokenLabel": {
-    "message": "GitHub 토큰",
-    "description": "Label for the GitHub token input."
+    "message": "GitHub 토큰"
   },
   "githubTokenPlaceholder": {
-    "message": "인증된 요청을 보내려면 필요합니다",
-    "description": "Placeholder for the GitHub token input."
+    "message": "인증된 요청을 보내려면 필요합니다"
   },
   "githubTokenTooltip": {
-    "message": "GitHub 토큰을 추가하는 것이 권장되는 이유는 무엇인가요? Scrum Helper는 GitHub 토큰 없이도 작동하지만, 더 나은 사용 경험을 위해 개인 액세스 토큰(classic)을 추가하는 것을 권장합니다.",
-    "description": "Tooltip for GitHub token explaining why it's needed."
+    "message": "GitHub 토큰을 추가하는 것이 권장되는 이유는 무엇인가요? Scrum Helper는 GitHub 토큰 없이도 작동하지만, 더 나은 사용 경험을 위해 개인 액세스 토큰(classic)을 추가하는 것을 권장합니다."
   },
   "gitlabTokenLabel": {
-    "message": "GitLab 토큰",
-    "description": "Label for the GitLab token input."
+    "message": "GitLab 토큰"
   },
   "gitlabTokenPlaceholder": {
-    "message": "비공개 프로젝트에 액세스하려면 필요합니다",
-    "description": "Placeholder for the GitLab token input."
+    "message": "비공개 프로젝트에 액세스하려면 필요합니다"
   },
   "gitlabTokenTooltip": {
-    "message": "GitLab 토큰을 추가하는 것이 권장되는 이유는 무엇인가요? Scrum Helper는 공개 프로젝트에서는 GitLab 토큰 없이도 작동하지만, 더 나은 사용 경험을 위해 개인 액세스 토큰을 추가하는 것을 권장합니다.",
-    "description": "Tooltip for GitLab token explaining why it's needed."
+    "message": "GitLab 토큰을 추가하는 것이 권장되는 이유는 무엇인가요? Scrum Helper는 공개 프로젝트에서는 GitLab 토큰 없이도 작동하지만, 더 나은 사용 경험을 위해 개인 액세스 토큰을 추가하는 것을 권장합니다."
   },
   "codebergTokenLabel": {
-    "message": "Codeberg 토큰",
-    "description": "Label for the Codeberg token input."
+    "message": "Codeberg 토큰"
   },
   "codebergTokenPlaceholder": {
-    "message": "비공개 프로젝트에 액세스하려면 필요합니다",
-    "description": "Placeholder for the Codeberg token input."
+    "message": "비공개 프로젝트에 액세스하려면 필요합니다"
   },
   "codebergTokenTooltip": {
-    "message": "Codeberg 토큰을 추가하는 것이 권장되는 이유는 무엇인가요? Scrum Helper는 공개 프로젝트에서는 Codeberg 토큰 없이도 작동하지만, 더 나은 사용 경험을 위해 개인 액세스 토큰을 추가하는 것을 권장합니다.",
-    "description": "Tooltip for Codeberg token explaining why it's needed."
+    "message": "Codeberg 토큰을 추가하는 것이 권장되는 이유는 무엇인가요? Scrum Helper는 공개 프로젝트에서는 Codeberg 토큰 없이도 작동하지만, 더 나은 사용 경험을 위해 개인 액세스 토큰을 추가하는 것을 권장합니다."
   },
   "codebergApiBaseUrlLabel": {
-    "message": "Codeberg API 기본 URL",
-    "description": "Label for the Codeberg API Base URL input."
+    "message": "Codeberg API 기본 URL"
   },
   "codebergApiBaseUrlPlaceholder": {
-    "message": "https://codeberg.org/api/v1",
-    "description": "Placeholder for the Codeberg API Base URL input."
+    "message": "https://codeberg.org/api/v1"
   },
   "showCommitsLabel": {
-    "message": "열린 PR/초안 PR의 커밋 표시",
-    "description": "Label for the checkbox to show commits in open PRs."
+    "message": "열린 PR/초안 PR의 커밋 표시"
   },
   "showCommitsTooltip": {
-    "message": "선택하면 열린 PR 또는 초안 PR의 커밋이 보고서에 표시됩니다. GitHub 토큰이 필요합니다.",
-    "description": "Tooltip explaining that GitHub Token is required to show commits."
+    "message": "선택하면 열린 PR 또는 초안 PR의 커밋이 보고서에 표시됩니다. GitHub 토큰이 필요합니다."
   },
   "showCommitsTooltipGitLab": {
     "message": "GitLab 토큰이 필요합니다. 설정에서 추가하세요."
@@ -173,72 +132,55 @@
     "message": "Codeberg 토큰이 필요합니다. 설정에서 추가하세요."
   },
   "onlyIssuesLabel": {
-    "message": "보고서에 이슈 포함",
-    "description": "Label for the checkbox to only include issues in the report."
+    "message": "보고서에 이슈 포함"
   },
   "onlyIssuesTooltip": {
-    "message": "선택하면 사용자가 생성했거나 할당받은 이슈가 보고서에 포함됩니다.",
-    "description": "Tooltip explaining what checking the only issues checkbox does."
+    "message": "선택하면 사용자가 생성했거나 할당받은 이슈가 보고서에 포함됩니다."
   },
   "onlyPRsLabel": {
-    "message": "보고서에 PR 포함",
-    "description": "Label for the checkbox to only include PRs in the report."
+    "message": "보고서에 PR 포함"
   },
   "onlyPRsTooltip": {
-    "message": "열린 PR/초안 PR을 보고서에 포함합니다.",
-    "description": "Tooltip explaining what checking the only PRs checkbox does."
+    "message": "열린 PR/초안 PR을 보고서에 포함합니다."
   },
   "cacheTTLLabel": {
-    "message": "캐시 TTL 입력",
-    "description": "Label for the cache time-to-live input."
+    "message": "캐시 TTL 입력"
   },
   "cacheTTLUnit": {
-    "message": "(분 단위)",
-    "description": "Unit for the cache TTL."
+    "message": "(분 단위)"
   },
   "cacheTTLPlaceholder": {
-    "message": "캐시 TTL을 분 단위로 입력하세요 (기본값 10분)",
-    "description": "Placeholder for the cache TTL input."
+    "message": "캐시 TTL을 분 단위로 입력하세요 (기본값 10분)"
   },
   "refreshDataButton": {
-    "message": "데이터 새로고침 (캐시 무시)",
-    "description": "Text for the button to refresh data, ignoring the cache."
+    "message": "데이터 새로고침 (캐시 무시)"
   },
   "refreshDataInfo": {
-    "message": "이 버튼을 사용하면 최신 데이터를 즉시 가져옵니다.",
-    "description": "Informational text below the refresh button."
+    "message": "이 버튼을 사용하면 최신 데이터를 즉시 가져옵니다."
   },
   "noteTitle": {
-    "message": "참고:",
-    "description": "Title for the notes section."
+    "message": "참고:"
   },
   "viewCodeButton": {
-    "message": "코드 보기",
-    "description": "Text for the button to view the source code on GitHub."
+    "message": "코드 보기"
   },
   "reportIssueButton": {
-    "message": "이슈 신고",
-    "description": "Text for the button to report an issue on GitHub."
+    "message": "이슈 신고"
   },
   "repoFilterLabel": {
-    "message": "저장소로 필터링",
-    "description": "Label for the repository filter section."
+    "message": "저장소로 필터링"
   },
   "enableFilteringLabel": {
-    "message": "필터링 활성화",
-    "description": "Label for the checkbox to enable repository filtering."
+    "message": "필터링 활성화"
   },
   "tokenRequiredWarning": {
-    "message": "저장소 필터링을 사용하려면 GitHub 토큰이 필요합니다. 설정에서 추가하세요.",
-    "description": "Warning message shown when repo filtering is enabled without a token."
+    "message": "저장소 필터링을 사용하려면 GitHub 토큰이 필요합니다. 설정에서 추가하세요."
   },
   "tokenRequiredShowCommitsWarning": {
-    "message": "열린 PR 또는 초안 PR의 커밋을 표시하려면 GitHub 토큰이 필요합니다. 설정에서 추가하세요.",
-    "description": "Warning message shown when show commits is enabled without a token."
+    "message": "열린 PR 또는 초안 PR의 커밋을 표시하려면 GitHub 토큰이 필요합니다. 설정에서 추가하세요."
   },
   "tokenRequiredNextPlansWarning": {
-    "message": "할당된 이슈를 가져오려면 GitHub 토큰이 필요합니다. 설정에서 추가하세요.",
-    "description": "Warning message shown when next plans is enabled without a token."
+    "message": "할당된 이슈를 가져오려면 GitHub 토큰이 필요합니다. 설정에서 추가하세요."
   },
   "onlyPrsRequiredShowCommitsWarning": {
     "message": "커밋을 표시하려면 '보고서에 열린/초안 PR 포함' 필터를 선택하세요."
@@ -247,308 +189,232 @@
     "message": "옵션이 변경되었습니다. 변경 사항을 적용하려면 보고서를 다시 생성하세요."
   },
   "tokenRequiredShowCommitsWarningGitLab": {
-    "message": "열린 MR 또는 초안 MR의 커밋을 표시하려면 GitLab 토큰이 필요합니다. 설정에서 추가하세요.",
-    "description": "Warning message shown when show commits is enabled without a token."
+    "message": "열린 MR 또는 초안 MR의 커밋을 표시하려면 GitLab 토큰이 필요합니다. 설정에서 추가하세요."
   },
   "repoSearchPlaceholder": {
-    "message": "추가할 저장소 검색...",
-    "description": "Placeholder for the repository search input."
+    "message": "추가할 저장소 검색..."
   },
   "repoPlaceholder": {
-    "message": "선택된 저장소 없음 (모두 포함됨)",
-    "description": "Placeholder text when no repositories are selected for filtering."
+    "message": "선택된 저장소 없음 (모두 포함됨)"
   },
   "repoCountNone": {
-    "message": "선택된 저장소 0개",
-    "description": "Text showing the count of selected repositories when it's zero."
+    "message": "선택된 저장소 0개"
   },
   "repoCount": {
-    "message": "선택된 저장소 $1개",
-    "description": "Text showing the count of selected repositories. $1 is a placeholder for the number."
+    "message": "선택된 저장소 $1개"
   },
   "clearAllBtn": {
-    "message": "모두 지우기",
-    "description": "Clear all selected repositories."
+    "message": "모두 지우기"
   },
   "repoLoading": {
-    "message": "저장소 로드 중...",
-    "description": "Status message when repositories are being loaded."
+    "message": "저장소 로드 중..."
   },
   "repoLoaded": {
-    "message": "$1개의 저장소를 로드했습니다.",
-    "description": "Status message after repositories have been successfully loaded. $1 is a placeholder for the number."
+    "message": "$1개의 저장소를 로드했습니다."
   },
   "repoNotFound": {
-    "message": "저장소를 찾을 수 없습니다",
-    "description": "Message shown in the dropdown when a search yields no results."
+    "message": "저장소를 찾을 수 없습니다"
   },
   "repoRefetching": {
-    "message": "저장소를 다시 가져오는 중...",
-    "description": "Status message when repositories are being refetched."
+    "message": "저장소를 다시 가져오는 중..."
   },
   "repoLoadFailed": {
-    "message": "저장소를 로드하지 못했습니다.",
-    "description": "Error message when repository loading fails."
+    "message": "저장소를 로드하지 못했습니다."
   },
   "repoTokenPrivate": {
-    "message": "토큰이 유효하지 않거나 비공개 저장소에 대한 권한이 없습니다.",
-    "description": "Error message when the token is invalid or lacks permissions."
+    "message": "토큰이 유효하지 않거나 비공개 저장소에 대한 권한이 없습니다."
   },
   "repoRefetchFailed": {
-    "message": "저장소를 다시 가져오지 못했습니다.",
-    "description": "Error message when refetching repositories fails."
+    "message": "저장소를 다시 가져오지 못했습니다."
   },
   "orgSetMessage": {
-    "message": "조직이 성공적으로 설정되었습니다.",
-    "description": "Success toast message when an organization is set."
+    "message": "조직이 성공적으로 설정되었습니다."
   },
   "orgClearedMessage": {
-    "message": "조직이 삭제되었습니다. 모든 활동을 가져오려면 '생성'을 클릭하세요.",
-    "description": "Message shown when the organization is cleared."
+    "message": "조직이 삭제되었습니다. 모든 활동을 가져오려면 '생성'을 클릭하세요."
   },
   "orgNotFoundMessage": {
-    "message": "GitHub에서 조직을 찾을 수 없습니다.",
-    "description": "Error toast message when an organization is not found."
+    "message": "GitHub에서 조직을 찾을 수 없습니다."
   },
   "orgValidationErrorMessage": {
-    "message": "조직을 확인하는 중 오류가 발생했습니다.",
-    "description": "Error toast message for general organization validation errors."
+    "message": "조직을 확인하는 중 오류가 발생했습니다."
   },
   "refreshingButton": {
-    "message": "새로고침 중...",
-    "description": "Text on the refresh button while it's in a loading state."
+    "message": "새로고침 중..."
   },
   "cacheClearFailed": {
-    "message": "캐시를 삭제하지 못했습니다.",
-    "description": "Error message when clearing the cache fails."
+    "message": "캐시를 삭제하지 못했습니다."
   },
   "madeWithLoveBy": {
-    "message": "Made with ❤️ by",
-    "description": "Footer credit text."
+    "message": "Made with ❤️ by"
   },
   "generatingButton": {
-    "message": "생성 중...",
-    "description": "Text shown on the generate button when the report is being created."
+    "message": "생성 중..."
   },
   "copiedButton": {
-    "message": "복사됨!",
-    "description": "Text shown on the copy button after a successful copy."
+    "message": "복사됨!"
   },
   "orgChangedMessage": {
-    "message": "조직이 변경되었습니다. GitHub 활동을 가져오려면 '생성' 버튼을 클릭하세요.",
-    "description": "Message shown in the report area after the organization is changed."
+    "message": "조직이 변경되었습니다. GitHub 활동을 가져오려면 '생성' 버튼을 클릭하세요."
   },
   "cacheClearedMessage": {
-    "message": "캐시가 성공적으로 삭제되었습니다. 최신 데이터를 가져오려면 \"생성\"을 클릭하세요.",
-    "description": "Message shown in the report area after the cache is cleared."
+    "message": "캐시가 성공적으로 삭제되었습니다. 최신 데이터를 가져오려면 \"생성\"을 클릭하세요."
   },
   "cacheExpiredMessage": {
-    "message": "캐시가 만료되었습니다. 최신 데이터를 가져오려면 \"생성\"을 클릭하세요.",
-    "description": "Message shown when the cached data has expired and user needs to regenerate."
+    "message": "캐시가 만료되었습니다. 최신 데이터를 가져오려면 \"생성\"을 클릭하세요."
   },
   "cacheClearedButton": {
-    "message": "캐시 삭제됨!",
-    "description": "Text on the refresh button after the cache is cleared."
+    "message": "캐시 삭제됨!"
   },
   "extensionDisabledMessage": {
-    "message": "확장 프로그램이 비활성화되어 있습니다. 스크럼 보고서를 생성하려면 옵션에서 활성화하세요.",
-    "description": "Message shown when the extension is disabled."
+    "message": "확장 프로그램이 비활성화되어 있습니다. 스크럼 보고서를 생성하려면 옵션에서 활성화하세요."
   },
   "notePoint1": {
-    "message": "Pull Request는 본인의 활동뿐만 아니라 모든 기여자의 가장 최근 검토 활동을 기준으로 가져옵니다. 공유하기 전에 생성된 SCRUM 보고서를 검토하고 수정하여 본인의 작업이 정확하게 반영되었는지 확인하세요.",
-    "description": "First point in the notes section."
+    "message": "Pull Request는 본인의 활동뿐만 아니라 모든 기여자의 가장 최근 검토 활동을 기준으로 가져옵니다. 공유하기 전에 생성된 SCRUM 보고서를 검토하고 수정하여 본인의 작업이 정확하게 반영되었는지 확인하세요."
   },
   "noteSeeIssue": {
-    "message": "이 이슈 보기",
-    "description": "Link text for the GitHub issue in the notes."
+    "message": "이 이슈 보기"
   },
   "platformLabel": {
-    "message": "플랫폼",
-    "description": "Label for the platform selection header."
+    "message": "플랫폼"
   },
   "usernameLabel": {
-    "message": "사용자 이름",
-    "description": "Label for the username input header."
+    "message": "사용자 이름"
   },
   "onlyRevPRsLabel": {
-    "message": "검토한 PR을 보고서에 포함",
-    "description": "Label for the checkbox to include only reviewed PRs."
+    "message": "검토한 PR을 보고서에 포함"
   },
   "onlyRevPRsTooltip": {
-    "message": "선택하면 본인이 검토한 PR이 보고서에 포함됩니다. 선택한 날짜 범위 내의 실제 검토 활동을 확인하려면 GitHub 토큰이 필요합니다.",
-    "description": "Tooltip for the reviewed PRs filter checkbox."
+    "message": "선택하면 본인이 검토한 PR이 보고서에 포함됩니다. 선택한 날짜 범위 내의 실제 검토 활동을 확인하려면 GitHub 토큰이 필요합니다."
   },
   "onlyMergedPRsLabel": {
-    "message": "병합된 PR을 보고서에 포함",
-    "description": "Label for the checkbox to include only merged PRs."
+    "message": "병합된 PR을 보고서에 포함"
   },
   "onlyMergedPRsTooltip": {
-    "message": "선택하면 병합된 PR이 보고서에 포함됩니다. 정확하고 모든 병합 PR 상태를 가져오려면 설정에서 GitHub 토큰을 추가하는 것이 좋습니다.",
-    "description": "Tooltip for the merged PRs filter checkbox."
+    "message": "선택하면 병합된 PR이 보고서에 포함됩니다. 정확하고 모든 병합 PR 상태를 가져오려면 설정에서 GitHub 토큰을 추가하는 것이 좋습니다."
   },
   "tokenRequiredMergedPRsWarning": {
-    "message": "정확한 병합 PR을 가져오려면 GitHub 토큰을 추가하는 것이 좋습니다. 설정에서 추가하세요.",
-    "description": "Warning shown when merged PRs filter is enabled without a GitHub token."
+    "message": "정확한 병합 PR을 가져오려면 GitHub 토큰을 추가하는 것이 좋습니다. 설정에서 추가하세요."
   },
   "usernameRequiredError": {
-    "message": "보고서를 생성하려면 사용자 이름을 입력하세요.",
-    "description": "Error shown when username is missing."
+    "message": "보고서를 생성하려면 사용자 이름을 입력하세요."
   },
   "unknownPlatformError": {
-    "message": "알 수 없는 플랫폼이 선택되었습니다.",
-    "description": "Error shown when an unsupported platform is selected."
+    "message": "알 수 없는 플랫폼이 선택되었습니다."
   },
   "gitlabFetchingError": {
-    "message": "GitLab 데이터를 가져오는 중 오류가 발생했습니다.",
-    "description": "Error shown when GitLab data fetch fails."
+    "message": "GitLab 데이터를 가져오는 중 오류가 발생했습니다."
   },
   "reportGenerationError": {
-    "message": "보고서를 생성하는 중 오류가 발생했습니다.",
-    "description": "Error when report generation fails."
+    "message": "보고서를 생성하는 중 오류가 발생했습니다."
   },
   "githubUserNotFoundError": {
-    "message": "GitHub 사용자 \"$1\"을(를) 찾을 수 없습니다.",
-    "description": "Error when GitHub user is not found."
+    "message": "GitHub 사용자 \"$1\"을(를) 찾을 수 없습니다."
   },
   "githubUserValidationError": {
-    "message": "GitHub 사용자 확인 중 오류가 발생했습니다: $1 $2",
-    "description": "Error when validating GitHub user fails. $1=status, $2=statusText"
+    "message": "GitHub 사용자 확인 중 오류가 발생했습니다: $1 $2"
   },
   "invalidSearchQueryError": {
-    "message": "잘못된 검색 쿼리 또는 날짜 범위입니다. 날짜 범위 형식을 확인하고 다시 시도하세요.",
-    "description": "Error when the search query or date range is invalid."
+    "message": "잘못된 검색 쿼리 또는 날짜 범위입니다. 날짜 범위 형식을 확인하고 다시 시도하세요."
   },
   "githubIssuesFetchError": {
-    "message": "GitHub 이슈를 가져오는 중 오류가 발생했습니다: $1 $2",
-    "description": "Error when fetching GitHub issues fails. $1=status, $2=statusText"
+    "message": "GitHub 이슈를 가져오는 중 오류가 발생했습니다: $1 $2"
   },
   "githubPRReviewFetchError": {
-    "message": "GitHub PR 검토 데이터를 가져오는 중 오류가 발생했습니다: $1 $2",
-    "description": "Error when fetching GitHub PR review data fails. $1=status, $2=statusText"
+    "message": "GitHub PR 검토 데이터를 가져오는 중 오류가 발생했습니다: $1 $2"
   },
   "githubUserFetchError": {
-    "message": "GitHub 사용자 데이터를 가져오는 중 오류가 발생했습니다: $1 $2",
-    "description": "Error when fetching GitHub user data fails. $1=status, $2=statusText"
+    "message": "GitHub 사용자 데이터를 가져오는 중 오류가 발생했습니다: $1 $2"
   },
   "invalidTokenError": {
-    "message": "유효하지 않거나 만료된 GitHub 토큰입니다. Scrum Helper 설정에서 토큰을 확인하고 다시 시도하세요.",
-    "description": "Error for invalid or expired GitHub token."
+    "message": "유효하지 않거나 만료된 GitHub 토큰입니다. Scrum Helper 설정에서 토큰을 확인하고 다시 시도하세요."
   },
   "displayModeNotice": {
-    "message": "다음 실행 시 확장 프로그램이 $1 모드로 열립니다.",
-    "description": "Notice for display mode change. $1=mode label"
+    "message": "다음 실행 시 확장 프로그램이 $1 모드로 열립니다."
   },
   "repoFilteringGithubOnly": {
-    "message": "저장소 필터링은 GitHub에서만 사용할 수 있습니다.",
-    "description": "Shown when repo filtering is not available for other platforms."
+    "message": "저장소 필터링은 GitHub에서만 사용할 수 있습니다."
   },
   "repoLoadingGithubOnly": {
-    "message": "저장소 로드는 GitHub에서만 사용할 수 있습니다.",
-    "description": "Shown when repo loading is not available for other platforms."
+    "message": "저장소 로드는 GitHub에서만 사용할 수 있습니다."
   },
   "repoFetchingGithubOnly": {
-    "message": "저장소 가져오기는 GitHub에서만 사용할 수 있습니다.",
-    "description": "Shown when repo fetching is not available for other platforms."
+    "message": "저장소 가져오기는 GitHub에서만 사용할 수 있습니다."
   },
   "loadingReposAutomatically": {
-    "message": "저장소 자동 로드 중...",
-    "description": "Status message when repos are loading."
+    "message": "저장소 자동 로드 중..."
   },
   "gitlabUserFetchError": {
-    "message": "GitLab 사용자를 가져오는 중 오류가 발생했습니다: $1 $2",
-    "description": "Error when fetching GitLab user fails. $1=status, $2=statusText"
+    "message": "GitLab 사용자를 가져오는 중 오류가 발생했습니다: $1 $2"
   },
   "gitlabUserNotFoundError": {
-    "message": "GitLab 사용자 '$1'을(를) 찾을 수 없습니다.",
-    "description": "Error when GitLab user is not found. $1=username"
+    "message": "GitLab 사용자 '$1'을(를) 찾을 수 없습니다."
   },
   "gitlabMembershipError": {
-    "message": "GitLab 멤버십 프로젝트를 가져오는 중 오류가 발생했습니다: $1 $2",
-    "description": "Error when fetching GitLab membership projects fails. $1=status, $2=statusText"
+    "message": "GitLab 멤버십 프로젝트를 가져오는 중 오류가 발생했습니다: $1 $2"
   },
   "gitlabContributedError": {
-    "message": "GitLab 기여 프로젝트를 가져오는 중 오류가 발생했습니다: $1 $2",
-    "description": "Error when fetching GitLab contributed projects fails. $1=status, $2=statusText"
+    "message": "GitLab 기여 프로젝트를 가져오는 중 오류가 발생했습니다: $1 $2"
   },
   "usernameMissingError": {
-    "message": "사용자 이름이 필요합니다.",
-    "description": "Error shown when username is missing."
+    "message": "사용자 이름이 필요합니다."
   },
   "generateReportTooltip": {
-    "message": "Ctrl+G",
-    "description": "Tooltip shortcut for the Generate button. Dynamically replaced with Cmd+G on macOS."
+    "message": "Ctrl+G"
   },
   "copyReportTooltip": {
-    "message": "Ctrl+Shift+Y",
-    "description": "Tooltip shortcut for the Copy button. Dynamically replaced with Cmd+Shift+Y on macOS."
+    "message": "Ctrl+Shift+Y"
   },
   "generatingReportNotification": {
-    "message": "보고서 생성 중...",
-    "description": "Notification shown when report generation is triggered via keyboard shortcut."
+    "message": "보고서 생성 중..."
   },
   "copyingReportNotification": {
-    "message": "보고서 복사 중...",
-    "description": "Notification shown when report copy is triggered via keyboard shortcut."
+    "message": "보고서 복사 중..."
   },
   "copiedReportNotification": {
-    "message": "보고서가 복사되었습니다!",
-    "description": "Notification shown when report is successfully copied via keyboard shortcut."
+    "message": "보고서가 복사되었습니다!"
   },
   "insertInEmailTooltip": {
-    "message": "Ctrl+Shift+M",
-    "description": "Tooltip shortcut for the Insert in Email button. Dynamically replaced with Cmd+Shift+M on macOS."
+    "message": "Ctrl+Shift+M"
   },
   "insertingInEmailNotification": {
-    "message": "이메일에 보고서 삽입 중...",
-    "description": "Notification shown when report insertion into email is triggered via keyboard shortcut."
+    "message": "이메일에 보고서 삽입 중..."
   },
   "insertedInEmailNotification": {
-    "message": "보고서가 이메일에 삽입되었습니다!",
-    "description": "Notification shown when report is successfully inserted into email."
+    "message": "보고서가 이메일에 삽입되었습니다!"
   },
   "reportAlreadyInserted": {
-    "message": "보고서가 이미 삽입되었습니다!",
-    "description": "Notification shown when the report has already been inserted in the current session."
+    "message": "보고서가 이미 삽입되었습니다!"
   },
   "rateLimitError": {
-    "message": "GitHub API 요청 한도를 초과했습니다. 나중에 다시 시도하거나 Scrum Helper 설정에서 GitHub 토큰을 추가하거나 확인하세요.",
-    "description": "Error shown when GitHub API rate limit is exceeded."
+    "message": "GitHub API 요청 한도를 초과했습니다. 나중에 다시 시도하거나 Scrum Helper 설정에서 GitHub 토큰을 추가하거나 확인하세요."
   },
   "rateLimitWarningMessage": {
-    "message": "GitHub 요청 한도로 인해 일부 데이터가 누락될 수 있습니다. 설정에서 GitHub 토큰을 추가하거나 확인하세요.",
-    "description": "Warning message shown below buttons when rate limit is exceeded."
+    "message": "GitHub 요청 한도로 인해 일부 데이터가 누락될 수 있습니다. 설정에서 GitHub 토큰을 추가하거나 확인하세요."
   },
   "includeBlockersLabel": {
-    "message": "보고서에 차단 요소 포함",
-    "description": "Label for checkbox to include blockers in the scrum report."
+    "message": "보고서에 차단 요소 포함"
   },
   "includeBlockersTooltip": {
-    "message": "선택하면 보고서에 차단 요소 섹션이 포함됩니다.",
-    "description": "Tooltip text explaining the include blockers option."
+    "message": "선택하면 보고서에 차단 요소 섹션이 포함됩니다."
   },
   "includeNextPlansLabel": {
-    "message": "이메일 질문 2에 할당된 열린 이슈 포함",
-    "description": "Label for checkbox to include next plans in second question of report."
+    "message": "이메일 질문 2에 할당된 열린 이슈 포함"
   },
   "includeNextPlansTooltip": {
-    "message": "이메일의 질문 2에 해당 이슈를 선택하여 추가합니다. GitHub 토큰이 필요합니다.",
-    "description": "Tooltip text explaining the include next plans option."
+    "message": "이메일의 질문 2에 해당 이슈를 선택하여 추가합니다. GitHub 토큰이 필요합니다."
   },
   "fetchingIssuesSpinner": {
-    "message": "할당된 이슈를 가져오는 중...",
-    "description": "Loading message shown when fetching assigned issues."
+    "message": "할당된 이슈를 가져오는 중..."
   },
   "noIssuesFound": {
-    "message": "할당된 열린 이슈를 찾을 수 없습니다",
-    "description": "Empty state message for assigned issues."
+    "message": "할당된 열린 이슈를 찾을 수 없습니다"
   },
   "githubTokenRequiredNextPlans": {
-    "message": "할당된 이슈를 가져오려면 GitHub 토큰이 필요합니다. 설정에서 추가하세요.",
-    "description": "Error message when no token is present."
+    "message": "할당된 이슈를 가져오려면 GitHub 토큰이 필요합니다. 설정에서 추가하세요."
   },
   "failedToFetchIssues": {
-    "message": "할당된 이슈를 가져오지 못했습니다.",
-    "description": "Error message when fetching fails."
+    "message": "할당된 이슈를 가져오지 못했습니다."
   },
   "smtpSenderEmailLabel": {
     "message": "보내는 사람 이메일"
