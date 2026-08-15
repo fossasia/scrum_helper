@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+html {
+	scroll-behavior: smooth;
+}
+
+body {
+	font-family: Arial, Helvetica, sans-serif;
+	line-height: 1.6;
+	color: #263238;
+	background: #ffffff;
+}
+
+a {
+	text-decoration: none;
+	color: inherit;
+}
+
+@media (max-width: 800px) {
+	.mobile-hidden {
+		display: none;
+	}
+}
