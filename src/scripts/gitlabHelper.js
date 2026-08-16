@@ -1,7 +1,7 @@
 // GitLab API Helper for Scrum Helper Extension
 const DEFAULT_GITLAB_API_BASE_URL = 'https://gitlab.com/api/v4';
 
-let gitlabWarningTimeout;
+const gitlabWarningTimeouts = {};
 
 function gitlabShowTokenWarning(elementId, { animate = false, durationMs = 4000 } = {}) {
 	const tokenWarning = document.getElementById(elementId);
@@ -11,8 +11,13 @@ function gitlabShowTokenWarning(elementId, { animate = false, durationMs = 4000 
 		tokenWarning.classList.add('shake-animation');
 		setTimeout(() => tokenWarning.classList.remove('shake-animation'), 620);
 	}
-	if (gitlabWarningTimeout) clearTimeout(gitlabWarningTimeout);
-	gitlabWarningTimeout = setTimeout(() => tokenWarning.classList.add('hidden'), durationMs);
+	if (gitlabWarningTimeouts[elementId]) {
+		clearTimeout(gitlabWarningTimeouts[elementId]);
+	}
+	gitlabWarningTimeouts[elementId] = setTimeout(() => {
+		tokenWarning.classList.add('hidden');
+		delete gitlabWarningTimeouts[elementId];
+	}, durationMs);
 }
 
 function gitlabCheckToken({
@@ -52,9 +57,9 @@ function gitlabCheckToken({
 
 	const tokenWarning = document.getElementById(warningId);
 	if (tokenWarning) {
-		if (gitlabWarningTimeout) {
-			clearTimeout(gitlabWarningTimeout);
-			gitlabWarningTimeout = null;
+		if (gitlabWarningTimeouts[warningId]) {
+			clearTimeout(gitlabWarningTimeouts[warningId]);
+			delete gitlabWarningTimeouts[warningId];
 		}
 		tokenWarning.classList.add('hidden');
 	}
