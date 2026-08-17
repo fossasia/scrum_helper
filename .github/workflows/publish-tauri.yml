@@ -1,9 +1,8 @@
 name: Build and Release Tauri Desktop App
 
 on:
-  push:
-    branches:
-      - feat/write-workflow-for-updating-tauri-download-files
+  release:
+    types: [published] # triggers when a release is published manually
 
 jobs:
   publish-tauri:
