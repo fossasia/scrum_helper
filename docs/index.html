@@ -1,651 +1,396 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Scrum Helper simplifies development reports by using your Git activity.">
     <title>Scrum Helper - Simplify Your Development Reports</title>
-
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
-        body {
-            font-family: Arial, Helvetica, sans-serif;
-            line-height: 1.6;
-            color: #263238;
-            background: #ffffff;
-        }
-
-        a {
-            text-decoration: none;
-            color: inherit;
-        }
-
-        .container {
-            width: min(1120px, 92%);
-            margin: 0 auto;
-        }
-
-        /* Navigation */
-
-        nav {
-            border-bottom: 1px solid #eeeeee;
-            background: #ffffff;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        .nav-content {
-            min-height: 70px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 20px;
-        }
-
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 1.2rem;
-            font-weight: 700;
-        }
-
-        .brand img {
-            width: 42px;
-            height: 42px;
-        }
-
-        .nav-links {
-            display: flex;
-            align-items: center;
-            gap: 25px;
-            color: #455a64;
-        }
-
-        .nav-links a:hover {
-            color: #1976d2;
-        }
-
-        /* Hero */
-
-        .hero {
-            padding: 90px 0;
-            background: linear-gradient(180deg, #f5f9ff 0%, #ffffff 100%);
-        }
-
-        .hero-content {
-            display: grid;
-            grid-template-columns: 1.1fr 0.9fr;
-            align-items: center;
-            gap: 60px;
-        }
-
-        .hero h1 {
-            font-size: clamp(2.5rem, 6vw, 4.5rem);
-            line-height: 1.05;
-            margin-bottom: 25px;
-        }
-
-        .hero h1 span {
-            color: #1976d2;
-        }
-
-        .hero p {
-            font-size: 1.15rem;
-            color: #607d8b;
-            max-width: 600px;
-            margin-bottom: 30px;
-        }
-
-        .buttons {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-
-        .button {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 13px 22px;
-            border-radius: 7px;
-            font-weight: 700;
-            border: 2px solid transparent;
-            transition: 0.2s ease;
-        }
-
-        .button-primary {
-            background: #1976d2;
-            color: white;
-        }
-
-        .button-primary:hover {
-            background: #1565c0;
-        }
-
-        .button-secondary {
-            border-color: #1976d2;
-            color: #1976d2;
-            background: white;
-        }
-
-        .button-secondary:hover {
-            background: #e3f2fd;
-        }
-
-        .hero-image img {
-            display: block;
-            width: 100%;
-            max-width: 500px;
-            margin: auto;
-            border-radius: 12px;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12);
-        }
-
-        /* Sections */
-
-        section {
-            padding: 80px 0;
-        }
-
-        .section-title {
-            text-align: center;
-            margin-bottom: 50px;
-        }
-
-        .section-title h2 {
-            font-size: 2.4rem;
-            margin-bottom: 12px;
-        }
-
-        .section-title p {
-            color: #78909c;
-        }
-
-        /* How it works */
-
-        .steps {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 25px;
-        }
-
-        .step {
-            padding: 30px;
-            border: 1px solid #e0e0e0;
-            border-radius: 12px;
-            text-align: center;
-        }
-
-        .step-number {
-            width: 50px;
-            height: 50px;
-            margin: 0 auto 20px;
-            border-radius: 50%;
-            display: grid;
-            place-items: center;
-            background: #e3f2fd;
-            color: #1976d2;
-            font-size: 1.2rem;
-            font-weight: 700;
-        }
-
-        .step h3 {
-            margin-bottom: 10px;
-        }
-
-        .step p {
-            color: #607d8b;
-        }
-
-        /* Features */
-
-        .features {
-            background: #f7f9fb;
-        }
-
-        .feature-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 25px;
-        }
-
-        .feature {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            border: 1px solid #e5e5e5;
-        }
-
-        .feature-icon {
-            font-size: 2rem;
-            margin-bottom: 15px;
-        }
-
-        .feature h3 {
-            margin-bottom: 10px;
-        }
-
-        .feature p {
-            color: #607d8b;
-        }
-
-        /* Download */
-
-        .download {
-            text-align: center;
-        }
-
-        .download-card {
-            max-width: 800px;
-            margin: auto;
-            padding: 45px;
-            border-radius: 15px;
-            background: #f5f9ff;
-            border: 1px solid #dbeafe;
-        }
-
-        .os-name {
-            color: #1976d2;
-            font-weight: 700;
-        }
-
-        .download-button {
-            margin-top: 25px;
-        }
-
-        .platforms {
-            margin-top: 30px;
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 12px;
-        }
-
-        .platform {
-            padding: 8px 14px;
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            color: #546e7a;
-        }
-
-        /* Extensions */
-
-        .extensions {
-            background: #f7f9fb;
-        }
-
-        .extension-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-            max-width: 800px;
-            margin: auto;
-        }
-
-        .extension {
-            text-align: center;
-            padding: 25px;
-            background: white;
-            border-radius: 10px;
-            border: 1px solid #e0e0e0;
-        }
-
-        .extension:hover {
-            border-color: #1976d2;
-        }
-
-        /* Screenshots */
-
-        .screenshots {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 25px;
-        }
-
-        .screenshots img {
-            width: 100%;
-            display: block;
-            border-radius: 10px;
-            border: 1px solid #e0e0e0;
-        }
-
-        /* Footer */
-
-        footer {
-            background: #263238;
-            color: #ffffff;
-            padding: 40px 0;
-            text-align: center;
-        }
-
-        footer p {
-            color: #cfd8dc;
-        }
-
-        footer a {
-            color: #90caf9;
-        }
-
-        /* Responsive */
-
-        @media (max-width: 800px) {
-            .hero-content {
-                grid-template-columns: 1fr;
-                text-align: center;
-            }
-
-            .hero p {
-                margin-left: auto;
-                margin-right: auto;
-            }
-
-            .buttons {
-                justify-content: center;
-            }
-
-            .steps,
-            .feature-grid,
-            .extension-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .screenshots {
-                grid-template-columns: 1fr;
-            }
-
-            .nav-links {
-                display: none;
+    <!-- Google Fonts: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0efff',
+                            200: '#b8dcff',
+                            500: '#2563eb',
+                            600: '#1d4ed8',
+                            700: '#1d4ed8',
+                            800: '#1e40af',
+                            900: '#1e3a8a',
+                        },
+                        slate: {
+                            950: '#070a13',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                    }
+                }
             }
         }
-    </style>
+    </script>
 </head>
 
-<body>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased selection:bg-brand-500 selection:text-white">
 
-    <nav>
-        <div class="container nav-content">
-            <a href="#" class="brand">
-                <img src="images/icon128x128.png" alt="Scrum Helper logo">
-                <span>Scrum Helper</span>
+    <!-- Header / Navigation -->
+    <nav class="sticky top-0 z-50 backdrop-blur-lg bg-white/80 border-b border-slate-200/60 transition-all duration-300">
+        <div class="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
+            <a href="#" class="flex items-center gap-3 group">
+                <div class="w-10 h-10 rounded-xl overflow-hidden bg-brand-500 p-1 shadow-md shadow-brand-500/20 group-hover:scale-105 transition-transform duration-300">
+                    <img src="images/icon128x128.png" alt="Scrum Helper logo" class="w-full h-full object-contain">
+                </div>
+                <span class="text-xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">Scrum Helper</span>
             </a>
 
-            <div class="nav-links">
-                <a href="#how-it-works">How it works</a>
-                <a href="#features">Features</a>
-                <a href="#download">Download</a>
-                <a href="#extensions">Extensions</a>
+            <div class="hidden md:flex items-center gap-8 font-medium text-slate-600">
+                <a href="#how-it-works" class="hover:text-brand-500 transition-colors duration-200">How it works</a>
+                <a href="#features" class="hover:text-brand-500 transition-colors duration-200">Features</a>
+                <a href="#download" class="hover:text-brand-500 transition-colors duration-200">Download</a>
+                <a href="#extensions" class="hover:text-brand-500 transition-colors duration-200">Extensions</a>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <a href="https://github.com/fossasia/scrum_helper" target="_blank" rel="noopener noreferrer" 
+                   class="flex items-center justify-center w-10 h-10 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-950 transition-all duration-200">
+                    <i class="fab fa-github text-lg"></i>
+                </a>
+                <a href="#download" class="hidden sm:inline-flex items-center justify-center px-5 py-2.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-semibold text-sm shadow-lg shadow-brand-500/25 hover:shadow-brand-600/30 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200">
+                    Get Started
+                </a>
             </div>
         </div>
     </nav>
 
-    <main>
+    <!-- Hero Section -->
+    <header class="relative overflow-hidden bg-gradient-to-b from-brand-50/70 via-white to-slate-50/50 py-20 lg:py-32">
+        <!-- Floating shapes background -->
+        <div class="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-brand-200/30 blur-3xl"></div>
+        <div class="absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-indigo-200/20 blur-3xl"></div>
 
-        <section class="hero">
-            <div class="container hero-content">
-
-                <div>
-                    <h1>
-                        Write better development reports
-                        <span>automatically.</span>
+        <div class="max-w-6xl mx-auto px-6 relative z-10">
+            <div class="grid lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+                <!-- Left text content -->
+                <div class="lg:col-span-7 space-y-8 text-center lg:text-left">
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-100/60 border border-brand-200 text-brand-700 font-semibold text-xs uppercase tracking-wider">
+                        <span class="w-1.5 h-1.5 rounded-full bg-brand-500 animate-pulse"></span>
+                        Now supports Codeberg & Bitbucket
+                    </div>
+                    <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-slate-900 leading-[1.1] tracking-tight">
+                        Write better development reports <span class="bg-gradient-to-r from-brand-500 to-indigo-600 bg-clip-text text-transparent">automatically.</span>
                     </h1>
-
-                    <p>
-                        Scrum Helper uses your Git activity to help you quickly
-                        create development reports without manually collecting
-                        commits, pull requests, issues and code reviews.
+                    <p class="text-lg text-slate-600 max-w-2xl mx-auto lg:mx-0">
+                        Scrum Helper uses your Git activity to help you quickly create development reports without manually collecting commits, pull requests, issues, and code reviews.
                     </p>
-
-                    <div class="buttons">
-                        <a href="#download" class="button button-primary">
-                            Download Desktop App
+                    <div class="flex flex-wrap items-center justify-center lg:justify-start gap-4">
+                        <a href="#download" class="inline-flex items-center justify-center px-6 py-3.5 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold shadow-lg shadow-brand-500/20 hover:shadow-brand-600/30 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200">
+                            <i class="fa-solid fa-download mr-2"></i> Download Desktop App
                         </a>
-
-                        <a href="#extensions" class="button button-secondary">
-                            Get Browser Extension
+                        <a href="#extensions" class="inline-flex items-center justify-center px-6 py-3.5 rounded-xl bg-white hover:bg-slate-50 text-brand-600 border-2 border-brand-200 hover:border-brand-500 font-bold hover:scale-[1.02] active:scale-[0.98] transition-all duration-200">
+                            <i class="fa-solid fa-puzzle-piece mr-2"></i> Get Browser Extension
                         </a>
                     </div>
                 </div>
-
-                <div class="hero-image">
-                    <img src="images/popup.png" alt="Scrum Helper extension">
-                </div>
-
-            </div>
-        </section>
-
-        <section id="how-it-works">
-            <div class="container">
-
-                <div class="section-title">
-                    <h2>How it works</h2>
-                    <p>Generate your development report in three simple steps.</p>
-                </div>
-
-                <div class="steps">
-
-                    <article class="step">
-                        <div class="step-number">1</div>
-                        <h3>Connect your Git account</h3>
-                        <p>
-                            Enter your GitHub username and configure your
-                            preferences.
-                        </p>
-                    </article>
-
-                    <article class="step">
-                        <div class="step-number">2</div>
-                        <h3>Select a date range</h3>
-                        <p>
-                            Choose the period for which you want to generate
-                            your development report.
-                        </p>
-                    </article>
-
-                    <article class="step">
-                        <div class="step-number">3</div>
-                        <h3>Generate your report</h3>
-                        <p>
-                            Scrum Helper collects your Git activity and
-                            prepares a report that you can edit.
-                        </p>
-                    </article>
-
-                </div>
-            </div>
-        </section>
-
-        <section id="features" class="features">
-            <div class="container">
-
-                <div class="section-title">
-                    <h2>Features</h2>
-                    <p>Everything you need to simplify your development reports.</p>
-                </div>
-
-                <div class="feature-grid">
-
-                    <article class="feature">
-                        <div class="feature-icon">⚡</div>
-                        <h3>Automatic Reports</h3>
-                        <p>
-                            Generate reports using your Git activity instead
-                            of collecting information manually.
-                        </p>
-                    </article>
-
-                    <article class="feature">
-                        <div class="feature-icon">🔗</div>
-                        <h3>Git Integration</h3>
-                        <p>
-                            Fetch commits, pull requests, issues and code
-                            reviews from GitHub.
-                        </p>
-                    </article>
-
-                    <article class="feature">
-                        <div class="feature-icon">🖥️</div>
-                        <h3>Desktop App</h3>
-                        <p>
-                            Use Scrum Helper as a standalone desktop
-                            application powered by Tauri.
-                        </p>
-                    </article>
-
-                    <article class="feature">
-                        <div class="feature-icon">🌐</div>
-                        <h3>Browser Extension</h3>
-                        <p>
-                            Use Scrum Helper directly from your supported
-                            browser.
-                        </p>
-                    </article>
-
-                    <article class="feature">
-                        <div class="feature-icon">✏️</div>
-                        <h3>Edit Your Report</h3>
-                        <p>
-                            Review and edit the generated content before
-                            sending your final report.
-                        </p>
-                    </article>
-
-                    <article class="feature">
-                        <div class="feature-icon">🔒</div>
-                        <h3>Open Source</h3>
-                        <p>
-                            Scrum Helper is an open-source project maintained
-                            by the FOSSASIA community.
-                        </p>
-                    </article>
-
-                </div>
-            </div>
-        </section>
-
-        <section id="download" class="download">
-            <div class="container">
-
-                <div class="section-title">
-                    <h2>Download Scrum Helper</h2>
-                    <p>
-                        We detected your operating system:
-                        <span id="os-name" class="os-name">
-                            Detecting...
-                        </span>
-                    </p>
-                </div>
-
-                <div class="download-card">
-
-                    <h3 id="download-title">
-                        Get the desktop application
-                    </h3>
-
-                    <p id="download-description">
-                        Choose the installer for your operating system.
-                    </p>
-
-                    <a id="download-button" class="button button-primary download-button"
-                        href="https://github.com/fossasia/scrum_helper/releases" target="_blank"
-                        rel="noopener noreferrer">
-                        View Latest Release
-                    </a>
-
-                    <div class="platforms">
-                        <span class="platform">Windows · .msi</span>
-                        <span class="platform">macOS · .dmg</span>
-                        <span class="platform">Linux · .AppImage</span>
+                
+                <!-- Right image content -->
+                <div class="lg:col-span-5 flex justify-center">
+                    <div class="relative w-full max-w-[420px] group">
+                        <div class="absolute inset-0 bg-gradient-to-tr from-brand-500 to-indigo-500 rounded-2xl blur-xl opacity-20 group-hover:opacity-30 transition-opacity duration-300"></div>
+                        <div class="relative rounded-2xl border border-slate-200/80 bg-white p-3 shadow-2xl hover:scale-[1.02] hover:-rotate-1 transition-all duration-300">
+                            <img src="images/popup.png" alt="Scrum Helper extension interface" class="rounded-xl w-full h-auto object-cover">
+                        </div>
                     </div>
-
                 </div>
             </div>
-        </section>
+        </div>
+    </header>
 
-        <section id="extensions" class="extensions">
-            <div class="container">
+    <!-- How It Works Section -->
+    <section id="how-it-works" class="py-24 bg-white relative">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="text-center max-w-2xl mx-auto mb-16 space-y-4">
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900">How it works</h2>
+                <p class="text-slate-500 text-lg">Generate your development report in three simple steps.</p>
+            </div>
 
-                <div class="section-title">
-                    <h2>Browser Extensions</h2>
-                    <p>Install Scrum Helper in your favorite browser.</p>
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Step 1 -->
+                <div class="relative bg-slate-50/60 border border-slate-100 rounded-2xl p-8 hover:bg-slate-50 hover:shadow-xl hover:shadow-slate-100 hover:-translate-y-1 transition-all duration-300">
+                    <div class="absolute -top-5 left-8 w-10 h-10 rounded-xl bg-brand-500 text-white font-bold flex items-center justify-center shadow-lg shadow-brand-500/20">1</div>
+                    <div class="pt-4 space-y-3">
+                        <h3 class="text-xl font-bold text-slate-900">Connect your Git account</h3>
+                        <p class="text-slate-600">
+                            Enter your GitHub, GitLab, Codeberg, or Bitbucket username and configure your preferences.
+                        </p>
+                    </div>
                 </div>
 
-                <div class="extension-grid">
+                <!-- Step 2 -->
+                <div class="relative bg-slate-50/60 border border-slate-100 rounded-2xl p-8 hover:bg-slate-50 hover:shadow-xl hover:shadow-slate-100 hover:-translate-y-1 transition-all duration-300">
+                    <div class="absolute -top-5 left-8 w-10 h-10 rounded-xl bg-indigo-500 text-white font-bold flex items-center justify-center shadow-lg shadow-indigo-500/20">2</div>
+                    <div class="pt-4 space-y-3">
+                        <h3 class="text-xl font-bold text-slate-900">Select a date range</h3>
+                        <p class="text-slate-600">
+                            Choose the period (e.g. Daily or Weekly contribution) for which you want to generate your development report.
+                        </p>
+                    </div>
+                </div>
 
-                    <a class="extension"
-                        href="https://chromewebstore.google.com/detail/Scrum%20Helper/begjldpiiihpnaflcbdbbophiifphokg"
-                        target="_blank" rel="noopener noreferrer">
-                        <h3>Chrome</h3>
-                        <p>Install from Chrome Web Store</p>
-                    </a>
-
-                    <a class="extension" href="https://addons.mozilla.org/" target="_blank" rel="noopener noreferrer">
-                        <h3>Firefox</h3>
-                        <p>Get Scrum Helper for Firefox</p>
-                    </a>
-
-                    <a class="extension" href="https://addons.opera.com/" target="_blank" rel="noopener noreferrer">
-                        <h3>Opera</h3>
-                        <p>Get Scrum Helper for Opera</p>
-                    </a>
-
+                <!-- Step 3 -->
+                <div class="relative bg-slate-50/60 border border-slate-100 rounded-2xl p-8 hover:bg-slate-50 hover:shadow-xl hover:shadow-slate-100 hover:-translate-y-1 transition-all duration-300">
+                    <div class="absolute -top-5 left-8 w-10 h-10 rounded-xl bg-emerald-500 text-white font-bold flex items-center justify-center shadow-lg shadow-emerald-500/20">3</div>
+                    <div class="pt-4 space-y-3">
+                        <h3 class="text-xl font-bold text-slate-900">Generate your report</h3>
+                        <p class="text-slate-600">
+                            Scrum Helper collects your Git activity and prepares a structured report that you can instantly copy or edit.
+                        </p>
+                    </div>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <section>
-            <div class="container">
-
-                <div class="section-title">
-                    <h2>See Scrum Helper in action</h2>
-                    <p>Designed to make your reporting workflow easier.</p>
-                </div>
-
-                <div class="screenshots">
-                    <img src="images/popup2.png" alt="Scrum Helper popup">
-
-                    <img src="images/standalone.png" alt="Scrum Helper standalone application">
-                </div>
-
+    <!-- Features Section -->
+    <section id="features" class="py-24 bg-slate-50/50 border-y border-slate-200/50">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="text-center max-w-2xl mx-auto mb-16 space-y-4">
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900">Key Features</h2>
+                <p class="text-slate-500 text-lg">Everything you need to simplify your daily development updates.</p>
             </div>
-        </section>
 
-    </main>
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Feature 1 -->
+                <div class="bg-white border border-slate-200/60 rounded-2xl p-8 hover:shadow-xl hover:shadow-slate-200/50 hover:-translate-y-1 transition-all duration-300 space-y-4">
+                    <div class="w-12 h-12 rounded-xl bg-brand-50 text-brand-600 flex items-center justify-center text-2xl">
+                        ⚡
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-900">Automatic Reports</h3>
+                    <p class="text-slate-600 leading-relaxed">
+                        Generate comprehensive reports automatically from your Git contributions in a single click.
+                    </p>
+                </div>
 
-    <footer>
-        <div class="container">
-            <p>
-                Scrum Helper is an open-source project by
-                <a href="https://fossasia.org/" target="_blank" rel="noopener noreferrer">
-                    FOSSASIA
-                </a>.
-            </p>
+                <!-- Feature 2 -->
+                <div class="bg-white border border-slate-200/60 rounded-2xl p-8 hover:shadow-xl hover:shadow-slate-200/50 hover:-translate-y-1 transition-all duration-300 space-y-4">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-2xl">
+                        🔗
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-900">Git Integrations</h3>
+                    <p class="text-slate-600 leading-relaxed">
+                        Support for GitHub, GitLab, Codeberg, Gitee, and Bitbucket. Fetch commits, PRs, issues, and reviews.
+                    </p>
+                </div>
 
-            <p>
-                <a href="https://github.com/fossasia/scrum_helper" target="_blank" rel="noopener noreferrer">
-                    View the project on GitHub
+                <!-- Feature 3 -->
+                <div class="bg-white border border-slate-200/60 rounded-2xl p-8 hover:shadow-xl hover:shadow-slate-200/50 hover:-translate-y-1 transition-all duration-300 space-y-4">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-2xl">
+                        🖥️
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-900">Desktop Companion</h3>
+                    <p class="text-slate-600 leading-relaxed">
+                        A beautiful standalone cross-platform desktop application powered by Tauri for quick local access.
+                    </p>
+                </div>
+
+                <!-- Feature 4 -->
+                <div class="bg-white border border-slate-200/60 rounded-2xl p-8 hover:shadow-xl hover:shadow-slate-200/50 hover:-translate-y-1 transition-all duration-300 space-y-4">
+                    <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-2xl">
+                        🌐
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-900">Browser Extensions</h3>
+                    <p class="text-slate-600 leading-relaxed">
+                        Direct extension integration inside your browser panel, easily accessible via customizable hotkeys.
+                    </p>
+                </div>
+
+                <!-- Feature 5 -->
+                <div class="bg-white border border-slate-200/60 rounded-2xl p-8 hover:shadow-xl hover:shadow-slate-200/50 hover:-translate-y-1 transition-all duration-300 space-y-4">
+                    <div class="w-12 h-12 rounded-xl bg-pink-50 text-pink-600 flex items-center justify-center text-2xl">
+                        ✏️
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-900">Interactive Editor</h3>
+                    <p class="text-slate-600 leading-relaxed">
+                        Easily modify, rewrite, or annotate any part of the generated Scrum notes right inside the UI.
+                    </p>
+                </div>
+
+                <!-- Feature 6 -->
+                <div class="bg-white border border-slate-200/60 rounded-2xl p-8 hover:shadow-xl hover:shadow-slate-200/50 hover:-translate-y-1 transition-all duration-300 space-y-4">
+                    <div class="w-12 h-12 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center text-2xl">
+                        🔒
+                    </div>
+                    <h3 class="text-lg font-bold text-slate-900">100% Open Source</h3>
+                    <p class="text-slate-600 leading-relaxed">
+                        Privacy-friendly, hosted locally on your device, and supported by FOSSASIA community developers.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Download Section -->
+    <section id="download" class="py-24 bg-white">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="text-center max-w-2xl mx-auto mb-12 space-y-4">
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900">Download Scrum Helper</h2>
+                <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-xl bg-brand-50 border border-brand-100 text-brand-700">
+                    <span class="text-sm font-semibold">Detected OS:</span>
+                    <span id="os-name" class="text-sm font-bold bg-brand-200/40 px-2 py-0.5 rounded">Detecting...</span>
+                </div>
+            </div>
+
+            <div class="max-w-3xl mx-auto bg-gradient-to-r from-brand-50 to-indigo-50/60 border border-brand-100 rounded-3xl p-8 sm:p-12 text-center space-y-6 relative overflow-hidden">
+                <div class="absolute -top-10 -right-10 w-40 h-40 bg-brand-200/20 rounded-full blur-2xl"></div>
+                
+                <h3 id="download-title" class="text-2xl sm:text-3xl font-extrabold text-slate-900">
+                    Get the desktop application
+                </h3>
+                <p id="download-description" class="text-slate-600 text-base sm:text-lg max-w-lg mx-auto">
+                    Choose the installer for your operating system to use Scrum Helper standalone.
+                </p>
+                
+                <div class="pt-4">
+                    <a id="download-button" href="https://github.com/fossasia/scrum_helper/releases" target="_blank" rel="noopener noreferrer"
+                       class="inline-flex items-center justify-center px-8 py-4 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-bold shadow-xl shadow-brand-500/25 hover:shadow-brand-600/35 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200">
+                        <i class="fa-solid fa-circle-arrow-down mr-2.5 text-lg"></i> View Latest Release
+                    </a>
+                </div>
+
+                <div class="pt-8 flex flex-wrap justify-center gap-3">
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-xs font-semibold text-slate-600 shadow-sm">
+                        <i class="fab fa-windows text-brand-500"></i> Windows (.msi)
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-xs font-semibold text-slate-600 shadow-sm">
+                        <i class="fab fa-apple text-slate-800"></i> macOS (.dmg)
+                    </span>
+                    <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-xs font-semibold text-slate-600 shadow-sm">
+                        <i class="fab fa-linux text-amber-600"></i> Linux (.AppImage)
+                    </span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Browser Extensions Section -->
+    <section id="extensions" class="py-24 bg-slate-50 border-t border-slate-200/50">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="text-center max-w-2xl mx-auto mb-16 space-y-4">
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900">Browser Extensions</h2>
+                <p class="text-slate-500 text-lg">Install Scrum Helper in your favorite browser.</p>
+            </div>
+
+            <div class="grid sm:grid-cols-3 gap-6 max-w-4xl mx-auto">
+                <!-- Chrome -->
+                <a href="https://chromewebstore.google.com/detail/Scrum%20Helper/begjldpiiihpnaflcbdbbophiifphokg"
+                   target="_blank" rel="noopener noreferrer" 
+                   class="bg-white border border-slate-200 hover:border-brand-500 hover:shadow-lg hover:shadow-slate-200/80 rounded-2xl p-6 text-center space-y-4 group transition-all duration-300">
+                    <div class="w-12 h-12 mx-auto rounded-full bg-red-50 text-red-500 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform duration-300">
+                        <i class="fab fa-chrome"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900 group-hover:text-brand-500 transition-colors duration-200">Chrome</h3>
+                        <p class="text-xs text-slate-500 mt-1">Get it from Chrome Web Store</p>
+                    </div>
                 </a>
+
+                <!-- Firefox -->
+                <a href="https://addons.mozilla.org/en-US/firefox/addon/scrum-helper-by-fossasia/"
+                   target="_blank" rel="noopener noreferrer"
+                   class="bg-white border border-slate-200 hover:border-brand-500 hover:shadow-lg hover:shadow-slate-200/80 rounded-2xl p-6 text-center space-y-4 group transition-all duration-300">
+                    <div class="w-12 h-12 mx-auto rounded-full bg-amber-50 text-amber-600 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform duration-300">
+                        <i class="fab fa-firefox-browser"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900 group-hover:text-brand-500 transition-colors duration-200">Firefox</h3>
+                        <p class="text-xs text-slate-500 mt-1">Get Scrum Helper for Firefox</p>
+                    </div>
+                </a>
+
+                <!-- Opera -->
+                <a href="https://addons.opera.com/en/extensions/details/scrum-helper/"
+                   target="_blank" rel="noopener noreferrer"
+                   class="bg-white border border-slate-200 hover:border-brand-500 hover:shadow-lg hover:shadow-slate-200/80 rounded-2xl p-6 text-center space-y-4 group transition-all duration-300">
+                    <div class="w-12 h-12 mx-auto rounded-full bg-rose-50 text-rose-600 flex items-center justify-center text-2xl group-hover:scale-110 transition-transform duration-300">
+                        <i class="fab fa-opera"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-900 group-hover:text-brand-500 transition-colors duration-200">Opera</h3>
+                        <p class="text-xs text-slate-500 mt-1">Get Scrum Helper for Opera</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Visual Showcase Section -->
+    <section class="py-24 bg-white">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="text-center max-w-2xl mx-auto mb-16 space-y-4">
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900">See Scrum Helper in action</h2>
+                <p class="text-slate-500 text-lg">Designed to make your reporting workflow easier and elegant.</p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8 items-center">
+                <div class="group overflow-hidden rounded-2xl border border-slate-200/60 shadow-lg hover:shadow-2xl transition-all duration-300">
+                    <img src="images/popup2.png" alt="Scrum Helper popup interface" class="w-full h-auto object-cover group-hover:scale-[1.01] transition-transform duration-300">
+                </div>
+
+                <div class="group overflow-hidden rounded-2xl border border-slate-200/60 shadow-lg hover:shadow-2xl transition-all duration-300">
+                    <img src="images/standalone.png" alt="Scrum Helper standalone desktop mode" class="w-full h-auto object-cover group-hover:scale-[1.01] transition-transform duration-300">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-16 border-t border-slate-800">
+        <div class="max-w-6xl mx-auto px-6 text-center space-y-6">
+            <div class="flex justify-center items-center gap-3">
+                <div class="w-8 h-8 rounded-lg overflow-hidden bg-brand-500 p-0.5 shadow-sm">
+                    <img src="images/icon128x128.png" alt="Scrum Helper logo" class="w-full h-full object-contain">
+                </div>
+                <span class="text-white font-bold text-lg">Scrum Helper</span>
+            </div>
+            
+            <p class="text-slate-400 max-w-md mx-auto">
+                Scrum Helper is an open-source project proudly maintained by the 
+                <a href="https://fossasia.org/" target="_blank" rel="noopener noreferrer" class="text-brand-400 hover:text-brand-300 font-semibold transition-colors">
+                    FOSSASIA
+                </a> community.
             </p>
+
+            <div class="flex justify-center gap-6 text-sm">
+                <a href="https://github.com/fossasia/scrum_helper" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">
+                    <i class="fab fa-github mr-1.5"></i> GitHub Repo
+                </a>
+                <span>·</span>
+                <a href="https://github.com/fossasia/scrum_helper/issues" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">
+                    Report an Issue
+                </a>
+            </div>
+            
+            <div class="text-xs text-slate-600 pt-8 border-t border-slate-800/80">
+                &copy; 2026 Scrum Helper. Licensed under LGPL-2.1.
+            </div>
         </div>
     </footer>
 
+    <!-- Operating System Detection Script -->
     <script>
         const osName = document.getElementById("os-name");
         const downloadTitle = document.getElementById("download-title");
-        const downloadDescription =
-            document.getElementById("download-description");
+        const downloadDescription = document.getElementById("download-description");
 
         const userAgent = navigator.userAgent.toLowerCase();
         const platform = navigator.platform.toLowerCase();
