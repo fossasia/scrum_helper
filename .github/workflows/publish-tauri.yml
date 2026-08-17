@@ -1,12 +1,9 @@
 name: Build and Release Tauri Desktop App
 
-# on:
-#   release:
-#     types: [published]
 on:
   push:
     branches:
-      - feat/write-workflow-for-updating-tauri-downlaod-files
+      - feat/write-workflow-for-updating-tauri-download-files
 
 jobs:
   publish-tauri:
@@ -29,8 +26,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.release.tag_name }}
           fetch-depth: 0
+          # Remove 'ref' if not using release
+          # ref: ${{ github.event.release.tag_name }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -50,10 +48,12 @@ jobs:
       - name: Install project dependencies
         run: npm ci
 
-      - name: Build Tauri application and upload assets
-        uses: tauri-apps/tauri-action@v0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build Tauri application
+        run: npx tauri build -- ${{ matrix.args }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
         with:
-          releaseId: ${{ github.event.release.id }}
-          args: ${{ matrix.args }}
+          name: tauri-app-${{ matrix.platform }}
+          path: src-tauri/target/release/bundle/**
+          if-no-files-found: error
