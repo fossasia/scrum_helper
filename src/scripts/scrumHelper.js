@@ -1943,7 +1943,10 @@ function allIncluded(outputTarget = 'email') {
 					// cannot be fetched.
 					let hasMergeInfo = false;
 					let isMerged = false;
-					if (prCacheKey && prCacheKey in mergedStatusResults) {
+					if (platform === 'gitlab') {
+						hasMergeInfo = true;
+						isMerged = item.state === 'merged';
+					} else if (prCacheKey && prCacheKey in mergedStatusResults) {
 						hasMergeInfo = true;
 						isMerged = !!mergedStatusResults[prCacheKey];
 					} else if (item.pull_request && Object.prototype.hasOwnProperty.call(item.pull_request, 'merged_at')) {
@@ -2121,7 +2124,9 @@ function allIncluded(outputTarget = 'email') {
 					}
 				} else {
 					let merged = null;
-					if ((githubToken || (useMergedStatus && !fallbackToSimple)) && mergedStatusResults) {
+					if (platform === 'gitlab') {
+						merged = item.state === 'merged';
+					} else if ((githubToken || (useMergedStatus && !fallbackToSimple)) && mergedStatusResults) {
 						const repoParts = repository_url.split('/');
 						const owner = repoParts[repoParts.length - 2];
 						const repo = repoParts[repoParts.length - 1];
