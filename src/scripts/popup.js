@@ -130,6 +130,30 @@ function applyI18n() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+	// Hide extension-only settings in Tauri
+	if (window.isTauri) {
+		const displayModeSec = document.getElementById('displayModeSectionContainer');
+		if (displayModeSec) {
+			displayModeSec.style.display = 'none';
+		}
+		const insertInEmailBtn = document.getElementById('insertInEmail');
+		if (insertInEmailBtn) {
+			const container = insertInEmailBtn.closest('.tooltip-container');
+			if (container) {
+				container.style.display = 'none';
+			}
+		}
+		// Show Tauri-only SMTP features
+		const mailSettingsToggle = document.getElementById('mailSettingsToggle');
+		if (mailSettingsToggle) {
+			mailSettingsToggle.style.display = 'inline-block';
+		}
+		const sendReportEmailContainer = document.getElementById('sendReportEmailContainer');
+		if (sendReportEmailContainer) {
+			sendReportEmailContainer.style.display = 'inline-block';
+		}
+	}
+
 	// Apply translations as soon as the DOM is ready
 	applyI18n();
 	setupButtonTooltips();
@@ -145,6 +169,10 @@ document.addEventListener('DOMContentLoaded', () => {
 	const settingsSection = document.getElementById('settingsSection');
 
 	let isSettingsVisible = false;
+	let isMailSettingsVisible = false;
+	const mailSettingsSection = document.getElementById('mailSettingsSection');
+	const mailSettingsToggle = document.getElementById('mailSettingsToggle');
+	const mailSettingsBackBtn = document.getElementById('mailSettingsBackBtn');
 	const githubTokenInput = document.getElementById('githubToken');
 	const toggleTokenBtn = document.getElementById('toggleTokenVisibility');
 	const tokenEyeIcon = document.getElementById('tokenEyeIcon');
@@ -156,6 +184,15 @@ document.addEventListener('DOMContentLoaded', () => {
 	const toggleGitlabTokenBtn = document.getElementById('toggleGitlabTokenVisibility');
 	const gitlabTokenEyeIcon = document.getElementById('gitlabTokenEyeIcon');
 	let gitlabTokenVisible = false;
+
+	// Codeberg elements
+	let lastPlatform = 'github';
+	const codebergUsernameInput = document.getElementById('codebergUsername');
+	const codebergTokenInput = document.getElementById('codebergToken');
+	const codebergApiBaseUrlInput = document.getElementById('codebergApiBaseUrl');
+	const toggleCodebergTokenBtn = document.getElementById('toggleCodebergTokenVisibility');
+	const codebergTokenEyeIcon = document.getElementById('codebergTokenEyeIcon');
+	let codebergTokenVisible = false;
 
 	const orgInput = document.getElementById('orgInput');
 
@@ -273,17 +310,21 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	});
 
-	toggleTokenBtn.addEventListener('click', () => {
-		tokenVisible = !tokenVisible;
-		githubTokenInput.type = tokenVisible ? 'text' : 'password';
+	if (toggleTokenBtn && githubTokenInput) {
+		toggleTokenBtn.addEventListener('click', () => {
+			tokenVisible = !tokenVisible;
+			githubTokenInput.type = tokenVisible ? 'text' : 'password';
 
-		tokenEyeIcon.classList.add('eye-animating');
-		setTimeout(() => tokenEyeIcon.classList.remove('eye-animating'), 400);
-		tokenEyeIcon.className = tokenVisible ? 'fa fa-eye-slash text-gray-600' : 'fa fa-eye text-gray-600';
+			if (tokenEyeIcon) {
+				tokenEyeIcon.className = tokenVisible ? 'fa fa-eye-slash text-gray-600' : 'fa fa-eye text-gray-600';
+				tokenEyeIcon.classList.add('eye-animating');
+				setTimeout(() => tokenEyeIcon.classList.remove('eye-animating'), 400);
+			}
 
-		githubTokenInput.classList.add('token-animating');
-		setTimeout(() => githubTokenInput.classList.remove('token-animating'), 300);
-	});
+			githubTokenInput.classList.add('token-animating');
+			setTimeout(() => githubTokenInput.classList.remove('token-animating'), 300);
+		});
+	}
 
 	// GitLab token visibility toggle
 	if (toggleGitlabTokenBtn && gitlabTokenInput) {
@@ -291,12 +332,85 @@ document.addEventListener('DOMContentLoaded', () => {
 			gitlabTokenVisible = !gitlabTokenVisible;
 			gitlabTokenInput.type = gitlabTokenVisible ? 'text' : 'password';
 
-			gitlabTokenEyeIcon.classList.add('eye-animating');
-			setTimeout(() => gitlabTokenEyeIcon.classList.remove('eye-animating'), 400);
-			gitlabTokenEyeIcon.className = gitlabTokenVisible ? 'fa fa-eye-slash text-gray-600' : 'fa fa-eye text-gray-600';
+			if (gitlabTokenEyeIcon) {
+				gitlabTokenEyeIcon.className = gitlabTokenVisible ? 'fa fa-eye-slash text-gray-600' : 'fa fa-eye text-gray-600';
+				gitlabTokenEyeIcon.classList.add('eye-animating');
+				setTimeout(() => gitlabTokenEyeIcon.classList.remove('eye-animating'), 400);
+			}
 
 			gitlabTokenInput.classList.add('token-animating');
 			setTimeout(() => gitlabTokenInput.classList.remove('token-animating'), 300);
+		});
+	}
+
+	// SMTP password visibility toggle
+	const smtpPasswordInput = document.getElementById('smtpPassword');
+	const toggleSmtpPasswordBtn = document.getElementById('toggleSmtpPasswordVisibility');
+	const smtpPasswordEyeIcon = document.getElementById('smtpPasswordEyeIcon');
+	let smtpPasswordVisible = false;
+
+	if (toggleSmtpPasswordBtn && smtpPasswordInput) {
+		toggleSmtpPasswordBtn.addEventListener('click', () => {
+			smtpPasswordVisible = !smtpPasswordVisible;
+			smtpPasswordInput.type = smtpPasswordVisible ? 'text' : 'password';
+
+			if (smtpPasswordEyeIcon) {
+				smtpPasswordEyeIcon.className = smtpPasswordVisible
+					? 'fa fa-eye-slash text-gray-600'
+					: 'fa fa-eye text-gray-600';
+				smtpPasswordEyeIcon.classList.add('eye-animating');
+				setTimeout(() => smtpPasswordEyeIcon.classList.remove('eye-animating'), 400);
+			}
+
+			smtpPasswordInput.classList.add('token-animating');
+			setTimeout(() => smtpPasswordInput.classList.remove('token-animating'), 300);
+		});
+	}
+
+	// SMTP Preset button event listeners
+	const presetGmailBtn = document.getElementById('presetGmail');
+	const presetOutlookBtn = document.getElementById('presetOutlook');
+	const presetYahooBtn = document.getElementById('presetYahoo');
+	const smtpServerInput = document.getElementById('smtpServer');
+	const smtpPortInput = document.getElementById('smtpPort');
+
+	function setSmtpPreset(host, port) {
+		if (smtpServerInput) {
+			smtpServerInput.value = host;
+		}
+		if (smtpPortInput) {
+			smtpPortInput.value = port;
+		}
+		browser.storage.local.set({
+			smtpServer: host,
+			smtpPort: String(port),
+		});
+	}
+
+	if (presetGmailBtn) {
+		presetGmailBtn.addEventListener('click', () => setSmtpPreset('smtp.gmail.com', 587));
+	}
+	if (presetOutlookBtn) {
+		presetOutlookBtn.addEventListener('click', () => setSmtpPreset('smtp.office365.com', 587));
+	}
+	if (presetYahooBtn) {
+		presetYahooBtn.addEventListener('click', () => setSmtpPreset('smtp.mail.yahoo.com', 587));
+	}
+
+	// Codeberg token visibility toggle
+	if (toggleCodebergTokenBtn && codebergTokenInput) {
+		toggleCodebergTokenBtn.addEventListener('click', () => {
+			codebergTokenVisible = !codebergTokenVisible;
+			codebergTokenInput.type = codebergTokenVisible ? 'text' : 'password';
+
+			codebergTokenEyeIcon.classList.add('eye-animating');
+			setTimeout(() => codebergTokenEyeIcon.classList.remove('eye-animating'), 400);
+			codebergTokenEyeIcon.className = codebergTokenVisible
+				? 'fa fa-eye-slash text-gray-600'
+				: 'fa fa-eye text-gray-600';
+
+			codebergTokenInput.classList.add('token-animating');
+			setTimeout(() => codebergTokenInput.classList.remove('token-animating'), 300);
 		});
 	}
 
@@ -399,6 +513,31 @@ document.addEventListener('DOMContentLoaded', () => {
 		generateBtn.disabled = true;
 	}
 
+	function setSendEmailButtonLoading(btn, isLoading) {
+		if (!btn) return;
+		btn.replaceChildren();
+		if (isLoading) {
+			const icon = document.createElement('i');
+			icon.className = 'fa fa-spinner fa-spin';
+			btn.appendChild(icon);
+
+			const msg = browser.i18n.getMessage('sendingButton') || 'Sending...';
+			btn.appendChild(document.createTextNode(' ' + msg));
+			btn.disabled = true;
+		} else {
+			const icon = document.createElement('i');
+			icon.className = 'fa fa-paper-plane';
+			btn.appendChild(icon);
+
+			const msg = browser.i18n.getMessage('sendEmailButton') || 'Send Email';
+			const span = document.createElement('span');
+			span.textContent = msg;
+			btn.appendChild(document.createTextNode(' '));
+			btn.appendChild(span);
+			btn.disabled = false;
+		}
+	}
+
 	function updateGenerateButtonState() {
 		const generateBtn = document.getElementById('generateReport');
 		const platformUsername = document.getElementById('platformUsername');
@@ -460,7 +599,12 @@ document.addEventListener('DOMContentLoaded', () => {
 			scrumReport.dataset.copyPlaceholder = 'true';
 		}
 
-		copyBtn.disabled = scrumReport.dataset.copyPlaceholder === 'true' || !scrumReport.textContent.trim();
+		const isDisabled = scrumReport.dataset.copyPlaceholder === 'true' || !scrumReport.textContent.trim();
+		copyBtn.disabled = isDisabled;
+		const sendReportEmail = document.getElementById('sendReportEmail');
+		if (sendReportEmail) {
+			sendReportEmail.disabled = isDisabled;
+		}
 	}
 
 	async function bootstrapScrumReportOnPopupLoad(generateBtn) {
@@ -624,6 +768,9 @@ document.addEventListener('DOMContentLoaded', () => {
 				'platform',
 				'githubUsername',
 				'gitlabUsername',
+				'codebergUsername',
+				'codebergToken',
+				'codebergApiBaseUrl',
 			])
 			.then((result) => {
 				if (result.projectName) projectNameInput.value = result.projectName;
@@ -674,8 +821,14 @@ document.addEventListener('DOMContentLoaded', () => {
 					window.scrumDateRangeUtils.persistDateRange(startingDateInput, endingDateInput);
 				}
 
+				if (codebergUsernameInput && result.codebergUsername) codebergUsernameInput.value = result.codebergUsername;
+				if (codebergTokenInput && result.codebergToken) codebergTokenInput.value = result.codebergToken;
+				if (codebergApiBaseUrlInput)
+					codebergApiBaseUrlInput.value = result.codebergApiBaseUrl || 'https://codeberg.org/api/v1';
+
 				// Load platform-specific username
 				const platform = result.platform || 'github';
+				lastPlatform = platform;
 				const platformUsernameKey = `${platform}Username`;
 				platformUsername.value = result[platformUsernameKey] || '';
 				window.updateGenerateButtonState && window.updateGenerateButtonState();
@@ -780,30 +933,70 @@ document.addEventListener('DOMContentLoaded', () => {
 				showPopupMessage(browser.i18n.getMessage('generatingReportNotification'));
 			}
 			browser.storage.local
-				.get(['platform'])
+				.get(['platform', 'codebergApiBaseUrl'])
 				.then((result) => {
-					platformUsername.classList.remove('input-error');
-					usernameError.classList.remove('errorMessage');
-					usernameError.textContent = '';
 					const platform = result.platform || 'github';
-					const platformUsernameKey = `${platform}Username`;
+					const codebergApiBaseUrl = result.codebergApiBaseUrl || 'https://codeberg.org/api/v1';
 
-					return browser.storage.local
-						.set({
-							platform: platformSelect.value,
-							[platformUsernameKey]: platformUsername.value,
-						})
-						.then(() => {
-							// Reload platform from storage before generating report
-							return browser.storage.local.get(['platform']).then((res) => {
-								platformSelect.value = res.platform || 'github';
-								updatePlatformUI(platformSelect.value);
-								generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
-								generateBtn.disabled = true;
-								window.generateScrumReport && window.generateScrumReport();
-								generateBtn._triggeredByShortcut = false;
+					const proceedWithReport = () => {
+						platformUsername.classList.remove('input-error');
+						usernameError.classList.remove('errorMessage');
+						usernameError.textContent = '';
+						const platformUsernameKey = `${platform}Username`;
+
+						return browser.storage.local
+							.set({
+								platform: platformSelect.value,
+								[platformUsernameKey]: platformUsername.value,
+							})
+							.then(() => {
+								// Reload platform from storage before generating report
+								return browser.storage.local.get(['platform']).then((res) => {
+									platformSelect.value = res.platform || 'github';
+									updatePlatformUI(platformSelect.value);
+									generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
+									generateBtn.disabled = true;
+									window.generateScrumReport && window.generateScrumReport();
+									generateBtn._triggeredByShortcut = false;
+								});
 							});
-						});
+					};
+
+					if (platformSelect.value === 'codeberg' && !codebergApiBaseUrl.includes('codeberg.org')) {
+						try {
+							const parsedUrl = new URL(codebergApiBaseUrl);
+							const originPattern = `${parsedUrl.protocol}//${parsedUrl.host}/*`;
+							return browser.permissions
+								.contains({
+									origins: [originPattern],
+								})
+								.then((hasPerm) => {
+									if (!hasPerm) {
+										return browser.permissions
+											.request({
+												origins: [originPattern],
+											})
+											.then((granted) => {
+												if (granted) {
+													return proceedWithReport();
+												} else {
+													showPopupMessage(
+														'Host permission is required to fetch data from self-hosted instance ' + parsedUrl.host,
+														'error',
+													);
+												}
+											});
+									} else {
+										return proceedWithReport();
+									}
+								});
+						} catch (e) {
+							console.error('Invalid Codeberg API URL:', e);
+							return proceedWithReport();
+						}
+					} else {
+						return proceedWithReport();
+					}
 				})
 				.finally(() => {
 					if (generateBtn._triggeredByShortcut) {
@@ -896,6 +1089,153 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		});
 
+		const sendReportEmailBtn = document.getElementById('sendReportEmail');
+		if (sendReportEmailBtn && window.isTauri) {
+			sendReportEmailBtn.addEventListener('click', async () => {
+				const scrumReport = document.getElementById('scrumReport');
+				if (!scrumReport) return;
+				const htmlBody = sanitizeHtml(scrumReport.innerHTML);
+				if (!htmlBody.trim() || scrumReport.dataset.copyPlaceholder === 'true') {
+					return;
+				}
+
+				// Show loading state
+				setSendEmailButtonLoading(sendReportEmailBtn, true);
+
+				// Retrieve settings from storage
+				try {
+					const settings = await browser.storage.local.get([
+						'smtpSenderEmail',
+						'smtpServer',
+						'smtpPort',
+						'smtpUsername',
+						'smtpPassword',
+						'smtpRecipients',
+					]);
+
+					const senderEmail = (settings.smtpSenderEmail || '').trim();
+					const host = (settings.smtpServer || '').trim();
+					const port = parseInt(settings.smtpPort, 10) || 587;
+					const username = (settings.smtpUsername || '').trim();
+					const password = settings.smtpPassword || '';
+					const recipientsRaw = (settings.smtpRecipients || '').trim();
+
+					if (!senderEmail || !host || !username || !password || !recipientsRaw) {
+						showPopupMessage(
+							browser.i18n.getMessage('smtpMissingFieldsError') ||
+								'Please configure all SMTP settings in Mail Settings first.',
+							{ variant: 'error' },
+						);
+						setSendEmailButtonLoading(sendReportEmailBtn, false);
+						return;
+					}
+
+					// Split recipients by comma
+					const recipients = recipientsRaw
+						.split(',')
+						.map((r) => r.trim())
+						.filter(Boolean);
+					if (recipients.length === 0) {
+						showPopupMessage(
+							browser.i18n.getMessage('smtpMissingFieldsError') || 'Please configure recipients first.',
+							{ variant: 'error' },
+						);
+						setSendEmailButtonLoading(sendReportEmailBtn, false);
+						return;
+					}
+
+					// Validate email formats
+					const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+					if (!emailRegex.test(senderEmail)) {
+						showPopupMessage(
+							browser.i18n.getMessage('smtpInvalidEmailError', [senderEmail]) ||
+								`Invalid email address: ${senderEmail}`,
+							{ variant: 'error' },
+						);
+						setSendEmailButtonLoading(sendReportEmailBtn, false);
+						return;
+					}
+					for (const recipient of recipients) {
+						if (!emailRegex.test(recipient)) {
+							showPopupMessage(
+								browser.i18n.getMessage('smtpInvalidEmailError', [recipient]) || `Invalid email address: ${recipient}`,
+								{ variant: 'error' },
+							);
+							setSendEmailButtonLoading(sendReportEmailBtn, false);
+							return;
+						}
+					}
+
+					// Build subject
+					const subject = buildScrumSubjectFromPopup();
+
+					// Call Tauri command
+					const invoke = window.__TAURI__.core.invoke;
+					const sentRecipients = [];
+					const failedRecipients = [];
+					let lastError = null;
+
+					for (const toEmail of recipients) {
+						try {
+							await invoke('send_smtp_email', {
+								host,
+								port,
+								username,
+								password,
+								fromEmail: senderEmail,
+								toEmail,
+								subject,
+								body: htmlBody,
+							});
+							sentRecipients.push(toEmail);
+						} catch (err) {
+							console.error(`[SMTP] Error sending email to ${toEmail}:`, err);
+							failedRecipients.push(toEmail);
+							lastError = err;
+						}
+					}
+
+					if (failedRecipients.length === 0) {
+						showPopupMessage(browser.i18n.getMessage('smtpSendSuccess') || 'Report sent successfully via email!', {
+							variant: 'success',
+						});
+						sendReportEmailBtn.replaceChildren();
+						const checkIcon = document.createElement('i');
+						checkIcon.className = 'fa fa-check';
+						sendReportEmailBtn.appendChild(checkIcon);
+						const sentMsg = browser.i18n.getMessage('sentButton') || 'Sent';
+						sendReportEmailBtn.appendChild(document.createTextNode(' ' + sentMsg));
+					} else if (sentRecipients.length === 0) {
+						const errMsg = typeof lastError === 'string' ? lastError : lastError.message || String(lastError);
+						showPopupMessage((browser.i18n.getMessage('smtpSendFailed') || 'Failed to send email: ') + errMsg, {
+							variant: 'error',
+						});
+					} else {
+						const partialMsg =
+							browser.i18n.getMessage('smtpPartialSuccess', [
+								String(sentRecipients.length),
+								String(recipients.length),
+								failedRecipients.join(', '),
+							]) || `Sent to ${sentRecipients.length}/${recipients.length}; failed: ${failedRecipients.join(', ')}`;
+						showPopupMessage(partialMsg, {
+							variant: 'error',
+						});
+					}
+
+					setTimeout(() => {
+						setSendEmailButtonLoading(sendReportEmailBtn, false);
+					}, 2000);
+				} catch (err) {
+					console.error('[SMTP] Error in email send handler:', err);
+					const errMsg = typeof err === 'string' ? err : err.message || String(err);
+					showPopupMessage((browser.i18n.getMessage('smtpSendFailed') || 'Failed to send email: ') + errMsg, {
+						variant: 'error',
+					});
+					setSendEmailButtonLoading(sendReportEmailBtn, false);
+				}
+			});
+		}
+
 		// Custom date container click handler
 		document.getElementById('customDateContainer').addEventListener('click', () => {
 			document.querySelectorAll('input[name="timeframe"]').forEach((radio) => {
@@ -952,7 +1292,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 					if (items.selectedTimeframe === 'yesterdayContribution') {
 						startDateInput.value = getYesterday();
-						endDateInput.value = getToday();
+						endDateInput.value = getYesterday();
 					} else if (items.selectedTimeframe === 'weeklyContribution') {
 						startDateInput.value = getWeekAgo();
 						endDateInput.value = getToday();
@@ -1094,6 +1434,23 @@ document.addEventListener('DOMContentLoaded', () => {
 				githubTokenInput.value = githubTokenInput.value.trim();
 			});
 		}
+		if (codebergUsernameInput) {
+			codebergUsernameInput.addEventListener('input', () => {
+				browser.storage.local.set({ codebergUsername: codebergUsernameInput.value });
+			});
+		}
+		if (codebergTokenInput) {
+			codebergTokenInput.addEventListener('input', () => {
+				browser.storage.local.set({ codebergToken: codebergTokenInput.value });
+				checkTokenForShowCommits({ persistState: false });
+			});
+		}
+		if (codebergApiBaseUrlInput) {
+			codebergApiBaseUrlInput.addEventListener('input', () => {
+				const val = codebergApiBaseUrlInput.value.trim() || 'https://codeberg.org/api/v1';
+				browser.storage.local.set({ codebergApiBaseUrl: val });
+			});
+		}
 		if (gitlabTokenInput) {
 			gitlabTokenInput.addEventListener('input', () => {
 				checkTokenForShowCommits({ persistState: false });
@@ -1179,16 +1536,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	function showReportView() {
 		isSettingsVisible = false;
+		isMailSettingsVisible = false;
 		reportSection.classList.remove('hidden');
 		settingsSection.classList.add('hidden');
+		if (mailSettingsSection) mailSettingsSection.classList.add('hidden');
 		settingsToggle.classList.remove('active');
+		if (mailSettingsToggle) mailSettingsToggle.classList.remove('active');
 	}
 
 	function showSettingsView() {
 		isSettingsVisible = true;
+		isMailSettingsVisible = false;
 		reportSection.classList.add('hidden');
 		settingsSection.classList.remove('hidden');
+		if (mailSettingsSection) mailSettingsSection.classList.add('hidden');
 		settingsToggle.classList.add('active');
+		if (mailSettingsToggle) mailSettingsToggle.classList.remove('active');
+	}
+
+	function showMailSettingsView() {
+		isSettingsVisible = false;
+		isMailSettingsVisible = true;
+		reportSection.classList.add('hidden');
+		settingsSection.classList.add('hidden');
+		if (mailSettingsSection) mailSettingsSection.classList.remove('hidden');
+		settingsToggle.classList.remove('active');
+		if (mailSettingsToggle) mailSettingsToggle.classList.add('active');
 	}
 
 	if (settingsToggle) {
@@ -1199,6 +1572,20 @@ document.addEventListener('DOMContentLoaded', () => {
 				showSettingsView();
 			}
 		});
+	}
+
+	if (mailSettingsToggle) {
+		mailSettingsToggle.addEventListener('click', () => {
+			if (isMailSettingsVisible) {
+				showReportView();
+			} else {
+				showMailSettingsView();
+			}
+		});
+	}
+
+	if (mailSettingsBackBtn) {
+		mailSettingsBackBtn.addEventListener('click', showReportView);
 	}
 
 	if (homeButton) {
@@ -1769,6 +2156,8 @@ function updatePlatformUI(platform) {
 	if (usernameLabel) {
 		if (platform === 'gitlab') {
 			usernameLabel.setAttribute('data-i18n', 'gitlabUsernameLabel');
+		} else if (platform === 'codeberg') {
+			usernameLabel.setAttribute('data-i18n', 'codebergUsernameLabel');
 		} else {
 			usernameLabel.setAttribute('data-i18n', 'githubUsernameLabel');
 		}
@@ -1799,18 +2188,35 @@ function updatePlatformUI(platform) {
 	}
 	const githubOnlySections = document.querySelectorAll('.githubOnlySection');
 	githubOnlySections.forEach((el) => {
-		if (platform === 'gitlab') {
-			el.classList.add('hidden');
-		} else {
+		if (platform === 'github') {
 			el.classList.remove('hidden');
+		} else {
+			el.classList.add('hidden');
 		}
 	});
 	const gitlabOnlySections = document.querySelectorAll('.gitlabOnlySection');
 	gitlabOnlySections.forEach((el) => {
-		if (platform === 'github') {
-			el.classList.add('hidden');
-		} else {
+		if (platform === 'gitlab') {
 			el.classList.remove('hidden');
+		} else {
+			el.classList.add('hidden');
+		}
+	});
+	const codebergOnlySections = document.querySelectorAll('.codebergOnlySection');
+	codebergOnlySections.forEach((el) => {
+		if (platform === 'codeberg') {
+			el.classList.remove('hidden');
+		} else {
+			el.classList.add('hidden');
+		}
+	});
+
+	const githubGitlabOnlySections = document.querySelectorAll('.githubGitlabOnlySection');
+	githubGitlabOnlySections.forEach((el) => {
+		if (platform === 'github' || platform === 'gitlab') {
+			el.classList.remove('hidden');
+		} else {
+			el.classList.add('hidden');
 		}
 	});
 
@@ -1863,9 +2269,10 @@ if (platformSelectEl) {
 				bootstrapScrumReportOnPopupLoad(generateBtn);
 			}
 		});
+
 		const platformUsername = document.getElementById('platformUsername');
 		if (platformUsername) {
-			const currentPlatform = platformSelectEl.value === 'github' ? 'gitlab' : 'github'; // Get the platform we're switching from
+			const currentPlatform = lastPlatform; // Get the platform we're switching from
 			const currentUsername = platformUsername.value;
 			if (currentUsername.trim()) {
 				browser.storage.local.set({ [`${currentPlatform}Username`]: currentUsername });
@@ -1880,6 +2287,7 @@ if (platformSelectEl) {
 			}
 		});
 
+		lastPlatform = platform;
 		updatePlatformUI(platform);
 	});
 }
@@ -1898,11 +2306,16 @@ function buildScrumSubjectFromPopup() {
 
 	return `[Scrum]${projectName ? ' - ' + projectName : ''} - ${dateCode}`;
 }
-
 function setPlatformDropdown(value) {
 	if (dropdownSelected) {
 		if (value === 'gitlab') {
 			dropdownSelected.innerHTML = '<i class="fab fa-gitlab mr-2"></i> GitLab';
+		} else if (value === 'codeberg') {
+			dropdownSelected.innerHTML = `
+				<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width: 18px; height: 18px; display: inline-block; vertical-align: middle; margin-right: 8px; fill: currentColor;">
+					<title>Codeberg</title>
+					<path d="M11.999.747A11.974 11.974 0 0 0 0 12.75c0 2.254.635 4.465 1.833 6.376L11.837 6.19c.072-.092.251-.092.323 0l4.178 5.402h-2.992l.065.239h3.113l.882 1.138h-3.674l.103.374h3.86l.777 1.003h-4.358l.135.483h4.593l.695.894h-5.038l.165.589h5.326l.609.785h-5.717l.182.65h6.038l.562.727h-6.397l.183.65h6.717A12.003 12.003 0 0 0 24 12.75 11.977 11.977 0 0 0 11.999.747zm3.654 19.104.182.65h5.326c.173-.204.353-.433.513-.65zm.385 1.377.18.65h3.563c.233-.198.485-.428.712-.65zm.383 1.377.182.648h1.203c.356-.204.685-.412 1.042-.648z"/>
+				</svg> Codeberg`;
 		} else {
 			dropdownSelected.innerHTML = '<i class="fab fa-github mr-2"></i> GitHub';
 		}
@@ -1920,6 +2333,7 @@ function setPlatformDropdown(value) {
 	if (platformSelectHidden) {
 		platformSelectHidden.value = value;
 	}
+	lastPlatform = value;
 	browser.storage.local.set({ platform: value }).then(() => {
 		const scrumReport = document.getElementById('scrumReport');
 		if (scrumReport) scrumReport.textContent = '';
@@ -2041,6 +2455,12 @@ browser.storage.local.get(['platform']).then((result) => {
 	if (dropdownSelected) {
 		if (platform === 'gitlab') {
 			dropdownSelected.innerHTML = '<i class="fab fa-gitlab mr-2"></i> GitLab';
+		} else if (platform === 'codeberg') {
+			dropdownSelected.innerHTML = `
+				<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width: 18px; height: 18px; display: inline-block; vertical-align: middle; margin-right: 8px; fill: currentColor;">
+					<title>Codeberg</title>
+					<path d="M11.999.747A11.974 11.974 0 0 0 0 12.75c0 2.254.635 4.465 1.833 6.376L11.837 6.19c.072-.092.251-.092.323 0l4.178 5.402h-2.992l.065.239h3.113l.882 1.138h-3.674l.103.374h3.86l.777 1.003h-4.358l.135.483h4.593l.695.894h-5.038l.165.589h5.326l.609.785h-5.717l.182.65h6.038l.562.727h-6.397l.183.65h6.717A12.003 12.003 0 0 0 24 12.75 11.977 11.977 0 0 0 11.999.747zm3.654 19.104.182.65h5.326c.173-.204.353-.433.513-.65zm.385 1.377.18.65h3.563c.233-.198.485-.428.712-.65zm.383 1.377.182.648h1.203c.356-.204.685-.412 1.042-.648z"/>
+				</svg> Codeberg`;
 		} else {
 			dropdownSelected.innerHTML = '<i class="fab fa-github mr-2"></i> GitHub';
 		}
@@ -2048,6 +2468,7 @@ browser.storage.local.get(['platform']).then((result) => {
 	if (platformSelectHidden) {
 		platformSelectHidden.value = platform;
 	}
+	lastPlatform = platform;
 	updatePlatformUI(platform);
 });
 
@@ -2158,8 +2579,24 @@ document.querySelectorAll('input[name="timeframe"]').forEach((radio) => {
 				} catch (e) {}
 
 				// Clear all caches
-				const keysToRemove = ['githubCache', 'repoCache', 'gitlabCache'];
+				const keysToRemove = ['githubCache', 'repoCache', 'gitlabCache', 'codebergCache'];
 				await browser.storage.local.remove(keysToRemove);
+
+				// Clear in-memory cache for the active platform
+				const helper = window.PlatformRegistry?.get(platform);
+				if (helper && typeof helper.forceDataRefresh === 'function') {
+					await helper.forceDataRefresh();
+				} else {
+					const fallbackFn =
+						platform === 'gitlab'
+							? window.forceGitlabDataRefresh
+							: platform === 'codeberg'
+								? window.forceCodebergDataRefresh
+								: window.forceGithubDataRefresh;
+					if (typeof fallbackFn === 'function') {
+						await fallbackFn();
+					}
+				}
 
 				// Clear Next Plans cache and fetch them again
 				localStorage.removeItem('nextPlansCache');
