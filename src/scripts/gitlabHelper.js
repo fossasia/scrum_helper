@@ -121,10 +121,14 @@ class GitLabHelper {
 	}
 
 	async fetchGitLabData(username, startDate, endDate, token = null, orgName = '') {
-		// Include token state and orgName in cache key to invalidate when auth or org changes
+		const itemsLocal = await browser.storage.local.get(['showCommits']);
+		const showCommits = itemsLocal.showCommits || false;
+
+		// Include token state, orgName, and showCommits in cache key to invalidate when auth, org, or commits setting changes
 		const tokenMarker = token ? 'auth' : 'noauth';
 		const orgMarker = orgName ? `org-${orgName}` : 'noorg';
-		const cacheKey = `${this.baseUrl}-${username}-${startDate}-${endDate}-${tokenMarker}-${orgMarker}`;
+		const commitMarker = showCommits ? 'commits' : 'nocommits';
+		const cacheKey = `${this.baseUrl}-${username}-${startDate}-${endDate}-${tokenMarker}-${orgMarker}-${commitMarker}`;
 
 		// Check if we need to load from storage
 		if (!this.cache.data && !this.cache.fetching) {
@@ -296,9 +300,6 @@ class GitLabHelper {
 			}
 
 			// Fetch commits for open/draft Merge Requests if enabled
-			const itemsLocal = await browser.storage.local.get(['showCommits']);
-			const showCommits = itemsLocal.showCommits || false;
-
 			if (showCommits && allMergeRequests.length > 0) {
 				const openMRs = allMergeRequests.filter(
 					(mr) =>
