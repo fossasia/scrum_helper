@@ -557,5 +557,107 @@
   "repoFilterTooltipGitLab": {
     "message": "GitLab token required.<br>To force a repo list update,<br>click the Refresh Data button.",
     "description": "Tooltip message displayed for GitLab repository filter option."
+  },
+  "smtpSenderEmailLabel": {
+    "message": "Sender Email"
+  },
+  "smtpSenderEmailPlaceholder": {
+    "message": "sender@example.com"
+  },
+  "smtpHostLabel": {
+    "message": "SMTP Host"
+  },
+  "smtpHostPlaceholder": {
+    "message": "smtp.example.com"
+  },
+  "smtpPortLabel": {
+    "message": "SMTP Port"
+  },
+  "smtpPortPlaceholder": {
+    "message": "587"
+  },
+  "smtpUsernameLabel": {
+    "message": "SMTP Username"
+  },
+  "smtpUsernamePlaceholder": {
+    "message": "username@example.com"
+  },
+  "smtpPasswordLabel": {
+    "message": "SMTP Password"
+  },
+  "smtpPasswordPlaceholder": {
+    "message": "Enter your SMTP password"
+  },
+  "smtpRecipientsLabel": {
+    "message": "Recipients"
+  },
+  "smtpRecipientsPlaceholder": {
+    "message": "recipient1@example.com, recipient2@example.com"
+  },
+  "smtpGmailHint": {
+    "message": "For Gmail, you must use an App Password, not your regular password."
+  },
+  "smtpSecurityWarning": {
+    "message": "Note: Your password is stored in unencrypted local storage. Ensure your device is secure."
+  },
+  "smtpMissingFieldsError": {
+    "message": "Please configure all Mail Settings first."
+  },
+  "smtpInvalidEmailError": {
+    "message": "Invalid email address: $1"
+  },
+  "smtpSendSuccess": {
+    "message": "Report sent successfully via email!"
+  },
+  "smtpPartialSuccess": {
+    "message": "Sent to $1/$2; failed: $3"
+  },
+  "smtpSendFailed": {
+    "message": "Failed to send email: "
+  },
+  "smtpSendError": {
+    "message": "An error occurred: "
+  },
+  "sendingButton": {
+    "message": "Sending..."
+  },
+  "sendEmailButton": {
+    "message": "Send Email"
+  },
+  "mailSettingsTitle": {
+    "message": "Mail Settings"
+  },
+  "sentButton": {
+    "message": "Sent"
+  },
+  "homeTitle": {
+    "message": "Home"
+  },
+  "settingsTitle": {
+    "message": "Settings"
+  },
+  "smtpSenderEmailTooltip": {
+    "message": "The email address from which the report will be sent (e.g. your email address)."
+  },
+  "smtpHostTooltip": {
+    "message": "The address of your SMTP server (e.g. smtp.gmail.com or smtp.mail.yahoo.com)."
+  },
+  "smtpPortTooltip": {
+    "message": "The port number used by your SMTP server. Usually 465 (for SSL) or 587 (for TLS/STARTTLS)."
+  },
+  "smtpUsernameTooltip": {
+    "message": "The username or login email address for your SMTP server."
+  },
+  "smtpPasswordTooltip": {
+    "message": "The password or app-specific password used to authenticate with your SMTP server. WARNING: Stored in unencrypted local storage."
+  },
+  "smtpRecipientsTooltip": {
+    "message": "A list of recipient email addresses separated by commas (e.g. recipient1@example.com, recipient2@example.com)."
+  },
+  "smtpPresetsLabel": {
+    "message": "Quick Presets"
+  },
+  "smtpPresetsTooltip": {
+    "message": "Select a preset to automatically configure the SMTP host and port settings for common email services."
   }
 }

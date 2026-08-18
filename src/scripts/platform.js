@@ -1,5 +1,9 @@
 (function () {
-	const isExtension = typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id;
+	const isExtension =
+		window.location.protocol.endsWith('-extension:') ||
+		(typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id) ||
+		(typeof browser !== 'undefined' && browser.runtime && browser.runtime.id);
+
 	if (isExtension) {
 		window.isTauri = false;
 		return;
