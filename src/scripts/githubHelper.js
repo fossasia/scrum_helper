@@ -237,7 +237,7 @@ function makeRepoCacheKey(username, orgName, platform, storageItems) {
 	if (platform === 'github' || platform === 'gitlab') {
 		const token = (platform === 'gitlab' ? storageItems?.gitlabToken || '' : storageItems?.githubToken || '').trim();
 		if (!token) {
-			return `repos-${username}-${org}-notoken`;
+			return `repos-${platform}-${username}-${org}-notoken`;
 		}
 		let hash = 0;
 		for (let i = 0; i < token.length; i++) {
@@ -246,9 +246,9 @@ function makeRepoCacheKey(username, orgName, platform, storageItems) {
 			hash |= 0; // Convert to 32bit integer
 		}
 		const fingerprint = (hash >>> 0).toString(36);
-		return `repos-${username}-${org}-token-${fingerprint}`;
+		return `repos-${platform}-${username}-${org}-token-${fingerprint}`;
 	}
-	return `repos-${username}-${org}`;
+	return `repos-${platform}-${username}-${org}`;
 }
 
 // Trigger repo fetch when repo filtering is enabled (moved from popup.js)
@@ -1009,7 +1009,7 @@ if (window.PlatformRegistry) {
 		checkTokenForShowCommits,
 		checkTokenForMergedPRs,
 		triggerRepoFetchIfEnabled: githubTriggerRepoFetchIfEnabled,
-    checkTokenForNextPlans,
+		checkTokenForNextPlans,
 		debugRepoFetch,
 		loadRepos,
 		performRepoFetch,

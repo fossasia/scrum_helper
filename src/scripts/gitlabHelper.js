@@ -227,9 +227,9 @@ class GitLabHelper {
 				// Fetch group issues
 				const groupIssuesUrl = `${this.baseUrl}/groups/${encodeURIComponent(orgName)}/issues?author_username=${encodeURIComponent(username)}&created_after=${startDate}T00:00:00Z&created_before=${endDate}T23:59:59Z&per_page=100&order_by=updated_at&sort=desc`;
 				const groupIssuesRes = await fetch(groupIssuesUrl, { headers });
-				let allIssues = groupIssuesRes.ok ? await groupIssuesRes.json() : [];
+				allIssues = groupIssuesRes.ok ? await groupIssuesRes.json() : [];
 
-				const filterSettings = await chrome.storage.local.get(['useRepoFilter', 'selectedRepos']);
+				const filterSettings = await browser.storage.local.get(['useRepoFilter', 'selectedRepos']);
 				if (filterSettings.useRepoFilter && filterSettings.selectedRepos && filterSettings.selectedRepos.length > 0) {
 					const selectedNames = new Set(
 						filterSettings.selectedRepos.map((r) => (typeof r === 'object' ? r.fullName : r).toLowerCase()),
@@ -308,9 +308,9 @@ class GitLabHelper {
 				for (const p of [...membershipProjects, ...contributedProjects]) {
 					allProjectsMap.set(p.id, p);
 				}
-				let allProjects = Array.from(allProjectsMap.values());
+				allProjects = Array.from(allProjectsMap.values());
 
-				const filterSettings = await chrome.storage.local.get(['useRepoFilter', 'selectedRepos']);
+				const filterSettings = await browser.storage.local.get(['useRepoFilter', 'selectedRepos']);
 				if (filterSettings.useRepoFilter && filterSettings.selectedRepos && filterSettings.selectedRepos.length > 0) {
 					const selectedNames = new Set(
 						filterSettings.selectedRepos.map((r) => (typeof r === 'object' ? r.fullName : r).toLowerCase()),
@@ -560,7 +560,7 @@ async function forceGitlabDataRefresh() {
 		window.gitlabHelper.cache.queue = [];
 	}
 	await new Promise((resolve) => {
-		chrome.storage.local.remove('gitlabCache', resolve);
+		browser.storage.local.remove('gitlabCache', resolve);
 	});
 	window.hasInjectedContent = false;
 	// Re-instantiate gitlabHelper to ensure a fresh instance for next API call
@@ -592,7 +592,7 @@ if (window.PlatformRegistry) {
 				warning?.classList.add('hidden');
 			}
 		},
-		
+
 		checkTokenForMergedPRs({ persistState = false } = {}) {
 			const mergedPRsCheckbox = document.getElementById('onlyMergedPRs');
 			if (!mergedPRsCheckbox) return;
@@ -661,7 +661,7 @@ if (window.PlatformRegistry) {
 		},
 		validateOrgOnBlur(org) {
 			const baseUrl = window.gitlabBaseUrl || 'https://gitlab.com/api/v4';
-			chrome.storage.local.get(['gitlabToken']).then((result) => {
+			browser.storage.local.get(['gitlabToken']).then((result) => {
 				const headers = {};
 				if (result.gitlabToken) headers['PRIVATE-TOKEN'] = result.gitlabToken;
 				fetch(`${baseUrl}/groups/${encodeURIComponent(org)}`, { headers })
@@ -671,7 +671,7 @@ if (window.PlatformRegistry) {
 							return;
 						}
 						window.clearScrumHelperToast?.();
-						chrome.storage.local.remove(['gitlabCache']);
+						browser.storage.local.remove(['gitlabCache']);
 					})
 					.catch((err) => {
 						if (window.showPopupMessage) window.showPopupMessage('Error validating organization', { variant: 'error' });
@@ -700,7 +700,7 @@ if (window.PlatformRegistry) {
 			let endDate;
 			try {
 				const storageData = await new Promise((resolve) => {
-					chrome.storage.local.get(['startingDate', 'endingDate', 'yesterdayContribution'], resolve);
+					browser.storage.local.get(['startingDate', 'endingDate', 'yesterdayContribution'], resolve);
 				});
 
 				if (storageData.yesterdayContribution) {
