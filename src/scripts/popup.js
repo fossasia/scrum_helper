@@ -2223,6 +2223,15 @@ function updatePlatformUI(platform) {
 		}
 	});
 
+	const githubGitlabCodebergOnlySections = document.querySelectorAll('.githubGitlabCodebergOnlySection');
+	githubGitlabCodebergOnlySections.forEach((el) => {
+		if (platform === 'github' || platform === 'gitlab' || platform === 'codeberg') {
+			el.classList.remove('hidden');
+		} else {
+			el.classList.add('hidden');
+		}
+	});
+
 	const tokenWarningShowCommits = document.getElementById('tokenWarningForShowCommits');
 	if (tokenWarningShowCommits) {
 		const span = tokenWarningShowCommits.querySelector('span');
