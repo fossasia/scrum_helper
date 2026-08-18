@@ -140,7 +140,7 @@ let orgName = '';
 let platform = 'github';
 let platformUsername = '';
 let gitlabToken = '';
-window.gitlabBaseUrl = '';
+let gitlabSelfHostedUrl = '';
 window.gitlabHelper = null;
 let codebergToken = '';
 window.codebergApiBaseUrl = '';
@@ -185,10 +185,6 @@ function handleUsernameValidationError(errMessage) {
 }
 
 function allIncluded(outputTarget = 'email') {
-	// Always re-instantiate gitlabHelper for gitlab platform to ensure fresh cache after refresh
-	if (platform === 'gitlab' || (typeof platform === 'undefined' && window.GitLabHelper)) {
-		window.gitlabHelper = new window.GitLabHelper(window.gitlabBaseUrl);
-	}
 	if (scrumGenerationInProgress) {
 		return;
 	}
@@ -254,6 +250,7 @@ function allIncluded(outputTarget = 'email') {
 				'codebergUsername',
 				'githubToken',
 				'gitlabToken',
+				'gitlabSelfHostedUrl',
 				'codebergToken',
 				'gitlabBaseUrl',
 				'codebergApiBaseUrl',
@@ -309,6 +306,7 @@ function allIncluded(outputTarget = 'email') {
 						projectName: items.projectName,
 						githubToken: items.githubToken,
 						gitlabToken: items.gitlabToken,
+						gitlabSelfHostedUrl: items.gitlabSelfHostedUrl,
 						codebergToken: items.codebergToken,
 					});
 				}
@@ -318,9 +316,9 @@ function allIncluded(outputTarget = 'email') {
 				chrome.storage.local.remove(['userReason']);
 				githubToken = items.githubToken;
 				gitlabToken = items.gitlabToken || '';
-				window.gitlabBaseUrl = items.gitlabBaseUrl || '';
+				gitlabSelfHostedUrl = items.gitlabSelfHostedUrl || '';
 				if (platform === 'gitlab' && window.GitLabHelper) {
-					window.gitlabHelper = new window.GitLabHelper(window.gitlabBaseUrl);
+					window.gitlabHelper = new window.GitLabHelper(gitlabSelfHostedUrl || null);
 				}
 				codebergToken = items.codebergToken || '';
 				window.codebergApiBaseUrl = items.codebergApiBaseUrl || 'https://codeberg.org/api/v1';
@@ -408,7 +406,10 @@ function allIncluded(outputTarget = 'email') {
 						return;
 					}
 				} else if (platform === 'gitlab') {
-					if (!window.gitlabHelper) window.gitlabHelper = new window.GitLabHelper(window.gitlabBaseUrl);
+					// Always recreate helper from the latest stored URL to avoid stale instance reuse.
+					if (window.GitLabHelper) {
+						window.gitlabHelper = new window.GitLabHelper(gitlabSelfHostedUrl || null);
+					}
 					if (platformUsernameLocal) {
 						const generateBtn = document.getElementById('generateReport');
 						if (generateBtn && outputTarget === 'popup') {
@@ -426,6 +427,7 @@ function allIncluded(outputTarget = 'email') {
 										gitlabToken,
 										orgName,
 									);
+									const apiBaseUrl = (window.gitlabHelper.baseUrl || 'https://gitlab.com/api/v4').replace(/\/+$/, '');
 
 									const mappedData = window.gitlabHelper.mapGitLabReportData(data);
 									githubUserData = mappedData.githubUserData;
@@ -2295,16 +2297,6 @@ function allIncluded(outputTarget = 'email') {
 	}
 }
 
-// Auto inject report on email client load
-// if (window.location.protocol.startsWith('http')) {
-// 	allIncluded('email');
-// 	$('button>span:contains(New conversation)')
-// 		.parent('button')
-// 		.click(() => {
-// 			allIncluded();
-// 		});
-// }
-
 window.generateScrumReport = () => {
 	allIncluded('popup');
 };
@@ -2323,17 +2315,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 						sendResponse({ success: false, error: err.message });
 					});
 			} else {
-				const fallbackFn = platform === 'gitlab' ? window['forceGitlabDataRefresh'] : window['forceGithubDataRefresh'];
-				if (typeof fallbackFn === 'function') {
-					fallbackFn()
-						.then((result) => sendResponse(result))
-						.catch((err) => {
-							console.error('Force refresh failed:', err);
-							sendResponse({ success: false, error: err.message });
-						});
-				} else {
-					sendResponse({ success: false, error: `No refresh handler registered for platform: ${platform}` });
-				}
+				sendResponse({ success: false, error: `No refresh handler registered for platform: ${platform}` });
 			}
 		});
 		return true;
