@@ -728,12 +728,13 @@ function allIncluded(outputTarget = 'email') {
 	}
 
 	async function fetchGithubData() {
-		// Always load latest repo filter settings from storage
-		const filterSettings = await new Promise((resolve) => {
-			chrome.storage.local.get(['useRepoFilter', 'selectedRepos'], resolve);
+		// Always load latest settings from storage
+		const settings = await new Promise((resolve) => {
+			chrome.storage.local.get(['useRepoFilter', 'selectedRepos', 'showCommits'], resolve);
 		});
-		useRepoFilter = filterSettings.useRepoFilter || false;
-		selectedRepos = Array.isArray(filterSettings.selectedRepos) ? filterSettings.selectedRepos : [];
+		useRepoFilter = settings.useRepoFilter || false;
+		selectedRepos = Array.isArray(settings.selectedRepos) ? settings.selectedRepos : [];
+		showCommits = settings.showCommits || false;
 
 		// Get the correct date range for cache key
 		let startDateForCache;
@@ -759,7 +760,15 @@ function allIncluded(outputTarget = 'email') {
 			endDateForCache = formatLocalDate(today);
 		}
 
-		const cacheKey = `${platformUsernameLocal}-${startDateForCache}-${endDateForCache}-${orgName || 'all'}`;
+		const repoMarker =
+			useRepoFilter && selectedRepos.length > 0
+				? selectedRepos
+						.map((r) => (r && typeof r === 'object' ? r.fullName || '' : r || ''))
+						.sort()
+						.join(',')
+				: 'norepos';
+		const commitMarker = showCommits ? 'commits' : 'nocommits';
+		const cacheKey = `${platformUsernameLocal}-${startDateForCache}-${endDateForCache}-${orgName || 'all'}-${commitMarker}-${repoMarker}`;
 
 		if (githubCache.fetching || (githubCache.cacheKey === cacheKey && githubCache.data)) {
 			log('Fetch already in progress or data already fetched. Skipping fetch.');
@@ -1943,7 +1952,10 @@ function allIncluded(outputTarget = 'email') {
 					// cannot be fetched.
 					let hasMergeInfo = false;
 					let isMerged = false;
-					if (prCacheKey && prCacheKey in mergedStatusResults) {
+					if (platform === 'gitlab') {
+						hasMergeInfo = true;
+						isMerged = item.state === 'merged';
+					} else if (prCacheKey && prCacheKey in mergedStatusResults) {
 						hasMergeInfo = true;
 						isMerged = !!mergedStatusResults[prCacheKey];
 					} else if (item.pull_request && Object.prototype.hasOwnProperty.call(item.pull_request, 'merged_at')) {
@@ -2121,7 +2133,9 @@ function allIncluded(outputTarget = 'email') {
 					}
 				} else {
 					let merged = null;
-					if ((githubToken || (useMergedStatus && !fallbackToSimple)) && mergedStatusResults) {
+					if (platform === 'gitlab') {
+						merged = item.state === 'merged';
+					} else if ((githubToken || (useMergedStatus && !fallbackToSimple)) && mergedStatusResults) {
 						const repoParts = repository_url.split('/');
 						const owner = repoParts[repoParts.length - 2];
 						const repo = repoParts[repoParts.length - 1];
