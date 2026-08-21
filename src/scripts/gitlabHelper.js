@@ -515,7 +515,7 @@ async function forceGitlabDataRefresh() {
 	return { success: true };
 }
 
-window['forceGitlabDataRefresh'] = forceGitlabDataRefresh;
+window.forceGitlabDataRefresh = forceGitlabDataRefresh;
 
 async function fetchIssuesFromGitLab() {
 	return [];
