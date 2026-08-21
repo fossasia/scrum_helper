@@ -1108,7 +1108,8 @@ function allIncluded(outputTarget = 'email') {
 			log('Repo fiter disabled, skipping fetch');
 			return [];
 		}
-		const repoCacheKey = `repos-${platformUsernameLocal}-${orgName}-${startDateForCache}-${endDateForCache}`;
+		const items = await browser.storage.local.get(['githubToken', 'gitlabToken']);
+		const repoCacheKey = makeRepoCacheKey(platformUsernameLocal, orgName, platform, items);
 
 		const now = Date.now();
 		const isRepoCacheFresh = now - githubCache.repoTimeStamp < githubCache.ttl;
