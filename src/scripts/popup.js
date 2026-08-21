@@ -1657,7 +1657,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					const items = await browser.storage.local.get(['platform']);
 					platform = items.platform || 'github';
 				} catch {}
-				if (platform !== 'github') {
+				if (platform !== 'github' && platform !== 'gitlab') {
 					repoFilterContainer.classList.add('hidden');
 					useRepoFilter.checked = false;
 					if (repoStatus)
@@ -1667,7 +1667,8 @@ document.addEventListener('DOMContentLoaded', () => {
 					return;
 				}
 				const enabled = useRepoFilter.checked;
-				const hasToken = githubTokenInput.value.trim() !== '';
+				const tokenInput = platform === 'gitlab' ? gitlabTokenInput : githubTokenInput;
+				const hasToken = tokenInput ? tokenInput.value.trim() !== '' : false;
 				repoFilterContainer.classList.toggle('hidden', !enabled);
 
 				if (enabled && !hasToken) {
@@ -1676,6 +1677,16 @@ document.addEventListener('DOMContentLoaded', () => {
 					hideDropdown();
 					const tokenWarning = document.getElementById('tokenWarningForFilter');
 					if (tokenWarning) {
+						const warningMsg =
+							platform === 'gitlab'
+								? chrome?.i18n.getMessage('tokenRequiredGitlabWarning') ||
+									'A GitLab token is required for repository filtering. Please add one in settings.'
+								: chrome?.i18n.getMessage('tokenRequiredWarning') ||
+									'A GitHub token is required for repository filtering. Please add one in the settings.';
+						tokenWarning.textContent = '';
+						const span = document.createElement('span');
+						span.textContent = warningMsg;
+						tokenWarning.appendChild(span);
 						tokenWarning.classList.remove('hidden');
 						tokenWarning.classList.add('shake-animation');
 						setTimeout(() => tokenWarning.classList.remove('shake-animation'), 620);
@@ -1703,6 +1714,7 @@ document.addEventListener('DOMContentLoaded', () => {
 							'githubUsername',
 							'gitlabUsername',
 							'githubToken',
+							'gitlabToken',
 							'orgName',
 						]);
 
@@ -1734,13 +1746,10 @@ document.addEventListener('DOMContentLoaded', () => {
 							return;
 						}
 
-						if (window.fetchUserRepositories) {
-							const repos = await window.fetchUserRepositories(
-								username,
-
-								items.githubToken,
-								items.orgName || '',
-							);
+						const helper = window.PlatformRegistry?.get(platform);
+						if (helper && helper.fetchUserRepositories) {
+							const token = platform === 'gitlab' ? items.gitlabToken : items.githubToken;
+							const repos = await helper.fetchUserRepositories(username, token, items.orgName || '');
 							availableRepos = repos;
 							repoStatus.textContent = browser.i18n.getMessage('repoLoaded', [repos.length]);
 
