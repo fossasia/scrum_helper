@@ -227,11 +227,24 @@ class GitLabHelper {
 				const groupIssuesRes = await fetch(groupIssuesUrl, { headers });
 				allIssues = groupIssuesRes.ok ? await groupIssuesRes.json() : [];
 
-				const filterSettings = await browser.storage.local.get(['useRepoFilter', 'selectedRepos']);
+				const filterSettings = await browser.storage.local.get(['useRepoFilter', 'selectedRepos', 'repoCache']);
 				if (filterSettings.useRepoFilter && filterSettings.selectedRepos && filterSettings.selectedRepos.length > 0) {
 					const selectedNames = new Set(
 						filterSettings.selectedRepos.map((r) => (typeof r === 'object' ? r.fullName : r).toLowerCase()),
 					);
+					if (filterSettings.repoCache && filterSettings.repoCache.data) {
+						for (const repo of filterSettings.repoCache.data) {
+							const nameLower = repo.fullName.toLowerCase();
+							const forkedFromLower = repo.forkedFrom?.toLowerCase();
+							if (forkedFromLower) {
+								if (selectedNames.has(nameLower)) {
+									selectedNames.add(forkedFromLower);
+								} else if (selectedNames.has(forkedFromLower)) {
+									selectedNames.add(nameLower);
+								}
+							}
+						}
+					}
 					allMergeRequests = allMergeRequests.filter((mr) => {
 						const path = getProjectPathFromWebUrl(mr.web_url).toLowerCase();
 						return selectedNames.has(path);
@@ -308,11 +321,24 @@ class GitLabHelper {
 				}
 				allProjects = Array.from(allProjectsMap.values());
 
-				const filterSettings = await browser.storage.local.get(['useRepoFilter', 'selectedRepos']);
+				const filterSettings = await browser.storage.local.get(['useRepoFilter', 'selectedRepos', 'repoCache']);
 				if (filterSettings.useRepoFilter && filterSettings.selectedRepos && filterSettings.selectedRepos.length > 0) {
 					const selectedNames = new Set(
 						filterSettings.selectedRepos.map((r) => (typeof r === 'object' ? r.fullName : r).toLowerCase()),
 					);
+					if (filterSettings.repoCache && filterSettings.repoCache.data) {
+						for (const repo of filterSettings.repoCache.data) {
+							const nameLower = repo.fullName.toLowerCase();
+							const forkedFromLower = repo.forkedFrom?.toLowerCase();
+							if (forkedFromLower) {
+								if (selectedNames.has(nameLower)) {
+									selectedNames.add(forkedFromLower);
+								} else if (selectedNames.has(forkedFromLower)) {
+									selectedNames.add(nameLower);
+								}
+							}
+						}
+					}
 					allProjects = allProjects.filter((p) => selectedNames.has(p.path_with_namespace.toLowerCase()));
 				}
 
@@ -725,14 +751,29 @@ if (window.PlatformRegistry) {
 				endDate = today.toISOString().split('T')[0];
 			}
 
-			console.log(`[GitLab repo filter] Fetching events for userId: ${userId} between ${startDate} and ${endDate}`);
+			const nextDay = new Date(new Date(endDate).getTime() + 24 * 60 * 60 * 1000);
+			const beforeDateStr = nextDay.toISOString().split('T')[0];
 
-			const eventsUrl = `${baseUrl}/users/${userId}/events?after=${startDate}&before=${endDate}&per_page=100`;
-			const eventsRes = await fetch(eventsUrl, { headers });
-			if (!eventsRes.ok) {
-				throw new Error(`GitLab events fetch failed: ${eventsRes.status}`);
+			console.log(
+				`[GitLab repo filter] Fetching events for userId: ${userId} between ${startDate} and ${beforeDateStr}`,
+			);
+
+			let page = 1;
+			let hasMore = true;
+			const events = [];
+			while (hasMore && page <= 3) {
+				const eventsUrl = `${baseUrl}/users/${userId}/events?after=${startDate}&before=${beforeDateStr}&per_page=100&page=${page}`;
+				const eventsRes = await fetch(eventsUrl, { headers });
+				if (!eventsRes.ok) {
+					throw new Error(`GitLab events fetch failed: ${eventsRes.status}`);
+				}
+				const pageEvents = await eventsRes.json();
+				if (pageEvents.length < 100) {
+					hasMore = false;
+				}
+				events.push(...pageEvents);
+				page++;
 			}
-			const events = await eventsRes.json();
 
 			const projectIds = Array.from(new Set(events.map((e) => e.project_id).filter((id) => !!id)));
 			console.log(`[GitLab repo filter] Found ${projectIds.length} unique project IDs from push events`);
@@ -748,8 +789,7 @@ if (window.PlatformRegistry) {
 					if (projectRes.ok) {
 						const project = await projectRes.json();
 
-						// If this project is a fork, we ONLY include the original/upstream project.
-						// Otherwise, we include the project itself.
+						// If this project is a fork, we include the fork project itself but keep track of upstream path.
 						if (project.forked_from_project) {
 							const upstream = project.forked_from_project;
 							let includeUpstream = true;
@@ -764,12 +804,13 @@ if (window.PlatformRegistry) {
 
 							if (includeUpstream) {
 								repos.push({
-									name: upstream.name,
-									fullName: upstream.path_with_namespace,
-									description: upstream.description || '',
+									name: project.name,
+									fullName: project.path_with_namespace,
+									description: project.description || '',
 									language: null,
 									updatedAt: project.last_activity_at, // Use the fork's activity timestamp as the user contribution date
-									stars: upstream.star_count || 0,
+									stars: project.star_count || 0,
+									forkedFrom: upstream.path_with_namespace,
 								});
 							}
 						} else {
