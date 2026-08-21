@@ -421,6 +421,9 @@ document.addEventListener('DOMContentLoaded', () => {
 	if (gitlabTokenInput) {
 		gitlabTokenInput.addEventListener('input', () => checkTokenForShowCommits({ persistState: false }));
 	}
+	if (codebergTokenInput) {
+		codebergTokenInput.addEventListener('input', () => checkTokenForShowCommits({ persistState: false }));
+	}
 
 	darkModeToggle.addEventListener('click', function () {
 		body.classList.toggle('dark-mode');
@@ -2220,12 +2223,23 @@ function updatePlatformUI(platform) {
 		}
 	});
 
+	const githubGitlabCodebergOnlySections = document.querySelectorAll('.githubGitlabCodebergOnlySection');
+	githubGitlabCodebergOnlySections.forEach((el) => {
+		if (platform === 'github' || platform === 'gitlab' || platform === 'codeberg') {
+			el.classList.remove('hidden');
+		} else {
+			el.classList.add('hidden');
+		}
+	});
+
 	const tokenWarningShowCommits = document.getElementById('tokenWarningForShowCommits');
 	if (tokenWarningShowCommits) {
 		const span = tokenWarningShowCommits.querySelector('span');
 		if (span) {
 			if (platform === 'gitlab') {
 				span.setAttribute('data-i18n', 'tokenRequiredShowCommitsWarningGitLab');
+			} else if (platform === 'codeberg') {
+				span.setAttribute('data-i18n', 'tokenRequiredShowCommitsWarningCodeberg');
 			} else {
 				span.setAttribute('data-i18n', 'tokenRequiredShowCommitsWarning');
 			}
@@ -2238,11 +2252,13 @@ function updatePlatformUI(platform) {
 	}
 
 	const showCommitsTooltip = document.querySelector(
-		'[data-i18n="showCommitsTooltip"], [data-i18n="showCommitsTooltipGitLab"]',
+		'[data-i18n="showCommitsTooltip"], [data-i18n="showCommitsTooltipGitLab"], [data-i18n="showCommitsTooltipCodeberg"]',
 	);
 	if (showCommitsTooltip) {
 		if (platform === 'gitlab') {
 			showCommitsTooltip.setAttribute('data-i18n', 'showCommitsTooltipGitLab');
+		} else if (platform === 'codeberg') {
+			showCommitsTooltip.setAttribute('data-i18n', 'showCommitsTooltipCodeberg');
 		} else {
 			showCommitsTooltip.setAttribute('data-i18n', 'showCommitsTooltip');
 		}

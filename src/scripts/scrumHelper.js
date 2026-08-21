@@ -1007,7 +1007,7 @@ function allIncluded(outputTarget = 'email') {
 				);
 				// Fetch commits for open PRs (batch) if showCommits is enabled
 				const activeToken = platform === 'codeberg' ? codebergToken : githubToken;
-				if (openPRs.length && showCommits && platform !== 'codeberg') {
+				if (openPRs.length && showCommits) {
 					let startDateForCommits;
 					let endDateForCommits;
 					if (yesterdayContribution) {
@@ -1099,6 +1099,9 @@ function allIncluded(outputTarget = 'email') {
 	async function fetchCommitsForOpenPRs(prs, token, startDate, endDate) {
 		if (platform === 'github') {
 			return githubFetchCommits(prs, token, startDate, endDate);
+		}
+		if (platform === 'codeberg' && window.codebergHelper) {
+			return window.codebergHelper.fetchCommitsForOpenPRs(prs, token, startDate, endDate);
 		}
 		return {};
 	}
