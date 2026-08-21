@@ -9,7 +9,7 @@ const startingDateElement = document.getElementById('startingDate');
 const endingDateElement = document.getElementById('endingDate');
 const showOpenLabelElement = document.getElementById('showOpenLabel');
 
-const userReasonElement = null;
+const _userReasonElement = null;
 
 const showCommitsElement = document.getElementById('showCommits');
 const codebergUsernameElement = document.getElementById('codebergUsername');
@@ -155,7 +155,9 @@ if (!window.clearScrumHelperToast) {
 		if (toast) toast.remove();
 		const container = document.getElementById('scrumHelperToastContainer');
 		if (container) {
-			container.querySelectorAll('.scrum-toast').forEach((t) => t.remove());
+			container.querySelectorAll('.scrum-toast').forEach((t) => {
+				t.remove();
+			});
 		}
 	};
 }
