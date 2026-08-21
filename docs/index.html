@@ -322,15 +322,18 @@
                 </div>
 
                 <div class="pt-8 flex flex-wrap justify-center gap-2.5">
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/5 border border-white/5 text-[10px] font-medium text-slate-300">
+                    <a id="win-download" href="https://github.com/fossasia/scrum_helper/releases/latest" target="_blank" rel="noopener noreferrer"
+                       class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/5 border border-white/5 hover:border-slate-800 text-[10px] font-medium text-slate-300 transition-colors">
                         <i class="fab fa-windows text-brand-400"></i> Windows (.msi)
-                    </span>
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/5 border border-white/5 text-[10px] font-medium text-slate-300">
+                    </a>
+                    <a id="mac-download" href="https://github.com/fossasia/scrum_helper/releases/latest" target="_blank" rel="noopener noreferrer"
+                       class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/5 border border-white/5 hover:border-slate-800 text-[10px] font-medium text-slate-300 transition-colors">
                         <i class="fab fa-apple text-slate-100"></i> macOS (.dmg)
-                    </span>
-                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/5 border border-white/5 text-[10px] font-medium text-slate-300">
+                    </a>
+                    <a id="linux-download" href="https://github.com/fossasia/scrum_helper/releases/latest" target="_blank" rel="noopener noreferrer"
+                       class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/5 border border-white/5 hover:border-slate-800 text-[10px] font-medium text-slate-300 transition-colors">
                         <i class="fab fa-linux text-amber-500"></i> Linux (.AppImage)
-                    </span>
+                    </a>
                 </div>
             </div>
         </div>
@@ -459,37 +462,80 @@
         const osName = document.getElementById("os-name");
         const downloadTitle = document.getElementById("download-title");
         const downloadDescription = document.getElementById("download-description");
+        const downloadButton = document.getElementById("download-button");
 
         const userAgent = navigator.userAgent.toLowerCase();
         const platform = navigator.platform.toLowerCase();
 
+        let detectedOS = "other";
         if (userAgent.includes("windows")) {
+            detectedOS = "windows";
             osName.textContent = "Windows";
             downloadTitle.textContent = "Download for Windows";
-            downloadDescription.textContent =
-                "Download the Windows installer (.msi) from the latest release.";
-        } else if (
-            userAgent.includes("macintosh") ||
-            userAgent.includes("mac os")
-        ) {
+            downloadDescription.textContent = "Download the Windows installer (.msi) from the latest release.";
+        } else if (userAgent.includes("macintosh") || userAgent.includes("mac os")) {
+            detectedOS = "mac";
             osName.textContent = "macOS";
             downloadTitle.textContent = "Download for macOS";
-            downloadDescription.textContent =
-                "Download the macOS installer (.dmg) from the latest release.";
-        } else if (
-            userAgent.includes("linux") ||
-            platform.includes("linux")
-        ) {
+            downloadDescription.textContent = "Download the macOS installer (.dmg) from the latest release.";
+        } else if (userAgent.includes("linux") || platform.includes("linux")) {
+            detectedOS = "linux";
             osName.textContent = "Linux";
             downloadTitle.textContent = "Download for Linux";
-            downloadDescription.textContent =
-                "Download the Linux application (.AppImage) from the latest release.";
+            downloadDescription.textContent = "Download the Linux application (.AppImage) from the latest release.";
         } else {
             osName.textContent = "your operating system";
             downloadTitle.textContent = "Download Scrum Helper";
-            downloadDescription.textContent =
-                "Choose the appropriate installer from the latest release.";
+            downloadDescription.textContent = "Choose the appropriate installer from the latest release.";
         }
+
+        async function fetchLatestRelease() {
+            try {
+                const response = await fetch("https://api.github.com/repos/fossasia/scrum_helper/releases/latest");
+                if (!response.ok) throw new Error("Failed to fetch release");
+                const release = await response.json();
+                
+                const assets = release.assets || [];
+                const winAsset = assets.find(a => a.name.endsWith(".msi"));
+                const macAsset = assets.find(a => a.name.endsWith(".dmg"));
+                const linuxAsset = assets.find(a => a.name.endsWith(".AppImage"));
+                
+                const winLink = winAsset ? winAsset.browser_download_url : "https://github.com/fossasia/scrum_helper/releases/latest";
+                const macLink = macAsset ? macAsset.browser_download_url : "https://github.com/fossasia/scrum_helper/releases/latest";
+                const linuxLink = linuxAsset ? linuxAsset.browser_download_url : "https://github.com/fossasia/scrum_helper/releases/latest";
+                
+                document.getElementById("win-download").href = winLink;
+                document.getElementById("mac-download").href = macLink;
+                document.getElementById("linux-download").href = linuxLink;
+                
+                if (detectedOS === "windows") {
+                    downloadButton.href = winLink;
+                    downloadButton.innerHTML = `<i class="fa-solid fa-circle-arrow-down mr-2 text-sm"></i> Download (.msi)`;
+                } else if (detectedOS === "mac") {
+                    downloadButton.href = macLink;
+                    downloadButton.innerHTML = `<i class="fa-solid fa-circle-arrow-down mr-2 text-sm"></i> Download (.dmg)`;
+                } else if (detectedOS === "linux") {
+                    downloadButton.href = linuxLink;
+                    downloadButton.innerHTML = `<i class="fa-solid fa-circle-arrow-down mr-2 text-sm"></i> Download (.AppImage)`;
+                } else {
+                    downloadButton.href = "https://github.com/fossasia/scrum_helper/releases/latest";
+                    downloadButton.innerHTML = `<i class="fa-solid fa-circle-arrow-down mr-2 text-sm"></i> View Latest Release`;
+                }
+            } catch (err) {
+                console.warn("Could not fetch latest release assets:", err);
+                const winLink = "https://github.com/fossasia/scrum_helper/releases/latest";
+                const macLink = "https://github.com/fossasia/scrum_helper/releases/latest";
+                const linuxLink = "https://github.com/fossasia/scrum_helper/releases/latest";
+                
+                document.getElementById("win-download").href = winLink;
+                document.getElementById("mac-download").href = macLink;
+                document.getElementById("linux-download").href = linuxLink;
+                
+                downloadButton.href = "https://github.com/fossasia/scrum_helper/releases/latest";
+                downloadButton.innerHTML = `<i class="fa-solid fa-circle-arrow-down mr-2 text-sm"></i> View Latest Release`;
+            }
+        }
+        fetchLatestRelease();
     </script>
 
 </body>
