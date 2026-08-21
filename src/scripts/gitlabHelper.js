@@ -137,27 +137,25 @@ class GitLabHelper {
 			console.error('Error loading from storage:', error);
 		}
 	}
-
 	async fetchGitLabData(username, startDate, endDate, token = null, orgName = '') {
-		// Include token state, orgName, and repository filter state in cache key to invalidate when auth, org, or repo selection changes
+		const itemsLocal = await browser.storage.local.get(['showCommits', 'useRepoFilter', 'selectedRepos']);
+		const showCommits = itemsLocal.showCommits || false;
+		const commitMarker = showCommits ? 'commits' : 'nocommits';
+
+		// Include token state, orgName, showCommits, and repository filter state in cache key to invalidate on changes
 		const tokenMarker = token ? 'auth' : 'noauth';
 		const orgMarker = orgName ? `org-${orgName}` : 'noorg';
 
 		let repoMarker = 'norepos';
-		try {
-			const filterSettings = await browser.storage.local.get(['useRepoFilter', 'selectedRepos']);
-			if (filterSettings.useRepoFilter && filterSettings.selectedRepos && filterSettings.selectedRepos.length > 0) {
-				const repoNames = filterSettings.selectedRepos
-					.map((r) => (typeof r === 'object' ? r.fullName : r).toLowerCase())
-					.sort()
-					.join(',');
-				repoMarker = `repos-${repoNames}`;
-			}
-		} catch (e) {
-			console.warn('[GitLab cache] Failed to get repo filter settings:', e);
+		if (itemsLocal.useRepoFilter && itemsLocal.selectedRepos && itemsLocal.selectedRepos.length > 0) {
+			const repoNames = itemsLocal.selectedRepos
+				.map((r) => (typeof r === 'object' ? r.fullName : r).toLowerCase())
+				.sort()
+				.join(',');
+			repoMarker = `repos-${repoNames}`;
 		}
 
-		const cacheKey = `${this.baseUrl}-${username}-${startDate}-${endDate}-${tokenMarker}-${orgMarker}-${repoMarker}`;
+		const cacheKey = `${this.baseUrl}-${username}-${startDate}-${endDate}-${tokenMarker}-${orgMarker}-${commitMarker}-${repoMarker}`;
 
 		// Check if we need to load from storage
 		if (!this.cache.data && !this.cache.fetching) {
@@ -352,9 +350,6 @@ class GitLabHelper {
 			}
 
 			// Fetch commits for open/draft Merge Requests if enabled
-			const itemsLocal = await browser.storage.local.get(['showCommits']);
-			const showCommits = itemsLocal.showCommits || false;
-
 			if (showCommits && allMergeRequests.length > 0) {
 				const openMRs = allMergeRequests.filter(
 					(mr) =>
@@ -592,13 +587,20 @@ if (window.PlatformRegistry) {
 				warning?.classList.add('hidden');
 			}
 		},
-
+		checkTokenForShowCommits: gitlabCheckTokenForShowCommits,
+		checkTokenForNextPlans() {},
 		checkTokenForMergedPRs({ persistState = false } = {}) {
 			const mergedPRsCheckbox = document.getElementById('onlyMergedPRs');
-			if (!mergedPRsCheckbox) return;
-			const warning = document.getElementById('tokenWarningForMergedPRs');
-			if (warning) warning.classList.add('hidden');
-			if (persistState) chrome?.storage.local.set({ onlyMergedPRs: mergedPRsCheckbox.checked });
+			if (!mergedPRsCheckbox) {
+				return;
+			}
+			const tokenWarning = document.getElementById('tokenWarningForMergedPRs');
+			if (tokenWarning) {
+				tokenWarning.classList.add('hidden');
+			}
+			if (persistState) {
+				chrome?.storage.local.set({ onlyMergedPRs: mergedPRsCheckbox.checked });
+			}
 		},
 		async triggerRepoFetchIfEnabled() {
 			const context = window.githubRepoFilterContext;
@@ -621,8 +623,6 @@ if (window.PlatformRegistry) {
 				if (repoStatus) repoStatus.textContent = `Error: ${err.message}`;
 			}
 		},
-		checkTokenForShowCommits: gitlabCheckTokenForShowCommits,
-		checkTokenForNextPlans() {},
 		debugRepoFetch() {},
 		async loadRepos() {
 			const items = await browser.storage.local.get(['gitlabUsername']);
