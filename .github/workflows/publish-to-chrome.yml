@@ -2,7 +2,7 @@ name: Publish to Chrome Web Store
 
 on:
   release:
-    types: [published] # triggers when a release is published manually
+    types: [published]
 
 jobs:
   publish:
@@ -17,7 +17,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20.x"
+          node-version: "24.x"
           cache: "npm"
 
       - name: Build Extension
@@ -36,16 +36,32 @@ jobs:
           if unzip -l ../../scrum-helper.zip | awk '{print $4}' | grep -q '^manifest.json$'; then
             echo "manifest.json is at zip root"
           else
-            echo "ERROR: manifest.json NOT at zip root; zip will fail on Chrome Web Store"
+            echo "ERROR: manifest.json NOT at zip root"
             exit 1
           fi
 
-      - name: Upload and Publish to Chrome Web Store
-        uses: mnao305/chrome-extension-upload@v5.0.0
-        with:
-          client-id: ${{ secrets.CHROME_CLIENT_ID }}
-          client-secret: ${{ secrets.CHROME_CLIENT_SECRET }}
-          refresh-token: ${{ secrets.CHROME_REFRESH_TOKEN }}
-          extension-id: ${{ secrets.CHROME_EXTENSION_ID }}
-          file-path: scrum-helper.zip
-          publish: true
+      - name: Get Fresh Access Token
+        id: token
+        run: |
+          TOKEN=$(curl -s -X POST "https://oauth2.googleapis.com/token" \
+            -d "client_id=${{ secrets.CHROME_CLIENT_ID }}" \
+            -d "client_secret=${{ secrets.CHROME_CLIENT_SECRET }}" \
+            -d "refresh_token=${{ secrets.CHROME_REFRESH_TOKEN }}" \
+            -d "grant_type=refresh_token" | jq -r '.access_token')
+          echo "access_token=$TOKEN" >> $GITHUB_OUTPUT
+
+      - name: Upload to Chrome Web Store
+        run: |
+          curl -X PUT \
+            -H "Authorization: Bearer ${{ steps.token.outputs.access_token }}" \
+            -H "x-goog-api-version: 2" \
+            -T scrum-helper.zip \
+            "https://www.googleapis.com/upload/chromewebstore/v1.1/items/${{ secrets.CHROME_EXTENSION_ID }}"
+
+      - name: Publish to Chrome Web Store
+        run: |
+          curl -X POST \
+            -H "Authorization: Bearer ${{ steps.token.outputs.access_token }}" \
+            -H "x-goog-api-version: 2" \
+            -H "Content-Length: 0" \
+            "https://www.googleapis.com/chromewebstore/v1.1/items/${{ secrets.CHROME_EXTENSION_ID }}/publish"
