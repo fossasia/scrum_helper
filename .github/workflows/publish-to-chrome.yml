@@ -14,10 +14,19 @@ jobs:
           ref: ${{ github.event.release.tag_name }}
           fetch-depth: 0
 
+      - name: Sync manifest version to tag
+        run: |
+          VERSION=$(echo "${{ github.event.release.tag_name }}" | sed 's/^v//')
+          echo "Syncing version to $VERSION"
+          jq ".version = \"$VERSION\"" package.json > temp.json && mv temp.json package.json
+          jq ".version = \"$VERSION\"" src/manifests/chrome.json > temp.json && mv temp.json src/manifests/chrome.json
+          jq ".version = \"$VERSION\"" src/manifests/firefox.json > temp.json && mv temp.json src/manifests/firefox.json
+          jq ".version = \"$VERSION\"" src/manifests/opera.json > temp.json && mv temp.json src/manifests/opera.json
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "24.x"
+          node-version: "20.x"
           cache: "npm"
 
       - name: Build Extension
