@@ -97,18 +97,18 @@ class GiteeHelper {
 			// Helper to fetch with token query param
 			const giteeFetch = async (path, queryParams = {}) => {
 				const params = new URLSearchParams(queryParams);
-				if (token) {
-					params.set('access_token', token);
-				}
 				const url = `${this.baseUrl}${path}${params.toString() ? '?' + params.toString() : ''}`;
+				const headers = {};
+				if (token) {
+					headers['Authorization'] = `Bearer ${token}`;
+				}
 				const controller = new AbortController();
 				const timeoutId = setTimeout(() => controller.abort(), 25000); // 25s timeout
 
-				const safeLogUrl = url.replace(/access_token=[^&]+/g, 'access_token=[REDACTED]');
-				console.log(`[Gitee Fetch] Starting request to: ${safeLogUrl}`);
+				console.log(`[Gitee Fetch] Starting request to: ${url}`);
 				const startTime = Date.now();
 				try {
-					const res = await fetch(url, { signal: controller.signal });
+					const res = await fetch(url, { headers, signal: controller.signal });
 					clearTimeout(timeoutId);
 					console.log(
 						`[Gitee Fetch] Received response from: ${path} (Status: ${res.status}, Time: ${Date.now() - startTime}ms)`,
@@ -485,8 +485,11 @@ if (window.PlatformRegistry) {
 			console.log('[Org Check] Checking Gitee org on blur:', org);
 			const baseUrl = 'https://gitee.com/api/v5';
 			chrome.storage.local.get(['giteeToken']).then((result) => {
-				const tokenQuery = result.giteeToken ? `?access_token=${encodeURIComponent(result.giteeToken)}` : '';
-				fetch(`${baseUrl}/orgs/${encodeURIComponent(org)}${tokenQuery}`)
+				const headers = {};
+				if (result.giteeToken) {
+					headers['Authorization'] = `Bearer ${result.giteeToken}`;
+				}
+				fetch(`${baseUrl}/orgs/${encodeURIComponent(org)}`, { headers })
 					.then((res) => {
 						console.log('[Org Check] Gitee response status:', res.status);
 						if (res.status === 404) {
