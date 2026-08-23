@@ -36,6 +36,8 @@
         "scripts/emailClientAdapter.js",
         "scripts/gitlabHelper.js",
         "scripts/githubHelper.js",
+        "scripts/codebergHelper.js",
+        "scripts/giteeHelper.js",
         "scripts/scrumHelper.js"
       ]
     }
@@ -66,7 +68,12 @@
     "*://*.yahoo.com/*",
     "https://api.github.com/*",
     "https://gitlab.com/*",
-    "https://gitee.com/*"
+    "https://gitee.com/*",
+    "https://codeberg.org/*"
+  ],
+  "optional_host_permissions": [
+    "https://*/*",
+    "http://*/*"
   ],
   "default_locale": "en",
   "sidebar_action": {

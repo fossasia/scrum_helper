@@ -1,0 +1,4 @@
+[[permission]]
+identifier = "allow-send-smtp-email"
+description = "Allows invoking send_smtp_email custom command"
+commands = { allow = ["send_smtp_email"] }

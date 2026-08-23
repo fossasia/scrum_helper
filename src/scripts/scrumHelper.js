@@ -1,6 +1,6 @@
 let rateLimitWarningShown = false;
 const originalFetch = window.fetch;
-window.fetch = async function (...args) {
+window.fetch = async (...args) => {
 	let res;
 	try {
 		res = await originalFetch(...args);
@@ -123,7 +123,7 @@ function logRedaction(items) {
 		return items;
 	}
 	const spreadItems = { ...items };
-	const sensitiveKeys = ['githubToken', 'gitlabToken', 'giteeToken'];
+	const sensitiveKeys = ['githubToken', 'gitlabToken', 'giteeToken', 'codebergToken'];
 	sensitiveKeys.forEach((key) => {
 		if (key in spreadItems) {
 			spreadItems[key] = '[REDACTED]';
@@ -144,6 +144,9 @@ let giteeToken = '';
 window.gitlabBaseUrl = '';
 window.gitlabHelper = null;
 window.giteeHelper = null;
+let codebergToken = '';
+window.codebergApiBaseUrl = '';
+window.codebergHelper = null;
 let usernameValidationListenerAttached = false;
 
 const scrumReportEl = document.getElementById('scrumReport');
@@ -152,7 +155,7 @@ const usernameError = document.getElementById('usernameError');
 
 document.addEventListener('DOMContentLoaded', () => {
 	if (!usernameValidationListenerAttached && platformUsernameInp && usernameError) {
-		platformUsernameInp.addEventListener('input', function () {
+		platformUsernameInp.addEventListener('input', () => {
 			platformUsernameInp.classList.remove('input-error');
 			usernameError.textContent = '';
 			usernameError.classList.remove('errorMessage');
@@ -251,10 +254,13 @@ function allIncluded(outputTarget = 'email') {
 				'githubUsername',
 				'gitlabUsername',
 				'giteeUsername',
+				'codebergUsername',
 				'githubToken',
 				'gitlabToken',
 				'giteeToken',
+				'codebergToken',
 				'gitlabBaseUrl',
+				'codebergApiBaseUrl',
 				'projectName',
 				'startingDate',
 				'endingDate',
@@ -291,6 +297,7 @@ function allIncluded(outputTarget = 'email') {
 					const tokenFromDOM = document.getElementById('githubToken')?.value;
 					const gitlabTokenFromDOM = document.getElementById('gitlabToken')?.value;
 					const giteeTokenFromDOM = document.getElementById('giteeToken')?.value;
+					const codebergTokenFromDOM = document.getElementById('codebergToken')?.value;
 
 					// Save to platform-specific storage
 					if (usernameFromDOM !== undefined) {
@@ -303,11 +310,13 @@ function allIncluded(outputTarget = 'email') {
 					items.githubToken = tokenFromDOM !== undefined ? tokenFromDOM : items.githubToken;
 					items.gitlabToken = gitlabTokenFromDOM !== undefined ? gitlabTokenFromDOM : items.gitlabToken;
 					items.giteeToken = giteeTokenFromDOM !== undefined ? giteeTokenFromDOM : items.giteeToken;
+					items.codebergToken = codebergTokenFromDOM !== undefined ? codebergTokenFromDOM : items.codebergToken;
 					chrome.storage.local.set({
 						projectName: items.projectName,
 						githubToken: items.githubToken,
 						gitlabToken: items.gitlabToken,
 						giteeToken: items.giteeToken,
+						codebergToken: items.codebergToken,
 					});
 				}
 				projectName = items.projectName;
@@ -323,6 +332,11 @@ function allIncluded(outputTarget = 'email') {
 				}
 				if (platform === 'gitee' && window.GiteeHelper) {
 					window.giteeHelper = new window.GiteeHelper();
+				}
+				codebergToken = items.codebergToken || '';
+				window.codebergApiBaseUrl = items.codebergApiBaseUrl || 'https://codeberg.org/api/v1';
+				if (platform === 'codeberg' && window.CodebergHelper) {
+					window.codebergHelper = new window.CodebergHelper(window.codebergApiBaseUrl);
 				}
 				yesterdayContribution = items.yesterdayContribution;
 				weeklyContribution = items.weeklyContribution;
@@ -591,6 +605,99 @@ function allIncluded(outputTarget = 'email') {
 						}
 						scrumGenerationInProgress = false;
 					}
+				} else if (platform === 'codeberg') {
+					if (!window.codebergHelper) window.codebergHelper = new window.CodebergHelper(window.codebergApiBaseUrl);
+					if (platformUsernameLocal) {
+						const generateBtn = document.getElementById('generateReport');
+						if (generateBtn && outputTarget === 'popup') {
+							generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
+							generateBtn.disabled = true;
+						}
+
+						if (outputTarget === 'email') {
+							(async () => {
+								try {
+									const data = await window.codebergHelper.fetchCodebergData(
+										platformUsernameLocal,
+										startingDate,
+										endingDate,
+										items.codebergToken,
+										showCommits,
+									);
+
+									const mappedData = window.codebergHelper.mapCodebergReportData(data);
+									githubUserData = mappedData.githubUserData;
+
+									const name =
+										githubUserData?.name || githubUserData?.username || platformUsernameLocal || platformUsername;
+									const project = projectName;
+									const curDate = new Date();
+									const year = curDate.getFullYear().toString();
+									let date = curDate.getDate();
+									let month = curDate.getMonth() + 1;
+									if (month < 10) month = '0' + month;
+									if (date < 10) date = '0' + date;
+									const dateCode = year.toString() + month.toString() + date.toString();
+									const subject = `[Scrum]${project ? ' - ' + project : ''} - ${dateCode}`;
+									subjectForEmail = subject;
+
+									await processGithubData(mappedData, true, subjectForEmail);
+									scrumGenerationInProgress = false;
+								} catch (err) {
+									console.error('Codeberg fetch failed:', err);
+									if (outputTarget === 'popup') {
+										if (generateBtn) {
+											generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+											generateBtn.disabled = false;
+										}
+										const ErrMessage = `${err.message || 'Error fetching Codeberg data.'}`;
+										if (typeof ErrMessage === 'string' && ErrMessage.toLowerCase().includes('not found')) {
+											handleUsernameValidationError(ErrMessage);
+										} else {
+											showReportMessage(ErrMessage);
+										}
+									}
+									scrumGenerationInProgress = false;
+								}
+							})();
+						} else {
+							window.codebergHelper
+								.fetchCodebergData(platformUsernameLocal, startingDate, endingDate, items.codebergToken, showCommits)
+								.then((data) => {
+									const mappedData = window.codebergHelper.mapCodebergReportData(data);
+									processGithubData(mappedData);
+									scrumGenerationInProgress = false;
+								})
+								.catch((err) => {
+									console.error('Codeberg fetch failed:', err);
+									if (outputTarget === 'popup') {
+										if (generateBtn) {
+											generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+											generateBtn.disabled = false;
+										}
+										const ErrMessage = `${err.message || 'Error fetching Codeberg data.'}`;
+										if (typeof ErrMessage === 'string' && ErrMessage.toLowerCase().includes('not found')) {
+											handleUsernameValidationError(ErrMessage);
+										} else {
+											showReportMessage(ErrMessage);
+										}
+									}
+									scrumGenerationInProgress = false;
+								});
+						}
+					} else {
+						if (outputTarget === 'popup') {
+							const generateBtn = document.getElementById('generateReport');
+							const ErrMessage =
+								chrome.i18n.getMessage('usernameRequiredError') || 'Please enter your username to generate a report.';
+							handleUsernameValidationError(ErrMessage);
+							if (generateBtn) {
+								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+								generateBtn.disabled = false;
+							}
+						}
+						scrumGenerationInProgress = false;
+					}
 				} else {
 					// Unknown platform
 					if (outputTarget === 'popup') {
@@ -604,7 +711,7 @@ function allIncluded(outputTarget = 'email') {
 	getChromeData();
 
 	function handleYesterdayContributionChange() {
-		endingDate = getToday();
+		endingDate = getYesterday();
 		startingDate = getYesterday();
 	}
 
@@ -725,12 +832,13 @@ function allIncluded(outputTarget = 'email') {
 	}
 
 	async function fetchGithubData() {
-		// Always load latest repo filter settings from storage
-		const filterSettings = await new Promise((resolve) => {
-			chrome.storage.local.get(['useRepoFilter', 'selectedRepos'], resolve);
+		// Always load latest settings from storage
+		const settings = await new Promise((resolve) => {
+			chrome.storage.local.get(['useRepoFilter', 'selectedRepos', 'showCommits'], resolve);
 		});
-		useRepoFilter = filterSettings.useRepoFilter || false;
-		selectedRepos = Array.isArray(filterSettings.selectedRepos) ? filterSettings.selectedRepos : [];
+		useRepoFilter = settings.useRepoFilter || false;
+		selectedRepos = Array.isArray(settings.selectedRepos) ? settings.selectedRepos : [];
+		showCommits = settings.showCommits || false;
 
 		// Get the correct date range for cache key
 		let startDateForCache;
@@ -739,7 +847,7 @@ function allIncluded(outputTarget = 'email') {
 			const today = new Date();
 			const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
 			startDateForCache = formatLocalDate(yesterday);
-			endDateForCache = formatLocalDate(today); // Use yesterday for start and today for end
+			endDateForCache = formatLocalDate(yesterday);
 		} else if (weeklyContribution) {
 			const today = new Date();
 			const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -756,7 +864,15 @@ function allIncluded(outputTarget = 'email') {
 			endDateForCache = formatLocalDate(today);
 		}
 
-		const cacheKey = `${platformUsernameLocal}-${startDateForCache}-${endDateForCache}-${orgName || 'all'}`;
+		const repoMarker =
+			useRepoFilter && selectedRepos.length > 0
+				? selectedRepos
+						.map((r) => (r && typeof r === 'object' ? r.fullName || '' : r || ''))
+						.sort()
+						.join(',')
+				: 'norepos';
+		const commitMarker = showCommits ? 'commits' : 'nocommits';
+		const cacheKey = `${platformUsernameLocal}-${startDateForCache}-${endDateForCache}-${orgName || 'all'}-${commitMarker}-${repoMarker}`;
 
 		if (githubCache.fetching || (githubCache.cacheKey === cacheKey && githubCache.data)) {
 			log('Fetch already in progress or data already fetched. Skipping fetch.');
@@ -994,14 +1110,15 @@ function allIncluded(outputTarget = 'email') {
 					openPRs.map((pr) => pr.number),
 				);
 				// Fetch commits for open PRs (batch) if showCommits is enabled
-				if (openPRs.length && githubToken && showCommits) {
+				const activeToken = platform === 'codeberg' ? codebergToken : githubToken;
+				if (openPRs.length && showCommits && platform !== 'codeberg') {
 					let startDateForCommits;
 					let endDateForCommits;
 					if (yesterdayContribution) {
 						const today = new Date();
 						const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
 						startDateForCommits = formatLocalDate(yesterday);
-						endDateForCommits = formatLocalDate(today); // Use yesterday for start and today for end
+						endDateForCommits = formatLocalDate(yesterday);
 					} else if (weeklyContribution) {
 						const today = new Date();
 						const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -1018,7 +1135,7 @@ function allIncluded(outputTarget = 'email') {
 						endDateForCommits = formatLocalDate(today);
 					}
 
-					const commitMap = await fetchCommitsForOpenPRs(openPRs, githubToken, startDateForCommits, endDateForCommits);
+					const commitMap = await fetchCommitsForOpenPRs(openPRs, activeToken, startDateForCommits, endDateForCommits);
 					log('Commit map returned from fetchCommitsForOpenPRs:', commitMap);
 					// Attach commits to PR objects
 					openPRs.forEach((pr) => {
@@ -1083,8 +1200,11 @@ function allIncluded(outputTarget = 'email') {
 		}
 	}
 
-	async function fetchCommitsForOpenPRs(prs, githubToken, startDate, endDate) {
-		return githubFetchCommits(prs, githubToken, startDate, endDate);
+	async function fetchCommitsForOpenPRs(prs, token, startDate, endDate) {
+		if (platform === 'github') {
+			return githubFetchCommits(prs, token, startDate, endDate);
+		}
+		return {};
 	}
 
 	async function fetchReposIfNeeded() {
@@ -1239,12 +1359,12 @@ function allIncluded(outputTarget = 'email') {
 		log('[SCRUM-DEBUG] Processing issues for main activity:', githubIssuesData?.items);
 		if (platform === 'github') {
 			await writeGithubIssuesPrs(githubIssuesData?.items || []);
-		} else if (platform === 'gitlab' || platform === 'gitee') {
+		} else if (platform === 'gitlab' || platform === 'gitee' || platform === 'codeberg') {
 			await writeGithubIssuesPrs(githubIssuesData?.items || []);
 			await writeGithubIssuesPrs(githubPrsReviewData?.items || []);
 		}
 		await writeGithubPrsReviews();
-		if (includeNextPlans) {
+		if (includeNextPlans && platform !== 'codeberg') {
 			if (window.getNextPlansForReport) {
 				try {
 					const selectedPlans = await window.getNextPlansForReport();
@@ -1432,7 +1552,11 @@ function allIncluded(outputTarget = 'email') {
 				window.updateCopyButtonState?.();
 				try {
 					const cacheKey =
-						platform === 'gitlab' ? (window.gitlabHelper?.cache?.cacheKey ?? null) : (githubCache?.cacheKey ?? null);
+						platform === 'gitlab'
+							? (window.gitlabHelper?.cache?.cacheKey ?? null)
+							: platform === 'codeberg'
+								? (window.codebergHelper?.cache?.cacheKey ?? null)
+								: (githubCache?.cacheKey ?? null);
 
 					chrome.storage.local.set({
 						lastScrumReportHtml: content,
@@ -1537,6 +1661,11 @@ function allIncluded(outputTarget = 'email') {
 	}
 
 	async function writeGithubPrsReviews() {
+		if (platform === 'codeberg') {
+			reviewedPrsArray = [];
+			prsReviewDataProcessed = true;
+			return;
+		}
 		if (!onlyRevPRs) {
 			log('onlyRevPRs is not checked, skipping PR reviews.');
 			reviewedPrsArray = [];
@@ -1565,7 +1694,7 @@ function allIncluded(outputTarget = 'email') {
 			const today = new Date();
 			const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
 			startDate = formatLocalDate(yesterday);
-			endDate = formatLocalDate(today); // Use yesterday for start and today for end
+			endDate = formatLocalDate(yesterday);
 		} else if (weeklyContribution) {
 			const today = new Date();
 			const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -1635,6 +1764,9 @@ function allIncluded(outputTarget = 'email') {
 				isAuthoredByUser = item.user && item.user.login.toLowerCase() === platformUsernameLocal.toLowerCase();
 			} else if (platform === 'gitlab') {
 				isAuthoredByUser = item.author && item.author.username === platformUsername;
+			} else if (platform === 'codeberg') {
+				isAuthoredByUser =
+					item.user && (item.user.login === platformUsernameLocal || item.user.username === platformUsernameLocal);
 			}
 
 			if (isAuthoredByUser || !item.pull_request) continue;
@@ -1806,7 +1938,7 @@ function allIncluded(outputTarget = 'email') {
 			const today = new Date();
 			const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
 			startDateForRange = formatLocalDate(yesterday);
-			endDateForRange = formatLocalDate(today); // Use yesterday for start and today for end
+			endDateForRange = formatLocalDate(yesterday);
 		} else if (weeklyContribution) {
 			const today = new Date();
 			const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -1926,10 +2058,13 @@ function allIncluded(outputTarget = 'email') {
 					// cannot be fetched.
 					let hasMergeInfo = false;
 					let isMerged = false;
-					if (prCacheKey && prCacheKey in mergedStatusResults) {
+					if (platform === 'gitlab') {
+						hasMergeInfo = true;
+						isMerged = item.state === 'merged';
+					} else if (prCacheKey && prCacheKey in mergedStatusResults) {
 						hasMergeInfo = true;
 						isMerged = !!mergedStatusResults[prCacheKey];
-					} else if (item.pull_request && Object.prototype.hasOwnProperty.call(item.pull_request, 'merged_at')) {
+					} else if (item.pull_request && Object.hasOwn(item.pull_request, 'merged_at')) {
 						hasMergeInfo = true;
 						isMerged = !!item.pull_request.merged_at;
 					} else if (platform === 'gitlab' || platform === 'gitee') {
@@ -1976,7 +2111,7 @@ function allIncluded(outputTarget = 'email') {
 					const today = new Date();
 					const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
 					startDateFilter = new Date(formatLocalDate(yesterday) + 'T00:00:00Z');
-					endDateFilter = new Date(formatLocalDate(today) + 'T23:59:59Z'); // Use yesterday for start and today for end
+					endDateFilter = new Date(formatLocalDate(yesterday) + 'T23:59:59Z');
 				} else if (weeklyContribution) {
 					const today = new Date();
 					const weekAgo = new Date(today.getTime() - 7 * 24 * 60 * 60 * 1000);
@@ -2058,6 +2193,25 @@ function allIncluded(outputTarget = 'email') {
 					} else {
 						prAction = 'Updated Merge Request';
 					}
+				} else if (platform === 'codeberg') {
+					if (showCommits && !isNewPR) {
+						if (item.state !== 'open') {
+							log(`[PR DEBUG] Skipping PR #${number} - existing PR but not open`);
+							continue;
+						}
+						if (!hasCommitsInRange) {
+							log(`[PR DEBUG] Skipping PR #${number} - existing PR but no commits in date range`);
+							continue;
+						}
+					}
+					prAction = isNewPR ? 'Made PR' : 'Updated PR';
+					log(`[PR DEBUG] Including PR #${number} as ${prAction}`);
+
+					if (isCreatedToday && item.state === 'open') {
+						prAction = 'Made PR';
+					} else {
+						prAction = 'Updated PR';
+					}
 				}
 
 				if (isDraft) {
@@ -2067,7 +2221,7 @@ function allIncluded(outputTarget = 'email') {
 						log(`[PR DEBUG] Rendering commits for draft PR #${number}:`, item._allCommits);
 						li += '<ul>';
 						item._allCommits.forEach((commit) => {
-							li += `<li style=\"list-style: disc; color: #666;\"><span style=\"color:#2563eb;\">${commit.messageHeadline}</span><span style=\"color:#666; font-size: 11px;\"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
+							li += `<li style="list-style: disc; color: #666;"><span style="color:#2563eb;">${commit.messageHeadline}</span><span style="color:#666; font-size: 11px;"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
 						});
 						li += '</ul>';
 					}
@@ -2087,9 +2241,18 @@ function allIncluded(outputTarget = 'email') {
 					li += `</li>`;
 				} else if ((platform === 'gitlab' || platform === 'gitee') && item.state === 'closed') {
 					li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_closed_button : ''}</li>`;
+				} else if (platform === 'codeberg' && item.state === 'closed') {
+					const isMerged = item.pull_request && item.pull_request.merged;
+					if (isMerged) {
+						li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_merged_button : ''}</li>`;
+					} else {
+						li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_closed_button : ''}</li>`;
+					}
 				} else {
 					let merged = null;
-					if ((githubToken || (useMergedStatus && !fallbackToSimple)) && mergedStatusResults) {
+					if (platform === 'gitlab') {
+						merged = item.state === 'merged';
+					} else if ((githubToken || (useMergedStatus && !fallbackToSimple)) && mergedStatusResults) {
 						const repoParts = repository_url.split('/');
 						const owner = repoParts[repoParts.length - 2];
 						const repo = repoParts[repoParts.length - 1];
@@ -2104,7 +2267,6 @@ function allIncluded(outputTarget = 'email') {
 				}
 				log('[SCRUM-DEBUG] Added PR/MR to lastWeekPrsArray:', li, item);
 				lastWeekPrsArray.push(li);
-				continue; // Prevent issue logic from overwriting PR li
 			} else {
 				// Compute date range for filtering
 				let issueStartDateFilter;
