@@ -5,8 +5,6 @@ on:
     branches:
       - master
       - feat/landing-page-for-Scrum-Helper
-    paths:
-      - "docs/**"
   workflow_dispatch:
 
 permissions:
