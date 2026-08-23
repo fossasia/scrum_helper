@@ -102,9 +102,10 @@ class GiteeHelper {
 				}
 				const url = `${this.baseUrl}${path}${params.toString() ? '?' + params.toString() : ''}`;
 				const controller = new AbortController();
-				const timeoutId = setTimeout(() => controller.abort(), 55000); // 25s timeout
+				const timeoutId = setTimeout(() => controller.abort(), 25000); // 25s timeout
 
-				console.log(`[Gitee Fetch] Starting request to: ${url}`);
+				const safeLogUrl = url.replace(/access_token=[^&]+/g, 'access_token=[REDACTED]');
+				console.log(`[Gitee Fetch] Starting request to: ${safeLogUrl}`);
 				const startTime = Date.now();
 				try {
 					const res = await fetch(url, { signal: controller.signal });

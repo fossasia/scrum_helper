@@ -528,8 +528,8 @@ function allIncluded(outputTarget = 'email') {
 										startingDate,
 										endingDate,
 										giteeToken,
+										orgName,
 										'',
-										projectName,
 									);
 
 									const mappedData = window.giteeHelper.mapGiteeReportData(data);
@@ -569,7 +569,7 @@ function allIncluded(outputTarget = 'email') {
 							})();
 						} else {
 							window.giteeHelper
-								.fetchGiteeData(platformUsernameLocal, startingDate, endingDate, giteeToken, '', projectName)
+								.fetchGiteeData(platformUsernameLocal, startingDate, endingDate, giteeToken, orgName, '')
 								.then((data) => {
 									const mappedData = window.giteeHelper.mapGiteeReportData(data);
 									processGithubData(mappedData);
