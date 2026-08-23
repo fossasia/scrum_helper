@@ -4,8 +4,9 @@ on:
   push:
     branches:
       - master
+      - feat/landing-page-for-Scrum-Helper
     paths:
-      - 'docs/**'
+      - "docs/**"
   workflow_dispatch:
 
 permissions:
@@ -14,7 +15,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: 'pages'
+  group: "pages"
   cancel-in-progress: true
 
 jobs:
@@ -33,7 +34,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './docs'
+          path: "./docs"
 
       - name: Deploy to GitHub Pages
         id: deployment
