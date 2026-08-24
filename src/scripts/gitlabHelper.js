@@ -588,36 +588,48 @@ async function fetchIssuesFromGitLab(scope) {
 		}
 	}
 
-	return allIssues.map((issue) => {
-		let repoName = '';
-		if (issue.web_url) {
-			try {
-				const u = new URL(issue.web_url);
-				const pathParts = u.pathname.split('/');
-				const dashIndex = pathParts.indexOf('-');
-				if (dashIndex !== -1) {
-					repoName = pathParts.slice(1, dashIndex).join('/');
-				} else {
-					repoName = pathParts.slice(1, -2).join('/');
-				}
-			} catch (e) {}
-		}
-		if (!repoName && issue.references && issue.references.full) {
-			repoName = issue.references.full.split('#')[0];
-		}
+	const repoSet = scope?.type === 'selected' ? new Set(scope.repos) : null;
 
-		const safeTitle = typeof sanitizeHtml === 'function' ? sanitizeHtml(issue.title) : issue.title;
-		const safeUrl = typeof sanitizeHtml === 'function' ? sanitizeHtml(issue.web_url) : issue.web_url;
+	return allIssues
+		.map((issue) => {
+			let repoName = '';
+			if (issue.web_url) {
+				try {
+					const u = new URL(issue.web_url);
+					const pathParts = u.pathname.split('/');
+					const dashIndex = pathParts.indexOf('-');
+					if (dashIndex !== -1) {
+						repoName = pathParts.slice(1, dashIndex).join('/');
+					} else {
+						repoName = pathParts.slice(1, -2).join('/');
+					}
+				} catch (e) {}
+			}
+			if (!repoName && issue.references && issue.references.full) {
+				repoName = issue.references.full.split('#')[0];
+			}
 
-		return {
-			id: issue.id,
-			number: Number.parseInt(issue.iid, 10),
-			title: safeTitle,
-			html_url: safeUrl,
-			repository: repoName,
-			state: issue.state,
-		};
-	});
+			const safeTitle = typeof sanitizeHtml === 'function' ? sanitizeHtml(issue.title) : issue.title;
+			const safeUrl = typeof sanitizeHtml === 'function' ? sanitizeHtml(issue.web_url) : issue.web_url;
+
+			return {
+				id: issue.id,
+				number: Number.parseInt(issue.iid, 10),
+				title: safeTitle,
+				html_url: safeUrl,
+				repository: repoName,
+				state: issue.state,
+			};
+		})
+		.filter((issue) => {
+			if (Number.isNaN(issue.number) || !issue.html_url) {
+				return false;
+			}
+			if (repoSet && !repoSet.has(issue.repository)) {
+				return false;
+			}
+			return true;
+		});
 }
 
 if (window.PlatformRegistry) {
