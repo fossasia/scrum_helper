@@ -1484,7 +1484,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		}
 
-		browser.storage.local.get({ displayMode: 'sidePanel' }).then((result) => {
+		browser.storage.local.get({ displayMode: browser.sidebarAction?.toggle ? 'sidePanel' : 'popup' }).then((result) => {
 			applyDisplayModeClass(result.displayMode);
 		});
 
@@ -1492,9 +1492,11 @@ document.addEventListener('DOMContentLoaded', () => {
 		const displayModeNotice = document.getElementById('displayModeNotice');
 		const displayModeNoticeText = document.getElementById('displayModeNoticeText');
 		if (displayModeSelect) {
-			browser.storage.local.get({ displayMode: 'sidePanel' }).then((result) => {
-				displayModeSelect.value = result.displayMode;
-			});
+			browser.storage.local
+				.get({ displayMode: browser.sidebarAction?.toggle ? 'sidePanel' : 'popup' })
+				.then((result) => {
+					displayModeSelect.value = result.displayMode;
+				});
 			displayModeSelect.addEventListener('change', () => {
 				const mode = displayModeSelect.value;
 				browser.storage.local.set({ displayMode: mode });
