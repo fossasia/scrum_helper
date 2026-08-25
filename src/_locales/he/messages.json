@@ -32,6 +32,9 @@
     "last1DayLabel": {
         "message": "היום הקודם"
     },
+    "lastWeekLabel": {
+        "message": "שבוע שעבר"
+    },
     "startDateLabel": {
         "message": "מ:"
     },
@@ -334,5 +337,11 @@
     },
     "insertedInEmailNotification": {
         "message": "הדוח הוכנס לאימייל!"
+    },
+    "rateLimitError": {
+        "message": "חריגה ממגבלת הקצב של ה-API של GitHub. אנא נסה שוב מאוחר יותר או הוסף/בדוק את האסימון (token) של GitHub בהגדרות Scrum Helper."
+    },
+    "rateLimitWarningMessage": {
+        "message": "חלק מהנתונים עשויים להיות חסרים עקב מגבלת הקצב של GitHub. אנא הוסף או בדוק את האסימון של GitHub בהגדרות."
     }
 }

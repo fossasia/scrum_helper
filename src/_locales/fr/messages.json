@@ -32,6 +32,9 @@
     "last1DayLabel": {
         "message": "Jour précédent"
     },
+    "lastWeekLabel": {
+        "message": "Semaine précédente"
+    },
     "startDateLabel": {
         "message": "De :"
     },
@@ -334,5 +337,11 @@
     },
     "insertedInEmailNotification": {
         "message": "Rapport inséré dans l'e-mail !"
+    },
+    "rateLimitError": {
+        "message": "Limite de taux de l'API GitHub dépassée. Veuillez réessayer plus tard ou ajouter/vérifier votre jeton GitHub dans les paramètres de Scrum Helper."
+    },
+    "rateLimitWarningMessage": {
+        "message": "Certaines données peuvent être manquantes en raison de la limite de taux de GitHub. Veuillez ajouter ou vérifier votre jeton GitHub dans les paramètres."
     }
 }

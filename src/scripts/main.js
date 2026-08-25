@@ -12,6 +12,17 @@ const showOpenLabelElement = document.getElementById('showOpenLabel');
 const userReasonElement = null;
 
 const showCommitsElement = document.getElementById('showCommits');
+const codebergUsernameElement = document.getElementById('codebergUsername');
+const codebergTokenElement = document.getElementById('codebergToken');
+const codebergApiBaseUrlElement = document.getElementById('codebergApiBaseUrl');
+const includeNextPlansElement = document.getElementById('includeNextPlans');
+
+const smtpSenderEmailElement = document.getElementById('smtpSenderEmail');
+const smtpServerElement = document.getElementById('smtpServer');
+const smtpPortElement = document.getElementById('smtpPort');
+const smtpUsernameElement = document.getElementById('smtpUsername');
+const smtpPasswordElement = document.getElementById('smtpPassword');
+const smtpRecipientsElement = document.getElementById('smtpRecipients');
 
 if (!window.scrumDateRangeUtils) {
 	window.scrumDateRangeUtils = {
@@ -186,7 +197,17 @@ function handleBodyOnLoad() {
 			'cacheInput',
 			'githubToken',
 			'gitlabToken',
+			'codebergUsername',
+			'codebergToken',
+			'codebergApiBaseUrl',
 			'showCommits',
+			'includeNextPlans',
+			'smtpSenderEmail',
+			'smtpServer',
+			'smtpPort',
+			'smtpUsername',
+			'smtpPassword',
+			'smtpRecipients',
 		])
 		.then((items) => {
 			// Load platform-specific username
@@ -202,11 +223,38 @@ function handleBodyOnLoad() {
 			if (items.gitlabToken && gitlabTokenElement) {
 				gitlabTokenElement.value = items.gitlabToken;
 			}
+			if (codebergUsernameElement && items.codebergUsername) {
+				codebergUsernameElement.value = items.codebergUsername;
+			}
+			if (codebergTokenElement && items.codebergToken) {
+				codebergTokenElement.value = items.codebergToken;
+			}
+			if (codebergApiBaseUrlElement) {
+				codebergApiBaseUrlElement.value = items.codebergApiBaseUrl || 'https://codeberg.org/api/v1';
+			}
 			if (items.projectName && projectNameElement) {
 				projectNameElement.value = items.projectName;
 			}
 			if (items.cacheInput && cacheInputElement) {
 				cacheInputElement.value = items.cacheInput;
+			}
+			if (items.smtpSenderEmail && smtpSenderEmailElement) {
+				smtpSenderEmailElement.value = items.smtpSenderEmail;
+			}
+			if (items.smtpServer && smtpServerElement) {
+				smtpServerElement.value = items.smtpServer;
+			}
+			if (items.smtpPort && smtpPortElement) {
+				smtpPortElement.value = items.smtpPort;
+			}
+			if (items.smtpUsername && smtpUsernameElement) {
+				smtpUsernameElement.value = items.smtpUsername;
+			}
+			if (items.smtpPassword && smtpPasswordElement) {
+				smtpPasswordElement.value = items.smtpPassword;
+			}
+			if (items.smtpRecipients && smtpRecipientsElement) {
+				smtpRecipientsElement.value = items.smtpRecipients;
 			}
 			if (items.endingDate && endingDateElement) {
 				endingDateElement.value = items.endingDate;
@@ -276,6 +324,13 @@ function handleBodyOnLoad() {
 					handleShowCommitsChange();
 				}
 			}
+			if (includeNextPlansElement) {
+				if (items.includeNextPlans !== false) {
+					includeNextPlansElement.checked = true;
+				} else {
+					includeNextPlansElement.checked = false;
+				}
+			}
 		});
 }
 
@@ -313,7 +368,7 @@ function handleYesterdayContributionChange() {
 	if (value) {
 		if (startingDateElement) startingDateElement.readOnly = true;
 		if (endingDateElement) endingDateElement.readOnly = true;
-		if (endingDateElement) endingDateElement.value = getToday();
+		if (endingDateElement) endingDateElement.value = getYesterday();
 		if (startingDateElement) startingDateElement.value = getYesterday();
 		if (startingDateElement && endingDateElement) {
 			window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(startingDateElement, endingDateElement);
@@ -427,6 +482,18 @@ function handleGitlabTokenChange() {
 		}
 	});
 }
+function handleCodebergUsernameChange() {
+	const value = codebergUsernameElement.value;
+	browser.storage.local.set({ codebergUsername: value });
+}
+function handleCodebergTokenChange() {
+	const value = codebergTokenElement.value;
+	browser.storage.local.set({ codebergToken: value });
+}
+function handleCodebergApiBaseUrlChange() {
+	const value = codebergApiBaseUrlElement.value.trim() || 'https://codeberg.org/api/v1';
+	browser.storage.local.set({ codebergApiBaseUrl: value });
+}
 function handleProjectNameChange() {
 	if (!projectNameElement) return;
 	const value = projectNameElement.value;
@@ -461,6 +528,12 @@ function handleShowCommitsChange() {
 	browser.storage.local.set({ showCommits: value });
 }
 
+function handleIncludeNextPlansChange() {
+	if (!includeNextPlansElement) return;
+	const value = includeNextPlansElement.checked;
+	browser.storage.local.set({ includeNextPlans: value });
+}
+
 if (platformUsernameElement) {
 	platformUsernameElement.addEventListener('keyup', handlePlatformUsernameChange);
 }
@@ -482,6 +555,15 @@ if (gitlabTokenElement) {
 		gitlabTokenElement.value = gitlabTokenElement.value.trim();
 	});
 }
+if (codebergUsernameElement) {
+	codebergUsernameElement.addEventListener('keyup', handleCodebergUsernameChange);
+}
+if (codebergTokenElement) {
+	codebergTokenElement.addEventListener('keyup', handleCodebergTokenChange);
+}
+if (codebergApiBaseUrlElement) {
+	codebergApiBaseUrlElement.addEventListener('keyup', handleCodebergApiBaseUrlChange);
+}
 if (cacheInputElement) {
 	cacheInputElement.addEventListener('keyup', handleCacheInputChange);
 }
@@ -489,13 +571,16 @@ if (projectNameElement) {
 	projectNameElement.addEventListener('keyup', handleProjectNameChange);
 }
 if (startingDateElement) {
-	startingDateElement.addEventListener('change', handleStartingDateChange);
+	startingDateElement.addEventListener('blur', handleStartingDateChange);
 }
 if (showCommitsElement) {
 	showCommitsElement.addEventListener('change', handleShowCommitsChange);
 }
+if (includeNextPlansElement) {
+	includeNextPlansElement.addEventListener('change', handleIncludeNextPlansChange);
+}
 if (endingDateElement) {
-	endingDateElement.addEventListener('change', handleEndingDateChange);
+	endingDateElement.addEventListener('blur', handleEndingDateChange);
 }
 if (yesterdayContributionElement) {
 	yesterdayContributionElement.addEventListener('change', handleYesterdayContributionChange);
@@ -505,6 +590,63 @@ if (weeklyContributionElement) {
 }
 if (showOpenLabelElement) {
 	showOpenLabelElement.addEventListener('change', handleOpenLabelChange);
+}
+
+function handleSmtpSenderEmailChange() {
+	if (!smtpSenderEmailElement) return;
+	browser.storage.local.set({ smtpSenderEmail: smtpSenderEmailElement.value.trim() });
+}
+
+function handleSmtpServerChange() {
+	if (!smtpServerElement) return;
+	browser.storage.local.set({ smtpServer: smtpServerElement.value.trim() });
+}
+
+function handleSmtpPortChange() {
+	if (!smtpPortElement) return;
+	browser.storage.local.set({ smtpPort: smtpPortElement.value.trim() });
+}
+
+function handleSmtpUsernameChange() {
+	if (!smtpUsernameElement) return;
+	browser.storage.local.set({ smtpUsername: smtpUsernameElement.value.trim() });
+}
+
+function handleSmtpPasswordChange() {
+	if (!smtpPasswordElement) return;
+	browser.storage.local.set({ smtpPassword: smtpPasswordElement.value.trim() });
+}
+
+function handleSmtpRecipientsChange() {
+	if (!smtpRecipientsElement) return;
+	browser.storage.local.set({ smtpRecipients: smtpRecipientsElement.value.trim() });
+}
+
+if (window.isTauri) {
+	if (smtpSenderEmailElement) {
+		smtpSenderEmailElement.addEventListener('keyup', handleSmtpSenderEmailChange);
+		smtpSenderEmailElement.addEventListener('change', handleSmtpSenderEmailChange);
+	}
+	if (smtpServerElement) {
+		smtpServerElement.addEventListener('keyup', handleSmtpServerChange);
+		smtpServerElement.addEventListener('change', handleSmtpServerChange);
+	}
+	if (smtpPortElement) {
+		smtpPortElement.addEventListener('keyup', handleSmtpPortChange);
+		smtpPortElement.addEventListener('change', handleSmtpPortChange);
+	}
+	if (smtpUsernameElement) {
+		smtpUsernameElement.addEventListener('keyup', handleSmtpUsernameChange);
+		smtpUsernameElement.addEventListener('change', handleSmtpUsernameChange);
+	}
+	if (smtpPasswordElement) {
+		smtpPasswordElement.addEventListener('keyup', handleSmtpPasswordChange);
+		smtpPasswordElement.addEventListener('change', handleSmtpPasswordChange);
+	}
+	if (smtpRecipientsElement) {
+		smtpRecipientsElement.addEventListener('keyup', handleSmtpRecipientsChange);
+		smtpRecipientsElement.addEventListener('change', handleSmtpRecipientsChange);
+	}
 }
 
 document.addEventListener('DOMContentLoaded', handleBodyOnLoad);
