@@ -2019,12 +2019,6 @@ function allIncluded(outputTarget = 'email') {
 					endDateFilter = new Date(formatLocalDate(today) + 'T23:59:59Z');
 				}
 
-				const today = new Date();
-				today.setHours(0, 0, 0, 0);
-				const itemCreatedDate = new Date(item.created_at);
-				itemCreatedDate.setHours(0, 0, 0, 0);
-				const isCreatedToday = today.getTime() === itemCreatedDate.getTime();
-
 				const isNewPR = prCreatedDate >= startDateFilter && prCreatedDate <= endDateFilter;
 				const prUpdatedDate = new Date(item.updated_at);
 				const isUpdatedInRange = prUpdatedDate >= startDateFilter && prUpdatedDate <= endDateFilter;
@@ -2052,12 +2046,6 @@ function allIncluded(outputTarget = 'email') {
 					}
 					prAction = isNewPR ? 'Made PR' : 'Updated PR';
 					log(`[PR DEBUG] Including PR #${number} as ${prAction}`);
-
-					if (isCreatedToday && item.state === 'open') {
-						prAction = 'Made PR';
-					} else {
-						prAction = 'Updated PR';
-					}
 				} else if (platform === 'gitlab') {
 					// For existing MRs (not new), they must be open AND have commits in the date range (if showCommits is enabled)
 					if (!isNewPR) {
@@ -2071,11 +2059,6 @@ function allIncluded(outputTarget = 'email') {
 						}
 					}
 					prAction = isNewPR ? 'Made Merge Request' : 'Updated Merge Request';
-					if (isCreatedToday && item.state === 'opened') {
-						prAction = 'Made Merge Request';
-					} else {
-						prAction = 'Updated Merge Request';
-					}
 				} else if (platform === 'codeberg') {
 					if (showCommits && !isNewPR) {
 						if (item.state !== 'open') {
@@ -2089,17 +2072,10 @@ function allIncluded(outputTarget = 'email') {
 					}
 					prAction = isNewPR ? 'Made PR' : 'Updated PR';
 					log(`[PR DEBUG] Including PR #${number} as ${prAction}`);
-
-					if (isCreatedToday && item.state === 'open') {
-						prAction = 'Made PR';
-					} else {
-						prAction = 'Updated PR';
-					}
 				}
 
 				if (isDraft) {
-					const draftLabel = platform === 'gitlab' ? 'Made Merge Request' : 'Made PR';
-					li = `<li><i>(${project})</i> - ${draftLabel} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_draft_button : ''}`;
+					li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_draft_button : ''}`;
 					if (showCommits && item._allCommits && item._allCommits.length) {
 						log(`[PR DEBUG] Rendering commits for draft PR #${number}:`, item._allCommits);
 						li += '<ul>';
