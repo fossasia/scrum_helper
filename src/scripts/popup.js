@@ -130,12 +130,18 @@ function applyI18n() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-	// Hide extension-only settings in Tauri
-	if (window.isTauri) {
+	// Hide display mode settings if running in Tauri or if browser doesn't support side panel/sidebar Action
+	const hasSidePanelSupport = !!(
+		typeof browser !== 'undefined' &&
+		(browser.sidebarAction?.toggle || browser.sidePanel?.open)
+	);
+	if (window.isTauri || !hasSidePanelSupport) {
 		const displayModeSec = document.getElementById('displayModeSectionContainer');
 		if (displayModeSec) {
 			displayModeSec.style.display = 'none';
 		}
+	}
+	if (window.isTauri) {
 		const insertInEmailBtn = document.getElementById('insertInEmail');
 		if (insertInEmailBtn) {
 			const container = insertInEmailBtn.closest('.tooltip-container');
@@ -1481,19 +1487,19 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		}
 
-		browser.storage.local.get({ displayMode: browser.sidebarAction?.toggle ? 'sidePanel' : 'popup' }).then((result) => {
-			applyDisplayModeClass(result.displayMode);
+		const defaultMode = window.isTauri || browser.sidebarAction?.toggle ? 'sidePanel' : 'popup';
+		browser.storage.local.get({ displayMode: defaultMode }).then((result) => {
+			const mode = window.isTauri ? 'sidePanel' : result.displayMode;
+			applyDisplayModeClass(mode);
 		});
 
 		const displayModeSelect = document.getElementById('displayModeSelect');
 		const displayModeNotice = document.getElementById('displayModeNotice');
 		const displayModeNoticeText = document.getElementById('displayModeNoticeText');
 		if (displayModeSelect) {
-			browser.storage.local
-				.get({ displayMode: browser.sidebarAction?.toggle ? 'sidePanel' : 'popup' })
-				.then((result) => {
-					displayModeSelect.value = result.displayMode;
-				});
+			browser.storage.local.get({ displayMode: defaultMode }).then((result) => {
+				displayModeSelect.value = result.displayMode;
+			});
 			displayModeSelect.addEventListener('change', () => {
 				const mode = displayModeSelect.value;
 				browser.storage.local.set({ displayMode: mode });
