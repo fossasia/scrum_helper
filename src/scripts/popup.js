@@ -187,7 +187,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	// Codeberg elements
 	let lastPlatform = 'github';
-	const codebergUsernameInput = document.getElementById('codebergUsername');
 	const codebergTokenInput = document.getElementById('codebergToken');
 	const codebergApiBaseUrlInput = document.getElementById('codebergApiBaseUrl');
 	const toggleCodebergTokenBtn = document.getElementById('toggleCodebergTokenVisibility');
@@ -823,7 +822,6 @@ document.addEventListener('DOMContentLoaded', () => {
 					window.scrumDateRangeUtils.persistDateRange(startingDateInput, endingDateInput);
 				}
 
-				if (codebergUsernameInput && result.codebergUsername) codebergUsernameInput.value = result.codebergUsername;
 				if (codebergTokenInput && result.codebergToken) codebergTokenInput.value = result.codebergToken;
 				if (codebergApiBaseUrlInput)
 					codebergApiBaseUrlInput.value = result.codebergApiBaseUrl || 'https://codeberg.org/api/v1';
@@ -1433,11 +1431,6 @@ document.addEventListener('DOMContentLoaded', () => {
 			});
 			githubTokenInput.addEventListener('blur', () => {
 				githubTokenInput.value = githubTokenInput.value.trim();
-			});
-		}
-		if (codebergUsernameInput) {
-			codebergUsernameInput.addEventListener('input', () => {
-				browser.storage.local.set({ codebergUsername: codebergUsernameInput.value });
 			});
 		}
 		if (codebergTokenInput) {
