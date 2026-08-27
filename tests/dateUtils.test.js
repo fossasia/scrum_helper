@@ -1,7 +1,16 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import '../src/scripts/main.js';
 
 describe('scrumDateRangeUtils', () => {
+	beforeEach(() => {
+		vi.useFakeTimers();
+		vi.setSystemTime(new Date('2026-08-25T12:00:00Z'));
+	});
+
+	afterEach(() => {
+		vi.useRealTimers();
+	});
+
 	it('should formatLocalDate correctly', () => {
 		const date = new Date(2026, 7, 24); // August 24, 2026 (0-indexed month)
 		const formatted = window.scrumDateRangeUtils.formatLocalDate(date);
@@ -10,13 +19,13 @@ describe('scrumDateRangeUtils', () => {
 
 	it('should calculate today, yesterday and week ago string formats', () => {
 		const today = window.scrumDateRangeUtils.getLocalTodayString();
-		expect(today).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+		expect(today).toBe('2026-08-25');
 
 		const yesterday = window.scrumDateRangeUtils.getLocalYesterdayString();
-		expect(yesterday).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+		expect(yesterday).toBe('2026-08-24');
 
 		const weekAgo = window.scrumDateRangeUtils.getLocalWeekAgoString();
-		expect(weekAgo).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+		expect(weekAgo).toBe('2026-08-18');
 	});
 
 	describe('normalizeAndSync', () => {
