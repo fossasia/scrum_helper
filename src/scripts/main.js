@@ -12,7 +12,6 @@ const showOpenLabelElement = document.getElementById('showOpenLabel');
 const _userReasonElement = null;
 
 const showCommitsElement = document.getElementById('showCommits');
-const codebergUsernameElement = document.getElementById('codebergUsername');
 const codebergTokenElement = document.getElementById('codebergToken');
 const codebergApiBaseUrlElement = document.getElementById('codebergApiBaseUrl');
 const includeNextPlansElement = document.getElementById('includeNextPlans');
@@ -224,9 +223,6 @@ function handleBodyOnLoad() {
 			}
 			if (items.gitlabToken && gitlabTokenElement) {
 				gitlabTokenElement.value = items.gitlabToken;
-			}
-			if (codebergUsernameElement && items.codebergUsername) {
-				codebergUsernameElement.value = items.codebergUsername;
 			}
 			if (codebergTokenElement && items.codebergToken) {
 				codebergTokenElement.value = items.codebergToken;
@@ -484,10 +480,6 @@ function handleGitlabTokenChange() {
 		}
 	});
 }
-function handleCodebergUsernameChange() {
-	const value = codebergUsernameElement.value;
-	browser.storage.local.set({ codebergUsername: value });
-}
 function handleCodebergTokenChange() {
 	const value = codebergTokenElement.value;
 	browser.storage.local.set({ codebergToken: value });
@@ -556,9 +548,6 @@ if (gitlabTokenElement) {
 	gitlabTokenElement.addEventListener('blur', () => {
 		gitlabTokenElement.value = gitlabTokenElement.value.trim();
 	});
-}
-if (codebergUsernameElement) {
-	codebergUsernameElement.addEventListener('keyup', handleCodebergUsernameChange);
 }
 if (codebergTokenElement) {
 	codebergTokenElement.addEventListener('keyup', handleCodebergTokenChange);

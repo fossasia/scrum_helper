@@ -11,6 +11,8 @@ window.PlatformRegistry = {
 	},
 };
 
+let lastPlatform = 'github';
+
 function debounce(func, wait) {
 	let timeout;
 	return function (...args) {
@@ -186,8 +188,6 @@ document.addEventListener('DOMContentLoaded', () => {
 	let gitlabTokenVisible = false;
 
 	// Codeberg elements
-	let _lastPlatform = 'github';
-	const codebergUsernameInput = document.getElementById('codebergUsername');
 	const codebergTokenInput = document.getElementById('codebergToken');
 	const codebergApiBaseUrlInput = document.getElementById('codebergApiBaseUrl');
 	const toggleCodebergTokenBtn = document.getElementById('toggleCodebergTokenVisibility');
@@ -508,8 +508,10 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (!generateBtn) return;
 		if (!isLoading) return;
 
-		const msg = browser.i18n.getMessage('generatingButton') || 'Generating...';
-		generateBtn.innerHTML = `<i class="fa fa-spinner fa-spin"></i> ${msg}`;
+		const icon = generateBtn.querySelector('i');
+		const span = generateBtn.querySelector('span');
+		if (icon) icon.className = 'fa fa-spinner fa-spin';
+		if (span) span.textContent = browser.i18n.getMessage('generatingButton') || 'Generating...';
 		generateBtn.disabled = true;
 	}
 
@@ -821,14 +823,13 @@ document.addEventListener('DOMContentLoaded', () => {
 					window.scrumDateRangeUtils.persistDateRange(startingDateInput, endingDateInput);
 				}
 
-				if (codebergUsernameInput && result.codebergUsername) codebergUsernameInput.value = result.codebergUsername;
 				if (codebergTokenInput && result.codebergToken) codebergTokenInput.value = result.codebergToken;
 				if (codebergApiBaseUrlInput)
 					codebergApiBaseUrlInput.value = result.codebergApiBaseUrl || 'https://codeberg.org/api/v1';
 
 				// Load platform-specific username
 				const platform = result.platform || 'github';
-				_lastPlatform = platform;
+				lastPlatform = platform;
 				const platformUsernameKey = `${platform}Username`;
 				platformUsername.value = result[platformUsernameKey] || '';
 				window.updateGenerateButtonState && window.updateGenerateButtonState();
@@ -954,8 +955,7 @@ document.addEventListener('DOMContentLoaded', () => {
 								return browser.storage.local.get(['platform']).then((res) => {
 									platformSelect.value = res.platform || 'github';
 									updatePlatformUI(platformSelect.value);
-									generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
-									generateBtn.disabled = true;
+									setGenerateButtonLoading(generateBtn, true);
 									window.generateScrumReport && window.generateScrumReport();
 									generateBtn._triggeredByShortcut = false;
 								});
@@ -1432,11 +1432,6 @@ document.addEventListener('DOMContentLoaded', () => {
 			});
 			githubTokenInput.addEventListener('blur', () => {
 				githubTokenInput.value = githubTokenInput.value.trim();
-			});
-		}
-		if (codebergUsernameInput) {
-			codebergUsernameInput.addEventListener('input', () => {
-				browser.storage.local.set({ codebergUsername: codebergUsernameInput.value });
 			});
 		}
 		if (codebergTokenInput) {
@@ -2252,6 +2247,22 @@ function updatePlatformUI(platform) {
 		const message = browser.i18n.getMessage(key);
 		if (message) {
 			showCommitsTooltip.textContent = message;
+		}
+	}
+
+	const repoFilterTooltip = document.querySelector(
+		'[data-i18n="repoFilterTooltip"], [data-i18n="repoFilterTooltipGitLab"]',
+	);
+	if (repoFilterTooltip) {
+		if (platform === 'gitlab') {
+			repoFilterTooltip.setAttribute('data-i18n', 'repoFilterTooltipGitLab');
+		} else {
+			repoFilterTooltip.setAttribute('data-i18n', 'repoFilterTooltip');
+		}
+		const key = repoFilterTooltip.getAttribute('data-i18n');
+		const message = browser.i18n.getMessage(key);
+		if (message) {
+			repoFilterTooltip.innerHTML = sanitizeHtml(message);
 		}
 	}
 }
