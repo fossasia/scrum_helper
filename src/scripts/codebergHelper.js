@@ -366,11 +366,15 @@ class CodebergHelper {
 					const commitMap = await this.fetchCommitsForOpenPRs(openPRs, token, startDate, endDate);
 					for (const item of issues) {
 						if (item.pull_request) {
-							item._allCommits = commitMap[item.number] || [];
+							const { owner, repo } = parseRepoAndOwner(item.html_url || item.url);
+							const key = owner && repo ? `${owner}/${repo}#${item.number}` : item.number;
+							item._allCommits = commitMap[key] || [];
 						}
 					}
 					for (const item of mergeRequests) {
-						item._allCommits = commitMap[item.number] || [];
+						const { owner, repo } = parseRepoAndOwner(item.html_url || item.url);
+						const key = owner && repo ? `${owner}/${repo}#${item.number}` : item.number;
+						item._allCommits = commitMap[key] || [];
 					}
 				}
 			}
@@ -413,10 +417,11 @@ class CodebergHelper {
 
 		await Promise.all(
 			prs.map(async (pr) => {
+				const { owner, repo } = parseRepoAndOwner(pr.html_url || pr.url || pr.repository_url);
+				const key = owner && repo ? `${owner}/${repo}#${pr.number}` : pr.number;
 				try {
-					const { owner, repo } = parseRepoAndOwner(pr.html_url || pr.url || pr.repository_url);
 					if (!owner || !repo) {
-						commitMap[pr.number] = [];
+						commitMap[key] = [];
 						return;
 					}
 					const url = `${this.baseUrl}/repos/${owner}/${repo}/pulls/${pr.number}/commits`;
@@ -438,16 +443,16 @@ class CodebergHelper {
 									const d = new Date(c.committedDate);
 									return d >= since && d <= until;
 								});
-							commitMap[pr.number] = mapped;
+							commitMap[key] = mapped;
 						} else {
-							commitMap[pr.number] = [];
+							commitMap[key] = [];
 						}
 					} else {
-						commitMap[pr.number] = [];
+						commitMap[key] = [];
 					}
 				} catch (e) {
 					console.error(`[Codeberg] Failed to fetch commits for PR #${pr.number}:`, e);
-					commitMap[pr.number] = [];
+					commitMap[key] = [];
 				}
 			}),
 		);

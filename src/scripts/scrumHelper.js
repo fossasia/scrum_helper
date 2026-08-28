@@ -1044,7 +1044,27 @@ function allIncluded(outputTarget = 'email') {
 					log('Commit map returned from fetchCommitsForOpenPRs:', commitMap);
 					// Attach commits to PR objects
 					openPRs.forEach((pr) => {
-						pr._allCommits = commitMap[pr.number] || [];
+						if (platform === 'codeberg') {
+							let owner = '';
+							let repo = '';
+							const url = pr.html_url || pr.url;
+							if (url) {
+								try {
+									const parsed = new URL(url);
+									const parts = parsed.pathname.split('/').filter(Boolean);
+									if (parts.length >= 2) {
+										owner = parts[0];
+										repo = parts[1];
+									}
+								} catch (e) {
+									// ignore
+								}
+							}
+							const key = owner && repo ? `${owner}/${repo}#${pr.number}` : pr.number;
+							pr._allCommits = commitMap[key] || [];
+						} else {
+							pr._allCommits = commitMap[pr.number] || [];
+						}
 						log(`Attached ${pr._allCommits.length} commits to PR #${pr.number}`);
 						if (pr._allCommits.length > 0) {
 							log(
