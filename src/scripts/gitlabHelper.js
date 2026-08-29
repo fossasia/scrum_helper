@@ -751,18 +751,21 @@ if (window.PlatformRegistry) {
 				endDate = today.toISOString().split('T')[0];
 			}
 
+			const prevDay = new Date(new Date(startDate).getTime() - 24 * 60 * 60 * 1000);
+			const afterDateStr = prevDay.toISOString().split('T')[0];
+
 			const nextDay = new Date(new Date(endDate).getTime() + 24 * 60 * 60 * 1000);
 			const beforeDateStr = nextDay.toISOString().split('T')[0];
 
 			console.log(
-				`[GitLab repo filter] Fetching events for userId: ${userId} between ${startDate} and ${beforeDateStr}`,
+				`[GitLab repo filter] Fetching events for userId: ${userId} between ${afterDateStr} and ${beforeDateStr}`,
 			);
 
 			let page = 1;
 			let hasMore = true;
 			const events = [];
-			while (hasMore && page <= 3) {
-				const eventsUrl = `${baseUrl}/users/${userId}/events?after=${startDate}&before=${beforeDateStr}&per_page=100&page=${page}`;
+			while (hasMore) {
+				const eventsUrl = `${baseUrl}/users/${userId}/events?after=${afterDateStr}&before=${beforeDateStr}&per_page=100&page=${page}`;
 				const eventsRes = await fetch(eventsUrl, { headers });
 				if (!eventsRes.ok) {
 					throw new Error(`GitLab events fetch failed: ${eventsRes.status}`);
