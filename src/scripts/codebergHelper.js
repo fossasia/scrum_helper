@@ -72,14 +72,11 @@ function codebergCheckTokenForNextPlans({
 }
 
 async function fetchIssuesFromCodeberg(scope) {
-	const storage = await browser.storage.local.get([
-		'platform',
-		'codebergUsername',
-		'codebergToken',
-		'platformUsername',
-	]);
+	const storage = await browser.storage.local.get(['platform', 'codebergToken', 'platformUsername']);
 	const platform = storage.platform || 'codeberg';
-	const username = storage.codebergUsername || (platform === 'codeberg' ? storage.platformUsername : '');
+	const usernameKey = `${platform}Username`;
+	const userStorage = await browser.storage.local.get([usernameKey]);
+	const username = userStorage[usernameKey] || storage.platformUsername || '';
 	const token = storage.codebergToken;
 
 	if (!username) {
@@ -138,8 +135,9 @@ async function fetchIssuesFromCodeberg(scope) {
 
 			// Validate assignee client-side to handle different Gitea API versions
 			const isAssigned =
-				(issue.assignee && issue.assignee.login === username) ||
-				(Array.isArray(issue.assignees) && issue.assignees.some((u) => u.login === username));
+				(issue.assignee && issue.assignee.login?.toLowerCase() === username.toLowerCase()) ||
+				(Array.isArray(issue.assignees) &&
+					issue.assignees.some((u) => u.login?.toLowerCase() === username.toLowerCase()));
 
 			return isAssigned;
 		})
@@ -431,10 +429,10 @@ class CodebergHelper {
 								if (updated >= start && updated <= end) {
 									const issueUser = issue.user?.username || issue.user?.login;
 									const isAssignee =
-										issue.assignees?.some((a) => (a.username || a.login) === username) ||
-										(issue.assignee?.username || issue.assignee?.login) === username;
+										issue.assignees?.some((a) => (a.username || a.login)?.toLowerCase() === username.toLowerCase()) ||
+										(issue.assignee?.username || issue.assignee?.login)?.toLowerCase() === username.toLowerCase();
 
-									if (issueUser === username || isAssignee) {
+									if (issueUser?.toLowerCase() === username.toLowerCase() || isAssignee) {
 										issues.push(issue);
 										if (issue.pull_request) {
 											mergeRequests.push(issue);
