@@ -86,6 +86,37 @@
             transform: translate(2px, 2px);
             box-shadow: 0 0 0 #0d0f10;
         }
+        @keyframes revealHeading {
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes popBadge {
+            0% {
+                transform: scale(0.8) rotate(-5deg);
+                opacity: 0;
+            }
+            70% {
+                transform: scale(1.05) rotate(2deg);
+            }
+            100% {
+                transform: scale(1) rotate(-1deg);
+                opacity: 1;
+            }
+        }
+        .animate-heading {
+            animation: revealHeading 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .animate-badge {
+            opacity: 0;
+            animation: popBadge 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            animation-delay: 0.4s;
+        }
     </style>
 </head>
 
@@ -134,8 +165,8 @@
                         A FOSSASIA Open Source Project
                     </div>
                     
-                    <h1 class="text-4xl sm:text-5xl lg:text-[46px] xl:text-[52px] font-black font-display text-[#0d0f10] leading-[1.15] tracking-tight">
-                        Write development reports in <span class="bg-brand-600 text-white px-3 py-1 rounded-lg border-[3px] border-[#0d0f10] shadow-[4px_4px_0px_#0d0f10] inline-block transform -rotate-1">seconds.</span>
+                    <h1 class="text-4xl sm:text-5xl lg:text-[46px] xl:text-[52px] font-black font-display text-[#0d0f10] leading-[1.15] tracking-tight animate-heading">
+                        Write development reports in <span id="hero-typing-badge" class="bg-brand-600 text-white px-3 py-1 rounded-lg border-[3px] border-[#0d0f10] shadow-[4px_4px_0px_#0d0f10] inline-block transform -rotate-1 animate-badge">seconds.</span>
                     </h1>
                     
                     <p class="text-sm sm:text-base text-[#0d0f10] opacity-80 leading-relaxed max-w-xl mx-auto lg:mx-0 font-bold">
@@ -558,6 +589,46 @@
             }
         }
         fetchLatestRelease();
+
+        // Typewriter Effect for the Hero Badge (starts after 10 seconds of load)
+        setTimeout(() => {
+            const words = ["clicks.", "seconds.", "one go."];
+            const badge = document.getElementById("hero-typing-badge");
+            if (!badge) return;
+
+            let wordIndex = 0;
+            let charIndex = badge.textContent.length;
+            let isDeleting = true;
+
+            function type() {
+                const currentWord = words[wordIndex];
+                const fullText = badge.textContent;
+
+                if (isDeleting) {
+                    badge.textContent = fullText.slice(0, -1);
+                    if (badge.textContent === "") {
+                        isDeleting = false;
+                        charIndex = 0;
+                        setTimeout(type, 300); // pause before typing next word
+                    } else {
+                        setTimeout(type, 80);
+                    }
+                } else {
+                    badge.textContent = currentWord.slice(0, charIndex + 1);
+                    charIndex++;
+                    if (charIndex === currentWord.length) {
+                        // finished typing word
+                        isDeleting = true;
+                        wordIndex = (wordIndex + 1) % words.length;
+                        setTimeout(type, 3000); // wait 3 seconds before deleting
+                    } else {
+                        setTimeout(type, 100);
+                    }
+                }
+            }
+
+            type();
+        }, 1000);
     </script>
 
 </body>
