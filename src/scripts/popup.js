@@ -1476,16 +1476,18 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		}
 
-		browser.storage.local.get({ displayMode: browser.sidebarAction?.toggle ? 'sidePanel' : 'popup' }).then((result) => {
-			applyDisplayModeClass(result.displayMode);
-		});
+		browser.storage.local
+			.get({ displayMode: window.isTauri || browser.sidebarAction?.toggle ? 'sidePanel' : 'popup' })
+			.then((result) => {
+				applyDisplayModeClass(result.displayMode);
+			});
 
 		const displayModeSelect = document.getElementById('displayModeSelect');
 		const displayModeNotice = document.getElementById('displayModeNotice');
 		const displayModeNoticeText = document.getElementById('displayModeNoticeText');
 		if (displayModeSelect) {
 			browser.storage.local
-				.get({ displayMode: browser.sidebarAction?.toggle ? 'sidePanel' : 'popup' })
+				.get({ displayMode: window.isTauri || browser.sidebarAction?.toggle ? 'sidePanel' : 'popup' })
 				.then((result) => {
 					displayModeSelect.value = result.displayMode;
 				});
