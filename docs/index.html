@@ -5,11 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Scrum Helper simplifies development reports by using your Git activity.">
+    <link rel="icon" type="image/png" href="images/icon128x128.png">
     <title>Scrum Helper - Simplify Your Development Reports</title>
     <!-- Google Fonts: Outfit for Headings, Inter for Body -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;550;700;800&family=Outfit:wght@500;700;800;900&display=swap" rel="stylesheet">
     <!-- FontAwesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Tailwind CSS -->
@@ -20,16 +21,18 @@
                 extend: {
                     colors: {
                         brand: {
-                            50: '#eff6ff',
-                            100: '#dbeafe',
-                            200: '#bfdbfe',
-                            500: '#3b82f6',
-                            600: '#2563eb',
-                            700: '#1d4ed8',
-                            800: '#1e40af',
-                            900: '#1e3a8a',
+                            50: '#fff5f5',
+                            100: '#ffe3e3',
+                            200: '#ffd0d0',
+                            400: '#fb7185', // Coral / Rose
+                            500: '#f43f5e', // Ruby Red
+                            600: '#e11d48', // Crimson Red
+                            700: '#be123c',
+                            800: '#9f1239',
+                            900: '#881337',
                         },
                         slate: {
+                            850: '#111827',
                             900: '#0f172a',
                             950: '#070a13',
                         }
@@ -42,86 +45,148 @@
             }
         }
     </script>
+    <style>
+        body {
+            background-color: #eef2f6;
+            background-image: radial-gradient(rgba(13, 15, 16, 0.07) 1.5px, transparent 1.5px);
+            background-size: 24px 24px;
+        }
+        .brutal-card {
+            background: #ffffff;
+            border: 3px solid #0d0f10;
+            border-radius: 12px;
+            box-shadow: 6px 6px 0px #0d0f10;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .brutal-card:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 8px 8px 0px #0d0f10;
+        }
+        .brutal-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: 3px solid #0d0f10;
+            box-shadow: 4px 4px 0px #0d0f10;
+            cursor: pointer;
+            user-select: none;
+            transition: transform 0.1s ease, box-shadow 0.1s ease, background-color 0.15s ease;
+        }
+        .brutal-btn:hover {
+            transform: translate(-2px, -2px);
+            box-shadow: 6px 6px 0px #0d0f10;
+        }
+        .brutal-btn:active {
+            transform: translate(2px, 2px);
+            box-shadow: 0 0 0 #0d0f10;
+        }
+    </style>
 </head>
 
-<body class="bg-slate-950 text-slate-400 font-sans antialiased selection:bg-brand-500 selection:text-white">
+<body class="text-[#0d0f10] font-sans antialiased selection:bg-brand-600 selection:text-white relative min-h-screen">
 
-    <!-- Glowing Background Accents -->
-    <div class="absolute top-0 right-0 w-[450px] h-[450px] rounded-full bg-gradient-to-tr from-brand-600/10 to-indigo-600/10 blur-3xl -z-10"></div>
-    <div class="absolute top-[400px] left-0 w-[350px] h-[350px] rounded-full bg-gradient-to-tr from-purple-600/5 to-brand-600/10 blur-3xl -z-10"></div>
-
-    <!-- Navigation (Dark matched) -->
-    <nav class="sticky top-0 z-50 backdrop-blur-md bg-slate-950/85 border-b border-slate-900">
-        <div class="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
-            <a href="#" class="flex items-center gap-2 group">
-                <div class="w-8 h-8 rounded-lg overflow-hidden bg-brand-600 p-0.5 shadow-md shadow-brand-600/20 group-hover:scale-105 transition-transform duration-300">
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 backdrop-blur-md bg-[#eef2f6]/90 border-b-[3px] border-[#0d0f10] transition-all duration-300">
+        <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+            <a href="#" class="flex items-center gap-3 group">
+                <div class="w-9 h-9 rounded-xl overflow-hidden bg-white border-[3px] border-[#0d0f10] p-1.5 shadow-[3px_3px_0px_#0d0f10] group-hover:scale-105 transition-all duration-300">
                     <img src="images/icon128x128.png" alt="Scrum Helper logo" class="w-full h-full object-contain">
                 </div>
-                <span class="text-lg font-bold font-display tracking-tight text-white">Scrum Helper</span>
+                <div class="flex flex-col">
+                    <span class="text-lg font-extrabold font-display tracking-tight text-[#0d0f10] leading-none">Scrum Helper</span>
+                    <span class="text-[8px] text-[#0d0f10] opacity-60 font-extrabold uppercase tracking-widest mt-0.5">by FOSSASIA</span>
+                </div>
             </a>
 
-            <div class="hidden md:flex items-center gap-6 font-medium text-slate-400 text-xs">
-                <a href="#how-it-works" class="hover:text-white transition-colors">How it works</a>
-                <a href="#features" class="hover:text-white transition-colors">Features</a>
-                <a href="#download" class="hover:text-white transition-colors">Download</a>
-                <a href="#extensions" class="hover:text-white transition-colors">Extensions</a>
+            <div class="hidden md:flex items-center gap-6 font-bold text-[#0d0f10] text-xs uppercase tracking-wider">
+                <a href="#features" class="hover:text-brand-600 transition-colors">Features</a>
+                <a href="#download" class="hover:text-brand-600 transition-colors">Download</a>
+                <a href="#extensions" class="hover:text-brand-600 transition-colors">Extensions</a>
             </div>
             
             <div class="flex items-center gap-3">
                 <a href="https://github.com/fossasia/scrum_helper" target="_blank" rel="noopener noreferrer" 
-                   class="flex items-center justify-center w-8 h-8 rounded-lg bg-slate-900 hover:bg-slate-850 text-slate-400 hover:text-white transition-all duration-200"
+                   class="flex items-center justify-center w-8 h-8 rounded-lg bg-white border-[3px] border-[#0d0f10] shadow-[3px_3px_0px_#0d0f10] text-[#0d0f10] hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_#0d0f10] transition-all duration-200"
                    title="GitHub Repository">
                     <i class="fab fa-github text-base"></i>
                 </a>
-                <a href="#download" class="hidden sm:inline-flex items-center justify-center px-4 py-2 rounded-lg bg-brand-600 hover:bg-brand-500 text-white font-semibold text-xs shadow-md shadow-brand-600/10 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 font-display">
+                <a href="#download" class="hidden sm:inline-flex brutal-btn bg-brand-600 hover:bg-brand-500 text-white text-xs py-2 px-4 shadow-[3px_3px_0px_#0d0f10] hover:shadow-[5px_5px_0px_#0d0f10]">
                     Get Desktop App
                 </a>
             </div>
         </div>
     </nav>
 
-    <!-- Hero Section (Tightened spacing) -->
-    <header class="relative overflow-hidden py-12 lg:py-20">
-        <div class="max-w-5xl mx-auto px-6">
-            <div class="grid lg:grid-cols-12 gap-10 items-center">
+    <!-- Hero Section -->
+    <header class="relative py-12 lg:py-16">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="grid lg:grid-cols-2 gap-10 items-center">
                 <!-- Text Block -->
-                <div class="lg:col-span-6 space-y-5 text-center lg:text-left">
-                    <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-900 border border-slate-800 text-brand-400 font-semibold text-xs tracking-wide uppercase font-display">
-                        <span class="w-1.5 h-1.5 rounded-full bg-brand-500 animate-pulse"></span>
-                        Git-to-Report Automation
+                <div class="space-y-5 text-center lg:text-left">
+                    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border-[3px] border-[#0d0f10] shadow-[3px_3px_0px_#0d0f10] text-[#0d0f10] font-bold text-[10px] tracking-wider uppercase font-display">
+                        <span class="w-2 h-2 rounded-full bg-brand-600 animate-ping"></span>
+                        A FOSSASIA Open Source Project
                     </div>
-                    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black font-display text-white leading-tight tracking-tight">
-                        Write development reports in <span class="bg-gradient-to-r from-brand-400 to-indigo-400 bg-clip-text text-transparent">seconds.</span>
+                    
+                    <h1 class="text-4xl sm:text-5xl lg:text-[46px] xl:text-[52px] font-black font-display text-[#0d0f10] leading-[1.15] tracking-tight">
+                        Write development reports in <span class="bg-brand-600 text-white px-3 py-1 rounded-lg border-[3px] border-[#0d0f10] shadow-[4px_4px_0px_#0d0f10] inline-block transform -rotate-1">seconds.</span>
                     </h1>
-                    <p class="text-sm sm:text-base text-slate-400 leading-relaxed max-w-xl mx-auto lg:mx-0">
-                        Scrum Helper connects securely to your Git activity, pulling commits, pull requests, issues, and code reviews into a structured daily update. Save hours of manual compilation.
+                    
+                    <p class="text-sm sm:text-base text-[#0d0f10] opacity-80 leading-relaxed max-w-xl mx-auto lg:mx-0 font-bold">
+                        Scrum Helper is an official FOSSASIA utility that connects securely to your Git activity, pulling commits, pull requests, issues, and code reviews into a structured daily update. Save hours of manual compilation.
                     </p>
+                    
                     <div class="flex flex-wrap items-center justify-center lg:justify-start gap-3 pt-2">
-                        <a href="#download" class="inline-flex items-center justify-center px-5 py-3 rounded-lg bg-white hover:bg-slate-100 text-slate-950 font-semibold text-xs shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 font-display">
-                            <i class="fa-solid fa-download mr-2 text-[10px]"></i> Download Desktop App
+                        <a href="#download" class="brutal-btn bg-brand-600 hover:bg-brand-500 text-white text-xs py-3 px-5 shadow-[4px_4px_0px_#0d0f10]">
+                            <i class="fa-solid fa-download mr-2 text-xs"></i> Download Desktop App
                         </a>
-                        <a href="#extensions" class="inline-flex items-center justify-center px-5 py-3 rounded-lg bg-slate-900 hover:bg-slate-850 text-slate-300 border border-slate-800 hover:border-slate-700 font-semibold text-xs hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 font-display">
-                            <i class="fa-solid fa-puzzle-piece mr-2 text-[10px] text-brand-400"></i> Get Extension
+                        <a href="#extensions" class="brutal-btn bg-white hover:bg-slate-50 text-[#0d0f10] text-xs py-3 px-5 shadow-[4px_4px_0px_#0d0f10]">
+                            <i class="fa-solid fa-puzzle-piece mr-2 text-brand-500"></i> Get Browser Extension
                         </a>
+                    </div>
+                    
+                    <!-- Developer Trust Metrics -->
+                    <div class="flex flex-wrap justify-center lg:justify-start gap-x-5 gap-y-2 pt-3 text-[11px] text-[#0d0f10] opacity-70 font-extrabold border-t-[3px] border-[#0d0f10] max-w-lg">
+                        <div class="flex items-center gap-1.5">
+                            <i class="fa-solid fa-shield-halved text-brand-600 text-xs"></i>
+                            100% Local & Private
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <i class="fa-solid fa-code text-brand-600 text-xs"></i>
+                            LGPL-2.1 Open Source
+                        </div>
+                        <div class="flex items-center gap-1.5">
+                            <i class="fa-solid fa-bolt text-brand-600 text-xs"></i>
+                            Built on Rust & Tauri
+                        </div>
                     </div>
                 </div>
                 
                 <!-- Mockup Block -->
-                <div class="lg:col-span-6 flex justify-center">
-                    <div class="relative w-full max-w-[380px]">
-                        <div class="absolute -inset-1.5 bg-gradient-to-tr from-brand-600 to-indigo-600 rounded-xl blur-xl opacity-20"></div>
-                        <div class="relative rounded-xl border border-slate-800 bg-slate-900/50 p-2 shadow-2xl hover:scale-[1.01] transition-transform duration-300">
-                            <!-- Window Control Bar -->
-                            <div class="h-8 bg-slate-900/80 flex items-center px-3 gap-1.5 rounded-t-lg mb-1.5">
-                                <span class="w-2.5 h-2.5 rounded-full bg-red-500/80"></span>
-                                <span class="w-2.5 h-2.5 rounded-full bg-yellow-500/80"></span>
-                                <span class="w-2.5 h-2.5 rounded-full bg-green-500/80"></span>
-                                <div class="mx-auto w-36 h-4.5 rounded bg-slate-950 flex items-center justify-center text-[9px] text-slate-500 font-medium tracking-tight">
-                                    <i class="fa-solid fa-lock mr-1 text-[7px] text-slate-500"></i> Scrum Helper Panel
+                <div class="flex justify-center lg:justify-end">
+                    <div class="relative w-full max-w-[480px]">
+                        <!-- High Fidelity Window Mockup -->
+                        <div class="brutal-card p-2 bg-white shadow-[8px_8px_0px_#0d0f10] hover:shadow-[10px_10px_0px_#0d0f10]">
+                            <!-- macOS Window Header -->
+                            <div class="h-8 bg-[#eef2f6] flex items-center px-3 gap-2 rounded-t-lg mb-2 border-b-[3px] border-[#0d0f10]">
+                                <div class="flex gap-1.5">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-[#0d0f10] border border-[#0d0f10]"></span>
+                                    <span class="w-2.5 h-2.5 rounded-full bg-[#0d0f10] border border-[#0d0f10]"></span>
+                                    <span class="w-2.5 h-2.5 rounded-full bg-[#0d0f10] border border-[#0d0f10]"></span>
+                                </div>
+                                <div class="mx-auto pr-8 flex items-center justify-center gap-1.5 text-[11px] text-[#0d0f10] font-black font-display tracking-tight">
+                                    <i class="fa-solid fa-lock text-[9px] text-[#0d0f10]"></i> Scrum Helper Panel
                                 </div>
                             </div>
-                            <div class="bg-slate-950 rounded-b-lg overflow-hidden border border-slate-900">
-                                <img src="images/popup.png" alt="Scrum Helper Extension Panel" class="w-full h-auto opacity-90">
+                            <!-- Panel Content Wrapper -->
+                            <div class="bg-white rounded-b-lg overflow-hidden border-[3px] border-[#0d0f10]">
+                                <img src="images/image.png" alt="Scrum Helper Report Interface" class="w-full h-auto">
                             </div>
                         </div>
                     </div>
@@ -130,328 +195,285 @@
         </div>
     </header>
 
-    <!-- Platform Integration Bar (Reduced height) -->
-    <section class="py-6 bg-slate-950/40 border-y border-slate-900">
-        <div class="max-w-5xl mx-auto px-6">
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-2xl mx-auto items-center justify-items-center opacity-60 hover:opacity-85 transition-opacity">
+    <!-- Platform Integration Bar -->
+    <section class="py-6 bg-white border-y-[3px] border-[#0d0f10]">
+        <div class="max-w-6xl mx-auto px-6">
+            <h2 class="text-center text-[10px] font-bold uppercase tracking-widest text-[#0d0f10] mb-5 font-display">Native Integrations Supported</h2>
+            <div class="flex flex-wrap items-center justify-center gap-6 md:gap-12">
                 <!-- GitHub -->
-                <div class="flex items-center gap-2">
-                    <i class="fab fa-github text-xl text-white"></i>
-                    <span class="font-bold text-white text-sm font-display">GitHub</span>
+                <div class="flex items-center gap-2.5 px-5 py-2 rounded-lg bg-white border-[3px] border-[#0d0f10] shadow-[3px_3px_0px_#0d0f10] hover:-translate-y-0.5 hover:shadow-[5px_5px_0px_#0d0f10] transition-all duration-300 group">
+                    <i class="fab fa-github text-xl text-[#0d0f10]"></i>
+                    <span class="font-bold text-[#0d0f10] text-sm font-display">GitHub</span>
                 </div>
                 <!-- GitLab -->
-                <div class="flex items-center gap-2">
-                    <i class="fab fa-gitlab text-xl text-orange-500"></i>
-                    <span class="font-bold text-white text-sm font-display">GitLab</span>
+                <div class="flex items-center gap-2.5 px-5 py-2 rounded-lg bg-white border-[3px] border-[#0d0f10] shadow-[3px_3px_0px_#0d0f10] hover:-translate-y-0.5 hover:shadow-[5px_5px_0px_#0d0f10] transition-all duration-300 group">
+                    <i class="fab fa-gitlab text-xl text-[#FC6D26]"></i>
+                    <span class="font-bold text-[#0d0f10] text-sm font-display">GitLab</span>
                 </div>
                 <!-- Codeberg -->
-                <div class="flex items-center gap-2">
-                    <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 fill-white">
+                <div class="flex items-center gap-2.5 px-5 py-2 rounded-lg bg-white border-[3px] border-[#0d0f10] shadow-[3px_3px_0px_#0d0f10] hover:-translate-y-0.5 hover:shadow-[5px_5px_0px_#0d0f10] transition-all duration-300 group font-display">
+                    <svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="w-4.5 h-4.5 fill-[#2185D0]">
                         <path d="M11.999.747A11.974 11.974 0 0 0 0 12.75c0 2.254.635 4.465 1.833 6.376L11.837 6.19c.072-.092.251-.092.323 0l4.178 5.402h-2.992l.065.239h3.113l.882 1.138h-3.674l.103.374h3.86l.777 1.003h-4.358l.135.483h4.593l.695.894h-5.038l.165.589h5.326l.609.785h-5.717l.182.65h6.038l.562.727h-6.397l.183.65h6.717A12.003 12.003 0 0 0 24 12.75 11.977 11.977 0 0 0 11.999.747zm3.654 19.104.182.65h5.326c.173-.204.353-.433.513-.65zm.385 1.377.18.65h3.563c.233-.198.485-.428.712-.65zm.383 1.377.182.648h1.203c.356-.204.685-.412 1.042-.648z"/>
                     </svg>
-                    <span class="font-bold text-white text-sm font-display">Codeberg</span>
+                    <span class="font-bold text-[#0d0f10] text-sm">Codeberg</span>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- How It Works Section (Tightened spacing) -->
-    <section id="how-it-works" class="py-16 bg-slate-950 relative">
-        <div class="max-w-5xl mx-auto px-6">
-            <div class="text-center max-w-xl mx-auto mb-12 space-y-2">
-                <h2 class="text-2xl sm:text-3xl font-black font-display text-white">How it works</h2>
-                <p class="text-slate-500 text-xs sm:text-sm">Set up once, automate daily. Your scrum update is three clicks away.</p>
-            </div>
-
-            <div class="grid md:grid-cols-3 gap-6">
-                <!-- Step 1 -->
-                <div class="bg-slate-900/40 border border-slate-900 rounded-xl p-6 hover:bg-slate-900/60 hover:-translate-y-0.5 transition-all duration-300 group">
-                    <div class="w-8 h-8 rounded-lg bg-slate-900 text-brand-400 font-bold flex items-center justify-center border border-slate-800 group-hover:bg-brand-600 group-hover:text-white group-hover:border-transparent transition-all duration-300 font-display text-sm">1</div>
-                    <div class="pt-4 space-y-2">
-                        <h3 class="text-base font-bold text-white font-display">Connect Git Accounts</h3>
-                        <p class="text-xs text-slate-500 leading-relaxed">
-                            Log in with your username or access tokens. Token configurations are saved securely on your local device.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Step 2 -->
-                <div class="bg-slate-900/40 border border-slate-900 rounded-xl p-6 hover:bg-slate-900/60 hover:-translate-y-0.5 transition-all duration-300 group">
-                    <div class="w-8 h-8 rounded-lg bg-slate-900 text-indigo-400 font-bold flex items-center justify-center border border-slate-800 group-hover:bg-indigo-600 group-hover:text-white group-hover:border-transparent transition-all duration-300 font-display text-sm">2</div>
-                    <div class="pt-4 space-y-2">
-                        <h3 class="text-base font-bold text-white font-display">Select Timeframe</h3>
-                        <p class="text-xs text-slate-500 leading-relaxed">
-                            Pick a date range or toggle ready presets like daily updates, weekly digests, or custom sprint intervals.
-                        </p>
-                    </div>
-                </div>
-
-                <!-- Step 3 -->
-                <div class="bg-slate-900/40 border border-slate-900 rounded-xl p-6 hover:bg-slate-900/60 hover:-translate-y-0.5 transition-all duration-300 group">
-                    <div class="w-8 h-8 rounded-lg bg-slate-900 text-emerald-400 font-bold flex items-center justify-center border border-slate-800 group-hover:bg-emerald-600 group-hover:text-white group-hover:border-transparent transition-all duration-300 font-display text-sm">3</div>
-                    <div class="pt-4 space-y-2">
-                        <h3 class="text-base font-bold text-white font-display">Generate and Send</h3>
-                        <p class="text-xs text-slate-500 leading-relaxed">
-                            Scrum Helper aggregates your data, lets you add custom remarks, and instantly copies or mails the report.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Features Section (Tightened spacing) -->
-    <section id="features" class="py-16 bg-slate-900/20 border-y border-slate-900">
-        <div class="max-w-5xl mx-auto px-6">
-            <div class="text-center max-w-xl mx-auto mb-12 space-y-2">
-                <h2 class="text-2xl sm:text-3xl font-black font-display text-white">Key Features</h2>
-                <p class="text-slate-500 text-xs sm:text-sm">Designed for individual developers and fast-paced engineering teams.</p>
+    <!-- Features Section -->
+    <section id="features" class="py-12 bg-white border-b-[3px] border-[#0d0f10]">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="text-center max-w-2xl mx-auto mb-10 space-y-2">
+                <h2 class="text-2xl sm:text-3xl font-extrabold font-display text-[#0d0f10]">Powerful Developer Features</h2>
+                <p class="text-[#0d0f10] opacity-70 text-xs sm:text-sm leading-relaxed font-bold">Engineered specifically to save developers from manual sprint reporting exhaustion.</p>
             </div>
 
             <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <!-- Feature 1 -->
-                <div class="bg-slate-900/40 border border-slate-900 rounded-xl p-6 hover:bg-slate-900/60 hover:shadow-lg transition-all duration-300 space-y-3">
-                    <div class="w-9 h-9 rounded-lg bg-brand-950/60 border border-brand-900/50 text-brand-400 flex items-center justify-center">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <div class="brutal-card p-6 bg-white hover:-translate-y-1 shadow-[5px_5px_0px_#0d0f10] hover:shadow-[7px_7px_0px_#0d0f10] space-y-3 group">
+                    <div class="w-10 h-10 rounded-xl bg-[#eef2f6] border-[3px] border-[#0d0f10] shadow-[2px_2px_0px_#0d0f10] text-brand-600 flex items-center justify-center">
+                        <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
                         </svg>
                     </div>
-                    <h3 class="text-base font-bold text-white font-display">One-Click Scraping</h3>
-                    <p class="text-xs text-slate-500 leading-relaxed">
-                        Say goodbye to switching browser tabs to find old pull requests. Get a full list in a single click.
+                    <h3 class="text-base font-bold text-[#0d0f10] font-display">One-Click Assembly</h3>
+                    <p class="text-xs text-[#0d0f10] opacity-75 leading-relaxed font-semibold">
+                        Query multiple repositories instantly. No more manual search filters across different projects to see what you committed.
                     </p>
                 </div>
 
                 <!-- Feature 2 -->
-                <div class="bg-slate-900/40 border border-slate-900 rounded-xl p-6 hover:bg-slate-900/60 hover:shadow-lg transition-all duration-300 space-y-3">
-                    <div class="w-9 h-9 rounded-lg bg-indigo-950/60 border border-indigo-900/50 text-indigo-400 flex items-center justify-center">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <div class="brutal-card p-6 bg-white hover:-translate-y-1 shadow-[5px_5px_0px_#0d0f10] hover:shadow-[7px_7px_0px_#0d0f10] space-y-3 group">
+                    <div class="w-10 h-10 rounded-xl bg-[#eef2f6] border-[3px] border-[#0d0f10] shadow-[2px_2px_0px_#0d0f10] text-brand-600 flex items-center justify-center">
+                        <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M12 6a3 3 0 110-6 3 3 0 010 6zm0 0v12m0 0a3 3 0 100 6 3 3 0 000-6zm0-12h3a3 3 0 013 3v2a3 3 0 01-3 3h-3m-6-2h.01"></path>
                         </svg>
                     </div>
-                    <h3 class="text-base font-bold text-white font-display">Git Integrations</h3>
-                    <p class="text-xs text-slate-500 leading-relaxed">
-                        Deep connection with major VCS platforms like GitHub, GitLab, and Codeberg out of the box.
+                    <h3 class="text-base font-bold text-[#0d0f10] font-display">Multi-Git Integration</h3>
+                    <p class="text-xs text-[#0d0f10] opacity-75 leading-relaxed font-semibold">
+                        Cross-compatible with GitHub, GitLab, and Codeberg API schemas. Consolidate your work regardless of where the code is hosted.
                     </p>
                 </div>
 
                 <!-- Feature 3 -->
-                <div class="bg-slate-900/40 border border-slate-900 rounded-xl p-6 hover:bg-slate-900/60 hover:shadow-lg transition-all duration-300 space-y-3">
-                    <div class="w-9 h-9 rounded-lg bg-emerald-950/60 border border-emerald-900/50 text-emerald-400 flex items-center justify-center">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <div class="brutal-card p-6 bg-white hover:-translate-y-1 shadow-[5px_5px_0px_#0d0f10] hover:shadow-[7px_7px_0px_#0d0f10] space-y-3 group">
+                    <div class="w-10 h-10 rounded-xl bg-[#eef2f6] border-[3px] border-[#0d0f10] shadow-[2px_2px_0px_#0d0f10] text-brand-600 flex items-center justify-center">
+                        <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                         </svg>
                     </div>
-                    <h3 class="text-base font-bold text-white font-display">Tauri Desktop App</h3>
-                    <p class="text-xs text-slate-500 leading-relaxed">
-                        A lightweight, super-fast desktop app built using Tauri for native cross-platform compatibility.
+                    <h3 class="text-base font-bold text-[#0d0f10] font-display">Tauri Desktop Client</h3>
+                    <p class="text-xs text-[#0d0f10] opacity-75 leading-relaxed font-semibold">
+                        Extremely fast, lightweight standalone app built on Rust and Tauri. Native UI wrapper with minimal RAM and CPU utilization.
                     </p>
                 </div>
 
                 <!-- Feature 4 -->
-                <div class="bg-slate-900/40 border border-slate-900 rounded-xl p-6 hover:bg-slate-900/60 hover:shadow-lg transition-all duration-300 space-y-3">
-                    <div class="w-9 h-9 rounded-lg bg-amber-950/60 border border-amber-900/50 text-amber-400 flex items-center justify-center">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <div class="brutal-card p-6 bg-white hover:-translate-y-1 shadow-[5px_5px_0px_#0d0f10] hover:shadow-[7px_7px_0px_#0d0f10] space-y-3 group">
+                    <div class="w-10 h-10 rounded-xl bg-[#eef2f6] border-[3px] border-[#0d0f10] shadow-[2px_2px_0px_#0d0f10] text-brand-600 flex items-center justify-center">
+                        <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
                         </svg>
                     </div>
-                    <h3 class="text-base font-bold text-white font-display">Browser Companion</h3>
-                    <p class="text-xs text-slate-500 leading-relaxed">
-                        Quick extension trigger right inside Chrome, Firefox, and Opera. Fully optimized for instant actions.
+                    <h3 class="text-base font-bold text-[#0d0f10] font-display">Browser Extensions</h3>
+                    <p class="text-xs text-[#0d0f10] opacity-75 leading-relaxed font-semibold">
+                        Access the tool directly inside your browser side panel. Pre-compiled extensions ready for Chrome, Firefox, and Opera.
                     </p>
                 </div>
 
                 <!-- Feature 5 -->
-                <div class="bg-slate-900/40 border border-slate-900 rounded-xl p-6 hover:bg-slate-900/60 hover:shadow-lg transition-all duration-300 space-y-3">
-                    <div class="w-9 h-9 rounded-lg bg-pink-950/60 border border-pink-900/50 text-pink-400 flex items-center justify-center">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <div class="brutal-card p-6 bg-white hover:-translate-y-1 shadow-[5px_5px_0px_#0d0f10] hover:shadow-[7px_7px_0px_#0d0f10] space-y-3 group">
+                    <div class="w-10 h-10 rounded-xl bg-[#eef2f6] border-[3px] border-[#0d0f10] shadow-[2px_2px_0px_#0d0f10] text-brand-600 flex items-center justify-center">
+                        <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                         </svg>
                     </div>
-                    <h3 class="text-base font-bold text-white font-display">Interactive Editor</h3>
-                    <p class="text-xs text-slate-500 leading-relaxed">
-                        Tweak your generated report with inline HTML-editable text sections before copying or mailing it.
+                    <h3 class="text-base font-bold text-[#0d0f10] font-display">Rich WYSIWYG Editor</h3>
+                    <p class="text-xs text-[#0d0f10] opacity-75 leading-relaxed font-semibold">
+                        Customize report headings, add private comments, and structure text dynamically before exporting.
                     </p>
                 </div>
 
                 <!-- Feature 6 -->
-                <div class="bg-slate-900/40 border border-slate-900 rounded-xl p-6 hover:bg-slate-900/60 hover:shadow-lg transition-all duration-300 space-y-3">
-                    <div class="w-9 h-9 rounded-lg bg-rose-950/60 border border-rose-900/50 text-rose-400 flex items-center justify-center">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <div class="brutal-card p-6 bg-white hover:-translate-y-1 shadow-[5px_5px_0px_#0d0f10] hover:shadow-[7px_7px_0px_#0d0f10] space-y-3 group">
+                    <div class="w-10 h-10 rounded-xl bg-[#eef2f6] border-[3px] border-[#0d0f10] shadow-[2px_2px_0px_#0d0f10] text-brand-600 flex items-center justify-center">
+                        <svg class="w-5.5 h-5.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
                         </svg>
                     </div>
-                    <h3 class="text-base font-bold text-white font-display">Secure & Local</h3>
-                    <p class="text-xs text-slate-500 leading-relaxed">
-                        No external databases or backend clouds. Your credentials are saved entirely in your local storage shims.
+                    <h3 class="text-base font-bold text-[#0d0f10] font-display">Privacy Centric</h3>
+                    <p class="text-xs text-[#0d0f10] opacity-75 leading-relaxed font-semibold">
+                        Zero server collection. All API keys and preferences are kept inside local browser storage or native app settings.
                     </p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Download Section (Tightened spacing) -->
-    <section id="download" class="py-16 bg-slate-950">
-        <div class="max-w-5xl mx-auto px-6">
-            <div class="text-center max-w-xl mx-auto mb-10 space-y-2">
-                <h2 class="text-2xl sm:text-3xl font-black font-display text-white">Download Scrum Helper</h2>
-                <p class="text-slate-500 text-xs sm:text-sm">Get the lightweight desktop client compiled for your specific machine.</p>
+    <!-- Download Section -->
+    <section id="download" class="py-12 relative">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="text-center max-w-2xl mx-auto mb-8 space-y-2">
+                <h2 class="text-2xl sm:text-3xl font-extrabold font-display text-[#0d0f10]">Get Desktop App</h2>
+                <p class="text-[#0d0f10] opacity-70 text-xs sm:text-sm leading-relaxed font-bold">Run Scrum Helper natively. Downloads are compiled from our official source code.</p>
             </div>
 
-            <!-- Sleek Glassmorphism Widget Card -->
-            <div class="max-w-2xl mx-auto bg-slate-900/40 border border-slate-900 rounded-2xl p-6 sm:p-10 text-center text-white relative overflow-hidden shadow-xl">
-                <div class="absolute -top-16 -right-16 w-36 h-36 bg-brand-500/10 rounded-full blur-3xl"></div>
-                <div class="absolute -bottom-16 -left-16 w-36 h-36 bg-indigo-500/10 rounded-full blur-3xl"></div>
-                
-                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/5 text-[10px] font-semibold uppercase tracking-wider mb-4 font-display">
-                    Detected Operating System: <span id="os-name" class="font-bold text-brand-400">Detecting...</span>
+            <!-- Neobrutalist Card -->
+            <div class="max-w-3xl mx-auto bg-white border-[3px] border-[#0d0f10] rounded-2xl p-6 sm:p-10 text-center relative overflow-hidden shadow-[8px_8px_0px_#0d0f10]">
+                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#eef2f6] border-[3px] border-[#0d0f10] text-[#0d0f10] text-[10px] font-bold uppercase tracking-wider mb-5 font-display shadow-[2px_2px_0px_#0d0f10]">
+                    Operating System: <span id="os-name" class="font-extrabold text-brand-600">Detecting...</span>
                 </div>
 
-                <h3 id="download-title" class="text-xl sm:text-2xl font-extrabold font-display">
+                <h3 id="download-title" class="text-xl sm:text-2xl font-black font-display tracking-tight text-[#0d0f10]">
                     Scrum Helper Desktop App
                 </h3>
-                <p id="download-description" class="text-slate-400 text-xs sm:text-sm max-w-md mx-auto leading-relaxed mt-2.5">
+                <p id="download-description" class="text-[#0d0f10] opacity-75 text-xs max-w-lg mx-auto leading-relaxed mt-3 font-semibold">
                     Download the official native client installer to run Scrum Helper seamlessly in your background.
                 </p>
                 
-                <div class="pt-5">
-                    <a id="download-button" href="https://github.com/fossasia/scrum_helper/releases" target="_blank" rel="noopener noreferrer"
-                       class="inline-flex items-center justify-center px-6 py-3 rounded-lg bg-brand-600 hover:bg-brand-500 text-white font-bold text-xs shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all duration-200 font-display">
+                <div class="pt-6">
+                    <a id="download-button" href="https://github.com/fossasia/scrum_helper" target="_blank" rel="noopener noreferrer"
+                       class="brutal-btn bg-brand-600 hover:bg-brand-500 text-white text-xs py-3.5 px-7 shadow-[4px_4px_0px_#0d0f10]">
                         <i class="fa-solid fa-circle-arrow-down mr-2 text-sm"></i> View Latest Release
                     </a>
                 </div>
 
-                <div class="pt-8 flex flex-wrap justify-center gap-2.5">
+                <div class="mt-8 pt-6 border-t-[3px] border-[#0d0f10] flex flex-wrap justify-center gap-3">
                     <a id="win-download" href="https://github.com/fossasia/scrum_helper/releases/latest" target="_blank" rel="noopener noreferrer"
-                       class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/5 border border-white/5 hover:border-slate-800 text-[10px] font-medium text-slate-300 transition-colors">
-                        <i class="fab fa-windows text-brand-400"></i> Windows (.msi)
+                       class="flex items-center gap-2 px-4 py-2 rounded-lg bg-white border-[3px] border-[#0d0f10] shadow-[3px_3px_0px_#0d0f10] text-xs font-bold text-[#0d0f10] hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_#0d0f10] transition-all duration-200 group">
+                        <i class="fab fa-windows text-[#0078d4]"></i> Windows (.msi)
                     </a>
                     <a id="mac-download" href="https://github.com/fossasia/scrum_helper/releases/latest" target="_blank" rel="noopener noreferrer"
-                       class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/5 border border-white/5 hover:border-slate-800 text-[10px] font-medium text-slate-300 transition-colors">
-                        <i class="fab fa-apple text-slate-100"></i> macOS (.dmg)
+                       class="flex items-center gap-2 px-4 py-2 rounded-lg bg-white border-[3px] border-[#0d0f10] shadow-[3px_3px_0px_#0d0f10] text-xs font-bold text-[#0d0f10] hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_#0d0f10] transition-all duration-200 group">
+                        <i class="fab fa-apple text-[#0d0f10]"></i> macOS (.dmg)
                     </a>
                     <a id="linux-download" href="https://github.com/fossasia/scrum_helper/releases/latest" target="_blank" rel="noopener noreferrer"
-                       class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/5 border border-white/5 hover:border-slate-800 text-[10px] font-medium text-slate-300 transition-colors">
-                        <i class="fab fa-linux text-amber-500"></i> Linux (.AppImage)
+                       class="flex items-center gap-2 px-4 py-2 rounded-lg bg-white border-[3px] border-[#0d0f10] shadow-[3px_3px_0px_#0d0f10] text-xs font-bold text-[#0d0f10] hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_#0d0f10] transition-all duration-200 group">
+                        <i class="fab fa-linux text-[#f8b739]"></i> Linux (.AppImage)
                     </a>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Browser Extensions Section (Tightened spacing) -->
-    <section id="extensions" class="py-16 bg-slate-900/20 border-t border-slate-900">
-        <div class="max-w-5xl mx-auto px-6">
-            <div class="text-center max-w-xl mx-auto mb-12 space-y-2">
-                <h2 class="text-2xl sm:text-3xl font-black font-display text-white">Browser Extensions</h2>
-                <p class="text-slate-500 text-xs sm:text-sm">Run Scrum Helper directly inside your browser panel.</p>
+    <!-- Browser Extensions Section -->
+    <section id="extensions" class="py-12 bg-white border-y-[3px] border-[#0d0f10]">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="text-center max-w-2xl mx-auto mb-10 space-y-2">
+                <h2 class="text-2xl sm:text-3xl font-extrabold font-display text-[#0d0f10]">Browser Extensions</h2>
+                <p class="text-[#0d0f10] opacity-70 text-xs sm:text-sm leading-relaxed font-bold">Run Scrum Helper directly inside your browser side panel.</p>
             </div>
 
             <div class="grid sm:grid-cols-3 gap-5 max-w-3xl mx-auto">
                 <!-- Chrome -->
                 <a href="https://chromewebstore.google.com/detail/Scrum%20Helper/begjldpiiihpnaflcbdbbophiifphokg"
                    target="_blank" rel="noopener noreferrer" 
-                   class="bg-slate-900/40 border border-slate-900 hover:border-slate-800 hover:shadow-lg rounded-xl p-5 text-center space-y-3 group transition-all duration-300">
-                    <div class="w-10 h-10 mx-auto rounded-lg bg-red-950/40 text-red-500 flex items-center justify-center text-xl group-hover:scale-105 transition-transform duration-300">
+                   class="brutal-card p-5 bg-white hover:-translate-y-1 shadow-[4px_4px_0px_#0d0f10] hover:shadow-[6px_6px_0px_#0d0f10] text-center space-y-3 group">
+                    <div class="w-11 h-11 mx-auto rounded-xl bg-[#eef2f6] border-[3px] border-[#0d0f10] shadow-[2px_2px_0px_#0d0f10] text-[#e64a19] flex items-center justify-center text-xl">
                         <i class="fab fa-chrome"></i>
                     </div>
                     <div>
-                        <h3 class="text-base font-bold text-white group-hover:text-brand-400 transition-colors font-display">Chrome</h3>
-                        <p class="text-[10px] text-slate-500 mt-1">Install from Chrome Store</p>
+                        <h3 class="text-base font-bold text-[#0d0f10] font-display">Chrome</h3>
+                        <p class="text-[10px] text-[#0d0f10] opacity-70 font-semibold mt-1">Add to Google Chrome</p>
                     </div>
                 </a>
 
                 <!-- Firefox -->
                 <a href="https://addons.mozilla.org/en-US/firefox/addon/scrum-helper-by-fossasia/"
                    target="_blank" rel="noopener noreferrer"
-                   class="bg-slate-900/40 border border-slate-900 hover:border-slate-800 hover:shadow-lg rounded-xl p-5 text-center space-y-3 group transition-all duration-300">
-                    <div class="w-10 h-10 mx-auto rounded-lg bg-orange-950/40 text-orange-500 flex items-center justify-center text-xl group-hover:scale-105 transition-transform duration-300">
+                   class="brutal-card p-5 bg-white hover:-translate-y-1 shadow-[4px_4px_0px_#0d0f10] hover:shadow-[6px_6px_0px_#0d0f10] text-center space-y-3 group">
+                    <div class="w-11 h-11 mx-auto rounded-xl bg-[#eef2f6] border-[3px] border-[#0d0f10] shadow-[2px_2px_0px_#0d0f10] text-[#ff9400] flex items-center justify-center text-xl">
                         <i class="fab fa-firefox-browser"></i>
                     </div>
                     <div>
-                        <h3 class="text-base font-bold text-white group-hover:text-brand-400 transition-colors font-display">Firefox</h3>
-                        <p class="text-[10px] text-slate-500 mt-1">Get Scrum Helper for Firefox</p>
+                        <h3 class="text-base font-bold text-[#0d0f10] font-display">Firefox</h3>
+                        <p class="text-[10px] text-[#0d0f10] opacity-70 font-semibold mt-1">Add to Firefox</p>
                     </div>
                 </a>
 
                 <!-- Opera -->
                 <a href="https://addons.opera.com/en/extensions/details/scrum-helper/"
                    target="_blank" rel="noopener noreferrer"
-                   class="bg-slate-900/40 border border-slate-900 hover:border-slate-800 hover:shadow-lg rounded-xl p-5 text-center space-y-3 group transition-all duration-300">
-                    <div class="w-10 h-10 mx-auto rounded-lg bg-rose-950/40 text-rose-500 flex items-center justify-center text-xl group-hover:scale-105 transition-transform duration-300">
+                   class="brutal-card p-5 bg-white hover:-translate-y-1 shadow-[4px_4px_0px_#0d0f10] hover:shadow-[6px_6px_0px_#0d0f10] text-center space-y-3 group">
+                    <div class="w-11 h-11 mx-auto rounded-xl bg-[#eef2f6] border-[3px] border-[#0d0f10] shadow-[2px_2px_0px_#0d0f10] text-[#ff1b2d] flex items-center justify-center text-xl">
                         <i class="fab fa-opera"></i>
                     </div>
                     <div>
-                        <h3 class="text-base font-bold text-white group-hover:text-brand-400 transition-colors font-display">Opera</h3>
-                        <p class="text-[10px] text-slate-500 mt-1">Get Scrum Helper for Opera</p>
+                        <h3 class="text-base font-bold text-[#0d0f10] font-display">Opera</h3>
+                        <p class="text-[10px] text-[#0d0f10] opacity-70 font-semibold mt-1">Add to Opera</p>
                     </div>
                 </a>
             </div>
         </div>
     </section>
 
-    <!-- Visual Showcase Section (Tightened spacing) -->
-    <section class="py-16 bg-slate-950">
-        <div class="max-w-5xl mx-auto px-6">
-            <div class="text-center max-w-xl mx-auto mb-12 space-y-2">
-                <h2 class="text-2xl sm:text-3xl font-black font-display text-white">See Scrum Helper in action</h2>
-                <p class="text-slate-500 text-xs sm:text-sm">Optimized UI designed to make your development reporting effortless.</p>
+    <!-- Visual Showcase Section -->
+    <section class="py-12">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="text-center max-w-2xl mx-auto mb-10 space-y-2">
+                <h2 class="text-2xl sm:text-3xl font-extrabold font-display text-[#0d0f10]">Visual Interface Showcase</h2>
+                <p class="text-[#0d0f10] opacity-70 text-xs sm:text-sm leading-relaxed font-bold">Crisp UI built to look native across different environments.</p>
             </div>
 
-            <div class="grid md:grid-cols-2 gap-6 items-center">
+            <div class="grid md:grid-cols-2 gap-6 items-start">
                 <!-- Mockup 1 -->
-                <div class="rounded-xl border border-slate-900 bg-slate-950 p-2 shadow-lg hover:shadow-2xl transition-all duration-300">
-                    <!-- Browser frame top -->
-                    <div class="h-6 bg-slate-900/60 flex items-center px-3.5 gap-1 mb-1.5 rounded-lg border border-slate-900">
-                        <span class="w-2 h-2 rounded-full bg-red-500/80"></span>
-                        <span class="w-2 h-2 rounded-full bg-yellow-500/80"></span>
-                        <span class="w-2 h-2 rounded-full bg-green-500/80"></span>
+                <div class="brutal-card p-2 bg-white shadow-[6px_6px_0px_#0d0f10] hover:shadow-[8px_8px_0px_#0d0f10]">
+                    <!-- Browser window frame top -->
+                    <div class="h-7 bg-[#eef2f6] flex items-center px-3 gap-1.5 mb-2 rounded-lg border-b-[3px] border-[#0d0f10]">
+                        <div class="flex gap-1">
+                            <span class="w-2 h-2 rounded-full bg-[#0d0f10] border border-[#0d0f10]"></span>
+                            <span class="w-2 h-2 rounded-full bg-[#0d0f10] border border-[#0d0f10]"></span>
+                            <span class="w-2 h-2 rounded-full bg-[#0d0f10] border border-[#0d0f10]"></span>
+                        </div>
                     </div>
-                    <img src="images/popup2.png" alt="Scrum Helper popup interface details" class="rounded-lg w-full h-auto object-cover opacity-95">
+                    <img src="images/popup2.png" alt="Scrum Helper popup interface details" class="rounded-lg w-full h-auto object-cover border-[3px] border-[#0d0f10]">
                 </div>
 
                 <!-- Mockup 2 -->
-                <div class="rounded-xl border border-slate-900 bg-slate-950 p-2 shadow-lg hover:shadow-2xl transition-all duration-300">
-                    <!-- Browser frame top -->
-                    <div class="h-6 bg-slate-900/60 flex items-center px-3.5 gap-1 mb-1.5 rounded-lg border border-slate-900">
-                        <span class="w-2 h-2 rounded-full bg-red-500/80"></span>
-                        <span class="w-2 h-2 rounded-full bg-yellow-500/80"></span>
-                        <span class="w-2 h-2 rounded-full bg-green-500/80"></span>
+                <div class="brutal-card p-2 bg-white shadow-[6px_6px_0px_#0d0f10] hover:shadow-[8px_8px_0px_#0d0f10]">
+                    <!-- Browser window frame top -->
+                    <div class="h-7 bg-[#eef2f6] flex items-center px-3 gap-1.5 mb-2 rounded-lg border-b-[3px] border-[#0d0f10]">
+                        <div class="flex gap-1">
+                            <span class="w-2 h-2 rounded-full bg-[#0d0f10] border border-[#0d0f10]"></span>
+                            <span class="w-2 h-2 rounded-full bg-[#0d0f10] border border-[#0d0f10]"></span>
+                            <span class="w-2 h-2 rounded-full bg-[#0d0f10] border border-[#0d0f10]"></span>
+                        </div>
                     </div>
-                    <img src="images/standalone.png" alt="Scrum Helper standalone desktop mode" class="rounded-lg w-full h-auto object-cover opacity-95">
+                    <img src="images/standalone.png" alt="Scrum Helper standalone desktop mode" class="rounded-lg w-full h-auto object-cover border-[3px] border-[#0d0f10]">
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Footer (Dark matched perfectly) -->
-    <footer class="bg-slate-950 text-slate-500 py-12 border-t border-slate-900">
-        <div class="max-w-5xl mx-auto px-6 text-center space-y-4">
-            <div class="flex justify-center items-center gap-2">
-                <div class="w-6 h-6 rounded bg-brand-600 p-0.5 shadow-sm">
+    <!-- Footer -->
+    <footer class="bg-white text-[#0d0f10] py-10 border-t-[3px] border-[#0d0f10]">
+        <div class="max-w-6xl mx-auto px-6 text-center space-y-5">
+            <div class="flex justify-center items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-white border-[3px] border-[#0d0f10] p-1 shadow-[2px_2px_0px_#0d0f10]">
                     <img src="images/icon128x128.png" alt="Scrum Helper logo" class="w-full h-full object-contain">
                 </div>
-                <span class="text-white font-bold text-base font-display tracking-tight">Scrum Helper</span>
+                <span class="text-[#0d0f10] font-extrabold text-base font-display tracking-tight">Scrum Helper</span>
             </div>
             
-            <p class="text-slate-500 text-xs max-w-sm mx-auto leading-relaxed">
+            <p class="text-[#0d0f10] opacity-80 text-xs max-w-md mx-auto leading-relaxed font-bold">
                 Scrum Helper is an open-source project proudly maintained by the 
-                <a href="https://fossasia.org/" target="_blank" rel="noopener noreferrer" class="text-brand-400 hover:text-brand-300 font-semibold transition-colors">
+                <a href="https://fossasia.org/" target="_blank" rel="noopener noreferrer" class="text-brand-600 hover:text-brand-500 font-extrabold transition-colors">
                     FOSSASIA
                 </a> community.
             </p>
 
-            <div class="flex justify-center gap-4 text-xs pt-1">
-                <a href="https://github.com/fossasia/scrum_helper" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">
+            <div class="flex justify-center gap-5 text-xs font-extrabold pt-1">
+                <a href="https://github.com/fossasia/scrum_helper" target="_blank" rel="noopener noreferrer" class="hover:text-brand-600 transition-colors">
                     <i class="fab fa-github mr-1"></i> GitHub Repo
                 </a>
-                <span>·</span>
-                <a href="https://github.com/fossasia/scrum_helper/issues" target="_blank" rel="noopener noreferrer" class="hover:text-white transition-colors">
+                <span class="text-[#0d0f10] opacity-40 select-none">·</span>
+                <a href="https://github.com/fossasia/scrum_helper/issues" target="_blank" rel="noopener noreferrer" class="hover:text-brand-600 transition-colors">
                     Report an Issue
                 </a>
             </div>
             
-            <div class="text-[10px] text-slate-700 pt-6 border-t border-slate-900">
+            <div class="text-[10px] text-[#0d0f10] opacity-50 pt-6 border-t-[3px] border-[#0d0f10] max-w-xs mx-auto font-bold">
                 &copy; 2026 Scrum Helper. Licensed under LGPL-2.1.
             </div>
         </div>
