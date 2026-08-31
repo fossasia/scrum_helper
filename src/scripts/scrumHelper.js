@@ -538,8 +538,7 @@ function allIncluded(outputTarget = 'email') {
 					if (platformUsernameLocal) {
 						const generateBtn = document.getElementById('generateReport');
 						if (generateBtn && outputTarget === 'popup') {
-							generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
-							generateBtn.disabled = true;
+							setGenerateButtonState(generateBtn, true);
 						}
 
 						if (outputTarget === 'email') {
@@ -551,7 +550,6 @@ function allIncluded(outputTarget = 'email') {
 										endingDate,
 										giteeToken,
 										orgName,
-										'',
 									);
 
 									const mappedData = window.giteeHelper.mapGiteeReportData(data);
@@ -575,10 +573,7 @@ function allIncluded(outputTarget = 'email') {
 								} catch (err) {
 									console.error('Gitee fetch failed:', err);
 									if (outputTarget === 'popup') {
-										if (generateBtn) {
-											generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
-											generateBtn.disabled = false;
-										}
+										setGenerateButtonState(generateBtn, false);
 										const ErrMessage = `${err.message || 'Error fetching Gitee data.'}`;
 										if (typeof ErrMessage === 'string' && ErrMessage.toLowerCase().includes('not found')) {
 											handleUsernameValidationError(ErrMessage);
@@ -591,7 +586,7 @@ function allIncluded(outputTarget = 'email') {
 							})();
 						} else {
 							window.giteeHelper
-								.fetchGiteeData(platformUsernameLocal, startingDate, endingDate, giteeToken, orgName, '')
+								.fetchGiteeData(platformUsernameLocal, startingDate, endingDate, giteeToken, orgName)
 								.then((data) => {
 									const mappedData = window.giteeHelper.mapGiteeReportData(data);
 									processGithubData(mappedData);
@@ -600,10 +595,7 @@ function allIncluded(outputTarget = 'email') {
 								.catch((err) => {
 									console.error('Gitee fetch failed:', err);
 									if (outputTarget === 'popup') {
-										if (generateBtn) {
-											generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
-											generateBtn.disabled = false;
-										}
+										setGenerateButtonState(generateBtn, false);
 										const ErrMessage = `${err.message || 'Error fetching Gitee data.'}`;
 										if (typeof ErrMessage === 'string' && ErrMessage.toLowerCase().includes('not found')) {
 											handleUsernameValidationError(ErrMessage);
