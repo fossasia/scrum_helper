@@ -350,35 +350,6 @@ class CodebergHelper {
 				);
 			}
 
-			if (showCommits) {
-				const openPRs = [];
-				for (const item of issues) {
-					if (item.pull_request && (item.state === 'open' || item.state === 'opened')) {
-						openPRs.push(item);
-					}
-				}
-				for (const item of mergeRequests) {
-					if (item.state === 'open' || item.state === 'opened') {
-						openPRs.push(item);
-					}
-				}
-				if (openPRs.length > 0) {
-					const commitMap = await this.fetchCommitsForOpenPRs(openPRs, token, startDate, endDate);
-					for (const item of issues) {
-						if (item.pull_request) {
-							const { owner, repo } = parseRepoAndOwner(item.html_url || item.url);
-							const key = owner && repo ? `${owner}/${repo}#${item.number}` : item.number;
-							item._allCommits = commitMap[key] || [];
-						}
-					}
-					for (const item of mergeRequests) {
-						const { owner, repo } = parseRepoAndOwner(item.html_url || item.url);
-						const key = owner && repo ? `${owner}/${repo}#${item.number}` : item.number;
-						item._allCommits = commitMap[key] || [];
-					}
-				}
-			}
-
 			const result = {
 				user,
 				issues,
