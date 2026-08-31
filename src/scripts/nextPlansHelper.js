@@ -11,7 +11,10 @@
 			selectedRepos = [];
 		}
 
-		if (useRepoFilter && selectedRepos.length > 0) {
+		const registry = window.PlatformRegistry ? window.PlatformRegistry.get(platform) : null;
+		const hasRepoFilter = registry ? registry.hasRepoFilter : platform === 'github';
+
+		if (hasRepoFilter && useRepoFilter && selectedRepos.length > 0) {
 			const repoNames = selectedRepos
 				.map((repo) => {
 					if (typeof repo === 'object' && repo.fullName) {
