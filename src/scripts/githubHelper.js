@@ -496,31 +496,37 @@ async function performRepoFetch() {
 // Validate organization only when user is done typing (on blur)
 function validateOrgOnBlur(org) {
 	console.log('[Org Check] Checking organization on blur:', org);
-	fetch(`https://api.github.com/orgs/${org}`)
-		.then((res) => {
-			console.log('[Org Check] Response status for', org, ':', res.status);
-			if (res.status === 404) {
-				console.log('[Org Check] Organization not found on GitHub:', org);
-				if (typeof showPopupMessage === 'function') {
-					showPopupMessage(browser.i18n.getMessage('orgNotFoundMessage'));
-				} else if (window.showPopupMessage) {
-					window.showPopupMessage(browser.i18n.getMessage('orgNotFoundMessage'));
+	browser.storage.local.get(['githubToken']).then((items) => {
+		const headers = { Accept: 'application/vnd.github.v3+json' };
+		if (items.githubToken) {
+			headers.Authorization = `token ${items.githubToken}`;
+		}
+		fetch(`https://api.github.com/orgs/${org}`, { headers })
+			.then((res) => {
+				console.log('[Org Check] Response status for', org, ':', res.status);
+				if (res.status === 404) {
+					console.log('[Org Check] Organization not found on GitHub:', org);
+					if (typeof showPopupMessage === 'function') {
+						showPopupMessage(browser.i18n.getMessage('orgNotFoundMessage'));
+					} else if (window.showPopupMessage) {
+						window.showPopupMessage(browser.i18n.getMessage('orgNotFoundMessage'));
+					}
+					return;
 				}
-				return;
-			}
-			window.clearScrumHelperToast?.();
-			console.log('[Org Check] Organisation exists on GitHub:', org);
-			browser.storage.local.remove(['githubCache', 'repoCache']);
-			triggerRepoFetchIfEnabled();
-		})
-		.catch((err) => {
-			console.log('[Org Check] Error validating organisation:', org, err);
-			if (typeof showPopupMessage === 'function') {
-				showPopupMessage(browser.i18n.getMessage('orgValidationErrorMessage'), { variant: 'error' });
-			} else if (window.showPopupMessage) {
-				window.showPopupMessage(browser.i18n.getMessage('orgValidationErrorMessage'), { variant: 'error' });
-			}
-		});
+				window.clearScrumHelperToast?.();
+				console.log('[Org Check] Organisation exists on GitHub:', org);
+				browser.storage.local.remove(['githubCache', 'repoCache']);
+				triggerRepoFetchIfEnabled();
+			})
+			.catch((err) => {
+				console.log('[Org Check] Error validating organisation:', org, err);
+				if (typeof showPopupMessage === 'function') {
+					showPopupMessage(browser.i18n.getMessage('orgValidationErrorMessage'), { variant: 'error' });
+				} else if (window.showPopupMessage) {
+					window.showPopupMessage(browser.i18n.getMessage('orgValidationErrorMessage'), { variant: 'error' });
+				}
+			});
+	});
 }
 
 async function fetchPrsMergedStatusBatch(prs, headers) {
