@@ -333,10 +333,18 @@ function allIncluded(outputTarget = 'email') {
 						platformUsernameLocal = usernameFromDOM;
 					}
 
-					items.projectName = projectFromDOM || items.projectName;
-					items.githubToken = tokenFromDOM || items.githubToken;
-					items.gitlabToken = gitlabTokenFromDOM || items.gitlabToken;
-					items.codebergToken = codebergTokenFromDOM || items.codebergToken;
+					if (projectFromDOM !== undefined) {
+						items.projectName = projectFromDOM;
+					}
+					if (tokenFromDOM !== undefined) {
+						items.githubToken = tokenFromDOM;
+					}
+					if (gitlabTokenFromDOM !== undefined) {
+						items.gitlabToken = gitlabTokenFromDOM;
+					}
+					if (codebergTokenFromDOM !== undefined) {
+						items.codebergToken = codebergTokenFromDOM;
+					}
 					chrome.storage.local.set({
 						projectName: items.projectName,
 						githubToken: items.githubToken,
