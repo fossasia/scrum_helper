@@ -1467,6 +1467,9 @@ function allIncluded(outputTarget = 'email') {
 						lastScrumReportPlatform: platform,
 						lastScrumReportCacheKey: cacheKey,
 						lastScrumReportUsername: platformUsername,
+						[`${platform}LastScrumReportHtml`]: content,
+						[`${platform}LastScrumReportCacheKey`]: cacheKey,
+						[`${platform}LastScrumReportUsername`]: platformUsername,
 					});
 				} catch (e) {
 					// ignore
