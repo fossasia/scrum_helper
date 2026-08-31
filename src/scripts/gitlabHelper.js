@@ -1,5 +1,4 @@
 // GitLab API Helper for Scrum Helper Extension
-const DEFAULT_GITLAB_API_BASE_URL = 'https://gitlab.com/api/v4';
 
 let gitlabShowCommitsWarningTimeout;
 
@@ -64,14 +63,61 @@ function gitlabCheckTokenForShowCommits({
 	}
 }
 
-function normalizeGitLabApiBaseUrl(apiBaseUrl) {
-	const value = typeof apiBaseUrl === 'string' && apiBaseUrl.trim() ? apiBaseUrl.trim() : DEFAULT_GITLAB_API_BASE_URL;
-	return value.replace(/\/+$/, '');
+/**
+ * Returns true if the hostname is a loopback, private RFC1918,
+ * link-local, or cloud-metadata address that must not receive tokens.
+ * Covers: localhost, 127.x, 10.x, 172.16-31.x, 192.168.x, 169.254.x (incl.
+ * AWS/GCP metadata 169.254.169.254), ::1, and IPv6 link-local (fe80::).
+ */
+function isPrivateHost(hostname) {
+	// Strip IPv6 brackets e.g. [::1] -> ::1
+	const h = hostname.replace(/^\[|\]$/g, '');
+	if (h === 'localhost') return true;
+
+	// IPv4 checks
+	const v4 = h.match(/^(\d+)\.(\d+)\.(\d+)\.(\d+)$/);
+	if (v4) {
+		const [, a, b] = v4.map(Number);
+		if (a === 127) return true; // loopback
+		if (a === 10) return true; // RFC1918
+		if (a === 172 && b >= 16 && b <= 31) return true; // RFC1918
+		if (a === 192 && b === 168) return true; // RFC1918
+		if (a === 169 && b === 254) return true; // link-local / cloud metadata
+	}
+
+	// IPv6 loopback and link-local
+	if (h === '::1') return true;
+	if (/^fe80:/i.test(h)) return true;
+
+	return false;
 }
 
 class GitLabHelper {
-	constructor(apiBaseUrl = DEFAULT_GITLAB_API_BASE_URL) {
-		this.baseUrl = normalizeGitLabApiBaseUrl(apiBaseUrl);
+	static normalizeGitLabOrigin(domain) {
+		const raw = typeof domain === 'string' ? domain.trim().replace(/\/+$/, '') : '';
+		if (!raw) {
+			return 'https://gitlab.com';
+		}
+
+		const candidate = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+		try {
+			const parsed = new URL(candidate);
+			if (parsed.protocol !== 'https:') {
+				return null;
+			}
+			// SSRF guard: reject loopback, private, link-local, and metadata hosts
+			if (isPrivateHost(parsed.hostname)) {
+				return null;
+			}
+			return parsed.origin.replace(/\/+$/, '');
+		} catch (error) {
+			return null;
+		}
+	}
+
+	constructor(domain = null) {
+		this.gitlabOrigin = GitLabHelper.normalizeGitLabOrigin(domain);
+		this.baseUrl = this.gitlabOrigin ? `${this.gitlabOrigin.replace(/\/+$/, '')}/api/v4` : null;
 		this.cache = {
 			data: null,
 			cacheKey: null,
@@ -80,6 +126,45 @@ class GitLabHelper {
 			fetching: false,
 			queue: [],
 		};
+	}
+
+	async ensureGitLabInstanceReachable(token = null) {
+		const headers = {};
+		if (token) {
+			headers['PRIVATE-TOKEN'] = token;
+		}
+
+		const invalidMessage =
+			chrome?.i18n.getMessage('gitlabInstanceInvalidError') || 'A valid HTTPS GitLab instance URL is required.';
+
+		try {
+			const res = await fetch(`${this.baseUrl}/projects?per_page=1`, { headers });
+
+			// Treat 404/405 from the API probe as an invalid or misconfigured instance.
+			// Authentication/authorization failures should be surfaced by the actual
+			// data fetches rather than being misreported as an instance/permission error.
+			if (!res.ok && (res.status === 404 || res.status === 405)) {
+				throw new Error(invalidMessage);
+			}
+
+			// 401/403 means the instance is reachable but access is unauthorized.
+			// Let subsequent API calls surface token/auth specific errors.
+			if (!res.ok && (res.status === 401 || res.status === 403)) {
+				return true;
+			}
+
+			if (!res.ok) {
+				throw new Error(invalidMessage);
+			}
+
+			return true;
+		} catch (error) {
+			console.error('GitLab reachability check failed:', error);
+			if (error instanceof Error && error.message === invalidMessage) {
+				throw error;
+			}
+			throw new Error(invalidMessage);
+		}
 	}
 
 	async getCacheTTL() {
@@ -155,6 +240,8 @@ class GitLabHelper {
 				this.cache.queue.push({ resolve, reject });
 			});
 		}
+
+		await this.ensureGitLabInstanceReachable(token);
 
 		this.cache.fetching = true;
 		this.cache.cacheKey = cacheKey;
@@ -508,9 +595,15 @@ async function forceGitlabDataRefresh() {
 		chrome.storage.local.remove('gitlabCache', resolve);
 	});
 	window.hasInjectedContent = false;
-	// Re-instantiate gitlabHelper to ensure a fresh instance for next API call
+	// Re-instantiate from the persisted URL — never from a transient window global
+	// which may not be set (e.g. after a page reload or in a different context).
 	if (window.GitLabHelper) {
-		window.gitlabHelper = new window.GitLabHelper(window.gitlabBaseUrl);
+		try {
+			const items = await browser.storage.local.get(['gitlabSelfHostedUrl']);
+			window.gitlabHelper = new window.GitLabHelper(items.gitlabSelfHostedUrl || null);
+		} catch (_) {
+			window.gitlabHelper = new window.GitLabHelper(null);
+		}
 	}
 	return { success: true };
 }

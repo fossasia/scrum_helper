@@ -74,5 +74,8 @@
     "https://*/*",
     "http://*/*"
   ],
+  "optional_host_permissions": [
+    "https://*/api/v4/*"
+  ],
   "default_locale": "en"
 }
