@@ -4,7 +4,7 @@ import '../src/scripts/main.js';
 describe('scrumDateRangeUtils', () => {
 	beforeEach(() => {
 		vi.useFakeTimers();
-		vi.setSystemTime(new Date('2026-08-25T12:00:00Z'));
+		vi.setSystemTime(new Date(2026, 7, 25, 12, 0, 0));
 	});
 
 	afterEach(() => {
