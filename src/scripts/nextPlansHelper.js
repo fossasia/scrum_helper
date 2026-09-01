@@ -3,14 +3,18 @@
 (function () {
 	// 1. Determine repository scope
 	async function getRepositoryScope() {
-		const result = await browser.storage.local.get(['useRepoFilter', 'selectedRepos']);
+		const result = await browser.storage.local.get(['useRepoFilter', 'selectedRepos', 'platform']);
+		const platform = result.platform || 'github';
 		const useRepoFilter = result.useRepoFilter;
 		let selectedRepos = result.selectedRepos;
 		if (!Array.isArray(selectedRepos)) {
 			selectedRepos = [];
 		}
 
-		if (useRepoFilter && selectedRepos.length > 0) {
+		const registry = window.PlatformRegistry ? window.PlatformRegistry.get(platform) : null;
+		const hasRepoFilter = registry ? registry.hasRepoFilter : platform === 'github';
+
+		if (hasRepoFilter && useRepoFilter && selectedRepos.length > 0) {
 			const repoNames = selectedRepos
 				.map((repo) => {
 					if (typeof repo === 'object' && repo.fullName) {
@@ -24,6 +28,7 @@
 				.filter(Boolean);
 
 			return {
+				platform,
 				type: 'selected',
 				repos: repoNames,
 				displayText: `Showing issues from: ${repoNames.length} selected repositories`,
@@ -31,6 +36,7 @@
 		}
 
 		return {
+			platform,
 			type: 'all',
 			repos: [],
 			displayText: 'Showing issues from: All repositories',
@@ -39,11 +45,12 @@
 
 	// 2. Generate cache/selection key based on active scope
 	function getCacheKey(scope) {
+		const platform = scope?.platform || 'github';
 		if (!scope || scope.type === 'all') {
-			return 'all';
+			return `${platform}_all`;
 		}
 		const sortedRepos = [...scope.repos].sort();
-		return `selected_${sortedRepos.join('_')}`;
+		return `${platform}_selected_${sortedRepos.join('_')}`;
 	}
 
 	// 3. Cache management
