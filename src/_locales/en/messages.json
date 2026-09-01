@@ -258,6 +258,10 @@
     "message": "A GitLab token is required to show commits on open or draft MRs. Please add one in the settings.",
     "description": "Warning message shown when show commits is enabled without a token."
   },
+  "tokenRequiredShowCommitsWarningCodeberg": {
+    "message": "A Codeberg token is required to show commits on open or draft PRs. Please add one in the settings.",
+    "description": "Warning message shown when show commits is enabled without a token on Codeberg."
+  },
   "repoSearchPlaceholder": {
     "message": "Search for a repository to add...",
     "description": "Placeholder for the repository search input."
