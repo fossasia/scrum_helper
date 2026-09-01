@@ -1,6 +1,6 @@
 let rateLimitWarningShown = false;
 const originalFetch = window.fetch;
-window.fetch = async function (...args) {
+window.fetch = async (...args) => {
 	let res;
 	try {
 		res = await originalFetch(...args);
@@ -105,7 +105,7 @@ function formatLocalDate(date) {
  * @returns {string} The resolved project name or empty string if not found
  */
 function getProjectName(item, platform) {
-	if (platform === 'gitlab' && item.project) {
+	if ((platform === 'gitlab' || platform === 'gitee') && item.project) {
 		return item.project;
 	}
 	const repository_url = item.repository_url;
@@ -123,7 +123,7 @@ function getProjectName(item, platform) {
  * @returns {string} Normalized state ('open', 'merged', or 'closed')
  */
 function normalizePrState(item, platform) {
-	if (platform === 'gitlab') {
+	if (platform === 'gitlab' || platform === 'gitee') {
 		const state = item.state;
 		if (state === 'opened' || state === 'reopened') {
 			return 'open';
@@ -155,7 +155,7 @@ function logRedaction(items) {
 		return items;
 	}
 	const spreadItems = { ...items };
-	const sensitiveKeys = ['githubToken', 'gitlabToken', 'codebergToken'];
+	const sensitiveKeys = ['githubToken', 'gitlabToken', 'giteeToken', 'codebergToken'];
 	sensitiveKeys.forEach((key) => {
 		if (key in spreadItems) {
 			spreadItems[key] = '[REDACTED]';
@@ -172,8 +172,10 @@ let orgName = '';
 let platform = 'github';
 let platformUsername = '';
 let gitlabToken = '';
+let giteeToken = '';
 window.gitlabBaseUrl = '';
 window.gitlabHelper = null;
+window.giteeHelper = null;
 let codebergToken = '';
 window.codebergApiBaseUrl = '';
 window.codebergHelper = null;
@@ -185,7 +187,7 @@ const usernameError = document.getElementById('usernameError');
 
 document.addEventListener('DOMContentLoaded', () => {
 	if (!usernameValidationListenerAttached && platformUsernameInp && usernameError) {
-		platformUsernameInp.addEventListener('input', function () {
+		platformUsernameInp.addEventListener('input', () => {
 			platformUsernameInp.classList.remove('input-error');
 			usernameError.textContent = '';
 			usernameError.classList.remove('errorMessage');
@@ -283,9 +285,11 @@ function allIncluded(outputTarget = 'email') {
 				'platform',
 				'githubUsername',
 				'gitlabUsername',
+				'giteeUsername',
 				'codebergUsername',
 				'githubToken',
 				'gitlabToken',
+				'giteeToken',
 				'codebergToken',
 				'gitlabBaseUrl',
 				'codebergApiBaseUrl',
@@ -324,23 +328,26 @@ function allIncluded(outputTarget = 'email') {
 					const projectFromDOM = document.getElementById('projectName')?.value;
 					const tokenFromDOM = document.getElementById('githubToken')?.value;
 					const gitlabTokenFromDOM = document.getElementById('gitlabToken')?.value;
+					const giteeTokenFromDOM = document.getElementById('giteeToken')?.value;
 					const codebergTokenFromDOM = document.getElementById('codebergToken')?.value;
 
 					// Save to platform-specific storage
-					if (usernameFromDOM) {
+					if (usernameFromDOM !== undefined) {
 						chrome.storage.local.set({ [platformUsernameKey]: usernameFromDOM });
 						platformUsername = usernameFromDOM;
 						platformUsernameLocal = usernameFromDOM;
 					}
 
-					items.projectName = projectFromDOM || items.projectName;
-					items.githubToken = tokenFromDOM || items.githubToken;
-					items.gitlabToken = gitlabTokenFromDOM || items.gitlabToken;
-					items.codebergToken = codebergTokenFromDOM || items.codebergToken;
+					items.projectName = projectFromDOM !== undefined ? projectFromDOM : items.projectName;
+					items.githubToken = tokenFromDOM !== undefined ? tokenFromDOM : items.githubToken;
+					items.gitlabToken = gitlabTokenFromDOM !== undefined ? gitlabTokenFromDOM : items.gitlabToken;
+					items.giteeToken = giteeTokenFromDOM !== undefined ? giteeTokenFromDOM : items.giteeToken;
+					items.codebergToken = codebergTokenFromDOM !== undefined ? codebergTokenFromDOM : items.codebergToken;
 					chrome.storage.local.set({
 						projectName: items.projectName,
 						githubToken: items.githubToken,
 						gitlabToken: items.gitlabToken,
+						giteeToken: items.giteeToken,
 						codebergToken: items.codebergToken,
 					});
 				}
@@ -350,9 +357,13 @@ function allIncluded(outputTarget = 'email') {
 				chrome.storage.local.remove(['userReason']);
 				githubToken = items.githubToken;
 				gitlabToken = items.gitlabToken || '';
+				giteeToken = items.giteeToken || '';
 				window.gitlabBaseUrl = items.gitlabBaseUrl || '';
 				if (platform === 'gitlab' && window.GitLabHelper) {
 					window.gitlabHelper = new window.GitLabHelper(window.gitlabBaseUrl);
+				}
+				if (platform === 'gitee' && window.GiteeHelper) {
+					window.giteeHelper = new window.GiteeHelper();
 				}
 				codebergToken = items.codebergToken || '';
 				window.codebergApiBaseUrl = items.codebergApiBaseUrl || 'https://codeberg.org/api/v1';
@@ -509,7 +520,92 @@ function allIncluded(outputTarget = 'email') {
 									scrumGenerationInProgress = false;
 								});
 						}
-						// --- FIX END ---
+					} else {
+						if (outputTarget === 'popup') {
+							const generateBtn = document.getElementById('generateReport');
+							const ErrMessage =
+								chrome.i18n.getMessage('usernameRequiredError') || 'Please enter your username to generate a report.';
+							handleUsernameValidationError(ErrMessage);
+							if (generateBtn) {
+								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
+								generateBtn.disabled = false;
+							}
+						}
+						scrumGenerationInProgress = false;
+					}
+				} else if (platform === 'gitee') {
+					if (!window.giteeHelper) window.giteeHelper = new window.GiteeHelper();
+					if (platformUsernameLocal) {
+						const generateBtn = document.getElementById('generateReport');
+						if (generateBtn && outputTarget === 'popup') {
+							setGenerateButtonState(generateBtn, true);
+						}
+
+						if (outputTarget === 'email') {
+							(async () => {
+								try {
+									const data = await window.giteeHelper.fetchGiteeData(
+										platformUsernameLocal,
+										startingDate,
+										endingDate,
+										giteeToken,
+										orgName,
+									);
+
+									const mappedData = window.giteeHelper.mapGiteeReportData(data);
+									githubUserData = mappedData.githubUserData;
+
+									const name =
+										githubUserData?.name || githubUserData?.username || platformUsernameLocal || platformUsername;
+									const project = projectName;
+									const curDate = new Date();
+									const year = curDate.getFullYear().toString();
+									let date = curDate.getDate();
+									let month = curDate.getMonth() + 1;
+									if (month < 10) month = '0' + month;
+									if (date < 10) date = '0' + date;
+									const dateCode = year.toString() + month.toString() + date.toString();
+									const subject = `[Scrum]${project ? ' - ' + project : ''} - ${dateCode}`;
+									subjectForEmail = subject;
+
+									await processGithubData(mappedData, true, subjectForEmail);
+									scrumGenerationInProgress = false;
+								} catch (err) {
+									console.error('Gitee fetch failed:', err);
+									if (outputTarget === 'popup') {
+										setGenerateButtonState(generateBtn, false);
+										const ErrMessage = `${err.message || 'Error fetching Gitee data.'}`;
+										if (typeof ErrMessage === 'string' && ErrMessage.toLowerCase().includes('not found')) {
+											handleUsernameValidationError(ErrMessage);
+										} else {
+											showReportMessage(ErrMessage);
+										}
+									}
+									scrumGenerationInProgress = false;
+								}
+							})();
+						} else {
+							window.giteeHelper
+								.fetchGiteeData(platformUsernameLocal, startingDate, endingDate, giteeToken, orgName)
+								.then((data) => {
+									const mappedData = window.giteeHelper.mapGiteeReportData(data);
+									processGithubData(mappedData);
+									scrumGenerationInProgress = false;
+								})
+								.catch((err) => {
+									console.error('Gitee fetch failed:', err);
+									if (outputTarget === 'popup') {
+										setGenerateButtonState(generateBtn, false);
+										const ErrMessage = `${err.message || 'Error fetching Gitee data.'}`;
+										if (typeof ErrMessage === 'string' && ErrMessage.toLowerCase().includes('not found')) {
+											handleUsernameValidationError(ErrMessage);
+										} else {
+											showReportMessage(ErrMessage);
+										}
+									}
+									scrumGenerationInProgress = false;
+								});
+						}
 					} else {
 						if (outputTarget === 'popup') {
 							const generateBtn = document.getElementById('generateReport');
@@ -1288,7 +1384,7 @@ function allIncluded(outputTarget = 'email') {
 		log('[SCRUM-DEBUG] Processing issues for main activity:', githubIssuesData?.items);
 		if (platform === 'github') {
 			await writeGithubIssuesPrs(githubIssuesData?.items || []);
-		} else if (platform === 'gitlab' || platform === 'codeberg') {
+		} else if (platform === 'gitlab' || platform === 'gitee' || platform === 'codeberg') {
 			await writeGithubIssuesPrs(githubIssuesData?.items || []);
 			await writeGithubIssuesPrs(githubPrsReviewData?.items || []);
 		}
@@ -1686,7 +1782,7 @@ function allIncluded(outputTarget = 'email') {
 
 			// For GitHub: item.user.login, for GitLab: item.author?.username
 			let isAuthoredByUser = false;
-			if (platform === 'github') {
+			if (platform === 'github' || platform === 'gitee') {
 				isAuthoredByUser = item.user && item.user.login.toLowerCase() === platformUsernameLocal.toLowerCase();
 			} else if (platform === 'gitlab') {
 				isAuthoredByUser = item.author && item.author.username === platformUsername;
@@ -1886,18 +1982,20 @@ function allIncluded(outputTarget = 'email') {
 		useMergedStatus = true;
 
 		const prsToCheck = [];
-		for (let i = 0; i < items.length; i++) {
-			const item = items[i];
-			if (item.pull_request && item.state === 'closed' && useMergedStatus && !fallbackToSimple) {
-				const repository_url = item.repository_url;
-				if (!repository_url) {
-					logError('repository_url is undefined for item:', item);
-					continue;
+		if (platform === 'github') {
+			for (let i = 0; i < items.length; i++) {
+				const item = items[i];
+				if (item.pull_request && item.state === 'closed' && useMergedStatus && !fallbackToSimple) {
+					const repository_url = item.repository_url;
+					if (!repository_url) {
+						logError('repository_url is undefined for item:', item);
+						continue;
+					}
+					const repoParts = repository_url.split('/');
+					const owner = repoParts[repoParts.length - 2];
+					const repo = repoParts[repoParts.length - 1];
+					prsToCheck.push({ owner, repo, number: item.number, idx: i });
 				}
-				const repoParts = repository_url.split('/');
-				const owner = repoParts[repoParts.length - 2];
-				const repo = repoParts[repoParts.length - 1];
-				prsToCheck.push({ owner, repo, number: item.number, idx: i });
 			}
 		}
 
@@ -1988,9 +2086,12 @@ function allIncluded(outputTarget = 'email') {
 					} else if (prCacheKey && prCacheKey in mergedStatusResults) {
 						hasMergeInfo = true;
 						isMerged = !!mergedStatusResults[prCacheKey];
-					} else if (item.pull_request && Object.prototype.hasOwnProperty.call(item.pull_request, 'merged_at')) {
+					} else if (item.pull_request && Object.hasOwn(item.pull_request, 'merged_at')) {
 						hasMergeInfo = true;
 						isMerged = !!item.pull_request.merged_at;
+					} else if (platform === 'gitlab' || platform === 'gitee') {
+						hasMergeInfo = true;
+						isMerged = item.state === 'merged';
 					}
 
 					if (!hasMergeInfo) {
@@ -2056,10 +2157,18 @@ function allIncluded(outputTarget = 'email') {
 				// Check if PR has commits in the date range
 				const hasCommitsInRange = item._allCommits && item._allCommits.length > 0;
 
-				if (platform === 'github') {
+				if (platform === 'github' || platform === 'gitee') {
 					// For existing PRs (not new), include them if they are open/draft, closed/merged within the date range, or have commits in the date range
 					if (!isNewPR) {
-						const closedDate = item.closed_at ? new Date(item.closed_at) : null;
+						const closedDate = item.closed_at
+							? new Date(item.closed_at)
+							: item.merged_at
+								? new Date(item.merged_at)
+								: item.pull_request?.merged_at
+									? new Date(item.pull_request.merged_at)
+									: item.updated_at
+										? new Date(item.updated_at)
+										: null;
 						const isClosedInRange =
 							closedDate &&
 							!Number.isNaN(closedDate.getTime()) &&
@@ -2110,7 +2219,7 @@ function allIncluded(outputTarget = 'email') {
 						log(`[PR DEBUG] Rendering commits for draft PR #${number}:`, item._allCommits);
 						li += '<ul>';
 						item._allCommits.forEach((commit) => {
-							li += `<li style=\"list-style: disc; color: #666;\"><span style=\"color:#2563eb;\">${commit.messageHeadline}</span><span style=\"color:#666; font-size: 11px;\"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
+							li += `<li style="list-style: disc; color: #666;"><span style="color:#2563eb;">${commit.messageHeadline}</span><span style="color:#666; font-size: 11px;"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
 						});
 						li += '</ul>';
 					}
@@ -2128,7 +2237,7 @@ function allIncluded(outputTarget = 'email') {
 						li += '</ul>';
 					}
 					li += `</li>`;
-				} else if (platform === 'gitlab' && item.state === 'closed') {
+				} else if ((platform === 'gitlab' || platform === 'gitee') && item.state === 'closed') {
 					li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_closed_button : ''}</li>`;
 				} else if (platform === 'codeberg' && item.state === 'closed') {
 					const isMerged = item.pull_request && item.pull_request.merged;
@@ -2147,7 +2256,7 @@ function allIncluded(outputTarget = 'email') {
 						const repo = repoParts[repoParts.length - 1];
 						merged = mergedStatusResults[`${owner}/${repo}#${number}`];
 					}
-					if (merged === true) {
+					if (merged === true || ((platform === 'gitlab' || platform === 'gitee') && item.state === 'merged')) {
 						li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_merged_button : ''}</li>`;
 					} else {
 						// Always show closed label for merged === false or merged === null/undefined
@@ -2156,7 +2265,6 @@ function allIncluded(outputTarget = 'email') {
 				}
 				log('[SCRUM-DEBUG] Added PR/MR to lastWeekPrsArray:', li, item);
 				lastWeekPrsArray.push(li);
-				continue; // Prevent issue logic from overwriting PR li
 			} else {
 				// Compute date range for filtering
 				let issueStartDateFilter;
@@ -2230,7 +2338,8 @@ function allIncluded(outputTarget = 'email') {
 	}, 500);
 
 	const intervalSubject = setInterval(() => {
-		const userData = platform === 'gitlab' ? githubUserData || platformUsername : githubUserData;
+		const userData =
+			platform === 'gitlab' || platform === 'gitee' ? githubUserData || platformUsername : githubUserData;
 		if (!userData || !window.emailClientAdapter) return;
 
 		const elements = window.emailClientAdapter.getEditorElements();
@@ -2255,7 +2364,7 @@ function allIncluded(outputTarget = 'email') {
 		if (outputTarget === 'popup') {
 			return;
 		}
-		const username = platform === 'gitlab' ? platformUsername : platformUsernameLocal;
+		const username = platform === 'gitlab' || platform === 'gitee' ? platformUsername : platformUsernameLocal;
 		if (scrumBody && username && githubIssuesData && githubPrsReviewData) {
 			clearInterval(intervalWriteGithubIssues);
 			clearInterval(intervalWriteGithubPrs);
@@ -2267,7 +2376,7 @@ function allIncluded(outputTarget = 'email') {
 			return;
 		}
 
-		const username = platform === 'gitlab' ? platformUsername : platformUsernameLocal;
+		const username = platform === 'gitlab' || platform === 'gitee' ? platformUsername : platformUsernameLocal;
 		if (scrumBody && username && githubPrsReviewData && githubIssuesData) {
 			clearInterval(intervalWriteGithubPrs);
 			clearInterval(intervalWriteGithubIssues);

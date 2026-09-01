@@ -147,6 +147,9 @@
 								<li class="px-4 py-2 flex items-center gap-2 cursor-pointer hover:bg-gray-100" data-value="gitlab">
 									<i class="fab fa-gitlab text-lg"></i> GitLab
 								</li>
+								<li class="px-4 py-2 flex items-center gap-2 cursor-pointer hover:bg-gray-100" data-value="gitee">
+									<i class="fa fa-git text-lg"></i> Gitee
+								</li>
 								<li class="px-4 py-2 flex items-center gap-2 cursor-pointer hover:bg-gray-100" data-value="codeberg">
 									<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px] fill-current">
 										<title>Codeberg</title>
@@ -586,6 +589,38 @@
 							data-i18n-placeholder="gitlabTokenPlaceholder">
 					</div>
 
+					<div class="giteeOnlySection hidden mt-3">
+						<div class="flex items-center justify-between">
+							<div class="flex">
+								<p class="text-sm font-medium" data-i18n="giteeTokenLabel">Your Gitee Token</p>
+								<span class="tooltip-container">
+									<i class="fa fa-question-circle question-icon"></i>
+									<span class="tooltip-bubble" data-i18n="giteeTokenTooltip">
+										<b>Why add a Gitee token?</b><br>
+										Scrum Helper works without a token for public projects, but a personal access token enables
+										private repos and better rate limits. Your token stays local and is only used to
+										fetch your Gitee data.<br><br>
+										<b>How to get one:</b><br>
+										1. Go to <a href="https://gitee.com/profile/personal_access_tokens"
+											target="_blank" rel="noopener noreferrer"
+											style="color:#2563eb;text-decoration:underline;">Gitee Personal Access
+											Tokens</a><br>
+										2. Click "Generate new token"<br>
+										3. Select required scopes<br>
+										4. Paste it here<br>
+										<i>Keep it secret!</i>
+									</span>
+								</span>
+							</div>
+							<button id="toggleGiteeTokenVisibility" type="button" class="focus:outline-none">
+								<i id="giteeTokenEyeIcon" class="fa fa-eye text-gray-600"></i>
+							</button>
+						</div>
+						<input id="giteeToken" type="password"
+							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2 pr-10"
+							data-i18n-placeholder="giteeTokenPlaceholder">
+					</div>
+
 					<div class="codebergOnlySection hidden mt-3">
 
 						<div class="mb-4">
@@ -870,6 +905,7 @@
 	<script src="scripts/popup.js"></script>
 	<script src="scripts/githubHelper.js"></script>
 	<script src="scripts/gitlabHelper.js"></script>
+	<script src="scripts/giteeHelper.js"></script>
 	<script src="scripts/codebergHelper.js"></script>
 	<script src="scripts/scrumHelper.js"></script>
 </body>
