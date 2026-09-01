@@ -419,6 +419,10 @@ document.addEventListener('DOMContentLoaded', () => {
 	githubTokenInput.addEventListener('input', () => checkTokenForNextPlans({ persistState: false }));
 	if (gitlabTokenInput) {
 		gitlabTokenInput.addEventListener('input', () => checkTokenForShowCommits({ persistState: false }));
+		gitlabTokenInput.addEventListener('input', () => checkTokenForNextPlans({ persistState: false }));
+	}
+	if (codebergTokenInput) {
+		codebergTokenInput.addEventListener('input', () => checkTokenForShowCommits({ persistState: false }));
 	}
 
 	darkModeToggle.addEventListener('click', function () {
@@ -1655,7 +1659,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					const items = await browser.storage.local.get(['platform']);
 					platform = items.platform || 'github';
 				} catch {}
-				if (platform !== 'github') {
+				if (platform !== 'github' && platform !== 'gitlab') {
 					repoFilterContainer.classList.add('hidden');
 					useRepoFilter.checked = false;
 					if (repoStatus)
@@ -1665,7 +1669,8 @@ document.addEventListener('DOMContentLoaded', () => {
 					return;
 				}
 				const enabled = useRepoFilter.checked;
-				const hasToken = githubTokenInput.value.trim() !== '';
+				const tokenInput = platform === 'gitlab' ? gitlabTokenInput : githubTokenInput;
+				const hasToken = tokenInput ? tokenInput.value.trim() !== '' : false;
 				repoFilterContainer.classList.toggle('hidden', !enabled);
 
 				if (enabled && !hasToken) {
@@ -1674,6 +1679,16 @@ document.addEventListener('DOMContentLoaded', () => {
 					hideDropdown();
 					const tokenWarning = document.getElementById('tokenWarningForFilter');
 					if (tokenWarning) {
+						const warningMsg =
+							platform === 'gitlab'
+								? chrome?.i18n.getMessage('tokenRequiredGitlabWarning') ||
+									'A GitLab token is required for repository filtering. Please add one in settings.'
+								: chrome?.i18n.getMessage('tokenRequiredWarning') ||
+									'A GitHub token is required for repository filtering. Please add one in the settings.';
+						tokenWarning.textContent = '';
+						const span = document.createElement('span');
+						span.textContent = warningMsg;
+						tokenWarning.appendChild(span);
 						tokenWarning.classList.remove('hidden');
 						tokenWarning.classList.add('shake-animation');
 						setTimeout(() => tokenWarning.classList.remove('shake-animation'), 620);
@@ -1701,6 +1716,7 @@ document.addEventListener('DOMContentLoaded', () => {
 							'githubUsername',
 							'gitlabUsername',
 							'githubToken',
+							'gitlabToken',
 							'orgName',
 						]);
 
@@ -1732,13 +1748,10 @@ document.addEventListener('DOMContentLoaded', () => {
 							return;
 						}
 
-						if (window.fetchUserRepositories) {
-							const repos = await window.fetchUserRepositories(
-								username,
-
-								items.githubToken,
-								items.orgName || '',
-							);
+						const helper = window.PlatformRegistry?.get(platform);
+						if (helper && helper.fetchUserRepositories) {
+							const token = platform === 'gitlab' ? items.gitlabToken : items.githubToken;
+							const repos = await helper.fetchUserRepositories(username, token, items.orgName || '');
 							availableRepos = repos;
 							repoStatus.textContent = browser.i18n.getMessage('repoLoaded', [repos.length]);
 
@@ -2148,6 +2161,21 @@ browser.storage.local.get(['platform']).then((result) => {
 	updatePlatformUI(platform);
 });
 
+function triggerNextPlansReload() {
+	const includeNextPlansCheckbox = document.getElementById('includeNextPlans');
+	if (includeNextPlansCheckbox) {
+		const container = document.getElementById('assignedIssuesSelector');
+		if (container) {
+			container.textContent = '';
+			container.style.display = 'none';
+			container.classList.add('hidden');
+		}
+		if (includeNextPlansCheckbox.checked && window.loadAssignedIssues) {
+			window.loadAssignedIssues();
+		}
+	}
+}
+
 // Update UI for platform
 function updatePlatformUI(platform) {
 	const usernameLabel = document.getElementById('usernameLabel');
@@ -2218,12 +2246,23 @@ function updatePlatformUI(platform) {
 		}
 	});
 
+	const githubGitlabCodebergOnlySections = document.querySelectorAll('.githubGitlabCodebergOnlySection');
+	githubGitlabCodebergOnlySections.forEach((el) => {
+		if (platform === 'github' || platform === 'gitlab' || platform === 'codeberg') {
+			el.classList.remove('hidden');
+		} else {
+			el.classList.add('hidden');
+		}
+	});
+
 	const tokenWarningShowCommits = document.getElementById('tokenWarningForShowCommits');
 	if (tokenWarningShowCommits) {
 		const span = tokenWarningShowCommits.querySelector('span');
 		if (span) {
 			if (platform === 'gitlab') {
 				span.setAttribute('data-i18n', 'tokenRequiredShowCommitsWarningGitLab');
+			} else if (platform === 'codeberg') {
+				span.setAttribute('data-i18n', 'tokenRequiredShowCommitsWarningCodeberg');
 			} else {
 				span.setAttribute('data-i18n', 'tokenRequiredShowCommitsWarning');
 			}
@@ -2236,11 +2275,13 @@ function updatePlatformUI(platform) {
 	}
 
 	const showCommitsTooltip = document.querySelector(
-		'[data-i18n="showCommitsTooltip"], [data-i18n="showCommitsTooltipGitLab"]',
+		'[data-i18n="showCommitsTooltip"], [data-i18n="showCommitsTooltipGitLab"], [data-i18n="showCommitsTooltipCodeberg"]',
 	);
 	if (showCommitsTooltip) {
 		if (platform === 'gitlab') {
 			showCommitsTooltip.setAttribute('data-i18n', 'showCommitsTooltipGitLab');
+		} else if (platform === 'codeberg') {
+			showCommitsTooltip.setAttribute('data-i18n', 'showCommitsTooltipCodeberg');
 		} else {
 			showCommitsTooltip.setAttribute('data-i18n', 'showCommitsTooltip');
 		}
@@ -2251,6 +2292,40 @@ function updatePlatformUI(platform) {
 		}
 	}
 
+	const includeNextPlansTooltip = document.querySelector(
+		'[data-i18n="includeNextPlansTooltip"], [data-i18n="includeNextPlansTooltipGitLab"]',
+	);
+	if (includeNextPlansTooltip) {
+		if (platform === 'gitlab') {
+			includeNextPlansTooltip.setAttribute('data-i18n', 'includeNextPlansTooltipGitLab');
+		} else {
+			includeNextPlansTooltip.setAttribute('data-i18n', 'includeNextPlansTooltip');
+		}
+		const key = includeNextPlansTooltip.getAttribute('data-i18n');
+		const message = browser.i18n.getMessage(key);
+		if (message) {
+			includeNextPlansTooltip.textContent = message;
+		}
+	}
+
+	const tokenWarningForNextPlans = document.getElementById('tokenWarningForNextPlans');
+	if (tokenWarningForNextPlans) {
+		const span = tokenWarningForNextPlans.querySelector('span');
+		if (span) {
+			if (platform === 'gitlab') {
+				span.setAttribute('data-i18n', 'tokenRequiredNextPlansWarningGitLab');
+			} else {
+				span.setAttribute('data-i18n', 'tokenRequiredNextPlansWarning');
+			}
+			const key = span.getAttribute('data-i18n');
+			const message = browser.i18n.getMessage(key);
+			if (message) {
+				span.textContent = message;
+			}
+		}
+	}
+	checkTokenForNextPlans({ showWarning: false, persistState: true });
+	triggerNextPlansReload();
 	const repoFilterTooltip = document.querySelector(
 		'[data-i18n="repoFilterTooltip"], [data-i18n="repoFilterTooltipGitLab"]',
 	);
