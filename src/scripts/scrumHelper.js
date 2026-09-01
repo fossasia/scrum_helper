@@ -1260,7 +1260,7 @@ function allIncluded(outputTarget = 'email') {
 			await writeGithubIssuesPrs(githubPrsReviewData?.items || []);
 		}
 		await writeGithubPrsReviews();
-		if (includeNextPlans && platform !== 'codeberg') {
+		if (includeNextPlans) {
 			if (window.getNextPlansForReport) {
 				try {
 					const selectedPlans = await window.getNextPlansForReport();
@@ -1659,7 +1659,9 @@ function allIncluded(outputTarget = 'email') {
 				isAuthoredByUser = item.author && item.author.username === platformUsername;
 			} else if (platform === 'codeberg') {
 				isAuthoredByUser =
-					item.user && (item.user.login === platformUsernameLocal || item.user.username === platformUsernameLocal);
+					item.user &&
+					((item.user.login && item.user.login.toLowerCase() === platformUsernameLocal.toLowerCase()) ||
+						(item.user.username && item.user.username.toLowerCase() === platformUsernameLocal.toLowerCase()));
 			}
 
 			if (isAuthoredByUser || !item.pull_request) continue;

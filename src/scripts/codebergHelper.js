@@ -2,6 +2,163 @@
 
 const DEFAULT_CODEBERG_API_BASE_URL = 'https://codeberg.org/api/v1';
 
+let codebergNextPlansWarningTimeout;
+
+function codebergShowTokenWarningForNextPlans({ animate = false, durationMs = 4000 } = {}) {
+	const tokenWarning = document.getElementById('tokenWarningForNextPlans');
+	if (!tokenWarning) {
+		return;
+	}
+
+	tokenWarning.classList.remove('hidden');
+	if (animate) {
+		tokenWarning.classList.add('shake-animation');
+		setTimeout(() => tokenWarning.classList.remove('shake-animation'), 620);
+	}
+
+	if (codebergNextPlansWarningTimeout) {
+		clearTimeout(codebergNextPlansWarningTimeout);
+	}
+	codebergNextPlansWarningTimeout = setTimeout(() => {
+		tokenWarning.classList.add('hidden');
+	}, durationMs);
+}
+
+function codebergCheckTokenForNextPlans({
+	showWarning = false,
+	animateWarning = false,
+	warningDurationMs = 4000,
+	persistState = false,
+} = {}) {
+	const includeNextPlans = document.getElementById('includeNextPlans');
+	const codebergTokenInput = document.getElementById('codebergToken');
+
+	if (!includeNextPlans || !codebergTokenInput) {
+		return;
+	}
+
+	const isNextPlansEnabled = includeNextPlans.checked;
+	const hasToken = codebergTokenInput.value.trim() !== '';
+
+	if (isNextPlansEnabled && !hasToken) {
+		includeNextPlans.checked = false;
+		if (showWarning) {
+			codebergShowTokenWarningForNextPlans({
+				animate: animateWarning,
+				durationMs: warningDurationMs,
+			});
+		}
+		browser.storage.local.set({ includeNextPlans: false });
+
+		const container = document.getElementById('assignedIssuesSelector');
+		if (container) {
+			container.style.display = 'none';
+			container.classList.add('hidden');
+		}
+		return;
+	}
+
+	const tokenWarning = document.getElementById('tokenWarningForNextPlans');
+	if (tokenWarning) {
+		if (codebergNextPlansWarningTimeout) {
+			clearTimeout(codebergNextPlansWarningTimeout);
+			codebergNextPlansWarningTimeout = null;
+		}
+		tokenWarning.classList.add('hidden');
+	}
+	if (persistState) {
+		browser.storage.local.set({ includeNextPlans: includeNextPlans.checked });
+	}
+}
+
+async function fetchIssuesFromCodeberg(scope) {
+	const storage = await browser.storage.local.get(['platform', 'codebergToken', 'platformUsername']);
+	const platform = storage.platform || 'codeberg';
+	const usernameKey = `${platform}Username`;
+	const userStorage = await browser.storage.local.get([usernameKey]);
+	const username = userStorage[usernameKey] || storage.platformUsername || '';
+	const token = storage.codebergToken;
+
+	if (!username) {
+		throw new Error('Codeberg username is required. Please set it in settings.');
+	}
+	if (!token) {
+		throw new Error('Codeberg token is required. Please set it in settings.');
+	}
+
+	const headers = {
+		Accept: 'application/json',
+		Authorization: `token ${token}`,
+	};
+
+	let page = 1;
+	let allIssues = [];
+	let hasMore = true;
+
+	const baseUrl = window.codebergApiBaseUrl || DEFAULT_CODEBERG_API_BASE_URL;
+
+	while (hasMore && page <= 4) {
+		const url = `${baseUrl}/repos/issues/search?state=open&assigned=true&page=${page}&limit=50`;
+		console.log(`[NextPlans] Fetching page ${page} from Codeberg: ${url}`);
+		const response = await fetch(url, { headers });
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({}));
+			const message = errorData.message || response.statusText;
+			throw new Error(`Codeberg API error: ${message}`);
+		}
+
+		const data = await response.json();
+		const items = Array.isArray(data) ? data : [];
+		allIssues = allIssues.concat(items);
+
+		if (items.length < 50) {
+			hasMore = false;
+		} else {
+			page++;
+		}
+	}
+
+	const repoSet = scope.type === 'selected' ? new Set(scope.repos) : null;
+
+	return allIssues
+		.filter((issue) => {
+			if (issue.pull_request) {
+				return false;
+			}
+			if (Number.isNaN(Number.parseInt(issue.number, 10)) || (!issue.html_url && !issue.url)) {
+				return false;
+			}
+			const repoName = issue.repository ? issue.repository.full_name || issue.repository.name || '' : '';
+			if (repoSet && !repoSet.has(repoName)) {
+				return false;
+			}
+
+			// Validate assignee client-side to handle different Gitea API versions
+			const isAssigned =
+				(issue.assignee && issue.assignee.login?.toLowerCase() === username.toLowerCase()) ||
+				(Array.isArray(issue.assignees) &&
+					issue.assignees.some((u) => u.login?.toLowerCase() === username.toLowerCase()));
+
+			return isAssigned;
+		})
+		.map((issue) => {
+			const repoName = issue.repository ? issue.repository.full_name || issue.repository.name || '' : '';
+
+			const safeTitle = typeof sanitizeHtml === 'function' ? sanitizeHtml(issue.title) : issue.title;
+			const safeUrl = typeof sanitizeHtml === 'function' ? sanitizeHtml(issue.html_url) : issue.html_url;
+
+			return {
+				id: issue.id,
+				number: Number.parseInt(issue.number, 10),
+				title: safeTitle,
+				html_url: safeUrl || issue.url || '',
+				repository: repoName,
+				state: issue.state,
+				pull_request: issue.pull_request,
+			};
+		});
+}
+
 /* ---------------- UTIL ---------------- */
 
 function normalizeCodebergApiBaseUrl(apiBaseUrl) {
@@ -272,10 +429,10 @@ class CodebergHelper {
 								if (updated >= start && updated <= end) {
 									const issueUser = issue.user?.username || issue.user?.login;
 									const isAssignee =
-										issue.assignees?.some((a) => (a.username || a.login) === username) ||
-										(issue.assignee?.username || issue.assignee?.login) === username;
+										issue.assignees?.some((a) => (a.username || a.login)?.toLowerCase() === username.toLowerCase()) ||
+										(issue.assignee?.username || issue.assignee?.login)?.toLowerCase() === username.toLowerCase();
 
-									if (issueUser === username || isAssignee) {
+									if (issueUser?.toLowerCase() === username.toLowerCase() || isAssignee) {
 										issues.push(issue);
 										if (issue.pull_request) {
 											mergeRequests.push(issue);
@@ -392,6 +549,8 @@ if (window.PlatformRegistry) {
 		checkTokenForFilter() {},
 		checkTokenForShowCommits() {},
 		checkTokenForMergedPRs() {},
+		checkTokenForNextPlans: codebergCheckTokenForNextPlans,
+		fetchAssignedIssues: fetchIssuesFromCodeberg,
 		triggerRepoFetchIfEnabled() {},
 		debugRepoFetch() {},
 		loadRepos() {},

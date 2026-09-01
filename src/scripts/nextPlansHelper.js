@@ -3,12 +3,13 @@
 (function () {
 	// 1. Determine repository scope
 	async function getRepositoryScope() {
-		const result = await browser.storage.local.get(['useRepoFilter', 'selectedRepos']);
+		const result = await browser.storage.local.get(['useRepoFilter', 'selectedRepos', 'platform']);
 		const useRepoFilter = result.useRepoFilter;
 		let selectedRepos = result.selectedRepos;
 		if (!Array.isArray(selectedRepos)) {
 			selectedRepos = [];
 		}
+		const platform = result.platform || 'github';
 
 		if (useRepoFilter && selectedRepos.length > 0) {
 			const repoNames = selectedRepos
@@ -26,6 +27,7 @@
 			return {
 				type: 'selected',
 				repos: repoNames,
+				platform: platform,
 				displayText: `Showing issues from: ${repoNames.length} selected repositories`,
 			};
 		}
@@ -33,17 +35,19 @@
 		return {
 			type: 'all',
 			repos: [],
+			platform: platform,
 			displayText: 'Showing issues from: All repositories',
 		};
 	}
 
 	// 2. Generate cache/selection key based on active scope
 	function getCacheKey(scope) {
+		const platform = scope?.platform || 'github';
 		if (!scope || scope.type === 'all') {
-			return 'all';
+			return `${platform}_all`;
 		}
 		const sortedRepos = [...scope.repos].sort();
-		return `selected_${sortedRepos.join('_')}`;
+		return `${platform}_selected_${sortedRepos.join('_')}`;
 	}
 
 	// 3. Cache management
