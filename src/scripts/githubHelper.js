@@ -282,7 +282,7 @@ async function githubTriggerRepoFetchIfEnabled() {
 	}
 
 	try {
-		const cacheData = await browser.storage.local.get(['repoCache']);
+		const _cacheData = await browser.storage.local.get(['repoCache']);
 		const items = await browser.storage.local.get([
 			'platform',
 			'githubUsername',
@@ -409,7 +409,7 @@ async function performRepoFetch() {
 	try {
 		const items = await browser.storage.local.get(['platform']);
 		platform = items.platform || 'github';
-	} catch (e) {}
+	} catch (_e) {}
 	if (platform !== 'github') {
 		if (repoStatus)
 			repoStatus.textContent =
@@ -552,7 +552,7 @@ ${prs
 			results[`${pr.owner}/${pr.repo}#${pr.number}`] = merged;
 		});
 		return results;
-	} catch (e) {
+	} catch (_e) {
 		return results;
 	}
 }
@@ -624,7 +624,7 @@ async function fetchUserRepositories(username, token, org = '') {
 				if (item.repository_url) {
 					const urlParts = item.repository_url.split('/');
 					const repoFullName = `${urlParts[urlParts.length - 2]}/${urlParts[urlParts.length - 1]}`;
-					const repoName = `${urlParts[urlParts.length - 1]}`;
+					const _repoName = `${urlParts[urlParts.length - 1]}`;
 					repoSet.add(repoFullName);
 				}
 			});
@@ -713,8 +713,8 @@ async function fetchUserRepositories(username, token, org = '') {
 				}));
 
 			return repos.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
-		} catch (err) {}
-	} catch (err) {}
+		} catch (_err) {}
+	} catch (_err) {}
 }
 
 window.fetchUserRepositories = fetchUserRepositories;
@@ -752,7 +752,7 @@ async function forceGithubDataRefresh() {
 	return { success: true };
 }
 
-window['forceGithubDataRefresh'] = forceGithubDataRefresh;
+window.forceGithubDataRefresh = forceGithubDataRefresh;
 
 // Global fetch helpers
 const GITHUB_DEBUG = false;
@@ -911,7 +911,7 @@ async function githubFetchPrMergedStatusREST(owner, repo, number, token) {
 		const merged = !!data.merged_at;
 		sessionMergedStatusCache[cacheKey] = merged;
 		return merged;
-	} catch (e) {
+	} catch (_e) {
 		return null;
 	}
 }
