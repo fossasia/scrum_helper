@@ -1,8 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import fs from 'fs';
 
+import path from 'path';
+
 // Mock DOM for popup.js
-const popupHtml = fs.readFileSync(new URL('../src/popup.html', import.meta.url), 'utf8');
+const popupHtml = fs.readFileSync(path.resolve(__dirname, '../src/popup.html'), 'utf8');
 
 describe('Cache Status UI logic', () => {
 	beforeEach(() => {
