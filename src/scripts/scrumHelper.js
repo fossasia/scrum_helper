@@ -1831,6 +1831,9 @@ function allIncluded(outputTarget = 'email') {
 	function triggerScrumGeneration() {
 		if (issuesDataProcessed && prsReviewDataProcessed) {
 			writeScrumBody();
+			if (window.updateCacheStatusUI) {
+				window.updateCacheStatusUI();
+			}
 		} else {
 		}
 	}

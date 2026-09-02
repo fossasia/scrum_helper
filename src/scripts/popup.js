@@ -465,6 +465,11 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (window.loadAssignedIssues) {
 			window.loadAssignedIssues();
 		}
+		
+		if (window.updateCacheStatusUI) {
+			window.updateCacheStatusUI();
+			setInterval(window.updateCacheStatusUI, 60000); // update every minute
+		}
 	});
 
 	browser.storage.onChanged.addListener((changes, namespace) => {
@@ -611,6 +616,68 @@ document.addEventListener('DOMContentLoaded', () => {
 			sendReportEmail.disabled = isDisabled;
 		}
 	}
+
+	function formatCacheAge(timestamp) {
+		const diffMs = Date.now() - timestamp;
+		const diffSec = Math.floor(diffMs / 1000);
+		if (diffSec < 60) return browser?.i18n.getMessage('cacheJustNow') || 'just now';
+		const diffMin = Math.floor(diffSec / 60);
+		if (diffMin < 60) return (browser?.i18n.getMessage('cacheMinAgo') || '$1 min ago').replace('$1', diffMin);
+		const diffHr = Math.floor(diffMin / 60);
+		if (diffHr < 24) return (browser?.i18n.getMessage('cacheHrsAgo') || '$1 hr ago').replace('$1', diffHr);
+		const diffDay = Math.floor(diffHr / 24);
+		return (browser?.i18n.getMessage('cacheDaysAgo') || '$1 day ago').replace('$1', diffDay);
+	}
+
+	async function updateCacheStatusUI() {
+		const container = document.getElementById('cacheStatusContainer');
+		const badge = document.getElementById('cacheStatusBadge');
+		const tooltip = document.getElementById('cacheStatusTooltip');
+		const warning = document.getElementById('staleCacheWarning');
+		if (!container || !badge || !tooltip || !warning) return;
+
+		const { platform, cacheInput, githubCache, gitlabCache, codebergCache } = await storageLocalGet([
+			'platform',
+			'cacheInput',
+			'githubCache',
+			'gitlabCache',
+			'codebergCache'
+		]);
+		
+		const activePlatform = platform || 'github';
+		const cache = activePlatform === 'gitlab' ? gitlabCache : (activePlatform === 'codeberg' ? codebergCache : githubCache);
+		const ttlMinutes = parsePositiveInt(cacheInput) ?? 10;
+		const ttlMs = ttlMinutes * 60 * 1000;
+		
+		container.classList.remove('hidden');
+
+		const hasCacheData = !!cache?.data;
+		const timestamp = typeof cache?.timestamp === 'number' ? cache.timestamp : 0;
+
+		if (!hasCacheData || timestamp <= 0) {
+			badge.innerHTML = `<i class="fa fa-refresh text-gray-500"></i> <span class="text-gray-500">${browser?.i18n.getMessage('noCache') || 'No cache'}</span>`;
+			tooltip.innerHTML = browser?.i18n.getMessage('noCacheTooltip') || 'No cached report exists. Click Generate to fetch data.';
+			warning.classList.add('hidden');
+			return;
+		}
+
+		const ageMs = Date.now() - timestamp;
+		const isFresh = ageMs < ttlMs;
+		const ageText = formatCacheAge(timestamp);
+		
+		if (isFresh) {
+			badge.innerHTML = `<i class="fa fa-check text-green-600"></i> <span class="text-green-700">${(browser?.i18n.getMessage('cacheFresh') || 'Fresh ($1)').replace('$1', ageText)}</span>`;
+			const tooltipMsg = browser?.i18n.getMessage('cacheFreshTooltip') || 'This report was generated $1. Cache refreshes automatically after $2 minutes.';
+			tooltip.innerHTML = tooltipMsg.replace('$1', ageText).replace('$2', ttlMinutes);
+			warning.classList.add('hidden');
+		} else {
+			badge.innerHTML = `<i class="fa fa-exclamation-triangle text-amber-600"></i> <span class="text-amber-700">${(browser?.i18n.getMessage('cacheStale') || 'Stale ($1)').replace('$1', ageText)}</span>`;
+			const tooltipMsg = browser?.i18n.getMessage('cacheStaleTooltip') || 'This report was generated $1. The cache TTL is $2 minutes, so the data may be outdated.';
+			tooltip.innerHTML = tooltipMsg.replace('$1', ageText).replace('$2', ttlMinutes);
+			warning.classList.remove('hidden');
+		}
+	}
+	window.updateCacheStatusUI = updateCacheStatusUI;
 
 	async function bootstrapScrumReportOnPopupLoad(generateBtn) {
 		console.log('[BOOTSTRAP] bootstrapScrumReportOnPopupLoad called');

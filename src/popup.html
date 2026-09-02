@@ -393,6 +393,20 @@
 							</div>
 						</div>
 
+						<div id="cacheStatusContainer" class="flex flex-col gap-1 mt-2 mb-2 hidden">
+							<div class="flex items-center gap-2 text-sm">
+								<span id="cacheStatusBadge" class="font-medium flex items-center gap-1"></span>
+								<span class="tooltip-container">
+									<i class="fa fa-info-circle text-gray-400"></i>
+									<span id="cacheStatusTooltip" class="tooltip-bubble w-64 text-left"></span>
+								</span>
+							</div>
+							<div id="staleCacheWarning" class="hidden text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded-xl p-2 flex items-center gap-1.5">
+								<i class="fa fa-exclamation-triangle"></i>
+								<span data-i18n="staleCacheWarningText">Data may be outdated. Click Generate to refresh.</span>
+							</div>
+						</div>
+
 						<div id="rateLimitWarning" class="hidden text-xs text-yellow-800 p-2 bg-yellow-50 border border-yellow-200 rounded-xl mt-2 flex items-center justify-between">
 							<span id="rateLimitWarningText" data-i18n="rateLimitWarningMessage">Some data may be missing due to GitHub rate limit. Please add or check your GitHub token in settings.</span>
 							<button id="closeRateLimitWarning" class="text-yellow-800 hover:text-yellow-900 font-bold ml-2 bg-transparent border-none cursor-pointer text-sm">&times;</button>
