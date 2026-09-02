@@ -655,8 +655,8 @@ document.addEventListener('DOMContentLoaded', () => {
 		const timestamp = typeof cache?.timestamp === 'number' ? cache.timestamp : 0;
 
 		if (!hasCacheData || timestamp <= 0) {
-			badge.innerHTML = `<i class="fa fa-refresh text-gray-500"></i> <span class="text-gray-500">${browser?.i18n.getMessage('noCache') || 'No cache'}</span>`;
-			tooltip.innerHTML = browser?.i18n.getMessage('noCacheTooltip') || 'No cached report exists. Click Generate to fetch data.';
+			badge.innerHTML = sanitizeHtml(`<i class="fa fa-refresh text-gray-500"></i> <span class="text-gray-500">${browser?.i18n.getMessage('noCache') || 'No cache'}</span>`);
+			tooltip.innerHTML = sanitizeHtml(browser?.i18n.getMessage('noCacheTooltip') || 'No cached report exists. Click Generate to fetch data.');
 			warning.classList.add('hidden');
 			return;
 		}
@@ -666,14 +666,14 @@ document.addEventListener('DOMContentLoaded', () => {
 		const ageText = formatCacheAge(timestamp);
 		
 		if (isFresh) {
-			badge.innerHTML = `<i class="fa fa-check text-green-600"></i> <span class="text-green-700">${(browser?.i18n.getMessage('cacheFresh') || 'Fresh ($1)').replace('$1', ageText)}</span>`;
+			badge.innerHTML = sanitizeHtml(`<i class="fa fa-check text-green-600"></i> <span class="text-green-700">${(browser?.i18n.getMessage('cacheFresh') || 'Fresh ($1)').replace('$1', ageText)}</span>`);
 			const tooltipMsg = browser?.i18n.getMessage('cacheFreshTooltip') || 'This report was generated $1. Cache refreshes automatically after $2 minutes.';
-			tooltip.innerHTML = tooltipMsg.replace('$1', ageText).replace('$2', ttlMinutes);
+			tooltip.innerHTML = sanitizeHtml(tooltipMsg.replace('$1', ageText).replace('$2', ttlMinutes));
 			warning.classList.add('hidden');
 		} else {
-			badge.innerHTML = `<i class="fa fa-exclamation-triangle text-amber-600"></i> <span class="text-amber-700">${(browser?.i18n.getMessage('cacheStale') || 'Stale ($1)').replace('$1', ageText)}</span>`;
+			badge.innerHTML = sanitizeHtml(`<i class="fa fa-exclamation-triangle text-amber-600"></i> <span class="text-amber-700">${(browser?.i18n.getMessage('cacheStale') || 'Stale ($1)').replace('$1', ageText)}</span>`);
 			const tooltipMsg = browser?.i18n.getMessage('cacheStaleTooltip') || 'This report was generated $1. The cache TTL is $2 minutes, so the data may be outdated.';
-			tooltip.innerHTML = tooltipMsg.replace('$1', ageText).replace('$2', ttlMinutes);
+			tooltip.innerHTML = sanitizeHtml(tooltipMsg.replace('$1', ageText).replace('$2', ttlMinutes));
 			warning.classList.remove('hidden');
 		}
 	}

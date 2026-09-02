@@ -1832,7 +1832,7 @@ function allIncluded(outputTarget = 'email') {
 		if (issuesDataProcessed && prsReviewDataProcessed) {
 			writeScrumBody();
 			if (window.updateCacheStatusUI) {
-				window.updateCacheStatusUI();
+				setTimeout(() => window.updateCacheStatusUI(), 500);
 			}
 		} else {
 		}
