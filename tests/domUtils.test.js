@@ -137,6 +137,7 @@ describe('showPopupMessage', () => {
 
 	afterEach(() => {
 		vi.useRealTimers();
+		vi.restoreAllMocks();
 	});
 
 	it('should delegate to scrumHelperToast with default options', () => {
@@ -145,7 +146,6 @@ describe('showPopupMessage', () => {
 		window.showPopupMessage('saved');
 
 		expect(spy).toHaveBeenCalledWith('saved', { duration: 2000, variant: 'info' });
-		spy.mockRestore();
 	});
 
 	it('should let callers override the defaults', () => {
@@ -154,7 +154,6 @@ describe('showPopupMessage', () => {
 		window.showPopupMessage('gone wrong', { variant: 'error', duration: 500 });
 
 		expect(spy).toHaveBeenCalledWith('gone wrong', { duration: 500, variant: 'error' });
-		spy.mockRestore();
 	});
 
 	it('should tolerate a null options argument', () => {
