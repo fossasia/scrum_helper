@@ -5,9 +5,9 @@ import CodebergHelper from '../src/scripts/codebergHelper.js';
 const DEFAULT_TTL_MS = 10 * 60 * 1000;
 
 function mockCacheInput(value) {
-	browser.storage.local.get = vi
-		.fn()
-		.mockResolvedValue(value === undefined ? {} : { cacheInput: value });
+	vi.spyOn(browser.storage.local, 'get').mockResolvedValue(
+		value === undefined ? {} : { cacheInput: value },
+	);
 }
 
 const helpers = [
@@ -62,14 +62,24 @@ describe.each(helpers)('%s getCacheTTL', (_name, create) => {
 	});
 
 	it('should fall back to the default when storage rejects', async () => {
-		browser.storage.local.get = vi.fn().mockRejectedValue(new Error('storage unavailable'));
+		vi.spyOn(browser.storage.local, 'get').mockRejectedValue(new Error('storage unavailable'));
 		vi.spyOn(console, 'error').mockImplementation(() => {});
 
 		await expect(helper.getCacheTTL()).resolves.toBe(DEFAULT_TTL_MS);
 	});
 
-	it('should never resolve to a value that disables caching', async () => {
-		for (const value of ['abc', '0', '-5', '', undefined, null, {}]) {
+	it('should fall back to the default for a value that overflows to Infinity', async () => {
+		mockCacheInput('9'.repeat(304));
+		await expect(helper.getCacheTTL()).resolves.toBe(DEFAULT_TTL_MS);
+	});
+
+	it('should fall back to the default for a value beyond the safe integer range', async () => {
+		mockCacheInput('9007199254740993');
+		await expect(helper.getCacheTTL()).resolves.toBe(DEFAULT_TTL_MS);
+	});
+
+	it('should always resolve to a finite, positive TTL', async () => {
+		for (const value of ['abc', '0', '-5', '', '9'.repeat(304), undefined, null, {}]) {
 			mockCacheInput(value);
 			const ttl = await helper.getCacheTTL();
 

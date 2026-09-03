@@ -113,7 +113,7 @@ class CodebergHelper {
 		try {
 			const items = await browser.storage.local.get(['cacheInput']);
 			const minutes = Number.parseInt(items.cacheInput, 10);
-			return Number.isFinite(minutes) && minutes > 0 ? minutes * 60 * 1000 : defaultTtl;
+			return Number.isSafeInteger(minutes) && minutes > 0 ? minutes * 60 * 1000 : defaultTtl;
 		} catch {
 			return defaultTtl;
 		}
