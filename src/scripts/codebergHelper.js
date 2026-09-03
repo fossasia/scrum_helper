@@ -109,11 +109,13 @@ class CodebergHelper {
 	/* ---------- CACHE ---------- */
 
 	async getCacheTTL() {
+		const defaultTtl = 10 * 60 * 1000;
 		try {
 			const items = await browser.storage.local.get(['cacheInput']);
-			return items.cacheInput ? Number.parseInt(items.cacheInput, 10) * 60 * 1000 : 10 * 60 * 1000;
+			const minutes = Number.parseInt(items.cacheInput, 10);
+			return Number.isFinite(minutes) && minutes > 0 ? minutes * 60 * 1000 : defaultTtl;
 		} catch {
-			return 10 * 60 * 1000;
+			return defaultTtl;
 		}
 	}
 

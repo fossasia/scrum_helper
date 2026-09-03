@@ -114,13 +114,14 @@ class GitLabHelper {
 	}
 
 	async getCacheTTL() {
+		const defaultTtl = 10 * 60 * 1000;
 		try {
 			const items = await browser.storage.local.get(['cacheInput']);
-			const ttl = items.cacheInput ? Number.parseInt(items.cacheInput, 10) * 60 * 1000 : 10 * 60 * 1000;
-			return ttl;
+			const minutes = Number.parseInt(items.cacheInput, 10);
+			return Number.isFinite(minutes) && minutes > 0 ? minutes * 60 * 1000 : defaultTtl;
 		} catch (error) {
 			console.error('Error getting cache TTL:', error);
-			return 10 * 60 * 1000;
+			return defaultTtl;
 		}
 	}
 
