@@ -1479,7 +1479,10 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		}
 
-		browser.storage.local.get({ displayMode: 'sidePanel' }).then((result) => {
+		const defaultDisplayMode =
+			window.isTauri || browser.sidebarAction?.toggle || browser.sidePanel?.open ? 'sidePanel' : 'popup';
+
+		browser.storage.local.get({ displayMode: defaultDisplayMode }).then((result) => {
 			applyDisplayModeClass(result.displayMode);
 		});
 
@@ -1487,7 +1490,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		const displayModeNotice = document.getElementById('displayModeNotice');
 		const displayModeNoticeText = document.getElementById('displayModeNoticeText');
 		if (displayModeSelect) {
-			browser.storage.local.get({ displayMode: 'sidePanel' }).then((result) => {
+			browser.storage.local.get({ displayMode: defaultDisplayMode }).then((result) => {
 				displayModeSelect.value = result.displayMode;
 			});
 			displayModeSelect.addEventListener('change', () => {
