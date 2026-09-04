@@ -496,7 +496,25 @@ async function performRepoFetch() {
 // Validate organization only when user is done typing (on blur)
 function validateOrgOnBlur(org) {
 	console.log('[Org Check] Checking organization on blur:', org);
-	fetch(`https://api.github.com/orgs/${org}`)
+
+	const showError = (err) => {
+		console.log('[Org Check] Error validating organisation:', org, err);
+		if (typeof showPopupMessage === 'function') {
+			showPopupMessage(browser.i18n.getMessage('orgValidationErrorMessage'), { variant: 'error' });
+		} else if (window.showPopupMessage) {
+			window.showPopupMessage(browser.i18n.getMessage('orgValidationErrorMessage'), { variant: 'error' });
+		}
+	};
+
+	browser.storage.local
+		.get(['githubToken'])
+		.then((items) => {
+			const headers = { Accept: 'application/vnd.github.v3+json' };
+			if (items.githubToken) {
+				headers.Authorization = `token ${items.githubToken}`;
+			}
+			return fetch(`https://api.github.com/orgs/${org}`, { headers });
+		})
 		.then((res) => {
 			console.log('[Org Check] Response status for', org, ':', res.status);
 			if (res.status === 404) {
@@ -513,14 +531,7 @@ function validateOrgOnBlur(org) {
 			browser.storage.local.remove(['githubCache', 'repoCache']);
 			githubTriggerRepoFetchIfEnabled();
 		})
-		.catch((err) => {
-			console.log('[Org Check] Error validating organisation:', org, err);
-			if (typeof showPopupMessage === 'function') {
-				showPopupMessage(browser.i18n.getMessage('orgValidationErrorMessage'), { variant: 'error' });
-			} else if (window.showPopupMessage) {
-				window.showPopupMessage(browser.i18n.getMessage('orgValidationErrorMessage'), { variant: 'error' });
-			}
-		});
+		.catch(showError);
 }
 
 async function fetchPrsMergedStatusBatch(prs, headers) {
