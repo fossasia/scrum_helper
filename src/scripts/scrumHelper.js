@@ -1024,7 +1024,7 @@ function allIncluded(outputTarget = 'email') {
 				);
 				// Fetch commits for open PRs (batch) if showCommits is enabled
 				const activeToken = platform === 'codeberg' ? codebergToken : githubToken;
-				if (openPRs.length && showCommits && platform !== 'codeberg') {
+				if (openPRs.length && showCommits) {
 					let startDateForCommits;
 					let endDateForCommits;
 					if (yesterdayContribution) {
@@ -1052,7 +1052,27 @@ function allIncluded(outputTarget = 'email') {
 					log('Commit map returned from fetchCommitsForOpenPRs:', commitMap);
 					// Attach commits to PR objects
 					openPRs.forEach((pr) => {
-						pr._allCommits = commitMap[pr.number] || [];
+						if (platform === 'codeberg') {
+							let owner = '';
+							let repo = '';
+							const url = pr.html_url || pr.url;
+							if (url) {
+								try {
+									const parsed = new URL(url);
+									const parts = parsed.pathname.split('/').filter(Boolean);
+									if (parts.length >= 2) {
+										owner = parts[0];
+										repo = parts[1];
+									}
+								} catch (e) {
+									// ignore
+								}
+							}
+							const key = owner && repo ? `${owner}/${repo}#${pr.number}` : pr.number;
+							pr._allCommits = commitMap[key] || [];
+						} else {
+							pr._allCommits = commitMap[pr.number] || [];
+						}
 						log(`Attached ${pr._allCommits.length} commits to PR #${pr.number}`);
 						if (pr._allCommits.length > 0) {
 							log(
@@ -1114,6 +1134,9 @@ function allIncluded(outputTarget = 'email') {
 		if (platform === 'github') {
 			return githubFetchCommits(prs, token, startDate, endDate);
 		}
+		if (platform === 'codeberg' && window.codebergHelper) {
+			return window.codebergHelper.fetchCommitsForOpenPRs(prs, token, startDate, endDate);
+		}
 		return {};
 	}
 
@@ -1122,7 +1145,8 @@ function allIncluded(outputTarget = 'email') {
 			log('Repo fiter disabled, skipping fetch');
 			return [];
 		}
-		const repoCacheKey = `repos-${platformUsernameLocal}-${orgName}-${startDateForCache}-${endDateForCache}`;
+		const items = await browser.storage.local.get(['githubToken', 'gitlabToken']);
+		const repoCacheKey = makeRepoCacheKey(platformUsernameLocal, orgName, platform, items);
 
 		const now = Date.now();
 		const isRepoCacheFresh = now - githubCache.repoTimeStamp < githubCache.ttl;
@@ -1145,7 +1169,16 @@ function allIncluded(outputTarget = 'email') {
 
 		try {
 			log('Fetching repos automatically');
-			const repos = await fetchUserRepositories(platformUsernameLocal, githubToken, orgName);
+			let repos;
+			const helper = window.PlatformRegistry?.get(platform);
+			if (helper && helper.fetchUserRepositories) {
+				const token = platform === 'gitlab' ? gitlabToken : githubToken;
+				repos = await helper.fetchUserRepositories(platformUsernameLocal, token, orgName);
+			} else if (window.fetchUserRepositories) {
+				repos = await window.fetchUserRepositories(platformUsernameLocal, githubToken, orgName);
+			} else {
+				repos = [];
+			}
 
 			githubCache.repoData = repos;
 			githubCache.repoTimeStamp = now;

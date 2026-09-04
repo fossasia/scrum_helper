@@ -234,10 +234,10 @@ function checkTokenForFilter() {
 
 function makeRepoCacheKey(username, orgName, platform, storageItems) {
 	const org = orgName || '';
-	if (platform === 'github') {
-		const token = (storageItems?.githubToken || '').trim();
+	if (platform === 'github' || platform === 'gitlab') {
+		const token = (platform === 'gitlab' ? storageItems?.gitlabToken || '' : storageItems?.githubToken || '').trim();
 		if (!token) {
-			return `repos-${username}-${org}-notoken`;
+			return `repos-${platform}-${username}-${org}-notoken`;
 		}
 		let hash = 0;
 		for (let i = 0; i < token.length; i++) {
@@ -246,13 +246,13 @@ function makeRepoCacheKey(username, orgName, platform, storageItems) {
 			hash |= 0; // Convert to 32bit integer
 		}
 		const fingerprint = (hash >>> 0).toString(36);
-		return `repos-${username}-${org}-token-${fingerprint}`;
+		return `repos-${platform}-${username}-${org}-token-${fingerprint}`;
 	}
-	return `repos-${username}-${org}`;
+	return `repos-${platform}-${username}-${org}`;
 }
 
 // Trigger repo fetch when repo filtering is enabled (moved from popup.js)
-async function triggerRepoFetchIfEnabled() {
+async function githubTriggerRepoFetchIfEnabled() {
 	const context = getGithubRepoFilterContext();
 	if (!context) {
 		return;
@@ -529,7 +529,7 @@ function validateOrgOnBlur(org) {
 			window.clearScrumHelperToast?.();
 			console.log('[Org Check] Organisation exists on GitHub:', org);
 			browser.storage.local.remove(['githubCache', 'repoCache']);
-			triggerRepoFetchIfEnabled();
+			githubTriggerRepoFetchIfEnabled();
 		})
 		.catch(showError);
 }
@@ -1019,8 +1019,8 @@ if (window.PlatformRegistry) {
 		checkTokenForFilter,
 		checkTokenForShowCommits,
 		checkTokenForMergedPRs,
+		triggerRepoFetchIfEnabled: githubTriggerRepoFetchIfEnabled,
 		checkTokenForNextPlans,
-		triggerRepoFetchIfEnabled,
 		debugRepoFetch,
 		loadRepos,
 		performRepoFetch,
