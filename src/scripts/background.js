@@ -32,14 +32,9 @@ function applyDisplayMode(mode) {
 }
 
 // Initialize display mode on startup
-browser.storage.local
-	.get({
-		displayMode:
-			(typeof window !== 'undefined' && window.isTauri) || browser.sidebarAction?.toggle ? 'sidePanel' : 'popup',
-	})
-	.then((result) => {
-		applyDisplayMode(result.displayMode);
-	});
+browser.storage.local.get({ displayMode: 'sidePanel' }).then((result) => {
+	applyDisplayMode(result.displayMode);
+});
 
 // Listen for changes to displayMode
 browser.storage.onChanged.addListener((changes, area) => {
