@@ -679,5 +679,38 @@
   },
   "smtpPresetsTooltip": {
     "message": "Select a preset to automatically configure the SMTP host and port settings for common email services."
+  },
+  "staleCacheWarningText": {
+    "message": "Data may be outdated. Click Generate to refresh."
+  },
+  "cacheJustNow": {
+    "message": "just now"
+  },
+  "cacheMinAgo": {
+    "message": "$1 min ago"
+  },
+  "cacheHrsAgo": {
+    "message": "$1 hr ago"
+  },
+  "cacheDaysAgo": {
+    "message": "$1 day ago"
+  },
+  "noCache": {
+    "message": "No cache"
+  },
+  "noCacheTooltip": {
+    "message": "No cached report exists. Click Generate to fetch data."
+  },
+  "cacheFresh": {
+    "message": "Fresh ($1)"
+  },
+  "cacheFreshTooltip": {
+    "message": "This report was generated $1. Cache refreshes automatically after $2 minutes."
+  },
+  "cacheStale": {
+    "message": "Stale ($1)"
+  },
+  "cacheStaleTooltip": {
+    "message": "This report was generated $1. The cache TTL is $2 minutes, so the data may be outdated."
   }
 }
