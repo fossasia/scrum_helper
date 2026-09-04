@@ -35,7 +35,9 @@ function applyDisplayMode(mode) {
 browser.storage.local
 	.get({
 		displayMode:
-			(typeof window !== 'undefined' && window.isTauri) || browser.sidebarAction?.toggle ? 'sidePanel' : 'popup',
+			(typeof window !== 'undefined' && window.isTauri) || browser.sidebarAction?.toggle || browser.sidePanel?.open
+				? 'sidePanel'
+				: 'popup',
 	})
 	.then((result) => {
 		applyDisplayMode(result.displayMode);
