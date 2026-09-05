@@ -10,7 +10,7 @@ body {
 }
 
 #scrumReport:focus {
-    outline: 1px solid #000;
+    outline: 1px solid #2563eb;
     outline-offset: -1px;
 }
 
