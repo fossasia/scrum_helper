@@ -98,21 +98,53 @@ function formatLocalDate(date) {
 
 /**
  * Resolves the project name from the report item.
- * For GitLab, it prioritizes the pre-mapped human-readable name.
- * For GitHub and fallbacks, it extracts it from the repository URL.
+ * Returns the full repository name (org/repo).
+ * For GitLab, it prioritizes the pre-mapped project name with namespace.
+ * For GitHub and fallbacks, it extracts owner/repo from the repository URL or web URL.
  * @param {Object} item - The report item
  * @param {string} platform - The SCM platform ('github', 'gitlab', etc.)
  * @returns {string} The resolved project name or empty string if not found
  */
 function getProjectName(item, platform) {
-	if (platform === 'gitlab' && item.project) {
+	if (platform === 'gitlab' && item?.project && item.project !== 'unknown') {
 		return item.project;
 	}
-	const repository_url = item.repository_url;
-	if (repository_url) {
-		return repository_url.substr(repository_url.lastIndexOf('/') + 1);
+	const repository_url = item?.repository_url;
+	if (repository_url && platform !== 'gitlab') {
+		const parts = repository_url.split('/').filter(Boolean);
+		if (parts.length >= 2) {
+			return `${parts[parts.length - 2]}/${parts[parts.length - 1]}`;
+		}
+		return parts[parts.length - 1] || '';
+	}
+	if (item?.project && item.project !== 'unknown') {
+		return item.project;
+	}
+	const webUrl = item?.html_url || item?.web_url;
+	if (webUrl) {
+		try {
+			const parsed = new URL(webUrl);
+			let pathname = parsed.pathname;
+			if (pathname.startsWith('/')) {
+				pathname = pathname.substring(1);
+			}
+			const dashIdx = pathname.indexOf('/-/');
+			if (dashIdx !== -1) {
+				return pathname.substring(0, dashIdx);
+			}
+			const parts = pathname.split('/').filter(Boolean);
+			if (parts.length >= 2) {
+				return `${parts[0]}/${parts[1]}`;
+			}
+		} catch (e) {
+			// ignore invalid URL
+		}
 	}
 	return '';
+}
+
+if (typeof window !== 'undefined') {
+	window.getProjectName = getProjectName;
 }
 
 /**
