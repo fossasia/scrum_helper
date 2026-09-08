@@ -907,15 +907,31 @@ hr,
 }
 
 #platformDropdownList {
-    min-width: unset;
-    width: unset !important;
+    width: 100% !important;
+    min-width: 100% !important;
+    box-sizing: border-box;
     z-index: 1000 !important;
 }
 
 .dark-mode #platformDropdownList {
-    min-width: unset;
-    width: unset !important;
+    width: 100% !important;
+    min-width: 100% !important;
+    box-sizing: border-box;
     z-index: 1000 !important;
+}
+
+#platformDropdownList svg,
+#platformDropdownBtn svg {
+    width: 18px !important;
+    height: 18px !important;
+    max-width: 18px !important;
+    max-height: 18px !important;
+    flex-shrink: 0;
+}
+
+#platformDropdownList i,
+#platformDropdownBtn i.fab {
+    font-size: 1.25rem !important;
 }
 
 /* Fix platform dropdown highlight in dark mode */
