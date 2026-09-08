@@ -407,6 +407,9 @@
   .bg-gray-200 {
     background-color: #F2F6FC;
   }
+  .dark-mode .bg-gray-200 {
+    background-color: #404040 !important;
+  }
   .bg-green-400 {
     background-color: var(--color-green-400);
   }
