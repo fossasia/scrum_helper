@@ -443,7 +443,7 @@ class CodebergHelper {
 			number: item.number,
 			title: item.title,
 			state: item.state === 'closed' ? 'closed' : 'open',
-			project: repo,
+			project: owner && repo ? `${owner}/${repo}` : repo,
 			pull_request: type === 'mr' ? item.pull_request || { merged: false } : item.pull_request,
 		};
 	}

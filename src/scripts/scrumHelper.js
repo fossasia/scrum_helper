@@ -98,21 +98,53 @@ function formatLocalDate(date) {
 
 /**
  * Resolves the project name from the report item.
- * For GitLab, it prioritizes the pre-mapped human-readable name.
- * For GitHub and fallbacks, it extracts it from the repository URL.
+ * Returns the full repository name (org/repo).
+ * For GitLab, it prioritizes the pre-mapped project name with namespace.
+ * For GitHub and fallbacks, it extracts owner/repo from the repository URL or web URL.
  * @param {Object} item - The report item
  * @param {string} platform - The SCM platform ('github', 'gitlab', etc.)
  * @returns {string} The resolved project name or empty string if not found
  */
 function getProjectName(item, platform) {
-	if (platform === 'gitlab' && item.project) {
+	if (platform === 'gitlab' && item?.project && item.project !== 'unknown') {
 		return item.project;
 	}
-	const repository_url = item.repository_url;
-	if (repository_url) {
-		return repository_url.substr(repository_url.lastIndexOf('/') + 1);
+	const repository_url = item?.repository_url;
+	if (repository_url && platform !== 'gitlab') {
+		const parts = repository_url.split('/').filter(Boolean);
+		if (parts.length >= 2) {
+			return `${parts[parts.length - 2]}/${parts[parts.length - 1]}`;
+		}
+		return parts[parts.length - 1] || '';
+	}
+	if (item?.project && item.project !== 'unknown') {
+		return item.project;
+	}
+	const webUrl = item?.html_url || item?.web_url;
+	if (webUrl) {
+		try {
+			const parsed = new URL(webUrl);
+			let pathname = parsed.pathname;
+			if (pathname.startsWith('/')) {
+				pathname = pathname.substring(1);
+			}
+			const dashIdx = pathname.indexOf('/-/');
+			if (dashIdx !== -1) {
+				return pathname.substring(0, dashIdx);
+			}
+			const parts = pathname.split('/').filter(Boolean);
+			if (parts.length >= 2) {
+				return `${parts[0]}/${parts[1]}`;
+			}
+		} catch (e) {
+			// ignore invalid URL
+		}
 	}
 	return '';
+}
+
+if (typeof window !== 'undefined') {
+	window.getProjectName = getProjectName;
 }
 
 /**
@@ -245,6 +277,7 @@ function allIncluded(outputTarget = 'email') {
 	let githubPrsReviewData = null;
 	let githubUserData = null;
 	let githubPrsReviewDataProcessed = {};
+	let githubPrsDataProcessed = {};
 	let issuesDataProcessed = false;
 	let prsReviewDataProcessed = false;
 	let showOpenLabel = true;
@@ -1280,6 +1313,7 @@ function allIncluded(outputTarget = 'email') {
 		nextWeekArray = [];
 		reviewedPrsArray = [];
 		githubPrsReviewDataProcessed = {};
+		githubPrsDataProcessed = {};
 		issuesDataProcessed = false;
 		prsReviewDataProcessed = false;
 		if (!githubCache.subject && scrumSubject) {
@@ -1298,13 +1332,45 @@ function allIncluded(outputTarget = 'email') {
 				try {
 					const selectedPlans = await window.getNextPlansForReport();
 					if (selectedPlans && selectedPlans.length > 0) {
+						const plansByRepo = {};
 						selectedPlans.forEach((issue) => {
-							const hasLi = nextWeekArray.some((li) => li.includes(`Work on Issue(#${issue.number})`));
-							if (!hasLi) {
-								const li = `<li><i>(${issue.repository})</i> - Work on Issue(#${issue.number}) - <a href='${issue.html_url}' target='_blank' rel='noopener noreferrer'>${issue.title}</a>${showOpenLabel ? ' ' + issue_opened_button : ''}&nbsp;&nbsp;</li>`;
-								nextWeekArray.push(li);
+							const repo = issue.repository || getProjectName(issue, platform) || 'unknown';
+							if (!plansByRepo[repo]) {
+								plansByRepo[repo] = [];
+							}
+							const alreadyExists = plansByRepo[repo].some(
+								(existing) => existing.number === issue.number || (existing.id && existing.id === issue.id),
+							);
+							if (!alreadyExists) {
+								plansByRepo[repo].push(issue);
 							}
 						});
+
+						for (const [repo, repoIssues] of Object.entries(plansByRepo)) {
+							let repoLi = `<li style="margin-bottom: 10px !important;">`;
+							if (repoIssues.length > 1) {
+								repoLi += `<span style="font-weight: 600;"><i>(${repo})</i> - Work on Issues - </span><ul style="margin-top: 4px; margin-bottom: 4px;">`;
+								for (const issue of repoIssues) {
+									let issueText = `<li><a href='${issue.html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>#${issue.number}</a> (${issue.title})`;
+									if (showOpenLabel) {
+										issueText += ` ${issue.state === 'closed' ? issue_closed_button : issue_opened_button}`;
+									}
+									issueText += '&nbsp;&nbsp;</li>';
+									repoLi += issueText;
+								}
+								repoLi += '</ul>';
+							} else {
+								const issue = repoIssues[0];
+								repoLi += `<span style="font-weight: 600;"><i>(${repo})</i> - Work on Issue - </span>`;
+								repoLi += `<a href='${issue.html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>#${issue.number}</a> (${issue.title})`;
+								if (showOpenLabel) {
+									repoLi += ` ${issue.state === 'closed' ? issue_closed_button : issue_opened_button}`;
+								}
+								repoLi += '&nbsp;&nbsp;';
+							}
+							repoLi += '</li>';
+							nextWeekArray.push(repoLi);
+						}
 					}
 				} catch (err) {
 					console.error('Failed to append selected next plans:', err);
@@ -1773,54 +1839,32 @@ function allIncluded(outputTarget = 'email') {
 			};
 			githubPrsReviewDataProcessed[project].push(obj);
 		}
-		for (const repo in githubPrsReviewDataProcessed) {
-			let repoLi = '<li> <i>(' + repo + ')</i> - Reviewed ';
-			if (githubPrsReviewDataProcessed[repo].length > 1) repoLi += 'PRs - ';
-			else {
-				repoLi += 'PR - ';
-			}
-			if (githubPrsReviewDataProcessed[repo].length <= 1) {
-				for (const pr in githubPrsReviewDataProcessed[repo]) {
-					const pr_arr = githubPrsReviewDataProcessed[repo][pr];
-					let prText = '';
-					prText +=
-						"<a href='" +
-						pr_arr.html_url +
-						"' target='_blank' rel='noopener noreferrer'>#" +
-						pr_arr.number +
-						'</a> (' +
-						pr_arr.title +
-						') ';
+		for (const [repo, repoPrs] of Object.entries(githubPrsReviewDataProcessed)) {
+			if (!repoPrs || repoPrs.length === 0) continue;
+
+			let repoLi = `<li style="margin-bottom: 10px !important;">`;
+			if (repoPrs.length > 1) {
+				repoLi += `<span style="font-weight: 600;"><i>(${repo})</i> - Reviewed PRs - </span><ul style="margin-top: 4px; margin-bottom: 4px;">`;
+				for (const pr_arr1 of repoPrs) {
+					let statusBtn = '';
 					if (showOpenLabel) {
-						if (pr_arr.state === 'open') prText += pr_open_button;
-						else if (pr_arr.state === 'merged') prText += pr_merged_button;
-						else if (pr_arr.state === 'closed') prText += pr_closed_button;
+						if (pr_arr1.state === 'open') statusBtn = ' ' + pr_open_button;
+						else if (pr_arr1.state === 'merged') statusBtn = ' ' + pr_merged_button;
+						else if (pr_arr1.state === 'closed') statusBtn = ' ' + pr_closed_button;
 					}
-					prText += '&nbsp;&nbsp;';
-					repoLi += prText;
-				}
-			} else {
-				repoLi += '<ul>';
-				for (const pr1 in githubPrsReviewDataProcessed[repo]) {
-					const pr_arr1 = githubPrsReviewDataProcessed[repo][pr1];
-					let prText1 = '';
-					prText1 +=
-						"<li><a href='" +
-						pr_arr1.html_url +
-						"' target='_blank' rel='noopener noreferrer'>#" +
-						pr_arr1.number +
-						'</a> (' +
-						pr_arr1.title +
-						') ';
-					if (showOpenLabel) {
-						if (pr_arr1.state === 'open') prText1 += pr_open_button;
-						else if (pr_arr1.state === 'merged') prText1 += pr_merged_button;
-						else if (pr_arr1.state === 'closed') prText1 += pr_closed_button;
-					}
-					prText1 += '&nbsp;&nbsp;</li>';
-					repoLi += prText1;
+					repoLi += `<li><a href='${pr_arr1.html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>#${pr_arr1.number}</a> (${pr_arr1.title})${statusBtn}&nbsp;&nbsp;</li>`;
 				}
 				repoLi += '</ul>';
+			} else {
+				const pr_arr = repoPrs[0];
+				repoLi += `<span style="font-weight: 600;"><i>(${repo})</i> - Reviewed PR - </span>`;
+				let statusBtn = '';
+				if (showOpenLabel) {
+					if (pr_arr.state === 'open') statusBtn = ' ' + pr_open_button;
+					else if (pr_arr.state === 'merged') statusBtn = ' ' + pr_merged_button;
+					else if (pr_arr.state === 'closed') statusBtn = ' ' + pr_closed_button;
+				}
+				repoLi += `<a href='${pr_arr.html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>#${pr_arr.number}</a> (${pr_arr.title})${statusBtn}&nbsp;&nbsp;`;
 			}
 			repoLi += '</li>';
 			reviewedPrsArray.push(repoLi);
@@ -2009,7 +2053,7 @@ function allIncluded(outputTarget = 'email') {
 			log('[SCRUM-DEBUG] isMR:', isMR, 'platform:', platform, 'item:', item);
 			const html_url = item.html_url;
 			const repository_url = item.repository_url;
-			const project = getProjectName(item, platform);
+			const project = getProjectName(item, platform) || 'unknown';
 			const title = item.title;
 			const number = item.number;
 			let li = '';
@@ -2104,58 +2148,63 @@ function allIncluded(outputTarget = 'email') {
 					log(`[PR DEBUG] Including PR #${number} as ${prAction}`);
 				}
 
-				if (isDraft) {
-					li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_draft_button : ''}`;
-					if (showCommits && item._allCommits && item._allCommits.length) {
-						log(`[PR DEBUG] Rendering commits for draft PR #${number}:`, item._allCommits);
-						li += '<ul>';
-						item._allCommits.forEach((commit) => {
-							li += `<li style=\"list-style: disc; color: #666;\"><span style=\"color:#2563eb;\">${commit.messageHeadline}</span><span style=\"color:#666; font-size: 11px;\"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
-						});
-						li += '</ul>';
-					}
-					li += `</li>`;
-				} else if (item.state === 'open' || item.state === 'opened') {
-					li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_open_button : ''}`;
-
-					if (showCommits && item._allCommits && item._allCommits.length) {
-						log(`[PR DEBUG] Rendering commits for PR #${number}:`, item._allCommits);
-						li += '<ul>';
-						item._allCommits.forEach((commit) => {
-							li += `<li style="list-style: disc; color: #666;">
-<span style="color:#2563eb;">${commit.messageHeadline}</span><span style="color:#666; font-size: 11px;"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
-						});
-						li += '</ul>';
-					}
-					li += `</li>`;
-				} else if (platform === 'gitlab' && item.state === 'closed') {
-					li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_closed_button : ''}</li>`;
-				} else if (platform === 'codeberg' && item.state === 'closed') {
-					const isMerged = item.pull_request && item.pull_request.merged;
-					if (isMerged) {
-						li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_merged_button : ''}</li>`;
+				let statusButton = '';
+				if (showOpenLabel) {
+					if (isDraft) {
+						statusButton = ' ' + pr_draft_button;
+					} else if (item.state === 'open' || item.state === 'opened') {
+						statusButton = ' ' + pr_open_button;
+					} else if (platform === 'gitlab' && item.state === 'closed') {
+						statusButton = ' ' + pr_closed_button;
+					} else if (platform === 'codeberg' && item.state === 'closed') {
+						const isMerged = item.pull_request && item.pull_request.merged;
+						statusButton = ' ' + (isMerged ? pr_merged_button : pr_closed_button);
 					} else {
-						li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_closed_button : ''}</li>`;
-					}
-				} else {
-					let merged = null;
-					if (platform === 'gitlab') {
-						merged = item.state === 'merged';
-					} else if ((githubToken || (useMergedStatus && !fallbackToSimple)) && mergedStatusResults) {
-						const repoParts = repository_url.split('/');
-						const owner = repoParts[repoParts.length - 2];
-						const repo = repoParts[repoParts.length - 1];
-						merged = mergedStatusResults[`${owner}/${repo}#${number}`];
-					}
-					if (merged === true) {
-						li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_merged_button : ''}</li>`;
-					} else {
-						// Always show closed label for merged === false or merged === null/undefined
-						li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_closed_button : ''}</li>`;
+						let merged = null;
+						if (platform === 'gitlab') {
+							merged = item.state === 'merged';
+						} else if (
+							repository_url &&
+							(githubToken || (useMergedStatus && !fallbackToSimple)) &&
+							mergedStatusResults
+						) {
+							const repoParts = repository_url.split('/');
+							const owner = repoParts[repoParts.length - 2];
+							const repo = repoParts[repoParts.length - 1];
+							merged = mergedStatusResults[`${owner}/${repo}#${number}`];
+						}
+						if (merged === null && item.pull_request?.merged_at) {
+							merged = true;
+						}
+						statusButton = ' ' + (merged === true ? pr_merged_button : pr_closed_button);
 					}
 				}
-				log('[SCRUM-DEBUG] Added PR/MR to lastWeekPrsArray:', li, item);
-				lastWeekPrsArray.push(li);
+
+				let commitsHtml = '';
+				if (showCommits && item._allCommits && item._allCommits.length) {
+					log(`[PR DEBUG] Rendering commits for PR #${number}:`, item._allCommits);
+					commitsHtml += '<ul>';
+					item._allCommits.forEach((commit) => {
+						commitsHtml += `<li style="list-style: disc; color: #666;"><span style="color:#2563eb;">${commit.messageHeadline}</span><span style="color:#666; font-size: 11px;"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
+					});
+					commitsHtml += '</ul>';
+				}
+
+				if (!githubPrsDataProcessed[project]) {
+					githubPrsDataProcessed[project] = [];
+				}
+				const alreadyExists = githubPrsDataProcessed[project].some((existing) => existing.number === number);
+				if (!alreadyExists) {
+					githubPrsDataProcessed[project].push({
+						number,
+						title,
+						html_url,
+						prAction,
+						isNewPR,
+						statusButton,
+						commitsHtml,
+					});
+				}
 				continue; // Prevent issue logic from overwriting PR li
 			} else {
 				// Compute date range for filtering
@@ -2214,6 +2263,24 @@ function allIncluded(outputTarget = 'email') {
 				lastWeekIssuesArray.push(li);
 			}
 		}
+
+		lastWeekPrsArray = [];
+		for (const [repo, repoPrs] of Object.entries(githubPrsDataProcessed)) {
+			if (!repoPrs || repoPrs.length === 0) continue;
+
+			let repoLi = `<li style="margin-bottom: 10px !important;"><span style="font-weight: 600;"><i>(${repo})</i></span><ul style="margin-top: 4px; margin-bottom: 4px;">`;
+			for (const pr of repoPrs) {
+				let prText = `<li>${pr.prAction} - <a href='${pr.html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>#${pr.number}</a> (${pr.title})${pr.statusButton}&nbsp;&nbsp;`;
+				if (pr.commitsHtml) {
+					prText += pr.commitsHtml;
+				}
+				prText += '</li>';
+				repoLi += prText;
+			}
+			repoLi += '</ul></li>';
+			lastWeekPrsArray.push(repoLi);
+		}
+
 		log('[SCRUM-DEBUG] Final lastWeekIssuesArray:', lastWeekIssuesArray);
 		log('[SCRUM-DEBUG] Final lastWeekPrsArray:', lastWeekPrsArray);
 		issuesDataProcessed = true;
