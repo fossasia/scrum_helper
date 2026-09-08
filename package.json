@@ -34,7 +34,7 @@
     "@tauri-apps/cli": "^2.11.4",
     "autoprefixer": "^10.5.5",
     "happy-dom": "^20.14.0",
-    "postcss": "^8.5.26",
+    "postcss": "^8.5.28",
     "tailwindcss": "^4.3.3",
     "vitest": "^5.0.0"
   },
