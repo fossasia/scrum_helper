@@ -922,16 +922,11 @@ hr,
 
 #platformDropdownList svg,
 #platformDropdownBtn svg {
-    width: 18px !important;
-    height: 18px !important;
-    max-width: 18px !important;
-    max-height: 18px !important;
+    width: 15px !important;
+    height: 15px !important;
+    max-width: 15px !important;
+    max-height: 15px !important;
     flex-shrink: 0;
-}
-
-#platformDropdownList i,
-#platformDropdownBtn i.fab {
-    font-size: 1.25rem !important;
 }
 
 /* Fix platform dropdown highlight in dark mode */
