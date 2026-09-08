@@ -405,7 +405,7 @@
     background-color: var(--color-gray-100);
   }
   .bg-gray-200 {
-    background-color: var(--color-gray-200);
+    background-color: #F2F6FC;
   }
   .bg-green-400 {
     background-color: var(--color-green-400);
@@ -414,7 +414,7 @@
     background-color: var(--color-green-600);
   }
   .bg-white {
-    background-color: var(--color-white);
+    background-color: #F8F9FA;
   }
   .p-1 {
     padding: calc(var(--spacing) * 1);
