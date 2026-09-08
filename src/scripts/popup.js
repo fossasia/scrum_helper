@@ -185,6 +185,12 @@ document.addEventListener('DOMContentLoaded', () => {
 	const gitlabTokenEyeIcon = document.getElementById('gitlabTokenEyeIcon');
 	let gitlabTokenVisible = false;
 
+	// Gitee token elements
+	const giteeTokenInput = document.getElementById('giteeToken');
+	const toggleGiteeTokenBtn = document.getElementById('toggleGiteeTokenVisibility');
+	const giteeTokenEyeIcon = document.getElementById('giteeTokenEyeIcon');
+	let giteeTokenVisible = false;
+
 	// Codeberg elements
 	let lastPlatform = 'github';
 	const codebergTokenInput = document.getElementById('codebergToken');
@@ -280,7 +286,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	}
 
-	window.showRegenerateNotice = function () {
+	window.showRegenerateNotice = () => {
 		const scrumReport = document.getElementById('scrumReport');
 		const notice = document.getElementById('regenerateNotice');
 		if (!scrumReport || !notice) return;
@@ -292,7 +298,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	};
 
-	window.hideRegenerateNotice = function () {
+	window.hideRegenerateNotice = () => {
 		const notice = document.getElementById('regenerateNotice');
 		if (notice) {
 			notice.classList.add('hidden');
@@ -339,6 +345,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			gitlabTokenInput.classList.add('token-animating');
 			setTimeout(() => gitlabTokenInput.classList.remove('token-animating'), 300);
+		});
+	}
+
+	// Gitee token visibility toggle
+	if (toggleGiteeTokenBtn && giteeTokenInput) {
+		toggleGiteeTokenBtn.addEventListener('click', () => {
+			giteeTokenVisible = !giteeTokenVisible;
+			giteeTokenInput.type = giteeTokenVisible ? 'text' : 'password';
+
+			if (giteeTokenEyeIcon) {
+				giteeTokenEyeIcon.className = giteeTokenVisible ? 'fa fa-eye-slash text-gray-600' : 'fa fa-eye text-gray-600';
+				giteeTokenEyeIcon.classList.add('eye-animating');
+				setTimeout(() => giteeTokenEyeIcon.classList.remove('eye-animating'), 400);
+			}
+
+			giteeTokenInput.classList.add('token-animating');
+			setTimeout(() => giteeTokenInput.classList.remove('token-animating'), 300);
 		});
 	}
 
@@ -624,18 +647,24 @@ document.addEventListener('DOMContentLoaded', () => {
 			return;
 		}
 
-		const { platform, cacheInput, githubCache, gitlabCache } = await storageLocalGet([
+		const { platform, cacheInput, githubCache, gitlabCache, giteeCache } = await storageLocalGet([
 			'platform',
 			'cacheInput',
 			'githubCache',
 			'gitlabCache',
+			'giteeCache',
 		]);
 
 		const ttlMinutes = parsePositiveInt(cacheInput) ?? 10;
 		const ttlMs = ttlMinutes * 60 * 1000;
 
 		const activePlatform = platform || 'github';
-		const cache = activePlatform === 'gitlab' ? gitlabCache : githubCache;
+		let cache = githubCache;
+		if (activePlatform === 'gitlab') {
+			cache = gitlabCache;
+		} else if (activePlatform === 'gitee') {
+			cache = giteeCache;
+		}
 
 		const hasCacheData = !!cache?.data;
 		const timestamp = typeof cache?.timestamp === 'number' ? cache.timestamp : 0;
@@ -659,6 +688,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				'lastScrumReportUsername',
 				'githubUsername',
 				'gitlabUsername',
+				'giteeUsername',
 				'platformUsername',
 			]);
 
@@ -676,10 +706,12 @@ document.addEventListener('DOMContentLoaded', () => {
 				lastScrumReportUsername = storageValues.lastScrumReportUsername;
 			}
 
-			const expectedUsername =
-				activePlatform === 'gitlab'
-					? storageValues.gitlabUsername || storageValues.platformUsername
-					: storageValues.githubUsername || storageValues.platformUsername;
+			let expectedUsername = storageValues.githubUsername || storageValues.platformUsername;
+			if (activePlatform === 'gitlab') {
+				expectedUsername = storageValues.gitlabUsername || storageValues.platformUsername;
+			} else if (activePlatform === 'gitee') {
+				expectedUsername = storageValues.giteeUsername || storageValues.platformUsername;
+			}
 
 			const isUsernameMatch = lastScrumReportUsername
 				? lastScrumReportUsername === expectedUsername
@@ -773,6 +805,8 @@ document.addEventListener('DOMContentLoaded', () => {
 				'platform',
 				'githubUsername',
 				'gitlabUsername',
+				'giteeUsername',
+				'giteeToken',
 				'codebergUsername',
 				'codebergToken',
 				'codebergApiBaseUrl',
@@ -813,6 +847,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					includeNextPlansCheckbox.checked = true;
 				}
 				if (result.githubToken) githubTokenInput.value = result.githubToken;
+				if (result.giteeToken && giteeTokenInput) giteeTokenInput.value = result.giteeToken;
 				if (result.cacheInput) cacheInput.value = result.cacheInput;
 				if (typeof result.yesterdayContribution !== 'undefined') yesterdayRadio.checked = result.yesterdayContribution;
 				if (typeof result.weeklyContribution !== 'undefined') weeklyRadio.checked = result.weeklyContribution;
@@ -1715,6 +1750,7 @@ document.addEventListener('DOMContentLoaded', () => {
 							'platform',
 							'githubUsername',
 							'gitlabUsername',
+							'giteeUsername',
 							'githubToken',
 							'gitlabToken',
 							'orgName',
@@ -2182,6 +2218,8 @@ function updatePlatformUI(platform) {
 	if (usernameLabel) {
 		if (platform === 'gitlab') {
 			usernameLabel.setAttribute('data-i18n', 'gitlabUsernameLabel');
+		} else if (platform === 'gitee') {
+			usernameLabel.setAttribute('data-i18n', 'giteeUsernameLabel');
 		} else if (platform === 'codeberg') {
 			usernameLabel.setAttribute('data-i18n', 'codebergUsernameLabel');
 		} else {
@@ -2223,6 +2261,22 @@ function updatePlatformUI(platform) {
 	const gitlabOnlySections = document.querySelectorAll('.gitlabOnlySection');
 	gitlabOnlySections.forEach((el) => {
 		if (platform === 'gitlab') {
+			el.classList.remove('hidden');
+		} else {
+			el.classList.add('hidden');
+		}
+	});
+	const giteeOnlySections = document.querySelectorAll('.giteeOnlySection');
+	giteeOnlySections.forEach((el) => {
+		if (platform === 'gitee') {
+			el.classList.remove('hidden');
+		} else {
+			el.classList.add('hidden');
+		}
+	});
+	const githubOrGitlabOnlySections = document.querySelectorAll('.githubOrGitlabOnly');
+	githubOrGitlabOnlySections.forEach((el) => {
+		if (platform === 'github' || platform === 'gitlab') {
 			el.classList.remove('hidden');
 		} else {
 			el.classList.add('hidden');
@@ -2399,6 +2453,8 @@ function setPlatformDropdown(value) {
 	if (dropdownSelected) {
 		if (value === 'gitlab') {
 			dropdownSelected.innerHTML = '<i class="fab fa-gitlab mr-2"></i> GitLab';
+		} else if (value === 'gitee') {
+			dropdownSelected.innerHTML = '<i class="fa fa-git mr-2"></i> Gitee';
 		} else if (value === 'codeberg') {
 			dropdownSelected.innerHTML = `
 				<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width: 18px; height: 18px; display: inline-block; vertical-align: middle; margin-right: 8px; fill: currentColor;">
@@ -2544,6 +2600,8 @@ browser.storage.local.get(['platform']).then((result) => {
 	if (dropdownSelected) {
 		if (platform === 'gitlab') {
 			dropdownSelected.innerHTML = '<i class="fab fa-gitlab mr-2"></i> GitLab';
+		} else if (platform === 'gitee') {
+			dropdownSelected.innerHTML = '<i class="fa fa-git mr-2"></i> Gitee';
 		} else if (platform === 'codeberg') {
 			dropdownSelected.innerHTML = `
 				<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width: 18px; height: 18px; display: inline-block; vertical-align: middle; margin-right: 8px; fill: currentColor;">
@@ -2668,7 +2726,7 @@ document.querySelectorAll('input[name="timeframe"]').forEach((radio) => {
 				} catch (e) {}
 
 				// Clear all caches
-				const keysToRemove = ['githubCache', 'repoCache', 'gitlabCache', 'codebergCache'];
+				const keysToRemove = ['githubCache', 'repoCache', 'gitlabCache', 'giteeCache', 'codebergCache'];
 				await browser.storage.local.remove(keysToRemove);
 
 				// Clear in-memory cache for the active platform
@@ -2847,7 +2905,7 @@ function handleOrgInputBlurValidation(org) {
 }
 
 // Rate Limit Warning banner management
-(function () {
+(() => {
 	let rateLimitTimeout;
 	const rateLimitWarning = document.getElementById('rateLimitWarning');
 	const closeRateLimitWarning = document.getElementById('closeRateLimitWarning');
@@ -2861,7 +2919,7 @@ function handleOrgInputBlurValidation(org) {
 		});
 	}
 
-	window.showRateLimitWarning = function () {
+	window.showRateLimitWarning = () => {
 		const banner = document.getElementById('rateLimitWarning');
 		if (banner) {
 			banner.classList.remove('hidden');
