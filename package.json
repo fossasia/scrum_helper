@@ -32,7 +32,7 @@
     "@biomejs/biome": "2.5.12",
     "@tauri-apps/api": "^2.11.1",
     "@tauri-apps/cli": "^2.11.4",
-    "autoprefixer": "^10.5.4",
+    "autoprefixer": "^10.5.5",
     "happy-dom": "^20.14.0",
     "postcss": "^8.5.26",
     "tailwindcss": "^4.3.3",
