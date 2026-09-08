@@ -912,15 +912,26 @@ hr,
 }
 
 #platformDropdownList {
-    min-width: unset;
-    width: unset !important;
+    width: 100% !important;
+    min-width: 100% !important;
+    box-sizing: border-box;
     z-index: 1000 !important;
 }
 
 .dark-mode #platformDropdownList {
-    min-width: unset;
-    width: unset !important;
+    width: 100% !important;
+    min-width: 100% !important;
+    box-sizing: border-box;
     z-index: 1000 !important;
+}
+
+#platformDropdownList svg,
+#platformDropdownBtn svg {
+    width: 15px !important;
+    height: 15px !important;
+    max-width: 15px !important;
+    max-height: 15px !important;
+    flex-shrink: 0;
 }
 
 /* Fix platform dropdown highlight in dark mode */
