@@ -1,9 +1,18 @@
 if (typeof importScripts === 'function') {
 	try {
-		importScripts('browser-polyfill.min.js');
+		// Chrome MV3 service workers resolve relative to extension root
+		importScripts('/scripts/browser-polyfill.min.js');
 	} catch (e) {
-		console.error('Failed to import polyfill in background:', e);
+		try {
+			importScripts('browser-polyfill.min.js');
+		} catch (e2) {
+			console.error('Failed to import polyfill in background:', e2);
+		}
 	}
+}
+
+if (typeof browser === 'undefined') {
+	globalThis.browser = globalThis.chrome;
 }
 
 const openByTabId = new Map();
@@ -23,9 +32,14 @@ function applyDisplayMode(mode) {
 }
 
 // Initialize display mode on startup
-browser.storage.local.get({ displayMode: 'sidePanel' }).then((result) => {
-	applyDisplayMode(result.displayMode);
-});
+browser.storage.local
+	.get({
+		displayMode:
+			(typeof window !== 'undefined' && window.isTauri) || browser.sidebarAction?.toggle ? 'sidePanel' : 'popup',
+	})
+	.then((result) => {
+		applyDisplayMode(result.displayMode);
+	});
 
 // Listen for changes to displayMode
 browser.storage.onChanged.addListener((changes, area) => {

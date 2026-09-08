@@ -13,7 +13,9 @@
     "fix": "biome lint --write .",
     "check:write": "biome check --write .",
     "build": "node build.js",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "keywords": [
     "scrum",
@@ -27,12 +29,14 @@
   },
   "homepage": "https://github.com/fossasia/scrum_helper",
   "devDependencies": {
-    "@biomejs/biome": "2.5.8",
+    "@biomejs/biome": "2.5.12",
     "@tauri-apps/api": "^2.11.1",
     "@tauri-apps/cli": "^2.11.4",
-    "autoprefixer": "^10.5.4",
+    "autoprefixer": "^10.5.5",
+    "happy-dom": "^20.14.0",
     "postcss": "^8.5.26",
-    "tailwindcss": "^4.3.3"
+    "tailwindcss": "^4.3.3",
+    "vitest": "^5.0.0"
   },
   "dependencies": {
     "@tailwindcss/cli": "^4.3.3"

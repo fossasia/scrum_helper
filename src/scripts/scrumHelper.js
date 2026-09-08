@@ -46,6 +46,38 @@ function logError(...args) {
 	}
 }
 
+/**
+ * Cross-browser i18n message helper.
+ */
+function getMessage(key, substitutions, fallback = '') {
+	try {
+		const msg =
+			(typeof chrome !== 'undefined' && chrome?.i18n?.getMessage(key, substitutions)) ||
+			(typeof browser !== 'undefined' && browser?.i18n?.getMessage(key, substitutions));
+		return msg || fallback;
+	} catch (_) {
+		return fallback;
+	}
+}
+
+/**
+ * Safely sets the generate button state without using innerHTML.
+ */
+function setGenerateButtonState(btn, loading) {
+	if (!btn) return;
+	const icon = btn.querySelector('i');
+	const span = btn.querySelector('span');
+	if (loading) {
+		if (icon) icon.className = 'fa fa-spinner fa-spin';
+		if (span) span.textContent = getMessage('generatingButton', undefined, 'Generating...');
+		btn.disabled = true;
+	} else {
+		if (icon) icon.className = 'fa fa-refresh';
+		if (span) span.textContent = getMessage('generateReportButton', undefined, 'Generate');
+		btn.disabled = false;
+	}
+}
+
 function getLocalISOString(dateStr, time) {
 	const offsetMinutes = new Date().getTimezoneOffset();
 	const absOffset = Math.abs(offsetMinutes);
@@ -396,10 +428,7 @@ function allIncluded(outputTarget = 'email') {
 							const ErrMessage =
 								chrome.i18n.getMessage('usernameRequiredError') || 'Please enter your username to generate a report.';
 							handleUsernameValidationError(ErrMessage);
-							if (generateBtn) {
-								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
-								generateBtn.disabled = false;
-							}
+							setGenerateButtonState(generateBtn, false);
 							scrumGenerationInProgress = false;
 						} else {
 							console.warn('[DEBUG] No username found in storage');
@@ -412,8 +441,7 @@ function allIncluded(outputTarget = 'email') {
 					if (platformUsernameLocal) {
 						const generateBtn = document.getElementById('generateReport');
 						if (generateBtn && outputTarget === 'popup') {
-							generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
-							generateBtn.disabled = true;
+							setGenerateButtonState(generateBtn, true);
 						}
 
 						if (outputTarget === 'email') {
@@ -448,10 +476,7 @@ function allIncluded(outputTarget = 'email') {
 								} catch (err) {
 									console.error('GitLab fetch failed:', err);
 									if (outputTarget === 'popup') {
-										if (generateBtn) {
-											generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
-											generateBtn.disabled = false;
-										}
+										setGenerateButtonState(generateBtn, false);
 										const ErrMessage = `${err.message || 'Error fetching GitLab data.'}`;
 										if (typeof ErrMessage === 'string' && ErrMessage.toLowerCase().includes('not found')) {
 											handleUsernameValidationError(ErrMessage);
@@ -473,10 +498,7 @@ function allIncluded(outputTarget = 'email') {
 								.catch((err) => {
 									console.error('GitLab fetch failed:', err);
 									if (outputTarget === 'popup') {
-										if (generateBtn) {
-											generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
-											generateBtn.disabled = false;
-										}
+										setGenerateButtonState(generateBtn, false);
 										const ErrMessage = `${err.message || 'Error fetching GitLab data.'}`;
 										if (typeof ErrMessage === 'string' && ErrMessage.toLowerCase().includes('not found')) {
 											handleUsernameValidationError(ErrMessage);
@@ -494,10 +516,7 @@ function allIncluded(outputTarget = 'email') {
 							const ErrMessage =
 								chrome.i18n.getMessage('usernameRequiredError') || 'Please enter your username to generate a report.';
 							handleUsernameValidationError(ErrMessage);
-							if (generateBtn) {
-								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
-								generateBtn.disabled = false;
-							}
+							setGenerateButtonState(generateBtn, false);
 						}
 						scrumGenerationInProgress = false;
 					}
@@ -506,8 +525,7 @@ function allIncluded(outputTarget = 'email') {
 					if (platformUsernameLocal) {
 						const generateBtn = document.getElementById('generateReport');
 						if (generateBtn && outputTarget === 'popup') {
-							generateBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Generating...';
-							generateBtn.disabled = true;
+							setGenerateButtonState(generateBtn, true);
 						}
 
 						if (outputTarget === 'email') {
@@ -542,10 +560,7 @@ function allIncluded(outputTarget = 'email') {
 								} catch (err) {
 									console.error('Codeberg fetch failed:', err);
 									if (outputTarget === 'popup') {
-										if (generateBtn) {
-											generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
-											generateBtn.disabled = false;
-										}
+										setGenerateButtonState(generateBtn, false);
 										const ErrMessage = `${err.message || 'Error fetching Codeberg data.'}`;
 										if (typeof ErrMessage === 'string' && ErrMessage.toLowerCase().includes('not found')) {
 											handleUsernameValidationError(ErrMessage);
@@ -567,10 +582,7 @@ function allIncluded(outputTarget = 'email') {
 								.catch((err) => {
 									console.error('Codeberg fetch failed:', err);
 									if (outputTarget === 'popup') {
-										if (generateBtn) {
-											generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
-											generateBtn.disabled = false;
-										}
+										setGenerateButtonState(generateBtn, false);
 										const ErrMessage = `${err.message || 'Error fetching Codeberg data.'}`;
 										if (typeof ErrMessage === 'string' && ErrMessage.toLowerCase().includes('not found')) {
 											handleUsernameValidationError(ErrMessage);
@@ -587,10 +599,7 @@ function allIncluded(outputTarget = 'email') {
 							const ErrMessage =
 								chrome.i18n.getMessage('usernameRequiredError') || 'Please enter your username to generate a report.';
 							handleUsernameValidationError(ErrMessage);
-							if (generateBtn) {
-								generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
-								generateBtn.disabled = false;
-							}
+							setGenerateButtonState(generateBtn, false);
 						}
 						scrumGenerationInProgress = false;
 					}
@@ -1007,7 +1016,7 @@ function allIncluded(outputTarget = 'email') {
 				);
 				// Fetch commits for open PRs (batch) if showCommits is enabled
 				const activeToken = platform === 'codeberg' ? codebergToken : githubToken;
-				if (openPRs.length && showCommits && platform !== 'codeberg') {
+				if (openPRs.length && showCommits) {
 					let startDateForCommits;
 					let endDateForCommits;
 					if (yesterdayContribution) {
@@ -1035,7 +1044,27 @@ function allIncluded(outputTarget = 'email') {
 					log('Commit map returned from fetchCommitsForOpenPRs:', commitMap);
 					// Attach commits to PR objects
 					openPRs.forEach((pr) => {
-						pr._allCommits = commitMap[pr.number] || [];
+						if (platform === 'codeberg') {
+							let owner = '';
+							let repo = '';
+							const url = pr.html_url || pr.url;
+							if (url) {
+								try {
+									const parsed = new URL(url);
+									const parts = parsed.pathname.split('/').filter(Boolean);
+									if (parts.length >= 2) {
+										owner = parts[0];
+										repo = parts[1];
+									}
+								} catch (e) {
+									// ignore
+								}
+							}
+							const key = owner && repo ? `${owner}/${repo}#${pr.number}` : pr.number;
+							pr._allCommits = commitMap[key] || [];
+						} else {
+							pr._allCommits = commitMap[pr.number] || [];
+						}
 						log(`Attached ${pr._allCommits.length} commits to PR #${pr.number}`);
 						if (pr._allCommits.length > 0) {
 							log(
@@ -1084,10 +1113,7 @@ function allIncluded(outputTarget = 'email') {
 						showReportMessage(ErrMessage);
 					}
 				}
-				if (generateBtn) {
-					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
-					generateBtn.disabled = false;
-				}
+				setGenerateButtonState(generateBtn, false);
 			}
 			scrumGenerationInProgress = false;
 			throw err;
@@ -1100,6 +1126,9 @@ function allIncluded(outputTarget = 'email') {
 		if (platform === 'github') {
 			return githubFetchCommits(prs, token, startDate, endDate);
 		}
+		if (platform === 'codeberg' && window.codebergHelper) {
+			return window.codebergHelper.fetchCommitsForOpenPRs(prs, token, startDate, endDate);
+		}
 		return {};
 	}
 
@@ -1108,7 +1137,8 @@ function allIncluded(outputTarget = 'email') {
 			log('Repo fiter disabled, skipping fetch');
 			return [];
 		}
-		const repoCacheKey = `repos-${platformUsernameLocal}-${orgName}-${startDateForCache}-${endDateForCache}`;
+		const items = await browser.storage.local.get(['githubToken', 'gitlabToken']);
+		const repoCacheKey = makeRepoCacheKey(platformUsernameLocal, orgName, platform, items);
 
 		const now = Date.now();
 		const isRepoCacheFresh = now - githubCache.repoTimeStamp < githubCache.ttl;
@@ -1131,7 +1161,16 @@ function allIncluded(outputTarget = 'email') {
 
 		try {
 			log('Fetching repos automatically');
-			const repos = await fetchUserRepositories(platformUsernameLocal, githubToken, orgName);
+			let repos;
+			const helper = window.PlatformRegistry?.get(platform);
+			if (helper && helper.fetchUserRepositories) {
+				const token = platform === 'gitlab' ? gitlabToken : githubToken;
+				repos = await helper.fetchUserRepositories(platformUsernameLocal, token, orgName);
+			} else if (window.fetchUserRepositories) {
+				repos = await window.fetchUserRepositories(platformUsernameLocal, githubToken, orgName);
+			} else {
+				repos = [];
+			}
 
 			githubCache.repoData = repos;
 			githubCache.repoTimeStamp = now;
@@ -1195,10 +1234,7 @@ function allIncluded(outputTarget = 'email') {
 			if (scrumReportEl) {
 				showReportMessage(errMsg);
 				const generateBtn = document.getElementById('generateReport');
-				if (generateBtn) {
-					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
-					generateBtn.disabled = false;
-				}
+				setGenerateButtonState(generateBtn, false);
 			} else {
 				window.scrumHelperToast?.(errMsg, { duration: 2000, variant: 'error' });
 			}
@@ -1213,10 +1249,7 @@ function allIncluded(outputTarget = 'email') {
 			if (scrumReportEl) {
 				showReportMessage(errMsg);
 				const generateBtn = document.getElementById('generateReport');
-				if (generateBtn) {
-					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
-					generateBtn.disabled = false;
-				}
+				setGenerateButtonState(generateBtn, false);
 			}
 		}
 	}
@@ -1465,10 +1498,7 @@ function allIncluded(outputTarget = 'email') {
 				}
 
 				const generateBtn = document.getElementById('generateReport');
-				if (generateBtn) {
-					generateBtn.innerHTML = '<i class="fa fa-refresh"></i> Generate';
-					generateBtn.disabled = false;
-				}
+				setGenerateButtonState(generateBtn, false);
 			} else {
 				logError('Scrum report div not found in popup');
 			}
@@ -2019,12 +2049,6 @@ function allIncluded(outputTarget = 'email') {
 					endDateFilter = new Date(formatLocalDate(today) + 'T23:59:59Z');
 				}
 
-				const today = new Date();
-				today.setHours(0, 0, 0, 0);
-				const itemCreatedDate = new Date(item.created_at);
-				itemCreatedDate.setHours(0, 0, 0, 0);
-				const isCreatedToday = today.getTime() === itemCreatedDate.getTime();
-
 				const isNewPR = prCreatedDate >= startDateFilter && prCreatedDate <= endDateFilter;
 				const prUpdatedDate = new Date(item.updated_at);
 				const isUpdatedInRange = prUpdatedDate >= startDateFilter && prUpdatedDate <= endDateFilter;
@@ -2052,12 +2076,6 @@ function allIncluded(outputTarget = 'email') {
 					}
 					prAction = isNewPR ? 'Made PR' : 'Updated PR';
 					log(`[PR DEBUG] Including PR #${number} as ${prAction}`);
-
-					if (isCreatedToday && item.state === 'open') {
-						prAction = 'Made PR';
-					} else {
-						prAction = 'Updated PR';
-					}
 				} else if (platform === 'gitlab') {
 					// For existing MRs (not new), they must be open AND have commits in the date range (if showCommits is enabled)
 					if (!isNewPR) {
@@ -2071,11 +2089,6 @@ function allIncluded(outputTarget = 'email') {
 						}
 					}
 					prAction = isNewPR ? 'Made Merge Request' : 'Updated Merge Request';
-					if (isCreatedToday && item.state === 'opened') {
-						prAction = 'Made Merge Request';
-					} else {
-						prAction = 'Updated Merge Request';
-					}
 				} else if (platform === 'codeberg') {
 					if (showCommits && !isNewPR) {
 						if (item.state !== 'open') {
@@ -2089,17 +2102,10 @@ function allIncluded(outputTarget = 'email') {
 					}
 					prAction = isNewPR ? 'Made PR' : 'Updated PR';
 					log(`[PR DEBUG] Including PR #${number} as ${prAction}`);
-
-					if (isCreatedToday && item.state === 'open') {
-						prAction = 'Made PR';
-					} else {
-						prAction = 'Updated PR';
-					}
 				}
 
 				if (isDraft) {
-					const draftLabel = platform === 'gitlab' ? 'Made Merge Request' : 'Made PR';
-					li = `<li><i>(${project})</i> - ${draftLabel} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_draft_button : ''}`;
+					li = `<li><i>(${project})</i> - ${prAction} <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>(#${number})</a> - <a href='${html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>${title}</a>${showOpenLabel ? ' ' + pr_draft_button : ''}`;
 					if (showCommits && item._allCommits && item._allCommits.length) {
 						log(`[PR DEBUG] Rendering commits for draft PR #${number}:`, item._allCommits);
 						li += '<ul>';
