@@ -9,6 +9,11 @@ body {
     position: relative;
 }
 
+#scrumReport:focus {
+    outline: 1px solid #2563eb;
+    outline-offset: -1px;
+}
+
 .scrum-toast-container {
     position: fixed;
     top: 0;
