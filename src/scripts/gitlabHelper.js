@@ -604,7 +604,7 @@ async function forceGitlabDataRefresh() {
 	return { success: true };
 }
 
-window['forceGitlabDataRefresh'] = forceGitlabDataRefresh;
+window.forceGitlabDataRefresh = forceGitlabDataRefresh;
 
 function gitlabCheckTokenForNextPlans(options = {}) {
 	gitlabCheckToken({

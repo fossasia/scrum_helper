@@ -1,6 +1,6 @@
 /* global browser, chrome, DOMPurify */
 
-(function () {
+(() => {
 	// 1. Determine repository scope
 	async function getRepositoryScope() {
 		const result = await browser.storage.local.get(['useRepoFilter', 'selectedRepos', 'platform']);
@@ -59,7 +59,7 @@
 		let cache = {};
 		try {
 			cache = JSON.parse(localStorage.getItem('nextPlansCache') || '{}');
-		} catch (e) {}
+		} catch (_e) {}
 
 		cache[key] = {
 			issues: issues,
@@ -77,7 +77,7 @@
 			if (cached && Date.now() - cached.timestamp < (cached.ttl || 300000)) {
 				return cached.issues;
 			}
-		} catch (e) {}
+		} catch (_e) {}
 		return null;
 	}
 
@@ -87,7 +87,7 @@
 		let selections = {};
 		try {
 			selections = JSON.parse(localStorage.getItem('selectedIssues') || '{}');
-		} catch (e) {}
+		} catch (_e) {}
 
 		selections[key] = selectedIds;
 		localStorage.setItem('selectedIssues', JSON.stringify(selections));
@@ -98,7 +98,7 @@
 		try {
 			const selections = JSON.parse(localStorage.getItem('selectedIssues') || '{}');
 			return selections[key] || [];
-		} catch (e) {}
+		} catch (_e) {}
 		return [];
 	}
 
@@ -271,7 +271,7 @@
 			if (cache[key] && cache[key].issues) {
 				issues = cache[key].issues;
 			}
-		} catch (e) {}
+		} catch (_e) {}
 
 		// Map selectedIds to full issue objects
 		return selectedIds

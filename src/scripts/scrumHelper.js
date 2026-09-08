@@ -1,12 +1,8 @@
 let rateLimitWarningShown = false;
 const originalFetch = window.fetch;
-window.fetch = async function (...args) {
+window.fetch = async (...args) => {
 	let res;
-	try {
-		res = await originalFetch(...args);
-	} catch (err) {
-		throw err;
-	}
+	res = await originalFetch(...args);
 	const url = typeof args[0] === 'string' ? args[0] : args[0]?.url || '';
 	if (url.includes('api.github.com')) {
 		const remaining = res.headers.get('x-ratelimit-remaining');
@@ -24,7 +20,7 @@ window.fetch = async function (...args) {
 						}, 6000);
 					}
 				}
-			} catch (e) {
+			} catch (_e) {
 				// Ignore clone/json parsing issues
 			}
 		}
@@ -78,7 +74,7 @@ function setGenerateButtonState(btn, loading) {
 	}
 }
 
-function getLocalISOString(dateStr, time) {
+function _getLocalISOString(dateStr, time) {
 	const offsetMinutes = new Date().getTimezoneOffset();
 	const absOffset = Math.abs(offsetMinutes);
 	const hours = Math.floor(absOffset / 60);
@@ -185,7 +181,7 @@ const usernameError = document.getElementById('usernameError');
 
 document.addEventListener('DOMContentLoaded', () => {
 	if (!usernameValidationListenerAttached && platformUsernameInp && usernameError) {
-		platformUsernameInp.addEventListener('input', function () {
+		platformUsernameInp.addEventListener('input', () => {
 			platformUsernameInp.classList.remove('input-error');
 			usernameError.textContent = '';
 			usernameError.classList.remove('errorMessage');
@@ -458,7 +454,7 @@ function allIncluded(outputTarget = 'email') {
 									const mappedData = window.gitlabHelper.mapGitLabReportData(data);
 									githubUserData = mappedData.githubUserData;
 
-									const name =
+									const _name =
 										githubUserData?.name || githubUserData?.username || platformUsernameLocal || platformUsername;
 									const project = projectName;
 									const curDate = new Date();
@@ -542,7 +538,7 @@ function allIncluded(outputTarget = 'email') {
 									const mappedData = window.codebergHelper.mapCodebergReportData(data);
 									githubUserData = mappedData.githubUserData;
 
-									const name =
+									const _name =
 										githubUserData?.name || githubUserData?.username || platformUsernameLocal || platformUsername;
 									const project = projectName;
 									const curDate = new Date();
@@ -992,17 +988,17 @@ function allIncluded(outputTarget = 'email') {
 
 			try {
 				githubIssuesData = issuesRes.ok ? await issuesRes.json() : { items: [] };
-			} catch (e) {
+			} catch (_e) {
 				githubIssuesData = { items: [] };
 			}
 			try {
 				githubPrsReviewData = prRes.ok ? await prRes.json() : { items: [] };
-			} catch (e) {
+			} catch (_e) {
 				githubPrsReviewData = { items: [] };
 			}
 			try {
 				githubUserData = userRes.ok ? await userRes.json() : {};
-			} catch (e) {
+			} catch (_e) {
 				githubUserData = {};
 			}
 
@@ -1241,7 +1237,7 @@ function allIncluded(outputTarget = 'email') {
 		}
 	}
 
-	function showRateLimitMessage() {
+	function _showRateLimitMessage() {
 		const errMsg =
 			chrome?.i18n.getMessage('rateLimitError') ||
 			'GitHub API rate limit exceeded. Please try again later or add/check your GitHub token in the Scrum Helper settings.';
@@ -1493,7 +1489,7 @@ function allIncluded(outputTarget = 'email') {
 						lastScrumReportCacheKey: cacheKey,
 						lastScrumReportUsername: platformUsername,
 					});
-				} catch (e) {
+				} catch (_e) {
 					// ignore
 				}
 
@@ -1513,7 +1509,7 @@ function allIncluded(outputTarget = 'email') {
 				return;
 			}
 
-			const observer = new MutationObserver((mutations, obs) => {
+			const observer = new MutationObserver((_mutations, obs) => {
 				if (!window.emailClientAdapter) {
 					obs.disconnect();
 					return;
@@ -1560,7 +1556,7 @@ function allIncluded(outputTarget = 'email') {
 				return;
 			}
 			setTimeout(() => {
-				const name = githubUserData?.name || githubUserData?.username || platformUsernameLocal || platformUsername;
+				const _name = githubUserData?.name || githubUserData?.username || platformUsernameLocal || platformUsername;
 				const project = projectName;
 				const curDate = new Date();
 				const year = curDate.getFullYear().toString();
@@ -1828,7 +1824,7 @@ function allIncluded(outputTarget = 'email') {
 		prsReviewDataProcessed = true;
 	}
 
-	function triggerScrumGeneration() {
+	function _triggerScrumGeneration() {
 		if (issuesDataProcessed && prsReviewDataProcessed) {
 			writeScrumBody();
 		} else {
@@ -1841,7 +1837,7 @@ function allIncluded(outputTarget = 'email') {
 		return Math.ceil((d2 - d1) / (1000 * 60 * 60 * 24));
 	}
 
-	async function fetchPrMergedStatusREST(owner, repo, number, headers) {
+	async function fetchPrMergedStatusREST(owner, repo, number, _headers) {
 		return githubFetchPrMergedStatusREST(owner, repo, number, githubToken);
 	}
 
@@ -1881,7 +1877,7 @@ function allIncluded(outputTarget = 'email') {
 			endDateForRange = formatLocalDate(today);
 		}
 
-		const daysRange = getDaysBetween(startDateForRange, endDateForRange);
+		const _daysRange = getDaysBetween(startDateForRange, endDateForRange);
 
 		useMergedStatus = true;
 
@@ -1988,7 +1984,7 @@ function allIncluded(outputTarget = 'email') {
 					} else if (prCacheKey && prCacheKey in mergedStatusResults) {
 						hasMergeInfo = true;
 						isMerged = !!mergedStatusResults[prCacheKey];
-					} else if (item.pull_request && Object.prototype.hasOwnProperty.call(item.pull_request, 'merged_at')) {
+					} else if (item.pull_request && Object.hasOwn(item.pull_request, 'merged_at')) {
 						hasMergeInfo = true;
 						isMerged = !!item.pull_request.merged_at;
 					}
@@ -2051,7 +2047,7 @@ function allIncluded(outputTarget = 'email') {
 
 				const isNewPR = prCreatedDate >= startDateFilter && prCreatedDate <= endDateFilter;
 				const prUpdatedDate = new Date(item.updated_at);
-				const isUpdatedInRange = prUpdatedDate >= startDateFilter && prUpdatedDate <= endDateFilter;
+				const _isUpdatedInRange = prUpdatedDate >= startDateFilter && prUpdatedDate <= endDateFilter;
 
 				// Check if PR has commits in the date range
 				const hasCommitsInRange = item._allCommits && item._allCommits.length > 0;
@@ -2110,7 +2106,7 @@ function allIncluded(outputTarget = 'email') {
 						log(`[PR DEBUG] Rendering commits for draft PR #${number}:`, item._allCommits);
 						li += '<ul>';
 						item._allCommits.forEach((commit) => {
-							li += `<li style=\"list-style: disc; color: #666;\"><span style=\"color:#2563eb;\">${commit.messageHeadline}</span><span style=\"color:#666; font-size: 11px;\"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
+							li += `<li style="list-style: disc; color: #666;"><span style="color:#2563eb;">${commit.messageHeadline}</span><span style="color:#666; font-size: 11px;"> (${new Date(commit.committedDate).toLocaleString()})</span></li>`;
 						});
 						li += '</ul>';
 					}
@@ -2156,7 +2152,6 @@ function allIncluded(outputTarget = 'email') {
 				}
 				log('[SCRUM-DEBUG] Added PR/MR to lastWeekPrsArray:', li, item);
 				lastWeekPrsArray.push(li);
-				continue; // Prevent issue logic from overwriting PR li
 			} else {
 				// Compute date range for filtering
 				let issueStartDateFilter;
@@ -2315,7 +2310,7 @@ window.generateScrumReport = () => {
 	allIncluded('popup');
 };
 
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((request, _sender, sendResponse) => {
 	if (request.action === 'forceRefresh') {
 		chrome.storage.local.get(['platform'], async (result) => {
 			const platform = result.platform || 'github';
@@ -2329,7 +2324,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
 						sendResponse({ success: false, error: err.message });
 					});
 			} else {
-				const fallbackFn = platform === 'gitlab' ? window['forceGitlabDataRefresh'] : window['forceGithubDataRefresh'];
+				const fallbackFn = platform === 'gitlab' ? window.forceGitlabDataRefresh : window.forceGithubDataRefresh;
 				if (typeof fallbackFn === 'function') {
 					fallbackFn()
 						.then((result) => sendResponse(result))

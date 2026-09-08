@@ -5,6 +5,7 @@ const SCRUM_SANITIZER_CONFIG = {
 	FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover'],
 };
 
+// biome-ignore lint/correctness/noUnusedVariables: Exported globally
 function sanitizeHtml(html) {
 	if (typeof DOMPurify !== 'undefined') {
 		return DOMPurify.sanitize(html, SCRUM_SANITIZER_CONFIG);
