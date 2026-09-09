@@ -134,10 +134,11 @@ async function fetchIssuesFromCodeberg(scope) {
 			}
 
 			// Validate assignee client-side to handle different Gitea API versions
+			const usernameLower = username.toLowerCase();
+			const normalizeUser = (u) => (u?.login || u?.username || '').toLowerCase();
 			const isAssigned =
-				(issue.assignee && issue.assignee.login?.toLowerCase() === username.toLowerCase()) ||
-				(Array.isArray(issue.assignees) &&
-					issue.assignees.some((u) => u.login?.toLowerCase() === username.toLowerCase()));
+				normalizeUser(issue.assignee) === usernameLower ||
+				(Array.isArray(issue.assignees) && issue.assignees.some((u) => normalizeUser(u) === usernameLower));
 
 			return isAssigned;
 		})
