@@ -504,7 +504,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	function parsePositiveInt(value) {
 		const n = Number.parseInt(value, 10);
-		return Number.isFinite(n) && n > 0 ? n : null;
+		return Number.isSafeInteger(n) && n > 0 ? n : null;
 	}
 
 	function setGenerateButtonLoading(generateBtn, isLoading) {
