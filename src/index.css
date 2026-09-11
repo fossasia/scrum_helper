@@ -957,6 +957,12 @@ hr,
     flex-shrink: 0;
 }
 
+#platformDropdownList li div {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
 /* Fix platform dropdown highlight in dark mode */
 .dark-mode #platformDropdownList li {
     color: #ffffff !important;
@@ -1374,6 +1380,7 @@ html.mode-popup .timeframe-presets {
 .platform-selected-tag {
     display: inline-flex;
     align-items: center;
+    gap: 0.5rem;
     margin-right: 0.75rem;
 }
 
@@ -1383,7 +1390,7 @@ html.mode-popup .timeframe-presets {
 
 .platform-selected-tag i,
 .platform-selected-tag svg {
-    margin-right: 0.5rem;
+    margin-right: 0;
 }
 
 .platform-settings-block:not(:first-child) {
