@@ -158,8 +158,6 @@ document.addEventListener('DOMContentLoaded', () => {
 	applyI18n();
 	setupButtonTooltips();
 
-	// Dark mode setup
-	const darkModeToggle = document.querySelector('img[alt="Night Mode"]');
 	const settingsIcon = document.getElementById('settingsIcon');
 	const body = document.body;
 	const homeButton = document.getElementById('homeButton');
@@ -299,15 +297,23 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	};
 
-	browser.storage.local.get(['darkMode']).then((result) => {
-		if (result.darkMode) {
-			body.classList.add('dark-mode');
-			darkModeToggle.src = 'icons/light-mode.png';
-			if (settingsIcon) {
-				settingsIcon.src = 'icons/settings-night.png';
-			}
+	function applyTheme(isDark) {
+		body.classList.toggle('dark-mode', isDark);
+		if (settingsIcon) {
+			settingsIcon.src = isDark ? 'icons/settings-night.png' : 'icons/settings-light.png';
 		}
-	});
+		if (typeof renderTokenPreview === 'function') {
+			renderTokenPreview();
+		}
+	}
+
+	if (typeof window.matchMedia === 'function') {
+		const colorSchemeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+		applyTheme(colorSchemeQuery.matches);
+		colorSchemeQuery.addEventListener('change', (e) => {
+			applyTheme(e.matches);
+		});
+	}
 
 	if (toggleTokenBtn && githubTokenInput) {
 		toggleTokenBtn.addEventListener('click', () => {
@@ -424,18 +430,6 @@ document.addEventListener('DOMContentLoaded', () => {
 	if (codebergTokenInput) {
 		codebergTokenInput.addEventListener('input', () => checkTokenForShowCommits({ persistState: false }));
 	}
-
-	darkModeToggle.addEventListener('click', function () {
-		body.classList.toggle('dark-mode');
-		const isDarkMode = body.classList.contains('dark-mode');
-		browser.storage.local.set({ darkMode: isDarkMode });
-		this.src = isDarkMode ? 'icons/light-mode.png' : 'icons/night-mode.png';
-		const settingsIcon = document.getElementById('settingsIcon');
-		if (settingsIcon) {
-			settingsIcon.src = isDarkMode ? 'icons/settings-night.png' : 'icons/settings-light.png';
-		}
-		renderTokenPreview();
-	});
 
 	function renderTokenPreview() {
 		if (!tokenPreview || !githubTokenInput) return;
