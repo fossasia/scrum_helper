@@ -1009,6 +1009,22 @@ document.addEventListener('DOMContentLoaded', () => {
 				});
 		});
 
+		function setButtonFeedback(btn, iconClass, text) {
+			if (!btn) return;
+			const icon = btn.querySelector('i');
+			const span = btn.querySelector('span');
+			if (icon && span) {
+				icon.className = iconClass;
+				span.textContent = text;
+			} else {
+				const newIcon = document.createElement('i');
+				newIcon.className = iconClass;
+				const newSpan = document.createElement('span');
+				newSpan.textContent = text;
+				btn.replaceChildren(newIcon, document.createTextNode(' '), newSpan);
+			}
+		}
+
 		copyBtn.addEventListener('click', function () {
 			if (!this._triggeredByShortcut) {
 				showPopupMessage(browser.i18n.getMessage('copyingReportNotification'));
@@ -1057,13 +1073,14 @@ document.addEventListener('DOMContentLoaded', () => {
 					el.style.color = '#000';
 				}
 			});
-			document.body.appendChild(tempDiv);
+
 			tempDiv.style.position = 'absolute';
 			tempDiv.style.left = '-9999px';
+			document.body.appendChild(tempDiv);
 
-			const range = document.createRange();
-			range.selectNode(tempDiv);
 			const selection = window.getSelection();
+			const range = document.createRange();
+			range.selectNodeContents(tempDiv);
 			selection.removeAllRanges();
 			selection.addRange(range);
 
@@ -1078,9 +1095,9 @@ document.addEventListener('DOMContentLoaded', () => {
 				} else {
 					showPopupMessage(browser.i18n.getMessage('copiedReportNotification'), { variant: 'success' });
 				}
-				this.innerHTML = `<i class="fa fa-check"></i> ${browser?.i18n.getMessage('copiedButton')}`;
+				setButtonFeedback(this, 'fa fa-check', browser?.i18n.getMessage('copiedButton') || 'Copied');
 				setTimeout(() => {
-					this.innerHTML = `<i class="fa fa-copy"></i> ${browser.i18n.getMessage('copyReportButton')}`;
+					setButtonFeedback(this, 'fa fa-copy', browser.i18n.getMessage('copyReportButton') || 'Copy');
 				}, 2000);
 			} catch (err) {
 				console.error('Failed to copy: ', err);
@@ -1948,8 +1965,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			if (filtered.length === 0) {
 				const notFound = document.createElement('div');
-				notFound.className = 'p-3 text-center text-gray-500 text-sm';
-				notFound.style.paddingLeft = '10px';
+				notFound.className = 'p-3 pl-2.5 text-center text-gray-500 text-sm';
 				notFound.textContent = browser.i18n.getMessage('repoNotFound');
 				repoDropdown.appendChild(notFound);
 			} else {
@@ -2132,16 +2148,17 @@ if (cacheInput) {
 
 	cacheInput.addEventListener('blur', function () {
 		let ttlValue = Number.parseInt(this.value, 10);
+		this.classList.remove('border-red-500', 'border-amber-500', 'border-emerald-500');
 		if (Number.isNaN(ttlValue) || ttlValue <= 0 || this.value.trim() === '') {
 			ttlValue = 10;
 			this.value = ttlValue;
-			this.style.borderColor = '#ef4444';
+			this.classList.add('border-red-500');
 		} else if (ttlValue > 1440) {
 			ttlValue = 1440;
 			this.value = ttlValue;
-			this.style.borderColor = '#f59e0b';
+			this.classList.add('border-amber-500');
 		} else {
-			this.style.borderColor = '#10b981';
+			this.classList.add('border-emerald-500');
 		}
 
 		browser.storage.local.set({ cacheInput: ttlValue }).then(() => {
@@ -2392,19 +2409,42 @@ function buildScrumSubjectFromPopup() {
 
 	return `[Scrum]${projectName ? ' - ' + projectName : ''} - ${dateCode}`;
 }
+function renderPlatformDropdownSelected(container, platform) {
+	if (!container) return;
+	container.replaceChildren();
+
+	if (platform === 'gitlab') {
+		const icon = document.createElement('i');
+		icon.className = 'fab fa-gitlab mr-2';
+		container.append(icon, document.createTextNode(' GitLab'));
+	} else if (platform === 'codeberg') {
+		const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+		svg.setAttribute('role', 'img');
+		svg.setAttribute('viewBox', '0 0 24 24');
+		svg.setAttribute('class', 'w-[15px] h-[15px] inline-block align-middle mr-2 shrink-0 fill-current');
+
+		const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+		title.textContent = 'Codeberg';
+		svg.appendChild(title);
+
+		const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+		path.setAttribute(
+			'd',
+			'M11.999.747A11.974 11.974 0 0 0 0 12.75c0 2.254.635 4.465 1.833 6.376L11.837 6.19c.072-.092.251-.092.323 0l4.178 5.402h-2.992l.065.239h3.113l.882 1.138h-3.674l.103.374h3.86l.777 1.003h-4.358l.135.483h4.593l.695.894h-5.038l.165.589h5.326l.609.785h-5.717l.182.65h6.038l.562.727h-6.397l.183.65h6.717A12.003 12.003 0 0 0 24 12.75 11.977 11.977 0 0 0 11.999.747zm3.654 19.104.182.65h5.326c.173-.204.353-.433.513-.65zm.385 1.377.18.65h3.563c.233-.198.485-.428.712-.65zm.383 1.377.182.648h1.203c.356-.204.685-.412 1.042-.648z',
+		);
+		svg.appendChild(path);
+
+		container.append(svg, document.createTextNode(' Codeberg'));
+	} else {
+		const icon = document.createElement('i');
+		icon.className = 'fab fa-github mr-2';
+		container.append(icon, document.createTextNode(' GitHub'));
+	}
+}
+
 function setPlatformDropdown(value) {
 	if (dropdownSelected) {
-		if (value === 'gitlab') {
-			dropdownSelected.innerHTML = '<i class="fab fa-gitlab mr-2"></i> GitLab';
-		} else if (value === 'codeberg') {
-			dropdownSelected.innerHTML = `
-				<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width: 15px; height: 15px; display: inline-block; vertical-align: middle; margin-right: 8px; fill: currentColor;">
-					<title>Codeberg</title>
-					<path d="M11.999.747A11.974 11.974 0 0 0 0 12.75c0 2.254.635 4.465 1.833 6.376L11.837 6.19c.072-.092.251-.092.323 0l4.178 5.402h-2.992l.065.239h3.113l.882 1.138h-3.674l.103.374h3.86l.777 1.003h-4.358l.135.483h4.593l.695.894h-5.038l.165.589h5.326l.609.785h-5.717l.182.65h6.038l.562.727h-6.397l.183.65h6.717A12.003 12.003 0 0 0 24 12.75 11.977 11.977 0 0 0 11.999.747zm3.654 19.104.182.65h5.326c.173-.204.353-.433.513-.65zm.385 1.377.18.65h3.563c.233-.198.485-.428.712-.65zm.383 1.377.182.648h1.203c.356-.204.685-.412 1.042-.648z"/>
-				</svg> Codeberg`;
-		} else {
-			dropdownSelected.innerHTML = '<i class="fab fa-github mr-2"></i> GitHub';
-		}
+		renderPlatformDropdownSelected(dropdownSelected, value);
 	}
 
 	const platformUsername = document.getElementById('platformUsername');
@@ -2539,17 +2579,7 @@ browser.storage.local.get(['platform']).then((result) => {
 	const platform = result.platform || 'github';
 	// Just update the UI without clearing username when restoring from storage
 	if (dropdownSelected) {
-		if (platform === 'gitlab') {
-			dropdownSelected.innerHTML = '<i class="fab fa-gitlab mr-2"></i> GitLab';
-		} else if (platform === 'codeberg') {
-			dropdownSelected.innerHTML = `
-				<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width: 15px; height: 15px; display: inline-block; vertical-align: middle; margin-right: 8px; fill: currentColor;">
-					<title>Codeberg</title>
-					<path d="M11.999.747A11.974 11.974 0 0 0 0 12.75c0 2.254.635 4.465 1.833 6.376L11.837 6.19c.072-.092.251-.092.323 0l4.178 5.402h-2.992l.065.239h3.113l.882 1.138h-3.674l.103.374h3.86l.777 1.003h-4.358l.135.483h4.593l.695.894h-5.038l.165.589h5.326l.609.785h-5.717l.182.65h6.038l.562.727h-6.397l.183.65h6.717A12.003 12.003 0 0 0 24 12.75 11.977 11.977 0 0 0 11.999.747zm3.654 19.104.182.65h5.326c.173-.204.353-.433.513-.65zm.385 1.377.18.65h3.563c.233-.198.485-.428.712-.65zm.383 1.377.182.648h1.203c.356-.204.685-.412 1.042-.648z"/>
-				</svg> Codeberg`;
-		} else {
-			dropdownSelected.innerHTML = '<i class="fab fa-github mr-2"></i> GitHub';
-		}
+		renderPlatformDropdownSelected(dropdownSelected, platform);
 	}
 	if (platformSelectHidden) {
 		platformSelectHidden.value = platform;
@@ -2650,10 +2680,11 @@ document.querySelectorAll('input[name="timeframe"]').forEach((radio) => {
 	const localRefreshCacheBtn = document.getElementById('refreshCache');
 	if (localRefreshCacheBtn) {
 		localRefreshCacheBtn.addEventListener('click', async function () {
-			const originalText = this.innerHTML;
+			const originalIconClass = this.querySelector('i')?.className || 'fa fa-refresh';
+			const originalText = this.querySelector('span')?.textContent || '';
 
 			this.classList.add('loading');
-			this.innerHTML = `<i class="fa fa-refresh fa-spin"></i><span>${browser.i18n.getMessage('refreshingButton')}</span>`;
+			setButtonFeedback(this, 'fa fa-refresh fa-spin', browser.i18n.getMessage('refreshingButton'));
 			this.disabled = true;
 
 			try {
@@ -2694,7 +2725,10 @@ document.querySelectorAll('input[name="timeframe"]').forEach((radio) => {
 				const scrumReport = document.getElementById('scrumReport');
 				if (scrumReport) {
 					scrumReport.dataset.copyPlaceholder = 'true';
-					scrumReport.innerHTML = `<p style="text-align: center; color: #666; padding: 20px;">${browser.i18n.getMessage('cacheClearedMessage')}</p>`;
+					const clearedMsg = document.createElement('p');
+					clearedMsg.className = 'text-center text-gray-500 p-5';
+					clearedMsg.textContent = browser.i18n.getMessage('cacheClearedMessage');
+					scrumReport.replaceChildren(clearedMsg);
 					window.updateCopyButtonState?.();
 				}
 
@@ -2707,22 +2741,22 @@ document.querySelectorAll('input[name="timeframe"]').forEach((radio) => {
 					repoStatus.textContent = '';
 				}
 
-				this.innerHTML = `<i class="fa fa-check"></i><span>${browser.i18n.getMessage('cacheClearedButton')}</span>`;
+				setButtonFeedback(this, 'fa fa-check', browser.i18n.getMessage('cacheClearedButton'));
 				this.classList.remove('loading');
 
 				// Do NOT trigger report generation automatically
 
 				setTimeout(() => {
-					this.innerHTML = originalText;
+					setButtonFeedback(this, originalIconClass, originalText);
 					this.disabled = false;
 				}, 2000);
 			} catch (error) {
 				console.error('Cache clear failed:', error);
-				this.innerHTML = `<i class="fa fa-exclamation-triangle"></i><span>${browser.i18n.getMessage('cacheClearFailed')}</span>`;
+				setButtonFeedback(this, 'fa fa-exclamation-triangle', browser.i18n.getMessage('cacheClearFailed'));
 				this.classList.remove('loading');
 
 				setTimeout(() => {
-					this.innerHTML = originalText;
+					setButtonFeedback(this, originalIconClass, originalText);
 					this.disabled = false;
 				}, 3000);
 			}
