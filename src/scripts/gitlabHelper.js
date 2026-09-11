@@ -114,13 +114,14 @@ class GitLabHelper {
 	}
 
 	async getCacheTTL() {
+		const defaultTtl = 10 * 60 * 1000;
 		try {
 			const items = await browser.storage.local.get(['cacheInput']);
-			const ttl = items.cacheInput ? Number.parseInt(items.cacheInput, 10) * 60 * 1000 : 10 * 60 * 1000;
-			return ttl;
+			const minutes = Number.parseInt(items.cacheInput, 10);
+			return Number.isSafeInteger(minutes) && minutes > 0 ? minutes * 60 * 1000 : defaultTtl;
 		} catch (error) {
 			console.error('Error getting cache TTL:', error);
-			return 10 * 60 * 1000;
+			return defaultTtl;
 		}
 	}
 
@@ -526,19 +527,18 @@ class GitLabHelper {
 
 	mapGitLabReportItem(item, projectById, type) {
 		const project = projectById.get(item.project_id);
-		let repoName = project ? project.name : 'unknown';
+		let repoName = project ? project.path_with_namespace || project.name : 'unknown';
 
 		if (repoName === 'unknown' && item.web_url) {
 			try {
-				let projectPath = item.web_url.split('/-/')[0];
+				let projectPath = getProjectPathFromWebUrl(item.web_url);
 				if (projectPath.includes('/issues/')) {
 					projectPath = projectPath.split('/issues/')[0];
 				} else if (projectPath.includes('/merge_requests/')) {
 					projectPath = projectPath.split('/merge_requests/')[0];
 				}
-				const pathParts = projectPath.split('/');
-				if (pathParts.length > 0) {
-					repoName = pathParts[pathParts.length - 1];
+				if (projectPath) {
+					repoName = projectPath;
 				}
 			} catch (e) {
 				console.error('Error parsing project name from web_url:', e);

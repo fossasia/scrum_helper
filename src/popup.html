@@ -91,18 +91,9 @@
 	
 	<div id="popupRoot" class="pl-1 py-2 rounded-2xl">
 		<div class="bg-white px-4 py-4 mx-2 mb-2 rounded-3xl">
-			<div class="flex justify-between py-2">
+			<div class="flex justify-between py-0">
 				<h3 id="scrumHelperHeading" class="text-3xl font-semibold cursor-pointer">Scrum Helper</h3>
-				<img src="icons/night-mode.png" alt="Night Mode" class="w-7 h-7 mx-3 cursor-pointer"
-					id="darkModeToggle">
-			</div>
-			<div>
-				<p class="" data-i18n="appDescription">Report your development progress by auto-fetching your Git
-					activity for a selected period
-				</p>
-			</div>
-
-			<div class="center mt-2 flex justify-end">
+					<div class="center flex justify-end">
 				<div class="flex">
 					<button id="homeButton"
 						class="ml-1 p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition flex items-center justify-center"
@@ -120,8 +111,19 @@
 						data-i18n-title="mailSettingsTitle">
 						<i class="fa fa-envelope text-3xl text-gray-600 dark:text-gray-300"></i>
 					</button>
+						<img src="icons/night-mode.png" alt="Night Mode" class="w-6 h-6 mx-3 my-2 cursor-pointer"
+					id="darkModeToggle">
 				</div>
 			</div>
+			
+			</div>
+			<div>
+				<p class="" data-i18n="appDescription">Report your development progress by auto-fetching your Git
+					activity for a selected period
+				</p>
+			</div>
+
+		
 		</div>
 
 		<div class="rounded-2xl">
@@ -140,7 +142,7 @@
 								<i class="fa fa-chevron-down text-gray-500"></i>
 							</button>
 							<ul id="platformDropdownList"
-								class="absolute left-0 right-0 bg-white border-2 border-gray-200 rounded-xl mt-1 shadow-lg z-10 hidden">
+								class="absolute left-0 right-0 w-full bg-white border-2 border-gray-200 rounded-xl mt-1 shadow-lg z-10 hidden">
 								<li class="px-4 py-2 flex items-center gap-2 cursor-pointer hover:bg-gray-100" data-value="github">
 									<i class="fab fa-github text-lg"></i> GitHub
 								</li>
@@ -148,7 +150,7 @@
 									<i class="fab fa-gitlab text-lg"></i> GitLab
 								</li>
 								<li class="px-4 py-2 flex items-center gap-2 cursor-pointer hover:bg-gray-100" data-value="codeberg">
-									<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="w-[18px] h-[18px] fill-current">
+									<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="15" height="15" class="w-[15px] h-[15px] fill-current" style="width: 15px; height: 15px; flex-shrink: 0; fill: currentColor;">
 										<title>Codeberg</title>
 										<path d="M11.999.747A11.974 11.974 0 0 0 0 12.75c0 2.254.635 4.465 1.833 6.376L11.837 6.19c.072-.092.251-.092.323 0l4.178 5.402h-2.992l.065.239h3.113l.882 1.138h-3.674l.103.374h3.86l.777 1.003h-4.358l.135.483h4.593l.695.894h-5.038l.165.589h5.326l.609.785h-5.717l.182.65h6.038l.562.727h-6.397l.183.65h6.717A12.003 12.003 0 0 0 24 12.75 11.977 11.977 0 0 0 11.999.747zm3.654 19.104.182.65h5.326c.173-.204.353-.433.513-.65zm.385 1.377.18.65h3.563c.233-.198.485-.428.712-.65zm.383 1.377.182.648h1.203c.356-.204.685-.412 1.042-.648z"/>
 									</svg> Codeberg
