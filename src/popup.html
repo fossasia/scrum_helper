@@ -615,6 +615,68 @@
 								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 mt-1 mb-3"
 								data-i18n-placeholder="gitlabOrgNamePlaceholder">
 						</div>
+
+						<div class="repoFilterSection">
+							<div class="mb-4">
+								<div class="flex items-center justify-between mb-2 mt-3">
+									<p class="text-sm font-medium">
+										<span data-i18n="repoFilterLabel">Filter by repositories</span>
+										<span class="tooltip-container">
+											<i class="fa fa-question-circle question-icon"></i>
+											<span class="tooltip-bubble" data-i18n="repoFilterTooltipGitLab">
+												Token required.<br>
+												To force a repo list update, <br>
+												click the Refresh Data button.
+											</span>
+										</span>
+									</p>
+									<div class="flex items-center gap-2">
+										<input type="checkbox" id="useGitlabRepoFilter">
+										<label for="useGitlabRepoFilter" class="text-xs text-gray-600"><span
+												data-i18n="enableFilteringLabel">Enable
+												filtering</span></label>
+									</div>
+								</div>
+								<div id="tokenWarningForGitlabFilter"
+									class="hidden text-xs text-red-600 p-2 bg-red-50 border border-red-200 rounded-xl mt-2">
+									<span data-i18n="tokenRequiredGitlabWarning">A GitLab token is required for repository
+										filtering. Please add one in settings.</span>
+								</div>
+
+								<div id="gitlabRepoFilterContainer" class="hidden">
+									<input id="gitlabRepoSearch" type="text" data-i18n-placeholder="repoSearchPlaceholder"
+										class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 pr-10"
+										autocomplete="off">
+									<!-- Typeahead Input -->
+									<div class="relative">
+										<!-- Dropdown -->
+										<div id="gitlabRepoDropdown"
+											class="absolute w-full bg-white border border-gray-300 rounded-xl shadow-lg hidden max-h-48 overflow-y-auto z-[1000] -mt-2.5">
+										</div>
+									</div>
+
+									<!-- Selected Tags Container -->
+									<div id="gitlabSelectedRepos"
+										class="mt-3 min-h-[32px] overflow-y-auto p-2 border-2 border-gray-200 bg-gray-50 rounded-xl max-h-[120px]">
+										<div class="flex flex-wrap gap-2" id="gitlabRepoTags">
+											<span class="text-xs text-gray-500 select-none" id="gitlabRepoPlaceholder"
+												data-i18n="repoPlaceholder">
+												No repositories selected (all will be included)
+											</span>
+										</div>
+									</div>
+
+									<!-- Status/Info -->
+									<div class="mt-2 text-xs text-gray-600 flex justify-between">
+										<span id="gitlabRepoCount" data-i18n="repoCountNone">0 repositories selected</span>
+										<div class="flex items-center gap-2">
+											<button id="clearAllGitlabReposBtn" class="font-semibold cursor-pointer hidden hover:underline" data-i18n="clearAllBtn">Clear All</button>
+											<span id="gitlabRepoStatus" class="text-blue-600"></span>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
 					</div>
 
 					<!-- Codeberg Platform Settings Section -->

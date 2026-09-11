@@ -804,14 +804,16 @@ hr,
 }
 
 /* Selected repos container - light mode */
-#selectedRepos {
+#selectedRepos,
+#gitlabSelectedRepos {
     background-color: #f3f4f6 !important;
     border: 1px solid #d1d5db !important;
     border-radius: 14px;
 }
 
 /* Dark mode styles for selected repos container */
-.dark-mode #selectedRepos {
+.dark-mode #selectedRepos,
+.dark-mode #gitlabSelectedRepos {
     background-color: #404040 !important;
     border-color: #505050 !important;
     scrollbar-color: #6b7280 #374151;
@@ -821,25 +823,30 @@ hr,
 }
 
 /* Dark mode scrollbar for selected repos container */
-.dark-mode #selectedRepos::-webkit-scrollbar {
+.dark-mode #selectedRepos::-webkit-scrollbar,
+.dark-mode #gitlabSelectedRepos::-webkit-scrollbar {
     width: 6px;
 }
 
-.dark-mode #selectedRepos::-webkit-scrollbar-track {
+.dark-mode #selectedRepos::-webkit-scrollbar-track,
+.dark-mode #gitlabSelectedRepos::-webkit-scrollbar-track {
     background: #374151;
     border-radius: 3px;
 }
 
-.dark-mode #selectedRepos::-webkit-scrollbar-thumb {
+.dark-mode #selectedRepos::-webkit-scrollbar-thumb,
+.dark-mode #gitlabSelectedRepos::-webkit-scrollbar-thumb {
     background: #6b7280;
     border-radius: 3px;
 }
 
-.dark-mode #selectedRepos::-webkit-scrollbar-thumb:hover {
+.dark-mode #selectedRepos::-webkit-scrollbar-thumb:hover,
+.dark-mode #gitlabSelectedRepos::-webkit-scrollbar-thumb:hover {
     background: #9ca3af;
 }
 
-.dark-mode #repoDropdown {
+.dark-mode #repoDropdown,
+.dark-mode #gitlabRepoDropdown {
     background-color: #404040 !important;
     border: 1px solid #505050 !important;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
@@ -1435,6 +1442,7 @@ html.mode-popup .timeframe-presets {
 
 /* Token warning banners */
 #tokenWarningForFilter,
+#tokenWarningForGitlabFilter,
 #tokenWarningForShowCommits,
 #onlyPrsRequiredWarningForShowCommits,
 #tokenWarningForMergedPRs,
@@ -1448,6 +1456,7 @@ html.mode-popup .timeframe-presets {
 }
 
 .dark-mode #tokenWarningForFilter,
+.dark-mode #tokenWarningForGitlabFilter,
 .dark-mode #tokenWarningForShowCommits,
 .dark-mode #onlyPrsRequiredWarningForShowCommits,
 .dark-mode #tokenWarningForMergedPRs,

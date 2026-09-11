@@ -152,17 +152,27 @@ class GitLabHelper {
 		}
 	}
 	async fetchGitLabData(username, startDate, endDate, token = null, orgName = '') {
-		const itemsLocal = await browser.storage.local.get(['showCommits', 'useRepoFilter', 'selectedRepos']);
+		const itemsLocal = await browser.storage.local.get([
+			'showCommits',
+			'useRepoFilter',
+			'selectedRepos',
+			'useGitlabRepoFilter',
+			'selectedGitlabRepos',
+		]);
 		const showCommits = itemsLocal.showCommits || false;
 		const commitMarker = showCommits ? 'commits' : 'nocommits';
+
+		const isRepoFilterEnabled =
+			typeof itemsLocal.useGitlabRepoFilter !== 'undefined' ? itemsLocal.useGitlabRepoFilter : itemsLocal.useRepoFilter;
+		const selectedReposList = itemsLocal.selectedGitlabRepos || itemsLocal.selectedRepos || [];
 
 		// Include token state, orgName, showCommits, and repository filter state in cache key to invalidate on changes
 		const tokenMarker = token ? 'auth' : 'noauth';
 		const orgMarker = orgName ? `org-${orgName}` : 'noorg';
 
 		let repoMarker = 'norepos';
-		if (itemsLocal.useRepoFilter && itemsLocal.selectedRepos && itemsLocal.selectedRepos.length > 0) {
-			const repoNames = itemsLocal.selectedRepos
+		if (isRepoFilterEnabled && selectedReposList && selectedReposList.length > 0) {
+			const repoNames = selectedReposList
 				.map((r) => (typeof r === 'object' ? r.fullName : r).toLowerCase())
 				.sort()
 				.join(',');
@@ -241,10 +251,21 @@ class GitLabHelper {
 				const groupIssuesRes = await fetch(groupIssuesUrl, { headers });
 				allIssues = groupIssuesRes.ok ? await groupIssuesRes.json() : [];
 
-				const filterSettings = await browser.storage.local.get(['useRepoFilter', 'selectedRepos', 'repoCache']);
-				if (filterSettings.useRepoFilter && filterSettings.selectedRepos && filterSettings.selectedRepos.length > 0) {
+				const filterSettings = await browser.storage.local.get([
+					'useRepoFilter',
+					'selectedRepos',
+					'repoCache',
+					'useGitlabRepoFilter',
+					'selectedGitlabRepos',
+				]);
+				const isFilterEnabled =
+					typeof filterSettings.useGitlabRepoFilter !== 'undefined'
+						? filterSettings.useGitlabRepoFilter
+						: filterSettings.useRepoFilter;
+				const currentSelectedRepos = filterSettings.selectedGitlabRepos || filterSettings.selectedRepos;
+				if (isFilterEnabled && currentSelectedRepos && currentSelectedRepos.length > 0) {
 					const selectedNames = new Set(
-						filterSettings.selectedRepos.map((r) => (typeof r === 'object' ? r.fullName : r).toLowerCase()),
+						currentSelectedRepos.map((r) => (typeof r === 'object' ? r.fullName : r).toLowerCase()),
 					);
 					if (filterSettings.repoCache && filterSettings.repoCache.data) {
 						for (const repo of filterSettings.repoCache.data) {
@@ -335,10 +356,21 @@ class GitLabHelper {
 				}
 				allProjects = Array.from(allProjectsMap.values());
 
-				const filterSettings = await browser.storage.local.get(['useRepoFilter', 'selectedRepos', 'repoCache']);
-				if (filterSettings.useRepoFilter && filterSettings.selectedRepos && filterSettings.selectedRepos.length > 0) {
+				const filterSettings = await browser.storage.local.get([
+					'useRepoFilter',
+					'selectedRepos',
+					'repoCache',
+					'useGitlabRepoFilter',
+					'selectedGitlabRepos',
+				]);
+				const isFilterEnabled =
+					typeof filterSettings.useGitlabRepoFilter !== 'undefined'
+						? filterSettings.useGitlabRepoFilter
+						: filterSettings.useRepoFilter;
+				const currentSelectedRepos = filterSettings.selectedGitlabRepos || filterSettings.selectedRepos;
+				if (isFilterEnabled && currentSelectedRepos && currentSelectedRepos.length > 0) {
 					const selectedNames = new Set(
-						filterSettings.selectedRepos.map((r) => (typeof r === 'object' ? r.fullName : r).toLowerCase()),
+						currentSelectedRepos.map((r) => (typeof r === 'object' ? r.fullName : r).toLowerCase()),
 					);
 					if (filterSettings.repoCache && filterSettings.repoCache.data) {
 						for (const repo of filterSettings.repoCache.data) {
@@ -712,10 +744,12 @@ if (window.PlatformRegistry) {
 	window.PlatformRegistry.register('gitlab', {
 		hasRepoFilter: true,
 		checkTokenForFilter() {
-			const useFilter = document.getElementById('useRepoFilter');
+			const useFilter = document.getElementById('useGitlabRepoFilter') || document.getElementById('useRepoFilter');
 			const token = document.getElementById('gitlabToken');
-			const warning = document.getElementById('tokenWarningForFilter');
-			const container = document.getElementById('repoFilterContainer');
+			const warning =
+				document.getElementById('tokenWarningForGitlabFilter') || document.getElementById('tokenWarningForFilter');
+			const container =
+				document.getElementById('gitlabRepoFilterContainer') || document.getElementById('repoFilterContainer');
 			if (useFilter?.checked && !token?.value.trim()) {
 				useFilter.checked = false;
 				container?.classList.add('hidden');
@@ -740,21 +774,23 @@ if (window.PlatformRegistry) {
 			}
 		},
 		async triggerRepoFetchIfEnabled() {
-			const context = window.githubRepoFilterContext;
+			const context = window.gitlabRepoFilterContext || window.githubRepoFilterContext;
 			if (!context || !context.useRepoFilter?.checked) return;
 			const { repoStatus, setAvailableRepos } = context;
 			if (repoStatus) repoStatus.textContent = browser.i18n.getMessage('repoRefetching');
 			try {
-				const items = await browser.storage.local.get(['gitlabUsername', 'gitlabToken', 'orgName']);
-				if (!items.gitlabUsername) {
+				const items = await browser.storage.local.get(['gitlabUsername', 'gitlabToken', 'orgName', 'gitlabGroupName']);
+				const username = items.gitlabUsername;
+				const org = items.gitlabGroupName || items.orgName || '';
+				if (!username) {
 					if (repoStatus)
 						repoStatus.textContent = chrome?.i18n.getMessage('usernameMissingError') || 'Username required';
 					return;
 				}
-				const repos = await this.fetchUserRepositories(items.gitlabUsername, items.gitlabToken, items.orgName || '');
+				const repos = await this.fetchUserRepositories(username, items.gitlabToken, org);
 				setAvailableRepos?.(repos);
 				if (repoStatus) repoStatus.textContent = browser.i18n.getMessage('repoLoaded', [repos.length]);
-				const key = makeRepoCacheKey(items.gitlabUsername, items.orgName || '', 'gitlab', items);
+				const key = makeRepoCacheKey(username, org, 'gitlab', items);
 				browser.storage.local.set({ repoCache: { data: repos, cacheKey: key, timestamp: Date.now() } });
 			} catch (err) {
 				if (repoStatus) repoStatus.textContent = `Error: ${err.message}`;
@@ -764,7 +800,7 @@ if (window.PlatformRegistry) {
 		async loadRepos() {
 			const items = await browser.storage.local.get(['gitlabUsername']);
 			if (!items.gitlabUsername) {
-				const context = window.githubRepoFilterContext;
+				const context = window.gitlabRepoFilterContext || window.githubRepoFilterContext;
 				if (context?.repoStatus)
 					context.repoStatus.textContent = chrome?.i18n.getMessage('usernameMissingError') || 'Username required';
 				return;
@@ -772,19 +808,21 @@ if (window.PlatformRegistry) {
 			this.performRepoFetch();
 		},
 		async performRepoFetch() {
-			const context = window.githubRepoFilterContext;
+			const context = window.gitlabRepoFilterContext || window.githubRepoFilterContext;
 			if (!context) return;
 			const { repoStatus, repoSearch, filterAndDisplayRepos, setAvailableRepos, getAvailableRepos } = context;
 			repoStatus.textContent = browser.i18n.getMessage('repoLoading');
 			repoSearch.classList.add('repository-search-loading');
 			try {
 				const cache = await browser.storage.local.get(['repoCache']);
-				const items = await browser.storage.local.get(['gitlabUsername', 'gitlabToken', 'orgName']);
-				const key = makeRepoCacheKey(items.gitlabUsername, items.orgName || '', 'gitlab', items);
+				const items = await browser.storage.local.get(['gitlabUsername', 'gitlabToken', 'orgName', 'gitlabGroupName']);
+				const username = items.gitlabUsername;
+				const org = items.gitlabGroupName || items.orgName || '';
+				const key = makeRepoCacheKey(username, org, 'gitlab', items);
 				if (cache.repoCache?.cacheKey === key && Date.now() - cache.repoCache.timestamp < 600000) {
 					setAvailableRepos(cache.repoCache.data);
 				} else {
-					const repos = await this.fetchUserRepositories(items.gitlabUsername, items.gitlabToken, items.orgName || '');
+					const repos = await this.fetchUserRepositories(username, items.gitlabToken, org);
 					setAvailableRepos(repos);
 					browser.storage.local.set({ repoCache: { data: repos, cacheKey: key, timestamp: Date.now() } });
 				}
