@@ -527,10 +527,10 @@ function handleIncludeNextPlansChange() {
 }
 
 if (platformUsernameElement) {
-	platformUsernameElement.addEventListener('keyup', handlePlatformUsernameChange);
+	platformUsernameElement.addEventListener('change', handlePlatformUsernameChange);
 }
 if (githubTokenElement) {
-	githubTokenElement.addEventListener('keyup', handleGithubTokenChange);
+	githubTokenElement.addEventListener('change', handleGithubTokenChange);
 	githubTokenElement.addEventListener('change', () => {
 		githubTokenElement.value = githubTokenElement.value.trim();
 	});
@@ -539,7 +539,7 @@ if (githubTokenElement) {
 	});
 }
 if (gitlabTokenElement) {
-	gitlabTokenElement.addEventListener('keyup', handleGitlabTokenChange);
+	gitlabTokenElement.addEventListener('change', handleGitlabTokenChange);
 	gitlabTokenElement.addEventListener('change', () => {
 		gitlabTokenElement.value = gitlabTokenElement.value.trim();
 	});
@@ -548,16 +548,16 @@ if (gitlabTokenElement) {
 	});
 }
 if (codebergTokenElement) {
-	codebergTokenElement.addEventListener('keyup', handleCodebergTokenChange);
+	codebergTokenElement.addEventListener('change', handleCodebergTokenChange);
 }
 if (codebergApiBaseUrlElement) {
-	codebergApiBaseUrlElement.addEventListener('keyup', handleCodebergApiBaseUrlChange);
+	codebergApiBaseUrlElement.addEventListener('change', handleCodebergApiBaseUrlChange);
 }
 if (cacheInputElement) {
-	cacheInputElement.addEventListener('keyup', handleCacheInputChange);
+	cacheInputElement.addEventListener('change', handleCacheInputChange);
 }
 if (projectNameElement) {
-	projectNameElement.addEventListener('keyup', handleProjectNameChange);
+	projectNameElement.addEventListener('change', handleProjectNameChange);
 }
 if (startingDateElement) {
 	startingDateElement.addEventListener('blur', handleStartingDateChange);
@@ -613,27 +613,21 @@ function handleSmtpRecipientsChange() {
 
 if (window.isTauri) {
 	if (smtpSenderEmailElement) {
-		smtpSenderEmailElement.addEventListener('keyup', handleSmtpSenderEmailChange);
 		smtpSenderEmailElement.addEventListener('change', handleSmtpSenderEmailChange);
 	}
 	if (smtpServerElement) {
-		smtpServerElement.addEventListener('keyup', handleSmtpServerChange);
 		smtpServerElement.addEventListener('change', handleSmtpServerChange);
 	}
 	if (smtpPortElement) {
-		smtpPortElement.addEventListener('keyup', handleSmtpPortChange);
 		smtpPortElement.addEventListener('change', handleSmtpPortChange);
 	}
 	if (smtpUsernameElement) {
-		smtpUsernameElement.addEventListener('keyup', handleSmtpUsernameChange);
 		smtpUsernameElement.addEventListener('change', handleSmtpUsernameChange);
 	}
 	if (smtpPasswordElement) {
-		smtpPasswordElement.addEventListener('keyup', handleSmtpPasswordChange);
 		smtpPasswordElement.addEventListener('change', handleSmtpPasswordChange);
 	}
 	if (smtpRecipientsElement) {
-		smtpRecipientsElement.addEventListener('keyup', handleSmtpRecipientsChange);
 		smtpRecipientsElement.addEventListener('change', handleSmtpRecipientsChange);
 	}
 }
