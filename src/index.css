@@ -1432,3 +1432,27 @@ html.mode-popup .timeframe-presets {
 .dark-mode #smtpPasswordEyeIcon {
     color: #9ca3af !important;
 }
+
+/* Token warning banners */
+#tokenWarningForFilter,
+#tokenWarningForShowCommits,
+#onlyPrsRequiredWarningForShowCommits,
+#tokenWarningForMergedPRs,
+#tokenWarningForNextPlans {
+    background-color: #fee2e2;
+    border: 1px solid #fca5a5;
+    color: #dc2626;
+    padding: 0.5rem;
+    border-radius: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.dark-mode #tokenWarningForFilter,
+.dark-mode #tokenWarningForShowCommits,
+.dark-mode #onlyPrsRequiredWarningForShowCommits,
+.dark-mode #tokenWarningForMergedPRs,
+.dark-mode #tokenWarningForNextPlans {
+    background-color: #7f1d1d !important;
+    border-color: #dc2626 !important;
+    color: #fca5a5 !important;
+}

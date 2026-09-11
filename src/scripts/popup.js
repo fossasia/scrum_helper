@@ -1734,23 +1734,8 @@ document.addEventListener('DOMContentLoaded', () => {
 		useRepoFilter.addEventListener(
 			'change',
 			debounce(async () => {
-				let platform = 'github';
-				try {
-					const items = await browser.storage.local.get(['platform']);
-					platform = items.platform || 'github';
-				} catch {}
-				if (platform !== 'github' && platform !== 'gitlab') {
-					repoFilterContainer.classList.add('hidden');
-					useRepoFilter.checked = false;
-					if (repoStatus)
-						repoStatus.textContent =
-							chrome?.i18n.getMessage('repoFilteringGithubOnly') ||
-							'Repository filtering is only available for GitHub.';
-					return;
-				}
 				const enabled = useRepoFilter.checked;
-				const tokenInput = platform === 'gitlab' ? gitlabTokenInput : githubTokenInput;
-				const hasToken = tokenInput ? tokenInput.value.trim() !== '' : false;
+				const hasToken = githubTokenInput ? githubTokenInput.value.trim() !== '' : false;
 				repoFilterContainer.classList.toggle('hidden', !enabled);
 
 				if (enabled && !hasToken) {
@@ -1760,11 +1745,8 @@ document.addEventListener('DOMContentLoaded', () => {
 					const tokenWarning = document.getElementById('tokenWarningForFilter');
 					if (tokenWarning) {
 						const warningMsg =
-							platform === 'gitlab'
-								? chrome?.i18n.getMessage('tokenRequiredGitlabWarning') ||
-									'A GitLab token is required for repository filtering. Please add one in settings.'
-								: chrome?.i18n.getMessage('tokenRequiredWarning') ||
-									'A GitHub token is required for repository filtering. Please add one in the settings.';
+							chrome?.i18n.getMessage('tokenRequiredWarning') ||
+							'A GitHub token is required for repository filtering. Please add one in the settings.';
 						tokenWarning.textContent = '';
 						const span = document.createElement('span');
 						span.textContent = warningMsg;
@@ -1777,6 +1759,10 @@ document.addEventListener('DOMContentLoaded', () => {
 						}, 3000);
 					}
 					return;
+				}
+				const tokenWarning = document.getElementById('tokenWarningForFilter');
+				if (tokenWarning) {
+					tokenWarning.classList.add('hidden');
 				}
 				repoFilterContainer.classList.toggle('hidden', !enabled);
 
