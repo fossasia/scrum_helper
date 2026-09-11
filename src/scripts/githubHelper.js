@@ -506,7 +506,7 @@ function validateOrgOnBlur(org) {
 		}
 	};
 
-	browser.storage.local
+	return browser.storage.local
 		.get(['githubToken'])
 		.then((items) => {
 			const headers = { Accept: 'application/vnd.github.v3+json' };
@@ -524,6 +524,10 @@ function validateOrgOnBlur(org) {
 				} else if (window.showPopupMessage) {
 					window.showPopupMessage(browser.i18n.getMessage('orgNotFoundMessage'));
 				}
+				return;
+			}
+			if (!res.ok) {
+				showError(new Error(`HTTP error ${res.status}`));
 				return;
 			}
 			window.clearScrumHelperToast?.();
@@ -1018,6 +1022,7 @@ window.githubFetchPrReviews = githubFetchPrReviews;
 window.githubFetchPullRequests = githubFetchPullRequests;
 window.githubFetchCommits = githubFetchCommits;
 window.githubFetchPrMergedStatusREST = githubFetchPrMergedStatusREST;
+window.githubValidateOrgOnBlur = validateOrgOnBlur;
 
 if (window.PlatformRegistry) {
 	window.PlatformRegistry.register('github', {

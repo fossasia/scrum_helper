@@ -1561,14 +1561,15 @@ function allIncluded(outputTarget = 'email') {
 								? (window.codebergHelper?.cache?.cacheKey ?? null)
 								: (githubCache?.cacheKey ?? null);
 
+					const reportPlatform = platform || 'github';
 					chrome.storage.local.set({
 						lastScrumReportHtml: content,
-						lastScrumReportPlatform: platform,
+						lastScrumReportPlatform: reportPlatform,
 						lastScrumReportCacheKey: cacheKey,
 						lastScrumReportUsername: platformUsername,
-						[`${platform}LastScrumReportHtml`]: content,
-						[`${platform}LastScrumReportCacheKey`]: cacheKey,
-						[`${platform}LastScrumReportUsername`]: platformUsername,
+						[`${reportPlatform}LastScrumReportHtml`]: content,
+						[`${reportPlatform}LastScrumReportCacheKey`]: cacheKey,
+						[`${reportPlatform}LastScrumReportUsername`]: platformUsername,
 					});
 				} catch (e) {
 					// ignore
