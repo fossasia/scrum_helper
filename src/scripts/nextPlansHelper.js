@@ -3,19 +3,37 @@
 (function () {
 	// 1. Determine repository scope
 	async function getRepositoryScope() {
-		const result = await browser.storage.local.get(['useRepoFilter', 'selectedRepos', 'platform']);
-		const platform = result.platform || 'github';
-		const useRepoFilter = result.useRepoFilter;
-		let selectedRepos = result.selectedRepos;
-		if (!Array.isArray(selectedRepos)) {
-			selectedRepos = [];
+		const result = await browser.storage.local.get([
+			'useRepoFilter',
+			'selectedRepos',
+			'useGitlabRepoFilter',
+			'selectedGitlabRepos',
+			'platform',
+			'selectedPlatforms',
+		]);
+		const platforms = result.selectedPlatforms || [result.platform || 'github'];
+		const isGitlab = platforms.includes('gitlab');
+		const isGithub = platforms.includes('github');
+
+		const filterRepos = [];
+		if (isGithub && result.useRepoFilter && Array.isArray(result.selectedRepos)) {
+			filterRepos.push(...result.selectedRepos);
+		}
+		if (
+			isGitlab &&
+			(typeof result.useGitlabRepoFilter !== 'undefined' ? result.useGitlabRepoFilter : result.useRepoFilter) &&
+			Array.isArray(result.selectedGitlabRepos || result.selectedRepos)
+		) {
+			filterRepos.push(...(result.selectedGitlabRepos || result.selectedRepos));
 		}
 
-		const registry = window.PlatformRegistry ? window.PlatformRegistry.get(platform) : null;
-		const hasRepoFilter = registry ? registry.hasRepoFilter : platform === 'github';
+		const hasFilter =
+			(isGithub && result.useRepoFilter) ||
+			(isGitlab &&
+				(typeof result.useGitlabRepoFilter !== 'undefined' ? result.useGitlabRepoFilter : result.useRepoFilter));
 
-		if (hasRepoFilter && useRepoFilter && selectedRepos.length > 0) {
-			const repoNames = selectedRepos
+		if (hasFilter && filterRepos.length > 0) {
+			const repoNames = filterRepos
 				.map((repo) => {
 					if (typeof repo === 'object' && repo.fullName) {
 						return repo.fullName.startsWith('/') ? repo.fullName.substring(1) : repo.fullName;
@@ -28,7 +46,7 @@
 				.filter(Boolean);
 
 			return {
-				platform,
+				platforms,
 				type: 'selected',
 				repos: repoNames,
 				displayText: `Showing issues from: ${repoNames.length} selected repositories`,
@@ -36,7 +54,7 @@
 		}
 
 		return {
-			platform,
+			platforms,
 			type: 'all',
 			repos: [],
 			displayText: 'Showing issues from: All repositories',
@@ -45,12 +63,12 @@
 
 	// 2. Generate cache/selection key based on active scope
 	function getCacheKey(scope) {
-		const platform = scope?.platform || 'github';
+		const platformsKey = scope?.platforms ? [...scope.platforms].sort().join('_') : 'github';
 		if (!scope || scope.type === 'all') {
-			return `${platform}_all`;
+			return `${platformsKey}_all`;
 		}
 		const sortedRepos = [...scope.repos].sort();
-		return `${platform}_selected_${sortedRepos.join('_')}`;
+		return `${platformsKey}_selected_${sortedRepos.join('_')}`;
 	}
 
 	// 3. Cache management
@@ -175,7 +193,7 @@
 			checkbox.type = 'checkbox';
 			checkbox.classList.add('issue-item-checkbox');
 			checkbox.dataset.issueId = issue.id;
-			if (selectedIds.includes(issue.id)) {
+			if (selectedIds.some((id) => String(id) === String(issue.id))) {
 				checkbox.checked = true;
 			}
 
@@ -200,7 +218,7 @@
 			cb.addEventListener('change', () => {
 				const updatedSelectedIds = [];
 				container.querySelectorAll('.issue-item-checkbox:checked').forEach((checkedCb) => {
-					updatedSelectedIds.push(Number.parseInt(checkedCb.dataset.issueId, 10));
+					updatedSelectedIds.push(checkedCb.dataset.issueId);
 				});
 				saveSelectedIssues(scope, updatedSelectedIds);
 			});
@@ -231,13 +249,37 @@
 		showLoadingState();
 
 		try {
-			const platformStorage = await browser.storage.local.get(['platform']);
-			const platform = platformStorage.platform || 'github';
-			const helper = window.PlatformRegistry ? window.PlatformRegistry.get(platform) : null;
-			let issues = [];
-			if (helper && typeof helper.fetchAssignedIssues === 'function') {
-				issues = await helper.fetchAssignedIssues(scope);
+			const storage = await browser.storage.local.get(['platform', 'selectedPlatforms', 'githubToken', 'gitlabToken']);
+			const platforms = storage.selectedPlatforms || [storage.platform || 'github'];
+			const fetchPromises = [];
+
+			if (platforms.includes('github') && storage.githubToken?.trim()) {
+				const ghHelper = window.PlatformRegistry ? window.PlatformRegistry.get('github') : null;
+				if (ghHelper && typeof ghHelper.fetchAssignedIssues === 'function') {
+					fetchPromises.push(
+						ghHelper.fetchAssignedIssues(scope).catch((err) => {
+							console.error('[NextPlans] GitHub issues fetch failed:', err);
+							return [];
+						}),
+					);
+				}
 			}
+
+			if (platforms.includes('gitlab') && storage.gitlabToken?.trim()) {
+				const glHelper = window.PlatformRegistry ? window.PlatformRegistry.get('gitlab') : null;
+				if (glHelper && typeof glHelper.fetchAssignedIssues === 'function') {
+					fetchPromises.push(
+						glHelper.fetchAssignedIssues(scope).catch((err) => {
+							console.error('[NextPlans] GitLab issues fetch failed:', err);
+							return [];
+						}),
+					);
+				}
+			}
+
+			const results = await Promise.all(fetchPromises);
+			const issues = results.flat();
+
 			cacheIssues(scope, issues);
 			displayIssuesUI(issues, scope);
 		} catch (error) {
@@ -276,7 +318,7 @@
 		// Map selectedIds to full issue objects
 		return selectedIds
 			.map((id) => {
-				return issues.find((issue) => issue.id === id);
+				return issues.find((issue) => String(issue.id) === String(id));
 			})
 			.filter(Boolean);
 	}

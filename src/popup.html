@@ -131,24 +131,33 @@
 							<input type="hidden" id="platformSelect" value="github">
 							<button type="button" id="platformDropdownBtn"
 								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 pr-8 flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-blue-500">
-								<span id="platformDropdownSelected" class="flex items-center gap-2">
-									<i class="fab fa-github mr-2"></i> GitHub
+								<span id="platformDropdownSelected" class="flex items-center flex-wrap gap-2">
+									<span class="platform-selected-tag inline-flex items-center gap-2"><i class="fab fa-github text-sm"></i><span>GitHub</span></span>
 								</span>
 								<i class="fa fa-chevron-down text-gray-500"></i>
 							</button>
 							<ul id="platformDropdownList"
 								class="absolute left-0 right-0 w-full bg-white border-2 border-gray-200 rounded-xl mt-1 shadow-lg z-10 hidden">
-								<li class="px-4 py-2 flex items-center gap-2 cursor-pointer hover:bg-gray-100" data-value="github">
-									<i class="fab fa-github text-lg"></i> GitHub
+								<li class="px-4 py-2 flex items-center justify-between cursor-pointer hover:bg-gray-100" data-value="github">
+									<div class="flex items-center gap-2">
+										<input type="checkbox" id="platformCheck-github" class="platform-checkbox rounded text-blue-600 focus:ring-0 cursor-pointer pointer-events-none" checked>
+										<i class="fab fa-github text-lg"></i> <span>GitHub</span>
+									</div>
 								</li>
-								<li class="px-4 py-2 flex items-center gap-2 cursor-pointer hover:bg-gray-100" data-value="gitlab">
-									<i class="fab fa-gitlab text-lg"></i> GitLab
+								<li class="px-4 py-2 flex items-center justify-between cursor-pointer hover:bg-gray-100" data-value="gitlab">
+									<div class="flex items-center gap-2">
+										<input type="checkbox" id="platformCheck-gitlab" class="platform-checkbox rounded text-blue-600 focus:ring-0 cursor-pointer pointer-events-none">
+										<i class="fab fa-gitlab text-lg"></i> <span>GitLab</span>
+									</div>
 								</li>
-								<li class="px-4 py-2 flex items-center gap-2 cursor-pointer hover:bg-gray-100" data-value="codeberg">
-									<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="15" height="15" class="w-[15px] h-[15px] fill-current" style="width: 15px; height: 15px; flex-shrink: 0; fill: currentColor;">
-										<title>Codeberg</title>
-										<path d="M11.999.747A11.974 11.974 0 0 0 0 12.75c0 2.254.635 4.465 1.833 6.376L11.837 6.19c.072-.092.251-.092.323 0l4.178 5.402h-2.992l.065.239h3.113l.882 1.138h-3.674l.103.374h3.86l.777 1.003h-4.358l.135.483h4.593l.695.894h-5.038l.165.589h5.326l.609.785h-5.717l.182.65h6.038l.562.727h-6.397l.183.65h6.717A12.003 12.003 0 0 0 24 12.75 11.977 11.977 0 0 0 11.999.747zm3.654 19.104.182.65h5.326c.173-.204.353-.433.513-.65zm.385 1.377.18.65h3.563c.233-.198.485-.428.712-.65zm.383 1.377.182.648h1.203c.356-.204.685-.412 1.042-.648z"/>
-									</svg> Codeberg
+								<li class="px-4 py-2 flex items-center justify-between cursor-pointer hover:bg-gray-100" data-value="codeberg">
+									<div class="flex items-center gap-2">
+										<input type="checkbox" id="platformCheck-codeberg" class="platform-checkbox rounded text-blue-600 focus:ring-0 cursor-pointer pointer-events-none">
+										<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="15" height="15" class="w-[15px] h-[15px] fill-current shrink-0" style="width: 15px; height: 15px; flex-shrink: 0; fill: currentColor;">
+											<title>Codeberg</title>
+											<path d="M11.999.747A11.974 11.974 0 0 0 0 12.75c0 2.254.635 4.465 1.833 6.376L11.837 6.19c.072-.092.251-.092.323 0l4.178 5.402h-2.992l.065.239h3.113l.882 1.138h-3.674l.103.374h3.86l.777 1.003h-4.358l.135.483h4.593l.695.894h-5.038l.165.589h5.326l.609.785h-5.717l.182.65h6.038l.562.727h-6.397l.183.65h6.717A12.003 12.003 0 0 0 24 12.75 11.977 11.977 0 0 0 11.999.747zm3.654 19.104.182.65h5.326c.173-.204.353-.433.513-.65zm.385 1.377.18.65h3.563c.233-.198.485-.428.712-.65zm.383 1.377.182.648h1.203c.356-.204.685-.412 1.042-.648z"/>
+										</svg> <span>Codeberg</span>
+									</div>
 								</li>
 							</ul>
 						</div>
@@ -168,13 +177,6 @@
 						<input id="projectName" type="text"
 							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 mt-1 mb-3"
 							data-i18n-placeholder="projectNamePlaceholder">
-					</div>
-					<div class="mt-3">
-						<p id="usernameLabel" class="font-medium text-sm" data-i18n="usernameLabel">Your Username</p>
-						<input id="platformUsername" type="text" aria-describedby="usernameError"
-							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 mt-1 mb-1"
-							data-i18n-placeholder="githubUsernamePlaceholder">
-						<span id="usernameError" class="" role="alert" aria-live="polite"></span>
 					</div>
 
 					<div>
@@ -408,89 +410,87 @@
 				</div>
 
 				<div id="settingsSection" class="tab-content hidden">
-					<div class="githubOnlySection">
-						<div>
-							<div class="flex items-center justify-between">
-								<div class="flex">
-									<p class="text-sm font-medium" data-i18n="githubTokenLabel">Your GitHub Token</p>
-									<span class="tooltip-container">
-										<i class="fa fa-question-circle question-icon"></i>
-										<span class="tooltip-bubble" data-i18n="githubTokenTooltip">
-											<b>Why is it recommended to add a GitHub token?</b><br>
-											Scrum Helper works without a GitHub token, but adding a personal access
-											token (classic) is recommended for a
-											better experience. It raises your API limits, allows access to private
-											repos
-											(if permitted), and
-											improves accuracy and speed. Tokens are stored locally and never sent to
-											us
-											and used only to fetch
-											your git data. You can add one anytime in the extension
-											settings.<br><br>
-											<b>How to obtain:</b><br>
-											1. Go to <a href="https://github.com/settings/tokens" target="_blank"
-												rel="noopener noreferrer"
-												class="text-blue-600 underline">GitHub Developer
-												Settings</a>.<br>
-											3. Click "Generate new token", select classic token<br>
-											4. Paste it here.<br>
-											<i>Keep your token secret!</i>
-										</span>
+					<!-- Legacy hidden inputs for backwards compatibility -->
+					<input id="platformUsername" type="hidden">
+					<span id="usernameError" class="hidden" role="alert" aria-live="polite"></span>
+
+					<!-- GitHub Platform Settings Section -->
+					<div id="githubPlatformSection" class="platform-settings-block">
+						<div class="platform-header flex items-center font-semibold text-sm text-gray-700 border-b border-gray-200 pb-1.5 mb-3.5">
+							<i class="fab fa-github text-base mr-2"></i>
+							<span>GitHub</span>
+						</div>
+
+						<div class="mb-3">
+							<p class="font-medium text-sm" data-i18n="githubUsernameLabel">Your Github Username</p>
+							<input id="githubUsername" type="text"
+								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 mt-1 mb-1"
+								data-i18n-placeholder="githubUsernamePlaceholder">
+						</div>
+
+						<div class="mb-3">
+							<div class="flex items-center">
+								<p class="text-sm font-medium" data-i18n="githubTokenLabel">Your GitHub Token</p>
+								<span class="tooltip-container ml-2">
+									<i class="fa fa-question-circle question-icon"></i>
+									<span class="tooltip-bubble" data-i18n="githubTokenTooltip">
+										<b>Why is it recommended to add a GitHub token?</b><br>
+										Scrum Helper works without a GitHub token, but adding a personal access
+										token (classic) is recommended for a
+										better experience. It raises your API limits, allows access to private
+										repos
+										(if permitted), and
+										improves accuracy and speed. Tokens are stored locally and never sent to
+										us
+										and used only to fetch
+										your git data. You can add one anytime in the extension
+										settings.<br><br>
+										<b>How to obtain:</b><br>
+										1. Go to <a href="https://github.com/settings/tokens" target="_blank"
+											rel="noopener noreferrer"
+											class="text-blue-600 underline">GitHub Developer
+											Settings</a>.<br>
+										3. Click "Generate new token", select classic token<br>
+										4. Paste it here.<br>
+										<i>Keep your token secret!</i>
 									</span>
-								</div>
-								<button id="toggleTokenVisibility" type="button" class="focus:outline-none">
-									<i id="tokenEyeIcon" class="fa fa-eye text-gray-600"></i>
+								</span>
+							</div>
+							<div class="token-input-container my-2">
+								<input id="githubToken" type="password"
+									class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 pr-10"
+									data-i18n-placeholder="githubTokenPlaceholder">
+								<button id="toggleTokenVisibility" type="button" class="token-toggle-btn"
+									aria-label="Toggle token visibility">
+									<i id="tokenEyeIcon" class="fa fa-eye text-base"></i>
 								</button>
 							</div>
-							<input id="githubToken" type="password"
-								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2 pr-10"
-								data-i18n-placeholder="githubTokenPlaceholder">
 						</div>
-					</div>
 
-					<div class="orgSection">
-						<div class="flex items-center mt-4 githubOnlySection">
-							<p class="text-sm font-semibold" data-i18n="settingsOrgNameLabel">Your Organization Name
-							</p>
-							<span class="tooltip-container ml-2">
-								<i class="fa fa-question-circle question-icon"></i>
-								<span class="tooltip-bubble" data-i18n="orgNameTooltip">
-									<b>Which organization's GitHub activity?</b><br>
-									Enter the GitHub organization name to fetch activities for. Leave empty to fetch
-									all
-									your GitHub
-									activities across all organizations.
-									Organization name is not case-sensitive.
+						<div class="orgSection mb-3">
+							<div class="flex items-center">
+								<p class="text-sm font-semibold" data-i18n="settingsOrgNameLabel">Your Organization Name</p>
+								<span class="tooltip-container ml-2">
+									<i class="fa fa-question-circle question-icon"></i>
+									<span class="tooltip-bubble" data-i18n="orgNameTooltip">
+										<b>Which organization's GitHub activity?</b><br>
+										Enter the GitHub organization name to fetch activities for. Leave empty to fetch
+										all your GitHub activities across all organizations.
+										Organization name is not case-sensitive.
+									</span>
 								</span>
-							</span>
-						</div>
-						<div class="flex items-center mt-4 gitlabOnlySection hidden">
-							<p class="text-sm font-semibold" data-i18n="settingsGroupNameLabel">Your Group Name
-							</p>
-							<span class="tooltip-container ml-2">
-								<i class="fa fa-question-circle question-icon"></i>
-								<span class="tooltip-bubble" data-i18n="gitlabOrgNameTooltip">
-									<b>Which group's GitLab activity?</b><br>
-									Enter the GitLab group name to fetch activities for. Leave empty to fetch
-									all
-									your GitLab
-									activities across all groups.
-									Group name is not case-sensitive.
-								</span>
-							</span>
-						</div>
-						<input id="orgInput" type="text"
-							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 mt-1 mb-3"
-							data-i18n-placeholder="settingsOrgNamePlaceholder">
+							</div>
+							<input id="orgInput" type="text"
+								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 mt-1 mb-1"
+								data-i18n-placeholder="settingsOrgNamePlaceholder">
 
-						<!-- Organization validation feedback -->
-						<div id="orgValidationMessage" class="hidden text-xs mt-1 mb-2 px-3 py-2 rounded-lg">
-							<span id="orgValidationText"></span>
+							<!-- Organization validation feedback -->
+							<div id="orgValidationMessage" class="hidden text-xs mt-1 mb-2 px-3 py-2 rounded-lg">
+								<span id="orgValidationText"></span>
+							</div>
 						</div>
-					</div>
 
-					<div class="repoFilterSection">
-						<div class="mb-4">
+						<div class="repoFilterSection mb-4">
 							<div class="flex items-center justify-between mb-2 mt-3">
 								<p class="text-sm font-medium">
 									<span data-i18n="repoFilterLabel">Filter by repositories</span>
@@ -551,11 +551,24 @@
 						</div>
 					</div>
 
-					<div class="gitlabOnlySection hidden mt-3">
-						<div class="flex items-center justify-between">
-							<div class="flex">
+					<!-- GitLab Platform Settings Section -->
+					<div id="gitlabPlatformSection" class="platform-settings-block hidden">
+						<div class="platform-header flex items-center font-semibold text-sm text-gray-700 border-b border-gray-200 pb-1.5 mb-3.5">
+							<i class="fab fa-gitlab text-base mr-2"></i>
+							<span>GitLab</span>
+						</div>
+
+						<div class="mb-3">
+							<p class="font-medium text-sm" data-i18n="gitlabUsernameLabel">Your GitLab Username</p>
+							<input id="gitlabUsername" type="text"
+								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 mt-1 mb-1"
+								data-i18n-placeholder="gitlabUsernamePlaceholder">
+						</div>
+
+						<div class="mb-3">
+							<div class="flex items-center">
 								<p class="text-sm font-medium" data-i18n="gitlabTokenLabel">Your GitLab Token</p>
-								<span class="tooltip-container">
+								<span class="tooltip-container ml-2">
 									<i class="fa fa-question-circle question-icon"></i>
 									<span class="tooltip-bubble" data-i18n="gitlabTokenTooltip">
 										<b>Why add a GitLab token?</b><br>
@@ -574,49 +587,148 @@
 									</span>
 								</span>
 							</div>
-							<button id="toggleGitlabTokenVisibility" type="button" class="focus:outline-none">
-								<i id="gitlabTokenEyeIcon" class="fa fa-eye text-gray-600"></i>
-							</button>
-						</div>
-						<input id="gitlabToken" type="password"
-							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2 pr-10"
-							data-i18n-placeholder="gitlabTokenPlaceholder">
-					</div>
-
-					<div class="codebergOnlySection hidden mt-3">
-
-						<div class="mb-4">
-							<div class="flex items-center justify-between">
-								<div class="flex">
-									<p class="text-sm font-medium" data-i18n="codebergTokenLabel">Your Codeberg Token</p>
-									<span class="tooltip-container">
-										<i class="fa fa-question-circle question-icon"></i>
-										<span class="tooltip-bubble" data-i18n="codebergTokenTooltip">
-											<b>Why add a Codeberg token?</b><br>
-											Scrum Helper works without a token for public projects, but a personal access token enables
-											private repos and better rate limits. Your token stays local and is only used to
-											fetch your Codeberg data.<br><br>
-											<b>How to get one:</b><br>
-											1. Go to <a href="https://codeberg.org/user/settings/applications"
-												target="_blank" rel="noopener noreferrer"
-												class="text-blue-600 underline">Codeberg Applications
-												Settings</a><br>
-											2. Click "Generate new token"<br>
-											3. Copy and paste it here<br>
-											<i>Keep it secret!</i>
-										</span>
-									</span>
-								</div>
-								<button id="toggleCodebergTokenVisibility" type="button" class="focus:outline-none">
-									<i id="codebergTokenEyeIcon" class="fa fa-eye text-gray-600"></i>
+							<div class="token-input-container my-2">
+								<input id="gitlabToken" type="password"
+									class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 pr-10"
+									data-i18n-placeholder="gitlabTokenPlaceholder">
+								<button id="toggleGitlabTokenVisibility" type="button" class="token-toggle-btn"
+									aria-label="Toggle token visibility">
+									<i id="gitlabTokenEyeIcon" class="fa fa-eye text-base"></i>
 								</button>
 							</div>
-							<input id="codebergToken" type="password"
-								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2 pr-10"
-								data-i18n-placeholder="codebergTokenPlaceholder">
 						</div>
 
-						<div class="mb-4">
+						<div class="mb-3">
+							<div class="flex items-center">
+								<p class="text-sm font-semibold" data-i18n="settingsGroupNameLabel">Your Group Name</p>
+								<span class="tooltip-container ml-2">
+									<i class="fa fa-question-circle question-icon"></i>
+									<span class="tooltip-bubble" data-i18n="gitlabOrgNameTooltip">
+										<b>Which group's GitLab activity?</b><br>
+										Enter the GitLab group name to fetch activities for. Leave empty to fetch
+										all your GitLab activities across all groups.
+										Group name is not case-sensitive.
+									</span>
+								</span>
+							</div>
+							<input id="gitlabGroupInput" type="text"
+								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 mt-1 mb-3"
+								data-i18n-placeholder="gitlabOrgNamePlaceholder">
+						</div>
+
+						<div class="repoFilterSection">
+							<div class="mb-4">
+								<div class="flex items-center justify-between mb-2 mt-3">
+									<p class="text-sm font-medium">
+										<span data-i18n="repoFilterLabel">Filter by repositories</span>
+										<span class="tooltip-container">
+											<i class="fa fa-question-circle question-icon"></i>
+											<span class="tooltip-bubble" data-i18n="repoFilterTooltipGitLab">
+												Token required.<br>
+												To force a repo list update, <br>
+												click the Refresh Data button.
+											</span>
+										</span>
+									</p>
+									<div class="flex items-center gap-2">
+										<input type="checkbox" id="useGitlabRepoFilter">
+										<label for="useGitlabRepoFilter" class="text-xs text-gray-600"><span
+												data-i18n="enableFilteringLabel">Enable
+												filtering</span></label>
+									</div>
+								</div>
+								<div id="tokenWarningForGitlabFilter"
+									class="hidden text-xs text-red-600 p-2 bg-red-50 border border-red-200 rounded-xl mt-2">
+									<span data-i18n="tokenRequiredGitlabWarning">A GitLab token is required for repository
+										filtering. Please add one in settings.</span>
+								</div>
+
+								<div id="gitlabRepoFilterContainer" class="hidden">
+									<input id="gitlabRepoSearch" type="text" data-i18n-placeholder="repoSearchPlaceholder"
+										class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 pr-10"
+										autocomplete="off">
+									<!-- Typeahead Input -->
+									<div class="relative">
+										<!-- Dropdown -->
+										<div id="gitlabRepoDropdown"
+											class="absolute w-full bg-white border border-gray-300 rounded-xl shadow-lg hidden max-h-48 overflow-y-auto z-[1000] -mt-2.5">
+										</div>
+									</div>
+
+									<!-- Selected Tags Container -->
+									<div id="gitlabSelectedRepos"
+										class="mt-3 min-h-[32px] overflow-y-auto p-2 border-2 border-gray-200 bg-gray-50 rounded-xl max-h-[120px]">
+										<div class="flex flex-wrap gap-2" id="gitlabRepoTags">
+											<span class="text-xs text-gray-500 select-none" id="gitlabRepoPlaceholder"
+												data-i18n="repoPlaceholder">
+												No repositories selected (all will be included)
+											</span>
+										</div>
+									</div>
+
+									<!-- Status/Info -->
+									<div class="mt-2 text-xs text-gray-600 flex justify-between">
+										<span id="gitlabRepoCount" data-i18n="repoCountNone">0 repositories selected</span>
+										<div class="flex items-center gap-2">
+											<button id="clearAllGitlabReposBtn" class="font-semibold cursor-pointer hidden hover:underline" data-i18n="clearAllBtn">Clear All</button>
+											<span id="gitlabRepoStatus" class="text-blue-600"></span>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Codeberg Platform Settings Section -->
+					<div id="codebergPlatformSection" class="platform-settings-block hidden">
+						<div class="platform-header flex items-center font-semibold text-sm text-gray-700 border-b border-gray-200 pb-1.5 mb-3.5">
+							<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="16" height="16" class="w-4 h-4 fill-current mr-2 shrink-0" style="width: 16px; height: 16px; flex-shrink: 0; fill: currentColor; margin-right: 8px;">
+								<title>Codeberg</title>
+								<path d="M11.999.747A11.974 11.974 0 0 0 0 12.75c0 2.254.635 4.465 1.833 6.376L11.837 6.19c.072-.092.251-.092.323 0l4.178 5.402h-2.992l.065.239h3.113l.882 1.138h-3.674l.103.374h3.86l.777 1.003h-4.358l.135.483h4.593l.695.894h-5.038l.165.589h5.326l.609.785h-5.717l.182.65h6.038l.562.727h-6.397l.183.65h6.717A12.003 12.003 0 0 0 24 12.75 11.977 11.977 0 0 0 11.999.747zm3.654 19.104.182.65h5.326c.173-.204.353-.433.513-.65zm.385 1.377.18.65h3.563c.233-.198.485-.428.712-.65zm.383 1.377.182.648h1.203c.356-.204.685-.412 1.042-.648z"/>
+							</svg>
+							<span>Codeberg</span>
+						</div>
+
+						<div class="mb-3">
+							<p class="font-medium text-sm" data-i18n="codebergUsernameLabel">Your Codeberg Username</p>
+							<input id="codebergUsername" type="text"
+								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 mt-1 mb-1"
+								data-i18n-placeholder="codebergUsernamePlaceholder">
+						</div>
+
+						<div class="mb-3">
+							<div class="flex items-center">
+								<p class="text-sm font-medium" data-i18n="codebergTokenLabel">Your Codeberg Token</p>
+								<span class="tooltip-container ml-2">
+									<i class="fa fa-question-circle question-icon"></i>
+									<span class="tooltip-bubble" data-i18n="codebergTokenTooltip">
+										<b>Why add a Codeberg token?</b><br>
+										Scrum Helper works without a token for public projects, but a personal access token enables
+										private repos and better rate limits. Your token stays local and is only used to
+										fetch your Codeberg data.<br><br>
+										<b>How to get one:</b><br>
+										1. Go to <a href="https://codeberg.org/user/settings/applications"
+											target="_blank" rel="noopener noreferrer"
+											class="text-blue-600 underline">Codeberg Applications
+											Settings</a><br>
+										2. Click "Generate new token"<br>
+										3. Copy and paste it here<br>
+										<i>Keep it secret!</i>
+									</span>
+								</span>
+							</div>
+							<div class="token-input-container my-2">
+								<input id="codebergToken" type="password"
+									class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 pr-10"
+									data-i18n-placeholder="codebergTokenPlaceholder">
+								<button id="toggleCodebergTokenVisibility" type="button" class="token-toggle-btn"
+									aria-label="Toggle token visibility">
+									<i id="codebergTokenEyeIcon" class="fa fa-eye text-base"></i>
+								</button>
+							</div>
+						</div>
+
+						<div class="mb-3">
 							<p class="text-sm font-medium" data-i18n="codebergApiBaseUrlLabel">Codeberg API Base URL</p>
 							<input id="codebergApiBaseUrl" type="text"
 								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2"
@@ -625,7 +737,7 @@
 						</div>
 					</div>
 
-					<div id="displayModeSectionContainer" class="cacheSection mt-3">
+					<div id="displayModeSectionContainer" class="cacheSection mt-6 pt-4 border-t border-gray-200">
 						<div class="flex items-center justify-between mb-2">
 							<div class="flex items-center">
 								<p class="text-sm font-medium" data-i18n="displayModeLabel">Display Mode</p>
@@ -778,23 +890,24 @@
 					</div>
 
 					<div class="mt-3">
-						<div class="flex items-center justify-between">
-							<div class="flex items-center">
-								<p class="text-sm font-medium" data-i18n="smtpPasswordLabel">SMTP Password</p>
-								<span class="tooltip-container ml-2">
-									<i class="fa fa-question-circle question-icon"></i>
-									<span class="tooltip-bubble" data-i18n="smtpPasswordTooltip">
-										The password or app-specific password used to authenticate with your SMTP server.
-									</span>
+						<div class="flex items-center">
+							<p class="text-sm font-medium" data-i18n="smtpPasswordLabel">SMTP Password</p>
+							<span class="tooltip-container ml-2">
+								<i class="fa fa-question-circle question-icon"></i>
+								<span class="tooltip-bubble" data-i18n="smtpPasswordTooltip">
+									The password or app-specific password used to authenticate with your SMTP server.
 								</span>
-							</div>
-							<button id="toggleSmtpPasswordVisibility" type="button" class="focus:outline-none">
-								<i id="smtpPasswordEyeIcon" class="fa fa-eye text-gray-600"></i>
+							</span>
+						</div>
+						<div class="token-input-container my-2">
+							<input id="smtpPassword" type="password"
+								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 pr-10"
+								data-i18n-placeholder="smtpPasswordPlaceholder">
+							<button id="toggleSmtpPasswordVisibility" type="button" class="token-toggle-btn"
+								aria-label="Toggle password visibility">
+								<i id="smtpPasswordEyeIcon" class="fa fa-eye text-base"></i>
 							</button>
 						</div>
-						<input id="smtpPassword" type="password"
-							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 my-2 pr-10"
-							data-i18n-placeholder="smtpPasswordPlaceholder">
 						<p class="text-xs text-gray-500 mt-1" data-i18n="smtpGmailHint">
 							For Gmail, you must use an App Password, not your regular password.
 						</p>

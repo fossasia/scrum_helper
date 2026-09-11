@@ -425,17 +425,40 @@ hr,
     border-color: transparent #374151 transparent transparent;
 }
 
-#toggleTokenVisibility {
+.token-input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.token-toggle-btn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
     background: none;
     border: none;
     cursor: pointer;
-    margin-left: 8px;
+    margin: 0;
     padding: 0;
     line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6b7280;
+    z-index: 2;
 }
 
-#tokenEyeIcon {
-    font-size: 18px;
+.token-toggle-btn:hover {
+    color: #374151;
+}
+
+#tokenEyeIcon,
+#gitlabTokenEyeIcon,
+#codebergTokenEyeIcon,
+#smtpPasswordEyeIcon {
+    font-size: 16px;
     vertical-align: middle;
 }
 
@@ -781,14 +804,16 @@ hr,
 }
 
 /* Selected repos container - light mode */
-#selectedRepos {
+#selectedRepos,
+#gitlabSelectedRepos {
     background-color: #f3f4f6 !important;
     border: 1px solid #d1d5db !important;
     border-radius: 14px;
 }
 
 /* Dark mode styles for selected repos container */
-.dark-mode #selectedRepos {
+.dark-mode #selectedRepos,
+.dark-mode #gitlabSelectedRepos {
     background-color: #404040 !important;
     border-color: #505050 !important;
     scrollbar-color: #6b7280 #374151;
@@ -798,25 +823,30 @@ hr,
 }
 
 /* Dark mode scrollbar for selected repos container */
-.dark-mode #selectedRepos::-webkit-scrollbar {
+.dark-mode #selectedRepos::-webkit-scrollbar,
+.dark-mode #gitlabSelectedRepos::-webkit-scrollbar {
     width: 6px;
 }
 
-.dark-mode #selectedRepos::-webkit-scrollbar-track {
+.dark-mode #selectedRepos::-webkit-scrollbar-track,
+.dark-mode #gitlabSelectedRepos::-webkit-scrollbar-track {
     background: #374151;
     border-radius: 3px;
 }
 
-.dark-mode #selectedRepos::-webkit-scrollbar-thumb {
+.dark-mode #selectedRepos::-webkit-scrollbar-thumb,
+.dark-mode #gitlabSelectedRepos::-webkit-scrollbar-thumb {
     background: #6b7280;
     border-radius: 3px;
 }
 
-.dark-mode #selectedRepos::-webkit-scrollbar-thumb:hover {
+.dark-mode #selectedRepos::-webkit-scrollbar-thumb:hover,
+.dark-mode #gitlabSelectedRepos::-webkit-scrollbar-thumb:hover {
     background: #9ca3af;
 }
 
-.dark-mode #repoDropdown {
+.dark-mode #repoDropdown,
+.dark-mode #gitlabRepoDropdown {
     background-color: #404040 !important;
     border: 1px solid #505050 !important;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
@@ -932,6 +962,12 @@ hr,
     max-width: 15px !important;
     max-height: 15px !important;
     flex-shrink: 0;
+}
+
+#platformDropdownList li div {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 /* Fix platform dropdown highlight in dark mode */
@@ -1340,4 +1376,92 @@ html.mode-popup .timeframe-presets {
     to {
         transform: rotate(360deg);
     }
+}
+
+.platform-checkbox {
+    accent-color: #2563eb;
+    width: 1rem;
+    height: 1rem;
+}
+
+.platform-selected-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-right: 0.75rem;
+}
+
+.platform-selected-tag:last-child {
+    margin-right: 0;
+}
+
+.platform-selected-tag i,
+.platform-selected-tag svg {
+    margin-right: 0;
+}
+
+.platform-settings-block:not(:first-child) {
+    margin-top: 2rem;
+    padding-top: 0.25rem;
+}
+
+#gitlabPlatformSection,
+#codebergPlatformSection {
+    margin-top: 2rem;
+}
+
+.platform-header {
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+}
+
+.dark-mode .platform-header {
+    color: #ffffff !important;
+    border-color: #404040 !important;
+}
+
+.dark-mode #platformDropdownList {
+    background-color: #2d2d2d !important;
+    border-color: #404040 !important;
+}
+
+.dark-mode #platformDropdownList li:hover {
+    background-color: #404040 !important;
+}
+
+.dark-mode #displayModeSectionContainer {
+    border-color: #404040 !important;
+}
+
+.dark-mode #tokenEyeIcon,
+.dark-mode #gitlabTokenEyeIcon,
+.dark-mode #codebergTokenEyeIcon,
+.dark-mode #smtpPasswordEyeIcon {
+    color: #9ca3af !important;
+}
+
+/* Token warning banners */
+#tokenWarningForFilter,
+#tokenWarningForGitlabFilter,
+#tokenWarningForShowCommits,
+#onlyPrsRequiredWarningForShowCommits,
+#tokenWarningForMergedPRs,
+#tokenWarningForNextPlans {
+    background-color: #fee2e2;
+    border: 1px solid #fca5a5;
+    color: #dc2626;
+    padding: 0.5rem;
+    border-radius: 0.75rem;
+    margin-top: 0.5rem;
+}
+
+.dark-mode #tokenWarningForFilter,
+.dark-mode #tokenWarningForGitlabFilter,
+.dark-mode #tokenWarningForShowCommits,
+.dark-mode #onlyPrsRequiredWarningForShowCommits,
+.dark-mode #tokenWarningForMergedPRs,
+.dark-mode #tokenWarningForNextPlans {
+    background-color: #7f1d1d !important;
+    border-color: #dc2626 !important;
+    color: #fca5a5 !important;
 }
