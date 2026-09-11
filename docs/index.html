@@ -571,7 +571,7 @@
             if (deb) return { url: deb.browser_download_url, format: ".deb", label: "Linux (.deb)" };
             const tar = assets.find(a => {
                 const n = a.name.toLowerCase();
-                return n.endsWith(".tar.gz") && (n.includes("linux") || !n.includes("darwin"));
+                return n.endsWith(".tar.gz") && n.includes("linux");
             });
             if (tar) return { url: tar.browser_download_url, format: ".tar.gz", label: "Linux (.tar.gz)" };
             return null;
