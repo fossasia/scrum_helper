@@ -48,7 +48,6 @@ function gitlabCheckToken({
 		if (checkboxId === 'includeNextPlans') {
 			const container = document.getElementById('assignedIssuesSelector');
 			if (container) {
-				container.style.display = 'none';
 				container.classList.add('hidden');
 			}
 		}

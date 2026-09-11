@@ -118,7 +118,6 @@ function checkTokenForNextPlans({
 		// Hide the selector as next plans is disabled
 		const container = document.getElementById('assignedIssuesSelector');
 		if (container) {
-			container.style.display = 'none';
 			container.classList.add('hidden');
 		}
 		return;

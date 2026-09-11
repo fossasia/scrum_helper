@@ -8,81 +8,6 @@
 	<link rel="stylesheet" href="tailwindcss.css">
 	<link rel="stylesheet" type="text/css" href="index.css">
 	<link rel="stylesheet" href="fontawesome/css/all.min.css">
-	<style type="text/css">
-		html,
-		body {
-			margin: 0;
-			background: #eae4e4;
-			width: 100%;
-			height: 100%;
-			overflow: hidden;
-		}
-
-		body {
-			display: flex;
-		}
-
-		html.mode-sidepanel,
-		body.mode-sidepanel {
-			width: 100% !important;
-			height: 100% !important;
-			max-width: 100% !important;
-			max-height: 100% !important;
-			min-width: 360px;
-			min-height: 100% !important;
-		}
-
-		html.mode-popup,
-		body.mode-popup {
-			width: 360px !important;
-			height: 600px !important;
-			min-width: 360px;
-			max-width: 420px;
-			min-height: 600px !important;
-			max-height: 600px !important;
-			overflow: hidden !important;
-		}
-
-		#popupRoot {
-			flex: 1;
-			min-width: 360px;
-			flex-shrink: 0;
-			height: 100%;
-			overflow-y: auto;
-			overflow-x: hidden;
-			scrollbar-width: auto;
-			-ms-overflow-style: auto;
-		}
-
-		#platformSelect option {
-			font-family: 'FontAwesome', 'Arial', sans-serif;
-		}
-
-		#customPlatformDropdown {
-			position: relative;
-		}
-
-		#platformDropdownList {
-			display: none;
-		}
-
-		#customPlatformDropdown.open #platformDropdownList {
-			display: block;
-		}
-
-		#platformDropdownBtn:focus {
-			outline: 2px solid #2563eb;
-		}
-
-		/* Firefox Sidebar Fixes ONLY */
-		html.firefox-sidebar, 
-		body.firefox-sidebar {
-			min-width: 100% !important;
-		}
-		body.firefox-sidebar #popupRoot {
-			min-width: 100% !important;
-		}
-	</style>
 </head>
 
 <body class="mode-sidepanel text-gray-800 bg-gray-50 flex flex-col font-sans">
@@ -106,8 +31,8 @@
 						<img id="settingsIcon" src="icons/settings-light.png" alt="Settings"
 							class="w-6 h-6 cursor-pointer">
 					</button>
-					<button id="mailSettingsToggle" style="display: none;"
-						class="ml-1 p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition flex items-center justify-center"
+					<button id="mailSettingsToggle"
+						class="hidden ml-1 p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 transition flex items-center justify-center"
 						data-i18n-title="mailSettingsTitle">
 						<i class="fa fa-envelope text-3xl text-gray-600 dark:text-gray-300"></i>
 					</button>
@@ -150,7 +75,7 @@
 									<i class="fab fa-gitlab text-lg"></i> GitLab
 								</li>
 								<li class="px-4 py-2 flex items-center gap-2 cursor-pointer hover:bg-gray-100" data-value="codeberg">
-									<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="15" height="15" class="w-[15px] h-[15px] fill-current" style="width: 15px; height: 15px; flex-shrink: 0; fill: currentColor;">
+									<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" width="15" height="15" class="w-[15px] h-[15px] shrink-0 fill-current">
 										<title>Codeberg</title>
 										<path d="M11.999.747A11.974 11.974 0 0 0 0 12.75c0 2.254.635 4.465 1.833 6.376L11.837 6.19c.072-.092.251-.092.323 0l4.178 5.402h-2.992l.065.239h3.113l.882 1.138h-3.674l.103.374h3.86l.777 1.003h-4.358l.135.483h4.593l.695.894h-5.038l.165.589h5.326l.609.785h-5.717l.182.65h6.038l.562.727h-6.397l.183.65h6.717A12.003 12.003 0 0 0 24 12.75 11.977 11.977 0 0 0 11.999.747zm3.654 19.104.182.65h5.326c.173-.204.353-.433.513-.65zm.385 1.377.18.65h3.563c.233-.198.485-.428.712-.65zm.383 1.377.182.648h1.203c.356-.204.685-.412 1.042-.648z"/>
 									</svg> Codeberg
@@ -387,7 +312,7 @@
 								<span class="shortcut-tooltip" id="copyReportTooltipText">Ctrl+Shift+Y</span>
 							</div>
 							
-							<div id="sendReportEmailContainer" class="tooltip-container" style="display: none;">
+							<div id="sendReportEmailContainer" class="tooltip-container hidden">
 								<button id="sendReportEmail" disabled
 									class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
 									<i class="fa fa-paper-plane"></i> <span data-i18n="sendEmailButton">Send Email</span>
