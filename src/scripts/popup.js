@@ -134,23 +134,23 @@ document.addEventListener('DOMContentLoaded', () => {
 	if (window.isTauri) {
 		const displayModeSec = document.getElementById('displayModeSectionContainer');
 		if (displayModeSec) {
-			displayModeSec.style.display = 'none';
+			displayModeSec.classList.add('hidden');
 		}
 		const insertInEmailBtn = document.getElementById('insertInEmail');
 		if (insertInEmailBtn) {
 			const container = insertInEmailBtn.closest('.tooltip-container');
 			if (container) {
-				container.style.display = 'none';
+				container.classList.add('hidden');
 			}
 		}
 		// Show Tauri-only SMTP features
 		const mailSettingsToggle = document.getElementById('mailSettingsToggle');
 		if (mailSettingsToggle) {
-			mailSettingsToggle.style.display = 'inline-block';
+			mailSettingsToggle.classList.remove('hidden');
 		}
 		const sendReportEmailContainer = document.getElementById('sendReportEmailContainer');
 		if (sendReportEmailContainer) {
-			sendReportEmailContainer.style.display = 'inline-block';
+			sendReportEmailContainer.classList.remove('hidden');
 		}
 	}
 
@@ -1382,7 +1382,6 @@ document.addEventListener('DOMContentLoaded', () => {
 					} else {
 						const container = document.getElementById('assignedIssuesSelector');
 						if (container) {
-							container.style.display = 'none';
 							container.classList.add('hidden');
 						}
 					}
@@ -2166,7 +2165,6 @@ function triggerNextPlansReload() {
 		const container = document.getElementById('assignedIssuesSelector');
 		if (container) {
 			container.textContent = '';
-			container.style.display = 'none';
 			container.classList.add('hidden');
 		}
 		if (includeNextPlansCheckbox.checked && window.loadAssignedIssues) {
