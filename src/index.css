@@ -425,17 +425,40 @@ hr,
     border-color: transparent #374151 transparent transparent;
 }
 
-#toggleTokenVisibility {
+.token-input-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.token-toggle-btn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
     background: none;
     border: none;
     cursor: pointer;
-    margin-left: 8px;
+    margin: 0;
     padding: 0;
     line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6b7280;
+    z-index: 2;
 }
 
-#tokenEyeIcon {
-    font-size: 18px;
+.token-toggle-btn:hover {
+    color: #374151;
+}
+
+#tokenEyeIcon,
+#gitlabTokenEyeIcon,
+#codebergTokenEyeIcon,
+#smtpPasswordEyeIcon {
+    font-size: 16px;
     vertical-align: middle;
 }
 
@@ -1340,4 +1363,65 @@ html.mode-popup .timeframe-presets {
     to {
         transform: rotate(360deg);
     }
+}
+
+.platform-checkbox {
+    accent-color: #2563eb;
+    width: 1rem;
+    height: 1rem;
+}
+
+.platform-selected-tag {
+    display: inline-flex;
+    align-items: center;
+    margin-right: 0.75rem;
+}
+
+.platform-selected-tag:last-child {
+    margin-right: 0;
+}
+
+.platform-selected-tag i,
+.platform-selected-tag svg {
+    margin-right: 0.5rem;
+}
+
+.platform-settings-block:not(:first-child) {
+    margin-top: 2rem;
+    padding-top: 0.25rem;
+}
+
+#gitlabPlatformSection,
+#codebergPlatformSection {
+    margin-top: 2rem;
+}
+
+.platform-header {
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+}
+
+.dark-mode .platform-header {
+    color: #ffffff !important;
+    border-color: #404040 !important;
+}
+
+.dark-mode #platformDropdownList {
+    background-color: #2d2d2d !important;
+    border-color: #404040 !important;
+}
+
+.dark-mode #platformDropdownList li:hover {
+    background-color: #404040 !important;
+}
+
+.dark-mode #displayModeSectionContainer {
+    border-color: #404040 !important;
+}
+
+.dark-mode #tokenEyeIcon,
+.dark-mode #gitlabTokenEyeIcon,
+.dark-mode #codebergTokenEyeIcon,
+.dark-mode #smtpPasswordEyeIcon {
+    color: #9ca3af !important;
 }
