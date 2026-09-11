@@ -504,7 +504,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	function parsePositiveInt(value) {
 		const n = Number.parseInt(value, 10);
-		return Number.isFinite(n) && n > 0 ? n : null;
+		return Number.isSafeInteger(n) && n > 0 ? n : null;
 	}
 
 	function setGenerateButtonLoading(generateBtn, isLoading) {
@@ -1479,21 +1479,20 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		}
 
-		browser.storage.local
-			.get({ displayMode: window.isTauri || browser.sidebarAction?.toggle ? 'sidePanel' : 'popup' })
-			.then((result) => {
-				applyDisplayModeClass(result.displayMode);
-			});
+		const defaultDisplayMode =
+			window.isTauri || browser.sidebarAction?.toggle || browser.sidePanel?.open ? 'sidePanel' : 'popup';
+
+		browser.storage.local.get({ displayMode: defaultDisplayMode }).then((result) => {
+			applyDisplayModeClass(result.displayMode);
+		});
 
 		const displayModeSelect = document.getElementById('displayModeSelect');
 		const displayModeNotice = document.getElementById('displayModeNotice');
 		const displayModeNoticeText = document.getElementById('displayModeNoticeText');
 		if (displayModeSelect) {
-			browser.storage.local
-				.get({ displayMode: window.isTauri || browser.sidebarAction?.toggle ? 'sidePanel' : 'popup' })
-				.then((result) => {
-					displayModeSelect.value = result.displayMode;
-				});
+			browser.storage.local.get({ displayMode: defaultDisplayMode }).then((result) => {
+				displayModeSelect.value = result.displayMode;
+			});
 			displayModeSelect.addEventListener('change', () => {
 				const mode = displayModeSelect.value;
 				browser.storage.local.set({ displayMode: mode });
