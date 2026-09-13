@@ -905,7 +905,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				if (gitlabUsernameInput && result.gitlabUsername) gitlabUsernameInput.value = result.gitlabUsername;
 				if (codebergUsernameInput && result.codebergUsername) codebergUsernameInput.value = result.codebergUsername;
 				if (gitlabGroupInput) {
-					gitlabGroupInput.value = result.gitlabGroupName || (result.platform === 'gitlab' ? result.orgName : '') || '';
+					gitlabGroupInput.value = result.gitlabGroupName ?? (result.platform === 'gitlab' ? result.orgName : '') ?? '';
 				}
 				if (result.userReason) userReasonInput.value = result.userReason;
 				if (typeof result.showOpenLabel !== 'undefined') {
@@ -1681,9 +1681,6 @@ document.addEventListener('DOMContentLoaded', () => {
 			gitlabGroupInput.addEventListener('blur', () => {
 				const group = gitlabGroupInput.value.trim().toLowerCase();
 				browser.storage.local.set({ gitlabGroupName: group });
-				if (lastPlatform === 'gitlab') {
-					browser.storage.local.set({ orgName: group });
-				}
 			});
 		}
 		if (platformUsername) {
@@ -1781,6 +1778,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		clearAllBtn,
 		storageFilterKey,
 		storageReposKey,
+		storageCacheKey = platform === 'gitlab' ? 'gitlabRepoCache' : 'repoCache',
 		contextKey,
 		warningMsgKey,
 	}) {
@@ -1860,7 +1858,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 				await browser.storage.local.set({
 					[storageFilterKey]: enabled,
-					repoCache: null,
+					[storageCacheKey]: null,
 				});
 
 				const helper = window.PlatformRegistry?.get(platform);
@@ -1875,7 +1873,10 @@ document.addEventListener('DOMContentLoaded', () => {
 					}
 
 					try {
-						const cacheData = await browser.storage.local.get(['repoCache']);
+						const cacheData = await browser.storage.local.get(
+							platform === 'gitlab' ? [storageCacheKey, 'repoCache'] : [storageCacheKey],
+						);
+						const cached = cacheData[storageCacheKey] || (platform === 'gitlab' ? cacheData.repoCache : null);
 						const items = await browser.storage.local.get([
 							'platform',
 							'githubUsername',
@@ -1896,17 +1897,15 @@ document.addEventListener('DOMContentLoaded', () => {
 							return;
 						}
 
-						const org = platform === 'gitlab' ? items.gitlabGroupName || items.orgName || '' : items.orgName || '';
+						const org = platform === 'gitlab' ? items.gitlabGroupName || '' : items.orgName || '';
 						const repoCacheKey = makeRepoCacheKey(username, org, platform, items);
 
 						const now = Date.now();
-						const cacheAge = cacheData.repoCache?.timestamp
-							? now - cacheData.repoCache.timestamp
-							: Number.POSITIVE_INFINITY;
+						const cacheAge = cached?.timestamp ? now - cached.timestamp : Number.POSITIVE_INFINITY;
 						const cacheTTL = 10 * 60 * 1000;
 
-						if (cacheData.repoCache && cacheData.repoCache.cacheKey === repoCacheKey && cacheAge < cacheTTL) {
-							availableRepos = cacheData.repoCache.data;
+						if (cached && cached.cacheKey === repoCacheKey && cacheAge < cacheTTL) {
+							availableRepos = cached.data;
 							if (statusLabel) {
 								statusLabel.textContent = browser.i18n.getMessage('repoLoaded', [availableRepos.length]);
 							}
@@ -1924,7 +1923,7 @@ document.addEventListener('DOMContentLoaded', () => {
 								statusLabel.textContent = browser.i18n.getMessage('repoLoaded', [repos.length]);
 							}
 							browser.storage.local.set({
-								repoCache: {
+								[storageCacheKey]: {
 									data: repos,
 									cacheKey: repoCacheKey,
 									timestamp: now,
@@ -2268,6 +2267,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		clearAllBtn: document.getElementById('clearAllReposBtn'),
 		storageFilterKey: 'useRepoFilter',
 		storageReposKey: 'selectedRepos',
+		storageCacheKey: 'repoCache',
 		contextKey: 'githubRepoFilterContext',
 		warningMsgKey: 'tokenRequiredWarning',
 	});
@@ -2288,6 +2288,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		clearAllBtn: document.getElementById('clearAllGitlabReposBtn'),
 		storageFilterKey: 'useGitlabRepoFilter',
 		storageReposKey: 'selectedGitlabRepos',
+		storageCacheKey: 'gitlabRepoCache',
 		contextKey: 'gitlabRepoFilterContext',
 		warningMsgKey: 'tokenRequiredGitlabWarning',
 	});
@@ -2322,15 +2323,6 @@ if (cacheInput) {
 		});
 	});
 }
-
-browser.storage.local.get(['selectedPlatforms', 'platform']).then((result) => {
-	const platforms = result.selectedPlatforms || [result.platform || 'github'];
-	const platformSelect = document.getElementById('platformSelect');
-	if (platformSelect) {
-		platformSelect.value = platforms[0] || 'github';
-	}
-	updatePlatformUI(platforms);
-});
 
 function triggerNextPlansReload() {
 	const includeNextPlansCheckbox = document.getElementById('includeNextPlans');
@@ -2594,22 +2586,62 @@ function buildScrumSubjectFromPopup() {
 function renderPlatformDropdownSelected(platforms) {
 	if (!dropdownSelected) return;
 	const platformList = Array.isArray(platforms) && platforms.length > 0 ? platforms : ['github'];
-	const items = platformList.map((p) => {
+
+	dropdownSelected.replaceChildren();
+
+	const wrapper = document.createElement('span');
+	wrapper.className = 'flex items-center flex-wrap gap-2';
+
+	platformList.forEach((p) => {
+		const tag = document.createElement('span');
+		tag.className = 'platform-selected-tag inline-flex items-center gap-2';
+
 		if (p === 'gitlab') {
-			return '<span class="platform-selected-tag inline-flex items-center gap-2"><i class="fab fa-gitlab text-sm"></i><span>GitLab</span></span>';
+			const icon = document.createElement('i');
+			icon.className = 'fab fa-gitlab text-sm';
+			const label = document.createElement('span');
+			label.textContent = 'GitLab';
+			tag.appendChild(icon);
+			tag.appendChild(label);
+		} else if (p === 'codeberg') {
+			const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+			svg.setAttribute('role', 'img');
+			svg.setAttribute('viewBox', '0 0 24 24');
+			svg.style.width = '14px';
+			svg.style.height = '14px';
+			svg.style.display = 'inline-block';
+			svg.style.verticalAlign = 'middle';
+			svg.style.fill = 'currentColor';
+			svg.style.flexShrink = '0';
+
+			const title = document.createElementNS('http://www.w3.org/2000/svg', 'title');
+			title.textContent = 'Codeberg';
+			svg.appendChild(title);
+
+			const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+			path.setAttribute(
+				'd',
+				'M11.999.747A11.974 11.974 0 0 0 0 12.75c0 2.254.635 4.465 1.833 6.376L11.837 6.19c.072-.092.251-.092.323 0l4.178 5.402h-2.992l.065.239h3.113l.882 1.138h-3.674l.103.374h3.86l.777 1.003h-4.358l.135.483h4.593l.695.894h-5.038l.165.589h5.326l.609.785h-5.717l.182.65h6.038l.562.727h-6.397l.183.65h6.717A12.003 12.003 0 0 0 24 12.75 11.977 11.977 0 0 0 11.999.747zm3.654 19.104.182.65h5.326c.173-.204.353-.433.513-.65zm.385 1.377.18.65h3.563c.233-.198.485-.428.712-.65zm.383 1.377.182.648h1.203c.356-.204.685-.412 1.042-.648z',
+			);
+			svg.appendChild(path);
+
+			const label = document.createElement('span');
+			label.textContent = 'Codeberg';
+			tag.appendChild(svg);
+			tag.appendChild(label);
+		} else {
+			const icon = document.createElement('i');
+			icon.className = 'fab fa-github text-sm';
+			const label = document.createElement('span');
+			label.textContent = 'GitHub';
+			tag.appendChild(icon);
+			tag.appendChild(label);
 		}
-		if (p === 'codeberg') {
-			return `
-				<span class="platform-selected-tag inline-flex items-center gap-2">
-					<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width: 14px; height: 14px; display: inline-block; vertical-align: middle; fill: currentColor; flex-shrink: 0;">
-						<title>Codeberg</title>
-						<path d="M11.999.747A11.974 11.974 0 0 0 0 12.75c0 2.254.635 4.465 1.833 6.376L11.837 6.19c.072-.092.251-.092.323 0l4.178 5.402h-2.992l.065.239h3.113l.882 1.138h-3.674l.103.374h3.86l.777 1.003h-4.358l.135.483h4.593l.695.894h-5.038l.165.589h5.326l.609.785h-5.717l.182.65h6.038l.562.727h-6.397l.183.65h6.717A12.003 12.003 0 0 0 24 12.75 11.977 11.977 0 0 0 11.999.747zm3.654 19.104.182.65h5.326c.173-.204.353-.433.513-.65zm.385 1.377.18.65h3.563c.233-.198.485-.428.712-.65zm.383 1.377.182.648h1.203c.356-.204.685-.412 1.042-.648z"/>
-					</svg><span>Codeberg</span>
-				</span>`;
-		}
-		return '<span class="platform-selected-tag inline-flex items-center gap-2"><i class="fab fa-github text-sm"></i><span>GitHub</span></span>';
+
+		wrapper.appendChild(tag);
 	});
-	dropdownSelected.innerHTML = `<span class="flex items-center flex-wrap gap-2">${items.join('')}</span>`;
+
+	dropdownSelected.appendChild(wrapper);
 }
 
 function updateDropdownCheckboxes(platforms) {
@@ -2877,7 +2909,7 @@ document.querySelectorAll('input[name="timeframe"]').forEach((radio) => {
 				} catch (e) {}
 
 				// Clear all caches
-				const keysToRemove = ['githubCache', 'repoCache', 'gitlabCache', 'codebergCache'];
+				const keysToRemove = ['githubCache', 'repoCache', 'gitlabRepoCache', 'gitlabCache', 'codebergCache'];
 				await browser.storage.local.remove(keysToRemove);
 
 				// Clear in-memory cache for the active platform

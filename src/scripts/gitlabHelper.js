@@ -173,7 +173,9 @@ class GitLabHelper {
 		let repoMarker = 'norepos';
 		if (isRepoFilterEnabled && selectedReposList && selectedReposList.length > 0) {
 			const repoNames = selectedReposList
-				.map((r) => (typeof r === 'object' ? r.fullName : r).toLowerCase())
+				.filter(Boolean)
+				.map((r) => (typeof r === 'object' && r !== null ? r.fullName || '' : r || '').toLowerCase())
+				.filter(Boolean)
 				.sort()
 				.join(',');
 			repoMarker = `repos-${repoNames}`;
@@ -255,6 +257,7 @@ class GitLabHelper {
 					'useRepoFilter',
 					'selectedRepos',
 					'repoCache',
+					'gitlabRepoCache',
 					'useGitlabRepoFilter',
 					'selectedGitlabRepos',
 				]);
@@ -265,10 +268,14 @@ class GitLabHelper {
 				const currentSelectedRepos = filterSettings.selectedGitlabRepos || filterSettings.selectedRepos;
 				if (isFilterEnabled && currentSelectedRepos && currentSelectedRepos.length > 0) {
 					const selectedNames = new Set(
-						currentSelectedRepos.map((r) => (typeof r === 'object' ? r.fullName : r).toLowerCase()),
+						currentSelectedRepos
+							.filter(Boolean)
+							.map((r) => (typeof r === 'object' && r !== null ? r.fullName || '' : r || '').toLowerCase())
+							.filter(Boolean),
 					);
-					if (filterSettings.repoCache && filterSettings.repoCache.data) {
-						for (const repo of filterSettings.repoCache.data) {
+					const repoCacheData = filterSettings.gitlabRepoCache || filterSettings.repoCache;
+					if (repoCacheData && repoCacheData.data) {
+						for (const repo of repoCacheData.data) {
 							const nameLower = repo.fullName.toLowerCase();
 							const forkedFromLower = repo.forkedFrom?.toLowerCase();
 							if (forkedFromLower) {
@@ -360,6 +367,7 @@ class GitLabHelper {
 					'useRepoFilter',
 					'selectedRepos',
 					'repoCache',
+					'gitlabRepoCache',
 					'useGitlabRepoFilter',
 					'selectedGitlabRepos',
 				]);
@@ -370,10 +378,14 @@ class GitLabHelper {
 				const currentSelectedRepos = filterSettings.selectedGitlabRepos || filterSettings.selectedRepos;
 				if (isFilterEnabled && currentSelectedRepos && currentSelectedRepos.length > 0) {
 					const selectedNames = new Set(
-						currentSelectedRepos.map((r) => (typeof r === 'object' ? r.fullName : r).toLowerCase()),
+						currentSelectedRepos
+							.filter(Boolean)
+							.map((r) => (typeof r === 'object' && r !== null ? r.fullName || '' : r || '').toLowerCase())
+							.filter(Boolean),
 					);
-					if (filterSettings.repoCache && filterSettings.repoCache.data) {
-						for (const repo of filterSettings.repoCache.data) {
+					const repoCacheData = filterSettings.gitlabRepoCache || filterSettings.repoCache;
+					if (repoCacheData && repoCacheData.data) {
+						for (const repo of repoCacheData.data) {
 							const nameLower = repo.fullName.toLowerCase();
 							const forkedFromLower = repo.forkedFrom?.toLowerCase();
 							if (forkedFromLower) {
@@ -779,9 +791,9 @@ if (window.PlatformRegistry) {
 			const { repoStatus, setAvailableRepos } = context;
 			if (repoStatus) repoStatus.textContent = browser.i18n.getMessage('repoRefetching');
 			try {
-				const items = await browser.storage.local.get(['gitlabUsername', 'gitlabToken', 'orgName', 'gitlabGroupName']);
+				const items = await browser.storage.local.get(['gitlabUsername', 'gitlabToken', 'gitlabGroupName']);
 				const username = items.gitlabUsername;
-				const org = items.gitlabGroupName || items.orgName || '';
+				const org = items.gitlabGroupName || '';
 				if (!username) {
 					if (repoStatus)
 						repoStatus.textContent = chrome?.i18n.getMessage('usernameMissingError') || 'Username required';
@@ -791,7 +803,7 @@ if (window.PlatformRegistry) {
 				setAvailableRepos?.(repos);
 				if (repoStatus) repoStatus.textContent = browser.i18n.getMessage('repoLoaded', [repos.length]);
 				const key = makeRepoCacheKey(username, org, 'gitlab', items);
-				browser.storage.local.set({ repoCache: { data: repos, cacheKey: key, timestamp: Date.now() } });
+				browser.storage.local.set({ gitlabRepoCache: { data: repos, cacheKey: key, timestamp: Date.now() } });
 			} catch (err) {
 				if (repoStatus) repoStatus.textContent = `Error: ${err.message}`;
 			}
@@ -814,17 +826,18 @@ if (window.PlatformRegistry) {
 			repoStatus.textContent = browser.i18n.getMessage('repoLoading');
 			repoSearch.classList.add('repository-search-loading');
 			try {
-				const cache = await browser.storage.local.get(['repoCache']);
-				const items = await browser.storage.local.get(['gitlabUsername', 'gitlabToken', 'orgName', 'gitlabGroupName']);
+				const cache = await browser.storage.local.get(['gitlabRepoCache', 'repoCache']);
+				const items = await browser.storage.local.get(['gitlabUsername', 'gitlabToken', 'gitlabGroupName']);
 				const username = items.gitlabUsername;
-				const org = items.gitlabGroupName || items.orgName || '';
+				const org = items.gitlabGroupName || '';
 				const key = makeRepoCacheKey(username, org, 'gitlab', items);
-				if (cache.repoCache?.cacheKey === key && Date.now() - cache.repoCache.timestamp < 600000) {
-					setAvailableRepos(cache.repoCache.data);
+				const cached = cache.gitlabRepoCache || cache.repoCache;
+				if (cached?.cacheKey === key && Date.now() - cached.timestamp < 600000) {
+					setAvailableRepos(cached.data);
 				} else {
 					const repos = await this.fetchUserRepositories(username, items.gitlabToken, org);
 					setAvailableRepos(repos);
-					browser.storage.local.set({ repoCache: { data: repos, cacheKey: key, timestamp: Date.now() } });
+					browser.storage.local.set({ gitlabRepoCache: { data: repos, cacheKey: key, timestamp: Date.now() } });
 				}
 				repoStatus.textContent = browser.i18n.getMessage('repoLoaded', [getAvailableRepos().length]);
 				if (document.activeElement === repoSearch) filterAndDisplayRepos(repoSearch.value.toLowerCase());
@@ -846,7 +859,7 @@ if (window.PlatformRegistry) {
 							return;
 						}
 						window.clearScrumHelperToast?.();
-						browser.storage.local.remove(['gitlabCache']);
+						browser.storage.local.remove(['gitlabCache', 'gitlabRepoCache']);
 					})
 					.catch((err) => {
 						if (window.showPopupMessage) window.showPopupMessage('Error validating organization', { variant: 'error' });

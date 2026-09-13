@@ -265,6 +265,20 @@ function allIncluded(outputTarget = 'email') {
 	let startingDate = '';
 	let endingDate = '';
 	let platformUsernameLocal = '';
+	const platformUsernames = {
+		github: '',
+		gitlab: '',
+		codeberg: '',
+	};
+
+	function getUsernameForPlatform(p) {
+		const targetPlatform = p || platform || 'github';
+		return (
+			platformUsernames[targetPlatform] ||
+			(targetPlatform === platform ? platformUsernameLocal || platformUsername : '') ||
+			''
+		);
+	}
 	let githubToken = '';
 	let projectName = '';
 	let lastWeekIssuesArray = [];
@@ -356,6 +370,10 @@ function allIncluded(outputTarget = 'email') {
 				platformUsernameLocal = platformUsername;
 				console.log(`[DEBUG] platform: ${platform}, platformUsername: ${platformUsername}`);
 
+				platformUsernames.github = items.githubUsername || (platform === 'github' ? platformUsername : '');
+				platformUsernames.gitlab = items.gitlabUsername || (platform === 'gitlab' ? platformUsername : '');
+				platformUsernames.codeberg = items.codebergUsername || (platform === 'codeberg' ? platformUsername : '');
+
 				if (outputTarget === 'popup') {
 					const usernameFromDOM = document.getElementById('platformUsername')?.value;
 					const githubUserFromDOM = document.getElementById('githubUsername')?.value?.trim();
@@ -366,15 +384,27 @@ function allIncluded(outputTarget = 'email') {
 					const gitlabTokenFromDOM = document.getElementById('gitlabToken')?.value;
 					const codebergTokenFromDOM = document.getElementById('codebergToken')?.value;
 
-					if (githubUserFromDOM) items.githubUsername = githubUserFromDOM;
-					if (gitlabUserFromDOM) items.gitlabUsername = gitlabUserFromDOM;
-					if (codebergUserFromDOM) items.codebergUsername = codebergUserFromDOM;
+					if (githubUserFromDOM) {
+						items.githubUsername = githubUserFromDOM;
+						platformUsernames.github = githubUserFromDOM;
+					}
+					if (gitlabUserFromDOM) {
+						items.gitlabUsername = gitlabUserFromDOM;
+						platformUsernames.gitlab = gitlabUserFromDOM;
+					}
+					if (codebergUserFromDOM) {
+						items.codebergUsername = codebergUserFromDOM;
+						platformUsernames.codeberg = codebergUserFromDOM;
+					}
 
 					// Save to platform-specific storage
 					if (usernameFromDOM) {
 						chrome.storage.local.set({ [platformUsernameKey]: usernameFromDOM });
 						platformUsername = usernameFromDOM;
 						platformUsernameLocal = usernameFromDOM;
+						if (platform && !platformUsernames[platform]) {
+							platformUsernames[platform] = usernameFromDOM;
+						}
 					}
 
 					items.projectName = projectFromDOM || items.projectName;
@@ -470,13 +500,6 @@ function allIncluded(outputTarget = 'email') {
 						? items.selectedPlatforms
 						: [platform || 'github'];
 
-				const getUsernameForPlatform = (p) => {
-					if (p === 'github') return items.githubUsername || (platform === 'github' ? platformUsernameLocal : '');
-					if (p === 'gitlab') return items.gitlabUsername || (platform === 'gitlab' ? platformUsernameLocal : '');
-					if (p === 'codeberg') return items.codebergUsername || (platform === 'codeberg' ? platformUsernameLocal : '');
-					return '';
-				};
-
 				const platformsToFetch = activePlatforms.filter((p) => Boolean(getUsernameForPlatform(p)));
 
 				if (platformsToFetch.length === 0) {
@@ -501,11 +524,12 @@ function allIncluded(outputTarget = 'email') {
 
 				(async () => {
 					try {
-						const platformResults = await Promise.all(
+						const settled = await Promise.allSettled(
 							platformsToFetch.map(async (p) => {
 								const user = getUsernameForPlatform(p);
 								if (p === 'github') {
 									platformUsernameLocal = user;
+									platformUsernames.github = user;
 									const data = await fetchGithubData(false);
 									const issues = data?.githubIssuesData?.items || [];
 									const prReviews = data?.githubPrsReviewData?.items || [];
@@ -531,7 +555,7 @@ function allIncluded(outputTarget = 'email') {
 										startingDate,
 										endingDate,
 										items.gitlabToken || gitlabToken,
-										items.gitlabGroupName || items.orgName || orgName,
+										items.gitlabGroupName || '',
 									);
 									const mapped = window.gitlabHelper.mapGitLabReportData(raw);
 									const issues = mapped?.githubIssuesData?.items || [];
@@ -580,11 +604,32 @@ function allIncluded(outputTarget = 'email') {
 							}),
 						);
 
+						const successful = settled.filter((r) => r.status === 'fulfilled').map((r) => r.value);
+						const failures = settled.filter((r) => r.status === 'rejected').map((r) => r.reason);
+
+						if (successful.length === 0) {
+							const firstError = failures[0] || new Error('All platforms failed to fetch data.');
+							throw firstError;
+						}
+
+						if (failures.length > 0) {
+							console.warn('Some platforms failed to fetch report data:', failures);
+							if (outputTarget === 'popup') {
+								const failMessages = failures
+									.map((f) => f?.message)
+									.filter(Boolean)
+									.join('; ');
+								if (failMessages && window.showPopupMessage) {
+									window.showPopupMessage(failMessages, { variant: 'error' });
+								}
+							}
+						}
+
 						const combinedAuthored = [];
 						const combinedReviewed = [];
 						let primaryUser = null;
 
-						for (const res of platformResults) {
+						for (const res of successful) {
 							if (res.authored) combinedAuthored.push(...res.authored);
 							if (res.reviewed) combinedReviewed.push(...res.reviewed);
 							if (!primaryUser && res.user) primaryUser = res.user;
@@ -665,6 +710,7 @@ function allIncluded(outputTarget = 'email') {
 		timestamp: 0,
 		ttl: 10 * 60 * 1000, // cache valid for 10 mins
 		fetching: false,
+		fetchPromise: null,
 		queue: [],
 		errors: {},
 		errorTTL: 60 * 1000, // 1 min error cache
@@ -795,8 +841,20 @@ function allIncluded(outputTarget = 'email') {
 		const commitMarker = showCommits ? 'commits' : 'nocommits';
 		const cacheKey = `${platformUsernameLocal}-${startDateForCache}-${endDateForCache}-${orgName || 'all'}-${commitMarker}-${repoMarker}`;
 
-		if (githubCache.fetching || (githubCache.cacheKey === cacheKey && githubCache.data)) {
-			log('Fetch already in progress or data already fetched. Skipping fetch.');
+		if (githubCache.fetching) {
+			log('Fetch in progress, awaiting existing fetch.');
+			const inFlightData = await (githubCache.fetchPromise ||
+				new Promise((resolve, reject) => {
+					githubCache.queue.push({ resolve, reject });
+				}));
+			if (shouldProcess && inFlightData) {
+				processGithubData(inFlightData);
+			}
+			return inFlightData;
+		}
+
+		if (githubCache.cacheKey === cacheKey && githubCache.data) {
+			log('Data already fetched with matching cacheKey. Using cached data.');
 			if (shouldProcess && githubCache.data) {
 				processGithubData(githubCache.data);
 			}
@@ -849,12 +907,23 @@ function allIncluded(outputTarget = 'email') {
 		}
 
 		if (githubCache.fetching) {
-			log('Fetch in progress, queuing requests');
-			return new Promise((resolve, reject) => {
-				githubCache.queue.push({ resolve, reject });
-			});
+			log('Fetch in progress, awaiting existing fetch.');
+			const inFlightData = await (githubCache.fetchPromise ||
+				new Promise((resolve, reject) => {
+					githubCache.queue.push({ resolve, reject });
+				}));
+			if (shouldProcess && inFlightData) {
+				processGithubData(inFlightData);
+			}
+			return inFlightData;
 		}
 
+		let fetchPromiseResolve;
+		let fetchPromiseReject;
+		githubCache.fetchPromise = new Promise((res, rej) => {
+			fetchPromiseResolve = res;
+			fetchPromiseReject = rej;
+		});
 		githubCache.fetching = true;
 		githubCache.cacheKey = cacheKey;
 		githubCache.usedToken = !!githubToken;
@@ -1110,6 +1179,7 @@ function allIncluded(outputTarget = 'email') {
 				resolve(githubCache.data);
 			});
 			githubCache.queue = [];
+			fetchPromiseResolve?.(githubCache.data);
 			return githubCache.data;
 		} catch (err) {
 			logError('Fetch Failed:', err);
@@ -1118,6 +1188,7 @@ function allIncluded(outputTarget = 'email') {
 				reject(err);
 			});
 			githubCache.queue = [];
+			fetchPromiseReject?.(err);
 			githubCache.fetching = false;
 
 			if (outputTarget === 'popup') {
@@ -1143,6 +1214,7 @@ function allIncluded(outputTarget = 'email') {
 			throw err;
 		} finally {
 			githubCache.fetching = false;
+			githubCache.fetchPromise = null;
 		}
 	}
 
@@ -1200,7 +1272,7 @@ function allIncluded(outputTarget = 'email') {
 			githubCache.repoTimeStamp = now;
 
 			chrome.storage.local.set({
-				repoCache: {
+				[platform === 'gitlab' ? 'gitlabRepoCache' : 'repoCache']: {
 					data: repos,
 					cacheKey: repoCacheKey,
 					timestamp: now,
@@ -1653,11 +1725,6 @@ function allIncluded(outputTarget = 'email') {
 	}
 
 	async function writeGithubPrsReviews() {
-		if (platform === 'codeberg') {
-			reviewedPrsArray = [];
-			prsReviewDataProcessed = true;
-			return;
-		}
 		if (!onlyRevPRs) {
 			log('onlyRevPRs is not checked, skipping PR reviews.');
 			reviewedPrsArray = [];
@@ -1665,14 +1732,16 @@ function allIncluded(outputTarget = 'email') {
 			return;
 		}
 
-		const items = githubPrsReviewData.items;
+		const items = githubPrsReviewData?.items;
 		log('Processing PR reviews:', {
 			hasItems: !!items,
 			itemCount: items?.length,
 			firstItem: items?.[0],
 		});
-		if (!items) {
-			logError('No Github PR review data available');
+		if (!items || items.length === 0) {
+			log('No Github PR review data available');
+			reviewedPrsArray = [];
+			prsReviewDataProcessed = true;
 			return;
 		}
 		reviewedPrsArray = [];
@@ -1718,10 +1787,11 @@ function allIncluded(outputTarget = 'email') {
 						const owner = repoParts[repoParts.length - 2];
 						const repo = repoParts[repoParts.length - 1];
 
-						const reviews = await window.githubFetchPrReviews(owner, repo, item.number, githubToken).catch(() => []);
+						const reviews = await window.githubFetchPrReviews(owner, repo, item.number, githubToken);
 
 						const hasValidReview = reviews.some((review) => {
-							if (!review.user || review.user.login.toLowerCase() !== platformUsernameLocal.toLowerCase()) return false;
+							const ghUser = getUsernameForPlatform('github');
+							if (!review.user || !ghUser || review.user.login.toLowerCase() !== ghUser.toLowerCase()) return false;
 							if (!review.submitted_at) return false;
 							const submittedDate = new Date(review.submitted_at);
 							return submittedDate >= startDateTime && submittedDate <= endDateTime;
@@ -1750,16 +1820,22 @@ function allIncluded(outputTarget = 'email') {
 				`Processing PR #${item.number} - state: ${item.state}, updated_at: ${item.updated_at}, created_at: ${item.created_at}, merged_at: ${item.pull_request?.merged_at}`,
 			);
 
-			// For GitHub: item.user.login, for GitLab: item.author?.username
+			// For GitHub: item.user.login, for GitLab: item.author?.username, for Codeberg: item.user.login/username
 			let isAuthoredByUser = false;
 			const itemPlatform = item._platform || item.platform || platform;
+			const userForPlatform = getUsernameForPlatform(itemPlatform);
 			if (itemPlatform === 'github') {
-				isAuthoredByUser = item.user && item.user.login.toLowerCase() === platformUsernameLocal.toLowerCase();
+				isAuthoredByUser = Boolean(
+					item.user?.login && userForPlatform && item.user.login.toLowerCase() === userForPlatform.toLowerCase(),
+				);
 			} else if (itemPlatform === 'gitlab') {
-				isAuthoredByUser = item.author && item.author.username === platformUsername;
+				const authorUsername = item.author?.username;
+				isAuthoredByUser = Boolean(
+					authorUsername && userForPlatform && authorUsername.toLowerCase() === userForPlatform.toLowerCase(),
+				);
 			} else if (itemPlatform === 'codeberg') {
-				isAuthoredByUser =
-					item.user && (item.user.login === platformUsernameLocal || item.user.username === platformUsernameLocal);
+				const login = item.user?.login || item.user?.username;
+				isAuthoredByUser = Boolean(login && userForPlatform && login.toLowerCase() === userForPlatform.toLowerCase());
 			}
 
 			if (isAuthoredByUser || !item.pull_request) continue;
@@ -2334,7 +2410,12 @@ function allIncluded(outputTarget = 'email') {
 		if (outputTarget === 'popup') {
 			return;
 		}
-		const username = platform === 'gitlab' ? platformUsername : platformUsernameLocal;
+		const username =
+			getUsernameForPlatform(platform) ||
+			getUsernameForPlatform('github') ||
+			getUsernameForPlatform('gitlab') ||
+			getUsernameForPlatform('codeberg') ||
+			platformUsernameLocal;
 		if (scrumBody && username && githubIssuesData && githubPrsReviewData) {
 			clearInterval(intervalWriteGithubIssues);
 			clearInterval(intervalWriteGithubPrs);
@@ -2346,7 +2427,12 @@ function allIncluded(outputTarget = 'email') {
 			return;
 		}
 
-		const username = platform === 'gitlab' ? platformUsername : platformUsernameLocal;
+		const username =
+			getUsernameForPlatform(platform) ||
+			getUsernameForPlatform('github') ||
+			getUsernameForPlatform('gitlab') ||
+			getUsernameForPlatform('codeberg') ||
+			platformUsernameLocal;
 		if (scrumBody && username && githubPrsReviewData && githubIssuesData) {
 			clearInterval(intervalWriteGithubPrs);
 			clearInterval(intervalWriteGithubIssues);
@@ -2535,9 +2621,15 @@ let selectedRepos = [];
 let useRepoFilter = false;
 
 function filterDataByRepos(data, ghRepos = [], glRepos = [], useGhFilter = true, useGlFilter = false) {
+	const extractRepoName = (r) => {
+		if (!r) return null;
+		if (typeof r === 'object') return r.fullName || null;
+		return typeof r === 'string' ? r : null;
+	};
+
 	// Support legacy signature filterDataByRepos(data, selectedRepos)
 	if (Array.isArray(ghRepos) && typeof useGhFilter !== 'boolean') {
-		const repos = ghRepos;
+		const repos = (ghRepos || []).map(extractRepoName).filter(Boolean);
 		if (!repos || repos.length === 0) return data;
 		const filterSingle = (item) => {
 			const fullName = getProjectName(item, item._platform || 'github');
@@ -2556,8 +2648,8 @@ function filterDataByRepos(data, ghRepos = [], glRepos = [], useGhFilter = true,
 		};
 	}
 
-	const cleanGhRepos = (ghRepos || []).map((r) => (typeof r === 'object' ? r.fullName : r));
-	const cleanGlRepos = (glRepos || []).map((r) => (typeof r === 'object' ? r.fullName : r));
+	const cleanGhRepos = (ghRepos || []).map(extractRepoName).filter(Boolean);
+	const cleanGlRepos = (glRepos || []).map(extractRepoName).filter(Boolean);
 
 	const filterItem = (item) => {
 		const plat = item._platform || 'github';

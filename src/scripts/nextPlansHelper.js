@@ -256,30 +256,35 @@
 			if (platforms.includes('github') && storage.githubToken?.trim()) {
 				const ghHelper = window.PlatformRegistry ? window.PlatformRegistry.get('github') : null;
 				if (ghHelper && typeof ghHelper.fetchAssignedIssues === 'function') {
-					fetchPromises.push(
-						ghHelper.fetchAssignedIssues(scope).catch((err) => {
-							console.error('[NextPlans] GitHub issues fetch failed:', err);
-							return [];
-						}),
-					);
+					fetchPromises.push(ghHelper.fetchAssignedIssues(scope));
 				}
 			}
 
 			if (platforms.includes('gitlab') && storage.gitlabToken?.trim()) {
 				const glHelper = window.PlatformRegistry ? window.PlatformRegistry.get('gitlab') : null;
 				if (glHelper && typeof glHelper.fetchAssignedIssues === 'function') {
-					fetchPromises.push(
-						glHelper.fetchAssignedIssues(scope).catch((err) => {
-							console.error('[NextPlans] GitLab issues fetch failed:', err);
-							return [];
-						}),
-					);
+					fetchPromises.push(glHelper.fetchAssignedIssues(scope));
 				}
 			}
 
-			const results = await Promise.all(fetchPromises);
-			const issues = results.flat();
+			if (fetchPromises.length === 0) {
+				const container = document.getElementById('assignedIssuesSelector');
+				if (container) {
+					container.style.display = 'none';
+					container.classList.add('hidden');
+				}
+				return;
+			}
 
+			const settled = await Promise.allSettled(fetchPromises);
+			const successful = settled.filter((r) => r.status === 'fulfilled');
+
+			if (successful.length === 0) {
+				const firstError = settled.find((r) => r.status === 'rejected')?.reason;
+				throw firstError || new Error('Failed to fetch assigned issues from all platforms.');
+			}
+
+			const issues = successful.flatMap((r) => r.value || []);
 			cacheIssues(scope, issues);
 			displayIssuesUI(issues, scope);
 		} catch (error) {
