@@ -385,9 +385,9 @@ function allIncluded(outputTarget = 'email') {
 					const gitlabUserFromDOM = document.getElementById('gitlabUsername')?.value?.trim();
 					const codebergUserFromDOM = document.getElementById('codebergUsername')?.value?.trim();
 					const projectFromDOM = document.getElementById('projectName')?.value;
-					const tokenFromDOM = document.getElementById('githubToken')?.value;
-					const gitlabTokenFromDOM = document.getElementById('gitlabToken')?.value;
-					const codebergTokenFromDOM = document.getElementById('codebergToken')?.value;
+					const tokenFromDOM = document.getElementById('githubToken')?.value?.trim();
+					const gitlabTokenFromDOM = document.getElementById('gitlabToken')?.value?.trim();
+					const codebergTokenFromDOM = document.getElementById('codebergToken')?.value?.trim();
 
 					if (githubUserFromDOM) {
 						items.githubUsername = githubUserFromDOM;
@@ -804,13 +804,16 @@ function allIncluded(outputTarget = 'email') {
 	}
 
 	function isRateLimitResponse(res) {
-		if (!res) return false;
+		if (!res || res.ok) return false;
 		if (res.status === 429) return true;
-		const remaining =
-			typeof res.headers?.get === 'function'
-				? res.headers.get('x-ratelimit-remaining')
-				: res.headers?.['x-ratelimit-remaining'] || res.headers?.['X-RateLimit-Remaining'];
-		return remaining === '0' || remaining === 0;
+		if (res.status === 403) {
+			const remaining =
+				typeof res.headers?.get === 'function'
+					? res.headers.get('x-ratelimit-remaining')
+					: res.headers?.['x-ratelimit-remaining'] || res.headers?.['X-RateLimit-Remaining'];
+			return remaining === '0' || remaining === 0;
+		}
+		return false;
 	}
 
 	async function fetchGithubData(shouldProcess = true) {
@@ -919,6 +922,7 @@ function allIncluded(outputTarget = 'email') {
 			fetchPromiseResolve = res;
 			fetchPromiseReject = rej;
 		});
+		githubCache.fetchPromise.catch(() => {});
 		githubCache.fetching = true;
 		githubCache.cacheKey = cacheKey;
 		githubCache.usedToken = !!githubToken;
