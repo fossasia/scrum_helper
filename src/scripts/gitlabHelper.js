@@ -739,6 +739,8 @@ async function fetchIssuesFromGitLab(scope) {
 				html_url: safeUrl,
 				repository: repoName,
 				state: issue.state,
+				_platform: 'gitlab',
+				platform: 'gitlab',
 			};
 		})
 		.filter((issue) => {

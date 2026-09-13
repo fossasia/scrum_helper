@@ -279,6 +279,8 @@ function allIncluded(outputTarget = 'email') {
 			''
 		);
 	}
+	let activePlatforms = [];
+	let storageItems = {};
 	let githubToken = '';
 	let projectName = '';
 	let lastWeekIssuesArray = [];
@@ -346,6 +348,8 @@ function allIncluded(outputTarget = 'email') {
 				'selectedTimeframe',
 				'userReason',
 				'githubCache',
+				'gitlabCache',
+				'codebergCache',
 				'cacheInput',
 				'orgName',
 				'selectedRepos',
@@ -361,6 +365,7 @@ function allIncluded(outputTarget = 'email') {
 				'includeNextPlans',
 			])
 			.then((items) => {
+				storageItems = items;
 				console.log('[DEBUG] Storage items received:', logRedaction(items));
 				platform = items.platform || 'github';
 
@@ -495,7 +500,7 @@ function allIncluded(outputTarget = 'email') {
 					}
 				}
 
-				const activePlatforms =
+				activePlatforms =
 					Array.isArray(items.selectedPlatforms) && items.selectedPlatforms.length > 0
 						? items.selectedPlatforms
 						: [platform || 'github'];
@@ -1361,6 +1366,7 @@ function allIncluded(outputTarget = 'email') {
 				resolve,
 			);
 		});
+		Object.assign(storageItems, repoSettings);
 		const ghRepos = Array.isArray(repoSettings.selectedRepos) ? repoSettings.selectedRepos : [];
 		const glRepos = Array.isArray(repoSettings.selectedGitlabRepos) ? repoSettings.selectedGitlabRepos : [];
 		const useGhFilter = repoSettings.useRepoFilter || false;
@@ -1403,17 +1409,41 @@ function allIncluded(outputTarget = 'email') {
 					if (selectedPlans && selectedPlans.length > 0) {
 						const plansByRepo = {};
 						selectedPlans.forEach((issue) => {
-							const repo = issue.repository || getProjectName(issue, issue._platform || platform) || 'unknown';
+							const issuePlatform =
+								issue._platform ||
+								issue.platform ||
+								(issue.html_url?.includes('gitlab')
+									? 'gitlab'
+									: issue.html_url?.includes('codeberg')
+										? 'codeberg'
+										: platform);
+							const repo = issue.repository || getProjectName(issue, issuePlatform) || 'unknown';
 							if (!plansByRepo[repo]) {
 								plansByRepo[repo] = [];
 							}
-							const alreadyExists = plansByRepo[repo].some(
-								(existing) =>
+							const alreadyExists = plansByRepo[repo].some((existing) => {
+								const existingPlatform =
+									existing._platform ||
+									existing.platform ||
+									(existing.html_url?.includes('gitlab')
+										? 'gitlab'
+										: existing.html_url?.includes('codeberg')
+											? 'codeberg'
+											: platform);
+								if (existingPlatform !== issuePlatform) {
+									return false;
+								}
+								return (
 									String(existing.number) === String(issue.number) ||
-									(existing.id && String(existing.id) === String(issue.id)),
-							);
+									(existing.id && String(existing.id) === String(issue.id))
+								);
+							});
 							if (!alreadyExists) {
-								plansByRepo[repo].push(issue);
+								plansByRepo[repo].push({
+									...issue,
+									_platform: issuePlatform,
+									platform: issuePlatform,
+								});
 							}
 						});
 
@@ -1625,11 +1655,49 @@ function allIncluded(outputTarget = 'email') {
 								? (window.codebergHelper?.cache?.cacheKey ?? null)
 								: (githubCache?.cacheKey ?? null);
 
+					const platformCacheKeys = {
+						github: githubCache?.cacheKey ?? storageItems?.githubCache?.cacheKey ?? null,
+						gitlab: window.gitlabHelper?.cache?.cacheKey ?? storageItems?.gitlabCache?.cacheKey ?? null,
+						codeberg: window.codebergHelper?.cache?.cacheKey ?? storageItems?.codebergCache?.cacheKey ?? null,
+					};
+
+					const combinedIdentity =
+						window.reportIdentityUtils?.buildReportIdentity({
+							platforms: activePlatforms,
+							usernames: {
+								github: getUsernameForPlatform('github'),
+								gitlab: getUsernameForPlatform('gitlab'),
+								codeberg: getUsernameForPlatform('codeberg'),
+							},
+							filters: {
+								useRepoFilter: Boolean(storageItems?.useRepoFilter),
+								selectedRepos: storageItems?.selectedRepos,
+								useGitlabRepoFilter: Boolean(storageItems?.useGitlabRepoFilter),
+								selectedGitlabRepos: storageItems?.selectedGitlabRepos,
+								orgName: storageItems?.orgName,
+								gitlabGroupName: storageItems?.gitlabGroupName,
+								showCommits,
+								onlyIssues,
+								onlyPRs,
+								onlyRevPRs,
+								onlyMergedPRs,
+								includeNextPlans,
+								includeBlockers,
+								selectedTimeframe: storageItems?.selectedTimeframe,
+								yesterdayContribution,
+								weeklyContribution,
+								startingDate,
+								endingDate,
+							},
+							cacheKeys: platformCacheKeys,
+						}) ?? null;
+
 					chrome.storage.local.set({
 						lastScrumReportHtml: content,
 						lastScrumReportPlatform: platform,
 						lastScrumReportCacheKey: cacheKey,
 						lastScrumReportUsername: platformUsername,
+						lastScrumReportIdentity: combinedIdentity,
 					});
 				} catch (e) {
 					// ignore
@@ -2281,7 +2349,9 @@ function allIncluded(outputTarget = 'email') {
 				if (!githubPrsDataProcessed[project]) {
 					githubPrsDataProcessed[project] = [];
 				}
-				const alreadyExists = githubPrsDataProcessed[project].some((existing) => existing.number === number);
+				const alreadyExists = githubPrsDataProcessed[project].some(
+					(existing) => existing.number === number && (existing.platform || platform) === itemPlatform,
+				);
 				if (!alreadyExists) {
 					githubPrsDataProcessed[project].push({
 						number,
@@ -2291,6 +2361,7 @@ function allIncluded(outputTarget = 'email') {
 						isNewPR,
 						statusButton,
 						commitsHtml,
+						platform: itemPlatform,
 					});
 				}
 				continue; // Prevent issue logic from overwriting PR li

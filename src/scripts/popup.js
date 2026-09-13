@@ -739,100 +739,109 @@ document.addEventListener('DOMContentLoaded', () => {
 			return;
 		}
 
-		const { platform, cacheInput, githubCache, gitlabCache } = await storageLocalGet([
+		const storage = await storageLocalGet([
 			'platform',
+			'selectedPlatforms',
 			'cacheInput',
 			'githubCache',
 			'gitlabCache',
+			'codebergCache',
+			'githubUsername',
+			'gitlabUsername',
+			'codebergUsername',
+			'platformUsername',
+			'useRepoFilter',
+			'selectedRepos',
+			'useGitlabRepoFilter',
+			'selectedGitlabRepos',
+			'orgName',
+			'gitlabGroupName',
+			'showCommits',
+			'onlyIssues',
+			'onlyPRs',
+			'onlyRevPRs',
+			'onlyMergedPRs',
+			'includeNextPlans',
+			'includeBlockers',
+			'selectedTimeframe',
+			'yesterdayContribution',
+			'weeklyContribution',
+			'startingDate',
+			'endingDate',
+			'lastScrumReportHtml',
+			'lastScrumReportPlatform',
+			'lastScrumReportCacheKey',
+			'lastScrumReportUsername',
+			'lastScrumReportIdentity',
 		]);
 
-		const ttlMinutes = parsePositiveInt(cacheInput) ?? 10;
+		const ttlMinutes = parsePositiveInt(storage.cacheInput) ?? 10;
 		const ttlMs = ttlMinutes * 60 * 1000;
 
-		const activePlatform = platform || 'github';
-		const cache = activePlatform === 'gitlab' ? gitlabCache : githubCache;
+		const activePlatforms = (
+			Array.isArray(storage.selectedPlatforms) && storage.selectedPlatforms.length > 0
+				? storage.selectedPlatforms
+				: [storage.platform || 'github']
+		)
+			.slice()
+			.sort();
 
-		const hasCacheData = !!cache?.data;
-		const timestamp = typeof cache?.timestamp === 'number' ? cache.timestamp : 0;
+		const platformCaches = {
+			github: storage.githubCache,
+			gitlab: storage.gitlabCache,
+			codeberg: storage.codebergCache,
+		};
 
-		if (!hasCacheData) {
-			setGenerateButtonLoading(generateBtn, true);
-			window.generateScrumReport();
-			return;
+		const currentIdentity = window.reportIdentityUtils?.buildReportIdentity(storage);
+		const persistedIdentity = storage.lastScrumReportIdentity;
+		const lastScrumReportHtml = storage.lastScrumReportHtml;
+		const reportEmpty = !scrumReport.innerHTML || !scrumReport.innerHTML.trim();
+
+		let isMatch = false;
+		if (persistedIdentity && currentIdentity) {
+			isMatch = window.reportIdentityUtils.isIdentityMatch(persistedIdentity, currentIdentity);
+		} else if (!storage.selectedPlatforms || storage.selectedPlatforms.length <= 1) {
+			// Legacy fallback for single-platform reports
+			const activePlatform = storage.platform || 'github';
+			const legacyExpectedUser =
+				activePlatform === 'gitlab'
+					? storage.gitlabUsername || storage.platformUsername
+					: activePlatform === 'codeberg'
+						? storage.codebergUsername || storage.platformUsername
+						: storage.githubUsername || storage.platformUsername;
+			const isLegacyUserMatch = storage.lastScrumReportUsername
+				? storage.lastScrumReportUsername === legacyExpectedUser
+				: storage.lastScrumReportCacheKey &&
+					legacyExpectedUser &&
+					storage.lastScrumReportCacheKey.startsWith(`${legacyExpectedUser}-`);
+			const legacyCacheKey = platformCaches[activePlatform]?.cacheKey ?? null;
+			isMatch =
+				(!storage.lastScrumReportCacheKey || storage.lastScrumReportCacheKey === legacyCacheKey) &&
+				Boolean(isLegacyUserMatch);
 		}
 
-		if (timestamp > 0) {
-			const age = Date.now() - timestamp;
+		const allCachesValid = window.reportIdentityUtils?.areActivePlatformCachesValid
+			? window.reportIdentityUtils.areActivePlatformCachesValid(
+					activePlatforms,
+					platformCaches,
+					ttlMs,
+					currentIdentity?.usernames,
+				)
+			: false;
 
-			const storageValues = await storageLocalGet([
-				`${activePlatform}LastScrumReportHtml`,
-				`${activePlatform}LastScrumReportCacheKey`,
-				`${activePlatform}LastScrumReportUsername`,
-				'lastScrumReportHtml',
-				'lastScrumReportPlatform',
-				'lastScrumReportCacheKey',
-				'lastScrumReportUsername',
-				'githubUsername',
-				'gitlabUsername',
-				'platformUsername',
-			]);
+		if (reportEmpty && lastScrumReportHtml && isMatch) {
+			scrumReport.innerHTML = sanitizeHtml(lastScrumReportHtml);
+			delete scrumReport.dataset.copyPlaceholder;
+			updateCopyButtonState();
 
-			let lastScrumReportHtml = storageValues[`${activePlatform}LastScrumReportHtml`];
-			let lastScrumReportCacheKey = storageValues[`${activePlatform}LastScrumReportCacheKey`];
-			let lastScrumReportUsername = storageValues[`${activePlatform}LastScrumReportUsername`];
-
-			if (
-				storageValues.lastScrumReportHtml &&
-				(!storageValues.lastScrumReportPlatform || storageValues.lastScrumReportPlatform === activePlatform) &&
-				!lastScrumReportHtml
-			) {
-				lastScrumReportHtml = storageValues.lastScrumReportHtml;
-				lastScrumReportCacheKey = storageValues.lastScrumReportCacheKey;
-				lastScrumReportUsername = storageValues.lastScrumReportUsername;
-			}
-
-			const expectedUsername =
-				activePlatform === 'gitlab'
-					? storageValues.gitlabUsername || storageValues.platformUsername
-					: storageValues.githubUsername || storageValues.platformUsername;
-
-			const isUsernameMatch = lastScrumReportUsername
-				? lastScrumReportUsername === expectedUsername
-				: lastScrumReportCacheKey && expectedUsername && lastScrumReportCacheKey.startsWith(expectedUsername + '-');
-
-			if (age < ttlMs) {
-				const cacheKey = cache?.cacheKey ?? null;
-				const reportEmpty = !scrumReport.innerHTML || !scrumReport.innerHTML.trim();
-
-				const matches = (!lastScrumReportCacheKey || lastScrumReportCacheKey === cacheKey) && isUsernameMatch;
-
-				if (reportEmpty && lastScrumReportHtml && matches) {
-					scrumReport.innerHTML = sanitizeHtml(lastScrumReportHtml);
-					delete scrumReport.dataset.copyPlaceholder;
-					updateCopyButtonState();
-					if (generateBtn) generateBtn.disabled = false;
-					return;
-				}
-
-				if (generateBtn) setGenerateButtonLoading(generateBtn, true);
-				if (typeof window.generateScrumReport === 'function') window.generateScrumReport();
+			if (allCachesValid) {
+				if (generateBtn) generateBtn.disabled = false;
 				return;
 			}
-
-			// If cache is expired, still only show the old HTML if it was for the current username
-			if ((!scrumReport.innerHTML || !scrumReport.innerHTML.trim()) && lastScrumReportHtml && isUsernameMatch) {
-				scrumReport.innerHTML = sanitizeHtml(lastScrumReportHtml);
-				delete scrumReport.dataset.copyPlaceholder;
-				updateCopyButtonState();
-			}
-
-			if (generateBtn) setGenerateButtonLoading(generateBtn, true);
-			if (typeof window.generateScrumReport === 'function') window.generateScrumReport();
-			return;
 		}
 
 		if (generateBtn) setGenerateButtonLoading(generateBtn, true);
-		if (typeof window.generateScrumReport === 'function') window.generateScrumReport();
+		window.generateScrumReport();
 	}
 
 	function initializePopup() {
@@ -1066,9 +1075,13 @@ document.addEventListener('DOMContentLoaded', () => {
 				showPopupMessage(browser.i18n.getMessage('generatingReportNotification'));
 			}
 			browser.storage.local
-				.get(['platform', 'codebergApiBaseUrl'])
+				.get(['platform', 'selectedPlatforms', 'codebergApiBaseUrl'])
 				.then((result) => {
 					const platform = result.platform || 'github';
+					const selectedPlatforms =
+						Array.isArray(result.selectedPlatforms) && result.selectedPlatforms.length > 0
+							? result.selectedPlatforms
+							: [result.platform || platformSelect.value || 'github'];
 					const codebergApiBaseUrl = result.codebergApiBaseUrl || 'https://codeberg.org/api/v1';
 
 					const proceedWithReport = () => {
@@ -1094,7 +1107,9 @@ document.addEventListener('DOMContentLoaded', () => {
 							});
 					};
 
-					if (platformSelect.value === 'codeberg' && !codebergApiBaseUrl.includes('codeberg.org')) {
+					const isCodebergSelected = selectedPlatforms.includes('codeberg') || platformSelect.value === 'codeberg';
+
+					if (isCodebergSelected && !codebergApiBaseUrl.includes('codeberg.org')) {
 						try {
 							const parsedUrl = new URL(codebergApiBaseUrl);
 							const originPattern = `${parsedUrl.protocol}//${parsedUrl.host}/*`;

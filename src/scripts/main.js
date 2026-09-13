@@ -104,6 +104,156 @@ if (!window.scrumDateRangeUtils) {
 	};
 }
 
+if (!window.reportIdentityUtils) {
+	window.reportIdentityUtils = {
+		normalizePlatforms(platforms, fallback = 'github') {
+			const list = Array.isArray(platforms) && platforms.length > 0 ? platforms : [fallback || 'github'];
+			return Array.from(new Set(list)).sort();
+		},
+
+		buildReportIdentity(source = {}) {
+			const platforms = this.normalizePlatforms(
+				source.platforms || source.selectedPlatforms,
+				source.platform || 'github',
+			);
+
+			const srcUsernames = source.usernames || {};
+			const usernames = {
+				github: (
+					srcUsernames.github ??
+					source.githubUsername ??
+					(source.platform === 'github' ? source.platformUsername : '') ??
+					''
+				).trim(),
+				gitlab: (
+					srcUsernames.gitlab ??
+					source.gitlabUsername ??
+					(source.platform === 'gitlab' ? source.platformUsername : '') ??
+					''
+				).trim(),
+				codeberg: (
+					srcUsernames.codeberg ??
+					source.codebergUsername ??
+					(source.platform === 'codeberg' ? source.platformUsername : '') ??
+					''
+				).trim(),
+			};
+
+			const srcFilters = source.filters || {};
+			const rawSelectedRepos = srcFilters.selectedRepos ?? source.selectedRepos;
+			const selectedRepos = Array.isArray(rawSelectedRepos) ? Array.from(new Set(rawSelectedRepos)).sort() : [];
+
+			const rawSelectedGitlabRepos = srcFilters.selectedGitlabRepos ?? source.selectedGitlabRepos;
+			const selectedGitlabRepos = Array.isArray(rawSelectedGitlabRepos)
+				? Array.from(new Set(rawSelectedGitlabRepos)).sort()
+				: [];
+
+			const filters = {
+				useRepoFilter: Boolean(srcFilters.useRepoFilter ?? source.useRepoFilter),
+				selectedRepos,
+				useGitlabRepoFilter: Boolean(srcFilters.useGitlabRepoFilter ?? source.useGitlabRepoFilter),
+				selectedGitlabRepos,
+				orgName: (srcFilters.orgName ?? source.orgName ?? '').trim(),
+				gitlabGroupName: (srcFilters.gitlabGroupName ?? source.gitlabGroupName ?? '').trim(),
+				showCommits: Boolean(srcFilters.showCommits ?? source.showCommits),
+				onlyIssues: Boolean(srcFilters.onlyIssues ?? source.onlyIssues),
+				onlyPRs: Boolean(srcFilters.onlyPRs ?? source.onlyPRs),
+				onlyRevPRs: Boolean(srcFilters.onlyRevPRs ?? source.onlyRevPRs),
+				onlyMergedPRs: Boolean(srcFilters.onlyMergedPRs ?? source.onlyMergedPRs),
+				includeNextPlans: Boolean(srcFilters.includeNextPlans ?? source.includeNextPlans),
+				includeBlockers: Boolean(srcFilters.includeBlockers ?? source.includeBlockers),
+				selectedTimeframe: srcFilters.selectedTimeframe ?? source.selectedTimeframe ?? '',
+				yesterdayContribution: Boolean(srcFilters.yesterdayContribution ?? source.yesterdayContribution),
+				weeklyContribution: Boolean(srcFilters.weeklyContribution ?? source.weeklyContribution),
+				startingDate: srcFilters.startingDate ?? source.startingDate ?? '',
+				endingDate: srcFilters.endingDate ?? source.endingDate ?? '',
+			};
+
+			const srcCacheKeys = source.cacheKeys || {};
+			const cacheKeys = {
+				github: srcCacheKeys.github ?? source.githubCache?.cacheKey ?? null,
+				gitlab: srcCacheKeys.gitlab ?? source.gitlabCache?.cacheKey ?? null,
+				codeberg: srcCacheKeys.codeberg ?? source.codebergCache?.cacheKey ?? null,
+			};
+
+			return {
+				platforms,
+				usernames,
+				filters,
+				cacheKeys,
+			};
+		},
+
+		isIdentityMatch(persisted, current) {
+			if (!persisted || !current) return false;
+
+			const pPlatforms = Array.isArray(persisted.platforms) ? persisted.platforms : [];
+			const cPlatforms = Array.isArray(current.platforms) ? current.platforms : [];
+			if (pPlatforms.length !== cPlatforms.length) return false;
+			for (let i = 0; i < cPlatforms.length; i++) {
+				if (pPlatforms[i] !== cPlatforms[i]) return false;
+			}
+
+			for (const p of cPlatforms) {
+				const pUser = (persisted.usernames?.[p] || '').trim();
+				const cUser = (current.usernames?.[p] || '').trim();
+				if (pUser !== cUser) return false;
+			}
+
+			const pf = persisted.filters || {};
+			const cf = current.filters || {};
+
+			if (Boolean(pf.useRepoFilter) !== Boolean(cf.useRepoFilter)) return false;
+			if (Boolean(pf.useGitlabRepoFilter) !== Boolean(cf.useGitlabRepoFilter)) return false;
+
+			const pRepos = Array.isArray(pf.selectedRepos) ? pf.selectedRepos : [];
+			const cRepos = Array.isArray(cf.selectedRepos) ? cf.selectedRepos : [];
+			if (pRepos.length !== cRepos.length || !pRepos.every((r, idx) => r === cRepos[idx])) return false;
+
+			const pGlRepos = Array.isArray(pf.selectedGitlabRepos) ? pf.selectedGitlabRepos : [];
+			const cGlRepos = Array.isArray(cf.selectedGitlabRepos) ? cf.selectedGitlabRepos : [];
+			if (pGlRepos.length !== cGlRepos.length || !pGlRepos.every((r, idx) => r === cGlRepos[idx])) return false;
+
+			if ((pf.orgName || '').trim() !== (cf.orgName || '').trim()) return false;
+			if ((pf.gitlabGroupName || '').trim() !== (cf.gitlabGroupName || '').trim()) return false;
+			if (Boolean(pf.showCommits) !== Boolean(cf.showCommits)) return false;
+			if (Boolean(pf.onlyIssues) !== Boolean(cf.onlyIssues)) return false;
+			if (Boolean(pf.onlyPRs) !== Boolean(cf.onlyPRs)) return false;
+			if (Boolean(pf.onlyRevPRs) !== Boolean(cf.onlyRevPRs)) return false;
+			if (Boolean(pf.onlyMergedPRs) !== Boolean(cf.onlyMergedPRs)) return false;
+			if (Boolean(pf.includeNextPlans) !== Boolean(cf.includeNextPlans)) return false;
+			if (Boolean(pf.includeBlockers) !== Boolean(cf.includeBlockers)) return false;
+			if ((pf.selectedTimeframe || '') !== (cf.selectedTimeframe || '')) return false;
+			if (Boolean(pf.yesterdayContribution) !== Boolean(cf.yesterdayContribution)) return false;
+			if (Boolean(pf.weeklyContribution) !== Boolean(cf.weeklyContribution)) return false;
+			if ((pf.startingDate || '') !== (cf.startingDate || '')) return false;
+			if ((pf.endingDate || '') !== (cf.endingDate || '')) return false;
+
+			for (const p of cPlatforms) {
+				const pKey = persisted.cacheKeys?.[p] ?? null;
+				const cKey = current.cacheKeys?.[p] ?? null;
+				if (pKey !== cKey) return false;
+			}
+
+			return true;
+		},
+
+		areActivePlatformCachesValid(platforms, platformCaches = {}, ttlMs = 600000, usernames = null) {
+			if (!Array.isArray(platforms) || platforms.length === 0) return false;
+			const targetPlatforms = usernames ? platforms.filter((p) => Boolean(usernames[p])) : platforms;
+			if (targetPlatforms.length === 0) return false;
+			const now = Date.now();
+			for (const p of targetPlatforms) {
+				const cache = platformCaches[p];
+				if (!cache || !cache.data) return false;
+				const ts = typeof cache.timestamp === 'number' ? cache.timestamp : 0;
+				if (ts <= 0 || now - ts >= ttlMs) return false;
+			}
+			return true;
+		},
+	};
+}
+
 if (!window.scrumHelperToast) {
 	window.SCRUM_TOAST_ANIM_MS = window.SCRUM_TOAST_ANIM_MS || 200;
 	window.scrumHelperToast = function scrumHelperToast(message, options = {}) {

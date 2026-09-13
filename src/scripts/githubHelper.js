@@ -987,6 +987,8 @@ async function fetchIssuesFromGitHub(scope) {
 				html_url: safeUrl,
 				repository: repoName,
 				state: issue.state,
+				_platform: 'github',
+				platform: 'github',
 			};
 		})
 		.filter((issue) => {
