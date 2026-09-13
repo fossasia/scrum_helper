@@ -1010,8 +1010,10 @@ function allIncluded(outputTarget = 'email') {
 			if (userCheckRes.status === 401 || userCheckRes.status === 403) {
 				if (!window.githubRateLimitExceeded) {
 					showInvalidTokenMessage();
-					githubCache.fetching = false;
-					return;
+					const errorMsg =
+						chrome?.i18n.getMessage('invalidTokenError') ||
+						'Invalid or expired GitHub token. Please check your token in the Scrum Helper settings and try again.';
+					throw new Error(errorMsg);
 				}
 			}
 
@@ -1041,8 +1043,10 @@ function allIncluded(outputTarget = 'email') {
 			if (issuesRes.status === 401 || prRes.status === 401 || issuesRes.status === 403 || prRes.status === 403) {
 				if (!window.githubRateLimitExceeded) {
 					showInvalidTokenMessage();
-					githubCache.fetching = false;
-					return;
+					const errorMsg =
+						chrome?.i18n.getMessage('invalidTokenError') ||
+						'Invalid or expired GitHub token. Please check your token in the Scrum Helper settings and try again.';
+					throw new Error(errorMsg);
 				}
 			}
 
