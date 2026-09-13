@@ -803,6 +803,16 @@ function allIncluded(outputTarget = 'email') {
 		});
 	}
 
+	function isRateLimitResponse(res) {
+		if (!res) return false;
+		if (res.status === 429) return true;
+		const remaining =
+			typeof res.headers?.get === 'function'
+				? res.headers.get('x-ratelimit-remaining')
+				: res.headers?.['x-ratelimit-remaining'] || res.headers?.['X-RateLimit-Remaining'];
+		return remaining === '0' || remaining === 0;
+	}
+
 	async function fetchGithubData(shouldProcess = true) {
 		// Always load latest settings from storage
 		const settings = await new Promise((resolve) => {
@@ -845,26 +855,6 @@ function allIncluded(outputTarget = 'email') {
 				: 'norepos';
 		const commitMarker = showCommits ? 'commits' : 'nocommits';
 		const cacheKey = `${platformUsernameLocal}-${startDateForCache}-${endDateForCache}-${orgName || 'all'}-${commitMarker}-${repoMarker}`;
-
-		if (githubCache.fetching) {
-			log('Fetch in progress, awaiting existing fetch.');
-			const inFlightData = await (githubCache.fetchPromise ||
-				new Promise((resolve, reject) => {
-					githubCache.queue.push({ resolve, reject });
-				}));
-			if (shouldProcess && inFlightData) {
-				processGithubData(inFlightData);
-			}
-			return inFlightData;
-		}
-
-		if (githubCache.cacheKey === cacheKey && githubCache.data) {
-			log('Data already fetched with matching cacheKey. Using cached data.');
-			if (shouldProcess && githubCache.data) {
-				processGithubData(githubCache.data);
-			}
-			return githubCache.data;
-		}
 
 		log('Fetching Github data:', {
 			username: platformUsernameLocal,
@@ -911,8 +901,8 @@ function allIncluded(outputTarget = 'email') {
 			log('Cache is stale - fetching new data');
 		}
 
-		if (githubCache.fetching) {
-			log('Fetch in progress, awaiting existing fetch.');
+		if (githubCache.fetching && githubCache.cacheKey === cacheKey) {
+			log('Fetch in progress with matching cacheKey, awaiting existing fetch.');
 			const inFlightData = await (githubCache.fetchPromise ||
 				new Promise((resolve, reject) => {
 					githubCache.queue.push({ resolve, reject });
@@ -1007,24 +997,28 @@ function allIncluded(outputTarget = 'email') {
 				throw new Error(errorMsg);
 			}
 
-			if (userCheckRes.status === 401 || userCheckRes.status === 403) {
-				if (!window.githubRateLimitExceeded) {
-					showInvalidTokenMessage();
-					const errorMsg =
-						chrome?.i18n.getMessage('invalidTokenError') ||
-						'Invalid or expired GitHub token. Please check your token in the Scrum Helper settings and try again.';
-					throw new Error(errorMsg);
-				}
+			if (userCheckRes.status === 401 || (userCheckRes.status === 403 && !isRateLimitResponse(userCheckRes))) {
+				showInvalidTokenMessage();
+				const errorMsg =
+					chrome?.i18n.getMessage('invalidTokenError') ||
+					'Invalid or expired GitHub token. Please check your token in the Scrum Helper settings and try again.';
+				throw new Error(errorMsg);
+			}
+
+			if (isRateLimitResponse(userCheckRes)) {
+				showRateLimitMessage();
+				const errorMsg =
+					chrome?.i18n.getMessage('rateLimitError') ||
+					'GitHub API rate limit exceeded. Please try again later or add/check your GitHub token in the Scrum Helper settings.';
+				throw new Error(errorMsg);
 			}
 
 			if (!userCheckRes.ok) {
-				if (!window.githubRateLimitExceeded) {
-					const errorMsg =
-						chrome?.i18n.getMessage('githubUserValidationError', [userCheckRes.status, userCheckRes.statusText]) ||
-						`Error validating GitHub user: ${userCheckRes.status} ${userCheckRes.statusText}`;
-					logError(errorMsg);
-					throw new Error(errorMsg);
-				}
+				const errorMsg =
+					chrome?.i18n.getMessage('githubUserValidationError', [userCheckRes.status, userCheckRes.statusText]) ||
+					`Error validating GitHub user: ${userCheckRes.status} ${userCheckRes.statusText}`;
+				logError(errorMsg);
+				throw new Error(errorMsg);
 			}
 
 			const [issuesRes, prRes, userRes] = await Promise.all([
@@ -1040,14 +1034,25 @@ function allIncluded(outputTarget = 'email') {
 				userCheckRes, // Reuse the already validated user response
 			]);
 
-			if (issuesRes.status === 401 || prRes.status === 401 || issuesRes.status === 403 || prRes.status === 403) {
-				if (!window.githubRateLimitExceeded) {
-					showInvalidTokenMessage();
-					const errorMsg =
-						chrome?.i18n.getMessage('invalidTokenError') ||
-						'Invalid or expired GitHub token. Please check your token in the Scrum Helper settings and try again.';
-					throw new Error(errorMsg);
-				}
+			if (
+				issuesRes.status === 401 ||
+				prRes.status === 401 ||
+				(issuesRes.status === 403 && !isRateLimitResponse(issuesRes)) ||
+				(prRes.status === 403 && !isRateLimitResponse(prRes))
+			) {
+				showInvalidTokenMessage();
+				const errorMsg =
+					chrome?.i18n.getMessage('invalidTokenError') ||
+					'Invalid or expired GitHub token. Please check your token in the Scrum Helper settings and try again.';
+				throw new Error(errorMsg);
+			}
+
+			if (isRateLimitResponse(issuesRes) || isRateLimitResponse(prRes)) {
+				showRateLimitMessage();
+				const errorMsg =
+					chrome?.i18n.getMessage('rateLimitError') ||
+					'GitHub API rate limit exceeded. Please try again later or add/check your GitHub token in the Scrum Helper settings.';
+				throw new Error(errorMsg);
 			}
 
 			if (issuesRes.status === 422 || prRes.status === 422) {
@@ -1061,7 +1066,7 @@ function allIncluded(outputTarget = 'email') {
 				throw new Error(errorMsg);
 			}
 
-			if (!issuesRes.ok && !window.githubRateLimitExceeded) {
+			if (!issuesRes.ok) {
 				const errorMsg =
 					chrome?.i18n.getMessage('githubIssuesFetchError', [issuesRes.status, issuesRes.statusText]) ||
 					`Error fetching GitHub issues: ${issuesRes.status} ${issuesRes.statusText}`;
@@ -1071,7 +1076,7 @@ function allIncluded(outputTarget = 'email') {
 				}
 				throw new Error(errorMsg);
 			}
-			if (!prRes.ok && !window.githubRateLimitExceeded) {
+			if (!prRes.ok) {
 				const errorMsg =
 					chrome?.i18n.getMessage('githubPRReviewFetchError', [prRes.status, prRes.statusText]) ||
 					`Error fetching GitHub PR review data: ${prRes.status} ${prRes.statusText}`;
@@ -1081,7 +1086,7 @@ function allIncluded(outputTarget = 'email') {
 				}
 				throw new Error(errorMsg);
 			}
-			if (!userRes.ok && !window.githubRateLimitExceeded) {
+			if (!userRes.ok) {
 				const errorMsg =
 					chrome?.i18n.getMessage('githubUserFetchError', [userRes.status, userRes.statusText]) ||
 					`Error fetching GitHub user data: ${userRes.status} ${userRes.statusText}`;
@@ -1114,7 +1119,6 @@ function allIncluded(outputTarget = 'email') {
 					openPRs.map((pr) => pr.number),
 				);
 				// Fetch commits for open PRs (batch) if showCommits is enabled
-				const activeToken = platform === 'codeberg' ? codebergToken : githubToken;
 				if (openPRs.length && showCommits) {
 					let startDateForCommits;
 					let endDateForCommits;
@@ -1139,31 +1143,17 @@ function allIncluded(outputTarget = 'email') {
 						endDateForCommits = formatLocalDate(today);
 					}
 
-					const commitMap = await fetchCommitsForOpenPRs(openPRs, activeToken, startDateForCommits, endDateForCommits);
+					const commitMap = await fetchCommitsForOpenPRs(
+						openPRs,
+						githubToken,
+						startDateForCommits,
+						endDateForCommits,
+						'github',
+					);
 					log('Commit map returned from fetchCommitsForOpenPRs:', commitMap);
 					// Attach commits to PR objects
 					openPRs.forEach((pr) => {
-						if (platform === 'codeberg') {
-							let owner = '';
-							let repo = '';
-							const url = pr.html_url || pr.url;
-							if (url) {
-								try {
-									const parsed = new URL(url);
-									const parts = parsed.pathname.split('/').filter(Boolean);
-									if (parts.length >= 2) {
-										owner = parts[0];
-										repo = parts[1];
-									}
-								} catch (e) {
-									// ignore
-								}
-							}
-							const key = owner && repo ? `${owner}/${repo}#${pr.number}` : pr.number;
-							pr._allCommits = commitMap[key] || [];
-						} else {
-							pr._allCommits = commitMap[pr.number] || [];
-						}
+						pr._allCommits = commitMap[pr.number] || [];
 						log(`Attached ${pr._allCommits.length} commits to PR #${pr.number}`);
 						if (pr._allCommits.length > 0) {
 							log(
@@ -1227,11 +1217,11 @@ function allIncluded(outputTarget = 'email') {
 		}
 	}
 
-	async function fetchCommitsForOpenPRs(prs, token, startDate, endDate) {
-		if (platform === 'github') {
+	async function fetchCommitsForOpenPRs(prs, token, startDate, endDate, sourcePlatform = 'github') {
+		if (sourcePlatform === 'github') {
 			return githubFetchCommits(prs, token, startDate, endDate);
 		}
-		if (platform === 'codeberg' && window.codebergHelper) {
+		if (sourcePlatform === 'codeberg' && window.codebergHelper) {
 			return window.codebergHelper.fetchCommitsForOpenPRs(prs, token, startDate, endDate);
 		}
 		return {};
