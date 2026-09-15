@@ -192,9 +192,20 @@ class GitLabHelper {
 		}
 
 		if (this.cache.fetching) {
-			return new Promise((resolve, reject) => {
-				this.cache.queue.push({ resolve, reject });
+			if (isCacheKeyMatch) {
+				// Same query already in flight: share its result.
+				return new Promise((resolve, reject) => {
+					this.cache.queue.push({ resolve, reject });
+				});
+			}
+
+			// A different query is in flight. Its result does not answer this
+			// call, so wait for it to settle and then run this one rather than
+			// handing back data for the wrong query.
+			await new Promise((settle) => {
+				this.cache.queue.push({ resolve: settle, reject: settle });
 			});
+			return this.fetchGitLabData(username, startDate, endDate, token, orgName);
 		}
 
 		this.cache.fetching = true;
