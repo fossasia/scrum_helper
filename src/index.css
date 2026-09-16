@@ -1415,9 +1415,18 @@ html.mode-popup .timeframe-presets {
     padding-bottom: 0.5rem;
 }
 
+.platform-header svg {
+    fill: currentColor;
+    flex-shrink: 0;
+}
+
 .dark-mode .platform-header {
     color: #ffffff !important;
     border-color: #404040 !important;
+}
+
+.dark-mode .platform-header svg {
+    fill: #ffffff !important;
 }
 
 .dark-mode #platformDropdownList {
