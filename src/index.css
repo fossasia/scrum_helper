@@ -1411,14 +1411,16 @@ html.mode-popup .timeframe-presets {
 }
 
 .platform-settings-block.platform-block-subsequent,
-.platform-settings-block:not(.hidden) ~ .platform-settings-block:not(.hidden) {
-    margin-top: 1.5rem;
+.platform-settings-block:not(.hidden) ~ .platform-settings-block:not(.hidden),
+#extensionSettingsSection,
+.extension-settings-block {
+    margin-top: 1.75rem;
     padding-top: 0.25rem;
 }
 
 .platform-header {
-    margin-bottom: 0.75rem;
-    padding-bottom: 0.5rem;
+    margin-bottom: 0.25rem;
+    padding-bottom: 0.25rem;
 }
 
 .platform-header svg {
@@ -1492,4 +1494,12 @@ html.mode-popup .timeframe-presets {
 
 .mb-4 {
     margin-bottom: calc(var(--spacing, 0.25rem) * 4);
+}
+
+.mt-6 {
+    margin-top: calc(var(--spacing, 0.25rem) * 6);
+}
+
+.pt-2 {
+    padding-top: calc(var(--spacing, 0.25rem) * 2);
 }

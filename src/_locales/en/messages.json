@@ -656,6 +656,10 @@
   "settingsTitle": {
     "message": "Settings"
   },
+  "extensionSettingsHeading": {
+    "message": "Extension Settings",
+    "description": "Heading for general extension settings section."
+  },
   "smtpSenderEmailTooltip": {
     "message": "The email address from which the report will be sent (e.g. your email address)."
   },

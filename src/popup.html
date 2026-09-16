@@ -737,62 +737,70 @@
 						</div>
 					</div>
 
-					<div id="displayModeSectionContainer" class="cacheSection mt-6 pt-4 border-t border-gray-200">
-						<div class="flex items-center justify-between">
-							<div class="flex items-center">
-								<p class="text-sm font-medium" data-i18n="displayModeLabel">Display Mode</p>
-								<span class="tooltip-container ml-2">
-									<i class="fa fa-question-circle question-icon"></i>
-									<span class="tooltip-bubble" data-i18n="displayModeTooltip">
-										Choose how Scrum Helper opens when you click its icon.
-										<b>Side Panel</b> keeps it docked alongside your page.
-										<b>Popup</b> opens a floating window.
+					<!-- Extension Settings Section -->
+					<div id="extensionSettingsSection" class="extension-settings-block mt-6 pt-2">
+						<div class="platform-header flex items-center gap-2 font-semibold text-sm text-gray-700 border-b border-gray-200 pb-1.5 mb-3.5">
+							<i class="fa fa-sliders-h text-base"></i>
+							<span data-i18n="extensionSettingsHeading">Extension Settings</span>
+						</div>
+
+						<div id="displayModeSectionContainer" class="mb-3">
+							<div class="flex items-center justify-between">
+								<div class="flex items-center">
+									<p class="text-sm font-medium" data-i18n="displayModeLabel">Display Mode</p>
+									<span class="tooltip-container ml-2">
+										<i class="fa fa-question-circle question-icon"></i>
+										<span class="tooltip-bubble" data-i18n="displayModeTooltip">
+											Choose how Scrum Helper opens when you click its icon.
+											<b>Side Panel</b> keeps it docked alongside your page.
+											<b>Popup</b> opens a floating window.
+										</span>
 									</span>
-								</span>
+								</div>
+							</div>
+							<select id="displayModeSelect"
+								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 mt-1">
+								<option value="sidePanel">Side Panel</option>
+								<option value="popup">Popup</option>
+							</select>
+							<div id="displayModeNotice"
+								class="hidden text-xs text-blue-700 bg-blue-50 border border-blue-200 rounded-xl p-2 mt-1 mb-2 flex items-center gap-2">
+								<i class="fa fa-info-circle"></i>
+								<span id="displayModeNoticeText"></span>
 							</div>
 						</div>
-						<select id="displayModeSelect"
-							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 mt-1">
-							<option value="sidePanel">Side Panel</option>
-							<option value="popup">Popup</option>
-						</select>
-						<div id="displayModeNotice"
-							class="hidden text-xs text-blue-700 bg-blue-50 border border-blue-200 rounded-xl p-2 mt-1 mb-2 flex items-center gap-2">
-							<i class="fa fa-info-circle"></i>
-							<span id="displayModeNoticeText"></span>
-						</div>
-					</div>
 
-					<div class="cacheSection mt-3">
-						<p class="text-sm font-medium">
-							<span data-i18n="cacheTTLLabel">Enter cache TTL</span>
-							<span class="text-sm font-normal" data-i18n="cacheTTLUnit">(in minutes)</span>
-							<span class="tooltip-container">
-								<i class="fa fa-question-circle question-icon"></i>
-								<span class="tooltip-bubble" data-i18n="cacheTTLTooltip">
-									We are caching the data to avoid redundant calls. By default the cache expires after
-									10 minutes, you
-									can change it here to your desired time. We have given a refresh cache button in
-									case you want to
-									fetch fresh data right now.
+						<div class="cacheSection mt-3 mb-3">
+							<p class="text-sm font-medium">
+								<span data-i18n="cacheTTLLabel">Enter cache TTL</span>
+								<span class="text-sm font-normal" data-i18n="cacheTTLUnit">(in minutes)</span>
+								<span class="tooltip-container">
+									<i class="fa fa-question-circle question-icon"></i>
+									<span class="tooltip-bubble" data-i18n="cacheTTLTooltip">
+										We are caching the data to avoid redundant calls. By default the cache expires after
+										10 minutes, you
+										can change it here to your desired time. We have given a refresh cache button in
+										case you want to
+										fetch fresh data right now.
+									</span>
 								</span>
-							</span>
-						</p>
-						<input type="text" id="cacheInput"
-							class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 mt-1"
-							data-i18n-placeholder="cacheTTLPlaceholder">
-					</div>
+							</p>
+							<input type="text" id="cacheInput"
+								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 mt-1"
+								data-i18n-placeholder="cacheTTLPlaceholder">
+						</div>
 
-					<div class="">
-						<button id="refreshCache"
-							class="w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded flex items-center justify-center gap-2 transition-colors duration-200">
-							<i class="fa fa-refresh"></i>
-							<span data-i18n="refreshDataButton">Refresh Data (bypass cache)</span>
-						</button>
-						<p class="cache-info">
-							<i class="fa fa-info-circle"></i>
-							<span data-i18n="refreshDataInfo">Use this button to fetch fresh data immediately.</span>
-						</p>
+						<div class="mt-3">
+							<button id="refreshCache"
+								class="w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded flex items-center justify-center gap-2 transition-colors duration-200">
+								<i class="fa fa-refresh"></i>
+								<span data-i18n="refreshDataButton">Refresh Data (bypass cache)</span>
+							</button>
+							<p class="cache-info">
+								<i class="fa fa-info-circle"></i>
+								<span data-i18n="refreshDataInfo">Use this button to fetch fresh data immediately.</span>
+							</p>
+						</div>
 					</div>
 
 				</div>
