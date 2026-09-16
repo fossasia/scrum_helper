@@ -280,6 +280,7 @@ function allIncluded(outputTarget = 'email') {
 		);
 	}
 	let activePlatforms = [];
+	let currentActivePlatforms = [];
 	let storageItems = {};
 	let githubToken = '';
 	let projectName = '';
@@ -287,6 +288,10 @@ function allIncluded(outputTarget = 'email') {
 	let lastWeekPrsArray = [];
 	let nextWeekArray = [];
 	let reviewedPrsArray = [];
+	let issuesByPlatform = {};
+	let prsByPlatform = {};
+	let reviewedPrsByPlatform = {};
+	let plansByPlatform = {};
 	let githubIssuesData = null;
 	let yesterdayContribution = false;
 	let weeklyContribution = false;
@@ -646,6 +651,7 @@ function allIncluded(outputTarget = 'email') {
 							githubIssuesData: { items: combinedAuthored },
 							githubPrsReviewData: { items: combinedReviewed },
 							githubUserData: primaryUser || {},
+							activePlatforms: platformsToFetch,
 						};
 
 						let subjectForEmail = null;
@@ -1390,6 +1396,16 @@ function allIncluded(outputTarget = 'email') {
 		lastWeekPrsArray = [];
 		nextWeekArray = [];
 		reviewedPrsArray = [];
+		currentActivePlatforms =
+			data?.activePlatforms ||
+			(Array.isArray(activePlatforms) && activePlatforms.length > 0 ? activePlatforms : [platform || 'github']);
+		currentActivePlatforms = Array.from(
+			new Set(currentActivePlatforms.map((p) => (p || '').toLowerCase()).filter(Boolean)),
+		);
+		issuesByPlatform = {};
+		prsByPlatform = {};
+		reviewedPrsByPlatform = {};
+		plansByPlatform = {};
 		githubPrsReviewDataProcessed = {};
 		githubPrsDataProcessed = {};
 		issuesDataProcessed = false;
@@ -1406,28 +1422,37 @@ function allIncluded(outputTarget = 'email') {
 					const selectedPlans = await window.getNextPlansForReport();
 					if (selectedPlans && selectedPlans.length > 0) {
 						const plansByRepo = {};
+						const plansByPlatformAndRepo = {};
 						selectedPlans.forEach((issue) => {
-							const issuePlatform =
+							const issuePlatform = (
 								issue._platform ||
 								issue.platform ||
 								(issue.html_url?.includes('gitlab')
 									? 'gitlab'
 									: issue.html_url?.includes('codeberg')
 										? 'codeberg'
-										: platform);
+										: platform || 'github')
+							).toLowerCase();
 							const repo = issue.repository || getProjectName(issue, issuePlatform) || 'unknown';
 							if (!plansByRepo[repo]) {
 								plansByRepo[repo] = [];
 							}
+							if (!plansByPlatformAndRepo[issuePlatform]) {
+								plansByPlatformAndRepo[issuePlatform] = {};
+							}
+							if (!plansByPlatformAndRepo[issuePlatform][repo]) {
+								plansByPlatformAndRepo[issuePlatform][repo] = [];
+							}
 							const alreadyExists = plansByRepo[repo].some((existing) => {
-								const existingPlatform =
+								const existingPlatform = (
 									existing._platform ||
 									existing.platform ||
 									(existing.html_url?.includes('gitlab')
 										? 'gitlab'
 										: existing.html_url?.includes('codeberg')
 											? 'codeberg'
-											: platform);
+											: platform || 'github')
+								).toLowerCase();
 								if (existingPlatform !== issuePlatform) {
 									return false;
 								}
@@ -1437,11 +1462,13 @@ function allIncluded(outputTarget = 'email') {
 								);
 							});
 							if (!alreadyExists) {
-								plansByRepo[repo].push({
+								const planItem = {
 									...issue,
 									_platform: issuePlatform,
 									platform: issuePlatform,
-								});
+								};
+								plansByRepo[repo].push(planItem);
+								plansByPlatformAndRepo[issuePlatform][repo].push(planItem);
 							}
 						});
 
@@ -1469,6 +1496,36 @@ function allIncluded(outputTarget = 'email') {
 							}
 							repoLi += '</li>';
 							nextWeekArray.push(repoLi);
+						}
+
+						plansByPlatform = {};
+						for (const [plat, pRepos] of Object.entries(plansByPlatformAndRepo)) {
+							plansByPlatform[plat] = [];
+							for (const [repo, repoIssues] of Object.entries(pRepos)) {
+								let repoLi = `<li style="margin-bottom: 10px !important;">`;
+								if (repoIssues.length > 1) {
+									repoLi += `<span style="font-weight: 600;"><i>(${repo})</i> - Work on Issues - </span><ul style="margin-top: 4px; margin-bottom: 4px;">`;
+									for (const issue of repoIssues) {
+										let issueText = `<li><a href='${issue.html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>#${issue.number}</a> (${issue.title})`;
+										if (showOpenLabel) {
+											issueText += ` ${issue.state === 'closed' ? issue_closed_button : issue_opened_button}`;
+										}
+										issueText += '&nbsp;&nbsp;</li>';
+										repoLi += issueText;
+									}
+									repoLi += '</ul>';
+								} else {
+									const issue = repoIssues[0];
+									repoLi += `<span style="font-weight: 600;"><i>(${repo})</i> - Work on Issue - </span>`;
+									repoLi += `<a href='${issue.html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>#${issue.number}</a> (${issue.title})`;
+									if (showOpenLabel) {
+										repoLi += ` ${issue.state === 'closed' ? issue_closed_button : issue_opened_button}`;
+									}
+									repoLi += '&nbsp;&nbsp;';
+								}
+								repoLi += '</li>';
+								plansByPlatform[plat].push(repoLi);
+							}
 						}
 					}
 				} catch (err) {
@@ -1550,46 +1607,164 @@ function allIncluded(outputTarget = 'email') {
 		return `<span style="${compactTextStyle}">${safeContent}</span>`;
 	}
 
-	function buildActivityListHtml() {
-		if (lastWeekIssuesArray.length === 0 && lastWeekPrsArray.length === 0 && reviewedPrsArray.length === 0) {
+	function buildActivityListHtml(activePlatformsParam = null) {
+		const targetPlatforms =
+			Array.isArray(activePlatformsParam) && activePlatformsParam.length > 0
+				? activePlatformsParam
+				: Array.isArray(currentActivePlatforms) && currentActivePlatforms.length > 0
+					? currentActivePlatforms
+					: Array.isArray(activePlatforms) && activePlatforms.length > 0
+						? activePlatforms
+						: [platform || 'github'];
+
+		const isMultiPlatform = targetPlatforms.length > 1;
+
+		if (!isMultiPlatform) {
+			if (lastWeekIssuesArray.length === 0 && lastWeekPrsArray.length === 0 && reviewedPrsArray.length === 0) {
+				return wrapCompactText('No activity to report for the selected time period.');
+			}
+
+			const sections = [];
+			const curPlatform = (targetPlatforms[0] || platform || 'github').toLowerCase();
+			const prLabel = curPlatform === 'gitlab' ? 'Merge Requests:' : 'Pull Requests:';
+			const revPrLabel = curPlatform === 'gitlab' ? 'Reviewed Merge Requests:' : 'Reviewed Pull Requests:';
+
+			if (lastWeekIssuesArray.length > 0) {
+				let issuesHtml = '<b>Issues:</b><ul>';
+				for (let i = 0; i < lastWeekIssuesArray.length; i++) {
+					issuesHtml += lastWeekIssuesArray[i];
+				}
+				issuesHtml += '</ul>';
+				sections.push(issuesHtml);
+			}
+
+			if (lastWeekPrsArray.length > 0) {
+				let prsHtml = `<b>${prLabel}</b><ul>`;
+				for (let i = 0; i < lastWeekPrsArray.length; i++) {
+					prsHtml += lastWeekPrsArray[i];
+				}
+				prsHtml += '</ul>';
+				sections.push(prsHtml);
+			}
+
+			if (reviewedPrsArray.length > 0) {
+				let reviewedHtml = `<b>${revPrLabel}</b><ul>`;
+				for (let i = 0; i < reviewedPrsArray.length; i++) {
+					reviewedHtml += reviewedPrsArray[i];
+				}
+				reviewedHtml += '</ul>';
+				sections.push(reviewedHtml);
+			}
+
+			return sections.join('<br>');
+		}
+
+		// Multi-platform handling
+		const totalActivityCount = lastWeekIssuesArray.length + lastWeekPrsArray.length + reviewedPrsArray.length;
+		if (totalActivityCount === 0) {
 			return wrapCompactText('No activity to report for the selected time period.');
 		}
 
-		const sections = [];
+		const platformSections = [];
+		const platformDisplayNames = {
+			github: 'GitHub',
+			gitlab: 'GitLab',
+			codeberg: 'Codeberg',
+		};
 
-		if (lastWeekIssuesArray.length > 0) {
-			let issuesHtml = '<b>Issues:</b><ul>';
-			for (let i = 0; i < lastWeekIssuesArray.length; i++) {
-				issuesHtml += lastWeekIssuesArray[i];
+		for (const p of targetPlatforms) {
+			const pNorm = (p || '').toLowerCase();
+			const pIssues = issuesByPlatform[pNorm] || [];
+			const pPrs = prsByPlatform[pNorm] || [];
+			const pRevPrs = reviewedPrsByPlatform[pNorm] || [];
+			const hasPlatformActivity = pIssues.length > 0 || pPrs.length > 0 || pRevPrs.length > 0;
+
+			const displayName = platformDisplayNames[pNorm] || pNorm.charAt(0).toUpperCase() + pNorm.slice(1);
+			const prLabel = pNorm === 'gitlab' ? 'Merge Requests:' : 'Pull Requests:';
+			const revPrLabel = pNorm === 'gitlab' ? 'Reviewed Merge Requests:' : 'Reviewed Pull Requests:';
+
+			let pContent = '';
+			if (hasPlatformActivity) {
+				const parts = [];
+				if (pIssues.length > 0) {
+					let issuesHtml = '<b>Issues:</b><ul>';
+					for (let i = 0; i < pIssues.length; i++) {
+						issuesHtml += pIssues[i];
+					}
+					issuesHtml += '</ul>';
+					parts.push(issuesHtml);
+				}
+				if (pPrs.length > 0) {
+					let prsHtml = `<b>${prLabel}</b><ul>`;
+					for (let i = 0; i < pPrs.length; i++) {
+						prsHtml += pPrs[i];
+					}
+					prsHtml += '</ul>';
+					parts.push(prsHtml);
+				}
+				if (pRevPrs.length > 0) {
+					let revHtml = `<b>${revPrLabel}</b><ul>`;
+					for (let i = 0; i < pRevPrs.length; i++) {
+						revHtml += pRevPrs[i];
+					}
+					revHtml += '</ul>';
+					parts.push(revHtml);
+				}
+				pContent = parts.join('<br>');
+			} else {
+				pContent = wrapCompactText('No activity to report for the selected time period.');
 			}
-			issuesHtml += '</ul>';
-			sections.push(issuesHtml);
+
+			const platformBlock = `<div class="report-platform-header" style="margin-top: 8px; margin-bottom: 4px;"><b style="text-decoration: underline;">${displayName}:</b></div><div class="report-platform-content" style="margin-left: 12px; margin-bottom: 8px;">${pContent}</div>`;
+			platformSections.push(platformBlock);
 		}
 
-		if (lastWeekPrsArray.length > 0) {
-			let prsHtml = '<b>Pull Requests:</b><ul>';
-			for (let i = 0; i < lastWeekPrsArray.length; i++) {
-				prsHtml += lastWeekPrsArray[i];
-			}
-			prsHtml += '</ul>';
-			sections.push(prsHtml);
-		}
-
-		if (reviewedPrsArray.length > 0) {
-			let reviewedHtml = '<b>Reviewed Pull Requests:</b><ul>';
-			for (let i = 0; i < reviewedPrsArray.length; i++) {
-				reviewedHtml += reviewedPrsArray[i];
-			}
-			reviewedHtml += '</ul>';
-			sections.push(reviewedHtml);
-		}
-
-		return sections.join('<br>');
+		return platformSections.join('');
 	}
 
-	function buildNextWeekListHtml() {
+	function buildNextWeekListHtml(activePlatformsParam = null) {
 		if (nextWeekArray.length === 0) {
 			return wrapCompactText('No plans added yet.');
+		}
+
+		const targetPlatforms =
+			Array.isArray(activePlatformsParam) && activePlatformsParam.length > 0
+				? activePlatformsParam
+				: Array.isArray(currentActivePlatforms) && currentActivePlatforms.length > 0
+					? currentActivePlatforms
+					: Array.isArray(activePlatforms) && activePlatforms.length > 0
+						? activePlatforms
+						: [platform || 'github'];
+
+		const isMultiPlatform = targetPlatforms.length > 1;
+		const platformsWithPlans = Object.keys(plansByPlatform || {}).filter((p) => (plansByPlatform[p] || []).length > 0);
+
+		if (isMultiPlatform && platformsWithPlans.length > 1) {
+			const platformDisplayNames = {
+				github: 'GitHub',
+				gitlab: 'GitLab',
+				codeberg: 'Codeberg',
+			};
+
+			const blocks = [];
+			for (const p of targetPlatforms) {
+				const pNorm = (p || '').toLowerCase();
+				const pPlans = plansByPlatform[pNorm] || [];
+				if (pPlans.length === 0) continue;
+
+				const displayName = platformDisplayNames[pNorm] || pNorm.charAt(0).toUpperCase() + pNorm.slice(1);
+				let pList = '<ul>';
+				for (let i = 0; i < pPlans.length; i++) pList += pPlans[i];
+				pList += '</ul>';
+
+				blocks.push(
+					`<div class="report-platform-header" style="margin-top: 8px; margin-bottom: 4px;"><b style="text-decoration: underline;">${displayName}:</b></div><div class="report-platform-content" style="margin-left: 12px; margin-bottom: 8px;">${pList}</div>`,
+				);
+			}
+
+			if (blocks.length > 0) {
+				return blocks.join('');
+			}
 		}
 
 		let nextWeekList = '<ul>';
@@ -1979,11 +2154,22 @@ function allIncluded(outputTarget = 'email') {
 				html_url: html_url,
 				title: title,
 				state: normalizePrState(item, itemPlatform),
+				platform: (itemPlatform || platform || 'github').toLowerCase(),
 			};
 			githubPrsReviewDataProcessed[project].push(obj);
 		}
+		reviewedPrsArray = [];
+		reviewedPrsByPlatform = {};
 		for (const [repo, repoPrs] of Object.entries(githubPrsReviewDataProcessed)) {
 			if (!repoPrs || repoPrs.length === 0) continue;
+
+			// Group by platform
+			const repoPrsByPlat = {};
+			for (const pr of repoPrs) {
+				const prPlat = (pr.platform || platform || 'github').toLowerCase();
+				repoPrsByPlat[prPlat] = repoPrsByPlat[prPlat] || [];
+				repoPrsByPlat[prPlat].push(pr);
+			}
 
 			let repoLi = `<li style="margin-bottom: 10px !important;">`;
 			if (repoPrs.length > 1) {
@@ -2011,6 +2197,40 @@ function allIncluded(outputTarget = 'email') {
 			}
 			repoLi += '</li>';
 			reviewedPrsArray.push(repoLi);
+
+			for (const [p, pPrs] of Object.entries(repoPrsByPlat)) {
+				reviewedPrsByPlatform[p] = reviewedPrsByPlatform[p] || [];
+				const isGitlab = p === 'gitlab';
+				const pluralLabel = isGitlab ? 'Reviewed Merge Requests' : 'Reviewed PRs';
+				const singularLabel = isGitlab ? 'Reviewed Merge Request' : 'Reviewed PR';
+
+				let pRepoLi = `<li style="margin-bottom: 10px !important;">`;
+				if (pPrs.length > 1) {
+					pRepoLi += `<span style="font-weight: 600;"><i>(${repo})</i> - ${pluralLabel} - </span><ul style="margin-top: 4px; margin-bottom: 4px;">`;
+					for (const pr_arr1 of pPrs) {
+						let statusBtn = '';
+						if (showOpenLabel) {
+							if (pr_arr1.state === 'open') statusBtn = ' ' + pr_open_button;
+							else if (pr_arr1.state === 'merged') statusBtn = ' ' + pr_merged_button;
+							else if (pr_arr1.state === 'closed') statusBtn = ' ' + pr_closed_button;
+						}
+						pRepoLi += `<li><a href='${pr_arr1.html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>#${pr_arr1.number}</a> (${pr_arr1.title})${statusBtn}&nbsp;&nbsp;</li>`;
+					}
+					pRepoLi += '</ul>';
+				} else {
+					const pr_arr = pPrs[0];
+					pRepoLi += `<span style="font-weight: 600;"><i>(${repo})</i> - ${singularLabel} - </span>`;
+					let statusBtn = '';
+					if (showOpenLabel) {
+						if (pr_arr.state === 'open') statusBtn = ' ' + pr_open_button;
+						else if (pr_arr.state === 'merged') statusBtn = ' ' + pr_merged_button;
+						else if (pr_arr.state === 'closed') statusBtn = ' ' + pr_closed_button;
+					}
+					pRepoLi += `<a href='${pr_arr.html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>#${pr_arr.number}</a> (${pr_arr.title})${statusBtn}&nbsp;&nbsp;`;
+				}
+				pRepoLi += '</li>';
+				reviewedPrsByPlatform[p].push(pRepoLi);
+			}
 		}
 		prsReviewDataProcessed = true;
 	}
@@ -2039,6 +2259,8 @@ function allIncluded(outputTarget = 'email') {
 		if (!items.length) {
 			return;
 		}
+		lastWeekIssuesArray = [];
+		issuesByPlatform = {};
 		const headers = { Accept: 'application/vnd.github.v3+json' };
 		if (githubToken) headers.Authorization = `token ${githubToken}`;
 		let useMergedStatus = false;
@@ -2418,12 +2640,24 @@ function allIncluded(outputTarget = 'email') {
 
 				log('[SCRUM-DEBUG] Added issue to lastWeekIssuesArray:', li, item);
 				lastWeekIssuesArray.push(li);
+				const itemPlatformNorm = (itemPlatform || platform || 'github').toLowerCase();
+				issuesByPlatform[itemPlatformNorm] = issuesByPlatform[itemPlatformNorm] || [];
+				issuesByPlatform[itemPlatformNorm].push(li);
 			}
 		}
 
 		lastWeekPrsArray = [];
+		prsByPlatform = {};
 		for (const [repo, repoPrs] of Object.entries(githubPrsDataProcessed)) {
 			if (!repoPrs || repoPrs.length === 0) continue;
+
+			// Group by platform
+			const repoPrsByPlat = {};
+			for (const pr of repoPrs) {
+				const prPlat = (pr.platform || platform || 'github').toLowerCase();
+				repoPrsByPlat[prPlat] = repoPrsByPlat[prPlat] || [];
+				repoPrsByPlat[prPlat].push(pr);
+			}
 
 			let repoLi = `<li style="margin-bottom: 10px !important;"><span style="font-weight: 600;"><i>(${repo})</i></span><ul style="margin-top: 4px; margin-bottom: 4px;">`;
 			for (const pr of repoPrs) {
@@ -2436,6 +2670,21 @@ function allIncluded(outputTarget = 'email') {
 			}
 			repoLi += '</ul></li>';
 			lastWeekPrsArray.push(repoLi);
+
+			for (const [p, pPrs] of Object.entries(repoPrsByPlat)) {
+				prsByPlatform[p] = prsByPlatform[p] || [];
+				let pRepoLi = `<li style="margin-bottom: 10px !important;"><span style="font-weight: 600;"><i>(${repo})</i></span><ul style="margin-top: 4px; margin-bottom: 4px;">`;
+				for (const pr of pPrs) {
+					let prText = `<li>${pr.prAction} - <a href='${pr.html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>#${pr.number}</a> (${pr.title})${pr.statusButton}&nbsp;&nbsp;`;
+					if (pr.commitsHtml) {
+						prText += pr.commitsHtml;
+					}
+					prText += '</li>';
+					pRepoLi += prText;
+				}
+				pRepoLi += '</ul></li>';
+				prsByPlatform[p].push(pRepoLi);
+			}
 		}
 
 		log('[SCRUM-DEBUG] Final lastWeekIssuesArray:', lastWeekIssuesArray);

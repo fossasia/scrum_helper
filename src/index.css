@@ -204,6 +204,17 @@ hr,
     margin-bottom: 4px !important;
 }
 
+#scrumReport .report-platform-header {
+    margin-top: 8px;
+    margin-bottom: 4px;
+    font-size: 13px;
+}
+
+#scrumReport .report-platform-content {
+    margin-left: 12px;
+    margin-bottom: 8px;
+}
+
 .dark-mode #scrumReport {
     font-size: 13px !important;
 }
@@ -1423,7 +1434,7 @@ html.mode-popup .timeframe-presets {
 }
 
 .platform-settings-block.platform-block-subsequent,
-.platform-settings-block:not(.hidden) ~ .platform-settings-block:not(.hidden),
+.platform-settings-block:not(.hidden)~.platform-settings-block:not(.hidden),
 #extensionSettingsSection,
 .extension-settings-block {
     margin-top: 1.75rem;
