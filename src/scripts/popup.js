@@ -637,22 +637,22 @@ document.addEventListener('DOMContentLoaded', () => {
 			const cbUser = document.getElementById('codebergUsername')?.value.trim();
 			const legacyUser = platformUsername?.value.trim();
 
-			const ghSection = document.getElementById('githubPlatformSection');
-			const glSection = document.getElementById('gitlabPlatformSection');
-			const cbSection = document.getElementById('codebergPlatformSection');
+			const ghCheck = document.getElementById('platformCheck-github');
+			const glCheck = document.getElementById('platformCheck-gitlab');
+			const cbCheck = document.getElementById('platformCheck-codeberg');
 
 			let hasUsername = false;
 			let isAnySelected = false;
 
-			if (ghSection && !ghSection.classList.contains('hidden')) {
+			if (ghCheck?.checked) {
 				isAnySelected = true;
 				if (ghUser) hasUsername = true;
 			}
-			if (glSection && !glSection.classList.contains('hidden')) {
+			if (glCheck?.checked) {
 				isAnySelected = true;
 				if (glUser) hasUsername = true;
 			}
-			if (cbSection && !cbSection.classList.contains('hidden')) {
+			if (cbCheck?.checked) {
 				isAnySelected = true;
 				if (cbUser) hasUsername = true;
 			}
@@ -2367,65 +2367,29 @@ function updatePlatformUI(platformArg) {
 	if (platforms.length === 0) platforms = ['github'];
 	const primaryPlatform = platforms[0];
 
-	// Update modular platform settings sections visibility
+	// Keep all platform settings sections always visible in fixed order: GitHub -> GitLab -> Codeberg
 	const githubSection = document.getElementById('githubPlatformSection');
 	if (githubSection) {
-		githubSection.classList.toggle('hidden', !platforms.includes('github'));
+		githubSection.classList.remove('hidden');
+		githubSection.classList.remove('platform-block-subsequent');
+		githubSection.classList.add('platform-block-first');
 	}
 	const gitlabSection = document.getElementById('gitlabPlatformSection');
 	if (gitlabSection) {
-		gitlabSection.classList.toggle('hidden', !platforms.includes('gitlab'));
+		gitlabSection.classList.remove('hidden');
+		gitlabSection.classList.remove('platform-block-first');
+		gitlabSection.classList.add('platform-block-subsequent');
 	}
 	const codebergSection = document.getElementById('codebergPlatformSection');
 	if (codebergSection) {
-		codebergSection.classList.toggle('hidden', !platforms.includes('codeberg'));
-	}
-
-	const platformSections = [githubSection, gitlabSection, codebergSection].filter(Boolean);
-	const visibleSections = platformSections.filter((s) => !s.classList.contains('hidden'));
-	visibleSections.forEach((s, idx) => {
-		if (idx === 0) {
-			s.classList.remove('platform-block-subsequent');
-			s.classList.add('platform-block-first');
-		} else {
-			s.classList.remove('platform-block-first');
-			s.classList.add('platform-block-subsequent');
-		}
-	});
-
-	const usernameLabel = document.getElementById('usernameLabel');
-	if (usernameLabel) {
-		if (primaryPlatform === 'gitlab') {
-			usernameLabel.setAttribute('data-i18n', 'gitlabUsernameLabel');
-		} else if (primaryPlatform === 'codeberg') {
-			usernameLabel.setAttribute('data-i18n', 'codebergUsernameLabel');
-		} else {
-			usernameLabel.setAttribute('data-i18n', 'githubUsernameLabel');
-		}
-		const key = usernameLabel.getAttribute('data-i18n');
-		const message = browser.i18n.getMessage(key);
-		if (message) {
-			usernameLabel.textContent = message;
-		}
-	}
-
-	const orgInput = document.getElementById('orgInput');
-	if (orgInput) {
-		const key = primaryPlatform === 'gitlab' ? 'gitlabOrgNamePlaceholder' : 'settingsOrgNamePlaceholder';
-		orgInput.setAttribute('data-i18n-placeholder', key);
-		const message = browser.i18n.getMessage(key);
-		if (message) {
-			orgInput.placeholder = message;
-		}
+		codebergSection.classList.remove('hidden');
+		codebergSection.classList.remove('platform-block-first');
+		codebergSection.classList.add('platform-block-subsequent');
 	}
 
 	const orgSection = document.querySelector('.orgSection');
 	if (orgSection) {
-		if (platforms.includes('github') || platforms.includes('gitlab')) {
-			orgSection.classList.remove('hidden');
-		} else {
-			orgSection.classList.add('hidden');
-		}
+		orgSection.classList.remove('hidden');
 	}
 	const githubOnlySections = document.querySelectorAll('.githubOnlySection');
 	githubOnlySections.forEach((el) => {
