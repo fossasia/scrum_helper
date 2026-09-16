@@ -1400,14 +1400,20 @@ html.mode-popup .timeframe-presets {
     margin-right: 0;
 }
 
-.platform-settings-block:not(:first-child) {
-    margin-top: 2rem;
-    padding-top: 0.25rem;
+.platform-settings-block {
+    margin-top: 0;
+    padding-top: 0;
 }
 
-#gitlabPlatformSection,
-#codebergPlatformSection {
-    margin-top: 2rem;
+.platform-settings-block.platform-block-first {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+
+.platform-settings-block.platform-block-subsequent,
+.platform-settings-block:not(.hidden) ~ .platform-settings-block:not(.hidden) {
+    margin-top: 1.5rem;
+    padding-top: 0.25rem;
 }
 
 .platform-header {
@@ -1473,4 +1479,17 @@ html.mode-popup .timeframe-presets {
     background-color: #7f1d1d !important;
     border-color: #dc2626 !important;
     color: #fca5a5 !important;
+}
+
+/* Margin bottom utility helpers */
+.mb-1 {
+    margin-bottom: calc(var(--spacing, 0.25rem) * 1);
+}
+
+.mb-3 {
+    margin-bottom: calc(var(--spacing, 0.25rem) * 3);
+}
+
+.mb-4 {
+    margin-bottom: calc(var(--spacing, 0.25rem) * 4);
 }

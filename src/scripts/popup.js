@@ -2381,6 +2381,18 @@ function updatePlatformUI(platformArg) {
 		codebergSection.classList.toggle('hidden', !platforms.includes('codeberg'));
 	}
 
+	const platformSections = [githubSection, gitlabSection, codebergSection].filter(Boolean);
+	const visibleSections = platformSections.filter((s) => !s.classList.contains('hidden'));
+	visibleSections.forEach((s, idx) => {
+		if (idx === 0) {
+			s.classList.remove('platform-block-subsequent');
+			s.classList.add('platform-block-first');
+		} else {
+			s.classList.remove('platform-block-first');
+			s.classList.add('platform-block-subsequent');
+		}
+	});
+
 	const usernameLabel = document.getElementById('usernameLabel');
 	if (usernameLabel) {
 		if (primaryPlatform === 'gitlab') {
