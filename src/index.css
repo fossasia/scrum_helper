@@ -302,12 +302,6 @@ hr,
     color: #ffffff !important;
 }
 
-#cacheInput:focus {
-    outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
 /* Update the settings button styles: */
 #settingsToggle {
     transition: all 0.2s ease;
@@ -938,7 +932,7 @@ hr,
 }
 
 .dark-mode #platformDropdownBtn:focus {
-    outline: 2px solid #2563eb;
+    outline: -webkit-focus-ring-color auto 1px;
 }
 
 #platformDropdownList {
@@ -1054,13 +1048,6 @@ hr,
     transition: background-color 0.3s ease-in-out, border-color 0.3s ease-in-out, color 0.3s ease-in-out;
 }
 
-#displayModeSelect:focus {
-    outline: none;
-    border-color: #3b82f6 !important;
-    border-radius: 14px;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
 #displayModeSelect option {
     padding: 8px 12px;
     font-size: 14px;
@@ -1081,12 +1068,6 @@ hr,
     border-color: #505050 !important;
     color: #ffffff !important;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-}
-
-.dark-mode #displayModeSelect:focus {
-    border-color: #3b82f6 !important;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
-    background-color: #374151 !important;
 }
 
 .dark-mode #displayModeSelect option {

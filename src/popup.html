@@ -71,7 +71,7 @@
 		}
 
 		#platformDropdownBtn:focus {
-			outline: 2px solid #2563eb;
+			outline: -webkit-focus-ring-color auto 1px;
 		}
 
 		/* Firefox Sidebar Fixes ONLY */
@@ -130,7 +130,7 @@
 						<div class="relative mt-1 mb-3" id="customPlatformDropdown">
 							<input type="hidden" id="platformSelect" value="github">
 							<button type="button" id="platformDropdownBtn"
-								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 pr-8 flex items-center justify-between focus:outline-none focus:ring-2 focus:ring-blue-500">
+								class="w-full border-2 border-gray-200 bg-gray-200 rounded-xl text-gray-800 p-2 pr-8 flex items-center justify-between">
 								<span id="platformDropdownSelected" class="flex items-center flex-wrap gap-2">
 									<span class="platform-selected-tag inline-flex items-center gap-2"><i class="fab fa-github text-sm"></i><span>GitHub</span></span>
 								</span>
