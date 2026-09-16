@@ -220,6 +220,10 @@ hr,
     color: #00b7ff !important;
 }
 
+.dark-mode #fossasiaLink {
+    color: #ffffff !important;
+}
+
 #refreshCache {
     background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
     border: none;
