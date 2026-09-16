@@ -2645,6 +2645,16 @@ function updateDropdownCheckboxes(platforms) {
 	});
 }
 
+function updateSettingsPlatformCheckboxes(platforms) {
+	const platformList = Array.isArray(platforms) && platforms.length > 0 ? platforms : ['github'];
+	['github', 'gitlab', 'codeberg'].forEach((p) => {
+		const cb = document.getElementById(`settingsPlatformCheck-${p}`);
+		if (cb) {
+			cb.checked = platformList.includes(p);
+		}
+	});
+}
+
 function setSelectedPlatforms(platforms) {
 	const platformList = Array.isArray(platforms) && platforms.length > 0 ? platforms : ['github'];
 	const primaryPlatform = platformList[0];
@@ -2656,6 +2666,7 @@ function setSelectedPlatforms(platforms) {
 
 	renderPlatformDropdownSelected(platformList);
 	updateDropdownCheckboxes(platformList);
+	updateSettingsPlatformCheckboxes(platformList);
 	updatePlatformUI(platformList);
 
 	browser.storage.local
@@ -2790,7 +2801,37 @@ browser.storage.local.get(['selectedPlatforms', 'platform']).then((result) => {
 	lastPlatform = primaryPlatform;
 	renderPlatformDropdownSelected(platforms);
 	updateDropdownCheckboxes(platforms);
+	updateSettingsPlatformCheckboxes(platforms);
 	updatePlatformUI(platforms);
+});
+
+// Settings page circular platform checkboxes change listeners
+['github', 'gitlab', 'codeberg'].forEach((platform) => {
+	const cb = document.getElementById(`settingsPlatformCheck-${platform}`);
+	if (cb) {
+		cb.addEventListener('change', () => {
+			browser.storage.local.get(['selectedPlatforms', 'platform']).then((result) => {
+				let currentPlatforms = result.selectedPlatforms;
+				if (!Array.isArray(currentPlatforms) || currentPlatforms.length === 0) {
+					currentPlatforms = [result.platform || 'github'];
+				}
+
+				let nextPlatforms;
+				if (cb.checked) {
+					nextPlatforms = currentPlatforms.includes(platform) ? currentPlatforms : [...currentPlatforms, platform];
+				} else {
+					if (currentPlatforms.length === 1 && currentPlatforms.includes(platform)) {
+						// Keep at least one platform selected
+						cb.checked = true;
+						return;
+					}
+					nextPlatforms = currentPlatforms.filter((p) => p !== platform);
+				}
+
+				setSelectedPlatforms(nextPlatforms);
+			});
+		});
+	}
 });
 
 // Tooltip bubble
