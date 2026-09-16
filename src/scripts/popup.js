@@ -618,18 +618,20 @@ document.addEventListener('DOMContentLoaded', () => {
 			return;
 		}
 
-		const { platform, cacheInput, githubCache, gitlabCache } = await storageLocalGet([
+		const { platform, cacheInput, githubCache, gitlabCache, codebergCache } = await storageLocalGet([
 			'platform',
 			'cacheInput',
 			'githubCache',
 			'gitlabCache',
+			'codebergCache',
 		]);
 
 		const ttlMinutes = parsePositiveInt(cacheInput) ?? 10;
 		const ttlMs = ttlMinutes * 60 * 1000;
 
 		const activePlatform = platform || 'github';
-		const cache = activePlatform === 'gitlab' ? gitlabCache : githubCache;
+		const cache =
+			activePlatform === 'gitlab' ? gitlabCache : activePlatform === 'codeberg' ? codebergCache : githubCache;
 
 		const hasCacheData = !!cache?.data;
 		const timestamp = typeof cache?.timestamp === 'number' ? cache.timestamp : 0;
@@ -653,6 +655,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				'lastScrumReportUsername',
 				'githubUsername',
 				'gitlabUsername',
+				'codebergUsername',
 				'platformUsername',
 			]);
 
@@ -662,7 +665,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			if (
 				storageValues.lastScrumReportHtml &&
-				(!storageValues.lastScrumReportPlatform || storageValues.lastScrumReportPlatform === activePlatform) &&
+				storageValues.lastScrumReportPlatform === activePlatform &&
 				!lastScrumReportHtml
 			) {
 				lastScrumReportHtml = storageValues.lastScrumReportHtml;
@@ -670,10 +673,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				lastScrumReportUsername = storageValues.lastScrumReportUsername;
 			}
 
-			const expectedUsername =
-				activePlatform === 'gitlab'
-					? storageValues.gitlabUsername || storageValues.platformUsername
-					: storageValues.githubUsername || storageValues.platformUsername;
+			const expectedUsername = storageValues[`${activePlatform}Username`] || storageValues.platformUsername;
 
 			const isUsernameMatch = lastScrumReportUsername
 				? lastScrumReportUsername === expectedUsername
