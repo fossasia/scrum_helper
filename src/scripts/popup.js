@@ -2611,43 +2611,6 @@ function updatePlatformUI(platformArg) {
 	}
 }
 
-const platformSelectEl = document.getElementById('platformSelect');
-if (platformSelectEl) {
-	platformSelectEl.addEventListener('change', () => {
-		const platform = platformSelectEl.value;
-		browser.storage.local.set({ platform }).then(() => {
-			const scrumReport = document.getElementById('scrumReport');
-			if (scrumReport) {
-				scrumReport.textContent = '';
-				window.updateCopyButtonState?.();
-			}
-			const generateBtn = document.getElementById('generateReport');
-			if (typeof bootstrapScrumReportOnPopupLoad === 'function') {
-				bootstrapScrumReportOnPopupLoad(generateBtn);
-			}
-		});
-
-		const platformUsername = document.getElementById('platformUsername');
-		if (platformUsername) {
-			const currentPlatform = lastPlatform; // Get the platform we're switching from
-			const currentUsername = platformUsername.value;
-			if (currentUsername.trim()) {
-				browser.storage.local.set({ [`${currentPlatform}Username`]: currentUsername });
-			}
-		}
-
-		browser.storage.local.get([`${platform}Username`]).then((result) => {
-			const platformUsername = document.getElementById('platformUsername');
-			if (platformUsername) {
-				platformUsername.value = result[`${platform}Username`] || '';
-				window.updateGenerateButtonState && window.updateGenerateButtonState();
-			}
-		});
-
-		lastPlatform = platform;
-		updatePlatformUI([platform]);
-	});
-}
 
 const customDropdown = document.getElementById('customPlatformDropdown');
 const dropdownBtn = document.getElementById('platformDropdownBtn');
@@ -2860,13 +2823,6 @@ function setSelectedPlatforms(platforms) {
 		});
 }
 
-function setPlatformDropdown(value) {
-	if (Array.isArray(value)) {
-		setSelectedPlatforms(value);
-	} else {
-		setSelectedPlatforms([value]);
-	}
-}
 
 if (dropdownBtn && customDropdown && dropdownList) {
 	dropdownBtn.addEventListener('click', (e) => {
@@ -2944,22 +2900,7 @@ if (dropdownList && customDropdown && dropdownBtn) {
 				(arr[idx - 1] || arr[arr.length - 1]).focus();
 			} else if (e.key === 'Enter' || e.key === ' ') {
 				e.preventDefault();
-				const platformClicked = item.getAttribute('data-value');
-				browser.storage.local.get(['selectedPlatforms', 'platform']).then((result) => {
-					let currentPlatforms = result.selectedPlatforms;
-					if (!Array.isArray(currentPlatforms)) {
-						currentPlatforms = result.platform ? [result.platform] : [];
-					}
-
-					let nextPlatforms;
-					if (currentPlatforms.includes(platformClicked)) {
-						nextPlatforms = currentPlatforms.filter((p) => p !== platformClicked);
-					} else {
-						nextPlatforms = [...currentPlatforms, platformClicked];
-					}
-
-					setSelectedPlatforms(nextPlatforms);
-				});
+				item.click();
 			} else if (e.key === 'Escape') {
 				customDropdown.classList.remove('open');
 				dropdownList.classList.add('hidden');
@@ -3291,9 +3232,7 @@ document.addEventListener('keydown', (e) => {
 
 // Validate organization only when user is done typing (on blur)
 function handleOrgInputBlurValidation(org) {
-	const platformSelect = document.getElementById('platformSelect');
-	const platform = platformSelect?.value || 'github';
-	const helper = window.PlatformRegistry.get(platform);
+	const helper = window.PlatformRegistry?.get('github');
 	if (helper && helper.validateOrgOnBlur) {
 		helper.validateOrgOnBlur(org);
 	}

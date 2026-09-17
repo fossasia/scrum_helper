@@ -1016,6 +1016,7 @@ if (window.PlatformRegistry) {
 				return [];
 			}
 
+			const filterOrgs = org && org !== 'all' ? parseGitlabGroups(org) : [];
 			const repos = [];
 			const fetchPromises = projectIds.map(async (projectId) => {
 				try {
@@ -1027,14 +1028,11 @@ if (window.PlatformRegistry) {
 						if (project.forked_from_project) {
 							const upstream = project.forked_from_project;
 							let includeUpstream = true;
-							if (org && org !== 'all') {
-								const orgs = parseGitlabGroups(org);
-								if (orgs.length > 0) {
-									const upstreamPath = upstream.path_with_namespace?.toLowerCase() || '';
-									const matchesAny = orgs.some((o) => upstreamPath.startsWith(o + '/'));
-									if (!matchesAny) {
-										includeUpstream = false;
-									}
+							if (filterOrgs.length > 0) {
+								const upstreamPath = upstream.path_with_namespace?.toLowerCase() || '';
+								const matchesAny = filterOrgs.some((o) => upstreamPath.startsWith(o + '/'));
+								if (!matchesAny) {
+									includeUpstream = false;
 								}
 							}
 
@@ -1051,15 +1049,12 @@ if (window.PlatformRegistry) {
 							}
 						} else {
 							let includeProject = true;
-							if (org && org !== 'all') {
-								const orgs = parseGitlabGroups(org);
-								if (orgs.length > 0) {
-									const namespacePath = project.namespace?.path?.toLowerCase() || '';
-									const pathWithNamespace = project.path_with_namespace?.toLowerCase() || '';
-									const matchesAny = orgs.some((o) => namespacePath === o || pathWithNamespace.startsWith(o + '/'));
-									if (!matchesAny) {
-										includeProject = false;
-									}
+							if (filterOrgs.length > 0) {
+								const namespacePath = project.namespace?.path?.toLowerCase() || '';
+								const pathWithNamespace = project.path_with_namespace?.toLowerCase() || '';
+								const matchesAny = filterOrgs.some((o) => namespacePath === o || pathWithNamespace.startsWith(o + '/'));
+								if (!matchesAny) {
+									includeProject = false;
 								}
 							}
 

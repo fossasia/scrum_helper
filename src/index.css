@@ -1029,19 +1029,6 @@ hr,
     margin: 0 !important;
 }
 
-.dark-mode #platformDropdownList li {
-    color: #ffffff !important;
-}
-
-/* Remove hover background color for platform dropdown in dark mode */
-.dark-mode #platformDropdownList li:hover,
-.dark-mode #platformDropdownList li.selected,
-.dark-mode #platformDropdownList li[aria-selected="true"] {
-    background-color: transparent !important;
-    color: #fff !important;
-}
-
-
 /* Organization validation message styles */
 #orgValidationMessage {
     transition: all 0.3s ease;

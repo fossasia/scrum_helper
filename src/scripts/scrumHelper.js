@@ -1003,13 +1003,6 @@ function allIncluded(outputTarget = 'email') {
 			log('Making public requests');
 		}
 
-		console.log('[SCRUM-HELPER] orgName before API query:', orgName);
-		console.log('[SCRUM-HELPER] orgName type:', typeof orgName);
-		console.log('[SCRUM-HELPER] orgName length:', orgName ? orgName.length : 0);
-		const orgPart = orgName && orgName.trim() ? `org%3A${orgName}` : '';
-		console.log('[SCRUM-HELPER] orgPart for API:', orgPart);
-		console.log('[SCRUM-HELPER] orgPart length:', orgPart.length);
-
 		let repoQueries = '';
 
 		if (useRepoFilter && selectedRepos && selectedRepos.length > 0) {
