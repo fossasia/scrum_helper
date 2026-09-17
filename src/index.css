@@ -86,7 +86,9 @@ a {
 
 .input-error,
 .dark-mode .input-error,
-.dark-mode input.input-error {
+.dark-mode input.input-error,
+.dark-mode button.input-error,
+.dark-mode #platformDropdownBtn.input-error {
     border-color: #ef4444 !important;
     outline: none !important;
     box-shadow: none !important;
@@ -95,7 +97,10 @@ a {
 .input-error:focus,
 .input-error:focus-visible,
 .dark-mode .input-error:focus,
-.dark-mode input.input-error:focus {
+.dark-mode input.input-error:focus,
+.dark-mode button.input-error:focus,
+.dark-mode #platformDropdownBtn.input-error:focus,
+.dark-mode #platformDropdownBtn.input-error:focus-visible {
     border-color: #ef4444 !important;
     outline: none !important;
     box-shadow: none !important;
@@ -958,6 +963,14 @@ hr,
     border-color: #505050 !important;
     color: #ffffff !important;
     transition: background-color 0.3s ease-in-out, border-color 0.3s ease-in-out, color 0.3s ease-in-out;
+}
+
+.dark-mode #platformDropdownBtn.input-error,
+.dark-mode #platformDropdownBtn.input-error:focus,
+.dark-mode #platformDropdownBtn.input-error:focus-visible {
+    border-color: #ef4444 !important;
+    outline: none !important;
+    box-shadow: none !important;
 }
 
 .dark-mode #platformDropdownBtn:focus {
