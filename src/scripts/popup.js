@@ -1836,13 +1836,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	if (settingsToggle) {
-		settingsToggle.addEventListener('click', () => {
-			if (isSettingsVisible) {
-				showReportView();
-			} else {
-				showSettingsView();
-			}
-		});
+		settingsToggle.addEventListener('click', showSettingsView);
 	}
 
 	if (mailSettingsToggle) {
