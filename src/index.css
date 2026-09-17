@@ -347,6 +347,8 @@ hr,
 }
 
 #settingsToggle img {
+    width: 28px;
+    height: 28px;
     transition: transform 0.2s ease;
     filter: brightness(0.9);
 }
