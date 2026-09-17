@@ -1348,12 +1348,7 @@ html.mode-popup .timeframe-presets {
     }
 }
 
-.platform-checkbox {
-    accent-color: #2563eb;
-    width: 1rem;
-    height: 1rem;
-}
-
+.platform-checkbox,
 .platform-circular-checkbox {
     appearance: none;
     -webkit-appearance: none;
@@ -1374,11 +1369,15 @@ html.mode-popup .timeframe-presets {
     margin: 0;
 }
 
-.platform-circular-checkbox:hover {
+.platform-checkbox:hover,
+.platform-circular-checkbox:hover,
+#platformDropdownList li:hover .platform-checkbox:not(:checked),
+#platformDropdownList li:hover .platform-circular-checkbox:not(:checked) {
     border-color: #2563eb;
     box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
 }
 
+.platform-checkbox:checked,
 .platform-circular-checkbox:checked {
     background-color: #2563eb !important;
     border-color: #2563eb !important;
@@ -1388,20 +1387,26 @@ html.mode-popup .timeframe-presets {
     background-repeat: no-repeat;
 }
 
+.platform-checkbox:focus-visible,
 .platform-circular-checkbox:focus-visible {
     box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.4);
 }
 
+.dark-mode .platform-checkbox,
 .dark-mode .platform-circular-checkbox {
     background-color: #2d2d2d !important;
     border-color: #6b7280 !important;
 }
 
-.dark-mode .platform-circular-checkbox:hover {
+.dark-mode .platform-checkbox:hover,
+.dark-mode .platform-circular-checkbox:hover,
+.dark-mode #platformDropdownList li:hover .platform-checkbox:not(:checked),
+.dark-mode #platformDropdownList li:hover .platform-circular-checkbox:not(:checked) {
     border-color: #60a5fa !important;
     box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.25);
 }
 
+.dark-mode .platform-checkbox:checked,
 .dark-mode .platform-circular-checkbox:checked {
     background-color: #2563eb !important;
     border-color: #2563eb !important;
