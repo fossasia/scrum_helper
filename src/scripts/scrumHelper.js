@@ -235,12 +235,16 @@ function showReportMessage(message) {
 	window.scrumHelperToast?.(message, { duration: 2000, variant: 'error' });
 }
 
-function handleUsernameValidationError(errMessage) {
-	if (!platformUsernameInp || !usernameError) return;
-
-	platformUsernameInp.classList.add('input-error');
-	usernameError.classList.add('errorMessage');
-	usernameError.textContent = errMessage;
+function handleUsernameValidationError(errMessage, platformName = null) {
+	const specificInput = platformName ? document.getElementById(`${platformName}Username`) : null;
+	const targetInp = specificInput || platformUsernameInp;
+	if (targetInp) {
+		window.triggerInputError?.(targetInp, { focus: false, scroll: false, clearOnInput: true });
+	}
+	if (usernameError) {
+		usernameError.classList.add('errorMessage');
+		usernameError.textContent = errMessage;
+	}
 
 	if (scrumReportEl) {
 		scrumReportEl.textContent = '';
@@ -386,9 +390,15 @@ function allIncluded(outputTarget = 'email') {
 
 				if (outputTarget === 'popup') {
 					const usernameFromDOM = document.getElementById('platformUsername')?.value;
-					const githubUserFromDOM = document.getElementById('githubUsername')?.value?.trim();
-					const gitlabUserFromDOM = document.getElementById('gitlabUsername')?.value?.trim();
-					const codebergUserFromDOM = document.getElementById('codebergUsername')?.value?.trim();
+					const githubUserFromDOM =
+						document.getElementById('dropdown-githubUsername')?.value?.trim() ||
+						document.getElementById('githubUsername')?.value?.trim();
+					const gitlabUserFromDOM =
+						document.getElementById('dropdown-gitlabUsername')?.value?.trim() ||
+						document.getElementById('gitlabUsername')?.value?.trim();
+					const codebergUserFromDOM =
+						document.getElementById('dropdown-codebergUsername')?.value?.trim() ||
+						document.getElementById('codebergUsername')?.value?.trim();
 					const projectFromDOM = document.getElementById('projectName')?.value;
 					const tokenFromDOM = document.getElementById('githubToken')?.value?.trim();
 					const gitlabTokenFromDOM = document.getElementById('gitlabToken')?.value?.trim();
@@ -506,26 +516,69 @@ function allIncluded(outputTarget = 'email') {
 				}
 
 				activePlatforms =
-					Array.isArray(items.selectedPlatforms) && items.selectedPlatforms.length > 0
+					Array.isArray(items.selectedPlatforms)
 						? items.selectedPlatforms
-						: [platform || 'github'];
+						: (platform ? [platform] : []);
 
-				const platformsToFetch = activePlatforms.filter((p) => Boolean(getUsernameForPlatform(p)));
-
-				if (platformsToFetch.length === 0) {
+				if (activePlatforms.length === 0) {
 					if (outputTarget === 'popup') {
-						console.log('[DEBUG] No username found - popup context');
+						const errMessage =
+							chrome.i18n.getMessage('selectPlatformWarning') || 'Please select a platform first';
+						window.scrumHelperToast?.(errMessage, { duration: 2000, variant: 'error' });
+						window.triggerInputError?.('platformDropdownBtn', {
+							focus: true,
+							clearOnInput: true,
+						});
 						const generateBtn = document.getElementById('generateReport');
-						const ErrMessage =
-							chrome.i18n.getMessage('usernameRequiredError') || 'Please enter your username to generate a report.';
-						handleUsernameValidationError(ErrMessage);
 						setGenerateButtonState(generateBtn, false);
 					} else {
-						console.warn('[DEBUG] No username found in storage');
+						console.warn('[DEBUG] No platform selected in storage');
 					}
 					scrumGenerationInProgress = false;
 					return;
 				}
+
+				const missingPlatform = activePlatforms.find((p) => !getUsernameForPlatform(p));
+				if (missingPlatform) {
+					if (outputTarget === 'popup') {
+						console.log('[DEBUG] No username found for platform - popup context:', missingPlatform);
+						const generateBtn = document.getElementById('generateReport');
+						const platformDisplayNames = { github: 'GitHub', gitlab: 'GitLab', codeberg: 'Codeberg' };
+						const displayName = platformDisplayNames[missingPlatform] || missingPlatform;
+						const errMessage =
+							chrome.i18n.getMessage(`${missingPlatform}UsernameRequiredError`) ||
+							`Please enter your ${displayName} username`;
+						window.scrumHelperToast?.(errMessage, { duration: 2500, variant: 'error' });
+						const customDropdown = document.getElementById('customPlatformDropdown');
+						const dropdownList = document.getElementById('platformDropdownList');
+						if (customDropdown && dropdownList) {
+							customDropdown.classList.add('open');
+							dropdownList.classList.remove('hidden');
+						}
+						const container = document.getElementById(`dropdown-${missingPlatform}UsernameContainer`);
+						if (container) {
+							container.classList.remove('hidden');
+						}
+
+						const targetInputId = document.getElementById(`dropdown-${missingPlatform}Username`)
+							? `dropdown-${missingPlatform}Username`
+							: `${missingPlatform}Username`;
+
+						window.triggerInputError?.(targetInputId, {
+							focus: true,
+							scroll: true,
+							clearOnInput: true,
+						});
+						handleUsernameValidationError(errMessage, missingPlatform);
+						setGenerateButtonState(generateBtn, false);
+					} else {
+						console.warn('[DEBUG] No username found in storage for platform:', missingPlatform);
+					}
+					scrumGenerationInProgress = false;
+					return;
+				}
+
+				const platformsToFetch = activePlatforms.filter((p) => Boolean(getUsernameForPlatform(p)));
 
 				const generateBtn = document.getElementById('generateReport');
 				if (generateBtn && outputTarget === 'popup') {

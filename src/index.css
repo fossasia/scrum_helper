@@ -84,9 +84,21 @@ a {
     -webkit-user-modify: read-only;
 }
 
-.input-error {
-    outline: 2px solid red;
-    outline-offset: 1px;
+.input-error,
+.dark-mode .input-error,
+.dark-mode input.input-error {
+    border-color: #ef4444 !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+.input-error:focus,
+.input-error:focus-visible,
+.dark-mode .input-error:focus,
+.dark-mode input.input-error:focus {
+    border-color: #ef4444 !important;
+    outline: none !important;
+    box-shadow: none !important;
 }
 
 .errorMessage {
@@ -950,17 +962,16 @@ hr,
     outline: -webkit-focus-ring-color auto 1px;
 }
 
-#platformDropdownList {
-    width: 100% !important;
-    min-width: 100% !important;
-    box-sizing: border-box;
-    z-index: 1000 !important;
-}
-
+#platformDropdownList,
 .dark-mode #platformDropdownList {
     width: 100% !important;
     min-width: 100% !important;
-    box-sizing: border-box;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 0 !important;
+    margin: 4px 0 0 0 !important;
+    list-style: none !important;
+    overflow-x: hidden;
     z-index: 1000 !important;
 }
 
@@ -973,24 +984,53 @@ hr,
     flex-shrink: 0;
 }
 
-#platformDropdownList li div {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-/* Fix platform dropdown highlight in dark mode */
+#platformDropdownList li,
 .dark-mode #platformDropdownList li {
-    color: #ffffff !important;
-    width: 100%;
-    display: flex;
-    align-items: center;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    box-sizing: border-box !important;
+    width: 100% !important;
+    padding: 6px 12px !important;
+    margin: 0 !important;
     cursor: pointer;
-    padding: 8px 16px !important;
-    box-sizing: border-box;
-    border-radius: 0.75rem;
     background: transparent;
     transition: background 0.2s;
+}
+
+#platformDropdownList li .platform-dropdown-row {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+.dropdown-username-container {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    padding: 0 !important;
+    margin-top: 4px !important;
+    margin-bottom: 4px !important;
+}
+
+.dropdown-username-container.hidden {
+    display: none !important;
+}
+
+.dropdown-username-container input {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    cursor: text;
+    margin: 0 !important;
+}
+
+.dark-mode #platformDropdownList li {
+    color: #ffffff !important;
 }
 
 /* Remove hover background color for platform dropdown in dark mode */

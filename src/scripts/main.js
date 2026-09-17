@@ -106,15 +106,18 @@ if (!window.scrumDateRangeUtils) {
 
 if (!window.reportIdentityUtils) {
 	window.reportIdentityUtils = {
-		normalizePlatforms(platforms, fallback = 'github') {
-			const list = Array.isArray(platforms) && platforms.length > 0 ? platforms : [fallback || 'github'];
+		normalizePlatforms(platforms, fallback = '') {
+			if (Array.isArray(platforms)) {
+				return Array.from(new Set(platforms)).sort();
+			}
+			const list = fallback ? [fallback] : [];
 			return Array.from(new Set(list)).sort();
 		},
 
 		buildReportIdentity(source = {}) {
 			const platforms = this.normalizePlatforms(
-				source.platforms || source.selectedPlatforms,
-				source.platform || 'github',
+				source.platforms ?? source.selectedPlatforms,
+				source.platform ?? '',
 			);
 
 			const srcUsernames = source.usernames || {};
@@ -314,6 +317,70 @@ if (!window.showPopupMessage) {
 	window.showPopupMessage = function showPopupMessage(message, options = {}) {
 		const opts = Object.assign({ duration: 2000, variant: 'info' }, options || {});
 		return window.scrumHelperToast?.(message, opts);
+	};
+}
+
+/**
+ * Triggers a shake animation and single-border error styling on a target input or element.
+ * Reusable utility across all inputs, dropdowns, and containers.
+ */
+if (!window.triggerInputError) {
+	window.triggerInputError = function triggerInputError(target, options = {}) {
+		const el = typeof target === 'string' ? document.getElementById(target) : target;
+		if (!el) return null;
+
+		const {
+			error = true,
+			focus = false,
+			scroll = false,
+			clearOnInput = true,
+			duration = 820,
+		} = options;
+
+		if (error) {
+			el.classList.add('input-error');
+		}
+
+		// Restart shake animation cleanly if already running
+		el.classList.remove('shake-animation');
+		void el.offsetWidth; // Force reflow to restart CSS animation
+		el.classList.add('shake-animation');
+
+		if (focus && typeof el.focus === 'function') {
+			el.focus();
+		}
+
+		if (scroll && typeof el.scrollIntoView === 'function') {
+			el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+		}
+
+		if (el._shakeTimeout) {
+			clearTimeout(el._shakeTimeout);
+		}
+		el._shakeTimeout = setTimeout(() => {
+			el.classList.remove('shake-animation');
+			el._shakeTimeout = null;
+		}, duration);
+
+		if (error && clearOnInput && !el._inputErrorClearBound) {
+			const removeError = () => {
+				el.classList.remove('input-error');
+				el.removeEventListener('input', removeError);
+				el.removeEventListener('change', removeError);
+				el._inputErrorClearBound = false;
+			};
+			el.addEventListener('input', removeError);
+			el.addEventListener('change', removeError);
+			el._inputErrorClearBound = true;
+		}
+
+		return el;
+	};
+}
+
+if (!window.shakeElement) {
+	window.shakeElement = function shakeElement(target, duration = 820) {
+		return window.triggerInputError ? window.triggerInputError(target, { error: false, duration }) : null;
 	};
 }
 

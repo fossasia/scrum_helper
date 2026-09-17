@@ -12,8 +12,7 @@ function codebergShowTokenWarningForShowCommits({ animate = false, durationMs = 
 
 	tokenWarning.classList.remove('hidden');
 	if (animate) {
-		tokenWarning.classList.add('shake-animation');
-		setTimeout(() => tokenWarning.classList.remove('shake-animation'), 620);
+		window.shakeElement ? window.shakeElement(tokenWarning, 620) : tokenWarning.classList.add('shake-animation');
 	}
 
 	if (codebergShowCommitsWarningTimeout) {

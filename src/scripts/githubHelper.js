@@ -11,8 +11,7 @@ function showTokenWarningForShowCommits({ animate = false, durationMs = 4000 } =
 
 	tokenWarning.classList.remove('hidden');
 	if (animate) {
-		tokenWarning.classList.add('shake-animation');
-		setTimeout(() => tokenWarning.classList.remove('shake-animation'), 620);
+		window.shakeElement ? window.shakeElement(tokenWarning, 620) : tokenWarning.classList.add('shake-animation');
 	}
 
 	if (showCommitsWarningTimeout) {
@@ -76,8 +75,7 @@ function showTokenWarningForNextPlans({ animate = false, durationMs = 4000 } = {
 
 	tokenWarning.classList.remove('hidden');
 	if (animate) {
-		tokenWarning.classList.add('shake-animation');
-		setTimeout(() => tokenWarning.classList.remove('shake-animation'), 620);
+		window.shakeElement ? window.shakeElement(tokenWarning, 620) : tokenWarning.classList.add('shake-animation');
 	}
 
 	if (nextPlansWarningTimeout) {
@@ -148,8 +146,7 @@ function showTokenWarningForMergedPRs({ animate = false, durationMs = 4000 } = {
 
 	tokenWarning.classList.remove('hidden');
 	if (animate) {
-		tokenWarning.classList.add('shake-animation');
-		setTimeout(() => tokenWarning.classList.remove('shake-animation'), 620);
+		window.shakeElement ? window.shakeElement(tokenWarning, 620) : tokenWarning.classList.add('shake-animation');
 	}
 
 	if (mergedPRsWarningTimeout) {

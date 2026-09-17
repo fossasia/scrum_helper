@@ -11,7 +11,9 @@
 			'platform',
 			'selectedPlatforms',
 		]);
-		const platforms = result.selectedPlatforms || [result.platform || 'github'];
+		const platforms = Array.isArray(result.selectedPlatforms)
+			? result.selectedPlatforms
+			: (result.platform ? [result.platform] : []);
 		const isGitlab = platforms.includes('gitlab');
 		const isGithub = platforms.includes('github');
 
@@ -250,7 +252,9 @@
 
 		try {
 			const storage = await browser.storage.local.get(['platform', 'selectedPlatforms', 'githubToken', 'gitlabToken']);
-			const platforms = storage.selectedPlatforms || [storage.platform || 'github'];
+			const platforms = Array.isArray(storage.selectedPlatforms)
+				? storage.selectedPlatforms
+				: (storage.platform ? [storage.platform] : []);
 			const fetchPromises = [];
 
 			if (platforms.includes('github') && storage.githubToken?.trim()) {
