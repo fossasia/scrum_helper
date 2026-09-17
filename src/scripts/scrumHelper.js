@@ -916,7 +916,13 @@ function allIncluded(outputTarget = 'email') {
 						.join(',')
 				: 'norepos';
 		const commitMarker = showCommits ? 'commits' : 'nocommits';
-		const cacheKey = `${platformUsernameLocal}-${startDateForCache}-${endDateForCache}-${orgName || 'all'}-${commitMarker}-${repoMarker}`;
+		const normalizedOrg = (orgName || '')
+			.split(',')
+			.map((s) => s.trim().toLowerCase())
+			.filter((s) => s && s !== 'all')
+			.sort()
+			.join(',');
+		const cacheKey = `${platformUsernameLocal}-${startDateForCache}-${endDateForCache}-${normalizedOrg || 'all'}-${commitMarker}-${repoMarker}`;
 
 		log('Fetching Github data:', {
 			username: platformUsernameLocal,

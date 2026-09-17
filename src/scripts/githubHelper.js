@@ -229,8 +229,26 @@ function checkTokenForFilter() {
 	}, 4000);
 }
 
+function parseGithubOrgs(orgStr) {
+	if (!orgStr) return [];
+	return orgStr
+		.split(',')
+		.map((s) => s.trim().toLowerCase())
+		.filter((s) => s && s !== 'all');
+}
+
+function buildGithubOrgQuery(orgStr) {
+	const orgs = parseGithubOrgs(orgStr);
+	if (orgs.length === 0) return '';
+	return '+' + orgs.map((o) => `org:${o}`).join('+');
+}
+
+window.parseGithubOrgs = parseGithubOrgs;
+window.buildGithubOrgQuery = buildGithubOrgQuery;
+
 function makeRepoCacheKey(username, orgName, platform, storageItems) {
-	const org = orgName || '';
+	const normalizedOrgs = parseGithubOrgs(orgName).sort().join(',');
+	const org = normalizedOrgs || orgName || '';
 	if (platform === 'github' || platform === 'gitlab') {
 		const token = (platform === 'gitlab' ? storageItems?.gitlabToken || '' : storageItems?.githubToken || '').trim();
 		if (!token) {
@@ -491,33 +509,69 @@ async function performRepoFetch() {
 }
 
 // Validate organization only when user is done typing (on blur)
-function validateOrgOnBlur(org) {
-	console.log('[Org Check] Checking organization on blur:', org);
-	fetch(`https://api.github.com/orgs/${org}`)
-		.then((res) => {
-			console.log('[Org Check] Response status for', org, ':', res.status);
-			if (res.status === 404) {
-				console.log('[Org Check] Organization not found on GitHub:', org);
-				if (typeof showPopupMessage === 'function') {
-					showPopupMessage(browser.i18n.getMessage('orgNotFoundMessage'));
-				} else if (window.showPopupMessage) {
-					window.showPopupMessage(browser.i18n.getMessage('orgNotFoundMessage'));
+async function validateOrgOnBlur(org) {
+	const orgs = parseGithubOrgs(org);
+	if (orgs.length === 0) {
+		window.clearScrumHelperToast?.();
+		const orgInput = document.getElementById('orgInput');
+		if (orgInput) {
+			orgInput.classList.remove('input-error', 'shake-animation');
+		}
+		return;
+	}
+	console.log('[Org Check] Checking organizations on blur:', orgs);
+
+	let headers = {};
+	try {
+		const storage = await browser.storage.local.get(['githubToken']);
+		if (storage.githubToken) {
+			headers = { Authorization: `token ${storage.githubToken}` };
+		}
+	} catch (err) {
+		// ignore storage error
+	}
+
+	const invalidOrgs = [];
+	await Promise.all(
+		orgs.map(async (o) => {
+			try {
+				const res = await fetch(`https://api.github.com/orgs/${encodeURIComponent(o)}`, { headers });
+				console.log('[Org Check] Response status for', o, ':', res.status);
+				if (res.status === 404) {
+					invalidOrgs.push(o);
 				}
-				return;
+			} catch (err) {
+				console.log('[Org Check] Error validating organization:', o, err);
+				invalidOrgs.push(o);
 			}
-			window.clearScrumHelperToast?.();
-			console.log('[Org Check] Organisation exists on GitHub:', org);
-			browser.storage.local.remove(['githubCache', 'repoCache']);
-			githubTriggerRepoFetchIfEnabled();
-		})
-		.catch((err) => {
-			console.log('[Org Check] Error validating organisation:', org, err);
-			if (typeof showPopupMessage === 'function') {
-				showPopupMessage(browser.i18n.getMessage('orgValidationErrorMessage'), { variant: 'error' });
-			} else if (window.showPopupMessage) {
-				window.showPopupMessage(browser.i18n.getMessage('orgValidationErrorMessage'), { variant: 'error' });
-			}
-		});
+		}),
+	);
+
+	if (invalidOrgs.length > 0) {
+		console.log('[Org Check] Organizations not found on GitHub:', invalidOrgs);
+		const message =
+			invalidOrgs.length === 1
+				? `Organization "${invalidOrgs[0]}" not found on GitHub.`
+				: `Organizations "${invalidOrgs.join(', ')}" not found on GitHub.`;
+
+		if (typeof showPopupMessage === 'function') {
+			showPopupMessage(message, { variant: 'error' });
+		} else if (window.showPopupMessage) {
+			window.showPopupMessage(message, { variant: 'error' });
+		}
+
+		window.triggerInputError?.('orgInput', { focus: true, clearOnInput: true });
+		return;
+	}
+
+	window.clearScrumHelperToast?.();
+	const orgInput = document.getElementById('orgInput');
+	if (orgInput) {
+		orgInput.classList.remove('input-error', 'shake-animation');
+	}
+	console.log('[Org Check] All organizations exist on GitHub:', orgs);
+	browser.storage.local.remove(['githubCache', 'repoCache']);
+	githubTriggerRepoFetchIfEnabled();
 }
 
 async function fetchPrsMergedStatusBatch(prs, headers) {
@@ -603,7 +657,7 @@ async function fetchUserRepositories(username, token, org = '') {
 			const endDate = today.toISOString().split('T')[0];
 			dateRange = `+created:${startDate}..${endDate}`;
 		}
-		const orgPart = org && org !== 'all' ? `+org:${org}` : '';
+		const orgPart = buildGithubOrgQuery(org);
 		const issuesUrl = `https://api.github.com/search/issues?q=author:${username}${orgPart}${dateRange}&per_page=100`;
 		const commentsUrl = `https://api.github.com/search/issues?q=commenter:${username}${orgPart}${dateRange.replace('created:', 'updated:')}&per_page=100`;
 
@@ -779,8 +833,7 @@ async function githubFetchIssues(username, token, startDate, endDate, orgName, r
 	if (token) {
 		headers.Authorization = `token ${token}`;
 	}
-	const orgPart = orgName ? `org:${orgName}` : '';
-	const orgQuery = orgPart ? `+${orgPart}` : '';
+	const orgQuery = buildGithubOrgQuery(orgName);
 	let url;
 	if (repoQueries) {
 		url = `https://api.github.com/search/issues?q=author%3A${username}+${repoQueries}${orgQuery}+updated%3A${startDate}..${endDate}&per_page=100`;
@@ -795,8 +848,7 @@ async function githubFetchReviews(username, token, startDate, endDate, orgName, 
 	if (token) {
 		headers.Authorization = `token ${token}`;
 	}
-	const orgPart = orgName ? `org:${orgName}` : '';
-	const orgQuery = orgPart ? `+${orgPart}` : '';
+	const orgQuery = buildGithubOrgQuery(orgName);
 	let url;
 	if (repoQueries) {
 		url = `https://api.github.com/search/issues?q=reviewed-by%3A${username}+${repoQueries}${orgQuery}+updated%3A${startDate}..${endDate}&per_page=100`;

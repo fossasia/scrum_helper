@@ -1,6 +1,15 @@
 // GitLab API Helper for Scrum Helper Extension
 const DEFAULT_GITLAB_API_BASE_URL = 'https://gitlab.com/api/v4';
 
+function parseGitlabGroups(groupStr) {
+	if (!groupStr) return [];
+	return groupStr
+		.split(',')
+		.map((s) => s.trim().toLowerCase())
+		.filter((s) => s && s !== 'all');
+}
+window.parseGitlabGroups = parseGitlabGroups;
+
 const gitlabWarningTimeouts = {};
 
 function gitlabShowTokenWarning(elementId, { animate = false, durationMs = 4000 } = {}) {
@@ -167,7 +176,8 @@ class GitLabHelper {
 
 		// Include token state, orgName, showCommits, and repository filter state in cache key to invalidate on changes
 		const tokenMarker = token ? 'auth' : 'noauth';
-		const orgMarker = orgName ? `org-${orgName}` : 'noorg';
+		const normalizedGroups = parseGitlabGroups(orgName).sort().join(',');
+		const orgMarker = normalizedGroups ? `org-${normalizedGroups}` : 'noorg';
 
 		let repoMarker = 'norepos';
 		if (isRepoFilterEnabled && selectedReposList && selectedReposList.length > 0) {
@@ -226,31 +236,56 @@ class GitLabHelper {
 			let allIssues = [];
 			let finalUser = null;
 
-			if (orgName) {
-				// Verify group existence
-				const groupUrl = `${this.baseUrl}/groups/${encodeURIComponent(orgName)}`;
-				const groupRes = await fetch(groupUrl, { headers });
-				if (!groupRes.ok) {
-					if (groupRes.status === 404) {
-						throw new Error('Organization not found');
+			const groups = parseGitlabGroups(orgName);
+			if (groups.length > 0) {
+				for (const group of groups) {
+					// Verify group existence
+					const groupUrl = `${this.baseUrl}/groups/${encodeURIComponent(group)}`;
+					const groupRes = await fetch(groupUrl, { headers });
+					if (!groupRes.ok) {
+						if (groupRes.status === 404) {
+							throw new Error(`Organization "${group}" not found on GitLab.`);
+						}
+						throw new Error(`Error fetching GitLab group "${group}": ${groupRes.status} ${groupRes.statusText}`);
 					}
-					throw new Error(`Error fetching GitLab group: ${groupRes.status} ${groupRes.statusText}`);
+
+					// Fetch group projects for project mapping (including subgroups)
+					const groupProjectsUrl = `${this.baseUrl}/groups/${encodeURIComponent(group)}/projects?per_page=100&include_subgroups=true`;
+					const groupProjectsRes = await fetch(groupProjectsUrl, { headers });
+					if (groupProjectsRes.ok) {
+						const projects = await groupProjectsRes.json();
+						allProjects.push(...projects);
+					}
+
+					// Fetch group merge requests
+					const groupMRsUrl = `${this.baseUrl}/groups/${encodeURIComponent(group)}/merge_requests?author_username=${encodeURIComponent(username)}&created_after=${startDate}T00:00:00Z&created_before=${endDate}T23:59:59Z&per_page=100&order_by=updated_at&sort=desc`;
+					const groupMRsRes = await fetch(groupMRsUrl, { headers });
+					if (groupMRsRes.ok) {
+						const mrs = await groupMRsRes.json();
+						allMergeRequests.push(...mrs);
+					}
+
+					// Fetch group issues
+					const groupIssuesUrl = `${this.baseUrl}/groups/${encodeURIComponent(group)}/issues?author_username=${encodeURIComponent(username)}&created_after=${startDate}T00:00:00Z&created_before=${endDate}T23:59:59Z&per_page=100&order_by=updated_at&sort=desc`;
+					const groupIssuesRes = await fetch(groupIssuesUrl, { headers });
+					if (groupIssuesRes.ok) {
+						const issues = await groupIssuesRes.json();
+						allIssues.push(...issues);
+					}
 				}
 
-				// Fetch group projects for project mapping (including subgroups)
-				const groupProjectsUrl = `${this.baseUrl}/groups/${encodeURIComponent(orgName)}/projects?per_page=100&include_subgroups=true`;
-				const groupProjectsRes = await fetch(groupProjectsUrl, { headers });
-				allProjects = groupProjectsRes.ok ? await groupProjectsRes.json() : [];
-
-				// Fetch group merge requests
-				const groupMRsUrl = `${this.baseUrl}/groups/${encodeURIComponent(orgName)}/merge_requests?author_username=${encodeURIComponent(username)}&created_after=${startDate}T00:00:00Z&created_before=${endDate}T23:59:59Z&per_page=100&order_by=updated_at&sort=desc`;
-				const groupMRsRes = await fetch(groupMRsUrl, { headers });
-				allMergeRequests = groupMRsRes.ok ? await groupMRsRes.json() : [];
-
-				// Fetch group issues
-				const groupIssuesUrl = `${this.baseUrl}/groups/${encodeURIComponent(orgName)}/issues?author_username=${encodeURIComponent(username)}&created_after=${startDate}T00:00:00Z&created_before=${endDate}T23:59:59Z&per_page=100&order_by=updated_at&sort=desc`;
-				const groupIssuesRes = await fetch(groupIssuesUrl, { headers });
-				allIssues = groupIssuesRes.ok ? await groupIssuesRes.json() : [];
+				// Deduplicate by id
+				const dedupe = (arr) => {
+					const seen = new Set();
+					return arr.filter((item) => {
+						if (!item || !item.id || seen.has(item.id)) return false;
+						seen.add(item.id);
+						return true;
+					});
+				};
+				allProjects = dedupe(allProjects);
+				allMergeRequests = dedupe(allMergeRequests);
+				allIssues = dedupe(allIssues);
 
 				const filterSettings = await browser.storage.local.get([
 					'useRepoFilter',
@@ -848,24 +883,57 @@ if (window.PlatformRegistry) {
 				repoSearch.classList.remove('repository-search-loading');
 			}
 		},
-		validateOrgOnBlur(org) {
+		async validateOrgOnBlur(org) {
+			const groups = parseGitlabGroups(org);
+			if (groups.length === 0) {
+				window.clearScrumHelperToast?.();
+				const gitlabGroupInput = document.getElementById('gitlabGroupInput');
+				if (gitlabGroupInput) {
+					gitlabGroupInput.classList.remove('input-error', 'shake-animation');
+				}
+				return;
+			}
 			const baseUrl = window.gitlabBaseUrl || 'https://gitlab.com/api/v4';
-			browser.storage.local.get(['gitlabToken']).then((result) => {
-				const headers = {};
+			let headers = {};
+			try {
+				const result = await browser.storage.local.get(['gitlabToken']);
 				if (result.gitlabToken) headers['PRIVATE-TOKEN'] = result.gitlabToken;
-				fetch(`${baseUrl}/groups/${encodeURIComponent(org)}`, { headers })
-					.then((res) => {
+			} catch (err) {
+				// ignore
+			}
+
+			const invalidGroups = [];
+			await Promise.all(
+				groups.map(async (g) => {
+					try {
+						const res = await fetch(`${baseUrl}/groups/${encodeURIComponent(g)}`, { headers });
 						if (res.status === 404) {
-							if (window.showPopupMessage) window.showPopupMessage('Organization not found', { variant: 'error' });
-							return;
+							invalidGroups.push(g);
 						}
-						window.clearScrumHelperToast?.();
-						browser.storage.local.remove(['gitlabCache', 'gitlabRepoCache']);
-					})
-					.catch((err) => {
-						if (window.showPopupMessage) window.showPopupMessage('Error validating organization', { variant: 'error' });
-					});
-			});
+					} catch (err) {
+						invalidGroups.push(g);
+					}
+				}),
+			);
+
+			if (invalidGroups.length > 0) {
+				const message =
+					invalidGroups.length === 1
+						? `Organization "${invalidGroups[0]}" not found on GitLab.`
+						: `Organizations "${invalidGroups.join(', ')}" not found on GitLab.`;
+				if (window.showPopupMessage) {
+					window.showPopupMessage(message, { variant: 'error' });
+				}
+				window.triggerInputError?.('gitlabGroupInput', { focus: true, clearOnInput: true });
+				return;
+			}
+
+			window.clearScrumHelperToast?.();
+			const gitlabGroupInput = document.getElementById('gitlabGroupInput');
+			if (gitlabGroupInput) {
+				gitlabGroupInput.classList.remove('input-error', 'shake-animation');
+			}
+			browser.storage.local.remove(['gitlabCache', 'gitlabRepoCache']);
 		},
 		async fetchUserRepositories(username, token, org = '') {
 			const baseUrl = window.gitlabBaseUrl || 'https://gitlab.com/api/v4';
@@ -960,11 +1028,13 @@ if (window.PlatformRegistry) {
 							const upstream = project.forked_from_project;
 							let includeUpstream = true;
 							if (org && org !== 'all') {
-								const upstreamPath = upstream.path_with_namespace?.toLowerCase() || '';
-								const orgLower = org.toLowerCase();
-
-								if (!upstreamPath.startsWith(orgLower + '/')) {
-									includeUpstream = false;
+								const orgs = parseGitlabGroups(org);
+								if (orgs.length > 0) {
+									const upstreamPath = upstream.path_with_namespace?.toLowerCase() || '';
+									const matchesAny = orgs.some((o) => upstreamPath.startsWith(o + '/'));
+									if (!matchesAny) {
+										includeUpstream = false;
+									}
 								}
 							}
 
@@ -982,12 +1052,14 @@ if (window.PlatformRegistry) {
 						} else {
 							let includeProject = true;
 							if (org && org !== 'all') {
-								const namespacePath = project.namespace?.path?.toLowerCase() || '';
-								const pathWithNamespace = project.path_with_namespace?.toLowerCase() || '';
-								const orgLower = org.toLowerCase();
-
-								if (namespacePath !== orgLower && !pathWithNamespace.startsWith(orgLower + '/')) {
-									includeProject = false;
+								const orgs = parseGitlabGroups(org);
+								if (orgs.length > 0) {
+									const namespacePath = project.namespace?.path?.toLowerCase() || '';
+									const pathWithNamespace = project.path_with_namespace?.toLowerCase() || '';
+									const matchesAny = orgs.some((o) => namespacePath === o || pathWithNamespace.startsWith(o + '/'));
+									if (!matchesAny) {
+										includeProject = false;
+									}
 								}
 							}
 

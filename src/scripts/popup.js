@@ -1547,7 +1547,11 @@ document.addEventListener('DOMContentLoaded', () => {
 				handleOrgInputBlurValidation(org);
 			} else {
 				window.clearScrumHelperToast?.();
+				orgInput.classList.remove('input-error', 'shake-animation');
 			}
+		});
+		orgInput.addEventListener('input', () => {
+			orgInput.classList.remove('input-error', 'shake-animation');
 		});
 		if (userReasonInput) {
 			userReasonInput.addEventListener('input', () => {
@@ -1770,6 +1774,18 @@ document.addEventListener('DOMContentLoaded', () => {
 			gitlabGroupInput.addEventListener('blur', () => {
 				const group = gitlabGroupInput.value.trim().toLowerCase();
 				browser.storage.local.set({ gitlabGroupName: group });
+				if (group) {
+					const helper = window.PlatformRegistry?.get('gitlab');
+					if (helper && helper.validateOrgOnBlur) {
+						helper.validateOrgOnBlur(group);
+					}
+				} else {
+					window.clearScrumHelperToast?.();
+					gitlabGroupInput.classList.remove('input-error', 'shake-animation');
+				}
+			});
+			gitlabGroupInput.addEventListener('input', () => {
+				gitlabGroupInput.classList.remove('input-error', 'shake-animation');
 			});
 		}
 		if (platformUsername) {
