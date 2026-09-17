@@ -334,30 +334,48 @@ class GitLabHelper {
 				// Fetch user info for header mapping
 				const userUrl = `${this.baseUrl}/users?username=${encodeURIComponent(username)}`;
 				const userRes = await fetch(userUrl, { headers });
-				if (userRes.ok) {
-					const users = await userRes.json();
-					if (users.length > 0) {
-						finalUser = users[0];
-					}
-				}
-				if (!finalUser) {
-					finalUser = { username };
-				}
-			} else {
-				// Get user info first
-				const userUrl = `${this.baseUrl}/users?username=${username}`;
-				const userRes = await fetch(userUrl, { headers });
 				if (!userRes.ok) {
-					throw new Error(
+					const err = new Error(
 						chrome?.i18n.getMessage('gitlabUserFetchError', [userRes.status, userRes.statusText]) ||
 							`Error fetching GitLab user: ${userRes.status} ${userRes.statusText}`,
 					);
+					err.platform = 'gitlab';
+					err.username = username;
+					throw err;
 				}
 				const users = await userRes.json();
-				if (users.length === 0) {
-					throw new Error(
-						chrome?.i18n.getMessage('gitlabUserNotFoundError', [username]) || `GitLab user '${username}' not found`,
+				if (!Array.isArray(users) || users.length === 0) {
+					const err = new Error(
+						chrome?.i18n.getMessage('gitlabUserNotFoundError', [username]) ||
+							`GitLab user "${username}" not found.`,
 					);
+					err.platform = 'gitlab';
+					err.username = username;
+					throw err;
+				}
+				finalUser = users[0];
+			} else {
+				// Get user info first
+				const userUrl = `${this.baseUrl}/users?username=${encodeURIComponent(username)}`;
+				const userRes = await fetch(userUrl, { headers });
+				if (!userRes.ok) {
+					const err = new Error(
+						chrome?.i18n.getMessage('gitlabUserFetchError', [userRes.status, userRes.statusText]) ||
+							`Error fetching GitLab user: ${userRes.status} ${userRes.statusText}`,
+					);
+					err.platform = 'gitlab';
+					err.username = username;
+					throw err;
+				}
+				const users = await userRes.json();
+				if (!Array.isArray(users) || users.length === 0) {
+					const err = new Error(
+						chrome?.i18n.getMessage('gitlabUserNotFoundError', [username]) ||
+							`GitLab user "${username}" not found.`,
+					);
+					err.platform = 'gitlab';
+					err.username = username;
+					throw err;
 				}
 				finalUser = users[0];
 				const userId = finalUser.id;
@@ -658,7 +676,8 @@ class GitLabHelper {
 // Export for use in other scripts
 if (typeof module !== 'undefined' && module.exports) {
 	module.exports = GitLabHelper;
-} else {
+}
+if (typeof window !== 'undefined') {
 	window.GitLabHelper = GitLabHelper;
 }
 

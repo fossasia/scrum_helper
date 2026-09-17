@@ -236,11 +236,59 @@ function showReportMessage(message) {
 }
 
 function handleUsernameValidationError(errMessage, platformName = null) {
-	const specificInput = platformName ? document.getElementById(`${platformName}Username`) : null;
-	const targetInp = specificInput || platformUsernameInp;
-	if (targetInp) {
-		window.triggerInputError?.(targetInp, { focus: false, scroll: false, clearOnInput: true });
+	let targetPlatform = platformName;
+	if (!targetPlatform && typeof errMessage === 'string') {
+		const lower = errMessage.toLowerCase();
+		if (lower.includes('codeberg')) targetPlatform = 'codeberg';
+		else if (lower.includes('gitlab')) targetPlatform = 'gitlab';
+		else if (lower.includes('github')) targetPlatform = 'github';
 	}
+	if (!targetPlatform && typeof platform === 'string' && platform) {
+		targetPlatform = platform;
+	}
+
+	if (targetPlatform) {
+		const settingsSection = document.getElementById('settingsSection');
+		const isSettingsPageActive = settingsSection && !settingsSection.classList.contains('hidden');
+
+		if (!isSettingsPageActive) {
+			const customDropdown = document.getElementById('customPlatformDropdown');
+			const dropdownList = document.getElementById('platformDropdownList');
+			if (customDropdown && dropdownList) {
+				customDropdown.classList.add('open');
+				dropdownList.classList.remove('hidden');
+			}
+			const container = document.getElementById(`dropdown-${targetPlatform}UsernameContainer`);
+			if (container) {
+				container.classList.remove('hidden');
+			}
+		}
+
+		const dropdownInp = document.getElementById(`dropdown-${targetPlatform}Username`);
+		if (dropdownInp) {
+			window.triggerInputError?.(dropdownInp, {
+				focus: !isSettingsPageActive,
+				scroll: !isSettingsPageActive,
+				clearOnInput: true,
+			});
+		}
+
+		const settingsInp = document.getElementById(`${targetPlatform}Username`);
+		if (settingsInp) {
+			window.triggerInputError?.(settingsInp, {
+				focus: isSettingsPageActive,
+				scroll: isSettingsPageActive,
+				clearOnInput: true,
+			});
+		}
+	} else if (platformUsernameInp) {
+		window.triggerInputError?.(platformUsernameInp, { focus: false, scroll: false, clearOnInput: true });
+	}
+
+	if (errMessage) {
+		window.scrumHelperToast?.(errMessage, { duration: 2500, variant: 'error' });
+	}
+
 	if (usernameError) {
 		usernameError.classList.add('errorMessage');
 		usernameError.textContent = errMessage;
@@ -251,6 +299,7 @@ function handleUsernameValidationError(errMessage, platformName = null) {
 		window.updateCopyButtonState?.();
 	}
 }
+window.handleUsernameValidationError = handleUsernameValidationError;
 
 function allIncluded(outputTarget = 'email') {
 	// Always re-instantiate gitlabHelper for gitlab platform to ensure fresh cache after refresh
@@ -548,27 +597,6 @@ function allIncluded(outputTarget = 'email') {
 						const errMessage =
 							chrome.i18n.getMessage(`${missingPlatform}UsernameRequiredError`) ||
 							`Please enter your ${displayName} username`;
-						window.scrumHelperToast?.(errMessage, { duration: 2500, variant: 'error' });
-						const customDropdown = document.getElementById('customPlatformDropdown');
-						const dropdownList = document.getElementById('platformDropdownList');
-						if (customDropdown && dropdownList) {
-							customDropdown.classList.add('open');
-							dropdownList.classList.remove('hidden');
-						}
-						const container = document.getElementById(`dropdown-${missingPlatform}UsernameContainer`);
-						if (container) {
-							container.classList.remove('hidden');
-						}
-
-						const targetInputId = document.getElementById(`dropdown-${missingPlatform}Username`)
-							? `dropdown-${missingPlatform}Username`
-							: `${missingPlatform}Username`;
-
-						window.triggerInputError?.(targetInputId, {
-							focus: true,
-							scroll: true,
-							clearOnInput: true,
-						});
 						handleUsernameValidationError(errMessage, missingPlatform);
 						setGenerateButtonState(generateBtn, false);
 					} else {
@@ -671,6 +699,15 @@ function allIncluded(outputTarget = 'email') {
 						const failures = settled.filter((r) => r.status === 'rejected').map((r) => r.reason);
 
 						if (successful.length === 0) {
+							if (outputTarget === 'popup' && failures.length > 1) {
+								for (let i = 1; i < failures.length; i++) {
+									const failure = failures[i];
+									const msg = failure?.message || '';
+									if (failure?.platform || msg.toLowerCase().includes('not found')) {
+										handleUsernameValidationError(msg, failure?.platform);
+									}
+								}
+							}
 							const firstError = failures[0] || new Error('All platforms failed to fetch data.');
 							throw firstError;
 						}
@@ -678,12 +715,22 @@ function allIncluded(outputTarget = 'email') {
 						if (failures.length > 0) {
 							console.warn('Some platforms failed to fetch report data:', failures);
 							if (outputTarget === 'popup') {
-								const failMessages = failures
-									.map((f) => f?.message)
-									.filter(Boolean)
-									.join('; ');
-								if (failMessages && window.showPopupMessage) {
-									window.showPopupMessage(failMessages, { variant: 'error' });
+								let handledAny = false;
+								for (const failure of failures) {
+									const msg = failure?.message || '';
+									if (failure?.platform || msg.toLowerCase().includes('not found')) {
+										handleUsernameValidationError(msg, failure?.platform);
+										handledAny = true;
+									}
+								}
+								if (!handledAny) {
+									const failMessages = failures
+										.map((f) => f?.message)
+										.filter(Boolean)
+										.join('; ');
+									if (failMessages && window.showPopupMessage) {
+										window.showPopupMessage(failMessages, { variant: 'error' });
+									}
 								}
 							}
 						}
@@ -727,8 +774,8 @@ function allIncluded(outputTarget = 'email') {
 						if (outputTarget === 'popup') {
 							if (generateBtn) setGenerateButtonState(generateBtn, false);
 							const ErrMessage = `${err?.message || 'Error generating scrum report.'}`;
-							if (typeof ErrMessage === 'string' && ErrMessage.toLowerCase().includes('not found')) {
-								handleUsernameValidationError(ErrMessage);
+							if (err?.platform || (typeof ErrMessage === 'string' && ErrMessage.toLowerCase().includes('not found'))) {
+								handleUsernameValidationError(ErrMessage, err?.platform);
 							} else {
 								showReportMessage(ErrMessage);
 							}
@@ -1056,7 +1103,10 @@ function allIncluded(outputTarget = 'email') {
 					chrome?.i18n.getMessage('githubUserNotFoundError', [platformUsernameLocal]) ||
 					`GitHub user "${platformUsernameLocal}" not found.`;
 				logError(errorMsg);
-				throw new Error(errorMsg);
+				const err = new Error(errorMsg);
+				err.platform = 'github';
+				err.username = platformUsernameLocal;
+				throw err;
 			}
 
 			if (userCheckRes.status === 401 || (userCheckRes.status === 403 && !isRateLimitResponse(userCheckRes))) {
@@ -1263,8 +1313,8 @@ function allIncluded(outputTarget = 'email') {
 						else errorMsg = JSON.stringify(err);
 					}
 					const ErrMessage = `${errorMsg || 'An error occurred while generating the report.'}`;
-					if (typeof ErrMessage === 'string' && ErrMessage.toLowerCase().includes('not found')) {
-						handleUsernameValidationError(ErrMessage);
+					if (err?.platform || (typeof ErrMessage === 'string' && ErrMessage.toLowerCase().includes('not found'))) {
+						handleUsernameValidationError(ErrMessage, err?.platform || 'github');
 					} else {
 						showReportMessage(ErrMessage);
 					}

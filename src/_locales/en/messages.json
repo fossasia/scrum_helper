@@ -503,7 +503,7 @@
     "description": "Error when fetching GitLab user fails. $1=status, $2=statusText"
   },
   "gitlabUserNotFoundError": {
-    "message": "GitLab user '$1' not found.",
+    "message": "GitLab user \"$1\" not found.",
     "description": "Error when GitLab user is not found. $1=username"
   },
   "gitlabMembershipError": {
@@ -513,6 +513,18 @@
   "gitlabContributedError": {
     "message": "Error fetching GitLab contributed projects: $1 $2",
     "description": "Error when fetching GitLab contributed projects fails. $1=status, $2=statusText"
+  },
+  "codebergUserFetchError": {
+    "message": "Error fetching Codeberg user: $1 $2",
+    "description": "Error when fetching Codeberg user fails. $1=status, $2=statusText"
+  },
+  "codebergUserNotFoundError": {
+    "message": "Codeberg user \"$1\" not found.",
+    "description": "Error when Codeberg user is not found. $1=username"
+  },
+  "codebergUserValidationError": {
+    "message": "Error validating Codeberg user: $1 $2",
+    "description": "Error when validating Codeberg user fails. $1=status, $2=statusText"
   },
   "usernameMissingError": {
     "message": "Username required.",
