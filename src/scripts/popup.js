@@ -1915,8 +1915,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		searchInput.addEventListener('click', () => {
 			if (!useFilter.checked) {
 				useFilter.checked = true;
-				container.classList.remove('hidden');
-				browser.storage.local.set({ [storageFilterKey]: true });
+				useFilter.dispatchEvent(new Event('change'));
 			}
 		});
 
@@ -1935,7 +1934,14 @@ document.addEventListener('DOMContentLoaded', () => {
 			'change',
 			debounce(async () => {
 				const enabled = useFilter.checked;
-				const hasToken = tokenInput ? tokenInput.value.trim() !== '' : false;
+				let rawToken = tokenInput ? tokenInput.value.trim() : '';
+				if (!rawToken) {
+					try {
+						const stored = await browser.storage.local.get([platform === 'gitlab' ? 'gitlabToken' : 'githubToken']);
+						rawToken = (platform === 'gitlab' ? stored.gitlabToken : stored.githubToken) || '';
+					} catch (e) {}
+				}
+				const hasToken = rawToken.trim() !== '';
 				container.classList.toggle('hidden', !enabled);
 
 				if (enabled && !hasToken) {
@@ -1963,6 +1969,49 @@ document.addEventListener('DOMContentLoaded', () => {
 					return;
 				}
 
+				const helper = window.PlatformRegistry?.get(platform);
+
+				// Validate token validity if enabled
+				if (enabled && hasToken && helper?.validateToken) {
+					if (statusLabel) {
+						statusLabel.textContent =
+							chrome?.i18n.getMessage('loadingReposAutomatically') || 'Loading repos automatically...';
+					}
+					const validation = await helper.validateToken(rawToken);
+					if (!validation.valid && (validation.status === 401 || validation.reason === 'invalid')) {
+						useFilter.checked = false;
+						container.classList.add('hidden');
+						hideDropdown();
+						await browser.storage.local.set({ [storageFilterKey]: false });
+
+						const invalidMsg =
+							platform === 'gitlab'
+								? browser.i18n.getMessage('repoTokenPrivate')
+								: chrome?.i18n.getMessage('invalidTokenError') ||
+									'Invalid or expired GitHub token. Please check your token in the Scrum Helper settings and try again.';
+
+						if (tokenWarning) {
+							tokenWarning.textContent = '';
+							const span = document.createElement('span');
+							span.textContent = invalidMsg;
+							tokenWarning.appendChild(span);
+							tokenWarning.classList.remove('hidden');
+							window.shakeElement
+								? window.shakeElement(tokenWarning, 620)
+								: tokenWarning.classList.add('shake-animation');
+							setTimeout(() => {
+								tokenWarning.classList.add('hidden');
+							}, 5000);
+						}
+						window.triggerInputError?.(tokenInput?.id || `${platform}Token`, { focus: true, scroll: true });
+						window.scrumHelperToast?.(invalidMsg, { variant: 'error' });
+						if (statusLabel) {
+							statusLabel.textContent = invalidMsg;
+						}
+						return;
+					}
+				}
+
 				if (tokenWarning) {
 					tokenWarning.classList.add('hidden');
 				}
@@ -1973,7 +2022,6 @@ document.addEventListener('DOMContentLoaded', () => {
 					[storageCacheKey]: null,
 				});
 
-				const helper = window.PlatformRegistry?.get(platform);
 				if (helper?.checkTokenForFilter) {
 					helper.checkTokenForFilter();
 				}
@@ -2047,10 +2095,48 @@ document.addEventListener('DOMContentLoaded', () => {
 						}
 					} catch (err) {
 						console.error(`Auto load ${platform} repos failed`, err);
+						const is401 =
+							err.status === 401 ||
+							err.isInvalidToken ||
+							err.message?.includes('401') ||
+							err.message?.toLowerCase().includes('bad credentials') ||
+							err.message?.toLowerCase().includes('invalid or expired');
+
+						if (is401) {
+							const invalidMsg =
+								platform === 'gitlab'
+									? browser.i18n.getMessage('repoTokenPrivate')
+									: chrome?.i18n.getMessage('invalidTokenError') ||
+										'Invalid or expired GitHub token. Please check your token in the Scrum Helper settings and try again.';
+
+							useFilter.checked = false;
+							container.classList.add('hidden');
+							hideDropdown();
+							await browser.storage.local.set({ [storageFilterKey]: false });
+
+							if (tokenWarning) {
+								tokenWarning.textContent = '';
+								const span = document.createElement('span');
+								span.textContent = invalidMsg;
+								tokenWarning.appendChild(span);
+								tokenWarning.classList.remove('hidden');
+								window.shakeElement
+									? window.shakeElement(tokenWarning, 620)
+									: tokenWarning.classList.add('shake-animation');
+								setTimeout(() => {
+									tokenWarning.classList.add('hidden');
+								}, 5000);
+							}
+							window.triggerInputError?.(tokenInput?.id || `${platform}Token`, { focus: true, scroll: true });
+							window.scrumHelperToast?.(invalidMsg, { variant: 'error' });
+							if (statusLabel) {
+								statusLabel.textContent = invalidMsg;
+							}
+							return;
+						}
+
 						if (statusLabel) {
-							if (err.message?.includes('401')) {
-								statusLabel.textContent = browser.i18n.getMessage('repoTokenPrivate');
-							} else if (err.message?.includes('username')) {
+							if (err.message?.includes('username')) {
 								statusLabel.textContent =
 									browser.i18n.getMessage(`${platform}UsernamePlaceholder`) || 'Username required';
 							} else {

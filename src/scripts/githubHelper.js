@@ -202,6 +202,44 @@ function getGithubRepoFilterContext() {
 	return window.githubRepoFilterContext || null;
 }
 
+async function githubValidateToken(token) {
+	const trimmed = typeof token === 'string' ? token.trim() : '';
+	if (!trimmed) {
+		return { valid: false, status: 0, reason: 'empty' };
+	}
+	try {
+		const res = await fetch('https://api.github.com/user', {
+			headers: {
+				Accept: 'application/vnd.github.v3+json',
+				Authorization: `token ${trimmed}`,
+			},
+		});
+		if (res.status === 401) {
+			return { valid: false, status: 401, reason: 'invalid' };
+		}
+		if (res.status === 403) {
+			const remaining = res.headers.get('x-ratelimit-remaining');
+			if (remaining === '0') {
+				return { valid: true, rateLimited: true };
+			}
+			try {
+				const clone = res.clone();
+				const body = await clone.json();
+				if (body?.message?.toLowerCase().includes('bad credentials')) {
+					return { valid: false, status: 401, reason: 'invalid' };
+				}
+			} catch (e) {}
+			return { valid: false, status: 403, reason: 'forbidden' };
+		}
+		if (res.ok) {
+			return { valid: true, status: res.status };
+		}
+		return { valid: false, status: res.status, reason: 'error' };
+	} catch (err) {
+		return { valid: true, networkError: true };
+	}
+}
+
 function checkTokenForFilter() {
 	const useRepoFilter = document.getElementById('useRepoFilter');
 	const githubTokenInput = document.getElementById('githubToken');
@@ -222,11 +260,15 @@ function checkTokenForFilter() {
 			context.hideDropdown();
 		}
 		browser.storage.local.set({ useRepoFilter: false });
+		tokenWarning.classList.remove('hidden');
+		setTimeout(() => {
+			tokenWarning.classList.add('hidden');
+		}, 4000);
+		return;
 	}
-	tokenWarning.classList.toggle('hidden', !isFilterEnabled || hasToken);
-	setTimeout(() => {
+	if (!isFilterEnabled) {
 		tokenWarning.classList.add('hidden');
-	}, 4000);
+	}
 }
 
 function parseGithubOrgs(orgStr) {
@@ -343,6 +385,43 @@ async function githubTriggerRepoFetchIfEnabled() {
 			}
 		}
 	} catch (err) {
+		if (
+			err.status === 401 ||
+			err.isInvalidToken ||
+			err.message?.includes('401') ||
+			err.message?.toLowerCase().includes('bad credentials') ||
+			err.message?.toLowerCase().includes('invalid or expired')
+		) {
+			const invalidMsg =
+				chrome?.i18n.getMessage('invalidTokenError') ||
+				'Invalid or expired GitHub token. Please check your token in the Scrum Helper settings and try again.';
+			if (repoStatus) {
+				repoStatus.textContent = invalidMsg;
+			}
+			const tokenWarning = document.getElementById('tokenWarningForFilter');
+			if (tokenWarning) {
+				tokenWarning.textContent = '';
+				const span = document.createElement('span');
+				span.textContent = invalidMsg;
+				tokenWarning.appendChild(span);
+				tokenWarning.classList.remove('hidden');
+				window.shakeElement ? window.shakeElement(tokenWarning, 620) : tokenWarning.classList.add('shake-animation');
+				setTimeout(() => {
+					tokenWarning.classList.add('hidden');
+				}, 5000);
+			}
+			window.triggerInputError?.('githubToken', { focus: true, scroll: true });
+			window.scrumHelperToast?.(invalidMsg, { variant: 'error' });
+			if (useRepoFilter) {
+				useRepoFilter.checked = false;
+				browser.storage.local.set({ useRepoFilter: false });
+			}
+			const repoFilterContainer = document.getElementById('repoFilterContainer');
+			if (repoFilterContainer) {
+				repoFilterContainer.classList.add('hidden');
+			}
+			return;
+		}
 		if (repoStatus) {
 			repoStatus.textContent = `${browser.i18n.getMessage('errorLabel')}: ${err.message || browser.i18n.getMessage('repoRefetchFailed')}`;
 		}
@@ -496,8 +575,42 @@ async function performRepoFetch() {
 	} catch (err) {
 		console.error(`Failed to load repos:`, err);
 
-		if (err.message && err.message.includes('401')) {
-			repoStatus.textContent = browser.i18n.getMessage('repoTokenPrivate');
+		if (
+			err.status === 401 ||
+			err.isInvalidToken ||
+			err.message?.includes('401') ||
+			err.message?.toLowerCase().includes('bad credentials') ||
+			err.message?.toLowerCase().includes('invalid or expired')
+		) {
+			const invalidMsg =
+				chrome?.i18n.getMessage('invalidTokenError') ||
+				'Invalid or expired GitHub token. Please check your token in the Scrum Helper settings and try again.';
+			if (repoStatus) {
+				repoStatus.textContent = invalidMsg;
+			}
+			const tokenWarning = document.getElementById('tokenWarningForFilter');
+			if (tokenWarning) {
+				tokenWarning.textContent = '';
+				const span = document.createElement('span');
+				span.textContent = invalidMsg;
+				tokenWarning.appendChild(span);
+				tokenWarning.classList.remove('hidden');
+				window.shakeElement ? window.shakeElement(tokenWarning, 620) : tokenWarning.classList.add('shake-animation');
+				setTimeout(() => {
+					tokenWarning.classList.add('hidden');
+				}, 5000);
+			}
+			window.triggerInputError?.('githubToken', { focus: true, scroll: true });
+			window.scrumHelperToast?.(invalidMsg, { variant: 'error' });
+			const useRepoFilter = document.getElementById('useRepoFilter');
+			if (useRepoFilter) {
+				useRepoFilter.checked = false;
+				browser.storage.local.set({ useRepoFilter: false });
+			}
+			const repoFilterContainer = document.getElementById('repoFilterContainer');
+			if (repoFilterContainer) {
+				repoFilterContainer.classList.add('hidden');
+			}
 		} else if (err.message && err.message.includes('username')) {
 			repoStatus.textContent = browser.i18n.getMessage('githubUsernamePlaceholder');
 		} else {
@@ -626,9 +739,7 @@ async function fetchUserRepositories(username, token, org = '') {
 	try {
 		let dateRange = '';
 		try {
-			const storageData = await new Promise((resolve) => {
-				chrome.storage.local.get(['startingDate', 'endingDate', 'yesterdayContribution'], resolve);
-			});
+			const storageData = await browser.storage.local.get(['startingDate', 'endingDate', 'yesterdayContribution']);
 
 			let startDate;
 			let endDate;
@@ -664,9 +775,19 @@ async function fetchUserRepositories(username, token, org = '') {
 		console.log('Search URLs:', { issuesUrl, commentsUrl });
 
 		const [issuesRes, commentsRes] = await Promise.all([
-			fetch(issuesUrl, { headers }).catch(() => ({ ok: false, json: () => ({ items: [] }) })),
-			fetch(commentsUrl, { headers }).catch(() => ({ ok: false, json: () => ({ items: [] }) })),
+			fetch(issuesUrl, { headers }).catch(() => ({ ok: false, status: 0, json: () => ({ items: [] }) })),
+			fetch(commentsUrl, { headers }).catch(() => ({ ok: false, status: 0, json: () => ({ items: [] }) })),
 		]);
+
+		if (token && (issuesRes.status === 401 || commentsRes.status === 401)) {
+			const invalidMsg =
+				chrome?.i18n.getMessage('invalidTokenError') ||
+				'Invalid or expired GitHub token. Please check your token in the Scrum Helper settings and try again.';
+			const err = new Error(invalidMsg);
+			err.status = 401;
+			err.isInvalidToken = true;
+			throw err;
+		}
 
 		const repoSet = new Set();
 
@@ -741,6 +862,16 @@ async function fetchUserRepositories(username, token, org = '') {
 				body: JSON.stringify({ query }),
 			});
 
+			if (res.status === 401) {
+				const invalidMsg =
+					chrome?.i18n.getMessage('invalidTokenError') ||
+					'Invalid or expired GitHub token. Please check your token in the Scrum Helper settings and try again.';
+				const err = new Error(invalidMsg);
+				err.status = 401;
+				err.isInvalidToken = true;
+				throw err;
+			}
+
 			if (!res.ok) {
 				throw new Error(`GraphQL request for repos failed: ${res.status}`);
 			}
@@ -765,10 +896,16 @@ async function fetchUserRepositories(username, token, org = '') {
 
 			return repos.sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
 		} catch (err) {
+			if (err.status === 401 || err.isInvalidToken) {
+				throw err;
+			}
 			console.error('Failed to fetch repositories from GitHub GraphQL API:', err);
 			return [];
 		}
 	} catch (err) {
+		if (err.status === 401 || err.isInvalidToken) {
+			throw err;
+		}
 		console.error('Failed to fetch user repositories:', err);
 		return [];
 	}
@@ -1090,10 +1227,12 @@ window.githubFetchPrReviews = githubFetchPrReviews;
 window.githubFetchPullRequests = githubFetchPullRequests;
 window.githubFetchCommits = githubFetchCommits;
 window.githubFetchPrMergedStatusREST = githubFetchPrMergedStatusREST;
+window.githubValidateToken = githubValidateToken;
 
 if (window.PlatformRegistry) {
 	window.PlatformRegistry.register('github', {
 		hasRepoFilter: true,
+		validateToken: githubValidateToken,
 		checkTokenForFilter,
 		checkTokenForShowCommits,
 		checkTokenForMergedPRs,
@@ -1108,4 +1247,5 @@ if (window.PlatformRegistry) {
 		forceDataRefresh: forceGithubDataRefresh,
 		fetchAssignedIssues: fetchIssuesFromGitHub,
 	});
+	window.githubHelper = window.PlatformRegistry.get('github');
 }

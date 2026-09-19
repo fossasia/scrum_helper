@@ -115,10 +115,7 @@ if (!window.reportIdentityUtils) {
 		},
 
 		buildReportIdentity(source = {}) {
-			const platforms = this.normalizePlatforms(
-				source.platforms ?? source.selectedPlatforms,
-				source.platform ?? '',
-			);
+			const platforms = this.normalizePlatforms(source.platforms ?? source.selectedPlatforms, source.platform ?? '');
 
 			const srcUsernames = source.usernames || {};
 			const usernames = {
@@ -329,13 +326,7 @@ if (!window.triggerInputError) {
 		const el = typeof target === 'string' ? document.getElementById(target) : target;
 		if (!el) return null;
 
-		const {
-			error = true,
-			focus = false,
-			scroll = false,
-			clearOnInput = true,
-			duration = 820,
-		} = options;
+		const { error = true, focus = false, scroll = false, clearOnInput = true, duration = 820 } = options;
 
 		if (error) {
 			el.classList.add('input-error');

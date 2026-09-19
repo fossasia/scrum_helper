@@ -346,8 +346,7 @@ class GitLabHelper {
 				const users = await userRes.json();
 				if (!Array.isArray(users) || users.length === 0) {
 					const err = new Error(
-						chrome?.i18n.getMessage('gitlabUserNotFoundError', [username]) ||
-							`GitLab user "${username}" not found.`,
+						chrome?.i18n.getMessage('gitlabUserNotFoundError', [username]) || `GitLab user "${username}" not found.`,
 					);
 					err.platform = 'gitlab';
 					err.username = username;
@@ -370,8 +369,7 @@ class GitLabHelper {
 				const users = await userRes.json();
 				if (!Array.isArray(users) || users.length === 0) {
 					const err = new Error(
-						chrome?.i18n.getMessage('gitlabUserNotFoundError', [username]) ||
-							`GitLab user "${username}" not found.`,
+						chrome?.i18n.getMessage('gitlabUserNotFoundError', [username]) || `GitLab user "${username}" not found.`,
 					);
 					err.platform = 'gitlab';
 					err.username = username;
@@ -810,6 +808,21 @@ async function fetchIssuesFromGitLab(scope) {
 if (window.PlatformRegistry) {
 	window.PlatformRegistry.register('gitlab', {
 		hasRepoFilter: true,
+		async validateToken(token) {
+			const trimmed = typeof token === 'string' ? token.trim() : '';
+			if (!trimmed) return { valid: false, status: 0, reason: 'empty' };
+			try {
+				const baseUrl = window.gitlabBaseUrl || 'https://gitlab.com/api/v4';
+				const res = await fetch(`${baseUrl}/user`, {
+					headers: { 'PRIVATE-TOKEN': trimmed },
+				});
+				if (res.status === 401) return { valid: false, status: 401, reason: 'invalid' };
+				if (res.ok) return { valid: true, status: res.status };
+				return { valid: false, status: res.status, reason: 'error' };
+			} catch (err) {
+				return { valid: true, networkError: true };
+			}
+		},
 		checkTokenForFilter() {
 			const useFilter = document.getElementById('useGitlabRepoFilter') || document.getElementById('useRepoFilter');
 			const token = document.getElementById('gitlabToken');
