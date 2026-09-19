@@ -354,13 +354,14 @@ hr,
 #settingsToggle img {
     width: 28px;
     height: 28px;
-    transition: transform 0.2s ease;
+    transition: none;
     filter: brightness(0.9);
 }
 
 #settingsToggle.active img {
     transform: rotate(45deg);
     filter: brightness(1);
+    transition: transform 0.2s ease;
 }
 
 .dark-mode #settingsToggle {
