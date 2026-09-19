@@ -749,9 +749,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		const ttlMs = ttlMinutes * 60 * 1000;
 
 		const activePlatforms = (
-			Array.isArray(storage.selectedPlatforms)
-				? storage.selectedPlatforms
-				: (storage.platform ? [storage.platform] : [])
+			Array.isArray(storage.selectedPlatforms) ? storage.selectedPlatforms : storage.platform ? [storage.platform] : []
 		)
 			.slice()
 			.sort();
@@ -1062,17 +1060,25 @@ document.addEventListener('DOMContentLoaded', () => {
 		generateBtn.addEventListener('click', () => {
 			window.hideRegenerateNotice();
 			browser.storage.local
-				.get(['platform', 'selectedPlatforms', 'githubUsername', 'gitlabUsername', 'codebergUsername', 'codebergApiBaseUrl'])
+				.get([
+					'platform',
+					'selectedPlatforms',
+					'githubUsername',
+					'gitlabUsername',
+					'codebergUsername',
+					'codebergApiBaseUrl',
+				])
 				.then((result) => {
 					const selectedPlatforms = Array.isArray(result.selectedPlatforms)
 						? result.selectedPlatforms
-						: (result.platform ? [result.platform] : []);
+						: result.platform
+							? [result.platform]
+							: [];
 
 					if (selectedPlatforms.length === 0) {
-						showPopupMessage(
-							browser.i18n.getMessage('selectPlatformWarning') || 'Please select a platform first',
-							{ variant: 'error' },
-						);
+						showPopupMessage(browser.i18n.getMessage('selectPlatformWarning') || 'Please select a platform first', {
+							variant: 'error',
+						});
 						window.triggerInputError?.('platformDropdownBtn', {
 							focus: true,
 							clearOnInput: true,
@@ -1085,8 +1091,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					const platformDisplayNames = { github: 'GitHub', gitlab: 'GitLab', codeberg: 'Codeberg' };
 					let missingPlatform = null;
 					for (const p of selectedPlatforms) {
-						const inputEl =
-							document.getElementById(`dropdown-${p}Username`) || document.getElementById(`${p}Username`);
+						const inputEl = document.getElementById(`dropdown-${p}Username`) || document.getElementById(`${p}Username`);
 						const val = inputEl?.value?.trim() || result[`${p}Username`]?.trim();
 						if (!val) {
 							missingPlatform = p;
@@ -1156,29 +1161,35 @@ document.addEventListener('DOMContentLoaded', () => {
 						};
 						['github', 'gitlab', 'codeberg'].forEach((p) => {
 							const dropdownVal = document.getElementById(`dropdown-${p}Username`)?.value?.trim();
-							if (dropdownVal) {
-								updates[`${p}Username`] = dropdownVal;
+							const settingsVal = document.getElementById(`${p}Username`)?.value?.trim();
+							const val = dropdownVal || settingsVal;
+							if (val) {
+								updates[`${p}Username`] = val;
 							}
 						});
 						if (platformUsernameKey && platformUsername) {
-							updates[platformUsernameKey] = platformUsername.value;
+							if (updates[platformUsernameKey]) {
+								platformUsername.value = updates[platformUsernameKey];
+							} else if (platformUsername.value?.trim()) {
+								updates[platformUsernameKey] = platformUsername.value.trim();
+							}
 						}
 
-						return browser.storage.local
-							.set(updates)
-							.then(() => {
-								// Reload platform from storage before generating report
-								return browser.storage.local.get(['platform', 'selectedPlatforms']).then((res) => {
-									platformSelect.value = res.platform || '';
-									const platformsToUse = Array.isArray(res.selectedPlatforms)
-										? res.selectedPlatforms
-										: (res.platform ? [res.platform] : []);
-									updatePlatformUI(platformsToUse);
-									setGenerateButtonLoading(generateBtn, true);
-									window.generateScrumReport && window.generateScrumReport();
-									generateBtn._triggeredByShortcut = false;
-								});
+						return browser.storage.local.set(updates).then(() => {
+							// Reload platform from storage before generating report
+							return browser.storage.local.get(['platform', 'selectedPlatforms']).then((res) => {
+								platformSelect.value = res.platform || '';
+								const platformsToUse = Array.isArray(res.selectedPlatforms)
+									? res.selectedPlatforms
+									: res.platform
+										? [res.platform]
+										: [];
+								updatePlatformUI(platformsToUse);
+								setGenerateButtonLoading(generateBtn, true);
+								window.generateScrumReport && window.generateScrumReport();
+								generateBtn._triggeredByShortcut = false;
 							});
+						});
 					};
 
 					const isCodebergSelected = selectedPlatforms.includes('codeberg') || platformSelect.value === 'codeberg';
@@ -1942,7 +1953,9 @@ document.addEventListener('DOMContentLoaded', () => {
 						span.textContent = warningMsg;
 						tokenWarning.appendChild(span);
 						tokenWarning.classList.remove('hidden');
-						window.shakeElement ? window.shakeElement(tokenWarning, 620) : tokenWarning.classList.add('shake-animation');
+						window.shakeElement
+							? window.shakeElement(tokenWarning, 620)
+							: tokenWarning.classList.add('shake-animation');
 						setTimeout(() => {
 							tokenWarning.classList.add('hidden');
 						}, 3000);
@@ -2605,7 +2618,6 @@ function updatePlatformUI(platformArg) {
 	}
 }
 
-
 const customDropdown = document.getElementById('customPlatformDropdown');
 const dropdownBtn = document.getElementById('platformDropdownBtn');
 const dropdownList = document.getElementById('platformDropdownList');
@@ -2771,8 +2783,15 @@ function setupDropdownUsernameSync() {
 		// Sync from settings input to dropdown input
 		if (settingsInput && !settingsInput.dataset.dropdownSyncBound) {
 			settingsInput.addEventListener('input', () => {
-				dropdownInput.value = settingsInput.value;
+				const val = settingsInput.value;
+				dropdownInput.value = val;
 				dropdownInput.classList.remove('input-error');
+				browser.storage.local.set({ [`${platform}Username`]: val });
+				const platformUsername = document.getElementById('platformUsername');
+				if (platformUsername && (lastPlatform === platform || platformSelectHidden?.value === platform)) {
+					platformUsername.value = val;
+				}
+				window.updateGenerateButtonState && window.updateGenerateButtonState();
 			});
 			settingsInput.dataset.dropdownSyncBound = 'true';
 		}
@@ -2816,7 +2835,6 @@ function setSelectedPlatforms(platforms) {
 			window.updateGenerateButtonState && window.updateGenerateButtonState();
 		});
 }
-
 
 if (dropdownBtn && customDropdown && dropdownList) {
 	dropdownBtn.addEventListener('click', (e) => {
@@ -3053,7 +3071,9 @@ document.querySelectorAll('input[name="timeframe"]').forEach((radio) => {
 				const items = await browser.storage.local.get(['platform', 'selectedPlatforms']);
 				const platforms = Array.isArray(items.selectedPlatforms)
 					? items.selectedPlatforms
-					: (items.platform ? [items.platform] : []);
+					: items.platform
+						? [items.platform]
+						: [];
 				for (const p of platforms) {
 					const helper = window.PlatformRegistry?.get(p);
 					if (helper && typeof helper.forceDataRefresh === 'function') {
@@ -3170,7 +3190,9 @@ async function triggerRepoFetchIfEnabled() {
 	const storage = await browser.storage.local.get(['selectedPlatforms', 'platform']);
 	const platforms = Array.isArray(storage.selectedPlatforms)
 		? storage.selectedPlatforms
-		: (storage.platform ? [storage.platform] : []);
+		: storage.platform
+			? [storage.platform]
+			: [];
 	for (const p of platforms) {
 		const helper = window.PlatformRegistry?.get(p);
 		if (helper && helper.triggerRepoFetchIfEnabled) {

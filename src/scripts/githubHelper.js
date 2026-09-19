@@ -820,7 +820,17 @@ function log(...args) {
 }
 
 async function githubFetchUser(username, token) {
-	const url = `https://api.github.com/users/${username}`;
+	const trimmed = typeof username === 'string' ? username.trim() : '';
+	if (!trimmed) {
+		return {
+			status: 404,
+			ok: false,
+			statusText: 'Not Found',
+			headers: new Headers(),
+			json: async () => ({ message: 'Not Found' }),
+		};
+	}
+	const url = `https://api.github.com/users/${encodeURIComponent(trimmed)}`;
 	const headers = { Accept: 'application/vnd.github.v3+json' };
 	if (token) {
 		headers.Authorization = `token ${token}`;
@@ -829,31 +839,53 @@ async function githubFetchUser(username, token) {
 }
 
 async function githubFetchIssues(username, token, startDate, endDate, orgName, repoQueries) {
+	const trimmed = typeof username === 'string' ? username.trim() : '';
+	if (!trimmed) {
+		return {
+			status: 404,
+			ok: false,
+			statusText: 'Not Found',
+			headers: new Headers(),
+			json: async () => ({ items: [] }),
+		};
+	}
 	const headers = { Accept: 'application/vnd.github.v3+json' };
 	if (token) {
 		headers.Authorization = `token ${token}`;
 	}
+	const encodedUser = encodeURIComponent(trimmed);
 	const orgQuery = buildGithubOrgQuery(orgName);
 	let url;
 	if (repoQueries) {
-		url = `https://api.github.com/search/issues?q=author%3A${username}+${repoQueries}${orgQuery}+updated%3A${startDate}..${endDate}&per_page=100`;
+		url = `https://api.github.com/search/issues?q=author%3A${encodedUser}+${repoQueries}${orgQuery}+updated%3A${startDate}..${endDate}&per_page=100`;
 	} else {
-		url = `https://api.github.com/search/issues?q=author%3A${username}${orgQuery}+updated%3A${startDate}..${endDate}&per_page=100`;
+		url = `https://api.github.com/search/issues?q=author%3A${encodedUser}${orgQuery}+updated%3A${startDate}..${endDate}&per_page=100`;
 	}
 	return fetch(url, { headers });
 }
 
 async function githubFetchReviews(username, token, startDate, endDate, orgName, repoQueries) {
+	const trimmed = typeof username === 'string' ? username.trim() : '';
+	if (!trimmed) {
+		return {
+			status: 404,
+			ok: false,
+			statusText: 'Not Found',
+			headers: new Headers(),
+			json: async () => ({ items: [] }),
+		};
+	}
 	const headers = { Accept: 'application/vnd.github.v3+json' };
 	if (token) {
 		headers.Authorization = `token ${token}`;
 	}
+	const encodedUser = encodeURIComponent(trimmed);
 	const orgQuery = buildGithubOrgQuery(orgName);
 	let url;
 	if (repoQueries) {
-		url = `https://api.github.com/search/issues?q=reviewed-by%3A${username}+${repoQueries}${orgQuery}+updated%3A${startDate}..${endDate}&per_page=100`;
+		url = `https://api.github.com/search/issues?q=reviewed-by%3A${encodedUser}+${repoQueries}${orgQuery}+updated%3A${startDate}..${endDate}&per_page=100`;
 	} else {
-		url = `https://api.github.com/search/issues?q=reviewed-by%3A${username}${orgQuery}+updated%3A${startDate}..${endDate}&per_page=100`;
+		url = `https://api.github.com/search/issues?q=reviewed-by%3A${encodedUser}${orgQuery}+updated%3A${startDate}..${endDate}&per_page=100`;
 	}
 	return fetch(url, { headers });
 }

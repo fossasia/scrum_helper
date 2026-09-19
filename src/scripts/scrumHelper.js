@@ -326,7 +326,11 @@ function allIncluded(outputTarget = 'email') {
 
 	function getUsernameForPlatform(p) {
 		const targetPlatform = p || platform || 'github';
+		const domVal =
+			document.getElementById(`dropdown-${targetPlatform}Username`)?.value?.trim() ||
+			document.getElementById(`${targetPlatform}Username`)?.value?.trim();
 		return (
+			domVal ||
 			platformUsernames[targetPlatform] ||
 			(targetPlatform === platform ? platformUsernameLocal || platformUsername : '') ||
 			''
@@ -467,12 +471,13 @@ function allIncluded(outputTarget = 'email') {
 					}
 
 					// Save to platform-specific storage
-					if (usernameFromDOM) {
-						chrome.storage.local.set({ [platformUsernameKey]: usernameFromDOM });
-						platformUsername = usernameFromDOM;
-						platformUsernameLocal = usernameFromDOM;
+					const currentPlatformUser = platformUsernames[platform] || usernameFromDOM;
+					if (currentPlatformUser) {
+						chrome.storage.local.set({ [platformUsernameKey]: currentPlatformUser });
+						platformUsername = currentPlatformUser;
+						platformUsernameLocal = currentPlatformUser;
 						if (platform && !platformUsernames[platform]) {
-							platformUsernames[platform] = usernameFromDOM;
+							platformUsernames[platform] = currentPlatformUser;
 						}
 					}
 
@@ -564,15 +569,11 @@ function allIncluded(outputTarget = 'email') {
 					}
 				}
 
-				activePlatforms =
-					Array.isArray(items.selectedPlatforms)
-						? items.selectedPlatforms
-						: (platform ? [platform] : []);
+				activePlatforms = Array.isArray(items.selectedPlatforms) ? items.selectedPlatforms : platform ? [platform] : [];
 
 				if (activePlatforms.length === 0) {
 					if (outputTarget === 'popup') {
-						const errMessage =
-							chrome.i18n.getMessage('selectPlatformWarning') || 'Please select a platform first';
+						const errMessage = chrome.i18n.getMessage('selectPlatformWarning') || 'Please select a platform first';
 						window.scrumHelperToast?.(errMessage, { duration: 2000, variant: 'error' });
 						window.triggerInputError?.('platformDropdownBtn', {
 							focus: true,
@@ -917,7 +918,8 @@ function allIncluded(outputTarget = 'email') {
 				typeof res.headers?.get === 'function'
 					? res.headers.get('x-ratelimit-remaining')
 					: res.headers?.['x-ratelimit-remaining'] || res.headers?.['X-RateLimit-Remaining'];
-			return remaining === '0' || remaining === 0;
+			if (remaining === '0' || remaining === 0) return true;
+			if (window.githubRateLimitExceeded) return true;
 		}
 		return false;
 	}
@@ -1052,48 +1054,21 @@ function allIncluded(outputTarget = 'email') {
 
 		let repoQueries = '';
 
-		if (useRepoFilter && selectedRepos && selectedRepos.length > 0) {
-			log('Using repo filter for api calls:', selectedRepos);
-
-			try {
-				await fetchReposIfNeeded();
-			} catch (err) {
-				logError('Failed to fetch repo data for filtering:', err);
-			}
-
-			repoQueries = selectedRepos
-				.filter((repo) => repo !== null)
-				.map((repo) => {
-					if (typeof repo === 'object' && repo.fullName) {
-						const cleanName = repo.fullName.startsWith('/') ? repo.fullName.substring(1) : repo.fullName;
-						return `repo:${cleanName}`;
-					}
-
-					if (repo.includes('/')) {
-						const cleanName = repo.startsWith('/') ? repo.substring(1) : repo;
-						return `repo:${cleanName}`;
-					}
-
-					const fullRepoInfo = githubCache.repoData?.find((r) => r.name === repo);
-					if (fullRepoInfo && fullRepoInfo.fullName) {
-						return `repo:${fullRepoInfo.fullName}`;
-					}
-					logError(`Missing owner for repo ${repo} - search may fail`);
-					return `repo:${repo}`;
-				})
-				.join('+');
-
-			if (!repoQueries) {
-				loadFromStorage('Repo filter empty, using org wide search');
-			} else {
-				loadFromStorage('Using repository filter');
-			}
-		} else {
-			loadFromStorage('Using org wide search');
-		}
-
 		try {
 			await new Promise((res) => setTimeout(res, 500));
+
+			const cleanUsername = (platformUsernameLocal || '').trim();
+			if (!cleanUsername) {
+				const errorMsg =
+					chrome?.i18n.getMessage('githubUsernameRequiredError') ||
+					chrome?.i18n.getMessage('usernameRequiredError') ||
+					'Please enter your GitHub username';
+				const err = new Error(errorMsg);
+				err.platform = 'github';
+				err.username = '';
+				throw err;
+			}
+			platformUsernameLocal = cleanUsername;
 
 			log('Validating GitHub user existence for:', platformUsernameLocal);
 			const userCheckRes = await githubFetchUser(platformUsernameLocal, githubToken);
@@ -1133,6 +1108,46 @@ function allIncluded(outputTarget = 'email') {
 				throw new Error(errorMsg);
 			}
 
+			if (useRepoFilter && selectedRepos && selectedRepos.length > 0) {
+				log('Using repo filter for api calls:', selectedRepos);
+
+				try {
+					await fetchReposIfNeeded();
+				} catch (err) {
+					logError('Failed to fetch repo data for filtering:', err);
+				}
+
+				repoQueries = selectedRepos
+					.filter((repo) => repo !== null)
+					.map((repo) => {
+						if (typeof repo === 'object' && repo.fullName) {
+							const cleanName = repo.fullName.startsWith('/') ? repo.fullName.substring(1) : repo.fullName;
+							return `repo:${cleanName}`;
+						}
+
+						if (repo.includes('/')) {
+							const cleanName = repo.startsWith('/') ? repo.substring(1) : repo;
+							return `repo:${cleanName}`;
+						}
+
+						const fullRepoInfo = githubCache.repoData?.find((r) => r.name === repo);
+						if (fullRepoInfo && fullRepoInfo.fullName) {
+							return `repo:${fullRepoInfo.fullName}`;
+						}
+						logError(`Missing owner for repo ${repo} - search may fail`);
+						return `repo:${repo}`;
+					})
+					.join('+');
+
+				if (!repoQueries) {
+					loadFromStorage('Repo filter empty, using org wide search');
+				} else {
+					loadFromStorage('Using repository filter');
+				}
+			} else {
+				loadFromStorage('Using org wide search');
+			}
+
 			const [issuesRes, prRes, userRes] = await Promise.all([
 				githubFetchIssues(platformUsernameLocal, githubToken, startDateForCache, endDateForCache, orgName, repoQueries),
 				githubFetchReviews(
@@ -1168,11 +1183,27 @@ function allIncluded(outputTarget = 'email') {
 			}
 
 			if (issuesRes.status === 422 || prRes.status === 422) {
+				try {
+					const clone = (issuesRes.status === 422 ? issuesRes : prRes).clone();
+					const data = await clone.json();
+					const isUserNotExist = data?.errors?.some?.((e) => e?.message?.toLowerCase().includes('users do not exist'));
+					if (isUserNotExist) {
+						const errorMsg =
+							chrome?.i18n.getMessage('githubUserNotFoundError', [platformUsernameLocal]) ||
+							`GitHub user "${platformUsernameLocal}" not found.`;
+						const err = new Error(errorMsg);
+						err.platform = 'github';
+						err.username = platformUsernameLocal;
+						throw err;
+					}
+				} catch (e) {
+					if (e.platform === 'github') throw e;
+				}
 				const errorMsg =
 					chrome?.i18n.getMessage('invalidSearchQueryError') ||
 					`Invalid search query or date range. Please verify your date range format and try again.`;
 				logError(errorMsg);
-				if (outputTarget === 'popup') {
+				if (outputTarget === 'popup' && shouldProcess) {
 					showReportMessage(errorMsg);
 				}
 				throw new Error(errorMsg);
@@ -1302,7 +1333,7 @@ function allIncluded(outputTarget = 'email') {
 			fetchPromiseReject?.(err);
 			githubCache.fetching = false;
 
-			if (outputTarget === 'popup') {
+			if (outputTarget === 'popup' && shouldProcess) {
 				const generateBtn = document.getElementById('generateReport');
 				if (scrumReportEl) {
 					let errorMsg =
@@ -1452,7 +1483,7 @@ function allIncluded(outputTarget = 'email') {
 		const errMsg =
 			chrome?.i18n.getMessage('rateLimitError') ||
 			'GitHub API rate limit exceeded. Please try again later or add/check your GitHub token in the Scrum Helper settings.';
-		if (outputTarget === 'popup') {
+		if (outputTarget === 'popup' && shouldProcess) {
 			if (scrumReportEl) {
 				showReportMessage(errMsg);
 				const generateBtn = document.getElementById('generateReport');
