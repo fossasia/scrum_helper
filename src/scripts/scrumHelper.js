@@ -96,15 +96,7 @@ function formatLocalDate(date) {
 	return `${year}-${month}-${day}`;
 }
 
-/**
- * Converts the stored cacheInput setting, in minutes, to a TTL in milliseconds.
- *
- * Anything that is not a positive safe integer falls back to the 10 minute
- * default. A non-numeric, zero or negative value would otherwise make every
- * cache entry stale -- so each report refetches and spends GitHub's rate
- * limit -- and a value large enough to overflow would make the cache never
- * expire. This is the same rule the GitLab, Codeberg and popup paths use.
- */
+// Converts cacheInput (minutes) to a TTL in ms, falling back to 10 minutes for invalid values.
 function resolveCacheTtlMs(cacheInput) {
 	const minutes = Number.parseInt(cacheInput, 10);
 	return Number.isSafeInteger(minutes) && minutes > 0 ? minutes * 60 * 1000 : 10 * 60 * 1000;

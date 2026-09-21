@@ -51,9 +51,7 @@ describe('resolveCacheTtlMs', () => {
 	});
 
 	it('should keep a freshly written cache entry fresh for every input', () => {
-		// The freshness check in scrumHelper.js is `now - timestamp < ttl`. A
-		// cache written a second ago must count as fresh, or every report
-		// refetches and spends GitHub's rate limit.
+		// A cache written a second ago must still pass `now - timestamp < ttl`.
 		const now = Date.now();
 		const writtenOneSecondAgo = now - 1000;
 		for (const value of ['15', 'abc', '0', '-5', '', undefined]) {
