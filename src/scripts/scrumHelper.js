@@ -105,6 +105,22 @@ function formatLocalDate(date) {
  * @param {string} platform - The SCM platform ('github', 'gitlab', etc.)
  * @returns {string} The resolved project name or empty string if not found
  */
+/**
+ * Converts the stored cacheInput setting, in minutes, to a TTL in milliseconds.
+ *
+ * Anything that is not a positive safe integer falls back to the 10 minute
+ * default. A non-numeric, zero or negative value would otherwise make every
+ * cache entry stale -- so each report refetches and spends GitHub's rate
+ * limit -- and a value large enough to overflow would make the cache never
+ * expire. This is the same rule the GitLab, Codeberg and popup paths use.
+ */
+function resolveCacheTtlMs(cacheInput) {
+	const minutes = Number.parseInt(cacheInput, 10);
+	return Number.isSafeInteger(minutes) && minutes > 0 ? minutes * 60 * 1000 : 10 * 60 * 1000;
+}
+
+window.resolveCacheTtlMs = resolveCacheTtlMs;
+
 function getProjectName(item, platform) {
 	if (platform === 'gitlab' && item?.project && item.project !== 'unknown') {
 		return item.project;
@@ -696,8 +712,7 @@ function allIncluded(outputTarget = 'email') {
 	async function getCacheTTL() {
 		return new Promise((resolve) => {
 			chrome.storage.local.get(['cacheInput'], (result) => {
-				const ttlMinutes = result.cacheInput || 10;
-				resolve(ttlMinutes * 60 * 1000);
+				resolve(resolveCacheTtlMs(result.cacheInput));
 			});
 		});
 	}
