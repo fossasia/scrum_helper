@@ -97,15 +97,6 @@ function formatLocalDate(date) {
 }
 
 /**
- * Resolves the project name from the report item.
- * Returns the full repository name (org/repo).
- * For GitLab, it prioritizes the pre-mapped project name with namespace.
- * For GitHub and fallbacks, it extracts owner/repo from the repository URL or web URL.
- * @param {Object} item - The report item
- * @param {string} platform - The SCM platform ('github', 'gitlab', etc.)
- * @returns {string} The resolved project name or empty string if not found
- */
-/**
  * Converts the stored cacheInput setting, in minutes, to a TTL in milliseconds.
  *
  * Anything that is not a positive safe integer falls back to the 10 minute
@@ -121,6 +112,15 @@ function resolveCacheTtlMs(cacheInput) {
 
 window.resolveCacheTtlMs = resolveCacheTtlMs;
 
+/**
+ * Resolves the project name from the report item.
+ * Returns the full repository name (org/repo).
+ * For GitLab, it prioritizes the pre-mapped project name with namespace.
+ * For GitHub and fallbacks, it extracts owner/repo from the repository URL or web URL.
+ * @param {Object} item - The report item
+ * @param {string} platform - The SCM platform ('github', 'gitlab', etc.)
+ * @returns {string} The resolved project name or empty string if not found
+ */
 function getProjectName(item, platform) {
 	if (platform === 'gitlab' && item?.project && item.project !== 'unknown') {
 		return item.project;
