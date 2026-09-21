@@ -19,7 +19,19 @@ const helpers = [
 	],
 ];
 
-const flush = () => new Promise((resolve) => setTimeout(resolve, 20));
+/**
+ * Waits until `condition` holds, rather than for a fixed delay, so the tests
+ * do not depend on how long storage and TTL lookups happen to take.
+ */
+async function until(condition, timeoutMs = 2000) {
+	const start = Date.now();
+	while (!condition()) {
+		if (Date.now() - start > timeoutMs) {
+			throw new Error('Timed out waiting for condition');
+		}
+		await new Promise((resolve) => setTimeout(resolve, 0));
+	}
+}
 
 /**
  * Puts the helper in the state it holds while a fetch for `key` is in flight.
@@ -67,8 +79,7 @@ describe.each(helpers)(
 			withFetchInFlight(helper, expectedKey);
 
 			const pending = callFetch(helper);
-			await flush();
-			expect(helper.cache.queue).toHaveLength(1);
+			await until(() => helper.cache.queue.length === 1);
 
 			completeInFlight(helper, 'RESULT');
 
@@ -80,8 +91,7 @@ describe.each(helpers)(
 			withFetchInFlight(helper, 'SOME-OTHER-QUERY');
 
 			const pending = callFetch(helper);
-			await flush();
-			expect(helper.cache.queue).toHaveLength(1);
+			await until(() => helper.cache.queue.length === 1);
 
 			let outcome;
 			const recorded = pending.then(
@@ -103,7 +113,7 @@ describe.each(helpers)(
 			withFetchInFlight(helper, 'SOME-OTHER-QUERY');
 
 			const pending = callFetch(helper);
-			await flush();
+			await until(() => helper.cache.queue.length === 1);
 
 			completeInFlight(helper, OTHER_QUERY_DATA);
 			await pending.catch(() => {});
@@ -114,3 +124,47 @@ describe.each(helpers)(
 		});
 	},
 );
+
+describe('CodebergHelper with a stale cache persisted in storage', () => {
+	const inFlightKey = 'alice-2020-01-01-2020-01-02-noauth-nocommits';
+
+	beforeEach(() => {
+		vi.spyOn(browser.storage.local, 'get').mockImplementation(async (keys) => {
+			const wanted = Array.isArray(keys) ? keys : [keys];
+			if (wanted.includes('codebergCache')) {
+				return {
+					codebergCache: {
+						data: { stale: true },
+						cacheKey: 'STALE-PERSISTED-KEY',
+						timestamp: 1,
+					},
+				};
+			}
+			return {};
+		});
+		vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('network disabled in test')));
+	});
+
+	afterEach(() => {
+		vi.unstubAllGlobals();
+		vi.restoreAllMocks();
+	});
+
+	it('should not reload storage over the key of a request in flight', async () => {
+		const helper = new CodebergHelper('https://codeberg.org/api/v1');
+		withFetchInFlight(helper, inFlightKey);
+
+		const pending = callCodeberg(helper);
+		await until(() => helper.cache.queue.length === 1);
+
+		expect(helper.cache.cacheKey).toBe(inFlightKey);
+
+		completeInFlight(helper, 'SHARED');
+		await expect(pending).resolves.toBe('SHARED');
+		expect(fetch).not.toHaveBeenCalled();
+	});
+});
+
+function callCodeberg(helper) {
+	return helper.fetchCodebergData('alice', '2020-01-01', '2020-01-02');
+}

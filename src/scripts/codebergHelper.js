@@ -209,7 +209,9 @@ class CodebergHelper {
 	async fetchCodebergData(username, startDate, endDate, token = null, showCommits = false) {
 		const cacheKey = `${username}-${startDate}-${endDate}-${token ? 'auth' : 'noauth'}-${showCommits ? 'commits' : 'nocommits'}`;
 
-		if (!this.cache.data) await this.loadFromStorage();
+		// Never reload while a request is in flight: loadFromStorage replaces
+		// cacheKey, which is how the in-flight query is identified below.
+		if (!this.cache.data && !this.cache.fetching) await this.loadFromStorage();
 
 		const now = Date.now();
 		const ttl = await this.getCacheTTL();
