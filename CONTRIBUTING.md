@@ -47,6 +47,11 @@ This document provides guidelines for contributing to the project. Please feel f
     -   Click "This Firefox" in the left sidebar.
     -   Click "Load Temporary Add-on..." and select the `manifest.json` inside the `dist/firefox` folder.
 
+    **For Opera (Chromium):**
+    -   Go to `opera://extensions` in your browser.
+    -   Enable "Developer Mode" (toggle in the top-right).
+    -   Click "Load unpacked" and select the `dist/opera` folder inside the cloned repository.
+
 5.  **Get a GitHub Personal Access Token (Recommended)**
 
     To use Scrum Helper with authenticated requests (for higher rate limits and private repositories), you need a GitHub personal access token (classic).
@@ -57,25 +62,55 @@ This document provides guidelines for contributing to the project. Please feel f
     -   **Create and Copy the Token:** Click "Generate token" and copy the token.
     -   **Paste the Token in Scrum Helper:** Open the extension popup, go to settings, and paste your token into the "GitHub Token" field.
 
+6.  **Develop the Tauri Desktop App (Optional)**
+
+    Scrum Helper also ships as a desktop application powered by [Tauri](https://tauri.app/). To run the desktop app in development mode with hot-reloading:
+
+    ```sh
+    npm run tauri dev
+    ```
+
+    > **Note:** Tauri requires the Rust toolchain. Follow the [Tauri prerequisites guide](https://tauri.app/start/prerequisites/) if this is your first time setting it up.
+
+## Running Tests
+
+Scrum Helper uses [Vitest](https://vitest.dev/) for unit testing. Always run the test suite before submitting a pull request.
+
+**Run the full test suite once:**
+
+```sh
+npm test
+```
+
+**Run tests in watch mode** (reruns on file save — great for active development):
+
+```sh
+npm run test:watch
+```
+
+---
+
 ## Submitting a Pull Request
 
 1.  **Create a Branch:** Create a new branch for your feature or bug fix.
 2.  **Make Your Changes:** Write your code and make sure to follow the project's style.
-3.  **Format and Lint Your Code:** Before committing, run the following commands to ensure your code is clean and consistent.
+3.  **Format and Lint Your Code (Biome):** Scrum Helper uses [Biome](https://biomejs.dev/) for linting and formatting. Before committing, run the following commands to ensure your code is clean and consistent.
 
     ```sh
-    # Run biome linter
-    npm run lint
+    # Check for formatting and linting issues (no changes written)
+    npm run check
 
     # Auto-format your code
     npm run format
 
-    # Check for any linting or formatting issues
-    npm run check
+    # Run the Biome linter only
+    npm run lint
 
-    # Automatically fix(safe) any fixable linting issues
+    # Automatically fix any safe, fixable linting issues
     npm run fix
     ```
+
+    > **Tip:** Run `npm run check` first to see all issues, then `npm run format` and `npm run fix` to resolve them automatically.
 
 4.  **Copilot-Assisted Self-Review:** Before requesting a review from maintainers, contributors are encouraged (but not required) to perform a quick self-review using GitHub Copilot, if available. This can help catch simple issues early, improve code quality, and speed up the review process.
 
@@ -85,6 +120,19 @@ This document provides guidelines for contributing to the project. Please feel f
 
 5.  **Commit and Push:** Commit your changes with a clear message and push them to your fork.
 6.  **Open a Pull Request:** Go to the original repository and open a pull request. Please use the provided pull request template.
+
+### Pre-PR Checklist
+
+Before opening a pull request, please confirm you have completed the following:
+
+- [ ] **Tests pass:** `npm test` runs without failures.
+- [ ] **No lint/format errors:** `npm run check` reports no issues.
+- [ ] **Code is formatted:** `npm run format` has been applied.
+- [ ] **Branch is up to date:** Your branch is rebased or merged with the latest `main`.
+- [ ] **PR title is descriptive:** The title clearly summarizes the change (used in release notes).
+- [ ] **Correct label applied:** One of `release:major`, `release:minor`, `release:patch`, or `release:none`.
+
+---
 
 ### Writing Meaningful Pull Requests
 
