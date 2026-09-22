@@ -343,5 +343,200 @@
     },
     "rateLimitWarningMessage": {
         "message": "由于 GitHub 速率限制，部分数据可能缺失。请在设置中添加或检查您的 GitHub 令牌。"
+    },
+    "codebergUsernameLabel": {
+        "message": "您的 Codeberg 用户名"
+    },
+    "codebergUsernamePlaceholder": {
+        "message": "获取您的贡献所必需"
+    },
+    "showOpenClosedTooltip": {
+        "message": "选中后，报告将显示 PR 和问题的状态标签（例如：开放、草稿、已合并、已关闭）。"
+    },
+    "gitlabOrgNamePlaceholder": {
+        "message": "输入群组名称"
+    },
+    "codebergTokenLabel": {
+        "message": "您的 Codeberg 令牌"
+    },
+    "codebergTokenPlaceholder": {
+        "message": "访问私有项目所必需"
+    },
+    "codebergTokenTooltip": {
+        "message": "为什么建议添加 Codeberg 令牌？Scrum Helper 无需 Codeberg 令牌也能用于公开项目，但建议添加个人访问令牌以获得更好的体验。"
+    },
+    "codebergApiBaseUrlLabel": {
+        "message": "Codeberg API 基础 URL"
+    },
+    "codebergApiBaseUrlPlaceholder": {
+        "message": "https://codeberg.org/api/v1"
+    },
+    "showCommitsTooltipGitLab": {
+        "message": "需要 GitLab 令牌，请在设置中添加。"
+    },
+    "showCommitsTooltipCodeberg": {
+        "message": "需要 Codeberg 令牌，请在设置中添加。"
+    },
+    "tokenRequiredGitlabWarning": {
+        "message": "仓库筛选需要 GitLab 令牌。请在设置中添加一个。"
+    },
+    "tokenRequiredNextPlansWarning": {
+        "message": "获取分配给您的问题需要 GitHub 令牌。请在设置中添加一个。"
+    },
+    "tokenRequiredNextPlansWarningGitLab": {
+        "message": "获取分配给您的问题需要 GitLab 令牌。请在设置中添加一个。"
+    },
+    "onlyPrsRequiredShowCommitsWarning": {
+        "message": "请选中“在报告中包含开放/草稿 PR”筛选项以显示提交。"
+    },
+    "regenerateNoticeText": {
+        "message": "选项已更改。请重新生成报告以应用更改。"
+    },
+    "tokenRequiredShowCommitsWarningGitLab": {
+        "message": "在开放或草稿 MR 中显示提交需要 GitLab 令牌。请在设置中添加一个。"
+    },
+    "tokenRequiredShowCommitsWarningCodeberg": {
+        "message": "在开放或草稿 PR 中显示提交需要 Codeberg 令牌。请在设置中添加一个。"
+    },
+    "reportAlreadyInserted": {
+        "message": "报告已插入！"
+    },
+    "includeBlockersLabel": {
+        "message": "在报告中包含阻碍因素"
+    },
+    "includeBlockersTooltip": {
+        "message": "选中后，报告将包含阻碍因素部分。"
+    },
+    "includeNextPlansLabel": {
+        "message": "将分配给您的开放问题添加到邮件的第二个问题"
+    },
+    "includeNextPlansTooltip": {
+        "message": "选择问题并将其添加到邮件的第二个问题中。需要 GitHub 令牌。"
+    },
+    "includeNextPlansTooltipGitLab": {
+        "message": "选择问题并将其添加到邮件的第二个问题中。需要 GitLab 令牌。"
+    },
+    "fetchingIssuesSpinner": {
+        "message": "正在获取分配给您的问题..."
+    },
+    "noIssuesFound": {
+        "message": "未找到分配给您的开放问题"
+    },
+    "githubTokenRequiredNextPlans": {
+        "message": "获取分配给您的问题需要 GitHub 令牌。请在设置中添加一个。"
+    },
+    "gitlabTokenRequiredNextPlans": {
+        "message": "获取分配给您的问题需要 GitLab 令牌。请在设置中添加一个。"
+    },
+    "failedToFetchIssues": {
+        "message": "获取分配给您的问题失败。"
+    },
+    "repoFilterTooltip": {
+        "message": "需要 GitHub 令牌。<br>若要强制更新仓库列表，<br>请点击“刷新数据”按钮。"
+    },
+    "repoFilterTooltipGitLab": {
+        "message": "需要 GitLab 令牌。<br>若要强制更新仓库列表，<br>请点击“刷新数据”按钮。"
+    },
+    "smtpSenderEmailLabel": {
+        "message": "发件人邮箱"
+    },
+    "smtpSenderEmailPlaceholder": {
+        "message": "sender@example.com"
+    },
+    "smtpHostLabel": {
+        "message": "SMTP 主机"
+    },
+    "smtpHostPlaceholder": {
+        "message": "smtp.example.com"
+    },
+    "smtpPortLabel": {
+        "message": "SMTP 端口"
+    },
+    "smtpPortPlaceholder": {
+        "message": "587"
+    },
+    "smtpUsernameLabel": {
+        "message": "SMTP 用户名"
+    },
+    "smtpUsernamePlaceholder": {
+        "message": "username@example.com"
+    },
+    "smtpPasswordLabel": {
+        "message": "SMTP 密码"
+    },
+    "smtpPasswordPlaceholder": {
+        "message": "输入您的 SMTP 密码"
+    },
+    "smtpRecipientsLabel": {
+        "message": "收件人"
+    },
+    "smtpRecipientsPlaceholder": {
+        "message": "recipient1@example.com, recipient2@example.com"
+    },
+    "smtpGmailHint": {
+        "message": "使用 Gmail 时，必须使用应用专用密码，而不是常规密码。"
+    },
+    "smtpSecurityWarning": {
+        "message": "注意：您的密码存储在未加密的本地存储中。请确保设备安全。"
+    },
+    "smtpMissingFieldsError": {
+        "message": "请先配置所有邮件设置。"
+    },
+    "smtpInvalidEmailError": {
+        "message": "无效的电子邮件地址：$1"
+    },
+    "smtpSendSuccess": {
+        "message": "报告已通过电子邮件成功发送！"
+    },
+    "smtpPartialSuccess": {
+        "message": "已发送给 $1/$2 位收件人；失败：$3"
+    },
+    "smtpSendFailed": {
+        "message": "发送电子邮件失败："
+    },
+    "smtpSendError": {
+        "message": "发生错误："
+    },
+    "sendingButton": {
+        "message": "正在发送..."
+    },
+    "sendEmailButton": {
+        "message": "发送电子邮件"
+    },
+    "mailSettingsTitle": {
+        "message": "邮件设置"
+    },
+    "sentButton": {
+        "message": "已发送"
+    },
+    "homeTitle": {
+        "message": "主页"
+    },
+    "settingsTitle": {
+        "message": "设置"
+    },
+    "smtpSenderEmailTooltip": {
+        "message": "用于发送报告的电子邮件地址（例如您的电子邮件地址）。"
+    },
+    "smtpHostTooltip": {
+        "message": "SMTP 服务器的地址（例如 smtp.gmail.com 或 smtp.mail.yahoo.com）。"
+    },
+    "smtpPortTooltip": {
+        "message": "SMTP 服务器使用的端口号。通常为 465（SSL）或 587（TLS/STARTTLS）。"
+    },
+    "smtpUsernameTooltip": {
+        "message": "SMTP 服务器的用户名或登录电子邮件地址。"
+    },
+    "smtpPasswordTooltip": {
+        "message": "用于 SMTP 服务器身份验证的密码或应用专用密码。警告：该密码将存储在未加密的本地存储中。"
+    },
+    "smtpRecipientsTooltip": {
+        "message": "以逗号分隔的收件人电子邮件地址列表（例如 recipient1@example.com, recipient2@example.com）。"
+    },
+    "smtpPresetsLabel": {
+        "message": "快速预设"
+    },
+    "smtpPresetsTooltip": {
+        "message": "选择预设以自动配置常用电子邮件服务的 SMTP 主机和端口设置。"
     }
 }
