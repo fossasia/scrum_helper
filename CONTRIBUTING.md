@@ -130,7 +130,7 @@ Before opening a pull request, please confirm you have completed the following:
 - [ ] **Code is formatted:** `npm run format` has been applied.
 - [ ] **Branch is up to date:** Your branch is rebased or merged with the latest `main`.
 - [ ] **PR title is descriptive:** The title clearly summarizes the change (used in release notes).
-- [ ] **Correct label applied:** One of `release:major`, `release:minor`, `release:patch`, or `release:none`.
+- [ ] **Release classification provided:** Apply one of `release:major`, `release:minor`, `release:patch`, or `release:none`, or include a supported release keyword in the PR title.
 
 ---
 
