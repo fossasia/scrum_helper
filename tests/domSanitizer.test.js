@@ -63,7 +63,7 @@ describe('sanitizeHtml with DOMPurify', () => {
 		expect(sanitizeHtml('<img src=x onerror=alert(1)>')).toBe('');
 	});
 
-	it.each([null, undefined, ''])('returns an empty string for %s', (input) => {
+	it.each([null, undefined, '', 5, true, {}, []])('returns an empty string for %s', (input) => {
 		expect(sanitizeHtml(input)).toBe('');
 	});
 });
