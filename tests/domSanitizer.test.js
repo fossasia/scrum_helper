@@ -23,10 +23,12 @@ describe('sanitizeHtml with DOMPurify', () => {
 		expect(sanitizeHtml('a<br>b')).toBe('a<br>b');
 	});
 
-	it.each(['script', 'iframe', 'object', 'embed', 'image'])('strips forbidden <%s> tags', (tag) => {
-		const result = sanitizeHtml(`<b>ok</b><${tag}>bad</${tag}>`);
-		expect(result).toMatch(/^<b>ok<\/b>/);
-		expect(result).not.toMatch(new RegExp(`<${tag}`, 'i'));
+	it.each(['script', 'iframe'])('strips forbidden <%s> tags with their content', (tag) => {
+		expect(sanitizeHtml(`<b>ok</b><${tag}>bad</${tag}>`)).toBe('<b>ok</b>');
+	});
+
+	it.each(['object', 'embed', 'image'])('strips forbidden <%s> tags but keeps their text', (tag) => {
+		expect(sanitizeHtml(`<b>ok</b><${tag}>bad</${tag}>`)).toBe('<b>ok</b>bad');
 	});
 
 	it('does not keep script content', () => {
