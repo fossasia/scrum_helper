@@ -64,7 +64,7 @@ This document provides guidelines for contributing to the project. Please feel f
 
 6.  **Develop the Tauri Desktop App (Optional)**
 
-    Scrum Helper also ships as a desktop application powered by [Tauri](https://tauri.app/). To run the desktop app in development mode with hot-reloading:
+    Scrum Helper also ships as a desktop application powered by [Tauri](https://tauri.app/). To run the desktop app in development mode, rebuild and restart it after making changes:
 
     ```sh
     npm run tauri dev
