@@ -8,8 +8,10 @@ const CLIENT_PATTERNS = [
 			hostname.endsWith('.outlook.com') ||
 			hostname.endsWith('.office.com') ||
 			hostname.endsWith('.office365.com') ||
-			hostname.endsWith('outlook.live.com') ||
-			hostname.endsWith('outlook.cloud.microsoft'),
+			hostname === 'outlook.live.com' ||
+			hostname.endsWith('.outlook.live.com') ||
+			hostname === 'outlook.cloud.microsoft' ||
+			hostname.endsWith('.outlook.cloud.microsoft'),
 	},
 	{ id: 'yahoo', match: (hostname) => hostname === 'mail.yahoo.com' },
 ];

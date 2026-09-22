@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll, afterAll } from 'vitest';
+import { describe, it, expect, beforeAll, afterEach } from 'vitest';
 import '../src/scripts/emailClientAdapter.js';
 
 function detectClientFor(hostname) {
@@ -19,7 +19,7 @@ const cases = [
 			'outlook.live.com',
 			'outlook.cloud.microsoft',
 		],
-		['fakeoutlook.com', 'office.org', 'microsoft.com'],
+		['fakeoutlook.com', 'office.org', 'microsoft.com', 'eviloutlook.live.com', 'eviloutlook.cloud.microsoft'],
 	],
 	['yahoo', ['mail.yahoo.com'], ['yahoo.com', 'news.yahoo.com']],
 ];
@@ -31,7 +31,7 @@ describe('EmailClientAdapter detectClient', () => {
 		originalURL = window.location.href;
 	});
 
-	afterAll(() => {
+	afterEach(() => {
 		window.happyDOM.setURL(originalURL);
 	});
 
