@@ -9,23 +9,32 @@ window.fetch = async function (...args) {
 	}
 	const url = typeof args[0] === 'string' ? args[0] : args[0]?.url || '';
 	if (url.includes('api.github.com')) {
-		const remaining = res.headers.get('x-ratelimit-remaining');
-		if (res.status === 403 || res.status === 429 || remaining === '0') {
+		const remaining =
+			typeof res.headers?.get === 'function'
+				? res.headers.get('x-ratelimit-remaining')
+				: res.headers?.['x-ratelimit-remaining'];
+		const is429 = res.status === 429;
+		const isZeroRemaining = remaining === '0' || remaining === 0;
+		if (res.status === 403 || is429 || isZeroRemaining) {
+			let isRateLimit = is429 || isZeroRemaining;
 			try {
 				const clone = res.clone();
 				const data = await clone.json();
-				if (data && data.message && data.message.toLowerCase().includes('rate limit exceeded')) {
-					window.githubRateLimitExceeded = true;
-					if (!rateLimitWarningShown) {
-						rateLimitWarningShown = true;
-						window.showRateLimitWarning?.();
-						setTimeout(() => {
-							rateLimitWarningShown = false;
-						}, 6000);
-					}
+				if (data && data.message && data.message.toLowerCase().includes('rate limit')) {
+					isRateLimit = true;
 				}
 			} catch (e) {
 				// Ignore clone/json parsing issues
+			}
+			if (isRateLimit) {
+				window.githubRateLimitExceeded = true;
+				if (!rateLimitWarningShown) {
+					rateLimitWarningShown = true;
+					window.showRateLimitWarning?.();
+					setTimeout(() => {
+						rateLimitWarningShown = false;
+					}, 6000);
+				}
 			}
 		}
 	}
@@ -311,6 +320,7 @@ function allIncluded(outputTarget = 'email') {
 	}
 	scrumGenerationInProgress = true;
 	window.githubRateLimitExceeded = false;
+	rateLimitWarningShown = false;
 	console.log('allIncluded called with outputTarget:', outputTarget);
 
 	let scrumBody = null;
@@ -912,6 +922,7 @@ function allIncluded(outputTarget = 'email') {
 
 	function isRateLimitResponse(res) {
 		if (!res || res.ok) return false;
+		if (window.githubRateLimitExceeded) return true;
 		if (res.status === 429) return true;
 		if (res.status === 403) {
 			const remaining =
@@ -919,7 +930,6 @@ function allIncluded(outputTarget = 'email') {
 					? res.headers.get('x-ratelimit-remaining')
 					: res.headers?.['x-ratelimit-remaining'] || res.headers?.['X-RateLimit-Remaining'];
 			if (remaining === '0' || remaining === 0) return true;
-			if (window.githubRateLimitExceeded) return true;
 		}
 		return false;
 	}
@@ -1085,7 +1095,7 @@ function allIncluded(outputTarget = 'email') {
 			}
 
 			if (userCheckRes.status === 401 || (userCheckRes.status === 403 && !isRateLimitResponse(userCheckRes))) {
-				showInvalidTokenMessage();
+				showInvalidTokenMessage(shouldProcess);
 				const errorMsg =
 					chrome?.i18n.getMessage('invalidTokenError') ||
 					'Invalid or expired GitHub token. Please check your token in the Scrum Helper settings and try again.';
@@ -1093,14 +1103,9 @@ function allIncluded(outputTarget = 'email') {
 			}
 
 			if (isRateLimitResponse(userCheckRes)) {
-				showRateLimitMessage();
-				const errorMsg =
-					chrome?.i18n.getMessage('rateLimitError') ||
-					'GitHub API rate limit exceeded. Please try again later or add/check your GitHub token in the Scrum Helper settings.';
-				throw new Error(errorMsg);
-			}
-
-			if (!userCheckRes.ok) {
+				window.githubRateLimitExceeded = true;
+				window.showRateLimitWarning?.();
+			} else if (!userCheckRes.ok && !window.githubRateLimitExceeded) {
 				const errorMsg =
 					chrome?.i18n.getMessage('githubUserValidationError', [userCheckRes.status, userCheckRes.statusText]) ||
 					`Error validating GitHub user: ${userCheckRes.status} ${userCheckRes.statusText}`;
@@ -1167,19 +1172,18 @@ function allIncluded(outputTarget = 'email') {
 				(issuesRes.status === 403 && !isRateLimitResponse(issuesRes)) ||
 				(prRes.status === 403 && !isRateLimitResponse(prRes))
 			) {
-				showInvalidTokenMessage();
-				const errorMsg =
-					chrome?.i18n.getMessage('invalidTokenError') ||
-					'Invalid or expired GitHub token. Please check your token in the Scrum Helper settings and try again.';
-				throw new Error(errorMsg);
+				if (!window.githubRateLimitExceeded) {
+					showInvalidTokenMessage(shouldProcess);
+					const errorMsg =
+						chrome?.i18n.getMessage('invalidTokenError') ||
+						'Invalid or expired GitHub token. Please check your token in the Scrum Helper settings and try again.';
+					throw new Error(errorMsg);
+				}
 			}
 
 			if (isRateLimitResponse(issuesRes) || isRateLimitResponse(prRes)) {
-				showRateLimitMessage();
-				const errorMsg =
-					chrome?.i18n.getMessage('rateLimitError') ||
-					'GitHub API rate limit exceeded. Please try again later or add/check your GitHub token in the Scrum Helper settings.';
-				throw new Error(errorMsg);
+				window.githubRateLimitExceeded = true;
+				window.showRateLimitWarning?.();
 			}
 
 			if (issuesRes.status === 422 || prRes.status === 422) {
@@ -1209,27 +1213,27 @@ function allIncluded(outputTarget = 'email') {
 				throw new Error(errorMsg);
 			}
 
-			if (!issuesRes.ok) {
+			if (!issuesRes.ok && !window.githubRateLimitExceeded && !isRateLimitResponse(issuesRes)) {
 				const errorMsg =
 					chrome?.i18n.getMessage('githubIssuesFetchError', [issuesRes.status, issuesRes.statusText]) ||
 					`Error fetching GitHub issues: ${issuesRes.status} ${issuesRes.statusText}`;
 				logError(errorMsg);
-				if (outputTarget === 'popup') {
+				if (outputTarget === 'popup' && shouldProcess) {
 					showReportMessage(errorMsg);
 				}
 				throw new Error(errorMsg);
 			}
-			if (!prRes.ok) {
+			if (!prRes.ok && !window.githubRateLimitExceeded && !isRateLimitResponse(prRes)) {
 				const errorMsg =
 					chrome?.i18n.getMessage('githubPRReviewFetchError', [prRes.status, prRes.statusText]) ||
 					`Error fetching GitHub PR review data: ${prRes.status} ${prRes.statusText}`;
 				logError(errorMsg);
-				if (outputTarget === 'popup') {
+				if (outputTarget === 'popup' && shouldProcess) {
 					showReportMessage(errorMsg);
 				}
 				throw new Error(errorMsg);
 			}
-			if (!userRes.ok) {
+			if (!userRes.ok && !window.githubRateLimitExceeded && !isRateLimitResponse(userRes)) {
 				const errorMsg =
 					chrome?.i18n.getMessage('githubUserFetchError', [userRes.status, userRes.statusText]) ||
 					`Error fetching GitHub user data: ${userRes.status} ${userRes.statusText}`;
@@ -1286,25 +1290,29 @@ function allIncluded(outputTarget = 'email') {
 						endDateForCommits = formatLocalDate(today);
 					}
 
-					const commitMap = await fetchCommitsForOpenPRs(
-						openPRs,
-						githubToken,
-						startDateForCommits,
-						endDateForCommits,
-						'github',
-					);
-					log('Commit map returned from fetchCommitsForOpenPRs:', commitMap);
-					// Attach commits to PR objects
-					openPRs.forEach((pr) => {
-						pr._allCommits = commitMap[pr.number] || [];
-						log(`Attached ${pr._allCommits.length} commits to PR #${pr.number}`);
-						if (pr._allCommits.length > 0) {
-							log(
-								`Commits for PR #${pr.number}:`,
-								pr._allCommits.map((c) => `${c.messageHeadline} (${c.committedDate})`),
-							);
-						}
-					});
+					try {
+						const commitMap = await fetchCommitsForOpenPRs(
+							openPRs,
+							githubToken,
+							startDateForCommits,
+							endDateForCommits,
+							'github',
+						);
+						log('Commit map returned from fetchCommitsForOpenPRs:', commitMap);
+						// Attach commits to PR objects
+						openPRs.forEach((pr) => {
+							pr._allCommits = commitMap[pr.number] || [];
+							log(`Attached ${pr._allCommits.length} commits to PR #${pr.number}`);
+							if (pr._allCommits.length > 0) {
+								log(
+									`Commits for PR #${pr.number}:`,
+									pr._allCommits.map((c) => `${c.messageHeadline} (${c.committedDate})`),
+								);
+							}
+						});
+					} catch (commitErr) {
+						logError('Failed to fetch commits for open PRs:', commitErr);
+					}
 				}
 			}
 
@@ -1464,11 +1472,11 @@ function allIncluded(outputTarget = 'email') {
 	}
 	verifyCacheStatus();
 
-	function showInvalidTokenMessage() {
+	function showInvalidTokenMessage(shouldProcess = true) {
 		const errMsg =
 			chrome?.i18n.getMessage('invalidTokenError') ||
 			'Invalid or expired GitHub token. Please check your token in the Scrum Helper settings and try again.';
-		if (outputTarget === 'popup') {
+		if (outputTarget === 'popup' && shouldProcess) {
 			if (scrumReportEl) {
 				showReportMessage(errMsg);
 				const generateBtn = document.getElementById('generateReport');
@@ -1479,7 +1487,7 @@ function allIncluded(outputTarget = 'email') {
 		}
 	}
 
-	function showRateLimitMessage() {
+	function showRateLimitMessage(shouldProcess = true) {
 		const errMsg =
 			chrome?.i18n.getMessage('rateLimitError') ||
 			'GitHub API rate limit exceeded. Please try again later or add/check your GitHub token in the Scrum Helper settings.';
