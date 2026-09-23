@@ -96,6 +96,14 @@ function formatLocalDate(date) {
 	return `${year}-${month}-${day}`;
 }
 
+// Converts cacheInput (minutes) to a TTL in ms, falling back to 10 minutes for invalid values.
+function resolveCacheTtlMs(cacheInput) {
+	const minutes = Number.parseInt(cacheInput, 10);
+	return Number.isSafeInteger(minutes) && minutes > 0 ? minutes * 60 * 1000 : 10 * 60 * 1000;
+}
+
+window.resolveCacheTtlMs = resolveCacheTtlMs;
+
 /**
  * Resolves the project name from the report item.
  * Returns the full repository name (org/repo).
@@ -696,8 +704,7 @@ function allIncluded(outputTarget = 'email') {
 	async function getCacheTTL() {
 		return new Promise((resolve) => {
 			chrome.storage.local.get(['cacheInput'], (result) => {
-				const ttlMinutes = result.cacheInput || 10;
-				resolve(ttlMinutes * 60 * 1000);
+				resolve(resolveCacheTtlMs(result.cacheInput));
 			});
 		});
 	}
