@@ -6,12 +6,12 @@ const SCRUM_SANITIZER_CONFIG = {
 };
 
 function sanitizeHtml(html) {
+	if (typeof html !== 'string') return '';
+
 	if (typeof DOMPurify !== 'undefined') {
 		return DOMPurify.sanitize(html, SCRUM_SANITIZER_CONFIG);
 	}
 	console.warn('[scrum_helper] DOMPurify unavailable, falling back to basic text extraction');
-
-	if (typeof html !== 'string') return '';
 
 	//Step 1: Strip tags so the user doesn't see raw HTML on the screen
 	const stripped = html.replace(/<[^>]*>?/gm, '');
