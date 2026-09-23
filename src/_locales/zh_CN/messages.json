@@ -23,6 +23,12 @@
     "gitlabUsernameLabel": {
         "message": "您的 GitLab 用户名"
     },
+    "codebergUsernameLabel": {
+        "message": "您的 Codeberg 用户名"
+    },
+    "codebergUsernamePlaceholder": {
+        "message": "获取您的贡献所必需"
+    },
     "githubUsernamePlaceholder": {
         "message": "获取您的贡献所必需"
     },
@@ -43,6 +49,9 @@
     },
     "showOpenClosedLabel": {
         "message": "显示“打开/关闭”状态"
+    },
+    "showOpenClosedTooltip": {
+        "message": "选中后，报告将显示 PR 和问题的状态标签（例如：开放、草稿、已合并、已关闭）。"
     },
     "blockersLabel": {
         "message": "什么阻碍了您的进展？"
@@ -71,6 +80,9 @@
     "settingsOrgNamePlaceholder": {
         "message": "输入组织名称"
     },
+    "gitlabOrgNamePlaceholder": {
+        "message": "输入群组名称"
+    },
     "setButton": {
         "message": "设置"
     },
@@ -92,11 +104,32 @@
     "gitlabTokenTooltip": {
         "message": "为什么建议添加 GitLab 令牌？Scrum Helper 对于公开项目无需 GitLab 令牌也能工作，但添加个人访问令牌可以提供更好的体验。"
     },
+    "codebergTokenLabel": {
+        "message": "您的 Codeberg 令牌"
+    },
+    "codebergTokenPlaceholder": {
+        "message": "访问私有项目所必需"
+    },
+    "codebergTokenTooltip": {
+        "message": "为什么建议添加 Codeberg 令牌？Scrum Helper 无需 Codeberg 令牌也能用于公开项目，但建议添加个人访问令牌以获得更好的体验。"
+    },
+    "codebergApiBaseUrlLabel": {
+        "message": "Codeberg API 基础 URL"
+    },
+    "codebergApiBaseUrlPlaceholder": {
+        "message": "https://codeberg.org/api/v1"
+    },
     "showCommitsLabel": {
         "message": "在打开的 PR/草稿 PR 上显示提交"
     },
     "showCommitsTooltip": {
         "message": "需要 Github 令牌，请在设置中添加。"
+    },
+    "showCommitsTooltipGitLab": {
+        "message": "需要 GitLab 令牌，请在设置中添加。"
+    },
+    "showCommitsTooltipCodeberg": {
+        "message": "需要 Codeberg 令牌，请在设置中添加。"
     },
     "onlyIssuesLabel": {
         "message": "报告中仅包含问题"
@@ -143,8 +176,29 @@
     "tokenRequiredWarning": {
         "message": "仓库筛选需要GitHub令牌。请在设置中添加一个。"
     },
+    "tokenRequiredGitlabWarning": {
+        "message": "仓库筛选需要 GitLab 令牌。请在设置中添加一个。"
+    },
     "tokenRequiredShowCommitsWarning": {
         "message": "在打开或草稿 PR 中显示提交需要 GitHub 令牌。请在设置中添加一个。"
+    },
+    "tokenRequiredNextPlansWarning": {
+        "message": "获取分配给您的问题需要 GitHub 令牌。请在设置中添加一个。"
+    },
+    "tokenRequiredNextPlansWarningGitLab": {
+        "message": "获取分配给您的问题需要 GitLab 令牌。请在设置中添加一个。"
+    },
+    "onlyPrsRequiredShowCommitsWarning": {
+        "message": "请选中“在报告中包含开放/草稿 PR”筛选项以显示提交。"
+    },
+    "regenerateNoticeText": {
+        "message": "选项已更改。请重新生成报告以应用更改。"
+    },
+    "tokenRequiredShowCommitsWarningGitLab": {
+        "message": "在开放或草稿 MR 中显示提交需要 GitLab 令牌。请在设置中添加一个。"
+    },
+    "tokenRequiredShowCommitsWarningCodeberg": {
+        "message": "在开放或草稿 PR 中显示提交需要 Codeberg 令牌。请在设置中添加一个。"
     },
     "repoSearchPlaceholder": {
         "message": "搜索要添加的仓库..."
@@ -338,68 +392,14 @@
     "insertedInEmailNotification": {
         "message": "报告已插入邮件！"
     },
+    "reportAlreadyInserted": {
+        "message": "报告已插入！"
+    },
     "rateLimitError": {
         "message": "超出 GitHub API 速率限制。请稍后再试，或在 Scrum Helper 设置中添加/检查您的 GitHub 令牌。"
     },
     "rateLimitWarningMessage": {
         "message": "由于 GitHub 速率限制，部分数据可能缺失。请在设置中添加或检查您的 GitHub 令牌。"
-    },
-    "codebergUsernameLabel": {
-        "message": "您的 Codeberg 用户名"
-    },
-    "codebergUsernamePlaceholder": {
-        "message": "获取您的贡献所必需"
-    },
-    "showOpenClosedTooltip": {
-        "message": "选中后，报告将显示 PR 和问题的状态标签（例如：开放、草稿、已合并、已关闭）。"
-    },
-    "gitlabOrgNamePlaceholder": {
-        "message": "输入群组名称"
-    },
-    "codebergTokenLabel": {
-        "message": "您的 Codeberg 令牌"
-    },
-    "codebergTokenPlaceholder": {
-        "message": "访问私有项目所必需"
-    },
-    "codebergTokenTooltip": {
-        "message": "为什么建议添加 Codeberg 令牌？Scrum Helper 无需 Codeberg 令牌也能用于公开项目，但建议添加个人访问令牌以获得更好的体验。"
-    },
-    "codebergApiBaseUrlLabel": {
-        "message": "Codeberg API 基础 URL"
-    },
-    "codebergApiBaseUrlPlaceholder": {
-        "message": "https://codeberg.org/api/v1"
-    },
-    "showCommitsTooltipGitLab": {
-        "message": "需要 GitLab 令牌，请在设置中添加。"
-    },
-    "showCommitsTooltipCodeberg": {
-        "message": "需要 Codeberg 令牌，请在设置中添加。"
-    },
-    "tokenRequiredGitlabWarning": {
-        "message": "仓库筛选需要 GitLab 令牌。请在设置中添加一个。"
-    },
-    "tokenRequiredNextPlansWarning": {
-        "message": "获取分配给您的问题需要 GitHub 令牌。请在设置中添加一个。"
-    },
-    "tokenRequiredNextPlansWarningGitLab": {
-        "message": "获取分配给您的问题需要 GitLab 令牌。请在设置中添加一个。"
-    },
-    "onlyPrsRequiredShowCommitsWarning": {
-        "message": "请选中“在报告中包含开放/草稿 PR”筛选项以显示提交。"
-    },
-    "regenerateNoticeText": {
-        "message": "选项已更改。请重新生成报告以应用更改。"
-    },
-    "tokenRequiredShowCommitsWarningGitLab": {
-        "message": "在开放或草稿 MR 中显示提交需要 GitLab 令牌。请在设置中添加一个。"
-    },
-    "tokenRequiredShowCommitsWarningCodeberg": {
-        "message": "在开放或草稿 PR 中显示提交需要 Codeberg 令牌。请在设置中添加一个。"
-    },
-    "reportAlreadyInserted": {
-        "message": "报告已插入！"
     },
     "includeBlockersLabel": {
         "message": "在报告中包含阻碍因素"
