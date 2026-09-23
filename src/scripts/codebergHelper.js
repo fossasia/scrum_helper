@@ -209,7 +209,9 @@ class CodebergHelper {
 	async fetchCodebergData(username, startDate, endDate, token = null, showCommits = false) {
 		const cacheKey = `${username}-${startDate}-${endDate}-${token ? 'auth' : 'noauth'}-${showCommits ? 'commits' : 'nocommits'}`;
 
-		if (!this.cache.data) await this.loadFromStorage();
+		// Never reload while a request is in flight: loadFromStorage replaces
+		// cacheKey, which is how the in-flight query is identified below.
+		if (!this.cache.data && !this.cache.fetching) await this.loadFromStorage();
 
 		const now = Date.now();
 		const ttl = await this.getCacheTTL();
@@ -225,7 +227,16 @@ class CodebergHelper {
 		}
 
 		if (this.cache.fetching) {
-			return new Promise((resolve, reject) => this.cache.queue.push({ resolve, reject }));
+			if (isCacheKeyMatch) {
+				// Same query already in flight: share its result.
+				return new Promise((resolve, reject) => this.cache.queue.push({ resolve, reject }));
+			}
+
+			// A different query is in flight. Its result does not answer this
+			// call, so wait for it to settle and then run this one rather than
+			// handing back data for the wrong query.
+			await new Promise((settle) => this.cache.queue.push({ resolve: settle, reject: settle }));
+			return this.fetchCodebergData(username, startDate, endDate, token, showCommits);
 		}
 
 		this.cache.fetching = true;
