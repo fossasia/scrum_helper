@@ -215,7 +215,7 @@ $ npm install
    
 ## Platform Setup and Authentication
 
-Scrum Helper supports **GitHub, GitLab, and Codeberg**. Select your platform from the platform dropdown and provide the required authentication and configuration details.
+ Scrum Helper supports **GitHub, GitLab, and Codeberg**. Select your platform from the platform dropdown. A username is required; authentication tokens and optional filters/API URLs are only needed for private data, higher API limits, or token-gated features.
 
 ### GitHub
 
