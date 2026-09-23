@@ -408,13 +408,13 @@
         "message": "选中后，报告将包含阻碍因素部分。"
     },
     "includeNextPlansLabel": {
-        "message": "将分配给您的开放问题添加到邮件的第二个问题"
+        "message": "将分配给您的未关闭问题加入邮件第 2 题的后续计划"
     },
     "includeNextPlansTooltip": {
-        "message": "选择问题并将其添加到邮件的第二个问题中。需要 GitHub 令牌。"
+        "message": "选择分配给您的未关闭问题，加入邮件第 2 题的后续计划。需要 GitHub 令牌。"
     },
     "includeNextPlansTooltipGitLab": {
-        "message": "选择问题并将其添加到邮件的第二个问题中。需要 GitLab 令牌。"
+        "message": "选择分配给您的未关闭问题，加入邮件第 2 题的后续计划。需要 GitLab 令牌。"
     },
     "fetchingIssuesSpinner": {
         "message": "正在获取分配给您的问题..."
