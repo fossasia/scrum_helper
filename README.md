@@ -1,6 +1,6 @@
 # Scrum Helper
 
-**Scrum Helper** is a Chrome extension that simplifies writing development reports by auto-filling content based on your Git activity. Select your platform, enter your username and authentication details, choose a date range, and select your preferences. The extension automatically fetches your commits, pull requests, issues, and code reviews via the selected platform's API and generates a pre-filled report that you can edit as needed. Scrum Helper currently supports GitHub, GitLab, and Codeberg, allowing developers to generate scrum reports from their activity across multiple Git platforms.
+**Scrum Helper** is a Chrome extension that simplifies writing development reports by auto-filling content based on your Git activity. Select your platform, enter your username and authentication details, choose a date range, and select your preferences. The extension automatically fetches your commits, pull requests, issues, and code reviews via the selected platform's API where supported and generates a pre-filled report that you can edit as needed. Scrum Helper currently supports GitHub, GitLab, and Codeberg, allowing developers to generate scrum reports from their activity across multiple Git platforms; code-review activity is currently unavailable for Codeberg.
 
 ![SCRUMLOGO](docs/images/scrumhelper-png.png)
 
