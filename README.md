@@ -1,10 +1,6 @@
 # Scrum Helper
 
-<<<<<<< HEAD
-**Scrum Helper** is a Chrome extension that simplifies writing development reports by auto-filling content based on your Git activity. Select your platform, enter your username and authentication details, choose a date range, and select your preferences. The extension automatically fetches your commits, pull requests, issues, and code reviews via the selected platform's API where supported and generates a pre-filled report that you can edit as needed. Scrum Helper currently supports GitHub, GitLab, and Codeberg, allowing developers to generate scrum reports from their activity across multiple Git platforms; code-review activity is currently unavailable for Codeberg.
-=======
-**Scrum Helper** is a Chrome extension that simplifies writing development reports by auto-filling content based on your Git activity. Select your platform, enter your username and authentication details, choose a date range, and select your preferences. The extension automatically fetches your commits, pull requests, and issues via the selected platform's API. For platforms that support review activity, it also includes code reviews in the generated report. Scrum Helper currently supports GitHub, GitLab, and Codeberg, allowing developers to generate scrum reports from their activity across multiple Git platforms.
->>>>>>> e602d72 (docs: addressed review feedbacks regarding optionally providing a group filter for gitlab and enhanced **How to install** point 5)
+**Scrum Helper** is a Chrome extension that simplifies writing development reports by auto-filling content based on your Git activity. Select your platform, enter your username, and provide authentication details when needed. Choose a date range and your preferences. The extension automatically fetches your commits, pull requests, and issues via the selected platform's API. For platforms that support review activity, it also includes code reviews in the generated report. Scrum Helper currently supports GitHub, GitLab, and Codeberg, allowing developers to generate scrum reports from their activity across multiple Git platforms.
 
 ![SCRUMLOGO](docs/images/scrumhelper-png.png)
 
@@ -115,7 +111,7 @@
 ### Selecting a Platform
 1. Open the Scrum Helper extension.
 2. **Select your platform from the platform dropdown: GitHub, GitLab, or Codeberg.**
-3. Enter the username and authentication details required for the selected platform.
+3. Enter the username; add authentication details when needed for private data or higher API limits.
 4. **For GitLab, optionally provide a Group filter; leave it empty to include activity across all groups.**
 5. **For Codeberg, optionally configure a custom API base URL.**
 6. Select your desired date range and preferences.
@@ -248,7 +244,7 @@ To use Scrum Helper with GitLab:
 * Enter your **GitLab username**.
 * Enter a **GitLab Personal Access Token**.
 * The token must have the **`read_api` scope**.
-* Enter the **Group filter** to specify the GitLab group whose repositories should be included.
+* Optionally enter a **Group filter** to limit the results to a specific GitLab group.
 
 #### Creating a GitLab Personal Access Token
 
@@ -258,7 +254,7 @@ To use Scrum Helper with GitLab:
 4. Give the token a descriptive name and set an expiration date if required.
 5. Select the **`read_api`** scope.
 6. Create the token and copy it securely.
-7. Enter the token in Scrum Helper and configure the required Group filter.
+7. Enter the token in Scrum Helper and optionally configure the Group filter to limit results to a GitLab group.
 
 > **Keep your token secret.** Never share it or commit it to a public repository.
 
