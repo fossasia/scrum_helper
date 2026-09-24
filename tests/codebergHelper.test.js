@@ -166,7 +166,7 @@ describe('CodebergHelper', () => {
 						number: 102,
 						title: 'Issue that is a PR',
 						state: 'closed',
-						html_url: 'https://codeberg.org/org/repo/pulls/102',
+						url: 'https://codeberg.org/api/v1/repos/org/repo/issues/102',
 						pull_request: { merged: true },
 					},
 				],
@@ -185,6 +185,7 @@ describe('CodebergHelper', () => {
 			expect(report.githubIssuesData.items).toHaveLength(2);
 			expect(report.githubIssuesData.items[0].number).toBe(101);
 			expect(report.githubIssuesData.items[1].pull_request).toEqual({ merged: true });
+			expect(report.githubIssuesData.items[1].html_url).toBe('https://codeberg.org/org/repo/pulls/102');
 
 			expect(report.githubPrsReviewData.items).toHaveLength(1);
 			expect(report.githubPrsReviewData.items[0].number).toBe(201);
@@ -325,13 +326,25 @@ describe('CodebergHelper', () => {
 
 	describe('fetchAllPaginatedWithDateLimit', () => {
 		it('should stop pagination when item update date is before date limit', async () => {
-			const recentItem = { id: 1, updated_at: '2026-09-20T12:00:00Z' };
-			const oldItem = { id: 2, updated_at: '2026-08-01T12:00:00Z' };
+			const page1 = Array.from({ length: 49 }, (_, i) => ({
+				id: i + 1,
+				updated_at: '2026-09-20T12:00:00Z',
+			}));
+			// 50th item is older than the date limit (2026-09-01)
+			page1.push({ id: 50, updated_at: '2026-08-15T12:00:00Z' });
 
-			global.fetch = vi.fn().mockResolvedValueOnce({
-				ok: true,
-				json: async () => [recentItem, oldItem],
-			});
+			const page2 = [{ id: 51, updated_at: '2026-08-01T12:00:00Z' }];
+
+			global.fetch = vi
+				.fn()
+				.mockResolvedValueOnce({
+					ok: true,
+					json: async () => page1,
+				})
+				.mockResolvedValueOnce({
+					ok: true,
+					json: async () => page2,
+				});
 
 			const results = await helper.fetchAllPaginatedWithDateLimit(
 				'https://codeberg.org/api/v1/repos',
@@ -339,8 +352,36 @@ describe('CodebergHelper', () => {
 				'2026-09-01',
 			);
 
-			expect(results).toEqual([recentItem, oldItem]);
+			expect(results).toHaveLength(50);
 			expect(global.fetch).toHaveBeenCalledTimes(1);
+		});
+
+		it('should continue pagination when all items on first page are within date limit', async () => {
+			const page1 = Array.from({ length: 50 }, (_, i) => ({
+				id: i + 1,
+				updated_at: '2026-09-20T12:00:00Z',
+			}));
+			const page2 = [{ id: 51, updated_at: '2026-09-05T12:00:00Z' }];
+
+			global.fetch = vi
+				.fn()
+				.mockResolvedValueOnce({
+					ok: true,
+					json: async () => page1,
+				})
+				.mockResolvedValueOnce({
+					ok: true,
+					json: async () => page2,
+				});
+
+			const results = await helper.fetchAllPaginatedWithDateLimit(
+				'https://codeberg.org/api/v1/repos',
+				{},
+				'2026-09-01',
+			);
+
+			expect(results).toHaveLength(51);
+			expect(global.fetch).toHaveBeenCalledTimes(2);
 		});
 	});
 });
