@@ -60,7 +60,7 @@
     "description": "Placeholder text for the GitHub username input."
   },
   "contributionsLabel": {
-    "message": "Fetch your contributions between:",
+    "message": "Fetch your contributions:",
     "description": "Label for the date range selection."
   },
   "last1DayLabel": {

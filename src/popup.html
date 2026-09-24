@@ -213,33 +213,32 @@
 					</div>
 
 					<div class="mt-3">
-						<p class="font-medium text-sm" data-i18n="contributionsLabel">Fetch your
-							contributions between:</p>
+						<p class="font-medium text-sm" data-i18n="contributionsLabel">Fetch your contributions:</p>
 
 						<div class="timeframe-container mt-1">
 							<div id="customDateContainer" class="flex gap-2">
 								<div>
-									<label for="startingDate" class="flex items-center font-medium text-xs"
+									<label for="startingDate" class="flex items-center font-medium text-xs mb-0.5"
 										data-i18n="startDateLabel">From:</label>
 									<input type="date" id="startingDate"
-										class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1 w-24">
+										class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1 text-xs w-[94px]">
 								</div>
 								<div>
-									<label for="endingDate" class="flex items-center font-medium text-xs"
+									<label for="endingDate" class="flex items-center font-medium text-xs mb-0.5"
 										data-i18n="endDateLabel">To:</label>
 									<input type="date" id="endingDate"
-										class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1 w-24">
+										class="border-2 border-gray-200 bg-gray-200 rounded-xl p-1 text-xs w-[94px]">
 								</div>
 							</div>
 							<div class="timeframe-presets">
-								<div class="flex items-center gap-2">
-									<input type="radio" id="yesterdayContribution" name="timeframe" class="form-radio">
-									<label for="yesterdayContribution" class="font-medium text-xs"
+								<div class="flex items-center gap-[2px]">
+									<input type="radio" id="yesterdayContribution" name="timeframe" class="form-radio m-0">
+									<label for="yesterdayContribution" class="font-medium text-xs whitespace-nowrap cursor-pointer"
 										data-i18n="last1DayLabel">Previous day</label>
 								</div>
-								<div class="flex items-center gap-2">
-									<input type="radio" id="weeklyContribution" name="timeframe" class="form-radio">
-									<label for="weeklyContribution" class="font-medium text-xs"
+								<div class="flex items-center gap-[2px]">
+									<input type="radio" id="weeklyContribution" name="timeframe" class="form-radio m-0">
+									<label for="weeklyContribution" class="font-medium text-xs whitespace-nowrap cursor-pointer"
 										data-i18n="lastWeekLabel">Previous week</label>
 								</div>
 							</div>
