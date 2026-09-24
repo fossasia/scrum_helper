@@ -1282,9 +1282,10 @@ body.mode-popup {
 
 .timeframe-presets {
     display: flex;
-    flex-direction: column;
-    gap: 4px;
-    justify-content: center;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 4px;
     flex-shrink: 0;
 }
 
@@ -1300,10 +1301,7 @@ body.mode-popup {
 
 @media (min-width: 480px) {
     .timeframe-presets {
-        flex-direction: row;
         gap: 12px;
-        align-items: center;
-        margin-bottom: 4px;
     }
 }
 
