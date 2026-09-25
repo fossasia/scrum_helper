@@ -1752,6 +1752,14 @@ document.addEventListener('DOMContentLoaded', () => {
 		endingDateInput.addEventListener('blur', () => {
 			window.scrumDateRangeUtils.normalizeSyncAndPersistDateRange(startingDateInput, endingDateInput);
 		});
+		// WebKitGTK (Tauri on Linux) keeps the native date popover open until
+		// the input blurs; dismiss it when a date is selected (issue #877).
+		startingDateInput.addEventListener('change', () => {
+			window.scrumDateRangeUtils.commitNativeDatePickerChange(startingDateInput, startingDateInput, endingDateInput);
+		});
+		endingDateInput.addEventListener('change', () => {
+			window.scrumDateRangeUtils.commitNativeDatePickerChange(endingDateInput, startingDateInput, endingDateInput);
+		});
 
 		// Save username to storage on input and update button state
 		if (githubUsernameInput) {
