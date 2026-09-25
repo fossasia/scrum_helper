@@ -146,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		// Show Tauri-only SMTP features
 		const mailSettingsToggle = document.getElementById('mailSettingsToggle');
 		if (mailSettingsToggle) {
-			mailSettingsToggle.style.display = 'inline-block';
+			mailSettingsToggle.style.display = 'flex';
 		}
 		const sendReportEmailContainer = document.getElementById('sendReportEmailContainer');
 		if (sendReportEmailContainer) {
@@ -299,7 +299,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	function applyTheme(isDark) {
 		body.classList.toggle('dark-mode', isDark);
-		if (settingsIcon) {
+		if (settingsIcon && settingsIcon.tagName === 'IMG') {
 			settingsIcon.src = isDark ? 'icons/settings-night.png' : 'icons/settings-light.png';
 		}
 		if (typeof renderTokenPreview === 'function') {
