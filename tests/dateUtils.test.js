@@ -1,6 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { formatLocalDate } from '../src/scripts/dateUtils.js';
+import '../src/scripts/dateUtils.js';
 import '../src/scripts/main.js';
+
+const { formatLocalDate } = window;
 
 describe('formatLocalDate', () => {
 	it('should format dates with single-digit months and days with leading zeros', () => {
