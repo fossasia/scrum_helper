@@ -6,6 +6,7 @@ on:
       - main
   pull_request:
     types: [opened, reopened, synchronize]
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -28,7 +29,7 @@ jobs:
         uses: release-drafter/release-drafter@v6
         with:
           config-name: release-drafter.yml
-          publish: false
+          publish: ${{ github.event_name == 'workflow_dispatch' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
