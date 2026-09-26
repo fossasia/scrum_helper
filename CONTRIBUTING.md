@@ -59,7 +59,7 @@ This document provides guidelines for contributing to the project. Please feel f
     -   **GitHub (Classic):**
         -   **Go to Developer Settings:** Visit [https://github.com/settings/tokens](https://github.com/settings/tokens).
         -   **Choose Token Type:** Select "Personal access tokens (classic)".
-        -   **Generate a New Token:** Click "Generate new token (classic)" and give it a descriptive name (e.g., "Scrum Helper Dev").
+        -   **Generate a New Token:** Click "Generate new token (classic)", give it a descriptive name (e.g., "Scrum Helper Dev"), and select the `repo` scope for private-repository access; narrower scopes are sufficient for public-only use.
         -   **Create and Copy the Token:** Click "Generate token" and copy the token.
         -   **Paste the Token in Scrum Helper:** Open the extension popup, go to settings, and paste your token into the "GitHub Token" field.
 
