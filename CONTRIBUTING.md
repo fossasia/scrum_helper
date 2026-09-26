@@ -52,15 +52,28 @@ This document provides guidelines for contributing to the project. Please feel f
     -   Enable "Developer Mode" (toggle in the top-right).
     -   Click "Load unpacked" and select the `dist/opera` folder inside the cloned repository.
 
-5.  **Get a GitHub Personal Access Token (Recommended)**
+5.  **Get a Personal Access Token (Recommended)**
 
-    To use Scrum Helper with authenticated requests (for higher rate limits and private repositories), you need a GitHub personal access token (classic).
+    To use Scrum Helper with authenticated requests (for higher rate limits and private repositories), you can configure a personal access token for your git provider:
 
-    -   **Go to GitHub Developer Settings:** Visit [https://github.com/settings/tokens](https://github.com/settings/tokens).
-    -   **Choose Token Type:** Select "Personal access tokens (classic)".
-    -   **Generate a New Token:** Give it a descriptive name (e.g., "Scrum Helper Dev").
-    -   **Create and Copy the Token:** Click "Generate token" and copy the token.
-    -   **Paste the Token in Scrum Helper:** Open the extension popup, go to settings, and paste your token into the "GitHub Token" field.
+    -   **GitHub (Classic):**
+        -   **Go to Developer Settings:** Visit [https://github.com/settings/tokens](https://github.com/settings/tokens).
+        -   **Choose Token Type:** Select "Personal access tokens (classic)".
+        -   **Generate a New Token:** Click "Generate new token (classic)" and give it a descriptive name (e.g., "Scrum Helper Dev").
+        -   **Create and Copy the Token:** Click "Generate token" and copy the token.
+        -   **Paste the Token in Scrum Helper:** Open the extension popup, go to settings, and paste your token into the "GitHub Token" field.
+
+    -   **GitLab:**
+        -   **Go to Access Tokens:** Visit [https://gitlab.com/-/profile/personal_access_tokens](https://gitlab.com/-/profile/personal_access_tokens) (or your self-hosted instance's access token page).
+        -   **Generate a New Token:** Click "Add new token", provide a token name (e.g., "Scrum Helper Dev"), and select the `read_api` scope.
+        -   **Create and Copy the Token:** Click "Create personal access token" and copy the token.
+        -   **Paste the Token in Scrum Helper:** Open the extension popup, go to settings, switch to GitLab, and paste your token into the "GitLab Token" field.
+
+    -   **Codeberg (Forgejo / Gitea):**
+        -   **Go to Applications Settings:** Visit [https://codeberg.org/user/settings/applications](https://codeberg.org/user/settings/applications) (or your self-hosted instance settings).
+        -   **Generate a New Token:** Under "Manage Access Tokens", give it a name (e.g., "Scrum Helper Dev") and select required read permissions (`read:repository`, `read:user`, `read:issue`).
+        -   **Create and Copy the Token:** Click "Generate Token" and copy the token.
+        -   **Paste the Token in Scrum Helper:** Open the extension popup, go to settings, switch to Codeberg, and paste your token into the "Codeberg Token" field (and verify the "Codeberg API Base URL", defaulting to `https://codeberg.org/api/v1`).
 
 6.  **Develop the Tauri Desktop App (Optional)**
 
