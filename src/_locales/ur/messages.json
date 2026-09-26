@@ -1,0 +1,542 @@
+{
+  "appName": {
+    "message": "Scrum Helper"
+  },
+  "appDescription": {
+    "message": "منتخب کردہ مدت کے لیے اپنی گٹ سرگرمی خود بخود حاصل کرکے پیشرفت کی رپورٹ تیار کریں۔"
+  },
+  "disableLabel": {
+    "message": "غیر فعال کریں"
+  },
+  "enableLabel": {
+    "message": "فعال کریں"
+  },
+  "projectNameLabel": {
+    "message": "پراجیکٹ کا نام (ای میل مضمون میں استعمال ہوتا ہے)"
+  },
+  "projectNamePlaceholder": {
+    "message": "اپنے پراجیکٹ کا نام درج کریں"
+  },
+  "githubUsernameLabel": {
+    "message": "آپ کا گٹ ہب صارف نام"
+  },
+  "gitlabUsernameLabel": {
+    "message": "آپ کا گٹ لیب صارف نام"
+  },
+  "codebergUsernameLabel": {
+    "message": "آپ کا کوڈ برگ صارف نام"
+  },
+  "codebergUsernamePlaceholder": {
+    "message": "آپ کی شراکتیں حاصل کرنے کے لیے ضروری ہے"
+  },
+  "githubUsernamePlaceholder": {
+    "message": "آپ کی شراکتیں حاصل کرنے کے لیے ضروری ہے"
+  },
+  "contributionsLabel": {
+    "message": "اس مدت کے دوران اپنی شراکتیں حاصل کریں:"
+  },
+  "last1DayLabel": {
+    "message": "گزشتہ ۱ دن"
+  },
+  "lastWeekLabel": {
+    "message": "گزشتہ ۱ ہفتہ"
+  },
+  "startDateLabel": {
+    "message": "از تاریخ:"
+  },
+  "endDateLabel": {
+    "message": "تا تاریخ:"
+  },
+  "showOpenClosedLabel": {
+    "message": "پل ریکویسٹس کی صورتحال دکھائیں"
+  },
+  "showOpenClosedTooltip": {
+    "message": "اگر نشان زد کیا جائے تو رپورٹ پل ریکویسٹس اور مسائل کا اسٹیٹس دکھائے گی (مثلاً کھلی، ڈرافٹ، ضم شدہ، بند شدہ)۔"
+  },
+  "blockersLabel": {
+    "message": "پیشرفت میں کیا چیز آپ کے لیے رکاوٹ ہے؟"
+  },
+  "blockersPlaceholder": {
+    "message": "اپنی رکاوٹ کی وجہ درج کریں"
+  },
+  "scrumReportLabel": {
+    "message": "سکرم رپورٹ"
+  },
+  "generateReportButton": {
+    "message": "رپورٹ تیار کریں"
+  },
+  "copyReportButton": {
+    "message": "کاپی کریں"
+  },
+  "insertInEmailButton": {
+    "message": "ای میل میں درج کریں"
+  },
+  "insertToEmailFailedError": {
+    "message": "رپورٹ شامل کرنے کے لیے ای میل ٹیب کھولیں (یا موجودہ ای میل صفحہ ریفریش کریں)"
+  },
+  "settingsOrgNameLabel": {
+    "message": "آرگنائزیشن کا نام"
+  },
+  "settingsOrgNamePlaceholder": {
+    "message": "آرگنائزیشن کا نام درج کریں"
+  },
+  "gitlabOrgNamePlaceholder": {
+    "message": "گروپ کا نام درج کریں"
+  },
+  "setButton": {
+    "message": "سیٹ کریں"
+  },
+  "githubTokenLabel": {
+    "message": "آپ کا گٹ ہب ٹوکن"
+  },
+  "githubTokenPlaceholder": {
+    "message": "تصدیق شدہ درخواستوں کے لیے ضروری ہے"
+  },
+  "githubTokenTooltip": {
+    "message": "گٹ ہب ٹوکن شامل کرنا کیوں ضروری ہے؟ سکرم ہیلپر ٹوکن کے بغیر بھی کام کرتا ہے، لیکن بہترین کارکردگی کے لیے پرسنل ایکسیس ٹوکن شامل کرنے کی سفارش کی جاتی ہے۔"
+  },
+  "gitlabTokenLabel": {
+    "message": "آپ کا گٹ لیب ٹوکن"
+  },
+  "gitlabTokenPlaceholder": {
+    "message": "پرائیویٹ پراجیکٹس تک رسائی کے لیے ضروری ہے"
+  },
+  "gitlabTokenTooltip": {
+    "message": "گٹ لیب ٹوکن کیوں ضروری ہے؟ پبلک پراجیکٹس کے لیے ٹوکن کی ضرورت نہیں، لیکن بہترین تجربے کے لیے پرسنل ایکسیس ٹوکن شامل کریں۔"
+  },
+  "codebergTokenLabel": {
+    "message": "آپ کا کوڈ برگ ٹوکن"
+  },
+  "codebergTokenPlaceholder": {
+    "message": "پرائیویٹ پراجیکٹس تک رسائی کے لیے ضروری ہے"
+  },
+  "codebergTokenTooltip": {
+    "message": "کوڈ برگ ٹوکن کیوں ضروری ہے؟ پبلک پراجیکٹس کے لیے ٹوکن کی ضرورت نہیں، لیکن بہترین تجربے کے لیے پرسنل ایکسیس ٹوکن شامل کریں۔"
+  },
+  "codebergApiBaseUrlLabel": {
+    "message": "کوڈ برگ اے پی آئی بیس یو آر ایل"
+  },
+  "codebergApiBaseUrlPlaceholder": {
+    "message": "https://codeberg.org/api/v1"
+  },
+  "showCommitsLabel": {
+    "message": "کھلی اور ڈرافٹ پل ریکویسٹس پر کمٹس دکھائیں"
+  },
+  "showCommitsTooltip": {
+    "message": "اگر نشان زد ہو، تو رپورٹ کھلی یا ڈرافٹ پل ریکویسٹس پر تمام کمٹس دکھائے گی۔ اس کے لیے گٹ ہب ٹوکن ضروری ہے۔"
+  },
+  "showCommitsTooltipGitLab": {
+    "message": "گٹ لیب ٹوکن ضروری ہے، اسے ترتیبات میں شامل کریں۔"
+  },
+  "showCommitsTooltipCodeberg": {
+    "message": "کوڈ برگ ٹوکن ضروری ہے، اسے ترتیبات میں شامل کریں۔"
+  },
+  "onlyIssuesLabel": {
+    "message": "رپورٹ میں مسائل شامل کریں"
+  },
+  "onlyIssuesTooltip": {
+    "message": "اگر نشان زد ہو، تو رپورٹ میں آپ کے تیار کردہ یا تفویض کردہ مسائل شامل ہوں گے۔"
+  },
+  "onlyPRsLabel": {
+    "message": "رپورٹ میں پل ریکویسٹس شامل کریں"
+  },
+  "onlyPRsTooltip": {
+    "message": "رپورٹ میں کھلی اور ڈرافٹ پل ریکویسٹس شامل کریں"
+  },
+  "cacheTTLLabel": {
+    "message": "کیش کی مدت درج کریں"
+  },
+  "cacheTTLUnit": {
+    "message": "(منٹوں میں)"
+  },
+  "cacheTTLPlaceholder": {
+    "message": "کیش کی مدت منٹوں میں لکھیں (پہلے سے طے شدہ: ۱۰ منٹ)"
+  },
+  "refreshDataButton": {
+    "message": "ڈیٹا تازہ کریں (کیش کو نظر انداز کریں)"
+  },
+  "refreshDataInfo": {
+    "message": "فوری طور پر تازہ ترین ڈیٹا حاصل کرنے کے لیے اس بٹن کو دبائیں۔"
+  },
+  "noteTitle": {
+    "message": "اہم نوٹ:"
+  },
+  "viewCodeButton": {
+    "message": "کوڈ دیکھیں"
+  },
+  "reportIssueButton": {
+    "message": "مسئلہ رپورٹ کریں"
+  },
+  "repoFilterLabel": {
+    "message": "ریپوزٹریز کے ذریعے فلٹر کریں"
+  },
+  "enableFilteringLabel": {
+    "message": "فلٹرنگ فعال کریں"
+  },
+  "tokenRequiredWarning": {
+    "message": "ریپوزٹری فلٹرنگ کے لیے گٹ ہب ٹوکن ضروری ہے۔ براہ کرم ترتیبات میں ٹوکن شامل کریں۔"
+  },
+  "tokenRequiredGitlabWarning": {
+    "message": "ریپوزٹری فلٹرنگ کے لیے گٹ لیب ٹوکن ضروری ہے۔ براہ کرم ترتیبات میں ٹوکن شامل کریں۔"
+  },
+  "tokenRequiredShowCommitsWarning": {
+    "message": "کھلی یا ڈرافٹ پل ریکویسٹس پر کمٹس دکھانے کے لیے گٹ ہب ٹوکن ضروری ہے۔ ترتیبات میں ٹوکن شامل کریں۔"
+  },
+  "tokenRequiredNextPlansWarning": {
+    "message": "تفویض کردہ مسائل حاصل کرنے کے لیے گٹ ہب ٹوکن ضروری ہے۔ ترتیبات میں ٹوکن شامل کریں۔"
+  },
+  "tokenRequiredNextPlansWarningGitLab": {
+    "message": "تفویض کردہ مسائل حاصل کرنے کے لیے گٹ لیب ٹوکن ضروری ہے۔ ترتیبات میں ٹوکن شامل کریں۔"
+  },
+  "onlyPrsRequiredShowCommitsWarning": {
+    "message": "کمٹس دکھانے کے لیے براہ کرم 'رپورٹ میں پل ریکویسٹس شامل کریں' والے آپشن کو چیک کریں۔"
+  },
+  "regenerateNoticeText": {
+    "message": "آپشن تبدیل ہو گیا ہے۔ نئی رپورٹ تیار کرنے کے لیے دوبارہ 'رپورٹ تیار کریں' بٹن دبائیں۔"
+  },
+  "tokenRequiredShowCommitsWarningGitLab": {
+    "message": "کھلی یا ڈرافٹ مرج ریکویسٹس پر کمٹس دکھانے کے لیے گٹ لیب ٹوکن ضروری ہے۔ ترتیبات میں ٹوکن شامل کریں۔"
+  },
+  "tokenRequiredShowCommitsWarningCodeberg": {
+    "message": "کھلی یا ڈرافٹ پل ریکویسٹس پر کمٹس دکھانے کے لیے کوڈ برگ ٹوکن ضروری ہے۔ ترتیبات میں ٹوکن شامل کریں۔"
+  },
+  "repoSearchPlaceholder": {
+    "message": "شامل کرنے کے لیے ریپوزٹری تلاش کریں..."
+  },
+  "repoPlaceholder": {
+    "message": "کوئی ریپوزٹری منتخب نہیں (تمام ریپوزٹریز شامل ہوں گی)"
+  },
+  "repoCountNone": {
+    "message": "۰ ریپوزٹریز منتخب کی گئیں"
+  },
+  "repoCount": {
+    "message": "$1 ریپوزٹریز منتخب کی گئیں"
+  },
+  "clearAllBtn": {
+    "message": "تمام صاف کریں"
+  },
+  "repoLoading": {
+    "message": "ریپوزٹریز لوڈ ہو رہی ہیں..."
+  },
+  "repoLoaded": {
+    "message": "$1 ریپوزٹریز کامیابی سے لوڈ ہو گئیں۔"
+  },
+  "repoNotFound": {
+    "message": "کوئی ریپوزٹری نہیں ملی"
+  },
+  "repoRefetching": {
+    "message": "ریپوزٹریز دوبارہ حاصل کی جا رہی ہیں..."
+  },
+  "repoLoadFailed": {
+    "message": "ریپوزٹریز لوڈ کرنے میں ناکامی ہوئی۔"
+  },
+  "repoTokenPrivate": {
+    "message": "ٹوکن غیر معتبر ہے یا پرائیویٹ ریپوزٹریز کے لیے اجازت موجود نہیں۔"
+  },
+  "repoRefetchFailed": {
+    "message": "ریپوزٹریز دوبارہ حاصل کرنے میں ناکامی ہوئی۔"
+  },
+  "orgSetMessage": {
+    "message": "آرگنائزیشن کامیابی سے سیٹ ہو گئی۔"
+  },
+  "orgClearedMessage": {
+    "message": "آرگنائزیشن کا نام صاف کر دیا گیا۔ تمام سرگرمیاں حاصل کرنے کے لیے 'رپورٹ تیار کریں' دبائیں۔"
+  },
+  "orgNotFoundMessage": {
+    "message": "گٹ ہب پر یہ آرگنائزیشن نہیں ملی۔"
+  },
+  "orgValidationErrorMessage": {
+    "message": "آرگنائزیشن کی تصدیق میں خرابی پیش آئی۔"
+  },
+  "refreshingButton": {
+    "message": "تازہ ہو رہا ہے..."
+  },
+  "cacheClearFailed": {
+    "message": "کیش صاف کرنے میں ناکامی ہوئی۔"
+  },
+  "madeWithLoveBy": {
+    "message": "Made with ❤️ by"
+  },
+  "generatingButton": {
+    "message": "رپورٹ تیار کی جا رہی ہے..."
+  },
+  "copiedButton": {
+    "message": "کاپی ہو گیا!"
+  },
+  "orgChangedMessage": {
+    "message": "آرگنائزیشن تبدیل ہو گئی۔ نیا ڈیٹا حاصل کرنے کے لیے 'رپورٹ تیار کریں' دبائیں۔"
+  },
+  "cacheClearedMessage": {
+    "message": "کیش کامیابی سے صاف ہو گیا۔ نیا ڈیٹا حاصل کرنے کے لیے \"رپورٹ تیار کریں\" پر کلک کریں۔"
+  },
+  "cacheExpiredMessage": {
+    "message": "کیش کی مدت ختم ہو گئی۔ نیا ڈیٹا حاصل کرنے کے لیے \"رپورٹ تیار کریں\" پر کلک کریں۔"
+  },
+  "cacheClearedButton": {
+    "message": "کیش صاف ہو گیا!"
+  },
+  "extensionDisabledMessage": {
+    "message": "ایکسٹینشن غیر فعال ہے۔ سکرم رپورٹس تیار کرنے کے لیے اسے اپشنز سے فعال کریں۔"
+  },
+  "notePoint1": {
+    "message": "پل ریکویسٹس کسی بھی ممبر کی حالیہ جائزہ سرگرمی کی بنیاد پر حاصل کی جاتی ہیں۔ براہ کرم شیئر کرنے سے پہلے اپنی سکرم رپورٹ کی درستگی کی تصدیق کر لیں۔"
+  },
+  "noteSeeIssue": {
+    "message": "یہ مسئلہ دیکھیں"
+  },
+  "platformLabel": {
+    "message": "پلیٹ فارم"
+  },
+  "usernameLabel": {
+    "message": "آپ کا صارف نام"
+  },
+  "onlyRevPRsLabel": {
+    "message": "رپورٹ میں جائزہ شدہ پل ریکویسٹس شامل کریں"
+  },
+  "onlyRevPRsTooltip": {
+    "message": "اگر نشان زد ہو، تو رپورٹ میں آپ کی جائزہ شدہ پل ریکویسٹس شامل ہوں گی۔ اس کے لیے گٹ ہب ٹوکن ضروری ہے۔"
+  },
+  "onlyMergedPRsLabel": {
+    "message": "رپورٹ میں ضم شدہ پل ریکویسٹس شامل کریں"
+  },
+  "onlyMergedPRsTooltip": {
+    "message": "اگر نشان زد ہو، تو رپورٹ میں ضم شدہ پل ریکویسٹس شامل ہوں گی۔"
+  },
+  "tokenRequiredMergedPRsWarning": {
+    "message": "ضم شدہ پل ریکویسٹس کا درست ڈیٹا حاصل کرنے کے لیے گٹ ہب ٹوکن کی سفارش کی جاتی ہے۔"
+  },
+  "usernameRequiredError": {
+    "message": "رپورٹ تیار کرنے کے لیے براہ کرم اپنا صارف نام درج کریں۔"
+  },
+  "unknownPlatformError": {
+    "message": "غیر معروف پلیٹ فارم منتخب کیا گیا۔"
+  },
+  "gitlabFetchingError": {
+    "message": "گٹ لیب ڈیٹا حاصل کرتے وقت خرابی پیش آئی۔"
+  },
+  "reportGenerationError": {
+    "message": "رپورٹ تیار کرتے وقت خرابی پیش آئی۔"
+  },
+  "githubUserNotFoundError": {
+    "message": "گٹ ہب صارف \"$1\" نہیں ملا۔"
+  },
+  "githubUserValidationError": {
+    "message": "گٹ ہب صارف کی تصدیق میں خرابی: $1 $2"
+  },
+  "invalidSearchQueryError": {
+    "message": "تلاش کی درخواست یا تاریخ کی حد درست نہیں ہے۔ براہ کرم تاریخ کا فارمیٹ چیک کرکے دوبارہ کوشش کریں۔"
+  },
+  "githubIssuesFetchError": {
+    "message": "گٹ ہب مسائل حاصل کرنے میں خرابی: $1 $2"
+  },
+  "githubPRReviewFetchError": {
+    "message": "گٹ ہب پل ریکویسٹ جائزے کا ڈیٹا حاصل کرنے میں خرابی: $1 $2"
+  },
+  "githubUserFetchError": {
+    "message": "گٹ ہب صارف کا ڈیٹا حاصل کرنے میں خرابی: $1 $2"
+  },
+  "invalidTokenError": {
+    "message": "غیر معتبر یا ختم شدہ گٹ ہب ٹوکن۔ براہ کرم ترتیبات میں اپنا ٹوکن چیک کریں۔"
+  },
+  "displayModeNotice": {
+    "message": "ایکسٹینشن اگلی بار کھلنے پر $1 موڈ میں کھلے گی۔"
+  },
+  "repoFilteringGithubOnly": {
+    "message": "ریپوزٹری فلٹرنگ صرف گٹ ہب کے لیے دستیاب ہے۔"
+  },
+  "repoLoadingGithubOnly": {
+    "message": "ریپوزٹری لوڈنگ صرف گٹ ہب کے لیے دستیاب ہے۔"
+  },
+  "repoFetchingGithubOnly": {
+    "message": "ریپوزٹری حاصل کرنا صرف گٹ ہب کے لیے دستیاب ہے۔"
+  },
+  "loadingReposAutomatically": {
+    "message": "ریپوزٹریز خود بخود لوڈ ہو رہی ہیں..."
+  },
+  "gitlabUserFetchError": {
+    "message": "گٹ لیب صارف حاصل کرنے میں خرابی: $1 $2"
+  },
+  "gitlabUserNotFoundError": {
+    "message": "گٹ لیب صارف '$1' نہیں ملا۔"
+  },
+  "gitlabMembershipError": {
+    "message": "گٹ لیب ممبرشپ پراجیکٹس حاصل کرنے میں خرابی: $1 $2"
+  },
+  "gitlabContributedError": {
+    "message": "گٹ لیب پراجیکٹس کی تفصیلات حاصل کرنے میں خرابی: $1 $2"
+  },
+  "usernameMissingError": {
+    "message": "صارف نام درج کرنا ضروری ہے۔"
+  },
+  "generateReportTooltip": {
+    "message": "Ctrl+G"
+  },
+  "copyReportTooltip": {
+    "message": "Ctrl+Shift+Y"
+  },
+  "generatingReportNotification": {
+    "message": "رپورٹ تیار کی جا رہی ہے..."
+  },
+  "copyingReportNotification": {
+    "message": "رپورٹ کاپی کی جا رہی ہے..."
+  },
+  "copiedReportNotification": {
+    "message": "رپورٹ کاپی ہو گئی!"
+  },
+  "insertInEmailTooltip": {
+    "message": "Ctrl+Shift+M"
+  },
+  "insertingInEmailNotification": {
+    "message": "رپورٹ ای میل میں درج کی جا رہی ہے..."
+  },
+  "insertedInEmailNotification": {
+    "message": "رپورٹ ای میل میں درج ہو گئی!"
+  },
+  "reportAlreadyInserted": {
+    "message": "رپورٹ پہلے ہی ای میل میں درج کی جا چکی ہے!"
+  },
+  "rateLimitError": {
+    "message": "گٹ ہب اے پی آئی کی درخواستوں کی حد ختم ہو گئی ہے۔ براہ کرم کچھ دیر بعد کوشش کریں یا ترتیبات میں اپنا گٹ ہب ٹوکن شامل کریں۔"
+  },
+  "rateLimitWarningMessage": {
+    "message": "گٹ ہب کی حد کی وجہ سے کچھ ڈیٹا غائب ہو سکتا ہے۔ براہ کرم ترتیبات میں اپنا ٹوکن چیک کریں۔"
+  },
+  "includeBlockersLabel": {
+    "message": "رپورٹ میں رکاوٹیں شامل کریں"
+  },
+  "includeBlockersTooltip": {
+    "message": "اگر نشان زد ہو، تو رپورٹ میں رکاوٹوں کا سیکشن بھی شامل ہو گا۔"
+  },
+  "includeNextPlansLabel": {
+    "message": "ای میل کے دوسرے سوال میں تفویض کردہ کھلے مسائل شامل کریں"
+  },
+  "includeNextPlansTooltip": {
+    "message": "انھیں منتخب کرکے دوسرے سوال میں شامل کریں۔ اس کے لیے گٹ ہب ٹوکن ضروری ہے۔"
+  },
+  "includeNextPlansTooltipGitLab": {
+    "message": "انھیں منتخب کرکے دوسرے سوال میں شامل کریں۔ اس کے لیے گٹ لیب ٹوکن ضروری ہے۔"
+  },
+  "fetchingIssuesSpinner": {
+    "message": "آپ کے تفویض کردہ مسائل حاصل کیے جا رہے ہیں..."
+  },
+  "noIssuesFound": {
+    "message": "کوئی تفویض کردہ کھلے مسائل نہیں ملے۔"
+  },
+  "githubTokenRequiredNextPlans": {
+    "message": "تفویض کردہ مسائل حاصل کرنے کے لیے گٹ ہب ٹوکن ضروری ہے۔ ترتیبات میں ٹوکن شامل کریں۔"
+  },
+  "gitlabTokenRequiredNextPlans": {
+    "message": "تفویض کردہ مسائل حاصل کرنے کے لیے گٹ لیب ٹوکن ضروری ہے۔ ترتیبات میں ٹوکن شامل کریں۔"
+  },
+  "failedToFetchIssues": {
+    "message": "تفویض کردہ مسائل حاصل کرنے میں ناکامی ہوئی۔"
+  },
+  "repoFilterTooltip": {
+    "message": "گٹ ہب ٹوکن ضروری ہے۔<br>ریپوزٹری لسٹ اپ ڈیٹ کرنے کے لیے<br>'ڈیٹا تازہ کریں' بٹن کلک کریں۔"
+  },
+  "repoFilterTooltipGitLab": {
+    "message": "گٹ لیب ٹوکن ضروری ہے۔<br>ریپوزٹری لسٹ اپ ڈیٹ کرنے کے لیے<br>'ڈیٹا تازہ کریں' بٹن کلک کریں۔"
+  },
+  "smtpSenderEmailLabel": {
+    "message": "ارسال کنندہ کا ای میل ایڈریس"
+  },
+  "smtpSenderEmailPlaceholder": {
+    "message": "sender@example.com"
+  },
+  "smtpHostLabel": {
+    "message": "ایس ایم ٹی پی ہوسٹ"
+  },
+  "smtpHostPlaceholder": {
+    "message": "smtp.example.com"
+  },
+  "smtpPortLabel": {
+    "message": "ایس ایم ٹی پی پورٹ"
+  },
+  "smtpPortPlaceholder": {
+    "message": "587"
+  },
+  "smtpUsernameLabel": {
+    "message": "ایس ایم ٹی پی صارف نام"
+  },
+  "smtpUsernamePlaceholder": {
+    "message": "username@example.com"
+  },
+  "smtpPasswordLabel": {
+    "message": "ایس ایم ٹی پی پاس ورڈ"
+  },
+  "smtpPasswordPlaceholder": {
+    "message": "اپنا ایس ایم ٹی پی پاس ورڈ درج کریں"
+  },
+  "smtpRecipientsLabel": {
+    "message": "موصول کنندگان"
+  },
+  "smtpRecipientsPlaceholder": {
+    "message": "recipient1@example.com, recipient2@example.com"
+  },
+  "smtpGmailHint": {
+    "message": "جی میل کے لیے اپنا عام پاس ورڈ نہیں بلکہ ایپ پاس ورڈ استعمال کریں۔"
+  },
+  "smtpSecurityWarning": {
+    "message": "نوٹ: آپ کا پاس ورڈ لوکل اسٹوریج میں محفوظ ہوتا ہے۔ اپنے آلے کی سیکیورٹی کا خیال رکھیں۔"
+  },
+  "smtpMissingFieldsError": {
+    "message": "براہ کرم پہلے تمام میل سیٹنگز مکمل ترتیب دیں۔"
+  },
+  "smtpInvalidEmailError": {
+    "message": "غیر معتبر ای میل ایڈریس: $1"
+  },
+  "smtpSendSuccess": {
+    "message": "رپورٹ ای میل کے ذریعے کامیابی سے بھیج دی گئی!"
+  },
+  "smtpPartialSuccess": {
+    "message": "$1/$2 کو بھیج دیا گیا؛ ناکام: $3"
+  },
+  "smtpSendFailed": {
+    "message": "ای میل بھیجنے میں ناکامی ہوئی: "
+  },
+  "smtpSendError": {
+    "message": "ایک خرابی پیش آئی: "
+  },
+  "sendingButton": {
+    "message": "ای میل بھیجی جا رہی ہے..."
+  },
+  "sendEmailButton": {
+    "message": "ای میل بھیجیں"
+  },
+  "mailSettingsTitle": {
+    "message": "میل کی ترتیبات"
+  },
+  "sentButton": {
+    "message": "بھیج دیا گیا"
+  },
+  "homeTitle": {
+    "message": "ہوم"
+  },
+  "settingsTitle": {
+    "message": "ترتیبات"
+  },
+  "smtpSenderEmailTooltip": {
+    "message": "وہ ای میل ایڈریس جس کے ذریعے رپورٹ بھیجی جائے گی۔"
+  },
+  "smtpHostTooltip": {
+    "message": "آپ کے ایس ایم ٹی پی سرور کا پتہ (مثلاً smtp.gmail.com)۔"
+  },
+  "smtpPortTooltip": {
+    "message": "ایس ایم ٹی پی سرور کی پورٹ (عام طور پر 465 یا 587)۔"
+  },
+  "smtpUsernameTooltip": {
+    "message": "ایس ایم ٹی پی سرور کے لیے لاگ ان صارف نام۔"
+  },
+  "smtpPasswordTooltip": {
+    "message": "ایس ایم ٹی پی سرور کے لیے لاگ ان پاس ورڈ۔"
+  },
+  "smtpRecipientsTooltip": {
+    "message": "موصول کنندگان کے ای میل ایڈریس (کاما سے الگ کریں)۔"
+  },
+  "smtpPresetsLabel": {
+    "message": "فوری ترتیبات"
+  },
+  "smtpPresetsTooltip": {
+    "message": "مشہور ای میل سروسز کے لیے ایس ایم ٹی پی ہوسٹ اور پورٹ خود بخود منتخب کریں۔"
+  }
+}
