@@ -6,7 +6,7 @@
     "type": "git",
     "url": "git+https://github.com/fossasia/scrum_helper.git"
   },
-  "scripts": {
+ "scripts": {
     "lint": "biome lint .",
     "format": "biome format --write .",
     "check": "biome check .",
