@@ -103,6 +103,34 @@ npm run test:watch
 
 ---
 
+6.  **Develop the Tauri Desktop App (Optional)**
+
+    Scrum Helper also ships as a desktop application powered by [Tauri](https://tauri.app/). To run the desktop app in development mode, rebuild and restart it after making changes:
+
+    ```sh
+    npm run tauri dev
+    ```
+
+    > **Note:** Tauri requires the Rust toolchain. Follow the [Tauri prerequisites guide](https://tauri.app/start/prerequisites/) if this is your first time setting it up.
+
+## Running Tests
+
+Scrum Helper uses [Vitest](https://vitest.dev/) for unit testing. Always run the test suite before submitting a pull request.
+
+**Run the full test suite once:**
+
+```sh
+npm test
+```
+
+**Run tests in watch mode** (reruns on file save — great for active development):
+
+```sh
+npm run test:watch
+```
+
+---
+
 ## Submitting a Pull Request
 
 1.  **Create a Branch:** Create a new branch for your feature or bug fix.

@@ -161,3 +161,79 @@ describe('showPopupMessage', () => {
 		expect(document.getElementById('scrum-helper-toast')).not.toBeNull();
 	});
 });
+
+describe('triggerInputError and shakeElement', () => {
+	beforeEach(() => {
+		vi.useFakeTimers();
+		document.body.innerHTML = '';
+	});
+
+	afterEach(() => {
+		vi.useRealTimers();
+	});
+
+	it('should return null when element does not exist', () => {
+		expect(window.triggerInputError('nonExistentId')).toBeNull();
+		expect(window.shakeElement('nonExistentId')).toBeNull();
+	});
+
+	it('should apply input-error and shake-animation to element ID', () => {
+		const input = document.createElement('input');
+		input.id = 'testInput';
+		document.body.appendChild(input);
+
+		window.triggerInputError('testInput', { duration: 500 });
+
+		expect(input.classList.contains('input-error')).toBe(true);
+		expect(input.classList.contains('shake-animation')).toBe(true);
+
+		vi.advanceTimersByTime(500);
+		expect(input.classList.contains('shake-animation')).toBe(false);
+		expect(input.classList.contains('input-error')).toBe(true);
+	});
+
+	it('should automatically remove input-error when user types in the input', () => {
+		const input = document.createElement('input');
+		input.id = 'testInput';
+		document.body.appendChild(input);
+
+		window.triggerInputError(input, { clearOnInput: true });
+		expect(input.classList.contains('input-error')).toBe(true);
+
+		input.dispatchEvent(new Event('input'));
+		expect(input.classList.contains('input-error')).toBe(false);
+	});
+
+	it('shakeElement should only apply shake-animation without input-error', () => {
+		const div = document.createElement('div');
+		div.id = 'warningDiv';
+		document.body.appendChild(div);
+
+		window.shakeElement(div, 600);
+
+		expect(div.classList.contains('shake-animation')).toBe(true);
+		expect(div.classList.contains('input-error')).toBe(false);
+
+		vi.advanceTimersByTime(600);
+		expect(div.classList.contains('shake-animation')).toBe(false);
+	});
+
+	it('should support focusing and scrolling options on dropdown inputs', () => {
+		const input = document.createElement('input');
+		input.id = 'dropdown-githubUsername';
+		input.focus = vi.fn();
+		input.scrollIntoView = vi.fn();
+		document.body.appendChild(input);
+
+		window.triggerInputError('dropdown-githubUsername', {
+			focus: true,
+			scroll: true,
+			clearOnInput: true,
+		});
+
+		expect(input.classList.contains('input-error')).toBe(true);
+		expect(input.classList.contains('shake-animation')).toBe(true);
+		expect(input.focus).toHaveBeenCalled();
+		expect(input.scrollIntoView).toHaveBeenCalled();
+	});
+});
