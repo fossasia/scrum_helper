@@ -1,5 +1,5 @@
 const SCRUM_SANITIZER_CONFIG = {
-	ALLOWED_TAGS: ['a', 'b', 'br', 'button', 'div', 'i', 'span', 'li', 'ul'],
+	ALLOWED_TAGS: ['a', 'b', 'br', 'button', 'div', 'i', 'p', 'span', 'li', 'u', 'ul'],
 	ALLOWED_ATTR: ['class', 'style', 'href', 'target', 'rel', 'contenteditable', 'data-repo-name', 'type'],
 	FORBID_TAGS: ['image', 'script', 'iframe', 'object', 'embed'],
 	FORBID_ATTR: ['onerror', 'onload', 'onclick', 'onmouseover'],
@@ -23,4 +23,13 @@ function sanitizeHtml(html) {
 		.replace(/>/g, '&gt;')
 		.replace(/"/g, '&quot;')
 		.replace(/'/g, '&#039;');
+}
+
+if (typeof window !== 'undefined') {
+	window.sanitizeHtml = sanitizeHtml;
+	window.SCRUM_SANITIZER_CONFIG = SCRUM_SANITIZER_CONFIG;
+}
+if (typeof globalThis !== 'undefined') {
+	globalThis.sanitizeHtml = sanitizeHtml;
+	globalThis.SCRUM_SANITIZER_CONFIG = SCRUM_SANITIZER_CONFIG;
 }
