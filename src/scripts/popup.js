@@ -99,6 +99,29 @@ function getWeekAgo() {
 }
 
 function applyI18n() {
+	const uiLocale =
+		(typeof chrome !== 'undefined' && chrome?.i18n?.getMessage('@@ui_locale')) ||
+		(typeof browser !== 'undefined' && browser?.i18n?.getMessage('@@ui_locale')) ||
+		'';
+	const bidiDir =
+		(typeof chrome !== 'undefined' && chrome?.i18n?.getMessage('@@bidi_dir')) ||
+		(typeof browser !== 'undefined' && browser?.i18n?.getMessage('@@bidi_dir')) ||
+		(uiLocale.startsWith('ur') || uiLocale.startsWith('he') || uiLocale.startsWith('ar') || uiLocale.startsWith('fa')
+			? 'rtl'
+			: 'ltr');
+
+	if (uiLocale) {
+		document.documentElement.lang = uiLocale;
+	}
+	if (bidiDir) {
+		document.documentElement.dir = bidiDir;
+		if (bidiDir === 'rtl') {
+			document.documentElement.classList.add('rtl');
+		} else {
+			document.documentElement.classList.remove('rtl');
+		}
+	}
+
 	document.querySelectorAll('[data-i18n]').forEach((el) => {
 		const key = el.getAttribute('data-i18n');
 		const message = browser.i18n.getMessage(key);
