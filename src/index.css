@@ -334,50 +334,45 @@ hr,
     color: #ffffff !important;
 }
 
-/* Update the settings button styles: */
-#settingsToggle {
+#cacheInput:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Header action buttons (#homeButton, #settingsToggle, #mailSettingsToggle) */
+#homeButton,
+#settingsToggle,
+#mailSettingsToggle {
     transition: all 0.2s ease;
     border: none;
     cursor: pointer;
-    background: none !important;
 }
 
-#settingsToggle:hover {
+#homeButton:hover,
+#settingsToggle:hover,
+#mailSettingsToggle:hover {
     transform: scale(1.05);
-    background: none !important;
 }
 
-#settingsToggle:active {
+#homeButton:active,
+#settingsToggle:active,
+#mailSettingsToggle:active {
     transform: scale(0.95);
 }
 
+#settingsToggle i,
 #settingsToggle img {
-    width: 28px;
-    height: 28px;
-    transition: none;
-    filter: brightness(0.9);
-}
-
-#settingsToggle.active img {
-    transform: rotate(45deg);
-    filter: brightness(1);
     transition: transform 0.2s ease;
 }
 
-.dark-mode #settingsToggle {
-    background: none !important;
+#settingsToggle.active i,
+#settingsToggle.active img {
+    transform: rotate(45deg);
 }
 
-.dark-mode #settingsToggle:hover {
-    background: none !important;
-}
-
-.dark-mode #settingsToggle img {
-    filter: brightness(0.9);
-}
-
-.dark-mode #settingsToggle.active img {
-    filter: brightness(1);
+#mailSettingsToggle i {
+    transition: transform 0.2s ease;
 }
 
 .tooltip-container {
@@ -581,24 +576,6 @@ hr,
 
 .dark-mode .tooltip-container.tooltip-right .tooltip-bubble::after {
     border-color: transparent #374151 transparent transparent;
-}
-
-#homeButton {
-    background: none;
-    border: none;
-    outline: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    font-size: 1.5rem;
-}
-
-#homeButton:active {
-    background: #e5e7eb;
-}
-
-.dark-mode #homeButton:active {
-    background: #374151;
 }
 
 .dark-mode .token-preview-char {
