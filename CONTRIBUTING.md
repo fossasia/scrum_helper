@@ -56,10 +56,10 @@ This document provides guidelines for contributing to the project. Please feel f
 
     To use Scrum Helper with authenticated requests (for higher rate limits and private repositories), you can configure a personal access token for your git provider:
 
-    -   **GitHub (Classic):**
+    -   **GitHub (Fine-grained):**
         -   **Go to Developer Settings:** Visit [https://github.com/settings/tokens](https://github.com/settings/tokens).
-        -   **Choose Token Type:** Select "Personal access tokens (classic)".
-        -   **Generate a New Token:** Click "Generate new token (classic)", give it a descriptive name (e.g., "Scrum Helper Dev"), and select the `repo` scope for private-repository access; narrower scopes are sufficient for public-only use.
+        -   **Choose Token Type:** Select "Fine-grained personal access tokens".
+        -   **Generate a New Token:** Restrict the token to the required private repositories and grant `Issues: Read`, `Pull requests: Read`, and `Contents: Read` permissions. GitHub includes `Metadata: Read` automatically.
         -   **Create and Copy the Token:** Click "Generate token" and copy the token.
         -   **Paste the Token in Scrum Helper:** Open the extension popup, go to settings, and paste your token into the "GitHub Token" field.
 
