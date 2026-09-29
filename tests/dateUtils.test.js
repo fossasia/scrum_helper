@@ -1,6 +1,44 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import '../src/scripts/main.js';
 
+describe('scrumDateRangeUtils.formatLocalDate', () => {
+	it('should format dates with single-digit months and days with leading zeros', () => {
+		const date = new Date(2026, 0, 5); // January 5, 2026
+		expect(window.scrumDateRangeUtils.formatLocalDate(date)).toBe('2026-01-05');
+	});
+
+	it('should format dates with double-digit months and days', () => {
+		const date = new Date(2026, 11, 25); // December 25, 2026
+		expect(window.scrumDateRangeUtils.formatLocalDate(date)).toBe('2026-12-25');
+	});
+
+	it('should correctly format leap day', () => {
+		const leapDate = new Date(2024, 1, 29); // February 29, 2024
+		expect(window.scrumDateRangeUtils.formatLocalDate(leapDate)).toBe('2024-02-29');
+	});
+
+	it('should format year-end and year-start dates correctly', () => {
+		const yearEnd = new Date(2025, 11, 31); // December 31, 2025
+		expect(window.scrumDateRangeUtils.formatLocalDate(yearEnd)).toBe('2025-12-31');
+
+		const yearStart = new Date(2026, 0, 1); // January 1, 2026
+		expect(window.scrumDateRangeUtils.formatLocalDate(yearStart)).toBe('2026-01-01');
+	});
+
+	it('should return empty string for invalid date objects', () => {
+		const invalidDate = new Date('invalid-date-string');
+		expect(window.scrumDateRangeUtils.formatLocalDate(invalidDate)).toBe('');
+	});
+
+	it('should return empty string for non-Date inputs', () => {
+		expect(window.scrumDateRangeUtils.formatLocalDate(null)).toBe('');
+		expect(window.scrumDateRangeUtils.formatLocalDate(undefined)).toBe('');
+		expect(window.scrumDateRangeUtils.formatLocalDate('2026-08-25')).toBe('');
+		expect(window.scrumDateRangeUtils.formatLocalDate(1234567890)).toBe('');
+		expect(window.scrumDateRangeUtils.formatLocalDate({})).toBe('');
+	});
+});
+
 describe('scrumDateRangeUtils', () => {
 	beforeEach(() => {
 		vi.useFakeTimers();
@@ -11,7 +49,7 @@ describe('scrumDateRangeUtils', () => {
 		vi.useRealTimers();
 	});
 
-	it('should formatLocalDate correctly', () => {
+	it('should delegate formatLocalDate correctly', () => {
 		const date = new Date(2026, 7, 24); // August 24, 2026 (0-indexed month)
 		const formatted = window.scrumDateRangeUtils.formatLocalDate(date);
 		expect(formatted).toBe('2026-08-24');
@@ -69,3 +107,4 @@ describe('scrumDateRangeUtils', () => {
 		});
 	});
 });
+
