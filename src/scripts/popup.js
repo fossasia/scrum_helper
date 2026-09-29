@@ -11,6 +11,8 @@ window.PlatformRegistry = {
 	},
 };
 
+let lastPlatform = 'github';
+
 function debounce(func, wait) {
 	let timeout;
 	return function (...args) {
@@ -166,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	const reportSection = document.getElementById('reportSection');
 	const settingsSection = document.getElementById('settingsSection');
 
-	let isSettingsVisible = false;
+	let _isSettingsVisible = false;
 	let isMailSettingsVisible = false;
 	const mailSettingsSection = document.getElementById('mailSettingsSection');
 	const mailSettingsToggle = document.getElementById('mailSettingsToggle');
@@ -191,11 +193,11 @@ document.addEventListener('DOMContentLoaded', () => {
 	const codebergTokenEyeIcon = document.getElementById('codebergTokenEyeIcon');
 	let codebergTokenVisible = false;
 
-	const orgInput = document.getElementById('orgInput');
+	const _orgInput = document.getElementById('orgInput');
 
 	const platformSelect = document.getElementById('platformSelect');
-	const usernameLabel = document.getElementById('usernameLabel');
-	const platformUsername = document.getElementById('platformUsername');
+	const _usernameLabel = document.getElementById('usernameLabel');
+	const _platformUsername = document.getElementById('platformUsername');
 
 	function getActivePlatformHelper() {
 		const platform = platformSelect?.value || 'github';
@@ -352,7 +354,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	}
 
-	window.showRegenerateNotice = function () {
+	window.showRegenerateNotice = () => {
 		const scrumReport = document.getElementById('scrumReport');
 		const notice = document.getElementById('regenerateNotice');
 		if (!scrumReport || !notice) return;
@@ -364,7 +366,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	};
 
-	window.hideRegenerateNotice = function () {
+	window.hideRegenerateNotice = () => {
 		const notice = document.getElementById('regenerateNotice');
 		if (notice) {
 			notice.classList.add('hidden');
@@ -1816,7 +1818,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	function showReportView() {
-		isSettingsVisible = false;
+		_isSettingsVisible = false;
 		isMailSettingsVisible = false;
 		reportSection.classList.remove('hidden');
 		settingsSection.classList.add('hidden');
@@ -1826,7 +1828,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	function showSettingsView() {
-		isSettingsVisible = true;
+		_isSettingsVisible = true;
 		isMailSettingsVisible = false;
 		reportSection.classList.add('hidden');
 		settingsSection.classList.remove('hidden');
@@ -1837,7 +1839,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	window.showSettingsView = showSettingsView;
 
 	function showMailSettingsView() {
-		isSettingsVisible = false;
+		_isSettingsVisible = false;
 		isMailSettingsVisible = true;
 		reportSection.classList.add('hidden');
 		settingsSection.classList.add('hidden');
@@ -1939,7 +1941,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					try {
 						const stored = await browser.storage.local.get([platform === 'gitlab' ? 'gitlabToken' : 'githubToken']);
 						rawToken = (platform === 'gitlab' ? stored.gitlabToken : stored.githubToken) || '';
-					} catch (e) {}
+					} catch (_e) {}
 				}
 				const hasToken = rawToken.trim() !== '';
 				container.classList.toggle('hidden', !enabled);
@@ -3341,7 +3343,7 @@ function handleOrgInputBlurValidation(org) {
 }
 
 // Rate Limit Warning banner management
-(function () {
+(() => {
 	let rateLimitTimeout;
 	const rateLimitWarning = document.getElementById('rateLimitWarning');
 	const closeRateLimitWarning = document.getElementById('closeRateLimitWarning');
@@ -3355,7 +3357,7 @@ function handleOrgInputBlurValidation(org) {
 		});
 	}
 
-	window.showRateLimitWarning = function () {
+	window.showRateLimitWarning = () => {
 		const banner = document.getElementById('rateLimitWarning');
 		if (banner) {
 			banner.classList.remove('hidden');
