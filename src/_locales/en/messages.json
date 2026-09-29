@@ -31,6 +31,10 @@
     "message": "Your GitLab Username",
     "description": "Label for the GitLab username input field."
   },
+  "gitlabUsernamePlaceholder": {
+    "message": "Required for fetching your contributions",
+    "description": "Placeholder text for the GitLab username input."
+  },
   "codebergUsernameLabel": {
     "message": "Your Codeberg Username",
     "description": "Label for the Codeberg username input field."
@@ -38,6 +42,18 @@
   "codebergUsernamePlaceholder": {
     "message": "Required for fetching your contributions",
     "description": "Placeholder text for the Codeberg username input."
+  },
+  "dropdownGithubUsernamePlaceholder": {
+    "message": "GitHub username",
+    "description": "Placeholder text for the GitHub username dropdown input."
+  },
+  "dropdownGitlabUsernamePlaceholder": {
+    "message": "GitLab username",
+    "description": "Placeholder text for the GitLab username dropdown input."
+  },
+  "dropdownCodebergUsernamePlaceholder": {
+    "message": "Codeberg username",
+    "description": "Placeholder text for the Codeberg username dropdown input."
   },
   "githubUsernamePlaceholder": {
     "message": "Required for fetching your contributions",
@@ -374,6 +390,14 @@
     "message": "See this issue",
     "description": "Link text for the GitHub issue in the notes."
   },
+  "selectPlatformPlaceholder": {
+    "message": "Select Platform",
+    "description": "Placeholder text displayed when no platform is selected."
+  },
+  "selectPlatformWarning": {
+    "message": "Please select a platform first",
+    "description": "Warning message when trying to generate report without selecting any platform."
+  },
   "platformLabel": {
     "message": "Platform",
     "description": "Label for the platform selection header."
@@ -405,6 +429,18 @@
   "usernameRequiredError": {
     "message": "Please enter your username to generate a report.",
     "description": "Error shown when username is missing."
+  },
+  "githubUsernameRequiredError": {
+    "message": "Please enter your GitHub username",
+    "description": "Error shown when GitHub username is missing."
+  },
+  "gitlabUsernameRequiredError": {
+    "message": "Please enter your GitLab username",
+    "description": "Error shown when GitLab username is missing."
+  },
+  "codebergUsernameRequiredError": {
+    "message": "Please enter your Codeberg username",
+    "description": "Error shown when Codeberg username is missing."
   },
   "unknownPlatformError": {
     "message": "Unknown platform selected.",
@@ -471,7 +507,7 @@
     "description": "Error when fetching GitLab user fails. $1=status, $2=statusText"
   },
   "gitlabUserNotFoundError": {
-    "message": "GitLab user '$1' not found.",
+    "message": "GitLab user \"$1\" not found.",
     "description": "Error when GitLab user is not found. $1=username"
   },
   "gitlabMembershipError": {
@@ -481,6 +517,18 @@
   "gitlabContributedError": {
     "message": "Error fetching GitLab contributed projects: $1 $2",
     "description": "Error when fetching GitLab contributed projects fails. $1=status, $2=statusText"
+  },
+  "codebergUserFetchError": {
+    "message": "Error fetching Codeberg user: $1 $2",
+    "description": "Error when fetching Codeberg user fails. $1=status, $2=statusText"
+  },
+  "codebergUserNotFoundError": {
+    "message": "Codeberg user \"$1\" not found.",
+    "description": "Error when Codeberg user is not found. $1=username"
+  },
+  "codebergUserValidationError": {
+    "message": "Error validating Codeberg user: $1 $2",
+    "description": "Error when validating Codeberg user fails. $1=status, $2=statusText"
   },
   "usernameMissingError": {
     "message": "Username required.",
@@ -655,6 +703,10 @@
   },
   "settingsTitle": {
     "message": "Settings"
+  },
+  "extensionSettingsHeading": {
+    "message": "Extension Settings",
+    "description": "Heading for general extension settings section."
   },
   "smtpSenderEmailTooltip": {
     "message": "The email address from which the report will be sent (e.g. your email address)."

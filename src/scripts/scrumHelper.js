@@ -9,23 +9,32 @@ window.fetch = async function (...args) {
 	}
 	const url = typeof args[0] === 'string' ? args[0] : args[0]?.url || '';
 	if (url.includes('api.github.com')) {
-		const remaining = res.headers.get('x-ratelimit-remaining');
-		if (res.status === 403 || res.status === 429 || remaining === '0') {
+		const remaining =
+			typeof res.headers?.get === 'function'
+				? res.headers.get('x-ratelimit-remaining')
+				: res.headers?.['x-ratelimit-remaining'];
+		const is429 = res.status === 429;
+		const isZeroRemaining = remaining === '0' || remaining === 0;
+		if (res.status === 403 || is429 || isZeroRemaining) {
+			let isRateLimit = is429 || isZeroRemaining;
 			try {
 				const clone = res.clone();
 				const data = await clone.json();
-				if (data && data.message && data.message.toLowerCase().includes('rate limit exceeded')) {
-					window.githubRateLimitExceeded = true;
-					if (!rateLimitWarningShown) {
-						rateLimitWarningShown = true;
-						window.showRateLimitWarning?.();
-						setTimeout(() => {
-							rateLimitWarningShown = false;
-						}, 6000);
-					}
+				if (data && data.message && data.message.toLowerCase().includes('rate limit')) {
+					isRateLimit = true;
 				}
 			} catch (e) {
 				// Ignore clone/json parsing issues
+			}
+			if (isRateLimit) {
+				window.githubRateLimitExceeded = true;
+				if (!rateLimitWarningShown) {
+					rateLimitWarningShown = true;
+					window.showRateLimitWarning?.();
+					setTimeout(() => {
+						rateLimitWarningShown = false;
+					}, 6000);
+				}
 			}
 		}
 	}
@@ -235,18 +244,71 @@ function showReportMessage(message) {
 	window.scrumHelperToast?.(message, { duration: 2000, variant: 'error' });
 }
 
-function handleUsernameValidationError(errMessage) {
-	if (!platformUsernameInp || !usernameError) return;
+function handleUsernameValidationError(errMessage, platformName = null) {
+	let targetPlatform = platformName;
+	if (!targetPlatform && typeof errMessage === 'string') {
+		const lower = errMessage.toLowerCase();
+		if (lower.includes('codeberg')) targetPlatform = 'codeberg';
+		else if (lower.includes('gitlab')) targetPlatform = 'gitlab';
+		else if (lower.includes('github')) targetPlatform = 'github';
+	}
+	if (!targetPlatform && typeof platform === 'string' && platform) {
+		targetPlatform = platform;
+	}
 
-	platformUsernameInp.classList.add('input-error');
-	usernameError.classList.add('errorMessage');
-	usernameError.textContent = errMessage;
+	if (targetPlatform) {
+		const settingsSection = document.getElementById('settingsSection');
+		const isSettingsPageActive = settingsSection && !settingsSection.classList.contains('hidden');
+
+		if (!isSettingsPageActive) {
+			const customDropdown = document.getElementById('customPlatformDropdown');
+			const dropdownList = document.getElementById('platformDropdownList');
+			if (customDropdown && dropdownList) {
+				customDropdown.classList.add('open');
+				dropdownList.classList.remove('hidden');
+			}
+			const container = document.getElementById(`dropdown-${targetPlatform}UsernameContainer`);
+			if (container) {
+				container.classList.remove('hidden');
+			}
+		}
+
+		const dropdownInp = document.getElementById(`dropdown-${targetPlatform}Username`);
+		if (dropdownInp) {
+			window.triggerInputError?.(dropdownInp, {
+				focus: !isSettingsPageActive,
+				scroll: !isSettingsPageActive,
+				clearOnInput: true,
+			});
+		}
+
+		const settingsInp = document.getElementById(`${targetPlatform}Username`);
+		if (settingsInp) {
+			window.triggerInputError?.(settingsInp, {
+				focus: isSettingsPageActive,
+				scroll: isSettingsPageActive,
+				clearOnInput: true,
+			});
+		}
+	} else if (platformUsernameInp) {
+		window.triggerInputError?.(platformUsernameInp, { focus: false, scroll: false, clearOnInput: true });
+	}
+
+	if (errMessage) {
+		window.scrumHelperToast?.(errMessage, { duration: 2500, variant: 'error' });
+	}
+
+	if (usernameError) {
+		usernameError.classList.add('errorMessage');
+		usernameError.textContent = errMessage;
+	}
 
 	if (scrumReportEl) {
 		scrumReportEl.textContent = '';
 		window.updateCopyButtonState?.();
 	}
 }
+window.handleUsernameValidationError = handleUsernameValidationError;
 
 function allIncluded(outputTarget = 'email') {
 	// Always re-instantiate gitlabHelper for gitlab platform to ensure fresh cache after refresh
@@ -258,6 +320,7 @@ function allIncluded(outputTarget = 'email') {
 	}
 	scrumGenerationInProgress = true;
 	window.githubRateLimitExceeded = false;
+	rateLimitWarningShown = false;
 	console.log('allIncluded called with outputTarget:', outputTarget);
 
 	let scrumBody = null;
@@ -265,12 +328,37 @@ function allIncluded(outputTarget = 'email') {
 	let startingDate = '';
 	let endingDate = '';
 	let platformUsernameLocal = '';
+	const platformUsernames = {
+		github: '',
+		gitlab: '',
+		codeberg: '',
+	};
+
+	function getUsernameForPlatform(p) {
+		const targetPlatform = p || platform || 'github';
+		const domVal =
+			document.getElementById(`dropdown-${targetPlatform}Username`)?.value?.trim() ||
+			document.getElementById(`${targetPlatform}Username`)?.value?.trim();
+		return (
+			domVal ||
+			platformUsernames[targetPlatform] ||
+			(targetPlatform === platform ? platformUsernameLocal || platformUsername : '') ||
+			''
+		);
+	}
+	let activePlatforms = [];
+	let currentActivePlatforms = [];
+	let storageItems = {};
 	let githubToken = '';
 	let projectName = '';
 	let lastWeekIssuesArray = [];
 	let lastWeekPrsArray = [];
 	let nextWeekArray = [];
 	let reviewedPrsArray = [];
+	let issuesByPlatform = {};
+	let prsByPlatform = {};
+	let reviewedPrsByPlatform = {};
+	let plansByPlatform = {};
 	let githubIssuesData = null;
 	let yesterdayContribution = false;
 	let weeklyContribution = false;
@@ -314,6 +402,7 @@ function allIncluded(outputTarget = 'email') {
 		chrome.storage.local
 			.get([
 				'platform',
+				'selectedPlatforms',
 				'githubUsername',
 				'gitlabUsername',
 				'codebergUsername',
@@ -331,10 +420,15 @@ function allIncluded(outputTarget = 'email') {
 				'selectedTimeframe',
 				'userReason',
 				'githubCache',
+				'gitlabCache',
+				'codebergCache',
 				'cacheInput',
 				'orgName',
 				'selectedRepos',
 				'useRepoFilter',
+				'useGitlabRepoFilter',
+				'selectedGitlabRepos',
+				'gitlabGroupName',
 				'showCommits',
 				'onlyIssues',
 				'onlyPRs',
@@ -343,6 +437,7 @@ function allIncluded(outputTarget = 'email') {
 				'includeNextPlans',
 			])
 			.then((items) => {
+				storageItems = items;
 				console.log('[DEBUG] Storage items received:', logRedaction(items));
 				platform = items.platform || 'github';
 
@@ -352,18 +447,48 @@ function allIncluded(outputTarget = 'email') {
 				platformUsernameLocal = platformUsername;
 				console.log(`[DEBUG] platform: ${platform}, platformUsername: ${platformUsername}`);
 
+				platformUsernames.github = items.githubUsername || (platform === 'github' ? platformUsername : '');
+				platformUsernames.gitlab = items.gitlabUsername || (platform === 'gitlab' ? platformUsername : '');
+				platformUsernames.codeberg = items.codebergUsername || (platform === 'codeberg' ? platformUsername : '');
+
 				if (outputTarget === 'popup') {
 					const usernameFromDOM = document.getElementById('platformUsername')?.value;
+					const githubUserFromDOM =
+						document.getElementById('dropdown-githubUsername')?.value?.trim() ||
+						document.getElementById('githubUsername')?.value?.trim();
+					const gitlabUserFromDOM =
+						document.getElementById('dropdown-gitlabUsername')?.value?.trim() ||
+						document.getElementById('gitlabUsername')?.value?.trim();
+					const codebergUserFromDOM =
+						document.getElementById('dropdown-codebergUsername')?.value?.trim() ||
+						document.getElementById('codebergUsername')?.value?.trim();
 					const projectFromDOM = document.getElementById('projectName')?.value;
-					const tokenFromDOM = document.getElementById('githubToken')?.value;
-					const gitlabTokenFromDOM = document.getElementById('gitlabToken')?.value;
-					const codebergTokenFromDOM = document.getElementById('codebergToken')?.value;
+					const tokenFromDOM = document.getElementById('githubToken')?.value?.trim();
+					const gitlabTokenFromDOM = document.getElementById('gitlabToken')?.value?.trim();
+					const codebergTokenFromDOM = document.getElementById('codebergToken')?.value?.trim();
+
+					if (githubUserFromDOM) {
+						items.githubUsername = githubUserFromDOM;
+						platformUsernames.github = githubUserFromDOM;
+					}
+					if (gitlabUserFromDOM) {
+						items.gitlabUsername = gitlabUserFromDOM;
+						platformUsernames.gitlab = gitlabUserFromDOM;
+					}
+					if (codebergUserFromDOM) {
+						items.codebergUsername = codebergUserFromDOM;
+						platformUsernames.codeberg = codebergUserFromDOM;
+					}
 
 					// Save to platform-specific storage
-					if (usernameFromDOM) {
-						chrome.storage.local.set({ [platformUsernameKey]: usernameFromDOM });
-						platformUsername = usernameFromDOM;
-						platformUsernameLocal = usernameFromDOM;
+					const currentPlatformUser = platformUsernames[platform] || usernameFromDOM;
+					if (currentPlatformUser) {
+						chrome.storage.local.set({ [platformUsernameKey]: currentPlatformUser });
+						platformUsername = currentPlatformUser;
+						platformUsernameLocal = currentPlatformUser;
+						if (platform && !platformUsernames[platform]) {
+							platformUsernames[platform] = currentPlatformUser;
+						}
 					}
 
 					items.projectName = projectFromDOM || items.projectName;
@@ -375,6 +500,9 @@ function allIncluded(outputTarget = 'email') {
 						githubToken: items.githubToken,
 						gitlabToken: items.gitlabToken,
 						codebergToken: items.codebergToken,
+						...(items.githubUsername ? { githubUsername: items.githubUsername } : {}),
+						...(items.gitlabUsername ? { gitlabUsername: items.gitlabUsername } : {}),
+						...(items.codebergUsername ? { codebergUsername: items.codebergUsername } : {}),
 					});
 				}
 				projectName = items.projectName;
@@ -384,12 +512,12 @@ function allIncluded(outputTarget = 'email') {
 				githubToken = items.githubToken;
 				gitlabToken = items.gitlabToken || '';
 				window.gitlabBaseUrl = items.gitlabBaseUrl || '';
-				if (platform === 'gitlab' && window.GitLabHelper) {
+				if (window.GitLabHelper) {
 					window.gitlabHelper = new window.GitLabHelper(window.gitlabBaseUrl);
 				}
 				codebergToken = items.codebergToken || '';
 				window.codebergApiBaseUrl = items.codebergApiBaseUrl || 'https://codeberg.org/api/v1';
-				if (platform === 'codeberg' && window.CodebergHelper) {
+				if (window.CodebergHelper) {
 					window.codebergHelper = new window.CodebergHelper(window.codebergApiBaseUrl);
 				}
 				yesterdayContribution = items.yesterdayContribution;
@@ -451,199 +579,221 @@ function allIncluded(outputTarget = 'email') {
 					}
 				}
 
-				if (platform === 'github') {
-					if (platformUsernameLocal) {
-						fetchGithubData();
-					} else {
-						if (outputTarget === 'popup') {
-							console.log('[DEBUG] No username found - popup context');
-							const generateBtn = document.getElementById('generateReport');
-							const ErrMessage =
-								chrome.i18n.getMessage('usernameRequiredError') || 'Please enter your username to generate a report.';
-							handleUsernameValidationError(ErrMessage);
-							setGenerateButtonState(generateBtn, false);
-							scrumGenerationInProgress = false;
-						} else {
-							console.warn('[DEBUG] No username found in storage');
-							scrumGenerationInProgress = false;
-						}
-						return;
-					}
-				} else if (platform === 'gitlab') {
-					if (!window.gitlabHelper) window.gitlabHelper = new window.GitLabHelper(window.gitlabBaseUrl);
-					if (platformUsernameLocal) {
-						const generateBtn = document.getElementById('generateReport');
-						if (generateBtn && outputTarget === 'popup') {
-							setGenerateButtonState(generateBtn, true);
-						}
+				activePlatforms = Array.isArray(items.selectedPlatforms) ? items.selectedPlatforms : platform ? [platform] : [];
 
-						if (outputTarget === 'email') {
-							(async () => {
-								try {
-									const data = await window.gitlabHelper.fetchGitLabData(
-										platformUsernameLocal,
-										startingDate,
-										endingDate,
-										gitlabToken,
-										orgName,
-									);
-
-									const mappedData = window.gitlabHelper.mapGitLabReportData(data);
-									githubUserData = mappedData.githubUserData;
-
-									const name =
-										githubUserData?.name || githubUserData?.username || platformUsernameLocal || platformUsername;
-									const project = projectName;
-									const curDate = new Date();
-									const year = curDate.getFullYear().toString();
-									let date = curDate.getDate();
-									let month = curDate.getMonth() + 1;
-									if (month < 10) month = '0' + month;
-									if (date < 10) date = '0' + date;
-									const dateCode = year.toString() + month.toString() + date.toString();
-									const subject = `[Scrum]${project ? ' - ' + project : ''} - ${dateCode}`;
-									subjectForEmail = subject;
-
-									await processGithubData(mappedData, true, subjectForEmail);
-									scrumGenerationInProgress = false;
-								} catch (err) {
-									console.error('GitLab fetch failed:', err);
-									if (outputTarget === 'popup') {
-										setGenerateButtonState(generateBtn, false);
-										const ErrMessage = `${err.message || 'Error fetching GitLab data.'}`;
-										if (typeof ErrMessage === 'string' && ErrMessage.toLowerCase().includes('not found')) {
-											handleUsernameValidationError(ErrMessage);
-										} else {
-											showReportMessage(ErrMessage);
-										}
-									}
-									scrumGenerationInProgress = false;
-								}
-							})();
-						} else {
-							window.gitlabHelper
-								.fetchGitLabData(platformUsernameLocal, startingDate, endingDate, gitlabToken, orgName)
-								.then((data) => {
-									const mappedData = window.gitlabHelper.mapGitLabReportData(data);
-									processGithubData(mappedData);
-									scrumGenerationInProgress = false;
-								})
-								.catch((err) => {
-									console.error('GitLab fetch failed:', err);
-									if (outputTarget === 'popup') {
-										setGenerateButtonState(generateBtn, false);
-										const ErrMessage = `${err.message || 'Error fetching GitLab data.'}`;
-										if (typeof ErrMessage === 'string' && ErrMessage.toLowerCase().includes('not found')) {
-											handleUsernameValidationError(ErrMessage);
-										} else {
-											showReportMessage(ErrMessage);
-										}
-									}
-									scrumGenerationInProgress = false;
-								});
-						}
-						// --- FIX END ---
-					} else {
-						if (outputTarget === 'popup') {
-							const generateBtn = document.getElementById('generateReport');
-							const ErrMessage =
-								chrome.i18n.getMessage('usernameRequiredError') || 'Please enter your username to generate a report.';
-							handleUsernameValidationError(ErrMessage);
-							setGenerateButtonState(generateBtn, false);
-						}
-						scrumGenerationInProgress = false;
-					}
-				} else if (platform === 'codeberg') {
-					if (!window.codebergHelper) window.codebergHelper = new window.CodebergHelper(window.codebergApiBaseUrl);
-					if (platformUsernameLocal) {
-						const generateBtn = document.getElementById('generateReport');
-						if (generateBtn && outputTarget === 'popup') {
-							setGenerateButtonState(generateBtn, true);
-						}
-
-						if (outputTarget === 'email') {
-							(async () => {
-								try {
-									const data = await window.codebergHelper.fetchCodebergData(
-										platformUsernameLocal,
-										startingDate,
-										endingDate,
-										items.codebergToken,
-										showCommits,
-									);
-
-									const mappedData = window.codebergHelper.mapCodebergReportData(data);
-									githubUserData = mappedData.githubUserData;
-
-									const name =
-										githubUserData?.name || githubUserData?.username || platformUsernameLocal || platformUsername;
-									const project = projectName;
-									const curDate = new Date();
-									const year = curDate.getFullYear().toString();
-									let date = curDate.getDate();
-									let month = curDate.getMonth() + 1;
-									if (month < 10) month = '0' + month;
-									if (date < 10) date = '0' + date;
-									const dateCode = year.toString() + month.toString() + date.toString();
-									const subject = `[Scrum]${project ? ' - ' + project : ''} - ${dateCode}`;
-									subjectForEmail = subject;
-
-									await processGithubData(mappedData, true, subjectForEmail);
-									scrumGenerationInProgress = false;
-								} catch (err) {
-									console.error('Codeberg fetch failed:', err);
-									if (outputTarget === 'popup') {
-										setGenerateButtonState(generateBtn, false);
-										const ErrMessage = `${err.message || 'Error fetching Codeberg data.'}`;
-										if (typeof ErrMessage === 'string' && ErrMessage.toLowerCase().includes('not found')) {
-											handleUsernameValidationError(ErrMessage);
-										} else {
-											showReportMessage(ErrMessage);
-										}
-									}
-									scrumGenerationInProgress = false;
-								}
-							})();
-						} else {
-							window.codebergHelper
-								.fetchCodebergData(platformUsernameLocal, startingDate, endingDate, items.codebergToken, showCommits)
-								.then((data) => {
-									const mappedData = window.codebergHelper.mapCodebergReportData(data);
-									processGithubData(mappedData);
-									scrumGenerationInProgress = false;
-								})
-								.catch((err) => {
-									console.error('Codeberg fetch failed:', err);
-									if (outputTarget === 'popup') {
-										setGenerateButtonState(generateBtn, false);
-										const ErrMessage = `${err.message || 'Error fetching Codeberg data.'}`;
-										if (typeof ErrMessage === 'string' && ErrMessage.toLowerCase().includes('not found')) {
-											handleUsernameValidationError(ErrMessage);
-										} else {
-											showReportMessage(ErrMessage);
-										}
-									}
-									scrumGenerationInProgress = false;
-								});
-						}
-					} else {
-						if (outputTarget === 'popup') {
-							const generateBtn = document.getElementById('generateReport');
-							const ErrMessage =
-								chrome.i18n.getMessage('usernameRequiredError') || 'Please enter your username to generate a report.';
-							handleUsernameValidationError(ErrMessage);
-							setGenerateButtonState(generateBtn, false);
-						}
-						scrumGenerationInProgress = false;
-					}
-				} else {
-					// Unknown platform
+				if (activePlatforms.length === 0) {
 					if (outputTarget === 'popup') {
-						const ErrMessage = chrome.i18n.getMessage('unknownPlatformError') || 'Unknown platform selected.';
-						showReportMessage(ErrMessage);
+						const errMessage = chrome.i18n.getMessage('selectPlatformWarning') || 'Please select a platform first';
+						window.scrumHelperToast?.(errMessage, { duration: 2000, variant: 'error' });
+						window.triggerInputError?.('platformDropdownBtn', {
+							focus: true,
+							clearOnInput: true,
+						});
+						const generateBtn = document.getElementById('generateReport');
+						setGenerateButtonState(generateBtn, false);
+					} else {
+						console.warn('[DEBUG] No platform selected in storage');
 					}
 					scrumGenerationInProgress = false;
+					return;
 				}
+
+				const missingPlatform = activePlatforms.find((p) => !getUsernameForPlatform(p));
+				if (missingPlatform) {
+					if (outputTarget === 'popup') {
+						console.log('[DEBUG] No username found for platform - popup context:', missingPlatform);
+						const generateBtn = document.getElementById('generateReport');
+						const platformDisplayNames = { github: 'GitHub', gitlab: 'GitLab', codeberg: 'Codeberg' };
+						const displayName = platformDisplayNames[missingPlatform] || missingPlatform;
+						const errMessage =
+							chrome.i18n.getMessage(`${missingPlatform}UsernameRequiredError`) ||
+							`Please enter your ${displayName} username`;
+						handleUsernameValidationError(errMessage, missingPlatform);
+						setGenerateButtonState(generateBtn, false);
+					} else {
+						console.warn('[DEBUG] No username found in storage for platform:', missingPlatform);
+					}
+					scrumGenerationInProgress = false;
+					return;
+				}
+
+				const platformsToFetch = activePlatforms.filter((p) => Boolean(getUsernameForPlatform(p)));
+
+				const generateBtn = document.getElementById('generateReport');
+				if (generateBtn && outputTarget === 'popup') {
+					setGenerateButtonState(generateBtn, true);
+				}
+
+				(async () => {
+					try {
+						const settled = await Promise.allSettled(
+							platformsToFetch.map(async (p) => {
+								const user = getUsernameForPlatform(p);
+								if (p === 'github') {
+									platformUsernameLocal = user;
+									platformUsernames.github = user;
+									const data = await fetchGithubData(false);
+									const issues = data?.githubIssuesData?.items || [];
+									const prReviews = data?.githubPrsReviewData?.items || [];
+									issues.forEach((it) => {
+										it._platform = 'github';
+									});
+									prReviews.forEach((it) => {
+										it._platform = 'github';
+									});
+									return {
+										platform: 'github',
+										authored: issues,
+										reviewed: prReviews,
+										user: data?.githubUserData || null,
+									};
+								}
+								if (p === 'gitlab') {
+									if (!window.gitlabHelper) {
+										window.gitlabHelper = new window.GitLabHelper(window.gitlabBaseUrl);
+									}
+									const raw = await window.gitlabHelper.fetchGitLabData(
+										user,
+										startingDate,
+										endingDate,
+										items.gitlabToken || gitlabToken,
+										items.gitlabGroupName || '',
+									);
+									const mapped = window.gitlabHelper.mapGitLabReportData(raw);
+									const issues = mapped?.githubIssuesData?.items || [];
+									const mrs = mapped?.githubPrsReviewData?.items || [];
+									issues.forEach((it) => {
+										it._platform = 'gitlab';
+									});
+									mrs.forEach((it) => {
+										it._platform = 'gitlab';
+									});
+									return {
+										platform: 'gitlab',
+										authored: [...issues, ...mrs],
+										reviewed: [],
+										user: mapped?.githubUserData || null,
+									};
+								}
+								if (p === 'codeberg') {
+									if (!window.codebergHelper) {
+										window.codebergHelper = new window.CodebergHelper(window.codebergApiBaseUrl);
+									}
+									const raw = await window.codebergHelper.fetchCodebergData(
+										user,
+										startingDate,
+										endingDate,
+										items.codebergToken || codebergToken,
+										showCommits,
+									);
+									const mapped = window.codebergHelper.mapCodebergReportData(raw);
+									const issues = mapped?.githubIssuesData?.items || [];
+									const prs = mapped?.githubPrsReviewData?.items || [];
+									issues.forEach((it) => {
+										it._platform = 'codeberg';
+									});
+									prs.forEach((it) => {
+										it._platform = 'codeberg';
+									});
+									return {
+										platform: 'codeberg',
+										authored: [...issues, ...prs],
+										reviewed: [],
+										user: mapped?.githubUserData || null,
+									};
+								}
+								return { platform: p, authored: [], reviewed: [], user: null };
+							}),
+						);
+
+						const successful = settled.filter((r) => r.status === 'fulfilled').map((r) => r.value);
+						const failures = settled.filter((r) => r.status === 'rejected').map((r) => r.reason);
+
+						if (successful.length === 0) {
+							if (outputTarget === 'popup' && failures.length > 1) {
+								for (let i = 1; i < failures.length; i++) {
+									const failure = failures[i];
+									const msg = failure?.message || '';
+									if (failure?.platform || msg.toLowerCase().includes('not found')) {
+										handleUsernameValidationError(msg, failure?.platform);
+									}
+								}
+							}
+							const firstError = failures[0] || new Error('All platforms failed to fetch data.');
+							throw firstError;
+						}
+
+						if (failures.length > 0) {
+							console.warn('Some platforms failed to fetch report data:', failures);
+							if (outputTarget === 'popup') {
+								let handledAny = false;
+								for (const failure of failures) {
+									const msg = failure?.message || '';
+									if (failure?.platform || msg.toLowerCase().includes('not found')) {
+										handleUsernameValidationError(msg, failure?.platform);
+										handledAny = true;
+									}
+								}
+								if (!handledAny) {
+									const failMessages = failures
+										.map((f) => f?.message)
+										.filter(Boolean)
+										.join('; ');
+									if (failMessages && window.showPopupMessage) {
+										window.showPopupMessage(failMessages, { variant: 'error' });
+									}
+								}
+							}
+						}
+
+						const combinedAuthored = [];
+						const combinedReviewed = [];
+						let primaryUser = null;
+
+						for (const res of successful) {
+							if (res.authored) combinedAuthored.push(...res.authored);
+							if (res.reviewed) combinedReviewed.push(...res.reviewed);
+							if (!primaryUser && res.user) primaryUser = res.user;
+						}
+
+						githubUserData = primaryUser;
+
+						const combinedData = {
+							githubIssuesData: { items: combinedAuthored },
+							githubPrsReviewData: { items: combinedReviewed },
+							githubUserData: primaryUser || {},
+							activePlatforms: platformsToFetch,
+						};
+
+						let subjectForEmail = null;
+						if (outputTarget === 'email') {
+							const project = projectName;
+							const curDate = new Date();
+							const year = curDate.getFullYear().toString();
+							let date = curDate.getDate();
+							let month = curDate.getMonth() + 1;
+							if (month < 10) month = '0' + month;
+							if (date < 10) date = '0' + date;
+							const dateCode = year.toString() + month.toString() + date.toString();
+							subjectForEmail = `[Scrum]${project ? ' - ' + project : ''} - ${dateCode}`;
+						}
+
+						await processGithubData(combinedData, outputTarget === 'email', subjectForEmail);
+						scrumGenerationInProgress = false;
+					} catch (err) {
+						console.error('Report generation fetch failed:', err);
+						if (outputTarget === 'popup') {
+							if (generateBtn) setGenerateButtonState(generateBtn, false);
+							const ErrMessage = `${err?.message || 'Error generating scrum report.'}`;
+							if (err?.platform || (typeof ErrMessage === 'string' && ErrMessage.toLowerCase().includes('not found'))) {
+								handleUsernameValidationError(ErrMessage, err?.platform);
+							} else {
+								showReportMessage(ErrMessage);
+							}
+						}
+						scrumGenerationInProgress = false;
+					}
+				})();
 			});
 	}
 	getChromeData();
@@ -682,6 +832,7 @@ function allIncluded(outputTarget = 'email') {
 		timestamp: 0,
 		ttl: 10 * 60 * 1000, // cache valid for 10 mins
 		fetching: false,
+		fetchPromise: null,
 		queue: [],
 		errors: {},
 		errorTTL: 60 * 1000, // 1 min error cache
@@ -769,7 +920,21 @@ function allIncluded(outputTarget = 'email') {
 		});
 	}
 
-	async function fetchGithubData() {
+	function isRateLimitResponse(res) {
+		if (!res || res.ok) return false;
+		if (window.githubRateLimitExceeded) return true;
+		if (res.status === 429) return true;
+		if (res.status === 403) {
+			const remaining =
+				typeof res.headers?.get === 'function'
+					? res.headers.get('x-ratelimit-remaining')
+					: res.headers?.['x-ratelimit-remaining'] || res.headers?.['X-RateLimit-Remaining'];
+			if (remaining === '0' || remaining === 0) return true;
+		}
+		return false;
+	}
+
+	async function fetchGithubData(shouldProcess = true) {
 		// Always load latest settings from storage
 		const settings = await new Promise((resolve) => {
 			chrome.storage.local.get(['useRepoFilter', 'selectedRepos', 'showCommits'], resolve);
@@ -810,12 +975,13 @@ function allIncluded(outputTarget = 'email') {
 						.join(',')
 				: 'norepos';
 		const commitMarker = showCommits ? 'commits' : 'nocommits';
-		const cacheKey = `${platformUsernameLocal}-${startDateForCache}-${endDateForCache}-${orgName || 'all'}-${commitMarker}-${repoMarker}`;
-
-		if (githubCache.fetching || (githubCache.cacheKey === cacheKey && githubCache.data)) {
-			log('Fetch already in progress or data already fetched. Skipping fetch.');
-			return;
-		}
+		const normalizedOrg = (orgName || '')
+			.split(',')
+			.map((s) => s.trim().toLowerCase())
+			.filter((s) => s && s !== 'all')
+			.sort()
+			.join(',');
+		const cacheKey = `${platformUsernameLocal}-${startDateForCache}-${endDateForCache}-${normalizedOrg || 'all'}-${commitMarker}-${repoMarker}`;
 
 		log('Fetching Github data:', {
 			username: platformUsernameLocal,
@@ -848,8 +1014,10 @@ function allIncluded(outputTarget = 'email') {
 				githubCache.data = null;
 			} else {
 				log('Using cached data - cache is fresh and key matches');
-				processGithubData(githubCache.data);
-				return Promise.resolve();
+				if (shouldProcess) {
+					processGithubData(githubCache.data);
+				}
+				return githubCache.data;
 			}
 		}
 
@@ -860,13 +1028,25 @@ function allIncluded(outputTarget = 'email') {
 			log('Cache is stale - fetching new data');
 		}
 
-		if (githubCache.fetching) {
-			log('Fetch in progress, queuing requests');
-			return new Promise((resolve, reject) => {
-				githubCache.queue.push({ resolve, reject });
-			});
+		if (githubCache.fetching && githubCache.cacheKey === cacheKey) {
+			log('Fetch in progress with matching cacheKey, awaiting existing fetch.');
+			const inFlightData = await (githubCache.fetchPromise ||
+				new Promise((resolve, reject) => {
+					githubCache.queue.push({ resolve, reject });
+				}));
+			if (shouldProcess && inFlightData) {
+				processGithubData(inFlightData);
+			}
+			return inFlightData;
 		}
 
+		let fetchPromiseResolve;
+		let fetchPromiseReject;
+		githubCache.fetchPromise = new Promise((res, rej) => {
+			fetchPromiseResolve = res;
+			fetchPromiseReject = rej;
+		});
+		githubCache.fetchPromise.catch(() => {});
 		githubCache.fetching = true;
 		githubCache.cacheKey = cacheKey;
 		githubCache.usedToken = !!githubToken;
@@ -882,57 +1062,23 @@ function allIncluded(outputTarget = 'email') {
 			log('Making public requests');
 		}
 
-		console.log('[SCRUM-HELPER] orgName before API query:', orgName);
-		console.log('[SCRUM-HELPER] orgName type:', typeof orgName);
-		console.log('[SCRUM-HELPER] orgName length:', orgName ? orgName.length : 0);
-		const orgPart = orgName && orgName.trim() ? `org%3A${orgName}` : '';
-		console.log('[SCRUM-HELPER] orgPart for API:', orgPart);
-		console.log('[SCRUM-HELPER] orgPart length:', orgPart.length);
-
 		let repoQueries = '';
-
-		if (useRepoFilter && selectedRepos && selectedRepos.length > 0) {
-			log('Using repo filter for api calls:', selectedRepos);
-
-			try {
-				await fetchReposIfNeeded();
-			} catch (err) {
-				logError('Failed to fetch repo data for filtering:', err);
-			}
-
-			repoQueries = selectedRepos
-				.filter((repo) => repo !== null)
-				.map((repo) => {
-					if (typeof repo === 'object' && repo.fullName) {
-						const cleanName = repo.fullName.startsWith('/') ? repo.fullName.substring(1) : repo.fullName;
-						return `repo:${cleanName}`;
-					}
-
-					if (repo.includes('/')) {
-						const cleanName = repo.startsWith('/') ? repo.substring(1) : repo;
-						return `repo:${cleanName}`;
-					}
-
-					const fullRepoInfo = githubCache.repoData?.find((r) => r.name === repo);
-					if (fullRepoInfo && fullRepoInfo.fullName) {
-						return `repo:${fullRepoInfo.fullName}`;
-					}
-					logError(`Missing owner for repo ${repo} - search may fail`);
-					return `repo:${repo}`;
-				})
-				.join('+');
-
-			if (!repoQueries) {
-				loadFromStorage('Repo filter empty, using org wide search');
-			} else {
-				loadFromStorage('Using repository filter');
-			}
-		} else {
-			loadFromStorage('Using org wide search');
-		}
 
 		try {
 			await new Promise((res) => setTimeout(res, 500));
+
+			const cleanUsername = (platformUsernameLocal || '').trim();
+			if (!cleanUsername) {
+				const errorMsg =
+					chrome?.i18n.getMessage('githubUsernameRequiredError') ||
+					chrome?.i18n.getMessage('usernameRequiredError') ||
+					'Please enter your GitHub username';
+				const err = new Error(errorMsg);
+				err.platform = 'github';
+				err.username = '';
+				throw err;
+			}
+			platformUsernameLocal = cleanUsername;
 
 			log('Validating GitHub user existence for:', platformUsernameLocal);
 			const userCheckRes = await githubFetchUser(platformUsernameLocal, githubToken);
@@ -942,25 +1088,69 @@ function allIncluded(outputTarget = 'email') {
 					chrome?.i18n.getMessage('githubUserNotFoundError', [platformUsernameLocal]) ||
 					`GitHub user "${platformUsernameLocal}" not found.`;
 				logError(errorMsg);
+				const err = new Error(errorMsg);
+				err.platform = 'github';
+				err.username = platformUsernameLocal;
+				throw err;
+			}
+
+			if (userCheckRes.status === 401 || (userCheckRes.status === 403 && !isRateLimitResponse(userCheckRes))) {
+				showInvalidTokenMessage(shouldProcess);
+				const errorMsg =
+					chrome?.i18n.getMessage('invalidTokenError') ||
+					'Invalid or expired GitHub token. Please check your token in the Scrum Helper settings and try again.';
 				throw new Error(errorMsg);
 			}
 
-			if (userCheckRes.status === 401 || userCheckRes.status === 403) {
-				if (!window.githubRateLimitExceeded) {
-					showInvalidTokenMessage();
-					githubCache.fetching = false;
-					return;
-				}
+			if (isRateLimitResponse(userCheckRes)) {
+				window.githubRateLimitExceeded = true;
+				window.showRateLimitWarning?.();
+			} else if (!userCheckRes.ok && !window.githubRateLimitExceeded) {
+				const errorMsg =
+					chrome?.i18n.getMessage('githubUserValidationError', [userCheckRes.status, userCheckRes.statusText]) ||
+					`Error validating GitHub user: ${userCheckRes.status} ${userCheckRes.statusText}`;
+				logError(errorMsg);
+				throw new Error(errorMsg);
 			}
 
-			if (!userCheckRes.ok) {
-				if (!window.githubRateLimitExceeded) {
-					const errorMsg =
-						chrome?.i18n.getMessage('githubUserValidationError', [userCheckRes.status, userCheckRes.statusText]) ||
-						`Error validating GitHub user: ${userCheckRes.status} ${userCheckRes.statusText}`;
-					logError(errorMsg);
-					throw new Error(errorMsg);
+			if (useRepoFilter && selectedRepos && selectedRepos.length > 0) {
+				log('Using repo filter for api calls:', selectedRepos);
+
+				try {
+					await fetchReposIfNeeded();
+				} catch (err) {
+					logError('Failed to fetch repo data for filtering:', err);
 				}
+
+				repoQueries = selectedRepos
+					.filter((repo) => repo !== null)
+					.map((repo) => {
+						if (typeof repo === 'object' && repo.fullName) {
+							const cleanName = repo.fullName.startsWith('/') ? repo.fullName.substring(1) : repo.fullName;
+							return `repo:${cleanName}`;
+						}
+
+						if (repo.includes('/')) {
+							const cleanName = repo.startsWith('/') ? repo.substring(1) : repo;
+							return `repo:${cleanName}`;
+						}
+
+						const fullRepoInfo = githubCache.repoData?.find((r) => r.name === repo);
+						if (fullRepoInfo && fullRepoInfo.fullName) {
+							return `repo:${fullRepoInfo.fullName}`;
+						}
+						logError(`Missing owner for repo ${repo} - search may fail`);
+						return `repo:${repo}`;
+					})
+					.join('+');
+
+				if (!repoQueries) {
+					loadFromStorage('Repo filter empty, using org wide search');
+				} else {
+					loadFromStorage('Using repository filter');
+				}
+			} else {
+				loadFromStorage('Using org wide search');
 			}
 
 			const [issuesRes, prRes, userRes] = await Promise.all([
@@ -976,46 +1166,74 @@ function allIncluded(outputTarget = 'email') {
 				userCheckRes, // Reuse the already validated user response
 			]);
 
-			if (issuesRes.status === 401 || prRes.status === 401 || issuesRes.status === 403 || prRes.status === 403) {
+			if (
+				issuesRes.status === 401 ||
+				prRes.status === 401 ||
+				(issuesRes.status === 403 && !isRateLimitResponse(issuesRes)) ||
+				(prRes.status === 403 && !isRateLimitResponse(prRes))
+			) {
 				if (!window.githubRateLimitExceeded) {
-					showInvalidTokenMessage();
-					githubCache.fetching = false;
-					return;
+					showInvalidTokenMessage(shouldProcess);
+					const errorMsg =
+						chrome?.i18n.getMessage('invalidTokenError') ||
+						'Invalid or expired GitHub token. Please check your token in the Scrum Helper settings and try again.';
+					throw new Error(errorMsg);
 				}
 			}
 
+			if (isRateLimitResponse(issuesRes) || isRateLimitResponse(prRes)) {
+				window.githubRateLimitExceeded = true;
+				window.showRateLimitWarning?.();
+			}
+
 			if (issuesRes.status === 422 || prRes.status === 422) {
+				try {
+					const clone = (issuesRes.status === 422 ? issuesRes : prRes).clone();
+					const data = await clone.json();
+					const isUserNotExist = data?.errors?.some?.((e) => e?.message?.toLowerCase().includes('users do not exist'));
+					if (isUserNotExist) {
+						const errorMsg =
+							chrome?.i18n.getMessage('githubUserNotFoundError', [platformUsernameLocal]) ||
+							`GitHub user "${platformUsernameLocal}" not found.`;
+						const err = new Error(errorMsg);
+						err.platform = 'github';
+						err.username = platformUsernameLocal;
+						throw err;
+					}
+				} catch (e) {
+					if (e.platform === 'github') throw e;
+				}
 				const errorMsg =
 					chrome?.i18n.getMessage('invalidSearchQueryError') ||
 					`Invalid search query or date range. Please verify your date range format and try again.`;
 				logError(errorMsg);
-				if (outputTarget === 'popup') {
+				if (outputTarget === 'popup' && shouldProcess) {
 					showReportMessage(errorMsg);
 				}
 				throw new Error(errorMsg);
 			}
 
-			if (!issuesRes.ok && !window.githubRateLimitExceeded) {
+			if (!issuesRes.ok && !window.githubRateLimitExceeded && !isRateLimitResponse(issuesRes)) {
 				const errorMsg =
 					chrome?.i18n.getMessage('githubIssuesFetchError', [issuesRes.status, issuesRes.statusText]) ||
 					`Error fetching GitHub issues: ${issuesRes.status} ${issuesRes.statusText}`;
 				logError(errorMsg);
-				if (outputTarget === 'popup') {
+				if (outputTarget === 'popup' && shouldProcess) {
 					showReportMessage(errorMsg);
 				}
 				throw new Error(errorMsg);
 			}
-			if (!prRes.ok && !window.githubRateLimitExceeded) {
+			if (!prRes.ok && !window.githubRateLimitExceeded && !isRateLimitResponse(prRes)) {
 				const errorMsg =
 					chrome?.i18n.getMessage('githubPRReviewFetchError', [prRes.status, prRes.statusText]) ||
 					`Error fetching GitHub PR review data: ${prRes.status} ${prRes.statusText}`;
 				logError(errorMsg);
-				if (outputTarget === 'popup') {
+				if (outputTarget === 'popup' && shouldProcess) {
 					showReportMessage(errorMsg);
 				}
 				throw new Error(errorMsg);
 			}
-			if (!userRes.ok && !window.githubRateLimitExceeded) {
+			if (!userRes.ok && !window.githubRateLimitExceeded && !isRateLimitResponse(userRes)) {
 				const errorMsg =
 					chrome?.i18n.getMessage('githubUserFetchError', [userRes.status, userRes.statusText]) ||
 					`Error fetching GitHub user data: ${userRes.status} ${userRes.statusText}`;
@@ -1048,7 +1266,6 @@ function allIncluded(outputTarget = 'email') {
 					openPRs.map((pr) => pr.number),
 				);
 				// Fetch commits for open PRs (batch) if showCommits is enabled
-				const activeToken = platform === 'codeberg' ? codebergToken : githubToken;
 				if (openPRs.length && showCommits) {
 					let startDateForCommits;
 					let endDateForCommits;
@@ -1073,39 +1290,29 @@ function allIncluded(outputTarget = 'email') {
 						endDateForCommits = formatLocalDate(today);
 					}
 
-					const commitMap = await fetchCommitsForOpenPRs(openPRs, activeToken, startDateForCommits, endDateForCommits);
-					log('Commit map returned from fetchCommitsForOpenPRs:', commitMap);
-					// Attach commits to PR objects
-					openPRs.forEach((pr) => {
-						if (platform === 'codeberg') {
-							let owner = '';
-							let repo = '';
-							const url = pr.html_url || pr.url;
-							if (url) {
-								try {
-									const parsed = new URL(url);
-									const parts = parsed.pathname.split('/').filter(Boolean);
-									if (parts.length >= 2) {
-										owner = parts[0];
-										repo = parts[1];
-									}
-								} catch (e) {
-									// ignore
-								}
-							}
-							const key = owner && repo ? `${owner}/${repo}#${pr.number}` : pr.number;
-							pr._allCommits = commitMap[key] || [];
-						} else {
+					try {
+						const commitMap = await fetchCommitsForOpenPRs(
+							openPRs,
+							githubToken,
+							startDateForCommits,
+							endDateForCommits,
+							'github',
+						);
+						log('Commit map returned from fetchCommitsForOpenPRs:', commitMap);
+						// Attach commits to PR objects
+						openPRs.forEach((pr) => {
 							pr._allCommits = commitMap[pr.number] || [];
-						}
-						log(`Attached ${pr._allCommits.length} commits to PR #${pr.number}`);
-						if (pr._allCommits.length > 0) {
-							log(
-								`Commits for PR #${pr.number}:`,
-								pr._allCommits.map((c) => `${c.messageHeadline} (${c.committedDate})`),
-							);
-						}
-					});
+							log(`Attached ${pr._allCommits.length} commits to PR #${pr.number}`);
+							if (pr._allCommits.length > 0) {
+								log(
+									`Commits for PR #${pr.number}:`,
+									pr._allCommits.map((c) => `${c.messageHeadline} (${c.committedDate})`),
+								);
+							}
+						});
+					} catch (commitErr) {
+						logError('Failed to fetch commits for open PRs:', commitErr);
+					}
 				}
 			}
 
@@ -1114,12 +1321,16 @@ function allIncluded(outputTarget = 'email') {
 			githubCache.timestamp = Date.now();
 
 			await saveToStorage(githubCache.data);
-			processGithubData(githubCache.data);
+			if (shouldProcess) {
+				processGithubData(githubCache.data);
+			}
 
 			githubCache.queue.forEach(({ resolve }) => {
-				resolve();
+				resolve(githubCache.data);
 			});
 			githubCache.queue = [];
+			fetchPromiseResolve?.(githubCache.data);
+			return githubCache.data;
 		} catch (err) {
 			logError('Fetch Failed:', err);
 			// Reject queued calls on error
@@ -1127,9 +1338,10 @@ function allIncluded(outputTarget = 'email') {
 				reject(err);
 			});
 			githubCache.queue = [];
+			fetchPromiseReject?.(err);
 			githubCache.fetching = false;
 
-			if (outputTarget === 'popup') {
+			if (outputTarget === 'popup' && shouldProcess) {
 				const generateBtn = document.getElementById('generateReport');
 				if (scrumReportEl) {
 					let errorMsg =
@@ -1140,8 +1352,8 @@ function allIncluded(outputTarget = 'email') {
 						else errorMsg = JSON.stringify(err);
 					}
 					const ErrMessage = `${errorMsg || 'An error occurred while generating the report.'}`;
-					if (typeof ErrMessage === 'string' && ErrMessage.toLowerCase().includes('not found')) {
-						handleUsernameValidationError(ErrMessage);
+					if (err?.platform || (typeof ErrMessage === 'string' && ErrMessage.toLowerCase().includes('not found'))) {
+						handleUsernameValidationError(ErrMessage, err?.platform || 'github');
 					} else {
 						showReportMessage(ErrMessage);
 					}
@@ -1152,14 +1364,15 @@ function allIncluded(outputTarget = 'email') {
 			throw err;
 		} finally {
 			githubCache.fetching = false;
+			githubCache.fetchPromise = null;
 		}
 	}
 
-	async function fetchCommitsForOpenPRs(prs, token, startDate, endDate) {
-		if (platform === 'github') {
+	async function fetchCommitsForOpenPRs(prs, token, startDate, endDate, sourcePlatform = 'github') {
+		if (sourcePlatform === 'github') {
 			return githubFetchCommits(prs, token, startDate, endDate);
 		}
-		if (platform === 'codeberg' && window.codebergHelper) {
+		if (sourcePlatform === 'codeberg' && window.codebergHelper) {
 			return window.codebergHelper.fetchCommitsForOpenPRs(prs, token, startDate, endDate);
 		}
 		return {};
@@ -1209,7 +1422,7 @@ function allIncluded(outputTarget = 'email') {
 			githubCache.repoTimeStamp = now;
 
 			chrome.storage.local.set({
-				repoCache: {
+				[platform === 'gitlab' ? 'gitlabRepoCache' : 'repoCache']: {
 					data: repos,
 					cacheKey: repoCacheKey,
 					timestamp: now,
@@ -1259,11 +1472,11 @@ function allIncluded(outputTarget = 'email') {
 	}
 	verifyCacheStatus();
 
-	function showInvalidTokenMessage() {
+	function showInvalidTokenMessage(shouldProcess = true) {
 		const errMsg =
 			chrome?.i18n.getMessage('invalidTokenError') ||
 			'Invalid or expired GitHub token. Please check your token in the Scrum Helper settings and try again.';
-		if (outputTarget === 'popup') {
+		if (outputTarget === 'popup' && shouldProcess) {
 			if (scrumReportEl) {
 				showReportMessage(errMsg);
 				const generateBtn = document.getElementById('generateReport');
@@ -1274,11 +1487,11 @@ function allIncluded(outputTarget = 'email') {
 		}
 	}
 
-	function showRateLimitMessage() {
+	function showRateLimitMessage(shouldProcess = true) {
 		const errMsg =
 			chrome?.i18n.getMessage('rateLimitError') ||
 			'GitHub API rate limit exceeded. Please try again later or add/check your GitHub token in the Scrum Helper settings.';
-		if (outputTarget === 'popup') {
+		if (outputTarget === 'popup' && shouldProcess) {
 			if (scrumReportEl) {
 				showReportMessage(errMsg);
 				const generateBtn = document.getElementById('generateReport');
@@ -1287,14 +1500,26 @@ function allIncluded(outputTarget = 'email') {
 		}
 	}
 
-	async function processGithubData(data) {
+	async function processGithubData(data, emailMode = false, subjectForEmailParam = null) {
 		log('Processing Github data');
 
 		let filteredData = data;
 		// Always apply repo filter if it's enabled and repos are selected.
-		if (useRepoFilter && selectedRepos && selectedRepos.length > 0) {
-			log('[SCRUM-HELPER]: Filtering data by selected repos:', selectedRepos);
-			filteredData = filterDataByRepos(data, selectedRepos);
+		const repoSettings = await new Promise((resolve) => {
+			chrome.storage.local.get(
+				['useRepoFilter', 'selectedRepos', 'useGitlabRepoFilter', 'selectedGitlabRepos'],
+				resolve,
+			);
+		});
+		Object.assign(storageItems, repoSettings);
+		const ghRepos = Array.isArray(repoSettings.selectedRepos) ? repoSettings.selectedRepos : [];
+		const glRepos = Array.isArray(repoSettings.selectedGitlabRepos) ? repoSettings.selectedGitlabRepos : [];
+		const useGhFilter = repoSettings.useRepoFilter || false;
+		const useGlFilter =
+			typeof repoSettings.useGitlabRepoFilter !== 'undefined' ? repoSettings.useGitlabRepoFilter : false;
+
+		if ((useGhFilter && ghRepos.length > 0) || (useGlFilter && glRepos.length > 0)) {
+			filteredData = filterDataByRepos(data, ghRepos, glRepos, useGhFilter, useGlFilter);
 		}
 
 		githubIssuesData = filteredData.githubIssuesData;
@@ -1305,13 +1530,23 @@ function allIncluded(outputTarget = 'email') {
 			issues: githubIssuesData?.items?.length || 0,
 			prs: githubPrsReviewData?.items?.length || 0,
 			user: githubUserData?.login,
-			filtered: useRepoFilter,
+			filtered: useGhFilter || useGlFilter,
 		});
 
 		lastWeekIssuesArray = [];
 		lastWeekPrsArray = [];
 		nextWeekArray = [];
 		reviewedPrsArray = [];
+		currentActivePlatforms =
+			data?.activePlatforms ||
+			(Array.isArray(activePlatforms) && activePlatforms.length > 0 ? activePlatforms : [platform || 'github']);
+		currentActivePlatforms = Array.from(
+			new Set(currentActivePlatforms.map((p) => (p || '').toLowerCase()).filter(Boolean)),
+		);
+		issuesByPlatform = {};
+		prsByPlatform = {};
+		reviewedPrsByPlatform = {};
+		plansByPlatform = {};
 		githubPrsReviewDataProcessed = {};
 		githubPrsDataProcessed = {};
 		issuesDataProcessed = false;
@@ -1320,29 +1555,61 @@ function allIncluded(outputTarget = 'email') {
 			scrumSubjectLoaded();
 		}
 		log('[SCRUM-DEBUG] Processing issues for main activity:', githubIssuesData?.items);
-		if (platform === 'github') {
-			await writeGithubIssuesPrs(githubIssuesData?.items || []);
-		} else if (platform === 'gitlab' || platform === 'codeberg') {
-			await writeGithubIssuesPrs(githubIssuesData?.items || []);
-			await writeGithubIssuesPrs(githubPrsReviewData?.items || []);
-		}
+		await writeGithubIssuesPrs(githubIssuesData?.items || []);
 		await writeGithubPrsReviews();
-		if (includeNextPlans && platform !== 'codeberg') {
+		if (includeNextPlans) {
 			if (window.getNextPlansForReport) {
 				try {
 					const selectedPlans = await window.getNextPlansForReport();
 					if (selectedPlans && selectedPlans.length > 0) {
 						const plansByRepo = {};
+						const plansByPlatformAndRepo = {};
 						selectedPlans.forEach((issue) => {
-							const repo = issue.repository || getProjectName(issue, platform) || 'unknown';
+							const issuePlatform = (
+								issue._platform ||
+								issue.platform ||
+								(issue.html_url?.includes('gitlab')
+									? 'gitlab'
+									: issue.html_url?.includes('codeberg')
+										? 'codeberg'
+										: platform || 'github')
+							).toLowerCase();
+							const repo = issue.repository || getProjectName(issue, issuePlatform) || 'unknown';
 							if (!plansByRepo[repo]) {
 								plansByRepo[repo] = [];
 							}
-							const alreadyExists = plansByRepo[repo].some(
-								(existing) => existing.number === issue.number || (existing.id && existing.id === issue.id),
-							);
+							if (!plansByPlatformAndRepo[issuePlatform]) {
+								plansByPlatformAndRepo[issuePlatform] = {};
+							}
+							if (!plansByPlatformAndRepo[issuePlatform][repo]) {
+								plansByPlatformAndRepo[issuePlatform][repo] = [];
+							}
+							const alreadyExists = plansByRepo[repo].some((existing) => {
+								const existingPlatform = (
+									existing._platform ||
+									existing.platform ||
+									(existing.html_url?.includes('gitlab')
+										? 'gitlab'
+										: existing.html_url?.includes('codeberg')
+											? 'codeberg'
+											: platform || 'github')
+								).toLowerCase();
+								if (existingPlatform !== issuePlatform) {
+									return false;
+								}
+								return (
+									String(existing.number) === String(issue.number) ||
+									(existing.id && String(existing.id) === String(issue.id))
+								);
+							});
 							if (!alreadyExists) {
-								plansByRepo[repo].push(issue);
+								const planItem = {
+									...issue,
+									_platform: issuePlatform,
+									platform: issuePlatform,
+								};
+								plansByRepo[repo].push(planItem);
+								plansByPlatformAndRepo[issuePlatform][repo].push(planItem);
 							}
 						});
 
@@ -1371,6 +1638,36 @@ function allIncluded(outputTarget = 'email') {
 							repoLi += '</li>';
 							nextWeekArray.push(repoLi);
 						}
+
+						plansByPlatform = {};
+						for (const [plat, pRepos] of Object.entries(plansByPlatformAndRepo)) {
+							plansByPlatform[plat] = [];
+							for (const [repo, repoIssues] of Object.entries(pRepos)) {
+								let repoLi = `<li style="margin-bottom: 10px !important;">`;
+								if (repoIssues.length > 1) {
+									repoLi += `<span style="font-weight: 600;"><i>(${repo})</i> - Work on Issues - </span><ul style="margin-top: 4px; margin-bottom: 4px;">`;
+									for (const issue of repoIssues) {
+										let issueText = `<li><a href='${issue.html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>#${issue.number}</a> (${issue.title})`;
+										if (showOpenLabel) {
+											issueText += ` ${issue.state === 'closed' ? issue_closed_button : issue_opened_button}`;
+										}
+										issueText += '&nbsp;&nbsp;</li>';
+										repoLi += issueText;
+									}
+									repoLi += '</ul>';
+								} else {
+									const issue = repoIssues[0];
+									repoLi += `<span style="font-weight: 600;"><i>(${repo})</i> - Work on Issue - </span>`;
+									repoLi += `<a href='${issue.html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>#${issue.number}</a> (${issue.title})`;
+									if (showOpenLabel) {
+										repoLi += ` ${issue.state === 'closed' ? issue_closed_button : issue_opened_button}`;
+									}
+									repoLi += '&nbsp;&nbsp;';
+								}
+								repoLi += '</li>';
+								plansByPlatform[plat].push(repoLi);
+							}
+						}
 					}
 				} catch (err) {
 					console.error('Failed to append selected next plans:', err);
@@ -1378,7 +1675,8 @@ function allIncluded(outputTarget = 'email') {
 			}
 		}
 		log('[DEBUG] Both data processing functions completed, generating scrum body');
-		if (subjectForEmail) {
+		const activeEmailSubject = subjectForEmailParam || subjectForEmail;
+		if (activeEmailSubject) {
 			// Synchronized subject and body injection for email
 			const lastWeekUl = buildActivityListHtml();
 			const nextWeekUl = buildNextWeekListHtml();
@@ -1410,7 +1708,7 @@ function allIncluded(outputTarget = 'email') {
 			const interval = setInterval(() => {
 				const elements = window.emailClientAdapter?.getEditorElements();
 				if (elements && elements.subject && elements.body && !injected) {
-					elements.subject.value = subjectForEmail;
+					elements.subject.value = activeEmailSubject;
 					elements.subject.dispatchEvent(new Event('input', { bubbles: true }));
 					window.emailClientAdapter.injectContent(elements.body, content, elements.eventTypes.contentChange);
 					injected = true;
@@ -1450,46 +1748,164 @@ function allIncluded(outputTarget = 'email') {
 		return `<span style="${compactTextStyle}">${safeContent}</span>`;
 	}
 
-	function buildActivityListHtml() {
-		if (lastWeekIssuesArray.length === 0 && lastWeekPrsArray.length === 0 && reviewedPrsArray.length === 0) {
+	function buildActivityListHtml(activePlatformsParam = null) {
+		const targetPlatforms =
+			Array.isArray(activePlatformsParam) && activePlatformsParam.length > 0
+				? activePlatformsParam
+				: Array.isArray(currentActivePlatforms) && currentActivePlatforms.length > 0
+					? currentActivePlatforms
+					: Array.isArray(activePlatforms) && activePlatforms.length > 0
+						? activePlatforms
+						: [platform || 'github'];
+
+		const isMultiPlatform = targetPlatforms.length > 1;
+
+		if (!isMultiPlatform) {
+			if (lastWeekIssuesArray.length === 0 && lastWeekPrsArray.length === 0 && reviewedPrsArray.length === 0) {
+				return wrapCompactText('No activity to report for the selected time period.');
+			}
+
+			const sections = [];
+			const curPlatform = (targetPlatforms[0] || platform || 'github').toLowerCase();
+			const prLabel = curPlatform === 'gitlab' ? 'Merge Requests:' : 'Pull Requests:';
+			const revPrLabel = curPlatform === 'gitlab' ? 'Reviewed Merge Requests:' : 'Reviewed Pull Requests:';
+
+			if (lastWeekIssuesArray.length > 0) {
+				let issuesHtml = '<b>Issues:</b><ul>';
+				for (let i = 0; i < lastWeekIssuesArray.length; i++) {
+					issuesHtml += lastWeekIssuesArray[i];
+				}
+				issuesHtml += '</ul>';
+				sections.push(issuesHtml);
+			}
+
+			if (lastWeekPrsArray.length > 0) {
+				let prsHtml = `<b>${prLabel}</b><ul>`;
+				for (let i = 0; i < lastWeekPrsArray.length; i++) {
+					prsHtml += lastWeekPrsArray[i];
+				}
+				prsHtml += '</ul>';
+				sections.push(prsHtml);
+			}
+
+			if (reviewedPrsArray.length > 0) {
+				let reviewedHtml = `<b>${revPrLabel}</b><ul>`;
+				for (let i = 0; i < reviewedPrsArray.length; i++) {
+					reviewedHtml += reviewedPrsArray[i];
+				}
+				reviewedHtml += '</ul>';
+				sections.push(reviewedHtml);
+			}
+
+			return sections.join('<br>');
+		}
+
+		// Multi-platform handling
+		const totalActivityCount = lastWeekIssuesArray.length + lastWeekPrsArray.length + reviewedPrsArray.length;
+		if (totalActivityCount === 0) {
 			return wrapCompactText('No activity to report for the selected time period.');
 		}
 
-		const sections = [];
+		const platformSections = [];
+		const platformDisplayNames = {
+			github: 'GitHub',
+			gitlab: 'GitLab',
+			codeberg: 'Codeberg',
+		};
 
-		if (lastWeekIssuesArray.length > 0) {
-			let issuesHtml = '<b>Issues:</b><ul>';
-			for (let i = 0; i < lastWeekIssuesArray.length; i++) {
-				issuesHtml += lastWeekIssuesArray[i];
+		for (const p of targetPlatforms) {
+			const pNorm = (p || '').toLowerCase();
+			const pIssues = issuesByPlatform[pNorm] || [];
+			const pPrs = prsByPlatform[pNorm] || [];
+			const pRevPrs = reviewedPrsByPlatform[pNorm] || [];
+			const hasPlatformActivity = pIssues.length > 0 || pPrs.length > 0 || pRevPrs.length > 0;
+
+			const displayName = platformDisplayNames[pNorm] || pNorm.charAt(0).toUpperCase() + pNorm.slice(1);
+			const prLabel = pNorm === 'gitlab' ? 'Merge Requests:' : 'Pull Requests:';
+			const revPrLabel = pNorm === 'gitlab' ? 'Reviewed Merge Requests:' : 'Reviewed Pull Requests:';
+
+			let pContent = '';
+			if (hasPlatformActivity) {
+				const parts = [];
+				if (pIssues.length > 0) {
+					let issuesHtml = '<b>Issues:</b><ul>';
+					for (let i = 0; i < pIssues.length; i++) {
+						issuesHtml += pIssues[i];
+					}
+					issuesHtml += '</ul>';
+					parts.push(issuesHtml);
+				}
+				if (pPrs.length > 0) {
+					let prsHtml = `<b>${prLabel}</b><ul>`;
+					for (let i = 0; i < pPrs.length; i++) {
+						prsHtml += pPrs[i];
+					}
+					prsHtml += '</ul>';
+					parts.push(prsHtml);
+				}
+				if (pRevPrs.length > 0) {
+					let revHtml = `<b>${revPrLabel}</b><ul>`;
+					for (let i = 0; i < pRevPrs.length; i++) {
+						revHtml += pRevPrs[i];
+					}
+					revHtml += '</ul>';
+					parts.push(revHtml);
+				}
+				pContent = parts.join('<br>');
+			} else {
+				pContent = wrapCompactText('No activity to report for the selected time period.');
 			}
-			issuesHtml += '</ul>';
-			sections.push(issuesHtml);
+
+			const platformBlock = `<div class="report-platform-header" style="margin-top: 8px; margin-bottom: 4px;"><b style="text-decoration: underline;">${displayName}:</b></div><div class="report-platform-content" style="margin-left: 12px; margin-bottom: 8px;">${pContent}</div>`;
+			platformSections.push(platformBlock);
 		}
 
-		if (lastWeekPrsArray.length > 0) {
-			let prsHtml = '<b>Pull Requests:</b><ul>';
-			for (let i = 0; i < lastWeekPrsArray.length; i++) {
-				prsHtml += lastWeekPrsArray[i];
-			}
-			prsHtml += '</ul>';
-			sections.push(prsHtml);
-		}
-
-		if (reviewedPrsArray.length > 0) {
-			let reviewedHtml = '<b>Reviewed Pull Requests:</b><ul>';
-			for (let i = 0; i < reviewedPrsArray.length; i++) {
-				reviewedHtml += reviewedPrsArray[i];
-			}
-			reviewedHtml += '</ul>';
-			sections.push(reviewedHtml);
-		}
-
-		return sections.join('<br>');
+		return platformSections.join('');
 	}
 
-	function buildNextWeekListHtml() {
+	function buildNextWeekListHtml(activePlatformsParam = null) {
 		if (nextWeekArray.length === 0) {
 			return wrapCompactText('No plans added yet.');
+		}
+
+		const targetPlatforms =
+			Array.isArray(activePlatformsParam) && activePlatformsParam.length > 0
+				? activePlatformsParam
+				: Array.isArray(currentActivePlatforms) && currentActivePlatforms.length > 0
+					? currentActivePlatforms
+					: Array.isArray(activePlatforms) && activePlatforms.length > 0
+						? activePlatforms
+						: [platform || 'github'];
+
+		const isMultiPlatform = targetPlatforms.length > 1;
+		const platformsWithPlans = Object.keys(plansByPlatform || {}).filter((p) => (plansByPlatform[p] || []).length > 0);
+
+		if (isMultiPlatform && platformsWithPlans.length > 1) {
+			const platformDisplayNames = {
+				github: 'GitHub',
+				gitlab: 'GitLab',
+				codeberg: 'Codeberg',
+			};
+
+			const blocks = [];
+			for (const p of targetPlatforms) {
+				const pNorm = (p || '').toLowerCase();
+				const pPlans = plansByPlatform[pNorm] || [];
+				if (pPlans.length === 0) continue;
+
+				const displayName = platformDisplayNames[pNorm] || pNorm.charAt(0).toUpperCase() + pNorm.slice(1);
+				let pList = '<ul>';
+				for (let i = 0; i < pPlans.length; i++) pList += pPlans[i];
+				pList += '</ul>';
+
+				blocks.push(
+					`<div class="report-platform-header" style="margin-top: 8px; margin-bottom: 4px;"><b style="text-decoration: underline;">${displayName}:</b></div><div class="report-platform-content" style="margin-left: 12px; margin-bottom: 8px;">${pList}</div>`,
+				);
+			}
+
+			if (blocks.length > 0) {
+				return blocks.join('');
+			}
 		}
 
 		let nextWeekList = '<ul>';
@@ -1553,11 +1969,49 @@ function allIncluded(outputTarget = 'email') {
 								? (window.codebergHelper?.cache?.cacheKey ?? null)
 								: (githubCache?.cacheKey ?? null);
 
+					const platformCacheKeys = {
+						github: githubCache?.cacheKey ?? storageItems?.githubCache?.cacheKey ?? null,
+						gitlab: window.gitlabHelper?.cache?.cacheKey ?? storageItems?.gitlabCache?.cacheKey ?? null,
+						codeberg: window.codebergHelper?.cache?.cacheKey ?? storageItems?.codebergCache?.cacheKey ?? null,
+					};
+
+					const combinedIdentity =
+						window.reportIdentityUtils?.buildReportIdentity({
+							platforms: activePlatforms,
+							usernames: {
+								github: getUsernameForPlatform('github'),
+								gitlab: getUsernameForPlatform('gitlab'),
+								codeberg: getUsernameForPlatform('codeberg'),
+							},
+							filters: {
+								useRepoFilter: Boolean(storageItems?.useRepoFilter),
+								selectedRepos: storageItems?.selectedRepos,
+								useGitlabRepoFilter: Boolean(storageItems?.useGitlabRepoFilter),
+								selectedGitlabRepos: storageItems?.selectedGitlabRepos,
+								orgName: storageItems?.orgName,
+								gitlabGroupName: storageItems?.gitlabGroupName,
+								showCommits,
+								onlyIssues,
+								onlyPRs,
+								onlyRevPRs,
+								onlyMergedPRs,
+								includeNextPlans,
+								includeBlockers,
+								selectedTimeframe: storageItems?.selectedTimeframe,
+								yesterdayContribution,
+								weeklyContribution,
+								startingDate,
+								endingDate,
+							},
+							cacheKeys: platformCacheKeys,
+						}) ?? null;
+
 					chrome.storage.local.set({
 						lastScrumReportHtml: content,
 						lastScrumReportPlatform: platform,
 						lastScrumReportCacheKey: cacheKey,
 						lastScrumReportUsername: platformUsername,
+						lastScrumReportIdentity: combinedIdentity,
 					});
 				} catch (e) {
 					// ignore
@@ -1653,11 +2107,6 @@ function allIncluded(outputTarget = 'email') {
 	}
 
 	async function writeGithubPrsReviews() {
-		if (platform === 'codeberg') {
-			reviewedPrsArray = [];
-			prsReviewDataProcessed = true;
-			return;
-		}
 		if (!onlyRevPRs) {
 			log('onlyRevPRs is not checked, skipping PR reviews.');
 			reviewedPrsArray = [];
@@ -1665,14 +2114,16 @@ function allIncluded(outputTarget = 'email') {
 			return;
 		}
 
-		const items = githubPrsReviewData.items;
+		const items = githubPrsReviewData?.items;
 		log('Processing PR reviews:', {
 			hasItems: !!items,
 			itemCount: items?.length,
 			firstItem: items?.[0],
 		});
-		if (!items) {
-			logError('No Github PR review data available');
+		if (!items || items.length === 0) {
+			log('No Github PR review data available');
+			reviewedPrsArray = [];
+			prsReviewDataProcessed = true;
 			return;
 		}
 		reviewedPrsArray = [];
@@ -1709,39 +2160,40 @@ function allIncluded(outputTarget = 'email') {
 		log('Filtering PR reviews by date range:', { startDate, endDate, startDateTime, endDateTime });
 
 		let filteredItems = items;
-		if (platform === 'github') {
-			if (githubToken && items.length <= 50) {
-				const prReviewsResults = await Promise.all(
-					items.map(async (item) => {
-						try {
-							const repoParts = item.repository_url.split('/');
-							const owner = repoParts[repoParts.length - 2];
-							const repo = repoParts[repoParts.length - 1];
+		const ghItems = items.filter((i) => (i._platform || platform) === 'github');
+		if (ghItems.length > 0 && githubToken && ghItems.length <= 50) {
+			const prReviewsResults = await Promise.all(
+				ghItems.map(async (item) => {
+					try {
+						const repoParts = item.repository_url?.split('/') || [];
+						const owner = repoParts[repoParts.length - 2];
+						const repo = repoParts[repoParts.length - 1];
 
-							const reviews = await window.githubFetchPrReviews(owner, repo, item.number, githubToken).catch(() => []);
+						const reviews = await window.githubFetchPrReviews(owner, repo, item.number, githubToken);
 
-							const hasValidReview = reviews.some((review) => {
-								if (!review.user || review.user.login.toLowerCase() !== platformUsernameLocal.toLowerCase())
-									return false;
-								if (!review.submitted_at) return false;
-								const submittedDate = new Date(review.submitted_at);
-								return submittedDate >= startDateTime && submittedDate <= endDateTime;
-							});
+						const hasValidReview = reviews.some((review) => {
+							const ghUser = getUsernameForPlatform('github');
+							if (!review.user || !ghUser || review.user.login.toLowerCase() !== ghUser.toLowerCase()) return false;
+							if (!review.submitted_at) return false;
+							const submittedDate = new Date(review.submitted_at);
+							return submittedDate >= startDateTime && submittedDate <= endDateTime;
+						});
 
-							return { item, keep: hasValidReview };
-						} catch (err) {
-							logError(`Failed to fetch reviews for PR #${item.number}:`, err);
-							return { item, keep: true };
-						}
-					}),
-				);
-				filteredItems = prReviewsResults.filter((r) => r.keep).map((r) => r.item);
-			} else if (githubToken && items.length > 50) {
-				window.scrumHelperToast?.('Showing approximate results due to high PR volume', {
-					duration: 5000,
-					variant: 'info',
-				});
-			}
+						return { item, keep: hasValidReview };
+					} catch (err) {
+						logError(`Failed to fetch reviews for PR #${item.number}:`, err);
+						return { item, keep: true };
+					}
+				}),
+			);
+			const validGhItems = prReviewsResults.filter((r) => r.keep).map((r) => r.item);
+			const nonGhItems = items.filter((i) => (i._platform || platform) !== 'github');
+			filteredItems = [...validGhItems, ...nonGhItems];
+		} else if (ghItems.length > 50 && githubToken) {
+			window.scrumHelperToast?.('Showing approximate results due to high PR volume', {
+				duration: 5000,
+				variant: 'info',
+			});
 		}
 
 		for (i = 0; i < filteredItems.length; i++) {
@@ -1750,15 +2202,22 @@ function allIncluded(outputTarget = 'email') {
 				`Processing PR #${item.number} - state: ${item.state}, updated_at: ${item.updated_at}, created_at: ${item.created_at}, merged_at: ${item.pull_request?.merged_at}`,
 			);
 
-			// For GitHub: item.user.login, for GitLab: item.author?.username
+			// For GitHub: item.user.login, for GitLab: item.author?.username, for Codeberg: item.user.login/username
 			let isAuthoredByUser = false;
-			if (platform === 'github') {
-				isAuthoredByUser = item.user && item.user.login.toLowerCase() === platformUsernameLocal.toLowerCase();
-			} else if (platform === 'gitlab') {
-				isAuthoredByUser = item.author && item.author.username === platformUsername;
-			} else if (platform === 'codeberg') {
-				isAuthoredByUser =
-					item.user && (item.user.login === platformUsernameLocal || item.user.username === platformUsernameLocal);
+			const itemPlatform = item._platform || item.platform || platform;
+			const userForPlatform = getUsernameForPlatform(itemPlatform);
+			if (itemPlatform === 'github') {
+				isAuthoredByUser = Boolean(
+					item.user?.login && userForPlatform && item.user.login.toLowerCase() === userForPlatform.toLowerCase(),
+				);
+			} else if (itemPlatform === 'gitlab') {
+				const authorUsername = item.author?.username;
+				isAuthoredByUser = Boolean(
+					authorUsername && userForPlatform && authorUsername.toLowerCase() === userForPlatform.toLowerCase(),
+				);
+			} else if (itemPlatform === 'codeberg') {
+				const login = item.user?.login || item.user?.username;
+				isAuthoredByUser = Boolean(login && userForPlatform && login.toLowerCase() === userForPlatform.toLowerCase());
 			}
 
 			if (isAuthoredByUser || !item.pull_request) continue;
@@ -1819,7 +2278,7 @@ function allIncluded(outputTarget = 'email') {
 				}
 			}
 
-			const project = getProjectName(item, platform);
+			const project = getProjectName(item, itemPlatform);
 			if (!project) {
 				logError('Project name could not be determined for item:', item);
 				continue;
@@ -1835,12 +2294,23 @@ function allIncluded(outputTarget = 'email') {
 				number: number,
 				html_url: html_url,
 				title: title,
-				state: normalizePrState(item, platform),
+				state: normalizePrState(item, itemPlatform),
+				platform: (itemPlatform || platform || 'github').toLowerCase(),
 			};
 			githubPrsReviewDataProcessed[project].push(obj);
 		}
+		reviewedPrsArray = [];
+		reviewedPrsByPlatform = {};
 		for (const [repo, repoPrs] of Object.entries(githubPrsReviewDataProcessed)) {
 			if (!repoPrs || repoPrs.length === 0) continue;
+
+			// Group by platform
+			const repoPrsByPlat = {};
+			for (const pr of repoPrs) {
+				const prPlat = (pr.platform || platform || 'github').toLowerCase();
+				repoPrsByPlat[prPlat] = repoPrsByPlat[prPlat] || [];
+				repoPrsByPlat[prPlat].push(pr);
+			}
 
 			let repoLi = `<li style="margin-bottom: 10px !important;">`;
 			if (repoPrs.length > 1) {
@@ -1868,6 +2338,40 @@ function allIncluded(outputTarget = 'email') {
 			}
 			repoLi += '</li>';
 			reviewedPrsArray.push(repoLi);
+
+			for (const [p, pPrs] of Object.entries(repoPrsByPlat)) {
+				reviewedPrsByPlatform[p] = reviewedPrsByPlatform[p] || [];
+				const isGitlab = p === 'gitlab';
+				const pluralLabel = isGitlab ? 'Reviewed Merge Requests' : 'Reviewed PRs';
+				const singularLabel = isGitlab ? 'Reviewed Merge Request' : 'Reviewed PR';
+
+				let pRepoLi = `<li style="margin-bottom: 10px !important;">`;
+				if (pPrs.length > 1) {
+					pRepoLi += `<span style="font-weight: 600;"><i>(${repo})</i> - ${pluralLabel} - </span><ul style="margin-top: 4px; margin-bottom: 4px;">`;
+					for (const pr_arr1 of pPrs) {
+						let statusBtn = '';
+						if (showOpenLabel) {
+							if (pr_arr1.state === 'open') statusBtn = ' ' + pr_open_button;
+							else if (pr_arr1.state === 'merged') statusBtn = ' ' + pr_merged_button;
+							else if (pr_arr1.state === 'closed') statusBtn = ' ' + pr_closed_button;
+						}
+						pRepoLi += `<li><a href='${pr_arr1.html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>#${pr_arr1.number}</a> (${pr_arr1.title})${statusBtn}&nbsp;&nbsp;</li>`;
+					}
+					pRepoLi += '</ul>';
+				} else {
+					const pr_arr = pPrs[0];
+					pRepoLi += `<span style="font-weight: 600;"><i>(${repo})</i> - ${singularLabel} - </span>`;
+					let statusBtn = '';
+					if (showOpenLabel) {
+						if (pr_arr.state === 'open') statusBtn = ' ' + pr_open_button;
+						else if (pr_arr.state === 'merged') statusBtn = ' ' + pr_merged_button;
+						else if (pr_arr.state === 'closed') statusBtn = ' ' + pr_closed_button;
+					}
+					pRepoLi += `<a href='${pr_arr.html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>#${pr_arr.number}</a> (${pr_arr.title})${statusBtn}&nbsp;&nbsp;`;
+				}
+				pRepoLi += '</li>';
+				reviewedPrsByPlatform[p].push(pRepoLi);
+			}
 		}
 		prsReviewDataProcessed = true;
 	}
@@ -1896,6 +2400,8 @@ function allIncluded(outputTarget = 'email') {
 		if (!items.length) {
 			return;
 		}
+		lastWeekIssuesArray = [];
+		issuesByPlatform = {};
 		const headers = { Accept: 'application/vnd.github.v3+json' };
 		if (githubToken) headers.Authorization = `token ${githubToken}`;
 		let useMergedStatus = false;
@@ -1932,7 +2438,14 @@ function allIncluded(outputTarget = 'email') {
 		const prsToCheck = [];
 		for (let i = 0; i < items.length; i++) {
 			const item = items[i];
-			if (item.pull_request && item.state === 'closed' && useMergedStatus && !fallbackToSimple) {
+			const itemPlatform = item._platform || item.platform || platform;
+			if (
+				item.pull_request &&
+				item.state === 'closed' &&
+				useMergedStatus &&
+				!fallbackToSimple &&
+				itemPlatform === 'github'
+			) {
 				const repository_url = item.repository_url;
 				if (!repository_url) {
 					logError('repository_url is undefined for item:', item);
@@ -1969,6 +2482,7 @@ function allIncluded(outputTarget = 'email') {
 
 		for (let i = 0; i < items.length; i++) {
 			const item = items[i];
+			const itemPlatform = item._platform || item.platform || platform;
 			log('[SCRUM-DEBUG] Processing item:', item);
 			// For GitLab, treat all items in the MRs array as MRs
 			const isMR = !!item.pull_request; // works for both GitHub and mapped GitLab data
@@ -2026,9 +2540,12 @@ function allIncluded(outputTarget = 'email') {
 					// cannot be fetched.
 					let hasMergeInfo = false;
 					let isMerged = false;
-					if (platform === 'gitlab') {
+					if (itemPlatform === 'gitlab') {
 						hasMergeInfo = true;
 						isMerged = item.state === 'merged';
+					} else if (itemPlatform === 'codeberg') {
+						hasMergeInfo = true;
+						isMerged = !!(item.pull_request && item.pull_request.merged);
 					} else if (prCacheKey && prCacheKey in mergedStatusResults) {
 						hasMergeInfo = true;
 						isMerged = !!mergedStatusResults[prCacheKey];
@@ -2050,10 +2567,10 @@ function allIncluded(outputTarget = 'email') {
 				}
 			}
 
-			log('[SCRUM-DEBUG] isMR:', isMR, 'platform:', platform, 'item:', item);
+			log('[SCRUM-DEBUG] isMR:', isMR, 'platform:', itemPlatform, 'item:', item);
 			const html_url = item.html_url;
 			const repository_url = item.repository_url;
-			const project = getProjectName(item, platform) || 'unknown';
+			const project = getProjectName(item, itemPlatform) || 'unknown';
 			const title = item.title;
 			const number = item.number;
 			let li = '';
@@ -2100,7 +2617,7 @@ function allIncluded(outputTarget = 'email') {
 				// Check if PR has commits in the date range
 				const hasCommitsInRange = item._allCommits && item._allCommits.length > 0;
 
-				if (platform === 'github') {
+				if (itemPlatform === 'github') {
 					// For existing PRs (not new), include them if they are open/draft, closed/merged within the date range, or have commits in the date range
 					if (!isNewPR) {
 						const closedDate = item.closed_at ? new Date(item.closed_at) : null;
@@ -2120,7 +2637,7 @@ function allIncluded(outputTarget = 'email') {
 					}
 					prAction = isNewPR ? 'Made PR' : 'Updated PR';
 					log(`[PR DEBUG] Including PR #${number} as ${prAction}`);
-				} else if (platform === 'gitlab') {
+				} else if (itemPlatform === 'gitlab') {
 					// For existing MRs (not new), they must be open AND have commits in the date range (if showCommits is enabled)
 					if (!isNewPR) {
 						if (item.state !== 'opened') {
@@ -2133,7 +2650,7 @@ function allIncluded(outputTarget = 'email') {
 						}
 					}
 					prAction = isNewPR ? 'Made Merge Request' : 'Updated Merge Request';
-				} else if (platform === 'codeberg') {
+				} else if (itemPlatform === 'codeberg') {
 					if (showCommits && !isNewPR) {
 						if (item.state !== 'open') {
 							log(`[PR DEBUG] Skipping PR #${number} - existing PR but not open`);
@@ -2154,14 +2671,14 @@ function allIncluded(outputTarget = 'email') {
 						statusButton = ' ' + pr_draft_button;
 					} else if (item.state === 'open' || item.state === 'opened') {
 						statusButton = ' ' + pr_open_button;
-					} else if (platform === 'gitlab' && item.state === 'closed') {
+					} else if (itemPlatform === 'gitlab' && item.state === 'closed') {
 						statusButton = ' ' + pr_closed_button;
-					} else if (platform === 'codeberg' && item.state === 'closed') {
+					} else if (itemPlatform === 'codeberg' && item.state === 'closed') {
 						const isMerged = item.pull_request && item.pull_request.merged;
 						statusButton = ' ' + (isMerged ? pr_merged_button : pr_closed_button);
 					} else {
 						let merged = null;
-						if (platform === 'gitlab') {
+						if (itemPlatform === 'gitlab') {
 							merged = item.state === 'merged';
 						} else if (
 							repository_url &&
@@ -2193,7 +2710,9 @@ function allIncluded(outputTarget = 'email') {
 				if (!githubPrsDataProcessed[project]) {
 					githubPrsDataProcessed[project] = [];
 				}
-				const alreadyExists = githubPrsDataProcessed[project].some((existing) => existing.number === number);
+				const alreadyExists = githubPrsDataProcessed[project].some(
+					(existing) => existing.number === number && (existing.platform || platform) === itemPlatform,
+				);
 				if (!alreadyExists) {
 					githubPrsDataProcessed[project].push({
 						number,
@@ -2203,6 +2722,7 @@ function allIncluded(outputTarget = 'email') {
 						isNewPR,
 						statusButton,
 						commitsHtml,
+						platform: itemPlatform,
 					});
 				}
 				continue; // Prevent issue logic from overwriting PR li
@@ -2243,7 +2763,7 @@ function allIncluded(outputTarget = 'email') {
 
 				const issueActionText = isNewIssue ? 'Opened Issue' : 'Updated Issue';
 
-				if (item.state === 'open') {
+				if (item.state === 'open' || item.state === 'opened') {
 					li = `<li><i>(${project})</i> - ${issueActionText}(#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + issue_opened_button : ''}</li>`;
 				} else if (item.state === 'closed') {
 					// Use state_reason to distinguish closure reason
@@ -2261,12 +2781,24 @@ function allIncluded(outputTarget = 'email') {
 
 				log('[SCRUM-DEBUG] Added issue to lastWeekIssuesArray:', li, item);
 				lastWeekIssuesArray.push(li);
+				const itemPlatformNorm = (itemPlatform || platform || 'github').toLowerCase();
+				issuesByPlatform[itemPlatformNorm] = issuesByPlatform[itemPlatformNorm] || [];
+				issuesByPlatform[itemPlatformNorm].push(li);
 			}
 		}
 
 		lastWeekPrsArray = [];
+		prsByPlatform = {};
 		for (const [repo, repoPrs] of Object.entries(githubPrsDataProcessed)) {
 			if (!repoPrs || repoPrs.length === 0) continue;
+
+			// Group by platform
+			const repoPrsByPlat = {};
+			for (const pr of repoPrs) {
+				const prPlat = (pr.platform || platform || 'github').toLowerCase();
+				repoPrsByPlat[prPlat] = repoPrsByPlat[prPlat] || [];
+				repoPrsByPlat[prPlat].push(pr);
+			}
 
 			let repoLi = `<li style="margin-bottom: 10px !important;"><span style="font-weight: 600;"><i>(${repo})</i></span><ul style="margin-top: 4px; margin-bottom: 4px;">`;
 			for (const pr of repoPrs) {
@@ -2279,6 +2811,21 @@ function allIncluded(outputTarget = 'email') {
 			}
 			repoLi += '</ul></li>';
 			lastWeekPrsArray.push(repoLi);
+
+			for (const [p, pPrs] of Object.entries(repoPrsByPlat)) {
+				prsByPlatform[p] = prsByPlatform[p] || [];
+				let pRepoLi = `<li style="margin-bottom: 10px !important;"><span style="font-weight: 600;"><i>(${repo})</i></span><ul style="margin-top: 4px; margin-bottom: 4px;">`;
+				for (const pr of pPrs) {
+					let prText = `<li>${pr.prAction} - <a href='${pr.html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>#${pr.number}</a> (${pr.title})${pr.statusButton}&nbsp;&nbsp;`;
+					if (pr.commitsHtml) {
+						prText += pr.commitsHtml;
+					}
+					prText += '</li>';
+					pRepoLi += prText;
+				}
+				pRepoLi += '</ul></li>';
+				prsByPlatform[p].push(pRepoLi);
+			}
 		}
 
 		log('[SCRUM-DEBUG] Final lastWeekIssuesArray:', lastWeekIssuesArray);
@@ -2322,7 +2869,12 @@ function allIncluded(outputTarget = 'email') {
 		if (outputTarget === 'popup') {
 			return;
 		}
-		const username = platform === 'gitlab' ? platformUsername : platformUsernameLocal;
+		const username =
+			getUsernameForPlatform(platform) ||
+			getUsernameForPlatform('github') ||
+			getUsernameForPlatform('gitlab') ||
+			getUsernameForPlatform('codeberg') ||
+			platformUsernameLocal;
 		if (scrumBody && username && githubIssuesData && githubPrsReviewData) {
 			clearInterval(intervalWriteGithubIssues);
 			clearInterval(intervalWriteGithubPrs);
@@ -2334,7 +2886,12 @@ function allIncluded(outputTarget = 'email') {
 			return;
 		}
 
-		const username = platform === 'gitlab' ? platformUsername : platformUsernameLocal;
+		const username =
+			getUsernameForPlatform(platform) ||
+			getUsernameForPlatform('github') ||
+			getUsernameForPlatform('gitlab') ||
+			getUsernameForPlatform('codeberg') ||
+			platformUsernameLocal;
 		if (scrumBody && username && githubPrsReviewData && githubIssuesData) {
 			clearInterval(intervalWriteGithubPrs);
 			clearInterval(intervalWriteGithubIssues);
@@ -2522,31 +3079,61 @@ async function injectIntoEmailEditor(content, subject) {
 let selectedRepos = [];
 let useRepoFilter = false;
 
-function filterDataByRepos(data, selectedRepos) {
-	if (!selectedRepos || selectedRepos.length === 0) {
-		return data;
+function filterDataByRepos(data, ghRepos = [], glRepos = [], useGhFilter = true, useGlFilter = false) {
+	const extractRepoName = (r) => {
+		if (!r) return null;
+		if (typeof r === 'object') return r.fullName || null;
+		return typeof r === 'string' ? r : null;
+	};
+
+	// Support legacy signature filterDataByRepos(data, selectedRepos)
+	if (Array.isArray(ghRepos) && typeof useGhFilter !== 'boolean') {
+		const repos = (ghRepos || []).map(extractRepoName).filter(Boolean);
+		if (!repos || repos.length === 0) return data;
+		const filterSingle = (item) => {
+			const fullName = getProjectName(item, item._platform || 'github');
+			return repos.includes(fullName);
+		};
+		return {
+			...data,
+			githubIssuesData: {
+				...data.githubIssuesData,
+				items: data.githubIssuesData?.items?.filter(filterSingle) || [],
+			},
+			githubPrsReviewData: {
+				...data.githubPrsReviewData,
+				items: data.githubPrsReviewData?.items?.filter(filterSingle) || [],
+			},
+		};
 	}
 
-	const filteredData = {
+	const cleanGhRepos = (ghRepos || []).map(extractRepoName).filter(Boolean);
+	const cleanGlRepos = (glRepos || []).map(extractRepoName).filter(Boolean);
+
+	const filterItem = (item) => {
+		const plat = item._platform || 'github';
+		if (plat === 'github') {
+			if (!useGhFilter || cleanGhRepos.length === 0) return true;
+			const fullName = getProjectName(item, 'github');
+			return cleanGhRepos.includes(fullName);
+		}
+		if (plat === 'gitlab') {
+			if (!useGlFilter || cleanGlRepos.length === 0) return true;
+			const proj = getProjectName(item, 'gitlab');
+			return cleanGlRepos.includes(proj);
+		}
+		return true;
+	};
+
+	return {
 		...data,
 		githubIssuesData: {
 			...data.githubIssuesData,
-			items:
-				data.githubIssuesData?.items?.filter((item) => {
-					const urlParts = item.repository_url?.split('/');
-					const fullName = urlParts ? `${urlParts[urlParts.length - 2]}/${urlParts[urlParts.length - 1]}` : '';
-					return selectedRepos.includes(fullName);
-				}) || [],
+			items: data.githubIssuesData?.items?.filter(filterItem) || [],
 		},
 		githubPrsReviewData: {
 			...data.githubPrsReviewData,
-			items:
-				data.githubPrsReviewData?.items?.filter((item) => {
-					const urlParts = item.repository_url?.split('/');
-					const fullName = urlParts ? `${urlParts[urlParts.length - 2]}/${urlParts[urlParts.length - 1]}` : '';
-					return selectedRepos.includes(fullName);
-				}) || [],
+			items: data.githubPrsReviewData?.items?.filter(filterItem) || [],
 		},
 	};
-	return filteredData;
 }
