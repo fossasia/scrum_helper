@@ -150,7 +150,7 @@ Before opening a pull request, please confirm you have completed the following:
 - [ ] **Tests pass:** `npm test` runs without failures.
 - [ ] **No lint/format errors:** `npm run check` reports no issues.
 - [ ] **Code is formatted:** `npm run format` has been applied.
-- [ ] **Follows CSS & styling guidelines:** Uses Tailwind classes or external CSS in `src/index.css`; no inline styles or `<style>` tags.
+- [ ] **Follows CSS & styling guidelines:** Uses Tailwind classes or external CSS in `src/index.css` (or `src/scrumStyle.css` where applicable); no inline styles or `<style>` tags.
 - [ ] **Branch is up to date:** Your branch is rebased or merged with the latest `main`.
 - [ ] **PR title is descriptive:** The title clearly summarizes the change (used in release notes).
 - [ ] **Release classification provided:** Apply one of `release:major`, `release:minor`, `release:patch`, or `release:none`, or include a supported release keyword in the PR title.
