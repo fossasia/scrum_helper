@@ -14,7 +14,8 @@
 			"!!src/materialize/",
 			"!!src/scripts/jquery-3.2.1.min.js",
 			"!!src/scripts/materialize.min.js",
-			"!!src/**/*.min.js"
+			"!!src/**/*.min.js",
+			"!!**/*.svg"
 		]
 	},
 	"formatter": {
