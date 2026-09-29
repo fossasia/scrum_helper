@@ -90,10 +90,32 @@ npm run test:watch
 
 ---
 
+## Styling and CSS Guidelines
+
+To maintain visual consistency, performance, and cross-browser reliability across the extension (Chrome, Firefox, Opera) and Tauri desktop app, adhere to the following styling practices:
+
+1. **Use Tailwind CSS Utility Classes:**
+   - Always prefer using Tailwind utility classes directly on HTML elements for layout, spacing, colors, sizing, and typography (e.g., `class="flex items-center gap-2 p-2 rounded-xl text-sm font-medium"`).
+
+2. **Use External CSS When Tailwind is Insufficient:**
+   - When a styling requirement cannot be cleanly achieved with Tailwind classes (e.g., complex keyframe animations, custom scrollbar styling, vendor/pseudo-element overrides, browser-specific adjustments, or dynamic report formatting), add the rules to the external stylesheet: [`src/index.css`](src/index.css) (or [`src/scrumStyle.css`](src/scrumStyle.css) where applicable).
+
+3. **Do Not Use Inline Styles:**
+   - **In HTML:** Avoid inline `style="..."` attributes (e.g., use `class="hidden"` instead of `style="display: none;"`, and utility classes like `class="w-4 h-4"` instead of `style="width: 16px; height: 16px;"`).
+   - **In JavaScript:** Do not set inline styles via `element.style.*`. Instead, toggle CSS/Tailwind classes using `classList` (e.g., `element.classList.add('hidden')` or `element.classList.remove('hidden')`).
+
+4. **Do Not Embed `<style>` Tags in HTML:**
+   - Do not add `<style>` or `<style type="text/css">` blocks inside HTML templates (such as [`src/popup.html`](src/popup.html)). All custom CSS rules must reside in external `.css` files.
+
+5. **Avoid Unnecessary `!important` Declarations:**
+   - Write specific CSS selectors rather than relying on `!important`. Only use `!important` when strictly required to override browser-native or third-party styles.
+
+---
+
 ## Submitting a Pull Request
 
 1.  **Create a Branch:** Create a new branch for your feature or bug fix.
-2.  **Make Your Changes:** Write your code and make sure to follow the project's style.
+2.  **Make Your Changes:** Write your code and make sure to follow the project's style and [Styling and CSS Guidelines](#styling-and-css-guidelines).
 3.  **Format and Lint Your Code (Biome):** Scrum Helper uses [Biome](https://biomejs.dev/) for linting and formatting. Before committing, run the following commands to ensure your code is clean and consistent.
 
     ```sh
@@ -128,6 +150,7 @@ Before opening a pull request, please confirm you have completed the following:
 - [ ] **Tests pass:** `npm test` runs without failures.
 - [ ] **No lint/format errors:** `npm run check` reports no issues.
 - [ ] **Code is formatted:** `npm run format` has been applied.
+- [ ] **Follows CSS & styling guidelines:** Uses Tailwind classes or external CSS in `src/index.css`; no inline styles or `<style>` tags.
 - [ ] **Branch is up to date:** Your branch is rebased or merged with the latest `main`.
 - [ ] **PR title is descriptive:** The title clearly summarizes the change (used in release notes).
 - [ ] **Release classification provided:** Apply one of `release:major`, `release:minor`, `release:patch`, or `release:none`, or include a supported release keyword in the PR title.
