@@ -135,7 +135,7 @@ class CodebergHelper {
 	async loadFromStorage() {
 		try {
 			const res = await browser.storage.local.get('codebergCache');
-			if (res && res.codebergCache) {
+			if (res && res.codebergCache && !this.cache.fetching) {
 				const cached = res.codebergCache;
 				this.cache.data = cached.data;
 				this.cache.timestamp = cached.timestamp;

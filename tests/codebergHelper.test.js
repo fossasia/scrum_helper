@@ -271,6 +271,25 @@ describe('CodebergHelper', () => {
 			await expect(helper.loadFromStorage()).resolves.toBeUndefined();
 			expect(consoleErrorSpy).toHaveBeenCalled();
 		});
+
+		it('should skip assigning cache fields if a fetch is active when storage read completes', async () => {
+			vi.spyOn(browser.storage.local, 'get').mockResolvedValue({
+				codebergCache: {
+					data: { items: ['stale'] },
+					timestamp: 1727111111111,
+					cacheKey: 'stale-key',
+				},
+			});
+
+			helper.cache.fetching = true;
+			helper.cache.cacheKey = 'active-key';
+			helper.cache.data = null;
+
+			await helper.loadFromStorage();
+
+			expect(helper.cache.cacheKey).toBe('active-key');
+			expect(helper.cache.data).toBeNull();
+		});
 	});
 
 	describe('fetchAllPaginated', () => {

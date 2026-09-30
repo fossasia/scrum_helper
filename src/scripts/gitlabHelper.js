@@ -150,7 +150,7 @@ class GitLabHelper {
 	async loadFromStorage() {
 		try {
 			const items = await browser.storage.local.get(['gitlabCache']);
-			if (items.gitlabCache) {
+			if (items.gitlabCache && !this.cache.fetching) {
 				this.cache.data = items.gitlabCache.data;
 				this.cache.cacheKey = items.gitlabCache.cacheKey;
 				this.cache.timestamp = items.gitlabCache.timestamp;
