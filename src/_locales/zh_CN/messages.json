@@ -17,17 +17,32 @@
     "projectNamePlaceholder": {
         "message": "输入你的项目名称"
     },
+    "projectNameTooltip": {
+        "message": "项目名称将用于邮件主题，格式为“[Scrum] 项目名称 - 日期”。留空则不添加项目名称。"
+    },
     "githubUsernameLabel": {
         "message": "你的 GitHub 用户名"
     },
     "gitlabUsernameLabel": {
         "message": "你的 GitLab 用户名"
     },
+    "gitlabUsernamePlaceholder": {
+        "message": "获取你的贡献所必需"
+    },
     "codebergUsernameLabel": {
         "message": "你的 Codeberg 用户名"
     },
     "codebergUsernamePlaceholder": {
         "message": "获取你的贡献所必需"
+    },
+    "dropdownGithubUsernamePlaceholder": {
+        "message": "GitHub 用户名"
+    },
+    "dropdownGitlabUsernamePlaceholder": {
+        "message": "GitLab 用户名"
+    },
+    "dropdownCodebergUsernamePlaceholder": {
+        "message": "Codeberg 用户名"
     },
     "githubUsernamePlaceholder": {
         "message": "获取你的贡献所必需"
@@ -42,16 +57,19 @@
         "message": "上周"
     },
     "startDateLabel": {
-        "message": "从:"
+        "message": "从："
     },
     "endDateLabel": {
-        "message": "到:"
+        "message": "到："
     },
     "showOpenClosedLabel": {
-        "message": "显示“打开/关闭”状态"
+        "message": "显示 PR 状态标签"
     },
     "showOpenClosedTooltip": {
-        "message": "选中后，报告将显示 PR 和问题的状态标签（例如：开放、草稿、已合并、已关闭）。"
+        "message": "选中后，报告将显示 PR 和问题的状态标签（例如：未关闭、草稿、已合并、已关闭）。"
+    },
+    "advancedFiltersLabel": {
+        "message": "高级选项"
     },
     "blockersLabel": {
         "message": "什么阻碍了你的进展？"
@@ -72,7 +90,7 @@
         "message": "插入到邮件"
     },
     "insertToEmailFailedError": {
-        "message": "打开电子邮件标签页以插入报告"
+        "message": "请打开邮件标签页（或重新加载已有的邮件标签页）以插入报告"
     },
     "settingsOrgNameLabel": {
         "message": "组织名称"
@@ -80,8 +98,17 @@
     "settingsOrgNamePlaceholder": {
         "message": "输入组织名称"
     },
+    "orgNameTooltip": {
+        "message": "要获取哪个组织的 GitHub 活动？输入 GitHub 组织名称；留空则获取你在所有组织中的 GitHub 活动。多个组织名称可用逗号分隔（例如 fossasia, google）。组织名称不区分大小写。"
+    },
     "gitlabOrgNamePlaceholder": {
         "message": "输入群组名称"
+    },
+    "settingsGroupNameLabel": {
+        "message": "你的群组名称"
+    },
+    "gitlabOrgNameTooltip": {
+        "message": "要获取哪个群组的 GitLab 活动？输入 GitLab 群组名称；留空则获取你在所有群组中的 GitLab 活动。多个群组名称可用逗号分隔。群组名称不区分大小写。"
     },
     "setButton": {
         "message": "设置"
@@ -93,13 +120,13 @@
         "message": "进行身份验证请求所必需"
     },
     "githubTokenTooltip": {
-        "message": "为什么建议添加 GitHub 令牌？Scrum Helper 无需 GitHub 令牌也能工作，但添加个人访问令牌可以提供更好的体验。"
+        "message": "为什么建议添加 GitHub 令牌？Scrum Helper 无需 GitHub 令牌也能工作，但建议添加个人访问令牌（经典版）以获得更好的体验。"
     },
     "gitlabTokenLabel": {
         "message": "你的 GitLab 令牌"
     },
     "gitlabTokenPlaceholder": {
-        "message": "私有仓库需要"
+        "message": "访问私有项目所必需"
     },
     "gitlabTokenTooltip": {
         "message": "为什么建议添加 GitLab 令牌？Scrum Helper 对于公开项目无需 GitLab 令牌也能工作，但添加个人访问令牌可以提供更好的体验。"
@@ -120,10 +147,10 @@
         "message": "https://codeberg.org/api/v1"
     },
     "showCommitsLabel": {
-        "message": "在打开的 PR/草稿 PR 上显示提交"
+        "message": "显示未关闭或草稿 PR 中的提交"
     },
     "showCommitsTooltip": {
-        "message": "需要 Github 令牌，请在设置中添加。"
+        "message": "选中后，报告将显示未关闭或草稿 PR 中的提交。需要 GitHub 令牌。"
     },
     "showCommitsTooltipGitLab": {
         "message": "需要 GitLab 令牌，请在设置中添加。"
@@ -132,25 +159,28 @@
         "message": "需要 Codeberg 令牌，请在设置中添加。"
     },
     "onlyIssuesLabel": {
-        "message": "报告中仅包含问题"
+        "message": "在报告中包含问题"
     },
     "onlyIssuesTooltip": {
-        "message": "如果选中，报告将仅包含由用户创建或分配给用户的问题。"
+        "message": "选中后，报告将包含由用户创建或分配给用户的问题。"
     },
     "onlyPRsLabel": {
-        "message": "报告中仅包含PR"
+        "message": "在报告中包含 PR"
     },
     "onlyPRsTooltip": {
-        "message": "勾选后，报告将只包含用户创建的拉取请求；已审核的PR将被排除。"
+        "message": "在报告中包含未关闭或草稿 PR。"
     },
     "cacheTTLLabel": {
-        "message": "输入缓存 TTL"
+        "message": "输入缓存有效期"
     },
     "cacheTTLUnit": {
         "message": "（分钟）"
     },
     "cacheTTLPlaceholder": {
-        "message": "以分钟为单位输入缓存 TTL（默认为 10）"
+        "message": "以分钟为单位输入缓存有效期（默认 10 分钟）"
+    },
+    "cacheTTLTooltip": {
+        "message": "数据会被缓存，以避免重复请求。缓存默认在 10 分钟后过期，你可以在此调整有效期。如需立即获取新数据，请点击“刷新数据”按钮。"
     },
     "refreshDataButton": {
         "message": "刷新数据（绕过缓存）"
@@ -174,13 +204,13 @@
         "message": "启用筛选"
     },
     "tokenRequiredWarning": {
-        "message": "仓库筛选需要GitHub令牌。请在设置中添加一个。"
+        "message": "仓库筛选需要 GitHub 令牌。请在设置中添加一个。"
     },
     "tokenRequiredGitlabWarning": {
         "message": "仓库筛选需要 GitLab 令牌。请在设置中添加一个。"
     },
     "tokenRequiredShowCommitsWarning": {
-        "message": "在打开或草稿 PR 中显示提交需要 GitHub 令牌。请在设置中添加一个。"
+        "message": "显示未关闭或草稿 PR 中的提交需要 GitHub 令牌。请在设置中添加一个。"
     },
     "tokenRequiredNextPlansWarning": {
         "message": "获取分配给你的问题需要 GitHub 令牌。请在设置中添加一个。"
@@ -189,16 +219,16 @@
         "message": "获取分配给你的问题需要 GitLab 令牌。请在设置中添加一个。"
     },
     "onlyPrsRequiredShowCommitsWarning": {
-        "message": "请选中“在报告中包含开放/草稿 PR”筛选项以显示提交。"
+        "message": "请选中“在报告中包含 PR”筛选项以显示提交。"
     },
     "regenerateNoticeText": {
         "message": "选项已更改。请重新生成报告以应用更改。"
     },
     "tokenRequiredShowCommitsWarningGitLab": {
-        "message": "在开放或草稿 MR 中显示提交需要 GitLab 令牌。请在设置中添加一个。"
+        "message": "显示未关闭或草稿 MR 中的提交需要 GitLab 令牌。请在设置中添加一个。"
     },
     "tokenRequiredShowCommitsWarningCodeberg": {
-        "message": "在开放或草稿 PR 中显示提交需要 Codeberg 令牌。请在设置中添加一个。"
+        "message": "显示未关闭或草稿 PR 中的提交需要 Codeberg 令牌。请在设置中添加一个。"
     },
     "repoSearchPlaceholder": {
         "message": "搜索要添加的仓库..."
@@ -240,10 +270,10 @@
         "message": "组织设置成功。"
     },
     "orgClearedMessage": {
-        "message": "组织已清除。点击“生成报告”以获取所有活动。"
+        "message": "组织已清除。点击“生成”以获取所有活动。"
     },
     "orgNotFoundMessage": {
-        "message": "在GitHub上找不到组织。"
+        "message": "在 GitHub 上未找到该组织。"
     },
     "orgValidationErrorMessage": {
         "message": "验证组织时出错。"
@@ -264,13 +294,13 @@
         "message": "已复制！"
     },
     "orgChangedMessage": {
-        "message": "组织已更改。单击“生成报告”按钮以获取 GitHub 活动。"
+        "message": "组织已更改。点击“生成”按钮以获取 GitHub 活动。"
     },
     "cacheClearedMessage": {
-        "message": "缓存已成功清除。单击“生成报告”以获取新数据。"
+        "message": "缓存已成功清除。点击“生成”以获取新数据。"
     },
     "cacheExpiredMessage": {
-        "message": "缓存已过期。点击\"生成\"以获取最新数据。"
+        "message": "缓存已过期。点击“生成”以获取新数据。"
     },
     "cacheClearedButton": {
         "message": "缓存已清除！"
@@ -279,10 +309,16 @@
         "message": "扩展已禁用。请在设置中启用它以生成 Scrum 报告。"
     },
     "notePoint1": {
-        "message": "拉取请求是根据任何贡献者最近的审查活动来获取的，而不仅仅是你自己的。在分享之前，请审查并调整生成的SCRUM报告，以确保它准确地反映你的工作。"
+        "message": "拉取请求根据任意贡献者最近的审查活动获取，并不限于你自己的审查活动。分享前，请检查并调整生成的 Scrum 报告，确保它准确反映你的工作。"
     },
     "noteSeeIssue": {
-        "message": "查看此 issue"
+        "message": "查看此问题"
+    },
+    "selectPlatformPlaceholder": {
+        "message": "选择平台"
+    },
+    "selectPlatformWarning": {
+        "message": "请先选择平台"
     },
     "platformLabel": {
         "message": "平台"
@@ -291,22 +327,31 @@
         "message": "你的用户名"
     },
     "onlyRevPRsLabel": {
-        "message": "报告中仅包含已审核的 PR"
+        "message": "在报告中包含已审查的 PR"
     },
     "onlyRevPRsTooltip": {
-        "message": "如果选中，报告将仅包含由你审核的 PR。"
+        "message": "选中后，报告将包含由你审查的 PR。需要 GitHub 令牌来验证所选日期范围内的实际审查活动。"
     },
     "onlyMergedPRsLabel": {
-        "message": "报告中仅包含已合并的 PR"
+        "message": "在报告中包含已合并的 PR"
     },
     "onlyMergedPRsTooltip": {
-        "message": "如果选中，报告将仅包含已合并的 PR。需要 GitHub 令牌。"
+        "message": "选中后，报告将包含已合并的 PR。建议在设置中添加 GitHub 令牌，以完整、准确地获取 PR 的合并状态。"
     },
     "tokenRequiredMergedPRsWarning": {
-        "message": "按已合并 PR 过滤需要 GitHub 令牌。请在设置中添加一个。"
+        "message": "建议添加 GitHub 令牌，以准确获取已合并的 PR。请在设置中添加一个。"
     },
     "usernameRequiredError": {
         "message": "请填写用户名以生成报告。"
+    },
+    "githubUsernameRequiredError": {
+        "message": "请输入你的 GitHub 用户名"
+    },
+    "gitlabUsernameRequiredError": {
+        "message": "请输入你的 GitLab 用户名"
+    },
+    "codebergUsernameRequiredError": {
+        "message": "请输入你的 Codeberg 用户名"
     },
     "unknownPlatformError": {
         "message": "选择了未知的平台。"
@@ -317,14 +362,17 @@
     "reportGenerationError": {
         "message": "生成报告时发生错误。"
     },
+    "errorLabel": {
+        "message": "错误"
+    },
     "githubUserNotFoundError": {
-        "message": "未找到 GitHub 用户 \"$1\"（404）。请检查用户名后重试。"
+        "message": "未找到 GitHub 用户“$1”。"
     },
     "githubUserValidationError": {
         "message": "验证 GitHub 用户时出错：$1 $2"
     },
     "invalidSearchQueryError": {
-        "message": "无效的搜索查询或日期范围。请检查格式后重试。"
+        "message": "搜索查询或日期范围无效。请检查日期范围格式后重试。"
     },
     "githubIssuesFetchError": {
         "message": "获取 GitHub 问题时出错：$1 $2"
@@ -357,13 +405,22 @@
         "message": "获取 GitLab 用户时出错：$1 $2"
     },
     "gitlabUserNotFoundError": {
-        "message": "未找到 GitLab 用户 '$1'"
+        "message": "未找到 GitLab 用户“$1”。"
     },
     "gitlabMembershipError": {
         "message": "获取 GitLab 成员项目时出错：$1 $2"
     },
     "gitlabContributedError": {
         "message": "获取 GitLab 贡献项目时出错：$1 $2"
+    },
+    "codebergUserFetchError": {
+        "message": "获取 Codeberg 用户时出错：$1 $2"
+    },
+    "codebergUserNotFoundError": {
+        "message": "未找到 Codeberg 用户“$1”。"
+    },
+    "codebergUserValidationError": {
+        "message": "验证 Codeberg 用户时出错：$1 $2"
     },
     "usernameMissingError": {
         "message": "需要用户名。"
@@ -420,7 +477,7 @@
         "message": "正在获取分配给你的问题..."
     },
     "noIssuesFound": {
-        "message": "未找到分配给你的开放问题"
+        "message": "未找到分配给你的未关闭问题"
     },
     "githubTokenRequiredNextPlans": {
         "message": "获取分配给你的问题需要 GitHub 令牌。请在设置中添加一个。"
@@ -514,6 +571,15 @@
     },
     "settingsTitle": {
         "message": "设置"
+    },
+    "extensionSettingsHeading": {
+        "message": "扩展设置"
+    },
+    "displayModeLabel": {
+        "message": "显示模式"
+    },
+    "displayModeTooltip": {
+        "message": "选择点击图标时 Scrum Helper 的打开方式。侧边栏模式将其固定在页面旁；弹出窗口模式将打开一个浮动窗口。"
     },
     "smtpSenderEmailTooltip": {
         "message": "用于发送报告的电子邮件地址（例如你的电子邮件地址）。"
