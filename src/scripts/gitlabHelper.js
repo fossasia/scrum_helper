@@ -159,6 +159,30 @@ class GitLabHelper {
 			console.error('Error loading from storage:', error);
 		}
 	}
+
+	async getAuthTokenMarker(token) {
+		if (!token) {
+			return 'noauth';
+		}
+		if (typeof crypto !== 'undefined' && crypto.subtle?.digest) {
+			try {
+				const buffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(token));
+				const hash = Array.from(new Uint8Array(buffer))
+					.map((b) => b.toString(16).padStart(2, '0'))
+					.join('')
+					.slice(0, 16);
+				return `auth-${hash}`;
+			} catch {
+				// Fallback if crypto.subtle is unavailable
+			}
+		}
+		let hash = 0;
+		for (let i = 0; i < token.length; i++) {
+			hash = (Math.imul(31, hash) + token.charCodeAt(i)) | 0;
+		}
+		return `auth-${(hash >>> 0).toString(16)}`;
+	}
+
 	async fetchGitLabData(username, startDate, endDate, token = null, orgName = '') {
 		const itemsLocal = await browser.storage.local.get([
 			'showCommits',
@@ -174,8 +198,8 @@ class GitLabHelper {
 			typeof itemsLocal.useGitlabRepoFilter !== 'undefined' ? itemsLocal.useGitlabRepoFilter : itemsLocal.useRepoFilter;
 		const selectedReposList = itemsLocal.selectedGitlabRepos || itemsLocal.selectedRepos || [];
 
-		// Include token state, orgName, showCommits, and repository filter state in cache key to invalidate on changes
-		const tokenMarker = token ? 'auth' : 'noauth';
+		// Include token fingerprint, orgName, showCommits, and repository filter state in cache key to invalidate on changes
+		const tokenMarker = await this.getAuthTokenMarker(token);
 		const normalizedGroups = parseGitlabGroups(orgName).sort().join(',');
 		const orgMarker = normalizedGroups ? `org-${normalizedGroups}` : 'noorg';
 

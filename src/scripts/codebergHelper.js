@@ -203,10 +203,34 @@ class CodebergHelper {
 		return results;
 	}
 
+	async getAuthTokenMarker(token) {
+		if (!token) {
+			return 'noauth';
+		}
+		if (typeof crypto !== 'undefined' && crypto.subtle?.digest) {
+			try {
+				const buffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(token));
+				const hash = Array.from(new Uint8Array(buffer))
+					.map((b) => b.toString(16).padStart(2, '0'))
+					.join('')
+					.slice(0, 16);
+				return `auth-${hash}`;
+			} catch {
+				// Fallback if crypto.subtle is unavailable
+			}
+		}
+		let hash = 0;
+		for (let i = 0; i < token.length; i++) {
+			hash = (Math.imul(31, hash) + token.charCodeAt(i)) | 0;
+		}
+		return `auth-${(hash >>> 0).toString(16)}`;
+	}
+
 	/* ---------- MAIN FETCH (FIXED API) ---------- */
 
 	async fetchCodebergData(username, startDate, endDate, token = null, showCommits = false) {
-		const cacheKey = `${username}-${startDate}-${endDate}-${token ? 'auth' : 'noauth'}-${showCommits ? 'commits' : 'nocommits'}`;
+		const tokenMarker = await this.getAuthTokenMarker(token);
+		const cacheKey = `${username}-${startDate}-${endDate}-${tokenMarker}-${showCommits ? 'commits' : 'nocommits'}`;
 
 		if (!this.cache.data) await this.loadFromStorage();
 

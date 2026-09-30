@@ -384,4 +384,58 @@ describe('CodebergHelper', () => {
 			expect(global.fetch).toHaveBeenCalledTimes(2);
 		});
 	});
+
+	describe('getAuthTokenMarker & token-differentiated cacheKey', () => {
+		it('should return noauth when token is null, undefined, or empty', async () => {
+			expect(await helper.getAuthTokenMarker(null)).toBe('noauth');
+			expect(await helper.getAuthTokenMarker(undefined)).toBe('noauth');
+			expect(await helper.getAuthTokenMarker('')).toBe('noauth');
+		});
+
+		it('should return a non-secret hashed fingerprint when token is provided', async () => {
+			const marker = await helper.getAuthTokenMarker('secret_token_123');
+			expect(marker).toMatch(/^auth-[a-f0-9]+$/);
+			expect(marker).not.toContain('secret_token_123');
+		});
+
+		it('should generate different markers for different tokens', async () => {
+			const marker1 = await helper.getAuthTokenMarker('token-alpha');
+			const marker2 = await helper.getAuthTokenMarker('token-beta');
+			expect(marker1).not.toBe(marker2);
+		});
+
+		it('should produce identical markers for the same token', async () => {
+			const marker1 = await helper.getAuthTokenMarker('same-token');
+			const marker2 = await helper.getAuthTokenMarker('same-token');
+			expect(marker1).toBe(marker2);
+		});
+
+		it('should invalidate cache and update cacheKey when token changes in fetchCodebergData', async () => {
+			vi.spyOn(browser.storage.local, 'get').mockResolvedValue({});
+			vi.spyOn(browser.storage.local, 'set').mockResolvedValue();
+
+			const userRes = { ok: true, status: 200, json: async () => ({ id: 1 }) };
+			const reposRes = { ok: true, status: 200, json: async () => [] };
+			const issuesRes = { ok: true, status: 200, json: async () => [] };
+			const prsRes = { ok: true, status: 200, json: async () => [] };
+
+			global.fetch = vi.fn().mockImplementation((url) => {
+				if (url.includes('/users/')) return Promise.resolve(userRes);
+				if (url.includes('/repos')) return Promise.resolve(reposRes);
+				if (url.includes('/issues')) return Promise.resolve(issuesRes);
+				if (url.includes('/pulls')) return Promise.resolve(prsRes);
+				return Promise.resolve({ ok: true, json: async () => [] });
+			});
+
+			await helper.fetchCodebergData('testuser', '2026-09-01', '2026-09-20', 'token-1');
+			const firstKey = helper.cache.cacheKey;
+
+			await helper.fetchCodebergData('testuser', '2026-09-01', '2026-09-20', 'token-2');
+			const secondKey = helper.cache.cacheKey;
+
+			expect(firstKey).not.toBe(secondKey);
+			expect(firstKey).toContain('auth-');
+			expect(secondKey).toContain('auth-');
+		});
+	});
 });
