@@ -437,5 +437,48 @@ describe('CodebergHelper', () => {
 			expect(firstKey).toContain('auth-');
 			expect(secondKey).toContain('auth-');
 		});
+
+		it('should bypass cache reuse with unique markers when crypto.subtle fails', async () => {
+			const digestSpy = vi.spyOn(crypto.subtle, 'digest').mockRejectedValue(new Error('crypto unavailable'));
+
+			const marker1 = await helper.getAuthTokenMarker('token-1');
+			const marker2 = await helper.getAuthTokenMarker('token-1');
+
+			expect(marker1).toMatch(/^auth-nocache-/);
+			expect(marker2).toMatch(/^auth-nocache-/);
+			expect(marker1).not.toBe(marker2);
+
+			digestSpy.mockRestore();
+		});
+
+		it('should not share in-flight requests between callers with different cache keys', async () => {
+			vi.spyOn(browser.storage.local, 'get').mockResolvedValue({});
+			vi.spyOn(browser.storage.local, 'set').mockResolvedValue();
+
+			let resolveFirstFetch;
+			const firstFetchGate = new Promise((resolve) => {
+				resolveFirstFetch = resolve;
+			});
+
+			global.fetch = vi.fn().mockImplementation(async (url, options) => {
+				if (options?.headers?.Authorization?.includes('token-first')) {
+					await firstFetchGate;
+					return { ok: true, status: 200, json: async () => ({ id: 100, login: 'token1-data' }) };
+				}
+				if (url.includes('/users/')) {
+					return { ok: true, status: 200, json: async () => ({ id: 200, login: 'token2-data' }) };
+				}
+				return { ok: true, status: 200, json: async () => [] };
+			});
+
+			const p1 = helper.fetchCodebergData('testuser', '2026-09-01', '2026-09-20', 'token-first');
+			const p2 = helper.fetchCodebergData('testuser', '2026-09-01', '2026-09-20', 'token-second');
+
+			resolveFirstFetch();
+
+			const [res1, res2] = await Promise.all([p1, p2]);
+			expect(res1.user.id).toBe(100);
+			expect(res2.user.id).toBe(200);
+		});
 	});
 });

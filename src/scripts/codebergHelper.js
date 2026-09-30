@@ -216,14 +216,11 @@ class CodebergHelper {
 					.slice(0, 16);
 				return `auth-${hash}`;
 			} catch {
-				// Fallback if crypto.subtle is unavailable
+				// Fallback to bypass cache reuse if cryptographic digest fails
 			}
 		}
-		let hash = 0;
-		for (let i = 0; i < token.length; i++) {
-			hash = (Math.imul(31, hash) + token.charCodeAt(i)) | 0;
-		}
-		return `auth-${(hash >>> 0).toString(16)}`;
+		// If cryptographic hashing is unavailable, bypass cache reuse to prevent token collisions
+		return `auth-nocache-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 	}
 
 	/* ---------- MAIN FETCH (FIXED API) ---------- */
@@ -248,9 +245,23 @@ class CodebergHelper {
 		}
 
 		if (this.cache.fetching) {
-			return new Promise((resolve, reject) => this.cache.queue.push({ resolve, reject }));
+			if (this.cache.cacheKey === cacheKey) {
+				return new Promise((resolve, reject) => this.cache.queue.push({ resolve, reject }));
+			}
+			if (this.cache.inFlightPromise) {
+				try {
+					await this.cache.inFlightPromise;
+				} catch {
+					// Ignore previous in-flight request errors
+				}
+			}
+			return this.fetchCodebergData(username, startDate, endDate, token, showCommits);
 		}
 
+		let resolveInFlight;
+		this.cache.inFlightPromise = new Promise((res) => {
+			resolveInFlight = res;
+		});
 		this.cache.fetching = true;
 		this.cache.cacheKey = cacheKey;
 
@@ -419,6 +430,8 @@ class CodebergHelper {
 			throw err;
 		} finally {
 			this.cache.fetching = false;
+			if (resolveInFlight) resolveInFlight();
+			this.cache.inFlightPromise = null;
 		}
 	}
 
