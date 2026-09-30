@@ -229,7 +229,7 @@ class CodebergHelper {
 		const tokenMarker = await this.getAuthTokenMarker(token);
 		const cacheKey = `${username}-${startDate}-${endDate}-${tokenMarker}-${showCommits ? 'commits' : 'nocommits'}`;
 
-		if (!this.cache.data) await this.loadFromStorage();
+		if (!this.cache.data && !this.cache.fetching) await this.loadFromStorage();
 
 		const now = Date.now();
 		const ttl = await this.getCacheTTL();
@@ -238,10 +238,6 @@ class CodebergHelper {
 
 		if (this.cache.data && isCacheKeyMatch && isCacheFresh) {
 			return this.cache.data;
-		}
-
-		if (!isCacheKeyMatch || !isCacheFresh) {
-			this.cache.data = null;
 		}
 
 		if (this.cache.fetching) {
@@ -256,6 +252,10 @@ class CodebergHelper {
 				}
 			}
 			return this.fetchCodebergData(username, startDate, endDate, token, showCommits);
+		}
+
+		if (!isCacheKeyMatch || !isCacheFresh) {
+			this.cache.data = null;
 		}
 
 		let resolveInFlight;

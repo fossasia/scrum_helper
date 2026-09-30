@@ -229,10 +229,6 @@ class GitLabHelper {
 			return this.cache.data;
 		}
 
-		if (!isCacheKeyMatch) {
-			this.cache.data = null;
-		}
-
 		if (this.cache.fetching) {
 			if (this.cache.cacheKey === cacheKey) {
 				return new Promise((resolve, reject) => {
@@ -247,6 +243,10 @@ class GitLabHelper {
 				}
 			}
 			return this.fetchGitLabData(username, startDate, endDate, token, orgName);
+		}
+
+		if (!isCacheKeyMatch) {
+			this.cache.data = null;
 		}
 
 		let resolveInFlight;
