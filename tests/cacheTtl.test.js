@@ -120,3 +120,35 @@ describe.each(helpers)('%s getAuthTokenMarker', (_name, create) => {
 		expect(m1).toBe(m2);
 	});
 });
+
+describe('GitLabHelper loadFromStorage', () => {
+	let helper;
+
+	beforeEach(() => {
+		helper = new GitLabHelper('https://gitlab.com');
+	});
+
+	afterEach(() => {
+		vi.restoreAllMocks();
+	});
+
+	it('should skip assigning cache fields if a fetch is active when storage read completes', async () => {
+		vi.spyOn(browser.storage.local, 'get').mockResolvedValue({
+			gitlabCache: {
+				data: { items: ['stale'] },
+				timestamp: 1727111111111,
+				cacheKey: 'stale-key',
+			},
+		});
+
+		helper.cache.fetching = true;
+		helper.cache.cacheKey = 'active-key';
+		helper.cache.data = null;
+
+		await helper.loadFromStorage();
+
+		expect(helper.cache.cacheKey).toBe('active-key');
+		expect(helper.cache.data).toBeNull();
+	});
+});
+
