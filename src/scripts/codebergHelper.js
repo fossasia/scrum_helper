@@ -12,8 +12,7 @@ function codebergShowTokenWarningForShowCommits({ animate = false, durationMs = 
 
 	tokenWarning.classList.remove('hidden');
 	if (animate) {
-		tokenWarning.classList.add('shake-animation');
-		setTimeout(() => tokenWarning.classList.remove('shake-animation'), 620);
+		window.shakeElement ? window.shakeElement(tokenWarning, 620) : tokenWarning.classList.add('shake-animation');
 	}
 
 	if (codebergShowCommitsWarningTimeout) {
@@ -236,8 +235,29 @@ class CodebergHelper {
 
 		try {
 			/* USER */
-			const userRes = await fetch(`${this.baseUrl}/users/${username}`, { headers });
-			if (!userRes.ok) throw new Error('User not found');
+			const userRes = await fetch(`${this.baseUrl}/users/${encodeURIComponent(username)}`, { headers });
+			if (userRes.status === 404) {
+				const errorMsg =
+					(typeof chrome !== 'undefined' && chrome?.i18n?.getMessage('codebergUserNotFoundError', [username])) ||
+					(typeof browser !== 'undefined' && browser?.i18n?.getMessage('codebergUserNotFoundError', [username])) ||
+					`Codeberg user "${username}" not found.`;
+				const err = new Error(errorMsg);
+				err.platform = 'codeberg';
+				err.username = username;
+				throw err;
+			}
+			if (!userRes.ok) {
+				const errorMsg =
+					(typeof chrome !== 'undefined' &&
+						chrome?.i18n?.getMessage('codebergUserValidationError', [userRes.status, userRes.statusText])) ||
+					(typeof browser !== 'undefined' &&
+						browser?.i18n?.getMessage('codebergUserValidationError', [userRes.status, userRes.statusText])) ||
+					`Error validating Codeberg user: ${userRes.status} ${userRes.statusText}`;
+				const err = new Error(errorMsg);
+				err.platform = 'codeberg';
+				err.username = username;
+				throw err;
+			}
 			const user = await userRes.json();
 
 			const start = new Date(startDate + 'T00:00:00Z');
