@@ -101,6 +101,17 @@ if (!window.scrumDateRangeUtils) {
 			this.normalizeDateRangeValues(startDateInput, endDateInput);
 			this.persistDateRange(startDateInput, endDateInput);
 		},
+		/**
+		 * Persist a date-input change and blur so WebKitGTK/Tauri dismisses
+		 * the native date popover (it does not auto-close on selection).
+		 * @see https://github.com/fossasia/scrum_helper/issues/877
+		 */
+		commitNativeDatePickerChange(dateInput, startDateInput, endDateInput) {
+			this.normalizeSyncAndPersistDateRange(startDateInput, endDateInput);
+			if (dateInput && typeof dateInput.blur === 'function') {
+				dateInput.blur();
+			}
+		},
 	};
 }
 
@@ -769,6 +780,13 @@ if (projectNameElement) {
 }
 if (startingDateElement) {
 	startingDateElement.addEventListener('blur', handleStartingDateChange);
+	startingDateElement.addEventListener('change', () => {
+		window.scrumDateRangeUtils.commitNativeDatePickerChange(
+			startingDateElement,
+			startingDateElement,
+			endingDateElement,
+		);
+	});
 }
 if (showCommitsElement) {
 	showCommitsElement.addEventListener('change', handleShowCommitsChange);
@@ -778,6 +796,9 @@ if (includeNextPlansElement) {
 }
 if (endingDateElement) {
 	endingDateElement.addEventListener('blur', handleEndingDateChange);
+	endingDateElement.addEventListener('change', () => {
+		window.scrumDateRangeUtils.commitNativeDatePickerChange(endingDateElement, startingDateElement, endingDateElement);
+	});
 }
 if (yesterdayContributionElement) {
 	yesterdayContributionElement.addEventListener('change', handleYesterdayContributionChange);
