@@ -129,7 +129,6 @@
 		const container = document.getElementById('assignedIssuesSelector');
 		if (!container) return;
 
-		container.style.display = 'block';
 		container.classList.remove('hidden');
 
 		container.textContent = '';
@@ -152,14 +151,12 @@
 		const container = document.getElementById('assignedIssuesSelector');
 		if (!container) return;
 
-		container.style.display = 'block';
 		container.classList.remove('hidden');
 
 		container.textContent = '';
 
 		const wrapper = document.createElement('div');
-		wrapper.classList.add('empty-message');
-		wrapper.style.color = '#d32f2f';
+		wrapper.classList.add('empty-message', 'text-red-600');
 		wrapper.textContent = message;
 
 		container.appendChild(wrapper);
@@ -169,7 +166,6 @@
 		const container = document.getElementById('assignedIssuesSelector');
 		if (!container) return;
 
-		container.style.display = 'block';
 		container.classList.remove('hidden');
 
 		container.textContent = '';
@@ -205,8 +201,7 @@
 			span.textContent = `#${issue.number} - ${issue.title} `;
 
 			const repoSpan = document.createElement('span');
-			repoSpan.style.fontSize = '10px';
-			repoSpan.style.color = '#888';
+			repoSpan.className = 'text-[10px] text-gray-500';
 			repoSpan.textContent = `(${issue.repository})`;
 
 			span.appendChild(repoSpan);
@@ -235,7 +230,6 @@
 		if (!includeNextPlansCheckbox || !includeNextPlansCheckbox.checked) {
 			const container = document.getElementById('assignedIssuesSelector');
 			if (container) {
-				container.style.display = 'none';
 				container.classList.add('hidden');
 			}
 			return;
@@ -300,7 +294,6 @@
 			if (error.message.includes('username is required') || error.message.includes('token is required')) {
 				const container = document.getElementById('assignedIssuesSelector');
 				if (container) {
-					container.style.display = 'none';
 					container.classList.add('hidden');
 				}
 				return;
