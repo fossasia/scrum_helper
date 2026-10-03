@@ -150,7 +150,7 @@ class GitLabHelper {
 	async loadFromStorage() {
 		try {
 			const items = await browser.storage.local.get(['gitlabCache']);
-			if (items.gitlabCache) {
+			if (items.gitlabCache && !this.cache.fetching) {
 				this.cache.data = items.gitlabCache.data;
 				this.cache.cacheKey = items.gitlabCache.cacheKey;
 				this.cache.timestamp = items.gitlabCache.timestamp;
@@ -159,6 +159,27 @@ class GitLabHelper {
 			console.error('Error loading from storage:', error);
 		}
 	}
+
+	async getAuthTokenMarker(token) {
+		if (!token) {
+			return 'noauth';
+		}
+		if (typeof crypto !== 'undefined' && crypto.subtle?.digest) {
+			try {
+				const buffer = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(token));
+				const hash = Array.from(new Uint8Array(buffer))
+					.map((b) => b.toString(16).padStart(2, '0'))
+					.join('')
+					.slice(0, 16);
+				return `auth-${hash}`;
+			} catch {
+				// Fallback to bypass cache reuse if cryptographic digest fails
+			}
+		}
+		// If cryptographic hashing is unavailable, bypass cache reuse to prevent token collisions
+		return `auth-nocache-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+	}
+
 	async fetchGitLabData(username, startDate, endDate, token = null, orgName = '') {
 		const itemsLocal = await browser.storage.local.get([
 			'showCommits',
@@ -174,8 +195,8 @@ class GitLabHelper {
 			typeof itemsLocal.useGitlabRepoFilter !== 'undefined' ? itemsLocal.useGitlabRepoFilter : itemsLocal.useRepoFilter;
 		const selectedReposList = itemsLocal.selectedGitlabRepos || itemsLocal.selectedRepos || [];
 
-		// Include token state, orgName, showCommits, and repository filter state in cache key to invalidate on changes
-		const tokenMarker = token ? 'auth' : 'noauth';
+		// Include token fingerprint, orgName, showCommits, and repository filter state in cache key to invalidate on changes
+		const tokenMarker = await this.getAuthTokenMarker(token);
 		const normalizedGroups = parseGitlabGroups(orgName).sort().join(',');
 		const orgMarker = normalizedGroups ? `org-${normalizedGroups}` : 'noorg';
 
@@ -208,16 +229,30 @@ class GitLabHelper {
 			return this.cache.data;
 		}
 
+		if (this.cache.fetching) {
+			if (this.cache.cacheKey === cacheKey) {
+				return new Promise((resolve, reject) => {
+					this.cache.queue.push({ resolve, reject });
+				});
+			}
+			if (this.cache.inFlightPromise) {
+				try {
+					await this.cache.inFlightPromise;
+				} catch {
+					// Ignore previous in-flight request errors
+				}
+			}
+			return this.fetchGitLabData(username, startDate, endDate, token, orgName);
+		}
+
 		if (!isCacheKeyMatch) {
 			this.cache.data = null;
 		}
 
-		if (this.cache.fetching) {
-			return new Promise((resolve, reject) => {
-				this.cache.queue.push({ resolve, reject });
-			});
-		}
-
+		let resolveInFlight;
+		this.cache.inFlightPromise = new Promise((res) => {
+			resolveInFlight = res;
+		});
 		this.cache.fetching = true;
 		this.cache.cacheKey = cacheKey;
 
@@ -551,6 +586,8 @@ class GitLabHelper {
 			throw err;
 		} finally {
 			this.cache.fetching = false;
+			if (resolveInFlight) resolveInFlight();
+			this.cache.inFlightPromise = null;
 		}
 	}
 

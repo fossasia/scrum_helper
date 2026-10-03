@@ -88,3 +88,67 @@ describe.each(helpers)('%s getCacheTTL', (_name, create) => {
 		}
 	});
 });
+
+describe.each(helpers)('%s getAuthTokenMarker', (_name, create) => {
+	let helper;
+
+	beforeEach(() => {
+		helper = create();
+	});
+
+	it('should return noauth when token is falsy', async () => {
+		expect(await helper.getAuthTokenMarker(null)).toBe('noauth');
+		expect(await helper.getAuthTokenMarker(undefined)).toBe('noauth');
+		expect(await helper.getAuthTokenMarker('')).toBe('noauth');
+	});
+
+	it('should return hashed fingerprint without leaking secret', async () => {
+		const marker = await helper.getAuthTokenMarker('super-secret-token');
+		expect(marker).toMatch(/^auth-[a-f0-9]+$/);
+		expect(marker).not.toContain('super-secret-token');
+	});
+
+	it('should return distinct markers for distinct tokens', async () => {
+		const m1 = await helper.getAuthTokenMarker('token-a');
+		const m2 = await helper.getAuthTokenMarker('token-b');
+		expect(m1).not.toBe(m2);
+	});
+
+	it('should return same marker for identical tokens', async () => {
+		const m1 = await helper.getAuthTokenMarker('token-constant');
+		const m2 = await helper.getAuthTokenMarker('token-constant');
+		expect(m1).toBe(m2);
+	});
+});
+
+describe('GitLabHelper loadFromStorage', () => {
+	let helper;
+
+	beforeEach(() => {
+		helper = new GitLabHelper('https://gitlab.com');
+	});
+
+	afterEach(() => {
+		vi.restoreAllMocks();
+	});
+
+	it('should skip assigning cache fields if a fetch is active when storage read completes', async () => {
+		vi.spyOn(browser.storage.local, 'get').mockResolvedValue({
+			gitlabCache: {
+				data: { items: ['stale'] },
+				timestamp: 1727111111111,
+				cacheKey: 'stale-key',
+			},
+		});
+
+		helper.cache.fetching = true;
+		helper.cache.cacheKey = 'active-key';
+		helper.cache.data = null;
+
+		await helper.loadFromStorage();
+
+		expect(helper.cache.cacheKey).toBe('active-key');
+		expect(helper.cache.data).toBeNull();
+	});
+});
+
