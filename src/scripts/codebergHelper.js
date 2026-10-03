@@ -27,7 +27,7 @@ function codebergCheckTokenForShowCommits({
 	showWarning = false,
 	animateWarning = false,
 	warningDurationMs = 4000,
-	persistState = false,
+	_persistState = false,
 } = {}) {
 	const showCommits = document.getElementById('showCommits');
 	const codebergTokenInput = document.getElementById('codebergToken');
@@ -70,10 +70,10 @@ function normalizeCodebergApiBaseUrl(apiBaseUrl) {
 function parseRepoAndOwner(url) {
 	if (!url) return { owner: '', repo: '' };
 
-	const apiMatch = url.match(/\/api\/v1\/repos\/([^\/]+)\/([^\/]+)/);
+	const apiMatch = url.match(/\/api\/v1\/repos\/([^/]+)\/([^/]+)/);
 	if (apiMatch) return { owner: apiMatch[1], repo: apiMatch[2] };
 
-	const webPathMatch = url.match(/\/([^\/]+)\/([^\/]+)\/(issues|pulls|pull|commit)\/\d+/i);
+	const webPathMatch = url.match(/\/([^/]+)\/([^/]+)\/(issues|pulls|pull|commit)\/\d+/i);
 	if (webPathMatch) return { owner: webPathMatch[1], repo: webPathMatch[2] };
 
 	try {
@@ -82,7 +82,7 @@ function parseRepoAndOwner(url) {
 		if (parts.length >= 2) {
 			return { owner: parts[0], repo: parts[1] };
 		}
-	} catch (e) {
+	} catch (_e) {
 		// ignore
 	}
 
@@ -384,13 +384,17 @@ class CodebergHelper {
 
 			await this.saveToStorage(result);
 
-			this.cache.queue.forEach((r) => r.resolve(result));
+			this.cache.queue.forEach((r) => {
+				r.resolve(result);
+			});
 			this.cache.queue = [];
 
 			return result;
 		} catch (err) {
 			console.error('[Codeberg] Error:', err);
-			this.cache.queue.forEach((r) => r.reject(err));
+			this.cache.queue.forEach((r) => {
+				r.reject(err);
+			});
 			this.cache.queue = [];
 			throw err;
 		} finally {

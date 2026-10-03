@@ -103,7 +103,7 @@ function getProjectPathFromWebUrl(webUrl) {
 			projectPath = projectPath.substring(0, delimiterIdx);
 		}
 		return projectPath;
-	} catch (e) {
+	} catch (_e) {
 		return '';
 	}
 }
@@ -699,7 +699,7 @@ async function forceGitlabDataRefresh() {
 	return { success: true };
 }
 
-window['forceGitlabDataRefresh'] = forceGitlabDataRefresh;
+window.forceGitlabDataRefresh = forceGitlabDataRefresh;
 
 function gitlabCheckTokenForNextPlans(options = {}) {
 	gitlabCheckToken({
@@ -774,7 +774,7 @@ async function fetchIssuesFromGitLab(scope) {
 					} else {
 						repoName = pathParts.slice(1, -2).join('/');
 					}
-				} catch (e) {}
+				} catch (_e) {}
 			}
 			if (!repoName && issue.references && issue.references.full) {
 				repoName = issue.references.full.split('#')[0];
@@ -819,7 +819,7 @@ if (window.PlatformRegistry) {
 				if (res.status === 401) return { valid: false, status: 401, reason: 'invalid' };
 				if (res.ok) return { valid: true, status: res.status };
 				return { valid: false, status: res.status, reason: 'error' };
-			} catch (err) {
+			} catch (_err) {
 				return { valid: true, networkError: true };
 			}
 		},
@@ -926,11 +926,11 @@ if (window.PlatformRegistry) {
 				return;
 			}
 			const baseUrl = window.gitlabBaseUrl || 'https://gitlab.com/api/v4';
-			let headers = {};
+			const headers = {};
 			try {
 				const result = await browser.storage.local.get(['gitlabToken']);
 				if (result.gitlabToken) headers['PRIVATE-TOKEN'] = result.gitlabToken;
-			} catch (err) {
+			} catch (_err) {
 				// ignore
 			}
 
@@ -942,7 +942,7 @@ if (window.PlatformRegistry) {
 						if (res.status === 404) {
 							invalidGroups.push(g);
 						}
-					} catch (err) {
+					} catch (_err) {
 						invalidGroups.push(g);
 					}
 				}),

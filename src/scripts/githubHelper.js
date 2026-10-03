@@ -228,14 +228,14 @@ async function githubValidateToken(token) {
 				if (body?.message?.toLowerCase().includes('bad credentials')) {
 					return { valid: false, status: 401, reason: 'invalid' };
 				}
-			} catch (e) {}
+			} catch (_e) {}
 			return { valid: false, status: 403, reason: 'forbidden' };
 		}
 		if (res.ok) {
 			return { valid: true, status: res.status };
 		}
 		return { valid: false, status: res.status, reason: 'error' };
-	} catch (err) {
+	} catch (_err) {
 		return { valid: true, networkError: true };
 	}
 }
@@ -339,7 +339,7 @@ async function githubTriggerRepoFetchIfEnabled() {
 	}
 
 	try {
-		const cacheData = await browser.storage.local.get(['repoCache']);
+		const _cacheData = await browser.storage.local.get(['repoCache']);
 		const items = await browser.storage.local.get([
 			'platform',
 			'githubUsername',
@@ -503,7 +503,7 @@ async function performRepoFetch() {
 	try {
 		const items = await browser.storage.local.get(['platform']);
 		platform = items.platform || 'github';
-	} catch (e) {}
+	} catch (_e) {}
 	if (platform !== 'github') {
 		if (repoStatus)
 			repoStatus.textContent =
@@ -640,7 +640,7 @@ async function validateOrgOnBlur(org) {
 		if (storage.githubToken) {
 			headers = { Authorization: `token ${storage.githubToken}` };
 		}
-	} catch (err) {
+	} catch (_err) {
 		// ignore storage error
 	}
 
@@ -716,7 +716,7 @@ ${prs
 			results[`${pr.owner}/${pr.repo}#${pr.number}`] = merged;
 		});
 		return results;
-	} catch (e) {
+	} catch (_e) {
 		return results;
 	}
 }
@@ -796,7 +796,7 @@ async function fetchUserRepositories(username, token, org = '') {
 				if (item.repository_url) {
 					const urlParts = item.repository_url.split('/');
 					const repoFullName = `${urlParts[urlParts.length - 2]}/${urlParts[urlParts.length - 1]}`;
-					const repoName = `${urlParts[urlParts.length - 1]}`;
+					const _repoName = `${urlParts[urlParts.length - 1]}`;
 					repoSet.add(repoFullName);
 				}
 			});
@@ -946,7 +946,7 @@ async function forceGithubDataRefresh() {
 	return { success: true };
 }
 
-window['forceGithubDataRefresh'] = forceGithubDataRefresh;
+window.forceGithubDataRefresh = forceGithubDataRefresh;
 
 // Global fetch helpers
 const GITHUB_DEBUG = false;
@@ -1135,7 +1135,7 @@ async function githubFetchPrMergedStatusREST(owner, repo, number, token) {
 		const merged = !!data.merged_at;
 		sessionMergedStatusCache[cacheKey] = merged;
 		return merged;
-	} catch (e) {
+	} catch (_e) {
 		return null;
 	}
 }

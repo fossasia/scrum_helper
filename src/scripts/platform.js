@@ -1,4 +1,4 @@
-(function () {
+(() => {
 	const isExtension =
 		window.location.protocol.endsWith('-extension:') ||
 		(typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id) ||
@@ -12,7 +12,7 @@
 	window.isTauri = true;
 
 	// Display JavaScript errors as overlay in Tauri
-	window.addEventListener('error', function (event) {
+	window.addEventListener('error', (event) => {
 		const div = document.createElement('div');
 		div.style.position = 'fixed';
 		div.style.top = '0';
@@ -72,7 +72,7 @@
 	}
 
 	const i18nMock = {
-		getMessage: function (key, substitutions) {
+		getMessage: (key, substitutions) => {
 			if (!localeData) return '';
 			const item = localeData[key];
 			if (!item) return '';
@@ -89,12 +89,12 @@
 
 	const storageListeners = [];
 	const storageOnChangedMock = {
-		addListener: function (callback) {
+		addListener: (callback) => {
 			if (typeof callback === 'function' && !storageListeners.includes(callback)) {
 				storageListeners.push(callback);
 			}
 		},
-		removeListener: function (callback) {
+		removeListener: (callback) => {
 			const index = storageListeners.indexOf(callback);
 			if (index !== -1) {
 				storageListeners.splice(index, 1);
@@ -103,7 +103,7 @@
 	};
 
 	const storageLocalMock = {
-		get: function (keys, callback) {
+		get: (keys, callback) => {
 			const promise = new Promise((resolve) => {
 				const defaults =
 					typeof keys === 'string'
@@ -120,7 +120,7 @@
 					let parsedVal;
 					try {
 						parsedVal = val !== null ? JSON.parse(val) : defaults[key];
-					} catch (e) {
+					} catch (_e) {
 						parsedVal = val;
 					}
 					result[key] = parsedVal;
@@ -132,7 +132,7 @@
 			}
 			return promise;
 		},
-		set: function (obj, callback) {
+		set: (obj, callback) => {
 			const promise = new Promise((resolve) => {
 				const changes = {};
 				for (const key in obj) {
@@ -140,7 +140,7 @@
 					let oldVal;
 					try {
 						oldVal = oldValStr !== null ? JSON.parse(oldValStr) : undefined;
-					} catch (e) {
+					} catch (_e) {
 						oldVal = oldValStr;
 					}
 					const newVal = obj[key];
@@ -162,7 +162,7 @@
 			}
 			return promise;
 		},
-		remove: function (keys, callback) {
+		remove: (keys, callback) => {
 			const promise = new Promise((resolve) => {
 				const keysArr = Array.isArray(keys) ? keys : [keys];
 				const changes = {};
@@ -171,7 +171,7 @@
 					let oldVal;
 					try {
 						oldVal = oldValStr !== null ? JSON.parse(oldValStr) : undefined;
-					} catch (e) {
+					} catch (_e) {
 						oldVal = oldValStr;
 					}
 					localStorage.removeItem(k);
@@ -192,7 +192,7 @@
 			}
 			return promise;
 		},
-		clear: function (callback) {
+		clear: (callback) => {
 			const promise = new Promise((resolve) => {
 				const changes = {};
 				for (let i = 0; i < localStorage.length; i++) {
@@ -201,7 +201,7 @@
 					let oldVal;
 					try {
 						oldVal = oldValStr !== null ? JSON.parse(oldValStr) : undefined;
-					} catch (e) {
+					} catch (_e) {
 						oldVal = oldValStr;
 					}
 					changes[key] = { oldValue: oldVal, newValue: undefined };
@@ -226,30 +226,22 @@
 
 	const runtimeMock = {
 		id: 'tauri-scrum-helper',
-		getURL: function (path) {
-			return path;
-		},
-		sendMessage: function () {
-			return Promise.resolve();
-		},
+		getURL: (path) => path,
+		sendMessage: () => Promise.resolve(),
 		onMessage: {
-			addListener: function () {},
-			removeListener: function () {},
+			addListener: () => {},
+			removeListener: () => {},
 		},
 	};
 
 	const tabsMock = {
-		query: function () {
-			return Promise.resolve([]);
-		},
-		sendMessage: function () {
-			return Promise.resolve();
-		},
+		query: () => Promise.resolve([]),
+		sendMessage: () => Promise.resolve(),
 	};
 
 	const actionMock = {
-		setPopup: function () {},
-		openPopup: function () {},
+		setPopup: () => {},
+		openPopup: () => {},
 	};
 
 	window.chrome = {

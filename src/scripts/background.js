@@ -2,7 +2,7 @@ if (typeof importScripts === 'function') {
 	try {
 		// Chrome MV3 service workers resolve relative to extension root
 		importScripts('/scripts/browser-polyfill.min.js');
-	} catch (e) {
+	} catch (_e) {
 		try {
 			importScripts('browser-polyfill.min.js');
 		} catch (e2) {
