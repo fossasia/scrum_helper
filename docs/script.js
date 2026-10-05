@@ -122,6 +122,16 @@ document.addEventListener('DOMContentLoaded', () => {
 		return null;
 	}
 
+	function updateDownloadButton(href, iconClass, text) {
+		if (!downloadButton) return;
+		downloadButton.href = href;
+		downloadButton.textContent = '';
+		const icon = document.createElement('i');
+		icon.className = `${iconClass} mr-2 text-xs`;
+		downloadButton.appendChild(icon);
+		downloadButton.appendChild(document.createTextNode(` ${text}`));
+	}
+
 	async function fetchLatestRelease() {
 		const fallbackReleaseUrl = 'https://github.com/fossasia/scrum_helper/releases/latest';
 		try {
@@ -187,38 +197,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			if (detectedOS === 'windows') {
 				if (winAsset) {
-					downloadButton.href = winAsset.url;
-					downloadButton.innerHTML = `<i class="fa-solid fa-download mr-2 text-xs"></i> Download for Windows (${winAsset.format})`;
+					updateDownloadButton(winAsset.url, 'fa-solid fa-download', `Download for Windows (${winAsset.format})`);
 				} else {
-					downloadButton.href = targetReleaseUrl;
-					downloadButton.innerHTML = `<i class="fa-solid fa-circle-arrow-down mr-2 text-xs"></i> Download for Windows`;
+					updateDownloadButton(targetReleaseUrl, 'fa-solid fa-circle-arrow-down', 'Download for Windows');
 				}
 			} else if (detectedOS === 'mac') {
 				if (macAsset) {
-					downloadButton.href = macAsset.url;
-					downloadButton.innerHTML = `<i class="fa-solid fa-download mr-2 text-xs"></i> Download for macOS (${macAsset.format})`;
+					updateDownloadButton(macAsset.url, 'fa-solid fa-download', `Download for macOS (${macAsset.format})`);
 				} else {
-					downloadButton.href = targetReleaseUrl;
-					downloadButton.innerHTML = `<i class="fa-solid fa-circle-arrow-down mr-2 text-xs"></i> Download for macOS`;
+					updateDownloadButton(targetReleaseUrl, 'fa-solid fa-circle-arrow-down', 'Download for macOS');
 				}
 			} else if (detectedOS === 'linux') {
 				if (linuxAsset) {
-					downloadButton.href = linuxAsset.url;
-					downloadButton.innerHTML = `<i class="fa-solid fa-download mr-2 text-xs"></i> Download for Linux (${linuxAsset.format})`;
+					updateDownloadButton(linuxAsset.url, 'fa-solid fa-download', `Download for Linux (${linuxAsset.format})`);
 				} else {
-					downloadButton.href = targetReleaseUrl;
-					downloadButton.innerHTML = `<i class="fa-solid fa-circle-arrow-down mr-2 text-xs"></i> Download for Linux`;
+					updateDownloadButton(targetReleaseUrl, 'fa-solid fa-circle-arrow-down', 'Download for Linux');
 				}
 			} else {
-				downloadButton.href = targetReleaseUrl;
-				downloadButton.innerHTML = `<i class="fa-solid fa-circle-arrow-down mr-2 text-xs"></i> View Latest Release`;
+				updateDownloadButton(targetReleaseUrl, 'fa-solid fa-circle-arrow-down', 'View Latest Release');
 			}
 		} catch (err) {
 			console.warn('Could not fetch latest release assets:', err);
-			if (downloadButton) {
-				downloadButton.href = fallbackReleaseUrl;
-				downloadButton.innerHTML = `<i class="fa-solid fa-circle-arrow-down mr-2 text-xs"></i> View Latest Release`;
-			}
+			updateDownloadButton(fallbackReleaseUrl, 'fa-solid fa-circle-arrow-down', 'View Latest Release');
 			const winLink = document.getElementById('win-download');
 			const macLink = document.getElementById('mac-download');
 			const linuxLink = document.getElementById('linux-download');
