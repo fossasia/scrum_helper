@@ -158,10 +158,15 @@ class CodebergHelper {
 			const paged = `${url}${sep}limit=${limit}&page=${page}`;
 
 			const res = await fetch(paged, { headers });
-			if (!res.ok) break;
+			if (!res.ok) {
+				throw new Error(`Codeberg API request failed (${res.status}).`);
+			}
 
 			const data = await res.json();
-			if (!Array.isArray(data) || data.length === 0) break;
+			if (!Array.isArray(data)) {
+				throw new TypeError('Expected a Codeberg API array response.');
+			}
+			if (data.length === 0) break;
 
 			results.push(...data);
 
@@ -184,10 +189,15 @@ class CodebergHelper {
 			const paged = `${url}${sep}limit=${limit}&page=${page}&sort=updated&order=desc`;
 
 			const res = await fetch(paged, { headers });
-			if (!res.ok) break;
+			if (!res.ok) {
+				throw new Error(`Codeberg API request failed (${res.status}).`);
+			}
 
 			const data = await res.json();
-			if (!Array.isArray(data) || data.length === 0) break;
+			if (!Array.isArray(data)) {
+				throw new TypeError('Expected a Codeberg API array response.');
+			}
+			if (data.length === 0) break;
 
 			results.push(...data);
 

@@ -299,14 +299,13 @@ describe('CodebergHelper', () => {
 			expect(fetchMock.mock.calls[1][0]).toBe('https://codeberg.org/api/v1/repos?limit=50&page=2');
 		});
 
-		it('should stop immediately when response is not ok', async () => {
+		it('should reject when response is not ok', async () => {
 			global.fetch = vi.fn().mockResolvedValue({
 				ok: false,
 				status: 500,
 			});
 
-			const results = await helper.fetchAllPaginated('https://codeberg.org/api/v1/repos', {});
-			expect(results).toEqual([]);
+			await expect(helper.fetchAllPaginated('https://codeberg.org/api/v1/repos', {})).rejects.toThrow('500');
 		});
 
 		it('should handle URL with existing query parameters correctly', async () => {

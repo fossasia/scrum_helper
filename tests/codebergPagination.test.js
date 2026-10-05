@@ -89,6 +89,58 @@ describe('Codeberg report pagination', () => {
 		},
 	);
 
+	describe.each([
+		['HTTP failure', () => ({ ok: false, status: 503 })],
+		['invalid response', () => response({ message: 'not an array' })],
+	])('a later page with %s', (_name, failedPage) => {
+		it.each(['fetchAllPaginated', 'fetchAllPaginatedWithDateLimit'])(
+			'%s rejects instead of returning incomplete results',
+			async (method) => {
+				const first = Array.from({ length: 50 }, (_, id) => ({ id, updated_at: '2026-09-15T12:00:00Z' }));
+				vi.stubGlobal('fetch', vi.fn().mockResolvedValueOnce(response(first)).mockResolvedValueOnce(failedPage()));
+
+				await expect(helper[method](`${baseUrl}/repos`, {}, start)).rejects.toThrow();
+			},
+		);
+
+		it('does not return a partial commit list', async () => {
+			const first = Array.from({ length: 50 }, () => ({
+				commit: { message: 'Recent commit', committer: { date: '2026-09-15T12:00:00Z' } },
+			}));
+			vi.spyOn(console, 'error').mockImplementation(() => {});
+			vi.stubGlobal('fetch', vi.fn().mockResolvedValueOnce(response(first)).mockResolvedValueOnce(failedPage()));
+
+			expect(
+				await helper.fetchCommitsForOpenPRs(
+					[{ number: 7, html_url: 'https://codeberg.org/alex/repo/pulls/7' }],
+					null,
+					start,
+					end,
+				),
+			).toEqual({ 'alex/repo#7': [] });
+		});
+
+		it('does not cache a report with an incomplete repository list', async () => {
+			vi.spyOn(console, 'error').mockImplementation(() => {});
+			const save = vi.spyOn(browser.storage.local, 'set').mockResolvedValue();
+			const first = Array.from({ length: 50 }, (_, i) => ({ owner: { login: 'alex' }, name: `repo${i}` }));
+			vi.stubGlobal(
+				'fetch',
+				vi.fn(async (url) => {
+					const parsed = new URL(url);
+					if (parsed.pathname === '/api/v1/users/alex') return response({ login: 'alex' });
+					if (parsed.pathname === '/api/v1/users/alex/repos') {
+						return parsed.searchParams.get('page') === '2' ? failedPage() : response(first);
+					}
+					return response([]);
+				}),
+			);
+
+			await expect(helper.fetchCodebergData('alex', start, end)).rejects.toThrow();
+			expect(save).not.toHaveBeenCalled();
+		});
+	});
+
 	it('returns an empty commit list when the API rejects the request', async () => {
 		vi.stubGlobal(
 			'fetch',
