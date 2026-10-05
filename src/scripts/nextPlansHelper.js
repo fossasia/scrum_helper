@@ -124,6 +124,24 @@
 		return [];
 	}
 
+	function getIssueKey(issue) {
+		return `${issue._platform || issue.platform || 'github'}:${issue.id}`;
+	}
+
+	function getSelectedIssues(issues, selectedIds) {
+		const byKey = new Map();
+		const byLegacyId = new Map();
+		for (const issue of issues) {
+			const key = getIssueKey(issue);
+			if (byKey.has(key)) continue;
+			byKey.set(key, issue);
+			const id = String(issue.id);
+			// Legacy selections did not identify the platform. Only restore unique IDs.
+			byLegacyId.set(id, byLegacyId.has(id) ? null : issue);
+		}
+		return selectedIds.map((id) => byKey.get(String(id)) || byLegacyId.get(String(id))).filter(Boolean);
+	}
+
 	// 6. UI Render Helpers
 	function showLoadingState() {
 		const container = document.getElementById('assignedIssuesSelector');
@@ -175,6 +193,7 @@
 		container.textContent = '';
 
 		const selectedIds = getSavedIssueSelections(scope);
+		const selectedKeys = new Set(getSelectedIssues(issues || [], selectedIds).map(getIssueKey));
 
 		const scopeDiv = document.createElement('div');
 		scopeDiv.classList.add('scope-info');
@@ -196,8 +215,8 @@
 			const checkbox = document.createElement('input');
 			checkbox.type = 'checkbox';
 			checkbox.classList.add('issue-item-checkbox');
-			checkbox.dataset.issueId = issue.id;
-			if (selectedIds.some((id) => String(id) === String(issue.id))) {
+			checkbox.dataset.issueId = getIssueKey(issue);
+			if (selectedKeys.has(getIssueKey(issue))) {
 				checkbox.checked = true;
 			}
 
@@ -329,11 +348,7 @@
 		} catch (e) {}
 
 		// Map selectedIds to full issue objects
-		return selectedIds
-			.map((id) => {
-				return issues.find((issue) => String(issue.id) === String(id));
-			})
-			.filter(Boolean);
+		return getSelectedIssues(issues, selectedIds);
 	}
 
 	// Expose globally
