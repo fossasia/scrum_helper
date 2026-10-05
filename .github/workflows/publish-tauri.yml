@@ -21,6 +21,7 @@ on:
 
 jobs:
   publish-tauri:
+    name: Build (${{ matrix.name }})
     permissions:
       contents: write
     strategy:
@@ -28,15 +29,19 @@ jobs:
       matrix:
         include:
           - platform: "macos-latest"
+            name: "macOS Apple Silicon (ARM64)"
             args: "--target aarch64-apple-darwin"
             target: "aarch64-apple-darwin"
           - platform: "macos-15-intel"
+            name: "macOS Intel (x86_64)"
             args: "--target x86_64-apple-darwin"
             target: "x86_64-apple-darwin"
           - platform: "ubuntu-24.04"
+            name: "Linux"
             args: ""
             target: ""
           - platform: "windows-latest"
+            name: "Windows"
             args: ""
             target: ""
     runs-on: ${{ matrix.platform }}
