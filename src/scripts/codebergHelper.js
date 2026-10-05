@@ -165,7 +165,8 @@ class CodebergHelper {
 
 			results.push(...data);
 
-			if (data.length < limit) break;
+			const hasNextPage = res.headers?.get('Link')?.includes('rel="next"');
+			if (!hasNextPage && data.length < limit) break;
 			page++;
 		}
 
@@ -196,7 +197,8 @@ class CodebergHelper {
 				break;
 			}
 
-			if (data.length < limit) break;
+			const hasNextPage = res.headers?.get('Link')?.includes('rel="next"');
+			if (!hasNextPage && data.length < limit) break;
 			page++;
 		}
 
@@ -337,11 +339,7 @@ class CodebergHelper {
 				}
 			} else {
 				/* FALLBACK FOR UNAUTHENTICATED USERS: REPO-BASED FETCHING */
-				const reposRes = await fetch(`${this.baseUrl}/users/${username}/repos`, { headers });
-				const repos = reposRes.ok ? await reposRes.json() : [];
-				if (!Array.isArray(repos)) {
-					throw new Error('Repositories list is not an array');
-				}
+				const repos = await this.fetchAllPaginated(`${this.baseUrl}/users/${username}/repos`, headers);
 
 				await Promise.all(
 					repos.map(async (repo) => {
@@ -418,31 +416,21 @@ class CodebergHelper {
 						return;
 					}
 					const url = `${this.baseUrl}/repos/${owner}/${repo}/pulls/${pr.number}/commits`;
-					const res = await fetch(url, { headers });
-					if (res.ok) {
-						const commits = await res.json();
-						if (Array.isArray(commits)) {
-							const mapped = commits
-								.map((c) => {
-									const commitObj = c.commit || {};
-									const committer = commitObj.committer || {};
-									return {
-										messageHeadline: commitObj.message?.split('\n')[0] || '',
-										committedDate: committer.date || c.created || '',
-									};
-								})
-								.filter((c) => {
-									if (!c.committedDate) return false;
-									const d = new Date(c.committedDate);
-									return d >= since && d <= until;
-								});
-							commitMap[key] = mapped;
-						} else {
-							commitMap[key] = [];
-						}
-					} else {
-						commitMap[key] = [];
-					}
+					const commits = await this.fetchAllPaginated(url, headers);
+					commitMap[key] = commits
+						.map((c) => {
+							const commitObj = c.commit || {};
+							const committer = commitObj.committer || {};
+							return {
+								messageHeadline: commitObj.message?.split('\n')[0] || '',
+								committedDate: committer.date || c.created || '',
+							};
+						})
+						.filter((c) => {
+							if (!c.committedDate) return false;
+							const d = new Date(c.committedDate);
+							return d >= since && d <= until;
+						});
 				} catch (e) {
 					console.error(`[Codeberg] Failed to fetch commits for PR #${pr.number}:`, e);
 					commitMap[key] = [];
