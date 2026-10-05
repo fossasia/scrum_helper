@@ -46,6 +46,7 @@ jobs:
         with:
           ref: ${{ inputs.release_tag || github.event.release.tag_name || github.ref }}
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
