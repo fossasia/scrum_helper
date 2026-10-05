@@ -48,6 +48,58 @@ describe('CodebergHelper', () => {
 		});
 	});
 
+	describe('server-scoped report cache', () => {
+		let stored;
+
+		beforeEach(() => {
+			stored = {};
+			vi.spyOn(browser.storage.local, 'get').mockImplementation(async () => stored);
+			vi.spyOn(browser.storage.local, 'set').mockImplementation(async (values) => {
+				Object.assign(stored, values);
+			});
+			vi.stubGlobal('fetch', vi.fn(async (url) => ({
+				ok: true,
+				json: async () => url.endsWith('/users/alex') ? { login: 'alex', server: new URL(url).host } : [],
+			})));
+		});
+
+		afterEach(() => {
+			vi.unstubAllGlobals();
+		});
+
+		it('fetches a new report when the same username is used on a different server', async () => {
+			await helper.fetchCodebergData('alex', '2026-09-01', '2026-09-20');
+			const other = new CodebergHelper('https://git.example.org/api/v1');
+
+			const report = await other.fetchCodebergData('alex', '2026-09-01', '2026-09-20');
+
+			expect(report.user.server).toBe('git.example.org');
+			expect(fetch).toHaveBeenCalledWith('https://git.example.org/api/v1/users/alex', expect.any(Object));
+		});
+
+		it('reuses persisted reports for the same normalized server URL', async () => {
+			const report = await helper.fetchCodebergData('alex', '2026-09-01', '2026-09-20');
+			fetch.mockClear();
+			const same = new CodebergHelper(' https://codeberg.org/api/v1/// ');
+
+			expect(await same.fetchCodebergData('alex', '2026-09-01', '2026-09-20')).toEqual(report);
+			expect(fetch).not.toHaveBeenCalled();
+		});
+
+		it('refreshes legacy cache entries that do not identify their server', async () => {
+			stored.codebergCache = {
+				data: { user: { login: 'alex', server: 'unknown' } },
+				cacheKey: 'alex-2026-09-01-2026-09-20-noauth-nocommits',
+				timestamp: Date.now(),
+			};
+
+			const report = await helper.fetchCodebergData('alex', '2026-09-01', '2026-09-20');
+
+			expect(report.user.server).toBe('codeberg.org');
+			expect(fetch).toHaveBeenCalled();
+		});
+	});
+
 	describe('mapCodebergReportItem', () => {
 		it('should map issue from web URL correctly', () => {
 			const item = {
