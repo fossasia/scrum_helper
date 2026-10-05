@@ -15,7 +15,7 @@ describe('sanitizeHtml with DOMPurify', () => {
 		delete globalThis.DOMPurify;
 	});
 
-	it.each(['a', 'b', 'button', 'div', 'i', 'span', 'li', 'ul'])('keeps allowed <%s> tags', (tag) => {
+	it.each(['a', 'b', 'button', 'div', 'i', 'p', 'span', 'li', 'u', 'ul'])('keeps allowed <%s> tags', (tag) => {
 		expect(sanitizeHtml(`<${tag}>x</${tag}>`)).toBe(`<${tag}>x</${tag}>`);
 	});
 
@@ -56,7 +56,7 @@ describe('sanitizeHtml with DOMPurify', () => {
 	});
 
 	it('unwraps tags outside the allow-list but keeps their text', () => {
-		expect(sanitizeHtml('<p>para</p>')).toBe('para');
+		expect(sanitizeHtml('<h1>para</h1>')).toBe('para');
 	});
 
 	it('removes an img with an error handler entirely', () => {
