@@ -23,6 +23,10 @@
     "message": "Enter your project name",
     "description": "Placeholder text for the project name input."
   },
+  "projectNameTooltip": {
+    "message": "This project name will appear in the subject line of your email as part of: \"[Scrum] Project Name - Date\". Leave blank to skip.",
+    "description": "Tooltip explaining how the project name is used in the email subject."
+  },
   "githubUsernameLabel": {
     "message": "Your Github Username",
     "description": "Label for the GitHub username input field."
@@ -86,6 +90,10 @@
   "showOpenClosedTooltip": {
     "message": "If checked, the report will display status labels for PRs and issues (e.g., Open, Draft, Merged, Closed)."
   },
+  "advancedFiltersLabel": {
+    "message": "Advanced Options",
+    "description": "Heading for the advanced report options."
+  },
   "blockersLabel": {
     "message": "What is blocking you from making progress?",
     "description": "Label for the input field for blockers."
@@ -122,9 +130,21 @@
     "message": "Enter organization name",
     "description": "Placeholder for the organization name input."
   },
+  "orgNameTooltip": {
+    "message": "Which organization's GitHub activity? Enter the GitHub organization name to fetch activities for. Leave empty to fetch all your GitHub activities across all organizations. Multiple organizations can be separated by commas (e.g. fossasia, google). Organization name is not case-sensitive.",
+    "description": "Tooltip explaining the GitHub organization filter."
+  },
   "gitlabOrgNamePlaceholder": {
     "message": "Enter group name",
     "description": "Placeholder for the GitLab group name input."
+  },
+  "settingsGroupNameLabel": {
+    "message": "Your Group Name",
+    "description": "Label for the GitLab group name input."
+  },
+  "gitlabOrgNameTooltip": {
+    "message": "Which group's GitLab activity? Enter the GitLab group name to fetch activities for. Leave empty to fetch all your GitLab activities across all groups. Multiple groups can be separated by commas. Group name is not case-sensitive.",
+    "description": "Tooltip explaining the GitLab group filter."
   },
   "setButton": {
     "message": "Set",
@@ -215,6 +235,10 @@
   "cacheTTLPlaceholder": {
     "message": "Write Cache TTL in minutes (Default 10 minutes)",
     "description": "Placeholder for the cache TTL input."
+  },
+  "cacheTTLTooltip": {
+    "message": "We are caching the data to avoid redundant calls. By default the cache expires after 10 minutes, you can change it here to your desired time. We have given a refresh cache button in case you want to fetch fresh data right now.",
+    "description": "Tooltip explaining cache lifetime and manual refresh."
   },
   "refreshDataButton": {
     "message": "Refresh Data (bypass cache)",
@@ -453,6 +477,10 @@
   "reportGenerationError": {
     "message": "An error occurred while generating the report.",
     "description": "Error when report generation fails."
+  },
+  "errorLabel": {
+    "message": "Error",
+    "description": "Prefix for repository fetch error messages; punctuation is added by the caller."
   },
   "githubUserNotFoundError": {
     "message": "GitHub user \"$1\" not found.",
@@ -707,6 +735,14 @@
   "extensionSettingsHeading": {
     "message": "Extension Settings",
     "description": "Heading for general extension settings section."
+  },
+  "displayModeLabel": {
+    "message": "Display Mode",
+    "description": "Label for the extension display mode selector."
+  },
+  "displayModeTooltip": {
+    "message": "Choose how Scrum Helper opens when you click its icon. Side Panel keeps it docked alongside your page. Popup opens a floating window.",
+    "description": "Tooltip explaining side panel and popup display modes."
   },
   "smtpSenderEmailTooltip": {
     "message": "The email address from which the report will be sent (e.g. your email address)."
