@@ -3,12 +3,18 @@ import '../src/scripts/nextPlansHelper.js';
 
 const githubIssue = { id: 42, number: 1, title: 'GitHub task', repository: 'team/repo', _platform: 'github' };
 const gitlabIssue = { id: 42, number: 2, title: 'GitLab task', repository: 'team/repo', _platform: 'gitlab' };
-const cacheKey = 'github_gitlab_all';
 
 function select(index) {
 	const checkbox = document.querySelectorAll('.issue-item-checkbox')[index];
 	checkbox.checked = true;
 	checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+}
+
+async function saveLegacySelection(id) {
+	await window.loadAssignedIssues();
+	const keys = Object.keys(JSON.parse(localStorage.getItem('nextPlansCache')));
+	expect(keys).toHaveLength(1);
+	localStorage.setItem('selectedIssues', JSON.stringify({ [keys[0]]: [id] }));
 }
 
 describe('Next Plans issue identity', () => {
@@ -20,7 +26,9 @@ describe('Next Plans issue identity', () => {
 			'<input id="includeNextPlans" type="checkbox" checked><div id="assignedIssuesSelector"></div>';
 		vi.spyOn(browser.storage.local, 'get').mockResolvedValue({
 			selectedPlatforms: ['github', 'gitlab'],
+			githubUsername: 'alice',
 			githubToken: 'github-test',
+			gitlabUsername: 'alice',
 			gitlabToken: 'gitlab-test',
 		});
 		previousRegistry = window.PlatformRegistry;
@@ -57,7 +65,7 @@ describe('Next Plans issue identity', () => {
 	});
 
 	it('does not guess which issue an ambiguous legacy numeric selection meant', async () => {
-		localStorage.setItem('selectedIssues', JSON.stringify({ [cacheKey]: ['42'] }));
+		await saveLegacySelection('42');
 		await window.loadAssignedIssues();
 
 		expect(await window.getNextPlansForReport()).toEqual([]);
@@ -72,7 +80,7 @@ describe('Next Plans issue identity', () => {
 		window.PlatformRegistry.get = (platform) => ({
 			fetchAssignedIssues: async () => [platform === 'github' ? githubIssue : unique],
 		});
-		localStorage.setItem('selectedIssues', JSON.stringify({ [cacheKey]: ['43'] }));
+		await saveLegacySelection('43');
 		await window.loadAssignedIssues();
 
 		expect(await window.getNextPlansForReport()).toEqual([unique]);
