@@ -334,12 +334,6 @@ hr,
     color: #ffffff !important;
 }
 
-#cacheInput:focus {
-    outline: none;
-    border-color: #3b82f6 !important;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
 /* Header action buttons (#homeButton, #settingsToggle, #mailSettingsToggle) */
 #homeButton,
 #settingsToggle,
