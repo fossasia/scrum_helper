@@ -373,9 +373,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	function applyTheme(isDark) {
 		body.classList.toggle('dark-mode', isDark);
-		if (settingsIcon ) {
-			settingsIcon.src = isDark ? 'icons/settings-night.png' : 'icons/settings-light.png';
-		}
 		if (typeof renderTokenPreview === 'function') {
 			renderTokenPreview();
 		}
