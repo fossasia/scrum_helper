@@ -1,8 +1,57 @@
 /* global browser, chrome, DOMPurify */
 
 (function () {
-	// 1. Determine repository scope
+	const fingerprints = new Map();
+	const pageId = Math.random().toString(36).slice(2);
+	async function getAccountFingerprint(token) {
+		if (!token) return 'noauth';
+		if (!fingerprints.has(token)) {
+			const pageKey = `page-${pageId}-${fingerprints.size}`;
+			const fingerprint = (async () => {
+				try {
+					if (globalThis.crypto?.subtle) {
+						const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(token));
+						return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('');
+					}
+				} catch {}
+				// Limit reuse to this page when a persistent credential fingerprint is unavailable.
+				return pageKey;
+			})();
+			fingerprints.set(token, fingerprint);
+		}
+		return fingerprints.get(token);
+	}
+
 	async function getRepositoryScope() {
+		const scope = await getRepositoryFilterScope();
+		const settings = await browser.storage.local.get([
+			'platform',
+			'platformUsername',
+			'githubUsername',
+			'githubToken',
+			'gitlabUsername',
+			'gitlabToken',
+			'gitlabBaseUrl',
+		]);
+		const accounts = {};
+		for (const platform of scope.platforms) {
+			const username =
+				settings[`${platform}Username`] ||
+				(platform === (settings.platform || 'github') ? settings.platformUsername : '') ||
+				'';
+			const token = settings[`${platform}Token`] || '';
+			const fingerprint = await getAccountFingerprint(token);
+			const apiBaseUrl =
+				platform === 'gitlab'
+					? (settings.gitlabBaseUrl?.trim() || 'https://gitlab.com/api/v4').replace(/\/+$/, '')
+					: 'https://api.github.com';
+			accounts[platform] = { username: username.trim(), token, fingerprint, apiBaseUrl };
+		}
+		return { ...scope, accounts };
+	}
+
+	// 1. Determine repository scope
+	async function getRepositoryFilterScope() {
 		const result = await browser.storage.local.get([
 			'useRepoFilter',
 			'selectedRepos',
@@ -67,7 +116,12 @@
 
 	// 2. Generate cache/selection key based on active scope
 	function getCacheKey(scope) {
-		const platformsKey = scope?.platforms ? [...scope.platforms].sort().join('_') : 'github';
+		const platforms = scope?.platforms ? [...scope.platforms].sort() : ['github'];
+		const accounts = platforms.map((platform) => {
+			const account = scope.accounts[platform];
+			return [platform, account.username.toLowerCase(), account.apiBaseUrl, account.fingerprint];
+		});
+		const platformsKey = `${platforms.join('_')}_accounts_${JSON.stringify(accounts)}`;
 		if (!scope || scope.type === 'all') {
 			return `${platformsKey}_all`;
 		}
@@ -230,7 +284,9 @@
 	}
 
 	// 7. Load assigned issues
+	let latestLoad = 0;
 	async function loadAssignedIssues() {
+		const load = ++latestLoad;
 		const includeNextPlansCheckbox = document.getElementById('includeNextPlans');
 		if (!includeNextPlansCheckbox || !includeNextPlansCheckbox.checked) {
 			const container = document.getElementById('assignedIssuesSelector');
@@ -242,6 +298,7 @@
 		}
 
 		const scope = await getRepositoryScope();
+		if (load !== latestLoad) return;
 		const cached = getCachedIssues(scope);
 
 		if (cached) {
@@ -285,6 +342,8 @@
 			}
 
 			const settled = await Promise.allSettled(fetchPromises);
+			const currentScope = await getRepositoryScope();
+			if (load !== latestLoad || getCacheKey(currentScope) !== getCacheKey(scope)) return;
 			const successful = settled.filter((r) => r.status === 'fulfilled');
 
 			if (successful.length === 0) {
