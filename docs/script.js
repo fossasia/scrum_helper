@@ -83,6 +83,25 @@ document.addEventListener('DOMContentLoaded', () => {
 		}
 	}
 
+	const LOCAL_DOWNLOADS = {
+		windows: {
+			url: 'downloads/scrum-helper-setup.exe',
+			label: 'Download for Windows (.exe)',
+		},
+		macArm: {
+			url: 'downloads/scrum-helper-arm64.dmg',
+			label: 'Download for macOS (Apple Silicon)',
+		},
+		macIntel: {
+			url: 'downloads/scrum-helper-x64.dmg',
+			label: 'Download for macOS (Intel)',
+		},
+		linux: {
+			url: 'downloads/scrum-helper.deb',
+			label: 'Download for Linux (.deb)',
+		},
+	};
+
 	// Explicit asset selection helpers with priority and format derivation
 	function getWindowsAsset(assets) {
 		const exe = assets.find((a) => a.name.toLowerCase().endsWith('.exe'));
@@ -93,8 +112,15 @@ document.addEventListener('DOMContentLoaded', () => {
 	}
 
 	function getMacAsset(assets) {
+		const dmgArm = assets.find((a) => {
+			const n = a.name.toLowerCase();
+			return n.endsWith('.dmg') && (n.includes('arm64') || n.includes('aarch64'));
+		});
+		const dmgIntel = assets.find((a) => {
+			const n = a.name.toLowerCase();
+			return n.endsWith('.dmg') && (n.includes('x64') || n.includes('x86_64') || n.includes('intel'));
+		});
 		const dmg = assets.find((a) => a.name.toLowerCase().endsWith('.dmg'));
-		if (dmg) return { url: dmg.browser_download_url, format: '.dmg', label: 'macOS (.dmg)' };
 		const tar = assets.find((a) => {
 			const n = a.name.toLowerCase();
 			return (
@@ -102,18 +128,35 @@ document.addEventListener('DOMContentLoaded', () => {
 				(n.includes('darwin') || n.includes('mac') || n.includes('apple'))
 			);
 		});
-		if (tar) {
-			const ext = tar.name.toLowerCase().endsWith('.zip') ? '.zip' : '.tar.gz';
-			return { url: tar.browser_download_url, format: ext, label: `macOS (${ext})` };
-		}
-		return null;
+
+		const armItem = dmgArm
+			? { url: dmgArm.browser_download_url, format: '.dmg', label: 'macOS Apple Silicon (.dmg)' }
+			: null;
+		const intelItem = dmgIntel
+			? { url: dmgIntel.browser_download_url, format: '.dmg', label: 'macOS Intel (.dmg)' }
+			: null;
+		const fallbackItem = dmg
+			? { url: dmg.browser_download_url, format: '.dmg', label: 'macOS (.dmg)' }
+			: tar
+				? {
+						url: tar.browser_download_url,
+						format: tar.name.toLowerCase().endsWith('.zip') ? '.zip' : '.tar.gz',
+						label: 'macOS (.dmg)',
+					}
+				: null;
+
+		if (!armItem && !intelItem && !fallbackItem) return null;
+		return {
+			arm: armItem || fallbackItem,
+			intel: intelItem || fallbackItem,
+		};
 	}
 
 	function getLinuxAsset(assets) {
-		const appImage = assets.find((a) => a.name.toLowerCase().endsWith('.appimage'));
-		if (appImage) return { url: appImage.browser_download_url, format: '.AppImage', label: 'Linux (.AppImage)' };
 		const deb = assets.find((a) => a.name.toLowerCase().endsWith('.deb'));
 		if (deb) return { url: deb.browser_download_url, format: '.deb', label: 'Linux (.deb)' };
+		const appImage = assets.find((a) => a.name.toLowerCase().endsWith('.appimage'));
+		if (appImage) return { url: appImage.browser_download_url, format: '.AppImage', label: 'Linux (.AppImage)' };
 		const tar = assets.find((a) => {
 			const n = a.name.toLowerCase();
 			return n.endsWith('.tar.gz') && n.includes('linux');
@@ -122,9 +165,16 @@ document.addEventListener('DOMContentLoaded', () => {
 		return null;
 	}
 
-	function updateDownloadButton(href, iconClass, text) {
+	function updateDownloadButton(href, iconClass, text, isDirectDownload = true) {
 		if (!downloadButton) return;
 		downloadButton.href = href;
+		if (isDirectDownload) {
+			downloadButton.setAttribute('download', '');
+			downloadButton.removeAttribute('target');
+		} else {
+			downloadButton.removeAttribute('download');
+			downloadButton.setAttribute('target', '_blank');
+		}
 		downloadButton.textContent = '';
 		const icon = document.createElement('i');
 		icon.className = `${iconClass} mr-2 text-xs`;
@@ -132,15 +182,24 @@ document.addEventListener('DOMContentLoaded', () => {
 		downloadButton.appendChild(document.createTextNode(` ${text}`));
 	}
 
+	// Immediately configure primary 1-click download based on detected OS
+	if (detectedOS === 'windows') {
+		updateDownloadButton(LOCAL_DOWNLOADS.windows.url, 'fa-solid fa-download', LOCAL_DOWNLOADS.windows.label, true);
+	} else if (detectedOS === 'mac') {
+		updateDownloadButton(LOCAL_DOWNLOADS.macArm.url, 'fa-solid fa-download', LOCAL_DOWNLOADS.macArm.label, true);
+	} else if (detectedOS === 'linux') {
+		updateDownloadButton(LOCAL_DOWNLOADS.linux.url, 'fa-solid fa-download', LOCAL_DOWNLOADS.linux.label, true);
+	} else {
+		updateDownloadButton(LOCAL_DOWNLOADS.windows.url, 'fa-solid fa-download', 'Download Desktop App', true);
+	}
+
 	async function fetchLatestRelease() {
-		const fallbackReleaseUrl = 'https://github.com/fossasia/scrum_helper/releases/latest';
 		try {
-			// Search recent releases (up to 15) to locate the newest release containing supported desktop installer assets
+			// Search recent releases (up to 15) to locate releases containing desktop assets if available
 			const res = await fetch('https://api.github.com/repos/fossasia/scrum_helper/releases?per_page=15');
-			if (!res.ok) throw new Error('API request failed: ' + res.status);
+			if (!res.ok) return;
 			const releases = await res.json();
 
-			let matchedRelease = null;
 			let winAsset = null;
 			let macAsset = null;
 			let linuxAsset = null;
@@ -153,7 +212,6 @@ document.addEventListener('DOMContentLoaded', () => {
 					const linux = getLinuxAsset(rel.assets);
 
 					if (win || mac || linux) {
-						matchedRelease = rel;
 						winAsset = win;
 						macAsset = mac;
 						linuxAsset = linux;
@@ -162,69 +220,56 @@ document.addEventListener('DOMContentLoaded', () => {
 				}
 			}
 
-			const targetReleaseUrl = matchedRelease ? matchedRelease.html_url || fallbackReleaseUrl : fallbackReleaseUrl;
-
-			// Update secondary platform links and labels based on matched assets
-			const winLink = document.getElementById('win-download');
-			const winLabel = document.getElementById('win-download-label');
+			// If release assets exist on GitHub Releases, upgrade links
 			if (winAsset) {
+				const winLink = document.getElementById('win-download');
+				const winLabel = document.getElementById('win-download-label');
 				if (winLink) winLink.href = winAsset.url;
 				if (winLabel) winLabel.textContent = winAsset.label;
-			} else if (winLink) {
-				winLink.href = targetReleaseUrl;
+				if (detectedOS === 'windows') {
+					updateDownloadButton(
+						winAsset.url,
+						'fa-solid fa-download',
+						`Download for Windows (${winAsset.format})`,
+						false,
+					);
+				}
 			}
 
-			const macLink = document.getElementById('mac-download');
-			const macLabel = document.getElementById('mac-download-label');
 			if (macAsset) {
-				if (macLink) macLink.href = macAsset.url;
-				if (macLabel) macLabel.textContent = macAsset.label;
-			} else if (macLink) {
-				macLink.href = targetReleaseUrl;
+				const macArmLink = document.getElementById('mac-arm-download');
+				const macArmLabel = document.getElementById('mac-arm-download-label');
+				const macIntelLink = document.getElementById('mac-intel-download');
+				const macIntelLabel = document.getElementById('mac-intel-download-label');
+				if (macArmLink && macAsset.arm) macArmLink.href = macAsset.arm.url;
+				if (macArmLabel && macAsset.arm) macArmLabel.textContent = macAsset.arm.label;
+				if (macIntelLink && macAsset.intel) macIntelLink.href = macAsset.intel.url;
+				if (macIntelLabel && macAsset.intel) macIntelLabel.textContent = macAsset.intel.label;
+
+				if (detectedOS === 'mac') {
+					const chosen = macAsset.arm || macAsset.intel;
+					if (chosen) {
+						updateDownloadButton(chosen.url, 'fa-solid fa-download', `Download for macOS (${chosen.format})`, false);
+					}
+				}
 			}
 
-			const linuxLink = document.getElementById('linux-download');
-			const linuxLabel = document.getElementById('linux-download-label');
 			if (linuxAsset) {
+				const linuxLink = document.getElementById('linux-download');
+				const linuxLabel = document.getElementById('linux-download-label');
 				if (linuxLink) linuxLink.href = linuxAsset.url;
 				if (linuxLabel) linuxLabel.textContent = linuxAsset.label;
-			} else if (linuxLink) {
-				linuxLink.href = targetReleaseUrl;
-			}
-
-			// Derive primary download button link and label from the selected asset
-			if (!downloadButton) return;
-
-			if (detectedOS === 'windows') {
-				if (winAsset) {
-					updateDownloadButton(winAsset.url, 'fa-solid fa-download', `Download for Windows (${winAsset.format})`);
-				} else {
-					updateDownloadButton(targetReleaseUrl, 'fa-solid fa-circle-arrow-down', 'Download for Windows');
+				if (detectedOS === 'linux') {
+					updateDownloadButton(
+						linuxAsset.url,
+						'fa-solid fa-download',
+						`Download for Linux (${linuxAsset.format})`,
+						false,
+					);
 				}
-			} else if (detectedOS === 'mac') {
-				if (macAsset) {
-					updateDownloadButton(macAsset.url, 'fa-solid fa-download', `Download for macOS (${macAsset.format})`);
-				} else {
-					updateDownloadButton(targetReleaseUrl, 'fa-solid fa-circle-arrow-down', 'Download for macOS');
-				}
-			} else if (detectedOS === 'linux') {
-				if (linuxAsset) {
-					updateDownloadButton(linuxAsset.url, 'fa-solid fa-download', `Download for Linux (${linuxAsset.format})`);
-				} else {
-					updateDownloadButton(targetReleaseUrl, 'fa-solid fa-circle-arrow-down', 'Download for Linux');
-				}
-			} else {
-				updateDownloadButton(targetReleaseUrl, 'fa-solid fa-circle-arrow-down', 'View Latest Release');
 			}
 		} catch (err) {
-			console.warn('Could not fetch latest release assets:', err);
-			updateDownloadButton(fallbackReleaseUrl, 'fa-solid fa-circle-arrow-down', 'View Latest Release');
-			const winLink = document.getElementById('win-download');
-			const macLink = document.getElementById('mac-download');
-			const linuxLink = document.getElementById('linux-download');
-			if (winLink) winLink.href = fallbackReleaseUrl;
-			if (macLink) macLink.href = fallbackReleaseUrl;
-			if (linuxLink) linuxLink.href = fallbackReleaseUrl;
+			console.warn('Could not fetch release assets, using local installer packages:', err);
 		}
 	}
 	fetchLatestRelease();
