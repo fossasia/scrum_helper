@@ -19,10 +19,6 @@ function debounce(func, wait) {
 	};
 }
 
-function formatLocalDate(date) {
-	return window.scrumDateRangeUtils.formatLocalDate(date);
-}
-
 // Utility: Detect if the current OS is macOS
 function isMacOS() {
 	if (typeof navigator === 'undefined') {

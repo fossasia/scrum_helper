@@ -98,10 +98,6 @@ function getLocalISOString(dateStr, time) {
 	return `${dateStr}T${time}${offsetStr}`;
 }
 
-function formatLocalDate(date) {
-	return window.scrumDateRangeUtils.formatLocalDate(date);
-}
-
 // Converts cacheInput (minutes) to a TTL in ms, falling back to 10 minutes for invalid values.
 function resolveCacheTtlMs(cacheInput) {
 	const minutes = Number.parseInt(cacheInput, 10);
