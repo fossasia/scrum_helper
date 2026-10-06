@@ -23,6 +23,10 @@
     "message": "Enter your project name",
     "description": "Placeholder text for the project name input."
   },
+  "projectNameTooltip": {
+    "message": "This project name will appear in the subject line of your email as part of: \"[Scrum] Project Name - Date\". Leave blank to skip.",
+    "description": "Tooltip explaining how the project name is used in the email subject."
+  },
   "githubUsernameLabel": {
     "message": "Your Github Username",
     "description": "Label for the GitHub username input field."
@@ -31,6 +35,10 @@
     "message": "Your GitLab Username",
     "description": "Label for the GitLab username input field."
   },
+  "gitlabUsernamePlaceholder": {
+    "message": "Required for fetching your contributions",
+    "description": "Placeholder text for the GitLab username input."
+  },
   "codebergUsernameLabel": {
     "message": "Your Codeberg Username",
     "description": "Label for the Codeberg username input field."
@@ -38,6 +46,18 @@
   "codebergUsernamePlaceholder": {
     "message": "Required for fetching your contributions",
     "description": "Placeholder text for the Codeberg username input."
+  },
+  "dropdownGithubUsernamePlaceholder": {
+    "message": "GitHub username",
+    "description": "Placeholder text for the GitHub username dropdown input."
+  },
+  "dropdownGitlabUsernamePlaceholder": {
+    "message": "GitLab username",
+    "description": "Placeholder text for the GitLab username dropdown input."
+  },
+  "dropdownCodebergUsernamePlaceholder": {
+    "message": "Codeberg username",
+    "description": "Placeholder text for the Codeberg username dropdown input."
   },
   "githubUsernamePlaceholder": {
     "message": "Required for fetching your contributions",
@@ -69,6 +89,10 @@
   },
   "showOpenClosedTooltip": {
     "message": "If checked, the report will display status labels for PRs and issues (e.g., Open, Draft, Merged, Closed)."
+  },
+  "advancedFiltersLabel": {
+    "message": "Advanced Options",
+    "description": "Heading for the advanced report options."
   },
   "blockersLabel": {
     "message": "What is blocking you from making progress?",
@@ -106,9 +130,21 @@
     "message": "Enter organization name",
     "description": "Placeholder for the organization name input."
   },
+  "orgNameTooltip": {
+    "message": "Which organization's GitHub activity? Enter the GitHub organization name to fetch activities for. Leave empty to fetch all your GitHub activities across all organizations. Multiple organizations can be separated by commas (e.g. fossasia, google). Organization name is not case-sensitive.",
+    "description": "Tooltip explaining the GitHub organization filter."
+  },
   "gitlabOrgNamePlaceholder": {
     "message": "Enter group name",
     "description": "Placeholder for the GitLab group name input."
+  },
+  "settingsGroupNameLabel": {
+    "message": "Your Group Name",
+    "description": "Label for the GitLab group name input."
+  },
+  "gitlabOrgNameTooltip": {
+    "message": "Which group's GitLab activity? Enter the GitLab group name to fetch activities for. Leave empty to fetch all your GitLab activities across all groups. Multiple groups can be separated by commas. Group name is not case-sensitive.",
+    "description": "Tooltip explaining the GitLab group filter."
   },
   "setButton": {
     "message": "Set",
@@ -200,6 +236,10 @@
     "message": "Write Cache TTL in minutes (Default 10 minutes)",
     "description": "Placeholder for the cache TTL input."
   },
+  "cacheTTLTooltip": {
+    "message": "We are caching the data to avoid redundant calls. By default the cache expires after 10 minutes, you can change it here to your desired time. We have given a refresh cache button in case you want to fetch fresh data right now.",
+    "description": "Tooltip explaining cache lifetime and manual refresh."
+  },
   "refreshDataButton": {
     "message": "Refresh Data (bypass cache)",
     "description": "Text for the button to refresh data, ignoring the cache."
@@ -232,6 +272,10 @@
     "message": "A GitHub token is required for repository filtering. Please add one in the settings.",
     "description": "Warning message shown when repo filtering is enabled without a token."
   },
+  "tokenRequiredGitlabWarning": {
+    "message": "A GitLab token is required for repository filtering. Please add one in the settings.",
+    "description": "Warning message shown when GitLab repo filtering is enabled without a token."
+  },
   "tokenRequiredShowCommitsWarning": {
     "message": "A GitHub token is required to show commits on open or draft PRs. Please add one in the settings.",
     "description": "Warning message shown when show commits is enabled without a token."
@@ -244,6 +288,10 @@
     "message": "A Codeberg token is required to fetch assigned issues. Please add one in the settings.",
     "description": "Warning message shown when next plans is enabled without a token on Codeberg."
   },
+  "tokenRequiredNextPlansWarningGitLab": {
+    "message": "A GitLab token is required to fetch assigned issues. Please add one in the settings.",
+    "description": "Warning message shown when next plans is enabled without a token on GitLab."
+  },
   "onlyPrsRequiredShowCommitsWarning": {
     "message": "Please check the 'Include open/draft PRs in the report' filter to show commits."
   },
@@ -253,6 +301,10 @@
   "tokenRequiredShowCommitsWarningGitLab": {
     "message": "A GitLab token is required to show commits on open or draft MRs. Please add one in the settings.",
     "description": "Warning message shown when show commits is enabled without a token."
+  },
+  "tokenRequiredShowCommitsWarningCodeberg": {
+    "message": "A Codeberg token is required to show commits on open or draft PRs. Please add one in the settings.",
+    "description": "Warning message shown when show commits is enabled without a token on Codeberg."
   },
   "repoSearchPlaceholder": {
     "message": "Search for a repository to add...",
@@ -366,6 +418,14 @@
     "message": "See this issue",
     "description": "Link text for the GitHub issue in the notes."
   },
+  "selectPlatformPlaceholder": {
+    "message": "Select Platform",
+    "description": "Placeholder text displayed when no platform is selected."
+  },
+  "selectPlatformWarning": {
+    "message": "Please select a platform first",
+    "description": "Warning message when trying to generate report without selecting any platform."
+  },
   "platformLabel": {
     "message": "Platform",
     "description": "Label for the platform selection header."
@@ -398,6 +458,18 @@
     "message": "Please enter your username to generate a report.",
     "description": "Error shown when username is missing."
   },
+  "githubUsernameRequiredError": {
+    "message": "Please enter your GitHub username",
+    "description": "Error shown when GitHub username is missing."
+  },
+  "gitlabUsernameRequiredError": {
+    "message": "Please enter your GitLab username",
+    "description": "Error shown when GitLab username is missing."
+  },
+  "codebergUsernameRequiredError": {
+    "message": "Please enter your Codeberg username",
+    "description": "Error shown when Codeberg username is missing."
+  },
   "unknownPlatformError": {
     "message": "Unknown platform selected.",
     "description": "Error shown when an unsupported platform is selected."
@@ -409,6 +481,10 @@
   "reportGenerationError": {
     "message": "An error occurred while generating the report.",
     "description": "Error when report generation fails."
+  },
+  "errorLabel": {
+    "message": "Error",
+    "description": "Prefix for repository fetch error messages; punctuation is added by the caller."
   },
   "githubUserNotFoundError": {
     "message": "GitHub user \"$1\" not found.",
@@ -463,7 +539,7 @@
     "description": "Error when fetching GitLab user fails. $1=status, $2=statusText"
   },
   "gitlabUserNotFoundError": {
-    "message": "GitLab user '$1' not found.",
+    "message": "GitLab user \"$1\" not found.",
     "description": "Error when GitLab user is not found. $1=username"
   },
   "gitlabMembershipError": {
@@ -473,6 +549,18 @@
   "gitlabContributedError": {
     "message": "Error fetching GitLab contributed projects: $1 $2",
     "description": "Error when fetching GitLab contributed projects fails. $1=status, $2=statusText"
+  },
+  "codebergUserFetchError": {
+    "message": "Error fetching Codeberg user: $1 $2",
+    "description": "Error when fetching Codeberg user fails. $1=status, $2=statusText"
+  },
+  "codebergUserNotFoundError": {
+    "message": "Codeberg user \"$1\" not found.",
+    "description": "Error when Codeberg user is not found. $1=username"
+  },
+  "codebergUserValidationError": {
+    "message": "Error validating Codeberg user: $1 $2",
+    "description": "Error when validating Codeberg user fails. $1=status, $2=statusText"
   },
   "usernameMissingError": {
     "message": "Username required.",
@@ -542,6 +630,10 @@
     "message": "Select and add them to question 2 in the email. A Codeberg token is required.",
     "description": "Tooltip text explaining the include next plans option for Codeberg."
   },
+  "includeNextPlansTooltipGitLab": {
+    "message": "Select and add them to question 2 in the email. A GitLab token is required.",
+    "description": "Tooltip text explaining the include next plans option on GitLab."
+  },
   "fetchingIssuesSpinner": {
     "message": "Fetching your assigned issues...",
     "description": "Loading message shown when fetching assigned issues."
@@ -553,6 +645,10 @@
   "githubTokenRequiredNextPlans": {
     "message": "A GitHub token is required to fetch assigned issues. Please add one in settings.",
     "description": "Error message when no token is present."
+  },
+  "gitlabTokenRequiredNextPlans": {
+    "message": "A GitLab token is required to fetch assigned issues. Please add one in settings.",
+    "description": "Error message when no token is present on GitLab."
   },
   "failedToFetchIssues": {
     "message": "Failed to fetch assigned issues.",
@@ -643,6 +739,18 @@
   },
   "settingsTitle": {
     "message": "Settings"
+  },
+  "extensionSettingsHeading": {
+    "message": "Extension Settings",
+    "description": "Heading for general extension settings section."
+  },
+  "displayModeLabel": {
+    "message": "Display Mode",
+    "description": "Label for the extension display mode selector."
+  },
+  "displayModeTooltip": {
+    "message": "Choose how Scrum Helper opens when you click its icon. Side Panel keeps it docked alongside your page. Popup opens a floating window.",
+    "description": "Tooltip explaining side panel and popup display modes."
   },
   "smtpSenderEmailTooltip": {
     "message": "The email address from which the report will be sent (e.g. your email address)."

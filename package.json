@@ -29,14 +29,14 @@
   },
   "homepage": "https://github.com/fossasia/scrum_helper",
   "devDependencies": {
-    "@biomejs/biome": "2.5.11",
-    "@tauri-apps/api": "^2.11.1",
-    "@tauri-apps/cli": "^2.11.4",
-    "autoprefixer": "^10.5.4",
-    "happy-dom": "^20.11.8",
-    "postcss": "^8.5.26",
+    "@biomejs/biome": "2.5.14",
+    "@tauri-apps/api": "^2.12.0",
+    "@tauri-apps/cli": "^2.12.0",
+    "autoprefixer": "^10.6.1",
+    "happy-dom": "^20.14.5",
+    "postcss": "^8.5.28",
     "tailwindcss": "^4.3.3",
-    "vitest": "^4.1.11"
+    "vitest": "^5.0.2"
   },
   "dependencies": {
     "@tailwindcss/cli": "^4.3.3"
