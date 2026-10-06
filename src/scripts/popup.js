@@ -158,7 +158,6 @@ document.addEventListener('DOMContentLoaded', () => {
 	applyI18n();
 	setupButtonTooltips();
 
-	const settingsIcon = document.getElementById('settingsIcon');
 	const body = document.body;
 	const homeButton = document.getElementById('homeButton');
 	const scrumHelperHeading = document.getElementById('scrumHelperHeading');
