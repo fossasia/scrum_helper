@@ -5,8 +5,10 @@ describe('Next Plans account changes', () => {
 	let settings;
 	let previousRegistry;
 	let fetchAssignedIssues;
-	beforeEach(() => {
+	beforeEach(async () => {
 		localStorage.clear();
+		vi.resetModules();
+		await import('../src/scripts/nextPlansHelper.js');
 		document.body.innerHTML =
 			'<input id="includeNextPlans" type="checkbox" checked><div id="assignedIssuesSelector"></div>';
 		settings = {
@@ -21,13 +23,15 @@ describe('Next Plans account changes', () => {
 			Object.fromEntries(keys.filter((key) => key in settings).map((key) => [key, settings[key]])),
 		);
 		previousRegistry = window.PlatformRegistry;
-		fetchAssignedIssues = vi.fn(async (platform) => {
-			const username =
-				settings[`${platform}Username`] || (settings.platform === platform ? settings.platformUsername : '');
+		fetchAssignedIssues = vi.fn(async (platform, scope) => {
+			expect(scope.accounts[platform]).toBeDefined();
+			const username = scope.accounts[platform].username;
 			if (!username) throw new Error(`${platform} username is required`);
 			return [{ id: 1, number: 1, title: username, html_url: 'https://github.com/team/project/issues/1' }];
 		});
-		window.PlatformRegistry = { get: (platform) => ({ fetchAssignedIssues: () => fetchAssignedIssues(platform) }) };
+		window.PlatformRegistry = {
+			get: (platform) => ({ fetchAssignedIssues: (scope) => fetchAssignedIssues(platform, scope) }),
+		};
 	});
 	afterEach(() => {
 		window.PlatformRegistry = previousRegistry;
@@ -166,5 +170,87 @@ describe('Next Plans account changes', () => {
 		await window.loadAssignedIssues();
 		expect(fetchAssignedIssues).toHaveBeenCalledTimes(2);
 		expect(localStorage.getItem('nextPlansCache')).not.toContain('failed-digest-token');
+	});
+	it('prunes expired namespaces and bounds persistent issue caches', async () => {
+		const cache = { expired: { timestamp: Date.now() - 3600000, issues: [] } };
+		for (let index = 0; index < 25; index++) cache[`scope-${index}`] = { timestamp: Date.now() - index, issues: [] };
+		localStorage.setItem('nextPlansCache', JSON.stringify(cache));
+		await window.loadAssignedIssues();
+		const saved = JSON.parse(localStorage.getItem('nextPlansCache'));
+		expect(saved.expired).toBeUndefined();
+		expect(Object.keys(saved).length).toBeLessThanOrEqual(20);
+		expect(document.querySelector('.issue-checkbox-label').textContent).toContain('alice');
+	});
+
+	it('still displays and reports selected issues when persistence hits quota', async () => {
+		vi.spyOn(localStorage, 'setItem').mockImplementation(() => {
+			throw new DOMException('Storage full', 'QuotaExceededError');
+		});
+		await window.loadAssignedIssues();
+		expect(document.querySelector('.issue-checkbox-label').textContent).toContain('alice');
+		const checkbox = document.querySelector('.issue-item-checkbox');
+		checkbox.checked = true;
+		checkbox.dispatchEvent(new Event('change'));
+		expect(await window.getNextPlansForReport()).toHaveLength(1);
+	});
+
+	it('does not replace current issues when an older account revalidation fails', async () => {
+		let resolveOld;
+		fetchAssignedIssues.mockImplementationOnce(
+			() =>
+				new Promise((resolve) => {
+					resolveOld = resolve;
+				}),
+		);
+		const oldLoad = window.loadAssignedIssues();
+		await vi.waitFor(() => expect(fetchAssignedIssues).toHaveBeenCalledTimes(1));
+		settings.githubUsername = 'bob';
+		await window.loadAssignedIssues();
+		browser.storage.local.get.mockRejectedValueOnce(new Error('Old account lookup failed'));
+		resolveOld([{ id: 1, number: 1, title: 'alice' }]);
+		await oldLoad;
+		expect(document.querySelector('.issue-checkbox-label').textContent).toContain('bob');
+	});
+
+	it.each(['github', 'gitlab'])('uses captured %s query settings in the real helper', async (platform) => {
+		const helpers = {};
+		window.PlatformRegistry.register = (name, helper) => {
+			helpers[name] = helper;
+		};
+		await import('../src/scripts/githubHelper.js');
+		await import('../src/scripts/gitlabHelper.js');
+		settings[`${platform}Username`] = 'bob';
+		settings[`${platform}Token`] = 'new-token';
+		settings.gitlabBaseUrl = 'https://new.example.net/api/v4';
+		const account = { username: 'alice', token: 'captured-token', apiBaseUrl: 'https://old.example.net/api/v4' };
+		vi.stubGlobal(
+			'fetch',
+			vi.fn(async () => ({ ok: true, json: async () => (platform === 'github' ? { items: [] } : []) })),
+		);
+		await helpers[platform].fetchAssignedIssues({ type: 'all', repos: [], accounts: { [platform]: account } });
+		const [url, options] = fetch.mock.calls[0];
+		const query = new URL(url).searchParams;
+		if (platform === 'github') {
+			expect(query.get('q')).toContain('assignee:alice');
+			expect(options.headers.Authorization).toBe('token captured-token');
+		} else {
+			expect(url).toContain('https://old.example.net/api/v4/issues');
+			expect(query.get('assignee_username')).toBe('alice');
+			expect(options.headers['PRIVATE-TOKEN']).toBe('captured-token');
+		}
+	});
+	it('does not reuse a partial provider result but can report its selected issues', async () => {
+		settings.selectedPlatforms = ['github', 'gitlab'];
+		fetchAssignedIssues.mockImplementation(async (platform, scope) => {
+			if (platform === 'gitlab') throw new Error('GitLab unavailable');
+			return [{ id: 1, number: 1, title: scope.accounts.github.username }];
+		});
+		await window.loadAssignedIssues();
+		const checkbox = document.querySelector('.issue-item-checkbox');
+		checkbox.checked = true;
+		checkbox.dispatchEvent(new Event('change'));
+		expect(await window.getNextPlansForReport()).toHaveLength(1);
+		await window.loadAssignedIssues();
+		expect(fetchAssignedIssues).toHaveBeenCalledTimes(4);
 	});
 });
