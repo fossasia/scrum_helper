@@ -1,11 +1,28 @@
 name: Build and Release Tauri Desktop App
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src-tauri/**'
+      - 'src/**'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'build.js'
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Release tag to attach binaries to (optional, e.g. v2.1.5). Leave empty to only upload workflow artifacts.'
+        required: false
+        default: ''
+        type: string
   release:
     types: [published] # triggers when a release is published manually
 
 jobs:
   publish-tauri:
+    name: Build (${{ matrix.name }})
     permissions:
       contents: write
     strategy:
@@ -13,21 +30,29 @@ jobs:
       matrix:
         include:
           - platform: "macos-latest"
+            name: "macOS Apple Silicon (ARM64)"
             args: "--target aarch64-apple-darwin"
-          - platform: "macos-13"
+            target: "aarch64-apple-darwin"
+          - platform: "macos-15-intel"
+            name: "macOS Intel (x86_64)"
             args: "--target x86_64-apple-darwin"
+            target: "x86_64-apple-darwin"
           - platform: "ubuntu-24.04"
+            name: "Linux"
             args: ""
+            target: ""
           - platform: "windows-latest"
+            name: "Windows"
             args: ""
+            target: ""
     runs-on: ${{ matrix.platform }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
+          ref: ${{ inputs.release_tag || github.event.release.tag_name || github.ref }}
           fetch-depth: 0
-          # Remove 'ref' if not using release
-          # ref: ${{ github.event.release.tag_name }}
+          persist-credentials: false
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
@@ -37,6 +62,10 @@ jobs:
 
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
+
+      - name: Add Rust target
+        if: matrix.target != ''
+        run: rustup target add ${{ matrix.target }}
 
       - name: Install system dependencies (Ubuntu only)
         if: matrix.platform == 'ubuntu-24.04'
@@ -48,7 +77,7 @@ jobs:
         run: npm ci
 
       - name: Build Tauri application
-        run: npx tauri build -- ${{ matrix.args }}
+        run: npx tauri build ${{ matrix.args }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -64,8 +93,9 @@ jobs:
 
       - name: Upload to Release
         uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'release'
+        if: startsWith(github.ref, 'refs/tags/') || github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && inputs.release_tag != '')
         with:
+          tag_name: ${{ inputs.release_tag || github.event.release.tag_name }}
           files: |
             src-tauri/target/**/release/bundle/dmg/*.dmg
             src-tauri/target/**/release/bundle/deb/*.deb
