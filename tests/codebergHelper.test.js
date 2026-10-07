@@ -384,4 +384,225 @@ describe('CodebergHelper', () => {
 			expect(global.fetch).toHaveBeenCalledTimes(2);
 		});
 	});
+
+	describe('fetchIssuesFromCodeberg', () => {
+		const fetchIssuesFromCodeberg = CodebergHelper.fetchIssuesFromCodeberg;
+
+		beforeEach(() => {
+			document.body.innerHTML = '<div id="tokenWarningForNextPlans" class="hidden"></div>';
+			browser.storage.local.get.mockReset();
+		});
+
+		it('should return only issues assigned to the user (case-insensitive)', async () => {
+			browser.storage.local.get.mockResolvedValue({
+				platform: 'codeberg',
+				codebergUsername: 'testUser',
+				codebergToken: 'valid-token',
+			});
+
+			const mockIssues = [
+				{
+					id: 1,
+					number: 101,
+					title: 'Direct assignee uppercase',
+					html_url: 'https://codeberg.org/org/repo/issues/101',
+					state: 'open',
+					assignee: { login: 'TESTUSER' },
+					repository: { full_name: 'org/repo' },
+				},
+				{
+					id: 2,
+					number: 102,
+					title: 'Assignees list with username property',
+					html_url: 'https://codeberg.org/org/repo/issues/102',
+					state: 'open',
+					assignees: [{ username: 'testuser' }],
+					repository: { name: 'repo', owner: { login: 'org' } },
+				},
+				{
+					id: 3,
+					number: 103,
+					title: 'Assigned to someone else',
+					html_url: 'https://codeberg.org/org/repo/issues/103',
+					state: 'open',
+					assignee: { login: 'otherUser' },
+					repository: { full_name: 'org/repo' },
+				},
+			];
+
+			global.fetch = vi.fn().mockResolvedValue({
+				ok: true,
+				json: async () => mockIssues,
+			});
+
+			const result = await fetchIssuesFromCodeberg({ type: 'all' });
+
+			expect(result).toHaveLength(2);
+			expect(result.map((item) => item.id)).toEqual([1, 2]);
+			expect(result[0].number).toBe(101);
+			expect(result[0].repository).toBe('org/repo');
+			expect(result[1].number).toBe(102);
+			expect(result[1].repository).toBe('org/repo');
+		});
+
+		it('should exclude pull requests', async () => {
+			browser.storage.local.get.mockResolvedValue({
+				platform: 'codeberg',
+				codebergUsername: 'testUser',
+				codebergToken: 'valid-token',
+			});
+
+			const mockIssues = [
+				{
+					id: 10,
+					number: 1,
+					title: 'Regular issue',
+					html_url: 'https://codeberg.org/org/repo/issues/1',
+					state: 'open',
+					assignee: { login: 'testUser' },
+					pull_request: null,
+					repository: { full_name: 'org/repo' },
+				},
+				{
+					id: 20,
+					number: 2,
+					title: 'Pull request item',
+					html_url: 'https://codeberg.org/org/repo/pulls/2',
+					state: 'open',
+					assignee: { login: 'testUser' },
+					pull_request: { merged: false },
+					repository: { full_name: 'org/repo' },
+				},
+			];
+
+			global.fetch = vi.fn().mockResolvedValue({
+				ok: true,
+				json: async () => mockIssues,
+			});
+
+			const result = await fetchIssuesFromCodeberg({ type: 'all' });
+
+			expect(result).toHaveLength(1);
+			expect(result[0].id).toBe(10);
+			expect(result[0].number).toBe(1);
+		});
+
+		it('should combine pages when pagination occurs', async () => {
+			browser.storage.local.get.mockResolvedValue({
+				platform: 'codeberg',
+				codebergUsername: 'testUser',
+				codebergToken: 'valid-token',
+			});
+
+			const page1 = Array.from({ length: 50 }, (_, i) => ({
+				id: i + 1,
+				number: i + 1,
+				title: `Page 1 Issue ${i + 1}`,
+				html_url: `https://codeberg.org/org/repo/issues/${i + 1}`,
+				state: 'open',
+				assignee: { login: 'testUser' },
+				repository: { full_name: 'org/repo' },
+			}));
+
+			const page2 = Array.from({ length: 15 }, (_, i) => ({
+				id: 50 + i + 1,
+				number: 50 + i + 1,
+				title: `Page 2 Issue ${i + 1}`,
+				html_url: `https://codeberg.org/org/repo/issues/${50 + i + 1}`,
+				state: 'open',
+				assignee: { login: 'testUser' },
+				repository: { full_name: 'org/repo' },
+			}));
+
+			global.fetch = vi
+				.fn()
+				.mockResolvedValueOnce({
+					ok: true,
+					json: async () => page1,
+				})
+				.mockResolvedValueOnce({
+					ok: true,
+					json: async () => page2,
+				});
+
+			const result = await fetchIssuesFromCodeberg({ type: 'all' });
+
+			expect(global.fetch).toHaveBeenCalledTimes(2);
+			expect(global.fetch).toHaveBeenNthCalledWith(
+				1,
+				expect.stringContaining('page=1&limit=50'),
+				expect.any(Object),
+			);
+			expect(global.fetch).toHaveBeenNthCalledWith(
+				2,
+				expect.stringContaining('page=2&limit=50'),
+				expect.any(Object),
+			);
+			expect(result).toHaveLength(65);
+			expect(result[0].id).toBe(1);
+			expect(result[64].id).toBe(65);
+		});
+
+		it('should show the token warning and reject when token is missing', async () => {
+			browser.storage.local.get.mockResolvedValue({
+				platform: 'codeberg',
+				codebergUsername: 'testUser',
+				codebergToken: '',
+			});
+
+			await expect(fetchIssuesFromCodeberg()).rejects.toThrow('Codeberg token is required');
+
+			const warning = document.getElementById('tokenWarningForNextPlans');
+			expect(warning.classList.contains('hidden')).toBe(false);
+		});
+
+		it('should show the token warning and reject when username is missing', async () => {
+			browser.storage.local.get.mockResolvedValue({
+				platform: 'codeberg',
+				codebergUsername: '',
+				codebergToken: 'some-token',
+			});
+
+			await expect(fetchIssuesFromCodeberg()).rejects.toThrow('Codeberg username is required');
+
+			const warning = document.getElementById('tokenWarningForNextPlans');
+			expect(warning.classList.contains('hidden')).toBe(false);
+		});
+
+		it('should not filter out Codeberg issues when scope belongs to GitHub or GitLab', async () => {
+			browser.storage.local.get.mockResolvedValue({
+				platform: 'codeberg',
+				codebergUsername: 'testUser',
+				codebergToken: 'valid-token',
+			});
+
+			const mockIssues = [
+				{
+					id: 99,
+					number: 99,
+					title: 'Codeberg Issue',
+					html_url: 'https://codeberg.org/fossasia/codeberg-repo/issues/99',
+					state: 'open',
+					assignee: { login: 'testUser' },
+					repository: { full_name: 'fossasia/codeberg-repo' },
+				},
+			];
+
+			global.fetch = vi.fn().mockResolvedValue({
+				ok: true,
+				json: async () => mockIssues,
+			});
+
+			const githubScope = {
+				type: 'selected',
+				repos: ['fossasia/scrum_helper'],
+				platform: 'github',
+			};
+
+			const result = await fetchIssuesFromCodeberg(githubScope);
+
+			expect(result).toHaveLength(1);
+			expect(result[0].repository).toBe('fossasia/codeberg-repo');
+		});
+	});
 });

@@ -1685,6 +1685,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			codebergTokenInput.addEventListener('input', () => {
 				browser.storage.local.set({ codebergToken: codebergTokenInput.value });
 				checkTokenForShowCommits({ persistState: false });
+				checkTokenForNextPlans({ persistState: false });
 			});
 		}
 		if (codebergApiBaseUrlInput) {

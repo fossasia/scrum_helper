@@ -32,7 +32,11 @@ function codebergShowTokenWarningForNextPlans({ animate = false, durationMs = 40
 
 	tokenWarning.classList.remove('hidden');
 	if (animate) {
-		window.shakeElement ? window.shakeElement(tokenWarning, 620) : tokenWarning.classList.add('shake-animation');
+		if (typeof window !== 'undefined' && window.shakeElement) {
+			window.shakeElement(tokenWarning, 620);
+		} else {
+			tokenWarning.classList.add('shake-animation');
+		}
 	}
 
 	if (codebergNextPlansWarningTimeout) {
@@ -81,51 +85,17 @@ function codebergCheckTokenForShowCommits({
 	}
 }
 
-function codebergCheckTokenForNextPlans({
-	showWarning = false,
-	animateWarning = false,
-	warningDurationMs = 4000,
-	persistState = false,
-} = {}) {
-	const includeNextPlans = document.getElementById('includeNextPlans');
-	const codebergTokenInput = document.getElementById('codebergToken');
-
-	if (!includeNextPlans || !codebergTokenInput) {
-		return;
+function getCodebergIssueRepoName(issue) {
+	if (!issue?.repository) return '';
+	if (issue.repository.full_name) return issue.repository.full_name;
+	if (issue.repository.name && issue.repository.owner) {
+		const owner =
+			typeof issue.repository.owner === 'object'
+				? issue.repository.owner.login || issue.repository.owner.username || ''
+				: issue.repository.owner;
+		return owner ? `${owner}/${issue.repository.name}` : issue.repository.name;
 	}
-
-	const isNextPlansEnabled = includeNextPlans.checked;
-	const hasToken = codebergTokenInput.value.trim() !== '';
-
-	if (isNextPlansEnabled && !hasToken) {
-		includeNextPlans.checked = false;
-		if (showWarning) {
-			codebergShowTokenWarningForNextPlans({
-				animate: animateWarning,
-				durationMs: warningDurationMs,
-			});
-		}
-		browser.storage.local.set({ includeNextPlans: false });
-
-		const container = document.getElementById('assignedIssuesSelector');
-		if (container) {
-			container.style.display = 'none';
-			container.classList.add('hidden');
-		}
-		return;
-	}
-
-	const tokenWarning = document.getElementById('tokenWarningForNextPlans');
-	if (tokenWarning) {
-		if (codebergNextPlansWarningTimeout) {
-			clearTimeout(codebergNextPlansWarningTimeout);
-			codebergNextPlansWarningTimeout = null;
-		}
-		tokenWarning.classList.add('hidden');
-	}
-	if (persistState) {
-		browser.storage.local.set({ includeNextPlans: includeNextPlans.checked });
-	}
+	return issue.repository.name || '';
 }
 
 async function fetchIssuesFromCodeberg(scope) {
@@ -133,6 +103,7 @@ async function fetchIssuesFromCodeberg(scope) {
 		'platform',
 		'codebergUsername',
 		'codebergToken',
+		'codebergApiBaseUrl',
 		'platformUsername',
 	]);
 	const platform = storage.platform || 'codeberg';
@@ -140,9 +111,11 @@ async function fetchIssuesFromCodeberg(scope) {
 	const token = storage.codebergToken;
 
 	if (!username) {
+		codebergShowTokenWarningForNextPlans({ animate: true });
 		throw new Error('Codeberg username is required. Please set it in settings.');
 	}
 	if (!token) {
+		codebergShowTokenWarningForNextPlans({ animate: true });
 		throw new Error('Codeberg token is required. Please set it in settings.');
 	}
 
@@ -155,7 +128,9 @@ async function fetchIssuesFromCodeberg(scope) {
 	let allIssues = [];
 	let hasMore = true;
 
-	const baseUrl = window.codebergApiBaseUrl || DEFAULT_CODEBERG_API_BASE_URL;
+	const baseUrl = normalizeCodebergApiBaseUrl(
+		storage.codebergApiBaseUrl || (typeof window !== 'undefined' ? window.codebergApiBaseUrl : undefined),
+	);
 
 	while (hasMore && page <= 4) {
 		const url = `${baseUrl}/repos/issues/search?state=open&assigned=true&type=issues&page=${page}&limit=50`;
@@ -178,7 +153,14 @@ async function fetchIssuesFromCodeberg(scope) {
 		}
 	}
 
-	const repoSet = scope.type === 'selected' ? new Set(scope.repos) : null;
+	// Codeberg does not have its own repo filter yet; show all assigned issues until it has its own filter.
+	const repoSet =
+		scope?.platform === 'codeberg' &&
+		scope?.type === 'selected' &&
+		Array.isArray(scope?.repos) &&
+		scope.repos.length > 0
+			? new Set(scope.repos)
+			: null;
 
 	return allIssues
 		.filter((issue) => {
@@ -188,17 +170,12 @@ async function fetchIssuesFromCodeberg(scope) {
 			if (Number.isNaN(Number.parseInt(issue.number, 10)) || (!issue.html_url && !issue.url)) {
 				return false;
 			}
-			const repoName = issue.repository
-				? issue.repository.full_name ||
-					(issue.repository.name && issue.repository.owner
-						? `${typeof issue.repository.owner === 'object' ? issue.repository.owner.login || issue.repository.owner.username : issue.repository.owner}/${issue.repository.name}`
-						: issue.repository.name)
-				: '';
+			const repoName = getCodebergIssueRepoName(issue);
 			if (repoSet && !repoSet.has(repoName)) {
 				return false;
 			}
 
-			// Validate assignee client-side to handle different Gitea API versions
+			// Validate assignee client-side to handle different Gitea API versions (case-insensitive)
 			const usernameLower = username.toLowerCase();
 			const normalizeUser = (u) => (u?.login || u?.username || '').toLowerCase();
 			const isAssigned =
@@ -208,12 +185,7 @@ async function fetchIssuesFromCodeberg(scope) {
 			return isAssigned;
 		})
 		.map((issue) => {
-			const repoName = issue.repository
-				? issue.repository.full_name ||
-					(issue.repository.name && issue.repository.owner
-						? `${typeof issue.repository.owner === 'object' ? issue.repository.owner.login || issue.repository.owner.username : issue.repository.owner}/${issue.repository.name}`
-						: issue.repository.name)
-				: '';
+			const repoName = getCodebergIssueRepoName(issue);
 
 			const safeTitle = typeof sanitizeHtml === 'function' ? sanitizeHtml(issue.title) : issue.title;
 			const safeUrl = typeof sanitizeHtml === 'function' ? sanitizeHtml(issue.html_url) : issue.html_url;
@@ -654,24 +626,24 @@ class CodebergHelper {
 	}
 }
 
-window.codebergCheckTokenForShowCommits = codebergCheckTokenForShowCommits;
-window.codebergCheckTokenForNextPlans = codebergCheckTokenForNextPlans;
-window.fetchIssuesFromCodeberg = fetchIssuesFromCodeberg;
+if (typeof window !== 'undefined') {
+	window.codebergCheckTokenForShowCommits = codebergCheckTokenForShowCommits;
+	window.fetchIssuesFromCodeberg = fetchIssuesFromCodeberg;
+}
 
 /* EXPORT */
 if (typeof module !== 'undefined' && module.exports) {
 	module.exports = CodebergHelper;
-	module.exports.fetchIssuesFromCodeberg = fetchIssuesFromCodeberg;
-	module.exports.codebergCheckTokenForNextPlans = codebergCheckTokenForNextPlans;
-	module.exports.codebergCheckTokenForShowCommits = codebergCheckTokenForShowCommits;
-} else {
+	CodebergHelper.fetchIssuesFromCodeberg = fetchIssuesFromCodeberg;
+	CodebergHelper.codebergCheckTokenForShowCommits = codebergCheckTokenForShowCommits;
+} else if (typeof window !== 'undefined') {
 	window.CodebergHelper = CodebergHelper;
 }
 
 /* ---------------- FORCE REFRESH (FIXED) ---------------- */
 
 async function forceCodebergDataRefresh() {
-	if (window.codebergHelper instanceof window.CodebergHelper) {
+	if (typeof window !== 'undefined' && window.codebergHelper instanceof window.CodebergHelper) {
 		window.codebergHelper.cache = {
 			data: null,
 			cacheKey: null,
@@ -688,24 +660,26 @@ async function forceCodebergDataRefresh() {
 		console.error(e);
 	}
 
-	window.hasInjectedContent = false;
-
-	window.codebergHelper = new window.CodebergHelper(window.codebergApiBaseUrl);
+	if (typeof window !== 'undefined') {
+		window.hasInjectedContent = false;
+		window.codebergHelper = new window.CodebergHelper(window.codebergApiBaseUrl);
+	}
 
 	return { success: true };
 }
 
-window.forceCodebergDataRefresh = forceCodebergDataRefresh;
+if (typeof window !== 'undefined') {
+	window.forceCodebergDataRefresh = forceCodebergDataRefresh;
+}
 
 /* ---------------- PLATFORM REGISTRATION ---------------- */
 
-if (window.PlatformRegistry) {
+if (typeof window !== 'undefined' && window.PlatformRegistry) {
 	window.PlatformRegistry.register('codeberg', {
 		hasRepoFilter: false,
 		checkTokenForFilter() {},
 		checkTokenForShowCommits: codebergCheckTokenForShowCommits,
 		checkTokenForMergedPRs() {},
-		checkTokenForNextPlans: codebergCheckTokenForNextPlans,
 		fetchAssignedIssues: fetchIssuesFromCodeberg,
 		triggerRepoFetchIfEnabled() {},
 		debugRepoFetch() {},

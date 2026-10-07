@@ -18,27 +18,11 @@
 				: [];
 		const isGitlab = platforms.includes('gitlab');
 		const isGithub = platforms.includes('github');
+		const isCodeberg = platforms.includes('codeberg');
 
-		const filterRepos = [];
-		if (isGithub && result.useRepoFilter && Array.isArray(result.selectedRepos)) {
-			filterRepos.push(...result.selectedRepos);
-		}
-		if (
-			isGitlab &&
-			(typeof result.useGitlabRepoFilter !== 'undefined' ? result.useGitlabRepoFilter : result.useRepoFilter) &&
-			Array.isArray(result.selectedGitlabRepos || result.selectedRepos)
-		) {
-			filterRepos.push(...(result.selectedGitlabRepos || result.selectedRepos));
-		}
-		const platform = result.platform || 'github';
-
-		const hasFilter =
-			(isGithub && result.useRepoFilter) ||
-			(isGitlab &&
-				(typeof result.useGitlabRepoFilter !== 'undefined' ? result.useGitlabRepoFilter : result.useRepoFilter));
-
-		if (hasFilter && filterRepos.length > 0) {
-			const repoNames = filterRepos
+		const normalizeRepos = (repos) => {
+			if (!Array.isArray(repos)) return [];
+			return repos
 				.map((repo) => {
 					if (typeof repo === 'object' && repo.fullName) {
 						return repo.fullName.startsWith('/') ? repo.fullName.substring(1) : repo.fullName;
@@ -49,22 +33,45 @@
 					return repo;
 				})
 				.filter(Boolean);
+		};
 
-			return {
-				platforms,
-				type: 'selected',
-				repos: repoNames,
-				platform: platform,
-				displayText: `Showing issues from: ${repoNames.length} selected repositories`,
-			};
+		const githubRepos =
+			isGithub && result.useRepoFilter && Array.isArray(result.selectedRepos)
+				? normalizeRepos(result.selectedRepos)
+				: [];
+		const hasGithubFilter = isGithub && !!result.useRepoFilter && githubRepos.length > 0;
+
+		const useGitlabFilter =
+			typeof result.useGitlabRepoFilter !== 'undefined' ? result.useGitlabRepoFilter : result.useRepoFilter;
+		const gitlabRepos =
+			isGitlab && useGitlabFilter && Array.isArray(result.selectedGitlabRepos || result.selectedRepos)
+				? normalizeRepos(result.selectedGitlabRepos || result.selectedRepos)
+				: [];
+		const hasGitlabFilter = isGitlab && !!useGitlabFilter && gitlabRepos.length > 0;
+
+		const hasAnyFilter = hasGithubFilter || hasGitlabFilter;
+		const allFilterRepos = [...githubRepos, ...gitlabRepos];
+		const platform = result.platform || 'github';
+
+		let displayText = chrome.i18n.getMessage('showingIssuesFromAll') || 'Showing issues from: All repositories';
+		if (hasAnyFilter) {
+			const parts = [];
+			if (hasGithubFilter) parts.push(`${githubRepos.length} GitHub`);
+			if (hasGitlabFilter) parts.push(`${gitlabRepos.length} GitLab`);
+			if (isCodeberg) parts.push('all Codeberg');
+			displayText = `Showing issues from: ${parts.join(', ')} repositories`;
 		}
 
 		return {
 			platforms,
-			type: 'all',
-			repos: [],
+			type: hasAnyFilter ? 'selected' : 'all',
+			repos: allFilterRepos,
+			githubRepos,
+			gitlabRepos,
+			githubFilter: hasGithubFilter,
+			gitlabFilter: hasGitlabFilter,
 			platform: platform,
-			displayText: 'Showing issues from: All repositories',
+			displayText,
 		};
 	}
 
@@ -268,26 +275,54 @@
 				: storage.platform
 					? [storage.platform]
 					: [];
+			const getPlatformScope = (p) => {
+				if (p === 'github') {
+					return {
+						...scope,
+						platform: 'github',
+						type: scope.githubFilter ? 'selected' : 'all',
+						repos: scope.githubRepos || [],
+					};
+				}
+				if (p === 'gitlab') {
+					return {
+						...scope,
+						platform: 'gitlab',
+						type: scope.gitlabFilter ? 'selected' : 'all',
+						repos: scope.gitlabRepos || [],
+					};
+				}
+				if (p === 'codeberg') {
+					return {
+						...scope,
+						platform: 'codeberg',
+						type: 'all',
+						repos: [],
+					};
+				}
+				return scope;
+			};
+
 			const fetchPromises = [];
 
 			if (platforms.includes('github') && storage.githubToken?.trim()) {
 				const ghHelper = window.PlatformRegistry ? window.PlatformRegistry.get('github') : null;
 				if (ghHelper && typeof ghHelper.fetchAssignedIssues === 'function') {
-					fetchPromises.push(ghHelper.fetchAssignedIssues(scope));
+					fetchPromises.push(ghHelper.fetchAssignedIssues(getPlatformScope('github')));
 				}
 			}
 
 			if (platforms.includes('gitlab') && storage.gitlabToken?.trim()) {
 				const glHelper = window.PlatformRegistry ? window.PlatformRegistry.get('gitlab') : null;
 				if (glHelper && typeof glHelper.fetchAssignedIssues === 'function') {
-					fetchPromises.push(glHelper.fetchAssignedIssues(scope));
+					fetchPromises.push(glHelper.fetchAssignedIssues(getPlatformScope('gitlab')));
 				}
 			}
 
 			if (platforms.includes('codeberg') && storage.codebergToken?.trim()) {
 				const cbHelper = window.PlatformRegistry ? window.PlatformRegistry.get('codeberg') : null;
 				if (cbHelper && typeof cbHelper.fetchAssignedIssues === 'function') {
-					fetchPromises.push(cbHelper.fetchAssignedIssues(scope));
+					fetchPromises.push(cbHelper.fetchAssignedIssues(getPlatformScope('codeberg')));
 				}
 			}
 
