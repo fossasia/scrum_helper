@@ -10,6 +10,9 @@
 			'selectedGitlabRepos',
 			'platform',
 			'selectedPlatforms',
+			'codebergUsername',
+			'codebergApiBaseUrl',
+			'platformUsername',
 		]);
 		const platforms = Array.isArray(result.selectedPlatforms)
 			? result.selectedPlatforms
@@ -53,6 +56,15 @@
 		const allFilterRepos = [...githubRepos, ...gitlabRepos];
 		const platform = result.platform || 'github';
 
+		const codebergUser = (
+			result.codebergUsername ||
+			(result.platform === 'codeberg' ? result.platformUsername : '') ||
+			''
+		)
+			.trim()
+			.toLowerCase();
+		const codebergBaseUrl = (result.codebergApiBaseUrl || '').trim().toLowerCase().replace(/\/+$/, '');
+
 		let displayText = chrome.i18n.getMessage('showingIssuesFromAll') || 'Showing issues from: All repositories';
 		if (hasAnyFilter) {
 			const parts = [];
@@ -71,6 +83,8 @@
 			githubFilter: hasGithubFilter,
 			gitlabFilter: hasGitlabFilter,
 			platform: platform,
+			codebergUsername: codebergUser,
+			codebergApiBaseUrl: codebergBaseUrl,
 			displayText,
 		};
 	}
@@ -78,11 +92,15 @@
 	// 2. Generate cache/selection key based on active scope
 	function getCacheKey(scope) {
 		const platformsKey = scope?.platforms ? [...scope.platforms].sort().join('_') : 'github';
+		let accountKey = '';
+		if (scope?.platforms?.includes('codeberg') && (scope.codebergUsername || scope.codebergApiBaseUrl)) {
+			accountKey = `_cb:${scope.codebergUsername || ''}@${scope.codebergApiBaseUrl || ''}`;
+		}
 		if (!scope || scope.type === 'all') {
-			return `${platformsKey}_all`;
+			return `${platformsKey}_all${accountKey}`;
 		}
 		const sortedRepos = [...scope.repos].sort();
-		return `${platformsKey}_selected_${sortedRepos.join('_')}`;
+		return `${platformsKey}_selected_${sortedRepos.join('_')}${accountKey}`;
 	}
 
 	// 3. Cache management
@@ -175,6 +193,20 @@
 		container.appendChild(wrapper);
 	}
 
+	function getIssueSelectionId(issue) {
+		const platform = issue.platform || issue._platform || 'codeberg';
+		return `${platform}:${issue.id}`;
+	}
+
+	function isIssueSelected(selectedIds, issues, issue) {
+		const selectionId = getIssueSelectionId(issue);
+		if (selectedIds.some((id) => String(id) === selectionId)) {
+			return true;
+		}
+		const matchingIssues = issues.filter((candidate) => String(candidate.id) === String(issue.id));
+		return matchingIssues.length === 1 && selectedIds.some((id) => String(id) === String(issue.id));
+	}
+
 	function displayIssuesUI(issues, scope) {
 		const container = document.getElementById('assignedIssuesSelector');
 		if (!container) return;
@@ -206,8 +238,8 @@
 			const checkbox = document.createElement('input');
 			checkbox.type = 'checkbox';
 			checkbox.classList.add('issue-item-checkbox');
-			checkbox.dataset.issueId = issue.id;
-			if (selectedIds.some((id) => String(id) === String(issue.id))) {
+			checkbox.dataset.issueId = getIssueSelectionId(issue);
+			if (isIssueSelected(selectedIds, issues, issue)) {
 				checkbox.checked = true;
 			}
 
@@ -382,7 +414,11 @@
 		// Map selectedIds to full issue objects
 		return selectedIds
 			.map((id) => {
-				return issues.find((issue) => String(issue.id) === String(id));
+				const selectionId = String(id);
+				const match = issues.find((issue) => getIssueSelectionId(issue) === selectionId);
+				if (match) return match;
+				const legacyMatches = issues.filter((issue) => String(issue.id) === selectionId);
+				return legacyMatches.length === 1 ? legacyMatches[0] : undefined;
 			})
 			.filter(Boolean);
 	}

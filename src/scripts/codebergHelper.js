@@ -192,6 +192,8 @@ async function fetchIssuesFromCodeberg(scope) {
 
 			return {
 				id: issue.id,
+				platform: 'codeberg',
+				_platform: 'codeberg',
 				number: Number.parseInt(issue.number, 10),
 				title: safeTitle,
 				html_url: safeUrl || issue.url || '',

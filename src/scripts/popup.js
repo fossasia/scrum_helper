@@ -574,8 +574,11 @@ document.addEventListener('DOMContentLoaded', () => {
 			changes.selectedGitlabRepos ||
 			changes.githubToken ||
 			changes.gitlabToken ||
+			changes.codebergToken ||
 			changes.githubUsername ||
 			changes.gitlabUsername ||
+			changes.codebergUsername ||
+			changes.codebergApiBaseUrl ||
 			changes.platformUsername
 		) {
 			if (window.loadAssignedIssues) {

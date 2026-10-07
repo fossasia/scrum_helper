@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import CodebergHelper from '../src/scripts/codebergHelper.js';
+import '../src/scripts/nextPlansHelper.js';
 
 describe('CodebergHelper', () => {
 	let helper;
@@ -441,8 +442,12 @@ describe('CodebergHelper', () => {
 			expect(result.map((item) => item.id)).toEqual([1, 2]);
 			expect(result[0].number).toBe(101);
 			expect(result[0].repository).toBe('org/repo');
+			expect(result[0].platform).toBe('codeberg');
+			expect(result[0]._platform).toBe('codeberg');
 			expect(result[1].number).toBe(102);
 			expect(result[1].repository).toBe('org/repo');
+			expect(result[1].platform).toBe('codeberg');
+			expect(result[1]._platform).toBe('codeberg');
 		});
 
 		it('should exclude pull requests', async () => {
@@ -603,6 +608,163 @@ describe('CodebergHelper', () => {
 
 			expect(result).toHaveLength(1);
 			expect(result[0].repository).toBe('fossasia/codeberg-repo');
+		});
+	});
+
+	describe('Next Plans Codeberg selection and cache identity', () => {
+		beforeEach(() => {
+			localStorage.clear();
+			document.body.innerHTML = `
+				<input type="checkbox" id="includeNextPlans" checked />
+				<div id="assignedIssuesSelector"></div>
+			`;
+			browser.storage.local.get.mockReset();
+			window.PlatformRegistry = {
+				get: (p) => {
+					if (p === 'codeberg') {
+						return { fetchAssignedIssues: CodebergHelper.fetchIssuesFromCodeberg };
+					}
+					return null;
+				},
+			};
+		});
+
+		it('uses platform-qualified issue ID in checkbox and resolves it in getNextPlansForReport', async () => {
+			browser.storage.local.get.mockResolvedValue({
+				selectedPlatforms: ['codeberg'],
+				codebergUsername: 'testUser',
+				codebergToken: 'valid-token',
+			});
+
+			const mockIssues = [
+				{
+					id: 101,
+					number: 10,
+					title: 'Codeberg Issue 10',
+					html_url: 'https://codeberg.org/org/repo/issues/10',
+					state: 'open',
+					assignee: { login: 'testUser' },
+					repository: { full_name: 'org/repo' },
+				},
+			];
+
+			global.fetch = vi.fn().mockResolvedValue({
+				ok: true,
+				json: async () => mockIssues,
+			});
+
+			await window.loadAssignedIssues();
+
+			const checkbox = document.querySelector('.issue-item-checkbox');
+			expect(checkbox).not.toBeNull();
+			expect(checkbox.dataset.issueId).toBe('codeberg:101');
+
+			// Simulate user selecting the checkbox
+			checkbox.checked = true;
+			checkbox.dispatchEvent(new Event('change'));
+
+			const reportIssues = await window.getNextPlansForReport();
+			expect(reportIssues).toHaveLength(1);
+			expect(reportIssues[0].id).toBe(101);
+			expect(reportIssues[0].platform).toBe('codeberg');
+		});
+
+		it('resolves legacy bare issue IDs when unambiguous', async () => {
+			browser.storage.local.get.mockResolvedValue({
+				selectedPlatforms: ['codeberg'],
+				codebergUsername: 'testUser',
+				codebergToken: 'valid-token',
+			});
+
+			const mockIssues = [
+				{
+					id: 202,
+					number: 20,
+					title: 'Legacy Issue 20',
+					html_url: 'https://codeberg.org/org/repo/issues/20',
+					state: 'open',
+					assignee: { login: 'testUser' },
+					repository: { full_name: 'org/repo' },
+				},
+			];
+
+			global.fetch = vi.fn().mockResolvedValue({
+				ok: true,
+				json: async () => mockIssues,
+			});
+
+			// Seed legacy selection with bare ID
+			const scopeKey = 'codeberg_all_cb:testuser@';
+			localStorage.setItem('selectedIssues', JSON.stringify({ [scopeKey]: ['202'] }));
+
+			await window.loadAssignedIssues();
+
+			const checkbox = document.querySelector('.issue-item-checkbox');
+			expect(checkbox.checked).toBe(true);
+
+			const reportIssues = await window.getNextPlansForReport();
+			expect(reportIssues).toHaveLength(1);
+			expect(reportIssues[0].id).toBe(202);
+		});
+
+		it('scopes cache key to Codeberg username and instance URL to avoid stale cache across accounts', async () => {
+			browser.storage.local.get.mockResolvedValue({
+				selectedPlatforms: ['codeberg'],
+				codebergUsername: 'userA',
+				codebergToken: 'valid-token',
+				codebergApiBaseUrl: 'https://codeberg.org/api/v1',
+			});
+
+			global.fetch = vi.fn().mockResolvedValue({
+				ok: true,
+				json: async () => [
+					{
+						id: 1,
+						number: 1,
+						title: 'UserA Issue',
+						html_url: 'https://codeberg.org/org/repo/issues/1',
+						state: 'open',
+						assignee: { login: 'userA' },
+						repository: { full_name: 'org/repo' },
+					},
+				],
+			});
+
+			await window.loadAssignedIssues();
+			expect(global.fetch).toHaveBeenCalledTimes(1);
+
+			// Calling again with same account uses cache (no fetch)
+			await window.loadAssignedIssues();
+			expect(global.fetch).toHaveBeenCalledTimes(1);
+
+			// Switch to userB: should NOT use userA cache, must fetch again
+			browser.storage.local.get.mockResolvedValue({
+				selectedPlatforms: ['codeberg'],
+				codebergUsername: 'userB',
+				codebergToken: 'valid-token',
+				codebergApiBaseUrl: 'https://codeberg.org/api/v1',
+			});
+
+			global.fetch.mockResolvedValueOnce({
+				ok: true,
+				json: async () => [
+					{
+						id: 2,
+						number: 2,
+						title: 'UserB Issue',
+						html_url: 'https://codeberg.org/org/repo/issues/2',
+						state: 'open',
+						assignee: { login: 'userB' },
+						repository: { full_name: 'org/repo' },
+					},
+				],
+			});
+
+			await window.loadAssignedIssues();
+			expect(global.fetch).toHaveBeenCalledTimes(2);
+
+			const itemSpan = document.querySelector('.issue-checkbox-label span');
+			expect(itemSpan.textContent).toContain('UserB Issue');
 		});
 	});
 });
