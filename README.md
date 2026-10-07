@@ -1,108 +1,44 @@
 # Scrum Helper
 
-> **Automated daily scrum and developer activity reporting across GitHub, GitLab, and Codeberg.**  
-> Available as a native, ultra-lightweight standalone desktop application powered by **Tauri v2 & Rust** and as a companion browser extension for Chrome, Firefox, and Opera.
+**Scrum Helper** is a Chrome extension that simplifies writing development reports by auto-filling content based on your Git activity. Select your platform, enter your username, and provide authentication details when needed. Choose a date range and your preferences. The extension automatically fetches your commits, pull requests, and issues via the selected platform's API. For platforms that support review activity, it also includes code reviews in the generated report. Scrum Helper currently supports GitHub, GitLab, and Codeberg, allowing developers to generate scrum reports from their activity across multiple Git platforms.
 
-[![Official Website](https://img.shields.io/badge/Website-fossasia.github.io%2Fscrum__helper-blue?style=flat-square&logo=github)](https://fossasia.github.io/scrum_helper/)
-[![License: LGPL-2.1](https://img.shields.io/badge/License-LGPL--2.1-green.svg?style=flat-square)](LICENSE)
-[![Chrome Web Store](https://img.shields.io/badge/Chrome_Web_Store-Scrum_Helper-4285F4?style=flat-square&logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/Scrum%20Helper/begjldpiiihpnaflcbdbbophiifphokg)
-[![Firefox Add-ons](https://img.shields.io/badge/Firefox_Add--ons-Scrum_Helper-FF7139?style=flat-square&logo=firefoxbrowser&logoColor=white)](https://addons.mozilla.org/en-US/firefox/addon/scrum-helper-by-fossasia/)
-[![Opera Add-ons](https://img.shields.io/badge/Opera_Add--ons-Scrum_Helper-FF1B2D?style=flat-square&logo=opera&logoColor=white)](https://addons.opera.com/en/extensions/details/scrum-helper/)
-
----
-
-### 🌐 Official Website & One-Click Downloads
-Visit the official landing page for direct installer downloads, documentation, and live preview:  
-👉 **[https://fossasia.github.io/scrum_helper/](https://fossasia.github.io/scrum_helper/)**
-
----
+Landing page: [https://fossasia.github.io/scrum_helper/](https://fossasia.github.io/scrum_helper/)
 
 ![SCRUMLOGO](docs/images/scrumhelper-png.png)
 
-## Overview
+## Features
 
-**Scrum Helper** is an open-source FOSSASIA utility that eliminates the repetitive chore of manual daily standup and development reporting. Instead of digging through multiple repositories and browser tabs to remember what you worked on, Scrum Helper connects directly to your Git activity, pulling commits, pull requests, issues, and code reviews into a clean, editable 3-question scrum update.
+- Automatically fetches your Git activity, including commits, pull requests, issues, and code reviews.
+- Supports GitHub, GitLab, and Codeberg.
+- Supports platform-specific authentication and configuration.
+- Supports custom Codeberg API base URLs.
+- Generates editable scrum updates based on your selected date range
+- Integrates directly with compose windows in Google Groups, Gmail, Yahoo Mail, and Outlook
 
-Scrum Helper is available in two flexible formats:
-1. **Native Tauri Desktop Application (Windows, macOS, Linux):** A standalone, distraction-free OS application built with **Rust and Tauri v2**. Consumes less than 25 MB RAM and compiles to a ~5 MB installer bundle without the bloat of Electron.
-2. **Cross-Platform Browser Extensions (Chrome, Firefox, Opera):** Seamlessly integrates with your browser to prefill daily updates directly into webmail compose windows (**Gmail**, **Google Groups**, **Outlook**, and **Yahoo Mail**) or run in a handy popup / side panel.
+## How to install
 
----
+### Desktop Application:
 
-## Key Features
+Download the desktop app for your operating system from the [Landing Page](https://fossasia.github.io/scrum_helper/#download) or directly using the links below:
 
-- **Multi-VCS Activity Aggregation:** Native API connectors for **GitHub**, **GitLab**, and **Codeberg**. Aggregates commits, opened/merged pull requests, issues, and submitted code reviews across any custom date range.
-- **Native Tauri Desktop App (Rust v2):** Blazing-fast desktop experience consuming **< 25 MB RAM** with a tiny **~5 MB installer**, replacing heavy 400 MB+ Electron desktop clients.
-- **Standardized Daily Scrum Formatting:** Organizes activity into standard scrum sections:
-  - **Done / What did you do yesterday?** Merged commits, submitted PRs, and completed reviews.
-  - **Today / Next Plans:** Automatically aggregates open assigned issues and active PR work items.
-  - **Blockers:** Dependencies, waiting reviews, or ongoing obstacles.
-- **Next Plans & Assigned Issue Tracking:** Fetches your open assigned issues across repositories so your upcoming plan is always up to date.
-- **1-Click Webmail Auto-Fill:** Automatically detects and populates compose windows in **Gmail**, **Google Groups**, **Outlook**, and **Yahoo Mail**.
-- **Interactive In-App Editor:** Live preview and inline editing with clickable links before copying or emailing your report.
-- **Advanced Repository Filtering:** Search and select specific repositories to focus reports on individual clients, projects, or sprints.
-- **Include Commits on Existing PRs:** Optionally tracks recent commits pushed to long-running PRs created prior to the selected timeframe.
-- **100% Privacy & Local Storage:** Zero external cloud servers, analytics, or telemetry. Personal access tokens and credentials remain strictly on your local device.
-- **Universal Rich-Text Clipboard:** One-click copy with formatted HTML or Markdown for Slack, Microsoft Teams, Discord, Jira, or email.
-
----
-
-## Screenshots
-
-| Browser Extension Popup | Extension Detailed View |
-| :---: | :---: |
-| ![POPUP](docs/images/popup.png) | ![POPUP2](docs/images/popup2.png) |
-
-| Standalone Desktop App (Tauri) | Settings & Authentication |
-| :---: | :---: |
-| ![STANDALONE](docs/images/standalone.png) | ![SETTINGSMENU](docs/images/settings.png) |
-
-| Generated Scrum Report Preview |
-| :---: |
-| ![SCRUM](docs/images/scrum.png) |
-
----
-
-## Download & Installation
-
-### 1. Tauri Desktop Application (Windows, macOS, Linux)
-
-Pre-built standalone installers are available directly from the [Scrum Helper Landing Page](https://fossasia.github.io/scrum_helper/#download) or [GitHub Releases](https://github.com/fossasia/scrum_helper/releases/latest):
-
-| Operating System | Package Type | Direct Download Link |
+| Operating System | Package | Download Link |
 | :--- | :--- | :--- |
-| **Windows 10 / 11 (x64)** | Executable Setup (`.exe`) | [Download setup.exe](https://fossasia.github.io/scrum_helper/downloads/scrum-helper-setup.exe) |
-| **Windows 10 / 11 (Enterprise)** | Windows Installer (`.msi`) | [Download x64.msi](https://fossasia.github.io/scrum_helper/downloads/scrum-helper-x64.msi) |
-| **macOS (Apple Silicon)** | DMG Installer (`.dmg`) | [Download arm64.dmg](https://fossasia.github.io/scrum_helper/downloads/scrum-helper-arm64.dmg) |
-| **macOS (Intel x64)** | DMG Installer (`.dmg`) | [Download x64.dmg](https://fossasia.github.io/scrum_helper/downloads/scrum-helper-x64.dmg) |
-| **Linux (Ubuntu / Debian)** | Debian Package (`.deb`) | [Download .deb](https://fossasia.github.io/scrum_helper/downloads/scrum-helper.deb) |
+| **Windows** | Setup (`.exe`) | [Download .exe](https://fossasia.github.io/scrum_helper/downloads/scrum-helper-setup.exe) |
+| **Windows** | Installer (`.msi`) | [Download .msi](https://fossasia.github.io/scrum_helper/downloads/scrum-helper-x64.msi) |
+| **macOS (Apple Silicon)** | DMG (`.dmg`) | [Download arm64 .dmg](https://fossasia.github.io/scrum_helper/downloads/scrum-helper-arm64.dmg) |
+| **macOS (Intel)** | DMG (`.dmg`) | [Download x64 .dmg](https://fossasia.github.io/scrum_helper/downloads/scrum-helper-x64.dmg) |
+| **Linux** | Debian (`.deb`) | [Download .deb](https://fossasia.github.io/scrum_helper/downloads/scrum-helper.deb) |
 
-### 2. Browser Extensions
 
-Install Scrum Helper directly into your browser:
+### For Chrome:
 
-- **Chrome / Brave / Edge:** [Scrum Helper on Chrome Web Store](https://chromewebstore.google.com/detail/Scrum%20Helper/begjldpiiihpnaflcbdbbophiifphokg)
-- **Firefox:** [Scrum Helper on Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/scrum-helper-by-fossasia/)
-- **Opera:** [Scrum Helper on Opera Add-ons](https://addons.opera.com/en/extensions/details/scrum-helper/)
-
----
-
-## Tauri Desktop App Architecture
-
-The desktop edition of Scrum Helper is built using **Tauri v2**, pairing a lightweight **Rust** core with native operating system webview runtimes:
-- **Windows:** Microsoft Edge WebView2
-- **macOS:** Apple WebKit
-- **Linux:** WebKitGTK (`webkit2gtk-4.1`)
-
-### Why Tauri instead of Electron?
-- **Ultra-Lightweight Memory Footprint:** Idles at **< 25 MB RAM**, compared to 300–600 MB typical of Electron applications.
-- **Tiny Binary Footprint:** Full installers are only **~4–6 MB** rather than 100–150 MB+.
-- **Hardened Security:** Strict Rust IPC boundaries ensure your Git tokens never leave your local environment.
-- **Dedicated Standalone Window:** Keep your standup helper docked or open alongside terminal and IDE without taking up browser tabs.
-- **Fast Startup:** Native OS rendering ensures instant launch with no cold-start lag.
-
----
-
+1. Open the Chrome Web Store and search for [“Scrum Helper”](https://chromewebstore.google.com/detail/Scrum%20Helper/begjldpiiihpnaflcbdbbophiifphokg) by FOSSASIA.
+2. Click “Add to Chrome”.
+3. Pin the extension to your toolbar (optional).
+4. Open the extension popup from your browser toolbar.
+5. Select your preferred platform from the platform dropdown and enter your username and any authentication details needed for private data or higher API limits.
+6. Select your date range and preferences.
+7. Start composing your reports in Gmail, Yahoo Mail, Outlook, or Google Groups using the extension.
 ## Setting Up Your Development Environment
 
 1.  **Fork & Clone the Repository**
@@ -118,7 +54,7 @@ The desktop edition of Scrum Helper is built using **Tauri v2**, pairing a light
     npm install
     ```
 
-3.  **Build the Browser Extension**
+3.  **Build the Extension**
 
     Because Chromium (Chrome, Edge, etc.) and Gecko (Firefox) browsers handle Manifest V3 differently, we use a build step to generate engine-specific distributions.
 
@@ -147,7 +83,7 @@ The desktop edition of Scrum Helper is built using **Tauri v2**, pairing a light
 
 5.  **Set Up & Run the Tauri Desktop App (Standalone Application)**
 
-    If you are developing or building the desktop version of Scrum Helper:
+    If you are developing the desktop version of Scrum Helper:
     -   **Step 5.1: Install System Dependencies**
         Tauri requires system libraries to build the webview and Rust backend:
 
@@ -162,7 +98,7 @@ The desktop edition of Scrum Helper is built using **Tauri v2**, pairing a light
         Refer to the official [Tauri Prerequisites Guide](https://v2.tauri.app/start/prerequisites/) to install C++ build tools and platform-specific WebKit SDKs.
 
     -   **Step 5.2: Install Rust**
-        Tauri requires the Rust toolchain:
+        Tauri requires Rust. Run the following toolchain installer:
 
         ```sh
         curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
@@ -178,68 +114,123 @@ The desktop edition of Scrum Helper is built using **Tauri v2**, pairing a light
         ```
 
     -   **Step 5.4: Build Standalone Production Binaries**
-        To compile the final standalone installers (e.g. `.deb`, `.msi`, `.dmg`):
+        To compile the final standalone installers (e.g. `.deb`, `.AppImage`, `.msi`, `.dmg`):
         ```sh
         npm run tauri build
         ```
         The compiled installers and binaries will be written to:
         `src-tauri/target/release/bundle/`
 
----
-
-## Usage & Workflows
+## Usage
 
 ### Selecting a Platform
-1. Open Scrum Helper (either the browser extension or the desktop application).
+1. Open the Scrum Helper extension.
 2. **Select your platform from the platform dropdown: GitHub, GitLab, or Codeberg.**
-3. Enter your username; add authentication details when needed for private data or higher API limits.
+3. Enter the username; add authentication details when needed for private data or higher API limits.
 4. **For GitLab, optionally provide a Group filter; leave it empty to include activity across all groups.**
 5. **For Codeberg, optionally configure a custom API base URL.**
 6. Select your desired date range and preferences.
 7. Generate your scrum report.
-8. Review and edit the generated report before using it in your preferred email, chat, or ticket platform.
+8. Review and edit the generated report before using it in your preferred email or group platform.
 
-### Standalone Desktop App Workflow:
-- Launch Scrum Helper as a standalone window.
-- Click `GENERATE` to fetch your recent activity (or allow smart auto-generation to pull automatically).
-- Edit headings, items, and next plans directly in the live interactive preview.
-- Click `COPY` to place rich HTML or formatted Markdown on your clipboard for Slack, Teams, or Jira.
+### For Google Groups:
 
-### Webmail Auto-Fill (Browser Extension):
-- **For Google Groups:** Open Google Groups New Topic, start a conversation, and refresh the page to apply Scrum Helper settings.
-- **For Gmail, Yahoo, and Outlook:** Open the Compose window, and Scrum Helper will automatically prefill your formatted scrum content for final edits.
+- Open Google Groups New Topic
+- Start a New Conversation
+- Refresh the page to apply the Scrum Helper settings
+- Use the pre-filled scrum and edit as needed
 
-### Advanced Features & Productivity:
+### For Gmail, Yahoo, and Outlook:
 
-1. **Standalone Popup Interface:**
-   - Generate reports directly from the extension popup.
-   - Live preview of the report before sending.
-   - Rich text formatting with clickable links.
-   - Copy report to clipboard with proper formatting.
+- Open the Compose window.
+- Ensure the Scrum Helper settings are applied (follow step 6 above)
+- The extension will prefill scrum content for you to edit
 
-2. **Advanced Repository Filtering:**
-   - Select specific repositories to include in your report for a more focused summary.
-   - Easily search and manage your repository list directly within the popup.
-   - *Requires a GitHub personal access token (classic) to fetch your repositories.*
+### New Features
 
-3. **Include Commits on Existing PRs:**
-   - Option to include recent commits made to pull requests that were opened *before* the selected date range.
-   - Provides a more detailed and accurate view of your work on long-running PRs.
-   - *Requires a GitHub personal access token (classic).*
+1. **Standalone Popup Interface**
+   - Generate reports directly from the extension popup
+   - Live preview of the report before sending
+   - Rich text formatting with clickable links
+   - Copy report to clipboard with proper formatting
 
-4. **Flexible Display Modes:**
-   - Easily toggle the extension display mode between a traditional **Popup** and a persistent **Side Panel** in the settings.
+2.  **Advanced Repository Filtering**
+    *   Select specific repositories to include in your report for a more focused summary.
+    *   Easily search and manage your repository list directly within the popup.
+    *   *Requires a GitHub personal access token (classic) to fetch your repositories.*
 
-5. **Smart Caching & Auto-Generation:**
-   - **Auto-Load:** When you open the extension or desktop app, it instantly restores your previously generated Scrum report if there is a healthy cache in memory.
-   - **Auto-Generate:** If there is no cached report available, it automatically calculates and generates a new report without requiring you to click anything.
-   - **Manual Refresh:** If the cache duration expires (defaults to 10 minutes), you can click the "Generate" button to fetch fresh data.
+3.  **Include Commits on Existing PRs**
+    *   Option to include recent commits made to pull requests that were opened *before* the selected date range.
+    *   Provides a more detailed and accurate view of your work on long-running PRs.
+    *   *Requires a GitHub personal access token (classic).*
 
----
+4.  **Flexible Display Modes**
+    *   Easily toggle the extension display mode between a traditional **Popup** and a persistent **Side Panel** in the settings.
+    *   *Note: The older standard extension on/off toggle has been removed in favor of this UI flexibility.*
 
+5.  **Smart Caching & Auto-Generation**
+    *   **Auto-Load:** When you open the extension, it instantly restores your previously generated Scrum report if there is a healthy cache in memory.
+    *   **Auto-Generate:** If there is no cached report available, the extension automatically calculates and generates a new report without requiring you to click anything.
+    *   **Manual Refresh:** If the cache duration expires (defaults to 10 minutes), the auto-load stops, and you just need to click the "Generate" button yourself to fetch fresh data.
+
+### Usage Standalone
+
+- Click on `GENERATE` button to generate the scrum preview (if not auto-generated).
+- Edit it in the window.
+- Copy the rich HTML using the `COPY` button.
+
+## Contributing
+
+We welcome contributions from the community! Whether it's reporting a bug, suggesting a new feature, or writing code, your help is appreciated.
+
+Please read our **[Contributing Guide](CONTRIBUTING.md)** to learn how you can get involved.
+
+## License
+
+This project is licensed under the LGPL-2.1 License - see the [LICENSE](LICENSE) file for details.
+
+## Screenshots
+
+| | |
+|---|---|
+| ![POPUP](docs/images/popup.png) | ![POPUP2](docs/images/popup2.png) |
+| ![STANDALONE](docs/images/standalone.png) | ![SETTINGSMENU](docs/images/settings.png) |
+
+| |
+|---|
+| ![SCRUM](docs/images/scrum.png) |
+
+## Setting up the code locally
+
+```
+$ git clone https://github.com/fossasia/scrum_helper/
+$ cd scrum_helper
+$ npm install
+```
+
+1. **Install the Extension / Run Desktop App**
+
+* For Chrome, Edge & Brave (Chromium): Load it into your browser through [Chrome Extension Developer Mode](https://developer.chrome.com/docs/extensions/mv3/getstarted/) using the `dist/chrome` folder.
+* For Firefox: Load it as a temporary add-on through `about:debugging` using the `dist/firefox` folder.
+* For Opera: Load it through Developer mode at `opera://extensions` using the `dist/opera` folder.
+* For Standalone Desktop App (Tauri):
+  * Install dependencies (Rust toolchain, build essential, webkit2gtk libraries - see Dev environment setup above).
+  * Run the application in developer mode:
+    ```sh
+    npm run tauri dev
+    ```
+
+2. **Rebuild / Re-run**
+   After making changes to the source code:
+   * For Browser Extensions: Rebuild the distributions running `npm run build`, and then refresh/reload the extension in your browser's Developer panel.
+   * For Standalone Desktop App (Tauri): The development server (`npm run tauri dev`) will hot-reload your code changes automatically in real-time. If you want to bundle a release installer, run:
+     ```sh
+     npm run tauri build
+     ```
+   
 ## Platform Setup and Authentication
 
-Scrum Helper supports **GitHub, GitLab, and Codeberg**. Select your platform from the platform dropdown. A username is required; authentication tokens and optional filters/API URLs are only needed for private data, higher API limits, or token-gated features.
+ Scrum Helper supports **GitHub, GitLab, and Codeberg**. Select your platform from the platform dropdown. A username is required; authentication tokens and optional filters/API URLs are only needed for private data, higher API limits, or token-gated features.
 
 ### GitHub
 
@@ -289,7 +280,7 @@ To use Scrum Helper with Codeberg:
 * Enter your **Codeberg username**.
 * Enter your **Codeberg Access Token**.
 * Optionally provide a **custom Codeberg API base URL**.
-* The default API base URL is:  
+* The default API base URL is:
   `https://codeberg.org/api/v1`
 
 The custom API base URL allows Scrum Helper to work with custom or self-hosted Codeberg instances that provide a compatible API.
@@ -302,13 +293,12 @@ The custom API base URL allows Scrum Helper to work with custom or self-hosted C
 4. Give the token a descriptive name and configure the required permissions.
 5. Create the token and copy it securely.
 6. Enter your username and access token in Scrum Helper.
-7. If you are using the standard Codeberg service, leave the API base URL as:  
+7. If you are using the standard Codeberg service, leave the API base URL as:
    `https://codeberg.org/api/v1`
 8. If you are using a custom Codeberg instance, enter its API base URL in the API Base URL field.
 
 > **Keep your token secret.** Never share it or commit it to a public repository.
 
----
 
 ## Release Process
 
@@ -334,9 +324,7 @@ This part is performed manually by maintainers when it's time to publish a new v
 2.  **Publishing**: The maintainer publishes the release from the GitHub UI.
 3.  **Chrome Web Store Deployment**: Publishing the release triggers the "Publish to Chrome Web Store" workflow, which automatically packages the extension and uploads it for review.
 
-> If you encounter any bugs, please report them at the [Issues page](https://github.com/fossasia/scrum_helper/issues).
-
----
+### If you encounter any bugs, please report them at the [Issues page](https://github.com/fossasia/scrum_helper/issues).
 
 ## AI-Assisted Contributions Guidelines
 
@@ -376,7 +364,7 @@ This project is receiving an increasing number of AI-assisted contributions. Whi
 | **Architecture** | Conforming strictly to the established design patterns and utilities of the project. | Hallucinating new dependencies or forcing foreign paradigms into the codebase. |
 | **Validation** | Manually compiling and verifying the extension works, and writing reliable tests. | Submitting code that has never been tested locally or fails basic linting. |
 | **Maintainability** | The implemented solution is simpler for us to maintain than the problem it solves. | Adding excessive "clever" complexity that increases the maintainer's review burden. |
-| **PR description** | Writing a clear, human-authored explanation of the *why* behind your changes. Including screenshots of your changes. | Pasting a generic, AI-generated summary of the modified files without context. |
+| **PR description** | Writing a clear, human-authored explanation of the *why* behind your changes. Including screenshots of your changes.| Pasting a generic, AI-generated summary of the modified files without context. |
 | **AI usage** | Disclosing your use of generative tools and verifying that the output makes sense. | Failing to review AI output, resulting in regressions or confidently incorrect logic. |
 
 ### Maintainer Policy
@@ -385,16 +373,4 @@ This project is receiving an increasing number of AI-assisted contributions. Whi
 * PRs containing features not aligned with our current priorities or roadmap may be closed.
 * Contributors are strongly encouraged to pick well-defined, triaged issues to ensure their time and effort result in a successful merge.
 
----
 
-## Contributing
-
-We welcome contributions from the community! Whether it's reporting a bug, suggesting a new feature, or writing code, your help is appreciated.
-
-Please read our **[Contributing Guide](CONTRIBUTING.md)** to learn how you can get involved.
-
----
-
-## License
-
-This project is licensed under the LGPL-2.1 License - see the [LICENSE](LICENSE) file for details.
