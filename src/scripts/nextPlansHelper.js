@@ -99,8 +99,9 @@
 		if (!scope || scope.type === 'all') {
 			return `${platformsKey}_all${accountKey}`;
 		}
-		const sortedRepos = [...scope.repos].sort();
-		return `${platformsKey}_selected_${sortedRepos.join('_')}${accountKey}`;
+		const gh = scope.githubFilter ? `_gh:${[...(scope.githubRepos || [])].sort().join(',')}` : '';
+		const gl = scope.gitlabFilter ? `_gl:${[...(scope.gitlabRepos || [])].sort().join(',')}` : '';
+		return `${platformsKey}_selected${gh}${gl}${accountKey}`;
 	}
 
 	// 3. Cache management
