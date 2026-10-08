@@ -1105,7 +1105,7 @@ document.addEventListener('DOMContentLoaded', () => {
 						}
 
 						const errorMsgs = [];
-						for (const p of missingPlatforms) {
+						missingPlatforms.forEach((p, idx) => {
 							const displayName = platformDisplayNames[p] || p;
 							const errorMsg =
 								browser.i18n.getMessage(`${p}UsernameRequiredError`) || `Please enter your ${displayName} username`;
@@ -1120,12 +1120,13 @@ document.addEventListener('DOMContentLoaded', () => {
 								? `dropdown-${p}Username`
 								: `${p}Username`;
 
+							const isFirst = idx === 0;
 							window.triggerInputError?.(targetInputId, {
-								focus: true,
-								scroll: true,
+								focus: isFirst,
+								scroll: isFirst,
 								clearOnInput: true,
 							});
-						}
+						});
 
 						showPopupMessage(errorMsgs.join('\n'), { variant: 'error' });
 						generateBtn._triggeredByShortcut = false;
