@@ -254,14 +254,7 @@ function showReportMessage(message) {
 
 function isUsernameValidationError(err) {
 	if (!err) return false;
-	if (err.username && err.platform) return true;
-	const msg = (typeof err === 'string' ? err : err?.message || '').toLowerCase();
-	return (
-		(msg.includes('user') && msg.includes('not found')) ||
-		msg.includes('username is required') ||
-		msg.includes('username required') ||
-		msg.includes('please enter your')
-	);
+	return err.code === 'USERNAME_VALIDATION';
 }
 
 function getFailurePlatform(err) {
@@ -1154,6 +1147,7 @@ function allIncluded(outputTarget = 'email') {
 					`GitHub user "${platformUsernameLocal}" not found.`;
 				logError(errorMsg);
 				const err = new Error(errorMsg);
+				err.code = 'USERNAME_VALIDATION';
 				err.platform = 'github';
 				err.username = platformUsernameLocal;
 				throw err;
