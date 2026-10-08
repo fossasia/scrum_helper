@@ -1255,6 +1255,7 @@ function allIncluded(outputTarget = 'email') {
 							chrome?.i18n.getMessage('githubUserNotFoundError', [platformUsernameLocal]) ||
 							`GitHub user "${platformUsernameLocal}" not found.`;
 						const err = new Error(errorMsg);
+						err.code = 'USERNAME_VALIDATION';
 						err.platform = 'github';
 						err.username = platformUsernameLocal;
 						throw err;
