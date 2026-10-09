@@ -51,7 +51,9 @@ describe('emailClientAdapter hostname matcher logic', () => {
 				'portal.office.com',
 				'admin.office365.com',
 				'outlook.live.com',
-				'outlook.cloud.microsoft'
+				'sub.outlook.live.com',
+				'outlook.cloud.microsoft',
+				'sub.outlook.cloud.microsoft'
 			];
 			for (const hostname of validHostnames) {
 				setHostname(hostname);
