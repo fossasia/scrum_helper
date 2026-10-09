@@ -60,7 +60,13 @@ describe('emailClientAdapter hostname matcher logic', () => {
 		});
 
 		it('should not match invalid Outlook hostnames', () => {
-			const invalidHostnames = ['fakeoutlook.com', 'office.org', 'microsoft.com'];
+			const invalidHostnames = [
+				'fakeoutlook.com',
+				'office.org',
+				'microsoft.com',
+				'fakeoutlook.live.com',
+				'fakeoutlook.cloud.microsoft'
+			];
 			for (const hostname of invalidHostnames) {
 				setHostname(hostname);
 				expect(window.emailClientAdapter.detectClient()).not.toBe('outlook');
