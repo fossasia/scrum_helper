@@ -16,7 +16,7 @@
     "description": "Label for the toggle switch to enable the extension."
   },
   "projectNameLabel": {
-    "message": "Project Name (used in email subject)",
+    "message": "Project name (used in email subject)",
     "description": "Label for the project name input field."
   },
   "projectNamePlaceholder": {
@@ -28,11 +28,11 @@
     "description": "Tooltip explaining how the project name is used in the email subject."
   },
   "githubUsernameLabel": {
-    "message": "Your Github Username",
+    "message": "Your GitHub username",
     "description": "Label for the GitHub username input field."
   },
   "gitlabUsernameLabel": {
-    "message": "Your GitLab Username",
+    "message": "Your GitLab username",
     "description": "Label for the GitLab username input field."
   },
   "gitlabUsernamePlaceholder": {
@@ -40,7 +40,7 @@
     "description": "Placeholder text for the GitLab username input."
   },
   "codebergUsernameLabel": {
-    "message": "Your Codeberg Username",
+    "message": "Your Codeberg username",
     "description": "Label for the Codeberg username input field."
   },
   "codebergUsernamePlaceholder": {
@@ -64,7 +64,7 @@
     "description": "Placeholder text for the GitHub username input."
   },
   "contributionsLabel": {
-    "message": "Fetch your contributions between:",
+    "message": "Fetch your contributions:",
     "description": "Label for the date range selection."
   },
   "last1DayLabel": {
@@ -103,7 +103,7 @@
     "description": "Placeholder text for the blockers input field."
   },
   "scrumReportLabel": {
-    "message": "Scrum Report",
+    "message": "Scrum report",
     "description": "Heading for the Scrum Report section."
   },
   "generateReportButton": {
@@ -115,7 +115,7 @@
     "description": "Text for the 'Copy' button."
   },
   "insertInEmailButton": {
-    "message": "Insert to Email",
+    "message": "Insert to email",
     "description": "Text for the 'Insert to Email' button."
   },
   "insertToEmailFailedError": {
@@ -123,7 +123,7 @@
     "description": "Error message shown when no active email tab can receive insert action or when the mail tab needs reload."
   },
   "settingsOrgNameLabel": {
-    "message": "Organization Name",
+    "message": "Organization name",
     "description": "Label for the organization name input in settings."
   },
   "settingsOrgNamePlaceholder": {
@@ -151,7 +151,7 @@
     "description": "Text for the 'Set' button for the organization."
   },
   "githubTokenLabel": {
-    "message": "Your Github Token",
+    "message": "Your GitHub token",
     "description": "Label for the GitHub token input."
   },
   "githubTokenPlaceholder": {
@@ -163,7 +163,7 @@
     "description": "Tooltip for GitHub token explaining why it's needed."
   },
   "gitlabTokenLabel": {
-    "message": "Your GitLab Token",
+    "message": "Your GitLab token",
     "description": "Label for the GitLab token input."
   },
   "gitlabTokenPlaceholder": {
@@ -175,7 +175,7 @@
     "description": "Tooltip for GitLab token explaining why it's needed."
   },
   "codebergTokenLabel": {
-    "message": "Your Codeberg Token",
+    "message": "Your Codeberg token",
     "description": "Label for the Codeberg token input."
   },
   "codebergTokenPlaceholder": {
@@ -187,7 +187,7 @@
     "description": "Tooltip for Codeberg token explaining why it's needed."
   },
   "codebergApiBaseUrlLabel": {
-    "message": "Codeberg API Base URL",
+    "message": "Codeberg API base URL",
     "description": "Label for the Codeberg API Base URL input."
   },
   "codebergApiBaseUrlPlaceholder": {
@@ -203,10 +203,10 @@
     "description": "Tooltip explaining that GitHub Token is required to show commits."
 },
   "showCommitsTooltipGitLab": {
-    "message": "GitLab Token required, add it in the settings."
+    "message": "GitLab token required, add it in the settings."
   },
   "showCommitsTooltipCodeberg": {
-    "message": "Codeberg Token required, add it in the settings."
+    "message": "Codeberg token required, add it in the settings."
   },
   "onlyIssuesLabel": {
     "message": "Include issues in the report",
@@ -233,7 +233,7 @@
     "description": "Unit for the cache TTL."
   },
   "cacheTTLPlaceholder": {
-    "message": "Write Cache TTL in minutes (Default 10 minutes)",
+    "message": "Write cache TTL in minutes (default 10 minutes)",
     "description": "Placeholder for the cache TTL input."
   },
   "cacheTTLTooltip": {
@@ -241,7 +241,7 @@
     "description": "Tooltip explaining cache lifetime and manual refresh."
   },
   "refreshDataButton": {
-    "message": "Refresh Data (bypass cache)",
+    "message": "Refresh data (bypass cache)",
     "description": "Text for the button to refresh data, ignoring the cache."
   },
   "refreshDataInfo": {
@@ -253,11 +253,11 @@
     "description": "Title for the notes section."
   },
   "viewCodeButton": {
-    "message": "View Code",
+    "message": "View code",
     "description": "Text for the button to view the source code on GitHub."
   },
   "reportIssueButton": {
-    "message": "Report Issue",
+    "message": "Report issue",
     "description": "Text for the button to report an issue on GitHub."
   },
   "repoFilterLabel": {
@@ -319,7 +319,7 @@
     "description": "Text showing the count of selected repositories. $1 is a placeholder for the number."
   },
   "clearAllBtn": {
-    "message": "Clear All",
+    "message": "Clear all",
     "description": "Clear all selected repositories."
   },
   "repoLoading": {
@@ -399,7 +399,7 @@
     "description": "Message shown when the cached data has expired and user needs to regenerate."
   },
   "cacheClearedButton": {
-    "message": "Cache Cleared!",
+    "message": "Cache cleared!",
     "description": "Text on the refresh button after the cache is cleared."
   },
   "extensionDisabledMessage": {
@@ -415,7 +415,7 @@
     "description": "Link text for the GitHub issue in the notes."
   },
   "selectPlatformPlaceholder": {
-    "message": "Select Platform",
+    "message": "Select platform",
     "description": "Placeholder text displayed when no platform is selected."
   },
   "selectPlatformWarning": {
@@ -427,7 +427,7 @@
     "description": "Label for the platform selection header."
   },
   "usernameLabel": {
-    "message": "Your Username",
+    "message": "Your username",
     "description": "Label for the username input header."
   },
   "onlyRevPRsLabel": {
@@ -647,39 +647,39 @@
     "description": "Error message when fetching fails."
   },
   "repoFilterTooltip": {
-    "message": "GitHub token required.<br>To force a repo list update,<br>click the Refresh Data button.",
+    "message": "GitHub token required.<br>To force a repo list update,<br>click the Refresh data button.",
     "description": "Tooltip message displayed for GitHub repository filter option."
   },
   "repoFilterTooltipGitLab": {
-    "message": "GitLab token required.<br>To force a repo list update,<br>click the Refresh Data button.",
+    "message": "GitLab token required.<br>To force a repo list update,<br>click the Refresh data button.",
     "description": "Tooltip message displayed for GitLab repository filter option."
   },
   "smtpSenderEmailLabel": {
-    "message": "Sender Email"
+    "message": "Sender email"
   },
   "smtpSenderEmailPlaceholder": {
     "message": "sender@example.com"
   },
   "smtpHostLabel": {
-    "message": "SMTP Host"
+    "message": "SMTP host"
   },
   "smtpHostPlaceholder": {
     "message": "smtp.example.com"
   },
   "smtpPortLabel": {
-    "message": "SMTP Port"
+    "message": "SMTP port"
   },
   "smtpPortPlaceholder": {
     "message": "587"
   },
   "smtpUsernameLabel": {
-    "message": "SMTP Username"
+    "message": "SMTP username"
   },
   "smtpUsernamePlaceholder": {
     "message": "username@example.com"
   },
   "smtpPasswordLabel": {
-    "message": "SMTP Password"
+    "message": "SMTP password"
   },
   "smtpPasswordPlaceholder": {
     "message": "Enter your SMTP password"
@@ -691,13 +691,13 @@
     "message": "recipient1@example.com, recipient2@example.com"
   },
   "smtpGmailHint": {
-    "message": "For Gmail, you must use an App Password, not your regular password."
+    "message": "For Gmail, you must use an app password, not your regular password."
   },
   "smtpSecurityWarning": {
     "message": "Note: Your password is stored in unencrypted local storage. Ensure your device is secure."
   },
   "smtpMissingFieldsError": {
-    "message": "Please configure all Mail Settings first."
+    "message": "Please configure all mail settings first."
   },
   "smtpInvalidEmailError": {
     "message": "Invalid email address: $1"
@@ -718,10 +718,10 @@
     "message": "Sending..."
   },
   "sendEmailButton": {
-    "message": "Send Email"
+    "message": "Send email"
   },
   "mailSettingsTitle": {
-    "message": "Mail Settings"
+    "message": "Mail settings"
   },
   "sentButton": {
     "message": "Sent"
@@ -733,7 +733,7 @@
     "message": "Settings"
   },
   "extensionSettingsHeading": {
-    "message": "Extension Settings",
+    "message": "Extension settings",
     "description": "Heading for general extension settings section."
   },
   "displayModeLabel": {
@@ -763,7 +763,7 @@
     "message": "A list of recipient email addresses separated by commas (e.g. recipient1@example.com, recipient2@example.com)."
   },
   "smtpPresetsLabel": {
-    "message": "Quick Presets"
+    "message": "Quick presets"
   },
   "smtpPresetsTooltip": {
     "message": "Select a preset to automatically configure the SMTP host and port settings for common email services."
