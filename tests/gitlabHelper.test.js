@@ -368,6 +368,19 @@ describe('GitLabHelper', () => {
 			expect(helper.cache.timestamp).toBe(0);
 		});
 
+		it('should handle malformed or partial gitlabCache in storage without throwing', async () => {
+			browser.storage.local.get.mockResolvedValueOnce({
+				gitlabCache: {
+					corruptedPayload: true,
+				},
+			});
+
+			await expect(helper.loadFromStorage()).resolves.not.toThrow();
+			expect(helper.cache.data).toBeUndefined();
+			expect(helper.cache.cacheKey).toBeUndefined();
+			expect(helper.cache.timestamp).toBeUndefined();
+		});
+
 		it('should handle loadFromStorage error gracefully without throwing', async () => {
 			const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 			browser.storage.local.get.mockRejectedValueOnce(new Error('Read error'));
