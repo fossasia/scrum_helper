@@ -19,50 +19,37 @@
 		const isGitlab = platforms.includes('gitlab');
 		const isGithub = platforms.includes('github');
 
-		const filterRepos = [];
-		if (isGithub && result.useRepoFilter && Array.isArray(result.selectedRepos)) {
-			filterRepos.push(...result.selectedRepos);
-		}
-		if (
-			isGitlab &&
-			(typeof result.useGitlabRepoFilter !== 'undefined' ? result.useGitlabRepoFilter : result.useRepoFilter) &&
-			Array.isArray(result.selectedGitlabRepos || result.selectedRepos)
-		) {
-			filterRepos.push(...(result.selectedGitlabRepos || result.selectedRepos));
-		}
-
-		const hasFilter =
-			(isGithub && result.useRepoFilter) ||
-			(isGitlab &&
-				(typeof result.useGitlabRepoFilter !== 'undefined' ? result.useGitlabRepoFilter : result.useRepoFilter));
-
-		if (hasFilter && filterRepos.length > 0) {
-			const repoNames = filterRepos
-				.map((repo) => {
-					if (typeof repo === 'object' && repo.fullName) {
-						return repo.fullName.startsWith('/') ? repo.fullName.substring(1) : repo.fullName;
-					}
-					if (typeof repo === 'string') {
-						return repo.startsWith('/') ? repo.substring(1) : repo;
-					}
-					return repo;
-				})
-				.filter(Boolean);
-
-			return {
-				platforms,
-				type: 'selected',
-				repos: repoNames,
-				displayText: `Showing issues from: ${repoNames.length} selected repositories`,
-			};
-		}
+		const normalizeRepos = (repos) =>
+			(Array.isArray(repos) ? repos : [])
+				.map((repo) => (typeof repo === 'string' ? repo : repo?.fullName))
+				.filter((repo) => typeof repo === 'string' && repo.length > 0)
+				.map((repo) => repo.replace(/^\//, ''));
+		const githubRepos = isGithub && result.useRepoFilter ? normalizeRepos(result.selectedRepos) : [];
+		const gitlabFilter = result.useGitlabRepoFilter ?? result.useRepoFilter;
+		const gitlabRepos =
+			isGitlab && gitlabFilter ? normalizeRepos(result.selectedGitlabRepos ?? result.selectedRepos) : [];
+		const repos = [...githubRepos, ...gitlabRepos];
 
 		return {
 			platforms,
-			type: 'all',
-			repos: [],
-			displayText: 'Showing issues from: All repositories',
+			type: repos.length > 0 ? 'selected' : 'all',
+			repos,
+			platformRepos: { github: githubRepos, gitlab: gitlabRepos },
+			displayText:
+				repos.length > 0
+					? `Showing issues from: ${platforms
+							.map((platform) => {
+								const selected = platform === 'github' ? githubRepos : gitlabRepos;
+								return `${platform}: ${selected.length > 0 ? `${selected.length} selected repositories` : 'all repositories'}`;
+							})
+							.join('; ')}`
+					: 'Showing issues from: All repositories',
 		};
+	}
+
+	function getPlatformScope(scope, platform) {
+		const repos = scope.platformRepos[platform] || [];
+		return { ...scope, type: repos.length > 0 ? 'selected' : 'all', repos };
 	}
 
 	// 2. Generate cache/selection key based on active scope
@@ -70,6 +57,12 @@
 		const platformsKey = scope?.platforms ? [...scope.platforms].sort().join('_') : 'github';
 		if (!scope || scope.type === 'all') {
 			return `${platformsKey}_all`;
+		}
+		if (scope.platforms.length > 1) {
+			const filters = [...scope.platforms]
+				.sort()
+				.map((platform) => [platform, [...(scope.platformRepos[platform] || [])].sort()]);
+			return `${platformsKey}_selected_${JSON.stringify(filters)}`;
 		}
 		const sortedRepos = [...scope.repos].sort();
 		return `${platformsKey}_selected_${sortedRepos.join('_')}`;
@@ -264,14 +257,14 @@
 			if (platforms.includes('github') && storage.githubToken?.trim()) {
 				const ghHelper = window.PlatformRegistry ? window.PlatformRegistry.get('github') : null;
 				if (ghHelper && typeof ghHelper.fetchAssignedIssues === 'function') {
-					fetchPromises.push(ghHelper.fetchAssignedIssues(scope));
+					fetchPromises.push(ghHelper.fetchAssignedIssues(getPlatformScope(scope, 'github')));
 				}
 			}
 
 			if (platforms.includes('gitlab') && storage.gitlabToken?.trim()) {
 				const glHelper = window.PlatformRegistry ? window.PlatformRegistry.get('gitlab') : null;
 				if (glHelper && typeof glHelper.fetchAssignedIssues === 'function') {
-					fetchPromises.push(glHelper.fetchAssignedIssues(scope));
+					fetchPromises.push(glHelper.fetchAssignedIssues(getPlatformScope(scope, 'gitlab')));
 				}
 			}
 
