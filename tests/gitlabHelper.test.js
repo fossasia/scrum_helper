@@ -396,7 +396,7 @@ describe('GitLabHelper', () => {
 			expect(data).toBe(cachedResult);
 		});
 
-		it('should clear in-memory cache data and update key when cache key changes', async () => {
+		it('should clear in-memory cache data during invalidation and return fresh data when parameters change', async () => {
 			helper.cache.data = { old: 'data' };
 			helper.cache.cacheKey = 'old-key';
 			helper.cache.timestamp = Date.now();
@@ -407,8 +407,13 @@ describe('GitLabHelper', () => {
 				useRepoFilter: false,
 			});
 
+			let observedCacheDataDuringFetch;
 			const originalFetch = global.fetch;
 			global.fetch = vi.fn().mockImplementation((url) => {
+				if (observedCacheDataDuringFetch === undefined) {
+					observedCacheDataDuringFetch = helper.cache.data;
+				}
+
 				if (url.includes('/users?username=')) {
 					return Promise.resolve({
 						ok: true,
@@ -424,7 +429,13 @@ describe('GitLabHelper', () => {
 			});
 
 			try {
-				await helper.fetchGitLabData('differentuser', '2026-10-01', '2026-10-05');
+				const result = await helper.fetchGitLabData('differentuser', '2026-10-01', '2026-10-05');
+				// Assert old cached data was cleared as part of invalidation before fetch completed
+				expect(observedCacheDataDuringFetch).toBeNull();
+				// Assert that request returns fresh data and updates cache state
+				expect(result.user.username).toBe('differentuser');
+				expect(result).not.toEqual({ old: 'data' });
+				expect(helper.cache.data).toBe(result);
 				expect(helper.cache.cacheKey).not.toBe('old-key');
 			} finally {
 				global.fetch = originalFetch;
