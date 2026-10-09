@@ -283,6 +283,7 @@ describe('GitLabHelper', () => {
 			expect(mapped.githubPrsReviewData.items).toHaveLength(1);
 			expect(mapped.githubPrsReviewData.items[0].number).toBe(20);
 			expect(mapped.githubPrsReviewData.items[0].pull_request).toBe(true);
+			expect(mapped.githubPrsReviewData.items[0].state).toBe('opened');
 
 			expect(mapped.githubUserData).toEqual(rawData.user);
 		});
