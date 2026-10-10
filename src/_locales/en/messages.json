@@ -159,7 +159,7 @@
     "description": "Placeholder for the GitHub token input."
   },
   "githubTokenTooltip": {
-    "message": "<b>Why is it recommended to add a GitHub token?</b><br>Scrum Helper works without a GitHub token, but adding a personal access token (classic) is recommended for a better experience. It raises your API limits, allows access to private repos (if permitted), and improves accuracy and speed. Tokens are stored locally and never sent to us and used only to fetch your git data.<br><br><b>How to obtain:</b><br>1. Go to <a href=\"https://github.com/settings/tokens\" target=\"_blank\" rel=\"noopener noreferrer\">GitHub Developer Settings</a>.<br>2. Click \"Generate new token\", select classic token<br>3. Paste it here.<br><i>Keep your token secret!</i>",
+    "message": "<b>Why is it recommended to add a GitHub token?</b><br>Scrum Helper works without a GitHub token, but adding a personal access token (classic) is recommended for a better experience. It raises your API limits, allows access to private repos (if permitted), and improves accuracy and speed. Tokens are stored locally and never sent to us and used only to fetch your git data.<br><br><b>How to obtain:</b><br>1. Go to <a href=\"https://github.com/settings/tokens\" target=\"_blank\" rel=\"noopener noreferrer\">GitHub Developer Settings</a>.<br>2. Click \"Generate new token\", select classic token, select repo scope for private repos<br>3. Paste it here.<br><i>Keep your token secret!</i>",
     "description": "Tooltip for GitHub token explaining why it's needed."
   },
   "gitlabTokenLabel": {
@@ -171,7 +171,7 @@
     "description": "Placeholder for the GitLab token input."
   },
   "gitlabTokenTooltip": {
-    "message": "<b>Why add a GitLab token?</b><br>Scrum Helper works without a token for public projects, but a personal access token enables private repos and better rate limits. Your token stays local and is only used to fetch your GitLab data.<br><br><b>How to get one:</b><br>1. Go to <a href=\"https://gitlab.com/-/profile/personal_access_tokens\" target=\"_blank\" rel=\"noopener noreferrer\">GitLab Access Tokens</a><br>2. Click \"Add new token\"<br>3. Select \"read_api\" scope<br>4. Paste it here<br><i>Keep it secret!</i>",
+    "message": "<b>Why add a GitLab token?</b><br>Scrum Helper works without a token for public projects, but a personal access token enables private repos and better rate limits. Your token stays local and is only used to fetch your GitLab data.<br><br><b>How to get one:</b><br>1. Go to <a href=\"https://gitlab.com/-/profile/personal_access_tokens\" target=\"_blank\" rel=\"noopener noreferrer\">GitLab Access Tokens</a><br>2. Click \"Add new token\"<br>3. Select \"read_api\" and \"read_user\" scopes<br>4. Paste it here<br><i>Keep it secret!</i>",
     "description": "Tooltip for GitLab token explaining why it's needed."
   },
   "codebergTokenLabel": {
@@ -183,7 +183,7 @@
     "description": "Placeholder for the Codeberg token input."
   },
   "codebergTokenTooltip": {
-    "message": "<b>Why add a Codeberg token?</b><br>Scrum Helper works without a token for public projects, but a personal access token enables private repos and better rate limits. Your token stays local and is only used to fetch your Codeberg data.<br><br><b>How to get one:</b><br>1. Go to <a href=\"https://codeberg.org/user/settings/applications\" target=\"_blank\" rel=\"noopener noreferrer\">Codeberg Applications Settings</a><br>2. Click \"Generate new token\"<br>3. Copy and paste it here<br><i>Keep it secret!</i>",
+    "message": "<b>Why add a Codeberg token?</b><br>Scrum Helper works without a token for public projects, but a personal access token enables private repos and better rate limits. Your token stays local and is only used to fetch your Codeberg data. Tokens may grant broad account access, so select the narrowest scopes and repository access needed.<br><br><b>How to get one:</b><br>1. Go to <a href=\"https://codeberg.org/user/settings/applications\" target=\"_blank\" rel=\"noopener noreferrer\">Codeberg Applications Settings</a><br>2. Click \"Generate new token\"<br>3. Copy and paste it here<br><i>Keep it secret!</i>",
     "description": "Tooltip for Codeberg token explaining why it's needed."
   },
   "codebergApiBaseUrlLabel": {
