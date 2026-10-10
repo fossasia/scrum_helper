@@ -134,23 +134,23 @@ document.addEventListener('DOMContentLoaded', () => {
 	if (window.isTauri) {
 		const displayModeSec = document.getElementById('displayModeSectionContainer');
 		if (displayModeSec) {
-			displayModeSec.style.display = 'none';
+			displayModeSec.classList.add('hidden');
 		}
 		const insertInEmailBtn = document.getElementById('insertInEmail');
 		if (insertInEmailBtn) {
 			const container = insertInEmailBtn.closest('.tooltip-container');
 			if (container) {
-				container.style.display = 'none';
+				container.classList.add('hidden');
 			}
 		}
 		// Show Tauri-only SMTP features
 		const mailSettingsToggle = document.getElementById('mailSettingsToggle');
 		if (mailSettingsToggle) {
-			mailSettingsToggle.style.display = 'inline-block';
+			mailSettingsToggle.classList.remove('hidden');
 		}
 		const sendReportEmailContainer = document.getElementById('sendReportEmailContainer');
 		if (sendReportEmailContainer) {
-			sendReportEmailContainer.style.display = 'inline-block';
+			sendReportEmailContainer.classList.remove('hidden');
 		}
 	}
 
@@ -1238,6 +1238,22 @@ document.addEventListener('DOMContentLoaded', () => {
 				});
 		});
 
+		function setButtonFeedback(btn, iconClass, text) {
+			if (!btn) return;
+			const icon = btn.querySelector('i');
+			const span = btn.querySelector('span');
+			if (icon && span) {
+				icon.className = iconClass;
+				span.textContent = text;
+			} else {
+				const newIcon = document.createElement('i');
+				newIcon.className = iconClass;
+				const newSpan = document.createElement('span');
+				newSpan.textContent = text;
+				btn.replaceChildren(newIcon, document.createTextNode(' '), newSpan);
+			}
+		}
+
 		copyBtn.addEventListener('click', function () {
 			if (!this._triggeredByShortcut) {
 				showPopupMessage(browser.i18n.getMessage('copyingReportNotification'));
@@ -1286,13 +1302,14 @@ document.addEventListener('DOMContentLoaded', () => {
 					el.style.color = '#000';
 				}
 			});
-			document.body.appendChild(tempDiv);
+
 			tempDiv.style.position = 'absolute';
 			tempDiv.style.left = '-9999px';
+			document.body.appendChild(tempDiv);
 
-			const range = document.createRange();
-			range.selectNode(tempDiv);
 			const selection = window.getSelection();
+			const range = document.createRange();
+			range.selectNodeContents(tempDiv);
 			selection.removeAllRanges();
 			selection.addRange(range);
 
@@ -1307,9 +1324,9 @@ document.addEventListener('DOMContentLoaded', () => {
 				} else {
 					showPopupMessage(browser.i18n.getMessage('copiedReportNotification'), { variant: 'success' });
 				}
-				this.innerHTML = `<i class="fa fa-check"></i> ${browser?.i18n.getMessage('copiedButton')}`;
+				setButtonFeedback(this, 'fa fa-check', browser?.i18n.getMessage('copiedButton') || 'Copied');
 				setTimeout(() => {
-					this.innerHTML = `<i class="fa fa-copy"></i> ${browser.i18n.getMessage('copyReportButton')}`;
+					setButtonFeedback(this, 'fa fa-copy', browser.i18n.getMessage('copyReportButton') || 'Copy');
 				}, 2000);
 			} catch (err) {
 				console.error('Failed to copy: ', err);
@@ -1615,7 +1632,6 @@ document.addEventListener('DOMContentLoaded', () => {
 					} else {
 						const container = document.getElementById('assignedIssuesSelector');
 						if (container) {
-							container.style.display = 'none';
 							container.classList.add('hidden');
 						}
 					}
@@ -2293,8 +2309,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 			if (filtered.length === 0) {
 				const notFound = document.createElement('div');
-				notFound.className = 'p-3 text-center text-gray-500 text-sm';
-				notFound.style.paddingLeft = '10px';
+				notFound.className = 'p-3 pl-2.5 text-center text-gray-500 text-sm';
 				notFound.textContent = browser.i18n.getMessage('repoNotFound');
 				dropdown.appendChild(notFound);
 			} else {
@@ -2504,16 +2519,17 @@ if (cacheInput) {
 
 	cacheInput.addEventListener('blur', function () {
 		let ttlValue = Number.parseInt(this.value, 10);
+		this.classList.remove('border-red-500', 'border-amber-500', 'border-emerald-500');
 		if (Number.isNaN(ttlValue) || ttlValue <= 0 || this.value.trim() === '') {
 			ttlValue = 10;
 			this.value = ttlValue;
-			this.style.borderColor = '#ef4444';
+			this.classList.add('border-red-500');
 		} else if (ttlValue > 1440) {
 			ttlValue = 1440;
 			this.value = ttlValue;
-			this.style.borderColor = '#f59e0b';
+			this.classList.add('border-amber-500');
 		} else {
-			this.style.borderColor = '#10b981';
+			this.classList.add('border-emerald-500');
 		}
 
 		browser.storage.local.set({ cacheInput: ttlValue }).then(() => {
@@ -2528,7 +2544,6 @@ function triggerNextPlansReload() {
 		const container = document.getElementById('assignedIssuesSelector');
 		if (container) {
 			container.textContent = '';
-			container.style.display = 'none';
 			container.classList.add('hidden');
 		}
 		if (includeNextPlansCheckbox.checked && window.loadAssignedIssues) {
@@ -3142,10 +3157,11 @@ document.querySelectorAll('input[name="timeframe"]').forEach((radio) => {
 	const localRefreshCacheBtn = document.getElementById('refreshCache');
 	if (localRefreshCacheBtn) {
 		localRefreshCacheBtn.addEventListener('click', async function () {
-			const originalText = this.innerHTML;
+			const originalIconClass = this.querySelector('i')?.className || 'fa fa-refresh';
+			const originalText = this.querySelector('span')?.textContent || '';
 
 			this.classList.add('loading');
-			this.innerHTML = `<i class="fa fa-refresh fa-spin"></i><span>${browser.i18n.getMessage('refreshingButton')}</span>`;
+			setButtonFeedback(this, 'fa fa-refresh fa-spin', browser.i18n.getMessage('refreshingButton'));
 			this.disabled = true;
 
 			try {
@@ -3187,7 +3203,10 @@ document.querySelectorAll('input[name="timeframe"]').forEach((radio) => {
 				const scrumReport = document.getElementById('scrumReport');
 				if (scrumReport) {
 					scrumReport.dataset.copyPlaceholder = 'true';
-					scrumReport.innerHTML = `<p style="text-align: center; color: #666; padding: 20px;">${browser.i18n.getMessage('cacheClearedMessage')}</p>`;
+					const clearedMsg = document.createElement('p');
+					clearedMsg.className = 'text-center text-gray-500 p-5';
+					clearedMsg.textContent = browser.i18n.getMessage('cacheClearedMessage');
+					scrumReport.replaceChildren(clearedMsg);
 					window.updateCopyButtonState?.();
 				}
 
@@ -3200,22 +3219,22 @@ document.querySelectorAll('input[name="timeframe"]').forEach((radio) => {
 					repoStatus.textContent = '';
 				}
 
-				this.innerHTML = `<i class="fa fa-check"></i><span>${browser.i18n.getMessage('cacheClearedButton')}</span>`;
+				setButtonFeedback(this, 'fa fa-check', browser.i18n.getMessage('cacheClearedButton'));
 				this.classList.remove('loading');
 
 				// Do NOT trigger report generation automatically
 
 				setTimeout(() => {
-					this.innerHTML = originalText;
+					setButtonFeedback(this, originalIconClass, originalText);
 					this.disabled = false;
 				}, 2000);
 			} catch (error) {
 				console.error('Cache clear failed:', error);
-				this.innerHTML = `<i class="fa fa-exclamation-triangle"></i><span>${browser.i18n.getMessage('cacheClearFailed')}</span>`;
+				setButtonFeedback(this, 'fa fa-exclamation-triangle', browser.i18n.getMessage('cacheClearFailed'));
 				this.classList.remove('loading');
 
 				setTimeout(() => {
-					this.innerHTML = originalText;
+					setButtonFeedback(this, originalIconClass, originalText);
 					this.disabled = false;
 				}, 3000);
 			}

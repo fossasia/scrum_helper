@@ -1623,7 +1623,7 @@ function allIncluded(outputTarget = 'email') {
 						});
 
 						for (const [repo, repoIssues] of Object.entries(plansByRepo)) {
-							let repoLi = `<li style="margin-bottom: 10px !important;">`;
+							let repoLi = `<li style="margin-bottom: 10px;">`;
 							if (repoIssues.length > 1) {
 								repoLi += `<span style="font-weight: 600;"><i>(${repo})</i> - Work on Issues - </span><ul style="margin-top: 4px; margin-bottom: 4px;">`;
 								for (const issue of repoIssues) {
@@ -2321,7 +2321,7 @@ function allIncluded(outputTarget = 'email') {
 				repoPrsByPlat[prPlat].push(pr);
 			}
 
-			let repoLi = `<li style="margin-bottom: 10px !important;">`;
+			let repoLi = `<li style="margin-bottom: 10px;">`;
 			if (repoPrs.length > 1) {
 				repoLi += `<span style="font-weight: 600;"><i>(${repo})</i> - Reviewed PRs - </span><ul style="margin-top: 4px; margin-bottom: 4px;">`;
 				for (const pr_arr1 of repoPrs) {
@@ -2853,7 +2853,7 @@ function allIncluded(outputTarget = 'email') {
 				repoPrsByPlat[prPlat].push(pr);
 			}
 
-			let repoLi = `<li style="margin-bottom: 10px !important;"><span style="font-weight: 600;"><i>(${repo})</i></span><ul style="margin-top: 4px; margin-bottom: 4px;">`;
+			let repoLi = `<li style="margin-bottom: 10px;"><span style="font-weight: 600;"><i>(${repo})</i></span><ul style="margin-top: 4px; margin-bottom: 4px;">`;
 			for (const pr of repoPrs) {
 				let prText = `<li>${pr.prAction} - <a href='${pr.html_url}' target='_blank' rel='noopener noreferrer' contenteditable='false'>#${pr.number}</a> (${pr.title})${pr.statusButton}&nbsp;&nbsp;`;
 				if (pr.commitsHtml) {
@@ -2959,7 +2959,8 @@ function allIncluded(outputTarget = 'email') {
 				clearInterval(intervalWriteButton);
 				const td = document.createElement('td');
 				const button = document.createElement('button');
-				button.style = 'background-image:none;background-color:#3F51B5;';
+				button.style.backgroundImage = 'none';
+				button.style.backgroundColor = '#3F51B5';
 				button.setAttribute('class', 'F0XO1GC-n-a F0XO1GC-G-a');
 				button.title = 'Rewrite your SCRUM using updated settings!';
 				button.id = 'refreshButton';
