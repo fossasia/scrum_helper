@@ -266,7 +266,7 @@ function getFailurePlatform(err) {
 	return null;
 }
 
-function handleUsernameValidationError(errMessage, platformName = null) {
+function handleUsernameValidationError(errMessage, platformName = null, toastMessage = errMessage) {
 	let targetPlatforms = [];
 	if (Array.isArray(platformName)) {
 		targetPlatforms = platformName.filter(Boolean);
@@ -276,9 +276,9 @@ function handleUsernameValidationError(errMessage, platformName = null) {
 
 	if (targetPlatforms.length === 0 && typeof errMessage === 'string') {
 		const lower = errMessage.toLowerCase();
-		if (lower.includes('codeberg') && lower.includes('not found')) targetPlatforms.push('codeberg');
-		if (lower.includes('gitlab') && lower.includes('not found')) targetPlatforms.push('gitlab');
-		if (lower.includes('github') && lower.includes('not found')) targetPlatforms.push('github');
+		if (lower.includes('codeberg')) targetPlatforms.push('codeberg');
+		if (lower.includes('gitlab')) targetPlatforms.push('gitlab');
+		if (lower.includes('github')) targetPlatforms.push('github');
 	}
 
 	const PLATFORM_ORDER = ['github', 'gitlab', 'codeberg'];
@@ -331,8 +331,8 @@ function handleUsernameValidationError(errMessage, platformName = null) {
 		window.triggerInputError?.(platformUsernameInp, { focus: false, scroll: false, clearOnInput: true });
 	}
 
-	if (errMessage) {
-		window.scrumHelperToast?.(errMessage, { duration: 2500, variant: 'error' });
+	if (toastMessage) {
+		window.scrumHelperToast?.(toastMessage, { duration: 2500, variant: 'error' });
 	}
 
 	if (usernameError) {
@@ -346,6 +346,30 @@ function handleUsernameValidationError(errMessage, platformName = null) {
 	}
 }
 window.handleUsernameValidationError = handleUsernameValidationError;
+
+function handleReportFetchFailures(failures, allFailed = false) {
+	const usernameFailures = failures.filter(isUsernameValidationError);
+	const otherFailures = failures.filter((f) => !isUsernameValidationError(f));
+	const usernameMessages = usernameFailures.map((f) => f?.message).filter(Boolean);
+	const otherMessages = otherFailures.map((f) => f?.message).filter(Boolean);
+
+	if (usernameFailures.length > 0) {
+		const failPlatforms = usernameFailures.map(getFailurePlatform).filter(Boolean);
+		const separator = allFailed ? '\n' : '; ';
+		handleUsernameValidationError(
+			usernameMessages.join('\n'),
+			failPlatforms,
+			[...usernameMessages, ...otherMessages].join(separator),
+		);
+	} else if (otherMessages.length > 0) {
+		const message = otherMessages.join(allFailed ? '\n' : '; ');
+		if (allFailed) {
+			showReportMessage(message);
+		} else if (window.showPopupMessage) {
+			window.showPopupMessage(message, { variant: 'error' });
+		}
+	}
+}
 
 function allIncluded(outputTarget = 'email') {
 	// Always re-instantiate gitlabHelper for gitlab platform to ensure fresh cache after refresh
@@ -751,55 +775,17 @@ function allIncluded(outputTarget = 'email') {
 
 						if (successful.length === 0) {
 							if (outputTarget === 'popup') {
-								const usernameFailures = failures.filter(isUsernameValidationError);
-								const otherFailures = failures.filter((f) => !isUsernameValidationError(f));
-
-								if (usernameFailures.length > 0) {
-									const failPlatforms = usernameFailures.map(getFailurePlatform).filter(Boolean);
-									const failMessages = usernameFailures.map((f) => f?.message).filter(Boolean);
-									handleUsernameValidationError(failMessages.join('\n'), failPlatforms);
-								}
-
-								if (otherFailures.length > 0) {
-									const otherMessages = otherFailures
-										.map((f) => f?.message)
-										.filter(Boolean)
-										.join('\n');
-									if (otherMessages) {
-										if (usernameFailures.length === 0) {
-											showReportMessage(otherMessages);
-										} else if (window.showPopupMessage) {
-											window.showPopupMessage(otherMessages, { variant: 'error' });
-										}
-									}
-								}
+								handleReportFetchFailures(failures, true);
 							}
-							const firstError = failures[0] || new Error('All platforms failed to fetch data.');
-							firstError.handledInPopup = true;
-							throw firstError;
+							if (generateBtn) setGenerateButtonState(generateBtn, false);
+							scrumGenerationInProgress = false;
+							return;
 						}
 
 						if (failures.length > 0) {
 							console.warn('Some platforms failed to fetch report data:', failures);
 							if (outputTarget === 'popup') {
-								const usernameFailures = failures.filter(isUsernameValidationError);
-								const otherFailures = failures.filter((f) => !isUsernameValidationError(f));
-
-								if (usernameFailures.length > 0) {
-									const failPlatforms = usernameFailures.map(getFailurePlatform).filter(Boolean);
-									const failMessages = usernameFailures.map((f) => f?.message).filter(Boolean);
-									handleUsernameValidationError(failMessages.join('\n'), failPlatforms);
-								}
-
-								if (otherFailures.length > 0) {
-									const failMessages = otherFailures
-										.map((f) => f?.message)
-										.filter(Boolean)
-										.join('; ');
-									if (failMessages && window.showPopupMessage) {
-										window.showPopupMessage(failMessages, { variant: 'error' });
-									}
-								}
+								handleReportFetchFailures(failures);
 							}
 						}
 
