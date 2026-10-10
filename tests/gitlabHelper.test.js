@@ -410,6 +410,46 @@ describe('GitLabHelper', () => {
 			expect(data).toBe(cachedResult);
 		});
 
+		it('should fetch fresh data when a matching cache entry has expired', async () => {
+			const cachedResult = { githubIssuesData: { items: [] }, githubPrsReviewData: { items: [] } };
+			const expectedKey = 'https://gitlab.com/api/v4-testuser-2026-10-01-2026-10-05-noauth-noorg-nocommits-norepos';
+
+			helper.cache.data = cachedResult;
+			helper.cache.cacheKey = expectedKey;
+			helper.cache.ttl = 10 * 60 * 1000;
+			helper.cache.timestamp = Date.now() - helper.cache.ttl - 1;
+
+			browser.storage.local.get.mockResolvedValue({
+				showCommits: false,
+				useRepoFilter: false,
+			});
+
+			const originalFetch = global.fetch;
+			global.fetch = vi.fn().mockImplementation((url) => {
+				if (url.includes('/users?username=')) {
+					return Promise.resolve({
+						ok: true,
+						json: () => Promise.resolve([{ id: 1, username: 'testuser' }]),
+						headers: { get: () => null },
+					});
+				}
+				return Promise.resolve({
+					ok: true,
+					json: () => Promise.resolve([]),
+					headers: { get: () => null },
+				});
+			});
+
+			try {
+				const result = await helper.fetchGitLabData('testuser', '2026-10-01', '2026-10-05');
+				expect(global.fetch).toHaveBeenCalled();
+				expect(result).not.toBe(cachedResult);
+				expect(result.user.username).toBe('testuser');
+			} finally {
+				global.fetch = originalFetch;
+			}
+		});
+
 		it('should clear in-memory cache data during invalidation and return fresh data when parameters change', async () => {
 			helper.cache.data = { old: 'data' };
 			helper.cache.cacheKey = 'old-key';
@@ -476,11 +516,13 @@ describe('GitLabHelper', () => {
 			expect(result).toEqual({ success: true });
 			expect(browser.storage.local.remove).toHaveBeenCalledWith('gitlabCache', expect.any(Function));
 			expect(window.hasInjectedContent).toBe(false);
-			expect(window.gitlabHelper.cache.data).toBeNull();
-			expect(window.gitlabHelper.cache.cacheKey).toBeNull();
-			expect(window.gitlabHelper.cache.timestamp).toBe(0);
-			expect(window.gitlabHelper.cache.fetching).toBe(false);
-			expect(window.gitlabHelper.cache.queue).toEqual([]);
+			expect(helper.cache.data).toBeNull();
+			expect(helper.cache.cacheKey).toBeNull();
+			expect(helper.cache.timestamp).toBe(0);
+			expect(helper.cache.fetching).toBe(false);
+			expect(helper.cache.queue).toEqual([]);
+			expect(window.gitlabHelper).toBeInstanceOf(GitLabHelper);
+			expect(window.gitlabHelper).not.toBe(helper);
 		});
 	});
 });
