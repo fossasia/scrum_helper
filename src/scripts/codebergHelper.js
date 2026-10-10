@@ -67,6 +67,16 @@ function normalizeCodebergApiBaseUrl(apiBaseUrl) {
 	return (apiBaseUrl?.trim() || DEFAULT_CODEBERG_API_BASE_URL).replace(/\/+$/, '');
 }
 
+function getTokenMarker(token) {
+	if (!token) return 'noauth';
+	let hash = 0;
+	for (let i = 0; i < token.length; i++) {
+		hash = (hash << 5) - hash + token.charCodeAt(i);
+		hash |= 0;
+	}
+	return `auth-${Math.abs(hash).toString(16)}`;
+}
+
 function parseRepoAndOwner(url) {
 	if (!url) return { owner: '', repo: '' };
 
@@ -203,10 +213,14 @@ class CodebergHelper {
 		return results;
 	}
 
+	getTokenMarker(token) {
+		return getTokenMarker(token);
+	}
+
 	/* ---------- MAIN FETCH (FIXED API) ---------- */
 
 	async fetchCodebergData(username, startDate, endDate, token = null, showCommits = false) {
-		const cacheKey = `${username}-${startDate}-${endDate}-${token ? 'auth' : 'noauth'}-${showCommits ? 'commits' : 'nocommits'}`;
+		const cacheKey = `${username}-${startDate}-${endDate}-${getTokenMarker(token)}-${showCommits ? 'commits' : 'nocommits'}`;
 
 		if (!this.cache.data) await this.loadFromStorage();
 
