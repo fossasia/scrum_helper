@@ -242,6 +242,7 @@ class CodebergHelper {
 					(typeof browser !== 'undefined' && browser?.i18n?.getMessage('codebergUserNotFoundError', [username])) ||
 					`Codeberg user "${username}" not found.`;
 				const err = new Error(errorMsg);
+				err.code = 'USERNAME_VALIDATION';
 				err.platform = 'codeberg';
 				err.username = username;
 				throw err;

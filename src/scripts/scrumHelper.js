@@ -252,19 +252,43 @@ function showReportMessage(message) {
 	window.scrumHelperToast?.(message, { duration: 2000, variant: 'error' });
 }
 
-function handleUsernameValidationError(errMessage, platformName = null) {
-	let targetPlatform = platformName;
-	if (!targetPlatform && typeof errMessage === 'string') {
-		const lower = errMessage.toLowerCase();
-		if (lower.includes('codeberg')) targetPlatform = 'codeberg';
-		else if (lower.includes('gitlab')) targetPlatform = 'gitlab';
-		else if (lower.includes('github')) targetPlatform = 'github';
-	}
-	if (!targetPlatform && typeof platform === 'string' && platform) {
-		targetPlatform = platform;
+function isUsernameValidationError(err) {
+	if (!err) return false;
+	return err.code === 'USERNAME_VALIDATION';
+}
+
+function getFailurePlatform(err) {
+	if (err?.platform) return err.platform;
+	const msg = (typeof err === 'string' ? err : err?.message || '').toLowerCase();
+	if (msg.includes('codeberg')) return 'codeberg';
+	if (msg.includes('gitlab')) return 'gitlab';
+	if (msg.includes('github')) return 'github';
+	return null;
+}
+
+function handleUsernameValidationError(errMessage, platformName = null, toastMessage = errMessage) {
+	let targetPlatforms = [];
+	if (Array.isArray(platformName)) {
+		targetPlatforms = platformName.filter(Boolean);
+	} else if (typeof platformName === 'string' && platformName) {
+		targetPlatforms = [platformName];
 	}
 
-	if (targetPlatform) {
+	if (targetPlatforms.length === 0 && typeof errMessage === 'string') {
+		const lower = errMessage.toLowerCase();
+		if (lower.includes('codeberg')) targetPlatforms.push('codeberg');
+		if (lower.includes('gitlab')) targetPlatforms.push('gitlab');
+		if (lower.includes('github')) targetPlatforms.push('github');
+	}
+
+	const PLATFORM_ORDER = ['github', 'gitlab', 'codeberg'];
+	targetPlatforms.sort((a, b) => {
+		const ia = PLATFORM_ORDER.indexOf(a);
+		const ib = PLATFORM_ORDER.indexOf(b);
+		return (ia === -1 ? 99 : ia) - (ib === -1 ? 99 : ib);
+	});
+
+	if (targetPlatforms.length > 0) {
 		const settingsSection = document.getElementById('settingsSection');
 		const isSettingsPageActive = settingsSection && !settingsSection.classList.contains('hidden');
 
@@ -275,35 +299,40 @@ function handleUsernameValidationError(errMessage, platformName = null) {
 				customDropdown.classList.add('open');
 				dropdownList.classList.remove('hidden');
 			}
-			const container = document.getElementById(`dropdown-${targetPlatform}UsernameContainer`);
-			if (container) {
-				container.classList.remove('hidden');
+			for (const p of targetPlatforms) {
+				const container = document.getElementById(`dropdown-${p}UsernameContainer`);
+				if (container) {
+					container.classList.remove('hidden');
+				}
 			}
 		}
 
-		const dropdownInp = document.getElementById(`dropdown-${targetPlatform}Username`);
-		if (dropdownInp) {
-			window.triggerInputError?.(dropdownInp, {
-				focus: !isSettingsPageActive,
-				scroll: !isSettingsPageActive,
-				clearOnInput: true,
-			});
-		}
+		targetPlatforms.forEach((p, idx) => {
+			const shouldFocus = idx === 0;
+			const dropdownInp = document.getElementById(`dropdown-${p}Username`);
+			if (dropdownInp) {
+				window.triggerInputError?.(dropdownInp, {
+					focus: !isSettingsPageActive && shouldFocus,
+					scroll: !isSettingsPageActive && shouldFocus,
+					clearOnInput: true,
+				});
+			}
 
-		const settingsInp = document.getElementById(`${targetPlatform}Username`);
-		if (settingsInp) {
-			window.triggerInputError?.(settingsInp, {
-				focus: isSettingsPageActive,
-				scroll: isSettingsPageActive,
-				clearOnInput: true,
-			});
-		}
+			const settingsInp = document.getElementById(`${p}Username`);
+			if (settingsInp) {
+				window.triggerInputError?.(settingsInp, {
+					focus: isSettingsPageActive && shouldFocus,
+					scroll: isSettingsPageActive && shouldFocus,
+					clearOnInput: true,
+				});
+			}
+		});
 	} else if (platformUsernameInp) {
 		window.triggerInputError?.(platformUsernameInp, { focus: false, scroll: false, clearOnInput: true });
 	}
 
-	if (errMessage) {
-		window.scrumHelperToast?.(errMessage, { duration: 2500, variant: 'error' });
+	if (toastMessage) {
+		window.scrumHelperToast?.(toastMessage, { duration: 2500, variant: 'error' });
 	}
 
 	if (usernameError) {
@@ -317,6 +346,30 @@ function handleUsernameValidationError(errMessage, platformName = null) {
 	}
 }
 window.handleUsernameValidationError = handleUsernameValidationError;
+
+function handleReportFetchFailures(failures, allFailed = false) {
+	const usernameFailures = failures.filter(isUsernameValidationError);
+	const otherFailures = failures.filter((f) => !isUsernameValidationError(f));
+	const usernameMessages = usernameFailures.map((f) => f?.message).filter(Boolean);
+	const otherMessages = otherFailures.map((f) => f?.message).filter(Boolean);
+
+	if (usernameFailures.length > 0) {
+		const failPlatforms = usernameFailures.map(getFailurePlatform).filter(Boolean);
+		const separator = allFailed ? '\n' : '; ';
+		handleUsernameValidationError(
+			usernameMessages.join('\n'),
+			failPlatforms,
+			[...usernameMessages, ...otherMessages].join(separator),
+		);
+	} else if (otherMessages.length > 0) {
+		const message = otherMessages.join(allFailed ? '\n' : '; ');
+		if (allFailed) {
+			showReportMessage(message);
+		} else if (window.showPopupMessage) {
+			window.showPopupMessage(message, { variant: 'error' });
+		}
+	}
+}
 
 function allIncluded(outputTarget = 'email') {
 	// Always re-instantiate gitlabHelper for gitlab platform to ensure fresh cache after refresh
@@ -607,20 +660,22 @@ function allIncluded(outputTarget = 'email') {
 					return;
 				}
 
-				const missingPlatform = activePlatforms.find((p) => !getUsernameForPlatform(p));
-				if (missingPlatform) {
+				const missingPlatforms = activePlatforms.filter((p) => !getUsernameForPlatform(p));
+				if (missingPlatforms.length > 0) {
 					if (outputTarget === 'popup') {
-						console.log('[DEBUG] No username found for platform - popup context:', missingPlatform);
+						console.log('[DEBUG] No username found for platforms - popup context:', missingPlatforms);
 						const generateBtn = document.getElementById('generateReport');
 						const platformDisplayNames = { github: 'GitHub', gitlab: 'GitLab', codeberg: 'Codeberg' };
-						const displayName = platformDisplayNames[missingPlatform] || missingPlatform;
-						const errMessage =
-							chrome.i18n.getMessage(`${missingPlatform}UsernameRequiredError`) ||
-							`Please enter your ${displayName} username`;
-						handleUsernameValidationError(errMessage, missingPlatform);
+						const errMessages = missingPlatforms.map((p) => {
+							const displayName = platformDisplayNames[p] || p;
+							return (
+								chrome?.i18n?.getMessage(`${p}UsernameRequiredError`) || `Please enter your ${displayName} username`
+							);
+						});
+						handleUsernameValidationError(errMessages.join('\n'), missingPlatforms);
 						setGenerateButtonState(generateBtn, false);
 					} else {
-						console.warn('[DEBUG] No username found in storage for platform:', missingPlatform);
+						console.warn('[DEBUG] No username found in storage for platforms:', missingPlatforms);
 					}
 					scrumGenerationInProgress = false;
 					return;
@@ -719,39 +774,18 @@ function allIncluded(outputTarget = 'email') {
 						const failures = settled.filter((r) => r.status === 'rejected').map((r) => r.reason);
 
 						if (successful.length === 0) {
-							if (outputTarget === 'popup' && failures.length > 1) {
-								for (let i = 1; i < failures.length; i++) {
-									const failure = failures[i];
-									const msg = failure?.message || '';
-									if (failure?.platform || msg.toLowerCase().includes('not found')) {
-										handleUsernameValidationError(msg, failure?.platform);
-									}
-								}
+							if (outputTarget === 'popup') {
+								handleReportFetchFailures(failures, true);
 							}
-							const firstError = failures[0] || new Error('All platforms failed to fetch data.');
-							throw firstError;
+							if (generateBtn) setGenerateButtonState(generateBtn, false);
+							scrumGenerationInProgress = false;
+							return;
 						}
 
 						if (failures.length > 0) {
 							console.warn('Some platforms failed to fetch report data:', failures);
 							if (outputTarget === 'popup') {
-								let handledAny = false;
-								for (const failure of failures) {
-									const msg = failure?.message || '';
-									if (failure?.platform || msg.toLowerCase().includes('not found')) {
-										handleUsernameValidationError(msg, failure?.platform);
-										handledAny = true;
-									}
-								}
-								if (!handledAny) {
-									const failMessages = failures
-										.map((f) => f?.message)
-										.filter(Boolean)
-										.join('; ');
-									if (failMessages && window.showPopupMessage) {
-										window.showPopupMessage(failMessages, { variant: 'error' });
-									}
-								}
+								handleReportFetchFailures(failures);
 							}
 						}
 
@@ -793,11 +827,13 @@ function allIncluded(outputTarget = 'email') {
 						console.error('Report generation fetch failed:', err);
 						if (outputTarget === 'popup') {
 							if (generateBtn) setGenerateButtonState(generateBtn, false);
-							const ErrMessage = `${err?.message || 'Error generating scrum report.'}`;
-							if (err?.platform || (typeof ErrMessage === 'string' && ErrMessage.toLowerCase().includes('not found'))) {
-								handleUsernameValidationError(ErrMessage, err?.platform);
-							} else {
-								showReportMessage(ErrMessage);
+							if (!err?.handledInPopup) {
+								const ErrMessage = `${err?.message || 'Error generating scrum report.'}`;
+								if (isUsernameValidationError(err)) {
+									handleUsernameValidationError(ErrMessage, getFailurePlatform(err));
+								} else {
+									showReportMessage(ErrMessage);
+								}
 							}
 						}
 						scrumGenerationInProgress = false;
@@ -1097,6 +1133,7 @@ function allIncluded(outputTarget = 'email') {
 					`GitHub user "${platformUsernameLocal}" not found.`;
 				logError(errorMsg);
 				const err = new Error(errorMsg);
+				err.code = 'USERNAME_VALIDATION';
 				err.platform = 'github';
 				err.username = platformUsernameLocal;
 				throw err;
@@ -1204,6 +1241,7 @@ function allIncluded(outputTarget = 'email') {
 							chrome?.i18n.getMessage('githubUserNotFoundError', [platformUsernameLocal]) ||
 							`GitHub user "${platformUsernameLocal}" not found.`;
 						const err = new Error(errorMsg);
+						err.code = 'USERNAME_VALIDATION';
 						err.platform = 'github';
 						err.username = platformUsernameLocal;
 						throw err;
