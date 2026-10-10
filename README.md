@@ -2,6 +2,8 @@
 
 **Scrum Helper** is a Chrome extension that simplifies writing development reports by auto-filling content based on your Git activity. Select your platform, enter your username, and provide authentication details when needed. Choose a date range and your preferences. The extension automatically fetches your commits, pull requests, and issues via the selected platform's API. For platforms that support review activity, it also includes code reviews in the generated report. Scrum Helper currently supports GitHub, GitLab, and Codeberg, allowing developers to generate scrum reports from their activity across multiple Git platforms.
 
+Landing page: [https://fossasia.github.io/scrum_helper/](https://fossasia.github.io/scrum_helper/)
+
 ![SCRUMLOGO](docs/images/scrumhelper-png.png)
 
 ## Features
@@ -14,6 +16,19 @@
 - Integrates directly with compose windows in Google Groups, Gmail, Yahoo Mail, and Outlook
 
 ## How to install
+
+### Desktop Application:
+
+Download the desktop app for your operating system from the [Landing Page](https://fossasia.github.io/scrum_helper/#download) or directly using the links below:
+
+| Operating System | Package | Download Link |
+| :--- | :--- | :--- |
+| **Windows** | Setup (`.exe`) | [Download .exe](https://fossasia.github.io/scrum_helper/downloads/scrum-helper-setup.exe) |
+| **Windows** | Installer (`.msi`) | [Download .msi](https://fossasia.github.io/scrum_helper/downloads/scrum-helper-x64.msi) |
+| **macOS (Apple Silicon)** | DMG (`.dmg`) | [Download arm64 .dmg](https://fossasia.github.io/scrum_helper/downloads/scrum-helper-arm64.dmg) |
+| **macOS (Intel)** | DMG (`.dmg`) | [Download x64 .dmg](https://fossasia.github.io/scrum_helper/downloads/scrum-helper-x64.dmg) |
+| **Linux** | Debian (`.deb`) | [Download .deb](https://fossasia.github.io/scrum_helper/downloads/scrum-helper.deb) |
+
 
 ### For Chrome:
 
