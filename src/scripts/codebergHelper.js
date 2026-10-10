@@ -3,6 +3,7 @@
 const DEFAULT_CODEBERG_API_BASE_URL = 'https://codeberg.org/api/v1';
 
 let codebergShowCommitsWarningTimeout;
+let codebergNextPlansWarningTimeout;
 
 function codebergShowTokenWarningForShowCommits({ animate = false, durationMs = 4000 } = {}) {
 	const tokenWarning = document.getElementById('tokenWarningForShowCommits');
@@ -19,6 +20,29 @@ function codebergShowTokenWarningForShowCommits({ animate = false, durationMs = 
 		clearTimeout(codebergShowCommitsWarningTimeout);
 	}
 	codebergShowCommitsWarningTimeout = setTimeout(() => {
+		tokenWarning.classList.add('hidden');
+	}, durationMs);
+}
+
+function codebergShowTokenWarningForNextPlans({ animate = false, durationMs = 4000 } = {}) {
+	const tokenWarning = document.getElementById('tokenWarningForNextPlans');
+	if (!tokenWarning) {
+		return;
+	}
+
+	tokenWarning.classList.remove('hidden');
+	if (animate) {
+		if (typeof window !== 'undefined' && window.shakeElement) {
+			window.shakeElement(tokenWarning, 620);
+		} else {
+			tokenWarning.classList.add('shake-animation');
+		}
+	}
+
+	if (codebergNextPlansWarningTimeout) {
+		clearTimeout(codebergNextPlansWarningTimeout);
+	}
+	codebergNextPlansWarningTimeout = setTimeout(() => {
 		tokenWarning.classList.add('hidden');
 	}, durationMs);
 }
@@ -59,6 +83,125 @@ function codebergCheckTokenForShowCommits({
 		}
 		tokenWarning.classList.add('hidden');
 	}
+}
+
+function getCodebergIssueRepoName(issue) {
+	if (!issue?.repository) return '';
+	if (issue.repository.full_name) return issue.repository.full_name;
+	if (issue.repository.name && issue.repository.owner) {
+		const owner =
+			typeof issue.repository.owner === 'object'
+				? issue.repository.owner.login || issue.repository.owner.username || ''
+				: issue.repository.owner;
+		return owner ? `${owner}/${issue.repository.name}` : issue.repository.name;
+	}
+	return issue.repository.name || '';
+}
+
+async function fetchIssuesFromCodeberg(scope) {
+	const storage = await browser.storage.local.get([
+		'platform',
+		'codebergUsername',
+		'codebergToken',
+		'codebergApiBaseUrl',
+		'platformUsername',
+	]);
+	const platform = storage.platform || 'codeberg';
+	const username = (storage.codebergUsername || (platform === 'codeberg' ? storage.platformUsername : '') || '').trim();
+	const token = storage.codebergToken;
+
+	if (!username) {
+		codebergShowTokenWarningForNextPlans({ animate: true });
+		throw new Error('Codeberg username is required. Please set it in settings.');
+	}
+	if (!token) {
+		codebergShowTokenWarningForNextPlans({ animate: true });
+		throw new Error('Codeberg token is required. Please set it in settings.');
+	}
+
+	const headers = {
+		Accept: 'application/json',
+		Authorization: `token ${token}`,
+	};
+
+	let page = 1;
+	let allIssues = [];
+	let hasMore = true;
+
+	const baseUrl = normalizeCodebergApiBaseUrl(
+		storage.codebergApiBaseUrl || (typeof window !== 'undefined' ? window.codebergApiBaseUrl : undefined),
+	);
+
+	while (hasMore && page <= 4) {
+		const url = `${baseUrl}/repos/issues/search?state=open&assigned=true&type=issues&page=${page}&limit=50`;
+		console.log(`[NextPlans] Fetching page ${page} from Codeberg: ${url}`);
+		const response = await fetch(url, { headers });
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({}));
+			const message = errorData.message || response.statusText;
+			throw new Error(`Codeberg API error: ${message}`);
+		}
+
+		const data = await response.json();
+		const items = Array.isArray(data) ? data : [];
+		allIssues = allIssues.concat(items);
+
+		if (items.length < 50) {
+			hasMore = false;
+		} else {
+			page++;
+		}
+	}
+
+	// Codeberg does not have its own repo filter yet; show all assigned issues until it has its own filter.
+	const repoSet =
+		scope?.platform === 'codeberg' &&
+		scope?.type === 'selected' &&
+		Array.isArray(scope?.repos) &&
+		scope.repos.length > 0
+			? new Set(scope.repos)
+			: null;
+
+	return allIssues
+		.filter((issue) => {
+			if (issue.pull_request) {
+				return false;
+			}
+			if (Number.isNaN(Number.parseInt(issue.number, 10)) || (!issue.html_url && !issue.url)) {
+				return false;
+			}
+			const repoName = getCodebergIssueRepoName(issue);
+			if (repoSet && !repoSet.has(repoName)) {
+				return false;
+			}
+
+			// Validate assignee client-side to handle different Gitea API versions (case-insensitive)
+			const usernameLower = username.toLowerCase();
+			const normalizeUser = (u) => (u?.login || u?.username || '').toLowerCase();
+			const isAssigned =
+				normalizeUser(issue.assignee) === usernameLower ||
+				(Array.isArray(issue.assignees) && issue.assignees.some((u) => normalizeUser(u) === usernameLower));
+
+			return isAssigned;
+		})
+		.map((issue) => {
+			const repoName = getCodebergIssueRepoName(issue);
+
+			const safeTitle = typeof sanitizeHtml === 'function' ? sanitizeHtml(issue.title) : issue.title;
+			const safeUrl = typeof sanitizeHtml === 'function' ? sanitizeHtml(issue.html_url) : issue.html_url;
+
+			return {
+				id: issue.id,
+				platform: 'codeberg',
+				_platform: 'codeberg',
+				number: Number.parseInt(issue.number, 10),
+				title: safeTitle,
+				html_url: safeUrl || issue.url || '',
+				repository: repoName,
+				state: issue.state,
+				pull_request: issue.pull_request,
+			};
+		});
 }
 
 /* ---------------- UTIL ---------------- */
@@ -354,10 +497,10 @@ class CodebergHelper {
 								if (updated >= start && updated <= end) {
 									const issueUser = issue.user?.username || issue.user?.login;
 									const isAssignee =
-										issue.assignees?.some((a) => (a.username || a.login) === username) ||
-										(issue.assignee?.username || issue.assignee?.login) === username;
+										issue.assignees?.some((a) => (a.username || a.login)?.toLowerCase() === username.toLowerCase()) ||
+										(issue.assignee?.username || issue.assignee?.login)?.toLowerCase() === username.toLowerCase();
 
-									if (issueUser === username || isAssignee) {
+									if (issueUser?.toLowerCase() === username.toLowerCase() || isAssignee) {
 										issues.push(issue);
 										if (issue.pull_request) {
 											mergeRequests.push(issue);
@@ -485,17 +628,24 @@ class CodebergHelper {
 	}
 }
 
+if (typeof window !== 'undefined') {
+	window.codebergCheckTokenForShowCommits = codebergCheckTokenForShowCommits;
+	window.fetchIssuesFromCodeberg = fetchIssuesFromCodeberg;
+}
+
 /* EXPORT */
 if (typeof module !== 'undefined' && module.exports) {
 	module.exports = CodebergHelper;
-} else {
+	CodebergHelper.fetchIssuesFromCodeberg = fetchIssuesFromCodeberg;
+	CodebergHelper.codebergCheckTokenForShowCommits = codebergCheckTokenForShowCommits;
+} else if (typeof window !== 'undefined') {
 	window.CodebergHelper = CodebergHelper;
 }
 
 /* ---------------- FORCE REFRESH (FIXED) ---------------- */
 
 async function forceCodebergDataRefresh() {
-	if (window.codebergHelper instanceof window.CodebergHelper) {
+	if (typeof window !== 'undefined' && window.codebergHelper instanceof window.CodebergHelper) {
 		window.codebergHelper.cache = {
 			data: null,
 			cacheKey: null,
@@ -512,23 +662,27 @@ async function forceCodebergDataRefresh() {
 		console.error(e);
 	}
 
-	window.hasInjectedContent = false;
-
-	window.codebergHelper = new window.CodebergHelper(window.codebergApiBaseUrl);
+	if (typeof window !== 'undefined') {
+		window.hasInjectedContent = false;
+		window.codebergHelper = new window.CodebergHelper(window.codebergApiBaseUrl);
+	}
 
 	return { success: true };
 }
 
-window.forceCodebergDataRefresh = forceCodebergDataRefresh;
+if (typeof window !== 'undefined') {
+	window.forceCodebergDataRefresh = forceCodebergDataRefresh;
+}
 
 /* ---------------- PLATFORM REGISTRATION ---------------- */
 
-if (window.PlatformRegistry) {
+if (typeof window !== 'undefined' && window.PlatformRegistry) {
 	window.PlatformRegistry.register('codeberg', {
 		hasRepoFilter: false,
 		checkTokenForFilter() {},
 		checkTokenForShowCommits: codebergCheckTokenForShowCommits,
 		checkTokenForMergedPRs() {},
+		fetchAssignedIssues: fetchIssuesFromCodeberg,
 		triggerRepoFetchIfEnabled() {},
 		debugRepoFetch() {},
 		loadRepos() {},
