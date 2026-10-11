@@ -112,10 +112,17 @@ describe('GitHubHelper', () => {
 	});
 
 	describe('githubValidateToken', () => {
-		it('should return invalid for empty, null, or whitespace-only token', async () => {
-			expect(await window.githubValidateToken('')).toEqual({ valid: false, status: 0, reason: 'empty' });
-			expect(await window.githubValidateToken(null)).toEqual({ valid: false, status: 0, reason: 'empty' });
-			expect(await window.githubValidateToken('   ')).toEqual({ valid: false, status: 0, reason: 'empty' });
+		it('should return invalid for empty, null, or whitespace-only token without calling fetch', async () => {
+			const originalFetch = global.fetch;
+			global.fetch = vi.fn();
+			try {
+				expect(await window.githubValidateToken('')).toEqual({ valid: false, status: 0, reason: 'empty' });
+				expect(await window.githubValidateToken(null)).toEqual({ valid: false, status: 0, reason: 'empty' });
+				expect(await window.githubValidateToken('   ')).toEqual({ valid: false, status: 0, reason: 'empty' });
+				expect(global.fetch).not.toHaveBeenCalled();
+			} finally {
+				global.fetch = originalFetch;
+			}
 		});
 
 		it('should return valid on HTTP 200 with correct headers passed to fetch', async () => {
@@ -243,15 +250,22 @@ describe('GitHubHelper', () => {
 	});
 
 	describe('githubFetchUser', () => {
-		it('should return 404 response object immediately when username is empty or falsy', async () => {
-			const resEmpty = await window.githubFetchUser('');
-			expect(resEmpty.status).toBe(404);
-			expect(resEmpty.ok).toBe(false);
-			const data = await resEmpty.json();
-			expect(data).toEqual({ message: 'Not Found' });
+		it('should return 404 response object immediately when username is empty or falsy without calling fetch', async () => {
+			const originalFetch = global.fetch;
+			global.fetch = vi.fn();
+			try {
+				const resEmpty = await window.githubFetchUser('');
+				expect(resEmpty.status).toBe(404);
+				expect(resEmpty.ok).toBe(false);
+				const data = await resEmpty.json();
+				expect(data).toEqual({ message: 'Not Found' });
 
-			const resNull = await window.githubFetchUser(null);
-			expect(resNull.status).toBe(404);
+				const resNull = await window.githubFetchUser(null);
+				expect(resNull.status).toBe(404);
+				expect(global.fetch).not.toHaveBeenCalled();
+			} finally {
+				global.fetch = originalFetch;
+			}
 		});
 
 		it('should fetch user profile with URL encoding and token header when provided', async () => {
@@ -296,12 +310,19 @@ describe('GitHubHelper', () => {
 	});
 
 	describe('githubFetchIssues', () => {
-		it('should return empty items immediately if username is empty or falsy', async () => {
-			const res = await window.githubFetchIssues('');
-			expect(res.status).toBe(404);
-			expect(res.ok).toBe(false);
-			const data = await res.json();
-			expect(data).toEqual({ items: [] });
+		it('should return empty items immediately if username is empty or falsy without calling fetch', async () => {
+			const originalFetch = global.fetch;
+			global.fetch = vi.fn();
+			try {
+				const res = await window.githubFetchIssues('');
+				expect(res.status).toBe(404);
+				expect(res.ok).toBe(false);
+				const data = await res.json();
+				expect(data).toEqual({ items: [] });
+				expect(global.fetch).not.toHaveBeenCalled();
+			} finally {
+				global.fetch = originalFetch;
+			}
 		});
 
 		it('should construct search URL with author, dates, and org query', async () => {
@@ -427,27 +448,41 @@ describe('GitHubHelper', () => {
 	});
 
 	describe('fetchIssuesFromGitHub (Next Plans assigned issues)', () => {
-		it('should throw an error if username is missing in storage', async () => {
-			browser.storage.local.get.mockResolvedValueOnce({
-				githubUsername: '',
-				platformUsername: '',
-				githubToken: 'token123',
-			});
+		it('should throw an error without calling fetch if username is missing in storage', async () => {
+			const originalFetch = global.fetch;
+			global.fetch = vi.fn();
+			try {
+				browser.storage.local.get.mockResolvedValueOnce({
+					githubUsername: '',
+					platformUsername: '',
+					githubToken: 'token123',
+				});
 
-			await expect(window.fetchIssuesFromGitHub({ type: 'all' })).rejects.toThrow(
-				'GitHub username is required. Please set it in settings.',
-			);
+				await expect(window.fetchIssuesFromGitHub({ type: 'all' })).rejects.toThrow(
+					'GitHub username is required. Please set it in settings.',
+				);
+				expect(global.fetch).not.toHaveBeenCalled();
+			} finally {
+				global.fetch = originalFetch;
+			}
 		});
 
-		it('should throw an error if token is missing in storage', async () => {
-			browser.storage.local.get.mockResolvedValueOnce({
-				githubUsername: 'testuser',
-				githubToken: '',
-			});
+		it('should throw an error without calling fetch if token is missing in storage', async () => {
+			const originalFetch = global.fetch;
+			global.fetch = vi.fn();
+			try {
+				browser.storage.local.get.mockResolvedValueOnce({
+					githubUsername: 'testuser',
+					githubToken: '',
+				});
 
-			await expect(window.fetchIssuesFromGitHub({ type: 'all' })).rejects.toThrow(
-				'GitHub token is required. Please set it in settings.',
-			);
+				await expect(window.fetchIssuesFromGitHub({ type: 'all' })).rejects.toThrow(
+					'GitHub token is required. Please set it in settings.',
+				);
+				expect(global.fetch).not.toHaveBeenCalled();
+			} finally {
+				global.fetch = originalFetch;
+			}
 		});
 
 		it('should fetch, map, and filter assigned issues properly', async () => {
@@ -666,10 +701,11 @@ describe('GitHubHelper', () => {
 	});
 
 	describe('PlatformRegistry integration', () => {
-		it('should have registered github helper in PlatformRegistry', () => {
+		it('should have registered github helper in PlatformRegistry and assigned to window.githubHelper', () => {
 			expect(window.PlatformRegistry).toBeDefined();
 			const githubHelper = window.PlatformRegistry.get('github');
 			expect(githubHelper).toBeDefined();
+			expect(window.githubHelper).toBe(githubHelper);
 			expect(githubHelper.hasRepoFilter).toBe(true);
 			expect(typeof githubHelper.validateToken).toBe('function');
 			expect(typeof githubHelper.checkTokenForFilter).toBe('function');
@@ -678,6 +714,8 @@ describe('GitHubHelper', () => {
 			expect(typeof githubHelper.checkTokenForNextPlans).toBe('function');
 			expect(typeof githubHelper.fetchAssignedIssues).toBe('function');
 			expect(typeof githubHelper.forceDataRefresh).toBe('function');
+			expect(typeof window.githubHelper.validateToken).toBe('function');
+			expect(typeof window.githubHelper.fetchAssignedIssues).toBe('function');
 		});
 	});
 });
