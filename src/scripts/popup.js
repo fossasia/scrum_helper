@@ -136,12 +136,9 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (displayModeSec) {
 			displayModeSec.classList.add('hidden');
 		}
-		const insertInEmailBtn = document.getElementById('insertInEmail');
-		if (insertInEmailBtn) {
-			const container = insertInEmailBtn.closest('.tooltip-container');
-			if (container) {
-				container.classList.add('hidden');
-			}
+		const insertInEmailContainer = document.getElementById('insertInEmailContainer');
+		if (insertInEmailContainer) {
+			insertInEmailContainer.classList.add('hidden');
 		}
 		// Show Tauri-only SMTP features
 		const mailSettingsToggle = document.getElementById('mailSettingsToggle');
