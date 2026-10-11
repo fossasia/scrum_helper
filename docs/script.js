@@ -88,6 +88,11 @@ document.addEventListener('DOMContentLoaded', () => {
 	const LATEST_RELEASE_URL = 'https://github.com/fossasia/scrum_helper/releases/latest';
 
 	// Explicit asset selection helpers with priority and format derivation
+	/**
+	 * Selects the best Windows installer asset from GitHub release assets.
+	 * @param {Array<{name: string, browser_download_url: string}>} assets - Release assets array.
+	 * @returns {{url: string, format: string, label: string}|null} Selected asset descriptor or null.
+	 */
 	function getWindowsAsset(assets) {
 		const exe = assets.find((a) => a.name.toLowerCase().endsWith('.exe'));
 		if (exe) return { url: exe.browser_download_url, format: '.exe', label: 'Windows (.exe)' };
@@ -96,6 +101,11 @@ document.addEventListener('DOMContentLoaded', () => {
 		return null;
 	}
 
+	/**
+	 * Selects macOS Apple Silicon and Intel installer assets from GitHub release assets.
+	 * @param {Array<{name: string, browser_download_url: string}>} assets - Release assets array.
+	 * @returns {{arm: {url: string, format: string, label: string}|null, intel: {url: string, format: string, label: string}|null}|null} Selected macOS assets or null.
+	 */
 	function getMacAsset(assets) {
 		const dmgArm = assets.find((a) => {
 			const n = a.name.toLowerCase();
@@ -138,6 +148,11 @@ document.addEventListener('DOMContentLoaded', () => {
 		};
 	}
 
+	/**
+	 * Selects the Linux package asset from GitHub release assets.
+	 * @param {Array<{name: string, browser_download_url: string}>} assets - Release assets array.
+	 * @returns {{url: string, format: string, label: string}|null} Selected Linux asset or null.
+	 */
 	function getLinuxAsset(assets) {
 		const deb = assets.find((a) => a.name.toLowerCase().endsWith('.deb'));
 		if (deb) return { url: deb.browser_download_url, format: '.deb', label: 'Linux (.deb)' };
@@ -149,6 +164,13 @@ document.addEventListener('DOMContentLoaded', () => {
 		return null;
 	}
 
+	/**
+	 * Updates the primary download CTA button attributes, icon, and label.
+	 * @param {string} href - Destination URL or anchor.
+	 * @param {string} iconClass - FontAwesome icon class name.
+	 * @param {string} text - Button display text.
+	 * @param {boolean} [isDirectDownload=false] - Whether the link points to a direct downloadable asset file.
+	 */
 	function updateDownloadButton(href, iconClass, text, isDirectDownload = false) {
 		if (!downloadButton) return;
 		downloadButton.href = href;
@@ -180,6 +202,10 @@ document.addEventListener('DOMContentLoaded', () => {
 		updateDownloadButton(LATEST_RELEASE_URL, 'fa-solid fa-download', 'Download Desktop App', false);
 	}
 
+	/**
+	 * Queries GitHub Releases API to resolve direct installer links for the latest version.
+	 * @returns {Promise<void>}
+	 */
 	async function fetchLatestRelease() {
 		try {
 			// Search recent releases (up to 15) to locate releases containing desktop assets if available
@@ -272,6 +298,10 @@ document.addEventListener('DOMContentLoaded', () => {
 		let charIndex = badge.textContent.length;
 		let isDeleting = true;
 
+		/**
+		 * Sequentially types and deletes phrases in the hero badge.
+		 * @returns {void}
+		 */
 		function type() {
 			const currentWord = words[wordIndex];
 			const fullText = badge.textContent;

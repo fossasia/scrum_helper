@@ -16,6 +16,14 @@
 	transform: translateY(-2px);
 }
 
+@media (prefers-reduced-motion: reduce) {
+	.modern-card,
+	.modern-card:hover {
+		transition: none;
+		transform: none;
+	}
+}
+
 #hero-typing-badge::after {
 	content: "\200B";
 }
