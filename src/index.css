@@ -1335,18 +1335,17 @@ body.mode-popup {
 .timeframe-container {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px 12px;
+    gap: 8px 16px;
     align-items: flex-end;
-    justify-content: space-between;
+    justify-content: flex-start;
 }
 
 .timeframe-presets {
     display: flex;
-    flex-direction: row;
-    align-items: center;
+    flex-wrap: wrap;
     gap: 8px;
+    align-items: center;
     margin-bottom: 4px;
-    flex-shrink: 0;
 }
 
 .timeframe-presets > div {
