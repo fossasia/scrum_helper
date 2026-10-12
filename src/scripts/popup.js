@@ -757,6 +757,9 @@ document.addEventListener('DOMContentLoaded', () => {
 			'lastScrumReportCacheKey',
 			'lastScrumReportUsername',
 			'lastScrumReportIdentity',
+			'githubLastScrumReportHtml',
+			'gitlabLastScrumReportHtml',
+			'codebergLastScrumReportHtml',
 		]);
 
 		const ttlMinutes = parsePositiveInt(storage.cacheInput) ?? 10;
@@ -790,7 +793,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		const currentIdentity = window.reportIdentityUtils?.buildReportIdentity(storage);
 		const persistedIdentity = storage.lastScrumReportIdentity;
-		const lastScrumReportHtml = storage.lastScrumReportHtml;
+		let lastScrumReportHtml = storage.lastScrumReportHtml;
+		if (!lastScrumReportHtml && activePlatforms.length === 1) {
+			const p = activePlatforms[0];
+			lastScrumReportHtml = storage[`${p}LastScrumReportHtml`];
+		}
 		const reportEmpty = !scrumReport.innerHTML || !scrumReport.innerHTML.trim();
 
 		let isMatch = false;
