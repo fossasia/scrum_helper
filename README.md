@@ -1,13 +1,15 @@
 # Scrum Helper
 
-**Scrum Helper** is a Chrome extension that simplifies writing development reports by auto-filling content based on your Git activity. Just enter your GitHub username, select a date range, and choose your preferences, the extension automatically fetches your commits, pull requests, issues, and code reviews via the GitHub API and generates a pre-filled report that you can edit as needed. While currently focused on Git-based workflows, Scrum Helper is designed to expand to other platforms in the future.
+**Scrum Helper** is a Chrome extension that simplifies writing development reports by auto-filling content based on your Git activity. Select your platform, enter your username, and provide authentication details when needed. Choose a date range and your preferences. The extension automatically fetches your commits, pull requests, and issues via the selected platform's API. For platforms that support review activity, it also includes code reviews in the generated report. Scrum Helper currently supports GitHub, GitLab, and Codeberg, allowing developers to generate scrum reports from their activity across multiple Git platforms.
 
 ![SCRUMLOGO](docs/images/scrumhelper-png.png)
 
 ## Features
 
 - Automatically fetches your Git activity, including commits, pull requests, issues, and code reviews.
-- Currently supports GitHub, with plans to expand to other platforms
+- Supports GitHub, GitLab, and Codeberg.
+- Supports platform-specific authentication and configuration.
+- Supports custom Codeberg API base URLs.
 - Generates editable scrum updates based on your selected date range
 - Integrates directly with compose windows in Google Groups, Gmail, Yahoo Mail, and Outlook
 
@@ -19,8 +21,9 @@
 2. Click “Add to Chrome”.
 3. Pin the extension to your toolbar (optional).
 4. Open the extension popup from your browser toolbar.
-5. Set your GitHub username, date range, and preferences in the popup.
-6. Start composing your reports in Gmail, Yahoo Mail, Outlook, or Google Groups using the extension.
+5. Select your preferred platform from the platform dropdown and enter your username and any authentication details needed for private data or higher API limits.
+6. Select your date range and preferences.
+7. Start composing your reports in Gmail, Yahoo Mail, Outlook, or Google Groups using the extension.
 ## Setting Up Your Development Environment
 
 1.  **Fork & Clone the Repository**
@@ -104,6 +107,16 @@
         `src-tauri/target/release/bundle/`
 
 ## Usage
+
+### Selecting a Platform
+1. Open the Scrum Helper extension.
+2. **Select your platform from the platform dropdown: GitHub, GitLab, or Codeberg.**
+3. Enter the username; add authentication details when needed for private data or higher API limits.
+4. **For GitLab, optionally provide a Group filter; leave it empty to include activity across all groups.**
+5. **For Codeberg, optionally configure a custom API base URL.**
+6. Select your desired date range and preferences.
+7. Generate your scrum report.
+8. Review and edit the generated report before using it in your preferred email or group platform.
 
 ### For Google Groups:
 
@@ -200,39 +213,77 @@ $ npm install
      npm run tauri build
      ```
    
-3. **How to Obtain a GitHub Personal Access Token (Classic)**
+## Platform Setup and Authentication
 
-- To use Scrum Helper with authenticated requests (for higher rate limits and private repositories), you need a GitHub personal access token (classic).
+ Scrum Helper supports **GitHub, GitLab, and Codeberg**. Select your platform from the platform dropdown. A username is required; authentication tokens and optional filters/API URLs are only needed for private data, higher API limits, or token-gated features.
 
-  #### Steps to Generate a Token
+### GitHub
 
-  1. **Go to GitHub Developer Settings:**  
-     Visit [https://github.com/settings/tokens](https://github.com/settings/tokens) while logged in to your GitHub account.
+To use Scrum Helper with GitHub:
 
-  2. **Choose Token Type:**
+* Enter your **GitHub username**.
+* Enter a **GitHub Personal Access Token (classic)**.
+* The token can be used for authenticated API requests, higher API rate limits, and access to private repositories when the appropriate permissions are granted.
 
-  - Select **"Personal access tokens (classic)"**.
+#### Creating a GitHub Personal Access Token (Classic)
 
-  3. **Generate a New Token:**
+1. Go to [GitHub Developer Settings](https://github.com/settings/tokens) while logged in to your GitHub account.
+2. Select **Personal access tokens (classic)**.
+3. Click **Generate new token** and select **Generate new token (classic)**.
+4. Give the token a descriptive name and configure its expiration and required permissions.
+5. Click **Generate token**.
+6. Copy the token and store it securely. GitHub will not show the token again.
+7. Enter the token in the GitHub token field in Scrum Helper.
 
-  - Click **"Generate new token"** and select **"Generate new token (classic)"** from the dropdown.
-  - Give your token a descriptive name (e.g., "Scrum Helper Extension").
-  - Set an expiration date if desired.
+> **Keep your token secret.** Never share it or commit it to a public repository.
 
-  4. **Create and Copy the Token:**
+### GitLab
 
-  - Click **"Generate token"** at the bottom.
-  - **Copy the personal access token (classic)** and save it securely. You will not be able to see it again!
+To use Scrum Helper with GitLab:
 
-  5. **Paste the Token in Scrum Helper:**
+* Enter your **GitLab username**.
+* Enter a **GitLab Personal Access Token**.
+* The token must have the **`read_api` scope**.
+* Optionally enter a **Group filter** to limit the results to a specific GitLab group.
 
-  - Open the Scrum Helper extension popup.
-  - Paste your classic token into the "GitHub Token" field.
+#### Creating a GitLab Personal Access Token
 
-  > **Keep your token secret!** Never share it or commit it to public repositories.
+1. Open your GitLab account settings.
+2. Navigate to **Access Tokens**.
+3. Create a new Personal Access Token.
+4. Give the token a descriptive name and set an expiration date if required.
+5. Select the **`read_api`** scope.
+6. Create the token and copy it securely.
+7. Enter the token in Scrum Helper and optionally configure the Group filter to limit results to a GitLab group.
 
-  **Why use a token?**  
-  Classic GitHub tokens allow the extension to make authenticated requests, increasing your API rate limit and enabling access to private repositories if you grant those permissions.
+> **Keep your token secret.** Never share it or commit it to a public repository.
+
+### Codeberg
+
+To use Scrum Helper with Codeberg:
+
+* Enter your **Codeberg username**.
+* Enter your **Codeberg Access Token**.
+* Optionally provide a **custom Codeberg API base URL**.
+* The default API base URL is:
+  `https://codeberg.org/api/v1`
+
+The custom API base URL allows Scrum Helper to work with custom or self-hosted Codeberg instances that provide a compatible API.
+
+#### Creating a Codeberg Access Token
+
+1. Log in to your Codeberg account.
+2. Navigate to your account settings and open the **Applications** or access-token section.
+3. Create a new access token.
+4. Give the token a descriptive name and configure the required permissions.
+5. Create the token and copy it securely.
+6. Enter your username and access token in Scrum Helper.
+7. If you are using the standard Codeberg service, leave the API base URL as:
+   `https://codeberg.org/api/v1`
+8. If you are using a custom Codeberg instance, enter its API base URL in the API Base URL field.
+
+> **Keep your token secret.** Never share it or commit it to a public repository.
+
 
 ## Release Process
 
