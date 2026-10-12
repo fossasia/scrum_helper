@@ -1275,13 +1275,14 @@ body.mode-popup {
 .timeframe-container {
     display: flex;
     flex-wrap: wrap;
-    gap: 12px;
+    gap: 8px 16px;
     align-items: flex-end;
-    justify-content: space-between;
+    justify-content: flex-start;
 }
 
 .timeframe-presets {
     display: flex;
+    flex-wrap: wrap;
     gap: 12px;
     align-items: center;
     margin-bottom: 4px;
