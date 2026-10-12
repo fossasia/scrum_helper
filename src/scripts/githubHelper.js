@@ -650,7 +650,7 @@ async function validateOrgOnBlur(org) {
 			try {
 				const res = await fetch(`https://api.github.com/orgs/${encodeURIComponent(o)}`, { headers });
 				console.log('[Org Check] Response status for', o, ':', res.status);
-				if (!res.ok) {
+				if (res.status === 404) {
 					invalidOrgs.push(o);
 				}
 			} catch (err) {
