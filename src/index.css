@@ -1283,7 +1283,7 @@ body.mode-popup {
 .timeframe-presets {
     display: flex;
     flex-wrap: wrap;
-    gap: 12px;
+    gap: 8px;
     align-items: center;
     margin-bottom: 4px;
 }
