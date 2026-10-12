@@ -1309,7 +1309,7 @@ function allIncluded(outputTarget = 'email') {
 						log('Commit map returned from fetchCommitsForOpenPRs:', commitMap);
 						// Attach commits to PR objects
 						openPRs.forEach((pr) => {
-							pr._allCommits = commitMap[pr.number] || [];
+							pr._allCommits = commitMap[`${pr.repository_url}#${pr.number}`] || [];
 							log(`Attached ${pr._allCommits.length} commits to PR #${pr.number}`);
 							if (pr._allCommits.length > 0) {
 								log(
