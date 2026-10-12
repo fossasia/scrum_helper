@@ -209,6 +209,14 @@ describe('GitHub activity search pagination', () => {
 		expect(window.fetch).toHaveBeenCalledTimes(1);
 	});
 
+	it.each(['&sort=updated&order=asc', '&q=other', '&per_page=1', '&page=2'])('rejects changed or duplicate next-page parameters (%s)', async (extra) => {
+		const window = createWindow();
+		window.fetch = vi.fn(async (url) => response(window, [issue(1)], { Link: `<${url}&page=2${extra}>; rel="next"` }));
+		loadScript(window, 'githubHelper');
+		await expect(window.githubFetchIssues('alice', 'test', '2026-10-01', '2026-10-12')).rejects.toThrow('pagination could not be completed');
+		expect(window.fetch).toHaveBeenCalledTimes(1);
+	});
+
 	it('stops at ten pages rather than silently returning a truncated report', async () => {
 		const window = createWindow();
 		window.fetch = vi.fn(async (url) => {

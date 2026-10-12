@@ -977,6 +977,9 @@ async function githubFetchUser(username, token) {
 
 async function githubFetchSearchPages(url, headers) {
 	const originalUrl = new URL(url);
+	const query = new URLSearchParams(originalUrl.searchParams);
+	query.delete('page');
+	query.sort();
 	const items = [];
 	let metadata;
 	let response;
@@ -1009,13 +1012,16 @@ async function githubFetchSearchPages(url, headers) {
 			});
 		}
 		const nextUrl = new URL(next[1]);
+		const nextQuery = new URLSearchParams(nextUrl.searchParams);
+		nextQuery.delete('page');
+		nextQuery.sort();
 		if (
 			nextUrl.origin !== originalUrl.origin ||
 			nextUrl.pathname !== originalUrl.pathname ||
 			nextUrl.username ||
 			nextUrl.password ||
-			nextUrl.searchParams.get('q') !== originalUrl.searchParams.get('q') ||
-			nextUrl.searchParams.get('per_page') !== originalUrl.searchParams.get('per_page') ||
+			nextQuery.toString() !== query.toString() ||
+			nextUrl.searchParams.getAll('page').length !== 1 ||
 			Number(nextUrl.searchParams.get('page')) !== page + 1 ||
 			page === 10
 		) {
