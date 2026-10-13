@@ -355,4 +355,3 @@ class EmailClientAdapter {
 }
 
 window.emailClientAdapter = new EmailClientAdapter();
-console.log('Email client adapter initialized');
