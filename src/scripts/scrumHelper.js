@@ -374,6 +374,7 @@ function allIncluded(outputTarget = 'email') {
 	let githubUserData = null;
 	let githubPrsReviewDataProcessed = {};
 	let githubPrsDataProcessed = {};
+	let githubIssuesDataProcessed = {};
 	let issuesDataProcessed = false;
 	let prsReviewDataProcessed = false;
 	let showOpenLabel = true;
@@ -499,10 +500,18 @@ function allIncluded(outputTarget = 'email') {
 						}
 					}
 
-					items.projectName = projectFromDOM || items.projectName;
-					items.githubToken = tokenFromDOM || items.githubToken;
-					items.gitlabToken = gitlabTokenFromDOM || items.gitlabToken;
-					items.codebergToken = codebergTokenFromDOM || items.codebergToken;
+					if (projectFromDOM !== undefined) {
+						items.projectName = projectFromDOM;
+					}
+					if (tokenFromDOM !== undefined) {
+						items.githubToken = tokenFromDOM;
+					}
+					if (gitlabTokenFromDOM !== undefined) {
+						items.gitlabToken = gitlabTokenFromDOM;
+					}
+					if (codebergTokenFromDOM !== undefined) {
+						items.codebergToken = codebergTokenFromDOM;
+					}
 					chrome.storage.local.set({
 						projectName: items.projectName,
 						githubToken: items.githubToken,
@@ -1556,6 +1565,7 @@ function allIncluded(outputTarget = 'email') {
 		plansByPlatform = {};
 		githubPrsReviewDataProcessed = {};
 		githubPrsDataProcessed = {};
+		githubIssuesDataProcessed = {};
 		issuesDataProcessed = false;
 		prsReviewDataProcessed = false;
 		if (!githubCache.subject && scrumSubject) {
@@ -1976,6 +1986,7 @@ function allIncluded(outputTarget = 'email') {
 								? (window.codebergHelper?.cache?.cacheKey ?? null)
 								: (githubCache?.cacheKey ?? null);
 
+					const reportPlatform = platform || (activePlatforms.length === 1 ? activePlatforms[0] : 'github');
 					const platformCacheKeys = {
 						github: githubCache?.cacheKey ?? storageItems?.githubCache?.cacheKey ?? null,
 						gitlab: window.gitlabHelper?.cache?.cacheKey ?? storageItems?.gitlabCache?.cacheKey ?? null,
@@ -2015,9 +2026,12 @@ function allIncluded(outputTarget = 'email') {
 
 					chrome.storage.local.set({
 						lastScrumReportHtml: content,
-						lastScrumReportPlatform: platform,
+						lastScrumReportPlatform: reportPlatform,
 						lastScrumReportCacheKey: cacheKey,
 						lastScrumReportUsername: platformUsername,
+						[`${reportPlatform}LastScrumReportHtml`]: content,
+						[`${reportPlatform}LastScrumReportCacheKey`]: cacheKey,
+						[`${reportPlatform}LastScrumReportUsername`]: platformUsername,
 						lastScrumReportIdentity: combinedIdentity,
 					});
 				} catch (e) {
@@ -2409,6 +2423,7 @@ function allIncluded(outputTarget = 'email') {
 		}
 		lastWeekIssuesArray = [];
 		issuesByPlatform = {};
+		githubIssuesDataProcessed = {};
 		const headers = { Accept: 'application/vnd.github.v3+json' };
 		if (githubToken) headers.Authorization = `token ${githubToken}`;
 		let useMergedStatus = false;
@@ -2769,28 +2784,71 @@ function allIncluded(outputTarget = 'email') {
 				}
 
 				const issueActionText = isNewIssue ? 'Opened Issue' : 'Updated Issue';
-
-				if (item.state === 'open' || item.state === 'opened') {
-					li = `<li><i>(${project})</i> - ${issueActionText}(#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + issue_opened_button : ''}</li>`;
-				} else if (item.state === 'closed') {
-					// Use state_reason to distinguish closure reason
-					if (item.state_reason === 'completed') {
-						li = `<li><i>(${project})</i> - ${issueActionText}(#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + issue_closed_completed_button : ''}</li>`;
-					} else if (item.state_reason === 'not_planned') {
-						li = `<li><i>(${project})</i> - ${issueActionText}(#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + issue_closed_notplanned_button : ''}</li>`;
-					} else {
-						li = `<li><i>(${project})</i> - ${issueActionText}(#${number}) - <a href='${html_url}'>${title}</a>${showOpenLabel ? ' ' + issue_closed_button : ''}</li>`;
+				let statusButton = '';
+				if (showOpenLabel) {
+					if (item.state === 'open' || item.state === 'opened') {
+						statusButton = ' ' + issue_opened_button;
+					} else if (item.state === 'closed') {
+						// Use state_reason to distinguish closure reason
+						if (item.state_reason === 'completed') {
+							statusButton = ' ' + issue_closed_completed_button;
+						} else if (item.state_reason === 'not_planned') {
+							statusButton = ' ' + issue_closed_notplanned_button;
+						} else {
+							statusButton = ' ' + issue_closed_button;
+						}
 					}
-				} else {
-					// Fallback for unexpected state
-					li = `<li><i>(${project})</i> - ${issueActionText}(#${number}) - <a href='${html_url}'>${title}</a></li>`;
 				}
 
-				log('[SCRUM-DEBUG] Added issue to lastWeekIssuesArray:', li, item);
-				lastWeekIssuesArray.push(li);
-				const itemPlatformNorm = (itemPlatform || platform || 'github').toLowerCase();
-				issuesByPlatform[itemPlatformNorm] = issuesByPlatform[itemPlatformNorm] || [];
-				issuesByPlatform[itemPlatformNorm].push(li);
+				if (!githubIssuesDataProcessed[project]) {
+					githubIssuesDataProcessed[project] = [];
+				}
+				const alreadyExists = githubIssuesDataProcessed[project].some(
+					(existing) => existing.number === number && (existing.platform || platform) === itemPlatform,
+				);
+				if (!alreadyExists) {
+					githubIssuesDataProcessed[project].push({
+						number,
+						title,
+						html_url,
+						issueActionText,
+						statusButton,
+						platform: itemPlatform,
+					});
+				}
+			}
+		}
+
+		lastWeekIssuesArray = [];
+		issuesByPlatform = {};
+		for (const [repo, repoIssues] of Object.entries(githubIssuesDataProcessed)) {
+			if (!repoIssues || repoIssues.length === 0) continue;
+
+			// Group by platform
+			const repoIssuesByPlat = {};
+			for (const issue of repoIssues) {
+				const issuePlat = (issue.platform || platform || 'github').toLowerCase();
+				repoIssuesByPlat[issuePlat] = repoIssuesByPlat[issuePlat] || [];
+				repoIssuesByPlat[issuePlat].push(issue);
+			}
+
+			let repoLi = `<li style="margin-bottom: 10px !important;"><span style="font-weight: 600;"><i>(${repo})</i></span><ul style="margin-top: 4px; margin-bottom: 4px;">`;
+			for (const issue of repoIssues) {
+				let issueText = `<li>${issue.issueActionText}(#${issue.number}) - <a href='${issue.html_url}'>${issue.title}</a>${issue.statusButton}</li>`;
+				repoLi += issueText;
+			}
+			repoLi += '</ul></li>';
+			lastWeekIssuesArray.push(repoLi);
+
+			for (const [p, pIssues] of Object.entries(repoIssuesByPlat)) {
+				issuesByPlatform[p] = issuesByPlatform[p] || [];
+				let pRepoLi = `<li style="margin-bottom: 10px !important;"><span style="font-weight: 600;"><i>(${repo})</i></span><ul style="margin-top: 4px; margin-bottom: 4px;">`;
+				for (const issue of pIssues) {
+					let issueText = `<li>${issue.issueActionText}(#${issue.number}) - <a href='${issue.html_url}'>${issue.title}</a>${issue.statusButton}</li>`;
+					pRepoLi += issueText;
+				}
+				pRepoLi += '</ul></li>';
+				issuesByPlatform[p].push(pRepoLi);
 			}
 		}
 
