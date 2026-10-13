@@ -2,6 +2,15 @@
 
 ## What's Changed
 
+* fix: tighten Outlook hostname matchers and add adapter tests (#865) @rishiraj38
+* fix: restore PAT creation guide in en token tooltips (#917) @ProgrammerNesi
+
+---
+
+## v2.1.6 - 2026-10-13
+
+## What's Changed
+
 * fix: restore PAT creation guide in en token tooltips (#917) @ProgrammerNesi
 
 ---
