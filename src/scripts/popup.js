@@ -162,6 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
 	const homeButton = document.getElementById('homeButton');
 	const scrumHelperHeading = document.getElementById('scrumHelperHeading');
 	const settingsToggle = document.getElementById('settingsToggle');
+	const settingsIcon = document.getElementById('settingsIcon');
 	const reportSection = document.getElementById('reportSection');
 	const settingsSection = document.getElementById('settingsSection');
 
@@ -382,6 +383,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	function applyTheme(isDark) {
 		body.classList.toggle('dark-mode', isDark);
+		if (settingsIcon) {
+			settingsIcon.src = isDark ? 'icons/settings-night.png' : 'icons/settings-light.png';
+		}
 		if (typeof renderTokenPreview === 'function') {
 			renderTokenPreview();
 		}
@@ -1833,13 +1837,22 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 	}
 
+	function deactivateSettingsToggle() {
+		if (settingsIcon) settingsIcon.style.transition = 'none';
+		settingsToggle.classList.remove('active');
+		if (settingsIcon) {
+			settingsIcon.offsetHeight;
+			settingsIcon.style.transition = '';
+		}
+	}
+
 	function showReportView() {
 		isSettingsVisible = false;
 		isMailSettingsVisible = false;
 		reportSection.classList.remove('hidden');
 		settingsSection.classList.add('hidden');
 		if (mailSettingsSection) mailSettingsSection.classList.add('hidden');
-		settingsToggle.classList.remove('active');
+		deactivateSettingsToggle();
 		if (mailSettingsToggle) mailSettingsToggle.classList.remove('active');
 	}
 
@@ -1860,7 +1873,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		reportSection.classList.add('hidden');
 		settingsSection.classList.add('hidden');
 		if (mailSettingsSection) mailSettingsSection.classList.remove('hidden');
-		settingsToggle.classList.remove('active');
+		deactivateSettingsToggle();
 		if (mailSettingsToggle) mailSettingsToggle.classList.add('active');
 	}
 
