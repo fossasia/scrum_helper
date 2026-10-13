@@ -1,3 +1,11 @@
+## v2.1.6 - 2026-10-13
+
+## What's Changed
+
+* fix: restore PAT creation guide in en token tooltips (#917) @ProgrammerNesi
+
+---
+
 ## v2.1.5 - 2026-10-12
 
 ## What's Changed
