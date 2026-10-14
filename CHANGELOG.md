@@ -1,3 +1,16 @@
+## v2.1.6 - 2026-10-14
+
+## What's Changed
+
+* fix: tighten Outlook hostname matchers and add adapter tests (#865) @rishiraj38
+* fix: restore PAT creation guide in en token tooltips (#917) @ProgrammerNesi
+
+## Maintenance
+
+* chore(deps)(deps-dev): bump happy-dom from 20.14.5 to 20.14.6 (#929) @[dependabot[bot]](https://github.com/apps/dependabot)
+
+---
+
 ## v2.1.6 - 2026-10-13
 
 ## What's Changed
