@@ -359,6 +359,7 @@ class GitLabHelper {
 					const err = new Error(
 						chrome?.i18n.getMessage('gitlabUserNotFoundError', [username]) || `GitLab user "${username}" not found.`,
 					);
+					err.code = 'USERNAME_VALIDATION';
 					err.platform = 'gitlab';
 					err.username = username;
 					throw err;
@@ -382,6 +383,7 @@ class GitLabHelper {
 					const err = new Error(
 						chrome?.i18n.getMessage('gitlabUserNotFoundError', [username]) || `GitLab user "${username}" not found.`,
 					);
+					err.code = 'USERNAME_VALIDATION';
 					err.platform = 'gitlab';
 					err.username = username;
 					throw err;
@@ -992,7 +994,13 @@ if (window.PlatformRegistry) {
 			}
 			const users = await userRes.json();
 			if (!users.length) {
-				throw new Error(`GitLab user not found: ${username}`);
+				const err = new Error(
+					chrome?.i18n?.getMessage('gitlabUserNotFoundError', [username]) || `GitLab user "${username}" not found.`,
+				);
+				err.code = 'USERNAME_VALIDATION';
+				err.platform = 'gitlab';
+				err.username = username;
+				throw err;
 			}
 			const userId = users[0].id;
 
