@@ -553,10 +553,18 @@ function allIncluded(outputTarget = 'email') {
 						}
 					}
 
-					items.projectName = projectFromDOM || items.projectName;
-					items.githubToken = tokenFromDOM || items.githubToken;
-					items.gitlabToken = gitlabTokenFromDOM || items.gitlabToken;
-					items.codebergToken = codebergTokenFromDOM || items.codebergToken;
+					if (projectFromDOM !== undefined) {
+						items.projectName = projectFromDOM;
+					}
+					if (tokenFromDOM !== undefined) {
+						items.githubToken = tokenFromDOM;
+					}
+					if (gitlabTokenFromDOM !== undefined) {
+						items.gitlabToken = gitlabTokenFromDOM;
+					}
+					if (codebergTokenFromDOM !== undefined) {
+						items.codebergToken = codebergTokenFromDOM;
+					}
 					chrome.storage.local.set({
 						projectName: items.projectName,
 						githubToken: items.githubToken,
@@ -2016,6 +2024,7 @@ function allIncluded(outputTarget = 'email') {
 								? (window.codebergHelper?.cache?.cacheKey ?? null)
 								: (githubCache?.cacheKey ?? null);
 
+					const reportPlatform = platform || (activePlatforms.length === 1 ? activePlatforms[0] : 'github');
 					const platformCacheKeys = {
 						github: githubCache?.cacheKey ?? storageItems?.githubCache?.cacheKey ?? null,
 						gitlab: window.gitlabHelper?.cache?.cacheKey ?? storageItems?.gitlabCache?.cacheKey ?? null,
@@ -2055,9 +2064,12 @@ function allIncluded(outputTarget = 'email') {
 
 					chrome.storage.local.set({
 						lastScrumReportHtml: content,
-						lastScrumReportPlatform: platform,
+						lastScrumReportPlatform: reportPlatform,
 						lastScrumReportCacheKey: cacheKey,
 						lastScrumReportUsername: platformUsername,
+						[`${reportPlatform}LastScrumReportHtml`]: content,
+						[`${reportPlatform}LastScrumReportCacheKey`]: cacheKey,
+						[`${reportPlatform}LastScrumReportUsername`]: platformUsername,
 						lastScrumReportIdentity: combinedIdentity,
 					});
 				} catch (e) {
