@@ -339,7 +339,7 @@ describe('GitLabHelper', () => {
 		it('should handle saveToStorage error gracefully without throwing', async () => {
 			const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 			browser.storage.local.set.mockRejectedValueOnce(new Error('Write error'));
-			await expect(helper.saveToStorage({ test: 123 })).resolves.not.toThrow();
+			await expect(helper.saveToStorage({ test: 123 })).resolves.toBeUndefined();
 			expect(consoleSpy).toHaveBeenCalled();
 			consoleSpy.mockRestore();
 		});
@@ -376,7 +376,7 @@ describe('GitLabHelper', () => {
 				},
 			});
 
-			await expect(helper.loadFromStorage()).resolves.not.toThrow();
+			await expect(helper.loadFromStorage()).resolves.toBeUndefined();
 			expect(helper.cache.data).toBeUndefined();
 			expect(helper.cache.cacheKey).toBeUndefined();
 			expect(helper.cache.timestamp).toBeUndefined();
@@ -385,7 +385,7 @@ describe('GitLabHelper', () => {
 		it('should handle loadFromStorage error gracefully without throwing', async () => {
 			const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 			browser.storage.local.get.mockRejectedValueOnce(new Error('Read error'));
-			await expect(helper.loadFromStorage()).resolves.not.toThrow();
+			await expect(helper.loadFromStorage()).resolves.toBeUndefined();
 			expect(consoleSpy).toHaveBeenCalled();
 			consoleSpy.mockRestore();
 		});
