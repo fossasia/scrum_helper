@@ -1,13 +1,22 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import DOMPurify from '../src/libs/purify.min.js';
 import '../src/scripts/githubHelper.js';
+
+const sanitizeHtml = new Function(`${readFileSync(resolve('src/scripts/domSanitizer.js'), 'utf8')}\nreturn sanitizeHtml;`)();
 
 describe('GitHubHelper', () => {
 	beforeEach(() => {
 		vi.clearAllMocks();
+		globalThis.DOMPurify = DOMPurify;
+		globalThis.sanitizeHtml = sanitizeHtml;
 		document.body.innerHTML = '';
 	});
 
 	afterEach(() => {
+		delete globalThis.sanitizeHtml;
+		delete globalThis.DOMPurify;
 		vi.restoreAllMocks();
 	});
 
@@ -496,8 +505,8 @@ describe('GitHubHelper', () => {
 				{
 					id: 101,
 					number: 10,
-					title: 'Fix issue title',
-					html_url: 'https://github.com/fossasia/scrum_helper/issues/10',
+					title: '<script>alert(1)</script>Fix issue title',
+					html_url: 'https://github.com/fossasia/scrum_helper/issues/10<img src=x onerror=alert(1)>',
 					repository_url: 'https://api.github.com/repos/fossasia/scrum_helper',
 					state: 'open',
 				},
@@ -716,6 +725,31 @@ describe('GitHubHelper', () => {
 			expect(typeof githubHelper.forceDataRefresh).toBe('function');
 			expect(typeof window.githubHelper.validateToken).toBe('function');
 			expect(typeof window.githubHelper.fetchAssignedIssues).toBe('function');
+		});
+
+		it('should allow consumers to retrieve the registered helper and invoke its methods', async () => {
+			const githubHelper = window.PlatformRegistry.get('github');
+			expect(githubHelper).toBeDefined();
+
+			const validateSpy = vi.spyOn(githubHelper, 'validateToken').mockResolvedValueOnce({ valid: true, username: 'octocat' });
+			const fetchSpy = vi.spyOn(githubHelper, 'fetchAssignedIssues').mockResolvedValueOnce([{ id: 101, title: 'Fix bug' }]);
+
+			// Simulate a consumer (e.g. NextPlans or popup dispatch) retrieving and executing the helper methods
+			const consumer = async (platformName) => {
+				const helper = window.PlatformRegistry?.get(platformName);
+				if (!helper) return null;
+				const auth = await helper.validateToken('ghp_test');
+				const issues = await helper.fetchAssignedIssues({ type: 'selected' });
+				return { auth, issues };
+			};
+
+			const result = await consumer('github');
+			expect(validateSpy).toHaveBeenCalledWith('ghp_test');
+			expect(fetchSpy).toHaveBeenCalledWith({ type: 'selected' });
+			expect(result).toEqual({
+				auth: { valid: true, username: 'octocat' },
+				issues: [{ id: 101, title: 'Fix bug' }],
+			});
 		});
 	});
 });
