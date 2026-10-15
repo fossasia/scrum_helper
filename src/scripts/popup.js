@@ -757,6 +757,9 @@ document.addEventListener('DOMContentLoaded', () => {
 			'lastScrumReportCacheKey',
 			'lastScrumReportUsername',
 			'lastScrumReportIdentity',
+			'githubLastScrumReportHtml',
+			'gitlabLastScrumReportHtml',
+			'codebergLastScrumReportHtml',
 		]);
 
 		const ttlMinutes = parsePositiveInt(storage.cacheInput) ?? 10;
@@ -790,7 +793,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		const currentIdentity = window.reportIdentityUtils?.buildReportIdentity(storage);
 		const persistedIdentity = storage.lastScrumReportIdentity;
-		const lastScrumReportHtml = storage.lastScrumReportHtml;
+		let lastScrumReportHtml = storage.lastScrumReportHtml;
+		if (!lastScrumReportHtml && activePlatforms.length === 1) {
+			const p = activePlatforms[0];
+			lastScrumReportHtml = storage[`${p}LastScrumReportHtml`];
+		}
 		const reportEmpty = !scrumReport.innerHTML || !scrumReport.innerHTML.trim();
 
 		let isMatch = false;
@@ -1103,42 +1110,46 @@ document.addEventListener('DOMContentLoaded', () => {
 
 					// Check if any selected platform has a missing username
 					const platformDisplayNames = { github: 'GitHub', gitlab: 'GitLab', codeberg: 'Codeberg' };
-					let missingPlatform = null;
+					const missingPlatforms = [];
 					for (const p of selectedPlatforms) {
 						const inputEl = document.getElementById(`dropdown-${p}Username`) || document.getElementById(`${p}Username`);
 						const val = inputEl?.value?.trim() || result[`${p}Username`]?.trim();
 						if (!val) {
-							missingPlatform = p;
-							break;
+							missingPlatforms.push(p);
 						}
 					}
 
-					if (missingPlatform) {
-						const displayName = platformDisplayNames[missingPlatform] || missingPlatform;
-						const errorMsg =
-							browser.i18n.getMessage(`${missingPlatform}UsernameRequiredError`) ||
-							`Please enter your ${displayName} username`;
-						showPopupMessage(errorMsg, { variant: 'error' });
-
+					if (missingPlatforms.length > 0) {
 						if (customDropdown && dropdownList) {
 							customDropdown.classList.add('open');
 							dropdownList.classList.remove('hidden');
 						}
-						const container = document.getElementById(`dropdown-${missingPlatform}UsernameContainer`);
-						if (container) {
-							container.classList.remove('hidden');
-						}
 
-						const targetInputId = document.getElementById(`dropdown-${missingPlatform}Username`)
-							? `dropdown-${missingPlatform}Username`
-							: `${missingPlatform}Username`;
+						const errorMsgs = [];
+						missingPlatforms.forEach((p, idx) => {
+							const displayName = platformDisplayNames[p] || p;
+							const errorMsg =
+								browser.i18n.getMessage(`${p}UsernameRequiredError`) || `Please enter your ${displayName} username`;
+							errorMsgs.push(errorMsg);
 
-						window.triggerInputError?.(targetInputId, {
-							focus: true,
-							scroll: true,
-							clearOnInput: true,
+							const container = document.getElementById(`dropdown-${p}UsernameContainer`);
+							if (container) {
+								container.classList.remove('hidden');
+							}
+
+							const targetInputId = document.getElementById(`dropdown-${p}Username`)
+								? `dropdown-${p}Username`
+								: `${p}Username`;
+
+							const isFirst = idx === 0;
+							window.triggerInputError?.(targetInputId, {
+								focus: isFirst,
+								scroll: isFirst,
+								clearOnInput: true,
+							});
 						});
 
+						showPopupMessage(errorMsgs.join('\n'), { variant: 'error' });
 						generateBtn._triggeredByShortcut = false;
 						return;
 					}
