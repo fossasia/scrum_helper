@@ -1841,22 +1841,13 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 	}
 
-	function deactivateSettingsToggle() {
-		if (settingsIcon) settingsIcon.style.transition = 'none';
-		settingsToggle.classList.remove('active');
-		if (settingsIcon) {
-			settingsIcon.offsetHeight;
-			settingsIcon.style.transition = '';
-		}
-	}
-
 	function showReportView() {
 		isSettingsVisible = false;
 		isMailSettingsVisible = false;
 		reportSection.classList.remove('hidden');
 		settingsSection.classList.add('hidden');
 		if (mailSettingsSection) mailSettingsSection.classList.add('hidden');
-		deactivateSettingsToggle();
+		settingsToggle.classList.remove('active');
 		if (mailSettingsToggle) mailSettingsToggle.classList.remove('active');
 	}
 
@@ -1877,7 +1868,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		reportSection.classList.add('hidden');
 		settingsSection.classList.add('hidden');
 		if (mailSettingsSection) mailSettingsSection.classList.remove('hidden');
-		deactivateSettingsToggle();
+		settingsToggle.classList.remove('active');
 		if (mailSettingsToggle) mailSettingsToggle.classList.add('active');
 	}
 
