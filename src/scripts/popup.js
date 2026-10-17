@@ -146,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		// Show Tauri-only SMTP features
 		const mailSettingsToggle = document.getElementById('mailSettingsToggle');
 		if (mailSettingsToggle) {
-			mailSettingsToggle.style.display = 'inline-block';
+			mailSettingsToggle.style.display = 'flex';
 		}
 		const sendReportEmailContainer = document.getElementById('sendReportEmailContainer');
 		if (sendReportEmailContainer) {
@@ -158,11 +158,11 @@ document.addEventListener('DOMContentLoaded', () => {
 	applyI18n();
 	setupButtonTooltips();
 
-	const settingsIcon = document.getElementById('settingsIcon');
 	const body = document.body;
 	const homeButton = document.getElementById('homeButton');
 	const scrumHelperHeading = document.getElementById('scrumHelperHeading');
 	const settingsToggle = document.getElementById('settingsToggle');
+	const settingsIcon = document.getElementById('settingsIcon');
 	const reportSection = document.getElementById('reportSection');
 	const settingsSection = document.getElementById('settingsSection');
 
