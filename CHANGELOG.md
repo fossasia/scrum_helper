@@ -1,3 +1,48 @@
+## v2.1.6 - 2026-10-16
+
+## What's Changed
+
+* Fix: show multiple platforms error messages instead of a single platform error message (#910) @OmairAftab
+* fix: tighten Outlook hostname matchers and add adapter tests (#865) @rishiraj38
+* fix: restore PAT creation guide in en token tooltips (#917) @ProgrammerNesi
+
+## Maintenance
+
+* chore(deps)(deps-dev): bump postcss from 8.5.29 to 8.5.30 (#935) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump vitest from 5.0.3 to 5.0.4 (#934) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump happy-dom from 20.14.5 to 20.14.6 (#929) @[dependabot[bot]](https://github.com/apps/dependabot)
+
+---
+
+## v2.1.6 - 2026-10-15
+
+## What's Changed
+
+* Fix: show multiple platforms error messages instead of a single platform error message (#910) @OmairAftab
+* fix: tighten Outlook hostname matchers and add adapter tests (#865) @rishiraj38
+* fix: restore PAT creation guide in en token tooltips (#917) @ProgrammerNesi
+
+## Maintenance
+
+* chore(deps)(deps-dev): bump vitest from 5.0.3 to 5.0.4 (#934) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump happy-dom from 20.14.5 to 20.14.6 (#929) @[dependabot[bot]](https://github.com/apps/dependabot)
+
+---
+
+## v2.1.6 - 2026-10-14
+
+## What's Changed
+
+* Fix: show multiple platforms error messages instead of a single platform error message (#910) @OmairAftab
+* fix: tighten Outlook hostname matchers and add adapter tests (#865) @rishiraj38
+* fix: restore PAT creation guide in en token tooltips (#917) @ProgrammerNesi
+
+## Maintenance
+
+* chore(deps)(deps-dev): bump happy-dom from 20.14.5 to 20.14.6 (#929) @[dependabot[bot]](https://github.com/apps/dependabot)
+
+---
+
 ## v2.1.6 - 2026-10-14
 
 ## What's Changed
