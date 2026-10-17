@@ -143,6 +143,69 @@ describe('Next Plans account changes', () => {
 		expect(fetchAssignedIssues).toHaveBeenCalledTimes(2);
 	});
 
+	it.each(['selectedPlatforms', 'platform'])(
+		'reloads a changed %s after a pending provider request',
+		async (setting) => {
+			let resolveOld;
+			if (setting === 'platform') delete settings.selectedPlatforms;
+			fetchAssignedIssues.mockImplementationOnce(
+				() =>
+					new Promise((resolve) => {
+						resolveOld = resolve;
+					}),
+			);
+			const oldLoad = window.loadAssignedIssues();
+			await vi.waitFor(() => expect(fetchAssignedIssues).toHaveBeenCalledTimes(1));
+			settings[setting] = setting === 'selectedPlatforms' ? ['gitlab'] : 'gitlab';
+			resolveOld([{ id: 1, number: 1, title: 'outdated GitHub issue' }]);
+			await oldLoad;
+			expect(fetchAssignedIssues).toHaveBeenCalledTimes(2);
+			expect(fetchAssignedIssues.mock.calls[1][0]).toBe('gitlab');
+			expect(document.querySelector('.loading-issues')).toBeNull();
+			expect(document.querySelector('.issue-checkbox-label').textContent).not.toContain('outdated');
+			expect(localStorage.getItem('nextPlansCache')).not.toContain('outdated');
+		},
+	);
+
+	it('reloads the active platform when revalidating the old request fails', async () => {
+		let resolveOld;
+		fetchAssignedIssues.mockImplementationOnce(
+			() =>
+				new Promise((resolve) => {
+					resolveOld = resolve;
+				}),
+		);
+		const oldLoad = window.loadAssignedIssues();
+		await vi.waitFor(() => expect(fetchAssignedIssues).toHaveBeenCalledTimes(1));
+		settings.selectedPlatforms = ['gitlab'];
+		browser.storage.local.get.mockRejectedValueOnce(new Error('Transient scope lookup failure'));
+		resolveOld([{ id: 1, number: 1, title: 'outdated GitHub issue' }]);
+		await oldLoad;
+		expect(fetchAssignedIssues).toHaveBeenCalledTimes(2);
+		expect(fetchAssignedIssues.mock.calls[1][0]).toBe('gitlab');
+		expect(document.querySelector('.loading-issues')).toBeNull();
+		expect(document.querySelector('.issue-checkbox-label')).not.toBeNull();
+	});
+
+	it('does not restart a superseded failed request after the new platform is shown', async () => {
+		let rejectOld;
+		fetchAssignedIssues.mockImplementationOnce(
+			() =>
+				new Promise((resolve, reject) => {
+					rejectOld = reject;
+				}),
+		);
+		const oldLoad = window.loadAssignedIssues();
+		await vi.waitFor(() => expect(fetchAssignedIssues).toHaveBeenCalledTimes(1));
+		settings.selectedPlatforms = ['gitlab'];
+		await window.loadAssignedIssues();
+		rejectOld(new Error('Old provider unavailable'));
+		await oldLoad;
+		expect(fetchAssignedIssues).toHaveBeenCalledTimes(2);
+		expect(document.querySelector('.loading-issues')).toBeNull();
+		expect(document.querySelector('.issue-checkbox-label')).not.toBeNull();
+	});
+
 	it('supports selections within the page when Web Crypto is unavailable', async () => {
 		vi.stubGlobal('crypto', {});
 		settings.githubToken = 'without-crypto-token';

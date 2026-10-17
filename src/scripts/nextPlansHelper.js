@@ -442,7 +442,8 @@
 
 			const settled = await Promise.allSettled(fetchPromises);
 			const currentScope = await getRepositoryScope();
-			if (load !== latestLoad || getCacheKey(currentScope) !== getCacheKey(scope)) return;
+			if (load !== latestLoad) return;
+			if (getCacheKey(currentScope) !== getCacheKey(scope)) return loadAssignedIssues();
 			const successful = settled.filter((r) => r.status === 'fulfilled');
 
 			if (successful.length === 0) {
@@ -456,7 +457,8 @@
 		} catch (error) {
 			if (load !== latestLoad) return;
 			const currentScope = await getRepositoryScope().catch(() => null);
-			if (load !== latestLoad || !currentScope || getCacheKey(currentScope) !== getCacheKey(scope)) return;
+			if (load !== latestLoad || !currentScope) return;
+			if (getCacheKey(currentScope) !== getCacheKey(scope)) return loadAssignedIssues();
 			console.error('[NextPlans] Failed to load issues:', error);
 			if (error.message.includes('username is required') || error.message.includes('token is required')) {
 				const container = document.getElementById('assignedIssuesSelector');
