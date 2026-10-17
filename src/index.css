@@ -181,6 +181,7 @@ a {
 .errorMessage {
     color: red;
     font-size: 12px;
+    white-space: pre-line;
 }
 
 .error-message {
@@ -1288,7 +1289,7 @@ body.mode-popup {
     opacity: 0;
     pointer-events: auto;
     transition: opacity 0.2s ease, transform 0.2s ease;
-    white-space: normal;
+    white-space: pre-line;
     margin: 0;
     flex-shrink: 0;
 }
