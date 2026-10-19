@@ -87,6 +87,19 @@ describe('CodebergHelper', () => {
 			expect(fetch).not.toHaveBeenCalled();
 		});
 
+		it('refreshes persisted reports when credentials change on the same server', async () => {
+			await helper.fetchCodebergData('alex', '2026-09-01', '2026-09-20', 'first-token');
+			fetch.mockClear();
+			const same = new CodebergHelper();
+
+			await same.fetchCodebergData('alex', '2026-09-01', '2026-09-20', 'second-token');
+
+			expect(fetch).toHaveBeenCalledWith(
+				'https://codeberg.org/api/v1/users/alex',
+				expect.objectContaining({ headers: expect.objectContaining({ Authorization: 'token second-token' }) }),
+			);
+		});
+
 		it('refreshes legacy cache entries that do not identify their server', async () => {
 			stored.codebergCache = {
 				data: { user: { login: 'alex', server: 'unknown' } },
