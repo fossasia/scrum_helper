@@ -16,9 +16,11 @@ if (typeof browser === 'undefined') {
 }
 
 const openByTabId = new Map();
+const fallbackPopupTabIds = new Set();
 
 browser.tabs?.onRemoved?.addListener((tabId) => {
 	openByTabId.delete(tabId);
+	fallbackPopupTabIds.delete(tabId);
 });
 
 // Apply the display mode (popup vs sidePanel)
@@ -38,6 +40,11 @@ function applyDisplayMode(mode) {
 	} else {
 		// sidePanel mode: clear popup so onClicked fires
 		browser.action.setPopup({ popup: '' });
+		// Clear any tab-specific fallback popups so those tabs use the side-panel handler again
+		for (const tabId of fallbackPopupTabIds) {
+			browser.action.setPopup({ tabId, popup: '' }).catch?.(() => {});
+		}
+		fallbackPopupTabIds.clear();
 	}
 }
 
@@ -72,6 +79,9 @@ browser.action.onClicked.addListener((tab) => {
 			console.warn('Side panel API not available.');
 			browser.action.setPopup({ popup: 'popup.html' });
 			browser.storage.local.set({ displayMode: 'popup' });
+			if (typeof browser.action.openPopup === 'function') {
+				browser.action.openPopup().catch(() => {});
+			}
 			return;
 		}
 
@@ -106,7 +116,13 @@ browser.action.onClicked.addListener((tab) => {
 
 		browser.sidePanel
 			.open({ tabId })
-			.then(() => openByTabId.set(tabId, true))
+			.then(() => {
+				openByTabId.set(tabId, true);
+				if (typeof tabId === 'number' && fallbackPopupTabIds.has(tabId)) {
+					browser.action.setPopup({ tabId, popup: '' }).catch?.(() => {});
+					fallbackPopupTabIds.delete(tabId);
+				}
+			})
 			.catch((error) => {
 				openByTabId.set(tabId, false);
 				console.error('Failed to open side panel:', error);
@@ -115,6 +131,7 @@ browser.action.onClicked.addListener((tab) => {
 				// action click opens it directly, while preserving the user's global displayMode.
 				if (typeof tabId === 'number') {
 					browser.action.setPopup({ tabId, popup: 'popup.html' });
+					fallbackPopupTabIds.add(tabId);
 				} else {
 					browser.action.setPopup({ popup: 'popup.html' });
 				}
