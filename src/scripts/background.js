@@ -23,6 +23,16 @@ browser.tabs?.onRemoved?.addListener((tabId) => {
 
 // Apply the display mode (popup vs sidePanel)
 function applyDisplayMode(mode) {
+	const hasSidebarSupport = Boolean(browser.sidebarAction?.toggle || browser.sidePanel?.open);
+
+	// If sidePanel is requested but neither sidebar nor sidePanel API is available,
+	// ensure the popup is pre-configured so clicks open the popup directly, and persist popup mode.
+	if (mode === 'sidePanel' && !hasSidebarSupport) {
+		browser.action.setPopup({ popup: 'popup.html' });
+		browser.storage.local.set({ displayMode: 'popup' });
+		return;
+	}
+
 	if (mode === 'popup') {
 		browser.action.setPopup({ popup: 'popup.html' });
 	} else {
@@ -61,9 +71,7 @@ browser.action.onClicked.addListener((tab) => {
 		if (!browser.sidePanel?.open) {
 			console.warn('Side panel API not available.');
 			browser.action.setPopup({ popup: 'popup.html' });
-			if (typeof browser.action.openPopup === 'function') {
-				browser.action.openPopup().catch(() => {});
-			}
+			browser.storage.local.set({ displayMode: 'popup' });
 			return;
 		}
 
@@ -102,11 +110,23 @@ browser.action.onClicked.addListener((tab) => {
 			.catch((error) => {
 				openByTabId.set(tabId, false);
 				console.error('Failed to open side panel:', error);
-				// Fallback to popup if side panel fails to open (e.g., Arc browser or unsupported context)
-				browser.action.setPopup({ popup: 'popup.html' });
-				browser.storage.local.set({ displayMode: 'popup' });
-				if (typeof browser.action.openPopup === 'function') {
-					browser.action.openPopup().catch(() => {});
+
+				// For tab-specific or transient failures, configure popup on this tab so the next
+				// action click opens it directly, while preserving the user's global displayMode.
+				if (typeof tabId === 'number') {
+					browser.action.setPopup({ tabId, popup: 'popup.html' });
+				} else {
+					browser.action.setPopup({ popup: 'popup.html' });
+				}
+
+				// Persist popup mode globally only if the error establishes that side panels are globally unavailable.
+				const isGloballyUnavailable =
+					error &&
+					typeof error.message === 'string' &&
+					/not supported|unavailable|not implemented/i.test(error.message);
+				if (isGloballyUnavailable) {
+					browser.action.setPopup({ popup: 'popup.html' });
+					browser.storage.local.set({ displayMode: 'popup' });
 				}
 			});
 	} catch (error) {
