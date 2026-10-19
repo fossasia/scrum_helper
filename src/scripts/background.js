@@ -35,9 +35,7 @@ function applyDisplayMode(mode) {
 browser.storage.local
 	.get({
 		displayMode:
-			(typeof window !== 'undefined' && window.isTauri) || browser.sidebarAction?.toggle || browser.sidePanel?.open
-				? 'sidePanel'
-				: 'popup',
+			(typeof window !== 'undefined' && window.isTauri) || browser.sidebarAction?.toggle ? 'sidePanel' : 'popup',
 	})
 	.then((result) => {
 		applyDisplayMode(result.displayMode);
@@ -62,6 +60,10 @@ browser.action.onClicked.addListener((tab) => {
 
 		if (!browser.sidePanel?.open) {
 			console.warn('Side panel API not available.');
+			browser.action.setPopup({ popup: 'popup.html' });
+			if (typeof browser.action.openPopup === 'function') {
+				browser.action.openPopup().catch(() => {});
+			}
 			return;
 		}
 
@@ -100,6 +102,12 @@ browser.action.onClicked.addListener((tab) => {
 			.catch((error) => {
 				openByTabId.set(tabId, false);
 				console.error('Failed to open side panel:', error);
+				// Fallback to popup if side panel fails to open (e.g., Arc browser or unsupported context)
+				browser.action.setPopup({ popup: 'popup.html' });
+				browser.storage.local.set({ displayMode: 'popup' });
+				if (typeof browser.action.openPopup === 'function') {
+					browser.action.openPopup().catch(() => {});
+				}
 			});
 	} catch (error) {
 		console.error('Failed to toggle side panel:', error);

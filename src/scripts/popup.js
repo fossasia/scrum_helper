@@ -1738,8 +1738,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 		}
 
-		const defaultDisplayMode =
-			window.isTauri || browser.sidebarAction?.toggle || browser.sidePanel?.open ? 'sidePanel' : 'popup';
+		const defaultDisplayMode = window.isTauri || browser.sidebarAction?.toggle ? 'sidePanel' : 'popup';
 
 		browser.storage.local.get({ displayMode: defaultDisplayMode }).then((result) => {
 			applyDisplayModeClass(result.displayMode);
