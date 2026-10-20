@@ -36,7 +36,7 @@
     "happy-dom": "^21.0.3",
     "postcss": "^8.5.30",
     "tailwindcss": "^4.3.3",
-    "vitest": "^5.0.4"
+    "vitest": "^5.0.5"
   },
   "dependencies": {
     "@tailwindcss/cli": "^4.3.3"
