@@ -33,7 +33,7 @@
     "@tauri-apps/api": "^2.12.1",
     "@tauri-apps/cli": "^2.12.1",
     "autoprefixer": "^10.6.1",
-    "happy-dom": "^20.14.6",
+    "happy-dom": "^21.0.3",
     "postcss": "^8.5.30",
     "tailwindcss": "^4.3.3",
     "vitest": "^5.0.4"
