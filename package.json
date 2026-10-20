@@ -31,7 +31,7 @@
   "devDependencies": {
     "@biomejs/biome": "2.5.15",
     "@tauri-apps/api": "^2.12.1",
-    "@tauri-apps/cli": "^2.12.1",
+    "@tauri-apps/cli": "^2.12.3",
     "autoprefixer": "^10.6.1",
     "happy-dom": "^21.0.3",
     "postcss": "^8.5.30",
