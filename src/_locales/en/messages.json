@@ -494,6 +494,10 @@
     "message": "Error validating GitHub user: $1 $2",
     "description": "Error when validating GitHub user fails. $1=status, $2=statusText"
   },
+  "invalidOrgOrRepoFilterError": {
+    "message": "The selected organization or repositories could not be found or are not accessible. Please check the organization name and repository filter, or your token permissions.",
+    "description": "Error when GitHub rejects the search because the organization or repository filter cannot be searched."
+  },
   "invalidSearchQueryError": {
     "message": "Invalid search query or date range. Please verify your date range format and try again.",
     "description": "Error when the search query or date range is invalid."
