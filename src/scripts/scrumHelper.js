@@ -1240,10 +1240,15 @@ function allIncluded(outputTarget = 'email') {
 			}
 
 			if (issuesRes.status === 422 || prRes.status === 422) {
+				let isScopeNotSearchable = false;
 				try {
 					const clone = (issuesRes.status === 422 ? issuesRes : prRes).clone();
 					const data = await clone.json();
 					const isUserNotExist = data?.errors?.some?.((e) => e?.message?.toLowerCase().includes('users do not exist'));
+					// GitHub returns this when no org/repo in the query exists or is visible with the current token
+					isScopeNotSearchable = data?.errors?.some?.((e) =>
+						e?.message?.toLowerCase().includes('resources do not exist'),
+					);
 					if (isUserNotExist) {
 						const errorMsg =
 							chrome?.i18n.getMessage('githubUserNotFoundError', [platformUsernameLocal]) ||
@@ -1257,9 +1262,7 @@ function allIncluded(outputTarget = 'email') {
 				} catch (e) {
 					if (e.platform === 'github') throw e;
 				}
-				// GitHub returns 422 when no org/repo in the query exists or is visible with the current token
-				const hasScopeFilter = Boolean(repoQueries || buildGithubOrgQuery(orgName));
-				const errorMsg = hasScopeFilter
+				const errorMsg = isScopeNotSearchable
 					? chrome?.i18n.getMessage('invalidOrgOrRepoFilterError') ||
 						'The selected organization or repositories could not be found or are not accessible. Please check the organization name and repository filter, or your token permissions.'
 					: chrome?.i18n.getMessage('invalidSearchQueryError') ||
