@@ -1257,9 +1257,13 @@ function allIncluded(outputTarget = 'email') {
 				} catch (e) {
 					if (e.platform === 'github') throw e;
 				}
-				const errorMsg =
-					chrome?.i18n.getMessage('invalidSearchQueryError') ||
-					`Invalid search query or date range. Please verify your date range format and try again.`;
+				// GitHub returns 422 when no org/repo in the query exists or is visible with the current token
+				const hasScopeFilter = Boolean(repoQueries || buildGithubOrgQuery(orgName));
+				const errorMsg = hasScopeFilter
+					? chrome?.i18n.getMessage('invalidOrgOrRepoFilterError') ||
+						'The selected organization or repositories could not be found or are not accessible. Please check the organization name and repository filter, or your token permissions.'
+					: chrome?.i18n.getMessage('invalidSearchQueryError') ||
+						`Invalid search query or date range. Please verify your date range format and try again.`;
 				logError(errorMsg);
 				if (outputTarget === 'popup' && shouldProcess) {
 					showReportMessage(errorMsg);
