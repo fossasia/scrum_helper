@@ -1242,13 +1242,20 @@ function allIncluded(outputTarget = 'email') {
 			if (issuesRes.status === 422 || prRes.status === 422) {
 				let isScopeNotSearchable = false;
 				try {
-					const clone = (issuesRes.status === 422 ? issuesRes : prRes).clone();
-					const data = await clone.json();
-					const isUserNotExist = data?.errors?.some?.((e) => e?.message?.toLowerCase().includes('users do not exist'));
-					// GitHub returns this when no org/repo in the query exists or is visible with the current token
-					isScopeNotSearchable = data?.errors?.some?.((e) =>
-						e?.message?.toLowerCase().includes('resources do not exist'),
+					const bodies = await Promise.all(
+						[issuesRes, prRes]
+							.filter((r) => r.status === 422)
+							.map((r) =>
+								r
+									.clone()
+									.json()
+									.catch(() => null),
+							),
 					);
+					const messages = bodies.flatMap((d) => d?.errors || []).map((e) => e?.message?.toLowerCase() || '');
+					const isUserNotExist = messages.some((m) => m.includes('users do not exist'));
+					// GitHub returns this when no org/repo in the query exists or is visible with the current token
+					isScopeNotSearchable = messages.some((m) => m.includes('resources do not exist'));
 					if (isUserNotExist) {
 						const errorMsg =
 							chrome?.i18n.getMessage('githubUserNotFoundError', [platformUsernameLocal]) ||
