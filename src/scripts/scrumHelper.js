@@ -105,6 +105,14 @@ function formatLocalDate(date) {
 	return `${year}-${month}-${day}`;
 }
 
+function formatDate(dateString) {
+	const date = new Date(dateString);
+	const options = { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' };
+	return date.toLocaleDateString('en-US', options);
+}
+
+window.formatDate = formatDate;
+
 // Converts cacheInput (minutes) to a TTL in ms, falling back to 10 minutes for invalid values.
 function resolveCacheTtlMs(cacheInput) {
 	const minutes = Number.parseInt(cacheInput, 10);
@@ -1776,12 +1784,6 @@ function allIncluded(outputTarget = 'email') {
 		} else {
 			writeScrumBody();
 		}
-	}
-
-	function formatDate(dateString) {
-		const date = new Date(dateString);
-		const options = { day: '2-digit', month: 'short', year: 'numeric' };
-		return date.toLocaleDateString('en-US', options);
 	}
 
 	const compactTextStyle = 'display: inline-block; padding: 0 8px; margin: 0; line-height: 1.2;';
