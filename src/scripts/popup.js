@@ -1263,88 +1263,163 @@ document.addEventListener('DOMContentLoaded', () => {
 				});
 		});
 
-		copyBtn.addEventListener('click', function () {
-			if (!this._triggeredByShortcut) {
-				showPopupMessage(browser.i18n.getMessage('copyingReportNotification'));
+		async function copyReportContent({ asMarkdownOnly = false, buttonEl = null, isShortcut = false } = {}) {
+			const targetBtn = buttonEl || (asMarkdownOnly ? copyMarkdownBtn : copyBtn);
+			if (!isShortcut && targetBtn) {
+				showPopupMessage(browser.i18n.getMessage(asMarkdownOnly ? 'copiedMarkdownNotification' : 'copyingReportNotification'));
 			}
+
 			const scrumReport = document.getElementById('scrumReport');
-			if (!scrumReport) {
-				this._triggeredByShortcut = false;
+			if (!scrumReport || scrumReport.dataset.copyPlaceholder === 'true') {
+				if (targetBtn) targetBtn._triggeredByShortcut = false;
 				return;
 			}
-			if (scrumReport.dataset.copyPlaceholder === 'true') {
-				this._triggeredByShortcut = false;
-				return;
-			}
+
 			const reportHtml = sanitizeHtml(scrumReport.innerHTML);
 			const tempDiv = document.createElement('div');
 			tempDiv.innerHTML = reportHtml;
 			if (!(tempDiv.textContent || '').trim()) {
-				this._triggeredByShortcut = false;
+				if (targetBtn) targetBtn._triggeredByShortcut = false;
 				return;
 			}
 
-			const darkMode = document.body.classList.contains('dark-mode');
+			const markdownText = typeof window.convertHtmlToMarkdown === 'function'
+				? window.convertHtmlToMarkdown(tempDiv)
+				: (tempDiv.textContent || '').trim();
 
-			//remove background styles
-			tempDiv.querySelectorAll('*').forEach((el) => {
-				const text = el.textContent?.trim().toLowerCase();
+			let copied = false;
 
-				const isStatusBadge = el.classList.contains('State') || el.classList.contains('state');
-				if (isStatusBadge || text === 'open' || text === 'closed' || text === 'merged' || text === 'draft') {
-					return;
+			if (asMarkdownOnly) {
+				if (navigator?.clipboard?.writeText) {
+					try {
+						await navigator.clipboard.writeText(markdownText);
+						copied = true;
+					} catch (err) {
+						console.warn('navigator.clipboard.writeText failed:', err);
+					}
+				}
+				if (!copied) {
+					const ta = document.createElement('textarea');
+					ta.value = markdownText;
+					ta.style.position = 'fixed';
+					ta.style.left = '-9999px';
+					document.body.appendChild(ta);
+					ta.select();
+					try {
+						document.execCommand('copy');
+						copied = true;
+					} catch (err) {
+						console.error('execCommand copy failed:', err);
+					} finally {
+						document.body.removeChild(ta);
+					}
+				}
+			} else {
+				const darkMode = document.body.classList.contains('dark-mode');
+
+				tempDiv.querySelectorAll('*').forEach((el) => {
+					const text = el.textContent?.trim().toLowerCase();
+					const isStatusBadge = el.classList.contains('State') || el.classList.contains('state');
+					if (isStatusBadge || text === 'open' || text === 'closed' || text === 'merged' || text === 'draft') {
+						return;
+					}
+					el.style.backgroundColor = 'transparent';
+					el.style.background = 'transparent';
+					el.style.backgroundImage = 'none';
+
+					const inlineColor = (el.style.color || '').replace(/\s+/g, '').toLowerCase();
+					const isCommitHeadline =
+						el.classList.contains('commitMessageHeadline') ||
+						inlineColor === '#2563eb' ||
+						inlineColor === 'rgb(37,99,235)';
+					const isLink = el.tagName === 'A';
+
+					if (darkMode && !isCommitHeadline && !isLink) {
+						el.style.color = '#000';
+					}
+				});
+
+				const styledHtml = tempDiv.innerHTML;
+
+				if (navigator?.clipboard?.write && typeof window.ClipboardItem !== 'undefined') {
+					try {
+						const blobHtml = new Blob([styledHtml], { type: 'text/html' });
+						const blobText = new Blob([markdownText], { type: 'text/plain' });
+						await navigator.clipboard.write([
+							new ClipboardItem({
+								'text/html': blobHtml,
+								'text/plain': blobText,
+							}),
+						]);
+						copied = true;
+					} catch (clipErr) {
+						console.warn('navigator.clipboard.write failed, falling back to execCommand:', clipErr);
+					}
 				}
 
-				el.style.backgroundColor = 'transparent';
-				el.style.background = 'transparent';
-				el.style.backgroundImage = 'none';
+				if (!copied) {
+					document.body.appendChild(tempDiv);
+					tempDiv.style.position = 'absolute';
+					tempDiv.style.left = '-9999px';
 
-				const inlineColor = (el.style.color || '').replace(/\s+/g, '').toLowerCase();
-				const isCommitHeadline =
-					el.classList.contains('commitMessageHeadline') ||
-					inlineColor === '#2563eb' ||
-					inlineColor === 'rgb(37,99,235)';
-				const isLink = el.tagName === 'A';
+					const range = document.createRange();
+					range.selectNode(tempDiv);
+					const selection = window.getSelection();
+					selection.removeAllRanges();
+					selection.addRange(range);
 
-				// Change color only if it is darkmode and not a commit headline and not a PR link
-				if (darkMode && !isCommitHeadline && !isLink) {
-					el.style.color = '#000';
+					try {
+						document.execCommand('copy');
+						copied = true;
+					} catch (err) {
+						console.error('Failed to copy: ', err);
+					} finally {
+						selection.removeAllRanges();
+						document.body.removeChild(tempDiv);
+					}
 				}
-			});
-			document.body.appendChild(tempDiv);
-			tempDiv.style.position = 'absolute';
-			tempDiv.style.left = '-9999px';
+			}
 
-			const range = document.createRange();
-			range.selectNode(tempDiv);
-			const selection = window.getSelection();
-			selection.removeAllRanges();
-			selection.addRange(range);
-
-			try {
-				document.execCommand('copy');
-				if (this._triggeredByShortcut) {
-					const notificationKey =
-						browser?.i18n && browser.i18n.getMessage('copiedReportNotification')
+			if (copied && targetBtn) {
+				const notificationKey = asMarkdownOnly
+					? 'copiedMarkdownNotification'
+					: isShortcut
+						? browser?.i18n && browser.i18n.getMessage('copiedReportNotification')
 							? 'copiedReportNotification'
-							: 'copiedButton';
+							: 'copiedButton'
+						: 'copiedReportNotification';
+
+				if (isShortcut) {
 					showShortcutNotification(notificationKey, 'success');
 				} else {
-					showPopupMessage(browser.i18n.getMessage('copiedReportNotification'), { variant: 'success' });
+					const msg = browser?.i18n?.getMessage(notificationKey) || 'Copied!';
+					showPopupMessage(msg, { variant: 'success' });
 				}
-				this.innerHTML = `<i class="fa fa-check"></i> ${browser?.i18n.getMessage('copiedButton')}`;
+
+				const originalHtml = targetBtn.innerHTML;
+				targetBtn.innerHTML = `<i class="fa fa-check"></i> ${browser?.i18n.getMessage('copiedButton') || 'Copied'}`;
 				setTimeout(() => {
-					this.innerHTML = `<i class="fa fa-copy"></i> ${browser.i18n.getMessage('copyReportButton')}`;
+					targetBtn.innerHTML = originalHtml;
 				}, 2000);
-			} catch (err) {
-				console.error('Failed to copy: ', err);
-			} finally {
-				this._triggeredByShortcut = false;
-				dismissShortcutTooltipFocus(this);
-				selection.removeAllRanges();
-				document.body.removeChild(tempDiv);
 			}
-		});
+
+			if (targetBtn) {
+				targetBtn._triggeredByShortcut = false;
+				dismissShortcutTooltipFocus(targetBtn);
+			}
+		}
+
+		if (copyBtn) {
+			copyBtn.addEventListener('click', function () {
+				copyReportContent({ asMarkdownOnly: false, buttonEl: this, isShortcut: !!this._triggeredByShortcut });
+			});
+		}
+
+		if (copyMarkdownBtn) {
+			copyMarkdownBtn.addEventListener('click', function () {
+				copyReportContent({ asMarkdownOnly: true, buttonEl: this, isShortcut: false });
+			});
+		}
 
 		const sendReportEmailBtn = document.getElementById('sendReportEmail');
 		if (sendReportEmailBtn && window.isTauri) {
