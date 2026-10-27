@@ -705,6 +705,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		const isDisabled = scrumReport.dataset.copyPlaceholder === 'true' || !scrumReport.textContent.trim();
 		copyBtn.disabled = isDisabled;
+		const copyMarkdownBtn = document.getElementById('copyReportMarkdown');
+		if (copyMarkdownBtn) {
+			copyMarkdownBtn.disabled = isDisabled;
+		}
 		const sendReportEmail = document.getElementById('sendReportEmail');
 		if (sendReportEmail) {
 			sendReportEmail.disabled = isDisabled;
@@ -999,6 +1003,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		// Button setup
 		const generateBtn = document.getElementById('generateReport');
 		const copyBtn = document.getElementById('copyReport');
+		const copyMarkdownBtn = document.getElementById('copyReportMarkdown');
 		const insertBtn = document.getElementById('insertInEmail');
 
 		updateCopyButtonState();
@@ -1265,8 +1270,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 		async function copyReportContent({ asMarkdownOnly = false, buttonEl = null, isShortcut = false } = {}) {
 			const targetBtn = buttonEl || (asMarkdownOnly ? copyMarkdownBtn : copyBtn);
-			if (!isShortcut && targetBtn) {
-				showPopupMessage(browser.i18n.getMessage(asMarkdownOnly ? 'copiedMarkdownNotification' : 'copyingReportNotification'));
+			if (!isShortcut && targetBtn && !asMarkdownOnly) {
+				showPopupMessage(browser.i18n.getMessage('copyingReportNotification'));
 			}
 
 			const scrumReport = document.getElementById('scrumReport');
@@ -1306,10 +1311,10 @@ document.addEventListener('DOMContentLoaded', () => {
 					document.body.appendChild(ta);
 					ta.select();
 					try {
-						document.execCommand('copy');
-						copied = true;
+						copied = document.execCommand('copy');
 					} catch (err) {
 						console.error('execCommand copy failed:', err);
+						copied = false;
 					} finally {
 						document.body.removeChild(ta);
 					}
@@ -1358,29 +1363,24 @@ document.addEventListener('DOMContentLoaded', () => {
 				}
 
 				if (!copied) {
-					document.body.appendChild(tempDiv);
-					tempDiv.style.position = 'absolute';
-					tempDiv.style.left = '-9999px';
-
-					const range = document.createRange();
-					range.selectNode(tempDiv);
-					const selection = window.getSelection();
-					selection.removeAllRanges();
-					selection.addRange(range);
-
+					const ta = document.createElement('textarea');
+					ta.value = markdownText;
+					ta.style.position = 'fixed';
+					ta.style.left = '-9999px';
+					document.body.appendChild(ta);
+					ta.select();
 					try {
-						document.execCommand('copy');
-						copied = true;
+						copied = document.execCommand('copy');
 					} catch (err) {
-						console.error('Failed to copy: ', err);
+						console.error('execCommand copy failed:', err);
+						copied = false;
 					} finally {
-						selection.removeAllRanges();
-						document.body.removeChild(tempDiv);
+						document.body.removeChild(ta);
 					}
 				}
 			}
 
-			if (copied && targetBtn) {
+			if (copied) {
 				const notificationKey = asMarkdownOnly
 					? 'copiedMarkdownNotification'
 					: isShortcut
@@ -1396,11 +1396,28 @@ document.addEventListener('DOMContentLoaded', () => {
 					showPopupMessage(msg, { variant: 'success' });
 				}
 
-				const originalHtml = targetBtn.innerHTML;
-				targetBtn.innerHTML = `<i class="fa fa-check"></i> ${browser?.i18n.getMessage('copiedButton') || 'Copied'}`;
-				setTimeout(() => {
-					targetBtn.innerHTML = originalHtml;
-				}, 2000);
+				if (targetBtn) {
+					const icon = targetBtn.querySelector('i');
+					const span = targetBtn.querySelector('span');
+
+					if (targetBtn._copyResetTimer) {
+						clearTimeout(targetBtn._copyResetTimer);
+					} else {
+						targetBtn._originalIconClass = icon ? icon.className : '';
+						targetBtn._originalText = span ? span.textContent : '';
+					}
+
+					if (icon) icon.className = 'fa fa-check';
+					if (span) span.textContent = browser?.i18n?.getMessage('copiedButton') || 'Copied';
+
+					targetBtn._copyResetTimer = setTimeout(() => {
+						if (icon && targetBtn._originalIconClass) icon.className = targetBtn._originalIconClass;
+						if (span && targetBtn._originalText) span.textContent = targetBtn._originalText;
+						targetBtn._copyResetTimer = null;
+					}, 2000);
+				}
+			} else {
+				showPopupMessage(browser?.i18n?.getMessage('copyReportFailedError') || 'Failed to copy report', { variant: 'error' });
 			}
 
 			if (targetBtn) {

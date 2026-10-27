@@ -787,5 +787,9 @@
   "copyMarkdownTooltip": {
     "message": "Copy as Markdown",
     "description": "Tooltip for the Copy as Markdown button."
+  },
+  "copyReportFailedError": {
+    "message": "Failed to copy report to clipboard.",
+    "description": "Error notification shown when copying the report fails."
   }
 }

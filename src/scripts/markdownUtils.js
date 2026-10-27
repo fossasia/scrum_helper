@@ -17,9 +17,10 @@ function capitalizeFirstLetter(str) {
 function nodeToMarkdown(node, options = { depth: 0 }) {
 	if (!node) return '';
 
-	// 1. Text Node
+	// 1. Text Node: Escape square brackets to prevent deceptive or broken markdown link injection
 	if (node.nodeType === 3 /* Node.TEXT_NODE */) {
-		return node.nodeValue || '';
+		const val = node.nodeValue || '';
+		return val.replace(/\[/g, '\\[').replace(/\]/g, '\\]');
 	}
 
 	// 2. Non-Element Node
@@ -30,14 +31,17 @@ function nodeToMarkdown(node, options = { depth: 0 }) {
 	const tagName = node.tagName.toUpperCase();
 	const depth = options.depth || 0;
 
-	// Check if this is a GitHub/GitLab/Codeberg status badge
+	// Check if this is a status badge (GitHub/GitLab/Codeberg)
+	const rawText = node.textContent?.trim().toLowerCase() || '';
+	const isKnownStatusText = rawText === 'open' || rawText === 'closed' || rawText === 'merged' || rawText === 'draft';
 	const isStatusBadge =
 		node.classList.contains('State') ||
 		node.classList.contains('state') ||
-		node.classList.contains('status-badge');
+		node.classList.contains('status-badge') ||
+		node.classList.contains('badge') ||
+		((tagName === 'DIV' || tagName === 'SPAN') && isKnownStatusText && node.childNodes.length <= 1);
 
 	if (isStatusBadge) {
-		const rawText = node.textContent?.trim() || '';
 		if (rawText) {
 			return ` \`${capitalizeFirstLetter(rawText)}\` `;
 		}
@@ -76,10 +80,8 @@ function nodeToMarkdown(node, options = { depth: 0 }) {
 
 		case 'A': {
 			const href = node.getAttribute('href');
-			let linkText = getChildrenMarkdown().trim() || href || '';
+			const linkText = getChildrenMarkdown().trim() || href || '';
 			if (!href) return linkText;
-			// Escape square brackets in link text so nested brackets like "[Bug]" don't break markdown link syntax
-			linkText = linkText.replace(/\[/g, '\\[').replace(/\]/g, '\\]');
 			return `[${linkText}](${href})`;
 		}
 
@@ -108,13 +110,18 @@ function nodeToMarkdown(node, options = { depth: 0 }) {
 
 		case 'LI': {
 			const indent = '  '.repeat(Math.max(0, depth - 1));
-			// Check if this LI is a repository group item:
-			// Often structured as: <li><span><i>(owner/repo)</i></span><ul>...</ul></li>
+			// Check if this LI is a repository group item or has a nested list
 			const childUl = Array.from(node.childNodes).find(
 				(n) => n.nodeType === 1 && (n.tagName.toUpperCase() === 'UL' || n.tagName.toUpperCase() === 'OL'),
 			);
 
-			if (childUl) {
+			const isCommitList = childUl && childUl.classList && childUl.classList.contains('commitList');
+			const isRepoGroup =
+				childUl &&
+				!isCommitList &&
+				(node.querySelector('i') !== null || /^\s*\(.+?\/.+?\)/.test(node.textContent));
+
+			if (isRepoGroup) {
 				// Extract the repo header part before the child list
 				let repoHeader = '';
 				for (const child of node.childNodes) {
@@ -126,13 +133,24 @@ function nodeToMarkdown(node, options = { depth: 0 }) {
 				const repoMatch = repoHeader.match(/^\*?\((.+?)\)\*?$/) || repoHeader.match(/^\*?\*?\((.+?)\)\*?\*?$/);
 				const formattedRepo = repoMatch ? `**${repoMatch[1]}**` : repoHeader ? `**${repoHeader}**` : '';
 
-				const itemsMarkdown = nodeToMarkdown(childUl, { depth: depth + 1 });
+				const itemsMarkdown = nodeToMarkdown(childUl, { depth });
 				return `${indent}- ${formattedRepo}\n${itemsMarkdown}`;
+			}
+
+			// If this is an activity item with a nested commitList:
+			if (childUl && isCommitList) {
+				let itemHeader = '';
+				for (const child of node.childNodes) {
+					if (child === childUl) break;
+					itemHeader += nodeToMarkdown(child, options);
+				}
+				itemHeader = itemHeader.replace(/\s+/g, ' ').trim();
+				const commitsMarkdown = nodeToMarkdown(childUl, { depth: depth + 1 });
+				return `${indent}- ${itemHeader}\n${commitsMarkdown}`;
 			}
 
 			// Regular leaf LI item (issue, PR, next plan, or commit)
 			let itemContent = getChildrenMarkdown({ depth });
-			// Clean up extra spaces around status badges and multiple spaces
 			itemContent = itemContent.replace(/\s+/g, ' ').trim();
 			return `${indent}- ${itemContent}\n`;
 		}
@@ -162,6 +180,7 @@ function nodeToMarkdown(node, options = { depth: 0 }) {
 
 /**
  * Converts Scrum Helper HTML report into clean GitHub Flavored Markdown (GFM).
+ * Uses DOMParser to safely parse HTML strings without innerHTML injection.
  * @param {string|HTMLElement} input - HTML string or DOM node
  * @returns {string} Clean Markdown representation
  */
@@ -170,9 +189,10 @@ function convertHtmlToMarkdown(input) {
 
 	let container;
 	if (typeof input === 'string') {
-		if (typeof document !== 'undefined') {
-			container = document.createElement('div');
-			container.innerHTML = input;
+		if (typeof DOMParser !== 'undefined') {
+			const sanitized = typeof sanitizeHtml === 'function' ? sanitizeHtml(input) : input;
+			const doc = new DOMParser().parseFromString(sanitized, 'text/html');
+			container = doc.body;
 		} else {
 			return input;
 		}

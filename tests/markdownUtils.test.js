@@ -41,6 +41,12 @@ describe('convertHtmlToMarkdown', () => {
 		expect(md).toContain('`Open`');
 	});
 
+	it('converts status badges even without State class', () => {
+		const html = '<li>Made PR - <a href="url">#1</a> (Fix)<div>merged</div></li>';
+		const md = convertHtmlToMarkdown(html);
+		expect(md).toContain('`Merged`');
+	});
+
 	it('converts repository groupings with nested items and indentation', () => {
 		const html = `
 			<b>1. What did I do yesterday?</b><br>
@@ -59,6 +65,33 @@ describe('convertHtmlToMarkdown', () => {
 		expect(md).toContain('### **Issues:**');
 		expect(md).toContain('- **soumik7063/JGEC_GYM_BROS**');
 		expect(md).toContain('  - Opened Issue(#23) - [Iron Feed](https://github.com/soumik7063/JGEC_GYM_BROS/issues/23) `Closed`');
+	});
+
+	it('distinguishes commit lists under PRs from repository groups', () => {
+		const html = `
+			<ul>
+				<li style="margin-bottom: 10px !important;">
+					<span style="font-weight: 600;"><i>(fossasia/scrum_helper)</i></span>
+					<ul>
+						<li>Made PR - <a href="https://github.com/fossasia/scrum_helper/pull/1">#1</a> (Add feature)<div class="State State--purple">merged</div>
+							<ul class="commitList">
+								<li><a href="https://github.com/fossasia/scrum_helper/commit/abc">abc1234</a> feat: add new feature</li>
+							</ul>
+						</li>
+					</ul>
+				</li>
+			</ul>
+		`;
+		const md = convertHtmlToMarkdown(html);
+		expect(md).toContain('- **fossasia/scrum_helper**');
+		expect(md).toContain('  - Made PR - [#1](https://github.com/fossasia/scrum_helper/pull/1) (Add feature) `Merged`');
+		expect(md).toContain('    - [abc1234](https://github.com/fossasia/scrum_helper/commit/abc) feat: add new feature');
+	});
+
+	it('escapes square brackets in text nodes to prevent deceptive markdown link injection', () => {
+		const html = '<li>Made PR - <a href="https://github.com/org/repo/pull/1">#1</a> Deceptive [phishing link](https://evil.com) text</li>';
+		const md = convertHtmlToMarkdown(html);
+		expect(md).toContain('\\[phishing link\\](https://evil.com)');
 	});
 
 	it('converts empty states for next plans and blockers into italicized text', () => {
