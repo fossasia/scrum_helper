@@ -426,6 +426,14 @@
 								<span class="shortcut-tooltip" id="copyReportTooltipText">Ctrl+Shift+Y</span>
 							</div>
 
+							<div class="tooltip-container">
+								<button id="copyReportMarkdown" disabled
+									class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-3.5 rounded">
+									<i class="fa-brands fa-markdown"></i> <span data-i18n="copyMarkdownButton">Markdown</span>
+								</button>
+								<span class="shortcut-tooltip" id="copyMarkdownTooltipText" data-i18n="copyMarkdownTooltip">Copy as Markdown</span>
+							</div>
+
 							<div id="sendReportEmailContainer" class="tooltip-container" style="display: none;">
 								<button id="sendReportEmail" disabled
 									class="flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded">
@@ -1062,6 +1070,7 @@
 	<!-- WebExtensions Polyfill for Cross-Browser compatibility (Chrome, Firefox, Edge, etc.) -->
 	<script src="libs/purify.min.js"></script>
 	<script src="scripts/domSanitizer.js"></script>
+	<script src="scripts/markdownUtils.js"></script>
 	<script src="scripts/platform.js"></script>
 	<script src="scripts/browser-polyfill.min.js"></script>
 	<script src="scripts/jquery-3.2.1.min.js"></script>

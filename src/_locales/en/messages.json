@@ -201,7 +201,7 @@
   "showCommitsTooltip": {
     "message": "If checked, the report will show commits on open or draft PRs. A GitHub token is required.",
     "description": "Tooltip explaining that GitHub Token is required to show commits."
-},
+  },
   "showCommitsTooltipGitLab": {
     "message": "GitLab token required, add it in the settings."
   },
@@ -565,7 +565,7 @@
   "usernameMissingError": {
     "message": "Username required.",
     "description": "Error shown when username is missing."
-   },
+  },
   "generateReportTooltip": {
     "message": "Ctrl+G",
     "description": "Tooltip shortcut for the Generate button. Dynamically replaced with Cmd+G on macOS."
@@ -775,5 +775,21 @@
   },
   "smtpPresetsTooltip": {
     "message": "Select a preset to automatically configure the SMTP host and port settings for common email services."
+  },
+  "copyMarkdownButton": {
+    "message": "Markdown",
+    "description": "Text for the Copy Markdown button."
+  },
+  "copiedMarkdownNotification": {
+    "message": "Report copied as Markdown!",
+    "description": "Notification shown when report is copied in Markdown format."
+  },
+  "copyMarkdownTooltip": {
+    "message": "Copy as Markdown",
+    "description": "Tooltip for the Copy as Markdown button."
+  },
+  "copyReportFailedError": {
+    "message": "Failed to copy report to clipboard.",
+    "description": "Error notification shown when copying the report fails."
   }
 }
