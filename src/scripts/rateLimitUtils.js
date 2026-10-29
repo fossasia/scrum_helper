@@ -16,44 +16,43 @@
 function getRateLimitResetTime(headersOrRes, now = Date.now()) {
 	if (!headersOrRes) return null;
 
-	let resetVal = null;
 	const headers = headersOrRes.headers || headersOrRes;
 
-	if (typeof headers.get === 'function') {
-		resetVal =
-			headers.get('x-ratelimit-reset') ||
-			headers.get('ratelimit-reset') ||
-			headers.get('RateLimit-Reset') ||
-			headers.get('X-RateLimit-Reset');
-	} else if (typeof headers === 'object') {
-		resetVal =
-			headers['x-ratelimit-reset'] ||
-			headers['ratelimit-reset'] ||
-			headers['RateLimit-Reset'] ||
-			headers['X-RateLimit-Reset'];
+	// Helper to get a header value from either a Headers instance or plain object
+	function getHeader(name) {
+		if (typeof headers.get === 'function') return headers.get(name);
+		if (typeof headers === 'object') return headers[name] ?? null;
+		return null;
 	}
+
+	// GitHub secondary rate limits send Retry-After with a shorter wait than
+	// x-ratelimit-reset. Prefer Retry-After when present so the countdown
+	// reflects the actual minimum wait, not the primary-limit window.
+	const retryAfterVal = getHeader('retry-after') || getHeader('Retry-After');
+	if (retryAfterVal !== null && retryAfterVal !== undefined && retryAfterVal !== '') {
+		const seconds = parseInt(retryAfterVal, 10);
+		if (!Number.isNaN(seconds) && seconds > 0) {
+			const retryDate = new Date(now + seconds * 1000);
+			if (!Number.isNaN(retryDate.getTime())) return retryDate;
+		}
+	}
+
+	// Primary rate-limit reset header (epoch seconds from GitHub/GitLab/Codeberg)
+	const resetVal =
+		getHeader('x-ratelimit-reset') ||
+		getHeader('ratelimit-reset') ||
+		getHeader('RateLimit-Reset') ||
+		getHeader('X-RateLimit-Reset');
 
 	if (resetVal !== null && resetVal !== undefined && resetVal !== '') {
 		const parsed = parseInt(resetVal, 10);
 		if (!Number.isNaN(parsed) && parsed > 0) {
-			// If value is in seconds (epoch seconds ~1.7e9, epoch ms ~1.7e12)
+			// Epoch seconds (~1.7e9) vs epoch ms (~1.7e12)
 			const resetMs = parsed < 10000000000 ? parsed * 1000 : parsed;
-			return new Date(resetMs);
-		}
-	}
-
-	// Fallback to Retry-After header (seconds)
-	let retryAfter = null;
-	if (typeof headers.get === 'function') {
-		retryAfter = headers.get('retry-after') || headers.get('Retry-After');
-	} else if (typeof headers === 'object') {
-		retryAfter = headers['retry-after'] || headers['Retry-After'];
-	}
-
-	if (retryAfter !== null && retryAfter !== undefined && retryAfter !== '') {
-		const seconds = parseInt(retryAfter, 10);
-		if (!Number.isNaN(seconds) && seconds > 0) {
-			return new Date(now + seconds * 1000);
+			if (Number.isFinite(resetMs)) {
+				const resetDate = new Date(resetMs);
+				if (!Number.isNaN(resetDate.getTime())) return resetDate;
+			}
 		}
 	}
 
@@ -93,8 +92,9 @@ function formatRateLimitCountdown(resetDate, now = Date.now()) {
 		const minutes = Math.ceil(diffMs / (60 * 1000));
 		countdown = minutes === 1 ? 'in 1 minute' : `in ${minutes} minutes`;
 	} else {
-		const hours = Math.floor(diffMs / (3600 * 1000));
-		const remainingMinutes = Math.round((diffMs % (3600 * 1000)) / (60 * 1000));
+		const totalMinutes = Math.ceil(diffMs / (60 * 1000));
+		const hours = Math.floor(totalMinutes / 60);
+		const remainingMinutes = totalMinutes % 60;
 
 		if (remainingMinutes === 0) {
 			countdown = hours === 1 ? 'in 1 hour' : `in ${hours} hours`;
@@ -146,6 +146,11 @@ function getRateLimitMessage(resetDate, options = {}) {
 		if (countdown) {
 			const localized = i18n?.getMessage('rateLimitWarningWithReset', [countdown]);
 			if (localized && localized !== 'rateLimitWarningWithReset') return localized;
+			// No translation for the reset-specific key — append countdown to the
+			// existing translated warning so non-English locales stay consistent.
+			const baseWarning = i18n?.getMessage('rateLimitWarningMessage');
+			if (baseWarning && baseWarning !== 'rateLimitWarningMessage')
+				return `${baseWarning} Quota resets ${countdown}.`;
 			return `Some data may be missing due to ${platform} rate limit. Quota resets ${countdown}. Please add or check your ${platform} token in settings.`;
 		}
 		const fallback = i18n?.getMessage('rateLimitWarningMessage');
@@ -157,6 +162,11 @@ function getRateLimitMessage(resetDate, options = {}) {
 	if (countdown) {
 		const localized = i18n?.getMessage('rateLimitErrorWithReset', [countdown]);
 		if (localized && localized !== 'rateLimitErrorWithReset') return localized;
+		// No translation for the reset-specific key — append countdown to the
+		// existing translated error so non-English locales stay consistent.
+		const baseError = i18n?.getMessage('rateLimitError');
+		if (baseError && baseError !== 'rateLimitError')
+			return `${baseError} Quota resets ${countdown}.`;
 		return `${platform} API rate limit exceeded. Quota resets ${countdown}. Please add or check your ${platform} token in the Scrum Helper settings for a higher limit.`;
 	}
 

@@ -60,6 +60,13 @@ describe('rateLimitUtils', () => {
 				},
 			};
 			expect(rateLimitUtils.getRateLimitResetTime(res)).toBeNull();
+
+			const zeroRes = {
+				headers: {
+					get: () => '0',
+				},
+			};
+			expect(rateLimitUtils.getRateLimitResetTime(zeroRes)).toBeNull();
 		});
 	});
 
@@ -109,6 +116,14 @@ describe('rateLimitUtils', () => {
 			const twoHoursOneMin = new Date(fixedNow + (2 * 3600 + 60) * 1000);
 			const formatted = rateLimitUtils.formatRateLimitCountdown(twoHoursOneMin, fixedNow);
 			expect(formatted).toContain('in 2 hours and 1 minute');
+		});
+
+		it('does not display 60 minutes when fractional hour rounds up', () => {
+			// 1h 59m 40s — old Math.round would give remainingMinutes=60, new approach carries correctly
+			const resetDate = new Date(fixedNow + (60 + 59) * 60 * 1000 + 40 * 1000);
+			const formatted = rateLimitUtils.formatRateLimitCountdown(resetDate, fixedNow);
+			expect(formatted).not.toContain('60 minutes');
+			expect(formatted).toContain('2 hours');
 		});
 
 		it('includes the local clock time in the output', () => {
