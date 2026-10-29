@@ -3385,8 +3385,16 @@ function handleOrgInputBlurValidation(org) {
 		});
 	}
 
-	window.showRateLimitWarning = function () {
+	window.showRateLimitWarning = function (resetTime) {
 		const banner = document.getElementById('rateLimitWarning');
+		const textEl = document.getElementById('rateLimitWarningText');
+		const targetReset = resetTime || window.rateLimitResetTime;
+		if (textEl && window.rateLimitUtils) {
+			textEl.textContent = window.rateLimitUtils.getRateLimitMessage(targetReset, {
+				platform: 'GitHub',
+				type: 'warning',
+			});
+		}
 		if (banner) {
 			banner.classList.remove('hidden');
 			if (rateLimitTimeout) {
@@ -3394,7 +3402,7 @@ function handleOrgInputBlurValidation(org) {
 			}
 			rateLimitTimeout = setTimeout(() => {
 				banner.classList.add('hidden');
-			}, 6000); // 6 seconds
+			}, 8000);
 		}
 	};
 })();
