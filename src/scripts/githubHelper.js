@@ -220,7 +220,11 @@ async function githubValidateToken(token) {
 		if (res.status === 403) {
 			const remaining = res.headers.get('x-ratelimit-remaining');
 			if (remaining === '0') {
-				return { valid: true, rateLimited: true };
+				const resetTime =
+					typeof window.rateLimitUtils?.getRateLimitResetTime === 'function'
+						? window.rateLimitUtils.getRateLimitResetTime(res)
+						: null;
+				return { valid: true, rateLimited: true, resetTime };
 			}
 			try {
 				const clone = res.clone();
