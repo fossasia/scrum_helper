@@ -2021,8 +2021,10 @@ document.addEventListener('DOMContentLoaded', () => {
 							const span = document.createElement('span');
 							span.textContent = msg;
 							tokenWarning.appendChild(span);
+							tokenWarning.dataset.rateLimited = 'true';
 							tokenWarning.classList.remove('hidden');
 							setTimeout(() => {
+								delete tokenWarning.dataset.rateLimited;
 								tokenWarning.classList.add('hidden');
 							}, 8000);
 						}
@@ -2074,7 +2076,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					[storageCacheKey]: null,
 				});
 
-				if (helper?.checkTokenForFilter) {
+				if (helper?.checkTokenForFilter && !rateLimitWarningShown) {
 					helper.checkTokenForFilter();
 				}
 
@@ -3420,8 +3422,8 @@ function handleOrgInputBlurValidation(org) {
 	window.showRateLimitWarning = function (resetTime, platform = 'GitHub') {
 		const banner = document.getElementById('rateLimitWarning');
 		const textEl = document.getElementById('rateLimitWarningText');
-		const targetReset = resetTime !== undefined ? resetTime : (window.rateLimitPlatform === targetPlatform ? window.rateLimitResetTime : null);
 		const targetPlatform = platform || window.rateLimitPlatform || 'GitHub';
+		const targetReset = resetTime !== undefined ? resetTime : (window.rateLimitPlatform === targetPlatform ? window.rateLimitResetTime : null);
 		if (textEl && window.rateLimitUtils) {
 			textEl.textContent = window.rateLimitUtils.getRateLimitMessage(targetReset, {
 				platform: targetPlatform,

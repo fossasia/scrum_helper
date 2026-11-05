@@ -223,6 +223,13 @@ async function githubValidateToken(token) {
 		if (res.status === 401) {
 			return { valid: false, status: 401, reason: 'invalid' };
 		}
+		if (res.status === 429) {
+			const resetTime =
+				typeof window.rateLimitUtils?.getRateLimitResetTime === 'function'
+					? window.rateLimitUtils.getRateLimitResetTime(res)
+					: null;
+			return { valid: true, rateLimited: true, resetTime, status: res.status };
+		}
 		if (res.status === 403) {
 			const remaining = res.headers.get('x-ratelimit-remaining');
 			if (remaining === '0') {
@@ -250,6 +257,10 @@ async function githubValidateToken(token) {
 	}
 }
 
+/**
+ * Validates GitHub token presence when repository filtering is toggled,
+ * restoring the required token warning banner if the token is missing.
+ */
 function checkTokenForFilter() {
 	const useRepoFilter = document.getElementById('useRepoFilter');
 	const githubTokenInput = document.getElementById('githubToken');

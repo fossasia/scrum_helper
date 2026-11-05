@@ -824,6 +824,12 @@ async function fetchIssuesFromGitLab(scope) {
 if (window.PlatformRegistry) {
 	window.PlatformRegistry.register('gitlab', {
 		hasRepoFilter: true,
+		/**
+		 * Validates GitLab personal access token against the GitLab API.
+		 *
+		 * @param {string} token - The GitLab access token to validate
+		 * @returns {Promise<{valid: boolean, status?: number, reason?: string, rateLimited?: boolean, resetTime?: Date|null}>}
+		 */
 		async validateToken(token) {
 			const trimmed = typeof token === 'string' ? token.trim() : '';
 			if (!trimmed) return { valid: false, status: 0, reason: 'empty' };
@@ -846,6 +852,10 @@ if (window.PlatformRegistry) {
 				return { valid: true, networkError: true };
 			}
 		},
+		/**
+		 * Validates GitLab token presence when repository filtering is toggled,
+		 * restoring the required token warning banner if the token is missing.
+		 */
 		checkTokenForFilter() {
 			const useFilter = document.getElementById('useGitlabRepoFilter') || document.getElementById('useRepoFilter');
 			const token = document.getElementById('gitlabToken');
@@ -866,7 +876,7 @@ if (window.PlatformRegistry) {
 					warning.appendChild(span);
 					warning.classList.remove('hidden');
 				}
-			} else {
+			} else if (!warning?.dataset?.rateLimited) {
 				warning?.classList.add('hidden');
 			}
 		},

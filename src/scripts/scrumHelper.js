@@ -32,7 +32,8 @@ window.fetch = async function (...args) {
 			}
 			if (isRateLimit) {
 				const targetPlatform = isGitLab ? 'GitLab' : isCodeberg ? 'Codeberg' : 'GitHub';
-				if (window.rateLimitPlatform !== targetPlatform) {
+				const platformChanged = window.rateLimitPlatform !== targetPlatform;
+				if (platformChanged) {
 					window.rateLimitResetTime = null;
 				}
 				window.rateLimitPlatform = targetPlatform;
@@ -46,7 +47,7 @@ window.fetch = async function (...args) {
 				if (resetDate) {
 					window.rateLimitResetTime = resetDate;
 				}
-				if (!rateLimitWarningShown) {
+				if (!rateLimitWarningShown || platformChanged) {
 					rateLimitWarningShown = true;
 					window.showRateLimitWarning?.(resetDate, targetPlatform);
 					setTimeout(() => {
