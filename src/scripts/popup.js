@@ -1899,7 +1899,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	showReportView();
 
-	// Reusable repository filter setup for GitHub and GitLab
+	/**
+	 * Initializes a repository filter section for a given platform (GitHub or GitLab).
+	 *
+	 * @param {Object} options - Configuration options for the repository filter
+	 */
 	function initRepoFilterSection({
 		platform,
 		tokenInput,
@@ -1924,6 +1928,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		let availableRepos = [];
 		let selectedRepos = [];
 		let highlightedIndex = -1;
+		let tokenWarningTimer = null;
 
 		const context = {
 			useRepoFilter: useFilter,
@@ -1988,8 +1993,10 @@ document.addEventListener('DOMContentLoaded', () => {
 						window.shakeElement
 							? window.shakeElement(tokenWarning, 620)
 							: tokenWarning.classList.add('shake-animation');
-						setTimeout(() => {
+						if (tokenWarningTimer) clearTimeout(tokenWarningTimer);
+						tokenWarningTimer = setTimeout(() => {
 							tokenWarning.classList.add('hidden');
+							tokenWarningTimer = null;
 						}, 3000);
 					}
 					return;
@@ -1998,7 +2005,6 @@ document.addEventListener('DOMContentLoaded', () => {
 				const helper = window.PlatformRegistry?.get(platform);
 
 				let rateLimitWarningShown = false;
-				let tokenWarningTimer = null;
 
 				// Validate token validity if enabled
 				if (enabled && hasToken && helper?.validateToken) {

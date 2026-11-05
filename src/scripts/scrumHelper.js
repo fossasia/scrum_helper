@@ -8,6 +8,13 @@ window.fetch = async function (...args) {
 		throw err;
 	}
 	const url = typeof args[0] === 'string' ? args[0] : args[0]?.url || '';
+	/**
+	 * Checks if a request URL matches the configured API base URL.
+	 *
+	 * @param {string} requestUrl - The request URL
+	 * @param {string} configuredBase - The configured API base URL
+	 * @returns {boolean} True if the request URL matches the base URL
+	 */
 	const matchesApiBase = (requestUrl, configuredBase) => {
 		const base = (configuredBase || '').trim().replace(/\/+$/, '');
 		return Boolean(base) && (requestUrl === base || requestUrl.startsWith(`${base}/`));
@@ -372,13 +379,44 @@ function handleUsernameValidationError(errMessage, platformName = null, toastMes
 }
 window.handleUsernameValidationError = handleUsernameValidationError;
 
+/**
+ * Determines if a report fetch failure is due to an API rate limit.
+ *
+ * @param {Error|Object} f - Failure error or object
+ * @returns {boolean} True if failure is due to a rate limit
+ */
+function isRateLimitFailure(f) {
+	if (!f) return false;
+	if (f.rateLimited || f.status === 429) return true;
+	const msg = String(f.message || f || '');
+	if (/\b429\b/.test(msg) || /rate limit/i.test(msg)) return true;
+	if (window.githubRateLimitExceeded && (/github/i.test(msg) || f.platform === 'GitHub' || f.platform === 'github')) {
+		return true;
+	}
+	return false;
+}
+
+/**
+ * Handles report fetch failures across platforms, displaying rate-limit or error messages.
+ *
+ * @param {Array<Error|Object>} failures - Array of rejected reasons
+ * @param {boolean} [allFailed=false] - Whether all platform fetches failed
+ */
 function handleReportFetchFailures(failures, allFailed = false) {
-	const hasRateLimit = window.githubRateLimitExceeded || failures.some((f) => f?.rateLimited || /rate limit/i.test(f?.message || ''));
-	if (hasRateLimit && allFailed) {
-		const targetPlatform = window.rateLimitPlatform || 'GitHub';
+	const rateLimitFailure = failures.find(isRateLimitFailure);
+	if (rateLimitFailure && allFailed) {
+		const targetPlatform =
+			rateLimitFailure.platform ||
+			getFailurePlatform(rateLimitFailure) ||
+			window.rateLimitPlatform ||
+			'GitHub';
+		const resetTime =
+			rateLimitFailure.resetTime !== undefined
+				? rateLimitFailure.resetTime
+				: (window.rateLimitResetTimes?.[targetPlatform] ?? window.rateLimitResetTime);
 		const rateLimitMsg =
 			typeof window.rateLimitUtils?.getRateLimitMessage === 'function'
-				? window.rateLimitUtils.getRateLimitMessage(window.rateLimitResetTime, {
+				? window.rateLimitUtils.getRateLimitMessage(resetTime, {
 						platform: targetPlatform,
 						type: 'error',
 					})
@@ -742,81 +780,101 @@ function allIncluded(outputTarget = 'email') {
 					try {
 						const settled = await Promise.allSettled(
 							platformsToFetch.map(async (p) => {
-								const user = getUsernameForPlatform(p);
-								if (p === 'github') {
-									platformUsernameLocal = user;
-									platformUsernames.github = user;
-									const data = await fetchGithubData(false);
-									const issues = data?.githubIssuesData?.items || [];
-									const prReviews = data?.githubPrsReviewData?.items || [];
-									issues.forEach((it) => {
-										it._platform = 'github';
-									});
-									prReviews.forEach((it) => {
-										it._platform = 'github';
-									});
-									return {
-										platform: 'github',
-										authored: issues,
-										reviewed: prReviews,
-										user: data?.githubUserData || null,
-									};
-								}
-								if (p === 'gitlab') {
-									if (!window.gitlabHelper) {
-										window.gitlabHelper = new window.GitLabHelper(window.gitlabBaseUrl);
+								try {
+									const user = getUsernameForPlatform(p);
+									if (p === 'github') {
+										platformUsernameLocal = user;
+										platformUsernames.github = user;
+										const data = await fetchGithubData(false);
+										if (window.githubRateLimitExceeded) {
+											const err = new Error('GitHub API rate limit exceeded');
+											err.platform = 'GitHub';
+											err.rateLimited = true;
+											err.resetTime = window.rateLimitResetTimes?.GitHub ?? window.rateLimitResetTime;
+											throw err;
+										}
+										const issues = data?.githubIssuesData?.items || [];
+										const prReviews = data?.githubPrsReviewData?.items || [];
+										issues.forEach((it) => {
+											it._platform = 'github';
+										});
+										prReviews.forEach((it) => {
+											it._platform = 'github';
+										});
+										return {
+											platform: 'github',
+											authored: issues,
+											reviewed: prReviews,
+											user: data?.githubUserData || null,
+										};
 									}
-									const raw = await window.gitlabHelper.fetchGitLabData(
-										user,
-										startingDate,
-										endingDate,
-										items.gitlabToken || gitlabToken,
-										items.gitlabGroupName || '',
-									);
-									const mapped = window.gitlabHelper.mapGitLabReportData(raw);
-									const issues = mapped?.githubIssuesData?.items || [];
-									const mrs = mapped?.githubPrsReviewData?.items || [];
-									issues.forEach((it) => {
-										it._platform = 'gitlab';
-									});
-									mrs.forEach((it) => {
-										it._platform = 'gitlab';
-									});
-									return {
-										platform: 'gitlab',
-										authored: [...issues, ...mrs],
-										reviewed: [],
-										user: mapped?.githubUserData || null,
-									};
-								}
-								if (p === 'codeberg') {
-									if (!window.codebergHelper) {
-										window.codebergHelper = new window.CodebergHelper(window.codebergApiBaseUrl);
+									if (p === 'gitlab') {
+										if (!window.gitlabHelper) {
+											window.gitlabHelper = new window.GitLabHelper(window.gitlabBaseUrl);
+										}
+										const raw = await window.gitlabHelper.fetchGitLabData(
+											user,
+											startingDate,
+											endingDate,
+											items.gitlabToken || gitlabToken,
+											items.gitlabGroupName || '',
+										);
+										const mapped = window.gitlabHelper.mapGitLabReportData(raw);
+										const issues = mapped?.githubIssuesData?.items || [];
+										const mrs = mapped?.githubPrsReviewData?.items || [];
+										issues.forEach((it) => {
+											it._platform = 'gitlab';
+										});
+										mrs.forEach((it) => {
+											it._platform = 'gitlab';
+										});
+										return {
+											platform: 'gitlab',
+											authored: [...issues, ...mrs],
+											reviewed: [],
+											user: mapped?.githubUserData || null,
+										};
 									}
-									const raw = await window.codebergHelper.fetchCodebergData(
-										user,
-										startingDate,
-										endingDate,
-										items.codebergToken || codebergToken,
-										showCommits,
-									);
-									const mapped = window.codebergHelper.mapCodebergReportData(raw);
-									const issues = mapped?.githubIssuesData?.items || [];
-									const prs = mapped?.githubPrsReviewData?.items || [];
-									issues.forEach((it) => {
-										it._platform = 'codeberg';
-									});
-									prs.forEach((it) => {
-										it._platform = 'codeberg';
-									});
-									return {
-										platform: 'codeberg',
-										authored: [...issues, ...prs],
-										reviewed: [],
-										user: mapped?.githubUserData || null,
-									};
+									if (p === 'codeberg') {
+										if (!window.codebergHelper) {
+											window.codebergHelper = new window.CodebergHelper(window.codebergApiBaseUrl);
+										}
+										const raw = await window.codebergHelper.fetchCodebergData(
+											user,
+											startingDate,
+											endingDate,
+											items.codebergToken || codebergToken,
+											showCommits,
+										);
+										const mapped = window.codebergHelper.mapCodebergReportData(raw);
+										const issues = mapped?.githubIssuesData?.items || [];
+										const prs = mapped?.githubPrsReviewData?.items || [];
+										issues.forEach((it) => {
+											it._platform = 'codeberg';
+										});
+										prs.forEach((it) => {
+											it._platform = 'codeberg';
+										});
+										return {
+											platform: 'codeberg',
+											authored: [...issues, ...prs],
+											reviewed: [],
+											user: mapped?.githubUserData || null,
+										};
+									}
+									return { platform: p, authored: [], reviewed: [], user: null };
+								} catch (err) {
+									if (err) {
+										const platformName = p === 'gitlab' ? 'GitLab' : p === 'codeberg' ? 'Codeberg' : 'GitHub';
+										err.platform = platformName;
+										const msg = String(err.message || '');
+										if (err.status === 429 || /\b429\b/.test(msg) || /rate limit/i.test(msg) || (p === 'github' && window.githubRateLimitExceeded)) {
+											err.rateLimited = true;
+											err.resetTime = window.rateLimitResetTimes?.[platformName] ?? window.rateLimitResetTime;
+										}
+									}
+									throw err;
 								}
-								return { platform: p, authored: [], reviewed: [], user: null };
 							}),
 						);
 
