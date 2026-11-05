@@ -202,6 +202,12 @@ function getGithubRepoFilterContext() {
 	return window.githubRepoFilterContext || null;
 }
 
+/**
+ * Validates a GitHub personal access token against the GitHub API.
+ *
+ * @param {string} token - The personal access token to validate
+ * @returns {Promise<{valid: boolean, status?: number, reason?: string, rateLimited?: boolean, resetTime?: Date|null}>}
+ */
 async function githubValidateToken(token) {
 	const trimmed = typeof token === 'string' ? token.trim() : '';
 	if (!trimmed) {

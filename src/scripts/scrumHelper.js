@@ -41,6 +41,8 @@ window.fetch = async function (...args) {
 					setTimeout(() => {
 						rateLimitWarningShown = false;
 					}, 6000);
+				} else if (resetDate && typeof window.showRateLimitWarning === 'function') {
+					window.showRateLimitWarning(resetDate);
 				}
 			}
 		}
@@ -980,6 +982,13 @@ function allIncluded(outputTarget = 'email') {
 		});
 	}
 
+	/**
+	 * Determines if an HTTP response represents a rate limit exceeded error (403 with 0 remaining, or 429).
+	 * Extracts and caches the reset time when available.
+	 *
+	 * @param {Response} res - Fetch response object
+	 * @returns {boolean} True if response is rate-limited
+	 */
 	function isRateLimitResponse(res) {
 		if (!res || res.ok) return false;
 		if (window.githubRateLimitExceeded) return true;
@@ -1560,6 +1569,11 @@ function allIncluded(outputTarget = 'email') {
 		}
 	}
 
+	/**
+	 * Displays an API rate limit error message with dynamic reset countdown in the scrum report view.
+	 *
+	 * @param {boolean} [shouldProcess=true] - Whether to render message into output target
+	 */
 	function showRateLimitMessage(shouldProcess = true) {
 		const errMsg =
 			typeof window.rateLimitUtils?.getRateLimitMessage === 'function'

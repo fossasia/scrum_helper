@@ -2004,6 +2004,9 @@ document.addEventListener('DOMContentLoaded', () => {
 							chrome?.i18n.getMessage('loadingReposAutomatically') || 'Loading repos automatically...';
 					}
 					const validation = await helper.validateToken(rawToken);
+					if (validation.rateLimited && typeof window.showRateLimitWarning === 'function') {
+						window.showRateLimitWarning(validation.resetTime);
+					}
 					if (!validation.valid && (validation.status === 401 || validation.reason === 'invalid')) {
 						useFilter.checked = false;
 						container.classList.add('hidden');
@@ -3385,6 +3388,11 @@ function handleOrgInputBlurValidation(org) {
 		});
 	}
 
+	/**
+	 * Displays the rate limit warning banner with countdown and auto-hides after 8 seconds.
+	 *
+	 * @param {Date|number|string|null} [resetTime] - Optional reset time Date or timestamp
+	 */
 	window.showRateLimitWarning = function (resetTime) {
 		const banner = document.getElementById('rateLimitWarning');
 		const textEl = document.getElementById('rateLimitWarningText');

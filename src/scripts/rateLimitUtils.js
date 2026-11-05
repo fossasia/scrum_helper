@@ -18,7 +18,12 @@ function getRateLimitResetTime(headersOrRes, now = Date.now()) {
 
 	const headers = headersOrRes.headers || headersOrRes;
 
-	// Helper to get a header value from either a Headers instance or plain object
+	/**
+	 * Helper to get a header value from either a Headers instance or plain object.
+	 *
+	 * @param {string} name - Header name to retrieve
+	 * @returns {string|null} Header value or null if not found
+	 */
 	function getHeader(name) {
 		if (typeof headers.get === 'function') return headers.get(name);
 		if (typeof headers === 'object') return headers[name] ?? null;
