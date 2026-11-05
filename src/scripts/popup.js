@@ -1998,6 +1998,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				const helper = window.PlatformRegistry?.get(platform);
 
 				let rateLimitWarningShown = false;
+				let tokenWarningTimer = null;
 
 				// Validate token validity if enabled
 				if (enabled && hasToken && helper?.validateToken) {
@@ -2023,9 +2024,11 @@ document.addEventListener('DOMContentLoaded', () => {
 							tokenWarning.appendChild(span);
 							tokenWarning.dataset.rateLimited = 'true';
 							tokenWarning.classList.remove('hidden');
-							setTimeout(() => {
+							if (tokenWarningTimer) clearTimeout(tokenWarningTimer);
+							tokenWarningTimer = setTimeout(() => {
 								delete tokenWarning.dataset.rateLimited;
 								tokenWarning.classList.add('hidden');
+								tokenWarningTimer = null;
 							}, 8000);
 						}
 						if (typeof window.showRateLimitWarning === 'function') {
@@ -3423,7 +3426,7 @@ function handleOrgInputBlurValidation(org) {
 		const banner = document.getElementById('rateLimitWarning');
 		const textEl = document.getElementById('rateLimitWarningText');
 		const targetPlatform = platform || window.rateLimitPlatform || 'GitHub';
-		const targetReset = resetTime !== undefined ? resetTime : (window.rateLimitPlatform === targetPlatform ? window.rateLimitResetTime : null);
+		const targetReset = (resetTime !== undefined && resetTime !== null) ? resetTime : (window.rateLimitPlatform === targetPlatform ? window.rateLimitResetTime : null);
 		if (textEl && window.rateLimitUtils) {
 			textEl.textContent = window.rateLimitUtils.getRateLimitMessage(targetReset, {
 				platform: targetPlatform,

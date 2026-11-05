@@ -8,9 +8,13 @@ window.fetch = async function (...args) {
 		throw err;
 	}
 	const url = typeof args[0] === 'string' ? args[0] : args[0]?.url || '';
-	const isGitHub = url.includes('api.github.com') || url.includes('github.com');
-	const isGitLab = url.includes('gitlab.com') || url.includes('/api/v4');
-	const isCodeberg = url.includes('codeberg.org') || url.includes('/api/v1');
+	const matchesApiBase = (requestUrl, configuredBase) => {
+		const base = (configuredBase || '').trim().replace(/\/+$/, '');
+		return Boolean(base) && (requestUrl === base || requestUrl.startsWith(`${base}/`));
+	};
+	const isGitHub = matchesApiBase(url, 'https://api.github.com');
+	const isGitLab = matchesApiBase(url, window.gitlabBaseUrl || 'https://gitlab.com/api/v4');
+	const isCodeberg = matchesApiBase(url, window.codebergApiBaseUrl || 'https://codeberg.org/api/v1');
 
 	if (isGitHub || isGitLab || isCodeberg) {
 		const remaining =
@@ -44,9 +48,9 @@ window.fetch = async function (...args) {
 					typeof window.rateLimitUtils?.getRateLimitResetTime === 'function'
 						? window.rateLimitUtils.getRateLimitResetTime(res)
 						: null;
-				if (resetDate) {
-					window.rateLimitResetTime = resetDate;
-				}
+				window.rateLimitResetTimes = window.rateLimitResetTimes || {};
+				window.rateLimitResetTimes[targetPlatform] = resetDate;
+				window.rateLimitResetTime = resetDate;
 				if (!rateLimitWarningShown || platformChanged) {
 					rateLimitWarningShown = true;
 					window.showRateLimitWarning?.(resetDate, targetPlatform);
@@ -369,6 +373,20 @@ function handleUsernameValidationError(errMessage, platformName = null, toastMes
 window.handleUsernameValidationError = handleUsernameValidationError;
 
 function handleReportFetchFailures(failures, allFailed = false) {
+	const hasRateLimit = window.githubRateLimitExceeded || failures.some((f) => f?.rateLimited || /rate limit/i.test(f?.message || ''));
+	if (hasRateLimit && allFailed) {
+		const targetPlatform = window.rateLimitPlatform || 'GitHub';
+		const rateLimitMsg =
+			typeof window.rateLimitUtils?.getRateLimitMessage === 'function'
+				? window.rateLimitUtils.getRateLimitMessage(window.rateLimitResetTime, {
+						platform: targetPlatform,
+						type: 'error',
+					})
+				: chrome?.i18n.getMessage('rateLimitError') ||
+					`${targetPlatform} API rate limit exceeded. Please try again later.`;
+		showReportMessage(rateLimitMsg);
+		return;
+	}
 	const usernameFailures = failures.filter(isUsernameValidationError);
 	const otherFailures = failures.filter((f) => !isUsernameValidationError(f));
 	const usernameMessages = usernameFailures.map((f) => f?.message).filter(Boolean);
@@ -404,6 +422,7 @@ function allIncluded(outputTarget = 'email') {
 	window.githubRateLimitExceeded = false;
 	window.rateLimitResetTime = null;
 	window.rateLimitPlatform = null;
+	window.rateLimitResetTimes = {};
 	rateLimitWarningShown = false;
 	console.log('allIncluded called with outputTarget:', outputTarget);
 

@@ -232,20 +232,28 @@ async function githubValidateToken(token) {
 		}
 		if (res.status === 403) {
 			const remaining = res.headers.get('x-ratelimit-remaining');
-			if (remaining === '0') {
-				const resetTime =
-					typeof window.rateLimitUtils?.getRateLimitResetTime === 'function'
-						? window.rateLimitUtils.getRateLimitResetTime(res)
-						: null;
-				return { valid: true, rateLimited: true, resetTime };
-			}
+			const retryAfter = res.headers.get('retry-after');
+			let isRateLimit = remaining === '0' || Boolean(retryAfter);
+			let isBadCredentials = false;
 			try {
 				const clone = res.clone();
 				const body = await clone.json();
 				if (body?.message?.toLowerCase().includes('bad credentials')) {
-					return { valid: false, status: 401, reason: 'invalid' };
+					isBadCredentials = true;
+				} else if (body?.message?.toLowerCase().includes('rate limit')) {
+					isRateLimit = true;
 				}
 			} catch (e) {}
+			if (isBadCredentials) {
+				return { valid: false, status: 401, reason: 'invalid' };
+			}
+			if (isRateLimit) {
+				const resetTime =
+					typeof window.rateLimitUtils?.getRateLimitResetTime === 'function'
+						? window.rateLimitUtils.getRateLimitResetTime(res)
+						: null;
+				return { valid: true, rateLimited: true, resetTime, status: res.status };
+			}
 			return { valid: false, status: 403, reason: 'forbidden' };
 		}
 		if (res.ok) {

@@ -41,7 +41,17 @@ function getRateLimitResetTime(headersOrRes, now = Date.now()) {
 	if (resetVal !== null && resetVal !== undefined && resetVal !== '') {
 		const parsed = parseInt(resetVal, 10);
 		if (!Number.isNaN(parsed) && parsed > 0) {
-			const resetMs = parsed < 10000000000 ? parsed * 1000 : parsed;
+			let resetMs;
+			if (parsed < 1000000000) {
+				// Delta-seconds (e.g. RateLimit-Reset: 60)
+				resetMs = now + parsed * 1000;
+			} else if (parsed < 10000000000) {
+				// Epoch seconds (~1.7e9)
+				resetMs = parsed * 1000;
+			} else {
+				// Epoch milliseconds (~1.7e12)
+				resetMs = parsed;
+			}
 			if (Number.isFinite(resetMs)) {
 				const candidate = new Date(resetMs);
 				if (!Number.isNaN(candidate.getTime())) {
@@ -86,7 +96,9 @@ function getRateLimitResetTime(headersOrRes, now = Date.now()) {
 	}
 
 	if (retryDate) return retryDate;
-	if (primaryResetDate) return primaryResetDate;
+	if (primaryResetDate && (remaining === null || remaining === undefined || isPrimaryExhausted)) {
+		return primaryResetDate;
+	}
 	return null;
 }
 

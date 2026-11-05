@@ -23,6 +23,14 @@ describe('rateLimitUtils', () => {
 			expect(result.getTime()).toBe(resetEpochSec * 1000);
 		});
 
+		it('interprets delta-seconds RateLimit-Reset relative to current time', () => {
+			const deltaSec = 60;
+			const headers = { 'RateLimit-Reset': String(deltaSec) };
+			const result = rateLimitUtils.getRateLimitResetTime(headers, fixedNow);
+			expect(result).toBeInstanceOf(Date);
+			expect(result.getTime()).toBe(fixedNow + deltaSec * 1000);
+		});
+
 		it('extracts from plain object headers (case variations)', () => {
 			const resetEpochSec = 1700002000;
 			const res1 = { headers: { 'x-ratelimit-reset': String(resetEpochSec) } };
