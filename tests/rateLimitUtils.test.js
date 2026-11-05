@@ -253,5 +253,25 @@ describe('rateLimitUtils', () => {
 
 			global.chrome = originalChrome;
 		});
+
+		it('uses platform-aware message for GitLab and Codeberg even when chrome.i18n is available', () => {
+			const resetDate = new Date(fixedNow + 10 * 60 * 1000);
+			const gitlabWarning = rateLimitUtils.getRateLimitMessage(resetDate, {
+				platform: 'GitLab',
+				type: 'warning',
+				now: fixedNow,
+			});
+			expect(gitlabWarning).toContain('GitLab rate limit');
+			expect(gitlabWarning).toContain('GitLab token in settings');
+			expect(gitlabWarning).not.toContain('GitHub');
+
+			const codebergError = rateLimitUtils.getRateLimitMessage(resetDate, {
+				platform: 'Codeberg',
+				type: 'error',
+				now: fixedNow,
+			});
+			expect(codebergError).toContain('Codeberg API rate limit exceeded');
+			expect(codebergError).not.toContain('GitHub');
+		});
 	});
 });
