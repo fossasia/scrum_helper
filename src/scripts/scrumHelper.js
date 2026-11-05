@@ -32,6 +32,9 @@ window.fetch = async function (...args) {
 			}
 			if (isRateLimit) {
 				const targetPlatform = isGitLab ? 'GitLab' : isCodeberg ? 'Codeberg' : 'GitHub';
+				if (window.rateLimitPlatform !== targetPlatform) {
+					window.rateLimitResetTime = null;
+				}
 				window.rateLimitPlatform = targetPlatform;
 				if (isGitHub) {
 					window.githubRateLimitExceeded = true;
@@ -45,7 +48,7 @@ window.fetch = async function (...args) {
 				}
 				if (!rateLimitWarningShown) {
 					rateLimitWarningShown = true;
-					window.showRateLimitWarning?.(resetDate || window.rateLimitResetTime, targetPlatform);
+					window.showRateLimitWarning?.(resetDate, targetPlatform);
 					setTimeout(() => {
 						rateLimitWarningShown = false;
 					}, 6000);
@@ -399,6 +402,7 @@ function allIncluded(outputTarget = 'email') {
 	scrumGenerationInProgress = true;
 	window.githubRateLimitExceeded = false;
 	window.rateLimitResetTime = null;
+	window.rateLimitPlatform = null;
 	rateLimitWarningShown = false;
 	console.log('allIncluded called with outputTarget:', outputTarget);
 

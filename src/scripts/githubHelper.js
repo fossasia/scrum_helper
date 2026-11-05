@@ -270,6 +270,13 @@ function checkTokenForFilter() {
 			context.hideDropdown();
 		}
 		browser.storage.local.set({ useRepoFilter: false });
+		const defaultMsg =
+			chrome?.i18n?.getMessage?.('tokenRequiredWarning') ||
+			'A GitHub token is required for repository filtering. Please add one in the settings.';
+		tokenWarning.textContent = '';
+		const span = document.createElement('span');
+		span.textContent = defaultMsg;
+		tokenWarning.appendChild(span);
 		tokenWarning.classList.remove('hidden');
 		setTimeout(() => {
 			tokenWarning.classList.add('hidden');

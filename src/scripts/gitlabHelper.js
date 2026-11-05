@@ -833,7 +833,7 @@ if (window.PlatformRegistry) {
 					headers: { 'PRIVATE-TOKEN': trimmed },
 				});
 				if (res.status === 401) return { valid: false, status: 401, reason: 'invalid' };
-				if (res.status === 429 || res.status === 403) {
+				if (res.status === 429) {
 					const resetTime =
 						typeof window.rateLimitUtils?.getRateLimitResetTime === 'function'
 							? window.rateLimitUtils.getRateLimitResetTime(res)
@@ -856,7 +856,16 @@ if (window.PlatformRegistry) {
 			if (useFilter?.checked && !token?.value.trim()) {
 				useFilter.checked = false;
 				container?.classList.add('hidden');
-				warning?.classList.remove('hidden');
+				if (warning) {
+					const defaultMsg =
+						browser?.i18n?.getMessage?.('tokenRequiredGitlabWarning') ||
+						'A GitLab token is required for repository filtering. Please add one in settings.';
+					warning.textContent = '';
+					const span = document.createElement('span');
+					span.textContent = defaultMsg;
+					warning.appendChild(span);
+					warning.classList.remove('hidden');
+				}
 			} else {
 				warning?.classList.add('hidden');
 			}

@@ -1997,6 +1997,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 				const helper = window.PlatformRegistry?.get(platform);
 
+				let rateLimitWarningShown = false;
+
 				// Validate token validity if enabled
 				if (enabled && hasToken && helper?.validateToken) {
 					if (statusLabel) {
@@ -2005,6 +2007,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					}
 					const validation = await helper.validateToken(rawToken);
 					if (validation.rateLimited) {
+						rateLimitWarningShown = true;
 						const targetPlatform = platform === 'gitlab' ? 'GitLab' : platform === 'codeberg' ? 'Codeberg' : 'GitHub';
 						if (tokenWarning) {
 							const msg =
@@ -2061,7 +2064,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					}
 				}
 
-				if (tokenWarning) {
+				if (tokenWarning && !rateLimitWarningShown) {
 					tokenWarning.classList.add('hidden');
 				}
 				container.classList.toggle('hidden', !enabled);
@@ -3417,7 +3420,7 @@ function handleOrgInputBlurValidation(org) {
 	window.showRateLimitWarning = function (resetTime, platform = 'GitHub') {
 		const banner = document.getElementById('rateLimitWarning');
 		const textEl = document.getElementById('rateLimitWarningText');
-		const targetReset = resetTime || window.rateLimitResetTime;
+		const targetReset = resetTime !== undefined ? resetTime : (window.rateLimitPlatform === targetPlatform ? window.rateLimitResetTime : null);
 		const targetPlatform = platform || window.rateLimitPlatform || 'GitHub';
 		if (textEl && window.rateLimitUtils) {
 			textEl.textContent = window.rateLimitUtils.getRateLimitMessage(targetReset, {
