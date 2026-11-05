@@ -30,19 +30,8 @@ function getRateLimitResetTime(headersOrRes, now = Date.now()) {
 		return null;
 	}
 
-	// GitHub secondary rate limits send Retry-After with a shorter wait than
-	// x-ratelimit-reset. Prefer Retry-After when present so the countdown
-	// reflects the actual minimum wait, not the primary-limit window.
-	const retryAfterVal = getHeader('retry-after') || getHeader('Retry-After');
-	if (retryAfterVal !== null && retryAfterVal !== undefined && retryAfterVal !== '') {
-		const seconds = parseInt(retryAfterVal, 10);
-		if (!Number.isNaN(seconds) && seconds > 0) {
-			const retryDate = new Date(now + seconds * 1000);
-			if (!Number.isNaN(retryDate.getTime())) return retryDate;
-		}
-	}
-
-	// Primary rate-limit reset header (epoch seconds from GitHub/GitLab/Codeberg)
+	// 1. Check primary reset header (GitHub, GitLab, Codeberg)
+	let primaryResetDate = null;
 	const resetVal =
 		getHeader('x-ratelimit-reset') ||
 		getHeader('ratelimit-reset') ||
@@ -52,15 +41,52 @@ function getRateLimitResetTime(headersOrRes, now = Date.now()) {
 	if (resetVal !== null && resetVal !== undefined && resetVal !== '') {
 		const parsed = parseInt(resetVal, 10);
 		if (!Number.isNaN(parsed) && parsed > 0) {
-			// Epoch seconds (~1.7e9) vs epoch ms (~1.7e12)
 			const resetMs = parsed < 10000000000 ? parsed * 1000 : parsed;
 			if (Number.isFinite(resetMs)) {
-				const resetDate = new Date(resetMs);
-				if (!Number.isNaN(resetDate.getTime())) return resetDate;
+				const candidate = new Date(resetMs);
+				if (!Number.isNaN(candidate.getTime())) {
+					primaryResetDate = candidate;
+				}
 			}
 		}
 	}
 
+	// 2. Parse Retry-After (supports numeric seconds OR valid future HTTP-date)
+	let retryDate = null;
+	const retryAfterVal = getHeader('retry-after') || getHeader('Retry-After');
+	if (retryAfterVal !== null && retryAfterVal !== undefined && retryAfterVal !== '') {
+		const seconds = parseInt(retryAfterVal, 10);
+		if (!Number.isNaN(seconds) && seconds > 0) {
+			const candidate = new Date(now + seconds * 1000);
+			if (!Number.isNaN(candidate.getTime())) {
+				retryDate = candidate;
+			}
+		} else {
+			// Try HTTP-date format (e.g., "Wed, 21 Oct 2026 07:28:00 GMT")
+			const candidate = new Date(retryAfterVal);
+			if (!Number.isNaN(candidate.getTime()) && candidate.getTime() > now) {
+				retryDate = candidate;
+			}
+		}
+	}
+
+	// 3. Check if primary quota is completely exhausted (x-ratelimit-remaining === 0)
+	const remaining =
+		getHeader('x-ratelimit-remaining') ||
+		getHeader('ratelimit-remaining') ||
+		getHeader('RateLimit-Remaining');
+	const isPrimaryExhausted = remaining === '0' || remaining === 0;
+
+	if (isPrimaryExhausted && primaryResetDate) {
+		// If primary quota is exhausted, the true wait cannot be earlier than primaryResetDate
+		if (retryDate && retryDate.getTime() > primaryResetDate.getTime()) {
+			return retryDate;
+		}
+		return primaryResetDate;
+	}
+
+	if (retryDate) return retryDate;
+	if (primaryResetDate) return primaryResetDate;
 	return null;
 }
 

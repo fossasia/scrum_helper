@@ -53,6 +53,38 @@ describe('rateLimitUtils', () => {
 			expect(result.getTime()).toBe(fixedNow + retryAfterSeconds * 1000);
 		});
 
+		it('parses HTTP-date form of Retry-After header', () => {
+			const futureDate = new Date(fixedNow + 180 * 1000);
+			const httpDateStr = futureDate.toUTCString();
+			const res = {
+				headers: {
+					get: (name) => (name.toLowerCase() === 'retry-after' ? httpDateStr : null),
+				},
+			};
+			const result = rateLimitUtils.getRateLimitResetTime(res, fixedNow);
+			expect(result).toBeInstanceOf(Date);
+			expect(Math.floor(result.getTime() / 1000)).toBe(Math.floor(futureDate.getTime() / 1000));
+		});
+
+		it('does not return a shorter Retry-After when primary quota is exhausted', () => {
+			const primaryResetSec = Math.floor(fixedNow / 1000) + 600; // 10 minutes away
+			const secondaryRetrySec = 30; // 30 seconds away
+			const res = {
+				headers: {
+					get: (name) => {
+						const lower = name.toLowerCase();
+						if (lower === 'x-ratelimit-remaining') return '0';
+						if (lower === 'x-ratelimit-reset') return String(primaryResetSec);
+						if (lower === 'retry-after') return String(secondaryRetrySec);
+						return null;
+					},
+				},
+			};
+			const result = rateLimitUtils.getRateLimitResetTime(res, fixedNow);
+			expect(result).toBeInstanceOf(Date);
+			expect(result.getTime()).toBe(primaryResetSec * 1000);
+		});
+
 		it('returns null when header values are non-numeric or zero', () => {
 			const res = {
 				headers: {

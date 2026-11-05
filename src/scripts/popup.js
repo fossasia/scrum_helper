@@ -2004,8 +2004,28 @@ document.addEventListener('DOMContentLoaded', () => {
 							chrome?.i18n.getMessage('loadingReposAutomatically') || 'Loading repos automatically...';
 					}
 					const validation = await helper.validateToken(rawToken);
-					if (validation.rateLimited && typeof window.showRateLimitWarning === 'function') {
-						window.showRateLimitWarning(validation.resetTime);
+					if (validation.rateLimited) {
+						const targetPlatform = platform === 'gitlab' ? 'GitLab' : platform === 'codeberg' ? 'Codeberg' : 'GitHub';
+						if (tokenWarning) {
+							const msg =
+								typeof window.rateLimitUtils?.getRateLimitMessage === 'function'
+									? window.rateLimitUtils.getRateLimitMessage(validation.resetTime, {
+											platform: targetPlatform,
+											type: 'warning',
+										})
+									: `${targetPlatform} API rate limit exceeded. Please try again later.`;
+							tokenWarning.textContent = '';
+							const span = document.createElement('span');
+							span.textContent = msg;
+							tokenWarning.appendChild(span);
+							tokenWarning.classList.remove('hidden');
+							setTimeout(() => {
+								tokenWarning.classList.add('hidden');
+							}, 8000);
+						}
+						if (typeof window.showRateLimitWarning === 'function') {
+							window.showRateLimitWarning(validation.resetTime, targetPlatform);
+						}
 					}
 					if (!validation.valid && (validation.status === 401 || validation.reason === 'invalid')) {
 						useFilter.checked = false;
@@ -3392,14 +3412,16 @@ function handleOrgInputBlurValidation(org) {
 	 * Displays the rate limit warning banner with countdown and auto-hides after 8 seconds.
 	 *
 	 * @param {Date|number|string|null} [resetTime] - Optional reset time Date or timestamp
+	 * @param {string} [platform='GitHub'] - Platform name ('GitHub', 'GitLab', 'Codeberg')
 	 */
-	window.showRateLimitWarning = function (resetTime) {
+	window.showRateLimitWarning = function (resetTime, platform = 'GitHub') {
 		const banner = document.getElementById('rateLimitWarning');
 		const textEl = document.getElementById('rateLimitWarningText');
 		const targetReset = resetTime || window.rateLimitResetTime;
+		const targetPlatform = platform || window.rateLimitPlatform || 'GitHub';
 		if (textEl && window.rateLimitUtils) {
 			textEl.textContent = window.rateLimitUtils.getRateLimitMessage(targetReset, {
-				platform: 'GitHub',
+				platform: targetPlatform,
 				type: 'warning',
 			});
 		}

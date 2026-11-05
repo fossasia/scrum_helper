@@ -833,6 +833,13 @@ if (window.PlatformRegistry) {
 					headers: { 'PRIVATE-TOKEN': trimmed },
 				});
 				if (res.status === 401) return { valid: false, status: 401, reason: 'invalid' };
+				if (res.status === 429 || res.status === 403) {
+					const resetTime =
+						typeof window.rateLimitUtils?.getRateLimitResetTime === 'function'
+							? window.rateLimitUtils.getRateLimitResetTime(res)
+							: null;
+					return { valid: true, rateLimited: true, resetTime, status: res.status };
+				}
 				if (res.ok) return { valid: true, status: res.status };
 				return { valid: false, status: res.status, reason: 'error' };
 			} catch (err) {

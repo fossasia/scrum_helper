@@ -8,11 +8,15 @@ window.fetch = async function (...args) {
 		throw err;
 	}
 	const url = typeof args[0] === 'string' ? args[0] : args[0]?.url || '';
-	if (url.includes('api.github.com')) {
+	const isGitHub = url.includes('api.github.com') || url.includes('github.com');
+	const isGitLab = url.includes('gitlab.com') || url.includes('/api/v4');
+	const isCodeberg = url.includes('codeberg.org') || url.includes('/api/v1');
+
+	if (isGitHub || isGitLab || isCodeberg) {
 		const remaining =
 			typeof res.headers?.get === 'function'
-				? res.headers.get('x-ratelimit-remaining')
-				: res.headers?.['x-ratelimit-remaining'];
+				? res.headers.get('x-ratelimit-remaining') || res.headers.get('ratelimit-remaining') || res.headers.get('RateLimit-Remaining')
+				: res.headers?.['x-ratelimit-remaining'] || res.headers?.['ratelimit-remaining'] || res.headers?.['RateLimit-Remaining'];
 		const is429 = res.status === 429;
 		const isZeroRemaining = remaining === '0' || remaining === 0;
 		if (res.status === 403 || is429 || isZeroRemaining) {
@@ -20,14 +24,18 @@ window.fetch = async function (...args) {
 			try {
 				const clone = res.clone();
 				const data = await clone.json();
-				if (data && data.message && data.message.toLowerCase().includes('rate limit')) {
+				if (data && data.message && typeof data.message === 'string' && data.message.toLowerCase().includes('rate limit')) {
 					isRateLimit = true;
 				}
 			} catch (e) {
 				// Ignore clone/json parsing issues
 			}
 			if (isRateLimit) {
-				window.githubRateLimitExceeded = true;
+				const targetPlatform = isGitLab ? 'GitLab' : isCodeberg ? 'Codeberg' : 'GitHub';
+				window.rateLimitPlatform = targetPlatform;
+				if (isGitHub) {
+					window.githubRateLimitExceeded = true;
+				}
 				const resetDate =
 					typeof window.rateLimitUtils?.getRateLimitResetTime === 'function'
 						? window.rateLimitUtils.getRateLimitResetTime(res)
@@ -37,12 +45,12 @@ window.fetch = async function (...args) {
 				}
 				if (!rateLimitWarningShown) {
 					rateLimitWarningShown = true;
-					window.showRateLimitWarning?.(resetDate || window.rateLimitResetTime);
+					window.showRateLimitWarning?.(resetDate || window.rateLimitResetTime, targetPlatform);
 					setTimeout(() => {
 						rateLimitWarningShown = false;
 					}, 6000);
 				} else if (resetDate && typeof window.showRateLimitWarning === 'function') {
-					window.showRateLimitWarning(resetDate);
+					window.showRateLimitWarning(resetDate, targetPlatform);
 				}
 			}
 		}
@@ -1575,14 +1583,15 @@ function allIncluded(outputTarget = 'email') {
 	 * @param {boolean} [shouldProcess=true] - Whether to render message into output target
 	 */
 	function showRateLimitMessage(shouldProcess = true) {
+		const targetPlatform = window.rateLimitPlatform || (typeof platform !== 'undefined' && platform) || 'GitHub';
 		const errMsg =
 			typeof window.rateLimitUtils?.getRateLimitMessage === 'function'
 				? window.rateLimitUtils.getRateLimitMessage(window.rateLimitResetTime, {
-						platform: 'GitHub',
+						platform: targetPlatform,
 						type: 'error',
 					})
 				: chrome?.i18n.getMessage('rateLimitError') ||
-					'GitHub API rate limit exceeded. Please try again later or add/check your GitHub token in the Scrum Helper settings.';
+					`${targetPlatform} API rate limit exceeded. Please try again later or add/check your ${targetPlatform} token in the Scrum Helper settings.`;
 		if (outputTarget === 'popup' && shouldProcess) {
 			if (scrumReportEl) {
 				showReportMessage(errMsg);
