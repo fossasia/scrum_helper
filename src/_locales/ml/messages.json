@@ -343,5 +343,322 @@
     },
     "rateLimitWarningMessage": {
         "message": "GitHub നിരക്ക് പരിധി കാരണം ചില വിവരങ്ങൾ നഷ്ടപ്പെട്ടിട്ടുണ്ടാകാം. ക്രമീകരണങ്ങളിൽ നിങ്ങളുടെ GitHub ടോക്കൺ ചേർക്കുകയോ പരിശോധിക്കുകയോ ചെയ്യുക."
+    },
+    "projectNameTooltip": {
+        "message": "ഈ പ്രോജക്റ്റ് പേര് നിങ്ങളുടെ ഇമെയിൽ വിഷയത്തിൽ കാണപ്പെടും: \"[Scrum] പ്രോജക്റ്റ് പേര് - തീയതി\". ഒഴിവാക്കാൻ ശൂന്യമായി ഇടുക.",
+        "description": "Tooltip explaining how the project name is used in the email subject."
+    },
+    "gitlabUsernamePlaceholder": {
+        "message": "നിങ്ങളുടെ സംഭാവനകൾ ലഭ്യമാക്കാൻ ആവശ്യമാണ്",
+        "description": "Placeholder text for the GitLab username input."
+    },
+    "codebergUsernameLabel": {
+        "message": "നിങ്ങളുടെ Codeberg ഉപയോക്തൃനാമം",
+        "description": "Label for the Codeberg username input field."
+    },
+    "codebergUsernamePlaceholder": {
+        "message": "നിങ്ങളുടെ സംഭാവനകൾ ലഭ്യമാക്കാൻ ആവശ്യമാണ്",
+        "description": "Placeholder text for the Codeberg username input."
+    },
+    "dropdownGithubUsernamePlaceholder": {
+        "message": "GitHub ഉപയോക്തൃനാമം",
+        "description": "Placeholder text for the GitHub username dropdown input."
+    },
+    "dropdownGitlabUsernamePlaceholder": {
+        "message": "GitLab ഉപയോക്തൃനാമം",
+        "description": "Placeholder text for the GitLab username dropdown input."
+    },
+    "dropdownCodebergUsernamePlaceholder": {
+        "message": "Codeberg ഉപയോക്തൃനാമം",
+        "description": "Placeholder text for the Codeberg username dropdown input."
+    },
+    "showOpenClosedTooltip": {
+        "message": "തിരഞ്ഞെടുത്താൽ, റിപ്പോർട്ട് PRകൾക്കും ഇഷ്യൂകൾക്കുമുള്ള സ്റ്റാറ്റസ് ലേബലുകൾ പ്രദർശിപ്പിക്കും (ഉദാ. തുറന്നത്, ഡ്രാഫ്റ്റ്, ലയിപ്പിച്ചത്, അടച്ചത്)."
+    },
+    "advancedFiltersLabel": {
+        "message": "വിപുലമായ ഓപ്ഷനുകൾ",
+        "description": "Heading for the advanced report options."
+    },
+    "orgNameTooltip": {
+        "message": "ഏത് ഓർഗനൈസേഷന്റെ GitHub പ്രവർത്തനം? പ്രവർത്തനങ്ങൾ ലഭ്യമാക്കാൻ ഓർഗനൈസേഷന്റെ പേര് നൽകുക. എല്ലാ ഓർഗനൈസേഷനുകൾക്കുമായി ശൂന്യമായി ഇടുക. കോമകൾ ഉപയോഗിച്ച് വേർതിരിക്കാം.",
+        "description": "Tooltip explaining the GitHub organization filter."
+    },
+    "gitlabOrgNamePlaceholder": {
+        "message": "ഗ്രൂപ്പ് പേര് നൽകുക",
+        "description": "Placeholder for the GitLab group name input."
+    },
+    "settingsGroupNameLabel": {
+        "message": "നിങ്ങളുടെ ഗ്രൂപ്പ് പേര്",
+        "description": "Label for the GitLab group name input."
+    },
+    "gitlabOrgNameTooltip": {
+        "message": "ഏത് ഗ്രൂപ്പിന്റെ GitLab പ്രവർത്തനം? ഗ്രൂപ്പ് പേര് നൽകുക. എല്ലാ ഗ്രൂപ്പുകൾക്കുമായി ശൂന്യമായി ഇടുക.",
+        "description": "Tooltip explaining the GitLab group filter."
+    },
+    "codebergTokenLabel": {
+        "message": "നിങ്ങളുടെ Codeberg ടോക്കൺ",
+        "description": "Label for the Codeberg token input."
+    },
+    "codebergTokenPlaceholder": {
+        "message": "സ്വകാര്യ പ്രോജക്റ്റുകൾ ആക്സസ് ചെയ്യാൻ ആവശ്യമാണ്",
+        "description": "Placeholder for the Codeberg token input."
+    },
+    "codebergTokenTooltip": {
+        "message": "<b>എന്തുകൊണ്ട് Codeberg ടോക്കൺ ചേർക്കണം?</b><br>Scrum Helper പൊതു പ്രോജക്റ്റുകൾക്ക് ടോക്കൺ ഇല്ലാതെ പ്രവർത്തിക്കും, എന്നാൽ ഒരു സ്വകാര്യ ടോക്കൺ സ്വകാര്യ റിപ്പോസിറ്ററികൾ ആക്സസ് ചെയ്യാൻ സഹായിക്കും.<br><br><b>ലഭ്യമാക്കാൻ:</b><br>1. <a href=\"https://codeberg.org/user/settings/applications\" target=\"_blank\" rel=\"noopener noreferrer\">Codeberg ആപ്ലിക്കേഷൻ ക്രമീകരണങ്ങളിലേക്ക്</a> പോകുക<br>2. \"പുതിയ ടോക്കൺ സൃഷ്ടിക്കുക\" ക്ലിക്ക് ചെയ്യുക<br>3. ഇവിടെ പകർത്തി ഒട്ടിക്കുക<br><i>ഇത് രഹസ്യമായി സൂക്ഷിക്കുക!</i>",
+        "description": "Tooltip for Codeberg token explaining why it's needed."
+    },
+    "codebergApiBaseUrlLabel": {
+        "message": "Codeberg API അടിസ്ഥാന URL",
+        "description": "Label for the Codeberg API Base URL input."
+    },
+    "codebergApiBaseUrlPlaceholder": {
+        "message": "https://codeberg.org/api/v1",
+        "description": "Placeholder for the Codeberg API Base URL input."
+    },
+    "showCommitsTooltipGitLab": {
+        "message": "GitLab ടോക്കൺ ആവശ്യമാണ്, ക്രമീകരണങ്ങളിൽ ചേർക്കുക."
+    },
+    "showCommitsTooltipCodeberg": {
+        "message": "Codeberg ടോക്കൺ ആവശ്യമാണ്, ക്രമീകരണങ്ങളിൽ ചേർക്കുക."
+    },
+    "cacheTTLTooltip": {
+        "message": "ആവർത്തിച്ചുള്ള കോളുകൾ ഒഴിവാക്കാൻ ഞങ്ങൾ ഡാറ്റ കാഷെ ചെയ്യുന്നു. സാധാരണയായി 10 മിനിറ്റിന് ശേഷം കാലഹരണപ്പെടും.",
+        "description": "Tooltip explaining cache lifetime and manual refresh."
+    },
+    "tokenRequiredGitlabWarning": {
+        "message": "റിപ്പോസിറ്ററി ഫിൽട്ടറിംഗിനായി GitLab ടോക്കൺ ആവശ്യമാണ്. ക്രമീകരണങ്ങളിൽ ചേർക്കുക.",
+        "description": "Warning message shown when GitLab repo filtering is enabled without a token."
+    },
+    "tokenRequiredNextPlansWarning": {
+        "message": "നിയുക്ത പ്രശ്നങ്ങൾ ലഭ്യമാക്കാൻ GitHub ടോക്കൺ ആവശ്യമാണ്. ക്രമീകരണങ്ങളിൽ ചേർക്കുക.",
+        "description": "Warning message shown when next plans is enabled without a token."
+    },
+    "tokenRequiredNextPlansWarningCodeberg": {
+        "message": "നിയുക്ത പ്രശ്നങ്ങൾ ലഭ്യമാക്കാൻ Codeberg ടോക്കൺ ആവശ്യമാണ്. ക്രമീകരണങ്ങളിൽ ചേർക്കുക.",
+        "description": "Warning message shown when next plans is enabled without a token on Codeberg."
+    },
+    "tokenRequiredNextPlansWarningGitLab": {
+        "message": "നിയുക്ത പ്രശ്നങ്ങൾ ലഭ്യമാക്കാൻ GitLab ടോക്കൺ ആവശ്യമാണ്. ക്രമീകരണങ്ങളിൽ ചേർക്കുക.",
+        "description": "Warning message shown when next plans is enabled without a token on GitLab."
+    },
+    "onlyPrsRequiredShowCommitsWarning": {
+        "message": "കമ്മിറ്റുകൾ കാണിക്കുന്നതിന് 'തുറന്ന/ഡ്രാഫ്റ്റ് PRകൾ ഉൾപ്പെടുത്തുക' തിരഞ്ഞെടുക്കുക."
+    },
+    "regenerateNoticeText": {
+        "message": "ഓപ്ഷൻ മാറ്റി. മാറ്റങ്ങൾ ബാധകമാക്കാൻ റിപ്പോർട്ട് വീണ്ടും ജനറേറ്റ് ചെയ്യുക."
+    },
+    "tokenRequiredShowCommitsWarningGitLab": {
+        "message": "തുറന്ന അല്ലെങ്കിൽ ഡ്രാഫ്റ്റ് MRകളിൽ കമ്മിറ്റുകൾ കാണിക്കാൻ GitLab ടോക്കൺ ആവശ്യമാണ്.",
+        "description": "Warning message shown when show commits is enabled without a token."
+    },
+    "tokenRequiredShowCommitsWarningCodeberg": {
+        "message": "തുറന്ന അല്ലെങ്കിൽ ഡ്രാഫ്റ്റ് PRകളിൽ കമ്മിറ്റുകൾ കാണിക്കാൻ Codeberg ടോക്കൺ ആവശ്യമാണ്.",
+        "description": "Warning message shown when show commits is enabled without a token on Codeberg."
+    },
+    "selectPlatformPlaceholder": {
+        "message": "പ്ലാറ്റ്‌ഫോം തിരഞ്ഞെടുക്കുക",
+        "description": "Placeholder text displayed when no platform is selected."
+    },
+    "selectPlatformWarning": {
+        "message": "ദയവായി ആദ്യം ഒരു പ്ലാറ്റ്‌ഫോം തിരഞ്ഞെടുക്കുക",
+        "description": "Warning message when trying to generate report without selecting any platform."
+    },
+    "githubUsernameRequiredError": {
+        "message": "ദയവായി നിങ്ങളുടെ GitHub ഉപയോക്തൃനാമം നൽകുക",
+        "description": "Error shown when GitHub username is missing."
+    },
+    "gitlabUsernameRequiredError": {
+        "message": "ദയവായി നിങ്ങളുടെ GitLab ഉപയോക്തൃനാമം നൽകുക",
+        "description": "Error shown when GitLab username is missing."
+    },
+    "codebergUsernameRequiredError": {
+        "message": "ദയവായി നിങ്ങളുടെ Codeberg ഉപയോക്തൃനാമം നൽകുക",
+        "description": "Error shown when Codeberg username is missing."
+    },
+    "errorLabel": {
+        "message": "പിശക്",
+        "description": "Prefix for repository fetch error messages; punctuation is added by the caller."
+    },
+    "codebergUserFetchError": {
+        "message": "Codeberg ഉപയോക്താവിനെ ലഭ്യമാക്കുന്നതിൽ പിശക്: $1 $2",
+        "description": "Error when fetching Codeberg user fails. $1=status, $2=statusText"
+    },
+    "codebergUserNotFoundError": {
+        "message": "Codeberg ഉപയോക്താവ് \"$1\" കണ്ടെത്താനായില്ല.",
+        "description": "Error when Codeberg user is not found. $1=username"
+    },
+    "codebergUserValidationError": {
+        "message": "Codeberg ഉപയോക്താവിനെ സാധൂകരിക്കുന്നതിൽ പിശക്: $1 $2",
+        "description": "Error when validating Codeberg user fails. $1=status, $2=statusText"
+    },
+    "reportAlreadyInserted": {
+        "message": "റിപ്പോർട്ട് ഇതിനകം ചേർത്തു!",
+        "description": "Notification shown when the report has already been inserted in the current session."
+    },
+    "includeBlockersLabel": {
+        "message": "റിപ്പോർട്ടിൽ തടസ്സങ്ങൾ ഉൾപ്പെടുത്തുക",
+        "description": "Label for checkbox to include blockers in the scrum report."
+    },
+    "includeBlockersTooltip": {
+        "message": "തിരഞ്ഞെടുത്താൽ, റിപ്പോർട്ടിൽ തടസ്സങ്ങൾ അടങ്ങിയ വിഭാഗം ഉൾപ്പെടും.",
+        "description": "Tooltip text explaining the include blockers option."
+    },
+    "includeNextPlansLabel": {
+        "message": "ഇമെയിൽ ചോദ്യം 2ൽ തുറന്ന പ്രശ്നങ്ങൾ ഉൾപ്പെടുത്തുക",
+        "description": "Label for checkbox to include next plans in second question of report."
+    },
+    "includeNextPlansTooltip": {
+        "message": "അവ തിരഞ്ഞെടുത്ത് ഇമെയിലിലെ ചോദ്യം 2ലേക്ക് ചേർക്കുക. GitHub ടോക്കൺ ആവശ്യമാണ്.",
+        "description": "Tooltip text explaining the include next plans option."
+    },
+    "includeNextPlansTooltipCodeberg": {
+        "message": "അവ തിരഞ്ഞെടുത്ത് ഇമെയിലിലെ ചോദ്യം 2ലേക്ക് ചേർക്കുക. Codeberg ടോക്കൺ ആവശ്യമാണ്.",
+        "description": "Tooltip text explaining the include next plans option for Codeberg."
+    },
+    "includeNextPlansTooltipGitLab": {
+        "message": "അവ തിരഞ്ഞെടുത്ത് ഇമെയിലിലെ ചോദ്യം 2ലേക്ക് ചേർക്കുക. GitLab ടോക്കൺ ആവശ്യമാണ്.",
+        "description": "Tooltip text explaining the include next plans option on GitLab."
+    },
+    "fetchingIssuesSpinner": {
+        "message": "നിങ്ങൾക്ക് നിയുക്തമായ പ്രശ്നങ്ങൾ ലഭ്യമാക്കുന്നു...",
+        "description": "Loading message shown when fetching assigned issues."
+    },
+    "noIssuesFound": {
+        "message": "തുറന്ന പ്രശ്നങ്ങളൊന്നും കണ്ടെത്തിയില്ല",
+        "description": "Empty state message for assigned issues."
+    },
+    "githubTokenRequiredNextPlans": {
+        "message": "പ്രശ്നങ്ങൾ ലഭ്യമാക്കാൻ GitHub ടോക്കൺ ആവശ്യമാണ്. ക്രമീകരണങ്ങളിൽ ചേർക്കുക.",
+        "description": "Error message when no token is present."
+    },
+    "gitlabTokenRequiredNextPlans": {
+        "message": "പ്രശ്നങ്ങൾ ലഭ്യമാക്കാൻ GitLab ടോക്കൺ ആവശ്യമാണ്. ക്രമീകരണങ്ങളിൽ ചേർക്കുക.",
+        "description": "Error message when no token is present on GitLab."
+    },
+    "failedToFetchIssues": {
+        "message": "നിയുക്ത പ്രശ്നങ്ങൾ ലഭ്യമാക്കുന്നതിൽ പരാജയപ്പെട്ടു.",
+        "description": "Error message when fetching fails."
+    },
+    "repoFilterTooltip": {
+        "message": "GitHub ടോക്കൺ ആവശ്യമാണ്.<br>ലിസ്റ്റ് പുതുക്കാൻ,<br>'ഡാറ്റ പുതുക്കുക' ബട്ടൺ ക്ലിക്ക് ചെയ്യുക.",
+        "description": "Tooltip message displayed for GitHub repository filter option."
+    },
+    "repoFilterTooltipGitLab": {
+        "message": "GitLab ടോക്കൺ ആവശ്യമാണ്.<br>ലിസ്റ്റ് പുതുക്കാൻ,<br>'ഡാറ്റ പുതുക്കുക' ബട്ടൺ ക്ലിക്ക് ചെയ്യുക.",
+        "description": "Tooltip message displayed for GitLab repository filter option."
+    },
+    "smtpSenderEmailLabel": {
+        "message": "അയക്കുന്നയാളുടെ ഇമെയിൽ"
+    },
+    "smtpSenderEmailPlaceholder": {
+        "message": "sender@example.com"
+    },
+    "smtpHostLabel": {
+        "message": "SMTP ഹോസ്റ്റ്"
+    },
+    "smtpHostPlaceholder": {
+        "message": "smtp.example.com"
+    },
+    "smtpPortLabel": {
+        "message": "SMTP പോർട്ട്"
+    },
+    "smtpPortPlaceholder": {
+        "message": "587"
+    },
+    "smtpUsernameLabel": {
+        "message": "SMTP ഉപയോക്തൃനാമം"
+    },
+    "smtpUsernamePlaceholder": {
+        "message": "username@example.com"
+    },
+    "smtpPasswordLabel": {
+        "message": "SMTP പാസ്‌വേഡ്"
+    },
+    "smtpPasswordPlaceholder": {
+        "message": "നിങ്ങളുടെ SMTP പാസ്‌വേഡ് നൽകുക"
+    },
+    "smtpRecipientsLabel": {
+        "message": "സ്വീകർത്താക്കൾ"
+    },
+    "smtpRecipientsPlaceholder": {
+        "message": "recipient1@example.com, recipient2@example.com"
+    },
+    "smtpGmailHint": {
+        "message": "Gmail-നായി, സാധാരണ പാസ്‌വേഡിന് പകരം ആപ്പ് പാസ്‌വേഡ് ഉപയോഗിക്കണം."
+    },
+    "smtpSecurityWarning": {
+        "message": "ശ്രദ്ധിക്കുക: നിങ്ങളുടെ പാസ്‌വേഡ് എൻക്രിപ്റ്റ് ചെയ്യാതെ ലോക്കൽ സ്റ്റോറേജിൽ സൂക്ഷിക്കുന്നു."
+    },
+    "smtpMissingFieldsError": {
+        "message": "ദയവായി ആദ്യം എല്ലാ മെയിൽ ക്രമീകരണങ്ങളും കോൺഫിഗർ ചെയ്യുക."
+    },
+    "smtpInvalidEmailError": {
+        "message": "അസാധുവായ ഇമെയിൽ വിലാസം: $1"
+    },
+    "smtpSendSuccess": {
+        "message": "റിപ്പോർട്ട് വിജയകരമായി ഇമെയിൽ വഴി അയച്ചു!"
+    },
+    "smtpPartialSuccess": {
+        "message": "$1/$2 ലേക്ക് അയച്ചു; പരാജയപ്പെട്ടു: $3"
+    },
+    "smtpSendFailed": {
+        "message": "ഇമെയിൽ അയക്കുന്നതിൽ പരാജയപ്പെട്ടു: "
+    },
+    "smtpSendError": {
+        "message": "ഒരു പിശക് സംഭവിച്ചു: "
+    },
+    "sendingButton": {
+        "message": "അയക്കുന്നു..."
+    },
+    "sendEmailButton": {
+        "message": "ഇമെയിൽ അയക്കുക"
+    },
+    "mailSettingsTitle": {
+        "message": "മെയിൽ ക്രമീകരണങ്ങൾ"
+    },
+    "sentButton": {
+        "message": "അയച്ചു"
+    },
+    "homeTitle": {
+        "message": "ഹോം"
+    },
+    "settingsTitle": {
+        "message": "ക്രമീകരണങ്ങൾ"
+    },
+    "extensionSettingsHeading": {
+        "message": "വിപുലീകരണ ക്രമീകരണങ്ങൾ",
+        "description": "Heading for general extension settings section."
+    },
+    "displayModeLabel": {
+        "message": "ഡിസ്പ്ലേ മോഡ്",
+        "description": "Label for the extension display mode selector."
+    },
+    "displayModeTooltip": {
+        "message": "ഐക്കൺ ക്ലിക്ക് ചെയ്യുമ്പോൾ Scrum Helper എങ്ങനെ തുറക്കണമെന്ന് തിരഞ്ഞെടുക്കുക. സൈഡ് പാനൽ പേജിനൊപ്പം ചേർത്തുനിർത്തുന്നു. പോപ്പ്അപ്പ് പ്രത്യേക വിൻഡോ തുറക്കുന്നു.",
+        "description": "Tooltip explaining side panel and popup display modes."
+    },
+    "smtpSenderEmailTooltip": {
+        "message": "റിപ്പോർട്ട് അയക്കേണ്ട ഇമെയിൽ വിലാസം."
+    },
+    "smtpHostTooltip": {
+        "message": "നിങ്ങളുടെ SMTP സെർവർ വിലാസം (ഉദാ. smtp.gmail.com)."
+    },
+    "smtpPortTooltip": {
+        "message": "SMTP സെർവർ പോർട്ട് നമ്പർ (സാധാരണയായി 465 അല്ലെങ്കിൽ 587)."
+    },
+    "smtpUsernameTooltip": {
+        "message": "SMTP സെർവറിലേക്കുള്ള ഉപയോക്തൃനാമം."
+    },
+    "smtpPasswordTooltip": {
+        "message": "SMTP പ്രാമാണീകരണത്തിനുള്ള പാസ്‌വേഡ്. മുന്നറിയിപ്പ്: എൻക്രിപ്ഷൻ ഇല്ലാതെ സൂക്ഷിക്കുന്നു."
+    },
+    "smtpRecipientsTooltip": {
+        "message": "കോമകളാൽ വേർതിരിച്ച സ്വീകർത്താക്കളുടെ ഇമെയിൽ വിലാസങ്ങൾ."
+    },
+    "smtpPresetsLabel": {
+        "message": "ദ്രുത പ്രീസെറ്റുകൾ"
+    },
+    "smtpPresetsTooltip": {
+        "message": "സാധാരണ ഇമെയിൽ സേവനങ്ങൾക്കായി SMTP സെർവറും പോർട്ടും സ്വയമേവ ക്രമീകരിക്കാൻ ഒരു പ്രീസെറ്റ് തിരഞ്ഞെടുക്കുക."
     }
 }

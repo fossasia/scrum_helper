@@ -343,5 +343,322 @@
     },
     "rateLimitWarningMessage": {
         "message": "חלק מהנתונים עשויים להיות חסרים עקב מגבלת הקצב של GitHub. אנא הוסף או בדוק את האסימון של GitHub בהגדרות."
+    },
+    "projectNameTooltip": {
+        "message": "שם פרויקט זה יופיע בשורת הנושא של הודעת הדוא\"ל שלך כחלק מ: \"[Scrum] שם פרויקט - תאריך\". השאר ריק כדי לדלג.",
+        "description": "Tooltip explaining how the project name is used in the email subject."
+    },
+    "gitlabUsernamePlaceholder": {
+        "message": "נדרש כדי לאחזר את התרומות שלך",
+        "description": "Placeholder text for the GitLab username input."
+    },
+    "codebergUsernameLabel": {
+        "message": "שם המשתמש שלך ב-Codeberg",
+        "description": "Label for the Codeberg username input field."
+    },
+    "codebergUsernamePlaceholder": {
+        "message": "נדרש כדי לאחזר את התרומות שלך",
+        "description": "Placeholder text for the Codeberg username input."
+    },
+    "dropdownGithubUsernamePlaceholder": {
+        "message": "שם משתמש ב-GitHub",
+        "description": "Placeholder text for the GitHub username dropdown input."
+    },
+    "dropdownGitlabUsernamePlaceholder": {
+        "message": "שם משתמש ב-GitLab",
+        "description": "Placeholder text for the GitLab username dropdown input."
+    },
+    "dropdownCodebergUsernamePlaceholder": {
+        "message": "שם משתמש ב-Codeberg",
+        "description": "Placeholder text for the Codeberg username dropdown input."
+    },
+    "showOpenClosedTooltip": {
+        "message": "אם מסומן, הדוח יציג תוויות סטטוס עבור PRs ונושאים (לדוגמה, פתוח, טיוטה, מוזג, סגור)."
+    },
+    "advancedFiltersLabel": {
+        "message": "אפשרויות מתקדמות",
+        "description": "Heading for the advanced report options."
+    },
+    "orgNameTooltip": {
+        "message": "פעילות GitHub של איזה ארגון? הזן שם ארגון GitHub. השאר ריק עבור כל הפעילויות. ניתן להפריד ארגונים בפסיקים.",
+        "description": "Tooltip explaining the GitHub organization filter."
+    },
+    "gitlabOrgNamePlaceholder": {
+        "message": "הזן שם קבוצה",
+        "description": "Placeholder for the GitLab group name input."
+    },
+    "settingsGroupNameLabel": {
+        "message": "שם הקבוצה שלך",
+        "description": "Label for the GitLab group name input."
+    },
+    "gitlabOrgNameTooltip": {
+        "message": "פעילות GitLab של איזו קבוצה? הזן שם קבוצת GitLab. השאר ריק עבור כל הקבוצות. ניתן להפריד בפסיקים.",
+        "description": "Tooltip explaining the GitLab group filter."
+    },
+    "codebergTokenLabel": {
+        "message": "הטוקן שלך ב-Codeberg",
+        "description": "Label for the Codeberg token input."
+    },
+    "codebergTokenPlaceholder": {
+        "message": "נדרש לגישה לפרויקטים פרטיים",
+        "description": "Placeholder for the Codeberg token input."
+    },
+    "codebergTokenTooltip": {
+        "message": "<b>למה להוסיף טוקן של Codeberg?</b><br>Scrum Helper עובד ללא טוקן עבור פרויקטים ציבוריים, אך טוקן גישה אישי מאפשר גישה למאגרים פרטיים ומגבלות קצב טובות יותר.<br><br><b>איך להשיג:</b><br>1. עבור אל <a href=\"https://codeberg.org/user/settings/applications\" target=\"_blank\" rel=\"noopener noreferrer\">הגדרות יישומים ב-Codeberg</a><br>2. לחץ על \"צור טוקן חדש\"<br>3. העתק והדבק כאן<br><i>שמור אותו בסוד!</i>",
+        "description": "Tooltip for Codeberg token explaining why it's needed."
+    },
+    "codebergApiBaseUrlLabel": {
+        "message": "כתובת URL בסיסית של Codeberg API",
+        "description": "Label for the Codeberg API Base URL input."
+    },
+    "codebergApiBaseUrlPlaceholder": {
+        "message": "https://codeberg.org/api/v1",
+        "description": "Placeholder for the Codeberg API Base URL input."
+    },
+    "showCommitsTooltipGitLab": {
+        "message": "נדרש טוקן של GitLab, הוסף אותו בהגדרות."
+    },
+    "showCommitsTooltipCodeberg": {
+        "message": "נדרש טוקן של Codeberg, הוסף אותו בהגדרות."
+    },
+    "cacheTTLTooltip": {
+        "message": "אנו שומרים נתונים במטמון כדי למנוע קריאות חוזרות. כברירת מחדל, תוקף המטמון פג לאחר 10 דקות. ניתן לרענן ידנית באמצעות כפתור הרענון.",
+        "description": "Tooltip explaining cache lifetime and manual refresh."
+    },
+    "tokenRequiredGitlabWarning": {
+        "message": "נדרש טוקן של GitLab לסינון מאגרים. אנא הוסף בהגדרות.",
+        "description": "Warning message shown when GitLab repo filtering is enabled without a token."
+    },
+    "tokenRequiredNextPlansWarning": {
+        "message": "נדרש טוקן של GitHub כדי לאחזר נושאים שהוקצו. אנא הוסף בהגדרות.",
+        "description": "Warning message shown when next plans is enabled without a token."
+    },
+    "tokenRequiredNextPlansWarningCodeberg": {
+        "message": "נדרש טוקן של Codeberg כדי לאחזר נושאים שהוקצו. אנא הוסף בהגדרות.",
+        "description": "Warning message shown when next plans is enabled without a token on Codeberg."
+    },
+    "tokenRequiredNextPlansWarningGitLab": {
+        "message": "נדרש טוקן של GitLab כדי לאחזר נושאים שהוקצו. אנא הוסף בהגדרות.",
+        "description": "Warning message shown when next plans is enabled without a token on GitLab."
+    },
+    "onlyPrsRequiredShowCommitsWarning": {
+        "message": "אנא סמן את האפשרות 'כלול PRs פתוחים/טיוטות בדוח' כדי להציג קומיטים."
+    },
+    "regenerateNoticeText": {
+        "message": "האפשרות שונתה. אנא צור מחדש את הדוח כדי להחיל שינויים."
+    },
+    "tokenRequiredShowCommitsWarningGitLab": {
+        "message": "נדרש טוקן של GitLab כדי להציג קומיטים ב-MRs פתוחים או טיוטות.",
+        "description": "Warning message shown when show commits is enabled without a token."
+    },
+    "tokenRequiredShowCommitsWarningCodeberg": {
+        "message": "נדרש טוקן של Codeberg כדי להציג קומיטים ב-PRs פתוחים או טיוטות.",
+        "description": "Warning message shown when show commits is enabled without a token on Codeberg."
+    },
+    "selectPlatformPlaceholder": {
+        "message": "בחר פלטפורמה",
+        "description": "Placeholder text displayed when no platform is selected."
+    },
+    "selectPlatformWarning": {
+        "message": "אנא בחר פלטפורמה תחילה",
+        "description": "Warning message when trying to generate report without selecting any platform."
+    },
+    "githubUsernameRequiredError": {
+        "message": "אנא הזן את שם המשתמש שלך ב-GitHub",
+        "description": "Error shown when GitHub username is missing."
+    },
+    "gitlabUsernameRequiredError": {
+        "message": "אנא הזן את שם המשתמש שלך ב-GitLab",
+        "description": "Error shown when GitLab username is missing."
+    },
+    "codebergUsernameRequiredError": {
+        "message": "אנא הזן את שם המשתמש שלך ב-Codeberg",
+        "description": "Error shown when Codeberg username is missing."
+    },
+    "errorLabel": {
+        "message": "שגיאה",
+        "description": "Prefix for repository fetch error messages; punctuation is added by the caller."
+    },
+    "codebergUserFetchError": {
+        "message": "שגיאה באחזור משתמש Codeberg: $1 $2",
+        "description": "Error when fetching Codeberg user fails. $1=status, $2=statusText"
+    },
+    "codebergUserNotFoundError": {
+        "message": "משתמש Codeberg \"$1\" לא נמצא.",
+        "description": "Error when Codeberg user is not found. $1=username"
+    },
+    "codebergUserValidationError": {
+        "message": "שגיאה באימות משתמש Codeberg: $1 $2",
+        "description": "Error when validating Codeberg user fails. $1=status, $2=statusText"
+    },
+    "reportAlreadyInserted": {
+        "message": "הדוח כבר הוכנס!",
+        "description": "Notification shown when the report has already been inserted in the current session."
+    },
+    "includeBlockersLabel": {
+        "message": "כלול חוסמים בדוח",
+        "description": "Label for checkbox to include blockers in the scrum report."
+    },
+    "includeBlockersTooltip": {
+        "message": "אם מסומן, הדוח יכלול את סעיף החוסמים.",
+        "description": "Tooltip text explaining the include blockers option."
+    },
+    "includeNextPlansLabel": {
+        "message": "כלול נושאים פתוחים שהוקצו בשאלה 2 בדוא\"ל",
+        "description": "Label for checkbox to include next plans in second question of report."
+    },
+    "includeNextPlansTooltip": {
+        "message": "בחר והוסף אותם לשאלה 2 בדוא\"ל. נדרש טוקן GitHub.",
+        "description": "Tooltip text explaining the include next plans option."
+    },
+    "includeNextPlansTooltipCodeberg": {
+        "message": "בחר והוסף אותם לשאלה 2 בדוא\"ל. נדרש טוקן Codeberg.",
+        "description": "Tooltip text explaining the include next plans option for Codeberg."
+    },
+    "includeNextPlansTooltipGitLab": {
+        "message": "בחר והוסף אותם לשאלה 2 בדוא\"ל. נדרש טוקן GitLab.",
+        "description": "Tooltip text explaining the include next plans option on GitLab."
+    },
+    "fetchingIssuesSpinner": {
+        "message": "מאחזר נושאים שהוקצו לך...",
+        "description": "Loading message shown when fetching assigned issues."
+    },
+    "noIssuesFound": {
+        "message": "לא נמצאו נושאים פתוחים שהוקצו",
+        "description": "Empty state message for assigned issues."
+    },
+    "githubTokenRequiredNextPlans": {
+        "message": "נדרש טוקן GitHub כדי לאחזר נושאים שהוקצו. אנא הוסף בהגדרות.",
+        "description": "Error message when no token is present."
+    },
+    "gitlabTokenRequiredNextPlans": {
+        "message": "נדרש טוקן GitLab כדי לאחזר נושאים שהוקצו. אנא הוסף בהגדרות.",
+        "description": "Error message when no token is present on GitLab."
+    },
+    "failedToFetchIssues": {
+        "message": "נכשל באחזור נושאים שהוקצו.",
+        "description": "Error message when fetching fails."
+    },
+    "repoFilterTooltip": {
+        "message": "נדרש טוקן GitHub.<br>לרענון רשימת המאגרים,<br>לחץ על כפתור רענן נתונים.",
+        "description": "Tooltip message displayed for GitHub repository filter option."
+    },
+    "repoFilterTooltipGitLab": {
+        "message": "נדרש טוקן GitLab.<br>לרענון רשימת המאגרים,<br>לחץ על כפתור רענן נתונים.",
+        "description": "Tooltip message displayed for GitLab repository filter option."
+    },
+    "smtpSenderEmailLabel": {
+        "message": "דוא\"ל שולח"
+    },
+    "smtpSenderEmailPlaceholder": {
+        "message": "sender@example.com"
+    },
+    "smtpHostLabel": {
+        "message": "שרת SMTP"
+    },
+    "smtpHostPlaceholder": {
+        "message": "smtp.example.com"
+    },
+    "smtpPortLabel": {
+        "message": "יציאת SMTP"
+    },
+    "smtpPortPlaceholder": {
+        "message": "587"
+    },
+    "smtpUsernameLabel": {
+        "message": "שם משתמש SMTP"
+    },
+    "smtpUsernamePlaceholder": {
+        "message": "username@example.com"
+    },
+    "smtpPasswordLabel": {
+        "message": "סיסמת SMTP"
+    },
+    "smtpPasswordPlaceholder": {
+        "message": "הזן סיסמת SMTP"
+    },
+    "smtpRecipientsLabel": {
+        "message": "נמענים"
+    },
+    "smtpRecipientsPlaceholder": {
+        "message": "recipient1@example.com, recipient2@example.com"
+    },
+    "smtpGmailHint": {
+        "message": "עבור Gmail, עליך להשתמש בסיסמת אפליקציה ולא בסיסמה הרגילה שלך."
+    },
+    "smtpSecurityWarning": {
+        "message": "הערה: הסיסמה שלך נשמרת ללא הצפנה באחסון המקומי. ודא שהמכשיר שלך מאובטח."
+    },
+    "smtpMissingFieldsError": {
+        "message": "אנא הגדר תחילה את כל הגדרות הדוא\"ל."
+    },
+    "smtpInvalidEmailError": {
+        "message": "כתובת דוא\"ל לא חוקית: $1"
+    },
+    "smtpSendSuccess": {
+        "message": "הדוח נשלח בהצלחה בדוא\"ל!"
+    },
+    "smtpPartialSuccess": {
+        "message": "נשלח אל $1/$2; נכשל: $3"
+    },
+    "smtpSendFailed": {
+        "message": "שליחת הדוא\"ל נכשלה: "
+    },
+    "smtpSendError": {
+        "message": "אירעה שגיאה: "
+    },
+    "sendingButton": {
+        "message": "שולח..."
+    },
+    "sendEmailButton": {
+        "message": "שלח דוא\"ל"
+    },
+    "mailSettingsTitle": {
+        "message": "הגדרות דוא\"ל"
+    },
+    "sentButton": {
+        "message": "נשלח"
+    },
+    "homeTitle": {
+        "message": "בית"
+    },
+    "settingsTitle": {
+        "message": "הגדרות"
+    },
+    "extensionSettingsHeading": {
+        "message": "הגדרות תוסף",
+        "description": "Heading for general extension settings section."
+    },
+    "displayModeLabel": {
+        "message": "מצב תצוגה",
+        "description": "Label for the extension display mode selector."
+    },
+    "displayModeTooltip": {
+        "message": "בחר כיצד Scrum Helper ייפתח בלחיצה על הסמל שלו. חלונית הצד שומרת עליו מעוגן. חלון קופץ פותח חלון צף.",
+        "description": "Tooltip explaining side panel and popup display modes."
+    },
+    "smtpSenderEmailTooltip": {
+        "message": "כתובת הדוא\"ל שממנה יישלח הדוח."
+    },
+    "smtpHostTooltip": {
+        "message": "כתובת שרת ה-SMTP שלך (למשל smtp.gmail.com)."
+    },
+    "smtpPortTooltip": {
+        "message": "מספר היציאה של שרת ה-SMTP (בדרך כלל 465 או 587)."
+    },
+    "smtpUsernameTooltip": {
+        "message": "שם המשתמש או הדוא\"ל להתחברות לשרת ה-SMTP."
+    },
+    "smtpPasswordTooltip": {
+        "message": "הסיסמה לאימות מול שרת ה-SMTP. אזהרה: נשמרת ללא הצפנה."
+    },
+    "smtpRecipientsTooltip": {
+        "message": "רשימת כתובות דוא\"ל של נמענים מופרדות בפסיקים."
+    },
+    "smtpPresetsLabel": {
+        "message": "הגדרות מהירות מוגדרות מראש"
+    },
+    "smtpPresetsTooltip": {
+        "message": "בחר הגדרה מוגדרת מראש כדי להגדיר אוטומטית את שרת ויציאת ה-SMTP."
     }
 }

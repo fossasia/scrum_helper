@@ -343,5 +343,322 @@
     },
     "rateLimitWarningMessage": {
         "message": "GitHub のレート制限により、一部のデータが欠落している可能性があります。設定で GitHub トークンを追加または確認してください。"
+    },
+    "projectNameTooltip": {
+        "message": "このプロジェクト名は、メールの件名に「[Scrum] プロジェクト名 - 日付」として表示されます。スキップする場合は空白のままにしてください。",
+        "description": "Tooltip explaining how the project name is used in the email subject."
+    },
+    "gitlabUsernamePlaceholder": {
+        "message": "アクティビティ取得に必要です",
+        "description": "Placeholder text for the GitLab username input."
+    },
+    "codebergUsernameLabel": {
+        "message": "Codebergユーザー名",
+        "description": "Label for the Codeberg username input field."
+    },
+    "codebergUsernamePlaceholder": {
+        "message": "アクティビティ取得に必要です",
+        "description": "Placeholder text for the Codeberg username input."
+    },
+    "dropdownGithubUsernamePlaceholder": {
+        "message": "GitHubユーザー名",
+        "description": "Placeholder text for the GitHub username dropdown input."
+    },
+    "dropdownGitlabUsernamePlaceholder": {
+        "message": "GitLabユーザー名",
+        "description": "Placeholder text for the GitLab username dropdown input."
+    },
+    "dropdownCodebergUsernamePlaceholder": {
+        "message": "Codebergユーザー名",
+        "description": "Placeholder text for the Codeberg username dropdown input."
+    },
+    "showOpenClosedTooltip": {
+        "message": "チェックすると、PRやIssueのステータスラベル（Open、Draft、Merged、Closedなど）が表示されます。"
+    },
+    "advancedFiltersLabel": {
+        "message": "高度なオプション",
+        "description": "Heading for the advanced report options."
+    },
+    "orgNameTooltip": {
+        "message": "どこの組織のGitHubアクティビティですか？取得対象の組織名を入力してください。空欄にするとすべての組織のアクティビティを取得します。複数組織はカンマで区切ります。大文字小文字は区別されません。",
+        "description": "Tooltip explaining the GitHub organization filter."
+    },
+    "gitlabOrgNamePlaceholder": {
+        "message": "グループ名を入力",
+        "description": "Placeholder for the GitLab group name input."
+    },
+    "settingsGroupNameLabel": {
+        "message": "グループ名",
+        "description": "Label for the GitLab group name input."
+    },
+    "gitlabOrgNameTooltip": {
+        "message": "どこのグループのGitLabアクティビティですか？GitLabグループ名を入力してください。空欄にすると全グループを対象とします。複数グループはカンマで区切ります。",
+        "description": "Tooltip explaining the GitLab group filter."
+    },
+    "codebergTokenLabel": {
+        "message": "Codebergトークン",
+        "description": "Label for the Codeberg token input."
+    },
+    "codebergTokenPlaceholder": {
+        "message": "プライベートプロジェクトへのアクセスに必要です",
+        "description": "Placeholder for the Codeberg token input."
+    },
+    "codebergTokenTooltip": {
+        "message": "<b>なぜCodebergトークンを追加するのですか？</b><br>Scrum Helperは公開プロジェクトにはトークンなしで動作しますが、個人アクセストークンを設定するとプライベートリポジトリの取得やレート制限の緩和が可能になります。<br><br><b>取得方法：</b><br>1. <a href=\"https://codeberg.org/user/settings/applications\" target=\"_blank\" rel=\"noopener noreferrer\">Codebergアプリケーション設定</a>にアクセス<br>2. 「新しいトークンを生成」をクリック<br>3. コピーしてここに貼り付け<br><i>秘密にしておいてください！</i>",
+        "description": "Tooltip for Codeberg token explaining why it's needed."
+    },
+    "codebergApiBaseUrlLabel": {
+        "message": "Codeberg API ベースURL",
+        "description": "Label for the Codeberg API Base URL input."
+    },
+    "codebergApiBaseUrlPlaceholder": {
+        "message": "https://codeberg.org/api/v1",
+        "description": "Placeholder for the Codeberg API Base URL input."
+    },
+    "showCommitsTooltipGitLab": {
+        "message": "GitLabトークンが必要です。設定で追加してください。"
+    },
+    "showCommitsTooltipCodeberg": {
+        "message": "Codebergトークンが必要です。設定で追加してください。"
+    },
+    "cacheTTLTooltip": {
+        "message": "不要なAPI呼び出しを防ぐためデータをキャッシュしています。デフォルトでは10分後に有効期限が切れます。キャッシュ更新ボタンで即座に最新データを取得できます。",
+        "description": "Tooltip explaining cache lifetime and manual refresh."
+    },
+    "tokenRequiredGitlabWarning": {
+        "message": "リポジトリのフィルタリングにはGitLabトークンが必要です。設定で追加してください。",
+        "description": "Warning message shown when GitLab repo filtering is enabled without a token."
+    },
+    "tokenRequiredNextPlansWarning": {
+        "message": "担当Issueの取得にはGitHubトークンが必要です。設定で追加してください。",
+        "description": "Warning message shown when next plans is enabled without a token."
+    },
+    "tokenRequiredNextPlansWarningCodeberg": {
+        "message": "担当Issueの取得にはCodebergトークンが必要です。設定で追加してください。",
+        "description": "Warning message shown when next plans is enabled without a token on Codeberg."
+    },
+    "tokenRequiredNextPlansWarningGitLab": {
+        "message": "担当Issueの取得にはGitLabトークンが必要です。設定で追加してください。",
+        "description": "Warning message shown when next plans is enabled without a token on GitLab."
+    },
+    "onlyPrsRequiredShowCommitsWarning": {
+        "message": "コミットを表示するには「レポートにOpen/DraftのPRを含める」にチェックを入れてください。"
+    },
+    "regenerateNoticeText": {
+        "message": "オプションが変更されました。変更を反映するにはレポートを再生成してください。"
+    },
+    "tokenRequiredShowCommitsWarningGitLab": {
+        "message": "OpenまたはDraftのMRでコミットを表示するにはGitLabトークンが必要です。",
+        "description": "Warning message shown when show commits is enabled without a token."
+    },
+    "tokenRequiredShowCommitsWarningCodeberg": {
+        "message": "OpenまたはDraftのPRでコミットを表示するにはCodebergトークンが必要です。",
+        "description": "Warning message shown when show commits is enabled without a token on Codeberg."
+    },
+    "selectPlatformPlaceholder": {
+        "message": "プラットフォームを選択",
+        "description": "Placeholder text displayed when no platform is selected."
+    },
+    "selectPlatformWarning": {
+        "message": "まずプラットフォームを選択してください",
+        "description": "Warning message when trying to generate report without selecting any platform."
+    },
+    "githubUsernameRequiredError": {
+        "message": "GitHubユーザー名を入力してください",
+        "description": "Error shown when GitHub username is missing."
+    },
+    "gitlabUsernameRequiredError": {
+        "message": "GitLabユーザー名を入力してください",
+        "description": "Error shown when GitLab username is missing."
+    },
+    "codebergUsernameRequiredError": {
+        "message": "Codebergユーザー名を入力してください",
+        "description": "Error shown when Codeberg username is missing."
+    },
+    "errorLabel": {
+        "message": "エラー",
+        "description": "Prefix for repository fetch error messages; punctuation is added by the caller."
+    },
+    "codebergUserFetchError": {
+        "message": "Codebergユーザーの取得エラー: $1 $2",
+        "description": "Error when fetching Codeberg user fails. $1=status, $2=statusText"
+    },
+    "codebergUserNotFoundError": {
+        "message": "Codebergユーザー \"$1\" が見つかりません。",
+        "description": "Error when Codeberg user is not found. $1=username"
+    },
+    "codebergUserValidationError": {
+        "message": "Codebergユーザーの検証エラー: $1 $2",
+        "description": "Error when validating Codeberg user fails. $1=status, $2=statusText"
+    },
+    "reportAlreadyInserted": {
+        "message": "レポートは既に挿入されています！",
+        "description": "Notification shown when the report has already been inserted in the current session."
+    },
+    "includeBlockersLabel": {
+        "message": "レポートにブロッカーを含める",
+        "description": "Label for checkbox to include blockers in the scrum report."
+    },
+    "includeBlockersTooltip": {
+        "message": "チェックすると、レポートにブロッカー（障害）セクションが含まれます。",
+        "description": "Tooltip text explaining the include blockers option."
+    },
+    "includeNextPlansLabel": {
+        "message": "担当している未解決Issueをメールの質問2に含める",
+        "description": "Label for checkbox to include next plans in second question of report."
+    },
+    "includeNextPlansTooltip": {
+        "message": "選択してメールの質問2に追加します。GitHubトークンが必要です。",
+        "description": "Tooltip text explaining the include next plans option."
+    },
+    "includeNextPlansTooltipCodeberg": {
+        "message": "選択してメールの質問2に追加します。Codebergトークンが必要です。",
+        "description": "Tooltip text explaining the include next plans option for Codeberg."
+    },
+    "includeNextPlansTooltipGitLab": {
+        "message": "選択してメールの質問2に追加します。GitLabトークンが必要です。",
+        "description": "Tooltip text explaining the include next plans option on GitLab."
+    },
+    "fetchingIssuesSpinner": {
+        "message": "担当しているIssueを取得中...",
+        "description": "Loading message shown when fetching assigned issues."
+    },
+    "noIssuesFound": {
+        "message": "担当している未解決Issueは見つかりませんでした",
+        "description": "Empty state message for assigned issues."
+    },
+    "githubTokenRequiredNextPlans": {
+        "message": "担当Issueの取得にはGitHubトークンが必要です。設定で追加してください。",
+        "description": "Error message when no token is present."
+    },
+    "gitlabTokenRequiredNextPlans": {
+        "message": "担当Issueの取得にはGitLabトークンが必要です。設定で追加してください。",
+        "description": "Error message when no token is present on GitLab."
+    },
+    "failedToFetchIssues": {
+        "message": "担当Issueの取得に失敗しました。",
+        "description": "Error message when fetching fails."
+    },
+    "repoFilterTooltip": {
+        "message": "GitHubトークンが必要です。<br>リポジトリリストを強制更新するには、<br>「データを更新」ボタンをクリックしてください。",
+        "description": "Tooltip message displayed for GitHub repository filter option."
+    },
+    "repoFilterTooltipGitLab": {
+        "message": "GitLabトークンが必要です。<br>リポジトリリストを強制更新するには、<br>「データを更新」ボタンをクリックしてください。",
+        "description": "Tooltip message displayed for GitLab repository filter option."
+    },
+    "smtpSenderEmailLabel": {
+        "message": "送信者メールアドレス"
+    },
+    "smtpSenderEmailPlaceholder": {
+        "message": "sender@example.com"
+    },
+    "smtpHostLabel": {
+        "message": "SMTPホスト"
+    },
+    "smtpHostPlaceholder": {
+        "message": "smtp.example.com"
+    },
+    "smtpPortLabel": {
+        "message": "SMTPポート"
+    },
+    "smtpPortPlaceholder": {
+        "message": "587"
+    },
+    "smtpUsernameLabel": {
+        "message": "SMTPユーザー名"
+    },
+    "smtpUsernamePlaceholder": {
+        "message": "username@example.com"
+    },
+    "smtpPasswordLabel": {
+        "message": "SMTPパスワード"
+    },
+    "smtpPasswordPlaceholder": {
+        "message": "SMTPパスワードを入力"
+    },
+    "smtpRecipientsLabel": {
+        "message": "宛先（受信者）"
+    },
+    "smtpRecipientsPlaceholder": {
+        "message": "recipient1@example.com, recipient2@example.com"
+    },
+    "smtpGmailHint": {
+        "message": "Gmailの場合、通常のパスワードではなくアプリパスワードを使用する必要があります。"
+    },
+    "smtpSecurityWarning": {
+        "message": "注意: パスワードはローカルストレージに暗号化されずに保存されます。デバイスのセキュリティをご確認ください。"
+    },
+    "smtpMissingFieldsError": {
+        "message": "まずすべてのメール設定を行ってください。"
+    },
+    "smtpInvalidEmailError": {
+        "message": "無効なメールアドレスです: $1"
+    },
+    "smtpSendSuccess": {
+        "message": "レポートがメールで正常に送信されました！"
+    },
+    "smtpPartialSuccess": {
+        "message": "$1/$2 件送信成功、失敗: $3 件"
+    },
+    "smtpSendFailed": {
+        "message": "メールの送信に失敗しました: "
+    },
+    "smtpSendError": {
+        "message": "エラーが発生しました: "
+    },
+    "sendingButton": {
+        "message": "送信中..."
+    },
+    "sendEmailButton": {
+        "message": "メールを送信"
+    },
+    "mailSettingsTitle": {
+        "message": "メール設定"
+    },
+    "sentButton": {
+        "message": "送信済み"
+    },
+    "homeTitle": {
+        "message": "ホーム"
+    },
+    "settingsTitle": {
+        "message": "設定"
+    },
+    "extensionSettingsHeading": {
+        "message": "拡張機能の設定",
+        "description": "Heading for general extension settings section."
+    },
+    "displayModeLabel": {
+        "message": "表示モード",
+        "description": "Label for the extension display mode selector."
+    },
+    "displayModeTooltip": {
+        "message": "アイコンをクリックしたときの開き方を選択します。「サイドパネル」はページの横に固定し、「ポップアップ」は独立したウィンドウで開きます。",
+        "description": "Tooltip explaining side panel and popup display modes."
+    },
+    "smtpSenderEmailTooltip": {
+        "message": "レポートの送信元メールアドレスです。"
+    },
+    "smtpHostTooltip": {
+        "message": "SMTPサーバーのアドレス（例: smtp.gmail.com）。"
+    },
+    "smtpPortTooltip": {
+        "message": "SMTPサーバーのポート番号（通常は465または587）。"
+    },
+    "smtpUsernameTooltip": {
+        "message": "SMTPサーバーのユーザー名またはログインメールアドレス。"
+    },
+    "smtpPasswordTooltip": {
+        "message": "SMTP認証用パスワード。警告: 暗号化されずに保存されます。"
+    },
+    "smtpRecipientsTooltip": {
+        "message": "カンマで区切られた宛先メールアドレスのリスト。"
+    },
+    "smtpPresetsLabel": {
+        "message": "クイックプリセット"
+    },
+    "smtpPresetsTooltip": {
+        "message": "主要なメールサービスのホストとポート設定を自動で構成します。"
     }
 }

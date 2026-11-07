@@ -343,5 +343,322 @@
     },
     "rateLimitWarningMessage": {
         "message": "Beberapa data mungkin hilang karena batas tingkat GitHub. Silakan tambahkan atau periksa token GitHub Anda di pengaturan."
+    },
+    "projectNameTooltip": {
+        "message": "Nama proyek ini akan muncul di baris subjek email Anda sebagai bagian dari: \"[Scrum] Nama Proyek - Tanggal\". Biarkan kosong untuk melewati.",
+        "description": "Tooltip explaining how the project name is used in the email subject."
+    },
+    "gitlabUsernamePlaceholder": {
+        "message": "Diperlukan untuk mengambil kontribusi Anda",
+        "description": "Placeholder text for the GitLab username input."
+    },
+    "codebergUsernameLabel": {
+        "message": "Nama pengguna Codeberg Anda",
+        "description": "Label for the Codeberg username input field."
+    },
+    "codebergUsernamePlaceholder": {
+        "message": "Diperlukan untuk mengambil kontribusi Anda",
+        "description": "Placeholder text for the Codeberg username input."
+    },
+    "dropdownGithubUsernamePlaceholder": {
+        "message": "Nama pengguna GitHub",
+        "description": "Placeholder text for the GitHub username dropdown input."
+    },
+    "dropdownGitlabUsernamePlaceholder": {
+        "message": "Nama pengguna GitLab",
+        "description": "Placeholder text for the GitLab username dropdown input."
+    },
+    "dropdownCodebergUsernamePlaceholder": {
+        "message": "Nama pengguna Codeberg",
+        "description": "Placeholder text for the Codeberg username dropdown input."
+    },
+    "showOpenClosedTooltip": {
+        "message": "Jika dicentang, laporan akan menampilkan label status untuk PR dan issue (misalnya, Terbuka, Draf, Digabung, Ditutup)."
+    },
+    "advancedFiltersLabel": {
+        "message": "Opsi Lanjutan",
+        "description": "Heading for the advanced report options."
+    },
+    "orgNameTooltip": {
+        "message": "Aktivitas GitHub dari organisasi mana? Masukkan nama organisasi GitHub. Biarkan kosong untuk mengambil semua aktivitas di seluruh organisasi. Pisahkan beberapa organisasi dengan koma.",
+        "description": "Tooltip explaining the GitHub organization filter."
+    },
+    "gitlabOrgNamePlaceholder": {
+        "message": "Masukkan nama grup",
+        "description": "Placeholder for the GitLab group name input."
+    },
+    "settingsGroupNameLabel": {
+        "message": "Nama Grup Anda",
+        "description": "Label for the GitLab group name input."
+    },
+    "gitlabOrgNameTooltip": {
+        "message": "Aktivitas GitLab dari grup mana? Masukkan nama grup GitLab. Biarkan kosong untuk semua grup. Pisahkan dengan koma.",
+        "description": "Tooltip explaining the GitLab group filter."
+    },
+    "codebergTokenLabel": {
+        "message": "Token Codeberg Anda",
+        "description": "Label for the Codeberg token input."
+    },
+    "codebergTokenPlaceholder": {
+        "message": "Diperlukan untuk mengakses proyek pribadi",
+        "description": "Placeholder for the Codeberg token input."
+    },
+    "codebergTokenTooltip": {
+        "message": "<b>Mengapa menambahkan token Codeberg?</b><br>Scrum Helper bekerja tanpa token untuk proyek publik, tetapi token akses pribadi memungkinkan akses ke repositori privat dan batas kuota yang lebih baik.<br><br><b>Cara mendapatkan:</b><br>1. Buka <a href=\"https://codeberg.org/user/settings/applications\" target=\"_blank\" rel=\"noopener noreferrer\">Pengaturan Aplikasi Codeberg</a><br>2. Klik \"Buat token baru\"<br>3. Salin dan tempel di sini<br><i>Jaga kerahasiaannya!</i>",
+        "description": "Tooltip for Codeberg token explaining why it's needed."
+    },
+    "codebergApiBaseUrlLabel": {
+        "message": "URL Basis API Codeberg",
+        "description": "Label for the Codeberg API Base URL input."
+    },
+    "codebergApiBaseUrlPlaceholder": {
+        "message": "https://codeberg.org/api/v1",
+        "description": "Placeholder for the Codeberg API Base URL input."
+    },
+    "showCommitsTooltipGitLab": {
+        "message": "Token GitLab diperlukan, tambahkan di pengaturan."
+    },
+    "showCommitsTooltipCodeberg": {
+        "message": "Token Codeberg diperlukan, tambahkan di pengaturan."
+    },
+    "cacheTTLTooltip": {
+        "message": "Kami menyimpan data dalam cache untuk menghindari panggilan berlebih. Secara default cache kedaluwarsa setelah 10 menit. Anda dapat memperbarui data menggunakan tombol segarkan cache.",
+        "description": "Tooltip explaining cache lifetime and manual refresh."
+    },
+    "tokenRequiredGitlabWarning": {
+        "message": "Token GitLab diperlukan untuk memfilter repositori. Silakan tambahkan di pengaturan.",
+        "description": "Warning message shown when GitLab repo filtering is enabled without a token."
+    },
+    "tokenRequiredNextPlansWarning": {
+        "message": "Token GitHub diperlukan untuk mengambil issue yang ditugaskan. Silakan tambahkan di pengaturan.",
+        "description": "Warning message shown when next plans is enabled without a token."
+    },
+    "tokenRequiredNextPlansWarningCodeberg": {
+        "message": "Token Codeberg diperlukan untuk mengambil issue yang ditugaskan. Silakan tambahkan di pengaturan.",
+        "description": "Warning message shown when next plans is enabled without a token on Codeberg."
+    },
+    "tokenRequiredNextPlansWarningGitLab": {
+        "message": "Token GitLab diperlukan untuk mengambil issue yang ditugaskan. Silakan tambahkan di pengaturan.",
+        "description": "Warning message shown when next plans is enabled without a token on GitLab."
+    },
+    "onlyPrsRequiredShowCommitsWarning": {
+        "message": "Silakan centang filter 'Sertakan PR terbuka/draf dalam laporan' untuk menampilkan commit."
+    },
+    "regenerateNoticeText": {
+        "message": "Opsi berubah. Silakan buat ulang laporan untuk menerapkan perubahan."
+    },
+    "tokenRequiredShowCommitsWarningGitLab": {
+        "message": "Token GitLab diperlukan untuk menampilkan commit pada MR yang terbuka atau draf.",
+        "description": "Warning message shown when show commits is enabled without a token."
+    },
+    "tokenRequiredShowCommitsWarningCodeberg": {
+        "message": "Token Codeberg diperlukan untuk menampilkan commit pada PR yang terbuka atau draf.",
+        "description": "Warning message shown when show commits is enabled without a token on Codeberg."
+    },
+    "selectPlatformPlaceholder": {
+        "message": "Pilih platform",
+        "description": "Placeholder text displayed when no platform is selected."
+    },
+    "selectPlatformWarning": {
+        "message": "Silakan pilih platform terlebih dahulu",
+        "description": "Warning message when trying to generate report without selecting any platform."
+    },
+    "githubUsernameRequiredError": {
+        "message": "Silakan masukkan nama pengguna GitHub Anda",
+        "description": "Error shown when GitHub username is missing."
+    },
+    "gitlabUsernameRequiredError": {
+        "message": "Silakan masukkan nama pengguna GitLab Anda",
+        "description": "Error shown when GitLab username is missing."
+    },
+    "codebergUsernameRequiredError": {
+        "message": "Silakan masukkan nama pengguna Codeberg Anda",
+        "description": "Error shown when Codeberg username is missing."
+    },
+    "errorLabel": {
+        "message": "Kesalahan",
+        "description": "Prefix for repository fetch error messages; punctuation is added by the caller."
+    },
+    "codebergUserFetchError": {
+        "message": "Kesalahan saat mengambil pengguna Codeberg: $1 $2",
+        "description": "Error when fetching Codeberg user fails. $1=status, $2=statusText"
+    },
+    "codebergUserNotFoundError": {
+        "message": "Pengguna Codeberg \"$1\" tidak ditemukan.",
+        "description": "Error when Codeberg user is not found. $1=username"
+    },
+    "codebergUserValidationError": {
+        "message": "Kesalahan memvalidasi pengguna Codeberg: $1 $2",
+        "description": "Error when validating Codeberg user fails. $1=status, $2=statusText"
+    },
+    "reportAlreadyInserted": {
+        "message": "Laporan sudah dimasukkan!",
+        "description": "Notification shown when the report has already been inserted in the current session."
+    },
+    "includeBlockersLabel": {
+        "message": "Sertakan kendala dalam laporan",
+        "description": "Label for checkbox to include blockers in the scrum report."
+    },
+    "includeBlockersTooltip": {
+        "message": "Jika dicentang, laporan akan menyertakan bagian kendala/hambatan.",
+        "description": "Tooltip text explaining the include blockers option."
+    },
+    "includeNextPlansLabel": {
+        "message": "Sertakan issue terbuka yang ditugaskan ke pertanyaan 2 email",
+        "description": "Label for checkbox to include next plans in second question of report."
+    },
+    "includeNextPlansTooltip": {
+        "message": "Pilih dan tambahkan ke pertanyaan 2 di email. Token GitHub diperlukan.",
+        "description": "Tooltip text explaining the include next plans option."
+    },
+    "includeNextPlansTooltipCodeberg": {
+        "message": "Pilih dan tambahkan ke pertanyaan 2 di email. Token Codeberg diperlukan.",
+        "description": "Tooltip text explaining the include next plans option for Codeberg."
+    },
+    "includeNextPlansTooltipGitLab": {
+        "message": "Pilih dan tambahkan ke pertanyaan 2 di email. Token GitLab diperlukan.",
+        "description": "Tooltip text explaining the include next plans option on GitLab."
+    },
+    "fetchingIssuesSpinner": {
+        "message": "Mengambil issue yang ditugaskan...",
+        "description": "Loading message shown when fetching assigned issues."
+    },
+    "noIssuesFound": {
+        "message": "Tidak ada issue terbuka yang ditugaskan",
+        "description": "Empty state message for assigned issues."
+    },
+    "githubTokenRequiredNextPlans": {
+        "message": "Token GitHub diperlukan untuk mengambil issue. Tambahkan di pengaturan.",
+        "description": "Error message when no token is present."
+    },
+    "gitlabTokenRequiredNextPlans": {
+        "message": "Token GitLab diperlukan untuk mengambil issue. Tambahkan di pengaturan.",
+        "description": "Error message when no token is present on GitLab."
+    },
+    "failedToFetchIssues": {
+        "message": "Gagal mengambil issue yang ditugaskan.",
+        "description": "Error message when fetching fails."
+    },
+    "repoFilterTooltip": {
+        "message": "Token GitHub diperlukan.<br>Untuk memperbarui daftar repositori,<br>klik tombol Segarkan data.",
+        "description": "Tooltip message displayed for GitHub repository filter option."
+    },
+    "repoFilterTooltipGitLab": {
+        "message": "Token GitLab diperlukan.<br>Untuk memperbarui daftar repositori,<br>klik tombol Segarkan data.",
+        "description": "Tooltip message displayed for GitLab repository filter option."
+    },
+    "smtpSenderEmailLabel": {
+        "message": "Email pengirim"
+    },
+    "smtpSenderEmailPlaceholder": {
+        "message": "sender@example.com"
+    },
+    "smtpHostLabel": {
+        "message": "Host SMTP"
+    },
+    "smtpHostPlaceholder": {
+        "message": "smtp.example.com"
+    },
+    "smtpPortLabel": {
+        "message": "Port SMTP"
+    },
+    "smtpPortPlaceholder": {
+        "message": "587"
+    },
+    "smtpUsernameLabel": {
+        "message": "Nama pengguna SMTP"
+    },
+    "smtpUsernamePlaceholder": {
+        "message": "username@example.com"
+    },
+    "smtpPasswordLabel": {
+        "message": "Kata sandi SMTP"
+    },
+    "smtpPasswordPlaceholder": {
+        "message": "Masukkan kata sandi SMTP Anda"
+    },
+    "smtpRecipientsLabel": {
+        "message": "Penerima"
+    },
+    "smtpRecipientsPlaceholder": {
+        "message": "recipient1@example.com, recipient2@example.com"
+    },
+    "smtpGmailHint": {
+        "message": "Untuk Gmail, Anda harus menggunakan kata sandi aplikasi, bukan kata sandi biasa."
+    },
+    "smtpSecurityWarning": {
+        "message": "Catatan: Kata sandi Anda disimpan tanpa enkripsi di penyimpanan lokal. Pastikan perangkat Anda aman."
+    },
+    "smtpMissingFieldsError": {
+        "message": "Harap konfigurasikan semua pengaturan email terlebih dahulu."
+    },
+    "smtpInvalidEmailError": {
+        "message": "Alamat email tidak valid: $1"
+    },
+    "smtpSendSuccess": {
+        "message": "Laporan berhasil dikirim melalui email!"
+    },
+    "smtpPartialSuccess": {
+        "message": "Terkirim ke $1/$2; gagal: $3"
+    },
+    "smtpSendFailed": {
+        "message": "Gagal mengirim email: "
+    },
+    "smtpSendError": {
+        "message": "Terjadi kesalahan: "
+    },
+    "sendingButton": {
+        "message": "Mengirim..."
+    },
+    "sendEmailButton": {
+        "message": "Kirim email"
+    },
+    "mailSettingsTitle": {
+        "message": "Pengaturan email"
+    },
+    "sentButton": {
+        "message": "Terkirim"
+    },
+    "homeTitle": {
+        "message": "Beranda"
+    },
+    "settingsTitle": {
+        "message": "Pengaturan"
+    },
+    "extensionSettingsHeading": {
+        "message": "Pengaturan ekstensi",
+        "description": "Heading for general extension settings section."
+    },
+    "displayModeLabel": {
+        "message": "Mode Tampilan",
+        "description": "Label for the extension display mode selector."
+    },
+    "displayModeTooltip": {
+        "message": "Pilih cara Scrum Helper terbuka saat diklik. Panel Samping membuatnya tetap terpasang di samping halaman. Popup membuka jendela mengambang.",
+        "description": "Tooltip explaining side panel and popup display modes."
+    },
+    "smtpSenderEmailTooltip": {
+        "message": "Alamat email dari mana laporan akan dikirim."
+    },
+    "smtpHostTooltip": {
+        "message": "Alamat server SMTP Anda (misalnya smtp.gmail.com)."
+    },
+    "smtpPortTooltip": {
+        "message": "Nomor port yang digunakan server SMTP (biasanya 465 atau 587)."
+    },
+    "smtpUsernameTooltip": {
+        "message": "Nama pengguna atau email login untuk server SMTP."
+    },
+    "smtpPasswordTooltip": {
+        "message": "Kata sandi untuk otentikasi SMTP. PERINGATAN: Disimpan tanpa enkripsi."
+    },
+    "smtpRecipientsTooltip": {
+        "message": "Daftar alamat email penerima yang dipisahkan dengan koma."
+    },
+    "smtpPresetsLabel": {
+        "message": "Preset cepat"
+    },
+    "smtpPresetsTooltip": {
+        "message": "Pilih preset untuk mengonfigurasi host dan port SMTP secara otomatis."
     }
 }

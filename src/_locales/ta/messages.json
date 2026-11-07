@@ -343,5 +343,322 @@
     },
     "rateLimitWarningMessage": {
         "message": "GitHub விகித வரம்பு காரணமாக சில தரவுகள் విடுபட்டிருக்கலாம். அமைப்புகளில் உங்கள் GitHub டோக்கனை சேர்க்கவும் அல்லது சரிபார்க்கவும்."
+    },
+    "projectNameTooltip": {
+        "message": "இந்த திட்டப் பெயர் உங்கள் மின்னஞ்சல் தலைப்பில் \"[Scrum] திட்டப் பெயர் - தேதி\" என தோன்றும். தவிர்க்க காலியாக விடவும்.",
+        "description": "Tooltip explaining how the project name is used in the email subject."
+    },
+    "gitlabUsernamePlaceholder": {
+        "message": "உங்கள் பங்களிப்புகளைப் பெற தேவைப்படுகிறது",
+        "description": "Placeholder text for the GitLab username input."
+    },
+    "codebergUsernameLabel": {
+        "message": "உங்கள் Codeberg பயனர்பெயர்",
+        "description": "Label for the Codeberg username input field."
+    },
+    "codebergUsernamePlaceholder": {
+        "message": "உங்கள் பங்களிப்புகளைப் பெற தேவைப்படுகிறது",
+        "description": "Placeholder text for the Codeberg username input."
+    },
+    "dropdownGithubUsernamePlaceholder": {
+        "message": "GitHub பயனர்பெயர்",
+        "description": "Placeholder text for the GitHub username dropdown input."
+    },
+    "dropdownGitlabUsernamePlaceholder": {
+        "message": "GitLab பயனர்பெயர்",
+        "description": "Placeholder text for the GitLab username dropdown input."
+    },
+    "dropdownCodebergUsernamePlaceholder": {
+        "message": "Codeberg பயனர்பெயர்",
+        "description": "Placeholder text for the Codeberg username dropdown input."
+    },
+    "showOpenClosedTooltip": {
+        "message": "தேர்ந்தெடுக்கப்பட்டால், PRகள் மற்றும் சிக்கல்களுக்கான நிலை லேபிள்களை அறிக்கை காண்பிக்கும் (எ.கா. திறந்த, வரைவு, இணைக்கப்பட்டது, மூடப்பட்டது)."
+    },
+    "advancedFiltersLabel": {
+        "message": "மேம்பட்ட விருப்பங்கள்",
+        "description": "Heading for the advanced report options."
+    },
+    "orgNameTooltip": {
+        "message": "எந்த நிறுவனத்தின் GitHub செயல்பாடு? நிறுவனத்தின் பெயரை உள்ளிடவும். அனைத்து நிறுவனங்களுக்கும் காலியாக விடவும். பல நிறுவனங்களை கமாவால் பிரிக்கலாம்.",
+        "description": "Tooltip explaining the GitHub organization filter."
+    },
+    "gitlabOrgNamePlaceholder": {
+        "message": "குழுவின் பெயரை உள்ளிடவும்",
+        "description": "Placeholder for the GitLab group name input."
+    },
+    "settingsGroupNameLabel": {
+        "message": "உங்கள் குழுவின் பெயர்",
+        "description": "Label for the GitLab group name input."
+    },
+    "gitlabOrgNameTooltip": {
+        "message": "எந்த குழுவின் GitLab செயல்பாடு? குழுவின் பெயரை உள்ளிடவும். அனைத்து குழுக்களுக்கும் காலியாக விடவும்.",
+        "description": "Tooltip explaining the GitLab group filter."
+    },
+    "codebergTokenLabel": {
+        "message": "உங்கள் Codeberg டோக்கன்",
+        "description": "Label for the Codeberg token input."
+    },
+    "codebergTokenPlaceholder": {
+        "message": "தனிப்பட்ட திட்டங்களை அணுக தேவைப்படுகிறது",
+        "description": "Placeholder for the Codeberg token input."
+    },
+    "codebergTokenTooltip": {
+        "message": "<b>Codeberg டோக்கனை ஏன் சேர்க்க வேண்டும்?</b><br>Scrum Helper பொது திட்டங்களுக்கு டோக்கன் இல்லாமல் செயல்படும், ஆனால் தனிப்பட்ட டோக்கன் தனிப்பட்ட களஞ்சியங்களை அணுக உதவுகிறது.<br><br><b>டோக்கனை பெறுவது எப்படி:</b><br>1. <a href=\"https://codeberg.org/user/settings/applications\" target=\"_blank\" rel=\"noopener noreferrer\">Codeberg பயன்பாட்டு அமைப்புகளுக்கு</a> செல்லவும்<br>2. \"புதிய டோக்கனை உருவாக்கு\" என்பதைக் கிளிக் செய்யவும்<br>3. நகலெடுத்து இங்கே ஒட்டவும்<br><i>இதை ரகசியமாக வைத்திருங்கள்!</i>",
+        "description": "Tooltip for Codeberg token explaining why it's needed."
+    },
+    "codebergApiBaseUrlLabel": {
+        "message": "Codeberg API அடிப்படை URL",
+        "description": "Label for the Codeberg API Base URL input."
+    },
+    "codebergApiBaseUrlPlaceholder": {
+        "message": "https://codeberg.org/api/v1",
+        "description": "Placeholder for the Codeberg API Base URL input."
+    },
+    "showCommitsTooltipGitLab": {
+        "message": "GitLab டோக்கன் தேவை, அதை அமைப்புகளில் சேர்க்கவும்."
+    },
+    "showCommitsTooltipCodeberg": {
+        "message": "Codeberg டோக்கன் தேவை, அதை அமைப்புகளில் சேர்க்கவும்."
+    },
+    "cacheTTLTooltip": {
+        "message": "தேவையற்ற அழைப்புகளைத் தவிர்க்க தரவை தற்காலிகமாக சேமிக்கிறோம். இயல்பாக 10 நிமிடங்களில் காலாவதியாகும்.",
+        "description": "Tooltip explaining cache lifetime and manual refresh."
+    },
+    "tokenRequiredGitlabWarning": {
+        "message": "களஞ்சியங்களை வடிகட்ட GitLab டோக்கன் தேவை. தயவுசெய்து அமைப்புகளில் சேர்க்கவும்.",
+        "description": "Warning message shown when GitLab repo filtering is enabled without a token."
+    },
+    "tokenRequiredNextPlansWarning": {
+        "message": "ஒதுக்கப்பட்ட சிக்கல்களைப் பெற GitHub டோக்கன் தேவை. தயவுசெய்து அமைப்புகளில் சேர்க்கவும்.",
+        "description": "Warning message shown when next plans is enabled without a token."
+    },
+    "tokenRequiredNextPlansWarningCodeberg": {
+        "message": "ஒதுக்கப்பட்ட சிக்கல்களைப் பெற Codeberg டோக்கன் தேவை. தயவுசெய்து அமைப்புகளில் சேர்க்கவும்.",
+        "description": "Warning message shown when next plans is enabled without a token on Codeberg."
+    },
+    "tokenRequiredNextPlansWarningGitLab": {
+        "message": "ஒதுக்கப்பட்ட சிக்கல்களைப் பெற GitLab டோக்கன் தேவை. தயவுசெய்து அமைப்புகளில் சேர்க்கவும்.",
+        "description": "Warning message shown when next plans is enabled without a token on GitLab."
+    },
+    "onlyPrsRequiredShowCommitsWarning": {
+        "message": "கம்மிட்களைக் காட்ட 'திறந்த/வரைவு PRகளை அறிக்கையில் சேர்க்கவும்' என்பதைத் தேர்ந்தெடுக்கவும்."
+    },
+    "regenerateNoticeText": {
+        "message": "விருப்பம் மாற்றப்பட்டது. மாற்றங்களைப் பயன்படுத்த அறிக்கையை மீண்டும் உருவாக்கவும்."
+    },
+    "tokenRequiredShowCommitsWarningGitLab": {
+        "message": "திறந்த அல்லது வரைவு MRகளில் கம்மிட்களைக் காட்ட GitLab டோக்கன் தேவை.",
+        "description": "Warning message shown when show commits is enabled without a token."
+    },
+    "tokenRequiredShowCommitsWarningCodeberg": {
+        "message": "திறந்த அல்லது வரைவு PRகளில் கம்மிட்களைக் காட்ட Codeberg டோக்கன் தேவை.",
+        "description": "Warning message shown when show commits is enabled without a token on Codeberg."
+    },
+    "selectPlatformPlaceholder": {
+        "message": "தளத்தைத் தேர்ந்தெடுக்கவும்",
+        "description": "Placeholder text displayed when no platform is selected."
+    },
+    "selectPlatformWarning": {
+        "message": "முதலில் ஒரு தளத்தைத் தேர்ந்தெடுக்கவும்",
+        "description": "Warning message when trying to generate report without selecting any platform."
+    },
+    "githubUsernameRequiredError": {
+        "message": "உங்கள் GitHub பயனர்பெயரை உள்ளிடவும்",
+        "description": "Error shown when GitHub username is missing."
+    },
+    "gitlabUsernameRequiredError": {
+        "message": "உங்கள் GitLab பயனர்பெயரை உள்ளிடவும்",
+        "description": "Error shown when GitLab username is missing."
+    },
+    "codebergUsernameRequiredError": {
+        "message": "உங்கள் Codeberg பயனர்பெயரை உள்ளிடவும்",
+        "description": "Error shown when Codeberg username is missing."
+    },
+    "errorLabel": {
+        "message": "பிழை",
+        "description": "Prefix for repository fetch error messages; punctuation is added by the caller."
+    },
+    "codebergUserFetchError": {
+        "message": "Codeberg பயனரைப் பெறுவதில் பிழை: $1 $2",
+        "description": "Error when fetching Codeberg user fails. $1=status, $2=statusText"
+    },
+    "codebergUserNotFoundError": {
+        "message": "Codeberg பயனர் \"$1\" கிடைக்கவில்லை.",
+        "description": "Error when Codeberg user is not found. $1=username"
+    },
+    "codebergUserValidationError": {
+        "message": "Codeberg பயனரைச் சரிபார்ப்பதில் பிழை: $1 $2",
+        "description": "Error when validating Codeberg user fails. $1=status, $2=statusText"
+    },
+    "reportAlreadyInserted": {
+        "message": "அறிக்கை ஏற்கனவே செருகப்பட்டுவிட்டது!",
+        "description": "Notification shown when the report has already been inserted in the current session."
+    },
+    "includeBlockersLabel": {
+        "message": "அறிக்கையில் தடைகளைச் சேர்க்கவும்",
+        "description": "Label for checkbox to include blockers in the scrum report."
+    },
+    "includeBlockersTooltip": {
+        "message": "தேர்ந்தெடுக்கப்பட்டால், அறிக்கை தடைகள் பிரிவை உள்ளடக்கும்.",
+        "description": "Tooltip text explaining the include blockers option."
+    },
+    "includeNextPlansLabel": {
+        "message": "மின்னஞ்சல் கேள்வி 2ல் ஒதுக்கப்பட்ட திறந்த சிக்கல்களைச் சேர்க்கவும்",
+        "description": "Label for checkbox to include next plans in second question of report."
+    },
+    "includeNextPlansTooltip": {
+        "message": "அவற்றைத் தேர்ந்தெடுத்து மின்னஞ்சலில் கேள்வி 2ல் சேர்க்கவும். GitHub டோக்கன் தேவை.",
+        "description": "Tooltip text explaining the include next plans option."
+    },
+    "includeNextPlansTooltipCodeberg": {
+        "message": "அவற்றைத் தேர்ந்தெடுத்து மின்னஞ்சலில் கேள்வி 2ல் சேர்க்கவும். Codeberg டோக்கன் தேவை.",
+        "description": "Tooltip text explaining the include next plans option for Codeberg."
+    },
+    "includeNextPlansTooltipGitLab": {
+        "message": "அவற்றைத் தேர்ந்தெடுத்து மின்னஞ்சலில் கேள்வி 2ல் சேர்க்கவும். GitLab டோக்கன் தேவை.",
+        "description": "Tooltip text explaining the include next plans option on GitLab."
+    },
+    "fetchingIssuesSpinner": {
+        "message": "உங்களுக்கு ஒதுக்கப்பட்ட சிக்கல்கள் பெறப்படுகின்றன...",
+        "description": "Loading message shown when fetching assigned issues."
+    },
+    "noIssuesFound": {
+        "message": "ஒதுக்கப்பட்ட திறந்த சிக்கல்கள் எதுவும் கிடைக்கவில்லை",
+        "description": "Empty state message for assigned issues."
+    },
+    "githubTokenRequiredNextPlans": {
+        "message": "சிக்கல்களைப் பெற GitHub டோக்கன் தேவை. அமைப்புகளில் சேர்க்கவும்.",
+        "description": "Error message when no token is present."
+    },
+    "gitlabTokenRequiredNextPlans": {
+        "message": "சிக்கல்களைப் பெற GitLab டோக்கன் தேவை. அமைப்புகளில் சேர்க்கவும்.",
+        "description": "Error message when no token is present on GitLab."
+    },
+    "failedToFetchIssues": {
+        "message": "ஒதுக்கப்பட்ட சிக்கல்களைப் பெறுவதில் தோல்வி.",
+        "description": "Error message when fetching fails."
+    },
+    "repoFilterTooltip": {
+        "message": "GitHub டோக்கன் தேவை.<br>பட்டியலை புதுப்பிக்க,<br>'தரவைப் புதுப்பி' பொத்தானைக் கிளிக் செய்யவும்.",
+        "description": "Tooltip message displayed for GitHub repository filter option."
+    },
+    "repoFilterTooltipGitLab": {
+        "message": "GitLab டோக்கன் தேவை.<br>பட்டியலை புதுப்பிக்க,<br>'தரவைப் புதுப்பி' பொத்தானைக் கிளிக் செய்யவும்.",
+        "description": "Tooltip message displayed for GitLab repository filter option."
+    },
+    "smtpSenderEmailLabel": {
+        "message": "அனுப்புநர் மின்னஞ்சல்"
+    },
+    "smtpSenderEmailPlaceholder": {
+        "message": "sender@example.com"
+    },
+    "smtpHostLabel": {
+        "message": "SMTP ஹோஸ்ட்"
+    },
+    "smtpHostPlaceholder": {
+        "message": "smtp.example.com"
+    },
+    "smtpPortLabel": {
+        "message": "SMTP போர்ட்"
+    },
+    "smtpPortPlaceholder": {
+        "message": "587"
+    },
+    "smtpUsernameLabel": {
+        "message": "SMTP பயனர்பெயர்"
+    },
+    "smtpUsernamePlaceholder": {
+        "message": "username@example.com"
+    },
+    "smtpPasswordLabel": {
+        "message": "SMTP கடவுச்சொல்"
+    },
+    "smtpPasswordPlaceholder": {
+        "message": "உங்கள் SMTP கடவுச்சொல்லை உள்ளிடவும்"
+    },
+    "smtpRecipientsLabel": {
+        "message": "பெறுநர்கள்"
+    },
+    "smtpRecipientsPlaceholder": {
+        "message": "recipient1@example.com, recipient2@example.com"
+    },
+    "smtpGmailHint": {
+        "message": "Gmail க்கு, சாதாரண கடவுச்சொல்லுக்குப் பதிலாக ஆப் கடவுச்சொல்லைப் பயன்படுத்த வேண்டும்."
+    },
+    "smtpSecurityWarning": {
+        "message": "குறிப்பு: உங்கள் கடவுச்சொல் குறியாக்கம் செய்யப்படாமல் சேமிக்கப்படுகிறது. உங்கள் சாதனம் பாதுகாப்பாக இருப்பதை உறுதிசெய்யவும்."
+    },
+    "smtpMissingFieldsError": {
+        "message": "முதலில் அனைத்து அஞ்சல் அமைப்புகளையும் உள்ளமைக்கவும்."
+    },
+    "smtpInvalidEmailError": {
+        "message": "தவறான மின்னஞ்சல் முகவரி: $1"
+    },
+    "smtpSendSuccess": {
+        "message": "அறிக்கை மின்னஞ்சல் வழியாக வெற்றிகரமாக அனுப்பப்பட்டது!"
+    },
+    "smtpPartialSuccess": {
+        "message": "$1/$2 பேருக்கு அனுப்பப்பட்டது; தோல்வி: $3"
+    },
+    "smtpSendFailed": {
+        "message": "மின்னஞ்சல் அனுப்புவதில் தோல்வி: "
+    },
+    "smtpSendError": {
+        "message": "ஒரு பிழை ஏற்பட்டது: "
+    },
+    "sendingButton": {
+        "message": "அனுப்பப்படுகிறது..."
+    },
+    "sendEmailButton": {
+        "message": "மின்னஞ்சல் அனுப்பு"
+    },
+    "mailSettingsTitle": {
+        "message": "அஞ்சல் அமைப்புகள்"
+    },
+    "sentButton": {
+        "message": "அனுப்பப்பட்டது"
+    },
+    "homeTitle": {
+        "message": "முகப்பு"
+    },
+    "settingsTitle": {
+        "message": "அமைப்புகள்"
+    },
+    "extensionSettingsHeading": {
+        "message": "நீட்டிப்பு அமைப்புகள்",
+        "description": "Heading for general extension settings section."
+    },
+    "displayModeLabel": {
+        "message": "காட்சி முறை",
+        "description": "Label for the extension display mode selector."
+    },
+    "displayModeTooltip": {
+        "message": "Scrum Helper எவ்வாறு திறக்கப்பட வேண்டும் என்பதைத் தேர்ந்தெடுக்கவும். பக்க பேனல் பக்கத்தின் அருகில் வைத்திருக்கும். பாப்அப் ஒரு மிதக்கும் சாளரத்தைத் திறக்கும்.",
+        "description": "Tooltip explaining side panel and popup display modes."
+    },
+    "smtpSenderEmailTooltip": {
+        "message": "அறிக்கை அனுப்பப்படும் மின்னஞ்சல் முகவரி."
+    },
+    "smtpHostTooltip": {
+        "message": "உங்கள் SMTP சேவையகத்தின் முகவரி (எ.கா. smtp.gmail.com)."
+    },
+    "smtpPortTooltip": {
+        "message": "SMTP சேவையக போர்ட் எண் (பொதுவாக 465 அல்லது 587)."
+    },
+    "smtpUsernameTooltip": {
+        "message": "SMTP சேவையகத்திற்கான பயனர்பெயர்."
+    },
+    "smtpPasswordTooltip": {
+        "message": "SMTP கடவுச்சொல். எச்சரிக்கை: குறியாக்கம் செய்யப்படாமல் சேமிக்கப்படுகிறது."
+    },
+    "smtpRecipientsTooltip": {
+        "message": "கமாவால் பிரிக்கப்பட்ட பெறுநர் மின்னஞ்சல் முகவரிகளின் பட்டியல்."
+    },
+    "smtpPresetsLabel": {
+        "message": "விரைவு முன்னமைவுகள்"
+    },
+    "smtpPresetsTooltip": {
+        "message": "பொதுவான மின்னஞ்சல் சேவைகளுக்கு SMTP ஹோஸ்ட் மற்றும் போர்ட்டை தானாக உள்ளமைக்க முன்னமைவைத் தேர்ந்தெடுக்கவும்."
     }
 }

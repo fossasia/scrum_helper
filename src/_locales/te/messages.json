@@ -343,5 +343,322 @@
     },
     "rateLimitWarningMessage": {
         "message": "GitHub రేట్ పరిమితి కారణంగా కొంత డేటా మిస్ కావచ్చు. దయచేసి సెట్టింగ్‌లలో మీ GitHub టోకెన్‌ను జోడించండి లేదా తనిఖీ చేయండి."
+    },
+    "projectNameTooltip": {
+        "message": "ఈ ప్రాజెక్ట్ పేరు మీ ఇమెయిల్ సబ్జెక్ట్‌లో \"[Scrum] ప్రాజెక్ట్ పేరు - తేదీ\"గా కనిపిస్తుంది. దాటవేయడానికి ఖాళీగా ఉంచండి.",
+        "description": "Tooltip explaining how the project name is used in the email subject."
+    },
+    "gitlabUsernamePlaceholder": {
+        "message": "మీ సహకారాలను పొందడానికి అవసరం",
+        "description": "Placeholder text for the GitLab username input."
+    },
+    "codebergUsernameLabel": {
+        "message": "మీ Codeberg వినియోగదారు పేరు",
+        "description": "Label for the Codeberg username input field."
+    },
+    "codebergUsernamePlaceholder": {
+        "message": "మీ సహకారాలను పొందడానికి అవసరం",
+        "description": "Placeholder text for the Codeberg username input."
+    },
+    "dropdownGithubUsernamePlaceholder": {
+        "message": "GitHub వినియోగదారు పేరు",
+        "description": "Placeholder text for the GitHub username dropdown input."
+    },
+    "dropdownGitlabUsernamePlaceholder": {
+        "message": "GitLab వినియోగదారు పేరు",
+        "description": "Placeholder text for the GitLab username dropdown input."
+    },
+    "dropdownCodebergUsernamePlaceholder": {
+        "message": "Codeberg వినియోగదారు పేరు",
+        "description": "Placeholder text for the Codeberg username dropdown input."
+    },
+    "showOpenClosedTooltip": {
+        "message": "ఎంచుకుంటే, నివేదిక PRలు మరియు సమస్యల స్థితి లేబుల్‌లను చూపుతుంది (ఉదా. ఓపెన్, డ్రాఫ్ట్, మెర్జ్ చేయబడింది, మూసివేయబడింది)."
+    },
+    "advancedFiltersLabel": {
+        "message": "అధునాతన ఎంపికలు",
+        "description": "Heading for the advanced report options."
+    },
+    "orgNameTooltip": {
+        "message": "ఏ సంస్థ యొక్క GitHub కార్యాచరణ? కార్యాచరణలను పొందడానికి GitHub సంస్థ పేరును నమోదు చేయండి. అన్ని సంస్థల కోసం ఖాళీగా ఉంచండి. కామాలతో వేరు చేయవచ్చు.",
+        "description": "Tooltip explaining the GitHub organization filter."
+    },
+    "gitlabOrgNamePlaceholder": {
+        "message": "సమూహం పేరును నమోదు చేయండి",
+        "description": "Placeholder for the GitLab group name input."
+    },
+    "settingsGroupNameLabel": {
+        "message": "మీ సమూహం పేరు",
+        "description": "Label for the GitLab group name input."
+    },
+    "gitlabOrgNameTooltip": {
+        "message": "ఏ సమూహం యొక్క GitLab కార్యాచరణ? సమూహం పేరును నమోదు చేయండి. అన్ని సమూహాల కోసం ఖాళీగా ఉంచండి.",
+        "description": "Tooltip explaining the GitLab group filter."
+    },
+    "codebergTokenLabel": {
+        "message": "మీ Codeberg టోకెన్",
+        "description": "Label for the Codeberg token input."
+    },
+    "codebergTokenPlaceholder": {
+        "message": "ప్రైవేట్ ప్రాజెక్ట్‌లను యాక్సెస్ చేయడానికి అవసరం",
+        "description": "Placeholder for the Codeberg token input."
+    },
+    "codebergTokenTooltip": {
+        "message": "<b>Codeberg టోకెన్‌ను ఎందుకు జోడించాలి?</b><br>Scrum Helper పబ్లిక్ ప్రాజెక్ట్‌ల కోసం టోకెన్ లేకుండా పనిచేస్తుంది, కానీ వ్యక్తిగత టోకెన్ ప్రైవేట్ ప్రాజెక్ట్‌లను యాక్సెస్ చేయడానికి అనుమతిస్తుంది.<br><br><b>ఎలా పొందాలి:</b><br>1. <a href=\"https://codeberg.org/user/settings/applications\" target=\"_blank\" rel=\"noopener noreferrer\">Codeberg అప్లికేషన్ల సెట్టింగ్‌లకు</a> వెళ్లండి<br>2. \"కొత్త టోకెన్‌ను సృష్టించండి\" పై క్లిక్ చేయండి<br>3. కాపీ చేసి ఇక్కడ అతికించండి<br><i>దీన్ని రహస్యంగా ఉంచండి!</i>",
+        "description": "Tooltip for Codeberg token explaining why it's needed."
+    },
+    "codebergApiBaseUrlLabel": {
+        "message": "Codeberg API బేస్ URL",
+        "description": "Label for the Codeberg API Base URL input."
+    },
+    "codebergApiBaseUrlPlaceholder": {
+        "message": "https://codeberg.org/api/v1",
+        "description": "Placeholder for the Codeberg API Base URL input."
+    },
+    "showCommitsTooltipGitLab": {
+        "message": "GitLab టోకెన్ అవసరం, సెట్టింగ్‌లలో జోడించండి."
+    },
+    "showCommitsTooltipCodeberg": {
+        "message": "Codeberg టోకెన్ అవసరం, సెట్టింగ్‌లలో జోడించండి."
+    },
+    "cacheTTLTooltip": {
+        "message": "అనవసరమైన కాల్‌లను నివారించడానికి మేము డేటాను కాష్ చేస్తాము. సాధారణంగా 10 నిమిషాల తర్వాత గడువు ముగుస్తుంది.",
+        "description": "Tooltip explaining cache lifetime and manual refresh."
+    },
+    "tokenRequiredGitlabWarning": {
+        "message": "రిపోజిటరీ ఫిల్టరింగ్ కోసం GitLab టోకెన్ అవసరం. దయచేసి సెట్టింగ్‌లలో జోడించండి.",
+        "description": "Warning message shown when GitLab repo filtering is enabled without a token."
+    },
+    "tokenRequiredNextPlansWarning": {
+        "message": "కేటాయించిన సమస్యలను పొందడానికి GitHub టోకెన్ అవసరం. దయచేసి సెట్టింగ్‌లలో జోడించండి.",
+        "description": "Warning message shown when next plans is enabled without a token."
+    },
+    "tokenRequiredNextPlansWarningCodeberg": {
+        "message": "కేటాయించిన సమస్యలను పొందడానికి Codeberg టోకెన్ అవసరం. దయచేసి సెట్టింగ్‌లలో జోడించండి.",
+        "description": "Warning message shown when next plans is enabled without a token on Codeberg."
+    },
+    "tokenRequiredNextPlansWarningGitLab": {
+        "message": "కేటాయించిన సమస్యలను పొందడానికి GitLab టోకెన్ అవసరం. దయచేసి సెట్టింగ్‌లలో జోడించండి.",
+        "description": "Warning message shown when next plans is enabled without a token on GitLab."
+    },
+    "onlyPrsRequiredShowCommitsWarning": {
+        "message": "కమిట్‌లను చూపించడానికి 'ఓపెన్/డ్రాఫ్ట్ PRలను నివేదికలో చేర్చు' ఫిల్టర్‌ను ఎంచుకోండి."
+    },
+    "regenerateNoticeText": {
+        "message": "ఎంపిక మార్చబడింది. మార్పులను వర్తింపజేయడానికి దయచేసి నివేదికను మళ్లీ రూపొందించండి."
+    },
+    "tokenRequiredShowCommitsWarningGitLab": {
+        "message": "ఓపెన్ లేదా డ్రాఫ్ట్ MRలలో కమిట్‌లను చూపించడానికి GitLab టోకెన్ అవసరం.",
+        "description": "Warning message shown when show commits is enabled without a token."
+    },
+    "tokenRequiredShowCommitsWarningCodeberg": {
+        "message": "ఓపెన్ లేదా డ్రాఫ్ట్ PRలలో కమిట్‌లను చూపించడానికి Codeberg టోకెన్ అవసరం.",
+        "description": "Warning message shown when show commits is enabled without a token on Codeberg."
+    },
+    "selectPlatformPlaceholder": {
+        "message": "ప్లాట్‌ఫారమ్‌ను ఎంచుకోండి",
+        "description": "Placeholder text displayed when no platform is selected."
+    },
+    "selectPlatformWarning": {
+        "message": "దయచేసి ముందుగా ప్లాట్‌ఫారమ్‌ను ఎంచుకోండి",
+        "description": "Warning message when trying to generate report without selecting any platform."
+    },
+    "githubUsernameRequiredError": {
+        "message": "దయచేసి మీ GitHub వినియోగదారు పేరును నమోదు చేయండి",
+        "description": "Error shown when GitHub username is missing."
+    },
+    "gitlabUsernameRequiredError": {
+        "message": "దయచేసి మీ GitLab వినియోగదారు పేరును నమోదు చేయండి",
+        "description": "Error shown when GitLab username is missing."
+    },
+    "codebergUsernameRequiredError": {
+        "message": "దయచేసి మీ Codeberg వినియోగదారు పేరును నమోదు చేయండి",
+        "description": "Error shown when Codeberg username is missing."
+    },
+    "errorLabel": {
+        "message": "లోపం",
+        "description": "Prefix for repository fetch error messages; punctuation is added by the caller."
+    },
+    "codebergUserFetchError": {
+        "message": "Codeberg వినియోగదారుని పొందడంలో లోపం: $1 $2",
+        "description": "Error when fetching Codeberg user fails. $1=status, $2=statusText"
+    },
+    "codebergUserNotFoundError": {
+        "message": "Codeberg వినియోగదారు \"$1\" కనుగొనబడలేదు.",
+        "description": "Error when Codeberg user is not found. $1=username"
+    },
+    "codebergUserValidationError": {
+        "message": "Codeberg వినియోగదారుని ధృవీకరించడంలో లోపం: $1 $2",
+        "description": "Error when validating Codeberg user fails. $1=status, $2=statusText"
+    },
+    "reportAlreadyInserted": {
+        "message": "నివేదిక ఇప్పటికే చొప్పించబడింది!",
+        "description": "Notification shown when the report has already been inserted in the current session."
+    },
+    "includeBlockersLabel": {
+        "message": "నివేదికలో అడ్డంకులను చేర్చండి",
+        "description": "Label for checkbox to include blockers in the scrum report."
+    },
+    "includeBlockersTooltip": {
+        "message": "ఎంచుకుంటే, నివేదికలో అడ్డంకుల విభాగం చేర్చబడుతుంది.",
+        "description": "Tooltip text explaining the include blockers option."
+    },
+    "includeNextPlansLabel": {
+        "message": "ఇమెయిల్ ప్రశ్న 2లో కేటాయించిన ఓపెన్ సమస్యలను చేర్చండి",
+        "description": "Label for checkbox to include next plans in second question of report."
+    },
+    "includeNextPlansTooltip": {
+        "message": "వాటిని ఎంచుకుని ఇమెయిల్‌లోని ప్రశ్న 2కి జోడించండి. GitHub టోకెన్ అవసరం.",
+        "description": "Tooltip text explaining the include next plans option."
+    },
+    "includeNextPlansTooltipCodeberg": {
+        "message": "వాటిని ఎంచుకుని ఇమెయిల్‌లోని ప్రశ్న 2కి జోడించండి. Codeberg టోకెన్ అవసరం.",
+        "description": "Tooltip text explaining the include next plans option for Codeberg."
+    },
+    "includeNextPlansTooltipGitLab": {
+        "message": "వాటిని ఎంచుకుని ఇమెయిల్‌లోని ప్రశ్న 2కి జోడించండి. GitLab టోకెన్ అవసరం.",
+        "description": "Tooltip text explaining the include next plans option on GitLab."
+    },
+    "fetchingIssuesSpinner": {
+        "message": "మీకు కేటాయించిన సమస్యలను పొందుతోంది...",
+        "description": "Loading message shown when fetching assigned issues."
+    },
+    "noIssuesFound": {
+        "message": "కేటాయించిన ఓపెన్ సమస్యలు ఏవీ కనుగొనబడలేదు",
+        "description": "Empty state message for assigned issues."
+    },
+    "githubTokenRequiredNextPlans": {
+        "message": "సమస్యలను పొందడానికి GitHub టోకెన్ అవసరం. సెట్టింగ్‌లలో జోడించండి.",
+        "description": "Error message when no token is present."
+    },
+    "gitlabTokenRequiredNextPlans": {
+        "message": "సమస్యలను పొందడానికి GitLab టోకెన్ అవసరం. సెట్టింగ్‌లలో జోడించండి.",
+        "description": "Error message when no token is present on GitLab."
+    },
+    "failedToFetchIssues": {
+        "message": "కేటాయించిన సమస్యలను పొందడం విఫలమైంది.",
+        "description": "Error message when fetching fails."
+    },
+    "repoFilterTooltip": {
+        "message": "GitHub టోకెన్ అవసరం.<br>జాబితాను నవీకరించడానికి,<br>'డేటాను రిఫ్రెష్ చేయి' బటన్‌పై క్లిక్ చేయండి.",
+        "description": "Tooltip message displayed for GitHub repository filter option."
+    },
+    "repoFilterTooltipGitLab": {
+        "message": "GitLab టోకెన్ అవసరం.<br>జాబితాను నవీకరించడానికి,<br>'డేటాను రిఫ్రెష్ చేయి' బటన్‌పై క్లిక్ చేయండి.",
+        "description": "Tooltip message displayed for GitLab repository filter option."
+    },
+    "smtpSenderEmailLabel": {
+        "message": "పంపినవారి ఇమెయిల్"
+    },
+    "smtpSenderEmailPlaceholder": {
+        "message": "sender@example.com"
+    },
+    "smtpHostLabel": {
+        "message": "SMTP హోస్ట్"
+    },
+    "smtpHostPlaceholder": {
+        "message": "smtp.example.com"
+    },
+    "smtpPortLabel": {
+        "message": "SMTP పోర్ట్"
+    },
+    "smtpPortPlaceholder": {
+        "message": "587"
+    },
+    "smtpUsernameLabel": {
+        "message": "SMTP వినియోగదారు పేరు"
+    },
+    "smtpUsernamePlaceholder": {
+        "message": "username@example.com"
+    },
+    "smtpPasswordLabel": {
+        "message": "SMTP పాస్‌వర్డ్"
+    },
+    "smtpPasswordPlaceholder": {
+        "message": "మీ SMTP పాస్‌వర్డ్‌ను నమోదు చేయండి"
+    },
+    "smtpRecipientsLabel": {
+        "message": "స్వీకర్తలు"
+    },
+    "smtpRecipientsPlaceholder": {
+        "message": "recipient1@example.com, recipient2@example.com"
+    },
+    "smtpGmailHint": {
+        "message": "Gmail కోసం, మీరు సాధారణ పాస్‌వర్డ్‌కు బదులుగా యాప్ పాస్‌వర్డ్‌ను ఉపయోగించాలి."
+    },
+    "smtpSecurityWarning": {
+        "message": "గమనిక: మీ పాస్‌వర్డ్ ఎన్‌క్రిప్ట్ చేయకుండా స్థానికంగా నిల్వ చేయబడుతుంది. మీ పరికరం సురక్షితంగా ఉందని నిర్ధారించుకోండి."
+    },
+    "smtpMissingFieldsError": {
+        "message": "దయచేసి ముందుగా అన్ని మెయిల్ సెట్టింగ్‌లను కాన్ఫిగర్ చేయండి."
+    },
+    "smtpInvalidEmailError": {
+        "message": "చెల్లని ఇమెయిల్ చిరునామా: $1"
+    },
+    "smtpSendSuccess": {
+        "message": "నివేదిక ఇమెయిల్ ద్వారా విజయవంతంగా పంపబడింది!"
+    },
+    "smtpPartialSuccess": {
+        "message": "$1/$2 మందికి పంపబడింది; విఫలమైంది: $3"
+    },
+    "smtpSendFailed": {
+        "message": "ఇమెయిల్ పంపడం విఫలమైంది: "
+    },
+    "smtpSendError": {
+        "message": "ఒక లోపం సంభవించింది: "
+    },
+    "sendingButton": {
+        "message": "పంపుతోంది..."
+    },
+    "sendEmailButton": {
+        "message": "ఇమెయిల్ పంపండి"
+    },
+    "mailSettingsTitle": {
+        "message": "మెయిల్ సెట్టింగ్‌లు"
+    },
+    "sentButton": {
+        "message": "పంపబడింది"
+    },
+    "homeTitle": {
+        "message": "హోమ్"
+    },
+    "settingsTitle": {
+        "message": "సెట్టింగ్‌లు"
+    },
+    "extensionSettingsHeading": {
+        "message": "ఎక్స్‌టెన్షన్ సెట్టింగ్‌లు",
+        "description": "Heading for general extension settings section."
+    },
+    "displayModeLabel": {
+        "message": "డిస్ప్లే మోడ్",
+        "description": "Label for the extension display mode selector."
+    },
+    "displayModeTooltip": {
+        "message": "ఐకాన్‌పై క్లిక్ చేసినప్పుడు Scrum Helper ఎలా తెరవాలో ఎంచుకోండి. సైడ్ ప్యానెల్ పేజీ పక్కన ఉంచుతుంది. పాప్అప్ ఫ్లోటింగ్ విండోను తెరుస్తుంది.",
+        "description": "Tooltip explaining side panel and popup display modes."
+    },
+    "smtpSenderEmailTooltip": {
+        "message": "నివేదిక పంపబడే ఇమెయిల్ చిరునామా."
+    },
+    "smtpHostTooltip": {
+        "message": "మీ SMTP సర్వర్ చిరునామా (ఉదా. smtp.gmail.com)."
+    },
+    "smtpPortTooltip": {
+        "message": "SMTP సర్వర్ పోర్ట్ సంఖ్య (సాధారణంగా 465 లేదా 587)."
+    },
+    "smtpUsernameTooltip": {
+        "message": "SMTP సర్వర్ కోసం వినియోగదారు పేరు."
+    },
+    "smtpPasswordTooltip": {
+        "message": "SMTP ప్రమాణీకరణ కోసం పాస్‌వర్డ్. హెచ్చరిక: ఎన్‌క్రిప్షన్ లేకుండా నిల్వ చేయబడింది."
+    },
+    "smtpRecipientsTooltip": {
+        "message": "కామాలతో వేరు చేయబడిన స్వీకర్త ఇమెయిల్ చిరునామాల జాబితా."
+    },
+    "smtpPresetsLabel": {
+        "message": "త్వరిత ప్రీసెట్లు"
+    },
+    "smtpPresetsTooltip": {
+        "message": "సాధారణ ఇమెయిల్ సేవల కోసం SMTP హోస్ట్ మరియు పోర్ట్‌ను స్వయంచాలకంగా కాన్ఫిగర్ చేయడానికి ప్రీసెట్‌ను ఎంచుకోండి."
     }
 }

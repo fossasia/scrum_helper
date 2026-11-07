@@ -343,5 +343,322 @@
     },
     "rateLimitWarningMessage": {
         "message": "Noen data kan mangle på grunn av GitHub-ratebegrensningen. Vennligst legg til eller sjekk GitHub-tokenet ditt i innstillingene."
+    },
+    "projectNameTooltip": {
+        "message": "Dette prosjektnavnet vil vises i emnefeltet på e-posten som: \"[Scrum] Prosjektnavn - Dato\". La stå tomt for å hoppe over.",
+        "description": "Tooltip explaining how the project name is used in the email subject."
+    },
+    "gitlabUsernamePlaceholder": {
+        "message": "Påkrevd for å hente bidragene dine",
+        "description": "Placeholder text for the GitLab username input."
+    },
+    "codebergUsernameLabel": {
+        "message": "Ditt Codeberg-brukernavn",
+        "description": "Label for the Codeberg username input field."
+    },
+    "codebergUsernamePlaceholder": {
+        "message": "Påkrevd for å hente bidragene dine",
+        "description": "Placeholder text for the Codeberg username input."
+    },
+    "dropdownGithubUsernamePlaceholder": {
+        "message": "GitHub-brukernavn",
+        "description": "Placeholder text for the GitHub username dropdown input."
+    },
+    "dropdownGitlabUsernamePlaceholder": {
+        "message": "GitLab-brukernavn",
+        "description": "Placeholder text for the GitLab username dropdown input."
+    },
+    "dropdownCodebergUsernamePlaceholder": {
+        "message": "Codeberg-brukernavn",
+        "description": "Placeholder text for the Codeberg username dropdown input."
+    },
+    "showOpenClosedTooltip": {
+        "message": "Hvis avmerket, viser rapporten statusetiketter for PR-er og saker (f.eks. Åpen, Utkast, Flettet, Lukket)."
+    },
+    "advancedFiltersLabel": {
+        "message": "Avanserte alternativer",
+        "description": "Heading for the advanced report options."
+    },
+    "orgNameTooltip": {
+        "message": "Hvilken organisasjons GitHub-aktivitet? Skriv inn organisasjonsnavnet. La stå tomt for å hente all aktivitet. Flere kan skilles med komma.",
+        "description": "Tooltip explaining the GitHub organization filter."
+    },
+    "gitlabOrgNamePlaceholder": {
+        "message": "Skriv inn gruppenavn",
+        "description": "Placeholder for the GitLab group name input."
+    },
+    "settingsGroupNameLabel": {
+        "message": "Ditt gruppenavn",
+        "description": "Label for the GitLab group name input."
+    },
+    "gitlabOrgNameTooltip": {
+        "message": "Hvilken gruppes GitLab-aktivitet? Skriv inn gruppenavnet. La stå tomt for alle grupper. Flere kan skilles med komma.",
+        "description": "Tooltip explaining the GitLab group filter."
+    },
+    "codebergTokenLabel": {
+        "message": "Ditt Codeberg-token",
+        "description": "Label for the Codeberg token input."
+    },
+    "codebergTokenPlaceholder": {
+        "message": "Påkrevd for tilgang til private prosjekter",
+        "description": "Placeholder for the Codeberg token input."
+    },
+    "codebergTokenTooltip": {
+        "message": "<b>Hvorfor legge til et Codeberg-token?</b><br>Scrum Helper fungerer uten token for offentlige prosjekter, men et personlig token gir tilgang til private repos og bedre hastighetsgrenser.<br><br><b>Slik får du et:</b><br>1. Gå til <a href=\"https://codeberg.org/user/settings/applications\" target=\"_blank\" rel=\"noopener noreferrer\">Codeberg-applikasjonsinnstillinger</a><br>2. Klikk på \"Generer nytt token\"<br>3. Kopier og lim inn her<br><i>Hold det hemmelig!</i>",
+        "description": "Tooltip for Codeberg token explaining why it's needed."
+    },
+    "codebergApiBaseUrlLabel": {
+        "message": "Codeberg API basis-URL",
+        "description": "Label for the Codeberg API Base URL input."
+    },
+    "codebergApiBaseUrlPlaceholder": {
+        "message": "https://codeberg.org/api/v1",
+        "description": "Placeholder for the Codeberg API Base URL input."
+    },
+    "showCommitsTooltipGitLab": {
+        "message": "GitLab-token påkrevd, legg det til i innstillingene."
+    },
+    "showCommitsTooltipCodeberg": {
+        "message": "Codeberg-token påkrevd, legg det til i innstillingene."
+    },
+    "cacheTTLTooltip": {
+        "message": "Vi hurtigbufret data for å unngå unødige kall. Standard utløpstid er 10 minutter. Du kan oppdatere hurtigbufferen med oppdateringsknappen.",
+        "description": "Tooltip explaining cache lifetime and manual refresh."
+    },
+    "tokenRequiredGitlabWarning": {
+        "message": "Et GitLab-token er påkrevd for filtrering av depoter. Vennligst legg til et i innstillingene.",
+        "description": "Warning message shown when GitLab repo filtering is enabled without a token."
+    },
+    "tokenRequiredNextPlansWarning": {
+        "message": "Et GitHub-token er påkrevd for å hente tildelte saker. Vennligst legg til et i innstillingene.",
+        "description": "Warning message shown when next plans is enabled without a token."
+    },
+    "tokenRequiredNextPlansWarningCodeberg": {
+        "message": "Et Codeberg-token er påkrevd for å hente tildelte saker. Vennligst legg til et i innstillingene.",
+        "description": "Warning message shown when next plans is enabled without a token on Codeberg."
+    },
+    "tokenRequiredNextPlansWarningGitLab": {
+        "message": "Et GitLab-token er påkrevd for å hente tildelte saker. Vennligst legg til et i innstillingene.",
+        "description": "Warning message shown when next plans is enabled without a token on GitLab."
+    },
+    "onlyPrsRequiredShowCommitsWarning": {
+        "message": "Vennligst merk av 'Inkluder åpne/utkast PR-er i rapporten' for å vise commits."
+    },
+    "regenerateNoticeText": {
+        "message": "Alternativ endret. Vennligst generer rapporten på nytt."
+    },
+    "tokenRequiredShowCommitsWarningGitLab": {
+        "message": "Et GitLab-token er påkrevd for å vise commits på åpne eller utkast MR-er.",
+        "description": "Warning message shown when show commits is enabled without a token."
+    },
+    "tokenRequiredShowCommitsWarningCodeberg": {
+        "message": "Et Codeberg-token er påkrevd for å vise commits på åpne eller utkast PR-er.",
+        "description": "Warning message shown when show commits is enabled without a token on Codeberg."
+    },
+    "selectPlatformPlaceholder": {
+        "message": "Velg plattform",
+        "description": "Placeholder text displayed when no platform is selected."
+    },
+    "selectPlatformWarning": {
+        "message": "Vennligst velg en plattform først",
+        "description": "Warning message when trying to generate report without selecting any platform."
+    },
+    "githubUsernameRequiredError": {
+        "message": "Vennligst skriv inn ditt GitHub-brukernavn",
+        "description": "Error shown when GitHub username is missing."
+    },
+    "gitlabUsernameRequiredError": {
+        "message": "Vennligst skriv inn ditt GitLab-brukernavn",
+        "description": "Error shown when GitLab username is missing."
+    },
+    "codebergUsernameRequiredError": {
+        "message": "Vennligst skriv inn ditt Codeberg-brukernavn",
+        "description": "Error shown when Codeberg username is missing."
+    },
+    "errorLabel": {
+        "message": "Feil",
+        "description": "Prefix for repository fetch error messages; punctuation is added by the caller."
+    },
+    "codebergUserFetchError": {
+        "message": "Feil ved henting av Codeberg-bruker: $1 $2",
+        "description": "Error when fetching Codeberg user fails. $1=status, $2=statusText"
+    },
+    "codebergUserNotFoundError": {
+        "message": "Codeberg-bruker \"$1\" ble ikke funnet.",
+        "description": "Error when Codeberg user is not found. $1=username"
+    },
+    "codebergUserValidationError": {
+        "message": "Feil ved validering av Codeberg-bruker: $1 $2",
+        "description": "Error when validating Codeberg user fails. $1=status, $2=statusText"
+    },
+    "reportAlreadyInserted": {
+        "message": "Rapporten er allerede satt inn!",
+        "description": "Notification shown when the report has already been inserted in the current session."
+    },
+    "includeBlockersLabel": {
+        "message": "Inkluder blokkeringer i rapporten",
+        "description": "Label for checkbox to include blockers in the scrum report."
+    },
+    "includeBlockersTooltip": {
+        "message": "Hvis avmerket, vil rapporten inneholde blokkeringsseksjonen.",
+        "description": "Tooltip text explaining the include blockers option."
+    },
+    "includeNextPlansLabel": {
+        "message": "Inkluder tildelte åpne saker i e-postspørsmål 2",
+        "description": "Label for checkbox to include next plans in second question of report."
+    },
+    "includeNextPlansTooltip": {
+        "message": "Velg og legg dem til spørsmål 2 i e-posten. Et GitHub-token er påkrevd.",
+        "description": "Tooltip text explaining the include next plans option."
+    },
+    "includeNextPlansTooltipCodeberg": {
+        "message": "Velg og legg dem til spørsmål 2 i e-posten. Et Codeberg-token er påkrevd.",
+        "description": "Tooltip text explaining the include next plans option for Codeberg."
+    },
+    "includeNextPlansTooltipGitLab": {
+        "message": "Velg og legg dem til spørsmål 2 i e-posten. Et GitLab-token er påkrevd.",
+        "description": "Tooltip text explaining the include next plans option on GitLab."
+    },
+    "fetchingIssuesSpinner": {
+        "message": "Henter dine tildelte saker...",
+        "description": "Loading message shown when fetching assigned issues."
+    },
+    "noIssuesFound": {
+        "message": "Ingen tildelte åpne saker funnet",
+        "description": "Empty state message for assigned issues."
+    },
+    "githubTokenRequiredNextPlans": {
+        "message": "Et GitHub-token er påkrevd for å hente tildelte saker. Legg til et i innstillingene.",
+        "description": "Error message when no token is present."
+    },
+    "gitlabTokenRequiredNextPlans": {
+        "message": "Et GitLab-token er påkrevd for å hente tildelte saker. Legg til et i innstillingene.",
+        "description": "Error message when no token is present on GitLab."
+    },
+    "failedToFetchIssues": {
+        "message": "Kunne ikke hente tildelte saker.",
+        "description": "Error message when fetching fails."
+    },
+    "repoFilterTooltip": {
+        "message": "GitHub-token påkrevd.<br>Klikk 'Oppdater data' for å tvinge<br>en oppdatering av depotlisten.",
+        "description": "Tooltip message displayed for GitHub repository filter option."
+    },
+    "repoFilterTooltipGitLab": {
+        "message": "GitLab-token påkrevd.<br>Klikk 'Oppdater data' for å tvinge<br>en oppdatering av depotlisten.",
+        "description": "Tooltip message displayed for GitLab repository filter option."
+    },
+    "smtpSenderEmailLabel": {
+        "message": "Avsender-e-post"
+    },
+    "smtpSenderEmailPlaceholder": {
+        "message": "avsender@example.com"
+    },
+    "smtpHostLabel": {
+        "message": "SMTP-vert"
+    },
+    "smtpHostPlaceholder": {
+        "message": "smtp.example.com"
+    },
+    "smtpPortLabel": {
+        "message": "SMTP-port"
+    },
+    "smtpPortPlaceholder": {
+        "message": "587"
+    },
+    "smtpUsernameLabel": {
+        "message": "SMTP-brukernavn"
+    },
+    "smtpUsernamePlaceholder": {
+        "message": "brukernavn@example.com"
+    },
+    "smtpPasswordLabel": {
+        "message": "SMTP-passord"
+    },
+    "smtpPasswordPlaceholder": {
+        "message": "Skriv inn SMTP-passord"
+    },
+    "smtpRecipientsLabel": {
+        "message": "Mottakere"
+    },
+    "smtpRecipientsPlaceholder": {
+        "message": "mottaker1@example.com, mottaker2@example.com"
+    },
+    "smtpGmailHint": {
+        "message": "For Gmail må du bruke et app-passord, ikke det vanlige passordet ditt."
+    },
+    "smtpSecurityWarning": {
+        "message": "Merk: Passordet ditt lagres ukryptert i lokalt minne. Sørg for at enheten din er sikker."
+    },
+    "smtpMissingFieldsError": {
+        "message": "Vennligst konfigurer alle e-postinnstillinger først."
+    },
+    "smtpInvalidEmailError": {
+        "message": "Ugyldig e-postadresse: $1"
+    },
+    "smtpSendSuccess": {
+        "message": "Rapport sendt via e-post!"
+    },
+    "smtpPartialSuccess": {
+        "message": "Sendt til $1/$2; mislyktes: $3"
+    },
+    "smtpSendFailed": {
+        "message": "Kunne ikke sende e-post: "
+    },
+    "smtpSendError": {
+        "message": "En feil oppstod: "
+    },
+    "sendingButton": {
+        "message": "Sender..."
+    },
+    "sendEmailButton": {
+        "message": "Send e-post"
+    },
+    "mailSettingsTitle": {
+        "message": "E-postinnstillinger"
+    },
+    "sentButton": {
+        "message": "Sendt"
+    },
+    "homeTitle": {
+        "message": "Hjem"
+    },
+    "settingsTitle": {
+        "message": "Innstillinger"
+    },
+    "extensionSettingsHeading": {
+        "message": "Utvidelsesinnstillinger",
+        "description": "Heading for general extension settings section."
+    },
+    "displayModeLabel": {
+        "message": "Visningsmodus",
+        "description": "Label for the extension display mode selector."
+    },
+    "displayModeTooltip": {
+        "message": "Velg hvordan Scrum Helper åpnes når du klikker på ikonet. Sidepanel holder den forankret ved siden av siden. Popup åpner et flytende vindu.",
+        "description": "Tooltip explaining side panel and popup display modes."
+    },
+    "smtpSenderEmailTooltip": {
+        "message": "E-postadressen rapporten skal sendes fra."
+    },
+    "smtpHostTooltip": {
+        "message": "Adressen til SMTP-serveren din (f.eks. smtp.gmail.com)."
+    },
+    "smtpPortTooltip": {
+        "message": "Portnummeret for SMTP-serveren (vanligvis 465 eller 587)."
+    },
+    "smtpUsernameTooltip": {
+        "message": "Brukernavn eller innloggings-e-post for SMTP-serveren."
+    },
+    "smtpPasswordTooltip": {
+        "message": "Passord for godkjenning mot SMTP-serveren. ADVARSEL: Lagres ukryptert."
+    },
+    "smtpRecipientsTooltip": {
+        "message": "En liste over mottaker-e-postadresser adskilt med komma."
+    },
+    "smtpPresetsLabel": {
+        "message": "Hurtigvalg"
+    },
+    "smtpPresetsTooltip": {
+        "message": "Velg en forhåndsinnstilling for automatisk konfigurering av SMTP-vert og -port."
     }
 }

@@ -343,5 +343,322 @@
     },
     "rateLimitWarningMessage": {
         "message": "Κάποια δεδομένα ενδέχεται να λείπουν λόγω του ορίου ρυθμού του GitHub. Παρακαλώ προσθέστε ή ελέγξτε το GitHub token σας στις ρυθμίσεις."
+    },
+    "projectNameTooltip": {
+        "message": "Αυτό το όνομα έργου θα εμφανίζεται στη γραμμή θέματος του email σας ως μέρος του: \"[Scrum] Όνομα Έργου - Ημερομηνία\". Αφήστε κενό για παράλειψη.",
+        "description": "Tooltip explaining how the project name is used in the email subject."
+    },
+    "gitlabUsernamePlaceholder": {
+        "message": "Απαιτείται για την ανάκτηση των συνεισφορών σας",
+        "description": "Placeholder text for the GitLab username input."
+    },
+    "codebergUsernameLabel": {
+        "message": "Το όνομα χρήστη σας στο Codeberg",
+        "description": "Label for the Codeberg username input field."
+    },
+    "codebergUsernamePlaceholder": {
+        "message": "Απαιτείται για την ανάκτηση των συνεισφορών σας",
+        "description": "Placeholder text for the Codeberg username input."
+    },
+    "dropdownGithubUsernamePlaceholder": {
+        "message": "Όνομα χρήστη GitHub",
+        "description": "Placeholder text for the GitHub username dropdown input."
+    },
+    "dropdownGitlabUsernamePlaceholder": {
+        "message": "Όνομα χρήστη GitLab",
+        "description": "Placeholder text for the GitLab username dropdown input."
+    },
+    "dropdownCodebergUsernamePlaceholder": {
+        "message": "Όνομα χρήστη Codeberg",
+        "description": "Placeholder text for the Codeberg username dropdown input."
+    },
+    "showOpenClosedTooltip": {
+        "message": "Εάν επιλεγεί, η αναφορά θα εμφανίζει ετικέτες κατάστασης για PRs και ζητήματα (π.χ. Ανοιχτό, Πρόχειρο, Συγχωνευμένο, Κλειστό)."
+    },
+    "advancedFiltersLabel": {
+        "message": "Σύνθετες Επιλογές",
+        "description": "Heading for the advanced report options."
+    },
+    "orgNameTooltip": {
+        "message": "Δραστηριότητα GitHub ποιου οργανισμού; Εισαγάγετε το όνομα οργανισμού GitHub. Αφήστε κενό για όλες τις δραστηριότητες. Διαχωρίστε με κόμματα για πολλαπλούς.",
+        "description": "Tooltip explaining the GitHub organization filter."
+    },
+    "gitlabOrgNamePlaceholder": {
+        "message": "Εισαγάγετε όνομα ομάδας",
+        "description": "Placeholder for the GitLab group name input."
+    },
+    "settingsGroupNameLabel": {
+        "message": "Το όνομα της ομάδας σας",
+        "description": "Label for the GitLab group name input."
+    },
+    "gitlabOrgNameTooltip": {
+        "message": "Δραστηριότητα GitLab ποιας ομάδας; Εισαγάγετε το όνομα ομάδας GitLab. Αφήστε κενό για όλες τις ομάδες. Διαχωρίστε με κόμματα.",
+        "description": "Tooltip explaining the GitLab group filter."
+    },
+    "codebergTokenLabel": {
+        "message": "Το διακριτικό σας Codeberg",
+        "description": "Label for the Codeberg token input."
+    },
+    "codebergTokenPlaceholder": {
+        "message": "Απαιτείται για πρόσβαση σε ιδιωτικά έργα",
+        "description": "Placeholder for the Codeberg token input."
+    },
+    "codebergTokenTooltip": {
+        "message": "<b>Γιατί να προσθέσετε ένα διακριτικό Codeberg;</b><br>Το Scrum Helper λειτουργεί χωρίς διακριτικό για δημόσια έργα, αλλά ένα προσωπικό διακριτικό επιτρέπει πρόσβαση σε ιδιωτικά αποθετήρια και υψηλότερα όρια ρυθμού.<br><br><b>Πώς να αποκτήσετε:</b><br>1. Μεταβείτε στις <a href=\"https://codeberg.org/user/settings/applications\" target=\"_blank\" rel=\"noopener noreferrer\">Ρυθμίσεις Εφαρμογών Codeberg</a><br>2. Κάντε κλικ στο \"Δημιουργία νέου διακριτικού\"<br>3. Αντιγράψτε και επικολλήστε εδώ<br><i>Κρατήστε το μυστικό!</i>",
+        "description": "Tooltip for Codeberg token explaining why it's needed."
+    },
+    "codebergApiBaseUrlLabel": {
+        "message": "Βασική διεύθυνση URL του API Codeberg",
+        "description": "Label for the Codeberg API Base URL input."
+    },
+    "codebergApiBaseUrlPlaceholder": {
+        "message": "https://codeberg.org/api/v1",
+        "description": "Placeholder for the Codeberg API Base URL input."
+    },
+    "showCommitsTooltipGitLab": {
+        "message": "Απαιτείται διακριτικό GitLab, προσθέστε το στις ρυθμίσεις."
+    },
+    "showCommitsTooltipCodeberg": {
+        "message": "Απαιτείται διακριτικό Codeberg, προσθέστε το στις ρυθμίσεις."
+    },
+    "cacheTTLTooltip": {
+        "message": "Αποθηκεύουμε προσωρινά δεδομένα για αποφυγή περιττών κλήσεων. Από προεπιλογή λήγει σε 10 λεπτά. Μπορείτε να ανανεώσετε χειροκίνητα με το κουμπί ανανέωσης.",
+        "description": "Tooltip explaining cache lifetime and manual refresh."
+    },
+    "tokenRequiredGitlabWarning": {
+        "message": "Απαιτείται διακριτικό GitLab για φιλτράρισμα αποθετηρίων. Προσθέστε ένα στις ρυθμίσεις.",
+        "description": "Warning message shown when GitLab repo filtering is enabled without a token."
+    },
+    "tokenRequiredNextPlansWarning": {
+        "message": "Απαιτείται διακριτικό GitHub για ανάκτηση ανατεθειμένων ζητημάτων. Προσθέστε ένα στις ρυθμίσεις.",
+        "description": "Warning message shown when next plans is enabled without a token."
+    },
+    "tokenRequiredNextPlansWarningCodeberg": {
+        "message": "Απαιτείται διακριτικό Codeberg για ανάκτηση ανατεθειμένων ζητημάτων. Προσθέστε ένα στις ρυθμίσεις.",
+        "description": "Warning message shown when next plans is enabled without a token on Codeberg."
+    },
+    "tokenRequiredNextPlansWarningGitLab": {
+        "message": "Απαιτείται διακριτικό GitLab για ανάκτηση ανατεθειμένων ζητημάτων. Προσθέστε ένα στις ρυθμίσεις.",
+        "description": "Warning message shown when next plans is enabled without a token on GitLab."
+    },
+    "onlyPrsRequiredShowCommitsWarning": {
+        "message": "Επιλέξτε το φίλτρο 'Συμπερίληψη ανοιχτών/πρόχειρων PRs στην αναφορά' για εμφάνιση commits."
+    },
+    "regenerateNoticeText": {
+        "message": "Η επιλογή άλλαξε. Παρακαλώ δημιουργήστε ξανά την αναφορά."
+    },
+    "tokenRequiredShowCommitsWarningGitLab": {
+        "message": "Απαιτείται διακριτικό GitLab για εμφάνιση commits σε ανοιχτά ή πρόχειρα MRs.",
+        "description": "Warning message shown when show commits is enabled without a token."
+    },
+    "tokenRequiredShowCommitsWarningCodeberg": {
+        "message": "Απαιτείται διακριτικό Codeberg για εμφάνιση commits σε ανοιχτά ή πρόχειρα PRs.",
+        "description": "Warning message shown when show commits is enabled without a token on Codeberg."
+    },
+    "selectPlatformPlaceholder": {
+        "message": "Επιλέξτε πλατφόρμα",
+        "description": "Placeholder text displayed when no platform is selected."
+    },
+    "selectPlatformWarning": {
+        "message": "Παρακαλώ επιλέξτε πρώτα μια πλατφόρμα",
+        "description": "Warning message when trying to generate report without selecting any platform."
+    },
+    "githubUsernameRequiredError": {
+        "message": "Παρακαλώ εισαγάγετε το όνομα χρήστη GitHub σας",
+        "description": "Error shown when GitHub username is missing."
+    },
+    "gitlabUsernameRequiredError": {
+        "message": "Παρακαλώ εισαγάγετε το όνομα χρήστη GitLab σας",
+        "description": "Error shown when GitLab username is missing."
+    },
+    "codebergUsernameRequiredError": {
+        "message": "Παρακαλώ εισαγάγετε το όνομα χρήστη Codeberg σας",
+        "description": "Error shown when Codeberg username is missing."
+    },
+    "errorLabel": {
+        "message": "Σφάλμα",
+        "description": "Prefix for repository fetch error messages; punctuation is added by the caller."
+    },
+    "codebergUserFetchError": {
+        "message": "Σφάλμα ανάκτησης χρήστη Codeberg: $1 $2",
+        "description": "Error when fetching Codeberg user fails. $1=status, $2=statusText"
+    },
+    "codebergUserNotFoundError": {
+        "message": "Ο χρήστης Codeberg \"$1\" δεν βρέθηκε.",
+        "description": "Error when Codeberg user is not found. $1=username"
+    },
+    "codebergUserValidationError": {
+        "message": "Σφάλμα επικύρωσης χρήστη Codeberg: $1 $2",
+        "description": "Error when validating Codeberg user fails. $1=status, $2=statusText"
+    },
+    "reportAlreadyInserted": {
+        "message": "Η αναφορά έχει ήδη εισαχθεί!",
+        "description": "Notification shown when the report has already been inserted in the current session."
+    },
+    "includeBlockersLabel": {
+        "message": "Συμπερίληψη εμποδίων στην αναφορά",
+        "description": "Label for checkbox to include blockers in the scrum report."
+    },
+    "includeBlockersTooltip": {
+        "message": "Εάν επιλεγεί, η αναφορά θα περιλαμβάνει την ενότητα εμποδίων.",
+        "description": "Tooltip text explaining the include blockers option."
+    },
+    "includeNextPlansLabel": {
+        "message": "Συμπερίληψη ανατεθειμένων ανοιχτών ζητημάτων στην ερώτηση 2 του email",
+        "description": "Label for checkbox to include next plans in second question of report."
+    },
+    "includeNextPlansTooltip": {
+        "message": "Επιλέξτε τα και προσθέστε τα στην ερώτηση 2. Απαιτείται διακριτικό GitHub.",
+        "description": "Tooltip text explaining the include next plans option."
+    },
+    "includeNextPlansTooltipCodeberg": {
+        "message": "Επιλέξτε τα και προσθέστε τα στην ερώτηση 2. Απαιτείται διακριτικό Codeberg.",
+        "description": "Tooltip text explaining the include next plans option for Codeberg."
+    },
+    "includeNextPlansTooltipGitLab": {
+        "message": "Επιλέξτε τα και προσθέστε τα στην ερώτηση 2. Απαιτείται διακριτικό GitLab.",
+        "description": "Tooltip text explaining the include next plans option on GitLab."
+    },
+    "fetchingIssuesSpinner": {
+        "message": "Ανάκτηση ανατεθειμένων ζητημάτων...",
+        "description": "Loading message shown when fetching assigned issues."
+    },
+    "noIssuesFound": {
+        "message": "Δεν βρέθηκαν ανατεθειμένα ανοιχτά ζητήματα",
+        "description": "Empty state message for assigned issues."
+    },
+    "githubTokenRequiredNextPlans": {
+        "message": "Απαιτείται διακριτικό GitHub για ανάκτηση ανατεθειμένων ζητημάτων. Προσθέστε ένα στις ρυθμίσεις.",
+        "description": "Error message when no token is present."
+    },
+    "gitlabTokenRequiredNextPlans": {
+        "message": "Απαιτείται διακριτικό GitLab για ανάκτηση ανατεθειμένων ζητημάτων. Προσθέστε ένα στις ρυθμίσεις.",
+        "description": "Error message when no token is present on GitLab."
+    },
+    "failedToFetchIssues": {
+        "message": "Αποτυχία ανάκτησης ανατεθειμένων ζητημάτων.",
+        "description": "Error message when fetching fails."
+    },
+    "repoFilterTooltip": {
+        "message": "Απαιτείται διακριτικό GitHub.<br>Για αναγκαστική ενημέρωση της λίστας αποθετηρίων,<br>κάντε κλικ στο κουμπί Ανανέωση δεδομένων.",
+        "description": "Tooltip message displayed for GitHub repository filter option."
+    },
+    "repoFilterTooltipGitLab": {
+        "message": "Απαιτείται διακριτικό GitLab.<br>Για αναγκαστική ενημέρωση της λίστας αποθετηρίων,<br>κάντε κλικ στο κουμπί Ανανέωση δεδομένων.",
+        "description": "Tooltip message displayed for GitLab repository filter option."
+    },
+    "smtpSenderEmailLabel": {
+        "message": "Email αποστολέα"
+    },
+    "smtpSenderEmailPlaceholder": {
+        "message": "sender@example.com"
+    },
+    "smtpHostLabel": {
+        "message": "Διακομιστής SMTP"
+    },
+    "smtpHostPlaceholder": {
+        "message": "smtp.example.com"
+    },
+    "smtpPortLabel": {
+        "message": "Θύρα SMTP"
+    },
+    "smtpPortPlaceholder": {
+        "message": "587"
+    },
+    "smtpUsernameLabel": {
+        "message": "Όνομα χρήστη SMTP"
+    },
+    "smtpUsernamePlaceholder": {
+        "message": "username@example.com"
+    },
+    "smtpPasswordLabel": {
+        "message": "Κωδικός πρόσβασης SMTP"
+    },
+    "smtpPasswordPlaceholder": {
+        "message": "Εισαγάγετε τον κωδικό πρόσβασης SMTP"
+    },
+    "smtpRecipientsLabel": {
+        "message": "Παραλήπτες"
+    },
+    "smtpRecipientsPlaceholder": {
+        "message": "recipient1@example.com, recipient2@example.com"
+    },
+    "smtpGmailHint": {
+        "message": "Για το Gmail, πρέπει να χρησιμοποιήσετε κωδικό πρόσβασης εφαρμογής, όχι τον κανονικό σας κωδικό."
+    },
+    "smtpSecurityWarning": {
+        "message": "Σημείωση: Ο κωδικός πρόσβασής σας αποθηκεύεται μη κρυπτογραφημένος στην τοπική μνήμη."
+    },
+    "smtpMissingFieldsError": {
+        "message": "Παρακαλώ ρυθμίστε πρώτα όλες τις παραμέτρους αλληλογραφίας."
+    },
+    "smtpInvalidEmailError": {
+        "message": "Μη έγκυρη διεύθυνση email: $1"
+    },
+    "smtpSendSuccess": {
+        "message": "Η αναφορά στάλθηκε επιτυχώς μέσω email!"
+    },
+    "smtpPartialSuccess": {
+        "message": "Στάλθηκε σε $1/$2; απέτυχε: $3"
+    },
+    "smtpSendFailed": {
+        "message": "Αποτυχία αποστολής email: "
+    },
+    "smtpSendError": {
+        "message": "Παρουσιάστηκε σφάλμα: "
+    },
+    "sendingButton": {
+        "message": "Αποστολή..."
+    },
+    "sendEmailButton": {
+        "message": "Αποστολή email"
+    },
+    "mailSettingsTitle": {
+        "message": "Ρυθμίσεις αλληλογραφίας"
+    },
+    "sentButton": {
+        "message": "Εστάλη"
+    },
+    "homeTitle": {
+        "message": "Αρχική"
+    },
+    "settingsTitle": {
+        "message": "Ρυθμίσεις"
+    },
+    "extensionSettingsHeading": {
+        "message": "Ρυθμίσεις επέκτασης",
+        "description": "Heading for general extension settings section."
+    },
+    "displayModeLabel": {
+        "message": "Λειτουργία εμφάνισης",
+        "description": "Label for the extension display mode selector."
+    },
+    "displayModeTooltip": {
+        "message": "Επιλέξτε πώς ανοίγει το Scrum Helper όταν κάνετε κλικ στο εικονίδιο. Ο πλευρικός πίνακας το διατηρεί σταθερό. Το αναδυόμενο παράθυρο ανοίγει ένα αιωρούμενο παράθυρο.",
+        "description": "Tooltip explaining side panel and popup display modes."
+    },
+    "smtpSenderEmailTooltip": {
+        "message": "Η διεύθυνση email από την οποία θα αποσταλεί η αναφορά."
+    },
+    "smtpHostTooltip": {
+        "message": "Η διεύθυνση του διακομιστή SMTP (π.χ. smtp.gmail.com)."
+    },
+    "smtpPortTooltip": {
+        "message": "Ο αριθμός θύρας του διακομιστή SMTP (συνήθως 465 ή 587)."
+    },
+    "smtpUsernameTooltip": {
+        "message": "Το όνομα χρήστη ή το email σύνδεσης για τον διακομιστή SMTP."
+    },
+    "smtpPasswordTooltip": {
+        "message": "Ο κωδικός πρόσβασης για έλεγχο ταυτότητας στον διακομιστή SMTP. ΠΡΟΕΙΔΟΠΟΙΗΣΗ: Αποθηκεύεται χωρίς κρυπτογράφηση."
+    },
+    "smtpRecipientsTooltip": {
+        "message": "Μια λίστα διευθύνσεων email παραληπτών διαχωρισμένων με κόμματα."
+    },
+    "smtpPresetsLabel": {
+        "message": "Γρήγορες προεπιλογές"
+    },
+    "smtpPresetsTooltip": {
+        "message": "Επιλέξτε μια προεπιλογή για αυτόματη διαμόρφωση διακομιστή και θύρας SMTP."
     }
 }

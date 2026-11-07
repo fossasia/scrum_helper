@@ -343,5 +343,322 @@
     },
     "rateLimitWarningMessage": {
         "message": "GitHub နှုန်းကန့်သတ်ချက်ကြောင့် အချို့သောအချက်အလက်များ လိုအပ်နေနိုင်ပါသည်။ ဆက်တင်များတွင် သင်၏ GitHub တိုကင်ကို ထည့်သွင်း သို့မဟုတ် စစ်ဆေးပါ။"
+    },
+    "projectNameTooltip": {
+        "message": "ဤပရောဂျက်အမည်သည် သင့်အီးမေးလ်၏ ခေါင်းစဉ်လိုင်းတွင် \"[Scrum] ပရောဂျက်အမည် - ရက်စွဲ\" အဖြစ် ပေါ်လာပါမည်။ ကျော်သွားရန် ကွက်လပ်ထားပါ။",
+        "description": "Tooltip explaining how the project name is used in the email subject."
+    },
+    "gitlabUsernamePlaceholder": {
+        "message": "သင့်ထည့်ဝင်မှုများကို ရယူရန် လိုအပ်သည်",
+        "description": "Placeholder text for the GitLab username input."
+    },
+    "codebergUsernameLabel": {
+        "message": "သင့် Codeberg အသုံးပြုသူအမည်",
+        "description": "Label for the Codeberg username input field."
+    },
+    "codebergUsernamePlaceholder": {
+        "message": "သင့်ထည့်ဝင်မှုများကို ရယူရန် လိုအပ်သည်",
+        "description": "Placeholder text for the Codeberg username input."
+    },
+    "dropdownGithubUsernamePlaceholder": {
+        "message": "GitHub အသုံးပြုသူအမည်",
+        "description": "Placeholder text for the GitHub username dropdown input."
+    },
+    "dropdownGitlabUsernamePlaceholder": {
+        "message": "GitLab အသုံးပြုသူအမည်",
+        "description": "Placeholder text for the GitLab username dropdown input."
+    },
+    "dropdownCodebergUsernamePlaceholder": {
+        "message": "Codeberg အသုံးပြုသူအမည်",
+        "description": "Placeholder text for the Codeberg username dropdown input."
+    },
+    "showOpenClosedTooltip": {
+        "message": "အမှန်ခြစ်ထားပါက PR များနှင့် issue များအတွက် အခြေအနေတံဆိပ်များကို ပြသပါမည်။"
+    },
+    "advancedFiltersLabel": {
+        "message": "အဆင့်မြင့် ရွေးချယ်စရာများ",
+        "description": "Heading for the advanced report options."
+    },
+    "orgNameTooltip": {
+        "message": "မည်သည့်အဖွဲ့အစည်း၏ GitHub လှုပ်ရှားမှုလဲ။ GitHub အဖွဲ့အစည်းအမည်ကို ထည့်ပါ။ အဖွဲ့အစည်းအားလုံးအတွက် ကွက်လပ်ထားပါ။ ပုဒ်မခွဲ (,) ဖြင့် ခွဲခြားနိုင်ပါသည်။",
+        "description": "Tooltip explaining the GitHub organization filter."
+    },
+    "gitlabOrgNamePlaceholder": {
+        "message": "အုပ်စုအမည် ထည့်ပါ",
+        "description": "Placeholder for the GitLab group name input."
+    },
+    "settingsGroupNameLabel": {
+        "message": "သင့်အုပ်စုအမည်",
+        "description": "Label for the GitLab group name input."
+    },
+    "gitlabOrgNameTooltip": {
+        "message": "မည်သည့်အုပ်စု၏ GitLab လှုပ်ရှားမှုလဲ။ GitLab အုပ်စုအမည်ကို ထည့်ပါ။ အားလုံးအတွက် ကွက်လပ်ထားပါ။ ပုဒ်မခွဲ (,) ဖြင့် ခွဲခြားနိုင်ပါသည်။",
+        "description": "Tooltip explaining the GitLab group filter."
+    },
+    "codebergTokenLabel": {
+        "message": "သင့် Codeberg တိုကင်",
+        "description": "Label for the Codeberg token input."
+    },
+    "codebergTokenPlaceholder": {
+        "message": "သီးသန့်ပရောဂျက်များကို ဝင်ရောက်ကြည့်ရှုရန် လိုအပ်သည်",
+        "description": "Placeholder for the Codeberg token input."
+    },
+    "codebergTokenTooltip": {
+        "message": "<b>Codeberg တိုကင်ကို အဘယ်ကြောင့် ထည့်သွင်းရသနည်း။</b><br>Scrum Helper သည် အများသုံးပရောဂျက်များအတွက် တိုကင်မပါဘဲ အလုပ်လုပ်သော်လည်း သီးသန့်ပရောဂျက်များနှင့် ပိုမိုကောင်းမွန်သော နှုန်းထားကန့်သတ်ချက်များအတွက် ကိုယ်ပိုင်ဝင်ရောက်ခွင့်တိုကင် လိုအပ်ပါသည်။<br><br><b>ရယူနည်း-</b><br>1. <a href=\"https://codeberg.org/user/settings/applications\" target=\"_blank\" rel=\"noopener noreferrer\">Codeberg အက်ပ်ဆက်တင်များ</a>သို့ သွားပါ<br>2. \"တိုကင်အသစ် ထုတ်ယူရန်\" ကို နှိပ်ပါ<br>3. ကူးယူပြီး ဤနေရာတွင် ကူးထည့်ပါ<br><i>လျှို့ဝှက်ထားပါ!</i>",
+        "description": "Tooltip for Codeberg token explaining why it's needed."
+    },
+    "codebergApiBaseUrlLabel": {
+        "message": "Codeberg API အခြေခံ URL",
+        "description": "Label for the Codeberg API Base URL input."
+    },
+    "codebergApiBaseUrlPlaceholder": {
+        "message": "https://codeberg.org/api/v1",
+        "description": "Placeholder for the Codeberg API Base URL input."
+    },
+    "showCommitsTooltipGitLab": {
+        "message": "GitLab တိုကင် လိုအပ်ပါသည်၊ ဆက်တင်တွင် ထည့်ပါ။"
+    },
+    "showCommitsTooltipCodeberg": {
+        "message": "Codeberg တိုကင် လိုအပ်ပါသည်၊ ဆက်တင်တွင် ထည့်ပါ။"
+    },
+    "cacheTTLTooltip": {
+        "message": "မလိုအပ်သော ခေါ်ဆိုမှုများကို ရှောင်ရှားရန် ဒေတာများကို ကက်ရှ်လုပ်ထားပါသည်။ ပုံမှန်အားဖြင့် ၁၀ မိနစ်အကြာတွင် သက်တမ်းကုန်ဆုံးပါသည်။",
+        "description": "Tooltip explaining cache lifetime and manual refresh."
+    },
+    "tokenRequiredGitlabWarning": {
+        "message": "သိုလှောင်ရုံများကို စစ်ထုတ်ရန် GitLab တိုကင် လိုအပ်ပါသည်။ ဆက်တင်တွင် ထည့်သွင်းပါ။",
+        "description": "Warning message shown when GitLab repo filtering is enabled without a token."
+    },
+    "tokenRequiredNextPlansWarning": {
+        "message": "တာဝန်ပေးထားသော issue များကို ရယူရန် GitHub တိုကင် လိုအပ်ပါသည်။ ဆက်တင်တွင် ထည့်သွင်းပါ။",
+        "description": "Warning message shown when next plans is enabled without a token."
+    },
+    "tokenRequiredNextPlansWarningCodeberg": {
+        "message": "တာဝန်ပေးထားသော issue များကို ရယူရန် Codeberg တိုကင် လိုအပ်ပါသည်။ ဆက်တင်တွင် ထည့်သွင်းပါ။",
+        "description": "Warning message shown when next plans is enabled without a token on Codeberg."
+    },
+    "tokenRequiredNextPlansWarningGitLab": {
+        "message": "တာဝန်ပေးထားသော issue များကို ရယူရန် GitLab တိုကင် လိုအပ်ပါသည်။ ဆက်တင်တွင် ထည့်သွင်းပါ။",
+        "description": "Warning message shown when next plans is enabled without a token on GitLab."
+    },
+    "onlyPrsRequiredShowCommitsWarning": {
+        "message": "commit များကို ပြသရန် 'အစီရင်ခံစာတွင် ဖွင့်ထားသော/မူကြမ်း PR များကို ထည့်သွင်းပါ' ကို ရွေးပါ။"
+    },
+    "regenerateNoticeText": {
+        "message": "ရွေးချယ်မှု ပြောင်းလဲသွားပါသည်။ အပြောင်းအလဲများကို အသုံးပြုရန် အစီရင်ခံစာကို ပြန်လည်ထုတ်ယူပါ။"
+    },
+    "tokenRequiredShowCommitsWarningGitLab": {
+        "message": "ဖွင့်ထားသော သို့မဟုတ် မူကြမ်း MR များတွင် commit ပြသရန် GitLab တိုကင် လိုအပ်ပါသည်။",
+        "description": "Warning message shown when show commits is enabled without a token."
+    },
+    "tokenRequiredShowCommitsWarningCodeberg": {
+        "message": "ဖွင့်ထားသော သို့မဟုတ် မူကြမ်း PR များတွင် commit ပြသရန် Codeberg တိုကင် လိုအပ်ပါသည်။",
+        "description": "Warning message shown when show commits is enabled without a token on Codeberg."
+    },
+    "selectPlatformPlaceholder": {
+        "message": "ပလက်ဖောင်းကို ရွေးပါ",
+        "description": "Placeholder text displayed when no platform is selected."
+    },
+    "selectPlatformWarning": {
+        "message": "ကျေးဇူးပြု၍ ပလက်ဖောင်းကို အရင်ရွေးပါ",
+        "description": "Warning message when trying to generate report without selecting any platform."
+    },
+    "githubUsernameRequiredError": {
+        "message": "ကျေးဇူးပြု၍ သင့် GitHub အသုံးပြုသူအမည်ကို ထည့်ပါ",
+        "description": "Error shown when GitHub username is missing."
+    },
+    "gitlabUsernameRequiredError": {
+        "message": "ကျေးဇူးပြု၍ သင့် GitLab အသုံးပြုသူအမည်ကို ထည့်ပါ",
+        "description": "Error shown when GitLab username is missing."
+    },
+    "codebergUsernameRequiredError": {
+        "message": "ကျေးဇူးပြု၍ သင့် Codeberg အသုံးပြုသူအမည်ကို ထည့်ပါ",
+        "description": "Error shown when Codeberg username is missing."
+    },
+    "errorLabel": {
+        "message": "အမှား",
+        "description": "Prefix for repository fetch error messages; punctuation is added by the caller."
+    },
+    "codebergUserFetchError": {
+        "message": "Codeberg အသုံးပြုသူကို ရယူရာတွင် အမှားဖြစ်ပွားသည်- $1 $2",
+        "description": "Error when fetching Codeberg user fails. $1=status, $2=statusText"
+    },
+    "codebergUserNotFoundError": {
+        "message": "Codeberg အသုံးပြုသူ \"$1\" ကို ရှာမတွေ့ပါ။",
+        "description": "Error when Codeberg user is not found. $1=username"
+    },
+    "codebergUserValidationError": {
+        "message": "Codeberg အသုံးပြုသူ အတည်ပြုရာတွင် အမှားဖြစ်ပွားသည်- $1 $2",
+        "description": "Error when validating Codeberg user fails. $1=status, $2=statusText"
+    },
+    "reportAlreadyInserted": {
+        "message": "အစီရင်ခံစာကို ထည့်သွင်းပြီးပါပြီ။",
+        "description": "Notification shown when the report has already been inserted in the current session."
+    },
+    "includeBlockersLabel": {
+        "message": "အစီရင်ခံစာတွင် အတားအဆီးများကို ထည့်သွင်းပါ",
+        "description": "Label for checkbox to include blockers in the scrum report."
+    },
+    "includeBlockersTooltip": {
+        "message": "အမှန်ခြစ်ထားပါက အစီရင်ခံစာတွင် အတားအဆီးများအပိုင်း ပါဝင်ပါမည်။",
+        "description": "Tooltip text explaining the include blockers option."
+    },
+    "includeNextPlansLabel": {
+        "message": "တာဝန်ပေးထားသော ဖွင့်ထားသည့် issue များကို အီးမေးလ်မေးခွန်း ၂ တွင် ထည့်ပါ",
+        "description": "Label for checkbox to include next plans in second question of report."
+    },
+    "includeNextPlansTooltip": {
+        "message": "၎င်းတို့ကို ရွေးချယ်ပြီး အီးမေးလ်ရှိ မေးခွန်း ၂ သို့ ထည့်ပါ။ GitHub တိုကင် လိုအပ်ပါသည်။",
+        "description": "Tooltip text explaining the include next plans option."
+    },
+    "includeNextPlansTooltipCodeberg": {
+        "message": "၎င်းတို့ကို ရွေးချယ်ပြီး အီးမေးလ်ရှိ မေးခွန်း ၂ သို့ ထည့်ပါ။ Codeberg တိုကင် လိုအပ်ပါသည်။",
+        "description": "Tooltip text explaining the include next plans option for Codeberg."
+    },
+    "includeNextPlansTooltipGitLab": {
+        "message": "၎င်းတို့ကို ရွေးချယ်ပြီး အီးမေးလ်ရှိ မေးခွန်း ၂ သို့ ထည့်ပါ။ GitLab တိုကင် လိုအပ်ပါသည်။",
+        "description": "Tooltip text explaining the include next plans option on GitLab."
+    },
+    "fetchingIssuesSpinner": {
+        "message": "တာဝန်ပေးထားသော issue များကို ရယူနေပါသည်...",
+        "description": "Loading message shown when fetching assigned issues."
+    },
+    "noIssuesFound": {
+        "message": "တာဝန်ပေးထားသော ဖွင့်ထားသည့် issue မတွေ့ပါ",
+        "description": "Empty state message for assigned issues."
+    },
+    "githubTokenRequiredNextPlans": {
+        "message": "တာဝန်ပေးထားသော issue များကို ရယူရန် GitHub တိုကင် လိုအပ်ပါသည်။ ဆက်တင်တွင် ထည့်ပါ။",
+        "description": "Error message when no token is present."
+    },
+    "gitlabTokenRequiredNextPlans": {
+        "message": "တာဝန်ပေးထားသော issue များကို ရယူရန် GitLab တိုကင် လိုအပ်ပါသည်။ ဆက်တင်တွင် ထည့်ပါ။",
+        "description": "Error message when no token is present on GitLab."
+    },
+    "failedToFetchIssues": {
+        "message": "တာဝန်ပေးထားသော issue များကို ရယူ၍မရပါ။",
+        "description": "Error message when fetching fails."
+    },
+    "repoFilterTooltip": {
+        "message": "GitHub တိုကင် လိုအပ်ပါသည်။<br>စာရင်းကို အသစ်ပြန်ပြင်ရန်<br>'ဒေတာ ပြန်လည်စတင်ရန်' ခလုတ်ကို နှိပ်ပါ။",
+        "description": "Tooltip message displayed for GitHub repository filter option."
+    },
+    "repoFilterTooltipGitLab": {
+        "message": "GitLab တိုကင် လိုအပ်ပါသည်။<br>စာရင်းကို အသစ်ပြန်ပြင်ရန်<br>'ဒေတာ ပြန်လည်စတင်ရန်' ခလုတ်ကို နှိပ်ပါ။",
+        "description": "Tooltip message displayed for GitLab repository filter option."
+    },
+    "smtpSenderEmailLabel": {
+        "message": "ပေးပို့သူ၏ အီးမေးလ်"
+    },
+    "smtpSenderEmailPlaceholder": {
+        "message": "sender@example.com"
+    },
+    "smtpHostLabel": {
+        "message": "SMTP ဆာဗာ"
+    },
+    "smtpHostPlaceholder": {
+        "message": "smtp.example.com"
+    },
+    "smtpPortLabel": {
+        "message": "SMTP ပေါက်"
+    },
+    "smtpPortPlaceholder": {
+        "message": "587"
+    },
+    "smtpUsernameLabel": {
+        "message": "SMTP အသုံးပြုသူအမည်"
+    },
+    "smtpUsernamePlaceholder": {
+        "message": "username@example.com"
+    },
+    "smtpPasswordLabel": {
+        "message": "SMTP စကားဝှက်"
+    },
+    "smtpPasswordPlaceholder": {
+        "message": "သင့် SMTP စကားဝှက်ကို ထည့်ပါ"
+    },
+    "smtpRecipientsLabel": {
+        "message": "လက်ခံသူများ"
+    },
+    "smtpRecipientsPlaceholder": {
+        "message": "recipient1@example.com, recipient2@example.com"
+    },
+    "smtpGmailHint": {
+        "message": "Gmail အတွက် ပုံမှန်စကားဝှက်အစား အက်ပ်စကားဝှက်ကို အသုံးပြုရပါမည်။"
+    },
+    "smtpSecurityWarning": {
+        "message": "မှတ်ချက်- သင့်စကားဝှက်ကို စက်တွင်းမှတ်ဉာဏ်တွင် လျှို့ဝှက်ကုဒ်မပါဘဲ သိမ်းဆည်းထားပါသည်။"
+    },
+    "smtpMissingFieldsError": {
+        "message": "ကျေးဇူးပြု၍ အီးမေးလ်ဆက်တင်အားလုံးကို အရင်ပြင်ဆင်ပါ။"
+    },
+    "smtpInvalidEmailError": {
+        "message": "မမှန်ကန်သော အီးမေးလ်လိပ်စာ- $1"
+    },
+    "smtpSendSuccess": {
+        "message": "အစီရင်ခံစာကို အီးမေးလ်ဖြင့် အောင်မြင်စွာ ပေးပို့ပြီးပါပြီ။"
+    },
+    "smtpPartialSuccess": {
+        "message": "$1/$2 သို့ ပေးပို့ပြီး၊ မအောင်မြင်ပါ- $3"
+    },
+    "smtpSendFailed": {
+        "message": "အီးမေးလ် ပေးပို့၍မရပါ- "
+    },
+    "smtpSendError": {
+        "message": "အမှားတစ်ခု ဖြစ်ပွားခဲ့သည်- "
+    },
+    "sendingButton": {
+        "message": "ပေးပို့နေသည်..."
+    },
+    "sendEmailButton": {
+        "message": "အီးမေးလ် ပို့ရန်"
+    },
+    "mailSettingsTitle": {
+        "message": "မေးလ် ဆက်တင်များ"
+    },
+    "sentButton": {
+        "message": "ပို့ပြီးပါပြီ"
+    },
+    "homeTitle": {
+        "message": "ပင်မ"
+    },
+    "settingsTitle": {
+        "message": "ဆက်တင်များ"
+    },
+    "extensionSettingsHeading": {
+        "message": "အပိုဆောင်း ဆက်တင်များ",
+        "description": "Heading for general extension settings section."
+    },
+    "displayModeLabel": {
+        "message": "ပြသမှုမုဒ်",
+        "description": "Label for the extension display mode selector."
+    },
+    "displayModeTooltip": {
+        "message": "Scrum Helper ကို ဖွင့်သည့် ပုံစံကို ရွေးချယ်ပါ။ ဘေးဘောင်သည် စာမျက်နှာဘေးတွင် ကပ်ထားပေးပြီး ပေါ့ပ်အပ်သည် ပြတင်းပေါက်ငယ်ဖြင့် ဖွင့်ပေးပါမည်။",
+        "description": "Tooltip explaining side panel and popup display modes."
+    },
+    "smtpSenderEmailTooltip": {
+        "message": "အစီရင်ခံစာ ပေးပို့မည့် အီးမေးလ်လိပ်စာ။"
+    },
+    "smtpHostTooltip": {
+        "message": "သင့် SMTP ဆာဗာ လိပ်စာ (ဥပမာ smtp.gmail.com)။"
+    },
+    "smtpPortTooltip": {
+        "message": "သင့် SMTP ဆာဗာ၏ ပေါက်နံပါတ် (ပုံမှန်အားဖြင့် 465 သို့မဟုတ် 587)။"
+    },
+    "smtpUsernameTooltip": {
+        "message": "SMTP ဆာဗာအတွက် အသုံးပြုသူအမည်။"
+    },
+    "smtpPasswordTooltip": {
+        "message": "SMTP ဆာဗာအတွက် စကားဝှက်။ သတိပေးချက်- စက်တွင်းတွင် အကာအကွယ်မပါဘဲ သိမ်းဆည်းထားသည်။"
+    },
+    "smtpRecipientsTooltip": {
+        "message": "ပုဒ်မခွဲ (,) ဖြင့် ခွဲထားသော လက်ခံသူ အီးမေးလ်လိပ်စာများ စာရင်း။"
+    },
+    "smtpPresetsLabel": {
+        "message": "အမြန်ကြိုတင်သတ်မှတ်ချက်များ"
+    },
+    "smtpPresetsTooltip": {
+        "message": "အသုံးများသော အီးမေးလ်ဝန်ဆောင်မှုများအတွက် ဆာဗာနှင့် ပေါက်ကို အလိုအလျောက် သတ်မှတ်ရန် ရွေးချယ်ပါ။"
     }
 }

@@ -343,5 +343,322 @@
     },
     "rateLimitWarningMessage": {
         "message": "Một số dữ liệu có thể bị thiếu do giới hạn tỷ lệ của GitHub. Vui lòng thêm hoặc kiểm tra mã thông báo GitHub của bạn trong phần cài đặt."
+    },
+    "projectNameTooltip": {
+        "message": "Tên dự án này sẽ xuất hiện trong dòng tiêu đề email: \"[Scrum] Tên dự án - Ngày\". Để trống để bỏ qua.",
+        "description": "Tooltip explaining how the project name is used in the email subject."
+    },
+    "gitlabUsernamePlaceholder": {
+        "message": "Cần thiết để lấy đóng góp của bạn",
+        "description": "Placeholder text for the GitLab username input."
+    },
+    "codebergUsernameLabel": {
+        "message": "Tên người dùng Codeberg",
+        "description": "Label for the Codeberg username input field."
+    },
+    "codebergUsernamePlaceholder": {
+        "message": "Cần thiết để lấy đóng góp của bạn",
+        "description": "Placeholder text for the Codeberg username input."
+    },
+    "dropdownGithubUsernamePlaceholder": {
+        "message": "Tên người dùng GitHub",
+        "description": "Placeholder text for the GitHub username dropdown input."
+    },
+    "dropdownGitlabUsernamePlaceholder": {
+        "message": "Tên người dùng GitLab",
+        "description": "Placeholder text for the GitLab username dropdown input."
+    },
+    "dropdownCodebergUsernamePlaceholder": {
+        "message": "Tên người dùng Codeberg",
+        "description": "Placeholder text for the Codeberg username dropdown input."
+    },
+    "showOpenClosedTooltip": {
+        "message": "Nếu được chọn, báo cáo sẽ hiển thị nhãn trạng thái cho PR và issue (ví dụ: Mở, Bản nháp, Đã hợp nhất, Đã đóng)."
+    },
+    "advancedFiltersLabel": {
+        "message": "Tùy chọn nâng cao",
+        "description": "Heading for the advanced report options."
+    },
+    "orgNameTooltip": {
+        "message": "Hoạt động GitHub của tổ chức nào? Nhập tên tổ chức GitHub. Để trống để lấy tất cả hoạt động. Phân cách nhiều tổ chức bằng dấu phẩy.",
+        "description": "Tooltip explaining the GitHub organization filter."
+    },
+    "gitlabOrgNamePlaceholder": {
+        "message": "Nhập tên nhóm",
+        "description": "Placeholder for the GitLab group name input."
+    },
+    "settingsGroupNameLabel": {
+        "message": "Tên nhóm của bạn",
+        "description": "Label for the GitLab group name input."
+    },
+    "gitlabOrgNameTooltip": {
+        "message": "Hoạt động GitLab của nhóm nào? Nhập tên nhóm GitLab. Để trống để lấy tất cả. Phân cách bằng dấu phẩy.",
+        "description": "Tooltip explaining the GitLab group filter."
+    },
+    "codebergTokenLabel": {
+        "message": "Mã token Codeberg của bạn",
+        "description": "Label for the Codeberg token input."
+    },
+    "codebergTokenPlaceholder": {
+        "message": "Cần thiết để truy cập các dự án riêng tư",
+        "description": "Placeholder for the Codeberg token input."
+    },
+    "codebergTokenTooltip": {
+        "message": "<b>Tại sao nên thêm token Codeberg?</b><br>Scrum Helper hoạt động không cần token cho các dự án công khai, nhưng token cá nhân cho phép truy cập kho riêng tư và giới hạn tỷ lệ tốt hơn.<br><br><b>Cách lấy token:</b><br>1. Truy cập <a href=\"https://codeberg.org/user/settings/applications\" target=\"_blank\" rel=\"noopener noreferrer\">Cài đặt ứng dụng Codeberg</a><br>2. Nhấn \"Tạo token mới\"<br>3. Sao chép và dán vào đây<br><i>Hãy giữ bí mật!</i>",
+        "description": "Tooltip for Codeberg token explaining why it's needed."
+    },
+    "codebergApiBaseUrlLabel": {
+        "message": "URL cơ sở của API Codeberg",
+        "description": "Label for the Codeberg API Base URL input."
+    },
+    "codebergApiBaseUrlPlaceholder": {
+        "message": "https://codeberg.org/api/v1",
+        "description": "Placeholder for the Codeberg API Base URL input."
+    },
+    "showCommitsTooltipGitLab": {
+        "message": "Yêu cầu token GitLab, vui lòng thêm trong cài đặt."
+    },
+    "showCommitsTooltipCodeberg": {
+        "message": "Yêu cầu token Codeberg, vui lòng thêm trong cài đặt."
+    },
+    "cacheTTLTooltip": {
+        "message": "Chúng tôi lưu dữ liệu vào bộ nhớ đệm để tránh các yêu cầu dư thừa. Mặc định hết hạn sau 10 phút. Bạn có thể làm mới bộ nhớ đệm bất cứ lúc nào.",
+        "description": "Tooltip explaining cache lifetime and manual refresh."
+    },
+    "tokenRequiredGitlabWarning": {
+        "message": "Cần có token GitLab để lọc kho lưu trữ. Vui lòng thêm trong cài đặt.",
+        "description": "Warning message shown when GitLab repo filtering is enabled without a token."
+    },
+    "tokenRequiredNextPlansWarning": {
+        "message": "Cần có token GitHub để lấy các issue được chỉ định. Vui lòng thêm trong cài đặt.",
+        "description": "Warning message shown when next plans is enabled without a token."
+    },
+    "tokenRequiredNextPlansWarningCodeberg": {
+        "message": "Cần có token Codeberg để lấy các issue được chỉ định. Vui lòng thêm trong cài đặt.",
+        "description": "Warning message shown when next plans is enabled without a token on Codeberg."
+    },
+    "tokenRequiredNextPlansWarningGitLab": {
+        "message": "Cần có token GitLab để lấy các issue được chỉ định. Vui lòng thêm trong cài đặt.",
+        "description": "Warning message shown when next plans is enabled without a token on GitLab."
+    },
+    "onlyPrsRequiredShowCommitsWarning": {
+        "message": "Vui lòng chọn bộ lọc 'Bao gồm các PR mở/bản nháp trong báo cáo' để hiển thị commit."
+    },
+    "regenerateNoticeText": {
+        "message": "Tùy chọn đã thay đổi. Vui lòng tạo lại báo cáo để áp dụng thay đổi."
+    },
+    "tokenRequiredShowCommitsWarningGitLab": {
+        "message": "Cần có token GitLab để hiển thị commit trên các MR đang mở hoặc bản nháp.",
+        "description": "Warning message shown when show commits is enabled without a token."
+    },
+    "tokenRequiredShowCommitsWarningCodeberg": {
+        "message": "Cần có token Codeberg để hiển thị commit trên các PR đang mở hoặc bản nháp.",
+        "description": "Warning message shown when show commits is enabled without a token on Codeberg."
+    },
+    "selectPlatformPlaceholder": {
+        "message": "Chọn nền tảng",
+        "description": "Placeholder text displayed when no platform is selected."
+    },
+    "selectPlatformWarning": {
+        "message": "Vui lòng chọn một nền tảng trước",
+        "description": "Warning message when trying to generate report without selecting any platform."
+    },
+    "githubUsernameRequiredError": {
+        "message": "Vui lòng nhập tên người dùng GitHub của bạn",
+        "description": "Error shown when GitHub username is missing."
+    },
+    "gitlabUsernameRequiredError": {
+        "message": "Vui lòng nhập tên người dùng GitLab của bạn",
+        "description": "Error shown when GitLab username is missing."
+    },
+    "codebergUsernameRequiredError": {
+        "message": "Vui lòng nhập tên người dùng Codeberg của bạn",
+        "description": "Error shown when Codeberg username is missing."
+    },
+    "errorLabel": {
+        "message": "Lỗi",
+        "description": "Prefix for repository fetch error messages; punctuation is added by the caller."
+    },
+    "codebergUserFetchError": {
+        "message": "Lỗi khi lấy người dùng Codeberg: $1 $2",
+        "description": "Error when fetching Codeberg user fails. $1=status, $2=statusText"
+    },
+    "codebergUserNotFoundError": {
+        "message": "Không tìm thấy người dùng Codeberg \"$1\".",
+        "description": "Error when Codeberg user is not found. $1=username"
+    },
+    "codebergUserValidationError": {
+        "message": "Lỗi xác thực người dùng Codeberg: $1 $2",
+        "description": "Error when validating Codeberg user fails. $1=status, $2=statusText"
+    },
+    "reportAlreadyInserted": {
+        "message": "Báo cáo đã được chèn!",
+        "description": "Notification shown when the report has already been inserted in the current session."
+    },
+    "includeBlockersLabel": {
+        "message": "Bao gồm phần cản trở trong báo cáo",
+        "description": "Label for checkbox to include blockers in the scrum report."
+    },
+    "includeBlockersTooltip": {
+        "message": "Nếu được chọn, báo cáo sẽ bao gồm phần khó khăn/cản trở.",
+        "description": "Tooltip text explaining the include blockers option."
+    },
+    "includeNextPlansLabel": {
+        "message": "Bao gồm các issue mở được chỉ định vào câu hỏi 2 trong email",
+        "description": "Label for checkbox to include next plans in second question of report."
+    },
+    "includeNextPlansTooltip": {
+        "message": "Chọn và thêm chúng vào câu hỏi 2. Yêu cầu token GitHub.",
+        "description": "Tooltip text explaining the include next plans option."
+    },
+    "includeNextPlansTooltipCodeberg": {
+        "message": "Chọn và thêm chúng vào câu hỏi 2. Yêu cầu token Codeberg.",
+        "description": "Tooltip text explaining the include next plans option for Codeberg."
+    },
+    "includeNextPlansTooltipGitLab": {
+        "message": "Chọn và thêm chúng vào câu hỏi 2. Yêu cầu token GitLab.",
+        "description": "Tooltip text explaining the include next plans option on GitLab."
+    },
+    "fetchingIssuesSpinner": {
+        "message": "Đang lấy các issue được chỉ định...",
+        "description": "Loading message shown when fetching assigned issues."
+    },
+    "noIssuesFound": {
+        "message": "Không tìm thấy issue mở nào được chỉ định",
+        "description": "Empty state message for assigned issues."
+    },
+    "githubTokenRequiredNextPlans": {
+        "message": "Cần có token GitHub để lấy các issue được chỉ định. Thêm trong cài đặt.",
+        "description": "Error message when no token is present."
+    },
+    "gitlabTokenRequiredNextPlans": {
+        "message": "Cần có token GitLab để lấy các issue được chỉ định. Thêm trong cài đặt.",
+        "description": "Error message when no token is present on GitLab."
+    },
+    "failedToFetchIssues": {
+        "message": "Không thể lấy các issue được chỉ định.",
+        "description": "Error message when fetching fails."
+    },
+    "repoFilterTooltip": {
+        "message": "Yêu cầu token GitHub.<br>Để buộc cập nhật danh sách kho lưu trữ,<br>hãy nhấn nút Làm mới dữ liệu.",
+        "description": "Tooltip message displayed for GitHub repository filter option."
+    },
+    "repoFilterTooltipGitLab": {
+        "message": "Yêu cầu token GitLab.<br>Để buộc cập nhật danh sách kho lưu trữ,<br>hãy nhấn nút Làm mới dữ liệu.",
+        "description": "Tooltip message displayed for GitLab repository filter option."
+    },
+    "smtpSenderEmailLabel": {
+        "message": "Email người gửi"
+    },
+    "smtpSenderEmailPlaceholder": {
+        "message": "sender@example.com"
+    },
+    "smtpHostLabel": {
+        "message": "Máy chủ SMTP"
+    },
+    "smtpHostPlaceholder": {
+        "message": "smtp.example.com"
+    },
+    "smtpPortLabel": {
+        "message": "Cổng SMTP"
+    },
+    "smtpPortPlaceholder": {
+        "message": "587"
+    },
+    "smtpUsernameLabel": {
+        "message": "Tên người dùng SMTP"
+    },
+    "smtpUsernamePlaceholder": {
+        "message": "username@example.com"
+    },
+    "smtpPasswordLabel": {
+        "message": "Mật khẩu SMTP"
+    },
+    "smtpPasswordPlaceholder": {
+        "message": "Nhập mật khẩu SMTP của bạn"
+    },
+    "smtpRecipientsLabel": {
+        "message": "Người nhận"
+    },
+    "smtpRecipientsPlaceholder": {
+        "message": "recipient1@example.com, recipient2@example.com"
+    },
+    "smtpGmailHint": {
+        "message": "Đối với Gmail, bạn phải sử dụng mật khẩu ứng dụng chứ không phải mật khẩu thông thường."
+    },
+    "smtpSecurityWarning": {
+        "message": "Lưu ý: Mật khẩu của bạn được lưu trữ không mã hóa trên thiết bị cục bộ. Hãy đảm bảo an toàn thiết bị."
+    },
+    "smtpMissingFieldsError": {
+        "message": "Vui lòng cấu hình tất cả các cài đặt email trước."
+    },
+    "smtpInvalidEmailError": {
+        "message": "Địa chỉ email không hợp lệ: $1"
+    },
+    "smtpSendSuccess": {
+        "message": "Báo cáo đã được gửi thành công qua email!"
+    },
+    "smtpPartialSuccess": {
+        "message": "Đã gửi tới $1/$2; thất bại: $3"
+    },
+    "smtpSendFailed": {
+        "message": "Gửi email thất bại: "
+    },
+    "smtpSendError": {
+        "message": "Đã xảy ra lỗi: "
+    },
+    "sendingButton": {
+        "message": "Đang gửi..."
+    },
+    "sendEmailButton": {
+        "message": "Gửi email"
+    },
+    "mailSettingsTitle": {
+        "message": "Cài đặt email"
+    },
+    "sentButton": {
+        "message": "Đã gửi"
+    },
+    "homeTitle": {
+        "message": "Trang chủ"
+    },
+    "settingsTitle": {
+        "message": "Cài đặt"
+    },
+    "extensionSettingsHeading": {
+        "message": "Cài đặt tiện ích",
+        "description": "Heading for general extension settings section."
+    },
+    "displayModeLabel": {
+        "message": "Chế độ hiển thị",
+        "description": "Label for the extension display mode selector."
+    },
+    "displayModeTooltip": {
+        "message": "Chọn cách mở Scrum Helper khi nhấp vào biểu tượng. Bảng điều khiển bên giữ nó cố định cạnh trang. Cửa sổ bật lên mở một cửa sổ nổi.",
+        "description": "Tooltip explaining side panel and popup display modes."
+    },
+    "smtpSenderEmailTooltip": {
+        "message": "Địa chỉ email sẽ dùng để gửi báo cáo."
+    },
+    "smtpHostTooltip": {
+        "message": "Địa chỉ máy chủ SMTP của bạn (ví dụ: smtp.gmail.com)."
+    },
+    "smtpPortTooltip": {
+        "message": "Số cổng máy chủ SMTP (thường là 465 hoặc 587)."
+    },
+    "smtpUsernameTooltip": {
+        "message": "Tên người dùng hoặc email đăng nhập cho máy chủ SMTP."
+    },
+    "smtpPasswordTooltip": {
+        "message": "Mật khẩu xác thực máy chủ SMTP. CẢNH BÁO: Lưu trữ không mã hóa."
+    },
+    "smtpRecipientsTooltip": {
+        "message": "Danh sách địa chỉ email người nhận cách nhau bằng dấu phẩy."
+    },
+    "smtpPresetsLabel": {
+        "message": "Cài đặt nhanh"
+    },
+    "smtpPresetsTooltip": {
+        "message": "Chọn cấu hình sẵn để tự động điền máy chủ và cổng SMTP."
     }
 }

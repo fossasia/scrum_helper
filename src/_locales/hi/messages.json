@@ -343,5 +343,322 @@
     },
     "rateLimitWarningMessage": {
         "message": "GitHub दर सीमा के कारण कुछ डेटा गायब हो सकता है। कृपया सेटिंग्स में अपना GitHub टोकन जोड़ें या जांचें।"
+    },
+    "projectNameTooltip": {
+        "message": "यह प्रोजेक्ट नाम आपके ईमेल के विषय में इस रूप में दिखाई देगा: \"[Scrum] प्रोजेक्ट का नाम - दिनांक\"। छोड़ने के लिए खाली रखें।",
+        "description": "Tooltip explaining how the project name is used in the email subject."
+    },
+    "gitlabUsernamePlaceholder": {
+        "message": "आपके योगदान प्राप्त करने के लिए आवश्यक है",
+        "description": "Placeholder text for the GitLab username input."
+    },
+    "codebergUsernameLabel": {
+        "message": "आपका Codeberg उपयोगकर्ता नाम",
+        "description": "Label for the Codeberg username input field."
+    },
+    "codebergUsernamePlaceholder": {
+        "message": "आपके योगदान प्राप्त करने के लिए आवश्यक है",
+        "description": "Placeholder text for the Codeberg username input."
+    },
+    "dropdownGithubUsernamePlaceholder": {
+        "message": "GitHub उपयोगकर्ता नाम",
+        "description": "Placeholder text for the GitHub username dropdown input."
+    },
+    "dropdownGitlabUsernamePlaceholder": {
+        "message": "GitLab उपयोगकर्ता नाम",
+        "description": "Placeholder text for the GitLab username dropdown input."
+    },
+    "dropdownCodebergUsernamePlaceholder": {
+        "message": "Codeberg उपयोगकर्ता नाम",
+        "description": "Placeholder text for the Codeberg username dropdown input."
+    },
+    "showOpenClosedTooltip": {
+        "message": "यदि चयनित है, तो रिपोर्ट PR और समस्याओं के लिए स्थिति लेबल दिखाएगी (उदा. खुला, ड्राफ्ट, मर्ज किया गया, बंद)।"
+    },
+    "advancedFiltersLabel": {
+        "message": "उन्नत विकल्प",
+        "description": "Heading for the advanced report options."
+    },
+    "orgNameTooltip": {
+        "message": "किस संगठन की GitHub गतिविधि? गतिविधियों को प्राप्त करने के लिए GitHub संगठन का नाम दर्ज करें। सभी संगठनों के लिए खाली छोड़ें। कई संगठनों को अल्पविराम से अलग किया जा सकता है।",
+        "description": "Tooltip explaining the GitHub organization filter."
+    },
+    "gitlabOrgNamePlaceholder": {
+        "message": "समूह का नाम दर्ज करें",
+        "description": "Placeholder for the GitLab group name input."
+    },
+    "settingsGroupNameLabel": {
+        "message": "आपके समूह का नाम",
+        "description": "Label for the GitLab group name input."
+    },
+    "gitlabOrgNameTooltip": {
+        "message": "किस समूह की GitLab गतिविधि? GitLab समूह का नाम दर्ज करें। सभी समूहों के लिए खाली छोड़ें। कई समूहों को अल्पविराम से अलग किया जा सकता है।",
+        "description": "Tooltip explaining the GitLab group filter."
+    },
+    "codebergTokenLabel": {
+        "message": "आपका Codeberg टोकन",
+        "description": "Label for the Codeberg token input."
+    },
+    "codebergTokenPlaceholder": {
+        "message": "निजी प्रोजेक्ट्स तक पहुँचने के लिए आवश्यक है",
+        "description": "Placeholder for the Codeberg token input."
+    },
+    "codebergTokenTooltip": {
+        "message": "<b>Codeberg टोकन क्यों जोड़ें?</b><br>Scrum Helper सार्वजनिक प्रोजेक्ट्स के लिए बिना टोकन के काम करता है, लेकिन व्यक्तिगत एक्सेस टोकन निजी रिपॉजिटरी और बेहतर दर सीमाएँ सक्षम करता है।<br><br><b>टोकन कैसे प्राप्त करें:</b><br>1. <a href=\"https://codeberg.org/user/settings/applications\" target=\"_blank\" rel=\"noopener noreferrer\">Codeberg एप्लिकेशन सेटिंग्स</a> पर जाएं<br>2. \"नया टोकन उत्पन्न करें\" पर क्लिक करें<br>3. कॉपी करके यहाँ पेस्ट करें<br><i>इसे गुप्त रखें!</i>",
+        "description": "Tooltip for Codeberg token explaining why it's needed."
+    },
+    "codebergApiBaseUrlLabel": {
+        "message": "Codeberg API बेस URL",
+        "description": "Label for the Codeberg API Base URL input."
+    },
+    "codebergApiBaseUrlPlaceholder": {
+        "message": "https://codeberg.org/api/v1",
+        "description": "Placeholder for the Codeberg API Base URL input."
+    },
+    "showCommitsTooltipGitLab": {
+        "message": "GitLab टोकन आवश्यक है, इसे सेटिंग्स में जोड़ें।"
+    },
+    "showCommitsTooltipCodeberg": {
+        "message": "Codeberg टोकन आवश्यक है, इसे सेटिंग्स में जोड़ें।"
+    },
+    "cacheTTLTooltip": {
+        "message": "अनावश्यक कॉल से बचने के लिए हम डेटा कैश करते हैं। डिफ़ॉल्ट रूप से कैश 10 मिनट बाद समाप्त होता है। ताज़ा डेटा तुरंत लाने के लिए कैश रीफ़्रेश बटन दिया गया है।",
+        "description": "Tooltip explaining cache lifetime and manual refresh."
+    },
+    "tokenRequiredGitlabWarning": {
+        "message": "रिपॉजिटरी फ़िल्टरिंग के लिए GitLab टोकन आवश्यक है। कृपया सेटिंग्स में जोड़ें।",
+        "description": "Warning message shown when GitLab repo filtering is enabled without a token."
+    },
+    "tokenRequiredNextPlansWarning": {
+        "message": "सौंपी गई समस्याओं को प्राप्त करने के लिए GitHub टोकन आवश्यक है। कृपया सेटिंग्स में जोड़ें।",
+        "description": "Warning message shown when next plans is enabled without a token."
+    },
+    "tokenRequiredNextPlansWarningCodeberg": {
+        "message": "सौंपी गई समस्याओं को प्राप्त करने के लिए Codeberg टोकन आवश्यक है। कृपया सेटिंग्स में जोड़ें।",
+        "description": "Warning message shown when next plans is enabled without a token on Codeberg."
+    },
+    "tokenRequiredNextPlansWarningGitLab": {
+        "message": "सौंपी गई समस्याओं को प्राप्त करने के लिए GitLab टोकन आवश्यक है। कृपया सेटिंग्स में जोड़ें।",
+        "description": "Warning message shown when next plans is enabled without a token on GitLab."
+    },
+    "onlyPrsRequiredShowCommitsWarning": {
+        "message": "कमिट दिखाने के लिए कृपया 'रिपोर्ट में खुले/ड्राफ्ट PR शामिल करें' फ़िल्टर चुनें।"
+    },
+    "regenerateNoticeText": {
+        "message": "विकल्प बदल गया। परिवर्तन लागू करने के लिए कृपया रिपोर्ट फिर से जनरेट करें।"
+    },
+    "tokenRequiredShowCommitsWarningGitLab": {
+        "message": "खुले या ड्राफ्ट MR पर कमिट दिखाने के लिए GitLab टोकन आवश्यक है।",
+        "description": "Warning message shown when show commits is enabled without a token."
+    },
+    "tokenRequiredShowCommitsWarningCodeberg": {
+        "message": "खुले या ड्राफ्ट PR पर कमिट दिखाने के लिए Codeberg टोकन आवश्यक है।",
+        "description": "Warning message shown when show commits is enabled without a token on Codeberg."
+    },
+    "selectPlatformPlaceholder": {
+        "message": "प्लेटफ़ॉर्म चुनें",
+        "description": "Placeholder text displayed when no platform is selected."
+    },
+    "selectPlatformWarning": {
+        "message": "कृपया पहले एक प्लेटफ़ॉर्म चुनें",
+        "description": "Warning message when trying to generate report without selecting any platform."
+    },
+    "githubUsernameRequiredError": {
+        "message": "कृपया अपना GitHub उपयोगकर्ता नाम दर्ज करें",
+        "description": "Error shown when GitHub username is missing."
+    },
+    "gitlabUsernameRequiredError": {
+        "message": "कृपया अपना GitLab उपयोगकर्ता नाम दर्ज करें",
+        "description": "Error shown when GitLab username is missing."
+    },
+    "codebergUsernameRequiredError": {
+        "message": "कृपया अपना Codeberg उपयोगकर्ता नाम दर्ज करें",
+        "description": "Error shown when Codeberg username is missing."
+    },
+    "errorLabel": {
+        "message": "त्रुटि",
+        "description": "Prefix for repository fetch error messages; punctuation is added by the caller."
+    },
+    "codebergUserFetchError": {
+        "message": "Codeberg उपयोगकर्ता प्राप्त करने में त्रुटि: $1 $2",
+        "description": "Error when fetching Codeberg user fails. $1=status, $2=statusText"
+    },
+    "codebergUserNotFoundError": {
+        "message": "Codeberg उपयोगकर्ता \"$1\" नहीं मिला।",
+        "description": "Error when Codeberg user is not found. $1=username"
+    },
+    "codebergUserValidationError": {
+        "message": "Codeberg उपयोगकर्ता सत्यापित करने में त्रुटि: $1 $2",
+        "description": "Error when validating Codeberg user fails. $1=status, $2=statusText"
+    },
+    "reportAlreadyInserted": {
+        "message": "रिपोर्ट पहले ही डाली जा चुकी है!",
+        "description": "Notification shown when the report has already been inserted in the current session."
+    },
+    "includeBlockersLabel": {
+        "message": "रिपोर्ट में अवरोधक (Blockers) शामिल करें",
+        "description": "Label for checkbox to include blockers in the scrum report."
+    },
+    "includeBlockersTooltip": {
+        "message": "यदि चुना गया है, तो रिपोर्ट में अवरोधक अनुभाग शामिल होगा।",
+        "description": "Tooltip text explaining the include blockers option."
+    },
+    "includeNextPlansLabel": {
+        "message": "ईमेल प्रश्न 2 में सौंपी गई खुली समस्याओं को शामिल करें",
+        "description": "Label for checkbox to include next plans in second question of report."
+    },
+    "includeNextPlansTooltip": {
+        "message": "उन्हें चुनें और ईमेल में प्रश्न 2 में जोड़ें। GitHub टोकन आवश्यक है।",
+        "description": "Tooltip text explaining the include next plans option."
+    },
+    "includeNextPlansTooltipCodeberg": {
+        "message": "उन्हें चुनें और ईमेल में प्रश्न 2 में जोड़ें। Codeberg टोकन आवश्यक है।",
+        "description": "Tooltip text explaining the include next plans option for Codeberg."
+    },
+    "includeNextPlansTooltipGitLab": {
+        "message": "उन्हें चुनें और ईमेल में प्रश्न 2 में जोड़ें। GitLab टोकन आवश्यक है।",
+        "description": "Tooltip text explaining the include next plans option on GitLab."
+    },
+    "fetchingIssuesSpinner": {
+        "message": "आपकी सौंपी गई समस्याएं लाई जा रही हैं...",
+        "description": "Loading message shown when fetching assigned issues."
+    },
+    "noIssuesFound": {
+        "message": "कोई सौंपी गई खुली समस्या नहीं मिली",
+        "description": "Empty state message for assigned issues."
+    },
+    "githubTokenRequiredNextPlans": {
+        "message": "सौंपी गई समस्याओं को लाने के लिए GitHub टोकन आवश्यक है। सेटिंग्स में जोड़ें।",
+        "description": "Error message when no token is present."
+    },
+    "gitlabTokenRequiredNextPlans": {
+        "message": "सौंपी गई समस्याओं को लाने के लिए GitLab टोकन आवश्यक है। सेटिंग्स में जोड़ें।",
+        "description": "Error message when no token is present on GitLab."
+    },
+    "failedToFetchIssues": {
+        "message": "सौंपी गई समस्याएं लाने में विफल।",
+        "description": "Error message when fetching fails."
+    },
+    "repoFilterTooltip": {
+        "message": "GitHub टोकन आवश्यक है।<br>रिपॉजिटरी सूची अपडेट करने के लिए,<br>'डेटा रीफ़्रेश करें' बटन पर क्लिक करें।",
+        "description": "Tooltip message displayed for GitHub repository filter option."
+    },
+    "repoFilterTooltipGitLab": {
+        "message": "GitLab टोकन आवश्यक है।<br>रिपॉजिटरी सूची अपडेट करने के लिए,<br>'डेटा रीफ़्रेश करें' बटन पर क्लिक करें।",
+        "description": "Tooltip message displayed for GitLab repository filter option."
+    },
+    "smtpSenderEmailLabel": {
+        "message": "प्रेषक का ईमेल"
+    },
+    "smtpSenderEmailPlaceholder": {
+        "message": "sender@example.com"
+    },
+    "smtpHostLabel": {
+        "message": "SMTP होस्ट"
+    },
+    "smtpHostPlaceholder": {
+        "message": "smtp.example.com"
+    },
+    "smtpPortLabel": {
+        "message": "SMTP पोर्ट"
+    },
+    "smtpPortPlaceholder": {
+        "message": "587"
+    },
+    "smtpUsernameLabel": {
+        "message": "SMTP उपयोगकर्ता नाम"
+    },
+    "smtpUsernamePlaceholder": {
+        "message": "username@example.com"
+    },
+    "smtpPasswordLabel": {
+        "message": "SMTP पासवर्ड"
+    },
+    "smtpPasswordPlaceholder": {
+        "message": "अपना SMTP पासवर्ड दर्ज करें"
+    },
+    "smtpRecipientsLabel": {
+        "message": "प्राप्तकर्ता"
+    },
+    "smtpRecipientsPlaceholder": {
+        "message": "recipient1@example.com, recipient2@example.com"
+    },
+    "smtpGmailHint": {
+        "message": "Gmail के लिए, आपको ऐप पासवर्ड का उपयोग करना होगा, नियमित पासवर्ड का नहीं।"
+    },
+    "smtpSecurityWarning": {
+        "message": "नोट: आपका पासवर्ड स्थानीय संग्रहण में बिना एन्क्रिप्शन के संग्रहीत है। सुनिश्चित करें कि आपका डिवाइस सुरक्षित है।"
+    },
+    "smtpMissingFieldsError": {
+        "message": "कृपया पहले सभी मेल सेटिंग्स कॉन्फ़िगर करें।"
+    },
+    "smtpInvalidEmailError": {
+        "message": "अमान्य ईमेल पता: $1"
+    },
+    "smtpSendSuccess": {
+        "message": "रिपोर्ट सफलतापूर्वक ईमेल द्वारा भेज दी गई!"
+    },
+    "smtpPartialSuccess": {
+        "message": "$1/$2 को भेजा गया; विफल: $3"
+    },
+    "smtpSendFailed": {
+        "message": "ईमेल भेजने में विफल: "
+    },
+    "smtpSendError": {
+        "message": "एक त्रुटि हुई: "
+    },
+    "sendingButton": {
+        "message": "भेजा जा रहा है..."
+    },
+    "sendEmailButton": {
+        "message": "ईमेल भेजें"
+    },
+    "mailSettingsTitle": {
+        "message": "मेल सेटिंग्स"
+    },
+    "sentButton": {
+        "message": "भेज दिया गया"
+    },
+    "homeTitle": {
+        "message": "होम"
+    },
+    "settingsTitle": {
+        "message": "सेटिंग्स"
+    },
+    "extensionSettingsHeading": {
+        "message": "एक्सटेंशन सेटिंग्स",
+        "description": "Heading for general extension settings section."
+    },
+    "displayModeLabel": {
+        "message": "प्रदर्शन मोड",
+        "description": "Label for the extension display mode selector."
+    },
+    "displayModeTooltip": {
+        "message": "आइकन पर क्लिक करने पर Scrum Helper कैसे खुलता है, यह चुनें। साइड पैनल इसे पृष्ठ के साथ डॉक रखता है। पॉपअप एक फ़्लोटिंग विंडो खोलता है।",
+        "description": "Tooltip explaining side panel and popup display modes."
+    },
+    "smtpSenderEmailTooltip": {
+        "message": "वह ईमेल पता जिससे रिपोर्ट भेजी जाएगी।"
+    },
+    "smtpHostTooltip": {
+        "message": "आपके SMTP सर्वर का पता (उदा. smtp.gmail.com)।"
+    },
+    "smtpPortTooltip": {
+        "message": "SMTP सर्वर का पोर्ट नंबर (आमतौर पर 465 या 587)।"
+    },
+    "smtpUsernameTooltip": {
+        "message": "SMTP सर्वर के लिए लॉगिन उपयोगकर्ता नाम या ईमेल।"
+    },
+    "smtpPasswordTooltip": {
+        "message": "SMTP सर्वर प्रमाणीकरण के लिए पासवर्ड। चेतावनी: बिना एन्क्रिप्शन संग्रहीत।"
+    },
+    "smtpRecipientsTooltip": {
+        "message": "अल्पविराम से अलग किए गए प्राप्तकर्ता ईमेल पतों की सूची।"
+    },
+    "smtpPresetsLabel": {
+        "message": "त्वरित प्रीसेट"
+    },
+    "smtpPresetsTooltip": {
+        "message": "सामान्य ईमेल सेवाओं के लिए SMTP होस्ट और पोर्ट सेटिंग्स को स्वचालित रूप से कॉन्फ़िगर करने के लिए एक प्रीसेट चुनें।"
     }
 }

@@ -517,5 +517,129 @@
   },
   "smtpPresetsTooltip": {
     "message": "사전 설정을 선택하면 일반적인 이메일 서비스에 맞게 SMTP 호스트와 포트 설정이 자동으로 구성됩니다."
+  },
+  "projectNameTooltip": {
+    "message": "이 프로젝트 이름은 이메일 제목에 \"[Scrum] 프로젝트 이름 - 날짜\" 형식으로 표시됩니다. 건너뛰려면 비워 두세요.",
+    "description": "Tooltip explaining how the project name is used in the email subject."
+  },
+  "gitlabUsernamePlaceholder": {
+    "message": "기여 활동을 가져오는 데 필요합니다",
+    "description": "Placeholder text for the GitLab username input."
+  },
+  "dropdownGithubUsernamePlaceholder": {
+    "message": "GitHub 사용자 이름",
+    "description": "Placeholder text for the GitHub username dropdown input."
+  },
+  "dropdownGitlabUsernamePlaceholder": {
+    "message": "GitLab 사용자 이름",
+    "description": "Placeholder text for the GitLab username dropdown input."
+  },
+  "dropdownCodebergUsernamePlaceholder": {
+    "message": "Codeberg 사용자 이름",
+    "description": "Placeholder text for the Codeberg username dropdown input."
+  },
+  "advancedFiltersLabel": {
+    "message": "고급 옵션",
+    "description": "Heading for the advanced report options."
+  },
+  "orgNameTooltip": {
+    "message": "어느 조직의 GitHub 활동인가요? 가져올 GitHub 조직 이름을 입력하세요. 비워 두면 모든 조직의 활동을 가져옵니다. 쉼표로 여러 조직을 구분할 수 있습니다.",
+    "description": "Tooltip explaining the GitHub organization filter."
+  },
+  "settingsGroupNameLabel": {
+    "message": "그룹 이름",
+    "description": "Label for the GitLab group name input."
+  },
+  "gitlabOrgNameTooltip": {
+    "message": "어느 그룹의 GitLab 활동인가요? GitLab 그룹 이름을 입력하세요. 비워 두면 모든 그룹의 활동을 가져옵니다.",
+    "description": "Tooltip explaining the GitLab group filter."
+  },
+  "cacheTTLTooltip": {
+    "message": "불필요한 호출을 방지하기 위해 데이터를 캐시합니다. 기본값으로 10분 후 만료되며, 캐시 새로고침 버튼으로 즉시 최신 데이터를 가져올 수 있습니다.",
+    "description": "Tooltip explaining cache lifetime and manual refresh."
+  },
+  "tokenRequiredGitlabWarning": {
+    "message": "저장소 필터링을 위해 GitLab 토큰이 필요합니다. 설정에서 추가해 주세요.",
+    "description": "Warning message shown when GitLab repo filtering is enabled without a token."
+  },
+  "tokenRequiredNextPlansWarningCodeberg": {
+    "message": "할당된 이슈를 가져오려면 Codeberg 토큰이 필요합니다. 설정에서 추가해 주세요.",
+    "description": "Warning message shown when next plans is enabled without a token on Codeberg."
+  },
+  "tokenRequiredNextPlansWarningGitLab": {
+    "message": "할당된 이슈를 가져오려면 GitLab 토큰이 필요합니다. 설정에서 추가해 주세요.",
+    "description": "Warning message shown when next plans is enabled without a token on GitLab."
+  },
+  "tokenRequiredShowCommitsWarningCodeberg": {
+    "message": "열려 있거나 초안인 PR의 커밋을 표시하려면 Codeberg 토큰이 필요합니다.",
+    "description": "Warning message shown when show commits is enabled without a token on Codeberg."
+  },
+  "selectPlatformPlaceholder": {
+    "message": "플랫폼 선택",
+    "description": "Placeholder text displayed when no platform is selected."
+  },
+  "selectPlatformWarning": {
+    "message": "먼저 플랫폼을 선택해 주세요",
+    "description": "Warning message when trying to generate report without selecting any platform."
+  },
+  "githubUsernameRequiredError": {
+    "message": "GitHub 사용자 이름을 입력해 주세요",
+    "description": "Error shown when GitHub username is missing."
+  },
+  "gitlabUsernameRequiredError": {
+    "message": "GitLab 사용자 이름을 입력해 주세요",
+    "description": "Error shown when GitLab username is missing."
+  },
+  "codebergUsernameRequiredError": {
+    "message": "Codeberg 사용자 이름을 입력해 주세요",
+    "description": "Error shown when Codeberg username is missing."
+  },
+  "errorLabel": {
+    "message": "오류",
+    "description": "Prefix for repository fetch error messages; punctuation is added by the caller."
+  },
+  "codebergUserFetchError": {
+    "message": "Codeberg 사용자 가져오기 오류: $1 $2",
+    "description": "Error when fetching Codeberg user fails. $1=status, $2=statusText"
+  },
+  "codebergUserNotFoundError": {
+    "message": "Codeberg 사용자 \"$1\"을(를) 찾을 수 없습니다.",
+    "description": "Error when Codeberg user is not found. $1=username"
+  },
+  "codebergUserValidationError": {
+    "message": "Codeberg 사용자 확인 오류: $1 $2",
+    "description": "Error when validating Codeberg user fails. $1=status, $2=statusText"
+  },
+  "includeNextPlansTooltipCodeberg": {
+    "message": "선택하여 이메일의 질문 2에 추가합니다. Codeberg 토큰이 필요합니다.",
+    "description": "Tooltip text explaining the include next plans option for Codeberg."
+  },
+  "includeNextPlansTooltipGitLab": {
+    "message": "선택하여 이메일의 질문 2에 추가합니다. GitLab 토큰이 필요합니다.",
+    "description": "Tooltip text explaining the include next plans option on GitLab."
+  },
+  "gitlabTokenRequiredNextPlans": {
+    "message": "할당된 이슈를 가져오려면 GitLab 토큰이 필요합니다. 설정에서 추가해 주세요.",
+    "description": "Error message when no token is present on GitLab."
+  },
+  "repoFilterTooltip": {
+    "message": "GitHub 토큰이 필요합니다.<br>저장소 목록을 강제로 새로고침하려면<br>'데이터 새로고침' 버튼을 클릭하세요.",
+    "description": "Tooltip message displayed for GitHub repository filter option."
+  },
+  "repoFilterTooltipGitLab": {
+    "message": "GitLab 토큰이 필요합니다.<br>저장소 목록을 강제로 새로고침하려면<br>'데이터 새로고침' 버튼을 클릭하세요.",
+    "description": "Tooltip message displayed for GitLab repository filter option."
+  },
+  "extensionSettingsHeading": {
+    "message": "확장 프로그램 설정",
+    "description": "Heading for general extension settings section."
+  },
+  "displayModeLabel": {
+    "message": "표시 모드",
+    "description": "Label for the extension display mode selector."
+  },
+  "displayModeTooltip": {
+    "message": "아이콘을 클릭했을 때 열리는 방식을 선택하세요. 사이드 패널은 브라우저 옆에 고정되며, 팝업은 부동 창으로 열립니다.",
+    "description": "Tooltip explaining side panel and popup display modes."
   }
 }
