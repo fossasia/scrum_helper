@@ -2062,8 +2062,10 @@ document.addEventListener('DOMContentLoaded', () => {
 							window.shakeElement
 								? window.shakeElement(tokenWarning, 620)
 								: tokenWarning.classList.add('shake-animation');
-							setTimeout(() => {
+							if (tokenWarningTimer) clearTimeout(tokenWarningTimer);
+							tokenWarningTimer = setTimeout(() => {
 								tokenWarning.classList.add('hidden');
+								tokenWarningTimer = null;
 							}, 5000);
 						}
 						window.triggerInputError?.(tokenInput?.id || `${platform}Token`, { focus: true, scroll: true });
@@ -2076,6 +2078,10 @@ document.addEventListener('DOMContentLoaded', () => {
 				}
 
 				if (tokenWarning && !rateLimitWarningShown) {
+					if (tokenWarningTimer) {
+						clearTimeout(tokenWarningTimer);
+						tokenWarningTimer = null;
+					}
 					tokenWarning.classList.add('hidden');
 				}
 				container.classList.toggle('hidden', !enabled);

@@ -439,7 +439,14 @@ function handleReportFetchFailures(failures, allFailed = false) {
 	const rateLimitFailure = failures.find(isRateLimitFailure);
 	if (rateLimitFailure && allFailed) {
 		const targetPlatform =
-			rateLimitFailure.platform || getFailurePlatform(rateLimitFailure) || window.rateLimitPlatform || 'GitHub';
+			rateLimitFailure.platformName ||
+			(rateLimitFailure.platform === 'gitlab'
+				? 'GitLab'
+				: rateLimitFailure.platform === 'codeberg'
+					? 'Codeberg'
+					: rateLimitFailure.platform === 'github'
+						? 'GitHub'
+						: window.rateLimitPlatform || 'GitHub');
 		const resetTime =
 			rateLimitFailure.resetTime !== undefined
 				? rateLimitFailure.resetTime
@@ -819,7 +826,8 @@ function allIncluded(outputTarget = 'email') {
 										if (data?._rateLimited) {
 											githubCache.data = null;
 											const err = new Error('GitHub API rate limit exceeded');
-											err.platform = 'GitHub';
+											err.platform = 'github';
+											err.platformName = 'GitHub';
 											err.rateLimited = true;
 											err.resetTime = window.rateLimitResetTimes?.GitHub || null;
 											throw err;
@@ -897,7 +905,8 @@ function allIncluded(outputTarget = 'email') {
 								} catch (err) {
 									if (err) {
 										const platformName = p === 'gitlab' ? 'GitLab' : p === 'codeberg' ? 'Codeberg' : 'GitHub';
-										err.platform = platformName;
+										err.platform = err.platform || p;
+										err.platformName = platformName;
 										const msg = String(err.message || '');
 										const platformRateLimited = Boolean(
 											window.rateLimitResetTimes && platformName in window.rateLimitResetTimes,
