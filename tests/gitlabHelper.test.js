@@ -136,6 +136,8 @@ describe('GitLabHelper', () => {
 			expect(mapped.number).toBe(25);
 			expect(mapped.title).toBe('Fix issue title');
 			expect(mapped.state).toBe('open');
+			expect(mapped.created_at).toBe('2026-10-01T10:00:00Z');
+			expect(mapped.updated_at).toBe('2026-10-02T12:00:00Z');
 			expect(mapped.project).toBe('fossasia/scrum_helper');
 			expect(mapped.pull_request).toBe(false);
 			expect(mapped.repository_url).toBe('https://gitlab.com/api/v4/projects/101');
@@ -143,17 +145,21 @@ describe('GitLabHelper', () => {
 			expect(mapped._allCommits).toEqual([]);
 		});
 
-		it('should map closed issue state to closed', () => {
+		it('should map closed issue state to closed and preserve dates', () => {
 			const item = {
 				iid: 26,
 				project_id: 101,
 				title: 'Closed issue',
 				state: 'closed',
 				web_url: 'https://gitlab.com/fossasia/scrum_helper/-/issues/26',
+				created_at: '2026-10-01T10:00:00Z',
+				updated_at: '2026-10-02T12:00:00Z',
 			};
 
 			const mapped = helper.mapGitLabReportItem(item, projectById, 'issue');
 			expect(mapped.state).toBe('closed');
+			expect(mapped.created_at).toBe('2026-10-01T10:00:00Z');
+			expect(mapped.updated_at).toBe('2026-10-02T12:00:00Z');
 		});
 
 		it('should map GitLab merge request with pull_request flag and state', () => {
@@ -163,6 +169,8 @@ describe('GitLabHelper', () => {
 				title: 'Feat: Add GitLab MR support',
 				state: 'merged',
 				web_url: 'https://gitlab.com/fossasia/scrum_helper/-/merge_requests/77',
+				created_at: '2026-10-01T10:00:00Z',
+				updated_at: '2026-10-02T12:00:00Z',
 				_allCommits: [{ id: 'abc123' }],
 			};
 
@@ -171,8 +179,30 @@ describe('GitLabHelper', () => {
 			expect(mapped.number).toBe(77);
 			expect(mapped.pull_request).toBe(true);
 			expect(mapped.state).toBe('merged');
+			expect(mapped.created_at).toBe('2026-10-01T10:00:00Z');
+			expect(mapped.updated_at).toBe('2026-10-02T12:00:00Z');
 			expect(mapped.project).toBe('fossasia/scrum_helper');
 			expect(mapped._allCommits).toEqual([{ id: 'abc123' }]);
+		});
+
+		it('should map closed merge request state to closed and preserve dates', () => {
+			const item = {
+				iid: 78,
+				project_id: 101,
+				title: 'Closed MR',
+				state: 'closed',
+				web_url: 'https://gitlab.com/fossasia/scrum_helper/-/merge_requests/78',
+				created_at: '2026-10-01T10:00:00Z',
+				updated_at: '2026-10-02T12:00:00Z',
+			};
+
+			const mapped = helper.mapGitLabReportItem(item, projectById, 'mr');
+
+			expect(mapped.number).toBe(78);
+			expect(mapped.pull_request).toBe(true);
+			expect(mapped.state).toBe('closed');
+			expect(mapped.created_at).toBe('2026-10-01T10:00:00Z');
+			expect(mapped.updated_at).toBe('2026-10-02T12:00:00Z');
 		});
 
 		it('should parse project path from web_url when project is not in projectById', () => {
