@@ -824,6 +824,12 @@ async function fetchIssuesFromGitLab(scope) {
 if (window.PlatformRegistry) {
 	window.PlatformRegistry.register('gitlab', {
 		hasRepoFilter: true,
+		/**
+		 * Validates GitLab personal access token against the GitLab API.
+		 *
+		 * @param {string} token - The GitLab access token to validate
+		 * @returns {Promise<{valid: boolean, status?: number, reason?: string, rateLimited?: boolean, resetTime?: Date|null}>}
+		 */
 		async validateToken(token) {
 			const trimmed = typeof token === 'string' ? token.trim() : '';
 			if (!trimmed) return { valid: false, status: 0, reason: 'empty' };
@@ -833,12 +839,23 @@ if (window.PlatformRegistry) {
 					headers: { 'PRIVATE-TOKEN': trimmed },
 				});
 				if (res.status === 401) return { valid: false, status: 401, reason: 'invalid' };
+				if (res.status === 429) {
+					const resetTime =
+						typeof window.rateLimitUtils?.getRateLimitResetTime === 'function'
+							? window.rateLimitUtils.getRateLimitResetTime(res)
+							: null;
+					return { valid: true, rateLimited: true, resetTime, status: res.status };
+				}
 				if (res.ok) return { valid: true, status: res.status };
 				return { valid: false, status: res.status, reason: 'error' };
 			} catch (err) {
 				return { valid: true, networkError: true };
 			}
 		},
+		/**
+		 * Validates GitLab token presence when repository filtering is toggled,
+		 * restoring the required token warning banner if the token is missing.
+		 */
 		checkTokenForFilter() {
 			const useFilter = document.getElementById('useGitlabRepoFilter') || document.getElementById('useRepoFilter');
 			const token = document.getElementById('gitlabToken');
@@ -849,8 +866,17 @@ if (window.PlatformRegistry) {
 			if (useFilter?.checked && !token?.value.trim()) {
 				useFilter.checked = false;
 				container?.classList.add('hidden');
-				warning?.classList.remove('hidden');
-			} else {
+				if (warning) {
+					const defaultMsg =
+						browser?.i18n?.getMessage?.('tokenRequiredGitlabWarning') ||
+						'A GitLab token is required for repository filtering. Please add one in settings.';
+					warning.textContent = '';
+					const span = document.createElement('span');
+					span.textContent = defaultMsg;
+					warning.appendChild(span);
+					warning.classList.remove('hidden');
+				}
+			} else if (!warning?.dataset?.rateLimited) {
 				warning?.classList.add('hidden');
 			}
 		},

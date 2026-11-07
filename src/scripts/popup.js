@@ -1899,7 +1899,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	showReportView();
 
-	// Reusable repository filter setup for GitHub and GitLab
+	/**
+	 * Initializes a repository filter section for a given platform (GitHub or GitLab).
+	 *
+	 * @param {Object} options - Configuration options for the repository filter
+	 */
 	function initRepoFilterSection({
 		platform,
 		tokenInput,
@@ -1924,6 +1928,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		let availableRepos = [];
 		let selectedRepos = [];
 		let highlightedIndex = -1;
+		let tokenWarningTimer = null;
 
 		const context = {
 			useRepoFilter: useFilter,
@@ -1988,14 +1993,18 @@ document.addEventListener('DOMContentLoaded', () => {
 						window.shakeElement
 							? window.shakeElement(tokenWarning, 620)
 							: tokenWarning.classList.add('shake-animation');
-						setTimeout(() => {
+						if (tokenWarningTimer) clearTimeout(tokenWarningTimer);
+						tokenWarningTimer = setTimeout(() => {
 							tokenWarning.classList.add('hidden');
+							tokenWarningTimer = null;
 						}, 3000);
 					}
 					return;
 				}
 
 				const helper = window.PlatformRegistry?.get(platform);
+
+				let rateLimitWarningShown = false;
 
 				// Validate token validity if enabled
 				if (enabled && hasToken && helper?.validateToken) {
@@ -2004,6 +2013,34 @@ document.addEventListener('DOMContentLoaded', () => {
 							chrome?.i18n.getMessage('loadingReposAutomatically') || 'Loading repos automatically...';
 					}
 					const validation = await helper.validateToken(rawToken);
+					if (validation.rateLimited) {
+						rateLimitWarningShown = true;
+						const targetPlatform = platform === 'gitlab' ? 'GitLab' : platform === 'codeberg' ? 'Codeberg' : 'GitHub';
+						if (tokenWarning) {
+							const msg =
+								typeof window.rateLimitUtils?.getRateLimitMessage === 'function'
+									? window.rateLimitUtils.getRateLimitMessage(validation.resetTime, {
+											platform: targetPlatform,
+											type: 'warning',
+										})
+									: `${targetPlatform} API rate limit exceeded. Please try again later.`;
+							tokenWarning.textContent = '';
+							const span = document.createElement('span');
+							span.textContent = msg;
+							tokenWarning.appendChild(span);
+							tokenWarning.dataset.rateLimited = 'true';
+							tokenWarning.classList.remove('hidden');
+							if (tokenWarningTimer) clearTimeout(tokenWarningTimer);
+							tokenWarningTimer = setTimeout(() => {
+								delete tokenWarning.dataset.rateLimited;
+								tokenWarning.classList.add('hidden');
+								tokenWarningTimer = null;
+							}, 8000);
+						}
+						if (typeof window.showRateLimitWarning === 'function') {
+							window.showRateLimitWarning(validation.resetTime, targetPlatform);
+						}
+					}
 					if (!validation.valid && (validation.status === 401 || validation.reason === 'invalid')) {
 						useFilter.checked = false;
 						container.classList.add('hidden');
@@ -2025,8 +2062,10 @@ document.addEventListener('DOMContentLoaded', () => {
 							window.shakeElement
 								? window.shakeElement(tokenWarning, 620)
 								: tokenWarning.classList.add('shake-animation');
-							setTimeout(() => {
+							if (tokenWarningTimer) clearTimeout(tokenWarningTimer);
+							tokenWarningTimer = setTimeout(() => {
 								tokenWarning.classList.add('hidden');
+								tokenWarningTimer = null;
 							}, 5000);
 						}
 						window.triggerInputError?.(tokenInput?.id || `${platform}Token`, { focus: true, scroll: true });
@@ -2038,7 +2077,11 @@ document.addEventListener('DOMContentLoaded', () => {
 					}
 				}
 
-				if (tokenWarning) {
+				if (tokenWarning && !rateLimitWarningShown) {
+					if (tokenWarningTimer) {
+						clearTimeout(tokenWarningTimer);
+						tokenWarningTimer = null;
+					}
 					tokenWarning.classList.add('hidden');
 				}
 				container.classList.toggle('hidden', !enabled);
@@ -2048,7 +2091,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					[storageCacheKey]: null,
 				});
 
-				if (helper?.checkTokenForFilter) {
+				if (helper?.checkTokenForFilter && !rateLimitWarningShown) {
 					helper.checkTokenForFilter();
 				}
 
@@ -3362,7 +3405,11 @@ document.addEventListener('keydown', (e) => {
 	}
 });
 
-// Validate organization only when user is done typing (on blur)
+/**
+ * Triggers organization input blur validation when user finishes typing.
+ *
+ * @param {string} org - Organization name to validate
+ */
 function handleOrgInputBlurValidation(org) {
 	const helper = window.PlatformRegistry?.get('github');
 	if (helper && helper.validateOrgOnBlur) {
@@ -3385,8 +3432,26 @@ function handleOrgInputBlurValidation(org) {
 		});
 	}
 
-	window.showRateLimitWarning = function () {
+	/**
+	 * Displays the rate limit warning banner with countdown and auto-hides after 8 seconds.
+	 *
+	 * @param {Date|number|string|null} [resetTime] - Optional reset time Date or timestamp
+	 * @param {string} [platform='GitHub'] - Platform name ('GitHub', 'GitLab', 'Codeberg')
+	 */
+	window.showRateLimitWarning = function (resetTime, platform = 'GitHub') {
 		const banner = document.getElementById('rateLimitWarning');
+		const textEl = document.getElementById('rateLimitWarningText');
+		const targetPlatform = platform || window.rateLimitPlatform || 'GitHub';
+		const targetReset =
+			resetTime !== undefined && resetTime !== null
+				? resetTime
+				: (window.rateLimitResetTimes?.[targetPlatform] ?? null);
+		if (textEl && window.rateLimitUtils) {
+			textEl.textContent = window.rateLimitUtils.getRateLimitMessage(targetReset, {
+				platform: targetPlatform,
+				type: 'warning',
+			});
+		}
 		if (banner) {
 			banner.classList.remove('hidden');
 			if (rateLimitTimeout) {
@@ -3394,7 +3459,7 @@ function handleOrgInputBlurValidation(org) {
 			}
 			rateLimitTimeout = setTimeout(() => {
 				banner.classList.add('hidden');
-			}, 6000); // 6 seconds
+			}, 8000);
 		}
 	};
 })();

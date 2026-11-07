@@ -202,6 +202,12 @@ function getGithubRepoFilterContext() {
 	return window.githubRepoFilterContext || null;
 }
 
+/**
+ * Validates a GitHub personal access token against the GitHub API.
+ *
+ * @param {string} token - The personal access token to validate
+ * @returns {Promise<{valid: boolean, status?: number, reason?: string, rateLimited?: boolean, resetTime?: Date|null}>}
+ */
 async function githubValidateToken(token) {
 	const trimmed = typeof token === 'string' ? token.trim() : '';
 	if (!trimmed) {
@@ -217,18 +223,37 @@ async function githubValidateToken(token) {
 		if (res.status === 401) {
 			return { valid: false, status: 401, reason: 'invalid' };
 		}
+		if (res.status === 429) {
+			const resetTime =
+				typeof window.rateLimitUtils?.getRateLimitResetTime === 'function'
+					? window.rateLimitUtils.getRateLimitResetTime(res)
+					: null;
+			return { valid: true, rateLimited: true, resetTime, status: res.status };
+		}
 		if (res.status === 403) {
 			const remaining = res.headers.get('x-ratelimit-remaining');
-			if (remaining === '0') {
-				return { valid: true, rateLimited: true };
-			}
+			const retryAfter = res.headers.get('retry-after');
+			let isRateLimit = remaining === '0' || Boolean(retryAfter);
+			let isBadCredentials = false;
 			try {
 				const clone = res.clone();
 				const body = await clone.json();
 				if (body?.message?.toLowerCase().includes('bad credentials')) {
-					return { valid: false, status: 401, reason: 'invalid' };
+					isBadCredentials = true;
+				} else if (body?.message?.toLowerCase().includes('rate limit')) {
+					isRateLimit = true;
 				}
 			} catch (e) {}
+			if (isBadCredentials) {
+				return { valid: false, status: 401, reason: 'invalid' };
+			}
+			if (isRateLimit) {
+				const resetTime =
+					typeof window.rateLimitUtils?.getRateLimitResetTime === 'function'
+						? window.rateLimitUtils.getRateLimitResetTime(res)
+						: null;
+				return { valid: true, rateLimited: true, resetTime, status: res.status };
+			}
 			return { valid: false, status: 403, reason: 'forbidden' };
 		}
 		if (res.ok) {
@@ -240,6 +265,10 @@ async function githubValidateToken(token) {
 	}
 }
 
+/**
+ * Validates GitHub token presence when repository filtering is toggled,
+ * restoring the required token warning banner if the token is missing.
+ */
 function checkTokenForFilter() {
 	const useRepoFilter = document.getElementById('useRepoFilter');
 	const githubTokenInput = document.getElementById('githubToken');
@@ -260,6 +289,13 @@ function checkTokenForFilter() {
 			context.hideDropdown();
 		}
 		browser.storage.local.set({ useRepoFilter: false });
+		const defaultMsg =
+			chrome?.i18n?.getMessage?.('tokenRequiredWarning') ||
+			'A GitHub token is required for repository filtering. Please add one in the settings.';
+		tokenWarning.textContent = '';
+		const span = document.createElement('span');
+		span.textContent = defaultMsg;
+		tokenWarning.appendChild(span);
 		tokenWarning.classList.remove('hidden');
 		setTimeout(() => {
 			tokenWarning.classList.add('hidden');
