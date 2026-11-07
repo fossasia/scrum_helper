@@ -21,7 +21,9 @@ window.fetch = async function (...args) {
 	};
 	const isGitHub = matchesApiBase(url, 'https://api.github.com');
 	const isGitLab = matchesApiBase(url, window.gitlabBaseUrl || 'https://gitlab.com/api/v4');
-	const isCodeberg = matchesApiBase(url, window.codebergApiBaseUrl || 'https://codeberg.org/api/v1');
+	const isCodeberg =
+		matchesApiBase(url, window.codebergApiBaseUrl || 'https://codeberg.org/api/v1') ||
+		matchesApiBase(url, 'https://codeberg.org/api/v1');
 
 	if (isGitHub || isGitLab || isCodeberg) {
 		const remaining =
@@ -823,17 +825,21 @@ function allIncluded(outputTarget = 'email') {
 										platformUsernameLocal = user;
 										platformUsernames.github = user;
 										const data = await fetchGithubData(false);
-										if (data?._rateLimited) {
-											githubCache.data = null;
-											const err = new Error('GitHub API rate limit exceeded');
-											err.platform = 'github';
-											err.platformName = 'GitHub';
-											err.rateLimited = true;
-											err.resetTime = window.rateLimitResetTimes?.GitHub || null;
-											throw err;
-										}
 										const issues = data?.githubIssuesData?.items || [];
 										const prReviews = data?.githubPrsReviewData?.items || [];
+										const hasData = issues.length > 0 || prReviews.length > 0;
+										if (data?._rateLimited) {
+											githubCache.data = null;
+											if (!hasData) {
+												const err = new Error('GitHub API rate limit exceeded');
+												err.platform = 'github';
+												err.platformName = 'GitHub';
+												err.rateLimited = true;
+												err.resetTime = window.rateLimitResetTimes?.GitHub || null;
+												throw err;
+											}
+											window.showRateLimitWarning?.(window.rateLimitResetTimes?.GitHub || null, 'GitHub');
+										}
 										issues.forEach((it) => {
 											it._platform = 'github';
 										});

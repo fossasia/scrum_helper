@@ -693,6 +693,9 @@ function handleCodebergTokenChange() {
 function handleCodebergApiBaseUrlChange() {
 	const value = codebergApiBaseUrlElement.value.trim() || 'https://codeberg.org/api/v1';
 	browser.storage.local.set({ codebergApiBaseUrl: value });
+	if (typeof window !== 'undefined') {
+		window.codebergApiBaseUrl = value;
+	}
 }
 function handleProjectNameChange() {
 	if (!projectNameElement) return;

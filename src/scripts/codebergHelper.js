@@ -131,6 +131,9 @@ async function fetchIssuesFromCodeberg(scope) {
 	const baseUrl = normalizeCodebergApiBaseUrl(
 		storage.codebergApiBaseUrl || (typeof window !== 'undefined' ? window.codebergApiBaseUrl : undefined),
 	);
+	if (typeof window !== 'undefined') {
+		window.codebergApiBaseUrl = baseUrl;
+	}
 
 	while (hasMore && page <= 4) {
 		const url = `${baseUrl}/repos/issues/search?state=open&assigned=true&type=issues&page=${page}&limit=50`;
