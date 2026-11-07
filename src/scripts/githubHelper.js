@@ -1108,9 +1108,9 @@ async function githubFetchCommits(prs, githubToken, startDate, endDate) {
 				log(`PR #${pr.number} commit "${commit.messageHeadline}" (${commit.committedDate}) - in range: ${isInRange}`);
 				return isInRange;
 			});
-			commitMap[pr.number] = filteredCommits;
+			commitMap[`${pr.repository_url}#${pr.number}`] = filteredCommits;
 		} else {
-			commitMap[pr.number] = [];
+			commitMap[`${pr.repository_url}#${pr.number}`] = [];
 		}
 	});
 	return commitMap;
