@@ -975,6 +975,63 @@ async function githubFetchUser(username, token) {
 	return fetch(url, { headers });
 }
 
+async function githubFetchSearchPages(url, headers) {
+	const originalUrl = new URL(url);
+	const query = new URLSearchParams(originalUrl.searchParams);
+	query.delete('page');
+	query.sort();
+	const items = [];
+	let metadata;
+	let response;
+	let page = 1;
+	while (page <= 10) {
+		response = await fetch(url, { headers });
+		if (!response.ok) return response;
+		const data = await response.clone().json();
+		if (data.incomplete_results || data.total_count > 1000) {
+			throw new Error(
+				'GitHub search results are incomplete. Narrow the date range or repository filter and try again.',
+			);
+		}
+		metadata = metadata || data;
+		items.push(...data.items);
+		const link = response.headers.get('Link') || '';
+		const next = link.match(/<([^>]+)>;\s*rel="next"/);
+		if (!next) {
+			if (page === 1) return response;
+			const resultHeaders = new Headers(response.headers);
+			resultHeaders.delete('Content-Length');
+			resultHeaders.delete('Content-Encoding');
+			resultHeaders.delete('ETag');
+			resultHeaders.delete('Last-Modified');
+			resultHeaders.delete('Link');
+			return new Response(JSON.stringify({ ...metadata, items }), {
+				status: response.status,
+				statusText: response.statusText,
+				headers: resultHeaders,
+			});
+		}
+		const nextUrl = new URL(next[1]);
+		const nextQuery = new URLSearchParams(nextUrl.searchParams);
+		nextQuery.delete('page');
+		nextQuery.sort();
+		if (
+			nextUrl.origin !== originalUrl.origin ||
+			nextUrl.pathname !== originalUrl.pathname ||
+			nextUrl.username ||
+			nextUrl.password ||
+			nextQuery.toString() !== query.toString() ||
+			nextUrl.searchParams.getAll('page').length !== 1 ||
+			Number(nextUrl.searchParams.get('page')) !== page + 1 ||
+			page === 10
+		) {
+			throw new Error('GitHub search pagination could not be completed. Narrow the date range and try again.');
+		}
+		url = nextUrl.href;
+		page++;
+	}
+}
+
 async function githubFetchIssues(username, token, startDate, endDate, orgName, repoQueries) {
 	const trimmed = typeof username === 'string' ? username.trim() : '';
 	if (!trimmed) {
@@ -998,7 +1055,7 @@ async function githubFetchIssues(username, token, startDate, endDate, orgName, r
 	} else {
 		url = `https://api.github.com/search/issues?q=author%3A${encodedUser}${orgQuery}+updated%3A${startDate}..${endDate}&per_page=100`;
 	}
-	return fetch(url, { headers });
+	return githubFetchSearchPages(url, headers);
 }
 
 async function githubFetchReviews(username, token, startDate, endDate, orgName, repoQueries) {
@@ -1024,7 +1081,7 @@ async function githubFetchReviews(username, token, startDate, endDate, orgName, 
 	} else {
 		url = `https://api.github.com/search/issues?q=reviewed-by%3A${encodedUser}${orgQuery}+updated%3A${startDate}..${endDate}&per_page=100`;
 	}
-	return fetch(url, { headers });
+	return githubFetchSearchPages(url, headers);
 }
 
 async function githubFetchPullRequests(username, token, startDate, endDate, orgName, repoQueries) {
