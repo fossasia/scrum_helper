@@ -1,8 +1,57 @@
 /* global browser, chrome, DOMPurify */
 
 (function () {
-	// 1. Determine repository scope
+	const fingerprints = new Map();
+	const pageId = Math.random().toString(36).slice(2);
+	async function getAccountFingerprint(token) {
+		if (!token) return 'noauth';
+		if (!fingerprints.has(token)) {
+			const pageKey = `page-${pageId}-${fingerprints.size}`;
+			const fingerprint = (async () => {
+				try {
+					if (globalThis.crypto?.subtle) {
+						const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(token));
+						return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, '0')).join('');
+					}
+				} catch {}
+				// Limit reuse to this page when a persistent credential fingerprint is unavailable.
+				return pageKey;
+			})();
+			fingerprints.set(token, fingerprint);
+		}
+		return fingerprints.get(token);
+	}
+
 	async function getRepositoryScope() {
+		const scope = await getRepositoryFilterScope();
+		const settings = await browser.storage.local.get([
+			'platform',
+			'platformUsername',
+			'githubUsername',
+			'githubToken',
+			'gitlabUsername',
+			'gitlabToken',
+			'gitlabBaseUrl',
+		]);
+		const accounts = {};
+		for (const platform of scope.platforms.filter((provider) => provider === 'github' || provider === 'gitlab')) {
+			const username =
+				settings[`${platform}Username`] ||
+				(platform === (settings.platform || 'github') ? settings.platformUsername : '') ||
+				'';
+			const token = settings[`${platform}Token`] || '';
+			const fingerprint = await getAccountFingerprint(token);
+			const apiBaseUrl =
+				platform === 'gitlab'
+					? (settings.gitlabBaseUrl?.trim() || 'https://gitlab.com/api/v4').replace(/\/+$/, '')
+					: 'https://api.github.com';
+			accounts[platform] = { username: username.trim(), token, fingerprint, apiBaseUrl };
+		}
+		return { ...scope, accounts };
+	}
+
+	// 1. Determine repository scope
+	async function getRepositoryFilterScope() {
 		const result = await browser.storage.local.get([
 			'useRepoFilter',
 			'selectedRepos',
@@ -91,7 +140,15 @@
 
 	// 2. Generate cache/selection key based on active scope
 	function getCacheKey(scope) {
-		const platformsKey = scope?.platforms ? [...scope.platforms].sort().join('_') : 'github';
+		const platforms = scope?.platforms ? [...scope.platforms].sort() : ['github'];
+		const accounts = platforms
+			.filter((platform) => platform === 'github' || platform === 'gitlab')
+			.map((platform) => {
+				const account = scope.accounts[platform];
+				return [platform, account.username.toLowerCase(), account.apiBaseUrl, account.fingerprint];
+			});
+		const platformsKey =
+			accounts.length > 0 ? `${platforms.join('_')}_accounts_${JSON.stringify(accounts)}` : platforms.join('_');
 		let accountKey = '';
 		if (scope?.platforms?.includes('codeberg') && (scope.codebergUsername || scope.codebergApiBaseUrl)) {
 			accountKey = `_cb:${scope.codebergUsername || ''}@${scope.codebergApiBaseUrl || ''}`;
@@ -104,53 +161,69 @@
 		return `${platformsKey}_selected${gh}${gl}${accountKey}`;
 	}
 
-	// 3. Cache management
-	function cacheIssues(scope, issues) {
-		const key = getCacheKey(scope);
-		let cache = {};
-		try {
-			cache = JSON.parse(localStorage.getItem('nextPlansCache') || '{}');
-		} catch (e) {}
+	const maxSavedScopes = 20;
+	const fallbackIssues = new Map();
+	const fallbackSelections = new Map();
 
-		cache[key] = {
-			issues: issues,
-			timestamp: Date.now(),
-			ttl: 300000, // 5 minutes
-		};
-		localStorage.setItem('nextPlansCache', JSON.stringify(cache));
+	function readStoredRecord(name) {
+		try {
+			const value = JSON.parse(localStorage.getItem(name) || '{}');
+			return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+		} catch {
+			return {};
+		}
+	}
+
+	function rememberFallback(records, key, value) {
+		records.delete(key);
+		records.set(key, value);
+		while (records.size > maxSavedScopes) records.delete(records.keys().next().value);
+	}
+
+	// 3. Cache management
+	function cacheIssues(scope, issues, ttl = 300000) {
+		const key = getCacheKey(scope);
+		const now = Date.now();
+		const entry = { issues, timestamp: now, ttl };
+		const recent = Object.entries(readStoredRecord('nextPlansCache'))
+			.filter(
+				([oldKey, value]) =>
+					oldKey !== key && value && now >= value.timestamp && now - value.timestamp < (value.ttl ?? 300000),
+			)
+			.sort((a, b) => b[1].timestamp - a[1].timestamp)
+			.slice(0, maxSavedScopes - 1);
+		const cache = Object.fromEntries([[key, entry], ...recent]);
+		try {
+			localStorage.setItem('nextPlansCache', JSON.stringify(cache));
+			fallbackIssues.delete(key);
+		} catch {
+			rememberFallback(fallbackIssues, key, entry);
+		}
 	}
 
 	function getCachedIssues(scope) {
 		const key = getCacheKey(scope);
-		try {
-			const cache = JSON.parse(localStorage.getItem('nextPlansCache') || '{}');
-			const cached = cache[key];
-			if (cached && Date.now() - cached.timestamp < (cached.ttl || 300000)) {
-				return cached.issues;
-			}
-		} catch (e) {}
-		return null;
+		const cached = fallbackIssues.get(key) || readStoredRecord('nextPlansCache')[key];
+		return cached && Date.now() - cached.timestamp < (cached.ttl ?? 300000) ? cached.issues : null;
 	}
 
 	// 4. Selection persistence
 	function saveSelectedIssues(scope, selectedIds) {
 		const key = getCacheKey(scope);
-		let selections = {};
+		const previous = Object.entries(readStoredRecord('selectedIssues')).filter(([oldKey]) => oldKey !== key);
+		const selections = Object.fromEntries([[key, selectedIds], ...previous.slice(0, maxSavedScopes - 1)]);
 		try {
-			selections = JSON.parse(localStorage.getItem('selectedIssues') || '{}');
-		} catch (e) {}
-
-		selections[key] = selectedIds;
-		localStorage.setItem('selectedIssues', JSON.stringify(selections));
+			localStorage.setItem('selectedIssues', JSON.stringify(selections));
+			fallbackSelections.delete(key);
+		} catch {
+			rememberFallback(fallbackSelections, key, selectedIds);
+		}
 	}
 
 	function getSavedIssueSelections(scope) {
 		const key = getCacheKey(scope);
-		try {
-			const selections = JSON.parse(localStorage.getItem('selectedIssues') || '{}');
-			return selections[key] || [];
-		} catch (e) {}
-		return [];
+		const selections = fallbackSelections.get(key) || readStoredRecord('selectedIssues')[key];
+		return Array.isArray(selections) ? selections : [];
 	}
 
 	// 6. UI Render Helpers
@@ -273,7 +346,9 @@
 	}
 
 	// 7. Load assigned issues
+	let latestLoad = 0;
 	async function loadAssignedIssues() {
+		const load = ++latestLoad;
 		const includeNextPlansCheckbox = document.getElementById('includeNextPlans');
 		if (!includeNextPlansCheckbox || !includeNextPlansCheckbox.checked) {
 			const container = document.getElementById('assignedIssuesSelector');
@@ -285,6 +360,7 @@
 		}
 
 		const scope = await getRepositoryScope();
+		if (load !== latestLoad) return;
 		const cached = getCachedIssues(scope);
 
 		if (cached) {
@@ -303,11 +379,7 @@
 				'gitlabToken',
 				'codebergToken',
 			]);
-			const platforms = Array.isArray(storage.selectedPlatforms)
-				? storage.selectedPlatforms
-				: storage.platform
-					? [storage.platform]
-					: [];
+			const platforms = scope.platforms;
 			const getPlatformScope = (p) => {
 				if (p === 'github') {
 					return {
@@ -338,14 +410,14 @@
 
 			const fetchPromises = [];
 
-			if (platforms.includes('github') && storage.githubToken?.trim()) {
+			if (platforms.includes('github') && scope.accounts.github.token.trim()) {
 				const ghHelper = window.PlatformRegistry ? window.PlatformRegistry.get('github') : null;
 				if (ghHelper && typeof ghHelper.fetchAssignedIssues === 'function') {
 					fetchPromises.push(ghHelper.fetchAssignedIssues(getPlatformScope('github')));
 				}
 			}
 
-			if (platforms.includes('gitlab') && storage.gitlabToken?.trim()) {
+			if (platforms.includes('gitlab') && scope.accounts.gitlab.token.trim()) {
 				const glHelper = window.PlatformRegistry ? window.PlatformRegistry.get('gitlab') : null;
 				if (glHelper && typeof glHelper.fetchAssignedIssues === 'function') {
 					fetchPromises.push(glHelper.fetchAssignedIssues(getPlatformScope('gitlab')));
@@ -369,6 +441,9 @@
 			}
 
 			const settled = await Promise.allSettled(fetchPromises);
+			const currentScope = await getRepositoryScope();
+			if (load !== latestLoad) return;
+			if (getCacheKey(currentScope) !== getCacheKey(scope)) return loadAssignedIssues();
 			const successful = settled.filter((r) => r.status === 'fulfilled');
 
 			if (successful.length === 0) {
@@ -377,9 +452,13 @@
 			}
 
 			const issues = successful.flatMap((r) => r.value || []);
-			cacheIssues(scope, issues);
+			cacheIssues(scope, issues, successful.length === fetchPromises.length ? 300000 : 0);
 			displayIssuesUI(issues, scope);
 		} catch (error) {
+			if (load !== latestLoad) return;
+			const currentScope = await getRepositoryScope().catch(() => null);
+			if (load !== latestLoad || !currentScope) return;
+			if (getCacheKey(currentScope) !== getCacheKey(scope)) return loadAssignedIssues();
 			console.error('[NextPlans] Failed to load issues:', error);
 			if (error.message.includes('username is required') || error.message.includes('token is required')) {
 				const container = document.getElementById('assignedIssuesSelector');
@@ -403,14 +482,9 @@
 			return [];
 		}
 
-		let issues = [];
-		try {
-			const cache = JSON.parse(localStorage.getItem('nextPlansCache') || '{}');
-			const key = getCacheKey(scope);
-			if (cache[key] && cache[key].issues) {
-				issues = cache[key].issues;
-			}
-		} catch (e) {}
+		const key = getCacheKey(scope);
+		const cached = fallbackIssues.get(key) || readStoredRecord('nextPlansCache')[key];
+		const issues = cached?.issues || [];
 
 		// Map selectedIds to full issue objects
 		return selectedIds
