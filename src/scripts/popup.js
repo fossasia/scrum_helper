@@ -3399,7 +3399,11 @@ document.addEventListener('keydown', (e) => {
 	}
 });
 
-// Validate organization only when user is done typing (on blur)
+/**
+ * Triggers organization input blur validation when user finishes typing.
+ *
+ * @param {string} org - Organization name to validate
+ */
 function handleOrgInputBlurValidation(org) {
 	const helper = window.PlatformRegistry?.get('github');
 	if (helper && helper.validateOrgOnBlur) {
@@ -3432,7 +3436,10 @@ function handleOrgInputBlurValidation(org) {
 		const banner = document.getElementById('rateLimitWarning');
 		const textEl = document.getElementById('rateLimitWarningText');
 		const targetPlatform = platform || window.rateLimitPlatform || 'GitHub';
-		const targetReset = (resetTime !== undefined && resetTime !== null) ? resetTime : (window.rateLimitPlatform === targetPlatform ? window.rateLimitResetTime : null);
+		const targetReset =
+			resetTime !== undefined && resetTime !== null
+				? resetTime
+				: (window.rateLimitResetTimes?.[targetPlatform] ?? null);
 		if (textEl && window.rateLimitUtils) {
 			textEl.textContent = window.rateLimitUtils.getRateLimitMessage(targetReset, {
 				platform: targetPlatform,

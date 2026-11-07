@@ -26,16 +26,30 @@ window.fetch = async function (...args) {
 	if (isGitHub || isGitLab || isCodeberg) {
 		const remaining =
 			typeof res.headers?.get === 'function'
-				? res.headers.get('x-ratelimit-remaining') || res.headers.get('ratelimit-remaining') || res.headers.get('RateLimit-Remaining')
-				: res.headers?.['x-ratelimit-remaining'] || res.headers?.['ratelimit-remaining'] || res.headers?.['RateLimit-Remaining'];
+				? res.headers.get('x-ratelimit-remaining') ||
+					res.headers.get('ratelimit-remaining') ||
+					res.headers.get('RateLimit-Remaining')
+				: res.headers?.['x-ratelimit-remaining'] ||
+					res.headers?.['ratelimit-remaining'] ||
+					res.headers?.['RateLimit-Remaining'];
+		const retryAfter =
+			typeof res.headers?.get === 'function'
+				? res.headers.get('retry-after') || res.headers.get('Retry-After')
+				: res.headers?.['retry-after'] || res.headers?.['Retry-After'];
 		const is429 = res.status === 429;
 		const isZeroRemaining = remaining === '0' || remaining === 0;
-		if (res.status === 403 || is429 || isZeroRemaining) {
-			let isRateLimit = is429 || isZeroRemaining;
+		const hasRetryAfter = Boolean(retryAfter);
+		if (res.status === 403 || is429 || isZeroRemaining || hasRetryAfter) {
+			let isRateLimit = is429 || isZeroRemaining || hasRetryAfter;
 			try {
 				const clone = res.clone();
 				const data = await clone.json();
-				if (data && data.message && typeof data.message === 'string' && data.message.toLowerCase().includes('rate limit')) {
+				if (
+					data &&
+					data.message &&
+					typeof data.message === 'string' &&
+					data.message.toLowerCase().includes('rate limit')
+				) {
 					isRateLimit = true;
 				}
 			} catch (e) {
@@ -284,11 +298,23 @@ function showReportMessage(message) {
 	window.scrumHelperToast?.(message, { duration: 2000, variant: 'error' });
 }
 
+/**
+ * Checks whether an error is a username validation failure.
+ *
+ * @param {Error|Object} err - Error object to inspect
+ * @returns {boolean} True if error is a username validation error
+ */
 function isUsernameValidationError(err) {
 	if (!err) return false;
 	return err.code === 'USERNAME_VALIDATION';
 }
 
+/**
+ * Extracts the platform identifier ('github', 'gitlab', 'codeberg') from an error.
+ *
+ * @param {Error|Object|string} err - Error or message to extract platform from
+ * @returns {string|null} Platform identifier or null if not identified
+ */
 function getFailurePlatform(err) {
 	if (err?.platform) return err.platform;
 	const msg = (typeof err === 'string' ? err : err?.message || '').toLowerCase();
@@ -298,6 +324,13 @@ function getFailurePlatform(err) {
 	return null;
 }
 
+/**
+ * Handles UI updates and styling when username validation fails.
+ *
+ * @param {string} errMessage - Primary error message
+ * @param {string|Array<string>|null} [platformName=null] - Affected platform name(s)
+ * @param {string} [toastMessage=errMessage] - Message to display in toast notification
+ */
 function handleUsernameValidationError(errMessage, platformName = null, toastMessage = errMessage) {
 	let targetPlatforms = [];
 	if (Array.isArray(platformName)) {
@@ -406,14 +439,11 @@ function handleReportFetchFailures(failures, allFailed = false) {
 	const rateLimitFailure = failures.find(isRateLimitFailure);
 	if (rateLimitFailure && allFailed) {
 		const targetPlatform =
-			rateLimitFailure.platform ||
-			getFailurePlatform(rateLimitFailure) ||
-			window.rateLimitPlatform ||
-			'GitHub';
+			rateLimitFailure.platform || getFailurePlatform(rateLimitFailure) || window.rateLimitPlatform || 'GitHub';
 		const resetTime =
 			rateLimitFailure.resetTime !== undefined
 				? rateLimitFailure.resetTime
-				: (window.rateLimitResetTimes?.[targetPlatform] ?? window.rateLimitResetTime);
+				: window.rateLimitResetTimes?.[targetPlatform] || null;
 		const rateLimitMsg =
 			typeof window.rateLimitUtils?.getRateLimitMessage === 'function'
 				? window.rateLimitUtils.getRateLimitMessage(resetTime, {
@@ -786,11 +816,12 @@ function allIncluded(outputTarget = 'email') {
 										platformUsernameLocal = user;
 										platformUsernames.github = user;
 										const data = await fetchGithubData(false);
-										if (window.githubRateLimitExceeded) {
+										if (data?._rateLimited) {
+											githubCache.data = null;
 											const err = new Error('GitHub API rate limit exceeded');
 											err.platform = 'GitHub';
 											err.rateLimited = true;
-											err.resetTime = window.rateLimitResetTimes?.GitHub ?? window.rateLimitResetTime;
+											err.resetTime = window.rateLimitResetTimes?.GitHub || null;
 											throw err;
 										}
 										const issues = data?.githubIssuesData?.items || [];
@@ -868,9 +899,19 @@ function allIncluded(outputTarget = 'email') {
 										const platformName = p === 'gitlab' ? 'GitLab' : p === 'codeberg' ? 'Codeberg' : 'GitHub';
 										err.platform = platformName;
 										const msg = String(err.message || '');
-										if (err.status === 429 || /\b429\b/.test(msg) || /rate limit/i.test(msg) || (p === 'github' && window.githubRateLimitExceeded)) {
+										const platformRateLimited = Boolean(
+											window.rateLimitResetTimes && platformName in window.rateLimitResetTimes,
+										);
+										if (
+											err.status === 429 ||
+											/\b429\b/.test(msg) ||
+											/rate limit/i.test(msg) ||
+											(p === 'github' && window.githubRateLimitExceeded) ||
+											platformRateLimited ||
+											err.rateLimited
+										) {
 											err.rateLimited = true;
-											err.resetTime = window.rateLimitResetTimes?.[platformName] ?? window.rateLimitResetTime;
+											err.resetTime = err.resetTime || window.rateLimitResetTimes?.[platformName] || null;
 										}
 									}
 									throw err;
@@ -1089,21 +1130,29 @@ function allIncluded(outputTarget = 'email') {
 				typeof res.headers?.get === 'function'
 					? res.headers.get('x-ratelimit-remaining')
 					: res.headers?.['x-ratelimit-remaining'] || res.headers?.['X-RateLimit-Remaining'];
-			if (remaining === '0' || remaining === 0) isLimit = true;
+			const retryAfter =
+				typeof res.headers?.get === 'function'
+					? res.headers.get('retry-after') || res.headers.get('Retry-After')
+					: res.headers?.['retry-after'] || res.headers?.['Retry-After'];
+			if (remaining === '0' || remaining === 0 || Boolean(retryAfter)) isLimit = true;
 		}
 		if (isLimit) {
 			const resetDate =
 				typeof window.rateLimitUtils?.getRateLimitResetTime === 'function'
 					? window.rateLimitUtils.getRateLimitResetTime(res)
 					: null;
-			if (resetDate) {
-				window.rateLimitResetTime = resetDate;
-			}
+			window.rateLimitResetTime = resetDate;
 			return true;
 		}
 		return false;
 	}
 
+	/**
+	 * Fetches GitHub issues, PR reviews, and user data for the current user and date range.
+	 *
+	 * @param {boolean} [shouldProcess=true] - Whether to process and render the fetched data immediately
+	 * @returns {Promise<Object>} Object containing githubIssuesData, githubPrsReviewData, and githubUserData
+	 */
 	async function fetchGithubData(shouldProcess = true) {
 		// Always load latest settings from storage
 		const settings = await new Promise((resolve) => {
@@ -1352,7 +1401,9 @@ function allIncluded(outputTarget = 'email') {
 				}
 			}
 
-			if (isRateLimitResponse(issuesRes) || isRateLimitResponse(prRes)) {
+			const fetchRateLimited =
+				isRateLimitResponse(issuesRes) || isRateLimitResponse(prRes) || isRateLimitResponse(userRes);
+			if (fetchRateLimited) {
 				window.githubRateLimitExceeded = true;
 				window.showRateLimitWarning?.(window.rateLimitResetTime);
 			}
@@ -1488,21 +1539,32 @@ function allIncluded(outputTarget = 'email') {
 				}
 			}
 
-			// Cache the data
-			githubCache.data = { githubIssuesData, githubPrsReviewData, githubUserData };
-			githubCache.timestamp = Date.now();
+			// Cache the data if not rate-limited
+			if (fetchRateLimited) {
+				githubCache.data = null;
+			} else {
+				githubCache.data = { githubIssuesData, githubPrsReviewData, githubUserData };
+				githubCache.timestamp = Date.now();
+				await saveToStorage(githubCache.data);
+			}
 
-			await saveToStorage(githubCache.data);
+			const resultData = {
+				githubIssuesData,
+				githubPrsReviewData,
+				githubUserData,
+				_rateLimited: fetchRateLimited,
+			};
+
 			if (shouldProcess) {
-				processGithubData(githubCache.data);
+				processGithubData(githubCache.data || resultData);
 			}
 
 			githubCache.queue.forEach(({ resolve }) => {
-				resolve(githubCache.data);
+				resolve(resultData);
 			});
 			githubCache.queue = [];
-			fetchPromiseResolve?.(githubCache.data);
-			return githubCache.data;
+			fetchPromiseResolve?.(resultData);
+			return resultData;
 		} catch (err) {
 			logError('Fetch Failed:', err);
 			// Reject queued calls on error
