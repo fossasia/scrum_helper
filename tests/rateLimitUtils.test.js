@@ -74,6 +74,23 @@ describe('rateLimitUtils', () => {
 			expect(Math.floor(result.getTime() / 1000)).toBe(Math.floor(futureDate.getTime() / 1000));
 		});
 
+		it('returns primaryResetDate when remaining quota is positive and no Retry-After is present', () => {
+			const resetEpochSec = 1700001000;
+			const res = {
+				headers: {
+					get: (name) => {
+						const lower = name.toLowerCase();
+						if (lower === 'x-ratelimit-remaining') return '5';
+						if (lower === 'x-ratelimit-reset') return String(resetEpochSec);
+						return null;
+					},
+				},
+			};
+			const result = rateLimitUtils.getRateLimitResetTime(res, fixedNow);
+			expect(result).toBeInstanceOf(Date);
+			expect(result.getTime()).toBe(resetEpochSec * 1000);
+		});
+
 		it('does not return a shorter Retry-After when primary quota is exhausted', () => {
 			const primaryResetSec = Math.floor(fixedNow / 1000) + 600; // 10 minutes away
 			const secondaryRetrySec = 30; // 30 seconds away

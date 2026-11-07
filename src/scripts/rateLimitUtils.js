@@ -82,23 +82,18 @@ function getRateLimitResetTime(headersOrRes, now = Date.now()) {
 
 	// 3. Check if primary quota is completely exhausted (x-ratelimit-remaining === 0)
 	const remaining =
-		getHeader('x-ratelimit-remaining') ||
-		getHeader('ratelimit-remaining') ||
-		getHeader('RateLimit-Remaining');
+		getHeader('x-ratelimit-remaining') || getHeader('ratelimit-remaining') || getHeader('RateLimit-Remaining');
 	const isPrimaryExhausted = remaining === '0' || remaining === 0;
 
-	if (isPrimaryExhausted && primaryResetDate) {
-		// If primary quota is exhausted, the true wait cannot be earlier than primaryResetDate
-		if (retryDate && retryDate.getTime() > primaryResetDate.getTime()) {
-			return retryDate;
+	if (retryDate && primaryResetDate) {
+		if (isPrimaryExhausted) {
+			return retryDate.getTime() > primaryResetDate.getTime() ? retryDate : primaryResetDate;
 		}
-		return primaryResetDate;
+		return retryDate;
 	}
 
 	if (retryDate) return retryDate;
-	if (primaryResetDate && (remaining === null || remaining === undefined || isPrimaryExhausted)) {
-		return primaryResetDate;
-	}
+	if (primaryResetDate) return primaryResetDate;
 	return null;
 }
 
@@ -193,8 +188,7 @@ function getRateLimitMessage(resetDate, options = {}) {
 			// No translation for the reset-specific key — append countdown to the
 			// existing translated warning so non-English locales stay consistent.
 			const baseWarning = useGitHubTranslation ? i18n?.getMessage('rateLimitWarningMessage') : null;
-			if (baseWarning && baseWarning !== 'rateLimitWarningMessage')
-				return `${baseWarning} Quota resets ${countdown}.`;
+			if (baseWarning && baseWarning !== 'rateLimitWarningMessage') return `${baseWarning} Quota resets ${countdown}.`;
 			return `Some data may be missing due to ${platform} rate limit. Quota resets ${countdown}. Please add or check your ${platform} token in settings.`;
 		}
 		const fallback = useGitHubTranslation ? i18n?.getMessage('rateLimitWarningMessage') : null;
@@ -209,8 +203,7 @@ function getRateLimitMessage(resetDate, options = {}) {
 		// No translation for the reset-specific key — append countdown to the
 		// existing translated error so non-English locales stay consistent.
 		const baseError = useGitHubTranslation ? i18n?.getMessage('rateLimitError') : null;
-		if (baseError && baseError !== 'rateLimitError')
-			return `${baseError} Quota resets ${countdown}.`;
+		if (baseError && baseError !== 'rateLimitError') return `${baseError} Quota resets ${countdown}.`;
 		return `${platform} API rate limit exceeded. Quota resets ${countdown}. Please add or check your ${platform} token in the Scrum Helper settings for a higher limit.`;
 	}
 
