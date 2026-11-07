@@ -839,7 +839,13 @@ if (window.PlatformRegistry) {
 					headers: { 'PRIVATE-TOKEN': trimmed },
 				});
 				if (res.status === 401) return { valid: false, status: 401, reason: 'invalid' };
-				if (res.status === 429) {
+				const isRateLimit =
+					res.status === 429 ||
+					(res.status === 403 &&
+						(res.headers?.get?.('ratelimit-remaining') === '0' ||
+							res.headers?.get?.('x-ratelimit-remaining') === '0' ||
+							Boolean(res.headers?.get?.('retry-after'))));
+				if (isRateLimit) {
 					const resetTime =
 						typeof window.rateLimitUtils?.getRateLimitResetTime === 'function'
 							? window.rateLimitUtils.getRateLimitResetTime(res)

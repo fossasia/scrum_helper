@@ -72,16 +72,23 @@ window.fetch = async function (...args) {
 						? window.rateLimitUtils.getRateLimitResetTime(res)
 						: null;
 				window.rateLimitResetTimes = window.rateLimitResetTimes || {};
-				window.rateLimitResetTimes[targetPlatform] = resetDate;
-				window.rateLimitResetTime = resetDate;
+				if (resetDate) {
+					window.rateLimitResetTimes[targetPlatform] = resetDate;
+					window.rateLimitResetTime = resetDate;
+				}
+				const effectiveResetDate =
+					resetDate ||
+					(!platformChanged ? window.rateLimitResetTime : null) ||
+					window.rateLimitResetTimes[targetPlatform] ||
+					null;
 				if (!rateLimitWarningShown || platformChanged) {
 					rateLimitWarningShown = true;
-					window.showRateLimitWarning?.(resetDate, targetPlatform);
+					window.showRateLimitWarning?.(effectiveResetDate, targetPlatform);
 					setTimeout(() => {
 						rateLimitWarningShown = false;
 					}, 6000);
-				} else if (resetDate && typeof window.showRateLimitWarning === 'function') {
-					window.showRateLimitWarning(resetDate, targetPlatform);
+				} else if (effectiveResetDate && typeof window.showRateLimitWarning === 'function') {
+					window.showRateLimitWarning(effectiveResetDate, targetPlatform);
 				}
 			}
 		}
@@ -1156,7 +1163,12 @@ function allIncluded(outputTarget = 'email') {
 				typeof window.rateLimitUtils?.getRateLimitResetTime === 'function'
 					? window.rateLimitUtils.getRateLimitResetTime(res)
 					: null;
-			window.rateLimitResetTime = resetDate;
+			window.rateLimitResetTimes = window.rateLimitResetTimes || {};
+			if (resetDate) {
+				window.rateLimitResetTimes.GitHub = resetDate;
+				window.rateLimitResetTime = resetDate;
+				window.rateLimitPlatform = 'GitHub';
+			}
 			return true;
 		}
 		return false;
@@ -1339,7 +1351,10 @@ function allIncluded(outputTarget = 'email') {
 
 			if (isRateLimitResponse(userCheckRes)) {
 				window.githubRateLimitExceeded = true;
-				window.showRateLimitWarning?.(window.rateLimitResetTime);
+				const githubResetTime =
+					window.rateLimitResetTimes?.GitHub ||
+					(window.rateLimitPlatform === 'GitHub' ? window.rateLimitResetTime : null);
+				window.showRateLimitWarning?.(githubResetTime, 'GitHub');
 			} else if (!userCheckRes.ok && !window.githubRateLimitExceeded) {
 				const errorMsg =
 					chrome?.i18n.getMessage('githubUserValidationError', [userCheckRes.status, userCheckRes.statusText]) ||
@@ -1420,7 +1435,10 @@ function allIncluded(outputTarget = 'email') {
 				isRateLimitResponse(issuesRes) || isRateLimitResponse(prRes) || isRateLimitResponse(userRes);
 			if (fetchRateLimited) {
 				window.githubRateLimitExceeded = true;
-				window.showRateLimitWarning?.(window.rateLimitResetTime);
+				const githubResetTime =
+					window.rateLimitResetTimes?.GitHub ||
+					(window.rateLimitPlatform === 'GitHub' ? window.rateLimitResetTime : null);
+				window.showRateLimitWarning?.(githubResetTime, 'GitHub');
 			}
 
 			if (issuesRes.status === 422 || prRes.status === 422) {
