@@ -181,6 +181,7 @@ a {
 .errorMessage {
     color: red;
     font-size: 12px;
+    white-space: pre-line;
 }
 
 .error-message {
@@ -1288,7 +1289,7 @@ body.mode-popup {
     opacity: 0;
     pointer-events: auto;
     transition: opacity 0.2s ease, transform 0.2s ease;
-    white-space: normal;
+    white-space: pre-line;
     margin: 0;
     flex-shrink: 0;
 }
@@ -1335,18 +1336,17 @@ body.mode-popup {
 .timeframe-container {
     display: flex;
     flex-wrap: wrap;
-    gap: 8px 12px;
+    gap: 8px 16px;
     align-items: flex-end;
-    justify-content: space-between;
+    justify-content: flex-start;
 }
 
 .timeframe-presets {
     display: flex;
-    flex-direction: row;
-    align-items: center;
+    flex-wrap: wrap;
     gap: 8px;
+    align-items: center;
     margin-bottom: 4px;
-    flex-shrink: 0;
 }
 
 .timeframe-presets > div {

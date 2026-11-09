@@ -2,6 +2,8 @@
 
 **Scrum Helper** is a Chrome extension that simplifies writing development reports by auto-filling content based on your Git activity. Select your platform, enter your username, and provide authentication details when needed. Choose a date range and your preferences. The extension automatically fetches your commits, pull requests, and issues via the selected platform's API. For platforms that support review activity, it also includes code reviews in the generated report. Scrum Helper currently supports GitHub, GitLab, and Codeberg, allowing developers to generate scrum reports from their activity across multiple Git platforms.
 
+Landing page: [https://fossasia.github.io/scrum_helper/](https://fossasia.github.io/scrum_helper/)
+
 ![SCRUMLOGO](docs/images/scrumhelper-png.png)
 
 ## Features
@@ -14,6 +16,10 @@
 - Integrates directly with compose windows in Google Groups, Gmail, Yahoo Mail, and Outlook
 
 ## How to install
+
+### Desktop Application:
+
+Download the desktop application for Windows, macOS, or Linux from [GitHub Releases](https://github.com/fossasia/scrum_helper/releases/latest) or check out the [Landing Page](https://fossasia.github.io/scrum_helper/#download).
 
 ### For Chrome:
 

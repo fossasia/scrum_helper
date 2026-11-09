@@ -633,11 +633,11 @@ async function validateOrgOnBlur(org) {
 	}
 	console.log('[Org Check] Checking organizations on blur:', orgs);
 
-	let headers = {};
+	let headers = { Accept: 'application/vnd.github.v3+json' };
 	try {
 		const storage = await browser.storage.local.get(['githubToken']);
 		if (storage.githubToken) {
-			headers = { Authorization: `token ${storage.githubToken}` };
+			headers.Authorization = `token ${storage.githubToken}`;
 		}
 	} catch (err) {
 		// ignore storage error
@@ -1226,6 +1226,7 @@ window.githubFetchPrReviews = githubFetchPrReviews;
 window.githubFetchPullRequests = githubFetchPullRequests;
 window.githubFetchCommits = githubFetchCommits;
 window.githubFetchPrMergedStatusREST = githubFetchPrMergedStatusREST;
+window.githubValidateOrgOnBlur = validateOrgOnBlur;
 window.githubValidateToken = githubValidateToken;
 
 if (window.PlatformRegistry) {
