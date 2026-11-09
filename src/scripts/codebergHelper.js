@@ -131,9 +131,6 @@ async function fetchIssuesFromCodeberg(scope) {
 	const baseUrl = normalizeCodebergApiBaseUrl(
 		storage.codebergApiBaseUrl || (typeof window !== 'undefined' ? window.codebergApiBaseUrl : undefined),
 	);
-	if (typeof window !== 'undefined') {
-		window.codebergApiBaseUrl = baseUrl;
-	}
 
 	while (hasMore && page <= 4) {
 		const url = `${baseUrl}/repos/issues/search?state=open&assigned=true&type=issues&page=${page}&limit=50`;
@@ -304,13 +301,6 @@ class CodebergHelper {
 
 	/* ---------- PAGINATION ---------- */
 
-	/**
-	 * Fetches all paginated items from a Codeberg API endpoint.
-	 *
-	 * @param {string} url - API endpoint URL
-	 * @param {Object} headers - Request headers
-	 * @returns {Promise<Array<Object>>} Array of fetched items
-	 */
 	async fetchAllPaginated(url, headers) {
 		let page = 1;
 		const limit = 50;
@@ -321,24 +311,7 @@ class CodebergHelper {
 			const paged = `${url}${sep}limit=${limit}&page=${page}`;
 
 			const res = await fetch(paged, { headers });
-			if (!res.ok) {
-				const remaining =
-					typeof res.headers?.get === 'function'
-						? res.headers.get('x-ratelimit-remaining')
-						: res.headers?.['x-ratelimit-remaining'];
-				if (res.status === 429 || (res.status === 403 && (remaining === '0' || remaining === 0))) {
-					const error = new Error('Codeberg API rate limit exceeded');
-					error.status = res.status;
-					error.rateLimited = true;
-					error.platform = 'Codeberg';
-					error.resetTime =
-						typeof window !== 'undefined' && typeof window.rateLimitUtils?.getRateLimitResetTime === 'function'
-							? window.rateLimitUtils.getRateLimitResetTime(res)
-							: null;
-					throw error;
-				}
-				break;
-			}
+			if (!res.ok) break;
 
 			const data = await res.json();
 			if (!Array.isArray(data) || data.length === 0) break;
@@ -352,14 +325,6 @@ class CodebergHelper {
 		return results;
 	}
 
-	/**
-	 * Fetches paginated items from a Codeberg endpoint with an optional date limit.
-	 *
-	 * @param {string} url - API endpoint URL
-	 * @param {Object} headers - Request headers
-	 * @param {string} [startDateLimit] - ISO start date string limit
-	 * @returns {Promise<Array<Object>>} Array of fetched items
-	 */
 	async fetchAllPaginatedWithDateLimit(url, headers, startDateLimit) {
 		let page = 1;
 		const limit = 50;
@@ -371,24 +336,7 @@ class CodebergHelper {
 			const paged = `${url}${sep}limit=${limit}&page=${page}&sort=updated&order=desc`;
 
 			const res = await fetch(paged, { headers });
-			if (!res.ok) {
-				const remaining =
-					typeof res.headers?.get === 'function'
-						? res.headers.get('x-ratelimit-remaining')
-						: res.headers?.['x-ratelimit-remaining'];
-				if (res.status === 429 || (res.status === 403 && (remaining === '0' || remaining === 0))) {
-					const error = new Error('Codeberg API rate limit exceeded');
-					error.status = res.status;
-					error.rateLimited = true;
-					error.platform = 'Codeberg';
-					error.resetTime =
-						typeof window !== 'undefined' && typeof window.rateLimitUtils?.getRateLimitResetTime === 'function'
-							? window.rateLimitUtils.getRateLimitResetTime(res)
-							: null;
-					throw error;
-				}
-				break;
-			}
+			if (!res.ok) break;
 
 			const data = await res.json();
 			if (!Array.isArray(data) || data.length === 0) break;
@@ -496,7 +444,6 @@ class CodebergHelper {
 					try {
 						return await this.fetchAllPaginatedWithDateLimit(url, headers, startDate);
 					} catch (e) {
-						if (e.rateLimited) throw e;
 						console.warn(`Failed to fetch from ${url}:`, e);
 						return [];
 					}
