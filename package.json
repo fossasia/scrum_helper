@@ -35,7 +35,7 @@
     "autoprefixer": "^10.6.2",
     "happy-dom": "^21.0.4",
     "postcss": "^8.5.32",
-    "tailwindcss": "^4.3.3",
+    "tailwindcss": "^4.3.4",
     "vitest": "^5.0.5"
   },
   "dependencies": {
