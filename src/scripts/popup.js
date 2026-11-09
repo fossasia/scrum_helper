@@ -129,6 +129,22 @@ function applyI18n() {
 	});
 }
 
+function setButtonFeedback(btn, iconClass, text) {
+	if (!btn) return;
+	const icon = btn.querySelector('i');
+	const span = btn.querySelector('span');
+	if (icon && span) {
+		icon.className = iconClass;
+		span.textContent = text;
+	} else {
+		const newIcon = document.createElement('i');
+		newIcon.className = iconClass;
+		const newSpan = document.createElement('span');
+		newSpan.textContent = text;
+		btn.replaceChildren(newIcon, document.createTextNode(' '), newSpan);
+	}
+}
+
 document.addEventListener('DOMContentLoaded', () => {
 	// Hide extension-only settings in Tauri
 	if (window.isTauri) {
@@ -1259,22 +1275,6 @@ document.addEventListener('DOMContentLoaded', () => {
 					}
 				});
 		});
-
-		function setButtonFeedback(btn, iconClass, text) {
-			if (!btn) return;
-			const icon = btn.querySelector('i');
-			const span = btn.querySelector('span');
-			if (icon && span) {
-				icon.className = iconClass;
-				span.textContent = text;
-			} else {
-				const newIcon = document.createElement('i');
-				newIcon.className = iconClass;
-				const newSpan = document.createElement('span');
-				newSpan.textContent = text;
-				btn.replaceChildren(newIcon, document.createTextNode(' '), newSpan);
-			}
-		}
 
 		copyBtn.addEventListener('click', function () {
 			if (!this._triggeredByShortcut) {
@@ -2540,9 +2540,14 @@ if (cacheInput) {
 		}
 	});
 
+	cacheInput.addEventListener('focus', function () {
+		this.classList.remove('border-red-500', 'border-amber-500', 'border-emerald-500');
+		this.classList.add('border-gray-200');
+	});
+
 	cacheInput.addEventListener('blur', function () {
 		let ttlValue = Number.parseInt(this.value, 10);
-		this.classList.remove('border-red-500', 'border-amber-500', 'border-emerald-500');
+		this.classList.remove('border-gray-200', 'border-red-500', 'border-amber-500', 'border-emerald-500');
 		if (Number.isNaN(ttlValue) || ttlValue <= 0 || this.value.trim() === '') {
 			ttlValue = 10;
 			this.value = ttlValue;
