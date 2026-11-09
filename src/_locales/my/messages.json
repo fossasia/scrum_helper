@@ -404,7 +404,7 @@
         "description": "Placeholder for the Codeberg token input."
     },
     "codebergTokenTooltip": {
-        "message": "<b>Codeberg တိုကင်ကို အဘယ်ကြောင့် ထည့်သွင်းရသနည်း။</b><br>Scrum Helper သည် အများသုံးပရောဂျက်များအတွက် တိုကင်မပါဘဲ အလုပ်လုပ်သော်လည်း သီးသန့်ပရောဂျက်များနှင့် ပိုမိုကောင်းမွန်သော နှုန်းထားကန့်သတ်ချက်များအတွက် ကိုယ်ပိုင်ဝင်ရောက်ခွင့်တိုကင် လိုအပ်ပါသည်။<br><br><b>ရယူနည်း-</b><br>1. <a href=\"https://codeberg.org/user/settings/applications\" target=\"_blank\" rel=\"noopener noreferrer\">Codeberg အက်ပ်ဆက်တင်များ</a>သို့ သွားပါ<br>2. \"တိုကင်အသစ် ထုတ်ယူရန်\" ကို နှိပ်ပါ<br>3. ကူးယူပြီး ဤနေရာတွင် ကူးထည့်ပါ<br><i>လျှို့ဝှက်ထားပါ!</i>",
+        "message": "<b>Codeberg တိုကင်ကို အဘယ်ကြောင့် ထည့်သွင်းရသနည်း။</b><br>Scrum Helper သည် အများသုံးပရောဂျက်များအတွက် တိုကင်မပါဘဲ အလုပ်လုပ်သော်လည်း သီးသန့်ပရောဂျက်များနှင့် ပိုမိုကောင်းမွန်သော နှုန်းထားကန့်သတ်ချက်များအတွက် ကိုယ်ပိုင်ဝင်ရောက်ခွင့်တိုကင် လိုအပ်ပါသည်။ တိုကင်များသည် အကောင့်သို့ ကျယ်ပြန့်စွာ ဝင်ရောက်ခွင့်ပေးနိုင်သဖြင့် လိုအပ်သော အနိမ့်ဆုံး နယ်ပယ်များနှင့် သိုလှောင်ရုံဝင်ရောက်ခွင့်ကိုသာ ရွေးချယ်ပါ။<br><br><b>ရယူနည်း-</b><br>1. <a href=\"https://codeberg.org/user/settings/applications\" target=\"_blank\" rel=\"noopener noreferrer\">Codeberg အက်ပ်ဆက်တင်များ</a>သို့ သွားပါ<br>2. \"တိုကင်အသစ် ထုတ်ယူရန်\" ကို နှိပ်ပါ<br>3. ကူးယူပြီး ဤနေရာတွင် ကူးထည့်ပါ<br><i>လျှို့ဝှက်ထားပါ!</i>",
         "description": "Tooltip for Codeberg token explaining why it's needed."
     },
     "codebergApiBaseUrlLabel": {

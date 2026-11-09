@@ -404,7 +404,7 @@
         "description": "Placeholder for the Codeberg token input."
     },
     "codebergTokenTooltip": {
-        "message": "<b>Pourquoi ajouter un jeton Codeberg ?</b><br>Scrum Helper fonctionne sans jeton pour les projets publics, mais un jeton d'accès personnel active les dépôts privés et de meilleures limites de requêtes. Votre jeton reste local et sert uniquement à récupérer vos données Codeberg.<br><br><b>Comment en obtenir un :</b><br>1. Allez dans les <a href=\"https://codeberg.org/user/settings/applications\" target=\"_blank\" rel=\"noopener noreferrer\">Paramètres des applications Codeberg</a><br>2. Cliquez sur \"Générer un nouveau jeton\"<br>3. Copiez-le et collez-le ici<br><i>Gardez-le secret !</i>",
+        "message": "<b>Pourquoi ajouter un jeton Codeberg ?</b><br>Scrum Helper fonctionne sans jeton pour les projets publics, mais un jeton d'accès personnel active les dépôts privés et de meilleures limites de requêtes. Votre jeton reste local et sert uniquement à récupérer vos données Codeberg. Les jetons peuvent accorder un accès étendu au compte, sélectionnez donc les portées et l'accès aux dépôts les plus restreints nécessaires.<br><br><b>Comment en obtenir un :</b><br>1. Allez dans les <a href=\"https://codeberg.org/user/settings/applications\" target=\"_blank\" rel=\"noopener noreferrer\">Paramètres des applications Codeberg</a><br>2. Cliquez sur \"Générer un nouveau jeton\"<br>3. Copiez-le et collez-le ici<br><i>Gardez-le secret !</i>",
         "description": "Tooltip for Codeberg token explaining why it's needed."
     },
     "codebergApiBaseUrlLabel": {

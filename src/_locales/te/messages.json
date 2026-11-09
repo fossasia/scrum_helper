@@ -404,7 +404,7 @@
         "description": "Placeholder for the Codeberg token input."
     },
     "codebergTokenTooltip": {
-        "message": "<b>Codeberg టోకెన్‌ను ఎందుకు జోడించాలి?</b><br>Scrum Helper పబ్లిక్ ప్రాజెక్ట్‌ల కోసం టోకెన్ లేకుండా పనిచేస్తుంది, కానీ వ్యక్తిగత టోకెన్ ప్రైవేట్ ప్రాజెక్ట్‌లను యాక్సెస్ చేయడానికి అనుమతిస్తుంది.<br><br><b>ఎలా పొందాలి:</b><br>1. <a href=\"https://codeberg.org/user/settings/applications\" target=\"_blank\" rel=\"noopener noreferrer\">Codeberg అప్లికేషన్ల సెట్టింగ్‌లకు</a> వెళ్లండి<br>2. \"కొత్త టోకెన్‌ను సృష్టించండి\" పై క్లిక్ చేయండి<br>3. కాపీ చేసి ఇక్కడ అతికించండి<br><i>దీన్ని రహస్యంగా ఉంచండి!</i>",
+        "message": "<b>Codeberg టోకెన్‌ను ఎందుకు జోడించాలి?</b><br>Scrum Helper పబ్లిక్ ప్రాజెక్ట్‌ల కోసం టోకెన్ లేకుండా పనిచేస్తుంది, కానీ వ్యక్తిగత టోకెన్ ప్రైవేట్ ప్రాజెక్ట్‌లను యాక్సెస్ చేయడానికి అనుమతిస్తుంది. టోకెన్లు విస్తృత ఖాతా యాక్సెస్‌ను మంజూరు చేయవచ్చు, కాబట్టి అవసరమైన పరిమిత స్కోప్‌లు మరియు రిపోజిటరీ యాక్సెస్‌ను మాత్రమే ఎంచుకోండి.<br><br><b>ఎలా పొందాలి:</b><br>1. <a href=\"https://codeberg.org/user/settings/applications\" target=\"_blank\" rel=\"noopener noreferrer\">Codeberg అప్లికేషన్ల సెట్టింగ్‌లకు</a> వెళ్లండి<br>2. \"కొత్త టోకెన్‌ను సృష్టించండి\" పై క్లిక్ చేయండి<br>3. కాపీ చేసి ఇక్కడ అతికించండి<br><i>దీన్ని రహస్యంగా ఉంచండి!</i>",
         "description": "Tooltip for Codeberg token explaining why it's needed."
     },
     "codebergApiBaseUrlLabel": {

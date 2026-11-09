@@ -404,7 +404,7 @@
         "description": "Placeholder for the Codeberg token input."
     },
     "codebergTokenTooltip": {
-        "message": "<b>Γιατί να προσθέσετε ένα διακριτικό Codeberg;</b><br>Το Scrum Helper λειτουργεί χωρίς διακριτικό για δημόσια έργα, αλλά ένα προσωπικό διακριτικό επιτρέπει πρόσβαση σε ιδιωτικά αποθετήρια και υψηλότερα όρια ρυθμού.<br><br><b>Πώς να αποκτήσετε:</b><br>1. Μεταβείτε στις <a href=\"https://codeberg.org/user/settings/applications\" target=\"_blank\" rel=\"noopener noreferrer\">Ρυθμίσεις Εφαρμογών Codeberg</a><br>2. Κάντε κλικ στο \"Δημιουργία νέου διακριτικού\"<br>3. Αντιγράψτε και επικολλήστε εδώ<br><i>Κρατήστε το μυστικό!</i>",
+        "message": "<b>Γιατί να προσθέσετε ένα διακριτικό Codeberg;</b><br>Το Scrum Helper λειτουργεί χωρίς διακριτικό για δημόσια έργα, αλλά ένα προσωπικό διακριτικό επιτρέπει πρόσβαση σε ιδιωτικά αποθετήρια και υψηλότερα όρια ρυθμού. Τα διακριτικά ενδέχεται να παραχωρούν ευρεία πρόσβαση στον λογαριασμό, επομένως επιλέξτε τα στενότερα απαραίτητα πεδία εφαρμογής και πρόσβαση στο αποθετήριο.<br><br><b>Πώς να αποκτήσετε:</b><br>1. Μεταβείτε στις <a href=\"https://codeberg.org/user/settings/applications\" target=\"_blank\" rel=\"noopener noreferrer\">Ρυθμίσεις Εφαρμογών Codeberg</a><br>2. Κάντε κλικ στο \"Δημιουργία νέου διακριτικού\"<br>3. Αντιγράψτε και επικολλήστε εδώ<br><i>Κρατήστε το μυστικό!</i>",
         "description": "Tooltip for Codeberg token explaining why it's needed."
     },
     "codebergApiBaseUrlLabel": {

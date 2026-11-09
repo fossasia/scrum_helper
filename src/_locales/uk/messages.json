@@ -404,7 +404,7 @@
         "description": "Placeholder for the Codeberg token input."
     },
     "codebergTokenTooltip": {
-        "message": "<b>Навіщо токен Codeberg?</b><br>Scrum Helper працює без токена для публічних проєктів, але персональний токен відкриває приватні репозиторії та вищі ліміти запитів.<br><br><b>Як отримати:</b><br>1. Перейдіть до <a href=\"https://codeberg.org/user/settings/applications\" target=\"_blank\" rel=\"noopener noreferrer\">Налаштувань додатків Codeberg</a><br>2. Натисніть \"Створити новий токен\"<br>3. Скопіюйте та вставте сюди<br><i>Тримайте його в таємниці!</i>",
+        "message": "<b>Навіщо токен Codeberg?</b><br>Scrum Helper працює без токена для публічних проєктів, але персональний токен відкриває приватні репозиторії та вищі ліміти запитів. Токени можуть надавати широкий доступ до облікового запису, тому вибирайте найвужчі необхідні області дії та доступ до репозиторіїв.<br><br><b>Як отримати:</b><br>1. Перейдіть до <a href=\"https://codeberg.org/user/settings/applications\" target=\"_blank\" rel=\"noopener noreferrer\">Налаштувань додатків Codeberg</a><br>2. Натисніть \"Створити новий токен\"<br>3. Скопіюйте та вставте сюди<br><i>Тримайте його в таємниці!</i>",
         "description": "Tooltip for Codeberg token explaining why it's needed."
     },
     "codebergApiBaseUrlLabel": {

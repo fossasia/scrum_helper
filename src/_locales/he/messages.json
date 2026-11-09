@@ -404,7 +404,7 @@
         "description": "Placeholder for the Codeberg token input."
     },
     "codebergTokenTooltip": {
-        "message": "<b>למה להוסיף טוקן של Codeberg?</b><br>Scrum Helper עובד ללא טוקן עבור פרויקטים ציבוריים, אך טוקן גישה אישי מאפשר גישה למאגרים פרטיים ומגבלות קצב טובות יותר.<br><br><b>איך להשיג:</b><br>1. עבור אל <a href=\"https://codeberg.org/user/settings/applications\" target=\"_blank\" rel=\"noopener noreferrer\">הגדרות יישומים ב-Codeberg</a><br>2. לחץ על \"צור טוקן חדש\"<br>3. העתק והדבק כאן<br><i>שמור אותו בסוד!</i>",
+        "message": "<b>למה להוסיף טוקן של Codeberg?</b><br>Scrum Helper עובד ללא טוקן עבור פרויקטים ציבוריים, אך טוקן גישה אישי מאפשר גישה למאגרים פרטיים ומגבלות קצב טובות יותר. טוקנים עשויים להעניק גישה רחבה לחשבון, לכן בחר את ההרשאות המצומצמות ביותר והגישה למאגרים הדרושה בלבד.<br><br><b>איך להשיג:</b><br>1. עבור אל <a href=\"https://codeberg.org/user/settings/applications\" target=\"_blank\" rel=\"noopener noreferrer\">הגדרות יישומים ב-Codeberg</a><br>2. לחץ על \"צור טוקן חדש\"<br>3. העתק והדבק כאן<br><i>שמור אותו בסוד!</i>",
         "description": "Tooltip for Codeberg token explaining why it's needed."
     },
     "codebergApiBaseUrlLabel": {

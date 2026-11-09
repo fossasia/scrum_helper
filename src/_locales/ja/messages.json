@@ -404,7 +404,7 @@
         "description": "Placeholder for the Codeberg token input."
     },
     "codebergTokenTooltip": {
-        "message": "<b>なぜCodebergトークンを追加するのですか？</b><br>Scrum Helperは公開プロジェクトにはトークンなしで動作しますが、個人アクセストークンを設定するとプライベートリポジトリの取得やレート制限の緩和が可能になります。<br><br><b>取得方法：</b><br>1. <a href=\"https://codeberg.org/user/settings/applications\" target=\"_blank\" rel=\"noopener noreferrer\">Codebergアプリケーション設定</a>にアクセス<br>2. 「新しいトークンを生成」をクリック<br>3. コピーしてここに貼り付け<br><i>秘密にしておいてください！</i>",
+        "message": "<b>なぜCodebergトークンを追加するのですか？</b><br>Scrum Helperは公開プロジェクトにはトークンなしで動作しますが、個人アクセストークンを設定するとプライベートリポジトリの取得やレート制限の緩和が可能になります。 トークンはアカウントへの広範なアクセスを許可する可能性があるため、必要な最小限のスコープとリポジトリアクセスを選択してください。<br><br><b>取得方法：</b><br>1. <a href=\"https://codeberg.org/user/settings/applications\" target=\"_blank\" rel=\"noopener noreferrer\">Codebergアプリケーション設定</a>にアクセス<br>2. 「新しいトークンを生成」をクリック<br>3. コピーしてここに貼り付け<br><i>秘密にしておいてください！</i>",
         "description": "Tooltip for Codeberg token explaining why it's needed."
     },
     "codebergApiBaseUrlLabel": {
@@ -599,7 +599,7 @@
         "message": "レポートがメールで正常に送信されました！"
     },
     "smtpPartialSuccess": {
-        "message": "$1/$2 件送信成功、失敗: $3 件"
+        "message": "$1/$2 件送信成功、失敗: $3"
     },
     "smtpSendFailed": {
         "message": "メールの送信に失敗しました: "

@@ -404,7 +404,7 @@
         "description": "Placeholder for the Codeberg token input."
     },
     "codebergTokenTooltip": {
-        "message": "<b>Tại sao nên thêm token Codeberg?</b><br>Scrum Helper hoạt động không cần token cho các dự án công khai, nhưng token cá nhân cho phép truy cập kho riêng tư và giới hạn tỷ lệ tốt hơn.<br><br><b>Cách lấy token:</b><br>1. Truy cập <a href=\"https://codeberg.org/user/settings/applications\" target=\"_blank\" rel=\"noopener noreferrer\">Cài đặt ứng dụng Codeberg</a><br>2. Nhấn \"Tạo token mới\"<br>3. Sao chép và dán vào đây<br><i>Hãy giữ bí mật!</i>",
+        "message": "<b>Tại sao nên thêm token Codeberg?</b><br>Scrum Helper hoạt động không cần token cho các dự án công khai, nhưng token cá nhân cho phép truy cập kho riêng tư và giới hạn tỷ lệ tốt hơn. Mã token có thể cấp quyền truy cập tài khoản rộng rãi, vì vậy hãy chọn phạm vi hẹp nhất và quyền truy cập kho lưu trữ cần thiết.<br><br><b>Cách lấy token:</b><br>1. Truy cập <a href=\"https://codeberg.org/user/settings/applications\" target=\"_blank\" rel=\"noopener noreferrer\">Cài đặt ứng dụng Codeberg</a><br>2. Nhấn \"Tạo token mới\"<br>3. Sao chép và dán vào đây<br><i>Hãy giữ bí mật!</i>",
         "description": "Tooltip for Codeberg token explaining why it's needed."
     },
     "codebergApiBaseUrlLabel": {

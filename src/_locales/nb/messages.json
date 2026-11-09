@@ -404,7 +404,7 @@
         "description": "Placeholder for the Codeberg token input."
     },
     "codebergTokenTooltip": {
-        "message": "<b>Hvorfor legge til et Codeberg-token?</b><br>Scrum Helper fungerer uten token for offentlige prosjekter, men et personlig token gir tilgang til private repos og bedre hastighetsgrenser.<br><br><b>Slik får du et:</b><br>1. Gå til <a href=\"https://codeberg.org/user/settings/applications\" target=\"_blank\" rel=\"noopener noreferrer\">Codeberg-applikasjonsinnstillinger</a><br>2. Klikk på \"Generer nytt token\"<br>3. Kopier og lim inn her<br><i>Hold det hemmelig!</i>",
+        "message": "<b>Hvorfor legge til et Codeberg-token?</b><br>Scrum Helper fungerer uten token for offentlige prosjekter, men et personlig token gir tilgang til private repos og bedre hastighetsgrenser. Tokens kan gi bred kontotilgang, så velg de smaleste nødvendige omfangene og depot-tilgangen.<br><br><b>Slik får du et:</b><br>1. Gå til <a href=\"https://codeberg.org/user/settings/applications\" target=\"_blank\" rel=\"noopener noreferrer\">Codeberg-applikasjonsinnstillinger</a><br>2. Klikk på \"Generer nytt token\"<br>3. Kopier og lim inn her<br><i>Hold det hemmelig!</i>",
         "description": "Tooltip for Codeberg token explaining why it's needed."
     },
     "codebergApiBaseUrlLabel": {

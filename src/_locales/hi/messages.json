@@ -404,7 +404,7 @@
         "description": "Placeholder for the Codeberg token input."
     },
     "codebergTokenTooltip": {
-        "message": "<b>Codeberg टोकन क्यों जोड़ें?</b><br>Scrum Helper सार्वजनिक प्रोजेक्ट्स के लिए बिना टोकन के काम करता है, लेकिन व्यक्तिगत एक्सेस टोकन निजी रिपॉजिटरी और बेहतर दर सीमाएँ सक्षम करता है।<br><br><b>टोकन कैसे प्राप्त करें:</b><br>1. <a href=\"https://codeberg.org/user/settings/applications\" target=\"_blank\" rel=\"noopener noreferrer\">Codeberg एप्लिकेशन सेटिंग्स</a> पर जाएं<br>2. \"नया टोकन उत्पन्न करें\" पर क्लिक करें<br>3. कॉपी करके यहाँ पेस्ट करें<br><i>इसे गुप्त रखें!</i>",
+        "message": "<b>Codeberg टोकन क्यों जोड़ें?</b><br>Scrum Helper सार्वजनिक प्रोजेक्ट्स के लिए बिना टोकन के काम करता है, लेकिन व्यक्तिगत एक्सेस टोकन निजी रिपॉजिटरी और बेहतर दर सीमाएँ सक्षम करता है। टोकन व्यापक खाता पहुंच प्रदान कर सकते हैं, इसलिए केवल आवश्यक न्यूनतम स्कोप और रिपॉजिटरी पहुंच का चयन करें।<br><br><b>टोकन कैसे प्राप्त करें:</b><br>1. <a href=\"https://codeberg.org/user/settings/applications\" target=\"_blank\" rel=\"noopener noreferrer\">Codeberg एप्लिकेशन सेटिंग्स</a> पर जाएं<br>2. \"नया टोकन उत्पन्न करें\" पर क्लिक करें<br>3. कॉपी करके यहाँ पेस्ट करें<br><i>इसे गुप्त रखें!</i>",
         "description": "Tooltip for Codeberg token explaining why it's needed."
     },
     "codebergApiBaseUrlLabel": {

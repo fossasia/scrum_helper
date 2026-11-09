@@ -404,7 +404,7 @@
         "description": "Placeholder for the Codeberg token input."
     },
     "codebergTokenTooltip": {
-        "message": "<b>Mengapa menambahkan token Codeberg?</b><br>Scrum Helper bekerja tanpa token untuk proyek publik, tetapi token akses pribadi memungkinkan akses ke repositori privat dan batas kuota yang lebih baik.<br><br><b>Cara mendapatkan:</b><br>1. Buka <a href=\"https://codeberg.org/user/settings/applications\" target=\"_blank\" rel=\"noopener noreferrer\">Pengaturan Aplikasi Codeberg</a><br>2. Klik \"Buat token baru\"<br>3. Salin dan tempel di sini<br><i>Jaga kerahasiaannya!</i>",
+        "message": "<b>Mengapa menambahkan token Codeberg?</b><br>Scrum Helper bekerja tanpa token untuk proyek publik, tetapi token akses pribadi memungkinkan akses ke repositori privat dan batas kuota yang lebih baik. Token dapat memberikan akses akun yang luas, jadi pilih cakupan paling sempit dan akses repositori yang diperlukan saja.<br><br><b>Cara mendapatkan:</b><br>1. Buka <a href=\"https://codeberg.org/user/settings/applications\" target=\"_blank\" rel=\"noopener noreferrer\">Pengaturan Aplikasi Codeberg</a><br>2. Klik \"Buat token baru\"<br>3. Salin dan tempel di sini<br><i>Jaga kerahasiaannya!</i>",
         "description": "Tooltip for Codeberg token explaining why it's needed."
     },
     "codebergApiBaseUrlLabel": {

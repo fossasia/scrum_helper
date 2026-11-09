@@ -404,7 +404,7 @@
         "description": "Placeholder for the Codeberg token input."
     },
     "codebergTokenTooltip": {
-        "message": "<b>എന്തുകൊണ്ട് Codeberg ടോക്കൺ ചേർക്കണം?</b><br>Scrum Helper പൊതു പ്രോജക്റ്റുകൾക്ക് ടോക്കൺ ഇല്ലാതെ പ്രവർത്തിക്കും, എന്നാൽ ഒരു സ്വകാര്യ ടോക്കൺ സ്വകാര്യ റിപ്പോസിറ്ററികൾ ആക്സസ് ചെയ്യാൻ സഹായിക്കും.<br><br><b>ലഭ്യമാക്കാൻ:</b><br>1. <a href=\"https://codeberg.org/user/settings/applications\" target=\"_blank\" rel=\"noopener noreferrer\">Codeberg ആപ്ലിക്കേഷൻ ക്രമീകരണങ്ങളിലേക്ക്</a> പോകുക<br>2. \"പുതിയ ടോക്കൺ സൃഷ്ടിക്കുക\" ക്ലിക്ക് ചെയ്യുക<br>3. ഇവിടെ പകർത്തി ഒട്ടിക്കുക<br><i>ഇത് രഹസ്യമായി സൂക്ഷിക്കുക!</i>",
+        "message": "<b>എന്തുകൊണ്ട് Codeberg ടോക്കൺ ചേർക്കണം?</b><br>Scrum Helper പൊതു പ്രോജക്റ്റുകൾക്ക് ടോക്കൺ ഇല്ലാതെ പ്രവർത്തിക്കും, എന്നാൽ ഒരു സ്വകാര്യ ടോക്കൺ സ്വകാര്യ റിപ്പോസിറ്ററികൾ ആക്സസ് ചെയ്യാൻ സഹായിക്കും. ടോക്കണുകൾ വിപുലമായ അക്കൗണ്ട് ആക്സസ് നൽകിയേക്കാം, അതിനാൽ ആവശ്യമായ ഏറ്റവും കുറഞ്ഞ സ്കോപ്പുകളും ശേഖരണ ആക്സസും മാത്രം തിരഞ്ഞെടുക്കുക.<br><br><b>ലഭ്യമാക്കാൻ:</b><br>1. <a href=\"https://codeberg.org/user/settings/applications\" target=\"_blank\" rel=\"noopener noreferrer\">Codeberg ആപ്ലിക്കേഷൻ ക്രമീകരണങ്ങളിലേക്ക്</a> പോകുക<br>2. \"പുതിയ ടോക്കൺ സൃഷ്ടിക്കുക\" ക്ലിക്ക് ചെയ്യുക<br>3. ഇവിടെ പകർത്തി ഒട്ടിക്കുക<br><i>ഇത് രഹസ്യമായി സൂക്ഷിക്കുക!</i>",
         "description": "Tooltip for Codeberg token explaining why it's needed."
     },
     "codebergApiBaseUrlLabel": {

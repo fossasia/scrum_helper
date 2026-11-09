@@ -404,7 +404,7 @@
         "description": "Placeholder for the Codeberg token input."
     },
     "codebergTokenTooltip": {
-        "message": "<b>Por que adicionar um token do Codeberg?</b><br>O Scrum Helper funciona sem token para projetos públicos, mas um token de acesso pessoal permite repositórios privados e melhores limites de taxa. Seu token fica local e só é usado para buscar seus dados do Codeberg.<br><br><b>Como obter um:</b><br>1. Acesse as <a href=\"https://codeberg.org/user/settings/applications\" target=\"_blank\" rel=\"noopener noreferrer\">Configurações de aplicativos do Codeberg</a><br>2. Clique em \"Gerar novo token\"<br>3. Copie e cole aqui<br><i>Mantenha em segredo!</i>",
+        "message": "<b>Por que adicionar um token do Codeberg?</b><br>O Scrum Helper funciona sem token para projetos públicos, mas um token de acesso pessoal permite repositórios privados e melhores limites de taxa. Seu token fica local e só é usado para buscar seus dados do Codeberg. Os tokens podem conceder amplo acesso à conta, portanto, selecione os escopos e o acesso aos repositórios mais restritos necessários.<br><br><b>Como obter um:</b><br>1. Acesse as <a href=\"https://codeberg.org/user/settings/applications\" target=\"_blank\" rel=\"noopener noreferrer\">Configurações de aplicativos do Codeberg</a><br>2. Clique em \"Gerar novo token\"<br>3. Copie e cole aqui<br><i>Mantenha em segredo!</i>",
         "description": "Tooltip for Codeberg token explaining why it's needed."
     },
     "codebergApiBaseUrlLabel": {

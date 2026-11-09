@@ -404,7 +404,7 @@
         "description": "Placeholder for the Codeberg token input."
     },
     "codebergTokenTooltip": {
-        "message": "<b>Codeberg டோக்கனை ஏன் சேர்க்க வேண்டும்?</b><br>Scrum Helper பொது திட்டங்களுக்கு டோக்கன் இல்லாமல் செயல்படும், ஆனால் தனிப்பட்ட டோக்கன் தனிப்பட்ட களஞ்சியங்களை அணுக உதவுகிறது.<br><br><b>டோக்கனை பெறுவது எப்படி:</b><br>1. <a href=\"https://codeberg.org/user/settings/applications\" target=\"_blank\" rel=\"noopener noreferrer\">Codeberg பயன்பாட்டு அமைப்புகளுக்கு</a> செல்லவும்<br>2. \"புதிய டோக்கனை உருவாக்கு\" என்பதைக் கிளிக் செய்யவும்<br>3. நகலெடுத்து இங்கே ஒட்டவும்<br><i>இதை ரகசியமாக வைத்திருங்கள்!</i>",
+        "message": "<b>Codeberg டோக்கனை ஏன் சேர்க்க வேண்டும்?</b><br>Scrum Helper பொது திட்டங்களுக்கு டோக்கன் இல்லாமல் செயல்படும், ஆனால் தனிப்பட்ட டோக்கன் தனிப்பட்ட களஞ்சியங்களை அணுக உதவுகிறது. டோக்கன்கள் பரந்த கணக்கு அணுகலை வழங்கக்கூடும், எனவே தேவையான குறுகிய நோக்கங்களையும் களஞ்சிய அணுகலையும் மட்டும் தேர்ந்தெடுக்கவும்.<br><br><b>டோக்கனை பெறுவது எப்படி:</b><br>1. <a href=\"https://codeberg.org/user/settings/applications\" target=\"_blank\" rel=\"noopener noreferrer\">Codeberg பயன்பாட்டு அமைப்புகளுக்கு</a> செல்லவும்<br>2. \"புதிய டோக்கனை உருவாக்கு\" என்பதைக் கிளிக் செய்யவும்<br>3. நகலெடுத்து இங்கே ஒட்டவும்<br><i>இதை ரகசியமாக வைத்திருங்கள்!</i>",
         "description": "Tooltip for Codeberg token explaining why it's needed."
     },
     "codebergApiBaseUrlLabel": {
