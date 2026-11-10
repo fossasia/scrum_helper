@@ -371,6 +371,10 @@ function handleReportFetchFailures(failures, allFailed = false) {
 	}
 }
 
+/**
+ * Generates a scrum report by fetching data from the configured platform.
+ * @param {string} outputTarget - Output format: 'email', 'popup', or 'download'.
+ */
 function allIncluded(outputTarget = 'email') {
 	// Always re-instantiate gitlabHelper for gitlab platform to ensure fresh cache after refresh
 	if (platform === 'gitlab' || (typeof platform === 'undefined' && window.GitLabHelper)) {
@@ -986,6 +990,10 @@ function allIncluded(outputTarget = 'email') {
 		return false;
 	}
 
+	/**
+	 * Fetches issues and pull-request reviews from the GitHub search API.
+	 * @param {boolean} shouldProcess - Whether to update the UI with progress/errors.
+	 */
 	async function fetchGithubData(shouldProcess = true) {
 		// Always load latest settings from storage
 		const settings = await new Promise((resolve) => {
