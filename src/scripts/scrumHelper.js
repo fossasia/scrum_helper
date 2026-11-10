@@ -1333,6 +1333,16 @@ function allIncluded(outputTarget = 'email') {
 				githubUserData = {};
 			}
 
+			if (githubIssuesData?.truncated || githubPrsReviewData?.truncated) {
+				const truncatedMsg =
+					chrome?.i18n.getMessage('searchResultsTruncatedWarning') ||
+					'GitHub returned incomplete or capped search results (1,000 max). Your report may be missing some activity; try a shorter date range.';
+				logError(truncatedMsg);
+				if (outputTarget === 'popup') {
+					window.scrumHelperToast?.(truncatedMsg, { duration: 6000, variant: 'error' });
+				}
+			}
+
 			if (githubIssuesData && githubIssuesData.items) {
 				log('Fetched githubIssuesData:', githubIssuesData.items.length, 'items');
 				// Collect only open PRs for commit fetching
