@@ -976,6 +976,54 @@ async function githubFetchUser(username, token) {
 	return fetch(url, { headers });
 }
 
+// GitHub search returns at most 1,000 results (10 pages of 100) per query.
+const GITHUB_SEARCH_MAX_PAGES = 10;
+const GITHUB_SEARCH_MAX_RESULTS = 1000;
+
+/**
+ * Fetches every page of a GitHub search URL (up to GitHub's 1,000-result limit).
+ * - If any page fails, that page's Response is returned unchanged so callers keep
+ *   their existing status/rate-limit handling.
+ * - Otherwise returns a 200 Response whose JSON merges all pages' items and sets
+ *   `truncated` when results are incomplete or exceed the search limit.
+ */
+async function githubFetchAllSearchPages(url, headers) {
+	const items = [];
+	let totalCount = 0;
+	let truncated = false;
+
+	for (let page = 1; page <= GITHUB_SEARCH_MAX_PAGES; page++) {
+		const res = await fetch(`${url}&page=${page}`, { headers });
+		if (!res.ok) {
+			return res;
+		}
+
+		const data = await res.json();
+		items.push(...(data.items || []));
+		totalCount = data.total_count || totalCount;
+		if (data.incomplete_results) {
+			truncated = true;
+		}
+
+		const hasNextPage = /rel="next"/.test(res.headers?.get?.('link') || '');
+		if (!hasNextPage) {
+			break;
+		}
+		if (page === GITHUB_SEARCH_MAX_PAGES) {
+			truncated = true;
+		}
+	}
+
+	if (totalCount > GITHUB_SEARCH_MAX_RESULTS) {
+		truncated = true;
+	}
+
+	return new Response(JSON.stringify({ items, total_count: totalCount, truncated }), {
+		status: 200,
+		headers: { 'Content-Type': 'application/json' },
+	});
+}
+
 async function githubFetchIssues(username, token, startDate, endDate, orgName, repoQueries) {
 	const trimmed = typeof username === 'string' ? username.trim() : '';
 	if (!trimmed) {
@@ -999,7 +1047,7 @@ async function githubFetchIssues(username, token, startDate, endDate, orgName, r
 	} else {
 		url = `https://api.github.com/search/issues?q=author%3A${encodedUser}${orgQuery}+updated%3A${startDate}..${endDate}&per_page=100`;
 	}
-	return fetch(url, { headers });
+	return githubFetchAllSearchPages(url, headers);
 }
 
 async function githubFetchReviews(username, token, startDate, endDate, orgName, repoQueries) {
@@ -1025,7 +1073,7 @@ async function githubFetchReviews(username, token, startDate, endDate, orgName, 
 	} else {
 		url = `https://api.github.com/search/issues?q=reviewed-by%3A${encodedUser}${orgQuery}+updated%3A${startDate}..${endDate}&per_page=100`;
 	}
-	return fetch(url, { headers });
+	return githubFetchAllSearchPages(url, headers);
 }
 
 async function githubFetchPullRequests(username, token, startDate, endDate, orgName, repoQueries) {
@@ -1222,6 +1270,7 @@ async function fetchIssuesFromGitHub(scope) {
 }
 
 window.githubFetchUser = githubFetchUser;
+window.githubFetchAllSearchPages = githubFetchAllSearchPages;
 window.githubFetchIssues = githubFetchIssues;
 window.githubFetchReviews = githubFetchReviews;
 window.githubFetchPrReviews = githubFetchPrReviews;
