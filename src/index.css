@@ -340,12 +340,6 @@ hr,
     transition: all 0.2s ease;
     border: none;
     cursor: pointer;
-    background: none !important;
-}
-
-#settingsToggle:hover {
-    transform: scale(1.05);
-    background: none !important;
 }
 
 #settingsToggle:active {
@@ -353,9 +347,9 @@ hr,
 }
 
 #settingsToggle img {
-    width: 28px;
-    height: 28px;
-    transition: none;
+    width: 1.3125rem;
+    height: 1.3125rem;
+    transition: transform 0.2s ease;
     filter: brightness(0.9);
 }
 
@@ -363,14 +357,6 @@ hr,
     transform: rotate(45deg);
     filter: brightness(1);
     transition: transform 0.2s ease;
-}
-
-.dark-mode #settingsToggle {
-    background: none !important;
-}
-
-.dark-mode #settingsToggle:hover {
-    background: none !important;
 }
 
 .dark-mode #settingsToggle img {
@@ -591,7 +577,10 @@ hr,
     cursor: pointer;
     display: flex;
     align-items: center;
-    font-size: 1.5rem;
+}
+
+#homeButton i {
+    font-size: 1.1875rem;
 }
 
 #homeButton:active {
