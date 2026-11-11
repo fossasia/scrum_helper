@@ -349,7 +349,7 @@ hr,
 #settingsToggle img {
     width: 1.3125rem;
     height: 1.3125rem;
-    transition: transform 0.2s ease;
+    transition: none;
     filter: brightness(0.9);
 }
 
