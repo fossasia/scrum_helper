@@ -39,6 +39,6 @@
     "vitest": "^5.1.0"
   },
   "dependencies": {
-    "@tailwindcss/cli": "^4.3.3"
+    "@tailwindcss/cli": "^4.3.5"
   }
 }
