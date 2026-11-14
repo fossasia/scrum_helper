@@ -48,3 +48,18 @@ global.browser = {
 
 global.chrome = global.browser;
 global.isTauri = false;
+
+const platformRegistryMock = {
+	registry: {},
+	register(platform, helper) {
+		this.registry[platform] = helper;
+	},
+	get(platform) {
+		return this.registry[platform];
+	},
+};
+
+global.PlatformRegistry = platformRegistryMock;
+if (typeof window !== 'undefined') {
+	window.PlatformRegistry = platformRegistryMock;
+}
