@@ -8,32 +8,87 @@ window.fetch = async function (...args) {
 		throw err;
 	}
 	const url = typeof args[0] === 'string' ? args[0] : args[0]?.url || '';
-	if (url.includes('api.github.com')) {
+	/**
+	 * Checks if a request URL matches the configured API base URL.
+	 *
+	 * @param {string} requestUrl - The request URL
+	 * @param {string} configuredBase - The configured API base URL
+	 * @returns {boolean} True if the request URL matches the base URL
+	 */
+	const matchesApiBase = (requestUrl, configuredBase) => {
+		const base = (configuredBase || '').trim().replace(/\/+$/, '');
+		return Boolean(base) && (requestUrl === base || requestUrl.startsWith(`${base}/`));
+	};
+	const isGitHub = matchesApiBase(url, 'https://api.github.com');
+	const isGitLab = matchesApiBase(url, window.gitlabBaseUrl || 'https://gitlab.com/api/v4');
+	const isCodeberg =
+		matchesApiBase(url, window.codebergApiBaseUrl || 'https://codeberg.org/api/v1') ||
+		matchesApiBase(url, 'https://codeberg.org/api/v1');
+
+	if (isGitHub || isGitLab || isCodeberg) {
 		const remaining =
 			typeof res.headers?.get === 'function'
-				? res.headers.get('x-ratelimit-remaining')
-				: res.headers?.['x-ratelimit-remaining'];
+				? res.headers.get('x-ratelimit-remaining') ||
+					res.headers.get('ratelimit-remaining') ||
+					res.headers.get('RateLimit-Remaining')
+				: res.headers?.['x-ratelimit-remaining'] ||
+					res.headers?.['ratelimit-remaining'] ||
+					res.headers?.['RateLimit-Remaining'];
+		const retryAfter =
+			typeof res.headers?.get === 'function'
+				? res.headers.get('retry-after') || res.headers.get('Retry-After')
+				: res.headers?.['retry-after'] || res.headers?.['Retry-After'];
 		const is429 = res.status === 429;
 		const isZeroRemaining = remaining === '0' || remaining === 0;
-		if (res.status === 403 || is429 || isZeroRemaining) {
-			let isRateLimit = is429 || isZeroRemaining;
+		const hasRetryAfter = Boolean(retryAfter);
+		if (res.status === 403 || is429 || isZeroRemaining || hasRetryAfter) {
+			let isRateLimit = is429 || isZeroRemaining || hasRetryAfter;
 			try {
 				const clone = res.clone();
 				const data = await clone.json();
-				if (data && data.message && data.message.toLowerCase().includes('rate limit')) {
+				if (
+					data &&
+					data.message &&
+					typeof data.message === 'string' &&
+					data.message.toLowerCase().includes('rate limit')
+				) {
 					isRateLimit = true;
 				}
 			} catch (e) {
 				// Ignore clone/json parsing issues
 			}
 			if (isRateLimit) {
-				window.githubRateLimitExceeded = true;
-				if (!rateLimitWarningShown) {
+				const targetPlatform = isGitLab ? 'GitLab' : isCodeberg ? 'Codeberg' : 'GitHub';
+				const platformChanged = window.rateLimitPlatform !== targetPlatform;
+				if (platformChanged) {
+					window.rateLimitResetTime = null;
+				}
+				window.rateLimitPlatform = targetPlatform;
+				if (isGitHub) {
+					window.githubRateLimitExceeded = true;
+				}
+				const resetDate =
+					typeof window.rateLimitUtils?.getRateLimitResetTime === 'function'
+						? window.rateLimitUtils.getRateLimitResetTime(res)
+						: null;
+				window.rateLimitResetTimes = window.rateLimitResetTimes || {};
+				if (resetDate) {
+					window.rateLimitResetTimes[targetPlatform] = resetDate;
+					window.rateLimitResetTime = resetDate;
+				}
+				const effectiveResetDate =
+					resetDate ||
+					(!platformChanged ? window.rateLimitResetTime : null) ||
+					window.rateLimitResetTimes[targetPlatform] ||
+					null;
+				if (!rateLimitWarningShown || platformChanged) {
 					rateLimitWarningShown = true;
-					window.showRateLimitWarning?.();
+					window.showRateLimitWarning?.(effectiveResetDate, targetPlatform);
 					setTimeout(() => {
 						rateLimitWarningShown = false;
 					}, 6000);
+				} else if (effectiveResetDate && typeof window.showRateLimitWarning === 'function') {
+					window.showRateLimitWarning(effectiveResetDate, targetPlatform);
 				}
 			}
 		}
@@ -252,11 +307,23 @@ function showReportMessage(message) {
 	window.scrumHelperToast?.(message, { duration: 2000, variant: 'error' });
 }
 
+/**
+ * Checks whether an error is a username validation failure.
+ *
+ * @param {Error|Object} err - Error object to inspect
+ * @returns {boolean} True if error is a username validation error
+ */
 function isUsernameValidationError(err) {
 	if (!err) return false;
 	return err.code === 'USERNAME_VALIDATION';
 }
 
+/**
+ * Extracts the platform identifier ('github', 'gitlab', 'codeberg') from an error.
+ *
+ * @param {Error|Object|string} err - Error or message to extract platform from
+ * @returns {string|null} Platform identifier or null if not identified
+ */
 function getFailurePlatform(err) {
 	if (err?.platform) return err.platform;
 	const msg = (typeof err === 'string' ? err : err?.message || '').toLowerCase();
@@ -266,6 +333,13 @@ function getFailurePlatform(err) {
 	return null;
 }
 
+/**
+ * Handles UI updates and styling when username validation fails.
+ *
+ * @param {string} errMessage - Primary error message
+ * @param {string|Array<string>|null} [platformName=null] - Affected platform name(s)
+ * @param {string} [toastMessage=errMessage] - Message to display in toast notification
+ */
 function handleUsernameValidationError(errMessage, platformName = null, toastMessage = errMessage) {
 	let targetPlatforms = [];
 	if (Array.isArray(platformName)) {
@@ -347,7 +421,56 @@ function handleUsernameValidationError(errMessage, platformName = null, toastMes
 }
 window.handleUsernameValidationError = handleUsernameValidationError;
 
+/**
+ * Determines if a report fetch failure is due to an API rate limit.
+ *
+ * @param {Error|Object} f - Failure error or object
+ * @returns {boolean} True if failure is due to a rate limit
+ */
+function isRateLimitFailure(f) {
+	if (!f) return false;
+	if (f.rateLimited || f.status === 429) return true;
+	const msg = String(f.message || f || '');
+	if (/\b429\b/.test(msg) || /rate limit/i.test(msg)) return true;
+	if (window.githubRateLimitExceeded && (/github/i.test(msg) || f.platform === 'GitHub' || f.platform === 'github')) {
+		return true;
+	}
+	return false;
+}
+
+/**
+ * Handles report fetch failures across platforms, displaying rate-limit or error messages.
+ *
+ * @param {Array<Error|Object>} failures - Array of rejected reasons
+ * @param {boolean} [allFailed=false] - Whether all platform fetches failed
+ */
 function handleReportFetchFailures(failures, allFailed = false) {
+	const rateLimitFailure = failures.find(isRateLimitFailure);
+	if (rateLimitFailure && allFailed) {
+		const targetPlatform =
+			rateLimitFailure.platformName ||
+			(rateLimitFailure.platform === 'gitlab'
+				? 'GitLab'
+				: rateLimitFailure.platform === 'codeberg'
+					? 'Codeberg'
+					: rateLimitFailure.platform === 'github'
+						? 'GitHub'
+						: window.rateLimitPlatform || 'GitHub');
+		const resetTime =
+			rateLimitFailure.resetTime !== undefined
+				? rateLimitFailure.resetTime
+				: window.rateLimitResetTimes?.[targetPlatform] || null;
+		const rateLimitMsg =
+			typeof window.rateLimitUtils?.getRateLimitMessage === 'function'
+				? window.rateLimitUtils.getRateLimitMessage(resetTime, {
+						platform: targetPlatform,
+						type: 'error',
+					})
+				: chrome?.i18n.getMessage('rateLimitError') ||
+					`${targetPlatform} API rate limit exceeded. Please try again later.`;
+		showReportMessage(rateLimitMsg);
+		return;
+	}
 	const usernameFailures = failures.filter(isUsernameValidationError);
 	const otherFailures = failures.filter((f) => !isUsernameValidationError(f));
 	const usernameMessages = usernameFailures.map((f) => f?.message).filter(Boolean);
@@ -381,6 +504,9 @@ function allIncluded(outputTarget = 'email') {
 	}
 	scrumGenerationInProgress = true;
 	window.githubRateLimitExceeded = false;
+	window.rateLimitResetTime = null;
+	window.rateLimitPlatform = null;
+	window.rateLimitResetTimes = {};
 	rateLimitWarningShown = false;
 	console.log('allIncluded called with outputTarget:', outputTarget);
 
@@ -700,81 +826,118 @@ function allIncluded(outputTarget = 'email') {
 					try {
 						const settled = await Promise.allSettled(
 							platformsToFetch.map(async (p) => {
-								const user = getUsernameForPlatform(p);
-								if (p === 'github') {
-									platformUsernameLocal = user;
-									platformUsernames.github = user;
-									const data = await fetchGithubData(false);
-									const issues = data?.githubIssuesData?.items || [];
-									const prReviews = data?.githubPrsReviewData?.items || [];
-									issues.forEach((it) => {
-										it._platform = 'github';
-									});
-									prReviews.forEach((it) => {
-										it._platform = 'github';
-									});
-									return {
-										platform: 'github',
-										authored: issues,
-										reviewed: prReviews,
-										user: data?.githubUserData || null,
-									};
-								}
-								if (p === 'gitlab') {
-									if (!window.gitlabHelper) {
-										window.gitlabHelper = new window.GitLabHelper(window.gitlabBaseUrl);
+								try {
+									const user = getUsernameForPlatform(p);
+									if (p === 'github') {
+										platformUsernameLocal = user;
+										platformUsernames.github = user;
+										const data = await fetchGithubData(false);
+										const issues = data?.githubIssuesData?.items || [];
+										const prReviews = data?.githubPrsReviewData?.items || [];
+										const hasData = issues.length > 0 || prReviews.length > 0;
+										if (data?._rateLimited) {
+											githubCache.data = null;
+											if (!hasData) {
+												const err = new Error('GitHub API rate limit exceeded');
+												err.platform = 'github';
+												err.platformName = 'GitHub';
+												err.rateLimited = true;
+												err.resetTime = window.rateLimitResetTimes?.GitHub || null;
+												throw err;
+											}
+											window.showRateLimitWarning?.(window.rateLimitResetTimes?.GitHub || null, 'GitHub');
+										}
+										issues.forEach((it) => {
+											it._platform = 'github';
+										});
+										prReviews.forEach((it) => {
+											it._platform = 'github';
+										});
+										return {
+											platform: 'github',
+											authored: issues,
+											reviewed: prReviews,
+											user: data?.githubUserData || null,
+										};
 									}
-									const raw = await window.gitlabHelper.fetchGitLabData(
-										user,
-										startingDate,
-										endingDate,
-										items.gitlabToken || gitlabToken,
-										items.gitlabGroupName || '',
-									);
-									const mapped = window.gitlabHelper.mapGitLabReportData(raw);
-									const issues = mapped?.githubIssuesData?.items || [];
-									const mrs = mapped?.githubPrsReviewData?.items || [];
-									issues.forEach((it) => {
-										it._platform = 'gitlab';
-									});
-									mrs.forEach((it) => {
-										it._platform = 'gitlab';
-									});
-									return {
-										platform: 'gitlab',
-										authored: [...issues, ...mrs],
-										reviewed: [],
-										user: mapped?.githubUserData || null,
-									};
-								}
-								if (p === 'codeberg') {
-									if (!window.codebergHelper) {
-										window.codebergHelper = new window.CodebergHelper(window.codebergApiBaseUrl);
+									if (p === 'gitlab') {
+										if (!window.gitlabHelper) {
+											window.gitlabHelper = new window.GitLabHelper(window.gitlabBaseUrl);
+										}
+										const raw = await window.gitlabHelper.fetchGitLabData(
+											user,
+											startingDate,
+											endingDate,
+											items.gitlabToken || gitlabToken,
+											items.gitlabGroupName || '',
+										);
+										const mapped = window.gitlabHelper.mapGitLabReportData(raw);
+										const issues = mapped?.githubIssuesData?.items || [];
+										const mrs = mapped?.githubPrsReviewData?.items || [];
+										issues.forEach((it) => {
+											it._platform = 'gitlab';
+										});
+										mrs.forEach((it) => {
+											it._platform = 'gitlab';
+										});
+										return {
+											platform: 'gitlab',
+											authored: [...issues, ...mrs],
+											reviewed: [],
+											user: mapped?.githubUserData || null,
+										};
 									}
-									const raw = await window.codebergHelper.fetchCodebergData(
-										user,
-										startingDate,
-										endingDate,
-										items.codebergToken || codebergToken,
-										showCommits,
-									);
-									const mapped = window.codebergHelper.mapCodebergReportData(raw);
-									const issues = mapped?.githubIssuesData?.items || [];
-									const prs = mapped?.githubPrsReviewData?.items || [];
-									issues.forEach((it) => {
-										it._platform = 'codeberg';
-									});
-									prs.forEach((it) => {
-										it._platform = 'codeberg';
-									});
-									return {
-										platform: 'codeberg',
-										authored: [...issues, ...prs],
-										reviewed: [],
-										user: mapped?.githubUserData || null,
-									};
+									if (p === 'codeberg') {
+										if (!window.codebergHelper) {
+											window.codebergHelper = new window.CodebergHelper(window.codebergApiBaseUrl);
+										}
+										const raw = await window.codebergHelper.fetchCodebergData(
+											user,
+											startingDate,
+											endingDate,
+											items.codebergToken || codebergToken,
+											showCommits,
+										);
+										const mapped = window.codebergHelper.mapCodebergReportData(raw);
+										const issues = mapped?.githubIssuesData?.items || [];
+										const prs = mapped?.githubPrsReviewData?.items || [];
+										issues.forEach((it) => {
+											it._platform = 'codeberg';
+										});
+										prs.forEach((it) => {
+											it._platform = 'codeberg';
+										});
+										return {
+											platform: 'codeberg',
+											authored: [...issues, ...prs],
+											reviewed: [],
+											user: mapped?.githubUserData || null,
+										};
+									}
+									return { platform: p, authored: [], reviewed: [], user: null };
+								} catch (err) {
+									if (err) {
+										const platformName = p === 'gitlab' ? 'GitLab' : p === 'codeberg' ? 'Codeberg' : 'GitHub';
+										err.platform = err.platform || p;
+										err.platformName = platformName;
+										const msg = String(err.message || '');
+										const platformRateLimited = Boolean(
+											window.rateLimitResetTimes && platformName in window.rateLimitResetTimes,
+										);
+										if (
+											err.status === 429 ||
+											/\b429\b/.test(msg) ||
+											/rate limit/i.test(msg) ||
+											(p === 'github' && window.githubRateLimitExceeded) ||
+											platformRateLimited ||
+											err.rateLimited
+										) {
+											err.rateLimited = true;
+											err.resetTime = err.resetTime || window.rateLimitResetTimes?.[platformName] || null;
+										}
+									}
+									throw err;
 								}
-								return { platform: p, authored: [], reviewed: [], user: null };
 							}),
 						);
 
@@ -972,20 +1135,51 @@ function allIncluded(outputTarget = 'email') {
 		});
 	}
 
+	/**
+	 * Determines if an HTTP response represents a rate limit exceeded error (403 with 0 remaining, or 429).
+	 * Extracts and caches the reset time when available.
+	 *
+	 * @param {Response} res - Fetch response object
+	 * @returns {boolean} True if response is rate-limited
+	 */
 	function isRateLimitResponse(res) {
 		if (!res || res.ok) return false;
 		if (window.githubRateLimitExceeded) return true;
-		if (res.status === 429) return true;
+		const is429 = res.status === 429;
+		let isLimit = is429;
 		if (res.status === 403) {
 			const remaining =
 				typeof res.headers?.get === 'function'
 					? res.headers.get('x-ratelimit-remaining')
 					: res.headers?.['x-ratelimit-remaining'] || res.headers?.['X-RateLimit-Remaining'];
-			if (remaining === '0' || remaining === 0) return true;
+			const retryAfter =
+				typeof res.headers?.get === 'function'
+					? res.headers.get('retry-after') || res.headers.get('Retry-After')
+					: res.headers?.['retry-after'] || res.headers?.['Retry-After'];
+			if (remaining === '0' || remaining === 0 || Boolean(retryAfter)) isLimit = true;
+		}
+		if (isLimit) {
+			const resetDate =
+				typeof window.rateLimitUtils?.getRateLimitResetTime === 'function'
+					? window.rateLimitUtils.getRateLimitResetTime(res)
+					: null;
+			window.rateLimitResetTimes = window.rateLimitResetTimes || {};
+			if (resetDate) {
+				window.rateLimitResetTimes.GitHub = resetDate;
+				window.rateLimitResetTime = resetDate;
+				window.rateLimitPlatform = 'GitHub';
+			}
+			return true;
 		}
 		return false;
 	}
 
+	/**
+	 * Fetches GitHub issues, PR reviews, and user data for the current user and date range.
+	 *
+	 * @param {boolean} [shouldProcess=true] - Whether to process and render the fetched data immediately
+	 * @returns {Promise<Object>} Object containing githubIssuesData, githubPrsReviewData, and githubUserData
+	 */
 	async function fetchGithubData(shouldProcess = true) {
 		// Always load latest settings from storage
 		const settings = await new Promise((resolve) => {
@@ -1157,7 +1351,10 @@ function allIncluded(outputTarget = 'email') {
 
 			if (isRateLimitResponse(userCheckRes)) {
 				window.githubRateLimitExceeded = true;
-				window.showRateLimitWarning?.();
+				const githubResetTime =
+					window.rateLimitResetTimes?.GitHub ||
+					(window.rateLimitPlatform === 'GitHub' ? window.rateLimitResetTime : null);
+				window.showRateLimitWarning?.(githubResetTime, 'GitHub');
 			} else if (!userCheckRes.ok && !window.githubRateLimitExceeded) {
 				const errorMsg =
 					chrome?.i18n.getMessage('githubUserValidationError', [userCheckRes.status, userCheckRes.statusText]) ||
@@ -1234,9 +1431,14 @@ function allIncluded(outputTarget = 'email') {
 				}
 			}
 
-			if (isRateLimitResponse(issuesRes) || isRateLimitResponse(prRes)) {
+			const fetchRateLimited =
+				isRateLimitResponse(issuesRes) || isRateLimitResponse(prRes) || isRateLimitResponse(userRes);
+			if (fetchRateLimited) {
 				window.githubRateLimitExceeded = true;
-				window.showRateLimitWarning?.();
+				const githubResetTime =
+					window.rateLimitResetTimes?.GitHub ||
+					(window.rateLimitPlatform === 'GitHub' ? window.rateLimitResetTime : null);
+				window.showRateLimitWarning?.(githubResetTime, 'GitHub');
 			}
 
 			if (issuesRes.status === 422 || prRes.status === 422) {
@@ -1370,21 +1572,32 @@ function allIncluded(outputTarget = 'email') {
 				}
 			}
 
-			// Cache the data
-			githubCache.data = { githubIssuesData, githubPrsReviewData, githubUserData };
-			githubCache.timestamp = Date.now();
+			// Cache the data if not rate-limited
+			if (fetchRateLimited) {
+				githubCache.data = null;
+			} else {
+				githubCache.data = { githubIssuesData, githubPrsReviewData, githubUserData };
+				githubCache.timestamp = Date.now();
+				await saveToStorage(githubCache.data);
+			}
 
-			await saveToStorage(githubCache.data);
+			const resultData = {
+				githubIssuesData,
+				githubPrsReviewData,
+				githubUserData,
+				_rateLimited: fetchRateLimited,
+			};
+
 			if (shouldProcess) {
-				processGithubData(githubCache.data);
+				processGithubData(githubCache.data || resultData);
 			}
 
 			githubCache.queue.forEach(({ resolve }) => {
-				resolve(githubCache.data);
+				resolve(resultData);
 			});
 			githubCache.queue = [];
-			fetchPromiseResolve?.(githubCache.data);
-			return githubCache.data;
+			fetchPromiseResolve?.(resultData);
+			return resultData;
 		} catch (err) {
 			logError('Fetch Failed:', err);
 			// Reject queued calls on error
@@ -1541,10 +1754,21 @@ function allIncluded(outputTarget = 'email') {
 		}
 	}
 
+	/**
+	 * Displays an API rate limit error message with dynamic reset countdown in the scrum report view.
+	 *
+	 * @param {boolean} [shouldProcess=true] - Whether to render message into output target
+	 */
 	function showRateLimitMessage(shouldProcess = true) {
+		const targetPlatform = window.rateLimitPlatform || (typeof platform !== 'undefined' && platform) || 'GitHub';
 		const errMsg =
-			chrome?.i18n.getMessage('rateLimitError') ||
-			'GitHub API rate limit exceeded. Please try again later or add/check your GitHub token in the Scrum Helper settings.';
+			typeof window.rateLimitUtils?.getRateLimitMessage === 'function'
+				? window.rateLimitUtils.getRateLimitMessage(window.rateLimitResetTime, {
+						platform: targetPlatform,
+						type: 'error',
+					})
+				: chrome?.i18n.getMessage('rateLimitError') ||
+					`${targetPlatform} API rate limit exceeded. Please try again later or add/check your ${targetPlatform} token in the Scrum Helper settings.`;
 		if (outputTarget === 'popup' && shouldProcess) {
 			if (scrumReportEl) {
 				showReportMessage(errMsg);

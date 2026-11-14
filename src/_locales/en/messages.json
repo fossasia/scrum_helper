@@ -606,9 +606,27 @@
     "message": "GitHub API rate limit exceeded. Please try again later or add/check your GitHub token in the Scrum Helper settings.",
     "description": "Error shown when GitHub API rate limit is exceeded."
   },
+  "rateLimitErrorWithReset": {
+    "message": "GitHub API rate limit exceeded. Quota resets $COUNTDOWN$. Please add or check your GitHub token in the Scrum Helper settings.",
+    "description": "Error shown when GitHub API rate limit is exceeded with reset time.",
+    "placeholders": {
+      "countdown": {
+        "content": "$1"
+      }
+    }
+  },
   "rateLimitWarningMessage": {
     "message": "Some data may be missing due to GitHub rate limit. Please add or check your GitHub token in settings.",
     "description": "Warning message shown below buttons when rate limit is exceeded."
+  },
+  "rateLimitWarningWithReset": {
+    "message": "Some data may be missing due to GitHub rate limit. Quota resets $COUNTDOWN$. Please add or check your GitHub token in settings.",
+    "description": "Warning message shown below buttons when rate limit is exceeded with reset countdown.",
+    "placeholders": {
+      "countdown": {
+        "content": "$1"
+      }
+    }
   },
   "includeBlockersLabel": {
     "message": "Include blockers in the report",
