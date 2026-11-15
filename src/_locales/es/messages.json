@@ -343,5 +343,322 @@
     },
     "rateLimitWarningMessage": {
         "message": "Es posible que falten algunos datos debido al límite de velocidad de GitHub. Añada o verifique su token de GitHub en la configuración."
+    },
+    "projectNameTooltip": {
+        "message": "Este nombre de proyecto aparecerá en la línea de asunto de su correo electrónico como parte de: \"[Scrum] Nombre del proyecto - Fecha\". Déjelo en blanco para omitirlo.",
+        "description": "Tooltip explaining how the project name is used in the email subject."
+    },
+    "gitlabUsernamePlaceholder": {
+        "message": "Requerido para obtener sus contribuciones",
+        "description": "Placeholder text for the GitLab username input."
+    },
+    "codebergUsernameLabel": {
+        "message": "Su nombre de usuario de Codeberg",
+        "description": "Label for the Codeberg username input field."
+    },
+    "codebergUsernamePlaceholder": {
+        "message": "Requerido para obtener sus contribuciones",
+        "description": "Placeholder text for the Codeberg username input."
+    },
+    "dropdownGithubUsernamePlaceholder": {
+        "message": "Nombre de usuario de GitHub",
+        "description": "Placeholder text for the GitHub username dropdown input."
+    },
+    "dropdownGitlabUsernamePlaceholder": {
+        "message": "Nombre de usuario de GitLab",
+        "description": "Placeholder text for the GitLab username dropdown input."
+    },
+    "dropdownCodebergUsernamePlaceholder": {
+        "message": "Nombre de usuario de Codeberg",
+        "description": "Placeholder text for the Codeberg username dropdown input."
+    },
+    "showOpenClosedTooltip": {
+        "message": "Si está marcado, el informe mostrará etiquetas de estado para PR e issues (ej., Abierto, Borrador, Fusionado, Cerrado)."
+    },
+    "advancedFiltersLabel": {
+        "message": "Opciones avanzadas",
+        "description": "Heading for the advanced report options."
+    },
+    "orgNameTooltip": {
+        "message": "¿Actividad de GitHub de qué organización? Ingrese el nombre de la organización de GitHub para obtener las actividades. Déjelo vacío para obtener todas sus actividades de GitHub en todas las organizaciones. Se pueden separar múltiples organizaciones por comas (ej. fossasia, google). El nombre de la organización no distingue mayúsculas de minúsculas.",
+        "description": "Tooltip explaining the GitHub organization filter."
+    },
+    "gitlabOrgNamePlaceholder": {
+        "message": "Ingrese el nombre del grupo",
+        "description": "Placeholder for the GitLab group name input."
+    },
+    "settingsGroupNameLabel": {
+        "message": "Nombre de su grupo",
+        "description": "Label for the GitLab group name input."
+    },
+    "gitlabOrgNameTooltip": {
+        "message": "¿Actividad de GitLab de qué grupo? Ingrese el nombre del grupo de GitLab para obtener las actividades. Déjelo vacío para obtener todas sus actividades de GitLab en todos los grupos. Se pueden separar múltiples grupos por comas. El nombre del grupo no distingue mayúsculas de minúsculas.",
+        "description": "Tooltip explaining the GitLab group filter."
+    },
+    "codebergTokenLabel": {
+        "message": "Su token de Codeberg",
+        "description": "Label for the Codeberg token input."
+    },
+    "codebergTokenPlaceholder": {
+        "message": "Requerido para acceder a proyectos privados",
+        "description": "Placeholder for the Codeberg token input."
+    },
+    "codebergTokenTooltip": {
+        "message": "<b>¿Por qué agregar un token de Codeberg?</b><br>Scrum Helper funciona sin token para proyectos públicos, pero un token de acceso personal permite repositorios privados y mejores límites de tasa. Su token permanece local y solo se usa para obtener sus datos de Codeberg. Los tokens pueden otorgar un acceso amplio a la cuenta, así que seleccione los alcances más estrechos y el acceso al repositorio necesario.<br><br><b>Cómo obtener uno:</b><br>1. Vaya a la <a href=\"https://codeberg.org/user/settings/applications\" target=\"_blank\" rel=\"noopener noreferrer\">Configuración de aplicaciones de Codeberg</a><br>2. Haga clic en \"Generar nuevo token\"<br>3. Cópielo y péguelo aquí<br><i>¡Manténgalo en secreto!</i>",
+        "description": "Tooltip for Codeberg token explaining why it's needed."
+    },
+    "codebergApiBaseUrlLabel": {
+        "message": "URL base de la API de Codeberg",
+        "description": "Label for the Codeberg API Base URL input."
+    },
+    "codebergApiBaseUrlPlaceholder": {
+        "message": "https://codeberg.org/api/v1",
+        "description": "Placeholder for the Codeberg API Base URL input."
+    },
+    "showCommitsTooltipGitLab": {
+        "message": "Se requiere un token de GitLab, agréguelo en la configuración."
+    },
+    "showCommitsTooltipCodeberg": {
+        "message": "Se requiere un token de Codeberg, agréguelo en la configuración."
+    },
+    "cacheTTLTooltip": {
+        "message": "Almacenamos en caché los datos para evitar llamadas redundantes. Por defecto, la caché expira después de 10 minutos, puede cambiarlo aquí al tiempo que desee. Hemos proporcionado un botón de actualización de caché por si desea obtener datos nuevos ahora mismo.",
+        "description": "Tooltip explaining cache lifetime and manual refresh."
+    },
+    "tokenRequiredGitlabWarning": {
+        "message": "Se requiere un token de GitLab para el filtrado de repositorios. Agregue uno en la configuración.",
+        "description": "Warning message shown when GitLab repo filtering is enabled without a token."
+    },
+    "tokenRequiredNextPlansWarning": {
+        "message": "Se requiere un token de GitHub para obtener los issues asignados. Agregue uno en la configuración.",
+        "description": "Warning message shown when next plans is enabled without a token."
+    },
+    "tokenRequiredNextPlansWarningCodeberg": {
+        "message": "Se requiere un token de Codeberg para obtener los issues asignados. Agregue uno en la configuración.",
+        "description": "Warning message shown when next plans is enabled without a token on Codeberg."
+    },
+    "tokenRequiredNextPlansWarningGitLab": {
+        "message": "Se requiere un token de GitLab para obtener los issues asignados. Agregue uno en la configuración.",
+        "description": "Warning message shown when next plans is enabled without a token on GitLab."
+    },
+    "onlyPrsRequiredShowCommitsWarning": {
+        "message": "Marque el filtro 'Incluir PR abiertas/borradores en el informe' para mostrar commits."
+    },
+    "regenerateNoticeText": {
+        "message": "Opción cambiada. Vuelva a generar el informe para aplicar los cambios."
+    },
+    "tokenRequiredShowCommitsWarningGitLab": {
+        "message": "Se requiere un token de GitLab para mostrar commits en MR abiertas o borradores. Agregue uno en la configuración.",
+        "description": "Warning message shown when show commits is enabled without a token."
+    },
+    "tokenRequiredShowCommitsWarningCodeberg": {
+        "message": "Se requiere un token de Codeberg para mostrar commits en PR abiertas o borradores. Agregue uno en la configuración.",
+        "description": "Warning message shown when show commits is enabled without a token on Codeberg."
+    },
+    "selectPlatformPlaceholder": {
+        "message": "Seleccionar plataforma",
+        "description": "Placeholder text displayed when no platform is selected."
+    },
+    "selectPlatformWarning": {
+        "message": "Por favor, seleccione una plataforma primero",
+        "description": "Warning message when trying to generate report without selecting any platform."
+    },
+    "githubUsernameRequiredError": {
+        "message": "Por favor, ingrese su nombre de usuario de GitHub",
+        "description": "Error shown when GitHub username is missing."
+    },
+    "gitlabUsernameRequiredError": {
+        "message": "Por favor, ingrese su nombre de usuario de GitLab",
+        "description": "Error shown when GitLab username is missing."
+    },
+    "codebergUsernameRequiredError": {
+        "message": "Por favor, ingrese su nombre de usuario de Codeberg",
+        "description": "Error shown when Codeberg username is missing."
+    },
+    "errorLabel": {
+        "message": "Error",
+        "description": "Prefix for repository fetch error messages; punctuation is added by the caller."
+    },
+    "codebergUserFetchError": {
+        "message": "Error al obtener el usuario de Codeberg: $1 $2",
+        "description": "Error when fetching Codeberg user fails. $1=status, $2=statusText"
+    },
+    "codebergUserNotFoundError": {
+        "message": "Usuario de Codeberg \"$1\" no encontrado.",
+        "description": "Error when Codeberg user is not found. $1=username"
+    },
+    "codebergUserValidationError": {
+        "message": "Error al validar el usuario de Codeberg: $1 $2",
+        "description": "Error when validating Codeberg user fails. $1=status, $2=statusText"
+    },
+    "reportAlreadyInserted": {
+        "message": "¡Informe ya insertado!",
+        "description": "Notification shown when the report has already been inserted in the current session."
+    },
+    "includeBlockersLabel": {
+        "message": "Incluir bloqueos en el informe",
+        "description": "Label for checkbox to include blockers in the scrum report."
+    },
+    "includeBlockersTooltip": {
+        "message": "Si está marcado, el informe incluirá la sección de bloqueos.",
+        "description": "Tooltip text explaining the include blockers option."
+    },
+    "includeNextPlansLabel": {
+        "message": "Incluir issues abiertos asignados en la pregunta 2 del correo",
+        "description": "Label for checkbox to include next plans in second question of report."
+    },
+    "includeNextPlansTooltip": {
+        "message": "Selecciónelos y agréguelos a la pregunta 2 en el correo. Se requiere un token de GitHub.",
+        "description": "Tooltip text explaining the include next plans option."
+    },
+    "includeNextPlansTooltipCodeberg": {
+        "message": "Selecciónelos y agréguelos a la pregunta 2 en el correo. Se requiere un token de Codeberg.",
+        "description": "Tooltip text explaining the include next plans option for Codeberg."
+    },
+    "includeNextPlansTooltipGitLab": {
+        "message": "Selecciónelos y agréguelos a la pregunta 2 en el correo. Se requiere un token de GitLab.",
+        "description": "Tooltip text explaining the include next plans option on GitLab."
+    },
+    "fetchingIssuesSpinner": {
+        "message": "Obteniendo sus issues asignados...",
+        "description": "Loading message shown when fetching assigned issues."
+    },
+    "noIssuesFound": {
+        "message": "No se encontraron issues abiertos asignados",
+        "description": "Empty state message for assigned issues."
+    },
+    "githubTokenRequiredNextPlans": {
+        "message": "Se requiere un token de GitHub para obtener los issues asignados. Agregue uno en la configuración.",
+        "description": "Error message when no token is present."
+    },
+    "gitlabTokenRequiredNextPlans": {
+        "message": "Se requiere un token de GitLab para obtener los issues asignados. Agregue uno en la configuración.",
+        "description": "Error message when no token is present on GitLab."
+    },
+    "failedToFetchIssues": {
+        "message": "Error al obtener los issues asignados.",
+        "description": "Error message when fetching fails."
+    },
+    "repoFilterTooltip": {
+        "message": "Se requiere un token de GitHub.<br>Para forzar una actualización de la lista de repositorios,<br>haga clic en el botón Actualizar datos.",
+        "description": "Tooltip message displayed for GitHub repository filter option."
+    },
+    "repoFilterTooltipGitLab": {
+        "message": "Se requiere un token de GitLab.<br>Para forzar una actualización de la lista de repositorios,<br>haga clic en el botón Actualizar datos.",
+        "description": "Tooltip message displayed for GitLab repository filter option."
+    },
+    "smtpSenderEmailLabel": {
+        "message": "Correo del remitente"
+    },
+    "smtpSenderEmailPlaceholder": {
+        "message": "remitente@example.com"
+    },
+    "smtpHostLabel": {
+        "message": "Servidor SMTP"
+    },
+    "smtpHostPlaceholder": {
+        "message": "smtp.example.com"
+    },
+    "smtpPortLabel": {
+        "message": "Puerto SMTP"
+    },
+    "smtpPortPlaceholder": {
+        "message": "587"
+    },
+    "smtpUsernameLabel": {
+        "message": "Usuario SMTP"
+    },
+    "smtpUsernamePlaceholder": {
+        "message": "usuario@example.com"
+    },
+    "smtpPasswordLabel": {
+        "message": "Contraseña SMTP"
+    },
+    "smtpPasswordPlaceholder": {
+        "message": "Ingrese su contraseña SMTP"
+    },
+    "smtpRecipientsLabel": {
+        "message": "Destinatarios"
+    },
+    "smtpRecipientsPlaceholder": {
+        "message": "destinatario1@example.com, destinatario2@example.com"
+    },
+    "smtpGmailHint": {
+        "message": "Para Gmail, debe usar una contraseña de aplicación, no su contraseña habitual."
+    },
+    "smtpSecurityWarning": {
+        "message": "Nota: Su contraseña se almacena en el almacenamiento local sin cifrar. Asegúrese de que su dispositivo sea seguro."
+    },
+    "smtpMissingFieldsError": {
+        "message": "Por favor, configure todos los ajustes de correo primero."
+    },
+    "smtpInvalidEmailError": {
+        "message": "Dirección de correo electrónico no válida: $1"
+    },
+    "smtpSendSuccess": {
+        "message": "¡Informe enviado con éxito por correo electrónico!"
+    },
+    "smtpPartialSuccess": {
+        "message": "Enviado a $1/$2; falló: $3"
+    },
+    "smtpSendFailed": {
+        "message": "Error al enviar el correo electrónico: "
+    },
+    "smtpSendError": {
+        "message": "Ocurrió un error: "
+    },
+    "sendingButton": {
+        "message": "Enviando..."
+    },
+    "sendEmailButton": {
+        "message": "Enviar correo"
+    },
+    "mailSettingsTitle": {
+        "message": "Configuración de correo"
+    },
+    "sentButton": {
+        "message": "Enviado"
+    },
+    "homeTitle": {
+        "message": "Inicio"
+    },
+    "settingsTitle": {
+        "message": "Configuración"
+    },
+    "extensionSettingsHeading": {
+        "message": "Configuración de la extensión",
+        "description": "Heading for general extension settings section."
+    },
+    "displayModeLabel": {
+        "message": "Modo de visualización",
+        "description": "Label for the extension display mode selector."
+    },
+    "displayModeTooltip": {
+        "message": "Elija cómo se abre Scrum Helper al hacer clic en su icono. El panel lateral lo mantiene acoplado junto a su página. La ventana emergente abre una ventana flotante.",
+        "description": "Tooltip explaining side panel and popup display modes."
+    },
+    "smtpSenderEmailTooltip": {
+        "message": "La dirección de correo electrónico desde la cual se enviará el informe (ej. su dirección de correo)."
+    },
+    "smtpHostTooltip": {
+        "message": "La dirección de su servidor SMTP (ej. smtp.gmail.com o smtp.mail.yahoo.com)."
+    },
+    "smtpPortTooltip": {
+        "message": "El número de puerto utilizado por su servidor SMTP. Normalmente 465 (para SSL) o 587 (para TLS/STARTTLS)."
+    },
+    "smtpUsernameTooltip": {
+        "message": "El nombre de usuario o correo de inicio de sesión para su servidor SMTP."
+    },
+    "smtpPasswordTooltip": {
+        "message": "La contraseña o contraseña específica de aplicación utilizada para autenticarse con su servidor SMTP. ADVERTENCIA: Se almacena en almacenamiento local sin cifrar."
+    },
+    "smtpRecipientsTooltip": {
+        "message": "Una lista de direcciones de correo electrónico de destinatarios separadas por comas (ej. destinatario1@example.com, destinatario2@example.com)."
+    },
+    "smtpPresetsLabel": {
+        "message": "Ajustes predefinidos rápidos"
+    },
+    "smtpPresetsTooltip": {
+        "message": "Seleccione un ajuste predefinido para configurar automáticamente el servidor y puerto SMTP para servicios de correo comunes."
     }
 }
