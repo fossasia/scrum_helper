@@ -269,6 +269,9 @@
     "githubUserValidationError": {
         "message": "שגיאה באימות משתמש GitHub: $1 $2"
     },
+    "invalidOrgOrRepoFilterError": {
+        "message": "הארגון או המאגרים אינם נגישים – בדקו את שם הארגון, מסנן המאגרים והרשאות האסימון."
+    },
     "invalidSearchQueryError": {
         "message": "שאילתת חיפוש או טווח תאריכים לא תקינים. אנא בדוק את פורמט טווח התאריכים ונסה שוב."
     },

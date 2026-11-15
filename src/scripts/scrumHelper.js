@@ -1279,7 +1279,7 @@ function allIncluded(outputTarget = 'email') {
 				}
 				const errorMsg = isScopeNotSearchable
 					? chrome?.i18n.getMessage('invalidOrgOrRepoFilterError') ||
-						'The selected organization or repositories could not be found or are not accessible. Please check the organization name and repository filter, or your token permissions.'
+						'Organization or repositories inaccessible - verify the Org name, Repo filter, and token permissions.'
 					: chrome?.i18n.getMessage('invalidSearchQueryError') ||
 						`Invalid search query or date range. Please verify your date range format and try again.`;
 				logError(errorMsg);

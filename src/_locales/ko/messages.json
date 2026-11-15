@@ -314,6 +314,9 @@
   "githubUserValidationError": {
     "message": "GitHub 사용자 확인 중 오류가 발생했습니다: $1 $2"
   },
+  "invalidOrgOrRepoFilterError": {
+    "message": "조직 또는 저장소에 접근할 수 없습니다. 조직 이름, 저장소 필터, 토큰 권한을 확인하세요."
+  },
   "invalidSearchQueryError": {
     "message": "잘못된 검색 쿼리 또는 날짜 범위입니다. 날짜 범위 형식을 확인하고 다시 시도하세요."
   },

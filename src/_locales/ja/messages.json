@@ -269,6 +269,9 @@
     "githubUserValidationError": {
         "message": "GitHubユーザーの検証中にエラーが発生しました: $1 $2"
     },
+    "invalidOrgOrRepoFilterError": {
+        "message": "組織またはリポジトリにアクセスできません。組織名、リポジトリフィルター、トークンの権限を確認してください。"
+    },
     "invalidSearchQueryError": {
         "message": "無効な検索クエリまたは日付範囲です。日付範囲の形式を確認して再試行してください。"
     },

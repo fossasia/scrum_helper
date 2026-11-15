@@ -269,6 +269,9 @@
     "githubUserValidationError": {
         "message": "Kesalahan saat memvalidasi pengguna GitHub: $1 $2"
     },
+    "invalidOrgOrRepoFilterError": {
+        "message": "Organisasi atau repositori tidak dapat diakses - periksa nama organisasi, filter repositori, dan izin token."
+    },
     "invalidSearchQueryError": {
         "message": "Kueri pencarian atau rentang tanggal tidak valid. Silakan periksa format rentang tanggal Anda dan coba lagi."
     },
