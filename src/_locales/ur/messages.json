@@ -538,5 +538,101 @@
   },
   "smtpPresetsTooltip": {
     "message": "مشہور ای میل سروسز کے لیے ایس ایم ٹی پی ہوسٹ اور پورٹ خود بخود منتخب کریں۔"
+  },
+  "projectNameTooltip": {
+    "message": "یہ پروجیکٹ نام آپ کی ای میل کے موضوع میں اس طرح ظاہر ہوگا: \"[Scrum] پروجیکٹ کا نام - تاریخ\"۔ چھوڑنے کے لیے خالی رکھیں۔",
+    "description": "Tooltip explaining how the project name is used in the email subject."
+  },
+  "gitlabUsernamePlaceholder": {
+    "message": "آپ کے تعاون حاصل کرنے کے لیے ضروری ہے",
+    "description": "Placeholder text for the GitLab username input."
+  },
+  "dropdownGithubUsernamePlaceholder": {
+    "message": "GitHub صارف نام",
+    "description": "Placeholder text for the GitHub username dropdown input."
+  },
+  "dropdownGitlabUsernamePlaceholder": {
+    "message": "GitLab صارف نام",
+    "description": "Placeholder text for the GitLab username dropdown input."
+  },
+  "dropdownCodebergUsernamePlaceholder": {
+    "message": "Codeberg صارف نام",
+    "description": "Placeholder text for the Codeberg username dropdown input."
+  },
+  "advancedFiltersLabel": {
+    "message": "اعلی درجے کے اختیارات",
+    "description": "Heading for the advanced report options."
+  },
+  "orgNameTooltip": {
+    "message": "کس تنظیم کی GitHub سرگرمی؟ سرگرمیاں حاصل کرنے کے لیے GitHub تنظیم کا نام درج کریں۔ تمام تنظیموں کے لیے خالی چھوڑ دیں۔",
+    "description": "Tooltip explaining the GitHub organization filter."
+  },
+  "settingsGroupNameLabel": {
+    "message": "آپ کے گروپ کا نام",
+    "description": "Label for the GitLab group name input."
+  },
+  "gitlabOrgNameTooltip": {
+    "message": "کس گروپ کی GitLab سرگرمی؟ GitLab گروپ کا نام درج کریں۔ سب کے لیے خالی چھوڑ دیں۔",
+    "description": "Tooltip explaining the GitLab group filter."
+  },
+  "cacheTTLTooltip": {
+    "message": "غیر ضروری کالز سے بچنے کے لیے ہم ڈیٹا کیش کرتے ہیں۔ پہلے سے طے شدہ طور پر کیش 10 منٹ بعد ختم ہو جاتا ہے۔",
+    "description": "Tooltip explaining cache lifetime and manual refresh."
+  },
+  "tokenRequiredNextPlansWarningCodeberg": {
+    "message": "تفویض کردہ مسائل حاصل کرنے کے لیے Codeberg ٹوکن درکار ہے۔ براہ کرم ترتیبات میں شامل کریں۔",
+    "description": "Warning message shown when next plans is enabled without a token on Codeberg."
+  },
+  "selectPlatformPlaceholder": {
+    "message": "پلیٹ فارم منتخب کریں",
+    "description": "Placeholder text displayed when no platform is selected."
+  },
+  "selectPlatformWarning": {
+    "message": "براہ کرم پہلے ایک پلیٹ فارم منتخب کریں",
+    "description": "Warning message when trying to generate report without selecting any platform."
+  },
+  "githubUsernameRequiredError": {
+    "message": "براہ کرم اپنا GitHub صارف نام درج کریں",
+    "description": "Error shown when GitHub username is missing."
+  },
+  "gitlabUsernameRequiredError": {
+    "message": "براہ کرم اپنا GitLab صارف نام درج کریں",
+    "description": "Error shown when GitLab username is missing."
+  },
+  "codebergUsernameRequiredError": {
+    "message": "براہ کرم اپنا Codeberg صارف نام درج کریں",
+    "description": "Error shown when Codeberg username is missing."
+  },
+  "errorLabel": {
+    "message": "خرابی",
+    "description": "Prefix for repository fetch error messages; punctuation is added by the caller."
+  },
+  "codebergUserFetchError": {
+    "message": "Codeberg صارف حاصل کرنے میں خرابی: $1 $2",
+    "description": "Error when fetching Codeberg user fails. $1=status, $2=statusText"
+  },
+  "codebergUserNotFoundError": {
+    "message": "Codeberg صارف \"$1\" نہیں ملا۔",
+    "description": "Error when Codeberg user is not found. $1=username"
+  },
+  "codebergUserValidationError": {
+    "message": "Codeberg صارف کی تصدیق میں خرابی: $1 $2",
+    "description": "Error when validating Codeberg user fails. $1=status, $2=statusText"
+  },
+  "includeNextPlansTooltipCodeberg": {
+    "message": "منتخب کریں اور ای میل میں سوال 2 میں شامل کریں۔ Codeberg ٹوکن درکار ہے۔",
+    "description": "Tooltip text explaining the include next plans option for Codeberg."
+  },
+  "extensionSettingsHeading": {
+    "message": "توسیع کی ترتیبات",
+    "description": "Heading for general extension settings section."
+  },
+  "displayModeLabel": {
+    "message": "ڈسپلے موڈ",
+    "description": "Label for the extension display mode selector."
+  },
+  "displayModeTooltip": {
+    "message": "منتخب کریں کہ آئیکن پر کلک کرنے پر Scrum Helper کیسے کھلتا ہے۔ سائیڈ پینل اسے صفحے کے ساتھ رکھتا ہے۔ پاپ اپ ایک تیرتی ہوئی ونڈو کھولتا ہے۔",
+    "description": "Tooltip explaining side panel and popup display modes."
   }
 }

@@ -604,5 +604,13 @@
     },
     "smtpPresetsTooltip": {
         "message": "选择预设以自动配置常用电子邮件服务的 SMTP 主机和端口设置。"
+    },
+    "tokenRequiredNextPlansWarningCodeberg": {
+        "message": "需要 Codeberg 令牌来获取分配的议题。请在设置中添加。",
+        "description": "Warning message shown when next plans is enabled without a token on Codeberg."
+    },
+    "includeNextPlansTooltipCodeberg": {
+        "message": "选择并将它们添加到邮件的问题 2 中。需要 Codeberg 令牌。",
+        "description": "Tooltip text explaining the include next plans option for Codeberg."
     }
 }

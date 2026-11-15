@@ -343,5 +343,322 @@
     },
     "rateLimitWarningMessage": {
         "message": "Некоторые данные могут отсутствовать из-за ограничения лимита запросов GitHub. Пожалуйста, добавьте или проверьте ваш токен GitHub в настройках."
+    },
+    "projectNameTooltip": {
+        "message": "Название проекта появится в теме письма: \"[Scrum] Название проекта - Дата\". Оставьте пустым, чтобы пропустить.",
+        "description": "Tooltip explaining how the project name is used in the email subject."
+    },
+    "gitlabUsernamePlaceholder": {
+        "message": "Требуется для получения вашего вклада",
+        "description": "Placeholder text for the GitLab username input."
+    },
+    "codebergUsernameLabel": {
+        "message": "Имя пользователя Codeberg",
+        "description": "Label for the Codeberg username input field."
+    },
+    "codebergUsernamePlaceholder": {
+        "message": "Требуется для получения вашего вклада",
+        "description": "Placeholder text for the Codeberg username input."
+    },
+    "dropdownGithubUsernamePlaceholder": {
+        "message": "Имя пользователя GitHub",
+        "description": "Placeholder text for the GitHub username dropdown input."
+    },
+    "dropdownGitlabUsernamePlaceholder": {
+        "message": "Имя пользователя GitLab",
+        "description": "Placeholder text for the GitLab username dropdown input."
+    },
+    "dropdownCodebergUsernamePlaceholder": {
+        "message": "Имя пользователя Codeberg",
+        "description": "Placeholder text for the Codeberg username dropdown input."
+    },
+    "showOpenClosedTooltip": {
+        "message": "Если отмечено, в отчете будут отображаться метки статуса PR и задач (напр., Открыт, Черновик, Объединен, Закрыт)."
+    },
+    "advancedFiltersLabel": {
+        "message": "Расширенные параметры",
+        "description": "Heading for the advanced report options."
+    },
+    "orgNameTooltip": {
+        "message": "Активность какой организации? Введите название организации GitHub. Оставьте пустым для получения активности по всем организациям. Несколько организаций можно разделить запятыми (напр., fossasia, google). Регистр не учитывается.",
+        "description": "Tooltip explaining the GitHub organization filter."
+    },
+    "gitlabOrgNamePlaceholder": {
+        "message": "Введите название группы",
+        "description": "Placeholder for the GitLab group name input."
+    },
+    "settingsGroupNameLabel": {
+        "message": "Название вашей группы",
+        "description": "Label for the GitLab group name input."
+    },
+    "gitlabOrgNameTooltip": {
+        "message": "Активность какой группы GitLab? Введите название группы GitLab. Оставьте пустым для всех групп. Несколько групп можно разделить запятыми.",
+        "description": "Tooltip explaining the GitLab group filter."
+    },
+    "codebergTokenLabel": {
+        "message": "Ваш токен Codeberg",
+        "description": "Label for the Codeberg token input."
+    },
+    "codebergTokenPlaceholder": {
+        "message": "Требуется для доступа к приватным проектам",
+        "description": "Placeholder for the Codeberg token input."
+    },
+    "codebergTokenTooltip": {
+        "message": "<b>Зачем токен Codeberg?</b><br>Scrum Helper работает без токена для публичных проектов, но персональный токен доступа открывает приватные репозитории и повышает лимиты запросов.<br><br><b>Как получить:</b><br>1. Откройте <a href=\"https://codeberg.org/user/settings/applications\" target=\"_blank\" rel=\"noopener noreferrer\">Настройки приложений Codeberg</a><br>2. Нажмите \"Создать новый токен\"<br>3. Скопируйте и вставьте сюда<br><i>Храните его в секрете!</i>",
+        "description": "Tooltip for Codeberg token explaining why it's needed."
+    },
+    "codebergApiBaseUrlLabel": {
+        "message": "Базовый URL API Codeberg",
+        "description": "Label for the Codeberg API Base URL input."
+    },
+    "codebergApiBaseUrlPlaceholder": {
+        "message": "https://codeberg.org/api/v1",
+        "description": "Placeholder for the Codeberg API Base URL input."
+    },
+    "showCommitsTooltipGitLab": {
+        "message": "Требуется токен GitLab, добавьте его в настройках."
+    },
+    "showCommitsTooltipCodeberg": {
+        "message": "Требуется токен Codeberg, добавьте его в настройках."
+    },
+    "cacheTTLTooltip": {
+        "message": "Мы кэшируем данные во избежание лишних вызовов. По умолчанию срок кэша — 10 минут. Вы можете обновить кэш вручную соответствующей кнопкой.",
+        "description": "Tooltip explaining cache lifetime and manual refresh."
+    },
+    "tokenRequiredGitlabWarning": {
+        "message": "Для фильтрации репозиториев требуется токен GitLab. Пожалуйста, добавьте его в настройках.",
+        "description": "Warning message shown when GitLab repo filtering is enabled without a token."
+    },
+    "tokenRequiredNextPlansWarning": {
+        "message": "Для получения назначенных задач требуется токен GitHub. Добавьте его в настройках.",
+        "description": "Warning message shown when next plans is enabled without a token."
+    },
+    "tokenRequiredNextPlansWarningCodeberg": {
+        "message": "Для получения назначенных задач требуется токен Codeberg. Добавьте его в настройках.",
+        "description": "Warning message shown when next plans is enabled without a token on Codeberg."
+    },
+    "tokenRequiredNextPlansWarningGitLab": {
+        "message": "Для получения назначенных задач требуется токен GitLab. Добавьте его в настройках.",
+        "description": "Warning message shown when next plans is enabled without a token on GitLab."
+    },
+    "onlyPrsRequiredShowCommitsWarning": {
+        "message": "Отметьте 'Включать открытые/черновые PR в отчет', чтобы отображать коммиты."
+    },
+    "regenerateNoticeText": {
+        "message": "Параметры изменены. Пожалуйста, перегенерируйте отчет."
+    },
+    "tokenRequiredShowCommitsWarningGitLab": {
+        "message": "Для отображения коммитов в открытых/черновых MR требуется токен GitLab.",
+        "description": "Warning message shown when show commits is enabled without a token."
+    },
+    "tokenRequiredShowCommitsWarningCodeberg": {
+        "message": "Для отображения коммитов в открытых/черновых PR требуется токен Codeberg.",
+        "description": "Warning message shown when show commits is enabled without a token on Codeberg."
+    },
+    "selectPlatformPlaceholder": {
+        "message": "Выберите платформу",
+        "description": "Placeholder text displayed when no platform is selected."
+    },
+    "selectPlatformWarning": {
+        "message": "Пожалуйста, сначала выберите платформу",
+        "description": "Warning message when trying to generate report without selecting any platform."
+    },
+    "githubUsernameRequiredError": {
+        "message": "Пожалуйста, введите имя пользователя GitHub",
+        "description": "Error shown when GitHub username is missing."
+    },
+    "gitlabUsernameRequiredError": {
+        "message": "Пожалуйста, введите имя пользователя GitLab",
+        "description": "Error shown when GitLab username is missing."
+    },
+    "codebergUsernameRequiredError": {
+        "message": "Пожалуйста, введите имя пользователя Codeberg",
+        "description": "Error shown when Codeberg username is missing."
+    },
+    "errorLabel": {
+        "message": "Ошибка",
+        "description": "Prefix for repository fetch error messages; punctuation is added by the caller."
+    },
+    "codebergUserFetchError": {
+        "message": "Ошибка получения пользователя Codeberg: $1 $2",
+        "description": "Error when fetching Codeberg user fails. $1=status, $2=statusText"
+    },
+    "codebergUserNotFoundError": {
+        "message": "Пользователь Codeberg \"$1\" не найден.",
+        "description": "Error when Codeberg user is not found. $1=username"
+    },
+    "codebergUserValidationError": {
+        "message": "Ошибка валидации пользователя Codeberg: $1 $2",
+        "description": "Error when validating Codeberg user fails. $1=status, $2=statusText"
+    },
+    "reportAlreadyInserted": {
+        "message": "Отчет уже вставлен!",
+        "description": "Notification shown when the report has already been inserted in the current session."
+    },
+    "includeBlockersLabel": {
+        "message": "Включить блокеры в отчет",
+        "description": "Label for checkbox to include blockers in the scrum report."
+    },
+    "includeBlockersTooltip": {
+        "message": "Если отмечено, отчет будет содержать раздел блокеров.",
+        "description": "Tooltip text explaining the include blockers option."
+    },
+    "includeNextPlansLabel": {
+        "message": "Включить назначенные открытые задачи в вопрос 2 письма",
+        "description": "Label for checkbox to include next plans in second question of report."
+    },
+    "includeNextPlansTooltip": {
+        "message": "Выберите и добавьте их к вопросу 2. Требуется токен GitHub.",
+        "description": "Tooltip text explaining the include next plans option."
+    },
+    "includeNextPlansTooltipCodeberg": {
+        "message": "Выберите и добавьте их к вопросу 2. Требуется токен Codeberg.",
+        "description": "Tooltip text explaining the include next plans option for Codeberg."
+    },
+    "includeNextPlansTooltipGitLab": {
+        "message": "Выберите и добавьте их к вопросу 2. Требуется токен GitLab.",
+        "description": "Tooltip text explaining the include next plans option on GitLab."
+    },
+    "fetchingIssuesSpinner": {
+        "message": "Получение назначенных задач...",
+        "description": "Loading message shown when fetching assigned issues."
+    },
+    "noIssuesFound": {
+        "message": "Назначенных открытых задач не найдено",
+        "description": "Empty state message for assigned issues."
+    },
+    "githubTokenRequiredNextPlans": {
+        "message": "Для получения назначенных задач требуется токен GitHub. Добавьте его в настройках.",
+        "description": "Error message when no token is present."
+    },
+    "gitlabTokenRequiredNextPlans": {
+        "message": "Для получения назначенных задач требуется токен GitLab. Добавьте его в настройках.",
+        "description": "Error message when no token is present on GitLab."
+    },
+    "failedToFetchIssues": {
+        "message": "Не удалось получить назначенные задачи.",
+        "description": "Error message when fetching fails."
+    },
+    "repoFilterTooltip": {
+        "message": "Требуется токен GitHub.<br>Для обновления списка репозиториев<br>нажмите 'Обновить данные'.",
+        "description": "Tooltip message displayed for GitHub repository filter option."
+    },
+    "repoFilterTooltipGitLab": {
+        "message": "Требуется токен GitLab.<br>Для обновления списка репозиториев<br>нажмите 'Обновить данные'.",
+        "description": "Tooltip message displayed for GitLab repository filter option."
+    },
+    "smtpSenderEmailLabel": {
+        "message": "Email отправителя"
+    },
+    "smtpSenderEmailPlaceholder": {
+        "message": "sender@example.com"
+    },
+    "smtpHostLabel": {
+        "message": "SMTP-хост"
+    },
+    "smtpHostPlaceholder": {
+        "message": "smtp.example.com"
+    },
+    "smtpPortLabel": {
+        "message": "SMTP-порт"
+    },
+    "smtpPortPlaceholder": {
+        "message": "587"
+    },
+    "smtpUsernameLabel": {
+        "message": "Имя пользователя SMTP"
+    },
+    "smtpUsernamePlaceholder": {
+        "message": "username@example.com"
+    },
+    "smtpPasswordLabel": {
+        "message": "Пароль SMTP"
+    },
+    "smtpPasswordPlaceholder": {
+        "message": "Введите пароль SMTP"
+    },
+    "smtpRecipientsLabel": {
+        "message": "Получатели"
+    },
+    "smtpRecipientsPlaceholder": {
+        "message": "recipient1@example.com, recipient2@example.com"
+    },
+    "smtpGmailHint": {
+        "message": "Для Gmail используйте пароль приложения, а не обычный пароль."
+    },
+    "smtpSecurityWarning": {
+        "message": "Примечание: ваш пароль хранится в открытом виде в локальном хранилище. Обеспечьте безопасность устройства."
+    },
+    "smtpMissingFieldsError": {
+        "message": "Сначала настройте все параметры почты."
+    },
+    "smtpInvalidEmailError": {
+        "message": "Неверный адрес email: $1"
+    },
+    "smtpSendSuccess": {
+        "message": "Отчет успешно отправлен по email!"
+    },
+    "smtpPartialSuccess": {
+        "message": "Отправлено $1/$2; не удалось: $3"
+    },
+    "smtpSendFailed": {
+        "message": "Не удалось отправить email: "
+    },
+    "smtpSendError": {
+        "message": "Произошла ошибка: "
+    },
+    "sendingButton": {
+        "message": "Отправка..."
+    },
+    "sendEmailButton": {
+        "message": "Отправить email"
+    },
+    "mailSettingsTitle": {
+        "message": "Настройки почты"
+    },
+    "sentButton": {
+        "message": "Отправлено"
+    },
+    "homeTitle": {
+        "message": "Главная"
+    },
+    "settingsTitle": {
+        "message": "Настройки"
+    },
+    "extensionSettingsHeading": {
+        "message": "Настройки расширения",
+        "description": "Heading for general extension settings section."
+    },
+    "displayModeLabel": {
+        "message": "Режим отображения",
+        "description": "Label for the extension display mode selector."
+    },
+    "displayModeTooltip": {
+        "message": "Выберите способ открытия Scrum Helper. Боковая панель оставляет его закрепленным рядом. Всплывающее окно открывает плавающее окно.",
+        "description": "Tooltip explaining side panel and popup display modes."
+    },
+    "smtpSenderEmailTooltip": {
+        "message": "Адрес электронной почты, с которого отправляется отчет."
+    },
+    "smtpHostTooltip": {
+        "message": "Адрес вашего SMTP-сервера (напр., smtp.gmail.com)."
+    },
+    "smtpPortTooltip": {
+        "message": "Номер порта SMTP-сервера (обычно 465 или 587)."
+    },
+    "smtpUsernameTooltip": {
+        "message": "Имя пользователя или логин для SMTP-сервера."
+    },
+    "smtpPasswordTooltip": {
+        "message": "Пароль для аутентификации на SMTP-сервере. ВНИМАНИЕ: хранится без шифрования."
+    },
+    "smtpRecipientsTooltip": {
+        "message": "Список адресов получателей через запятую."
+    },
+    "smtpPresetsLabel": {
+        "message": "Быстрые пресеты"
+    },
+    "smtpPresetsTooltip": {
+        "message": "Выберите пресет для автоматической настройки SMTP-сервера."
     }
 }
