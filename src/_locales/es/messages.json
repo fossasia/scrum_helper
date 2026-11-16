@@ -269,6 +269,9 @@
     "githubUserValidationError": {
         "message": "Error al validar el usuario de GitHub: $1 $2"
     },
+    "invalidOrgOrRepoFilterError": {
+        "message": "Organización o repositorios inaccesibles: verifica el nombre de la organización, el filtro de repositorios y los permisos del token."
+    },
     "invalidSearchQueryError": {
         "message": "Consulta de búsqueda o rango de fechas no válido. Por favor, verifique el formato de su rango de fechas e inténtelo de nuevo."
     },

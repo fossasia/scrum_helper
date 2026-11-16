@@ -269,6 +269,9 @@
     "githubUserValidationError": {
         "message": "Errore durante la convalida dell'utente GitHub: $1 $2"
     },
+    "invalidOrgOrRepoFilterError": {
+        "message": "Organizzazione o repository non accessibili - verifica il nome dell'organizzazione, il filtro dei repository e le autorizzazioni del token."
+    },
     "invalidSearchQueryError": {
         "message": "Query di ricerca o intervallo di date non valido. Verifica il formato dell'intervallo di date e riprova."
     },

@@ -269,6 +269,9 @@
     "githubUserValidationError": {
         "message": "Lỗi khi xác thực người dùng GitHub: $1 $2"
     },
+    "invalidOrgOrRepoFilterError": {
+        "message": "Không thể truy cập tổ chức hoặc kho lưu trữ - hãy kiểm tra tên tổ chức, bộ lọc kho lưu trữ và quyền của token."
+    },
     "invalidSearchQueryError": {
         "message": "Truy vấn tìm kiếm hoặc khoảng ngày không hợp lệ. Vui lòng kiểm tra định dạng và thử lại."
     },

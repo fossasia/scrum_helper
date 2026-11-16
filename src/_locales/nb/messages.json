@@ -269,6 +269,9 @@
     "githubUserValidationError": {
         "message": "Feil ved validering av GitHub-bruker: $1 $2"
     },
+    "invalidOrgOrRepoFilterError": {
+        "message": "Organisasjonen eller repositoriene er ikke tilgjengelige – kontroller organisasjonsnavnet, repository-filteret og token-tillatelsene."
+    },
     "invalidSearchQueryError": {
         "message": "Ugyldig søkespørring eller datoperiode. Sjekk formatet og prøv igjen."
     },

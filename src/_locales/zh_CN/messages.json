@@ -371,6 +371,9 @@
     "githubUserValidationError": {
         "message": "验证 GitHub 用户时出错：$1 $2"
     },
+    "invalidOrgOrRepoFilterError": {
+        "message": "无法访问组织或仓库 - 请检查组织名称、仓库筛选条件和令牌权限。"
+    },
     "invalidSearchQueryError": {
         "message": "搜索查询或日期范围无效。请检查日期范围格式后重试。"
     },
