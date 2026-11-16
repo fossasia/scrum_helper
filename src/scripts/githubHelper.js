@@ -287,6 +287,7 @@ function buildGithubOrgQuery(orgStr) {
 
 window.parseGithubOrgs = parseGithubOrgs;
 window.buildGithubOrgQuery = buildGithubOrgQuery;
+window.makeRepoCacheKey = makeRepoCacheKey;
 
 function makeRepoCacheKey(username, orgName, platform, storageItems) {
 	const normalizedOrgs = parseGithubOrgs(orgName).sort().join(',');
@@ -1229,6 +1230,12 @@ window.githubFetchCommits = githubFetchCommits;
 window.githubFetchPrMergedStatusREST = githubFetchPrMergedStatusREST;
 window.githubValidateOrgOnBlur = validateOrgOnBlur;
 window.githubValidateToken = githubValidateToken;
+window.fetchIssuesFromGitHub = fetchIssuesFromGitHub;
+window.checkTokenForShowCommits = checkTokenForShowCommits;
+window.checkTokenForNextPlans = checkTokenForNextPlans;
+window.checkTokenForMergedPRs = checkTokenForMergedPRs;
+window.checkTokenForFilter = checkTokenForFilter;
+window.forceGithubDataRefresh = forceGithubDataRefresh;
 
 if (window.PlatformRegistry) {
 	window.PlatformRegistry.register('github', {
