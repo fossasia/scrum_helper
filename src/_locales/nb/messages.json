@@ -272,6 +272,9 @@
     "invalidOrgOrRepoFilterError": {
         "message": "Organisasjonen eller repositoriene er ikke tilgjengelige – kontroller organisasjonsnavnet, repository-filteret og token-tillatelsene."
     },
+    "searchResultsTruncatedWarning": {
+        "message": "GitHub returnerte ufullstendige eller begrensede søkeresultater (maks. 1 000). Rapporten din kan mangle noe aktivitet; prøv en kortere datoperiode."
+    },
     "invalidSearchQueryError": {
         "message": "Ugyldig søkespørring eller datoperiode. Sjekk formatet og prøv igjen."
     },
