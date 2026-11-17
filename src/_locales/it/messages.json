@@ -272,6 +272,9 @@
     "invalidOrgOrRepoFilterError": {
         "message": "Organizzazione o repository non accessibili - verifica il nome dell'organizzazione, il filtro dei repository e le autorizzazioni del token."
     },
+    "searchResultsTruncatedWarning": {
+        "message": "GitHub ha restituito risultati di ricerca incompleti o limitati (max 1.000). Nel tuo report potrebbe mancare qualche attività; prova un intervallo di date più breve."
+    },
     "invalidSearchQueryError": {
         "message": "Query di ricerca o intervallo di date non valido. Verifica il formato dell'intervallo di date e riprova."
     },
