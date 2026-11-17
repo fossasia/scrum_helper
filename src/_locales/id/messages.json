@@ -272,6 +272,9 @@
     "invalidOrgOrRepoFilterError": {
         "message": "Organisasi atau repositori tidak dapat diakses - periksa nama organisasi, filter repositori, dan izin token."
     },
+    "searchResultsTruncatedWarning": {
+        "message": "GitHub mengembalikan hasil pencarian yang tidak lengkap atau dibatasi (maks. 1.000). Laporan Anda mungkin kehilangan sebagian aktivitas; coba rentang tanggal yang lebih pendek."
+    },
     "invalidSearchQueryError": {
         "message": "Kueri pencarian atau rentang tanggal tidak valid. Silakan periksa format rentang tanggal Anda dan coba lagi."
     },
