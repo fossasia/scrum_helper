@@ -374,6 +374,9 @@
     "invalidOrgOrRepoFilterError": {
         "message": "无法访问组织或仓库 - 请检查组织名称、仓库筛选条件和令牌权限。"
     },
+    "searchResultsTruncatedWarning": {
+        "message": "GitHub 返回的搜索结果不完整或已达上限(最多 1,000 条)。您的报告可能缺少部分活动;请尝试更短的日期范围。"
+    },
     "invalidSearchQueryError": {
         "message": "搜索查询或日期范围无效。请检查日期范围格式后重试。"
     },
