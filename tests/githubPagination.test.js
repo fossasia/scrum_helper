@@ -5,7 +5,7 @@ const URL = 'https://api.github.com/search/issues?q=author:octocat&per_page=100'
 const headers = { Accept: 'application/vnd.github.v3+json' };
 
 function makeItems(start, count) {
-	return Array.from({ length: count }, (_, i) => ({ number: start + i }));
+	return Array.from({ length: count }, (_, i) => ({ id: start + i, number: start + i }));
 }
 
 function pageResponse(body, { next = false, status = 200 } = {}) {
@@ -54,16 +54,27 @@ describe('githubFetchAllSearchPages', () => {
 		expect(fetchMock).toHaveBeenLastCalledWith(`${URL}&page=2`, { headers });
 	});
 
-	it('should return a failing later page unchanged', async () => {
-		const failure = pageResponse({ message: 'API rate limit exceeded' }, { status: 403 });
+	it('should keep earlier pages and flag truncation when a later page fails', async () => {
 		fetchMock
 			.mockResolvedValueOnce(pageResponse({ items: makeItems(1, 100), total_count: 150 }, { next: true }))
-			.mockResolvedValueOnce(failure);
+			.mockResolvedValueOnce(pageResponse({ message: 'API rate limit exceeded' }, { status: 403 }));
 
 		const res = await window.githubFetchAllSearchPages(URL, headers);
+		const data = await res.json();
 
-		expect(res).toBe(failure);
-		expect(res.status).toBe(403);
+		expect(res.ok).toBe(true);
+		expect(data.items).toHaveLength(100);
+		expect(data.truncated).toBe(true);
+	});
+
+	it('should de-duplicate items that shift between pages', async () => {
+		fetchMock
+			.mockResolvedValueOnce(pageResponse({ items: makeItems(1, 100), total_count: 101 }, { next: true }))
+			.mockResolvedValueOnce(pageResponse({ items: makeItems(100, 2), total_count: 101 }));
+
+		const data = await (await window.githubFetchAllSearchPages(URL, headers)).json();
+
+		expect(data.items.map((i) => i.id)).toEqual(Array.from({ length: 101 }, (_, i) => i + 1));
 	});
 
 	it('should return a failing first page unchanged', async () => {
@@ -90,7 +101,7 @@ describe('githubFetchAllSearchPages', () => {
 		fetchMock.mockImplementation(async (url) => {
 			const page = Number(new globalThis.URL(url).searchParams.get('page'));
 			return pageResponse(
-				{ items: makeItems((page - 1) * 100 + 1, 100), total_count: 1500 },
+				{ items: makeItems((page - 1) * 100 + 1, 100), total_count: 1000 },
 				{ next: true },
 			);
 		});
@@ -103,11 +114,17 @@ describe('githubFetchAllSearchPages', () => {
 	});
 });
 
-describe('githubFetchIssues / githubFetchReviews', () => {
+describe.each([
+	['githubFetchIssues', 'author%3Aoctocat'],
+	['githubFetchReviews', 'reviewed-by%3Aoctocat'],
+])('%s', (fnName, qualifier) => {
 	beforeEach(() => {
 		vi.stubGlobal(
 			'fetch',
-			vi.fn().mockResolvedValue(pageResponse({ items: makeItems(1, 2), total_count: 2 })),
+			vi
+				.fn()
+				.mockResolvedValueOnce(pageResponse({ items: makeItems(1, 100), total_count: 101 }, { next: true }))
+				.mockResolvedValueOnce(pageResponse({ items: makeItems(101, 1), total_count: 101 })),
 		);
 	});
 
@@ -115,19 +132,14 @@ describe('githubFetchIssues / githubFetchReviews', () => {
 		vi.unstubAllGlobals();
 	});
 
-	it('should paginate the authored search', async () => {
-		const res = await window.githubFetchIssues('octocat', 'tok', '2026-01-01', '2026-01-31');
+	it('should request every page of the search and merge the results', async () => {
+		const res = await window[fnName]('octocat', 'tok', '2026-01-01', '2026-01-31');
+		const data = await res.json();
 
-		expect((await res.json()).items).toHaveLength(2);
-		expect(fetch.mock.calls[0][0]).toContain('author%3Aoctocat');
+		expect(fetch).toHaveBeenCalledTimes(2);
+		expect(fetch.mock.calls[0][0]).toContain(qualifier);
 		expect(fetch.mock.calls[0][0]).toContain('&page=1');
-	});
-
-	it('should paginate the reviewed-by search', async () => {
-		const res = await window.githubFetchReviews('octocat', 'tok', '2026-01-01', '2026-01-31');
-
-		expect((await res.json()).items).toHaveLength(2);
-		expect(fetch.mock.calls[0][0]).toContain('reviewed-by%3Aoctocat');
-		expect(fetch.mock.calls[0][0]).toContain('&page=1');
+		expect(fetch.mock.calls[1][0]).toContain('&page=2');
+		expect(data.items).toHaveLength(101);
 	});
 });
