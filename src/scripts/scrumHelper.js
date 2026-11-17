@@ -1041,7 +1041,8 @@ function allIncluded(outputTarget = 'email') {
 			.filter((s) => s && s !== 'all')
 			.sort()
 			.join(',');
-		const cacheKey = `${platformUsernameLocal}-${startDateForCache}-${endDateForCache}-${normalizedOrg || 'all'}-${commitMarker}-${repoMarker}`;
+		// 'paged' invalidates entries cached before search pagination (first page only).
+		const cacheKey = `${platformUsernameLocal}-${startDateForCache}-${endDateForCache}-${normalizedOrg || 'all'}-${commitMarker}-${repoMarker}-paged`;
 
 		log('Fetching Github data:', {
 			username: platformUsernameLocal,
@@ -1333,16 +1334,6 @@ function allIncluded(outputTarget = 'email') {
 				githubUserData = {};
 			}
 
-			if (githubIssuesData?.truncated || githubPrsReviewData?.truncated) {
-				const truncatedMsg =
-					chrome?.i18n.getMessage('searchResultsTruncatedWarning') ||
-					'GitHub returned incomplete or capped search results (1,000 max). Your report may be missing some activity; try a shorter date range.';
-				logError(truncatedMsg);
-				if (outputTarget === 'popup') {
-					window.scrumHelperToast?.(truncatedMsg, { duration: 6000, variant: 'error' });
-				}
-			}
-
 			if (githubIssuesData && githubIssuesData.items) {
 				log('Fetched githubIssuesData:', githubIssuesData.items.length, 'items');
 				// Collect only open PRs for commit fetching
@@ -1588,6 +1579,13 @@ function allIncluded(outputTarget = 'email') {
 
 	async function processGithubData(data, emailMode = false, subjectForEmailParam = null) {
 		log('Processing Github data');
+
+		if (data?.githubIssuesData?.truncated || data?.githubPrsReviewData?.truncated) {
+			const truncatedMsg =
+				chrome?.i18n.getMessage('searchResultsTruncatedWarning') ||
+				'GitHub returned incomplete or capped search results (1,000 max). Your report may be missing some activity; try a shorter date range.';
+			window.scrumHelperToast?.(truncatedMsg, { duration: 6000, variant: 'error' });
+		}
 
 		let filteredData = data;
 		// Always apply repo filter if it's enabled and repos are selected.
