@@ -982,24 +982,33 @@ const GITHUB_SEARCH_MAX_RESULTS = 1000;
 
 /**
  * Fetches every page of a GitHub search URL (up to GitHub's 1,000-result limit).
- * - If any page fails, that page's Response is returned unchanged so callers keep
- *   their existing status/rate-limit handling.
+ * - If the first page fails, its Response is returned unchanged so callers keep
+ *   their existing status handling.
+ * - If a later page fails (e.g. rate limit), the items fetched so far are kept and
+ *   flagged `truncated`; the rate-limit state is still recorded by the fetch wrapper.
+ * - Items are de-duplicated by id, since results can shift between page requests.
  * - Otherwise returns a 200 Response whose JSON merges all pages' items and sets
  *   `truncated` when results are incomplete or exceed the search limit.
  */
 async function githubFetchAllSearchPages(url, headers) {
-	const items = [];
+	const itemsById = new Map();
 	let totalCount = 0;
 	let truncated = false;
 
 	for (let page = 1; page <= GITHUB_SEARCH_MAX_PAGES; page++) {
 		const res = await fetch(`${url}&page=${page}`, { headers });
 		if (!res.ok) {
-			return res;
+			if (page === 1) {
+				return res;
+			}
+			truncated = true;
+			break;
 		}
 
 		const data = await res.json();
-		items.push(...(data.items || []));
+		for (const item of data.items || []) {
+			itemsById.set(item.id ?? item.html_url ?? `${page}-${itemsById.size}`, item);
+		}
 		totalCount = data.total_count || totalCount;
 		if (data.incomplete_results) {
 			truncated = true;
@@ -1018,7 +1027,7 @@ async function githubFetchAllSearchPages(url, headers) {
 		truncated = true;
 	}
 
-	return new Response(JSON.stringify({ items, total_count: totalCount, truncated }), {
+	return new Response(JSON.stringify({ items: [...itemsById.values()], total_count: totalCount, truncated }), {
 		status: 200,
 		headers: { 'Content-Type': 'application/json' },
 	});
