@@ -272,6 +272,9 @@
     "invalidOrgOrRepoFilterError": {
         "message": "Không thể truy cập tổ chức hoặc kho lưu trữ - hãy kiểm tra tên tổ chức, bộ lọc kho lưu trữ và quyền của token."
     },
+    "searchResultsTruncatedWarning": {
+        "message": "GitHub trả về kết quả tìm kiếm chưa đầy đủ hoặc bị giới hạn (tối đa 1.000). Báo cáo của bạn có thể thiếu một số hoạt động; hãy thử khoảng ngày ngắn hơn."
+    },
     "invalidSearchQueryError": {
         "message": "Truy vấn tìm kiếm hoặc khoảng ngày không hợp lệ. Vui lòng kiểm tra định dạng và thử lại."
     },
