@@ -272,6 +272,9 @@
     "invalidOrgOrRepoFilterError": {
         "message": "組織またはリポジトリにアクセスできません。組織名、リポジトリフィルター、トークンの権限を確認してください。"
     },
+    "searchResultsTruncatedWarning": {
+        "message": "GitHub が返した検索結果は不完全か、上限(最大 1,000 件)に達しています。レポートに一部のアクティビティが含まれていない可能性があります。より短い期間でお試しください。"
+    },
     "invalidSearchQueryError": {
         "message": "無効な検索クエリまたは日付範囲です。日付範囲の形式を確認して再試行してください。"
     },
