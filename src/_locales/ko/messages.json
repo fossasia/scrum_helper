@@ -317,6 +317,9 @@
   "invalidOrgOrRepoFilterError": {
     "message": "조직 또는 저장소에 접근할 수 없습니다. 조직 이름, 저장소 필터, 토큰 권한을 확인하세요."
   },
+  "searchResultsTruncatedWarning": {
+      "message": "GitHub가 불완전하거나 제한된 검색 결과(최대 1,000개)를 반환했습니다. 보고서에 일부 활동이 누락되었을 수 있으니 더 짧은 기간으로 시도해 보세요."
+  },
   "invalidSearchQueryError": {
     "message": "잘못된 검색 쿼리 또는 날짜 범위입니다. 날짜 범위 형식을 확인하고 다시 시도하세요."
   },
