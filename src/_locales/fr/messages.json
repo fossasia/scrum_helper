@@ -272,6 +272,9 @@
     "invalidOrgOrRepoFilterError": {
         "message": "Organisation ou dépôts inaccessibles – vérifiez le nom de l'organisation, le filtre de dépôts et les autorisations du jeton."
     },
+    "searchResultsTruncatedWarning": {
+        "message": "GitHub a renvoyé des résultats de recherche incomplets ou plafonnés (1 000 max.). Il se peut que votre rapport omette certaines activités ; essayez une période plus courte."
+    },
     "invalidSearchQueryError": {
         "message": "Requête de recherche ou plage de dates invalide. Veuillez vérifier le format de votre plage de dates et réessayer."
     },
