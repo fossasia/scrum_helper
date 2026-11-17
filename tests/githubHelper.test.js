@@ -336,15 +336,12 @@ describe('GitHubHelper', () => {
 
 		it('should construct search URL with author, dates, and org query', async () => {
 			const originalFetch = global.fetch;
-			global.fetch = vi.fn().mockResolvedValue({
-				ok: true,
-				status: 200,
-			});
+			global.fetch = vi.fn().mockResolvedValue(new Response(JSON.stringify({ items: [] }), { status: 200 }));
 
 			try {
 				await window.githubFetchIssues('testuser', 'token123', '2026-10-01', '2026-10-10', 'fossasia');
 				expect(global.fetch).toHaveBeenCalledWith(
-					'https://api.github.com/search/issues?q=author%3Atestuser+org:fossasia+updated%3A2026-10-01..2026-10-10&per_page=100',
+					'https://api.github.com/search/issues?q=author%3Atestuser+org:fossasia+updated%3A2026-10-01..2026-10-10&per_page=100&page=1',
 					{
 						headers: {
 							Accept: 'application/vnd.github.v3+json',
@@ -359,10 +356,7 @@ describe('GitHubHelper', () => {
 
 		it('should include repoQueries qualifier when specified', async () => {
 			const originalFetch = global.fetch;
-			global.fetch = vi.fn().mockResolvedValue({
-				ok: true,
-				status: 200,
-			});
+			global.fetch = vi.fn().mockResolvedValue(new Response(JSON.stringify({ items: [] }), { status: 200 }));
 
 			try {
 				await window.githubFetchIssues(
@@ -374,7 +368,7 @@ describe('GitHubHelper', () => {
 					'repo:fossasia/scrum_helper',
 				);
 				expect(global.fetch).toHaveBeenCalledWith(
-					'https://api.github.com/search/issues?q=author%3Atestuser+repo:fossasia/scrum_helper+updated%3A2026-10-01..2026-10-10&per_page=100',
+					'https://api.github.com/search/issues?q=author%3Atestuser+repo:fossasia/scrum_helper+updated%3A2026-10-01..2026-10-10&per_page=100&page=1',
 					expect.any(Object),
 				);
 			} finally {
