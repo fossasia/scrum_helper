@@ -302,6 +302,32 @@ describe('Next Plans account changes', () => {
 			expect(options.headers['PRIVATE-TOKEN']).toBe('captured-token');
 		}
 	});
+	it.each(['github', 'gitlab'])('uses saved %s settings when called without a scope', async (platform) => {
+		const helpers = {};
+		window.PlatformRegistry.register = (name, helper) => {
+			helpers[name] = helper;
+		};
+		await import(`../src/scripts/${platform}Helper.js`);
+		settings.gitlabBaseUrl = 'https://gitlab.example.net/api/v4';
+		vi.stubGlobal(
+			'fetch',
+			vi.fn(async () => ({ ok: true, json: async () => (platform === 'github' ? { items: [] } : []) })),
+		);
+
+		expect(await helpers[platform].fetchAssignedIssues()).toEqual([]);
+
+		const [url, options] = fetch.mock.calls[0];
+		const query = new URL(url).searchParams;
+		if (platform === 'github') {
+			expect(query.get('q')).toContain('assignee:alice');
+			expect(options.headers.Authorization).toBe('token test-token');
+		} else {
+			expect(url).toContain('https://gitlab.example.net/api/v4/issues');
+			expect(query.get('assignee_username')).toBe('alice');
+			expect(options.headers['PRIVATE-TOKEN']).toBe('test-token');
+		}
+	});
+
 	it('does not reuse a partial provider result but can report its selected issues', async () => {
 		settings.selectedPlatforms = ['github', 'gitlab'];
 		fetchAssignedIssues.mockImplementation(async (platform, scope) => {

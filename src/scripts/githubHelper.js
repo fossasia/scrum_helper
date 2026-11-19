@@ -1144,10 +1144,10 @@ async function githubFetchPrMergedStatusREST(owner, repo, number, token) {
 async function fetchIssuesFromGitHub(scope) {
 	const storage = await browser.storage.local.get(['platform', 'githubUsername', 'githubToken', 'platformUsername']);
 	const platform = storage.platform || 'github';
+	const account = scope?.accounts?.github;
 	const username =
-		scope.accounts?.github?.username ??
-		(storage.githubUsername || (platform === 'github' ? storage.platformUsername : ''));
-	const token = scope.accounts?.github?.token ?? storage.githubToken;
+		account?.username ?? (storage.githubUsername || (platform === 'github' ? storage.platformUsername : ''));
+	const token = account?.token ?? storage.githubToken;
 
 	if (!username) {
 		throw new Error('GitHub username is required. Please set it in settings.');
@@ -1190,7 +1190,7 @@ async function fetchIssuesFromGitHub(scope) {
 		}
 	}
 
-	const repoSet = scope.type === 'selected' ? new Set(scope.repos) : null;
+	const repoSet = scope?.type === 'selected' ? new Set(scope.repos) : null;
 
 	return allIssues
 		.map((issue) => {
