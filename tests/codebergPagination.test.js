@@ -192,6 +192,39 @@ describe('Codeberg report pagination', () => {
 		expect(save).not.toHaveBeenCalled();
 	});
 
+	it('stays in flight until sibling searches settle after one search fails', async () => {
+		vi.spyOn(console, 'error').mockImplementation(() => {});
+		let releaseCreated;
+		const createdPending = new Promise((resolve) => {
+			releaseCreated = () => resolve(response([]));
+		});
+		vi.stubGlobal(
+			'fetch',
+			vi.fn(async (url) => {
+				const parsed = new URL(url);
+				if (parsed.pathname === '/api/v1/users/alex') return response({ login: 'alex' });
+				if (parsed.searchParams.get('assigned') === 'true') return { ok: false, status: 503 };
+				if (parsed.searchParams.get('created') === 'true') return createdPending;
+				return response([]);
+			}),
+		);
+
+		let settled = false;
+		const pending = helper.fetchCodebergData('alex', start, end, 'test-token').finally(() => {
+			settled = true;
+		});
+		pending.catch(() => {});
+
+		await vi.waitFor(() => expect(fetch).toHaveBeenCalledTimes(4));
+		await new Promise((resolve) => setTimeout(resolve, 0));
+		expect(settled).toBe(false);
+		expect(helper.cache.fetching).toBe(true);
+
+		releaseCreated();
+		await expect(pending).rejects.toThrow('Codeberg API request failed (503).');
+		expect(helper.cache.fetching).toBe(false);
+	});
+
 	it('caches the report when every authenticated search succeeds', async () => {
 		const save = vi.spyOn(browser.storage.local, 'set').mockResolvedValue();
 		const issue = { id: 1, updated_at: '2026-09-15T12:00:00Z' };
