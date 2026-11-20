@@ -452,14 +452,9 @@ class CodebergHelper {
 					);
 				}
 
-				const fetchQuery = async (url) => {
-					try {
-						return await this.fetchAllPaginatedWithDateLimit(url, headers, startDate);
-					} catch (e) {
-						console.warn(`Failed to fetch from ${url}:`, e);
-						return [];
-					}
-				};
+				// A failed search must reject rather than resolve to [], otherwise the
+				// report looks complete and is cached with activity missing.
+				const fetchQuery = (url) => this.fetchAllPaginatedWithDateLimit(url, headers, startDate);
 
 				const [issueResultsArray, mrResultsArray] = await Promise.all([
 					Promise.all(issueUrls.map((url) => fetchQuery(url))),
