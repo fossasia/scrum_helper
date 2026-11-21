@@ -1,6 +1,6 @@
 # Scrum Helper
 
-**Scrum Helper** is a Chrome extension that simplifies writing development reports by auto-filling content based on your Git activity. Select your platform, enter your username, and provide authentication details when needed. Choose a date range and your preferences. The extension automatically fetches your commits, pull requests, and issues via the selected platform's API. For platforms that support review activity, it also includes code reviews in the generated report. Scrum Helper currently supports GitHub, GitLab, and Codeberg, allowing developers to generate scrum reports from their activity across multiple Git platforms.
+**Scrum Helper** is a Chrome extension that simplifies writing development reports by auto-filling content based on your Git activity. Select one or more platforms, enter your username for each, and provide authentication details when needed. Choose a date range and your preferences. The extension automatically fetches your commits, pull requests, and issues via each selected platform's API. For platforms that support review activity, it also includes code reviews in the generated report. Scrum Helper currently supports GitHub, GitLab, and Codeberg, and can combine your activity from several of them into a single scrum report.
 
 Landing page: [https://fossasia.github.io/scrum_helper/](https://fossasia.github.io/scrum_helper/)
 
@@ -9,11 +9,13 @@ Landing page: [https://fossasia.github.io/scrum_helper/](https://fossasia.github
 ## Features
 
 - Automatically fetches your Git activity, including commits, pull requests, issues, and code reviews.
-- Supports GitHub, GitLab, and Codeberg.
-- Supports platform-specific authentication and configuration.
+- Supports GitHub, GitLab, and Codeberg — select several platforms at once to get one combined report.
+- Supports platform-specific authentication and configuration (tokens, organization/group filters, repository filters).
 - Supports custom Codeberg API base URLs.
-- Generates editable scrum updates based on your selected date range
-- Integrates directly with compose windows in Google Groups, Gmail, Yahoo Mail, and Outlook
+- Generates editable scrum updates based on your selected date range, grouped by repository.
+- Can add your assigned open issues to "What do I plan to do this week?".
+- Integrates directly with compose windows in Google Groups, Gmail, Yahoo Mail, and Outlook.
+- Follows your system's light or dark appearance automatically.
 
 ## How to install
 
@@ -27,7 +29,7 @@ Download the desktop application for Windows, macOS, or Linux from [GitHub Relea
 2. Click “Add to Chrome”.
 3. Pin the extension to your toolbar (optional).
 4. Open the extension popup from your browser toolbar.
-5. Select your preferred platform from the platform dropdown and enter your username and any authentication details needed for private data or higher API limits.
+5. Select one or more platforms from the **Platform** dropdown and enter your username for each one. Add tokens and other authentication details in **Settings** (gear icon) when needed for private data or higher API limits.
 6. Select your date range and preferences.
 7. Start composing your reports in Gmail, Yahoo Mail, Outlook, or Google Groups using the extension.
 ## Setting Up Your Development Environment
@@ -114,15 +116,17 @@ Download the desktop application for Windows, macOS, or Linux from [GitHub Relea
 
 ## Usage
 
-### Selecting a Platform
+### Selecting Platforms
 1. Open the Scrum Helper extension.
-2. **Select your platform from the platform dropdown: GitHub, GitLab, or Codeberg.**
-3. Enter the username; add authentication details when needed for private data or higher API limits.
-4. **For GitLab, optionally provide a Group filter; leave it empty to include activity across all groups.**
-5. **For Codeberg, optionally configure a custom API base URL.**
-6. Select your desired date range and preferences.
-7. Generate your scrum report.
-8. Review and edit the generated report before using it in your preferred email or group platform.
+2. **Open the Platform dropdown and tick one or more platforms: GitHub, GitLab, or Codeberg.**
+3. Enter your username for each selected platform directly in the dropdown.
+4. Open **Settings** (gear icon) to add tokens and optional filters for each platform:
+   - **GitHub:** token, organization name, and repository filter.
+   - **GitLab:** token, group name (leave empty to include activity across all groups), and repository filter.
+   - **Codeberg:** token and a custom API base URL.
+5. Back on the home screen, pick a date range (**From** / **To**, or **Previous day** / **Previous week**) and adjust **Advanced options** if needed.
+6. Click **Generate** to create your scrum report.
+7. Review and edit the generated report before using it in your preferred email or group platform.
 
 ### For Google Groups:
 
@@ -134,41 +138,61 @@ Download the desktop application for Windows, macOS, or Linux from [GitHub Relea
 ### For Gmail, Yahoo, and Outlook:
 
 - Open the Compose window.
-- Ensure the Scrum Helper settings are applied (follow step 6 above)
-- The extension will prefill scrum content for you to edit
+- Ensure the Scrum Helper settings are applied (see "Selecting Platforms" above).
+- Click **Insert to email** in Scrum Helper, or let the extension prefill the scrum content for you to edit.
 
 ### New Features
 
 1. **Standalone Popup Interface**
-   - Generate reports directly from the extension popup
-   - Live preview of the report before sending
-   - Rich text formatting with clickable links
-   - Copy report to clipboard with proper formatting
+   - Generate reports directly from the extension popup or side panel
+   - Live, editable preview of the report before sending
+   - Rich text formatting with clickable links and status labels (open, draft, merged, closed)
+   - **Generate**, **Insert to email**, and **Copy** buttons, with keyboard shortcuts: `Ctrl+G` (generate), `Ctrl+Shift+M` (insert into email), and `Ctrl+Shift+Y` (copy). Use `Cmd` instead of `Ctrl` on macOS.
 
-2.  **Advanced Repository Filtering**
+2.  **Multi-Platform Reports**
+    *   Select GitHub, GitLab, and Codeberg together from the Platform dropdown and get one combined report.
+    *   Each platform has its own username, token, and filters in Settings.
+    *   Report items are grouped by their full `owner/repository` name.
+
+3.  **Advanced Options**
+    *   Toggle what goes into the report: PR/issue status labels, issues, open/draft PRs, reviewed PRs (GitHub and GitLab), and merged PRs.
+    *   *Adding a GitHub token is recommended for accurate reviewed and merged PR results.*
+
+4.  **Advanced Repository Filtering**
     *   Select specific repositories to include in your report for a more focused summary.
-    *   Easily search and manage your repository list directly within the popup.
-    *   *Requires a GitHub personal access token (classic) to fetch your repositories.*
+    *   Easily search and manage your repository list directly within Settings.
+    *   *Available for GitHub and GitLab; requires a token for that platform to fetch your repositories.*
 
-3.  **Include Commits on Existing PRs**
+5.  **Include Commits on Existing PRs**
     *   Option to include recent commits made to pull requests that were opened *before* the selected date range.
     *   Provides a more detailed and accurate view of your work on long-running PRs.
-    *   *Requires a GitHub personal access token (classic).*
+    *   *Available for GitHub, GitLab, and Codeberg; requires a token for that platform.*
 
-4.  **Flexible Display Modes**
-    *   Easily toggle the extension display mode between a traditional **Popup** and a persistent **Side Panel** in the settings.
+6.  **Next Plans from Assigned Issues**
+    *   Option to add your assigned open issues to question 2, "What do I plan to do this week?".
+    *   Pick which issues to include right in the popup.
+    *   *Available for GitHub, GitLab, and Codeberg; requires a token for that platform.*
+
+7.  **Flexible Display Modes**
+    *   Switch between a persistent **Side panel** and a traditional **Popup** under **Extension settings**. Side panel is the default where the browser supports it.
     *   *Note: The older standard extension on/off toggle has been removed in favor of this UI flexibility.*
 
-5.  **Smart Caching & Auto-Generation**
+8.  **Automatic Light/Dark Appearance**
+    *   The interface follows your browser/OS color scheme automatically; there is no separate theme toggle.
+
+9.  **Smart Caching & Auto-Generation**
     *   **Auto-Load:** When you open the extension, it instantly restores your previously generated Scrum report if there is a healthy cache in memory.
     *   **Auto-Generate:** If there is no cached report available, the extension automatically calculates and generates a new report without requiring you to click anything.
-    *   **Manual Refresh:** If the cache duration expires (defaults to 10 minutes), the auto-load stops, and you just need to click the "Generate" button yourself to fetch fresh data.
+    *   **Manual Refresh:** If the cache duration expires (defaults to 10 minutes, configurable via **Enter cache TTL** in Settings), the auto-load stops, and you just need to click the "Generate" button yourself to fetch fresh data. Use **Refresh data (bypass cache)** in Settings to force fresh data at any time.
+
+10. **Send by Email from the Desktop App**
+    *   The Tauri desktop app adds a mail settings screen (envelope icon) to configure SMTP (with Gmail, Outlook, and Yahoo presets) and a **Send email** button to send the report directly.
 
 ### Usage Standalone
 
-- Click on `GENERATE` button to generate the scrum preview (if not auto-generated).
+- Click the **Generate** button to generate the scrum preview (if not auto-generated).
 - Edit it in the window.
-- Copy the rich HTML using the `COPY` button.
+- Copy the rich HTML using the **Copy** button, or click **Insert to email** to place it in an open compose window.
 
 ## Contributing
 
