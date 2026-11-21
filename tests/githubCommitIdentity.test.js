@@ -38,7 +38,7 @@ beforeEach(async () => {
 			};
 		} else if (url.includes('/users/')) body = { login: 'alice', name: 'Alice' };
 		else if (url.includes('reviewed-by')) body = { items: [] };
-		else body = { items: structuredClone(pulls) };
+		else body = { items: [{ ...pulls[0], repository_url: undefined }, pulls[1]] };
 		return new Response(JSON.stringify(body), { status: 200, headers: { 'Content-Type': 'application/json' } });
 	});
 	vi.stubGlobal('fetch', apiFetch);
@@ -90,6 +90,31 @@ describe('GitHub commit repository identity', () => {
 		expect(map[`${pulls[0].repository_url}#10`]).toEqual([commit('first')]);
 		expect(map[`${pulls[1].repository_url}#10`]).toEqual([commit('second')]);
 	});
+	it('uses the pull request URL when the repository URL is missing', async () => {
+		const map = await window.githubFetchCommits(
+			[{ ...pulls[0], repository_url: undefined }, pulls[1]],
+			'fixture-token',
+			'2026-10-11',
+			'2026-10-11',
+		);
+		const query = JSON.parse(apiFetch.mock.calls[0][1].body).query;
+		expect(query).toContain('repository(owner: "alice", name: "first")');
+		expect(map[`${pulls[0].repository_url}#10`]).toEqual([commit('first')]);
+		expect(map[`${pulls[1].repository_url}#10`]).toEqual([commit('second')]);
+	});
+
+	it('skips a pull request with no repository identity without losing the other commits', async () => {
+		const map = await window.githubFetchCommits(
+			[{ ...pulls[1], repository_url: undefined, html_url: undefined }, pulls[0]],
+			'fixture-token',
+			'2026-10-11',
+			'2026-10-11',
+		);
+		const query = JSON.parse(apiFetch.mock.calls[0][1].body).query;
+		expect(query).not.toContain('pr1:');
+		expect(map).toEqual({ [`${pulls[0].repository_url}#10`]: [commit('first')] });
+	});
+
 	it('does not erase another repository when a pull request has no commit data', async () => {
 		apiFetch.mockResolvedValueOnce(
 			new Response(
