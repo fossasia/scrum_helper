@@ -1045,6 +1045,13 @@ async function githubFetchPrReviews(owner, repo, prNumber, token) {
 	return res.json();
 }
 
+function githubCommitRepositoryUrl(pr) {
+	if (pr.repository_url) return pr.repository_url;
+
+	const pullUrl = /^https:\/\/github\.com\/([\w.-]+)\/([\w.-]+)\/pull\/\d+(?:[/?#]|$)/i.exec(pr.html_url || '');
+	return pullUrl ? `https://api.github.com/repos/${pullUrl[1]}/${pullUrl[2]}` : undefined;
+}
+
 async function githubFetchCommits(prs, githubToken, startDate, endDate) {
 	log(
 		'githubFetchCommits called with PRs:',
@@ -1054,12 +1061,15 @@ async function githubFetchCommits(prs, githubToken, startDate, endDate) {
 		'endDate:',
 		endDate,
 	);
-	if (!prs.length) return {};
+	const identifiedPRs = prs
+		.map((pr) => ({ number: pr.number, repositoryUrl: githubCommitRepositoryUrl(pr) }))
+		.filter(({ repositoryUrl }) => repositoryUrl);
+	if (!identifiedPRs.length) return {};
 	const since = new Date(startDate + 'T00:00:00Z').toISOString();
 	const until = new Date(endDate + 'T23:59:59Z').toISOString();
-	const queries = prs
+	const queries = identifiedPRs
 		.map((pr, idx) => {
-			const repoParts = pr.repository_url.split('/');
+			const repoParts = pr.repositoryUrl.split('/');
 			const owner = repoParts[repoParts.length - 2];
 			const repo = repoParts[repoParts.length - 1];
 			return `
@@ -1096,7 +1106,7 @@ async function githubFetchCommits(prs, githubToken, startDate, endDate) {
 	const data = await res.json();
 	log('githubFetchCommits response data:', data);
 	const commitMap = {};
-	prs.forEach((pr, idx) => {
+	identifiedPRs.forEach((pr, idx) => {
 		const prData = data.data && data.data[`pr${idx}`] && data.data[`pr${idx}`].pullRequest;
 		if (prData && prData.commits && prData.commits.nodes) {
 			const allCommits = prData.commits.nodes.map((n) => n.commit);
@@ -1109,9 +1119,9 @@ async function githubFetchCommits(prs, githubToken, startDate, endDate) {
 				log(`PR #${pr.number} commit "${commit.messageHeadline}" (${commit.committedDate}) - in range: ${isInRange}`);
 				return isInRange;
 			});
-			commitMap[pr.number] = filteredCommits;
+			commitMap[`${pr.repositoryUrl}#${pr.number}`] = filteredCommits;
 		} else {
-			commitMap[pr.number] = [];
+			commitMap[`${pr.repositoryUrl}#${pr.number}`] = [];
 		}
 	});
 	return commitMap;
@@ -1229,6 +1239,7 @@ window.githubFetchReviews = githubFetchReviews;
 window.githubFetchPrReviews = githubFetchPrReviews;
 window.githubFetchPullRequests = githubFetchPullRequests;
 window.githubFetchCommits = githubFetchCommits;
+window.githubCommitRepositoryUrl = githubCommitRepositoryUrl;
 window.githubFetchPrMergedStatusREST = githubFetchPrMergedStatusREST;
 window.githubValidateOrgOnBlur = validateOrgOnBlur;
 window.githubValidateToken = githubValidateToken;
