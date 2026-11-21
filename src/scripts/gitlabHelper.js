@@ -735,9 +735,11 @@ async function fetchIssuesFromGitLab(scope) {
 		'platformUsername',
 	]);
 	const platform = storage.platform || 'github';
-	const username = storage.gitlabUsername || (platform === 'gitlab' ? storage.platformUsername : '');
-	const token = storage.gitlabToken;
-	const baseUrl = normalizeGitLabApiBaseUrl(storage.gitlabBaseUrl);
+	const account = scope?.accounts?.gitlab;
+	const username =
+		account?.username ?? (storage.gitlabUsername || (platform === 'gitlab' ? storage.platformUsername : ''));
+	const token = account?.token ?? storage.gitlabToken;
+	const baseUrl = account?.apiBaseUrl ?? normalizeGitLabApiBaseUrl(storage.gitlabBaseUrl);
 
 	if (!username) {
 		throw new Error('GitLab username is required. Please set it in settings.');
