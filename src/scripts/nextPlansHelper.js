@@ -277,6 +277,7 @@
 		if (selectedIds.some((id) => String(id) === selectionId)) {
 			return true;
 		}
+		// Old numeric IDs have no platform. Restore them only when the match is unique.
 		const matchingIssues = issues.filter((candidate) => String(candidate.id) === String(issue.id));
 		return matchingIssues.length === 1 && selectedIds.some((id) => String(id) === String(issue.id));
 	}
