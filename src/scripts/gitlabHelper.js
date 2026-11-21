@@ -108,6 +108,16 @@ function getProjectPathFromWebUrl(webUrl) {
 	}
 }
 
+function getTokenMarker(token) {
+	if (!token) return 'noauth';
+	let hash = 0;
+	for (let i = 0; i < token.length; i++) {
+		hash = (hash << 5) - hash + token.charCodeAt(i);
+		hash |= 0;
+	}
+	return `auth-${Math.abs(hash).toString(16)}`;
+}
+
 class GitLabHelper {
 	constructor(apiBaseUrl = DEFAULT_GITLAB_API_BASE_URL) {
 		this.baseUrl = normalizeGitLabApiBaseUrl(apiBaseUrl);
@@ -159,6 +169,10 @@ class GitLabHelper {
 			console.error('Error loading from storage:', error);
 		}
 	}
+	getTokenMarker(token) {
+		return getTokenMarker(token);
+	}
+
 	async fetchGitLabData(username, startDate, endDate, token = null, orgName = '') {
 		const itemsLocal = await browser.storage.local.get([
 			'showCommits',
@@ -175,7 +189,7 @@ class GitLabHelper {
 		const selectedReposList = itemsLocal.selectedGitlabRepos || itemsLocal.selectedRepos || [];
 
 		// Include token state, orgName, showCommits, and repository filter state in cache key to invalidate on changes
-		const tokenMarker = token ? 'auth' : 'noauth';
+		const tokenMarker = getTokenMarker(token);
 		const normalizedGroups = parseGitlabGroups(orgName).sort().join(',');
 		const orgMarker = normalizedGroups ? `org-${normalizedGroups}` : 'noorg';
 
@@ -721,9 +735,11 @@ async function fetchIssuesFromGitLab(scope) {
 		'platformUsername',
 	]);
 	const platform = storage.platform || 'github';
-	const username = storage.gitlabUsername || (platform === 'gitlab' ? storage.platformUsername : '');
-	const token = storage.gitlabToken;
-	const baseUrl = normalizeGitLabApiBaseUrl(storage.gitlabBaseUrl);
+	const account = scope?.accounts?.gitlab;
+	const username =
+		account?.username ?? (storage.gitlabUsername || (platform === 'gitlab' ? storage.platformUsername : ''));
+	const token = account?.token ?? storage.gitlabToken;
+	const baseUrl = account?.apiBaseUrl ?? normalizeGitLabApiBaseUrl(storage.gitlabBaseUrl);
 
 	if (!username) {
 		throw new Error('GitLab username is required. Please set it in settings.');
