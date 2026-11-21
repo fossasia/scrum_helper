@@ -21,6 +21,51 @@
 
 ## Maintenance
 
+* chore(deps)(deps-dev): bump @tauri-apps/cli from 2.12.4 to 2.12.5 (#973) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @tauri-apps/api from 2.12.1 to 2.12.5 (#974) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.6.7 to 2.6.8 (#972) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @tauri-apps/cli from 2.12.1 to 2.12.4 (#947) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.6.6 to 2.6.7 (#968) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump postcss from 8.5.32 to 8.5.33 (#970) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.6.4 to 2.6.6 (#960) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps): bump @tailwindcss/cli from 4.3.3 to 4.3.5 (#967) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump vitest from 5.0.5 to 5.1.0 (#961) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump autoprefixer from 10.6.1 to 10.6.2 (#957) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump tailwindcss from 4.3.3 to 4.3.4 (#958) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump @biomejs/biome from 2.5.15 to 2.6.4 (#959) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump postcss from 8.5.30 to 8.5.32 (#942) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump happy-dom from 21.0.3 to 21.0.4 (#946) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump vitest from 5.0.4 to 5.0.5 (#938) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump happy-dom from 20.14.6 to 21.0.3 (#939) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump postcss from 8.5.29 to 8.5.30 (#935) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump vitest from 5.0.3 to 5.0.4 (#934) @[dependabot[bot]](https://github.com/apps/dependabot)
+* chore(deps)(deps-dev): bump happy-dom from 20.14.5 to 20.14.6 (#929) @[dependabot[bot]](https://github.com/apps/dependabot)
+
+---
+
+## v2.1.6 - 2026-11-21
+
+## What's Changed
+
+* fix: preserve custom dates in report headings (#948) @Veditha08
+* fix: isolate Next Plans cache and selections by account (#908) @YashAnand69
+* docs: update README screenshots and text to match current UI (#977) @samc4e
+* chore(deps): bump rustls from 0.23.45 to 0.23.46 in /src-tauri (#956) @[dependabot[bot]](https://github.com/apps/dependabot)
+* fix(bug): show accurate error when GitHub org/repo filter cannot be searched (#944) @samc4e
+* fix(i18n): synchronize missing translation keys across 22 locales (fi… (#955) @sayanp607
+* fix: scope Codeberg report cache to the API server (#895) @YashAnand69
+* fix: standardize header icon sizes and alignment in Tauri app (#963) (#964) @titas-mahato
+* test: add unit test suite for GitHubHelper (#921) @rishi919-rgb
+* test: add unit test suite for GitLabHelper (#914) @rishi919-rgb
+* fix: paginate Codeberg repository and commit activity (#902) @YashAnand69
+* fix: differentiate cache key based on auth token fingerprint (#891) @rishi919-rgb
+* fix: resolve allignment \& hover error in Tauri App header (issue #876) (#879) @OmairAftab
+* Fix: show multiple platforms error messages instead of a single platform error message (#910) @OmairAftab
+* fix: tighten Outlook hostname matchers and add adapter tests (#865) @rishiraj38
+* fix: restore PAT creation guide in en token tooltips (#917) @ProgrammerNesi
+
+## Maintenance
+
 * chore(deps)(deps-dev): bump @tauri-apps/api from 2.12.1 to 2.12.5 (#974) @[dependabot[bot]](https://github.com/apps/dependabot)
 * chore(deps)(deps-dev): bump @biomejs/biome from 2.6.7 to 2.6.8 (#972) @[dependabot[bot]](https://github.com/apps/dependabot)
 * chore(deps)(deps-dev): bump @tauri-apps/cli from 2.12.1 to 2.12.4 (#947) @[dependabot[bot]](https://github.com/apps/dependabot)
