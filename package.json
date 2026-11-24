@@ -31,12 +31,12 @@
   "devDependencies": {
     "@biomejs/biome": "2.6.8",
     "@tauri-apps/api": "^2.12.5",
-    "@tauri-apps/cli": "^2.12.4",
-    "autoprefixer": "^10.6.2",
+    "@tauri-apps/cli": "^2.12.5",
+    "autoprefixer": "^10.7.0",
     "happy-dom": "^21.0.4",
     "postcss": "^8.5.33",
     "tailwindcss": "^4.3.4",
-    "vitest": "^5.1.0"
+    "vitest": "^5.1.1"
   },
   "dependencies": {
     "@tailwindcss/cli": "^4.3.5"
