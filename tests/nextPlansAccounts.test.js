@@ -165,6 +165,50 @@ describe('Next Plans account changes', () => {
 		]);
 	});
 
+	it.each([
+		['provider-scoped', 'gitlab:1', false],
+		['legacy numeric', 1, false],
+		['provider-scoped without cache', 'gitlab:1', true],
+	])('preserves a %s GitLab selection across revoke, edit, and restore', async (_kind, gitlabId, clearCache) => {
+		const apiBase = 'https://gitlab.example.net/api/v4';
+		Object.assign(settings, {
+			selectedPlatforms: ['github', 'gitlab'], gitlabBaseUrl: apiBase, gitlabTokenInstance: apiBase,
+		});
+		fetchAssignedIssues.mockImplementation(async (platform) =>
+			(platform === 'gitlab' ? [1] : [2, 3]).map((id) => ({ id, number: id, title: platform, platform })),
+		);
+		const checkbox = (id) => document.querySelector('[data-issue-id="' + id + '"]');
+		const change = (id, checked) => {
+			checkbox(id).checked = checked;
+			checkbox(id).dispatchEvent(new Event('change'));
+		};
+
+		await window.loadAssignedIssues();
+		const [scopeKey] = Object.keys(JSON.parse(localStorage.getItem('nextPlansCache')));
+		localStorage.setItem('selectedIssues', JSON.stringify({ [scopeKey]: ['github:2', gitlabId] }));
+		if (clearCache) localStorage.removeItem('nextPlansCache');
+
+		browser.permissions.contains.mockResolvedValue(false);
+		await window.loadAssignedIssues();
+		expect(checkbox('gitlab:1')).toBeNull();
+		expect(checkbox('github:2').checked).toBe(true);
+		change('github:2', false);
+		change('github:3', true);
+		expect(await window.getNextPlansForReport()).toEqual([
+			expect.objectContaining({ platform: 'github', id: 3 }),
+		]);
+
+		browser.permissions.contains.mockResolvedValue(true);
+		await window.loadAssignedIssues();
+		expect(checkbox('gitlab:1').checked).toBe(true);
+		expect(checkbox('github:2').checked).toBe(false);
+		expect(checkbox('github:3').checked).toBe(true);
+		expect(await window.getNextPlansForReport()).toEqual([
+			expect.objectContaining({ platform: 'github', id: 3 }),
+			expect.objectContaining({ platform: 'gitlab', id: 1 }),
+		]);
+	});
+
 	it('separates equal GitLab usernames on different API servers', async () => {
 		settings.platform = 'gitlab';
 		settings.selectedPlatforms = ['gitlab'];

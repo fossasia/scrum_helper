@@ -289,13 +289,12 @@
 		return getIssueSelectionId(issue).startsWith('gitlab:');
 	}
 
-	function isIssueSelected(selectedIds, issues, issue) {
-		const selectionId = getIssueSelectionId(issue);
-		if (selectedIds.some((id) => String(id) === selectionId)) {
-			return true;
-		}
-		const matchingIssues = issues.filter((candidate) => String(candidate.id) === String(issue.id));
-		return matchingIssues.length === 1 && selectedIds.some((id) => String(id) === String(issue.id));
+	function resolveIssueSelection(id, issues) {
+		const selectionId = String(id);
+		const match = issues.find((issue) => getIssueSelectionId(issue) === selectionId);
+		if (match) return match;
+		const legacyMatches = issues.filter((issue) => String(issue.id) === selectionId);
+		return legacyMatches.length === 1 ? legacyMatches[0] : undefined;
 	}
 
 	function displayIssuesUI(issues, scope, selectionCandidates = issues) {
@@ -307,7 +306,12 @@
 
 		container.textContent = '';
 
-		const selectedIds = getSavedIssueSelections(scope);
+		const selectedIssueIds = new Set(
+			getSavedIssueSelections(scope)
+				.map((id) => resolveIssueSelection(id, selectionCandidates))
+				.filter(Boolean)
+				.map(getIssueSelectionId),
+		);
 
 		const scopeDiv = document.createElement('div');
 		scopeDiv.classList.add('scope-info');
@@ -330,9 +334,7 @@
 			checkbox.type = 'checkbox';
 			checkbox.classList.add('issue-item-checkbox');
 			checkbox.dataset.issueId = getIssueSelectionId(issue);
-			if (isIssueSelected(selectedIds, selectionCandidates, issue)) {
-				checkbox.checked = true;
-			}
+			checkbox.checked = selectedIssueIds.has(checkbox.dataset.issueId);
 
 			const span = document.createElement('span');
 			span.textContent = `#${issue.number} - ${issue.title} `;
@@ -353,11 +355,24 @@
 		const checkboxes = container.querySelectorAll('.issue-item-checkbox');
 		checkboxes.forEach((cb) => {
 			cb.addEventListener('change', () => {
-				const updatedSelectedIds = [];
-				container.querySelectorAll('.issue-item-checkbox:checked').forEach((checkedCb) => {
-					updatedSelectedIds.push(checkedCb.dataset.issueId);
-				});
-				saveSelectedIssues(scope, updatedSelectedIds);
+				const updatedSelectedIds = new Set(
+					Array.from(
+						container.querySelectorAll('.issue-item-checkbox:checked'),
+						(checkedCb) => checkedCb.dataset.issueId,
+					),
+				);
+				if (scope.gitlabAccessError) {
+					for (const id of getSavedIssueSelections(scope)) {
+						const selectionId = String(id);
+						if (selectionId.startsWith('gitlab:')) {
+							updatedSelectedIds.add(selectionId);
+							continue;
+						}
+						const issue = resolveIssueSelection(id, selectionCandidates);
+						if (issue && isGitLabIssue(issue)) updatedSelectedIds.add(getIssueSelectionId(issue));
+					}
+				}
+				saveSelectedIssues(scope, [...updatedSelectedIds]);
 			});
 		});
 	}
@@ -516,13 +531,7 @@
 
 		// Map selectedIds to full issue objects
 		return selectedIds
-			.map((id) => {
-				const selectionId = String(id);
-				const match = issues.find((issue) => getIssueSelectionId(issue) === selectionId);
-				if (match) return match;
-				const legacyMatches = issues.filter((issue) => String(issue.id) === selectionId);
-				return legacyMatches.length === 1 ? legacyMatches[0] : undefined;
-			})
+			.map((id) => resolveIssueSelection(id, issues))
 			.filter((issue) => issue && (!scope.gitlabAccessError || !isGitLabIssue(issue)));
 	}
 

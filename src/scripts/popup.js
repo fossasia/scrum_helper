@@ -274,10 +274,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		});
 		document.getElementById('configureGitlabInstance')?.addEventListener('click', (event) => {
 			event.stopPropagation();
-			document.getElementById('customPlatformDropdown')?.classList.remove('open');
-			document.getElementById('platformDropdownList')?.classList.add('hidden');
-			showSettingsView();
-			gitlabBaseInput.focus();
+			showGitLabInstanceSettings();
 		});
 	}
 
@@ -3064,6 +3061,13 @@ function setupDropdownUsernameSync() {
 	});
 }
 
+function showGitLabInstanceSettings() {
+	customDropdown?.classList.remove('open');
+	dropdownList?.classList.add('hidden');
+	window.showSettingsView?.();
+	document.getElementById('gitlabBaseUrl')?.focus();
+}
+
 function setSelectedPlatforms(platforms) {
 	const platformList = Array.isArray(platforms) ? platforms : [];
 	const primaryPlatform = platformList[0] || '';
@@ -3132,7 +3136,9 @@ if (dropdownList) {
 
 				setSelectedPlatforms(nextPlatforms);
 
-				if (isSelecting) {
+				if (isSelecting && platformClicked === 'gitlab') {
+					showGitLabInstanceSettings();
+				} else if (isSelecting) {
 					setTimeout(() => {
 						const inp = document.getElementById(`dropdown-${platformClicked}Username`);
 						if (inp && !inp.value.trim()) {
@@ -3226,6 +3232,9 @@ browser.storage.local.get(['selectedPlatforms', 'platform']).then((result) => {
 				}
 
 				setSelectedPlatforms(nextPlatforms);
+				if (cb.checked && platform === 'gitlab' && !currentPlatforms.includes(platform)) {
+					showGitLabInstanceSettings();
+				}
 			});
 		});
 	}
