@@ -287,6 +287,7 @@ function buildGithubOrgQuery(orgStr) {
 
 window.parseGithubOrgs = parseGithubOrgs;
 window.buildGithubOrgQuery = buildGithubOrgQuery;
+window.makeRepoCacheKey = makeRepoCacheKey;
 
 function makeRepoCacheKey(username, orgName, platform, storageItems) {
 	const normalizedOrgs = parseGithubOrgs(orgName).sort().join(',');
@@ -1143,8 +1144,10 @@ async function githubFetchPrMergedStatusREST(owner, repo, number, token) {
 async function fetchIssuesFromGitHub(scope) {
 	const storage = await browser.storage.local.get(['platform', 'githubUsername', 'githubToken', 'platformUsername']);
 	const platform = storage.platform || 'github';
-	const username = storage.githubUsername || (platform === 'github' ? storage.platformUsername : '');
-	const token = storage.githubToken;
+	const account = scope?.accounts?.github;
+	const username =
+		account?.username ?? (storage.githubUsername || (platform === 'github' ? storage.platformUsername : ''));
+	const token = account?.token ?? storage.githubToken;
 
 	if (!username) {
 		throw new Error('GitHub username is required. Please set it in settings.');
@@ -1187,7 +1190,7 @@ async function fetchIssuesFromGitHub(scope) {
 		}
 	}
 
-	const repoSet = scope.type === 'selected' ? new Set(scope.repos) : null;
+	const repoSet = scope?.type === 'selected' ? new Set(scope.repos) : null;
 
 	return allIssues
 		.map((issue) => {
@@ -1229,6 +1232,12 @@ window.githubFetchCommits = githubFetchCommits;
 window.githubFetchPrMergedStatusREST = githubFetchPrMergedStatusREST;
 window.githubValidateOrgOnBlur = validateOrgOnBlur;
 window.githubValidateToken = githubValidateToken;
+window.fetchIssuesFromGitHub = fetchIssuesFromGitHub;
+window.checkTokenForShowCommits = checkTokenForShowCommits;
+window.checkTokenForNextPlans = checkTokenForNextPlans;
+window.checkTokenForMergedPRs = checkTokenForMergedPRs;
+window.checkTokenForFilter = checkTokenForFilter;
+window.forceGithubDataRefresh = forceGithubDataRefresh;
 
 if (window.PlatformRegistry) {
 	window.PlatformRegistry.register('github', {
