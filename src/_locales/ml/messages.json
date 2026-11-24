@@ -83,6 +83,27 @@
     "githubTokenTooltip": {
         "message": "GitHub ടോക്കൻ ചേർക്കാൻ എന്ത് ശുപാർശ ചെയ്യുന്നത്? സ്ക്രം ഹെൽപർ GitHub ടോക്കൻ ഇല്ലാതെ പ്രവർത്തിക്കുന്നു, എന്നാൽ നല്ലതായ അനുഭവത്തിന് പ്രത്യക്ഷ ആക്സസ് ടോക്കൻ ചേർക്കാൻ ശുപാർശ ചെയ്യുന്നു."
     },
+    "gitlabApiBaseLabel": {
+        "message": "GitLab API base URL"
+    },
+    "gitlabApiBaseApply": {
+        "message": "Apply"
+    },
+    "gitlabApiBaseHelp": {
+        "message": "Leave blank for GitLab.com. Apply before entering a token for this instance."
+    },
+    "gitlabApiBaseInvalid": {
+        "message": "Enter an HTTPS GitLab URL ending in /api/v4. Use a DNS hostname."
+    },
+    "gitlabApiBasePermissionDenied": {
+        "message": "Allow access to the GitLab instance using Apply in GitLab settings."
+    },
+    "gitlabApiBaseApplied": {
+        "message": "GitLab instance applied."
+    },
+    "gitlabApiBaseSaveFailed": {
+        "message": "Could not save the GitLab settings. Try again."
+    },
     "gitlabTokenLabel": {
         "message": "നിങ്ങളുടെ GitLab ടോക്കൺ"
     },

@@ -292,8 +292,12 @@ window.makeRepoCacheKey = makeRepoCacheKey;
 function makeRepoCacheKey(username, orgName, platform, storageItems) {
 	const normalizedOrgs = parseGithubOrgs(orgName).sort().join(',');
 	const org = normalizedOrgs || orgName || '';
-	if (platform === 'github' || platform === 'gitlab') {
-		const token = (platform === 'gitlab' ? storageItems?.gitlabToken || '' : storageItems?.githubToken || '').trim();
+	if (platform === 'gitlab') {
+		const account = window.resolveGitLabAccount(storageItems);
+		return `repos-gitlab-${username}-${org}-${window.getGitLabAccountKey(account)}`;
+	}
+	if (platform === 'github') {
+		const token = (storageItems?.githubToken || '').trim();
 		if (!token) {
 			return `repos-${platform}-${username}-${org}-notoken`;
 		}

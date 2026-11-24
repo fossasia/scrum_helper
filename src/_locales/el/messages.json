@@ -83,6 +83,27 @@
     "githubTokenTooltip": {
         "message": "Γιατί συνιστάται η προσθήκη GitHub token; Το Scrum Helper λειτουργεί χωρίς GitHub token, αλλά η προσθήκη ενός προσωπικού token πρόσβασης συνιστάται για καλύτερη εμπειρία."
     },
+    "gitlabApiBaseLabel": {
+        "message": "GitLab API base URL"
+    },
+    "gitlabApiBaseApply": {
+        "message": "Apply"
+    },
+    "gitlabApiBaseHelp": {
+        "message": "Leave blank for GitLab.com. Apply before entering a token for this instance."
+    },
+    "gitlabApiBaseInvalid": {
+        "message": "Enter an HTTPS GitLab URL ending in /api/v4. Use a DNS hostname."
+    },
+    "gitlabApiBasePermissionDenied": {
+        "message": "Allow access to the GitLab instance using Apply in GitLab settings."
+    },
+    "gitlabApiBaseApplied": {
+        "message": "GitLab instance applied."
+    },
+    "gitlabApiBaseSaveFailed": {
+        "message": "Could not save the GitLab settings. Try again."
+    },
     "gitlabTokenLabel": {
         "message": "Το GitLab token σας"
     },

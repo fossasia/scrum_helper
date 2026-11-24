@@ -1,5 +1,6 @@
 // GitLab API Helper for Scrum Helper Extension
 const DEFAULT_GITLAB_API_BASE_URL = 'https://gitlab.com/api/v4';
+const GITLAB_ACCOUNT_STORAGE_KEYS = ['gitlabBaseUrl', 'gitlabToken', 'gitlabTokenInstance'];
 
 function parseGitlabGroups(groupStr) {
 	if (!groupStr) return [];
@@ -86,23 +87,101 @@ function gitlabCheckTokenForShowCommits(options = {}) {
 }
 
 function normalizeGitLabApiBaseUrl(apiBaseUrl) {
-	const value = typeof apiBaseUrl === 'string' && apiBaseUrl.trim() ? apiBaseUrl.trim() : DEFAULT_GITLAB_API_BASE_URL;
-	return value.replace(/\/+$/, '');
+	if (apiBaseUrl == null || apiBaseUrl === '') return DEFAULT_GITLAB_API_BASE_URL;
+	if (typeof apiBaseUrl !== 'string') return null;
+	const value = apiBaseUrl.trim();
+	if (!value) return DEFAULT_GITLAB_API_BASE_URL;
+	if (!/^https:\/\//i.test(value) || /[?#\\]/.test(value)) return null;
+	try {
+		const url = new URL(value);
+		const host = url.hostname.replace(/\.$/, '');
+		const path = url.pathname.replace(/\/+$/, '');
+		if (url.username || url.password || !/^(?:\/[\w.-]+)*\/api\/v4$/.test(path)) return null;
+		// The browser resolves DNS. Reject local special-use names and address literals as inputs.
+		if (!host.includes('.') || host.endsWith('.localhost') || host === 'metadata.google.internal') return null;
+		if (host.startsWith('[') || /^\d+\.\d+\.\d+\.\d+$/.test(host)) return null;
+		url.hostname = host;
+		return `${url.origin}${path}`;
+	} catch {
+		return null;
+	}
 }
 
-function getProjectPathFromWebUrl(webUrl) {
+function resolveGitLabAccount(items = {}) {
+	const apiBaseUrl = normalizeGitLabApiBaseUrl(items.gitlabBaseUrl);
+	const tokenInstance = items.gitlabTokenInstance ?? DEFAULT_GITLAB_API_BASE_URL;
+	const token = apiBaseUrl && apiBaseUrl === tokenInstance ? (items.gitlabToken || '').trim() : '';
+	return { apiBaseUrl, token };
+}
+
+async function loadGitLabAccount() {
+	return resolveGitLabAccount(await browser.storage.local.get(GITLAB_ACCOUNT_STORAGE_KEYS));
+}
+
+function getGitLabAccountKey({ apiBaseUrl, token }) {
+	return JSON.stringify([apiBaseUrl, getTokenMarker(token)]);
+}
+
+function gitLabHostPermission(apiBaseUrl) {
+	return { origins: [`https://${new URL(apiBaseUrl).hostname}/*`] };
+}
+
+async function ensureGitLabAccess(apiBaseUrl) {
+	if (!apiBaseUrl || normalizeGitLabApiBaseUrl(apiBaseUrl) !== apiBaseUrl) {
+		throw new Error(browser.i18n.getMessage('gitlabApiBaseInvalid') || 'Enter a valid HTTPS GitLab API v4 URL.');
+	}
+	if (apiBaseUrl === DEFAULT_GITLAB_API_BASE_URL || window.isTauri) return;
+	if (!(await browser.permissions?.contains(gitLabHostPermission(apiBaseUrl)))) {
+		throw new Error(
+			browser.i18n.getMessage('gitlabApiBasePermissionDenied') ||
+				'Allow access to the GitLab instance using Apply in GitLab settings.',
+		);
+	}
+}
+
+async function requestGitLab(apiBaseUrl, url, headers) {
+	await ensureGitLabAccess(apiBaseUrl);
+	const target = new URL(url);
+	if (target.origin !== new URL(apiBaseUrl).origin || !target.href.startsWith(`${apiBaseUrl}/`)) {
+		throw new Error('GitLab request is outside the configured API base.');
+	}
+	const signal = AbortSignal.timeout(15_000);
+	try {
+		return await fetch(target.href, { headers, redirect: 'error', credentials: 'omit', signal });
+	} catch (error) {
+		if (signal.aborted) {
+			throw new Error('GitLab request timed out. Check your network or VPN connection and try again.', {
+				cause: error,
+			});
+		}
+		throw error;
+	}
+}
+
+window.resolveGitLabAccount = resolveGitLabAccount;
+window.getGitLabAccountKey = getGitLabAccountKey;
+window.ensureGitLabAccess = ensureGitLabAccess;
+
+function getProjectPathFromWebUrl(webUrl, apiBaseUrl) {
 	if (!webUrl) return '';
 	try {
 		const urlObj = new URL(webUrl);
 		let projectPath = urlObj.pathname;
+		if (apiBaseUrl) {
+			const api = new URL(apiBaseUrl);
+			const prefix = api.pathname.slice(0, -'/api/v4'.length);
+			if (prefix && urlObj.origin === api.origin && projectPath.startsWith(prefix + '/')) {
+				projectPath = projectPath.slice(prefix.length);
+			}
+		}
 		if (projectPath.startsWith('/')) {
 			projectPath = projectPath.substring(1);
 		}
 		const delimiterIdx = projectPath.indexOf('/-/');
 		if (delimiterIdx !== -1) {
-			projectPath = projectPath.substring(0, delimiterIdx);
+			return projectPath.substring(0, delimiterIdx);
 		}
-		return projectPath;
+		return projectPath.replace(/\/(?:issues|merge_requests|work_items)\/\d+\/?$/, '');
 	} catch (e) {
 		return '';
 	}
@@ -119,8 +198,9 @@ function getTokenMarker(token) {
 }
 
 class GitLabHelper {
-	constructor(apiBaseUrl = DEFAULT_GITLAB_API_BASE_URL) {
+	constructor(apiBaseUrl = DEFAULT_GITLAB_API_BASE_URL, accountKey = null) {
 		this.baseUrl = normalizeGitLabApiBaseUrl(apiBaseUrl);
+		this.accountKey = accountKey;
 		this.cache = {
 			data: null,
 			cacheKey: null,
@@ -145,6 +225,8 @@ class GitLabHelper {
 
 	async saveToStorage(data) {
 		try {
+			if (this.accountKey && this.accountKey !== getGitLabAccountKey(await loadGitLabAccount())) return;
+			if (this.invalidated) return;
 			await browser.storage.local.set({
 				gitlabCache: {
 					data: data,
@@ -174,6 +256,7 @@ class GitLabHelper {
 	}
 
 	async fetchGitLabData(username, startDate, endDate, token = null, orgName = '') {
+		await ensureGitLabAccess(this.baseUrl);
 		const itemsLocal = await browser.storage.local.get([
 			'showCommits',
 			'useRepoFilter',
@@ -255,7 +338,7 @@ class GitLabHelper {
 				for (const group of groups) {
 					// Verify group existence
 					const groupUrl = `${this.baseUrl}/groups/${encodeURIComponent(group)}`;
-					const groupRes = await fetch(groupUrl, { headers });
+					const groupRes = await requestGitLab(this.baseUrl, groupUrl, headers);
 					if (!groupRes.ok) {
 						if (groupRes.status === 404) {
 							throw new Error(`Organization "${group}" not found on GitLab.`);
@@ -265,7 +348,7 @@ class GitLabHelper {
 
 					// Fetch group projects for project mapping (including subgroups)
 					const groupProjectsUrl = `${this.baseUrl}/groups/${encodeURIComponent(group)}/projects?per_page=100&include_subgroups=true`;
-					const groupProjectsRes = await fetch(groupProjectsUrl, { headers });
+					const groupProjectsRes = await requestGitLab(this.baseUrl, groupProjectsUrl, headers);
 					if (groupProjectsRes.ok) {
 						const projects = await groupProjectsRes.json();
 						allProjects.push(...projects);
@@ -273,7 +356,7 @@ class GitLabHelper {
 
 					// Fetch group merge requests
 					const groupMRsUrl = `${this.baseUrl}/groups/${encodeURIComponent(group)}/merge_requests?author_username=${encodeURIComponent(username)}&created_after=${startDate}T00:00:00Z&created_before=${endDate}T23:59:59Z&per_page=100&order_by=updated_at&sort=desc`;
-					const groupMRsRes = await fetch(groupMRsUrl, { headers });
+					const groupMRsRes = await requestGitLab(this.baseUrl, groupMRsUrl, headers);
 					if (groupMRsRes.ok) {
 						const mrs = await groupMRsRes.json();
 						allMergeRequests.push(...mrs);
@@ -281,7 +364,7 @@ class GitLabHelper {
 
 					// Fetch group issues
 					const groupIssuesUrl = `${this.baseUrl}/groups/${encodeURIComponent(group)}/issues?author_username=${encodeURIComponent(username)}&created_after=${startDate}T00:00:00Z&created_before=${endDate}T23:59:59Z&per_page=100&order_by=updated_at&sort=desc`;
-					const groupIssuesRes = await fetch(groupIssuesUrl, { headers });
+					const groupIssuesRes = await requestGitLab(this.baseUrl, groupIssuesUrl, headers);
 					if (groupIssuesRes.ok) {
 						const issues = await groupIssuesRes.json();
 						allIssues.push(...issues);
@@ -336,18 +419,18 @@ class GitLabHelper {
 						}
 					}
 					allMergeRequests = allMergeRequests.filter((mr) => {
-						const path = getProjectPathFromWebUrl(mr.web_url).toLowerCase();
+						const path = getProjectPathFromWebUrl(mr.web_url, this.baseUrl).toLowerCase();
 						return selectedNames.has(path);
 					});
 					allIssues = allIssues.filter((issue) => {
-						const path = getProjectPathFromWebUrl(issue.web_url).toLowerCase();
+						const path = getProjectPathFromWebUrl(issue.web_url, this.baseUrl).toLowerCase();
 						return selectedNames.has(path);
 					});
 				}
 
 				// Fetch user info for header mapping
 				const userUrl = `${this.baseUrl}/users?username=${encodeURIComponent(username)}`;
-				const userRes = await fetch(userUrl, { headers });
+				const userRes = await requestGitLab(this.baseUrl, userUrl, headers);
 				if (!userRes.ok) {
 					const err = new Error(
 						chrome?.i18n.getMessage('gitlabUserFetchError', [userRes.status, userRes.statusText]) ||
@@ -371,7 +454,7 @@ class GitLabHelper {
 			} else {
 				// Get user info first
 				const userUrl = `${this.baseUrl}/users?username=${encodeURIComponent(username)}`;
-				const userRes = await fetch(userUrl, { headers });
+				const userRes = await requestGitLab(this.baseUrl, userUrl, headers);
 				if (!userRes.ok) {
 					const err = new Error(
 						chrome?.i18n.getMessage('gitlabUserFetchError', [userRes.status, userRes.statusText]) ||
@@ -396,7 +479,7 @@ class GitLabHelper {
 
 				// Fetch all projects the user is a member of (including group projects)
 				const membershipProjectsUrl = `${this.baseUrl}/users/${userId}/projects?membership=true&per_page=100&order_by=updated_at&sort=desc`;
-				const membershipProjectsRes = await fetch(membershipProjectsUrl, { headers });
+				const membershipProjectsRes = await requestGitLab(this.baseUrl, membershipProjectsUrl, headers);
 				if (!membershipProjectsRes.ok) {
 					throw new Error(
 						chrome?.i18n.getMessage('gitlabMembershipError', [
@@ -410,7 +493,7 @@ class GitLabHelper {
 
 				// Fetch all projects the user has contributed to (public, group, etc.)
 				const contributedProjectsUrl = `${this.baseUrl}/users/${userId}/contributed_projects?per_page=100&order_by=updated_at&sort=desc`;
-				const contributedProjectsRes = await fetch(contributedProjectsUrl, { headers });
+				const contributedProjectsRes = await requestGitLab(this.baseUrl, contributedProjectsUrl, headers);
 				if (!contributedProjectsRes.ok) {
 					throw new Error(
 						chrome?.i18n.getMessage('gitlabContributedError', [
@@ -470,7 +553,7 @@ class GitLabHelper {
 				for (const project of allProjects) {
 					try {
 						const projectMRsUrl = `${this.baseUrl}/projects/${project.id}/merge_requests?author_id=${userId}&created_after=${startDate}T00:00:00Z&created_before=${endDate}T23:59:59Z&per_page=100&order_by=updated_at&sort=desc`;
-						const projectMRsRes = await fetch(projectMRsUrl, { headers });
+						const projectMRsRes = await requestGitLab(this.baseUrl, projectMRsUrl, headers);
 						if (projectMRsRes.ok) {
 							const projectMRs = await projectMRsRes.json();
 							allMergeRequests = allMergeRequests.concat(projectMRs);
@@ -486,7 +569,7 @@ class GitLabHelper {
 				for (const project of allProjects) {
 					try {
 						const projectIssuesUrl = `${this.baseUrl}/projects/${project.id}/issues?author_id=${userId}&created_after=${startDate}T00:00:00Z&created_before=${endDate}T23:59:59Z&per_page=100&order_by=updated_at&sort=desc`;
-						const projectIssuesRes = await fetch(projectIssuesUrl, { headers });
+						const projectIssuesRes = await requestGitLab(this.baseUrl, projectIssuesUrl, headers);
 						if (projectIssuesRes.ok) {
 							const projectIssues = await projectIssuesRes.json();
 							allIssues = allIssues.concat(projectIssues);
@@ -514,7 +597,7 @@ class GitLabHelper {
 				for (const mr of openMRs) {
 					try {
 						const commitsUrl = `${this.baseUrl}/projects/${mr.project_id}/merge_requests/${mr.iid}/commits?per_page=100`;
-						const commitsRes = await fetch(commitsUrl, { headers });
+						const commitsRes = await requestGitLab(this.baseUrl, commitsUrl, headers);
 						if (commitsRes.ok) {
 							const commits = await commitsRes.json();
 							mr._allCommits = commits
@@ -579,7 +662,7 @@ class GitLabHelper {
 		for (const mr of mergeRequests) {
 			try {
 				const url = `${this.baseUrl}/projects/${mr.project_id}/merge_requests/${mr.iid}`;
-				const res = await fetch(url, { headers });
+				const res = await requestGitLab(this.baseUrl, url, headers);
 				if (res.ok) {
 					const detailedMr = await res.json();
 					detailed.push(detailedMr);
@@ -603,7 +686,7 @@ class GitLabHelper {
 		for (const issue of issues) {
 			try {
 				const url = `${this.baseUrl}/projects/${issue.project_id}/issues/${issue.iid}`;
-				const res = await fetch(url, { headers });
+				const res = await requestGitLab(this.baseUrl, url, headers);
 				if (res.ok) {
 					const detailedIssue = await res.json();
 					detailed.push(detailedIssue);
@@ -640,19 +723,7 @@ class GitLabHelper {
 		let repoName = project ? project.path_with_namespace || project.name : 'unknown';
 
 		if (repoName === 'unknown' && item.web_url) {
-			try {
-				let projectPath = getProjectPathFromWebUrl(item.web_url);
-				if (projectPath.includes('/issues/')) {
-					projectPath = projectPath.split('/issues/')[0];
-				} else if (projectPath.includes('/merge_requests/')) {
-					projectPath = projectPath.split('/merge_requests/')[0];
-				}
-				if (projectPath) {
-					repoName = projectPath;
-				}
-			} catch (e) {
-				console.error('Error parsing project name from web_url:', e);
-			}
+			repoName = getProjectPathFromWebUrl(item.web_url, this.baseUrl) || repoName;
 		}
 
 		return {
@@ -696,22 +767,17 @@ if (typeof window !== 'undefined') {
 }
 
 async function forceGitlabDataRefresh() {
-	// Clear in-memory cache if gitlabHelper is loaded
-	if (window.GitLabHelper && window.gitlabHelper instanceof window.GitLabHelper) {
-		window.gitlabHelper.cache.data = null;
-		window.gitlabHelper.cache.cacheKey = null;
-		window.gitlabHelper.cache.timestamp = 0;
-		window.gitlabHelper.cache.fetching = false;
-		window.gitlabHelper.cache.queue = [];
+	const previous = window.gitlabHelper;
+	if (previous instanceof GitLabHelper) {
+		previous.invalidated = true;
+		previous.cache.data = null;
+		previous.cache.cacheKey = null;
+		previous.cache.timestamp = 0;
 	}
-	await new Promise((resolve) => {
-		browser.storage.local.remove('gitlabCache', resolve);
-	});
+	await browser.storage.local.remove('gitlabCache');
 	window.hasInjectedContent = false;
-	// Re-instantiate gitlabHelper to ensure a fresh instance for next API call
-	if (window.GitLabHelper) {
-		window.gitlabHelper = new window.GitLabHelper(window.gitlabBaseUrl);
-	}
+	const { apiBaseUrl } = await loadGitLabAccount();
+	window.gitlabHelper = apiBaseUrl ? new GitLabHelper(apiBaseUrl) : null;
 	return { success: true };
 }
 
@@ -730,16 +796,14 @@ async function fetchIssuesFromGitLab(scope) {
 	const storage = await browser.storage.local.get([
 		'platform',
 		'gitlabUsername',
-		'gitlabToken',
-		'gitlabBaseUrl',
+		...GITLAB_ACCOUNT_STORAGE_KEYS,
 		'platformUsername',
 	]);
 	const platform = storage.platform || 'github';
 	const account = scope?.accounts?.gitlab;
 	const username =
 		account?.username ?? (storage.gitlabUsername || (platform === 'gitlab' ? storage.platformUsername : ''));
-	const token = account?.token ?? storage.gitlabToken;
-	const baseUrl = account?.apiBaseUrl ?? normalizeGitLabApiBaseUrl(storage.gitlabBaseUrl);
+	const { token, apiBaseUrl: baseUrl } = account ?? resolveGitLabAccount(storage);
 
 	if (!username) {
 		throw new Error('GitLab username is required. Please set it in settings.');
@@ -760,7 +824,7 @@ async function fetchIssuesFromGitLab(scope) {
 	while (hasMore && page <= 2) {
 		const url = `${baseUrl}/issues?assignee_username=${encodeURIComponent(username)}&state=opened&scope=all&per_page=100&page=${page}&order_by=updated_at&sort=desc`;
 		console.log(`[NextPlans] Fetching page ${page} from GitLab: ${url}`);
-		const response = await fetch(url, { headers });
+		const response = await requestGitLab(baseUrl, url, headers);
 		if (!response.ok) {
 			const errorData = await response.json().catch(() => ({}));
 			const message = errorData.message || response.statusText;
@@ -781,19 +845,8 @@ async function fetchIssuesFromGitLab(scope) {
 
 	return allIssues
 		.map((issue) => {
-			let repoName = '';
-			if (issue.web_url) {
-				try {
-					const u = new URL(issue.web_url);
-					const pathParts = u.pathname.split('/');
-					const dashIndex = pathParts.indexOf('-');
-					if (dashIndex !== -1) {
-						repoName = pathParts.slice(1, dashIndex).join('/');
-					} else {
-						repoName = pathParts.slice(1, -2).join('/');
-					}
-				} catch (e) {}
-			}
+			let repoName = getProjectPathFromWebUrl(issue.web_url, baseUrl);
+
 			if (!repoName && issue.references && issue.references.full) {
 				repoName = issue.references.full.split('#')[0];
 			}
@@ -826,19 +879,16 @@ async function fetchIssuesFromGitLab(scope) {
 if (window.PlatformRegistry) {
 	window.PlatformRegistry.register('gitlab', {
 		hasRepoFilter: true,
-		async validateToken(token) {
-			const trimmed = typeof token === 'string' ? token.trim() : '';
-			if (!trimmed) return { valid: false, status: 0, reason: 'empty' };
+		async validateToken() {
 			try {
-				const baseUrl = window.gitlabBaseUrl || 'https://gitlab.com/api/v4';
-				const res = await fetch(`${baseUrl}/user`, {
-					headers: { 'PRIVATE-TOKEN': trimmed },
-				});
+				const { apiBaseUrl, token } = await loadGitLabAccount();
+				if (!token) return { valid: false, status: 0, reason: 'empty' };
+				const res = await requestGitLab(apiBaseUrl, `${apiBaseUrl}/user`, { 'PRIVATE-TOKEN': token });
 				if (res.status === 401) return { valid: false, status: 401, reason: 'invalid' };
 				if (res.ok) return { valid: true, status: res.status };
 				return { valid: false, status: res.status, reason: 'error' };
 			} catch (err) {
-				return { valid: true, networkError: true };
+				return { valid: false, networkError: true };
 			}
 		},
 		checkTokenForFilter() {
@@ -877,7 +927,11 @@ if (window.PlatformRegistry) {
 			const { repoStatus, setAvailableRepos } = context;
 			if (repoStatus) repoStatus.textContent = browser.i18n.getMessage('repoRefetching');
 			try {
-				const items = await browser.storage.local.get(['gitlabUsername', 'gitlabToken', 'gitlabGroupName']);
+				const items = await browser.storage.local.get([
+					'gitlabUsername',
+					'gitlabGroupName',
+					...GITLAB_ACCOUNT_STORAGE_KEYS,
+				]);
 				const username = items.gitlabUsername;
 				const org = items.gitlabGroupName || '';
 				if (!username) {
@@ -885,7 +939,9 @@ if (window.PlatformRegistry) {
 						repoStatus.textContent = chrome?.i18n.getMessage('usernameMissingError') || 'Username required';
 					return;
 				}
-				const repos = await this.fetchUserRepositories(username, items.gitlabToken, org);
+				const account = resolveGitLabAccount(items);
+				const repos = await this.fetchUserRepositories(username, null, org, account);
+				if (getGitLabAccountKey(account) !== getGitLabAccountKey(await loadGitLabAccount())) return;
 				setAvailableRepos?.(repos);
 				if (repoStatus) repoStatus.textContent = browser.i18n.getMessage('repoLoaded', [repos.length]);
 				const key = makeRepoCacheKey(username, org, 'gitlab', items);
@@ -913,15 +969,22 @@ if (window.PlatformRegistry) {
 			repoSearch.classList.add('repository-search-loading');
 			try {
 				const cache = await browser.storage.local.get(['gitlabRepoCache', 'repoCache']);
-				const items = await browser.storage.local.get(['gitlabUsername', 'gitlabToken', 'gitlabGroupName']);
+				const items = await browser.storage.local.get([
+					'gitlabUsername',
+					'gitlabGroupName',
+					...GITLAB_ACCOUNT_STORAGE_KEYS,
+				]);
 				const username = items.gitlabUsername;
 				const org = items.gitlabGroupName || '';
+				const account = resolveGitLabAccount(items);
+				await ensureGitLabAccess(account.apiBaseUrl);
 				const key = makeRepoCacheKey(username, org, 'gitlab', items);
 				const cached = cache.gitlabRepoCache || cache.repoCache;
 				if (cached?.cacheKey === key && Date.now() - cached.timestamp < 600000) {
 					setAvailableRepos(cached.data);
 				} else {
-					const repos = await this.fetchUserRepositories(username, items.gitlabToken, org);
+					const repos = await this.fetchUserRepositories(username, null, org, account);
+					if (getGitLabAccountKey(account) !== getGitLabAccountKey(await loadGitLabAccount())) return;
 					setAvailableRepos(repos);
 					browser.storage.local.set({ gitlabRepoCache: { data: repos, cacheKey: key, timestamp: Date.now() } });
 				}
@@ -943,28 +1006,23 @@ if (window.PlatformRegistry) {
 				}
 				return;
 			}
-			const baseUrl = window.gitlabBaseUrl || 'https://gitlab.com/api/v4';
-			let headers = {};
+			let invalidGroups;
 			try {
-				const result = await browser.storage.local.get(['gitlabToken']);
-				if (result.gitlabToken) headers['PRIVATE-TOKEN'] = result.gitlabToken;
+				const { apiBaseUrl, token } = await loadGitLabAccount();
+				const headers = token ? { 'PRIVATE-TOKEN': token } : {};
+				const results = await Promise.all(
+					groups.map(async (group) => {
+						const res = await requestGitLab(apiBaseUrl, `${apiBaseUrl}/groups/${encodeURIComponent(group)}`, headers);
+						if (res.status === 404) return group;
+						if (!res.ok) throw new Error(`GitLab group lookup failed (HTTP ${res.status}).`);
+						return null;
+					}),
+				);
+				invalidGroups = results.filter(Boolean);
 			} catch (err) {
-				// ignore
+				window.showPopupMessage?.(err.message, { variant: 'error' });
+				return;
 			}
-
-			const invalidGroups = [];
-			await Promise.all(
-				groups.map(async (g) => {
-					try {
-						const res = await fetch(`${baseUrl}/groups/${encodeURIComponent(g)}`, { headers });
-						if (res.status === 404) {
-							invalidGroups.push(g);
-						}
-					} catch (err) {
-						invalidGroups.push(g);
-					}
-				}),
-			);
 
 			if (invalidGroups.length > 0) {
 				const message =
@@ -985,15 +1043,19 @@ if (window.PlatformRegistry) {
 			}
 			browser.storage.local.remove(['gitlabCache', 'gitlabRepoCache']);
 		},
-		async fetchUserRepositories(username, token, org = '') {
-			const baseUrl = window.gitlabBaseUrl || 'https://gitlab.com/api/v4';
+		async fetchUserRepositories(username, _token, org = '', account) {
+			const { apiBaseUrl: baseUrl, token } = account ?? (await loadGitLabAccount());
 			const headers = {};
 			if (token) {
 				headers['PRIVATE-TOKEN'] = token;
 			}
 
 			console.log('[GitLab repo filter] Fetching GitLab user info for:', username);
-			const userRes = await fetch(`${baseUrl}/users?username=${encodeURIComponent(username)}`, { headers });
+			const userRes = await requestGitLab(
+				baseUrl,
+				`${baseUrl}/users?username=${encodeURIComponent(username)}`,
+				headers,
+			);
 			if (!userRes.ok) {
 				throw new Error(`GitLab user fetch failed: ${userRes.status}`);
 			}
@@ -1053,7 +1115,7 @@ if (window.PlatformRegistry) {
 			const events = [];
 			while (hasMore) {
 				const eventsUrl = `${baseUrl}/users/${userId}/events?after=${afterDateStr}&before=${beforeDateStr}&per_page=100&page=${page}`;
-				const eventsRes = await fetch(eventsUrl, { headers });
+				const eventsRes = await requestGitLab(baseUrl, eventsUrl, headers);
 				if (!eventsRes.ok) {
 					throw new Error(`GitLab events fetch failed: ${eventsRes.status}`);
 				}
@@ -1076,7 +1138,7 @@ if (window.PlatformRegistry) {
 			const repos = [];
 			const fetchPromises = projectIds.map(async (projectId) => {
 				try {
-					const projectRes = await fetch(`${baseUrl}/projects/${projectId}`, { headers });
+					const projectRes = await requestGitLab(baseUrl, `${baseUrl}/projects/${projectId}`, headers);
 					if (projectRes.ok) {
 						const project = await projectRes.json();
 

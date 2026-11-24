@@ -83,6 +83,27 @@
     "githubTokenTooltip": {
         "message": "GitHub టోకెన్‌ను జోడించడం ఎందుకు సిఫారసు చేయబడుతుంది? Scrum Helper GitHub టోకెన్ లేకుండా పనిచేస్తుంది, కాని మెరుగైన అనుభవం కోసం ఒక ఖాతా ఆక్సెస్ టోకెన్‌ను జోడించడం సిఫారసు చేయబడుతుంది."
     },
+    "gitlabApiBaseLabel": {
+        "message": "GitLab API base URL"
+    },
+    "gitlabApiBaseApply": {
+        "message": "Apply"
+    },
+    "gitlabApiBaseHelp": {
+        "message": "Leave blank for GitLab.com. Apply before entering a token for this instance."
+    },
+    "gitlabApiBaseInvalid": {
+        "message": "Enter an HTTPS GitLab URL ending in /api/v4. Use a DNS hostname."
+    },
+    "gitlabApiBasePermissionDenied": {
+        "message": "Allow access to the GitLab instance using Apply in GitLab settings."
+    },
+    "gitlabApiBaseApplied": {
+        "message": "GitLab instance applied."
+    },
+    "gitlabApiBaseSaveFailed": {
+        "message": "Could not save the GitLab settings. Try again."
+    },
     "gitlabTokenLabel": {
         "message": "మీ GitLab టోకెన్"
     },

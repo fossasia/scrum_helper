@@ -1,6 +1,5 @@
 const platformUsernameElement = document.getElementById('platformUsername');
 const githubTokenElement = document.getElementById('githubToken');
-const gitlabTokenElement = document.getElementById('gitlabToken');
 const cacheInputElement = document.getElementById('cacheInput');
 const projectNameElement = document.getElementById('projectName');
 const yesterdayContributionElement = document.getElementById('yesterdayContribution');
@@ -179,6 +178,7 @@ if (!window.reportIdentityUtils) {
 			return {
 				platforms,
 				usernames,
+				gitlabAccountKey: source.gitlabAccountKey ?? null,
 				filters,
 				cacheKeys,
 			};
@@ -199,6 +199,8 @@ if (!window.reportIdentityUtils) {
 				const cUser = (current.usernames?.[p] || '').trim();
 				if (pUser !== cUser) return false;
 			}
+
+			if (cPlatforms.includes('gitlab') && persisted.gitlabAccountKey !== current.gitlabAccountKey) return false;
 
 			const pf = persisted.filters || {};
 			const cf = current.filters || {};
@@ -403,7 +405,6 @@ function handleBodyOnLoad() {
 			'selectedTimeframe',
 			'cacheInput',
 			'githubToken',
-			'gitlabToken',
 			'codebergUsername',
 			'codebergToken',
 			'codebergApiBaseUrl',
@@ -426,9 +427,6 @@ function handleBodyOnLoad() {
 
 			if (items.githubToken && githubTokenElement) {
 				githubTokenElement.value = items.githubToken;
-			}
-			if (items.gitlabToken && gitlabTokenElement) {
-				gitlabTokenElement.value = items.gitlabToken;
 			}
 			if (codebergTokenElement && items.codebergToken) {
 				codebergTokenElement.value = items.codebergToken;
@@ -677,15 +675,6 @@ function handleGithubTokenChange() {
 		}
 	});
 }
-function handleGitlabTokenChange() {
-	const trimmed = gitlabTokenElement.value.trim();
-	browser.storage.local.get(['gitlabToken']).then((items) => {
-		const currentStored = items.gitlabToken || '';
-		if (trimmed !== currentStored) {
-			browser.storage.local.set({ gitlabToken: trimmed });
-		}
-	});
-}
 function handleCodebergTokenChange() {
 	const value = codebergTokenElement.value;
 	browser.storage.local.set({ codebergToken: value });
@@ -744,15 +733,6 @@ if (githubTokenElement) {
 	});
 	githubTokenElement.addEventListener('blur', () => {
 		githubTokenElement.value = githubTokenElement.value.trim();
-	});
-}
-if (gitlabTokenElement) {
-	gitlabTokenElement.addEventListener('change', handleGitlabTokenChange);
-	gitlabTokenElement.addEventListener('change', () => {
-		gitlabTokenElement.value = gitlabTokenElement.value.trim();
-	});
-	gitlabTokenElement.addEventListener('blur', () => {
-		gitlabTokenElement.value = gitlabTokenElement.value.trim();
 	});
 }
 if (codebergTokenElement) {

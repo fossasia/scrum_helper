@@ -95,6 +95,27 @@
   "githubTokenTooltip": {
     "message": "GitHub 토큰을 추가하는 것이 권장되는 이유는 무엇인가요? Scrum Helper는 GitHub 토큰 없이도 작동하지만, 더 나은 사용 경험을 위해 개인 액세스 토큰(classic)을 추가하는 것을 권장합니다."
   },
+  "gitlabApiBaseLabel": {
+    "message": "GitLab API base URL"
+  },
+  "gitlabApiBaseApply": {
+    "message": "Apply"
+  },
+  "gitlabApiBaseHelp": {
+    "message": "Leave blank for GitLab.com. Apply before entering a token for this instance."
+  },
+  "gitlabApiBaseInvalid": {
+    "message": "Enter an HTTPS GitLab URL ending in /api/v4. Use a DNS hostname."
+  },
+  "gitlabApiBasePermissionDenied": {
+    "message": "Allow access to the GitLab instance using Apply in GitLab settings."
+  },
+  "gitlabApiBaseApplied": {
+    "message": "GitLab instance applied."
+  },
+  "gitlabApiBaseSaveFailed": {
+    "message": "Could not save the GitLab settings. Try again."
+  },
   "gitlabTokenLabel": {
     "message": "GitLab 토큰"
   },

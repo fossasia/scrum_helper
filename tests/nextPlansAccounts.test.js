@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import '../src/scripts/gitlabHelper.js';
 import '../src/scripts/nextPlansHelper.js';
 
 describe('Next Plans account changes', () => {
@@ -22,6 +23,7 @@ describe('Next Plans account changes', () => {
 		vi.spyOn(browser.storage.local, 'get').mockImplementation(async (keys) =>
 			Object.fromEntries(keys.filter((key) => key in settings).map((key) => [key, settings[key]])),
 		);
+		browser.permissions = { contains: vi.fn().mockResolvedValue(true) };
 		previousRegistry = window.PlatformRegistry;
 		fetchAssignedIssues = vi.fn(async (platform, scope) => {
 			expect(scope.accounts[platform]).toBeDefined();
@@ -35,6 +37,7 @@ describe('Next Plans account changes', () => {
 	});
 	afterEach(() => {
 		window.PlatformRegistry = previousRegistry;
+		delete browser.permissions;
 		vi.restoreAllMocks();
 		vi.unstubAllGlobals();
 		localStorage.clear();
@@ -121,6 +124,7 @@ describe('Next Plans account changes', () => {
 		settings.selectedPlatforms = ['gitlab'];
 		await window.loadAssignedIssues();
 		settings.gitlabBaseUrl = 'https://gitlab.example.net/api/v4/';
+		settings.gitlabTokenInstance = 'https://gitlab.example.net/api/v4';
 		await window.loadAssignedIssues();
 		expect(fetchAssignedIssues).toHaveBeenCalledTimes(2);
 	});
@@ -309,6 +313,7 @@ describe('Next Plans account changes', () => {
 		};
 		await import(`../src/scripts/${platform}Helper.js`);
 		settings.gitlabBaseUrl = 'https://gitlab.example.net/api/v4';
+		settings.gitlabTokenInstance = settings.gitlabBaseUrl;
 		vi.stubGlobal(
 			'fetch',
 			vi.fn(async () => ({ ok: true, json: async () => (platform === 'github' ? { items: [] } : []) })),

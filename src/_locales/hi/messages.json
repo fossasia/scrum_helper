@@ -83,6 +83,27 @@
     "githubTokenTooltip": {
         "message": "GitHub टोकन जोड़ने की सिफारिश क्यों की जाती है? Scrum Helper बिना GitHub टोकन के काम करता है, लेकिन बेहतर अनुभव के लिए व्यक्तिगत एक्सेस टोकन जोड़ने की सिफारिश की जाती है।"
     },
+    "gitlabApiBaseLabel": {
+        "message": "GitLab API base URL"
+    },
+    "gitlabApiBaseApply": {
+        "message": "Apply"
+    },
+    "gitlabApiBaseHelp": {
+        "message": "Leave blank for GitLab.com. Apply before entering a token for this instance."
+    },
+    "gitlabApiBaseInvalid": {
+        "message": "Enter an HTTPS GitLab URL ending in /api/v4. Use a DNS hostname."
+    },
+    "gitlabApiBasePermissionDenied": {
+        "message": "Allow access to the GitLab instance using Apply in GitLab settings."
+    },
+    "gitlabApiBaseApplied": {
+        "message": "GitLab instance applied."
+    },
+    "gitlabApiBaseSaveFailed": {
+        "message": "Could not save the GitLab settings. Try again."
+    },
     "gitlabTokenLabel": {
         "message": "आपका GitLab टोकन"
     },

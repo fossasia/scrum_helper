@@ -122,6 +122,27 @@
     "githubTokenTooltip": {
         "message": "为什么建议添加 GitHub 令牌？Scrum Helper 无需 GitHub 令牌也能工作，但建议添加个人访问令牌（经典版）以获得更好的体验。"
     },
+    "gitlabApiBaseLabel": {
+        "message": "GitLab API base URL"
+    },
+    "gitlabApiBaseApply": {
+        "message": "Apply"
+    },
+    "gitlabApiBaseHelp": {
+        "message": "Leave blank for GitLab.com. Apply before entering a token for this instance."
+    },
+    "gitlabApiBaseInvalid": {
+        "message": "Enter an HTTPS GitLab URL ending in /api/v4. Use a DNS hostname."
+    },
+    "gitlabApiBasePermissionDenied": {
+        "message": "Allow access to the GitLab instance using Apply in GitLab settings."
+    },
+    "gitlabApiBaseApplied": {
+        "message": "GitLab instance applied."
+    },
+    "gitlabApiBaseSaveFailed": {
+        "message": "Could not save the GitLab settings. Try again."
+    },
     "gitlabTokenLabel": {
         "message": "你的 GitLab 令牌"
     },

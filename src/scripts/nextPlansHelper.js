@@ -32,6 +32,7 @@
 			'gitlabUsername',
 			'gitlabToken',
 			'gitlabBaseUrl',
+			'gitlabTokenInstance',
 		]);
 		const accounts = {};
 		for (const platform of scope.platforms.filter((provider) => provider === 'github' || provider === 'gitlab')) {
@@ -39,13 +40,19 @@
 				settings[`${platform}Username`] ||
 				(platform === (settings.platform || 'github') ? settings.platformUsername : '') ||
 				'';
-			const token = settings[`${platform}Token`] || '';
-			const fingerprint = await getAccountFingerprint(token);
-			const apiBaseUrl =
+			const account =
 				platform === 'gitlab'
-					? (settings.gitlabBaseUrl?.trim() || 'https://gitlab.com/api/v4').replace(/\/+$/, '')
-					: 'https://api.github.com';
-			accounts[platform] = { username: username.trim(), token, fingerprint, apiBaseUrl };
+					? window.resolveGitLabAccount(settings)
+					: { token: settings.githubToken || '', apiBaseUrl: 'https://api.github.com' };
+			if (platform === 'gitlab' && account.token) {
+				try {
+					await window.ensureGitLabAccess(account.apiBaseUrl);
+				} catch {
+					account.token = '';
+				}
+			}
+			const fingerprint = await getAccountFingerprint(account.token);
+			accounts[platform] = { ...account, username: username.trim(), fingerprint };
 		}
 		return { ...scope, accounts };
 	}

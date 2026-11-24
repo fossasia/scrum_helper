@@ -228,8 +228,6 @@ let scrumGenerationInProgress = false;
 let orgName = '';
 let platform = 'github';
 let platformUsername = '';
-let gitlabToken = '';
-window.gitlabBaseUrl = '';
 window.gitlabHelper = null;
 let codebergToken = '';
 window.codebergApiBaseUrl = '';
@@ -384,10 +382,6 @@ function handleReportFetchFailures(failures, allFailed = false) {
  * @param {string} outputTarget - Output format: 'email', 'popup', or 'download'.
  */
 function allIncluded(outputTarget = 'email') {
-	// Always re-instantiate gitlabHelper for gitlab platform to ensure fresh cache after refresh
-	if (platform === 'gitlab' || (typeof platform === 'undefined' && window.GitLabHelper)) {
-		window.gitlabHelper = new window.GitLabHelper(window.gitlabBaseUrl);
-	}
 	if (scrumGenerationInProgress) {
 		return;
 	}
@@ -401,6 +395,8 @@ function allIncluded(outputTarget = 'email') {
 	let startingDate = '';
 	let endingDate = '';
 	let platformUsernameLocal = '';
+	let gitlabAccountKey = null;
+	let reportGitLabHelper = null;
 	const platformUsernames = {
 		github: '',
 		gitlab: '',
@@ -481,9 +477,8 @@ function allIncluded(outputTarget = 'email') {
 				'gitlabUsername',
 				'codebergUsername',
 				'githubToken',
-				'gitlabToken',
+				...GITLAB_ACCOUNT_STORAGE_KEYS,
 				'codebergToken',
-				'gitlabBaseUrl',
 				'codebergApiBaseUrl',
 				'projectName',
 				'startingDate',
@@ -538,7 +533,6 @@ function allIncluded(outputTarget = 'email') {
 						document.getElementById('codebergUsername')?.value?.trim();
 					const projectFromDOM = document.getElementById('projectName')?.value;
 					const tokenFromDOM = document.getElementById('githubToken')?.value?.trim();
-					const gitlabTokenFromDOM = document.getElementById('gitlabToken')?.value?.trim();
 					const codebergTokenFromDOM = document.getElementById('codebergToken')?.value?.trim();
 
 					if (githubUserFromDOM) {
@@ -571,16 +565,12 @@ function allIncluded(outputTarget = 'email') {
 					if (tokenFromDOM !== undefined) {
 						items.githubToken = tokenFromDOM;
 					}
-					if (gitlabTokenFromDOM !== undefined) {
-						items.gitlabToken = gitlabTokenFromDOM;
-					}
 					if (codebergTokenFromDOM !== undefined) {
 						items.codebergToken = codebergTokenFromDOM;
 					}
 					chrome.storage.local.set({
 						projectName: items.projectName,
 						githubToken: items.githubToken,
-						gitlabToken: items.gitlabToken,
 						codebergToken: items.codebergToken,
 						...(items.githubUsername ? { githubUsername: items.githubUsername } : {}),
 						...(items.gitlabUsername ? { gitlabUsername: items.gitlabUsername } : {}),
@@ -592,11 +582,7 @@ function allIncluded(outputTarget = 'email') {
 				userReason = 'No Blocker at the moment';
 				chrome.storage.local.remove(['userReason']);
 				githubToken = items.githubToken;
-				gitlabToken = items.gitlabToken || '';
-				window.gitlabBaseUrl = items.gitlabBaseUrl || '';
-				if (window.GitLabHelper) {
-					window.gitlabHelper = new window.GitLabHelper(window.gitlabBaseUrl);
-				}
+				const gitlabAccount = resolveGitLabAccount(items);
 				codebergToken = items.codebergToken || '';
 				window.codebergApiBaseUrl = items.codebergApiBaseUrl || 'https://codeberg.org/api/v1';
 				if (window.CodebergHelper) {
@@ -702,6 +688,7 @@ function allIncluded(outputTarget = 'email') {
 				}
 
 				const platformsToFetch = activePlatforms.filter((p) => Boolean(getUsernameForPlatform(p)));
+				if (platformsToFetch.includes('gitlab')) gitlabAccountKey = getGitLabAccountKey(gitlabAccount);
 
 				const generateBtn = document.getElementById('generateReport');
 				if (generateBtn && outputTarget === 'popup') {
@@ -733,17 +720,18 @@ function allIncluded(outputTarget = 'email') {
 									};
 								}
 								if (p === 'gitlab') {
-									if (!window.gitlabHelper) {
-										window.gitlabHelper = new window.GitLabHelper(window.gitlabBaseUrl);
-									}
-									const raw = await window.gitlabHelper.fetchGitLabData(
+									const { apiBaseUrl, token } = gitlabAccount;
+									if (!apiBaseUrl) await ensureGitLabAccess(apiBaseUrl);
+									reportGitLabHelper = new GitLabHelper(apiBaseUrl, gitlabAccountKey);
+									window.gitlabHelper = reportGitLabHelper;
+									const raw = await reportGitLabHelper.fetchGitLabData(
 										user,
 										startingDate,
 										endingDate,
-										items.gitlabToken || gitlabToken,
+										token,
 										items.gitlabGroupName || '',
 									);
-									const mapped = window.gitlabHelper.mapGitLabReportData(raw);
+									const mapped = reportGitLabHelper.mapGitLabReportData(raw);
 									const issues = mapped?.githubIssuesData?.items || [];
 									const mrs = mapped?.githubPrsReviewData?.items || [];
 									issues.forEach((it) => {
@@ -789,6 +777,8 @@ function allIncluded(outputTarget = 'email') {
 								return { platform: p, authored: [], reviewed: [], user: null };
 							}),
 						);
+
+						if (!(await isGitLabReportCurrent())) return;
 
 						const successful = settled.filter((r) => r.status === 'fulfilled').map((r) => r.value);
 						const failures = settled.filter((r) => r.status === 'rejected').map((r) => r.reason);
@@ -862,6 +852,15 @@ function allIncluded(outputTarget = 'email') {
 			});
 	}
 	getChromeData();
+
+	async function isGitLabReportCurrent() {
+		if (gitlabAccountKey === null) return true;
+		const account = await loadGitLabAccount();
+		if (getGitLabAccountKey(account) === gitlabAccountKey && !reportGitLabHelper?.invalidated) return true;
+		setGenerateButtonState(document.getElementById('generateReport'), false);
+		scrumGenerationInProgress = false;
+		return false;
+	}
 
 	function handleYesterdayContributionChange() {
 		endingDate = getYesterday();
@@ -1467,7 +1466,7 @@ function allIncluded(outputTarget = 'email') {
 			log('Repo fiter disabled, skipping fetch');
 			return [];
 		}
-		const items = await browser.storage.local.get(['githubToken', 'gitlabToken']);
+		const items = await browser.storage.local.get(['githubToken', ...GITLAB_ACCOUNT_STORAGE_KEYS]);
 		const repoCacheKey = makeRepoCacheKey(platformUsernameLocal, orgName, platform, items);
 
 		const now = Date.now();
@@ -1494,8 +1493,7 @@ function allIncluded(outputTarget = 'email') {
 			let repos;
 			const helper = window.PlatformRegistry?.get(platform);
 			if (helper && helper.fetchUserRepositories) {
-				const token = platform === 'gitlab' ? gitlabToken : githubToken;
-				repos = await helper.fetchUserRepositories(platformUsernameLocal, token, orgName);
+				repos = await helper.fetchUserRepositories(platformUsernameLocal, githubToken, orgName);
 			} else if (window.fetchUserRepositories) {
 				repos = await window.fetchUserRepositories(platformUsernameLocal, githubToken, orgName);
 			} else {
@@ -1759,6 +1757,7 @@ function allIncluded(outputTarget = 'email') {
 				}
 			}
 		}
+		if (!(await isGitLabReportCurrent())) return;
 		log('[DEBUG] Both data processing functions completed, generating scrum body');
 		const activeEmailSubject = subjectForEmailParam || subjectForEmail;
 		if (activeEmailSubject) {
@@ -2043,7 +2042,7 @@ function allIncluded(outputTarget = 'email') {
 				try {
 					const cacheKey =
 						platform === 'gitlab'
-							? (window.gitlabHelper?.cache?.cacheKey ?? null)
+							? (reportGitLabHelper?.cache?.cacheKey ?? null)
 							: platform === 'codeberg'
 								? (window.codebergHelper?.cache?.cacheKey ?? null)
 								: (githubCache?.cacheKey ?? null);
@@ -2051,13 +2050,14 @@ function allIncluded(outputTarget = 'email') {
 					const reportPlatform = platform || (activePlatforms.length === 1 ? activePlatforms[0] : 'github');
 					const platformCacheKeys = {
 						github: githubCache?.cacheKey ?? storageItems?.githubCache?.cacheKey ?? null,
-						gitlab: window.gitlabHelper?.cache?.cacheKey ?? storageItems?.gitlabCache?.cacheKey ?? null,
+						gitlab: reportGitLabHelper?.cache?.cacheKey ?? storageItems?.gitlabCache?.cacheKey ?? null,
 						codeberg: window.codebergHelper?.cache?.cacheKey ?? storageItems?.codebergCache?.cacheKey ?? null,
 					};
 
 					const combinedIdentity =
 						window.reportIdentityUtils?.buildReportIdentity({
 							platforms: activePlatforms,
+							gitlabAccountKey,
 							usernames: {
 								github: getUsernameForPlatform('github'),
 								gitlab: getUsernameForPlatform('gitlab'),

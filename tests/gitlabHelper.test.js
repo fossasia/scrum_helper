@@ -79,6 +79,75 @@ describe('GitLabHelper', () => {
 		});
 	});
 
+	describe('instance configuration', () => {
+		const customBase = 'https://gitlab.example.net:8443/team/api/v4';
+
+		it('keeps default tokens and requires a matching instance binding for custom hosts', () => {
+			const token = 'fake-pat';
+			const settings = { gitlabToken: token, gitlabBaseUrl: customBase };
+			expect(window.resolveGitLabAccount({ gitlabToken: token }).token).toBe(token);
+			expect(window.resolveGitLabAccount(settings).token).toBe('');
+			expect(window.resolveGitLabAccount({ ...settings, gitlabTokenInstance: customBase }).token).toBe(token);
+			expect(window.resolveGitLabAccount({ ...settings, gitlabTokenInstance: 'https://gitlab.com/api/v4' }).token).toBe('');
+		});
+
+		it.each([
+			'http://gitlab.example.net/api/v4',
+			'https://gitlab.example.net/api/v4?query=1',
+			'https://gitlab.example.net/api/v4#hash',
+			'https://name:pass@gitlab.example.net/api/v4',
+			'https://gitlab.example.net',
+			'https://localhost/api/v4',
+			'https://192.168.1.5/api/v4',
+			'https://[::1]/api/v4',
+		])('rejects unsupported API URL %s without falling back', (url) => {
+			expect(new GitLabHelper(url).baseUrl).toBeNull();
+		});
+
+		it('blocks ungranted custom access and requests the exact approved API origin and path without redirects', async () => {
+			const permissions = { contains: vi.fn().mockResolvedValue(false) };
+			browser.permissions = permissions;
+			const fakeFetch = vi.fn().mockResolvedValue({ ok: true, status: 200 });
+			vi.stubGlobal('fetch', fakeFetch);
+			browser.storage.local.get.mockResolvedValue({
+				gitlabBaseUrl: customBase, gitlabTokenInstance: customBase, gitlabToken: 'fake-pat',
+			});
+			const registry = window.PlatformRegistry.get('gitlab');
+			try {
+				await expect(registry.validateToken()).resolves.toEqual({ valid: false, networkError: true });
+				expect(fakeFetch).not.toHaveBeenCalled();
+				permissions.contains.mockResolvedValue(true);
+				await expect(registry.validateToken()).resolves.toEqual({ valid: true, status: 200 });
+				expect(permissions.contains).toHaveBeenCalledWith({ origins: ['https://gitlab.example.net/*'] });
+				expect(fakeFetch).toHaveBeenCalledWith(customBase + '/user', {
+					headers: { 'PRIVATE-TOKEN': 'fake-pat' }, redirect: 'error', credentials: 'omit', signal: expect.any(AbortSignal),
+				});
+			} finally {
+				delete browser.permissions;
+				vi.unstubAllGlobals();
+			}
+		});
+	});
+
+
+	it('reports a GitLab connection timeout and lets the generation settle', async () => {
+		const signal = AbortSignal.abort(new DOMException('Timed out', 'TimeoutError'));
+		const timeout = vi.spyOn(AbortSignal, 'timeout').mockReturnValue(signal);
+		vi.stubGlobal('fetch', vi.fn(async (_url, options) => options.signal.throwIfAborted()));
+		browser.storage.local.get.mockResolvedValue({});
+		const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+		try {
+			await expect(helper.fetchGitLabData('testuser', '2026-10-01', '2026-10-05')).rejects.toThrow(
+				'GitLab request timed out. Check your network or VPN connection and try again.',
+			);
+			expect(timeout).toHaveBeenCalledWith(15_000);
+			expect(helper.cache.fetching).toBe(false);
+		} finally {
+			consoleSpy.mockRestore();
+			vi.unstubAllGlobals();
+		}
+	});
+
 	describe('getCacheTTL', () => {
 		it('should return configured minutes in milliseconds when valid', async () => {
 			browser.storage.local.get.mockResolvedValueOnce({ cacheInput: '15' });
@@ -536,23 +605,21 @@ describe('GitLabHelper', () => {
 			helper.cache.fetching = true;
 			helper.cache.queue = [{ resolve: () => {} }];
 
-			browser.storage.local.remove.mockImplementationOnce((key, cb) => {
-				if (typeof cb === 'function') cb();
-				return Promise.resolve();
-			});
+			browser.storage.local.get.mockResolvedValueOnce({ gitlabBaseUrl: 'https://gitlab.example.net/api/v4' });
 
 			const result = await window.forceGitlabDataRefresh();
 
 			expect(result).toEqual({ success: true });
-			expect(browser.storage.local.remove).toHaveBeenCalledWith('gitlabCache', expect.any(Function));
+			expect(browser.storage.local.remove).toHaveBeenCalledWith('gitlabCache');
 			expect(window.hasInjectedContent).toBe(false);
 			expect(helper.cache.data).toBeNull();
 			expect(helper.cache.cacheKey).toBeNull();
 			expect(helper.cache.timestamp).toBe(0);
-			expect(helper.cache.fetching).toBe(false);
-			expect(helper.cache.queue).toEqual([]);
+			expect(helper.invalidated).toBe(true);
+			expect(helper.cache.queue).toHaveLength(1);
 			expect(window.gitlabHelper).toBeInstanceOf(GitLabHelper);
 			expect(window.gitlabHelper).not.toBe(helper);
+			expect(window.gitlabHelper.baseUrl).toBe('https://gitlab.example.net/api/v4');
 		});
 	});
 });
