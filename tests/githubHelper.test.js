@@ -3,7 +3,6 @@ import { resolve } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import DOMPurify from '../src/libs/purify.min.js';
 import '../src/scripts/githubHelper.js';
-import '../src/scripts/gitlabHelper.js';
 
 const sanitizeHtml = new Function(`${readFileSync(resolve('src/scripts/domSanitizer.js'), 'utf8')}\nreturn sanitizeHtml;`)();
 
@@ -76,16 +75,6 @@ describe('GitHubHelper', () => {
 		it('should generate unauthenticated cache key for github when token is absent', () => {
 			const key = window.makeRepoCacheKey('testuser', 'fossasia', 'github', {});
 			expect(key).toBe('repos-github-testuser-fossasia-notoken');
-		});
-
-		it('should separate GitLab repository caches by instance', () => {
-			const defaultKey = window.makeRepoCacheKey('testuser', 'fossasia', 'gitlab', {});
-			const customKey = window.makeRepoCacheKey('testuser', 'fossasia', 'gitlab', {
-				gitlabBaseUrl: 'https://gitlab.example.net/api/v4',
-			});
-			expect(defaultKey).toContain('https://gitlab.com/api/v4');
-			expect(customKey).toContain('https://gitlab.example.net/api/v4');
-			expect(customKey).not.toBe(defaultKey);
 		});
 
 		it('should generate deterministic token-hashed cache key for github', () => {

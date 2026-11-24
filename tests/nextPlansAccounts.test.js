@@ -119,6 +119,27 @@ describe('Next Plans account changes', () => {
 		expect(cache).not.toContain('replacement-token');
 	});
 
+	it('shows revoked GitLab host access and excludes previously cached private plans', async () => {
+		const apiBase = 'https://gitlab.example.net/api/v4';
+		Object.assign(settings, {
+			platform: 'gitlab', selectedPlatforms: ['gitlab'], gitlabBaseUrl: apiBase, gitlabTokenInstance: apiBase,
+		});
+		fetchAssignedIssues.mockResolvedValue([{ id: 1, number: 1, title: 'Private issue', platform: 'gitlab' }]);
+		vi.spyOn(console, 'error').mockImplementation(() => {});
+		await window.loadAssignedIssues();
+		const checkbox = document.querySelector('.issue-item-checkbox');
+		checkbox.checked = true;
+		checkbox.dispatchEvent(new Event('change'));
+		expect(await window.getNextPlansForReport()).toHaveLength(1);
+
+		browser.permissions.contains.mockResolvedValue(false);
+		await window.loadAssignedIssues();
+		expect(document.getElementById('assignedIssuesSelector').textContent).toContain('gitlabApiBasePermissionDenied');
+		expect(document.querySelector('.issue-item-checkbox')).toBeNull();
+		expect(await window.getNextPlansForReport()).toEqual([]);
+		expect(fetchAssignedIssues).toHaveBeenCalledTimes(1);
+	});
+
 	it('separates equal GitLab usernames on different API servers', async () => {
 		settings.platform = 'gitlab';
 		settings.selectedPlatforms = ['gitlab'];

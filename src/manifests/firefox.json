@@ -9,6 +9,7 @@
   "background": {
     "scripts": [
       "scripts/browser-polyfill.min.js",
+      "scripts/gitlabHelper.js",
       "scripts/background.js"
     ]
   },

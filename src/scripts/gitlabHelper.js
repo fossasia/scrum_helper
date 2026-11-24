@@ -9,7 +9,7 @@ function parseGitlabGroups(groupStr) {
 		.map((s) => s.trim().toLowerCase())
 		.filter((s) => s && s !== 'all');
 }
-window.parseGitlabGroups = parseGitlabGroups;
+if (typeof window !== 'undefined') window.parseGitlabGroups = parseGitlabGroups;
 
 const gitlabWarningTimeouts = {};
 
@@ -114,23 +114,83 @@ function resolveGitLabAccount(items = {}) {
 	return { apiBaseUrl, token };
 }
 
+let pendingGitLabTokenSave = Promise.resolve();
+
+function waitForGitLabTokenSave() {
+	return pendingGitLabTokenSave;
+}
+
+function saveGitLabToken(apiBaseUrl, token) {
+	const save = pendingGitLabTokenSave.then(async () => {
+		const current = resolveGitLabAccount(await browser.storage.local.get(GITLAB_ACCOUNT_STORAGE_KEYS));
+		if (apiBaseUrl && apiBaseUrl === current.apiBaseUrl && token !== current.token) {
+			await browser.storage.local.set({ gitlabToken: token, gitlabTokenInstance: apiBaseUrl });
+		}
+	});
+	pendingGitLabTokenSave = save.catch(() => {});
+	return save;
+}
+
 async function loadGitLabAccount() {
+	await waitForGitLabTokenSave();
 	return resolveGitLabAccount(await browser.storage.local.get(GITLAB_ACCOUNT_STORAGE_KEYS));
 }
 
-function getGitLabAccountKey({ apiBaseUrl, token }) {
-	return JSON.stringify([apiBaseUrl, getTokenMarker(token)]);
+const gitLabTokenFingerprints = new Map();
+
+async function getGitLabTokenFingerprint(token) {
+	if (!token) return 'noauth';
+	if (!gitLabTokenFingerprints.has(token)) {
+		const fingerprint = (async () => {
+			if (globalThis.crypto?.subtle) {
+				const hash = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(token));
+				return `auth-${Array.from(new Uint8Array(hash), (byte) => byte.toString(16).padStart(2, '0')).join('')}`;
+			}
+			// Keep cache reuse local to this context when the WebView cannot compute a persistent digest.
+			return `local-${Array.from(crypto.getRandomValues(new Uint32Array(4)), (part) => part.toString(16).padStart(8, '0')).join('')}`;
+		})();
+		gitLabTokenFingerprints.set(token, fingerprint);
+	}
+	return gitLabTokenFingerprints.get(token);
+}
+
+async function getGitLabAccountKey({ apiBaseUrl, token }) {
+	return JSON.stringify([apiBaseUrl, await getGitLabTokenFingerprint(token)]);
+}
+
+async function getGitLabRepoCacheKey(username, org, account) {
+	return JSON.stringify([username, parseGitlabGroups(org).sort(), await getGitLabAccountKey(account)]);
+}
+
+async function isGitLabAccountCurrent({ apiBaseUrl, token }) {
+	const current = await loadGitLabAccount();
+	return apiBaseUrl === current.apiBaseUrl && token === current.token;
 }
 
 function gitLabHostPermission(apiBaseUrl) {
 	return { origins: [`https://${new URL(apiBaseUrl).hostname}/*`] };
 }
 
+function isGitLabContentScript() {
+	const page = globalThis.window;
+	return Boolean(page?.emailClientAdapter && browser.runtime?.id && /^https?:$/.test(page.location.protocol));
+}
+
+async function sendGitLabBackgroundRequest(request) {
+	const result = await browser.runtime.sendMessage({ action: 'gitlabApi', ...request });
+	if (!result || result.error) throw new Error(result?.error || 'Could not reach the GitLab extension service.');
+	return result;
+}
+
 async function ensureGitLabAccess(apiBaseUrl) {
 	if (!apiBaseUrl || normalizeGitLabApiBaseUrl(apiBaseUrl) !== apiBaseUrl) {
 		throw new Error(browser.i18n.getMessage('gitlabApiBaseInvalid') || 'Enter a valid HTTPS GitLab API v4 URL.');
 	}
-	if (apiBaseUrl === DEFAULT_GITLAB_API_BASE_URL || window.isTauri) return;
+	if (apiBaseUrl === DEFAULT_GITLAB_API_BASE_URL || globalThis.window?.isTauri) return;
+	if (isGitLabContentScript()) {
+		await sendGitLabBackgroundRequest({ apiBaseUrl });
+		return;
+	}
 	if (!(await browser.permissions?.contains(gitLabHostPermission(apiBaseUrl)))) {
 		throw new Error(
 			browser.i18n.getMessage('gitlabApiBasePermissionDenied') ||
@@ -140,9 +200,14 @@ async function ensureGitLabAccess(apiBaseUrl) {
 }
 
 async function requestGitLab(apiBaseUrl, url, headers) {
+	if (isGitLabContentScript()) {
+		const accountKey = await getGitLabAccountKey({ apiBaseUrl, token: headers['PRIVATE-TOKEN'] });
+		const { status, statusText, body } = await sendGitLabBackgroundRequest({ apiBaseUrl, url, accountKey });
+		return new Response(body || null, { status, statusText });
+	}
 	await ensureGitLabAccess(apiBaseUrl);
 	const target = new URL(url);
-	if (target.origin !== new URL(apiBaseUrl).origin || !target.href.startsWith(`${apiBaseUrl}/`)) {
+	if (target.username || target.password || target.hash || !target.href.startsWith(`${apiBaseUrl}/`)) {
 		throw new Error('GitLab request is outside the configured API base.');
 	}
 	const signal = AbortSignal.timeout(15_000);
@@ -158,9 +223,31 @@ async function requestGitLab(apiBaseUrl, url, headers) {
 	}
 }
 
-window.resolveGitLabAccount = resolveGitLabAccount;
-window.getGitLabAccountKey = getGitLabAccountKey;
-window.ensureGitLabAccess = ensureGitLabAccess;
+async function handleGitLabBackgroundRequest({ apiBaseUrl, url, accountKey }) {
+	const account = await loadGitLabAccount();
+	if (apiBaseUrl !== account.apiBaseUrl || (url && accountKey !== (await getGitLabAccountKey(account)))) {
+		throw new Error('GitLab settings changed. Try again using the current instance and token.');
+	}
+	if (url === undefined) {
+		await ensureGitLabAccess(account.apiBaseUrl);
+		return {};
+	}
+	if (typeof url !== 'string' || !url || !(await isGitLabAccountCurrent(account))) {
+		throw new Error('GitLab settings changed. Try again using the current instance and token.');
+	}
+	const headers = account.token ? { 'PRIVATE-TOKEN': account.token } : {};
+	const response = await requestGitLab(account.apiBaseUrl, url, headers);
+	return { status: response.status, statusText: response.statusText, body: await response.text() };
+}
+
+if (typeof window !== 'undefined') {
+	window.resolveGitLabAccount = resolveGitLabAccount;
+	window.getGitLabAccountKey = getGitLabAccountKey;
+	window.getGitLabRepoCacheKey = getGitLabRepoCacheKey;
+	window.ensureGitLabAccess = ensureGitLabAccess;
+	window.waitForGitLabTokenSave = waitForGitLabTokenSave;
+	window.saveGitLabToken = saveGitLabToken;
+}
 
 function getProjectPathFromWebUrl(webUrl, apiBaseUrl) {
 	if (!webUrl) return '';
@@ -185,16 +272,6 @@ function getProjectPathFromWebUrl(webUrl, apiBaseUrl) {
 	} catch (e) {
 		return '';
 	}
-}
-
-function getTokenMarker(token) {
-	if (!token) return 'noauth';
-	let hash = 0;
-	for (let i = 0; i < token.length; i++) {
-		hash = (hash << 5) - hash + token.charCodeAt(i);
-		hash |= 0;
-	}
-	return `auth-${Math.abs(hash).toString(16)}`;
 }
 
 class GitLabHelper {
@@ -225,7 +302,7 @@ class GitLabHelper {
 
 	async saveToStorage(data) {
 		try {
-			if (this.accountKey && this.accountKey !== getGitLabAccountKey(await loadGitLabAccount())) return;
+			if (this.accountKey && this.accountKey !== (await getGitLabAccountKey(await loadGitLabAccount()))) return;
 			if (this.invalidated) return;
 			await browser.storage.local.set({
 				gitlabCache: {
@@ -252,7 +329,7 @@ class GitLabHelper {
 		}
 	}
 	getTokenMarker(token) {
-		return getTokenMarker(token);
+		return getGitLabTokenFingerprint(token);
 	}
 
 	async fetchGitLabData(username, startDate, endDate, token = null, orgName = '') {
@@ -272,7 +349,7 @@ class GitLabHelper {
 		const selectedReposList = itemsLocal.selectedGitlabRepos || itemsLocal.selectedRepos || [];
 
 		// Include token state, orgName, showCommits, and repository filter state in cache key to invalidate on changes
-		const tokenMarker = getTokenMarker(token);
+		const tokenMarker = await this.getTokenMarker(token);
 		const normalizedGroups = parseGitlabGroups(orgName).sort().join(',');
 		const orgMarker = normalizedGroups ? `org-${normalizedGroups}` : 'noorg';
 
@@ -551,34 +628,26 @@ class GitLabHelper {
 
 				// Fetch merge requests from each project (works without auth for public projects)
 				for (const project of allProjects) {
-					try {
-						const projectMRsUrl = `${this.baseUrl}/projects/${project.id}/merge_requests?author_id=${userId}&created_after=${startDate}T00:00:00Z&created_before=${endDate}T23:59:59Z&per_page=100&order_by=updated_at&sort=desc`;
-						const projectMRsRes = await requestGitLab(this.baseUrl, projectMRsUrl, headers);
-						if (projectMRsRes.ok) {
-							const projectMRs = await projectMRsRes.json();
-							allMergeRequests = allMergeRequests.concat(projectMRs);
-						}
-						// Add small delay to avoid rate limiting
-						await new Promise((resolve) => setTimeout(resolve, 100));
-					} catch (error) {
-						console.error(`Error fetching MRs for project ${project.name}:`, error);
+					const projectMRsUrl = `${this.baseUrl}/projects/${project.id}/merge_requests?author_id=${userId}&created_after=${startDate}T00:00:00Z&created_before=${endDate}T23:59:59Z&per_page=100&order_by=updated_at&sort=desc`;
+					const projectMRsRes = await requestGitLab(this.baseUrl, projectMRsUrl, headers);
+					if (projectMRsRes.ok) {
+						const projectMRs = await projectMRsRes.json();
+						allMergeRequests = allMergeRequests.concat(projectMRs);
 					}
+					// Add small delay to avoid rate limiting
+					await new Promise((resolve) => setTimeout(resolve, 100));
 				}
 
 				// Fetch issues from each project (works without auth for public projects)
 				for (const project of allProjects) {
-					try {
-						const projectIssuesUrl = `${this.baseUrl}/projects/${project.id}/issues?author_id=${userId}&created_after=${startDate}T00:00:00Z&created_before=${endDate}T23:59:59Z&per_page=100&order_by=updated_at&sort=desc`;
-						const projectIssuesRes = await requestGitLab(this.baseUrl, projectIssuesUrl, headers);
-						if (projectIssuesRes.ok) {
-							const projectIssues = await projectIssuesRes.json();
-							allIssues = allIssues.concat(projectIssues);
-						}
-						// Add small delay to avoid rate limiting
-						await new Promise((resolve) => setTimeout(resolve, 100));
-					} catch (error) {
-						console.error(`Error fetching issues for project ${project.name}:`, error);
+					const projectIssuesUrl = `${this.baseUrl}/projects/${project.id}/issues?author_id=${userId}&created_after=${startDate}T00:00:00Z&created_before=${endDate}T23:59:59Z&per_page=100&order_by=updated_at&sort=desc`;
+					const projectIssuesRes = await requestGitLab(this.baseUrl, projectIssuesUrl, headers);
+					if (projectIssuesRes.ok) {
+						const projectIssues = await projectIssuesRes.json();
+						allIssues = allIssues.concat(projectIssues);
 					}
+					// Add small delay to avoid rate limiting
+					await new Promise((resolve) => setTimeout(resolve, 100));
 				}
 			}
 
@@ -595,28 +664,24 @@ class GitLabHelper {
 				const untilDate = new Date(endDate + 'T23:59:59Z');
 
 				for (const mr of openMRs) {
-					try {
-						const commitsUrl = `${this.baseUrl}/projects/${mr.project_id}/merge_requests/${mr.iid}/commits?per_page=100`;
-						const commitsRes = await requestGitLab(this.baseUrl, commitsUrl, headers);
-						if (commitsRes.ok) {
-							const commits = await commitsRes.json();
-							mr._allCommits = commits
-								.filter((commit) => {
-									const commitDateStr = commit.committed_date || commit.created_at || commit.authored_date;
-									if (!commitDateStr) return false;
-									const commitDate = new Date(commitDateStr);
-									return commitDate >= sinceDate && commitDate <= untilDate;
-								})
-								.map((commit) => ({
-									messageHeadline: commit.title || commit.message,
-									committedDate: commit.committed_date || commit.created_at || commit.authored_date,
-								}));
-						}
-						// Add small delay to avoid rate limiting
-						await new Promise((resolve) => setTimeout(resolve, 100));
-					} catch (error) {
-						console.error(`Error fetching commits for GitLab MR ${mr.iid}:`, error);
+					const commitsUrl = `${this.baseUrl}/projects/${mr.project_id}/merge_requests/${mr.iid}/commits?per_page=100`;
+					const commitsRes = await requestGitLab(this.baseUrl, commitsUrl, headers);
+					if (commitsRes.ok) {
+						const commits = await commitsRes.json();
+						mr._allCommits = commits
+							.filter((commit) => {
+								const commitDateStr = commit.committed_date || commit.created_at || commit.authored_date;
+								if (!commitDateStr) return false;
+								const commitDate = new Date(commitDateStr);
+								return commitDate >= sinceDate && commitDate <= untilDate;
+							})
+							.map((commit) => ({
+								messageHeadline: commit.title || commit.message,
+								committedDate: commit.committed_date || commit.created_at || commit.authored_date,
+							}));
 					}
+					// Add small delay to avoid rate limiting
+					await new Promise((resolve) => setTimeout(resolve, 100));
 				}
 			}
 
@@ -781,7 +846,7 @@ async function forceGitlabDataRefresh() {
 	return { success: true };
 }
 
-window['forceGitlabDataRefresh'] = forceGitlabDataRefresh;
+if (typeof window !== 'undefined') window.forceGitlabDataRefresh = forceGitlabDataRefresh;
 
 function gitlabCheckTokenForNextPlans(options = {}) {
 	gitlabCheckToken({
@@ -793,6 +858,7 @@ function gitlabCheckTokenForNextPlans(options = {}) {
 }
 
 async function fetchIssuesFromGitLab(scope) {
+	await waitForGitLabTokenSave();
 	const storage = await browser.storage.local.get([
 		'platform',
 		'gitlabUsername',
@@ -876,7 +942,7 @@ async function fetchIssuesFromGitLab(scope) {
 		});
 }
 
-if (window.PlatformRegistry) {
+if (globalThis.window?.PlatformRegistry) {
 	window.PlatformRegistry.register('gitlab', {
 		hasRepoFilter: true,
 		async validateToken() {
@@ -922,6 +988,7 @@ if (window.PlatformRegistry) {
 			}
 		},
 		async triggerRepoFetchIfEnabled() {
+			await waitForGitLabTokenSave();
 			const context = window.gitlabRepoFilterContext || window.githubRepoFilterContext;
 			if (!context || !context.useRepoFilter?.checked) return;
 			const { repoStatus, setAvailableRepos } = context;
@@ -940,11 +1007,11 @@ if (window.PlatformRegistry) {
 					return;
 				}
 				const account = resolveGitLabAccount(items);
+				const key = await getGitLabRepoCacheKey(username, org, account);
 				const repos = await this.fetchUserRepositories(username, null, org, account);
-				if (getGitLabAccountKey(account) !== getGitLabAccountKey(await loadGitLabAccount())) return;
+				if (!(await isGitLabAccountCurrent(account))) return;
 				setAvailableRepos?.(repos);
 				if (repoStatus) repoStatus.textContent = browser.i18n.getMessage('repoLoaded', [repos.length]);
-				const key = makeRepoCacheKey(username, org, 'gitlab', items);
 				browser.storage.local.set({ gitlabRepoCache: { data: repos, cacheKey: key, timestamp: Date.now() } });
 			} catch (err) {
 				if (repoStatus) repoStatus.textContent = `Error: ${err.message}`;
@@ -962,6 +1029,7 @@ if (window.PlatformRegistry) {
 			this.performRepoFetch();
 		},
 		async performRepoFetch() {
+			await waitForGitLabTokenSave();
 			const context = window.gitlabRepoFilterContext || window.githubRepoFilterContext;
 			if (!context) return;
 			const { repoStatus, repoSearch, filterAndDisplayRepos, setAvailableRepos, getAvailableRepos } = context;
@@ -978,13 +1046,14 @@ if (window.PlatformRegistry) {
 				const org = items.gitlabGroupName || '';
 				const account = resolveGitLabAccount(items);
 				await ensureGitLabAccess(account.apiBaseUrl);
-				const key = makeRepoCacheKey(username, org, 'gitlab', items);
+				const key = await getGitLabRepoCacheKey(username, org, account);
 				const cached = cache.gitlabRepoCache || cache.repoCache;
 				if (cached?.cacheKey === key && Date.now() - cached.timestamp < 600000) {
+					if (!(await isGitLabAccountCurrent(account))) return;
 					setAvailableRepos(cached.data);
 				} else {
 					const repos = await this.fetchUserRepositories(username, null, org, account);
-					if (getGitLabAccountKey(account) !== getGitLabAccountKey(await loadGitLabAccount())) return;
+					if (!(await isGitLabAccountCurrent(account))) return;
 					setAvailableRepos(repos);
 					browser.storage.local.set({ gitlabRepoCache: { data: repos, cacheKey: key, timestamp: Date.now() } });
 				}
@@ -1137,11 +1206,10 @@ if (window.PlatformRegistry) {
 			const filterOrgs = org && org !== 'all' ? parseGitlabGroups(org) : [];
 			const repos = [];
 			const fetchPromises = projectIds.map(async (projectId) => {
+				const projectRes = await requestGitLab(baseUrl, `${baseUrl}/projects/${projectId}`, headers);
+				const project = projectRes.ok ? await projectRes.json() : null;
 				try {
-					const projectRes = await requestGitLab(baseUrl, `${baseUrl}/projects/${projectId}`, headers);
-					if (projectRes.ok) {
-						const project = await projectRes.json();
-
+					if (project) {
 						// If this project is a fork, we include the fork project itself but keep track of upstream path.
 						if (project.forked_from_project) {
 							const upstream = project.forked_from_project;

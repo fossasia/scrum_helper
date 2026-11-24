@@ -23,6 +23,7 @@
 	}
 
 	async function getRepositoryScope() {
+		await window.waitForGitLabTokenSave?.();
 		const scope = await getRepositoryFilterScope();
 		const settings = await browser.storage.local.get([
 			'platform',
@@ -35,6 +36,7 @@
 			'gitlabTokenInstance',
 		]);
 		const accounts = {};
+		let gitlabAccessError = null;
 		for (const platform of scope.platforms.filter((provider) => provider === 'github' || provider === 'gitlab')) {
 			const username =
 				settings[`${platform}Username`] ||
@@ -47,14 +49,14 @@
 			if (platform === 'gitlab' && account.token) {
 				try {
 					await window.ensureGitLabAccess(account.apiBaseUrl);
-				} catch {
-					account.token = '';
+				} catch (error) {
+					gitlabAccessError = error;
 				}
 			}
 			const fingerprint = await getAccountFingerprint(account.token);
 			accounts[platform] = { ...account, username: username.trim(), fingerprint };
 		}
-		return { ...scope, accounts };
+		return { ...scope, accounts, gitlabAccessError };
 	}
 
 	// 1. Determine repository scope
@@ -368,7 +370,7 @@
 
 		const scope = await getRepositoryScope();
 		if (load !== latestLoad) return;
-		const cached = getCachedIssues(scope);
+		const cached = scope.gitlabAccessError ? null : getCachedIssues(scope);
 
 		if (cached) {
 			console.log('[NextPlans] Using cached assigned issues for scope:', getCacheKey(scope));
@@ -427,7 +429,11 @@
 			if (platforms.includes('gitlab') && scope.accounts.gitlab.token.trim()) {
 				const glHelper = window.PlatformRegistry ? window.PlatformRegistry.get('gitlab') : null;
 				if (glHelper && typeof glHelper.fetchAssignedIssues === 'function') {
-					fetchPromises.push(glHelper.fetchAssignedIssues(getPlatformScope('gitlab')));
+					fetchPromises.push(
+						scope.gitlabAccessError
+							? Promise.reject(scope.gitlabAccessError)
+							: glHelper.fetchAssignedIssues(getPlatformScope('gitlab')),
+					);
 				}
 			}
 
@@ -450,7 +456,12 @@
 			const settled = await Promise.allSettled(fetchPromises);
 			const currentScope = await getRepositoryScope();
 			if (load !== latestLoad) return;
-			if (getCacheKey(currentScope) !== getCacheKey(scope)) return loadAssignedIssues();
+			if (
+				getCacheKey(currentScope) !== getCacheKey(scope) ||
+				Boolean(currentScope.gitlabAccessError) !== Boolean(scope.gitlabAccessError)
+			) {
+				return loadAssignedIssues();
+			}
 			const successful = settled.filter((r) => r.status === 'fulfilled');
 
 			if (successful.length === 0) {
@@ -461,6 +472,7 @@
 			const issues = successful.flatMap((r) => r.value || []);
 			cacheIssues(scope, issues, successful.length === fetchPromises.length ? 300000 : 0);
 			displayIssuesUI(issues, scope);
+			if (scope.gitlabAccessError) window.scrumHelperToast?.(scope.gitlabAccessError.message, { variant: 'error' });
 		} catch (error) {
 			if (load !== latestLoad) return;
 			const currentScope = await getRepositoryScope().catch(() => null);
@@ -491,7 +503,9 @@
 
 		const key = getCacheKey(scope);
 		const cached = fallbackIssues.get(key) || readStoredRecord('nextPlansCache')[key];
-		const issues = cached?.issues || [];
+		const issues = (cached?.issues || []).filter((issue) => {
+			return !scope.gitlabAccessError || !getIssueSelectionId(issue).startsWith('gitlab:');
+		});
 
 		// Map selectedIds to full issue objects
 		return selectedIds

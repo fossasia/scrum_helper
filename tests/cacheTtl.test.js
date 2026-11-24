@@ -96,23 +96,23 @@ describe.each(helpers)('%s getTokenMarker', (_name, create) => {
 		helper = create();
 	});
 
-	it('should return noauth when token is empty or null', () => {
-		expect(helper.getTokenMarker(null)).toBe('noauth');
-		expect(helper.getTokenMarker(undefined)).toBe('noauth');
-		expect(helper.getTokenMarker('')).toBe('noauth');
+	it('should return noauth when token is empty or null', async () => {
+		expect(await helper.getTokenMarker(null)).toBe('noauth');
+		expect(await helper.getTokenMarker(undefined)).toBe('noauth');
+		expect(await helper.getTokenMarker('')).toBe('noauth');
 	});
 
-	it('should return hashed marker for token', () => {
-		const marker = helper.getTokenMarker('super-secret-token');
+	it('should return hashed marker for token', async () => {
+		const marker = await helper.getTokenMarker('super-secret-token');
 		expect(marker).toMatch(/^auth-[a-f0-9]+$/);
 		expect(marker).not.toContain('super-secret-token');
 	});
 
-	it('should return distinct markers for distinct tokens', () => {
-		expect(helper.getTokenMarker('token-a')).not.toBe(helper.getTokenMarker('token-b'));
+	it('should return distinct markers for distinct tokens', async () => {
+		expect(await helper.getTokenMarker('token-a')).not.toBe(await helper.getTokenMarker('token-b'));
 	});
 
-	it('should return same marker for identical tokens', () => {
-		expect(helper.getTokenMarker('token-constant')).toBe(helper.getTokenMarker('token-constant'));
+	it('should return same marker for identical tokens', async () => {
+		expect(await helper.getTokenMarker('token-constant')).toBe(await helper.getTokenMarker('token-constant'));
 	});
 });

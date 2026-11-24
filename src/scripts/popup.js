@@ -218,10 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			const token = gitlabTokenInput.value.trim();
 			gitlabTokenInput.value = token;
 			try {
-				const current = await loadGitLabAccount();
-				if (apiBaseUrl && apiBaseUrl === current.apiBaseUrl && token !== current.token) {
-					await browser.storage.local.set({ gitlabToken: token, gitlabTokenInstance: apiBaseUrl });
-				}
+				await window.saveGitLabToken(apiBaseUrl, token);
 			} catch {
 				gitlabBaseStatus.textContent = browser.i18n.getMessage('gitlabApiBaseSaveFailed');
 			}
@@ -899,7 +896,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		const gitlabAccount = activePlatforms.includes('gitlab') ? resolveGitLabAccount(storage) : null;
 		const currentIdentity = window.reportIdentityUtils?.buildReportIdentity({
 			...storage,
-			gitlabAccountKey: gitlabAccount ? getGitLabAccountKey(gitlabAccount) : null,
+			gitlabAccountKey: gitlabAccount ? await getGitLabAccountKey(gitlabAccount) : null,
 		});
 		const persistedIdentity = storage.lastScrumReportIdentity;
 		let lastScrumReportHtml = storage.lastScrumReportHtml;
@@ -939,7 +936,7 @@ document.addEventListener('DOMContentLoaded', () => {
 		if (isMatch && gitlabAccount) {
 			try {
 				await ensureGitLabAccess(gitlabAccount.apiBaseUrl);
-				isMatch = getGitLabAccountKey(await loadGitLabAccount()) === currentIdentity.gitlabAccountKey;
+				isMatch = await isGitLabAccountCurrent(gitlabAccount);
 			} catch {
 				isMatch = false;
 			}
@@ -2085,10 +2082,10 @@ document.addEventListener('DOMContentLoaded', () => {
 			'change',
 			debounce(async () => {
 				const enabled = useFilter.checked;
-				let rawToken = tokenInput ? tokenInput.value.trim() : '';
-				if (platform === 'gitlab') {
-					rawToken = (await loadGitLabAccount()).token;
-				} else if (!rawToken) {
+				const gitlabAccount = platform === 'gitlab' ? await loadGitLabAccount() : null;
+				if (gitlabAccount && enabled !== useFilter.checked) return;
+				let rawToken = gitlabAccount?.token ?? tokenInput?.value.trim() ?? '';
+				if (!gitlabAccount && !rawToken) {
 					try {
 						const stored = await browser.storage.local.get(['githubToken']);
 						rawToken = stored.githubToken || '';
@@ -2131,6 +2128,8 @@ document.addEventListener('DOMContentLoaded', () => {
 							chrome?.i18n.getMessage('loadingReposAutomatically') || 'Loading repos automatically...';
 					}
 					const validation = await helper.validateToken(rawToken);
+					if (gitlabAccount && (!(await isGitLabAccountCurrent(gitlabAccount)) || enabled !== useFilter.checked))
+						return;
 					if (!validation.valid && (validation.status === 401 || validation.reason === 'invalid')) {
 						useFilter.checked = false;
 						container.classList.add('hidden');
@@ -2186,6 +2185,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					}
 
 					try {
+						if (platform === 'gitlab') await waitForGitLabTokenSave();
 						const cacheData = await browser.storage.local.get(
 							platform === 'gitlab' ? [storageCacheKey, 'repoCache'] : [storageCacheKey],
 						);
@@ -2213,13 +2213,16 @@ document.addEventListener('DOMContentLoaded', () => {
 						const org = platform === 'gitlab' ? items.gitlabGroupName || '' : items.orgName || '';
 						const gitlabAccount = platform === 'gitlab' ? resolveGitLabAccount(items) : null;
 						if (gitlabAccount) await ensureGitLabAccess(gitlabAccount.apiBaseUrl);
-						const repoCacheKey = makeRepoCacheKey(username, org, platform, items);
+						const repoCacheKey = gitlabAccount
+							? await getGitLabRepoCacheKey(username, org, gitlabAccount)
+							: makeRepoCacheKey(username, org, platform, items);
 
 						const now = Date.now();
 						const cacheAge = cached?.timestamp ? now - cached.timestamp : Number.POSITIVE_INFINITY;
 						const cacheTTL = 10 * 60 * 1000;
 
 						if (cached && cached.cacheKey === repoCacheKey && cacheAge < cacheTTL) {
+							if (gitlabAccount && !(await isGitLabAccountCurrent(gitlabAccount))) return;
 							availableRepos = cached.data;
 							if (statusLabel) {
 								statusLabel.textContent = browser.i18n.getMessage('repoLoaded', [availableRepos.length]);
@@ -2232,12 +2235,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 						if (helper && helper.fetchUserRepositories) {
 							const repos = await helper.fetchUserRepositories(username, items.githubToken, org, gitlabAccount);
-							if (
-								gitlabAccount &&
-								getGitLabAccountKey(gitlabAccount) !== getGitLabAccountKey(await loadGitLabAccount())
-							) {
-								return;
-							}
+							if (gitlabAccount && !(await isGitLabAccountCurrent(gitlabAccount))) return;
 							availableRepos = repos;
 							if (statusLabel) {
 								statusLabel.textContent = browser.i18n.getMessage('repoLoaded', [repos.length]);

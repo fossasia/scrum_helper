@@ -82,6 +82,63 @@ describe('GitLabHelper', () => {
 	describe('instance configuration', () => {
 		const customBase = 'https://gitlab.example.net:8443/team/api/v4';
 
+		it('keeps repo and report cache identities separate for different hosts and formerly colliding tokens', async () => {
+			const first = { apiBaseUrl: customBase, token: 'fixture-Aa' };
+			const second = { ...first, token: 'fixture-BB' };
+			const otherHost = { ...first, apiBaseUrl: 'https://gitlab.com/api/v4' };
+			const accountKey = await window.getGitLabAccountKey(first);
+			const repoKey = await window.getGitLabRepoCacheKey('alice', 'group', first);
+			expect(accountKey).not.toContain(first.token);
+			expect(repoKey).toContain(customBase);
+			for (const account of [second, otherHost]) {
+				expect(await window.getGitLabAccountKey(account)).not.toBe(accountKey);
+				expect(await window.getGitLabRepoCacheKey('alice', 'group', account)).not.toBe(repoKey);
+			}
+		});
+
+		it('waits for token edits in order before validating the saved account', async () => {
+			let settings = { gitlabBaseUrl: customBase, gitlabTokenInstance: customBase, gitlabToken: 'original' };
+			let finishFirstWrite;
+			const firstWrite = new Promise((resolve) => {
+				finishFirstWrite = resolve;
+			});
+			let markStarted;
+			const started = new Promise((resolve) => {
+				markStarted = resolve;
+			});
+			const storage = browser.storage.local;
+			vi.spyOn(storage, 'get').mockImplementation(async () => settings);
+			vi.spyOn(storage, 'set').mockImplementation(async (values) => {
+				if (values.gitlabToken === 'first-edit') {
+					markStarted();
+					await firstWrite;
+				}
+				settings = { ...settings, ...values };
+			});
+			browser.permissions = { contains: vi.fn().mockResolvedValue(true) };
+			const fetch = vi.fn().mockResolvedValue({ ok: true, status: 200 });
+			vi.stubGlobal('fetch', fetch);
+			try {
+				const first = window.saveGitLabToken(customBase, 'first-edit');
+				await started;
+				const second = window.saveGitLabToken(customBase, 'latest-edit');
+				const validation = window.PlatformRegistry.get('gitlab').validateToken();
+				expect(fetch).not.toHaveBeenCalled();
+				expect(storage.set).toHaveBeenCalledTimes(1);
+				finishFirstWrite();
+				await Promise.all([first, second]);
+				await expect(validation).resolves.toEqual({ valid: true, status: 200 });
+				expect(fetch).toHaveBeenCalledExactlyOnceWith(
+					customBase + '/user',
+					expect.objectContaining({ headers: { 'PRIVATE-TOKEN': 'latest-edit' } }),
+				);
+			} finally {
+				finishFirstWrite();
+				delete browser.permissions;
+				vi.unstubAllGlobals();
+			}
+		});
+
 		it('keeps default tokens and requires a matching instance binding for custom hosts', () => {
 			const token = 'fake-pat';
 			const settings = { gitlabToken: token, gitlabBaseUrl: customBase };
@@ -102,6 +159,40 @@ describe('GitLabHelper', () => {
 			'https://[::1]/api/v4',
 		])('rejects unsupported API URL %s without falling back', (url) => {
 			expect(new GitLabHelper(url).baseUrl).toBeNull();
+		});
+
+		it('discards a cached repository list if the account switches during the permission check', async () => {
+			const account = { apiBaseUrl: customBase, token: 'old-token' };
+			let settings = {
+				gitlabUsername: 'alice', gitlabGroupName: 'group', gitlabBaseUrl: customBase,
+				gitlabTokenInstance: customBase, gitlabToken: account.token,
+				gitlabRepoCache: {
+					cacheKey: await window.getGitLabRepoCacheKey('alice', 'group', account),
+					data: [{ fullName: 'group/private' }],
+					timestamp: Date.now(),
+				},
+			};
+			const setAvailableRepos = vi.fn();
+			window.gitlabRepoFilterContext = {
+				repoStatus: document.createElement('div'),
+				repoSearch: document.createElement('input'),
+				setAvailableRepos,
+				getAvailableRepos: () => [],
+			};
+			vi.spyOn(browser.storage.local, 'get').mockImplementation(async () => settings);
+			browser.permissions = {
+				contains: vi.fn(async () => {
+					settings = { gitlabBaseUrl: 'https://other.example.net/api/v4' };
+					return true;
+				}),
+			};
+			try {
+				await window.PlatformRegistry.get('gitlab').performRepoFetch();
+				expect(setAvailableRepos).not.toHaveBeenCalled();
+			} finally {
+				delete browser.permissions;
+				delete window.gitlabRepoFilterContext;
+			}
 		});
 
 		it('blocks ungranted custom access and requests the exact approved API origin and path without redirects', async () => {
@@ -144,6 +235,58 @@ describe('GitLabHelper', () => {
 			expect(helper.cache.fetching).toBe(false);
 		} finally {
 			consoleSpy.mockRestore();
+			vi.unstubAllGlobals();
+		}
+	});
+
+	it.each(['issues', 'merge_requests', 'commits'])('rejects and leaves no report cache when project %s time out', async (route) => {
+		vi.spyOn(console, 'error').mockImplementation(() => {});
+		browser.storage.local.get.mockResolvedValue({ showCommits: true });
+		let controller;
+		vi.spyOn(AbortSignal, 'timeout').mockImplementation(() => {
+			controller = new AbortController();
+			return controller.signal;
+		});
+		const responses = {
+			'/api/v4/users': [{ id: 1, username: 'alice' }],
+			'/api/v4/users/1/projects': [{ id: 3, path_with_namespace: 'group/repo' }],
+			'/api/v4/users/1/contributed_projects': [],
+			'/api/v4/projects/3/merge_requests': [{ iid: 5, project_id: 3, state: 'opened' }],
+			'/api/v4/projects/3/issues': [],
+		};
+		vi.stubGlobal('fetch', vi.fn(async (url, { signal }) => {
+			const pathname = new URL(url).pathname;
+			if (pathname.startsWith('/api/v4/projects/') && pathname.endsWith('/' + route)) {
+				controller.abort();
+				signal.throwIfAborted();
+			}
+			return { ok: true, json: async () => responses[pathname] };
+		}));
+		try {
+			await expect(helper.fetchGitLabData('alice', '2026-10-01', '2026-10-05')).rejects.toThrow('GitLab request timed out');
+			expect(browser.storage.local.set).not.toHaveBeenCalled();
+			expect(helper.cache.fetching).toBe(false);
+		} finally {
+			vi.unstubAllGlobals();
+		}
+	});
+
+	it('rejects repository discovery when a project detail request loses its connection', async () => {
+		vi.spyOn(browser.storage.local, 'get').mockImplementation(async (_keys, callback) => {
+			if (callback) callback({});
+			return {};
+		});
+		vi.stubGlobal('fetch', vi.fn(async (url) => {
+			const pathname = new URL(url).pathname;
+			if (pathname === '/api/v4/projects/3') throw new TypeError('Connection lost');
+			return {
+				ok: true,
+				json: async () => pathname.endsWith('/events') ? [{ project_id: 3 }] : [{ id: 1, username: 'alice' }],
+			};
+		}));
+		try {
+			await expect(window.PlatformRegistry.get('gitlab').fetchUserRepositories('alice')).rejects.toThrow('Connection lost');
+		} finally {
 			vi.unstubAllGlobals();
 		}
 	});

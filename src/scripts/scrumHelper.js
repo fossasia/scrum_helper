@@ -396,6 +396,7 @@ function allIncluded(outputTarget = 'email') {
 	let endingDate = '';
 	let platformUsernameLocal = '';
 	let gitlabAccountKey = null;
+	let reportGitLabAccount = null;
 	let reportGitLabHelper = null;
 	const platformUsernames = {
 		github: '',
@@ -467,7 +468,8 @@ function allIncluded(outputTarget = 'email') {
 	const issue_closed_notplanned_button =
 		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #808080;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--gray">closed</div>';
 
-	function getChromeData() {
+	async function getChromeData() {
+		await waitForGitLabTokenSave();
 		console.log('[DEBUG] getChromeData called for outputTarget:', outputTarget);
 		chrome.storage.local
 			.get([
@@ -688,7 +690,7 @@ function allIncluded(outputTarget = 'email') {
 				}
 
 				const platformsToFetch = activePlatforms.filter((p) => Boolean(getUsernameForPlatform(p)));
-				if (platformsToFetch.includes('gitlab')) gitlabAccountKey = getGitLabAccountKey(gitlabAccount);
+				if (platformsToFetch.includes('gitlab')) reportGitLabAccount = gitlabAccount;
 
 				const generateBtn = document.getElementById('generateReport');
 				if (generateBtn && outputTarget === 'popup') {
@@ -697,6 +699,7 @@ function allIncluded(outputTarget = 'email') {
 
 				(async () => {
 					try {
+						if (reportGitLabAccount) gitlabAccountKey = await getGitLabAccountKey(reportGitLabAccount);
 						const settled = await Promise.allSettled(
 							platformsToFetch.map(async (p) => {
 								const user = getUsernameForPlatform(p);
@@ -853,12 +856,15 @@ function allIncluded(outputTarget = 'email') {
 	}
 	getChromeData();
 
-	async function isGitLabReportCurrent() {
-		if (gitlabAccountKey === null) return true;
-		const account = await loadGitLabAccount();
-		if (getGitLabAccountKey(account) === gitlabAccountKey && !reportGitLabHelper?.invalidated) return true;
-		setGenerateButtonState(document.getElementById('generateReport'), false);
-		scrumGenerationInProgress = false;
+	async function isGitLabReportCurrent(resetGeneration = true) {
+		if (!reportGitLabAccount) return true;
+		if ((await isGitLabAccountCurrent(reportGitLabAccount).catch(() => false)) && !reportGitLabHelper?.invalidated) {
+			return true;
+		}
+		if (resetGeneration) {
+			setGenerateButtonState(document.getElementById('generateReport'), false);
+			scrumGenerationInProgress = false;
+		}
 		return false;
 	}
 
@@ -1467,7 +1473,10 @@ function allIncluded(outputTarget = 'email') {
 			return [];
 		}
 		const items = await browser.storage.local.get(['githubToken', ...GITLAB_ACCOUNT_STORAGE_KEYS]);
-		const repoCacheKey = makeRepoCacheKey(platformUsernameLocal, orgName, platform, items);
+		const repoCacheKey =
+			platform === 'gitlab'
+				? await getGitLabRepoCacheKey(platformUsernameLocal, orgName, resolveGitLabAccount(items))
+				: makeRepoCacheKey(platformUsernameLocal, orgName, platform, items);
 
 		const now = Date.now();
 		const isRepoCacheFresh = now - githubCache.repoTimeStamp < githubCache.ttl;
@@ -1789,21 +1798,22 @@ function allIncluded(outputTarget = 'email') {
 			const content = contentParts.join('<br>');
 			// Wait for both subject and body to be available, then inject both
 			let injected = false;
-			const interval = setInterval(() => {
+			const interval = setInterval(async () => {
 				const elements = window.emailClientAdapter?.getEditorElements();
 				if (elements && elements.subject && elements.body && !injected) {
+					clearInterval(interval);
+					if (!(await isGitLabReportCurrent(false))) return;
 					elements.subject.value = activeEmailSubject;
 					elements.subject.dispatchEvent(new Event('input', { bubbles: true }));
 					window.emailClientAdapter.injectContent(elements.body, content, elements.eventTypes.contentChange);
 					injected = true;
-					clearInterval(interval);
 				}
 			}, 200);
 			setTimeout(() => {
 				if (!injected) clearInterval(interval);
 			}, 30000);
 		} else {
-			writeScrumBody();
+			await writeScrumBody();
 		}
 	}
 
@@ -1996,7 +2006,7 @@ function allIncluded(outputTarget = 'email') {
 		return wrapCompactText(userReason);
 	}
 
-	function writeScrumBody() {
+	async function writeScrumBody() {
 		const lastWeekUl = buildActivityListHtml();
 		const nextWeekUl = buildNextWeekListHtml();
 		const blockerText = buildBlockerTextHtml();
@@ -2035,6 +2045,7 @@ function allIncluded(outputTarget = 'email') {
 		if (outputTarget === 'popup') {
 			const scrumReport = document.getElementById('scrumReport');
 			if (scrumReport) {
+				if (!(await isGitLabReportCurrent())) return;
 				log('Found popup div, updating content');
 				scrumReport.innerHTML = sanitizeHtml(content);
 				delete scrumReport.dataset.copyPlaceholder;
@@ -2116,7 +2127,7 @@ function allIncluded(outputTarget = 'email') {
 				return;
 			}
 
-			const observer = new MutationObserver((mutations, obs) => {
+			const observer = new MutationObserver(async (mutations, obs) => {
 				if (!window.emailClientAdapter) {
 					obs.disconnect();
 					return;
@@ -2162,8 +2173,8 @@ function allIncluded(outputTarget = 'email') {
 				console.error('Subject element not found');
 				return;
 			}
-			setTimeout(() => {
-				const name = githubUserData?.name || githubUserData?.username || platformUsernameLocal || platformUsername;
+			setTimeout(async () => {
+				if (!(await isGitLabReportCurrent(false))) return;
 				const project = projectName;
 				const curDate = new Date();
 				const year = curDate.getFullYear().toString();
