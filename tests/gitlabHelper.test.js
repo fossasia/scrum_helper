@@ -82,6 +82,42 @@ describe('GitLabHelper', () => {
 	describe('instance configuration', () => {
 		const customBase = 'https://gitlab.example.net:8443/team/api/v4';
 
+		it.each([
+			[200, { username: 'alice' }, true],
+			[401, { message: '401 Unauthorized' }, true],
+			[403, { message: '403 Forbidden' }, true],
+			[404, { message: '404 Not Found' }, false],
+			[503, { message: 'Service unavailable' }, false],
+			[200, '<html>Sign in</html>', false],
+		])('checks a custom API without credentials (HTTP %s)', async (status, body, reachable) => {
+			browser.permissions = { contains: vi.fn().mockResolvedValue(true) };
+			const fetch = vi.fn().mockResolvedValue(new Response(
+				typeof body === 'string' ? body : JSON.stringify(body), { status },
+			));
+			vi.stubGlobal('fetch', fetch);
+			try {
+				await expect(window.isGitLabInstanceReachable(customBase)).resolves.toBe(reachable);
+				expect(fetch).toHaveBeenCalledWith(customBase + '/user', {
+					headers: {}, redirect: 'error', credentials: 'omit', signal: expect.any(AbortSignal),
+				});
+			} finally {
+				delete browser.permissions;
+				vi.unstubAllGlobals();
+			}
+		});
+
+		it('rejects an unreachable API without changing the saved GitLab account', async () => {
+			browser.permissions = { contains: vi.fn().mockResolvedValue(true) };
+			vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('Network error')));
+			try {
+				await expect(window.isGitLabInstanceReachable(customBase)).resolves.toBe(false);
+				expect(browser.storage.local.set).not.toHaveBeenCalled();
+			} finally {
+				delete browser.permissions;
+				vi.unstubAllGlobals();
+			}
+		});
+
 		it('keeps repo and report cache identities separate for different hosts and formerly colliding tokens', async () => {
 			const first = { apiBaseUrl: customBase, token: 'fixture-Aa' };
 			const second = { ...first, token: 'fixture-BB' };
@@ -229,7 +265,7 @@ describe('GitLabHelper', () => {
 		const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 		try {
 			await expect(helper.fetchGitLabData('testuser', '2026-10-01', '2026-10-05')).rejects.toThrow(
-				'GitLab request timed out. Check your network or VPN connection and try again.',
+				'gitlabRequestTimedOut',
 			);
 			expect(timeout).toHaveBeenCalledWith(15_000);
 			expect(helper.cache.fetching).toBe(false);
@@ -263,7 +299,7 @@ describe('GitLabHelper', () => {
 			return { ok: true, json: async () => responses[pathname] };
 		}));
 		try {
-			await expect(helper.fetchGitLabData('alice', '2026-10-01', '2026-10-05')).rejects.toThrow('GitLab request timed out');
+			await expect(helper.fetchGitLabData('alice', '2026-10-01', '2026-10-05')).rejects.toThrow('gitlabRequestTimedOut');
 			expect(browser.storage.local.set).not.toHaveBeenCalled();
 			expect(helper.cache.fetching).toBe(false);
 		} finally {
@@ -285,7 +321,7 @@ describe('GitLabHelper', () => {
 			};
 		}));
 		try {
-			await expect(window.PlatformRegistry.get('gitlab').fetchUserRepositories('alice')).rejects.toThrow('Connection lost');
+			await expect(window.PlatformRegistry.get('gitlab').fetchUserRepositories('alice')).rejects.toThrow('gitlabRequestConnectionFailed');
 		} finally {
 			vi.unstubAllGlobals();
 		}

@@ -84,25 +84,49 @@
         "message": "GitHub टोकन जोड़ने की सिफारिश क्यों की जाती है? Scrum Helper बिना GitHub टोकन के काम करता है, लेकिन बेहतर अनुभव के लिए व्यक्तिगत एक्सेस टोकन जोड़ने की सिफारिश की जाती है।"
     },
     "gitlabApiBaseLabel": {
-        "message": "GitLab API base URL"
+        "message": "GitLab API का मूल URL"
     },
     "gitlabApiBaseApply": {
-        "message": "Apply"
+        "message": "लागू करें"
     },
     "gitlabApiBaseHelp": {
-        "message": "Leave blank for GitLab.com. Apply before entering a token for this instance."
+        "message": "GitLab.com का इस्तेमाल करने के लिए यह फ़ील्ड खाली छोड़ें। इस इंस्टेंस का टोकन दर्ज करने से पहले «लागू करें» चुनें।"
     },
     "gitlabApiBaseInvalid": {
-        "message": "Enter an HTTPS GitLab URL ending in /api/v4. Use a DNS hostname."
+        "message": "GitLab का ऐसा HTTPS URL दर्ज करें जो /api/v4 पर खत्म हो। DNS होस्टनाम का इस्तेमाल करें।"
     },
     "gitlabApiBasePermissionDenied": {
-        "message": "Allow access to the GitLab instance using Apply in GitLab settings."
+        "message": "GitLab इंस्टेंस को ऐक्सेस करने की अनुमति देने के लिए GitLab की सेटिंग में «लागू करें» चुनें।"
     },
     "gitlabApiBaseApplied": {
-        "message": "GitLab instance applied."
+        "message": "GitLab इंस्टेंस लागू हो गया।"
     },
     "gitlabApiBaseSaveFailed": {
-        "message": "Could not save the GitLab settings. Try again."
+        "message": "GitLab की सेटिंग सेव नहीं हो सकी। फिर से कोशिश करें।"
+    },
+    "gitlabApiBaseConfigure": {
+        "message": "GitLab इंस्टेंस कॉन्फ़िगर करें"
+    },
+    "gitlabApiBaseChecking": {
+        "message": "GitLab API की जाँच हो रही है…"
+    },
+    "gitlabApiBaseUnreachable": {
+        "message": "GitLab API से संपर्क नहीं हो सका। URL और नेटवर्क या VPN कनेक्शन की जाँच करके फिर से कोशिश करें।"
+    },
+    "gitlabRequestTimedOut": {
+        "message": "GitLab अनुरोध का समय समाप्त हो गया। अपने नेटवर्क या VPN कनेक्शन की जाँच करके फिर से कोशिश करें।"
+    },
+    "gitlabRequestConnectionFailed": {
+        "message": "GitLab से कनेक्ट नहीं हो सका। अपने नेटवर्क या VPN कनेक्शन की जाँच करके फिर से कोशिश करें।"
+    },
+    "gitlabRequestAccountChanged": {
+        "message": "GitLab की सेटिंग बदल गई है। मौजूदा इंस्टेंस और टोकन के साथ फिर से कोशिश करें।"
+    },
+    "gitlabRequestOutsideBase": {
+        "message": "GitLab अनुरोध कॉन्फ़िगर किए गए API के मूल URL से बाहर है।"
+    },
+    "gitlabGroupLookupFailed": {
+        "message": "GitLab ग्रुप नहीं खोजा जा सका (HTTP $1)।"
     },
     "gitlabTokenLabel": {
         "message": "आपका GitLab टोकन"

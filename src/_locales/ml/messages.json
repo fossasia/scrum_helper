@@ -84,25 +84,49 @@
         "message": "GitHub ടോക്കൻ ചേർക്കാൻ എന്ത് ശുപാർശ ചെയ്യുന്നത്? സ്ക്രം ഹെൽപർ GitHub ടോക്കൻ ഇല്ലാതെ പ്രവർത്തിക്കുന്നു, എന്നാൽ നല്ലതായ അനുഭവത്തിന് പ്രത്യക്ഷ ആക്സസ് ടോക്കൻ ചേർക്കാൻ ശുപാർശ ചെയ്യുന്നു."
     },
     "gitlabApiBaseLabel": {
-        "message": "GitLab API base URL"
+        "message": "GitLab API-യുടെ അടിസ്ഥാന URL"
     },
     "gitlabApiBaseApply": {
-        "message": "Apply"
+        "message": "പ്രയോഗിക്കുക"
     },
     "gitlabApiBaseHelp": {
-        "message": "Leave blank for GitLab.com. Apply before entering a token for this instance."
+        "message": "GitLab.com ഉപയോഗിക്കാൻ ഈ ഫീൽഡ് ഒഴിച്ചിടുക. ഈ ഇൻസ്റ്റൻസിന്റെ ടോക്കൺ നൽകുന്നതിന് മുമ്പ് «പ്രയോഗിക്കുക» തിരഞ്ഞെടുക്കുക."
     },
     "gitlabApiBaseInvalid": {
-        "message": "Enter an HTTPS GitLab URL ending in /api/v4. Use a DNS hostname."
+        "message": "/api/v4 എന്ന് അവസാനിക്കുന്ന GitLab HTTPS URL നൽകുക. ഒരു DNS ഹോസ്റ്റ്നാമം ഉപയോഗിക്കുക."
     },
     "gitlabApiBasePermissionDenied": {
-        "message": "Allow access to the GitLab instance using Apply in GitLab settings."
+        "message": "GitLab ഇൻസ്റ്റൻസിലേക്കുള്ള ആക്‌സസ് അനുവദിക്കാൻ GitLab ക്രമീകരണങ്ങളിൽ «പ്രയോഗിക്കുക» തിരഞ്ഞെടുക്കുക."
     },
     "gitlabApiBaseApplied": {
-        "message": "GitLab instance applied."
+        "message": "GitLab ഇൻസ്റ്റൻസ് പ്രയോഗിച്ചു."
     },
     "gitlabApiBaseSaveFailed": {
-        "message": "Could not save the GitLab settings. Try again."
+        "message": "GitLab ക്രമീകരണങ്ങൾ സംരക്ഷിക്കാനായില്ല. വീണ്ടും ശ്രമിക്കുക."
+    },
+    "gitlabApiBaseConfigure": {
+        "message": "GitLab ഇൻസ്റ്റൻസ് ക്രമീകരിക്കുക"
+    },
+    "gitlabApiBaseChecking": {
+        "message": "GitLab API പരിശോധിക്കുന്നു…"
+    },
+    "gitlabApiBaseUnreachable": {
+        "message": "GitLab API-യിൽ എത്തിച്ചേരാനായില്ല. URL-ഉം നെറ്റ്‌വർക്ക് അല്ലെങ്കിൽ VPN കണക്ഷനും പരിശോധിച്ച് വീണ്ടും ശ്രമിക്കുക."
+    },
+    "gitlabRequestTimedOut": {
+        "message": "GitLab അഭ്യർത്ഥനയുടെ സമയപരിധി കഴിഞ്ഞു. നെറ്റ്‌വർക്ക് അല്ലെങ്കിൽ VPN കണക്ഷൻ പരിശോധിച്ച് വീണ്ടും ശ്രമിക്കുക."
+    },
+    "gitlabRequestConnectionFailed": {
+        "message": "GitLab-ലേക്ക് ബന്ധിപ്പിക്കാനായില്ല. നെറ്റ്‌വർക്ക് അല്ലെങ്കിൽ VPN കണക്ഷൻ പരിശോധിച്ച് വീണ്ടും ശ്രമിക്കുക."
+    },
+    "gitlabRequestAccountChanged": {
+        "message": "GitLab ക്രമീകരണങ്ങൾ മാറി. നിലവിലെ ഇൻസ്റ്റൻസും ടോക്കണും ഉപയോഗിച്ച് വീണ്ടും ശ്രമിക്കുക."
+    },
+    "gitlabRequestOutsideBase": {
+        "message": "GitLab അഭ്യർത്ഥന ക്രമീകരിച്ച API അടിസ്ഥാന URL-ന്റെ പരിധിക്ക് പുറത്താണ്."
+    },
+    "gitlabGroupLookupFailed": {
+        "message": "GitLab ഗ്രൂപ്പ് കണ്ടെത്താനായില്ല (HTTP $1)."
     },
     "gitlabTokenLabel": {
         "message": "നിങ്ങളുടെ GitLab ടോക്കൺ"

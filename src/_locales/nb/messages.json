@@ -84,25 +84,49 @@
         "message": "Hvorfor anbefales det å legge til et GitHub-token? Scrum Helper fungerer uten et GitHub-token, men det anbefales å legge til et personlig tilgangstoken for en bedre opplevelse."
     },
     "gitlabApiBaseLabel": {
-        "message": "GitLab API base URL"
+        "message": "Basis-URL for GitLab-API-et"
     },
     "gitlabApiBaseApply": {
-        "message": "Apply"
+        "message": "Bruk"
     },
     "gitlabApiBaseHelp": {
-        "message": "Leave blank for GitLab.com. Apply before entering a token for this instance."
+        "message": "La feltet stå tomt for å bruke GitLab.com. Velg «Bruk» før du skriver inn et token for denne instansen."
     },
     "gitlabApiBaseInvalid": {
-        "message": "Enter an HTTPS GitLab URL ending in /api/v4. Use a DNS hostname."
+        "message": "Skriv inn en HTTPS-URL for GitLab som slutter på /api/v4. Bruk et DNS-vertsnavn."
     },
     "gitlabApiBasePermissionDenied": {
-        "message": "Allow access to the GitLab instance using Apply in GitLab settings."
+        "message": "Tillat tilgang til GitLab-instansen ved å velge «Bruk» i GitLab-innstillingene."
     },
     "gitlabApiBaseApplied": {
-        "message": "GitLab instance applied."
+        "message": "GitLab-instansen er tatt i bruk."
     },
     "gitlabApiBaseSaveFailed": {
-        "message": "Could not save the GitLab settings. Try again."
+        "message": "Kunne ikke lagre GitLab-innstillingene. Prøv igjen."
+    },
+    "gitlabApiBaseConfigure": {
+        "message": "Konfigurer GitLab-instans"
+    },
+    "gitlabApiBaseChecking": {
+        "message": "Sjekker GitLab-API-et …"
+    },
+    "gitlabApiBaseUnreachable": {
+        "message": "Kunne ikke nå GitLab-API-et. Sjekk URL-en og nettverks- eller VPN-tilkoblingen, og prøv igjen."
+    },
+    "gitlabRequestTimedOut": {
+        "message": "Forespørselen til GitLab tok for lang tid. Sjekk nettverks- eller VPN-tilkoblingen og prøv igjen."
+    },
+    "gitlabRequestConnectionFailed": {
+        "message": "Kunne ikke koble til GitLab. Sjekk nettverks- eller VPN-tilkoblingen og prøv igjen."
+    },
+    "gitlabRequestAccountChanged": {
+        "message": "GitLab-innstillingene er endret. Prøv igjen med gjeldende instans og token."
+    },
+    "gitlabRequestOutsideBase": {
+        "message": "GitLab-forespørselen går utenfor den konfigurerte basis-URL-en for API-et."
+    },
+    "gitlabGroupLookupFailed": {
+        "message": "Kunne ikke slå opp GitLab-gruppen (HTTP $1)."
     },
     "gitlabTokenLabel": {
         "message": "Ditt GitLab-token"

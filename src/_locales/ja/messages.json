@@ -84,25 +84,49 @@
         "message": "GitHubトークンを追加することをお勧めするのはなぜですか？Scrum HelperはGitHubトークンなしで機能しますが、より良いエクスペリエンスのためにパーソナルアクセストークンを追加することをお勧めします。"
     },
     "gitlabApiBaseLabel": {
-        "message": "GitLab API base URL"
+        "message": "GitLab API のベース URL"
     },
     "gitlabApiBaseApply": {
-        "message": "Apply"
+        "message": "適用"
     },
     "gitlabApiBaseHelp": {
-        "message": "Leave blank for GitLab.com. Apply before entering a token for this instance."
+        "message": "GitLab.com を使う場合は空欄のままにしてください。このインスタンスのトークンを入力する前に「適用」を選択してください。"
     },
     "gitlabApiBaseInvalid": {
-        "message": "Enter an HTTPS GitLab URL ending in /api/v4. Use a DNS hostname."
+        "message": "/api/v4 で終わる GitLab の HTTPS URL を入力してください。DNS ホスト名を使用してください。"
     },
     "gitlabApiBasePermissionDenied": {
-        "message": "Allow access to the GitLab instance using Apply in GitLab settings."
+        "message": "GitLab 設定で「適用」を選択し、GitLab インスタンスへのアクセスを許可してください。"
     },
     "gitlabApiBaseApplied": {
-        "message": "GitLab instance applied."
+        "message": "GitLab インスタンスを設定しました。"
     },
     "gitlabApiBaseSaveFailed": {
-        "message": "Could not save the GitLab settings. Try again."
+        "message": "GitLab の設定を保存できませんでした。もう一度お試しください。"
+    },
+    "gitlabApiBaseConfigure": {
+        "message": "GitLab インスタンスを設定"
+    },
+    "gitlabApiBaseChecking": {
+        "message": "GitLab API を確認しています…"
+    },
+    "gitlabApiBaseUnreachable": {
+        "message": "GitLab API に接続できませんでした。URL とネットワークまたは VPN の接続を確認し、もう一度お試しください。"
+    },
+    "gitlabRequestTimedOut": {
+        "message": "GitLab へのリクエストがタイムアウトしました。ネットワークまたは VPN の接続を確認し、もう一度お試しください。"
+    },
+    "gitlabRequestConnectionFailed": {
+        "message": "GitLab に接続できませんでした。ネットワークまたは VPN の接続を確認し、もう一度お試しください。"
+    },
+    "gitlabRequestAccountChanged": {
+        "message": "GitLab の設定が変更されました。現在のインスタンスとトークンで、もう一度お試しください。"
+    },
+    "gitlabRequestOutsideBase": {
+        "message": "GitLab へのリクエストが、設定された API のベース URL の範囲外です。"
+    },
+    "gitlabGroupLookupFailed": {
+        "message": "GitLab グループを取得できませんでした（HTTP $1）。"
     },
     "gitlabTokenLabel": {
         "message": "GitLabトークン"

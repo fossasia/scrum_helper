@@ -210,9 +210,13 @@
 		}
 	}
 
-	function getCachedIssues(scope) {
+	function getCachedIssueEntry(scope) {
 		const key = getCacheKey(scope);
-		const cached = fallbackIssues.get(key) || readStoredRecord('nextPlansCache')[key];
+		return fallbackIssues.get(key) || readStoredRecord('nextPlansCache')[key];
+	}
+
+	function getCachedIssues(scope) {
+		const cached = getCachedIssueEntry(scope);
 		return cached && Date.now() - cached.timestamp < (cached.ttl ?? 300000) ? cached.issues : null;
 	}
 
@@ -281,6 +285,10 @@
 		return `${platform}:${issue.id}`;
 	}
 
+	function isGitLabIssue(issue) {
+		return getIssueSelectionId(issue).startsWith('gitlab:');
+	}
+
 	function isIssueSelected(selectedIds, issues, issue) {
 		const selectionId = getIssueSelectionId(issue);
 		if (selectedIds.some((id) => String(id) === selectionId)) {
@@ -290,7 +298,7 @@
 		return matchingIssues.length === 1 && selectedIds.some((id) => String(id) === String(issue.id));
 	}
 
-	function displayIssuesUI(issues, scope) {
+	function displayIssuesUI(issues, scope, selectionCandidates = issues) {
 		const container = document.getElementById('assignedIssuesSelector');
 		if (!container) return;
 
@@ -322,7 +330,7 @@
 			checkbox.type = 'checkbox';
 			checkbox.classList.add('issue-item-checkbox');
 			checkbox.dataset.issueId = getIssueSelectionId(issue);
-			if (isIssueSelected(selectedIds, issues, issue)) {
+			if (isIssueSelected(selectedIds, selectionCandidates, issue)) {
 				checkbox.checked = true;
 			}
 
@@ -470,8 +478,11 @@
 			}
 
 			const issues = successful.flatMap((r) => r.value || []);
-			cacheIssues(scope, issues, successful.length === fetchPromises.length ? 300000 : 0);
-			displayIssuesUI(issues, scope);
+			const selectionCandidates = scope.gitlabAccessError
+				? issues.concat((getCachedIssueEntry(scope)?.issues || []).filter(isGitLabIssue))
+				: issues;
+			cacheIssues(scope, selectionCandidates, successful.length === fetchPromises.length ? 300000 : 0);
+			displayIssuesUI(issues, scope, selectionCandidates);
 			if (scope.gitlabAccessError) window.scrumHelperToast?.(scope.gitlabAccessError.message, { variant: 'error' });
 		} catch (error) {
 			if (load !== latestLoad) return;
@@ -501,11 +512,7 @@
 			return [];
 		}
 
-		const key = getCacheKey(scope);
-		const cached = fallbackIssues.get(key) || readStoredRecord('nextPlansCache')[key];
-		const issues = (cached?.issues || []).filter((issue) => {
-			return !scope.gitlabAccessError || !getIssueSelectionId(issue).startsWith('gitlab:');
-		});
+		const issues = getCachedIssueEntry(scope)?.issues || [];
 
 		// Map selectedIds to full issue objects
 		return selectedIds
@@ -516,7 +523,7 @@
 				const legacyMatches = issues.filter((issue) => String(issue.id) === selectionId);
 				return legacyMatches.length === 1 ? legacyMatches[0] : undefined;
 			})
-			.filter(Boolean);
+			.filter((issue) => issue && (!scope.gitlabAccessError || !isGitLabIssue(issue)));
 	}
 
 	// Expose globally

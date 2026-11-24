@@ -84,25 +84,49 @@
         "message": "Зачем рекомендуется добавлять токен GitHub? Scrum Helper работает без токена GitHub, но для лучшего опыта рекомендуется добавить токен личного доступа."
     },
     "gitlabApiBaseLabel": {
-        "message": "GitLab API base URL"
+        "message": "Базовый URL API GitLab"
     },
     "gitlabApiBaseApply": {
-        "message": "Apply"
+        "message": "Применить"
     },
     "gitlabApiBaseHelp": {
-        "message": "Leave blank for GitLab.com. Apply before entering a token for this instance."
+        "message": "Оставьте поле пустым, чтобы использовать GitLab.com. Нажмите «Применить», прежде чем вводить токен для этого экземпляра."
     },
     "gitlabApiBaseInvalid": {
-        "message": "Enter an HTTPS GitLab URL ending in /api/v4. Use a DNS hostname."
+        "message": "Введите HTTPS-адрес GitLab, оканчивающийся на /api/v4. Используйте имя хоста DNS."
     },
     "gitlabApiBasePermissionDenied": {
-        "message": "Allow access to the GitLab instance using Apply in GitLab settings."
+        "message": "Чтобы разрешить доступ к экземпляру GitLab, нажмите «Применить» в настройках GitLab."
     },
     "gitlabApiBaseApplied": {
-        "message": "GitLab instance applied."
+        "message": "Экземпляр GitLab настроен."
     },
     "gitlabApiBaseSaveFailed": {
-        "message": "Could not save the GitLab settings. Try again."
+        "message": "Не удалось сохранить настройки GitLab. Попробуйте ещё раз."
+    },
+    "gitlabApiBaseConfigure": {
+        "message": "Настроить экземпляр GitLab"
+    },
+    "gitlabApiBaseChecking": {
+        "message": "Проверка API GitLab…"
+    },
+    "gitlabApiBaseUnreachable": {
+        "message": "Не удалось подключиться к API GitLab. Проверьте URL и подключение к сети или VPN и попробуйте ещё раз."
+    },
+    "gitlabRequestTimedOut": {
+        "message": "Истекло время ожидания ответа от GitLab. Проверьте подключение к сети или VPN и попробуйте ещё раз."
+    },
+    "gitlabRequestConnectionFailed": {
+        "message": "Не удалось подключиться к GitLab. Проверьте подключение к сети или VPN и попробуйте ещё раз."
+    },
+    "gitlabRequestAccountChanged": {
+        "message": "Настройки GitLab изменились. Попробуйте ещё раз с текущим экземпляром и токеном."
+    },
+    "gitlabRequestOutsideBase": {
+        "message": "Запрос к GitLab выходит за пределы настроенного базового URL API."
+    },
+    "gitlabGroupLookupFailed": {
+        "message": "Не удалось получить данные группы GitLab (HTTP $1)."
     },
     "gitlabTokenLabel": {
         "message": "Ваш токен GitLab"

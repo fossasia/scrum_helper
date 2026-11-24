@@ -84,25 +84,49 @@
         "message": "GitHub တိုကင်ထည့်ရန် အဘယ်ကြောင့် အကြံပြုရသနည်း။ Scrum Helper သည် GitHub တိုကင်မပါဘဲ အလုပ်လုပ်သော်လည်း ပိုမိုကောင်းမွန်သော အတွေ့အကြုံအတွက် ကိုယ်ပိုင်အသုံးပြုခွင့် တိုကင်တစ်ခုထည့်ခြင်းကို အကြံပြုပါသည်။"
     },
     "gitlabApiBaseLabel": {
-        "message": "GitLab API base URL"
+        "message": "GitLab API အခြေခံ URL"
     },
     "gitlabApiBaseApply": {
-        "message": "Apply"
+        "message": "အသုံးပြုမည်"
     },
     "gitlabApiBaseHelp": {
-        "message": "Leave blank for GitLab.com. Apply before entering a token for this instance."
+        "message": "GitLab.com ကို သုံးရန် ဤအကွက်ကို အလွတ်ထားပါ။ ဤဆာဗာအတွက် တိုကင်မထည့်မီ «အသုံးပြုမည်» ကို နှိပ်ပါ။"
     },
     "gitlabApiBaseInvalid": {
-        "message": "Enter an HTTPS GitLab URL ending in /api/v4. Use a DNS hostname."
+        "message": "/api/v4 ဖြင့် ဆုံးသော GitLab HTTPS URL ကို ထည့်ပါ။ DNS ဟို့စ်အမည်ကို သုံးပါ။"
     },
     "gitlabApiBasePermissionDenied": {
-        "message": "Allow access to the GitLab instance using Apply in GitLab settings."
+        "message": "GitLab ဆာဗာကို ဝင်ရောက်ခွင့်ပြုရန် GitLab ဆက်တင်များတွင် «အသုံးပြုမည်» ကို နှိပ်ပါ။"
     },
     "gitlabApiBaseApplied": {
-        "message": "GitLab instance applied."
+        "message": "GitLab ဆာဗာကို သတ်မှတ်ပြီးပါပြီ။"
     },
     "gitlabApiBaseSaveFailed": {
-        "message": "Could not save the GitLab settings. Try again."
+        "message": "GitLab ဆက်တင်များကို မသိမ်းနိုင်ပါ။ ထပ်ကြိုးစားပါ။"
+    },
+    "gitlabApiBaseConfigure": {
+        "message": "GitLab ဆာဗာ သတ်မှတ်ရန်"
+    },
+    "gitlabApiBaseChecking": {
+        "message": "GitLab API ကို စစ်ဆေးနေသည်…"
+    },
+    "gitlabApiBaseUnreachable": {
+        "message": "GitLab API ကို ဆက်သွယ်၍မရပါ။ URL နှင့် ကွန်ရက် သို့မဟုတ် VPN ချိတ်ဆက်မှုကို စစ်ဆေးပြီး ထပ်ကြိုးစားပါ။"
+    },
+    "gitlabRequestTimedOut": {
+        "message": "GitLab တောင်းဆိုမှု အချိန်ကျော်သွားသည်။ ကွန်ရက် သို့မဟုတ် VPN ချိတ်ဆက်မှုကို စစ်ဆေးပြီး ထပ်ကြိုးစားပါ။"
+    },
+    "gitlabRequestConnectionFailed": {
+        "message": "GitLab ကို ချိတ်ဆက်၍မရပါ။ ကွန်ရက် သို့မဟုတ် VPN ချိတ်ဆက်မှုကို စစ်ဆေးပြီး ထပ်ကြိုးစားပါ။"
+    },
+    "gitlabRequestAccountChanged": {
+        "message": "GitLab ဆက်တင်များ ပြောင်းလဲသွားသည်။ လက်ရှိဆာဗာနှင့် တိုကင်ကို သုံးပြီး ထပ်ကြိုးစားပါ။"
+    },
+    "gitlabRequestOutsideBase": {
+        "message": "GitLab တောင်းဆိုမှုသည် သတ်မှတ်ထားသော API အခြေခံ URL ၏ အပြင်ဘက်တွင် ရှိသည်။"
+    },
+    "gitlabGroupLookupFailed": {
+        "message": "GitLab အုပ်စုကို ရှာဖွေ၍မရပါ (HTTP $1)။"
     },
     "gitlabTokenLabel": {
         "message": "သင်၏ Gitlab တိုကင်"

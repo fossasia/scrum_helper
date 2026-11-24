@@ -275,7 +275,7 @@ To use Scrum Helper with GitLab:
 * Enter a **GitLab Personal Access Token**.
 * The token must have the **`read_api` scope**.
 * Optionally enter a **Group filter** to limit the results to a specific GitLab group.
-* For a self-managed server, enter its HTTPS API URL in **GitLab API base URL** (for example, `https://gitlab.example.com/api/v4`). Choose **Apply** and grant access in your browser when prompted, then enter a token created on that server if needed. Clearing the URL and applying switches back to GitLab.com. Changing instances clears the GitLab token, group and repository selections. Use a DNS hostname and a trusted TLS certificate.
+* For a self-managed server, select GitLab and choose **Configure GitLab instance** in the platform menu to open the API URL field. Enter its HTTPS API URL (for example, `https://gitlab.example.com/api/v4`) and choose **Apply**. Grant browser access when prompted. After Scrum Helper verifies that the API responds, enter a token created on that server if needed. Clearing the URL and applying switches back to GitLab.com. Changing instances clears the GitLab token, group and repository selections. Use a DNS hostname and a trusted TLS certificate.
 
 #### Creating a GitLab Personal Access Token
 

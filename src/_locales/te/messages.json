@@ -84,25 +84,49 @@
         "message": "GitHub టోకెన్‌ను జోడించడం ఎందుకు సిఫారసు చేయబడుతుంది? Scrum Helper GitHub టోకెన్ లేకుండా పనిచేస్తుంది, కాని మెరుగైన అనుభవం కోసం ఒక ఖాతా ఆక్సెస్ టోకెన్‌ను జోడించడం సిఫారసు చేయబడుతుంది."
     },
     "gitlabApiBaseLabel": {
-        "message": "GitLab API base URL"
+        "message": "GitLab API మూల URL"
     },
     "gitlabApiBaseApply": {
-        "message": "Apply"
+        "message": "వర్తింపజేయి"
     },
     "gitlabApiBaseHelp": {
-        "message": "Leave blank for GitLab.com. Apply before entering a token for this instance."
+        "message": "GitLab.com ఉపయోగించడానికి ఈ ఫీల్డ్‌ను ఖాళీగా ఉంచండి. ఈ సర్వర్ టోకెన్‌ను నమోదు చేసే ముందు «వర్తింపజేయి» ఎంచుకోండి."
     },
     "gitlabApiBaseInvalid": {
-        "message": "Enter an HTTPS GitLab URL ending in /api/v4. Use a DNS hostname."
+        "message": "/api/v4తో ముగిసే GitLab HTTPS URLను నమోదు చేయండి. DNS హోస్ట్ పేరును ఉపయోగించండి."
     },
     "gitlabApiBasePermissionDenied": {
-        "message": "Allow access to the GitLab instance using Apply in GitLab settings."
+        "message": "GitLab సర్వర్‌కు యాక్సెస్ ఇవ్వడానికి GitLab సెట్టింగ్‌లలో «వర్తింపజేయి» ఎంచుకోండి."
     },
     "gitlabApiBaseApplied": {
-        "message": "GitLab instance applied."
+        "message": "GitLab సర్వర్ సెట్ చేయబడింది."
     },
     "gitlabApiBaseSaveFailed": {
-        "message": "Could not save the GitLab settings. Try again."
+        "message": "GitLab సెట్టింగ్‌లను సేవ్ చేయలేకపోయాము. మళ్లీ ప్రయత్నించండి."
+    },
+    "gitlabApiBaseConfigure": {
+        "message": "GitLab సర్వర్‌ను కాన్ఫిగర్ చేయండి"
+    },
+    "gitlabApiBaseChecking": {
+        "message": "GitLab APIని తనిఖీ చేస్తున్నాం…"
+    },
+    "gitlabApiBaseUnreachable": {
+        "message": "GitLab APIని చేరుకోలేకపోయాము. URL, నెట్‌వర్క్ లేదా VPN కనెక్షన్‌ను తనిఖీ చేసి మళ్లీ ప్రయత్నించండి."
+    },
+    "gitlabRequestTimedOut": {
+        "message": "GitLab అభ్యర్థన గడువు ముగిసింది. మీ నెట్‌వర్క్ లేదా VPN కనెక్షన్‌ను తనిఖీ చేసి మళ్లీ ప్రయత్నించండి."
+    },
+    "gitlabRequestConnectionFailed": {
+        "message": "GitLabకు కనెక్ట్ కాలేకపోయాము. మీ నెట్‌వర్క్ లేదా VPN కనెక్షన్‌ను తనిఖీ చేసి మళ్లీ ప్రయత్నించండి."
+    },
+    "gitlabRequestAccountChanged": {
+        "message": "GitLab సెట్టింగ్‌లు మారాయి. ప్రస్తుత సర్వర్ మరియు టోకెన్‌తో మళ్లీ ప్రయత్నించండి."
+    },
+    "gitlabRequestOutsideBase": {
+        "message": "GitLab అభ్యర్థన కాన్ఫిగర్ చేసిన API మూల URL పరిధి వెలుపల ఉంది."
+    },
+    "gitlabGroupLookupFailed": {
+        "message": "GitLab గ్రూప్‌ను చూడలేకపోయాము (HTTP $1)."
     },
     "gitlabTokenLabel": {
         "message": "మీ GitLab టోకెన్"

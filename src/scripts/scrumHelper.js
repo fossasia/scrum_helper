@@ -1191,7 +1191,7 @@ function allIncluded(outputTarget = 'email') {
 				log('Using repo filter for api calls:', selectedRepos);
 
 				try {
-					await fetchReposIfNeeded();
+					await fetchGitHubReposIfNeeded();
 				} catch (err) {
 					logError('Failed to fetch repo data for filtering:', err);
 				}
@@ -1467,16 +1467,12 @@ function allIncluded(outputTarget = 'email') {
 		return {};
 	}
 
-	async function fetchReposIfNeeded() {
+	async function fetchGitHubReposIfNeeded() {
 		if (!useRepoFilter) {
 			log('Repo fiter disabled, skipping fetch');
 			return [];
 		}
-		const items = await browser.storage.local.get(['githubToken', ...GITLAB_ACCOUNT_STORAGE_KEYS]);
-		const repoCacheKey =
-			platform === 'gitlab'
-				? await getGitLabRepoCacheKey(platformUsernameLocal, orgName, resolveGitLabAccount(items))
-				: makeRepoCacheKey(platformUsernameLocal, orgName, platform, items);
+		const repoCacheKey = makeRepoCacheKey(platformUsernameLocal, orgName, 'github', { githubToken });
 
 		const now = Date.now();
 		const isRepoCacheFresh = now - githubCache.repoTimeStamp < githubCache.ttl;
@@ -1495,13 +1491,12 @@ function allIncluded(outputTarget = 'email') {
 		}
 
 		githubCache.repoFetching = true;
-		githubCache.repoCacheKey = repoCacheKey;
 
 		try {
 			log('Fetching repos automatically');
 			let repos;
-			const helper = window.PlatformRegistry?.get(platform);
-			if (helper && helper.fetchUserRepositories) {
+			const helper = window.PlatformRegistry?.get('github');
+			if (helper?.fetchUserRepositories) {
 				repos = await helper.fetchUserRepositories(platformUsernameLocal, githubToken, orgName);
 			} else if (window.fetchUserRepositories) {
 				repos = await window.fetchUserRepositories(platformUsernameLocal, githubToken, orgName);
@@ -1510,10 +1505,11 @@ function allIncluded(outputTarget = 'email') {
 			}
 
 			githubCache.repoData = repos;
+			githubCache.repoCacheKey = repoCacheKey;
 			githubCache.repoTimeStamp = now;
 
 			chrome.storage.local.set({
-				[platform === 'gitlab' ? 'gitlabRepoCache' : 'repoCache']: {
+				repoCache: {
 					data: repos,
 					cacheKey: repoCacheKey,
 					timestamp: now,

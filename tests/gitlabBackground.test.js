@@ -54,16 +54,16 @@ describe('GitLab requests from an email content script', () => {
 	});
 
 	it.each([
-		['https://outside.example.net/user', 'outside'],
-		['https://gitlab.example.net/team/unrelated', 'outside'],
-	])('does not fetch %s outside the configured API base', async (url, message) => {
-		expect((await dispatch({ url, accountKey })).error).toContain(message);
+		'https://outside.example.net/user',
+		'https://gitlab.example.net/team/unrelated',
+	])('does not fetch %s outside the configured API base', async (url) => {
+		expect((await dispatch({ url, accountKey })).error).toBe('gitlabRequestOutsideBase');
 		expect(fetch).not.toHaveBeenCalled();
 	});
 
 	it('rejects requests after the stored token changes or permission is revoked', async () => {
 		settings.gitlabToken = 'new-token';
-		expect((await dispatch({ url: apiUrl, accountKey })).error).toContain('settings changed');
+		expect((await dispatch({ url: apiUrl, accountKey })).error).toBe('gitlabRequestAccountChanged');
 		settings.gitlabToken = 'fixture-token';
 		browser.permissions.contains.mockResolvedValue(false);
 		expect((await dispatch({ url: apiUrl, accountKey })).error).toBe('gitlabApiBasePermissionDenied');

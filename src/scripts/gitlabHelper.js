@@ -178,7 +178,9 @@ function isGitLabContentScript() {
 
 async function sendGitLabBackgroundRequest(request) {
 	const result = await browser.runtime.sendMessage({ action: 'gitlabApi', ...request });
-	if (!result || result.error) throw new Error(result?.error || 'Could not reach the GitLab extension service.');
+	if (!result || result.error) {
+		throw new Error(result?.error || browser.i18n.getMessage('gitlabRequestConnectionFailed'));
+	}
 	return result;
 }
 
@@ -208,32 +210,40 @@ async function requestGitLab(apiBaseUrl, url, headers) {
 	await ensureGitLabAccess(apiBaseUrl);
 	const target = new URL(url);
 	if (target.username || target.password || target.hash || !target.href.startsWith(`${apiBaseUrl}/`)) {
-		throw new Error('GitLab request is outside the configured API base.');
+		throw new Error(browser.i18n.getMessage('gitlabRequestOutsideBase'));
 	}
 	const signal = AbortSignal.timeout(15_000);
 	try {
 		return await fetch(target.href, { headers, redirect: 'error', credentials: 'omit', signal });
 	} catch (error) {
-		if (signal.aborted) {
-			throw new Error('GitLab request timed out. Check your network or VPN connection and try again.', {
-				cause: error,
-			});
-		}
-		throw error;
+		const messageKey = signal.aborted ? 'gitlabRequestTimedOut' : 'gitlabRequestConnectionFailed';
+		throw new Error(browser.i18n.getMessage(messageKey), { cause: error });
+	}
+}
+
+async function isGitLabInstanceReachable(apiBaseUrl) {
+	try {
+		// GitLab's current-user endpoint typically returns 401 without a token.
+		const response = await requestGitLab(apiBaseUrl, `${apiBaseUrl}/user`, {});
+		if (!response.ok && response.status !== 401 && response.status !== 403) return false;
+		const data = await response.json();
+		return response.ok ? typeof data?.username === 'string' : typeof data?.message === 'string';
+	} catch {
+		return false;
 	}
 }
 
 async function handleGitLabBackgroundRequest({ apiBaseUrl, url, accountKey }) {
 	const account = await loadGitLabAccount();
 	if (apiBaseUrl !== account.apiBaseUrl || (url && accountKey !== (await getGitLabAccountKey(account)))) {
-		throw new Error('GitLab settings changed. Try again using the current instance and token.');
+		throw new Error(browser.i18n.getMessage('gitlabRequestAccountChanged'));
 	}
 	if (url === undefined) {
 		await ensureGitLabAccess(account.apiBaseUrl);
 		return {};
 	}
 	if (typeof url !== 'string' || !url || !(await isGitLabAccountCurrent(account))) {
-		throw new Error('GitLab settings changed. Try again using the current instance and token.');
+		throw new Error(browser.i18n.getMessage('gitlabRequestAccountChanged'));
 	}
 	const headers = account.token ? { 'PRIVATE-TOKEN': account.token } : {};
 	const response = await requestGitLab(account.apiBaseUrl, url, headers);
@@ -245,6 +255,7 @@ if (typeof window !== 'undefined') {
 	window.getGitLabAccountKey = getGitLabAccountKey;
 	window.getGitLabRepoCacheKey = getGitLabRepoCacheKey;
 	window.ensureGitLabAccess = ensureGitLabAccess;
+	window.isGitLabInstanceReachable = isGitLabInstanceReachable;
 	window.waitForGitLabTokenSave = waitForGitLabTokenSave;
 	window.saveGitLabToken = saveGitLabToken;
 }
@@ -1083,7 +1094,7 @@ if (globalThis.window?.PlatformRegistry) {
 					groups.map(async (group) => {
 						const res = await requestGitLab(apiBaseUrl, `${apiBaseUrl}/groups/${encodeURIComponent(group)}`, headers);
 						if (res.status === 404) return group;
-						if (!res.ok) throw new Error(`GitLab group lookup failed (HTTP ${res.status}).`);
+						if (!res.ok) throw new Error(browser.i18n.getMessage('gitlabGroupLookupFailed', [String(res.status)]));
 						return null;
 					}),
 				);

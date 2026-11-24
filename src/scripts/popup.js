@@ -233,11 +233,19 @@ document.addEventListener('DOMContentLoaded', () => {
 			}
 
 			applyGitlabBase.disabled = true;
+			gitlabBaseInput.disabled = true;
 			try {
 				if (apiBaseUrl !== DEFAULT_GITLAB_API_BASE_URL && !window.isTauri) {
 					const granted = await browser.permissions?.request(gitLabHostPermission(apiBaseUrl));
 					if (!granted) {
 						gitlabBaseStatus.textContent = browser.i18n.getMessage('gitlabApiBasePermissionDenied');
+						return;
+					}
+				}
+				if (apiBaseUrl !== DEFAULT_GITLAB_API_BASE_URL) {
+					gitlabBaseStatus.textContent = browser.i18n.getMessage('gitlabApiBaseChecking');
+					if (!(await isGitLabInstanceReachable(apiBaseUrl))) {
+						gitlabBaseStatus.textContent = browser.i18n.getMessage('gitlabApiBaseUnreachable');
 						return;
 					}
 				}
@@ -260,8 +268,16 @@ document.addEventListener('DOMContentLoaded', () => {
 				console.error('GitLab settings update failed:', error);
 				gitlabBaseStatus.textContent = browser.i18n.getMessage('gitlabApiBaseSaveFailed');
 			} finally {
+				gitlabBaseInput.disabled = false;
 				applyGitlabBase.disabled = false;
 			}
+		});
+		document.getElementById('configureGitlabInstance')?.addEventListener('click', (event) => {
+			event.stopPropagation();
+			document.getElementById('customPlatformDropdown')?.classList.remove('open');
+			document.getElementById('platformDropdownList')?.classList.add('hidden');
+			showSettingsView();
+			gitlabBaseInput.focus();
 		});
 	}
 
@@ -2195,7 +2211,6 @@ document.addEventListener('DOMContentLoaded', () => {
 							'githubUsername',
 							'gitlabUsername',
 							'githubToken',
-							...GITLAB_ACCOUNT_STORAGE_KEYS,
 							'orgName',
 							'gitlabGroupName',
 						]);
@@ -2211,8 +2226,10 @@ document.addEventListener('DOMContentLoaded', () => {
 						}
 
 						const org = platform === 'gitlab' ? items.gitlabGroupName || '' : items.orgName || '';
-						const gitlabAccount = platform === 'gitlab' ? resolveGitLabAccount(items) : null;
-						if (gitlabAccount) await ensureGitLabAccess(gitlabAccount.apiBaseUrl);
+						if (gitlabAccount) {
+							if (!(await isGitLabAccountCurrent(gitlabAccount)) || !useFilter.checked) return;
+							await ensureGitLabAccess(gitlabAccount.apiBaseUrl);
+						}
 						const repoCacheKey = gitlabAccount
 							? await getGitLabRepoCacheKey(username, org, gitlabAccount)
 							: makeRepoCacheKey(username, org, platform, items);
@@ -2252,6 +2269,7 @@ document.addEventListener('DOMContentLoaded', () => {
 							}
 						}
 					} catch (err) {
+						if (gitlabAccount && (!(await isGitLabAccountCurrent(gitlabAccount)) || !useFilter.checked)) return;
 						console.error(`Auto load ${platform} repos failed`, err);
 						const is401 =
 							err.status === 401 ||
@@ -3152,6 +3170,7 @@ if (dropdownList && customDropdown && dropdownBtn) {
 	dropdownList.querySelectorAll('li').forEach((item, idx, arr) => {
 		item.setAttribute('tabindex', '0');
 		item.addEventListener('keydown', (e) => {
+			if (e.target !== item) return;
 			if (e.key === 'ArrowDown') {
 				e.preventDefault();
 				(arr[idx + 1] || arr[0]).focus();

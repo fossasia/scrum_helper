@@ -183,6 +183,30 @@
   "gitlabApiBaseSaveFailed": {
     "message": "Could not save the GitLab settings. Try again."
   },
+  "gitlabApiBaseConfigure": {
+    "message": "Configure GitLab instance"
+  },
+  "gitlabApiBaseChecking": {
+    "message": "Checking the GitLab API…"
+  },
+  "gitlabApiBaseUnreachable": {
+    "message": "Could not reach the GitLab API. Check the URL, network or VPN connection and try again."
+  },
+  "gitlabRequestTimedOut": {
+    "message": "GitLab request timed out. Check your network or VPN connection and try again."
+  },
+  "gitlabRequestConnectionFailed": {
+    "message": "Could not connect to GitLab. Check your network or VPN connection and try again."
+  },
+  "gitlabRequestAccountChanged": {
+    "message": "GitLab settings changed. Try again using the current instance and token."
+  },
+  "gitlabRequestOutsideBase": {
+    "message": "GitLab request is outside the configured API base URL."
+  },
+  "gitlabGroupLookupFailed": {
+    "message": "Could not look up the GitLab group (HTTP $1)."
+  },
   "gitlabTokenLabel": {
     "message": "Your GitLab token",
     "description": "Label for the GitLab token input."

@@ -123,25 +123,49 @@
         "message": "为什么建议添加 GitHub 令牌？Scrum Helper 无需 GitHub 令牌也能工作，但建议添加个人访问令牌（经典版）以获得更好的体验。"
     },
     "gitlabApiBaseLabel": {
-        "message": "GitLab API base URL"
+        "message": "GitLab API 基础 URL"
     },
     "gitlabApiBaseApply": {
-        "message": "Apply"
+        "message": "应用"
     },
     "gitlabApiBaseHelp": {
-        "message": "Leave blank for GitLab.com. Apply before entering a token for this instance."
+        "message": "留空可使用 GitLab.com。输入此实例的令牌前，请点击“应用”。"
     },
     "gitlabApiBaseInvalid": {
-        "message": "Enter an HTTPS GitLab URL ending in /api/v4. Use a DNS hostname."
+        "message": "请输入以 /api/v4 结尾的 GitLab HTTPS URL。请使用 DNS 主机名。"
     },
     "gitlabApiBasePermissionDenied": {
-        "message": "Allow access to the GitLab instance using Apply in GitLab settings."
+        "message": "在 GitLab 设置中点击“应用”，以允许访问该 GitLab 实例。"
     },
     "gitlabApiBaseApplied": {
-        "message": "GitLab instance applied."
+        "message": "已应用 GitLab 实例设置。"
     },
     "gitlabApiBaseSaveFailed": {
-        "message": "Could not save the GitLab settings. Try again."
+        "message": "无法保存 GitLab 设置，请重试。"
+    },
+    "gitlabApiBaseConfigure": {
+        "message": "配置 GitLab 实例"
+    },
+    "gitlabApiBaseChecking": {
+        "message": "正在检查 GitLab API…"
+    },
+    "gitlabApiBaseUnreachable": {
+        "message": "无法访问 GitLab API。请检查 URL 及网络或 VPN 连接，然后重试。"
+    },
+    "gitlabRequestTimedOut": {
+        "message": "GitLab 请求超时。请检查网络或 VPN 连接，然后重试。"
+    },
+    "gitlabRequestConnectionFailed": {
+        "message": "无法连接到 GitLab。请检查网络或 VPN 连接，然后重试。"
+    },
+    "gitlabRequestAccountChanged": {
+        "message": "GitLab 设置已更改。请使用当前实例和令牌重试。"
+    },
+    "gitlabRequestOutsideBase": {
+        "message": "GitLab 请求超出了已配置的 API 基础 URL 范围。"
+    },
+    "gitlabGroupLookupFailed": {
+        "message": "无法查询 GitLab 群组（HTTP $1）。"
     },
     "gitlabTokenLabel": {
         "message": "你的 GitLab 令牌"

@@ -140,6 +140,31 @@ describe('Next Plans account changes', () => {
 		expect(fetchAssignedIssues).toHaveBeenCalledTimes(1);
 	});
 
+	it('does not reinterpret an ambiguous legacy issue ID when GitLab access is revoked', async () => {
+		const apiBase = 'https://gitlab.example.net/api/v4';
+		Object.assign(settings, {
+			selectedPlatforms: ['github', 'gitlab'], gitlabBaseUrl: apiBase, gitlabTokenInstance: apiBase,
+		});
+		fetchAssignedIssues.mockImplementation(async (platform) => [
+			{ id: 1, number: 1, title: platform, platform },
+		]);
+		await window.loadAssignedIssues();
+		const [scopeKey] = Object.keys(JSON.parse(localStorage.getItem('nextPlansCache')));
+		localStorage.setItem('selectedIssues', JSON.stringify({ [scopeKey]: [1] }));
+		expect(await window.getNextPlansForReport()).toEqual([]);
+
+		browser.permissions.contains.mockResolvedValue(false);
+		expect(await window.getNextPlansForReport()).toEqual([]);
+		await window.loadAssignedIssues();
+		expect(await window.getNextPlansForReport()).toEqual([]);
+		expect(document.querySelectorAll('.issue-item-checkbox')).toHaveLength(1);
+		expect(document.querySelector('.issue-item-checkbox').checked).toBe(false);
+		localStorage.setItem('selectedIssues', JSON.stringify({ [scopeKey]: ['github:1', 'gitlab:1'] }));
+		expect(await window.getNextPlansForReport()).toEqual([
+			expect.objectContaining({ platform: 'github', id: 1 }),
+		]);
+	});
+
 	it('separates equal GitLab usernames on different API servers', async () => {
 		settings.platform = 'gitlab';
 		settings.selectedPlatforms = ['gitlab'];

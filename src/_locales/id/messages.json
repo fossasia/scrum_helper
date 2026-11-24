@@ -84,25 +84,49 @@
         "message": "Mengapa disarankan untuk menambahkan token GitHub? Scrum Helper berfungsi tanpa token GitHub, tetapi menambahkan token akses pribadi disarankan untuk pengalaman yang lebih baik."
     },
     "gitlabApiBaseLabel": {
-        "message": "GitLab API base URL"
+        "message": "URL dasar API GitLab"
     },
     "gitlabApiBaseApply": {
-        "message": "Apply"
+        "message": "Terapkan"
     },
     "gitlabApiBaseHelp": {
-        "message": "Leave blank for GitLab.com. Apply before entering a token for this instance."
+        "message": "Kosongkan kolom untuk menggunakan GitLab.com. Klik “Terapkan” sebelum memasukkan token untuk instans ini."
     },
     "gitlabApiBaseInvalid": {
-        "message": "Enter an HTTPS GitLab URL ending in /api/v4. Use a DNS hostname."
+        "message": "Masukkan URL HTTPS GitLab yang berakhiran /api/v4. Gunakan nama host DNS."
     },
     "gitlabApiBasePermissionDenied": {
-        "message": "Allow access to the GitLab instance using Apply in GitLab settings."
+        "message": "Untuk mengizinkan akses ke instans GitLab, klik “Terapkan” di pengaturan GitLab."
     },
     "gitlabApiBaseApplied": {
-        "message": "GitLab instance applied."
+        "message": "Instans GitLab telah diterapkan."
     },
     "gitlabApiBaseSaveFailed": {
-        "message": "Could not save the GitLab settings. Try again."
+        "message": "Pengaturan GitLab tidak dapat disimpan. Coba lagi."
+    },
+    "gitlabApiBaseConfigure": {
+        "message": "Konfigurasi instans GitLab"
+    },
+    "gitlabApiBaseChecking": {
+        "message": "Memeriksa API GitLab…"
+    },
+    "gitlabApiBaseUnreachable": {
+        "message": "API GitLab tidak dapat dijangkau. Periksa URL dan koneksi jaringan atau VPN, lalu coba lagi."
+    },
+    "gitlabRequestTimedOut": {
+        "message": "Waktu tunggu permintaan GitLab habis. Periksa koneksi jaringan atau VPN Anda, lalu coba lagi."
+    },
+    "gitlabRequestConnectionFailed": {
+        "message": "Tidak dapat terhubung ke GitLab. Periksa koneksi jaringan atau VPN Anda, lalu coba lagi."
+    },
+    "gitlabRequestAccountChanged": {
+        "message": "Pengaturan GitLab telah berubah. Coba lagi dengan instans dan token saat ini."
+    },
+    "gitlabRequestOutsideBase": {
+        "message": "Permintaan GitLab berada di luar URL dasar API yang dikonfigurasi."
+    },
+    "gitlabGroupLookupFailed": {
+        "message": "Grup GitLab tidak dapat dicari (HTTP $1)."
     },
     "gitlabTokenLabel": {
         "message": "Token GitLab Anda"
