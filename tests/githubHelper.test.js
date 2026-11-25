@@ -336,10 +336,9 @@ describe('GitHubHelper', () => {
 
 		it('should construct search URL with author, dates, and org query', async () => {
 			const originalFetch = global.fetch;
-			global.fetch = vi.fn().mockResolvedValue({
-				ok: true,
-				status: 200,
-			});
+			global.fetch = vi.fn().mockResolvedValue(
+				new Response(JSON.stringify({ total_count: 0, incomplete_results: false, items: [] })),
+			);
 
 			try {
 				await window.githubFetchIssues('testuser', 'token123', '2026-10-01', '2026-10-10', 'fossasia');
@@ -359,10 +358,9 @@ describe('GitHubHelper', () => {
 
 		it('should include repoQueries qualifier when specified', async () => {
 			const originalFetch = global.fetch;
-			global.fetch = vi.fn().mockResolvedValue({
-				ok: true,
-				status: 200,
-			});
+			global.fetch = vi.fn().mockResolvedValue(
+				new Response(JSON.stringify({ total_count: 0, incomplete_results: false, items: [] })),
+			);
 
 			try {
 				await window.githubFetchIssues(
