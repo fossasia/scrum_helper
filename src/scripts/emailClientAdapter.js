@@ -21,8 +21,8 @@ class EmailClientAdapter {
 		if (!clientType) return false;
 		const elements = this.getEditorElements();
 		if (!elements || !elements.subject) return false;
-		const currentSubject = elements.subject.value || '';
-		const isReplySubject = currentSubject.startsWith('Re:') || currentSubject.startsWith('Fwd:');
+		const currentSubject = (elements.subject.value || elements.subject.innerText || elements.subject.textContent || '').trim();
+		const isReplySubject = /^(?:re|fwd|fw)(?:\[\d+\])?\s*:/i.test(currentSubject);
 		let isReplyContext = false;
 
 		switch (clientType) {
