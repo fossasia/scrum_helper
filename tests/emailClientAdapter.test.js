@@ -135,7 +135,7 @@ describe('EmailClientAdapter isNewConversation', () => {
 			window.happyDOM.setURL('https://mail.google.com/');
 			document.body.innerHTML = `
 				<input name="subjectbox" tabindex="1" value="Thread Discussion" />
-				<div class="editable LW-avf" contenteditable="true" role="textbox"></div>
+				<div class="Am Al editable LW-avf" contenteditable="true" role="textbox"></div>
 			`;
 			expect(window.emailClientAdapter.isNewConversation()).toBe(false);
 		});
