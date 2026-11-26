@@ -1793,10 +1793,8 @@ function allIncluded(outputTarget = 'email') {
 			const interval = setInterval(() => {
 				const elements = window.emailClientAdapter?.getEditorElements();
 				if (elements && elements.subject && elements.body && !injected) {
-					if (window.emailClientAdapter?.isNewConversation?.()) {
-						elements.subject.value = activeEmailSubject;
-						elements.subject.dispatchEvent(new Event('input', { bubbles: true }));
-					}
+					elements.subject.value = activeEmailSubject;
+					elements.subject.dispatchEvent(new Event('input', { bubbles: true }));
 					window.emailClientAdapter.injectContent(elements.body, content, elements.eventTypes.contentChange);
 					injected = true;
 					clearInterval(interval);
@@ -2123,20 +2121,22 @@ function allIncluded(outputTarget = 'email') {
 					obs.disconnect();
 					return;
 				}
-				const elements = window.emailClientAdapter.getEditorElements();
-				if (elements && elements.body) {
-					if (isReportAlreadyInserted(elements.body)) {
+				if (window.emailClientAdapter.isNewConversation()) {
+					const elements = window.emailClientAdapter.getEditorElements();
+					if (elements && elements.body) {
+						if (isReportAlreadyInserted(elements.body)) {
+							obs.disconnect();
+							window.hasInjectedContent = true;
+							scrumGenerationInProgress = false;
+							return;
+						}
 						obs.disconnect();
+						log('MutationObserver found the editor body. Injecting scrum content.');
+						const wrappedContent = `<div class="scrum-helper-report-wrapper">${content}</div>`;
+						window.emailClientAdapter.injectContent(elements.body, wrappedContent, elements.eventTypes.contentChange);
 						window.hasInjectedContent = true;
 						scrumGenerationInProgress = false;
-						return;
 					}
-					obs.disconnect();
-					log('MutationObserver found the editor body. Injecting scrum content.');
-					const wrappedContent = `<div class="scrum-helper-report-wrapper">${content}</div>`;
-					window.emailClientAdapter.injectContent(elements.body, wrappedContent, elements.eventTypes.contentChange);
-					window.hasInjectedContent = true;
-					scrumGenerationInProgress = false;
 				}
 			});
 
