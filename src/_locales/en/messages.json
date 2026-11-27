@@ -205,7 +205,8 @@
     "message": "GitLab request is outside the configured API base URL."
   },
   "gitlabGroupLookupFailed": {
-    "message": "Could not look up the GitLab group (HTTP $1)."
+    "message": "Could not look up the GitLab group (HTTP $1).",
+    "description": "Error shown when a GitLab group lookup fails. $1=status code"
   },
   "gitlabTokenLabel": {
     "message": "Your GitLab token",
