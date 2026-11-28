@@ -139,6 +139,111 @@ describe('Codeberg report pagination', () => {
 			await expect(helper.fetchCodebergData('alex', start, end)).rejects.toThrow();
 			expect(save).not.toHaveBeenCalled();
 		});
+
+		it.each([
+			['first', '1'],
+			['later', '2'],
+		])('does not cache a report when an authenticated search fails on its %s page', async (_label, failingPage) => {
+			vi.spyOn(console, 'error').mockImplementation(() => {});
+			const save = vi.spyOn(browser.storage.local, 'set').mockResolvedValue();
+			const recent = Array.from({ length: 50 }, (_, i) => ({ id: i + 100, updated_at: '2026-09-15T12:00:00Z' }));
+			const created = { id: 1, updated_at: '2026-09-15T12:00:00Z' };
+			vi.stubGlobal(
+				'fetch',
+				vi.fn(async (url) => {
+					const parsed = new URL(url);
+					if (parsed.pathname === '/api/v1/users/alex') return response({ login: 'alex' });
+					if (parsed.searchParams.get('assigned') === 'true') {
+						const page = parsed.searchParams.get('page');
+						if (page === failingPage) return failedPage();
+						return response(page === '1' ? recent : []);
+					}
+					if (parsed.searchParams.get('created') === 'true') {
+						return response(parsed.searchParams.get('page') === '1' ? [created] : []);
+					}
+					return response([]);
+				}),
+			);
+
+			await expect(helper.fetchCodebergData('alex', start, end, 'test-token')).rejects.toThrow();
+			expect(save).not.toHaveBeenCalled();
+			expect(helper.cache.data).toBeNull();
+		});
+	});
+
+	it('rejects callers queued behind an authenticated search that fails', async () => {
+		vi.spyOn(console, 'error').mockImplementation(() => {});
+		const save = vi.spyOn(browser.storage.local, 'set').mockResolvedValue();
+		vi.stubGlobal(
+			'fetch',
+			vi.fn(async (url) => {
+				const parsed = new URL(url);
+				if (parsed.pathname === '/api/v1/users/alex') return response({ login: 'alex' });
+				if (parsed.searchParams.get('mentioned') === 'true') return { ok: false, status: 503 };
+				return response([]);
+			}),
+		);
+
+		const first = helper.fetchCodebergData('alex', start, end, 'test-token');
+		const queued = helper.fetchCodebergData('alex', start, end, 'test-token');
+
+		await expect(first).rejects.toThrow('Codeberg API request failed (503).');
+		await expect(queued).rejects.toThrow('Codeberg API request failed (503).');
+		expect(save).not.toHaveBeenCalled();
+	});
+
+	it('stays in flight until sibling searches settle after one search fails', async () => {
+		vi.spyOn(console, 'error').mockImplementation(() => {});
+		let releaseCreated;
+		const createdPending = new Promise((resolve) => {
+			releaseCreated = () => resolve(response([]));
+		});
+		vi.stubGlobal(
+			'fetch',
+			vi.fn(async (url) => {
+				const parsed = new URL(url);
+				if (parsed.pathname === '/api/v1/users/alex') return response({ login: 'alex' });
+				if (parsed.searchParams.get('assigned') === 'true') return { ok: false, status: 503 };
+				if (parsed.searchParams.get('created') === 'true') return createdPending;
+				return response([]);
+			}),
+		);
+
+		let settled = false;
+		const pending = helper.fetchCodebergData('alex', start, end, 'test-token').finally(() => {
+			settled = true;
+		});
+		pending.catch(() => {});
+
+		await vi.waitFor(() => expect(fetch).toHaveBeenCalledTimes(4));
+		await new Promise((resolve) => setTimeout(resolve, 0));
+		expect(settled).toBe(false);
+		expect(helper.cache.fetching).toBe(true);
+
+		releaseCreated();
+		await expect(pending).rejects.toThrow('Codeberg API request failed (503).');
+		expect(helper.cache.fetching).toBe(false);
+	});
+
+	it('caches the report when every authenticated search succeeds', async () => {
+		const save = vi.spyOn(browser.storage.local, 'set').mockResolvedValue();
+		const issue = { id: 1, updated_at: '2026-09-15T12:00:00Z' };
+		vi.stubGlobal(
+			'fetch',
+			vi.fn(async (url) => {
+				const parsed = new URL(url);
+				if (parsed.pathname === '/api/v1/users/alex') return response({ login: 'alex' });
+				if (parsed.searchParams.get('created') === 'true' && parsed.searchParams.get('page') === '1') {
+					return response([issue]);
+				}
+				return response([]);
+			}),
+		);
+
+		const result = await helper.fetchCodebergData('alex', start, end, 'test-token');
+
+		expect(result.issues).toEqual([issue]);
+		expect(save).toHaveBeenCalledTimes(1);
 	});
 
 	it('returns an empty commit list when the API rejects the request', async () => {

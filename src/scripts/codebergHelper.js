@@ -452,19 +452,20 @@ class CodebergHelper {
 					);
 				}
 
-				const fetchQuery = async (url) => {
-					try {
-						return await this.fetchAllPaginatedWithDateLimit(url, headers, startDate);
-					} catch (e) {
-						console.warn(`Failed to fetch from ${url}:`, e);
-						return [];
-					}
-				};
+				// A failed search must reject rather than resolve to [], otherwise the
+				// report looks complete and is cached with activity missing. Wait for
+				// every search to settle first, so the in-flight state is not cleared
+				// (allowing a retry) while sibling searches are still paginating.
+				const searchUrls = [...issueUrls, ...mrUrls];
+				const settled = await Promise.allSettled(
+					searchUrls.map((url) => this.fetchAllPaginatedWithDateLimit(url, headers, startDate)),
+				);
+				const failed = settled.find((r) => r.status === 'rejected');
+				if (failed) throw failed.reason;
 
-				const [issueResultsArray, mrResultsArray] = await Promise.all([
-					Promise.all(issueUrls.map((url) => fetchQuery(url))),
-					Promise.all(mrUrls.map((url) => fetchQuery(url))),
-				]);
+				const searchResults = settled.map((r) => r.value);
+				const issueResultsArray = searchResults.slice(0, issueUrls.length);
+				const mrResultsArray = searchResults.slice(issueUrls.length);
 
 				// De-duplicate issues
 				const allMatchedIssues = [];
