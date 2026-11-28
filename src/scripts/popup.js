@@ -183,6 +183,101 @@ document.addEventListener('DOMContentLoaded', () => {
 	const gitlabTokenEyeIcon = document.getElementById('gitlabTokenEyeIcon');
 	let gitlabTokenVisible = false;
 
+	const gitlabBaseInput = document.getElementById('gitlabBaseUrl');
+	const applyGitlabBase = document.getElementById('applyGitlabBaseUrl');
+	const gitlabBaseStatus = document.getElementById('gitlabApiBaseStatus');
+
+	function showGitLabSettings(items) {
+		const { apiBaseUrl, token } = resolveGitLabAccount(items);
+		const base = apiBaseUrl === DEFAULT_GITLAB_API_BASE_URL ? '' : (apiBaseUrl ?? items.gitlabBaseUrl ?? '');
+		gitlabBaseInput.value = base;
+		gitlabTokenInput.value = token;
+		gitlabTokenInput.dataset.gitlabApiBase = apiBaseUrl ?? '';
+		gitlabTokenInput.disabled = !apiBaseUrl;
+	}
+
+	if (gitlabBaseInput && applyGitlabBase && gitlabBaseStatus && gitlabTokenInput) {
+		applyGitlabBase.disabled = true;
+		gitlabTokenInput.disabled = true;
+		browser.storage.local
+			.get(GITLAB_ACCOUNT_STORAGE_KEYS)
+			.then(showGitLabSettings)
+			.catch(() => {
+				gitlabBaseStatus.textContent = browser.i18n.getMessage('gitlabApiBaseSaveFailed');
+			})
+			.finally(() => {
+				applyGitlabBase.disabled = false;
+			});
+		gitlabBaseInput.addEventListener('input', () => {
+			gitlabBaseStatus.textContent = '';
+			const draft = normalizeGitLabApiBaseUrl(gitlabBaseInput.value);
+			gitlabTokenInput.disabled = !draft || draft !== gitlabTokenInput.dataset.gitlabApiBase;
+		});
+		gitlabTokenInput.addEventListener('change', async () => {
+			const apiBaseUrl = gitlabTokenInput.dataset.gitlabApiBase;
+			const token = gitlabTokenInput.value.trim();
+			gitlabTokenInput.value = token;
+			try {
+				await window.saveGitLabToken(apiBaseUrl, token);
+			} catch {
+				gitlabBaseStatus.textContent = browser.i18n.getMessage('gitlabApiBaseSaveFailed');
+			}
+		});
+
+		applyGitlabBase.addEventListener('click', async () => {
+			const apiBaseUrl = normalizeGitLabApiBaseUrl(gitlabBaseInput.value);
+			gitlabBaseStatus.textContent = '';
+			if (!apiBaseUrl) {
+				gitlabBaseStatus.textContent = browser.i18n.getMessage('gitlabApiBaseInvalid');
+				return;
+			}
+
+			applyGitlabBase.disabled = true;
+			gitlabBaseInput.disabled = true;
+			try {
+				if (apiBaseUrl !== DEFAULT_GITLAB_API_BASE_URL && !window.isTauri) {
+					const granted = await browser.permissions?.request(gitLabHostPermission(apiBaseUrl));
+					if (!granted) {
+						gitlabBaseStatus.textContent = browser.i18n.getMessage('gitlabApiBasePermissionDenied');
+						return;
+					}
+				}
+				if (apiBaseUrl !== DEFAULT_GITLAB_API_BASE_URL) {
+					gitlabBaseStatus.textContent = browser.i18n.getMessage('gitlabApiBaseChecking');
+					if (!(await isGitLabInstanceReachable(apiBaseUrl))) {
+						gitlabBaseStatus.textContent = browser.i18n.getMessage('gitlabApiBaseUnreachable');
+						return;
+					}
+				}
+				const current = await loadGitLabAccount();
+				if (apiBaseUrl !== current.apiBaseUrl) {
+					await browser.storage.local.set({
+						gitlabBaseUrl: apiBaseUrl,
+						gitlabToken: '',
+						gitlabTokenInstance: apiBaseUrl,
+						gitlabCache: null,
+						gitlabRepoCache: null,
+						gitlabGroupName: '',
+						useGitlabRepoFilter: false,
+						selectedGitlabRepos: [],
+					});
+				}
+				showGitLabSettings(await browser.storage.local.get(GITLAB_ACCOUNT_STORAGE_KEYS));
+				gitlabBaseStatus.textContent = browser.i18n.getMessage('gitlabApiBaseApplied');
+			} catch (error) {
+				console.error('GitLab settings update failed:', error);
+				gitlabBaseStatus.textContent = browser.i18n.getMessage('gitlabApiBaseSaveFailed');
+			} finally {
+				gitlabBaseInput.disabled = false;
+				applyGitlabBase.disabled = false;
+			}
+		});
+		document.getElementById('configureGitlabInstance')?.addEventListener('click', (event) => {
+			event.stopPropagation();
+			showGitLabInstanceSettings();
+		});
+	}
+
 	// Codeberg elements
 	let lastPlatform = '';
 	const codebergTokenInput = document.getElementById('codebergToken');
@@ -558,6 +653,23 @@ document.addEventListener('DOMContentLoaded', () => {
 			typeof logRedaction === 'function' ? logRedaction(changes) : changes,
 			namespace,
 		);
+		if (namespace === 'local' && (changes.gitlabBaseUrl || changes.gitlabToken || changes.gitlabTokenInstance)) {
+			if (window.gitlabHelper) window.gitlabHelper.invalidated = true;
+			if (changes.gitlabBaseUrl && gitlabBaseInput && gitlabTokenInput) {
+				browser.storage.local.get([...GITLAB_ACCOUNT_STORAGE_KEYS, 'gitlabGroupName']).then((items) => {
+					showGitLabSettings(items);
+					const group = document.getElementById('gitlabGroupInput');
+					if (group) group.value = items.gitlabGroupName || '';
+				});
+			}
+			browser.storage.local.get(['platform', 'selectedPlatforms']).then(({ platform, selectedPlatforms }) => {
+				if (!(selectedPlatforms ?? [platform]).includes('gitlab')) return;
+				const preview = document.getElementById('scrumReport');
+				if (preview) preview.textContent = '';
+				updateCopyButtonState();
+				window.showRegenerateNotice?.();
+			});
+		}
 		if (changes.startingDate || changes.endingDate) {
 			console.log('[POPUP-DEBUG] Date changed in storage, triggering repo fetch.', {
 				startingDate: changes.startingDate?.newValue,
@@ -574,6 +686,8 @@ document.addEventListener('DOMContentLoaded', () => {
 			changes.selectedGitlabRepos ||
 			changes.githubToken ||
 			changes.gitlabToken ||
+			changes.gitlabTokenInstance ||
+			changes.gitlabBaseUrl ||
 			changes.codebergToken ||
 			changes.githubUsername ||
 			changes.gitlabUsername ||
@@ -729,6 +843,7 @@ document.addEventListener('DOMContentLoaded', () => {
 			'cacheInput',
 			'githubCache',
 			'gitlabCache',
+			...GITLAB_ACCOUNT_STORAGE_KEYS,
 			'codebergCache',
 			'githubUsername',
 			'gitlabUsername',
@@ -791,7 +906,11 @@ document.addEventListener('DOMContentLoaded', () => {
 			codeberg: storage.codebergCache,
 		};
 
-		const currentIdentity = window.reportIdentityUtils?.buildReportIdentity(storage);
+		const gitlabAccount = activePlatforms.includes('gitlab') ? resolveGitLabAccount(storage) : null;
+		const currentIdentity = window.reportIdentityUtils?.buildReportIdentity({
+			...storage,
+			gitlabAccountKey: gitlabAccount ? await getGitLabAccountKey(gitlabAccount) : null,
+		});
 		const persistedIdentity = storage.lastScrumReportIdentity;
 		let lastScrumReportHtml = storage.lastScrumReportHtml;
 		if (!lastScrumReportHtml && activePlatforms.length === 1) {
@@ -803,15 +922,10 @@ document.addEventListener('DOMContentLoaded', () => {
 		let isMatch = false;
 		if (persistedIdentity && currentIdentity) {
 			isMatch = window.reportIdentityUtils.isIdentityMatch(persistedIdentity, currentIdentity);
-		} else if (!storage.selectedPlatforms || storage.selectedPlatforms.length <= 1) {
+		} else if (!gitlabAccount && (!storage.selectedPlatforms || storage.selectedPlatforms.length <= 1)) {
 			// Legacy fallback for single-platform reports
 			const activePlatform = storage.platform || 'github';
-			const legacyExpectedUser =
-				activePlatform === 'gitlab'
-					? storage.gitlabUsername || storage.platformUsername
-					: activePlatform === 'codeberg'
-						? storage.codebergUsername || storage.platformUsername
-						: storage.githubUsername || storage.platformUsername;
+			const legacyExpectedUser = storage[`${activePlatform}Username`] || storage.platformUsername;
 			const isLegacyUserMatch = storage.lastScrumReportUsername
 				? storage.lastScrumReportUsername === legacyExpectedUser
 				: storage.lastScrumReportCacheKey &&
@@ -831,6 +945,15 @@ document.addEventListener('DOMContentLoaded', () => {
 					currentIdentity?.usernames,
 				)
 			: false;
+
+		if (isMatch && gitlabAccount) {
+			try {
+				await ensureGitLabAccess(gitlabAccount.apiBaseUrl);
+				isMatch = await isGitLabAccountCurrent(gitlabAccount);
+			} catch {
+				isMatch = false;
+			}
+		}
 
 		if (reportEmpty && lastScrumReportHtml && isMatch) {
 			scrumReport.innerHTML = sanitizeHtml(lastScrumReportHtml);
@@ -1938,6 +2061,18 @@ document.addEventListener('DOMContentLoaded', () => {
 		};
 		window[contextKey] = context;
 
+		if (platform === 'gitlab') {
+			browser.storage.onChanged.addListener((changes, area) => {
+				if (area !== 'local' || !changes.gitlabBaseUrl) return;
+				availableRepos = [];
+				selectedRepos = [];
+				useFilter.checked = false;
+				container.classList.add('hidden');
+				hideDropdown();
+				updateRepoDisplay();
+			});
+		}
+
 		searchInput.addEventListener('click', () => {
 			if (!useFilter.checked) {
 				useFilter.checked = true;
@@ -1960,12 +2095,14 @@ document.addEventListener('DOMContentLoaded', () => {
 			'change',
 			debounce(async () => {
 				const enabled = useFilter.checked;
-				let rawToken = tokenInput ? tokenInput.value.trim() : '';
-				if (!rawToken) {
+				const gitlabAccount = platform === 'gitlab' ? await loadGitLabAccount() : null;
+				if (gitlabAccount && enabled !== useFilter.checked) return;
+				let rawToken = gitlabAccount?.token ?? tokenInput?.value.trim() ?? '';
+				if (!gitlabAccount && !rawToken) {
 					try {
-						const stored = await browser.storage.local.get([platform === 'gitlab' ? 'gitlabToken' : 'githubToken']);
-						rawToken = (platform === 'gitlab' ? stored.gitlabToken : stored.githubToken) || '';
-					} catch (e) {}
+						const stored = await browser.storage.local.get(['githubToken']);
+						rawToken = stored.githubToken || '';
+					} catch {}
 				}
 				const hasToken = rawToken.trim() !== '';
 				container.classList.toggle('hidden', !enabled);
@@ -2004,6 +2141,8 @@ document.addEventListener('DOMContentLoaded', () => {
 							chrome?.i18n.getMessage('loadingReposAutomatically') || 'Loading repos automatically...';
 					}
 					const validation = await helper.validateToken(rawToken);
+					if (gitlabAccount && (!(await isGitLabAccountCurrent(gitlabAccount)) || enabled !== useFilter.checked))
+						return;
 					if (!validation.valid && (validation.status === 401 || validation.reason === 'invalid')) {
 						useFilter.checked = false;
 						container.classList.add('hidden');
@@ -2059,6 +2198,7 @@ document.addEventListener('DOMContentLoaded', () => {
 					}
 
 					try {
+						if (platform === 'gitlab') await waitForGitLabTokenSave();
 						const cacheData = await browser.storage.local.get(
 							platform === 'gitlab' ? [storageCacheKey, 'repoCache'] : [storageCacheKey],
 						);
@@ -2068,7 +2208,6 @@ document.addEventListener('DOMContentLoaded', () => {
 							'githubUsername',
 							'gitlabUsername',
 							'githubToken',
-							'gitlabToken',
 							'orgName',
 							'gitlabGroupName',
 						]);
@@ -2084,13 +2223,20 @@ document.addEventListener('DOMContentLoaded', () => {
 						}
 
 						const org = platform === 'gitlab' ? items.gitlabGroupName || '' : items.orgName || '';
-						const repoCacheKey = makeRepoCacheKey(username, org, platform, items);
+						if (gitlabAccount) {
+							if (!(await isGitLabAccountCurrent(gitlabAccount)) || !useFilter.checked) return;
+							await ensureGitLabAccess(gitlabAccount.apiBaseUrl);
+						}
+						const repoCacheKey = gitlabAccount
+							? await getGitLabRepoCacheKey(username, org, gitlabAccount)
+							: makeRepoCacheKey(username, org, platform, items);
 
 						const now = Date.now();
 						const cacheAge = cached?.timestamp ? now - cached.timestamp : Number.POSITIVE_INFINITY;
 						const cacheTTL = 10 * 60 * 1000;
 
 						if (cached && cached.cacheKey === repoCacheKey && cacheAge < cacheTTL) {
+							if (gitlabAccount && !(await isGitLabAccountCurrent(gitlabAccount))) return;
 							availableRepos = cached.data;
 							if (statusLabel) {
 								statusLabel.textContent = browser.i18n.getMessage('repoLoaded', [availableRepos.length]);
@@ -2102,8 +2248,8 @@ document.addEventListener('DOMContentLoaded', () => {
 						}
 
 						if (helper && helper.fetchUserRepositories) {
-							const token = platform === 'gitlab' ? items.gitlabToken : items.githubToken;
-							const repos = await helper.fetchUserRepositories(username, token, org);
+							const repos = await helper.fetchUserRepositories(username, items.githubToken, org, gitlabAccount);
+							if (gitlabAccount && !(await isGitLabAccountCurrent(gitlabAccount))) return;
 							availableRepos = repos;
 							if (statusLabel) {
 								statusLabel.textContent = browser.i18n.getMessage('repoLoaded', [repos.length]);
@@ -2120,6 +2266,7 @@ document.addEventListener('DOMContentLoaded', () => {
 							}
 						}
 					} catch (err) {
+						if (gitlabAccount && (!(await isGitLabAccountCurrent(gitlabAccount)) || !useFilter.checked)) return;
 						console.error(`Auto load ${platform} repos failed`, err);
 						const is401 =
 							err.status === 401 ||
@@ -2914,6 +3061,13 @@ function setupDropdownUsernameSync() {
 	});
 }
 
+function showGitLabInstanceSettings() {
+	customDropdown?.classList.remove('open');
+	dropdownList?.classList.add('hidden');
+	window.showSettingsView?.();
+	document.getElementById('gitlabBaseUrl')?.focus();
+}
+
 function setSelectedPlatforms(platforms) {
 	const platformList = Array.isArray(platforms) ? platforms : [];
 	const primaryPlatform = platformList[0] || '';
@@ -2982,7 +3136,9 @@ if (dropdownList) {
 
 				setSelectedPlatforms(nextPlatforms);
 
-				if (isSelecting) {
+				if (isSelecting && platformClicked === 'gitlab') {
+					showGitLabInstanceSettings();
+				} else if (isSelecting) {
 					setTimeout(() => {
 						const inp = document.getElementById(`dropdown-${platformClicked}Username`);
 						if (inp && !inp.value.trim()) {
@@ -3020,6 +3176,7 @@ if (dropdownList && customDropdown && dropdownBtn) {
 	dropdownList.querySelectorAll('li').forEach((item, idx, arr) => {
 		item.setAttribute('tabindex', '0');
 		item.addEventListener('keydown', (e) => {
+			if (e.target !== item) return;
 			if (e.key === 'ArrowDown') {
 				e.preventDefault();
 				(arr[idx + 1] || arr[0]).focus();
@@ -3075,6 +3232,9 @@ browser.storage.local.get(['selectedPlatforms', 'platform']).then((result) => {
 				}
 
 				setSelectedPlatforms(nextPlatforms);
+				if (cb.checked && platform === 'gitlab' && !currentPlatforms.includes(platform)) {
+					showGitLabInstanceSettings();
+				}
 			});
 		});
 	}

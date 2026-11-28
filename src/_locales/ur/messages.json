@@ -95,6 +95,51 @@
   "githubTokenTooltip": {
     "message": "گٹ ہب ٹوکن شامل کرنا کیوں ضروری ہے؟ سکرم ہیلپر ٹوکن کے بغیر بھی کام کرتا ہے، لیکن بہترین کارکردگی کے لیے پرسنل ایکسیس ٹوکن شامل کرنے کی سفارش کی جاتی ہے۔"
   },
+  "gitlabApiBaseLabel": {
+    "message": "گٹ لیب API کا بنیادی URL"
+  },
+  "gitlabApiBaseApply": {
+    "message": "لاگو کریں"
+  },
+  "gitlabApiBaseHelp": {
+    "message": "GitLab.com استعمال کرنے کے لیے یہ خانہ خالی چھوڑ دیں۔ اس سرور کا ٹوکن درج کرنے سے پہلے «لاگو کریں» کو منتخب کریں۔"
+  },
+  "gitlabApiBaseInvalid": {
+    "message": "گٹ لیب کا HTTPS URL درج کریں جو /api/v4 پر ختم ہو۔ DNS میزبان نام استعمال کریں۔"
+  },
+  "gitlabApiBasePermissionDenied": {
+    "message": "گٹ لیب سرور تک رسائی کی اجازت دینے کے لیے گٹ لیب کی ترتیبات میں «لاگو کریں» کو منتخب کریں۔"
+  },
+  "gitlabApiBaseApplied": {
+    "message": "گٹ لیب سرور مقرر ہو گیا ہے۔"
+  },
+  "gitlabApiBaseSaveFailed": {
+    "message": "گٹ لیب کی ترتیبات محفوظ نہیں ہو سکیں۔ دوبارہ کوشش کریں۔"
+  },
+  "gitlabApiBaseConfigure": {
+    "message": "گٹ لیب سرور کی ترتیب"
+  },
+  "gitlabApiBaseChecking": {
+    "message": "گٹ لیب API کی جانچ ہو رہی ہے…"
+  },
+  "gitlabApiBaseUnreachable": {
+    "message": "گٹ لیب API تک رسائی نہیں ہو سکی۔ URL اور نیٹ ورک یا VPN کنکشن چیک کریں اور دوبارہ کوشش کریں۔"
+  },
+  "gitlabRequestTimedOut": {
+    "message": "گٹ لیب کی درخواست کا وقت ختم ہو گیا۔ اپنا نیٹ ورک یا VPN کنکشن چیک کریں اور دوبارہ کوشش کریں۔"
+  },
+  "gitlabRequestConnectionFailed": {
+    "message": "گٹ لیب سے رابطہ نہیں ہو سکا۔ اپنا نیٹ ورک یا VPN کنکشن چیک کریں اور دوبارہ کوشش کریں۔"
+  },
+  "gitlabRequestAccountChanged": {
+    "message": "گٹ لیب کی ترتیبات بدل گئی ہیں۔ موجودہ سرور اور ٹوکن کے ساتھ دوبارہ کوشش کریں۔"
+  },
+  "gitlabRequestOutsideBase": {
+    "message": "گٹ لیب کی درخواست API کے مقرر کردہ بنیادی URL کے دائرے سے باہر ہے۔"
+  },
+  "gitlabGroupLookupFailed": {
+    "message": "گٹ لیب گروپ کی معلومات حاصل نہیں ہو سکیں (HTTP $1)۔"
+  },
   "gitlabTokenLabel": {
     "message": "آپ کا گٹ لیب ٹوکن"
   },

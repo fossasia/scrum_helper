@@ -9,11 +9,18 @@ if (typeof importScripts === 'function') {
 			console.error('Failed to import polyfill in background:', e2);
 		}
 	}
+	importScripts('gitlabHelper.js');
 }
 
 if (typeof browser === 'undefined') {
 	globalThis.browser = globalThis.chrome;
 }
+
+browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
+	if (request?.action !== 'gitlabApi' || sender.id !== browser.runtime.id || !sender.tab) return;
+	handleGitLabBackgroundRequest(request).then(sendResponse, (error) => sendResponse({ error: error.message }));
+	return true;
+});
 
 const openByTabId = new Map();
 

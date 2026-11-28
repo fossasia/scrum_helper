@@ -83,6 +83,51 @@
     "githubTokenTooltip": {
         "message": "Perché è consigliato aggiungere un token GitHub? Scrum Helper funziona senza un token GitHub, ma aggiungere un token di accesso personale è consigliato per un'esperienza migliore."
     },
+    "gitlabApiBaseLabel": {
+        "message": "URL di base dell’API di GitLab"
+    },
+    "gitlabApiBaseApply": {
+        "message": "Applica"
+    },
+    "gitlabApiBaseHelp": {
+        "message": "Lascia vuoto il campo per usare GitLab.com. Seleziona «Applica» prima di inserire un token per questa istanza."
+    },
+    "gitlabApiBaseInvalid": {
+        "message": "Inserisci un URL HTTPS di GitLab che termini con /api/v4. Usa un nome host DNS."
+    },
+    "gitlabApiBasePermissionDenied": {
+        "message": "Autorizza l’accesso all’istanza GitLab selezionando «Applica» nelle impostazioni di GitLab."
+    },
+    "gitlabApiBaseApplied": {
+        "message": "Istanza GitLab applicata."
+    },
+    "gitlabApiBaseSaveFailed": {
+        "message": "Impossibile salvare le impostazioni di GitLab. Riprova."
+    },
+    "gitlabApiBaseConfigure": {
+        "message": "Configura l’istanza GitLab"
+    },
+    "gitlabApiBaseChecking": {
+        "message": "Verifica dell’API di GitLab…"
+    },
+    "gitlabApiBaseUnreachable": {
+        "message": "Impossibile raggiungere l’API di GitLab. Controlla l’URL e la connessione di rete o VPN, quindi riprova."
+    },
+    "gitlabRequestTimedOut": {
+        "message": "La richiesta a GitLab è scaduta. Controlla la connessione di rete o VPN e riprova."
+    },
+    "gitlabRequestConnectionFailed": {
+        "message": "Impossibile connettersi a GitLab. Controlla la connessione di rete o VPN e riprova."
+    },
+    "gitlabRequestAccountChanged": {
+        "message": "Le impostazioni di GitLab sono cambiate. Riprova con l’istanza e il token correnti."
+    },
+    "gitlabRequestOutsideBase": {
+        "message": "La richiesta a GitLab è al di fuori dell’URL di base dell’API configurato."
+    },
+    "gitlabGroupLookupFailed": {
+        "message": "Impossibile consultare il gruppo GitLab (HTTP $1)."
+    },
     "gitlabTokenLabel": {
         "message": "Il tuo token GitLab"
     },

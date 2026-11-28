@@ -83,6 +83,51 @@
     "githubTokenTooltip": {
         "message": "Pourquoi est-il recommandé d'ajouter un jeton GitHub ? Scrum Helper fonctionne sans jeton GitHub, mais l'ajout d'un jeton d'accès personnel est recommandé pour une meilleure expérience."
     },
+    "gitlabApiBaseLabel": {
+        "message": "URL de base de l’API GitLab"
+    },
+    "gitlabApiBaseApply": {
+        "message": "Appliquer"
+    },
+    "gitlabApiBaseHelp": {
+        "message": "Laissez le champ vide pour utiliser GitLab.com. Cliquez sur « Appliquer » avant de saisir un jeton pour cette instance."
+    },
+    "gitlabApiBaseInvalid": {
+        "message": "Saisissez une URL GitLab en HTTPS se terminant par /api/v4. Utilisez un nom d’hôte DNS."
+    },
+    "gitlabApiBasePermissionDenied": {
+        "message": "Autorisez l’accès à l’instance GitLab en cliquant sur « Appliquer » dans les paramètres GitLab."
+    },
+    "gitlabApiBaseApplied": {
+        "message": "Instance GitLab configurée."
+    },
+    "gitlabApiBaseSaveFailed": {
+        "message": "Impossible d’enregistrer les paramètres GitLab. Réessayez."
+    },
+    "gitlabApiBaseConfigure": {
+        "message": "Configurer l’instance GitLab"
+    },
+    "gitlabApiBaseChecking": {
+        "message": "Vérification de l’API GitLab…"
+    },
+    "gitlabApiBaseUnreachable": {
+        "message": "Impossible de joindre l’API GitLab. Vérifiez l’URL et votre connexion réseau ou VPN, puis réessayez."
+    },
+    "gitlabRequestTimedOut": {
+        "message": "La requête GitLab a expiré. Vérifiez votre connexion réseau ou VPN, puis réessayez."
+    },
+    "gitlabRequestConnectionFailed": {
+        "message": "Impossible de se connecter à GitLab. Vérifiez votre connexion réseau ou VPN, puis réessayez."
+    },
+    "gitlabRequestAccountChanged": {
+        "message": "Les paramètres GitLab ont changé. Réessayez avec l’instance et le jeton actuels."
+    },
+    "gitlabRequestOutsideBase": {
+        "message": "La requête GitLab sort du périmètre de l’URL de base de l’API configurée."
+    },
+    "gitlabGroupLookupFailed": {
+        "message": "Impossible de consulter le groupe GitLab (HTTP $1)."
+    },
     "gitlabTokenLabel": {
         "message": "Votre jeton GitLab"
     },

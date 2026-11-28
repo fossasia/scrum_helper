@@ -162,6 +162,52 @@
     "message": "<b>Why is it recommended to add a GitHub token?</b><br>Scrum Helper works without a GitHub token, but adding a personal access token (classic) is recommended for a better experience. It raises your API limits, allows access to private repos (if permitted), and improves accuracy and speed. Tokens are stored locally and never sent to us and used only to fetch your git data.<br><br><b>How to obtain:</b><br>1. Go to <a href=\"https://github.com/settings/tokens\" target=\"_blank\" rel=\"noopener noreferrer\">GitHub Developer Settings</a>.<br>2. Click \"Generate new token\", select classic token, select repo scope for private repos<br>3. Paste it here.<br><i>Keep your token secret!</i>",
     "description": "Tooltip for GitHub token explaining why it's needed."
   },
+  "gitlabApiBaseLabel": {
+    "message": "GitLab API base URL"
+  },
+  "gitlabApiBaseApply": {
+    "message": "Apply"
+  },
+  "gitlabApiBaseHelp": {
+    "message": "Leave blank for GitLab.com. Apply before entering a token for this instance."
+  },
+  "gitlabApiBaseInvalid": {
+    "message": "Enter an HTTPS GitLab URL ending in /api/v4. Use a DNS hostname."
+  },
+  "gitlabApiBasePermissionDenied": {
+    "message": "Allow access to the GitLab instance using Apply in GitLab settings."
+  },
+  "gitlabApiBaseApplied": {
+    "message": "GitLab instance applied."
+  },
+  "gitlabApiBaseSaveFailed": {
+    "message": "Could not save the GitLab settings. Try again."
+  },
+  "gitlabApiBaseConfigure": {
+    "message": "Configure GitLab instance"
+  },
+  "gitlabApiBaseChecking": {
+    "message": "Checking the GitLab API…"
+  },
+  "gitlabApiBaseUnreachable": {
+    "message": "Could not reach the GitLab API. Check the URL, network or VPN connection and try again."
+  },
+  "gitlabRequestTimedOut": {
+    "message": "GitLab request timed out. Check your network or VPN connection and try again."
+  },
+  "gitlabRequestConnectionFailed": {
+    "message": "Could not connect to GitLab. Check your network or VPN connection and try again."
+  },
+  "gitlabRequestAccountChanged": {
+    "message": "GitLab settings changed. Try again using the current instance and token."
+  },
+  "gitlabRequestOutsideBase": {
+    "message": "GitLab request is outside the configured API base URL."
+  },
+  "gitlabGroupLookupFailed": {
+    "message": "Could not look up the GitLab group (HTTP $1).",
+    "description": "Error shown when a GitLab group lookup fails. $1=status code"
+  },
   "gitlabTokenLabel": {
     "message": "Your GitLab token",
     "description": "Label for the GitLab token input."

@@ -23,6 +23,7 @@
 	}
 
 	async function getRepositoryScope() {
+		await window.waitForGitLabTokenSave?.();
 		const scope = await getRepositoryFilterScope();
 		const settings = await browser.storage.local.get([
 			'platform',
@@ -32,22 +33,30 @@
 			'gitlabUsername',
 			'gitlabToken',
 			'gitlabBaseUrl',
+			'gitlabTokenInstance',
 		]);
 		const accounts = {};
+		let gitlabAccessError = null;
 		for (const platform of scope.platforms.filter((provider) => provider === 'github' || provider === 'gitlab')) {
 			const username =
 				settings[`${platform}Username`] ||
 				(platform === (settings.platform || 'github') ? settings.platformUsername : '') ||
 				'';
-			const token = settings[`${platform}Token`] || '';
-			const fingerprint = await getAccountFingerprint(token);
-			const apiBaseUrl =
+			const account =
 				platform === 'gitlab'
-					? (settings.gitlabBaseUrl?.trim() || 'https://gitlab.com/api/v4').replace(/\/+$/, '')
-					: 'https://api.github.com';
-			accounts[platform] = { username: username.trim(), token, fingerprint, apiBaseUrl };
+					? window.resolveGitLabAccount(settings)
+					: { token: settings.githubToken || '', apiBaseUrl: 'https://api.github.com' };
+			if (platform === 'gitlab' && account.token) {
+				try {
+					await window.ensureGitLabAccess(account.apiBaseUrl);
+				} catch (error) {
+					gitlabAccessError = error;
+				}
+			}
+			const fingerprint = await getAccountFingerprint(account.token);
+			accounts[platform] = { ...account, username: username.trim(), fingerprint };
 		}
-		return { ...scope, accounts };
+		return { ...scope, accounts, gitlabAccessError };
 	}
 
 	// 1. Determine repository scope
@@ -201,9 +210,13 @@
 		}
 	}
 
-	function getCachedIssues(scope) {
+	function getCachedIssueEntry(scope) {
 		const key = getCacheKey(scope);
-		const cached = fallbackIssues.get(key) || readStoredRecord('nextPlansCache')[key];
+		return fallbackIssues.get(key) || readStoredRecord('nextPlansCache')[key];
+	}
+
+	function getCachedIssues(scope) {
+		const cached = getCachedIssueEntry(scope);
 		return cached && Date.now() - cached.timestamp < (cached.ttl ?? 300000) ? cached.issues : null;
 	}
 
@@ -272,16 +285,19 @@
 		return `${platform}:${issue.id}`;
 	}
 
-	function isIssueSelected(selectedIds, issues, issue) {
-		const selectionId = getIssueSelectionId(issue);
-		if (selectedIds.some((id) => String(id) === selectionId)) {
-			return true;
-		}
-		const matchingIssues = issues.filter((candidate) => String(candidate.id) === String(issue.id));
-		return matchingIssues.length === 1 && selectedIds.some((id) => String(id) === String(issue.id));
+	function isGitLabIssue(issue) {
+		return getIssueSelectionId(issue).startsWith('gitlab:');
 	}
 
-	function displayIssuesUI(issues, scope) {
+	function resolveIssueSelection(id, issues) {
+		const selectionId = String(id);
+		const match = issues.find((issue) => getIssueSelectionId(issue) === selectionId);
+		if (match) return match;
+		const legacyMatches = issues.filter((issue) => String(issue.id) === selectionId);
+		return legacyMatches.length === 1 ? legacyMatches[0] : undefined;
+	}
+
+	function displayIssuesUI(issues, scope, selectionCandidates = issues) {
 		const container = document.getElementById('assignedIssuesSelector');
 		if (!container) return;
 
@@ -290,7 +306,12 @@
 
 		container.textContent = '';
 
-		const selectedIds = getSavedIssueSelections(scope);
+		const selectedIssueIds = new Set(
+			getSavedIssueSelections(scope)
+				.map((id) => resolveIssueSelection(id, selectionCandidates))
+				.filter(Boolean)
+				.map(getIssueSelectionId),
+		);
 
 		const scopeDiv = document.createElement('div');
 		scopeDiv.classList.add('scope-info');
@@ -313,9 +334,7 @@
 			checkbox.type = 'checkbox';
 			checkbox.classList.add('issue-item-checkbox');
 			checkbox.dataset.issueId = getIssueSelectionId(issue);
-			if (isIssueSelected(selectedIds, issues, issue)) {
-				checkbox.checked = true;
-			}
+			checkbox.checked = selectedIssueIds.has(checkbox.dataset.issueId);
 
 			const span = document.createElement('span');
 			span.textContent = `#${issue.number} - ${issue.title} `;
@@ -336,11 +355,24 @@
 		const checkboxes = container.querySelectorAll('.issue-item-checkbox');
 		checkboxes.forEach((cb) => {
 			cb.addEventListener('change', () => {
-				const updatedSelectedIds = [];
-				container.querySelectorAll('.issue-item-checkbox:checked').forEach((checkedCb) => {
-					updatedSelectedIds.push(checkedCb.dataset.issueId);
-				});
-				saveSelectedIssues(scope, updatedSelectedIds);
+				const updatedSelectedIds = new Set(
+					Array.from(
+						container.querySelectorAll('.issue-item-checkbox:checked'),
+						(checkedCb) => checkedCb.dataset.issueId,
+					),
+				);
+				if (scope.gitlabAccessError) {
+					for (const id of getSavedIssueSelections(scope)) {
+						const selectionId = String(id);
+						if (selectionId.startsWith('gitlab:')) {
+							updatedSelectedIds.add(selectionId);
+							continue;
+						}
+						const issue = resolveIssueSelection(id, selectionCandidates);
+						if (issue && isGitLabIssue(issue)) updatedSelectedIds.add(getIssueSelectionId(issue));
+					}
+				}
+				saveSelectedIssues(scope, [...updatedSelectedIds]);
 			});
 		});
 	}
@@ -361,7 +393,7 @@
 
 		const scope = await getRepositoryScope();
 		if (load !== latestLoad) return;
-		const cached = getCachedIssues(scope);
+		const cached = scope.gitlabAccessError ? null : getCachedIssues(scope);
 
 		if (cached) {
 			console.log('[NextPlans] Using cached assigned issues for scope:', getCacheKey(scope));
@@ -420,7 +452,11 @@
 			if (platforms.includes('gitlab') && scope.accounts.gitlab.token.trim()) {
 				const glHelper = window.PlatformRegistry ? window.PlatformRegistry.get('gitlab') : null;
 				if (glHelper && typeof glHelper.fetchAssignedIssues === 'function') {
-					fetchPromises.push(glHelper.fetchAssignedIssues(getPlatformScope('gitlab')));
+					fetchPromises.push(
+						scope.gitlabAccessError
+							? Promise.reject(scope.gitlabAccessError)
+							: glHelper.fetchAssignedIssues(getPlatformScope('gitlab')),
+					);
 				}
 			}
 
@@ -443,7 +479,12 @@
 			const settled = await Promise.allSettled(fetchPromises);
 			const currentScope = await getRepositoryScope();
 			if (load !== latestLoad) return;
-			if (getCacheKey(currentScope) !== getCacheKey(scope)) return loadAssignedIssues();
+			if (
+				getCacheKey(currentScope) !== getCacheKey(scope) ||
+				Boolean(currentScope.gitlabAccessError) !== Boolean(scope.gitlabAccessError)
+			) {
+				return loadAssignedIssues();
+			}
 			const successful = settled.filter((r) => r.status === 'fulfilled');
 
 			if (successful.length === 0) {
@@ -452,8 +493,12 @@
 			}
 
 			const issues = successful.flatMap((r) => r.value || []);
-			cacheIssues(scope, issues, successful.length === fetchPromises.length ? 300000 : 0);
-			displayIssuesUI(issues, scope);
+			const selectionCandidates = scope.gitlabAccessError
+				? issues.concat((getCachedIssueEntry(scope)?.issues || []).filter(isGitLabIssue))
+				: issues;
+			cacheIssues(scope, selectionCandidates, successful.length === fetchPromises.length ? 300000 : 0);
+			displayIssuesUI(issues, scope, selectionCandidates);
+			if (scope.gitlabAccessError) window.scrumHelperToast?.(scope.gitlabAccessError.message, { variant: 'error' });
 		} catch (error) {
 			if (load !== latestLoad) return;
 			const currentScope = await getRepositoryScope().catch(() => null);
@@ -482,20 +527,12 @@
 			return [];
 		}
 
-		const key = getCacheKey(scope);
-		const cached = fallbackIssues.get(key) || readStoredRecord('nextPlansCache')[key];
-		const issues = cached?.issues || [];
+		const issues = getCachedIssueEntry(scope)?.issues || [];
 
 		// Map selectedIds to full issue objects
 		return selectedIds
-			.map((id) => {
-				const selectionId = String(id);
-				const match = issues.find((issue) => getIssueSelectionId(issue) === selectionId);
-				if (match) return match;
-				const legacyMatches = issues.filter((issue) => String(issue.id) === selectionId);
-				return legacyMatches.length === 1 ? legacyMatches[0] : undefined;
-			})
-			.filter(Boolean);
+			.map((id) => resolveIssueSelection(id, issues))
+			.filter((issue) => issue && (!scope.gitlabAccessError || !isGitLabIssue(issue)));
 	}
 
 	// Expose globally

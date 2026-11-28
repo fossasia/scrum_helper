@@ -83,6 +83,51 @@
     "githubTokenTooltip": {
         "message": "Γιατί συνιστάται η προσθήκη GitHub token; Το Scrum Helper λειτουργεί χωρίς GitHub token, αλλά η προσθήκη ενός προσωπικού token πρόσβασης συνιστάται για καλύτερη εμπειρία."
     },
+    "gitlabApiBaseLabel": {
+        "message": "Βασική διεύθυνση URL του GitLab API"
+    },
+    "gitlabApiBaseApply": {
+        "message": "Εφαρμογή"
+    },
+    "gitlabApiBaseHelp": {
+        "message": "Αφήστε το πεδίο κενό για το GitLab.com. Πατήστε «Εφαρμογή» πριν εισαγάγετε το token αυτής της εγκατάστασης."
+    },
+    "gitlabApiBaseInvalid": {
+        "message": "Εισαγάγετε μια διεύθυνση HTTPS του GitLab που τελειώνει σε /api/v4. Χρησιμοποιήστε όνομα κεντρικού υπολογιστή DNS."
+    },
+    "gitlabApiBasePermissionDenied": {
+        "message": "Επιτρέψτε την πρόσβαση στην εγκατάσταση GitLab πατώντας «Εφαρμογή» στις ρυθμίσεις του GitLab."
+    },
+    "gitlabApiBaseApplied": {
+        "message": "Η εγκατάσταση GitLab εφαρμόστηκε."
+    },
+    "gitlabApiBaseSaveFailed": {
+        "message": "Δεν ήταν δυνατή η αποθήκευση των ρυθμίσεων του GitLab. Δοκιμάστε ξανά."
+    },
+    "gitlabApiBaseConfigure": {
+        "message": "Ρύθμιση εγκατάστασης GitLab"
+    },
+    "gitlabApiBaseChecking": {
+        "message": "Έλεγχος του GitLab API…"
+    },
+    "gitlabApiBaseUnreachable": {
+        "message": "Δεν ήταν δυνατή η σύνδεση με το GitLab API. Ελέγξτε τη διεύθυνση URL και τη σύνδεση δικτύου ή VPN και δοκιμάστε ξανά."
+    },
+    "gitlabRequestTimedOut": {
+        "message": "Έληξε ο χρόνος αναμονής του αιτήματος στο GitLab. Ελέγξτε τη σύνδεση δικτύου ή VPN και δοκιμάστε ξανά."
+    },
+    "gitlabRequestConnectionFailed": {
+        "message": "Δεν ήταν δυνατή η σύνδεση με το GitLab. Ελέγξτε τη σύνδεση δικτύου ή VPN και δοκιμάστε ξανά."
+    },
+    "gitlabRequestAccountChanged": {
+        "message": "Οι ρυθμίσεις του GitLab άλλαξαν. Δοκιμάστε ξανά με την τρέχουσα εγκατάσταση και το τρέχον token."
+    },
+    "gitlabRequestOutsideBase": {
+        "message": "Το αίτημα προς το GitLab βρίσκεται εκτός της καθορισμένης βασικής διεύθυνσης URL του API."
+    },
+    "gitlabGroupLookupFailed": {
+        "message": "Δεν ήταν δυνατή η αναζήτηση της ομάδας GitLab (HTTP $1)."
+    },
     "gitlabTokenLabel": {
         "message": "Το GitLab token σας"
     },

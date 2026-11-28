@@ -228,8 +228,6 @@ let scrumGenerationInProgress = false;
 let orgName = '';
 let platform = 'github';
 let platformUsername = '';
-let gitlabToken = '';
-window.gitlabBaseUrl = '';
 window.gitlabHelper = null;
 let codebergToken = '';
 window.codebergApiBaseUrl = '';
@@ -384,10 +382,6 @@ function handleReportFetchFailures(failures, allFailed = false) {
  * @param {string} outputTarget - Output format: 'email', 'popup', or 'download'.
  */
 function allIncluded(outputTarget = 'email') {
-	// Always re-instantiate gitlabHelper for gitlab platform to ensure fresh cache after refresh
-	if (platform === 'gitlab' || (typeof platform === 'undefined' && window.GitLabHelper)) {
-		window.gitlabHelper = new window.GitLabHelper(window.gitlabBaseUrl);
-	}
 	if (scrumGenerationInProgress) {
 		return;
 	}
@@ -401,6 +395,9 @@ function allIncluded(outputTarget = 'email') {
 	let startingDate = '';
 	let endingDate = '';
 	let platformUsernameLocal = '';
+	let gitlabAccountKey = null;
+	let reportGitLabAccount = null;
+	let reportGitLabHelper = null;
 	const platformUsernames = {
 		github: '',
 		gitlab: '',
@@ -471,7 +468,8 @@ function allIncluded(outputTarget = 'email') {
 	const issue_closed_notplanned_button =
 		'<div style="vertical-align:middle;display: inline-block;padding: 0px 4px;font-size:9px;font-weight: 600;color: #fff;text-align: center;background-color: #808080;border-radius: 3px;line-height: 12px;margin-bottom: 2px;" class="State State--gray">closed</div>';
 
-	function getChromeData() {
+	async function getChromeData() {
+		await waitForGitLabTokenSave();
 		console.log('[DEBUG] getChromeData called for outputTarget:', outputTarget);
 		chrome.storage.local
 			.get([
@@ -481,9 +479,8 @@ function allIncluded(outputTarget = 'email') {
 				'gitlabUsername',
 				'codebergUsername',
 				'githubToken',
-				'gitlabToken',
+				...GITLAB_ACCOUNT_STORAGE_KEYS,
 				'codebergToken',
-				'gitlabBaseUrl',
 				'codebergApiBaseUrl',
 				'projectName',
 				'startingDate',
@@ -538,7 +535,6 @@ function allIncluded(outputTarget = 'email') {
 						document.getElementById('codebergUsername')?.value?.trim();
 					const projectFromDOM = document.getElementById('projectName')?.value;
 					const tokenFromDOM = document.getElementById('githubToken')?.value?.trim();
-					const gitlabTokenFromDOM = document.getElementById('gitlabToken')?.value?.trim();
 					const codebergTokenFromDOM = document.getElementById('codebergToken')?.value?.trim();
 
 					if (githubUserFromDOM) {
@@ -571,16 +567,12 @@ function allIncluded(outputTarget = 'email') {
 					if (tokenFromDOM !== undefined) {
 						items.githubToken = tokenFromDOM;
 					}
-					if (gitlabTokenFromDOM !== undefined) {
-						items.gitlabToken = gitlabTokenFromDOM;
-					}
 					if (codebergTokenFromDOM !== undefined) {
 						items.codebergToken = codebergTokenFromDOM;
 					}
 					chrome.storage.local.set({
 						projectName: items.projectName,
 						githubToken: items.githubToken,
-						gitlabToken: items.gitlabToken,
 						codebergToken: items.codebergToken,
 						...(items.githubUsername ? { githubUsername: items.githubUsername } : {}),
 						...(items.gitlabUsername ? { gitlabUsername: items.gitlabUsername } : {}),
@@ -592,11 +584,7 @@ function allIncluded(outputTarget = 'email') {
 				userReason = 'No Blocker at the moment';
 				chrome.storage.local.remove(['userReason']);
 				githubToken = items.githubToken;
-				gitlabToken = items.gitlabToken || '';
-				window.gitlabBaseUrl = items.gitlabBaseUrl || '';
-				if (window.GitLabHelper) {
-					window.gitlabHelper = new window.GitLabHelper(window.gitlabBaseUrl);
-				}
+				const gitlabAccount = resolveGitLabAccount(items);
 				codebergToken = items.codebergToken || '';
 				window.codebergApiBaseUrl = items.codebergApiBaseUrl || 'https://codeberg.org/api/v1';
 				if (window.CodebergHelper) {
@@ -702,6 +690,7 @@ function allIncluded(outputTarget = 'email') {
 				}
 
 				const platformsToFetch = activePlatforms.filter((p) => Boolean(getUsernameForPlatform(p)));
+				if (platformsToFetch.includes('gitlab')) reportGitLabAccount = gitlabAccount;
 
 				const generateBtn = document.getElementById('generateReport');
 				if (generateBtn && outputTarget === 'popup') {
@@ -710,6 +699,7 @@ function allIncluded(outputTarget = 'email') {
 
 				(async () => {
 					try {
+						if (reportGitLabAccount) gitlabAccountKey = await getGitLabAccountKey(reportGitLabAccount);
 						const settled = await Promise.allSettled(
 							platformsToFetch.map(async (p) => {
 								const user = getUsernameForPlatform(p);
@@ -733,17 +723,18 @@ function allIncluded(outputTarget = 'email') {
 									};
 								}
 								if (p === 'gitlab') {
-									if (!window.gitlabHelper) {
-										window.gitlabHelper = new window.GitLabHelper(window.gitlabBaseUrl);
-									}
-									const raw = await window.gitlabHelper.fetchGitLabData(
+									const { apiBaseUrl, token } = gitlabAccount;
+									if (!apiBaseUrl) await ensureGitLabAccess(apiBaseUrl);
+									reportGitLabHelper = new GitLabHelper(apiBaseUrl, gitlabAccountKey);
+									window.gitlabHelper = reportGitLabHelper;
+									const raw = await reportGitLabHelper.fetchGitLabData(
 										user,
 										startingDate,
 										endingDate,
-										items.gitlabToken || gitlabToken,
+										token,
 										items.gitlabGroupName || '',
 									);
-									const mapped = window.gitlabHelper.mapGitLabReportData(raw);
+									const mapped = reportGitLabHelper.mapGitLabReportData(raw);
 									const issues = mapped?.githubIssuesData?.items || [];
 									const mrs = mapped?.githubPrsReviewData?.items || [];
 									issues.forEach((it) => {
@@ -789,6 +780,8 @@ function allIncluded(outputTarget = 'email') {
 								return { platform: p, authored: [], reviewed: [], user: null };
 							}),
 						);
+
+						if (!(await isGitLabReportCurrent())) return;
 
 						const successful = settled.filter((r) => r.status === 'fulfilled').map((r) => r.value);
 						const failures = settled.filter((r) => r.status === 'rejected').map((r) => r.reason);
@@ -862,6 +855,18 @@ function allIncluded(outputTarget = 'email') {
 			});
 	}
 	getChromeData();
+
+	async function isGitLabReportCurrent(resetGeneration = true) {
+		if (!reportGitLabAccount) return true;
+		if ((await isGitLabAccountCurrent(reportGitLabAccount).catch(() => false)) && !reportGitLabHelper?.invalidated) {
+			return true;
+		}
+		if (resetGeneration) {
+			setGenerateButtonState(document.getElementById('generateReport'), false);
+			scrumGenerationInProgress = false;
+		}
+		return false;
+	}
 
 	function handleYesterdayContributionChange() {
 		endingDate = getYesterday();
@@ -1186,7 +1191,7 @@ function allIncluded(outputTarget = 'email') {
 				log('Using repo filter for api calls:', selectedRepos);
 
 				try {
-					await fetchReposIfNeeded();
+					await fetchGitHubReposIfNeeded();
 				} catch (err) {
 					logError('Failed to fetch repo data for filtering:', err);
 				}
@@ -1462,13 +1467,12 @@ function allIncluded(outputTarget = 'email') {
 		return {};
 	}
 
-	async function fetchReposIfNeeded() {
+	async function fetchGitHubReposIfNeeded() {
 		if (!useRepoFilter) {
 			log('Repo fiter disabled, skipping fetch');
 			return [];
 		}
-		const items = await browser.storage.local.get(['githubToken', 'gitlabToken']);
-		const repoCacheKey = makeRepoCacheKey(platformUsernameLocal, orgName, platform, items);
+		const repoCacheKey = makeRepoCacheKey(platformUsernameLocal, orgName, 'github', { githubToken });
 
 		const now = Date.now();
 		const isRepoCacheFresh = now - githubCache.repoTimeStamp < githubCache.ttl;
@@ -1487,15 +1491,13 @@ function allIncluded(outputTarget = 'email') {
 		}
 
 		githubCache.repoFetching = true;
-		githubCache.repoCacheKey = repoCacheKey;
 
 		try {
 			log('Fetching repos automatically');
 			let repos;
-			const helper = window.PlatformRegistry?.get(platform);
-			if (helper && helper.fetchUserRepositories) {
-				const token = platform === 'gitlab' ? gitlabToken : githubToken;
-				repos = await helper.fetchUserRepositories(platformUsernameLocal, token, orgName);
+			const helper = window.PlatformRegistry?.get('github');
+			if (helper?.fetchUserRepositories) {
+				repos = await helper.fetchUserRepositories(platformUsernameLocal, githubToken, orgName);
 			} else if (window.fetchUserRepositories) {
 				repos = await window.fetchUserRepositories(platformUsernameLocal, githubToken, orgName);
 			} else {
@@ -1503,10 +1505,11 @@ function allIncluded(outputTarget = 'email') {
 			}
 
 			githubCache.repoData = repos;
+			githubCache.repoCacheKey = repoCacheKey;
 			githubCache.repoTimeStamp = now;
 
 			chrome.storage.local.set({
-				[platform === 'gitlab' ? 'gitlabRepoCache' : 'repoCache']: {
+				repoCache: {
 					data: repos,
 					cacheKey: repoCacheKey,
 					timestamp: now,
@@ -1759,6 +1762,7 @@ function allIncluded(outputTarget = 'email') {
 				}
 			}
 		}
+		if (!(await isGitLabReportCurrent())) return;
 		log('[DEBUG] Both data processing functions completed, generating scrum body');
 		const activeEmailSubject = subjectForEmailParam || subjectForEmail;
 		if (activeEmailSubject) {
@@ -1790,21 +1794,22 @@ function allIncluded(outputTarget = 'email') {
 			const content = contentParts.join('<br>');
 			// Wait for both subject and body to be available, then inject both
 			let injected = false;
-			const interval = setInterval(() => {
+			const interval = setInterval(async () => {
 				const elements = window.emailClientAdapter?.getEditorElements();
 				if (elements && elements.subject && elements.body && !injected) {
+					clearInterval(interval);
+					if (!(await isGitLabReportCurrent(false))) return;
 					elements.subject.value = activeEmailSubject;
 					elements.subject.dispatchEvent(new Event('input', { bubbles: true }));
 					window.emailClientAdapter.injectContent(elements.body, content, elements.eventTypes.contentChange);
 					injected = true;
-					clearInterval(interval);
 				}
 			}, 200);
 			setTimeout(() => {
 				if (!injected) clearInterval(interval);
 			}, 30000);
 		} else {
-			writeScrumBody();
+			await writeScrumBody();
 		}
 	}
 
@@ -1997,7 +2002,7 @@ function allIncluded(outputTarget = 'email') {
 		return wrapCompactText(userReason);
 	}
 
-	function writeScrumBody() {
+	async function writeScrumBody() {
 		const lastWeekUl = buildActivityListHtml();
 		const nextWeekUl = buildNextWeekListHtml();
 		const blockerText = buildBlockerTextHtml();
@@ -2036,6 +2041,7 @@ function allIncluded(outputTarget = 'email') {
 		if (outputTarget === 'popup') {
 			const scrumReport = document.getElementById('scrumReport');
 			if (scrumReport) {
+				if (!(await isGitLabReportCurrent())) return;
 				log('Found popup div, updating content');
 				scrumReport.innerHTML = sanitizeHtml(content);
 				delete scrumReport.dataset.copyPlaceholder;
@@ -2043,7 +2049,7 @@ function allIncluded(outputTarget = 'email') {
 				try {
 					const cacheKey =
 						platform === 'gitlab'
-							? (window.gitlabHelper?.cache?.cacheKey ?? null)
+							? (reportGitLabHelper?.cache?.cacheKey ?? null)
 							: platform === 'codeberg'
 								? (window.codebergHelper?.cache?.cacheKey ?? null)
 								: (githubCache?.cacheKey ?? null);
@@ -2051,13 +2057,14 @@ function allIncluded(outputTarget = 'email') {
 					const reportPlatform = platform || (activePlatforms.length === 1 ? activePlatforms[0] : 'github');
 					const platformCacheKeys = {
 						github: githubCache?.cacheKey ?? storageItems?.githubCache?.cacheKey ?? null,
-						gitlab: window.gitlabHelper?.cache?.cacheKey ?? storageItems?.gitlabCache?.cacheKey ?? null,
+						gitlab: reportGitLabHelper?.cache?.cacheKey ?? storageItems?.gitlabCache?.cacheKey ?? null,
 						codeberg: window.codebergHelper?.cache?.cacheKey ?? storageItems?.codebergCache?.cacheKey ?? null,
 					};
 
 					const combinedIdentity =
 						window.reportIdentityUtils?.buildReportIdentity({
 							platforms: activePlatforms,
+							gitlabAccountKey,
 							usernames: {
 								github: getUsernameForPlatform('github'),
 								gitlab: getUsernameForPlatform('gitlab'),
@@ -2116,7 +2123,7 @@ function allIncluded(outputTarget = 'email') {
 				return;
 			}
 
-			const observer = new MutationObserver((mutations, obs) => {
+			const observer = new MutationObserver(async (mutations, obs) => {
 				if (!window.emailClientAdapter) {
 					obs.disconnect();
 					return;
@@ -2162,8 +2169,8 @@ function allIncluded(outputTarget = 'email') {
 				console.error('Subject element not found');
 				return;
 			}
-			setTimeout(() => {
-				const name = githubUserData?.name || githubUserData?.username || platformUsernameLocal || platformUsername;
+			setTimeout(async () => {
+				if (!(await isGitLabReportCurrent(false))) return;
 				const project = projectName;
 				const curDate = new Date();
 				const year = curDate.getFullYear().toString();

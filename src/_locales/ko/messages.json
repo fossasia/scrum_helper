@@ -95,6 +95,51 @@
   "githubTokenTooltip": {
     "message": "GitHub 토큰을 추가하는 것이 권장되는 이유는 무엇인가요? Scrum Helper는 GitHub 토큰 없이도 작동하지만, 더 나은 사용 경험을 위해 개인 액세스 토큰(classic)을 추가하는 것을 권장합니다."
   },
+  "gitlabApiBaseLabel": {
+    "message": "GitLab API 기본 URL"
+  },
+  "gitlabApiBaseApply": {
+    "message": "적용"
+  },
+  "gitlabApiBaseHelp": {
+    "message": "GitLab.com을 사용하려면 비워 두세요. 이 인스턴스의 토큰을 입력하기 전에 ‘적용’을 선택하세요."
+  },
+  "gitlabApiBaseInvalid": {
+    "message": "/api/v4로 끝나는 GitLab HTTPS URL을 입력하세요. DNS 호스트 이름을 사용하세요."
+  },
+  "gitlabApiBasePermissionDenied": {
+    "message": "GitLab 설정에서 ‘적용’을 선택해 GitLab 인스턴스에 대한 액세스를 허용하세요."
+  },
+  "gitlabApiBaseApplied": {
+    "message": "GitLab 인스턴스가 적용되었습니다."
+  },
+  "gitlabApiBaseSaveFailed": {
+    "message": "GitLab 설정을 저장할 수 없습니다. 다시 시도하세요."
+  },
+  "gitlabApiBaseConfigure": {
+    "message": "GitLab 인스턴스 설정"
+  },
+  "gitlabApiBaseChecking": {
+    "message": "GitLab API를 확인하는 중…"
+  },
+  "gitlabApiBaseUnreachable": {
+    "message": "GitLab API에 접속할 수 없습니다. URL과 네트워크 또는 VPN 연결을 확인하고 다시 시도하세요."
+  },
+  "gitlabRequestTimedOut": {
+    "message": "GitLab 요청 시간이 초과되었습니다. 네트워크 또는 VPN 연결을 확인하고 다시 시도하세요."
+  },
+  "gitlabRequestConnectionFailed": {
+    "message": "GitLab에 연결할 수 없습니다. 네트워크 또는 VPN 연결을 확인하고 다시 시도하세요."
+  },
+  "gitlabRequestAccountChanged": {
+    "message": "GitLab 설정이 변경되었습니다. 현재 인스턴스와 토큰으로 다시 시도하세요."
+  },
+  "gitlabRequestOutsideBase": {
+    "message": "GitLab 요청이 설정된 API 기본 URL 범위를 벗어났습니다."
+  },
+  "gitlabGroupLookupFailed": {
+    "message": "GitLab 그룹을 조회할 수 없습니다(HTTP $1)."
+  },
   "gitlabTokenLabel": {
     "message": "GitLab 토큰"
   },

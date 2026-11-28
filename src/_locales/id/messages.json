@@ -83,6 +83,51 @@
     "githubTokenTooltip": {
         "message": "Mengapa disarankan untuk menambahkan token GitHub? Scrum Helper berfungsi tanpa token GitHub, tetapi menambahkan token akses pribadi disarankan untuk pengalaman yang lebih baik."
     },
+    "gitlabApiBaseLabel": {
+        "message": "URL dasar API GitLab"
+    },
+    "gitlabApiBaseApply": {
+        "message": "Terapkan"
+    },
+    "gitlabApiBaseHelp": {
+        "message": "Kosongkan kolom untuk menggunakan GitLab.com. Klik “Terapkan” sebelum memasukkan token untuk instans ini."
+    },
+    "gitlabApiBaseInvalid": {
+        "message": "Masukkan URL HTTPS GitLab yang berakhiran /api/v4. Gunakan nama host DNS."
+    },
+    "gitlabApiBasePermissionDenied": {
+        "message": "Untuk mengizinkan akses ke instans GitLab, klik “Terapkan” di pengaturan GitLab."
+    },
+    "gitlabApiBaseApplied": {
+        "message": "Instans GitLab telah diterapkan."
+    },
+    "gitlabApiBaseSaveFailed": {
+        "message": "Pengaturan GitLab tidak dapat disimpan. Coba lagi."
+    },
+    "gitlabApiBaseConfigure": {
+        "message": "Konfigurasi instans GitLab"
+    },
+    "gitlabApiBaseChecking": {
+        "message": "Memeriksa API GitLab…"
+    },
+    "gitlabApiBaseUnreachable": {
+        "message": "API GitLab tidak dapat dijangkau. Periksa URL dan koneksi jaringan atau VPN, lalu coba lagi."
+    },
+    "gitlabRequestTimedOut": {
+        "message": "Waktu tunggu permintaan GitLab habis. Periksa koneksi jaringan atau VPN Anda, lalu coba lagi."
+    },
+    "gitlabRequestConnectionFailed": {
+        "message": "Tidak dapat terhubung ke GitLab. Periksa koneksi jaringan atau VPN Anda, lalu coba lagi."
+    },
+    "gitlabRequestAccountChanged": {
+        "message": "Pengaturan GitLab telah berubah. Coba lagi dengan instans dan token saat ini."
+    },
+    "gitlabRequestOutsideBase": {
+        "message": "Permintaan GitLab berada di luar URL dasar API yang dikonfigurasi."
+    },
+    "gitlabGroupLookupFailed": {
+        "message": "Grup GitLab tidak dapat dicari (HTTP $1)."
+    },
     "gitlabTokenLabel": {
         "message": "Token GitLab Anda"
     },

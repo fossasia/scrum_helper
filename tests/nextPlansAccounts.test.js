@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import '../src/scripts/gitlabHelper.js';
 import '../src/scripts/nextPlansHelper.js';
 
 describe('Next Plans account changes', () => {
@@ -22,6 +23,7 @@ describe('Next Plans account changes', () => {
 		vi.spyOn(browser.storage.local, 'get').mockImplementation(async (keys) =>
 			Object.fromEntries(keys.filter((key) => key in settings).map((key) => [key, settings[key]])),
 		);
+		browser.permissions = { contains: vi.fn().mockResolvedValue(true) };
 		previousRegistry = window.PlatformRegistry;
 		fetchAssignedIssues = vi.fn(async (platform, scope) => {
 			expect(scope.accounts[platform]).toBeDefined();
@@ -35,6 +37,7 @@ describe('Next Plans account changes', () => {
 	});
 	afterEach(() => {
 		window.PlatformRegistry = previousRegistry;
+		delete browser.permissions;
 		vi.restoreAllMocks();
 		vi.unstubAllGlobals();
 		localStorage.clear();
@@ -116,11 +119,102 @@ describe('Next Plans account changes', () => {
 		expect(cache).not.toContain('replacement-token');
 	});
 
+	it('shows revoked GitLab host access and excludes previously cached private plans', async () => {
+		const apiBase = 'https://gitlab.example.net/api/v4';
+		Object.assign(settings, {
+			platform: 'gitlab', selectedPlatforms: ['gitlab'], gitlabBaseUrl: apiBase, gitlabTokenInstance: apiBase,
+		});
+		fetchAssignedIssues.mockResolvedValue([{ id: 1, number: 1, title: 'Private issue', platform: 'gitlab' }]);
+		vi.spyOn(console, 'error').mockImplementation(() => {});
+		await window.loadAssignedIssues();
+		const checkbox = document.querySelector('.issue-item-checkbox');
+		checkbox.checked = true;
+		checkbox.dispatchEvent(new Event('change'));
+		expect(await window.getNextPlansForReport()).toHaveLength(1);
+
+		browser.permissions.contains.mockResolvedValue(false);
+		await window.loadAssignedIssues();
+		expect(document.getElementById('assignedIssuesSelector').textContent).toContain('gitlabApiBasePermissionDenied');
+		expect(document.querySelector('.issue-item-checkbox')).toBeNull();
+		expect(await window.getNextPlansForReport()).toEqual([]);
+		expect(fetchAssignedIssues).toHaveBeenCalledTimes(1);
+	});
+
+	it('does not reinterpret an ambiguous legacy issue ID when GitLab access is revoked', async () => {
+		const apiBase = 'https://gitlab.example.net/api/v4';
+		Object.assign(settings, {
+			selectedPlatforms: ['github', 'gitlab'], gitlabBaseUrl: apiBase, gitlabTokenInstance: apiBase,
+		});
+		fetchAssignedIssues.mockImplementation(async (platform) => [
+			{ id: 1, number: 1, title: platform, platform },
+		]);
+		await window.loadAssignedIssues();
+		const [scopeKey] = Object.keys(JSON.parse(localStorage.getItem('nextPlansCache')));
+		localStorage.setItem('selectedIssues', JSON.stringify({ [scopeKey]: [1] }));
+		expect(await window.getNextPlansForReport()).toEqual([]);
+
+		browser.permissions.contains.mockResolvedValue(false);
+		expect(await window.getNextPlansForReport()).toEqual([]);
+		await window.loadAssignedIssues();
+		expect(await window.getNextPlansForReport()).toEqual([]);
+		expect(document.querySelectorAll('.issue-item-checkbox')).toHaveLength(1);
+		expect(document.querySelector('.issue-item-checkbox').checked).toBe(false);
+		localStorage.setItem('selectedIssues', JSON.stringify({ [scopeKey]: ['github:1', 'gitlab:1'] }));
+		expect(await window.getNextPlansForReport()).toEqual([
+			expect.objectContaining({ platform: 'github', id: 1 }),
+		]);
+	});
+
+	it.each([
+		['provider-scoped', 'gitlab:1', false],
+		['legacy numeric', 1, false],
+		['provider-scoped without cache', 'gitlab:1', true],
+	])('preserves a %s GitLab selection across revoke, edit, and restore', async (_kind, gitlabId, clearCache) => {
+		const apiBase = 'https://gitlab.example.net/api/v4';
+		Object.assign(settings, {
+			selectedPlatforms: ['github', 'gitlab'], gitlabBaseUrl: apiBase, gitlabTokenInstance: apiBase,
+		});
+		fetchAssignedIssues.mockImplementation(async (platform) =>
+			(platform === 'gitlab' ? [1] : [2, 3]).map((id) => ({ id, number: id, title: platform, platform })),
+		);
+		const checkbox = (id) => document.querySelector('[data-issue-id="' + id + '"]');
+		const change = (id, checked) => {
+			checkbox(id).checked = checked;
+			checkbox(id).dispatchEvent(new Event('change'));
+		};
+
+		await window.loadAssignedIssues();
+		const [scopeKey] = Object.keys(JSON.parse(localStorage.getItem('nextPlansCache')));
+		localStorage.setItem('selectedIssues', JSON.stringify({ [scopeKey]: ['github:2', gitlabId] }));
+		if (clearCache) localStorage.removeItem('nextPlansCache');
+
+		browser.permissions.contains.mockResolvedValue(false);
+		await window.loadAssignedIssues();
+		expect(checkbox('gitlab:1')).toBeNull();
+		expect(checkbox('github:2').checked).toBe(true);
+		change('github:2', false);
+		change('github:3', true);
+		expect(await window.getNextPlansForReport()).toEqual([
+			expect.objectContaining({ platform: 'github', id: 3 }),
+		]);
+
+		browser.permissions.contains.mockResolvedValue(true);
+		await window.loadAssignedIssues();
+		expect(checkbox('gitlab:1').checked).toBe(true);
+		expect(checkbox('github:2').checked).toBe(false);
+		expect(checkbox('github:3').checked).toBe(true);
+		expect(await window.getNextPlansForReport()).toEqual([
+			expect.objectContaining({ platform: 'github', id: 3 }),
+			expect.objectContaining({ platform: 'gitlab', id: 1 }),
+		]);
+	});
+
 	it('separates equal GitLab usernames on different API servers', async () => {
 		settings.platform = 'gitlab';
 		settings.selectedPlatforms = ['gitlab'];
 		await window.loadAssignedIssues();
 		settings.gitlabBaseUrl = 'https://gitlab.example.net/api/v4/';
+		settings.gitlabTokenInstance = 'https://gitlab.example.net/api/v4';
 		await window.loadAssignedIssues();
 		expect(fetchAssignedIssues).toHaveBeenCalledTimes(2);
 	});
@@ -309,6 +403,7 @@ describe('Next Plans account changes', () => {
 		};
 		await import(`../src/scripts/${platform}Helper.js`);
 		settings.gitlabBaseUrl = 'https://gitlab.example.net/api/v4';
+		settings.gitlabTokenInstance = settings.gitlabBaseUrl;
 		vi.stubGlobal(
 			'fetch',
 			vi.fn(async () => ({ ok: true, json: async () => (platform === 'github' ? { items: [] } : []) })),

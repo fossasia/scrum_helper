@@ -83,6 +83,51 @@
     "githubTokenTooltip": {
         "message": "למה מומלץ להוסיף אסימון GitHub? Scrum Helper עובד ללא אסימון GitHub, אך הוספת אסימון גישה אישי מומלצת לחוויה טובה יותר."
     },
+    "gitlabApiBaseLabel": {
+        "message": "כתובת ה-URL הבסיסית של ה-API של GitLab"
+    },
+    "gitlabApiBaseApply": {
+        "message": "החלה"
+    },
+    "gitlabApiBaseHelp": {
+        "message": "יש להשאיר את השדה ריק כדי להשתמש ב-GitLab.com. יש ללחוץ על ״החלה״ לפני הזנת אסימון עבור מופע זה."
+    },
+    "gitlabApiBaseInvalid": {
+        "message": "יש להזין כתובת HTTPS של GitLab שמסתיימת ב-/api/v4. יש להשתמש בשם מארח של DNS."
+    },
+    "gitlabApiBasePermissionDenied": {
+        "message": "כדי לאפשר גישה למופע של GitLab, יש ללחוץ על ״החלה״ בהגדרות GitLab."
+    },
+    "gitlabApiBaseApplied": {
+        "message": "מופע GitLab הוגדר."
+    },
+    "gitlabApiBaseSaveFailed": {
+        "message": "לא ניתן לשמור את הגדרות GitLab. יש לנסות שוב."
+    },
+    "gitlabApiBaseConfigure": {
+        "message": "הגדרת מופע GitLab"
+    },
+    "gitlabApiBaseChecking": {
+        "message": "מתבצעת בדיקה של ה-API של GitLab…"
+    },
+    "gitlabApiBaseUnreachable": {
+        "message": "לא ניתן להגיע ל-API של GitLab. יש לבדוק את הכתובת ואת החיבור לרשת או ל-VPN ולנסות שוב."
+    },
+    "gitlabRequestTimedOut": {
+        "message": "תם הזמן הקצוב לבקשה ל-GitLab. יש לבדוק את החיבור לרשת או ל-VPN ולנסות שוב."
+    },
+    "gitlabRequestConnectionFailed": {
+        "message": "לא ניתן להתחבר ל-GitLab. יש לבדוק את החיבור לרשת או ל-VPN ולנסות שוב."
+    },
+    "gitlabRequestAccountChanged": {
+        "message": "הגדרות GitLab השתנו. יש לנסות שוב עם המופע והאסימון הנוכחיים."
+    },
+    "gitlabRequestOutsideBase": {
+        "message": "הבקשה ל-GitLab חורגת מכתובת הבסיס שהוגדרה ל-API."
+    },
+    "gitlabGroupLookupFailed": {
+        "message": "לא ניתן לאחזר את קבוצת GitLab (HTTP $1)."
+    },
     "gitlabTokenLabel": {
         "message": "אסימון ה-GitLab שלך"
     },

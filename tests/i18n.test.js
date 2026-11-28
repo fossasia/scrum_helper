@@ -21,6 +21,20 @@ describe('i18n Localization Integrity', () => {
 		}
 	});
 
+	it('localizes the self-managed GitLab messages in every supported language', () => {
+		const keys = enKeys.filter((key) => key.startsWith('gitlabApiBase') ||
+			key.startsWith('gitlabRequest') || key === 'gitlabGroupLookupFailed');
+		for (const locale of availableLocales) {
+			const messages = JSON.parse(fs.readFileSync(path.join(localesDir, locale, 'messages.json'), 'utf8'));
+			for (const key of keys) {
+				expect(messages[key].message, locale + ': ' + key).not.toBe(enMessages[key].message);
+			}
+			const applyLabel = messages.gitlabApiBaseApply.message;
+			expect(messages.gitlabApiBaseHelp.message).toContain(applyLabel);
+			expect(messages.gitlabApiBasePermissionDenied.message).toContain(applyLabel);
+		}
+	});
+
 	for (const locale of availableLocales) {
 		describe(`Locale [${locale}]`, () => {
 			const localePath = path.join(localesDir, locale, 'messages.json');

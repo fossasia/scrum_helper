@@ -83,6 +83,51 @@
     "githubTokenTooltip": {
         "message": "Tại sao nên thêm mã token GitHub? Scrum Helper hoạt động mà không cần mã token GitHub, nhưng việc thêm mã thông báo truy cập cá nhân được khuyến nghị để có trải nghiệm tốt hơn."
     },
+    "gitlabApiBaseLabel": {
+        "message": "URL cơ sở của API GitLab"
+    },
+    "gitlabApiBaseApply": {
+        "message": "Áp dụng"
+    },
+    "gitlabApiBaseHelp": {
+        "message": "Để trống trường này nếu dùng GitLab.com. Chọn “Áp dụng” trước khi nhập token cho máy chủ này."
+    },
+    "gitlabApiBaseInvalid": {
+        "message": "Nhập URL HTTPS của GitLab kết thúc bằng /api/v4. Sử dụng tên máy chủ DNS."
+    },
+    "gitlabApiBasePermissionDenied": {
+        "message": "Chọn “Áp dụng” trong phần cài đặt GitLab để cho phép truy cập máy chủ GitLab."
+    },
+    "gitlabApiBaseApplied": {
+        "message": "Đã áp dụng cấu hình máy chủ GitLab."
+    },
+    "gitlabApiBaseSaveFailed": {
+        "message": "Không thể lưu cài đặt GitLab. Hãy thử lại."
+    },
+    "gitlabApiBaseConfigure": {
+        "message": "Cấu hình máy chủ GitLab"
+    },
+    "gitlabApiBaseChecking": {
+        "message": "Đang kiểm tra API GitLab…"
+    },
+    "gitlabApiBaseUnreachable": {
+        "message": "Không thể truy cập API GitLab. Kiểm tra URL và kết nối mạng hoặc VPN rồi thử lại."
+    },
+    "gitlabRequestTimedOut": {
+        "message": "Yêu cầu tới GitLab đã hết thời gian chờ. Kiểm tra kết nối mạng hoặc VPN rồi thử lại."
+    },
+    "gitlabRequestConnectionFailed": {
+        "message": "Không thể kết nối với GitLab. Kiểm tra kết nối mạng hoặc VPN rồi thử lại."
+    },
+    "gitlabRequestAccountChanged": {
+        "message": "Cài đặt GitLab đã thay đổi. Hãy thử lại với máy chủ và token hiện tại."
+    },
+    "gitlabRequestOutsideBase": {
+        "message": "Yêu cầu tới GitLab nằm ngoài URL cơ sở của API đã cấu hình."
+    },
+    "gitlabGroupLookupFailed": {
+        "message": "Không thể tra cứu nhóm GitLab (HTTP $1)."
+    },
     "gitlabTokenLabel": {
         "message": "Mã token GitLab"
     },

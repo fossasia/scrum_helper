@@ -83,6 +83,51 @@
     "githubTokenTooltip": {
         "message": "GitHub டோக்கன் சேர்க்க ஏன் பரிந்துரைக்கப்படுகிறது? Scrum Helper GitHub டோக்கன் இல்லாமலும் செயல்படும், ஆனால் சிறந்த அனுபவத்திற்காக தனிப்பட்ட அணுகல் டோக்கன் சேர்க்க பரிந்துரைக்கப்படுகிறது."
     },
+    "gitlabApiBaseLabel": {
+        "message": "GitLab API அடிப்படை URL"
+    },
+    "gitlabApiBaseApply": {
+        "message": "பயன்படுத்து"
+    },
+    "gitlabApiBaseHelp": {
+        "message": "GitLab.com ஐப் பயன்படுத்த இந்தப் புலத்தைக் காலியாக விடுங்கள். இந்த GitLab சேவையகத்தின் டோக்கனை உள்ளிடும் முன் «பயன்படுத்து» என்பதைத் தேர்ந்தெடுக்கவும்."
+    },
+    "gitlabApiBaseInvalid": {
+        "message": "/api/v4 என்று முடியும் GitLab HTTPS URL ஐ உள்ளிடுங்கள். DNS ஹோஸ்ட் பெயரைப் பயன்படுத்துங்கள்."
+    },
+    "gitlabApiBasePermissionDenied": {
+        "message": "GitLab சேவையகத்திற்கான அணுகலை அனுமதிக்க, GitLab அமைப்புகளில் «பயன்படுத்து» என்பதைத் தேர்ந்தெடுக்கவும்."
+    },
+    "gitlabApiBaseApplied": {
+        "message": "GitLab சேவையகம் அமைக்கப்பட்டது."
+    },
+    "gitlabApiBaseSaveFailed": {
+        "message": "GitLab அமைப்புகளைச் சேமிக்க முடியவில்லை. மீண்டும் முயற்சிக்கவும்."
+    },
+    "gitlabApiBaseConfigure": {
+        "message": "GitLab சேவையகத்தை அமைக்கவும்"
+    },
+    "gitlabApiBaseChecking": {
+        "message": "GitLab API சரிபார்க்கப்படுகிறது…"
+    },
+    "gitlabApiBaseUnreachable": {
+        "message": "GitLab API உடன் இணைக்க முடியவில்லை. URL மற்றும் பிணையம் அல்லது VPN இணைப்பைச் சரிபார்த்து மீண்டும் முயற்சிக்கவும்."
+    },
+    "gitlabRequestTimedOut": {
+        "message": "GitLab கோரிக்கைக்கான நேரம் முடிந்தது. பிணையம் அல்லது VPN இணைப்பைச் சரிபார்த்து மீண்டும் முயற்சிக்கவும்."
+    },
+    "gitlabRequestConnectionFailed": {
+        "message": "GitLab உடன் இணைக்க முடியவில்லை. பிணையம் அல்லது VPN இணைப்பைச் சரிபார்த்து மீண்டும் முயற்சிக்கவும்."
+    },
+    "gitlabRequestAccountChanged": {
+        "message": "GitLab அமைப்புகள் மாறிவிட்டன. தற்போதைய சேவையகத்தையும் டோக்கனையும் பயன்படுத்தி மீண்டும் முயற்சிக்கவும்."
+    },
+    "gitlabRequestOutsideBase": {
+        "message": "GitLab கோரிக்கை அமைக்கப்பட்ட API அடிப்படை URL இன் வரம்பிற்கு வெளியே உள்ளது."
+    },
+    "gitlabGroupLookupFailed": {
+        "message": "GitLab குழுவைப் பெற முடியவில்லை (HTTP $1)."
+    },
     "gitlabTokenLabel": {
         "message": "உங்கள் GitLab டோக்கன்"
     },

@@ -79,6 +79,254 @@ describe('GitLabHelper', () => {
 		});
 	});
 
+	describe('instance configuration', () => {
+		const customBase = 'https://gitlab.example.net:8443/team/api/v4';
+
+		it.each([
+			[200, { username: 'alice' }, true],
+			[401, { message: '401 Unauthorized' }, true],
+			[403, { message: '403 Forbidden' }, true],
+			[404, { message: '404 Not Found' }, false],
+			[503, { message: 'Service unavailable' }, false],
+			[200, '<html>Sign in</html>', false],
+		])('checks a custom API without credentials (HTTP %s)', async (status, body, reachable) => {
+			browser.permissions = { contains: vi.fn().mockResolvedValue(true) };
+			const fetch = vi.fn().mockResolvedValue(new Response(
+				typeof body === 'string' ? body : JSON.stringify(body), { status },
+			));
+			vi.stubGlobal('fetch', fetch);
+			try {
+				await expect(window.isGitLabInstanceReachable(customBase)).resolves.toBe(reachable);
+				expect(fetch).toHaveBeenCalledWith(customBase + '/user', {
+					headers: {}, redirect: 'error', credentials: 'omit', signal: expect.any(AbortSignal),
+				});
+			} finally {
+				delete browser.permissions;
+				vi.unstubAllGlobals();
+			}
+		});
+
+		it('rejects an unreachable API without changing the saved GitLab account', async () => {
+			browser.permissions = { contains: vi.fn().mockResolvedValue(true) };
+			vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('Network error')));
+			try {
+				await expect(window.isGitLabInstanceReachable(customBase)).resolves.toBe(false);
+				expect(browser.storage.local.set).not.toHaveBeenCalled();
+			} finally {
+				delete browser.permissions;
+				vi.unstubAllGlobals();
+			}
+		});
+
+		it('keeps repo and report cache identities separate for different hosts and formerly colliding tokens', async () => {
+			const first = { apiBaseUrl: customBase, token: 'fixture-Aa' };
+			const second = { ...first, token: 'fixture-BB' };
+			const otherHost = { ...first, apiBaseUrl: 'https://gitlab.com/api/v4' };
+			const accountKey = await window.getGitLabAccountKey(first);
+			const repoKey = await window.getGitLabRepoCacheKey('alice', 'group', first);
+			expect(accountKey).not.toContain(first.token);
+			expect(repoKey).toContain(customBase);
+			for (const account of [second, otherHost]) {
+				expect(await window.getGitLabAccountKey(account)).not.toBe(accountKey);
+				expect(await window.getGitLabRepoCacheKey('alice', 'group', account)).not.toBe(repoKey);
+			}
+		});
+
+		it('waits for token edits in order before validating the saved account', async () => {
+			let settings = { gitlabBaseUrl: customBase, gitlabTokenInstance: customBase, gitlabToken: 'original' };
+			let finishFirstWrite;
+			const firstWrite = new Promise((resolve) => {
+				finishFirstWrite = resolve;
+			});
+			let markStarted;
+			const started = new Promise((resolve) => {
+				markStarted = resolve;
+			});
+			const storage = browser.storage.local;
+			vi.spyOn(storage, 'get').mockImplementation(async () => settings);
+			vi.spyOn(storage, 'set').mockImplementation(async (values) => {
+				if (values.gitlabToken === 'first-edit') {
+					markStarted();
+					await firstWrite;
+				}
+				settings = { ...settings, ...values };
+			});
+			browser.permissions = { contains: vi.fn().mockResolvedValue(true) };
+			const fetch = vi.fn().mockResolvedValue({ ok: true, status: 200 });
+			vi.stubGlobal('fetch', fetch);
+			try {
+				const first = window.saveGitLabToken(customBase, 'first-edit');
+				await started;
+				const second = window.saveGitLabToken(customBase, 'latest-edit');
+				const validation = window.PlatformRegistry.get('gitlab').validateToken();
+				expect(fetch).not.toHaveBeenCalled();
+				expect(storage.set).toHaveBeenCalledTimes(1);
+				finishFirstWrite();
+				await Promise.all([first, second]);
+				await expect(validation).resolves.toEqual({ valid: true, status: 200 });
+				expect(fetch).toHaveBeenCalledExactlyOnceWith(
+					customBase + '/user',
+					expect.objectContaining({ headers: { 'PRIVATE-TOKEN': 'latest-edit' } }),
+				);
+			} finally {
+				finishFirstWrite();
+				delete browser.permissions;
+				vi.unstubAllGlobals();
+			}
+		});
+
+		it('keeps default tokens and requires a matching instance binding for custom hosts', () => {
+			const token = 'fake-pat';
+			const settings = { gitlabToken: token, gitlabBaseUrl: customBase };
+			expect(window.resolveGitLabAccount({ gitlabToken: token }).token).toBe(token);
+			expect(window.resolveGitLabAccount(settings).token).toBe('');
+			expect(window.resolveGitLabAccount({ ...settings, gitlabTokenInstance: customBase }).token).toBe(token);
+			expect(window.resolveGitLabAccount({ ...settings, gitlabTokenInstance: 'https://gitlab.com/api/v4' }).token).toBe('');
+		});
+
+		it.each([
+			'http://gitlab.example.net/api/v4',
+			'https://gitlab.example.net/api/v4?query=1',
+			'https://gitlab.example.net/api/v4#hash',
+			'https://name:pass@gitlab.example.net/api/v4',
+			'https://gitlab.example.net',
+			'https://localhost/api/v4',
+			'https://192.168.1.5/api/v4',
+			'https://[::1]/api/v4',
+		])('rejects unsupported API URL %s without falling back', (url) => {
+			expect(new GitLabHelper(url).baseUrl).toBeNull();
+		});
+
+		it('discards a cached repository list if the account switches during the permission check', async () => {
+			const account = { apiBaseUrl: customBase, token: 'old-token' };
+			let settings = {
+				gitlabUsername: 'alice', gitlabGroupName: 'group', gitlabBaseUrl: customBase,
+				gitlabTokenInstance: customBase, gitlabToken: account.token,
+				gitlabRepoCache: {
+					cacheKey: await window.getGitLabRepoCacheKey('alice', 'group', account),
+					data: [{ fullName: 'group/private' }],
+					timestamp: Date.now(),
+				},
+			};
+			const setAvailableRepos = vi.fn();
+			window.gitlabRepoFilterContext = {
+				repoStatus: document.createElement('div'),
+				repoSearch: document.createElement('input'),
+				setAvailableRepos,
+				getAvailableRepos: () => [],
+			};
+			vi.spyOn(browser.storage.local, 'get').mockImplementation(async () => settings);
+			browser.permissions = {
+				contains: vi.fn(async () => {
+					settings = { gitlabBaseUrl: 'https://other.example.net/api/v4' };
+					return true;
+				}),
+			};
+			try {
+				await window.PlatformRegistry.get('gitlab').performRepoFetch();
+				expect(setAvailableRepos).not.toHaveBeenCalled();
+			} finally {
+				delete browser.permissions;
+				delete window.gitlabRepoFilterContext;
+			}
+		});
+
+		it('blocks ungranted custom access and requests the exact approved API origin and path without redirects', async () => {
+			const permissions = { contains: vi.fn().mockResolvedValue(false) };
+			browser.permissions = permissions;
+			const fakeFetch = vi.fn().mockResolvedValue({ ok: true, status: 200 });
+			vi.stubGlobal('fetch', fakeFetch);
+			browser.storage.local.get.mockResolvedValue({
+				gitlabBaseUrl: customBase, gitlabTokenInstance: customBase, gitlabToken: 'fake-pat',
+			});
+			const registry = window.PlatformRegistry.get('gitlab');
+			try {
+				await expect(registry.validateToken()).resolves.toEqual({ valid: false, networkError: true });
+				expect(fakeFetch).not.toHaveBeenCalled();
+				permissions.contains.mockResolvedValue(true);
+				await expect(registry.validateToken()).resolves.toEqual({ valid: true, status: 200 });
+				expect(permissions.contains).toHaveBeenCalledWith({ origins: ['https://gitlab.example.net/*'] });
+				expect(fakeFetch).toHaveBeenCalledWith(customBase + '/user', {
+					headers: { 'PRIVATE-TOKEN': 'fake-pat' }, redirect: 'error', credentials: 'omit', signal: expect.any(AbortSignal),
+				});
+			} finally {
+				delete browser.permissions;
+				vi.unstubAllGlobals();
+			}
+		});
+	});
+
+
+	it('reports a GitLab connection timeout and lets the generation settle', async () => {
+		const signal = AbortSignal.abort(new DOMException('Timed out', 'TimeoutError'));
+		const timeout = vi.spyOn(AbortSignal, 'timeout').mockReturnValue(signal);
+		vi.stubGlobal('fetch', vi.fn(async (_url, options) => options.signal.throwIfAborted()));
+		browser.storage.local.get.mockResolvedValue({});
+		const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+		try {
+			await expect(helper.fetchGitLabData('testuser', '2026-10-01', '2026-10-05')).rejects.toThrow(
+				'gitlabRequestTimedOut',
+			);
+			expect(timeout).toHaveBeenCalledWith(15_000);
+			expect(helper.cache.fetching).toBe(false);
+		} finally {
+			consoleSpy.mockRestore();
+			vi.unstubAllGlobals();
+		}
+	});
+
+	it.each(['issues', 'merge_requests', 'commits'])('rejects and leaves no report cache when project %s time out', async (route) => {
+		vi.spyOn(console, 'error').mockImplementation(() => {});
+		browser.storage.local.get.mockResolvedValue({ showCommits: true });
+		let controller;
+		vi.spyOn(AbortSignal, 'timeout').mockImplementation(() => {
+			controller = new AbortController();
+			return controller.signal;
+		});
+		const responses = {
+			'/api/v4/users': [{ id: 1, username: 'alice' }],
+			'/api/v4/users/1/projects': [{ id: 3, path_with_namespace: 'group/repo' }],
+			'/api/v4/users/1/contributed_projects': [],
+			'/api/v4/projects/3/merge_requests': [{ iid: 5, project_id: 3, state: 'opened' }],
+			'/api/v4/projects/3/issues': [],
+		};
+		vi.stubGlobal('fetch', vi.fn(async (url, { signal }) => {
+			const pathname = new URL(url).pathname;
+			if (pathname.startsWith('/api/v4/projects/') && pathname.endsWith('/' + route)) {
+				controller.abort();
+				signal.throwIfAborted();
+			}
+			return { ok: true, json: async () => responses[pathname] };
+		}));
+		try {
+			await expect(helper.fetchGitLabData('alice', '2026-10-01', '2026-10-05')).rejects.toThrow('gitlabRequestTimedOut');
+			expect(browser.storage.local.set).not.toHaveBeenCalled();
+			expect(helper.cache.fetching).toBe(false);
+		} finally {
+			vi.unstubAllGlobals();
+		}
+	});
+
+	it('rejects repository discovery when a project detail request loses its connection', async () => {
+		vi.spyOn(browser.storage.local, 'get').mockImplementation(async (_keys, callback) => {
+			if (callback) callback({});
+			return {};
+		});
+		vi.stubGlobal('fetch', vi.fn(async (url) => {
+			const pathname = new URL(url).pathname;
+			if (pathname === '/api/v4/projects/3') throw new TypeError('Connection lost');
+			return {
+				ok: true,
+				json: async () => pathname.endsWith('/events') ? [{ project_id: 3 }] : [{ id: 1, username: 'alice' }],
+			};
+		}));
+		try {
+			await expect(window.PlatformRegistry.get('gitlab').fetchUserRepositories('alice')).rejects.toThrow('gitlabRequestConnectionFailed');
+		} finally {
+			vi.unstubAllGlobals();
+		}
+	});
+
 	describe('getCacheTTL', () => {
 		it('should return configured minutes in milliseconds when valid', async () => {
 			browser.storage.local.get.mockResolvedValueOnce({ cacheInput: '15' });
@@ -536,23 +784,21 @@ describe('GitLabHelper', () => {
 			helper.cache.fetching = true;
 			helper.cache.queue = [{ resolve: () => {} }];
 
-			browser.storage.local.remove.mockImplementationOnce((key, cb) => {
-				if (typeof cb === 'function') cb();
-				return Promise.resolve();
-			});
+			browser.storage.local.get.mockResolvedValueOnce({ gitlabBaseUrl: 'https://gitlab.example.net/api/v4' });
 
 			const result = await window.forceGitlabDataRefresh();
 
 			expect(result).toEqual({ success: true });
-			expect(browser.storage.local.remove).toHaveBeenCalledWith('gitlabCache', expect.any(Function));
+			expect(browser.storage.local.remove).toHaveBeenCalledWith('gitlabCache');
 			expect(window.hasInjectedContent).toBe(false);
 			expect(helper.cache.data).toBeNull();
 			expect(helper.cache.cacheKey).toBeNull();
 			expect(helper.cache.timestamp).toBe(0);
-			expect(helper.cache.fetching).toBe(false);
-			expect(helper.cache.queue).toEqual([]);
+			expect(helper.invalidated).toBe(true);
+			expect(helper.cache.queue).toHaveLength(1);
 			expect(window.gitlabHelper).toBeInstanceOf(GitLabHelper);
 			expect(window.gitlabHelper).not.toBe(helper);
+			expect(window.gitlabHelper.baseUrl).toBe('https://gitlab.example.net/api/v4');
 		});
 	});
 });

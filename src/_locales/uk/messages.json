@@ -83,6 +83,51 @@
     "githubTokenTooltip": {
         "message": "Чому рекомендується додати токен GitHub? Scrum Helper працює без токена GitHub, але додавання особистого токена доступу рекомендується для кращого досвіду."
     },
+    "gitlabApiBaseLabel": {
+        "message": "Базова URL-адреса API GitLab"
+    },
+    "gitlabApiBaseApply": {
+        "message": "Застосувати"
+    },
+    "gitlabApiBaseHelp": {
+        "message": "Залиште поле порожнім, щоб використовувати GitLab.com. Натисніть «Застосувати», перш ніж вводити токен для цього екземпляра."
+    },
+    "gitlabApiBaseInvalid": {
+        "message": "Введіть HTTPS-адресу GitLab, що закінчується на /api/v4. Використовуйте ім’я хоста DNS."
+    },
+    "gitlabApiBasePermissionDenied": {
+        "message": "Щоб дозволити доступ до екземпляра GitLab, натисніть «Застосувати» в налаштуваннях GitLab."
+    },
+    "gitlabApiBaseApplied": {
+        "message": "Екземпляр GitLab налаштовано."
+    },
+    "gitlabApiBaseSaveFailed": {
+        "message": "Не вдалося зберегти налаштування GitLab. Спробуйте ще раз."
+    },
+    "gitlabApiBaseConfigure": {
+        "message": "Налаштувати екземпляр GitLab"
+    },
+    "gitlabApiBaseChecking": {
+        "message": "Перевірка API GitLab…"
+    },
+    "gitlabApiBaseUnreachable": {
+        "message": "Не вдалося підключитися до API GitLab. Перевірте URL-адресу та з’єднання з мережею або VPN і спробуйте ще раз."
+    },
+    "gitlabRequestTimedOut": {
+        "message": "Час очікування відповіді від GitLab вичерпано. Перевірте з’єднання з мережею або VPN і спробуйте ще раз."
+    },
+    "gitlabRequestConnectionFailed": {
+        "message": "Не вдалося підключитися до GitLab. Перевірте з’єднання з мережею або VPN і спробуйте ще раз."
+    },
+    "gitlabRequestAccountChanged": {
+        "message": "Налаштування GitLab змінилися. Спробуйте ще раз із поточним екземпляром і токеном."
+    },
+    "gitlabRequestOutsideBase": {
+        "message": "Запит до GitLab виходить за межі налаштованої базової URL-адреси API."
+    },
+    "gitlabGroupLookupFailed": {
+        "message": "Не вдалося отримати дані групи GitLab (HTTP $1)."
+    },
     "gitlabTokenLabel": {
         "message": "Ваш токен GitLab"
     },

@@ -77,11 +77,6 @@ describe('GitHubHelper', () => {
 			expect(key).toBe('repos-github-testuser-fossasia-notoken');
 		});
 
-		it('should generate unauthenticated cache key for gitlab when token is absent', () => {
-			const key = window.makeRepoCacheKey('testuser', 'fossasia', 'gitlab', {});
-			expect(key).toBe('repos-gitlab-testuser-fossasia-notoken');
-		});
-
 		it('should generate deterministic token-hashed cache key for github', () => {
 			const key1 = window.makeRepoCacheKey('testuser', 'fossasia', 'github', {
 				githubToken: 'ghp_secretToken123',
