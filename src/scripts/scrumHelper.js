@@ -105,6 +105,14 @@ function formatLocalDate(date) {
 	return `${year}-${month}-${day}`;
 }
 
+function formatDate(dateString) {
+	const date = new Date(dateString);
+	const options = { day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' };
+	return date.toLocaleDateString('en-US', options);
+}
+
+window.formatDate = formatDate;
+
 // Converts cacheInput (minutes) to a TTL in ms, falling back to 10 minutes for invalid values.
 function resolveCacheTtlMs(cacheInput) {
 	const minutes = Number.parseInt(cacheInput, 10);
@@ -371,6 +379,10 @@ function handleReportFetchFailures(failures, allFailed = false) {
 	}
 }
 
+/**
+ * Generates a scrum report by fetching data from the configured platform.
+ * @param {string} outputTarget - Output format: 'email', 'popup', or 'download'.
+ */
 function allIncluded(outputTarget = 'email') {
 	// Always re-instantiate gitlabHelper for gitlab platform to ensure fresh cache after refresh
 	if (platform === 'gitlab' || (typeof platform === 'undefined' && window.GitLabHelper)) {
@@ -986,6 +998,10 @@ function allIncluded(outputTarget = 'email') {
 		return false;
 	}
 
+	/**
+	 * Fetches issues and pull-request reviews from the GitHub search API.
+	 * @param {boolean} shouldProcess - Whether to update the UI with progress/errors.
+	 */
 	async function fetchGithubData(shouldProcess = true) {
 		// Always load latest settings from storage
 		const settings = await new Promise((resolve) => {
@@ -1240,10 +1256,22 @@ function allIncluded(outputTarget = 'email') {
 			}
 
 			if (issuesRes.status === 422 || prRes.status === 422) {
+				let isScopeNotSearchable = false;
 				try {
-					const clone = (issuesRes.status === 422 ? issuesRes : prRes).clone();
-					const data = await clone.json();
-					const isUserNotExist = data?.errors?.some?.((e) => e?.message?.toLowerCase().includes('users do not exist'));
+					const bodies = await Promise.all(
+						[issuesRes, prRes]
+							.filter((r) => r.status === 422)
+							.map((r) =>
+								r
+									.clone()
+									.json()
+									.catch(() => null),
+							),
+					);
+					const messages = bodies.flatMap((d) => d?.errors || []).map((e) => e?.message?.toLowerCase() || '');
+					const isUserNotExist = messages.some((m) => m.includes('users do not exist'));
+					// GitHub returns this when no org/repo in the query exists or is visible with the current token
+					isScopeNotSearchable = messages.some((m) => m.includes('resources do not exist'));
 					if (isUserNotExist) {
 						const errorMsg =
 							chrome?.i18n.getMessage('githubUserNotFoundError', [platformUsernameLocal]) ||
@@ -1257,9 +1285,11 @@ function allIncluded(outputTarget = 'email') {
 				} catch (e) {
 					if (e.platform === 'github') throw e;
 				}
-				const errorMsg =
-					chrome?.i18n.getMessage('invalidSearchQueryError') ||
-					`Invalid search query or date range. Please verify your date range format and try again.`;
+				const errorMsg = isScopeNotSearchable
+					? chrome?.i18n.getMessage('invalidOrgOrRepoFilterError') ||
+						'Organization or repositories inaccessible - verify the Org name, Repo filter, and token permissions.'
+					: chrome?.i18n.getMessage('invalidSearchQueryError') ||
+						`Invalid search query or date range. Please verify your date range format and try again.`;
 				logError(errorMsg);
 				if (outputTarget === 'popup' && shouldProcess) {
 					showReportMessage(errorMsg);
@@ -1777,12 +1807,6 @@ function allIncluded(outputTarget = 'email') {
 		} else {
 			writeScrumBody();
 		}
-	}
-
-	function formatDate(dateString) {
-		const date = new Date(dateString);
-		const options = { day: '2-digit', month: 'short', year: 'numeric' };
-		return date.toLocaleDateString('en-US', options);
 	}
 
 	const compactTextStyle = 'display: inline-block; padding: 0 8px; margin: 0; line-height: 1.2;';
